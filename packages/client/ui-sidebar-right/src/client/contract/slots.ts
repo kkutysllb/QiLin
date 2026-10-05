@@ -141,6 +141,14 @@ export interface SidebarRightTabPlacement {
   readonly replaceTab?: boolean
 }
 
+/** How a tab's body wants a resource opened: placement, the opening type, and navigation parameters. */
+export type SidebarRightTabOpenResourceOptions = SidebarRightTabPlacement & {
+  /** Name the opening type instead of letting the registry rank claims; its `canOpen` still applies. */
+  readonly kind?: string
+  /** The resource's navigation parameters, typed by resource type; delivered as `navigation.params`. */
+  readonly params?: SidebarRightResourceParams
+}
+
 /** Page-owned operations registered for a mounted tab body. */
 export interface SidebarRightTabCommands {
   /** Refresh this page through its existing resource owner. */
@@ -158,9 +166,9 @@ export interface SidebarRightTabActions {
   /**
    * Open a resource from this tab; see `ISidebarRight.openResource`.
    * @param address - a `qilin-resource://` address.
-   * @param options - placement and the resource's navigation parameters.
+   * @param options - placement, the opening type, and the resource's navigation parameters.
    */
-  openResource(address: string, options?: SidebarRightTabPlacement & { readonly params?: SidebarRightResourceParams }): void
+  openResource(address: string, options?: SidebarRightTabOpenResourceOptions): void
   /**
    * Open a page type from this tab; see `ISidebarRight.openTab`.
    * @param kind - the page type's kind.

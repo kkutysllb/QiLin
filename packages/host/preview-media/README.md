@@ -52,5 +52,3 @@ None; this package neither assembles nor sends a provider request.
 None.
 
 </details>
-
-**Runtime invariant:** No companion is published. The route holds no state across requests: each call reads its file window through the filesystem's `writeBytes`/read face and answers, so request/response symmetry and the byte cap are asserted directly by the route behavior specs.

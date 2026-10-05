@@ -21,10 +21,6 @@
       "types": "./lib/types/index.d.ts",
       "default": "./lib/index.js"
     },
-    "./invariant": {
-      "types": "./lib/types/invariant.d.ts",
-      "default": "./lib/invariant.js"
-    },
     "./client": {
       "types": "./lib/types/client.d.ts",
       "default": "./lib/types/client.js"
@@ -42,7 +38,6 @@
   },
   "files": [
     "lib/index.js",
-    "lib/invariant.js",
     "lib/types/**/*.js",
     "lib/types/**/*.d.ts",
     "lib/typert.host.js",
@@ -55,7 +50,6 @@
     "@qilin/agent": "workspace:*",
     "@qilin/api-session-controller": "workspace:*",
     "@qilin/brand": "workspace:*",
-    "@qilin/invariants": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/session": "workspace:*",
     "@qilin/session-persistence": "workspace:*",
@@ -77,7 +71,6 @@
     "@qilin/agent-loop-testkit": "workspace:*",
     "@qilin/api-session-controller": "workspace:*",
     "@qilin/brand": "workspace:*",
-    "@qilin/invariants": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/session": "workspace:*",
     "@qilin/session-persistence": "workspace:*",

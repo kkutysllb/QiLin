@@ -6,6 +6,7 @@ import type { StartedToolCall, ToolResultNode } from '@qilin/client-ui-chat/clie
 import { makeTranslate } from '@qilin/client-test-runtime'
 import { en } from '@qilin/client-ui-conversation/src/client/locales.ts'
 import { en as common } from '@qilin/client-locale/src/locales/en.ts'
+import { PartialArguments } from '@qilin/util-values'
 import { GenericToolCard } from '../src/client/tool/toolviews/GenericToolCard.tsx'
 import { FileMutationRow } from '../src/client/tool/toolviews/file-mutation-row.tsx'
 import { ReadRow } from '../src/client/tool/toolviews/read-row.tsx'
@@ -22,14 +23,14 @@ afterEach(cleanup)
 
 type Props = Parameters<typeof TodoRow>[0] & Parameters<typeof ReadImageRow>[0] & Parameters<typeof AskQuestionRow>[0]
 
-function preparation(name: string): Props {
+function preparation(name: string, args = new PartialArguments()): Extract<Props, { phase: 'preparing' }> {
   return {
     phase: 'preparing', callId: 'call', toolName: name,
-    block: { phase: 'preparing', callId: 'call', name, turn: 1, step: 1, time: 1, subCalls: [] },
-    t: makeTranslate(en, common), useDisclosure, useToolCallArgumentsPartial: vi.fn(() => ''), openFile: vi.fn(), loadImage: vi.fn(),
+    block: { phase: 'preparing', args, callId: 'call', name, turn: 1, step: 1, time: 1, subCalls: [] },
+    t: makeTranslate(en, common), useDisclosure, openFile: vi.fn(), loadImage: vi.fn(),
     useTodoHistory: vi.fn(), useSession: vi.fn(() => false), renderSlot: vi.fn(() => null),
     useProjection: vi.fn(() => undefined), revealPanel: vi.fn(() => false), reviewPanel: vi.fn(() => false),
-  } as Props
+  } as Extract<Props, { phase: 'preparing' }>
 }
 
 describe('argument-free tool preparation', () => {
@@ -53,28 +54,26 @@ describe('argument-free tool preparation', () => {
     expect(view.container.querySelector('[aria-expanded="true"]')).toBeNull()
   })
 
-  it('replaces preparation with the dispatched row and retains that row through the result', () => {
+  it('retains the file row through preparation, dispatch, and result', () => {
     const props = preparation('write')
     const view = render(<FileMutationRow {...props} />)
     const preparingRow = view.container.querySelector('[data-tool="write"]')
-    vi.mocked(props.useToolCallArgumentsPartial).mockClear()
     const started: StartedToolCall = {
-      phase: 'start', callId: 'call', name: 'write', turn: 1, step: 1, time: 2, subCalls: [],
+      phase: 'start', args: PartialArguments.fromText('{"file_path":"hello.txt","content":"hello"}'), callId: 'call', name: 'write', turn: 1, step: 1, time: 2, subCalls: [],
       argsRaw: '{"file_path":"hello.txt","content":"hello"}',
     }
     view.rerender(<FileMutationRow {...props} phase="start" block={started} />)
     const row = view.container.querySelector('[data-tool="write"]')
-    expect(row).not.toBe(preparingRow)
-    expect(props.useToolCallArgumentsPartial).not.toHaveBeenCalled()
+    expect(row).toBe(preparingRow)
     expect(view.getByText('hello.txt')).toBeTruthy()
     expect(view.container.querySelector('[data-state="running"]')).not.toBeNull()
     const result: ToolResultNode = {
       kind: 'tool-result', seq: 3, time: 3, callId: 'call', callTime: 2,
+      name: 'write', args: PartialArguments.fromText(started.argsRaw),
       call: { name: 'write', argsRaw: started.argsRaw }, content: [], isError: false, subCalls: [],
     }
     view.rerender(<FileMutationRow {...props} phase="result" block={result} />)
     expect(view.container.querySelector('[data-tool="write"]')).toBe(row)
-    expect(props.useToolCallArgumentsPartial).not.toHaveBeenCalled()
     expect(view.container.querySelector('[data-state="ok"]')).not.toBeNull()
   })
 
@@ -86,7 +85,7 @@ describe('argument-free tool preparation', () => {
     expect(view.queryByText('custom_tool', { exact: true })).not.toBeNull()
     expect(view.queryByRole('button')).toBeNull()
     const started: StartedToolCall = {
-      phase: 'start', callId: 'call', name: 'custom_tool', turn: 1, step: 1, time: 2, subCalls: [],
+      phase: 'start', args: PartialArguments.fromText('{"prompt":"Inspect this file"}'), callId: 'call', name: 'custom_tool', turn: 1, step: 1, time: 2, subCalls: [],
       argsRaw: '{"prompt":"Inspect this file"}',
     }
     view.rerender(<GenericToolCard {...props} phase="start" block={started} />)
@@ -95,6 +94,7 @@ describe('argument-free tool preparation', () => {
     expect(view.getByRole('button', { expanded: false })).toBeTruthy()
     const result: ToolResultNode = {
       kind: 'tool-result', seq: 3, time: 3, callId: 'call', callTime: 2,
+      name: 'custom_tool', args: PartialArguments.fromText(started.argsRaw),
       call: { name: 'custom_tool', argsRaw: started.argsRaw }, content: [], isError: false, subCalls: [],
     }
     view.rerender(<GenericToolCard {...props} phase="result" block={result} />)
@@ -102,11 +102,9 @@ describe('argument-free tool preparation', () => {
     expect(view.getByText('custom_tool · Inspect this file', { exact: true })).toBeTruthy()
   })
 
-  it('keeps specialized Bash session hooks outside its preparation branch', () => {
-    const useSessions = vi.fn(() => { throw new Error('Bash call details are unavailable during preparation') })
-    const view = render(<BashRow {...preparation('bash')} useSessions={useSessions} />)
+  it('renders Bash preparation as a non-expandable shimmering row', () => {
+    const view = render(<BashRow {...preparation('bash')} useSessions={vi.fn()} />)
     expect(view.container.querySelector('[data-state="preparing"]')).not.toBeNull()
-    expect(useSessions).not.toHaveBeenCalled()
     expect(view.queryByRole('button')).toBeNull()
   })
 })

@@ -3,8 +3,10 @@
  * the open file in a CodeMirror editor.
  *
  * The tree is this package's own (`FileTree.tsx`); a row click opens the file
- * through the owner's `tabActions.openResource`, so it lands on this type and
- * de-duplicates by address — the tab's file never switches in place. The
+ * through the owner's `tabActions.openResource` — a renderable document names
+ * the preview viewer so the first open is the rendered document, and anything
+ * else lands on this type and de-duplicates by address, so the tab's file
+ * never switches in place. The
  * editor's draft and save state live in the package store, so they survive the
  * body's unmounts; the surface itself is the CodeMirror adapter
  * (`file-editor.ts`), mounted for the ready phase and destroyed on reload.
@@ -29,6 +31,7 @@ import { FileTree } from './FileTree.tsx'
 import { fileFailureLine } from './file-failure.ts'
 import { mountFileEditor } from './file-editor.ts'
 import type { FileEditorHandle } from './file-editor.ts'
+import { openFileRow } from './file-preview.ts'
 import { sessionFileOf } from './file-guard.ts'
 import type { FilesInjected } from './face.ts'
 import type { FileEditorInjected } from './file-face.ts'
@@ -291,8 +294,9 @@ export function FileBody({
                 state={state}
                 onToggle={(path) => { toggle(tab.id, path, levels[path] !== undefined, signal) }}
                 // Every row is under the tree's root, so its address is
-                // session-relative; the open lands on this type and dedupes.
-                onOpen={(path) => { tabActions.openResource(fileAddressFor(sessionId, root, path)) }}
+                // session-relative; renderable documents open on the preview
+                // viewer, everything else lands on this type and dedupes.
+                onOpen={(path) => { openFileRow(tabActions, fileAddressFor(sessionId, root, path), path) }}
                 onCreate={(directory, name, kind) => { createEntry(tab.id, directory, name, kind, signal) }}
                 onRename={(path, name) => { renameEntry(tab.id, path, name, root, signal) }}
                 onDelete={(path, kind) => { removeEntry(tab.id, path, kind, root, signal) }}

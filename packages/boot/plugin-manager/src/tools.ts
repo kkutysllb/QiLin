@@ -58,7 +58,9 @@ export function apply(ctx: Context): void {
             throw new Error('offset must be a non-negative integer and limit must be an integer from 1 to 100')
           }
           const rows = args.action === 'list_plugins' ? await manager.listPlugins() : await manager.listBundles()
-          const entries = rows.slice(offset, offset + limit)
+          // UI display metadata is locale-owned copy; the model reads the facts, not the dictionaries.
+          const entries = rows.slice(offset, offset + limit).map(row =>
+            'meta' in row ? { ...row, meta: undefined } : row)
           return JSON.stringify({ entries, total: rows.length,
             nextOffset: offset + entries.length < rows.length ? offset + entries.length : null })
         }

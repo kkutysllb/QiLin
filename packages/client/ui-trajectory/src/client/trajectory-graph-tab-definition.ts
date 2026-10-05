@@ -33,7 +33,9 @@ export function trajectoryGraphTabDefinition(
     title: () => t('view.trajectoryGraph'),
     guide: [{
       id: 'trajectoryGraph',
-      order: 21,
+      // After the three upstream capsules (files, terminal, browser), so the
+      // guide keeps the upstream order and appends this package's entry.
+      order: 35,
       title: () => t('view.trajectoryGraph'),
       description: () => t('guide.graphDescription'),
       icon: IconShareOutline16,

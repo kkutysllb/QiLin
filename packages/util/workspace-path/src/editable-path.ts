@@ -53,3 +53,26 @@ export function extensionOf(path: string): string {
 export function acceptsPath(path: string): boolean {
   return TEXT_FILE_EXTENSIONS.has(extensionOf(path))
 }
+
+/**
+ * Extensions whose reading surface is the rendered document preview,
+ * lower-case without the leading dot: every one is also editable text, so the
+ * preview viewer's edit affordance reaches the editor for it. The editor keeps
+ * its ranked claim; open gestures read `previewedPath` to land the first open
+ * on the preview instead of the code view.
+ */
+export const PREVIEW_FILE_EXTENSIONS: ReadonlySet<string> = new Set([
+  'html', 'htm',
+  'md', 'markdown', 'mdx',
+])
+
+/**
+ * Whether a file path opens as a rendered preview first: its extension must be
+ * one with a rendered viewer, so the code view is not the default reading
+ * surface.
+ * @param path - the path an open gesture names.
+ * @returns whether the path's first open lands on the rendered preview.
+ */
+export function previewedPath(path: string): boolean {
+  return PREVIEW_FILE_EXTENSIONS.has(extensionOf(path))
+}

@@ -137,5 +137,3 @@ ctx.slots.inject('plugins.row.config', () => ctx.slots.register({
 无。
 
 </details>
-
-**运行时不变式：** 不发布伴生检查。本包只拥有一个基于 Host 事实的设置「插件」标签页。

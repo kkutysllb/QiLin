@@ -82,5 +82,3 @@ None; both snapshots arrive on the Session list the client already holds, and th
 None.
 
 </details>
-
-**Runtime invariant:** No companion is published. The page holds no state outside its body — the projections are pure over the Session list's snapshots and asserted by unit specs, so there is no second observation of them to diverge.

@@ -35,7 +35,7 @@ Creator mode includes this toolset. Other compositions mount `@qilin/tool-kylin`
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-Host providers combine generated Service/Event catalogs, the running Loader's declared `Config` schemas projected through [`@qilin/app-boot`](../../boot/app-boot/README.md), and the requesting agent's tool registry. Client providers synchronize their manifests through the existing inspection registry and answer queries from a connected page. The tool plugin owns its registrations through Kylin effects; disposal removes both tools and prompt contributions. No invariant companion is published because inspection reads its providers directly and maintains no independent runtime projection.
+Host providers combine generated Service/Event catalogs, the running Loader's declared `Config` schemas projected through [`@qilin/app-boot`](../../boot/app-boot/README.md), and the requesting agent's tool registry. Client providers synchronize their manifests through the existing inspection registry and answer queries from a connected page. The tool plugin owns its registrations through Kylin effects; disposal removes both tools and prompt contributions.
 
 </details>
 

@@ -6,7 +6,7 @@ import { createSnapshotStore } from '@qilin/client-store'
 import { bindSnapshotSelector, makeTranslate } from '@qilin/client-test-runtime'
 import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
 import { AssistantMarkdown, type AssistantMarkdownProps } from '../src/client/chat/AssistantMarkdown.tsx'
-import { StatsPills } from '../src/client/chat/StatsPills.tsx'
+import { ActivityPill, UsagePill, type StatPillProps } from '../src/client/chat/StatsPills.tsx'
 import { zh } from '../src/client/locale.ts'
 import { chatSnapshotFixture } from './chat-snapshot-fixture.client.ts'
 
@@ -33,7 +33,7 @@ describe('render branch tails', () => {
     expect(view.container.querySelector('[data-state="ok"]')).not.toBeNull()
   })
 
-  it('StatsPills falls back to window-node counts and drops the usage pill without projections', () => {
+  it('composer stats fall back to window-node counts and drop the usage pill without projections', () => {
     // No sessionStats key → the window fold supplies the counts (the
     // assembly-without-the-unit fallback). Node `usage` is deliberately
     // ignored: billing rides the durable tokenUsage projection, so an absent
@@ -45,13 +45,17 @@ describe('render branch tails', () => {
     ] as const
     const snap = chatSnapshotFixture({ nodes })
     const source = { getSnapshot: () => snap, subscribe: () => () => {} }
+    const pillProps: StatPillProps = {
+      usePerformanceUsage: bindSnapshotSelector(createSnapshotStore('detailed')),
+      t,
+      useChat: bindSnapshotSelector(source),
+      useProjection: () => undefined,
+    }
     const view = render(
-      <StatsPills
-        t={t}
-        useChat={bindSnapshotSelector(source)}
-        useProjection={() => undefined}
-        usePerformanceUsage={bindSnapshotSelector(createSnapshotStore('detailed'))}
-      />,
+      <>
+        <ActivityPill {...pillProps} />
+        <UsagePill {...pillProps} />
+      </>,
     )
     expect(view.container.textContent).toBe('2 轮 3 步')
     // Window-fold counts carry no timed figure, so the pill is a static reading.

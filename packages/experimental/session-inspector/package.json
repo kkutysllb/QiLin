@@ -1,0 +1,77 @@
+{
+  "name": "@qilin/experimental-session-inspector",
+  "description": "Experimental virtualized Session log and live Chat group/node inspectors",
+  "version": "0.2.1-alpha.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/experimental/session-inspector"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./locale/*.json": "./locale/*.json",
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "qilin": {
+    "client": {
+      "inject": [
+        "@qilin/client-locale",
+        "@qilin/client-ui-conversation",
+        "@qilin/client-ui-sidebar-right",
+        "@qilin/client-ui-session",
+        "@qilin/client-ui-renderer"
+      ],
+      "platform": "web"
+    }
+  },
+  "files": [
+    "locale/*.json",
+    "lib/index.js",
+    "lib/client.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "scripts": {
+    "bundle": "tsdown",
+    "watch": "tsdown --watch"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin/kylin": "workspace:~"
+  },
+  "devDependencies": {
+    "@qilin/client-test-runtime": "workspace:*",
+    "@testing-library/react": "^16.1.0",
+    "@types/react-dom": "~18.3.0",
+    "react-dom": "^18.2.0",
+    "@qilin/api-session-controller": "workspace:*",
+    "@qilin/client-store": "workspace:*",
+    "@qilin/client-ui-chat": "workspace:*",
+    "@qilin/client-ui-primitives": "workspace:*",
+    "@qilin/client-ui-sidebar-right": "workspace:*",
+    "@qilin/client-ui-session": "workspace:*",
+    "@qilin/session": "workspace:*",
+    "@qilin/llm": "workspace:*",
+    "@tanstack/react-virtual": "^3.14.9",
+    "@types/react": "~18.3.1",
+    "react": "^18.2.0",
+    "@qilin/kylin": "workspace:~",
+    "@qilin/client-locale": "workspace:*",
+    "@qilin/client-ui-conversation": "workspace:*",
+    "@qilin/client-ui-renderer": "workspace:*",
+    "@qilin/client-ui-slots": "workspace:*"
+  }
+}

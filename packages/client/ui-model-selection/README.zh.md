@@ -94,5 +94,3 @@ Web GUI 允许用户通过 `/model` 弹窗或 composer 模型控件切换既有�
 无。
 
 </details>
-
-**运行时不变式：** 不发布伴生入口。插件只注册一个 command contribution，HMR（热模块替换）安全性测试证明该注册的 dispose 能正确完成；它不发出 Kylin 事件，也不持有跨插件可变状态。

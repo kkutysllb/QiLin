@@ -255,7 +255,7 @@ export class SlotTestRuntime {
   private readonly disposeWorkspaceSource: () => void
   private readonly disposePanelInfoSource: () => void
 
-  private constructor(ctx: Context, slots: SlotRegistry) {
+  private constructor(ctx: Context, slots: SlotRegistry, options: { shortcuts?: boolean } = {}) {
     this.ctx = ctx
     this.slots = slots
     this.root = new TestRoot(slots, this.stabilizer)
@@ -269,11 +269,12 @@ export class SlotTestRuntime {
     ctx.provide('workspaces', this.workspaces)
     ctx.provide('fileUpload', this.fileUpload as never)
     // The assembled roster always mounts the shortcuts service; a spec that
-    // asserts command registration replaces this stub via provide(). Both
-    // readings are frozen module-level values: an observable source returns
-    // the same reference until the fact moves, and a fresh array per
-    // `getSnapshot` re-renders every subscriber forever.
-    ctx.provide('shortcuts', {
+    // asserts command registration either replaces this stub via provide()
+    // or opts out here to mount the real service. Both readings are frozen
+    // module-level values: an observable source returns the same reference
+    // until the fact moves, and a fresh array per `getSnapshot` re-renders
+    // every subscriber forever.
+    if (options.shortcuts !== false) ctx.provide('shortcuts', {
       runtime: 'web', platform: 'macos', stopSequenceMs: 500,
       catalog: { getSnapshot: () => NO_SHORTCUTS, subscribe: () => () => {} },
       fixedCatalog: { getSnapshot: () => NO_SHORTCUTS, subscribe: () => () => {} },
@@ -300,14 +301,16 @@ export class SlotTestRuntime {
   /**
    * Assemble a runtime: real Context, mounted SlotRegistry, installed
    * renderer, and the session/workspace doubles provided as services.
+   * @param options - the shortcuts stub is mounted unless `shortcuts: false`,
+   *   which lets a spec provide the real shortcuts service instead.
    * @returns the ready runtime.
    */
-  static async create(): Promise<SlotTestRuntime> {
+  static async create(options: { shortcuts?: boolean } = {}): Promise<SlotTestRuntime> {
     registerDomSnapshotSerializer()
     const ctx = new Context()
     const fiber = ctx.plugin(SlotRegistry)
     await fiber.await()
-    const runtime = new SlotTestRuntime(ctx, ctx.get('slots') as SlotRegistry)
+    const runtime = new SlotTestRuntime(ctx, ctx.get('slots') as SlotRegistry, options)
     await ctx.plugin({ inject: [...uiSessionInject], apply: applyUiSession }).await()
     return runtime
   }

@@ -61,16 +61,6 @@ export interface ProfileTemplate {
   bundles: readonly string[]
 }
 
-/**
- * The animations skill pack, shipped by this installation as a built-in
- * bundle. `dsh-animations` releases on its own line, so a profile installs a
- * newer copy through the plugin channel and {@link PROFILE_OWNED_BUNDLES} lets
- * that copy serve while a profile holding none resolves the installation's.
- * {@link PROFILE_TEMPLATES} names the same package in its browser entries,
- * which `verify-default-product-isolation` reads as string literals.
- */
-export const ANIMATIONS_BUNDLE = 'dsh-animations'
-
 /** Package metadata accepted by the profile reader; local profiles need no published identity. */
 export type ProfileManifest = Partial<QilinPackageManifest> & {
   /** DSH-era profile or bundle metadata accepted by the compatibility loader. */
@@ -120,9 +110,10 @@ export interface ProfilePluginRow {
   /** Whether the layer comes from the shipped profile template or a profile dependency. */
   readonly source: 'builtin' | 'user'
   /**
-   * Whether the layer can be upgraded in place. A shipped layer carries this
-   * only when the profile owns its resolution, because every other shipped
-   * layer moves with the running installation.
+   * Whether the layer can be upgraded in place: true exactly when the profile
+   * owns the layer — a shipped one moves with the running installation, and a
+   * profile-owned copy can be reinstalled at a newer version through the
+   * plugin channel.
    */
   readonly updatable: boolean
   /** Whether the layer can be removed. Shipped layers never can. */
@@ -163,15 +154,15 @@ export function readProfilePluginRows(
 
 /**
  * Whether one declared layer can be upgraded in place: a bundle the profile
- * installed, or a shipped bundle whose resolution the profile owns
- * ({@link PROFILE_OWNED_BUNDLES}). Every other shipped layer moves with the
- * running installation instead.
+ * installed. A shipped layer moves with the running installation instead; a
+ * newer copy of its name only serves after the profile installs one and drops
+ * the shipped layer (a retired template name can be installed back this way).
  * @param name - the bundle's package name from `qilin.profile.bundles`.
  * @param builtInBundles - bundle names supplied by the selected shipped template.
  * @returns whether an installed copy of this layer resolves ahead of the installation's.
  */
 export function profileLayerUpdatable(name: string, builtInBundles: readonly string[]): boolean {
-  return !builtInBundles.includes(name) || PROFILE_OWNED_BUNDLES.includes(name)
+  return !builtInBundles.includes(name)
 }
 
 /**
@@ -257,13 +248,13 @@ export const PROFILE_TEMPLATES: Record<string, ProfileTemplate> = {
     bundles: ['@qilin/base', '@qilin/acp-app'],
   },
   web: {
-    bundles: ['@qilin/base', '@qilin/web-app', 'dsh-animations'],
+    bundles: ['@qilin/base', '@qilin/web-app'],
   },
   headless: {
     bundles: ['@qilin/base', '@qilin/headless'],
   },
   qilin: {
-    bundles: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand', 'dsh-animations'],
+    bundles: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand'],
   },
   sdk: {
     bundles: ['@qilin/base', '@qilin/sdk-app'],
@@ -276,11 +267,13 @@ export const PROFILE_TEMPLATES: Record<string, ProfileTemplate> = {
 /** Installation-owned bundle tuples normalized to the shipped template. */
 const INSTALLATION_OWNED_PROFILE_TUPLES: Record<string, readonly string[]> = {
   headless: ['@qilin/base', '@qilin/web-app', '@qilin/headless'],
-  // The tuples the browser surfaces shipped before the animations bundle
-  // joined them: a profile their owner never edited gains the built-in plugin
-  // on its next load, while one carrying a custom list keeps it.
-  web: ['@qilin/base', '@qilin/web-app'],
-  qilin: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand'],
+  // The browser surfaces used to ship `dsh-animations` as a built-in layer.
+  // Normalization now retires it: a profile their owner never edited drops it
+  // on the next load, and one carrying a custom list loses the entry while
+  // keeping its own additions. Installing the package through the plugin
+  // channel restores the layer as a profile-owned one.
+  web: ['@qilin/base', '@qilin/web-app', 'dsh-animations'],
+  qilin: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand', 'dsh-animations'],
 }
 
 /** The bundle list a `qilin plugin` init uses for a name with no shipped template. */
@@ -299,6 +292,7 @@ export const OPTIONAL_BUNDLES: readonly string[] = [
   '@qilin/experimental-voice-input-bundle',
   '@qilin/experimental-auto-review',
   '@qilin/experimental-schedule-bundle',
+  '@qilin/experimental-inspector-profile',
 ]
 
 const PROFILE_PATCH_TEMPLATE = `# Your patch layer for this qilin profile, applied after every bundle layer:
@@ -1039,19 +1033,6 @@ function packageDirFromAnchor(
 }
 
 /**
- * Bundles the installation seeds but the PROFILE owns: resolution tries the
- * profile anchor first, so a copy installed through `qilin plugin` (the
- * online-upgrade channel) replaces the installation's seed for that name,
- * while a fresh profile still resolves the seed with no profile install.
- * Every bundle not named here keeps the installation-first contract.
- *
- * Profile-first is also the order the Loader's own module resolution applies
- * (a profile-local `node_modules` entry wins over the shared installation
- * fallback), so one copy supplies both the patch layer and the code.
- */
-export const PROFILE_OWNED_BUNDLES: readonly string[] = [ANIMATIONS_BUNDLE]
-
-/**
  * Whether the running installation itself provides one package name. The
  * profile's module fallback publishes the installation's closure, so a
  * profile-local copy of such a name shadows the shared one.
@@ -1077,10 +1058,10 @@ export function installationProvides(packageName: string, installAnchor: string)
  * Resolve one bundle package's directory: installation anchor first, then the
  * profile directory. The installation-first order is the contract that
  * `@qilin/base` (and every other in-box bundle) always comes from
- * the same installation as the running qilin, never from a profile-local copy;
- * {@link PROFILE_OWNED_BUNDLES} members reverse it (profile copy first, the
- * installation's seed as the fallback).
- * Resolution does not require the package to export `./package.json`.
+ * the same installation as the running qilin, never from a profile-local copy,
+ * while a name the installation does not ship resolves from the profile that
+ * installed it. Resolution does not require the package to export
+ * `./package.json`.
  * @param binName - the diagnostic prefix on the thrown error.
  * @param packageName - the bundle's package name from `qilin.profile.bundles`.
  * @param installAnchor - absolute path of a file inside the qilin app package (its package.json).
@@ -1090,10 +1071,7 @@ export function installationProvides(packageName: string, installAnchor: string)
 export function resolveBundleDir(
   binName: string, packageName: string, installAnchor: string, profileDir: string,
 ): string {
-  const anchors = PROFILE_OWNED_BUNDLES.includes(packageName)
-    ? [join(profileDir, 'package.json'), installAnchor]
-    : [installAnchor, join(profileDir, 'package.json')]
-  for (const anchor of anchors) {
+  for (const anchor of [installAnchor, join(profileDir, 'package.json')]) {
     const dir = packageDirFromAnchor(anchor, packageName)
     if (dir !== undefined) return dir
   }

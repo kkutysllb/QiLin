@@ -317,7 +317,13 @@ export interface InternalScheduleError {
   readonly message: string
 }
 
-/** Closed v1 Schedule management error union. */
+/** Stable error returned when the target Session belongs to subagent routing, which never receives reminder delivery. */
+export interface SubagentSessionError {
+  readonly code: 'subagent_session'
+  readonly message: string
+}
+
+/** v1 Schedule management error union; new codes join as additional members. */
 export type ScheduleToolError =
   | InvalidPromptError
   | InvalidSelectorError
@@ -326,6 +332,7 @@ export type ScheduleToolError =
   | NotFutureError
   | TimeOutOfRangeError
   | FrequencyTooHighError
+  | SubagentSessionError
   | InternalScheduleError
 
 /** Canonical `schedule_create` value. */

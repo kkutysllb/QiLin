@@ -47,6 +47,7 @@
     "@qilin/compaction-tool-result-pruner": "workspace:*",
     "@qilin/experimental-agent-team-profile": "workspace:*",
     "@qilin/experimental-auto-review": "workspace:*",
+    "@qilin/experimental-inspector-profile": "workspace:*",
     "@qilin/experimental-schedule-bundle": "workspace:*",
     "@qilin/experimental-voice-input-bundle": "workspace:*",
     "@qilin/fs-local": "workspace:*",
@@ -111,7 +112,6 @@
     "@qilin/webhook-github": "workspace:*",
     "@qilin/workflow-ptc": "workspace:*",
     "commander": "^15.0.0",
-    "dsh-animations": "^1.2.3",
     "js-yaml": "^4.2.0",
     "node-addon-require-builtin": "^0.1.6"
   },

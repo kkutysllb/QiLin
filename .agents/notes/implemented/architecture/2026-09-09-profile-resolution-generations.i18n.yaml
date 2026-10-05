@@ -6,17 +6,17 @@
   en: 681c12ff16e27e9e
   zh: e55c83f9c325efa8
 /agent-note-add-immutable-profile-resolution-generations/problem:
-  en: f4e591046c017612
-  zh: c7d340d14b3b18d6
+  en: 77413995cf9ece8f
+  zh: 83869a51aca5b9c6
 /agent-note-add-immutable-profile-resolution-generations/decision:
   en: ecb7975042180043
-  zh: 63f5194b0b27c19f
+  zh: ae0352b59fe5b170
 /agent-note-add-immutable-profile-resolution-generations/decision/one-selection-algorithm:
   en: 1887634f6fea57fa
   zh: e9a85acf0786f5b9
 /agent-note-add-immutable-profile-resolution-generations/decision/immutable-generations:
-  en: 54b4c913c1cd63bb
-  zh: 9c64311866d5ce60
+  en: 0d1ec616c44d9784
+  zh: 50413a6eab8a260a
 /agent-note-add-immutable-profile-resolution-generations/decision/shared-esm-and-commonjs-rule:
   en: 540661e4f0290d0c
   zh: b13cedbd5de573b0
@@ -27,8 +27,8 @@
   en: 99308bd758859e02
   zh: 35f1e7719fe80d2e
 /agent-note-add-immutable-profile-resolution-generations/decision/additive-package-changes:
-  en: 9bd5793e417a9c83
-  zh: 1d53262e358e2c72
+  en: 0b8e7cd4ff2bcfbb
+  zh: 7f4dadd90f12663f
 /agent-note-add-immutable-profile-resolution-generations/decision/disk-migration:
   en: a065040816c27e85
   zh: 759f18e9c714f9a6
@@ -45,5 +45,5 @@
   en: 010c541213693524
   zh: d6960cff7940cfb1
 /agent-note-add-immutable-profile-resolution-generations/consequences:
-  en: 36285bd78738cb6f
-  zh: 18fcd3297cb97c5a
+  en: b447c2c9b5fea44a
+  zh: 7d6eca9f7579e8e6

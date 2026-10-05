@@ -8,7 +8,7 @@ English | [中文](2026-09-09-profile-resolution-generations.zh.md)
 
 A profile loads plugin rows from its own package project, while Harness packages and packages carried by selected bundles can live outside that project's ordinary dependency tree. Bridging the trees through shared symlinks, profile-owned links, or packaged-executable proxy packages persists package selections across processes and installations. Those files require reconciliation and locking, expose generated proxy manifests to metadata readers, and cannot represent a process-local change atomically.
 
-The runtime design preserves the existing selection rules rather than introducing a second package policy. It covers imports performed by plugin modules as well as Loader row imports and works in the main thread and Harness-owned Workers. Generation replacement accepts only additive package sets and never mutates a live table entry by entry.
+The runtime design preserves the existing selection rules rather than introducing a second package policy. It covers imports performed by plugin modules as well as Loader row imports and works in the main thread and Harness-owned Workers. Generation replacement preserves retained package mappings, permits removing profile-scoped mappings and profile-local package names, and never mutates a live table entry by entry.
 
 ## Decision
 
@@ -30,7 +30,7 @@ A resolver registration holds one `current` generation. Each synchronous resolut
 
 Selection and package-metadata caches belong to a generation. Publishing a successor invalidates them by making the old generation unreachable after its callers finish; update code does not mutate or clear individual entries. A generation hit and a successful native selection can be cached, but a generation miss is rescanned so a profile-local package installed after the miss becomes visible as it does in link mode. Calls with explicit CommonJS paths or non-default conditions never reuse a default-resolution cache entry.
 
-The launcher constructs one startup generation. The service accepts an additive successor, but no package-manager transaction invokes replacement in this implementation.
+The launcher constructs one startup generation. The service accepts a successor, and `PluginPackages.refresh()` publishes a recomputed one: the launcher supplies the recompute sources, and Plugin Manager package operations invoke it.
 
 ### Shared ESM and CommonJS rule
 
@@ -60,9 +60,9 @@ New Workers inherit the latest published generation. Existing Workers keep the g
 
 ### Additive package changes
 
-A caller adding a package completes its pnpm transaction before constructing a successor generation. Replacement rejects any generation that changes the directory or version of an existing package. The caller publishes an additive successor before mounting the new Loader row; this implementation does not provide that package transaction. A mount failure may leave the package installed but inactive.
+A caller adding a package completes its pnpm transaction before constructing a successor generation. Replacement rejects any generation that changes the directory or version of a retained package. Plugin Manager publishes the successor before mounting the new Loader row. A mount failure may leave the package installed but inactive.
 
-Replacing, upgrading, or removing an already loaded package requires process restart because Node's ESM Module Map, CommonJS cache, existing object references, and running Workers can retain the old module identity. Generation replacement does not claim to unload modules.
+Changing an existing runtime package mapping or removing an installation mapping requires process restart because Node's ESM Module Map, CommonJS cache, existing object references, and running Workers can retain the old module identity. Profile-scoped mappings and profile-local package names may be removed; the caller stops their plugins before deleting package files. Generation replacement does not claim to unload modules.
 
 ### Disk migration
 
@@ -115,4 +115,4 @@ Behavior tests compare the runtime generation with the disk materializer over th
 
 ## Consequences
 
-Runtime startup avoids disk mutation and proxy manifests while preserving the existing package-selection algorithm. It accepts the maintenance cost of Node Internal compatibility tests and an early, self-contained bootstrap in each owned Worker. Runtime is the ordinary Node launcher default, link and dual remain explicit comparison options, and pkg plus Electron carriers force runtime resolution without the resolver retiring old links. Generation replacement remains additive until the product owns module-cache invalidation and Worker restart.
+Runtime startup avoids disk mutation and proxy manifests while preserving the existing package-selection algorithm. It accepts the maintenance cost of Node Internal compatibility tests and an early, self-contained bootstrap in each owned Worker. Runtime is the ordinary Node launcher default, link and dual remain explicit comparison options, and pkg plus Electron carriers force runtime resolution without the resolver retiring old links. Profile-scoped records may leave the table without unloading modules; retained package identities stay unchanged.

@@ -54,7 +54,7 @@ import * as ToolStrReplaceEditor from '@qilin/tool-str-replace-editor'
 import TerminalSessionService from '@qilin/terminal'
 import * as ToolPty from '@qilin/tool-terminal'
 import * as ToolGoal from '@qilin/tool-goal'
-import * as ToolSchedule from '@qilin/schedule'
+import * as ToolSchedulePlugin from '@qilin/tool-schedule'
 import Lsp from '@qilin/lsp'
 import * as ToolLsp from '@qilin/tool-lsp'
 import * as ToolSkill from '@qilin/tool-skill'
@@ -443,25 +443,30 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'create, edit, pause, and resume require direct-human root authority; complete and blocked also accept the exact current goal round. The default blocked lower bound is three admitted rounds.',
   },
   {
-    pkg: '@qilin/schedule',
-    dir: 'schedule',
-    source: 'packages/schedule/schedule/src/tools.ts',
-    requires: ['ctx.tools', 'ctx.schedule', 'a live root Agent'],
+    pkg: '@qilin/tool-schedule',
+    dir: 'tool-schedule',
+    source: 'packages/schedule/tool-schedule/src/index.ts',
+    requires: ['ctx.tools', 'ctx.schedule'],
     writes: ['tool/call', 'Schedule storage domain create, update, or delete', 'tool/result'],
     async mount(ctx) {
       await ctx.plugin(SessionStore)
+      // Schema harvest never dispatches a reminder operation; every method refuses.
+      const refused = () => Promise.reject(new Error('gen-tool-catalog: Schedule operations are unreachable during schema harvest'))
+      ctx.provide('schedule', {
+        create: refused, list: refused, update: refused, delete: refused, catalog: refused,
+      } as never)
       const session = ctx.sessions.create(SessionId('tool-catalog-schedule'))
       const agent = { id: session.id, session } as Agent
       await mountCatalogChildScope(ctx, (childCtx) => {
-        ToolSchedule.registerScheduleTools(ctx, childCtx, agent)
+        void childCtx.plugin(ToolSchedulePlugin)
       }, agent, ['tools', 'systemPrompt'])
     },
     scope: ctx => catalogChildScopes.get(ctx) as Agent,
     note:
-      'Registered in live root Agent scopes while the opt-in Schedule service is loaded. '
-      + 'Accepts after_seconds, explicit absolute at, bounded fixed-rate every_seconds, daily and weekly '
-      + 'local times in an explicit IANA zone, and cron as a five-field expression. '
-      + 'Management uses the Host storage domain; due messages resume the original Session.',
+      'Mounted by the presets that carry it; every call acts on the calling Agent\'s Session and a '
+      + 'delegated child is refused. Accepts after_seconds, explicit absolute at, bounded fixed-rate '
+      + 'every_seconds, daily and weekly local times in an explicit IANA zone, and cron as a '
+      + 'five-field expression. Management uses the Host storage domain; due messages resume the original Session.',
   },
   {
     pkg: '@qilin/tool-lsp',

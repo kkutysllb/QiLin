@@ -202,4 +202,49 @@ describe('profile package metadata service', () => {
     contexts.pop()
     expect(getEnvironmentData(key)).toBe(previous)
   })
+
+  it('refreshes to a recomputed generation, refuses one without a recompute, and skips native lookup', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'qilin-package-refresh-service-'))
+    roots.push(root)
+    const profilesDir = join(root, 'profiles')
+    const profileDir = join(profilesDir, 'test')
+    const installed = join(root, 'installed')
+    const installedAnchor = pkg(installed, '1.0.0')
+    const removed = join(root, 'removed')
+    file(join(removed, 'package.json'), JSON.stringify({ name: 'removed-lib', version: '0.1.0' }))
+    file(join(profileDir, 'entry.mjs'), '')
+    const parentURL = pathToFileURL(join(profileDir, 'entry.mjs')).href
+    const withProfileEntry = (): ProfileResolutionGeneration => ({
+      profilesDir, profileDir,
+      localPackageNames: [],
+      entries: [
+        { name: 'metadata-lib', packageDir: installed, version: '1.0.0', declarer: installedAnchor, scope: 'installation' },
+        { name: 'removed-lib', packageDir: removed, version: '0.1.0', declarer: join(profileDir, 'package.json'), scope: 'profile' },
+      ],
+    })
+    const afterRemoval = (): ProfileResolutionGeneration => ({
+      profilesDir, profileDir,
+      localPackageNames: [],
+      entries: [{ name: 'metadata-lib', packageDir: installed, version: '1.0.0', declarer: installedAnchor, scope: 'installation' }],
+    })
+
+    // A service without runtime resolution answers through native lookup, which disk changes already move.
+    const native = new Context()
+    contexts.push(native)
+    await native.plugin(PluginPackages)
+    await expect(native.pluginPackages.refresh()).resolves.toBeUndefined()
+
+    const stale = new Context()
+    contexts.push(stale)
+    await stale.plugin(PluginPackages, { generation: withProfileEntry() })
+    await expect(stale.pluginPackages.refresh()).rejects.toThrow(/cannot be recomputed/u)
+
+    const ctx = new Context()
+    contexts.push(ctx)
+    await ctx.plugin(PluginPackages, { generation: withProfileEntry(), recompute: async () => afterRemoval() })
+    expect(ctx.pluginPackages.packageOf('removed-lib', parentURL)).toMatchObject({ name: 'removed-lib', dir: removed })
+    await ctx.pluginPackages.refresh()
+    expect(ctx.pluginPackages.packageOf('removed-lib', parentURL)).toBeUndefined()
+    expect(ctx.pluginPackages.packageOf('metadata-lib', parentURL)).toMatchObject({ version: '1.0.0', dir: installed })
+  })
 })

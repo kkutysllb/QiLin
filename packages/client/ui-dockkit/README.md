@@ -105,5 +105,3 @@ None; this package neither assembles nor sends a provider request.
 None.
 
 </details>
-
-**Runtime invariant:** No companion is published. The engine is pure functions over plain data and the components report intents only; the operation sequence's invertibility and the settle rule are asserted directly by this package's engine specs, and no cordis service is provided or observed.

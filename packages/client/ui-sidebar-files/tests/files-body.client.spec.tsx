@@ -148,9 +148,13 @@ describe('FilesBody', () => {
     const { view, script, tabActions } = mountBody()
     await act(() => script.settle({ ok: true, value: ROOT_LEVEL }))
     fireEvent.click(view.container.querySelector(`[data-files-path="${ROOT}/README.md"] > button`)!)
-    // Every row sits under the tree's root, so the address is the path relative to it.
-    expect(tabActions.openResource).toHaveBeenCalledWith(fileAddressFor(SESSION, ROOT, `${ROOT}/README.md`))
-    expect(tabActions.openResource).toHaveBeenCalledWith('qilin-resource://file/session/s-test/README.md')
+    // Every row sits under the tree's root, so the address is the path relative to it;
+    // a renderable document names the preview viewer instead of the ranked editor claim.
+    expect(tabActions.openResource).toHaveBeenCalledWith(
+      fileAddressFor(SESSION, ROOT, `${ROOT}/README.md`),
+      { kind: 'text' },
+    )
+    expect(tabActions.openResource).toHaveBeenCalledWith('qilin-resource://file/session/s-test/README.md', { kind: 'text' })
     const other = view.container.querySelector(`[data-files-path="${ROOT}/pipe"]`)!
     expect(other.querySelector('button')).toBeNull()
     expect(other.querySelector('[aria-disabled="true"]')?.getAttribute('title')).toBe(zh['entry.other'])
@@ -347,7 +351,7 @@ describe('FileTree row menu and link marks', () => {
     await act(() => script.settle({ ok: true, value: ROOT_LEVEL }))
     act(() => { fireEvent.contextMenu(view.container.querySelector(`[data-files-path="${ROOT}/README.md"] > button`)!, { clientX: 10, clientY: 20 }) })
     fireEvent.click(view.getByRole('menuitem', { name: zh['menu.open'] }))
-    expect(tabActions.openResource).toHaveBeenCalledWith(fileAddressFor(SESSION, ROOT, 'README.md'))
+    expect(tabActions.openResource).toHaveBeenCalledWith(fileAddressFor(SESSION, ROOT, 'README.md'), { kind: 'text' })
     act(() => { fireEvent.contextMenu(view.container.querySelector(`[data-files-path="${ROOT}/README.md"] > button`)!) })
     fireEvent.click(view.getByRole('menuitem', { name: zh['menu.copyRelative'] }))
     expect(clipboard.write).toHaveBeenCalledWith('README.md')

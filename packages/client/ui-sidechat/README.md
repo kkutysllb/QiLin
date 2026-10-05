@@ -65,5 +65,3 @@ None; the panel issues no model request and adds no tokens to any prompt. Its re
 The state source is registration-scoped object layer (`sidechat-source.ts`): the roster, the open transcript, and the in-flight flags outlive the body's unmounts, and the face is its only writer. The panel declares no store — there is no cross-entry viewing state to share.
 
 </details>
-
-**Runtime invariant:** No companion is published. The panel holds no state outside its source — the view model is pure over follow frames and asserted by unit specs, so there is no second observation of it to diverge.

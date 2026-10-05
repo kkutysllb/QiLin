@@ -89,5 +89,3 @@ tab 的地址就是它的整个文件身份：`file-guard.sessionFileOf` 在每�
 两个 tab kind 共享一个 store 工厂（`createFilesStore`）与注册期的一个句柄，按 tab id 分成 `byTab`（树）与 `edits`（编辑器）两组桶。`files` 页从不播种 `edits` 桶，`file` tab 渲染同一个树组件，所以一个文件 tab 的树与页面的树是同一实例下互不相干的桶。
 
 </details>
-
-**运行时不变量：** 不发布 companion。本包唯一的运行时状态是每会话一份的 Slot store，按 tab id 分桶，由持有各桶的正文与 face 写入、随各 tab 的中止信号忘掉；没有第二个观测源可与之比对。

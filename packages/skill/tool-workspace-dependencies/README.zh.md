@@ -84,7 +84,6 @@ kind: "package-reference"
 | 文件 | 职责 |
 |---|---|
 | [`src/index.ts`](src/index.ts) | 清单校验、路径推导、原位与安装式准备、工具注册。 |
-| — | 不发布运行时不变式伴随包：payload 清单在每次准备时都会校验，工具注册生命周期由工具注册表负责。 |
 
 </details>
 

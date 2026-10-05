@@ -9,7 +9,7 @@
  * the page declares.
  */
 
-import { useEffect, useId, useState, type ReactNode } from 'react'
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import type { PluginInstallFailureKind, Registry } from '@qilin/api-remotes/client'
 import type { ConfigPageForm } from './slot-contract.ts'
 import {
@@ -17,6 +17,7 @@ import {
   IconCordisPluginOutline14, IconDownloadOutline16, IconPluginPinwheelOutline16, IconPlusOutline16, IconRefreshOutline16,
   IconRightUpOutline16, IconSearchOutline16, IconTrashOutline16,
   IconWarningOutline16, Input, Modal, StateDot, Switch, Tag, TerminalBlock, Toast,
+  useDismissOnOutsidePointer,
   type StateDotState, type TerminalBlockLabels,
 } from '@qilin/client-ui-primitives'
 import type { InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime } from '@qilin/client-ui-slots'
@@ -35,7 +36,7 @@ import css from './PluginManagerPage.module.css'
 export type PluginManagerPageProps =
   PropsRuntime<'settings.plugins.tab'>
   & PropsLocale<'pluginManager'>
-  & PropsRenderSlots<'plugins.item' | 'plugins.bundle.activation' | 'plugins.bundle.config' | 'plugins.row.config'>
+  & PropsRenderSlots<'plugins.item' | 'plugins.bundle.activation' | 'plugins.bundle.config' | 'plugins.row.config' | 'plugins.add.actions'>
   & InjectFace<PluginManagerFace>
 
 /** The page's slot renderer, narrowed to the configuration slots. */
@@ -49,6 +50,65 @@ type View =
   | { readonly kind: 'row'; readonly name: string; readonly rowId: string }
 
 type RowPhase = NonNullable<PackageRow['phase']>
+
+/**
+ * The primary action installs; the adjacent menu offers every add-plugin path.
+ * A page-local anchored list because the contributed rows are rendered
+ * elements (`plugins.add.actions`), not the data entries the shared Menu
+ * primitive takes.
+ * @param props - copy, the load gate, the install dialog opener, and the slot renderer.
+ * @returns the split add-plugin control with its open menu.
+ */
+function AddPluginMenu({ t, disabled, openInstall, renderSlot }: {
+  readonly t: Translate
+  readonly disabled: boolean
+  readonly openInstall: () => void
+  readonly renderSlot: PropsRenderSlots<'plugins.add.actions'>['renderSlot']
+}): ReactNode {
+  const [open, setOpen] = useState(false)
+  const rootRef = useRef<HTMLSpanElement>(null)
+  useDismissOnOutsidePointer(rootRef, open, setOpen)
+  const onDismiss = (): void => { setOpen(false) }
+  return (
+    <span ref={rootRef} className={css.addGroup} role="group" aria-label={t('addPlugin')}>
+      <Button variant="primary" size="sm" className={css.addPrimary} icon={<IconPlusOutline16 size={13} />}
+        disabled={disabled} onClick={() => { onDismiss(); openInstall() }}>
+        {t('addPlugin')}
+      </Button>
+      <button
+        type="button"
+        className={css.addMore}
+        disabled={disabled}
+        aria-label={t('chooseAddMethod')}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => { setOpen(value => !value) }}
+        onKeyDown={(event) => {
+          if (!open && event.key === 'ArrowDown') { event.preventDefault(); setOpen(true) }
+        }}
+      >
+        <IconChevronDownOutline14 size={12} />
+      </button>
+      {open && (
+        <div className={css.addMenu} role="menu" aria-label={t('chooseAddMethod')}>
+          <button
+            type="button"
+            role="menuitem"
+            className={css.addMenuItemRow}
+            onClick={() => { onDismiss(); openInstall() }}
+          >
+            <IconDownloadOutline16 size={14} />
+            <span className={css.addMenuItem}>
+              <span>{t('installExisting')}</span>
+              <span className={css.addMenuDescription}>{t('installExistingDescription')}</span>
+            </span>
+          </button>
+          {renderSlot('plugins.add.actions', { onDismiss })}
+        </div>
+      )}
+    </span>
+  )
+}
 
 /** How long the list marks a package an install just enabled. */
 const HIGHLIGHT_MS = 2_400
@@ -407,12 +467,42 @@ function RowDetail({ pkg, row, t, resolveText, onBack, renderSlot, form }: {
 }
 
 /**
+ * Where a bundle comes from: the spec that installs it elsewhere, or built in
+ * for one whose loaded copy the installation supplies, and its version. A
+ * selected bundle that neither the profile nor the installation holds has no
+ * section.
+ */
+function SourceSection({ pkg, t }: { readonly pkg: PackageView; readonly t: Translate }): ReactNode {
+  if (pkg.source === undefined && !pkg.installed && !pkg.optional) return null
+  return (
+    <section className={css.detailSection} data-plugin-source>
+      <h4 className={css.sectionTitle}>{t('sourceTitle')}</h4>
+      <dl className={css.facts}>
+        <div>
+          <dt>{t('sourceSpec')}</dt>
+          <dd>{pkg.source === undefined ? t('sourceBuiltIn') : <code>{pkg.source}</code>}</dd>
+        </div>
+        {pkg.version === undefined
+          ? null
+          : (
+            <div>
+              <dt>{t('sourceVersion')}</dt>
+              <dd>{pkg.version}</dd>
+            </div>
+          )}
+      </dl>
+    </section>
+  )
+}
+
+/**
  * One package's page: the crumb back to the list; its icon with its switch
  * and, for a package the profile installed, uninstall; its title beside its
  * version tag, its beta tag, and its problem tag; the package name the title
  * stands for, which is what installs it elsewhere; its one-liner; the Host's
  * problem when it reports one; the configuration the bundle registered for
- * itself; and its rows with their switches and configure controls.
+ * itself; its rows with their switches and configure controls; and where it
+ * comes from.
  */
 function PackageDetail({
   pkg, t, resolveText, busy, rowBusy, configured, configure, renderSlot,
@@ -488,6 +578,7 @@ function PackageDetail({
           toggle={pkg.enabled ? { busy: row => busy || rowBusy(row), onSetEnabled: onSetRowEnabled } : undefined}
           configure={configure}
         />
+        <SourceSection pkg={pkg} t={t} />
       </div>
     </div>
   )
@@ -892,6 +983,17 @@ function InstallDialog({
           {phase === 'done' && install.restartRequired
             ? <p className={css.resultWarn} role="status">{t('installDoneRestart')}</p>
             : null}
+          {phase === 'done' && install.subject?.kind === 'registry' && install.subject.version !== undefined
+            && install.installedVersion !== null && install.installedVersion !== install.subject.version
+            ? (
+              <p className={css.resultWarn} role="status">
+                {t('installDoneOtherVersion', {
+                  installed: install.installedVersion, version: install.subject.version,
+                  exact: `${install.subject.name ?? install.subject.spec}@${install.subject.version}`,
+                })}
+              </p>
+            )
+            : null}
           {phase === 'done' && install.approvedBuilds.length > 0
             ? <p className={css.result} role="status">{t('installDoneApproved', { names: install.approvedBuilds.join(', ') })}</p>
             : null}
@@ -1234,7 +1336,7 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
                   {refreshing ? <StateDot state="ongoing" /> : <IconRefreshOutline16 />}
                 </span>
               </button>
-              <Button variant="primary" size="sm" icon={<IconPlusOutline16 size={13} />} disabled={!loaded} onClick={props.openInstall}>{t('addPlugin')}</Button>
+              <AddPluginMenu t={t} disabled={!loaded} openInstall={props.openInstall} renderSlot={renderSlot} />
             </div>
           </header>
         )

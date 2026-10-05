@@ -84,7 +84,6 @@ The three Office workflows and their shared checker ship in this repository unde
 | File | Responsibility |
 |---|---|
 | [`src/index.ts`](src/index.ts) | Manifest validation, path derivation, in-place and installed preparation, tool registration. |
-| — | No runtime invariant companion is published: the payload manifest is validated on every preparation, and the tool registry owns registration lifecycle. |
 
 </details>
 

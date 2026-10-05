@@ -10,6 +10,7 @@ import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
 import type { ToolCallOwnerProps, ToolTreeProps } from '../src/client/contract/slots.ts'
 import { ToolCallTree } from '../src/client/tool/ToolCallTree.tsx'
 import { zh } from '@qilin/client-ui-conversation/src/client/locales.ts'
+import { PartialArguments } from '@qilin/util-values'
 
 afterEach(cleanup)
 
@@ -17,6 +18,7 @@ const t: ToolTreeProps['t'] = makeTranslate(zh, commonZh)
 
 const root = (callId: string, call: ToolResultNode['call']): ToolResultNode => ({
   kind: 'tool-result', seq: 3, time: 3_000, callId, call, callTime: 2_000,
+  name: call?.name ?? '', args: call === null ? PartialArguments.EMPTY : PartialArguments.fromText(call.argsRaw),
   content: [], isError: false, subCalls: [],
 })
 
@@ -100,7 +102,7 @@ describe('ToolCallTree', () => {
   it('dispatches a running call by its wire name and forwards inspect', () => {
     const owners: ToolCallOwnerProps[] = []
     const block: ToolCallBlock = {
-      phase: 'start' as const, callId: 'running', name: 'bash', argsRaw: '{"command":"pwd"}',
+      phase: 'start' as const, args: PartialArguments.fromText('{"command":"pwd"}'), callId: 'running', name: 'bash', argsRaw: '{"command":"pwd"}',
       turn: 1, step: 0, time: 1_000, subCalls: [],
     }
     const treeProps = props(block, undefined, owners)

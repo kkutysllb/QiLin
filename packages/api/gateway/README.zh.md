@@ -97,5 +97,3 @@ Client waterfall 的 Context 解析保持同步。解析器可以返回借用的
 无。
 
 </details>
-
-**运行时不变式：** 不发布伴生入口。Host 调用会重新读取权威的 Kylin 与 Typert 状态，Client 方法、描述符与 `$on` 订阅的变更则统一归属同一个 effect。

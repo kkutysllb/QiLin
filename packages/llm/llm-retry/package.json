@@ -21,10 +21,6 @@
       "types": "./lib/types/index.d.ts",
       "default": "./lib/index.js"
     },
-    "./invariant": {
-      "types": "./lib/types/invariant.d.ts",
-      "default": "./lib/invariant.js"
-    },
     "./types": {
       "types": "./lib/types/types.d.ts",
       "default": "./lib/types/types.js"
@@ -33,7 +29,6 @@
   },
   "files": [
     "lib/index.js",
-    "lib/invariant.js",
     "lib/types/**/*.js",
     "lib/types/**/*.d.ts"
   ],
@@ -41,7 +36,6 @@
   "peerDependencies": {
     "@qilin/brand": "workspace:*",
     "@qilin/agent": "workspace:*",
-    "@qilin/invariants": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/session": "workspace:*",
     "@qilin/timeout": "workspace:*",
@@ -59,7 +53,6 @@
     "@qilin/agent": "workspace:*",
     "@qilin/agent-loop": "workspace:*",
     "@qilin/agent-loop-testkit": "workspace:*",
-    "@qilin/invariants": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/llm-deepseek": "workspace:*",
     "@qilin/llm-deepseek-api-key": "workspace:*",

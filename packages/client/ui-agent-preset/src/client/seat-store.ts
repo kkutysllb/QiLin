@@ -27,8 +27,8 @@ export interface AgentPresetSeatState {
   options: readonly AgentPresetOption[]
   /** The staged choice, empty until the roster loads. */
   current: string
-  /** A rejected apply's message, cleared by the next attempt. */
-  error: string | null
+  /** An error message; explicit selection failures also carry the preset for a Toast. */
+  error: string | { readonly preset: AgentPresetOption; readonly reason: string } | null
   busy: boolean
   /**
    * One-shot cue that the chip should introduce itself (the creator-draft
@@ -86,8 +86,10 @@ export class AgentPresetSeatController {
     const generation = ++this.loadGeneration
     const roster = await readRoster(this.ctx)
     if (generation !== this.loadGeneration) return
+    // A roster refresh can finish after a selection; leave its announcement for the chip.
+    const error = this.store.getSnapshot().error
     if (!roster.ok) {
-      this.set({ error: roster.error })
+      if (typeof error !== 'object' || error === null) this.set({ error: roster.error })
       return
     }
     const { presets, modeSelectionEnabled } = roster.value
@@ -107,7 +109,7 @@ export class AgentPresetSeatController {
       // once the flow's session is current, so the reply can arrive after
       // apply() already composed it.
       current: this.staged.id ?? (session === undefined ? this.fallback : presetOf(session) ?? ''),
-      error: null,
+      error: typeof error === 'object' ? error : null,
       introduce: modeSelectionEnabled && this.staged.introduce,
     })
     await this.apply()
@@ -129,7 +131,8 @@ export class AgentPresetSeatController {
     if (this.store.getSnapshot().busy) return undefined
     this.stage(id)
     await this.apply()
-    return this.store.getSnapshot().error ?? undefined
+    const { error } = this.store.getSnapshot()
+    return error !== null && typeof error === 'object' ? error.reason : error ?? undefined
   }
 
   /**
@@ -173,7 +176,8 @@ export class AgentPresetSeatController {
     if (session === undefined || !session.blank || session.id !== expectedSessionId) return undefined
     this.stage(id)
     await this.apply()
-    return this.store.getSnapshot().error ?? undefined
+    const { error } = this.store.getSnapshot()
+    return error !== null && typeof error === 'object' ? error.reason : error ?? undefined
   }
 
   /** Acknowledge the introduction cue once the chip has played it. */
@@ -181,6 +185,15 @@ export class AgentPresetSeatController {
     if (!this.store.getSnapshot().introduce) return
     this.staged.introduce = false
     this.set({ introduce: false })
+  }
+
+  /** Acknowledge a displayed refusal without dismissing a newer attempt.
+   * @param refusal - the selection error whose Toast finished.
+   */
+  dismissRefusal(refusal: AgentPresetSeatState['error']): void {
+    if (refusal !== null && typeof refusal === 'object' && this.store.getSnapshot().error === refusal) {
+      this.set({ error: refusal.reason })
+    }
   }
 
   /**
@@ -207,27 +220,36 @@ export class AgentPresetSeatController {
       return
     }
     this.set({ busy: true, error: null })
-    const result = await this.ctx.remote.agentPresets.select(session.id, staged)
-    this.staged.id = undefined
-    this.staged.introduce = false
-    if (!result.ok) {
-      const { error } = result
+    const refuse = (reason: string): void => {
       this.set({
-        busy: false,
-        // A refusal carries its cause twice: `message` wraps it in the
-        // roster's own frame, which names the preset the surface reporting
-        // this already names, and a `reason` detail holds the same cause
-        // without it. Read by the detail rather than by the code, because
-        // every refusal that has a cause to give names it the same way.
-        error: 'reason' in error.details && typeof error.details.reason === 'string'
-          ? error.details.reason
-          : error.message,
+        // A staged id the roster does not list has no row to read trust from;
+        // the Toast names presets by their published name, so the flag never shows.
+        error: { reason, preset: this.store.getSnapshot().options.find(option => option.id === staged) ?? { id: staged, trust: 'user' } },
         current: presetOf(session) ?? '',
       })
-      return
     }
-    // Consumed: the next new session opens on the Host-effective default again.
-    this.set({ busy: false, current: result.value })
+    try {
+      const result = await this.ctx.remote.agentPresets.select(session.id, staged)
+      this.staged.id = undefined
+      this.staged.introduce = false
+      if (!result.ok) {
+        const { error } = result
+        // Prefer the bare cause; the Toast already names the rejected preset.
+        const refusal = 'reason' in error.details && typeof error.details.reason === 'string'
+          ? error.details.reason
+          : error.message
+        refuse(refusal)
+        return
+      }
+      // Consumed: the next new session opens on the Host-effective default again.
+      this.set({ current: result.value })
+    } catch (error) {
+      this.staged.id = undefined
+      this.staged.introduce = false
+      refuse(error instanceof Error ? error.message : String(error))
+    } finally {
+      this.set({ busy: false })
+    }
   }
 }
 

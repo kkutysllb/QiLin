@@ -1,6 +1,5 @@
 import { defineConfig } from 'tsdown'
 
-/** Build the package root and optional invariant companion as independent bundles. */
 export default defineConfig([
   {
     entry: ['lib/types/index.js'],
@@ -13,7 +12,6 @@ export default defineConfig([
     clean: false,
   },
   {
-    entry: ['lib/types/invariant.js'],
     outDir: 'lib',
     format: ['esm'],
     platform: 'node',

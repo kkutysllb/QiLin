@@ -18,7 +18,6 @@ The right Sidebar: where the docking kit meets this product. The root-scoped `ri
 - [The expand button](#the-expand-button)
 - [State](#state)
 - [Extension seats](#extension-seats)
-- [The tab switches](#the-tab-switches)
 - [`ctx.sidebarRight`](#ctxsidebarright)
 - [The Tab domain](#the-tab-domain)
 - [The guide](#the-guide)
@@ -82,16 +81,9 @@ A tab type registers in two stages, and the shipped guide type goes through exac
 1. **The type** — `ctx.sidebarRightTabs.register({ id, kind, patterns?, priority?, canOpen?, title, guide? })`, a static declaration with no runtime hook, returning a disposer. `id` is this implementation's identity in the tab system, unique across every registration (a package name is the natural value; the shipped guide is `@qilin/client-ui-sidebar-right/guide`): a kind is not unique once an extension may take a builtin's over, so the implementation names itself, and a second registration of an `id` throws. A resource type names `patterns`, globs over `qilin-resource://` addresses: one containing `:` matches the whole address (`qilin-resource://file/**`); one without matches the URI's path at any depth, ignoring case (`*.md`), and an address that is not a URI matches no such pattern. A page type — the guide, a file tree — names none and is opened by kind. `canOpen(address)` vetoes a match. `title(address)` is the tab chip's text, captured when the tab opens. `guide` lists entry boxes for the guide page; picking one opens the contributing type as a page. A `kind` carries at most one `builtin` and one `extension` registration (the extension is in force; the builtin resumes when it leaves); any other collision on a kind throws. The `id` is also the key the type's body and title register under, so an extension and the builtin it takes over hold distinct cells and the seat renders the one in force.
 2. **The body** — `ctx.slots.register({ name: 'sidebar.right.pane.tab', key: definition.id }, Body)` reads `{ sidebar, panel, tab }` through the framework-injected `useTabInfo()`. `sidebar` supplies expansion and fullscreen information; `panel.id` identifies its pane; `tab` contains the record fields, `visible`, `navigation`, `signal`, and `actions`. These are not parallel owner props; the type's own store still uses `useStore`/`actions`. Optional title registrations and guide replacements share this hook; an absent title registration uses the text captured at open time.
 
-Which type opens a resource follows the editor-resolver convention: the types whose `patterns` match are ranked by `priority` band — `extension` (a type from outside the product, the highest, and the default when none is named), `builtin`, `fallback` (plain viewers anything more specific should beat) — then by the length of the matched pattern, then by registration order; `canOpen` removes a candidate. The bands are string literals so a type in another package needs no runtime import from here. `candidates(address)` returns the ranking, `claim(address, kind?)` the decision; naming a `kind` skips its globs but keeps its `canOpen`. A type the user switched off is not offered at all ([the tab switches](#the-tab-switches)).
+Which type opens a resource follows the editor-resolver convention: the types whose `patterns` match are ranked by `priority` band — `extension` (a type from outside the product, the highest, and the default when none is named), `builtin`, `fallback` (plain viewers anything more specific should beat) — then by the length of the matched pattern, then by registration order; `canOpen` removes a candidate. The bands are string literals so a type in another package needs no runtime import from here. `candidates(address)` returns the ranking, `claim(address, kind?)` the decision; naming a `kind` skips its globs but keeps its `canOpen`.
 
 Two more seats extend what is already there: `sidebar.right.tab.guide` (chain) replaces the guide tab's body without replacing the tab, and `sidebar.right.tab.menu.item` (list) appends content-level actions to a tab's menu after the kit's own layout actions. No seat exists for pane-level actions or for collapsed-state controls yet, because nothing needs one.
-
-<a id="the-tab-switches"></a>
-## The tab switches
-
-This package contributes one Settings page — `settings.section` with id `sidebar-right` at order 30 — carrying a switch per registered tab type; a type names its own row through the `label` its definition declares, and a type from another package appears there without an edit to this package. Turning a type off is a browser-local preference, like the conversation's content width: only the switched-off ids are stored, under `qilin.sidebarRight.disabledTabs`, so a type shipped after this browser stored its switches arrives on, and a browser that refuses storage leaves the switches working for the page and loses them on the next load.
-
-A switch decides what the column offers, never what it tears down. A switched-off type leaves the guide page — `guide()` drops its entries — and refuses new opens: `candidates(address)` skips it, and `claim`, `openResource` and `openTab` throw a refusal naming the type and the switch rather than blaming the address. Tabs already open under it keep rendering, because `entries()` and `get(kind)` stay complete: the body or title the seat already dispatches still finds its registrant. Every turn republishes the registry in the same step, through the listener set the seats, the guide and the Settings page all follow.
 
 <a id="ctxsidebarright"></a>
 ## `ctx.sidebarRight`
@@ -154,5 +146,3 @@ None; this package neither assembles nor sends a provider request.
 None.
 
 </details>
-
-**Runtime invariant:** No companion is published. The two services (`sidebarRight`, `sidebarRightTabs`) are provided through `ctx.reflect.provide` inside one effect and torn down with it; the seat's binding and the Tab domain's occurrence lifetimes are asserted directly by this package's specs, and no independent observation exists to diverge from them.

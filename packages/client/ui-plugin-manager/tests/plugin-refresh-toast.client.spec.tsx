@@ -13,7 +13,7 @@ afterEach(() => { cleanup(); vi.useRealTimers() })
 const IDLE_INSTALL: InstallState = {
   open: false, spec: '', phase: 'idle', registries: null, registry: { kind: 'offered', registry: null }, registryOpen: false,
   registryError: false, attempts: null, inputError: null, subject: null, runs: [], detailsOpen: false,
-  installed: null, restartRequired: false, failure: null, approvedBuilds: [], enabling: false,
+  installed: null, installedVersion: null, restartRequired: false, failure: null, approvedBuilds: [], enabling: false,
 }
 
 const BASE: PluginManagerState = {

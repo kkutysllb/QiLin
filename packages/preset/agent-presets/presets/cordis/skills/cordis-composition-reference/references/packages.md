@@ -192,6 +192,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin/experimental-computer-use-cua-driver-native` | no | Experimental computer-use provider embedding the Cua Driver native npm SDK |
 | `@qilin/experimental-inspector` | yes | Experimental cross-realm CDP hub for Host debugging and Client Runtime inspection |
 | `@qilin/experimental-ptc-runtime-python` | yes | CPython subprocess implementation of the QiLin PTC execution seam |
+| `@qilin/experimental-session-inspector` | no | Experimental virtualized Session log and live Chat group/node inspectors |
 | `@qilin/experimental-speech-to-text` | yes | Experimental speech recognition with independently selectable providers |
 | `@qilin/experimental-speech-to-text-sensevoice` | yes | Local SenseVoice ONNX transcription with a managed sherpa-onnx process |
 | `@qilin/experimental-tool-agent-team` | yes | Scoped model-facing Agent Teams tools over ctx.agentTeams |
@@ -330,12 +331,6 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 |---|---|---|
 | `@qilin/ptc-runtime-node` | yes | Sandboxed Node process implementation of the QiLin PTC execution capability |
 
-## runtime-diagnostics
-
-| Package | Config | Description |
-|---|---|---|
-| `@qilin/invariants` | yes | Registry service for package-owned QiLin runtime invariants |
-
 ## sandbox
 
 | Package | Config | Description |
@@ -348,6 +343,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | Package | Config | Description |
 |---|---|---|
 | `@qilin/schedule` | yes | Host-wide durable reminders with shared management and original-Session delivery |
+| `@qilin/tool-schedule` | no | Model-facing reminder management tools (schedule_create, schedule_list, schedule_update, schedule_delete) over the Host ctx.schedule service |
 
 ## sdk
 

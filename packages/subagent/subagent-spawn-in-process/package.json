@@ -44,7 +44,6 @@
     "@qilin/agent-loop-testkit": "workspace:*",
     "@qilin/bash-local": "workspace:*",
     "@qilin/subprocess-local": "workspace:*",
-    "@qilin/invariants": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/llm-deepseek": "workspace:*",
     "@qilin/llm-deepseek-api-key": "workspace:*",

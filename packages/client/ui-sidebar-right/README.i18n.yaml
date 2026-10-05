@@ -12,8 +12,8 @@
   en: 2c56e7cb93f5503a
   zh: f290367c8f09fec7
 /qilin-client-ui-sidebar-right/table-of-contents:
-  en: 6a9a20186a3d87ef
-  zh: b73075e1e08454a4
+  en: ff17f27d8c5557d1
+  zh: 6efe4b3d4902a441
 /qilin-client-ui-sidebar-right/what-lives-here-and-what-does-not:
   en: 5d0f7c9513da4cef
   zh: 9b8ee3ca15757ce2
@@ -27,11 +27,8 @@
   en: ade5a425b8620792
   zh: 8d7b7a5e960bf2ef
 /qilin-client-ui-sidebar-right/extension-seats:
-  en: 21fff66f2aaffc58
-  zh: 6901b924f8c4cde5
-/qilin-client-ui-sidebar-right/the-tab-switches:
-  en: 6c126f9a3bc80f62
-  zh: 9a3807dc289f6f0d
+  en: bd7b9346cf5ebccc
+  zh: 0feb7cb6b59d6107
 /qilin-client-ui-sidebar-right/ctx-sidebarright:
   en: 96e4937eba58bacc
   zh: 952fdbe62f48379a
@@ -54,5 +51,5 @@
   en: a5597f70b4d3e553
   zh: a3c19118873eaced
 /qilin-client-ui-sidebar-right/known-limitations-and-deferred-work/dev-note:
-  en: 33274d681fac9a21
-  zh: e024c1c4766b289f
+  en: e67f633dc6fe7773
+  zh: e88aeb617ffb74ea

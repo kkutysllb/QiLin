@@ -160,6 +160,7 @@ describe('runProfile with an application-owned profile', () => {
       expect(plugin).toHaveBeenCalledWith(PluginPackages, mode === 'link' ? {} : {
         generation,
         behavior: mode === 'dual' ? 'verify' : 'enforce',
+        recompute: expect.any(Function) as () => Promise<unknown>,
       })
       expect(existsSync(join(home, 'profiles/node_modules'))).toBe(false)
       expect(existsSync(join(home, '.qilin-module-fallback'))).toBe(mode !== 'runtime')

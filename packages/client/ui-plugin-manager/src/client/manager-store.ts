@@ -83,6 +83,8 @@ export interface PackageView {
   readonly description?: string
   /** Whether the profile's own dependencies hold the package; false for a bundle the installation supplies. */
   readonly installed: boolean
+  /** Present for a profile dependency the installation does not also supply: the spec `pnpm add` accepts. */
+  readonly source?: string
   /** Whether the installation ships the bundle for the person to switch on: official, off until selected, never removable. */
   readonly optional: boolean
   /** Whether an installed copy of this layer resolves ahead of the installation's, so it can be upgraded in place. */
@@ -205,6 +207,8 @@ export interface InstallState {
   readonly detailsOpen: boolean
   /** The bundle the finished run added, left off until enabled from the installed screen. */
   readonly installed: string | null
+  /** The version the finished run installed, when its manifest declares one; null otherwise. */
+  readonly installedVersion: string | null
   /** Whether the finished run's bundle waits for the next start to load. */
   readonly restartRequired: boolean
   /**
@@ -516,6 +520,7 @@ export function packageView(bundle: BundleInfo, plugins: readonly PluginInfo[]):
   return {
     name: bundle.name,
     installed: bundle.installed,
+    ...bundle.source === undefined ? {} : { source: bundle.source },
     optional: bundle.optional,
     updatable: bundle.updatable,
     enabled: bundle.enabled,
@@ -541,7 +546,7 @@ export function sortPackages(packages: readonly PackageView[]): PackageView[] {
 const IDLE_INSTALL: InstallState = {
   open: false, spec: '', phase: 'idle', registries: null, registry: OFFICIAL_REGISTRY, registryOpen: false, registryError: false,
   attempts: null, inputError: null, subject: null, runs: [], detailsOpen: false,
-  installed: null, restartRequired: false, failure: null, approvedBuilds: [], enabling: false,
+  installed: null, installedVersion: null, restartRequired: false, failure: null, approvedBuilds: [], enabling: false,
 }
 
 const IDLE_UPDATES: UpdateState = { status: 'idle', entries: [], reason: '' }
@@ -896,7 +901,7 @@ export class PluginManagerController {
     this.inspectAbort = controller
     this.patchInstall({
       phase: 'checking', inputError: null, subject: null, runs: [], detailsOpen: false, attempts: null, registryOpen: false,
-      installed: null, restartRequired: false, failure: null, approvedBuilds: [],
+      installed: null, installedVersion: null, restartRequired: false, failure: null, approvedBuilds: [],
     })
     const read = this.registryRead
     if (read !== undefined && choice === read.choice && read.done !== undefined) {
@@ -930,7 +935,7 @@ export class PluginManagerController {
   private async startInstall(subject: InstallSubject, approvedBuilds?: readonly string[]): Promise<void> {
     const { spec, registry } = subject
     const requestId = randomUUID() as PluginInstallRequestId
-    this.patchInstall({ phase: 'starting', requestId, subject, runs: [], attempts: null, failure: null, installed: null, approvedBuilds: [] })
+    this.patchInstall({ phase: 'starting', requestId, subject, runs: [], attempts: null, failure: null, installed: null, installedVersion: null, approvedBuilds: [] })
     // The Host announces `plugin-manager/changed` while the run is still on
     // the wire, and every such event reads again; those reads must not cancel
     // the run's settlement.
@@ -961,6 +966,7 @@ export class PluginManagerController {
         phase: 'done',
         runs: settledRuns(runs, 0),
         installed: result.value.bundle ?? null,
+        installedVersion: result.value.version ?? null,
         restartRequired: result.value.application === 'restart-required',
         approvedBuilds: result.value.approvedBuilds ?? [],
         ...asked,

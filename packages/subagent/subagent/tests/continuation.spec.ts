@@ -11,6 +11,8 @@ import { SessionId } from '@qilin/session'
 import type { SessionEvent, SessionEventMap } from '@qilin/session'
 import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
 import ScheduleService from '@qilin/schedule'
+import { createScope } from '@qilin/scope'
+import * as ToolSchedule from '@qilin/tool-schedule'
 import Storage from '@qilin/storage'
 import * as StorageDomain from '@qilin/storage-domain'
 import * as StorageJson from '@qilin/storage-json'
@@ -19,7 +21,6 @@ import * as SubagentFork from '@qilin/subagent-fork-in-process'
 import type { ContentBlock, GenerateOptions, MessageId, StreamChunk } from '@qilin/llm'
 import { ToolCallId, createUserMessage, LlmAdapter, ReasoningEffortId } from '@qilin/llm'
 import { defineTool } from '@qilin/tools'
-import InvariantRegistry from '@qilin/invariants'
 import { MockAdapter, maxTokensResponse, textResponse, toolCallResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
 import SubagentRuntime, {
   SubagentError,
@@ -27,7 +28,6 @@ import SubagentRuntime, {
 } from '../src/index.ts'
 import type { SubagentRunEndInfo, SubagentRunInfo } from '../src/index.ts'
 import type { SubagentPromptRequestId } from '../src/control-types.ts'
-import * as SubagentInvariant from '../src/invariant.ts'
 import { TestSessionQuery } from './test-session-query.ts'
 import { loadStoredSession } from './persistence-helpers.ts'
 import {
@@ -1112,8 +1112,6 @@ describe('direct-child Queue residency routing', () => {
 
   it('cold-resumes after the initial provider unregisters', async () => {
     const { ctx, parent } = await setup([textResponse('first'), textResponse('after resume')])
-    await ctx.plugin(InvariantRegistry)
-    await ctx.plugin(SubagentInvariant)
     const disposeProvider = ctx.subagents.registerProvider({
       name: 'retired',
       capabilities: { agentOptions: false, outputSchema: false, depthLimit: false, toolFilter: false, persona: false },
@@ -1362,6 +1360,12 @@ describe('continuable child ownership', () => {
       { chunks: textResponse('grandchild'), gate: releaseGrandchild.promise },
     ])
     const { ctx, parent } = await setupWith(adapter, { schedule: true })
+    // The reminder tools are preset-scoped now: mounting them in the parent's
+    // scope gives exactly the parent the ownership-visible registry. afterEach
+    // disposes the root context, which disposes the scoped registration.
+    cleanups.push(() => scope.dispose())
+    const scope = createScope(ctx, parent)
+    await scope.ctx.plugin(ToolSchedule)
     const started = await ctx.subagents.startContinuable(startSpec(parent))
     const child = await vi.waitFor(() => {
       const found = ctx.agents.get(started.childId)

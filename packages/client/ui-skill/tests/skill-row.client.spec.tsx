@@ -6,6 +6,7 @@ import type { StartedToolCall, ToolResultNode } from '@qilin/client-ui-chat/clie
 import type { ToolCallOwnerProps } from '@qilin/client-ui-tool/client'
 import { makeTranslate } from '@qilin/client-test-runtime'
 import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
+import { PartialArguments } from '@qilin/util-values'
 import { SkillRow } from '../src/client/SkillRow.tsx'
 import { zh } from '../src/client/locales.ts'
 
@@ -16,12 +17,14 @@ const t: SkillRowProps['t'] = makeTranslate(zh, commonZh)
 afterEach(cleanup)
 
 function settled(over: Partial<ToolResultNode> = {}): ToolResultNode {
+  const call = over.call === undefined ? { name: 'skill', argsRaw: '{"name":"qilin-manage-issues"}' } : over.call
   return {
     kind: 'tool-result',
     seq: 3,
     time: 3_000,
     callId: 'call-skill',
-    call: { name: 'skill', argsRaw: '{"name":"qilin-manage-issues"}' },
+    name: call?.name ?? '', args: call === null ? PartialArguments.EMPTY : PartialArguments.fromText(call.argsRaw),
+    call,
     callTime: 2_000,
     content: [{ type: 'text', text: 'Follow the issue workflow.\nKeep project fields in sync.' }],
     isError: false,
@@ -37,7 +40,7 @@ const useDisclosure: ToolCallOwnerProps['useDisclosure'] = () => ({
 
 function running(argsRaw = '{"name":"qilin-manage-issues"}'): StartedToolCall {
   return {
-    phase: 'start' as const, callId: 'call-skill', name: 'skill', argsRaw, turn: 1, step: 1, time: 2_000, subCalls: [],
+    phase: 'start' as const, args: PartialArguments.fromText(argsRaw), callId: 'call-skill', name: 'skill', argsRaw, turn: 1, step: 1, time: 2_000, subCalls: [],
   }
 }
 
@@ -58,7 +61,7 @@ function props(block: SkillRowProps['block'], inspect?: () => void): SkillRowPro
 describe('SkillRow', () => {
   it('shows preparation without arguments, instructions, or disclosure', () => {
     const view = render(<SkillRow {...props({
-      phase: 'preparing', callId: 'call-skill', name: 'skill', turn: 1, step: 1, time: 1, subCalls: [],
+      phase: 'preparing', args: PartialArguments.EMPTY, callId: 'call-skill', name: 'skill', turn: 1, step: 1, time: 1, subCalls: [],
     })} />)
     expect(view.getByText('准备加载技能')).toBeTruthy()
     expect(view.container.querySelector('svg')).not.toBeNull()

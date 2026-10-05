@@ -82,5 +82,3 @@ kind: "package-reference"
 无。
 
 </details>
-
-**Runtime invariant:** 不发布 companion。页面在主体之外不持有任何状态——投影是对会话列表快照的纯函数，由单元 spec 断言，不存在会与它分歧的第二次观测。

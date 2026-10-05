@@ -49,7 +49,7 @@ Profile 与组合包的声明类型从 [`@qilin/package-manifest`](../../util/pa
 
 profile 是同一套 qilin 安装提供不同应用界面的方式：`web`、`headless`、`acp`、`sdk` 与 `sdk-minimal` 从同一 launcher 启动不同组合。profile 位于 `$QILIN_HOME/profiles/<name>`，由可安装组合包和自身 `cordis.patch.yml` 组成。YAML 组合决定是否启用 HMR。随产品交付的 `web` 模板实时重载，其他随附模板只在启动时应用 patch。`sdk-minimal` 只列出自身的独立组合包，其他模板保留 base 加模式的组合包栈。`qilin --profile <name> --from-default-profile <template>` 从一个随附模板，在新的非内置名称处创建自定义 profile；`qilin plugin` 则初始化以 base 为基础的 profile，并管理其中安装的组合包。缺失组合包或未声明 patch 的组合包会让启动明确失败。协调 profile 已安装依赖（`reconcileProfilePlugins`）时还会拒绝安装了上游 DSH 时代引擎包的 profile：诊断指明每个冲突包、它映射到的 QiLin 包与清除命令；bundle 列表保持不变，CLI 与 Web 插件管理器共用这一规则。由应用持有的 npm 项目（例如 Electron 保留的 Desktop profile）通过 `loadProfileDirectory` 加载已经初始化的目录，而不会将它暴露给 CLI profile 查找。
 
-两个浏览器模板还会种下 `dsh-animations`——安装实例依赖的动效技能包，`ANIMATIONS_BUNDLE` 在 `PROFILE_OWNED_BUNDLES` 中指名它（[源码](src/profile.ts)），它是唯一不走“安装实例优先”的组合包。profile 通过 `qilin plugin` 或[插件管理器](../plugin-manager/README.zh.md)装下的副本优先于安装实例的种本，因此升级这个内置插件会改变由哪份副本提供 patch 层与代码；从未装过副本的 profile 继续解析种本。加载随附 profile 时会恢复模板自身的层，并保留模板从未持有过的每一个条目：早于该组合包的 profile、以及被人自行扩展过的 profile 都会在下次加载时获得它，而装过的插件仍留在原处；列表等于模板加这些条目时不再写盘，因此该写入会收敛。
+浏览器模板不再种下 `dsh-animations` 动效技能包：需要它的 profile 通过 `qilin plugin` 或[插件管理器](../plugin-manager/README.zh.md)自行安装，装下的副本属于 profile 所有，可原地升级或移除。加载随附 profile 时会恢复模板自身的层，并保留模板从未持有过的每一个条目，而安装实例曾经种下的条目归安装实例所有：浏览器模板曾种下的 `dsh-animations` 会在下次加载时从 profile 的列表中退役（自行添加的其他条目留在原处），装回的副本不受影响；列表等于模板加这些条目时不再写盘，因此该写入会收敛。
 
 在 profile 导入插件之前，QiLin 会用 `getQilinRuntimeVersion()` 返回的单一运行时版本检查插件对 `@qilin/cli` 与 `@qilin/*` 的 `peerDependencies`。每条声明的范围都必须匹配，预发布版本也参与范围匹配。源码工作区的 `workspace:^`、`workspace:~` 与 `workspace:*` 指的就是该运行时。随仓库 vendor 的 `@qilin/kylin` 框架族虽然发布在同一 scope 下，但版本独立于 harness 发布，因此它以及 `@qilin/` 之外的任何 peer 都不构成约束；非法范围视为不兼容。这些检查读取的是 peer 声明，不是 `engines.qilin`，也不能作为防范恶意包代码的沙箱。
 
@@ -153,7 +153,6 @@ Loader 结算后，app-boot 在仅 optional 条目未激活时输出警告。如
 | [`src/profile-plugins.ts`](src/profile-plugins.ts) | 已安装依赖、bundle 启用策略与 manifest 更新 |
 | [`src/profile-sanitize.ts`](src/profile-sanitize.ts) | profile patch 备份与恢复 bundle 启用状态 |
 | [`src/profile-resolution/`](src/profile-resolution/) | 运行时 resolver、package metadata 服务与构建后 Worker bootstrap |
-| — | 不发布运行时不变式伴生入口；每个 resolver generation 只有一个 registration 所有，dual 模式在解析时比较独立物化的结果。 |
 
 </details>
 

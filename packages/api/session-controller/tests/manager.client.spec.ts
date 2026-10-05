@@ -418,6 +418,63 @@ describe('SessionManager query lifetime', () => {
     }
   })
 
+  it('re-pulls a failed first list on a bounded backoff and recovers without a new generation', async ({ mock, remote }) => {
+    vi.useFakeTimers()
+    const manager = makeManager(mock, remote)
+    onTestFinished(() => { vi.useRealTimers(); return manager.dispose() })
+    const failure = new RemoteError('gateway/internal', 'list unavailable', {})
+    remote.session.list.mockRejectedValue(failure)
+    await manager.refreshList()
+    expect(manager.getListSnapshot()).toMatchObject({ state: 'error', phase: 'pending' })
+
+    // Three backoff retries; the pull that lands ends the schedule and the
+    // phase flips ready with the Host's rows.
+    remote.session.list.mockResolvedValueOnce(ok({ items: [summary(S1)] }))
+    await vi.advanceTimersByTimeAsync(1_000)
+    expect(remote.session.list).toHaveBeenCalledTimes(2)
+    expect(manager.getListSnapshot()).toMatchObject({ state: 'idle', phase: 'ready' })
+    expect(manager.getListSnapshot().items.map(item => item.sessionId)).toEqual([S1])
+
+    // A later failure over the ready phase never schedules again.
+    remote.session.list.mockRejectedValueOnce(failure)
+    await manager.refreshList()
+    await vi.advanceTimersByTimeAsync(10_000)
+    expect(remote.session.list).toHaveBeenCalledTimes(3)
+    expect(manager.getListSnapshot()).toMatchObject({ state: 'error', phase: 'ready' })
+  })
+
+  it('stops re-pulling once the bounded attempts are exhausted', async ({ mock, remote }) => {
+    vi.useFakeTimers()
+    const manager = makeManager(mock, remote)
+    onTestFinished(() => { vi.useRealTimers(); return manager.dispose() })
+    const failure = new RemoteError('gateway/internal', 'list unavailable', {})
+    remote.session.list.mockRejectedValue(failure)
+    await manager.refreshList()
+    // The initial pull plus one retry per scheduled delay, then nothing.
+    await vi.advanceTimersByTimeAsync(10_000)
+    expect(remote.session.list).toHaveBeenCalledTimes(4)
+    expect(manager.getListSnapshot()).toMatchObject({ state: 'error', phase: 'pending' })
+  })
+
+  it('stops scheduling a pending list retry at dispose and on a new generation', async ({ mock, remote }) => {
+    vi.useFakeTimers()
+    const manager = makeManager(mock, remote)
+    onTestFinished(() => { vi.useRealTimers(); return manager.dispose() })
+    const failure = new RemoteError('gateway/internal', 'list unavailable', {})
+    remote.session.list.mockRejectedValue(failure)
+    await manager.refreshList()
+    expect(manager.getListSnapshot().phase).toBe('pending')
+
+    // A new generation re-pulls immediately and retires the scheduled retry.
+    remote.session.list.mockResolvedValueOnce(ok({ items: [] }))
+    manager.handleConnected()
+    await vi.advanceTimersByTimeAsync(0)
+    const pullsAfterConnect = remote.session.list.mock.calls.length
+    await vi.advanceTimersByTimeAsync(10_000)
+    expect(remote.session.list.mock.calls.length).toBe(pullsAfterConnect)
+    expect(manager.getListSnapshot()).toMatchObject({ state: 'idle', phase: 'ready' })
+  })
+
   it.for([false, true])('preserves a rejected Remote projection failure with prior values %s', async (warm, { mock, remote }) => {
     const manager = makeManager(mock, remote)
     const failure = new RemoteError('gateway/internal', 'projection unavailable', {})

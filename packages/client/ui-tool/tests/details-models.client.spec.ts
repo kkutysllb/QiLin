@@ -13,12 +13,14 @@ import { formatSpillNotice } from '@qilin/spill-policy/notice'
 import { detailBadge, detailJson, detailList, detailRecord, inspectionItems, nonempty } from '../src/client/tool/models/detail-model-shared.ts'
 import { detailsCardModel } from '../src/client/tool/models/details-card-model.ts'
 import { SpillLocator } from '@qilin/spill'
+import { PartialArguments } from '@qilin/util-values'
 
 const t = makeTranslate(en, commonEn)
 
 function output(name: string, text: string, args: Record<string, unknown> = {}): ToolResultNode {
   return {
     kind: 'tool-result', seq: 10, time: 2_000, callTime: 1_000, callId: `${name}-1`,
+    name, args: PartialArguments.fromText(JSON.stringify(args)),
     call: { name, argsRaw: JSON.stringify(args) }, content: [{ type: 'text', text }], isError: false, subCalls: [],
   }
 }

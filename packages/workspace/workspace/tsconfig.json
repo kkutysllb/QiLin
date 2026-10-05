@@ -35,8 +35,5 @@
     {
       "path": "../../util/brand"
     },
-    {
-      "path": "../../runtime-diagnostics/invariants"
-    }
   ]
 }

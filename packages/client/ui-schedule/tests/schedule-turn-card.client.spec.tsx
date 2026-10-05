@@ -23,6 +23,7 @@ import {
   scheduleTasksForClosing, scheduleTurnDefinition, selectScheduleTasks,
   type ScheduleTurnData, type ScheduleTurnOwner,
 } from '../src/client/schedule-turn.ts'
+import { PartialArguments } from '@qilin/util-values'
 import { en, zh } from '../src/client/task-manager-locales.ts'
 
 const CALL = 'call-created'
@@ -160,6 +161,7 @@ function scheduleOf(value: ConversationNodeAssembler, turn = 1): Readonly<Schedu
 function settledBlock(task: unknown, callId = CALL): ToolResultNode {
   return {
     kind: 'tool-result', seq: 3, time: 3_000, callId,
+    name: 'schedule_create', args: PartialArguments.fromText(JSON.stringify(ARGS)),
     call: { name: 'schedule_create', argsRaw: JSON.stringify(ARGS) },
     callTime: 2_000,
     content: [{ type: 'text', text: JSON.stringify(task) }],

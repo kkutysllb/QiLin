@@ -10,6 +10,10 @@
  * call does not freeze the replay), dimming the records the cursor has not
  * reached, and flying one packet per hop along the hop's real edge path
  * (`<animateMotion path>`).
+ *
+ * The canvas adapts to its pane: a ResizeObserver feeds the measured canvas
+ * width into the layout, so the graph spreads its swimlanes across a wide pane
+ * and the canvas centers the sheet whenever it fits no more.
  */
 import { useEffect, useMemo, useRef, useState,
   type PointerEvent as ReactPointerEvent, type ReactNode } from 'react'
@@ -240,7 +244,12 @@ export function TrajectoryGraphView(
   const snapshot = useTrajectory(value => value)
   const graph = useMemo(() => buildTrajectoryGraph(snapshot, t), [snapshot, t])
   const windowed = useMemo(() => windowTrajectoryGraph(graph, RENDER_LIMIT), [graph])
-  const layout = useMemo(() => layoutTrajectoryGraph(windowed.graph), [windowed])
+  // Zero until the ResizeObserver's first delivery; zero keeps the tuned base width.
+  const [canvasWidth, setCanvasWidth] = useState(0)
+  const layout = useMemo(
+    () => layoutTrajectoryGraph(windowed.graph, canvasWidth > 0 ? { width: canvasWidth } : {}),
+    [windowed, canvasWidth],
+  )
   const canvasRef = useRef<HTMLDivElement | null>(null)
   const dragRef = useRef<{ x: number; y: number; left: number; top: number } | null>(null)
   const scaleRef = useRef(1)
@@ -272,6 +281,7 @@ export function TrajectoryGraphView(
     [layout],
   )
   const timeline = windowed.graph.timeline
+  const hasNodes = windowed.graph.nodes.length > 0
 
   const selected = selectedId === null ? undefined : modelById.get(selectedId)
   /** The edge that delivered the selected record, so its delivery reads on the canvas. */
@@ -308,6 +318,18 @@ export function TrajectoryGraphView(
     if (canvas === null) return
     canvas.scrollTop = canvas.scrollHeight
   }, [follow, replay, layout])
+
+  // Spread the layout to the pane: the observer delivers the canvas width on
+  // mount and on every pane resize, and the layout clamps it into its bounds.
+  // The canvas mounts only with records, so the effect re-runs on that flip.
+  useEffect(() => {
+    const element = canvasRef.current
+    if (element === null) return
+    if (typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(() => { setCanvasWidth(element.clientWidth) })
+    observer.observe(element)
+    return () => { observer.disconnect() }
+  }, [hasNodes])
 
   // Replay cursor: one hop per recorded interval. The hop into the next
   // record waits that record's own incoming gap (clamped); the final hop
@@ -646,7 +668,7 @@ export function TrajectoryGraphView(
           </span>
         )}
       </div>
-      {windowed.graph.nodes.length === 0
+      {!hasNodes
         ? <div className={css.empty}>{t('graph.empty')}</div>
         : (
           <>
@@ -659,6 +681,34 @@ export function TrajectoryGraphView(
                 role="img"
                 aria-label={t('graph.canvas')}
               >
+                <defs>
+                  {EDGE_KINDS.map(kind => (
+                    <marker
+                      key={kind}
+                      id={`qtg-edge-arrow-${kind}`}
+                      viewBox="0 0 8 8"
+                      refX={7}
+                      refY={4}
+                      markerWidth={5}
+                      markerHeight={5}
+                      markerUnits="userSpaceOnUse"
+                      orient="auto"
+                    >
+                      <path className={css.edgeArrowBody} data-kind={kind} d="M0 0 L8 4 L0 8 Z" />
+                    </marker>
+                  ))}
+                </defs>
+                {/* Dotted rails under everything: the swimlanes the chips sit in. */}
+                {layout.laneCenters.map((cx, index) => (
+                  <line
+                    key={`rail:${LANES[index]}`}
+                    className={css.laneRail}
+                    x1={cx}
+                    x2={cx}
+                    y1={6}
+                    y2={layout.height - 6}
+                  />
+                ))}
                 {layout.bands.map(band => (band.turn === null ? null : (
                   <g key={`band:${band.turn}:${band.from}`}>
                     <rect
@@ -667,7 +717,7 @@ export function TrajectoryGraphView(
                       y={band.y}
                       width={layout.width}
                       height={band.height}
-                      rx={6}
+                      rx={8}
                     />
                     <text className={css.bandLabel} x={8} y={band.y + 14}>
                       {t('turn.label', { turn: band.turn })}
@@ -702,6 +752,7 @@ export function TrajectoryGraphView(
                           edge.id === selectedEdgeId && css.edgeSelected,
                         )}
                         d={edge.d}
+                        markerEnd={`url(#qtg-edge-arrow-${edge.kind})`}
                       />
                     </g>
                   )
@@ -741,7 +792,7 @@ export function TrajectoryGraphView(
                       onFocus={() => { setHoverId(node.id) }}
                       onBlur={() => { setHoverId(current => (current === node.id ? null : current)) }}
                     >
-                      <rect className={css.nodeRect} width={laid.w} height={laid.h} rx={7} />
+                      <rect className={css.nodeRect} width={laid.w} height={laid.h} rx={9} />
                       <rect className={css.nodeAccent} width={3} height={laid.h} rx={1.5} />
                       <text
                         className={css.nodeLabel}

@@ -17,6 +17,7 @@ import { mountWorkflowRuntime } from '../../workflow-ptc/tests/setup.ts'
 import * as toolWorkflow from '../src/index.ts'
 import { Session, SessionId } from '@qilin/session'
 import SessionProjectionRegistry from '@qilin/session-projection'
+import '../src/types.ts'
 
 const testToolSignal = new AbortController().signal
 

@@ -6,8 +6,9 @@ import { LocaleRuntime } from '@qilin/client-locale/client'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'
 import { resolveSlotLabel } from '@qilin/client-ui-slots'
 import { TestRemote, usePinnedBrowserLanguages } from '@qilin/client-test-runtime'
-import { apply, inject, NS, TAB_ID } from '../src/client/index.ts'
+import { apply, inject, NS, PANEL_ID, TAB_ID } from '../src/client/index.ts'
 import { PluginManagerPage } from '../src/client/PluginManagerPage.tsx'
+import { PluginsPanelIcon } from '../src/client/PluginsPanelIcon.tsx'
 import type { PluginManagerFace } from '../src/client/manager-store.ts'
 
 usePinnedBrowserLanguages('zh-CN')
@@ -51,6 +52,8 @@ function declare(slots: SlotRegistry): () => void {
     name: 'root',
     children: {
       'settings.plugins.tab': { kind: 'list', scope: 'root' },
+      'main': { kind: 'keyed', scope: 'root' },
+      'sidebar.panellist': { kind: 'list', scope: 'root' },
     },
   } as never, () => null)
 }
@@ -105,7 +108,7 @@ describe('ui-plugin-manager browser plugin', () => {
     expect(entry.component).toBe(PluginManagerPage)
     expect(entry.options).toMatchObject({ id: TAB_ID, order: 5 })
     expect(entry.locale).toBe(NS)
-    // The Settings Plugins section renders the tab label; the page itself owns no sidebar entry.
+    // The Settings Plugins section renders the tab label.
     expect(resolveSlotLabel(entry.options.label)).toBe('插件管理')
     // The page declares the slots a plugin's configuration arrives through, and binds their projection beside its state.
     expect(b.slots.spec('plugins.item')).toMatchObject({ kind: 'list', scope: 'root' })
@@ -138,5 +141,32 @@ describe('ui-plugin-manager browser plugin', () => {
     b.remote.emit('plugin-manager/changed', [{ reason: 'install' }])
     await Promise.resolve()
     expect(b.list).toHaveBeenCalledTimes(3)
+  })
+
+  it('pins the sidebar entry first and opens the same page as a main panel', async () => {
+    const b = await bench()
+    declare(b.slots)
+    const fiber = b.ctx.plugin({ inject: [...inject], apply })
+    await fiber.await()
+
+    // First row of the panel list, under the new-session button.
+    const row = b.slots.entries('sidebar.panellist')[0]!
+    expect(row.options).toMatchObject({ id: PANEL_ID, order: 0 })
+    expect(resolveSlotLabel(row.options.label)).toBe('插件管理')
+    expect(row.component).toBe(PluginsPanelIcon)
+
+    // The main panel renders the same page component, and both seats read one
+    // controller face — the Settings 管理 tab is this panel's mirror.
+    const panel = b.slots.entries('main').find(seat => seat.options.key === PANEL_ID)
+    expect(panel?.component).toBe(PluginManagerPage)
+    const tabFace = (b.slots.entries('settings.plugins.tab')[0]!.inject as unknown as () => PluginManagerFace)()
+    const panelFace = (panel!.inject as unknown as () => PluginManagerFace)()
+    expect(panelFace.hooks.pluginManager).toBe(tabFace.hooks.pluginManager)
+    // The page's configuration slots are declared on the panel seat too.
+    expect(b.slots.spec('plugins.item')).toMatchObject({ kind: 'list', scope: 'root' })
+
+    await fiber.dispose()
+    expect(b.slots.entries('sidebar.panellist')).toHaveLength(0)
+    expect(b.slots.entries('main')).toHaveLength(0)
   })
 })

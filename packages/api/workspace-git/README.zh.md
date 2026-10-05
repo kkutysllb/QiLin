@@ -106,7 +106,6 @@ kind: "package-reference"
 | [`src/index.ts`](src/index.ts) | `WorkspaceGit`：`workspaceGit` 服务与 Remote 命名空间、`Config`、固定 argv 拉起器、全部 Remote 方法 |
 | [`src/parse.ts`](src/parse.ts) | 纯解析器：porcelain `-z` 状态、固定 `for-each-ref` 格式、`rev-list --left-right --count`、固定的历史记录格式，以及 gh 答案（PR 行、账户、URL、首行） |
 | [`src/types.ts`](src/types.ts) | 线上类型与 `RemoteErrorDetailsMap` code，以 `./types` 发布给 Client 包 |
-| — | 不发布运行时不变量伴件；每个答案都来自调用时一次全新的 git 进程。 |
 
 Typert 生成由 `./typert` 与 `./remote` 暴露的 Host 与 Client Remote 工件。
 

@@ -44,8 +44,5 @@
     {
       "path": "../../jobs/jobs"
     },
-    {
-      "path": "../../runtime-diagnostics/invariants"
-    }
   ]
 }

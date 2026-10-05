@@ -41,10 +41,21 @@ interface Config {
   compressionLevel?: number
   /** Minimum known response length eligible for gzip; unknown-length streams are eligible. @default 1024 */
   compressionThresholdBytes?: number
+  /**
+   * When the socket binds. `activate` binds during init: the port exists as
+   * soon as the row runs, and requests for routes that later rows register
+   * answer 404 until then. `settle` binds once the whole Loader tree has
+   * settled, so the first external connection sees the complete route set;
+   * route owners still mount against the idle server, because init resolves
+   * before they run. A `settle` profile must read `port` only after
+   * settlement — the URL line already awaits it.
+   * @default 'activate'
+   */
+  listenOn?: 'activate' | 'settle'
 }
 ```
 
-`host` 只接受 `127.0.0.1`（默认姿态）和 `0.0.0.0`（刻意的网络暴露）。载体本身不拥有 TLS、认证或 Origin 策略，因此绑定到非回环地址会暴露服务器，除非组合层提供这些控制。`compression` 默认为 `none`；随附的 Web 组合选择 gzip level 1 和 1024 字节阈值。随附的 `qilin web` 命令选择 loopback 并拒绝 `--host 0.0.0.0`；其 Connection 插件为每个 Host API route 与 stream 提供 Host/Origin 校验和浏览器会话认证。其他组合自行拥有绑定与路由认证策略。dist 位置、index 路径与公开文档都是认领席位的前端插件的组装事实。
+`host` 只接受 `127.0.0.1`（默认姿态）和 `0.0.0.0`（刻意的网络暴露）。载体本身不拥有 TLS、认证或 Origin 策略，因此绑定到非回环地址会暴露服务器，除非组合层提供这些控制。`compression` 默认为 `none`；随附的 Web 组合选择 gzip level 1、1024 字节阈值和 `listenOn: settle`，因此端口要等整棵树 settle、每个路由所有者注册完毕后才打开。随附的 `qilin web` 命令选择 loopback 并拒绝 `--host 0.0.0.0`；其 Connection 插件为每个 Host API route 与 stream 提供 Host/Origin 校验和浏览器会话认证。其他组合自行拥有绑定与路由认证策略。dist 位置、index 路径与公开文档都是认领席位的前端插件的组装事实。
 
 ## 服务
 
@@ -112,7 +123,7 @@ Source: [`packages/client/connection/src/rpc.ts`](../../packages/client/connecti
 
 ### `ctx.webServer` — `WebServer`
 
-The browser HTTP carrier service. Activation listens immediately. Route registration order does not affect requests because configured named routes must be distinct, and the fallback handler answers anything not yet claimed during startup with 404 until its owner registers. A listen failure rejects initialization, and the boot process reports the failed fiber.
+The browser HTTP carrier service. `listenOn` (see Config) decides when the socket binds; `activate` binds during init, `settle` defers the bind past Loader settlement. Route registration order does not affect requests because configured named routes must be distinct, and the fallback handler answers anything not yet claimed during startup with 404 until its owner registers. A bind failure before init resolves rejects initialization, and the boot process reports the failed fiber.
 
 ```ts cordis-catalog
 /**

@@ -23,6 +23,7 @@ import { EMPTY_TRAJECTORY_SNAPSHOT } from '../src/client/trajectory-snapshot-bui
 import { ZOOM_MAX } from '../src/client/trajectory-graph-canvas.ts'
 import { TrajectoryGraphView } from '../src/client/TrajectoryGraphView.tsx'
 import { t as tTrajectory } from './locale.client.ts'
+import { PartialArguments } from '@qilin/util-values'
 
 const SID = 's1' as SessionId
 
@@ -65,8 +66,11 @@ function assistantNode(seq: number, over: Partial<AssistantMessageNode> = {}): A
 }
 
 function toolResultNode(seq: number, callId: string, over: Partial<ToolResultNode> = {}): ToolResultNode {
+  const call = over.call ?? null
   return {
-    kind: 'tool-result', seq, time: seq * 1000, callId, call: null, callTime: null,
+    kind: 'tool-result', seq, time: seq * 1000, callId,
+    name: call?.name ?? '', args: call === null ? PartialArguments.EMPTY : PartialArguments.fromText(call.argsRaw),
+    call, callTime: null,
     content: [], isError: false, subCalls: [], ...over,
   }
 }
@@ -79,8 +83,10 @@ function requestView(startSeq: number, over: Partial<Extract<RequestView, { purp
 }
 
 function runningCall(callId: string, over: Partial<StartedToolCall> = {}): StartedToolCall {
+  const argsRaw = over.argsRaw ?? ''
   return {
-    phase: 'start', callId, name: 'bash', argsRaw: '', turn: 1, step: 1, time: 500, subCalls: [], ...over,
+    phase: 'start', args: PartialArguments.fromText(argsRaw), callId, name: 'bash', argsRaw,
+    turn: 1, step: 1, time: 500, subCalls: [], ...over,
   }
 }
 
@@ -178,6 +184,59 @@ function canvasOf(container: HTMLElement): HTMLDivElement {
 /** Every dimmed node group. */
 function dimmedNodes(container: HTMLElement): Element[] {
   return [...container.querySelectorAll('[class*="nodeDim"]')]
+}
+
+/** Run one block with a manually-triggerable ResizeObserver installed. */
+function withFakeResizeObserver(fn: () => void): void {
+  const previous = globalThis.ResizeObserver
+  globalThis.ResizeObserver = FakeGraphResizeObserver
+  try {
+    fn()
+  } finally {
+    globalThis.ResizeObserver = previous
+  }
+}
+
+/** A manually-triggerable ResizeObserver double; jsdom defines none. */
+class FakeGraphResizeObserver {
+  /** The instances created while installed, for triggering. */
+  static readonly all: FakeGraphResizeObserver[] = []
+  /** The observed callback. */
+  readonly callback: ResizeObserverCallback
+  /** Whether the canvas disconnected. */
+  disconnected = false
+
+  /**
+   * @param callback - the canvas's resize reaction.
+   */
+  constructor(callback: ResizeObserverCallback) {
+    this.callback = callback
+    FakeGraphResizeObserver.all.push(this)
+  }
+
+  /**
+   * Accept the canvas's registration.
+   */
+  observe(): void {}
+
+  /**
+   * Drop the registration.
+   */
+  disconnect(): void {
+    this.disconnected = true
+  }
+
+  /**
+   * Unobserve one target; the canvas never calls it.
+   */
+  unobserve(): void {}
+
+  /**
+   * Fire the canvas's resize reaction once.
+   */
+  trigger(): void {
+    this.callback([], this)
+  }
 }
 
 describe('TrajectoryGraphView empty state', () => {
@@ -317,6 +376,32 @@ describe('TrajectoryGraphView toolbar', () => {
     // A second stop (pointercancel after pointerup) is a no-op.
     fireEvent.pointerCancel(window)
     expect(canvas.getAttribute('class')).not.toContain('canvasDragging')
+  })
+})
+
+describe('TrajectoryGraphView canvas adaptivity', () => {
+  it('spreads the layout to the measured pane width and arms the drawing', () => {
+    withFakeResizeObserver(() => {
+      const { view } = mountGraph(staticSnapshot())
+      const canvas = canvasOf(view.container)
+      Object.defineProperty(canvas, 'clientWidth', { configurable: true, value: 900 })
+      const observer = FakeGraphResizeObserver.all.at(-1)!
+      act(() => { observer.trigger() })
+      // The 900px pane clamps at the layout maximum.
+      expect(Number(svgOf(view.container).getAttribute('width'))).toBe(720)
+      // One dotted rail per swimlane; the user chip centers in the spread input lane.
+      expect(view.container.querySelectorAll('[class*="laneRail"]')).toHaveLength(3)
+      const transform = svgOf(view.container).querySelector('g[data-kind="user"]')?.getAttribute('transform') ?? ''
+      const x = Number(/translate\(([\d.]+)/.exec(transform)?.[1] ?? NaN)
+      // Input lane center 720 / 6 = 120 minus half the chip grown at half rate.
+      expect(x).toBeCloseTo(120 - (108 * (1 + (720 / 372 - 1) / 2)) / 2, 5)
+      // One arrowhead marker per edge kind; the three routed edges carry theirs.
+      expect(view.container.querySelectorAll('marker')).toHaveLength(5)
+      expect(svgOf(view.container).querySelectorAll('path[marker-end]')).toHaveLength(3)
+      // Unmounting drops the observer.
+      view.unmount()
+      expect(observer.disconnected).toBe(true)
+    })
   })
 })
 

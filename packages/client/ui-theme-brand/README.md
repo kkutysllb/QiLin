@@ -57,5 +57,3 @@ None; the theme contributes no prompt text.
 
 - Tokens without a current component consumer stay with the base palettes; a future consumer that needs the warm values joins this layer rather than re-deriving them.
 - The shipped spec exercises the production theme runtime and its override stack. A booted-Web-surface assertion for this layer is not in place yet; the assembled-surface check is manual.
-
-**Runtime invariant:** No companion is published. The theme runtime that owns the override stack is the observed authority; this layer only contributes entries to it.

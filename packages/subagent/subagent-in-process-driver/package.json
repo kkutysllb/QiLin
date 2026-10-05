@@ -47,7 +47,6 @@
     "@qilin/agent-loop-testkit": "workspace:*",
     "@qilin/agent-presets": "workspace:*",
     "@qilin/fs-sandbox": "workspace:*",
-    "@qilin/invariants": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/sandbox-policy": "workspace:*",
     "@qilin/session": "workspace:*",

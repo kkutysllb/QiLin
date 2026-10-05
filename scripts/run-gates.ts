@@ -234,7 +234,7 @@ export function gatesForMode(selected: Mode): Gate[] {
     case 'ci-primary':
       return ciPrimaryGates()
     case 'ci-linux-primary':
-      return [...ciPrimaryGates(), webSnapshotGate(['built-package-invariants'])]
+      return [...ciPrimaryGates(), webSnapshotGate(['build'])]
     case 'ci-static':
       return ciStaticGates({ ownsBuild: false })
     case 'ci-lint-contracts-ready':
@@ -323,7 +323,6 @@ function ciSharedStaticGates(): Gate[] {
     pnpmScript('package-dependencies', 'verify-package-dependencies', { label: 'package dependencies' }),
     pnpmScript('typert-face-dependencies', 'verify-typert-face-dependencies', { label: 'Typert face dependencies' }),
     pnpmScript('qilin-package-licenses', 'verify-qilin-package-licenses', { label: 'QILIN package licenses' }),
-    pnpmScript('package-invariants', 'verify-package-invariants', { label: 'package invariants' }),
     pnpmScript('package-meta', 'verify-package-meta', { label: 'package metadata' }),
     pnpmScript('cordis-config', 'verify-cordis-config', { label: 'Cordis config' }),
     ...clientStaticGates(),
@@ -356,7 +355,6 @@ function ciPrimaryGates(): Gate[] {
       label: 'node-next types',
       needs: ['build'],
     }),
-    builtPackageInvariantsGate(['build']),
     builtBinSmokeGate(),
   ]
 }
@@ -463,14 +461,13 @@ function ciArtifactGates(): Gate[] {
       label: 'node-next types',
       needs: ['build'],
     }),
-    builtPackageInvariantsGate(['build']),
     builtBinSmokeGate(),
   ]
 }
 
 function ciConsumerGates(): Gate[] {
   const builtTree = ['build']
-  const validatedBuild = ['built-package-invariants']
+  const validatedBuild: string[] = []
   // The HMR web test starts `dev:web`, which rewrites the shared `lib/` and
   // `apps/web/dist/` trees. Let every build-artifact reader settle before that
   // writer starts; `after` preserves the web diagnostic even if a reader fails.
@@ -490,7 +487,6 @@ function ciConsumerGates(): Gate[] {
       env: { [CLIENT_BUILD_PROFILE_SELECTOR]: 'official' },
     }),
     pnpmScript('publint', 'publint', { needs: builtTree }),
-    builtPackageInvariantsGate(builtTree),
     pnpmScript('lint-and-duplication', 'check:ci:lint:contracts-ready', {
       label: 'lint and duplication',
       needs: validatedBuild,
@@ -577,7 +573,6 @@ function ciWindowsObservationalGates(): Gate[] {
       label: 'node-next types',
       needs: ['build'],
     }),
-    builtPackageInvariantsGate(['build']),
   ]
   return [
     ...predecessors,
@@ -688,12 +683,6 @@ function expectedOutputGate(needs: string[] = ['build']): Gate {
   })
 }
 
-function builtPackageInvariantsGate(needs?: string[]): Gate {
-  return pnpmScript('built-package-invariants', 'verify-built-package-invariants', {
-    label: 'built package invariants',
-    ...needs === undefined ? {} : { needs },
-  })
-}
 
 function positiveIntArg(envName: string, flag: string): string[] {
   const raw = process.env[envName]
@@ -724,8 +713,6 @@ function hygieneLeafGates(options: { artifactNeeds?: string[] } = {}): Gate[] {
     pnpmScript('typert-face-dependencies', 'verify-typert-face-dependencies', { label: 'Typert face dependencies' }),
     pnpmScript('application-entrypoints', 'verify-application-entrypoints', { label: 'application entrypoints' }),
     pnpmScript('qilin-package-licenses', 'verify-qilin-package-licenses', { label: 'QILIN package licenses' }),
-    pnpmScript('package-invariants', 'verify-package-invariants', { label: 'package invariants' }),
-    builtPackageInvariantsGate(options.artifactNeeds),
     pnpmScript('node-next-types', 'verify-node-next-types', {
       label: 'node-next types',
       ...artifactOptions,

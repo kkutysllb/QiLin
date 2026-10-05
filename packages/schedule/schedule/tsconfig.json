@@ -12,6 +12,9 @@
       "path": "../../../vendor/cosmokit"
     },
     {
+      "path": "../../../vendor/schemastery"
+    },
+    {
       "path": "../../../vendor/cordis"
     },
     {
@@ -36,9 +39,6 @@
       "path": "../../session/session-persistence-jsonl"
     },
     {
-      "path": "../../runtime-diagnostics/invariants"
-    },
-    {
       "path": "../../api/session-controller/tsconfig.host.json"
     },
     {
@@ -50,8 +50,5 @@
     {
       "path": "../../workspace/workspace"
     },
-    {
-      "path": "../../runtime-diagnostics/invariants"
-    }
   ]
 }

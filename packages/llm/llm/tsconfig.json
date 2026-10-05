@@ -12,6 +12,9 @@
       "path": "../../../vendor/cosmokit"
     },
     {
+      "path": "../../../vendor/schemastery"
+    },
+    {
       "path": "../../../vendor/cordis"
     },
     {
@@ -19,9 +22,6 @@
     },
     {
       "path": "../../attachment/attachment"
-    },
-    {
-      "path": "../../runtime-diagnostics/invariants"
     },
     {
       "path": "../../util/timeout"

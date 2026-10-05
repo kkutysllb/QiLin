@@ -86,5 +86,3 @@ This Dev Note is working context for maintainers: open design questions and dire
 - The page could subscribe to a patch-layer change event instead of reloading after its own writes; there is no such event today, so an edit made in a terminal shows up only after the next load.
 
 </details>
-
-**Runtime invariant:** No companion is published. The Host service is the only authority over the patch layer, and this page renders what each answer reported.

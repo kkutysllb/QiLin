@@ -113,5 +113,3 @@ Controller 接口不依赖 iframe API。未来的 `ElectronWebViewImpl` 可以�
 无。
 
 </details>
-
-**运行时不变量：** 不发布 companion。`BrowserNavigation` 是唯一的 URL 状态写入方；store 接收它的 immutable snapshot，controller 与组件的聚焦测试直接覆盖发布与清理。

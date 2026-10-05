@@ -7,11 +7,13 @@
 
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { once } from 'node:events'
+import { createServer } from 'node:http'
 import { connect } from 'node:net'
+import type { AddressInfo } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context, FiberState } from '@qilin/kylin'
 import Loader from '@qilin/kylin-plugin-loader'
 import Include from '@qilin/kylin-plugin-include'
@@ -28,7 +30,7 @@ afterEach(async () => {
 })
 
 /** Write a cordis.yml with one webserver row, then boot it through the real Loader. */
-async function loadComposition(port = 0, gzip = false): Promise<Context> {
+async function loadComposition(port = 0, gzip = false, listenOn?: 'settle'): Promise<Context> {
   root = await mkdtemp(join(tmpdir(), 'qilin-webserver-loader-'))
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, [
@@ -43,6 +45,7 @@ async function loadComposition(port = 0, gzip = false): Promise<Context> {
         '    compressionThresholdBytes: 16',
       ]
       : []),
+    ...(listenOn === undefined ? [] : [`    listenOn: ${listenOn}`]),
     '',
   ].join('\n'))
 
@@ -78,6 +81,18 @@ async function request(
   return { status: response.status, body: (await response.text()).slice(0, 80), headers: response.headers }
 }
 
+/** Grab one free loopback port and release it for a composition to bind. */
+async function freePort(): Promise<number> {
+  const probe = createServer()
+  await new Promise<void>((resolve, reject) => {
+    probe.once('error', reject)
+    probe.listen(0, '127.0.0.1', () => { resolve() })
+  })
+  const port = (probe.address() as AddressInfo).port
+  await new Promise<void>((resolve) => { probe.close(() => { resolve() }) })
+  return port
+}
+
 /** Open one raw upgrade request and return after the handler writes its response. */
 async function upgrade(port: number, path: string): Promise<ReturnType<typeof connect>> {
   const socket = connect(port, '127.0.0.1')
@@ -104,6 +119,7 @@ describe('real Loader composition', () => {
       compression: 'none',
       compressionLevel: 1,
       compressionThresholdBytes: 1024,
+      listenOn: 'activate',
     })
     expect(() => HttpServer.Config({
       host: '127.0.0.1', port: 0, compressionLevel: 10,
@@ -368,6 +384,82 @@ describe('real Loader composition', () => {
     loaded.webServer.register({ kind: 'exact', path: '/probe', handler: (_req, res) => { res.writeHead(200); res.end('EXACT') } })
     const served = await request(port, '/probe', { headers: { cookie: `bloat=${bloat}` } })
     expect(served).toMatchObject({ status: 200, body: 'EXACT' })
+  })
+
+  it('keeps the port closed until the Loader settles and serves routes from later rows', { timeout: 60_000 }, async () => {
+    const port = await freePort()
+    root = await mkdtemp(join(tmpdir(), 'qilin-webserver-loader-'))
+    await writeFile(join(root, 'cordis.yml'), [
+      "- name: '@qilin/host-webserver'",
+      '  config:',
+      "    host: '127.0.0.1'",
+      `    port: ${String(port)}`,
+      '    listenOn: settle',
+      '',
+      "- name: 'test-blocker'",
+      '',
+    ].join('\n'))
+
+    let releaseBlocker!: () => void
+    const gate = new Promise<void>((resolve) => { releaseBlocker = resolve })
+    context = new Context()
+    context.baseUrl = pathToFileURL(root).href + '/'
+    await context.plugin(Loader)
+    context.loader.builtins.include = Include
+    const blocker = {
+      inject: ['webServer'],
+      apply: async (pluginCtx: Context) => {
+        pluginCtx.get('webServer')!.register({
+          kind: 'exact', path: '/late', handler: (_req, res) => { res.writeHead(200); res.end('LATE') },
+        })
+        await gate
+      },
+    }
+    const modules = new Map<string, unknown>([
+      ['@qilin/host-webserver', HttpServer],
+      ['test-blocker', blocker],
+    ])
+    context.loader.internal = {
+      version: 'v2',
+      async import(specifier: string) {
+        if (!modules.has(specifier)) throw new Error(`unexpected Loader import: ${specifier}`)
+        return modules.get(specifier)
+      },
+    } as unknown as NonNullable<typeof context.loader.internal>
+    const loading = context.loader.create({ name: 'cordis:include', config: { path: pathToFileURL(join(root, 'cordis.yml')).href } })
+
+    // The tree has not settled: the port is still closed, so a client that
+    // connects now is refused rather than answered with startup 404s.
+    await expect(request(port, '/late')).rejects.toThrow()
+    releaseBlocker()
+    await loading
+    await context.loader.await()
+    const entry = [...context.loader.entries()].find(candidate => candidate.options.name === '@qilin/host-webserver')
+    expect(entry?.fiber?.state).toBe(FiberState.ACTIVE)
+    // Settlement resolves the bind as the next step; poll for the socket.
+    await vi.waitFor(async () => {
+      expect(await request(port, '/late')).toMatchObject({ status: 200, body: 'LATE' })
+    })
+  })
+
+  it('fails the fiber of a settle composition whose port is already taken', { timeout: 60_000 }, async () => {
+    const first = await loadComposition()
+    const takenPort = first.webServer.port
+    const firstRoot = root
+    root = undefined
+
+    let second: Context | undefined
+    try {
+      second = await loadComposition(takenPort, false, 'settle')
+      const entry = [...second.loader.entries()].find(e => e.options.name === '@qilin/host-webserver')
+      expect(entry?.fiber?.state).toBe(FiberState.FAILED)
+      await expect(entry?.fiber?.await()).rejects.toThrow('EADDRINUSE')
+    } finally {
+      await second?.fiber.dispose()
+      context = first
+      if (root !== undefined) await rm(root, { recursive: true, force: true })
+      root = firstRoot
+    }
   })
 
   it('fails the fiber when the port is already taken (fail-loud at activation)', { timeout: 60_000 }, async () => {

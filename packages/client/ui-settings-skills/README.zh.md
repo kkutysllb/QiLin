@@ -88,5 +88,3 @@ None, as this page reads the Session-addressed skills Remote and contributes no 
 - 逐技能读取正文还能支撑「胜出技能与被高排名遮蔽的技能之间的差异」这类展示；目前没有消费方提出需求。
 
 </details>
-
-**Runtime invariant:** 不发布伴生包。本页面仅有的关系是它自己的快照与注入的 slot 面，对它们不存在会各自漂移的独立观测。

@@ -23,7 +23,7 @@ import {
   bundleManifest, readProfileRegistry, registryArguments, runProfilePnpm, saveManifest, viewProfilePackage,
 } from './operations.ts'
 import { classifyInstallFailure } from './install-failure.ts'
-import { InvalidInstallSpecError, parseInstallSpec, type ParsedInstallSpec } from './install-spec.ts'
+import { InvalidInstallSpecError, dependencySpec, parseInstallSpec, type ParsedInstallSpec } from './install-spec.ts'
 import { checkGithubConnection } from './github-connection.ts'
 import { writePluginEnabled } from './patch.ts'
 import { incompatiblePlugin, ManagementFailure } from './failure.ts'
@@ -288,6 +288,7 @@ export class PluginManager extends TypertRemoteService {
     const manifest = readProfileManifest('qilin', this.profile.dir)
     const exemptions = readProfileVersionExemptions(this.profile.dir)
     const selected = manifest.qilin?.profile?.bundles ?? []
+    const recorded = manifest.dependencies ?? {}
     const dependencies = Object.keys(manifest.dependencies ?? {})
     const installation = JSON.parse(readFileSync(this.profile.installAnchor, 'utf8')) as InstallationManifest
     const names = [...new Set([...selected, ...dependencies, ...Object.keys(installation.dependencies ?? {})])]
@@ -300,11 +301,15 @@ export class PluginManager extends TypertRemoteService {
       const optional = OPTIONAL_BUNDLES.includes(name)
       const updatable = profileLayerUpdatable(name, builtIn)
       const removable = installed && !Object.hasOwn(installation.dependencies ?? {}, name)
+      // Bundle resolution reads the installation first, so a profile dependency the installation manifest also
+      // names, like one it forbids removing, is not the loaded copy.
+      const sourceOf = (packageName?: string): { source?: string } =>
+        removable ? { source: dependencySpec(name, recorded[name] as string, this.profile.dir, packageName) } : {}
       const enabled = selected.includes(name)
       try {
         const info = bundleManifest(name, this.profile.dir, this.profile.installAnchor)
         if (info === undefined) {
-          if (enabled) bundles.push({ name, enabled, installed, optional, updatable, removable, error: { code: 'not-bundle' }, rows: [], overrides: [] })
+          if (enabled) bundles.push({ name, ...sourceOf(), enabled, installed, optional, updatable, removable, error: { code: 'not-bundle' }, rows: [], overrides: [] })
           continue
         }
         const readOnlyReason = this.layerLock(name, builtIn)
@@ -318,12 +323,14 @@ export class PluginManager extends TypertRemoteService {
         bundles.push({ name, ...(info.version === undefined ? {} : { version: info.version }),
           ...meta === undefined ? {} : { meta },
           ...(info.description === undefined || info.description === '' ? {} : { description: info.description }),
+          ...sourceOf(info.name),
           enabled, installed, optional, updatable, removable: removable && readOnlyReason === undefined,
           ...(readOnlyReason === undefined ? {} : { readOnlyReason }),
           ...this.declaredRows(name, info) })
       } catch (error) {
         if (enabled || installed) {
-          bundles.push({ name, enabled, installed, optional, updatable, removable, error: managementError(error), rows: [], overrides: [] })
+          bundles.push({ name, ...sourceOf(), enabled, installed, optional, updatable, removable,
+            error: managementError(error), rows: [], overrides: [] })
         }
       }
     }
@@ -494,7 +501,9 @@ export class PluginManager extends TypertRemoteService {
   setBundleEnabled(name: string, enabled: boolean): Promise<ChangeResult> {
     return this.change(result => this.configure(async () => {
       await this.selectBundle(name, enabled)
+      if (enabled) await this.refreshPackages()
       result.warnings = await this.reload(enabled ? this.bundleRows(name).map(row => row.id) : [])
+      if (!enabled && this.ownerContext.get('hmr') !== undefined) await this.refreshPackages()
     }), { stage: 'enable', target: name, enabled }, 'bundle')
   }
 
@@ -530,6 +539,7 @@ export class PluginManager extends TypertRemoteService {
       const files = await this.readRestoredFiles()
       const before = readProfileManifest('qilin', this.profile.dir).dependencies ?? {}
       let name: string
+      let version: string | undefined
       try {
         result.registries = []
         const connection = checkGithubConnection(parsedForRegistry(spec), this.profile.dir, {
@@ -596,6 +606,7 @@ export class PluginManager extends TypertRemoteService {
           throw new ManagementFailure('incompatible-version', [incompatiblePlugin(compatibility)])
         }
         loadOverlayPatches('qilin', join(dir, manifest.qilin.bundle.patch))
+        version = manifest.version
       } catch (error) {
         // pnpm has exited by now, so the files it rewrote go back as they were.
         await this.restoreFiles(files)
@@ -604,11 +615,13 @@ export class PluginManager extends TypertRemoteService {
       control.phase = 'applying'
       announce('applying')
       result.bundle = name
+      if (version !== undefined) result.version = version
       result.target = name
       result.stage = 'enable'
       return this.configure(async () => {
         if (options?.enabled !== false) await this.selectBundle(name, true)
         if (Object.hasOwn(before, name)) return 'restart-required'
+        await this.refreshPackages()
         if (options?.enabled !== false) result.warnings = await this.reload()
       })
     }, { stage: 'install', target: spec, enabled: options?.enabled !== false }, 'install')
@@ -660,6 +673,7 @@ export class PluginManager extends TypertRemoteService {
       })
       result.packageResult = await this.runPnpm(['remove', name])
       if (result.packageResult.exitCode !== 0) throw new Error(result.packageResult.output)
+      await this.configure(() => this.refreshPackages())
     }, { stage: 'remove', target: name }, 'remove')
   }
 
@@ -793,6 +807,15 @@ export class PluginManager extends TypertRemoteService {
   private async reload(requiredIds: readonly string[] = []): Promise<string[]> {
     if (this.ownerContext.get('hmr') === undefined) return []
     return reconcileProfilePatches(this.ownerContext.root, readProfilePatches('qilin', this.profile), 'qilin', requiredIds)
+  }
+
+  private async refreshPackages(): Promise<void> {
+    if (this.ownerContext.get('hmr') === undefined) {
+      const selected = readProfileManifest('qilin', this.profile.dir).qilin?.profile?.bundles ?? []
+      // Deselected startup bundles still run without HMR and need the existing package table.
+      if (this.profile.startedBundles.some(name => !selected.includes(name))) return
+    }
+    await this.ownerContext.get('pluginPackages')?.refresh()
   }
 
   private async change(

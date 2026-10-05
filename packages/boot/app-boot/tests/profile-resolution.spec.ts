@@ -1462,7 +1462,21 @@ describe('profile resolution generation', { concurrent: false }, () => {
     }).toThrow(/cannot change its profile scope/u)
     registration.replace({ ...first, localPackageNames: ['new-local'] })
     registration.replace({ ...first, localPackageNames: ['new-local'] })
-    expect(() => { registration.replace(first) }).toThrow(/removing local package/u)
+    // A local package name may leave the table once its plugins have stopped.
+    registration.replace(first)
+    // A profile-scoped mapping may leave the table once its plugins have stopped.
+    const profileEntry = {
+      name: 'profile-lib', packageDir: second, version: '2.0.0',
+      declarer: join(f.profile.dir, 'package.json'), scope: 'profile' as const,
+    }
+    registration.replace({ ...first, entries: [...first.entries, profileEntry] })
+    expect(registration.packageDir(
+      'profile-lib', pathToFileURL(join(f.profile.dir, 'entry.mjs')).href,
+    )).toBe(second)
+    registration.replace(first)
+    expect(registration.packageDir(
+      'profile-lib', pathToFileURL(join(f.profile.dir, 'entry.mjs')).href,
+    )).toBeUndefined()
     expect(registration.packageDir(
       'resolution-lib', pathToFileURL(join(f.profile.dir, 'entry.mjs')).href,
     )).toBe(f.installed)

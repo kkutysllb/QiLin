@@ -49,7 +49,6 @@ describe('qilin-sdk-minimal bundle', () => {
       ['agent', '@qilin/agent'],
       ['llm-retry', '@qilin/llm-retry'],
       ['jobs', '@qilin/jobs-local'],
-      ['invariants', '@qilin/invariants'],
       ['session-invariant', '@qilin/session/invariant'],
       ['agent-invariant', '@qilin/agent/invariant'],
       ['scope-invariant', '@qilin/scope/invariant'],

@@ -40,9 +40,107 @@
 
 .toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
   gap: 16px;
+}
+
+/* The split add-plugin control and its anchored action menu. */
+.addGroup {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: stretch;
+}
+
+.addPrimary {
+  height: 32px;
+  font-size: 13px;
+  line-height: 20px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.addMore {
+  width: 32px;
+  padding: 0;
+  border: none;
+  border-left: 0.5px solid color-mix(in srgb, var(--dsw-alias-label-primary-foreground) 30%, transparent);
+  border-radius: 0 var(--dsw-radius-md) var(--dsw-radius-md) 0;
+  background: var(--dsw-alias-brand-primary);
+  color: var(--dsw-alias-label-primary-foreground);
+  cursor: pointer;
+}
+
+.addMore:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.addMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+  max-width: calc(100vw - 48px);
+  padding: 4px;
+  border: 0.5px solid var(--dsw-alias-border-l4);
+  border-radius: var(--dsw-radius-lg);
+  background: var(--dsw-alias-bg-layer-3);
+  box-shadow: 0 10px 28px rgba(20, 24, 31, 0.16);
+}
+
+.addMenu [role='menuitem'] {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  min-height: 72px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: var(--dsw-radius-md);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.addMenu [role='menuitem']:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.addMenu [role='menuitem']:disabled {
+  color: var(--dsw-alias-label-tertiary);
+  cursor: default;
+}
+
+.addMenuItemRow {
+  color: var(--dsw-alias-label-primary);
+}
+
+.addMenuItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  white-space: normal;
+}
+
+.addMenuDescription {
+  display: -webkit-box;
+  max-height: 36px;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .status,
@@ -941,8 +1039,8 @@
   line-height: 22px;
 }
 
-/* The package name under the title: the exact spec that installs the package
-   elsewhere, where a title of its own or a shortened name hides it. */
+/* The package or row identity under the title, where a title of its own or a
+   shortened name hides it. */
 .detailName {
   margin: 0;
   font-size: 12px;

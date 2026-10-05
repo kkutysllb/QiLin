@@ -46,7 +46,7 @@ const incompatibleText = (name = INCOMPATIBLE.name): string => en.reasonIncompat
 const IDLE_INSTALL: InstallState = {
   open: false, spec: '', phase: 'idle', registries: null, registry: { kind: 'offered', registry: null }, registryOpen: false,
   registryError: false, attempts: null, inputError: null, subject: null, runs: [], detailsOpen: false,
-  installed: null, restartRequired: false, failure: null, approvedBuilds: [], enabling: false,
+  installed: null, installedVersion: null, restartRequired: false, failure: null, approvedBuilds: [], enabling: false,
 }
 
 const READY: PluginManagerState = {
@@ -119,8 +119,8 @@ function renderTab(
     usePluginManager: bindSnapshotSelector(store),
     useConfigLedger: bindSnapshotSelector(ledger),
     useConfigurations: bindSnapshotSelector(configurations),
-    renderSlot: (name: string, owner: { view: 'summary' | 'page'; form?: unknown }, opts: { only?: string; entryKey?: string }) =>
-      bodies[`${name}:${opts.only ?? opts.entryKey ?? ''}`]?.(owner.view, owner) ?? null,
+    renderSlot: (name: string, owner: { view: 'summary' | 'page'; form?: unknown }, opts?: { only?: string; entryKey?: string }) =>
+      bodies[`${name}:${opts?.only ?? opts?.entryKey ?? ''}`]?.(owner.view, owner) ?? null,
   } as PluginManagerPageProps
   const { rerender } = render(<PluginManagerPage {...props} />)
   return {
@@ -397,6 +397,30 @@ describe('PluginManagerPage', () => {
     expect(actions.openInstall).toHaveBeenCalledTimes(1)
   })
 
+  it('splits the add-plugin control: the menu offers install and the contributed actions', () => {
+    const bodies: SlotBodies = {
+      'plugins.add.actions:': (_view, owner) => (
+        <button type="button" role="menuitem" data-testid="contributed"
+          onClick={() => { owner.onDismiss?.() }}>让 Agent 创建插件</button>
+      ),
+    }
+    const { actions } = renderTab({ status: 'ready' }, {}, bodies)
+    // The primary half installs; the chevron half opens the action menu.
+    fireEvent.click(screen.getByRole('button', { name: en.addPlugin }))
+    expect(actions.openInstall).toHaveBeenCalledTimes(1)
+    expect(screen.queryByRole('menu')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: en.chooseAddMethod }))
+    expect(screen.getByRole('menu')).toBeTruthy()
+    // The install row dismisses the menu before opening the dialog.
+    fireEvent.click(screen.getByRole('menuitem', { name: new RegExp(en.installExisting) }))
+    expect(actions.openInstall).toHaveBeenCalledTimes(2)
+    expect(screen.queryByRole('menu')).toBeNull()
+    // A contributed row receives the same dismissal before its own action.
+    fireEvent.click(screen.getByRole('button', { name: en.chooseAddMethod }))
+    fireEvent.click(screen.getByTestId('contributed'))
+    expect(screen.queryByRole('menu')).toBeNull()
+  })
+
   it('keeps a refresh failure off the page toast, spins the refresh control, and words the inline failure', () => {
     const { set } = renderTab({ notice: { kind: 'refresh-failed', seq: 1 } })
     // The overlay toast owns the refresh failure; the page toast stays empty.
@@ -566,6 +590,47 @@ describe('PluginManagerPage', () => {
       setLanguage(dict)
       expect(screen.getByRole('dialog', { name: dict.confirmUninstallTitle.replace('{name}', dict[titleKey]) })).toBeTruthy()
     }
+  })
+
+  it('names where a bundle comes from, built in for one whose copy the installation supplies, and nothing for a missing one', () => {
+    renderTab({ packages: [
+      pkg({ source: 'github:someone/dsh-better-sidebar' }),
+      { name: 'qilin-official', installed: false, optional: true, enabled: false, updatable: false, rows: [] },
+      { name: 'qilin-shadowed', installed: true, optional: false, enabled: true, updatable: false, rows: [] },
+      { name: 'qilin-missing', installed: false, optional: false, enabled: true, updatable: false, error: { code: 'unknown-plugin' }, rows: [] },
+    ] })
+    const facts = (): string[] => [...document.querySelectorAll('[data-plugin-source] dt, [data-plugin-source] dd')].map(node => node.textContent)
+    const back = (): void => { fireEvent.click(screen.getByRole('button', { name: en.backToList })) }
+    const open = (name: string): void => { fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', name) })) }
+    open('better-sidebar')
+    expect(facts()).toEqual([en.sourceSpec, 'github:someone/dsh-better-sidebar', en.sourceVersion, '0.16.0'])
+    back()
+    open('official')
+    expect(facts()).toEqual([en.sourceSpec, en.sourceBuiltIn])
+    back()
+    // A profile dependency the installation also supplies loads the installation's copy.
+    open('shadowed')
+    expect(facts()).toEqual([en.sourceSpec, en.sourceBuiltIn])
+    back()
+    open('missing')
+    expect(document.querySelector('[data-plugin-source]')).toBeNull()
+  })
+
+  it('names the exact spec when pnpm installed an older version than the one inspected', () => {
+    const subject = { spec: 'qilin-x', status: 'accepted', kind: 'registry', name: 'qilin-x', version: '1.4.2', bundle: true, registry: null } as const
+    const older = en.installDoneOtherVersion
+      .replace('{installed}', '1.4.1').replaceAll('{version}', '1.4.2').replace('{exact}', 'qilin-x@1.4.2')
+    const done = { ...IDLE_INSTALL, open: true, spec: 'qilin-x', phase: 'done', installed: 'qilin-x' } as const
+    const { set } = renderTab({ install: { ...done, subject, installedVersion: '1.4.1' } })
+    expect(screen.getByText(older)).toBeTruthy()
+    // Without a name the exact spec falls back to the typed one.
+    const { name: _name, ...unnamed } = subject
+    set({ install: { ...done, subject: unnamed, installedVersion: '1.4.1' } })
+    expect(screen.getByText(older)).toBeTruthy()
+    set({ install: { ...done, subject, installedVersion: '1.4.2' } })
+    expect(screen.queryByText(older)).toBeNull()
+    set({ install: { ...done, subject: { ...subject, kind: 'path' }, installedVersion: '1.4.1' } })
+    expect(screen.queryByText(older)).toBeNull()
   })
 
   describe('configuration pages', () => {

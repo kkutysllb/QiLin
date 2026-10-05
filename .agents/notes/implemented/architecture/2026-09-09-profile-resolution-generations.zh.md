@@ -8,11 +8,11 @@ Status: implemented
 
 profile 从自己的包项目加载插件配置项，而 Harness 包和所选 bundle 携带的包可能位于该项目普通依赖树之外。通过共享 symlink、profile 自有链接或打包可执行文件的代理包连接两棵依赖树，会让选包结果跨进程和安装版本持续存在。这些文件需要协调和锁来维护，并向元数据读取方暴露生成的代理 manifest，也无法原子表示进程内变更。
 
-运行时设计保留现有选包规则，不另建一套包策略。它覆盖插件模块内部的 import 以及 Loader 配置项的 import，并在主线程和 Harness 自有 Worker 中工作。generation 替换只接受新增包的集合，不会逐项修改正在使用的表。
+运行时设计保留现有选包规则，不另建一套包策略。它覆盖插件模块内部的 import 以及 Loader 配置项的 import，并在主线程和 Harness 自有 Worker 中工作。generation 替换保留既有包映射，允许移除 profile 范围映射与 profile 本地包名，不会逐项修改正在使用的表。
 
 ## Decision
 
-profile 启动从磁盘 module fallback 使用的同一套依赖遍历生成一个不可变 `ResolutionGeneration`。launcher 默认使用 runtime 模式，把 generation 安装到 Node 的 ESM 与 CommonJS 解析器，不物化 fallback 链接。普通 Node 调用方和测试可以显式选择 link 模式以物化 generation，或选择 dual 模式以物化并校验它。`PluginPackages.replace()` 通过一次引用替换发布完整的新增型后继 generation。
+profile 启动从磁盘 module fallback 使用的同一套依赖遍历生成一个不可变 `ResolutionGeneration`。launcher 默认使用 runtime 模式，把 generation 安装到 Node 的 ESM 与 CommonJS 解析器，不物化 fallback 链接。普通 Node 调用方和测试可以显式选择 link 模式以物化 generation，或选择 dual 模式以物化并校验它。`PluginPackages.replace()` 通过一次引用替换发布完整的后继 generation；`refresh()` 用 launcher 提供的数据源重算并发布。
 
 ### 唯一选包算法
 
@@ -30,7 +30,7 @@ profile 本地和插件私有 `node_modules` 不进入 fallback entries，由 No
 
 选包缓存和包元数据缓存归 generation 所有。发布下一代后，旧 generation 在调用方退出后自然不可达，不逐项清理缓存。generation 命中和原生解析成功结果可以缓存，但 generation 未命中会重新扫描，因此未命中后安装的 profile 本地包会像 link 模式一样变为可见。显式 CommonJS paths 或非默认 conditions 不得复用默认解析缓存。
 
-launcher 只构造启动 generation。服务接受新增型后继 generation，但本实现没有包管理器事务调用替换操作。
+launcher 只构造启动 generation。服务接受后继 generation，`PluginPackages.refresh()` 发布重算的一代：launcher 提供重算数据源，Plugin Manager 的包操作调用它。
 
 ### ESM 与 CommonJS 共用规则
 
@@ -60,9 +60,9 @@ resolution generation 列出可用 fallback 包；Loader entries 组成活动插
 
 ### 只增加包的变更
 
-添加包的调用方先完成 pnpm 事务，再构造下一代。替换操作会拒绝改变任何既有 package name 的目录或版本。调用方先发布只增加映射的后继 generation，再挂载新的 Loader 配置项；本实现不提供该包事务。挂载失败可以留下已安装但未启用的包。
+添加包的调用方先完成 pnpm 事务，再构造下一代。替换操作会拒绝改变任何保留包的目录或版本。Plugin Manager 先发布后继 generation，再挂载新的 Loader 配置项。挂载失败可以留下已安装但未启用的包。
 
-替换、升级或删除已加载包需要重启，因为 Node 的 ESM Module Map、CommonJS cache、现存对象引用和运行中的 Worker 都可能保留旧模块 identity。generation 换代不声称卸载模块。
+修改既有运行时包映射或删除安装映射需要重启，因为 Node 的 ESM Module Map、CommonJS cache、现存对象引用和运行中的 Worker 都可能保留旧模块 identity。profile 范围的映射和 profile 本地包名可以移除；调用方在删除包文件之前先停止相关插件。generation 换代不声称卸载模块。
 
 ### 磁盘迁移
 
@@ -115,4 +115,4 @@ generation 构造发生在启动或显式更新阶段，不属于单次 resolve�
 
 ## Consequences
 
-runtime 启动避免磁盘修改和代理 manifest，同时保留既有选包算法。代价是持续维护 Node Internal 兼容测试，并在每个自有 Worker 中最早执行自包含 bootstrap。runtime 是普通 Node launcher 的默认值，link 与 dual 保留为显式对比选项；pkg 与 Electron 载体强制使用 runtime，解析器不退休旧链接。在产品拥有模块缓存失效和 Worker 重启前，generation 替换只能新增映射。
+runtime 启动避免磁盘修改和代理 manifest，同时保留既有选包算法。代价是持续维护 Node Internal 兼容测试，并在每个自有 Worker 中最早执行自包含 bootstrap。runtime 是普通 Node launcher 的默认值，link 与 dual 保留为显式对比选项；pkg 与 Electron 载体强制使用 runtime，解析器不退休旧链接。profile 范围的记录可以在不卸载模块的情况下离开解析表；保留包的身份保持不变。

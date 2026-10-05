@@ -105,5 +105,3 @@ tab 的 `kind` 是不透明字符串。种子 tab 是工厂（`DockControllerOpt
 无。
 
 </details>
-
-**运行时不变量：** 不发布 companion。引擎是作用于纯数据的纯函数，组件只上报意图；操作序列的可逆性与 settle 规则由本包的引擎 spec 直接断言，不提供也不观察任何 Cordis 服务。

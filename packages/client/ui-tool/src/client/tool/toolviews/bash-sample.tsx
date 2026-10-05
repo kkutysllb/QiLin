@@ -14,8 +14,7 @@ import {
   terminalCardModel,
   terminalFailed,
 } from '../models/terminal-card-model.ts'
-import { formatToolBody, toolRowModel, toolTitleKey, type ToolRowState } from '../models/tool-call-model.ts'
-import { PreparingToolRow } from '../components/PreparingToolRow.tsx'
+import { formatToolBody, toolRowModel, type ToolRowState } from '../models/tool-call-model.ts'
 import { CONVERSATION_NS as NS } from '../../locale.ts'
 import css from './bash-sample.module.css'
 
@@ -28,13 +27,14 @@ function leadingFor(state: ToolRowState) {
     case 'error': return <StateDot state="error" />
     case 'stopped': return <StateDot state="warning" />
     // Running keeps the icon — the shimmer carries the in-flight signal.
-    default: return <IconApiOutline14 size={14} />
+    default: return BASH_ICON
   }
 }
 
 /** Visually hidden status — StateDot is aria-hidden; AT needs a text label. */
 function stateStatus(state: ToolRowState, t: BashRowProps['t']): string | null {
   switch (state) {
+    case 'preparing': return t('row.preparing')
     case 'running': return t('bash.running')
     case 'error': return t('bash.failed')
     case 'stopped': return t('bash.stopped')
@@ -42,14 +42,13 @@ function stateStatus(state: ToolRowState, t: BashRowProps['t']): string | null {
   }
 }
 
-/** Renders expandable Bash output with an accessible lifecycle label. */
-export function BashRow(props: BashRowProps) {
-  if (props.phase === 'preparing') return <PreparingToolRow {...props}
-    icon={BASH_ICON} title={props.t(toolTitleKey(props.toolName))} />
-  return <StartedBashRow {...props} />
-}
-
-function StartedBashRow({ toolName, block, sessionId, useSessions, inspect, useDisclosure, t }: Exclude<BashRowProps, { phase: 'preparing' }>) {
+/**
+ * Render expandable Bash output with an accessible lifecycle label. While the
+ * call is preparing the row shows the tool name and cannot expand.
+ * @param props - tool call, Session sources, locale, and inspection callback.
+ * @returns the Bash output row.
+ */
+export function BashRow({ toolName, block, sessionId, useSessions, inspect, useDisclosure, t }: BashRowProps) {
   const model = toolRowModel(toolName, block)
   // An omitted shell workdir is the session workspace; relative values resolve
   // against it before reaching the terminal primitive.
@@ -81,7 +80,7 @@ function StartedBashRow({ toolName, block, sessionId, useSessions, inspect, useD
   const failureLine = model.state === 'error' ? model.errorSummary : null
   // An interrupted call states its stop in the summary slot instead of the name.
   const settlementLine = failureLine ?? (state === 'stopped' ? t('bash.stopped') : null)
-  const running = state === 'running'
+  const running = state === 'running' || state === 'preparing'
   const toggleFromKeyboard = (event: KeyboardEvent<HTMLDivElement>) => {
     if (!expandable || (event.key !== 'Enter' && event.key !== ' ')) return
     event.preventDefault()

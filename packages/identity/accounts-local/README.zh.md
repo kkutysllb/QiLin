@@ -101,7 +101,6 @@ kind: "package-reference"
 | [`src/session.ts`](src/session.ts) | 签名的会话 cookie：签发、清除、authority 绑定、有效期 |
 | [`src/paths.ts`](src/paths.ts) | `AUTH_API_PREFIX`、`LOGIN_PATH` 与 `SETUP_PATH` |
 | [`src/validation.ts`](src/validation.ts) | 邮箱规范化与密码最小长度 |
-| — | 不发布运行时不变式伴生入口；本包拥有一个账户文件与一个会话席位，真实组合的测试经 Loader 启动整棵树并观察实际提供的 HTTP 表层。 |
 | [`tests/auth-surface.spec.ts`](tests/auth-surface.spec.ts) | 真实组合：公开文档、受门禁入口、端点、`/api` 门禁、启动令牌交接 |
 | [`tests/accounts.spec.ts`](tests/accounts.spec.ts) | 账户文件解析、变更，以及写入失败后留下的状态 |
 | [`tests/password.spec.ts`](tests/password.spec.ts) | 哈希编码、校验，以及对外来存储值的拒绝 |
@@ -159,5 +158,3 @@ kind: "package-reference"
 无。
 
 </details>
-
-**运行时不变式：** 不发布伴生入口。该插件拥有一个账户文件与一个会话席位，且只有它的写入会读取它所发布的状态；真实组合测试经 Loader 启动账户表层并观察实际提供的 HTTP 表层，而不是探测内部关系。

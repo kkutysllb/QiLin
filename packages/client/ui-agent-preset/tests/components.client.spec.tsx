@@ -56,7 +56,18 @@ function renderSeat(
   session?: { id: string; retainInfo: SessionRetainInfo | undefined },
 ) {
   const store = createSnapshotStore<AgentPresetSeatState>({ ...SEAT_READY, ...state })
-  const actions = { load: vi.fn(() => Promise.resolve()), select: vi.fn(select), introduced: vi.fn() }
+  const actions = {
+    load: vi.fn(() => Promise.resolve()),
+    select: vi.fn(select),
+    dismissRefusal: vi.fn((error: AgentPresetSeatState['error']) => {
+      // The controller degrades the standing state to the bare reason; the
+      // component's own error effect then retires the Toast.
+      if (error !== null && typeof error === 'object') {
+        store.set({ ...store.getSnapshot(), error: error.reason })
+      }
+    }),
+    introduced: vi.fn(),
+  }
   render(<AgentPresetSeat {...({
     ...actions,
     sessionId: session === undefined ? undefined : SessionId(session.id),
@@ -184,28 +195,30 @@ describe('the new-session chip', () => {
 })
 
 describe('a refused switch', () => {
-  it('announces the reason instead of letting the label snap back in silence', async () => {
+  it('announces a selection refusal through the Toast and acknowledges it back', async () => {
     // The banner's own timer has to be a fake one from the start, or the
     // lifetime assertion below would wait out its real nine seconds.
     vi.useFakeTimers({ shouldAdvanceTime: true })
     try {
-      const reason = 'failed to import loader entry live-on-mac (@qilin/also-gone)'
-      renderSeat({}, () => Promise.resolve(reason))
-
-      fireEvent.click(screen.getByRole('button'))
-      fireEvent.click(screen.getByRole('menuitem', { name: /mine/ }))
+      const refusal = {
+        preset: SEAT_READY.options.find(option => option.id === 'mine')!,
+        reason: 'failed to import loader entry live-on-mac (@qilin/also-gone)',
+      }
+      const actions = renderSeat({ error: refusal })
 
       // The host refuses a mount discovery reported healthy, so this banner is
       // the only place the cause appears — the chip has already reverted and
       // the settings row shows the preset as fine.
       const banner = await screen.findByRole('alert')
-      expect(banner.textContent).toContain(reason)
+      expect(banner.textContent).toContain(refusal.reason)
       expect(banner.textContent).toContain('mine')
 
       // Transient by design: it holds long enough to read a cause that names
-      // packages, then leaves rather than sitting over the screen.
+      // packages, then leaves — and the acknowledgment degrades the standing
+      // state to the bare reason without dismissing a newer attempt.
       act(() => { vi.advanceTimersByTime(9001) })
       expect(screen.queryByRole('alert')).toBeNull()
+      expect(actions.dismissRefusal).toHaveBeenCalledWith(refusal)
     } finally {
       vi.useRealTimers()
     }

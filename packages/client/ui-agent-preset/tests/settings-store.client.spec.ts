@@ -446,7 +446,7 @@ describe('the new-session chip controller', () => {
 
     // Showing `minimal` after a refusal would claim a composition the session
     // never got.
-    expect(controller.store.getSnapshot()).toMatchObject({ current: 'standard', error: 'already started' })
+    expect(controller.store.getSnapshot()).toMatchObject({ current: 'standard', error: { reason: 'already started' } })
   })
 
   it('ignores a pick while a switch is in flight', async () => {

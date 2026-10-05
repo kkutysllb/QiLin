@@ -47,7 +47,6 @@
     "@qilin/hooks-claude-code": "workspace:^",
     "@qilin/hooks-codex": "workspace:^",
     "@qilin/http-proxy": "workspace:^",
-    "@qilin/invariants": "workspace:^",
     "@qilin/jobs": "workspace:^",
     "@qilin/jobs-local": "workspace:^",
     "@qilin/launch-environment": "workspace:^",

@@ -1,5 +1,7 @@
 /** Host-side controller for the isolated Client test fixture. */
 
+import { createRequire } from 'node:module'
+import { pathToFileURL } from 'node:url'
 import { Worker } from 'node:worker_threads'
 import type { InspectorClientBootstrap } from '../../src/shared/bridge/messages/control.ts'
 import type { CordisRuntimeTree } from '../../src/shared/cordis/model.ts'
@@ -52,7 +54,14 @@ export class InspectorClientFixture {
   ): Promise<InspectorClientFixture> {
     const ready = Promise.withResolvers<number>()
     const entry = new URL('./client-source.client.ts', import.meta.url)
-    const tsxApi = import.meta.resolve('tsx/esm/api')
+    // Vitest's module runner does not implement import.meta.resolve.
+    const tsxApi = (() => {
+      try {
+        return import.meta.resolve('tsx/esm/api')
+      } catch {
+        return pathToFileURL(createRequire(import.meta.url).resolve('tsx/esm/api')).href
+      }
+    })()
     const source = `import { register } from ${JSON.stringify(tsxApi)}\nregister()\nawait import(${JSON.stringify(entry.href)})`
     const worker = new Worker(new URL(`data:text/javascript,${encodeURIComponent(source)}`), {
       execArgv: [],

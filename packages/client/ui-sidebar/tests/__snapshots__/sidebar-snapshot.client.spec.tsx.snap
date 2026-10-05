@@ -166,9 +166,9 @@ exports[`sidebar shell snapshots > renders Windows caption controls in expanded 
         aria-hidden="true"
         data-content="c0ce4dcc"
         fill="none"
-        height="14"
+        height="16"
         viewBox="0 0 16 16"
-        width="14"
+        width="16"
         xmlns="http://www.w3.org/2000/svg"
       />
       <span
@@ -393,9 +393,9 @@ exports[`sidebar shell snapshots > renders the expanded column (wordmark, capsul
         aria-hidden="true"
         data-content="c0ce4dcc"
         fill="none"
-        height="14"
+        height="16"
         viewBox="0 0 16 16"
-        width="14"
+        width="16"
         xmlns="http://www.w3.org/2000/svg"
       />
       <span
@@ -522,9 +522,9 @@ exports[`sidebar shell snapshots > renders the expanded column in the default lo
         aria-hidden="true"
         data-content="c0ce4dcc"
         fill="none"
-        height="14"
+        height="16"
         viewBox="0 0 16 16"
-        width="14"
+        width="16"
         xmlns="http://www.w3.org/2000/svg"
       />
       <span

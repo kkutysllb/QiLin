@@ -101,7 +101,6 @@ A stored hash is self-describing (`scrypt$N$r$p$salt$key`) with per-account salt
 | [`src/session.ts`](src/session.ts) | Signed session cookies: issuance, clearing, authority binding, lifetime |
 | [`src/paths.ts`](src/paths.ts) | `AUTH_API_PREFIX`, `LOGIN_PATH`, and `SETUP_PATH` |
 | [`src/validation.ts`](src/validation.ts) | Email normalization and the minimum password length |
-| — | No runtime invariant companion is published; the package owns one account file and one session seat, and the real-composition spec boots the whole tree through the Loader and observes the served HTTP surface instead. |
 | [`tests/auth-surface.spec.ts`](tests/auth-surface.spec.ts) | Real composition: public documents, gated entry, endpoints, `/api` gate, launch-token handoff |
 | [`tests/accounts.spec.ts`](tests/accounts.spec.ts) | Account-file parsing, mutation, and the state a failed write leaves behind |
 | [`tests/password.spec.ts`](tests/password.spec.ts) | Hash encoding, verification, and refusals of foreign stored values |
@@ -159,5 +158,3 @@ These limits describe what an account does and does not protect. They are curren
 None.
 
 </details>
-
-**Runtime invariant:** No companion is published. The plugin owns one account file and one session seat, and its writes are the only reads of the state they publish; the real-composition spec boots the account surface through the Loader and observes the served HTTP surface instead of probing an internal relation.

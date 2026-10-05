@@ -34,5 +34,3 @@ kind: "package-reference"
 无。
 
 </details>
-
-**运行时不变式：** 未发布伴随包。本插件是当前查看会话 `sidebarOpens.watch` 的唯一调用者，其 spec 直接驱动会话切换、接管与销毁。

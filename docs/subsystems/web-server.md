@@ -41,10 +41,21 @@ interface Config {
   compressionLevel?: number
   /** Minimum known response length eligible for gzip; unknown-length streams are eligible. @default 1024 */
   compressionThresholdBytes?: number
+  /**
+   * When the socket binds. `activate` binds during init: the port exists as
+   * soon as the row runs, and requests for routes that later rows register
+   * answer 404 until then. `settle` binds once the whole Loader tree has
+   * settled, so the first external connection sees the complete route set;
+   * route owners still mount against the idle server, because init resolves
+   * before they run. A `settle` profile must read `port` only after
+   * settlement — the URL line already awaits it.
+   * @default 'activate'
+   */
+  listenOn?: 'activate' | 'settle'
 }
 ```
 
-`host` accepts only `127.0.0.1` (default posture) and `0.0.0.0` (deliberate network exposure). The carrier itself owns no TLS, authentication, or Origin policy, so a non-loopback bind exposes the server unless the composition supplies those controls. `compression` defaults to `none`; the shipped Web bundle selects gzip level 1 with a 1024-byte threshold. The shipped `qilin web` command selects loopback and rejects `--host 0.0.0.0`; its Connection plugin supplies Host/Origin checks plus browser-session authentication for every Host API route and stream. Other compositions own their bind and route-authentication policy. The dist location, the index paths, and the public documents are assembly facts of the frontend plugin that claims the seat.
+`host` accepts only `127.0.0.1` (default posture) and `0.0.0.0` (deliberate network exposure). The carrier itself owns no TLS, authentication, or Origin policy, so a non-loopback bind exposes the server unless the composition supplies those controls. `compression` defaults to `none`; the shipped Web bundle selects gzip level 1 with a 1024-byte threshold and `listenOn: settle`, so the port opens only after the whole tree has settled and every route owner has registered. The shipped `qilin web` command selects loopback and rejects `--host 0.0.0.0`; its Connection plugin supplies Host/Origin checks plus browser-session authentication for every Host API route and stream. Other compositions own their bind and route-authentication policy. The dist location, the index paths, and the public documents are assembly facts of the frontend plugin that claims the seat.
 
 ## The service
 
@@ -112,7 +123,7 @@ Source: [`packages/client/connection/src/rpc.ts`](../../packages/client/connecti
 
 ### `ctx.webServer` — `WebServer`
 
-The browser HTTP carrier service. Activation listens immediately. Route registration order does not affect requests because configured named routes must be distinct, and the fallback handler answers anything not yet claimed during startup with 404 until its owner registers. A listen failure rejects initialization, and the boot process reports the failed fiber.
+The browser HTTP carrier service. `listenOn` (see Config) decides when the socket binds; `activate` binds during init, `settle` defers the bind past Loader settlement. Route registration order does not affect requests because configured named routes must be distinct, and the fallback handler answers anything not yet claimed during startup with 404 until its owner registers. A bind failure before init resolves rejects initialization, and the boot process reports the failed fiber.
 
 ```ts cordis-catalog
 /**

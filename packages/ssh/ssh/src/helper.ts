@@ -6,7 +6,7 @@ import type { Readable, Writable } from 'node:stream'
 import { Context } from '@qilin/kylin'
 import { FsError, type FsTarget, type FsWriteIntent, type FsVersion } from '@qilin/fs'
 import { SandboxedFileSystem } from '@qilin/fs-sandbox'
-import { SubprocessExecutableNotFoundError } from '@qilin/subprocess'
+import type {} from '@qilin/subprocess'
 import { LocalSubprocessRuntime } from '@qilin/subprocess-local'
 import { LocalSandboxProvider } from '@qilin/sandbox-local'
 import { SandboxPolicyService } from '@qilin/sandbox-policy'
@@ -135,7 +135,12 @@ export async function runSshHelper(transport: HelperTransport): Promise<void> {
       try {
         return await ctx.subprocess.resolveExecutable(input.command, env, signal)
       } catch (error) {
-        if (error instanceof SubprocessExecutableNotFoundError) throw new RemoteOperationError(error.message, 'SUBPROCESS_EXECUTABLE_NOT_FOUND')
+        // The helper wire carries plain error records, so the class identity does not survive.
+        if (typeof error === 'object' && error !== null
+          && 'name' in error && error.name === 'SubprocessExecutableNotFoundError'
+          && 'message' in error && typeof error.message === 'string') {
+          throw new RemoteOperationError(error.message, 'SUBPROCESS_EXECUTABLE_NOT_FOUND')
+        }
         throw error
       }
     }

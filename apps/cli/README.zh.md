@@ -23,7 +23,7 @@
 
 `list` 与 `doctor` 只读取 profile，既不初始化它也不运行 pnpm。`doctor` 接受已安装的包名或包目录，检查插件要在此加载必须满足的四条规则：包是否自己拼出 DSH 时代的主目录而不是读取 `DSH_HOME`/`QILIN_HOME`、是否安装了 harness 已提供的引擎包、是否导入了未声明为 peer 的引擎名、以及是否注入了兼容层无法映射的客户端模块名。它每行输出一条发现，仅当某条发现会阻断激活时才以退出码 1 结束。
 
-`list` 把 profile 持有解析权的随附层——浏览器模板种下的动效包——标为 `(updatable)`：装进 profile 的副本优先于安装实例的副本，因此 `qilin plugin add dsh-animations@latest` 或插件页的更新操作即可推动该层，无需等待 QiLin 发版。
+`list` 把随附模板层标为 `(shipped)`：它随运行中的安装实例走，无法从 profile 移除。列表里其余每层都归 profile 所有——例如通过 `qilin plugin add` 装回的已退役 `dsh-animations` 动效技能包——可原地升级或移除，无需等待 QiLin 发版。
 
 命令本身从已发布的包安装（`npm install -g @qilin/cli`）即可把 `qilin` 放到 `PATH`；manifest 把 `lib/bin.js` 声明为 `qilin` bin，并且只随包发布该 bundle。
 

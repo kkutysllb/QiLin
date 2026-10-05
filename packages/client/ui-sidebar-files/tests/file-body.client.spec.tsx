@@ -64,6 +64,17 @@ describe('FileBody', () => {
     expect(tabActions.openResource).toHaveBeenCalledWith(ADDRESS)
   })
 
+  it('a renderable document row opens on the preview viewer, not the code view', async () => {
+    const { view, script, tabActions } = await settled()
+    act(() => { fireEvent.click(view.container.querySelector(`[data-files-path="${ROOT}/src"] > button`)!) })
+    await act(() => script.settle({ ok: true, value: { entries: [{ name: 'report.html', type: 'file', size: 9 }], truncated: false } }))
+    fireEvent.click(view.container.querySelector(`[data-files-path="${ROOT}/src/report.html"] > button`)!)
+    expect(tabActions.openResource).toHaveBeenCalledWith(
+      fileAddressFor(SESSION, ROOT, `${ROOT}/src/report.html`),
+      { kind: 'text' },
+    )
+  })
+
   it('preview opens the tab\'s address on the text viewer in this session', async () => {
     const { view, sidebarRight } = await settled()
     const button = view.container.querySelector('[data-file-preview]')!

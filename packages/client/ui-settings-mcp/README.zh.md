@@ -89,5 +89,3 @@ None, as this page writes the user patch layer through the mcpServers Remote and
 - 页面本可订阅补丁层变更事件，而不是仅在自己写入后重载；今天没有这样的事件，因此在终端里做的修改要等下一次加载才出现。
 
 </details>
-
-**运行时不变式：** 不发布伴生入口。Host 服务是补丁层的唯一权威，本页面只渲染每次答复所报告的内容。

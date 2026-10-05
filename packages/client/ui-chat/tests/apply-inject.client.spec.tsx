@@ -154,6 +154,16 @@ describe('Chat inject API', () => {
     // A line travels as the `file` type's navigation parameter, not in the address.
     await injected.openFile('src/a.ts', { line: 7 })
     expect(b.sidebarRight.openResource).toHaveBeenLastCalledWith('qilin-resource://file/session/root-1/src/a.ts', { params: { line: 7 } })
+
+    // A renderable document names the preview viewer: reading the delivery is
+    // the first open, and the viewer's edit affordance reaches the editor.
+    await injected.openFile('reports/news.html')
+    expect(b.sidebarRight.openResource).toHaveBeenLastCalledWith('qilin-resource://file/session/root-1/reports/news.html', { kind: 'text' })
+    await injected.openFile('notes.md')
+    expect(b.sidebarRight.openResource).toHaveBeenLastCalledWith('qilin-resource://file/session/root-1/notes.md', { kind: 'text' })
+    // A line names the code view, renderable or not.
+    await injected.openFile('reports/news.html', { line: 7 })
+    expect(b.sidebarRight.openResource).toHaveBeenLastCalledWith('qilin-resource://file/session/root-1/reports/news.html', { params: { line: 7 } })
     await b.runtime.dispose()
   })
 

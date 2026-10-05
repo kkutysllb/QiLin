@@ -27,9 +27,6 @@ import type { Context as ClientContext } from '@qilin/kylin'
 import type {} from '@qilin/client-resources/client'
 import type {} from '@qilin/client-ui-renderer/client'
 import type {} from '@qilin/client-ui-session/client'
-// Type-only: pulls the settings shell's `settings.section` declaration and its
-// owner props, so the switches page registers against the declared seat.
-import type {} from '@qilin/client-ui-settings/client'
 import type { ILayout } from '@qilin/client-ui-layout/client'
 import type {} from '@qilin/client-ui-layout/client'
 import type {} from '@qilin/client-ui-conversation/client'
@@ -44,7 +41,6 @@ import { RightbarRoot, type RightbarRootInjected } from './shell/RightbarRoot.ts
 import { SidebarSessionViews } from './session-views.ts'
 import { createSidebarRightController, type SidebarRightController } from './service.ts'
 import { SidebarRightTabRegistry } from './tab-registry.ts'
-import { TabSettingsSection, type TabSettingsSectionInjected } from './tabs/settings/TabSettingsSection.tsx'
 import { createSidebarRightStore } from './stores.ts'
 import { en, zh } from './locales.ts'
 import { GUIDE_ID, guideDefinition } from './tabs/guide/definition.ts'
@@ -55,7 +51,6 @@ import { defaultSeed } from './contract/seed.ts'
 export type { SidebarRightTarget } from './focus.ts'
 export type { RightbarSeatProps, SidebarRightInjected, SidebarRightPresentation } from './shell/SidebarRight.tsx'
 export type { GuideBodyProps, GuideInjected } from './tabs/guide/GuideBody.tsx'
-export type { TabSettingsSectionInjected, TabSettingsSectionProps } from './tabs/settings/TabSettingsSection.tsx'
 export type { ExpandButtonProps } from './shell/ExpandButton.tsx'
 export type { SidebarRightState, SurfaceState } from './stores.ts'
 export type {
@@ -68,7 +63,8 @@ export type {
 } from './tab-registry.ts'
 export type {
   SidebarRightTabInfo, SidebarRightTabInjected, UseSidebarRightTabInfo, SidebarRightTabActions,
-  SidebarRightTabMenuOwnerProps, SidebarRightTabNavigation, SidebarRightTabPlacement, SidebarRightGuideEntryOwnerProps,
+  SidebarRightTabMenuOwnerProps, SidebarRightTabNavigation, SidebarRightTabOpenResourceOptions,
+  SidebarRightTabPlacement, SidebarRightGuideEntryOwnerProps,
 } from './contract/slots.ts'
 export type {
   SidebarRightNavigationParams, SidebarRightResourceParams, SidebarRightResourceParamsMap,
@@ -165,22 +161,6 @@ export function apply(ctx: ClientContext): void {
   }, 'ui-sidebar-right: service faces')
 
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-sidebar-right: dictionaries')
-  // The switches page: one row per registered type, in Settings. It reads the
-  // same registry the seats do, so a type from another package appears without
-  // an edit here, and a switch republishes the list both this page and the
-  // guide follow.
-  ctx.effect(() => ctx.slots.inject('settings.section', () => ctx.slots.register({
-    name: 'settings.section',
-    id: 'sidebar-right',
-    order: 30,
-    label: () => t('settings.nav'),
-    locale: NS,
-    inject: (): TabSettingsSectionInjected => ({
-      hooks: { tabTypes: { subscribe: listener => tabs.subscribe(listener), getSnapshot: () => tabs.entries() } },
-      setEnabled: (id, enabled) => { tabs.setEnabled(id, enabled) },
-      isEnabled: id => tabs.isEnabled(id),
-    }),
-  }, TabSettingsSection)), 'ui-sidebar-right: tab switches settings section')
   ctx.effect(() => registerSidebarShortcuts(ctx.shortcuts, controller, t, () => {
     void ctx.shortcuts.closeWindow().catch((error: unknown) => { console.error('Window close failed', error) })
   }), 'ui-sidebar-right: shortcuts')

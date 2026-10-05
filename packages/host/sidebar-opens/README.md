@@ -67,5 +67,3 @@ None directly. A call and its result append to the Session like any other tool t
 None.
 
 </details>
-
-**Runtime invariant:** No companion is published. `SidebarOpens` is the sole writer of its per-Session queues and watchers, and the package's own spec drives enqueue, take-over, abort, and disposal directly.

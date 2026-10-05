@@ -21,10 +21,6 @@
       "types": "./lib/types/index.d.ts",
       "default": "./lib/index.js"
     },
-    "./invariant": {
-      "types": "./lib/types/invariant.d.ts",
-      "default": "./lib/invariant.js"
-    },
     "./types": {
       "types": "./lib/types/types.d.ts",
       "default": "./lib/types/types.js"
@@ -34,14 +30,12 @@
   },
   "files": [
     "lib/index.js",
-    "lib/invariant.js",
     "lib/types/**/*.js",
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",
   "peerDependencies": {
     "@qilin/kylin": "workspace:~",
-    "@qilin/invariants": "workspace:*",
     "@qilin/session": "workspace:*",
     "@qilin/session-persistence": "workspace:*",
     "@qilin/storage": "workspace:*",
@@ -54,7 +48,6 @@
   },
   "devDependencies": {
     "@qilin/kylin": "workspace:~",
-    "@qilin/invariants": "workspace:*",
     "@qilin/session": "workspace:*",
     "@qilin/session-persistence": "workspace:*",
     "@qilin/storage": "workspace:*",

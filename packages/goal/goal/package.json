@@ -21,10 +21,6 @@
       "types": "./lib/types/index.d.ts",
       "default": "./lib/index.js"
     },
-    "./invariant": {
-      "types": "./lib/types/invariant.d.ts",
-      "default": "./lib/invariant.js"
-    },
     "./types": {
       "types": "./lib/types/types.d.ts",
       "default": "./lib/types/types.js"
@@ -46,7 +42,6 @@
   },
   "files": [
     "lib/index.js",
-    "lib/invariant.js",
     "lib/types/**/*.js",
     "lib/types/**/*.d.ts",
     "lib/typert.host.js",
@@ -59,7 +54,6 @@
     "@qilin/agent": "workspace:*",
     "@qilin/session-projection": "workspace:*",
     "@qilin/brand": "workspace:*",
-    "@qilin/invariants": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/scope": "workspace:*",
     "@qilin/session": "workspace:*",
@@ -77,7 +71,6 @@
     "@qilin/bash-local": "workspace:*",
     "@qilin/session-projection": "workspace:*",
     "@qilin/brand": "workspace:*",
-    "@qilin/invariants": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/loader-smoke": "workspace:*",
     "@qilin/scope": "workspace:*",

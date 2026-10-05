@@ -19,6 +19,9 @@ const BUILTIN_COPY = new Map<string, { title: PluginManagerLocaleKey; descriptio
   ['@qilin/experimental-voice-input-bundle', {
     title: 'builtinVoiceInputTitle', description: 'builtinVoiceInputDescription', beta: true,
   }],
+  ['@qilin/experimental-inspector-profile', {
+    title: 'builtinDevtoolsTitle', description: 'builtinDevtoolsDescription', beta: true,
+  }],
 ])
 
 /** The registries with a name of their own, by host. */

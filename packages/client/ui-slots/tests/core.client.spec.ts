@@ -77,6 +77,61 @@ describe('a-priori root and declaration gate', () => {
       Comp as never,
     )).toThrow(/already declared.*test\.single/)
   })
+
+  it('rendersExistingChildren shares the render face: no throw, first declarer keeps ownership', () => {
+    const core = new SlotCore()
+    mountFrame(core)
+    const disposeOwner = core.register(
+      { name: 'test.single', children: { 'test.grandchild': { kind: 'single', scope: 'root' } }, registrant: 'owner' }, Comp as never)
+    core.register({ name: 'test.grandchild' }, Comp)
+
+    // The second host registers the same table without claiming it.
+    const disposeSharer = core.register(
+      { name: 'test.session', children: { 'test.grandchild': { kind: 'single', scope: 'root' } }, rendersExistingChildren: true },
+      Comp as never,
+    )
+    expect(core.specDynamic('test.grandchild')).toEqual({ kind: 'single', scope: 'root' })
+    expect(core.entries('test.grandchild')).toHaveLength(1)
+
+    // Disposing the sharer leaves the owner's slot and contribution intact.
+    disposeSharer()
+    expect(core.specDynamic('test.grandchild')).toEqual({ kind: 'single', scope: 'root' })
+    expect(core.entries('test.grandchild')).toHaveLength(1)
+
+    // Disposing the owner collapses what it declared.
+    disposeOwner()
+    expect(core.specDynamic('test.grandchild')).toBeUndefined()
+    expect(core.entries('test.grandchild')).toHaveLength(0)
+  })
+
+  it('rendersExistingChildren still declares keys nobody claimed, and without the flag a repeat throws', () => {
+    const core = new SlotCore()
+    mountFrame(core)
+    core.register(
+      { name: 'test.single', children: { 'test.grandchild': { kind: 'single', scope: 'root' } } }, Comp as never)
+    // Mixed table: the claimed key is shared, the fresh key is declared.
+    const disposeSharer = core.register(
+      {
+        name: 'test.session',
+        children: {
+          'test.grandchild': { kind: 'single', scope: 'root' },
+          'test.shared-new': { kind: 'list', scope: 'root' },
+        },
+        rendersExistingChildren: true,
+      },
+      Comp as never,
+    )
+    expect(core.specDynamic('test.shared-new')).toEqual({ kind: 'list', scope: 'root' })
+    disposeSharer()
+    // The shared key outlives the sharer; the key it declared does not.
+    expect(core.specDynamic('test.grandchild')).toEqual({ kind: 'single', scope: 'root' })
+    expect(core.specDynamic('test.shared-new')).toBeUndefined()
+    // Opt-in only: without the flag the repeat still throws.
+    expect(() => core.register(
+      { name: 'test.session', children: { 'test.grandchild': { kind: 'single', scope: 'root' } } },
+      Comp as never,
+    )).toThrow(/already declared/)
+  })
 })
 
 describe('lifecycle cascade (one axis)', () => {

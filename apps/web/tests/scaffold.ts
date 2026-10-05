@@ -781,6 +781,8 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
     await ctx.plugin(PluginPackages, {
       generation: resolution,
       behavior: profileResolutionMode === 'dual' ? 'verify' : 'enforce',
+      // Package operations refresh from the launch sources; the layers are the same ones this scaffold composed.
+      recompute: async () => createProfileResolutionGeneration(resolutionOptions),
     })
     await ctx.plugin(Loader)
     if (profileContext === undefined) {

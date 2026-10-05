@@ -276,16 +276,6 @@ describe('Session file uploads', () => {
       details: { reason: 'SUBAGENT_FILE_UNSUPPORTED' },
     })
     expect(child.saveFile).not.toHaveBeenCalled()
-
-    const ordinary = await uploadHarness()
-    const receipt = await ordinary.uploads.upload(
-      ordinary.agent,
-      { data: 'AAAA' },
-      new AbortController().signal,
-    )
-    const foreignScope = { ...ordinary.agent, ctx: ordinary.ctx } as Agent
-    expect(() => ordinary.uploads.resolve(foreignScope, receipt.receiptId))
-      .toThrow('operation requires the Agent\'s own scope')
   })
 
   it('retires accepted receipts after their rpcId becomes observable', async () => {
