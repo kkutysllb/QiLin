@@ -53,11 +53,6 @@ const BASE_SURFACE_SCROLLERS: readonly {
   readonly reason: string
 }[] = [
   {
-    file: 'ui-deliverables/src/client/SessionChanges.module.css',
-    selector: '.rows',
-    reason: 'The row scroller fills a page that paints no surface, so its bar sits on the app base background; the l3 turn and flag chips are descendants, not its background.',
-  },
-  {
     file: 'experimental/client-ui-agent-team/src/client/TeamBody.module.css',
     selector: '.root',
     reason: 'The page scroller draws on the sidebar fill, a base rung below bg-layer-2/3; the l2 notice, member, task, and form cards are descendants, not its background.',
