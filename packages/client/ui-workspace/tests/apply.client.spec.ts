@@ -7,6 +7,7 @@ import { apply, inject } from '@qilin/client-ui-workspace/client'
 import type { WorkspaceBrowserInjected, WorkspacePickerInjected } from '@qilin/client-ui-workspace/client'
 import { WorkspaceBrowser } from '../src/client/rows/WorkspaceBrowser.tsx'
 import { WorkspacePicker } from '../src/client/WorkspacePicker.tsx'
+import { apply as workbenchApply } from '@qilin/client-ui-workbench/client'
 import { apply as hostApply } from '../src/index.ts'
 import type { SessionReference } from '@qilin/api-session-controller/client'
 
@@ -79,8 +80,11 @@ async function bench() {
   } as never)
   const pickDirectory = vi.fn(() => Promise.resolve({ ok: true as const, value: '/projects/picked' }))
   const directoryPicker = { pick: pickDirectory }
-  Object.assign(new TestRemote(ctx), { directoryPicker })
+  Object.assign(new TestRemote(ctx), { directoryPicker, agentPresets: { select: vi.fn(async () => ({ ok: true as const, value: 'ptc' })) } })
   ctx.provide('remote.directoryPicker', directoryPicker as never)
+  ctx.provide('remote.agentPresets', (ctx.remote as { agentPresets: unknown }).agentPresets)
+  // The real workbench owner backs the browser's tag hook and the D3 preset reads.
+  await ctx.plugin({ inject: [], apply: workbenchApply }).await()
   const registerShortcut = vi.fn(() => () => {})
   ctx.provide('shortcuts', {
     register: registerShortcut,
@@ -115,7 +119,8 @@ describe('ui-workspace apply', () => {
 
   it('declares the services it drives', () => {
     expect(inject).toEqual([
-      'slots', 'sessions', 'workspaces', 'locale', 'remote', 'remote.directoryPicker', 'layout', 'shortcuts',
+      'slots', 'sessions', 'workspaces', 'locale', 'remote', 'remote.directoryPicker', 'remote.agentPresets',
+      'workbench', 'layout', 'shortcuts',
     ])
   })
 

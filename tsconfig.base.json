@@ -265,6 +265,8 @@
       "@qilin/client-ui-plan": ["./packages/client/ui-plan/src"],
       "@qilin/client-ui-user-questions": ["./packages/client/ui-user-questions/src"],
       "@qilin/client-ui-trajectory": ["./packages/client/ui-trajectory/src"],
+      "@qilin/client-ui-workbench": ["./packages/client/ui-workbench/src"],
+      "@qilin/client-ui-workbench/client": ["./packages/client/ui-workbench/src/client"],
       "@qilin/client-ui-workspace": ["./packages/client/ui-workspace/src"],
       "@qilin/client-ui-theme": ["./packages/client/ui-theme/src"],
       "@qilin/client-ui-settings": ["./packages/client/ui-settings/src"],

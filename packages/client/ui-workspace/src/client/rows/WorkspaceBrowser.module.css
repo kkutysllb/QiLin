@@ -489,3 +489,10 @@
     transition: none;
   }
 }
+
+/* Workbench switcher: the tag row between the section header and the list.
+   Same inline rhythm as the header above it. */
+.workbenchRow {
+  flex: none;
+  padding: 4px 10px 6px var(--qilin-session-list-edge-inset);
+}

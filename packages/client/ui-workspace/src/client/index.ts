@@ -13,6 +13,9 @@ import type { RemoteHostFacts } from '@qilin/api-remotes/client'
 import type { ISessions } from '@qilin/api-session-controller/client'
 import type { IWorkspaces, WorkspaceSnapshot } from '@qilin/api-workspace-controller/client'
 import type { HostObservable, SnapshotSelectorHook } from '@qilin/client-ui-slots'
+// Type-only: the workbench state owner's service merge and vocabulary.
+import type {} from '@qilin/client-ui-workbench/client'
+import type { Workbench } from '@qilin/client-ui-workbench/client'
 // Type-only: pulls the Controller service merges.
 import type {} from '@qilin/api-session-controller/client'
 import type {} from '@qilin/api-workspace-controller/client'
@@ -69,7 +72,8 @@ const NS = 'workspace'
  * declaration through `slots.inject()` instead of assuming order.
  */
 export const inject = [
-  'slots', 'sessions', 'workspaces', 'locale', 'remote', 'remote.directoryPicker', 'layout', 'shortcuts',
+  'slots', 'sessions', 'workspaces', 'locale', 'remote', 'remote.directoryPicker', 'remote.agentPresets',
+  'workbench', 'layout', 'shortcuts',
 ]
 
 /**
@@ -81,6 +85,7 @@ export const inject = [
 export function apply(ctx: Context): void {
   const sessions = ctx.get('sessions') as ISessions
   const workspaces = ctx.get('workspaces') as IWorkspaces
+  const workbench = ctx.get('workbench') as Workbench
   // One viewing-store instance: the browser declares the handle and the
   // UiWorkspace service writes pin order through the same instance the
   // renderer hands the browser.
@@ -88,10 +93,17 @@ export function apply(ctx: Context): void {
   const viewInstance = viewHandle.create()
   const viewStore: typeof viewHandle = { ...viewHandle, create: () => viewInstance }
   const uiWorkspace = new UiWorkspaceService(
-    ctx, ctx.remote.directoryPicker, workspaces, sessions, viewInstance.actions)
+    ctx, ctx.remote.directoryPicker, ctx.remote.agentPresets, workbench, workspaces, sessions,
+    viewInstance.actions)
   ctx.slots.provideRoot({ hooks: { workspaces: workspaces.list } })
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-workspace: dictionaries')
   const shortcutControls = createWorkspaceShortcutControls()
+  // The switch records the tag first (the rebind reads the new active tag)
+  // and then aligns the current Workspace's blank sessions (D3).
+  const onWorkbenchSwitch: WorkspaceBrowserInjected['onWorkbenchSwitch'] = (tag) => {
+    workbench.setActive(tag)
+    uiWorkspace.rebindBlanksAfterTagSwitch()
+  }
 
   const searchSessions: WorkspaceBrowserInjected['searchSessions'] = async (query, signal) => {
     const result = await sessions.search(query, signal)
@@ -118,6 +130,8 @@ export function apply(ctx: Context): void {
     // Explicit group actions keep their target; unscoped New Session inherits
     // the current Session Workspace before the recent-Workspace fallback.
     startSession: (workspaceId) => { uiWorkspace.startSession(workspaceId) },
+    onWorkbenchSwitch,
+    shows: (preset, tag) => workbench.shows(preset, tag),
     open: openSession,
     searchSessions,
     searchResultLimit: sessions.searchResultLimit,
@@ -151,7 +165,10 @@ export function apply(ctx: Context): void {
     closeAddWorkspace: shortcutControls.closeAdd,
     closeRenameRequest: shortcutControls.closeRename,
     setDirectoryBusy: shortcutControls.directoryBusy,
-    hooks: { directoryFlow: browserFlowSource, hostInfo, workspaceShortcuts: shortcutControls.state, shortcuts: ctx.shortcuts.catalog },
+    hooks: {
+      directoryFlow: browserFlowSource, hostInfo, workspaceShortcuts: shortcutControls.state,
+      shortcuts: ctx.shortcuts.catalog, workbench: workbench.state,
+    },
   })
   installWorkspaceShortcuts(ctx, uiWorkspace, shortcutControls, (sessionId) => { void uiWorkspace.archiveSession(sessionId) })
   const pickerInjected = (): WorkspacePickerInjected => ({

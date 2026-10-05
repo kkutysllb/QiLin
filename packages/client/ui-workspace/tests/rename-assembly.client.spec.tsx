@@ -19,6 +19,7 @@ import { SessionSeq, type SessionId } from '@qilin/session/types'
 import type { PropsRenderSlots } from '@qilin/client-ui-slots'
 import { RemoteError, SlotTestRuntime, usePinnedBrowserLanguages } from '@qilin/client-test-runtime'
 import { LocaleRuntime } from '@qilin/client-locale/client'
+import { apply as workbenchApply } from '@qilin/client-ui-workbench/client'
 import { apply, inject } from '@qilin/client-ui-workspace/client'
 
 // The service reads its initial locale from the browser; these specs assert
@@ -38,7 +39,9 @@ async function createRuntime(): Promise<SlotTestRuntime> {
   // The rename flow never picks a directory; the namespace only has to be there
   // for ui-workspace's inject to settle.
   const directoryPicker = {}
-  runtime.remote.provideNamespaces({ directoryPicker })
+  const agentPresets = { select: vi.fn(async () => ({ ok: true as const, value: 'ptc' })) }
+  runtime.remote.provideNamespaces({ directoryPicker, agentPresets })
+  await runtime.mount({ inject: [], apply: workbenchApply })
   const locale = new LocaleRuntime(runtime.ctx)
   runtime.ctx.provide('locale', locale)
   runtime.slots.installLocale(locale)

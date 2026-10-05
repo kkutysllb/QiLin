@@ -422,6 +422,33 @@ describe('web e2e: agent-preset selection', () => {
     expect(snapshot).not.toContain('button "Coding mode"')
   })
 
+  it('switches the workbench tag: the blank task rebinds and the list refilters', async () => {
+    onTestFailed(() => saveFailureShot(page, 'web-e2e-agent-preset-workbench'))
+    // Land on the blank task so the seeded session stops being the on-screen
+    // one and the tag filter has a coding-only row to hide.
+    await page.getByRole('button', { name: 'New Session' }).first().click()
+    const tabs = page.getByRole('tablist', { name: 'Switch workbench' })
+    await tabs.waitFor({ timeout: 10_000 })
+    // The fresh boot starts on General, and opening the New Task already
+    // rebinds the reused blank — its ptc preset hides under general — to the
+    // tag's own standard default through the host's select (D3).
+    await expect.poll(() => livePreset(scaffold), { timeout: 15_000 }).toBe('standard')
+    // The coding-only seeded session drops out of the filtered list (D2).
+    await expect.poll(async () => page.getByText('Seeded turn').count(), { timeout: 10_000 }).toBe(0)
+
+    // Coding takes the blank task back to the tag's preset and the seeded
+    // coding-only row returns to the list.
+    await page.getByRole('tab', { name: 'Coding' }).click()
+    await expect.poll(() => livePreset(scaffold), { timeout: 15_000 }).toBe('ptc')
+    await expect.poll(async () => page.getByText('Seeded turn').count(), { timeout: 10_000 }).toBeGreaterThan(0)
+
+    // And General reasserts itself: the blank follows the tag again while the
+    // seeded row hides once more.
+    await page.getByRole('tab', { name: 'General' }).click()
+    await expect.poll(() => livePreset(scaffold), { timeout: 15_000 }).toBe('standard')
+    await expect.poll(async () => page.getByText('Seeded turn').count(), { timeout: 10_000 }).toBe(0)
+  })
+
   it('drove every surface without a page error or a stream warning', () => {
     expect(tripwire.pageErrors).toEqual([])
     expect(tripwire.warnings).toEqual([])

@@ -45,6 +45,9 @@
       "path": "../../schedule/schedule"
     },
     {
+      "path": "../ui-workbench"
+    },
+    {
       "path": "../ui-sidebar"
     },
     {

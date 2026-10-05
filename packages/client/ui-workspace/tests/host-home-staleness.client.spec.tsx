@@ -12,6 +12,7 @@ import type { WorkspaceId } from '@qilin/api-workspace-controller/client'
 import type { PropsRenderSlots } from '@qilin/client-ui-slots'
 import { SlotTestRuntime, usePinnedBrowserLanguages } from '@qilin/client-test-runtime'
 import { LocaleRuntime } from '@qilin/client-locale/client'
+import { apply as workbenchApply } from '@qilin/client-ui-workbench/client'
 import { apply, inject } from '@qilin/client-ui-workspace/client'
 
 usePinnedBrowserLanguages('zh-CN')
@@ -31,8 +32,9 @@ async function bench() {
   runtime.ctx.provide('layout', { selectPanel: vi.fn() })
   runtime.releaseWorkspaceSource()
   const directoryPicker = {}
+  const agentPresets = { select: vi.fn(async () => ({ ok: true as const, value: 'ptc' })) }
   const { remote } = runtime
-  remote.provideNamespaces({ directoryPicker })
+  remote.provideNamespaces({ directoryPicker, agentPresets })
   const locale = new LocaleRuntime(runtime.ctx)
   runtime.ctx.provide('locale', locale)
   runtime.slots.installLocale(locale)
@@ -46,6 +48,8 @@ async function bench() {
     { 'sidebar.workspaces': { kind: 'single', scope: 'root' } } as never,
     SidebarFrame as never,
   )
+  // The workbench owner backs the browsing region's tag hook and D3 preset reads.
+  await runtime.mount({ inject: [], apply: workbenchApply })
   await runtime.mount({ inject: [...inject], apply })
   return { runtime, remote }
 }

@@ -2302,6 +2302,9 @@ importers:
       '@qilin/client-ui-user-questions':
         specifier: workspace:*
         version: link:../../client/ui-user-questions
+      '@qilin/client-ui-workbench':
+        specifier: workspace:*
+        version: link:../../client/ui-workbench
       '@qilin/client-ui-workflow-run':
         specifier: workspace:*
         version: link:../../client/ui-workflow-run
@@ -6085,6 +6088,15 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1
 
+  packages/client/ui-workbench:
+    devDependencies:
+      '@qilin/client-store':
+        specifier: workspace:*
+        version: link:../store
+      '@qilin/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+
   packages/client/ui-workflow-run:
     devDependencies:
       '@qilin/api-session-controller':
@@ -6186,6 +6198,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:*
         version: link:../ui-slots
+      '@qilin/client-ui-workbench':
+        specifier: workspace:*
+        version: link:../ui-workbench
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis

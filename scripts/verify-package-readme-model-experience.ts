@@ -143,6 +143,7 @@ const SENTENCE_MODEL_EXPERIENCE: Readonly<Record<string, SentenceContract>> = {
   'packages/client/ui-sidechat': { kind: 'none', reason: 'The panel draws side threads from follow streams the Session Remote already serves; each thread owns its model requests on the Host.' },
   'packages/client/ui-theme-brand': { kind: 'none', reason: 'Theme tokens are browser presentation; the palette registers no prompt text, tool, or session event.' },
   'packages/client/ui-workspace': { kind: 'none', reason: 'Browser-side UI plugin layer; registers nothing model-facing.' },
+  'packages/client/ui-workbench': { kind: 'none', reason: 'Browser-side workbench view state; registers nothing model-facing.' },
   'packages/client/ui-directory-picker-browse': { kind: 'none', reason: 'Browser-side directory-browsing surface; registers nothing model-facing.' },
   'packages/client/ui-directory-picker-native': { kind: 'none', reason: 'Browser-side surface driving the local Desktop or Host OS chooser; registers nothing model-facing.' },
   'packages/client/ui-theme': { kind: 'none', reason: 'Browser-side UI plugin layer; registers nothing model-facing.' },

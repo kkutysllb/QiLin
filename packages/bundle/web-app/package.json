@@ -109,6 +109,7 @@
     "@qilin/client-ui-trajectory": "workspace:*",
     "@qilin/client-ui-user-questions": "workspace:*",
     "@qilin/client-ui-workflow-run": "workspace:*",
+    "@qilin/client-ui-workbench": "workspace:*",
     "@qilin/client-ui-workspace": "workspace:*",
     "@qilin/cmdline": "workspace:*",
     "@qilin/file-reference": "workspace:*",

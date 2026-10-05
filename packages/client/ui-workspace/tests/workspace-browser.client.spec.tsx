@@ -16,6 +16,7 @@ import { createSnapshotStore } from '@qilin/client-store'
 import type { WorkspaceShortcutState } from '../src/client/shortcuts.ts'
 import { createWorkspaceViewStore, FLAT_SESSION_ORDER_KEY } from '../src/client/stores.ts'
 import { UNGROUPED_KEY } from '../src/client/tree.ts'
+import { workbenchShows, WORKBENCH_DEFAULT_STATE } from '@qilin/client-ui-workbench/client'
 import { WorkspaceBrowser } from '../src/client/rows/WorkspaceBrowser.tsx'
 import { zh } from '../src/client/locales.ts'
 
@@ -127,6 +128,9 @@ function mount(overrides: Partial<WorkspaceBrowserProps> = {}) {
     createWorkspace: vi.fn(async () => workspace('created', [])),
     useDirectoryFlow: bindSnapshotSelector({ getSnapshot: () => true, subscribe: () => () => {} }),
     useHostInfo: selector => selector({ home: undefined, isLoopback: true }),
+    useWorkbench: bindSnapshotSelector({ getSnapshot: () => WORKBENCH_DEFAULT_STATE, subscribe: () => () => {} }),
+    onWorkbenchSwitch: vi.fn(),
+    shows: workbenchShows,
     useWorkspaceShortcuts: bindSnapshotSelector(shortcutStore),
     useShortcuts: bindSnapshotSelector({ getSnapshot: () => noShortcuts, subscribe: () => () => {} }),
     requestSearch: shortcutChannel.requestSearch,
@@ -273,6 +277,26 @@ describe('WorkspaceBrowser', () => {
     expect(panelInfo.activePanelId).toBe('panel-a')
     expect(b.props.open).not.toHaveBeenCalled()
     expect(b.props.startSession).not.toHaveBeenCalled()
+  })
+
+  it('filters session rows by the workbench tag and keeps the on-screen session (D2)', () => {
+    const workbench = createSnapshotStore({ ...WORKBENCH_DEFAULT_STATE })
+    mount({
+      useSessions: hook(sessionState([
+        summary('std', 1, { projectionValues: { agentPreset: 'standard' } }),
+        summary('ptcish', 2, { projectionValues: { agentPreset: 'ptc' } }),
+        summary('kept', 3, { projectionValues: { agentPreset: 'ptc' }, retainedBy: { mainView: 1 } }),
+      ])),
+      useWorkbench: bindSnapshotSelector(workbench),
+    })
+    // General hides the coding rows but never the on-screen session.
+    expect(screen.queryByText('ptcish')).toBeNull()
+    expect(screen.getByText('std')).toBeTruthy()
+    expect(screen.getByText('kept')).toBeTruthy()
+    act(() => { workbench.set({ ...WORKBENCH_DEFAULT_STATE, active: 'coding' }) })
+    expect(screen.getByText('ptcish')).toBeTruthy()
+    expect(screen.getByText('kept')).toBeTruthy()
+    expect(screen.queryByText('std')).toBeNull()
   })
 
   it('workspace hover card shows a POSIX home descendant as ~', () => {

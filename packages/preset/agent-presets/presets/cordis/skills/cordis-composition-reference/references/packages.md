@@ -116,6 +116,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin/client-ui-tool` | no | Client Tool call-tree renderer and keyed per-tool presentation slot |
 | `@qilin/client-ui-trajectory` | no | Trajectory event ledger with an interactive timing overview: pure-consumer plugin registering into the conversation ViewMap (no service) |
 | `@qilin/client-ui-user-questions` | no | Web ask_user_question composer takeover and plan-review presentation UI |
+| `@qilin/client-ui-workbench` | no | Workbench tag state owner: the general/coding workbench selection, per-tag preset memory, and the preset-to-tag visibility fold |
 | `@qilin/client-ui-workflow-run` | no | Durable workflow-run Conversation Node and nested member disclosure for qilin web |
 | `@qilin/client-ui-workspace` | no | Workspace picker plugin: one WorkspacePicker registered into the sidebar and empty-state workspace slots |
 

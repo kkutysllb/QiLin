@@ -13,8 +13,9 @@ import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useStat
 import clsx from 'clsx'
 import {
   Button, IconCloseFill14, IconPersonalizationOutline16,
-  IconProjectAddOutline16, IconSearchOutline16, Menu, Modal, Tooltip,
+  IconProjectAddOutline16, IconSearchOutline16, Menu, Modal, SegmentedTabs, Tooltip,
 } from '@qilin/client-ui-primitives'
+import type { WorkbenchTag } from '@qilin/client-ui-workbench/client'
 import type {
   SessionListState, SessionSearchResultItem,
 } from '@qilin/api-session-controller/client'
@@ -58,6 +59,28 @@ function collapsedSessionRows(sessions: readonly SessionNode[]): {
     return true
   })
   return { rows, hiddenCount: sessions.length - rows.length }
+}
+
+/**
+ * The D2 workbench filter over one catalog snapshot: keep the on-screen
+ * session and every session whose recorded preset shows under the tag, so a
+ * switch hides the other tag's rows without ever hiding the open one.
+ */
+function filterForWorkbench(
+  list: SessionListState,
+  tag: WorkbenchTag,
+  shows: (preset: string | null | undefined, tag: WorkbenchTag) => boolean,
+): SessionListState {
+  const ids = list.ids.filter((id) => {
+    const row = list.byId[id]
+    // A ghost id (summary not landed) renders nothing anyway; drop it.
+    if (row === undefined) return false
+    if ((row.retainedBy.mainView ?? 0) > 0) return true
+    return shows(row.projectionValues?.agentPreset, tag)
+  })
+  // fromEntries widens the keys to string; the ids filter guarantees each row.
+  const byId = Object.fromEntries(ids.map(id => [id, list.byId[id]])) as SessionListState['byId']
+  return { ...list, ids, byId }
 }
 
 /** Keep controlled input and RPC payload inside the session.search wire contract. */
@@ -788,6 +811,9 @@ export function WorkspaceBrowser({
   useWorkspaces,
   useStore,
   actions,
+  onWorkbenchSwitch,
+  shows,
+  useWorkbench,
   startSession,
   open,
   renameSession,
@@ -814,8 +840,13 @@ export function WorkspaceBrowser({
   t,
 }: WorkspaceBrowserProps) {
   const home = useHostInfo(info => info.home)
+  const workbench = useWorkbench(state => state)
   // Ordering remains live while the rail or search replaces the list body.
-  const list = useSessions(state => state)
+  const rawList = useSessions(state => state)
+  const list = useMemo(
+    () => filterForWorkbench(rawList, workbench.active, shows),
+    [rawList, workbench.active, shows],
+  )
   const workspaces = useWorkspaces(state => state.items)
   const workspacePhase = useWorkspaces(state => state.phase)
   const workspaceStreamState = useWorkspaces(state => state.state)
@@ -1316,9 +1347,23 @@ export function WorkspaceBrowser({
         />
       </div>
 
+      {wide && (
+        <div className={css.workbenchRow}>
+          <SegmentedTabs
+            items={[
+              { value: 'general', label: t('workbench.general'), id: 'workbench-tab-general', panelId: 'workbench-list-panel' },
+              { value: 'coding', label: t('workbench.coding'), id: 'workbench-tab-coding', panelId: 'workbench-list-panel' },
+            ]}
+            value={workbench.active}
+            onChange={onWorkbenchSwitch}
+            label={t('workbench.tabs.aria')}
+          />
+        </div>
+      )}
+
       {/* Always-mounted seat keeps the region's flex slot while the list
           itself is wide-only. */}
-      <div className={css.listArea}>
+      <div id="workbench-list-panel" className={css.listArea}>
         {wide && (normalizedQuery !== ''
           ? (
             <SearchResults

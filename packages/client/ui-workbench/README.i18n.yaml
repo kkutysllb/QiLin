@@ -1,0 +1,40 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/client/ui-workbench/README.md
+/:
+  en: 4384ca9c1d639dd8
+  zh: 8ec072c9cdcc80be
+/qilin-client-ui-workbench:
+  en: 34518a7ba95b29fe
+  zh: da96f7a0967b9274
+/qilin-client-ui-workbench/summary:
+  en: 25c27fc5b5addef4
+  zh: 7758148dfdbb96dc
+/qilin-client-ui-workbench/table-of-contents:
+  en: 76368b6b1da79c80
+  zh: b4a2a0e132e8ddf8
+/qilin-client-ui-workbench/use-this-package:
+  en: d06f0c4df6964663
+  zh: 8e967c067d9f7ee1
+/qilin-client-ui-workbench/use-this-package/consuming-the-service:
+  en: 21cda9166e1c0f43
+  zh: 2ecf7f2eeffc68ae
+/qilin-client-ui-workbench/understand-the-implementation:
+  en: e2f9a175a95c34f5
+  zh: a602a2982646850b
+/qilin-client-ui-workbench/model-experience:
+  en: cae37060f7545ad3
+  zh: 74ad44978a5ae6b3
+/qilin-client-ui-workbench/model-experience/kv-cache-effect:
+  en: 58bb757a70fc6f31
+  zh: b27e2903d920dc3c
+/qilin-client-ui-workbench/known-limitations-and-deferred-work:
+  en: 80e11b2d3ffaf718
+  zh: a0a4f0ff31e7e00c
+/qilin-client-ui-workbench/known-limitations-and-deferred-work/dev-note:
+  en: d2f0d68fe29fb750
+  zh: a62be35a2513b10d
+/qilin-client-ui-workbench/known-limitations-and-deferred-work/dev-note/future-a-settings-backed-tag-when-a-deployment-asks-for-it:
+  en: 4ad92d56e27e635d
+  zh: 761230792683df9d

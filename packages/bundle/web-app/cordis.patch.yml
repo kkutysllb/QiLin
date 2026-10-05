@@ -367,6 +367,11 @@
       name: '@qilin/workspace-changes'
 
 
+    # The workbench tag owner: the general/coding selection, per-tag preset
+    # memory, and the session-visibility fold consumed by the session list
+    # (dual-workbench design, plans/2026-10-05-dual-workbench-web-design.md).
+    - id: ui-workbench
+      name: '@qilin/client-ui-workbench'
     - id: ui-workspace
       name: '@qilin/client-ui-workspace'
 

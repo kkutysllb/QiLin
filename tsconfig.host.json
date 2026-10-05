@@ -218,6 +218,7 @@
     "packages/client/ui-user-questions/src/**",
     "packages/client/ui-workflow-run/src/**",
     "packages/client/ui-shortcuts/src/**",
+    "packages/client/ui-workbench/src/**",
     "packages/client/ui-workspace/src/**",
     "packages/client/web/src/**",
     "benchmarks/**/*.client.ts",

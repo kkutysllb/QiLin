@@ -80,13 +80,17 @@ export interface ISessions {
   readonly searchResultLimit: number
   /**
    * Create or adopt a Session on the Host.
-   * @param opts - target workspace, directory, and optional preallocated identity.
+   * @param opts - target workspace, directory, optional preallocated identity,
+   * and an optional explicit agent preset the session composes from (D3: a
+   * caller that knows its preset names it; an omitted preset resolves on the
+   * Host through the roster default).
    * @returns the catalogued identity; retain it before borrowing its binding.
    */
   create(opts?: {
     workspaceId?: WorkspaceId
     cwd?: string
     sessionId?: SessionId
+    agentPreset?: string
   }): Promise<SessionId>
   /**
    * Resolve an already discovered direct-parent address without opening it.

@@ -8,6 +8,9 @@
 - textbox "Search sessions..."
 - button "View options"
 - button "Add workspace"
+- tablist "Switch workbench":
+  - tab "General" [selected]
+  - tab "Coding"
 - tree "Sessions":
   - treeitem "workspace" [expanded]
   - treeitem "New Session" [selected]

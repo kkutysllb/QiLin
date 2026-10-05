@@ -13,6 +13,9 @@ import type { RemoteResult } from '@qilin/api-remotes/client'
 import { SessionId } from '@qilin/session/types'
 import { LayoutController } from '@qilin/client-ui-layout/client'
 import type { MainPanelId } from '@qilin/client-ui-layout/client'
+import type { Workbench } from '@qilin/client-ui-workbench/client'
+import { workbenchShows, WORKBENCH_DEFAULT_STATE } from '@qilin/client-ui-workbench/client'
+import { createSnapshotStore } from '@qilin/client-store'
 import { DirectoryBrowseError, UiWorkspaceService } from '../src/client/navigation.ts'
 import { createWorkspaceViewStore, FLAT_SESSION_ORDER_KEY } from '../src/client/stores.ts'
 
@@ -268,6 +271,7 @@ interface BenchOptions {
   readonly workspaces?: WorkspaceSnapshot
   readonly sessions?: SessionListState
   readonly configureSessions?: (sessions: FakeSessions) => void
+  readonly workbench?: Partial<typeof WORKBENCH_DEFAULT_STATE>
 }
 
 function bench(options: BenchOptions = {}) {
@@ -286,14 +290,42 @@ function bench(options: BenchOptions = {}) {
   const sessions = new FakeSessions(options.sessions ?? sessionState([], 'pending'))
   options.configureSessions?.(sessions)
   const views = createWorkspaceViewStore().create()
+  const workbench = fakeWorkbench(options.workbench)
+  const agentPresets = {
+    select: vi.fn<(id: SessionId, preset: string) => Promise<RemoteResult<string>>>(
+      async () => ({ ok: true, value: 'ptc' }),
+    ),
+  }
   const uiWorkspace = new UiWorkspaceService(
     ctx,
     directoryPicker.remote,
+    agentPresets,
+    workbench,
     workspaces,
     sessions,
     views.actions,
   )
-  return { ctx, directoryPicker, sessions, uiWorkspace, workspaces, layout, selectPanel, store: views }
+  return {
+    ctx, directoryPicker, sessions, uiWorkspace, workspaces, layout, selectPanel, store: views,
+    workbench, agentPresets,
+  }
+}
+
+/**
+ * A hand-rolled workbench owner: the real service is the same state machine
+ * without services, so the fake mirrors it over one snapshot store.
+ */
+function fakeWorkbench(state?: Partial<typeof WORKBENCH_DEFAULT_STATE>): Workbench {
+  const store = createSnapshotStore({ ...WORKBENCH_DEFAULT_STATE, ...state })
+  return {
+    state: store,
+    setActive: (tag) => { store.set({ ...store.getSnapshot(), active: tag }) },
+    presetFor: tag => store.getSnapshot().presets[tag],
+    setPresetFor: (tag, presetId) => {
+      store.set({ ...store.getSnapshot(), presets: { ...store.getSnapshot().presets, [tag]: presetId } })
+    },
+    shows: workbenchShows,
+  }
 }
 
 describe('UiWorkspaceService', () => {
@@ -434,6 +466,57 @@ describe('UiWorkspaceService', () => {
     expect(b.sessions.retain).not.toHaveBeenCalled()
   })
 
+  it('creates new sessions with the active tag preset (D3)', async () => {
+    const b = bench({
+      workbench: { active: 'coding' },
+      workspaces: workspaceState([workspace('b', [])]),
+    })
+    await expect(b.uiWorkspace.connectWorkspace(wid('b'))).resolves.toBe(sid('created-b'))
+    expect(b.sessions.create).toHaveBeenCalledWith({ workspaceId: wid('b'), agentPreset: 'ptc' })
+    expect(b.agentPresets.select).not.toHaveBeenCalled()
+  })
+
+  it('rebinds a reused blank whose preset the active tag hides, and leaves a shown one alone', async () => {
+    const b = bench({
+      workbench: { active: 'coding' },
+      // Sessions stay pending so the boot reconcile cannot run its own
+      // connect: this test drives the reuse rebind explicitly.
+      sessions: sessionState([
+        summary('blank-standard', { blank: true, cwd: '/w/a', projectionValues: { agentPreset: 'standard' } }),
+        summary('blank-cordis', { blank: true, cwd: '/w/a', projectionValues: { agentPreset: 'cordis' } }),
+      ], 'pending'),
+      workspaces: workspaceState([workspace('a', [sid('blank-standard'), sid('blank-cordis')])]),
+    })
+    await expect(b.uiWorkspace.connectWorkspace(wid('a'))).resolves.toBe(sid('blank-standard'))
+    expect(b.agentPresets.select).toHaveBeenCalledOnce()
+    expect(b.agentPresets.select).toHaveBeenCalledWith(sid('blank-standard'), 'ptc')
+  })
+
+  it('rebinds only blank sessions after a tag switch; a non-blank session keeps its preset', async () => {
+    const b = bench({
+      workbench: { active: 'coding' },
+      // Sessions stay pending so the boot reconcile cannot run its own
+      // connect: this test drives the switch rebind explicitly.
+      sessions: sessionState([
+        summary('started', { cwd: '/w/a', projectionValues: { agentPreset: 'standard' } }),
+        summary('blank-standard', { blank: true, cwd: '/w/a', projectionValues: { agentPreset: 'standard' } }),
+        summary('blank-cordis', { blank: true, cwd: '/w/a', projectionValues: { agentPreset: 'cordis' } }),
+      ], 'pending'),
+      workspaces: workspaceState([workspace('a', [sid('started'), sid('blank-standard'), sid('blank-cordis')])]),
+    })
+    b.uiWorkspace.openSession(sid('started'))
+    await vi.waitFor(() => { expect(b.uiWorkspace.selection.getSnapshot().sessionId).toBe(sid('started')) })
+    b.uiWorkspace.rebindBlanksAfterTagSwitch()
+    expect(b.agentPresets.select).toHaveBeenCalledOnce()
+    expect(b.agentPresets.select).toHaveBeenCalledWith(sid('blank-standard'), 'ptc')
+  })
+
+  it('skips the tag-switch rebind entirely without a current Workspace', async () => {
+    const b = bench({ workbench: { active: 'coding' } })
+    b.uiWorkspace.rebindBlanksAfterTagSwitch()
+    expect(b.agentPresets.select).not.toHaveBeenCalled()
+  })
+
   it('uses only an explicit Workspace or the recent-Workspace policy for new Sessions', async () => {
     const current = summary('current', { cwd: '/w/current-home', updatedAt: 1 })
     const recent = summary('recent', { cwd: '/w/recent-home', updatedAt: 2 })
@@ -482,7 +565,7 @@ describe('UiWorkspaceService', () => {
     })
     missingMember.uiWorkspace.startSession()
     await vi.waitFor(() => {
-      expect(missingMember.sessions.create).toHaveBeenCalledWith({ workspaceId: wid('newer') })
+      expect(missingMember.sessions.create).toHaveBeenCalledWith({ workspaceId: wid('newer'), agentPreset: 'standard' })
     })
   })
 

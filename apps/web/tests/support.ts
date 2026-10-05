@@ -53,6 +53,23 @@ export async function newEnglishPage(browser: Browser, height = 1000): Promise<P
 }
 
 /**
+ * Seed the browser-local workbench selection before the client boots. The
+ * client names the active tag's preset on every new task (D3), so a scenario
+ * whose replayed model transcript drives a non-general preset must boot on
+ * that tag instead of relying on the Host's roster default.
+ * @param page - page whose client boot should read the seeded tag.
+ * @param active - the tag new tasks carry.
+ */
+export async function seedWorkbench(page: Page, active: 'general' | 'coding'): Promise<void> {
+  // The registration promise must resolve before the scenario's first goto:
+  // an unawaited addInitScript races the navigation and silently drops the seed.
+  await page.addInitScript((tag) => {
+    localStorage.setItem('qilin.workbench.v1',
+      JSON.stringify({ active: tag, presets: { general: 'standard', coding: 'ptc' } }))
+  }, active)
+}
+
+/**
  * Expand every eligible Turn process and secondary group so a Tool-focused
  * scenario can exercise the original row contract beneath product-default
  * compact Chat presentation.

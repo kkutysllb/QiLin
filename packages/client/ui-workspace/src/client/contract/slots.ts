@@ -31,6 +31,8 @@ import type { SessionSearchResultItem } from '@qilin/api-session-controller/clie
 import type { RemoteHostFacts } from '@qilin/api-remotes/client'
 import type { WorkspaceId, WorkspaceView } from '@qilin/api-workspace-controller/client'
 import type { SessionId } from '@qilin/session/types'
+// Type-only: the workbench tag vocabulary this surface consumes.
+import type { WorkbenchState, WorkbenchTag } from '@qilin/client-ui-workbench/client'
 import type { createWorkspaceViewStore } from '../stores.ts'
 import type { ShortcutCatalogEntry } from '@qilin/client-shortcuts/client'
 import type { WorkspaceShortcutState } from '../shortcuts.ts'
@@ -127,7 +129,20 @@ export type WorkspaceBrowserInjected = {
     workspaceShortcuts: HostObservable<WorkspaceShortcutState>
     /** Effective command catalog for row shortcut hints. */
     shortcuts: HostObservable<readonly ShortcutCatalogEntry[]>
+    /** The workbench tag selection and per-tag preset memory (the `workbench` service state). */
+    workbench: HostObservable<WorkbenchState>
   }
+  /**
+   * Switch the workbench tag: records the selection and rebinds the current
+   * Workspace's blank sessions whose recorded preset the new tag does not
+   * show (D3's select rebind; a non-blank session stays as it is).
+   */
+  onWorkbenchSwitch: (tag: WorkbenchTag) => void
+  /**
+   * The workbench owner's visibility fold, reached as a service callback so
+   * the browser imports no cross-plugin value (the purity gate forbids one).
+   */
+  shows: (preset: string | null | undefined, tag: WorkbenchTag) => boolean
   /** Open the browser search and focus its input. */
   requestSearch: () => void
   /** Request the existing directory picker. */

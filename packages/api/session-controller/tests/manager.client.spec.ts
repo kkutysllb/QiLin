@@ -665,6 +665,16 @@ describe('list lifecycle', () => {
     expect(manager.getListSnapshot().items.map(i => i.sessionId)).toEqual([S2])
   })
 
+  it('passes an explicit agent preset through to session.create (D3)', async ({ mock, remote }) => {
+    remote.session.create.mockResolvedValue(ok({ sessionId: S2 }))
+    const manager = makeManager(mock, remote)
+    await manager.create({ agentPreset: 'ptc' })
+    expect(remote.session.create).toHaveBeenCalledWith({ agentPreset: 'ptc' })
+    // An omitted preset sends no field, so the Host resolves its own default.
+    await manager.create()
+    expect(remote.session.create).toHaveBeenLastCalledWith({})
+  })
+
   it('retains title projections before list arrival, keeps last-wins by seq, and clears them on removal', async ({ mock, remote }) => {
     const manager = makeManager(mock, remote)
     const titleFrame = (title: string, seq: number) => {

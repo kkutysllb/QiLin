@@ -41,7 +41,8 @@
         "@qilin/client-ui-layout",
         "@qilin/client-ui-renderer",
         "@qilin/client-ui-session",
-        "@qilin/client-ui-sidebar"
+        "@qilin/client-ui-sidebar",
+        "@qilin/client-ui-workbench"
       ],
       "platform": "web"
     }
@@ -70,6 +71,7 @@
     "@qilin/client-ui-session": "workspace:*",
     "@qilin/client-ui-sidebar": "workspace:*",
     "@qilin/client-ui-slots": "workspace:*",
+    "@qilin/client-ui-workbench": "workspace:*",
     "@qilin/kylin": "workspace:~",
     "@qilin/schedule": "workspace:*",
     "@qilin/session": "workspace:*",
