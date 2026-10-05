@@ -56,15 +56,24 @@ describe('layoutTrajectoryGraph lanes and rows', () => {
     // Row tops: padding 10 + row * 44 + (44 - 30) / 2; canvas height pads both ends.
     expect(laid.nodes.map(n => n.y)).toEqual([17, 61, 105])
     expect(laid.height).toBe(152)
+    expect(laid.laneCenters).toEqual([62, 186, 310])
   })
 
-  it('honors geometry overrides', () => {
+  it('spreads the lane centers with an overridden width and grows chips at half rate', () => {
     const laid = layoutTrajectoryGraph(graph([node('u', 'input')]), {
-      width: 500, rowHeight: 20, nodeHeight: 10, padding: 2,
+      width: 558, rowHeight: 20, nodeHeight: 10, padding: 2,
     })
-    expect(laid.width).toBe(500)
-    expect(laid.nodes[0]).toMatchObject({ x: 8, y: 2 + (20 - 10) / 2, w: 108, h: 10 })
+    expect(laid.width).toBe(558)
+    // xScale 558 / 372 = 1.5 → input cx 62 * 1.5 = 93; chipScale 1 + (1.5 - 1) / 2 = 1.25
+    // → w 108 * 1.25 = 135; x = 93 - 67.5.
+    expect(laid.nodes[0]).toMatchObject({ x: 25.5, y: 2 + (20 - 10) / 2, w: 135, h: 10 })
+    expect(laid.laneCenters).toEqual([93, 279, 465])
     expect(laid.height).toBe(24)
+  })
+
+  it('clamps the layout width into the tuned bounds', () => {
+    expect(layoutTrajectoryGraph(graph([]), { width: 9999 }).width).toBe(720)
+    expect(layoutTrajectoryGraph(graph([]), { width: 10 }).width).toBe(372)
   })
 })
 

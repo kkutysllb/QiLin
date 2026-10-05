@@ -1414,6 +1414,17 @@ export interface Config {
   compressionLevel?: number
   /** Minimum known response length eligible for gzip; unknown-length streams are eligible. @default 1024 */
   compressionThresholdBytes?: number
+  /**
+   * When the socket binds. `activate` binds during init: the port exists as
+   * soon as the row runs, and requests for routes that later rows register
+   * answer 404 until then. `settle` binds once the whole Loader tree has
+   * settled, so the first external connection sees the complete route set;
+   * route owners still mount against the idle server, because init resolves
+   * before they run. A `settle` profile must read `port` only after
+   * settlement — the URL line already awaits it.
+   * @default 'activate'
+   */
+  listenOn?: 'activate' | 'settle'
 }
 ```
 <!-- END GENERATED config-catalog:@qilin/host-webserver -->

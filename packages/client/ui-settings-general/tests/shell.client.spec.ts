@@ -36,14 +36,12 @@ const CHILD_NAMES = Object.keys(CHILD_SPECS) as Array<keyof typeof CHILD_SPECS>
 /**
  * Section ids the web-app roster registers: this package (general and about),
  * ui-settings-models, ui-settings-plugins, ui-settings-mcp, ui-settings-skills,
- * ui-agent-preset, ui-settings-unarchive-sessions, and ui-sidebar-right. A
- * plugin adding a section changes this list; mcp/agent-presets share order 20
- * and skills/sidebar-right share order 30, so the projection order within each
- * pair follows registration.
+ * ui-agent-preset, and ui-settings-unarchive-sessions. A plugin adding a
+ * section changes this list; mcp/agent-presets share order 20, so the
+ * projection order within the pair follows registration.
  */
 const PRODUCT_SECTIONS: readonly string[] = [
-  'general', 'models', 'plugins', 'mcp', 'agent-presets', 'archived-sessions', 'skills',
-  'sidebar-right', 'about',
+  'general', 'models', 'plugins', 'mcp', 'agent-presets', 'archived-sessions', 'skills', 'about',
 ]
 /** Onboarding steps the web-app roster registers; ui-settings-models owns the only one. */
 const PRODUCT_ONBOARDING: readonly { id: string; order: number }[] = [

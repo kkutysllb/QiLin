@@ -41,6 +41,9 @@ function sessionSeqCursor(value: number): SessionSeqCursor {
  */
 export type SessionListPhase = 'pending' | 'ready'
 
+/** Backoff schedule for re-pulling a first list pull that failed while `pending`. */
+const LIST_RETRY_DELAYS = [1_000, 2_000, 4_000]
+
 /** Request-local content hit returned to sidebar search consumers. */
 export interface SessionSearchResultItem {
   sessionId: SessionId
@@ -106,6 +109,9 @@ export class SessionManager {
   private listInflight: Promise<void> | null = null
   /** Active list request's mutation log; its identity also fences completion after reconnect. */
   private listMutations: SessionListMutation[] | null = null
+  /** Scheduled re-pull after a failed first pull, and the attempt count against the bounded delays. */
+  private listRetry: ReturnType<typeof setTimeout> | null = null
+  private listAttempts = 0
   private readonly addresses = new Map<SessionId, SubagentAddress>()
   private readonly projectionLoads = new Map<SessionId, ProjectionLoad>()
   private readonly projectionInflight = new Map<SessionId, ProjectionInflight>()
@@ -195,6 +201,7 @@ export class SessionManager {
     this.disposed = true
     this.listMutations = null
     this.listInflight = null
+    this.clearListRetry()
     this.engagedSessions.clear()
     const reads = [...this.projectionInflight.values()]
     for (const { controller } of reads) controller.abort()
@@ -418,6 +425,7 @@ export class SessionManager {
           for (const sessionId of this.engagedSessions) this.pruneEngagement(sessionId, retained)
           this.listState = 'idle'
           this.listPhase = 'ready'
+          this.clearListRetry()
           this.updateParentAvailability()
           // Resident Sessions and list rows share one display blank, reconciled with the metadata projection.
           for (const s of this.summaries) {
@@ -436,12 +444,14 @@ export class SessionManager {
         } else {
           this.listState = 'error'
           this.listError = result.error
+          this.scheduleListRetry()
         }
       } catch (error) {
         if (!isRemoteFailure(error)) throw error
         if (this.listMutations !== mutations) return
         this.listState = 'error'
         this.listError = error
+        this.scheduleListRetry()
       } finally {
         if (this.listMutations === mutations) {
           this.listMutations = null
@@ -451,6 +461,32 @@ export class SessionManager {
       }
     })()
     return this.listInflight
+  }
+
+  /**
+   * Schedule one bounded re-pull after a failed pull that never landed: the
+   * connection can establish inside the Host's boot window, where the gateway
+   * answers before the RPC faces mount, and nothing else re-pulls until the
+   * next generation. A ready phase never retries — a later failure over an
+   * established list keeps the stale rows the user is looking at.
+   */
+  private scheduleListRetry(): void {
+    if (this.disposed || this.listPhase !== 'pending') return
+    const delay = LIST_RETRY_DELAYS[this.listAttempts]
+    if (delay === undefined) return
+    this.listAttempts += 1
+    if (this.listRetry !== null) clearTimeout(this.listRetry)
+    this.listRetry = setTimeout(() => {
+      this.listRetry = null
+      void this.refreshList()
+    }, delay)
+  }
+
+  /** Drop a scheduled list re-pull and the attempt count (success or new generation). */
+  private clearListRetry(): void {
+    if (this.listRetry !== null) clearTimeout(this.listRetry)
+    this.listRetry = null
+    this.listAttempts = 0
   }
 
   /**
@@ -738,6 +774,9 @@ export class SessionManager {
     for (const store of this.projectionStores.values()) store.clear()
     this.listMutations = null
     this.listInflight = null
+    // The new generation pulls immediately; a boot-window retry aimed at the
+    // previous one must not fire beside it.
+    this.clearListRetry()
     void this.refreshList()
     const parents = new Set(this.projectionLoads.keys())
     for (const id of this.sessions.keys()) {

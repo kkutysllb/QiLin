@@ -8,8 +8,11 @@
  *   input (user, context)   model (request, assistant)   tool (calls, results)
  *
  * Every row holds exactly one record, and a turn boundary reserves a header
- * band above its first row. The module decides row heights, lane positions,
- * nested-call offsets, band extents, and one cubic path per edge. It decides no
+ * band above its first row. The layout adapts to its canvas: lane centers
+ * stretch with the requested width while the chips grow at half that rate, so
+ * a wide pane spreads the swimlanes apart instead of stretching the chips
+ * across them. The module decides row heights, lane positions, nested-call
+ * offsets, band extents, and one cubic path per edge. It decides no
  * copy and no colour, so it stays free of React and of the locale dictionaries
  * and runs in a plain Node environment.
  */
@@ -27,12 +30,15 @@ interface LaneGeometry {
   w: number
 }
 
-/** The three-lane geometry, tuned for a right-Sidebar-width canvas. */
+/** The three-lane geometry at the base width; the centers sit exactly at 1/6, 1/2, and 5/6 of it. */
 const LANES: Readonly<Record<TrajectoryLane, LaneGeometry>> = {
   input: { cx: 62, w: 108 },
   model: { cx: 186, w: 140 },
   tool: { cx: 310, w: 108 },
 }
+
+/** Lane order of `LANES`, the order `laneCenters` reports. */
+const LANE_ORDER: readonly TrajectoryLane[] = ['input', 'model', 'tool']
 
 /** Deepest nesting the tool lane offsets for. */
 const MAX_DEPTH = 3
@@ -46,9 +52,12 @@ const DEFAULTS = {
   padding: 10,
 } as const
 
+/** Widest canvas the lanes stretch to; a wider pane centers the canvas instead. */
+const WIDTH_MAX = 720
+
 /** Geometry overrides for one layout pass. */
 export interface TrajectoryGraphLayoutOptions {
-  /** Virtual canvas width in SVG user units. */
+  /** Virtual canvas width in SVG user units, clamped into `DEFAULTS.width`..`WIDTH_MAX`. */
   width?: number
   /** Vertical pitch of one record row. */
   rowHeight?: number
@@ -106,6 +115,8 @@ export interface TrajectoryGraphLayout {
   readonly nodes: readonly LaidOutGraphNode[]
   readonly edges: readonly LaidOutGraphEdge[]
   readonly bands: readonly LaidOutBand[]
+  /** Center x of each swimlane, in `input, model, tool` order. */
+  readonly laneCenters: readonly number[]
 }
 
 /** A band while the pass still accumulates its height. */
@@ -206,11 +217,16 @@ export function layoutTrajectoryGraph(
   graph: TrajectoryGraph,
   options: TrajectoryGraphLayoutOptions = {},
 ): TrajectoryGraphLayout {
-  const width = options.width ?? DEFAULTS.width
+  const width = clamp(options.width ?? DEFAULTS.width, DEFAULTS.width, WIDTH_MAX)
   const rowHeight = options.rowHeight ?? DEFAULTS.rowHeight
   const nodeHeight = options.nodeHeight ?? DEFAULTS.nodeHeight
   const bandHeight = options.bandHeight ?? DEFAULTS.bandHeight
   const padding = options.padding ?? DEFAULTS.padding
+  // Lane centers stretch with the canvas while chips grow at half that rate,
+  // so the swimlane gaps open up as the pane widens; at the base width the
+  // geometry is exactly the tuned one.
+  const xScale = width / DEFAULTS.width
+  const chipScale = 1 + (xScale - 1) / 2
 
   const depthOf = subCallDepthOf(graph)
   const nodes: LaidOutGraphNode[] = []
@@ -236,11 +252,11 @@ export function layoutTrajectoryGraph(
     const lane = LANES[node.lane]
     const depth = depthOf(node.id)
     const offset = laneOffset(node.kind, depth)
-    const w = lane.w - offset.shrink
+    const w = (lane.w - offset.shrink) * chipScale
     const laid: LaidOutGraphNode = {
       node,
       index,
-      x: lane.cx + offset.dx - w / 2,
+      x: lane.cx * xScale + offset.dx * chipScale - w / 2,
       y: cursor + (rowHeight - nodeHeight) / 2,
       w,
       h: nodeHeight,
@@ -277,5 +293,12 @@ export function layoutTrajectoryGraph(
     })
   }
 
-  return { width, height: cursor + padding, nodes, edges, bands }
+  return {
+    width,
+    height: cursor + padding,
+    nodes,
+    edges,
+    bands,
+    laneCenters: LANE_ORDER.map(lane => LANES[lane].cx * xScale),
+  }
 }

@@ -67,11 +67,23 @@ export interface Config {
   compressionLevel?: number
   /** Minimum known response length eligible for gzip; unknown-length streams are eligible. @default 1024 */
   compressionThresholdBytes?: number
+  /**
+   * When the socket binds. `activate` binds during init: the port exists as
+   * soon as the row runs, and requests for routes that later rows register
+   * answer 404 until then. `settle` binds once the whole Loader tree has
+   * settled, so the first external connection sees the complete route set;
+   * route owners still mount against the idle server, because init resolves
+   * before they run. A `settle` profile must read `port` only after
+   * settlement — the URL line already awaits it.
+   * @default 'activate'
+   */
+  listenOn?: 'activate' | 'settle'
 }
 
 const DEFAULT_COMPRESSION = 'none' as const
 const DEFAULT_COMPRESSION_LEVEL = 1
 const DEFAULT_COMPRESSION_THRESHOLD_BYTES = 1024
+const DEFAULT_LISTEN_ON = 'activate' as const
 
 /**
  * Request-header budget, above Node's 16 KiB default. A boot request carries the
@@ -124,10 +136,12 @@ function createGzipMiddleware(config: ResolvedConfig): NodeMiddleware {
 }
 
 /**
- * The browser HTTP carrier service. Activation listens immediately. Route
- * registration order does not affect requests because configured named routes
- * must be distinct, and the fallback handler answers anything not yet claimed
- * during startup with 404 until its owner registers. A listen failure rejects
+ * The browser HTTP carrier service. `listenOn` (see {@link Config}) decides
+ * when the socket binds; `activate` binds during init, `settle` defers the
+ * bind past Loader settlement. Route registration order does not affect
+ * requests because configured named routes must be distinct, and the fallback
+ * handler answers anything not yet claimed during startup with 404 until its
+ * owner registers. A bind failure before init resolves rejects
  * initialization, and the boot process reports the failed fiber.
  */
 export class WebServer extends Service {
@@ -137,6 +151,7 @@ export class WebServer extends Service {
     compression: z.union([z.const('none'), z.const('gzip')]).default(DEFAULT_COMPRESSION),
     compressionLevel: z.number().step(1).min(0).max(9).default(DEFAULT_COMPRESSION_LEVEL),
     compressionThresholdBytes: z.natural().default(DEFAULT_COMPRESSION_THRESHOLD_BYTES),
+    listenOn: z.union([z.const('activate'), z.const('settle')]).default(DEFAULT_LISTEN_ON),
   })
 
   private readonly exact = new Map<string, WebRoute>()
@@ -298,18 +313,10 @@ export class WebServer extends Service {
       }
     })
 
-    await new Promise<void>((resolve, reject) => {
-      this.server.once('error', reject)
-      this.server.listen(this.config.port, this.config.host, () => {
-        this.server.off('error', reject)
-        this.server.on('error', (err) => { this.ctx.logger.error(err) })
-        this.listenedPort = (this.server.address() as AddressInfo).port
-        resolve()
-      })
-    })
-
-    // Node does not include upgraded sockets in closeAllConnections(). The service
-    // owns them with the other connections, so it tracks and destroys them explicitly.
+    // Teardown owns the server from creation, so a dispose racing a deferred
+    // bind still closes it. Node does not include upgraded sockets in
+    // closeAllConnections(). The service owns them with the other connections,
+    // so it tracks and destroys them explicitly.
     this.ctx.effect(() => async () => {
       const serverClosed = new Promise<void>((resolve) => {
         this.server.close(() => { resolve() })
@@ -321,6 +328,52 @@ export class WebServer extends Service {
       }))
       await Promise.all([serverClosed, ...upgradedClosed])
     }, 'webServer.listen')
+
+    if (this.config.listenOn === 'settle') {
+      // Fail loud while init can still reject: probe the bind, so a port
+      // taken meanwhile fails the fiber exactly like `activate` would. A bind
+      // lost after settlement (a race against another process) logs instead —
+      // the fiber is already live and the URL line reports the dead port.
+      await this.probeBind()
+      // The Loader declares `loader.await()` as the tree's settlement promise
+      // (vendor/loader); a hand-built tree without one is already complete.
+      // Read it structurally: importing the loader's types would pull the
+      // frozen vendored source into this program's compilation.
+      const loader = this.ctx.get('loader') as { await(): Promise<void> } | undefined
+      const settled = loader?.await() ?? Promise.resolve()
+      void settled.then(() => this.bind()).catch((error: unknown) => {
+        this.ctx.logger.error(error instanceof Error ? error : new Error(String(error)))
+      })
+      return
+    }
+    await this.bind()
+  }
+
+  /** Pre-flight one bind on the configured address and release it immediately. */
+  private probeBind(): Promise<void> {
+    const probe = createServer()
+    return new Promise<void>((resolve, reject) => {
+      probe.once('error', reject)
+      probe.listen(this.config.port, this.config.host, () => {
+        probe.close((error) => {
+          if (error !== undefined) reject(error)
+          else resolve()
+        })
+      })
+    })
+  }
+
+  /** Bind the socket and record the OS-assigned port. */
+  private bind(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      this.server.once('error', reject)
+      this.server.listen(this.config.port, this.config.host, () => {
+        this.server.off('error', reject)
+        this.server.on('error', (err) => { this.ctx.logger.error(err) })
+        this.listenedPort = (this.server.address() as AddressInfo).port
+        resolve()
+      })
+    })
   }
 
   /** Longest-prefix-wins over the prefix table after an exact-table miss. */

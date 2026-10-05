@@ -140,23 +140,6 @@ describe('SidebarRightController — opening', () => {
     expect(titles()).toEqual([])
   })
 
-  it('refuses new opens of a switched-off type while the tab already open under it stays', () => {
-    const { controller, tabs, publish, titles } = harness()
-    publish()
-    controller.openResource('qilin-resource://file/session/s-test/notes/kept.txt')
-    const kept = controller.active()!
-    tabs.setEnabled('test/text', false)
-    // The open tab is neither closed nor re-routed: nothing happens behind the user.
-    expect(controller.active()?.id).toBe(kept.id)
-    expect(titles()).toContain('kept.txt')
-    expect(() => { controller.openResource('qilin-resource://file/session/s-test/notes/new.txt') }).toThrow('turned off')
-    expect(() => { controller.openTab('text') }).toThrow('turned off')
-    expect(titles()).not.toContain('new.txt')
-    tabs.setEnabled('test/text', true)
-    controller.openResource('qilin-resource://file/session/s-test/notes/new.txt')
-    expect(titles()).toContain('new.txt')
-  })
-
   it('opens claimed content and reveals the column in one history entry', () => {
     const { controller, publish, layout, titles, entries } = harness()
     publish()

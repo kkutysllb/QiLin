@@ -3516,7 +3516,7 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
   {
     key: 'webServer',
     summary: 'The browser HTTP carrier service.',
-    description: 'The browser HTTP carrier service. Activation listens immediately. Route registration order does not affect requests because configured named routes must be distinct, and the fallback handler answers anything not yet claimed during startup with 404 until its owner registers. A listen failure rejects initialization, and the boot process reports the failed fiber.',
+    description: 'The browser HTTP carrier service. `listenOn` (see Config) decides when the socket binds; `activate` binds during init, `settle` defers the bind past Loader settlement. Route registration order does not affect requests because configured named routes must be distinct, and the fallback handler answers anything not yet claimed during startup with 404 until its owner registers. A bind failure before init resolves rejects initialization, and the boot process reports the failed fiber.',
     methods: [
       {
         signature: 'register(route: WebRoute): () => void',

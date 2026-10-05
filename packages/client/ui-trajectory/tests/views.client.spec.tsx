@@ -454,7 +454,7 @@ describe('plugin registration', () => {
     expect(graph?.priority).toBe('builtin')
     expect(graph?.label?.()).toBe('Trajectory graph')
     expect(graph?.guide?.map(item => [item.order, item.title(), item.description?.()]))
-      .toEqual([[21, 'Trajectory graph', 'The trajectory ledger drawn as a live node and edge flow']])
+      .toEqual([[35, 'Trajectory graph', 'The trajectory ledger drawn as a live node and edge flow']])
     const graphEntry = b.slots.entries('sidebar.right.pane.tab')
       .find(candidate => candidate.options.key === TRAJECTORY_GRAPH_ID)
     expect(graphEntry?.locale).toBe('trajectory')

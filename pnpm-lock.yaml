@@ -2275,24 +2275,12 @@ importers:
       '@qilin/client-ui-sidebar-files':
         specifier: workspace:*
         version: link:../../client/ui-sidebar-files
-      '@qilin/client-ui-sidebar-git':
-        specifier: workspace:*
-        version: link:../../client/ui-sidebar-git
-      '@qilin/client-ui-sidebar-plans':
-        specifier: workspace:*
-        version: link:../../client/ui-sidebar-plans
       '@qilin/client-ui-sidebar-right':
         specifier: workspace:*
         version: link:../../client/ui-sidebar-right
-      '@qilin/client-ui-sidebar-tasks':
-        specifier: workspace:*
-        version: link:../../client/ui-sidebar-tasks
       '@qilin/client-ui-sidebar-terminal':
         specifier: workspace:*
         version: link:../../client/ui-sidebar-terminal
-      '@qilin/client-ui-sidechat':
-        specifier: workspace:*
-        version: link:../../client/ui-sidechat
       '@qilin/client-ui-skill':
         specifier: workspace:*
         version: link:../../client/ui-skill

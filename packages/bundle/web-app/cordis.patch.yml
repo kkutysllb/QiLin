@@ -181,6 +181,11 @@
         compression: gzip
         compressionLevel: 1
         compressionThresholdBytes: 1024
+        # The port opens once the whole Loader tree has settled: every route
+        # and upgrade owner has registered by then, so the first external
+        # connection (a reconnecting browser tab after a restart) never lands
+        # on startup 404s.
+        listenOn: settle
 
     # Web glue owned by this bundle: resolves the built frontend dist (an
     # assembly fact of qilin-web-app, never user config), mounts the
@@ -294,22 +299,6 @@
     # The right Sidebar's workspace file tree tab type.
     - id: ui-sidebar-files
       name: '@qilin/client-ui-sidebar-files'
-
-    # The right Sidebar's Git panel tab type: status, staging, commit, branches, and GitHub PRs.
-    - id: ui-sidebar-git
-      name: '@qilin/client-ui-sidebar-git'
-
-    # The right Sidebar's tasks tab type: subagent topology and background jobs.
-    - id: ui-sidebar-tasks
-      name: '@qilin/client-ui-sidebar-tasks'
-
-    # The right Sidebar's sidechat tab type: threads forked from the current Session.
-    - id: ui-sidechat
-      name: '@qilin/client-ui-sidechat'
-
-    # The right Sidebar's task-plan tab type: the workspace's plan documents.
-    - id: ui-sidebar-plans
-      name: '@qilin/client-ui-sidebar-plans'
 
     - id: ui-settings
       name: '@qilin/client-ui-settings'
