@@ -58,8 +58,15 @@ declare module '@qilin/client-ui-slots' {
      */
     'sidebar.settings': { kind: 'single'; scope: 'root'; owner: SidebarSettingsOwnerProps }
     /**
-     * Optional actions beside the account menu at the sidebar foot. Declared by
-     * this package's 'sidebar' entry; each action receives only the column state.
+     * The sidebar foot's account row, declared by this package's 'sidebar'
+     * entry and occupied by the account menu. It stacks below the footer
+     * actions and receives only the column state.
+     */
+    'sidebar.account': { kind: 'single'; scope: 'root'; owner: SidebarFooterActionOwnerProps }
+    /**
+     * Optional additive actions at the sidebar foot, stacked above the account
+     * row. Declared by this package's 'sidebar' entry; each action receives
+     * only the column state.
      */
     'sidebar.footer.action': { kind: 'list'; scope: 'root'; owner: SidebarFooterActionOwnerProps }
   }
@@ -170,6 +177,7 @@ export type SidebarRootComponentProps =
     | 'sidebar.panellist'
     | 'sidebar.workspaces'
     | 'sidebar.settings'
+    | 'sidebar.account'
     | 'sidebar.footer.action'
   >
   & InjectFace<SidebarRootInjected> & PropsLocale<'sidebar'>

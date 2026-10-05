@@ -41,6 +41,7 @@ function mountShell({ collapsed = false, width = 300 }: { collapsed?: boolean; w
   const toggleSidebar = vi.fn()
   let regionOwner: SidebarSectionOwnerProps | undefined
   let settingsOwner: SidebarSettingsOwnerProps | undefined
+  let accountOwner: SidebarFooterActionOwnerProps | undefined
   let footerActionOwner: SidebarFooterActionOwnerProps | undefined
   const brandMark = <span data-testid="custom-brand-mark">M</span>
   const brandName = <span data-testid="custom-brand-name">Custom Brand</span>
@@ -63,6 +64,10 @@ function mountShell({ collapsed = false, width = 300 }: { collapsed?: boolean; w
           settingsOwner = owner
           return <div data-testid="settings-seat" data-wide={owner.wide} />
         }
+        if (key === 'sidebar.account') {
+          accountOwner = owner
+          return <div data-testid="account-seat" data-wide={owner.wide} />
+        }
         if (key === 'sidebar.footer.action') {
           footerActionOwner = owner
           return <div data-testid="footer-action-seat" data-wide={owner.wide} />
@@ -83,6 +88,10 @@ function mountShell({ collapsed = false, width = 300 }: { collapsed?: boolean; w
     settingsOwner: () => {
       if (settingsOwner === undefined) throw new Error('settings owner not rendered')
       return settingsOwner
+    },
+    accountOwner: () => {
+      if (accountOwner === undefined) throw new Error('account owner not rendered')
+      return accountOwner
     },
     footerActionOwner: () => {
       if (footerActionOwner === undefined) throw new Error('footer action owner not rendered')
@@ -169,8 +178,9 @@ describe('SidebarRoot shell', () => {
   it('hands the region its wide flag and clamps expandSidebar to the collapsed state', () => {
     const b = mountShell()
     expect(b.regionOwner().wide).toBe(true)
-    // The settings seat rides the same wide flag (ui-settings renders the row).
+    // The settings and account seats ride the same wide flag.
     expect(b.settingsOwner().wide).toBe(true)
+    expect(b.accountOwner().wide).toBe(true)
     expect(b.footerActionOwner().wide).toBe(true)
     // Expanded: the request is a no-op (no accidental collapse).
     b.regionOwner().expandSidebar()
@@ -186,6 +196,7 @@ describe('SidebarRoot shell', () => {
     vi.advanceTimersByTime(200)
     b.rerender({})
     expect(b.regionOwner().wide).toBe(false)
+    expect(b.accountOwner().wide).toBe(false)
     expect(b.footerActionOwner().wide).toBe(false)
     expect(screen.getByTestId('region')).toBeTruthy()
     b.regionOwner().expandSidebar()

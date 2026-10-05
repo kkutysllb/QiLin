@@ -75,7 +75,7 @@ export interface AccountMenuInjected {
 
 /** Full component props: sidebar column state, store share, inject face, and copy seat. */
 export type AccountMenuProps =
-  PropsRuntime<'sidebar.footer.action'>
+  PropsRuntime<'sidebar.account'>
   & PropsStore<AccountMenuStoreHandle>
   & InjectFace<AccountMenuInjected>
   & PropsLocale<'account'>

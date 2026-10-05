@@ -561,6 +561,7 @@
 }
 
 .settingsArea,
+.accountArea,
 .footerActions {
   flex: none;
   min-width: 0;
@@ -576,6 +577,7 @@
 }
 
 .collapsed .settingsArea,
+.collapsed .accountArea,
 .collapsed .footerActions {
   display: flex;
   justify-content: center;

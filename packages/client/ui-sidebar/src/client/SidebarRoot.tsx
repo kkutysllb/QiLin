@@ -8,8 +8,9 @@
  * same top-down order) on one fade that ends with the slide. The bottom-pinned
  * footer seats only fade. The workspace/session browsing region between
  * global panel rows and the foot is the `sidebar.workspaces` registrant's,
- * and the foot holds `sidebar.footer.action` plus `sidebar.settings`; the shell
- * hands them the wide flag (plus an expand request callback for the browser).
+ * and the foot stacks `sidebar.footer.action`, the `sidebar.account` row, and
+ * `sidebar.settings`; the shell hands them the wide flag (plus an expand
+ * request callback for the browser).
  *
  * The column also owns whether the scroll regions nested in it draw a
  * scrollbar at all: the shell tracks the pointer and rebinds ui-theme's
@@ -313,10 +314,13 @@ export function SidebarRoot({
         })}
       </div>
 
-      {/* Footer seats: additive actions stack above the settings occupant. */}
+      {/* Footer seats: additive actions stack above the account and settings rows. */}
       <div className={css.footArea}>
         <div className={css.footerActions}>
           {renderSlot('sidebar.footer.action', { wide })}
+        </div>
+        <div className={css.accountArea}>
+          {renderSlot('sidebar.account', { wide })}
         </div>
         <div className={css.settingsArea}>
           {renderSlot('sidebar.settings', { wide })}
