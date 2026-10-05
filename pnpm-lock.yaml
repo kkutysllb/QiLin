@@ -14190,18 +14190,30 @@ importers:
       '@qilin/agent':
         specifier: workspace:^
         version: link:../../packages/core/agent
+      '@qilin/agent-default-model':
+        specifier: workspace:^
+        version: link:../../packages/core/agent-default-model
       '@qilin/agent-instructions':
         specifier: workspace:^
         version: link:../../packages/context/agent-instructions
       '@qilin/agent-loop':
         specifier: workspace:^
         version: link:../../packages/core/agent-loop
+      '@qilin/agent-presets':
+        specifier: workspace:^
+        version: link:../../packages/preset/agent-presets
       '@qilin/agent-tool-presentation':
         specifier: workspace:^
         version: link:../../packages/core/agent-tool-presentation
       '@qilin/anonymous-user-id':
         specifier: workspace:^
         version: link:../../packages/identity/anonymous-user-id
+      '@qilin/api-gateway':
+        specifier: workspace:^
+        version: link:../../packages/api/gateway
+      '@qilin/api-session-controller':
+        specifier: workspace:^
+        version: link:../../packages/api/session-controller
       '@qilin/app-boot':
         specifier: workspace:^
         version: link:../../packages/boot/app-boot
@@ -14223,6 +14235,12 @@ importers:
       '@qilin/cli':
         specifier: workspace:^
         version: link:../../apps/cli
+      '@qilin/client-connection':
+        specifier: workspace:^
+        version: link:../../packages/client/connection
+      '@qilin/client-file-upload':
+        specifier: workspace:^
+        version: link:../../packages/client/file-upload
       '@qilin/command-compact':
         specifier: workspace:^
         version: link:../../packages/compaction/command-compact
@@ -14253,6 +14271,9 @@ importers:
       '@qilin/deepseek-llm-api-extensions':
         specifier: workspace:^
         version: link:../../packages/llm/deepseek-llm-api-extensions
+      '@qilin/file-reference':
+        specifier: workspace:^
+        version: link:../../packages/context/file-reference
       '@qilin/fs':
         specifier: workspace:^
         version: link:../../packages/fs/fs
@@ -14331,6 +14352,9 @@ importers:
       '@qilin/mcp-client':
         specifier: workspace:^
         version: link:../../packages/mcp/mcp-client
+      '@qilin/native-command':
+        specifier: workspace:^
+        version: link:../../packages/util/native-command
       '@qilin/output-retention':
         specifier: workspace:^
         version: link:../../packages/util/output-retention
@@ -14370,6 +14394,9 @@ importers:
       '@qilin/sandbox-policy':
         specifier: workspace:^
         version: link:../../packages/sandbox/sandbox-policy
+      '@qilin/schedule':
+        specifier: workspace:^
+        version: link:../../packages/schedule/schedule
       '@qilin/schemastery':
         specifier: link:../../vendor/schemastery
         version: link:../../vendor/schemastery
@@ -14439,6 +14466,12 @@ importers:
       '@qilin/spill':
         specifier: workspace:^
         version: link:../../packages/spill/spill
+      '@qilin/storage':
+        specifier: workspace:^
+        version: link:../../packages/storage/storage
+      '@qilin/storage-domain':
+        specifier: workspace:^
+        version: link:../../packages/storage/storage-domain
       '@qilin/subagent':
         specifier: workspace:^
         version: link:../../packages/subagent/subagent
@@ -14514,6 +14547,9 @@ importers:
       '@qilin/tool-ralph':
         specifier: workspace:^
         version: link:../../packages/workflow/tool-ralph
+      '@qilin/tool-schedule':
+        specifier: workspace:^
+        version: link:../../packages/schedule/tool-schedule
       '@qilin/tool-skill':
         specifier: workspace:^
         version: link:../../packages/skill/tool-skill
@@ -14544,6 +14580,9 @@ importers:
       '@qilin/typert-protocol':
         specifier: workspace:^
         version: link:../../packages/typert/protocol
+      '@qilin/typert-registry':
+        specifier: workspace:^
+        version: link:../../packages/typert/registry
       '@qilin/user-approval':
         specifier: workspace:^
         version: link:../../packages/interaction/user-approval
@@ -14556,6 +14595,9 @@ importers:
       '@qilin/util-values':
         specifier: workspace:^
         version: link:../../packages/util/values
+      '@qilin/util-workspace-path':
+        specifier: workspace:^
+        version: link:../../packages/util/workspace-path
       '@qilin/web':
         specifier: workspace:^
         version: link:../../packages/web/web
@@ -14577,6 +14619,9 @@ importers:
       '@qilin/workflow-ptc':
         specifier: workspace:^
         version: link:../../packages/workflow/workflow-ptc
+      '@qilin/workspace':
+        specifier: workspace:^
+        version: link:../../packages/workspace/workspace
 
   vendor/cordis:
     dependencies:
