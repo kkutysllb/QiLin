@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
+  "// KStock patch (K10)": "K10 动效技能库改由产品侧声明（上游 3.0.11 退役内置；kstock profile 不在 PROFILE_TEMPLATES 内，规范化不作用于它）",
   "// KStock patch": "K08 部署清单补齐 tool-schedule 运行期闭包（peer 闭包由 verify-runtime-closure 门禁保证）",
   "dependencies": {
     "@qilin/agent-default-model": "workspace:^",
@@ -151,6 +152,7 @@
     "@qilin/schemastery": "workspace:^",
     "@qilin/plugin-manager": "workspace:^",
     "@qilin/host-plugin-inventory": "workspace:^",
-    "@qilin/workspace": "workspace:^"
+    "@qilin/workspace": "workspace:^",
+    "dsh-animations": "^1.2.3"
   }
 }

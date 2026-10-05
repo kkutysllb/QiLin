@@ -14622,6 +14622,9 @@ importers:
       '@qilin/workspace':
         specifier: workspace:^
         version: link:../../packages/workspace/workspace
+      dsh-animations:
+        specifier: ^1.2.3
+        version: 1.2.3
 
   vendor/cordis:
     dependencies:
@@ -18722,6 +18725,27 @@ packages:
 
   dompurify@3.4.11:
     resolution: {integrity: sha512-zhlUV12GsaRzMsf9q5M254YhA4+VuF0fG+QFqu6aYpoGlKtz+w8//jBcGVYBgQkR5GHjUomejY84AV+/uPbWdw==}
+
+  dsh-animations@1.2.3:
+    resolution: {integrity: sha512-z+dPfTbBtv4A0X9hwY6dWb0MEGUPwh9cYHrVE/m/lcGzBL1CB4YqfQ9mqArBN9B3AGUU8UR4dYDSpQ18Tf2tVA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@deepseek-ai/dsh': '>=0.1.0-rc.5 <0.2.0'
+      '@deepseek-ai/dsh-client-locale': '>=0.1.0-rc.5 <0.2.0'
+      '@deepseek-ai/dsh-client-ui-conversation': '>=0.1.0-rc.5 <0.2.0'
+      '@deepseek-ai/dsh-client-ui-slots': '>=0.1.0-rc.5 <0.2.0'
+      '@deepseek-ai/dsh-client-ui-workspace': '>=0.1.0-rc.5 <0.2.0'
+    peerDependenciesMeta:
+      '@deepseek-ai/dsh':
+        optional: true
+      '@deepseek-ai/dsh-client-locale':
+        optional: true
+      '@deepseek-ai/dsh-client-ui-conversation':
+        optional: true
+      '@deepseek-ai/dsh-client-ui-slots':
+        optional: true
+      '@deepseek-ai/dsh-client-ui-workspace':
+        optional: true
 
   dts-resolver@3.0.0:
     resolution: {integrity: sha512-1T1f+z+4tl9XD+m+0HBgWoL/nm0bOIffyWaUuUSBlFg/86IWvfx+wjNaO/ybU0AJzG9/Mi5hBUgGV6zCmWEN7Q==}
@@ -25366,6 +25390,8 @@ snapshots:
   dompurify@3.4.11:
     optionalDependencies:
       '@types/trusted-types': 2.0.7
+
+  dsh-animations@1.2.3: {}
 
   dts-resolver@3.0.0(oxc-resolver@11.20.0):
     optionalDependencies:
