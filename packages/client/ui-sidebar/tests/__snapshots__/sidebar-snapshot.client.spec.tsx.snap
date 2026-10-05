@@ -68,6 +68,14 @@ exports[`sidebar shell snapshots > renders Windows caption controls in expanded 
         />
       </div>
       <div
+        class="accountArea"
+      >
+        <div
+          data-slot="sidebar.account"
+          style="display: contents;"
+        />
+      </div>
+      <div
         class="settingsArea"
       >
         <div
@@ -197,6 +205,14 @@ exports[`sidebar shell snapshots > renders Windows caption controls in expanded 
         />
       </div>
       <div
+        class="accountArea"
+      >
+        <div
+          data-slot="sidebar.account"
+          style="display: contents;"
+        />
+      </div>
+      <div
         class="settingsArea"
       >
         <div
@@ -291,6 +307,14 @@ exports[`sidebar shell snapshots > renders the collapsed rail after the crossfad
       >
         <div
           data-slot="sidebar.footer.action"
+          style="display: contents;"
+        />
+      </div>
+      <div
+        class="accountArea"
+      >
+        <div
+          data-slot="sidebar.account"
           style="display: contents;"
         />
       </div>
@@ -424,6 +448,14 @@ exports[`sidebar shell snapshots > renders the expanded column (wordmark, capsul
         />
       </div>
       <div
+        class="accountArea"
+      >
+        <div
+          data-slot="sidebar.account"
+          style="display: contents;"
+        />
+      </div>
+      <div
         class="settingsArea"
       >
         <div
@@ -549,6 +581,14 @@ exports[`sidebar shell snapshots > renders the expanded column in the default lo
       >
         <div
           data-slot="sidebar.footer.action"
+          style="display: contents;"
+        />
+      </div>
+      <div
+        class="accountArea"
+      >
+        <div
+          data-slot="sidebar.account"
           style="display: contents;"
         />
       </div>
