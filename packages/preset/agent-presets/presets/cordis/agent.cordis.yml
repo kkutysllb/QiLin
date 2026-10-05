@@ -60,10 +60,10 @@
 
 - id: tool-pwsh
   name: '@qilin/tool-pwsh'
+  disabled: !!js process.platform !== 'win32'
 
 - id: tool-schedule
   name: '@qilin/tool-schedule'
-  disabled: !!js process.platform !== 'win32'
 
 # ── filesystem ──────────────────────────────────────────────────────────────
 
