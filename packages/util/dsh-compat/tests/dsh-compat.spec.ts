@@ -14,6 +14,7 @@ describe('DSH platform module aliases', () => {
     expect(DSH_PLATFORM_MODULE_ALIASES['@deepseek-ai/dsh-client-ui-slots']).toBe('@qilin/client-ui-slots')
     expect(DSH_PLATFORM_MODULE_ALIASES['@deepseek-ai/dsh-client-ui-primitives']).toBe('@qilin/client-ui-primitives')
     expect(DSH_PLATFORM_MODULE_ALIASES['@deepseek-ai/dsh-client-ui-dockkit']).toBe('@qilin/client-ui-dockkit')
+    expect(DSH_PLATFORM_MODULE_ALIASES['@deepseek-ai/schemastery']).toBe('@qilin/schemastery')
   })
 
   it('aliases every DSH platform seed word DSH itself shipped', () => {

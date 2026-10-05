@@ -61,6 +61,7 @@
   "dependencies": {
     "@qilin/app-boot": "workspace:*",
     "@qilin/atomic-write": "workspace:*",
+    "@qilin/dsh-compat": "workspace:*",
     "@qilin/schemastery": "workspace:~",
     "execa": "^10.0.0",
     "yaml": "^2.9.0",

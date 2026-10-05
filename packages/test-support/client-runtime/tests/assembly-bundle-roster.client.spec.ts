@@ -157,9 +157,21 @@ describe('bundleRoster on a scratch installation', () => {
   it('fails loud on a bundle that does not resolve, declares no patch, or whose patch is not a list', () => {
     expect(() => scratch.roster(['@t/missing'])).toThrow('cannot resolve bundle @t/missing from')
     scratch.pkg('@t/no-patch', { qilin: {} })
-    expect(() => scratch.roster(['@t/no-patch'])).toThrow('bundle @t/no-patch declares no qilin.bundle.patch in')
+    expect(() => scratch.roster(['@t/no-patch'])).toThrow('bundle @t/no-patch declares no qilin.bundle.patch or dsh.bundle.patch in')
     scratch.bundle('@t/not-a-list', 'insert: []\n')
     expect(() => scratch.roster(['@t/not-a-list'])).toThrow('must be a top-level list of patches')
+  })
+
+  it('reads the DSH-era manifest channel the load path accepts', () => {
+    scratch.pkg('@t/dsh-web', { dsh: { client: { platform: 'web', inject: ['@deepseek-ai/dsh-client-store'] } } })
+    scratch.pkg('@t/dsh-base', { dsh: { bundle: { patch: './cordis.patch.yml' } } }, { 'cordis.patch.yml': `
+- insert:
+    - id: dsh-web
+      name: '@t/dsh-web'
+` })
+    expect(bundleRoster(['@t/dsh-base'], scratch.anchor).rows).toEqual([
+      { name: '@t/dsh-web', inject: ['@qilin/client-store'], immediately: false },
+    ])
   })
 
   it('fails loud on a patch that does not apply as written', () => {

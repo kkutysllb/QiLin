@@ -339,7 +339,7 @@ it('asks the registry through pnpm view in the profile directory and reports how
   answer({ exitCode: 0, stdout: '{"name":"x"}', stderr: '', timedOut: false, isCanceled: false })
   expect(await viewProfilePackage(dir, 'x@^1', { timeoutMs: 5 })).toEqual({ exitCode: 0, stdout: '{"name":"x"}', stderr: '', timedOut: false })
   expect(command.run).toHaveBeenLastCalledWith('pnpm', [
-    'view', 'x@^1', 'name', 'version', 'description', 'qilin', '--json', '--config.fetch-retries=0',
+    'view', 'x@^1', 'name', 'version', 'description', 'qilin', 'dsh', '--json', '--config.fetch-retries=0',
   ], expect.objectContaining({
     cwd: dir, timeout: 5, reject: false, stdin: 'ignore',
   }))
@@ -367,7 +367,7 @@ it('uses application-owned executable arguments and environment for package oper
   command.run.mockResolvedValueOnce(Object.assign({ exitCode: 0, failed: false }, { stdout: '{}', stderr: '', timedOut: false }))
   await viewProfilePackage(dir, 'example', { ...runtime, timeoutMs: 1000 })
   expect(command.run).toHaveBeenLastCalledWith(runtime.command,
-    [...runtime.args, 'view', 'example', 'name', 'version', 'description', 'qilin', '--json', '--config.fetch-retries=0'],
+    [...runtime.args, 'view', 'example', 'name', 'version', 'description', 'qilin', 'dsh', '--json', '--config.fetch-retries=0'],
     expect.objectContaining({ env: expect.objectContaining(runtime.env) as unknown }))
 })
 

@@ -860,6 +860,34 @@ describe('profile resolution generation', { concurrent: false }, () => {
     expect(untranslated.code).toBe('ERR_MODULE_NOT_FOUND')
   })
 
+  it('resolves a translated DSH-era fallback onto its QiLin package', async () => {
+    const f = fixture()
+    const session = join(f.root, 'install', 'node_modules', '@qilin', 'session')
+    pkg(session, '@qilin/session', 3)
+    file(f.installAnchor, JSON.stringify({
+      name: 'test-app', version: '0.0.0',
+      dependencies: { 'resolution-lib': '*', '@qilin/session': '*' },
+    }))
+    const bundle = join(f.profile.dir, 'node_modules', 'dsh-bundle')
+    pkg(bundle, 'dsh-bundle', 4, {}, { '@deepseek-ai/dsh-session': '*' })
+    f.profile.layers = [{
+      packageName: 'dsh-bundle', packageDir: bundle,
+      patchPath: join(bundle, 'cordis.patch.yml'), patches: [],
+    }]
+    const generation = await generationOf(f)
+    const entry = generation.entries.find(candidate => candidate.name === '@deepseek-ai/dsh-session')
+    expect(entry).toMatchObject({ packageDir: session, scope: 'profile' })
+
+    const registration = installProfileResolution(generation)
+    registrations.push(registration)
+    const parent = pathToFileURL(join(f.profile.dir, 'translated-entry.mjs')).href
+    expect(resolveFrom('@deepseek-ai/dsh-session', parent))
+      .toBe(pathToFileURL(join(session, 'index.js')).href)
+    expect(await importFrom('@deepseek-ai/dsh-session', parent)).toMatchObject({ marker: 3 })
+    const require = createRequire(join(f.profile.dir, 'translated-entry.cjs'))
+    expect(require('@deepseek-ai/dsh-session')).toMatchObject({ marker: 3 })
+  })
+
   it('keeps a legacy CommonJS package without a manifest ahead of the generation', async () => {
     const f = fixture()
     file(join(f.profile.dir, 'node_modules', 'resolution-lib', 'index.js'), 'module.exports = { marker: 2 }\n')

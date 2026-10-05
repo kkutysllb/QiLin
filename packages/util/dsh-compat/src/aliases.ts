@@ -21,6 +21,7 @@
 export const DSH_PLATFORM_MODULE_ALIASES: Readonly<Record<string, string>> = {
   'cordis': '@qilin/kylin',
   '@deepseek-ai/cordis': '@qilin/kylin',
+  '@deepseek-ai/schemastery': '@qilin/schemastery',
   '@deepseek-ai/dsh-client-store': '@qilin/client-store',
   '@deepseek-ai/dsh-client-ui-slots': '@qilin/client-ui-slots',
   '@deepseek-ai/dsh-client-ui-primitives': '@qilin/client-ui-primitives',

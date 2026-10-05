@@ -10,6 +10,7 @@ import {
   pluginCompatibilityWarning, PROFILE_TEMPLATES, readProfileManifest, readProfileVersionExemptions,
   resolveBundleDir, resolveProfileDir, type ProfileManifest,
 } from '@qilin/app-boot'
+import { bundlePatchOf } from '@qilin/dsh-compat'
 import { scrubbedParentEnv } from '@qilin/subprocess'
 import { awaitTreeGone, leadsOwnGroup, treeAlive, type RunTree } from './run-tree.ts'
 import { parseInstallSpec } from './install-spec.ts'
@@ -57,7 +58,9 @@ export function anchorPathSpec(argument: string, cwd: string): string {
   return `${match.groups.prefix ?? ''}${resolve(cwd, match.groups.path)}`
 }
 
-/** Read bundle metadata without loading its JavaScript.
+/** Read bundle metadata without loading its JavaScript. A package is a bundle
+ * when it declares a patch path in either manifest channel (`qilin.bundle.patch`
+ * or the DSH-era `dsh.bundle.patch`), the same declaration profile loading accepts.
  * @param name Installed dependency or installation-owned package name.
  * @param dir Profile directory.
  * @param anchor Installation manifest.
@@ -66,7 +69,7 @@ export function anchorPathSpec(argument: string, cwd: string): string {
 export function bundleManifest(name: string, dir: string, anchor: string): ProfileManifest | undefined {
   const packageDir = resolveBundleDir('qilin', name, anchor, dir)
   const manifest = readProfileManifest('qilin', packageDir)
-  return manifest.qilin?.bundle?.patch === undefined ? undefined : manifest
+  return bundlePatchOf(manifest) === undefined ? undefined : manifest
 }
 
 /** Atomically save a profile manifest while retaining unrelated fields.
@@ -89,12 +92,13 @@ async function reconcile(before: ProfileManifest, dir: string, anchor: string, o
   })
   for (const name of dependencies) {
     if (beforeDeps.has(name)) continue
-    const metadata = bundleManifest(name, dir, anchor)
-    if (metadata?.qilin?.bundle === undefined) {
-      options.onOutput?.(`qilin: warning: ${name} declares no qilin.bundle — installed as a plain dependency, not a profile layer\n`, 'stderr')
+    const packageDir = resolveBundleDir('qilin', name, anchor, dir)
+    const patch = bundlePatchOf(readProfileManifest('qilin', packageDir))
+    if (patch === undefined) {
+      options.onOutput?.(`qilin: warning: ${name} declares no qilin.bundle.patch or dsh.bundle.patch — installed as a plain dependency, not a profile layer\n`, 'stderr')
       continue
     }
-    loadOverlayPatches('qilin', join(resolveBundleDir('qilin', name, anchor, dir), metadata.qilin.bundle.patch))
+    loadOverlayPatches('qilin', join(packageDir, patch))
     if (!bundles.includes(name)) {
       bundles.push(name)
     }
@@ -261,10 +265,9 @@ function directDependencies(manifest: ProfileManifest): Record<string, string> {
 
 /** Inspect only plugin rows contributed by the changed bundle, not its dependency closure. */
 function bundleComponentManifests(name: string, dir: string, anchor: string): ProfileManifest[] {
-  const bundle = bundleManifest(name, dir, anchor)
-  const patch = bundle?.qilin?.bundle?.patch
-  if (patch === undefined) return []
   const packageDir = resolveBundleDir('qilin', name, anchor, dir)
+  const patch = bundlePatchOf(readProfileManifest('qilin', packageDir))
+  if (patch === undefined) return []
   const patches = loadOverlayPatches('qilin', join(packageDir, patch))
   const names = new Set<string>()
   const visit = (rows: EntryOptions[]) => {
@@ -527,7 +530,7 @@ export interface PackageViewOptions {
  */
 export async function viewProfilePackage(dir: string, spec: string, options: PackageViewOptions): Promise<PackageViewResult> {
   const result = await execa(options.command ?? 'pnpm', [
-    ...options.args ?? [], 'view', spec, 'name', 'version', 'description', 'qilin', '--json',
+    ...options.args ?? [], 'view', spec, 'name', 'version', 'description', 'qilin', 'dsh', '--json',
     ...registryArguments(options.registry ?? null), '--config.fetch-retries=0',
   ], {
     cwd: dir, env: { ...scrubbedParentEnv(), ...options.env }, extendEnv: false, reject: false, stdin: 'ignore',

@@ -1,6 +1,7 @@
 /** Installed profile dependencies and their bundle activation after package-manager operations. */
 
 import { join } from 'node:path'
+import { bundlePatchOf } from '@qilin/dsh-compat'
 import { readProfileManifest, resolveBundleDir, writeProfileManifest, type ProfileManifest } from './profile.ts'
 
 /** Profile directory and installation used by the shared bundle resolver. */
@@ -69,7 +70,7 @@ export function readProfilePlugins(location: ProfilePluginLocation): ProfilePlug
     return {
       name,
       version: typeof installed?.version === 'string' ? installed.version : spec,
-      bundle: bundleManifest(location, name)?.qilin?.bundle?.patch !== undefined,
+      bundle: bundlePatchOf(bundleManifest(location, name)) !== undefined,
       enabled: bundles.includes(name),
     }
   })

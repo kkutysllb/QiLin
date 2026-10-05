@@ -17,6 +17,7 @@ import {
   evaluatePluginCompatibility, readProfileCompatibility, readProfileVersionExemptions, setProfileVersionExemption,
   PROFILE_COMPATIBILITY_FILENAME,
 } from '@qilin/app-boot'
+import { bundlePatchOf } from '@qilin/dsh-compat'
 import type {} from '@qilin/hmr'
 import type { ProfileContext, ProfileManifest } from '@qilin/app-boot'
 import {
@@ -133,11 +134,10 @@ interface InstallationManifest {
   dependencies?: Record<string, string>
 }
 
-/** What a package manifest says about the package: identity, one-liner, whether it is a bundle, and the registry it was read from. */
+/** What a package manifest says about the package: identity, one-liner, whether it is a bundle, and the registry it was read from.
+ * A package is a bundle when it declares a patch path in either manifest channel, the declaration profile loading accepts. */
 function inspectionOf(kind: 'registry' | 'path', manifest: object, registry: Registry): Extract<PluginSpecInspection, { status: 'accepted' }> {
-  const qilin = (manifest as { qilin?: unknown }).qilin
-  const declared = typeof qilin === 'object' && qilin !== null ? qilin as { bundle?: unknown } : undefined
-  const bundle = declared !== undefined && typeof declared.bundle === 'object' && declared.bundle !== null
+  const bundle = bundlePatchOf(manifest) !== undefined
   const name = stringField(manifest, 'name')
   const version = stringField(manifest, 'version')
   const description = stringField(manifest, 'description')
@@ -428,7 +428,7 @@ export class PluginManager extends TypertRemoteService {
         const inspection = inspectionOf('path', read, registry)
         if (inspection.name === undefined) return refused('not-a-package', 'the package.json names no package')
         if (known.has(inspection.name)) return refused('already-installed', `${inspection.name} is already installed`)
-        if (!inspection.bundle) return refused('not-a-bundle', `${inspection.name} declares no qilin.bundle`)
+        if (!inspection.bundle) return refused('not-a-bundle', `${inspection.name} declares no qilin.bundle.patch or dsh.bundle.patch`)
         return inspection
       }
       case 'registry': {
@@ -465,7 +465,7 @@ export class PluginManager extends TypertRemoteService {
           if (typeof latest !== 'object' || latest === null) return refusedBy('unknown', 'pnpm view answered no package')
           const inspection = inspectionOf('registry', latest, current)
           const named = inspection.name === undefined ? { ...inspection, name: parsed.name } : inspection
-          if (!named.bundle) return refusedBy('not-a-bundle', `${named.name} declares no qilin.bundle`)
+          if (!named.bundle) return refusedBy('not-a-bundle', `${named.name} declares no qilin.bundle.patch or dsh.bundle.patch`)
           return named
         }
         /* v8 ignore next -- the plan is never empty: every attempt returns or continues to the next */
@@ -599,13 +599,14 @@ export class PluginManager extends TypertRemoteService {
         if (installed.length !== 1 || target === undefined) throw new ManagementFailure('ambiguous-install')
         name = target
         const dir = resolveBundleDir('qilin', name, this.profile.installAnchor, this.profile.dir)
-        const manifest = bundleManifest(name, this.profile.dir, this.profile.installAnchor)
-        if (manifest?.qilin?.bundle?.patch === undefined) throw new ManagementFailure('not-bundle')
+        const manifest = readProfileManifest('qilin', dir)
+        const patch = bundlePatchOf(manifest)
+        if (patch === undefined) throw new ManagementFailure('not-bundle')
         const compatibility = evaluatePluginCompatibility(manifest, readProfileVersionExemptions(this.profile.dir))
         if (compatibility !== undefined && !compatibility.exempted) {
           throw new ManagementFailure('incompatible-version', [incompatiblePlugin(compatibility)])
         }
-        loadOverlayPatches('qilin', join(dir, manifest.qilin.bundle.patch))
+        loadOverlayPatches('qilin', join(dir, patch))
         version = manifest.version
       } catch (error) {
         // pnpm has exited by now, so the files it rewrote go back as they were.
@@ -679,7 +680,7 @@ export class PluginManager extends TypertRemoteService {
 
   /** The rows a bundle's patch inserts and the existing rows it changes; an unreadable patch throws. */
   private declaredRows(name: string, info: ProfileManifest): Pick<BundleInfo, 'rows' | 'overrides'> {
-    const patch = info.qilin?.bundle?.patch
+    const patch = bundlePatchOf(info)
     /* v8 ignore next -- bundleManifest answers only manifests that declare a patch */
     if (patch === undefined) return { rows: [], overrides: [] }
     const dir = resolveBundleDir('qilin', name, this.profile.installAnchor, this.profile.dir)
@@ -789,9 +790,11 @@ export class PluginManager extends TypertRemoteService {
 
   private bundleRows(name: string): EntryOptions[] {
     const info = bundleManifest(name, this.profile.dir, this.profile.installAnchor)
-    if (info?.qilin?.bundle === undefined) return []
+    const patch = info === undefined ? undefined : bundlePatchOf(info)
+    /* v8 ignore next -- bundleManifest answers only manifests that declare a patch */
+    if (info === undefined || patch === undefined) return []
     const dir = resolveBundleDir('qilin', name, this.profile.installAnchor, this.profile.dir)
-    return flatten(composeEntries([loadOverlayPatches('qilin', join(dir, info.qilin.bundle.patch))]))
+    return flatten(composeEntries([loadOverlayPatches('qilin', join(dir, patch))]))
   }
 
   private protectsManager(name: string): boolean {

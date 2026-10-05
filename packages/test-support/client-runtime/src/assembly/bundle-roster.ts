@@ -1,10 +1,13 @@
 /**
  * The browser roster of a `qilin --profile`, read from its bundle patch files
- * the way the launcher composes them: each bundle's `qilin.bundle.patch` list is
- * parsed with the include plugin's YAML dialect (`entryListSchema`) and
- * composed by its `applyEntryPatches`; every enabled row whose package
- * declares `qilin.client.platform === 'web'` becomes a roster row carrying that
- * declaration's `inject` and `immediately`; rows nested in Loader groups count
+ * the way the launcher composes them: each bundle's declared patch list
+ * (`qilin.bundle.patch`, or the DSH-era `dsh.bundle.patch`) is parsed with the
+ * include plugin's YAML dialect (`entryListSchema`) and composed by its
+ * `applyEntryPatches`; every enabled row whose package declares a web client
+ * platform in either manifest channel (`qilin.client`, or the DSH-era
+ * `dsh.client`) becomes a roster row carrying that declaration's `inject`
+ * (canonicalized through `dshCompatModuleId` like the client module graph) and
+ * `immediately`; rows nested in Loader groups count
  * like the Loader counts them, a disabled group disabling every row beneath
  * it. A patch that matches nothing
  * throws here where the launcher warns. Nothing is copied from the bundles: a
@@ -19,6 +22,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { EntryOptions } from '@qilin/kylin-plugin-loader'
 import { applyEntryPatches, entryListSchema, type PatchOptions } from '@qilin/kylin-plugin-include'
+import { bundlePatchOf, clientDeclarationOf, dshCompatModuleId } from '@qilin/dsh-compat'
 import { exactPackageSpecifier, parseQilinClient } from '@qilin/client-modules/client'
 import * as yaml from 'js-yaml'
 import { ClientRoster, type ClientRosterRow } from './roster.ts'
@@ -29,6 +33,7 @@ export const WEB_PROFILE_BUNDLES: readonly string[] = ['@qilin/base', '@qilin/we
 interface PackageManifest {
   name?: unknown
   qilin?: { bundle?: { patch?: unknown }; client?: unknown }
+  dsh?: { bundle?: { patch?: unknown }; client?: unknown }
 }
 
 /** One bundle: where its package.json is (plugin names resolve from there) and its parsed patch list. */
@@ -65,12 +70,13 @@ export function bundleRoster(bundles: readonly string[], anchor: string = fileUR
     if (manifest.name !== name) {
       throw new Error(`client-test-runtime: ${manifestPath} names ${JSON.stringify(manifest.name)}, expected ${name}`)
     }
-    const declaration = parseQilinClient(name, 'qilin.client', manifest.qilin?.client)
+    const picked = clientDeclarationOf(manifest)
+    const declaration = parseQilinClient(name, picked?.key ?? 'qilin.client', picked?.value)
     if (declaration === undefined || declaration.platform !== 'web') continue
     if (disabled !== undefined && disabled !== null && typeof disabled !== 'boolean') {
       throw new Error(`client-test-runtime: browser row ${name} has a \`disabled\` value this reader cannot evaluate (a !!js expression)`)
     }
-    rows.push({ name, inject: declaration.inject ?? [], immediately: declaration.immediately === true })
+    rows.push({ name, inject: declaration.inject?.map(dshCompatModuleId) ?? [], immediately: declaration.immediately === true })
   }
   return ClientRoster.of(rows)
 }
@@ -78,8 +84,8 @@ export function bundleRoster(bundles: readonly string[], anchor: string = fileUR
 function readLayer(bundle: string, anchor: string): BundleLayer {
   const manifestPath = locateManifest([anchor], bundle)
   if (manifestPath === undefined) throw new Error(`client-test-runtime: cannot resolve bundle ${bundle} from ${anchor}`)
-  const patch = readManifest(manifestPath).qilin?.bundle?.patch
-  if (typeof patch !== 'string') throw new Error(`client-test-runtime: bundle ${bundle} declares no qilin.bundle.patch in ${manifestPath}`)
+  const patch = bundlePatchOf(readManifest(manifestPath))
+  if (patch === undefined) throw new Error(`client-test-runtime: bundle ${bundle} declares no qilin.bundle.patch or dsh.bundle.patch in ${manifestPath}`)
   const file = join(dirname(manifestPath), patch)
   const parsed: unknown = yaml.load(readFileSync(file, 'utf8'), { schema: entryListSchema })
   if (!Array.isArray(parsed)) throw new Error(`client-test-runtime: ${file} must be a top-level list of patches`)
