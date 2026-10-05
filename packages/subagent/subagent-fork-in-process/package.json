@@ -44,7 +44,6 @@
     "@qilin/agent": "workspace:*",
     "@qilin/agent-loop": "workspace:*",
     "@qilin/agent-loop-testkit": "workspace:*",
-    "@qilin/invariants": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/session": "workspace:*",
     "@qilin/subagent": "workspace:*",

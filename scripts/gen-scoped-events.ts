@@ -1,6 +1,6 @@
 /**
- * Generate qilin-scope's invariant resolver map from the repository TypeScript
- * Program.
+ * Generate qilin-scope's routing-subject resolver map from the repository
+ * TypeScript Program.
  *
  * A scoped event declares `this: Scoped<Base>`. Real `scopeTarget(base, key)`
  * calls establish the routing-key type for that base. The generator searches
@@ -81,7 +81,7 @@ class ScopedEventGenerator {
     }
     return [
       '/**',
-      ' * Generated scoped-event routing-subject resolvers for qilin-scope invariants.',
+      ' * Generated scoped-event routing-subject resolvers for qilin-scope dispatch.',
       ' * Do not edit by hand; run `pnpm run gen-scoped-events`.',
       ' *',
       ' * @module @qilin/scope/scoped-events.generated',
@@ -101,8 +101,8 @@ class ScopedEventGenerator {
       '',
       '/**',
       ' * Resolve the routing key named by one scoped event payload. A null',
-      ' * resolver means the payload cannot expose its external routing key, so the',
-      ' * invariant checks carrier presence only.',
+      ' * resolver means the payload cannot expose its external routing key, so',
+      ' * only carrier presence is checked.',
       ' * @param event - runtime Cordis event name.',
       ' * @returns the generated subject resolver, null for presence-only,',
       ' *   or undefined when the event is not scope-filtered.',

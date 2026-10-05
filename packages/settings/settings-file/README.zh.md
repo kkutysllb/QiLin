@@ -90,7 +90,6 @@ kind: "package-reference"
 | 文件 | 职责 |
 |---|---|
 | [`src/index.ts`](src/index.ts) | 提供方：spec 解析、加载/解析、写锁下的读-改-写、watcher 生命周期、YAML/JSON 渲染 |
-| — | 不发布运行时不变式伴生入口；文件往返、watcher 时序与原子写入行为由包测试证明，进程内提交关系归 `@qilin/settings` 所有。 |
 
 ### 文档生命周期
 

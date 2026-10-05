@@ -71,5 +71,3 @@ kind: "package-reference"
 无。
 
 </details>
-
-**运行时不变式：** 未发布伴随包。`SidebarOpens` 是其每会话队列与 watcher 的唯一写入者，包内 spec 直接驱动入队、接管、中止与销毁。

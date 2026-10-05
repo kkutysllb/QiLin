@@ -56,8 +56,6 @@ The Host plugin provides `ctx.fileUploads`. It owns the authenticated streaming 
 
 </details>
 
-**Runtime invariant:** No companion is published. Each upload receipt belongs to one exact Session, and each request uses one selected carrier. Unsupported stream carriers fail before the body is sent.
-
 -----
 
 <a id="further-exploration"></a>

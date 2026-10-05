@@ -41,7 +41,6 @@
     "@qilin/agent": "workspace:*",
     "@qilin/agent-loop": "workspace:*",
     "@qilin/deepseek-llm-api-extensions": "workspace:*",
-    "@qilin/invariants": "workspace:*",
     "@qilin/jobs-local": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/llm-deepseek-api-key": "workspace:*",

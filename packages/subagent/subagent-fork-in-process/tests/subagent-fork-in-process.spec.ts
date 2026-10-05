@@ -6,10 +6,6 @@ import AgentRegistry from '@qilin/agent'
 import { SessionId } from '@qilin/session'
 import AgentLoop from '@qilin/agent-loop'
 import { mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'
-import InvariantRegistry from '@qilin/invariants'
-import * as SessionInvariant from '@qilin/session/invariant'
-import * as AgentInvariant from '@qilin/agent/invariant'
-import * as AgentLoopInvariant from '@qilin/agent-loop/invariant'
 import SubagentRuntime, { type SubagentStartRequest } from '@qilin/subagent'
 import SessionProjectionRegistry from '@qilin/session-projection'
 import { MockAdapter, textResponse, toolCallResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
@@ -18,13 +14,6 @@ import * as fork from '../src/index.ts'
 import { STRUCTURED_OUTPUT_TOOL } from '@qilin/subagent-in-process-driver'
 
 type Script = ConstructorParameters<typeof MockAdapter>[0]
-
-async function mountInvariants(ctx: Context): Promise<void> {
-  await ctx.plugin(InvariantRegistry)
-  await ctx.plugin(SessionInvariant)
-  await ctx.plugin(AgentInvariant)
-  await ctx.plugin(AgentLoopInvariant)
-}
 
 function start(ctx: Context, provider: string, request: Omit<SubagentStartRequest, 'signal'> & { signal?: AbortSignal }) {
   return ctx.subagents.start(provider, { signal: request.signal ?? new AbortController().signal, ...request })
@@ -43,7 +32,6 @@ const emptyStop: StreamChunk[] = [{ type: 'finish', reason: { kind: 'stop' } }]
 async function setup(script: Script) {
   const ctx = new Context()
   await mountAgentLoopTestDependencies(ctx)
-  await mountInvariants(ctx)
   await ctx.plugin(AgentLoop, { agents: [] })
   await ctx.plugin(SubagentRuntime)
   await ctx.plugin(fork, { providerName: 'fork' })

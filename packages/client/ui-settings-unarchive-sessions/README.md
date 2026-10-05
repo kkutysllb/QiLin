@@ -108,5 +108,3 @@ These limits define which archived sessions this page can restore; they are curr
 None.
 
 </details>
-
-**Runtime invariant:** No companion is published. A browser-side settings page that registers one localized `settings.section` contribution and its locale namespace; it emits no Cordis events and owns no cross-plugin mutable relation.

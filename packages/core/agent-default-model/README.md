@@ -75,7 +75,6 @@ The service is a composition entry with a settings-backed source. The plugin con
 | File | Role |
 |---|---|
 | [`src/index.ts`](src/index.ts) | Plugin entry: `AgentDefaultModelConfig` service, settings section install, `currentSelection`/`saveSelection` |
-| — | No runtime invariant companion is published; settings validation owns the only mutable-value relationship. |
 
 ### Behavior notes
 

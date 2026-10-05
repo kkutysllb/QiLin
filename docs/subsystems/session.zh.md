@@ -159,9 +159,9 @@ interface SessionEventMap {
    * The last tagged marker is the current Session's cut; untagged markers
    * keep ordinary restore and replay lifecycle boundaries.
    *
-   * Only the `Session` constructor and `buildForkSeed` may create this marker.
-   * The invariant companion deliberately constrains nothing here, so a plugin
-   * appending one would silently classify every live bracket before it as seed history.
+   * Only the `Session` constructor and `buildForkSeed` may create this marker;
+   * a plugin appending one would silently classify every live bracket before
+   * it as seed history.
    *
    * An owner of a standalone open/close bracket (`compaction/start` …
    * `compaction/end`) reads it because seed history and live work are otherwise
@@ -666,7 +666,7 @@ declare class Session {
 
 ## 派生历史：`deriveMessages()` 与 `deriveEventMessage()`
 
-`Session.deriveMessages()` 将事件日志投影为模型看到的 `Message[]`。它是缓存的（每个 surface 节点在首次出现时投影一次；surface 重写触发重建）且冻结的（每次调用返回一个新数组，引用共享的深冻结消息，因此通过投影修改已记录的历史在类型上不可表达）。`deriveEventMessage(event)` 是折叠所应用的逐节点纯函数，公开暴露以便外部重建器和开发不变式检查能以完全相同的规则投影日志前缀，不会与缓存产生分歧。投影规则：
+`Session.deriveMessages()` 将事件日志投影为模型看到的 `Message[]`。它是缓存的（每个 surface 节点在首次出现时投影一次；surface 重写触发重建）且冻结的（每次调用返回一个新数组，引用共享的深冻结消息，因此通过投影修改已记录的历史在类型上不可表达）。`deriveEventMessage(event)` 是折叠所应用的逐节点纯函数，公开暴露以便外部重建器能以完全相同的规则投影日志前缀，不会与缓存产生分歧。投影规则：
 
 - `user/message` → 一条携带确切 `content` 的 user 消息；可选 envelope 仅作为日志中的展示元数据保留。
 - `assistant/message` → 一条 assistant 消息，包含生成它的提供方和模型，以及可选的适配器私有回放状态。其嵌入式紧凑 stream 是回放、usage 与 UI 证据，而不是第二条 message。**内容为空的** `assistant/message` 也会跳过：因 max-tokens 而截断且无内容的步骤仍会记录一条 `assistant/message` 来保存 stream、usage、提供方和模型，但无内容的 assistant 轮次不得进入提供方 transcript（文本记录）。
@@ -681,7 +681,7 @@ declare class Session {
 
 - `fork(source, boundary?, childSessionId?)` 接受一个活跃的 `Session` 对象或活跃的 `SessionId`，选取到 `SessionSeq` boundary（含）为止的源事件（默认为当前最后一个事件），要求所选前缀结束时没有开放轮次，然后创建一个活跃的子会话，包含深克隆的 seed event、`parentSession`、`isSeeded: true`、精确 `inheritedEventCount` 及继承的 `cwd`。
 
-显式 `boundary` 允许调用者从任意稳定的轮次间位置 fork，包括之前的 `turn/end` 或更晚的独立纯日志事件，即使源会话有更新的事件或正在进行的轮次。API 拒绝结束于开放轮次内的前缀，而不是静默截断。更广泛的执行关系健全性检查留在既有的 `qilin-invariants` 插件和持久化修复路径中，不在 `fork()` 中重复。`qilin-subagent-fork-in-process` 保留其已完成前缀截断逻辑，因为工具调用时的委托通常在父轮次仍然打开时启动；普通的会话分支应显式指定请求的 boundary。
+显式 `boundary` 允许调用者从任意稳定的轮次间位置 fork，包括之前的 `turn/end` 或更晚的独立纯日志事件，即使源会话有更新的事件或正在进行的轮次。API 拒绝结束于开放轮次内的前缀，而不是静默截断。更广泛的执行关系健全性检查留在持久化修复路径中，不在 `fork()` 中重复。`qilin-subagent-fork-in-process` 保留其已完成前缀截断逻辑，因为工具调用时的委托通常在父轮次仍然打开时启动；普通的会话分支应显式指定请求的 boundary。
 
 <a id="why-a-turn-ended-turnendreasonmap"></a>
 
@@ -735,7 +735,7 @@ interface TurnEndReasonMap {
 
 一个轮次包围一次模型循环执行，而不是整个会话日志。AgentLoop 只会在轮次内进入 pre-step 批次时记录注入的 `user/message` 事件；插件所属的纯日志事件仍可出现在 `turn/end` 与下一个 `turn/start` 之间，占用事件 seq 但不递增轮次编号。持久化会将每个连续且已接受的事件纳入有界持久化批次，而崩溃修复只关闭确实仍处于开放状态的尾部轮次。需要即时持久性屏障的生产方会显式等待 `ctx.sessions.flush(session)`。
 
-可选的 `qilin-session/invariant` 配套插件会强制核心拥有的关系：轮次与步骤编号、执行事件封闭，以及同一步骤内的工具调用／结果配对。可合并扩展事件的关系由声明它的插件拥有，因此核心不会仅因没有开放轮次就拒绝未知事件。见[独立事件决策](../../.agents/notes/implemented/simplification/2026-07-28-remove-synthetic-log-only-turns.zh.md)。
+核心拥有这些日志关系：轮次与步骤编号、执行事件封闭，以及同一步骤内的工具调用／结果配对；session 测试在加载的日志上断言这些关系。可合并扩展事件的关系由声明它的插件拥有，因此核心不会仅因没有开放轮次就拒绝未知事件。见[独立事件决策](../../.agents/notes/implemented/simplification/2026-07-28-remove-synthetic-log-only-turns.zh.md)。
 
 ## 种子结束边界：`session/end-seed`
 
@@ -749,7 +749,7 @@ interface TurnEndReasonMap {
 
 ## 插件贡献的仅日志事件
 
-插件可以通过 declaration merging 添加额外的 `SessionEventMap` 类型。这些是**仅日志**事件：不是 `SurfaceEventType`（不携带 `surfaceOp`，不参与派生历史）。事件所有方决定它们属于一个开放的执行轮次，还是可以独立位于轮次之间，并在自己的不变量配套插件中强制所需关系。生成的[持久化日志事件目录](../persistence-catalog.zh.md)会列出每个核心或插件贡献的事件；压缩 seam 的 `compaction/*` 语义在 [compaction.md](compaction.zh.md) 中讨论。
+插件可以通过 declaration merging 添加额外的 `SessionEventMap` 类型。这些是**仅日志**事件：不是 `SurfaceEventType`（不携带 `surfaceOp`，不参与派生历史）。事件所有方决定它们属于一个开放的执行轮次，还是可以独立位于轮次之间，并自行强制所需关系。生成的[持久化日志事件目录](../persistence-catalog.zh.md)会列出每个核心或插件贡献的事件；压缩 seam 的 `compaction/*` 语义在 [compaction.md](compaction.zh.md) 中讨论。
 
 如果同一个插件事件族中的多条事件要组装成一个 Web Client Conversation Node，该事件族中的每条 start、update、result、resource 或 interruption 事件都必须携带或独立推导出同一个稳定业务 id。此要求只约束需要关联的 Node 事件族，并不要求每条 Session 事件都有业务 id；Client 因此无须根据相邻关系猜测归属，也无须扫描历史。参见 [Conversation 子系统](conversation.zh.md)。
 

@@ -1418,26 +1418,6 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@qilin/host-webserver -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/invariants -->
-<a id="qilininvariants"></a>
-
-## `@qilin/invariants`
-
-- `source`: [`packages/runtime-diagnostics/invariants/src/index.ts:15`](../packages/runtime-diagnostics/invariants/src/index.ts)
-
-```ts config-catalog
-/** Runtime invariant selection configured on the service plugin. */
-export interface Config {
-  /** Global switch; defaults to `true`. */
-  readonly enabled?: boolean
-  /** Case-sensitive JavaScript regex sources that admit package names; empty admits all. */
-  readonly package_allowlist?: string[]
-  /** Case-sensitive JavaScript regex sources that exclude package names after allowlist matching. */
-  readonly package_blocklist?: string[]
-}
-```
-<!-- END GENERATED config-catalog:@qilin/invariants -->
-
 <!-- BEGIN GENERATED config-catalog:@qilin/jobs-local -->
 <a id="qilinjobs-local"></a>
 

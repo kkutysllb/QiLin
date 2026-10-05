@@ -77,5 +77,3 @@ kind: "package-reference"
 None.
 
 </details>
-
-**Runtime invariant:** No companion is published. The panel's only runtime state is one Slot store per tab, written by the face that owns the scan and forgotten on the tab's abort signal; there is no second observation of it to compare against.

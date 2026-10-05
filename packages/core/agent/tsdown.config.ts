@@ -13,7 +13,6 @@ export default defineConfig([
     clean: false,
   },
   {
-    entry: ['lib/types/invariant.js'],
     outDir: 'lib',
     format: ['esm'],
     platform: 'node',

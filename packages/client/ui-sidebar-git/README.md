@@ -82,5 +82,3 @@ None; status, diffs, branch lists, commit history, and pull requests travel over
 One store factory (`createGitStore`), one registration-time handle, buckets keyed by tab id. The face (`face.ts`) is the Slot `inject` shape: session id and bound actions in, one entry per ask, nothing awaited in a component. Six reads carry a per-tab generation — status, branches, history, the commit patch still open, diff, pull requests — so the latest request wins whichever settles first; the tab record's abort listener is armed once per tab and forgets the bucket with its generations. Mutations ride one `mutate` path: busy, the call, its failure recorded or its success followed by a status read (checkout and create also re-read the branch list; pull-request create and merge re-read the list under the filter the section shows).
 
 </details>
-
-**Runtime invariant:** No companion is published. The package's only runtime state is one Slot store per session, bucketed by tab id, written by the body and face that own their buckets and forgotten on each tab's abort signal; there is no second observation of it to compare against.

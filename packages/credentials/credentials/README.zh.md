@@ -132,7 +132,6 @@ apiKeyEnv: DEEPSEEK_API_KEY
 |---|---|
 | [`src/index.ts`](src/index.ts) | Service Definition：`credentialRef`/`credentialKey` 品牌、`ResolvedCredential`/`CredentialRecordInfo`、覆盖两个键空间的抽象提供方、带失败隔离的扇出 |
 | [`src/types.ts`](src/types.ts) | 客户端安全类型面：`CredentialRef` 与 `CredentialKey` 品牌、存储记录联合类型、`CredentialInfo` 引用视图、`credentials/reference-updated` 与 `credentials/record-updated` 事件声明 |
-| [`src/invariant.ts`](src/invariant.ts) | 不变式伴生插件：`credentials/reference-updated` 只在凭据服务存活时触发 |
 
 ### 客户端安全类型
 
@@ -140,7 +139,7 @@ apiKeyEnv: DEEPSEEK_API_KEY
 
 ### 生命周期
 
-服务是提供方注册的 Kylin `Service`：释放挂载 fiber 会移除 `ctx.credentials`。不变式伴生插件检查 `credentials/reference-updated` 绝不在服务未存活时触发——释放后仍有发射意味着提供方把工作泄漏到了 teardown 完全停稳之后。
+服务是提供方注册的 Kylin `Service`：释放挂载 fiber 会移除 `ctx.credentials`。
 
 </details>
 

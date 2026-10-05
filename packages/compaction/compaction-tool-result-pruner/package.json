@@ -45,7 +45,6 @@
     "@qilin/kylin-plugin-include": "workspace:~",
     "@qilin/kylin-plugin-loader": "workspace:~",
     "@qilin/compaction": "workspace:*",
-    "@qilin/invariants": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/session": "workspace:*",
     "@qilin/session-projection": "workspace:*",

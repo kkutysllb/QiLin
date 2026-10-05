@@ -18,6 +18,9 @@
       "path": "../../../vendor/cosmokit"
     },
     {
+      "path": "../../../vendor/schemastery"
+    },
+    {
       "path": "../../../vendor/cordis"
     },
     {
@@ -34,9 +37,6 @@
     },
     {
       "path": "../../interaction/user-approval"
-    },
-    {
-      "path": "../../runtime-diagnostics/invariants"
     },
     {
       "path": "../../sandbox/sandbox"

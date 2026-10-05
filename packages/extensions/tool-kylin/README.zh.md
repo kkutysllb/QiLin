@@ -35,7 +35,7 @@ kind: "package-reference"
 <details>
 <summary>实现细节 — 点击展开</summary>
 
-Host provider 结合生成的 Service/Event 目录、经 [`@qilin/app-boot`](../../boot/app-boot/README.zh.md) 投影的运行中 Loader 所声明的 `Config` schema，以及请求 agent 的工具注册表。Client provider 通过现有检查注册表同步清单，并从已连接页面回答查询。工具插件通过 Kylin effect 持有注册；释放时移除工具和提示词贡献。检查直接读取 provider，不维护独立运行时投影，因此不发布不变式配套插件。
+Host provider 结合生成的 Service/Event 目录、经 [`@qilin/app-boot`](../../boot/app-boot/README.zh.md) 投影的运行中 Loader 所声明的 `Config` schema，以及请求 agent 的工具注册表。Client provider 通过现有检查注册表同步清单，并从已连接页面回答查询。工具插件通过 Kylin effect 持有注册；释放时移除工具和提示词贡献。检查直接读取 provider，不维护独立运行时投影。
 
 </details>
 

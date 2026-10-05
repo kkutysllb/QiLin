@@ -3,12 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { Context } from '@qilin/kylin'
 import AgentLoop from '@qilin/agent-loop'
 import { mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'
-import InvariantRegistry from '@qilin/invariants'
 import { CommandId } from '@qilin/commands/brand'
-import * as SessionInvariant from '@qilin/session/invariant'
-import * as AgentInvariant from '@qilin/agent/invariant'
-import * as AgentLoopInvariant from '@qilin/agent-loop/invariant'
-import * as CompactionInvariant from '@qilin/compaction/invariant'
 import { BasicCompactionEngine } from '@qilin/compaction-basic'
 import { CompactionId, isCompactCheckpointSource, ManualCompactionError } from '@qilin/compaction'
 import type { CompactionResult } from '@qilin/compaction'
@@ -111,11 +106,6 @@ async function loopHarness(): Promise<LoopHarness> {
   const ctx = new Context()
   await mountAgentLoopTestDependencies(ctx)
   ctx.sessions.registerMessageProjection(imageOffloadProjection)
-  await ctx.plugin(InvariantRegistry)
-  await ctx.plugin(SessionInvariant)
-  await ctx.plugin(AgentInvariant)
-  await ctx.plugin(AgentLoopInvariant)
-  await ctx.plugin(CompactionInvariant)
   await ctx.plugin(AgentLoop, { agents: [] })
   await ctx.plugin(TokenMeter)
   const adapter = new TextAdapter()

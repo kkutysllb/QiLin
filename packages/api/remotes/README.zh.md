@@ -84,5 +84,3 @@ Host entry 为每条 Client 流独立注册一组 allowlist listener 和一个�
 无。
 
 </details>
-
-**运行时不变式：** 不发布伴生入口。被观察的关系由 Typert、agent 注册表和会话注册表负责。

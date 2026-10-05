@@ -58,7 +58,6 @@
     "@qilin/commands": "workspace:*",
     "@qilin/compaction": "workspace:*",
     "@qilin/compaction-tool-result-pruner": "workspace:*",
-    "@qilin/invariants": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/llm-retry": "workspace:*",
     "@qilin/session": "workspace:*",

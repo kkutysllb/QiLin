@@ -115,5 +115,3 @@ These limits define what the view can show while work is in flight; they are cur
 None.
 
 </details>
-
-**Runtime invariant:** No companion is published. A pure-consumer plugin — it emits no cordis events and owns no mutable cross-plugin state; its tab-type and tab-body registrations are plain effects whose disposal this package's behavior specs observe directly.

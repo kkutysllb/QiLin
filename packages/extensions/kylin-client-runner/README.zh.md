@@ -143,5 +143,3 @@ Host steering 追加到会话历史；本包不改写更早的消息。
 无。
 
 </details>
-
-**运行时不变式：** 不发布伴生入口。所属关系（一个 live Plugin 的 loader entry 仅在一个 Plugin Run ID 存活期间存在）是只能通过 Client 半服务访问的浏览器侧状态，Node 平面的伴生入口无法观察。该关系改由本包自己的装载与拆除测试直接断言。

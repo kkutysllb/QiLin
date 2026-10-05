@@ -89,5 +89,3 @@ None; directory listings and file content travel over the Remote and assemble no
 The two tab kinds share one store factory (`createFilesStore`) and one registration-time handle, split into `byTab` (tree) and `edits` (editor) buckets keyed by tab id. The `files` page never seeds an `edits` bucket and the `file` tab renders the same tree component, so a file tab's tree and the page's tree stay independent buckets of one instance.
 
 </details>
-
-**Runtime invariant:** No companion is published. The package's only runtime state is one Slot store per session, bucketed by tab id, written by the bodies and faces that own their buckets and forgotten on each tab's abort signal; there is no second observation of it to compare against.

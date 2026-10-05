@@ -153,7 +153,6 @@ Loader 结算后，app-boot 在仅 optional 条目未激活时输出警告。如
 | [`src/profile-plugins.ts`](src/profile-plugins.ts) | 已安装依赖、bundle 启用策略与 manifest 更新 |
 | [`src/profile-sanitize.ts`](src/profile-sanitize.ts) | profile patch 备份与恢复 bundle 启用状态 |
 | [`src/profile-resolution/`](src/profile-resolution/) | 运行时 resolver、package metadata 服务与构建后 Worker bootstrap |
-| — | 不发布运行时不变式伴生入口；每个 resolver generation 只有一个 registration 所有，dual 模式在解析时比较独立物化的结果。 |
 
 </details>
 

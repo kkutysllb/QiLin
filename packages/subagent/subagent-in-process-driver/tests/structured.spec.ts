@@ -4,11 +4,7 @@ import { createUserMessage, ToolCallId, type ContentBlock, type GenerateOptions 
 import { SessionId } from '@qilin/session'
 import AgentLoop from '@qilin/agent-loop'
 import { mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'
-import InvariantRegistry from '@qilin/invariants'
 import type {} from '@qilin/system-prompt'
-import * as SessionInvariant from '@qilin/session/invariant'
-import * as AgentInvariant from '@qilin/agent/invariant'
-import * as AgentLoopInvariant from '@qilin/agent-loop/invariant'
 import SubagentRuntime, {
   type ResolvedSubagentStartRequest,
   type SubagentStartRequest,
@@ -25,13 +21,6 @@ import {
 const testToolSignal = new AbortController().signal
 
 type Script = ConstructorParameters<typeof MockAdapter>[0]
-
-async function mountInvariants(ctx: Context): Promise<void> {
-  await ctx.plugin(InvariantRegistry)
-  await ctx.plugin(SessionInvariant)
-  await ctx.plugin(AgentInvariant)
-  await ctx.plugin(AgentLoopInvariant)
-}
 
 interface PtcRunRequestLike {
   bindings: { global: string; functions: Record<string, (args: unknown) => Promise<unknown>> }[]
@@ -67,7 +56,6 @@ async function setup(script: Script, options: SetupOptions = {}) {
       run: options.codeRun ?? (() => Promise.resolve({ logs: [] })),
     } as never)
   }
-  await mountInvariants(ctx)
   await ctx.plugin(AgentLoop, { agents: [] })
   await ctx.plugin(SubagentRuntime)
   const disposeProvider = ctx.subagents.registerProvider({

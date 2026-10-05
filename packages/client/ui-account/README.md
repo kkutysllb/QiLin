@@ -78,5 +78,3 @@ This Dev Note is working context for maintainers: open design questions and dire
 - Flattening the theme and language rows out of their submenus for a narrow column has not been asked for; the submenus keep the dropdown short while the sidebar holds a rail width.
 
 </details>
-
-**Runtime invariant:** No companion is published. The menu's only relationships are its own store and the injected slot face, and no independent observation of them can diverge.

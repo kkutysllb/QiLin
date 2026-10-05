@@ -215,6 +215,4 @@ These limits define where the adapter stops and future work begins. They are cur
 
 None.
 
-**Runtime invariant:** No companion is published. This package exposes no independent event sequence or mutable data relation beyond contracts enforced at its owning seam.
-
 `deepseek-official` uses only its configured API-key reference. QiLin's account surface is the own ui-account (`/api/auth` gate); the upstream `deepseek-account` stack is not adopted, so no stored-grant route exists here. Chat and Files requests reject redirects, and sign-out cancellation belongs to the account surface rather than this transport.

@@ -132,7 +132,6 @@ One doctrine and four consequences:
 |---|---|
 | [`src/index.ts`](src/index.ts) | Service Definition: the `credentialRef`/`credentialKey` brands, `ResolvedCredential`/`CredentialRecordInfo`, the abstract provider over both key spaces, contained fan-out |
 | [`src/types.ts`](src/types.ts) | Client-safe type surface: the `CredentialRef` and `CredentialKey` brands, the stored-record union, the `CredentialInfo` reference view, the `credentials/reference-updated` and `credentials/record-updated` declarations |
-| [`src/invariant.ts`](src/invariant.ts) | Invariant companion: `credentials/reference-updated` only fires while a credentials service is live |
 
 ### Client-safe types
 
@@ -140,7 +139,7 @@ The `./types` subpath export holds the event declarations together with the `Cre
 
 ### Lifecycle
 
-The service is a Kylin `Service` registered by the provider: disposing the mounting fiber removes `ctx.credentials`. The invariant companion checks that `credentials/reference-updated` never fires without a live service — an emission after disposal means a provider leaked work past its teardown quiescence.
+The service is a Kylin `Service` registered by the provider: disposing the mounting fiber removes `ctx.credentials`.
 
 </details>
 

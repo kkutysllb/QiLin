@@ -215,6 +215,4 @@ loop 保留的响应块会追加到下一个请求，并保留其更早的可复
 
 无。
 
-**运行时不变式：** 不发布伴生入口。本包没有独立事件序列或可变数据关系，相关约定在所属 seam 强制执行。
-
 `deepseek-official` 仅使用配置的 API Key 引用。QiLin 账号面为自有 ui-account（`/api/auth` gate），上游 `deepseek-account` 栈不采，因此这里没有存授权路由。Chat 和 Files 请求拒绝重定向；退登取消由账号面负责，不属于本传输层。

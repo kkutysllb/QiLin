@@ -85,5 +85,3 @@ This Dev Note is working context for maintainers: open design questions and dire
 - A per-skill body read would also power a diff between the winning skill and the one a higher rank shadowed; no consumer has asked for it.
 
 </details>
-
-**Runtime invariant:** No companion is published. The page's only relationships are its own snapshot and the injected slot face, and no independent observation of them can diverge.

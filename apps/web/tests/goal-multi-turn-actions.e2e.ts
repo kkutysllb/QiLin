@@ -43,7 +43,6 @@ const PACKAGE_FILES: Readonly<Record<string, string>> = {
   'packages/skill/skill-filesystem/README.md': '# Local skill provider\n',
   'packages/skill/skill-filesystem/package.json': '{"name":"@qilin/skill-filesystem"}\n',
   'packages/skill/skill-filesystem/src/index.ts': 'export {}\n',
-  'packages/skill/skill-filesystem/src/invariant.ts': 'export {}\n',
   'packages/skill/skill-filesystem/tests/skill-filesystem.spec.ts': 'export {}\n',
 }
 

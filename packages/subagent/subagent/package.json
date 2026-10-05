@@ -25,10 +25,6 @@
       "types": "./lib/types/internal.d.ts",
       "default": "./lib/types/internal.js"
     },
-    "./invariant": {
-      "types": "./lib/types/invariant.d.ts",
-      "default": "./lib/invariant.js"
-    },
     "./client": {
       "types": "./lib/types/client.d.ts",
       "default": "./lib/types/client.js"
@@ -46,7 +42,6 @@
   },
   "files": [
     "lib/index.js",
-    "lib/invariant.js",
     "lib/types/**/*.js",
     "lib/types/**/*.d.ts",
     "lib/typert.host.js",
@@ -67,7 +62,6 @@
     "@qilin/agent": "workspace:*",
     "@qilin/agent-presets": "workspace:*",
     "@qilin/attachment": "workspace:*",
-    "@qilin/invariants": "workspace:*",
     "@qilin/jobs": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/sandbox": "workspace:*",
@@ -126,12 +120,12 @@
     "@qilin/agent": "workspace:*",
     "@qilin/agent-presets": "workspace:*",
     "@qilin/attachment": "workspace:*",
-    "@qilin/invariants": "workspace:*",
     "@qilin/jobs": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/sandbox": "workspace:*",
     "@qilin/sandbox-policy": "workspace:*",
     "@qilin/schedule": "workspace:*",
+    "@qilin/tool-schedule": "workspace:*",
     "@qilin/scope": "workspace:*",
     "@qilin/session": "workspace:*",
     "@qilin/session-persistence": "workspace:*",

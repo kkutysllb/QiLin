@@ -157,5 +157,3 @@ No direct effect. An inserted selection joins the draft the user is already edit
 None.
 
 </details>
-
-**Runtime invariant:** No companion is published. Renderer metadata, document loading, and view state belong to the local registry and declared Slot stores, with no independent runtime source to compare against; registration disposal and tab lifetimes are covered by behavior tests.

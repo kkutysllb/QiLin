@@ -106,7 +106,6 @@ The workspace root arrives through the `workspaceFileScope` Typert lookup that `
 | [`src/index.ts`](src/index.ts) | `WorkspaceGit`: the `workspaceGit` service and Remote namespace, `Config`, the fixed-argv spawn runner, and every Remote method |
 | [`src/parse.ts`](src/parse.ts) | Pure parsers: porcelain `-z` status, the fixed `for-each-ref` format, `rev-list --left-right --count`, the fixed history record format, and the gh answers (PR rows, account, URL, first line) |
 | [`src/types.ts`](src/types.ts) | Wire types and the `RemoteErrorDetailsMap` codes, published as `./types` for Client packages |
-| — | No runtime invariant companion is published; every answer is derived from one fresh git invocation at call time. |
 
 Typert generates the Host and Client Remote artifacts exposed by `./typert` and `./remote`.
 

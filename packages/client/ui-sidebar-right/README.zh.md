@@ -154,5 +154,3 @@ Tab 域按（Session，Tab id）保留导航、中止信号与绑定动作。私
 无。
 
 </details>
-
-**运行时不变量：** 不发布 companion。两个服务（`sidebarRight`、`sidebarRightTabs`）在同一个 effect 内经 `ctx.reflect.provide` 提供并随之拆除；席位绑定与 Tab 域 occurrence 的生命周期由本包的 spec 直接断言，不存在会与之分歧的独立观察。

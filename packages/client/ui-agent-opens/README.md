@@ -34,5 +34,3 @@ The browser half of `sidebar_open`: it follows `ctx.remote.sidebarOpens.watch` f
 None.
 
 </details>
-
-**Runtime invariant:** No companion is published. The plugin is the sole caller of `sidebarOpens.watch` for the viewed Session, and its spec drives session switching, take-over, and disposal directly.

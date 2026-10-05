@@ -21,16 +21,11 @@
       "types": "./lib/types/index.d.ts",
       "default": "./lib/index.js"
     },
-    "./invariant": {
-      "types": "./lib/types/invariant.d.ts",
-      "default": "./lib/invariant.js"
-    },
     "./src/*": "./src/*",
     "./package.json": "./package.json"
   },
   "files": [
     "lib/index.js",
-    "lib/invariant.js",
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",
@@ -42,7 +37,6 @@
   "peerDependencies": {
     "@qilin/kylin": "workspace:~",
     "@qilin/agent": "workspace:*",
-    "@qilin/invariants": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/session": "workspace:*",
     "@qilin/session-projection": "workspace:*"
@@ -54,7 +48,6 @@
     "@qilin/agent-loop-testkit": "workspace:*",
     "@qilin/app-boot": "workspace:*",
     "@qilin/bash-local": "workspace:*",
-    "@qilin/invariants": "workspace:*",
     "@qilin/llm": "workspace:*",
     "@qilin/loader-smoke": "workspace:*",
     "@qilin/session": "workspace:*",

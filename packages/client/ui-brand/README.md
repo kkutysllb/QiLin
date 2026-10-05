@@ -54,5 +54,3 @@ None; the seal contributes no prompt text.
 - The seal is authored from a text-face outline, not from a designer's seal-script drawing. A commissioned 篆书 mark would replace the two path constants without touching the component.
 - The seal's body gradient, glyph fill, and ring colour are fixed constants rather than theme tokens: the brand stamp must read identically on a light and a dark surface, so a themed variant needs a deliberate second artwork instead of a token swap.
 - No browser-level assertion covers the fully assembled settings surface yet; the shipped specs exercise the slot registry, mark rendering, and the settings shell separately.
-
-**Runtime invariant:** No companion is published. The seal component holds no durable state that two independent observations could disagree about.

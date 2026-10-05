@@ -2019,9 +2019,6 @@ importers:
       '@qilin/deepseek-llm-api-extensions':
         specifier: workspace:*
         version: link:../../llm/deepseek-llm-api-extensions
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/jobs-local':
         specifier: workspace:*
         version: link:../../jobs/jobs-local
@@ -2577,9 +2574,6 @@ importers:
       '@qilin/host-webserver':
         specifier: workspace:*
         version: link:../../host/webserver
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -2645,9 +2639,6 @@ importers:
       '@qilin/host-webserver':
         specifier: workspace:*
         version: link:../../host/webserver
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -4264,9 +4255,6 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:*
         version: link:../ui-slots
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -6315,9 +6303,6 @@ importers:
       '@qilin/commands':
         specifier: workspace:*
         version: link:../../interaction/commands
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -6358,9 +6343,6 @@ importers:
       '@qilin/compaction-tool-result-pruner':
         specifier: workspace:*
         version: link:../compaction-tool-result-pruner
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -6447,9 +6429,6 @@ importers:
       '@qilin/compaction-image-offload':
         specifier: workspace:*
         version: link:../compaction-image-offload
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -6676,9 +6655,6 @@ importers:
       '@qilin/bash-local':
         specifier: workspace:*
         version: link:../../shell/bash-local
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -6746,9 +6722,6 @@ importers:
 
   packages/core/agent:
     devDependencies:
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -6814,9 +6787,6 @@ importers:
       '@qilin/agent':
         specifier: workspace:*
         version: link:../agent
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -6884,9 +6854,6 @@ importers:
 
   packages/core/scope:
     devDependencies:
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -6903,9 +6870,6 @@ importers:
         specifier: workspace:*
         version: link:../../util/values
     devDependencies:
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -6925,9 +6889,6 @@ importers:
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
     devDependencies:
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -6953,9 +6914,6 @@ importers:
       '@qilin/agent':
         specifier: workspace:*
         version: link:../agent
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -6992,9 +6950,6 @@ importers:
       '@qilin/credentials':
         specifier: workspace:*
         version: link:../credentials
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -7008,9 +6963,6 @@ importers:
         specifier: workspace:*
         version: link:../../util/brand
     devDependencies:
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -7181,9 +7133,6 @@ importers:
       '@qilin/agent-loop-testkit':
         specifier: workspace:*
         version: link:../../test-support/agent-loop-testkit
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -8372,9 +8321,6 @@ importers:
       '@qilin/brand':
         specifier: workspace:*
         version: link:../../util/brand
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -8659,9 +8605,6 @@ importers:
       '@qilin/brand':
         specifier: workspace:*
         version: link:../../util/brand
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -8707,9 +8650,6 @@ importers:
       '@qilin/goal':
         specifier: workspace:*
         version: link:../goal
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -8817,9 +8757,6 @@ importers:
 
   packages/hooks/hook-protocol:
     devDependencies:
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -9214,9 +9151,6 @@ importers:
       '@qilin/brand':
         specifier: workspace:*
         version: link:../../util/brand
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -9245,9 +9179,6 @@ importers:
       '@qilin/commands':
         specifier: workspace:*
         version: link:../commands
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -9313,9 +9244,6 @@ importers:
       '@qilin/brand':
         specifier: workspace:*
         version: link:../../util/brand
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -9377,9 +9305,6 @@ importers:
       '@qilin/brand':
         specifier: workspace:*
         version: link:../../util/brand
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -9494,9 +9419,6 @@ importers:
       '@qilin/attachment':
         specifier: workspace:*
         version: link:../../attachment/attachment
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -9735,9 +9657,6 @@ importers:
       '@qilin/brand':
         specifier: workspace:*
         version: link:../../util/brand
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -10088,9 +10007,6 @@ importers:
       '@qilin/commands':
         specifier: workspace:*
         version: link:../../interaction/commands
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -10143,9 +10059,6 @@ importers:
       '@qilin/home-paths':
         specifier: workspace:*
         version: link:../../util/home-paths
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -10257,16 +10170,6 @@ importers:
         specifier: workspace:*
         version: link:../../util/timeout
 
-  packages/runtime-diagnostics/invariants:
-    dependencies:
-      '@qilin/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
-    devDependencies:
-      '@qilin/kylin':
-        specifier: workspace:~
-        version: link:../../../vendor/cordis
-
   packages/sandbox/sandbox:
     dependencies:
       '@qilin/util-values':
@@ -10323,9 +10226,6 @@ importers:
       '@qilin/agent':
         specifier: workspace:*
         version: link:../../core/agent
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -10409,9 +10309,6 @@ importers:
       '@qilin/brand':
         specifier: workspace:*
         version: link:../../util/brand
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -10920,9 +10817,6 @@ importers:
       '@qilin/deepseek-llm-api-extensions':
         specifier: workspace:*
         version: link:../../llm/deepseek-llm-api-extensions
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -11182,9 +11076,6 @@ importers:
       '@qilin/brand':
         specifier: workspace:*
         version: link:../../util/brand
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -11334,9 +11225,6 @@ importers:
       '@qilin/brand':
         specifier: workspace:*
         version: link:../../util/brand
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -12164,9 +12052,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -12227,9 +12112,6 @@ importers:
       '@qilin/attachment':
         specifier: workspace:*
         version: link:../../attachment/attachment
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/jobs':
         specifier: workspace:*
         version: link:../../jobs/jobs
@@ -12287,6 +12169,9 @@ importers:
       '@qilin/system-prompt':
         specifier: workspace:*
         version: link:../../core/system-prompt
+      '@qilin/tool-schedule':
+        specifier: workspace:*
+        version: link:../../schedule/tool-schedule
       '@qilin/tools':
         specifier: workspace:*
         version: link:../../core/tools
@@ -12513,9 +12398,6 @@ importers:
       '@qilin/agent-loop-testkit':
         specifier: workspace:*
         version: link:../../test-support/agent-loop-testkit
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -12562,9 +12444,6 @@ importers:
       '@qilin/fs-sandbox':
         specifier: workspace:*
         version: link:../../fs/fs-sandbox
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -12687,9 +12566,6 @@ importers:
       '@qilin/bash-local':
         specifier: workspace:*
         version: link:../../shell/bash-local
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -12739,9 +12615,6 @@ importers:
       '@qilin/agent':
         specifier: workspace:*
         version: link:../../core/agent
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/jobs':
         specifier: workspace:*
         version: link:../../jobs/jobs
@@ -13513,9 +13386,6 @@ importers:
       '@qilin/agent-loop-testkit':
         specifier: workspace:*
         version: link:../../test-support/agent-loop-testkit
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -13659,9 +13529,6 @@ importers:
         specifier: ^8.10.0
         version: 8.10.0
     devDependencies:
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -13906,9 +13773,6 @@ importers:
       '@qilin/agent-presets':
         specifier: workspace:*
         version: link:../../preset/agent-presets
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -14029,9 +13893,6 @@ importers:
       '@qilin/agent':
         specifier: workspace:*
         version: link:../../core/agent
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -14068,9 +13929,6 @@ importers:
       '@qilin/brand':
         specifier: workspace:*
         version: link:../../util/brand
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -14111,9 +13969,6 @@ importers:
       '@qilin/http-proxy':
         specifier: workspace:*
         version: link:../../util/http-proxy
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -14175,9 +14030,6 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
-      '@qilin/invariants':
-        specifier: workspace:*
-        version: link:../../runtime-diagnostics/invariants
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -14304,9 +14156,6 @@ importers:
       '@qilin/http-proxy':
         specifier: workspace:^
         version: link:../../packages/util/http-proxy
-      '@qilin/invariants':
-        specifier: workspace:^
-        version: link:../../packages/runtime-diagnostics/invariants
       '@qilin/jobs':
         specifier: workspace:^
         version: link:../../packages/jobs/jobs

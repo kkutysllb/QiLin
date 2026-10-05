@@ -21,10 +21,6 @@
       "types": "./lib/types/index.d.ts",
       "default": "./lib/index.js"
     },
-    "./invariant": {
-      "types": "./lib/types/invariant.d.ts",
-      "default": "./lib/invariant.js"
-    },
     "./types": {
       "types": "./lib/types/types.d.ts",
       "default": "./lib/types/types.js"
@@ -46,7 +42,6 @@
   },
   "files": [
     "lib/index.js",
-    "lib/invariant.js",
     "lib/types/**/*.js",
     "lib/types/**/*.d.ts",
     "lib/typert.host.js",
@@ -58,7 +53,6 @@
   "peerDependencies": {
     "@qilin/shell": "workspace:*",
     "@qilin/commands": "workspace:*",
-    "@qilin/invariants": "workspace:*",
     "@qilin/sandbox": "workspace:*",
     "@qilin/sandbox-policy": "workspace:*",
     "@qilin/session": "workspace:*",
@@ -75,7 +69,6 @@
   "devDependencies": {
     "@qilin/shell": "workspace:*",
     "@qilin/commands": "workspace:*",
-    "@qilin/invariants": "workspace:*",
     "@qilin/sandbox": "workspace:*",
     "@qilin/sandbox-policy": "workspace:*",
     "@qilin/session": "workspace:*",

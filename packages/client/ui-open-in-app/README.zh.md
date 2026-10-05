@@ -83,5 +83,3 @@ kind: "package-reference"
 功能层面的各项决定，包括拆分为主机包与本表面包，记录在[转正 Agent Note](../../../.agents/notes/implemented/feature/2026-08-25-promote-open-anywhere-plugin.zh.md)。
 
 </details>
-
-**运行时不变式：** 不发布伴生入口。插件注册一个词典 effect 和三个 slot 条目，HMR 安全性 spec 证明它们都会在资源释放时撤销；可用性与选择存储在控制器的快照存储中，不存在可能与之分歧的第二份副本。

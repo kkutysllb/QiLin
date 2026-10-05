@@ -153,7 +153,6 @@ The exports each own one stage of the boot: config resolution and snapshot repla
 | [`src/profile-plugins.ts`](src/profile-plugins.ts) | Installed dependencies, bundle activation policy, and manifest updates |
 | [`src/profile-sanitize.ts`](src/profile-sanitize.ts) | Profile patch backup and recovery bundle activation |
 | [`src/profile-resolution/`](src/profile-resolution/) | Runtime resolver, package-metadata service, and built Worker bootstrap |
-| — | No runtime invariant companion is published; one registration owns each resolver generation, and dual mode compares the independently materialized result at resolution time. |
 
 </details>
 

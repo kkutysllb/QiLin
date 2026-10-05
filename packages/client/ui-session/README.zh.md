@@ -43,5 +43,3 @@ kind: "package-reference"
 无。
 
 </details>
-
-**运行时不变式：** 不发布伴生入口。适配器 materialization 路径已经强制 Session 绑定一致。

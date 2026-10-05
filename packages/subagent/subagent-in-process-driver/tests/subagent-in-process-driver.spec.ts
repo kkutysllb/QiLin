@@ -6,10 +6,6 @@ import { type Agent, type AgentOptions } from '@qilin/agent'
 import { SessionId } from '@qilin/session'
 import AgentLoop from '@qilin/agent-loop'
 import { mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'
-import InvariantRegistry from '@qilin/invariants'
-import * as SessionInvariant from '@qilin/session/invariant'
-import * as AgentInvariant from '@qilin/agent/invariant'
-import * as AgentLoopInvariant from '@qilin/agent-loop/invariant'
 import SubagentRuntime, { snapshotSubagentDescriptor } from '@qilin/subagent'
 import { defineContentToolFixture } from '@qilin/tools'
 import { maxTokensResponse, MockAdapter, textResponse, toolCallResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
@@ -23,17 +19,9 @@ declare module '@qilin/llm' {
 
 type Script = ConstructorParameters<typeof MockAdapter>[0]
 
-async function mountInvariants(ctx: Context): Promise<void> {
-  await ctx.plugin(InvariantRegistry)
-  await ctx.plugin(SessionInvariant)
-  await ctx.plugin(AgentInvariant)
-  await ctx.plugin(AgentLoopInvariant)
-}
-
 async function setup(script: Script, parentOptions: Partial<AgentOptions> = {}) {
   const ctx = new Context()
   await mountAgentLoopTestDependencies(ctx)
-  await mountInvariants(ctx)
   await ctx.plugin(AgentLoop, { agents: [] })
   await ctx.plugin(SubagentRuntime)
   const adapter = new MockAdapter(script)

@@ -80,5 +80,3 @@ None, as the account menu renders browser chrome and registers nothing model-fac
 - 是否为窄列把主题与语言两行从子菜单中摊平，目前无人提出；子菜单让下拉菜单保持紧凑，而侧边栏还留着 rail 宽度。
 
 </details>
-
-**运行时不变式：** 不发布伴生入口。本菜单仅有的关系是它自己的 store 与注入的 slot 面，对它们不存在会各自漂移的独立观测。

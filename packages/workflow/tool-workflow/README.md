@@ -66,7 +66,7 @@ The consumer owns the model-facing schema, the `tool:<toolName>` system-prompt g
 
 ### Durable session records
 
-For a root transport execution (`exec.parent` absent), the tool projects the run into the calling Agent's Session with four log-only events: run-start after `start()` returns, member starts and endings filtered by `run.id`, then run-end only after the result is available and disposal reaches quiescence. Nested transport calls execute normally but write no record. The first failed Session append disables later recording for that run with one warning, leaving either no record or a legal continuous prefix without changing the tool result or cleanup. The package invariant rejects duplicate starts, unpaired members, terminal events with open members, and updates after run-end on both cold load and live append, while accepting missing terminal suffixes.
+For a root transport execution (`exec.parent` absent), the tool projects the run into the calling Agent's Session with four log-only events: run-start after `start()` returns, member starts and endings filtered by `run.id`, then run-end only after the result is available and disposal reaches quiescence. Nested transport calls execute normally but write no record. The first failed Session append disables later recording for that run with one warning, leaving either no record or a legal continuous prefix without changing the tool result or cleanup.
 
 ### Render intent
 
@@ -78,7 +78,6 @@ Decided up front per the [render-intent Agent Note](../../../.agents/notes/imple
 |---|---|
 | [`src/index.ts`](src/index.ts) | Plugin entry: tool registration, run lifecycle, recorder wiring |
 | [`src/types.ts`](src/types.ts) | The four log-only record event payloads and their `SessionEventMap` declaration |
-| [`src/invariant.ts`](src/invariant.ts) | Invariant companion: durable workflow-record protocol validation |
 
 </details>
 

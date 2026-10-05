@@ -36,7 +36,6 @@
     "undici": "^8.10.0"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/invariants": "workspace:*"
+    "@qilin/kylin": "workspace:~"
   }
 }

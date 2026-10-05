@@ -137,5 +137,3 @@ These limits define the reach of the management view; they are current package c
 None.
 
 </details>
-
-**Runtime invariant:** No companion is published. This package owns a Settings Plugins tab over Host-owned facts.

@@ -174,11 +174,10 @@ const mounts = new Set<PresetMount>()
  * because a subtree can be torn down by its owning agent, by a failed mount, or
  * by the whole tree unloading, and a cleared `uid` is what all three share.
  *
- * Pruning therefore has to happen on a path this module owns. Reading is one
- * such path, but not a reliable one: the only production reader is the
- * invariant companion's service listener, and `qilin-invariants` is a
- * development composition — a shipped host never loads it. Mounting is the
- * other, and it is the one every session takes, which bounds the set at one
+ * Pruning therefore has to happen on a path this module owns. Reading is not
+ * a reliable path: the only production reader may run before any dispose lands,
+ * so pruning there misses records torn down between reads. Mounting is the
+ * path every session takes, which bounds the set at one
  * generation of dead records rather than one per session ever composed. Each
  * record would otherwise retain its whole disposed subtree: the fiber holds
  * its config, and that config is the key its `EntryTree` is stored under.

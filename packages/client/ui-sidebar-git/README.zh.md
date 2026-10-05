@@ -82,5 +82,3 @@ kind: "package-reference"
 一个 store 工厂（`createGitStore`）、一个注册期句柄、按 tab id 分桶。face（`face.ts`）是 Slot 的 `inject` 形态：会话 id 与绑定的动作进，每个请求一个入口，组件里没有任何 await。六类读取各带每 tab 代次——状态、分支、历史、仍展开的提交补丁、差异、拉取请求——谁后请求谁赢，无论谁先应答；tab 记录的中止监听每 tab 只武装一次，遗忘时连同代次一起清桶。变更走同一条 `mutate` 路径：busy、调用、失败记录或成功后跟一次状态读取（检出与新建还会重读分支列表；拉取请求的创建与合并按节面所示筛选重读列表）。
 
 </details>
-
-**运行时不变量：** 未发布 companion。本包唯一的运行时状态是每会话一个 Slot store，按 tab id 分桶，由拥有各自桶的 body 与 face 写入、在每个 tab 的中止信号上遗忘；没有第二处观察可以对照。

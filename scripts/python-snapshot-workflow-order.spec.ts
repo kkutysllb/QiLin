@@ -13,6 +13,7 @@ import type {} from '@qilin/tool-workflow'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 // @ts-expect-error Scenario plugins are runtime JavaScript without declaration artifacts.
 import * as fixtureModule from './fixtures/python-snapshot-workflow-order.mjs'
+import '../packages/workflow/tool-workflow/src/types.ts'
 
 const config = { parentSessionId: 'advanced-parent', prompt: 'workflow child prompt' }
 const fixture = fixtureModule as unknown as {

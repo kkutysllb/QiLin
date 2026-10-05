@@ -74,7 +74,6 @@ The observable behavior is covered in [Use this package](#use-this-package); thi
 | File | Role |
 |---|---|
 | [`src/index.ts`](src/index.ts) | Tool registration: `ask_user_question` schema, execute path, result render |
-| — | No runtime invariant companion is published; this model-facing adapter has no independent lifecycle stream; execution relations are owned by the capability seam it calls. |
 
 ### Consumer role
 

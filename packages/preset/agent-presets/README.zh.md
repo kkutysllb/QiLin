@@ -115,7 +115,6 @@ agent-presets:
 | [`src/metadata.ts`](src/metadata.ts) | `preset.yml` 展示元数据 |
 | [`src/session.ts`](src/session.ts) | `agent-preset/selected` 事件与 `agentPreset` Session 投影 |
 | [`src/types.ts`](src/types.ts) | client-safe 的协议载荷与 cordis 事件声明 |
-| [`src/invariant.ts`](src/invariant.ts) | 不变式伴生插件：挂载后的服务泄漏复查、未加入 agent 的失败 |
 
 ### 常驻挂载
 
@@ -127,7 +126,7 @@ agent-presets:
 
 ### 挂载审计
 
-直接挂载的子树不会出现在 `ctx.loader.entries()` 中，因此没有启动审计能覆盖它；`mountPreset` 自行证明结果可用，并拒绝导入或激活失败、无 scope 的目标（preset 的工具会注册成全局的）、仍在等待组装从未提供的服务的行、以及把服务发布进根 realm 的行（进程级全局，第二个发布同名服务的 preset 会相撞）。不变式伴生插件在每次服务通知时复查最后一条规则，因为从定时器或异步续体发布的行会绕过一次性审计。
+直接挂载的子树不会出现在 `ctx.loader.entries()` 中，因此没有启动审计能覆盖它；`mountPreset` 自行证明结果可用，并拒绝导入或激活失败、无 scope 的目标（preset 的工具会注册成全局的）、仍在等待组装从未提供的服务的行、以及把服务发布进根 realm 的行（进程级全局，第二个发布同名服务的 preset 会相撞）。
 
 ### 创作机制
 

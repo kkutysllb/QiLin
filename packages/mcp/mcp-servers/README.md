@@ -106,5 +106,3 @@ This Dev Note is working context for maintainers: open design questions and dire
 - A read-only view of servers other layers insert would need the composed Loader tree rather than the file, which is a different service boundary.
 
 </details>
-
-**Runtime invariant:** No companion is published. The patch file this service writes is the only authoritative state, and re-reading it on every call is what keeps a snapshot current.

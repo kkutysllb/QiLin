@@ -83,5 +83,3 @@ None; this package neither assembles nor sends a provider request.
 The feature-level decisions, including the split into the host package and this surface, are recorded in the [promotion Agent Note](../../../.agents/notes/implemented/feature/2026-08-25-promote-open-anywhere-plugin.md).
 
 </details>
-
-**Runtime invariant:** No companion is published. The plugin registers one dictionary effect and three slot entries whose disposal the HMR-safety spec proves; availability and choice live in the controller's snapshot stores with no second copy to diverge.

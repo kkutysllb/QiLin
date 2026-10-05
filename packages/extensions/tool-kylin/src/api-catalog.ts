@@ -1234,19 +1234,6 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     ],
   },
   {
-    key: 'invariants',
-    summary: 'Package-owned invariant registry with global and regex-based selection.',
-    description: 'Package-owned invariant registry with global and regex-based selection.',
-    methods: [
-      {
-        signature: 'register(packageName: string, installer: InvariantInstaller): () => void',
-        description: 'Register one package\'s invariant installer. The package name is reserved even when filtering disables its checks. Enabled installers run in a child fiber; failure disposes that fiber and releases the reservation.',
-        parameters: [{ name: 'packageName', description: 'full npm package name that owns the contribution.' }, { name: 'installer', description: 'listener or startup-check installer for the child context.' }],
-        returns: 'an effect-scoped disposer for the registration.',
-      },
-    ],
-  },
-  {
     key: 'jobController',
     summary: 'Host service backing the generated `ctx.remote.job` namespace.',
     description: 'Host service backing the generated `ctx.remote.job` namespace.',
@@ -2875,7 +2862,7 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
       },
       {
         signature: 'get(name: string): DomainImpl | undefined',
-        description: 'Look up an open domain by name, untyped. Diagnostic surface (the package invariant cross-checks change events against live domain state); typed consumers hold the handle returned by open.',
+        description: 'Look up an open domain by name, untyped. Diagnostic surface; typed consumers hold the handle returned by open.',
         parameters: [{ name: 'name', description: 'Domain name.' }],
         returns: 'the open domain runtime, or `undefined` when not open.',
       },
@@ -5611,14 +5598,6 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'InvalidTimeZoneError',
     declaration: 'export interface InvalidTimeZoneError {\n    readonly code: \'invalid_time_zone\';\n    readonly message: string;\n}',
-  },
-  {
-    name: 'InvariantFailure',
-    declaration: 'export type InvariantFailure = (message: string) => never;',
-  },
-  {
-    name: 'InvariantInstaller',
-    declaration: 'export interface InvariantInstaller {\n    (ctx: Context, fail: InvariantFailure): void | Promise<void>;\n    readonly inject?: Inject;\n}',
   },
   {
     name: 'InvocationDescriptor',

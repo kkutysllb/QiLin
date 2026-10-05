@@ -97,6 +97,4 @@ None; terminal output travels only between the browser and Host.
 <details>
 <summary>Working context for maintainers — click to expand</summary>
 
-No runtime invariant companion is published. One owner orders terminal metadata and screen updates; the provider exposes no independently observed dimensions to compare.
-
 </details>
