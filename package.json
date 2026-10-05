@@ -27,6 +27,7 @@
     "build:web": "pnpm --filter @qilin/web-frontend run build",
     "clean": "tsx scripts/clean.ts",
     "verify-source-artifacts": "tsx scripts/verify-source-artifacts.ts",
+    "verify-declared-entrypoints": "tsx scripts/verify-declared-entrypoints.ts",
     "change-scope": "tsx scripts/change-scope.ts",
     "typecheck": "npm run build:lib:host && npm run typecheck:contracts-ready",
     "typecheck:contracts-ready": "tsc -b tsconfig.client.json",

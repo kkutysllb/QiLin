@@ -12,13 +12,4 @@ export default defineConfig([
     dts: false,
     clean: false,
   },
-  {
-    outDir: 'lib',
-    format: ['esm'],
-    platform: 'node',
-    target: 'es2024',
-    fixedExtension: false,
-    dts: false,
-    clean: false,
-  },
 ])

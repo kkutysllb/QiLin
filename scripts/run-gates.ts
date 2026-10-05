@@ -356,6 +356,10 @@ function ciPrimaryGates(): Gate[] {
       needs: ['build'],
     }),
     builtBinSmokeGate(),
+    pnpmScript('declared-entrypoints', 'verify-declared-entrypoints', {
+      label: 'declared entrypoints',
+      needs: ['build'],
+    }),
   ]
 }
 
