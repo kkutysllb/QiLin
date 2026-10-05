@@ -108,11 +108,12 @@
 }
 
 /* Drag handles are frame children (columns clip overflow): an 8px hit strip
-   centered on the column border via inline left, above column content. No
-   handle draws a visible pill: the details column was the only one that did,
-   and the right column never had one. The right handle sits above the right
-   panel (which states z-index 10) so it stays grabbable when the panel hangs
-   over the centre. */
+   centered on the column border via inline left, above column content. The
+   cross-platform contract is an invisible strip (no pill), which the desktop
+   shells suspend below: with no rail or chrome edge to hint at it, an
+   invisible strip reads as no affordance at all. The right handle sits above
+   the right panel (which states z-index 10) so it stays grabbable when the
+   panel hangs over the centre. */
 .handle {
   position: absolute;
   top: 0;
@@ -129,6 +130,32 @@
 
 .frame[data-dragging] .handle {
   transition: none;
+}
+
+/* Desktop-only affordance: a pill that appears while the pointer is on the
+   strip or a drag is live. Web keeps the invisible strip. */
+:global([data-platform='darwin']) .handle::after,
+:global([data-windows-titlebar]) .handle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 56px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  corner-shape: round;
+  background: var(--dsw-alias-label-tertiary);
+  opacity: 0;
+  transition: opacity var(--ds-transition-duration-fast) ease;
+  pointer-events: none;
+}
+
+:global([data-platform='darwin']) .handle:hover::after,
+:global([data-platform='darwin']) .handle[data-dragging]::after,
+:global([data-windows-titlebar]) .handle:hover::after,
+:global([data-windows-titlebar]) .handle[data-dragging]::after {
+  opacity: 1;
 }
 
 /* Fullscreen covers the frame while its underlying columns enter or exit. */
@@ -174,5 +201,27 @@
 }
 
 .overlayLayer > * {
+  pointer-events: auto;
+}
+
+/* Leading reopen seat ('shell.reopen', see index.ts): the frame hosts the
+   header's reopen controls at the window's leading top edge while a global
+   panel replaces the Conversation. Geometry matches the session header's
+   leading seat — the header pads 20 and the controls pad 68, so the first
+   control lands at x 88, clear of the hiddenInset traffic lights — so page
+   switches do not move the controls. Click-through except the controls. */
+.reopenHost {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  height: var(--dsh-frame-top-clearance, 48px);
+  padding-left: 20px;
+  pointer-events: none;
+}
+
+.reopenHost > * {
   pointer-events: auto;
 }

@@ -199,7 +199,7 @@ describe('AppFrame', () => {
     const { frame, rightOwner, sidebarOwner, slotCalls } = mountFrame()
     expect(tracks(frame)).toEqual([280, 0])
     expect(sidebarOwner()).toEqual({ collapsed: false, width: 280 })
-    expect(rightOwner()).toEqual({ width: 864, viewportWidth: 1920, canShow: true })
+    expect(rightOwner()).toEqual({ width: 614, viewportWidth: 1920, canShow: true })
     expect(slotCalls.find(c => c.key === 'main')).toEqual({ key: 'main', props: {}, options: { entryKey: 'conversation' } })
   })
 
@@ -249,8 +249,14 @@ describe('AppFrame', () => {
     for (const panelId of ['panel-a' as MainPanelId, 'panel-b' as MainPanelId, null]) {
       slotCalls.length = 0
       act(() => { instance.actions.selectPanel(panelId) })
-      expect(slotCalls).toEqual([{ key: 'main', props: {}, options: { entryKey: panelId ?? 'conversation' } }])
+      expect(slotCalls).toEqual(panelId === null
+        ? [{ key: 'main', props: {}, options: { entryKey: 'conversation' } }]
+        : [
+          { key: 'main', props: {}, options: { entryKey: panelId } },
+          { key: 'shell.reopen', props: {}, options: undefined },
+        ])
       expect(getByTestId('main-content').getAttribute('data-entry-key')).toBe(panelId ?? 'conversation')
+      expect(frame.querySelector('[data-shell-reopen]') !== null).toBe(panelId !== null)
       expect(instance.getSnapshot().panelInfo).toEqual({ activePanelId: panelId })
       expect(instance.getSnapshot().layoutInfo).toBe(layoutInfo)
       expect(tracks(frame)).toEqual([280, 0])
@@ -260,16 +266,37 @@ describe('AppFrame', () => {
   })
 })
 
+describe('AppFrame reopen seat', () => {
+  it('keeps the reopen seat off Conversation pages', () => {
+    const { frame, slotCalls } = mountFrame()
+    expect(frame.querySelector('[data-shell-reopen]')).toBeNull()
+    expect(slotCalls.some(call => call.key === 'shell.reopen')).toBe(false)
+  })
+
+  it('mounts the reopen seat only while a panel is active', () => {
+    const { instance, frame, rerenderFrame } = mountFrame()
+    act(() => { instance.actions.selectPanel('panel-a' as MainPanelId) })
+    rerenderFrame()
+    const host = frame.querySelector<HTMLElement>('[data-shell-reopen]')
+    expect(host).not.toBeNull()
+    expect(host!.hasAttribute('data-window-drag')).toBe(false)
+    expect(host!.querySelector('[data-testid="shell.reopen-content"]')).not.toBeNull()
+    act(() => { instance.actions.selectPanel(null) })
+    rerenderFrame()
+    expect(frame.querySelector('[data-shell-reopen]')).toBeNull()
+  })
+})
+
 describe('AppFrame normal width concessions', () => {
   it('measures the frame, not the window, before choosing the first-open preference', () => {
     frameWidth = 1000
     const { instance, rightOwner } = mountFrame(1920)
     expect(instance.getSnapshot().layoutInfo.viewportWidth).toBe(1000)
-    expect(rightOwner()).toEqual({ width: 450, viewportWidth: 1000, canShow: true })
+    expect(rightOwner()).toEqual({ width: 320, viewportWidth: 1000, canShow: true })
     act(() => { instance.actions.openRightbar(true, false) })
-    expect(instance.getSnapshot().layoutInfo.rightbar).toBe(450)
+    expect(instance.getSnapshot().layoutInfo.rightbar).toBe(320)
     resize(1920)
-    expect(rightOwner().width).toBe(450)
+    expect(rightOwner().width).toBe(320)
   })
 
   it('shrinks the right panel to 300px, drops its track, and only then squeezes center', () => {
@@ -284,7 +311,7 @@ describe('AppFrame normal width concessions', () => {
     expect(tracks(frame)).toEqual([420, 0])
     expect(rightOwner()).toEqual({ width: 0, viewportWidth: 1119, canShow: false })
     expect(frame.querySelector('[data-side="rightbar"]')).toBeNull()
-    expect(instance.getSnapshot().layoutInfo).toMatchObject({ rightbarShown: true, rightbar: 864 })
+    expect(instance.getSnapshot().layoutInfo).toMatchObject({ rightbarShown: true, rightbar: 614 })
     act(() => { instance.actions.closeRightbar() })
     resize(455)
     expect(tracks(frame)).toEqual([56, 0])
@@ -297,10 +324,10 @@ describe('AppFrame normal width concessions', () => {
     const { frame, instance, rightOwner } = mountFrame()
     act(() => { instance.actions.toggleSidebar() })
     expect(tracks(frame)).toEqual([280, 0])
-    expect(rightOwner()).toEqual({ width: 344, viewportWidth: 800, canShow: true })
+    expect(rightOwner()).toEqual({ width: 300, viewportWidth: 800, canShow: true })
     act(() => { instance.actions.openRightbar(true, false) })
-    expect(tracks(frame)).toEqual([56, 344])
-    expect(instance.getSnapshot().layoutInfo).toMatchObject({ narrowExpanded: false, rightbar: 360 })
+    expect(tracks(frame)).toEqual([56, 300])
+    expect(instance.getSnapshot().layoutInfo).toMatchObject({ narrowExpanded: false, rightbar: 300 })
     expect(rightOwner().canShow).toBe(true)
   })
 
@@ -349,7 +376,7 @@ describe('AppFrame right panel presentation', () => {
   it('releases the fullscreen track with the instant marker while clearing fullscreen', () => {
     const { frame, instance } = mountFrame()
     act(() => { instance.actions.openRightbar(true, true) })
-    expect(tracks(frame)).toEqual([280, 864])
+    expect(tracks(frame)).toEqual([280, 614])
     act(() => { instance.actions.closeRightbar() })
     expect(tracks(frame)).toEqual([280, 0])
     expect(frame.dataset.rightbarFullscreen).toBeUndefined()
@@ -363,7 +390,7 @@ describe('AppFrame right panel presentation', () => {
     const { frame, instance } = mountFrame()
     act(() => { instance.actions.openRightbar(true, true) })
     act(() => { instance.actions.openRightbar(true, false) })
-    expect(tracks(frame)).toEqual([280, 864])
+    expect(tracks(frame)).toEqual([280, 614])
     expect(frame.dataset.rightbarFullscreen).toBeUndefined()
     expect(frame.dataset.rightbarInstant).toBe('true')
     act(() => { instance.actions.closeRightbar() })
@@ -397,16 +424,16 @@ describe('AppFrame right panel presentation', () => {
   it('preserves normal tracks through fullscreen and hides the outer resize handle', () => {
     const { frame, instance, rightOwner } = mountFrame()
     act(() => { instance.actions.openRightbar(true, false) })
-    expect(tracks(frame)).toEqual([280, 864])
-    expect(handleFor(frame, 'rightbar').style.left).toBe('1056px')
+    expect(tracks(frame)).toEqual([280, 614])
+    expect(handleFor(frame, 'rightbar').style.left).toBe('1306px')
     act(() => { instance.actions.openRightbar(true, true) })
-    expect(tracks(frame)).toEqual([280, 864])
-    expect(rightOwner().width).toBe(864)
+    expect(tracks(frame)).toEqual([280, 614])
+    expect(rightOwner().width).toBe(614)
     expect(frame.dataset.rightbarFullscreen).toBe('true')
     expect(frame.querySelector('[data-side="rightbar"]')).toBeNull()
     act(() => { instance.actions.openRightbar(true, false) })
-    expect(tracks(frame)).toEqual([280, 864])
-    expect(handleFor(frame, 'rightbar').style.left).toBe('1056px')
+    expect(tracks(frame)).toEqual([280, 614])
+    expect(handleFor(frame, 'rightbar').style.left).toBe('1306px')
     expect(frame.dataset.rightbarFullscreen).toBeUndefined()
     act(() => { instance.actions.closeRightbar() })
     expect(tracks(frame)).toEqual([280, 0])
@@ -419,11 +446,11 @@ describe('AppFrame right panel presentation', () => {
     expect(tracks(frame)).toEqual([280, 0])
     expect(frame.dataset.rightbarFullscreen).toBeUndefined()
     act(() => { instance.actions.openRightbar(true, true) })
-    expect(tracks(frame)).toEqual([280, 864])
+    expect(tracks(frame)).toEqual([280, 614])
     expect(frame.dataset.rightbarFullscreen).toBe('true')
     expect(frame.querySelector('[data-side="rightbar"]')).toBeNull()
     act(() => { instance.actions.openRightbar(true, false) })
-    expect(tracks(frame)).toEqual([280, 864])
+    expect(tracks(frame)).toEqual([280, 614])
     expect(frame.dataset.rightbarFullscreen).toBeUndefined()
   })
 
@@ -555,7 +582,7 @@ describe('AppFrame pointer resizing', () => {
     const settled = instance.getSnapshot()
     act(flushFrames)
     expect(instance.getSnapshot()).toBe(settled)
-    expect(instance.getSnapshot().layoutInfo.rightbar).toBe(864)
+    expect(instance.getSnapshot().layoutInfo.rightbar).toBe(614)
     expect(animationFrames.size).toBe(0)
     expect(handle.hasPointerCapture(1)).toBe(false)
     if (change !== 'unmount') expect(frame.dataset.dragging).toBeUndefined()

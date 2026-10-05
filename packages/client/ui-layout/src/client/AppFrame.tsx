@@ -27,7 +27,7 @@ import css from './AppFrame.module.css'
 /** Full composed props: runtime share + child-slot render share + store share. */
 export type AppFrameProps =
   & PropsRuntime<'root'>
-  & PropsRenderSlots<'sidebar' | 'main' | 'rightbar' | 'shell.bottom' | 'shell.overlay'>
+  & PropsRenderSlots<'sidebar' | 'main' | 'rightbar' | 'shell.bottom' | 'shell.overlay' | 'shell.reopen'>
   & PropsStore<ReturnType<typeof createLayoutStore>>
   & PropsLocale<'common'>
 
@@ -40,6 +40,25 @@ function CenterColumn(props: { children?: ReactNode }) {
 function MainPanel({ usePanelInfo, renderSlot }: Pick<PropsRuntime<'root'>, 'usePanelInfo'> & PropsRenderSlots<'main'>) {
   const panelId = usePanelInfo(info => info.activePanelId)
   return renderSlot('main', {}, { entryKey: panelId ?? 'conversation' })
+}
+
+/**
+ * Leading reopen seat ('shell.reopen'): while a global panel replaces the
+ * Conversation, the header's reopen controls are unmounted and this seat hosts
+ * the same controls at the window's leading top edge (AppFrame.module.css).
+ * Renders nothing on Conversation pages, so the header seat stands alone.
+ * Subscribes to the main key itself, keeping the column frame out of panel
+ * switches like MainPanel. The host is no drag row of its own: the page head
+ * beneath already pins the band, and the host is click-through to it.
+ */
+function ReopenSeat({ usePanelInfo, renderSlot }: Pick<PropsRuntime<'root'>, 'usePanelInfo'> & PropsRenderSlots<'shell.reopen'>) {
+  const panelId = usePanelInfo(info => info.activePanelId)
+  if (panelId === null) return null
+  return (
+    <div className={css.reopenHost} data-shell-reopen>
+      {renderSlot('shell.reopen', {})}
+    </div>
+  )
 }
 
 /**
@@ -239,6 +258,7 @@ export function AppFrame({
       <div className={css.overlayLayer} data-shell-overlay>
         {overlays}
       </div>
+      <ReopenSeat usePanelInfo={usePanelInfo} renderSlot={renderSlot} />
       {/* The collapsed rail is fixed-width: no resize handle while closed. */}
       {!sidebarCollapsed && <DragHandle side="sidebar" left={cols.sidebar} onStart={onSidebarStart} onDrag={onSidebarDrag} onEnd={onDragEnd} />}
       {layoutInfo.rightbarShown && !layoutInfo.rightbarFullscreen && normal.rightbar > 0 && (

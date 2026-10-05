@@ -103,6 +103,16 @@ declare module '@qilin/client-ui-slots' {
      * `id` is added beside the shipped entries instead of replacing them.
      */
     'shell.overlay': { kind: 'list'; scope: 'root' }
+    /**
+     * Leading reopen seat for global-panel pages: while a panel other than the
+     * Conversation occupies the main slot, the Conversation header — and with
+     * it the header's reopen controls — is unmounted, and the macOS-desktop
+     * collapse hides the sidebar entirely, so a page offers no way to reopen
+     * the sidebar or start a Session. The frame mounts this seat at the
+     * window's leading top edge only while a page is up, so the seat and the
+     * header controls never coexist; the occupant draws the same controls.
+     */
+    'shell.reopen': { kind: 'single'; scope: 'root' }
   }
 }
 
@@ -170,6 +180,7 @@ export function apply(ctx: ClientContext): void {
         'rightbar': { kind: 'single', scope: 'root' },
         'shell.bottom': { kind: 'single', scope: 'root' },
         'shell.overlay': { kind: 'list', scope: 'root' },
+        'shell.reopen': { kind: 'single', scope: 'root' },
       },
       store,
     }, AppFrame)
