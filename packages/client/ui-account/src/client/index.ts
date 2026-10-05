@@ -13,7 +13,7 @@ import type {} from '@qilin/client-ui-theme/client'
 // Type-only: pulls the ctx.settingsShell merge (the panel's open channel).
 import type {} from '@qilin/client-ui-settings-general/client'
 // Type-only: pulls the SlotRegistry service merge and the sidebar's own
-// 'sidebar.footer.action' declaration. Cross-plugin collaboration goes through
+// 'sidebar.account' declaration. Cross-plugin collaboration goes through
 // services and slots, never a value import (client bundle purity gate).
 import type {} from '@qilin/client-ui-sidebar/client'
 import type {} from '@qilin/client-ui-renderer/client'
@@ -46,8 +46,8 @@ export const NS = 'account'
 export const inject = ['slots', 'locale', 'theme']
 
 /**
- * Register the account menu into the sidebar footer, once the sidebar declares
- * that list, and hand it the one store its entry shares.
+ * Register the account menu into the sidebar foot's account row, once the
+ * sidebar declares that seat, and hand it the one store its entry shares.
  * @param ctx - client root context.
  */
 export function apply(ctx: ClientContext): void {
@@ -70,10 +70,8 @@ export function apply(ctx: ClientContext): void {
       },
       settingsPanel: settingsPanel.mounted,
     })
-  ctx.slots.inject('sidebar.footer.action', () => ctx.slots.register({
-    name: 'sidebar.footer.action',
-    id: 'account',
-    order: 0,
+  ctx.slots.inject('sidebar.account', () => ctx.slots.register({
+    name: 'sidebar.account',
     locale: NS,
     store,
     inject: injected,

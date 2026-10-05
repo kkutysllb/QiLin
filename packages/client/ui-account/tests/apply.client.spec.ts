@@ -1,6 +1,6 @@
 /**
  * The account plugin's browser entry: the services it binds, the single
- * sidebar-footer contribution it installs and retires with its fiber, the
+ * sidebar account-row contribution it installs and retires with its fiber, the
  * dictionaries it registers, and the injected face that routes to the theme,
  * locale, and settings services.
  */
@@ -14,17 +14,17 @@ import { apply, inject, NS } from '../src/client/index.ts'
 import { en, zh } from '../src/client/locales.ts'
 import { apply as hostApply } from '../src/index.ts'
 
-/** The footer list the sidebar shell declares. */
+/** The account seat the sidebar shell declares. */
 function declareFooter(slots: SlotRegistry): () => void {
   return slots.register({
     name: 'root',
-    children: { 'sidebar.footer.action': { kind: 'list', scope: 'root' } },
+    children: { 'sidebar.account': { kind: 'single', scope: 'root' } },
   } as never, () => null)
 }
 
 /**
  * Boot the browser half over a real slot tree and double theme service.
- * @param declare - whether the footer hole exists before the plugin mounts.
+ * @param declare - whether the account seat exists before the plugin mounts.
  * @param settingsShell - whether the optional settings panel service is mounted.
  * @returns the context, its registry, the doubles, and the declaration control.
  */
@@ -47,15 +47,15 @@ async function bench(declare = true, settingsShell = true) {
   ctx.provide('theme', theme as never)
   const openPanel = vi.fn()
   if (settingsShell) ctx.provide('settingsShell', { open: openPanel } as never)
-  const disposeFooter = declare ? declareFooter(slots) : undefined
+  const disposeSeat = declare ? declareFooter(slots) : undefined
   const fiber = ctx.plugin({ inject: [...inject], apply })
   await fiber.await()
-  return { ctx, slots, fiber, theme, openPanel, disposeFooter, declareFooter: () => declareFooter(slots) }
+  return { ctx, slots, fiber, theme, openPanel, disposeSeat, declareFooter: () => declareFooter(slots) }
 }
 
 /** The one contribution's inject face, built the way the renderer builds it. */
 function faceOf(slots: SlotRegistry): AccountMenuInjected {
-  const entry = slots.entries('sidebar.footer.action')[0]!
+  const entry = slots.entries('sidebar.account')[0]!
   return (entry.inject as unknown as () => AccountMenuInjected)()
 }
 
@@ -70,7 +70,7 @@ describe('ui-account apply', () => {
 
   it('mounts without a settings panel and reports no settings row', async () => {
     const { slots, fiber } = await bench(true, false)
-    const entry = slots.entries('sidebar.footer.action')[0]
+    const entry = slots.entries('sidebar.account')[0]
     expect(entry).toBeDefined()
     expect(faceOf(slots).hooks.settingsPanel.getSnapshot()).toBe(false)
     await fiber.dispose()
@@ -89,27 +89,26 @@ describe('ui-account apply', () => {
     await fiber.dispose()
   })
 
-  it('contributes exactly one footer action and removes it with its fiber', async () => {
-    const { slots, fiber, disposeFooter } = await bench()
-    const entry = slots.entries('sidebar.footer.action')
+  it('contributes the account row and removes it with its fiber', async () => {
+    const { slots, fiber, disposeSeat } = await bench()
+    const entry = slots.entries('sidebar.account')
     expect(entry).toHaveLength(1)
     expect(entry[0]?.component).toBe(AccountMenu)
-    expect(entry[0]?.options).toMatchObject({ id: 'account', order: 0 })
 
     await fiber.dispose()
-    expect(slots.entries('sidebar.footer.action')).toHaveLength(0)
-    disposeFooter?.()
+    expect(slots.entries('sidebar.account')).toHaveLength(0)
+    disposeSeat?.()
   })
 
   it('waits for the sidebar declaration before contributing', async () => {
     const { slots, fiber, declareFooter } = await bench(false)
-    expect(slots.entries('sidebar.footer.action')).toHaveLength(0)
+    expect(slots.entries('sidebar.account')).toHaveLength(0)
 
     declareFooter()
-    await vi.waitFor(() => { expect(slots.entries('sidebar.footer.action')).toHaveLength(1) })
+    await vi.waitFor(() => { expect(slots.entries('sidebar.account')).toHaveLength(1) })
 
     await fiber.dispose()
-    expect(slots.entries('sidebar.footer.action')).toHaveLength(0)
+    expect(slots.entries('sidebar.account')).toHaveLength(0)
   })
 
   it('registers the account dictionaries and releases them with the fiber', async () => {
