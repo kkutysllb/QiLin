@@ -596,6 +596,18 @@ describe('Chat node rendering', () => {
 })
 
 describe('ChatView', () => {
+  it('shows the live elapsed time by reading the open latest turn through its anchor key', () => {
+    const snapshot = chatSnapshotFixture({
+      nodes: [userInTurn(1, 'running prompt', 1), assistant(2, 'partial answer', 1)],
+      turnTimings: new Map([[1, { startTime: 1_000 }]]),
+    })
+    const h = makeHarness({}, { running: true }, snapshot)
+    const view = render(<h.ChatView {...h.props} />)
+    // textContent carries the visually-hidden live-copy prefix, so match the
+    // clocked label itself.
+    expect(view.container.querySelector('[data-chat-running]')?.textContent).toContain('QiLin，用时 ')
+  })
+
   it('leaves the turn rail unrendered when an unrelated Chat update commits', () => {
     const snapshot = chatSnapshotFixture({
       nodes: [

@@ -172,10 +172,12 @@ describe('Chat inject API', () => {
     const { injected } = b.chatViewApi(b.rootReference)
     injected.openExternalLink('http://example.test/path')
     injected.openExternalLink('https://example.test/path')
-    expect(b.sidebarRight.openTab.mock.calls).toEqual([
+    // The embed path preflights the host frame-check; without a host the
+    // preflight rejects and the fallback still opens both tabs.
+    await vi.waitFor(() => expect(b.sidebarRight.openTab.mock.calls).toEqual([
       ['browser', { params: { url: 'http://example.test/path' } }],
       ['browser', { params: { url: 'https://example.test/path' } }],
-    ])
+    ]))
     await b.runtime.dispose()
   })
 

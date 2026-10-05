@@ -111,7 +111,11 @@ export function ChatView({
     },
   }), [cwd, t])
   const running = useSession(s => s.running)
-  const runningStartTime = useChatNode('__latest__', (node) => {
+  // The running clock reads the latest Turn's anchor node: that is the same
+  // node the rail navigates to, while a '__latest__' style key matches no node
+  // and would leave the clock without a start time.
+  const latestTurnAnchor = turnNavigationItems.at(-1)?.anchorKey
+  const runningStartTime = useChatNode(latestTurnAnchor ?? '', (node) => {
     const location = node?.location
     return location?.kind === 'turn' || location?.kind === 'step'
       ? location.turn.status === 'open' ? location.turn.start?.time : undefined
