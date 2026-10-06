@@ -84,8 +84,8 @@ const JOB_KILL_ARM_MS = 3000
 const JOBS_VISIBLE = 3
 
 /** The direct subagent children of one parent (durable `origin` rows;
- *  Side Chat threads ride the same origin but are tab-strip conversations,
- *  never topology). */
+ *  `Side: `-labeled threads ride the same origin — retired side-chat tabs'
+ *  legacy children, still excluded from the topology). */
 function directChildren(
   byId: Readonly<Record<string, SidebarSessionSummary>>,
   parentSessionId: string,

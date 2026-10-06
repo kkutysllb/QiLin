@@ -1,5 +1,5 @@
 ---
-description: "qilin Web 客户端双工作台的编码工作台内容体：VSCode 风格的右侧 Sidebar——文件工作台、代码编辑器、真实终端、Git 面板、沙箱浏览器、轨迹、计划、任务与团队页，以及侧边对话——在工作台编码标签激活时由 ui-sidebar-right 渲染，宿主半挂载带浏览器信任围栏的 /sidebar 路由、终端 WebSocket，以及由本包自带 bundle 路由提供的六个惰性预览 chunk。移植自 dsh-coding-sidebar 1.0.39。"
+description: "qilin Web 客户端双工作台的编码工作台内容体：VSCode 风格的右侧 Sidebar——文件工作台、代码编辑器、真实终端、Git 面板、沙箱浏览器、轨迹、计划与任务页——在工作台编码标签激活时由 ui-sidebar-right 渲染，宿主半挂载带浏览器信任围栏的 /sidebar 路由、终端 WebSocket，以及由本包自带 bundle 路由提供的六个惰性预览 chunk。移植自 dsh-coding-sidebar 1.0.39。"
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-双工作台的编码工作台内容体：移植的 VSCode 风格右侧 Sidebar——文件工作台、代码编辑器、真实终端、Git 面板、沙箱浏览器、轨迹、计划、任务与团队页，以及侧边对话——全部以调用会话的工作区为边界。工作台编码标签激活时，ui-sidebar-right 在右栏渲染本包的内容体；通用标签永远看不到它。宿主半在与 /api 同一道浏览器信任围栏之后挂载 /sidebar 路由与终端 WebSocket，六个惰性预览 chunk 在首次使用时加载。
+双工作台的编码工作台内容体：移植的 VSCode 风格右侧 Sidebar——文件工作台、代码编辑器、真实终端、Git 面板、沙箱浏览器、轨迹、计划与任务页——全部以调用会话的工作区为边界。工作台编码标签激活时，ui-sidebar-right 在右栏渲染本包的内容体；通用标签永远看不到它。宿主半在与 /api 同一道浏览器信任围栏之后挂载 /sidebar 路由与终端 WebSocket，六个惰性预览 chunk 在首次使用时加载。
 
 ## 目录
 
@@ -24,7 +24,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-内容体是移植的编码工作台：带惰性目录树、上传、拖放与全局文件名搜索的文件工作台；带逐语言语法模式与保存的 CodeMirror 编辑器；node-pty 之上支持断线重连、输出回放与跨会话停靠语义的真实终端；覆盖状态、逐文件暂存、内联差异、历史、分支、上游推送与 GitHub 拉取请求/议题的 Git 面板；多 Tab 的沙箱浏览器；回放会话事件账本的轨迹页；计划、任务、子智能体与团队页；以及在子线程中延续当前会话上下文的侧边对话。
+内容体是移植的编码工作台：带惰性目录树、上传、拖放与全局文件名搜索的文件工作台；带逐语言语法模式与保存的 CodeMirror 编辑器；node-pty 之上支持断线重连、输出回放与跨会话停靠语义的真实终端；覆盖状态、逐文件暂存、内联差异、历史、分支、上游推送与 GitHub 拉取请求/议题的 Git 面板；多 Tab 的沙箱浏览器；回放会话事件账本的轨迹页；计划、任务与子智能体页。
 
 编码标签激活时，ui-sidebar-right 在 `rightbar.session.coding` 之下渲染本内容体；通用标签下保留其原生 dockkit 内容体；栏框 chrome——宽度、折叠、展开手势——从不改变。移植的拦截面由同一标签守卫：回合尾部的产出文件行、把对话侧文件打开接进侧栏编辑器的 open-path 门、以及打开侧栏浏览器的外部 http(s) 链接，只在编码态生效；通用态下原生面照常行动。IME 组合输入守卫是唯一不加守卫的注册——它没有需要让位的原生对应面。
 
@@ -40,7 +40,7 @@ Settings 外壳里有本包自己的 Side card 节：逐 tab 的启用开关、�
 <details>
 <summary>实现内部——点击展开</summary>
 
-一道围栏后的一张方法表。Node 半应答 POST /sidebar/api/<method>——fs 的树、读、写、重命名、删除与搜索操作；git 与 GitHub 命令族；计划扫描；后台任务输出回放与终止；子智能体 live 与工作流预览；归档打包；智能体团队桥；侧边对话线程路由；以及 Side card 偏好的读写——另有原始 /sidebar/upload、按 Range 流式发送的 /sidebar/file 媒体、带 CSP 沙箱的 /sidebar/html 预览、/sidebar/bundle chunk 路由，以及三个 WebSocket 升级：同时服务 UI tab（`?tab=`）与智能体自有终端（`?uuid=`）的终端套接字、智能体终端列表推送、agent-opens 推送。每条路由都过与 /api 网关同一道浏览器信任围栏——Host 头回环或 web 运行时的 `trustedHosts`，按请求从活的服务值读取；每个操作都按会话划界：会话的权威 cwd 依次经会话头、客户端摘要、持久化索引解析，脱钩的首个请求也能落进正确的工作区。
+一道围栏后的一张方法表。Node 半应答 POST /sidebar/api/<method>——fs 的树、读、写、重命名、删除与搜索操作；git 与 GitHub 命令族；计划扫描；后台任务输出回放与终止；子智能体 live 与工作流预览；归档打包；以及 Side card 偏好的读写——另有原始 /sidebar/upload、按 Range 流式发送的 /sidebar/file 媒体、带 CSP 沙箱的 /sidebar/html 预览、/sidebar/bundle chunk 路由，以及三个 WebSocket 升级：同时服务 UI tab（`?tab=`）与智能体自有终端（`?uuid=`）的终端套接字、智能体终端列表推送、agent-opens 推送。每条路由都过与 /api 网关同一道浏览器信任围栏——Host 头回环或 web 运行时的 `trustedHosts`，按请求从活的服务值读取；每个操作都按会话划界：会话的权威 cwd 依次经会话头、客户端摘要、持久化索引解析，脱钩的首个请求也能落进正确的工作区。
 
 浏览器半作为一行模块表启动：核心 client bundle 经 `window.__ModuleLoader__.load` 注册，external 从平台模块表解析；六个惰性 chunk——terminal、editor、locale、trajectory、mermaid、office——从不触碰模块表：各自把工厂赋给本包私有的 `__qilinChunks__` 注册表，由 chunk 加载器在首次使用时经 /sidebar/bundle 取回，其 ETag 重验证让未变化的 chunk 在页面刷新与 HMR 重激活间保持缓存。`betterSidebar` 注册表服务是本包的内部扩展点（双工作台计划 §2.2）：外部插件经 `ctx.betterSidebar` 注册 tab 类型、文件图标与文件预览器，内置页面也走同一服务注册。每次激活一个快照存储，喂给内容体、注册表与拦截注册；React 经 `useSyncExternalStore` 无撕裂地读取它。
 

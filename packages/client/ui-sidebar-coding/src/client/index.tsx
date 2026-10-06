@@ -26,7 +26,6 @@ import { loadPrefs } from './prefs.ts'
 import { SideCardSection } from './SideCardSection.tsx'
 import { api } from './api.ts'
 import { observeUiWorkspaceFace } from './workspace-nav.ts'
-import { observeUiSessionFace } from './sidechat-questions.ts'
 import { LOCALE_NS, attachLocale, attachBetterLocale, t, zh, en } from './locales.ts'
 import { loadChunk } from './chunk-loader.ts'
 import css from './sidebar.module.css'
@@ -70,12 +69,6 @@ export function apply(ctx: Context): void {
   // with this fiber — an HMR reload re-runs apply and re-captures cleanly.
   ctx.inject(['uiWorkspace'], (scope) => {
     observeUiWorkspaceFace((scope as { uiWorkspace?: unknown }).uiWorkspace)
-  })
-
-  // Pending-question seat for the side chat's answer path: missing faces
-  // degrade to "no pending question" (static option cards).
-  ctx.inject(['uiSession'], (scope) => {
-    observeUiSessionFace((scope as { uiSession?: unknown }).uiSession)
   })
 
   console.info(`[ui-sidebar-coding] client ${SIDEBAR_SERVICE_VERSION} booted (coding content body)`)

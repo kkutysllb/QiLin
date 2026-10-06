@@ -29,10 +29,6 @@
   color: var(--qilin-alias-state-warn-primary, var(--qilin-alias-label-primary));
 }
 
-.sidechat {
-  color: var(--qilin-alias-state-business-primary, var(--qilin-alias-brand-primary, var(--qilin-alias-label-primary)));
-}
-
 .terminal {
   /* The shell chip is ink, not accent. Its glyph is the widest in the set and
      renders a step smaller than its siblings (see tab-icons.tsx). */
@@ -47,10 +43,4 @@
   /* The graph page's own subject is the model request, so its glyph wears the
      request chips' accent rather than a fresh color. */
   color: var(--qilin-alias-state-success-primary, var(--qilin-alias-brand-primary, var(--qilin-alias-label-primary)));
-}
-
-.team {
-  /* Roster: the same secondary accent as the side chat — both sit beside the
-     lead conversation as collaboration surfaces. */
-  color: var(--qilin-alias-state-business-primary, var(--qilin-alias-brand-primary, var(--qilin-alias-label-primary)));
 }
