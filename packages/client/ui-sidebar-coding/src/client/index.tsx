@@ -238,10 +238,10 @@ export function apply(ctx: Context): void {
           takeoverEnabled: (url) => {
             if (!codingActive()) return false
             const prefs = sidebarStore.getPrefs()
-            if (prefs.browserInterceptLinks === false) return false
+            if (!prefs.browserInterceptLinks) return false
             const protocolOn = url.protocol === 'https:'
-              ? prefs.browserInterceptHttps !== false
-              : prefs.browserInterceptHttp !== false
+              ? prefs.browserInterceptHttps
+              : prefs.browserInterceptHttp
             if (!protocolOn) return false
             // A plugin claim is the target (already enabled-filtered);
             // otherwise the built-in browser must be enabled.
@@ -304,7 +304,7 @@ export function apply(ctx: Context): void {
   // body mount — the section writes sync the store directly.)
   void Promise.race([
     loadPrefs(api),
-    new Promise<null>((resolve) => { window.setTimeout(() => resolve(null), 2000) }),
+    new Promise<null>((resolve) => { window.setTimeout(() => { resolve(null) }, 2000) }),
   ]).then((prefs) => {
     if (prefs !== null) sidebarStore.setPrefs(prefs)
   }).catch(() => { /* schema defaults */ })

@@ -17,10 +17,11 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  IconListPenOutline16, IconRefreshOutline16, IconRightUpOutline16, Input,
+  IconListPenOutline16, IconRightUpOutline16, Input,
 } from '@qilin/client-ui-primitives'
 import { api, type PlanDoc, type SessionScope } from './api.ts'
 import { relativeTime, t } from './locales.ts'
+import { RefreshButton } from './refresh-button.tsx'
 import { ScheduleTaskPreview, type ScheduleTaskTarget } from './ScheduleTaskPreview.tsx'
 import type { Context } from '../context-types.ts'
 import css from './sidebar.module.css'
@@ -77,7 +78,6 @@ export function PlansView(props: PlansViewProps) {
     } finally {
       setLoading(false)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scopeKey])
 
   useEffect(() => {
@@ -127,15 +127,7 @@ export function PlansView(props: PlansViewProps) {
           value={query}
           onChange={(event) => { setQuery(event.target.value) }}
         />
-        <button
-          type="button"
-          className={css.iconButton}
-          aria-label={t('refresh')}
-          title={t('refresh')}
-          onClick={() => { void load() }}
-        >
-          <IconRefreshOutline16 size={14} />
-        </button>
+        <RefreshButton onRefresh={() => { void load() }} />
       </div>
 
       {/* `.gitError` is this panel's shared failure line; a successful reload

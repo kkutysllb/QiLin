@@ -161,9 +161,12 @@ export function ScheduleTaskPreview(props: ScheduleTaskPreviewProps) {
 
   useEffect(() => {
     if (!visible) return
-    let cancelled = false
+    // The flag flips in the cleanup and across awaits; reads go through a
+    // function because narrowing goes stale over the async gaps.
+    const load0 = { cancelled: false }
+    const cancelledNow = (): boolean => load0.cancelled
     const load = async (face: ScheduleRemoteFace | undefined): Promise<void> => {
-      if (cancelled) return
+      if (cancelledNow()) return
       setLoading(true)
       try {
         const list = face?.list
@@ -173,7 +176,7 @@ export function ScheduleTaskPreview(props: ScheduleTaskPreviewProps) {
           return
         }
         const result = await list({ sessionId: target.sessionId })
-        if (cancelled) return
+        if (cancelledNow()) return
         const found = pickTask(result, target.taskId)
         setTask(found)
         setError(found === null ? t('schedGone') : null)
@@ -183,17 +186,17 @@ export function ScheduleTaskPreview(props: ScheduleTaskPreviewProps) {
         if (found !== null && history !== undefined) {
           try {
             const page = await history({ sessionId: target.sessionId, id: target.taskId, limit: RUNS_LIMIT })
-            if (!cancelled) setRuns(pickRuns(page))
+            if (!cancelledNow()) setRuns(pickRuns(page))
           } catch {
-            if (!cancelled) setRuns({ records: [], pruned: false })
+            if (!cancelledNow()) setRuns({ records: [], pruned: false })
           }
         }
       } catch (reason) {
-        if (cancelled) return
+        if (cancelledNow()) return
         setTask(null)
         setError(`${t('schedLoadFailed')}: ${reason instanceof Error ? reason.message : String(reason)}`)
       } finally {
-        if (!cancelled) setLoading(false)
+        if (!cancelledNow()) setLoading(false)
       }
     }
     // `remote.schedule` is an OPTIONAL face: reading `ctx.remote.schedule`
@@ -211,13 +214,12 @@ export function ScheduleTaskPreview(props: ScheduleTaskPreviewProps) {
       void load(face)
     })
     return () => {
-      cancelled = true
+      load0.cancelled = true
       // ctx.inject hands back a Fiber whose `dispose()` is async (this repo's
       // cordis has no callable disposer return value) — same cleanup as
       // intercept.tsx.
       void (fiber as unknown as { dispose?: () => Promise<void> }).dispose?.()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ctx, targetKey, visible])
 
   /**
@@ -234,7 +236,7 @@ export function ScheduleTaskPreview(props: ScheduleTaskPreviewProps) {
     setDeleteError(null)
     try {
       const result = await remove_({ sessionId: target.sessionId, id: target.taskId })
-      if (result?.ok === false) {
+      if (result.ok === false) {
         setDeleteError(t('schedDeleteFailed'))
         return
       }

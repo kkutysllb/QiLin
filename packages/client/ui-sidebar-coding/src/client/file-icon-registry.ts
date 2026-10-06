@@ -135,9 +135,10 @@ function baseNameOf(path: string): string {
  * The lowercased extension of a path ('' when none), the dot having to sit
  * inside the last segment: a dot in a directory name is not an extension.
  * A leading dot starts a suffix (`.gitignore` → `'gitignore'`), mirroring
- * the host classifier's own `fileExtension`.
+ * the host classifier's own `fileExtension`. Shared by the editor language
+ * lookup (`lang.ts`) and the service's path helpers.
  */
-function extOf(path: string): string {
+export function extOf(path: string): string {
   const at = path.lastIndexOf('.')
   if (at === -1) return ''
   const base = path.slice(at + 1).toLowerCase()

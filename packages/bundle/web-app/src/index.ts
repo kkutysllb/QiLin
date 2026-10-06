@@ -329,7 +329,7 @@ export function apply(ctx: Context, config: Config): void {
       }
       if (settled === undefined) {
         if (webServer === undefined) announceReady()
-        else void webServer.whenListened().then(() => announceReady()).catch(reportReadinessFailure)
+        else void webServer.whenListened().then(() => { announceReady() }).catch(reportReadinessFailure)
       } else {
         void settled.then(() => announceWhenBound(true)).catch(reportReadinessFailure)
       }

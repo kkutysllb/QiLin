@@ -30,6 +30,11 @@
  */
 
 /** The zh-HK dictionary (key-set-equal to zh, enforced by the type annotation in locales.ts). */
+/* jscpd:ignore-start — the zh-MO / zh-TW dictionaries restate this full key set on
+   purpose: chunks/locale.tsx type-checks every dictionary against the zh key set
+   (`checked()`), so a spread-with-overrides shape would fail that build gate.
+   Each zh variant keeps its own complete literal; per-locale value differences
+   sit inline (MO differs in one entry, TW in ~15 plus six TW-only keys). */
 export const zhHK: Record<string, string> = {
   files: '檔案',
   explorer: '檔案總管',
@@ -450,3 +455,4 @@ export const zhHK: Record<string, string> = {
   plansOpenFailed: '開啟失敗',
   plansCapped: '僅顯示最近 {n} 份文件',
 }
+/* jscpd:ignore-end */

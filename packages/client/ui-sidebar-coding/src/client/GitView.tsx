@@ -31,8 +31,8 @@ import {
   buildChangesTree,
   flattenChangesTree,
   type ChangesTreeDir,
-  type ChangesTreeFile,
 } from './changes-tree.ts'
+import { useCollapsedDirs } from './use-collapsed-dirs.ts'
 
 /** The XY status letters a row badge shows (X = index, Y = worktree). */
 function badgeOf(entry: GitStatusEntry): string {
@@ -495,16 +495,7 @@ export function GitView(props: {
     () => buildChangesTree(unstagedEntries.map(entry => ({ path: entry.path, item: entry }))),
     [unstagedEntries],
   )
-  const [collapsedDirs, setCollapsedDirs] = useState<ReadonlySet<string>>(() => new Set<string>())
-  const isCollapsed = useCallback((path: string): boolean => collapsedDirs.has(path), [collapsedDirs])
-  const toggleDir = useCallback((path: string): void => {
-    setCollapsedDirs((previous) => {
-      const next = new Set(previous)
-      if (next.has(path)) next.delete(path)
-      else next.add(path)
-      return next
-    })
-  }, [])
+  const { isCollapsed, toggleDir } = useCollapsedDirs()
 
   /** 目录行的暂存/取消暂存：git pathspec 支持目录，一次调用覆盖其下全部文件。 */
   const stageDirectory = useCallback(async (dir: ChangesTreeDir<GitStatusEntry>, staged: boolean): Promise<void> => {
@@ -557,7 +548,7 @@ export function GitView(props: {
   ): ReactNode[] => flattenChangesTree(tree, isCollapsed).map(node =>
     node.kind === 'dir'
       ? renderDirRow(node, staged)
-      : renderEntry((node as ChangesTreeFile<GitStatusEntry>).item, staged, node.depth))
+      : renderEntry(node.item, staged, node.depth))
   /** Per-path line counts keyed for the file rows (untracked files have none
    *  in git's numstat; the summary's totals still count their bodies). */
   const fileStats = new Map((summary?.files ?? []).map(file => [file.path, file]))
@@ -657,7 +648,7 @@ export function GitView(props: {
           onChanged={refresh}
           onError={setCommitError}
           refreshKey={branchRefreshKey}
-          active={visible && view === 'branches'}
+          active={visible}
         />
       )}
       {view === 'github' && status !== null && status.isRepo && (
@@ -668,7 +659,7 @@ export function GitView(props: {
           setBusy={setBusy}
           onError={setCommitError}
           defaultBranch={summary?.defaultBranch ?? null}
-          active={visible && view === 'github'}
+          active={visible}
         />
       )}
       {view === 'changes' && (

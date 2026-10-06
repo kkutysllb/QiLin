@@ -6,15 +6,15 @@
  * GitView hosts it as the "session changes" lens of the unified tab.
  */
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { IconRefreshOutline16 } from '@qilin/client-ui-primitives'
+import { useCollapsedDirs } from './use-collapsed-dirs.ts'
 import { api, type SessionScope } from './api.ts'
 import { redactSecrets } from './redact.ts'
+import { RefreshButton } from './refresh-button.tsx'
 import { t } from './locales.ts'
 import css from './sidebar.module.css'
 import {
   buildChangesTree,
   flattenChangesTree,
-  type ChangesTreeDir,
 } from './changes-tree.ts'
 
 /** One deduplicated file operation row (the host's `changes.ops` payload). */
@@ -36,20 +36,11 @@ export function SessionLens(props: { scope: SessionScope }) {
   const [preview, setPreview] = useState<string | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
   // 同一套层级树（上游 v0.24.1）：会话变动也按目录分组、可折叠、可压缩单子链。
-  const [collapsedDirs, setCollapsedDirs] = useState<ReadonlySet<string>>(() => new Set<string>())
+  const { isCollapsed, toggleDir } = useCollapsedDirs()
   const tree = useMemo(
     () => buildChangesTree((ops ?? []).map(op => ({ path: op.path, item: op }))),
     [ops],
   )
-  const isCollapsed = useCallback((path: string): boolean => collapsedDirs.has(path), [collapsedDirs])
-  const toggleDir = useCallback((path: string): void => {
-    setCollapsedDirs((previous) => {
-      const next = new Set(previous)
-      if (next.has(path)) next.delete(path)
-      else next.add(path)
-      return next
-    })
-  }, [])
 
   const load = useCallback(async (): Promise<void> => {
     setError(null)
@@ -84,9 +75,7 @@ export function SessionLens(props: { scope: SessionScope }) {
     <div className={css.sessionLens}>
       <div className={css.sessionLensBar}>
         <span className={css.sessionLensCount}>{ops === null ? t('loading') : t('changesCount', { count: ops.length })}</span>
-        <button type="button" className={css.iconButton} aria-label={t('refresh')} title={t('refresh')} onClick={() => { void load() }}>
-          <IconRefreshOutline16 size={14} />
-        </button>
+        <RefreshButton onRefresh={() => { void load() }} />
       </div>
       {error !== null && <div className={css.sessionLensEmpty}>{error}</div>}
       {error === null && ops !== null && ops.length === 0 && (
@@ -94,7 +83,7 @@ export function SessionLens(props: { scope: SessionScope }) {
       )}
       {ops !== null && flattenChangesTree(tree, isCollapsed).map((node) => {
         if (node.kind === 'dir') {
-          const dir = node as ChangesTreeDir<SessionFileOp>
+          const dir = node
           return (
             <div
               key={`dir:${dir.path}`}

@@ -19,10 +19,8 @@ import { useEffect, useRef, useState, type InputHTMLAttributes } from 'react'
 import clsx from 'clsx'
 import { IconFolderOpenOutline16, IconRefreshOutline16 } from '@qilin/client-ui-primitives'
 import { api } from './api.ts'
-import { FileTree } from './FileTree.tsx'
+import { FileTree, type FileTreeSharedProps } from './FileTree.tsx'
 import { IconUploadOutline16 } from './icons.tsx'
-import type { OpenWithTarget } from './open-with.ts'
-import type { BetterSidebarService } from './service.ts'
 import { t } from './locales.ts'
 import { resolveSidebarPath } from './produced-files.ts'
 import { UploadOverlay } from './UploadOverlay.tsx'
@@ -42,34 +40,10 @@ interface UploadSession {
   controller: AbortController
 }
 
-export function TreePanel(props: {
-  sessionId: string
-  cwd: string | undefined
-  expanded: string[]
-  revealed: string[]
-  onToggle: (path: string) => void
-  onOpenFile: (path: string) => void
-  /** File context-menu "open in a new tab" (passed through to FileTree). */
-  onOpenFileNewTab?: ((path: string) => void) | undefined
-  /** File context-menu "open to the side" (passed through to FileTree). */
-  onOpenFileSide?: ((path: string) => void) | undefined
-  /** The "open with" menu surface (passed through to FileTree; absent →
-   *  the whole section is hidden). */
-  openWithTargets?: OpenWithTarget[] | undefined
-  openWithPinned?: string[] | undefined
-  openWithSsh?: boolean | undefined
-  onOpenWith?: ((targetId: string, path: string) => void) | undefined
-  onToggleOpenWithPin?: ((targetId: string) => void) | undefined
-  onReferenceFile: (path: string, isDir: boolean) => void
-  /** Tree-row mutations (passed through to the file tree; absent → hidden). */
-  onPathRenamed?: ((oldPath: string, newPath: string) => void) | undefined
-  onPathRemoved?: ((path: string) => void) | undefined
+export function TreePanel(props: FileTreeSharedProps & {
   /** Full-window presentation: the panel fills its host instead of docking
    *  at a fixed width. */
   full?: boolean
-  /** The sidebar registry service (file-icon registrations; passed through
-   *  to the file tree). */
-  service?: BetterSidebarService | undefined
 }) {
   const {
     sessionId, cwd, expanded, revealed, onToggle, onOpenFile, onOpenFileNewTab, onOpenFileSide,

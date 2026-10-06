@@ -78,7 +78,8 @@ let capturedFace: SidebarUiWorkspaceService | undefined
  */
 export function observeUiWorkspaceFace(face: unknown): void {
   if (face !== null && typeof face === 'object') {
-    capturedFace = face as SidebarUiWorkspaceService
+    // All-optional face: any non-null object satisfies the interface.
+    capturedFace = face
   }
 }
 
@@ -141,7 +142,7 @@ export function openViaUiWorkspace(
   } catch {
     workspace = undefined
   }
-  if (workspace !== null && typeof workspace === 'object') {
+  if (workspace != null && typeof workspace === 'object') {
     const outcome = callOpen(workspace, 'openSession', target)
     if (outcome !== undefined) return outcome
   }

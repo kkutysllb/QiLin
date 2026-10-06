@@ -46,15 +46,15 @@ export function readRetainedOutput(
   id: string,
   sessionId: string,
 ): RetainedOutput | undefined {
-  if (jobs?.get === undefined || jobs?.readAt === undefined) return undefined
+  if (jobs?.get === undefined || jobs.readAt === undefined) return undefined
   try {
     const job = jobs.get(id, sessionId)
-    const earliest = Math.max(0, Number(job?.output?.earliest ?? 0))
-    const total = Math.max(0, Number(job?.output?.total ?? 0))
+    const earliest = Math.max(0, job?.output?.earliest ?? 0)
+    const total = Math.max(0, job?.output?.total ?? 0)
     const from = Math.max(earliest, total - RETAINED_READ_BYTES)
     const read = jobs.readAt(id, from, sessionId)
     const text = (read?.chunks ?? [])
-      .map(chunk => (typeof chunk?.text === 'string' ? chunk.text : ''))
+      .map(chunk => (typeof chunk.text === 'string' ? chunk.text : ''))
       .join('')
     return { text, truncated: from > earliest || read?.lossy === true, total }
   } catch {

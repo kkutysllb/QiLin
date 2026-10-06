@@ -24,7 +24,7 @@
  * straight into the child transcript (`openSubagent`); the page stays open
  * and the topology remains rooted at the main session.
  */
-import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ComponentPropsWithoutRef, type KeyboardEvent, type ReactNode } from 'react'
 import { useSyncExternalStore } from 'react'
 import clsx from 'clsx'
 import {
@@ -178,7 +178,7 @@ function SubagentLiveLines(props: { live: LastActivity | undefined }) {
     return <span className={css.subagentLive}>{t('subagentThinking')}</span>
   }
   // 合并活动行（上游 v0.22.0 卡片底条）：并发工具归并计数 + 在跑那条。
-  const merged = live?.merged
+  const merged = live.merged
   return (
     <>
       {merged !== undefined && (
@@ -204,111 +204,101 @@ function SubagentLiveLines(props: { live: LastActivity | undefined }) {
 }
 
 /**
+ * One recursive-timeout poller shared by the Subagent tree's feeds: ONE
+ * request in flight, the next scheduled only after the previous request
+ * settles (a slow host never sees abort/restart storms). A root change
+ * resets the state; unmount aborts the in-flight request.
+ */
+function useSubagentPoll<T>(
+  rootId: string | undefined,
+  active: boolean,
+  intervalMs: number,
+  request: (rootId: string, signal: AbortSignal) => Promise<T>,
+  empty: T,
+): T {
+  const [value, setValue] = useState<T>(empty)
+  const controllerRef = useRef<AbortController | undefined>(undefined)
+
+  // A new tree must never inherit another root's data.
+  useEffect(() => { setValue(empty) }, [rootId, empty])
+
+  useEffect(() => {
+    if (rootId === undefined || !active) return
+    const targetRootId = rootId
+    // The flag flips in the cleanup and across awaits; reads go through a
+    // function because property narrowing goes stale over the async gaps.
+    const poll = { disposed: false }
+    const stopped = (): boolean => poll.disposed
+    let timer: number | undefined
+
+    const schedule = (): void => {
+      if (stopped()) return
+      timer = window.setTimeout(() => { void load() }, intervalMs)
+    }
+    async function load(): Promise<void> {
+      if (stopped()) return
+      const controller = new AbortController()
+      controllerRef.current = controller
+      try {
+        setValue(await request(targetRootId, controller.signal))
+      } catch {
+        // Keep the last known data; the next scheduled poll retries.
+      } finally {
+        if (controllerRef.current === controller) controllerRef.current = undefined
+        if (!stopped()) schedule()
+      }
+    }
+
+    void load()
+    return () => {
+      poll.disposed = true
+      if (timer !== undefined) window.clearTimeout(timer)
+      controllerRef.current?.abort()
+      controllerRef.current = undefined
+    }
+  }, [rootId, active, intervalMs, request])
+
+  return value
+}
+
+/** The empty live map (stable identity: the reset effect keys on it). */
+const EMPTY_LIVE: Record<string, LastActivity> = {}
+
+/** `subagents.live` adapter for {@link useSubagentPoll}: the state is the live map. */
+const subagentsLiveRequest = (rootId: string, signal: AbortSignal): Promise<Record<string, LastActivity>> =>
+  api.subagentsLive(rootId, signal).then(result => result.live)
+
+/**
  * One shared live-preview poller for the whole Subagent tree. Unlike the old
  * per-card `subagents.history` timers, this sends at most ONE `subagents.live`
- * request at a time: a recursive timeout starts only after the previous
- * request settles, so a slow host never sees abort/restart storms.
+ * request at a time.
  */
 function useSubagentLive(
   rootId: string | undefined,
   active: boolean,
 ): Readonly<Record<string, LastActivity>> {
-  const [live, setLive] = useState<Record<string, LastActivity>>({})
-  const controllerRef = useRef<AbortController | undefined>(undefined)
-
-  // A new tree must never inherit another root's live previews.
-  useEffect(() => { setLive({}) }, [rootId])
-
-  useEffect(() => {
-    if (rootId === undefined || !active) return
-    const targetRootId = rootId
-    let disposed = false
-    let timer: number | undefined
-
-    const schedule = (): void => {
-      if (disposed) return
-      timer = window.setTimeout(() => { void load() }, POLL_MS)
-    }
-    async function load(): Promise<void> {
-      if (disposed) return
-      const controller = new AbortController()
-      controllerRef.current = controller
-      try {
-        const result = await api.subagentsLive(targetRootId, controller.signal)
-        if (!disposed) setLive(result.live)
-      } catch {
-        // Keep the last known live map; the next scheduled poll retries.
-      } finally {
-        if (controllerRef.current === controller) controllerRef.current = undefined
-        if (!disposed) schedule()
-      }
-    }
-
-    void load()
-    return () => {
-      disposed = true
-      if (timer !== undefined) window.clearTimeout(timer)
-      controllerRef.current?.abort()
-      controllerRef.current = undefined
-    }
-  }, [rootId, active])
-
-  return live
+  return useSubagentPoll(rootId, active, POLL_MS, subagentsLiveRequest, EMPTY_LIVE)
 }
 
 /**
  * Workflow runs of one tree (`tool-workflow/*` folded host-side). Runs change
  * far less often than live activity lines, so this polls at a slower cadence
- * than {@link useSubagentLive} and reuses the same recursive-timeout shape
- * (one request in flight, next scheduled only after the previous settles).
+ * than {@link useSubagentLive} and reuses the same recursive-timeout shape.
  */
 const WORKFLOW_POLL_MS = 5000
+
+/** The empty runs list (stable identity: the reset effect keys on it). */
+const EMPTY_RUNS: readonly SidebarWorkflowRunRow[] = []
+
+/** `subagents.workflow` adapter for {@link useSubagentPoll}: the state is the runs list. */
+const subagentsWorkflowRequest = (rootId: string, signal: AbortSignal): Promise<readonly SidebarWorkflowRunRow[]> =>
+  api.subagentsWorkflow(rootId, signal).then(result => result.runs)
 
 function useWorkflowRuns(
   rootId: string | undefined,
   active: boolean,
 ): readonly SidebarWorkflowRunRow[] {
-  const [runs, setRuns] = useState<readonly SidebarWorkflowRunRow[]>([])
-  const controllerRef = useRef<AbortController | undefined>(undefined)
-
-  // A new tree must never inherit another root's runs.
-  useEffect(() => { setRuns([]) }, [rootId])
-
-  useEffect(() => {
-    if (rootId === undefined || !active) return
-    const targetRootId = rootId
-    let disposed = false
-    let timer: number | undefined
-
-    const schedule = (): void => {
-      if (disposed) return
-      timer = window.setTimeout(() => { void load() }, WORKFLOW_POLL_MS)
-    }
-    async function load(): Promise<void> {
-      if (disposed) return
-      const controller = new AbortController()
-      controllerRef.current = controller
-      try {
-        const result = await api.subagentsWorkflow(targetRootId, controller.signal)
-        if (!disposed) setRuns(result.runs)
-      } catch {
-        // Keep the last known runs; the next scheduled poll retries.
-      } finally {
-        if (controllerRef.current === controller) controllerRef.current = undefined
-        if (!disposed) schedule()
-      }
-    }
-
-    void load()
-    return () => {
-      disposed = true
-      if (timer !== undefined) window.clearTimeout(timer)
-      controllerRef.current?.abort()
-      controllerRef.current = undefined
-    }
-  }, [rootId, active])
-
-  return runs
+  return useSubagentPoll(rootId, active, WORKFLOW_POLL_MS, subagentsWorkflowRequest, EMPTY_RUNS)
 }
 
 /**
@@ -335,6 +325,39 @@ function CatalogRows(props: {
 }) {
   const { parentSessionId, model, byId, level, live, expandedAggregates, openChild, refresh, onAggregateToggle } = props
   const nodes = model.childrenOf[parentSessionId] ?? []
+
+  /** The recursive child render: every branch hands the same nine props down. */
+  const childRows = (parentId: string): ReactNode => (
+    <CatalogRows
+      parentSessionId={parentId}
+      model={model}
+      byId={byId}
+      level={level + 1}
+      live={live}
+      expandedAggregates={expandedAggregates}
+      openChild={openChild}
+      refresh={refresh}
+      onAggregateToggle={onAggregateToggle}
+    />
+  )
+
+  /** The treeitem interaction props shared by every selectable row. */
+  const rowProps = (node: TaskNodeVM): ComponentPropsWithoutRef<'div'> => ({
+    role: 'treeitem',
+    tabIndex: 0,
+    'aria-level': level,
+    'aria-label': `${node.label} ${node.secondary}`,
+    'aria-current': node.current ? 'true' : undefined,
+    className: clsx(css.subagentRow, node.current && css.subagentRowActive),
+    onClick: () => { if (node.address !== undefined) openChild(node.address) },
+    onKeyDown: (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        event.stopPropagation()
+        if (node.address !== undefined) openChild(node.address)
+      }
+    },
+  })
   return (
     <>
       {nodes.map((node) => {
@@ -400,17 +423,7 @@ function CatalogRows(props: {
                 </span>
               </div>
               <div role="group" className={css.subagentChildren}>
-                <CatalogRows
-                  parentSessionId={node.id}
-                  model={model}
-                  byId={byId}
-                  level={level + 1}
-                  live={live}
-                  expandedAggregates={expandedAggregates}
-                  openChild={openChild}
-                  refresh={refresh}
-                  onAggregateToggle={onAggregateToggle}
-                />
+                {childRows(node.id)}
               </div>
             </div>
           )
@@ -419,22 +432,7 @@ function CatalogRows(props: {
         if (node.kind === 'member') {
           return (
             <div key={node.id} className={css.subagentNode}>
-              <div
-                role="treeitem"
-                tabIndex={0}
-                aria-level={level}
-                aria-current={node.current ? 'true' : undefined}
-                aria-label={`${node.label} ${node.secondary}`}
-                className={clsx(css.subagentRow, node.current && css.subagentRowActive)}
-                onClick={() => { if (node.address !== undefined) openChild(node.address) }}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault()
-                    event.stopPropagation()
-                    if (node.address !== undefined) openChild(node.address)
-                  }
-                }}
-              >
+              <div {...rowProps(node)}>
                 <StateDot state={node.running ? 'ongoing' : 'done'} className={css.subagentDot} />
                 <span className={css.subagentContent}>
                   <span className={css.subagentLabel}>{node.label}</span>
@@ -488,21 +486,8 @@ function CatalogRows(props: {
         return (
           <div key={node.id} className={css.subagentNode}>
             <div
-              role="treeitem"
-              tabIndex={0}
-              aria-level={level}
-              aria-label={`${node.label} ${node.secondary}`}
-              aria-current={node.current ? 'true' : undefined}
+              {...rowProps(node)}
               {...knownLeaf ? {} : { 'aria-expanded': true }}
-              className={clsx(css.subagentRow, node.current && css.subagentRowActive)}
-              onClick={() => { if (node.address !== undefined) openChild(node.address) }}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault()
-                  event.stopPropagation()
-                  if (node.address !== undefined) openChild(node.address)
-                }
-              }}
             >
               <StateDot
                 state={node.running ? 'ongoing' : 'done'}
@@ -522,17 +507,7 @@ function CatalogRows(props: {
                 className={css.subagentChildren}
                 aria-busy={childLoading || undefined}
               >
-                <CatalogRows
-                  parentSessionId={node.id}
-                  model={model}
-                  byId={byId}
-                  level={level + 1}
-                  live={live}
-                  expandedAggregates={expandedAggregates}
-                  openChild={openChild}
-                  refresh={refresh}
-                  onAggregateToggle={onAggregateToggle}
-                />
+                {childRows(node.id)}
               </div>
             )}
           </div>
@@ -895,7 +870,6 @@ export function SubagentView(props: {
   // connection with no release counterpart, so only the request set survives.
   const treeIds = useMemo(() => [...treeSessionIds(byId, rootId)], [byId, rootId])
   const jobsRows = useJobsRows(ctx, treeIds)
-  const refreshProjections = sessions.refreshProjections
   /** Branches already asked for on this tree activation (a failed read retries). */
   const requestedRef = useRef(new Set<string>())
 
@@ -911,16 +885,16 @@ export function SubagentView(props: {
   const branchIds = useMemo(() => model?.branchIds ?? [], [model])
 
   useEffect(() => {
-    if (!active || refreshProjections === undefined) return
+    if (!active || sessions.refreshProjections === undefined) return
     for (const id of branchIds) {
       if (requestedRef.current.has(id)) continue
       requestedRef.current.add(id)
       // A failed read stays retryable: drop it from the set so a later pass
       // (new snapshot, page re-open) asks again — the host also retries an
       // unsuccessful initial read on its own.
-      void refreshProjections.call(sessions, id).catch(() => { requestedRef.current.delete(id) })
+      void sessions.refreshProjections(id).catch(() => { requestedRef.current.delete(id) })
     }
-  }, [active, branchIds, refreshProjections, sessions])
+  }, [active, branchIds, sessions])
 
   const openChild = useCallback((address: SidebarSubagentAddress): void => {
     // Notify the shell first: the jump switches the sidebar to the child

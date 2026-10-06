@@ -69,15 +69,16 @@ export function LiveView(): React.JSX.Element {
   useEffect(() => {
     if (effectiveId === null) { setStatus('idle'); return }
     let cancelled = false
-    let socket: WebSocket | null = null
     let msgId = 0
 
     setStatus('connecting')
-    socket = new WebSocket(`${CDP_WS}/devtools/page/${effectiveId}`)
+    // Callbacks fire only after this assignment, so the socket is non-null
+    // in every closure below.
+    const socket = new WebSocket(`${CDP_WS}/devtools/page/${effectiveId}`)
     wsRef.current = socket
 
     const send = (method: string, params?: Record<string, unknown>): void => {
-      if (socket !== null && socket.readyState === WebSocket.OPEN) {
+      if (socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify({ id: ++msgId, method, params: params ?? {} }))
       }
     }
@@ -126,7 +127,7 @@ export function LiveView(): React.JSX.Element {
 
     return () => {
       cancelled = true
-      socket?.close()
+      socket.close()
       wsRef.current = null
     }
   }, [effectiveId])

@@ -16,8 +16,8 @@
  * - One child's events missing/corrupt → that child is skipped, the rest of
  *   the batch still returns.
  */
-import type { Context, SidebarSubagentsService } from './context-types.ts'
-import { SIDE_LABEL_PREFIX } from './sidechat-core.ts'
+import type { Context } from './context-types.ts'
+import { LEGACY_SIDE_TAB_PREFIX } from './sidechat-core.ts'
 import { lastActivity, mergedActivity, type LastActivity } from './subagent-activity.ts'
 import { requireString, SidebarError } from './wire.ts'
 
@@ -48,7 +48,7 @@ export function buildSubagentLiveApi(ctx: Context): SidebarSubagentLiveRoutes {
   return {
     async live(payload) {
       const rootSessionId = requireString(payload, 'rootSessionId')
-      const subagents = ctx.get('subagents') as SidebarSubagentsService | undefined
+      const subagents = ctx.get('subagents')
       if (subagents === undefined || typeof subagents.listDescendants !== 'function') {
         throw new SidebarError(
           'subagents-unavailable',
@@ -74,7 +74,7 @@ export function buildSubagentLiveApi(ctx: Context): SidebarSubagentLiveRoutes {
         if (entry.kind !== 'child' || entry.activity !== 'running') continue
         // Side Chat threads ride the subagent origin but are sidebar tabs,
         // never topology — keep them out of the live map too.
-        if (entry.label?.startsWith(SIDE_LABEL_PREFIX) ?? false) continue
+        if (entry.label?.startsWith(LEGACY_SIDE_TAB_PREFIX) ?? false) continue
         try {
           const stored = ctx.sessions.get(entry.id)
           const events = stored?.snapshotEvents !== undefined ? stored.snapshotEvents() : []

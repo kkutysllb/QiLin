@@ -53,7 +53,7 @@
   gap: 8px;
   padding: 20px;
   box-sizing: border-box;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 16px;
   background: var(--qilin-alias-bg-layer-3);
 }
@@ -76,6 +76,7 @@
 .count {
   padding: 1px 8px;
   border-radius: 999px;
+  corner-shape: round;
   background: var(--qilin-alias-bg-layer-2);
   font-size: 11px;
   line-height: 16px;
@@ -102,7 +103,7 @@
   min-height: 106px;
   overflow: hidden;
   border-radius: 12px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   background: transparent;
   font: inherit;
   color: inherit;
@@ -145,7 +146,7 @@
 .cardMain:focus-visible,
 .cardSettings:focus-visible,
 .rowGear:focus-visible {
-  outline: 2px solid var(--qilin-alias-border-l4);
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: 2px;
 }
 
@@ -167,7 +168,7 @@
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   background: var(--qilin-alias-bg-layer-2);
   color: var(--qilin-alias-label-tertiary);
 }
@@ -213,7 +214,7 @@
   box-sizing: border-box;
   border-radius: 8px;
   background: var(--qilin-alias-bg-layer-2);
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 
@@ -222,6 +223,7 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
+  corner-shape: round;
   background: var(--qilin-alias-label-tertiary);
   transition: transform 0.15s ease, background 0.15s ease;
 }
@@ -265,7 +267,7 @@
   width: 100%;
   padding: 6px 12px;
   border: 0;
-  border-top: 1px solid var(--qilin-alias-border-l1);
+  border-top: 0.5px solid var(--qilin-alias-border-l1);
   background: transparent;
   color: var(--qilin-alias-label-secondary);
   font: inherit;
@@ -296,7 +298,7 @@
   width: 22px;
   height: 22px;
   padding: 0;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 6px;
   background: transparent;
   color: var(--qilin-alias-label-secondary);
@@ -319,7 +321,7 @@
   justify-content: space-between;
   gap: 16px;
   padding: 12px 2px;
-  border-bottom: 1px solid var(--qilin-alias-border-l2);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l2);
 }
 
 .row:last-child {
@@ -370,7 +372,7 @@
   padding: 2px;
   box-sizing: border-box;
   border-radius: 10px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   background: var(--qilin-alias-bg-layer-2);
   transition: background 0.15s ease, border-color 0.15s ease;
 }
@@ -380,6 +382,7 @@
   width: 14px;
   height: 14px;
   border-radius: 50%;
+  corner-shape: round;
   background: var(--qilin-alias-label-tertiary);
   transition: transform 0.15s ease, background 0.15s ease;
 }
@@ -399,7 +402,7 @@
 }
 
 .switchInput:focus-visible + .switchTrack {
-  outline: 2px solid var(--qilin-alias-state-business-primary);
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: 2px;
 }
 
@@ -434,7 +437,7 @@
   gap: 6px;
   max-width: 220px;
   padding: 4px 8px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 8px;
   background: var(--qilin-alias-bg-layer-3);
   color: var(--qilin-alias-label-primary);
@@ -491,7 +494,7 @@
   box-sizing: border-box;
   min-height: 120px;
   padding: 8px 10px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 8px;
   background: var(--qilin-alias-bg-layer-3);
   color: var(--qilin-alias-label-primary);
@@ -502,7 +505,7 @@
 }
 
 .cssTextArea:focus-visible {
-  outline: 2px solid var(--qilin-alias-state-business-primary);
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: 2px;
 }
 
@@ -532,9 +535,13 @@
   max-height: min(52vh, 440px);
   overflow-y: auto;
   overflow-x: hidden;
+  /* Elevated chrome: the thumb reads the scrollbar.css indirection, rebound
+     here to the l2 elevation pair, rather than the tokens directly. */
+  --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
   padding-right: 4px;
   scrollbar-width: thin;
-  scrollbar-color: var(--qilin-alias-scrollbar-bg-l2, transparent) transparent;
+  scrollbar-color: var(--qilin-scrollbar-thumb, transparent) transparent;
 }
 
 .popupRows::-webkit-scrollbar {
@@ -543,11 +550,11 @@
 
 .popupRows::-webkit-scrollbar-thumb {
   border-radius: 3px;
-  background: var(--qilin-alias-scrollbar-bg-l2, var(--qilin-alias-border-l2));
+  background: var(--qilin-scrollbar-thumb, var(--qilin-alias-border-l2));
 }
 
 .popupRows::-webkit-scrollbar-thumb:hover {
-  background: var(--qilin-alias-scrollbar-hover-l2, var(--qilin-alias-label-dimmed));
+  background: var(--qilin-scrollbar-thumb-hover, var(--qilin-alias-label-dimmed));
 }
 
 .popupRow {
@@ -558,7 +565,7 @@
   gap: 16px;
   min-width: 0;
   padding: 12px 14px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 12px;
   background: var(--qilin-alias-bg-layer-3);
   transition: border-color 0.16s, background 0.16s;
@@ -584,7 +591,7 @@
 }
 
 .done:focus-visible {
-  outline: 2px solid var(--qilin-alias-brand-primary);
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: 1px;
 }
 
@@ -604,7 +611,8 @@
   align-self: flex-start;
   padding: 4px 12px 4px 14px;
   border-radius: 999px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  corner-shape: round;
+  border: 0.5px solid var(--qilin-alias-border-l2);
   background: var(--qilin-alias-bg-layer-2);
   font-size: 12px;
   line-height: 18px;
@@ -618,6 +626,7 @@
 .versionBadgeTag {
   padding: 1px 8px;
   border-radius: 999px;
+  corner-shape: round;
   background: var(--qilin-alias-border-l2);
   color: var(--qilin-alias-label-secondary);
   font-variant-numeric: tabular-nums;
@@ -639,7 +648,7 @@
   min-width: 0;
   box-sizing: border-box;
   padding: 5px 8px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 8px;
   background: var(--qilin-alias-bg-layer-3);
   color: var(--qilin-alias-label-primary);
@@ -650,7 +659,7 @@
 
 .openWithEditorInput:focus-visible,
 .openWithEditorTemplate:focus-visible {
-  outline: 2px solid var(--qilin-alias-state-business-primary);
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: 1px;
 }
 

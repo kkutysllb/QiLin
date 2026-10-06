@@ -114,6 +114,10 @@ export function FloatingPane(props: {
         ? clampPane({ ...drag.start, x: drag.start.x + dx, y: drag.start.y + dy }, viewport())
         : resizePane(drag.start, drag.mode, dx, dy, viewport()))
     }
+    /* jscpd:ignore-start — window pointer-listener boilerplate identical to the graph
+       canvas effects in @qilin/client-ui-sidebar-tasks TasksGraphView.tsx and this
+       package's WorkflowGraph.tsx; each effect keeps its own deps, so the shared
+       shape is marked rather than forced into a hook */
     const onUp = (): void => { setInteracting(false) }
     window.addEventListener('pointermove', onMove)
     window.addEventListener('pointerup', onUp)
@@ -123,6 +127,7 @@ export function FloatingPane(props: {
       window.removeEventListener('pointerup', onUp)
       window.removeEventListener('pointercancel', onUp)
     }
+    /* jscpd:ignore-end */
   }, [interacting, commit])
 
   // Escape is the only keyboard exit; nothing else is captured.

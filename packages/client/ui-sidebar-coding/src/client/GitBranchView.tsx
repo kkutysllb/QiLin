@@ -16,10 +16,11 @@ import { useCallback, useEffect, useState } from 'react'
 import clsx from 'clsx'
 import {
   Button, IconBranchOutline16, IconCloseOutline16, IconPlusOutline16,
-  IconRefreshOutline16, IconTrashOutline16, Input, Modal,
+  IconTrashOutline16, Input, Modal,
 } from '@qilin/client-ui-primitives'
 import { SidebarApiError, api, type GitBranchRow, type SessionScope } from './api.ts'
 import { filterBranches, trackingNameOf } from './git-branch-model.ts'
+import { RefreshButton } from './refresh-button.tsx'
 import { t } from './locales.ts'
 import css from './sidebar.module.css'
 
@@ -67,7 +68,6 @@ export function GitBranchView(props: GitBranchViewProps) {
     }
     // The scope identity is captured through gitScopeKey: an object identity
     // would reload on every parent render.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gitScopeKey, worktree, onError])
 
   useEffect(() => {
@@ -147,15 +147,7 @@ export function GitBranchView(props: GitBranchViewProps) {
         >
           <IconPlusOutline16 size={14} />
         </button>
-        <button
-          type="button"
-          className={css.iconButton}
-          aria-label={t('refresh')}
-          title={t('refresh')}
-          onClick={() => { void load() }}
-        >
-          <IconRefreshOutline16 size={14} />
-        </button>
+        <RefreshButton onRefresh={() => { void load() }} />
       </div>
 
       {newName !== null && (

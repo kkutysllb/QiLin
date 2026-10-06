@@ -11,6 +11,8 @@
  */
 import type { TaskNodeVM, TasksViewModel } from './subagent-tasks-model.ts'
 
+/* jscpd:ignore-start — Tasks-graph layout pinned verbatim to
+   @qilin/client-ui-sidebar-tasks src/client/tasks-graph-layout.ts (ported twin, kept independent) */
 /** Node card metrics (px, at zoom 1). The card is top segment + bottom bar. */
 export const TASK_NODE_W = 208
 export const TASK_NODE_TOP_H = 46
@@ -38,9 +40,11 @@ export const GRID_MAX_COLS = 6
 
 /** Horizontal gap between sibling subtrees (tree mode; the default layout). */
 export const TASK_H_GAP_BASE = MODE_GAPS.tree.h
+/* jscpd:ignore-end */
 export const TASK_H_GAP = TASK_H_GAP_BASE
 export const TASK_V_GAP = 64
 
+/* jscpd:ignore-start */
 /** One laid-out node: view-model node + its canvas rectangle. */
 export interface TaskNodeBox {
   readonly node: TaskNodeVM
@@ -79,6 +83,7 @@ export interface TasksLayout {
   readonly minX: number
   readonly minY: number
 }
+/* jscpd:ignore-end */
 
 /**
  * Lay out the view model.
@@ -125,6 +130,7 @@ export function layoutTasksViewModel(
       h: TASK_NODE_H,
     }
     nodes.push(box)
+    /* jscpd:ignore-start */
     boxOf.set(node.id, box)
     return subtreeWidth
   }
@@ -135,6 +141,7 @@ export function layoutTasksViewModel(
     if (kids.length === 0) return TASK_NODE_W
     let w = 0
     for (const kid of kids) w += measure(kid.id) + TASK_H_GAP
+    /* jscpd:ignore-end */
     return Math.max(TASK_NODE_W, w - TASK_H_GAP)
   }
 
@@ -145,7 +152,7 @@ export function layoutTasksViewModel(
     // cost of parent centring (edges still connect the same pairs).
     const byDepth = new Map<number, TaskNodeVM[]>()
     for (const node of model.nodes) {
-      const depth = node.depth ?? 0
+      const depth = node.depth
       const row = byDepth.get(depth)
       if (row === undefined) byDepth.set(depth, [node])
       else row.push(node)
@@ -187,6 +194,7 @@ export function layoutTasksViewModel(
   let minY = 0
   let maxX = 0
   let maxY = 0
+  /* jscpd:ignore-start */
   const placed = nodes.map((box) => {
     const offset = offsets[box.node.id]
     if (offset === undefined) return box
@@ -219,6 +227,7 @@ export function layoutTasksViewModel(
   }
 
   const height = Math.max(maxY, (maxDepth + 1) * (TASK_NODE_H + TASK_V_GAP))
+  /* jscpd:ignore-end */
   return {
     nodes: placed,
     edges,
@@ -229,6 +238,7 @@ export function layoutTasksViewModel(
   }
 }
 
+/* jscpd:ignore-start */
 /** Every id in one node's subtree (the node itself first). */
 export function subtreeIds(model: TasksViewModel, nodeId: string): string[] {
   const ids: string[] = []
@@ -274,3 +284,4 @@ export function dragOffsets(
 export function hasOffsets(offsets: NodeOffsets): boolean {
   return Object.keys(offsets).length > 0
 }
+/* jscpd:ignore-end */

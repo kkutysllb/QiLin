@@ -96,6 +96,7 @@ export const zh = {
   refresh: '刷新',
   refreshUnsavedConfirm: '文件已在磁盘更新，刷新将丢弃未保存编辑。继续吗？',
   save: '保存',
+  saveShortcut: '保存 (Ctrl/Cmd+S)',
   saved: '已保存',
   unsaved: '未保存',
   saveFailed: '保存失败',
@@ -391,6 +392,9 @@ export const zh = {
   trajLaneInput: '输入',
   trajLaneModel: '模型',
   trajLaneTool: '工具',
+  trajNodeContext: '上下文',
+  trajNodeAssistant: '助手',
+  trajNodeToolCalls: '{n} 次工具调用',
   trajStatusRunning: '进行中',
   trajStatusError: '失败',
   trajStatusInterrupted: '已停止',
@@ -458,6 +462,9 @@ export const zh = {
   ghMergeConfirm: '合并 #{number}？',
   ghMerged: '已合并 #{number}',
   ghMergeFailed: '合并失败',
+  ghMethodMerge: '合并',
+  ghMethodRebase: '变基',
+  ghMethodSquash: '压缩合并（Squash）',
   ghDraft: '草稿',
   ghCreatePr: '创建 PR',
   ghCreateIssue: '新建 Issue',
@@ -583,6 +590,7 @@ export const en: Record<keyof typeof zh, string> = {
   refresh: 'Refresh',
   refreshUnsavedConfirm: 'The file changed on disk. Refreshing will discard unsaved edits. Continue?',
   save: 'Save',
+  saveShortcut: 'Save (Ctrl/Cmd+S)',
   saved: 'Saved',
   unsaved: 'Unsaved',
   saveFailed: 'Save failed',
@@ -878,6 +886,9 @@ export const en: Record<keyof typeof zh, string> = {
   trajLaneInput: 'Input',
   trajLaneModel: 'Model',
   trajLaneTool: 'Tools',
+  trajNodeContext: 'Context',
+  trajNodeAssistant: 'Assistant',
+  trajNodeToolCalls: '{n} tool calls',
   trajStatusRunning: 'running',
   trajStatusError: 'failed',
   trajStatusInterrupted: 'stopped',
@@ -945,6 +956,9 @@ export const en: Record<keyof typeof zh, string> = {
   ghMergeConfirm: 'Merge #{number}?',
   ghMerged: 'Merged #{number}',
   ghMergeFailed: 'Merge failed',
+  ghMethodMerge: 'Merge',
+  ghMethodRebase: 'Rebase',
+  ghMethodSquash: 'Squash',
   ghDraft: 'draft',
   ghCreatePr: 'Create PR',
   ghCreateIssue: 'New issue',
@@ -1009,8 +1023,14 @@ export const LOCALE_NS = 'betterSidebar'
 // used to sit statically in the core bundle (≈ half its weight) for a code
 // path most sessions never enter.
 
-/** The QiLin locale service attached by the client apply (absent → browser detection). */
-let localeService: { getSnapshot(): { active: string } } | undefined
+/**
+ * The QiLin locale service attached by the client apply (absent → browser
+ * detection). Holder object: the service attaches and detaches at runtime,
+ * and a bare module `let` narrows stale across the readers below.
+ */
+const localeRuntime: {
+  service: { getSnapshot(): { active: string } } | undefined
+} = { service: undefined }
 
 /**
  * The better-locale override store attached by the client apply
@@ -1038,7 +1058,7 @@ let betterLocaleStore: {
  * whole tree on switches.
  */
 export function attachLocale(service: { getSnapshot(): { active: string } } | undefined): void {
-  localeService = service
+  localeRuntime.service = service
 }
 
 /**
@@ -1063,9 +1083,11 @@ export function attachBetterLocale(store: typeof betterLocaleStore): void {
  * attached, else the browser language.
  */
 function activeLocale(): string {
-  return localeService?.getSnapshot().active
-    ?? (typeof navigator !== 'undefined' ? navigator.language : '')
-    ?? 'en'
+  const attached = localeRuntime.service?.getSnapshot().active
+  if (attached !== undefined) return attached
+  // No attached runtime: the browser language verbatim (possibly '' outside a
+  // browser — the original chain's trailing 'en' default was unreachable).
+  return typeof navigator !== 'undefined' ? navigator.language : ''
 }
 
 /** Translate a copy key in the active locale (zh → zh, else en). */
@@ -1078,19 +1100,15 @@ export function t(key: CopyKey, params?: Record<string, string | number>): strin
   //    and the store has a translation for this (ns, key). The store's
   //    getOverride returns undefined otherwise (no override, QiLin on zh,
   //    or missing key) and the zh/en chain runs.
-  const dshActive = localeService?.getSnapshot().active ?? ''
+  const dshActive = localeRuntime.service?.getSnapshot().active ?? ''
   const override = betterLocaleStore?.getOverride(dshActive, LOCALE_NS, key)
   let text: string | undefined = override
-  // 2. Fall back to the zh/en chain when no override matched.
+  // 2. Fall back to the zh/en chain when no override matched. zh is the
+  //    source of truth and total over CopyKey (en/ja are checked against
+  //    it), so the dict always fills the key.
   if (text === undefined) {
     const dict = activeLocale().toLowerCase().startsWith('zh') ? zh : en
     text = dict[key]
-  }
-  if (text === undefined) {
-    // Key missing from every dict (should not happen — zh is the source of
-    // truth and en/ja are checked against it). Return the key itself so the
-    // UI shows something identifiable rather than `undefined`.
-    text = key
   }
   if (params !== undefined) {
     for (const [name, value] of Object.entries(params)) {
@@ -1108,7 +1126,7 @@ export function isZh(): boolean {
   // override is effectively active, the rendered text is neither zh nor
   // en (it's ja/ko/...), so isZh() returns false to route selectors to
   // the non-zh branch (e.g. date format, pluralization).
-  const dshActive = localeService?.getSnapshot().active ?? ''
+  const dshActive = localeRuntime.service?.getSnapshot().active ?? ''
   if (betterLocaleStore?.isOverrideActive(dshActive) === true) return false
   return activeLocale().toLowerCase().startsWith('zh')
 }

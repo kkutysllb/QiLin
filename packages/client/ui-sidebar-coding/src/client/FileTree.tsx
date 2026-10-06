@@ -20,7 +20,7 @@
  * (VSCode semantics — a drop on a file row targets its parent directory),
  * and `busy` gates new drags while one upload is in flight.
  */
-import { useCallback, useEffect, useRef, useState, type DragEvent, type MouseEvent, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ComponentPropsWithoutRef, type DragEvent, type MouseEvent, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 import {
@@ -62,7 +62,7 @@ function parentOf(path: string): string {
  *  split zones) must pass through untouched to the pane's tab-drop handling
  *  (mirror of Sidebar.tsx's panel-host shield gate). */
 function isFileDrag(event: DragEvent): boolean {
-  return event.dataTransfer?.types.includes('Files') ?? false
+  return event.dataTransfer.types.includes('Files')
 }
 
 /** How long the row's "copied" label stays after a successful write. */
@@ -105,7 +105,11 @@ const ChatDropIllustration = () => (
   </svg>
 )
 
-export function FileTree(props: {
+/**
+ * The tree props both faces share: FileTree's own face and TreePanel's
+ * pass-through face (TreePanel forwards this exact set to FileTree).
+ */
+export interface FileTreeSharedProps {
   sessionId: string
   cwd: string | undefined
   expanded: string[]
@@ -132,12 +136,6 @@ export function FileTree(props: {
   onToggleOpenWithPin?: ((targetId: string) => void) | undefined
   /** Insert `@<relative path>` into the composer draft (file vs directory). */
   onReferenceFile: (path: string, isDir: boolean) => void
-  /** Bump to wipe the level cache and reload the visible set. */
-  refreshTick: number
-  /** Upload into `dir` (absolute, inside the workspace); runs in the caller. */
-  onUploadRequest: (dir: string, items: UploadItem[]) => void
-  /** True while an upload is in flight (drops are ignored). */
-  busy: boolean
   /** A tree row was renamed (retarget open tabs; absent → no rename entry). */
   onPathRenamed?: ((oldPath: string, newPath: string) => void) | undefined
   /** A tree row was removed (close affected tabs; absent → no delete entry). */
@@ -148,6 +146,15 @@ export function FileTree(props: {
    * directory rows. Absent → the built-ins alone apply.
    */
   service?: BetterSidebarService | undefined
+}
+
+export function FileTree(props: FileTreeSharedProps & {
+  /** Bump to wipe the level cache and reload the visible set. */
+  refreshTick: number
+  /** Upload into `dir` (absolute, inside the workspace); runs in the caller. */
+  onUploadRequest: (dir: string, items: UploadItem[]) => void
+  /** True while an upload is in flight (drops are ignored). */
+  busy: boolean
 }) {
   const {
     sessionId, cwd, expanded, revealed, onToggle, onOpenFile, onOpenFileNewTab, onOpenFileSide,
@@ -398,7 +405,7 @@ export function FileTree(props: {
     }
     api.fsRename({ sessionId, cwd }, target.path, name).then(({ path }) => {
       setRenaming(null)
-      reloadDir(parentOf(target.path) ?? path)
+      reloadDir(parentOf(target.path))
       onPathRenamed?.(target.path, path)
     }).catch((error: unknown) => {
       setMutationError(error instanceof Error ? error.message : String(error))
@@ -410,7 +417,7 @@ export function FileTree(props: {
   const commitDelete = (target: { path: string }): void => {
     api.fsRemove({ sessionId, cwd }, target.path).then(() => {
       setDeleting(null)
-      reloadDir(parentOf(target.path) ?? target.path)
+      reloadDir(parentOf(target.path))
       onPathRemoved?.(target.path)
     }).catch((error: unknown) => {
       setMutationError(error instanceof Error ? error.message : String(error))
@@ -639,6 +646,15 @@ export function FileTree(props: {
       )
     }
     const entries = level.entries ?? []
+    /** The row frame shared by directory and file rows (per-row chrome). */
+    const rowFrame = (path: string): ComponentPropsWithoutRef<'div'>
+      & Record<`data-${string}`, string | undefined> => ({
+      role: 'button',
+      tabIndex: 0,
+      'data-dsh-revealed': revealed.includes(path) ? 'true' : undefined,
+      style: { paddingLeft: depth * 22 + 6 },
+      'aria-selected': selection.paths.has(path),
+    })
     return entries.map((entry) => {
       if (entry.isDir) {
         const isOpen = expanded.includes(entry.path)
@@ -646,17 +662,13 @@ export function FileTree(props: {
         return (
           <div key={entry.path}>
             <div
-              role="button"
-              tabIndex={0}
+              {...rowFrame(entry.path)}
               className={clsx(
                 css.explorerRow, css.explorerDir, entry.hidden && css.explorerHidden,
                 dropTarget === entry.path && css.explorerRowDropTarget,
                 revealed.includes(entry.path) && css.explorerRowRevealed,
                 selection.paths.has(entry.path) && css.explorerRowSelected,
               )}
-              data-dsh-revealed={revealed.includes(entry.path) ? 'true' : undefined}
-              style={{ paddingLeft: depth * 22 + 6 }}
-              aria-selected={selection.paths.has(entry.path)}
               onClick={(event) => {
                 if (handleRowClick(event, entry.path)) onToggle(entry.path)
               }}
@@ -685,18 +697,14 @@ export function FileTree(props: {
       return (
         <div
           key={entry.path}
-          role="button"
-          tabIndex={0}
+          {...rowFrame(entry.path)}
           className={clsx(
             css.explorerRow, entry.hidden && css.explorerHidden, entry.broken && css.explorerBroken,
             dropTarget === parentOf(entry.path) && css.explorerRowDropTarget,
             revealed.includes(entry.path) && css.explorerRowRevealed,
             selection.paths.has(entry.path) && css.explorerRowSelected,
           )}
-          data-dsh-revealed={revealed.includes(entry.path) ? 'true' : undefined}
-          style={{ paddingLeft: depth * 22 + 6 }}
           title={entry.broken ? `${entry.path} — ${t('brokenSymlink')}` : entry.path}
-          aria-selected={selection.paths.has(entry.path)}
           onClick={(event) => {
             if (handleRowClick(event, entry.path)) onOpenFile(entry.path)
           }}
@@ -1009,7 +1017,7 @@ export function FileTree(props: {
                   for (const path of targets) {
                     try {
                       await api.fsRemove({ sessionId, cwd }, path)
-                      parents.add(parentOf(path) ?? path)
+                      parents.add(parentOf(path))
                       onPathRemoved?.(path)
                     } catch (error) {
                       setMutationError(error instanceof Error ? error.message : String(error))

@@ -16,6 +16,7 @@ import {
 import type { SidebarTab } from './state.ts'
 import { isAgentTabId } from './state.ts'
 import { isPinnedVirtualTab } from './pinned.ts'
+import { useDragGestureClear } from './use-drag-gesture-clear.ts'
 import { IconPinOutline16 } from './icons.tsx'
 import { t } from './locales.ts'
 import css from './sidebar.module.css'
@@ -148,17 +149,7 @@ export function TabBar(props: {
     return () => { el.removeEventListener('wheel', onWheel) }
   }, [])
 
-  useEffect(() => {
-    const clear = (): void => { setTabDragging(false); setDragOver(false) }
-    window.addEventListener('dragend', clear, true)
-    window.addEventListener('drop', clear, true)
-    window.addEventListener('blur', clear)
-    return () => {
-      window.removeEventListener('dragend', clear, true)
-      window.removeEventListener('drop', clear, true)
-      window.removeEventListener('blur', clear)
-    }
-  }, [])
+  useDragGestureClear(() => { setTabDragging(false); setDragOver(false) })
 
   return (
     <div
@@ -301,7 +292,7 @@ export function TabBar(props: {
             const targetTab = tabMenuIndex >= 0 ? tabs[tabMenuIndex] : undefined
             const isTerminal = targetTab?.type === 'terminal'
             const isPinnedVirtual = targetTab !== undefined && isPinnedVirtualTab(targetTab)
-            const pinEntries = isTerminal && targetTab !== undefined && onPinTab !== undefined
+            const pinEntries = isTerminal && onPinTab !== undefined
               ? targetTab.pin !== undefined
                 ? [{ id: 'unpin', label: t('unpinTerminal') }]
                 : [{

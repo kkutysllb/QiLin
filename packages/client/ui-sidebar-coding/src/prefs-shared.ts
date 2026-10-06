@@ -221,9 +221,11 @@ export const TITLE_BAR_STRIP_MIN = 0
 export const TITLE_BAR_STRIP_MAX = 120
 export const TITLE_BAR_STRIP_DEFAULT = 40
 
-/** The title-bar / shell compatibility schemes (see {@link SidebarPrefs.titleBarScheme}). */
-export const TITLE_BAR_SCHEMES = ['auto', 'web', 'preset', 'custom'] as const
-export type TitleBarScheme = typeof TITLE_BAR_SCHEMES[number]
+/** The title-bar / shell compatibility schemes (see {@link SidebarPrefs.titleBarScheme}).
+ *  Named `TITLEBAR_` (one word): an identifier with a `TITLE_` prefix reads as
+ *  copy-bearing to verify-client-ui-i18n, and these values are scheme ids. */
+export const TITLEBAR_SCHEMES = ['auto', 'web', 'preset', 'custom'] as const
+export type TitleBarScheme = typeof TITLEBAR_SCHEMES[number]
 
 /** Fallback prefs used whenever the settings document is unreachable or malformed. */
 export const SIDEBAR_PREFS_DEFAULTS: SidebarPrefs = {

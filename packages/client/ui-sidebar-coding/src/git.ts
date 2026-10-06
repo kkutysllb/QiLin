@@ -549,6 +549,8 @@ export function parseAheadBehind(output: string): { ahead: number; behind: numbe
 
 /** The high-frequency subset of `git check-ref-format` rules: enough to stop a
  *  typo before it reaches git, over-strict for exotic-but-legal names. */
+export function isValidBranchName(name: string): boolean
+export function isValidBranchName(name: unknown): name is string
 export function isValidBranchName(name: unknown): name is string {
   if (typeof name !== 'string') return false
   if (name === '' || name.length > 200) return false

@@ -32,7 +32,7 @@ import { resolveSidebarPath, selectProducedFiles } from './produced-files.ts'
 import { hasDeclaredDeliveries } from './deliveries.ts'
 import {
   wrapNativeBrowserOpen, wrapOpenPath, wrapRemoteOpenPath, wrapSidebarRight,
-  type OpenPathService, type SidebarRightStub,
+  type SidebarRightStub,
 } from './openpath-intercept.ts'
 import {
   changesSummaryUrl, reviewedPath, type ChangesReviewCoordinates,
@@ -350,7 +350,7 @@ export function registerOpenPathInterception(ctx: Context, store: SidebarStore, 
   const deps = {
     takeoverEnabled: () => gates.codingActive()
       && !store.getSuspended()
-      && store.getPrefs().interceptOpenPath !== false
+      && store.getPrefs().interceptOpenPath
       && store.getPrefs().tabsEnabled['editor'] !== false,
     currentSessionId: () => ctx.sessions.list.getSnapshot().current,
     openInSidebar: (path: string, sessionId: string) => { openSidebarFile(ctx, store, sessionId, path) },
@@ -364,7 +364,7 @@ export function registerOpenPathInterception(ctx: Context, store: SidebarStore, 
   // open-path migration (QiLin exposes no service under this name) — read
   // via ctx.get like the remote probe below so the legacy door simply stays
   // unwrapped there instead of failing the whole registration.
-  const workspaces = ctx.get('workspaces') as OpenPathService | undefined
+  const workspaces = ctx.get('workspaces')
   const disposeOld = workspaces === undefined ? () => {} : wrapOpenPath(workspaces, deps)
   if (workspaces === undefined && ctx.get('sidebarRight') === undefined) {
     console.log('[ui-sidebar-coding] open-path interception: sidebarRight 未就绪，等待 inject 装配')
@@ -412,10 +412,10 @@ export function registerOpenPathInterception(ctx: Context, store: SidebarStore, 
     // 安装期诊断（每激活一次一行）：哪个门装上了、哪个没有——现场排查
     // 「点文件/链接走了原生侧边栏」这类"静默未装配"只需看这一行。
     console.log('[ui-sidebar-coding] open-path interception: doors'
-      + ' workspaces=' + (workspaces !== undefined)
-      + ' remote.session=' + (remote !== undefined)
+      + ` workspaces=${workspaces !== undefined}`
+      + ` remote.session=${remote !== undefined}`
       + ' sidebarRight=true'
-      + ' browserOpenTab=' + (typeof sidebarRight.openTab === 'function'))
+      + ` browserOpenTab=${typeof sidebarRight.openTab === 'function'}`)
   })
   return () => {
     disposed = true

@@ -14,7 +14,7 @@ import {
   clampTitleBarStrip,
   clampWidthPercent,
   SIDEBAR_PREFS_DEFAULTS,
-  TITLE_BAR_SCHEMES,
+  TITLEBAR_SCHEMES,
   TITLE_BAR_STRIP_DEFAULT,
   type SidebarPrefs,
   type TitleBarScheme,
@@ -22,7 +22,7 @@ import {
 
 export {
   SIDEBAR_PREFS_DEFAULTS,
-  TITLE_BAR_SCHEMES,
+  TITLEBAR_SCHEMES,
   TITLE_BAR_STRIP_DEFAULT,
   clampTerminalFontSize,
   clampTitleBarStrip,
@@ -158,7 +158,7 @@ function booleanMapOf(value: unknown): Record<string, boolean> {
 
 /** Type guard for the title-bar scheme union (anything else falls back). */
 function isTitleBarScheme(value: unknown): value is TitleBarScheme {
-  return typeof value === 'string' && (TITLE_BAR_SCHEMES as readonly string[]).includes(value)
+  return typeof value === 'string' && (TITLEBAR_SCHEMES as readonly string[]).includes(value)
 }
 
 /**

@@ -120,6 +120,7 @@
   height: 28px;
   border: none;
   border-radius: 50%;
+  corner-shape: round;
   background: transparent;
   color: var(--qilin-alias-label-secondary);
   cursor: pointer;
@@ -248,9 +249,12 @@ body[data-dsh-sidebar-dragging] .panel {
   /* Re-enable interaction inside the click-transparent panel host. */
   pointer-events: auto;
   background: var(--qilin-alias-bg-layer-1);
-  border: 1px solid var(--qilin-alias-border-l2);
+  /* The hairline is the elevation shadow's 0.5px stroke layer, not a
+     layout-consuming border (ui-theme gradient-shadow-text.css contract). */
+  --qilin-elevation-stroke-color: var(--qilin-alias-border-l2);
+  border: 0;
   border-radius: 8px;
-  box-shadow: var(--qilin-shadow-lv3);
+  box-shadow: var(--qilin-elevation-stroke), var(--qilin-shadow-lv3);
   overflow: hidden;
   contain: layout style;
 }
@@ -272,7 +276,7 @@ body[data-dsh-sidebar-dragging] .panel {
   font: var(--qilin-font-xxs-12);
   color: var(--qilin-alias-label-secondary);
   background: var(--qilin-alias-bg-layer-1);
-  border-bottom: 1px solid var(--qilin-alias-border-l1);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l1);
   cursor: grab;
   user-select: none;
 }
@@ -367,10 +371,11 @@ body[data-dsh-sidebar-dragging] .panel {
 .floatDropHintLabel {
   padding: 4px 12px;
   border-radius: 999px;
+  corner-shape: round;
   font: var(--qilin-font-xxs-12);
   color: var(--qilin-alias-label-primary);
   background: var(--qilin-alias-bg-layer-1);
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
 }
 
 /* ── Desktop drag-region opt-out ──────────────────────────────────────── */
@@ -424,6 +429,7 @@ body[data-dsh-sidebar-dragging] .panel {
   padding: 0;
   border: none;
   border-radius: 50%;
+  corner-shape: round;
   background: transparent;
   color: var(--qilin-alias-label-secondary);
   cursor: pointer;
@@ -625,7 +631,7 @@ body[data-dsh-sidebar-dragging] .panel {
   gap: 6px;
   min-width: 0;
   padding: 12px 8px;
-  border: 1px solid var(--qilin-alias-border-l1);
+  border: 0.5px solid var(--qilin-alias-border-l1);
   border-radius: 8px;
   background: var(--qilin-alias-bg-layer-1);
   color: var(--qilin-alias-label-secondary);
@@ -687,7 +693,7 @@ body[data-dsh-sidebar-dragging] .panel {
   padding: 0 4px 0 10px;
   font: var(--qilin-font-xxs-12);
   color: var(--qilin-alias-label-secondary);
-  border-right: 1px solid var(--qilin-alias-border-l1);
+  border-right: 0.5px solid var(--qilin-alias-border-l1);
   background: transparent;
   cursor: pointer;
   user-select: none;
@@ -898,8 +904,9 @@ body[data-dsh-sidebar-dragging] .panel {
   align-items: center;
   height: 20px;
   padding: 0 8px;
-  border: 1px solid var(--qilin-alias-border-l1);
+  border: 0.5px solid var(--qilin-alias-border-l1);
   border-radius: 999px;
+  corner-shape: round;
   background: var(--qilin-alias-bg-layer-2);
   color: var(--qilin-alias-label-tertiary);
   font: var(--qilin-font-xxxs-strong-11);
@@ -993,10 +1000,13 @@ body[data-dsh-sidebar-dragging] .panel {
   gap: 6px;
   max-width: 100%;
   padding: 6px 12px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  /* Hairline inside the elevation shadow (0.5px stroke layer), not a border. */
+  --qilin-elevation-stroke-color: var(--qilin-alias-border-l2);
+  border: 0;
   border-radius: 999px;
+  corner-shape: round;
   background: var(--qilin-alias-bg-layer-2);
-  box-shadow: var(--qilin-shadow-lv2);
+  box-shadow: var(--qilin-elevation-stroke), var(--qilin-shadow-lv2);
   color: var(--qilin-alias-label-primary);
   font: var(--qilin-font-xxs-strong-12);
 }
@@ -1061,10 +1071,13 @@ body[data-dsh-sidebar-dragging] .panel {
   min-width: 280px;
   max-width: min(420px, calc(100% - 48px));
   padding: 20px 24px;
-  border: 1px solid var(--qilin-alias-border-inverted);
+  /* Hairline inside the elevation shadow (0.5px stroke layer), not a border;
+     the stroke keeps the card's inverted colour over the blurred scrim. */
+  --qilin-elevation-stroke-color: var(--qilin-alias-border-inverted);
+  border: 0;
   border-radius: 24px;
   background: var(--qilin-alias-bg-layer-2);
-  box-shadow: var(--qilin-shadow-lv3);
+  box-shadow: var(--qilin-elevation-stroke), var(--qilin-shadow-lv3);
 }
 
 .uploadOverlayTitle {
@@ -1114,7 +1127,7 @@ body[data-dsh-sidebar-dragging] .panel {
   align-self: flex-end;
   height: 28px;
   padding: 0 14px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 8px;
   background: transparent;
   color: var(--qilin-alias-label-primary);
@@ -1147,7 +1160,7 @@ body[data-dsh-sidebar-dragging] .panel {
   align-items: center;
   gap: 6px;
   padding: 6px 8px;
-  border-bottom: 1px solid var(--qilin-alias-border-l1);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l1);
 }
 
 .editorTitle {
@@ -1168,7 +1181,7 @@ body[data-dsh-sidebar-dragging] .panel {
   box-sizing: border-box;
   height: 28px;
   padding: 0 10px;
-  border: 1px solid var(--qilin-alias-border-l1);
+  border: 0.5px solid var(--qilin-alias-border-l1);
   border-radius: 6px;
   background: var(--qilin-alias-bg-layer-1);
   color: var(--qilin-alias-label-primary);
@@ -1209,7 +1222,7 @@ body[data-dsh-sidebar-dragging] .panel {
   flex: none;
   min-height: 0;
   display: flex;
-  border-left: 1px solid var(--qilin-alias-border-l1);
+  border-left: 0.5px solid var(--qilin-alias-border-l1);
 }
 
 .editorTreeResize {
@@ -1250,7 +1263,7 @@ body[data-dsh-sidebar-dragging] .panel {
   align-items: center;
   gap: 6px;
   padding: 6px 8px;
-  border-bottom: 1px solid var(--qilin-alias-border-l1);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l1);
 }
 
 .editorSearchInput {
@@ -1258,7 +1271,7 @@ body[data-dsh-sidebar-dragging] .panel {
   min-width: 0;
   height: 26px;
   padding: 0 10px;
-  border: 1px solid var(--qilin-alias-border-l1);
+  border: 0.5px solid var(--qilin-alias-border-l1);
   border-radius: 6px;
   background: var(--qilin-alias-bg-layer-1);
   color: var(--qilin-alias-label-primary);
@@ -1309,6 +1322,7 @@ body[data-dsh-sidebar-dragging] .panel {
   width: 7px;
   height: 7px;
   border-radius: 50%;
+  corner-shape: round;
   background: var(--qilin-alias-state-warn-primary);
   flex: none;
 }
@@ -1356,7 +1370,7 @@ body[data-dsh-sidebar-dragging] .panel {
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 6px;
   background: var(--qilin-alias-bg-layer-2);
   color: var(--qilin-alias-label-primary);
@@ -1411,7 +1425,7 @@ body[data-dsh-sidebar-dragging] .panel {
   gap: 8px;
   min-height: 34px;
   padding: 4px 10px;
-  border-top: 1px solid var(--qilin-alias-border-l1);
+  border-top: 0.5px solid var(--qilin-alias-border-l1);
   background: var(--qilin-alias-bg-layer-1);
 }
 
@@ -1472,7 +1486,7 @@ body[data-dsh-sidebar-dragging] .panel {
   justify-content: center;
   gap: 8px;
   padding: 6px 8px;
-  border-bottom: 1px solid var(--qilin-alias-border-l1);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l1);
 }
 
 .editorPptxToolbar .editorDownloadLink {
@@ -1482,7 +1496,7 @@ body[data-dsh-sidebar-dragging] .panel {
 .editorPptxButton {
   height: 28px;
   padding: 0 10px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 6px;
   background: var(--qilin-alias-bg-layer-2);
   color: var(--qilin-alias-label-secondary);
@@ -1559,7 +1573,7 @@ body[data-dsh-sidebar-dragging] .panel {
   gap: 10px;
   min-height: 34px;
   padding: 4px 10px;
-  border-top: 1px solid var(--qilin-alias-border-l1);
+  border-top: 0.5px solid var(--qilin-alias-border-l1);
   background: var(--qilin-alias-bg-layer-1);
 }
 
@@ -1609,7 +1623,7 @@ body[data-dsh-sidebar-dragging] .panel {
 .sandboxStatusOn {
   color: var(--qilin-alias-label-secondary);
   background: var(--qilin-alias-bg-layer-1);
-  border-bottom: 1px solid var(--qilin-alias-border-l1);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l1);
 }
 
 .sandboxStatusOff {
@@ -1623,6 +1637,7 @@ body[data-dsh-sidebar-dragging] .panel {
   width: 6px;
   height: 6px;
   border-radius: 50%;
+  corner-shape: round;
   background: var(--qilin-alias-state-success-primary);
 }
 
@@ -1641,7 +1656,7 @@ body[data-dsh-sidebar-dragging] .panel {
 .sandboxAction {
   flex: none;
   padding: 2px 8px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 6px;
   background: transparent;
   font: inherit;
@@ -1679,7 +1694,7 @@ body[data-dsh-sidebar-dragging] .panel {
   align-items: center;
   gap: 4px;
   padding: 6px 8px;
-  border-bottom: 1px solid var(--qilin-alias-border-l1);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l1);
 }
 
 .browserInput {
@@ -1687,7 +1702,7 @@ body[data-dsh-sidebar-dragging] .panel {
   min-width: 0;
   height: 28px;
   padding: 0 10px;
-  border: 1px solid var(--qilin-alias-border-l1);
+  border: 0.5px solid var(--qilin-alias-border-l1);
   border-radius: 6px;
   background: var(--qilin-alias-bg-layer-1);
   color: var(--qilin-alias-label-primary);
@@ -1723,7 +1738,7 @@ body[data-dsh-sidebar-dragging] .panel {
   padding: 4px 12px;
   font: var(--qilin-font-xxxs-11);
   color: var(--qilin-alias-label-tertiary);
-  border-top: 1px solid var(--qilin-alias-border-l1);
+  border-top: 0.5px solid var(--qilin-alias-border-l1);
 }
 
 .browserFrame {
@@ -1780,7 +1795,7 @@ body[data-dsh-sidebar-dragging] .panel {
 
 .browserBlockedButton {
   padding: 4px 12px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 6px;
   background: var(--qilin-alias-bg-layer-1);
   color: var(--qilin-alias-label-primary);
@@ -1826,7 +1841,7 @@ body[data-dsh-sidebar-dragging] .panel {
   align-items: center;
   gap: 2px;
   padding: 2px;
-  border: 1px solid var(--qilin-alias-border-l1);
+  border: 0.5px solid var(--qilin-alias-border-l1);
   border-radius: 6px;
   background: var(--qilin-alias-bg-layer-1);
 }
@@ -1884,7 +1899,7 @@ body[data-dsh-sidebar-dragging] .panel {
 
 .mermaidWrap {
   margin: 6px 0;
-  border: 1px solid var(--qilin-alias-border-l1);
+  border: 0.5px solid var(--qilin-alias-border-l1);
   border-radius: 6px;
   background: var(--qilin-alias-bg-layer-1);
   overflow: hidden;
@@ -1896,7 +1911,7 @@ body[data-dsh-sidebar-dragging] .panel {
   justify-content: space-between;
   gap: 6px;
   padding: 4px 8px;
-  border-bottom: 1px solid var(--qilin-alias-border-l1);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l1);
   background: var(--qilin-alias-bg-layer-2);
 }
 
@@ -1939,7 +1954,7 @@ body[data-dsh-sidebar-dragging] .panel {
 
 .mermaidError {
   padding: 6px 10px;
-  border-bottom: 1px solid var(--qilin-alias-border-l1);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l1);
   color: var(--qilin-alias-state-error-primary);
   font: var(--qilin-font-xxxs-11);
 }
@@ -1998,7 +2013,7 @@ body[data-dsh-sidebar-dragging] .panel {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  border: 1px solid var(--qilin-alias-border-l1);
+  border: 0.5px solid var(--qilin-alias-border-l1);
   background: var(--qilin-alias-bg-layer-2);
   color: var(--qilin-alias-label-primary);
   font: var(--qilin-font-xs-strong-13);
@@ -2061,7 +2076,7 @@ body[data-dsh-sidebar-dragging] .panel {
   align-items: center;
   height: 28px;
   padding: 0 10px;
-  border: 1px solid var(--qilin-alias-border-l1);
+  border: 0.5px solid var(--qilin-alias-border-l1);
   border-radius: 6px;
   background: var(--qilin-alias-bg-layer-2);
   color: var(--qilin-alias-label-primary);
@@ -2087,7 +2102,7 @@ body[data-dsh-sidebar-dragging] .panel {
   display: flex;
   justify-content: flex-end;
   padding: 6px 8px;
-  border-bottom: 1px solid var(--qilin-alias-border-l1);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l1);
 }
 
 .editorPdfStage {
@@ -2185,7 +2200,7 @@ body[data-dsh-sidebar-dragging] .panel {
   align-items: flex-start;
   padding: 16px;
   background: var(--qilin-alias-bg-layer-1);
-  border-left: 1px solid var(--qilin-alias-border-l2);
+  border-left: 0.5px solid var(--qilin-alias-border-l2);
   font: var(--qilin-font-xxs-12);
   color: var(--qilin-alias-state-error-primary);
   overflow: auto;
@@ -2194,8 +2209,9 @@ body[data-dsh-sidebar-dragging] .panel {
 .terminalRetry {
   flex: none;
   padding: 1px 8px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 999px;
+  corner-shape: round;
   background: var(--qilin-alias-bg-layer-2);
   color: var(--qilin-alias-label-secondary);
   font: var(--qilin-font-xxxs-strong-11);
@@ -2244,7 +2260,7 @@ body[data-dsh-sidebar-dragging] .panel {
   min-width: 0;
   height: 20px;
   padding: 0 4px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 4px;
   background: var(--qilin-alias-bg-layer-2);
   color: var(--qilin-alias-label-primary);
@@ -2311,7 +2327,7 @@ body[data-dsh-sidebar-dragging] .panel {
 }
 
 .sessionLensItem {
-  border-bottom: 1px solid var(--qilin-alias-border-l1);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l1);
 }
 
 .sessionLensRow {
@@ -2356,7 +2372,7 @@ body[data-dsh-sidebar-dragging] .panel {
   overflow: auto;
   margin: 0 8px 6px;
   padding: 6px 8px;
-  border: 1px solid var(--qilin-alias-border-l1);
+  border: 0.5px solid var(--qilin-alias-border-l1);
   border-radius: 6px;
   background: var(--qilin-alias-bg-layer-1);
   font-family: var(--ds-font-family-code);
@@ -2433,8 +2449,11 @@ body[data-dsh-sidebar-dragging] .panel {
   user-select: text;
   color: var(--qilin-alias-label-primary);
   background: var(--qilin-alias-bg-layer-2);
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 4px;
+  /* Elevated surface: the scrollbar thumb takes the l2 elevation tokens. */
+  --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
   max-height: 160px;
   overflow: auto;
 }
@@ -2507,7 +2526,7 @@ body[data-dsh-sidebar-dragging] .panel {
   min-width: 0;
   height: 26px;
   padding: 0 6px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 6px;
   background: var(--qilin-alias-bg-base);
   color: var(--qilin-alias-label-primary);
@@ -2515,7 +2534,7 @@ body[data-dsh-sidebar-dragging] .panel {
 }
 
 .gitSection {
-  border-top: 1px solid var(--qilin-alias-border-l1);
+  border-top: 0.5px solid var(--qilin-alias-border-l1);
 }
 
 .gitSectionHeader {
@@ -2625,7 +2644,7 @@ body[data-dsh-sidebar-dragging] .panel {
 }
 
 .gitDiff {
-  border-top: 1px solid var(--qilin-alias-border-l1);
+  border-top: 0.5px solid var(--qilin-alias-border-l1);
   padding: 8px;
 }
 
@@ -2648,7 +2667,7 @@ body[data-dsh-sidebar-dragging] .panel {
   gap: 8px;
   height: 36px;
   padding: 0 8px 0 12px;
-  border-bottom: 1px solid var(--qilin-alias-border-l1);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l1);
 }
 
 .gitDiffTabTitle {
@@ -2714,8 +2733,9 @@ body[data-dsh-sidebar-dragging] .panel {
 .gitDiffFileTag {
   flex: none;
   padding: 0 6px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 999px;
+  corner-shape: round;
   font: var(--qilin-font-xxxs-strong-11);
   color: var(--qilin-alias-label-secondary);
 }
@@ -2818,7 +2838,7 @@ body[data-dsh-sidebar-dragging] .panel {
   display: flex;
   gap: 6px;
   padding: 8px 12px;
-  border-top: 1px solid var(--qilin-alias-border-l1);
+  border-top: 0.5px solid var(--qilin-alias-border-l1);
   align-items: center;
 }
 
@@ -2887,8 +2907,9 @@ body[data-dsh-sidebar-dragging] .panel {
 .gitLogRef {
   flex: none;
   padding: 0 5px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 999px;
+  corner-shape: round;
   font: var(--qilin-font-xxxs-strong-11);
   color: var(--qilin-alias-brand-primary);
   white-space: nowrap;
@@ -2914,7 +2935,7 @@ body[data-dsh-sidebar-dragging] .panel {
   width: calc(100% - 24px);
   margin: 4px 12px 8px;
   padding: 6px 0;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 6px;
   background: transparent;
   font: var(--qilin-font-xxs-12);
@@ -2953,8 +2974,9 @@ body[data-dsh-sidebar-dragging] .panel {
   gap: 4px;
   max-width: 200px;
   padding: 2px 8px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 999px;
+  corner-shape: round;
   background: var(--qilin-alias-bg-layer-2);
   color: var(--qilin-alias-label-secondary);
   font: var(--qilin-font-xxs-12);
@@ -2981,7 +3003,8 @@ body[data-dsh-sidebar-dragging] .panel {
 /* ── Shared interaction rules ──────────────────────────────────────────── */
 
 /* Keyboard focus stays visible on every interactive control (the styling
-   policy requires focus visibility; the accent token doubles as the ring). */
+   policy requires focus visibility) through the shared ring colour, so the
+   pointer-modality suppression keeps applying. */
 .toggleButton:focus-visible,
 .iconButton:focus-visible,
 .tab:focus-visible,
@@ -3002,7 +3025,7 @@ body[data-dsh-sidebar-dragging] .panel {
 .editorDownloadLink:focus-visible,
 .editorPptxButton:focus-visible,
 .editorDocxZoomRange:focus-visible {
-  outline: 2px solid var(--qilin-alias-interactive-bg-hover-accent);
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: -1px;
 }
 
@@ -3148,7 +3171,7 @@ body[data-dsh-sidebar-dragging] .panel {
   height: 26px;
   margin: 4px 2px 0 0;
   padding: 0;
-  border: 1px solid var(--qilin-alias-border-l1);
+  border: 0.5px solid var(--qilin-alias-border-l1);
   border-radius: 6px;
   background: var(--qilin-alias-bg-layer-1);
   color: var(--qilin-alias-label-secondary);
@@ -3172,10 +3195,16 @@ body[data-dsh-sidebar-dragging] .panel {
   max-height: 60vh;
   overflow-y: auto;
   padding: 4px;
-  border: 1px solid var(--qilin-alias-border-l1);
+  /* Hairline inside the elevation shadow (0.5px stroke layer), not a border;
+     the menu-surface precedent rebinds the stroke to the lightest l1. */
+  --qilin-elevation-stroke-color: var(--qilin-alias-border-l1);
+  border: 0;
   border-radius: 8px;
   background: var(--qilin-alias-bg-layer-2);
-  box-shadow: var(--qilin-shadow-lv2);
+  box-shadow: var(--qilin-elevation-stroke), var(--qilin-shadow-lv2);
+  /* Elevated surface: the scrollbar thumb takes the l2 elevation tokens. */
+  --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
   pointer-events: auto;
 }
 
@@ -3250,7 +3279,7 @@ body[data-dsh-sidebar-dragging] .panel {
   min-height: 0;
   width: 100%;
   object-fit: contain;
-  border: 1px solid var(--qilin-alias-border-l, rgba(128, 128, 128, 0.25));
+  border: 0.5px solid var(--qilin-alias-border-l, rgba(128, 128, 128, 0.25));
   border-radius: 8px;
   background: #fff;
   cursor: crosshair;
@@ -3389,6 +3418,7 @@ body[data-dsh-sidebar-dragging] .panel {
   flex: none;
   padding: 0 5px;
   border-radius: 999px;
+  corner-shape: round;
   background: var(--qilin-alias-interactive-bg-hover-accent);
   color: var(--qilin-alias-label-primary);
   font: var(--qilin-font-xxxs-11);
@@ -3502,7 +3532,7 @@ body[data-dsh-sidebar-dragging] .panel {
 .gitGhMethod {
   height: 22px;
   padding: 0 4px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 6px;
   background: var(--qilin-alias-bg-base);
   color: var(--qilin-alias-label-primary);
@@ -3516,7 +3546,7 @@ body[data-dsh-sidebar-dragging] .panel {
   gap: 6px;
   margin: 6px 12px 12px;
   padding: 8px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 8px;
   background: var(--qilin-alias-bg-layer-2);
 }
@@ -3535,7 +3565,7 @@ body[data-dsh-sidebar-dragging] .panel {
   min-height: 56px;
   resize: vertical;
   padding: 6px 8px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 6px;
   background: var(--qilin-alias-bg-base);
   color: var(--qilin-alias-label-primary);
@@ -3577,7 +3607,7 @@ body[data-dsh-sidebar-dragging] .panel {
   flex: none;
   margin: 8px 8px 4px;
   padding: 8px 10px 10px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 8px;
   background: var(--qilin-alias-bg-module-platform);
   display: flex;
@@ -3621,7 +3651,7 @@ body[data-dsh-sidebar-dragging] .panel {
 }
 
 .schedPreviewClose:focus-visible {
-  outline: 2px solid var(--qilin-alias-interactive-bg-hover-accent);
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: -1px;
 }
 
@@ -3766,7 +3796,7 @@ body[data-dsh-sidebar-dragging] .panel {
 }
 
 .plansRowMain:focus-visible {
-  outline: 2px solid var(--qilin-alias-interactive-bg-hover-accent);
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: -1px;
 }
 
@@ -3898,8 +3928,9 @@ body[data-dsh-sidebar-dragging] .panel {
   gap: 2px;
   margin: 6px 8px 2px;
   padding: 3px 4px 3px 10px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 999px;
+  corner-shape: round;
   background: var(--qilin-alias-bg-layer-2, var(--qilin-alias-bg-base));
   box-shadow: 0 6px 18px rgb(0 0 0 / 0.18);
   font: var(--qilin-font-xxxs-11);
@@ -3921,6 +3952,7 @@ body[data-dsh-sidebar-dragging] .panel {
   appearance: none;
   border: none;
   border-radius: 999px;
+  corner-shape: round;
   background: none;
   padding: 3px 9px;
   color: var(--qilin-alias-label-secondary);
@@ -3937,7 +3969,7 @@ body[data-dsh-sidebar-dragging] .panel {
 }
 
 .explorerSelectionAction:focus-visible {
-  outline: 2px solid var(--qilin-alias-label-tertiary);
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: 1px;
 }
 

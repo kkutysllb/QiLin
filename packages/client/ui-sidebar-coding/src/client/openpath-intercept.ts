@@ -34,7 +34,7 @@ import {
 
 /** The one service method the wrapper replaces (mirror of the runtime IWorkspaces). */
 export interface OpenPathService {
-  openPath(path: string): Promise<void>
+  openPath: (path: string) => Promise<void>
 }
 
 /** Per-call decisions the wrapper needs (wired to the store + ctx in the client half). */
@@ -72,6 +72,9 @@ export interface OpenPathInterceptDeps {
 export interface RemoteSessionStub {
   openWorkspacePath(request: { path: string }): Promise<unknown>
 }
+
+/** The configurable accessor's getter face (`Object.getOwnPropertyDescriptor(...).get`). */
+type OpenWorkspacePathGetter = (this: RemoteSessionStub) => RemoteSessionStub['openWorkspacePath']
 
 /**
  * The success envelope ui-chat's openFile expects from the RPC
@@ -144,7 +147,10 @@ export function wrapOpenPath(workspaces: OpenPathService, deps: OpenPathIntercep
  */
 export function wrapRemoteOpenPath(session: RemoteSessionStub, deps: OpenPathInterceptDeps): () => void {
   const desc = Object.getOwnPropertyDescriptor(session, 'openWorkspacePath')
-  const originalGet = desc?.get
+  // Element access: lib.es5 declares `get` as a method signature, and the raw
+  // getter must stay unbound — it is re-invoked with the live namespace `this`
+  // on every access below.
+  const originalGet = desc?.['get'] as OpenWorkspacePathGetter | undefined
   if (desc === undefined || originalGet === undefined) return () => {}
   Object.defineProperty(session, 'openWorkspacePath', {
     configurable: true,
@@ -171,7 +177,7 @@ export function wrapRemoteOpenPath(session: RemoteSessionStub, deps: OpenPathInt
 
 /** The right-Sidebar face the 0.1.5 file-open funnel is wrapped through. */
 export interface SidebarRightStub {
-  openResource(address: string, options?: SidebarRightOpenOptions): void
+  openResource: (address: string, options?: SidebarRightOpenOptions) => void
   /**
    * Page-kind opens (the NATIVE right Sidebar's tab registry). Upstream
    * ui-chat's `openExternalLink` funnels every http(s) link through
@@ -180,13 +186,13 @@ export interface SidebarRightStub {
    * Optional here: older/newer carriers without the method simply stay
    * unwrapped.
    */
-  openTab?(kind: string, options?: SidebarRightOpenTabOptions): void
+  openTab?: (kind: string, options?: SidebarRightOpenTabOptions) => void
 }
 
 /** How a caller wants a native page type opened (the face we claim from). */
 export interface SidebarRightOpenTabOptions {
   /** That kind's navigation parameters (the browser kind carries `url`). */
-  readonly params?: { readonly url?: unknown } | unknown
+  readonly params?: unknown
 }
 
 /** The native page kind whose opens this plugin claims (its own browser tab type). */
@@ -244,7 +250,7 @@ export function wrapNativeBrowserOpen(
       open(url)
       return
     }
-    return original.call(this, kind, options)
+    original.call(this, kind, options)
   }
   return () => {
     right.openTab = original
@@ -293,6 +299,8 @@ const FILE_ADDRESS_PREFIX = 'qilin-resource://file/'
 export function fileTargetOfAddress(address: string): FileAddressTarget | undefined {
   if (typeof address !== 'string' || !address.startsWith(FILE_ADDRESS_PREFIX)) return undefined
   try {
+    /* jscpd:ignore-start — dependency-free file-address grammar mirror of
+       @qilin/util-workspace-path src/file-address.ts parseFileAddress (see JSDoc above) */
     const end = address.search(/[?#]/)
     const [scope, ...rest] = address
       .slice(FILE_ADDRESS_PREFIX.length, end === -1 ? undefined : end)
@@ -314,6 +322,7 @@ export function fileTargetOfAddress(address: string): FileAddressTarget | undefi
       // A drive segment keeps its literal `C:` spelling; anything else is POSIX.
       return { path: /^[A-Za-z]:$/.test(first) ? segments.join('/') : `/${segments.join('/')}` }
     }
+    /* jscpd:ignore-end */
     return undefined
   } catch {
     // `decodeURIComponent` throws URIError on a malformed escape.
@@ -372,7 +381,7 @@ export function wrapSidebarRight(right: SidebarRightStub, deps: OpenPathIntercep
         return
       }
     }
-    return original.call(this, address, options)
+    original.call(this, address, options)
   }
   return () => {
     right.openResource = original

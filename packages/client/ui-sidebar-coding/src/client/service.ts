@@ -29,7 +29,7 @@ import {
 import type { SessionScope } from './api.ts'
 import type { SidebarPrefs } from '../prefs-shared.ts'
 import { notifyIsolated } from '../registration.ts'
-import { createFileIconRegistry } from './file-icon-registry.ts'
+import { createFileIconRegistry, extOf } from './file-icon-registry.ts'
 import { needsPanelExpansion } from './open-intent.ts'
 import type { FileIconDescriptor } from './file-icon-registry.ts'
 import { HOST_FILE_ICONS } from './file-icons.tsx'
@@ -118,9 +118,9 @@ export interface SidebarSettingsRenderProps {
   /** This descriptor's own persisted settings blob (from `pluginSettings[id]`). */
   pluginSettings: Record<string, unknown>
   /** Persist one plugin-owned setting of this descriptor. */
-  updatePluginSetting(key: string, value: unknown): void
+  updatePluginSetting: (key: string, value: unknown) => void
   /** Close the settings popup. */
-  close(): void
+  close: () => void
 }
 
 /** Declarative settings of one registered tab or file viewer. */
@@ -448,6 +448,9 @@ export interface BetterSidebarService {
    * matched.
    */
   registerFileIcon(descriptor: FileIconDescriptor): () => void
+  /* jscpd:ignore-start — the six icon members restate the FileIconRegistry face for
+     this service's consumers (the registry interface in file-icon-registry.ts owns
+     the declaring docs); the signatures must stay in lockstep */
   /** The registered icon sets, in registration order. */
   getFileIcons(): readonly FileIconDescriptor[]
   /**
@@ -481,19 +484,11 @@ export interface BetterSidebarService {
    * both states. Same crash isolation as `fileIcon`.
    */
   folderIcon(path: string, open: boolean, size: number): ReactNode
-}
-
-/** Extract the lowercase extension without leading dot from a path. */
-function extOfPath(path: string): string {
-  const at = path.lastIndexOf('.')
-  if (at === -1) return ''
-  const base = path.slice(at + 1).toLowerCase()
-  return base.includes('/') || base.includes('\\') ? '' : base
+  /* jscpd:ignore-end */
 }
 
 /** The file name of a path (both separators). */
-function baseNameOf(path: string): string {
-  const at = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'))
+function baseNameOf(path: string): string {  const at = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'))
   return at === -1 ? path : path.slice(at + 1)
 }
 
@@ -514,7 +509,7 @@ export function matchUrlTarget(tabs: readonly TabDescriptor[], url: URL): TabDes
     if (tab.urlTarget === undefined) continue
     let claimed = false
     try {
-      claimed = tab.urlTarget(url) === true
+      claimed = tab.urlTarget(url)
     } catch (error) {
       console.error('[ui-sidebar-coding] urlTarget error:', error)
       continue
@@ -523,6 +518,8 @@ export function matchUrlTarget(tabs: readonly TabDescriptor[], url: URL): TabDes
   }
   return undefined
 }
+
+declare const __SIDEBAR_VERSION__: string
 
 /**
  * The plugin version this service instance reports. Injected at build time
@@ -535,7 +532,6 @@ export function matchUrlTarget(tabs: readonly TabDescriptor[], url: URL): TabDes
  * logging and the service descriptor call this during boot.
  * @returns the injected package version, or the source-plane placeholder.
  */
-declare const __SIDEBAR_VERSION__: string
 export const sidebarServiceVersion = (): string =>
   typeof __SIDEBAR_VERSION__ === 'undefined' ? '0.0.0-source' : __SIDEBAR_VERSION__
 
@@ -647,7 +643,7 @@ export function createBetterSidebarService(store: SidebarStore): BetterSidebarSe
   const isViewerEnabled = (id: string): boolean => store.getPrefs().viewersEnabled[id] !== false
 
   const matchFileViewer = (path: string, head?: Uint8Array): FileViewerDescriptor | undefined => {
-    const ext = extOfPath(path)
+    const ext = extOf(path)
     // Single pass in priority order (descending; stable for equal
     // priorities — insertion order). Each descriptor gets first refusal in
     // its own turn: `detect` (when head bytes are available) beats its own

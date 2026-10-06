@@ -80,6 +80,8 @@ export interface PlanDoc {
   size: number
 }
 
+/* jscpd:ignore-start — plan discovery types/title/dedupe pinned verbatim to
+   @qilin/client-ui-sidebar-plans src/client/plans.ts (ported twin) */
 /** A discovered file before identity dedupe/title read (pure-helper input). */
 export interface PlanCandidate {
   path: string
@@ -111,6 +113,7 @@ export function selectPlans(found: readonly PlanCandidate[], limit: number = PLA
   const unique: PlanCandidate[] = []
   for (const item of found) {
     const id = `${item.dev}:${item.ino}`
+    /* jscpd:ignore-end */
     if (seen.has(id)) continue
     seen.add(id)
     unique.push(item)

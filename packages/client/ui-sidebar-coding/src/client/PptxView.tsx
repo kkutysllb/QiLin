@@ -32,26 +32,30 @@ export function PptxView(props: { scope: SessionScope; path: string; title: stri
     setLoad({ status: 'loading' })
     setSlide(0)
     void (async () => {
+      // Reads go through a function: the cleanup's abort() can flip the flag
+      // at any moment and property narrowing goes stale across the awaits.
+      const signal = controller.signal
+      const aborted = (): boolean => signal.aborted
       try {
-        const response = await fetch(mediaUrl(scope, path), { signal: controller.signal })
+        const response = await fetch(mediaUrl(scope, path), { signal })
         if (!response.ok) throw new Error(`HTTP ${response.status}`)
         const bytes = await response.arrayBuffer()
-        if (controller.signal.aborted) return
+        if (aborted()) return
         const { PptxViewer, RECOMMENDED_ZIP_LIMITS } = await import('@aiden0z/pptx-renderer')
-        if (controller.signal.aborted) return
+        if (aborted()) return
         const viewer = await PptxViewer.open(bytes, host, {
           renderMode: 'slide',
           fitMode: 'contain',
           lazyMedia: true,
           lazySlides: true,
           pdfjs: false,
-          signal: controller.signal,
+          signal,
           zipLimits: RECOMMENDED_ZIP_LIMITS,
           onSlideChange: (index) => {
-            if (!controller.signal.aborted) setSlide(index)
+            if (!aborted()) setSlide(index)
           },
         })
-        if (controller.signal.aborted) {
+        if (aborted()) {
           viewer.destroy()
           return
         }
@@ -59,7 +63,7 @@ export function PptxView(props: { scope: SessionScope; path: string; title: stri
         setSlide(viewer.currentSlideIndex)
         setLoad({ status: 'ready', count: viewer.slideCount })
       } catch (error) {
-        if (controller.signal.aborted) return
+        if (aborted()) return
         try {
           viewerRef.current?.destroy()
         } catch {

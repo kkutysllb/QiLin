@@ -110,7 +110,7 @@ export function rewriteLocalImageUrls(
     .replace(/```[\s\S]*?```/g, (block) => { masks.push(block); return `\u0000${masks.length - 1}\u0000` })
     .replace(/`[^`\n]*`/g, (span) => { masks.push(span); return `\u0000${masks.length - 1}\u0000` })
 
-  const inline = masked.replace(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g, (_match, alt, dest) => {
+  const inline = masked.replace(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g, (_match: string, alt: string, dest: string) => {
     return `![${alt}](${resolve(dest)})`
   })
 
@@ -133,6 +133,5 @@ export function rewriteLocalImageUrls(
     return `${head}${resolve(dest.replace(/^<|>$/g, ''))}`
   })
 
-  // eslint-disable-next-line no-control-regex -- NUL is the deliberate mask sentinel (cannot appear in source markdown)
   return refsRewritten.replace(/\u0000(\d+)\u0000/g, (_m, index: string) => masks[Number(index)] ?? '')
 }

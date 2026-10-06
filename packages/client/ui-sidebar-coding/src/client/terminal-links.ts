@@ -68,6 +68,8 @@ function trimUnbalancedTrailingParens(url: string): string {
   for (let i = 0; i < url.length; i += 1) {
     const ch = url[i]
     if (ch === '(') opens += 1
+    /* jscpd:ignore-start — terminal URL scanner pinned verbatim to
+       @qilin/client-ui-sidebar-terminal src/client/terminal-links.ts (ported twin) */
     else if (ch === ')') closers += 1
   }
   const excess = closers - opens
@@ -99,6 +101,7 @@ export function findTerminalUrlsInLine(line: string): TerminalUrlMatch[] {
   TERMINAL_URL_REGEX.lastIndex = 0
   const matches: TerminalUrlMatch[] = []
   let m: RegExpExecArray | null
+  /* jscpd:ignore-end */
   while ((m = TERMINAL_URL_REGEX.exec(line)) !== null) {
     const trimmed = trimUnbalancedTrailingParens(m[0])
     if (trimmed.length > 0) {

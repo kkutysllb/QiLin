@@ -99,6 +99,14 @@ function textOf(value: string | (() => string) | undefined): string {
   return typeof value === 'function' ? value() : value
 }
 
+/** Display text of a stored pref value: strings, numbers, and booleans render
+ *  directly; anything else (an object never belongs in a text/number row)
+ *  renders as empty. */
+function displayText(value: unknown): string {
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return String(value)
+  return ''
+}
+
 /** Resolve a descriptor icon (ReactNode or size function). */
 function iconOf(icon: ReactNode | ((size: number) => ReactNode) | undefined, size: number): ReactNode {
   if (icon === undefined) return null
@@ -267,7 +275,7 @@ export function FeatureSettingsRows(props: {
             </div>
           )
         }
-        const value = String(read(toggle.key) ?? '')
+        const value = displayText(read(toggle.key))
         // Keyed by the committed value: a failed commit reverts prefs, the
         // key changes, and the row remounts with the stored value (typing
         // never changes the key, so mid-edit drafts survive re-renders).
@@ -281,6 +289,23 @@ export function FeatureSettingsRows(props: {
           />
         )
       })}
+    </div>
+  )
+}
+
+/** One settings row: the title/description text beside a control slot. */
+function SettingRow(props: {
+  toggle: SidebarSettingToggle
+  title: string
+  control: ReactNode
+}): ReactNode {
+  return (
+    <div className={css.popupRow}>
+      <span className={css.rowText}>
+        <span className={css.title}>{props.title}</span>
+        {textOf(props.toggle.desc) !== '' && <span className={css.desc}>{textOf(props.toggle.desc)}</span>}
+      </span>
+      <span className={css.control}>{props.control}</span>
     </div>
   )
 }
@@ -303,32 +328,33 @@ function TypedRow(props: {
     const canonical = onCommit?.(toggle, draft) ?? draft
     setDraft(canonical)
   }
+
   const number = toggle.type === 'number'
   return (
-    <div className={css.popupRow}>
-      <span className={css.rowText}>
-        <span className={css.title}>{title}</span>
-        {textOf(toggle.desc) !== '' && <span className={css.desc}>{textOf(toggle.desc)}</span>}
-      </span>
-      <span className={css.control}>
-        <Input
-          type={number ? 'number' : 'text'}
-          className={number ? css.typedInputNumber : css.typedInput}
-          value={draft}
-          min={toggle.min}
-          max={toggle.max}
-          step={1}
-          placeholder={toggle.placeholder}
-          aria-label={title}
-          onChange={(event) => { setDraft(event.currentTarget.value) }}
-          onBlur={commit}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') event.currentTarget.blur()
-          }}
-        />
-        {toggle.unit !== undefined && <span className={css.suffix}>{toggle.unit}</span>}
-      </span>
-    </div>
+    <SettingRow
+      toggle={toggle}
+      title={title}
+      control={
+        <>
+          <Input
+            type={number ? 'number' : 'text'}
+            className={number ? css.typedInputNumber : css.typedInput}
+            value={draft}
+            min={toggle.min}
+            max={toggle.max}
+            step={1}
+            placeholder={toggle.placeholder}
+            aria-label={title}
+            onChange={(event) => { setDraft(event.currentTarget.value) }}
+            onBlur={commit}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') event.currentTarget.blur()
+            }}
+          />
+          {toggle.unit !== undefined && <span className={css.suffix}>{toggle.unit}</span>}
+        </>
+      }
+    />
   )
 }
 /**
@@ -399,12 +425,13 @@ function SelectMenu(props: {
       setOpen(false)
       return
     }
-    const current = Array.isArray(value) ? [...value] : []
-    const at = current.indexOf(option.value)
-    if (at >= 0) current.splice(at, 1)
-    else current.push(option.value)
+    // Membership only: read the prop array without mutating it.
+    const current: readonly unknown[] = Array.isArray(value) ? value : []
+    const next = current.includes(option.value)
+      ? current.filter(entry => entry !== option.value)
+      : [...current, option.value]
     // Stable wire order: follow the declared options order, not pick order.
-    onSelect(options.filter(o => current.includes(o.value)).map(o => o.value))
+    onSelect(options.filter(o => next.includes(o.value)).map(o => o.value))
   }
 
   const anchor = (
@@ -470,12 +497,10 @@ function SelectRow(props: {
 }) {
   const { toggle, title, value, onSelectValue } = props
   return (
-    <div className={css.popupRow}>
-      <span className={css.rowText}>
-        <span className={css.title}>{title}</span>
-        {textOf(toggle.desc) !== '' && <span className={css.desc}>{textOf(toggle.desc)}</span>}
-      </span>
-      <span className={css.control}>
+    <SettingRow
+      toggle={toggle}
+      title={title}
+      control={
         <SelectMenu
           label={title}
           value={value}
@@ -483,8 +508,8 @@ function SelectRow(props: {
           multi={toggle.multi === true}
           onSelect={(next) => { onSelectValue?.(toggle, next) }}
         />
-      </span>
-    </div>
+      }
+    />
   )
 }
 
@@ -649,7 +674,7 @@ export function SideCardSection({ store, service }: SideCardSectionProps) {
     inFlightRef.current = run.then(() => undefined, () => undefined)
     return run.then(
       next => ({ ok: true, prefs: next }),
-      (caught) => {
+      (caught: unknown) => {
         setError(messageOf(caught))
         return { ok: false, prefs }
       },
@@ -666,11 +691,11 @@ export function SideCardSection({ store, service }: SideCardSectionProps) {
   /** Optimistically apply one pref patch, then commit (revert on failure). */
   const applyPref = (patch: Record<string, unknown>): void => {
     const previous = optimisticRef.current
-    const next = { ...previous, ...patch } as SidebarPrefs
+    const next = { ...previous, ...patch }
     optimisticRef.current = next
     setPrefs(next)
     setError(null)
-    void commit(patch).then(outcome => applyOutcome(previous, outcome))
+    void commit(patch).then((outcome) => { applyOutcome(previous, outcome) })
   }
 
   const onToggle = (next: boolean): void => {
@@ -708,7 +733,7 @@ export function SideCardSection({ store, service }: SideCardSectionProps) {
   const onCommitSetting = (toggle: SidebarSettingToggle, raw: string): string => {
     if (toggle.type === 'number') {
       const parsed = Number(raw)
-      const fallback = String((prefs as unknown as Record<string, unknown>)[toggle.key] ?? '')
+      const fallback = displayText((prefs as unknown as Record<string, unknown>)[toggle.key])
       if (!Number.isFinite(parsed)) return fallback
       let clamped = Math.round(parsed)
       if (toggle.min !== undefined) clamped = Math.max(toggle.min, clamped)
@@ -767,7 +792,7 @@ export function SideCardSection({ store, service }: SideCardSectionProps) {
     if (toggle.type === 'number') {
       const parsed = Number(raw)
       const blob = prefs.pluginSettings[descriptorId] ?? {}
-      const fallback = String(blob[toggle.key] ?? '')
+      const fallback = displayText(blob[toggle.key])
       if (!Number.isFinite(parsed)) return fallback
       let clamped = Math.round(parsed)
       if (toggle.min !== undefined) clamped = Math.max(toggle.min, clamped)
@@ -790,7 +815,7 @@ export function SideCardSection({ store, service }: SideCardSectionProps) {
     setPrefs({ ...previous, defaultWidthPercent: clamped })
     setWidthDraft(String(clamped))
     setError(null)
-    void commit({ defaultWidthPercent: clamped }).then(outcome => applyOutcome(previous, outcome))
+    void commit({ defaultWidthPercent: clamped }).then((outcome) => { applyOutcome(previous, outcome) })
   }
 
   /**

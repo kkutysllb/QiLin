@@ -15,7 +15,7 @@ import type {
   SidebarSessionSummary,
   SidebarSubagentCatalog,
 } from '../context-types.ts'
-import { SIDE_LABEL_PREFIX } from '../sidechat-core.ts'
+import { LEGACY_SIDE_TAB_PREFIX } from '../sidechat-core.ts'
 
 /**
  * Side Chat threads ride the subagent origin (main-list hiding + the RPC
@@ -24,7 +24,7 @@ import { SIDE_LABEL_PREFIX } from '../sidechat-core.ts'
  * keeps the auto-open trigger and the Subagent page counts clean.
  */
 export function isSideThreadSummary(summary: SidebarSessionSummary): boolean {
-  return summary.origin === 'subagent' && summary.displayTitle.startsWith(SIDE_LABEL_PREFIX)
+  return summary.origin === 'subagent' && summary.displayTitle.startsWith(LEGACY_SIDE_TAB_PREFIX)
 }
 
 /** Count the direct subagent children of one session (durable `origin` rows). */

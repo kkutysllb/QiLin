@@ -70,8 +70,10 @@ export function rehydrateWorkbenchState(value: unknown): WorkbenchState {
   if (typeof value !== 'object' || value === null) return WORKBENCH_DEFAULT_STATE
   const candidate = value as Partial<WorkbenchState>
   if (candidate.active !== 'general' && candidate.active !== 'coding') return WORKBENCH_DEFAULT_STATE
-  const presets = candidate.presets
-  if (typeof presets !== 'object' || presets === null
+  // The stored document may hold `presets: null` (or drop the field); the
+  // cast states that boundary truth beyond the rehydrated interface's type.
+  const presets = candidate.presets as Partial<Record<WorkbenchTag, string>> | null | undefined
+  if (presets === undefined || presets === null
     || typeof presets.general !== 'string' || typeof presets.coding !== 'string') {
     return { active: candidate.active, presets: WORKBENCH_DEFAULT_STATE.presets }
   }

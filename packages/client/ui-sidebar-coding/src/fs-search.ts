@@ -79,9 +79,13 @@ export async function searchFiles(root: string, query: string, opts: FsSearchOpt
   const matches: string[] = []
   let visited = 0
   let truncated = false
+  // The flag is flipped inside the recursive walk; TypeScript's flow analysis
+  // cannot see that mutation across closure invocations, so reads go through
+  // this accessor to keep their real `boolean` type.
+  const isTruncated = (): boolean => truncated
 
   const walk = async (dir: string): Promise<void> => {
-    if (truncated) return
+    if (isTruncated()) return
     const level = await opendir(dir).catch(() => undefined)
     if (level === undefined) return
     for await (const dirent of level) {
@@ -103,7 +107,7 @@ export async function searchFiles(root: string, query: string, opts: FsSearchOpt
       // up the tree (cycle).
       if (dirent.isDirectory() && !dirent.isSymbolicLink()) {
         await walk(join(dir, dirent.name))
-        if (truncated) return
+        if (isTruncated()) return
       }
     }
   }

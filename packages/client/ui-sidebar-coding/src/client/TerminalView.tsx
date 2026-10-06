@@ -134,7 +134,7 @@ export function TerminalView(props: { scope: SessionScope; tabId: string; store:
   useEffect(() => {
     if (agentUuid === null) return
     const read = (): void => {
-      const next = store.getSnapshot().state?.agentWaits?.[agentUuid]
+      const next = store.getSnapshot().state?.agentWaits[agentUuid]
       setWaiting((prev) => {
         const nextValue = next === undefined ? undefined : { needle: next.needle, since: next.since }
         if (prev?.needle === nextValue?.needle && prev?.since === nextValue?.since) return prev
@@ -178,6 +178,8 @@ export function TerminalView(props: { scope: SessionScope; tabId: string; store:
         // would fetch the row *below* the one xterm asked us to scan, so
         // the URL text would come from the wrong row while `range.y` still
         // pointed at the requested row — links landed one line too high.
+        /* jscpd:ignore-start — same xterm link-provider wiring as
+           @qilin/client-ui-sidebar-terminal src/client/terminal.tsx (ported xterm glue) */
         const line = term.buffer.active.getLine(lineNumber - 1)
         if (line === undefined) {
           callback(undefined)
@@ -196,6 +198,7 @@ export function TerminalView(props: { scope: SessionScope; tabId: string; store:
             openTerminalUrl(descriptor.text)
           },
         })))
+        /* jscpd:ignore-end */
       },
     })
     // Re-theme in place when the app's scheme flips (tokens + palette).
@@ -438,7 +441,7 @@ export function TerminalDepsBanner(props: { deps: TerminalDepsInfo; onRetry: () 
     const written = await writeClipboard(deps.command)
     if (written) {
       setCopied(true)
-      window.setTimeout(() => setCopied(false), 2000)
+      window.setTimeout(() => { setCopied(false) }, 2000)
     }
   }
   return (

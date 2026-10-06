@@ -38,12 +38,12 @@ export interface GitHubViewProps {
 /** The merge strategies offered in the inline confirmation (gh flag names). */
 const METHODS: readonly string[] = ['squash', 'merge', 'rebase']
 
-/** Display label of one merge strategy (proper nouns, kept untranslated). */
+/** Display label of one merge strategy (locale copy; the select values stay the gh flag names). */
 function methodLabel(method: string): string {
   switch (method) {
-    case 'merge': return 'Merge'
-    case 'rebase': return 'Rebase'
-    default: return 'Squash'
+    case 'merge': return t('ghMethodMerge')
+    case 'rebase': return t('ghMethodRebase')
+    default: return t('ghMethodSquash')
   }
 }
 
@@ -91,7 +91,6 @@ export function GitHubView(props: GitHubViewProps) {
     } finally {
       setLoading(false)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gitScopeKey, worktree])
 
   useEffect(() => {
@@ -186,17 +185,17 @@ export function GitHubView(props: GitHubViewProps) {
         </button>
       </div>
 
-      {(probe?.version !== null || probe?.account !== null) && (
+      {(probe === null || probe.version !== null || probe.account !== null) && (
         <div className={css.gitGhEnv}>
           {t('ghEnv')}
-          {probe?.version !== null && probe?.version !== undefined && <> · {probe.version}</>}
-          {probe?.account !== null && probe?.account !== undefined && <> · {probe.account}</>}
+          {probe !== null && probe.version !== null && <> · {probe.version}</>}
+          {probe !== null && probe.account !== null && <> · {probe.account}</>}
         </div>
       )}
 
       {degraded && (
         <div className={css.gitPlaceholder}>
-          {probe?.installed === false ? t('ghNotInstalled') : t('ghNotAuthenticated')}
+          {!probe.installed ? t('ghNotInstalled') : t('ghNotAuthenticated')}
           <div className={css.gitGhHint}>{t('ghInstallHint')}</div>
         </div>
       )}

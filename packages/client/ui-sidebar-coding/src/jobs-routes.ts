@@ -246,7 +246,7 @@ export function buildJobsApi(ctx: Context, outputLimit: number): SidebarJobsRout
       // with the live mirror, deduped by seq — a trace never double-counts.
       const bySeq = new Map<number, JobOutputTrace>()
       const store = ctx.sessions.get(sessionId)
-      for (const event of (store?.snapshotEvents !== undefined ? store.snapshotEvents() : []) ?? []) {
+      for (const event of store?.snapshotEvents !== undefined ? store.snapshotEvents() : []) {
         const trace = traceOf(event)
         if (trace !== undefined) bySeq.set(trace.seq, trace)
       }

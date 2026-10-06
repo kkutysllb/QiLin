@@ -50,7 +50,7 @@ export function workspacePackageDirs(repoRoot: string): string[] {
       if (!entry.isDirectory()) continue
       // parentPath is absolute on current Node; resolve() also accepts a
       // relative one, and unlike join() it resets at the absolute prefix.
-      const dir = resolve(repoRoot, entry.parentPath ?? '', entry.name)
+      const dir = resolve(repoRoot, entry.parentPath, entry.name)
       if (existsSync(join(dir, 'package.json'))) dirs.push(dir)
     }
   }

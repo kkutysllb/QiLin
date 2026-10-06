@@ -34,6 +34,8 @@ export interface FsEntry {
 }
 
 /** Git status entry (host git shape). */
+/* jscpd:ignore-start — client-plane wire mirror of the host git shapes in src/git.ts
+   (the two sides compile under separate faces; the mirror IS the wire contract) */
 export interface GitStatusEntry {
   path: string
   xy: string
@@ -109,6 +111,7 @@ export interface GitSummary {
   /** Untracked file count as git reports it. */
   untracked: number
 }
+/* jscpd:ignore-end */
 
 /** One branch row (git.branch-rows). */
 export interface GitBranchRow {
@@ -123,6 +126,7 @@ export interface GitBranchRow {
 }
 
 /** One open pull request (gh.list). */
+/* jscpd:ignore-start — client-plane wire mirror of the host gh shapes in src/github.ts */
 export interface GhPullRequest {
   number: number
   title: string
@@ -156,6 +160,7 @@ export interface GhListResult {
   prs: GhPullRequest[]
   issues: GhIssue[]
 }
+/* jscpd:ignore-end */
 
 /** The gh environment probe (gh.probe). */
 export interface GhProbeResult {
@@ -222,6 +227,20 @@ export type TerminalDepsStatus =
     note?: string
   }
 
+/** Parsed wire envelope of a /sidebar JSON response. */
+type WireEnvelope = { ok?: boolean; value?: unknown; error?: { code?: string; message?: string } } | null
+
+/** The envelope's `value`; throws {@link SidebarApiError} unless the wire said ok. */
+function wireValue(response: Response, parsed: WireEnvelope): unknown {
+  if (!response.ok || parsed === null || parsed.ok !== true || parsed.value === undefined) {
+    throw new SidebarApiError(
+      parsed?.error?.code ?? 'http',
+      parsed?.error?.message ?? `HTTP ${response.status}`,
+    )
+  }
+  return parsed.value
+}
+
 async function call<T>(method: string, payload: Record<string, unknown>, signal?: AbortSignal): Promise<T> {
   let response: Response
   try {
@@ -234,15 +253,8 @@ async function call<T>(method: string, payload: Record<string, unknown>, signal?
   } catch (error) {
     throw new SidebarApiError('network', error instanceof Error ? error.message : String(error))
   }
-  const parsed: { ok?: boolean; value?: unknown; error?: { code?: string; message?: string } } | null
-    = await response.json().catch(() => null)
-  if (!response.ok || parsed === null || parsed.ok !== true || parsed.value === undefined) {
-    throw new SidebarApiError(
-      parsed?.error?.code ?? 'http',
-      parsed?.error?.message ?? `HTTP ${response.status}`,
-    )
-  }
-  return parsed.value as T
+  const body: unknown = await response.json().catch(() => null)
+  return wireValue(response, body as WireEnvelope) as T
 }
 
 /**
@@ -273,15 +285,8 @@ async function fetchUpload<T>(
     if (error instanceof DOMException && error.name === 'AbortError') throw error
     throw new SidebarApiError('network', error instanceof Error ? error.message : String(error))
   }
-  const parsed: { ok?: boolean; value?: unknown; error?: { code?: string; message?: string } } | null
-    = await response.json().catch(() => null)
-  if (!response.ok || parsed === null || parsed.ok !== true || parsed.value === undefined) {
-    throw new SidebarApiError(
-      parsed?.error?.code ?? 'http',
-      parsed?.error?.message ?? `HTTP ${response.status}`,
-    )
-  }
-  return parsed.value as T
+  const wire: unknown = await response.json().catch(() => null)
+  return wireValue(response, wire as WireEnvelope) as T
 }
 
 /** One request's session scope: the conversation id plus its cwd when known. */

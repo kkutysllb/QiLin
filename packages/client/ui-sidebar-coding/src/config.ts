@@ -70,7 +70,7 @@ const VOLATILE_WRITE = Symbol.for('cosmokit.volatile.write')
 /** 判定一个配置值是否为 volatile 引用（与 fork `isVolatile` 等价）。 */
 export function isVolatileRef(value: unknown): value is VolatileRef<unknown> {
   return (typeof value === 'function' || (typeof value === 'object' && value !== null))
-    && VOLATILE_WRITE in (value as object)
+    && VOLATILE_WRITE in value
 }
 
 /** 配置字段的运行时形态：volatile 引用、未包装原值，或整段缺失。 */
@@ -109,7 +109,7 @@ export type TitleBarSchemeField = VolatileStringRef | TitleBarScheme | undefined
 /** 读一个字段的当前值（volatile 引用解包；其余原样）。 */
 function plainValue<T>(value: ConfigField<T>): T | undefined {
   if (value === undefined) return undefined
-  return isVolatileRef(value) ? (value.get() as T) : value
+  return isVolatileRef(value) ? value.get() : value
 }
 
 // ── schemastery volatile shim ───────────────────────────────────────────────

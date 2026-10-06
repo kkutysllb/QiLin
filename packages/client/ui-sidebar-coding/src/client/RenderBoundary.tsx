@@ -15,6 +15,7 @@
  * fixed rail vs. the tab's pane-filling block.
  */
 import { Component, type ErrorInfo, type ReactNode } from 'react'
+import { PLUGIN_DISPLAY_NAME } from './channel-policy.ts'
 import { t } from './locales.ts'
 import css from './sidebar.module.css'
 
@@ -33,7 +34,7 @@ export class RenderBoundary extends Component<{ children?: ReactNode; className?
     if (this.state.error !== null) {
       return (
         <div className={this.props.className}>
-          <span>@qilin/client-ui-sidebar-coding: {this.state.error}</span>
+          <span>{PLUGIN_DISPLAY_NAME}: {this.state.error}</span>
           <button
             type="button"
             className={css.terminalRetry}

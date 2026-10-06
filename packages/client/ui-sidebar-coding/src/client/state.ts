@@ -374,7 +374,9 @@ export function moveTabToEdge(
   if (source === undefined) return state
   const tab = source.tabs.find(candidate => candidate.id === tabId)
   if (tab === undefined) return state
-  let emptied = false
+  // The flag is assigned inside the mapLeaf callback, so its read below must
+  // stay typed `boolean` — a bare `= false` narrows to `false` at the read.
+  let emptied = false as boolean
   let splits = mapLeaf(node, source.id, (leaf) => {
     leaf.tabs = leaf.tabs.filter(candidate => candidate.id !== tabId)
     if (leaf.active === tabId) leaf.active = leaf.tabs[leaf.tabs.length - 1]?.id ?? null
@@ -414,7 +416,8 @@ export function removeLeafAt(node: SplitNode, paneId: string): SplitNode {
 /** Close a tab; an emptied leaf is removed (unless it is the only pane). */
 export function closeTab(state: SidebarState, paneId: string, tabId: string): SidebarState {
   const key = treeOf(state, paneId)
-  let emptied = false
+  // Same closure-assigned flag as moveTabToEdge above.
+  let emptied = false as boolean
   const splits = mapLeaf(state[key], paneId, (leaf) => {
     leaf.tabs = leaf.tabs.filter(tab => tab.id !== tabId)
     if (leaf.active === tabId) leaf.active = leaf.tabs[leaf.tabs.length - 1]?.id ?? null
@@ -446,7 +449,9 @@ export function patchTab(
   tabId: string,
   patch: { title?: string; path?: string; meta?: unknown },
 ): SidebarState {
-  let changed = false
+  // Assigned inside `apply` (below and in the walk); typed wide so the final
+  // read is not narrowed to `false`.
+  let changed = false as boolean
   const apply = (tab: SidebarTab): SidebarTab => {
     changed = true
     return {
@@ -489,7 +494,8 @@ export function setTabPin(
   tabId: string,
   pin: { scope: 'workspace' | 'global'; homeCwd?: string } | null,
 ): SidebarState {
-  let changed = false
+  // Same closure-assigned flag as patchTab above.
+  let changed = false as boolean
   const apply = (tab: SidebarTab): SidebarTab => {
     // Pin is terminal-only (design YAGNI): a defensive guard keeps the
     // invariant even if a caller accidentally targets a non-terminal tab.
@@ -555,15 +561,24 @@ export function setTabPin(
  * A stale activePane id (its pane was closed since) falls back to the
  * right tree's first pane instead of swallowing the open.
  */
-export function openTabInActivePane(state: SidebarState, tab: SidebarTab): SidebarState {
-  let targetId = state.activePane ?? firstLeaf(state.splits).id
-  // A stale activePane (its pane was closed since) must not swallow the
-  // open: fall back to the first pane of the right tree instead of dropping
-  // the tab.
+/**
+ * Resolve the pane an open/dock targets: `preferred` (an explicit pane or the
+ * active pane), with the right tree's first leaf as the fallback — a stale
+ * id (its pane was closed since) must not swallow the open.
+ */
+function landingTargetOf(
+  state: SidebarState,
+  preferred: string | null | undefined,
+): { targetId: string; targetKey: 'splits' } {
+  let targetId = preferred ?? firstLeaf(state.splits).id
   if (!allLeaves(state[treeOf(state, targetId)]).some(leaf => leaf.id === targetId)) {
     targetId = firstLeaf(state.splits).id
   }
-  const targetKey = treeOf(state, targetId)
+  return { targetId, targetKey: treeOf(state, targetId) }
+}
+
+export function openTabInActivePane(state: SidebarState, tab: SidebarTab): SidebarState {
+  const { targetId, targetKey } = landingTargetOf(state, state.activePane)
   // Id-based safety net: if a tab with the same id exists, focus it — in a
   // pane (activate) or in a free window (raise, no panel switch).
   for (const leaf of allLeaves(state.splits)) {
@@ -585,7 +600,8 @@ export function openTabInActivePane(state: SidebarState, tab: SidebarTab): Sideb
 /** Move a tab from one pane to another (insert at index; -1 appends). */
 export function moveTab(state: SidebarState, fromPane: string, tabId: string, toPane: string, index = -1): SidebarState {
   let moved: SidebarTab | undefined
-  let emptied = false
+  // Same closure-assigned flag as moveTabToEdge above.
+  let emptied = false as boolean
   let splits = mapLeaf(state.splits, fromPane, (leaf) => {
     const found = leaf.tabs.find(tab => tab.id === tabId)
     if (found === undefined) return
@@ -771,7 +787,8 @@ export function floatTab(state: SidebarState, tabId: string, x: number, y: numbe
   const key = 'splits' as const
   const tab = source.tabs.find(candidate => candidate.id === tabId)
   if (tab === undefined) return state
-  let emptied = false
+  // Same closure-assigned flag as moveTabToEdge above.
+  let emptied = false as boolean
   let node = mapLeaf(state[key], source.id, (leaf) => {
     leaf.tabs = leaf.tabs.filter(candidate => candidate.id !== tabId)
     if (leaf.active === tabId) leaf.active = leaf.tabs[leaf.tabs.length - 1]?.id ?? null
@@ -841,11 +858,7 @@ export function raiseFloat(state: SidebarState, floatId: string): SidebarState {
 export function dockFloat(state: SidebarState, floatId: string, toPane?: string): SidebarState {
   const float = floatById(state, floatId)
   if (float === undefined) return state
-  let targetId = toPane ?? state.activePane ?? firstLeaf(state.splits).id
-  if (!allLeaves(state[treeOf(state, targetId)]).some(leaf => leaf.id === targetId)) {
-    targetId = firstLeaf(state.splits).id
-  }
-  const targetKey = treeOf(state, targetId)
+  const { targetId, targetKey } = landingTargetOf(state, toPane ?? state.activePane)
   return {
     ...state,
     floats: state.floats.filter(f => f.id !== floatId),
@@ -1289,7 +1302,7 @@ function sanitizePersistedTab(tab: unknown): SidebarTab | 'diff' | undefined {
   // silently (the tab survives, just unpinned — the legacy behavior).
   // Pin is terminal-only: a non-terminal tab carrying a persisted pin
   // (e.g. from a hand-edited state) has it stripped here.
-  const pin = (candidate as Record<string, unknown>).pin
+  const pin = candidate.pin
   if (pin !== null && typeof pin === 'object' && !Array.isArray(pin) && result.type === 'terminal') {
     const pinRecord = pin as Record<string, unknown>
     if (pinRecord.scope === 'workspace' || pinRecord.scope === 'global') {

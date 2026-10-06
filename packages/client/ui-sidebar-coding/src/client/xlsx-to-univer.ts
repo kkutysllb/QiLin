@@ -107,11 +107,13 @@ function worksheetToUniver(
   }
 
   // Merged cells: SheetJS's Range uses { s: { r, c }, e: { r, c } } (0-indexed),
-  // which is exactly Univer's IRange shape — copy verbatim.
+  // which is exactly Univer's IRange shape — copy verbatim. SheetJS emits
+  // hole-y arrays despite the dense declared type, so iterate the sparse view.
   const mergesField = ws['!merges']
   if (Array.isArray(mergesField)) {
-    for (const m of mergesField) {
-      if (m === undefined || m === null) continue
+    const entries: readonly (XLSX.Range | undefined)[] = mergesField
+    for (const m of entries) {
+      if (m === undefined) continue
       merges.push({ startRow: m.s.r, endRow: m.e.r, startColumn: m.s.c, endColumn: m.e.c })
     }
   }
@@ -178,9 +180,11 @@ function convertCell(cell: XLSX.CellObject): ICellData | null {
 /** Convert SheetJS `!cols` (ColInfo[]) to Univer columnData (sparse, by index). */
 function convertCols(cols: XLSX.ColInfo[] | undefined): IObjectArrayPrimitiveType<Partial<IColumnData>> {
   if (!Array.isArray(cols)) return {}
+  // SheetJS emits hole-y arrays despite the dense declared type.
+  const entries: readonly (XLSX.ColInfo | undefined)[] = cols
   const out: IObjectArrayPrimitiveType<Partial<IColumnData>> = {}
-  cols.forEach((info, index) => {
-    if (info === undefined || info === null) return
+  entries.forEach((info, index) => {
+    if (info === undefined) return
     const w = info.wpx ?? (info.width !== undefined ? Math.round(info.width * 7) : undefined)
     out[index] = {
       ...(w !== undefined ? { w } : {}),
@@ -193,9 +197,11 @@ function convertCols(cols: XLSX.ColInfo[] | undefined): IObjectArrayPrimitiveTyp
 /** Convert SheetJS `!rows` (RowInfo[]) to Univer rowData (sparse, by index). */
 function convertRows(rows: XLSX.RowInfo[] | undefined): IObjectArrayPrimitiveType<Partial<IRowData>> {
   if (!Array.isArray(rows)) return {}
+  // SheetJS emits hole-y arrays despite the dense declared type.
+  const entries: readonly (XLSX.RowInfo | undefined)[] = rows
   const out: IObjectArrayPrimitiveType<Partial<IRowData>> = {}
-  rows.forEach((info, index) => {
-    if (info === undefined || info === null) return
+  entries.forEach((info, index) => {
+    if (info === undefined) return
     const h = info.hpx ?? info.hpt
     out[index] = {
       ...(h !== undefined ? { h: Math.round(h) } : {}),

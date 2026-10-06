@@ -16,6 +16,7 @@ import type { SidebarState, SidebarTab, SplitNode } from './state.ts'
 import type { DropZone } from './state.ts'
 import { TabBar, type NewTabOption, parseDrag, type TabDragPayload } from './TabBar.tsx'
 import { createFrameBatcher } from './frame-batcher.ts'
+import { useDragGestureClear } from './use-drag-gesture-clear.ts'
 import css from './sidebar.module.css'
 
 /** Actions the workbench needs (bound to the store by the sidebar shell). */
@@ -64,7 +65,7 @@ function Divider(props: { dir: 'row' | 'col'; onResize: (deltaFrac: number) => v
   const [dragging, setDragging] = useState(false)
   const pendingDelta = useRef(0)
   const batcher = useRef(createFrameBatcher()).current
-  useEffect(() => () => batcher.dispose(), [batcher])
+  useEffect(() => () => { batcher.dispose() }, [batcher])
 
   return (
     <div
@@ -146,31 +147,29 @@ function PaneEmptyCards(props: {
   )
 }
 
-/** A leaf: tab strip + active content + VSCode-style drop target for tabs. */
-function LeafView(props: {
-  leaf: { id: string; tabs: SidebarTab[]; active: string | null }
+/**
+ * Props every split-tree renderer forwards unchanged down the tree: the
+ * + menu options and actions, the tab content renderer, and the per-tab
+ * icon/badge resolvers.
+ */
+interface SplitRenderProps {
   newTabOptions: NewTabOption[]
   actions: WorkbenchActions
   onNewTab: (optionId: string) => void
   renderTab: (tab: SidebarTab, active: boolean, paneId: string) => ReactNode
   getTabIcon?: ((tab: SidebarTab) => ReactNode) | undefined
   getTabBadge?: ((tab: SidebarTab) => ReactNode) | undefined
-}) {
+}
+
+/** A leaf: tab strip + active content + VSCode-style drop target for tabs. */
+function LeafView(props: {
+  leaf: { id: string; tabs: SidebarTab[]; active: string | null }
+} & SplitRenderProps) {
   const { leaf, newTabOptions, actions, onNewTab, renderTab, getTabIcon, getTabBadge } = props
   const [dropZone, setDropZone] = useState<DropZone | null>(null)
   const activeTab = leaf.tabs.find(tab => tab.id === leaf.active) ?? leaf.tabs[leaf.tabs.length - 1]
 
-  useEffect(() => {
-    const clear = (): void => { setDropZone(null) }
-    window.addEventListener('dragend', clear, true)
-    window.addEventListener('drop', clear, true)
-    window.addEventListener('blur', clear)
-    return () => {
-      window.removeEventListener('dragend', clear, true)
-      window.removeEventListener('drop', clear, true)
-      window.removeEventListener('blur', clear)
-    }
-  }, [])
+  useDragGestureClear(() => { setDropZone(null) })
 
   return (
     <div
@@ -248,13 +247,7 @@ function LeafView(props: {
 function NodeView(props: {
   node: SplitNode
   state: SidebarState
-  newTabOptions: NewTabOption[]
-  actions: WorkbenchActions
-  onNewTab: (optionId: string) => void
-  renderTab: (tab: SidebarTab, active: boolean, paneId: string) => ReactNode
-  getTabIcon?: ((tab: SidebarTab) => ReactNode) | undefined
-  getTabBadge?: ((tab: SidebarTab) => ReactNode) | undefined
-}) {
+} & SplitRenderProps) {
   const { node, state, newTabOptions, actions, onNewTab, renderTab, getTabIcon, getTabBadge } = props
   if (node.kind === 'leaf') {
     return (
@@ -306,13 +299,7 @@ function NodeView(props: {
 export function Workbench(props: {
   state: SidebarState
   tree?: SplitNode | undefined
-  newTabOptions: NewTabOption[]
-  actions: WorkbenchActions
-  onNewTab: (optionId: string) => void
-  renderTab: (tab: SidebarTab, active: boolean, paneId: string) => ReactNode
-  getTabIcon?: ((tab: SidebarTab) => ReactNode) | undefined
-  getTabBadge?: ((tab: SidebarTab) => ReactNode) | undefined
-}) {
+} & SplitRenderProps) {
   const { state, tree, newTabOptions, actions, onNewTab, renderTab, getTabIcon, getTabBadge } = props
   return (
     <div className={css.workbench}>

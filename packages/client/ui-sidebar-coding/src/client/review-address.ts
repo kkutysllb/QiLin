@@ -118,7 +118,7 @@ export function reviewedPath(summary: unknown, index: number | undefined): strin
   if (summary === null || typeof summary !== 'object') return undefined
   const files = (summary as { files?: unknown }).files
   if (!Array.isArray(files) || files.length === 0) return undefined
-  const file = (index !== undefined ? files[index] : undefined) ?? files[0]
+  const file: unknown = (index !== undefined ? files[index] : undefined) ?? files[0]
   if (file === null || typeof file !== 'object') return undefined
   const path = (file as { path?: unknown }).path
   return typeof path === 'string' && path !== '' ? path : undefined

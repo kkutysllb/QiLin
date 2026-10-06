@@ -88,9 +88,11 @@ for (const [file, jobIds] of [['release.yml', ['dependencies', 'pack']], ['relea
       expect(Object.keys(release.jobs)).toEqual(jobIds)
       // The rehearsal runs only when build inputs change (issue #11):
       // docs/issue-only pull requests skip it entirely.
+      const rehearsalPaths: unknown = expect.arrayContaining(['.github/workflows/release.yml', 'package.json', 'pnpm-lock.yaml', 'apps/**', 'packages/**', 'vendor/**'])
+      const pushPaths: unknown = expect.anything()
       expect(release.on).toEqual({
-        pull_request: { paths: expect.arrayContaining(['.github/workflows/release.yml', 'package.json', 'pnpm-lock.yaml', 'apps/**', 'packages/**', 'vendor/**']) },
-        push: { branches: ['main'], paths: expect.anything() },
+        pull_request: { paths: rehearsalPaths },
+        push: { branches: ['main'], paths: pushPaths },
         workflow_dispatch: null,
       })
       expect(release.permissions).toEqual({ contents: 'read' })

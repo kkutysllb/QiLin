@@ -122,7 +122,7 @@ export function BrowserView(props: TabComponentProps) {
   /** TEMPORARY sandbox unlock for THIS surface only (never writes the global
    *  side card setting; lasts until the tab unmounts or the user restores). */
   const [localUnlock, setLocalUnlock] = useState(false)
-  const noSandbox = store.getPrefs().browserNoSandbox === true || localUnlock
+  const noSandbox = store.getPrefs().browserNoSandbox || localUnlock
   /** A site that refuses to be embedded (X-Frame-Options / frame-ancestors):
    *  the probe verdict shown instead of the blank iframe. */
   const [embedBlocked, setEmbedBlocked] = useState<string | null>(null)
@@ -214,22 +214,24 @@ export function BrowserView(props: TabComponentProps) {
   const hadAgentPage = useRef<boolean | null>(null)
   useEffect(() => {
     if (live || autoRaised.current) return
-    const timer = setInterval(async () => {
-      if (autoRaised.current) return
-      try {
-        const { targets: list } = await api.cdpTargets()
-        const agentPages = list.filter(t => t.url !== '' && !t.url.startsWith('about:'))
-        const had = hadAgentPage.current
-        hadAgentPage.current = agentPages.length > 0
-        if (agentPages.length > 0 && had === false) {
-          autoRaised.current = true
-          setLive(true)
-          try {
-            const better = (ctx as unknown as { betterSidebar?: { activateTab?: (id: string) => unknown } }).betterSidebar
-            better?.activateTab?.(tab.id)
-          } catch { /* 顶起失败:实况仍已在 tab 内容里生效 */ }
-        }
-      } catch { /* 宿主未起:静默等下次轮询 */ }
+    const timer = setInterval(() => {
+      void (async () => {
+        if (autoRaised.current) return
+        try {
+          const { targets: list } = await api.cdpTargets()
+          const agentPages = list.filter(t => t.url !== '' && !t.url.startsWith('about:'))
+          const had = hadAgentPage.current
+          hadAgentPage.current = agentPages.length > 0
+          if (agentPages.length > 0 && had === false) {
+            autoRaised.current = true
+            setLive(true)
+            try {
+              const better = (ctx as unknown as { betterSidebar?: { activateTab?: (id: string) => unknown } }).betterSidebar
+              better?.activateTab?.(tab.id)
+            } catch { /* 顶起失败:实况仍已在 tab 内容里生效 */ }
+          }
+        } catch { /* 宿主未起:静默等下次轮询 */ }
+      })()
     }, 3000)
     return () => { clearInterval(timer) }
   }, [live, ctx, tab.id])

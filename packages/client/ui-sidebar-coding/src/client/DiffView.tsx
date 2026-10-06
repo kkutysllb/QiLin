@@ -305,7 +305,7 @@ export function DiffView({ diff, untrackedPath, untrackedContent, foldSource }: 
         const path = displayPath(file.newPath === '/dev/null' ? file.oldPath : file.newPath)
         const contents = await api.gitFoldContents(foldSource.scope, {
           path,
-          ...(foldSource.ref.kind === 'commit' ? { hash: foldSource.ref.hashFull } : { staged: foldSource.ref.staged === true }),
+          ...(foldSource.ref.kind === 'commit' ? { hash: foldSource.ref.hashFull } : { staged: foldSource.ref.staged }),
         }, foldSource.ref.kind === 'worktree' ? foldSource.ref.worktree : undefined)
         if (contents.old === null || contents.new === null) {
           setFoldRows(current => new Map(current).set(key, { status: 'failed' }))

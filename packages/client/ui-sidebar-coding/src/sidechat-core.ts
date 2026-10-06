@@ -7,5 +7,6 @@
  * this constant, so old sessions keep rendering honestly.
  */
 
-/** The durable thread-label prefix (also the row filter in the client list). */
-export const SIDE_LABEL_PREFIX = 'Side: '
+/** The persisted title marker of the retired Side Chat tabs, matched against
+ *  stored session titles for classification (never rendered from here). */
+export const LEGACY_SIDE_TAB_PREFIX = 'Side: '

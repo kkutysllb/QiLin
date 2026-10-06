@@ -32,7 +32,7 @@
   gap: 6px;
   min-height: 32px;
   padding: 0 8px;
-  border-bottom: 1px solid var(--qilin-alias-border-l2, rgba(128, 128, 128, 0.2));
+  border-bottom: 0.5px solid var(--qilin-alias-border-l2, rgba(128, 128, 128, 0.2));
 }
 
 .stat {
@@ -48,6 +48,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
+  corner-shape: round;
   background: var(--qilin-alias-state-success-primary, var(--qilin-alias-brand-primary));
   animation: trajPulse 1.6s ease-in-out infinite;
 }
@@ -203,7 +204,7 @@
   width: 96px;
   height: 22px;
   padding: 0 6px;
-  border: 1px solid var(--qilin-alias-border-l2, rgba(128, 128, 128, 0.3));
+  border: 0.5px solid var(--qilin-alias-border-l2, rgba(128, 128, 128, 0.3));
   border-radius: 6px;
   background: var(--qilin-alias-bg-layer-1, transparent);
   color: var(--qilin-alias-label-primary, inherit);
@@ -477,8 +478,12 @@
   max-height: 40%;
   display: flex;
   flex-direction: column;
-  border-top: 1px solid var(--qilin-alias-border-l2, rgba(128, 128, 128, 0.25));
+  border-top: 0.5px solid var(--qilin-alias-border-l2, rgba(128, 128, 128, 0.25));
   background: var(--qilin-alias-bg-layer-2, transparent);
+  /* Elevated surface: the inspector's scrollers take the l2 elevation tokens
+     through the scrollbar.css indirection, inherited from here. */
+  --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
 }
 
 .inspectorHead {
@@ -499,7 +504,8 @@
   font: var(--qilin-font-xs-12, 10px/14px system-ui);
   padding: 0 5px;
   border-radius: 999px;
-  border: 1px solid var(--qilin-alias-border-l2, rgba(128, 128, 128, 0.3));
+  corner-shape: round;
+  border: 0.5px solid var(--qilin-alias-border-l2, rgba(128, 128, 128, 0.3));
   color: var(--qilin-alias-label-secondary, inherit);
 }
 
@@ -588,6 +594,7 @@
   font: var(--qilin-font-xs-12, 10px/14px system-ui);
   padding: 0 5px;
   border-radius: 999px;
+  corner-shape: round;
   border: 1px solid var(--qilin-alias-state-error-primary, currentcolor);
   color: var(--qilin-alias-state-error-primary, inherit);
 }
@@ -668,7 +675,7 @@
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 1px solid var(--qilin-alias-border-l2, rgba(128, 128, 128, 0.3));
+  border: 0.5px solid var(--qilin-alias-border-l2, rgba(128, 128, 128, 0.3));
   border-radius: 6px;
   background: var(--qilin-alias-bg-layer-1, transparent);
   overflow: hidden;

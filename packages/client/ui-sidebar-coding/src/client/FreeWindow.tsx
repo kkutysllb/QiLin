@@ -14,7 +14,7 @@
  * renderer, so every tab type (terminal, editor, plugin tabs) floats
  * unchanged.
  */
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react'
 import clsx from 'clsx'
 import { IconCloseFill14, Menu } from '@qilin/client-ui-primitives'
 import type { FloatWindow, SidebarTab } from './state.ts'
@@ -53,19 +53,21 @@ function paneAt(x: number, y: number): HTMLElement | null {
 
 /** Pointer-capture helpers tolerant of environments without the API (jsdom
  *  lacks setPointerCapture — component tests dispatch plain MouseEvents, so
- *  the optional calls keep them driving the drag; real browsers always have
- *  it and a missing pointerId can never occur there). */
+ *  these guards keep them driving the drag; real browsers always have it and
+ *  a missing pointerId can never occur there). The `typeof` guard survives
+ *  lint where an optional chain would read as never-nullish against the DOM
+ *  lib types. */
 const capturePointer = (element: HTMLElement, pointerId: number): void => {
-  element.setPointerCapture?.(pointerId)
+  if (typeof element.setPointerCapture === 'function') element.setPointerCapture(pointerId)
 }
 
 const releasePointer = (element: HTMLElement, pointerId: number): void => {
-  element.releasePointerCapture?.(pointerId)
+  if (typeof element.releasePointerCapture === 'function') element.releasePointerCapture(pointerId)
 }
 
 /** Whether the element holds the pointer (assumed true without the API). */
 const holdsPointer = (element: HTMLElement, pointerId: number): boolean => {
-  return element.hasPointerCapture?.(pointerId) !== false
+  return typeof element.hasPointerCapture !== 'function' || element.hasPointerCapture(pointerId)
 }
 
 export function FreeWindow(props: {
@@ -189,6 +191,26 @@ export function FreeWindow(props: {
     }
   }
 
+  /**
+   * Begin a move/resize gesture from one pointerdown: capture the pointer,
+   * snapshot the float's geometry as the drag base, and mark the mode.
+   */
+  const startDrag = (mode: 'move' | 'resize', event: ReactPointerEvent<HTMLElement>): void => {
+    capturePointer(event.currentTarget, event.pointerId)
+    dragRef.current = {
+      mode,
+      pointerX: event.clientX,
+      pointerY: event.clientY,
+      startX: float.x,
+      startY: float.y,
+      startW: float.w,
+      startH: float.h,
+      applied: { x: float.x, y: float.y, w: float.w, h: float.h },
+      committed: false,
+    }
+    setDragging(mode)
+  }
+
   return (
     <div
       ref={rootRef}
@@ -213,19 +235,7 @@ export function FreeWindow(props: {
           if (!(event.target instanceof Node) || !event.currentTarget.contains(event.target)) return
           if (event.target instanceof Element && event.target.closest('button') !== null) return
           event.preventDefault()
-          capturePointer(event.currentTarget, event.pointerId)
-          dragRef.current = {
-            mode: 'move',
-            pointerX: event.clientX,
-            pointerY: event.clientY,
-            startX: float.x,
-            startY: float.y,
-            startW: float.w,
-            startH: float.h,
-            applied: { x: float.x, y: float.y, w: float.w, h: float.h },
-            committed: false,
-          }
-          setDragging('move')
+          startDrag('move', event)
         }}
         onPointerMove={(event) => {
           const drag = dragRef.current
@@ -297,19 +307,7 @@ export function FreeWindow(props: {
           if (event.button !== 0) return
           if (!(event.target instanceof Node) || !event.currentTarget.contains(event.target)) return
           event.preventDefault()
-          capturePointer(event.currentTarget, event.pointerId)
-          dragRef.current = {
-            mode: 'resize',
-            pointerX: event.clientX,
-            pointerY: event.clientY,
-            startX: float.x,
-            startY: float.y,
-            startW: float.w,
-            startH: float.h,
-            applied: { x: float.x, y: float.y, w: float.w, h: float.h },
-            committed: false,
-          }
-          setDragging('resize')
+          startDrag('resize', event)
         }}
         onPointerMove={(event) => {
           const drag = dragRef.current

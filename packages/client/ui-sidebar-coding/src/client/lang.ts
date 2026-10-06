@@ -48,14 +48,10 @@ import { pascal } from '@codemirror/legacy-modes/mode/pascal'
 import { vb } from '@codemirror/legacy-modes/mode/vb'
 import { vhdl } from '@codemirror/legacy-modes/mode/vhdl'
 import { stex } from '@codemirror/legacy-modes/mode/stex'
+import { extOf } from './file-icon-registry.ts'
 
 /** The lowercased file extension of a path ('' when none). */
-export function extOf(path: string): string {
-  const at = path.lastIndexOf('.')
-  if (at === -1) return ''
-  const base = path.slice(at + 1).toLowerCase()
-  return base.includes('/') || base.includes('\\') ? '' : base
-}
+export { extOf }
 
 /** Language key for an extension, or null for plain text. Pure (tested). */
 export function languageKeyForExt(ext: string): string | null {

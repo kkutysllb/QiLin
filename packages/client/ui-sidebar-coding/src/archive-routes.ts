@@ -47,11 +47,13 @@ export interface ArchiveStatus {
   error?: string
 }
 
-/** The archive routes of the /sidebar JSON API. */
+/** The archive routes of the /sidebar JSON API. `build` packs asynchronously;
+ *  `status`/`result` only read task state, so they answer synchronously (the
+ *  JSON dispatcher awaits every handler uniformly). */
 export interface SidebarArchiveRoutes {
   build(payload: unknown): Promise<ArchiveStatus>
-  status(payload: unknown): Promise<ArchiveStatus>
-  result(payload: unknown): Promise<{ name: string; base64: string; bytes: number }>
+  status(payload: unknown): ArchiveStatus
+  result(payload: unknown): { name: string; base64: string; bytes: number }
 }
 
 /** Internal task record (the bytes never leave the host until `result`). */
@@ -95,7 +97,7 @@ export function buildArchiveApi(
       if (task === undefined) continue
       running += 1
       task.state = 'building'
-      void task.start?.()
+      task.start?.()
     }
   }
 
@@ -156,7 +158,6 @@ export function buildArchiveApi(
       if (inside === '' || inside.startsWith('..')) {
         throw new SidebarError('bad-request', `path escapes the workspace: ${root}`)
       }
-      // eslint-disable-next-line no-await-in-loop -- one root at a time keeps progress ordered
       await walk(absolute, inside)
     }
     task.data = buildZip(entries)
@@ -179,7 +180,8 @@ export function buildArchiveApi(
       if (!Array.isArray(raw) || raw.length === 0) {
         throw new SidebarError('bad-request', 'paths must be a non-empty array')
       }
-      const paths = raw.map(entry => requireString({ path: entry }, 'path'))
+      const entries: unknown[] = raw
+      const paths = entries.map(entry => requireString({ path: entry }, 'path'))
       if (paths.length > ARCHIVE_MAX_SELECTION) {
         throw new SidebarError('bad-request', `too many paths: ${paths.length} > ${ARCHIVE_MAX_SELECTION}`)
       }
@@ -211,7 +213,7 @@ export function buildArchiveApi(
       return task
     },
 
-    async status(payload) {
+    status(payload) {
       reap()
       const taskId = requireString(payload, 'taskId')
       const task = tasks.get(taskId)
@@ -221,7 +223,7 @@ export function buildArchiveApi(
       return task
     },
 
-    async result(payload) {
+    result(payload) {
       reap()
       const taskId = requireString(payload, 'taskId')
       const task = tasks.get(taskId)

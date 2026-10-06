@@ -92,7 +92,9 @@ function installJsdomShims(): () => void {
   const globals = globalThis as Record<string, unknown>
   const installed = Object.keys(JSDOM_SHIMS).filter(name => globals[name] === undefined)
   for (const name of installed) globals[name] = JSDOM_SHIMS[name]
-  const fontsPatched = typeof document !== 'undefined' && document.fonts === undefined
+  // The DOM lib types declare `fonts` as always present; jsdom may still lack
+  // it, which is exactly what this shim covers.
+  const fontsPatched = typeof document !== 'undefined' && (document as Partial<Document>).fonts === undefined
   if (fontsPatched) {
     Object.defineProperty(document, 'fonts', { configurable: true, value: new EventTarget() })
   }

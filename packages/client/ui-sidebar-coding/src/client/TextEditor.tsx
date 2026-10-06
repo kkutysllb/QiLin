@@ -95,7 +95,6 @@ export function TextEditor(props: FileViewerProps) {
     selectionPopup.hide()
     // hide() reads a live ref; the reset must fire only on a content (file)
     // swap, and the hook object's identity churns on every render.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [content])
 
   // Create the CodeMirror editor once the content is loaded. The view owns
@@ -209,8 +208,7 @@ export function TextEditor(props: FileViewerProps) {
   useEffect(() => {
     selectionPopup.hide()
     if (mode === 'edit') viewRef.current?.requestMeasure()
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- hide() reads a
-    // live ref; only the mode flip must re-run this.
+    // hide() reads a live ref; only the mode flip must re-run this.
   }, [mode])
 
   const save = (): void => {
@@ -264,7 +262,6 @@ export function TextEditor(props: FileViewerProps) {
    *  keystroke. */
   const htmlMedia = useMemo<MarkdownHtmlMedia>(
     () => ({ scope, path, origin: window.location.origin }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [scope.sessionId, scope.cwd, path],
   )
   const codeLabels = { copyLabel: t('copy'), copiedLabel: t('copied') }
@@ -310,8 +307,8 @@ export function TextEditor(props: FileViewerProps) {
   // sandbox OFF the preview iframe drops its sandbox attribute entirely —
   // the previewed page then runs on the GUI's own origin with full session
   // access.
-  const [localUnlock, setLocalUnlock] = useState(() => props.store?.getPrefs().htmlViewerDefaultUnsafe === true)
-  const htmlNoSandbox = props.store?.getPrefs().htmlViewerNoSandbox === true || localUnlock
+  const [localUnlock, setLocalUnlock] = useState(() => props.store.getPrefs().htmlViewerDefaultUnsafe)
+  const htmlNoSandbox = props.store.getPrefs().htmlViewerNoSandbox || localUnlock
 
   // Host-toolbar mode (the merged editor header renders the controls): skip
   // the own toolbar row, report the state after every relevant render (the
@@ -332,7 +329,6 @@ export function TextEditor(props: FileViewerProps) {
     // registering this render's closures is safe for the mount's lifetime.
     props.onToolbarControls?.({ setMode, save })
     return () => { props.onToolbarControls?.(null) }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hostToolbar])
 
   return (
@@ -363,7 +359,7 @@ export function TextEditor(props: FileViewerProps) {
               type="button"
               className={css.iconButton}
               aria-label={t('save')}
-              title={`${t('save')} (Ctrl/Cmd+S)`}
+              title={t('saveShortcut')}
               onClick={save}
             >
               <IconCheckOutline16 />

@@ -550,10 +550,14 @@ export class AgentPtyRegistry {
     // Compile the needle once (regex semantics; invalid patterns degrade to
     // verbatim matching) and reuse the compiled form across every poll.
     const re = compileNeedle(needle)
+    // The onExit callback flips `exited` between polls; flow analysis cannot
+    // see that mutation, so the checks read through this accessor to keep
+    // their real `boolean` type.
+    const hasExited = (): boolean => handle.exited
     // Fast path: already exited, or the needle is already in the transcript
     // (a `terminal_send` may have produced the expected output before this
     // call even started).
-    if (handle.exited) {
+    if (hasExited()) {
       return { kind: 'exited', needle, exitCode: handle.exitCode ?? null, exitSignal: signalNameOf(handle.exitSignal) }
     }
     const firstHit = locateNeedle(handle.transcript, needle, re)
@@ -571,7 +575,7 @@ export class AgentPtyRegistry {
     try {
       while (true) {
         if (signal?.aborted) signal.throwIfAborted()
-        if (handle.exited) {
+        if (hasExited()) {
           return { kind: 'exited', needle, exitCode: handle.exitCode ?? null, exitSignal: signalNameOf(handle.exitSignal) }
         }
         if (record.skipped) {

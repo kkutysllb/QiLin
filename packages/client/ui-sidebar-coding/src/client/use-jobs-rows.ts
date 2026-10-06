@@ -18,7 +18,7 @@
  * nothing (the pre-existing graceful degradation).
  */
 import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
-import type { Context, SidebarJobView, SidebarJobsService } from '../context-types.ts'
+import type { Context, SidebarJobView } from '../context-types.ts'
 
 /** Stable empty snapshot: `useSyncExternalStore` needs one identity per state. */
 const NO_ROWS: { rows: Readonly<Record<string, readonly SidebarJobView[]>> } = { rows: {} }
@@ -34,7 +34,7 @@ export function useJobsRows(
   ctx: Context,
   sessionIds: readonly string[],
 ): Readonly<Record<string, readonly SidebarJobView[]>> | undefined {
-  const service = ctx.get('jobs') as SidebarJobsService | undefined
+  const service = ctx.get('jobs')
 
   // The effect keys on CONTENT (a joined key), not array identity, so a caller
   // rebuilding the list every render cannot thrash the watch set.
@@ -53,9 +53,10 @@ export function useJobsRows(
   const snapshot = useSyncExternalStore(subscribe, getSnapshot)
 
   useEffect(() => {
-    const watchRows = service?.watchRows
-    if (watchRows === undefined) return
-    const releases = idsRef.current.map(id => watchRows.call(service, id))
+    if (service?.watchRows === undefined) return
+    // The method call stays bound to `service`; the fallback release is dead
+    // (the guard above pins watchRows) and matches the service-absent noop.
+    const releases = idsRef.current.map(id => service.watchRows?.(id) ?? NOOP_UNSUBSCRIBE)
     return () => {
       for (const release of releases) release()
     }

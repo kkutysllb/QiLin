@@ -18,7 +18,7 @@ import { basename, dirname, extname, isAbsolute, join } from 'node:path'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Duplex } from 'node:stream'
 import { WebSocket, WebSocketServer } from 'ws'
-import type { Context, SidebarConfigEditorService, SidebarHttpRequest, SidebarSessionPersistenceService } from './context-types.ts'
+import type { Context, SidebarConfigEditorService, SidebarHttpRequest, SidebarHttpResponse, SidebarSessionPersistenceService } from './context-types.ts'
 import {
   Config,
   prefsOf,
@@ -44,6 +44,7 @@ import * as github from './github.ts'
 import * as plans from './plans.ts'
 import { defaultShell, ensureSpawnHelper, PtyManager, shellDisplayName } from './pty-manager.ts'
 import { AgentPtyRegistry, armPtyResizeGate, tryResizePty, type AgentTerminalHandle } from './agent-pty.ts'
+import type { IPty } from 'node-pty'
 import {
   DSH_NODE_PTY_RANGE,
   depsStatus,
@@ -81,6 +82,8 @@ const MEDIA_TYPES: Record<string, string> = {
   '.jpeg': 'image/jpeg',
   '.gif': 'image/gif',
   '.webp': 'image/webp',
+  /* jscpd:ignore-start — media content-type table pinned verbatim to
+     @qilin/host-preview-media src/index.ts (ported twin) */
   '.svg': 'image/svg+xml',
   '.bmp': 'image/bmp',
   '.ico': 'image/x-icon',
@@ -106,6 +109,7 @@ const MEDIA_TYPES: Record<string, string> = {
   '.mpg': 'video/mpeg',
   '.3gp': 'video/3gpp',
   '.3g2': 'video/3gpp2',
+  /* jscpd:ignore-end */
 }
 
 /** Content type served by /sidebar/file (binary-safe fallback for unknowns). */
@@ -228,8 +232,9 @@ async function readText(path: string, readLimit: number): Promise<{
   }
 }
 
-/** One API method dispatch table entry. */
-type ApiMethod = (payload: unknown) => Promise<unknown> | unknown
+/** One API method dispatch table entry. Handlers may settle synchronously or
+ *  return a promise; the `/sidebar/api` dispatcher awaits both uniformly. */
+type ApiMethod = (payload: unknown) => unknown
 
 /**
  * The live face of the side card settings namespace, bound to the settings
@@ -660,12 +665,10 @@ function buildApi(
     // parsed from the session's own event log (read-only replay — the
     // model's job_output cursor is never touched). Cold sessions degrade to
     // an empty list (only live sessions have an in-memory log on this host).
-    'changes.ops': async (payload) => {
+    'changes.ops': (payload) => {
       const sessionId = requireString(payload, 'sessionId')
       const stored = ctx.sessions.get(sessionId)
-      const events = stored?.snapshotEvents !== undefined
-        ? stored.snapshotEvents() as unknown as Parameters<typeof sessionFileOps>[0]
-        : []
+      const events = stored?.snapshotEvents !== undefined ? stored.snapshotEvents() : []
       return { ops: sessionFileOps(events) }
     },
     // Subagent live previews: one batch request per refresh; the route folds
@@ -744,7 +747,7 @@ function buildApi(
       // local dev servers with the same default sandbox, so a probe verdict
       // for them leaks nothing the tab could not already load.
       const controller = new AbortController()
-      const timer = setTimeout(() => controller.abort(), 8000)
+      const timer = setTimeout(() => { controller.abort() }, 8000)
       try {
         let response = await fetch(parsed, { method: 'HEAD', redirect: 'follow', signal: controller.signal })
         // Some servers answer HEAD with 405/501; retry once as GET (the
@@ -866,7 +869,7 @@ export function apply(ctx: Context, config?: SidebarConfig): void {
     const detail = status.ok
       ? 'unknown cause'
       : `${status.cause}. Repair: ${status.command}`
-    ctx.logger?.warn(`[ui-sidebar-coding] node-pty (${DSH_NODE_PTY_RANGE}) failed to load: ${detail}`)
+    ctx.logger.warn(`[ui-sidebar-coding] node-pty (${DSH_NODE_PTY_RANGE}) failed to load: ${detail}`)
   }
   const ptyManager = nodePty !== null
     ? new PtyManager(terminalShell, resolved.terminalsPerSession, resolved.shellArgs, nodePty)
@@ -1027,15 +1030,7 @@ export function apply(ctx: Context, config?: SidebarConfig): void {
     kind: 'prefix',
     path: '/sidebar/api',
     handler: async (req, res) => {
-      const rejection = admit(req)
-      if (rejection !== undefined) {
-        writeJson(res, rejection, { ok: false, error: { code: 'forbidden', message: 'forbidden' } })
-        return
-      }
-      if (req.method !== 'POST') {
-        writeJson(res, 405, { ok: false, error: { code: 'method-error', message: 'method not allowed' } })
-        return
-      }
+      if (!admitPost(req, res, admit)) return
       if (req.headers['content-type']?.includes('application/json') !== true) {
         // A cross-site no-cors POST can only send text/plain; requiring the
         // JSON media type keeps that blind channel closed.
@@ -1071,15 +1066,7 @@ export function apply(ctx: Context, config?: SidebarConfig): void {
     kind: 'exact',
     path: '/sidebar/upload',
     handler: async (req, res) => {
-      const rejection = admit(req)
-      if (rejection !== undefined) {
-        writeJson(res, rejection, { ok: false, error: { code: 'forbidden', message: 'forbidden' } })
-        return
-      }
-      if (req.method !== 'POST') {
-        writeJson(res, 405, { ok: false, error: { code: 'method-error', message: 'method not allowed' } })
-        return
-      }
+      if (!admitPost(req, res, admit)) return
       try {
         const url = new URL(req.url ?? '/', 'http://dsh.internal')
         const sessionId = url.searchParams.get('sessionId')
@@ -1287,7 +1274,7 @@ export function apply(ctx: Context, config?: SidebarConfig): void {
         return
       }
       agentListWss.handleUpgrade(req as unknown as IncomingMessage, socket as unknown as Duplex, head as Buffer, (ws) => {
-        void attachAgentList(agentPtyRegistry, ws, req)
+        attachAgentList(agentPtyRegistry, ws, req)
       })
     },
   }), '@qilin/client-ui-sidebar-coding: agent-terminals push WebSocket')
@@ -1307,7 +1294,7 @@ export function apply(ctx: Context, config?: SidebarConfig): void {
         return
       }
       agentOpenWss.handleUpgrade(req as unknown as IncomingMessage, socket as unknown as Duplex, head as Buffer, (ws) => {
-        void attachAgentOpen(agentOpenRegistry, ws, req)
+        attachAgentOpen(agentOpenRegistry, ws, req)
       })
     },
   }), '@qilin/client-ui-sidebar-coding: agent-opens push WebSocket')
@@ -1325,18 +1312,14 @@ export function apply(ctx: Context, config?: SidebarConfig): void {
 }
 
 /** Push queued `sidebar_open` requests for one session to a connected view. */
-async function attachAgentOpen(
+function attachAgentOpen(
   registry: AgentOpenRegistry,
   ws: WebSocket,
   req: SidebarHttpRequest,
-): Promise<void> {
+): void {
   try {
-    const url = new URL(req.url ?? '/', 'http://dsh.internal')
-    const sessionId = url.searchParams.get('sessionId')
-    if (sessionId === null) {
-      ws.close(1008, 'sessionId is required')
-      return
-    }
+    const sessionId = attachSessionIdOf(ws, req)
+    if (sessionId === undefined) return
     const send = (request: AgentOpenRequest): void => {
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify(request))
@@ -1354,18 +1337,14 @@ async function attachAgentOpen(
 }
 
 /** Push the live agent-terminal list for one session to a connected sidebar view. */
-async function attachAgentList(
+function attachAgentList(
   registry: AgentPtyRegistry | null,
   ws: WebSocket,
   req: SidebarHttpRequest,
-): Promise<void> {
+): void {
   try {
-    const url = new URL(req.url ?? '/', 'http://dsh.internal')
-    const sessionId = url.searchParams.get('sessionId')
-    if (sessionId === null) {
-      ws.close(1008, 'sessionId is required')
-      return
-    }
+    const sessionId = attachSessionIdOf(ws, req)
+    if (sessionId === undefined) return
     const send = (): void => {
       if (ws.readyState === WebSocket.OPEN) {
         // Degraded mode (node-pty unavailable): no agent terminal can exist,
@@ -1392,7 +1371,7 @@ async function attachAgentList(
  */
 export function wsCloseReasonOf(error: unknown): string {
   if (error instanceof SidebarError && error.code === 'shell-not-found') {
-    const name = truncateUtf8Bytes(shellDisplayName(String(error.meta?.shell ?? '')), 100)
+    const name = truncateUtf8Bytes(shellDisplayName(error.meta?.shell ?? ''), 100)
     return `shell-not-found:${name}`
   }
   return error instanceof Error ? error.message : String(error)
@@ -1479,24 +1458,12 @@ async function attachTerminal(
     // (see armPtyResizeGate; inert on POSIX).
     armPtyResizeGate(handle.pty)
     // Replay the transcript, then follow live output.
-    if (handle.transcript !== '') ws.send(handle.transcript)
-    const onData = socketWriterOf(ws)
-    const onExit = exitNoticeOf(onData)
-    const dataSub = handle.pty.onData(onData)
-    const exitSub = handle.pty.onExit(onExit)
+    const { dataSub, exitSub } = streamPtyToSocket(handle, ws)
     ws.on('message', (data) => {
       const text = data.toString('utf8')
       // Control frames are JSON with a known shape; anything else (including
       // JSON that is not a recognized control) is terminal input, verbatim.
-      let control: { type?: unknown; cols?: unknown; rows?: unknown } | null = null
-      try {
-        const parsed: unknown = JSON.parse(text)
-        if (parsed !== null && typeof parsed === 'object') {
-          control = parsed as { type?: unknown; cols?: unknown; rows?: unknown }
-        }
-      } catch {
-        // Not JSON: terminal input.
-      }
+      const control = controlFrameOf(text)
       if (control !== null && control.type === 'close') {
         // The owning tab was closed: release the quota immediately.
         ptyManager.scheduleClose(handle.key, 0)
@@ -1561,6 +1528,70 @@ function exitNoticeOf(write: (data: string) => void): (exit: { exitCode: number;
 }
 
 /**
+ * The shared head of both pty pumps: replay the handle's transcript on the
+ * view socket, then forward output and exit through the shared writers. The
+ * caller owns the returned disposers (its `close` frame releases them).
+ */
+function streamPtyToSocket(
+  handle: { transcript: string; pty: IPty },
+  ws: WebSocket,
+): { dataSub: { dispose(): void }; exitSub: { dispose(): void } } {
+  if (handle.transcript !== '') ws.send(handle.transcript)
+  const onData = socketWriterOf(ws)
+  const onExit = exitNoticeOf(onData)
+  return { dataSub: handle.pty.onData(onData), exitSub: handle.pty.onExit(onExit) }
+}
+
+/** Parse one terminal WS frame as a control message; `null` = raw input. */
+function controlFrameOf(text: string): { type?: unknown; cols?: unknown; rows?: unknown } | null {
+  let control: { type?: unknown; cols?: unknown; rows?: unknown } | null = null
+  try {
+    const parsed: unknown = JSON.parse(text)
+    if (parsed !== null && typeof parsed === 'object') {
+      control = parsed
+    }
+  } catch {
+    // Not JSON: terminal input.
+  }
+  return control
+}
+
+/**
+ * The shared head of the sidebar's POST routes: trust admission, then the
+ * method check. `false` = the request was answered and the caller returns.
+ */
+function admitPost(
+  req: SidebarHttpRequest,
+  res: SidebarHttpResponse,
+  admit: (req: SidebarHttpRequest) => number | undefined,
+): boolean {
+  const rejection = admit(req)
+  if (rejection !== undefined) {
+    writeJson(res, rejection, { ok: false, error: { code: 'forbidden', message: 'forbidden' } })
+    return false
+  }
+  if (req.method !== 'POST') {
+    writeJson(res, 405, { ok: false, error: { code: 'method-error', message: 'method not allowed' } })
+    return false
+  }
+  return true
+}
+
+/**
+ * The `sessionId` query parameter of a WS attach request; a missing one is
+ * refused with close code 1008 (the socket is closed before returning).
+ */
+function attachSessionIdOf(ws: WebSocket, req: SidebarHttpRequest): string | undefined {
+  const url = new URL(req.url ?? '/', 'http://dsh.internal')
+  const sessionId = url.searchParams.get('sessionId')
+  if (sessionId === null) {
+    ws.close(1008, 'sessionId is required')
+    return undefined
+  }
+  return sessionId
+}
+
+/**
  * Pump one agent terminal's pty to a connected view. The close frame kills
  * the pty immediately (the agent's terminal closes when the user closes the
  * sidebar tab); a bare socket drop leaves the pty alive — the agent owns
@@ -1572,23 +1603,11 @@ function pumpAgentTerminal(
   handle: AgentTerminalHandle,
   ws: WebSocket,
 ): void {
-  if (handle.transcript !== '') ws.send(handle.transcript)
-  const onData = socketWriterOf(ws)
-  const onExit = exitNoticeOf(onData)
-  const dataSub = handle.pty.onData(onData)
-  const exitSub = handle.pty.onExit(onExit)
+  const { dataSub, exitSub } = streamPtyToSocket(handle, ws)
   ws.on('message', (data) => {
     if (handle.exited) return
     const text = data.toString('utf8')
-    let control: { type?: unknown; cols?: unknown; rows?: unknown } | null = null
-    try {
-      const parsed: unknown = JSON.parse(text)
-      if (parsed !== null && typeof parsed === 'object') {
-        control = parsed as { type?: unknown; cols?: unknown; rows?: unknown }
-      }
-    } catch {
-      // Not JSON: terminal input.
-    }
+    const control = controlFrameOf(text)
     if (control !== null && control.type === 'close') {
       // The user closed the sidebar tab: kill the pty immediately. The
       // agent's next terminal_list / terminal_send will see it gone.

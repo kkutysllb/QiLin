@@ -62,6 +62,47 @@ import css from './sidebar.module.css'
 const FAILURE_LIMIT = 3
 
 /**
+ * One sidebar WS push channel with a reconnect loop: `path` is queried with
+ * the session id, string frames go to `onMessage`, and a closed socket
+ * retries every 2s until FAILURE_LIMIT consecutive failures stop the loop
+ * (the next session switch or remount restarts it).
+ * @returns the disposer — stops the loop and closes the socket.
+ */
+function subscribeSidebarWs(path: string, sessionId: string, onMessage: (data: string) => void): () => void {
+  let socket: WebSocket | null = null
+  let retry: number | undefined
+  let closed = false
+  let failures = 0
+  const connect = (): void => {
+    if (closed) return
+    const url = new URL(path, location.origin)
+    url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:'
+    url.search = new URLSearchParams({ sessionId }).toString()
+    socket = new WebSocket(url.toString())
+    socket.onmessage = (event) => {
+      if (typeof event.data !== 'string') return
+      onMessage(event.data)
+    }
+    socket.onclose = () => {
+      if (closed) return
+      failures += 1
+      if (failures >= FAILURE_LIMIT) {
+        console.error(`[ui-sidebar-coding] ${path} connection failed; stopping reconnect loop`, sessionId)
+        return
+      }
+      retry = window.setTimeout(connect, 2000)
+    }
+    socket.onerror = () => { socket?.close() }
+  }
+  connect()
+  return () => {
+    closed = true
+    window.clearTimeout(retry)
+    socket?.close()
+  }
+}
+
+/**
  * Subagent auto-open debounce (ms). The host delivers a new child's origin
  * and its title in SEPARATE frames: a Side Chat thread's first visible
  * frame still shows a fallback title (no 'Side: ' prefix), so an immediate
@@ -85,7 +126,7 @@ const AUTO_OPEN_DEBOUNCE_MS = 500
  * propagate exactly as before.
  */
 const swallowOsFileDrag = (event: ReactDragEvent): void => {
-  if (!(event.dataTransfer?.types.includes('Files') ?? false)) return
+  if (!event.dataTransfer.types.includes('Files')) return
   event.preventDefault()
   event.stopPropagation()
 }
@@ -232,7 +273,7 @@ export function Sidebar(props: { ctx: Context; store: SidebarStore }) {
   useEffect(() => {
     const service = ctx.get('betterSidebar')
     if (service === undefined) return
-    return service.subscribe(() => setTabsVersion(version => version + 1))
+    return service.subscribe(() => { setTabsVersion(version => version + 1) })
   }, [ctx])
 
   // Narrow (mobile) viewports turn the panel into a full-width drawer: the
@@ -254,7 +295,7 @@ export function Sidebar(props: { ctx: Context; store: SidebarStore }) {
   const [keyboardInset, setKeyboardInset] = useState(0)
   useEffect(() => {
     const vv = window.visualViewport
-    if (vv === null || vv === undefined) return
+    if (vv === null) return
     let frame: number | null = null
     const measure = (): void => {
       frame = null
@@ -388,51 +429,23 @@ export function Sidebar(props: { ctx: Context; store: SidebarStore }) {
    */
   useEffect(() => {
     if (sessionId === undefined) return
-    let socket: WebSocket | null = null
-    let retry: number | undefined
-    let closed = false
-    let failures = 0
-    const connect = (): void => {
-      if (closed) return
-      const url = new URL('/sidebar/ws/agent-terminals', location.origin)
-      url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:'
-      url.search = new URLSearchParams({ sessionId }).toString()
-      socket = new WebSocket(url.toString())
-      socket.onmessage = (event) => {
-        if (typeof event.data !== 'string') return
-        try {
-          const list = JSON.parse(event.data) as Array<{
-            uuid: string
-            title: string
-            command: string
-            exited: boolean
-            waiting?: { needle: string; since: number } | null
-          }>
-          if (!Array.isArray(list)) return
-          store.reduce(s => ctx.get('betterSidebar')?.isTabEnabled('terminal') === false
-            ? s
-            : reconcileAgentTerminals(s, list))
-        } catch {
-          // Malformed push: ignore (the next push will reconcile).
-        }
+    return subscribeSidebarWs('/sidebar/ws/agent-terminals', sessionId, (data) => {
+      try {
+        const list = JSON.parse(data) as Array<{
+          uuid: string
+          title: string
+          command: string
+          exited: boolean
+          waiting?: { needle: string; since: number } | null
+        }>
+        if (!Array.isArray(list)) return
+        store.reduce(s => ctx.get('betterSidebar')?.isTabEnabled('terminal') === false
+          ? s
+          : reconcileAgentTerminals(s, list))
+      } catch {
+        // Malformed push: ignore (the next push will reconcile).
       }
-      socket.onclose = () => {
-        if (closed) return
-        failures += 1
-        if (failures >= FAILURE_LIMIT) {
-          console.error('[ui-sidebar-coding] agent-terminals connection failed; stopping reconnect loop', sessionId)
-          return
-        }
-        retry = window.setTimeout(connect, 2000)
-      }
-      socket.onerror = () => { socket?.close() }
-    }
-    connect()
-    return () => {
-      closed = true
-      window.clearTimeout(retry)
-      socket?.close()
-    }
+    })
   }, [sessionId, store])
 
   /**
@@ -451,63 +464,36 @@ export function Sidebar(props: { ctx: Context; store: SidebarStore }) {
    */
   useEffect(() => {
     if (sessionId === undefined) return
-    let socket: WebSocket | null = null
-    let retry: number | undefined
-    let closed = false
-    let failures = 0
-    const connect = (): void => {
-      if (closed) return
-      const url = new URL('/sidebar/ws/agent-opens', location.origin)
-      url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:'
-      url.search = new URLSearchParams({ sessionId }).toString()
-      socket = new WebSocket(url.toString())
-      socket.onmessage = (event) => {
-        if (typeof event.data !== 'string') return
-        try {
-          const request = JSON.parse(event.data) as { kind?: unknown; target?: unknown; title?: unknown }
-          if (request === null || typeof request !== 'object') return
-          if (request.kind !== 'file' && request.kind !== 'folder' && request.kind !== 'url') return
-          if (typeof request.target !== 'string' || request.target === '') return
-          if (store.getPrefs().agentOpenTools !== true) return
-          const scope = { sessionId }
-          const title = typeof request.title === 'string' && request.title !== '' ? request.title : undefined
-          if (request.kind === 'url') {
-            ctx.get('betterSidebar')?.openTab(
-              { type: 'browser', url: request.target, ...(title === undefined ? {} : { title }) },
-              scope,
-            )
-          } else if (request.kind === 'folder') {
-            ctx.get('betterSidebar')?.openTab({
-              type: 'editor',
-              ...(title === undefined ? {} : { title }),
-              path: request.target,
-              id: `editor:${request.target}`,
-              meta: { dir: true },
-            }, scope)
-          } else {
-            ctx.get('betterSidebar')?.openFile(scope, request.target, title)
-          }
-        } catch {
-          // Malformed push: ignore (the next push carries its own request).
+    return subscribeSidebarWs('/sidebar/ws/agent-opens', sessionId, (data) => {
+      try {
+        const parsed: unknown = JSON.parse(data)
+        if (parsed === null || typeof parsed !== 'object') return
+        const request = parsed as { kind?: unknown; target?: unknown; title?: unknown }
+        if (request.kind !== 'file' && request.kind !== 'folder' && request.kind !== 'url') return
+        if (typeof request.target !== 'string' || request.target === '') return
+        if (!store.getPrefs().agentOpenTools) return
+        const scope = { sessionId }
+        const title = typeof request.title === 'string' && request.title !== '' ? request.title : undefined
+        if (request.kind === 'url') {
+          ctx.get('betterSidebar')?.openTab(
+            { type: 'browser', url: request.target, ...(title === undefined ? {} : { title }) },
+            scope,
+          )
+        } else if (request.kind === 'folder') {
+          ctx.get('betterSidebar')?.openTab({
+            type: 'editor',
+            ...(title === undefined ? {} : { title }),
+            path: request.target,
+            id: `editor:${request.target}`,
+            meta: { dir: true },
+          }, scope)
+        } else {
+          ctx.get('betterSidebar')?.openFile(scope, request.target, title)
         }
+      } catch {
+        // Malformed push: ignore (the next push carries its own request).
       }
-      socket.onclose = () => {
-        if (closed) return
-        failures += 1
-        if (failures >= FAILURE_LIMIT) {
-          console.error('[ui-sidebar-coding] agent-opens connection failed; stopping reconnect loop', sessionId)
-          return
-        }
-        retry = window.setTimeout(connect, 2000)
-      }
-      socket.onerror = () => { socket?.close() }
-    }
-    connect()
-    return () => {
-      closed = true
-      window.clearTimeout(retry)
-      socket?.close()
-    }
+    })
   }, [sessionId, store])
 
   /**
@@ -529,6 +515,29 @@ export function Sidebar(props: { ctx: Context; store: SidebarStore }) {
    * re-evaluates the ORIGINAL baseline against the live snapshot; by then
    * the title filter (isSideThreadSummary) sees the settled label.
    */
+  /**
+   * The shared auto-open landing: gate on the Subagent tab type, expand the
+   * panel on wide viewports, pin the landing to the first pane, and open the
+   * Subagent page. `false` = the tab type is disabled (the caller's own pref
+   * gate runs first).
+   */
+  const openSubagentLanding = (): boolean => {
+    if (ctx.get('betterSidebar')?.isTabEnabled('subagent') === false) return false
+    // Read the viewport at activation time: a resize while the debounce is
+    // armed must not let background activity force the narrow full-screen
+    // drawer open over the chat.
+    if (!isNarrowWidth(window.innerWidth)) {
+      store.reduce(s => s.panelOpen ? s : togglePanel(s))
+    }
+    // Pin the landing to the first pane: the auto-activated Subagent page
+    // must be ready in the panel that just expanded, not wherever the user
+    // last touched.
+    store.reduce(s => ({ ...s, activePane: firstLeaf(s.splits).id }))
+    // open-tab:type-only — 自动开 Subagent 页；面板展开由上一行按宽度条件完成（展开归调用方）。
+    ctx.get('betterSidebar')?.openTab({ type: 'subagent', title: t('subagent') })
+    return true
+  }
+
   const listBaselineRef = useRef<SidebarSessionList | undefined>(undefined)
   const autoOpenPendingRef = useRef<{ baseline: SidebarSessionList; timer: number } | null>(null)
   useEffect(() => {
@@ -542,19 +551,7 @@ export function Sidebar(props: { ctx: Context; store: SidebarStore }) {
       autoOpenPendingRef.current = null
       if (!detectNewDirectSubagent(baseline, ctx.sessions.list.getSnapshot(), sessionId)) return
       if (!store.getPrefs().autoOpenSubagent) return
-      if (ctx.get('betterSidebar')?.isTabEnabled('subagent') === false) return
-      // Read the viewport when the delayed activation fires: a resize while
-      // the debounce is armed must not let background activity force the
-      // narrow full-screen drawer open over the chat.
-      if (!isNarrowWidth(window.innerWidth)) {
-        store.reduce(s => s.panelOpen ? s : togglePanel(s))
-      }
-      // Pin the landing to the first pane: the auto-activated Subagent page
-      // must be ready in the panel that just expanded, not wherever the user
-      // last touched.
-      store.reduce(s => ({ ...s, activePane: firstLeaf(s.splits).id }))
-      // open-tab:type-only — 自动开 Subagent 页：本函数上一行已显式 togglePanel 展开面板（展开归调用方）
-      ctx.get('betterSidebar')?.openTab({ type: 'subagent', title: t('subagent') })
+      openSubagentLanding()
     }, AUTO_OPEN_DEBOUNCE_MS)
     autoOpenPendingRef.current = { baseline, timer }
   }, [sessionList, sessionId, store, ctx])
@@ -594,13 +591,7 @@ export function Sidebar(props: { ctx: Context; store: SidebarStore }) {
     if (sessionId === undefined || prev === undefined || jobsRows === undefined) return
     if (!detectNewJob(prev, jobsRows, sessionId)) return
     if (!store.getPrefs().autoOpenJobs) return
-    if (ctx.get('betterSidebar')?.isTabEnabled('subagent') === false) return
-    if (!isNarrowWidth(window.innerWidth)) {
-      store.reduce(s => s.panelOpen ? s : togglePanel(s))
-    }
-    store.reduce(s => ({ ...s, activePane: firstLeaf(s.splits).id }))
-    // open-tab:type-only — 同上：上一行已按宽度条件展开面板
-    ctx.get('betterSidebar')?.openTab({ type: 'subagent', title: t('subagent') })
+    openSubagentLanding()
   }, [jobsRows, sessionId, store, ctx])
 
   /**
@@ -1230,7 +1221,7 @@ export function Sidebar(props: { ctx: Context; store: SidebarStore }) {
     // the model's live terminal_wait_for into state.agentWaits; an agent tab
     // whose uuid is waiting shows the hourglass pill.
     if (isAgentTabId(tab.id)) {
-      const wait = state.agentWaits?.[agentUuidOf(tab.id)]
+      const wait = state.agentWaits[agentUuidOf(tab.id)]
       if (wait !== undefined) return <span className={css.tabBadge}>{'⏳'}</span>
     }
     const descriptor = ctx.get('betterSidebar')?.getTab(tab.type)
@@ -1243,7 +1234,7 @@ export function Sidebar(props: { ctx: Context; store: SidebarStore }) {
       return null
     }
     if (value === null || value === undefined || value === '') return null
-    const text = typeof value === 'number' ? (value > 99 ? '99+' : String(value)) : String(value)
+    const text = typeof value === 'number' ? (value > 99 ? '99+' : String(value)) : value
     return <span className={css.tabBadge}>{text}</span>
   }
 
@@ -1275,7 +1266,7 @@ export function Sidebar(props: { ctx: Context; store: SidebarStore }) {
         sessionId={home?.sessionId ?? sessionId}
         cwd={home?.cwd ?? cwd}
         expanded={state.expanded}
-        revealed={state.revealed ?? []}
+        revealed={state.revealed}
         onToggleDir={(path) => { store.reduce(s => toggleExpanded(s, path)) }}
         onReferenceFile={referenceInChat}
         onPathRenamed={onPathRenamed}
@@ -1363,8 +1354,8 @@ export function Sidebar(props: { ctx: Context; store: SidebarStore }) {
               commitDrag(width, s => setWidth(s, width))
               setDraggingWidth(false)
             }}
-            onPointerCancel={(event) => { abortDrag(() => setDraggingWidth(false), event) }}
-            onLostPointerCapture={() => { abortDrag(() => setDraggingWidth(false)) }}
+            onPointerCancel={(event) => { abortDrag(() => { setDraggingWidth(false) }, event) }}
+            onLostPointerCapture={() => { abortDrag(() => { setDraggingWidth(false) }) }}
           />
         )}
         <div className={css.panelBody}>
@@ -1398,7 +1389,7 @@ export function Sidebar(props: { ctx: Context; store: SidebarStore }) {
           onMove={(x, y) => { store.reduce(s => moveFloat(s, float.id, x, y)) }}
           onResize={(w, h) => { store.reduce(s => resizeFloat(s, float.id, w, h)) }}
           onDock={(paneId) => { store.reduce(s => dockFloat(s, float.id, paneId ?? undefined)) }}
-          onClose={() => { ctx.get('betterSidebar')?.closeTab(float.tab.id, sessionId === undefined ? undefined : { sessionId, cwd }) }}
+          onClose={() => { ctx.get('betterSidebar')?.closeTab(float.tab.id, { sessionId, cwd }) }}
         />
       ))}
       {/*

@@ -46,6 +46,22 @@ interface OfficeViewProps {
 }
 
 /**
+ * Fetch one office document's bytes through the media route. `null` means the
+ * view unmounted mid-fetch (the async body just returns); a non-2xx response
+ * throws so the caller's catch degrades to the download affordance.
+ */
+async function fetchOfficeBytes(scope: SessionScope, path: string, isCancelled: () => boolean): Promise<ArrayBuffer | null> {
+  const response = await fetch(mediaUrl(scope, path))
+  if (isCancelled()) return null
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`)
+  }
+  const buf = await response.arrayBuffer()
+  if (isCancelled()) return null
+  return buf
+}
+
+/**
  * Render a .docx file via docx-preview. The library renders into a container
  * div (no canvas); images and styles are inlined. Unmounting clears the
  * container's innerHTML — docx-preview has no dispose API, but tearing down
@@ -59,20 +75,19 @@ export function DocxView(props: OfficeViewProps): ReactNode {
   const [zoom, setZoom] = useState(100)
 
   useEffect(() => {
+    // The flip happens in the cleanup below (invisible to control-flow
+    // analysis), so the async body reads the flag through one accessor —
+    // an earlier guard would otherwise narrow every later read to `false`.
     let cancelled = false
+    const isCancelled = (): boolean => cancelled
     const container = viewportRef.current
     const wrap = wrapRef.current
     if (container === null || wrap === null) return
     setZoom(100)
     void (async () => {
       try {
-        const response = await fetch(mediaUrl(scope, path))
-        if (cancelled) return
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`)
-        }
-        const buf = await response.arrayBuffer()
-        if (cancelled) return
+        const buf = await fetchOfficeBytes(scope, path, isCancelled)
+        if (buf === null) return
         // docx-preview ships its own CSS through the className option; the
         // wrapper div scopes its render output.
         const { renderAsync } = await import('docx-preview')
@@ -84,17 +99,18 @@ export function DocxView(props: OfficeViewProps): ReactNode {
           breakPages: true,
           experimental: false,
         })
-        if (!cancelled) setLoad({ status: 'ready' })
+        if (!isCancelled()) setLoad({ status: 'ready' })
       } catch (error) {
-        if (!cancelled) {
+        if (!isCancelled()) {
           setLoad({ status: 'error', message: error instanceof Error ? error.message : String(error) })
         }
       }
     })()
     return () => {
       cancelled = true
-      // Tear down the rendered DOM so a reopen starts clean.
-      if (wrap !== null) wrap.innerHTML = ''
+      // Tear down the rendered DOM so a reopen starts clean (the early
+      // return above guarantees the container was mounted).
+      wrap.innerHTML = ''
     }
   }, [scope.sessionId, scope.cwd, path])
 
@@ -157,18 +173,15 @@ export function XlsxView(props: OfficeViewProps): ReactNode {
   const [load, setLoad] = useState<LoadState>({ status: 'loading' })
 
   useEffect(() => {
+    // Same accessor-read flag as DocxView above.
     let cancelled = false
+    const isCancelled = (): boolean => cancelled
     const host = hostRef.current
     if (host === null) return
     void (async () => {
       try {
-        const response = await fetch(mediaUrl(scope, path))
-        if (cancelled) return
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`)
-        }
-        const buf = await response.arrayBuffer()
-        if (cancelled) return
+        const buf = await fetchOfficeBytes(scope, path, isCancelled)
+        if (buf === null) return
 
         const XLSX = await import('xlsx')
         const { createUniver, LocaleType, mergeLocales } = await import('@univerjs/presets')
@@ -183,7 +196,7 @@ export function XlsxView(props: OfficeViewProps): ReactNode {
         const locale = isZh ? LocaleType.ZH_CN : LocaleType.EN_US
         const workbookData = xlsxWorkbookToUniver(wb, '0.25.1', locale)
 
-        if (cancelled) return
+        if (isCancelled()) return
         const { univer, univerAPI } = createUniver({
           locale,
           locales: localePack !== null ? { [locale]: mergeLocales(localePack) } : {},
@@ -191,9 +204,9 @@ export function XlsxView(props: OfficeViewProps): ReactNode {
         })
         univerRef.current = univer
         univerAPI.createWorkbook(workbookData)
-        if (!cancelled) setLoad({ status: 'ready' })
+        if (!isCancelled()) setLoad({ status: 'ready' })
       } catch (error) {
-        if (!cancelled) {
+        if (!isCancelled()) {
           try {
             univerRef.current?.dispose()
           } catch {
@@ -214,8 +227,9 @@ export function XlsxView(props: OfficeViewProps): ReactNode {
         // Already torn down — ignore.
       }
       univerRef.current = null
-      // Clear the host in case dispose left DOM behind.
-      if (host !== null) host.innerHTML = ''
+      // Clear the host in case dispose left DOM behind (the early return
+      // above guarantees the host was mounted).
+      host.innerHTML = ''
     }
   }, [scope.sessionId, scope.cwd, path])
 

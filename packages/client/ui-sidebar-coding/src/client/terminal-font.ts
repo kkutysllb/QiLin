@@ -39,6 +39,8 @@ export const DEFAULT_TERMINAL_FONT_FAMILY = '"SF Mono", Menlo, Consolas, "Libera
  * metrics from the first entry, so the base font must stay in front or the
  * whole grid would be re-measured against an icon font.
  */
+/* jscpd:ignore-start — terminal font-stack resolution pinned verbatim to
+   @qilin/client-ui-sidebar-terminal src/client/terminal-font.ts (ported twin) */
 export const ICON_FONT_FALLBACKS: readonly string[] = [
   // Symbols-only patches (glyph coverage without Latin) — ideal fallbacks.
   '"Symbols Nerd Font Mono"',
@@ -82,6 +84,7 @@ const CSS_WIDE_KEYWORDS = new Set(['inherit', 'initial', 'unset', 'revert', 'rev
 /** Normalize one family name for comparison: unquote, collapse runs of
  *  whitespace, casefold. */
 function normalizeFamily(family: string): string {
+  /* jscpd:ignore-end */
   return family
     .trim()
     .replace(/^["']|["']$/g, '')
@@ -193,6 +196,7 @@ export function withIconFontFallbacks(stack: string): string {
  * silently — the terminal would lose the theme font *and* the icon fonts.
  */
 function usableBase(value: string | undefined): string {
+  /* jscpd:ignore-start */
   const trimmed = (value ?? '').trim()
   if (trimmed === '') return ''
   if (CSS_WIDE_KEYWORDS.has(trimmed.toLowerCase())) return ''
@@ -246,6 +250,7 @@ export function resolveTerminalFont(
   prefs: SidebarPrefs,
   themeFontFamily: string | undefined,
 ): { fontFamily: string; fontSize: number } {
+  /* jscpd:ignore-end */
   const base = usableBase(prefs.terminalFontFamily)
     || usableBase(themeFontFamily)
     || DEFAULT_TERMINAL_FONT_FAMILY

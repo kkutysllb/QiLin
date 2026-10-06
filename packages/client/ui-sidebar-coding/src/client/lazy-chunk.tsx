@@ -29,7 +29,9 @@ function LazyChunkView<P>({ chunk, pick, props }: LazyChunkViewProps<P>): ReactN
   // P never satisfies — and this wrapper forwards props untouched.
   const [state, setState] = useState<
     | { status: 'loading' }
-    | { status: 'error'; message: string }
+    // 'detail' is diagnostic text (error.message or the chunk-missing marker),
+    // rendered raw like RenderBoundary's error strip — not locale copy.
+    | { status: 'error'; detail: string }
     // oxlint-disable-next-line typescript/no-explicit-any -- see above; generic-safe createElement typing does not exist.
     | { status: 'ready'; Comp: ComponentType<any> }
   >({ status: 'loading' })
@@ -41,13 +43,13 @@ function LazyChunkView<P>({ chunk, pick, props }: LazyChunkViewProps<P>): ReactN
       if (cancelled) return
       const Comp = pick(mod)
       if (Comp === undefined) {
-        setState({ status: 'error', message: `[ui-sidebar-coding] chunk "${chunk}" is missing its component` })
+        setState({ status: 'error', detail: `[ui-sidebar-coding] chunk "${chunk}" is missing its component` })
         return
       }
       setState({ status: 'ready', Comp })
     }).catch((error: unknown) => {
       if (cancelled) return
-      setState({ status: 'error', message: error instanceof Error ? error.message : String(error) })
+      setState({ status: 'error', detail: error instanceof Error ? error.message : String(error) })
     })
     return () => { cancelled = true }
   }, [chunk, pick, attempt])
@@ -58,7 +60,7 @@ function LazyChunkView<P>({ chunk, pick, props }: LazyChunkViewProps<P>): ReactN
   if (state.status === 'error') {
     return (
       <div className={css.editorError}>
-        <span>{state.message}</span>
+        <span>{state.detail}</span>
         <button
           type="button"
           className={css.terminalRetry}

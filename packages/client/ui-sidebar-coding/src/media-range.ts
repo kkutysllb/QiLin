@@ -57,6 +57,8 @@ export type ParsedRange = ByteRange | { unsatisfiable: true } | null
  */
 export function parseRange(raw: string | undefined, size: number): ParsedRange {
   if (raw === undefined) return null
+  /* jscpd:ignore-start — HTTP Range parsing pinned verbatim to
+     @qilin/host-preview-media src/range.ts (ported twin) */
   const match = /^bytes=(.+)$/i.exec(raw.trim())
   if (match === null) return null
   const [firstSpec = ''] = (match[1] ?? '').split(',') // first range only
@@ -81,6 +83,7 @@ export function parseRange(raw: string | undefined, size: number): ParsedRange {
   // out-of-range pair (see the doc above).
   if (end < start) return null
   return { start, end: Math.min(end, size - 1) }
+  /* jscpd:ignore-end */
 }
 
 /** Response headers shared by every media response (206 and 200 alike). */

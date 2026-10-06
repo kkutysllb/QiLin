@@ -32,7 +32,7 @@
  * separating space on the left, so stacked inserts stay at their running
  * position (A|B + C + D → ACD|B).
  */
-import type { Context, SidebarConversation } from '../context-types.ts'
+import type { Context } from '../context-types.ts'
 
 /** A resolved composer caret/selection in draft coordinates. */
 export interface DraftCaret {
@@ -172,7 +172,7 @@ export function appendToDraft(ctx: Context, sessionId: string, text: string): bo
       console.warn('[ui-sidebar-coding] draft insert skipped: no session scope', sessionId)
       return false
     }
-    const conversation = ctx.get('conversation') as SidebarConversation | undefined
+    const conversation = ctx.get('conversation')
     if (conversation === undefined) {
       console.warn('[ui-sidebar-coding] draft insert skipped: conversation service unavailable')
       return false
@@ -202,7 +202,6 @@ export function appendToDraft(ctx: Context, sessionId: string, text: string): bo
  */
 export function fileMention(relativePath: string): { mention: string; label: string } | undefined {
   const path = relativePath.replace(/[\\/]+$/, '')
-  // eslint-disable-next-line no-control-regex -- rejecting control characters is the point of this guard
   if (/[\u0000-\u001f\u007f-\u009f"]/u.test(path)) return undefined
   const mention = /\s/u.test(path) ? `@"${path}"` : `@${path}`
   const at = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'))
@@ -225,7 +224,7 @@ export function insertFileReference(ctx: Context, sessionId: string, relativePat
   try {
     const actx = ctx.sessions.scope(sessionId)
     if (actx === undefined) return false
-    const conversation = ctx.get('conversation') as SidebarConversation | undefined
+    const conversation = ctx.get('conversation')
     if (conversation === undefined) return false
     const input = conversation.input.for(actx)
     const before = input.state.getSnapshot()

@@ -12,9 +12,15 @@
   min-height: 0;
   overflow: hidden;
   background: var(--qilin-alias-bg-layer-2, var(--qilin-alias-bg-base, #1c1c1e));
-  border: 1px solid var(--qilin-alias-border-l2, rgba(255, 255, 255, 0.16));
+  border: 0.5px solid var(--qilin-alias-border-l2, rgba(255, 255, 255, 0.16));
   border-radius: 10px;
   box-shadow: 0 10px 32px rgba(0, 0, 0, 0.32);
+  /* Elevated surface (bg-layer-2): the scrollbar thumb takes the l2 elevation
+     tokens. Declared here rather than on `.body` because the elevation is a
+     property of this surface, and the indirection inherits down to whichever
+     descendant scrolls (ui-theme styles/scrollbar.css contract). */
+  --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
   /* An interactive popover: presses inside it must never start a window drag
      (the host's darwin blanket already says `no-drag` for body children; this
      keeps the guarantee if that blanket ever changes). */
@@ -28,7 +34,7 @@
   gap: 8px;
   height: 32px;
   padding: 0 4px 0 10px;
-  border-bottom: 1px solid var(--qilin-alias-border-l2, rgba(255, 255, 255, 0.12));
+  border-bottom: 0.5px solid var(--qilin-alias-border-l2, rgba(255, 255, 255, 0.12));
   cursor: grab;
   user-select: none;
 }

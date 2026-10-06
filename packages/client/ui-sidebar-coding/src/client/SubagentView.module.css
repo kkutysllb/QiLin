@@ -199,7 +199,7 @@
   left: 0;
   top: -26px;
   height: 26px;
-  border-left: 1px solid var(--qilin-alias-border-l2);
+  border-left: 0.5px solid var(--qilin-alias-border-l2);
 }
 
 .subagentChildren[aria-busy='true']::before {
@@ -212,7 +212,7 @@
   top: 0;
   bottom: 0;
   left: -4px;
-  border-left: 1px solid var(--qilin-alias-border-l2);
+  border-left: 0.5px solid var(--qilin-alias-border-l2);
 }
 
 .subagentChildren > .subagentNode:last-child::before {
@@ -226,7 +226,7 @@
   top: 16px;
   left: -4px;
   width: 14px;
-  border-top: 1px solid var(--qilin-alias-border-l2);
+  border-top: 0.5px solid var(--qilin-alias-border-l2);
 }
 
 .subagentEmpty {
@@ -289,7 +289,7 @@
 
 .jobs {
   margin-top: 10px;
-  border-top: 1px solid var(--qilin-alias-border-l2);
+  border-top: 0.5px solid var(--qilin-alias-border-l2);
   padding-top: 8px;
 }
 
@@ -397,7 +397,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   padding: 0 5px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 4px;
   font: var(--qilin-font-xxxs-strong-11);
   line-height: 14px;
@@ -620,7 +620,7 @@
   min-width: 26px;
   height: 24px;
   padding: 0 8px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 6px;
   background: transparent;
   color: var(--qilin-alias-label-secondary);
@@ -637,7 +637,7 @@
 .subagentViewToggle {
   display: inline-flex;
   margin-left: 8px;
-  border: 1px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 6px;
   overflow: hidden;
 }

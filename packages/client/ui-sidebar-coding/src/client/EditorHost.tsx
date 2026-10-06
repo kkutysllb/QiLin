@@ -276,20 +276,20 @@ export function EditorHost(props: {
   const dragRef = useRef<{ startX: number; startWidth: number } | null>(null)
   const pendingWidthRef = useRef(0)
   const dragBatcher = useRef(createFrameBatcher()).current
-  useEffect(() => () => dragBatcher.dispose(), [dragBatcher])
+  useEffect(() => () => { dragBatcher.dispose() }, [dragBatcher])
   const treeWidth = dragWidth ?? treeWidthOf(tab)
 
   const onResizeStart = (event: React.PointerEvent): void => {
     event.preventDefault()
     // jsdom lacks setPointerCapture — the tests dispatch plain MouseEvents.
-    event.currentTarget.setPointerCapture?.(event.pointerId)
+    if (typeof event.currentTarget.setPointerCapture === 'function') event.currentTarget.setPointerCapture(event.pointerId)
     dragRef.current = { startX: event.clientX, startWidth: treeWidth }
   }
   const onResizeMove = (event: React.PointerEvent): void => {
     const drag = dragRef.current
     if (drag === null) return
     pendingWidthRef.current = clampTreeWidth(drag.startWidth + (drag.startX - event.clientX))
-    dragBatcher.schedule(() => setDragWidth(pendingWidthRef.current))
+    dragBatcher.schedule(() => { setDragWidth(pendingWidthRef.current) })
   }
   const onResizeEnd = (event: React.PointerEvent): void => {
     const drag = dragRef.current
@@ -387,6 +387,29 @@ export function EditorHost(props: {
       : toolbar.saveState === 'saved' ? t('saved')
         : toolbar.saveState === 'failed' ? t('saveFailed') : ''
 
+  // The TreePanel prop set shared by both dock layouts (the full-pane
+  // standalone tree and the editor's side dock; the folder override is a
+  // no-op in the merged layout, which only renders without a folder root).
+  const treePanelProps = {
+    sessionId: readScope.sessionId,
+    cwd: folderRoot ?? readScope.cwd,
+    expanded,
+    revealed,
+    onToggle: onToggleDir,
+    onOpenFile: openFile,
+    onOpenFileNewTab: openFileNewTab,
+    onOpenFileSide: openFileSide,
+    openWithTargets,
+    openWithPinned: openWithConfig.pinned,
+    openWithSsh: openWithSshActive(openWithConfig),
+    onOpenWith: openWith,
+    onToggleOpenWithPin: toggleOpenWithPin,
+    onReferenceFile,
+    onPathRenamed,
+    onPathRemoved,
+    service: ctx.get('betterSidebar'),
+  }
+
   // Split mode: the path-less window IS the standalone explorer — the tree
   // panel fills the whole tab (search + FileTree, full form), no editor
   // chrome. File opens land in new per-path tabs through openFile above.
@@ -395,26 +418,7 @@ export function EditorHost(props: {
   if (treeOnly || folderRoot !== undefined) {
     return (
       <div className={css.editor}>
-        <TreePanel
-          full
-          sessionId={readScope.sessionId}
-          cwd={folderRoot ?? readScope.cwd}
-          expanded={expanded}
-          revealed={revealed}
-          onToggle={onToggleDir}
-          onOpenFile={openFile}
-          onOpenFileNewTab={openFileNewTab}
-          onOpenFileSide={openFileSide}
-          openWithTargets={openWithTargets}
-          openWithPinned={openWithConfig.pinned}
-          openWithSsh={openWithSshActive(openWithConfig)}
-          onOpenWith={openWith}
-          onToggleOpenWithPin={toggleOpenWithPin}
-          onReferenceFile={onReferenceFile}
-          onPathRenamed={onPathRenamed}
-          onPathRemoved={onPathRemoved}
-          service={ctx.get('betterSidebar')}
-        />
+        <TreePanel full {...treePanelProps} />
       </div>
     )
   }
@@ -433,7 +437,7 @@ export function EditorHost(props: {
                 // the preview renders the just-saved content. A dirty draft
                 // (or a failed save) suppresses the reload — the draft only
                 // lives in the editor instance and a remount would drop it.
-                if (toolbar.mode === 'edit' && toolbar.dirty !== true && toolbar.saveState !== 'failed') {
+                if (toolbar.mode === 'edit' && !toolbar.dirty && toolbar.saveState !== 'failed') {
                   setReloadSeq(sequence => sequence + 1)
                 }
                 controlsRef.current?.setMode('preview')
@@ -456,7 +460,7 @@ export function EditorHost(props: {
             type="button"
             className={css.iconButton}
             aria-label={t('save')}
-            title={`${t('save')} (Ctrl/Cmd+S)`}
+            title={t('saveShortcut')}
             onClick={() => { controlsRef.current?.save() }}
           >
             <IconCheckOutline16 size={14} />
@@ -518,25 +522,7 @@ export function EditorHost(props: {
               onPointerUp={onResizeEnd}
               onPointerCancel={onResizeEnd}
             />
-            <TreePanel
-              sessionId={readScope.sessionId}
-              cwd={readScope.cwd}
-              expanded={expanded}
-              revealed={revealed}
-              onToggle={onToggleDir}
-              onOpenFile={openFile}
-              onOpenFileNewTab={openFileNewTab}
-              onOpenFileSide={openFileSide}
-              openWithTargets={openWithTargets}
-              openWithPinned={openWithConfig.pinned}
-              openWithSsh={openWithSshActive(openWithConfig)}
-              onOpenWith={openWith}
-              onToggleOpenWithPin={toggleOpenWithPin}
-              onReferenceFile={onReferenceFile}
-              onPathRenamed={onPathRenamed}
-              onPathRemoved={onPathRemoved}
-              service={ctx.get('betterSidebar')}
-            />
+            <TreePanel {...treePanelProps} />
           </div>
         )}
       </div>

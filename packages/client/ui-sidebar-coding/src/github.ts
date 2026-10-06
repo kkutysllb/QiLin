@@ -70,7 +70,7 @@ export function ghSpawnError(error: NodeJS.ErrnoException): string {
 
 /** The first non-empty stderr line (git/gh failures are multi-line). */
 export function firstLine(text: string | null | undefined): string | null {
-  const line = String(text ?? '')
+  const line = (text ?? '')
     .split('\n')
     .map(part => part.trim())
     .find(part => part !== '')
@@ -91,7 +91,7 @@ export function parseGhJsonList(output: string): Record<string, unknown>[] {
  *  output (the last http(s) link; gh prints prose around it). */
 export function parseCreatedUrl(output: string): string | null {
   let last: string | null = null
-  for (const match of String(output ?? '').matchAll(/https:\/\/[^\s]+/g)) last = match[0]
+  for (const match of output.matchAll(/https:\/\/[^\s]+/g)) last = match[0]
   return last
 }
 
