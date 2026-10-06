@@ -13,7 +13,7 @@ import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useStat
 import clsx from 'clsx'
 import {
   Button, IconCloseFill14, IconPersonalizationOutline16,
-  IconProjectAddOutline16, IconSearchOutline16, Menu, Modal, SegmentedTabs, Tooltip,
+  IconProjectAddOutline16, IconSearchOutline16, Menu, Modal, Tooltip,
 } from '@qilin/client-ui-primitives'
 import type { WorkbenchTag } from '@qilin/client-ui-workbench/client'
 import type {
@@ -811,7 +811,6 @@ export function WorkspaceBrowser({
   useWorkspaces,
   useStore,
   actions,
-  onWorkbenchSwitch,
   shows,
   useWorkbench,
   startSession,
@@ -1346,20 +1345,6 @@ export function WorkspaceBrowser({
           onClose={() => { setWsPickerOpen(false) }}
         />
       </div>
-
-      {wide && (
-        <div className={css.workbenchRow}>
-          <SegmentedTabs
-            items={[
-              { value: 'general', label: t('workbench.general'), id: 'workbench-tab-general', panelId: 'workbench-list-panel' },
-              { value: 'coding', label: t('workbench.coding'), id: 'workbench-tab-coding', panelId: 'workbench-list-panel' },
-            ]}
-            value={workbench.active}
-            onChange={onWorkbenchSwitch}
-            label={t('workbench.tabs.aria')}
-          />
-        </div>
-      )}
 
       {/* Always-mounted seat keeps the region's flex slot while the list
           itself is wide-only. */}

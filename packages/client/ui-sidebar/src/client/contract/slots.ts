@@ -1,11 +1,11 @@
 /**
  * Sidebar slot contract: the registrant-side props composition for the
  * layout-owned `sidebar` slot, plus the holes this shell declares. The shell
- * owns column geometry, the brand row, New Session, and global panel rows;
- * everything between the workspace section header and the list bottom is the
- * `sidebar.workspaces` registrant's (ui-workspace), and the foot is the
- * `sidebar.settings` registrant's (ui-settings), followed by optional footer
- * actions in `sidebar.footer.action`.
+ * owns column geometry, the brand row, the workbench-switch seat, New Session,
+ * and global panel rows; everything between the workspace section header and
+ * the list bottom is the `sidebar.workspaces` registrant's (ui-workspace), and
+ * the foot is the `sidebar.settings` registrant's (ui-settings), followed by
+ * optional footer actions in `sidebar.footer.action`.
  */
 import type { InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime } from '@qilin/client-ui-slots'
 import type { ObservableSnapshot } from '@qilin/client-store'
@@ -33,6 +33,12 @@ declare module '@qilin/client-ui-slots' {
      * the sidebar owns the button and resolves its label from list metadata.
      */
     'sidebar.panellist': { kind: 'list'; scope: 'root'; owner: SidebarPanelIconOwnerProps }
+    /**
+     * The dual-workbench switch between the brand row and New Session.
+     * Declared by this package's `sidebar` entry; ui-workspace registers the
+     * switch. The shell supplies only the column state.
+     */
+    'sidebar.workbench': { kind: 'single'; scope: 'root'; owner: SidebarWorkbenchOwnerProps }
     /**
      * Deployment-side section assignment for panel rows. Each occupant's
      * inject face contributes a row-id → section-label map applied over the
@@ -90,6 +96,15 @@ export interface SidebarPanelIconOwnerProps {
   size: number
   /** Whether this panel is selected in the main column. */
   active: boolean
+}
+
+/**
+ * Owner share of the workbench-switch seat: the column display state the
+ * occupant renders against (wide row vs 56px rail).
+ */
+export interface SidebarWorkbenchOwnerProps {
+  /** Whether the sidebar renders wide content (false = 56px rail). */
+  wide: boolean
 }
 
 /** Owner share of a section-assignments seat: row-id → section label. */
@@ -174,6 +189,7 @@ export type SidebarRootComponentProps =
     | 'sidebar.brand.mark'
     | 'sidebar.brand.name'
     | 'sidebar.toggle.badge'
+    | 'sidebar.workbench'
     | 'sidebar.panellist'
     | 'sidebar.workspaces'
     | 'sidebar.settings'

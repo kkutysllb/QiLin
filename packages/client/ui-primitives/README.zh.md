@@ -43,7 +43,6 @@ kind: "package-library"
 | `Input` | 单行文本输入，用于搜索框与行内表单。 |
 | `Menu` | 由条目、分隔线与分组标题构成的下拉菜单，支持嵌套子菜单。打开期间 `↑`／`↓`（以及 Home、End）在列表中走位，Tab 选定聚焦行，Escape 或 Shift+Tab 关闭并把焦点还给锚点；选定一行同样把键盘还给锚点——除非拥有者自己移动了焦点。只拦截位于锚点或列表内的键盘，`autoFocus` 仅决定打开时是否聚焦首行。 |
 | `Pill` | 可选中的胶囊按钮，用于视图切换与筛选器；接受 `active` 与 `onClick`。 |
-| `SegmentedTabs` | 受控的等宽页签，带滑动指示块与 Left/Right、Home、End 导航。标签、页签／面板 id 与面板内容均由调用方提供。 |
 | `Tag` | 只读胶囊徽章；`tone` 选择八种配色之一。 |
 | `PathLabel` | 单行文件路径：目录弱化、文件名为主要信息、悬停时显示完整路径。放得下时左对齐；被裁剪时保留尾部并在左缘渐隐，路径或尺寸变化都会重新判定。 |
 | `StateDot` | 状态标记：`done`、`warning`、`ongoing`、`error` 或 `idle`。它是 `aria-hidden` 的，名称由渲染点提供。 |

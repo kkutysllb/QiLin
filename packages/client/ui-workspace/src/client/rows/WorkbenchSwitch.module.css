@@ -1,0 +1,46 @@
+/* The dual-workbench switch: tokens only; the active tag is an outlined
+   accent pill, the inactive tag an icon-only ghost button. */
+
+.switch {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.tab {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 8px;
+  color: var(--dsw-alias-label-secondary);
+  font-size: var(--dsh-content-font-size-secondary, 13px);
+  line-height: 1;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background var(--ds-transition-duration-fast) var(--ds-ease-in-out);
+}
+
+.tab:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+/* Active: icon + label inside the accent outline. */
+.activePill {
+  padding: 0 11px;
+  color: var(--dsw-alias-brand-primary-new-colorprimary-new-color);
+  border-color: currentColor;
+}
+
+.inactiveIcon {
+  width: 28px;
+  padding: 0;
+}
+
+.label {
+  white-space: nowrap;
+}

@@ -262,6 +262,10 @@ export function SidebarRoot({
         {!darwinDesktop && toggle}
       </div>
 
+      {/* The dual-workbench switch rides between the brand row and New
+          Session; the rail has no room for it, so it is wide-only. */}
+      {wide && renderSlot('sidebar.workbench', { wide })}
+
       {/* Expanded, the button carries its own label — tooltip only on the rail.
           The inline keys fade in on hover/focus so the label keeps its width. */}
       <Tooltip label={t('session.new.label')} shortcutKeys={newShortcut?.keys} delayMs={500} disabled={wide}>

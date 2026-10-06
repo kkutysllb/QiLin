@@ -25,7 +25,7 @@ qilin Web 客户端的侧边栏让用户识别当前构建、启动新会话、�
 <a id="use-this-package"></a>
 ## 使用本包
 
-侧边栏是导航外壳：用户看到品牌、启动新会话、折叠轨道并到达 Settings。功能插件填充它的席位——ui-workspace 填充 `sidebar.workspaces`，ui-account 填充 `sidebar.footer.action`，ui-settings 以设置面板填充 `sidebar.settings`。
+侧边栏是导航外壳：用户看到品牌、工作台切换、启动新会话、折叠轨道并到达 Settings。功能插件填充它的席位——ui-workspace 填充 `sidebar.workbench`（品牌行与新建会话之间的切换控件）与 `sidebar.workspaces`，ui-account 填充 `sidebar.footer.action`，ui-settings 以设置面板填充 `sidebar.settings`。
 
 ### 品牌与 New Session
 

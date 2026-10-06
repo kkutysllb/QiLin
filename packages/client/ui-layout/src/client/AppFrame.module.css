@@ -108,9 +108,9 @@
 }
 
 /* Drag handles are frame children (columns clip overflow): an 8px hit strip
-   centered on the column border via inline left, above column content. No
-   handle draws a visible pill: the details column was the only one that did,
-   and the right column never had one. The right handle sits above the right
+   centered on the column border via inline left, above column content. The
+   right handle draws a hover-reveal pill: the right panel's edge has no other
+   affordance, and an invisible strip was never found. It sits above the right
    panel (which states z-index 10) so it stays grabbable when the panel hangs
    over the centre. */
 .handle {
@@ -125,6 +125,25 @@
   /* Rides the same curve as the tracks so the pill stays on the moving
      border during collapse/expand; paused while dragging (frame rule). */
   transition: left var(--ds-transition-duration-slow) var(--ds-ease-in-out);
+}
+
+.handle[data-side='rightbar']::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 32px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: var(--dsw-alias-border-l4);
+  opacity: 0;
+  transition: opacity var(--ds-transition-duration-fast) var(--ds-ease-in-out);
+}
+
+.handle[data-side='rightbar']:hover::after,
+.handle[data-side='rightbar'][data-dragging]::after {
+  opacity: 1;
 }
 
 .frame[data-dragging] .handle {

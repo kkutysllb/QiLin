@@ -129,7 +129,6 @@ function mount(overrides: Partial<WorkspaceBrowserProps> = {}) {
     useDirectoryFlow: bindSnapshotSelector({ getSnapshot: () => true, subscribe: () => () => {} }),
     useHostInfo: selector => selector({ home: undefined, isLoopback: true }),
     useWorkbench: bindSnapshotSelector({ getSnapshot: () => WORKBENCH_DEFAULT_STATE, subscribe: () => () => {} }),
-    onWorkbenchSwitch: vi.fn(),
     shows: workbenchShows,
     useWorkspaceShortcuts: bindSnapshotSelector(shortcutStore),
     useShortcuts: bindSnapshotSelector({ getSnapshot: () => noShortcuts, subscribe: () => () => {} }),

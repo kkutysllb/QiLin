@@ -133,12 +133,6 @@ export type WorkspaceBrowserInjected = {
     workbench: HostObservable<WorkbenchState>
   }
   /**
-   * Switch the workbench tag: records the selection and rebinds the current
-   * Workspace's blank sessions whose recorded preset the new tag does not
-   * show (D3's select rebind; a non-blank session stays as it is).
-   */
-  onWorkbenchSwitch: (tag: WorkbenchTag) => void
-  /**
    * The workbench owner's visibility fold, reached as a service callback so
    * the browser imports no cross-plugin value (the purity gate forbids one).
    */
@@ -201,6 +195,27 @@ export type WorkspaceBrowserInjected = {
   /** Adopt a picked host directory as a real Workspace before targeting a Session. */
   createWorkspace: (input: { path: string }) => Promise<WorkspaceView>
 }
+
+/**
+ * Injected share of the sidebar-top workbench switch: the tag selection and
+ * the switch callback (the same record-and-rebind path the browser list
+ * filters through).
+ */
+export type WorkbenchSwitchInjected = {
+  hooks: {
+    /** The workbench tag selection and per-tag preset memory (the `workbench` service state). */
+    workbench: HostObservable<WorkbenchState>
+  }
+  /** Switch the workbench tag (see {@link WorkspaceBrowserInjected.onWorkbenchSwitch}). */
+  onWorkbenchSwitch: (tag: WorkbenchTag) => void
+}
+
+/** Full switch-seat props: shell owner share + injected selection + the locale seat. */
+export type WorkbenchSwitchSeatProps =
+  PropsRuntime<'sidebar.workbench'>
+  & PropsHooks<WorkbenchSwitchInjected['hooks']>
+  & Omit<WorkbenchSwitchInjected, 'hooks'>
+  & PropsLocale<'workspace'>
 
 /** Full browser props: shell owner share + viewing store + injected actions + the locale seat. */
 export type WorkspaceBrowserProps =

@@ -43,7 +43,6 @@ Check this table before writing a control in a feature package. A plugin cannot 
 | `Input` | Single-line text entry for search boxes and inline forms. |
 | `Menu` | Dropdown of items, separators, and group labels, with nested submenus. While open, ↑/↓ (with Home and End) walk the list, Tab settles the focused row, and Escape or Shift+Tab close back to the anchor; selecting a row also returns the keyboard to the anchor unless the owner moved it itself. Only a keyboard on the anchor or inside the list is intercepted, and `autoFocus` decides solely whether opening focuses the first row. |
 | `Pill` | Selectable capsule button for view switchers and filters; takes `active` and `onClick`. |
-| `SegmentedTabs` | Controlled equal-width tabs with a sliding indicator and Left/Right, Home, and End navigation. The caller supplies labels, tab/panel ids, and panel content. |
 | `Tag` | Read-only capsule badge; `tone` selects one of eight palettes. |
 | `PathLabel` | Single-line file path with subdued directories, a primary filename, and the full path on hover. Fitting paths align left; clipped paths preserve their suffix with a left-edge fade that updates on path and size changes. |
 | `StateDot` | Status mark: `done`, `warning`, `ongoing`, `error`, or `idle`. `aria-hidden`, so the render site owns the name. |

@@ -26,10 +26,11 @@ import type {} from '@qilin/client-ui-renderer/client'
 import type {} from '@qilin/client-ui-layout/client'
 // Type-only: pulls the Session root standard-hook merge.
 import type {} from '@qilin/client-ui-session/client'
-import type { WorkspaceBrowserInjected, WorkspacePickerInjected } from './contract/slots.ts'
+import type { WorkbenchSwitchInjected, WorkspaceBrowserInjected, WorkspacePickerInjected } from './contract/slots.ts'
 import { createWorkspaceShortcutControls, installWorkspaceShortcuts } from './shortcuts.ts'
 import { UiWorkspaceService } from './navigation.ts'
 import { createWorkspaceViewStore } from './stores.ts'
+import { WorkbenchSwitchSeat } from './WorkbenchSwitchSeat.tsx'
 import { WorkspaceBrowser } from './rows/WorkspaceBrowser.tsx'
 import { WorkspacePicker } from './WorkspacePicker.tsx'
 import { en, zh, type WorkspaceKey } from './locales.ts'
@@ -37,7 +38,7 @@ import { en, zh, type WorkspaceKey } from './locales.ts'
 export type { MainSelection, UiWorkspace } from './navigation.ts'
 export type {
   DirectoryFlowOwnerProps, DirectoryFlowSlotName, DirectoryPickingHooks, DirectoryPickingInjected,
-  SessionRowScheduleOwnerProps,
+  SessionRowScheduleOwnerProps, WorkbenchSwitchInjected, WorkbenchSwitchSeatProps,
   WorkspaceBrowserInjected, WorkspaceBrowserProps, WorkspacePickerInjected, WorkspacePickerProps,
 } from './contract/slots.ts'
 export type { WorkspaceKey } from './locales.ts'
@@ -100,7 +101,7 @@ export function apply(ctx: Context): void {
   const shortcutControls = createWorkspaceShortcutControls()
   // The switch records the tag first (the rebind reads the new active tag)
   // and then aligns the current Workspace's blank sessions (D3).
-  const onWorkbenchSwitch: WorkspaceBrowserInjected['onWorkbenchSwitch'] = (tag) => {
+  const onWorkbenchSwitch: WorkbenchSwitchInjected['onWorkbenchSwitch'] = (tag) => {
     workbench.setActive(tag)
     uiWorkspace.rebindBlanksAfterTagSwitch()
   }
@@ -130,7 +131,6 @@ export function apply(ctx: Context): void {
     // Explicit group actions keep their target; unscoped New Session inherits
     // the current Session Workspace before the recent-Workspace fallback.
     startSession: (workspaceId) => { uiWorkspace.startSession(workspaceId) },
-    onWorkbenchSwitch,
     shows: (preset, tag) => workbench.shows(preset, tag),
     open: openSession,
     searchSessions,
@@ -177,6 +177,17 @@ export function apply(ctx: Context): void {
   })
   // Each registration declares its directory-flow child in the same call;
   // slot injection follows both the owner and declaration HMR lifetimes.
+  // The sidebar-top switch seat shares the switch callback with the browser
+  // (which no longer renders its own row): the seat selects the tag, the
+  // browser filters through the recorded state.
+  ctx.slots.inject('sidebar.workbench', () => ctx.slots.register(
+    {
+      name: 'sidebar.workbench',
+      inject: () => ({ hooks: { workbench: workbench.state }, onWorkbenchSwitch }),
+      locale: NS,
+    },
+    WorkbenchSwitchSeat,
+  ))
   ctx.slots.inject('sidebar.workspaces', () => ctx.slots.register(
     {
       name: 'sidebar.workspaces',

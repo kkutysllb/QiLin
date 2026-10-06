@@ -1,0 +1,7 @@
+/* The workbench-switch seat between the brand row and New Session; the inset
+   matches the New Session button's content edge (2px margin + 8px padding). */
+
+.seat {
+  flex: none;
+  padding: 0 12px 8px;
+}

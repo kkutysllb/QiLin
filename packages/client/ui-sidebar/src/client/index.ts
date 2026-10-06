@@ -92,6 +92,7 @@ export function apply(ctx: ClientContext): void {
       'sidebar.brand.mark': { kind: 'single', scope: 'root' },
       'sidebar.brand.name': { kind: 'single', scope: 'root' },
       'sidebar.toggle.badge': { kind: 'single', scope: 'root' },
+      'sidebar.workbench': { kind: 'single', scope: 'root' },
       'sidebar.panellist': { kind: 'list', scope: 'root' },
       'sidebar.section.assignments': { kind: 'list', scope: 'root' },
       'sidebar.workspaces': { kind: 'single', scope: 'root' },

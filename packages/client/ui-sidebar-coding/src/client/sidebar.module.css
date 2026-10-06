@@ -3972,6 +3972,10 @@ body[data-dsh-sidebar-dragging] .panel {
   border: none;
   border-radius: 0;
   box-shadow: none;
+  /* Dock-layer parity (ui-sidebar-right states 10): the in-column body IS the
+     right panel's content, so the frame's resize handle (11) stays grabbable
+     over the panel's left edge — the overlay-era 40 buried it. */
+  z-index: 10;
 }
 
 .codingBody .panelResize,

@@ -388,6 +388,17 @@ export function RightbarSeat({
     if (active && surface === undefined) actions.open(sessionId)
   }, [actions, sessionId, surface, active])
 
+  // Entering the coding tag opens the column: the coding workbench is
+  // sidebar-first and its body renders only inside an expanded column. A
+  // collapse after that is the user's call and survives until the next entry.
+  // Only when the column fits — the no-room concession below owns the rest,
+  // and both writing would fight over the flag.
+  useEffect(() => {
+    if (coding && active && !autoFullscreen && canShow && surface !== undefined && !surface.layout.expanded) {
+      actions.setExpanded(sessionId, true)
+    }
+  }, [actions, sessionId, surface, coding, active, autoFullscreen, canShow])
+
   useLayoutEffect(() => {
     if (shown && !fullscreen && !canShow) actions.setExpanded(sessionId, false)
   }, [actions, sessionId, shown, fullscreen, canShow])

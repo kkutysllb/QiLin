@@ -25,7 +25,7 @@ The qilin web client sidebar lets users recognize the active build, start a new 
 <a id="use-this-package"></a>
 ## Use this package
 
-The sidebar is the navigation shell: users see the brand, start new sessions, collapse the rail, and reach Settings. Feature plugins fill its seats — ui-workspace fills `sidebar.workspaces`, ui-account fills `sidebar.footer.action`, and ui-settings fills `sidebar.settings` with the settings panel.
+The sidebar is the navigation shell: users see the brand, the workbench switch, start new sessions, collapse the rail, and reach Settings. Feature plugins fill its seats — ui-workspace fills `sidebar.workbench` (the switch between the brand row and New Session) and `sidebar.workspaces`, ui-account fills `sidebar.footer.action`, and ui-settings fills `sidebar.settings` with the settings panel.
 
 ### Brand and New Session
 
