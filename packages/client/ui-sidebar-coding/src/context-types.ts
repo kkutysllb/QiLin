@@ -375,7 +375,13 @@ export interface SidebarSessionHistoryRpc {
   ): Promise<SidebarRpcResponse<{ events: SidebarHistoryEntry[]; hasMore: boolean }>>
 }
 
-/** The wire face the Subagent activity summary needs (subset of `ctx.connection`). */
+/**
+ * The wire face the Subagent activity summary needs (subset of
+ * `ctx.connection`), plus the Host admission check the /sidebar routes apply
+ * after their browser-trust fence — fence is DNS-rebinding defense, admission
+ * is authentication (`requestRejection` mirrors the connection service's own
+ * contract: rejection status, or undefined when the request may proceed).
+ */
 export interface SidebarConnectionHandle {
   api: {
     sessions: SidebarSessionHistoryRpc
@@ -386,6 +392,7 @@ export interface SidebarConnectionHandle {
       ): Promise<SidebarRpcResponse<{ events: SidebarHistoryEntry[]; hasMore: boolean }>>
     }
   }
+  requestRejection(request: SidebarHttpRequest): 401 | 403 | undefined
 }
 
 /** The client session list snapshot the sidebar subscribes to. */

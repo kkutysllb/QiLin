@@ -1,6 +1,6 @@
 {
   "name": "@qilin/client-ui-sidebar-coding",
-  "description": "Coding workbench content body for the right Sidebar (dual workbench D5): the VSCode-like workbench — explorer/editor/terminal/git/browser tabs, per-session isolated, with lazy preview chunks and the sidechat face. Ported from dsh-coding-sidebar 1.0.39",
+  "description": "Coding workbench content body for the right Sidebar (dual workbench D5): the VSCode-like workbench — explorer/editor/terminal/git/browser tabs, per-session isolated, with lazy preview chunks. Ported from dsh-coding-sidebar 1.0.39",
   "version": "3.0.11",
   "publishConfig": {
     "access": "public"
@@ -93,6 +93,7 @@
     "@qilin/agent": "workspace:*",
     "@qilin/api-remotes": "workspace:*",
     "@qilin/api-session-controller": "workspace:*",
+    "@qilin/client-connection": "workspace:*",
     "@qilin/client-locale": "workspace:*",
     "@qilin/client-modules": "workspace:*",
     "@qilin/client-store": "workspace:*",
@@ -120,24 +121,19 @@
     "dompurify": "^3.4.14",
     "lightningcss": "^1.29.0",
     "mermaid": "11.17.2",
+    "node-pty": "1.2.0-beta.15",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "5.7.0",
     "rxjs": "^7.8.2",
     "tsdown": "^0.14.0",
-    "xlsx": "0.18.5",
-    "node-pty": "1.2.0-beta.15"
+    "xlsx": "0.18.5"
   },
   "files": [
     "lib/index.js",
     "lib/invariant.js",
     "lib/client.js",
-    "lib/client-terminal.js",
-    "lib/client-editor.js",
-    "lib/client-locale.js",
-    "lib/client-trajectory.js",
-    "lib/client-mermaid.js",
-    "lib/client-office.js",
+    "lib/client.*.js",
     "lib/types/**/*.d.ts"
   ]
 }

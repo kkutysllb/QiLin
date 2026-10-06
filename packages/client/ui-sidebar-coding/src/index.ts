@@ -72,7 +72,7 @@ export type { Context } from './context-types.ts'
 export const name = '@qilin/client-ui-sidebar-coding'
 
 /** Services required before mounting: the webserver routes, the session store, the web runtime's trusted hosts, and the tool registry. */
-export const inject = ['webServer', 'sessions', 'webRuntime', 'tools']
+export const inject = ['webServer', 'sessions', 'webRuntime', 'tools', 'connection']
 
 /** Content types for the media route, by extension. */
 const MEDIA_TYPES: Record<string, string> = {
@@ -796,13 +796,20 @@ function buildApi(
     // client is a browser renderer where raw scheme navigation is
     // unreliable, so the launch always goes through the host — the same
     // fence as every other route, argv-only (no shell interpolation).
-    'open.external': (payload) => {
+    'open.external': async (payload) => {
       const record = payload as { action?: unknown } | null
       const action = record?.action
       if (action === 'reveal') return launchExternal('reveal', requireString(payload, 'path'))
       if (action === 'url') return launchExternal('url', requireString(payload, 'url'))
       if (action === 'app') {
-        return launchExternalApp(requireString(payload, 'app'), requireString(payload, 'path'))
+        const appPath = requireString(payload, 'app')
+        // Spawn only executables the host scan itself offered the menu: the
+        // route would otherwise launch any absolute path with exec bit.
+        const scanned = await listNativeApps()
+        if (!scanned.some(app => app.path === appPath)) {
+          throw new SidebarError('bad-request', `"${appPath}" is not a host-detected application`)
+        }
+        return launchExternalApp(appPath, requireString(payload, 'path'))
       }
       throw new SidebarError('bad-request', 'action must be "reveal", "url" or "app"')
     },
@@ -835,6 +842,20 @@ export function apply(ctx: Context, config?: SidebarConfig): void {
   // gateway fence derives its list from. Read per request from the live
   // service value; a replaced list takes effect without a plugin restart.
   const fence = (req: SidebarHttpRequest): boolean => isTrustedApiRequest(req, ctx.webRuntime.trustedHosts)
+  // Operator admission for the surfaces a same-origin GUI touches: the fence
+  // alone is a DNS-rebinding defense, NOT authentication (its own header says
+  // so). Without the connection check, any LAN peer against an all-interfaces
+  // bind — or any page served from the loopback hostname on another port —
+  // reaches the terminal WebSocket (a host shell) and the fs method table.
+  // The GUI's fetch/WebSocket/subresource requests carry the operator cookie,
+  // so admission is transparent to the client. The /sidebar/html preview
+  // route stays fence-only ON PURPOSE: it renders inside CSP-sandboxed
+  // iframes whose opaque origin cannot send SameSite=Strict cookies, and its
+  // sandbox header already denies the rendered page any same-origin power.
+  const admit = (req: SidebarHttpRequest): number | undefined => {
+    if (!fence(req)) return 403
+    return ctx.connection.requestRejection(req)
+  }
   // node-pty is loaded lazily, never at module top level (issue #140): a
   // missing or broken install must degrade THIS plugin — terminal tab shows
   // a repair command, agent terminal tools stay unregistered — instead of
@@ -1006,12 +1027,19 @@ export function apply(ctx: Context, config?: SidebarConfig): void {
     kind: 'prefix',
     path: '/sidebar/api',
     handler: async (req, res) => {
-      if (!fence(req)) {
-        writeJson(res, 403, { ok: false, error: { code: 'forbidden', message: 'forbidden' } })
+      const rejection = admit(req)
+      if (rejection !== undefined) {
+        writeJson(res, rejection, { ok: false, error: { code: 'forbidden', message: 'forbidden' } })
         return
       }
       if (req.method !== 'POST') {
         writeJson(res, 405, { ok: false, error: { code: 'method-error', message: 'method not allowed' } })
+        return
+      }
+      if (req.headers['content-type']?.includes('application/json') !== true) {
+        // A cross-site no-cors POST can only send text/plain; requiring the
+        // JSON media type keeps that blind channel closed.
+        writeJson(res, 415, { ok: false, error: { code: 'media-error', message: 'application/json required' } })
         return
       }
       const pathname = new URL(req.url ?? '/', 'http://dsh.internal').pathname
@@ -1043,8 +1071,9 @@ export function apply(ctx: Context, config?: SidebarConfig): void {
     kind: 'exact',
     path: '/sidebar/upload',
     handler: async (req, res) => {
-      if (!fence(req)) {
-        writeJson(res, 403, { ok: false, error: { code: 'forbidden', message: 'forbidden' } })
+      const rejection = admit(req)
+      if (rejection !== undefined) {
+        writeJson(res, rejection, { ok: false, error: { code: 'forbidden', message: 'forbidden' } })
         return
       }
       if (req.method !== 'POST') {
@@ -1078,15 +1107,16 @@ export function apply(ctx: Context, config?: SidebarConfig): void {
   // Serves the client half's split bundles (lib/client-<name>.js) so the
   // heavy preview/terminal libraries load on first use, not at page start
   // (see bundle-route.ts / src/client/chunk-loader.ts).
-  ctx.effect(() => registerBundleRoute(ctx, fence), '@qilin/client-ui-sidebar-coding: /sidebar/bundle chunk route')
+  ctx.effect(() => registerBundleRoute(ctx, admit), '@qilin/client-ui-sidebar-coding: /sidebar/bundle chunk route')
 
   // ── Media route (images for the editor) ─────────────────────────────────
   ctx.effect(() => ctx.webServer.register({
     kind: 'prefix',
     path: '/sidebar/file',
     handler: async (req, res) => {
-      if (!fence(req)) {
-        res.writeHead(403)
+      const rejection = admit(req)
+      if (rejection !== undefined) {
+        res.writeHead(rejection)
         res.end('forbidden')
         return
       }
@@ -1134,6 +1164,15 @@ export function apply(ctx: Context, config?: SidebarConfig): void {
         // Raw bytes either way (binary-safe); ?download=1 switches the
         // disposition so the browser saves the file instead of showing it.
         const headers: Record<string, string> = { 'content-type': type, 'cache-control': 'no-cache' }
+        if (type === 'text/html') {
+          // A workspace HTML file navigated to inside the built-in browser's
+          // iframe (whose attribute keeps allow-same-origin across in-frame
+          // navigations) must never run with the GUI origin: the CSP sandbox
+          // header pins every document this route serves as text/html into
+          // an opaque origin, defeating the attribute however it was reached.
+          headers['content-security-policy'] = "sandbox allow-scripts allow-popups allow-downloads allow-modals; object-src 'none'"
+          headers['x-content-type-options'] = 'nosniff'
+        }
         if (url.searchParams.get('download') === '1') {
           headers['content-disposition'] = `attachment; filename*=UTF-8''${encodeURIComponent(basename(path))}`
         }
@@ -1219,7 +1258,7 @@ export function apply(ctx: Context, config?: SidebarConfig): void {
   ctx.effect(() => ctx.webServer.registerUpgrade({
     path: '/sidebar/ws/terminal',
     handler: (req, socket, head) => {
-      if (!fence(req)) {
+      if (admit(req) !== undefined) {
         socket.destroy()
         return
       }
@@ -1243,7 +1282,7 @@ export function apply(ctx: Context, config?: SidebarConfig): void {
   ctx.effect(() => ctx.webServer.registerUpgrade({
     path: '/sidebar/ws/agent-terminals',
     handler: (req, socket, head) => {
-      if (!fence(req)) {
+      if (admit(req) !== undefined) {
         socket.destroy()
         return
       }
@@ -1263,7 +1302,7 @@ export function apply(ctx: Context, config?: SidebarConfig): void {
   ctx.effect(() => ctx.webServer.registerUpgrade({
     path: '/sidebar/ws/agent-opens',
     handler: (req, socket, head) => {
-      if (!fence(req)) {
+      if (admit(req) !== undefined) {
         socket.destroy()
         return
       }

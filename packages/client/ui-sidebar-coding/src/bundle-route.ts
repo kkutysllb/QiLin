@@ -62,17 +62,19 @@ async function etagOf(name: ChunkName, chunkDir: string): Promise<string | undef
 }
 
 /**
- * Build the /sidebar/bundle route handler. `fence` is the shared browser-
- * trust check every /sidebar route applies; `chunkDir` is the directory the
- * chunk scripts live in (overridable for tests).
+ * Build the /sidebar/bundle route handler. `admit` is the shared check every
+ * same-origin /sidebar route applies — browser-trust fence plus operator
+ * admission; `chunkDir` is the directory the chunk scripts live in
+ * (overridable for tests).
  */
 export function createBundleRouteHandler(
-  fence: (req: SidebarHttpRequest) => boolean,
+  admit: (req: SidebarHttpRequest) => number | undefined,
   chunkDir: string = LIB_DIR,
 ): (req: SidebarHttpRequest, res: SidebarHttpResponse) => Promise<void> {
   return async (req, res): Promise<void> => {
-    if (!fence(req)) {
-      res.writeHead(403)
+    const rejection = admit(req)
+    if (rejection !== undefined) {
+      res.writeHead(rejection)
       res.end('forbidden')
       return
     }
@@ -120,10 +122,10 @@ export function createBundleRouteHandler(
 }
 
 /** Register the /sidebar/bundle route (disposed with the fiber). */
-export function registerBundleRoute(ctx: Context, fence: (req: SidebarHttpRequest) => boolean): () => void {
+export function registerBundleRoute(ctx: Context, admit: (req: SidebarHttpRequest) => number | undefined): () => void {
   return ctx.webServer.register({
     kind: 'prefix',
     path: '/sidebar/bundle',
-    handler: createBundleRouteHandler(fence),
+    handler: createBundleRouteHandler(admit),
   })
 }

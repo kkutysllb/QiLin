@@ -5059,6 +5059,9 @@ importers:
       '@qilin/api-session-controller':
         specifier: workspace:*
         version: link:../../api/session-controller
+      '@qilin/client-connection':
+        specifier: workspace:*
+        version: link:../connection
       '@qilin/client-locale':
         specifier: workspace:*
         version: link:../locale

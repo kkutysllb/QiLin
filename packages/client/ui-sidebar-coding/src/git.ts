@@ -417,7 +417,7 @@ export async function branches(cwd: string, selected?: string): Promise<{ curren
 
 /** Switch to an existing branch. */
 export async function checkout(cwd: string, branch: string, selected?: string): Promise<void> {
-  await runGit(await repoRoot(cwd, selected), ['checkout', branch])
+  await runGit(await repoRoot(cwd, selected), ['checkout', assertRev(branch)])
 }
 
 /** Recent commit history (newest first), lazily pageable via skip/count. */
@@ -430,10 +430,26 @@ export async function log(cwd: string, count = 30, skip = 0, selected?: string):
 }
 
 /**
+ * Refuse revision arguments git could parse as OPTIONS: a client-supplied
+ * value beginning with `-` reaches argv verbatim, and e.g. `git show
+ * --output=<path>` writes files outside the workspace. Legitimate GUI values
+ * are hashes, refs, and their `^`/`~N` suffixes — none begins with a dash.
+ */
+function assertRev(value: string): string {
+  if (value.startsWith('-')) {
+    throw new GitCommandError(`revision refuses option-like value "${value}"`, 'bad-revision', 'show')
+  }
+  return value
+}
+
+/**
  * Content of a file at a revision (`git show <rev>:<path>`), or null when the
  * revision has no such path (a new/untracked file has no HEAD side).
  */
 export async function show(cwd: string, rev: string, path: string, selected?: string): Promise<string | null> {
+  // Guarded OUTSIDE the try: an option-like revision must fail the request,
+  // not degrade to the caller's null path.
+  assertRev(rev)
   try {
     return await runGit(await repoRoot(cwd, selected), ['show', `${rev}:${path}`])
   } catch {
@@ -482,7 +498,7 @@ export async function foldContents(
  *  Merge commits show their diff against the first parent (`-m --first-parent`
  *  is a no-op for regular commits), so a history click always has content. */
 export async function commitDiff(cwd: string, hash: string, selected?: string): Promise<string> {
-  return runGit(await repoRoot(cwd, selected), ['show', '--no-ext-diff', '--no-color', '--format=', '-m', '--first-parent', hash])
+  return runGit(await repoRoot(cwd, selected), ['show', '--no-ext-diff', '--no-color', '--format=', '-m', '--first-parent', assertRev(hash)])
 }
 
 /** Discard the worktree changes of one path (`git checkout -- <path>`; the index is untouched). */
@@ -492,12 +508,12 @@ export async function discard(cwd: string, path: string, selected?: string): Pro
 
 /** Revert one commit onto the current branch with an auto-generated message. */
 export async function revert(cwd: string, hash: string, selected?: string): Promise<void> {
-  await runGit(await repoRoot(cwd, selected), ['revert', '--no-edit', hash])
+  await runGit(await repoRoot(cwd, selected), ['revert', '--no-edit', assertRev(hash)])
 }
 
 /** Cherry-pick one commit onto the current branch. */
 export async function cherryPick(cwd: string, hash: string, selected?: string): Promise<void> {
-  await runGit(await repoRoot(cwd, selected), ['cherry-pick', hash])
+  await runGit(await repoRoot(cwd, selected), ['cherry-pick', assertRev(hash)])
 }
 
 /* ------------------------------------------------------------------ *
