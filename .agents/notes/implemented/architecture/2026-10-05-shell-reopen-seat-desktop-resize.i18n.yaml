@@ -1,0 +1,22 @@
+# Bilingual-pair consistency record for 2026-10-05-shell-reopen-seat-desktop-resize.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-10-05-shell-reopen-seat-desktop-resize.md
+/agent-note-shell-reopen-seat-and-desktop-resize-affordance:
+  en: 733d9467273a06e1
+  zh: eb25d1e1c4b131a0
+/agent-note-shell-reopen-seat-and-desktop-resize-affordance/problem:
+  en: 6ca91cde9189f4ea
+  zh: e7b34f17ee606921
+/agent-note-shell-reopen-seat-and-desktop-resize-affordance/decision:
+  en: 1c9a715b6b1b4e43
+  zh: 659ad84dbb7c074d
+/agent-note-shell-reopen-seat-and-desktop-resize-affordance/consequences:
+  en: 0eff2717a71640f9
+  zh: 745a5d4177cfc3a6
+/agent-note-shell-reopen-seat-and-desktop-resize-affordance/alternatives-considered:
+  en: 368a847d9b0dba65
+  zh: 0970f6709c9f659a
+/agent-note-shell-reopen-seat-and-desktop-resize-affordance/notes:
+  en: 4fdfa03624263637
+  zh: 4f53f8ad73ecad9f
