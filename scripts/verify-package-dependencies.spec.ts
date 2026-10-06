@@ -306,7 +306,7 @@ describe('package dependency scope', () => {
         expect.stringContaining('unused @f/provider/api export staleValue'),
       ]))
     const kept = collectHostDependencyExportPolicyViolations([consumerFacts], workspaceNames, policy, [{
-      packageName: consumerFacts.manifest.name,
+      packageName: '@f/unmanaged',
       specifier: `${provider.name}/api`,
       exportName: 'staleValue',
       sourcePath: 'packages/core/unmanaged/src/index.ts',

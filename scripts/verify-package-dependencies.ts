@@ -46,6 +46,7 @@ export type PackageDependencyRole = 'client-only' | 'client-host' | 'configured-
 export interface PackageDependencyManifest {
   name?: string
   version?: string
+  bin?: unknown
   exports?: unknown
   dependencies?: Record<string, string>
   devDependencies?: Record<string, string>
@@ -456,9 +457,11 @@ function walkRuntimeExportUses(
  * possible consumer keeps a classification alive — including host-only
  * packages the dependency sections never manage (`@qilin/subprocess-local`
  * using `SubprocessExecutableNotFoundError`, issue #10). Scans each
- * uncovered package's `src/index.ts` entry closure only: these packages are
- * not policy-managed, so a malformed Host export map is not this corpus's
- * subject.
+ * uncovered package's entry closure: `src/index.ts` when present, else the
+ * declared `bin` targets and `exports` subpaths mapped back to source
+ * (`apps/cli` declares no index). These packages are not policy-managed, so
+ * a malformed export map is not this corpus's subject — an entry that maps
+ * nowhere is skipped.
  * @param root - Repository root.
  * @param packages - Every workspace package manifest.
  * @param coveredDirs - Package directories the managed facts already cover.
@@ -472,11 +475,42 @@ export function readSupplementalRuntimeExportUses(
   const uses: HostRuntimeExportUse[] = []
   for (const pkg of packages) {
     if (coveredDirs.has(pkg.dir)) continue
-    const entry = resolve(root, pkg.dir, 'src/index.ts')
-    if (!existsSync(entry)) continue
-    uses.push(...walkRuntimeExportUses(root, [entry]).exportUses.values())
+    const entries = supplementalEntries(root, pkg)
+    if (entries.length === 0) continue
+    uses.push(...walkRuntimeExportUses(root, entries).exportUses.values())
   }
   return uses
+}
+
+/**
+ * The source entries of one uncovered package: `src/index.ts` when it
+ * exists, else every `bin` target and non-wildcard `exports` file mapped
+ * from its built `lib/…` path back onto `src/…` (`.js` → `.ts`).
+ */
+function supplementalEntries(root: string, pkg: WorkspacePackageManifest): string[] {
+  const indexEntry = resolve(root, pkg.dir, 'src/index.ts')
+  if (existsSync(indexEntry)) return [indexEntry]
+  const declared: string[] = []
+  collectEntrypointStrings(pkg.manifest.bin, declared)
+  collectEntrypointStrings(pkg.manifest.exports, declared)
+  const entries: string[] = []
+  for (const file of declared) {
+    if (file.includes('*')) continue
+    const source = file.replace(/^\.\//, '').replace(/^lib\/(types\/)?/, 'src/').replace(/\.js$/, '.ts')
+    const candidate = resolve(root, pkg.dir, source)
+    if (existsSync(candidate)) entries.push(candidate)
+  }
+  return [...new Set(entries)]
+}
+
+/** Collect declared entrypoint file strings from a bin/exports value tree. */
+function collectEntrypointStrings(value: unknown, out: string[]): void {
+  if (typeof value === 'string') {
+    out.push(value)
+    return
+  }
+  if (value === null || typeof value !== 'object') return
+  for (const child of Object.values(value)) collectEntrypointStrings(child, out)
 }
 
 function readAllSourceUses(root: string, pkg: WorkspacePackageManifest): Map<string, string[]> {
