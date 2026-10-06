@@ -111,6 +111,23 @@ async function upgrade(port: number, path: string): Promise<ReturnType<typeof co
   return socket
 }
 
+describe('whenListened', () => {
+  it('reports the assigned port after a settle-mode bind', async () => {
+    context = await loadComposition(0, false, 'settle')
+    const webServer = context.get('webServer')
+    await webServer?.whenListened()
+    expect(webServer?.port).toBeGreaterThan(0)
+  })
+
+  it('resolves immediately for an already-listening activate-mode bind', async () => {
+    context = await loadComposition()
+    const webServer = context.get('webServer')
+    await webServer?.whenListened()
+    await expect(webServer?.whenListened()).resolves.toBeUndefined()
+    expect(webServer?.port).toBeGreaterThan(0)
+  })
+})
+
 describe('real Loader composition', () => {
   it('applies gzip only to eligible socket-backed HTTP responses', { timeout: 60_000 }, async () => {
     expect(HttpServer.Config({ host: '127.0.0.1', port: 0 })).toEqual({
