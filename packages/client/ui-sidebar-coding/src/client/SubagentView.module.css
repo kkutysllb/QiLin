@@ -244,36 +244,6 @@
   color: var(--qilin-alias-label-dimmed);
 }
 
-.subagentError {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 8px 10px;
-  font: var(--qilin-font-xxs-12);
-  color: var(--qilin-alias-state-error-primary);
-}
-
-.subagentErrorRetry {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  height: 24px;
-  padding: 0 8px;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--qilin-alias-label-secondary);
-  font: var(--qilin-font-xxxs-strong-11);
-  cursor: pointer;
-}
-
-.subagentErrorRetry:hover {
-  background: var(--qilin-alias-interactive-bg-hover);
-  color: var(--qilin-alias-label-primary);
-}
-
 /* ── History collapse toggle (shared: topology levels + jobs list) ─────── */
 
 /* The "show earlier rows" disclosure between the header and the collapsed
@@ -636,28 +606,6 @@
 
 .wfNodePlaceholder .wfCard {
   stroke-dasharray: 4 3;
-}
-
-/* 运行扫过：从左到右完整扫一遍（reduced-motion 关闭） */
-.wfNodeRunning .wfSweep {
-  animation: wfSweepRun 2.2s linear infinite;
-}
-
-.wfSweep {
-  fill: var(--qilin-alias-interactive-bg-hover-accent);
-  opacity: 0.15;
-}
-
-@keyframes wfSweepRun {
-  from { transform: translateX(-208px); }
-  to { transform: translateX(208px); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .wfNodeRunning .wfSweep {
-    animation: none;
-    visibility: hidden;
-  }
 }
 
 .wfControls {
