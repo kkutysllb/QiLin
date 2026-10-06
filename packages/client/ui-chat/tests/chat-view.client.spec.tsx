@@ -20,7 +20,7 @@ import type {
   SessionListState, SessionSnapshot,
 } from '@qilin/api-session-controller/client'
 import type { WorkspaceSnapshot } from '@qilin/api-workspace-controller/client'
-import type { SessionId } from '@qilin/session/types'
+import { SessionSeq, type SessionId } from '@qilin/session/types'
 import type { SessionStatusSnapshot } from '@qilin/client-ui-session/client'
 import type {
   InjectFace, KeyedSnapshotSelectorHook, SnapshotSelectorHook,
@@ -29,6 +29,7 @@ import { bindSnapshotSelector, makeTranslate } from '@qilin/client-test-runtime'
 import { createSnapshotStore, type ObservableSnapshot } from '@qilin/client-store'
 import { derivePresentationPolicy } from '../src/client/presentation-policy.ts'
 import { EMPTY_CONVERSATION_SNAPSHOT } from '@qilin/client-ui-conversation/client'
+import type { StepLocation } from '@qilin/client-ui-conversation/client'
 import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
 import { PartialArguments } from '@qilin/util-values'
 import { createChatStore } from '../src/client/stores.ts'
@@ -2279,9 +2280,7 @@ describe('ChatView', () => {
     expect(unmounted).not.toHaveBeenCalled()
   })
 
-  // TODO(B7.1): RunningStatus depends on latestTurnAnchor wiring (turnNavigationItems)
-  // which QiLin's ChatView doesn't have yet; adapt when navigation anchors land.
-  it.skip('the running clock uses turn/start, ignores steering, and stays out of the live region', () => {
+  it('the running clock anchors on the latest open Turn start and stays out of the live region', () => {
     const startTime = Date.now() - 125_000
     const trigger: UserMessageNode = { ...user(1, 'go'), time: startTime + 1 }
     const h = makeHarness(
@@ -2290,14 +2289,16 @@ describe('ChatView', () => {
     )
     const view = render(<h.ChatView {...h.props} />)
     // Freshly mounted (as after a reload) yet already past the 2-minute mark;
-    // the clock rides the Turn-process control, and the live region carries
-    // only the running label.
-    const status = view.getByRole('status')
+    // the live region carries only the plain label, never the ticking text.
+    const running = view.container.querySelector<HTMLElement>('[data-chat-running]')
+    if (running === null) throw new Error('the running indicator is missing')
+    const status = within(running).getByRole('status')
     expect(status.textContent).toBe('QiLin...')
     expect(status.getAttribute('aria-live')).toBe('polite')
-    const toggle = turnProcessControl(view.container)!
-    expect(toggle.textContent).toMatch(/^QiLin\.\.\.，用时2分\d{1,2}秒$/)
-    expect(toggle.closest('[aria-live]')).toBeNull()
+    const content = running.lastElementChild
+    expect(content).not.toBe(status)
+    expect(content?.textContent).toMatch(/^QiLin，用时 2分\d{1,2}秒\.\.\.$/)
+    // Steering entering the inbox neither resets nor blanks the anchored clock.
     act(() => {
       h.setSession({ testInbox: { 'next-turn': [], 'next-step': [{
         id: 'steering-occurrence' as never,
@@ -2306,8 +2307,44 @@ describe('ChatView', () => {
         role: 'user', source: { kind: 'user' },
       }] } })
     })
-    expect(toggle.textContent).toMatch(/^QiLin\.\.\.，用时2分\d{1,2}秒$/)
-    expect(status.textContent).toBe('QiLin...')
+    expect(running.lastElementChild?.textContent).toMatch(/^QiLin，用时 2分\d{1,2}秒\.\.\.$/)
+    expect(within(running).getByRole('status').textContent).toBe('QiLin...')
+  })
+
+  it('a Turn whose start fell outside the window anchors the clock on its earliest loaded step', () => {
+    const stepStart = Date.now() - 45_000
+    const base = chatSnapshotFixture({ nodes: [user(1, 'go'), assistant(2, 'working', 1, 1)] })
+    const turn = base.timeline.turns.get(1)
+    if (turn === undefined) throw new Error('fixture lacks Turn 1')
+    const step: StepLocation = {
+      turn: 1, step: 1,
+      start: { type: 'step/start', seq: SessionSeq(2), time: stepStart, data: { turn: 1, step: 1 } },
+      end: undefined, status: 'closed',
+      data: turn.data,
+    }
+    const h = makeHarness({}, { running: true }, {
+      ...base,
+      timeline: {
+        turnOrder: [1],
+        turns: new Map([[1, { ...turn, start: undefined, steps: [step] }]]),
+      },
+    })
+    const view = render(<h.ChatView {...h.props} />)
+    expect(view.container.querySelector('[data-chat-running] > :last-child')?.textContent)
+      .toMatch(/^QiLin，用时 \d+秒\.\.\.$/)
+  })
+
+  it('the clock drops back to the plain label once the latest Turn closes', () => {
+    const startTime = Date.now() - 30_000
+    const h = makeHarness(
+      { nodes: [user(1, 'go'), assistant(2, 'working', 1, 1)], turnTimings: new Map([[1, { startTime }]]) },
+      { running: true },
+    )
+    const view = render(<h.ChatView {...h.props} />)
+    expect(view.container.querySelector('[data-chat-running] > :last-child')?.textContent)
+      .toMatch(/^QiLin，用时 \d+秒\.\.\.$/)
+    act(() => { h.setChat({ turnEnds: new Map([[1, 3]]) }) })
+    expect(view.container.querySelector('[data-chat-running] > :last-child')?.textContent).toBe('QiLin...')
   })
 
   it('hands each ordered root call to the keyed business-node slot', () => {

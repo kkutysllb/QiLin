@@ -111,11 +111,16 @@ export function ChatView({
     },
   }), [cwd, t])
   const running = useSession(s => s.running)
-  const runningStartTime = useChatNode('__latest__', (node) => {
-    const location = node?.location
-    return location?.kind === 'turn' || location?.kind === 'step'
-      ? location.turn.status === 'open' ? location.turn.start?.time : undefined
-      : undefined
+  // The running clock anchors on the timeline's latest open Turn — the same
+  // fact the settled Turn-process header reads. Node Locations are no anchor:
+  // session-scoped rows carry none, and the latest Node's Location can stay
+  // unresolved while the Turn is running. A Turn whose start fell outside the
+  // loaded window falls back to its earliest loaded step start.
+  const runningStartTime = useChat((snapshot) => {
+    const latest = snapshot.timeline.turnOrder.at(-1)
+    const turn = latest === undefined ? undefined : snapshot.timeline.turns.get(latest)
+    if (turn === undefined || turn.status !== 'open') return undefined
+    return turn.start?.time ?? turn.steps.find(step => step.start !== undefined)?.start?.time
   })
   const openState = useSession(s => s.openState)
   const openError = useSession(s => s.openError)
