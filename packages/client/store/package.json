@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-store",
   "description": "React-free observable and snapshot-store contracts with the shared Zustand/Immer engine",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "publishConfig": {
     "access": "public"
   },

@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-shortcuts",
   "description": "Application keyboard command registry and physical-key routing",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "publishConfig": {
     "access": "public"
   },

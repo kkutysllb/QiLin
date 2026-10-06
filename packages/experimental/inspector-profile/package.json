@@ -1,7 +1,7 @@
 {
   "name": "@qilin/experimental-inspector-profile",
   "description": "Optional Web bundle for raw Session logs and Chat node inspection",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "icon": "./icon.svg",
   "publishConfig": {
     "access": "public"
