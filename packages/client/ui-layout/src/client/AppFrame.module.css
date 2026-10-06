@@ -136,6 +136,7 @@
   height: 32px;
   transform: translate(-50%, -50%);
   border-radius: 999px;
+  corner-shape: round;
   background: var(--qilin-alias-border-l4);
   opacity: 0;
   transition: opacity var(--ds-transition-duration-fast) var(--ds-ease-in-out);

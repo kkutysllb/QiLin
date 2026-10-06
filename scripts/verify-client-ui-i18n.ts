@@ -43,6 +43,10 @@ const IMMUTABLE_LANGUAGE_TOKENS = new Set([
   'M',
   'MB',
   'Symbol',
+  // Version notation prefix (a "v1.2.3" badge) — notation, never translated.
+  'v',
+  // The mermaid diagram language's own name, shown as the block-type tag.
+  'mermaid',
   'false',
   'function()',
   'n',

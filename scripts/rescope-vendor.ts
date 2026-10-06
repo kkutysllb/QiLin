@@ -92,6 +92,12 @@ const GENERIC_SKIPS: readonly GenericSkip[] = [
   { file: 'packages/client/ui-agent-preset/tests/apply.client.spec.ts', upstream: ['cordis'] },
   { file: 'packages/client/ui-agent-preset/tests/locales.client.spec.ts', upstream: ['cordis'] },
   { file: 'packages/client/ui-agent-preset/tests/section.client.spec.tsx', upstream: ['cordis'] },
+  // The creator menu enables itself by matching the roster's `cordis` preset id.
+  { file: 'packages/client/ui-agent-preset/src/client/CreatePluginMenuItem.tsx', upstream: ['cordis'] },
+  { file: 'packages/client/ui-agent-preset/tests/create-plugin-menu-item.client.spec.tsx', upstream: ['cordis'] },
+  // Workbench tag choices and per-tag preset selections carry preset ids.
+  { file: 'packages/client/ui-workbench/src/client/workbench.ts', upstream: ['cordis'] },
+  { file: 'packages/client/ui-workbench/tests/workbench.client.spec.ts', upstream: ['cordis'] },
   { file: 'apps/cli/tests/web-agent-presets.e2e.ts', upstream: ['cordis'] },
   { file: 'apps/cli/tests/profiles/web/tests/fixtures/creator-plugin-manager.mjs', upstream: ['cordis'] },
   { file: 'apps/web/tests/agent-preset-authoring.e2e.ts', upstream: ['cordis'] },
@@ -99,6 +105,7 @@ const GENERIC_SKIPS: readonly GenericSkip[] = [
   // The workspace browsing tests name the `cordis` preset id as session fixture
   // data (the shared creator preset), not a package specifier.
   { file: 'packages/client/ui-workspace/tests/workspaces-service.client.spec.ts', upstream: ['cordis'] },
+  { file: 'packages/client/ui-workspace/tests/agent-preset-chip.client.spec.tsx', upstream: ['cordis'] },
   // The preset's own composition: its header comment and its system prompt name
   // the preset a model mounts, so the scoped name would send the model after an
   // id no roster reports.

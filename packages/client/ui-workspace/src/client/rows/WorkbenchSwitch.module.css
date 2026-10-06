@@ -21,6 +21,7 @@
   background: transparent;
   border: 1px solid transparent;
   border-radius: 999px;
+  corner-shape: round;
   cursor: pointer;
   transition: background var(--ds-transition-duration-fast) var(--ds-ease-in-out);
 }

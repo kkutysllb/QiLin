@@ -45,10 +45,12 @@ describe('Client UI i18n source check', () => {
 
   it('accepts translated copy, dynamic values, structural attributes, and language tokens', () => {
     expect(messages(`
-      const View = ({ t, value }: { t: (key: string) => string; value: string }) => (
+      const View = ({ t, value, version }: { t: (key: string) => string; value: string; version: string }) => (
         <section className="root" role="region" aria-label={t('overview')}>
           <span>{t('status.complete')}</span>
           <code>null</code>
+          <code>mermaid</code>
+          <span title="v">v{version}</span>
           {value === 'pending' && <output>{value}</output>}
           <output>{value}</output>
         </section>

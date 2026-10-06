@@ -1,6 +1,9 @@
 .root {
-  --dsh-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
-  --dsh-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
+  /* Elevated module chrome (the sticky header and breadcrumbs paint
+     bg-module-platform): the sheet's bars take the l2 elevation pair through
+     the scrollbar.css indirection, inherited by every scroller. */
+  --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
   display: flex;
   flex: 1 1 0;
   flex-direction: column;

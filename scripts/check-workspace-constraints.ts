@@ -177,7 +177,7 @@ const packageFileExtras: Readonly<Record<string, readonly string[]>> = {
   // The Host entry starts its sibling Worker by URL rather than a package export.
   // The page-level client bundle and the vendored Chrome devtools frontend
   // assets ship beside it.
-  '@qilin/experimental-inspector': ['lib/worker.js', 'lib/client.*.js', 'lib/devtools/**'],
+  '@qilin/experimental-inspector': ['lib/worker.js', 'lib/client.*.js', 'lib/devtools/**', 'cordis.patch.yml'],
   // The shipped preset compositions travel inside the roster package.
   '@qilin/agent-presets': ['presets'],
   // The Web Host mounts the default-off settings owner independently of each

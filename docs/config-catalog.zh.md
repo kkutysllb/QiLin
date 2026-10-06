@@ -719,7 +719,7 @@ export interface VolatileStringRef {
   get(): string
 }
 
-export type TitleBarScheme = typeof TITLE_BAR_SCHEMES[number]
+export type TitleBarScheme = typeof TITLEBAR_SCHEMES[number]
 ```
 <!-- END GENERATED config-catalog:@qilin/client-ui-sidebar-coding -->
 

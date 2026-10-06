@@ -43,6 +43,7 @@
     "lib/worker.js",
     "lib/client.*.js",
     "lib/devtools/**",
+    "cordis.patch.yml",
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",
