@@ -114,9 +114,9 @@ export const QILIN_TOKENS: ThemeTokenOverrides = Object.freeze({
 
   /* Seal: unchanged. `--qilin-specific-brand-seal-fill` carries the cinnabar
      of the QiLin seal for surfaces that must match the stamp. Its two values
-     are the seal body gradient's own stops (ui-brand Seal.tsx): the mid stop
-     on light surfaces and the lit upper stop on dark ones, so the label
-     clears 4.5:1 against both the light sidebar #f1ece0 and the dark
+     are the seal body gradient's own stops (ui-primitives QilinSeal.tsx): the
+     mid stop on light surfaces and the lit upper stop on dark ones, so the
+     label clears 4.5:1 against both the light sidebar #f1ece0 and the dark
      #0d0b09. Changing the seal gradient means changing this token with it. */
   '--qilin-specific-brand-seal-fill': { light: '#c3402f', dark: '#d4503d' },
 })

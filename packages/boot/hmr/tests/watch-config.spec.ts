@@ -144,7 +144,10 @@ describe('HMR exact config paths', () => {
     const ctx = await bootHmr(root)
     const observed: string[] = []
     try {
-      await watchConfig(ctx, filename, {}, () => {
+      // The subject is traversal into a parent created after registration, not
+      // write stabilization, whose 2s size-poll floor eats the wait cap under
+      // parallel-suite disk load.
+      await watchConfig(ctx, filename, { awaitWriteFinish: false }, () => {
         observed.push(readFileSync(filename, 'utf8'))
       })
       mkdirSync(dir)

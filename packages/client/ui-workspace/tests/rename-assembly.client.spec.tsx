@@ -39,7 +39,12 @@ async function createRuntime(): Promise<SlotTestRuntime> {
   // The rename flow never picks a directory; the namespace only has to be there
   // for ui-workspace's inject to settle.
   const directoryPicker = {}
-  const agentPresets = { select: vi.fn(async () => ({ ok: true as const, value: 'ptc' })) }
+  // An empty roster keeps the new-task preset chip out of these flows; the
+  // list stub shape matches apply.client.spec.ts.
+  const agentPresets = {
+    select: vi.fn(async () => ({ ok: true as const, value: 'ptc' })),
+    list: vi.fn(async () => ({ ok: true as const, value: { presets: [], authorable: false, modeSelectionEnabled: false } })),
+  }
   runtime.remote.provideNamespaces({ directoryPicker, agentPresets })
   await runtime.mount({ inject: [], apply: workbenchApply })
   const locale = new LocaleRuntime(runtime.ctx)

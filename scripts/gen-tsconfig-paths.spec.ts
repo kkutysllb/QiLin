@@ -20,7 +20,6 @@ describe('generated tsconfig package aliases', () => {
     expect(session).toEqual({
       specifier: '@qilin/session',
       source: './packages/core/session/src',
-      hasInvariant: true,
     })
     // Sorted, so a package added anywhere lands in a stable spot in the diff.
     expect([...aliases].sort((a, b) => a.specifier.localeCompare(b.specifier))).toEqual(aliases)
@@ -31,16 +30,13 @@ describe('generated tsconfig package aliases', () => {
 
   it('yields to a hand-written alias and closes without a trailing comma', () => {
     const aliases = [
-      { specifier: '@qilin/a', source: './packages/g/a/src', hasInvariant: true },
-      { specifier: '@qilin/b', source: './packages/g/b/src', hasInvariant: false },
+      { specifier: '@qilin/a', source: './packages/g/a/src' },
+      { specifier: '@qilin/b', source: './packages/g/b/src' },
     ]
     const body = renderAliases(aliases, new Set(['@qilin/a']))
 
-    // The hand-written bare alias is skipped; its /invariant sibling is not.
-    expect(body).toBe([
-      '      "@qilin/a/invariant": ["./packages/g/a/src/invariant.ts"]',
-      '      "@qilin/b": ["./packages/g/b/src"]',
-    ].join(',\n'))
+    // The hand-written bare alias is skipped; the generated one is kept.
+    expect(body).toBe('      "@qilin/b": ["./packages/g/b/src"]')
     expect(body.endsWith(',')).toBe(false)
   })
 

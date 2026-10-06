@@ -50,6 +50,11 @@ async function boot() {
       subscribe: () => () => {},
     },
   } as never)
+  // The rightbar's inject reads the dual-workbench tag source (D5); this seat
+  // composes no workbench, so the one member the panel reads is stood in.
+  rt.ctx.provide('workbench', {
+    state: createSnapshotStore({ active: 'general' as const, presets: { general: 'standard', coding: 'ptc' } }),
+  } as never)
   const locale = new LocaleRuntime(rt.ctx)
   rt.ctx.provide('locale', locale)
   rt.slots.installLocale(locale)

@@ -21,13 +21,14 @@ const SIDEBAR = '--qilin-specific-sidebar-fill'
 const SEAL = '--qilin-specific-brand-seal-fill'
 
 /**
- * The seal body gradient stops, read from the source that owns them. The mark
- * carries its own colours rather than a themed icon, so this token mirrors its
- * values; the check is source-level because no export crosses the two feature
- * packages.
+ * The seal body gradient stops, read from the source that owns them
+ * (`BODY_STOPS` in the seal drawing, which lives in ui-primitives so the
+ * unbranded fallbacks render the same stamp). The mark carries its own colours
+ * rather than a themed icon, so this token mirrors its values; the check is
+ * source-level because the stops are module-local, exported nowhere.
  */
 const SEAL_STOPS = [...readFileSync(
-  resolve('packages/client/ui-brand/src/client/Seal.tsx'),
+  resolve('packages/client/ui-primitives/src/QilinSeal.tsx'),
   'utf8',
 ).matchAll(/#[0-9a-f]{6}/gu)].map(match => match[0])
 

@@ -466,8 +466,10 @@ function ciArtifactGates(): Gate[] {
 }
 
 function ciConsumerGates(): Gate[] {
+  // Every reader in this lane consumes the build it owns. They used to wait on
+  // the built-package validation gate that transitively owned the build; the
+  // invariants retirement removed that gate, so they wait on the build itself.
   const builtTree = ['build']
-  const validatedBuild: string[] = []
   // The HMR web test starts `dev:web`, which rewrites the shared `lib/` and
   // `apps/web/dist/` trees. Let every build-artifact reader settle before that
   // writer starts; `after` preserves the web diagnostic even if a reader fails.
@@ -489,20 +491,20 @@ function ciConsumerGates(): Gate[] {
     pnpmScript('publint', 'publint', { needs: builtTree }),
     pnpmScript('lint-and-duplication', 'check:ci:lint:contracts-ready', {
       label: 'lint and duplication',
-      needs: validatedBuild,
+      needs: builtTree,
     }),
-    snapshotGate(validatedBuild),
-    expectedOutputGate(validatedBuild),
-    webSnapshotGate(validatedBuild, buildArtifactReaders),
+    snapshotGate(builtTree),
+    expectedOutputGate(builtTree),
+    webSnapshotGate(builtTree, buildArtifactReaders),
     pnpmScript('doc-typecheck', 'doc-typecheck:contracts-ready', {
-      needs: validatedBuild,
+      needs: builtTree,
       env: { QILIN_DOC_TYPECHECK_USE_BUILD_OUTPUT: '1' },
     }),
     pnpmScript('node-next-types', 'verify-node-next-types', {
       label: 'node-next types',
-      needs: validatedBuild,
+      needs: builtTree,
     }),
-    builtBinSmokeGate(validatedBuild),
+    builtBinSmokeGate(builtTree),
   ]
 }
 

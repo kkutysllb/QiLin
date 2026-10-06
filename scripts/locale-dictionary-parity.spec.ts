@@ -17,6 +17,14 @@
  * pairs `zh`/`en` across sibling files as well as within one module. A `zh`
  * dictionary whose `en` counterpart cannot be found anywhere is an error, not
  * a skip.
+ *
+ * The one deliberate exception is the regional override dictionaries
+ * (`zhHK`/`zhMO`/`zhTW`, exported from `locales-zh-*.ts` files and registered
+ * into the better-locale override store): they resolve per key and fall back
+ * through the zh/en chain for the keys they omit, so they pair with no `en`
+ * dictionary. The gate excludes them by their shape — a `zh`/`en` prefix
+ * followed by an all-uppercase region subtag — and keeps checking every other
+ * prefix shape, so a missing concept-pair counterpart still fails here.
  */
 
 import type { Dirent } from 'node:fs'
@@ -221,6 +229,12 @@ function unwrap(node: ts.Expression | undefined): ts.Expression | undefined {
  * shape requires an uppercase ASCII letter at the third position (`[A-Z]`),
  * matching the admission of the cheap pre-filter, so `zh2Foo`/`zh_probe`
  * cannot be treated as dictionaries in one place and skipped in another.
+ *
+ * A prefix followed by an all-uppercase remainder (`zhHK`/`enHK`) is a region
+ * subtag, which names a better-locale override dictionary rather than a pair
+ * half: those overrides resolve per key and fall back through the zh/en chain
+ * this gate checks, so they declare no counterpart and are not dictionaries
+ * here.
  * @param name - export name or synthetic inline name.
  * @returns locale plus pair key, or undefined when the name names no locale.
  */
@@ -232,7 +246,9 @@ function localeOf(name: string): { locale: 'zh' | 'en'; pair: string } | undefin
     // first ':' (the enclosing array's line, or the namespace expression).
     if (name.startsWith(`${locale}@`)) return { locale, pair: name.slice(name.indexOf(':')) }
     if (name.startsWith(locale) && name.length > 2 && /[A-Z]/.test(name[2] ?? '')) {
-      return { locale, pair: name.slice(2) }
+      const remainder = name.slice(2)
+      if (/^[A-Z]+$/.test(remainder)) return undefined
+      return { locale, pair: remainder }
     }
     if (name.endsWith(other)) return { locale, pair: name.slice(0, -2) }
   }

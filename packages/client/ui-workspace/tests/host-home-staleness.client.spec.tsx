@@ -32,7 +32,12 @@ async function bench() {
   runtime.ctx.provide('layout', { selectPanel: vi.fn() })
   runtime.releaseWorkspaceSource()
   const directoryPicker = {}
-  const agentPresets = { select: vi.fn(async () => ({ ok: true as const, value: 'ptc' })) }
+  // An empty roster keeps the new-task preset chip out of these flows; the
+  // list stub shape matches apply.client.spec.ts.
+  const agentPresets = {
+    select: vi.fn(async () => ({ ok: true as const, value: 'ptc' })),
+    list: vi.fn(async () => ({ ok: true as const, value: { presets: [], authorable: false, modeSelectionEnabled: false } })),
+  }
   const { remote } = runtime
   remote.provideNamespaces({ directoryPicker, agentPresets })
   const locale = new LocaleRuntime(runtime.ctx)

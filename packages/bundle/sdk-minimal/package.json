@@ -49,7 +49,6 @@
     "@qilin/plugin-package-inventory-deepseek": "workspace:*",
     "@qilin/sandbox-local": "workspace:*",
     "@qilin/sandbox-policy": "workspace:*",
-    "@qilin/scope": "workspace:*",
     "@qilin/sdk-app": "workspace:*",
     "@qilin/sdk-jsonrpc-server": "workspace:*",
     "@qilin/session": "workspace:*",

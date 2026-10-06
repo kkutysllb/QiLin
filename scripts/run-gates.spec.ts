@@ -176,7 +176,7 @@ describe('gate graph validation', () => {
     })
     expect(scripts['test:bench']).toBe('npm run build:bench && npm run build:web && npm run test:bench:built')
     expect(scripts['build:bench']).toBe(
-      'npm run build:native-system && npm run build:lib && tsdown --config benchmarks/tsdown.config.ts',
+      'npm run build:native-system && npm run build:lib && tsdown --config-loader native --config benchmarks/tsdown.config.ts',
     )
     expect(scripts['build:native-system']).toBe('tsx native/system/scripts/build.ts --host-addon-only')
     expect(scripts['test:bench:built']).toBe('vitest run --config vitest.bench.config.ts')
@@ -260,7 +260,7 @@ describe('gate graph validation', () => {
     expect(ids).toEqual([
       'rescope-vendor', 'publint', 'constraints', 'source-artifacts', 'default-product-isolation',
       'package-dependencies', 'typert-face-dependencies', 'application-entrypoints',
-      'qilin-package-licenses', 'package-invariants', 'built-package-invariants', 'node-next-types',
+      'qilin-package-licenses', 'node-next-types',
       'optional-dependency-imports', 'client-packages', 'client-ui-i18n', 'client-route-resolution',
       'no-bare-dispatcher', 'remote-method-names', 'no-unknown-casts', 'cordis-config',
       'runtime-closure',
@@ -612,14 +612,13 @@ describe('Node 24 lane ownership', () => {
     const subject = withPnpmEntrypoint(() => gatesForMode('ci-consumers'))
 
     expect(defaultConcurrency('ci-consumers', subject.length, 4)).toEqual({
-      workers: 11,
+      workers: 10,
       source: 'ci-consumers gate count',
     })
     expect(subject.map(item => item.id)).toEqual([
       'build',
       'node-compat',
       'publint',
-      'built-package-invariants',
       'lint-and-duplication',
       'snapshot',
       'expected-output',
@@ -635,8 +634,7 @@ describe('Node 24 lane ownership', () => {
     expect(subject.find(item => item.id === 'node-compat')?.env).toEqual({
       QILIN_BUILD_CLIENT_PROFILE: 'official',
     })
-    expect(subject.find(item => item.id === 'built-package-invariants')?.needs).toEqual(['build'])
-    expect(subject.find(item => item.id === 'lint-and-duplication')?.needs).toEqual(['built-package-invariants'])
+    expect(subject.find(item => item.id === 'lint-and-duplication')?.needs).toEqual(['build'])
     for (const id of [
       'snapshot',
       'expected-output',
@@ -645,7 +643,7 @@ describe('Node 24 lane ownership', () => {
       'node-next-types',
       'built-bin-smoke',
     ]) {
-      expect(subject.find(item => item.id === id)?.needs).toEqual(['built-package-invariants'])
+      expect(subject.find(item => item.id === id)?.needs).toEqual(['build'])
     }
     expect(subject.find(item => item.id === 'snapshot')?.env).toEqual({ QILIN_EXAMPLE_MODE: 'lib' })
     expect(subject.find(item => item.id === 'expected-output')?.env).toEqual({ QILIN_EXAMPLE_MODE: 'lib' })
@@ -684,7 +682,7 @@ describe('Linux primary graph', () => {
     expect(web).toMatchObject({
       displayCommand: 'QILIN_SNAPSHOT=replay pnpm run test:web:built',
       env: { QILIN_SNAPSHOT: 'replay' },
-      needs: ['built-package-invariants'],
+      needs: ['build'],
     })
   })
 })
