@@ -29,7 +29,7 @@ The sidebar is the navigation shell: users see the brand, the workbench switch, 
 
 ### Brand and New Session
 
-The expanded brand row renders `sidebar.brand.mark` and `sidebar.brand.name` as independent single slots; the collapsed rail renders the same mark slot. Without occupants, the shell uses the fish mark and a localized local-build label. A complete build renders a version chip anchored to the wordmark's top-right corner as `version`, tooltipped with `version[-commit][-dirty]` and built from `QILIN_CLIENT_VERSION`, the optional 7-character `QILIN_CLIENT_COMMIT_HASH`, and `QILIN_CLIENT_GIT_DIRTY=true`; missing version metadata omits the chip. New Session targets the explicit Workspace used by a scoped action, otherwise the current Session's Workspace, otherwise the most recently active Workspace; when none exists it clears into the blank New Session page.
+The expanded brand row renders `sidebar.brand.mark` and `sidebar.brand.name` as independent single slots; the collapsed rail renders the same mark slot. Without occupants, the shell uses the QiLin seal and a localized local-build label. A complete build renders a version chip anchored to the wordmark's top-right corner as `version`, tooltipped with `version[-commit][-dirty]` and built from `QILIN_CLIENT_VERSION`, the optional 7-character `QILIN_CLIENT_COMMIT_HASH`, and `QILIN_CLIENT_GIT_DIRTY=true`; missing version metadata omits the chip. New Session targets the explicit Workspace used by a scoped action, otherwise the current Session's Workspace, otherwise the most recently active Workspace; when none exists it clears into the blank New Session page.
 
 ### Global panel entries
 

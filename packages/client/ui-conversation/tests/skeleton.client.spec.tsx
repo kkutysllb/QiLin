@@ -440,11 +440,12 @@ describe('Hero chrome', () => {
     expect(renderSlot).toHaveBeenCalledOnce()
     expect(renderSlot.mock.calls[0]?.[0]).toBe('conversation.hero.brand.mark')
     const brandMarkOwner = renderSlot.mock.calls[0]?.[1]
-    if (brandMarkOwner === undefined || !('size' in brandMarkOwner) || !('className' in brandMarkOwner)) {
-      throw new Error('hero brand-mark owner must provide size and className')
+    if (brandMarkOwner === undefined || !('size' in brandMarkOwner)) {
+      throw new Error('hero brand-mark owner must provide size')
     }
     expect(brandMarkOwner.size).toBe(34)
-    expect(brandMarkOwner.className).toBeTypeOf('string')
+    // The seal carries its own colours; the hero places no class on it.
+    expect(brandMarkOwner.className).toBeUndefined()
     expect(renderSlot.mock.calls[0]?.[2]?.fallback).toBeTruthy()
   })
 

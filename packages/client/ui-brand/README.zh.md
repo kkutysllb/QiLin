@@ -31,7 +31,7 @@ kind: "package-reference"
 | `conversation.hero.brand.mark` | 按 hero 请求尺寸与摆放类渲染的印章 |
 | `settings.about.mark` | 外壳 About 页面中的印章 |
 
-[`glyphs.ts`](src/client/glyphs.ts) 中的两个字形轮廓取自系统 CJK 字体并归一化到单位框；[`seal-geometry.ts`](src/client/seal-geometry.ts) 持有印身、圆环与字形格子的几何，[`Seal.tsx`](src/client/Seal.tsx) 在渲染时把它们组合成一个 SVG，并为每个实例生成独立的渐变 id。
+两个字形轮廓与印身、圆环、字形格子的几何现在位于 [`@qilin/client-ui-primitives`](../ui-primitives/README.zh.md)（`seal-glyphs.ts`、`seal-geometry.ts`），让外壳的无品牌兜底画出同一枚印章；[`Seal.tsx`](src/client/Seal.tsx) 用它占据品牌槽位，并为每个实例生成独立的渐变 id。
 
 <a id="dev-note"></a>
 ## 开发备注

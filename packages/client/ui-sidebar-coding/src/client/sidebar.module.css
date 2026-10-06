@@ -308,8 +308,8 @@ body[data-dsh-sidebar-dragging] .panel {
 /* Mirrors .paneContent's column-flex contract: the tab cell must hand its
    child a definite WIDTH via align-stretch. A row flex (the default) sizes
    the main axis (width) from content — intrinsic-zero hosts (e.g. a plugin
-   tab UI) collapse to a 0px-wide sliver and paint nothing (the blank
-   whale-report window). */
+   tab UI) collapse to a 0px-wide sliver and paint nothing (a blank
+   zero-width window). */
 .floatContent {
   flex: 1;
   min-height: 0;

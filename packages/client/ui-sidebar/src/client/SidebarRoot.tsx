@@ -20,7 +20,7 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
 import {
-  FishLogo, IconNewChatOutline16, IconPanelLeftOutline16, isDarwinDesktop, ShortcutKeys, Tooltip,
+  IconNewChatOutline16, IconPanelLeftOutline16, isDarwinDesktop, QilinSeal, ShortcutKeys, Tooltip,
 } from '@qilin/client-ui-primitives'
 import type { InjectFace, PropsRenderSlots, PropsRuntime } from '@qilin/client-ui-slots'
 import type {
@@ -188,7 +188,7 @@ export function SidebarRoot({
   const build = localBuild()
 
   const darwinDesktop = isDarwinDesktop()
-  // Rail resting state is the whale mark; hovering swaps in the panel icon
+  // Rail resting state is the seal mark; hovering swaps in the panel icon
   // (the expand affordance, figma sidebar-hover flow). Expanded it is a plain
   // panel icon.
   const toggle = (
@@ -202,7 +202,7 @@ export function SidebarRoot({
       >
         {!wide && !windowsTitlebar && (
           <span className={css.railMark} aria-hidden="true">
-            {renderSlot('sidebar.brand.mark', { size: 24 }, { fallback: <FishLogo size={24} /> })}
+            {renderSlot('sidebar.brand.mark', { size: 24 }, { fallback: <QilinSeal size={24} /> })}
           </span>
         )}
         {/* Rail icons render at 18 (figma rail spec); expanded keeps the glyph-native sizes. */}
@@ -244,7 +244,7 @@ export function SidebarRoot({
           >
             <span className={css.brandIdentity} aria-hidden="true">
               <span className={css.brandMark}>
-                {renderSlot('sidebar.brand.mark', { size: 24 }, { fallback: <FishLogo size={24} /> })}
+                {renderSlot('sidebar.brand.mark', { size: 24 }, { fallback: <QilinSeal size={24} /> })}
               </span>
               <span className={css.brandName}>
                 {renderSlot('sidebar.brand.name', {}, {

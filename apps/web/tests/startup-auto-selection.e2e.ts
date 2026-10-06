@@ -41,16 +41,9 @@ describe('web e2e: startup auto-selection', () => {
   it('keeps the resident Hero and composer nodes when the first Workspace session appears', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-first-workspace-stable-tree'))
     await page.locator(`${ROOT_PHASE}[data-phase="hero"]`).waitFor({ timeout: 15_000 })
-    // The brand mark and the hero's one large line share the primary ink
-    // (HeroShell's `.fish` and `.tagline`); the mark's hitbox is the hover
-    // target that swims it.
-    const tagline = page.getByRole('heading', { level: 1 })
-    const fishHitbox = page.locator('[class*="fishHitbox"]')
-    const fish = fishHitbox.locator('svg')
-    expect(await fish.evaluate(node => getComputedStyle(node).color))
-      .toBe(await tagline.evaluate(node => getComputedStyle(node).color))
-    await fishHitbox.hover()
-    expect(await fish.evaluate(node => getComputedStyle(node).animationName)).not.toBe('none')
+    // The hero brand mark is the decorative QiLin seal svg.
+    const heroMark = page.locator('[data-phase="hero"] svg[viewBox="0 0 24 24"]')
+    expect(await heroMark.evaluate(node => node.querySelector('linearGradient') !== null)).toBe(true)
     await page.evaluate(() => {
       const refs = {
         root: document.querySelector('div[data-phase="hero"]'),
