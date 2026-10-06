@@ -1,0 +1,70 @@
+/* The hero run-mode chip mirrors the workspace chip it sits beside: a
+   transparent pill that fills only on hover / open, with an ellipsized label
+   so the row never pushes the composer card wider. */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: min(100%, 360px);
+  min-height: 28px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 16px;
+  background: transparent;
+  color: var(--dsw-alias-label-primary);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.chip:hover,
+.chip[aria-expanded='true'] {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.icon {
+  flex: none;
+  color: var(--dsw-alias-label-primary);
+}
+
+.label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chevron {
+  flex: none;
+  color: var(--dsw-alias-label-caption);
+}
+
+/* Menu rows: name over one-line description, matching the roster copy the
+   preset manifests carry. */
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.itemName {
+  font-weight: 500;
+}
+
+.itemDesc {
+  overflow: hidden;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The open menu anchors to the chip and must paint above the composer card
+   (the hero row already raises itself above it). */
+.menuAnchor {
+  z-index: 10;
+}

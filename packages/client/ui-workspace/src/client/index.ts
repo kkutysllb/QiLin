@@ -12,6 +12,7 @@ import type { Context } from '@qilin/kylin'
 import type { RemoteHostFacts } from '@qilin/api-remotes/client'
 import type { ISessions } from '@qilin/api-session-controller/client'
 import type { IWorkspaces, WorkspaceSnapshot } from '@qilin/api-workspace-controller/client'
+import { createSnapshotStore } from '@qilin/client-store'
 import type { HostObservable, SnapshotSelectorHook } from '@qilin/client-ui-slots'
 // Type-only: the workbench state owner's service merge and vocabulary.
 import type {} from '@qilin/client-ui-workbench/client'
@@ -27,9 +28,11 @@ import type {} from '@qilin/client-ui-layout/client'
 // Type-only: pulls the Session root standard-hook merge.
 import type {} from '@qilin/client-ui-session/client'
 import type { WorkbenchSwitchInjected, WorkspaceBrowserInjected, WorkspacePickerInjected } from './contract/slots.ts'
+import type { AgentPresetChipInjected, AgentPresetRosterState } from './contract/slots.ts'
 import { createWorkspaceShortcutControls, installWorkspaceShortcuts } from './shortcuts.ts'
 import { UiWorkspaceService } from './navigation.ts'
 import { createWorkspaceViewStore } from './stores.ts'
+import { AgentPresetChip } from './AgentPresetChip.tsx'
 import { WorkbenchSwitchSeat } from './WorkbenchSwitchSeat.tsx'
 import { WorkspaceBrowser } from './rows/WorkspaceBrowser.tsx'
 import { WorkspacePicker } from './WorkspacePicker.tsx'
@@ -37,6 +40,7 @@ import { en, zh, type WorkspaceKey } from './locales.ts'
 
 export type { MainSelection, UiWorkspace } from './navigation.ts'
 export type {
+  AgentPresetChipInjected, AgentPresetChipProps, AgentPresetChoice, AgentPresetRosterState,
   DirectoryFlowOwnerProps, DirectoryFlowSlotName, DirectoryPickingHooks, DirectoryPickingInjected,
   SessionRowScheduleOwnerProps, WorkbenchSwitchInjected, WorkbenchSwitchSeatProps,
   WorkspaceBrowserInjected, WorkspaceBrowserProps, WorkspacePickerInjected, WorkspacePickerProps,
@@ -210,5 +214,67 @@ export function apply(ctx: Context): void {
       locale: NS,
     },
     WorkspacePicker,
+  ))
+
+  // The hero run-mode chip (D3's per-tag "remember the creator pick"): the
+  // roster is read once per connection and the pick records the active tag's
+  // new-task preset, then aligns the on-screen blank session so the staged
+  // task already carries the choice. An optional presets service reads as an
+  // empty roster, and a failed read keeps the chip hidden until a reset.
+  const rosterStore = createSnapshotStore<AgentPresetRosterState>({ status: 'idle', presets: [] })
+  let rosterGeneration = 0
+  const loadRoster = (): void => {
+    const generation = ++rosterGeneration
+    void ctx.remote.agentPresets.list().then((result) => {
+      if (generation !== rosterGeneration) return
+      // An optional service and a mounted-but-empty roster hide the chip the
+      // same way; a real failure hides it until the next reset retries.
+      if (!result.ok && result.error.code === 'gateway/invocation-unavailable') {
+        rosterStore.set({ status: 'ready', presets: [] })
+        return
+      }
+      if (!result.ok) {
+        rosterStore.set({ status: 'failed', presets: [] })
+        return
+      }
+      rosterStore.set({
+        status: 'ready',
+        // A broken preset has no composition to hand a new task; the menu
+        // offers only presets the Host can actually compose.
+        presets: result.value.presets
+          .filter(preset => preset.broken === undefined)
+          .map(preset => ({
+            id: preset.id,
+            ...preset.name === undefined ? {} : { name: preset.name },
+            ...preset.description === undefined ? {} : { description: preset.description },
+          })),
+      })
+    }).catch(() => {
+      if (generation === rosterGeneration) rosterStore.set({ status: 'failed', presets: [] })
+    })
+  }
+  ctx.effect(() => {
+    loadRoster()
+    return ctx.on('connection/reset', loadRoster)
+  }, 'ui-workspace: preset roster refresh')
+  const pickPreset: AgentPresetChipInjected['pick'] = (presetId) => {
+    workbench.setPresetFor(workbench.state.getSnapshot().active, presetId)
+    uiWorkspace.adoptBlankSessionPreset(presetId)
+  }
+  ctx.slots.inject('conversation.hero.agentPreset', () => ctx.slots.register(
+    {
+      name: 'conversation.hero.agentPreset',
+      // Below the default so a composition that deliberately re-enables the
+      // old ui-agent-preset seat (the e2e lane's subject) keeps the cell;
+      // the shipped composition mounts only this chip.
+      priority: -1,
+      inject: (): AgentPresetChipInjected => ({
+        hooks: { workbench: workbench.state, roster: rosterStore },
+        tagChoices: tag => workbench.tagChoices(tag),
+        pick: pickPreset,
+      }),
+      locale: NS,
+    },
+    AgentPresetChip,
   ))
 }

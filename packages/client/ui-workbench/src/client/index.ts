@@ -9,7 +9,7 @@
 import { Service, type Context } from '@qilin/kylin'
 import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
 import {
-  rehydrateWorkbenchState, workbenchShows, WORKBENCH_STORAGE_KEY,
+  rehydrateWorkbenchState, workbenchShows, WORKBENCH_STORAGE_KEY, WORKBENCH_TAG_PRESETS,
   type WorkbenchState, type WorkbenchTag,
 } from './workbench.ts'
 
@@ -50,6 +50,14 @@ export interface Workbench {
    * @param presetId - the picked preset id.
    */
   setPresetFor(tag: WorkbenchTag, presetId: string): void
+  /**
+   * The shipped preset ids one tag's new-task menu offers, in menu order (D2).
+   * A roster preset absent from both tags' lists is a custom copy and trails
+   * the shipped ones in the menu.
+   * @param tag - the tag asking for its menu vocabulary.
+   * @returns the tag's shipped preset ids in order.
+   */
+  tagChoices(tag: WorkbenchTag): readonly string[]
   /**
    * The visibility fold over one session's recorded preset (D2).
    * @param preset - the session's `agentPreset` projection value.
@@ -92,6 +100,10 @@ class WorkbenchServiceImpl extends Service implements Workbench {
     const current = this.state.getSnapshot()
     if (current.presets[tag] === presetId) return
     this.state.set({ ...current, presets: { ...current.presets, [tag]: presetId } })
+  }
+
+  tagChoices(tag: WorkbenchTag): readonly string[] {
+    return WORKBENCH_TAG_PRESETS[tag]
   }
 
   shows(preset: string | null | undefined, tag: WorkbenchTag): boolean {

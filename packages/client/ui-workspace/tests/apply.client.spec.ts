@@ -80,7 +80,11 @@ async function bench() {
   } as never)
   const pickDirectory = vi.fn(() => Promise.resolve({ ok: true as const, value: '/projects/picked' }))
   const directoryPicker = { pick: pickDirectory }
-  Object.assign(new TestRemote(ctx), { directoryPicker, agentPresets: { select: vi.fn(async () => ({ ok: true as const, value: 'ptc' })) } })
+  const agentPresets = {
+    select: vi.fn(async () => ({ ok: true as const, value: 'ptc' })),
+    list: vi.fn(async () => ({ ok: true as const, value: { presets: [], authorable: false, modeSelectionEnabled: false } })),
+  }
+  Object.assign(new TestRemote(ctx), { directoryPicker, agentPresets })
   ctx.provide('remote.directoryPicker', directoryPicker as never)
   ctx.provide('remote.agentPresets', (ctx.remote as { agentPresets: unknown }).agentPresets)
   // The real workbench owner backs the browser's tag hook and the D3 preset reads.

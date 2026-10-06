@@ -65,6 +65,13 @@ export interface UiWorkspace {
    */
   startSession(workspaceId?: WorkspaceId): void
   /**
+   * Switch the current blank Session to an explicitly picked new-task preset
+   * (the hero chip's per-tag choice; the next new task already names it at
+   * create). A started or absent Session keeps its composition.
+   * @param presetId - the picked preset id.
+   */
+  adoptBlankSessionPreset(presetId: string): void
+  /**
    * Archive a Session and clear it when it is the current selection.
    * @param sessionId - Session to archive.
    */
@@ -250,6 +257,16 @@ class UiWorkspaceService extends Service implements UiWorkspace {
     if (this.workbench.shows(summary.projectionValues?.agentPreset, tag)) return
     this.agentPresets.select(id, this.workbench.presetFor(tag)).catch((reason: unknown) => {
       console.warn(`blank session ${id} kept its own preset:`, reason)
+    })
+  }
+
+  adoptBlankSessionPreset(presetId: string): void {
+    const current = this.mainReference?.sessionId
+    if (current === undefined) return
+    const summary = this.sessions.list.getSnapshot().byId[current]
+    if (summary?.blank !== true) return
+    this.agentPresets.select(current, presetId).catch((reason: unknown) => {
+      console.warn(`blank session ${current} kept its own preset:`, reason)
     })
   }
 

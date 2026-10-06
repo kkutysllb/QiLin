@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-本包让用户浏览分组或扁平的 Session 列表、为新 Session 选择 Workspace，并通过添加、重命名、重排序、置顶、搜索、fork、归档和删除 Workspace 来管理 Workspace 与 Session。待处理交互显示为警告点，活动定时任务显示为闹钟标识，subagent 来源的 Session 则保持隐藏。规范化后仍有差异的文件夹路径会保留为独立 Workspace。添加 Workspace 需要组合目录选择器；没有目录选择器时，添加操作不可用。
+本包让用户浏览分组或扁平的 Session 列表、为新 Session 选择 Workspace，并通过添加、重命名、重排序、置顶、搜索、fork、归档和删除 Workspace 来管理 Workspace 与 Session。待处理交互显示为警告点，活动定时任务显示为闹钟标识，subagent 来源的 Session 则保持隐藏。规范化后仍有差异的文件夹路径会保留为独立 Workspace。添加 Workspace 需要组合目录选择器；没有目录选择器时，添加操作不可用。新任务屏幕承载运行模式 chip：每个标签记住自己的预设，也可改选其他预设——包括创造模式。
 
 ## 目录
 
@@ -74,6 +74,10 @@ Session 行渲染运行时的实时 `pendingInteraction` 分类：审批显示**
 ### 目录流子 slot
 
 每个注册各自声明一个**目录流子 slot**（`single` kind：`conversation.hero.workspace.directoryFlow`／`sidebar.workspaces.directoryFlow`），由组合的选择器包 client half 填入其选取交互——`-native` 后端的无渲染 OS 选择器驱动，`-browse` 组合下则是应用内浏览对话框。平铺显示的**添加工作区…** 操作仅在当前界面的 slot 被占用时渲染；slot 为空意味着该组合没有目录选择能力。本包持有触发与接纳：占用方通过 slot 的属主交互约定（`open`/`busy`/`onPicked`/`onCancel`/`onError`）每次打开上报一个所选路径，owner 通过对象层接纳它，并等待 Workspace 列表投影刷新后才选中已提交的 Workspace。
+
+### 英雄区运行模式 chip
+
+chip 占据会话英雄区的 `conversation.hero.agentPreset` 槽位，把工作台 owner 的每标签预设记忆变成一次可见的选择：菜单按标签顺序列出该标签的随附预设，其后再列出两个标签词汇都未点名的新增预设（用户副本）；roster 不可用、读取失败、或可选不足两项时 chip 自行隐藏。一次选择记录该标签的新任务预设——下一个任务在创建时显式点名它——并立即改绑屏幕上的空白会话，因为轮次开始后 Host 会锁定会话组合。注册优先级低于默认值，刻意重新启用已退役 `ui-agent-preset` seat 的组合（e2e 通道的被测对象）得以保住该槽位。
 
 ### 视图状态
 

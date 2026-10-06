@@ -14,7 +14,7 @@ import { SessionId } from '@qilin/session/types'
 import { LayoutController } from '@qilin/client-ui-layout/client'
 import type { MainPanelId } from '@qilin/client-ui-layout/client'
 import type { Workbench } from '@qilin/client-ui-workbench/client'
-import { workbenchShows, WORKBENCH_DEFAULT_STATE } from '@qilin/client-ui-workbench/client'
+import { workbenchShows, WORKBENCH_DEFAULT_STATE, WORKBENCH_TAG_PRESETS } from '@qilin/client-ui-workbench/client'
 import { createSnapshotStore } from '@qilin/client-store'
 import { DirectoryBrowseError, UiWorkspaceService } from '../src/client/navigation.ts'
 import { createWorkspaceViewStore, FLAT_SESSION_ORDER_KEY } from '../src/client/stores.ts'
@@ -324,6 +324,7 @@ function fakeWorkbench(state?: Partial<typeof WORKBENCH_DEFAULT_STATE>): Workben
     setPresetFor: (tag, presetId) => {
       store.set({ ...store.getSnapshot(), presets: { ...store.getSnapshot().presets, [tag]: presetId } })
     },
+    tagChoices: tag => WORKBENCH_TAG_PRESETS[tag],
     shows: workbenchShows,
   }
 }
@@ -514,6 +515,35 @@ describe('UiWorkspaceService', () => {
   it('skips the tag-switch rebind entirely without a current Workspace', async () => {
     const b = bench({ workbench: { active: 'coding' } })
     b.uiWorkspace.rebindBlanksAfterTagSwitch()
+    expect(b.agentPresets.select).not.toHaveBeenCalled()
+  })
+
+  it('adopts an explicit preset pick on the current blank session', async () => {
+    const b = bench({
+      workbench: { active: 'general' },
+      sessions: sessionState([
+        summary('blank', { blank: true, cwd: '/w/a', projectionValues: { agentPreset: 'standard' } }),
+      ], 'pending'),
+      workspaces: workspaceState([workspace('a', [sid('blank')])]),
+    })
+    b.uiWorkspace.openSession(sid('blank'))
+    await vi.waitFor(() => { expect(b.uiWorkspace.selection.getSnapshot().sessionId).toBe(sid('blank')) })
+    b.uiWorkspace.adoptBlankSessionPreset('cordis')
+    expect(b.agentPresets.select).toHaveBeenCalledOnce()
+    expect(b.agentPresets.select).toHaveBeenCalledWith(sid('blank'), 'cordis')
+  })
+
+  it('ignores an explicit preset pick on a started or absent session', async () => {
+    const started = summary('started', { cwd: '/w/a', projectionValues: { agentPreset: 'standard' } })
+    const b = bench({
+      workbench: { active: 'general' },
+      sessions: sessionState([started], 'pending'),
+      workspaces: workspaceState([workspace('a', [started.id])]),
+    })
+    b.uiWorkspace.adoptBlankSessionPreset('cordis')
+    b.uiWorkspace.openSession(sid('started'))
+    await vi.waitFor(() => { expect(b.uiWorkspace.selection.getSnapshot().sessionId).toBe(sid('started')) })
+    b.uiWorkspace.adoptBlankSessionPreset('cordis')
     expect(b.agentPresets.select).not.toHaveBeenCalled()
   })
 

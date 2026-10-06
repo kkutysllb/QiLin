@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-This package lets users browse grouped or flat Session lists, choose a Workspace for a new Session, and manage Workspaces and Sessions through add, rename, reorder, pin, search, fork, archive, and Workspace deletion. Pending interactions appear as warning dots, active scheduled tasks as alarm markers, and subagent-origin Sessions remain hidden. Canonically distinct folder paths remain separate Workspaces. Adding a Workspace requires a composed directory picker; without one, the add action is unavailable.
+This package lets users browse grouped or flat Session lists, choose a Workspace for a new Session, and manage Workspaces and Sessions through add, rename, reorder, pin, search, fork, archive, and Workspace deletion. Pending interactions appear as warning dots, active scheduled tasks as alarm markers, and subagent-origin Sessions remain hidden. Canonically distinct folder paths remain separate Workspaces. Adding a Workspace requires a composed directory picker; without one, the add action is unavailable. The new-task screen carries the run-mode chip: each tag remembers its own preset and offers the others — the creator preset included.
 
 ## Table of Contents
 
@@ -74,6 +74,10 @@ The package is one composition: both target slots are declared by other plugins,
 ### The directory-flow hole
 
 Each registration declares a **directory-flow child hole** (`single` kind: `conversation.hero.workspace.directoryFlow` / `sidebar.workspaces.directoryFlow`) that the composed picker package's client half fills with its picking interaction — the `-native` backend's renderless OS-chooser driver, an in-app browsing dialog under a `-browse` composition. The flat **Add workspace...** action renders only while the surface's hole is occupied; an empty hole means the composition has no picking affordance. This package owns the trigger and the adoption: the occupant reports one picked path per open through the hole's owner conversation (`open`/`busy`/`onPicked`/`onCancel`/`onError`), and the owner adopts it through the object layer, selecting the committed Workspace only after its list projection has refreshed.
+
+### The hero run-mode chip
+
+The chip occupies the conversation hero's `conversation.hero.agentPreset` hole and turns the workbench owner's per-tag preset memory into a choice: the menu lists the active tag's shipped presets in tag order, trails a roster preset neither tag names (a user copy), and hides itself while the roster is unavailable, failed, or offers fewer than two choices. A pick records the tag's new-task preset — the next task names it at create — and immediately rebinds the on-screen blank session, whose composition the Host locks once a turn runs. The registration sits below the default priority so a composition that deliberately re-enables the retired `ui-agent-preset` seat keeps the cell.
 
 ### View state
 

@@ -29,6 +29,12 @@ describe('the workbench state owner', () => {
     expect(workbench.presetFor('coding')).toBe('ptc')
   })
 
+  it('names each tag’s shipped menu vocabulary in menu order', async () => {
+    const workbench = await booted()
+    expect(workbench.tagChoices('general')).toEqual(['standard', 'cordis'])
+    expect(workbench.tagChoices('coding')).toEqual(['ptc', 'cordis'])
+  })
+
   it('keeps a switched tag and a remembered preset across a fresh boot', async () => {
     const first = await booted()
     first.setActive('coding')

@@ -210,6 +210,54 @@ export type WorkbenchSwitchInjected = {
   onWorkbenchSwitch: (tag: WorkbenchTag) => void
 }
 
+/** One preset row of the run-mode chip's menu: the fields the roster wire carries and the chip shows. */
+export interface AgentPresetChoice {
+  /** The preset id new tasks are created with. */
+  readonly id: string
+  /** Display name from the preset's own manifest; absent falls back to the id. */
+  readonly name?: string
+  /** One-line description shown under the menu name. */
+  readonly description?: string
+}
+
+/** The roster snapshot the chip's menu renders; an empty list hides the chip. */
+export interface AgentPresetRosterState {
+  /** Read outcome: idle before the first read, failed keeps the chip hidden. */
+  readonly status: 'idle' | 'ready' | 'failed'
+  /** The deployment's presets (an optional service yields the empty list). */
+  readonly presets: readonly AgentPresetChoice[]
+}
+
+/**
+ * Injected share of the hero run-mode chip: the workbench state (active tag
+ * and each tag's remembered new-task preset), the live roster, and the pick
+ * action that records the tag's choice and rebinds the on-screen blank
+ * session.
+ */
+export type AgentPresetChipInjected = {
+  hooks: {
+    /** The workbench tag selection and per-tag preset memory (the `workbench` service state). */
+    workbench: HostObservable<WorkbenchState>
+    /** The preset roster snapshot; `failed` and empty rosters hide the chip. */
+    roster: HostObservable<AgentPresetRosterState>
+  }
+  /**
+   * The shipped preset ids one tag's menu offers, in menu order — the
+   * workbench owner's vocabulary, reached as a service callback so this
+   * package imports no cross-plugin value (the purity gate forbids one).
+   */
+  tagChoices: (tag: WorkbenchTag) => readonly string[]
+  /** Record one tag's new-task preset choice and align the current blank session. */
+  pick: (presetId: string) => void
+}
+
+/** Full run-mode chip props: hero owner share + injected state + the locale seat. */
+export type AgentPresetChipProps =
+  PropsRuntime<'conversation.hero.agentPreset'>
+  & PropsHooks<AgentPresetChipInjected['hooks']>
+  & Omit<AgentPresetChipInjected, 'hooks'>
+  & PropsLocale<'workspace'>
+
 /** Full switch-seat props: shell owner share + injected selection + the locale seat. */
 export type WorkbenchSwitchSeatProps =
   PropsRuntime<'sidebar.workbench'>
