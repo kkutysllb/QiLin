@@ -3,7 +3,7 @@
  * theme: --qilin-alias-* semantic tokens for colors, --qilin-font-* typography
  * roles (size paired with line-height), and --ds-* for motion. The chrome
  * mirrors the native DSH sidebar: flat (NO box-shadows anywhere), the
- * sidebar fill surface, hairline borders, and the 28/36px circular icon
+ * workbench canvas surface, hairline borders, and the 28/36px circular icon
  * controls with hover fills. No static palette values, no color literals, no
  * theme selectors — light/dark adaptation is the theme package's job.
  */
@@ -15,10 +15,12 @@
    skin systems override that token to restyle the APP's own left-nav column
    (dsh-web-ui skins make it translucent glass or theme colors, Aqua makes it
    transparent), and a panel consuming it would lose its fill or clash with
-   the label tokens. The panels use the generic card surface
-   `--qilin-alias-bg-layer-1`, which every dsh-web-ui skin overrides — so
-   switching skins in the dsh-web-ui skin center re-skins the sidebar panels
-   automatically (see AGENTS.md §8). */
+   the label tokens. The docked panels share the workbench canvas
+   `--qilin-alias-bg-base` — the same surface ui-dockkit panes fill — so an
+   open panel reads as part of the workbench rather than a card laid over
+   it, and a skin that restyles the canvas restyles the panels with it.
+   Only genuinely floating surfaces (.floatWindow) keep the elevated
+   `--qilin-alias-bg-layer-1` card. */
 
 /* The unified panel host: a fixed, viewport-sized, click-transparent
    containing block for every panel element. Panels are ABSOLUTE within it
@@ -77,8 +79,9 @@
 /* The persistent expand/collapse cluster at the top-right corner: two rail
    controls side by side (bottom panel's glyph LEFT of the right panel's).
    Always pinned to the viewport corner — inside the right panel's top-right
-   while it is open, sitting flush in the 34px tab strip (28px buttons at
-   top: 3) whose right end it really squeezes. Host-internal z-index 45
+   while it is open, sitting flush in the 48px tab strip (28px buttons at
+   top: 10, centered on the band the main column header shares) whose right
+   end it really squeezes. Host-internal z-index 45
    (above the panels' 40); the host's global layer is z-index 25, so the
    whole cluster stays below DSH's ui-cordis dynamic-plugin panel (30) and
    the app's overlay stack (menus/tooltips/modals sit at 100+), so a cordis
@@ -88,7 +91,7 @@
 .toggleCluster {
   position: absolute;
   /* env() resolves to 0 on devices without a top inset (desktops). */
-  top: calc(3px + env(safe-area-inset-top));
+  top: calc(10px + env(safe-area-inset-top));
   right: 10px;
   z-index: 45;
   display: flex;
@@ -106,7 +109,7 @@
 
 /* The closed-state affordance is the native rail icon control: a plain
    28px circle (the app's icon-button size — the cluster must stay inside
-   the 34px tab-strip band so it never covers the pane headers below),
+   the 48px tab-strip band so it never covers the pane headers below),
    transparent fill, secondary ink; hover raises the fill. No border, no
    shadow — the icon alone is the affordance. */
 .toggleButton {
@@ -157,12 +160,13 @@
   flex-direction: column;
   /* Re-enable interaction inside the click-transparent panel host. */
   pointer-events: auto;
-  /* The generic card surface (see the root contract above). Never
+  /* The workbench canvas (see the root contract above), shared with the
+     ui-dockkit panes the general-mode sidebar fills. Never
      `--qilin-specific-sidebar-fill` — skin plugins restyle that token for the
      app's own left nav and a panel consuming it loses its fill or clashes
-     with labels (#60/#105/#106). */
-  background: var(--qilin-alias-bg-layer-1);
-  border-left: 1px solid var(--qilin-alias-border-l2);
+     with labels (#60/#105/#106) — and no card border: the flat canvas edge
+     is what makes the open panel read as part of the page. */
+  background: var(--qilin-alias-bg-base);
   /* Bottom safe-area (notched phones): the drawer's bottom content clears
      the home indicator; 0 on desktops. */
   padding-bottom: env(safe-area-inset-bottom);
@@ -228,14 +232,14 @@ body[data-dsh-sidebar-dragging] .panel {
 
 /* ── Free windows ──────────────────────────────────────────────────────── */
 
-/* One floating tab: the same card surface as the panels, at viewport
-   coordinates inside the panel host (immune to shell transforms). z-index
-   42: above the panels (40) so a window drags across them, below the
-   toggle cluster (45) and the app's overlay stack (100+, issue #52).
+/* One floating tab: the elevated card the docked panels gave up, at
+   viewport coordinates inside the panel host (immune to shell transforms).
+   z-index 42: above the panels (40) so a window drags across them, below
+   the toggle cluster (45) and the app's overlay stack (100+, issue #52).
    Stacking among windows is the floats array order (siblings share the
    z-index; DOM order wins). Deliberately NO box transition — the header/
-   resize drags write left/top/width/height per frame. Elevated surface,
-   so unlike the flat panels it earns a shadow token. */
+   resize drags write left/top/width/height per frame. An elevated surface
+   over the canvas earns the shadow token. */
 .floatWindow {
   position: absolute;
   z-index: 42;
@@ -255,8 +259,9 @@ body[data-dsh-sidebar-dragging] .panel {
   will-change: left, top, width, height;
 }
 
-/* The header: the move/dock-back drag handle, mirroring the tab strip's
-   chrome (34px, hairline bottom, secondary label). */
+/* The header: the move/dock-back drag handle — a compact card header
+   (34px, hairline bottom, secondary label), tighter than the docked tab
+   strip because the window floats over content. */
 .floatHeader {
   flex: none;
   display: flex;
@@ -642,13 +647,17 @@ body[data-dsh-sidebar-dragging] .panel {
 
 /* ── Tab strip ─────────────────────────────────────────────────────────── */
 
+/* Same band as the conversation header (ui-conversation ConversationRoot
+   .header: 48px, 0.5px border-l3 hairline) so the two header lines read as
+   one continuous rule across the column seam, and the same canvas as the
+   panel body so the strip never floats on its own fill. */
 .tabBar {
   flex: none;
   display: flex;
   align-items: stretch;
-  height: 34px;
-  border-bottom: 1px solid var(--qilin-alias-border-l1);
-  background: var(--qilin-alias-bg-layer-1);
+  height: 48px;
+  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
+  background: transparent;
 }
 
 .tabBarDrop {
@@ -753,7 +762,7 @@ body[data-dsh-sidebar-dragging] .panel {
   padding: 0;
   border: none;
   border-radius: 5px;
-  background: var(--qilin-alias-bg-layer-1);
+  background: transparent;
   color: var(--qilin-alias-label-tertiary);
   cursor: pointer;
 }
