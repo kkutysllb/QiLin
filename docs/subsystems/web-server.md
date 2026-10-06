@@ -48,7 +48,7 @@ interface Config {
    * settled, so the first external connection sees the complete route set;
    * route owners still mount against the idle server, because init resolves
    * before they run. A `settle` profile must read `port` only after
-   * settlement — the URL line already awaits it.
+   * `whenListened()` resolves — settlement itself only starts the bind.
    * @default 'activate'
    */
   listenOn?: 'activate' | 'settle'
@@ -126,6 +126,15 @@ Source: [`packages/client/connection/src/rpc.ts`](../../packages/client/connecti
 The browser HTTP carrier service. `listenOn` (see Config) decides when the socket binds; `activate` binds during init, `settle` defers the bind past Loader settlement. Route registration order does not affect requests because configured named routes must be distinct, and the fallback handler answers anything not yet claimed during startup with 404 until its owner registers. A bind failure before init resolves rejects initialization, and the boot process reports the failed fiber.
 
 ```ts cordis-catalog
+/**
+ * Resolve once the socket is bound and `port` is readable; reject on bind
+ * failure. Readiness consumers await this instead of reading `port` off a
+ * settlement that merely STARTED the bind — the two raced on microtask
+ * order, and the loser crashed or silently swallowed the URL line and the
+ * browser handoff (issue #8).
+ */
+whenListened(): Promise<void>
+
 /**
  * Register a named route. Duplicate (kind, path) throws — route patterns are
  * a composition-level contract, so a collision is a misconfiguration.

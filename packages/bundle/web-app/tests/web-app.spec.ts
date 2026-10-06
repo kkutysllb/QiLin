@@ -81,6 +81,9 @@ function fakeHttpServer(host: '127.0.0.1' | '0.0.0.0' = '127.0.0.1'): { server: 
       return () => { fallback = undefined }
     },
     renderIndex: (html: string) => html,
+    // The readiness signal the URL line awaits (issue #8): resolved unless a
+    // test overrides it to simulate an unbound socket.
+    whenListened: () => Promise.resolve(),
   } as unknown as WebServer
   return { server, seat: () => fallback }
 }

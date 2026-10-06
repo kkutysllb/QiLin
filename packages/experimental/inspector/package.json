@@ -40,8 +40,8 @@
     "locale/*.json",
     "lib/index.js",
     "lib/client.js",
-    "lib/client.*.js",
     "lib/worker.js",
+    "lib/client.*.js",
     "lib/devtools/**",
     "lib/types/**/*.d.ts"
   ],

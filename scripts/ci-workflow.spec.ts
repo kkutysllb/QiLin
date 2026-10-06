@@ -1045,7 +1045,10 @@ describe('Issue lifecycle workflow', () => {
     expect(preflightStep?.run).toContain('if [ -f .github/issue-management/selective-preflight.json ]; then')
     expect(preflightStep?.run).toContain('node .github/issue-management/policy.mjs pr-preflight')
     expect(preflightStep?.if).toBeUndefined()
-    expect(policyJob.if).toBeUndefined()
+    // Governance is opt-in per deployment: without the issue-management app
+    // configured the whole job skips (issue #11 — the weighted-approval
+    // skip-on-unconfigured precedent), so the job carries the var gate.
+    expect(policyJob.if).toBe("vars.QILIN_ISSUE_APP_CLIENT_ID != ''")
     expect(validateStep?.if).toBe("${{ steps.preflight.outputs.legacy-automated != 'true' }}")
 
     expect(tokenStep).toMatchObject({
@@ -1055,8 +1058,10 @@ describe('Issue lifecycle workflow', () => {
       with: {
         'client-id': '${{ vars.QILIN_ISSUE_APP_CLIENT_ID }}',
         'private-key': '${{ secrets.QILIN_ISSUE_APP_PRIVATE_KEY }}',
-        owner: 'deepseek-harness',
-        repositories: 'deepseek-harness',
+        // The token targets the EVENT repository — the upstream org hardcode
+        // would mint a token for a project this deployment does not govern.
+        owner: '${{ github.event.repository.owner.login }}',
+        repositories: '${{ github.event.repository.name }}',
         'permission-issues': 'read',
         'permission-organization-projects': 'read',
       },

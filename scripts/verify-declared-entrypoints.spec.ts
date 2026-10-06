@@ -1,6 +1,6 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { missingDeclaredEntrypointsIn, workspacePackageDirs } from './verify-declared-entrypoints.ts'
 
@@ -81,7 +81,7 @@ describe('declared entrypoint guard', () => {
   it('enumerates only manifest-bearing directories of the real workspace', () => {
     const dirs = workspacePackageDirs(join(import.meta.dirname, '..'))
     expect(dirs.length).toBeGreaterThan(100)
-    expect(dirs).toContain(join(import.meta.dirname, '..', 'vendor', 'cordis'))
+    expect(dirs).toContain(resolve(import.meta.dirname, '../vendor/cordis'))
     // Website owns a manifest; the repo-root itself is not a workspace member.
     expect(dirs.some(d => d.endsWith('website'))).toBe(true)
   })

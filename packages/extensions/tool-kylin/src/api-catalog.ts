@@ -3525,6 +3525,11 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     description: 'The browser HTTP carrier service. `listenOn` (see Config) decides when the socket binds; `activate` binds during init, `settle` defers the bind past Loader settlement. Route registration order does not affect requests because configured named routes must be distinct, and the fallback handler answers anything not yet claimed during startup with 404 until its owner registers. A bind failure before init resolves rejects initialization, and the boot process reports the failed fiber.',
     methods: [
       {
+        signature: 'whenListened(): Promise<void>',
+        description: 'Resolve once the socket is bound and `port` is readable; reject on bind failure. Readiness consumers await this instead of reading `port` off a settlement that merely STARTED the bind — the two raced on microtask order, and the loser crashed or silently swallowed the URL line and the browser handoff (issue #8).',
+        parameters: [],
+      },
+      {
         signature: 'register(route: WebRoute): () => void',
         description: 'Register a named route. Duplicate (kind, path) throws — route patterns are a composition-level contract, so a collision is a misconfiguration.',
         parameters: [{ name: 'route', description: 'kind, path, and the owning handler.' }],
@@ -5124,6 +5129,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'CreateSessionOptions',
     declaration: 'export interface CreateSessionOptions {\n    readonly seed?: readonly SessionEvent[];\n    readonly inheritedEventCount?: SessionLogOffset;\n    readonly meta?: {\n        readonly cwd?: string;\n        readonly parentSession?: SessionId;\n        readonly createdAt?: number;\n        readonly isSeeded?: boolean;\n        readonly origin?: \'subagent\';\n        readonly delegationDepth?: number;\n        readonly agentPreset?: string;\n    };\n}',
+  },
+  {
+    name: 'CreateTeamTaskRequest',
+    declaration: 'export interface CreateTeamTaskRequest {\n    readonly subject: string;\n    readonly description: string;\n    readonly blockedBy?: readonly TeamTaskId[];\n    readonly writeScopes?: readonly string[];\n}',
   },
   {
     name: 'CredentialInfo',
@@ -7303,7 +7312,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'SidebarConnectionHandle',
-    declaration: 'export interface SidebarConnectionHandle {\n    api: {\n        sessions: SidebarSessionHistoryRpc;\n        subagents: {\n            history(payload: SidebarSubagentAddress & {\n                beforeSeq?: number;\n                maxMessages?: number;\n            }, signal?: AbortSignal): Promise<SidebarRpcResponse<{\n                events: SidebarHistoryEntry[];\n                hasMore: boolean;\n            }>>;\n        };\n    };\n}',
+    declaration: 'export interface SidebarConnectionHandle {\n    api: {\n        sessions: SidebarSessionHistoryRpc;\n        subagents: {\n            history(payload: SidebarSubagentAddress & {\n                beforeSeq?: number;\n                maxMessages?: number;\n            }, signal?: AbortSignal): Promise<SidebarRpcResponse<{\n                events: SidebarHistoryEntry[];\n                hasMore: boolean;\n            }>>;\n        };\n    };\n    requestRejection(request: SidebarHttpRequest): 401 | 403 | undefined;\n}',
   },
   {
     name: 'SidebarContextShape',
@@ -7476,6 +7485,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'SidebarWorkspacesService',
     declaration: 'export interface SidebarWorkspacesService {\n    openPath(path: string): Promise<void>;\n}',
+  },
+  {
+    name: 'SidechatThreadInfo',
+    declaration: 'export interface SidechatThreadInfo {\n    readonly sessionId: SessionId;\n    readonly label: string;\n    readonly live: boolean;\n    readonly running: boolean;\n    readonly provider?: string;\n    readonly model?: string;\n    readonly preset?: string;\n}',
   },
   {
     name: 'SidechatThreadRow',
@@ -7866,12 +7879,28 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface TeamMembership {\n    readonly root: Agent;\n    readonly id: TeamId;\n    readonly role: \'lead\' | \'teammate\';\n    readonly name: string;\n}',
   },
   {
+    name: 'TeamMemberView',
+    declaration: 'export interface TeamMemberView {\n    readonly id: SessionId;\n    readonly name: string;\n    readonly role: \'lead\' | \'teammate\';\n    readonly status: \'running\' | \'inactive\' | \'provisioning\' | \'failed\';\n    readonly description?: string;\n    readonly provider?: string;\n    readonly context?: \'fresh\' | \'fork\';\n    readonly model?: string;\n    readonly diagnostics: string[];\n}',
+  },
+  {
     name: 'TeamMessageId',
     declaration: 'export type TeamMessageId = Branded<\'TeamMessageId\'>;',
   },
   {
+    name: 'TeamTaskAction',
+    declaration: 'export type TeamTaskAction = \'claim\' | \'release\' | \'edit\' | \'set_dependencies\' | \'complete\' | \'reopen\' | \'reassign\' | \'delete\';',
+  },
+  {
     name: 'TeamTaskId',
     declaration: 'export type TeamTaskId = Branded<\'TeamTaskId\'>;',
+  },
+  {
+    name: 'TeamTaskStatus',
+    declaration: 'export type TeamTaskStatus = \'pending\' | \'in_progress\' | \'completed\' | \'deleted\';',
+  },
+  {
+    name: 'TeamTaskView',
+    declaration: 'export interface TeamTaskView {\n    readonly id: TeamTaskId;\n    readonly revision: number;\n    readonly subject: string;\n    readonly description: string;\n    readonly status: TeamTaskStatus;\n    readonly blockedBy: TeamTaskId[];\n    readonly writeScopes: string[];\n    readonly ownerName?: string;\n    readonly ready: boolean;\n    readonly writeScopeWarnings: string[];\n}',
   },
   {
     name: 'TeamWaitResult',
@@ -8248,6 +8277,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'TypertTypeModel',
     declaration: 'export interface TypertTypeModel {\n    readonly name: string;\n    readonly declaration: string;\n}',
+  },
+  {
+    name: 'UpdateTeamTaskRequest',
+    declaration: 'export interface UpdateTeamTaskRequest {\n    readonly taskId: TeamTaskId;\n    readonly expectedRevision: number;\n    readonly action: TeamTaskAction;\n    readonly subject?: string;\n    readonly description?: string;\n    readonly blockedBy?: readonly TeamTaskId[];\n    readonly writeScopes?: readonly string[];\n    readonly owner?: string;\n}',
   },
   {
     name: 'UserMessage',

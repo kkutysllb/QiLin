@@ -3,23 +3,23 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-sidebar-coding/README.md
 /:
-  en: 5131053a4662515b
-  zh: 9d2bae81651a1050
+  en: 3fa6a103e2332bbe
+  zh: f7ea27af32f07691
 /qilin-client-ui-sidebar-coding:
   en: 4238449b81c1cf0f
   zh: 461ae12ad24f6b3e
 /qilin-client-ui-sidebar-coding/summary:
-  en: d4fda0d3455eee81
-  zh: f8e5ce49af9b3eb9
+  en: c528575c4164ebdb
+  zh: a017150325cb9111
 /qilin-client-ui-sidebar-coding/table-of-contents:
   en: 76368b6b1da79c80
   zh: b4a2a0e132e8ddf8
 /qilin-client-ui-sidebar-coding/use-this-package:
-  en: ea9569c1db30e72d
-  zh: 68f3c59f46eda86e
+  en: 5969e1c13d68abd9
+  zh: aa54b3970bb4c6e3
 /qilin-client-ui-sidebar-coding/understand-the-implementation:
-  en: 8efd86972710d163
-  zh: db51e04d3f5bf67e
+  en: 66deb4a642a29a1a
+  zh: 703fe98058f5a863
 /qilin-client-ui-sidebar-coding/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90

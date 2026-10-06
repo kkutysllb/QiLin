@@ -19,7 +19,23 @@ describe('PR preview workflow', () => {
   it('keeps every PR author on the selected GitHub-hosted runner', () => {
     expect(Object.keys(workflow.jobs)).toEqual(['preview'])
     expect(preview['runs-on']).toBe('ubuntu-24.04')
-    expect(workflow.on).toEqual({ pull_request: { types: ['opened', 'synchronize', 'reopened'] } })
+    expect(workflow.on).toEqual({
+      pull_request: {
+        types: ['opened', 'synchronize', 'reopened'],
+        // The preview deploys the built web frontend; docs/issue-only pull
+        // requests skip it (issue #11).
+        paths: expect.arrayContaining([
+          '.github/workflows/build-preview-cloudflare.yml',
+          'package.json',
+          'pnpm-lock.yaml',
+          'pnpm-workspace.yaml',
+          'apps/**',
+          'packages/**',
+          'vendor/**',
+          'scripts/**',
+        ]),
+      },
+    })
     expect(workflow.permissions).toEqual({ contents: 'read', 'pull-requests': 'write' })
     expect(preview.steps.find(step => step.uses === 'actions/checkout@v6')?.with).toEqual({ 'persist-credentials': false })
   })

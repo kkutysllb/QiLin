@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
     "directory": "packages/experimental/session-inspector"
   },
   "type": "module",
@@ -73,5 +73,8 @@
     "@qilin/client-ui-conversation": "workspace:*",
     "@qilin/client-ui-renderer": "workspace:*",
     "@qilin/client-ui-slots": "workspace:*"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
   }
 }

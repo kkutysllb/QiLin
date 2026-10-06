@@ -606,8 +606,8 @@ export interface Config {
 
 ## `@qilin/client-ui-sidebar-coding`
 
-- `inject`: `webServer` · `sessions` · `webRuntime` · `tools`
-- `source`: [`packages/client/ui-sidebar-coding/src/config.ts:194`](../packages/client/ui-sidebar-coding/src/config.ts)
+- `inject`: `webServer` · `sessions` · `webRuntime` · `tools` · `connection`
+- `source`: [`packages/client/ui-sidebar-coding/src/config.ts:199`](../packages/client/ui-sidebar-coding/src/config.ts)
 
 ```ts config-catalog
 /**
@@ -1543,7 +1543,7 @@ export interface Config {
    * settled, so the first external connection sees the complete route set;
    * route owners still mount against the idle server, because init resolves
    * before they run. A `settle` profile must read `port` only after
-   * settlement — the URL line already awaits it.
+   * `whenListened()` resolves — settlement itself only starts the bind.
    * @default 'activate'
    */
   listenOn?: 'activate' | 'settle'

@@ -161,6 +161,8 @@ const packageFileExtras: Readonly<Record<string, readonly string[]>> = {
   '@qilin/client-ui-dockkit': ['lib/**/*.css'],
   '@qilin/client-ui-sidebar-documentpreview': ['lib/client.*.js'],
   '@qilin/client-ui-sidebar-terminal': ['lib/client.*.js'],
+  // The coding workbench ships the same lazy `/sidebar/bundle` chunk family.
+  '@qilin/client-ui-sidebar-coding': ['lib/client.*.js'],
   '@qilin/client-web': ['lib/**/*.css', 'lib/apply-injections.js'],
   '@qilin/client-ui-theme': ['lib/styles'],
   // The physical-key protocol is a public entry usable without the browser service.
@@ -173,7 +175,9 @@ const packageFileExtras: Readonly<Record<string, readonly string[]>> = {
   // The isolated Node bootstrap is a separately launched bundle.
   '@qilin/ptc-runtime-node': ['lib/process.js'],
   // The Host entry starts its sibling Worker by URL rather than a package export.
-  '@qilin/experimental-inspector': ['lib/worker.js'],
+  // The page-level client bundle and the vendored Chrome devtools frontend
+  // assets ship beside it.
+  '@qilin/experimental-inspector': ['lib/worker.js', 'lib/client.*.js', 'lib/devtools/**'],
   // The shipped preset compositions travel inside the roster package.
   '@qilin/agent-presets': ['presets'],
   // The Web Host mounts the default-off settings owner independently of each

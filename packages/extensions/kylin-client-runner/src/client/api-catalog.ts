@@ -946,7 +946,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'SidebarConnectionHandle',
-    declaration: 'export interface SidebarConnectionHandle {\n    api: {\n        sessions: SidebarSessionHistoryRpc;\n        subagents: {\n            history(payload: SidebarSubagentAddress & {\n                beforeSeq?: number;\n                maxMessages?: number;\n            }, signal?: AbortSignal): Promise<SidebarRpcResponse<{\n                events: SidebarHistoryEntry[];\n                hasMore: boolean;\n            }>>;\n        };\n    };\n}',
+    declaration: 'export interface SidebarConnectionHandle {\n    api: {\n        sessions: SidebarSessionHistoryRpc;\n        subagents: {\n            history(payload: SidebarSubagentAddress & {\n                beforeSeq?: number;\n                maxMessages?: number;\n            }, signal?: AbortSignal): Promise<SidebarRpcResponse<{\n                events: SidebarHistoryEntry[];\n                hasMore: boolean;\n            }>>;\n        };\n    };\n    requestRejection(request: SidebarHttpRequest): 401 | 403 | undefined;\n}',
   },
   {
     name: 'SidebarContextShape',
