@@ -65,9 +65,8 @@ jobs:
           || matrix.os }}
     # A runaway guard sized above observed need, not a latency target (the
     # serial-CI reference keeps performance in timestamps): the seatbelt leg
-    # runs the full unit suite on the slowest hosted lane, and that suite
-    # passed 20 minutes as it grew.
-    timeout-minutes: 30
+    # builds the tree and runs the full unit suite on the slowest hosted lane.
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v6
 
@@ -103,10 +102,20 @@ jobs:
       # The unit suite runs on ubuntu in `checks`; this is the one darwin leg
       # in the workflow, so run it here too — the platform-dependent unit
       # expectations (Seatbelt path canonicalization: /tmp IS /private/tmp)
-      # take their darwin branch only on this runner.
+      # take their darwin branch only on this runner. Same carrier contract as
+      # ci-main's unit job, quoted there: the full suite reaches built `lib/`
+      # subpaths (Typert remote clients, client `./types` leaves), and the
+      # specs that scan the tree need more than the 5 s default per-test
+      # budget on a hosted runner.
+      - name: Build
+        if: matrix.runner == 'seatbelt'
+        run: pnpm run build
+
       - name: Unit tests (darwin parity)
         if: matrix.runner == 'seatbelt'
-        run: pnpm run test
+        run: |
+          pnpm run build:native-system
+          pnpm exec vitest run --testTimeout=90000 --expect.poll.timeout=90000 --hookTimeout=90000
 
       - name: Sandbox e2e (real kernel confinement, world-verified)
         # NO_COLOR: vitest force-enables ANSI color under GITHUB_ACTIONS even
