@@ -213,7 +213,7 @@ export function apply(ctx: Context): void {
               // not; preflight failure falls back to the embedded attempt.
               void fetch(`/kstock-api/frame-check?url=${encodeURIComponent(url)}`)
                 .then(response => response.json() as Promise<{ embeddable?: boolean }>)
-                .then(result => {
+                .then((result) => {
                   if (result.embeddable === true) ctx.sidebarRight.openTab('browser', { params: { url } })
                   else window.open(url, '_blank', 'noopener,noreferrer')
                 })
