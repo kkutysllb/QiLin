@@ -382,7 +382,11 @@ function processAlive(pid: number): boolean {
     const state = stat.slice(stat.lastIndexOf(')') + 2).split(/\s+/, 1)[0]
     return !/^[ZXx]$/.test(state ?? '')
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return false
+    // Opening the file keeps a window for the task to be fully reaped; the
+    // kernel then reports the read as ESRCH, the same gone-process fact as a
+    // missing file.
+    const code = (error as NodeJS.ErrnoException).code
+    if (code === 'ENOENT' || code === 'ESRCH') return false
     throw error
   }
 }
