@@ -270,8 +270,9 @@ const INSTALLATION_OWNED_PROFILE_TUPLES: Record<string, readonly string[]> = {
   // The browser surfaces used to ship `dsh-animations` as a built-in layer.
   // Normalization now retires it: a profile their owner never edited drops it
   // on the next load, and one carrying a custom list loses the entry while
-  // keeping its own additions. Installing the package through the plugin
-  // channel restores the layer as a profile-owned one.
+  // keeping its own additions. A profile that owns the package — the plugin
+  // channel recorded it in `dependencies`, or an `audiences` entry names it —
+  // keeps the layer as a profile-owned one.
   web: ['@qilin/base', '@qilin/web-app', 'dsh-animations'],
   qilin: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand', 'dsh-animations'],
 }
@@ -987,6 +988,12 @@ function sameBundles(left: readonly string[], right: readonly string[]): boolean
  * template's layers. A profile whose list is already the template plus those
  * entries is left untouched, so the write converges. Profiles with no shipped
  * template are left alone, and all other manifest fields are preserved.
+ *
+ * A name a past release shipped as a built-in layer but the current one
+ * retires is dropped the same way — unless the profile owns a copy the plugin
+ * channel installed (a `dependencies` entry) or records a presentation choice
+ * for (an `audiences` entry), either of which says the owner, not the old
+ * seed, placed the layer.
  */
 function normalizeShippedProfile(name: string, dir: string, manifest: ProfileManifest): ProfileManifest {
   const template = PROFILE_TEMPLATES[name]
@@ -995,7 +1002,10 @@ function normalizeShippedProfile(name: string, dir: string, manifest: ProfileMan
   // Names a shipped template of this profile ever supplied are the installation's
   // to place; anything else in the list belongs to its owner.
   const shipped = new Set([...template.bundles, ...INSTALLATION_OWNED_PROFILE_TUPLES[name] ?? []])
-  const restored = [...template.bundles, ...bundles.filter(entry => !shipped.has(entry))]
+  const dependencies = new Set(Object.keys(manifest.dependencies ?? {}))
+  const audiences = manifest.qilin?.profile?.audiences ?? {}
+  const restored = [...template.bundles, ...bundles.filter(entry =>
+    !shipped.has(entry) || dependencies.has(entry) || Object.hasOwn(audiences, entry))]
   if (sameBundles(bundles, restored)) return manifest
   const normalized: ProfileManifest = {
     ...manifest,

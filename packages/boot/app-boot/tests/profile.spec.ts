@@ -606,6 +606,38 @@ describe('loadProfile', () => {
     expect(readProfileManifest('t', custom)).toEqual(settled)
   })
 
+  it('keeps a retired layer the plugin channel gave the profile', () => {
+    const anchor = stageInstallation({
+      '@qilin/base': { patch: '[]\n' },
+      '@qilin/web-app': { patch: '[]\n' },
+      'dsh-animations': { patch: '[]\n' },
+    })
+    // A profile dependency says the plugin channel installed this copy, so the
+    // retirement of the seeded layer must not undo the owner's install.
+    const installedHome = tmp()
+    const installed = resolveProfileDir('web', installedHome)
+    initProfile(installed, ['@qilin/base', '@qilin/web-app', 'dsh-animations'])
+    const owned = readProfileManifest('t', installed)
+    writeProfileManifest(installed, { ...owned, dependencies: { ...owned.dependencies, 'dsh-animations': '^1.2.4' } })
+    loadProfile('t', 'web', anchor, installedHome)
+    expect(readProfileManifest('t', installed).qilin?.profile?.bundles)
+      .toEqual(['@qilin/base', '@qilin/web-app', 'dsh-animations'])
+
+    // An audiences record without the dependency says the owner manages the
+    // layer through the plugin manager; it keeps the layer too.
+    const recordedHome = tmp()
+    const recorded = resolveProfileDir('web', recordedHome)
+    initProfile(recorded, ['@qilin/base', '@qilin/web-app', 'dsh-animations'])
+    const seeded = readProfileManifest('t', recorded)
+    writeProfileManifest(recorded, {
+      ...seeded,
+      qilin: { ...seeded.qilin, profile: { ...seeded.qilin?.profile, audiences: { 'dsh-animations': 'both' } } },
+    })
+    loadProfile('t', 'web', anchor, recordedHome)
+    expect(readProfileManifest('t', recorded).qilin?.profile?.bundles)
+      .toEqual(['@qilin/base', '@qilin/web-app', 'dsh-animations'])
+  })
+
   it('restores a lost template layer for a template with no recorded retired tuple', () => {
     // Only the headless and browser surfaces carry installation-owned tuples;
     // every other template still restores a layer its profile lost.
