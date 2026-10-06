@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-ui-sidebar-coding",
   "description": "Coding workbench content body for the right Sidebar (dual workbench D5): the VSCode-like workbench — explorer/editor/terminal/git/browser tabs, per-session isolated, with lazy preview chunks. Ported from dsh-coding-sidebar 1.0.39",
-  "version": "3.0.11",
+  "version": "3.1.0",
   "publishConfig": {
     "access": "public"
   },

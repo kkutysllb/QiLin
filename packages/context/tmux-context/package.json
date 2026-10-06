@@ -1,7 +1,7 @@
 {
   "name": "@qilin/tmux-context",
   "description": "Opt-in durable per-step context with this agent's tmux pane and window location",
-  "version": "3.0.11",
+  "version": "3.1.0",
   "publishConfig": {
     "access": "public"
   },

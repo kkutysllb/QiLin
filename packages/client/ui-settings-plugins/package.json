@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-ui-settings-plugins",
   "description": "Plugins settings section with feature-owned tabs and configurable host-plane plugin cards",
-  "version": "3.0.11",
+  "version": "3.1.0",
   "publishConfig": {
     "access": "public"
   },

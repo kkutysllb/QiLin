@@ -1,7 +1,7 @@
 {
   "name": "@qilin/client-ui-workbench",
   "description": "Workbench tag state owner: the general/coding workbench selection, per-tag preset memory, and the preset-to-tag visibility fold",
-  "version": "3.0.11",
+  "version": "3.1.0",
   "publishConfig": {
     "access": "public"
   },
