@@ -9,8 +9,34 @@ name: Release (qilin)
 
 on:
   pull_request:
+    # The rehearsal consumes the whole build (issue #11): run it when the
+    # build inputs change, not on docs/issue-only pull requests.
+    paths:
+      - '.github/workflows/release.yml'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'tsconfig*.json'
+      - 'tsdown.config.ts'
+      - 'apps/**'
+      - 'packages/**'
+      - 'vendor/**'
+      - 'native/**'
+      - 'scripts/**'
   push:
     branches: [main]
+    paths:
+      - '.github/workflows/release.yml'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'tsconfig*.json'
+      - 'tsdown.config.ts'
+      - 'apps/**'
+      - 'packages/**'
+      - 'vendor/**'
+      - 'native/**'
+      - 'scripts/**'
   workflow_dispatch:
 
 permissions:

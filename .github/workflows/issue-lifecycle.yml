@@ -33,7 +33,13 @@ concurrency:
 jobs:
   lifecycle:
     name: Issue lifecycle
+    # Governance is opt-in per deployment: without the issue-management app
+    # configured (client-id is the presence proxy; the private key secret is
+    # only read when the token step runs) the whole lifecycle bot skips
+    # instead of failing every trigger with an unusable token step (issue
+    # #11 — the weighted-approval skip-on-unconfigured precedent).
     if: >-
+      vars.QILIN_ISSUE_APP_CLIENT_ID != '' &&
       (github.event_name != 'pull_request_review' || github.event.review.state == 'changes_requested') &&
       (github.event_name != 'pull_request' || github.event.action != 'edited' || github.event.changes.body != null)
     runs-on: ubuntu-latest
@@ -49,8 +55,8 @@ jobs:
         with:
           client-id: ${{ vars.QILIN_ISSUE_APP_CLIENT_ID }}
           private-key: ${{ secrets.QILIN_ISSUE_APP_PRIVATE_KEY }}
-          owner: deepseek-harness
-          repositories: deepseek-harness
+          owner: ${{ github.event.repository.owner.login }}
+          repositories: ${{ github.event.repository.name }}
       - name: Handle repository event
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}

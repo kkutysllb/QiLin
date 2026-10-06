@@ -41,11 +41,17 @@ jobs:
   # job below.
   node-24:
     if: github.event_name == 'pull_request'
+    # The private label only exists in the maintainer's runner pool, so an
+    # external pull_request lands there and queues forever (issue #11).
+    # Setting the repo VARIABLE QILIN_CI_PUBLIC_RUNNER=true routes PR compute
+    # to a GitHub-hosted runner instead; the failover vars keep priority.
     runs-on: >-
       ${{ vars.QILIN_CI_FAILOVER_LINUX == 'blacksmith' && 'blacksmith-16vcpu-ubuntu-2404'
           || vars.QILIN_CI_FAILOVER_LINUX == 'selfhosted'
           && github.event.pull_request.user.login != 'dependabot[bot]'
           && fromJSON('["self-hosted", "linux", "x64", "vm-backup"]')
+          || vars.QILIN_CI_PUBLIC_RUNNER == 'true'
+          && 'ubuntu-24.04'
           || 'qilin-ubuntu-24-04-16core' }}
     name: node 24 / static
     env:
@@ -108,11 +114,17 @@ jobs:
 
   node-24-coverage:
     if: github.event_name == 'pull_request'
+    # The private label only exists in the maintainer's runner pool, so an
+    # external pull_request lands there and queues forever (issue #11).
+    # Setting the repo VARIABLE QILIN_CI_PUBLIC_RUNNER=true routes PR compute
+    # to a GitHub-hosted runner instead; the failover vars keep priority.
     runs-on: >-
       ${{ vars.QILIN_CI_FAILOVER_LINUX == 'blacksmith' && 'blacksmith-16vcpu-ubuntu-2404'
           || vars.QILIN_CI_FAILOVER_LINUX == 'selfhosted'
           && github.event.pull_request.user.login != 'dependabot[bot]'
           && fromJSON('["self-hosted", "linux", "x64", "vm-backup"]')
+          || vars.QILIN_CI_PUBLIC_RUNNER == 'true'
+          && 'ubuntu-24.04'
           || 'qilin-ubuntu-24-04-16core' }}
     name: node 24 / coverage
     env:
@@ -238,11 +250,17 @@ jobs:
 
   node-24-consumers:
     if: github.event_name == 'pull_request'
+    # The private label only exists in the maintainer's runner pool, so an
+    # external pull_request lands there and queues forever (issue #11).
+    # Setting the repo VARIABLE QILIN_CI_PUBLIC_RUNNER=true routes PR compute
+    # to a GitHub-hosted runner instead; the failover vars keep priority.
     runs-on: >-
       ${{ vars.QILIN_CI_FAILOVER_LINUX == 'blacksmith' && 'blacksmith-16vcpu-ubuntu-2404'
           || vars.QILIN_CI_FAILOVER_LINUX == 'selfhosted'
           && github.event.pull_request.user.login != 'dependabot[bot]'
           && fromJSON('["self-hosted", "linux", "x64", "vm-backup"]')
+          || vars.QILIN_CI_PUBLIC_RUNNER == 'true'
+          && 'ubuntu-24.04'
           || 'qilin-ubuntu-24-04-16core' }}
     name: node 24 / snapshots and artifacts
     env:

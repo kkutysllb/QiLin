@@ -8,6 +8,17 @@ name: Build PR preview
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+    # The preview deploys the built web frontend (issue #11): run it when the
+    # build inputs change, not on docs/issue-only pull requests.
+    paths:
+      - '.github/workflows/build-preview-cloudflare.yml'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'apps/**'
+      - 'packages/**'
+      - 'vendor/**'
+      - 'scripts/**'
 
 # Within one pull request the newest build wins. Across pull requests there is
 # nothing to serialize: each uploads to its own branch alias, so two deployments

@@ -20,4 +20,15 @@ QiLin is designed to be deeply customizable. We do not believe that packages in 
 
 We have already seen exciting projects emerge from the community, and we hope to see the ecosystem continue to grow in its own directions.
 
+## Reading CI on a pull request
+
+Every check a pull request runs should be explainable by the pull request's own content. The prerequisite-sensitive workflows degrade as follows (details in the workflow headers):
+
+- `E2E (real DeepSeek API)` skips with a notice when this repository has no `DEEPSEEK_API_KEY_EXTERNAL` secret, and always skips for fork and Dependabot pull requests (secrets are withheld there by GitHub).
+- The governance bots (`Issue policy`, `Issue lifecycle`) skip when the issue-management app is not configured for this deployment.
+- The release rehearsals and the Cloudflare preview run only when build inputs change (`apps/**`, `packages/**`, `vendor/**`, `native/**`, `scripts/**`, manifests, lockfile, their own workflow files).
+- `CI` computes on the maintainer's private runner pool by default; the repository variables `QILIN_CI_FAILOVER_LINUX` and `QILIN_CI_PUBLIC_RUNNER` select the fallback runner tiers documented in `.github/workflows/ci.yml`.
+
+If a check fails for a missing-infrastructure reason, file an issue — that is a repository configuration bug, not a review signal.
+
 Into the unknown.

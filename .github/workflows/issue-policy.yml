@@ -14,6 +14,10 @@ permissions:
 jobs:
   policy:
     name: Issue policy
+    # Governance is opt-in per deployment: without the issue-management app
+    # configured (client-id is the presence proxy) the policy bot skips
+    # instead of failing every pull request (issue #11).
+    if: vars.QILIN_ISSUE_APP_CLIENT_ID != ''
     runs-on: ubuntu-latest
     steps:
       - name: Check out trusted policy
@@ -45,8 +49,8 @@ jobs:
         with:
           client-id: ${{ vars.QILIN_ISSUE_APP_CLIENT_ID }}
           private-key: ${{ secrets.QILIN_ISSUE_APP_PRIVATE_KEY }}
-          owner: deepseek-harness
-          repositories: deepseek-harness
+          owner: ${{ github.event.repository.owner.login }}
+          repositories: ${{ github.event.repository.name }}
           permission-issues: read
           permission-organization-projects: read
       # Re-read current state even after an exempt preflight; never replace a failure with an edit skip.

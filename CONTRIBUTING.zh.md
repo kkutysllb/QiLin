@@ -20,4 +20,15 @@ QiLin 的设计支持深度定制。我们并不认为官方仓库中的包天�
 
 我们已经看到社区中涌现出令人期待的项目，也希望生态系统继续沿着自己的方向发展。
 
+## 如何解读 PR 上的 CI 结果
+
+PR 跑到的每一条检查，都应当能由 PR 自身的内容解释。对基础设施前置条件敏感的工作流按以下方式降级（细节见各工作流头部注释）：
+
+- `E2E (real DeepSeek API)`：本仓库未配置 `DEEPSEEK_API_KEY_EXTERNAL` 时跳过并给出提示；fork 与 Dependabot 的 PR 因 GitHub 不下发密钥而始终跳过。
+- 治理机器人（`Issue policy`、`Issue lifecycle`）：本部署未配置 issue-management 应用时跳过。
+- 发布排练与 Cloudflare 预览：仅在构建输入变化（`apps/**`、`packages/**`、`vendor/**`、`native/**`、`scripts/**`、manifest、lockfile、工作流自身）时运行。
+- `CI`：默认使用维护者私有 runner 池；仓库变量 `QILIN_CI_FAILOVER_LINUX` 与 `QILIN_CI_PUBLIC_RUNNER` 选择 `.github/workflows/ci.yml` 中注明的回退层级。
+
+如果某条检查因基础设施缺失而失败，请提 issue——那是仓库配置问题，不是对这次改动的评审信号。
+
 探索未至之境。
