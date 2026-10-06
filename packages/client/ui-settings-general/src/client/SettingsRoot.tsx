@@ -18,7 +18,7 @@ import clsx from 'clsx'
 import {
   ConnectionIndicator,
   IconAgentPresetOutline16, IconArchiveOutline20, IconChevronLeftOutline14,
-  IconCloseOutline16, IconDataOutline16, IconPersonalizationOutline16,
+  IconDataOutline16, IconPersonalizationOutline16,
   IconQuestionOutline14, IconSettingsOutline16, useModalLayer,
   IconApiOutline14, IconDatabaseOutline16, IconGaugeOutline16,
   IconPanelLeftOutline16, IconSkillOutline16,
@@ -156,9 +156,9 @@ type PanelProps = {
 
 /**
  * The settings page layer: a full-viewport surface holding the section rail
- * and a capped content column. Close paths: the header button, the mask that
- * the page covers, and document-level Escape (mounted only while open, so the
- * listener lifetime is the page's).
+ * and a capped content column. Close paths: the rail-head workspace control,
+ * the mask that the page covers, and document-level Escape (mounted only
+ * while open, so the listener lifetime is the page's).
  */
 function SettingsPanel({
   rows, renderSlot, activeId, onSelect, onClose, navWidth, onNavResize, resizeNavigationLabel,
@@ -228,10 +228,6 @@ function SettingsPanel({
         <div className={css.content}>
           <div className={css.header}>
             <div className={css.actions}>{renderSlot('settings.action', {})}</div>
-            <button type="button" className={css.close} onClick={onClose}>
-              <IconCloseOutline16 size={14} />
-              <span className={css.hiddenLabel}>{renderSlot('settings.close', {})}</span>
-            </button>
           </div>
           <div className={css.options}>
             {active !== undefined && (

@@ -64,6 +64,21 @@
   border-right: 0.5px solid var(--dsw-alias-border-l1);
 }
 
+/* This page portals outside .frame, so it covers the OS window-chrome band
+   that the frame's own pages keep clear of. The rail head therefore pads the
+   platform band plus a 30px gap: darwin's hiddenInset traffic lights ride the
+   same 48px fallback the frame's reopen seat uses, and the Windows caption
+   height arrives through the shared clearance variable. Fullscreen hides the
+   band, so only the gap remains. */
+:global([data-platform='darwin']) .nav,
+:global([data-windows-titlebar]) .nav {
+  padding-top: calc(var(--dsh-frame-top-clearance, 48px) + 30px);
+}
+
+:global([data-fullscreen]) .nav {
+  padding-top: 30px;
+}
+
 /* Workspace return control at the rail head: one nav-cell box above the panel
    title, so leaving the page is the first row of the same list. */
 .navBack {
@@ -193,7 +208,7 @@
   flex-direction: column;
 }
 
-/* Header row: left-side document actions, right-side return and close controls. */
+/* Header row: the registered header actions seat (right-aligned). */
 .header {
   flex: none;
   display: flex;
@@ -212,25 +227,6 @@
   justify-content: flex-end;
   gap: 8px;
   margin-left: auto;
-}
-
-/* Compact close control. */
-.close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: none;
-  border-radius: var(--dsw-radius-sm);
-  background: transparent;
-  cursor: pointer;
-  color: var(--dsw-alias-label-primary);
-}
-
-.close:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
 }
 
 /* Scrolling content column: every section is capped to a stable reading width,
@@ -304,22 +300,7 @@
     flex: 1 1 100%;
   }
 
-  .close {
-    order: 1;
-    margin-left: auto;
-  }
-
   .options {
     padding: 20px 16px 32px;
   }
-}
-
-/* Visually-hidden text seat (close button accessible name from slot content). */
-.hiddenLabel {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
 }

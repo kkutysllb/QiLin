@@ -2,7 +2,7 @@
  * Settings slot contract — the canonical home of every settings slot type,
  * owned by the settings domain base rather than by the shell that renders
  * them (ui-settings-general, which occupies `sidebar.settings`). The shell has
- * zero copy of its own: ALL text (panel title, header actions, close aria,
+ * zero copy of its own: ALL text (panel title, header actions,
  * section content) arrives from registrants. A feature owns its own settings
  * pages — adding a setting never means editing the shell; copy that belongs to
  * no single feature (chrome, the General section) is owned by ui-settings-general too.
@@ -24,12 +24,6 @@ declare module '@qilin/client-ui-slots' {
      * the shell supplies only the ordered render site.
      */
     'settings.action': { kind: 'list'; scope: 'root'; owner: SettingsHeaderOwnerProps }
-    /**
-     * The close button's visually-hidden label text (the button itself —
-     * icon, geometry, focus — is shell chrome). Absent contribution leaves
-     * the button without an accessible name (broken-composition state).
-     */
-    'settings.close': { kind: 'single'; scope: 'root'; owner: SettingsHeaderOwnerProps }
     /**
      * One settings page per list entry. Registrant options carry the nav
      * identity: `id` (section key, drives `only` filtering), `order` (nav

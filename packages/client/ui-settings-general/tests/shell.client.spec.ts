@@ -27,7 +27,6 @@ function injectedOf(c: TestClient): SettingsRootInjected {
 const CHILD_SPECS = {
   'settings.header': { kind: 'single', scope: 'root' },
   'settings.action': { kind: 'list', scope: 'root' },
-  'settings.close': { kind: 'single', scope: 'root' },
   'settings.section': { kind: 'list', scope: 'root' },
   'settings.onboarding': { kind: 'list', scope: 'root' },
 } as const
@@ -50,7 +49,7 @@ const PRODUCT_ONBOARDING: readonly { id: string; order: number }[] = [
 
 describe('ui-settings-general shell', () => {
   it('declares its services', () => {
-    expect(inject).toEqual(['slots', 'locale', 'connection', 'remote', 'remote.settings', 'configForms', 'shortcuts'])
+    expect(inject).toEqual(['slots', 'locale', 'connection', 'configForms', 'shortcuts'])
   })
 
   it('occupies sidebar.settings, declared by ui-sidebar, and declares every child slot', async ({ start }) => {

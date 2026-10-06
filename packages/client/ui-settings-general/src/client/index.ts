@@ -2,7 +2,7 @@
  * Settings shell and ownerless-copy plugin, browser half: renders the
  * `sidebar.settings` occupant — panel chrome, section navigation, and the
  * onboarding stage — and registers everything on the Settings pages that
- * belongs to no single feature: the header/close chrome content, the General
+ * belongs to no single feature: the header chrome content, the General
  * and About sections, and `settings` dictionaries.
  * Feature-owned rows and sections stay with their features.
  * Export discipline: packages/client/AGENTS.md.
@@ -24,26 +24,21 @@ import type {
 } from './shell-contract.ts'
 import { createSettingsShellStore } from './shell-store.ts'
 import { SettingsRoot } from './SettingsRoot.tsx'
-import { CloseLabel, HeaderContent } from './chrome.tsx'
+import { HeaderContent } from './chrome.tsx'
 import { AboutSection } from './AboutSection.tsx'
 import { GeneralSection } from './GeneralSection.tsx'
 import { CurrentVersionRow } from './CurrentVersionRow.tsx'
 import { DeveloperToolsRow, type DeveloperToolsRowInjected } from './DeveloperToolsRow.tsx'
-import { SettingsDocumentAction, type SettingsDocumentActionInjected } from './SettingsDocumentAction.tsx'
-import { SettingsDocumentStore } from './settings-document-store.ts'
 import { en, zh, type SettingsKey } from './locales.ts'
 
 export type { SettingsShell, SettingsRootInjected } from './shell-contract.ts'
 export type {
-  CloseLabelProps, HeaderContentProps,
+  HeaderContentProps,
 } from './chrome.tsx'
 export type {
   GeneralSectionComponentProps,
 } from './GeneralSection.tsx'
 export type { DeveloperToolsRowInjected } from './DeveloperToolsRow.tsx'
-export type { SettingsDocumentActionInjected, SettingsDocumentActionProps } from './SettingsDocumentAction.tsx'
-export type { SettingsDocumentState } from './settings-document-store.ts'
-export { SettingsDocumentStore } from './settings-document-store.ts'
 export type { SettingsKey } from './locales.ts'
 
 declare module '@qilin/client-ui-slots' {
@@ -60,10 +55,9 @@ const NS = 'settings'
  * Required services (cordis fiber inject). The target slots are declared by
  * ui-settings' apply, whose activation order relative to this one is NOT
  * constrained; registrations depend on their slots through `slots.inject()`.
- * `configForms` serves the local-document availability mirror and the
- * shared coding-tools preference.
+ * `configForms` serves the shared coding-tools preference.
  */
-export const inject = ['slots', 'locale', 'connection', 'remote', 'remote.settings', 'configForms', 'shortcuts']
+export const inject = ['slots', 'locale', 'connection', 'configForms', 'shortcuts']
 
 /**
  * Register the `settings` dictionaries, the chrome content, and the General
@@ -84,25 +78,6 @@ export function apply(ctx: ClientContext): void {
   }, CurrentVersionRow))
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-settings-general: dictionaries')
   const connection = ctx.get('connection') as ConnectionHandle
-
-  // The shared ConfigForm mirror updates after document commits and reconnects.
-  const documentController = ctx.remote.$host.isLoopback
-    ? new SettingsDocumentStore(ctx, ctx.configForms.describe())
-    : undefined
-  ctx.effect(() => () => { documentController?.dispose() }, 'ui-settings-general: document action directory')
-  if (documentController !== undefined) {
-    const documentInjected = (): SettingsDocumentActionInjected => ({
-      controller: documentController,
-      hooks: { snapshot: documentController.store },
-    })
-    ctx.slots.inject('settings.action', () => ctx.slots.register({
-      name: 'settings.action',
-      id: 'open-document',
-      order: 0,
-      locale: NS,
-      inject: documentInjected,
-    }, SettingsDocumentAction))
-  }
 
   // Copy freshness is framework-owned: components read the standard `t`
   // seat, and the nav label is a thunk the owner resolves per render — no
@@ -210,7 +185,6 @@ export function apply(ctx: ClientContext): void {
       children: {
         'settings.header': { kind: 'single', scope: 'root' },
         'settings.action': { kind: 'list', scope: 'root' },
-        'settings.close': { kind: 'single', scope: 'root' },
         'settings.section': { kind: 'list', scope: 'root' },
         'settings.onboarding': { kind: 'list', scope: 'root' },
       },
@@ -221,8 +195,6 @@ export function apply(ctx: ClientContext): void {
 
   ctx.slots.inject('settings.header', () =>
     ctx.slots.register({ name: 'settings.header', locale: NS }, HeaderContent))
-  ctx.slots.inject('settings.close', () =>
-    ctx.slots.register({ name: 'settings.close', locale: NS }, CloseLabel))
   ctx.slots.inject('settings.section', () => ctx.slots.register({
     name: 'settings.section',
     id: 'general',

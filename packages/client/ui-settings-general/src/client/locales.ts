@@ -4,7 +4,6 @@
 export const zh = {
   'trigger': '设置',
   'title': '设置',
-  'close': '关闭',
   'resizeNavigation': '调整设置导航宽度',
   'backToWorkspace': '返回工作区',
   'about.nav': '关于 QiLin',
@@ -15,8 +14,6 @@ export const zh = {
   'about.logoMark': '麒麟',
   'general.nav': '通用设置',
   'general.currentVersion': '当前版本：{version}',
-  'openDocument': '打开配置文件',
-  'openDocument.error': '无法打开配置文件',
   'developerTools.title': '显示代码工作视图',
   'developerTools.error': '保存失败，请重试',
   'developerTools.description': '开启后，显示轨迹、本轮代码差异，可选择完整的 Agent 预设切换',
@@ -35,7 +32,6 @@ export type SettingsKey = keyof typeof zh
 export const en = {
   'trigger': 'Settings',
   'title': 'Settings',
-  'close': 'Close',
   'resizeNavigation': 'Resize settings navigation',
   'backToWorkspace': 'Back to workspace',
   'about.nav': 'About QiLin',
@@ -46,8 +42,6 @@ export const en = {
   'about.logoMark': '麒麟',
   'general.nav': 'General',
   'general.currentVersion': 'Current version: {version}',
-  'openDocument': 'Open configuration file',
-  'openDocument.error': 'Could not open configuration file',
   'developerTools.title': 'Show coding view',
   'developerTools.error': 'Could not save. Please try again.',
   'developerTools.description': 'Shows trajectory, code diffs, and all Agent presets',

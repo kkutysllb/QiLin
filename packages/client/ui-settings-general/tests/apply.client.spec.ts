@@ -7,7 +7,7 @@ import { LocaleRuntime } from '@qilin/client-locale/client'
 import { TestRemote } from '@qilin/client-test-runtime'
 import { apply as settingsApply, inject as settingsInject } from '@qilin/client-ui-settings/client'
 import { apply, inject } from '@qilin/client-ui-settings-general/client'
-import { CloseLabel, HeaderContent } from '../src/client/chrome.tsx'
+import { HeaderContent } from '../src/client/chrome.tsx'
 import { AboutSection } from '../src/client/AboutSection.tsx'
 import { GeneralSection } from '../src/client/GeneralSection.tsx'
 
@@ -18,7 +18,6 @@ import { GeneralSection } from '../src/client/GeneralSection.tsx'
 /** The seats this plugin fills for a loopback browser (slot name → expected component). */
 const SEATS = [
   ['settings.header', HeaderContent],
-  ['settings.close', CloseLabel],
 ] as const
 
 const SECTION_COMPONENTS = [GeneralSection, AboutSection] as const
@@ -66,7 +65,6 @@ function declare(slots: SlotRegistry): () => void {
       children: {
         'settings.header': { kind: 'single', scope: 'root' },
         'settings.action': { kind: 'list', scope: 'root' },
-        'settings.close': { kind: 'single', scope: 'root' },
         'settings.section': { kind: 'list', scope: 'root' },
         'settings.onboarding': { kind: 'list', scope: 'root' },
       },
@@ -81,7 +79,7 @@ function generalEntry(slots: SlotRegistry) {
 
 describe('ui-settings-general apply', () => {
   it('declares the services it uses', () => {
-    expect(inject).toEqual(['slots', 'locale', 'connection', 'remote', 'remote.settings', 'configForms', 'shortcuts'])
+    expect(inject).toEqual(['slots', 'locale', 'connection', 'configForms', 'shortcuts'])
   })
 
   it('fills every seat for declarations before or after apply', async () => {
@@ -137,7 +135,7 @@ describe('ui-settings-general apply', () => {
     expect(b.locale.bind('settings')('connection.connecting')).toBe('重新连接中')
     expect(b.locale.bind('settings')('connection.connected')).toBe('连接成功')
     b.locale.setLocale('en')
-    expect(b.locale.bind('settings')('close')).toBe('Close')
+    expect(b.locale.bind('settings')('backToWorkspace')).toBe('Back to workspace')
     expect(b.locale.bind('settings')('connection.reconnect')).toBe('Disconnected, reconnect now')
     expect(b.locale.bind('settings')('connection.connecting')).toBe('Reconnecting')
     b.locale.setLocale('zh')
