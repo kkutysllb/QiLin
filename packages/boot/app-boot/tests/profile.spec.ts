@@ -515,8 +515,10 @@ describe('loadProfile', () => {
     // @deepseek-ai/* through tsconfig paths regardless of the staged anchor.
     // The template lists stay string literals (verify-default-product-isolation
     // reads them statically), so the package identity is pinned here instead:
-    // the browser templates no longer seed the retired animations bundle.
-    expect(PROFILE_TEMPLATES.web?.bundles).toEqual(['@qilin/base', '@qilin/web-app'])
+    // the browser templates no longer seed the retired animations bundle, and
+    // both compose the QiLin product layer.
+    expect(PROFILE_TEMPLATES.web?.bundles)
+      .toEqual(['@qilin/base', '@qilin/web-app', '@qilin/web-brand'])
     expect(PROFILE_TEMPLATES.qilin?.bundles)
       .toEqual(['@qilin/base', '@qilin/web-app', '@qilin/web-brand'])
     expect(PROFILE_TEMPLATES.acp).toEqual({
@@ -583,7 +585,7 @@ describe('loadProfile', () => {
     initProfile(web, ['@qilin/base', '@qilin/web-app', 'dsh-animations'])
     loadProfile('t', 'web', anchor, home)
     expect(readProfileManifest('t', web).qilin?.profile?.bundles)
-      .toEqual(['@qilin/base', '@qilin/web-app'])
+      .toEqual(['@qilin/base', '@qilin/web-app', '@qilin/web-brand'])
 
     const qilinHome = tmp()
     const qilin = resolveProfileDir('qilin', qilinHome)
@@ -599,7 +601,7 @@ describe('loadProfile', () => {
     initProfile(custom, ['@qilin/base', '@qilin/web-app', 'dsh-animations', 'custom-bundle'])
     loadProfile('t', 'web', anchor, customHome)
     expect(readProfileManifest('t', custom).qilin?.profile?.bundles)
-      .toEqual(['@qilin/base', '@qilin/web-app', 'custom-bundle'])
+      .toEqual(['@qilin/base', '@qilin/web-app', '@qilin/web-brand', 'custom-bundle'])
     // Loading again writes nothing: the restored list converges.
     const settled = readProfileManifest('t', custom)
     loadProfile('t', 'web', anchor, customHome)
@@ -610,6 +612,7 @@ describe('loadProfile', () => {
     const anchor = stageInstallation({
       '@qilin/base': { patch: '[]\n' },
       '@qilin/web-app': { patch: '[]\n' },
+      '@qilin/web-brand': { patch: '[]\n' },
       'dsh-animations': { patch: '[]\n' },
     })
     // A profile dependency says the plugin channel installed this copy, so the
@@ -621,7 +624,7 @@ describe('loadProfile', () => {
     writeProfileManifest(installed, { ...owned, dependencies: { ...owned.dependencies, 'dsh-animations': '^1.2.4' } })
     loadProfile('t', 'web', anchor, installedHome)
     expect(readProfileManifest('t', installed).qilin?.profile?.bundles)
-      .toEqual(['@qilin/base', '@qilin/web-app', 'dsh-animations'])
+      .toEqual(['@qilin/base', '@qilin/web-app', '@qilin/web-brand', 'dsh-animations'])
 
     // An audiences record without the dependency says the owner manages the
     // layer through the plugin manager; it keeps the layer too.
@@ -635,7 +638,23 @@ describe('loadProfile', () => {
     })
     loadProfile('t', 'web', anchor, recordedHome)
     expect(readProfileManifest('t', recorded).qilin?.profile?.bundles)
-      .toEqual(['@qilin/base', '@qilin/web-app', 'dsh-animations'])
+      .toEqual(['@qilin/base', '@qilin/web-app', '@qilin/web-brand', 'dsh-animations'])
+  })
+
+  it('brands a web profile that an older installation initialized without the product layer', () => {
+    const anchor = stageInstallation({
+      '@qilin/base': { patch: '[]\n' },
+      '@qilin/web-app': { patch: '[]\n' },
+      '@qilin/web-brand': { patch: '[]\n' },
+    })
+    // The 3.0.x web template seeded two layers; the template floor restores
+    // the product layer on the next load without touching owner additions.
+    const home = tmp()
+    const dir = resolveProfileDir('web', home)
+    initProfile(dir, ['@qilin/base', '@qilin/web-app'])
+    loadProfile('t', 'web', anchor, home)
+    expect(readProfileManifest('t', dir).qilin?.profile?.bundles)
+      .toEqual(['@qilin/base', '@qilin/web-app', '@qilin/web-brand'])
   })
 
   it('restores a lost template layer for a template with no recorded retired tuple', () => {

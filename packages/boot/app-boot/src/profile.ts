@@ -248,7 +248,7 @@ export const PROFILE_TEMPLATES: Record<string, ProfileTemplate> = {
     bundles: ['@qilin/base', '@qilin/acp-app'],
   },
   web: {
-    bundles: ['@qilin/base', '@qilin/web-app'],
+    bundles: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand'],
   },
   headless: {
     bundles: ['@qilin/base', '@qilin/headless'],
@@ -273,7 +273,7 @@ const INSTALLATION_OWNED_PROFILE_TUPLES: Record<string, readonly string[]> = {
   // keeping its own additions. A profile that owns the package — the plugin
   // channel recorded it in `dependencies`, or an `audiences` entry names it —
   // keeps the layer as a profile-owned one.
-  web: ['@qilin/base', '@qilin/web-app', 'dsh-animations'],
+  web: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand', 'dsh-animations'],
   qilin: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand', 'dsh-animations'],
 }
 

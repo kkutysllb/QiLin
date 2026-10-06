@@ -4,19 +4,19 @@
 #   pnpm run verify-translation-pairing --write packages/bundle/web-brand/README.md
 /:
   en: fa07442eca9dd607
-  zh: 1501bece2cd8120b
+  zh: fc37be17f13f0cae
 /qilin-web-brand:
   en: 576a821ff49e3757
   zh: a96600d70a5020d2
 /qilin-web-brand/summary:
-  en: 6613a9edb5251e09
-  zh: 721bc1466e0a228c
+  en: 17b8ecdd353f2782
+  zh: 62202cb0674872db
 /qilin-web-brand/table-of-contents:
   en: 4e53164159b5ce41
   zh: 024420bdbdd3e0ac
 /qilin-web-brand/use-this-package:
-  en: 6e5a2fe0c8a331a9
-  zh: f23820d484cf04c2
+  en: 9c6f99490787aead
+  zh: 846c15facca5b91f
 /qilin-web-brand/dev-note:
   en: f3c698886ef928a7
   zh: eaac63c14c20b932
@@ -36,5 +36,5 @@
   en: d4d47d6bddb0cfd8
   zh: 09451f111664b516
 /qilin-web-brand/known-limitations-and-deferred-work:
-  en: 61fac0d0700bf374
-  zh: aa7e3f3793417187
+  en: a97b29eb1fd19c0f
+  zh: e8b42a2f937a5544

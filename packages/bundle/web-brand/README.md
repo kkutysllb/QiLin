@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Run the QiLin Web surface with a `qilin` profile whose bundle list stacks this package after [`qilin-web-app`](../web-app/README.md). The package carries no runtime API: its substance is `cordis.patch.yml`, which restates the rows that carry QiLin product identity over the `qilin-web-app` composition. A deployment or user patch layer still replaces every row it declares.
+Run the QiLin Web surface with a `web` or `qilin` profile whose bundle list stacks this package after [`qilin-web-app`](../web-app/README.md). The package carries no runtime API: its substance is `cordis.patch.yml`, which restates the rows that carry QiLin product identity over the `qilin-web-app` composition and mounts the QiLin seal and brand-color client plugins. A deployment or user patch layer still replaces every row it declares.
 
 ## Table of Contents
 
@@ -39,7 +39,7 @@ Name the package last in a profile's `qilin.profile.bundles` list so its rows wi
 }
 ```
 
-The shipped `qilin` profile template lists those bundles in that order, and a bare `qilin` boots it.
+The shipped `web` and `qilin` profile templates list those bundles in that order, so a bare `qilin` and `qilin --profile web` both boot the branded surface; a profile an older installation initialized gains the layer on its next load.
 
 <a id="dev-note"></a>
 ## Dev Note
@@ -67,4 +67,4 @@ The identity section follows first-party reusable instructions, so a different w
 
 <a id="known-limitations-and-deferred-work"></a>
 
-- The layer restates product identity only. QiLin-branded client presentation — the sidebar brand artwork, composer, message rendering, and deliverables surfaces — is not part of this bundle yet, so a QiLin profile renders the `qilin-web-app` presentation under QiLin identity.
+- The mounted client presentation covers the brand marks and the brand-color token layer; other surfaces (composer, message rendering, deliverables) render the `qilin-web-app` presentation.

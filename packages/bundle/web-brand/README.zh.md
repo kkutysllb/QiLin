@@ -1,5 +1,5 @@
 ---
-description: "QiLin 在 qilin Web 表面之上的产品层：一个补丁 bundle，为 qilin profile 重述模型可见的产品身份。"
+description: "QiLin 在 qilin Web 表面之上的产品层：一个补丁 bundle，为 QiLin 浏览器 profile 重述模型可见的产品身份。"
 kind: "package-bundle"
 ---
 
@@ -9,7 +9,7 @@ kind: "package-bundle"
 
 ## 概述
 
-用 `qilin` profile 运行 QiLin Web 表面，其 bundle 列表把本包叠加在 [`qilin-web-app`](../web-app/README.zh.md) 之后。本包不含运行时 API：其实质是 `cordis.patch.yml`，在 `qilin-web-app` 组合之上重述承载 QiLin 产品身份的行。部署层或用户补丁层仍可替换它声明的每一行。
+用 `web` 或 `qilin` profile 运行 QiLin Web 表面，其 bundle 列表把本包叠加在 [`qilin-web-app`](../web-app/README.zh.md) 之后。本包不含运行时 API：其实质是 `cordis.patch.yml`，在 `qilin-web-app` 组合之上重述承载 QiLin 产品身份的行，并挂载麒麟印章与品牌色客户端插件。部署层或用户补丁层仍可替换它声明的每一行。
 
 ## 目录
 
@@ -39,7 +39,7 @@ kind: "package-bundle"
 }
 ```
 
-随附的 `qilin` profile 模板按该顺序列出这些 bundle，裸命令 `qilin` 即启动它。
+随附的 `web` 与 `qilin` profile 模板都按该顺序列出这些 bundle，因此裸命令 `qilin` 与 `qilin --profile web` 都启动带品牌的表面；旧版本安装初始化的 profile 在下一次加载时补上本层。
 
 <a id="dev-note"></a>
 ## 开发备注
@@ -67,4 +67,4 @@ kind: "package-bundle"
 
 <a id="known-limitations-and-deferred-work"></a>
 
-- 本层只重述产品身份。QiLin 品牌的客户端呈现——侧边栏品牌美术字、输入框、消息渲染与交付物界面——尚未纳入本 bundle，因此 qilin profile 目前以 QiLin 身份渲染 `qilin-web-app` 的呈现。
+- 挂载的客户端呈现覆盖品牌标记与品牌色 token 层；其余表面（输入框、消息渲染、交付物）仍渲染 `qilin-web-app` 的呈现。
