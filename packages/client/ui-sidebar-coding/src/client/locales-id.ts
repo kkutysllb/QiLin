@@ -337,7 +337,7 @@ export const id: Record<string, string> = {
   sideChatPendingDrop: 'Tindak lanjut yang belum terjawab terakhir tidak akan disertakan dalam sesi yang disimpan',
   sideChatFirstPlaceholder: 'Ajukan pertanyaan pertama — konteks diwarisi…',
   sideChatComposerPlaceholder: 'Ajukan tindak lanjut…',
-  sideChatThinking: 'Mendalami…',
+  sideChatThinking: 'Sedang berpikir…',
   sideChatThink: 'Berpikir',
   sideChatInjection: 'Konteks disuntik',
   sideChatSend: 'Kirim',

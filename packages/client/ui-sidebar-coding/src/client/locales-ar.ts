@@ -340,7 +340,7 @@ export const ar: Record<string, string> = {
   sideChatPendingDrop: 'لن يُضمَّ آخر متابعة لم يُجَب عنها في الجلسة المحفوظة',
   sideChatFirstPlaceholder: 'اطرح السؤال الأول — السياق موروث…',
   sideChatComposerPlaceholder: 'متابعة…',
-  sideChatThinking: 'جارٍ التعمّق…',
+  sideChatThinking: 'جارٍ التفكير…',
   sideChatThink: 'التفكير',
   sideChatInjection: 'تم حقن السياق',
   sideChatSend: 'إرسال',

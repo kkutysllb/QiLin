@@ -341,7 +341,7 @@ export const pl: Record<string, string> = {
   sideChatPendingDrop: 'Ostatnie niezakończone pytanie następcze nie zostanie uwzględnione w zapisanej sesji',
   sideChatFirstPlaceholder: 'Zadaj pierwsze pytanie — kontekst odziedziczony…',
   sideChatComposerPlaceholder: 'Pytaj dalej…',
-  sideChatThinking: 'Drążenie…',
+  sideChatThinking: 'Myślenie…',
   sideChatThink: 'Myślenie',
   sideChatInjection: 'Kontekst wstrzyknięty',
   sideChatSend: 'Wyślij',

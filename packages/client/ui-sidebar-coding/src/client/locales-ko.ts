@@ -331,7 +331,7 @@ export const ko: Record<string, string> = {
   sideChatPendingDrop: '마지막으로 완료되지 않은 후속 질문은 새 세션에 포함되지 않습니다',
   sideChatFirstPlaceholder: '첫 번째 질문 입력, 현재 세션 컨텍스트가 상속됨…',
   sideChatComposerPlaceholder: '후속 질문…',
-  sideChatThinking: '더 파고드는 중…',
+  sideChatThinking: '생각 중…',
   sideChatThink: '생각 과정',
   sideChatInjection: '컨텍스트 주입됨',
   sideChatSend: '보내기',

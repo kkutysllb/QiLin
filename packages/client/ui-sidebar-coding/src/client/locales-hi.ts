@@ -339,7 +339,7 @@ export const hi: Record<string, string> = {
   sideChatPendingDrop: 'अंतिम अनुत्तरित फ़ॉलो-अप सहेजे गए सत्र में शामिल नहीं होगा',
   sideChatFirstPlaceholder: 'पहला प्रश्न पूछें — संदर्भ विरासत में मिला…',
   sideChatComposerPlaceholder: 'फ़ॉलो-अप पूछें…',
-  sideChatThinking: 'गहराई से विचार…',
+  sideChatThinking: 'सोच रहा है…',
   sideChatThink: 'विचार',
   sideChatInjection: 'संदर्भ इंजेक्ट किया',
   sideChatSend: 'भेजें',

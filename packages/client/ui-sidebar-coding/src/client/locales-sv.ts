@@ -322,7 +322,7 @@ export const sv: Record<string, string> = {
   sideChatPendingDrop: 'Den senaste obesvarade följdfrågan inkluderas inte i den sparade sessionen',
   sideChatFirstPlaceholder: 'Ställ den första frågan — kontext ärvd…',
   sideChatComposerPlaceholder: 'Ställ en följdfråga…',
-  sideChatThinking: 'Dyk djupare…',
+  sideChatThinking: 'Tänker…',
   sideChatThink: 'Tänker',
   sideChatInjection: 'Kontext injicerad',
   sideChatSend: 'Skicka',

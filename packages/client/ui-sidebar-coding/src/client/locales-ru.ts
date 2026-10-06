@@ -337,7 +337,7 @@ export const ru: Record<string, string> = {
   sideChatPendingDrop: 'Последний незавершённый уточняющий вопрос не попадёт в сохранённую сессию',
   sideChatFirstPlaceholder: 'Задайте первый вопрос — контекст уже унаследован…',
   sideChatComposerPlaceholder: 'Уточняющий вопрос…',
-  sideChatThinking: 'Углубляется…',
+  sideChatThinking: 'Размышляет…',
   sideChatThink: 'Размышления',
   sideChatInjection: 'Контекст внедрён',
   sideChatSend: 'Отправить',

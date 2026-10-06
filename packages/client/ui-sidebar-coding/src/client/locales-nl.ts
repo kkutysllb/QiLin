@@ -343,7 +343,7 @@ export const nl: Record<string, string> = {
   sideChatPendingDrop: 'De laatste onbeantwoorde follow-up wordt niet meegenomen in de opgeslagen sessie',
   sideChatFirstPlaceholder: 'Stel de eerste vraag — context overgenomen…',
   sideChatComposerPlaceholder: 'Stel een follow-up…',
-  sideChatThinking: 'Diep ingaan…',
+  sideChatThinking: 'Denkt na…',
   sideChatThink: 'Denken',
   sideChatInjection: 'Context geïnjecteerd',
   sideChatSend: 'Versturen',

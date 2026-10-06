@@ -354,7 +354,7 @@ export const zhHK: Record<string, string> = {
   sideChatPendingDrop: '最後一則未完成的追問不會包含在新工作階段中',
   sideChatFirstPlaceholder: '輸入第一個問題，已繼承目前工作階段上下文…',
   sideChatComposerPlaceholder: '追問…',
-  sideChatThinking: '正在深入…',
+  sideChatThinking: '正在思考…',
   sideChatThink: '思考過程',
   sideChatInjection: '已注入上下文',
   sideChatSend: '發送',

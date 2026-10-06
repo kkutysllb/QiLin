@@ -339,7 +339,7 @@ export const vi: Record<string, string> = {
   sideChatPendingDrop: 'Tin nhắn theo dõi chưa hoàn thành cuối cùng sẽ không được đưa vào phiên đã lưu',
   sideChatFirstPlaceholder: 'Hỏi câu đầu tiên — ngữ cảnh đã kế thừa…',
   sideChatComposerPlaceholder: 'Hỏi tiếp…',
-  sideChatThinking: 'Đang đào sâu…',
+  sideChatThinking: 'Đang suy nghĩ…',
   sideChatThink: 'Suy nghĩ',
   sideChatInjection: 'Đã tiêm ngữ cảnh',
   sideChatSend: 'Gửi',

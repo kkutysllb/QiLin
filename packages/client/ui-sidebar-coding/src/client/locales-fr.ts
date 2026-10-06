@@ -332,7 +332,7 @@ export const fr: Record<string, string> = {
   sideChatPendingDrop: 'La dernière relance inachevée ne sera pas incluse dans la nouvelle session',
   sideChatFirstPlaceholder: 'Saisissez la première question, le contexte de la session actuelle est hérité…',
   sideChatComposerPlaceholder: 'Relance…',
-  sideChatThinking: 'Approfondissement…',
+  sideChatThinking: 'Réflexion…',
   sideChatThink: 'Processus de réflexion',
   sideChatInjection: 'Contexte injecté',
   sideChatSend: 'Envoyer',

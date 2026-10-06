@@ -325,7 +325,7 @@ export const de: Record<string, string> = {
   sideChatPendingDrop: 'Die letzte unbeantwortete Nachfrage wird in der gespeicherten Sitzung nicht enthalten sein',
   sideChatFirstPlaceholder: 'Stellen Sie die erste Frage – der Kontext ist geerbt…',
   sideChatComposerPlaceholder: 'Nachfrage stellen…',
-  sideChatThinking: 'Denkt vertieft…',
+  sideChatThinking: 'Denkt nach…',
   sideChatThink: 'Denkvorgang',
   sideChatInjection: 'Kontext eingespielt',
   sideChatSend: 'Senden',

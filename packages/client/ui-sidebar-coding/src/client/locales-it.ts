@@ -330,7 +330,7 @@ export const it: Record<string, string> = {
   sideChatPendingDrop: 'L’ultima domanda di follow-up senza risposta non sarà inclusa nella sessione salvata',
   sideChatFirstPlaceholder: 'Ponga la prima domanda — contesto ereditato…',
   sideChatComposerPlaceholder: 'Ponga un follow-up…',
-  sideChatThinking: 'Approfondimento…',
+  sideChatThinking: 'Ragionamento…',
   sideChatThink: 'Pensiero',
   sideChatInjection: 'Contesto iniettato',
   sideChatSend: 'Invia',

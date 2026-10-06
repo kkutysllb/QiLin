@@ -339,7 +339,7 @@ export const tr: Record<string, string> = {
   sideChatPendingDrop: 'Son yanıtlanmamış devam sorusu kaydedilen oturuma dahil edilmez',
   sideChatFirstPlaceholder: 'İlk soruyu sorun — bağlam miras alındı…',
   sideChatComposerPlaceholder: 'Devam sorusu sor…',
-  sideChatThinking: 'Derin dalıyor…',
+  sideChatThinking: 'Düşünüyor…',
   sideChatThink: 'Düşünme',
   sideChatInjection: 'Bağlam enjekte edildi',
   sideChatSend: 'Gönder',

@@ -339,7 +339,7 @@ export const th: Record<string, string> = {
   sideChatPendingDrop: 'การติดตามที่ยังไม่ได้ตอบครั้งสุดท้ายจะไม่รวมในเซสชันที่บันทึก',
   sideChatFirstPlaceholder: 'ถามคำถามแรก — บริบทที่สืบทอด…',
   sideChatComposerPlaceholder: 'ถามติดตาม…',
-  sideChatThinking: 'กำลังดำดิ่ง…',
+  sideChatThinking: 'กำลังคิด…',
   sideChatThink: 'กำลังคิด',
   sideChatInjection: 'แทรกบริบทแล้ว',
   sideChatSend: 'ส่ง',

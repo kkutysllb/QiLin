@@ -339,7 +339,7 @@ export const ja: Record<string, string> = {
   sideChatPendingDrop: '最後の未回答フォローアップは保存される会話に含まれません',
   sideChatFirstPlaceholder: '最初の質問を入力、コンテキスト継承済み…',
   sideChatComposerPlaceholder: 'フォローアップを質問…',
-  sideChatThinking: '深掘り中…',
+  sideChatThinking: '思考中…',
   sideChatThink: '思考プロセス',
   sideChatInjection: 'コンテキスト注入済み',
   sideChatSend: '送信',

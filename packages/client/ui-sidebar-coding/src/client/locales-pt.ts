@@ -322,7 +322,7 @@ export const pt: Record<string, string> = {
   sideChatPendingDrop: 'A última pergunta não respondida não será incluída na sessão salva',
   sideChatFirstPlaceholder: 'Faça a primeira pergunta — contexto herdado…',
   sideChatComposerPlaceholder: 'Fazer uma pergunta de acompanhamento…',
-  sideChatThinking: 'Mergulhando fundo…',
+  sideChatThinking: 'Pensando…',
   sideChatThink: 'Pensamento',
   sideChatInjection: 'Contexto injetado',
   sideChatSend: 'Enviar',
