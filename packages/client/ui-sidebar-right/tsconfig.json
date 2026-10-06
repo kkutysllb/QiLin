@@ -55,6 +55,9 @@
     },
     {
       "path": "../shortcuts/tsconfig.client.json"
+    },
+    {
+      "path": "../ui-workbench"
     }
   ]
 }

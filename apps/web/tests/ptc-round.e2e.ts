@@ -11,7 +11,7 @@ import {
   acknowledgeReloadConnectionLoss, captureExpandedTurnProcessAria, captureStableAria, compareOrRefreshGolden, fixtureUserPrompts,
   launchWebScaffold, recordFixture, watchConsole, webSnapshotMode, type WebScaffold,
 } from './scaffold.ts'
-import { connectFreshWorkspace, expandOwningTurnProcess, newEnglishPage, openTrajectoryTab, saveFailureShot, seedWorkbench } from './support.ts'
+import { connectFreshWorkspace, expandOwningTurnProcess, newEnglishPage, openTrajectoryTab, saveFailureShot, seedWorkbench, switchWorkbenchTab } from './support.ts'
 
 const FIXTURE = fileURLToPath(new URL('../../../snapshots/web/ptc-round/session.v3.jsonl', import.meta.url))
 const UI_EXPECTED = fileURLToPath(new URL('../../../snapshots/web/ptc-round/ui.expected.md', import.meta.url))
@@ -161,6 +161,10 @@ describe('web e2e: PTC mode round renders nested sub-calls', () => {
     const call = sessionEvents.find(event => event.type === 'tool/call' && event.data.name === 'run_code')
     if (call?.type !== 'tool/call') throw new Error('recorded PTC call missing')
     const args = JSON.parse(call.data.arguments) as { code: string; description: string }
+    // The lane boots on the coding tag for the ptc composition (D3); this
+    // assertion reads the NATIVE trajectory ledger, so switch the workbench
+    // tag back — the started session stays on screen under the general tag.
+    await switchWorkbenchTab(page, 'general')
     await openTrajectoryTab(page)
     const row = page.locator('tr[data-kind="tool"]').filter({ hasText: 'run_code' }).first()
     await row.click()

@@ -177,6 +177,7 @@ export const SERVICE_WALK_EXEMPTIONS: Record<string, string> = {
   uiConversation: 'client-side Conversation registries and assembler — packages/client/ui-conversation/README.md owns the API',
   uiWorkspace: 'client-side Workspace navigation adapter — packages/client/ui-workspace/README.md owns the API',
   workbench: 'client-side workbench tag state owner — packages/client/ui-workbench/README.md owns the API',
+  betterSidebar: 'client-side coding-workbench tab registry (plugin-internal extension point) — packages/client/ui-sidebar-coding/README.md owns the API',
   settingsSchema: 'client-side schema introspection service — packages/client/ui-settings/README.md owns the API',
   configForms: 'client-side shared configuration-form service — packages/client/ui-settings/README.md owns the API',
   chatFileMentions: 'client-side slot-contract accessor (ChatFileMentions) — packages/client/ui-chat/README.md owns the API',

@@ -80,6 +80,9 @@ async function boot(shortcuts: Partial<Shortcuts> = {}) {
   ctx.provide('resources', resources as never)
   ctx.provide('sessions', { retain: vi.fn(() => ({ ready: Promise.resolve(), release: vi.fn() })) } as never)
   ctx.provide('uiSession', { adapter: { current } } as never)
+  // The registration's inject reads the dual-workbench tag source (D5); the
+  // seat branch reads 'general' in these scenarios.
+  ctx.provide('workbench', { state: createSnapshotStore({ active: 'general', presets: { general: 'standard', coding: 'ptc' } }) } as never)
   const fiber = ctx.plugin({ inject: [...inject], apply })
   await fiber.await()
   const seat = (name: string): Recorded => {
@@ -141,9 +144,10 @@ describe('ui-sidebar-right apply', () => {
       ['sidebar.right.pane.tab', GUIDE_ID, undefined, GuideBody],
       ['sidebar.right.pane.tab.title', GUIDE_ID, undefined, GuideTitle],
     ])
-    // The panel declares the extension seats; the guide declares its chain child.
+    // The panel declares the coding body seat (D5) and the extension seats; the
+    // guide declares its chain child.
     expect(Object.keys(seat('rightbar.session').children as object)).toEqual([
-      'sidebar.right.pane.tab', 'sidebar.right.pane.tab.title', 'sidebar.right.tab.menu.item',
+      'rightbar.session.coding', 'sidebar.right.pane.tab', 'sidebar.right.pane.tab.title', 'sidebar.right.tab.menu.item',
     ])
     expect(seat('sidebar.right.pane.tab').children).toMatchObject({ 'sidebar.right.tab.guide': { kind: 'chain', scope: 'session' } })
     // Both seats read one store: the button only needs to know whether the panel is expanded.

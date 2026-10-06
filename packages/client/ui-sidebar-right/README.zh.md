@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-右侧 Sidebar：停靠套件与本产品相遇的地方。root 作用域的 `rightbar` entry 通过独立的 `rightbar.session` 子树渲染选中的 Session 与需要保活的后台 Session，每个子树各自持有 Session reference；只有前台会话会上报框架列宽并绑定公共导航。每个 Session 的界面由 `DockLayout` 绘制，因此 tab 在选中变化、跨格移动与浮窗期间保留自己的 DOM。本包拥有导航控制器（`ctx.sidebarRight`）、tab 类型注册表（`ctx.sidebarRightTabs`），以及告诉每个已开 tab 它是如何被导航到、能活多久的 Tab 域。
+右侧 Sidebar：停靠套件与本产品相遇的地方。root 作用域的 `rightbar` entry 通过独立的 `rightbar.session` 子树渲染选中的与后台的 Session，每个子树各自持有 Session reference；只有前台会话会上报框架列宽并绑定公共导航。每个 Session 的界面由 `DockLayout` 绘制，tab 在选中变化、跨格移动与浮窗期间保留自己的 DOM；编码工作台标签下坐席改为渲染 `rightbar.session.coding` 的编码内容体（D5）。本包拥有导航控制器（`ctx.sidebarRight`）、tab 类型注册表（`ctx.sidebarRightTabs`），以及 Tab 域——每个已开 tab 的导航来历与存活期。
 
 ## 目录
 

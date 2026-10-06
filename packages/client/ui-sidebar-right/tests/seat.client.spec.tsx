@@ -80,6 +80,10 @@ async function mountSeat(viewportWidth = 1440, canShow = true, entryCount = 0, o
   runtime.ctx.provide('resources', { pin } as never)
   const locale = new LocaleRuntime(runtime.ctx)
   runtime.ctx.provide('locale', locale)
+  // The registration's inject reads the dual-workbench tag source (D5); the
+  // seat branch reads 'general' unless a scenario switches the tag.
+  const workbench = createSnapshotStore({ active: 'general' as const, presets: { general: 'standard', coding: 'ptc' } })
+  runtime.ctx.provide('workbench', { state: workbench } as never)
   const catalog = createSnapshotStore<readonly ShortcutCatalogEntry[]>([])
   // SlotTestRuntime stubs the shortcut service with a frozen empty catalog; the
   // seats read the catalog through the inject hook, so this spec's store

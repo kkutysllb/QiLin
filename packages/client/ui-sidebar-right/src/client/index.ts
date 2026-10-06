@@ -31,6 +31,8 @@ import type { ILayout } from '@qilin/client-ui-layout/client'
 import type {} from '@qilin/client-ui-layout/client'
 import type {} from '@qilin/client-ui-conversation/client'
 import type { SessionId } from '@qilin/session/types'
+// Type-only: the workbench tag owner this package switches the content body on (D5).
+import type { Workbench } from '@qilin/client-ui-workbench/client'
 import type {} from './contract/slots.ts'
 import { GuideBody, type GuideInjected } from './tabs/guide/GuideBody.tsx'
 import { GuideTitle } from './tabs/guide/GuideTitle.tsx'
@@ -80,8 +82,9 @@ export type { SidebarRightOpenTab } from './tab-inventory.ts'
 /** This package's copy namespace. */
 const NS = 'sidebarRight'
 
-/** Required browser services: the slot registry, the frame's panel actions, copy, and the resource model. */
-export const inject = ['slots', 'layout', 'locale', 'resources', 'sessions', 'uiSession', 'shortcuts']
+/** Required browser services: the slot registry, the frame's panel actions, copy, the resource
+ *  model, and the workbench tag the content body switches on. */
+export const inject = ['slots', 'layout', 'locale', 'resources', 'sessions', 'uiSession', 'shortcuts', 'workbench']
 
 declare module '@qilin/kylin' {
   interface Context {
@@ -205,9 +208,11 @@ export function apply(ctx: ClientContext): void {
     const disposeSeat = ctx.slots.inject('rightbar', function* () {
       yield ctx.slots.register({
         name: 'rightbar',
-        children: { 'rightbar.session': { kind: 'single', scope: 'session' } },
+        children: {
+          'rightbar.session': { kind: 'single', scope: 'session' },
+        },
         inject: (): RightbarRootInjected => ({
-          hooks: { views: views.source },
+          hooks: { views: views.source, workbench: (ctx.get('workbench') as Workbench).state },
           mountView: reference => views.mount(reference),
         }),
       }, RightbarRoot)
@@ -215,6 +220,7 @@ export function apply(ctx: ClientContext): void {
         name: 'rightbar.session',
         locale: NS,
         children: {
+          'rightbar.session.coding': { kind: 'single', scope: 'session' },
           'sidebar.right.pane.tab': { kind: 'keyed', scope: 'session', inject: { hooks: { tabInfo: tabInfoFactory } } },
           'sidebar.right.pane.tab.title': { kind: 'keyed', scope: 'session', inject: { hooks: { tabInfo: tabInfoFactory } } },
           'sidebar.right.tab.menu.item': { kind: 'list', scope: 'session' },

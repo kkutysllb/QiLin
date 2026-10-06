@@ -98,6 +98,7 @@
     "@qilin/client-ui-shortcuts": "workspace:*",
     "@qilin/client-ui-sidebar": "workspace:*",
     "@qilin/client-ui-sidebar-browser": "workspace:*",
+    "@qilin/client-ui-sidebar-coding": "workspace:*",
     "@qilin/client-ui-sidebar-documentpreview": "workspace:*",
     "@qilin/client-ui-sidebar-files": "workspace:*",
     "@qilin/client-ui-sidebar-right": "workspace:*",
@@ -108,8 +109,8 @@
     "@qilin/client-ui-tool": "workspace:*",
     "@qilin/client-ui-trajectory": "workspace:*",
     "@qilin/client-ui-user-questions": "workspace:*",
-    "@qilin/client-ui-workflow-run": "workspace:*",
     "@qilin/client-ui-workbench": "workspace:*",
+    "@qilin/client-ui-workflow-run": "workspace:*",
     "@qilin/client-ui-workspace": "workspace:*",
     "@qilin/cmdline": "workspace:*",
     "@qilin/file-reference": "workspace:*",
@@ -151,17 +152,17 @@
     "@qilin/system-prompt": "workspace:*"
   },
   "devDependencies": {
+    "@deepseek-ai/libreoffice-kit": "^0.1.0",
+    "@qilin/fs": "workspace:*",
+    "@qilin/fs-local": "workspace:*",
     "@qilin/kylin": "workspace:~",
     "@qilin/kylin-plugin-include": "workspace:~",
     "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/fs": "workspace:*",
-    "@qilin/fs-local": "workspace:*",
     "@qilin/sandbox-policy": "workspace:*",
     "@qilin/session": "workspace:*",
     "@qilin/session-projection": "workspace:*",
     "@qilin/shell-env": "workspace:*",
     "@qilin/system-prompt": "workspace:*",
-    "@qilin/typert-registry": "workspace:*",
-    "@deepseek-ai/libreoffice-kit": "^0.1.0"
+    "@qilin/typert-registry": "workspace:*"
   }
 }

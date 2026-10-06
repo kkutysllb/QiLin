@@ -70,6 +70,17 @@ export async function seedWorkbench(page: Page, active: 'general' | 'coding'): P
 }
 
 /**
+ * Switch the left column's workbench tag through the segmented control. The
+ * on-screen blank session rebinds (D2/D3); an already-started session stays
+ * composed and remains on screen under the other tag's rightbar.
+ * @param page - the browser page under test.
+ * @param active - the tag to show.
+ */
+export async function switchWorkbenchTab(page: Page, active: 'general' | 'coding'): Promise<void> {
+  await page.getByRole('tab', { name: active === 'coding' ? 'Coding' : 'General' }).click()
+}
+
+/**
  * Expand every eligible Turn process and secondary group so a Tool-focused
  * scenario can exercise the original row contract beneath product-default
  * compact Chat presentation.

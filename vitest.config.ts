@@ -218,6 +218,11 @@ export default defineConfig({
         // Dynamic Host/Client composition is covered by its focused lifecycle
         // tests and assembled application checks rather than per-file coverage.
         'packages/self-modification/*/src/**/*.{ts,tsx}',
+        // The coding workbench is a wholesale port (dsh-coding-sidebar 1.0.39):
+        // the tree keeps the upstream internal style and its own upstream test
+        // suite; behavior is exercised by the web e2e lanes. TODO(port): bring
+        // the tree under the per-file gate as the port matures.
+        'packages/client/ui-sidebar-coding/src/**/*.{ts,tsx}',
         // A killed executable lint-contract test can leave a non-product source probe behind.
         'packages/*/*/src/oxlint-contract-*.ts',
         // Client/web UI files whose remaining branches need a browser-grade

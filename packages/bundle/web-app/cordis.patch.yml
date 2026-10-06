@@ -372,6 +372,11 @@
     # (dual-workbench design, plans/2026-10-05-dual-workbench-web-design.md).
     - id: ui-workbench
       name: '@qilin/client-ui-workbench'
+    # The coding workbench content body: registers `rightbar.session.coding`
+    # (rendered by ui-sidebar-right under the coding tag), the interception
+    # faces, and the /sidebar host routes (plan §2.2/S3).
+    - id: ui-sidebar-coding
+      name: '@qilin/client-ui-sidebar-coding'
     - id: ui-workspace
       name: '@qilin/client-ui-workspace'
 

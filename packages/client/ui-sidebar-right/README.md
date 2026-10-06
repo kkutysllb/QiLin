@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The right Sidebar: where the docking kit meets this product. The root-scoped `rightbar` entry renders the selected Session and background Sessions with retained bodies through separate `rightbar.session` subtrees, each owning its own Session reference; only the foreground Conversation reports a frame track and binds public navigation. Each Session's surface is drawn with `DockLayout`, so a tab keeps its DOM across selection, pane moves and floating. The package owns the navigation controller (`ctx.sidebarRight`), the tab-type registry (`ctx.sidebarRightTabs`), and the Tab domain that tells each open tab how it was navigated to and how long it lives.
+The right Sidebar: where the docking kit meets this product. The root-scoped `rightbar` entry renders the selected and background Sessions through separate `rightbar.session` subtrees, each owning its Session reference; only the foreground Conversation reports a frame track and binds public navigation. Each Session's surface is drawn with `DockLayout`, so a tab keeps its DOM across selection, pane moves and floating; under the coding workbench tag the seat renders the `rightbar.session.coding` body instead (D5). The package owns the navigation controller (`ctx.sidebarRight`), the tab-type registry (`ctx.sidebarRightTabs`), and the Tab domain — each open tab's navigation history and lifetime.
 
 ## Table of Contents
 

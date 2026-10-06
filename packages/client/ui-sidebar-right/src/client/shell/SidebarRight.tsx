@@ -54,7 +54,7 @@ import css from './SidebarRight.module.css'
 type Store = PropsStore<ReturnType<typeof createSidebarRightStore>>
 
 /** The child seats this component renders. */
-type Children = PropsRenderSlots<'sidebar.right.pane.tab' | 'sidebar.right.pane.tab.title' | 'sidebar.right.tab.menu.item'>
+type Children = PropsRenderSlots<'rightbar.session.coding' | 'sidebar.right.pane.tab' | 'sidebar.right.pane.tab.title' | 'sidebar.right.tab.menu.item'>
 
 /** What the panel reports to the frame: drawn or not, and whether it wants a track. */
 export interface SidebarRightPresentation {
@@ -142,6 +142,15 @@ interface PanelProps {
   readonly autoFullscreen: boolean
   readonly active: boolean
   readonly retainTab: RightbarSeatProps['retainTab']
+  /** True while the workbench coding tag is active: the panel hosts the coding body, not the kit. */
+  readonly coding: boolean
+  /** Current frame width in px; the coding body's slot props carry it like the seat's own. */
+  readonly viewportWidth: number
+  /**
+   * Whether a normal right panel can retain 300px beside a 400px center; the
+   * coding body's slot props carry it like the seat's own.
+   */
+  readonly canShow: boolean
   /** Receives the kit's room-rule readings for the service's `split`. */
   readonly reportRoom: (fits: ReadonlyMap<PaneId, HalvesFit>) => void
 }
@@ -300,7 +309,8 @@ function PanelChrome({ sessionId, fullscreen, actions, t, shortcuts, toggleFulls
  * anchored to the frame's right edge and slid off it while collapsed.
  */
 function SidebarPanel(panel: PanelProps & { width: number; panelRef: RefObject<HTMLDivElement> }): ReactNode {
-  const { sessionId, surface, actions, t, renderSlot, openTab, width, reportRoom, fullscreen, panelRef } = panel
+  const { sessionId, surface, actions, t, renderSlot, openTab, width, reportRoom, fullscreen, panelRef,
+    coding, viewportWidth, canShow } = panel
   const { expanded } = surface.layout
   const types = panel.useTabTypes(value => value)
   return (
@@ -318,27 +328,31 @@ function SidebarPanel(panel: PanelProps & { width: number; panelRef: RefObject<H
       aria-hidden={!expanded || undefined}
     >
       <div className={css.panelBody}>
-        <DockLayout
-          state={surface.layout}
-          canSplit={canSplit(surface.layout) && dockPaneIds(surface.layout).length < 2}
-          dropZones="horizontal"
-          minPaneFraction={0.2}
-          canAddTab={paneId => guideIn(surface.layout, paneId) === undefined}
-          canCloseTab={tabId => canCloseTab(surface, tabId)}
-          intents={intentsFor(sessionId, actions, openTab, panel.closeTab, panel.splitPane)}
-          labels={dockLabels(t, panel.shortcuts.find(entry => entry.id === 'pane.split'), panel.shortcuts.find(entry => entry.id === 'page.close'))}
-          renderTab={bodiesFor(panel)}
-          renderTabTitle={titlesFor(panel)}
-          active={panel.active}
-          keepMounted={tab => types.find(type => type.kind === tab.kind)?.keepMounted === true}
-          renderTabMenuItems={(tab, dismiss) =>
-            renderSlot('sidebar.right.tab.menu.item', { tab, dismiss })}
-          chrome={<PanelChrome
-            sessionId={sessionId} fullscreen={fullscreen} actions={actions} t={t}
-            shortcuts={panel.shortcuts} toggleFullscreen={panel.toggleFullscreen}
+        {coding
+          ? <div className={css.codingSeat}>
+            {renderSlot('rightbar.session.coding', { width, viewportWidth, canShow, active: panel.active })}
+          </div>
+          : <DockLayout
+            state={surface.layout}
+            canSplit={canSplit(surface.layout) && dockPaneIds(surface.layout).length < 2}
+            dropZones="horizontal"
+            minPaneFraction={0.2}
+            canAddTab={paneId => guideIn(surface.layout, paneId) === undefined}
+            canCloseTab={tabId => canCloseTab(surface, tabId)}
+            intents={intentsFor(sessionId, actions, openTab, panel.closeTab, panel.splitPane)}
+            labels={dockLabels(t, panel.shortcuts.find(entry => entry.id === 'pane.split'), panel.shortcuts.find(entry => entry.id === 'page.close'))}
+            renderTab={bodiesFor(panel)}
+            renderTabTitle={titlesFor(panel)}
+            active={panel.active}
+            keepMounted={tab => types.find(type => type.kind === tab.kind)?.keepMounted === true}
+            renderTabMenuItems={(tab, dismiss) =>
+              renderSlot('sidebar.right.tab.menu.item', { tab, dismiss })}
+            chrome={<PanelChrome
+              sessionId={sessionId} fullscreen={fullscreen} actions={actions} t={t}
+              shortcuts={panel.shortcuts} toggleFullscreen={panel.toggleFullscreen}
+            />}
+            onRoom={reportRoom}
           />}
-          onRoom={reportRoom}
-        />
       </div>
     </div>
   )
@@ -347,13 +361,14 @@ function SidebarPanel(panel: PanelProps & { width: number; panelRef: RefObject<H
 /**
  * The right column's occupant: stable tab containers, docked or floating.
  * It is also where the frame learns the panel's presentation, because this is
- * the seat that knows it. `ctx.sidebarRight` names the on-screen Session
- * itself; this seat reports only what it renders with: the room its kit
- * measured and the automatic fullscreen rule of its frame width.
+ * the seat that knows it. The dual-workbench tag (D5) switches the panel's
+ * content body here, inside the shared panel box. `ctx.sidebarRight` names the
+ * on-screen Session itself; this seat reports only what it renders with: the
+ * room its kit measured and the automatic fullscreen rule of its frame width.
  */
 export function RightbarSeat({
   sessionId, width, viewportWidth, canShow, useStore, actions, t, renderSlot, syncPresentation, measureRoom, reportAutoFullscreen,
-  openTab, closeTab, useTabTypes, useTabNavigation, occurrence, retainTab, active, useShortcuts, splitPane, toggleFullscreen,
+  openTab, closeTab, useTabTypes, useTabNavigation, occurrence, retainTab, active, useShortcuts, splitPane, toggleFullscreen, useWorkbench,
 }: RightbarSeatProps): ReactNode {
   // One store instance per session, so this map holds this session's surface.
   const shortcuts = useShortcuts(entries => entries)
@@ -361,6 +376,7 @@ export function RightbarSeat({
   const shown = active && surface !== undefined && surface.layout.expanded
   const autoFullscreen = viewportWidth < 768
   const fullscreen = autoFullscreen || surface?.layout.mode === 'fullscreen'
+  const coding = useWorkbench(value => value.active) === 'coding'
   const panelRef = useRef<HTMLDivElement | null>(null)
   // A reading never re-renders anything: the service applies it when it splits.
   const reportRoom = useCallback((fits: ReadonlyMap<PaneId, HalvesFit>): void => {
@@ -420,6 +436,7 @@ export function RightbarSeat({
   const panel: PanelProps = {
     sessionId, actions, t, renderSlot, surface, openTab, closeTab, useTabTypes, useTabNavigation, useStore, occurrence,
     fullscreen, autoFullscreen, reportRoom, active, retainTab, shortcuts, splitPane, toggleFullscreen,
+    coding, viewportWidth, canShow,
   }
   return <SidebarPanel {...panel} width={width} panelRef={panelRef} />
 }

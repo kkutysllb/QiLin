@@ -45,6 +45,13 @@ const DUPLICATE_SAFE_PACKAGES: readonly string[] = [
  * prominent heading in the pull request description.
  */
 const SAFE_HOST_DEPENDENCY_EXPORTS = {
+  // The five exports below entered with the coding-workbench port (dual-workbench
+  // S3) and were human-reviewed 2026-10-06: each is a pure factory or data
+  // projection with no module-level mutable state, so two installed copies
+  // produce interchangeable values.
+  // Installs waterfall listeners on the caller-provided Context and selection ref;
+  // all state is caller-owned, so any copy of the function behaves identically.
+  '@qilin/agent': ['installModelSelection'],
   '@qilin/credentials': ['credentialKey'],
   // A pure type-assertion brand (`FsVersion(v) { return v as FsVersion }`) with no
   // runtime identity, so two installed copies produce interchangeable values. It is
@@ -53,9 +60,16 @@ const SAFE_HOST_DEPENDENCY_EXPORTS = {
   '@qilin/fs': ['FsVersion'],
   '@qilin/dsh-compat': ['clientDeclarationOf', 'dshCompatModuleId'],
   '@qilin/deque': ['Deque'],
-  '@qilin/llm': ['callConfigEquals'],
+  '@qilin/llm': ['callConfigEquals', 'createUserMessage'],
   '@qilin/session-format': ['sessionFormatLogFilename'],
+  // A validating brand over a number (`SessionLogOffset(v)`), no runtime identity —
+  // the FsVersion precedent.
+  '@qilin/session': ['SessionLogOffset'],
+  // Pure input → detached versioned payload projection.
+  '@qilin/subagent': ['snapshotSubagentDescriptor'],
   '@qilin/timeout': ['MAX_TIMER_DELAY_MS'],
+  // Pure ToolDefinition factory: shapes the caller's options into one plain object.
+  '@qilin/tools': ['defineTool'],
   '@qilin/schemastery': ['default'],
 } as const satisfies HostDependencyExports
 

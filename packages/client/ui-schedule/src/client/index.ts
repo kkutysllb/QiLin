@@ -76,7 +76,7 @@ declare module '@qilin/client-ui-slots' {
 /** Required services for catalogs, ambient Session marks, the right Sidebar, Remote queries, and original-Session navigation. */
 export const inject = [
   'slots', 'locale', 'remote', 'remote.schedule', 'conversation', 'uiConversation', 'uiWorkspace', 'sessions',
-  'workspaces', 'sidebarRightTabs', 'sidebarRight',
+  'workspaces', 'sidebarRightTabs', 'sidebarRight', 'workbench',
 ]
 
 /**
@@ -200,11 +200,16 @@ export function apply(ctx: ClientContext): void {
    * @param id - Task to show.
    */
   const openTaskDetail = (sessionId: SessionId, id: ScheduleId): void => {
+    // The coding workbench's registry claims the open only under the coding
+    // tag (dual workbench D5); the general tag keeps the shipped tab as the
+    // destination even while the coding plugin is composed in.
+    const codingActive = (ctx.get('workbench') as { state: { getSnapshot(): { active: string } } } | undefined)
+      ?.state.getSnapshot().active === 'coding'
     const sidebar = (ctx as unknown as { get(key: string): unknown }).get('betterSidebar') as {
       openTab?: (seed: Record<string, unknown>, scope?: unknown) => void
       updateTab?: (tabId: string, patch: Record<string, unknown>) => void
     } | undefined
-    if (sidebar?.openTab === undefined) {
+    if (!codingActive || sidebar?.openTab === undefined) {
       ctx.sidebarRight.openTab(SCHEDULE_TASK_KIND, { params: { sessionId, id } })
       return
     }
