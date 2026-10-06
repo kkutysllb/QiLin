@@ -109,6 +109,10 @@
 :global([data-windows-titlebar]) .collapsed .newSession {
   width: 28px;
   height: 28px;
+  /* min-height must follow: base .newSession carries min-height:36px, which
+     clamps the height above back to 36 and drops this button's visual center
+     4px below the toggle's, while the pinning math assumes a 28px box. */
+  min-height: 28px;
   border-radius: 50%;
   corner-shape: round;
   color: var(--dsw-alias-label-secondary);
