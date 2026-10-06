@@ -14,13 +14,13 @@
   margin: 0;
   font-size: 18px;
   font-weight: 600;
-  color: var(--dsw-alias-text-1);
+  color: var(--qilin-alias-text-1);
 }
 
 .intro {
   margin: 0;
   font-size: 13px;
-  color: var(--dsw-alias-text-3);
+  color: var(--qilin-alias-text-3);
 }
 
 .error,
@@ -30,53 +30,53 @@
   gap: 6px;
   padding: 12px;
   border-radius: 8px;
-  border: 0.5px solid var(--dsw-alias-border-l1);
-  background: var(--dsw-alias-bg-layer-2);
+  border: 0.5px solid var(--qilin-alias-border-l1);
+  background: var(--qilin-alias-bg-layer-2);
 }
 
 .errorTitle {
   font-size: 13px;
   font-weight: 600;
-  color: var(--dsw-alias-text-1);
+  color: var(--qilin-alias-text-1);
 }
 
 .errorDetail,
 .noticeReason {
   font-size: 12px;
-  color: var(--dsw-alias-text-3);
+  color: var(--qilin-alias-text-3);
   word-break: break-word;
 }
 
 .noticeText {
   margin: 0;
   font-size: 13px;
-  color: var(--dsw-alias-text-1);
+  color: var(--qilin-alias-text-1);
 }
 
 .path {
   margin: 0;
-  font-family: var(--dsw-font-mono, monospace);
+  font-family: var(--qilin-font-mono, monospace);
   font-size: 12px;
-  color: var(--dsw-alias-text-3);
+  color: var(--qilin-alias-text-3);
 }
 
 .groupTitle {
   margin: 8px 0 0;
   font-size: 14px;
   font-weight: 600;
-  color: var(--dsw-alias-text-1);
+  color: var(--qilin-alias-text-1);
 }
 
 .hint {
   margin: 0;
   font-size: 12px;
-  color: var(--dsw-alias-text-3);
+  color: var(--qilin-alias-text-3);
 }
 
 .empty {
   margin: 0;
   font-size: 13px;
-  color: var(--dsw-alias-text-3);
+  color: var(--qilin-alias-text-3);
 }
 
 .list {
@@ -94,8 +94,8 @@
   gap: 12px;
   padding: 12px;
   border-radius: 8px;
-  border: 0.5px solid var(--dsw-alias-border-l1);
-  background: var(--dsw-alias-bg-layer-2);
+  border: 0.5px solid var(--qilin-alias-border-l1);
+  background: var(--qilin-alias-bg-layer-2);
 }
 
 .rowMain {
@@ -115,13 +115,13 @@
 .name {
   font-size: 13px;
   font-weight: 600;
-  color: var(--dsw-alias-text-1);
+  color: var(--qilin-alias-text-1);
 }
 
 .detail {
-  font-family: var(--dsw-font-mono, monospace);
+  font-family: var(--qilin-font-mono, monospace);
   font-size: 12px;
-  color: var(--dsw-alias-text-3);
+  color: var(--qilin-alias-text-3);
   word-break: break-all;
 }
 
@@ -130,7 +130,7 @@
   align-items: center;
   gap: 8px;
   font-size: 12px;
-  color: var(--dsw-alias-text-2);
+  color: var(--qilin-alias-text-2);
 }
 
 .editor {
@@ -139,8 +139,8 @@
   gap: 12px;
   padding: 12px;
   border-radius: 8px;
-  border: 0.5px solid var(--dsw-alias-border-l1);
-  background: var(--dsw-alias-bg-layer-2);
+  border: 0.5px solid var(--qilin-alias-border-l1);
+  background: var(--qilin-alias-bg-layer-2);
 }
 
 .field {
@@ -152,7 +152,7 @@
 .fieldLabel {
   font-size: 13px;
   font-weight: 500;
-  color: var(--dsw-alias-text-1);
+  color: var(--qilin-alias-text-1);
 }
 
 .select,
@@ -160,9 +160,9 @@
   width: 100%;
   padding: 6px 8px;
   border-radius: 6px;
-  border: 0.5px solid var(--dsw-alias-border-l2);
-  background: var(--dsw-alias-bg-layer-1);
-  color: var(--dsw-alias-text-1);
+  border: 0.5px solid var(--qilin-alias-border-l2);
+  background: var(--qilin-alias-bg-layer-1);
+  color: var(--qilin-alias-text-1);
   font-size: 13px;
   font-family: inherit;
 }
@@ -177,7 +177,7 @@
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: var(--dsw-alias-text-1);
+  color: var(--qilin-alias-text-1);
 }
 
 .actions {

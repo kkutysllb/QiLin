@@ -4,7 +4,7 @@
   flex-direction: column;
   height: 100%;
   min-width: 0;
-  background: var(--dsw-alias-bg-base);
+  background: var(--qilin-alias-bg-base);
 }
 
 /* One 48px band with its rule: the border box is the whole header, and its
@@ -16,7 +16,7 @@
   box-sizing: border-box;
   height: 48px;
   padding: 0 28px 0 20px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
 }
 
 /* A second registered View brings back the tab strip and the two-row header:
@@ -118,7 +118,7 @@
 
 .crumbSep {
   /* figma: "/" separators are 14px caption gray (75:7903), one tint lighter than crumb text. */
-  color: var(--dsw-alias-label-caption);
+  color: var(--qilin-alias-label-caption);
   font-size: 14px;
   line-height: 20px;
 }
@@ -132,7 +132,7 @@
   background: transparent;
   font-size: 14px;
   line-height: 20px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: pointer;
@@ -144,12 +144,12 @@
 }
 
 .crumb:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .crumbCurrent {
   font-weight: 500;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   cursor: default;
 }
 
@@ -210,7 +210,7 @@
   font-size: 13px;
   line-height: 16px;
   font-weight: 500;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   cursor: pointer;
 }
 
@@ -229,11 +229,11 @@
    this token sheet, so the selected state rides the business blue — the
    nearest semantic token that stays blue in both themes. */
 .tabActive {
-  color: var(--dsw-alias-state-business-primary);
+  color: var(--qilin-alias-state-business-primary);
 }
 
 .tabActive::after {
-  background: var(--dsw-alias-state-business-primary);
+  background: var(--qilin-alias-state-business-primary);
 }
 
 .viewArea {
@@ -295,8 +295,8 @@
   background: linear-gradient(
     to bottom,
     transparent calc(var(--qilin-width-handle-pointer-y, 50%) - 36px),
-    var(--dsw-alias-scrollbar-bg-l1) calc(var(--qilin-width-handle-pointer-y, 50%) - 8px),
-    var(--dsw-alias-scrollbar-bg-l1) calc(var(--qilin-width-handle-pointer-y, 50%) + 8px),
+    var(--qilin-alias-scrollbar-bg-l1) calc(var(--qilin-width-handle-pointer-y, 50%) - 8px),
+    var(--qilin-alias-scrollbar-bg-l1) calc(var(--qilin-width-handle-pointer-y, 50%) + 8px),
     transparent calc(var(--qilin-width-handle-pointer-y, 50%) + 36px)
   );
   opacity: 0;
@@ -440,8 +440,8 @@
      fade from their own base. */
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--dsw-alias-bg-base) 0%, transparent) 0px,
-    var(--dsw-alias-bg-base) 36px
+    color-mix(in srgb, var(--qilin-alias-bg-base) 0%, transparent) 0px,
+    var(--qilin-alias-bg-base) 36px
   );
 }
 

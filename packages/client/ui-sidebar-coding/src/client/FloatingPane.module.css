@@ -11,8 +11,8 @@
   min-width: 0;
   min-height: 0;
   overflow: hidden;
-  background: var(--dsw-alias-bg-layer-2, var(--dsw-alias-bg-base, #1c1c1e));
-  border: 1px solid var(--dsw-alias-border-l2, rgba(255, 255, 255, 0.16));
+  background: var(--qilin-alias-bg-layer-2, var(--qilin-alias-bg-base, #1c1c1e));
+  border: 1px solid var(--qilin-alias-border-l2, rgba(255, 255, 255, 0.16));
   border-radius: 10px;
   box-shadow: 0 10px 32px rgba(0, 0, 0, 0.32);
   /* An interactive popover: presses inside it must never start a window drag
@@ -28,7 +28,7 @@
   gap: 8px;
   height: 32px;
   padding: 0 4px 0 10px;
-  border-bottom: 1px solid var(--dsw-alias-border-l2, rgba(255, 255, 255, 0.12));
+  border-bottom: 1px solid var(--qilin-alias-border-l2, rgba(255, 255, 255, 0.12));
   cursor: grab;
   user-select: none;
 }
@@ -43,8 +43,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font: var(--dsw-font-xs-strong-12, 600 12px/16px var(--dsw-font-family));
-  color: var(--dsw-alias-label-primary);
+  font: var(--qilin-font-xs-strong-12, 600 12px/16px var(--qilin-font-family));
+  color: var(--qilin-alias-label-primary);
 }
 
 .close {
@@ -57,15 +57,15 @@
   border: none;
   border-radius: 6px;
   background: none;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   cursor: pointer;
   font-size: 12px;
   line-height: 1;
 }
 
 .close:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
 }
 
 /* The content gets every spare pixel: dragging the pane larger must reveal

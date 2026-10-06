@@ -4,14 +4,14 @@
   gap: 12px;
   width: 100%;
   max-width: 760px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .status {
   margin: 0;
   font-size: 13px;
   line-height: 20px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .search {
@@ -19,7 +19,7 @@
   display: flex;
   align-items: center;
   width: 100%;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .search > svg {
@@ -32,10 +32,10 @@
   width: 100%;
   height: 32px;
   padding: 0 12px 0 36px;
-  border: 0.5px solid var(--dsw-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 8px;
-  background: var(--dsw-alias-bg-base);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-bg-base);
+  color: var(--qilin-alias-label-primary);
   font: inherit;
 }
 
@@ -57,7 +57,7 @@
 }
 
 .row:hover {
-  background: var(--dsw-alias-bg-layer-1);
+  background: var(--qilin-alias-bg-layer-1);
 }
 
 .identity {
@@ -79,5 +79,5 @@
 .meta {
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }

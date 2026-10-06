@@ -6,7 +6,7 @@
   flex-direction: column;
   height: 100%;
   min-height: 0;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font-size: var(--qilin-content-font-size-secondary, 13px);
   line-height: 1.5;
   overflow: auto;
@@ -23,13 +23,13 @@
   box-sizing: border-box;
   min-height: 38px;
   padding: 5px 6px 5px 12px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
 }
 
 .toolIcon {
   display: inline-flex;
   flex: none;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .branch {
@@ -53,16 +53,16 @@
 
 .upstreamNone {
   flex: none;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 12px;
 }
 
 .ahead {
-  color: var(--dsw-alias-state-success-primary);
+  color: var(--qilin-alias-state-success-primary);
 }
 
 .behind {
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 .spacer {
@@ -74,7 +74,7 @@
 .action {
   flex: none;
   padding: 3px 8px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font: inherit;
   font-size: 12px;
   background: transparent;
@@ -84,8 +84,8 @@
 }
 
 .action:hover:not(:disabled) {
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .action:disabled {
@@ -103,7 +103,7 @@
   width: 28px;
   height: 28px;
   padding: 6px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   line-height: 1;
   background: transparent;
   border: none;
@@ -117,8 +117,8 @@
 }
 
 .tool:hover:not(:disabled) {
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .tool:disabled {
@@ -133,7 +133,7 @@
   gap: 4px;
   align-items: center;
   padding: 2px 6px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font: inherit;
   font-size: 12px;
   background: transparent;
@@ -143,12 +143,12 @@
 }
 
 .link:hover:not(:disabled) {
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .link[aria-pressed='true'] {
-  color: var(--dsw-alias-state-business-primary);
+  color: var(--qilin-alias-state-business-primary);
 }
 
 .link:disabled {
@@ -159,7 +159,7 @@
 .section {
   flex: none;
   padding: 6px 6px 6px 10px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
 }
 
 .sectionHeader {
@@ -173,7 +173,7 @@
   flex: 0 1 auto;
   min-width: 0;
   overflow: hidden;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
@@ -188,7 +188,7 @@
   width: 100%;
   min-height: 26px;
   padding: 2px 4px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font: inherit;
   font-size: 12px;
   font-weight: 600;
@@ -200,8 +200,8 @@
 }
 
 .sectionToggle:hover {
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .chevron {
@@ -241,7 +241,7 @@
 }
 
 .row:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .row:disabled {
@@ -253,8 +253,8 @@
 .badge {
   flex: none;
   min-width: 12px;
-  color: var(--dsw-alias-label-tertiary);
-  font-family: var(--dsw-font-markdown-code-block);
+  color: var(--qilin-alias-label-tertiary);
+  font-family: var(--qilin-font-markdown-code-block);
   font-size: 11px;
   text-align: center;
 }
@@ -271,10 +271,10 @@
 .pill {
   flex: none;
   padding: 0 6px;
-  color: var(--dsw-alias-state-business-primary);
+  color: var(--qilin-alias-state-business-primary);
   font-size: 11px;
   line-height: 18px;
-  background: var(--dsw-alias-state-business-primary-weak, transparent);
+  background: var(--qilin-alias-state-business-primary-weak, transparent);
   border-radius: 9px;
 }
 
@@ -282,7 +282,7 @@
 .tracking {
   flex: none;
   overflow: hidden;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 11px;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -291,12 +291,12 @@
 .note {
   margin: 2px 0;
   padding: 3px 6px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 12px;
 }
 
 .failed {
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 .status {
@@ -309,7 +309,7 @@
 
 .statusLine {
   margin: 0;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: var(--qilin-content-font-size-secondary, 13px);
   line-height: 1.6;
   text-align: center;
@@ -321,7 +321,7 @@
   flex: 0 1 auto;
   min-width: 0;
   overflow: hidden;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 12px;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -331,11 +331,11 @@
   margin: 4px 0 0;
   padding: 8px 0;
   overflow-x: auto;
-  color: var(--dsw-alias-label-primary);
-  font-family: var(--dsw-font-markdown-code-block);
+  color: var(--qilin-alias-label-primary);
+  font-family: var(--qilin-font-markdown-code-block);
   font-size: 12px;
   line-height: 1.6;
-  background: var(--dsw-alias-markdown-code-block);
+  background: var(--qilin-alias-markdown-code-block);
   border-radius: 8px;
 }
 
@@ -346,15 +346,15 @@
 
 .diffMeta,
 .diffHunk {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .diffAdd {
-  color: var(--dsw-alias-state-success-primary);
+  color: var(--qilin-alias-state-success-primary);
 }
 
 .diffDel {
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 /* One history row: the short hash and subject over the refs and the author's
@@ -377,11 +377,11 @@
 }
 
 .logRow:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .logRow[aria-expanded='true'] {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .logLine {
@@ -395,8 +395,8 @@
    status letter. */
 .logHash {
   flex: none;
-  color: var(--dsw-alias-label-tertiary);
-  font-family: var(--dsw-font-markdown-code-block);
+  color: var(--qilin-alias-label-tertiary);
+  font-family: var(--qilin-font-markdown-code-block);
   font-size: 11px;
 }
 
@@ -414,12 +414,12 @@
   max-width: 45%;
   overflow: hidden;
   padding: 0 5px;
-  color: var(--dsw-alias-state-business-primary);
+  color: var(--qilin-alias-state-business-primary);
   font-size: 11px;
   line-height: 16px;
   white-space: nowrap;
   text-overflow: ellipsis;
-  background: var(--dsw-alias-state-business-primary-weak, transparent);
+  background: var(--qilin-alias-state-business-primary-weak, transparent);
   border-radius: 8px;
 }
 
@@ -428,7 +428,7 @@
   flex: 0 1 auto;
   min-width: 0;
   overflow: hidden;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 11px;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -443,7 +443,7 @@
 .commit {
   flex: none;
   padding: 8px 6px 8px 10px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
 }
 
 .commitInput {
@@ -452,17 +452,17 @@
   width: 100%;
   min-height: 56px;
   padding: 6px 8px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font: inherit;
   font-size: 12px;
-  background: var(--dsw-alias-interactive-bg-default, transparent);
-  border: 0.5px solid var(--dsw-alias-border-l3);
+  background: var(--qilin-alias-interactive-bg-default, transparent);
+  border: 0.5px solid var(--qilin-alias-border-l3);
   border-radius: 8px;
   resize: vertical;
 }
 
 .commitInput::placeholder {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .commitInput:disabled {
@@ -508,7 +508,7 @@
 
 .noticeText {
   flex: none;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 12px;
 }
 
@@ -521,7 +521,7 @@
 }
 
 .prRow:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .prLine {
@@ -533,8 +533,8 @@
 
 .prNumber {
   flex: none;
-  color: var(--dsw-alias-label-tertiary);
-  font-family: var(--dsw-font-markdown-code-block);
+  color: var(--qilin-alias-label-tertiary);
+  font-family: var(--qilin-font-markdown-code-block);
   font-size: 11px;
 }
 
@@ -551,11 +551,11 @@
   flex: none;
   box-sizing: border-box;
   padding: 4px 6px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font: inherit;
   font-size: 12px;
-  background: var(--dsw-alias-interactive-bg-default, transparent);
-  border: 0.5px solid var(--dsw-alias-border-l3);
+  background: var(--qilin-alias-interactive-bg-default, transparent);
+  border: 0.5px solid var(--qilin-alias-border-l3);
   border-radius: 6px;
   cursor: pointer;
 }
@@ -594,7 +594,7 @@
 .sectionToggle:focus-visible,
 .select:focus-visible,
 .tool:focus-visible {
-  outline: 2px solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: 2px solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
 }
 
 /* The branch glyph before the chip's text; the chip's title row centres it

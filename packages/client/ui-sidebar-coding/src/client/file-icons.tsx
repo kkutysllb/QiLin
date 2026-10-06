@@ -8,7 +8,7 @@
  * markdown, images, PDFs, office documents, video, folders and the generic
  * fallback. Colored artwork is content, not chrome, and the host paints it
  * with its own palette, so this module carries no color literal and stays
- * inside the skin contract (every color still arrives from a `--dsw-alias-*`
+ * inside the skin contract (every color still arrives from a `--qilin-alias-*`
  * token the host resolves).
  *
  * Nothing here needs a lazy chunk: the artwork lives in a platform module

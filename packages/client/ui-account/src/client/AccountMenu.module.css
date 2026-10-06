@@ -16,7 +16,7 @@
   border: none;
   border-radius: 10px;
   background: transparent;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font-family: inherit;
   font-size: 14px;
   font-weight: 400;
@@ -38,7 +38,7 @@
 }
 
 .trigger:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .avatar {
@@ -49,8 +49,8 @@
   height: 22px;
   border-radius: 50%;
   corner-shape: round;
-  background: color-mix(in srgb, var(--dsw-alias-brand-primary) 16%, transparent);
-  color: var(--dsw-alias-brand-primary);
+  background: color-mix(in srgb, var(--qilin-alias-brand-primary) 16%, transparent);
+  color: var(--qilin-alias-brand-primary);
   font-size: 11px;
   font-weight: 600;
   line-height: 1;
@@ -81,5 +81,5 @@
 
 .check {
   flex: none;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }

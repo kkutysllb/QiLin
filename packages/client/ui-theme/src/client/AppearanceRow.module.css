@@ -6,14 +6,14 @@
   flex-direction: column;
   gap: 8px;
   padding: 16px 0;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l2);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l2);
 }
 
 .title {
   font-size: 14px;
   font-weight: 400;
   line-height: 22px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .cubeRow {
@@ -35,23 +35,23 @@
   justify-content: center;
   gap: 4px;
   padding: 20px 32px;
-  border: 0.5px solid var(--dsw-alias-border-l4);
-  border-radius: var(--dsw-radius-xl);
+  border: 0.5px solid var(--qilin-alias-border-l4);
+  border-radius: var(--qilin-radius-xl);
   background: transparent;
   font: inherit;
   font-size: 14px;
   line-height: 22px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   cursor: pointer;
 }
 
 .themeCube:hover:not(.selected) {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 /* Selected cube: module fill + neutral step border (static token — the
  * bluish-400 step has no alias-layer name). */
 .selected {
-  background: var(--dsw-alias-bg-module-platform);
-  border-color: var(--dsw-static-neutral-bluish-400);
+  background: var(--qilin-alias-bg-module-platform);
+  border-color: var(--qilin-static-neutral-bluish-400);
 }

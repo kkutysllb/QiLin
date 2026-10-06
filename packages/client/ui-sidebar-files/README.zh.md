@@ -60,7 +60,7 @@ kind: "package-reference"
 
 tab 的地址就是它的整个文件身份：`file-guard.sessionFileOf` 在每次渲染时把它解码成端点接收的会话与路径，而授权读取与写入的是地址里的会话，不是坑位的。文件在挂载时经 `workspaceFiles.read` 整读：一页页行直到 `eof`；分页行走把磁盘上的原文拼装出来——凭上报的字节数补回文件末尾的换行——并且第一页的字节数会以端点自己的 `workspace-file/too-large` 码拒绝超过编辑器 2 MB 上限的文件。语法来自 `file-lang.ts`：装好的 `@codemirror/lang-*` 包，外加 shell 族与配置文件的 legacy 模式；其余按纯文本编辑。
 
-界面是 CodeMirror 6 藏在一个适配层（`file-editor.ts`）后面：行号、撤销历史、括号匹配、一个换行 compartment，以及一套只用 `--dsw-*` token 上色的主题加语法 `HighlightStyle`（注释、字符串、关键字、数字、函数、类型、属性），于是明暗两套配色由 token 级联承担，不需要第二套样式。携带 `{ line }` 的导航——工具卡的行引用——会选中并滚动到该行（越界钳到文件边界），每次导航修订只落一次；应答过的修订记在桶里，重新挂载后读者停在原处。保存经 `workspaceFiles.write(sessionId, path, text, { baseVersion }, signal)`，其中 `baseVersion` 是最近一次读取或保存上报的版本；`Mod-s` 与工具栏按钮都触发保存，保存进行中禁用控件，完成的保存带着新版本成为新的干净内容。草稿住在包的 store 里，所以正文卸载再挂载它还在；只有加载改变了文件（store 的 `loadSeq`）才会重挂界面，草稿或保存都不会。
+界面是 CodeMirror 6 藏在一个适配层（`file-editor.ts`）后面：行号、撤销历史、括号匹配、一个换行 compartment，以及一套只用 `--qilin-*` token 上色的主题加语法 `HighlightStyle`（注释、字符串、关键字、数字、函数、类型、属性），于是明暗两套配色由 token 级联承担，不需要第二套样式。携带 `{ line }` 的导航——工具卡的行引用——会选中并滚动到该行（越界钳到文件边界），每次导航修订只落一次；应答过的修订记在桶里，重新挂载后读者停在原处。保存经 `workspaceFiles.write(sessionId, path, text, { baseVersion }, signal)`，其中 `baseVersion` 是最近一次读取或保存上报的版本；`Mod-s` 与工具栏按钮都触发保存，保存进行中禁用控件，完成的保存带着新版本成为新的干净内容。草稿住在包的 store 里，所以正文卸载再挂载它还在；只有加载改变了文件（store 的 `loadSeq`）才会重挂界面，草稿或保存都不会。
 
 工具栏的预览控件（`file-preview.ts`）把 tab 自己的地址经 Sidebar 控制器指名 `text` 类型打开，会话作用域取 tab 自己的——走 tab 自己的按排名打开只会落回本类型，因为它的档位高于查看器。预览显示的是磁盘内容，所以未保存的草稿在这里原样不动，查看器侧对应的编辑控件走按排名的认领，落回本类型。被磁盘以 `workspace-file/stale` 拒绝的保存会原样保住草稿并升起冲突横幅，横幅上的两个动作就是出口：载入磁盘内容（一次丢弃草稿的重新读取）或用编辑器里的版本覆盖（不带 `baseVersion` 的强制写）。有未保存修改时的重新读取也会先询问，理由相同。读取与保存的失败各按错误码显示一行——`not-found`、`too-large`（带大小）、`not-text`、`not-regular-file`、`outside-workspace`、`stale`——其余显示传输层的消息。
 

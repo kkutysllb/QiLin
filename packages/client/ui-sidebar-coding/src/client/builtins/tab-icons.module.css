@@ -1,7 +1,7 @@
 /*
  * Colors for the built-in tab glyphs (src/client/builtins/tab-icons.tsx).
  *
- * Every declaration resolves to a `--dsw-alias-*` token, so all skins stay in
+ * Every declaration resolves to a `--qilin-alias-*` token, so all skins stay in
  * charge — including each token's own fallback chain, which keeps the glyph
  * legible on a host that does not define the brand/state families. The plugin
  * never writes a color literal here.
@@ -12,45 +12,45 @@
  */
 
 .files {
-  color: var(--dsw-alias-brand-primary, var(--dsw-alias-label-primary));
+  color: var(--qilin-alias-brand-primary, var(--qilin-alias-label-primary));
 }
 
 .changes {
-  color: var(--dsw-alias-state-success-primary, var(--dsw-alias-brand-primary, var(--dsw-alias-label-primary)));
+  color: var(--qilin-alias-state-success-primary, var(--qilin-alias-brand-primary, var(--qilin-alias-label-primary)));
 }
 
 .tasks {
-  color: var(--dsw-alias-state-warn-primary, var(--dsw-alias-label-primary));
+  color: var(--qilin-alias-state-warn-primary, var(--qilin-alias-label-primary));
 }
 
 .plans {
   /* The planning docs those tasks write: same amber family, so the two
      agent-work chips read as relatives rather than as unrelated features. */
-  color: var(--dsw-alias-state-warn-primary, var(--dsw-alias-label-primary));
+  color: var(--qilin-alias-state-warn-primary, var(--qilin-alias-label-primary));
 }
 
 .sidechat {
-  color: var(--dsw-alias-state-business-primary, var(--dsw-alias-brand-primary, var(--dsw-alias-label-primary)));
+  color: var(--qilin-alias-state-business-primary, var(--qilin-alias-brand-primary, var(--qilin-alias-label-primary)));
 }
 
 .terminal {
   /* The shell chip is ink, not accent. Its glyph is the widest in the set and
      renders a step smaller than its siblings (see tab-icons.tsx). */
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .browser {
-  color: var(--dsw-alias-state-business-primary, var(--dsw-alias-brand-primary, var(--dsw-alias-label-primary)));
+  color: var(--qilin-alias-state-business-primary, var(--qilin-alias-brand-primary, var(--qilin-alias-label-primary)));
 }
 
 .trajectory {
   /* The graph page's own subject is the model request, so its glyph wears the
      request chips' accent rather than a fresh color. */
-  color: var(--dsw-alias-state-success-primary, var(--dsw-alias-brand-primary, var(--dsw-alias-label-primary)));
+  color: var(--qilin-alias-state-success-primary, var(--qilin-alias-brand-primary, var(--qilin-alias-label-primary)));
 }
 
 .team {
   /* Roster: the same secondary accent as the side chat — both sit beside the
      lead conversation as collaboration surfaces. */
-  color: var(--dsw-alias-state-business-primary, var(--dsw-alias-brand-primary, var(--dsw-alias-label-primary)));
+  color: var(--qilin-alias-state-business-primary, var(--qilin-alias-brand-primary, var(--qilin-alias-label-primary)));
 }

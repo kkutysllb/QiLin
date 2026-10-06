@@ -23,8 +23,8 @@ describe('conversation width handle styles', () => {
   it('keeps the hover indicator compact', () => {
     const indicator = rule(conversationCss, '.widthHandle::after')
     expect(indicator).toMatch(/width:\s*2px/)
-    expect(indicator).toContain('var(--dsw-alias-scrollbar-bg-l1)')
-    expect(indicator).not.toContain('var(--dsw-alias-scrollbar-hover-l1)')
+    expect(indicator).toContain('var(--qilin-alias-scrollbar-bg-l1)')
+    expect(indicator).not.toContain('var(--qilin-alias-scrollbar-hover-l1)')
     expect(indicator).toContain('var(--qilin-width-handle-pointer-y, 50%) - 36px')
     expect(indicator).toContain('var(--qilin-width-handle-pointer-y, 50%) + 36px')
   })

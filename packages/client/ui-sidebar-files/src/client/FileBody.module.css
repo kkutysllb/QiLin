@@ -7,7 +7,7 @@
   flex-direction: column;
   height: 100%;
   min-height: 0;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font-size: var(--qilin-content-font-size-secondary, 13px);
   line-height: 1.5;
 }
@@ -23,7 +23,7 @@
   box-sizing: border-box;
   height: 38px;
   padding: 0 6px 0 8px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
 }
 
 /* The open file's path, greyed and ellipsized from its start: the chip
@@ -33,7 +33,7 @@
   min-width: 0;
   margin: 0 4px;
   overflow: hidden;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -46,7 +46,7 @@
   width: 7px;
   height: 7px;
   border-radius: 7px;
-  background: var(--dsw-static-red-500);
+  background: var(--qilin-static-red-500);
 }
 
 .spring {
@@ -56,13 +56,13 @@
 
 .statusText {
   flex: none;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 12px;
   white-space: nowrap;
 }
 
 .statusError {
-  color: var(--dsw-static-red-500);
+  color: var(--qilin-static-red-500);
 }
 
 /* The banner between the toolbar and the workbench: one reload or save
@@ -73,12 +73,12 @@
   gap: 8px;
   align-items: center;
   padding: 8px 10px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
 }
 
 .bannerText {
   flex: 1 1 auto;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -86,21 +86,21 @@
 .bannerButton {
   flex: none;
   padding: 4px 10px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font: inherit;
   font-size: 12px;
   background: transparent;
-  border: 0.5px solid var(--dsw-alias-border-l3);
+  border: 0.5px solid var(--qilin-alias-border-l3);
   border-radius: 8px;
   cursor: pointer;
 }
 
 .bannerButton:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .bannerButton:disabled {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   cursor: default;
 }
 
@@ -120,7 +120,7 @@
   flex-direction: column;
   flex: 0 0 200px;
   min-width: 0;
-  border-right: 0.5px solid var(--dsw-alias-border-l3);
+  border-right: 0.5px solid var(--qilin-alias-border-l3);
 }
 
 .treeScroll {
@@ -151,7 +151,7 @@
   inset: 0 0 auto 0;
   margin: 0;
   padding: 12px 10px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 12px;
 }
 
@@ -179,7 +179,7 @@
   width: 28px;
   height: 28px;
   padding: 6px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   line-height: 1;
   background: transparent;
   border: none;
@@ -193,12 +193,12 @@
 }
 
 .tool:hover {
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .tool:disabled {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   cursor: default;
 }
 
@@ -208,8 +208,8 @@
 
 /* The pressed state of the two toggles (tree pane, wrap). */
 .toolActive {
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-button-ghost-active-fill);
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-alias-button-ghost-active-fill);
 }
 
 /* The wrap toggle carries a text label, not a glyph: width follows the
@@ -234,7 +234,7 @@
 
 .statusLine {
   margin: 0;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: var(--qilin-content-font-size-secondary, 13px);
   line-height: 1.6;
 }

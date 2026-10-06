@@ -111,7 +111,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin/client-ui-sidechat` | no | Sidechat tab type for the right Sidebar: one panel with this Session's side threads, each forked from the parent log with the inherited prefix as reference context |
 | `@qilin/client-ui-skill` | no | Web skill references and the dedicated skill tool row |
 | `@qilin/client-ui-subagent` | no | Subagent conversation catalog, continuation routing UI, and '@' reference source |
-| `@qilin/client-ui-theme` | no | Theme plugin: Host bootstrap for the pre-plugin palette; DOM-free ThemeRuntime for light/dark/system state; --dsw-* token styles and Appearance settings row |
+| `@qilin/client-ui-theme` | no | Theme plugin: Host bootstrap for the pre-plugin palette; DOM-free ThemeRuntime for light/dark/system state; --qilin-* token styles and Appearance settings row |
 | `@qilin/client-ui-theme-brand` | no | QiLin brand color layer for the Web client theme: alias-token overrides stacked over the user's active palette |
 | `@qilin/client-ui-tool` | no | Client Tool call-tree renderer and keyed per-tool presentation slot |
 | `@qilin/client-ui-trajectory` | no | Trajectory event ledger with an interactive timing overview: pure-consumer plugin registering into the conversation ViewMap (no service) |

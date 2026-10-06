@@ -8,7 +8,7 @@
   align-items: center;
   gap: 8px;
   padding: 16px 0;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l2);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l2);
 }
 
 .rowText {
@@ -24,14 +24,14 @@
   font-size: 14px;
   font-weight: 400;
   line-height: 22px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .desc {
   font-size: 12px;
   font-weight: 400;
   line-height: 18px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 /* Stepper pill + unit label. The pill reuses the selector-pill geometry
@@ -50,8 +50,8 @@
   justify-content: center;
   min-width: 72px;
   height: 36px;
-  border-radius: var(--dsw-radius-md);
-  background: var(--dsw-alias-bg-module-platform);
+  border-radius: var(--qilin-radius-md);
+  background: var(--qilin-alias-bg-module-platform);
 }
 
 .value {
@@ -60,13 +60,13 @@
   font-size: 14px;
   line-height: 22px;
   font-variant-numeric: tabular-nums;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .unit {
   font-size: 14px;
   line-height: 22px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 /* Arrow column: anchored right so the value stays pill-centered whether or
@@ -99,16 +99,16 @@
   padding: 0;
   border: none;
   border-radius: 3px;
-  background: color-mix(in srgb, var(--dsw-alias-bg-layer-1) 75%, transparent);
-  color: var(--dsw-alias-label-primary);
+  background: color-mix(in srgb, var(--qilin-alias-bg-layer-1) 75%, transparent);
+  color: var(--qilin-alias-label-primary);
   cursor: pointer;
 }
 
 .arrow:hover:not(:disabled) {
-  background: var(--dsw-alias-bg-layer-1);
+  background: var(--qilin-alias-bg-layer-1);
 }
 
 .arrow:disabled {
-  color: var(--dsw-alias-label-caption);
+  color: var(--qilin-alias-label-caption);
   cursor: default;
 }

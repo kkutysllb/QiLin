@@ -31,7 +31,7 @@ export function tokenValue(name: string): string {
 }
 
 /** Minimal alpha for a token color to count as effectively opaque. Skin
- *  systems turn `--dsw-alias-bg-base` translucent for glass panels (the
+ *  systems turn `--qilin-alias-bg-base` translucent for glass panels (the
  *  dsh-web-ui skins use rgba 0.16–0.7; `transparent` is 0); below this
  *  floor a text surface (terminal, editor) would render over the skin's
  *  backdrop art, so callers fall back to an opaque color. Values at or

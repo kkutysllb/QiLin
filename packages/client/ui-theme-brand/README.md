@@ -29,13 +29,13 @@ The palette is the "Xuanjin" dark-gold landing VI in both schemes: the dark valu
 
 | Role | Token | Light | Dark |
 |---|---|---|---|
-| Accent | `--dsw-alias-brand-primary` | `#8f6f2e` (gold-700) | `#c9a24a` (gold-500) |
-| Canvas | `--dsw-alias-bg-base` | `#f8f5ee` (paper) | `#0d0b09` (landing bg) |
-| Sidebar | `--dsw-specific-sidebar-fill` | `#f1ece0` | `#0d0b09` |
-| Link | `--dsw-alias-link` | `#7d6126` (5.3:1 on paper) | `#f3dc9e` (14.5:1) |
-| Seal | `--dsw-specific-brand-seal-fill` | `#c3402f` | `#d4503d` |
+| Accent | `--qilin-alias-brand-primary` | `#8f6f2e` (gold-700) | `#c9a24a` (gold-500) |
+| Canvas | `--qilin-alias-bg-base` | `#f8f5ee` (paper) | `#0d0b09` (landing bg) |
+| Sidebar | `--qilin-specific-sidebar-fill` | `#f1ece0` | `#0d0b09` |
+| Link | `--qilin-alias-link` | `#7d6126` (5.3:1 on paper) | `#f3dc9e` (14.5:1) |
+| Seal | `--qilin-specific-brand-seal-fill` | `#c3402f` | `#d4503d` |
 
-Feature components consume these through the `--dsw-alias-*` aliases they already use, so the palette reaches the sidebar, composer, conversation, and deliverables without any component being aware of QiLin. Hover keeps each platform's convention (dark brightens toward gold-300, light deepens toward the link gold), state colors and the ongoing blue stay with the base palettes, and `--dsw-specific-brand-seal-fill` carries the seal's own cinnabar for surfaces that must match the stamp; its two values are stops of the seal gradient in `ui-brand`.
+Feature components consume these through the `--qilin-alias-*` aliases they already use, so the palette reaches the sidebar, composer, conversation, and deliverables without any component being aware of QiLin. Hover keeps each platform's convention (dark brightens toward gold-300, light deepens toward the link gold), state colors and the ongoing blue stay with the base palettes, and `--qilin-specific-brand-seal-fill` carries the seal's own cinnabar for surfaces that must match the stamp; its two values are stops of the seal gradient in `ui-brand`.
 
 <a id="dev-note"></a>
 ## Dev Note

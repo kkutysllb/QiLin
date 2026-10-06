@@ -3,7 +3,7 @@
  * behind one mount call and one handle.
  *
  * The body never touches CodeMirror types; this module is the only one that
- * does. The theme colors every surface only through `--dsw-*` tokens, so the
+ * does. The theme colors every surface only through `--qilin-*` tokens, so the
  * token cascade re-themes the editor when the app's color scheme flips.
  * @module
  */
@@ -48,13 +48,13 @@ export interface FileEditorOptions {
 }
 
 /**
- * The editor's surface theme. Every color is a `--dsw-*` token, so the token
+ * The editor's surface theme. Every color is a `--qilin-*` token, so the token
  * cascade carries light and dark schemes without a second theme.
  */
 const editorTheme = EditorView.theme({
   '&': {
     height: '100%',
-    color: 'var(--dsw-alias-label-primary)',
+    color: 'var(--qilin-alias-label-primary)',
     backgroundColor: 'transparent',
     fontSize: 'var(--qilin-content-font-size-secondary, 13px)',
   },
@@ -65,40 +65,40 @@ const editorTheme = EditorView.theme({
     fontFamily: 'var(--ds-font-family-code, ui-monospace)',
     lineHeight: '1.6',
   },
-  '.cm-content': { caretColor: 'var(--dsw-alias-label-primary)' },
-  '.cm-cursor, .cm-dropCursor': { borderLeftColor: 'var(--dsw-alias-label-primary)' },
+  '.cm-content': { caretColor: 'var(--qilin-alias-label-primary)' },
+  '.cm-cursor, .cm-dropCursor': { borderLeftColor: 'var(--qilin-alias-label-primary)' },
   '&.cm-focused .cm-selectionBackground, .cm-selectionBackground, ::selection': {
-    backgroundColor: 'var(--dsw-alias-bg-multi-select)',
+    backgroundColor: 'var(--qilin-alias-bg-multi-select)',
   },
-  '.cm-activeLine': { backgroundColor: 'var(--dsw-alias-interactive-bg-hover)' },
+  '.cm-activeLine': { backgroundColor: 'var(--qilin-alias-interactive-bg-hover)' },
   '.cm-gutters': {
     backgroundColor: 'transparent',
-    color: 'var(--dsw-alias-label-tertiary)',
+    color: 'var(--qilin-alias-label-tertiary)',
     border: 'none',
   },
   '.cm-activeLineGutter': {
     backgroundColor: 'transparent',
-    color: 'var(--dsw-alias-label-secondary)',
+    color: 'var(--qilin-alias-label-secondary)',
   },
   '.cm-matchingBracket': {
     backgroundColor: 'transparent',
-    outline: '0.5px solid var(--dsw-alias-border-l3)',
+    outline: '0.5px solid var(--qilin-alias-border-l3)',
   },
 }, { dark: false })
 
 /**
  * Syntax colors, one small map from the common token tags to the static
- * `--dsw-*` palette: mid-tones that hold on both the light and the dark
+ * `--qilin-*` palette: mid-tones that hold on both the light and the dark
  * background without a per-scheme style.
  */
 const syntaxColors = HighlightStyle.define([
-  { tag: tags.comment, color: 'var(--dsw-static-neutral-500)' },
-  { tag: tags.keyword, color: 'var(--dsw-static-red-500)' },
-  { tag: [tags.string, tags.special(tags.string)], color: 'var(--dsw-static-green-500)' },
-  { tag: [tags.number, tags.bool, tags.null], color: 'var(--dsw-static-amber-500)' },
-  { tag: tags.function(tags.variableName), color: 'var(--dsw-static-blue-500)' },
-  { tag: [tags.typeName, tags.className], color: 'var(--dsw-static-deepseek-500)' },
-  { tag: tags.propertyName, color: 'var(--dsw-static-blue-400)' },
+  { tag: tags.comment, color: 'var(--qilin-static-neutral-500)' },
+  { tag: tags.keyword, color: 'var(--qilin-static-red-500)' },
+  { tag: [tags.string, tags.special(tags.string)], color: 'var(--qilin-static-green-500)' },
+  { tag: [tags.number, tags.bool, tags.null], color: 'var(--qilin-static-amber-500)' },
+  { tag: tags.function(tags.variableName), color: 'var(--qilin-static-blue-500)' },
+  { tag: [tags.typeName, tags.className], color: 'var(--qilin-static-deepseek-500)' },
+  { tag: tags.propertyName, color: 'var(--qilin-static-blue-400)' },
 ])
 
 /**

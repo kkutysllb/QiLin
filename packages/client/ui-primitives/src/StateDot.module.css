@@ -2,7 +2,7 @@
  * not this 450) — component-level var pinned to the static scale instead. */
 .dot,
 .matrix {
-  --qilin-state-ongoing: var(--dsw-static-deepseek-450);
+  --qilin-state-ongoing: var(--qilin-static-deepseek-450);
 }
 
 /* Solid states: same-color halo via a 0.10-opacity outer layer (::before)
@@ -33,21 +33,21 @@
 }
 
 .dot[data-state='done'] {
-  color: var(--dsw-alias-state-success-primary);
+  color: var(--qilin-alias-state-success-primary);
 }
 
 .dot[data-state='warning'] {
-  color: var(--dsw-alias-state-warn-primary);
+  color: var(--qilin-alias-state-warn-primary);
 }
 
 .dot[data-state='error'] {
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 /* Idle is the absence of activity, not a fourth outcome: it stays on the
  * tertiary label color so it recedes beside the three outcome colors. */
 .dot[data-state='idle'] {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 /* Pixel chase: each outer cell holds a discrete brightness step (flat keyframe

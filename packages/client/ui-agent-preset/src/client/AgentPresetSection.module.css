@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .title {
@@ -14,7 +14,7 @@
 .intro {
   margin: 0;
   font-size: 13px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .pickerPreference {
@@ -23,9 +23,9 @@
   justify-content: space-between;
   gap: 20px;
   padding: 14px 16px;
-  border: 0.5px solid var(--dsw-alias-border-l4);
+  border: 0.5px solid var(--qilin-alias-border-l4);
   border-radius: 14px;
-  background: var(--dsw-alias-bg-module-platform);
+  background: var(--qilin-alias-bg-module-platform);
 }
 
 .pickerPreferenceCopy {
@@ -51,7 +51,7 @@
   margin: 0;
   font-size: 12px;
   line-height: 1.5;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 /* Cards, not rows: a preset is a thing you pick, and the description is the
@@ -74,7 +74,7 @@
   font-weight: 600;
   letter-spacing: .06em;
   text-transform: uppercase;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .cards {
@@ -90,7 +90,7 @@
 }
 
 .card {
-  border: 0.5px solid var(--dsw-alias-border-l4);
+  border: 0.5px solid var(--qilin-alias-border-l4);
   border-radius: 20px;
   display: flex;
   flex-direction: column;
@@ -100,21 +100,21 @@
 
 
 .card:hover:not(.cardActive):not(.cardSelectionDisabled) {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 /* The default preset reads as selected exactly like the Appearance cubes:
    platform fill + the bluish-400 border (static token — the bluish-400 step
    has no alias-layer name). */
 .cardActive {
-  background: var(--dsw-alias-bg-module-platform);
-  border-color: var(--dsw-static-neutral-bluish-400);
+  background: var(--qilin-alias-bg-module-platform);
+  border-color: var(--qilin-static-neutral-bluish-400);
 }
 
 /* Mode selection is off, not the preset itself: mute only the selectable
    body while the independent view/copy/location actions stay fully usable. */
 .cardSelectionDisabled {
-  background: var(--dsw-alias-bg-module-platform);
+  background: var(--qilin-alias-bg-module-platform);
 }
 
 .cardSelectionDisabled .cardMain {
@@ -124,11 +124,11 @@
 /* A broken preset reads as damaged before anything else: the card cannot be
    picked, so its border carries the warning the disabled body cannot. */
 .cardBroken {
-  border-color: var(--dsw-alias-state-error-primary);
+  border-color: var(--qilin-alias-state-error-primary);
 }
 
 .cardBroken:hover {
-  border-color: var(--dsw-alias-state-error-primary);
+  border-color: var(--qilin-alias-state-error-primary);
 }
 
 .brokenBadge {
@@ -139,8 +139,8 @@
   line-height: 17px;
   white-space: nowrap;
   font-weight: 500;
-  background: var(--dsw-alias-state-error-primary);
-  color: var(--dsw-alias-bg-layer-3);
+  background: var(--qilin-alias-state-error-primary);
+  color: var(--qilin-alias-bg-layer-3);
 }
 
 /* The discovery-reported reason, verbatim: it names the rows and the fix.
@@ -157,8 +157,8 @@
   max-width: 100%;
   padding: 6px 8px;
   border-radius: 6px;
-  background: var(--dsw-alias-label-primary);
-  color: var(--dsw-alias-bg-layer-3);
+  background: var(--qilin-alias-label-primary);
+  color: var(--qilin-alias-bg-layer-3);
   font-size: 11px;
   font-weight: 400;
   line-height: 1.5;
@@ -183,7 +183,7 @@
 }
 
 .cardMain:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: -2px;
 }
 
@@ -223,7 +223,7 @@
 }
 
 .cardMain:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: -2px;
 }
 
@@ -259,7 +259,7 @@
 .cardDesc {
   font-size: 13px;
   line-height: 1.55;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   min-height: 42px;
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -271,9 +271,9 @@
 
 .cardId {
   margin-top: auto;
-  font-family: var(--dsw-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--qilin-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 11px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .cardFoot {
@@ -281,7 +281,7 @@
   justify-content: flex-end;
   gap: 2px;
   padding: 6px 10px;
-  border-top: 0.5px solid var(--dsw-alias-border-l2);
+  border-top: 0.5px solid var(--qilin-alias-border-l2);
 }
 
 /* Icon-only actions: the label rides `title` so the row stays quiet until
@@ -293,7 +293,7 @@
   border-radius: 7px;
   padding: 6px;
   background: none;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -305,12 +305,12 @@
 }
 
 .iconButton:hover:not(:disabled) {
-  background: var(--dsw-alias-bg-layer-1);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-bg-layer-1);
+  color: var(--qilin-alias-label-primary);
 }
 
 .iconButton:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: -1px;
 }
 
@@ -322,8 +322,8 @@
   transform: translateX(-50%);
   padding: 3px 8px;
   border-radius: 6px;
-  background: var(--dsw-alias-label-primary);
-  color: var(--dsw-alias-bg-layer-3);
+  background: var(--qilin-alias-label-primary);
+  color: var(--qilin-alias-bg-layer-3);
   font-size: 11px;
   line-height: 17px;
   white-space: nowrap;
@@ -338,8 +338,8 @@
 }
 
 .iconDanger:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover-danger);
-  color: var(--dsw-alias-state-error-primary);
+  background: var(--qilin-alias-interactive-bg-hover-danger);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 /* Where the host has no desktop opener, the row answers with the directory
@@ -348,15 +348,15 @@
   margin: 0;
   padding: 6px 16px 10px;
   font-size: 11px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   display: flex;
   gap: 6px;
   align-items: baseline;
 }
 
 .revealedPath code {
-  font-family: var(--dsw-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  color: var(--dsw-alias-label-secondary);
+  font-family: var(--qilin-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  color: var(--qilin-alias-label-secondary);
   user-select: all;
   overflow-wrap: anywhere;
 }
@@ -370,7 +370,7 @@
   border-radius: 7px;
   padding: 5px 8px;
   background: none;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font: inherit;
   font-size: 12.5px;
   cursor: pointer;
@@ -378,7 +378,7 @@
 
 
 .secondaryButton:hover:not(:disabled) {
-  background: var(--dsw-alias-bg-layer-1);
+  background: var(--qilin-alias-bg-layer-1);
 }
 
 .secondaryButton:disabled {
@@ -395,27 +395,27 @@
 .fieldLabel {
   font-size: 12px;
   font-weight: 500;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .input {
   box-sizing: border-box;
   padding: 9px 12px;
-  border: 0.5px solid var(--dsw-alias-border-l4);
+  border: 0.5px solid var(--qilin-alias-border-l4);
   border-radius: 10px;
   font: inherit;
   font-size: 13px;
-  background: var(--dsw-alias-bg-layer-1);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-bg-layer-1);
+  color: var(--qilin-alias-label-primary);
 }
 
 .input:focus {
   outline: none;
-  border-color: var(--dsw-alias-brand-primary);
+  border-color: var(--qilin-alias-brand-primary);
 }
 
 .input::placeholder {
-  color: var(--dsw-alias-label-dimmed);
+  color: var(--qilin-alias-label-dimmed);
 }
 
 .dialog {
@@ -434,23 +434,23 @@
   padding: 12px;
   max-height: min(52vh, 480px);
   overflow: auto;
-  border: 0.5px solid var(--dsw-alias-border-l4);
+  border: 0.5px solid var(--qilin-alias-border-l4);
   border-radius: 10px;
-  background: var(--dsw-alias-bg-layer-2);
-  color: var(--dsw-alias-label-secondary);
-  font-family: var(--dsw-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  background: var(--qilin-alias-bg-layer-2);
+  color: var(--qilin-alias-label-secondary);
+  font-family: var(--qilin-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 12.5px;
   line-height: 1.5;
   white-space: pre;
   tab-size: 2;
-  --qilin-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --qilin-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
 }
 
 .error {
   margin: 0;
   font-size: 12px;
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 .deleteDialog {
@@ -458,12 +458,12 @@
 }
 
 .deleteConfirm:not(:disabled) {
-  border-color: var(--dsw-alias-state-error-primary);
-  color: var(--dsw-alias-state-error-primary);
+  border-color: var(--qilin-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 .deleteConfirm:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover-danger);
+  background: var(--qilin-alias-interactive-bg-hover-danger);
 }
 
 /* The conversational authoring entry, after the card grid in the spot the
@@ -477,18 +477,18 @@
   justify-content: center;
   gap: 6px;
   height: 44px;
-  border: 1px dashed var(--dsw-alias-border-l3);
+  border: 1px dashed var(--qilin-alias-border-l3);
   border-radius: 20px;
   font: inherit;
   font-size: 14px;
   line-height: 22px;
   background: transparent;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   cursor: pointer;
 }
 
 .creatorButton:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .creatorButton:disabled {

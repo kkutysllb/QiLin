@@ -41,7 +41,7 @@
   padding: 0 2px;
   font-size: 13px;
   line-height: 20px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 /* Group container: the DSH card recipe (PluginCard) — l2 hairline, r16,
@@ -53,9 +53,9 @@
   gap: 8px;
   padding: 20px;
   box-sizing: border-box;
-  border: 1px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 16px;
-  background: var(--dsw-alias-bg-layer-3);
+  background: var(--qilin-alias-bg-layer-3);
 }
 
 /* Group heading: 13/600 + the inventory count badge (the settings
@@ -68,7 +68,7 @@
   font-size: 13px;
   line-height: 20px;
   font-weight: 600;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 /* The inventory count: a soft-accent pill (the versionBadgeTag token recipe)
@@ -76,11 +76,11 @@
 .count {
   padding: 1px 8px;
   border-radius: 999px;
-  background: var(--dsw-alias-bg-layer-2);
+  background: var(--qilin-alias-bg-layer-2);
   font-size: 11px;
   line-height: 16px;
   font-weight: 500;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-variant-numeric: tabular-nums;
 }
 
@@ -102,7 +102,7 @@
   min-height: 106px;
   overflow: hidden;
   border-radius: 12px;
-  border: 1px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--qilin-alias-border-l2);
   background: transparent;
   font: inherit;
   color: inherit;
@@ -112,15 +112,15 @@
 
 /* Hover affordance on disabled cards only (enabled cards are already lit). */
 .card:not(.cardOn):hover {
-  background: var(--dsw-alias-interactive-bg-hover);
-  border-color: var(--dsw-alias-label-dimmed);
+  background: var(--qilin-alias-interactive-bg-hover);
+  border-color: var(--qilin-alias-label-dimmed);
 }
 
 /* Enabled = highlighted: a SOFTENED brand border (color-mix, the icon-chip
    precedent) + tinted fill — full-strength brand reads harsh at card scale. */
 .cardOn {
-  border-color: color-mix(in srgb, var(--dsw-alias-button-primary-fill) 45%, transparent);
-  background: var(--dsw-alias-interactive-bg-active);
+  border-color: color-mix(in srgb, var(--qilin-alias-button-primary-fill) 45%, transparent);
+  background: var(--qilin-alias-interactive-bg-active);
 }
 
 /* The card's switch: the whole main area (top row + desc) flips the feature.
@@ -145,7 +145,7 @@
 .cardMain:focus-visible,
 .cardSettings:focus-visible,
 .rowGear:focus-visible {
-  outline: 2px solid var(--dsw-alias-border-l4);
+  outline: 2px solid var(--qilin-alias-border-l4);
   outline-offset: 2px;
 }
 
@@ -167,15 +167,15 @@
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  border: 1px solid var(--dsw-alias-border-l2);
-  background: var(--dsw-alias-bg-layer-2);
-  color: var(--dsw-alias-label-tertiary);
+  border: 1px solid var(--qilin-alias-border-l2);
+  background: var(--qilin-alias-bg-layer-2);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .cardOn .cardIconChip {
-  border-color: color-mix(in srgb, var(--dsw-alias-button-primary-fill) 35%, transparent);
-  background: color-mix(in srgb, var(--dsw-alias-button-primary-fill) 12%, transparent);
-  color: var(--dsw-alias-button-primary-fill);
+  border-color: color-mix(in srgb, var(--qilin-alias-button-primary-fill) 35%, transparent);
+  background: color-mix(in srgb, var(--qilin-alias-button-primary-fill) 12%, transparent);
+  color: var(--qilin-alias-button-primary-fill);
 }
 
 .cardTitle {
@@ -184,14 +184,14 @@
   font-size: 13px;
   line-height: 20px;
   font-weight: 600;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .cardOn .cardTitle {
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 /* The compact on/off switch knob at the card's far right (enabled only):
@@ -212,8 +212,8 @@
   padding: 2px;
   box-sizing: border-box;
   border-radius: 8px;
-  background: var(--dsw-alias-bg-layer-2);
-  border: 1px solid var(--dsw-alias-border-l2);
+  background: var(--qilin-alias-bg-layer-2);
+  border: 1px solid var(--qilin-alias-border-l2);
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 
@@ -222,24 +222,24 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--dsw-alias-label-tertiary);
+  background: var(--qilin-alias-label-tertiary);
   transition: transform 0.15s ease, background 0.15s ease;
 }
 
 .cardOn .cardSwitchTrack {
-  border-color: var(--dsw-alias-button-primary-fill);
-  background: var(--dsw-alias-button-primary-fill);
+  border-color: var(--qilin-alias-button-primary-fill);
+  background: var(--qilin-alias-button-primary-fill);
 }
 
 .cardOn .cardSwitchThumb {
   transform: translateX(14px);
-  background: var(--dsw-alias-bg-layer-3);
+  background: var(--qilin-alias-bg-layer-3);
 }
 
 .cardDesc {
   font-size: 11px;
   line-height: 16px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -250,7 +250,7 @@
    我们在插件里直接注册。 */
 
 .cardOn .cardDesc {
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 /* The settings strip: a labeled full-width footer across the card's bottom
@@ -265,9 +265,9 @@
   width: 100%;
   padding: 6px 12px;
   border: 0;
-  border-top: 1px solid var(--dsw-alias-border-l1);
+  border-top: 1px solid var(--qilin-alias-border-l1);
   background: transparent;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font: inherit;
   font-size: 11px;
   line-height: 16px;
@@ -278,12 +278,12 @@
 }
 
 .cardOn .cardSettings {
-  border-top-color: color-mix(in srgb, var(--dsw-alias-button-primary-fill) 18%, transparent);
+  border-top-color: color-mix(in srgb, var(--qilin-alias-button-primary-fill) 18%, transparent);
 }
 
 .cardSettings:hover {
-  background: var(--dsw-alias-interactive-bg-hover-accent);
-  color: var(--dsw-alias-brand-primary);
+  background: var(--qilin-alias-interactive-bg-hover-accent);
+  color: var(--qilin-alias-brand-primary);
 }
 
 /* The gear icon button on a general settings ROW (the position-compat
@@ -296,19 +296,19 @@
   width: 22px;
   height: 22px;
   padding: 0;
-  border: 1px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 6px;
   background: transparent;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   cursor: pointer;
   flex: none;
   transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
 }
 
 .rowGear:hover {
-  border-color: var(--dsw-alias-interactive-bg-hover-accent);
-  background: var(--dsw-alias-interactive-bg-hover-accent);
-  color: var(--dsw-alias-brand-primary);
+  border-color: var(--qilin-alias-interactive-bg-hover-accent);
+  background: var(--qilin-alias-interactive-bg-hover-accent);
+  color: var(--qilin-alias-brand-primary);
 }
 
 /* Settings-row recipe (the DSH General section rows): title/desc left,
@@ -319,7 +319,7 @@
   justify-content: space-between;
   gap: 16px;
   padding: 12px 2px;
-  border-bottom: 1px solid var(--dsw-alias-border-l2);
+  border-bottom: 1px solid var(--qilin-alias-border-l2);
 }
 
 .row:last-child {
@@ -336,13 +336,13 @@
 .title {
   font-size: 14px;
   line-height: 22px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .desc {
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 /* Custom switch: a real checkbox (native semantics + focus, visually
@@ -370,8 +370,8 @@
   padding: 2px;
   box-sizing: border-box;
   border-radius: 10px;
-  border: 1px solid var(--dsw-alias-border-l2);
-  background: var(--dsw-alias-bg-layer-2);
+  border: 1px solid var(--qilin-alias-border-l2);
+  background: var(--qilin-alias-bg-layer-2);
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 
@@ -380,26 +380,26 @@
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--dsw-alias-label-tertiary);
+  background: var(--qilin-alias-label-tertiary);
   transition: transform 0.15s ease, background 0.15s ease;
 }
 
 .switch:hover .switchTrack {
-  border-color: var(--dsw-alias-label-dimmed);
+  border-color: var(--qilin-alias-label-dimmed);
 }
 
 .switchInput:checked + .switchTrack {
-  border-color: var(--dsw-alias-button-primary-fill);
-  background: var(--dsw-alias-button-primary-fill);
+  border-color: var(--qilin-alias-button-primary-fill);
+  background: var(--qilin-alias-button-primary-fill);
 }
 
 .switchInput:checked + .switchTrack .switchThumb {
   transform: translateX(16px);
-  background: var(--dsw-alias-bg-layer-3);
+  background: var(--qilin-alias-bg-layer-3);
 }
 
 .switchInput:focus-visible + .switchTrack {
-  outline: 2px solid var(--dsw-alias-state-business-primary);
+  outline: 2px solid var(--qilin-alias-state-business-primary);
   outline-offset: 2px;
 }
 
@@ -434,17 +434,17 @@
   gap: 6px;
   max-width: 220px;
   padding: 4px 8px;
-  border: 1px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 8px;
-  background: var(--dsw-alias-bg-layer-3);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-bg-layer-3);
+  color: var(--qilin-alias-label-primary);
   font-size: 13px;
   line-height: 20px;
   cursor: pointer;
 }
 
 .selectAnchor:hover {
-  border-color: var(--dsw-alias-label-dimmed);
+  border-color: var(--qilin-alias-label-dimmed);
 }
 
 .selectAnchorIcon {
@@ -469,7 +469,7 @@
 .selectOptionIcon {
   display: inline-flex;
   flex: none;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .selectOptionText {
@@ -481,7 +481,7 @@
 .suffix {
   font-size: 14px;
   line-height: 22px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 /* The multi-line custom-CSS input (scheme `custom`): monospace, generous
@@ -491,10 +491,10 @@
   box-sizing: border-box;
   min-height: 120px;
   padding: 8px 10px;
-  border: 1px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 8px;
-  background: var(--dsw-alias-bg-layer-3);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-bg-layer-3);
+  color: var(--qilin-alias-label-primary);
   font-family: var(--ds-font-family-code, monospace);
   font-size: 12px;
   line-height: 1.6;
@@ -502,7 +502,7 @@
 }
 
 .cssTextArea:focus-visible {
-  outline: 2px solid var(--dsw-alias-state-business-primary);
+  outline: 2px solid var(--qilin-alias-state-business-primary);
   outline-offset: 2px;
 }
 
@@ -534,7 +534,7 @@
   overflow-x: hidden;
   padding-right: 4px;
   scrollbar-width: thin;
-  scrollbar-color: var(--dsw-alias-scrollbar-bg-l2, transparent) transparent;
+  scrollbar-color: var(--qilin-alias-scrollbar-bg-l2, transparent) transparent;
 }
 
 .popupRows::-webkit-scrollbar {
@@ -543,11 +543,11 @@
 
 .popupRows::-webkit-scrollbar-thumb {
   border-radius: 3px;
-  background: var(--dsw-alias-scrollbar-bg-l2, var(--dsw-alias-border-l2));
+  background: var(--qilin-alias-scrollbar-bg-l2, var(--qilin-alias-border-l2));
 }
 
 .popupRows::-webkit-scrollbar-thumb:hover {
-  background: var(--dsw-alias-scrollbar-hover-l2, var(--dsw-alias-label-dimmed));
+  background: var(--qilin-alias-scrollbar-hover-l2, var(--qilin-alias-label-dimmed));
 }
 
 .popupRow {
@@ -558,14 +558,14 @@
   gap: 16px;
   min-width: 0;
   padding: 12px 14px;
-  border: 1px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 12px;
-  background: var(--dsw-alias-bg-layer-3);
+  background: var(--qilin-alias-bg-layer-3);
   transition: border-color 0.16s, background 0.16s;
 }
 
 .popupRow:hover {
-  border-color: var(--dsw-alias-label-dimmed);
+  border-color: var(--qilin-alias-label-dimmed);
 }
 
 /* The popup's Done button: the settings primary-button recipe
@@ -579,12 +579,12 @@
   font-size: 13px;
   line-height: 1.5;
   cursor: pointer;
-  background: var(--dsw-alias-label-primary);
-  color: var(--dsw-alias-bg-layer-3);
+  background: var(--qilin-alias-label-primary);
+  color: var(--qilin-alias-bg-layer-3);
 }
 
 .done:focus-visible {
-  outline: 2px solid var(--dsw-alias-brand-primary);
+  outline: 2px solid var(--qilin-alias-brand-primary);
   outline-offset: 1px;
 }
 
@@ -592,7 +592,7 @@
   padding: 10px 0 2px;
   font-size: 12px;
   line-height: 17px;
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 /* ── "Add plugin" modal ──────────────────────────────────────────────── */
@@ -616,25 +616,25 @@
 .pluginTopicBtn {
   width: 100%;
   appearance: none;
-  border: 1px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 8px;
   padding: 6px 12px;
   font: inherit;
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-secondary);
-  background: var(--dsw-alias-bg-layer-1);
+  color: var(--qilin-alias-label-secondary);
+  background: var(--qilin-alias-bg-layer-1);
   cursor: pointer;
 }
 
 .pluginTopicBtn:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
-  border-color: var(--dsw-alias-interactive-bg-hover-accent);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  border-color: var(--qilin-alias-interactive-bg-hover-accent);
+  color: var(--qilin-alias-label-primary);
 }
 
 .pluginTopicBtn:focus-visible {
-  outline: 2px solid var(--dsw-alias-border-l4);
+  outline: 2px solid var(--qilin-alias-border-l4);
   outline-offset: 1px;
 }
 
@@ -642,7 +642,7 @@
   padding: 20px 2px;
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 /* One catalog entry: name + install button on the head row, description,
@@ -653,9 +653,9 @@
   flex-direction: column;
   gap: 4px;
   padding: 12px;
-  border: 1px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 12px;
-  background: var(--dsw-alias-bg-layer-1);
+  background: var(--qilin-alias-bg-layer-1);
 }
 
 .pluginEntryHead {
@@ -678,7 +678,7 @@
 .pluginJumpBtn {
   flex: none;
   appearance: none;
-  border: 1px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 8px;
   padding: 3px 12px;
   font: inherit;
@@ -686,17 +686,17 @@
   line-height: 1.5;
   cursor: pointer;
   background: transparent;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .pluginJumpBtn:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
-  border-color: var(--dsw-alias-interactive-bg-hover-accent);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  border-color: var(--qilin-alias-interactive-bg-hover-accent);
+  color: var(--qilin-alias-label-primary);
 }
 
 .pluginJumpBtn:focus-visible {
-  outline: 2px solid var(--dsw-alias-border-l4);
+  outline: 2px solid var(--qilin-alias-border-l4);
   outline-offset: 1px;
 }
 
@@ -713,7 +713,7 @@
   font-size: 13px;
   line-height: 20px;
   font-weight: 600;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   text-align: left;
   text-decoration: none;
   overflow: hidden;
@@ -724,13 +724,13 @@
 
 .pluginName:hover {
   text-decoration: underline;
-  color: var(--dsw-alias-button-primary-fill);
+  color: var(--qilin-alias-button-primary-fill);
 }
 
 .pluginDesc {
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .pluginInstall {
@@ -739,9 +739,9 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11px;
   line-height: 16px;
-  color: var(--dsw-alias-label-secondary);
-  background: var(--dsw-alias-bg-layer-2);
-  border: 1px solid var(--dsw-alias-border-l1);
+  color: var(--qilin-alias-label-secondary);
+  background: var(--qilin-alias-bg-layer-2);
+  border: 1px solid var(--qilin-alias-border-l1);
   border-radius: 8px;
   overflow-x: auto;
   white-space: nowrap;
@@ -759,16 +759,16 @@
   font-size: 12px;
   line-height: 1.5;
   cursor: pointer;
-  background: var(--dsw-alias-label-primary);
-  color: var(--dsw-alias-bg-layer-3);
+  background: var(--qilin-alias-label-primary);
+  color: var(--qilin-alias-bg-layer-3);
 }
 
 .pluginCopyBtn:hover {
-  background: var(--dsw-alias-button-primary-hover);
+  background: var(--qilin-alias-button-primary-hover);
 }
 
 .pluginCopyBtn:focus-visible {
-  outline: 2px solid var(--dsw-alias-brand-primary);
+  outline: 2px solid var(--qilin-alias-brand-primary);
   outline-offset: 1px;
 }
 
@@ -786,7 +786,7 @@
 }
 
 /* The managing plugin's identity badge: name + version pill, token-driven
-   (labels via --dsw-alias-label-*, surface via --dsw-alias-bg-layer-2). */
+   (labels via --qilin-alias-label-*, surface via --qilin-alias-bg-layer-2). */
 .versionBadge {
   display: inline-flex;
   align-items: center;
@@ -794,22 +794,22 @@
   align-self: flex-start;
   padding: 4px 12px 4px 14px;
   border-radius: 999px;
-  border: 1px solid var(--dsw-alias-border-l2);
-  background: var(--dsw-alias-bg-layer-2);
+  border: 1px solid var(--qilin-alias-border-l2);
+  background: var(--qilin-alias-bg-layer-2);
   font-size: 12px;
   line-height: 18px;
 }
 
 .versionBadgeName {
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font-weight: 600;
 }
 
 .versionBadgeTag {
   padding: 1px 8px;
   border-radius: 999px;
-  background: var(--dsw-alias-border-l2);
-  color: var(--dsw-alias-label-secondary);
+  background: var(--qilin-alias-border-l2);
+  color: var(--qilin-alias-label-secondary);
   font-variant-numeric: tabular-nums;
 }
 
@@ -820,22 +820,22 @@
   width: 100%;
   box-sizing: border-box;
   appearance: none;
-  border: 1px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 8px;
   padding: 6px 10px;
   font: inherit;
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-bg-layer-1);
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-alias-bg-layer-1);
 }
 
 .pluginSearch::placeholder {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .pluginSearch:focus-visible {
-  outline: 2px solid var(--dsw-alias-border-l4);
+  outline: 2px solid var(--qilin-alias-border-l4);
   outline-offset: 1px;
 }
 
@@ -862,7 +862,7 @@
   font-size: 12px;
   line-height: 18px;
   font-weight: 600;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   padding: 2px 2px 0;
 }
 
@@ -882,10 +882,10 @@
   min-width: 0;
   box-sizing: border-box;
   padding: 5px 8px;
-  border: 1px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 8px;
-  background: var(--dsw-alias-bg-layer-3);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-bg-layer-3);
+  color: var(--qilin-alias-label-primary);
   font: inherit;
   font-size: 13px;
   line-height: 20px;
@@ -893,7 +893,7 @@
 
 .openWithEditorInput:focus-visible,
 .openWithEditorTemplate:focus-visible {
-  outline: 2px solid var(--dsw-alias-state-business-primary);
+  outline: 2px solid var(--qilin-alias-state-business-primary);
   outline-offset: 1px;
 }
 
@@ -902,7 +902,7 @@
   align-items: center;
   gap: 5px;
   font-size: 12px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   white-space: nowrap;
   cursor: pointer;
 }
@@ -915,18 +915,18 @@
   border: none;
   border-radius: 8px;
   background: none;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   cursor: pointer;
 }
 
 .openWithRemove:hover {
-  color: var(--dsw-alias-state-error-primary);
-  background: var(--dsw-alias-bg-layer-2);
+  color: var(--qilin-alias-state-error-primary);
+  background: var(--qilin-alias-bg-layer-2);
 }
 
 .openWithHint {
   font-size: 12px;
   line-height: 17px;
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
   padding: 0 2px;
 }

@@ -36,8 +36,8 @@
   margin-bottom: 6px;
   padding: 4px 8px;
   border-radius: 8px;
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-secondary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-secondary);
   font-size: 12px;
   line-height: 18px;
 }
@@ -57,10 +57,10 @@
      drawn as the elevation hairline so it costs no layout; the shadow is the
      soft elevation tier. Fill: the input surface token (elevated in dark). */
   border: 0;
-  --dsw-elevation-stroke-color: var(--dsw-alias-border-l2);
+  --qilin-elevation-stroke-color: var(--qilin-alias-border-l2);
   border-radius: 22px;
-  background: var(--dsw-specific-input-major);
-  box-shadow: var(--dsw-elevation-soft);
+  background: var(--qilin-specific-input-major);
+  box-shadow: var(--qilin-elevation-soft);
   /* The draft text follows the Settings font-size preference (the textarea,
      mirror, and backdrop all inherit from here, so the three layers stay in
      step); the line height keeps the default 10px leading via the shared px
@@ -72,8 +72,8 @@
      pair. Declared on the card because the elevation belongs to the surface,
      and the custom properties inherit down to the box that actually scrolls
      (see ui-theme styles/scrollbar.css for the rebinding contract). */
-  --qilin-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --qilin-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
 }
 
 /* No-workspace trigger state: dashed l4 stroke marks the card as a pick-a-
@@ -83,7 +83,7 @@
    by an SVG dash ring (stroke-width 2 centered on the box edge = 1px visible
    inside), which keeps the 22px radius and both themes. */
 .cardWorkspaceTrigger {
-  --dsw-elevation-stroke-color: transparent;
+  --qilin-elevation-stroke-color: transparent;
   cursor: pointer;
 }
 
@@ -92,7 +92,7 @@
   position: absolute;
   inset: -1px;
   border-radius: 22px;
-  background: var(--dsw-alias-border-l4);
+  background: var(--qilin-alias-border-l4);
   transition: background-color 100ms ease;
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' fill='none' rx='22' ry='22' stroke='black' stroke-width='2' stroke-dasharray='4 4'/%3E%3C/svg%3E");
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' fill='none' rx='22' ry='22' stroke='black' stroke-width='2' stroke-dasharray='4 4'/%3E%3C/svg%3E");
@@ -107,7 +107,7 @@
 }
 
 .cardWorkspaceTrigger:hover::after {
-  background: var(--dsw-alias-state-business-primary);
+  background: var(--qilin-alias-state-business-primary);
 }
 
 .accessory {
@@ -156,7 +156,7 @@
   height: 8px;
   border-radius: 50%;
   corner-shape: round;
-  background: var(--dsw-alias-state-business-primary);
+  background: var(--qilin-alias-state-business-primary);
   animation: input-pending 1s ease-in-out infinite alternate;
 }
 
@@ -175,16 +175,16 @@
      an 8px breath below the line (the hero keeps its own 52px floor below). */
   min-height: 36px;
   padding: 4px 8px 0 14px;
-  font-family: var(--dsw-font-family);
+  font-family: var(--qilin-font-family);
   font-size: inherit;
   line-height: inherit;
   white-space: pre-wrap;
   word-break: break-word;
   overflow-wrap: anywhere;
   outline: none;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   /* Business blue, not brand-primary: that token resolves to ink in this sheet. */
-  caret-color: var(--dsw-alias-state-business-primary);
+  caret-color: var(--qilin-alias-state-business-primary);
 }
 
 /* Lexical paragraphs are <p> blocks: strip the UA margins so the surface
@@ -198,7 +198,7 @@
    blank; without the variable the declaration is invalid and nothing shows. */
 .input p:last-child::after {
   content: var(--qilin-composer-hint);
-  color: var(--dsw-alias-label-caption);
+  color: var(--qilin-alias-label-caption);
 }
 
 .input[data-composer-composing] p:last-child::after {
@@ -216,7 +216,7 @@
 .placeholder {
   position: absolute;
   inset: 4px 8px auto 14px;
-  color: var(--dsw-alias-label-caption);
+  color: var(--qilin-alias-label-caption);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -225,7 +225,7 @@
 }
 
 .inputDisabled {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   cursor: not-allowed;
 }
 
@@ -314,13 +314,13 @@
   border: none;
   border-radius: 999px;
   corner-shape: round;
-  background: var(--dsw-specific-selector);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-specific-selector);
+  color: var(--qilin-alias-label-primary);
   cursor: pointer;
 }
 
 .add:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover-solid);
+  background: var(--qilin-alias-interactive-bg-hover-solid);
 }
 
 .add:disabled {
@@ -342,7 +342,7 @@
   background-repeat: no-repeat;
   background-position: right 4px center;
   background-size: 12px 12px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 13px;
   line-height: 20px;
   font-weight: 500;
@@ -352,7 +352,7 @@
 }
 
 .select:hover:not(:disabled) {
-  background-color: var(--dsw-alias-interactive-bg-hover);
+  background-color: var(--qilin-alias-interactive-bg-hover);
 }
 
 .select:disabled {
@@ -372,7 +372,7 @@
   border: none;
   border-radius: 999px;
   corner-shape: round;
-  background: var(--dsw-alias-button-info-fill);
+  background: var(--qilin-alias-button-info-fill);
   /* Static white, not the foreground token: the arrow stays white on the blue
      fill in both themes (design 34:10465). */
   color: #fff;
@@ -385,7 +385,7 @@
 }
 
 .primary:hover:not(:disabled) {
-  background: var(--dsw-alias-button-info-hover);
+  background: var(--qilin-alias-button-info-hover);
 }
 
 .primary:disabled {

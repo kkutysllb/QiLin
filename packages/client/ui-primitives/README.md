@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Use `qilin-client-ui-primitives` to build web-client controls and render agent output with shared React UI. It includes standard controls, icons, anchored overlays, and renderers for Markdown with TeX, terminal output, file reads, diffs, search, web retrieval, and JSON. The renderers handle untrusted model output by keeping raw HTML literal unless the owner supplies its own sanitizing renderer, restricting links, and parsing ANSI escape sequences. The components import no Kylin runtime; callers supply localized labels, and theme-facing colors use `--dsw-*` design tokens.
+Use `qilin-client-ui-primitives` to build web-client controls and render agent output with shared React UI. It includes standard controls, icons, anchored overlays, and renderers for Markdown with TeX, terminal output, file reads, diffs, search, web retrieval, and JSON. The renderers handle untrusted model output by keeping raw HTML literal unless the owner supplies its own sanitizing renderer, restricting links, and parsing ANSI escape sequences. The components import no Kylin runtime; callers supply localized labels, and theme-facing colors use `--qilin-*` design tokens.
 
 ## Table of Contents
 
@@ -27,7 +27,7 @@ Use `qilin-client-ui-primitives` to build web-client controls and render agent o
 
 This package is a Web-shell build input. Its static ESM retains third-party imports and styles for Vite; independent consumers supply its development dependencies ([dependency rules](../AGENTS.md#dependency-declaration)).
 
-Compose feature UI from these atoms whenever the web client needs a standard control or an agent-output renderer. They render through React only and take `--dsw-*` design tokens from the theme, so they fit any plugin without importing the theme or the slot system.
+Compose feature UI from these atoms whenever the web client needs a standard control or an agent-output renderer. They render through React only and take `--qilin-*` design tokens from the theme, so they fit any plugin without importing the theme or the slot system.
 
 <a id="component-catalog"></a>
 ### Component catalog
@@ -100,7 +100,7 @@ The atoms cannot read the application locale, so every piece of user-facing copy
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The package enforces one separation: presentational React atoms with zero Kylin and zero slot knowledge, styled only through `--dsw-*` tokens, while every feature-specific concern (locale, session data, composition) stays in the composing plugin.
+The package enforces one separation: presentational React atoms with zero Kylin and zero slot knowledge, styled only through `--qilin-*` tokens, while every feature-specific concern (locale, session data, composition) stays in the composing plugin.
 
 ### Source map
 
@@ -140,7 +140,7 @@ These pages place the atoms in the client stack and the design system.
 - [ui-renderer](../ui-renderer/README.md) — the React renderer that mounts the assembled application and binds slot data.
 - [ui-tool](../ui-tool/README.md) — the tool-call presentation layer that composes these output cards.
 - [ui-conversation](../ui-conversation/README.md) — the chat surface that renders markdown replies and tool cards.
-- [ui-theme](../ui-theme/README.md) — the `--dsw-*` token system these atoms style through.
+- [ui-theme](../ui-theme/README.md) — the `--qilin-*` token system these atoms style through.
 - [Web styling](../../../docs/web-styling.md) — the authoritative styling rules for web client components.
 
 -----

@@ -4,7 +4,7 @@
   grid-template-rows: minmax(0, 1fr) auto;
   height: 100%;
   overflow: hidden;
-  background: var(--dsw-alias-bg-base);
+  background: var(--qilin-alias-bg-base);
   /* Collapse/expand animates the tracks on the deepsuite sider curve
      (--ds-ease-in-out / --ds-transition-duration-slow, ui-theme base.css). */
   transition: grid-template-columns var(--ds-transition-duration-slow) var(--ds-ease-in-out);
@@ -36,11 +36,11 @@
   box-sizing: border-box;
   padding-top: var(--dsh-windows-titlebar-height);
   grid-template-rows: minmax(0, 1fr);
-  background: var(--dsw-specific-sidebar-fill);
+  background: var(--qilin-specific-sidebar-fill);
 }
 
 :global([data-windows-titlebar]) .centerCol {
-  background: var(--dsw-alias-bg-base);
+  background: var(--qilin-alias-bg-base);
   border-radius: var(--dsh-windows-content-radius) 0 0 0;
   corner-shape: round;
 }
@@ -50,7 +50,7 @@
   position: absolute;
   inset: 0 0 auto;
   height: var(--dsh-windows-titlebar-height);
-  background: var(--dsw-specific-sidebar-fill);
+  background: var(--qilin-specific-sidebar-fill);
   -webkit-app-region: drag;
 }
 
@@ -71,8 +71,8 @@
 .sidebarCol {
   min-width: 0;
   overflow: hidden;
-  background: var(--dsw-specific-sidebar-fill);
-  border-right: 0.5px solid var(--dsw-alias-border-l3);
+  background: var(--qilin-specific-sidebar-fill);
+  border-right: 0.5px solid var(--qilin-alias-border-l3);
 }
 
 .centerCol {
@@ -92,13 +92,13 @@
 }
 
 :global([data-platform='darwin']) .sidebarCol {
-  background: color-mix(in srgb, var(--dsw-specific-sidebar-fill) 60%, transparent);
+  background: color-mix(in srgb, var(--qilin-specific-sidebar-fill) 60%, transparent);
   border-right: none;
 }
 
 :global([data-platform='darwin']) .centerCol {
-  background: var(--dsw-alias-bg-base);
-  border-left: 0.5px solid var(--dsw-alias-border-l3);
+  background: var(--qilin-alias-bg-base);
+  border-left: 0.5px solid var(--qilin-alias-border-l3);
 }
 
 /* The darwin closed sidebar has no rail: the centre reaches the window edge,
@@ -136,7 +136,7 @@
   height: 32px;
   transform: translate(-50%, -50%);
   border-radius: 999px;
-  background: var(--dsw-alias-border-l4);
+  background: var(--qilin-alias-border-l4);
   opacity: 0;
   transition: opacity var(--ds-transition-duration-fast) var(--ds-ease-in-out);
 }
@@ -182,7 +182,7 @@
   min-width: 0;
   min-height: 0;
   overflow: auto;
-  background: var(--dsw-alias-bg-base);
+  background: var(--qilin-alias-bg-base);
 }
 
 .overlayLayer {

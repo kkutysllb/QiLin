@@ -15,7 +15,7 @@
   border: none;
   border-radius: 24px;
   background: transparent;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-family: inherit;
   font-size: var(--qilin-content-font-size-secondary, 13px);
   font-variant-numeric: tabular-nums;
@@ -26,19 +26,19 @@
 
 .trigger:hover,
 .trigger[aria-expanded='true'] {
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-secondary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .track {
   fill: none;
-  stroke: var(--dsw-alias-border-l3);
+  stroke: var(--qilin-alias-border-l3);
   stroke-width: 2;
 }
 
 .fill {
   fill: none;
-  stroke: var(--dsw-alias-label-tertiary);
+  stroke: var(--qilin-alias-label-tertiary);
   stroke-width: 2;
   stroke-linecap: round;
 }
@@ -51,12 +51,12 @@
   padding: 12px;
   border: 0;
   border-radius: 12px;
-  background: var(--dsw-specific-menu);
-  --dsw-elevation-stroke-color: var(--dsw-alias-border-l1);
-  box-shadow: var(--dsw-elevation-prominent);
+  background: var(--qilin-specific-menu);
+  --qilin-elevation-stroke-color: var(--qilin-alias-border-l1);
+  box-shadow: var(--qilin-elevation-prominent);
   font-size: 12px;
   line-height: 20px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   cursor: default;
 }
 
@@ -70,16 +70,16 @@
   margin-left: auto;
   font-weight: 500;
   font-variant-numeric: tabular-nums;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .percent {
   font-weight: 500;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .headline {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 /* The headline brackets the reading, so the side a locale leaves empty must
@@ -95,7 +95,7 @@
   height: 4px;
   border-radius: 999px;
   corner-shape: round;
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
   overflow: hidden;
 }
 
@@ -104,7 +104,7 @@
   min-width: 2px;
   height: 100%;
   border-radius: 1px;
-  background: var(--meter-tint, var(--dsw-alias-label-tertiary));
+  background: var(--meter-tint, var(--qilin-alias-label-tertiary));
 }
 
 .swatch {
@@ -118,7 +118,7 @@
 }
 
 .colorSystem {
-  --meter-tint: var(--dsw-static-neutral-bluish-400);
+  --meter-tint: var(--qilin-static-neutral-bluish-400);
 }
 
 .colorTools {
@@ -127,7 +127,7 @@
 }
 
 .colorMessages {
-  --meter-tint: var(--dsw-static-blue-450);
+  --meter-tint: var(--qilin-static-blue-450);
 }
 
 .rows {
@@ -143,11 +143,11 @@
 }
 
 .row dt {
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .row dd {
   margin: 0;
   font-variant-numeric: tabular-nums;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }

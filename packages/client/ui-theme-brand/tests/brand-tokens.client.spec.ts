@@ -16,9 +16,9 @@ import { apply, inject } from '../src/client/index.ts'
 import { apply as hostApply } from '../src/index.ts'
 import { QILIN_TOKENS } from '../src/client/tokens.ts'
 
-const BRAND = '--dsw-alias-brand-primary'
-const SIDEBAR = '--dsw-specific-sidebar-fill'
-const SEAL = '--dsw-specific-brand-seal-fill'
+const BRAND = '--qilin-alias-brand-primary'
+const SIDEBAR = '--qilin-specific-sidebar-fill'
+const SEAL = '--qilin-specific-brand-seal-fill'
 
 /**
  * The seal body gradient stops, read from the source that owns them. The mark
@@ -53,7 +53,7 @@ describe('qilin brand theme plugin', () => {
 
   it('states both palette modes for every QiLin token', () => {
     for (const [name, modes] of Object.entries(QILIN_TOKENS)) {
-      expect(name.startsWith('--dsw-'), name).toBe(true)
+      expect(name.startsWith('--qilin-'), name).toBe(true)
       expect(modes.light, name).toMatch(/^(#[0-9a-f]{6}|rgba\([0-9, .]+\))$/)
       expect(modes.dark, name).toMatch(/^(#[0-9a-f]{6}|rgba\([0-9, .]+\))$/)
       expect(modes.light, name).not.toBe(modes.dark)
@@ -62,8 +62,8 @@ describe('qilin brand theme plugin', () => {
     // Landing VI pins: the dark accent is the landing gold-500 and the dark
     // canvas its background; the light link gold is the AA-derived step.
     expect(QILIN_TOKENS[BRAND]).toEqual({ light: '#8f6f2e', dark: '#c9a24a' })
-    expect(QILIN_TOKENS['--dsw-alias-link']).toEqual({ light: '#7d6126', dark: '#f3dc9e' })
-    expect(QILIN_TOKENS['--dsw-alias-bg-base']).toEqual({ light: '#f8f5ee', dark: '#0d0b09' })
+    expect(QILIN_TOKENS['--qilin-alias-link']).toEqual({ light: '#7d6126', dark: '#f3dc9e' })
+    expect(QILIN_TOKENS['--qilin-alias-bg-base']).toEqual({ light: '#f8f5ee', dark: '#0d0b09' })
     // Both seal values are stops of the seal body gradient in ui-brand
     // Seal.tsx, and each clears 4.5:1 against the surface it renders on.
     for (const mode of ['light', 'dark'] as const) {

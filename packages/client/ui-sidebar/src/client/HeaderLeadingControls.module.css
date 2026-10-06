@@ -34,12 +34,12 @@
   border-radius: 50%;
   corner-shape: round;
   background: transparent;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   cursor: pointer;
 }
 
 .iconButton:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 /* Glyphs match the right-side header controls (ui-sidebar-right ExpandButton):

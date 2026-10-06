@@ -9,7 +9,7 @@ kind: "package-library"
 
 ## 概述
 
-使用 `qilin-client-ui-primitives`，通过共享 React UI 构建 Web 客户端控件并渲染 agent 输出。它提供标准控件、图标、锚定浮层，以及用于带 TeX 公式的 Markdown、终端输出、文件读取、差异、搜索、网页检索和 JSON 的渲染器。这些渲染器会把原始 HTML 保持为字面文本——除非持有方自己提供一个消毒渲染器——并限制链接、解析 ANSI 转义序列，以处理不受信任的模型输出。组件不 import Kylin 运行时；调用方提供本地化 label，主题相关颜色使用 `--dsw-*` 设计 token。
+使用 `qilin-client-ui-primitives`，通过共享 React UI 构建 Web 客户端控件并渲染 agent 输出。它提供标准控件、图标、锚定浮层，以及用于带 TeX 公式的 Markdown、终端输出、文件读取、差异、搜索、网页检索和 JSON 的渲染器。这些渲染器会把原始 HTML 保持为字面文本——除非持有方自己提供一个消毒渲染器——并限制链接、解析 ANSI 转义序列，以处理不受信任的模型输出。组件不 import Kylin 运行时；调用方提供本地化 label，主题相关颜色使用 `--qilin-*` 设计 token。
 
 ## 目录
 
@@ -27,7 +27,7 @@ kind: "package-library"
 
 本包是 Web 壳的构建输入。静态 ESM 为 Vite 保留第三方导入和样式；独立消费方自行提供开发依赖（[依赖规则](../AGENTS.md#dependency-declaration)）。
 
-只要 Web 客户端需要标准控件或 agent 输出渲染器，就用这些原子组件拼装功能 UI。它们只经 React 渲染，并从主题取得 `--dsw-*` 设计 token，因此无需导入主题或 slot 系统即可适配任意插件。
+只要 Web 客户端需要标准控件或 agent 输出渲染器，就用这些原子组件拼装功能 UI。它们只经 React 渲染，并从主题取得 `--qilin-*` 设计 token，因此无需导入主题或 slot 系统即可适配任意插件。
 
 <a id="component-catalog"></a>
 ### 组件目录
@@ -100,7 +100,7 @@ kind: "package-library"
 <details>
 <summary>实现细节——点击展开</summary>
 
-本包只做一件事：提供零 cordis、零 slot 知识、仅经 `--dsw-*` token 设置样式的纯 React 原子组件，而所有功能专属的关注点（locale、会话数据、组合）都留在拼装它们的插件中。
+本包只做一件事：提供零 cordis、零 slot 知识、仅经 `--qilin-*` token 设置样式的纯 React 原子组件，而所有功能专属的关注点（locale、会话数据、组合）都留在拼装它们的插件中。
 
 ### 源码地图
 
@@ -140,7 +140,7 @@ kind: "package-library"
 - [ui-renderer](../ui-renderer/README.zh.md)——挂载组装后应用并绑定 slot 数据的 React 渲染器。
 - [ui-tool](../ui-tool/README.zh.md)——拼装这些输出卡片的工具调用展示层。
 - [ui-conversation](../ui-conversation/README.zh.md)——渲染 Markdown 回复与工具卡片的聊天界面。
-- [ui-theme](../ui-theme/README.zh.md)——这些原子组件样式所依赖的 `--dsw-*` token 体系。
+- [ui-theme](../ui-theme/README.zh.md)——这些原子组件样式所依赖的 `--qilin-*` token 体系。
 - [Web 样式](../../../docs/web-styling.zh.md)——Web 客户端组件的权威样式规则。
 
 -----

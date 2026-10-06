@@ -12,7 +12,7 @@
   border: none;
   border-radius: 16px;
   background: transparent;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font-size: 13px;
   line-height: 20px;
   font-weight: 500;
@@ -21,12 +21,12 @@
 
 .chip:hover,
 .chip[aria-expanded='true'] {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .icon {
   flex: none;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .label {
@@ -38,7 +38,7 @@
 
 .chevron {
   flex: none;
-  color: var(--dsw-alias-label-caption);
+  color: var(--qilin-alias-label-caption);
 }
 
 /* Menu rows: name over one-line description, matching the roster copy the
@@ -56,7 +56,7 @@
 
 .itemDesc {
   overflow: hidden;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 12px;
   line-height: 18px;
   text-overflow: ellipsis;

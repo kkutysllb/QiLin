@@ -9,7 +9,7 @@
   height: 100%;
   overflow: auto;
   padding: 28px clamp(24px, 4vw, 48px) 48px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .page > * {
@@ -35,7 +35,7 @@
   margin: 4px 0 0;
   font-size: 13px;
   line-height: 20px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .toolbar {
@@ -66,10 +66,10 @@
   width: 32px;
   padding: 0;
   border: none;
-  border-left: 0.5px solid color-mix(in srgb, var(--dsw-alias-label-primary-foreground) 30%, transparent);
-  border-radius: 0 var(--dsw-radius-md) var(--dsw-radius-md) 0;
-  background: var(--dsw-alias-brand-primary);
-  color: var(--dsw-alias-label-primary-foreground);
+  border-left: 0.5px solid color-mix(in srgb, var(--qilin-alias-label-primary-foreground) 30%, transparent);
+  border-radius: 0 var(--qilin-radius-md) var(--qilin-radius-md) 0;
+  background: var(--qilin-alias-brand-primary);
+  color: var(--qilin-alias-label-primary-foreground);
   cursor: pointer;
 }
 
@@ -88,9 +88,9 @@
   width: 320px;
   max-width: calc(100vw - 48px);
   padding: 4px;
-  border: 0.5px solid var(--dsw-alias-border-l4);
-  border-radius: var(--dsw-radius-lg);
-  background: var(--dsw-alias-bg-layer-3);
+  border: 0.5px solid var(--qilin-alias-border-l4);
+  border-radius: var(--qilin-radius-lg);
+  background: var(--qilin-alias-bg-layer-3);
   box-shadow: 0 10px 28px rgba(20, 24, 31, 0.16);
 }
 
@@ -102,7 +102,7 @@
   min-height: 72px;
   padding: 6px 12px;
   border: none;
-  border-radius: var(--dsw-radius-md);
+  border-radius: var(--qilin-radius-md);
   background: transparent;
   color: inherit;
   cursor: pointer;
@@ -111,16 +111,16 @@
 }
 
 .addMenu [role='menuitem']:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .addMenu [role='menuitem']:disabled {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   cursor: default;
 }
 
 .addMenuItemRow {
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .addMenuItem {
@@ -138,7 +138,7 @@
   overflow-wrap: anywhere;
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
@@ -149,24 +149,24 @@
   margin: 0;
   font-size: 13px;
   line-height: 20px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .failure {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 .banner {
   margin: 0;
   padding: 8px 12px;
-  border-radius: var(--dsw-radius-md);
+  border-radius: var(--qilin-radius-md);
   font-size: 12px;
   line-height: 18px;
-  background: color-mix(in srgb, var(--dsw-alias-state-warning-primary, var(--dsw-alias-state-business-primary)) 12%, transparent);
-  color: var(--dsw-alias-label-primary);
+  background: color-mix(in srgb, var(--qilin-alias-state-warning-primary, var(--qilin-alias-state-business-primary)) 12%, transparent);
+  color: var(--qilin-alias-label-primary);
 }
 
 .group {
@@ -190,7 +190,7 @@
 
 .count {
   font-size: 14px;
-  color: var(--dsw-alias-label-caption);
+  color: var(--qilin-alias-label-caption);
   font-variant-numeric: tabular-nums;
 }
 
@@ -199,12 +199,12 @@
   display: inline-flex;
   align-items: center;
   align-self: center;
-  color: var(--dsw-alias-label-caption);
+  color: var(--qilin-alias-label-caption);
 }
 
 .groupInfo:hover,
 .groupInfo:focus-visible {
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 /* Center the status label geometrically: beside larger titles the capsule's line-box offset shows. */
@@ -222,7 +222,7 @@
 @keyframes qilin-plugin-highlight {
   0%,
   55% {
-    box-shadow: 0 0 0 2px var(--dsw-alias-state-business-primary);
+    box-shadow: 0 0 0 2px var(--qilin-alias-state-business-primary);
   }
 
   100% {
@@ -233,12 +233,12 @@
 @media (prefers-reduced-motion: reduce) {
   .card[data-plugin-highlight] {
     animation: none;
-    box-shadow: 0 0 0 2px var(--dsw-alias-state-business-primary);
+    box-shadow: 0 0 0 2px var(--qilin-alias-state-business-primary);
   }
 }
 
 .iconButton:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: 1px;
 }
 
@@ -259,11 +259,11 @@
   /* The hover surface reaches 8px past the content on both sides while the
      row's content stays aligned with the page header. */
   margin: 0 -8px;
-  border-radius: var(--dsw-radius-xl);
+  border-radius: var(--qilin-radius-xl);
   /* The page itself scrolls on the base surface. Anything that scrolls inside
      a card draws the l2 thumb (ui-theme styles/scrollbar.css rebinding contract). */
-  --qilin-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --qilin-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
 }
 
 .cardHead {
@@ -281,9 +281,9 @@
   width: 48px;
   height: 48px;
   /* The same hairline frame as the component rows below. */
-  border: 0.5px solid var(--dsw-alias-border-l3);
-  border-radius: var(--dsw-radius-lg);
-  color: var(--dsw-alias-label-secondary);
+  border: 0.5px solid var(--qilin-alias-border-l3);
+  border-radius: var(--qilin-radius-lg);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .cardMain {
@@ -321,7 +321,7 @@
 }
 
 .cardLink:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .cardOpen {
@@ -348,14 +348,14 @@
 }
 
 .cardOpen:focus-visible::after {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: 2px;
 }
 
 .cardDesc {
   font-size: 13px;
   line-height: 18px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
@@ -379,15 +379,15 @@
   width: 28px;
   height: 28px;
   border: 0;
-  border-radius: var(--dsw-radius-sm);
+  border-radius: var(--qilin-radius-sm);
   background: transparent;
-  color: var(--dsw-alias-label-caption);
+  color: var(--qilin-alias-label-caption);
   cursor: pointer;
 }
 
 .iconButton:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-secondary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .iconButton:disabled {
@@ -402,9 +402,9 @@
 /* The destructive text action in a card body: red ink inside a 30% red frame,
    and the outline hover rebinds to a red wash instead of the gray one. */
 .danger {
-  color: var(--dsw-alias-state-error-primary);
-  border-color: color-mix(in srgb, var(--dsw-alias-state-error-primary) 30%, transparent);
-  --dsw-alias-interactive-bg-hover: color-mix(in srgb, var(--dsw-alias-state-error-primary) 8%, transparent);
+  color: var(--qilin-alias-state-error-primary);
+  border-color: color-mix(in srgb, var(--qilin-alias-state-error-primary) 30%, transparent);
+  --qilin-alias-interactive-bg-hover: color-mix(in srgb, var(--qilin-alias-state-error-primary) 8%, transparent);
 }
 
 /* Retry, uninstall, and the switch at the end of the page's head. */
@@ -429,14 +429,14 @@
   width: 28px;
   height: 28px;
   border: 0;
-  border-radius: var(--dsw-radius-sm);
+  border-radius: var(--qilin-radius-sm);
   background: transparent;
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
   cursor: pointer;
 }
 
 .deleteButton:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover-danger, var(--dsw-alias-interactive-bg-hover));
+  background: var(--qilin-alias-interactive-bg-hover-danger, var(--qilin-alias-interactive-bg-hover));
 }
 
 .deleteButton:disabled {
@@ -445,7 +445,7 @@
 }
 
 .deleteButton:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: 1px;
 }
 
@@ -454,7 +454,7 @@
   margin: 0;
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
   overflow-wrap: anywhere;
   /* The Host's captured tail, when no output streamed, keeps its lines. */
   white-space: pre-wrap;
@@ -469,7 +469,7 @@
 }
 
 .partsFilter:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: 1px;
 }
 
@@ -492,7 +492,7 @@
   margin: 0;
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   overflow-wrap: anywhere;
 }
 
@@ -506,21 +506,21 @@
 .installField input[type='text'] {
   height: 36px;
   padding: 0 12px;
-  border: 0.5px solid var(--dsw-alias-border-l4);
-  border-radius: var(--dsw-radius-md);
-  background: var(--dsw-alias-bg-layer-3);
+  border: 0.5px solid var(--qilin-alias-border-l4);
+  border-radius: var(--qilin-radius-md);
+  background: var(--qilin-alias-bg-layer-3);
   font: inherit;
   font-size: 13px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .installField input[type='text']:focus {
-  border-color: var(--dsw-alias-state-business-primary);
-  box-shadow: inset 0 0 0 0.5px var(--dsw-alias-state-business-primary);
+  border-color: var(--qilin-alias-state-business-primary);
+  box-shadow: inset 0 0 0 0.5px var(--qilin-alias-state-business-primary);
 }
 
 .installField input[aria-invalid='true'] {
-  border-color: var(--dsw-alias-state-error-primary);
+  border-color: var(--qilin-alias-state-error-primary);
 }
 
 /* The guide under the field: opened by a text button, it says what an ID is and shows the three forms with examples. */
@@ -534,12 +534,12 @@
   background: none;
   font: inherit;
   font-size: 12.5px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   cursor: pointer;
 }
 
 .guideToggle:hover {
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .guideChevron {
@@ -555,9 +555,9 @@
   flex-direction: column;
   gap: 10px;
   padding: 12px 14px;
-  border: 0.5px solid var(--dsw-alias-border-l4);
-  border-radius: var(--dsw-radius-lg);
-  background: var(--dsw-alias-bg-layer-1);
+  border: 0.5px solid var(--qilin-alias-border-l4);
+  border-radius: var(--qilin-radius-lg);
+  background: var(--qilin-alias-bg-layer-1);
 }
 
 .guideIntro,
@@ -565,7 +565,7 @@
   margin: 0;
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 /* The security warning that closes the guide: plugins run with the person's own permissions. */
@@ -575,11 +575,11 @@
   gap: 6px;
   margin: 0;
   padding: 8px 10px;
-  border-radius: var(--dsw-radius-md);
-  background: color-mix(in srgb, var(--dsw-alias-state-warning-primary, var(--dsw-alias-state-business-primary)) 12%, transparent);
+  border-radius: var(--qilin-radius-md);
+  background: color-mix(in srgb, var(--qilin-alias-state-warning-primary, var(--qilin-alias-state-business-primary)) 12%, transparent);
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-state-warning-primary, var(--dsw-alias-state-business-primary));
+  color: var(--qilin-alias-state-warning-primary, var(--qilin-alias-state-business-primary));
 }
 
 .guideSafety > svg {
@@ -591,10 +591,10 @@
   margin: 0;
   padding: 8px 10px;
   border-radius: 8px;
-  background: var(--dsw-alias-bg-layer-3);
+  background: var(--qilin-alias-bg-layer-3);
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .guideList {
@@ -610,7 +610,7 @@
   align-items: flex-start;
   gap: 10px;
   padding: 8px 0;
-  border-top: 0.5px solid var(--dsw-alias-border-l4);
+  border-top: 0.5px solid var(--qilin-alias-border-l4);
 }
 
 .guideIndex {
@@ -619,11 +619,11 @@
   height: 20px;
   border-radius: 999px;
   corner-shape: round;
-  background: var(--dsw-alias-bg-layer-3);
+  background: var(--qilin-alias-bg-layer-3);
   font-size: 11px;
   line-height: 20px;
   text-align: center;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .guideMain {
@@ -637,21 +637,21 @@
 .guideTitle {
   font-size: 12.5px;
   font-weight: 600;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .guideExample {
   font-size: 12px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   overflow-wrap: anywhere;
 }
 
 .guideExample code {
-  font-family: var(--dsw-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--qilin-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
 }
 
 .guideExampleLabel {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 /* What the check refused, under the field. */
@@ -659,7 +659,7 @@
   margin: -4px 0 0;
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 /* The footer's only action spans the dialog, as the primary action of a short form does. */
@@ -707,7 +707,7 @@
   font: inherit;
   font-size: 15px;
   font-weight: 600;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   cursor: pointer;
 }
 
@@ -719,15 +719,15 @@
   height: 24px;
   padding: 0;
   border: 0;
-  border-radius: var(--dsw-radius-sm);
+  border-radius: var(--qilin-radius-sm);
   background: none;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   cursor: pointer;
 }
 
 .wizardClose:hover {
-  background: var(--dsw-alias-bg-layer-3);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-bg-layer-3);
+  color: var(--qilin-alias-label-primary);
 }
 
 .wizardHero {
@@ -745,15 +745,15 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .wizardIcon[data-tone='done'] {
-  color: var(--dsw-alias-state-success-primary);
+  color: var(--qilin-alias-state-success-primary);
 }
 
 .wizardIcon[data-tone='failed'] {
-  color: var(--dsw-alias-state-warning-primary, var(--dsw-alias-state-business-primary));
+  color: var(--qilin-alias-state-warning-primary, var(--qilin-alias-state-business-primary));
 }
 
 .wizardTitle {
@@ -767,7 +767,7 @@
   margin: 0;
   font-size: 13px;
   line-height: 20px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   overflow-wrap: anywhere;
 }
 
@@ -777,8 +777,8 @@
   align-items: center;
   gap: 6px;
   padding: 16px;
-  border: 0.5px solid var(--dsw-alias-border-l3);
-  border-radius: var(--dsw-radius-lg);
+  border: 0.5px solid var(--qilin-alias-border-l3);
+  border-radius: var(--qilin-radius-lg);
   text-align: center;
 }
 
@@ -795,7 +795,7 @@
   margin: 0;
   font-size: 13px;
   line-height: 20px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   overflow-wrap: anywhere;
 }
 
@@ -815,7 +815,7 @@
   background: none;
   font: inherit;
   font-size: 13px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   cursor: pointer;
 }
 
@@ -837,8 +837,8 @@
 .spinnerLarge {
   width: 28px;
   height: 28px;
-  border: 3px solid color-mix(in srgb, var(--dsw-alias-label-primary) 18%, transparent);
-  border-top-color: var(--dsw-alias-label-primary);
+  border: 3px solid color-mix(in srgb, var(--qilin-alias-label-primary) 18%, transparent);
+  border-top-color: var(--qilin-alias-label-primary);
   border-radius: 50%;
   corner-shape: round;
   animation: spin 900ms linear infinite;
@@ -848,8 +848,8 @@
   width: 14px;
   height: 14px;
   flex: none;
-  border: 2px solid color-mix(in srgb, var(--dsw-alias-label-primary) 18%, transparent);
-  border-top-color: var(--dsw-alias-label-primary);
+  border: 2px solid color-mix(in srgb, var(--qilin-alias-label-primary) 18%, transparent);
+  border-top-color: var(--qilin-alias-label-primary);
   border-radius: 50%;
   corner-shape: round;
   animation: spin 900ms linear infinite;
@@ -876,15 +876,15 @@
 .resultWarn {
   margin: 0;
   padding: 8px 12px;
-  border-radius: var(--dsw-radius-md);
+  border-radius: var(--qilin-radius-md);
   font-size: 13px;
   line-height: 20px;
-  background: color-mix(in srgb, var(--dsw-alias-state-success-primary) 10%, transparent);
-  color: var(--dsw-alias-label-primary);
+  background: color-mix(in srgb, var(--qilin-alias-state-success-primary) 10%, transparent);
+  color: var(--qilin-alias-label-primary);
 }
 
 .resultWarn {
-  background: color-mix(in srgb, var(--dsw-alias-state-warning-primary, var(--dsw-alias-state-business-primary)) 12%, transparent);
+  background: color-mix(in srgb, var(--qilin-alias-state-warning-primary, var(--qilin-alias-state-business-primary)) 12%, transparent);
 }
 
 /* The approval a blocked run asks for: the packages whose install scripts pnpm did not run, and the one action. */
@@ -893,23 +893,23 @@
   flex-direction: column;
   gap: 8px;
   padding: 12px 14px;
-  border: 0.5px solid color-mix(in srgb, var(--dsw-alias-state-warning-primary, var(--dsw-alias-state-business-primary)) 40%, transparent);
-  border-radius: var(--dsw-radius-lg);
-  background: color-mix(in srgb, var(--dsw-alias-state-warning-primary, var(--dsw-alias-state-business-primary)) 8%, transparent);
+  border: 0.5px solid color-mix(in srgb, var(--qilin-alias-state-warning-primary, var(--qilin-alias-state-business-primary)) 40%, transparent);
+  border-radius: var(--qilin-radius-lg);
+  background: color-mix(in srgb, var(--qilin-alias-state-warning-primary, var(--qilin-alias-state-business-primary)) 8%, transparent);
 }
 
 .approvalTitle {
   margin: 0;
   font-size: 13px;
   font-weight: 600;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .approvalText {
   margin: 0;
   font-size: 12.5px;
   line-height: 18px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .approvalCaution {
@@ -917,7 +917,7 @@
   font-size: 12.5px;
   line-height: 18px;
   font-weight: 600;
-  color: var(--dsw-alias-state-warning-primary, var(--dsw-alias-state-business-primary));
+  color: var(--qilin-alias-state-warning-primary, var(--qilin-alias-state-business-primary));
 }
 
 .approvalList {
@@ -932,21 +932,21 @@
 .approvalList code {
   display: inline-block;
   padding: 2px 8px;
-  border-radius: var(--dsw-radius-sm);
-  background: var(--dsw-alias-bg-layer-3);
-  font-family: var(--dsw-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  border-radius: var(--qilin-radius-sm);
+  background: var(--qilin-alias-bg-layer-3);
+  font-family: var(--qilin-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 12px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 /* The install terminal: the shared TerminalBlock at the bash card's smaller
    size, its output capped so an expanded log scrolls inside the dialog. */
 .terminal {
-  --dsl-terminal-font: var(--dsw-font-markdown-code-block-small);
+  --dsl-terminal-font: var(--qilin-font-markdown-code-block-small);
   --dsl-terminal-line-height: 18px;
   --dsl-terminal-output-max-height: 240px;
   margin: 4px 0 0;
-  border: 0.5px solid var(--dsw-alias-border-l1);
+  border: 0.5px solid var(--qilin-alias-border-l1);
 }
 
 .dependents {
@@ -954,12 +954,12 @@
   padding-left: 18px;
   font-size: 13px;
   line-height: 20px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .dangerButton {
-  --dsw-alias-button-primary-fill: var(--dsw-alias-state-error-primary);
-  --dsw-alias-button-primary-hover: var(--dsw-alias-state-error-primary);
+  --qilin-alias-button-primary-fill: var(--qilin-alias-state-error-primary);
+  --qilin-alias-button-primary-hover: var(--qilin-alias-state-error-primary);
 }
 
 .detail {
@@ -983,18 +983,18 @@
   border: 0;
   padding: 0;
   background: none;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font: inherit;
   font-size: 12.5px;
   cursor: pointer;
 }
 
 .crumb:hover {
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .crumb:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: 2px;
 }
 
@@ -1034,7 +1034,7 @@
 
 .detailDesc {
   margin: 0;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 14px;
   line-height: 22px;
 }
@@ -1045,12 +1045,12 @@
   margin: 0;
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-caption);
+  color: var(--qilin-alias-label-caption);
   overflow-wrap: anywhere;
 }
 
 .detailName code {
-  font-family: var(--dsw-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--qilin-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
 }
 
 /* The unknown-package note under the name block. */
@@ -1087,13 +1087,13 @@
 .sectionCount {
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 /* The way into a package's page. */
 .cardArrow {
   flex: none;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 /* Rows sit on the page ground, one hairline apart, so they read on a white page too. */
@@ -1107,7 +1107,7 @@
 
 .row {
   padding: 12px 2px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l2);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l2);
 }
 
 .row:last-child {
@@ -1128,9 +1128,9 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  border: 0.5px solid var(--dsw-alias-border-l3);
-  border-radius: var(--dsw-radius-md);
-  color: var(--dsw-alias-label-secondary);
+  border: 0.5px solid var(--qilin-alias-border-l3);
+  border-radius: var(--qilin-radius-md);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .rowMain {
@@ -1145,19 +1145,19 @@
   font-size: 13.5px;
   line-height: 20px;
   font-weight: 500;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   overflow-wrap: anywhere;
 }
 
 .row[data-state='off'] .rowId {
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .rowModule {
-  font-family: var(--dsw-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--qilin-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 11.5px;
   line-height: 16px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   overflow-wrap: anywhere;
 }
 
@@ -1182,11 +1182,11 @@
 
 .rowOpenIcon {
   flex: none;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .rowOpen:hover .rowOpenIcon {
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .rowState {
@@ -1196,12 +1196,12 @@
   gap: 6px;
   font-size: 12.5px;
   line-height: 18px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   white-space: nowrap;
 }
 
 .row[data-state='failed'] .rowState {
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 
@@ -1210,7 +1210,7 @@
   margin: 4px 0 0 56px;
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
   overflow-wrap: anywhere;
 }
 
@@ -1239,7 +1239,7 @@
   margin: 0;
   font-size: 13px;
   line-height: 20px;
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 .panelList {
@@ -1256,7 +1256,7 @@
   gap: 16px;
   min-width: 0;
   padding: 10px 2px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l2);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l2);
 }
 
 .panelRow:last-child {
@@ -1275,14 +1275,14 @@
   font-size: 13.5px;
   line-height: 20px;
   font-weight: 500;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   overflow-wrap: anywhere;
 }
 
 .panelMeta {
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   overflow-wrap: anywhere;
 }
 
@@ -1306,13 +1306,13 @@
   font-size: 13.5px;
   line-height: 20px;
   font-weight: 500;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   text-decoration: none;
 }
 
 .catalogName:hover,
 .catalogName:focus-visible {
-  color: var(--dsw-alias-brand-primary);
+  color: var(--qilin-alias-brand-primary);
 }
 
 /* The spec field's row of small controls: the registry picker and the guide toggle. */
@@ -1330,17 +1330,17 @@
   gap: 6px;
   height: 26px;
   padding: 0 8px 0 10px;
-  border: 0.5px solid var(--dsw-alias-border-l4);
-  border-radius: var(--dsw-radius-sm);
-  background: var(--dsw-alias-bg-layer-2);
+  border: 0.5px solid var(--qilin-alias-border-l4);
+  border-radius: var(--qilin-radius-sm);
+  background: var(--qilin-alias-bg-layer-2);
   font: inherit;
   font-size: 12.5px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   cursor: pointer;
 }
 
 .registryToggle:hover:not(:disabled) {
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .registryToggle:disabled {
@@ -1349,8 +1349,8 @@
 }
 
 .registryToggle[aria-expanded='true'] {
-  border-color: var(--dsw-alias-border-l3);
-  background: var(--dsw-alias-bg-layer-3);
+  border-color: var(--qilin-alias-border-l3);
+  background: var(--qilin-alias-bg-layer-3);
 }
 
 .registryToggle[aria-expanded='true'] .guideChevron {
@@ -1359,7 +1359,7 @@
 
 .registryChosen {
   font-weight: 500;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 /* The registry options unfold under the spec, inside the dialog's own scroll area. */
@@ -1370,9 +1370,9 @@
   box-sizing: border-box;
   margin: 0;
   padding: 8px 10px 12px;
-  border: 0.5px solid var(--dsw-alias-border-l3);
-  border-radius: var(--dsw-radius-lg);
-  background: var(--dsw-alias-bg-layer-2);
+  border: 0.5px solid var(--qilin-alias-border-l3);
+  border-radius: var(--qilin-radius-lg);
+  background: var(--qilin-alias-bg-layer-2);
   min-width: 0;
 }
 
@@ -1382,13 +1382,13 @@
   gap: 4px;
   padding: 8px 10px;
   border: 0.5px solid transparent;
-  border-radius: var(--dsw-radius-lg);
+  border-radius: var(--qilin-radius-lg);
   cursor: pointer;
 }
 
 .registryOption[data-checked='true'] {
-  border-color: color-mix(in srgb, var(--dsw-alias-brand-primary) 40%, transparent);
-  background: var(--dsw-alias-bg-layer-3);
+  border-color: color-mix(in srgb, var(--qilin-alias-brand-primary) 40%, transparent);
+  background: var(--qilin-alias-bg-layer-3);
 }
 
 .registryOption input[type='radio'] {
@@ -1396,7 +1396,7 @@
   width: 16px;
   height: 16px;
   margin: 2px 0 0;
-  accent-color: var(--dsw-alias-brand-primary);
+  accent-color: var(--qilin-alias-brand-primary);
 }
 
 .registryOption > .inputError,
@@ -1411,7 +1411,7 @@
   gap: 8px;
   font-size: 13px;
   line-height: 20px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .registryCustomPick {
@@ -1425,22 +1425,22 @@
   height: 32px;
   margin-left: 26px;
   padding: 0 10px;
-  border: 0.5px solid var(--dsw-alias-border-l4);
-  border-radius: var(--dsw-radius-md);
-  background: var(--dsw-alias-bg-layer-3);
+  border: 0.5px solid var(--qilin-alias-border-l4);
+  border-radius: var(--qilin-radius-md);
+  background: var(--qilin-alias-bg-layer-3);
   font: inherit;
   font-size: 13px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .registryCustomField[aria-invalid='true'] {
-  border-color: var(--dsw-alias-state-error-primary);
+  border-color: var(--qilin-alias-state-error-primary);
 }
 
 .registryHint {
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   overflow-wrap: anywhere;
 }
 
@@ -1449,7 +1449,7 @@
   margin: 0;
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 /* One pnpm attempt: its badge, then its terminal. */
@@ -1464,16 +1464,16 @@
   align-self: flex-start;
   margin: 0;
   padding: 0 6px;
-  border-radius: var(--dsw-radius-sm);
-  background: var(--dsw-alias-bg-layer-3);
+  border-radius: var(--qilin-radius-sm);
+  background: var(--qilin-alias-bg-layer-3);
   font-size: 11px;
   line-height: 18px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .footAction {
   height: 32px;
-  border-radius: var(--dsw-radius-md);
+  border-radius: var(--qilin-radius-md);
 }
 
 /* The workbench-audience trio, shared by the install dialog's spec screen and a bundle's page. */
@@ -1485,9 +1485,9 @@
   box-sizing: border-box;
   margin: 0;
   padding: 8px 10px;
-  border: 0.5px solid var(--dsw-alias-border-l3);
-  border-radius: var(--dsw-radius-lg);
-  background: var(--dsw-alias-bg-layer-2);
+  border: 0.5px solid var(--qilin-alias-border-l3);
+  border-radius: var(--qilin-radius-lg);
+  background: var(--qilin-alias-bg-layer-2);
   min-width: 0;
 }
 
@@ -1496,7 +1496,7 @@
   padding: 0;
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .audienceOption {
@@ -1505,16 +1505,16 @@
   gap: 6px;
   padding: 4px 10px;
   border: 0.5px solid transparent;
-  border-radius: var(--dsw-radius-md);
+  border-radius: var(--qilin-radius-md);
   font-size: 13px;
   line-height: 20px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   cursor: pointer;
 }
 
 .audienceOption[data-checked='true'] {
-  border-color: color-mix(in srgb, var(--dsw-alias-brand-primary) 40%, transparent);
-  background: var(--dsw-alias-bg-layer-3);
+  border-color: color-mix(in srgb, var(--qilin-alias-brand-primary) 40%, transparent);
+  background: var(--qilin-alias-bg-layer-3);
 }
 
 .audienceOption input[type='radio'] {
@@ -1522,7 +1522,7 @@
   width: 14px;
   height: 14px;
   margin: 0;
-  accent-color: var(--dsw-alias-brand-primary);
+  accent-color: var(--qilin-alias-brand-primary);
 }
 
 .audienceOption input[type='radio']:disabled {
@@ -1533,6 +1533,6 @@
   flex-basis: 100%;
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   overflow-wrap: anywhere;
 }

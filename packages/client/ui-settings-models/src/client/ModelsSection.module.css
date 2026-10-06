@@ -1,4 +1,4 @@
-/* Every color resolves through a `--dsw-alias-*` token. Bare `--border` /
+/* Every color resolves through a `--qilin-alias-*` token. Bare `--border` /
  * `--surface` / `--text-*` names, which nothing in this app defines, would
  * render the light-mode literals written as their fallbacks and stay light
  * under the dark theme. */
@@ -7,7 +7,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .title {
@@ -15,28 +15,28 @@
   font-size: 16px;
   line-height: 24px;
   font-weight: 500;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .intro {
   margin: 0;
   font-size: 14px;
   line-height: 22px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .notice {
   margin: 0;
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-state-warn-label);
+  color: var(--qilin-alias-state-warn-label);
 }
 
 .savedNotice {
   margin: 0;
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-state-success-primary);
+  color: var(--qilin-alias-state-success-primary);
 }
 
 .rows {
@@ -52,7 +52,7 @@
 /* A configured provider: outlined on the panel fill, so the filled editor
    card it expands into reads as the nested object. */
 .rowCard {
-  border: 0.5px solid var(--dsw-alias-border-l4);
+  border: 0.5px solid var(--qilin-alias-border-l4);
   border-radius: 16px;
   padding: 12px 14px;
   display: flex;
@@ -77,7 +77,7 @@
   font-size: 14px;
   line-height: 22px;
   font-weight: 500;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 /* Reads as an annotation on the name, not as a second name: caption size and
@@ -87,11 +87,11 @@
 .rowTag {
   flex: none;
   padding: 1px 6px;
-  border: 0.5px solid var(--dsw-alias-border-l3);
+  border: 0.5px solid var(--qilin-alias-border-l3);
   border-radius: 4px;
   font-size: 11px;
   line-height: 16px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .credentialDot {
@@ -105,11 +105,11 @@
 }
 
 .credentialDotConfigured {
-  background: var(--dsw-alias-state-success-primary);
+  background: var(--qilin-alias-state-success-primary);
 }
 
 .credentialDotMissing {
-  background: var(--dsw-alias-state-error-primary);
+  background: var(--qilin-alias-state-error-primary);
 }
 
 .rowActions {
@@ -141,28 +141,28 @@
 }
 
 .primaryButton {
-  background: var(--dsw-alias-button-primary-fill);
-  color: var(--dsw-alias-label-primary-foreground);
+  background: var(--qilin-alias-button-primary-fill);
+  color: var(--qilin-alias-label-primary-foreground);
 }
 
 .primaryButton:hover:not(:disabled) {
-  background: var(--dsw-alias-button-primary-hover);
+  background: var(--qilin-alias-button-primary-hover);
 }
 
 .secondaryButton,
 .addButton {
-  border: 0.5px solid var(--dsw-alias-border-l3);
+  border: 0.5px solid var(--qilin-alias-border-l3);
   background: transparent;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .secondaryButton:hover:not(:disabled),
 .addButton:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .secondaryButton:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover-solid);
+  background: var(--qilin-alias-interactive-bg-hover-solid);
 }
 
 .dangerButton {
@@ -175,7 +175,7 @@
   border: none;
   border-radius: 18px;
   background: transparent;
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
   font: inherit;
   font-size: 14px;
   line-height: 22px;
@@ -183,7 +183,7 @@
 }
 
 .dangerButton:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover-danger);
+  background: var(--qilin-alias-interactive-bg-hover-danger);
 }
 
 /* Provider-row controls take the dense capsule (Button `.sm`). */
@@ -215,14 +215,14 @@
 .iconButton:focus-visible,
 .customizedSummary:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  box-shadow: 0 0 0 2px var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
 }
 
 /* Editing surface: a filled module on the panel, matching the settings
    selector fill rather than adding another outline inside the row. */
 .editor {
   border-radius: 12px;
-  background: var(--dsw-alias-bg-module-platform);
+  background: var(--qilin-alias-bg-module-platform);
   padding: 14px 16px;
   display: flex;
   flex-direction: column;
@@ -239,13 +239,13 @@
   font-size: 14px;
   line-height: 22px;
   font-weight: 500;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .editorRoute {
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .field {
@@ -261,7 +261,7 @@
   font-size: 12px;
   line-height: 18px;
   font-weight: 500;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .linkButton {
@@ -273,7 +273,7 @@
   border: none;
   border-radius: 14px;
   background: transparent;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font: inherit;
   font-size: 12px;
   line-height: 18px;
@@ -281,15 +281,15 @@
 }
 
 .linkButton:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-secondary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .advancedHint {
   margin: 0;
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .editorActions {
@@ -322,14 +322,14 @@
   min-width: 180px;
   gap: 6px;
   height: 44px;
-  border: 1px dashed var(--dsw-alias-border-l3);
+  border: 1px dashed var(--qilin-alias-border-l3);
   border-radius: 16px;
 }
 
 .addCard,
 .setupCard {
   border-radius: 12px;
-  background: var(--dsw-alias-bg-module-platform);
+  background: var(--qilin-alias-bg-module-platform);
   padding: 14px 16px;
   display: flex;
   flex-direction: column;
@@ -345,7 +345,7 @@
 }
 
 .customized {
-  border-top: 0.5px solid var(--dsw-alias-border-l2);
+  border-top: 0.5px solid var(--qilin-alias-border-l2);
   padding-top: 10px;
 }
 
@@ -363,7 +363,7 @@
   font-size: 12px;
   line-height: 18px;
   font-weight: 500;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   list-style: none;
 }
 
@@ -386,7 +386,7 @@
 }
 
 .customizedSummary:hover {
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .customizedBody {
@@ -401,7 +401,7 @@
   flex-direction: column;
   gap: 10px;
   padding-top: 12px;
-  border-top: 0.5px solid var(--dsw-alias-border-l2);
+  border-top: 0.5px solid var(--qilin-alias-border-l2);
 }
 
 .modelCatalogHeading {
@@ -414,13 +414,13 @@
   font-size: 12px;
   line-height: 18px;
   font-weight: 500;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .modelCatalogMeta,
 .modelEmpty {
   margin: 0;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 12px;
   line-height: 18px;
 }
@@ -439,7 +439,7 @@
 }
 
 .modelEntry {
-  border: 0.5px solid var(--dsw-alias-border-l4);
+  border: 0.5px solid var(--qilin-alias-border-l4);
   border-radius: 10px;
   padding: 6px;
 }
@@ -463,13 +463,13 @@
   border: none;
   border-radius: 6px;
   background: transparent;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   cursor: pointer;
 }
 
 .iconButton:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
 }
 
 .iconButton:disabled {
@@ -479,8 +479,8 @@
 
 /* The delete glyph keeps the danger tint the rest of the section uses. */
 .iconButtonDanger:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover-danger);
-  color: var(--dsw-alias-state-error-primary);
+  background: var(--qilin-alias-interactive-bg-hover-danger);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 .modelAdvanced {
@@ -519,14 +519,14 @@
 }
 
 .modelFieldLabel {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 12px;
   line-height: 18px;
 }
 
 .modelEmpty {
   padding: 12px;
-  border: 1px dashed var(--dsw-alias-border-l3);
+  border: 1px dashed var(--qilin-alias-border-l3);
   border-radius: 8px;
   text-align: center;
 }
@@ -539,10 +539,10 @@
   gap: 4px;
   height: 28px;
   padding: 0 10px;
-  border: 0.5px solid var(--dsw-alias-border-l3);
+  border: 0.5px solid var(--qilin-alias-border-l3);
   border-radius: 14px;
   background: transparent;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font: inherit;
   font-size: 12px;
   line-height: 18px;
@@ -550,7 +550,7 @@
 }
 
 .addModelButton:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .input {
@@ -558,13 +558,13 @@
   width: 100%;
   height: 32px;
   padding: 0 10px;
-  border: 0.5px solid var(--dsw-alias-border-l4);
+  border: 0.5px solid var(--qilin-alias-border-l4);
   border-radius: 8px;
   font: inherit;
   font-size: 14px;
   line-height: 22px;
-  background: var(--dsw-alias-bg-layer-1);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-bg-layer-1);
+  color: var(--qilin-alias-label-primary);
 }
 
 /* Enum pickers hold a handful of short options; a field-width dropdown reads
@@ -576,11 +576,11 @@ select.input {
 
 .input:focus {
   outline: none;
-  border-color: var(--dsw-alias-state-business-primary);
+  border-color: var(--qilin-alias-state-business-primary);
 }
 
 .input::placeholder {
-  color: var(--dsw-alias-label-dimmed);
+  color: var(--qilin-alias-label-dimmed);
 }
 
 .input:disabled {
@@ -606,7 +606,7 @@ select.input {
   margin: 0;
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 .deleteDialog {
@@ -614,12 +614,12 @@ select.input {
 }
 
 .deleteConfirm:not(:disabled) {
-  border-color: var(--dsw-alias-state-error-primary);
-  color: var(--dsw-alias-state-error-primary);
+  border-color: var(--qilin-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 .deleteConfirm:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover-danger);
+  background: var(--qilin-alias-interactive-bg-hover-danger);
 }
 
 /* Icon-button label seat: named for assistive tech and for the tests that
@@ -647,8 +647,8 @@ select.input {
      scrollbar indirection is rebound here rather than on the scrolling child:
      the elevation choice belongs with the surface and inherits down (see
      ui-theme styles/scrollbar.css for the contract). */
-  --qilin-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --qilin-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
 }
 
 .candidateToolbar {
@@ -695,7 +695,7 @@ select.input {
 
 .candidateEmpty {
   margin: 24px 0;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 13px;
   line-height: 20px;
   text-align: center;

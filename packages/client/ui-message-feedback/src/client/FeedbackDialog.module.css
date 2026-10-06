@@ -16,11 +16,11 @@
 .chip {
   height: 28px;
   padding: 0 12px;
-  border: 0.5px solid var(--dsw-alias-border-l4);
+  border: 0.5px solid var(--qilin-alias-border-l4);
   border-radius: 14px;
   corner-shape: round;
   background: transparent;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font: inherit;
   font-size: 13px;
   line-height: 18px;
@@ -29,8 +29,8 @@
 }
 
 .chip:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
 }
 
 .chip:disabled {
@@ -39,15 +39,15 @@
 }
 
 .chip:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: 2px;
 }
 
 .chipActive,
 .chipActive:hover:not(:disabled) {
-  border-color: var(--dsw-alias-button-primary-fill);
-  background: var(--dsw-alias-button-primary-fill);
-  color: var(--dsw-alias-label-primary-foreground);
+  border-color: var(--qilin-alias-button-primary-fill);
+  background: var(--qilin-alias-button-primary-fill);
+  color: var(--qilin-alias-label-primary-foreground);
 }
 
 /* The field starts at three short lines, grows with its text where supported,
@@ -60,10 +60,10 @@
   box-sizing: border-box;
   margin-top: 18px;
   padding: 12px 14px;
-  border: 0.5px solid var(--dsw-alias-border-l4);
+  border: 0.5px solid var(--qilin-alias-border-l4);
   border-radius: 16px;
-  background: var(--dsw-alias-bg-layer-1);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-bg-layer-1);
+  color: var(--qilin-alias-label-primary);
   font: inherit;
   font-size: 14px;
   line-height: 22px;
@@ -73,13 +73,13 @@
 }
 
 .detail::placeholder {
-  color: var(--dsw-alias-label-caption);
+  color: var(--qilin-alias-label-caption);
 }
 
 .detail:focus {
   outline: none;
-  border-color: var(--dsw-alias-border-l3);
-  box-shadow: 0 0 0 1px var(--dsw-alias-state-business-primary);
+  border-color: var(--qilin-alias-border-l3);
+  box-shadow: 0 0 0 1px var(--qilin-alias-state-business-primary);
 }
 
 .submit {
@@ -96,10 +96,10 @@
   place-items: center;
   width: 18px;
   height: 18px;
-  border: 1.5px solid var(--dsw-alias-state-success-primary);
+  border: 1.5px solid var(--qilin-alias-state-success-primary);
   border-radius: 50%;
   corner-shape: round;
-  color: var(--dsw-alias-state-success-primary);
+  color: var(--qilin-alias-state-success-primary);
 }
 
 @media (prefers-reduced-motion: reduce) {

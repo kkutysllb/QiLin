@@ -4,8 +4,8 @@
   flex-direction: column;
   height: 100%;
   min-height: 0;
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-bg-base);
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-alias-bg-base);
 }
 
 .toolbar {
@@ -16,7 +16,7 @@
   box-sizing: border-box;
   height: 38px;
   padding: 5px 6px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
 }
 
 .tool {
@@ -27,7 +27,7 @@
   width: 28px;
   height: 28px;
   padding: 0;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   background: transparent;
   border: 0;
   border-radius: 6px;
@@ -35,18 +35,18 @@
 }
 
 .tool:hover:not(:disabled) {
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .tool:disabled {
-  color: var(--dsw-alias-label-quaternary);
+  color: var(--qilin-alias-label-quaternary);
   cursor: default;
 }
 
 .sandboxOff {
-  color: var(--dsw-alias-state-error-primary);
-  background: color-mix(in srgb, var(--dsw-alias-state-error-primary) 10%, transparent);
+  color: var(--qilin-alias-state-error-primary);
+  background: color-mix(in srgb, var(--qilin-alias-state-error-primary) 10%, transparent);
 }
 
 .addressBox {
@@ -60,10 +60,10 @@
   height: 28px;
   box-sizing: border-box;
   padding: 0 34px 0 9px;
-  color: var(--dsw-alias-label-primary);
-  font: var(--dsw-font-xxs-12);
-  background: var(--dsw-alias-bg-layer-1);
-  border: 0.5px solid var(--dsw-alias-border-l2);
+  color: var(--qilin-alias-label-primary);
+  font: var(--qilin-font-xxs-12);
+  background: var(--qilin-alias-bg-layer-1);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 6px;
 }
 
@@ -81,13 +81,13 @@
 }
 
 .addressUnknown {
-  color: var(--dsw-alias-label-tertiary);
-  background: var(--dsw-alias-bg-layer-2);
+  color: var(--qilin-alias-label-tertiary);
+  background: var(--qilin-alias-bg-layer-2);
 }
 
 .addressUnknown:focus {
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-bg-layer-1);
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-alias-bg-layer-1);
 }
 
 .addressChanged {
@@ -95,11 +95,11 @@
   top: 6px;
   right: 8px;
   padding-left: 8px;
-  color: var(--dsw-alias-label-tertiary);
-  font: var(--dsw-font-xxxs-11);
+  color: var(--qilin-alias-label-tertiary);
+  font: var(--qilin-font-xxxs-11);
   line-height: 16px;
   pointer-events: none;
-  background: var(--dsw-alias-bg-layer-2);
+  background: var(--qilin-alias-bg-layer-2);
 }
 
 .addressBox:focus-within .addressChanged {
@@ -108,7 +108,7 @@
 }
 
 .address:focus {
-  outline: 1px solid var(--dsw-alias-state-business-primary);
+  outline: 1px solid var(--qilin-alias-state-business-primary);
   outline-offset: -1px;
 }
 
@@ -118,7 +118,7 @@
   width: 100%;
   min-height: 0;
   border: 0;
-  background: var(--dsw-alias-bg-base);
+  background: var(--qilin-alias-bg-base);
 }
 
 .start {
@@ -128,25 +128,25 @@
   justify-content: center;
   min-height: 0;
   padding: 24px;
-  color: var(--dsw-alias-label-tertiary);
-  font: var(--dsw-font-xs-13);
+  color: var(--qilin-alias-label-tertiary);
+  font: var(--qilin-font-xs-13);
   text-align: center;
 }
 
 .failure {
   flex: 0 0 auto;
   padding: 6px 12px;
-  color: var(--dsw-alias-state-error-primary);
-  font: var(--dsw-font-xxxs-11);
-  background: color-mix(in srgb, var(--dsw-alias-state-error-primary) 8%, transparent);
+  color: var(--qilin-alias-state-error-primary);
+  font: var(--qilin-font-xxxs-11);
+  background: color-mix(in srgb, var(--qilin-alias-state-error-primary) 8%, transparent);
 }
 
 .sandboxWarning {
   flex: 0 0 auto;
   padding: 6px 12px;
-  color: var(--dsw-alias-state-warning-primary, var(--dsw-alias-state-business-primary));
-  font: var(--dsw-font-xxxs-11);
-  background: color-mix(in srgb, var(--dsw-alias-state-warning-primary, var(--dsw-alias-state-business-primary)) 8%, transparent);
+  color: var(--qilin-alias-state-warning-primary, var(--qilin-alias-state-business-primary));
+  font: var(--qilin-font-xxxs-11);
+  background: color-mix(in srgb, var(--qilin-alias-state-warning-primary, var(--qilin-alias-state-business-primary)) 8%, transparent);
 }
 
 .limit {
@@ -154,11 +154,11 @@
   margin: 0;
   padding: 4px 10px;
   overflow: hidden;
-  color: var(--dsw-alias-label-tertiary);
-  font: var(--dsw-font-xxxs-11);
+  color: var(--qilin-alias-label-tertiary);
+  font: var(--qilin-font-xxxs-11);
   text-overflow: ellipsis;
   white-space: nowrap;
-  border-top: 0.5px solid var(--dsw-alias-border-l3);
+  border-top: 0.5px solid var(--qilin-alias-border-l3);
 }
 
 .titleIcon {

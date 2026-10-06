@@ -9,13 +9,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px dashed var(--dsw-alias-text-link, currentColor);
-  border-radius: var(--dsw-radius-lg, 10px);
-  background: var(--dsw-alias-scrim, rgba(0, 0, 0, 0.3));
+  border: 2px dashed var(--qilin-alias-text-link, currentColor);
+  border-radius: var(--qilin-radius-lg, 10px);
+  background: var(--qilin-alias-scrim, rgba(0, 0, 0, 0.3));
   pointer-events: none;
 }
 .hint {
-  color: var(--dsw-alias-text-primary, white);
+  color: var(--qilin-alias-text-primary, white);
   font-size: 14px;
 }
 .report {
@@ -26,12 +26,12 @@
   font-size: 12px;
 }
 .ok {
-  color: var(--dsw-alias-state-success-primary, inherit);
+  color: var(--qilin-alias-state-success-primary, inherit);
 }
 .fail {
-  color: var(--dsw-alias-state-error-primary, inherit);
+  color: var(--qilin-alias-state-error-primary, inherit);
 }
 .done {
-  color: var(--dsw-alias-label-tertiary, inherit);
+  color: var(--qilin-alias-label-tertiary, inherit);
   font-size: 11px;
 }

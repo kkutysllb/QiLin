@@ -9,12 +9,12 @@
   overflow: hidden;
   width: 100%;
   max-width: var(--qilin-chat-content-width);
-  border: 1px solid var(--dsw-alias-state-warn-secondary);
+  border: 1px solid var(--qilin-alias-state-warn-secondary);
   border-radius: 20px;
-  background: var(--dsw-specific-input-major);
-  box-shadow: var(--dsw-shadow-lv2);
-  --qilin-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --qilin-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  background: var(--qilin-specific-input-major);
+  box-shadow: var(--qilin-shadow-lv2);
+  --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
 }
 
 .strip {
@@ -22,8 +22,8 @@
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
-  background: var(--dsw-alias-state-warn-tertiary);
-  color: var(--dsw-alias-state-warn-primary);
+  background: var(--qilin-alias-state-warn-tertiary);
+  color: var(--qilin-alias-state-warn-primary);
   font-size: 13px;
   line-height: 18px;
 }
@@ -33,7 +33,7 @@
   height: 8px;
   border-radius: 50%;
   corner-shape: round;
-  background: var(--dsw-alias-state-warn-primary);
+  background: var(--qilin-alias-state-warn-primary);
 }
 
 .body {
@@ -47,14 +47,14 @@
 }
 
 .headline {
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font-size: 15px;
   font-weight: 500;
   line-height: 24px;
 }
 
 .command {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-family: var(--ds-font-family-code);
   font-size: 13px;
   line-height: 20px;
@@ -69,7 +69,7 @@
 }
 
 .reject:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover-danger);
-  color: var(--dsw-alias-state-error-primary);
+  background: var(--qilin-alias-interactive-bg-hover-danger);
+  color: var(--qilin-alias-state-error-primary);
   border-color: transparent;
 }

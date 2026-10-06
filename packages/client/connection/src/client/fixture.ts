@@ -465,7 +465,7 @@ function sgr(code: number, body: string): string {
  * Terminal output sample for fixture turn 66, authored to carry every feature
  * the terminal card draws that turn 60's two prompt rows cannot reach:
  * basic-16 SGR foreground runs (green, red, bright-black) that must resolve to
- * `--dsw-*` tokens, a bold run, column-aligned table rows that must scroll
+ * `--qilin-*` tokens, a bold run, column-aligned table rows that must scroll
  * rather than fold, more than DEFAULT_TERMINAL_MAX_LINES (16) lines so the
  * height cap collapses the middle. This constant is the visible body; the call
  * site appends the shell result's `[exit code: N]` marker so Client derivation

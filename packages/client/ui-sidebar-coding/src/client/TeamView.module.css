@@ -10,8 +10,8 @@
   min-height: 0;
   height: 100%;
   overflow-y: auto;
-  font: var(--dsw-font-xs-13);
-  color: var(--dsw-alias-label-primary);
+  font: var(--qilin-font-xs-13);
+  color: var(--qilin-alias-label-primary);
 }
 
 .toolbar {
@@ -20,7 +20,7 @@
   align-items: center;
   gap: 6px;
   padding: 6px 8px;
-  border-bottom: 1px solid var(--dsw-alias-border-l1);
+  border-bottom: 1px solid var(--qilin-alias-border-l1);
 }
 
 .toolbarTitle {
@@ -36,9 +36,9 @@
   min-width: 18px;
   padding: 0 5px;
   border-radius: 9px;
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-secondary);
-  font: var(--dsw-font-xxxs-11);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-secondary);
+  font: var(--qilin-font-xxxs-11);
   text-align: center;
 }
 
@@ -51,19 +51,19 @@
   border: none;
   border-radius: 6px;
   background: transparent;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   cursor: pointer;
 }
 
 .iconButton:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
 }
 
 .section {
   flex: none;
   padding: 8px;
-  border-bottom: 1px solid var(--dsw-alias-border-l1);
+  border-bottom: 1px solid var(--qilin-alias-border-l1);
 }
 
 .sectionHead {
@@ -75,11 +75,11 @@
 
 .sectionTitle {
   margin: 0 0 6px;
-  font: var(--dsw-font-xxxs-11);
+  font: var(--qilin-font-xxxs-11);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .roster {
@@ -103,7 +103,7 @@
 }
 
 .member:not(:disabled):hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .member:disabled { cursor: default; }
@@ -118,11 +118,11 @@
 .memberName { font-weight: 600; }
 
 .memberText small {
-  font: var(--dsw-font-xxxs-11);
-  color: var(--dsw-alias-label-tertiary);
+  font: var(--qilin-font-xxxs-11);
+  color: var(--qilin-alias-label-tertiary);
 }
 
-.diagnostic { color: var(--dsw-alias-state-warn-label) !important; }
+.diagnostic { color: var(--qilin-alias-state-warn-label) !important; }
 
 .tasks {
   display: flex;
@@ -133,9 +133,9 @@
 
 .task {
   padding: 8px;
-  border: 1px solid var(--dsw-alias-border-l1);
+  border: 1px solid var(--qilin-alias-border-l1);
   border-radius: 6px;
-  background: var(--dsw-alias-bg-layer-1);
+  background: var(--qilin-alias-bg-layer-1);
 }
 
 .taskHead {
@@ -146,13 +146,13 @@
 }
 
 .taskStatus {
-  font: var(--dsw-font-xxxs-11);
-  color: var(--dsw-alias-label-tertiary);
+  font: var(--qilin-font-xxxs-11);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .taskDesc {
   margin: 4px 0 0;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -162,11 +162,11 @@
   flex-wrap: wrap;
   gap: 6px;
   margin-top: 6px;
-  font: var(--dsw-font-xxxs-11);
-  color: var(--dsw-alias-label-tertiary);
+  font: var(--qilin-font-xxxs-11);
+  color: var(--qilin-alias-label-tertiary);
 }
 
-.warning { color: var(--dsw-alias-state-warn-label); }
+.warning { color: var(--qilin-alias-state-warn-label); }
 
 .taskActions {
   display: flex;
@@ -180,19 +180,19 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font: var(--dsw-font-xxxs-11);
-  color: var(--dsw-alias-label-tertiary);
+  font: var(--qilin-font-xxxs-11);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .owner select,
 .input,
 .textarea {
   padding: 3px 6px;
-  border: 1px solid var(--dsw-alias-border-l1);
+  border: 1px solid var(--qilin-alias-border-l1);
   border-radius: 6px;
-  background: var(--dsw-alias-bg-layer-1);
-  color: var(--dsw-alias-label-primary);
-  font: var(--dsw-font-xxxs-11);
+  background: var(--qilin-alias-bg-layer-1);
+  color: var(--qilin-alias-label-primary);
+  font: var(--qilin-font-xxxs-11);
 }
 
 .input { width: 100%; }
@@ -208,17 +208,17 @@
   align-items: center;
   gap: 4px;
   padding: 3px 8px;
-  border: 1px solid var(--dsw-alias-border-l1);
+  border: 1px solid var(--qilin-alias-border-l1);
   border-radius: 6px;
   background: transparent;
-  color: var(--dsw-alias-label-secondary);
-  font: var(--dsw-font-xxxs-11);
+  color: var(--qilin-alias-label-secondary);
+  font: var(--qilin-font-xxxs-11);
   cursor: pointer;
 }
 
 .smallButton:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
 }
 
 .smallButton:disabled { opacity: 0.55; cursor: default; }
@@ -231,14 +231,14 @@
      必须是 label-primary-inverted —— 此前写成 label-inverse 这个不存在的
      token，回退成白字，而 button-primary-fill 在暗色档是浅底 → 整个按钮成了
      一个白块（2026-09-19 现场）。 */
-  background: var(--dsw-alias-button-primary-fill);
-  color: var(--dsw-alias-label-primary-inverted);
-  font: var(--dsw-font-xxs-strong-12);
+  background: var(--qilin-alias-button-primary-fill);
+  color: var(--qilin-alias-label-primary-inverted);
+  font: var(--qilin-font-xxs-strong-12);
   cursor: pointer;
 }
 
 .primary:hover:not(:disabled) {
-  background: var(--dsw-alias-button-primary-hover);
+  background: var(--qilin-alias-button-primary-hover);
 }
 
 .primary:disabled { opacity: 0.45; cursor: default; }
@@ -258,16 +258,16 @@
 
 .hint {
   padding: 10px 8px;
-  color: var(--dsw-alias-label-tertiary);
-  font: var(--dsw-font-xxxs-11);
+  color: var(--qilin-alias-label-tertiary);
+  font: var(--qilin-font-xxxs-11);
 }
 
 .notice {
   flex: none;
   padding: 4px 10px;
-  color: var(--dsw-alias-state-warn-label);
-  background: var(--dsw-alias-state-warn-tertiary);
-  font: var(--dsw-font-xxxs-11);
+  color: var(--qilin-alias-state-warn-label);
+  background: var(--qilin-alias-state-warn-tertiary);
+  font: var(--qilin-font-xxxs-11);
 }
 
 .empty {
@@ -285,8 +285,8 @@
 
 .emptyDesc {
   margin: 0;
-  color: var(--dsw-alias-label-secondary);
-  font: var(--dsw-font-xxxs-11);
+  color: var(--qilin-alias-label-secondary);
+  font: var(--qilin-font-xxxs-11);
 }
 
 .empty .primary { align-self: flex-start; margin-top: 4px; }

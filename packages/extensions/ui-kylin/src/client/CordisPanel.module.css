@@ -27,7 +27,7 @@
   border: none;
   border-radius: 12px;
   background: transparent;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font-family: inherit;
   font-size: 14px;
   cursor: pointer;
@@ -35,11 +35,11 @@
 }
 
 .badge:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .badge[data-active] {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .badgeLabel {
@@ -52,7 +52,7 @@
 .badgeCount {
   flex: none;
   margin-left: auto;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 12px;
   line-height: 16px;
   font-variant-numeric: tabular-nums;
@@ -92,12 +92,12 @@
   overflow: hidden;
   border: 0;
   border-radius: 12px;
-  background: var(--dsw-specific-menu);
-  --dsw-elevation-stroke-color: var(--dsw-alias-border-l1);
-  box-shadow: var(--dsw-elevation-prominent);
+  background: var(--qilin-specific-menu);
+  --qilin-elevation-stroke-color: var(--qilin-alias-border-l1);
+  box-shadow: var(--qilin-elevation-prominent);
   /* Only `.body` scrolls; the header remains fixed above it. */
-  --qilin-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --qilin-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
 }
 
 .header {
@@ -121,7 +121,7 @@
   font-size: 14px;
   font-weight: 500;
   line-height: 20px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .note,
@@ -129,11 +129,11 @@
   margin: 4px 0;
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .readError {
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 /* Session headings replace per-row ownership markers. */
@@ -142,7 +142,7 @@
   font-size: 11px;
   font-weight: 500;
   line-height: 16px;
-  color: var(--dsw-alias-label-caption);
+  color: var(--qilin-alias-label-caption);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -161,12 +161,12 @@
   flex-direction: column;
   gap: 8px;
   padding: 14px 12px 10px;
-  border: 0.5px solid var(--dsw-alias-border-l4);
+  border: 0.5px solid var(--qilin-alias-border-l4);
   border-radius: 12px;
 }
 
 .row[data-cordis-awaiting] {
-  border-color: var(--dsw-alias-state-business-primary);
+  border-color: var(--qilin-alias-state-business-primary);
 }
 
 .rowHead {
@@ -177,7 +177,7 @@
 
 .rowId {
   flex: none;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-family: var(--qilin-font-mono, monospace);
   font-size: 11px;
   line-height: 20px;
@@ -190,7 +190,7 @@
   font-size: 13px;
   font-weight: 500;
   line-height: 20px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -202,31 +202,31 @@
   height: 20px;
   padding: 0 6px;
   border-radius: 10px;
-  background: var(--dsw-alias-button-ghost-active-fill);
+  background: var(--qilin-alias-button-ghost-active-fill);
   font-size: 11px;
   line-height: 20px;
-  color: var(--dsw-alias-label-caption);
+  color: var(--qilin-alias-label-caption);
 }
 
 .row[data-cordis-status='idle'] .rowStatus {
-  background: var(--dsw-alias-button-ghost-active-fill);
-  color: var(--dsw-alias-label-caption);
+  background: var(--qilin-alias-button-ghost-active-fill);
+  color: var(--qilin-alias-label-caption);
 }
 
 .row[data-cordis-status='awaiting-approval'] .rowStatus,
 .row[data-cordis-status='client-pending'] .rowStatus {
-  background: var(--dsw-alias-state-warn-tertiary);
-  color: var(--dsw-alias-state-warn-label);
+  background: var(--qilin-alias-state-warn-tertiary);
+  color: var(--qilin-alias-state-warn-label);
 }
 
 .row[data-cordis-status='failed'] .rowStatus {
-  background: var(--dsw-alias-interactive-bg-hover-danger);
-  color: var(--dsw-alias-state-error-primary);
+  background: var(--qilin-alias-interactive-bg-hover-danger);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 .row[data-cordis-status='running'] .rowStatus {
-  background: var(--dsw-alias-state-success-tertiary);
-  color: var(--dsw-alias-state-success-primary);
+  background: var(--qilin-alias-state-success-tertiary);
+  color: var(--qilin-alias-state-success-primary);
 }
 
 .rowDetail {
@@ -240,7 +240,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--dsw-alias-label-caption);
+  color: var(--qilin-alias-label-caption);
   font-size: 11px;
   line-height: 18px;
 }
@@ -250,10 +250,10 @@
   flex: 1;
   height: 26px;
   padding: 0 8px;
-  border: 0.5px solid var(--dsw-alias-border-l3);
+  border: 0.5px solid var(--qilin-alias-border-l3);
   border-radius: 7px;
   background: transparent;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font: inherit;
 }
 
@@ -263,7 +263,7 @@
   overflow: hidden;
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -271,7 +271,7 @@
 .rowError {
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 .rowActions {
@@ -286,7 +286,7 @@
   align-items: center;
   gap: 8px;
   min-width: 0;
-  color: var(--dsw-alias-label-caption);
+  color: var(--qilin-alias-label-caption);
   font-size: 11px;
   line-height: 18px;
 }
@@ -299,17 +299,17 @@
 
 .transitionActions button {
   padding: 2px 8px;
-  border: 0.5px solid var(--dsw-alias-border-l3);
+  border: 0.5px solid var(--qilin-alias-border-l3);
   border-radius: 999px;
   corner-shape: round;
   background: transparent;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font: inherit;
   cursor: pointer;
 }
 
 .transitionActions button:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .transitionActions button:disabled {
@@ -318,7 +318,7 @@
 }
 
 .activeVersion {
-  color: var(--dsw-alias-label-caption);
+  color: var(--qilin-alias-label-caption);
   font-size: 11px;
   line-height: 16px;
 }
@@ -336,13 +336,13 @@
   border-radius: 999px;
   corner-shape: round;
   background: transparent;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   cursor: pointer;
 }
 
 .actionButton:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-secondary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .actionButton:disabled {

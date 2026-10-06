@@ -4,13 +4,13 @@
   height: 100%;
   min-height: 240px;
   border: none;
-  background: var(--dsw-alias-bg-base);
+  background: var(--qilin-alias-bg-base);
 }
 
 .status {
   margin: 0;
   padding: 10px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   white-space: normal;
 }
 

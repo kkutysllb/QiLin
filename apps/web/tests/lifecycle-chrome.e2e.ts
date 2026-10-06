@@ -229,8 +229,8 @@ describe('web e2e: lifecycle & chrome (workspace flow / reload / dark mode)', ()
       await compareOrRefreshGolden(PLAN_ACTIVE_EXPECTED, planSnapshot, MODE)
       const planStyle = await planButton.evaluate((element) => {
         const probe = document.createElement('span')
-        probe.style.color = 'var(--dsw-alias-state-warn-label)'
-        probe.style.backgroundColor = 'var(--dsw-alias-state-warn-tertiary)'
+        probe.style.color = 'var(--qilin-alias-state-warn-label)'
+        probe.style.backgroundColor = 'var(--qilin-alias-state-warn-tertiary)'
         document.body.append(probe)
         const actual = getComputedStyle(element)
         const reference = getComputedStyle(probe)
@@ -435,7 +435,7 @@ describe('web e2e: lifecycle & chrome (workspace flow / reload / dark mode)', ()
       await page.evaluate(() => {
         const sidebar = document.querySelector('[class*="sidebar"], [class*="rail"]') ?? document.body
         return {
-          token: getComputedStyle(document.body).getPropertyValue('--dsw-alias-bg-base').trim(),
+          token: getComputedStyle(document.body).getPropertyValue('--qilin-alias-bg-base').trim(),
           sidebarBg: getComputedStyle(sidebar).backgroundColor,
           bodyBg: getComputedStyle(document.body).backgroundColor,
         }
@@ -516,8 +516,8 @@ describe('web e2e: lifecycle & chrome (workspace flow / reload / dark mode)', ()
       await compareOrRefreshGolden(CONNECTION_ERROR_EXPECTED, snapshot, MODE)
       const expectedColors = await recoveryPage.evaluate(() => {
         const probe = document.createElement('span')
-        probe.style.color = 'var(--dsw-alias-state-warn-label)'
-        probe.style.backgroundColor = 'var(--dsw-alias-state-warn-tertiary)'
+        probe.style.color = 'var(--qilin-alias-state-warn-label)'
+        probe.style.backgroundColor = 'var(--qilin-alias-state-warn-tertiary)'
         document.body.append(probe)
         const reference = getComputedStyle(probe)
         const result = {

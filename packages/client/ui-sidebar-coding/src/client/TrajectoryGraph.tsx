@@ -69,22 +69,22 @@ const EDGE_CLASS: Record<TrajectoryEdgeKind, string | undefined> = {
 
 /** Per-kind accent, handed to CSS as `--node-accent` (tokens only). */
 const ACCENT: Record<TrajectoryNodeKind, string> = {
-  system: 'var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary))',
-  user: 'var(--dsw-alias-brand-primary, var(--dsw-alias-label-primary))',
-  steering: 'var(--dsw-alias-state-warn-primary, var(--dsw-alias-label-primary))',
-  context: 'var(--dsw-alias-label-secondary, var(--dsw-alias-label-primary))',
-  command: 'var(--dsw-alias-state-business-primary, var(--dsw-alias-brand-primary))',
-  request: 'var(--dsw-alias-state-success-primary, var(--dsw-alias-brand-primary))',
-  'compact-request': 'var(--dsw-alias-state-warn-primary, var(--dsw-alias-label-primary))',
-  assistant: 'var(--dsw-alias-state-business-primary, var(--dsw-alias-brand-primary))',
-  partial: 'var(--dsw-alias-state-success-primary, var(--dsw-alias-brand-primary))',
-  tool: 'var(--dsw-alias-link, var(--dsw-alias-brand-primary))',
-  'running-call': 'var(--dsw-alias-state-warn-primary, var(--dsw-alias-label-primary))',
-  compaction: 'var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary))',
-  retry: 'var(--dsw-alias-state-warn-primary, var(--dsw-alias-label-primary))',
-  error: 'var(--dsw-alias-state-error-primary, var(--dsw-alias-label-primary))',
-  'max-tokens': 'var(--dsw-alias-state-error-primary, var(--dsw-alias-label-primary))',
-  unknown: 'var(--dsw-alias-label-dimmed, var(--dsw-alias-label-tertiary))',
+  system: 'var(--qilin-alias-label-tertiary, var(--qilin-alias-label-secondary))',
+  user: 'var(--qilin-alias-brand-primary, var(--qilin-alias-label-primary))',
+  steering: 'var(--qilin-alias-state-warn-primary, var(--qilin-alias-label-primary))',
+  context: 'var(--qilin-alias-label-secondary, var(--qilin-alias-label-primary))',
+  command: 'var(--qilin-alias-state-business-primary, var(--qilin-alias-brand-primary))',
+  request: 'var(--qilin-alias-state-success-primary, var(--qilin-alias-brand-primary))',
+  'compact-request': 'var(--qilin-alias-state-warn-primary, var(--qilin-alias-label-primary))',
+  assistant: 'var(--qilin-alias-state-business-primary, var(--qilin-alias-brand-primary))',
+  partial: 'var(--qilin-alias-state-success-primary, var(--qilin-alias-brand-primary))',
+  tool: 'var(--qilin-alias-link, var(--qilin-alias-brand-primary))',
+  'running-call': 'var(--qilin-alias-state-warn-primary, var(--qilin-alias-label-primary))',
+  compaction: 'var(--qilin-alias-label-tertiary, var(--qilin-alias-label-secondary))',
+  retry: 'var(--qilin-alias-state-warn-primary, var(--qilin-alias-label-primary))',
+  error: 'var(--qilin-alias-state-error-primary, var(--qilin-alias-label-primary))',
+  'max-tokens': 'var(--qilin-alias-state-error-primary, var(--qilin-alias-label-primary))',
+  unknown: 'var(--qilin-alias-label-dimmed, var(--qilin-alias-label-tertiary))',
 }
 
 /** Lane label key per lane. */

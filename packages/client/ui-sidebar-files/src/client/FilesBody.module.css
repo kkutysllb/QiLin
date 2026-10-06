@@ -7,7 +7,7 @@
   flex-direction: column;
   height: 100%;
   min-height: 0;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font-size: var(--qilin-content-font-size-secondary, 13px);
   line-height: 1.5;
 }
@@ -30,7 +30,7 @@
   box-sizing: border-box;
   height: 38px;
   padding: 0 6px 0 16px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
 }
 
 /* The path is never ellipsized. Its text sits at the left while it fits: the
@@ -60,11 +60,11 @@
 }
 
 .pathDirectory {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .pathName {
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .body {
@@ -121,13 +121,13 @@
 }
 
 .row:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 /* The folder glyph rides the tertiary ink, as the workspace tree's does (ui-workspace Rows `.slot`). */
 .icon {
   flex: 0 0 auto;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 /* The type's coloured sheet at the folder glyph's 16px; its colour is its own. */
@@ -137,7 +137,7 @@
 
 .linkIcon {
   flex: 0 0 auto;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .menuAnchor {
@@ -164,7 +164,7 @@
 /* Neither a file nor a directory: shown so the directory is reported whole,
    greyed so nobody tries to open it. */
 .other {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   cursor: default;
 }
 
@@ -175,7 +175,7 @@
 .note {
   margin: 0;
   padding: 3px 10px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 12px;
 }
 
@@ -186,10 +186,10 @@
   width: 100%;
   margin: 1px 0;
   padding: 3px 6px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font: inherit;
-  background: var(--dsw-alias-bg-layer-1);
-  border: 0.5px solid var(--dsw-alias-state-business-primary);
+  background: var(--qilin-alias-bg-layer-1);
+  border: 0.5px solid var(--qilin-alias-state-business-primary);
   border-radius: 8px;
   outline: none;
 }
@@ -201,7 +201,7 @@
   align-items: flex-start;
   margin: 0;
   padding: 3px 4px 3px 10px;
-  color: var(--dsw-static-red-500);
+  color: var(--qilin-static-red-500);
   font-size: 12px;
 }
 
@@ -232,20 +232,20 @@
 }
 
 .mutationDismiss:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 /* The dialog's own copy and the refusal under a name box. */
 .dialogBody {
   margin: 0;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 13px;
   line-height: 1.6;
 }
 
 .nameError {
   margin: 8px 0 0;
-  color: var(--dsw-static-red-500);
+  color: var(--qilin-static-red-500);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -258,7 +258,7 @@
 
 .statusLine {
   margin: 0;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: var(--qilin-content-font-size-secondary, 13px);
   line-height: 1.6;
 }
@@ -273,7 +273,7 @@
   width: 28px;
   height: 28px;
   padding: 6px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   line-height: 1;
   background: transparent;
   border: none;
@@ -287,8 +287,8 @@
 }
 
 .tool:hover {
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 /* The folder sheet before the chip's text; the chip's title row centres it

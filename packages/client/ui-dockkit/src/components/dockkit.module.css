@@ -8,8 +8,8 @@
  * follows the embedder's content axis (`--qilin-content-font-size` and its
  * secondary step) so a surface reads at the same size as the page around it.
  * Emphasis — the drop caret, the drop-zone hint — takes the platform's accent
- * (`--dsw-alias-brand-primary-new-colorprimary-new-color`), not
- * `--dsw-alias-brand-primary`, which this platform binds to its near-black
+ * (`--qilin-alias-brand-primary-new-colorprimary-new-color`), not
+ * `--qilin-alias-brand-primary`, which this platform binds to its near-black
  * (light) or near-white (dark) foreground. A hovered divider takes the
  * caption label ink instead, reading as a handle rather than a highlight.
  */
@@ -57,7 +57,7 @@
 }
 
 .divider::before {
-  background: var(--dsw-alias-border-l4);
+  background: var(--qilin-alias-border-l4);
 }
 
 .splitRow > .divider {
@@ -112,11 +112,11 @@
 }
 
 .splitRow > .divider::after {
-  background: linear-gradient(to bottom, transparent, var(--dsw-alias-label-caption) 50%, transparent) center / 1px 100% no-repeat;
+  background: linear-gradient(to bottom, transparent, var(--qilin-alias-label-caption) 50%, transparent) center / 1px 100% no-repeat;
 }
 
 .splitColumn > .divider::after {
-  background: linear-gradient(to right, transparent, var(--dsw-alias-label-caption) 50%, transparent) center / 100% 1px no-repeat;
+  background: linear-gradient(to right, transparent, var(--qilin-alias-label-caption) 50%, transparent) center / 100% 1px no-repeat;
 }
 
 /* Both floors: a flex item's minimum is its content's, and a body's longest
@@ -167,7 +167,7 @@
 
 .tabHost:not(.float),
 .emptyTabHost {
-  background: var(--dsw-alias-bg-base);
+  background: var(--qilin-alias-bg-base);
 }
 
 .tabHostHeader {
@@ -198,7 +198,7 @@
   bottom: 0;
   left: -4px;
   right: -4px;
-  background: linear-gradient(to bottom, transparent, var(--dsw-alias-label-caption) 50%, transparent) center / 1px 100% no-repeat;
+  background: linear-gradient(to bottom, transparent, var(--qilin-alias-label-caption) 50%, transparent) center / 1px 100% no-repeat;
 }
 
 /* A body that overflows scrolls inside its pane; nothing escapes the pane. */
@@ -309,7 +309,7 @@
   content: '';
   width: 0.5px;
   height: 14px;
-  background: var(--dsw-alias-border-l4);
+  background: var(--qilin-alias-border-l4);
 }
 
 /* The active chip is a filled capsule and needs no rule against it: the two
@@ -323,7 +323,7 @@
 .slotCaret::before {
   width: 2px;
   height: 20px;
-  background: var(--dsw-alias-brand-primary-new-colorprimary-new-color);
+  background: var(--qilin-alias-brand-primary-new-colorprimary-new-color);
 }
 
 /* The chip: a 28px capsule whose title runs to the right inset. The close
@@ -340,7 +340,7 @@
   height: 28px;
   padding: 0 10px;
   gap: 6px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: var(--qilin-content-font-size-secondary, 13px);
   line-height: 1;
   white-space: nowrap;
@@ -415,7 +415,7 @@
   width: 20px;
   height: 20px;
   padding: 0;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   line-height: 1;
   background: transparent;
   border: none;
@@ -445,7 +445,7 @@
   width: 28px;
   height: 28px;
   padding: 0;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   line-height: 1;
   background: transparent;
   border: none;
@@ -454,23 +454,23 @@
 }
 
 .addTab:hover {
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .tabClose:hover {
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .tab:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 /* The active chip is the filled capsule, in the tag fill; the rest are bare text. */
 .tabActive {
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-markdown-tag);
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-alias-markdown-tag);
 }
 
 /* A pane's lone unclosable chip is a label, not a choice: no capsule, no
@@ -478,7 +478,7 @@
    yields to a close control, so it keeps the clipped fade alone. */
 .tab.tabQuiet,
 .tab.tabQuiet:hover {
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   background: transparent;
   cursor: default;
 }
@@ -507,7 +507,7 @@
   width: 28px;
   height: 28px;
   padding: 6px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   line-height: 1;
   background: transparent;
   border: none;
@@ -521,7 +521,7 @@
 }
 
 .iconButton:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .iconButton:disabled {
@@ -542,8 +542,8 @@
   flex-direction: column;
   min-width: 96px;
   padding: 4px;
-  background: var(--dsw-alias-bg-layer-3);
-  border: 0.5px solid var(--dsw-alias-border-l2);
+  background: var(--qilin-alias-bg-layer-3);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 6px;
 }
 
@@ -553,7 +553,7 @@
 
 .menuItem {
   padding: 5px 8px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font-size: var(--qilin-content-font-size-secondary, 13px);
   text-align: left;
   background: transparent;
@@ -563,7 +563,7 @@
 }
 
 .menuItem:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 /* No padding of its own: a tab's body reaches the pane's edges and the strip's
@@ -577,14 +577,14 @@
   overflow: auto;  /* This sheet draws elevated surfaces (the strip and the menu), so a scroller
      inside it rebinds the thumb indirection in a complete pair — a base-surface
      thumb on an elevated ground reads as a smudge. */
-  --qilin-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --qilin-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
 }
 
 .empty {
   margin: 0;
   padding: 12px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: var(--qilin-content-font-size-secondary, 13px);
 }
 
@@ -608,7 +608,7 @@
   /* The ground the panes sit on, not a raised layer: in dark mode `bg-layer-2`
      is a lighter bluish step than the column's `bg-base`, which tinted the
      whole scrim away from the content beneath it. */
-  background: color-mix(in srgb, var(--dsw-alias-bg-base) 72%, transparent);
+  background: color-mix(in srgb, var(--qilin-alias-bg-base) 72%, transparent);
   backdrop-filter: blur(6px);
   animation: dockScrimIn 140ms ease-out;
 }
@@ -661,8 +661,8 @@
   min-height: 0;
   padding: 12px;
   overflow: hidden;
-  color: var(--dsw-alias-label-tertiary);
-  border: 1.5px dashed var(--dsw-alias-border-l2);
+  color: var(--qilin-alias-label-tertiary);
+  border: 1.5px dashed var(--qilin-alias-border-l2);
   border-radius: 12px;
   transition: color 120ms ease-out, background-color 120ms ease-out, border-color 120ms ease-out;
   animation: dockHintIn 140ms ease-out;
@@ -671,9 +671,9 @@
 /* The card under the pointer takes the accent: a tinted ground over the scrim,
    an accent dashed frame, and secondary ink for the glyph and caption. */
 .dockHint[data-dockkit-drop-active] .dockHintCard {
-  color: var(--dsw-alias-label-secondary);
-  background: color-mix(in srgb, var(--dsw-alias-brand-primary-new-colorprimary-new-color) 8%, transparent);
-  border-color: var(--dsw-alias-brand-primary-new-colorprimary-new-color);
+  color: var(--qilin-alias-label-secondary);
+  background: color-mix(in srgb, var(--qilin-alias-brand-primary-new-colorprimary-new-color) 8%, transparent);
+  border-color: var(--qilin-alias-brand-primary-new-colorprimary-new-color);
 }
 
 .dockHintCard svg {
@@ -739,13 +739,13 @@
   /* The body inside is unpadded and reaches the edges, so the frame clips it
      to its own corners. */
   overflow: hidden;
-  background: var(--dsw-alias-bg-layer-2);
+  background: var(--qilin-alias-bg-layer-2);
   border-radius: 20px;
   /* The menu's shadow with the stroke rebound one step lighter than the
      default (l2): the panel reads as the same kind of raised surface, and the
      shadow's hairline outlines it, so the frame draws no border of its own. */
-  --dsw-elevation-stroke-color: var(--dsw-alias-border-l2);
-  box-shadow: var(--dsw-elevation-prominent);
+  --qilin-elevation-stroke-color: var(--qilin-alias-border-l2);
+  box-shadow: var(--qilin-elevation-prominent);
   pointer-events: auto;
 }
 
@@ -783,8 +783,8 @@
   overflow: auto;  /* This sheet draws elevated surfaces (the strip and the menu), so a scroller
      inside it rebinds the thumb indirection in a complete pair — a base-surface
      thumb on an elevated ground reads as a smudge. */
-  --qilin-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --qilin-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
 }
 
 .floatResize {
@@ -808,8 +808,8 @@
   bottom: 4px;
   width: 16px;
   height: 16px;
-  border-right: 1.5px solid var(--dsw-alias-label-caption);
-  border-bottom: 1.5px solid var(--dsw-alias-label-caption);
+  border-right: 1.5px solid var(--qilin-alias-label-caption);
+  border-bottom: 1.5px solid var(--qilin-alias-label-caption);
   border-bottom-right-radius: 16px;
   opacity: 0;
   transition: opacity 120ms ease-out;
@@ -821,7 +821,7 @@
 }
 
 .floatResize:hover::after {
-  border-color: var(--dsw-alias-label-tertiary);
+  border-color: var(--qilin-alias-label-tertiary);
 }
 
 .pane:focus,

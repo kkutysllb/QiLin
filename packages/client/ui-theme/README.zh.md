@@ -1,5 +1,5 @@
 ---
-description: "qilin Web 客户端的主题与正文排版设置：--dsw-* token 样式表、ThemeRuntime 状态、「通用」设置行与插件前引导。"
+description: "qilin Web 客户端的主题与正文排版设置：--qilin-* token 样式表、ThemeRuntime 状态、「通用」设置行与插件前引导。"
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-`qilin-client-ui-theme` 让 Web GUI 用户在设置中选择 `light`、`dark` 或 `system`，把会话正文字号设为 12 至 17 px，并按至多 8 px 调整行间距。回环客户端把这三个值存入 `ui-theme` 设置命名空间，本地提供方默认将其持久化到 `$QILIN_HOME/settings.yaml`。插件通过 `prefers-color-scheme` 解析 `system` 并发布不可变的 `ThemeSnapshot`；ui-layout 把每份快照应用到 document。本包还提供 `--dsw-*` token 样式表，并注入同步引导，使所选调色板、字号与行距在外壳加载前生效。第三方主题可通过 `ctx.theme` 注册别名 token 覆盖。
+`qilin-client-ui-theme` 让 Web GUI 用户在设置中选择 `light`、`dark` 或 `system`，把会话正文字号设为 12 至 17 px，并按至多 8 px 调整行间距。回环客户端把这三个值存入 `ui-theme` 设置命名空间，本地提供方默认将其持久化到 `$QILIN_HOME/settings.yaml`。插件通过 `prefers-color-scheme` 解析 `system` 并发布不可变的 `ThemeSnapshot`；ui-layout 把每份快照应用到 document。本包还提供 `--qilin-*` token 样式表，并注入同步引导，使所选调色板、字号与行距在外壳加载前生效。第三方主题可通过 `ctx.theme` 注册别名 token 覆盖。
 
 ## 目录
 
@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-用户从设置（「通用」分区）的三行中切换配色方案与正文排版；在回环浏览器上，三个选择都会跨重启持久化。功能插件通过 `ctx.theme` 消费当前快照，并在 CSS 中读取 `--dsw-*` token；它们不自行管理主题状态。
+用户从设置（「通用」分区）的三行中切换配色方案与正文排版；在回环浏览器上，三个选择都会跨重启持久化。功能插件通过 `ctx.theme` 消费当前快照，并在 CSS 中读取 `--qilin-*` token；它们不自行管理主题状态。
 
 ### 排版
 
@@ -53,17 +53,17 @@ kind: "package-reference"
 
 ### 样式表
 
-`src/styles/` 下有七张样式表，由 ui-theme 的动态客户端 entry 依次导入：`base.css`、`corner-shape.css`、`design-platform.css`、`focus.css`、`scrollbar.css`、`gradient-shadow-text.css` 与 `shiki.css`。客户端 bundle 将其编译并注入为插件持有的全局样式，因此卸载与 HMR 会随 ui-theme 一同移除。`scrollbar.css` 是 `--dsw-alias-scrollbar-*` token 的唯一消费方，必须排在声明这些 token 的 `design-platform.css` 之后。
+`src/styles/` 下有七张样式表，由 ui-theme 的动态客户端 entry 依次导入：`base.css`、`corner-shape.css`、`design-platform.css`、`focus.css`、`scrollbar.css`、`gradient-shadow-text.css` 与 `shiki.css`。客户端 bundle 将其编译并注入为插件持有的全局样式，因此卸载与 HMR 会随 ui-theme 一同移除。`scrollbar.css` 是 `--qilin-alias-scrollbar-*` token 的唯一消费方，必须排在声明这些 token 的 `design-platform.css` 之后。
 
-[`focus.css`](src/styles/focus.css) 为 `:focus-visible` 提供兜底声明，通过 `var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary))` 指名环色、通过 `--dsw-focus-ring-width` 指名标准宽度，但从不指名 outline 样式——自行禁用 outline 的控件保持不绘制，未声明环的控件保持标准几何而不是 Chromium 的 `auto 1px`。两套调色板都把该蓝色解析为一致取值；组件 outline 与 focus-ring 阴影使用同一颜色表达式，包括绘制在后代与伪元素上的环。`--dsw-focus-ring-width`（2px）是标准宽度；稠密表格与工具栏可以保留 1px，偏移量仍由组件自己决定。
+[`focus.css`](src/styles/focus.css) 为 `:focus-visible` 提供兜底声明，通过 `var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary))` 指名环色、通过 `--qilin-focus-ring-width` 指名标准宽度，但从不指名 outline 样式——自行禁用 outline 的控件保持不绘制，未声明环的控件保持标准几何而不是 Chromium 的 `auto 1px`。两套调色板都把该蓝色解析为一致取值；组件 outline 与 focus-ring 阴影使用同一颜色表达式，包括绘制在后代与伪元素上的环。`--qilin-focus-ring-width`（2px）是标准宽度；稠密表格与工具栏可以保留 1px，偏移量仍由组件自己决定。
 
 指针模态下，`html[data-input-modality='pointer'] body :focus-visible:not(:read-write)` 把环色设为透明。后代与伪元素继承该值；该规则不清除 `box-shadow`，因此 elevation 与选中态边框不受环可见性影响。匹配 `:read-write` 的可编辑文本控件在点击时保留自己的焦点反馈。[输入模态](../ui-primitives/README.zh.md#input-modality)决定键盘焦点样式何时恢复；它不会移动 DOM 焦点。
 
 `base.css` 只抑制被[primitive 焦点助手](../ui-primitives/README.zh.md)标记 `data-dsh-automatic-focus` 的聚焦元素 outline；普通键盘焦点样式、边框、阴影与错误状态保持不变。
 
-`corner-shape.css` 平滑所有圆角：在 `@supports (corner-shape: superellipse(1.5))` 内定义 `--dsw-corner-shape`，并通过通配选择器应用到所有元素及其 `::before`/`::after`，因此不支持 `corner-shape` 的引擎保持普通圆弧。正圆形状——`border-radius: 50%` 的圆与胶囊半径——因超级椭圆会使其变形，须在所属组件样式表中把 `corner-shape: round` 与半径声明配对；corner-shape 样式表 spec 跨全部包样式表强制这一配对。
+`corner-shape.css` 平滑所有圆角：在 `@supports (corner-shape: superellipse(1.5))` 内定义 `--qilin-corner-shape`，并通过通配选择器应用到所有元素及其 `::before`/`::after`，因此不支持 `corner-shape` 的引擎保持普通圆弧。正圆形状——`border-radius: 50%` 的圆与胶囊半径——因超级椭圆会使其变形，须在所属组件样式表中把 `corner-shape: round` 与半径声明配对；corner-shape 样式表 spec 跨全部包样式表强制这一配对。
 
-`gradient-shadow-text.css` 从 `--qilin-content-font-size` 派生 `--qilin-content-font-delta`，并以该增量移动 Markdown 标题与基础文本阶梯。它同时在 `body` 上以 `0px` 声明 `--qilin-content-leading`，阶梯里每一档行高都再加这一项，因此呈现器发布的行距调整只移动每档所占的行，不改变尺寸关系。它同时派生低一档变量 `--qilin-content-font-size-secondary`（设置 ≤14 时为设置值 −1，>14 时为设置值 −2；默认设置下为 13px）及配套的 `--qilin-content-font-delta-secondary`，供表格变体与比正文低一档的流内行使用。紧凑的小号文本与代码变体保持固定字号。阶梯之外，用户气泡与 composer 草稿直接读取正文档变量对，流内行的标题及摘要读取低一档变量对。该表还持有阴影阶（`--dsw-shadow-lv*`）与 elevation token：`--dsw-elevation-stroke` 经可重绑的 `--dsw-elevation-stroke-color` 画 0.5px 发丝描边，`--dsw-elevation-panel`/`--dsw-elevation-prominent`/`--dsw-elevation-soft`（输入框专用的更大模糊、更低透明度档）在描边之上叠两层极淡柔光，因此高层级表面设 `border: 0`，不再有占布局的轮廓；派生 token 逐元素重声明，使表面对描边色的重绑真实生效。
+`gradient-shadow-text.css` 从 `--qilin-content-font-size` 派生 `--qilin-content-font-delta`，并以该增量移动 Markdown 标题与基础文本阶梯。它同时在 `body` 上以 `0px` 声明 `--qilin-content-leading`，阶梯里每一档行高都再加这一项，因此呈现器发布的行距调整只移动每档所占的行，不改变尺寸关系。它同时派生低一档变量 `--qilin-content-font-size-secondary`（设置 ≤14 时为设置值 −1，>14 时为设置值 −2；默认设置下为 13px）及配套的 `--qilin-content-font-delta-secondary`，供表格变体与比正文低一档的流内行使用。紧凑的小号文本与代码变体保持固定字号。阶梯之外，用户气泡与 composer 草稿直接读取正文档变量对，流内行的标题及摘要读取低一档变量对。该表还持有阴影阶（`--qilin-shadow-lv*`）与 elevation token：`--qilin-elevation-stroke` 经可重绑的 `--qilin-elevation-stroke-color` 画 0.5px 发丝描边，`--qilin-elevation-panel`/`--qilin-elevation-prominent`/`--qilin-elevation-soft`（输入框专用的更大模糊、更低透明度档）在描边之上叠两层极淡柔光，因此高层级表面设 `border: 0`，不再有占布局的轮廓；派生 token 逐元素重声明，使表面对描边色的重绑真实生效。
 
 ### 滚动条重新绑定
 

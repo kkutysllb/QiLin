@@ -13,13 +13,13 @@
   height: 100%;
   padding: 6px var(--qilin-sidebar-inline-padding);
   box-sizing: border-box;
-  background: var(--dsw-specific-sidebar-fill);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-specific-sidebar-fill);
+  color: var(--qilin-alias-label-primary);
   font-size: 14px;
   /* The sidebar is elevated above the conversation surface, so a revealed
      scrollbar uses the l2 pair. .quietBars hides it without changing layout. */
-  --qilin-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --qilin-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
 }
 
 /* macOS desktop: the AppFrame column owns the translucent sidebar tint; an
@@ -111,7 +111,7 @@
   height: 28px;
   border-radius: 50%;
   corner-shape: round;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 :global([data-windows-titlebar]) .collapsed .toggle .panelIcon {
@@ -288,11 +288,11 @@
   padding: 0;
   background: transparent;
   cursor: pointer;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .iconButton:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .collapsed .iconButton {
@@ -326,7 +326,7 @@
 /* Rail icons ride the primary ink (figma rail spec); expanded keeps the
    secondary icon-button ink. */
 .collapsed .iconButton {
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 /* The product version: an in-flow superscript of the wordmark it names. It
@@ -341,10 +341,10 @@
   align-items: center;
   height: 16px;
   padding: 0 5px;
-  border: 0.5px solid var(--dsw-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 5px;
-  color: var(--dsw-alias-label-tertiary);
-  background: var(--dsw-alias-bg-layer-2);
+  color: var(--qilin-alias-label-tertiary);
+  background: var(--qilin-alias-bg-layer-2);
   font-family: var(--ds-font-family-code);
   font-size: 10px;
   font-weight: 500;
@@ -368,7 +368,7 @@
   border: none;
   border-radius: 12px;
   background: transparent;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font: inherit;
   line-height: 22px;
   text-align: left;
@@ -377,7 +377,7 @@
 }
 
 .newSession:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .collapsed .newSession {
@@ -392,7 +392,7 @@
 }
 
 .collapsed .newSession:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .newSessionLabel {
@@ -441,7 +441,7 @@
   padding: 12px 10px 2px;
   font-size: 11px;
   letter-spacing: 0.08em;
-  color: var(--dsw-alias-label-tertiary, rgb(122 139 159));
+  color: var(--qilin-alias-label-tertiary, rgb(122 139 159));
   user-select: none;
 }
 
@@ -451,7 +451,7 @@
   display: block;
   width: 100%;
   height: 0.5px;
-  background: var(--dsw-alias-border-l1, rgb(232 239 247 / 7%));
+  background: var(--qilin-alias-border-l1, rgb(232 239 247 / 7%));
 }
 
 /* The first section sits directly under the New Session bar, so it needs no
@@ -483,7 +483,7 @@
   border: none;
   border-radius: 12px;
   background: transparent;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font: inherit;
   line-height: 22px;
   text-align: left;
@@ -491,16 +491,16 @@
 }
 
 .panelRow:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .panelRow.panelActive {
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
 }
 
 .panelRow:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: -2px;
 }
 
@@ -529,7 +529,7 @@
   justify-content: center;
   margin: 0;
   padding: 0;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 /* Region seat: always mounted so the foot never moves. Its trailing margin

@@ -15,7 +15,7 @@
   gap: 5px;
   height: 28px;
   padding: 0 8px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: var(--dsh-content-font-size-secondary, 13px);
   line-height: 1;
   background: transparent;
@@ -26,13 +26,13 @@
 }
 
 .tab:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 /* Active: icon + label inside the accent outline. */
 .activePill {
   padding: 0 11px;
-  color: var(--dsw-alias-brand-primary-new-colorprimary-new-color);
+  color: var(--qilin-alias-brand-primary-new-colorprimary-new-color);
   border-color: currentColor;
 }
 

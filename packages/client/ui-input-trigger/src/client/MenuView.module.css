@@ -13,8 +13,8 @@
   overflow: hidden;
   /* Elevated surface: the scrollbar thumb takes the l2 elevation tokens
      (see ui-theme styles/scrollbar.css for the rebinding contract). */
-  --qilin-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --qilin-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
   /* A 10px draggable rail carries a quiet 4px thumb, inset from the card's
      rounded ends. ui-theme's global scrollbar sheet renders these values. */
   --qilin-scrollbar-width: 10px;
@@ -25,9 +25,9 @@
   flex-direction: column;
   border: 0;
   border-radius: 20px;
-  background: var(--dsw-specific-menu);
-  --dsw-elevation-stroke-color: var(--dsw-alias-border-l1);
-  box-shadow: var(--dsw-elevation-prominent);
+  background: var(--qilin-specific-menu);
+  --qilin-elevation-stroke-color: var(--qilin-alias-border-l1);
+  box-shadow: var(--qilin-elevation-prominent);
 }
 
 /* The hint covers content, not the scrollbar rail, and disappears once the
@@ -39,7 +39,7 @@
   bottom: 4px;
   left: 4px;
   height: 16px;
-  background: linear-gradient(to bottom, transparent, var(--dsw-specific-menu));
+  background: linear-gradient(to bottom, transparent, var(--qilin-specific-menu));
   pointer-events: none;
 }
 
@@ -63,21 +63,21 @@
   cursor: pointer;
   font-size: 14px;
   line-height: 22px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   text-align: left;
 }
 
 /* One shared highlight: pointer motion parks it here through the hover event,
    so there is no separate :hover tint competing with the keyboard's. */
 .item.active {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .sectionTitle {
   flex: none;
   min-height: 26px;
   padding: 6px 10px 2px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 12px;
   font-weight: 500;
   line-height: 18px;
@@ -94,7 +94,7 @@
   height: 16px;
   align-items: center;
   justify-content: center;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .itemName {
@@ -113,7 +113,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 /* Right-aligned so every description ends at the same edge and the titles
@@ -125,7 +125,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   text-align: right;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 /* Trailing seat on drillable rows (directories): the Tab keycap hint plus the
@@ -143,7 +143,7 @@
    quiet. */
 .drillHintText {
   display: none;
-  color: var(--dsw-alias-label-caption);
+  color: var(--qilin-alias-label-caption);
   font-size: 11px;
   line-height: 18px;
   white-space: nowrap;
@@ -153,8 +153,8 @@
   display: none;
   padding: 0 5px;
   border-radius: 4px;
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-caption);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-caption);
   font-family: inherit;
   font-size: 11px;
   line-height: 18px;
@@ -175,12 +175,12 @@
   height: 20px;
   border-radius: 4px;
   /* label-caption, the quiet tint the composer's access-mode chevron uses. */
-  color: var(--dsw-alias-label-caption);
+  color: var(--qilin-alias-label-caption);
 }
 
 .drill:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
 }
 
 /* Heading row above a source group: non-interactive small grey text,
@@ -189,7 +189,7 @@
   padding: 8px 10px;
   font-size: 12px;
   line-height: 16px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 /* Pending-source skeleton rows: item cell metrics around a breathing bar
@@ -208,7 +208,7 @@
 .skeletonBar {
   height: 20px;
   border-radius: 4px;
-  background: var(--dsw-alias-bg-skeleton);
+  background: var(--qilin-alias-bg-skeleton);
   animation: qilin-menu-skeleton 2s cubic-bezier(0.36, 0, 0.64, 1) infinite;
 }
 
@@ -232,7 +232,7 @@
   margin-bottom: 2px;
   /* l1, not border-inverted (the menu frame's dark-only stroke): the divider
      needs to survive light mode too; in dark both resolve to white/0.06. */
-  border-bottom: 0.5px solid var(--dsw-alias-border-l1);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l1);
 }
 /* Crumbs sit outside the listbox and take no keyboard highlight, so unlike
    .item they carry their own :hover tint with nothing to compete with. */
@@ -244,7 +244,7 @@
   border: none;
   border-radius: 6px;
   background: transparent;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   cursor: pointer;
   font-family: inherit;
   font-size: 12px;
@@ -253,18 +253,18 @@
   white-space: nowrap;
 }
 .crumb:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
 }
 /* The step the list is already showing reads as a label, not an action. */
 .crumbCurrent,
 .crumbCurrent:hover {
   background: transparent;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   cursor: default;
 }
 .crumbSeparator {
   flex: none;
   display: inline-flex;
-  color: var(--dsw-alias-label-caption);
+  color: var(--qilin-alias-label-caption);
 }

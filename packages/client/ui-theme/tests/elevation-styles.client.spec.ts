@@ -14,11 +14,11 @@ import { describe, expect, it } from 'vitest'
 import { packageStylesheets, parseRules } from './stylesheet-scan.ts'
 
 /** Stroke-color indirection components may rebind per surface or state. */
-const STROKE_COLOR = '--dsw-elevation-stroke-color'
+const STROKE_COLOR = '--qilin-elevation-stroke-color'
 /** Shadow-token references that mark a rule as an elevated surface. */
-const ELEVATED_SHADOW = /--dsw-(?:shadow-lv|elevation-)/
-/** Neutral border tokens; the state palette (--dsw-alias-state-*) stays allowed. */
-const NEUTRAL_BORDER = /--dsw-alias-border-/
+const ELEVATED_SHADOW = /--qilin-(?:shadow-lv|elevation-)/
+/** Neutral border tokens; the state palette (--qilin-alias-state-*) stays allowed. */
+const NEUTRAL_BORDER = /--qilin-alias-border-/
 
 const sheetCss = readFileSync(
   fileURLToPath(new URL('../src/styles/gradient-shadow-text.css', import.meta.url)), 'utf8')
@@ -36,7 +36,7 @@ describe('elevation tokens', () => {
     // Declared per element, `body *` would beat inheritance on every
     // descendant and a surface's rebind could not reach the box that carries
     // the shadow; declared on body alone, the rebind inherits down.
-    expect(bodyOnly.get(STROKE_COLOR)).toBe('var(--dsw-alias-border-l4)')
+    expect(bodyOnly.get(STROKE_COLOR)).toBe('var(--qilin-alias-border-l4)')
     expect(perElement.has(STROKE_COLOR)).toBe(false)
   })
 
@@ -44,12 +44,12 @@ describe('elevation tokens', () => {
     // A custom property computes with var() already substituted, and
     // descendants inherit that computed value: derived tokens declared only on
     // body would bake in body's stroke color, making every
-    // --dsw-elevation-stroke-color rebind a no-op. Per-element declarations
+    // --qilin-elevation-stroke-color rebind a no-op. Per-element declarations
     // re-substitute against the color each element sees (the same contract
     // scrollbar.css states for --qilin-scrollbar-thumb).
-    expect(perElement.get('--dsw-elevation-stroke')).toBe(`0 0 0 0.5px var(${STROKE_COLOR})`)
-    for (const name of ['--dsw-elevation-panel', '--dsw-elevation-prominent', '--dsw-elevation-soft']) {
-      expect(perElement.get(name), name).toMatch(/^var\(--dsw-elevation-stroke\), 0 /)
+    expect(perElement.get('--qilin-elevation-stroke')).toBe(`0 0 0 0.5px var(${STROKE_COLOR})`)
+    for (const name of ['--qilin-elevation-panel', '--qilin-elevation-prominent', '--qilin-elevation-soft']) {
+      expect(perElement.get(name), name).toMatch(/^var\(--qilin-elevation-stroke\), 0 /)
       expect(bodyOnly.has(name), name).toBe(false)
     }
   })
@@ -72,10 +72,10 @@ function neutralBordersBesideElevation(css: string): string[] {
 describe('elevated surfaces carry no neutral border', () => {
   it('rejects a rule that pairs the shadow with a neutral border', () => {
     expect(neutralBordersBesideElevation(
-      '.a { box-shadow: var(--dsw-elevation-panel); border: 0.5px solid var(--dsw-alias-border-l2); }',
+      '.a { box-shadow: var(--qilin-elevation-panel); border: 0.5px solid var(--qilin-alias-border-l2); }',
     )).toEqual(['.a'])
     expect(neutralBordersBesideElevation(
-      '.a { box-shadow: var(--dsw-elevation-panel); border: 0; }',
+      '.a { box-shadow: var(--qilin-elevation-panel); border: 0; }',
     )).toEqual([])
   })
 
@@ -148,12 +148,12 @@ describe('neutral solid borders are hairlines', () => {
   ])
 
   it('rejects a wide neutral border and a wide filled divider', () => {
-    expect(wideNeutralBorders('.a { border: 1px solid var(--dsw-alias-border-l2); }'))
-      .toEqual(['.a border: 1px solid var(--dsw-alias-border-l2)'])
-    expect(wideNeutralBorders('.a { border: 0.5px solid var(--dsw-alias-border-l2); }')).toEqual([])
-    expect(wideFilledDividers('.a { background: var(--dsw-alias-border-l2); height: 1px; }'))
+    expect(wideNeutralBorders('.a { border: 1px solid var(--qilin-alias-border-l2); }'))
+      .toEqual(['.a border: 1px solid var(--qilin-alias-border-l2)'])
+    expect(wideNeutralBorders('.a { border: 0.5px solid var(--qilin-alias-border-l2); }')).toEqual([])
+    expect(wideFilledDividers('.a { background: var(--qilin-alias-border-l2); height: 1px; }'))
       .toEqual(['.a height: 1px'])
-    expect(wideFilledDividers('.a { background: var(--dsw-alias-border-l2); height: 0.5px; }')).toEqual([])
+    expect(wideFilledDividers('.a { background: var(--qilin-alias-border-l2); height: 0.5px; }')).toEqual([])
   })
 
   it('draws every solid neutral-token border at 0.5px under packages/', () => {

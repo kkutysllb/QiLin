@@ -24,7 +24,7 @@
   display: flex;
   justify-content: center;
   transform: translateY(-50%);
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font-size: clamp(64px, 18vw, 224px);
   font-weight: 800;
   letter-spacing: -0.04em;
@@ -57,7 +57,7 @@
 /* Time-of-day greeting: the small line that opens the session. */
 .greeting {
   margin: 0;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 18px;
   font-weight: 500;
   line-height: 26px;
@@ -69,7 +69,7 @@
 /* Product tagline: the hero's one large line. */
 .tagline {
   margin: 0;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   /* Sized to the composer column: the longest shipped tagline holds two
      balanced lines rather than orphaning its last word. */
   font-size: clamp(24px, 3.4vw, 40px);
@@ -120,7 +120,7 @@
   border: none;
   border-radius: 16px;
   background: transparent;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font-size: 13px;
   line-height: 20px;
   font-weight: 500;
@@ -129,7 +129,7 @@
 
 .workspace:not(:disabled):hover,
 .workspace[aria-expanded='true'] {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 /* Locked form (bound guidance state): a static echo — no hover feedback, no
@@ -140,7 +140,7 @@
 
 .folder {
   flex: none;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .workspaceLabel {
@@ -152,7 +152,7 @@
 
 .chevron {
   flex: none;
-  color: var(--dsw-alias-label-caption);
+  color: var(--qilin-alias-label-caption);
 }
 
 /* Dialog field: 44 tall on the modal's 332 content column, r22, hairline
@@ -163,22 +163,22 @@
   width: 100%;
   height: 44px;
   padding: 7px 14px;
-  border: 0.5px solid var(--dsw-alias-border-l4);
+  border: 0.5px solid var(--qilin-alias-border-l4);
   border-radius: 22px;
   outline: none;
   background: transparent;
   font-size: 14px;
   font-weight: 400;
   line-height: 22px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .modalInput::placeholder {
-  color: var(--dsw-alias-label-caption);
+  color: var(--qilin-alias-label-caption);
 }
 
 .modalInput:disabled {
-  color: var(--dsw-alias-label-dimmed);
+  color: var(--qilin-alias-label-dimmed);
 }
 
 .modalAction {
@@ -189,5 +189,5 @@
   margin-top: 8px;
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }

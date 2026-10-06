@@ -8,7 +8,7 @@
  *
  * The color always arrives from a theme token, never from this module: each
  * glyph is a VSCodicon drawn in `currentColor`, and its wrapper class
- * (tab-icons.module.css) supplies that color as a `--dsw-alias-*` value. The
+ * (tab-icons.module.css) supplies that color as a `--qilin-alias-*` value. The
  * skin therefore keeps control of every pixel this module paints.
  *
  * `files` is the one exception in kind rather than in color: it renders DSH's

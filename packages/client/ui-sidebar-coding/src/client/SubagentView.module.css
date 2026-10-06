@@ -20,8 +20,8 @@
 .subagentTitle {
   flex: 1;
   min-width: 0;
-  font: var(--dsw-font-s-14);
-  color: var(--dsw-alias-label-secondary);
+  font: var(--qilin-font-s-14);
+  color: var(--qilin-alias-label-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -30,8 +30,8 @@
 /* The descendant count badge ("3 · 1 运行中") beside the title. */
 .subagentCount {
   flex: none;
-  font: var(--dsw-font-xxxs-11);
-  color: var(--dsw-alias-label-tertiary);
+  font: var(--qilin-font-xxxs-11);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .subagentRefresh {
@@ -44,12 +44,12 @@
   border: none;
   border-radius: 6px;
   background: transparent;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   cursor: pointer;
 }
 
 .subagentRefresh:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .subagentBody {
@@ -72,21 +72,21 @@
   border: none;
   border-radius: 8px;
   background: transparent;
-  font: var(--dsw-font-s-14);
-  color: var(--dsw-alias-label-primary);
+  font: var(--qilin-font-s-14);
+  color: var(--qilin-alias-label-primary);
   text-align: left;
   cursor: pointer;
   outline: none;
 }
 
 .subagentRow:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 /* Keyboard focus (mirror of the official catalog row): a visible fill only
    when focused via keyboard; the selected state below still wins on top. */
 .subagentRow:focus-visible {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 /* The currently-open session, highlighted in place (mirror of the workspace
@@ -94,11 +94,11 @@
 .subagentRowActive,
 .subagentRowActive:hover,
 .subagentRowActive:focus-visible {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .subagentRowDisabled {
-  color: var(--dsw-alias-label-dimmed);
+  color: var(--qilin-alias-label-dimmed);
   cursor: not-allowed;
 }
 
@@ -138,8 +138,8 @@
 }
 
 .subagentSecondary {
-  font: var(--dsw-font-xxxs-11);
-  color: var(--dsw-alias-label-tertiary);
+  font: var(--qilin-font-xxxs-11);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 /* ── Live lines (running cards only) ──────────────────────────────────── */
@@ -149,23 +149,23 @@
   align-items: baseline;
   gap: 4px;
   min-width: 0;
-  font: var(--dsw-font-xxxs-11);
-  color: var(--dsw-alias-label-tertiary);
+  font: var(--qilin-font-xxxs-11);
+  color: var(--qilin-alias-label-tertiary);
   overflow: hidden;
 }
 
 .subagentLiveTool {
   flex: none;
-  font: var(--dsw-font-xxxs-strong-11);
-  color: var(--dsw-alias-label-secondary);
+  font: var(--qilin-font-xxxs-strong-11);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .subagentLiveArgs {
   min-width: 0;
   font-family: var(--ds-font-family-code);
-  font-size: var(--dsw-font-xxxs-11-font-size);
-  line-height: var(--dsw-font-xxxs-11-line-height);
-  color: var(--dsw-alias-label-tertiary);
+  font-size: var(--qilin-font-xxxs-11-font-size);
+  line-height: var(--qilin-font-xxxs-11-line-height);
+  color: var(--qilin-alias-label-tertiary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -176,8 +176,8 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  font: var(--dsw-font-xxxs-11);
-  color: var(--dsw-alias-label-secondary);
+  font: var(--qilin-font-xxxs-11);
+  color: var(--qilin-alias-label-secondary);
 }
 
 /* ── Tree connector lines (official catalog recipe) ────────────────────── */
@@ -199,7 +199,7 @@
   left: 0;
   top: -26px;
   height: 26px;
-  border-left: 1px solid var(--dsw-alias-border-l2);
+  border-left: 1px solid var(--qilin-alias-border-l2);
 }
 
 .subagentChildren[aria-busy='true']::before {
@@ -212,7 +212,7 @@
   top: 0;
   bottom: 0;
   left: -4px;
-  border-left: 1px solid var(--dsw-alias-border-l2);
+  border-left: 1px solid var(--qilin-alias-border-l2);
 }
 
 .subagentChildren > .subagentNode:last-child::before {
@@ -226,7 +226,7 @@
   top: 16px;
   left: -4px;
   width: 14px;
-  border-top: 1px solid var(--dsw-alias-border-l2);
+  border-top: 1px solid var(--qilin-alias-border-l2);
 }
 
 .subagentEmpty {
@@ -234,14 +234,14 @@
   flex-direction: column;
   gap: 2px;
   padding: 16px;
-  font: var(--dsw-font-xxs-12);
-  color: var(--dsw-alias-label-tertiary);
+  font: var(--qilin-font-xxs-12);
+  color: var(--qilin-alias-label-tertiary);
   text-align: center;
 }
 
 .subagentEmptyHint {
-  font: var(--dsw-font-xxxs-11);
-  color: var(--dsw-alias-label-dimmed);
+  font: var(--qilin-font-xxxs-11);
+  color: var(--qilin-alias-label-dimmed);
 }
 
 .subagentError {
@@ -250,8 +250,8 @@
   justify-content: space-between;
   gap: 8px;
   padding: 8px 10px;
-  font: var(--dsw-font-xxs-12);
-  color: var(--dsw-alias-state-error-primary);
+  font: var(--qilin-font-xxs-12);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 .subagentErrorRetry {
@@ -264,14 +264,14 @@
   border: none;
   border-radius: 6px;
   background: transparent;
-  color: var(--dsw-alias-label-secondary);
-  font: var(--dsw-font-xxxs-strong-11);
+  color: var(--qilin-alias-label-secondary);
+  font: var(--qilin-font-xxxs-strong-11);
   cursor: pointer;
 }
 
 .subagentErrorRetry:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
 }
 
 /* ── History collapse toggle (shared: topology levels + jobs list) ─────── */
@@ -289,21 +289,21 @@
   border: none;
   border-radius: 8px;
   background: transparent;
-  font: var(--dsw-font-xxxs-strong-11);
-  color: var(--dsw-alias-label-tertiary);
+  font: var(--qilin-font-xxxs-strong-11);
+  color: var(--qilin-alias-label-tertiary);
   text-align: left;
   cursor: pointer;
   outline: none;
 }
 
 .historyToggle:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-secondary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .historyToggle:focus-visible {
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-secondary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .historyToggle svg {
@@ -319,7 +319,7 @@
 
 .jobs {
   margin-top: 10px;
-  border-top: 1px solid var(--dsw-alias-border-l2);
+  border-top: 1px solid var(--qilin-alias-border-l2);
   padding-top: 8px;
 }
 
@@ -334,8 +334,8 @@
 .jobsTitle {
   flex: 1;
   min-width: 0;
-  font: var(--dsw-font-xxxs-strong-11);
-  color: var(--dsw-alias-label-secondary);
+  font: var(--qilin-font-xxxs-strong-11);
+  color: var(--qilin-alias-label-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -343,8 +343,8 @@
 
 .jobsCount {
   flex: none;
-  font: var(--dsw-font-xxxs-11);
-  color: var(--dsw-alias-label-tertiary);
+  font: var(--qilin-font-xxxs-11);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .jobsList {
@@ -366,7 +366,7 @@
 }
 
 .jobsRow:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .jobsRowSettled {
@@ -376,7 +376,7 @@
 /* The row whose output is shown in the bottom dock. */
 .jobsRowSelected,
 .jobsRowSelected:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .jobsRowMain {
@@ -389,15 +389,15 @@
   border: none;
   border-radius: 8px;
   background: transparent;
-  font: var(--dsw-font-s-14);
-  color: var(--dsw-alias-label-primary);
+  font: var(--qilin-font-s-14);
+  color: var(--qilin-alias-label-primary);
   text-align: left;
   cursor: pointer;
   outline: none;
 }
 
 .jobsRowMain:focus-visible {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .jobsDot {
@@ -427,11 +427,11 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   padding: 0 5px;
-  border: 1px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 4px;
-  font: var(--dsw-font-xxxs-strong-11);
+  font: var(--qilin-font-xxxs-strong-11);
   line-height: 14px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .jobsLabel {
@@ -441,17 +441,17 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: var(--ds-font-family-code);
-  font-size: var(--dsw-font-xxxs-11-font-size);
-  line-height: var(--dsw-font-xxxs-11-line-height);
-  color: var(--dsw-alias-label-primary);
+  font-size: var(--qilin-font-xxxs-11-font-size);
+  line-height: var(--qilin-font-xxxs-11-line-height);
+  color: var(--qilin-alias-label-primary);
 }
 
 .jobsSecondary {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font: var(--dsw-font-xxxs-11);
-  color: var(--dsw-alias-label-tertiary);
+  font: var(--qilin-font-xxxs-11);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .jobsKill {
@@ -465,13 +465,13 @@
   border: none;
   border-radius: 6px;
   background: transparent;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   cursor: pointer;
 }
 
 .jobsKill:hover {
-  background: color-mix(in srgb, var(--dsw-alias-state-error-primary) 12%, transparent);
-  color: var(--dsw-alias-state-error-primary);
+  background: color-mix(in srgb, var(--qilin-alias-state-error-primary) 12%, transparent);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 /* The armed (first-click) state: a filled confirm chip instead of the icon. */
@@ -480,9 +480,9 @@
   width: auto;
   height: 20px;
   padding: 0 8px;
-  background: color-mix(in srgb, var(--dsw-alias-state-error-primary) 12%, transparent);
-  color: var(--dsw-alias-state-error-primary);
-  font: var(--dsw-font-xxxs-strong-11);
+  background: color-mix(in srgb, var(--qilin-alias-state-error-primary) 12%, transparent);
+  color: var(--qilin-alias-state-error-primary);
+  font: var(--qilin-font-xxxs-strong-11);
   white-space: nowrap;
 }
 
@@ -494,8 +494,8 @@
 .jobsKillError {
   flex: none;
   margin-right: 4px;
-  font: var(--dsw-font-xxxs-11);
-  color: var(--dsw-alias-state-error-primary);
+  font: var(--qilin-font-xxxs-11);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 
@@ -506,8 +506,8 @@
 
 .jobsPaneStatus {
   flex: none;
-  font: var(--dsw-font-xxxs-11);
-  color: var(--dsw-alias-label-tertiary);
+  font: var(--qilin-font-xxxs-11);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 
@@ -518,21 +518,21 @@
   overflow: auto;
   padding: 6px 10px;
   font-family: var(--ds-font-family-code);
-  font-size: var(--dsw-font-xxxs-11-font-size);
+  font-size: var(--qilin-font-xxxs-11-font-size);
   line-height: 1.5;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   white-space: pre-wrap;
   word-break: break-word;
 }
 
 .jobsPaneHint {
   padding: 8px 10px;
-  font: var(--dsw-font-xxxs-11);
-  color: var(--dsw-alias-label-tertiary);
+  font: var(--qilin-font-xxxs-11);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .jobsPaneError {
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 /* ── 工作流图画布（Tasks graph view）────────────────────────────── */
@@ -568,53 +568,53 @@
 
 .wfEdge {
   fill: none;
-  stroke: var(--dsw-alias-border-l1);
+  stroke: var(--qilin-alias-border-l1);
   stroke-width: 1.5;
   opacity: 0.9;
 }
 
 .wfCard {
   fill: transparent;
-  stroke: var(--dsw-alias-border-l2);
+  stroke: var(--qilin-alias-border-l2);
   stroke-width: 1;
 }
 
 /* 上段/底条之间的分隔线（代替底色分段，避免未验证的表面色 token） */
 .wfSep {
-  stroke: var(--dsw-alias-border-l2);
+  stroke: var(--qilin-alias-border-l2);
   stroke-width: 1;
 }
 
 .wfBar {
-  fill: var(--dsw-alias-interactive-bg-hover);
+  fill: var(--qilin-alias-interactive-bg-hover);
 }
 
 .wfBadge {
   font-size: 9px;
-  fill: var(--dsw-alias-label-tertiary);
+  fill: var(--qilin-alias-label-tertiary);
   letter-spacing: 0.04em;
 }
 
 .wfLabel {
   font-size: 12px;
-  fill: var(--dsw-alias-label-primary);
+  fill: var(--qilin-alias-label-primary);
 }
 
 .wfStatus {
   font-size: 10px;
-  fill: var(--dsw-alias-label-secondary);
+  fill: var(--qilin-alias-label-secondary);
 }
 
 .wfDotRunning {
-  fill: var(--dsw-alias-interactive-bg-hover-accent);
+  fill: var(--qilin-alias-interactive-bg-hover-accent);
 }
 
 .wfDotIdle {
-  fill: var(--dsw-alias-label-tertiary);
+  fill: var(--qilin-alias-label-tertiary);
 }
 
 .wfNodeCurrent .wfCard {
-  stroke: var(--dsw-alias-interactive-bg-hover-accent);
+  stroke: var(--qilin-alias-interactive-bg-hover-accent);
   stroke-width: 1.6;
 }
 
@@ -644,7 +644,7 @@
 }
 
 .wfSweep {
-  fill: var(--dsw-alias-interactive-bg-hover-accent);
+  fill: var(--qilin-alias-interactive-bg-hover-accent);
   opacity: 0.15;
 }
 
@@ -672,24 +672,24 @@
   min-width: 26px;
   height: 24px;
   padding: 0 8px;
-  border: 1px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 6px;
   background: transparent;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 11px;
   cursor: pointer;
 }
 
 .wfControls button:hover {
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 /* ── 图/树 视图切换 ── */
 .subagentViewToggle {
   display: inline-flex;
   margin-left: 8px;
-  border: 1px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 6px;
   overflow: hidden;
 }
@@ -698,19 +698,19 @@
   padding: 2px 8px;
   border: none;
   background: transparent;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 11px;
   cursor: pointer;
 }
 
 .subagentViewToggle button[aria-pressed='true'] {
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
 }
 
 /* 工作流行/相位行：轻量分组行（不可导航） */
 .subagentRowRun {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
   font-weight: 500;
 }
 
@@ -732,8 +732,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font: var(--dsw-font-xxxs-11);
-  color: var(--dsw-alias-label-secondary);
+  font: var(--qilin-font-xxxs-11);
+  color: var(--qilin-alias-label-secondary);
 }
 
 /* 节点拖动：卡片可抓、拖动中抬起来（含手动布局的重置按钮） */
@@ -754,14 +754,14 @@
   border-radius: 6px;
   background: none;
   padding: 2px 6px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   cursor: pointer;
-  font: var(--dsw-font-xxxs-11);
+  font: var(--qilin-font-xxxs-11);
 }
 
 .wfReset:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
 }
 
 /* 整理模式芯片：树形 / 紧凑 / 网格（点一下=清手动布局并按该模式重排+适配） */
@@ -770,7 +770,7 @@
   gap: 2px;
   padding: 2px;
   border-radius: 8px;
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .wfMode {
@@ -778,17 +778,17 @@
   border-radius: 6px;
   background: none;
   padding: 2px 6px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   cursor: pointer;
-  font: var(--dsw-font-xxxs-11);
+  font: var(--qilin-font-xxxs-11);
 }
 
 .wfMode:hover {
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .wfModeActive {
-  background: var(--dsw-alias-bg-layer-2, var(--dsw-alias-bg-base));
-  color: var(--dsw-alias-label-primary);
-  font: var(--dsw-font-xxxs-strong-11);
+  background: var(--qilin-alias-bg-layer-2, var(--qilin-alias-bg-base));
+  color: var(--qilin-alias-label-primary);
+  font: var(--qilin-font-xxxs-strong-11);
 }

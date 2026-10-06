@@ -9,7 +9,7 @@
   height: max-content;
   min-height: 100%;
   padding: 12px;
-  font-family: var(--dsw-font, sans-serif);
+  font-family: var(--qilin-font, sans-serif);
   white-space: normal;
 }
 
@@ -43,7 +43,7 @@
   min-height: 100%;
   margin: 0;
   padding: 10px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 13px;
   line-height: 1.5;
   white-space: normal;

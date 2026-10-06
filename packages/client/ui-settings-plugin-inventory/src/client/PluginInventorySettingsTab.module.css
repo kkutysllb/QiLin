@@ -3,7 +3,7 @@
   flex-direction: column;
   gap: 14px;
   width: 100%;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .catalogHeading h3,
@@ -16,22 +16,22 @@
 .failure {
   font-size: 13px;
   line-height: 20px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .failure {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 .failure button {
-  border: 0.5px solid var(--dsw-alias-border-l3);
+  border: 0.5px solid var(--qilin-alias-border-l3);
   border-radius: 6px;
   padding: 4px 10px;
   background: transparent;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font: inherit;
   cursor: pointer;
 }
@@ -47,7 +47,7 @@
   display: flex;
   align-items: center;
   width: 100%;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .search > svg {
@@ -59,23 +59,23 @@
 .search input {
   width: 100%;
   height: 36px;
-  border: 0.5px solid var(--dsw-alias-border-l4);
+  border: 0.5px solid var(--qilin-alias-border-l4);
   border-radius: 10px;
   padding: 0 34px 0 36px;
   outline: none;
-  background: var(--dsw-alias-bg-layer-1);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-bg-layer-1);
+  color: var(--qilin-alias-label-primary);
   font: inherit;
   font-size: 13px;
 }
 
 .search input::placeholder {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .search input:focus-visible {
-  border-color: var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary)) 18%, transparent);
+  border-color: var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary)) 18%, transparent);
 }
 
 .catalogHeading {
@@ -94,7 +94,7 @@
 .catalogHeading span {
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-variant-numeric: tabular-nums;
 }
 
@@ -112,14 +112,14 @@
   min-width: 0;
   overflow: hidden;
   border: 0;
-  box-shadow: var(--dsw-elevation-stroke);
+  box-shadow: var(--qilin-elevation-stroke);
   border-radius: 14px;
-  background: var(--dsw-alias-bg-layer-3);
+  background: var(--qilin-alias-bg-layer-3);
 }
 
 .card[data-open='true'] {
-  --dsw-elevation-stroke-color: var(--dsw-alias-border-l1);
-  box-shadow: var(--dsw-elevation-panel);
+  --qilin-elevation-stroke-color: var(--qilin-alias-border-l1);
+  box-shadow: var(--qilin-elevation-panel);
 }
 
 .cardContent {
@@ -140,11 +140,11 @@
 
 .cardContent:hover,
 .card[data-open='true'] > .cardContent {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .cardContent:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: -2px;
 }
 
@@ -174,7 +174,7 @@
 .cardIdentity {
   display: block;
   width: 100%;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-family: var(--ds-font-family-code);
   font-size: 11px;
   line-height: 16px;
@@ -185,7 +185,7 @@
   flex: none;
   align-items: center;
   gap: 7px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 /* Accessible-name and layout wrapper: StateDot is aria-hidden and carries no
@@ -209,7 +209,7 @@
 }
 
 .group + .group {
-  border-top: 0.5px solid var(--dsw-alias-border-l2);
+  border-top: 0.5px solid var(--qilin-alias-border-l2);
   padding-top: 14px;
 }
 
@@ -232,7 +232,7 @@
 }
 
 .groupToggle:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: 2px;
 }
 
@@ -248,7 +248,7 @@
   font-size: 14px;
   line-height: 22px;
   font-weight: 400;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .groupSub {
@@ -256,14 +256,14 @@
   flex-wrap: wrap;
   gap: 4px 8px;
   margin: -6px 0 0 20px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 12px;
   line-height: 18px;
   font-variant-numeric: tabular-nums;
 }
 
 .failedCount {
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 /* The preset switcher trigger mirrors the General-settings selector pill. */
@@ -277,8 +277,8 @@
   border: none;
   border-radius: 18px;
   padding: 0 14px;
-  background: var(--dsw-alias-bg-module-platform);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-bg-module-platform);
+  color: var(--qilin-alias-label-primary);
   font: inherit;
   font-size: 14px;
   line-height: 22px;
@@ -286,11 +286,11 @@
 }
 
 .switcher:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .switcher:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: 2px;
 }
 
@@ -316,8 +316,8 @@
   margin: 0;
   border-radius: 8px;
   padding: 8px 10px;
-  background: color-mix(in srgb, var(--dsw-alias-state-error-primary) 8%, transparent);
-  color: var(--dsw-alias-state-error-primary);
+  background: color-mix(in srgb, var(--qilin-alias-state-error-primary) 8%, transparent);
+  color: var(--qilin-alias-state-error-primary);
   font-size: 12.5px;
   line-height: 18px;
   overflow-wrap: anywhere;
@@ -330,7 +330,7 @@
   align-items: baseline;
   gap: 4px 8px;
   margin: 0;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 12.5px;
   line-height: 18px;
 }
@@ -339,7 +339,7 @@
   border: 0;
   padding: 0;
   background: transparent;
-  color: var(--dsw-alias-state-business-primary);
+  color: var(--qilin-alias-state-business-primary);
   font: inherit;
   font-size: 12.5px;
   cursor: pointer;
@@ -354,12 +354,12 @@
 }
 
 .card[data-failed='true'] {
-  border-color: color-mix(in srgb, var(--dsw-alias-state-error-primary) 45%, transparent);
+  border-color: color-mix(in srgb, var(--qilin-alias-state-error-primary) 45%, transparent);
 }
 
 .chevron {
   flex: none;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .card[data-open='true'] .chevron {
@@ -367,15 +367,15 @@
 }
 
 .cardDetails {
-  border-top: 0.5px solid var(--dsw-alias-border-l2);
+  border-top: 0.5px solid var(--qilin-alias-border-l2);
   padding: 10px 14px 12px;
-  background: var(--dsw-alias-bg-module-platform);
+  background: var(--qilin-alias-bg-module-platform);
 }
 
 .entryValue {
   display: block;
   overflow-wrap: anywhere;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font-family: var(--ds-font-family-code);
   font-size: 12px;
   line-height: 18px;
@@ -393,7 +393,7 @@
 }
 
 .details dt {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 11px;
   line-height: 17px;
 }
@@ -402,7 +402,7 @@
   min-width: 0;
   margin: 0;
   overflow-wrap: anywhere;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 12px;
   line-height: 17px;
 }

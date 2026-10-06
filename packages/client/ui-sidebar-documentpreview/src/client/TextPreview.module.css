@@ -25,7 +25,7 @@
   box-sizing: border-box;
   height: 38px;
   padding: 0 6px 0 16px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
 }
 
 /* The path is never ellipsized. Its text sits at the left while it fits: the
@@ -55,11 +55,11 @@
 }
 
 .pathDirectory {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .pathName {
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 /* Announced, not applied: the reader keeps the text they are looking at. */
@@ -70,10 +70,10 @@
   align-items: center;
   margin: 0;
   padding: 6px 10px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 12px;
-  background: var(--dsw-alias-bg-layer-2);
-  border-bottom: 0.5px solid var(--dsw-alias-border-l1);
+  background: var(--qilin-alias-bg-layer-2);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l1);
 }
 
 .body {
@@ -86,11 +86,11 @@
   overflow: auto;
   /* The notice and retry surfaces in this sheet are elevated, so the file body's
      scroller rebinds the thumb indirection in a complete pair. */
-  --qilin-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --qilin-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
-  color: var(--dsw-alias-label-primary);
+  --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
+  color: var(--qilin-alias-label-primary);
   font-size: var(--qilin-content-font-size-secondary, 13px);
-  font-family: var(--dsw-font-mono, ui-monospace, monospace);
+  font-family: var(--qilin-font-mono, ui-monospace, monospace);
   line-height: 1.6;
   white-space: pre;
 }
@@ -108,7 +108,7 @@
 }
 
 .body:has([data-pdf-preview]) {
-  background: var(--dsw-alias-bg-document-preview);
+  background: var(--qilin-alias-bg-document-preview);
 }
 
 .wrap {
@@ -128,7 +128,7 @@
 /* One page of lines; pages abut so the file reads as one. */
 .page {
   margin: 0;
-  font: var(--dsw-font-markdown-code-block);
+  font: var(--qilin-font-markdown-code-block);
   white-space: inherit;
 }
 
@@ -138,7 +138,7 @@
 }
 
 .lineTarget {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 /* The failure with nothing read yet: the whole body, centred a little above
@@ -154,9 +154,9 @@
   box-sizing: border-box;
   height: 100%;
   padding: 0 24px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: var(--qilin-content-font-size-secondary, 13px);
-  font-family: var(--dsw-font-family);
+  font-family: var(--qilin-font-family);
   line-height: 1.6;
   text-align: center;
   white-space: normal;
@@ -190,17 +190,17 @@
   align-items: center;
   height: 32px;
   padding: 0 14px 0 12px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font-size: var(--qilin-content-font-size-secondary, 13px);
   font-family: inherit;
   background: transparent;
-  border: 0.5px solid var(--dsw-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 16px;
   cursor: pointer;
 }
 
 .retry:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 /* The type's 16px sheet before the chip's text; the chip's title row centres
@@ -215,7 +215,7 @@
   align-items: center;
   margin: 0;
   padding: 6px 10px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: var(--qilin-content-font-size-secondary, 13px);
   line-height: 1.6;
   white-space: normal;
@@ -244,18 +244,18 @@
 
 .action {
   padding: 4px 10px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font-size: var(--qilin-content-font-size-secondary, 13px);
-  font-family: var(--dsw-font, inherit);
+  font-family: var(--qilin-font, inherit);
   white-space: normal;
-  background: var(--dsw-alias-bg-layer-2);
-  border: 0.5px solid var(--dsw-alias-border-l2);
+  background: var(--qilin-alias-bg-layer-2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 6px;
   cursor: pointer;
 }
 
 .action:hover {
-  background: var(--dsw-alias-bg-layer-3);
+  background: var(--qilin-alias-bg-layer-3);
 }
 
 /* The next page, asked for where the loaded text ends. */
@@ -263,23 +263,23 @@
   display: block;
   margin: 8px 10px;
   padding: 4px 10px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 12px;
-  font-family: var(--dsw-font, inherit);
+  font-family: var(--qilin-font, inherit);
   white-space: normal;
-  background: var(--dsw-alias-bg-layer-2);
-  border: 0.5px solid var(--dsw-alias-border-l2);
+  background: var(--qilin-alias-bg-layer-2);
+  border: 0.5px solid var(--qilin-alias-border-l2);
   border-radius: 6px;
   cursor: pointer;
 }
 
 .more:hover:not(:disabled) {
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-bg-layer-3);
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-alias-bg-layer-3);
 }
 
 .more:disabled {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   cursor: default;
 }
 
@@ -294,7 +294,7 @@
   width: 28px;
   height: 28px;
   padding: 6px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   line-height: 1;
   background: transparent;
   border: none;
@@ -308,8 +308,8 @@
 }
 
 .tool:hover {
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 .viewerTool {
   flex: none;
@@ -317,7 +317,7 @@
   max-width: 160px;
   padding: 0 6px;
   overflow: hidden;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 12px;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -332,19 +332,19 @@
   position: fixed;
   z-index: 100;
   padding: 4px 10px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font-size: 12px;
-  font-family: var(--dsw-font-family);
+  font-family: var(--qilin-font-family);
   line-height: 18px;
   white-space: nowrap;
-  background: var(--dsw-alias-bg-layer-3);
+  background: var(--qilin-alias-bg-layer-3);
   border: none;
   border-radius: 8px;
-  box-shadow: var(--dsw-shadow-lv3);
+  box-shadow: var(--qilin-shadow-lv3);
   transform: translate(-50%, calc(-100% - 6px));
   cursor: pointer;
 }
 
 .selectionPopup:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }

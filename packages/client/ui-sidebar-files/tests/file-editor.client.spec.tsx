@@ -68,7 +68,7 @@ describe('mountFileEditor', () => {
     expect(dom.isConnected).toBe(false)
   })
 
-  it('colors the common syntax tokens through --dsw-* tokens', async () => {
+  it('colors the common syntax tokens through --qilin-* tokens', async () => {
     const { handle } = await mounted({ path: 'src/a.ts' })
     // The style mounts as a stylesheet: a token tag resolves to a class whose
     // rule must carry the token color, end to end.
@@ -78,13 +78,13 @@ describe('mountFileEditor', () => {
       if (cls === null) return ''
       return css.split('}').find(rule => rule.includes(`.${cls}`)) ?? ''
     }
-    expect(ruleFor([tags.comment])).toContain('var(--dsw-static-neutral-500)')
-    expect(ruleFor([tags.keyword])).toContain('var(--dsw-static-red-500)')
-    expect(ruleFor([tags.string])).toContain('var(--dsw-static-green-500)')
-    expect(ruleFor([tags.number])).toContain('var(--dsw-static-amber-500)')
-    expect(ruleFor([tags.function(tags.variableName)])).toContain('var(--dsw-static-blue-500)')
-    expect(ruleFor([tags.typeName])).toContain('var(--dsw-static-deepseek-500)')
-    expect(ruleFor([tags.propertyName])).toContain('var(--dsw-static-blue-400)')
+    expect(ruleFor([tags.comment])).toContain('var(--qilin-static-neutral-500)')
+    expect(ruleFor([tags.keyword])).toContain('var(--qilin-static-red-500)')
+    expect(ruleFor([tags.string])).toContain('var(--qilin-static-green-500)')
+    expect(ruleFor([tags.number])).toContain('var(--qilin-static-amber-500)')
+    expect(ruleFor([tags.function(tags.variableName)])).toContain('var(--qilin-static-blue-500)')
+    expect(ruleFor([tags.typeName])).toContain('var(--qilin-static-deepseek-500)')
+    expect(ruleFor([tags.propertyName])).toContain('var(--qilin-static-blue-400)')
   })
 
   it('a path without a grammar mounts as plain text', async () => {

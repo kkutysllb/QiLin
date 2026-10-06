@@ -7,12 +7,12 @@
   min-height: 0;
   width: 100%;
   box-sizing: border-box;
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-bg-layer-1);
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-alias-bg-layer-1);
   /* The canvas and the inspector scroll over this sheet's elevated surfaces
      (node chips, band stripes), so both scrollers inherit the l2 thumb pair. */
-  --qilin-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --qilin-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
 }
 
 .toolbar {
@@ -22,7 +22,7 @@
   gap: 4px;
   height: 32px;
   padding: 0 8px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l2);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l2);
 }
 
 .tool {
@@ -35,18 +35,18 @@
   border: 0;
   border-radius: 4px;
   background: transparent;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   cursor: pointer;
 }
 
 .tool:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
 }
 
 .tool[aria-pressed='true'] {
-  background: var(--dsw-alias-interactive-bg-active);
-  color: var(--dsw-alias-brand-primary);
+  background: var(--qilin-alias-interactive-bg-active);
+  color: var(--qilin-alias-brand-primary);
 }
 
 .spacer {
@@ -54,9 +54,9 @@
 }
 
 .stat {
-  font-size: var(--dsw-font-xxxs-11-font-size);
+  font-size: var(--qilin-font-xxxs-11-font-size);
   line-height: 1;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   white-space: nowrap;
 }
 
@@ -66,8 +66,8 @@
   align-items: center;
   gap: 12px;
   padding: 4px 10px;
-  font-size: var(--dsw-font-xxxs-11-font-size);
-  color: var(--dsw-alias-label-secondary);
+  font-size: var(--qilin-font-xxxs-11-font-size);
+  color: var(--qilin-alias-label-secondary);
 }
 
 /* The legend chips keep their intrinsic width and wrap as whole chips; a chip
@@ -97,15 +97,15 @@
 }
 
 .laneInput {
-  --graph-lane: var(--dsw-alias-label-tertiary);
+  --graph-lane: var(--qilin-alias-label-tertiary);
 }
 
 .laneModel {
-  --graph-lane: var(--dsw-alias-brand-primary);
+  --graph-lane: var(--qilin-alias-brand-primary);
 }
 
 .laneTool {
-  --graph-lane: var(--dsw-alias-state-business-primary);
+  --graph-lane: var(--qilin-alias-state-business-primary);
 }
 
 .canvas {
@@ -115,7 +115,7 @@
   overflow: auto;
   /* A quiet dot grid: the canvas reads as a surface the flow travels across,
      and stays put while the content pans or scrolls over it. */
-  background-image: radial-gradient(var(--dsw-alias-border-l2) 1px, transparent 0);
+  background-image: radial-gradient(var(--qilin-alias-border-l2) 1px, transparent 0);
   background-size: 18px 18px;
 }
 
@@ -127,11 +127,11 @@
 
 .band {
   /* Translucent over the background, so chips stay the stronger surface. */
-  fill: color-mix(in srgb, var(--dsw-alias-bg-layer-2) 55%, transparent);
+  fill: color-mix(in srgb, var(--qilin-alias-bg-layer-2) 55%, transparent);
 }
 
 .bandLabel {
-  fill: var(--dsw-alias-label-secondary);
+  fill: var(--qilin-alias-label-secondary);
   font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.2px;
@@ -139,14 +139,14 @@
 
 /* Dotted swimlane rails under the bands, chips, and edges. */
 .laneRail {
-  stroke: var(--dsw-alias-border-l2);
+  stroke: var(--qilin-alias-border-l2);
   stroke-dasharray: 0.5 6;
   stroke-linecap: round;
 }
 
 .edge {
   fill: none;
-  stroke: var(--dsw-alias-border-l3);
+  stroke: var(--qilin-alias-border-l3);
   stroke-width: 1.4;
   stroke-linecap: round;
   opacity: 0.9;
@@ -155,52 +155,52 @@
 /* Arrowhead fill per edge kind; the marker rides `markerUnits=userSpaceOnUse`,
    so its size is constant across the selected/hot stroke widths. */
 .edgeArrowBody {
-  fill: var(--dsw-alias-border-l3);
+  fill: var(--qilin-alias-border-l3);
 }
 
 .edgeArrowBody[data-kind='prompt'] {
-  fill: var(--dsw-alias-label-tertiary);
+  fill: var(--qilin-alias-label-tertiary);
 }
 
 .edgeArrowBody[data-kind='result'] {
-  fill: var(--dsw-alias-brand-primary);
+  fill: var(--qilin-alias-brand-primary);
 }
 
 .edgeArrowBody[data-kind='dispatch'] {
-  fill: var(--dsw-alias-state-business-primary);
+  fill: var(--qilin-alias-state-business-primary);
 }
 
 .edgeArrowBody[data-kind='subcall'] {
-  fill: var(--dsw-alias-label-secondary);
+  fill: var(--qilin-alias-label-secondary);
 }
 
 .edgeArrowBody[data-kind='loop'] {
-  fill: var(--dsw-alias-state-warn-primary);
+  fill: var(--qilin-alias-state-warn-primary);
 }
 
 .edgePrompt {
-  stroke: var(--dsw-alias-label-tertiary);
+  stroke: var(--qilin-alias-label-tertiary);
 }
 
 .edgeResult {
-  stroke: var(--dsw-alias-brand-primary);
+  stroke: var(--qilin-alias-brand-primary);
 }
 
 .edgeDispatch {
-  stroke: var(--dsw-alias-state-business-primary);
+  stroke: var(--qilin-alias-state-business-primary);
 }
 
 .edgeSubcall {
-  stroke: var(--dsw-alias-label-secondary);
+  stroke: var(--qilin-alias-label-secondary);
   stroke-dasharray: 3 3;
 }
 
 .edgeLoop {
-  stroke: var(--dsw-alias-state-warn-primary);
+  stroke: var(--qilin-alias-state-warn-primary);
 }
 
 .edgeLive {
-  stroke: var(--dsw-alias-state-success-primary);
+  stroke: var(--qilin-alias-state-success-primary);
   stroke-dasharray: 5 4;
   animation: qilin-trajectory-graph-flow 0.9s linear infinite;
 }
@@ -216,50 +216,50 @@
 /* Per-kind accent, spelled here so color tokens stay in CSS. */
 .node[data-kind='system'],
 .node[data-kind='compaction'] {
-  --node-accent: var(--dsw-alias-label-tertiary);
+  --node-accent: var(--qilin-alias-label-tertiary);
 }
 
 .node[data-kind='user'] {
-  --node-accent: var(--dsw-alias-brand-primary);
+  --node-accent: var(--qilin-alias-brand-primary);
 }
 
 .node[data-kind='steering'],
 .node[data-kind='compact-request'],
 .node[data-kind='running-call'],
 .node[data-kind='retry'] {
-  --node-accent: var(--dsw-alias-state-warn-primary);
+  --node-accent: var(--qilin-alias-state-warn-primary);
 }
 
 .node[data-kind='context'] {
-  --node-accent: var(--dsw-alias-label-secondary);
+  --node-accent: var(--qilin-alias-label-secondary);
 }
 
 .node[data-kind='command'],
 .node[data-kind='assistant'] {
-  --node-accent: var(--dsw-alias-state-business-primary);
+  --node-accent: var(--qilin-alias-state-business-primary);
 }
 
 .node[data-kind='request'],
 .node[data-kind='partial'] {
-  --node-accent: var(--dsw-alias-state-success-primary);
+  --node-accent: var(--qilin-alias-state-success-primary);
 }
 
 .node[data-kind='tool'] {
-  --node-accent: var(--dsw-alias-link);
+  --node-accent: var(--qilin-alias-link);
 }
 
 .node[data-kind='error'],
 .node[data-kind='max-tokens'] {
-  --node-accent: var(--dsw-alias-state-error-primary);
+  --node-accent: var(--qilin-alias-state-error-primary);
 }
 
 .node[data-kind='unknown'] {
-  --node-accent: var(--dsw-alias-label-dimmed);
+  --node-accent: var(--qilin-alias-label-dimmed);
 }
 
 .nodeRect {
-  fill: var(--dsw-alias-bg-layer-2);
-  stroke: var(--dsw-alias-border-l3);
+  fill: var(--qilin-alias-bg-layer-2);
+  stroke: var(--qilin-alias-border-l3);
   stroke-width: 1;
   transition: stroke 120ms var(--ds-ease-in-out);
 }
@@ -269,13 +269,13 @@
 }
 
 .nodeLabel {
-  fill: var(--dsw-alias-label-primary);
+  fill: var(--qilin-alias-label-primary);
   font-size: 11px;
   font-weight: 500;
 }
 
 .nodeBadge {
-  fill: var(--dsw-alias-label-tertiary);
+  fill: var(--qilin-alias-label-tertiary);
   font-size: 9px;
 }
 
@@ -284,7 +284,7 @@
 }
 
 .nodeHot .nodeRect {
-  stroke: var(--dsw-alias-brand-primary);
+  stroke: var(--qilin-alias-brand-primary);
   stroke-width: 1.6;
 }
 
@@ -296,22 +296,22 @@
 
 /* Per-kind count pills, tucked into the chip's top-right corner. */
 .nodeCountImg {
-  fill: var(--dsw-alias-state-warn-primary);
+  fill: var(--qilin-alias-state-warn-primary);
 }
 
 .nodeCountFile {
-  fill: var(--dsw-alias-label-tertiary);
+  fill: var(--qilin-alias-label-tertiary);
 }
 
 .nodeCountText {
-  fill: var(--dsw-alias-bg-layer-1);
+  fill: var(--qilin-alias-bg-layer-1);
   font-size: 7.5px;
   font-weight: 600;
 }
 
 /* The replay packet riding the hop's real edge path. */
 .packetHot {
-  fill: var(--dsw-alias-brand-primary);
+  fill: var(--qilin-alias-brand-primary);
 }
 
 .liveDot {
@@ -321,7 +321,7 @@
   border-radius: 50%;
   /* States the circle against the universal superellipse smoothing. */
   corner-shape: round;
-  background: var(--dsw-alias-state-success-primary);
+  background: var(--qilin-alias-state-success-primary);
   animation: qilin-trajectory-graph-pulse 1.4s ease-in-out infinite;
 }
 
@@ -352,8 +352,8 @@
 .note {
   flex: none;
   padding: 4px 10px;
-  font-size: var(--dsw-font-xxxs-11-font-size);
-  color: var(--dsw-alias-label-tertiary);
+  font-size: var(--qilin-font-xxxs-11-font-size);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .empty {
@@ -361,8 +361,8 @@
   flex: 1;
   align-items: center;
   justify-content: center;
-  font-size: var(--dsw-font-xs-13-font-size);
-  color: var(--dsw-alias-label-tertiary);
+  font-size: var(--qilin-font-xs-13-font-size);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .inspector {
@@ -370,8 +370,8 @@
   max-height: 40%;
   overflow: auto;
   padding: 8px 10px;
-  border-top: 0.5px solid var(--dsw-alias-border-l2);
-  background: var(--dsw-alias-bg-layer-2);
+  border-top: 0.5px solid var(--qilin-alias-border-l2);
+  background: var(--qilin-alias-bg-layer-2);
 }
 
 .inspectorHead {
@@ -381,32 +381,32 @@
 }
 
 .inspectorKind {
-  font-size: var(--dsw-font-xxs-strong-12-font-size);
-  color: var(--dsw-alias-label-primary);
+  font-size: var(--qilin-font-xxs-strong-12-font-size);
+  color: var(--qilin-alias-label-primary);
 }
 
 .inspectorLane {
-  font-size: var(--dsw-font-xxxs-11-font-size);
-  color: var(--dsw-alias-label-tertiary);
+  font-size: var(--qilin-font-xxxs-11-font-size);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .inspectorStatus {
-  font-size: var(--dsw-font-xxxs-11-font-size);
-  color: var(--dsw-alias-label-secondary);
+  font-size: var(--qilin-font-xxxs-11-font-size);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .inspectorStatus[data-status='error'] {
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 .inspectorStatus[data-status='running'] {
-  color: var(--dsw-alias-state-success-primary);
+  color: var(--qilin-alias-state-success-primary);
 }
 
 .inspectorMeta {
   margin-top: 4px;
-  font-size: var(--dsw-font-xxxs-11-font-size);
-  color: var(--dsw-alias-label-secondary);
+  font-size: var(--qilin-font-xxxs-11-font-size);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .inspectorSection {
@@ -415,14 +415,14 @@
 
 .inspectorLabel {
   display: block;
-  font-size: var(--dsw-font-xxxs-11-font-size);
-  color: var(--dsw-alias-label-tertiary);
+  font-size: var(--qilin-font-xxxs-11-font-size);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .inspectorBody {
   margin: 2px 0 0;
-  font-size: var(--dsw-font-xxxs-11-font-size);
-  color: var(--dsw-alias-label-secondary);
+  font-size: var(--qilin-font-xxxs-11-font-size);
+  color: var(--qilin-alias-label-secondary);
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -475,17 +475,17 @@
   border: 0;
   background: transparent;
   font: inherit;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   white-space: nowrap;
   cursor: pointer;
 }
 
 .legendEdge:hover {
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .legendEdge[aria-pressed='true'] {
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -494,35 +494,35 @@
   width: 10px;
   height: 2.5px;
   border-radius: 1px;
-  background: var(--dsw-alias-border-l3);
+  background: var(--qilin-alias-border-l3);
 }
 
 .legendEdgeDot[data-kind='prompt'] {
-  background: var(--dsw-alias-label-tertiary);
+  background: var(--qilin-alias-label-tertiary);
 }
 
 .legendEdgeDot[data-kind='result'] {
-  background: var(--dsw-alias-brand-primary);
+  background: var(--qilin-alias-brand-primary);
 }
 
 .legendEdgeDot[data-kind='dispatch'] {
-  background: var(--dsw-alias-state-business-primary);
+  background: var(--qilin-alias-state-business-primary);
 }
 
 .legendEdgeDot[data-kind='subcall'] {
   background: repeating-linear-gradient(
     90deg,
-    var(--dsw-alias-label-secondary) 0 2px,
+    var(--qilin-alias-label-secondary) 0 2px,
     transparent 2px 4px
   );
 }
 
 .legendEdgeDot[data-kind='loop'] {
-  background: var(--dsw-alias-state-warn-primary);
+  background: var(--qilin-alias-state-warn-primary);
 }
 
 .legendEdgeHint {
-  color: var(--dsw-alias-label-dimmed);
+  color: var(--qilin-alias-label-dimmed);
 }
 
 /* Record search: same quiet field the ledger toolbar wears. */
@@ -531,32 +531,32 @@
   min-width: 76px;
   height: 22px;
   padding: 0 6px;
-  border: 0.5px solid var(--dsw-alias-border-l4);
+  border: 0.5px solid var(--qilin-alias-border-l4);
   border-radius: 4px;
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-bg-layer-2);
-  font: var(--dsw-font-xxxs-11);
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-alias-bg-layer-2);
+  font: var(--qilin-font-xxxs-11);
 }
 
 .search::placeholder {
-  color: var(--dsw-alias-label-caption);
+  color: var(--qilin-alias-label-caption);
 }
 
 .search:focus {
-  border-color: var(--dsw-alias-state-business-primary);
+  border-color: var(--qilin-alias-state-business-primary);
   outline: none;
-  background: var(--dsw-alias-bg-layer-1);
+  background: var(--qilin-alias-bg-layer-1);
 }
 
 .searchCount {
   flex: none;
-  font-size: var(--dsw-font-xxxs-11-font-size);
-  color: var(--dsw-alias-label-secondary);
+  font-size: var(--qilin-font-xxxs-11-font-size);
+  color: var(--qilin-alias-label-secondary);
   white-space: nowrap;
 }
 
 .searchNone {
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 /* Inspector attachment rows: thumbnail (images, via the authorized loader)
@@ -580,8 +580,8 @@
   width: 26px;
   height: 26px;
   border-radius: 4px;
-  color: var(--dsw-alias-label-tertiary);
-  background: var(--dsw-alias-bg-layer-3);
+  color: var(--qilin-alias-label-tertiary);
+  background: var(--qilin-alias-bg-layer-3);
 }
 
 .attachmentThumb {
@@ -591,7 +591,7 @@
   padding: 0;
   border: 0;
   border-radius: 4px;
-  background: var(--dsw-alias-bg-layer-3);
+  background: var(--qilin-alias-bg-layer-3);
   cursor: zoom-in;
 }
 
@@ -610,16 +610,16 @@
 }
 
 .attachmentName {
-  font-size: var(--dsw-font-xxxs-11-font-size);
-  color: var(--dsw-alias-label-primary);
+  font-size: var(--qilin-font-xxxs-11-font-size);
+  color: var(--qilin-alias-label-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .attachmentMeta {
-  font-size: var(--dsw-font-xxxs-11-font-size);
-  color: var(--dsw-alias-label-tertiary);
+  font-size: var(--qilin-font-xxxs-11-font-size);
+  color: var(--qilin-alias-label-tertiary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -627,8 +627,8 @@
 
 .inspectorMarkdown {
   margin-top: 6px;
-  font-size: var(--dsw-font-xxxs-11-font-size);
-  color: var(--dsw-alias-label-secondary);
+  font-size: var(--qilin-font-xxxs-11-font-size);
+  color: var(--qilin-alias-label-secondary);
 }
 
 /* Structured tool-call inspector. */
@@ -644,24 +644,24 @@
 }
 
 .toolName {
-  font-size: var(--dsw-font-xxs-strong-12-font-size);
-  color: var(--dsw-alias-label-primary);
+  font-size: var(--qilin-font-xxs-strong-12-font-size);
+  color: var(--qilin-alias-label-primary);
 }
 
 .toolCallId {
-  font-size: var(--dsw-font-xxxs-11-font-size);
-  color: var(--dsw-alias-label-tertiary);
+  font-size: var(--qilin-font-xxxs-11-font-size);
+  color: var(--qilin-alias-label-tertiary);
   word-break: break-all;
 }
 
 .toolError {
-  font-size: var(--dsw-font-xxxs-11-font-size);
-  color: var(--dsw-alias-state-error-primary);
+  font-size: var(--qilin-font-xxxs-11-font-size);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 .toolPending {
-  font-size: var(--dsw-font-xxxs-11-font-size);
-  color: var(--dsw-alias-state-warn-primary);
+  font-size: var(--qilin-font-xxxs-11-font-size);
+  color: var(--qilin-alias-state-warn-primary);
 }
 
 .toolArgs {
@@ -669,8 +669,8 @@
 }
 
 .toolArgs summary {
-  font-size: var(--dsw-font-xxxs-11-font-size);
-  color: var(--dsw-alias-label-tertiary);
+  font-size: var(--qilin-font-xxxs-11-font-size);
+  color: var(--qilin-alias-label-tertiary);
   cursor: pointer;
 }
 
@@ -679,10 +679,10 @@
 }
 
 .toolResultLabel {
-  font-size: var(--dsw-font-xxxs-11-font-size);
-  color: var(--dsw-alias-label-tertiary);
+  font-size: var(--qilin-font-xxxs-11-font-size);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .toolResult .inspectorBody[data-error='true'] {
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }

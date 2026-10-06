@@ -22,13 +22,13 @@
   overflow: hidden;
   /* Elevated surface: the scrollbar thumb takes the l2 elevation tokens
      (see ui-theme styles/scrollbar.css for the rebinding contract). */
-  --qilin-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --qilin-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
   border: 0;
   border-radius: 20px;
-  background: var(--dsw-specific-menu);
-  --dsw-elevation-stroke-color: var(--dsw-alias-border-l1);
-  box-shadow: var(--dsw-elevation-prominent);
+  background: var(--qilin-specific-menu);
+  --qilin-elevation-stroke-color: var(--qilin-alias-border-l1);
+  box-shadow: var(--qilin-elevation-prominent);
   outline: none;
 }
 
@@ -47,11 +47,11 @@
   border-radius: 8px;
   cursor: pointer;
   font-size: 13px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .rowActive {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .label {
@@ -73,7 +73,7 @@
   flex: none;
   align-self: flex-start;
   margin-top: -1px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 8px;
   line-height: 10px;
   font-weight: 600;
@@ -84,7 +84,7 @@
   flex: 1;
   min-width: 0;
   font-size: 12px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -94,23 +94,23 @@
   display: inline-flex;
   flex: none;
   margin-left: auto;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .status {
   padding: 8px 10px;
   font-size: 13px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .search {
   margin: 2px 2px 4px;
   padding: 6px 8px;
-  border: 0.5px solid var(--dsw-alias-border-inverted);
+  border: 0.5px solid var(--qilin-alias-border-inverted);
   border-radius: 8px;
   background: transparent;
   font-size: 13px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   outline: none;
 }
 
@@ -120,7 +120,7 @@
   gap: 8px;
   padding: 6px 8px;
   font-size: 12px;
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 .errorText {
@@ -131,10 +131,10 @@
 
 .retry {
   padding: 2px 8px;
-  border: 0.5px solid var(--dsw-alias-border-inverted);
+  border: 0.5px solid var(--qilin-alias-border-inverted);
   border-radius: 6px;
   background: transparent;
   font-size: 12px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   cursor: pointer;
 }

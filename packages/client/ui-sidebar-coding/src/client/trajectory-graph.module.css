@@ -1,9 +1,9 @@
 /*
  * Trajectory graph (src/client/TrajectoryGraph.tsx).
  *
- * Every color resolves to a `--dsw-alias-*` token with its own fallback chain
+ * Every color resolves to a `--qilin-alias-*` token with its own fallback chain
  * — the same skin contract the rest of the side card follows (no color
- * literals, no `--dsw-specific-*`). The per-record accent is handed in from
+ * literals, no `--qilin-specific-*`). The per-record accent is handed in from
  * the view as `--node-accent` (see ACCENT in TrajectoryGraph.tsx), so the
  * whole node palette is one declaration.
  *
@@ -20,7 +20,7 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  background: var(--dsw-alias-bg-layer-1, transparent);
+  background: var(--qilin-alias-bg-layer-1, transparent);
 }
 
 /* ---------------------------------------------------------------- toolbar */
@@ -32,13 +32,13 @@
   gap: 6px;
   min-height: 32px;
   padding: 0 8px;
-  border-bottom: 1px solid var(--dsw-alias-border-l2, rgba(128, 128, 128, 0.2));
+  border-bottom: 1px solid var(--qilin-alias-border-l2, rgba(128, 128, 128, 0.2));
 }
 
 .stat {
   flex: none;
-  font: var(--dsw-font-xs-12, 11px/16px system-ui);
-  color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary));
+  font: var(--qilin-font-xs-12, 11px/16px system-ui);
+  color: var(--qilin-alias-label-tertiary, var(--qilin-alias-label-secondary));
   white-space: nowrap;
 }
 
@@ -48,7 +48,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--dsw-alias-state-success-primary, var(--dsw-alias-brand-primary));
+  background: var(--qilin-alias-state-success-primary, var(--qilin-alias-brand-primary));
   animation: trajPulse 1.6s ease-in-out infinite;
 }
 
@@ -68,20 +68,20 @@
   border: 1px solid transparent;
   border-radius: 6px;
   background: transparent;
-  color: var(--dsw-alias-label-secondary, inherit);
-  font: var(--dsw-font-xs-12, 11px/16px system-ui);
+  color: var(--qilin-alias-label-secondary, inherit);
+  font: var(--qilin-font-xs-12, 11px/16px system-ui);
   cursor: pointer;
 }
 
 .tool:hover {
-  background: var(--dsw-alias-interactive-bg-hover, color-mix(in srgb, currentcolor 10%, transparent));
-  color: var(--dsw-alias-label-primary, inherit);
+  background: var(--qilin-alias-interactive-bg-hover, color-mix(in srgb, currentcolor 10%, transparent));
+  color: var(--qilin-alias-label-primary, inherit);
 }
 
 .tool[aria-pressed='true'] {
-  border-color: var(--dsw-alias-border-l3, transparent);
-  background: var(--dsw-alias-interactive-bg-active, color-mix(in srgb, currentcolor 14%, transparent));
-  color: var(--dsw-alias-label-primary, inherit);
+  border-color: var(--qilin-alias-border-l3, transparent);
+  background: var(--qilin-alias-interactive-bg-active, color-mix(in srgb, currentcolor 14%, transparent));
+  color: var(--qilin-alias-label-primary, inherit);
 }
 
 /* Text glyphs (zoom −/+) share the host icons' optical size. */
@@ -117,8 +117,8 @@
   align-items: center;
   gap: 4px;
   white-space: nowrap;
-  font: var(--dsw-font-xs-12, 11px/16px system-ui);
-  color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary));
+  font: var(--qilin-font-xs-12, 11px/16px system-ui);
+  color: var(--qilin-alias-label-tertiary, var(--qilin-alias-label-secondary));
 }
 
 .legendDot {
@@ -128,22 +128,22 @@
 }
 
 .laneInput {
-  background: var(--dsw-alias-label-primary, currentcolor);
+  background: var(--qilin-alias-label-primary, currentcolor);
 }
 
 .laneModel {
-  background: var(--dsw-alias-state-success-primary, var(--dsw-alias-brand-primary));
+  background: var(--qilin-alias-state-success-primary, var(--qilin-alias-brand-primary));
 }
 
 .laneTool {
-  background: var(--dsw-alias-link, var(--dsw-alias-brand-primary));
+  background: var(--qilin-alias-link, var(--qilin-alias-brand-primary));
 }
 
 /* Edge-kind legend chips (click to pin one kind's highlight) and the search
  * box, sharing the legend row. The hint "·" must not eat a line on its own. */
 .legendEdgeHint {
   flex: none;
-  color: var(--dsw-alias-label-dimmed, var(--dsw-alias-label-tertiary));
+  color: var(--qilin-alias-label-dimmed, var(--qilin-alias-label-tertiary));
 }
 
 .legendEdge {
@@ -156,20 +156,20 @@
   border: 1px solid transparent;
   border-radius: 6px;
   background: transparent;
-  font: var(--dsw-font-xs-12, 11px/16px system-ui);
-  color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary));
+  font: var(--qilin-font-xs-12, 11px/16px system-ui);
+  color: var(--qilin-alias-label-tertiary, var(--qilin-alias-label-secondary));
   cursor: pointer;
 }
 
 .legendEdge:hover {
-  background: var(--dsw-alias-interactive-bg-hover, color-mix(in srgb, currentcolor 10%, transparent));
-  color: var(--dsw-alias-label-primary, inherit);
+  background: var(--qilin-alias-interactive-bg-hover, color-mix(in srgb, currentcolor 10%, transparent));
+  color: var(--qilin-alias-label-primary, inherit);
 }
 
 .legendEdge[aria-pressed='true'] {
-  border-color: var(--dsw-alias-border-l3, transparent);
-  background: var(--dsw-alias-interactive-bg-active, color-mix(in srgb, currentcolor 14%, transparent));
-  color: var(--dsw-alias-label-primary, inherit);
+  border-color: var(--qilin-alias-border-l3, transparent);
+  background: var(--qilin-alias-interactive-bg-active, color-mix(in srgb, currentcolor 14%, transparent));
+  color: var(--qilin-alias-label-primary, inherit);
 }
 
 /* A short bar in the kind's edge color (the SVG strokes, as backgrounds). */
@@ -177,24 +177,24 @@
   width: 10px;
   height: 3px;
   border-radius: 2px;
-  background: var(--dsw-alias-border-l3, rgba(128, 128, 128, 0.45));
+  background: var(--qilin-alias-border-l3, rgba(128, 128, 128, 0.45));
 }
 
 .legendEdgeDot[data-kind='prompt'] {
-  background: var(--dsw-alias-label-tertiary, rgba(128, 128, 128, 0.5));
+  background: var(--qilin-alias-label-tertiary, rgba(128, 128, 128, 0.5));
 }
 
 .legendEdgeDot[data-kind='subcall'] {
-  background: var(--dsw-alias-border-l2, rgba(128, 128, 128, 0.35));
+  background: var(--qilin-alias-border-l2, rgba(128, 128, 128, 0.35));
 }
 
 .legendEdgeDot[data-kind='loop'] {
-  background: var(--dsw-alias-state-business-primary, var(--dsw-alias-brand-primary));
+  background: var(--qilin-alias-state-business-primary, var(--qilin-alias-brand-primary));
 }
 
 .legendEdgeDot[data-kind='result'],
 .legendEdgeDot[data-kind='dispatch'] {
-  background: var(--dsw-alias-border-l3, rgba(128, 128, 128, 0.45));
+  background: var(--qilin-alias-border-l3, rgba(128, 128, 128, 0.45));
 }
 
 .search {
@@ -203,31 +203,31 @@
   width: 96px;
   height: 22px;
   padding: 0 6px;
-  border: 1px solid var(--dsw-alias-border-l2, rgba(128, 128, 128, 0.3));
+  border: 1px solid var(--qilin-alias-border-l2, rgba(128, 128, 128, 0.3));
   border-radius: 6px;
-  background: var(--dsw-alias-bg-layer-1, transparent);
-  color: var(--dsw-alias-label-primary, inherit);
-  font: var(--dsw-font-xs-12, 11px/16px system-ui);
+  background: var(--qilin-alias-bg-layer-1, transparent);
+  color: var(--qilin-alias-label-primary, inherit);
+  font: var(--qilin-font-xs-12, 11px/16px system-ui);
 }
 
 .search:focus {
   outline: none;
-  border-color: var(--dsw-alias-border-l3, var(--dsw-alias-border-l2));
+  border-color: var(--qilin-alias-border-l3, var(--qilin-alias-border-l2));
 }
 
 .search::placeholder {
-  color: var(--dsw-alias-label-dimmed, var(--dsw-alias-label-tertiary));
+  color: var(--qilin-alias-label-dimmed, var(--qilin-alias-label-tertiary));
 }
 
 .searchCount {
   flex: none;
-  font: var(--dsw-font-xs-12, 10px/14px system-ui);
-  color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary));
+  font: var(--qilin-font-xs-12, 10px/14px system-ui);
+  color: var(--qilin-alias-label-tertiary, var(--qilin-alias-label-secondary));
   white-space: nowrap;
 }
 
 .searchNone {
-  color: var(--dsw-alias-state-error-primary, inherit);
+  color: var(--qilin-alias-state-error-primary, inherit);
 }
 
 /* ----------------------------------------------------------------- canvas */
@@ -261,13 +261,13 @@
 /* ------------------------------------------------------------ turn bands */
 
 .band {
-  fill: var(--dsw-alias-bg-layer-2, color-mix(in srgb, currentcolor 4%, transparent));
+  fill: var(--qilin-alias-bg-layer-2, color-mix(in srgb, currentcolor 4%, transparent));
   opacity: 0.5;
 }
 
 .bandLabel {
-  font: var(--dsw-font-xs-12, 10px/14px system-ui);
-  fill: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary));
+  font: var(--qilin-font-xs-12, 10px/14px system-ui);
+  fill: var(--qilin-alias-label-tertiary, var(--qilin-alias-label-secondary));
   letter-spacing: 0.04em;
   user-select: none;
 }
@@ -276,37 +276,37 @@
 
 .edge {
   fill: none;
-  stroke: var(--dsw-alias-border-l3, rgba(128, 128, 128, 0.45));
+  stroke: var(--qilin-alias-border-l3, rgba(128, 128, 128, 0.45));
   stroke-width: 1.2;
 }
 
 .edgePrompt {
-  stroke: var(--dsw-alias-label-tertiary, rgba(128, 128, 128, 0.5));
+  stroke: var(--qilin-alias-label-tertiary, rgba(128, 128, 128, 0.5));
 }
 
 .edgeResult {
-  stroke: var(--dsw-alias-border-l3, rgba(128, 128, 128, 0.45));
+  stroke: var(--qilin-alias-border-l3, rgba(128, 128, 128, 0.45));
 }
 
 .edgeDispatch {
-  stroke: var(--dsw-alias-border-l3, rgba(128, 128, 128, 0.45));
+  stroke: var(--qilin-alias-border-l3, rgba(128, 128, 128, 0.45));
 }
 
 .edgeSubcall {
-  stroke: var(--dsw-alias-border-l2, rgba(128, 128, 128, 0.35));
+  stroke: var(--qilin-alias-border-l2, rgba(128, 128, 128, 0.35));
   stroke-dasharray: 3 3;
 }
 
 /* The agent loop closing: the one edge that runs backwards in the picture. */
 .edgeLoop {
-  stroke: var(--dsw-alias-state-business-primary, var(--dsw-alias-brand-primary));
+  stroke: var(--qilin-alias-state-business-primary, var(--qilin-alias-brand-primary));
   stroke-width: 1.4;
   opacity: 0.75;
 }
 
 /* A live edge is heavier and tinted by the moving state. */
 .edgeLive {
-  stroke: var(--dsw-alias-state-success-primary, var(--dsw-alias-brand-primary));
+  stroke: var(--qilin-alias-state-success-primary, var(--qilin-alias-brand-primary));
   stroke-width: 1.8;
   opacity: 0.95;
 }
@@ -316,14 +316,14 @@
 }
 
 .edgeHot {
-  stroke: var(--dsw-alias-label-primary, currentcolor);
+  stroke: var(--qilin-alias-label-primary, currentcolor);
   stroke-width: 2.2;
 }
 
 /* A pinned/hovered kind: its edges brighten and thicken; every other edge
  * takes .edgeDim from the view. */
 .edgeKindHot {
-  stroke: var(--dsw-alias-label-primary, currentcolor);
+  stroke: var(--qilin-alias-label-primary, currentcolor);
   stroke-width: 2;
   opacity: 1;
 }
@@ -339,7 +339,7 @@
 /* The dashed overlay that travels along a live edge. */
 .flow {
   fill: none;
-  stroke: var(--dsw-alias-state-success-primary, var(--dsw-alias-brand-primary));
+  stroke: var(--qilin-alias-state-success-primary, var(--qilin-alias-brand-primary));
   stroke-width: 2.4;
   stroke-linecap: round;
   stroke-dasharray: 2 12;
@@ -347,22 +347,22 @@
 }
 
 .arrow {
-  fill: var(--dsw-alias-border-l3, rgba(128, 128, 128, 0.6));
+  fill: var(--qilin-alias-border-l3, rgba(128, 128, 128, 0.6));
 }
 
 .arrowLive {
-  fill: var(--dsw-alias-state-success-primary, var(--dsw-alias-brand-primary));
+  fill: var(--qilin-alias-state-success-primary, var(--qilin-alias-brand-primary));
 }
 
 /* The data packet riding a path (animateMotion drives the position). */
 .packet {
-  fill: var(--dsw-alias-state-success-primary, var(--dsw-alias-brand-primary));
-  filter: drop-shadow(0 0 3px var(--dsw-alias-state-success-primary, currentcolor));
+  fill: var(--qilin-alias-state-success-primary, var(--qilin-alias-brand-primary));
+  filter: drop-shadow(0 0 3px var(--qilin-alias-state-success-primary, currentcolor));
 }
 
 .packetHot {
-  fill: var(--dsw-alias-label-primary, currentcolor);
-  filter: drop-shadow(0 0 4px var(--dsw-alias-label-primary, currentcolor));
+  fill: var(--qilin-alias-label-primary, currentcolor);
+  filter: drop-shadow(0 0 4px var(--qilin-alias-label-primary, currentcolor));
 }
 
 /* ------------------------------------------------------------------ nodes */
@@ -372,26 +372,26 @@
 }
 
 .nodeRect {
-  fill: var(--dsw-alias-bg-layer-2, color-mix(in srgb, currentcolor 6%, transparent));
-  stroke: var(--node-accent, var(--dsw-alias-border-l2, rgba(128, 128, 128, 0.35)));
+  fill: var(--qilin-alias-bg-layer-2, color-mix(in srgb, currentcolor 6%, transparent));
+  stroke: var(--node-accent, var(--qilin-alias-border-l2, rgba(128, 128, 128, 0.35)));
   stroke-width: 1;
 }
 
 /* The accent spine on the chip's left edge. */
 .nodeAccent {
-  fill: var(--node-accent, var(--dsw-alias-border-l2, currentcolor));
+  fill: var(--node-accent, var(--qilin-alias-border-l2, currentcolor));
 }
 
 .nodeLabel {
-  font: var(--dsw-font-xs-12, 11px/16px system-ui);
-  fill: var(--dsw-alias-label-primary, currentcolor);
+  font: var(--qilin-font-xs-12, 11px/16px system-ui);
+  fill: var(--qilin-alias-label-primary, currentcolor);
   user-select: none;
   pointer-events: none;
 }
 
 .nodeBadge {
-  font: var(--dsw-font-xs-12, 9px/12px system-ui);
-  fill: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary));
+  font: var(--qilin-font-xs-12, 9px/12px system-ui);
+  fill: var(--qilin-alias-label-tertiary, var(--qilin-alias-label-secondary));
   user-select: none;
   pointer-events: none;
 }
@@ -407,7 +407,7 @@
 }
 
 .nodeHot .nodeRect {
-  stroke: var(--dsw-alias-label-primary, currentcolor);
+  stroke: var(--qilin-alias-label-primary, currentcolor);
   stroke-width: 2;
 }
 
@@ -415,18 +415,18 @@
  * chip's top-right corner; images tinted, files neutral. The inspector list
  * and the pill's <title> carry the kind breakdown. */
 .nodeCountImg {
-  fill: var(--dsw-alias-state-business-primary, var(--dsw-alias-brand-primary, rgba(64, 128, 224, 0.85)));
+  fill: var(--qilin-alias-state-business-primary, var(--qilin-alias-brand-primary, rgba(64, 128, 224, 0.85)));
   opacity: 0.9;
 }
 
 .nodeCountFile {
-  fill: var(--dsw-alias-border-l3, rgba(128, 128, 128, 0.55));
+  fill: var(--qilin-alias-border-l3, rgba(128, 128, 128, 0.55));
 }
 
 .nodeCountText {
-  font: var(--dsw-font-xs-12, 8px/9px system-ui);
+  font: var(--qilin-font-xs-12, 8px/9px system-ui);
   font-weight: 600;
-  fill: var(--dsw-alias-bg-layer-0, #fff);
+  fill: var(--qilin-alias-bg-layer-0, #fff);
   user-select: none;
   pointer-events: none;
 }
@@ -436,15 +436,15 @@
 .note {
   flex: none;
   padding: 6px 10px;
-  font: var(--dsw-font-xs-12, 11px/16px system-ui);
-  color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary));
-  border-top: 1px dashed var(--dsw-alias-border-l2, transparent);
+  font: var(--qilin-font-xs-12, 11px/16px system-ui);
+  color: var(--qilin-alias-label-tertiary, var(--qilin-alias-label-secondary));
+  border-top: 1px dashed var(--qilin-alias-border-l2, transparent);
 }
 
 /* The empty inspector's lane summary line (D). */
 .noteSummary {
   margin-top: 2px;
-  color: var(--dsw-alias-label-dimmed, var(--dsw-alias-label-tertiary));
+  color: var(--qilin-alias-label-dimmed, var(--qilin-alias-label-tertiary));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -460,13 +460,13 @@
   gap: 6px;
   padding: 24px;
   text-align: center;
-  font: var(--dsw-font-s-14, 13px/20px system-ui);
-  color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary));
+  font: var(--qilin-font-s-14, 13px/20px system-ui);
+  color: var(--qilin-alias-label-tertiary, var(--qilin-alias-label-secondary));
 }
 
 .emptyHint {
-  font: var(--dsw-font-xs-12, 11px/16px system-ui);
-  color: var(--dsw-alias-label-dimmed, var(--dsw-alias-label-tertiary));
+  font: var(--qilin-font-xs-12, 11px/16px system-ui);
+  color: var(--qilin-alias-label-dimmed, var(--qilin-alias-label-tertiary));
   max-width: 260px;
 }
 
@@ -477,8 +477,8 @@
   max-height: 40%;
   display: flex;
   flex-direction: column;
-  border-top: 1px solid var(--dsw-alias-border-l2, rgba(128, 128, 128, 0.25));
-  background: var(--dsw-alias-bg-layer-2, transparent);
+  border-top: 1px solid var(--qilin-alias-border-l2, rgba(128, 128, 128, 0.25));
+  background: var(--qilin-alias-bg-layer-2, transparent);
 }
 
 .inspectorHead {
@@ -490,36 +490,36 @@
 }
 
 .inspectorKind {
-  font: var(--dsw-font-xs-12, 11px/16px ui-monospace, monospace);
-  color: var(--node-accent, var(--dsw-alias-label-primary));
+  font: var(--qilin-font-xs-12, 11px/16px ui-monospace, monospace);
+  color: var(--node-accent, var(--qilin-alias-label-primary));
 }
 
 .inspectorLane,
 .inspectorStatus {
-  font: var(--dsw-font-xs-12, 10px/14px system-ui);
+  font: var(--qilin-font-xs-12, 10px/14px system-ui);
   padding: 0 5px;
   border-radius: 999px;
-  border: 1px solid var(--dsw-alias-border-l2, rgba(128, 128, 128, 0.3));
-  color: var(--dsw-alias-label-secondary, inherit);
+  border: 1px solid var(--qilin-alias-border-l2, rgba(128, 128, 128, 0.3));
+  color: var(--qilin-alias-label-secondary, inherit);
 }
 
 .inspectorStatus[data-status='running'] {
-  color: var(--dsw-alias-state-success-primary, inherit);
+  color: var(--qilin-alias-state-success-primary, inherit);
 }
 
 .inspectorStatus[data-status='error'] {
-  color: var(--dsw-alias-state-error-primary, inherit);
+  color: var(--qilin-alias-state-error-primary, inherit);
 }
 
 .inspectorStatus[data-status='interrupted'] {
-  color: var(--dsw-alias-state-warn-label, var(--dsw-alias-state-warn-primary, inherit));
+  color: var(--qilin-alias-state-warn-label, var(--qilin-alias-state-warn-primary, inherit));
 }
 
 .inspectorMeta {
   flex: none;
   padding: 0 8px 4px;
-  font: var(--dsw-font-xs-12, 10px/14px ui-monospace, monospace);
-  color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary));
+  font: var(--qilin-font-xs-12, 10px/14px ui-monospace, monospace);
+  color: var(--qilin-alias-label-tertiary, var(--qilin-alias-label-secondary));
 }
 
 .inspectorBody {
@@ -530,8 +530,8 @@
   overflow: auto;
   white-space: pre-wrap;
   word-break: break-word;
-  font: var(--dsw-font-xs-12, 11px/16px ui-monospace, monospace);
-  color: var(--dsw-alias-label-secondary, inherit);
+  font: var(--qilin-font-xs-12, 11px/16px ui-monospace, monospace);
+  color: var(--qilin-alias-label-secondary, inherit);
 }
 
 /* Assistant bodies render markdown (the host's untrusted-markdown
@@ -542,8 +542,8 @@
   margin: 0;
   padding: 0 8px 8px;
   overflow: auto;
-  font: var(--dsw-font-s-14, 12px/18px system-ui);
-  color: var(--dsw-alias-label-secondary, inherit);
+  font: var(--qilin-font-s-14, 12px/18px system-ui);
+  color: var(--qilin-alias-label-secondary, inherit);
 }
 
 /* ------------------------------------------------------ tool inspector */
@@ -567,17 +567,17 @@
 }
 
 .toolName {
-  font: var(--dsw-font-s-14, 12px/16px ui-monospace, monospace);
+  font: var(--qilin-font-s-14, 12px/16px ui-monospace, monospace);
   font-weight: 600;
-  color: var(--dsw-alias-label-primary, inherit);
+  color: var(--qilin-alias-label-primary, inherit);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .toolCallId {
-  font: var(--dsw-font-xs-12, 10px/14px ui-monospace, monospace);
-  color: var(--dsw-alias-label-dimmed, var(--dsw-alias-label-tertiary));
+  font: var(--qilin-font-xs-12, 10px/14px ui-monospace, monospace);
+  color: var(--qilin-alias-label-dimmed, var(--qilin-alias-label-tertiary));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -585,27 +585,27 @@
 
 .toolError {
   flex: none;
-  font: var(--dsw-font-xs-12, 10px/14px system-ui);
+  font: var(--qilin-font-xs-12, 10px/14px system-ui);
   padding: 0 5px;
   border-radius: 999px;
-  border: 1px solid var(--dsw-alias-state-error-primary, currentcolor);
-  color: var(--dsw-alias-state-error-primary, inherit);
+  border: 1px solid var(--qilin-alias-state-error-primary, currentcolor);
+  color: var(--qilin-alias-state-error-primary, inherit);
 }
 
 .toolPending {
   flex: none;
-  font: var(--dsw-font-xs-12, 10px/14px system-ui);
-  color: var(--dsw-alias-state-warn-label, var(--dsw-alias-label-tertiary));
+  font: var(--qilin-font-xs-12, 10px/14px system-ui);
+  color: var(--qilin-alias-state-warn-label, var(--qilin-alias-label-tertiary));
 }
 
 .toolArgs {
   flex: none;
-  font: var(--dsw-font-xs-12, 11px/16px system-ui);
+  font: var(--qilin-font-xs-12, 11px/16px system-ui);
 }
 
 .toolArgs summary {
   cursor: pointer;
-  color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary));
+  color: var(--qilin-alias-label-tertiary, var(--qilin-alias-label-secondary));
   user-select: none;
 }
 
@@ -625,8 +625,8 @@
 
 .toolResultLabel {
   flex: none;
-  font: var(--dsw-font-xs-12, 10px/14px system-ui);
-  color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary));
+  font: var(--qilin-font-xs-12, 10px/14px system-ui);
+  color: var(--qilin-alias-label-tertiary, var(--qilin-alias-label-secondary));
 }
 
 .toolResult pre {
@@ -636,7 +636,7 @@
 }
 
 .toolResultError {
-  color: var(--dsw-alias-state-error-primary, inherit);
+  color: var(--qilin-alias-state-error-primary, inherit);
 }
 
 /* ----------------------------------------------------------- attachments */
@@ -668,9 +668,9 @@
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 1px solid var(--dsw-alias-border-l2, rgba(128, 128, 128, 0.3));
+  border: 1px solid var(--qilin-alias-border-l2, rgba(128, 128, 128, 0.3));
   border-radius: 6px;
-  background: var(--dsw-alias-bg-layer-1, transparent);
+  background: var(--qilin-alias-bg-layer-1, transparent);
   overflow: hidden;
   cursor: zoom-in;
 }
@@ -688,9 +688,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px dashed var(--dsw-alias-border-l2, rgba(128, 128, 128, 0.3));
+  border: 1px dashed var(--qilin-alias-border-l2, rgba(128, 128, 128, 0.3));
   border-radius: 6px;
-  color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary));
+  color: var(--qilin-alias-label-tertiary, var(--qilin-alias-label-secondary));
 }
 
 .attachmentText {
@@ -702,16 +702,16 @@
 }
 
 .attachmentName {
-  font: var(--dsw-font-xs-12, 11px/14px system-ui);
-  color: var(--dsw-alias-label-primary, inherit);
+  font: var(--qilin-font-xs-12, 11px/14px system-ui);
+  color: var(--qilin-alias-label-primary, inherit);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .attachmentMeta {
-  font: var(--dsw-font-xs-12, 10px/13px system-ui);
-  color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary));
+  font: var(--qilin-font-xs-12, 10px/13px system-ui);
+  color: var(--qilin-alias-label-tertiary, var(--qilin-alias-label-secondary));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -728,7 +728,7 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background: var(--dsw-alias-bg-mask-1);
+  background: var(--qilin-alias-bg-mask-1);
   backdrop-filter: blur(2px);
 }
 
@@ -752,8 +752,8 @@
 
 .lightboxTitle {
   max-width: 80vw;
-  font: var(--dsw-font-xs-12, 11px/16px system-ui);
-  color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary));
+  font: var(--qilin-font-xs-12, 11px/16px system-ui);
+  color: var(--qilin-alias-label-tertiary, var(--qilin-alias-label-secondary));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

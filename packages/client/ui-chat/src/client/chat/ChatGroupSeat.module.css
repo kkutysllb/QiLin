@@ -10,7 +10,7 @@
   padding: 0;
   border: 0;
   background: none;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font: inherit;
   font-size: var(--dsh-content-font-size, 14px);
   text-align: left;
@@ -19,7 +19,7 @@
 }
 
 .title:hover {
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .leading {
@@ -30,7 +30,7 @@
   justify-content: center;
   width: 16px;
   height: 16px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .activityIcon,

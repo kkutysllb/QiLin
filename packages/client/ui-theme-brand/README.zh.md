@@ -29,13 +29,13 @@ kind: "package-reference"
 
 | 角色 | 令牌 | 浅色 | 深色 |
 |---|---|---|---|
-| 强调色 | `--dsw-alias-brand-primary` | `#8f6f2e`（gold-700） | `#c9a24a`（gold-500） |
-| 画布 | `--dsw-alias-bg-base` | `#f8f5ee`（纸白） | `#0d0b09`（landing 底色） |
-| 侧栏 | `--dsw-specific-sidebar-fill` | `#f1ece0` | `#0d0b09` |
-| 链接 | `--dsw-alias-link` | `#7d6126`（纸面 5.3:1） | `#f3dc9e`（14.5:1） |
-| 印章 | `--dsw-specific-brand-seal-fill` | `#c3402f` | `#d4503d` |
+| 强调色 | `--qilin-alias-brand-primary` | `#8f6f2e`（gold-700） | `#c9a24a`（gold-500） |
+| 画布 | `--qilin-alias-bg-base` | `#f8f5ee`（纸白） | `#0d0b09`（landing 底色） |
+| 侧栏 | `--qilin-specific-sidebar-fill` | `#f1ece0` | `#0d0b09` |
+| 链接 | `--qilin-alias-link` | `#7d6126`（纸面 5.3:1） | `#f3dc9e`（14.5:1） |
+| 印章 | `--qilin-specific-brand-seal-fill` | `#c3402f` | `#d4503d` |
 
-功能组件通过既有的 `--dsw-alias-*` 别名消费这些令牌，因此配色可到达侧边栏、输入框、会话与交付物，而任何组件都无需感知 QiLin。悬停遵循各平台惯例（深色向 gold-300 变亮，浅色向链接金加深），状态色与进行中蓝保留基础配色，`--dsw-specific-brand-seal-fill` 则为需要与印记一致的表面携带印章自身的朱砂；它的两个取值都是 `ui-brand` 中印章渐变的色标。
+功能组件通过既有的 `--qilin-alias-*` 别名消费这些令牌，因此配色可到达侧边栏、输入框、会话与交付物，而任何组件都无需感知 QiLin。悬停遵循各平台惯例（深色向 gold-300 变亮，浅色向链接金加深），状态色与进行中蓝保留基础配色，`--qilin-specific-brand-seal-fill` 则为需要与印记一致的表面携带印章自身的朱砂；它的两个取值都是 `ui-brand` 中印章渐变的色标。
 
 <a id="dev-note"></a>
 ## 开发备注

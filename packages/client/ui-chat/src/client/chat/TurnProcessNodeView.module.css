@@ -7,9 +7,9 @@
   height: calc(33px + var(--qilin-content-font-delta, 0px));
   padding: 0 0 8px;
   border: none;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l2);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l2);
   background: none;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   cursor: pointer;
   text-align: left;
   transition: color 100ms ease;
@@ -20,7 +20,7 @@
 }
 
 .root:not(:disabled):hover {
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .root:not([data-open]) {
@@ -32,7 +32,7 @@
   width: 14px;
   height: 14px;
   margin-left: 4px;
-  color: var(--dsw-alias-label-caption);
+  color: var(--qilin-alias-label-caption);
   transition: transform 100ms ease;
 }
 
@@ -57,11 +57,11 @@
 .root[data-turn-running] .label {
   background: linear-gradient(
     90deg,
-    var(--dsw-static-deepseek-500) 0%,
-    var(--dsw-static-deepseek-500) 40%,
-    var(--dsw-static-deepseek-200) 50%,
-    var(--dsw-static-deepseek-500) 60%,
-    var(--dsw-static-deepseek-500) 100%
+    var(--qilin-static-deepseek-500) 0%,
+    var(--qilin-static-deepseek-500) 40%,
+    var(--qilin-static-deepseek-200) 50%,
+    var(--qilin-static-deepseek-500) 60%,
+    var(--qilin-static-deepseek-500) 100%
   );
   background-position: 100% 0;
   background-size: 250% 100%;

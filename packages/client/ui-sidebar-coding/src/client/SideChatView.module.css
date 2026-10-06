@@ -1,7 +1,7 @@
 /* Side Chat tab: ONE side conversation per tab (Codex-style). Visual
  * language mirrors the main conversation pane: right-aligned user bubbles
- * on --dsw-specific-bubble, full-width assistant markdown, a capsule
- * composer card on --dsw-specific-input-major with a circular accent
+ * on --qilin-specific-bubble, full-width assistant markdown, a capsule
+ * composer card on --qilin-specific-input-major with a circular accent
  * send/stop button. Tool calls, thinking and context injections share one
  * collapsible-line chrome (no cards); shimmer is reserved for generating
  * states (running status line, streaming rows, the creating hero). Motion
@@ -23,7 +23,7 @@
   gap: 4px;
   min-height: 36px;
   padding: 4px 8px 4px 12px;
-  border-bottom: 1px solid var(--dsw-alias-border-l);
+  border-bottom: 1px solid var(--qilin-alias-border-l);
 }
 
 .sidechatHeaderDot {
@@ -39,10 +39,10 @@
   flex: none;
   max-width: 55%;
   padding: 1px 8px;
-  border: 1px solid var(--dsw-alias-border-l);
+  border: 1px solid var(--qilin-alias-border-l);
   border-radius: 999px;
-  font: var(--dsw-font-xxs-12);
-  color: var(--dsw-alias-label-tertiary);
+  font: var(--qilin-font-xxs-12);
+  color: var(--qilin-alias-label-tertiary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -59,14 +59,14 @@
   border: none;
   border-radius: 6px;
   background: transparent;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   cursor: pointer;
   transition: background-color 100ms ease-out, color 100ms ease-out;
 }
 
 .sidechatIconBtn:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
 }
 
 .sidechatIconBtn:disabled {
@@ -84,21 +84,21 @@
   justify-content: center;
   gap: 8px;
   padding: 24px 20px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   text-align: center;
   animation: sidechatFadeIn 200ms ease-out;
 }
 
 .sidechatHeroTitle {
-  font: var(--dsw-font-s-14);
+  font: var(--qilin-font-s-14);
   font-weight: 500;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .sidechatHeroDesc {
   max-width: 300px;
-  font: var(--dsw-font-xxs-12);
-  color: var(--dsw-alias-label-tertiary);
+  font: var(--qilin-font-xxs-12);
+  color: var(--qilin-alias-label-tertiary);
   line-height: 1.6;
 }
 
@@ -108,9 +108,9 @@
   padding: 6px 14px;
   border: none;
   border-radius: 999px;
-  background: var(--dsw-alias-button-info-fill, var(--dsw-alias-interactive-bg-hover-solid));
+  background: var(--qilin-alias-button-info-fill, var(--qilin-alias-interactive-bg-hover-solid));
   color: #fff;
-  font: var(--dsw-font-s-14);
+  font: var(--qilin-font-s-14);
   cursor: pointer;
   transition: opacity 100ms ease-out;
 }
@@ -127,14 +127,14 @@
 .sidechatHint {
   flex: none;
   padding: 4px 12px;
-  font: var(--dsw-font-xxs-12);
-  color: var(--dsw-alias-label-tertiary);
+  font: var(--qilin-font-xxs-12);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .sidechatError {
   flex: none;
   padding: 4px 12px;
-  font: var(--dsw-font-xxs-12);
+  font: var(--qilin-font-xxs-12);
   color: #d5304d;
 }
 
@@ -160,17 +160,17 @@
   max-width: 88%;
   padding: 8px 14px;
   border-radius: 18px;
-  background: var(--dsw-specific-bubble, var(--dsw-alias-bg-base));
-  font: var(--dsw-font-s-14);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-specific-bubble, var(--qilin-alias-bg-base));
+  font: var(--qilin-font-s-14);
+  color: var(--qilin-alias-label-primary);
   overflow-wrap: anywhere;
 }
 
 /* Assistant message: full-width narration, no bubble — the main pane way. */
 .sidechatAssistant {
   align-self: stretch;
-  font: var(--dsw-font-s-14);
-  color: var(--dsw-alias-label-primary);
+  font: var(--qilin-font-s-14);
+  color: var(--qilin-alias-label-primary);
   overflow-wrap: anywhere;
 }
 
@@ -188,8 +188,8 @@
   align-items: center;
   gap: 6px;
   padding: 1px 0;
-  font: var(--dsw-font-xxs-12);
-  color: var(--dsw-alias-label-tertiary);
+  font: var(--qilin-font-xxs-12);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .sidechatRowSummary {
@@ -203,7 +203,7 @@
 }
 
 .sidechatRowSummary:hover {
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .sidechatRowStatic {
@@ -227,11 +227,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .sidechatRowMono {
-  font-family: var(--dsw-font-mono);
+  font-family: var(--qilin-font-mono);
 }
 
 .sidechatRowMeta {
@@ -240,8 +240,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-family: var(--dsw-font-mono);
-  color: var(--dsw-alias-label-tertiary);
+  font-family: var(--qilin-font-mono);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .sidechatRowFailed .sidechatRowLabel,
@@ -252,12 +252,12 @@
 .sidechatRowBody {
   margin: 2px 0 4px 7px;
   padding: 2px 0 2px 10px;
-  border-left: 1px solid var(--dsw-alias-border-l);
+  border-left: 1px solid var(--qilin-alias-border-l);
 }
 
 .sidechatRowProse {
-  font: var(--dsw-font-xxs-12);
-  color: var(--dsw-alias-label-tertiary);
+  font: var(--qilin-font-xxs-12);
+  color: var(--qilin-alias-label-tertiary);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   max-height: 240px;
@@ -267,9 +267,9 @@
 .sidechatRowCode {
   margin: 0;
   padding: 4px 0;
-  font: var(--dsw-font-xxs-12);
-  font-family: var(--dsw-font-mono);
-  color: var(--dsw-alias-label-secondary);
+  font: var(--qilin-font-xxs-12);
+  font-family: var(--qilin-font-mono);
+  color: var(--qilin-alias-label-secondary);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   max-height: 220px;
@@ -277,16 +277,16 @@
 }
 
 .sidechatRowCode + .sidechatRowCode {
-  border-top: 1px solid var(--dsw-alias-border-l);
+  border-top: 1px solid var(--qilin-alias-border-l);
 }
 
 /* Shimmer sweep text: generating (streaming row labels, creating hero). */
 .sidechatShimmerText {
   background-image: linear-gradient(
     90deg,
-    var(--dsw-alias-label-tertiary) 0%,
-    var(--dsw-alias-label-primary) 50%,
-    var(--dsw-alias-label-tertiary) 100%
+    var(--qilin-alias-label-tertiary) 0%,
+    var(--qilin-alias-label-primary) 50%,
+    var(--qilin-alias-label-tertiary) 100%
   );
   background-size: 200% 100%;
   -webkit-background-clip: text;
@@ -306,12 +306,12 @@
 }
 
 .sidechatStatusText {
-  font: var(--dsw-font-xxs-12);
+  font: var(--qilin-font-xxs-12);
   background-image: linear-gradient(
     90deg,
-    var(--dsw-alias-label-tertiary) 0%,
-    var(--dsw-alias-label-primary) 50%,
-    var(--dsw-alias-label-tertiary) 100%
+    var(--qilin-alias-label-tertiary) 0%,
+    var(--qilin-alias-label-primary) 50%,
+    var(--qilin-alias-label-tertiary) 100%
   );
   background-size: 200% 100%;
   -webkit-background-clip: text;
@@ -328,10 +328,10 @@
   gap: 4px;
   margin: 0 8px 8px;
   padding: 8px 8px 6px 14px;
-  border: 1px solid var(--dsw-alias-border-l2-darkmode-thin, var(--dsw-alias-border-l));
+  border: 1px solid var(--qilin-alias-border-l2-darkmode-thin, var(--qilin-alias-border-l));
   border-radius: 16px;
-  background: var(--dsw-specific-input-major, var(--dsw-alias-bg-base));
-  box-shadow: var(--dsw-shadow-lv2, none);
+  background: var(--qilin-specific-input-major, var(--qilin-alias-bg-base));
+  box-shadow: var(--qilin-shadow-lv2, none);
 }
 
 .sidechatComposerInput {
@@ -340,8 +340,8 @@
   padding: 2px 0;
   border: none;
   background: transparent;
-  color: var(--dsw-alias-label-primary);
-  font: var(--dsw-font-s-14);
+  color: var(--qilin-alias-label-primary);
+  font: var(--qilin-font-s-14);
   line-height: 22px;
   outline: none;
   resize: none;
@@ -349,7 +349,7 @@
 }
 
 .sidechatComposerInput::placeholder {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .sidechatComposerBar {
@@ -363,8 +363,8 @@
 .sidechatComposerMeta {
   flex: 1;
   min-width: 0;
-  font: var(--dsw-font-xxs-12);
-  color: var(--dsw-alias-label-tertiary);
+  font: var(--qilin-font-xxs-12);
+  color: var(--qilin-alias-label-tertiary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -380,7 +380,7 @@
   padding: 0;
   border: none;
   border-radius: 50%;
-  background: var(--dsw-alias-button-info-fill, var(--dsw-alias-interactive-bg-hover-solid));
+  background: var(--qilin-alias-button-info-fill, var(--qilin-alias-interactive-bg-hover-solid));
   color: #fff;
   cursor: pointer;
   /* send ⇄ stop swap: keyed remount plays this, hover only fades. */
@@ -415,21 +415,21 @@
 .sidechatCardPath {
   font-size: 12px;
   line-height: 16px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   overflow-wrap: anywhere;
 }
 
 .sidechatCardFail {
   font-size: 12px;
   line-height: 16px;
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 /* One row per turn tail: token usage and wall duration, quieter than content. */
 .sidechatTurnSummary {
   font-size: 12px;
   line-height: 16px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   padding: 2px 0;
 }
 
@@ -438,11 +438,11 @@
   padding-left: 18px;
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .sidechatCardOptionLabel {
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 /* ── 待答提问卡（选项卡样式） ─────────────────────────────────────────────
@@ -456,8 +456,8 @@
   gap: 10px;
   margin-top: 8px;
   padding: 10px 12px;
-  background: var(--dsw-alias-bg-layer-1);
-  border: 1px solid var(--dsw-alias-border-l2);
+  background: var(--qilin-alias-bg-layer-1);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 10px;
 }
 
@@ -471,20 +471,20 @@
 .sidechatAskHeader {
   align-self: flex-start;
   padding: 1px 6px;
-  font: var(--dsw-font-xxxs-11);
-  color: var(--dsw-alias-label-secondary);
-  background: var(--dsw-alias-bg-layer-3);
+  font: var(--qilin-font-xxxs-11);
+  color: var(--qilin-alias-label-secondary);
+  background: var(--qilin-alias-bg-layer-3);
   border-radius: 4px;
 }
 
 .sidechatAskPrompt {
-  font: var(--dsw-font-xxs-12);
-  color: var(--dsw-alias-label-primary);
+  font: var(--qilin-font-xxs-12);
+  color: var(--qilin-alias-label-primary);
 }
 
 .sidechatAskDetail {
-  font: var(--dsw-font-xxxs-11);
-  color: var(--dsw-alias-label-tertiary);
+  font: var(--qilin-font-xxxs-11);
+  color: var(--qilin-alias-label-tertiary);
   white-space: pre-wrap;
   max-height: 160px;
   overflow: auto;
@@ -504,29 +504,29 @@
   padding: 8px 10px;
   font: inherit;
   text-align: left;
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-bg-layer-2);
-  border: 1px solid var(--dsw-alias-border-l2);
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-alias-bg-layer-2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 8px;
   cursor: pointer;
   transition: background 120ms ease-out, border-color 120ms ease-out;
 }
 
 .sidechatCardOption:hover:not(:disabled) {
-  background: var(--dsw-alias-interactive-bg-hover);
-  border-color: var(--dsw-alias-border-l3);
+  background: var(--qilin-alias-interactive-bg-hover);
+  border-color: var(--qilin-alias-border-l3);
 }
 
 .sidechatCardOptionSelected,
 .sidechatCardOptionSelected:hover:not(:disabled) {
   /* 深色主题里 brand-primary 是**浅色**（引擎的 primary 按钮就是浅底深字），做描边不够
      「选中」；改用与发送键同一个信息蓝，两套主题下都是蓝，也和本插件其余按钮一致。 */
-  border-color: var(--dsw-alias-button-info-fill, var(--dsw-alias-brand-primary));
-  background: var(--dsw-alias-interactive-bg-hover-accent);
+  border-color: var(--qilin-alias-button-info-fill, var(--qilin-alias-brand-primary));
+  background: var(--qilin-alias-interactive-bg-hover-accent);
 }
 
 .sidechatCardOption:focus-visible {
-  outline: 2px solid var(--dsw-alias-button-info-fill, var(--dsw-alias-brand-primary));
+  outline: 2px solid var(--qilin-alias-button-info-fill, var(--qilin-alias-brand-primary));
   outline-offset: 1px;
 }
 
@@ -546,7 +546,7 @@
   margin-top: 1px;
   color: #fff;
   background: transparent;
-  border: 1.5px solid var(--dsw-alias-border-l3);
+  border: 1.5px solid var(--qilin-alias-border-l3);
   border-radius: 50%;
 }
 
@@ -555,8 +555,8 @@
 }
 
 .sidechatAnswerMarkOn {
-  border-color: var(--dsw-alias-button-info-fill, var(--dsw-alias-brand-primary));
-  background: var(--dsw-alias-button-info-fill, var(--dsw-alias-brand-primary));
+  border-color: var(--qilin-alias-button-info-fill, var(--qilin-alias-brand-primary));
+  background: var(--qilin-alias-button-info-fill, var(--qilin-alias-brand-primary));
 }
 
 .sidechatAnswerText {
@@ -567,23 +567,23 @@
 }
 
 .sidechatAnswerLabel {
-  font: var(--dsw-font-xxs-12);
-  color: var(--dsw-alias-label-primary);
+  font: var(--qilin-font-xxs-12);
+  color: var(--qilin-alias-label-primary);
   overflow-wrap: anywhere;
 }
 
 .sidechatAnswerDesc {
-  font: var(--dsw-font-xxxs-11);
-  color: var(--dsw-alias-label-tertiary);
+  font: var(--qilin-font-xxxs-11);
+  color: var(--qilin-alias-label-tertiary);
   overflow-wrap: anywhere;
 }
 
 .sidechatAnswerSubmit {
   align-self: flex-start;
   padding: 6px 14px;
-  font: var(--dsw-font-xxs-12);
-  color: var(--dsw-alias-label-primary-inverted, #fff);
-  background: var(--dsw-alias-brand-primary);
+  font: var(--qilin-font-xxs-12);
+  color: var(--qilin-alias-label-primary-inverted, #fff);
+  background: var(--qilin-alias-brand-primary);
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -608,14 +608,14 @@
   gap: 2px;
   margin: 0 12px 6px;
   padding: 6px 10px;
-  background: var(--dsw-alias-bg-layer-2);
-  border: 1px solid var(--dsw-alias-border-l2);
+  background: var(--qilin-alias-bg-layer-2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 8px;
 }
 
 .sidechatQueueHead {
-  font: var(--dsw-font-xxxs-11);
-  color: var(--dsw-alias-label-secondary);
+  font: var(--qilin-font-xxxs-11);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .sidechatQueueRow {
@@ -627,15 +627,15 @@
 
 .sidechatQueueIndex {
   flex: none;
-  font: var(--dsw-font-xxxs-11);
-  color: var(--dsw-alias-label-tertiary);
+  font: var(--qilin-font-xxxs-11);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .sidechatQueueText {
   flex: 1;
   min-width: 0;
-  font: var(--dsw-font-xxs-12);
-  color: var(--dsw-alias-label-primary);
+  font: var(--qilin-font-xxs-12);
+  color: var(--qilin-alias-label-primary);
   overflow-wrap: anywhere;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -644,18 +644,18 @@
 }
 
 .sidechatQueueHint {
-  font: var(--dsw-font-xxxs-11);
-  color: var(--dsw-alias-label-tertiary);
+  font: var(--qilin-font-xxxs-11);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 /* 模型切换行：跟随主会话换模型时留一行，安静但可见（此前只能靠徽标猜）。 */
 .sidechatModelSwitch {
   align-self: flex-start;
   padding: 2px 8px;
-  font: var(--dsw-font-xxxs-11);
-  color: var(--dsw-alias-label-secondary);
-  background: var(--dsw-alias-bg-layer-2);
-  border: 1px solid var(--dsw-alias-border-l2);
+  font: var(--qilin-font-xxxs-11);
+  color: var(--qilin-alias-label-secondary);
+  background: var(--qilin-alias-bg-layer-2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 999px;
 }
 
@@ -691,7 +691,7 @@
   .sidechatShimmerText {
     animation: none;
     background-image: none;
-    color: var(--dsw-alias-label-tertiary);
+    color: var(--qilin-alias-label-tertiary);
   }
   .sidechatRowChevron {
     transition: none;

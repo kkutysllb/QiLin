@@ -28,17 +28,17 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 12px;
 }
 .notice {
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
   font-size: 12px;
   flex: none;
 }
 .download {
   margin-left: auto;
-  color: var(--dsw-alias-text-link);
+  color: var(--qilin-alias-text-link);
   font-size: 12px;
   flex: none;
 }

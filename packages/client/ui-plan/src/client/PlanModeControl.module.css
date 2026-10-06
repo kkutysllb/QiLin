@@ -15,8 +15,8 @@
   border: none;
   border-radius: 999px;
   corner-shape: round;
-  background: var(--dsw-alias-state-warn-tertiary);
-  color: var(--dsw-alias-state-warn-label);
+  background: var(--qilin-alias-state-warn-tertiary);
+  color: var(--qilin-alias-state-warn-label);
   font-size: 13px;
   font-weight: 500;
   line-height: 20px;
@@ -24,11 +24,11 @@
 }
 
 .chip:hover:not(:disabled) {
-  color: var(--dsw-alias-state-warn-primary);
+  color: var(--qilin-alias-state-warn-primary);
 }
 
 .chip:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: 2px;
 }
 
@@ -44,7 +44,7 @@
 }
 
 .error {
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
   font-size: 12px;
   line-height: 18px;
 }

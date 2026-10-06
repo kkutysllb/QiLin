@@ -9,7 +9,7 @@ import type { LexicalEditor, TextNode as TextNodeType } from 'lexical'
 import { $getRoot, $isElementNode, $isTextNode, TextNode } from 'lexical'
 
 /** Inline style carried by the claim-token node (the old backdrop's hlToken color). */
-const TOKEN_STYLE = 'color: var(--dsw-alias-state-warn-label)'
+const TOKEN_STYLE = 'color: var(--qilin-alias-state-warn-label)'
 
 /** The document's first text leaf, or null (empty document / leading chip). */
 function firstTextLeaf(): TextNodeType | null {

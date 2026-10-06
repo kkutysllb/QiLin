@@ -7,7 +7,7 @@
   align-items: center;
   box-sizing: border-box;
   padding: 6px 8px 6px 16px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
 }
 
 /* The input primitive owns the field's box; this only sets the row's width. */
@@ -26,7 +26,7 @@
   width: 28px;
   height: 28px;
   padding: 6px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   line-height: 1;
   background: transparent;
   border: none;
@@ -40,15 +40,15 @@
 }
 
 .clear:hover {
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 /* One line naming the search's state, in the tree's note styling. */
 .note {
   margin: 0;
   padding: 3px 10px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 12px;
 }
 
@@ -72,7 +72,7 @@
 }
 
 .result:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .resultName {
@@ -95,7 +95,7 @@
   max-width: 100%;
   margin-left: 22px;
   overflow: hidden;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 12px;
   white-space: nowrap;
   text-overflow: ellipsis;

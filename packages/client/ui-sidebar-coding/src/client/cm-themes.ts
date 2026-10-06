@@ -18,18 +18,18 @@ export const cmSurfaceTheme = EditorView.theme({
     height: '100%',
     fontSize: '13px',
     backgroundColor: 'transparent',
-    color: 'var(--dsw-alias-label-primary)',
+    color: 'var(--qilin-alias-label-primary)',
   },
   '.cm-scroller': {
     overflow: 'auto',
     fontFamily: 'var(--ds-font-family-code)',
   },
   '.cm-content': {
-    caretColor: 'var(--dsw-alias-label-primary)',
+    caretColor: 'var(--qilin-alias-label-primary)',
   },
   '.cm-gutters': {
     backgroundColor: 'transparent',
-    color: 'var(--dsw-alias-label-tertiary)',
+    color: 'var(--qilin-alias-label-tertiary)',
     border: 'none',
   },
 })
