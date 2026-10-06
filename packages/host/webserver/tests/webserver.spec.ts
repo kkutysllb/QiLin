@@ -442,6 +442,24 @@ describe('real Loader composition', () => {
     })
   })
 
+  it('resolves whenListened() with a readable port in a settle composition', { timeout: 60_000 }, async () => {
+    const loaded = await loadComposition(0, false, 'settle')
+    const webServer = loaded.get('webServer')!
+    // Settlement only starts the bind; whenListened() is the readiness signal
+    // the URL line must await (issue #8).
+    await webServer.whenListened()
+    expect(webServer.port).toBeGreaterThan(0)
+    // A second consumer awaits the same settled promise.
+    await webServer.whenListened()
+  })
+
+  it('resolves whenListened() immediately in an activate composition', { timeout: 60_000 }, async () => {
+    const loaded = await loadComposition()
+    const webServer = loaded.get('webServer')!
+    await webServer.whenListened()
+    expect(webServer.port).toBeGreaterThan(0)
+  })
+
   it('fails the fiber of a settle composition whose port is already taken', { timeout: 60_000 }, async () => {
     const first = await loadComposition()
     const takenPort = first.webServer.port

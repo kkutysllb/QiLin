@@ -301,22 +301,37 @@ export function apply(ctx: Context, config: Config): void {
         }
       }
       // This row's own activation can precede a sibling failure. The app owns
-      // readiness by waiting for its Loader tree, or announces at once in a
-      // hand-built tree without Loader.
+      // readiness by waiting for its Loader tree and then the bound socket,
+      // or announces once the socket binds in a hand-built tree without
+      // Loader. Awaiting `whenListened()` matters under `listenOn: 'settle'`:
+      // settlement only STARTS the bind, so reading `port` straight off the
+      // settlement raced the bind on microtask order — the loser threw
+      // "webServer service missing" and the silent catch swallowed the URL
+      // line, the browser handoff, and the only error (issue #8).
+      const webServer = connectionCtx.get('webServer')
       const settled = connectionCtx.get('loader')?.await()
-      if (settled === undefined) announceReady()
-      else {
-        void settled.then(async () => {
-          await auditStartupEntries(connectionCtx.root, 'qilin web', () => {})
-          // The tree can be disposed while the boot was in flight (early
-          // SIGTERM); a URL line or browser tab for a dead server would only
-          // mislead, and reading torn-down services would turn a clean shutdown
-          // into a crash.
-          if (connectionCtx.get('webServer') !== undefined
-            && connectionCtx.get('connection') !== undefined) announceReady()
-        }).catch(() => {
-          // Boot owns the failure diagnostic; readiness remains unpublished.
-        })
+      const announceWhenBound = async (audited: boolean): Promise<void> => {
+        if (audited) await auditStartupEntries(connectionCtx.root, 'qilin web', () => {})
+        // The tree can be disposed while the boot was in flight (early
+        // SIGTERM); a URL line or browser tab for a dead server would only
+        // mislead, and reading torn-down services would turn a clean shutdown
+        // into a crash.
+        if (connectionCtx.get('webServer') === undefined
+          || connectionCtx.get('connection') === undefined) return
+        await connectionCtx.get('webServer')?.whenListened()
+        announceReady()
+      }
+      const reportReadinessFailure = (error: unknown): void => {
+        // Boot owns activation diagnostics, but readiness is this row's own
+        // promise — its failure must name its cause, never vanish.
+        const reason = error instanceof Error ? error.message : String(error)
+        console.error(`${config.label}: startup readiness failed: ${reason}`)
+      }
+      if (settled === undefined) {
+        if (webServer === undefined) announceReady()
+        else void webServer.whenListened().then(() => announceReady()).catch(reportReadinessFailure)
+      } else {
+        void settled.then(() => announceWhenBound(true)).catch(reportReadinessFailure)
       }
     })
   }

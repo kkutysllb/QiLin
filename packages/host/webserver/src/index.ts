@@ -74,7 +74,7 @@ export interface Config {
    * settled, so the first external connection sees the complete route set;
    * route owners still mount against the idle server, because init resolves
    * before they run. A `settle` profile must read `port` only after
-   * settlement — the URL line already awaits it.
+   * `whenListened()` resolves — settlement itself only starts the bind.
    * @default 'activate'
    */
   listenOn?: 'activate' | 'settle'
@@ -163,16 +163,37 @@ export class WebServer extends Service {
   private server!: Server
   private listenedPort!: number
   private readonly gzip: NodeMiddleware | undefined
+  private listened: Promise<void>
+  private listenedResolve: (() => void) | undefined
+  private listenedReject: ((error: Error) => void) | undefined
 
   constructor(ctx: Context, private config: Config) {
     super(ctx, 'webServer')
     const resolved = config as ResolvedConfig
     this.gzip = resolved.compression === 'gzip' ? createGzipMiddleware(resolved) : undefined
+    this.listened = new Promise<void>((resolve, reject) => {
+      this.listenedResolve = resolve
+      this.listenedReject = reject
+    })
+    // A bind failure with no readiness consumer must not surface as an
+    // unhandled rejection; consumers awaiting whenListened() still see it.
+    this.listened.catch(() => {})
   }
 
   /** The listening port (the OS-assigned value when config.port is 0). */
   get port(): number {
     return this.listenedPort
+  }
+
+  /**
+   * Resolve once the socket is bound and `port` is readable; reject on bind
+   * failure. Readiness consumers await this instead of reading `port` off a
+   * settlement that merely STARTED the bind — the two raced on microtask
+   * order, and the loser crashed or silently swallowed the URL line and the
+   * browser handoff (issue #8).
+   */
+  whenListened(): Promise<void> {
+    return this.listened
   }
 
   /** The configured bind host (the loopback or all-interfaces literal). */
@@ -366,11 +387,16 @@ export class WebServer extends Service {
   /** Bind the socket and record the OS-assigned port. */
   private bind(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      this.server.once('error', reject)
+      const fail = (error: Error): void => {
+        this.listenedReject?.(error)
+        reject(error)
+      }
+      this.server.once('error', fail)
       this.server.listen(this.config.port, this.config.host, () => {
-        this.server.off('error', reject)
+        this.server.off('error', fail)
         this.server.on('error', (err) => { this.ctx.logger.error(err) })
         this.listenedPort = (this.server.address() as AddressInfo).port
+        this.listenedResolve?.()
         resolve()
       })
     })
