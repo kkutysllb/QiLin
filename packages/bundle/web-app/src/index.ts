@@ -308,14 +308,20 @@ export function apply(ctx: Context, config: Config): void {
       else {
         void settled.then(async () => {
           await auditStartupEntries(connectionCtx.root, 'qilin web', () => {})
+          // `listenOn: settle` starts the socket bind when this same settlement
+          // promise resolves, so the port may not exist yet; the URL line and
+          // the browser handoff both read it.
+          await connectionCtx.get('webServer')?.whenListened()
           // The tree can be disposed while the boot was in flight (early
           // SIGTERM); a URL line or browser tab for a dead server would only
           // mislead, and reading torn-down services would turn a clean shutdown
           // into a crash.
           if (connectionCtx.get('webServer') !== undefined
             && connectionCtx.get('connection') !== undefined) announceReady()
-        }).catch(() => {
-          // Boot owns the failure diagnostic; readiness remains unpublished.
+        }).catch((error: unknown) => {
+          // A readiness miss costs the operator the URL line and the browser
+          // handoff together, so the reason is reported instead of swallowed.
+          console.error(`${config.label}: startup announcement failed: ${error instanceof Error ? error.message : String(error)}`)
         })
       }
     })

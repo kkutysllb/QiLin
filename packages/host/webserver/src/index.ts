@@ -162,6 +162,10 @@ export class WebServer extends Service {
   private fallback: WebRoute['handler'] | undefined
   private server!: Server
   private listenedPort!: number
+  /** Whether the socket has bound; {@link port} is assigned from that moment. */
+  private listening = false
+  /** Consumers waiting for the bind, drained on success or failure. */
+  private readonly listenWaiters: { resolve: () => void; reject: (error: Error) => void }[] = []
   private readonly gzip: NodeMiddleware | undefined
 
   constructor(ctx: Context, private config: Config) {
@@ -173,6 +177,30 @@ export class WebServer extends Service {
   /** The listening port (the OS-assigned value when config.port is 0). */
   get port(): number {
     return this.listenedPort
+  }
+
+  /**
+   * Resolve once the socket has bound and {@link port} is assigned.
+   *
+   * `listenOn: 'settle'` starts the bind when the Loader tree settles, so a row
+   * running on that same settlement promise still observes an unassigned port;
+   * a readiness signal (the URL line, the browser handoff) must await this
+   * instead of reading {@link port} immediately.
+   * @returns a promise settled with the bind, or already settled when listening.
+   * @throws when the bind failed, so a readiness signal never waits forever.
+   */
+  whenListened(): Promise<void> {
+    if (this.listening) return Promise.resolve()
+    return new Promise<void>((resolve, reject) => { this.listenWaiters.push({ resolve, reject }) })
+  }
+
+  /** Drain {@link whenListened} callers with the bind's outcome. */
+  private finishListen(error?: Error): void {
+    if (error === undefined) this.listening = true
+    for (const waiter of this.listenWaiters.splice(0)) {
+      if (error === undefined) waiter.resolve()
+      else waiter.reject(error)
+    }
   }
 
   /** The configured bind host (the loopback or all-interfaces literal). */
@@ -342,11 +370,17 @@ export class WebServer extends Service {
       const loader = this.ctx.get('loader') as { await(): Promise<void> } | undefined
       const settled = loader?.await() ?? Promise.resolve()
       void settled.then(() => this.bind()).catch((error: unknown) => {
-        this.ctx.logger.error(error instanceof Error ? error : new Error(String(error)))
+        const failure = error instanceof Error ? error : new Error(String(error))
+        this.finishListen(failure)
+        this.ctx.logger.error(failure)
       })
       return
     }
-    await this.bind()
+    await this.bind().catch((error: unknown) => {
+      const failure = error instanceof Error ? error : new Error(String(error))
+      this.finishListen(failure)
+      throw failure
+    })
   }
 
   /** Pre-flight one bind on the configured address and release it immediately. */
@@ -371,6 +405,7 @@ export class WebServer extends Service {
         this.server.off('error', reject)
         this.server.on('error', (err) => { this.ctx.logger.error(err) })
         this.listenedPort = (this.server.address() as AddressInfo).port
+        this.finishListen()
         resolve()
       })
     })
