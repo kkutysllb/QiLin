@@ -731,6 +731,52 @@ describe('host face', () => {
     for (const dispose of [disposeAdmitted, disposeRefused, disposeRow, disposeKept]) dispose()
   })
 
+  it('filters the registry presentation view and publishes the admission currency for snapshot consumers', async () => {
+    const bench = await boot()
+    captureHost(bench, { 't.rows': { kind: 'list', scope: 'root' } })
+    const admitted = new Set<string | undefined>(['kept-plugin'])
+    const listeners = new Set<() => void>()
+    let gateRevision = 0
+    const gate = {
+      admit: (registrant: string | undefined) => admitted.has(registrant),
+      revision: {
+        getSnapshot: () => gateRevision,
+        subscribe: (fn: () => void) => {
+          listeners.add(fn)
+          return () => { listeners.delete(fn) }
+        },
+      },
+    }
+    const admission = bench.svc.admission()
+    const beforeInstall = admission.getSnapshot()
+    const notify = vi.fn()
+    admission.subscribe(notify)
+    const owner = bench.ctx.plugin({
+      name: 'admission-owner',
+      inject: ['slots'],
+      apply: (ctx: Context) => { ctx.slots.installAdmission(gate) },
+    })
+    await owner.await()
+    // The install itself republished: a snapshot consumer that read before the
+    // gate existed holds an unfiltered view until this bump.
+    expect(admission.getSnapshot()).toBeGreaterThan(beforeInstall)
+    expect(notify).toHaveBeenCalled()
+    notify.mockClear()
+    const disposeHidden = bench.erased.register({ name: 't.rows', id: 'hidden-row', registrant: 'refused-plugin' }, C)
+    const disposeKept = bench.erased.register({ name: 't.rows', id: 'kept-row', registrant: 'kept-plugin' }, C)
+    // The registry presentation read applies the gate; entries() stays raw.
+    expect(bench.svc.entriesOfSlot('t.rows').map(entry => entry.options.id)).toEqual(['kept-row'])
+    expect(bench.svc.entries('t.rows')).toHaveLength(2)
+    // A gate revision move (audience flip, workbench switch) reaches the face.
+    gateRevision = 1
+    for (const listener of [...listeners]) listener()
+    expect(notify).toHaveBeenCalledOnce()
+    expect(admission.getSnapshot()).toBeGreaterThan(beforeInstall + 1)
+    await owner.dispose()
+    expect(bench.svc.entriesOfSlot('t.rows')).toHaveLength(2)
+    for (const dispose of [disposeHidden, disposeKept]) dispose()
+  })
+
   it('throws on double admission install', async () => {
     const bench = await boot()
     const gate = {

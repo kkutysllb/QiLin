@@ -91,7 +91,7 @@ ctx.slots.inject('plugins.row.config', () => ctx.slots.register({
 
 ### 呈现门
 
-浏览器插件经 `installAudienceGate` 安装渲染器的 admission gate：gate 按组合包的 audience 记录对照当前工作台标签，为条目的 registrant——组合包的包名——分类，渲染器的条目读取应用这一结论，被拒的条目如同缺席一样回退，而 `entries()` 与组合快照保持完整。当工作台标签或一次包列表读取改变了获准集合时，gate 重发其 revision。
+浏览器插件经 `installAudienceGate` 安装渲染器的 admission gate：gate 按组合包的 audience 记录对照当前工作台标签，为条目的 registrant——组合包的包名——分类，渲染器的条目读取应用这一结论，被拒的条目如同缺席一样回退，而 `entries()` 与组合快照保持完整。当工作台标签或一次包列表读取改变了获准集合时，gate 重发其 revision；渲染器与注册表的 `entriesOfSlot` 呈现视图都应用这一结论，快照投影（设置分区、侧边栏面板列表）在注册表的 `admission()` 修订上重推导。
 
 ### 配置 slot
 

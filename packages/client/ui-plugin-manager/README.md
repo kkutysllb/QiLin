@@ -91,7 +91,7 @@ The browser plugin registers the `manage` tab of the Settings Plugins section th
 
 ### The audience gate
 
-The browser plugin installs the renderer's admission gate through `installAudienceGate`: the gate classifies an entry's registrant — the bundle's package name — by the bundle's audience record against the active workbench tag, and the renderer's entry reads apply it, so a declined entry falls back like an absent one while `entries()` and the composition snapshots stay complete. The gate republishes its revision when the workbench tag or a read of the packages moves the admitted set.
+The browser plugin installs the renderer's admission gate through `installAudienceGate`: the gate classifies an entry's registrant — the bundle's package name — by the bundle's audience record against the active workbench tag, and the renderer's entry reads apply it, so a declined entry falls back like an absent one while `entries()` and the composition snapshots stay complete. The gate republishes its revision when the workbench tag or a read of the packages moves the admitted set; the renderer and the registry's `entriesOfSlot` presentation view both apply it, and snapshot projections (settings sections, the sidebar panel list) re-derive on the registry's `admission()` revision.
 
 ### Configuration slots
 

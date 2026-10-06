@@ -138,6 +138,8 @@ export class SlotRegistry extends Service {
   private _renderer: SlotRenderer | undefined
   private _locale: LocaleFace | undefined
   private _admission: SlotAdmissionGate | undefined
+  private readonly _admissionListeners = new Set<() => void>()
+  private _admissionRevision = 0
   private _host: SlotRendererHost | undefined
   private readonly _rootContributions: RootStandardSourceContribution[] = []
   private readonly _rootListeners = new Set<() => void>()
@@ -327,10 +329,23 @@ export class SlotRegistry extends Service {
     if (this._admission !== undefined) throw new Error('admission gate already installed (installAdmission() is boot-once)')
     this.ctx.effect(() => {
       this._admission = gate
+      // Bridge the gate's own revision (audience flips, workbench switches)
+      // into the registry currency, and publish the install itself: snapshot
+      // consumers that read before this effect ran hold an unfiltered view.
+      const offGate = gate.revision.subscribe(() => { this.bumpAdmission() })
+      this.bumpAdmission()
       return () => {
         if (this._admission === gate) this._admission = undefined
+        offGate()
+        this.bumpAdmission()
       }
     }, 'slots.installAdmission()')
+  }
+
+  /** Bump the admission currency and wake every snapshot-store subscriber. */
+  private bumpAdmission(): void {
+    this._admissionRevision += 1
+    for (const listener of [...this._admissionListeners]) listener()
   }
 
   /**
@@ -435,15 +450,35 @@ export class SlotRegistry extends Service {
 
   /**
    * Shadowing winners per cell for a key: the first live (non-abdicated)
-   * entry of each cell in priority order — what outlets render; chain keys
-   * pass through unchanged (election consumes every entry). The raw
+   * entry of each cell in priority order — what outlets render, filtered by
+   * the installed admission gate exactly like the renderer's reads; chain
+   * keys pass through unchanged (election consumes every entry). The raw
    * {@link SlotRegistry.entries} view stays the inspection surface. Fresh
    * array per call, not a uSES getSnapshot source.
    * @param key - SlotMap key.
    * @returns the winning entry per occupied cell.
    */
   entriesOfSlot(key: keyof SlotMap & string): readonly StoredEntry[] {
-    return this._core.entriesOfSlot(key)
+    return this._core.entriesOfSlot(key, this.admissionPredicate())
+  }
+
+  /**
+   * Observable admission currency for consumers outside the React renderer:
+   * snapshot stores that project presentation views (settings nav, the
+   * sidebar panel list) re-derive on it. It bumps when the gate installs,
+   * leaves, or its own revision moves — an audience flip or workbench switch
+   * — so a subscriber never holds a stale admitted set. The raw inspection
+   * views need no subscription.
+   * @returns a getSnapshot/subscribe pair over the monotonically rising revision.
+   */
+  admission(): HostObservable<number> {
+    return {
+      getSnapshot: () => this._admissionRevision,
+      subscribe: (listener) => {
+        this._admissionListeners.add(listener)
+        return () => { this._admissionListeners.delete(listener) }
+      },
+    }
   }
 
   /**
