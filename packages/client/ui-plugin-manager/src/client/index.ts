@@ -22,6 +22,8 @@ import type {} from '@qilin/client-ui-settings/client'
 import type {} from '@qilin/client-ui-settings-general/client'
 // Type-only: the `sidebar.panellist` entry seat the sidebar row registers into.
 import type {} from '@qilin/client-ui-sidebar/client'
+// Type-only: the Workbench face whose active tag the presentation gate reads.
+import type { Workbench } from '@qilin/client-ui-workbench/client'
 import type {} from '@qilin/client-ui-renderer/client'
 // Type-only: the ctx.remote Context merge and the forwarded-event key face.
 import type {} from '@qilin/api-remotes/client'
@@ -32,6 +34,7 @@ import { PluginManagerPage } from './PluginManagerPage.tsx'
 import { PluginsPanelIcon } from './PluginsPanelIcon.tsx'
 import { PluginRefreshToast, type PluginRefreshToastFace } from './PluginRefreshToast.tsx'
 import { configLedgerSource } from './config-ledger.ts'
+import { installAudienceGate } from './admission.ts'
 import { PluginManagerController } from './manager-store.ts'
 import { en, zh, type PluginManagerLocaleKey } from './locales.ts'
 import type {} from './slot-contract.ts'
@@ -61,6 +64,7 @@ export const PANEL_ID = 'plugins' as MainPanelId
 /** Services required by the tab registration, the Remote methods, and the shared configuration forms. */
 export const inject = [
   'slots', 'locale', 'remote', 'remote.pluginManager', 'remote.pluginInventory', 'remote.pluginRegistryProbe', 'configForms',
+  'workbench',
 ]
 
 declare module '@qilin/kylin' {
@@ -132,6 +136,16 @@ export function apply(ctx: ClientContext): void {
   } as const
   const configLedger = configLedgerSource(ctx)
   const face = controller.inject(configLedger, text => ctx.locale.resolveText(text))
+  // The audience presentation gate: a bundle whose audience excludes the
+  // active workbench renders as unregistered until the tag moves. It reads
+  // this controller's package list, so the first read also arms the filter —
+  // and the gate needs that read at boot, before the page is ever opened; a
+  // read that fails before the connection settles re-runs on `connection/reset`.
+  installAudienceGate(ctx, ctx.get('workbench') as Workbench, face.hooks.pluginManager)
+  ctx.effect(() => {
+    void controller.load()
+    return () => {}
+  }, 'ui-plugin-manager: gate boot read')
   // A failed manual refresh announces through the frame-wide overlay seat, so
   // the notice outlives the Settings tab it started in; the page's own toast
   // keeps every other notice kind.

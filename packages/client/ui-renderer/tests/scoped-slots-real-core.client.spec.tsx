@@ -61,6 +61,7 @@ function hostOver(core: SlotCore): SlotRendererHost {
     isFactoryLive: definition => core.isFactoryLive(definition),
     root: bindingSource,
     scopeRevision: { getSnapshot: () => 0, subscribe: () => () => {} },
+    admissionRevision: { getSnapshot: () => 0, subscribe: () => () => {} },
     scope: () => sessionAdapter,
   }
 }

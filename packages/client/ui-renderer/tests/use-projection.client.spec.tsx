@@ -105,6 +105,7 @@ function makeHost() {
     isFactoryLive: () => false,
     root,
     scopeRevision: observable(0),
+    admissionRevision: { getSnapshot: () => 0, subscribe: () => () => {} },
     scope: () => sessionAdapter,
   }
   return {

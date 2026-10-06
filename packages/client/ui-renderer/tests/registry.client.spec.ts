@@ -676,6 +676,87 @@ describe('host face', () => {
     expect(changed).toHaveBeenCalledTimes(2)
     expect(host.scope('session')).toBeUndefined()
   })
+
+  it('filters host-face entry reads through the installed admission gate and keeps inspection unfiltered', async () => {
+    const bench = await boot()
+    const host = captureHost(bench, {
+      't.host': { kind: 'single', scope: 'root' },
+      't.rows': { kind: 'list', scope: 'root' },
+    })
+    const admitted = new Set<string | undefined>(['admitted-plugin', 'kept-plugin'])
+    const listeners = new Set<() => void>()
+    let revision = 0
+    const gate = {
+      admit: (registrant: string | undefined) => admitted.has(registrant),
+      revision: {
+        getSnapshot: () => revision,
+        subscribe: (fn: () => void) => {
+          listeners.add(fn)
+          return () => { listeners.delete(fn) }
+        },
+      },
+    }
+    const owner = bench.ctx.plugin({
+      name: 'admission-owner',
+      inject: ['slots'],
+      apply: (ctx: Context) => { ctx.slots.installAdmission(gate) },
+    })
+    await owner.await()
+    // 'refused-plugin' shadows the single cell at the lower priority; the gate
+    // must fall the cell back to the admitted survivor.
+    const disposeAdmitted = bench.erased.register({ name: 't.host', priority: 0, registrant: 'admitted-plugin' }, C)
+    const disposeRefused = bench.erased.register({ name: 't.host', priority: -1, registrant: 'refused-plugin' }, C)
+    const disposeRow = bench.erased.register({ name: 't.rows', id: 'refused-row', registrant: 'refused-plugin' }, C)
+    const disposeKept = bench.erased.register({ name: 't.rows', id: 'kept-row', registrant: 'kept-plugin' }, C)
+    expect(host.entriesOf('t.host').map(entry => entry.registrant)).toEqual(['admitted-plugin'])
+    expect(host.entriesOfSlot('t.host').map(entry => entry.registrant)).toEqual(['admitted-plugin'])
+    expect(host.entriesOfSlot('t.rows').map(entry => entry.options.id)).toEqual(['kept-row'])
+    // Inspection surfaces stay unfiltered.
+    expect(bench.svc.entries('t.host')).toHaveLength(2)
+    expect(bench.svc.entries('t.rows')).toHaveLength(2)
+    // The revision face serves the installed gate; its flips notify subscribers.
+    expect(host.admissionRevision.getSnapshot()).toBe(0)
+    const flipped = vi.fn()
+    const unsubscribe = host.admissionRevision.subscribe(flipped)
+    revision = 1
+    for (const listener of [...listeners]) listener()
+    expect(flipped).toHaveBeenCalledOnce()
+    unsubscribe()
+    // The gate's uninstall restores the unfiltered view and frees the seam.
+    await owner.dispose()
+    expect(host.entriesOf('t.host')).toHaveLength(2)
+    expect(host.entriesOfSlot('t.rows')).toHaveLength(2)
+    expect(host.admissionRevision.getSnapshot()).toBe(0)
+    expect(() => { bench.svc.installAdmission(gate) }).not.toThrow()
+    for (const dispose of [disposeAdmitted, disposeRefused, disposeRow, disposeKept]) dispose()
+  })
+
+  it('throws on double admission install', async () => {
+    const bench = await boot()
+    const gate = {
+      admit: () => true,
+      revision: { getSnapshot: () => 0, subscribe: () => () => undefined },
+    }
+    bench.svc.installAdmission(gate)
+    expect(() => { bench.svc.installAdmission(gate) }).toThrow(/already installed/)
+  })
+
+  it('stamps the owning Loader entry name as the registrant, not the fiber display name', async () => {
+    const bench = await boot()
+    const host = captureHost(bench, { 't.host': { kind: 'single', scope: 'root' } })
+    const fiber = bench.ctx.fiber as { entry?: { options?: { name?: string } } }
+    // An entry plugin is a nameless `{ apply }` object: the fiber's display name
+    // is inherited from an ancestor, while its entry names the module (package).
+    fiber.entry = { options: { name: '@acme/entry-plugin' } }
+    const dispose = bench.erased.register({ name: 't.host' }, C)
+    expect(host.entriesOf('t.host')[0]?.registrant).toBe('@acme/entry-plugin')
+    dispose()
+    // Without an entry the stamp falls back to the fiber display name.
+    delete fiber.entry
+    const disposeFallback = bench.erased.register({ name: 't.host' }, C)
+    expect(host.entriesOf('t.host')[0]?.registrant).toBe('root')
+    disposeFallback()
+  })
 })
 
 describe('store instance axis', () => {

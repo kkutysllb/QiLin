@@ -14,6 +14,7 @@ import type {
   CommunityPluginEntry,
   IncompatiblePlugin,
   ManagementError,
+  PluginAudience,
   PluginEntryId,
   PluginInfo,
   PluginInspectProblem,
@@ -36,7 +37,7 @@ import type { ConfigLedger } from './config-ledger.ts'
 import { shortName } from './presentation.ts'
 
 /** The action a failed notice names. */
-export type FailedAction = 'enable' | 'disable' | 'uninstall' | 'rowEnable' | 'rowDisable' | 'update'
+export type FailedAction = 'enable' | 'disable' | 'uninstall' | 'rowEnable' | 'rowDisable' | 'update' | 'audience'
 
 /** What the last action left to say, shown as a toast; `seq` tells one showing from the next. */
 export type ManagerNotice =
@@ -91,6 +92,8 @@ export interface PackageView {
   readonly updatable: boolean
   /** Whether the bundle is in the profile's layer list. */
   readonly enabled: boolean
+  /** Which workbench surfaces present the bundle's UI; `both` when no record names it. */
+  readonly audience: PluginAudience
   /** Why the Host refuses to switch the bundle off or remove it, when it does. */
   readonly readOnlyReason?: ReadOnlyReason
   /** Why the Host cannot read the bundle, when it cannot. */
@@ -195,6 +198,8 @@ export interface InstallState {
   /** The registries the Host asked for this install, in order, and how many it may ask; null before the run. */
   readonly attempts: { readonly registries: readonly Registry[]; readonly total: number } | null
   readonly phase: 'idle' | 'checking' | 'starting' | 'running' | 'cancelling' | 'applying' | 'done' | 'failed'
+  /** Which workbench surfaces present the installed bundle's UI, as picked on the spec screen. */
+  readonly audience: PluginAudience
   /** Identifies this dialog's installation, including log and cancellation messages. */
   readonly requestId?: PluginInstallRequestId
   /** Why the spec was refused before installing; shown under the field. */
@@ -426,6 +431,10 @@ export interface PluginManagerFace {
   clearHighlight: () => void
   /** Put a bundle into, or take it out of, the profile's layer list. */
   setEnabled: (packageName: string, enabled: boolean) => void
+  /** Say which workbench surfaces present one bundle's UI. */
+  setAudience: (packageName: string, audience: PluginAudience) => void
+  /** Pick the surfaces the bundle being installed presents on. */
+  chooseAudience: (audience: PluginAudience) => void
   /** Ask before removing a package from the profile. */
   uninstall: (packageName: string) => void
   confirm: () => void
@@ -524,6 +533,7 @@ export function packageView(bundle: BundleInfo, plugins: readonly PluginInfo[]):
     optional: bundle.optional,
     updatable: bundle.updatable,
     enabled: bundle.enabled,
+    audience: bundle.audience,
     rows,
     ...bundle.version === undefined ? {} : { version: bundle.version },
     ...bundle.meta === undefined ? {} : { meta: bundle.meta },
@@ -545,6 +555,7 @@ export function sortPackages(packages: readonly PackageView[]): PackageView[] {
 
 const IDLE_INSTALL: InstallState = {
   open: false, spec: '', phase: 'idle', registries: null, registry: OFFICIAL_REGISTRY, registryOpen: false, registryError: false,
+  audience: 'both',
   attempts: null, inputError: null, subject: null, runs: [], detailsOpen: false,
   installed: null, installedVersion: null, restartRequired: false, failure: null, approvedBuilds: [], enabling: false,
 }
@@ -685,6 +696,15 @@ export class PluginManagerController {
         void this.run(packageName, { packageName, action: enabled ? 'enable' : 'disable' }, async () => {
           this.applied(await this.ctx.remote.pluginManager.setBundleEnabled(packageName, enabled), packageName)
         })
+      },
+      setAudience: (packageName, audience) => {
+        void this.run(packageName, { packageName, action: 'audience' }, async () => {
+          this.applied(await this.ctx.remote.pluginManager.setAudience(packageName, audience), packageName)
+        })
+      },
+      chooseAudience: (audience) => {
+        const install = this.getSnapshot().install
+        if (install.phase === 'idle') this.patchInstall({ audience })
       },
       uninstall: (packageName) => {
         this.pendingConfirm = () => this.run(packageName, { packageName, action: 'uninstall' }, async () => {
@@ -940,7 +960,8 @@ export class PluginManagerController {
     // the wire, and every such event reads again; those reads must not cancel
     // the run's settlement.
     const result = await this.ctx.remote.pluginManager.installBundle(spec, {
-      enabled: false, requestId, registry, ...approvedBuilds === undefined ? {} : { approvedBuilds: [...approvedBuilds] },
+      enabled: false, requestId, registry, audience: this.getSnapshot().install.audience,
+      ...approvedBuilds === undefined ? {} : { approvedBuilds: [...approvedBuilds] },
     })
     if (this.disposed || this.getSnapshot().install.requestId !== requestId) return
     const { runs, attempts } = this.getSnapshot().install

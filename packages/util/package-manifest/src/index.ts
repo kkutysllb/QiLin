@@ -11,5 +11,6 @@ export type {
   QilinEnginesManifest,
   QilinManifest,
   QilinPackageManifest,
+  QilinProfileAudience,
   QilinProfileManifest,
 } from './types.ts'

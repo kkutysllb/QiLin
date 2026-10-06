@@ -358,6 +358,30 @@ function useLocaleRevision(face: LocaleFace | undefined): number {
 }
 
 /**
+ * Subscribe an outlet to the installed admission gate's revision (a constant
+ * zero while none is installed — exactly one uSES call either way, keeping
+ * hook order stable). An audience flip re-renders every outlet; the entries
+ * reads below then apply the gate's current filter.
+ */
+const admissionSubscriptionCache = new WeakMap<object, {
+  subscribe: (fn: () => void) => () => void
+  getSnapshot: () => number
+}>()
+
+function useAdmissionRevision(host: SlotRendererHost): number {
+  const source = host.admissionRevision
+  let subscription = admissionSubscriptionCache.get(source)
+  if (subscription === undefined) {
+    subscription = {
+      subscribe: (fn: () => void) => source.subscribe(fn),
+      getSnapshot: () => source.getSnapshot(),
+    }
+    admissionSubscriptionCache.set(source, subscription)
+  }
+  return useSyncExternalStore(subscription.subscribe, subscription.getSnapshot)
+}
+
+/**
  * Entry-identity React keys for entry boundaries. An outlet renders one
  * winner per position (single/keyed/list cell head, chain election) through
  * an error boundary; without a key, a boundary that failed on entry A would
@@ -1077,6 +1101,9 @@ function SlotOutlet({ slotKey, ownerProps, opts }: {
   // Locale revision tick: a locale switch re-renders every outlet, and entry
   // bodies re-derive their `t` seat at the new revision (fresh identity).
   useLocaleRevision(host.locale)
+  // Admission revision tick: an audience flip re-renders every outlet; the
+  // entries reads in renderOutletContent then apply the gate's current filter.
+  useAdmissionRevision(host)
   const scopeBinding = useScopeBinding()
   // Anchor contract: every slot render site exposes a stable
   // `[data-slot="<key>"]` wrapper — the addressable seam dynamic styles
@@ -1279,6 +1306,7 @@ function RootOutlet({ ownerProps }: { ownerProps: object }) {
     () => host.getVersion('root'),
   )
   useLocaleRevision(host.locale)
+  useAdmissionRevision(host)
   const entry = host.entriesOfSlot('root')[0]
   // Set once a commit actually rendered an occupant, so the throw below stays
   // limited to a fresh render: an outlet React mounted after a concurrent

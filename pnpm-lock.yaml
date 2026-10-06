@@ -4093,6 +4093,9 @@ importers:
       '@qilin/client-ui-slots':
         specifier: workspace:*
         version: link:../ui-slots
+      '@qilin/client-ui-workbench':
+        specifier: workspace:*
+        version: link:../ui-workbench
       '@qilin/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis

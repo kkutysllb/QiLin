@@ -262,7 +262,6 @@ export interface TrajectoryEventNodeLike {
   outcome?: { kind?: string; text?: string } | null
   retryState?: string
   type?: string
-  provenance?: { role?: string; label?: string | null }
   form?: string | null
   interrupted?: boolean
   timing?: { stepStartTime?: number | null; firstTokenTime?: number | null; completedTime?: number | null }
@@ -519,11 +518,10 @@ function describeEventNode(
       }
     }
     case 'context': {
-      const label = node.provenance?.label ?? node.form ?? 'context'
+      const label = node.form ?? 'context'
       const attachments = attachmentsOfContent(node.content)
       return {
         label: firstLine(label, 40),
-        badge: node.provenance?.role,
         detail: contentText(node.content, 4000),
         ...(attachments.length === 0 ? {} : { attachments }),
       }

@@ -86,12 +86,12 @@ it('lists bundle versions and current-profile plugin targets', async () => {
   expect(await manager.listBundles()).toEqual([
     {
       name: 'core', version: '1.0.0', meta: { title: 'core' }, enabled: true, installed: false, optional: false,
-      updatable: true, removable: false, readOnlyReason: 'management-required',
+      audience: 'both', updatable: true, removable: false, readOnlyReason: 'management-required',
       rows: [{ rowId: 'manager', moduleName: 'cordis:manager', entryId: 'include:manager' }], overrides: [],
     },
     {
       name: 'extra', version: '1.0.0', meta: { title: 'extra' }, enabled: true, installed: true, optional: false,
-      updatable: true, removable: true, source: 'extra@1.0.0',
+      audience: 'both', updatable: true, removable: true, source: 'extra@1.0.0',
       rows: [{ rowId: 'managed', moduleName: pathToFileURL(join(dir, 'node_modules', 'extra', 'plugin.mjs')).href, entryId: 'include:managed' }], overrides: [],
     },
   ])
@@ -177,7 +177,7 @@ it('describes a bundle by its manifest and patch: one-liner, rows without a live
   expect((await manager.listBundles()).find(row => row.name === 'described')).toEqual({
     name: 'described', version: '2.0.0', meta: { title: 'described', description: 'Describes itself.' },
     description: 'Describes itself.', source: 'described@2.0.0', enabled: false, installed: true, optional: false,
-    updatable: true, removable: true,
+    audience: 'both', updatable: true, removable: true,
     rows: [{ rowId: 'described-row', moduleName }], overrides: ['managed'],
   })
   await manager.setBundleEnabled('described', true)
@@ -280,14 +280,14 @@ it('installs only valid bundle declarations and honors installation without acti
     return { exitCode: 0, output: 'installed', truncated: false, logPath: join(dir, 'pnpm.log') }
   })
   onTestFinished(() => { install.mockRestore() })
-  expect(await manager.installBundle('new-bundle', { enabled: false })).toMatchObject({
+  expect(await manager.installBundle('new-bundle', { enabled: false, audience: 'general' })).toMatchObject({
     changed: true, application: 'applied', stage: 'enable', target: 'new-bundle', bundle: 'new-bundle', packageResult: { exitCode: 0 },
   })
-  expect((await manager.listBundles()).find(row => row.name === 'new-bundle')?.enabled).toBe(false)
+  expect((await manager.listBundles()).find(row => row.name === 'new-bundle')).toMatchObject({ enabled: false, audience: 'general' })
   expect(await manager.setBundleEnabled('new-bundle', true)).toMatchObject({ application: 'applied' })
   expect((await manager.listPlugins()).find(row => row.patchId === 'new-bundle')?.fiberPhase).toBe('active')
   expect(await manager.installBundle('another-bundle')).toMatchObject({ application: 'applied' })
-  expect((await manager.listBundles()).find(row => row.name === 'another-bundle')?.enabled).toBe(true)
+  expect((await manager.listBundles()).find(row => row.name === 'another-bundle')).toMatchObject({ enabled: true, audience: 'both' })
 })
 
 it('refreshes runtime package resolution after an install and keeps deselected startup bundles untouched', async () => {
@@ -537,6 +537,37 @@ it('refuses management bundle disablement and permits repeated bundle selections
   const { manager } = await fixture()
   expect(await manager.setBundleEnabled('core', false)).toMatchObject({ application: 'failed', changed: false })
   expect(await manager.setBundleEnabled('extra', true)).toMatchObject({ application: 'applied', changed: false })
+})
+
+it('records one bundle\'s audience, refuses unknown and shipped names, and drops the record on removal', async () => {
+  const { manager, dir } = await fixture('live', false, undefined, {}, undefined, undefined, 'web')
+  // The record lands in the manifest and reads back through listBundles.
+  expect(await manager.setAudience('extra', 'coding')).toMatchObject({ changed: true, application: 'applied' })
+  expect((await manager.listBundles()).find(row => row.name === 'extra')).toMatchObject({ audience: 'coding' })
+  expect(readProfileManifest('web', dir).qilin?.profile?.audiences).toEqual({ extra: 'coding' })
+  // An equal record persists nothing.
+  expect(await manager.setAudience('extra', 'coding')).toMatchObject({ changed: false })
+  // A name the profile neither selects nor installs is unknown.
+  expect(await manager.setAudience('ghost', 'coding')).toMatchObject({ application: 'failed', error: { code: 'unknown-plugin' } })
+  // A shipped layer moves with the installation and takes no audience.
+  const manifest = readProfileManifest('web', dir)
+  manifest.qilin = { profile: { bundles: ['core', 'extra', '@qilin/web-app'], audiences: { extra: 'coding' } } }
+  writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+  expect(await manager.setAudience('@qilin/web-app', 'coding'))
+    .toMatchObject({ application: 'failed', error: { code: 'shipped-layer' } })
+  // Removing the bundle drops its audience record with the rest of its bookkeeping.
+  // Its running plugin is switched off first, the way a live unload makes room for pnpm.
+  const managed = (await manager.listPlugins()).find(row => row.patchId === 'managed')!.entryId
+  await manager.setPluginEnabled(managed, false)
+  const remove = vi.spyOn(operations, 'runProfilePnpm').mockImplementation(async () => {
+    const after = readProfileManifest('web', dir)
+    delete after.dependencies?.extra
+    writeFileSync(join(dir, 'package.json'), JSON.stringify(after))
+    return { exitCode: 0, output: '', truncated: false, logPath: '/operation.log' }
+  })
+  onTestFinished(() => { remove.mockRestore() })
+  expect(await manager.removeBundle('extra')).toMatchObject({ application: 'applied' })
+  expect(readProfileManifest('web', dir).qilin?.profile?.audiences).toEqual({})
 })
 
 it.each([
@@ -927,7 +958,7 @@ it('offers the launcher\'s optional bundles switched off and never removable', a
   expect((await manager.listBundles()).find(row => row.name === offered)).toEqual({
     name: offered, version: '3.0.0', meta: { title: offered, description: 'Package one-liner.' },
     description: 'Package one-liner.',
-    enabled: false, installed: false, optional: true, updatable: true, removable: false,
+    audience: 'both', enabled: false, installed: false, optional: true, updatable: true, removable: false,
     rows: [{ rowId: 'offered-row', moduleName: pathToFileURL(join(supplied, 'plugin.mjs')).href }], overrides: [],
   })
   expect(await manager.setBundleEnabled(offered, true)).toMatchObject({ application: 'applied' })

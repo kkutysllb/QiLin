@@ -9,8 +9,8 @@
   en: bb80f2c7472d0a8b
   zh: 87416a2ea32b10ea
 /qilin-client-ui-plugin-manager/summary:
-  en: 8966a6b56fd040fc
-  zh: e3e185d60e067ddd
+  en: a1cd7addf29b7284
+  zh: 09310ec52505b20c
 /qilin-client-ui-plugin-manager/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
@@ -29,6 +29,9 @@
 /qilin-client-ui-plugin-manager/use-this-package/switching-a-bundle:
   en: 279838622081072a
   zh: 54e0f0ebdab900c6
+/qilin-client-ui-plugin-manager/use-this-package/choosing-where-a-bundle-presents:
+  en: 09c9c59e6e7c0869
+  zh: c2ba528aa9b5516c
 /qilin-client-ui-plugin-manager/use-this-package/switching-one-row-of-a-bundle:
   en: 7345e211e194ff2f
   zh: 18530372079ad57c
@@ -44,6 +47,9 @@
 /qilin-client-ui-plugin-manager/understand-the-implementation/the-store:
   en: 2879e07b9d04eea4
   zh: 3174ca681c42ac6a
+/qilin-client-ui-plugin-manager/understand-the-implementation/the-audience-gate:
+  en: 3c4ff575025266a5
+  zh: 7a7a91224fa4afd7
 /qilin-client-ui-plugin-manager/understand-the-implementation/configuration-slots:
   en: e63fbf2c954feee1
   zh: 7b82cf5c32c69f86

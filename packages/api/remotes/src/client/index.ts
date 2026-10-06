@@ -33,7 +33,8 @@ export type { ClientRemote } from '@qilin/api-gateway/client'
 export type {
   BundleInfo, BundleRowInfo, ChangeResult, CommunityPluginEntry, CommunityPluginSnapshot, IncompatiblePlugin,
   InstallBundleOptions, InstallSpecKind,
-  ManagementError, PackageResult, PluginChange, PluginEntryId, PluginInfo, PluginInspectProblem, PluginInstallCancellation,
+  ManagementError, PackageResult, PluginAudience, PluginChange, PluginEntryId, PluginInfo, PluginInspectProblem,
+  PluginInstallCancellation,
   PluginInstallFailureKind, PluginInstallLogChunk, PluginInstallProgress, PluginInstallRequestId, PluginRegistries, PluginSpecInspection,
   PluginUpdateEntry, PluginUpdateSnapshot, ReadOnlyReason, Registry,
 } from '@qilin/plugin-manager/types'

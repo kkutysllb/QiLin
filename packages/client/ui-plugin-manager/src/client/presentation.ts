@@ -85,6 +85,7 @@ const FAILED_KEYS = {
   rowEnable: 'failedRowEnable',
   rowDisable: 'failedRowDisable',
   update: 'failedUpdate',
+  audience: 'failedAudience',
 } satisfies Record<FailedAction, PluginManagerLocaleKey>
 
 /**

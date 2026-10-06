@@ -1475,3 +1475,64 @@
   height: 32px;
   border-radius: var(--dsw-radius-md);
 }
+
+/* The workbench-audience trio, shared by the install dialog's spec screen and a bundle's page. */
+.audience {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 8px 10px;
+  border: 0.5px solid var(--dsw-alias-border-l3);
+  border-radius: var(--dsw-radius-lg);
+  background: var(--dsw-alias-bg-layer-2);
+  min-width: 0;
+}
+
+.audienceLegend {
+  flex-basis: 100%;
+  padding: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.audienceOption {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 0.5px solid transparent;
+  border-radius: var(--dsw-radius-md);
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-primary);
+  cursor: pointer;
+}
+
+.audienceOption[data-checked='true'] {
+  border-color: color-mix(in srgb, var(--dsw-alias-brand-primary) 40%, transparent);
+  background: var(--dsw-alias-bg-layer-3);
+}
+
+.audienceOption input[type='radio'] {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: var(--dsw-alias-brand-primary);
+}
+
+.audienceOption input[type='radio']:disabled {
+  cursor: default;
+}
+
+.audienceHint {
+  flex-basis: 100%;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-tertiary);
+  overflow-wrap: anywhere;
+}

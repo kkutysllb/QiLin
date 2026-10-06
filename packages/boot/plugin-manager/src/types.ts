@@ -3,7 +3,10 @@ import type { Branded } from '@qilin/brand'
 import type { PluginInventoryEntry } from '@qilin/host-plugin-inventory/types'
 export type { PluginEntryId } from '@qilin/host-plugin-inventory/types'
 import type { PluginEntryId } from '@qilin/host-plugin-inventory/types'
-import type { PluginLocalizedMeta } from '@qilin/package-manifest'
+import type { PluginLocalizedMeta, QilinProfileAudience } from '@qilin/package-manifest'
+
+/** The workbench surfaces a bundle's UI presents on; the engine composition is presentation-independent. */
+export type PluginAudience = QilinProfileAudience
 
 /** Reasons a profile control cannot modify its target. */
 export type ReadOnlyReason = 'management-required' | 'unaddressable' | 'shipped-layer'
@@ -68,6 +71,8 @@ export interface BundleInfo {
    */
   updatable: boolean
   removable: boolean
+  /** Which workbench surfaces present this bundle's UI; the profile's audience record, `both` when it names none. */
+  audience: PluginAudience
   readOnlyReason?: ReadOnlyReason
   error?: ManagementError
   /** The rows the bundle's patch inserts, in declaration order; empty when the patch cannot be read. */
@@ -148,6 +153,8 @@ export type PluginInstallRequestId = Branded<'PluginInstallRequestId'>
 /** Bundle installation defaults to activation; callers that offer cancellation supply their request id. */
 export interface InstallBundleOptions {
   enabled?: boolean
+  /** Which workbench surfaces present the bundle's UI; `both` when absent. Presentation-only either way. */
+  audience?: PluginAudience
   requestId?: PluginInstallRequestId
   /** Explicitly allow these pending packages' scripts for this profile, then install; a name no longer pending refuses the call. */
   approvedBuilds?: string[]

@@ -265,6 +265,30 @@ describe('kind semantics', () => {
     expect(core.entries('test.single')).toHaveLength(0)
     expect(() => core.register({ name: 'test.single' }, Comp)).not.toThrow()
   })
+
+  it('entriesOfSlot admit: declined entries skip election and the chain pass; raw views keep them', () => {
+    const core = new SlotCore()
+    mountFrame(core)
+    // single: the declined head shadows at the lower priority; admission falls the cell back.
+    core.register({ name: 'test.single', priority: 0, registrant: 'kept' }, Comp)
+    core.register({ name: 'test.single', priority: -1, registrant: 'gone' }, Comp)
+    core.register({ name: 'test.keyed', key: 'gone', registrant: 'gone' }, Comp)
+    core.register({ name: 'test.keyed', key: 'kept', registrant: 'kept' }, Comp)
+    core.register({ name: 'test.list', id: 'gone', registrant: 'gone' }, Comp)
+    core.register({ name: 'test.list', id: 'kept', registrant: 'kept' }, Comp)
+    core.register({ name: 'test.chain', select: () => 'x', priority: -1, registrant: 'gone' }, Comp as never)
+    core.register({ name: 'test.chain', select: () => null, registrant: 'kept' }, Comp as never)
+    const admit = (entry: { registrant?: string | undefined }) => entry.registrant !== 'gone'
+    expect(core.entriesOfSlot('test.single', admit).map(e => e.registrant)).toEqual(['kept'])
+    expect(core.entriesOfSlot('test.keyed', admit).map(e => e.options.key)).toEqual(['kept'])
+    expect(core.entriesOfSlot('test.list', admit).map(e => e.options.id)).toEqual(['kept'])
+    expect(core.entriesOfSlot('test.chain', admit).map(e => e.registrant)).toEqual(['kept'])
+    // Raw election keeps the declined head as the single cell's winner — which is
+    // exactly the head the admitted projection demotes.
+    expect(core.entriesOfSlot('test.single').map(e => e.registrant)).toEqual(['gone'])
+    expect(core.entriesOfSlot('test.chain')).toHaveLength(2)
+    expect(core.entries('test.list')).toHaveLength(2)
+  })
 })
 
 describe('store scope pinning', () => {

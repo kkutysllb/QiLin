@@ -58,7 +58,16 @@ export interface QilinBundleManifest {
 export interface QilinProfileManifest {
   /** Ordered bundle layer list, using installed package names. */
   bundles?: string[]
+  /**
+   * Which workbench surface presents each bundle's UI, keyed by package name;
+   * a name the record omits reads as `both`. Presentation-only: the engine
+   * composition keeps every bundle regardless of the value.
+   */
+  audiences?: Record<string, QilinProfileAudience>
 }
+
+/** The workbench surfaces a bundle's UI presents on; the engine composition is presentation-independent. */
+export type QilinProfileAudience = 'general' | 'coding' | 'both'
 
 /** Literal text or translations indexed by lowercase language id, with a required English fallback. */
 export type LocalizedText = string | { readonly en: string; readonly [locale: string]: string }

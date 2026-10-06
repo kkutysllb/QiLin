@@ -15,7 +15,7 @@ export { SlotRegistry } from './registry.ts'
 export type { RootOwnerProps } from './registry.ts'
 
 export type {
-  ChainRenderOpts, HostObservable, RenderOpts, SnapshotSelectorHook, SlotRenderer,
+  ChainRenderOpts, HostObservable, RenderOpts, SnapshotSelectorHook, SlotAdmissionGate, SlotRenderer,
   ScopedStandardSourceBinding, SlotRendererHost, SlotScopeAdapter,
   StandardSourceBinding, StoreInstanceLike,
 } from '@qilin/client-ui-slots'

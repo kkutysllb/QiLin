@@ -230,7 +230,7 @@ function isRevision(value: unknown): value is number {
  * is rebuilt field by field, so unknown extra keys in the stored object are
  * dropped instead of being re-persisted.
  *
- * @param value - the persisted `tab.meta` (unknown provenance).
+ * @param value - the persisted `tab.meta`, read back without a schema.
  * @returns a clean state, or undefined when the snapshot cannot be trusted.
  */
 export function restoreBrowserTabState(value: unknown): BrowserTabState | undefined {

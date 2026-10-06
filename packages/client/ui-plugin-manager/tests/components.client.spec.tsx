@@ -27,6 +27,7 @@ function pkg(overrides: Partial<PackageView> = {}): PackageView {
     version: '0.16.0',
     installed: true,
     optional: false,
+    audience: 'both',
     updatable: true,
     enabled: true,
     rows: [],
@@ -45,7 +46,7 @@ const incompatibleText = (name = INCOMPATIBLE.name): string => en.reasonIncompat
 
 const IDLE_INSTALL: InstallState = {
   open: false, spec: '', phase: 'idle', registries: null, registry: { kind: 'offered', registry: null }, registryOpen: false,
-  registryError: false, attempts: null, inputError: null, subject: null, runs: [], detailsOpen: false,
+  registryError: false, audience: 'both', attempts: null, inputError: null, subject: null, runs: [], detailsOpen: false,
   installed: null, installedVersion: null, restartRequired: false, failure: null, approvedBuilds: [], enabling: false,
 }
 
@@ -595,9 +596,9 @@ describe('PluginManagerPage', () => {
   it('names where a bundle comes from, built in for one whose copy the installation supplies, and nothing for a missing one', () => {
     renderTab({ packages: [
       pkg({ source: 'github:someone/dsh-better-sidebar' }),
-      { name: 'qilin-official', installed: false, optional: true, enabled: false, updatable: false, rows: [] },
-      { name: 'qilin-shadowed', installed: true, optional: false, enabled: true, updatable: false, rows: [] },
-      { name: 'qilin-missing', installed: false, optional: false, enabled: true, updatable: false, error: { code: 'unknown-plugin' }, rows: [] },
+      { name: 'qilin-official', installed: false, optional: true, enabled: false, audience: 'both', updatable: false, rows: [] },
+      { name: 'qilin-shadowed', installed: true, optional: false, enabled: true, audience: 'both', updatable: false, rows: [] },
+      { name: 'qilin-missing', installed: false, optional: false, enabled: true, audience: 'both', updatable: false, error: { code: 'unknown-plugin' }, rows: [] },
     ] })
     const facts = (): string[] => [...document.querySelectorAll('[data-plugin-source] dt, [data-plugin-source] dd')].map(node => node.textContent)
     const back = (): void => { fireEvent.click(screen.getByRole('button', { name: en.backToList })) }

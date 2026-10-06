@@ -5,7 +5,9 @@
  * needs a live application: the 'slots/changed' event bridge, register and
  * declaration injection through the caller's ctx.effect (fiber unload
  * collects both), the renderer installation contract (install()/renderSlot('root') +
- * the SlotRendererHost face), and the store INSTANCE axis — handle x scope
+ * the SlotRendererHost face), the presentation gate the host face applies to
+ * its render-entry reads (installAdmission; inspection surfaces stay
+ * unfiltered), and the store INSTANCE axis — handle x scope
  * key -> create/cache, dropped with the last holding entry, and in-memory
  * session instances released without clearing persisted state on scope death.
  */
@@ -18,10 +20,11 @@ import { Service } from '@qilin/kylin'
 import type { Context } from '@qilin/kylin'
 import { SlotCore, StaleAuthorizationError, standardHookPropName } from '@qilin/client-ui-slots'
 import type {
-  HostObservable, LiveCompositionNode, LocaleFace, OwnerOf, RegisterFactory, SlotEntryDef, SlotMap, SlotRenderer, SlotRendererHost,
+  HostObservable, LiveCompositionNode, LocaleFace, OwnerOf, RegisterFactory, SlotAdmissionGate, SlotEntryDef, SlotMap,
+  SlotRenderer, SlotRendererHost,
   RootStandardSourceContribution, ScopedStandardSourceBinding, SlotScope, SlotScopeAdapter, SlotSpec,
-  StandardSourceBinding, StoredFactory,
-  StoreDecl, StoreFactory, StoredEntry, StoreInstanceLike,
+  StandardSourceBinding, StoredEntry, StoreDecl, StoreFactory, StoredFactory,
+  StoreInstanceLike,
 } from '@qilin/client-ui-slots'
 import { SlotAssemblyError } from './errors.ts'
 
@@ -56,6 +59,12 @@ type EngineStoreHandle = Exclude<StoreDecl, StoreFactory>
 
 /** Canonical engine instance derived from the handle's create contract. */
 type EngineStoreInstance = ReturnType<EngineStoreHandle['create']>
+
+/** Constant admission revision while no gate is installed (stable module-level source). */
+const NO_ADMISSION_REVISION: HostObservable<number> = {
+  getSnapshot: () => 0,
+  subscribe: () => () => {},
+}
 
 /** Store axis record: one per live handle, dropped when the last holding entry unloads. */
 interface StoreAxisRecord {
@@ -128,6 +137,7 @@ export class SlotRegistry extends Service {
   private readonly _storeScopeOwners = new Map<string, Context>()
   private _renderer: SlotRenderer | undefined
   private _locale: LocaleFace | undefined
+  private _admission: SlotAdmissionGate | undefined
   private _host: SlotRendererHost | undefined
   private readonly _rootContributions: RootStandardSourceContribution[] = []
   private readonly _rootListeners = new Set<() => void>()
@@ -306,6 +316,24 @@ export class SlotRegistry extends Service {
   }
 
   /**
+   * Install the presentation gate shaping the host face's render-entry reads
+   * ({@link SlotAdmissionGate}; same boot-once discipline as
+   * {@link SlotRegistry.installLocale}). Without a gate every registered
+   * entry presents. Inspection surfaces (`entries`, `snapshot`) stay
+   * unfiltered regardless.
+   * @param gate - the registrant classifier and its revision source.
+   */
+  installAdmission(gate: SlotAdmissionGate): void {
+    if (this._admission !== undefined) throw new Error('admission gate already installed (installAdmission() is boot-once)')
+    this.ctx.effect(() => {
+      this._admission = gate
+      return () => {
+        if (this._admission === gate) this._admission = undefined
+      }
+    }, 'slots.installAdmission()')
+  }
+
+  /**
    * Contribute domain-owned root data. Hook names must be globally unique;
    * registration and disposal republish one atomic root binding.
    * @param contribution - bare sources and stable props.
@@ -479,7 +507,7 @@ export class SlotRegistry extends Service {
     // handle so the stored entry always carries a resolvable handle (the
     // core's shared-handle scope pinning applies to it harmlessly).
     const store = typeof options.store === 'function' ? options.store() : options.store
-    const registrant = options.registrant ?? (this.ctx.fiber as { name?: string } | undefined)?.name
+    const registrant = options.registrant ?? registrantOf(this.ctx.fiber)
     const erased: ErasedRegisterOptions = {
       ...options,
       ...(store !== undefined ? { store } : {}),
@@ -503,7 +531,7 @@ export class SlotRegistry extends Service {
   }
 
   private _registerFactory(options: ErasedFactoryOptions, component: unknown): () => void {
-    const registrant = (this.ctx.fiber as { name?: string } | undefined)?.name
+    const registrant = registrantOf(this.ctx.fiber)
     const erased = {
       ...options,
       ...(registrant === undefined ? {} : { registrant }),
@@ -543,8 +571,8 @@ export class SlotRegistry extends Service {
     this._host = {
       subscribe: (key, fn) => this._core.subscribe(key, fn),
       getVersion: key => this._core.getVersion(key),
-      entriesOf: key => this._core.entries(key),
-      entriesOfSlot: key => this._core.entriesOfSlot(key),
+      entriesOf: key => this.admittedEntries(this._core.entries(key)),
+      entriesOfSlot: key => this._core.entriesOfSlot(key, this.admissionPredicate()),
       reportEntryError: (key, entry, error, info) => { this._core.reportEntryError(key, entry, error, info) },
       reportFactoryError: (name, registration, error) => { this._core.reportFactoryError(name, registration, error) },
       specOf: key => this._core.specDynamic(key),
@@ -563,10 +591,23 @@ export class SlotRegistry extends Service {
       isFactoryLive: definition => this._core.isFactoryLive(definition),
       root: this._rootSource,
       scopeRevision: this._scopeRevisionSource,
+      get admissionRevision() { return service._admission?.revision ?? NO_ADMISSION_REVISION },
       scope: scope => service._scopes.get(scope === 'session-maybe' ? 'session' : scope),
       get locale() { return service._locale },
     }
     return this._host
+  }
+
+  /** The admitted view of one entry list: the gate's filter, or the list itself. */
+  private admittedEntries(entries: readonly StoredEntry[]): readonly StoredEntry[] {
+    const admit = this.admissionPredicate()
+    return admit === undefined ? entries : entries.filter(admit)
+  }
+
+  /** The gate's registrant classifier, or undefined while no gate is installed. */
+  private admissionPredicate(): ((entry: StoredEntry) => boolean) | undefined {
+    const gate = this._admission
+    return gate === undefined ? undefined : entry => gate.admit(entry.registrant)
   }
 
   /** Validate and atomically publish the current root contribution roster. */
@@ -732,6 +773,16 @@ function copyUnique<T>(
     finalProps.add(propName)
     target[name] = value
   }
+}
+
+/** The caller identity a registration stamps when none is given: the owning
+ * Loader entry's module name — the bundle's package name for both host and
+ * browser client-module plugins — falling back to the fiber's inherited
+ * display name. An entry plugin is a nameless `{ apply }` object, so
+ * `fiber.name` alone inherits an unrelated ancestor's name. */
+function registrantOf(fiber: unknown): string | undefined {
+  const record = fiber as { name?: string; entry?: { options?: { name?: string } } } | undefined
+  return record?.entry?.options?.name ?? record?.name
 }
 
 // register's implementation (prototype assignment pairs with the `declare`

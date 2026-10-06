@@ -104,7 +104,7 @@ One source tree builds four artifact families: `lib/index.js` plus `lib/invarian
 
 Browser sourcemaps rebase lib-relative sources back onto the package's `../src` tree, so an editor lands on source instead of build output. The build-time purity gate fails any Node builtin or non-inline-safe `@qilin/*` value import in a browser face — cross-plugin collaboration goes through cordis services, and type-only imports are erased before the gate sees them.
 
-#### Port provenance
+#### Port source
 
 Ported from dsh-coding-sidebar 1.0.39 (MIT; the KCoder fork of DSH-better-sidebar): specifiers and identity rewritten to `@qilin/client-*`, the body-level self-mount replaced by the `rightbar.session.coding` slot registration, and the settings takeover plus nav-icon marker deleted (D11), leaving the declarative Side card section as the only settings face.
 

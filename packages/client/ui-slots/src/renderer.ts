@@ -114,6 +114,28 @@ export interface RootStandardSourceContribution {
   readonly props?: Readonly<Record<string, unknown>>
 }
 
+/**
+ * Presentation gate over the host face's render-entry reads: an entry whose
+ * registrant the gate declines renders as if unregistered (shadowing cells
+ * fall to their next survivor, empty cells take the owner fallback), while
+ * the inspection surfaces (`SlotRegistry.entries`, `snapshot`) stay
+ * unfiltered. Composition-neutral: the gate classifies registrants by any
+ * rule it owns; the machinery only asks. Installed by one plugin through the
+ * `ui-renderer` SlotRegistry, same effect lifetime and boot-once discipline
+ * as the locale face.
+ */
+export interface SlotAdmissionGate {
+  /**
+   * Classify one entry's registrant.
+   * @param registrant - the entry's registrant stamp (its plugin package name),
+   * or undefined when the registration carries none.
+   * @returns whether the entry presents.
+   */
+  admit(registrant: string | undefined): boolean
+  /** Monotonic source bumping whenever the admitted set may have changed. */
+  readonly revision: HostObservable<number>
+}
+
 /** renderSlot dispatch options at the machinery level. */
 export interface RenderOpts {
   entryKey?: string
@@ -140,6 +162,8 @@ export interface SlotRendererHost {
   getVersion(key: string): number
   /**
    * Snapshot the registered entries for a key (stable reference between mutations).
+   * The installed admission gate, if any, shapes this view: declined entries
+   * read as unregistered to the render machinery.
    * @param key - slot key.
    * @returns entries in registration (list: order) sequence.
    */
@@ -148,8 +172,9 @@ export interface SlotRendererHost {
    * Shadowing winners per cell for a key — the render read for single/keyed/
    * list dispatch: the first live (non-abdicated) entry of each cell in
    * priority order; chain keys pass through unchanged (election consumes
-   * every entry). Fresh array per call — a render-body read, not a uSES
-   * getSnapshot source.
+   * every entry). Election and the chain pass run over the admitted entries
+   * only, so a declined head falls its cell to the next survivor. Fresh array
+   * per call — a render-body read, not a uSES getSnapshot source.
    * @param key - slot key.
    * @returns the winning entry per occupied cell.
    */
@@ -241,6 +266,11 @@ export interface SlotRendererHost {
   readonly root: HostObservable<StandardSourceBinding>
   /** Monotonic source updated whenever the installed scope-adapter roster changes. */
   readonly scopeRevision: HostObservable<number>
+  /**
+   * Monotonic source updated whenever the installed admission gate changes
+   * what it admits; a constant zero while no gate is installed.
+   */
+  readonly admissionRevision: HostObservable<number>
   /**
    * Resolve the adapter installed for one non-root scope.
    * `session` and `session-maybe` intentionally resolve the same adapter.

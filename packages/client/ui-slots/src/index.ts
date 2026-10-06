@@ -1387,21 +1387,25 @@ export class SlotCore {
    * is one cell; keyed: one cell per `key`; list: one cell per `id` (winners
    * keep ledger sequence; list renderers still refine display by `order`).
    * Chain keys return the raw entries unchanged: election consumes every
-   * entry, shadowing does not apply. The raw {@link SlotCore.entries} view
-   * stays the inspection surface. Builds a fresh array per call — a render
-   * body read, not a uSES getSnapshot source.
+   * entry, shadowing does not apply. An `admit` predicate drops entries from
+   * both passes before they count, so a declined head falls its cell to the
+   * next survivor and a declined chain entry never elects. The raw
+   * {@link SlotCore.entries} view stays the inspection surface. Builds a
+   * fresh array per call — a render body read, not a uSES getSnapshot source.
    * @param key - slot key (dynamic: the render machinery holds keys as strings).
+   * @param admit - presentation predicate; an entry it declines is invisible to this projection.
    * @returns the winning entry per occupied cell (empty while undeclared).
    */
-  entriesOfSlot(key: string): readonly StoredEntry[] {
+  entriesOfSlot(key: string, admit?: (entry: StoredEntry) => boolean): readonly StoredEntry[] {
     const rec = this.records.get(key)
     if (!rec?.spec) return NO_ENTRIES
     const kind = rec.spec.kind
-    if (kind === 'chain') return rec.entries
+    if (kind === 'chain') return admit === undefined ? rec.entries : rec.entries.filter(admit)
     const heads: StoredEntry[] = []
     const seenCells = new Set<string | undefined>()
     for (const entry of rec.entries) {
       if (this.abdicated.has(entry)) continue
+      if (admit !== undefined && !admit(entry)) continue
       // Single-kind entries all share the one undefined cell.
       const cell = kind === 'keyed' ? entry.options.key : kind === 'list' ? entry.options.id : undefined
       if (seenCells.has(cell)) continue

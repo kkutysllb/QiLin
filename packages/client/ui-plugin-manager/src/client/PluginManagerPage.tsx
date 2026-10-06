@@ -10,7 +10,7 @@
  */
 
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
-import type { PluginInstallFailureKind, Registry } from '@qilin/api-remotes/client'
+import type { PluginAudience, PluginInstallFailureKind, Registry } from '@qilin/api-remotes/client'
 import type { ConfigPageForm } from './slot-contract.ts'
 import {
   Button, IconCheckOutline16, IconChevronDownOutline14, IconChevronLeftOutline14, IconChevronRightOutline14, IconCloseOutline16,
@@ -38,6 +38,9 @@ export type PluginManagerPageProps =
   & PropsLocale<'pluginManager'>
   & PropsRenderSlots<'plugins.item' | 'plugins.bundle.activation' | 'plugins.bundle.config' | 'plugins.row.config' | 'plugins.add.actions'>
   & InjectFace<PluginManagerFace>
+
+/** The audience choices the detail page and the install dialog offer, in display order. */
+const AUDIENCES: readonly PluginAudience[] = ['general', 'coding', 'both']
 
 /** The page's slot renderer, narrowed to the configuration slots. */
 type RenderConfig = PluginManagerPageProps['renderSlot']
@@ -384,6 +387,9 @@ function PackageCard({ pkg, t, resolveText, busy, highlighted, onOpen, onSetEnab
           <>
             {beta ? <Tag className={css.statusTag} tone="info">{t('statusBeta')}</Tag> : null}
             {status === 'problem' ? <Tag className={css.statusTag} tone="danger">{t('statusProblem')}</Tag> : null}
+            {pkg.audience === 'both'
+              ? null
+              : <Tag className={css.statusTag} tone="neutral">{t(pkg.audience === 'coding' ? 'audienceTagCoding' : 'audienceTagGeneral')}</Tag>}
           </>
         )}
         description={description}
@@ -506,7 +512,7 @@ function SourceSection({ pkg, t }: { readonly pkg: PackageView; readonly t: Tran
  */
 function PackageDetail({
   pkg, t, resolveText, busy, rowBusy, configured, configure, renderSlot,
-  onBack, onSetEnabled, onUninstall, onSetRowEnabled,
+  onBack, onSetEnabled, onUninstall, onSetRowEnabled, onSetAudience,
 }: {
   readonly pkg: PackageView
   readonly t: Translate
@@ -522,9 +528,11 @@ function PackageDetail({
   readonly onSetEnabled: (enabled: boolean) => void
   readonly onUninstall: () => void
   readonly onSetRowEnabled: (row: PackageRow, enabled: boolean) => void
+  readonly onSetAudience: (audience: PluginAudience) => void
 }): ReactNode {
   const { title, description, beta } = packageText(pkg, t, resolveText)
   const status = packageStatus(pkg)
+  const audienceId = useId()
   return (
     <div className={css.detail} data-plugin-detail={pkg.name}>
       <DetailTop
@@ -564,6 +572,26 @@ function PackageDetail({
       </div>
       {pkg.error === undefined ? null : <p className={css.reason} role="status">{t('reasonLabel')}: {managementText(pkg.error, t)}</p>}
       {pkg.readOnlyReason === undefined ? null : <p className={css.reason} role="status">{managementText({ code: pkg.readOnlyReason }, t)}</p>}
+      <fieldset className={css.audience} data-plugin-audience aria-label={t('audienceLabel')}>
+        <legend className={css.audienceLegend}>{t('audienceLabel')}</legend>
+        {AUDIENCES.map((audience) => {
+          const checked = pkg.audience === audience
+          return (
+            <label key={audience} className={css.audienceOption} data-checked={checked}>
+              <input
+                type="radio"
+                name={audienceId}
+                checked={checked}
+                disabled={busy || pkg.readOnlyReason !== undefined}
+                {...pkg.readOnlyReason === undefined ? {} : { title: managementText({ code: pkg.readOnlyReason }, t) }}
+                onChange={() => { onSetAudience(audience) }}
+              />
+              <span>{t(audience === 'coding' ? 'audienceCoding' : audience === 'general' ? 'audienceGeneral' : 'audienceBoth')}</span>
+            </label>
+          )
+        })}
+        <span className={css.audienceHint}>{t('audienceHint')}</span>
+      </fieldset>
       <div className={css.detailSections}>
         {configured
           ? (
@@ -723,7 +751,7 @@ function SubjectCard({ subject, t }: { readonly subject: InstallSubject; readonl
  */
 function InstallDialog({
   install, t, onClose, onEditSpec, onRun, onCancel, onCancelAndClose, onToggleDetails, onEnableNow, onApproveBuilds,
-  onToggleRegistry, onChooseRegistry, onChangeRegistry, onUseGithubMirror,
+  onToggleRegistry, onChooseRegistry, onChangeRegistry, onUseGithubMirror, onChooseAudience,
 }: {
   readonly install: InstallState
   readonly t: Translate
@@ -741,12 +769,14 @@ function InstallDialog({
   /** From the failed screen: back to the spec with the registry options unfolded. */
   readonly onChangeRegistry: () => void
   readonly onUseGithubMirror: () => void
+  readonly onChooseAudience: (audience: PluginAudience) => void
 }): ReactNode {
   const errorId = useId()
   const guideId = useId()
   const approvalId = useId()
   const registryId = useId()
   const registryErrorId = useId()
+  const audienceId = useId()
   const [guideOpen, setGuideOpen] = useState(false)
   const { phase } = install
   if (phase === 'idle' || phase === 'checking') {
@@ -797,6 +827,25 @@ function InstallDialog({
           {inputSentence === null
             ? null
             : <p id={errorId} className={css.inputError} role="alert">{inputSentence}</p>}
+          <fieldset className={css.audience} data-install-audience aria-label={t('audienceLabel')}>
+            <legend className={css.audienceLegend}>{t('audienceLabel')}</legend>
+            {AUDIENCES.map((audience) => {
+              const checked = install.audience === audience
+              return (
+                <label key={audience} className={css.audienceOption} data-checked={checked}>
+                  <input
+                    type="radio"
+                    name={audienceId}
+                    checked={checked}
+                    disabled={checking}
+                    onChange={() => { onChooseAudience(audience) }}
+                  />
+                  <span>{t(audience === 'coding' ? 'audienceCoding' : audience === 'general' ? 'audienceGeneral' : 'audienceBoth')}</span>
+                </label>
+              )
+            })}
+            <span className={css.audienceHint}>{t('audienceHint')}</span>
+          </fieldset>
           <div className={css.optionsRow}>
             <button
               type="button"
@@ -1400,6 +1449,7 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
             onBack={() => { setView({ kind: 'list' }) }}
             onSetEnabled={(enabled) => { props.setEnabled(openPkg.name, enabled) }}
             onUninstall={() => { props.uninstall(openPkg.name) }}
+            onSetAudience={(audience) => { props.setAudience(openPkg.name, audience) }}
             onSetRowEnabled={setRowEnabled}
           />
         )
@@ -1450,6 +1500,7 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
         onChooseRegistry={props.chooseRegistry}
         onChangeRegistry={props.changeRegistry}
         onUseGithubMirror={props.useGithubMirror}
+        onChooseAudience={props.chooseAudience}
       />
       {state.confirm === null
         ? null

@@ -6,6 +6,7 @@ import { LocaleRuntime } from '@qilin/client-locale/client'
 import { SlotRegistry } from '@qilin/client-ui-renderer/client'
 import { resolveSlotLabel } from '@qilin/client-ui-slots'
 import { TestRemote, usePinnedBrowserLanguages } from '@qilin/client-test-runtime'
+import { createSnapshotStore } from '@qilin/client-store'
 import { apply, inject, NS, PANEL_ID, TAB_ID } from '../src/client/index.ts'
 import { PluginManagerPage } from '../src/client/PluginManagerPage.tsx'
 import { PluginsPanelIcon } from '../src/client/PluginsPanelIcon.tsx'
@@ -25,6 +26,10 @@ async function bench() {
     }
   }
   new LocaleHolder(ctx)
+  // The workbench tag the audience presentation gate reads.
+  ctx.provide('workbench', {
+    state: createSnapshotStore({ active: 'general', presets: { general: 'standard', coding: 'ptc' } }),
+  })
   // The shared configuration forms the page hands a contributed page; nothing is served here.
   ctx.provide('configForms', {
     describe: () => ({ getSnapshot: () => ({ view: undefined }), subscribe: () => () => {} }),
@@ -95,10 +100,11 @@ describe('ui-plugin-manager browser plugin', () => {
   it('declares only the services the page, its Remote methods, and the shared configuration forms use', () => {
     expect(inject).toEqual([
       'slots', 'locale', 'remote', 'remote.pluginManager', 'remote.pluginInventory', 'remote.pluginRegistryProbe', 'configForms',
+      'workbench',
     ])
   })
 
-  it('registers the management tab, which reads the Host only once rendered and follows Host changes', async () => {
+  it('registers the management tab, arms the boot read for the audience gate, and follows Host changes', async () => {
     const b = await bench()
     declare(b.slots)
     const fiber = b.ctx.plugin({ inject: [...inject], apply })
@@ -116,18 +122,18 @@ describe('ui-plugin-manager browser plugin', () => {
     expect(b.slots.spec('plugins.row.config')).toMatchObject({ kind: 'keyed', scope: 'root' })
     const face = (entry.inject as unknown as () => PluginManagerFace)()
     expect(face.hooks.configLedger.getSnapshot()).toEqual({ items: [], bundles: new Set(), rows: new Set() })
-    // A Host change before the first render is not a reason to read.
-    b.remote.emit('plugin-manager/changed', [{ reason: 'install' }])
-    b.ctx.emit('connection/reset')
-    await Promise.resolve()
-    expect(b.list).not.toHaveBeenCalled()
-    face.ensure()
+    // The boot read arms the audience gate before the page is ever opened.
     await vi.waitFor(() => { expect(face.hooks.pluginManager.getSnapshot().status).toBe('ready') })
     expect(b.list).toHaveBeenCalledTimes(1)
+    // A Host change and a reconnect each read again.
     b.remote.emit('plugin-manager/changed', [{ reason: 'bundle' }])
     await vi.waitFor(() => { expect(b.list).toHaveBeenCalledTimes(2) })
     b.ctx.emit('connection/reset')
     await vi.waitFor(() => { expect(b.list).toHaveBeenCalledTimes(3) })
+    // Rendering the page adds no read while the cache is fresh.
+    face.ensure()
+    await Promise.resolve()
+    expect(b.list).toHaveBeenCalledTimes(3)
 
     // Install output folds into an open run only.
     face.openInstall()
