@@ -1,8 +1,10 @@
-/* 3.1.x read-compat aliases: dsh-era plugin stylesheets read the token
-   vocabulary under its previous `--dsw-` names. Each alias resolves to the
-   live token, so their themed surfaces keep following palette, brand, and
-   settings changes. Drop this sheet once the plugin channel no longer
-   ships `--dsw-` readers (agreed sunset: the 3.1.x line).
+/* Read-compat aliases for the DSH plugin ecosystem, which QiLin installs and
+   runs by design: dsh-era plugin stylesheets read the token vocabulary under
+   its previous `--dsw-` names. Each alias resolves to the live token, so their
+   themed surfaces keep following palette, brand, and settings changes. The
+   sheet retires only when the plugin channel no longer ships `--dsw-` readers
+   — audit with `grep -rhoE -- '--dsw-[a-z0-9-]+' <plugin-dirs>` against the
+   installed estates before dropping.
 
    Statically composed names only; no dynamically composed token has a
    stable name to alias. The block sits on body beside the palette it
