@@ -3,7 +3,7 @@
  * tsdown config, QiLin-channel adapted). Four artifact families from one
  * source tree:
  *
- * - `lib/index.js` + `lib/invariant.js` — the Node half (ESM; routes, pty,
+ * - `lib/index.js` — the Node half (ESM; routes, pty,
  *   git, fs services), types from tsc under `lib/types`.
  * - `lib/client.js` — the core browser bundle: a CJS closure factory
  *   registered through `window.__ModuleLoader__.load({ id, factory })`, the
@@ -307,7 +307,7 @@ const CHUNKS = ['terminal', 'editor', 'locale', 'trajectory', 'mermaid', 'office
 
 /** The Node half: routes, pty, git, and fs services (ESM; types come from tsc). */
 const nodeLib: UserConfig = {
-  entry: { index: 'src/index.ts', invariant: 'src/invariant.ts' },
+  entry: { index: 'src/index.ts' },
   outDir: 'lib',
   format: ['esm'],
   platform: 'node',

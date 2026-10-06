@@ -13,6 +13,7 @@ import {
   writeClientBuildRecord,
 } from './client-build-environment.ts'
 import { pnpmInvocation } from './pnpm-invocation.ts'
+import { missingDeclaredEntrypoints as verifyDeclaredEntrypoints } from './verify-declared-entrypoints.ts'
 
 /** Run one package script through the package manager that invoked this build. */
 function runScript(script: string, environment: NodeJS.ProcessEnv): void {
@@ -47,6 +48,16 @@ function main(): void {
   rmSync(resolve(root, CLIENT_BUILD_RECORD_PATH), { force: true })
   runScript('build:native-system', buildEnvironment)
   runScript('build:lib', buildEnvironment)
+  // Guard against the stale-tree failure mode (issue #9): a package whose
+  // declared entrypoint was not produced must fail the build here, named —
+  // not resurface on a fresh clone or in a release pack.
+  const missingEntrypoints = verifyDeclaredEntrypoints(root)
+  if (missingEntrypoints.length > 0) {
+    for (const { pkg, field, file } of missingEntrypoints) {
+      console.error(`build: ${pkg}: ${field} declares ${file} — not built`)
+    }
+    throw new Error(`build: ${missingEntrypoints.length} declared entrypoint(s) missing after build:lib`)
+  }
   runScript('build:web', buildEnvironment)
   const record = writeClientBuildRecord(root, clientEnvironment)
   console.log(
