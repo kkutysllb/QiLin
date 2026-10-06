@@ -3988,7 +3988,7 @@ describe('Task manager deletion', () => {
     // The successful read reports the row gone; the selection effect closes
     // the detail one render later, so wait for that render instead of racing
     // its flush.
-    await waitFor(() => expect(screen.queryByRole('complementary')).toBeNull())
+    await waitFor(() => { expect(screen.queryByRole('complementary')).toBeNull() })
   })
 
   it('keeps the detail on its rule when the confirmed deletion reaches no authoritative removal', () => {
