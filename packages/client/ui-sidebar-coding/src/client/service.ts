@@ -529,10 +529,15 @@ export function matchUrlTarget(tabs: readonly TabDescriptor[], url: URL): TabDes
  * (tsdown `define`) from `package.json`'s `version` — the single source, so
  * the constant can never drift from the published package again (the
  * upstream 0.17.1-constant-on-a-0.17.2-package mismatch is structurally
- * impossible now).
+ * impossible now). The global exists only inside the built bundle; the source
+ * plane (the client-test runtime imports these modules directly) reads
+ * '0.0.0-source', and reads happen at call time because both `apply` boot
+ * logging and the service descriptor call this during boot.
+ * @returns the injected package version, or the source-plane placeholder.
  */
 declare const __SIDEBAR_VERSION__: string
-export const SIDEBAR_SERVICE_VERSION = __SIDEBAR_VERSION__
+export const sidebarServiceVersion = (): string =>
+  typeof __SIDEBAR_VERSION__ === 'undefined' ? '0.0.0-source' : __SIDEBAR_VERSION__
 
 /**
  * Monotonic capability list consumers use to gate new API usage (features
@@ -912,7 +917,7 @@ export function createBetterSidebarService(store: SidebarStore): BetterSidebarSe
     openTab,
     closeTab,
     subscribe,
-    version: SIDEBAR_SERVICE_VERSION,
+    version: sidebarServiceVersion(),
     features: SIDEBAR_FEATURES,
     getSnapshot,
     subscribeState,

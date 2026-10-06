@@ -15,6 +15,9 @@ export const remoteDefaultResponses: RemoteTable = {
     'session/list': ok({ items: [] }),
     // ui-settings `mirror.ensure()` at apply and again on `connection/reset`.
     'settings/describe': ok({ writable: true, hasDocument: false, namespaces: [] }),
+    // ui-plugin-manager manager store `read()` at apply and on `connection/reset`;
+    // no `managementAvailable` means the assembly Host exposes no profile management.
+    'pluginInventory/list': ok({ entries: [] }),
     // ui-model-selection `ModelDirectoryResolver` constructor.
     'session/modelCatalog': ok({
       default: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },

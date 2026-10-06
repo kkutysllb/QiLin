@@ -13,7 +13,7 @@ import { createElement } from 'react'
 import { useEffect } from 'react'
 import type { Context } from '../context-types.ts'
 import { allLeaves, createSidebarStore, isAgentTabId, togglePanel } from './state.ts'
-import { createBetterSidebarService, matchUrlTarget, SIDEBAR_SERVICE_VERSION } from './service.ts'
+import { createBetterSidebarService, matchUrlTarget, sidebarServiceVersion } from './service.ts'
 import { revalidateChunksOnReactivate, setChunkModuleSystem } from './chunk-loader.ts'
 import { registerBuiltins } from './builtins/index.ts'
 import { Sidebar } from './Sidebar.tsx'
@@ -71,7 +71,7 @@ export function apply(ctx: Context): void {
     observeUiWorkspaceFace((scope as { uiWorkspace?: unknown }).uiWorkspace)
   })
 
-  console.info(`[ui-sidebar-coding] client ${SIDEBAR_SERVICE_VERSION} booted (coding content body)`)
+  console.info(`[ui-sidebar-coding] client ${sidebarServiceVersion()} booted (coding content body)`)
 
   // Opt-in third-language support through @huanlin/dsh-plugin-better-locale.
   // Optional by contract: an absent store keeps the zh/en chain. See the

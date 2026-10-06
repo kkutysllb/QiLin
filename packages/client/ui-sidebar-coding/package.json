@@ -31,7 +31,6 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/agent",
         "@qilin/api-remotes",
         "@qilin/api-session-controller",
         "@qilin/client-locale",
@@ -40,11 +39,7 @@
         "@qilin/client-ui-primitives",
         "@qilin/client-ui-settings",
         "@qilin/client-ui-slots",
-        "@qilin/client-ui-workbench",
-        "@qilin/llm",
-        "@qilin/session",
-        "@qilin/subagent",
-        "@qilin/tools"
+        "@qilin/client-ui-workbench"
       ],
       "platform": "web"
     }

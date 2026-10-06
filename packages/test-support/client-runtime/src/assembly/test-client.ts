@@ -81,12 +81,25 @@ const JSDOM_SHIMS: Readonly<Record<string, unknown>> = {
   },
 }
 
-/** Install a shim for each absent global; the disposer deletes exactly those. */
+/**
+ * Install a shim for each absent global, and a minimal `document.fonts`
+ * stand-in (a bare `EventTarget`) when jsdom lacks FontFaceSet — the
+ * conversation composer's control-row layout listens for `loadingdone` to
+ * re-measure, which a real browser answers and jsdom must not crash on.
+ * The disposer removes exactly what was installed.
+ */
 function installJsdomShims(): () => void {
   const globals = globalThis as Record<string, unknown>
   const installed = Object.keys(JSDOM_SHIMS).filter(name => globals[name] === undefined)
   for (const name of installed) globals[name] = JSDOM_SHIMS[name]
-  return () => { for (const name of installed) Reflect.deleteProperty(globals, name) }
+  const fontsPatched = typeof document !== 'undefined' && document.fonts === undefined
+  if (fontsPatched) {
+    Object.defineProperty(document, 'fonts', { configurable: true, value: new EventTarget() })
+  }
+  return () => {
+    for (const name of installed) Reflect.deleteProperty(globals, name)
+    if (fontsPatched) Reflect.deleteProperty(document, 'fonts')
+  }
 }
 
 /** The Error a thrown value stands for: itself, or a new Error carrying its string form. */
