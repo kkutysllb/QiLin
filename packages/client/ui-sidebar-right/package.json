@@ -67,7 +67,7 @@
     "@qilin/client-ui-session": "workspace:*",
     "@qilin/client-ui-settings": "workspace:*",
     "@qilin/client-ui-slots": "workspace:*",
-    "@qilin/client-ui-workbench": "workspace:^",
+    "@qilin/client-ui-workbench": "workspace:*",
     "@qilin/client-ui-workspace": "workspace:*",
     "@qilin/kylin": "workspace:~",
     "@qilin/session": "workspace:*",

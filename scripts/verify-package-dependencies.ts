@@ -394,6 +394,34 @@ function readHostRuntimeUses(root: string, pkg: WorkspacePackageManifest, genera
   packageUses: Map<string, string[]>
   exportUses: HostRuntimeExportUse[]
 } {
+  const walk = walkRuntimeExportUses(root, hostSourceEntries(root, pkg))
+  const generated = generatedHostSource ?? generatedHostSources(root, [pkg]).get(pkg.name)
+  if (generated !== undefined) walk.collect(`${normalizePath(pkg.dir)}/lib/typert.host.js`, generated)
+  return {
+    packageUses: walk.packageUses,
+    exportUses: [...walk.exportUses.values()].sort((left, right) =>
+      left.packageName.localeCompare(right.packageName)
+      || left.specifier.localeCompare(right.specifier)
+      || left.exportName.localeCompare(right.exportName)
+      || left.sourcePath.localeCompare(right.sourcePath)
+      || left.line - right.line
+      || left.column - right.column),
+  }
+}
+
+/**
+ * Walk a source closure from the given entries, recording every runtime
+ * export use. The local-import walk is shared by the managed facts reader
+ * and the supplemental (unmanaged-package) corpus.
+ */
+function walkRuntimeExportUses(
+  root: string,
+  entries: readonly string[],
+): {
+  packageUses: Map<string, string[]>
+  exportUses: Map<string, HostRuntimeExportUse>
+  collect: (displayPath: string, source: string) => void
+} {
   const packageUses = new Map<string, string[]>()
   const exportUses = new Map<string, HostRuntimeExportUse>()
   const seen = new Set<string>()
@@ -418,19 +446,37 @@ function readHostRuntimeUses(root: string, pkg: WorkspacePackageManifest, genera
       if (target !== undefined) visit(target)
     }
   }
-  for (const entry of hostSourceEntries(root, pkg)) visit(entry)
-  const generated = generatedHostSource ?? generatedHostSources(root, [pkg]).get(pkg.name)
-  if (generated !== undefined) collect(`${normalizePath(pkg.dir)}/lib/typert.host.js`, generated)
-  return {
-    packageUses,
-    exportUses: [...exportUses.values()].sort((left, right) =>
-      left.packageName.localeCompare(right.packageName)
-      || left.specifier.localeCompare(right.specifier)
-      || left.exportName.localeCompare(right.exportName)
-      || left.sourcePath.localeCompare(right.sourcePath)
-      || left.line - right.line
-      || left.column - right.column),
+  for (const entry of entries) visit(entry)
+  return { packageUses, exportUses, collect }
+}
+
+/**
+ * Runtime export uses of packages OUTSIDE the dependency-managed selection.
+ * The Host export classifications describe a provider's surface, so every
+ * possible consumer keeps a classification alive — including host-only
+ * packages the dependency sections never manage (`@qilin/subprocess-local`
+ * using `SubprocessExecutableNotFoundError`, issue #10). Scans each
+ * uncovered package's `src/index.ts` entry closure only: these packages are
+ * not policy-managed, so a malformed Host export map is not this corpus's
+ * subject.
+ * @param root - Repository root.
+ * @param packages - Every workspace package manifest.
+ * @param coveredDirs - Package directories the managed facts already cover.
+ * @returns export uses gathered from the uncovered packages' entry closures.
+ */
+export function readSupplementalRuntimeExportUses(
+  root: string,
+  packages: readonly WorkspacePackageManifest[],
+  coveredDirs: ReadonlySet<string>,
+): HostRuntimeExportUse[] {
+  const uses: HostRuntimeExportUse[] = []
+  for (const pkg of packages) {
+    if (coveredDirs.has(pkg.dir)) continue
+    const entry = resolve(root, pkg.dir, 'src/index.ts')
+    if (!existsSync(entry)) continue
+    uses.push(...walkRuntimeExportUses(root, [entry]).exportUses.values())
   }
+  return uses
 }
 
 function readAllSourceUses(root: string, pkg: WorkspacePackageManifest): Map<string, string[]> {
@@ -501,9 +547,10 @@ export function collectHostDependencyExportPolicyViolations(
   facts: readonly PackageDependencyFacts[],
   workspaceNames: ReadonlySet<string>,
   policy: Pick<PackageDependencyPolicy, 'duplicateSafePackages' | 'peerRequiredHostExports' | 'safeHostDependencyExports'>,
+  supplementalRuntimeUses: readonly HostRuntimeExportUse[] = [],
 ): string[] {
   const violations: string[] = []
-  const allRuntimeUses = facts.flatMap(fact => fact.hostRuntimeExportUses)
+  const allRuntimeUses = [...facts.flatMap(fact => fact.hostRuntimeExportUses), ...supplementalRuntimeUses]
   const duplicateSafePackages = new Set(policy.duplicateSafePackages ?? [])
   for (const packageName of duplicates(policy.duplicateSafePackages ?? [])) {
     violations.push(`duplicateSafePackages lists ${packageName} more than once`)
@@ -575,12 +622,18 @@ export function readPackageDependencyState(
   const facts = discovered.selected.map(pkg =>
     readPackageDependencyFacts(root, pkg, pkg.role, workspaceNames, policy, generated.get(pkg.name)))
   const selectedNames = new Set(facts.map(fact => fact.manifest.name))
+  const coveredDirs = new Set(discovered.selected.map(pkg => pkg.dir))
   return {
     facts,
     packages: packages.release,
     policyViolations: [
       ...discovered.violations,
-      ...collectHostDependencyExportPolicyViolations(facts, workspaceNames, policy),
+      ...collectHostDependencyExportPolicyViolations(
+        facts,
+        workspaceNames,
+        policy,
+        readSupplementalRuntimeExportUses(root, packages.all, coveredDirs),
+      ),
       ...Object.keys(policy.configurationOnlyDevDependencies)
         .filter(name => !selectedNames.has(name))
         .map(name => `configurationOnlyDevDependencies names unmanaged package ${name}`),

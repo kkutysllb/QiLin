@@ -73,7 +73,8 @@
     "@qilin/llm": "workspace:*",
     "@qilin/attachment": "workspace:*",
     "@tanstack/react-virtual": "^3.14.9",
-    "diff": "^9.0.0"
+    "diff": "^9.0.0",
+    "@qilin/util-values": "workspace:*"
   },
   "files": [
     "lib/index.js",

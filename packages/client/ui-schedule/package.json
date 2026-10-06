@@ -72,7 +72,7 @@
     "@qilin/client-ui-sidebar-right": "workspace:*",
     "@qilin/client-ui-slots": "workspace:*",
     "@qilin/client-ui-tool": "workspace:*",
-    "@qilin/client-ui-workbench": "workspace:^",
+    "@qilin/client-ui-workbench": "workspace:*",
     "@qilin/client-ui-workspace": "workspace:*",
     "@qilin/kylin": "workspace:~",
     "@qilin/schedule": "workspace:*",

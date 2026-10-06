@@ -196,6 +196,7 @@ flowchart TD
     pkg_client_ui_shortcuts["client-ui-shortcuts"]
     pkg_client_ui_sidebar["client-ui-sidebar"]
     pkg_client_ui_sidebar_browser["client-ui-sidebar-browser"]
+    pkg_client_ui_sidebar_coding["client-ui-sidebar-coding"]
     pkg_client_ui_sidebar_documentpreview["client-ui-sidebar-documentpreview"]
     pkg_client_ui_sidebar_files["client-ui-sidebar-files"]
     pkg_client_ui_sidebar_git["client-ui-sidebar-git"]
@@ -212,6 +213,7 @@ flowchart TD
     pkg_client_ui_tool["client-ui-tool"]
     pkg_client_ui_trajectory["client-ui-trajectory"]
     pkg_client_ui_user_questions["client-ui-user-questions"]
+    pkg_client_ui_workbench["client-ui-workbench"]
     pkg_client_ui_workflow_run["client-ui-workflow-run"]
     pkg_client_ui_workspace["client-ui-workspace"]
     pkg_client_web["client-web"]
@@ -447,7 +449,6 @@ flowchart TD
   pkg_attachment --> pkg_brand
   pkg_browser_use --> pkg_brand
   pkg_client_connection --> pkg_scope
-  pkg_client_file_upload --> pkg_scope
   pkg_computer_use --> pkg_brand
   pkg_authorization --> pkg_credentials
   pkg_authorization --> pkg_llm
@@ -483,7 +484,6 @@ flowchart TD
   pkg_spill --> pkg_llm
   pkg_spill --> pkg_session
   pkg_api_gateway --> pkg_client_connection
-  pkg_api_terminal_controller --> pkg_subprocess
   pkg_attachment_local --> pkg_attachment
   pkg_attachment_local --> pkg_home_paths
   pkg_app_boot --> pkg_home_paths
@@ -1378,6 +1378,7 @@ flowchart TD
 | [`llm`](../packages/llm/llm) | `llm` | — |
 | [`scope`](../packages/core/scope) | `core` | — |
 | [`api-job-controller`](../packages/api/job-controller) | `api` | — |
+| [`api-terminal-controller`](../packages/api/terminal-controller) | `api` | — |
 | [`api-workspace-files`](../packages/api/workspace-files) | `api` | — |
 | [`api-workspace-git`](../packages/api/workspace-git) | `api` | — |
 | [`cmdline`](../packages/boot/cmdline) | `boot` | — |
@@ -1386,6 +1387,7 @@ flowchart TD
 | [`sdk-app`](../packages/bundle/sdk-app) | `bundle` | — |
 | [`sdk-minimal`](../packages/bundle/sdk-minimal) | `bundle` | — |
 | [`web-brand`](../packages/bundle/web-brand) | `bundle` | — |
+| [`client-file-upload`](../packages/client/file-upload) | `client` | — |
 | [`client-hmr`](../packages/client/hmr) | `client` | — |
 | [`client-locale`](../packages/client/locale) | `client` | — |
 | [`client-modules`](../packages/client/modules) | `client` | — |
@@ -1432,6 +1434,7 @@ flowchart TD
 | [`client-ui-shortcuts`](../packages/client/ui-shortcuts) | `client` | — |
 | [`client-ui-sidebar`](../packages/client/ui-sidebar) | `client` | — |
 | [`client-ui-sidebar-browser`](../packages/client/ui-sidebar-browser) | `client` | — |
+| [`client-ui-sidebar-coding`](../packages/client/ui-sidebar-coding) | `client` | — |
 | [`client-ui-sidebar-documentpreview`](../packages/client/ui-sidebar-documentpreview) | `client` | — |
 | [`client-ui-sidebar-files`](../packages/client/ui-sidebar-files) | `client` | — |
 | [`client-ui-sidebar-git`](../packages/client/ui-sidebar-git) | `client` | — |
@@ -1448,6 +1451,7 @@ flowchart TD
 | [`client-ui-tool`](../packages/client/ui-tool) | `client` | — |
 | [`client-ui-trajectory`](../packages/client/ui-trajectory) | `client` | — |
 | [`client-ui-user-questions`](../packages/client/ui-user-questions) | `client` | — |
+| [`client-ui-workbench`](../packages/client/ui-workbench) | `client` | — |
 | [`client-ui-workflow-run`](../packages/client/ui-workflow-run) | `client` | — |
 | [`client-ui-workspace`](../packages/client/ui-workspace) | `client` | — |
 | [`client-web`](../packages/client/web) | `client` | — |
@@ -1486,7 +1490,6 @@ flowchart TD
 | [`attachment`](../packages/attachment/attachment) | `attachment` | [`brand`](../packages/util/brand) |
 | [`browser-use`](../packages/browser-use/browser-use) | `browser-use` | [`brand`](../packages/util/brand) |
 | [`client-connection`](../packages/client/connection) | `client` | [`scope`](../packages/core/scope) |
-| [`client-file-upload`](../packages/client/file-upload) | `client` | [`scope`](../packages/core/scope) |
 | [`computer-use`](../packages/computer-use/computer-use) | `computer-use` | [`brand`](../packages/util/brand) |
 | [`authorization`](../packages/credentials/authorization) | `credentials` | [`credentials`](../packages/credentials/credentials), [`llm`](../packages/llm/llm) |
 | [`credentials-local`](../packages/credentials/credentials-local) | `credentials` | [`atomic-write`](../packages/util/atomic-write), [`credentials`](../packages/credentials/credentials), [`home-paths`](../packages/util/home-paths), [`launch-environment`](../packages/util/launch-environment) |
@@ -1506,7 +1509,6 @@ flowchart TD
 | [`web-search-perplexity`](../packages/web/web-search-perplexity) | `web` | [`launch-environment`](../packages/util/launch-environment), [`web`](../packages/web/web) |
 | [`spill`](../packages/spill/spill) | `spill` | [`brand`](../packages/util/brand), [`llm`](../packages/llm/llm), [`session`](../packages/core/session) |
 | [`api-gateway`](../packages/api/gateway) | `api` | [`client-connection`](../packages/client/connection) |
-| [`api-terminal-controller`](../packages/api/terminal-controller) | `api` | [`subprocess`](../packages/subprocess/subprocess) |
 | [`attachment-local`](../packages/attachment/attachment-local) | `attachment` | [`attachment`](../packages/attachment/attachment), [`home-paths`](../packages/util/home-paths) |
 | [`app-boot`](../packages/boot/app-boot) | `boot` | [`home-paths`](../packages/util/home-paths), [`launch-environment`](../packages/util/launch-environment), [`system-prompt`](../packages/core/system-prompt) |
 | [`experimental-computer-use-cua-driver-mcp`](../packages/experimental/computer-use-cua-driver-mcp) | `experimental` | [`computer-use`](../packages/computer-use/computer-use) |

@@ -4331,7 +4331,7 @@ importers:
         specifier: workspace:*
         version: link:../ui-tool
       '@qilin/client-ui-workbench':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../ui-workbench
       '@qilin/client-ui-workspace':
         specifier: workspace:*
@@ -4971,9 +4971,12 @@ importers:
 
   packages/client/ui-sidebar-coding:
     dependencies:
-      node-pty:
-        specifier: 1.2.0-beta.15
-        version: 1.2.0-beta.15(patch_hash=94e34c8fdd4fe4df852d2e5fc4d794e64db0b9548aebcf8fbaa2d9a8ebe886fd)
+      '@qilin/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+      '@qilin/tools':
+        specifier: workspace:*
+        version: link:../../core/tools
       ws:
         specifier: ^8.18.0
         version: 8.21.0
@@ -5048,7 +5051,7 @@ importers:
         specifier: ^1.2.3
         version: 1.2.3
       '@qilin/agent':
-        specifier: workspace:~
+        specifier: workspace:*
         version: link:../../core/agent
       '@qilin/api-remotes':
         specifier: workspace:*
@@ -5092,9 +5095,6 @@ importers:
       '@qilin/llm':
         specifier: workspace:*
         version: link:../../llm/llm
-      '@qilin/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
       '@qilin/session':
         specifier: workspace:*
         version: link:../../core/session
@@ -5104,9 +5104,6 @@ importers:
       '@qilin/subagent':
         specifier: workspace:*
         version: link:../../subagent/subagent
-      '@qilin/tools':
-        specifier: workspace:*
-        version: link:../../core/tools
       '@qilin/util-crypto':
         specifier: workspace:*
         version: link:../../util/crypto
@@ -5143,6 +5140,9 @@ importers:
       mermaid:
         specifier: 11.17.2
         version: 11.17.2
+      node-pty:
+        specifier: 1.2.0-beta.15
+        version: 1.2.0-beta.15(patch_hash=94e34c8fdd4fe4df852d2e5fc4d794e64db0b9548aebcf8fbaa2d9a8ebe886fd)
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -5574,7 +5574,7 @@ importers:
         specifier: workspace:*
         version: link:../ui-slots
       '@qilin/client-ui-workbench':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../ui-workbench
       '@qilin/client-ui-workspace':
         specifier: workspace:*
@@ -6199,6 +6199,9 @@ importers:
       '@qilin/tools':
         specifier: workspace:*
         version: link:../../core/tools
+      '@qilin/util-values':
+        specifier: workspace:*
+        version: link:../../util/values
       '@tanstack/react-virtual':
         specifier: ^3.14.9
         version: 3.14.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

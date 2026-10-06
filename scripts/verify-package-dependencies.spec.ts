@@ -290,6 +290,37 @@ describe('package dependency scope', () => {
     ]))
   })
 
+  it('lets a use from an unmanaged package keep a classification alive', () => {
+    // The consumer's own facts do not carry the use (its package is outside
+    // the dependency-managed selection — the @qilin/subprocess-local shape,
+    // issue #10); the supplemental corpus supplies it.
+    const { provider, workspaceNames, consumerFacts } = hostRuntimeFixture()
+    const policy = {
+      safeHostDependencyExports: {},
+      peerRequiredHostExports: {
+        [`${provider.name}/api`]: ['staleValue'],
+      },
+    }
+    expect(collectHostDependencyExportPolicyViolations([consumerFacts], workspaceNames, policy))
+      .toEqual(expect.arrayContaining([
+        expect.stringContaining('unused @f/provider/api export staleValue'),
+      ]))
+    const kept = collectHostDependencyExportPolicyViolations([consumerFacts], workspaceNames, policy, [{
+      packageName: consumerFacts.manifest.name,
+      specifier: `${provider.name}/api`,
+      exportName: 'staleValue',
+      sourcePath: 'packages/core/unmanaged/src/index.ts',
+      line: 3,
+      column: 10,
+      sourceLine: `import { staleValue } from '${provider.name}/api'`,
+    }])
+    // The unmanaged use retires the "unused" violation; only the fixture's
+    // unclassified safeValue use remains.
+    expect(kept).toEqual([
+      expect.stringContaining('@f/provider/api#safeValue is not classified as safe or peer-required'),
+    ])
+  })
+
   it('applies a duplicate-safe package classification to its subpaths', () => {
     const { provider, workspaceNames, consumerFacts } = hostRuntimeFixture()
 
