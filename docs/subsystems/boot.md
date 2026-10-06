@@ -131,6 +131,16 @@ Manage profile files and apply their declared reload lifecycle.
 @Remote setBundleEnabled(name: string, enabled: boolean): Promise<ChangeResult>
 
 /**
+ * Set which workbench surfaces present one bundle's UI. Presentation-only:
+ * the profile composition keeps the bundle, so no reload follows and only
+ * the changed event drives clients to re-filter.
+ * @param name Bundle package name.
+ * @param audience The surfaces to present on.
+ * @returns Persisted outcomes; `changed` false names an already-equal record.
+ */
+@Remote setAudience(name: string, audience: PluginAudience): Promise<ChangeResult>
+
+/**
  * Install a package using the same pnpm implementation as qilin plugin. GitHub
  * repositories get a connection check bounded by githubConnectionTimeoutMs before pnpm starts;
  * only network failures or timeouts stop installation, while pnpm owns authentication and transport fallback.
