@@ -74,6 +74,19 @@
   min-width: 0;
 }
 
+/* The coding body's collapse control: pinned to the corner the ported tab
+   strip reserves (72px padding-right), inside the strip's 34px band — the
+   overlay-era toggle's exact spot, now owned by the column chrome. Above the
+   coding body's dock-layer (10) content; pointer-events back on (the panel
+   box is click-transparent and only the coding body re-enables itself). */
+.codingCollapse {
+  position: absolute;
+  top: 3px;
+  right: 10px;
+  z-index: 45;
+  pointer-events: auto;
+}
+
 .panel[data-sidebar-right-panel='fullscreen'] {
   --dsh-dockkit-dock-layer: 40;
 }

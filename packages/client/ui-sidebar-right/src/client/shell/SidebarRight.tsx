@@ -29,6 +29,7 @@
  */
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import type { CSSProperties, ReactNode, RefObject } from 'react'
+import clsx from 'clsx'
 import type { ShortcutCatalogEntry } from '@qilin/client-shortcuts/client'
 import { IconPanelLeftOutline16, Tooltip } from '@qilin/client-ui-primitives'
 import type {
@@ -331,6 +332,22 @@ function SidebarPanel(panel: PanelProps & { width: number; panelRef: RefObject<H
         {coding
           ? <div className={css.codingSeat}>
             {renderSlot('rightbar.session.coding', { width, viewportWidth, canShow, active: panel.active })}
+            {/* The column's collapse control for the coding body: the ported
+               panel gave up its own overlay-era toggle, and its tab strip
+               reserves exactly this corner (72px padding-right). Same action,
+               glyph, and shortcut as the dock chrome's collapse. */}
+            <Tooltip label={t('chrome.collapse')} shortcutKeys={panel.shortcuts.find(entry => entry.id === 'sidebar.right.toggle')?.keys} side="bottom" delayMs={500}>
+              <button
+                type="button"
+                className={clsx(css.iconButton, css.codingCollapse)}
+                aria-label={t('chrome.collapseAria')}
+                aria-keyshortcuts={panel.shortcuts.find(entry => entry.id === 'sidebar.right.toggle')?.aria}
+                data-sidebar-right-toggle
+                onClick={() => { actions.setExpanded(sessionId, false) }}
+              >
+                <IconPanelLeftOutline16 className={css.collapseGlyph} />
+              </button>
+            </Tooltip>
           </div>
           : <DockLayout
             state={surface.layout}
@@ -388,13 +405,17 @@ export function RightbarSeat({
     if (active && surface === undefined) actions.open(sessionId)
   }, [actions, sessionId, surface, active])
 
-  // Entering the coding tag opens the column: the coding workbench is
-  // sidebar-first and its body renders only inside an expanded column. A
-  // collapse after that is the user's call and survives until the next entry.
-  // Only when the column fits — the no-room concession below owns the rest,
-  // and both writing would fight over the flag.
+  // Entering the coding tag opens the column — once per entry, on the
+  // false→true edge only: the coding workbench is sidebar-first and its body
+  // renders only inside an expanded column. The edge guard keeps a manual
+  // collapse in force while coding stays active (the effect re-runs on every
+  // surface store write, and re-reading `expanded` there would fight it);
+  // only when the column fits — the no-room concession below owns the rest.
+  const wasCoding = useRef(false)
   useEffect(() => {
-    if (coding && active && !autoFullscreen && canShow && surface !== undefined && !surface.layout.expanded) {
+    const entering = coding && !wasCoding.current
+    wasCoding.current = coding
+    if (entering && active && !autoFullscreen && canShow && surface !== undefined && !surface.layout.expanded) {
       actions.setExpanded(sessionId, true)
     }
   }, [actions, sessionId, surface, coding, active, autoFullscreen, canShow])
