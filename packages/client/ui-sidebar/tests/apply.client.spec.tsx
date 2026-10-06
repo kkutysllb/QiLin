@@ -75,6 +75,7 @@ describe('ui-sidebar apply', () => {
     expect(b.slots.spec('sidebar.account')).toEqual({ kind: 'single', scope: 'root' })
     expect(b.slots.spec('sidebar.footer.action')).toEqual({ kind: 'list', scope: 'root' })
     expect(b.slots.spec('sidebar.section.assignments')).toEqual({ kind: 'list', scope: 'root' })
+    expect(b.slots.spec('sidebar.panel.placement')).toEqual({ kind: 'list', scope: 'root' })
     expect(b.slots.spec('sidebar.panellist')).toEqual({ kind: 'list', scope: 'root' })
     // Copy rides the standard locale seat, not the inject face.
     expect(b.slots.entries('sidebar')[0]!.locale).toBe('sidebar')
@@ -177,6 +178,77 @@ describe('ui-sidebar apply', () => {
     }
   })
 
+  it('keeps rows a deployment placement does not name behind the named ones', async () => {
+    const b = await bench()
+    const sidebar = b.ctx.plugin({ inject: [...inject], apply })
+    await sidebar.await()
+    const injected = (b.slots.entries('sidebar')[0]!.inject as () => SidebarRootInjected)()
+    const panel = b.ctx.plugin({
+      inject: ['slots'],
+      apply(ctx: Context) {
+        ctx.slots.register({ name: 'sidebar.panellist', id: 'plugins', order: 0, label: 'Plugins' }, () => null)
+        ctx.slots.register({ name: 'sidebar.panellist', id: 'strategies', order: 100, label: 'Strategies' }, () => null)
+        // An extension panel: an order below every named row, and its own
+        // section, which the trailing section must win over.
+        ctx.slots.register({
+          name: 'sidebar.panellist', id: 'extension', order: 0, label: 'Extension', section: 'Own group',
+        }, () => null)
+        ctx.slots.register({
+          name: 'sidebar.panel.placement', id: 'deployment',
+          inject: () => ({ rows: ['plugins', 'strategies'], trailingSection: '扩展' }),
+        }, () => null)
+        // A second occupant merges behind the first, and the first occurrence
+        // of an id wins.
+        ctx.slots.register({
+          name: 'sidebar.panel.placement', id: 'sibling',
+          inject: () => ({ rows: ['strategies', 'plugins'] }),
+        }, () => null)
+      },
+    })
+    try {
+      await panel.await()
+      await vi.waitFor(() => {
+        expect(injected.hooks.panels.getSnapshot()).toEqual([
+          { id: 'plugins', order: 0, label: 'Plugins', section: undefined },
+          { id: 'strategies', order: 100, label: 'Strategies', section: undefined },
+          { id: 'extension', order: 0, label: 'Extension', section: '扩展' },
+        ])
+      })
+    } finally {
+      await panel.dispose()
+      await sidebar.dispose()
+    }
+  })
+
+  it('ignores a placement occupant that contributes no inject face', async () => {
+    const b = await bench()
+    const sidebar = b.ctx.plugin({ inject: [...inject], apply })
+    await sidebar.await()
+    const injected = (b.slots.entries('sidebar')[0]!.inject as () => SidebarRootInjected)()
+    const panel = b.ctx.plugin({
+      inject: ['slots'],
+      apply(ctx: Context) {
+        // Rows keep their own order when the only placement seat carries no
+        // face to read: a seat without an inject factory places nothing.
+        ctx.slots.register({ name: 'sidebar.panellist', id: 'beta', order: 20, label: 'Beta' }, () => null)
+        ctx.slots.register({ name: 'sidebar.panellist', id: 'alpha', order: 10, label: 'Alpha' }, () => null)
+        ctx.slots.register({ name: 'sidebar.panel.placement', id: 'bare' }, () => null)
+      },
+    })
+    try {
+      await panel.await()
+      await vi.waitFor(() => {
+        expect(injected.hooks.panels.getSnapshot()).toEqual([
+          { id: 'alpha', order: 10, label: 'Alpha', section: undefined },
+          { id: 'beta', order: 20, label: 'Beta', section: undefined },
+        ])
+      })
+    } finally {
+      await panel.dispose()
+      await sidebar.dispose()
+    }
+  })
+
   it('removes the entry and child declaration on teardown', async () => {
     const b = await bench()
     const fiber = b.ctx.plugin({ inject: [...inject], apply })
@@ -190,6 +262,7 @@ describe('ui-sidebar apply', () => {
     expect(b.slots.spec('sidebar.account')).toBeUndefined()
     expect(b.slots.spec('sidebar.footer.action')).toBeUndefined()
     expect(b.slots.spec('sidebar.panellist')).toBeUndefined()
+    expect(b.slots.spec('sidebar.panel.placement')).toBeUndefined()
     expect(b.slots.entries('main')).toHaveLength(0)
   })
 })

@@ -200,6 +200,32 @@ describe('sidebar global panels', () => {
     expect(entries[1]!.options.section).toBeUndefined()
   })
 
+  it('renders rows a deployment placement does not name last, under the trailing section', async () => {
+    const { runtime, view } = await bench()
+    // The deployment names its two rows in display order; the extension panel
+    // ships order 0 (below both) and a section of its own, and must still land
+    // behind them under the deployment's trailing section.
+    await mountPanel(runtime, { id: BETA, heading: 'Beta content', label: 'Beta panel', order: 110 })
+    await mountPanel(runtime, { id: ALPHA, heading: 'Alpha content', label: 'Alpha panel', order: 100 })
+    await mountPanel(runtime, {
+      id: GAMMA, heading: 'Gamma content', label: 'Gamma panel', order: 0, section: 'Own group',
+    })
+    await runtime.mount({
+      inject: ['slots'],
+      apply(ctx: Context) {
+        ctx.slots.register({
+          name: 'sidebar.panel.placement', id: 'deployment',
+          inject: () => ({ rows: [BETA, ALPHA], trailingSection: 'Extensions' }),
+        }, () => null)
+      },
+    })
+    const navigation = await view.findByRole('navigation', { name: 'Global panels' })
+    expect(within(navigation).getAllByRole('button').map(row => row.textContent))
+      .toEqual(['Beta panel', 'Alpha panel', 'Gamma panel'])
+    const headers = [...navigation.children].filter(child => child.tagName !== 'BUTTON')
+    expect(headers.map(header => header.textContent)).toEqual(['Extensions'])
+  })
+
   it('renders a single header for consecutive rows sharing one section', async () => {
     const { runtime, view } = await bench()
     await mountPanel(runtime, { id: ALPHA, heading: 'Alpha content', label: 'Alpha panel', order: 10, section: 'One group' })

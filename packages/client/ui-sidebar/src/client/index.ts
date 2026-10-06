@@ -1,7 +1,7 @@
 /** Registers the sidebar shell and global panel navigation. */
 import type { Context as ClientContext } from '@qilin/kylin'
 import { createSnapshotStore } from '@qilin/client-store'
-import { resolveSlotLabel } from '@qilin/client-ui-slots'
+import { resolveSlotLabel, type SlotLabel } from '@qilin/client-ui-slots'
 import type { MainPanelId } from '@qilin/client-ui-layout/client'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
 import type {} from '@qilin/client-locale/client'
@@ -11,14 +11,14 @@ import type {} from '@qilin/client-ui-renderer/client'
 import type {} from '@qilin/client-ui-session/client'
 // Type-only: pulls the conversation header slot declarations.
 import type {} from '@qilin/client-ui-conversation/client'
-import type { SidebarPanelMetadata, SidebarRootInjected, SidebarSectionAssignmentsOwnerProps } from './contract/slots.ts'
+import type { SidebarPanelMetadata, SidebarPanelPlacementOwnerProps, SidebarRootInjected, SidebarSectionAssignmentsOwnerProps } from './contract/slots.ts'
 import { HeaderLeadingControls } from './HeaderLeadingControls.tsx'
 import { SidebarRoot } from './SidebarRoot.tsx'
 import { en, zh, type SidebarKey } from './locales.ts'
 
 export type {
   SidebarBrandMarkOwnerProps, SidebarBrandNameOwnerProps, SidebarFooterActionOwnerProps,
-  SidebarPanelIconOwnerProps, SidebarPanelMetadata,
+  SidebarPanelIconOwnerProps, SidebarPanelMetadata, SidebarPanelPlacementOwnerProps,
   SidebarRootComponentProps, SidebarRootInjected, SidebarSectionAssignmentsOwnerProps,
   SidebarSectionOwnerProps, SidebarSettingsOwnerProps,
 } from './contract/slots.ts'
@@ -59,12 +59,33 @@ export function apply(ctx: ClientContext): void {
       const face = entry.inject?.(undefined as never) as Partial<SidebarSectionAssignmentsOwnerProps> | undefined
       if (face?.assignments !== undefined) Object.assign(assigned, face.assignments)
     }
-    const next = ctx.slots.entriesOfSlot('sidebar.panellist').map(({ options }) => {
+    // Deployment-side placement: each `sidebar.panel.placement` occupant names
+    // the rows the deployment lays out itself, in display order. A row it does
+    // not name is an extension panel — one installed on top of the deployment —
+    // and renders behind every named row whatever `order` its plugin picked,
+    // so a user-installed panel cannot land inside the deployment's own menu
+    // run. Occupants merge in entry order; the first occurrence of an id wins.
+    const placed: string[] = []
+    let trailingSection: SlotLabel | undefined
+    for (const entry of ctx.slots.entriesOfSlot('sidebar.panel.placement')) {
+      const face = entry.inject?.(undefined as never) as SidebarPanelPlacementOwnerProps | undefined
+      if (face === undefined) continue
+      for (const id of face.rows) if (!placed.includes(id)) placed.push(id)
+      if (face.trailingSection !== undefined) trailingSection = face.trailingSection
+    }
+    const ordered = ctx.slots.entriesOfSlot('sidebar.panellist').map(({ options }) => {
       // The list registration requires an id; StoredEntry erases the slot kind.
       const id = options.id as MainPanelId
-      const section = assigned[id] ?? resolveSlotLabel(options.section)
-      return { id, order: options.order ?? 0, label: resolveSlotLabel(options.label) ?? id, section }
-    }).sort((a, b) => a.order - b.order)
+      const rank = placed.indexOf(id)
+      const section = assigned[id]
+        ?? (rank === -1 ? resolveSlotLabel(trailingSection) : undefined)
+        ?? resolveSlotLabel(options.section)
+      return {
+        rank: rank === -1 ? placed.length : rank,
+        panel: { id, order: options.order ?? 0, label: resolveSlotLabel(options.label) ?? id, section },
+      }
+    }).sort((a, b) => (a.rank - b.rank) || (a.panel.order - b.panel.order))
+    const next = ordered.map(({ panel }) => panel)
     const previous = panels.getSnapshot()
     if (previous.length === next.length && previous.every((panel, index) => {
       const candidate = next[index] as SidebarPanelMetadata
@@ -75,6 +96,7 @@ export function apply(ctx: ClientContext): void {
   }
   ctx.effect(() => ctx.slots.subscribe('sidebar.panellist', syncPanels), 'ui-sidebar: panel entries')
   ctx.effect(() => ctx.slots.subscribe('sidebar.section.assignments', syncPanels), 'ui-sidebar: section assignments')
+  ctx.effect(() => ctx.slots.subscribe('sidebar.panel.placement', syncPanels), 'ui-sidebar: panel placement')
   ctx.effect(() => ctx.locale.subscribe(syncPanels), 'ui-sidebar: panel labels')
 
   const injectProps = (): SidebarRootInjected => ({
@@ -94,6 +116,7 @@ export function apply(ctx: ClientContext): void {
       'sidebar.toggle.badge': { kind: 'single', scope: 'root' },
       'sidebar.panellist': { kind: 'list', scope: 'root' },
       'sidebar.section.assignments': { kind: 'list', scope: 'root' },
+      'sidebar.panel.placement': { kind: 'list', scope: 'root' },
       'sidebar.workspaces': { kind: 'single', scope: 'root' },
       'sidebar.settings': { kind: 'single', scope: 'root' },
       'sidebar.account': { kind: 'single', scope: 'root' },

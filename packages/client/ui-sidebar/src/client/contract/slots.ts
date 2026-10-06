@@ -7,7 +7,7 @@
  * `sidebar.settings` registrant's (ui-settings), followed by optional footer
  * actions in `sidebar.footer.action`.
  */
-import type { InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime } from '@qilin/client-ui-slots'
+import type { InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime, SlotLabel } from '@qilin/client-ui-slots'
 import type { ObservableSnapshot } from '@qilin/client-store'
 import type { WorkspaceId } from '@qilin/api-workspace-controller/client'
 import type { MainPanelId } from '@qilin/client-ui-layout/client'
@@ -42,6 +42,15 @@ declare module '@qilin/client-ui-slots' {
      * package's `sidebar` entry.
      */
     'sidebar.section.assignments': { kind: 'list'; scope: 'root'; owner: SidebarSectionAssignmentsOwnerProps }
+    // KStock patch: sidebar.panel.placement 部署侧摆放席位（产品侧摆放表见 @kstock/client-shell）
+    /**
+     * Deployment-side panel placement. Each occupant's inject face names the
+     * rows the deployment lays out itself, in display order; every row it does
+     * not name renders behind them, so a panel installed on top of the
+     * deployment cannot land between its menus by choosing an `order` of its
+     * own. Declared by this package's `sidebar` entry.
+     */
+    'sidebar.panel.placement': { kind: 'list'; scope: 'root'; owner: SidebarPanelPlacementOwnerProps }
     /**
      * The workspace/session browsing region: section header, search, the
      * grouped/flat session list, and every workspace dialog. Declared by this
@@ -96,6 +105,24 @@ export interface SidebarPanelIconOwnerProps {
 export interface SidebarSectionAssignmentsOwnerProps {
   /** Applied over every panel row; an assignment wins over the row's own section. */
   assignments: Readonly<Record<string, string>>
+}
+
+/** Owner share of a panel-placement seat: the deployment's own rows, in display order. */
+export interface SidebarPanelPlacementOwnerProps {
+  /**
+   * Row ids in display order. These rows render ahead of every row this seat
+   * does not name, in the listed order, and their own row `order` stops
+   * applying. Rows it does not name keep their ascending `order` behind the
+   * listed rows, with registration order breaking ties. Occupants merge in
+   * entry order, and the first occurrence of an id wins.
+   */
+  rows: readonly string[]
+  /**
+   * Section label applied to every row this seat does not name. It wins over
+   * such a row's own section, so the deployment's own grouping stays whole;
+   * omitted leaves each unlisted row its own section.
+   */
+  trailingSection?: SlotLabel
 }
 
 /** Serializable metadata for one active global panel list registration. */

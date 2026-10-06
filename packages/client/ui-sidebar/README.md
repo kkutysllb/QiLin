@@ -35,6 +35,10 @@ The expanded brand row renders `sidebar.brand.mark` and `sidebar.brand.name` as 
 
 Plugins add an icon component to the root-scoped `sidebar.panellist` list with an `id`, optional `order`, and a string or locale-aware `label`. The same id addresses the component registered in the layout's root-scoped `main` keyed slot; selecting a missing main entry throws without changing the current selection. The label supplies plain visible text, the accessible name, and the collapsed tooltip. Each row reads its own selected state through `usePanelInfo`; moving DOM focus to search or a directory picker does not change the displayed panel or its selected row. With no registrations, neither the list nor spacing for it is rendered. The shipped composition registers no example panel.
 
+A deployment may claim the row run itself through the root-scoped `sidebar.panel.placement` list: each occupant's inject face names the row ids it lays out, in display order, and optionally the section label for the rows it does not name. Named rows render first in that order — their own `order` stops applying — and every unnamed row renders behind them under the occupant's `trailingSection`, so a panel installed on top of the deployment cannot land inside the deployment's own menu run whatever `order` it ships. Occupants merge in entry order and the first occurrence of an id wins. Without a placement occupant the list keeps its plain ascending `order`.
+
+A deployment may label rows it does not register itself through the root-scoped `sidebar.section.assignments` list: each occupant's inject face maps a row id to a section label, which wins over the row's own `section`.
+
 ### Collapse behavior
 
 During a live collapse, the expanded content fades out at its current width, the upper controls share one fade and leftward translation into the 56px rail, and the layout's column slide ends the motion. A page that starts collapsed renders the rail statically, and reduced-motion mode disables both transitions. The bottom-pinned footer seats share the fade timing but have no horizontal translation.
