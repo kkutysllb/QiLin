@@ -1,0 +1,58 @@
+# desktop/package/electron-builder.yml — QiLin Desktop 打包契约（M4）。
+#
+# app 目录由 scripts/build-desktop.sh 组装（壳源 desktop/* + 品牌图标 +
+# package.json 的 dependencies=electron-updater 由 builder 自动装进 asar）；
+# 引擎运行时闭包（staging/qilin-runtime.tar.gz + desktop-runtime.json）走
+# extraResources，壳首启解压到 userData/runtime/<commit>/（见
+# desktop/main/runtime-install.mjs）。
+#
+# 签名公证：首版无 Apple 凭据，identity: null 显式出未签名包（用户首次
+# 打开需右键→打开 或 xattr -cr）。凭据到位后切换 KStock 同款 fail-closed：
+# CSC_LINK/CSC_KEY_PASSWORD + notarize:true + 门禁校验缺凭据即拒。
+appId: com.openkylin.desktop
+productName: QiLin Desktop
+copyright: Copyright © 2026 OpenKylin
+
+# 安装包/更新元数据文件名显式无空格：builder 会把空格 sanitize 成连字符写进
+# latest-mac.yml 的 url，而文件名若保留空格则两者错位 → electron-updater 404
+artifactName: "QiLin-Desktop-${version}-${arch}.${ext}"
+
+directories:
+  output: ../../dist-exe
+
+asar: true
+npmRebuild: false
+# 引擎宿主入口必须在真实文件系统：Electron-as-Node（ELECTRON_RUN_AS_NODE=1）
+# 是纯 Node fs，不识别 asar——desktop/host 解包到 app.asar.unpacked/
+asarUnpack:
+  - app/host/**
+  - app/main/**
+
+files:
+  - app/**/*
+  - branding/icons/qilin-512.png
+  - branding/icons/tray-Template.png
+  - branding/icons/tray-Template@2x.png
+  - package.json
+  - "!**/*.map"
+
+extraResources:
+  - from: ../../staging/qilin-runtime.tar.gz
+    to: runtime/qilin-runtime.tar.gz
+  - from: ../../staging/desktop-runtime.json
+    to: runtime/desktop-runtime.json
+
+mac:
+  category: public.app-category.productivity
+  icon: branding/icons/qilin.icns
+  identity: null
+  target:
+    - target: dmg
+      arch: [arm64]
+    - target: zip
+      arch: [arm64]
+
+publish:
+  provider: github
+  owner: kkutysllb
+  repo: OpenKylin

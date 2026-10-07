@@ -351,3 +351,18 @@ M3 三项已全部实施，产品层测试 64 项全绿；真实任务场景（�
 - **托盘图标** = 大写艺术字 QL（用户指定：镂空 · 三维 · 斜体）。设计经三轮迭代（并排 wireframe → 分离 3D outline → **v3 交叠式 monogram**——参考专业 QL monogram 排布：L 竖笔嵌入 Q 环、底横穿环而出，整体一个环宽，笔画加粗一倍）；环孔透底 = 镂空、组合实心右下偏移经 mask 只余月牙 = 三维、skewX(-10°) = 斜体、左下 45° 刀锋尾。内容占比 76%（菜单栏呼吸边，修正首版"偏大"）。Template 规格（纯黑+alpha）系统自动明暗着色。
 - **系统托盘**：Tray 挂 template 图（点击聚焦 shell 窗口/无窗口时回启动页）；**非保活**——window-all-closed 退出语义不变。
 - **系统菜单**：desktop/main/menu.mjs 接管 Electron 默认英文菜单——App（关于/隐藏/退出，setAboutPanelOptions 中文 credits）、编辑（role 剪贴板组）、显示（缩放/全屏；**重新加载与开发者工具仅 dev（!isPackaged）**——打包后不存在，防 boot 闸被用户误重载破坏）、窗口。Windows frameless 无菜单栏不设置。
+
+## 15. M4 发版管线（2026-10-08 实施，KStock 四层架构适配）
+
+参考 KStock 发布机制（plans/2026-09-28-release-pipeline-refit.md：本地入口 → CI tag 矩阵 → 打包契约 + 产物门 → electron-updater 消费）落地我们自己的形态：
+
+- **运行时闭包封盘**（scripts/build-runtime-bundle.sh）：锁定 commit → 品牌补丁 → 全量 install → build:qilin → **pnpm install --prod 收闭包**（2.4GB node_modules → 511 个生产包）→ tar（排除源码/测试/文档）→ `staging/qilin-runtime.tar.gz`（449MB）+ `desktop-runtime.json`（commit/版本/sha256/入口锚）。坑位记录：prod 模式下 root 的 lefthook postinstall 必炸（devDep 缺失）——重装前临时摘除。
+- **桌面打包**（scripts/build-desktop.sh + desktop/package/electron-builder.yml）：壳源组装进打包域（app/ 目录）→ electron-builder 26（装 .tmp/dev/builder-tool，零依赖约束）→ dmg/zip arm64 + blockmap + latest-mac.yml。关键决策与坑：electron devDep 版本锚（44.0.0 精确，SKIP_BINARY 下载）；Electron dist 下载走 ELECTRON_MIRROR；**artifactName 显式无空格**（builder 把 productName 空格 sanitize 进 latest-mac.yml 的 url，文件名若留空格则两者错位 → 更新器 404）；**asarUnpack host+main**（ELECTRON_RUN_AS_NODE 是纯 Node fs 不识别 asar，宿主入口与其依赖必须落真实文件系统 app.asar.unpacked/）。
+- **打包态运行时**（desktop/main/runtime-install.mjs）：首启校验清单 sha256 → 解压到 userData/runtime/<commit>/（commit 目录名 = 换版自然重装）；RUN_ROOT 解析兼容 dev（OPENKYLIN_QILIN_RUN / .tmp checkout）与打包两形态。
+- **自动更新**（desktop/main/updater.mjs）：electron-updater（打包域 dependencies 进 asar；dev 态动态 import 缺失即跳过）读 GitHub Releases latest-mac.yml；静默后台下载 → 完成通知 → 确认后**先 hostProcess.stop 再 quitAndInstall**（KStock 时序纪律：引擎占用会让替换失败）；GitHub 无 Release 时报错被 error handler 吞掉，不扰主流程。
+- **产物门 V1–V7**（scripts/verify-desktop-artifacts.sh）：安装包/更新元数据/交叉引用/闭包 sha256/dmg hdiutil 校验/三处版本一致/闭包解压冒烟。本地与 CI 同源。
+- **发版入口**（scripts/release.sh）：版本单一事实源（根 + 打包域 package.json）→ npm test → build-desktop → 产物门 → annotated tag → atomic push。release/<tag>.md 为 Release 正文。
+- **CI**（.github/workflows/release.yml，取代 sidecar 旧版）：仅 tag 触发（日常 push 零 Actions 消耗——配额策略），单平台 macos-latest（arm64 对齐 lock.target），build → 产物门 → publish（gh release create，正文取 release/<tag>.md）。
+- **签名公证**：首版 unsigned（builder identity: null 显式未签名；Gatekeeper 需右键打开）。Apple 凭据到位后启用 KStock 同款 fail-closed 门（builder 26 缺凭据会静默跳过公证并照常出包——必须门前拦）。
+- **打包态首启冒烟实证**（本地 dist-exe 真跑）：闭包解压 ✓ → 宿主自 app.asar.unpacked 启动 ✓ → 稳定端口记忆复用（60795）✓ → 引擎 API/插件 API 200 ✓ → updater 无源报错正确吞掉 ✓。坑位：whenReady 回调内单点异常（setIcon 路径缺失）会静默吞掉 splash/launchHost 全链——图标设置 try/catch + launchHost/whenReady 双层 catch 兜底。
+- 体积现状：dmg 594MB（闭包 449MB 为大头）——后续可做闭包瘦身（source map 剔除、重复平台二进制清理）。

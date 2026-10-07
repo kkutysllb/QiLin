@@ -11,3 +11,11 @@ dist/
 
 # QiLin 侧车运行时数据（含凭据与 profile 安装树），绝不入库
 /qilin-home/
+
+# M4 发版产物（运行时闭包 / 桌面包构建输出）
+/staging/
+/release/
+/dist-exe/
+
+# 打包组装产物（build-desktop.sh 每次重建）
+desktop/package/app/

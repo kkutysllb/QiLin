@@ -23,7 +23,9 @@ import { WEB_DIST_DIR, persistHostPort, qilinHome, readPersistedHostPort, urlOri
 import { hostProcess } from './host-process.mjs'
 import { installAppMenu } from './menu.mjs'
 import { attachAppProtocol, attachWsRelay, authenticateWebHost, registerAppScheme, relayDebug } from './protocol.mjs'
+import { ensureRuntimeTree, resolveRuntimeRoot } from './runtime-install.mjs'
 import { CRASH_REPORT_KEEP, profileManifestPath, restoreShippedBundles } from './recovery.mjs'
+import { initializeUpdater } from './updater.mjs'
 import { createWorkspaceResolver } from './workspace.mjs'
 import { closeSplash, getShellWindow, reportFatalToSplash, showShellWindow, showSplash } from './windows.mjs'
 
@@ -33,8 +35,9 @@ const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url))
 /** 品牌图标产物（scripts/gen-icons.mjs 生成）。 */
 const ICONS_DIR = join(REPO_ROOT, 'branding', 'icons')
 
-/** 品牌化 qilin 运行树：环境变量优先，缺省为 dev 脚本的标准落位。 */
-const RUN_ROOT = process.env.OPENKYLIN_QILIN_RUN ?? join(REPO_ROOT, '.tmp', 'dev', 'qilin-src')
+/** 品牌化 qilin 运行树：dev = 环境变量/标准落位；打包态由 runtime-install 解析（首启解压闭包）。 */
+/** 当前运行树（launchHost 内 ensureRuntimeTree 后落值；诊断文本消费）。 */
+let runtimeDirInUse = resolveRuntimeRoot({ isPackaged: app.isPackaged, userData: app.getPath('userData'), resourcesPath: process.resourcesPath })
 
 // 特权 scheme 必须在 app ready 前注册（Electron 硬性时序）
 registerAppScheme()
@@ -148,12 +151,16 @@ async function pickHostPort() {
   return port
 }
 
-/** 启动引擎宿主：端口决策 → 罐回灌 → spawn。重试路径复用同一流程。 */
+/** 启动引擎宿主：运行树就位（打包态首启解压闭包）→ 端口决策 → 罐回灌 → spawn。 */
 async function launchHost() {
+  runtimeDirInUse = await ensureRuntimeTree({ isPackaged: app.isPackaged, userData: app.getPath('userData'), resourcesPath: process.resourcesPath })
+  // 协议承载：distRoot 依赖运行树（打包态首启解压后才知道路径），挂载必须
+  // 在 shell 窗口加载前完成——宿主 ready 早于窗口创建，此处时序安全
+  attachAppProtocol({ distRoot: join(runtimeDirInUse, WEB_DIST_DIR), state: relayState })
   const port = await pickHostPort()
   relayState.port = port
   loadJar(port)
-  hostProcess.start({ runtimeDir: RUN_ROOT, port })
+  hostProcess.start({ runtimeDir: runtimeDirInUse, port })
 }
 
 /** 组装诊断文本（状态快照 + 日志尾部），供启动页「复制诊断信息」。 */
@@ -162,7 +169,7 @@ function diagnosticsText() {
   const lines = [
     'OpenKylin Desktop 诊断信息',
     `时间：${new Date().toISOString()}`,
-    `运行树：${RUN_ROOT}`,
+    `运行树：${runtimeDirInUse ?? '(未就绪)'}`,
     `QiLin home：${qilinHome()}`,
     `Electron：${process.versions.electron}  Node：${process.versions.node}`,
     `状态：${JSON.stringify(status)}`,
@@ -295,9 +302,16 @@ if (!gotLock) {
   })
 
   app.whenReady().then(() => {
+    // （回调体末尾配 .catch 兜底，见链尾）
     // 品牌面：Dock 图标（打包后由 .icns 提供，dev 期显式设置）+ 中文应用菜单
-    // + 系统托盘（QL template 图；点击聚焦窗口，非保活——关窗即退不变）
-    app.dock?.setIcon(join(ICONS_DIR, 'qilin-512.png'))
+    // + 系统托盘（QL template 图；点击聚焦窗口，非保活——关窗即退不变）。
+    // 图标缺失只降级观感，绝不阻塞启动链（whenReady 回调抛错会吞掉
+    // splash/launchHost 全部后续——教训见打包态首启冒烟）
+    try {
+      app.dock?.setIcon(join(ICONS_DIR, 'qilin-512.png'))
+    } catch (error) {
+      console.warn('[openkylin] dock icon set failed:', error)
+    }
     installAppMenu()
     try {
       const tray = new Tray(join(ICONS_DIR, 'tray-Template.png'))
@@ -316,11 +330,17 @@ if (!gotLock) {
       console.warn('[openkylin] tray init failed:', error)
     }
 
+    // 自动更新（仅打包态挂载；安装前先停引擎，见 updater.mjs 时序纪律）
+    initializeUpdater({
+      stopEngine: () => hostProcess.stop(),
+      ready: () => app.isPackaged === true,
+    })
+
     // 启动即显示中文品牌启动页；宿主在后台准备
     showSplash()
 
-    // 协议承载与 WS 头改写：窗口加载前必须就位（未就绪的宿主请求得 503）
-    attachAppProtocol({ distRoot: join(RUN_ROOT, WEB_DIST_DIR), state: relayState })
+    // WS 头改写：不依赖运行树路径，here 即挂（未就绪的宿主请求得 503）；
+    // qilin-app 协议处理器在 launchHost 内运行树就位后挂载
     attachWsRelay({ state: relayState })
 
     hostProcess.on('state-changed', (status) => {
@@ -351,12 +371,17 @@ if (!gotLock) {
       reportFatalToSplash(status.error + (report !== null ? `\n\n崩溃报告已写入：${report}` : ''))
     })
 
-    void launchHost()
+    void launchHost().catch((error) => {
+      reportFatalToSplash(`启动失败：${error instanceof Error ? error.message : String(error)}`)
+    })
 
     app.on('activate', () => {
       // macOS dock 图标点击/Cmd+Tab 切回：宿主就绪则回到工作区
       if (hostProcess.status.state === 'ready') showShellWindow()
     })
+  }).catch((error) => {
+    // whenReady 链兜底：单点异常不再静默吞掉 splash/launchHost 全链
+    console.error('[openkylin] whenReady chain failed:', error)
   })
 
   /* ---------- 退出序列：优雅关停宿主，绝不留孤儿进程 ---------- */

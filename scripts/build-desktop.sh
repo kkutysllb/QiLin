@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# scripts/build-desktop.sh — QiLin Desktop 桌面打包（M4，KStock 同款分层）。
+#
+# 链条：运行时闭包（build-runtime-bundle.sh，幂等可跳过）→ 组装 app 目录
+#（壳源 + 品牌图标 + 打包 package.json）→ electron-builder（dmg/zip，arm64）。
+# 产物：dist-exe/QiLin Desktop-<ver>-arm64.dmg/.zip + latest-mac.yml/blockmap
+#（自动更新元数据，builder 依 publish 配置生成）。
+#
+# 用法：bash scripts/build-desktop.sh [--skip-bundle]
+set -euo pipefail
+cd "$(dirname "$0")/.."
+REPO_ROOT="$(pwd)"
+
+log() { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
+die() { printf '\033[1;31mERROR:\033[0m %s\n' "$*" >&2; exit 1; }
+
+SKIP_BUNDLE=false
+[ "${1:-}" = "--skip-bundle" ] && SKIP_BUNDLE=true
+
+# 1) 运行时闭包（幂等；重跑且 staging 已有产物时 --skip-bundle 可跳）
+if [ "$SKIP_BUNDLE" = false ]; then
+  bash "$REPO_ROOT/scripts/build-runtime-bundle.sh"
+fi
+[ -f "$REPO_ROOT/staging/qilin-runtime.tar.gz" ] || die "缺运行时闭包 staging/qilin-runtime.tar.gz"
+[ -f "$REPO_ROOT/staging/desktop-runtime.json" ] || die "缺封盘清单 staging/desktop-runtime.json"
+
+# 2) electron-builder 工具（仓库零依赖约束：装进 .tmp，不入 package.json）
+BUILDER_TOOL="$REPO_ROOT/.tmp/dev/builder-tool"
+BUILDER_BIN="$BUILDER_TOOL/node_modules/.bin/electron-builder"
+if [ ! -x "$BUILDER_BIN" ]; then
+  log "安装 electron-builder 到 .tmp/dev/builder-tool（一次性）"
+  mkdir -p "$BUILDER_TOOL"
+  printf '{"name":"openkylin-builder-tool","private":true,"version":"0.0.0"}\n' > "$BUILDER_TOOL/package.json"
+  (cd "$BUILDER_TOOL" && npm install --no-save --loglevel=error electron-builder@26)
+fi
+[ -x "$BUILDER_BIN" ] || die "electron-builder 安装失败"
+
+# 3) 组装 app 目录（builder files 域不可越包目录，壳源复制进 desktop/package/app）
+log "组装 app 目录"
+APP_DIR="$REPO_ROOT/desktop/package"
+rm -rf "$APP_DIR/app" "$APP_DIR/icons"
+mkdir -p "$APP_DIR/app" "$APP_DIR/branding/icons"
+cp -R "$REPO_ROOT/desktop/main" "$APP_DIR/app/main"
+cp -R "$REPO_ROOT/desktop/host" "$APP_DIR/app/host"
+cp -R "$REPO_ROOT/desktop/preload" "$APP_DIR/app/preload"
+cp -R "$REPO_ROOT/desktop/renderer" "$APP_DIR/app/renderer"
+cp "$REPO_ROOT/branding/icons/qilin-512.png" "$APP_DIR/branding/icons/"
+cp "$REPO_ROOT/branding/icons/qilin.icns" "$APP_DIR/branding/icons/"
+cp "$REPO_ROOT/branding/icons/tray-Template.png" "$APP_DIR/branding/icons/"
+cp "$REPO_ROOT/branding/icons/tray-Template@2x.png" "$APP_DIR/branding/icons/"
+node -e '
+const pkg = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"))
+const root = JSON.parse(require("fs").readFileSync(process.argv[2], "utf8"))
+pkg.version = root.version
+require("fs").writeFileSync(process.argv[1], JSON.stringify(pkg, null, 2) + "\n")
+' "$APP_DIR/package.json" "$REPO_ROOT/package.json"
+
+# 3.5) 安装打包域依赖：electron-updater（进 asar 的 dependencies）+ electron
+#（devDependencies，builder 只取版本号并自行下载 dist——SKIP_BINARY 省一次下载）
+log "安装打包域依赖（electron-updater + electron 版本锚）"
+(cd "$APP_DIR" && ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm install --loglevel=error)
+
+# 4) 打包（dmg/zip，arm64；identity: null = 未签名首版）。
+#    Electron dist 下载走镜像（@electron/get 同 dev.mjs 的镜像策略）
+export ELECTRON_MIRROR="${ELECTRON_MIRROR:-https://npmmirror.com/mirrors/electron/}"
+log "electron-builder 打包（mirror: ${ELECTRON_MIRROR}）"
+(cd "$APP_DIR" && "$BUILDER_BIN" --config electron-builder.yml)
+
+log "打包完成：dist-exe/"
+ls -la "$REPO_ROOT/dist-exe/" | grep -E "dmg|zip|yml|blockmap" || true

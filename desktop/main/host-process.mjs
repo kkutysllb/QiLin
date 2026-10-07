@@ -29,11 +29,15 @@ import {
   isHostEvent,
 } from './qilin-contract.mjs'
 
-/** 产品仓库根（desktop/main 的上上级）；宿主入口在其 desktop/host 下。 */
+/** 产品仓库根（desktop/main 的上上级）；宿主入口在其 desktop/host 下。
+ * 打包态结构不同：app 根下 app/host/main.mjs，且 asarUnpack 落在
+ * app.asar.unpacked（ELECTRON_RUN_AS_NODE 是纯 Node fs，不识别 asar）。 */
 const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url))
 
-/** 宿主入口绝对路径。 */
-const HOST_ENTRY = join(REPO_ROOT, 'desktop', 'host', 'main.mjs')
+/** 宿主入口绝对路径（dev = desktop/host；打包 = app.asar.unpacked/app/host）。 */
+const HOST_ENTRY = REPO_ROOT.includes('app.asar')
+  ? join(REPO_ROOT.replace('app.asar', 'app.asar.unpacked'), 'app', 'host', 'main.mjs')
+  : join(REPO_ROOT, 'desktop', 'host', 'main.mjs')
 
 /**
  * @typedef {'stopped' | 'starting' | 'ready' | 'restarting' | 'failed'} HostState

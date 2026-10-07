@@ -1,78 +1,107 @@
-name: release
+# Release — QiLin Desktop 桌面发版（tag 触发，mac-arm64 先行）。
+#
+# 取代 sidecar 形态的旧 release.yml（上游 apps/desktop 构建驱动已随 3.1.x 移除）。
+# 签名公证：首版 unsigned（identity: null）；Apple 凭据到位后启用 fail-closed
+# 门（缺凭据即拒，参考 KStock check-release.sh）——不再静默跳过公证。
+#
+# 配额策略（减少 GitHub 配额消耗）：
+# - 只在推 tag（或手动 dispatch）时运行——日常 push 零 Actions 消耗；
+# - 单平台矩阵（macos-latest = arm64，对齐 upstream/qilin.lock.json 的 target）；
+# - 用户侧增量走 blockmap（electron-updater 只下载差异块），Release 资产一次
+#   上传不重复；引擎闭包缓存待链路验证后启用（键含 lock commit）。
+#
+# 本地入口 scripts/release.sh 与本 workflow 共用同一构建/门禁脚本（同源）。
+name: Release
+
 on:
   push:
-    tags: ['v*']
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "要构建发布的 tag（如 v0.1.1，须已推送）"
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ inputs.tag || github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  release:
-    runs-on: macos-14
+  build:
+    name: 打包（macOS arm64）
+    runs-on: macos-latest
     timeout-minutes: 120
     permissions:
       contents: write
-    environment: release
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 22 }
-      - uses: pnpm/action-setup@v4
-        with: { version: 11.7.0 }
-      - name: Product verification and upstream fetch
-        run: |
-          npm test
-          node scripts/fetch-upstream.mjs \
-            "$(node -p "JSON.parse(require('fs').readFileSync('upstream/qilin.lock.json','utf8')).qilinRepository")" \
-            "$(node -p "JSON.parse(require('fs').readFileSync('upstream/qilin.lock.json','utf8')).qilinCommit")" \
-            "$(node -p "JSON.parse(require('fs').readFileSync('upstream/qilin.lock.json','utf8')).qilinVersion")" \
-            "$RUNNER_TEMP/qilin-src"
-          node scripts/apply-branding.mjs . "$RUNNER_TEMP/qilin-src" patches/registry.json
-      - name: Build and package signed desktop
-        working-directory: ${{ runner.temp }}/qilin-src
-        env:
-          QILIN_DESKTOP_APP_ID: ${{ vars.QILIN_DESKTOP_APP_ID }}
-          QILIN_DESKTOP_MACOS_SIGNING_IDENTITY: ${{ vars.QILIN_DESKTOP_MACOS_SIGNING_IDENTITY }}
-          QILIN_DESKTOP_MACOS_TEAM_ID: ${{ vars.QILIN_DESKTOP_MACOS_TEAM_ID }}
-          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
-          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
-          APPLE_API_KEY_PEM: ${{ secrets.APPLE_API_KEY_PEM }}
-          QILIN_DESKTOP_AUTO_UPDATE_ENV: test
-          DOWNLOAD_TEST_ORIGIN: ${{ vars.OPENKYLIN_UPDATE_ORIGIN }}
-        run: |
-          printf '%s\n' "$APPLE_API_KEY_PEM" > "$RUNNER_TEMP/appstore.p8"
-          export APPLE_API_KEY="$RUNNER_TEMP/appstore.p8"
-          node "$GITHUB_WORKSPACE/scripts/build-desktop.mjs" mac-arm64
-      - name: Source leakage scan of desktop runtime payload
-        run: node scripts/check-source-leakage.mjs "$RUNNER_TEMP/qilin-src/apps/desktop/.desktop-build/targets/mac-arm64/qilin"
-      - name: Web/Desktop sync gate
-        run: |
-          node scripts/verify-web-desktop-sync.mjs \
-            "$RUNNER_TEMP/qilin-src/apps/web/dist" \
-            "$RUNNER_TEMP/qilin-src/apps/desktop/.desktop-build/targets/mac-arm64/qilin/node_modules/@qilin/web-frontend/dist" \
-            sync-report.json
-      - name: Generate SBOM
-        run: |
-          node scripts/generate-sbom.mjs \
-            "$RUNNER_TEMP/qilin-src/apps/desktop/.desktop-build/targets/mac-arm64/qilin" \
-            upstream/qilin.lock.json \
-            "$RUNNER_TEMP/qilin-src/apps/desktop/.desktop-build/targets/mac-arm64/artifacts/sbom.spdx.json" \
-            --versions "$RUNNER_TEMP/qilin-src/apps/desktop/.desktop-build/targets/mac-arm64/runtime/versions.json"
-      - name: Verify artifacts and generate manifest
-        run: |
-          node scripts/verify-artifact.mjs \
-            "$RUNNER_TEMP/qilin-src/apps/desktop/.desktop-build/targets/mac-arm64/qilin/desktop-runtime.json" \
-            upstream/qilin.lock.json \
-            "$RUNNER_TEMP/qilin-src/apps/desktop/.desktop-build/targets/mac-arm64/artifacts" \
-            checksums-sha256.txt
-          node scripts/generate-release-manifest.mjs \
-            upstream/qilin.lock.json sync-report.json checksums-sha256.txt \
-            releases/manifest.json --brand branding/brand-manifest.json
-      - name: Upload to GitHub Release
-        uses: softprops/action-gh-release@v2
         with:
-          files: |
-            ${{ runner.temp }}/qilin-src/apps/desktop/.desktop-build/targets/mac-arm64/artifacts/*.dmg
-            ${{ runner.temp }}/qilin-src/apps/desktop/.desktop-build/targets/mac-arm64/artifacts/*.zip
-            ${{ runner.temp }}/qilin-src/apps/desktop/.desktop-build/targets/mac-arm64/artifacts/*.blockmap
-            ${{ runner.temp }}/qilin-src/apps/desktop/.desktop-build/targets/mac-arm64/artifacts/latest-mac.yml
-            ${{ runner.temp }}/qilin-src/apps/desktop/.desktop-build/targets/mac-arm64/artifacts/sbom.spdx.json
-            checksums-sha256.txt
-            releases/manifest.json
+          ref: ${{ inputs.tag || github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.7.0
+
+      # 引擎运行时闭包：GitHub 克隆锁定 commit → 品牌补丁 → install → build
+      # → 生产重装收闭包 → tar + 封盘清单（与本地 build-desktop.sh 同源脚本）
+      - name: 运行时闭包封盘
+        run: bash scripts/build-runtime-bundle.sh
+
+      # electron-builder（dmg/zip arm64 + latest-mac.yml + blockmap）
+      - name: 桌面打包
+        run: bash scripts/build-desktop.sh --skip-bundle
+
+      # 产物门禁 V1–V7（安装包/更新元数据/交叉引用/闭包哈希/dmg 校验/版本一致/闭包冒烟）
+      - name: 产物门禁
+        run: bash scripts/verify-desktop-artifacts.sh
+
+      - name: 收集产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-release
+          if-no-files-found: error
+          path: |
+            dist-exe/*.dmg
+            dist-exe/*.zip
+            dist-exe/*.blockmap
+            dist-exe/latest-mac.yml
+
+  publish:
+    name: 发布 Release
+    needs: build
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          sparse-checkout: release
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: desktop-release
+          path: dist-exe
+
+      - name: 发布 GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.ref }}
+        run: |
+          NOTES_FILE="release/${TAG}.md"
+          NOTES_ARGS=()
+          if [ -f "$NOTES_FILE" ]; then
+            NOTES_ARGS+=(--notes-file "$NOTES_FILE")
+          else
+            NOTES_ARGS+=(--generate-notes)
+          fi
+          gh release create "$TAG" dist-exe/* --title "QiLin Desktop $TAG" "${NOTES_ARGS[@]}" || \
+            gh release upload "$TAG" dist-exe/* --clobber

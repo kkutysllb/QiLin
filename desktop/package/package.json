@@ -1,0 +1,15 @@
+{
+  "name": "openkylin-desktop",
+  "productName": "QiLin Desktop",
+  "version": "0.1.0",
+  "description": "OpenKylin Desktop —— 基于 QiLin 构建的中文桌面产品",
+  "type": "module",
+  "private": true,
+  "main": "app/main/index.mjs",
+  "dependencies": {
+    "electron-updater": "^6.6.2"
+  },
+  "devDependencies": {
+    "electron": "44.0.0"
+  }
+}
