@@ -784,9 +784,9 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         returns: 'true only when the frontend may serve index.html.',
       },
       {
-        signature: 'authenticatedUrl(baseUrl: string): string',
+        signature: 'authenticatedUrl(baseUrl: string, displayName?: string): string',
         description: 'Add the fresh process token to an ordinary Web application URL.',
-        parameters: [{ name: 'baseUrl', description: 'clean canonical browser origin.' }],
+        parameters: [{ name: 'baseUrl', description: 'clean canonical browser origin.' }, { name: 'displayName', description: 'optional operator name carried into the device cookie for display.' }],
         returns: 'root URL accepted by {@link authorizeIndex} for initial login.',
       },
     ],
