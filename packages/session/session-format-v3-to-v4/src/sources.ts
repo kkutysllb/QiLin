@@ -46,6 +46,10 @@ const RENAMED_PRODUCERS: Readonly<Record<string, string>> = Object.freeze({
   // mapping every pre-rename title request lifts to `plugin:dsh-session…`
   // and the V4 reader strands the session.
   'dsh-session-title-llm': 'qilin-session-title-llm',
+  // The DSH-era system-prompt wrapper is the largest historical form (whole
+  // system heads); unmapped it lifts to `plugin:@deepseek-ai/dsh-…` and the
+  // per-type assertion refuses every pre-rename system message.
+  '@deepseek-ai/dsh-system-prompt': 'system-prompt',
 })
 
 /** First-party V3 plugin identities that intentionally keep their current kind. */

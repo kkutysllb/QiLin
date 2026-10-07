@@ -63,6 +63,12 @@ describe('rewritePluginSource', () => {
     // the migrated artifact clears the V4 title-request source assertions.
     expect(rewritePluginSource({ kind: 'plugin', plugin: 'dsh-session-title-llm' }, 1, 'user'))
       .toEqual({ kind: 'qilin-session-title-llm' })
+    // The DSH-era system-prompt wrapper (the largest historical form) lands on
+    // the kind the per-type system/message assertion requires.
+    expect(rewritePluginSource({ kind: 'plugin', plugin: '@deepseek-ai/dsh-system-prompt' }, 1, 'system'))
+      .toEqual({ kind: 'system-prompt' })
+    expect(rewritePluginSource({ kind: 'plugin', plugin: '@deepseek-ai/dsh-system-prompt' }, 1, 'user'))
+      .toEqual({ kind: 'system-prompt' })
     expect(rewritePluginSource({ kind: 'plugin', plugin: 'external', extra: true }, 1, 'user')).toEqual({ kind: 'plugin:external', extra: true })
   })
 
