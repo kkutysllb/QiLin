@@ -2,8 +2,10 @@
 
 import { createHash, createHmac } from 'node:crypto'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { Context } from '@qilin/kylin'
 import type { CredentialProvider } from '@qilin/credentials'
 import { BrowserAuth } from '../src/browser-auth.ts'
+import { HostConnectionService } from '../src/rpc-host.ts'
 import type { ConnectionIndexRequest, ConnectionIndexResponse } from '../src/rpc.ts'
 import { RecordCredentials } from './browser-credentials.ts'
 
@@ -132,6 +134,59 @@ describe('BrowserAuth', () => {
     const forged = signedBodyCookie(unnamedStore, cookieName, forgedBody)
     expect(unnamed.identity(request('/', '127.0.0.1:3080', { cookie: forged })))
       .toEqual({ authenticated: false, accountName: null })
+  })
+
+  it('backs the gate-less /api/auth/status with the device session and yields to a mounted gate', async () => {
+    const auth = await createAuth(new RecordCredentials())
+    const { cookie } = exchangeUrl(auth, auth.authenticatedUrl('http://127.0.0.1:3080', 'Alice'))
+
+    const ctx = new Context()
+    const fiber = ctx.plugin((pluginCtx) => {
+      new HostConnectionService(pluginCtx, [], auth)
+    })
+    await fiber.await()
+    const connection = ctx.get('connection') as HostConnectionService
+    try {
+      const shared = connection.createSharedFetchHandler('/api')
+      // A mounted gate keeps owning the path: its exact route answers first.
+      const gate = vi.fn(async () => Response.json({ enabled: true }))
+      const dispose = connection.fetch.register({
+        path: '/api/auth/status', methods: ['GET'], requestBody: 'buffered', fetch: gate,
+      })
+      const gated = await shared.fetch(new Request('http://127.0.0.1:3080/api/auth/status', {
+        headers: { host: '127.0.0.1:3080' },
+      }))
+      expect(await gated.json()).toEqual({ enabled: true })
+      expect(gate).toHaveBeenCalledOnce()
+      await dispose()
+
+      // With the gate's bundle disabled, the carrier answers from the device
+      // session: display-only identity, no account-face semantics.
+      const identified = await shared.fetch(new Request('http://127.0.0.1:3080/api/auth/status', {
+        headers: { host: '127.0.0.1:3080', cookie },
+      }))
+      expect(identified.status).toBe(200)
+      expect(await identified.json()).toEqual({
+        enabled: false,
+        needsSetup: false,
+        registrationOpen: false,
+        authenticated: true,
+        user: null,
+        accountName: 'Alice',
+        signOutAvailable: false,
+      })
+      const anonymous = await shared.fetch(new Request('http://127.0.0.1:3080/api/auth/status', {
+        headers: { host: '127.0.0.1:3080' },
+      }))
+      expect(await anonymous.json()).toMatchObject({ authenticated: false, accountName: null })
+      // A POST is no status read: the fallback claims GET alone.
+      const posted = await shared.fetch(new Request('http://127.0.0.1:3080/api/auth/status', {
+        method: 'POST', headers: { host: '127.0.0.1:3080', cookie },
+      }))
+      expect(posted.status).toBe(404)
+    } finally {
+      await fiber.dispose()
+    }
   })
 
   it('mints one process token and a persistent authority-bound cookie', async () => {
