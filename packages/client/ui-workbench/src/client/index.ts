@@ -9,7 +9,7 @@
 import { Service, type Context } from '@qilin/kylin'
 import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
 import {
-  rehydrateWorkbenchState, workbenchShows, WORKBENCH_STORAGE_KEY, WORKBENCH_TAG_PRESETS,
+  rehydrateWorkbenchState, workbenchFallbackShows, workbenchShows, WORKBENCH_STORAGE_KEY, WORKBENCH_TAG_PRESETS,
   type WorkbenchState, type WorkbenchTag,
 } from './workbench.ts'
 
@@ -65,6 +65,16 @@ export interface Workbench {
    * @returns whether the session belongs to the tag's list.
    */
   shows(preset: string | null | undefined, tag: WorkbenchTag): boolean
+  /**
+   * The visibility fold over one preset-less session's Workspace Git kind (the
+   * D2 fallback for sessions predating the recorded preset). Consumed through
+   * the service face because the client bundle purity gate forbids cross-plugin
+   * value imports of the pure fold.
+   * @param git - the Workspace's Git kind, or `undefined` while unknown.
+   * @param tag - the tag whose list is rendered.
+   * @returns whether the fallback classifies the session into the tag.
+   */
+  fallbackShows(git: boolean | undefined, tag: WorkbenchTag): boolean
 }
 
 /** Implements the workbench state owner; registration is the Service name. */
@@ -108,6 +118,10 @@ class WorkbenchServiceImpl extends Service implements Workbench {
 
   shows(preset: string | null | undefined, tag: WorkbenchTag): boolean {
     return workbenchShows(preset, tag)
+  }
+
+  fallbackShows(git: boolean | undefined, tag: WorkbenchTag): boolean {
+    return workbenchFallbackShows(git, tag)
   }
 }
 

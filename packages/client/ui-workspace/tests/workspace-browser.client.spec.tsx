@@ -16,7 +16,7 @@ import { createSnapshotStore } from '@qilin/client-store'
 import type { WorkspaceShortcutState } from '../src/client/shortcuts.ts'
 import { createWorkspaceViewStore, FLAT_SESSION_ORDER_KEY } from '../src/client/stores.ts'
 import { UNGROUPED_KEY } from '../src/client/tree.ts'
-import { workbenchShows, WORKBENCH_DEFAULT_STATE } from '@qilin/client-ui-workbench/client'
+import { workbenchFallbackShows, workbenchShows, WORKBENCH_DEFAULT_STATE } from '@qilin/client-ui-workbench/client'
 import { WorkspaceBrowser } from '../src/client/rows/WorkspaceBrowser.tsx'
 import { zh } from '../src/client/locales.ts'
 
@@ -130,6 +130,7 @@ function mount(overrides: Partial<WorkspaceBrowserProps> = {}) {
     useHostInfo: selector => selector({ home: undefined, isLoopback: true }),
     useWorkbench: bindSnapshotSelector({ getSnapshot: () => WORKBENCH_DEFAULT_STATE, subscribe: () => () => {} }),
     shows: workbenchShows,
+    fallbackShows: workbenchFallbackShows,
     // No Git kinds in these flows: preset-less rows stay dual-tag visible.
     gitKind: () => undefined,
     useWorkspaceShortcuts: bindSnapshotSelector(shortcutStore),

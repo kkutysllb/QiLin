@@ -15,7 +15,7 @@ import {
   Button, IconCloseFill14, IconPersonalizationOutline16,
   IconProjectAddOutline16, IconSearchOutline16, Menu, Modal, Tooltip,
 } from '@qilin/client-ui-primitives'
-import { workbenchFallbackShows, type WorkbenchTag } from '@qilin/client-ui-workbench/client'
+import type { WorkbenchTag } from '@qilin/client-ui-workbench/client'
 import type {
   SessionListState, SessionSearchResultItem,
 } from '@qilin/api-session-controller/client'
@@ -72,6 +72,7 @@ function filterForWorkbench(
   list: SessionListState,
   tag: WorkbenchTag,
   shows: (preset: string | null | undefined, tag: WorkbenchTag) => boolean,
+  fallbackShows: (git: boolean | undefined, tag: WorkbenchTag) => boolean,
   gitKindOf: (id: string) => boolean | undefined,
 ): SessionListState {
   const ids = list.ids.filter((id) => {
@@ -81,7 +82,7 @@ function filterForWorkbench(
     if ((row.retainedBy.mainView ?? 0) > 0) return true
     const preset = row.projectionValues?.agentPreset
     if (preset !== undefined && preset !== null) return shows(preset, tag)
-    return workbenchFallbackShows(gitKindOf(id), tag)
+    return fallbackShows(gitKindOf(id), tag)
   })
   // fromEntries widens the keys to string; the ids filter guarantees each row.
   const byId = Object.fromEntries(ids.map(id => [id, list.byId[id]])) as SessionListState['byId']
@@ -822,6 +823,7 @@ export function WorkspaceBrowser({
   useStore,
   actions,
   shows,
+  fallbackShows,
   gitKind,
   useWorkbench,
   startSession,
@@ -868,8 +870,8 @@ export function WorkspaceBrowser({
     return path === undefined ? undefined : gitKind(path)
   }, [gitKind, pathBySession])
   const list = useMemo(
-    () => filterForWorkbench(rawList, workbench.active, shows, gitKindOf),
-    [rawList, workbench.active, shows, gitKindOf],
+    () => filterForWorkbench(rawList, workbench.active, shows, fallbackShows, gitKindOf),
+    [rawList, workbench.active, shows, fallbackShows, gitKindOf],
   )
   const inferredTags = useMemo(() => {
     const map = new Map<string, WorkbenchTag>()

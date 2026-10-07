@@ -136,6 +136,7 @@ export function apply(ctx: Context): void {
     // the current Session Workspace before the recent-Workspace fallback.
     startSession: (workspaceId) => { uiWorkspace.startSession(workspaceId) },
     shows: (preset, tag) => workbench.shows(preset, tag),
+    fallbackShows: (git, tag) => workbench.fallbackShows(git, tag),
     gitKind: path => gitKinds.getSnapshot()[path],
     open: openSession,
     searchSessions,

@@ -14,7 +14,7 @@ import { SessionId } from '@qilin/session/types'
 import { LayoutController } from '@qilin/client-ui-layout/client'
 import type { MainPanelId } from '@qilin/client-ui-layout/client'
 import type { Workbench } from '@qilin/client-ui-workbench/client'
-import { workbenchShows, WORKBENCH_DEFAULT_STATE, WORKBENCH_TAG_PRESETS } from '@qilin/client-ui-workbench/client'
+import { workbenchFallbackShows, workbenchShows, WORKBENCH_DEFAULT_STATE, WORKBENCH_TAG_PRESETS } from '@qilin/client-ui-workbench/client'
 import { createSnapshotStore } from '@qilin/client-store'
 import { DirectoryBrowseError, UiWorkspaceService } from '../src/client/navigation.ts'
 import { createWorkspaceViewStore, FLAT_SESSION_ORDER_KEY } from '../src/client/stores.ts'
@@ -326,6 +326,7 @@ function fakeWorkbench(state?: Partial<typeof WORKBENCH_DEFAULT_STATE>): Workben
     },
     tagChoices: tag => WORKBENCH_TAG_PRESETS[tag],
     shows: workbenchShows,
+    fallbackShows: workbenchFallbackShows,
   }
 }
 

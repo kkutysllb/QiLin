@@ -138,6 +138,11 @@ export type WorkspaceBrowserInjected = {
    */
   shows: (preset: string | null | undefined, tag: WorkbenchTag) => boolean
   /**
+   * The workbench owner's Git-kind fold for preset-less sessions (the D2
+   * fallback), reached as a service callback like {@link shows}.
+   */
+  fallbackShows: (git: boolean | undefined, tag: WorkbenchTag) => boolean
+  /**
    * The Workspace path's Git kind, probed once per directory: `true` inside a
    * Git work tree, `false` outside one, `undefined` while unknown. Classifies
    * preset-less sessions (the D2 fallback) and marks their inferred rows.
