@@ -64,6 +64,19 @@ describe('SidebarRoot.module.css', () => {
     expect(declarations('.collapsed .newSession')?.get('width')).toBe('36px')
   })
 
+  it('keeps New Session the elevated card control', () => {
+    // The shipped card: an elevated fill behind a hairline border with a
+    // centered label, deepening one step on hover. A plain row whose hover
+    // adds a wash is the style this pins against.
+    const card = declarations('.newSession')
+    expect(card?.get('background')).toBe('var(--qilin-alias-button-elevated-fill)')
+    expect(card?.get('border')).toBe('0.5px solid var(--qilin-alias-border-l3)')
+    expect(card?.get('justify-content')).toBe('center')
+    expect(card?.get('height')).toBe('38px')
+    expect(declarations('.newSession:hover')?.get('background')).toBe('var(--qilin-alias-button-floating-hover)')
+    expect(declarations('.collapsed .newSession')?.get('border-color')).toBe('transparent')
+  })
+
   it('keeps the slotted brand row at the full artwork height', () => {
     expect(declarations('.brandIdentity')?.get('height')).toBe('24px')
     expect(declarations('.brandName')?.get('height')).toBe('24px')

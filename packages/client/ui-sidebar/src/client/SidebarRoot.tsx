@@ -276,7 +276,7 @@ export function SidebarRoot({
           aria-keyshortcuts={newShortcut?.aria}
           onClick={() => { startSession() }}
         >
-          <IconNewChatOutline16 size={wide ? 16 : windowsTitlebar ? 16 : 18} />
+          <IconNewChatOutline16 size={wide ? 14 : windowsTitlebar ? 16 : 18} />
           {wide && <span className={clsx(css.newSessionLabel, css.wide)}>{t('session.new')}</span>}
           {wide && newShortcut !== undefined && newShortcut.keys.length > 0 && <span className={css.newSessionShortcut} aria-hidden="true">
             <ShortcutKeys keys={newShortcut.keys} />
