@@ -179,7 +179,11 @@ describe('mandatory V4 dependent event restoration', () => {
     const title = row('session/title', { title: 'Example', source: { kind: 'generated' }, messageSeqs: [0] })
     const requestTitle = row('session/title-llm-request', { messageSeqs: [0], messages: [{ ...user('qilin-session-title-llm'), content: [{ type: 'text', text: 'historical frame with original coordinates' }] }] })
     expect(() => reopen([input(), title, requestTitle, row('session/title', { title: 'Manual', source: { kind: 'user' }, messageSeqs: [] })])).not.toThrow()
-    for (const rows of [[input('external'), title], [input(), { ...title, data: { ...title.data, source: { kind: 'user' } } }], [input(), { ...title, data: { ...title.data, messageSeqs: [0, 0] } }], [input(), { ...title, data: { ...title.data, messageSeqs: [1] } }], [input(), { ...requestTitle, data: { ...requestTitle.data, messages: [user()] } }], [input(), { ...requestTitle, data: { ...requestTitle.data, messageSeqs: [] } }]]) {
+    // The pre-rename product prefix wrote the historical source kind; the
+    // structural facts hold, so the reader must not strand those sessions.
+    const historical = row('session/title-llm-request', { messageSeqs: [0], messages: [{ ...user('dsh-session-title-llm'), content: [{ type: 'text', text: 'historical frame with original coordinates' }] }] })
+    expect(() => reopen([input(), title, historical, row('session/title', { title: 'Manual', source: { kind: 'user' }, messageSeqs: [] })])).not.toThrow()
+    for (const rows of [[input('external'), title], [input(), { ...title, data: { ...title.data, source: { kind: 'user' } } }], [input(), { ...title, data: { ...title.data, messageSeqs: [0, 0] } }], [input(), { ...title, data: { ...title.data, messageSeqs: [1] } }], [input(), { ...requestTitle, data: { ...requestTitle.data, messages: [user()] } }], [input(), { ...requestTitle, data: { ...requestTitle.data, messageSeqs: [] } }], [input(), { ...historical, data: { ...historical.data, messages: [user('other-product-title-llm')] } }]]) {
       expect(() => reopen(rows)).toThrow()
     }
   })

@@ -650,6 +650,23 @@ describe('released v1 whole-artifact relationships', () => {
     }
     const prefix = [{ type: 'turn/start', seq: 0, time: 1, data: { turn: 1 } }, direct]
     expect(decode([...prefix, request]).events).toHaveLength(3)
+    // The pre-rename product prefix wrote the historical plugin id; the
+    // structural facts hold, so the reader must not strand those sessions.
+    const historical = {
+      ...request,
+      data: {
+        ...request.data,
+        messages: [{
+          id: 'framed', role: 'user', content: [{ type: 'text', text: framed }],
+          source: { kind: 'plugin', plugin: 'dsh-session-title-llm' },
+        }],
+      },
+    }
+    expect(decode([...prefix, historical]).events).toHaveLength(3)
+    expect(() => decode([...prefix, {
+      ...historical,
+      data: { ...historical.data, messages: [{ ...historical.data.messages[0]!, source: { kind: 'plugin', plugin: 'other-product-title-llm' } }] },
+    }])).toThrow(/do not represent/)
     const mixedHuman = {
       type: 'user/message', seq: 1, time: 2, surfaceOp: 'append',
       data: {

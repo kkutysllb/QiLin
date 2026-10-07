@@ -59,6 +59,10 @@ describe('rewritePluginSource', () => {
     expect(rewritePluginSource({ kind: 'plugin', plugin: 'tools-code-mode' }, 1, 'user')).toEqual({ kind: 'ptc-mode' })
     expect(rewritePluginSource({ kind: 'plugin', plugin: '@qilin/system-prompt' }, 1, 'system')).toEqual({ kind: 'system-prompt' })
     expect(rewritePluginSource({ kind: 'plugin', plugin: '@qilin/system-prompt' }, 1, 'user')).toEqual({ kind: 'runtime-context' })
+    // The title plugin's pre-rename id lifts to the current producer kind, so
+    // the migrated artifact clears the V4 title-request source assertions.
+    expect(rewritePluginSource({ kind: 'plugin', plugin: 'dsh-session-title-llm' }, 1, 'user'))
+      .toEqual({ kind: 'qilin-session-title-llm' })
     expect(rewritePluginSource({ kind: 'plugin', plugin: 'external', extra: true }, 1, 'user')).toEqual({ kind: 'plugin:external', extra: true })
   })
 

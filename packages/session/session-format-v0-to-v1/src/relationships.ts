@@ -6,6 +6,16 @@ import { RELEASED_V0_EVENT_DISPOSITIONS } from './dispositions.ts'
 
 const SURFACE_TYPES = new Set(['user/message', 'assistant/message', 'tool/result'])
 
+/**
+ * Title-plugin ids the title-request reader accepts as its own product's
+ * frame. The id was renamed with the product prefix, and logs the
+ * renamed-before builds wrote carry the historical literal — a rename must
+ * not strand their sessions.
+ */
+const TITLE_REQUEST_PLUGIN_IDS: ReadonlySet<unknown> = new Set<string>([
+  'qilin-session-title-llm', 'dsh-session-title-llm',
+])
+
 interface CompactionState {
   readonly id: string
   readonly sourceCommandId?: string
@@ -454,7 +464,7 @@ function assertTitleSources(
     const content = message?.['content'] as readonly Record<string, SessionFormatJsonValue>[] | undefined
     const source = message === undefined ? undefined : releasedV0Record(message['source'], 'session/title-llm-request message source')
     if (messages.length !== 1 || message?.['role'] !== 'user' || content?.length !== 1
-      || source?.['kind'] !== 'plugin' || source['plugin'] !== 'qilin-session-title-llm') {
+      || source?.['kind'] !== 'plugin' || !TITLE_REQUEST_PLUGIN_IDS.has(source['plugin'])) {
       throw new SessionFormatError('session/title-llm-request messages do not represent messageSeqs')
     }
     const framed = content[0]

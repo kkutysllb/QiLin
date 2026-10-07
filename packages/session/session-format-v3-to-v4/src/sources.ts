@@ -42,6 +42,10 @@ const RENAMED_PRODUCERS: Readonly<Record<string, string>> = Object.freeze({
   'tools-ptc': 'ptc-mode',
   'qilin-compaction-basic': 'compact-basic',
   '@qilin/system-prompt': 'runtime-context',
+  // The title plugin's id followed the product-prefix rename; without the
+  // mapping every pre-rename title request lifts to `plugin:dsh-session…`
+  // and the V4 reader strands the session.
+  'dsh-session-title-llm': 'qilin-session-title-llm',
 })
 
 /** First-party V3 plugin identities that intentionally keep their current kind. */

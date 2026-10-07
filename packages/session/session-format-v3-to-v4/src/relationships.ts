@@ -346,6 +346,18 @@ function notStartedRepair(
     && block['text'] === 'The tool call was interrupted before the Harness recorded it as started. Retry it if it is still needed.'
 }
 
+/**
+ * Message-source kinds the title-request reader accepts as its own product's
+ * frame. The product renamed its prefix over time, so logs written before the
+ * rename carry the historical literal; this reader asserts the event's
+ * structural facts, not the brand spelling, so a rename must not strand the
+ * sessions an earlier build wrote.
+ */
+const TITLE_REQUEST_SOURCE_KINDS: ReadonlySet<unknown> = new Set<string>([
+  'qilin-session-title-llm',
+  'dsh-session-title-llm',
+])
+
 function titleSources(
   events: readonly SessionFormatEvent[], event: SessionFormatEvent, data: SessionFormatJsonObject, knownEventTypes: ReadonlySet<string>,
 ): void {
@@ -368,7 +380,7 @@ function titleSources(
   const content = array(message['content'], 'title content')
   const block = content[0]
   if (references.length === 0 || messages.length !== 1 || message['role'] !== 'user'
-    || record(message['source'], 'title source')['kind'] !== 'qilin-session-title-llm'
+    || !TITLE_REQUEST_SOURCE_KINDS.has(record(message['source'], 'title source')['kind'])
     || content.length !== 1 || !isSessionFormatJsonObject(block) || block['type'] !== 'text') {
     throw new SessionFormatError('session/title-llm-request messages do not represent messageSeqs')
   }
