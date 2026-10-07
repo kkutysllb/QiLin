@@ -11,7 +11,7 @@ import {
   wrapSidebarRight, type OpenPathInterceptDeps, type SidebarRightOpenOptions,
 } from '../src/client/openpath-intercept.ts'
 
-const FILE_ADDRESS = 'qilin-resource://file/session/s-1/docs/index.md'
+const FILE_ADDRESS = 'qilin-resource://file/session/s-1/notes/readme.md'
 const REVIEW_ADDRESS = 'qilin-resource://changes-review/session/s-1/7'
 
 interface Harness {
@@ -42,14 +42,14 @@ describe('wrapSidebarRight', () => {
   it('claims plain file opens into the sidebar editor', () => {
     const h = mounted()
     h.right.openResource(FILE_ADDRESS)
-    expect(h.openInSidebar).toHaveBeenCalledWith('docs/index.md', 's-1')
+    expect(h.openInSidebar).toHaveBeenCalledWith('notes/readme.md', 's-1')
     expect(h.original).not.toHaveBeenCalled()
   })
 
   it('claims the document-preview open (kind text) like a plain file open', () => {
     const h = mounted()
     h.right.openResource(FILE_ADDRESS, { kind: 'text' })
-    expect(h.openInSidebar).toHaveBeenCalledWith('docs/index.md', 's-1')
+    expect(h.openInSidebar).toHaveBeenCalledWith('notes/readme.md', 's-1')
     expect(h.original).not.toHaveBeenCalled()
   })
 
