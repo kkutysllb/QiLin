@@ -106,6 +106,7 @@
     "@qilin/tool-goal": "workspace:*",
     "@qilin/tool-pwsh": "workspace:*",
     "@qilin/tool-ralph": "workspace:*",
+    "@qilin/tool-schedule": "workspace:*",
     "@qilin/tool-skill": "workspace:*",
     "@qilin/tool-subagent": "workspace:*",
     "@qilin/tool-subagent-control": "workspace:*",

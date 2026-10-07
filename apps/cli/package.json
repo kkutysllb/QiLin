@@ -99,6 +99,7 @@
     "@qilin/tool-pwsh": "workspace:*",
     "@qilin/tool-pwsh-persistent": "workspace:*",
     "@qilin/tool-ralph": "workspace:*",
+    "@qilin/tool-schedule": "workspace:*",
     "@qilin/tool-skill": "workspace:*",
     "@qilin/tool-str-replace-editor": "workspace:*",
     "@qilin/tool-subagent": "workspace:*",

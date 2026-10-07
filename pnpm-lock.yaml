@@ -369,6 +369,9 @@ importers:
       '@qilin/tool-ralph':
         specifier: workspace:*
         version: link:../../packages/workflow/tool-ralph
+      '@qilin/tool-schedule':
+        specifier: workspace:*
+        version: link:../../packages/schedule/tool-schedule
       '@qilin/tool-skill':
         specifier: workspace:*
         version: link:../../packages/skill/tool-skill
@@ -1887,6 +1890,9 @@ importers:
       '@qilin/tool-ralph':
         specifier: workspace:*
         version: link:../../workflow/tool-ralph
+      '@qilin/tool-schedule':
+        specifier: workspace:*
+        version: link:../../schedule/tool-schedule
       '@qilin/tool-skill':
         specifier: workspace:*
         version: link:../../skill/tool-skill
