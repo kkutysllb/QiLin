@@ -405,21 +405,6 @@ export function RightbarSeat({
     if (active && surface === undefined) actions.open(sessionId)
   }, [actions, sessionId, surface, active])
 
-  // Entering the coding tag opens the column — once per entry, on the
-  // false→true edge only: the coding workbench is sidebar-first and its body
-  // renders only inside an expanded column. The edge guard keeps a manual
-  // collapse in force while coding stays active (the effect re-runs on every
-  // surface store write, and re-reading `expanded` there would fight it);
-  // only when the column fits — the no-room concession below owns the rest.
-  const wasCoding = useRef(false)
-  useEffect(() => {
-    const entering = coding && !wasCoding.current
-    wasCoding.current = coding
-    if (entering && active && !autoFullscreen && canShow && surface !== undefined && !surface.layout.expanded) {
-      actions.setExpanded(sessionId, true)
-    }
-  }, [actions, sessionId, surface, coding, active, autoFullscreen, canShow])
-
   useLayoutEffect(() => {
     if (shown && !fullscreen && !canShow) actions.setExpanded(sessionId, false)
   }, [actions, sessionId, shown, fullscreen, canShow])
