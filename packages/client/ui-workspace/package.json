@@ -59,7 +59,6 @@
     "@qilin/api-remotes": "workspace:*",
     "@qilin/api-session-controller": "workspace:*",
     "@qilin/api-workspace-controller": "workspace:*",
-    "@qilin/api-workspace-git": "workspace:*",
     "@qilin/client-connection": "workspace:*",
     "@qilin/client-locale": "workspace:*",
     "@qilin/client-shortcuts": "workspace:*",

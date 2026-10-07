@@ -6376,9 +6376,6 @@ importers:
       '@qilin/api-workspace-controller':
         specifier: workspace:*
         version: link:../../api/workspace-controller
-      '@qilin/api-workspace-git':
-        specifier: workspace:*
-        version: link:../../api/workspace-git
       '@qilin/client-connection':
         specifier: workspace:*
         version: link:../connection

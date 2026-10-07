@@ -137,12 +137,6 @@ export type WorkspaceBrowserInjected = {
    * the browser imports no cross-plugin value (the purity gate forbids one).
    */
   shows: (preset: string | null | undefined, tag: WorkbenchTag) => boolean
-  /**
-   * The Workspace path's Git kind, probed once per directory: `true` inside a
-   * Git work tree, `false` outside one, `undefined` while unknown. Classifies
-   * preset-less sessions (the D2 fallback) and marks their inferred rows.
-   */
-  gitKind: (path: string) => boolean | undefined
   /** Open the browser search and focus its input. */
   requestSearch: () => void
   /** Request the existing directory picker. */

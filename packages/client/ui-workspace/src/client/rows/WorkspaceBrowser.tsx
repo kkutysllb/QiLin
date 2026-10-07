@@ -9,13 +9,13 @@
  * between; the flow and its error dialog live in WorkspacePicker (same package
  * — direct composition, no slot between them).
  */
-import { type CSSProperties, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import clsx from 'clsx'
 import {
   Button, IconCloseFill14, IconPersonalizationOutline16,
   IconProjectAddOutline16, IconSearchOutline16, Menu, Modal, Tooltip,
 } from '@qilin/client-ui-primitives'
-import { workbenchFallbackShows, type WorkbenchTag } from '@qilin/client-ui-workbench/client'
+import type { WorkbenchTag } from '@qilin/client-ui-workbench/client'
 import type {
   SessionListState, SessionSearchResultItem,
 } from '@qilin/api-session-controller/client'
@@ -63,25 +63,20 @@ function collapsedSessionRows(sessions: readonly SessionNode[]): {
 
 /**
  * The D2 workbench filter over one catalog snapshot: keep the on-screen
- * session, every session whose recorded preset shows under the tag, and every
- * preset-less session the Workspace's Git kind classifies into the tag — so a
- * switch hides the other tag's rows without ever hiding the open one or
- * guessing about a row whose kind has not landed.
+ * session and every session whose recorded preset shows under the tag, so a
+ * switch hides the other tag's rows without ever hiding the open one.
  */
 function filterForWorkbench(
   list: SessionListState,
   tag: WorkbenchTag,
   shows: (preset: string | null | undefined, tag: WorkbenchTag) => boolean,
-  gitKindOf: (id: string) => boolean | undefined,
 ): SessionListState {
   const ids = list.ids.filter((id) => {
     const row = list.byId[id]
     // A ghost id (summary not landed) renders nothing anyway; drop it.
     if (row === undefined) return false
     if ((row.retainedBy.mainView ?? 0) > 0) return true
-    const preset = row.projectionValues?.agentPreset
-    if (preset !== undefined && preset !== null) return shows(preset, tag)
-    return workbenchFallbackShows(gitKindOf(id), tag)
+    return shows(row.projectionValues?.agentPreset, tag)
   })
   // fromEntries widens the keys to string; the ids filter guarantees each row.
   const byId = Object.fromEntries(ids.map(id => [id, list.byId[id]])) as SessionListState['byId']
@@ -204,8 +199,6 @@ type SessionTreeProps = Pick<
 > & {
   /** Always-mounted Session list snapshot. */
   list: SessionListState
-  /** The D2 Git fallback's tag per preset-less row (absent for recorded presets and unknown kinds). */
-  inferredTags: ReadonlyMap<string, WorkbenchTag>
   /** Host account home for POSIX hover-path abbreviation. */
   home?: string | undefined
   /** Workspaces in Host group order with browser-projected Session order. */
@@ -246,7 +239,7 @@ type SessionTreeProps = Pick<
 
 /** The scrolling session tree; unmounting drops the sessions subscription and expand-all state. */
 function SessionTree({
-  list, inferredTags, useSessionStatus, startSession, open, forkSession, workspaces, ungroupedSessionIds,
+  list, useSessionStatus, startSession, open, forkSession, workspaces, ungroupedSessionIds,
   archivedSessionIds, pinnedSessionIds, onSessionPin, onSessionUnpin,
   workspaceReady, usePanelInfo,
   onRenameRequest, onDeleteRequest, onSessionRename, onSessionArchive,
@@ -556,7 +549,6 @@ function SessionTree({
               node={node}
               currentId={current}
               now={now}
-              inferredTag={inferredTags.get(node.id)}
               onOpen={open}
               onRename={onSessionRename}
               onFork={forkSession}
@@ -608,13 +600,12 @@ function SessionTree({
 
 /** The flat "In one list" body: every session is one draggable top-level row. */
 function FlatList({
-  list, inferredTags, sessionIds, pinnedSessionIds, useSessionStatus, open, forkSession, onSessionRename, onSessionArchive,
+  list, sessionIds, pinnedSessionIds, useSessionStatus, open, forkSession, onSessionRename, onSessionArchive,
   onSessionPin, onSessionUnpin,
   usePanelInfo, setSessionOrder,
   revealSessionId, onSessionRevealed, t, renderSlot,
 }: Pick<
   SessionTreeProps,
-  | 'inferredTags'
   | 'useSessionStatus'
   | 'open'
   | 'forkSession'
@@ -679,7 +670,6 @@ function FlatList({
               node={node}
               currentId={currentId}
               now={now}
-              inferredTag={inferredTags.get(node.id)}
               onOpen={open}
               onRename={onSessionRename}
               onFork={forkSession}
@@ -822,7 +812,6 @@ export function WorkspaceBrowser({
   useStore,
   actions,
   shows,
-  gitKind,
   useWorkbench,
   startSession,
   open,
@@ -851,38 +840,13 @@ export function WorkspaceBrowser({
 }: WorkspaceBrowserProps) {
   const home = useHostInfo(info => info.home)
   const workbench = useWorkbench(state => state)
-  const workspaces = useWorkspaces(state => state.items)
   // Ordering remains live while the rail or search replaces the list body.
   const rawList = useSessions(state => state)
-  // One Workspace directory per Session: the Git fallback classifies
-  // preset-less rows by their Workspace, and the inferred rows badge it.
-  const pathBySession = useMemo(() => {
-    const map = new Map<string, string>()
-    for (const workspace of workspaces) {
-      for (const id of workspace.sessionIds) map.set(id, workspace.path)
-    }
-    return map
-  }, [workspaces])
-  const gitKindOf = useCallback((id: string): boolean | undefined => {
-    const path = pathBySession.get(id)
-    return path === undefined ? undefined : gitKind(path)
-  }, [gitKind, pathBySession])
   const list = useMemo(
-    () => filterForWorkbench(rawList, workbench.active, shows, gitKindOf),
-    [rawList, workbench.active, shows, gitKindOf],
+    () => filterForWorkbench(rawList, workbench.active, shows),
+    [rawList, workbench.active, shows],
   )
-  const inferredTags = useMemo(() => {
-    const map = new Map<string, WorkbenchTag>()
-    for (const id of list.ids) {
-      const row = list.byId[id]
-      if (row === undefined) continue
-      const preset = row.projectionValues?.agentPreset
-      if (preset !== undefined && preset !== null) continue
-      const git = gitKindOf(id)
-      if (git !== undefined) map.set(id, git ? 'coding' : 'general')
-    }
-    return map
-  }, [list, gitKindOf])
+  const workspaces = useWorkspaces(state => state.items)
   const workspacePhase = useWorkspaces(state => state.phase)
   const workspaceStreamState = useWorkspaces(state => state.state)
   const archivedSessionIds = useWorkspaces(state => state.archivedSessionIds)
@@ -1405,7 +1369,6 @@ export function WorkspaceBrowser({
               <FlatList
                 usePanelInfo={usePanelInfo}
                 list={list}
-                inferredTags={inferredTags}
                 sessionIds={orderedFlatSessionIds}
                 useSessionStatus={useSessionStatus}
                 open={open} forkSession={forkSession}
@@ -1423,7 +1386,6 @@ export function WorkspaceBrowser({
               <SessionTree
                 usePanelInfo={usePanelInfo}
                 list={list}
-                inferredTags={inferredTags}
                 useSessionStatus={useSessionStatus}
                 renderSlot={renderSlot}
                 onSessionRename={onSessionRename}

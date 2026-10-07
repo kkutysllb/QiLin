@@ -1,5 +1,5 @@
 ---
-description: "Workbench tag state owner for the qilin web client: the general/coding selection, each tag's remembered new-task preset, and the preset-to-tag and Workspace-Git-kind session visibility folds."
+description: "Workbench tag state owner for the qilin web client: the general/coding selection, each tag's remembered new-task preset, and the preset-to-tag session visibility fold."
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-This package owns the workbench selection: which of the two workbench tags — general or coding — the client surfaces show, and which agent preset each tag's new task carries. It exposes one `workbench` client service holding the persisted selection, the per-tag preset memory, and the visibility folds that decide whether a session's recorded preset belongs to a tag's list, and where a preset-less session lands from its Workspace's Git kind. The package owns state only: surfaces that switch the tag, filter their lists, or rebind sessions consume the service, so the dependency edge stays one-directional.
+This package owns the workbench selection: which of the two workbench tags — general or coding — the client surfaces show, and which agent preset each tag's new task carries. It exposes one `workbench` client service holding the persisted selection, the per-tag preset memory, and the visibility fold that decides whether a session's recorded preset belongs to a tag's list. The package owns state only: surfaces that switch the tag, filter their lists, or rebind sessions consume the service, so the dependency edge stays one-directional.
 
 ## Table of Contents
 
@@ -32,7 +32,7 @@ The selection persists in this browser under `qilin.workbench.v1`. It is a per-b
 
 ### Consuming the service
 
-Inject the `workbench` service and read `state` as an observable snapshot. `setActive(tag)` switches the tag; `presetFor(tag)` and `setPresetFor(tag, presetId)` read and remember each tag's new-task choice; `shows(preset, tag)` answers the preset fold for one session's `agentPreset` projection value, and `workbenchFallbackShows(git, tag)` answers the Git-kind fold for a preset-less session's Workspace. The folds and the tag vocabulary are also exported as pure values so a test can assert membership without booting the service.
+Inject the `workbench` service and read `state` as an observable snapshot. `setActive(tag)` switches the tag; `presetFor(tag)` and `setPresetFor(tag, presetId)` read and remember each tag's new-task choice; `shows(preset, tag)` answers the visibility fold for one session's `agentPreset` projection value. The fold and the tag vocabulary are also exported as pure values so a test can assert membership without booting the service.
 
 -----
 

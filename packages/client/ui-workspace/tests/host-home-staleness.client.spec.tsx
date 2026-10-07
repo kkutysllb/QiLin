@@ -39,8 +39,7 @@ async function bench() {
     list: vi.fn(async () => ({ ok: true as const, value: { presets: [], authorable: false, modeSelectionEnabled: false } })),
   }
   const { remote } = runtime
-  const workspaceGit = { isRepo: vi.fn(async () => false) }
-  remote.provideNamespaces({ directoryPicker, agentPresets, workspaceGit })
+  remote.provideNamespaces({ directoryPicker, agentPresets })
   const locale = new LocaleRuntime(runtime.ctx)
   runtime.ctx.provide('locale', locale)
   runtime.slots.installLocale(locale)

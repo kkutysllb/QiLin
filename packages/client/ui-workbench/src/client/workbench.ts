@@ -60,22 +60,6 @@ export function workbenchShows(preset: string | null | undefined, tag: Workbench
 }
 
 /**
- * Whether one preset-less session shows under `tag` by its Workspace's Git
- * kind (the D2 fallback for sessions that predate the recorded preset): a Git
- * work tree's sessions are coding work, any other directory's are general.
- * `undefined` — still probing, probe failure, or no Workspace — shows the
- * session under both tags, so classification never hides a row on a guess it
- * has not made yet.
- * @param git - the Workspace's Git kind, or `undefined` while unknown.
- * @param tag - the workbench tag whose list is rendered.
- * @returns whether the fallback classifies the session into the tag.
- */
-export function workbenchFallbackShows(git: boolean | undefined, tag: WorkbenchTag): boolean {
-  if (git === undefined) return true
-  return tag === (git ? 'coding' : 'general')
-}
-
-/**
  * Validate one rehydrated workbench state. Storage is a durable boundary, so
  * a document shaped by an older or broken build resets to the defaults
  * instead of leaking an unknown tag into the switcher.

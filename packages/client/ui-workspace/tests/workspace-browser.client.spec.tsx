@@ -130,8 +130,6 @@ function mount(overrides: Partial<WorkspaceBrowserProps> = {}) {
     useHostInfo: selector => selector({ home: undefined, isLoopback: true }),
     useWorkbench: bindSnapshotSelector({ getSnapshot: () => WORKBENCH_DEFAULT_STATE, subscribe: () => () => {} }),
     shows: workbenchShows,
-    // No Git kinds in these flows: preset-less rows stay dual-tag visible.
-    gitKind: () => undefined,
     useWorkspaceShortcuts: bindSnapshotSelector(shortcutStore),
     useShortcuts: bindSnapshotSelector({ getSnapshot: () => noShortcuts, subscribe: () => () => {} }),
     requestSearch: shortcutChannel.requestSearch,
@@ -298,39 +296,6 @@ describe('WorkspaceBrowser', () => {
     expect(screen.getByText('ptcish')).toBeTruthy()
     expect(screen.getByText('kept')).toBeTruthy()
     expect(screen.queryByText('std')).toBeNull()
-  })
-
-  it('classifies preset-less rows by the Workspace Git kind and badges the inference (D2)', () => {
-    const workbench = createSnapshotStore({ ...WORKBENCH_DEFAULT_STATE })
-    const b = mount({
-      useSessions: hook(sessionState([
-        summary('legacy-repo', 1),
-        summary('legacy-notes', 2),
-        summary('recorded', 3, { projectionValues: { agentPreset: 'standard' } }),
-      ])),
-      useWorkspaces: hook(workspaceState([workspace('repo', ['legacy-repo']), workspace('notes', ['legacy-notes'])])),
-      useWorkbench: bindSnapshotSelector(workbench),
-      // No probe answer yet: both preset-less rows stay visible under either tag.
-      gitKind: () => undefined,
-    })
-    // Workspace groups render collapsed; open them and the Ungrouped bucket.
-    fireEvent.click(screen.getByText('repo'))
-    fireEvent.click(screen.getByText('notes'))
-    fireEvent.click(screen.getByText('未分组'))
-    expect(screen.getByText('legacy-repo')).toBeTruthy()
-    expect(screen.getByText('legacy-notes')).toBeTruthy()
-    // The probe answers for both Workspaces; the rows re-classify.
-    rerender(b, { gitKind: path => (path === '/projects/repo' ? true : path === '/projects/notes' ? false : undefined) })
-    // General keeps the non-Git Workspace's row and the recorded preset's row;
-    // the Git Workspace's preset-less row moves to coding with its badge.
-    expect(screen.queryByText('legacy-repo')).toBeNull()
-    expect(screen.getByText('legacy-notes')).toBeTruthy()
-    expect(screen.getByText('recorded')).toBeTruthy()
-    act(() => { workbench.set({ ...WORKBENCH_DEFAULT_STATE, active: 'coding' }) })
-    expect(screen.getByText('legacy-repo')).toBeTruthy()
-    expect(screen.getByText('编码')).toBeTruthy()
-    expect(screen.queryByText('legacy-notes')).toBeNull()
-    expect(screen.queryByText('recorded')).toBeNull()
   })
 
   it('workspace hover card shows a POSIX home descendant as ~', () => {

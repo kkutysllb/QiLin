@@ -78,7 +78,7 @@ const NS = 'workspace'
  */
 export const inject = [
   'slots', 'sessions', 'workspaces', 'locale', 'remote', 'remote.directoryPicker', 'remote.agentPresets',
-  'remote.workspaceGit', 'workbench', 'layout', 'shortcuts',
+  'workbench', 'layout', 'shortcuts',
 ]
 
 /**
@@ -136,7 +136,6 @@ export function apply(ctx: Context): void {
     // the current Session Workspace before the recent-Workspace fallback.
     startSession: (workspaceId) => { uiWorkspace.startSession(workspaceId) },
     shows: (preset, tag) => workbench.shows(preset, tag),
-    gitKind: path => gitKinds.getSnapshot()[path],
     open: openSession,
     searchSessions,
     searchResultLimit: sessions.searchResultLimit,
@@ -258,33 +257,6 @@ export function apply(ctx: Context): void {
     loadRoster()
     return ctx.on('connection/reset', loadRoster)
   }, 'ui-workspace: preset roster refresh')
-
-  // The Workspace directories' Git kinds, probed once per path through the
-  // workspaceGit remote: a preset-less session's workbench comes from its
-  // Workspace (D2 fallback), so the filter needs this per directory and the
-  // inferred rows badge it. A path never re-probes, a failure reads `false`
-  // (the remote answers false on every failure), and a Workspace without any
-  // Session waits for one — the probe's wire scope names a Session identity.
-  const gitKinds = createSnapshotStore<Record<string, boolean>>({})
-  const probingPaths = new Set<string>()
-  const probeGitKinds = (): void => {
-    for (const workspace of workspaces.list.getSnapshot().items) {
-      const sessionId = workspace.sessionIds[0]
-      if (sessionId === undefined || workspace.path in gitKinds.getSnapshot()) continue
-      if (probingPaths.has(workspace.path)) continue
-      probingPaths.add(workspace.path)
-      void ctx.remote.workspaceGit.isRepo(sessionId)
-        .catch(() => false)
-        .then((isRepo) => {
-          probingPaths.delete(workspace.path)
-          gitKinds.set({ ...gitKinds.getSnapshot(), [workspace.path]: isRepo === true })
-        })
-    }
-  }
-  ctx.effect(() => {
-    probeGitKinds()
-    return workspaces.list.subscribe(probeGitKinds)
-  }, 'ui-workspace: workspace git kinds')
   const pickPreset: AgentPresetChipInjected['pick'] = (presetId) => {
     workbench.setPresetFor(workbench.state.getSnapshot().active, presetId)
     uiWorkspace.adoptBlankSessionPreset(presetId)
