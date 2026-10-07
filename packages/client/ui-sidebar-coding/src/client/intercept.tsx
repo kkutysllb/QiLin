@@ -24,8 +24,8 @@
  * See {@link registerTurnTailInterception}.
  */
 import type { ReactElement } from 'react'
-import { IconCodeOutline16 } from '@qilin/client-ui-primitives'
 import type { Context } from '../context-types.ts'
+import { builtinFileIcon } from './file-icons.tsx'
 import { firstLeaf, revealPaths, togglePanel, type SidebarStore } from './state.ts'
 import { t } from './locales.ts'
 import { resolveSidebarPath, selectProducedFiles } from './produced-files.ts'
@@ -210,7 +210,7 @@ export function SidebarProducedFiles(props: {
             title={path}
             onClick={() => { openInSidebar(path) }}
           >
-            <IconCodeOutline16 size={12} />
+            {builtinFileIcon(path, 12)}
             <span>{name}</span>
           </button>
         )

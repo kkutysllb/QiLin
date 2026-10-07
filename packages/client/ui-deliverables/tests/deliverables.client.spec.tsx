@@ -583,6 +583,10 @@ describe('ChangedFiles card', () => {
     expect(within(card).getAllByRole('listitem')).toHaveLength(3)
     expect(within(card).getByText('config/design-token')).toBeTruthy()
     expect(within(card).getByText('+42')).toBeTruthy()
+    // Each row leads with the file-type badge beside the name (the icon is the
+    // row's only decoration; the header's tile sits outside the list).
+    const firstRow = within(card).getAllByRole('listitem')[0]
+    expect(firstRow?.querySelector('button svg')).not.toBeNull()
     expect(within(card).queryByText('src/index.ts')).toBeNull()
     fireEvent.click(within(card).getByRole('button', { name: 'View changes to config/feature-flags.json' }))
     expect(props.openChangesReview).toHaveBeenLastCalledWith({ sessionId: 'child-session', seq: 5, turn: 1 }, 1)

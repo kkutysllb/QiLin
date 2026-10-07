@@ -19,6 +19,12 @@ button.header:disabled { cursor: progress; }
 .row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary)); }
 .row:disabled { cursor: progress; }
 .path { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* The row's file identity: a file-type icon badge beside the highlighted name.
+   The badge borrows the delivery card's tile treatment so one file reads the
+   same way in both turn-tail rows. */
+.leading { display: inline-flex; flex: 1; align-items: center; gap: 8px; min-width: 0; }
+.fileIcon { box-sizing: border-box; flex: none; display: grid; place-items: center; width: 22px; height: 22px; overflow: hidden; border: 0.5px solid var(--qilin-alias-border-l1); border-radius: 6px; background: var(--changes-fill); color: var(--qilin-alias-link); }
+.row .path { color: var(--qilin-alias-label-primary); font-weight: 500; }
 .counts { display: inline-flex; flex: none; gap: 6px; white-space: nowrap; color: var(--qilin-alias-label-tertiary); }
 .toggle { display: inline-flex; align-items: center; gap: 4px; box-sizing: border-box; width: 100%; margin: 0; padding: 8px 16px; border: 0; border-top: 0.5px solid var(--qilin-alias-border-l1); background: transparent; color: var(--qilin-alias-label-tertiary); cursor: pointer; font: inherit; font-size: 12px; line-height: 18px; text-align: left; }
 .toggle:hover { background: var(--qilin-alias-interactive-bg-hover); }

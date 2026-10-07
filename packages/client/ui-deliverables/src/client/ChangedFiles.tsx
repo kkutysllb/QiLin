@@ -1,7 +1,7 @@
 /** The changed-files card: a header and per-file rows that open the turn's review, and a three-row fold. */
 import { useState } from 'react'
 import { resolveWorkspacePath } from '@qilin/util-workspace-path'
-import { IconChevronDownOutline14, IconChevronUpOutline14 } from '@qilin/client-ui-primitives'
+import { FileTypeIcon, IconChevronDownOutline14, IconChevronUpOutline14 } from '@qilin/client-ui-primitives'
 import type { PropsLocale } from '@qilin/client-ui-slots'
 import type { ChangesSummary } from '../changes.ts'
 import { IconCodeBracketsOutline16 } from './icons.tsx'
@@ -51,7 +51,10 @@ export function ChangedFiles({ changes, cwd, openReview, t }: {
           <button type="button" className={css.row} title={resolveWorkspacePath(cwd, file.path)}
             aria-label={t('changes.viewDiff', { name: file.display })}
             onClick={() => { openReview(index) }}>
-            <span className={css.path}>{file.display}</span>
+            <span className={css.leading}>
+              <span className={css.fileIcon} aria-hidden><FileTypeIcon path={file.path} size={16} /></span>
+              <span className={css.path}>{file.display}</span>
+            </span>
             <span className={css.counts}>
               {file.binary === true ? t('changes.binary')
                 : file.oversized === true ? t('changes.oversized')
