@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-06-11-quality-gates.md
 /agent-note-mechanical-quality-gates-over-prose-guidelines:
-  en: 1fca6e42372e2b8f
-  zh: 226a90bda090c23a
+  en: ae2f139146514a51
+  zh: 199de1d284bc8aa5
 /agent-note-mechanical-quality-gates-over-prose-guidelines/problem:
   en: 526b060333ea2457
   zh: 182f46699589aff5

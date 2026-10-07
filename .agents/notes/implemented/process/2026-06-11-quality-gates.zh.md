@@ -4,7 +4,7 @@ Status: implemented
 
 [English](2026-06-11-quality-gates.md) | 中文
 
-本记录中的钩子/CI 对称设计已由[快速本地 Git 钩子](../../archived/process/2026-07-22-fast-local-git-hooks.md)取代；CI 仍是执行完整检查的路径。
+本记录中的钩子/CI 对称设计已由[快速本地 Git 钩子](../../archived/process/2026-07-22-fast-local-git-hooks.md)取代；CI 仍是执行完整检查的路径。在本分支中托管工作流已禁用，同一批门禁改在本机按需执行（见[QiLin 只发 web 引擎](2026-10-07-fork-ci-runs-on-demand.zh.md)）。
 
 ## 问题
 

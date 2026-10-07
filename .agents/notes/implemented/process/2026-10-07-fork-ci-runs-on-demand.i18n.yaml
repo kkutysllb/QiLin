@@ -1,0 +1,22 @@
+# Bilingual-pair consistency record for 2026-10-07-fork-ci-runs-on-demand.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-10-07-fork-ci-runs-on-demand.md
+/agent-note-qilin-ships-the-web-engine-only-so-ci-runs-on-demand:
+  en: dad7688c978540e7
+  zh: c4f287ca2761223e
+/agent-note-qilin-ships-the-web-engine-only-so-ci-runs-on-demand/problem:
+  en: b2b3cccf6aed5273
+  zh: 743c6165c612f296
+/agent-note-qilin-ships-the-web-engine-only-so-ci-runs-on-demand/decision:
+  en: ab0863c1b6545567
+  zh: 46b74aa5d5b60c67
+/agent-note-qilin-ships-the-web-engine-only-so-ci-runs-on-demand/alternatives-considered:
+  en: 071d28eea95de0cd
+  zh: 00f7891e5951a222
+/agent-note-qilin-ships-the-web-engine-only-so-ci-runs-on-demand/consequences:
+  en: 9bf3a60f6cca1748
+  zh: 9fb7e249989ff580
+/agent-note-qilin-ships-the-web-engine-only-so-ci-runs-on-demand/related:
+  en: 4ae49124c286fa51
+  zh: 93112c58f6177925
