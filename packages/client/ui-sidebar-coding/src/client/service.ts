@@ -30,7 +30,7 @@ import type { SessionScope } from './api.ts'
 import type { SidebarPrefs } from '../prefs-shared.ts'
 import { notifyIsolated } from '../registration.ts'
 import { createFileIconRegistry, extOf } from './file-icon-registry.ts'
-import { needsPanelExpansion } from './open-intent.ts'
+import { isContentOpen, needsPanelExpansion } from './open-intent.ts'
 import type { FileIconDescriptor } from './file-icon-registry.ts'
 import { HOST_FILE_ICONS } from './file-icons.tsx'
 
@@ -391,9 +391,11 @@ export interface BetterSidebarService {
    * in the currently active session (the pre-0.12 behavior).
    *
    * A CONTENT open (a `path` or `url` seed) must land in sight: when the
-   * panel is collapsed, it is expanded automatically. Type-only opens (the
-   * + menu, agent-terminal auto-tabs) never expand — the panel behavior is
-   * their caller's business.
+   * panel is collapsed, it is expanded automatically, and the right column
+   * the panel is rendered in is revealed through the service's `revealColumn`
+   * port (the frame owns that collapse). Type-only opens (the + menu,
+   * agent-terminal auto-tabs) never expand — the panel behavior is their
+   * caller's business.
    *
    * Note: `available` gates the + menu's disabled state only — it does NOT
    * refuse `openTab` (only the settings disable switch does).
@@ -581,12 +583,32 @@ function safeCall(fn: () => void): void {
   }
 }
 
+/** Host facts the panel cannot reach on its own: one port per need. */
+export interface BetterSidebarServiceOptions {
+  /**
+   * Show the right column this panel is rendered in when it is collapsed.
+   *
+   * The panel's own open flag only reaches as far as the column's frame
+   * (single shell, D5): the frame slides the whole body off-edge while its
+   * column is collapsed, so a content open must ask the frame for the step —
+   * content the user cannot see is not opened. Absent (a test runtime without
+   * the frame) content opens still land in the panel's own state.
+   */
+  readonly revealColumn?: () => void
+}
+
 /**
  * Create one BetterSidebar service bound to a store. The service owns the
  * tab/viewer registries (Map + listener set) and proxies openTab/closeTab
  * to the store's reducer. One instance per client plugin activation.
+ * @param store - the sidebar store this service reads prefs from and reduces into.
+ * @param options - host ports (see {@link BetterSidebarServiceOptions}).
+ * @returns the service instance published as `ctx.betterSidebar`.
  */
-export function createBetterSidebarService(store: SidebarStore): BetterSidebarService {
+export function createBetterSidebarService(
+  store: SidebarStore,
+  options: BetterSidebarServiceOptions = {},
+): BetterSidebarService {
   const tabs = new Map<string, TabDescriptor>()
   const viewers = new Map<string, FileViewerDescriptor>()
   const listeners = new Set<() => void>()
@@ -797,6 +819,13 @@ export function createBetterSidebarService(store: SidebarStore): BetterSidebarSe
       // ⇒ 按版本线规则得 bump 版本 + 发布，为一个行为不变的重构不成比例——
       // 抽取与真行为测试并进下一次本来就要 bump 的版本。详见清单 §3。
       // 规则本体在 `./open-intent.ts`（无依赖纯函数，`tests/open-intent.mjs` 直接对真源码跑用例）
+      //
+      // The panel renders INSIDE the right column's frame (single shell, D5):
+      // the frame's own collapse hides the whole body whatever this flag says,
+      // so a content open asks the frame for the revealing step too — the same
+      // step the frame's own page opens take. Type-only opens leave it to
+      // their caller, like the flag.
+      if (isContentOpen(seed) && !targetsInactiveSession) options.revealColumn?.()
       if (needsPanelExpansion(seed, {
         targetsInactiveSession,
         hasWindow: typeof window !== 'undefined',

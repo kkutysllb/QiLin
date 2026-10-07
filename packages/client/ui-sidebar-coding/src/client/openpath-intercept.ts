@@ -355,7 +355,9 @@ export function fileTargetOfAddress(address: string): FileAddressTarget | undefi
  *   meant "the caller demands a native page", but in the dual content body the
  *   coding content has no native page for it: an unclaimed open expands the
  *   sidebar onto the bare panel grid with no content. Claimed like the file
- *   funnel — the editor tab's viewer registry renders the document.
+ *   funnel — the editor tab's viewer registry renders the document, and the
+ *   landing reveals the coding column it renders in (the claim replaces the
+ *   native open that used to expand it).
  *
  * Two declines keep the wrapper honest: a call whose `options.kind` names any
  * other page type (that caller is addressing a page neither content body

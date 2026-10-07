@@ -108,9 +108,13 @@ export function openSidebarFile(ctx: Context, _store: SidebarStore, sessionId: s
  * @param store - the sidebar store (panel/tab preferences).
  * @param coordinates - the Session and announcing event the address names.
  * @param index - the changed-file index the caller navigated to, if any.
+ * @param revealColumn - shows the right column the panel is rendered in (the
+ *   summary fallback opens a type-only tab, so the file open's own reveal does
+ *   not run).
  */
 export function openReviewInSidebar(
   ctx: Context, store: SidebarStore, coordinates: ChangesReviewCoordinates, index: number | undefined,
+  revealColumn: () => void,
 ): void {
   const { sessionId } = coordinates
   void (async (): Promise<void> => {
@@ -128,6 +132,7 @@ export function openReviewInSidebar(
     // The panel is expanded here rather than by a content open: this landing
     // carries no file of its own, so nothing else would make it visible.
     store.reduce(s => (s.panelOpen ? s : togglePanel(s)))
+    revealColumn()
     // open-tab:type-only — 落点在此函数决定（摘要读不到时的兑底），面板已在上行展开
     ctx.get('betterSidebar')?.openTab({ type: 'editor', title: t('files') }, { sessionId })
   })()
@@ -143,14 +148,16 @@ let lastProduced: readonly string[] = []
 /**
  * Reveal the produced files in the sidebar explorer: expand their parent
  * directories, highlight the rows, and focus the explorer tab (expanding the
- * hosting panel when it is collapsed). Unknown files fall back to revealing
- * the workspace root itself.
+ * hosting panel and its column when they are collapsed). Unknown files fall
+ * back to revealing the workspace root itself.
+ * @param revealColumn - shows the right column the panel is rendered in.
  */
 export function revealInExplorer(
   ctx: Context,
   store: SidebarStore,
   sessionId: string,
   files: readonly string[],
+  revealColumn: () => void,
 ): void {
   const summary = ctx.sessions.list.getSnapshot().byId[sessionId]
   const cwd = summary?.cwd
@@ -164,8 +171,10 @@ export function revealInExplorer(
   // A type-only open never auto-expands the panel (only content opens do,
   // see service.openTab) — so a reveal opens the panel itself when it is
   // collapsed, exactly like the subagent auto-open flows, or the highlight
-  // would be set on an invisible panel.
+  // would be set on an invisible panel. The column the panel is rendered in
+  // is the frame's, so it takes the same explicit ask.
   store.reduce(s => (s.panelOpen ? s : togglePanel(s)))
+  revealColumn()
   // Pin the landing to the first pane: the files window must appear in the
   // panel that just expanded, not wherever the user last touched.
   store.reduce(s => ({ ...s, activePane: firstLeaf(s.splits).id }))
@@ -227,6 +236,14 @@ export function SidebarProducedFiles(props: {
 export interface InterceptGates {
   /** @returns whether the workbench coding tag is currently active. */
   readonly codingActive: () => boolean
+  /**
+   * Show the right column the coding content body is rendered in (the frame
+   * owns that collapse; see ./column-reveal.ts). Content opens reach it
+   * through the service's own port; the TYPE-ONLY landings below — the
+   * explorer reveal and the review fallback — carry no content of their own,
+   * so they ask for it here.
+   */
+  readonly revealColumn: () => void
 }
 
 /**
@@ -288,7 +305,7 @@ export function registerTurnTailInterception(ctx: Context, store: SidebarStore, 
     registrant: '@qilin/client-ui-sidebar-coding',
     inject: (sessionId: string) => ({
       openInSidebar: (path: string) => { openSidebarFile(ctx, store, sessionId, path) },
-      onShowInFolder: (files: readonly string[]) => { revealInExplorer(ctx, store, sessionId, files) },
+      onShowInFolder: (files: readonly string[]) => { revealInExplorer(ctx, store, sessionId, files, gates.revealColumn) },
     }),
   }, SidebarTurnTail))
 }
@@ -354,9 +371,9 @@ export function registerOpenPathInterception(ctx: Context, store: SidebarStore, 
       && store.getPrefs().tabsEnabled['editor'] !== false,
     currentSessionId: () => ctx.sessions.list.getSnapshot().current,
     openInSidebar: (path: string, sessionId: string) => { openSidebarFile(ctx, store, sessionId, path) },
-    revealInExplorer: (_path: string, sessionId: string) => { revealInExplorer(ctx, store, sessionId, lastProduced) },
+    revealInExplorer: (_path: string, sessionId: string) => { revealInExplorer(ctx, store, sessionId, lastProduced, gates.revealColumn) },
     openReview: (coordinates: ChangesReviewCoordinates, index: number | undefined) => {
-      openReviewInSidebar(ctx, store, coordinates, index)
+      openReviewInSidebar(ctx, store, coordinates, index, gates.revealColumn)
       return true
     },
   }

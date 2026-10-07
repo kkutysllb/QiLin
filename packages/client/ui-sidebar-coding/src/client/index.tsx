@@ -19,6 +19,7 @@ import { registerBuiltins } from './builtins/index.ts'
 import { Sidebar } from './Sidebar.tsx'
 import { RenderBoundary } from './RenderBoundary.tsx'
 import { registerOpenPathInterception, registerTurnTailInterception } from './intercept.tsx'
+import { createColumnReveal } from './column-reveal.ts'
 import { registerLinkInterception } from './link-intercept.ts'
 import { registerImeGuard } from './ime-guard.ts'
 import { loadPrefs } from './prefs.ts'
@@ -120,6 +121,16 @@ export function apply(ctx: Context): void {
     }
   }, 'ui-sidebar-coding: better-locale lazy integration')
 
+  // The dual-workbench tag (D5): every interception face engages only under
+  // the coding tag; the general tag lets the native faces act.
+  const workbench = ctx.get('workbench') as WorkbenchFace
+  const codingActive = (): boolean => workbench.state.getSnapshot().active === 'coding'
+  // The right column the coding content body is rendered in belongs to
+  // ui-sidebar-right's frame (single shell, D5): every landing that must be
+  // SEEN asks it to expand, because the frame's collapse hides the body
+  // whatever the panel's own flag says.
+  const revealColumn = createColumnReveal(ctx, codingActive)
+
   // One store instance per activation: production code creates it only here,
   // then hands it to the content body and closes over it in the slot
   // registrations (the official createXXXStore() factory rule — no
@@ -129,8 +140,9 @@ export function apply(ctx: Context): void {
   // file previewers through `ctx.betterSidebar.registerTab/registerFileViewer`.
   // The registry stays this package's internal extension point (plan §2.2
   // item 6); published before the body registers so consumers injecting
-  // 'betterSidebar' are ready by the time the column renders.
-  const service = createBetterSidebarService(sidebarStore)
+  // 'betterSidebar' are ready by the time the column renders. The reveal port
+  // is what a content open uses to reach the frame's column.
+  const service = createBetterSidebarService(sidebarStore, { revealColumn })
   ctx.provide('betterSidebar', service)
   // Terminal tab titles use the host's effective shell name (e.g. bash/zsh)
   // instead of "Terminal 1". Tabs created before the response arrives keep
@@ -148,11 +160,6 @@ export function apply(ctx: Context): void {
       }
     }
   }).catch(() => { /* keep fallback */ })
-
-  // The dual-workbench tag (D5): every interception face engages only under
-  // the coding tag; the general tag lets the native faces act.
-  const workbench = ctx.get('workbench') as WorkbenchFace
-  const codingActive = (): boolean => workbench.state.getSnapshot().active === 'coding'
 
   // Register the plugin's own built-in tabs and viewers through the same
   // service (eating our own dogfood). The disposer unregisters them on
@@ -195,7 +202,7 @@ export function apply(ctx: Context): void {
   ctx.effect(
     () => {
       try {
-        return registerTurnTailInterception(ctx, sidebarStore, { codingActive })
+        return registerTurnTailInterception(ctx, sidebarStore, { codingActive, revealColumn })
       } catch (error) {
         console.error('[ui-sidebar-coding] interception error:', error)
         return () => {}
@@ -207,7 +214,7 @@ export function apply(ctx: Context): void {
   ctx.effect(
     () => {
       try {
-        return registerOpenPathInterception(ctx, sidebarStore, { codingActive })
+        return registerOpenPathInterception(ctx, sidebarStore, { codingActive, revealColumn })
       } catch (error) {
         console.error('[ui-sidebar-coding] interception error:', error)
         return () => {}
