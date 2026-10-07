@@ -19,9 +19,7 @@ const BUILTIN_COPY = new Map<string, { title: PluginManagerLocaleKey; descriptio
   ['@qilin/experimental-voice-input-bundle', {
     title: 'builtinVoiceInputTitle', description: 'builtinVoiceInputDescription', beta: true,
   }],
-  ['@qilin/experimental-inspector-profile', {
-    title: 'builtinDevtoolsTitle', description: 'builtinDevtoolsDescription', beta: true,
-  }],
+  // KStock patch (K21): 开发者工具项已下线，展示文案一并移除（它的本地化键也已删除）。
 ])
 
 /** The registries with a name of their own, by host. */

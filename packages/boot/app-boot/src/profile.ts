@@ -292,7 +292,8 @@ export const OPTIONAL_BUNDLES: readonly string[] = [
   '@qilin/experimental-voice-input-bundle',
   '@qilin/experimental-auto-review',
   '@qilin/experimental-schedule-bundle',
-  '@qilin/experimental-inspector-profile',
+  // KStock patch (K21): 开发者工具（inspector-profile）已下线，不再作为出厂可选 bundle
+  // 提供给插件管理；installation 也不再声明它（见 apps/cli/package.json 的同名 marker）。
 ]
 
 const PROFILE_PATCH_TEMPLATE = `# Your patch layer for this qilin profile, applied after every bundle layer:

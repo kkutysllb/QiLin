@@ -32,6 +32,7 @@
   },
   "license": "MIT",
   "// KStock patch (K20)": "K20 tool-schedule 依赖边——产品 preset 的 tool-schedule 行必须在宿主解析图内可解析（上游 3.1.1 的 7005e1c165 同口径；3.0.11 线缺这条边，dev 源码直跑的 preset 挂载会失败）",
+  "// KStock patch (K21)": "K21 下线开发者工具内置插件——installation 不再声明 @qilin/experimental-inspector-profile，插件管理不再列出该行（该包与它的两个 inspector 子包只被它自己依赖，摘掉这条边即整条下线）",
   "dependencies": {
     "@qilin/acp-app": "workspace:*",
     "@qilin/agent-instructions": "workspace:*",
@@ -48,7 +49,6 @@
     "@qilin/compaction-tool-result-pruner": "workspace:*",
     "@qilin/experimental-agent-team-profile": "workspace:*",
     "@qilin/experimental-auto-review": "workspace:*",
-    "@qilin/experimental-inspector-profile": "workspace:*",
     "@qilin/experimental-schedule-bundle": "workspace:*",
     "@qilin/experimental-voice-input-bundle": "workspace:*",
     "@qilin/fs-local": "workspace:*",
