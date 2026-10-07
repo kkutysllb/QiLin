@@ -359,31 +359,46 @@
   pointer-events: none;
 }
 
-/* New Session: a plain row matching the panel entries below it; collapsed it
-   renders as the rail's plain icon control. */
+/* KStock patch (K23): 新会话卡的视觉回退到 3.0.10——3.0.11 把它改成与面板行同形的
+   无底色行；产品口径要的是 3.0.10 那张带描边/填充的卡片。结构位（flex / min-height /
+   overflow / Windows caption 定位那套）保持 3.0.11，只换视觉属性。 */
 .newSession {
   flex: none;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 6px;
   min-height: 36px;
-  padding: 7px 8px;
+  height: 38px;
+  padding: 8px 16px;
   position: relative;
-  margin: 0 2px 4px;
+  margin: 0 2px 12px;
   box-sizing: border-box;
-  border: none;
+  border: 0.5px solid var(--dsw-alias-border-l3);
   border-radius: 12px;
-  background: transparent;
+  background: var(--dsw-alias-button-elevated-fill);
   color: var(--dsw-alias-label-primary);
-  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
   line-height: 22px;
   text-align: left;
   cursor: pointer;
   overflow: hidden;
 }
 
+/* macOS: the solid elevated fill reads as a foreign slab on the vibrancy
+   sidebar; letting a quarter of the material through keeps the card visible
+   while it sits in the glass. */
+:global([data-platform='darwin']) .newSession {
+  background: color-mix(in srgb, var(--dsw-alias-button-elevated-fill) 75%, transparent);
+}
+
 .newSession:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--dsw-alias-button-floating-hover);
+}
+
+:global([data-platform='darwin']) .newSession:hover {
+  background: color-mix(in srgb, var(--dsw-alias-button-floating-hover) 75%, transparent);
 }
 
 .collapsed .newSession {
@@ -394,6 +409,7 @@
   padding: 0;
   margin: 0 0 12px;
   gap: 0;
+  border-color: transparent;
   background: transparent;
 }
 
@@ -416,7 +432,7 @@
  * button keeps its width; the tooltip carries the same combination on the rail. */
 .newSessionShortcut {
   position: absolute;
-  right: 8px;
+  right: 12px;
   display: inline-flex;
   flex: none;
   pointer-events: none;
