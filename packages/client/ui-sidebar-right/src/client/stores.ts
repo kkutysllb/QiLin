@@ -428,7 +428,14 @@ export function createSidebarRightStore(
     const instance = handle.create(scopeKey)
     if (scopeKey === undefined) return instance
     const saved = readSidebarLayout(scopeKey)
-    if (saved !== undefined) instance.store.set({ bySession: { [scopeKey]: saved } })
+    if (saved !== undefined) {
+      // The blank scope starts collapsed on every fresh load: its persisted
+      // `expanded` was machine-written by the retired coding-entry auto-expand,
+      // and the New Session page owns the default, not a leftover flag. A real
+      // session's layout restores as the user left it.
+      if (scopeKey === '') Object.assign(saved.layout, { expanded: false })
+      instance.store.set({ bySession: { [scopeKey]: saved } })
+    }
     instance.subscribe(() => {
       const surface = instance.getSnapshot().bySession[scopeKey]
       if (surface !== undefined) writeSidebarLayout(scopeKey, surface)
