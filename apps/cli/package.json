@@ -31,6 +31,7 @@
     ]
   },
   "license": "MIT",
+  "// KStock patch (K20)": "K20 tool-schedule 依赖边——产品 preset 的 tool-schedule 行必须在宿主解析图内可解析（上游 3.1.1 的 7005e1c165 同口径；3.0.11 线缺这条边，dev 源码直跑的 preset 挂载会失败）",
   "dependencies": {
     "@qilin/acp-app": "workspace:*",
     "@qilin/agent-instructions": "workspace:*",
@@ -99,6 +100,7 @@
     "@qilin/tool-pwsh": "workspace:*",
     "@qilin/tool-pwsh-persistent": "workspace:*",
     "@qilin/tool-ralph": "workspace:*",
+    "@qilin/tool-schedule": "workspace:*",
     "@qilin/tool-skill": "workspace:*",
     "@qilin/tool-str-replace-editor": "workspace:*",
     "@qilin/tool-subagent": "workspace:*",
