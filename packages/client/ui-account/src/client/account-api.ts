@@ -24,6 +24,11 @@ export interface AccountStatus {
   readonly authenticated: boolean
   /** Account behind the session; null when the request carried none. */
   readonly user: AccountUser | null
+  /**
+   * Operator name the transport reports for a gate-less deployment's device
+   * session; absent on a mounted gate, whose identity is the account's.
+   */
+  readonly accountName?: string | null
 }
 
 /** What the menu knows about the signed-in account. */
@@ -58,9 +63,10 @@ const NO_ACCOUNT: AccountFacts = Object.freeze({ accountName: null, signOutAvail
 /**
  * Read the account gate's status.
  *
- * An unreachable gate and a disabled gate are one answer to this menu: no
- * identity to name and no session to end, which is what a harness running
- * without accounts has.
+ * A mounted gate names the session's account and offers sign-out. A disabled
+ * gate has no account facts, but the transport can still name the operator of
+ * its device session — a display-only identity with no session to end. An
+ * unreachable gate stays one answer with both rows empty.
  * @returns the account facts of the current browser session.
  */
 export async function readAccountStatus(): Promise<AccountFacts> {
@@ -68,7 +74,9 @@ export async function readAccountStatus(): Promise<AccountFacts> {
     const response = await fetch(AUTH_STATUS_ROUTE)
     if (!response.ok) return NO_ACCOUNT
     const status = await response.json() as AccountStatus
-    if (!status.enabled) return NO_ACCOUNT
+    if (!status.enabled) {
+      return { accountName: status.accountName ?? null, signOutAvailable: false }
+    }
     // The gate is on, so a session exists to end even when this browser has
     // not signed in yet (the sign-in document itself reads the same answer).
     const user = status.authenticated ? status.user : null

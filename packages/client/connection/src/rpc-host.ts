@@ -37,6 +37,13 @@ import type {
 const INVALID_REQUEST_RPC_ID = RpcId('invalid-request')
 const CHANNEL_PATTERN = /^\/[A-Za-z0-9._~-]+$/
 const ENDPOINT_SEGMENT_PATTERN = /^[A-Za-z0-9_$.-]+$/
+/**
+ * The status read the account gate answers when its bundle is mounted. When a
+ * deployment disables that bundle, Connection answers this path from the
+ * device session instead — display-only identity for the account menu, with no
+ * gate semantics: no setup, no registration, no sign-out row.
+ */
+const AUTH_STATUS_PATH = '/api/auth/status'
 
 interface ConnectionRpcInterceptor {
   readonly matches: ConnectionRpcEndpointMatcher
@@ -150,9 +157,9 @@ export class HostConnectionService extends Service implements HostConnectionHand
     return authority.authorizeIndex(request, response)
   }
 
-  /** Add this process's launch token to the clean application URL. */
-  authenticatedUrl(baseUrl: string): string {
-    return this.browserAuth.authenticatedUrl(baseUrl)
+  /** Add this process's launch token, and an optional display name, to the clean application URL. */
+  authenticatedUrl(baseUrl: string, displayName?: string): string {
+    return this.browserAuth.authenticatedUrl(baseUrl, displayName)
   }
 
   /**
@@ -172,6 +179,9 @@ export class HostConnectionService extends Service implements HostConnectionHand
         const pathname = new URL(request.url).pathname
         const route = this.fetchRoutes.get(pathname)
         if (route?.methods.has(request.method) === true) return route.fetch(request)
+        if (request.method === 'GET' && pathname === AUTH_STATUS_PATH) {
+          return Promise.resolve(this.deviceStatusAnswer(request))
+        }
         const endpoint = endpointFromPath(channel, pathname)
         const interceptor = this.interceptors.get(channel)
         if (endpoint === undefined || interceptor === undefined || !interceptor.matches(endpoint)) {
@@ -180,6 +190,25 @@ export class HostConnectionService extends Service implements HostConnectionHand
         return interceptor.fetchHandler.fetch(request)
       },
     }
+  }
+
+  /**
+   * Answer the status read from the device session alone. Exact routes are
+   * consulted first, so a mounted account gate keeps owning this path; this
+   * fallback exists for the forms that disable it and would otherwise leave
+   * the menu without any identity channel.
+   */
+  private deviceStatusAnswer(request: ConnectionTrustRequest): Response {
+    const identity = this.browserAuth.identity(request)
+    return Response.json({
+      enabled: false,
+      needsSetup: false,
+      registrationOpen: false,
+      authenticated: identity.authenticated,
+      user: null,
+      accountName: identity.accountName,
+      signOutAvailable: false,
+    })
   }
 
   private installSessionAuthority(

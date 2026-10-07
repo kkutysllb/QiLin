@@ -266,9 +266,10 @@ export interface HostConnectionHandle {
   /**
    * Add the fresh process token to an ordinary Web application URL.
    * @param baseUrl - clean canonical browser origin.
+   * @param displayName - optional operator name carried into the device cookie for display.
    * @returns root URL accepted by {@link authorizeIndex} for initial login.
    */
-  authenticatedUrl(baseUrl: string): string
+  authenticatedUrl(baseUrl: string, displayName?: string): string
 }
 
 /** Transport-independent Fetch handler used by HTTP and worker carriers. */

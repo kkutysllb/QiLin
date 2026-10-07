@@ -1,6 +1,6 @@
 /** Browser launch-token and persistent-cookie behavior. */
 
-import { createHmac } from 'node:crypto'
+import { createHash, createHmac } from 'node:crypto'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { CredentialProvider } from '@qilin/credentials'
 import { BrowserAuth } from '../src/browser-auth.ts'
@@ -78,6 +78,15 @@ function exchange(
   authority = '127.0.0.1:3080',
 ): { cookie: string; launchUrl: string; state: ResponseState } {
   const launchUrl = auth.authenticatedUrl(`http://${authority}`)
+  return exchangeUrl(auth, launchUrl, authority)
+}
+
+/** Exchange one already-built launch URL so a test can append its own query inputs. */
+function exchangeUrl(
+  auth: BrowserAuth,
+  launchUrl: string,
+  authority = '127.0.0.1:3080',
+): { cookie: string; launchUrl: string; state: ResponseState } {
   const target = new URL(launchUrl)
   const res = response()
   expect(auth.authorizeIndex(request(`${target.pathname}${target.search}`, authority), res.value)).toBe(false)
@@ -91,6 +100,40 @@ afterEach(() => {
 })
 
 describe('BrowserAuth', () => {
+  it('carries the operator display name from the exchange URL into the device session', async () => {
+    const named = await createAuth(new RecordCredentials())
+    const launchUrl = named.authenticatedUrl('http://127.0.0.1:3080', 'Alice')
+    expect(new URL(launchUrl).searchParams.get('user')).toBe('Alice')
+    const { cookie } = exchangeUrl(named, launchUrl)
+    expect(named.identity(request('/', '127.0.0.1:3080', { cookie })))
+      .toEqual({ authenticated: true, accountName: 'Alice' })
+
+    // A host that launches without a name keeps the session and loses only
+    // the display row; an unusable name drops with the same outcome.
+    const unnamedStore = new RecordCredentials()
+    const unnamed = await createAuth(unnamedStore)
+    const unnamedCookie = exchange(unnamed).cookie
+    expect(unnamed.identity(request('/', '127.0.0.1:3080', { cookie: unnamedCookie })))
+      .toEqual({ authenticated: true, accountName: null })
+    for (const bad of ['   ', 'x'.repeat(65)]) {
+      const attempt = exchangeUrl(unnamed, unnamed.authenticatedUrl('http://127.0.0.1:3080', bad))
+      expect(unnamed.identity(request('/', '127.0.0.1:3080', { cookie: attempt.cookie })))
+        .toEqual({ authenticated: true, accountName: null })
+    }
+
+    // A properly signed cookie carrying an invalid displayName decodes to
+    // nothing: the display row never rides past the payload validation.
+    const cookieName = 'qilin-auth-'
+      + createHash('sha256').update('127.0.0.1:3080').digest('base64url')
+    const forgedBody = Buffer.from(JSON.stringify({
+      version: 1, authority: '127.0.0.1:3080', issuedAt: Date.now(), expiresAt: Date.now() + 1000,
+      displayName: 'x'.repeat(65),
+    }), 'utf8').toString('base64url')
+    const forged = signedBodyCookie(unnamedStore, cookieName, forgedBody)
+    expect(unnamed.identity(request('/', '127.0.0.1:3080', { cookie: forged })))
+      .toEqual({ authenticated: false, accountName: null })
+  })
+
   it('mints one process token and a persistent authority-bound cookie', async () => {
     const store = new RecordCredentials()
     const processOwner = {}

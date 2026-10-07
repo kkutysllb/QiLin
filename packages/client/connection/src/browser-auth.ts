@@ -14,6 +14,8 @@ const AUTH_RECORD_KEY = credentialKey('client-connection', 'browser-session')
 const DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 const SECRET_BYTES = 32
 const TOKEN_QUERY = 'token'
+const DISPLAY_NAME_QUERY = 'user'
+const DISPLAY_NAME_MAX_CODE_UNITS = 64
 const COOKIE_PREFIX = 'qilin-auth-'
 const COOKIE_PAYLOAD_VERSION = 1
 const STORED_SECRET_VERSION = 1
@@ -30,6 +32,8 @@ interface BrowserCookiePayload {
   readonly authority: string
   readonly issuedAt: number
   readonly expiresAt: number
+  /** Operator name the launching host attached for display; absent when it did not. */
+  readonly displayName?: string
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -172,7 +176,22 @@ function decodeCookie(value: string, secret: Buffer): BrowserCookiePayload | und
     || typeof decoded.authority !== 'string'
     || !Number.isSafeInteger(decoded.issuedAt)
     || !Number.isSafeInteger(decoded.expiresAt)) return undefined
+  if (decoded.displayName !== undefined && !boundedDisplayName(decoded.displayName)) return undefined
   return decoded as unknown as BrowserCookiePayload
+}
+
+/** Accept a display name the launching host attached: trimmed, bounded, control-free. */
+function boundedDisplayName(value: unknown): value is string {
+  if (typeof value !== 'string' || value.length === 0 || value.length > DISPLAY_NAME_MAX_CODE_UNITS) {
+    return false
+  }
+  return !/[\u0000-\u001f\u007f]/u.test(value)
+}
+
+/** The facts a request without a verifiable device session carries. */
+const UNIDENTIFIED: { readonly authenticated: false; readonly accountName: null } = {
+  authenticated: false,
+  accountName: null,
 }
 
 async function initializeSecret(credentials: CredentialProvider): Promise<Buffer> {
@@ -235,14 +254,16 @@ export class BrowserAuth {
   /**
    * Add this process's launch token to the ordinary application root URL.
    * @param baseUrl - canonical browser origin without credentials.
+   * @param displayName - optional operator name the exchange carries into the device cookie for display.
    * @returns root URL carrying the process token as its sole authentication input.
    */
-  authenticatedUrl(baseUrl: string): string {
+  authenticatedUrl(baseUrl: string, displayName?: string): string {
     const url = new URL(baseUrl)
     url.pathname = WEB_ENTRY_PATH
     url.search = ''
     url.hash = ''
     url.searchParams.set(TOKEN_QUERY, this.launchToken)
+    if (displayName !== undefined) url.searchParams.set(DISPLAY_NAME_QUERY, displayName)
     return url.href
   }
 
@@ -287,6 +308,9 @@ export class BrowserAuth {
       || authority === undefined || !tokenMatches(tokens.join(''), this.launchToken)) {
       return false
     }
+    // The display name is an untrusted query input on an otherwise valid
+    // handoff: an unusable value drops the name rather than the session.
+    const requested = url.searchParams.get(DISPLAY_NAME_QUERY)?.trim()
     const issuedAt = Date.now()
     const expiresAt = issuedAt + this.maxAgeMilliseconds
     const value = encodeCookie({
@@ -294,6 +318,9 @@ export class BrowserAuth {
       authority,
       issuedAt,
       expiresAt,
+      ...(requested === undefined || requested === '' || !boundedDisplayName(requested)
+        ? {}
+        : { displayName: requested }),
     }, this.secret)
     res.writeHead(303, {
       'cache-control': 'no-store',
@@ -313,18 +340,31 @@ export class BrowserAuth {
    * @returns true only for an unexpired cookie signed by this activation's loaded secret.
    */
   isAuthenticated(request: ConnectionTrustRequest): boolean {
+    return this.identity(request).authenticated
+  }
+
+  /**
+   * Read the device session behind a Host request: its authentication fact and
+   * the operator display name the launching host attached, if any. This is the
+   * identity channel for deployments without the account gate, and the gate's
+   * own status route stays authoritative wherever that is mounted.
+   * @param request - request headers carrying Host and Cookie.
+   * @returns the session fact and display name of the request's device session.
+   */
+  identity(request: ConnectionTrustRequest): { readonly authenticated: boolean; readonly accountName: string | null } {
     const authority = requestAuthority(request.headers)
     const rawCookie = header(request.headers, 'cookie')
-    if (authority === undefined || rawCookie === undefined) return false
+    if (authority === undefined || rawCookie === undefined) return UNIDENTIFIED
     const value = cookieValue(rawCookie, cookieName(authority))
-    if (value === undefined) return false
+    if (value === undefined) return UNIDENTIFIED
     const payload = decodeCookie(value, this.secret)
-    if (payload === undefined || payload.authority !== authority) return false
+    if (payload === undefined || payload.authority !== authority) return UNIDENTIFIED
     const now = Date.now()
-    return payload.issuedAt <= now
+    const authenticated = payload.issuedAt <= now
       && payload.expiresAt > now
       && payload.expiresAt > payload.issuedAt
       && payload.expiresAt - payload.issuedAt <= this.maxAgeMilliseconds
+    return { authenticated, accountName: authenticated ? payload.displayName ?? null : null }
   }
 
   private writeUnauthorized(req: ConnectionIndexRequest, res: ConnectionIndexResponse): void {

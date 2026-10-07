@@ -8,8 +8,12 @@ async function mounted(): Promise<{
   readonly dispose: () => Promise<void>
 }> {
   const ctx = new Context()
+  const auth = {
+    isAuthenticated: () => false,
+    identity: () => ({ authenticated: false, accountName: null }),
+  }
   const fiber = ctx.plugin((pluginCtx) => {
-    new HostConnectionService(pluginCtx, [], {} as BrowserAuth)
+    new HostConnectionService(pluginCtx, [], auth as unknown as BrowserAuth)
   })
   await fiber.await()
   return {
@@ -19,6 +23,42 @@ async function mounted(): Promise<{
 }
 
 describe('Connection exact Fetch routes', () => {
+  it('answers /api/auth/status from the device session only when no route claims it', async () => {
+    const { connection, dispose: disposeFiber } = await mounted()
+    const shared = connection.createSharedFetchHandler('/api')
+
+    // A mounted gate keeps owning the path: its exact route answers first.
+    const gate = vi.fn(async () => Response.json({ enabled: true, authenticated: false, user: null }))
+    const dispose = connection.fetch.register({
+      path: '/api/auth/status',
+      methods: ['GET'],
+      requestBody: 'buffered',
+      fetch: gate,
+    })
+    const mountedAnswer = await shared.fetch(new Request('http://host/api/auth/status'))
+    expect(await mountedAnswer.json()).toEqual({ enabled: true, authenticated: false, user: null })
+    expect(gate).toHaveBeenCalledOnce()
+    await dispose()
+
+    // With the gate's bundle disabled, the carrier answers from the device
+    // session: display-only identity, no account-face semantics.
+    const fallback = await shared.fetch(new Request('http://host/api/auth/status'))
+    expect(fallback.status).toBe(200)
+    expect(await fallback.json()).toEqual({
+      enabled: false,
+      needsSetup: false,
+      registrationOpen: false,
+      authenticated: false,
+      user: null,
+      accountName: null,
+      signOutAvailable: false,
+    })
+    // A POST is no status read: the fallback claims GET alone.
+    const posted = await shared.fetch(new Request('http://host/api/auth/status', { method: 'POST' }))
+    expect(posted.status).toBe(404)
+    await disposeFiber()
+  })
+
   it('dispatches owned methods and returns 404 for unclaimed requests', async () => {
     const { connection, dispose: disposeFiber } = await mounted()
     const route = vi.fn(async (request: Request) =>
