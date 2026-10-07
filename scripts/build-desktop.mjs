@@ -1,9 +1,16 @@
 // scripts/build-desktop.mjs
-/** Orchestrate the upstream build inside the ephemeral checkout (dry-plan or exec). */
+/**
+ * Orchestrate the upstream build inside the ephemeral checkout.
+ *
+ * stage=build：上游冻结安装 + 统一构建（canonical Web Client bundle），
+ * 门禁 workflow 用它产出 dist 后做双端摘要比对。
+ *
+ * stage=package：3.1.x 起上游已移除 apps/desktop 与 `package:desktop:*`
+ * 打包链——发布打包按 2026-10-07 原生设计由本仓自有管线承担（M4），
+ * 在该管线落地前显式失败，不产出半成品。
+ */
 import { spawnSync } from 'node:child_process'
 import { basename } from 'node:path'
-
-const TARGETS = { 'mac-arm64': 'package:desktop:mac:arm64', 'mac-x64': 'package:desktop:mac:x64' }
 
 /**
  * Build step plan. Steps run with the process CWD, which the release workflow
@@ -12,17 +19,21 @@ const TARGETS = { 'mac-arm64': 'package:desktop:mac:arm64', 'mac-x64': 'package:
  * @returns {Array<{ cwd: string, command: string, args: string[] }>}
  */
 export function planBuild({ target, pnpm = 'pnpm', stage = 'package' }) {
-  const script = TARGETS[target]
-  if (!script) throw new Error(`build-desktop: unsupported target ${target}`)
+  if (target !== 'mac-arm64' && target !== 'mac-x64') {
+    throw new Error(`build-desktop: unsupported target ${target}`)
+  }
   if (stage !== 'build' && stage !== 'package') throw new Error(`build-desktop: unknown stage ${stage}`)
   const steps = [
     { cwd: '.', args: ['install', '--frozen-lockfile'] },
     { cwd: '.', args: ['run', 'build'] },
-    { cwd: '.', args: ['run', script] },
   ]
-  return steps
-    .slice(0, stage === 'build' ? 2 : 3)
-    .map(step => ({ cwd: step.cwd, command: pnpm, args: step.args }))
+  if (stage === 'build') return steps.map(step => ({ cwd: step.cwd, command: pnpm, args: step.args }))
+  // 上游 3.1.x 无 apps/desktop：目标打包（签名/公证/DMG）是 M4 自有管线的职责
+  throw new Error(
+    'build-desktop: release packaging requires the OpenKylin native desktop pipeline (M4) — '
+    + 'upstream 3.1.x removed apps/desktop and package:desktop:*; '
+    + 'see docs/superpowers/specs/2026-10-07-openkylin-desktop-native-design.md §6',
+  )
 }
 
 const KNOWN_FLAGS = new Set(['--dry-run', '--stage'])
@@ -49,11 +60,10 @@ export function parseCliArgs(args) {
 
 if (process.argv[1] !== undefined && import.meta.url.endsWith(basename(process.argv[1]))) {
   const { target, dryRun, stage } = parseCliArgs(process.argv.slice(2))
-  const steps = planBuild({ target, stage })
   if (dryRun) {
-    for (const step of steps) console.log(`[${step.cwd}] ${step.command} ${step.args.join(' ')}`)
+    for (const step of planBuild({ target, stage })) console.log(`[${step.cwd}] ${step.command} ${step.args.join(' ')}`)
   } else {
-    for (const step of steps) {
+    for (const step of planBuild({ target, stage })) {
       const result = spawnSync(step.command, step.args, { cwd: step.cwd === '.' ? process.cwd() : step.cwd, stdio: 'inherit' })
       if (result.error !== undefined) throw new Error(`build-desktop: ${step.args.join(' ')} failed to start`, { cause: result.error })
       if (result.status !== 0) throw new Error(`build-desktop: ${step.args.join(' ')} exited ${String(result.status ?? result.signal)}`)

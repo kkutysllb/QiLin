@@ -1,12 +1,12 @@
 // desktop/main/windows.mjs
 /**
- * 窗口层：承载 qilin Web UI 的主窗口（shell）+ 中文品牌启动页（splash）。
+ * 窗口层：qilin-app://app 承载的主工作区窗口（shell）+ 中文品牌启动页。
  *
- * shell 窗口加载的就是 `qilin web` 就绪行打印的同一个地址（含 launch
- * token），同源 fetch 与 WebSocket 直接命中 qilin 的 API 网关。这就是
- * "桌面端与上游 web 端完全一致"的机制保证：同一个 server、同一份构建
- * 物、同一套主题，没有任何桌面侧的二次实现。唯一例外是自绘标题栏
- * （titlebar.mjs）：呈现层的窗口组件重绘，不触碰上游 DOM 结构与功能。
+ * shell 窗口加载壳自有特权协议的入口地址（qilin-app://app/workspace）：
+ * 静态资源壳直读 dist、动态请求壳认证反代到宿主——renderer 可见面里
+ * 只有 qilin-app://app，宿主 URL 与认证 cookie 都不出主进程。这就是
+ * "桌面端与上游 web 端完全一致"的机制保证：同一份 Web client 构建
+ * 物、同一套主题，桌面侧只有壳层（协议承载 + 自绘标题栏）。
  *
  * @module desktop/main/windows
  */
@@ -14,8 +14,8 @@
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { BrowserWindow, nativeTheme, shell } from 'electron'
-import { isAllowedNavigation, urlOrigin } from './qilin-contract.mjs'
-import { qilinManager } from './qilin-manager.mjs'
+import { APP_ENTRY_PATH, APP_ORIGIN, isAllowedNavigation } from './qilin-contract.mjs'
+import { hostProcess } from './host-process.mjs'
 import { attachTitlebar, TITLEBAR_HEIGHT } from './titlebar.mjs'
 
 /** 本文件所在目录（desktop/main）——ESM 主进程没有 __dirname。 */
@@ -24,7 +24,7 @@ const HERE = import.meta.dirname
 /** 桌面壳自有页面（启动页）的 preload 绝对路径。 */
 const SPLASH_PRELOAD = join(HERE, '../preload/splash.mjs')
 
-/** shell 窗口的标题栏桥 preload（CJS：沙箱 preload 不走 ESM）。 */
+/** shell 窗口的标题栏 + 桌面 boot 桥 preload（CJS：沙箱 preload 不走 ESM）。 */
 const SHELL_PRELOAD = join(HERE, '../preload/shell.cjs')
 
 /** 启动页 HTML 的本地 URL。 */
@@ -43,8 +43,8 @@ let shellWindow = null
 /**
  * 创建并显示中文品牌启动页。
  *
- * 立即向其转发当前侧车状态，并订阅后续状态变化（renderer 经 preload
- * 的 onState 渲染 starting/restarting/failed 态）。
+ * 订阅宿主状态变化并转发（renderer 经 preload 的 onState 渲染
+ * starting/restarting/failed 态）；加载完成后立即补发当前快照。
  *
  * @returns {BrowserWindow}
  */
@@ -70,16 +70,19 @@ export function showSplash() {
   })
   splashWindow = win
   win.once('ready-to-show', () => win.show())
-  // 状态转发：启动页渲染的是侧车状态机
+  // 状态转发：启动页渲染的是宿主状态机
   const forward = (status) => {
     if (!win.isDestroyed()) win.webContents.send('splash:state', status)
   }
-  qilinManager.on('state-changed', forward)
+  hostProcess.on('state-changed', forward)
   win.on('closed', () => {
-    qilinManager.removeListener('state-changed', forward)
+    hostProcess.removeListener('state-changed', forward)
     splashWindow = null
   })
-  void win.loadURL(SPLASH_URL)
+  void win.loadURL(SPLASH_URL).then(() => {
+    // 补发当前快照：订阅先于渲染完成注册，首帧即见真实状态
+    forward(hostProcess.status)
+  })
   return win
 }
 
@@ -89,13 +92,21 @@ export function closeSplash() {
   splashWindow = null
 }
 
+/** 直接向启动页（必要时重建）推一条失败态（web-boot 致命错误入口）。 */
+export function reportFatalToSplash(message) {
+  const win = showSplash()
+  win.webContents.send('splash:state', { state: 'failed', error: message })
+}
+
 /**
- * 创建（或复用并导航到 qilin 地址）shell 窗口。
+ * 创建（或复用）shell 窗口并加载 app 入口。
  *
- * @param {string} qilinUrl - qilin web 就绪地址（http://127.0.0.1:<port>/?token=…）。
+ * @param {string} [entryPath] - 入口路径（'/workspace' 直达工作区；'/' 进
+ *   landing 登录面——账号门未登录时的产品语义，镜像宿主 302 行为）。
+ *   宿主每次就绪（含崩溃重启换端口后）都应调用：client 需要重新走
+ *   boot 门拿新的 streamBaseUrl 与注入表，因此复用窗口时整页重载。
  */
-export function showShellWindow(qilinUrl) {
-  const allowedOrigin = urlOrigin(qilinUrl) ?? ''
+export function showShellWindow(entryPath = APP_ENTRY_PATH) {
   if (shellWindow === null || shellWindow.isDestroyed()) {
     shellWindow = new BrowserWindow({
       width: 1440,
@@ -120,8 +131,7 @@ export function showShellWindow(qilinUrl) {
             },
           }
         : {}),
-      // 纯浏览器载体：无 node、仅标题栏白名单桥、sandbox、webSecurity
-      // 开启（唯一注入是 titlebar.mjs 的呈现层标题栏）
+      // 沙箱载体：无 node、仅标题栏 + 桌面 boot 白名单桥、webSecurity 开启
       webPreferences: {
         preload: SHELL_PRELOAD,
         nodeIntegration: false,
@@ -144,18 +154,15 @@ export function showShellWindow(qilinUrl) {
       shellWindow?.maximize()
       shellWindow?.show()
     })
-    // 只允许停留在 qilin 回环地址；外链交给系统浏览器
+    // 只允许停留在壳自有协议；外链交给系统浏览器
     shellWindow.webContents.setWindowOpenHandler(({ url }) => {
-      void shell.openExternal(url)
+      if (/^https?:/i.test(url)) void shell.openExternal(url)
       return { action: 'deny' }
     })
     shellWindow.webContents.on('will-navigate', (event, url) => {
-      // 实时取当前侧车地址（侧车重启端口会变，不能用创建时的闭包值）
-      const current = qilinManager.status.url ?? qilinUrl
-      const origin = urlOrigin(current) ?? allowedOrigin
-      if (!isAllowedNavigation(url, origin)) {
+      if (!isAllowedNavigation(url)) {
         event.preventDefault()
-        void shell.openExternal(url)
+        if (/^https?:/i.test(url)) void shell.openExternal(url)
       }
     })
     // qilin Web UI 无需任何浏览器特权
@@ -163,17 +170,9 @@ export function showShellWindow(qilinUrl) {
       callback(false)
     })
   }
-  // 已在承载同一侧车实例 → 只恢复展示，绝不变相重载整页。
-  // token 换 cookie 后的 302 会落在同一 origin，getURL 以干净根地址
-  // 开头，前缀判断成立；侧车重启端口变化 → 前缀不匹配 → 加载新实例。
-  const currentOrigin = urlOrigin(qilinManager.status.url ?? qilinUrl) ?? allowedOrigin
-  const loadedOrigin = urlOrigin(shellWindow.webContents.getURL())
-  if (loadedOrigin === null || loadedOrigin !== currentOrigin) {
-    void shellWindow.loadURL(qilinManager.status.url ?? qilinUrl)
-  }
-  if (shellWindow.isMinimized()) shellWindow.restore()
-  if (!shellWindow.isVisible()) shellWindow.show()
-  shellWindow.focus()
+  // cookie 由主进程托管（设备 + 账号），页面无需 token——按登录态加载入口
+  void shellWindow.loadURL(`${APP_ORIGIN}${entryPath}`)
+  return shellWindow
 }
 
 /** 供单实例/激活路径引用。 */

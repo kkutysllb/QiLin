@@ -1,115 +1,118 @@
 // tests/desktop-shell.spec.mjs
 /**
- * 桌面壳（KCoder host & sidecar 机制）产品层测试：
- * 契约纯函数（就绪行解析、导航白名单、侧车命令）、启动页资产存在性、
- * dev 脚本的 checkout 复用 stamp 逻辑。不依赖 Electron 与上游 checkout。
+ * 桌面壳（原生桌面产品：Electron 壳 + 引擎宿主子进程）产品层测试：
+ * 契约纯函数（宿主参数、IPC 消息守卫、导航白名单、协议承载的静态/反代
+ * 纯逻辑）、启动页资产存在性、dev 脚本的 checkout 复用 stamp 逻辑。
+ * 不依赖 Electron 与上游 checkout。
  */
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { access, mkdtemp, rm, writeFile, mkdir } from 'node:fs/promises'
-import { existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { readFile } from 'node:fs/promises'
 import {
+  APP_ENTRY_URL,
+  HOST_PORT_FILE,
+  HOST_PROTOCOL_VERSION,
   MAX_AUTO_RESTARTS,
-  READY_LINE_RE,
   READY_TIMEOUT_MS,
   TERM_GRACE_MS,
+  appDocumentFile,
+  forwardHeaders,
+  hostArgs,
+  injectBootGate,
   isAllowedNavigation,
-  parseReadyLine,
+  isHostEvent,
+  persistHostPort,
   qilinHome,
-  sidecarArgs,
+  readPersistedHostPort,
+  resolveDistFile,
   urlOrigin,
 } from '../desktop/main/qilin-contract.mjs'
+import { profileManifestPath, restoreShippedBundles, SHIPPED_PROFILE_BUNDLES } from '../desktop/main/recovery.mjs'
 import { brandingFingerprint } from '../scripts/lib/dev-stamp.mjs'
-import {
-  TERMINAL_PACKAGE,
-  ensureBuiltinTerminal,
-} from '../scripts/lib/terminal-builtin.mjs'
 import {
   sessionTitleOf,
   pickSession,
 } from '../desktop/main/workspace.mjs'
 
-test('就绪行解析完整 URL（产品 profile 的 `qilin:` label，含 token 与 LAN 后缀）', () => {
-  // 产品面（web-brand 层）把 web-runtime label 设为 `qilin`
-  assert.equal(
-    parseReadyLine('qilin: http://127.0.0.1:4567/workspace?token=test-token (LAN: http://192.168.1.5:4567/workspace?token=test-token)'),
-    'http://127.0.0.1:4567/workspace?token=test-token',
-  )
-  // unbranded web profile 仍是 `qilin web:`
-  assert.equal(parseReadyLine('qilin web: http://127.0.0.1:4567/?token=abc'), 'http://127.0.0.1:4567/?token=abc')
-  assert.equal(parseReadyLine('qilin: http://127.0.0.1:4567/'), 'http://127.0.0.1:4567/')
-})
+/* ---------- 宿主子进程契约 ---------- */
 
-test('就绪行拒绝非回环、非 http 与无关日志行', () => {
-  assert.equal(parseReadyLine('LAN: http://127.0.0.1:9999/'), null, '只认行首的 qilin 就绪行')
-  assert.equal(parseReadyLine('qilin: http://localhost:4567/'), null, '就绪地址固定为 127.0.0.1 字面量')
-  assert.equal(parseReadyLine('qilin: https://127.0.0.1:4567/'), null)
-  assert.equal(parseReadyLine('some other log line'), null)
-  assert.equal(READY_LINE_RE.test('xqilin: http://127.0.0.1:1/'), false)
-})
-
-test('导航白名单按 origin 判断（token 换 cookie 的 302 落回同源）', () => {
-  const origin = 'http://127.0.0.1:4567'
-  assert.equal(isAllowedNavigation('http://127.0.0.1:4567/', origin), true, '干净根地址')
-  assert.equal(isAllowedNavigation('http://127.0.0.1:4567/session/abc', origin), true, 'SPA 会话路由')
-  assert.equal(isAllowedNavigation('http://127.0.0.1:4567/assets/app.js', origin), true, '静态资源')
-  assert.equal(isAllowedNavigation('http://127.0.0.1:9999/', origin), false, '端口变化 = 别的进程')
-  assert.equal(isAllowedNavigation('https://127.0.0.1:4567/', origin), false, '协议收紧')
-  assert.equal(isAllowedNavigation('file:///etc/passwd', origin), false)
-  assert.equal(isAllowedNavigation('not a url', origin), false)
-  assert.equal(isAllowedNavigation('http://127.0.0.1:4567/', ''), false, '空 origin 一律拒绝')
-})
-
-test('urlOrigin 忽略查询与路径', () => {
-  assert.equal(urlOrigin('http://127.0.0.1:4567/?token=x'), 'http://127.0.0.1:4567')
-  assert.equal(urlOrigin('::bad::'), null)
-})
-
-test('侧车命令：裸 qilin 产品面 + --expose-internals + 稳定端口 + --no-open', () => {
-  // 裸 `qilin` 启动产品面（base + web-app + web-brand：麒麟印章 + 主题层），
-  // launcher flags 之后的 token 直通 booted app。端口由调用方传入：
-  // 登录会话 cookie 绑定 host:port，端口漂移 = 凭证每次启动失效
-  assert.deepEqual(sidecarArgs('/r/apps/cli/lib/bin.js', 41780), [
+test('宿主参数：Electron-as-Node + --expose-internals + 宿主入口 + 运行树 + 稳定端口', () => {
+  assert.deepEqual(hostArgs('/repo/desktop/host/main.mjs', '/run/tree'), [
     '--expose-internals',
-    '/r/apps/cli/lib/bin.js',
-    '--port',
-    '41780',
-    '--no-open',
-  ])
-  assert.deepEqual(sidecarArgs('/r/apps/cli/lib/bin.js'), [
-    '--expose-internals',
-    '/r/apps/cli/lib/bin.js',
+    '/repo/desktop/host/main.mjs',
+    '/run/tree',
     '--port',
     '0',
-    '--no-open',
-  ], '缺省仍为 OS 分配（0）')
+  ], '缺省 0 = 随机端口')
+  assert.deepEqual(hostArgs('/entry', '/run', 45678), [
+    '--expose-internals',
+    '/entry',
+    '/run',
+    '--port',
+    '45678',
+  ], '记忆端口透传宿主（cookie authority 绑定 host:port）')
 })
 
-test('侧车端口记忆：round-trip、非法值拒绝、坏 JSON 容错', async () => {
-  const { readPersistedPort, persistPort, SIDECAR_PORT_FILE } = await import('../desktop/main/qilin-contract.mjs')
+test('宿主端口记忆：0600 落盘 + 范围校验 + 损坏容错', async () => {
   const home = await mkdtemp(join(tmpdir(), 'ok-port-'))
   try {
-    assert.equal(readPersistedPort(home), null, '无记忆文件 → null')
-    persistPort(41780, home)
-    assert.equal(readPersistedPort(home), 41780)
-    await writeFile(join(home, SIDECAR_PORT_FILE), JSON.stringify({ port: 80 }), 'utf8')
-    assert.equal(readPersistedPort(home), null, '越界端口（<1024）→ null')
-    await writeFile(join(home, SIDECAR_PORT_FILE), '{broken', 'utf8')
-    assert.equal(readPersistedPort(home), null, '坏 JSON → null')
-    await writeFile(join(home, SIDECAR_PORT_FILE), JSON.stringify({ port: 99999 }), 'utf8')
-    assert.equal(readPersistedPort(home), null, '越界端口（>65535）→ null')
+    assert.equal(readPersistedHostPort(home), null, '无记忆 → null')
+    persistHostPort(45678, home)
+    assert.equal(readPersistedHostPort(home), 45678, '读写回环')
+    await writeFile(join(home, HOST_PORT_FILE), '{"port":"45678"}')
+    assert.equal(readPersistedHostPort(home), null, '非整数拒绝')
+    await writeFile(join(home, HOST_PORT_FILE), '{"port":80}')
+    assert.equal(readPersistedHostPort(home), null, '1024 以下特权端口拒绝')
+    await writeFile(join(home, HOST_PORT_FILE), '{"port":70000}')
+    assert.equal(readPersistedHostPort(home), null, '65535 以上拒绝')
+    await writeFile(join(home, HOST_PORT_FILE), 'not-json')
+    assert.equal(readPersistedHostPort(home), null, '损坏文件容错')
   } finally {
     await rm(home, { recursive: true, force: true })
   }
 })
 
-test('进程纪律常量与 KCoder 机制一致', () => {
+test('宿主消息守卫：ready 校验回环 URL 与注入表，fatal 校验消息体', () => {
+  assert.deepEqual(
+    isHostEvent({ type: 'ready', url: 'http://127.0.0.1:4567/workspace?token=t', injections: [] }),
+    { type: 'ready', url: 'http://127.0.0.1:4567/workspace?token=t', injections: [] },
+  )
+  assert.equal(isHostEvent({ type: 'ready', url: 'http://localhost:1/', injections: [] }), null, '只认 127.0.0.1 字面量')
+  assert.equal(isHostEvent({ type: 'ready', url: 'http://127.0.0.1:1/' }), null, '缺注入表拒绝')
+  assert.equal(isHostEvent({ type: 'ready', url: 'https://127.0.0.1:1/', injections: [] }), null, '协议收紧')
+  assert.deepEqual(
+    isHostEvent({ type: 'fatal', message: 'boom', diagnostic: 'stack…' }),
+    { type: 'fatal', message: 'boom', diagnostic: 'stack…' },
+  )
+  assert.equal(isHostEvent({ type: 'fatal' }), null, '无消息体的 fatal 拒绝')
+  assert.deepEqual(isHostEvent({ type: 'booting' }), { type: 'booting' })
+  assert.deepEqual(isHostEvent({ type: 'shutdown-complete' }), { type: 'shutdown-complete' })
+  assert.equal(isHostEvent({ nonsense: true }), null)
+  assert.equal(isHostEvent('string'), null)
+  assert.equal(isHostEvent(null), null)
+})
+
+test('宿主请求-应答守卫：requestId 关联且布尔域缺省为 false', () => {
+  assert.deepEqual(
+    isHostEvent({ type: 'quit-inspection', requestId: 3, activeTasks: true, scheduledTasks: false }),
+    { type: 'quit-inspection', requestId: 3, activeTasks: true, scheduledTasks: false },
+  )
+  assert.deepEqual(
+    isHostEvent({ type: 'update-tasks', requestId: 4 }),
+    { type: 'update-tasks', requestId: 4, active: false },
+    '缺省布尔域如实归 false',
+  )
+  assert.equal(isHostEvent({ type: 'update-tasks', requestId: 0 }), null, 'requestId 必须为正整数')
+})
+
+test('进程纪律常量', () => {
   assert.equal(MAX_AUTO_RESTARTS, 3)
   assert.equal(TERM_GRACE_MS, 5_000)
   assert.ok(READY_TIMEOUT_MS >= 60_000, '就绪上限需覆盖上游 profile 初始化冷启动')
+  assert.ok(Number.isInteger(HOST_PROTOCOL_VERSION) && HOST_PROTOCOL_VERSION >= 1)
 })
 
 test('qilin home 与 CLI/浏览器端共享（QILIN_HOME 覆盖优先）', () => {
@@ -117,14 +120,176 @@ test('qilin home 与 CLI/浏览器端共享（QILIN_HOME 覆盖优先）', () =>
   assert.equal(qilinHome({ QILIN_HOME: '   ' }), qilinHome({}), '空白覆盖视同未设置')
 })
 
-test('启动页资产齐备（splash.html + preload + 主进程三件套）', async () => {
+/* ---------- 致命错误恢复（M3.3：出厂插件面） ---------- */
+
+test('恢复出厂插件面：第三方 bundle 摘除、dependencies 保留、备份可回滚、幂等', async () => {
+  const home = await mkdtemp(join(tmpdir(), 'ok-recovery-'))
+  try {
+    assert.equal(profileManifestPath(home), join(home, 'profiles', 'qilin', 'package.json'), 'manifest 路径 = resolveProfileDir 语义')
+    assert.deepEqual(
+      restoreShippedBundles(home),
+      { changed: false, removed: [], backupPath: null, error: null },
+      '无 manifest（首次启动即 fatal）= 无需恢复且不报错',
+    )
+    const manifestPath = profileManifestPath(home)
+    await mkdir(dirname(manifestPath), { recursive: true })
+    await writeFile(manifestPath, JSON.stringify({
+      name: 'qilin',
+      dependencies: { 'my-plugin': '^1.0.0' },
+      qilin: {
+        profile: {
+          bundles: [...SHIPPED_PROFILE_BUNDLES, 'my-plugin', 'bad-plugin'],
+        },
+      },
+    }))
+    const result = restoreShippedBundles(home)
+    assert.equal(result.changed, true)
+    assert.deepEqual(result.removed, ['my-plugin', 'bad-plugin'], '第三方层全部摘除')
+    const restored = JSON.parse(await readFile(manifestPath, 'utf8'))
+    assert.deepEqual(restored.qilin.profile.bundles, [...SHIPPED_PROFILE_BUNDLES], '启用面 = 出厂模板层')
+    assert.equal(restored.dependencies['my-plugin'], '^1.0.0', '安装记录保留（只是不再装配）')
+    const backup = JSON.parse(await readFile(/** @type {string} */ (result.backupPath), 'utf8'))
+    assert.deepEqual(
+      backup.qilin.profile.bundles,
+      [...SHIPPED_PROFILE_BUNDLES, 'my-plugin', 'bad-plugin'],
+      '整份 manifest 先备份（误操作可手工还原）',
+    )
+    assert.deepEqual(
+      restoreShippedBundles(home),
+      { changed: false, removed: [], backupPath: null, error: null },
+      '已是出厂面 → 幂等不动',
+    )
+  } finally {
+    await rm(home, { recursive: true, force: true })
+  }
+})
+
+test('恢复出厂插件面：dsh 旧 face 兜底（上游 profileDeclarationOf 次序）', async () => {
+  const home = await mkdtemp(join(tmpdir(), 'ok-recovery-dsh-'))
+  try {
+    const manifestPath = profileManifestPath(home)
+    await mkdir(dirname(manifestPath), { recursive: true })
+    await writeFile(manifestPath, JSON.stringify({
+      dsh: { profile: { bundles: ['@qilin/base', 'legacy-plugin'] } },
+    }))
+    const result = restoreShippedBundles(home)
+    assert.equal(result.changed, true)
+    assert.deepEqual(result.removed, ['legacy-plugin'])
+    const restored = JSON.parse(await readFile(manifestPath, 'utf8'))
+    assert.deepEqual(restored.dsh.profile.bundles, [...SHIPPED_PROFILE_BUNDLES], '旧 face 同样恢复出厂')
+  } finally {
+    await rm(home, { recursive: true, force: true })
+  }
+})
+
+test('恢复出厂插件面：损坏 manifest 如实报错，不静默改写', async () => {
+  const home = await mkdtemp(join(tmpdir(), 'ok-recovery-bad-'))
+  try {
+    const manifestPath = profileManifestPath(home)
+    await mkdir(dirname(manifestPath), { recursive: true })
+    await writeFile(manifestPath, 'not-json')
+    const result = restoreShippedBundles(home)
+    assert.equal(result.changed, false)
+    assert.match(/** @type {string} */ (result.error), /读取 profile manifest 失败/)
+    assert.equal(await readFile(manifestPath, 'utf8'), 'not-json', '原样保留（不覆盖损坏文件）')
+  } finally {
+    await rm(home, { recursive: true, force: true })
+  }
+})
+
+/* ---------- qilin-app:// 承载契约 ---------- */
+
+test('app 入口地址固定为 qilin-app://app/workspace（上游 WEB_ENTRY_PATH）', () => {
+  assert.equal(APP_ENTRY_URL, 'qilin-app://app/workspace')
+})
+
+test('导航白名单只放行壳自有协议，外链全部拒绝（调用方转系统浏览器）', () => {
+  assert.equal(isAllowedNavigation('qilin-app://app/workspace'), true, 'SPA 入口')
+  assert.equal(isAllowedNavigation('qilin-app://app/session/abc'), true, 'SPA 会话路由')
+  assert.equal(isAllowedNavigation('https://example.com'), false, '外链拒绝')
+  assert.equal(isAllowedNavigation('http://127.0.0.1:4567/'), false, '宿主地址不出现在导航面')
+  assert.equal(isAllowedNavigation('file:///etc/passwd'), false)
+  assert.equal(isAllowedNavigation('not a url'), false)
+})
+
+test('文档路由：入口应用文档与公开文档按宿主语义映射 dist 文件', () => {
+  assert.equal(appDocumentFile('/'), 'landing.html', '宿主语义：/ = landing')
+  assert.equal(appDocumentFile('/login'), 'auth.html', '宿主语义：/login = 登录文档')
+  assert.equal(appDocumentFile('/setup'), 'auth.html')
+  assert.equal(appDocumentFile('/workspace'), 'index.html', '入口应用文档（壳注入 boot 闸）')
+  assert.equal(appDocumentFile('/index.html'), 'index.html')
+  assert.equal(appDocumentFile('/api/session/list'), null, 'API 走反代')
+  assert.equal(appDocumentFile('/assets/app.js'), null, '静态资源走文件路径')
+})
+
+test('dist 路径解析：防穿越、防空字节、拒绝根路径', () => {
+  const root = '/run/dist'
+  assert.equal(resolveDistFile(root, '/assets/app.js'), join(root, 'assets/app.js'))
+  assert.equal(resolveDistFile(root, '/index.html'), join(root, 'index.html'))
+  assert.equal(resolveDistFile(root, '/'), null)
+  assert.equal(resolveDistFile(root, '/../etc/passwd'), null, '穿越拒绝')
+  assert.equal(resolveDistFile(root, '/%2e%2e/etc/passwd'), null, '编码穿越拒绝')
+  assert.equal(resolveDistFile(root, '/assets/a%20b.js'), join(root, 'assets/a b.js'), '解码空格')
+  assert.equal(resolveDistFile(root, '/assets/\0.js'), null, '空字节拒绝')
+})
+
+test('boot 闸注入：紧跟 <head> 之后；无 head 时前置', () => {
+  const injected = injectBootGate('<!doctype html><html><head><meta charset="utf-8"></head><body></body></html>')
+  assert.match(injected, /<head><script>globalThis\.__QILIN_BOOT_READY__ = Promise\.withResolvers\(\)<\/script>/)
+  const noHead = injectBootGate('<!doctype html><html><body></body></html>')
+  assert.match(noHead, /^<script>globalThis\.__QILIN_BOOT_READY__/)
+})
+
+test('反代请求头：剥离壳侧 origin/cookie/逐跳头，附宿主会话 cookie', () => {
+  const headers = new Headers({
+    'content-type': 'application/json',
+    'origin': 'qilin-app://app',
+    'cookie': 'stale=1',
+    'sec-fetch-site': 'same-origin',
+    'x-request-id': 'abc',
+  })
+  const forwarded = forwardHeaders(headers, 'qilin-auth-x=signed')
+  assert.equal(forwarded['content-type'], 'application/json')
+  assert.equal(forwarded['x-request-id'], 'abc')
+  assert.equal(forwarded.cookie, 'qilin-auth-x=signed', '壳托管 cookie 覆盖')
+  assert.equal(forwarded.origin, undefined)
+  assert.equal(forwarded['sec-fetch-site'], undefined)
+  const anonymous = forwardHeaders(headers, '')
+  assert.equal(anonymous.cookie, undefined, '无 cookie 不附加')
+})
+
+test('认证兑换：set-cookie 只取名值对（属性留在主进程）', async () => {
+  const { extractAuthCookie } = await import('../desktop/main/qilin-contract.mjs')
+  const response = {
+    headers: {
+      getSetCookie: () => [
+        'qilin-auth-abc=signed-value; Path=/; HttpOnly; SameSite=Strict',
+        'other=2; Path=/',
+      ],
+    },
+  }
+  assert.equal(extractAuthCookie(response), 'qilin-auth-abc=signed-value; other=2')
+  assert.equal(extractAuthCookie({ headers: { getSetCookie: () => [], get: () => null } }), '', '无会话头返回空串')
+})
+
+test('urlOrigin 忽略查询与路径', () => {
+  assert.equal(urlOrigin('http://127.0.0.1:4567/?token=x'), 'http://127.0.0.1:4567')
+  assert.equal(urlOrigin('::bad::'), null)
+})
+
+/* ---------- 启动页资产与壳文件 ---------- */
+
+test('启动页资产齐备（splash.html + preload + 主进程六件套 + 宿主入口 + 恢复模块）', async () => {
   for (const rel of [
     'desktop/renderer/splash.html',
     'desktop/preload/splash.mjs',
     'desktop/main/index.mjs',
     'desktop/main/windows.mjs',
-    'desktop/main/qilin-manager.mjs',
+    'desktop/main/protocol.mjs',
+    'desktop/main/host-process.mjs',
     'desktop/main/qilin-contract.mjs',
+    'desktop/main/recovery.mjs',
+    'desktop/host/main.mjs',
   ]) {
     await assert.doesNotReject(access(new URL(`../${rel}`, import.meta.url)), undefined, rel)
   }
@@ -132,7 +297,10 @@ test('启动页资产齐备（splash.html + preload + 主进程三件套）', as
   assert.match(splash, /云门正在开启/, '启动页主文案（与共享壳层 locale 一致）')
   assert.match(splash, /基于 QiLin 构建/, '品牌副标题')
   assert.match(splash, /重试启动/, '失败恢复入口')
+  assert.match(splash, /禁用插件并重启/, '出厂插件面恢复入口（M3.3）')
   assert.match(splash, /Content-Security-Policy/, '本地页面也有 CSP')
+  const splashPreload = await readFile(new URL('../desktop/preload/splash.mjs', import.meta.url), 'utf8')
+  assert.match(splashPreload, /splash:recover-disable-plugins/, '恢复入口经 IPC 白名单')
 })
 
 test('branding 指纹随品牌输入变化（stamp 复用的守门依据）', async () => {
@@ -143,7 +311,7 @@ test('branding 指纹随品牌输入变化（stamp 复用的守门依据）', as
     await writeFile(join(dir, 'patches/registry.json'), JSON.stringify({
       schemaVersion: 1,
       patches: [{ patch: 'patches/shared-web-branding.patch' }],
-      overwrites: [{ mode: 'add', source: 'branding/theme/tokens.css', target: 'apps/desktop/renderer/ok-theme.css' }],
+      overwrites: [{ mode: 'add', source: 'branding/theme/tokens.css', target: 'apps/renderer/ok-theme.css' }],
     }))
     await writeFile(join(dir, 'patches/shared-web-branding.patch'), 'a\n')
     await writeFile(join(dir, 'branding/theme/tokens.css'), 'b\n')
@@ -209,7 +377,16 @@ test('自绘标题栏：KCoder SHELL_TITLEBAR_JS 移植 + 窗口级按钮', asyn
   assert.match(source, /--ok-sidebar-w/, '侧栏宽度变量驱动标题起排')
   // 工作区段：文件夹图标 + 弱化色 + " / " 分隔（KCoder 同款）
   assert.match(source, /ok-ws-btn/, '工作区实体按钮（点击打开目录）')
-  assert.match(source, /translateY\(\.5px\)/, '图标光学中心微调（KCoder 同款）')
+  assert.match(source, /ok-actions\{position:absolute;right:10px/, '右侧按钮走动作簇流式排布（top 垂直居中、右缘固定）')
+  assert.match(
+    source,
+    /actions\.append\(btnApp, termHost, btnPanel\)/,
+    '挂载点（KCoder 契约 id）夹在应用按钮与右栏开关之间——插件增减只重排簇内流，不留固定槽位空隙',
+  )
+  assert.doesNotMatch(source, /\.ok-btn-(?:panel|app)\{right:/, '按钮不再用固定 right 偏移定位（终端退役后曾留 32px 坑）')
+  assert.match(source, /align-items:baseline/, '面包屑基线对齐（latin 与 CJK 同基线，混排不沉底）')
+  assert.match(source, /align-self:baseline/, '工作区按钮对齐到面包屑基线（合成基线取文字而非图标盒底）')
+  assert.doesNotMatch(source, /translateY\(\.5px\)/, '基线制下无需半像素图标补偿')
   assert.match(source, /_titleRow.*_label/s, '预设徽章收纳上游 AgentPresetLabel')
   // 编辑器选择：自持菜单直启上游接口，零模拟点击
   assert.match(source, /open-in-app\/apps/, '应用清单走上游 HTTP 接口')
@@ -217,8 +394,11 @@ test('自绘标题栏：KCoder SHELL_TITLEBAR_JS 移植 + 窗口级按钮', asyn
   assert.match(source, /qilin\.open-in-app\.choice/, '记忆选择与上游同键互通')
   assert.match(source, /data-sidebar-right-toggle/, '右侧边栏开关镜像上游稳定 data 钩子')
   assert.match(source, /data-sidebar-right-expand/, '面板收起态的展开按钮同样镜像')
-  assert.match(source, /__dsh_desktop_titlebar/, '终端插件挂载哨兵（KCoder 宿主契约同款 id）')
-  assert.match(source, /__dsh_kc_term_btn \{ color: var\(--ok-tb-fg/, '插件按钮配色对齐本栏前景（上游硬编码浅色）')
+  assert.match(
+    source,
+    /q\('\[data-sidebar-right-expand\]'\) \?\? q\('\[data-sidebar-right-toggle\]'\)/,
+    '转发先展开钮后折叠钮——折叠钮在收起态是 setExpanded(false) no-op（编码模式实测），展开钮只在收起态挂载',
+  )
   assert.match(source, /header\[class\*="_header"\]:has\(\[class\*="_titleRow"\]\)/, '会话头重复行整行收掉，空间归还主工作区')
   assert.match(source, /okShell\?\.revealWorkspace/, '工作区名点击 → 主进程 Finder 打开')
   assert.match(source, /bridge\?\.workspace/, '工作区名经桥解析（页面只传只读提示）')
@@ -231,19 +411,85 @@ test('自绘标题栏：KCoder SHELL_TITLEBAR_JS 移植 + 窗口级按钮', asyn
   assert.match(source, /ok-tb-solid \[class\*="sidebarCol"\] > \[class\*="_root"\]/, '侧栏根 padding-top 归零')
 })
 
-test('窗口层：整窗无边框 + 红绿灯召回 + 沙箱 preload 白名单桥', async () => {
+test('窗口层：整窗无边框 + 红绿灯召回 + 沙箱 preload 双桥 + app 入口', async () => {
   const windows = await readFile(new URL('../desktop/main/windows.mjs', import.meta.url), 'utf8')
   assert.match(windows, /frame: false/, 'shell 窗口无边框')
   assert.match(windows, /setWindowButtonVisibility\(true\)/, 'macOS frameless 红绿灯显式召回')
   assert.match(windows, /trafficLightPosition[\s\S]*?y: Math\.round\(TITLEBAR_HEIGHT \/ 2\)/, '红绿灯垂直中心 = 栏高一半（与标题文字共享 24px 光学中线）')
-  assert.match(windows, /preload: SHELL_PRELOAD/, 'shell 窗口挂标题栏桥')
+  assert.match(windows, /preload: SHELL_PRELOAD/, 'shell 窗口挂 preload 桥')
+  assert.match(windows, /APP_ENTRY_PATH/, 'shell 加载壳自有协议入口')
+  assert.match(windows, /loadURL\(`\$\{APP_ORIGIN\}\$\{entryPath\}`\)/, '入口地址 = 协议 origin + 登录态选定的路径')
   await assert.doesNotReject(access(new URL('../desktop/preload/shell.cjs', import.meta.url)))
   const preload = await readFile(new URL('../desktop/preload/shell.cjs', import.meta.url), 'utf8')
   assert.match(preload, /contextBridge/, '桥面走 contextBridge')
+  assert.match(preload, /qilinDesktopBoot/, '上游桌面启动门契约桥（apps/web/src/main.ts 契约名）')
+  assert.match(preload, /ok:desktop-boot/, 'IPC 白名单：boot 数据')
   assert.match(preload, /ok:workspace/, 'IPC 白名单：工作区解析')
+  assert.match(preload, /qilin-app:/, 'boot 桥按 origin 门控')
   assert.match(preload, /require\('electron'\)/, '沙箱 preload 仅 CJS')
   const splash = await readFile(new URL('../desktop/renderer/splash.html', import.meta.url), 'utf8')
   assert.match(splash, /-webkit-app-region: drag/, '无边框启动页整页可拖')
+})
+
+test('协议承载：特权 scheme 三路由 + WS 改写 + 认证反代接线', async () => {
+  const source = await readFile(new URL('../desktop/main/protocol.mjs', import.meta.url), 'utf8')
+  assert.match(source, /registerSchemesAsPrivileged/, '特权 scheme（ready 前注册）')
+  assert.match(source, /standard: true/, 'standard scheme（相对路径解析）')
+  assert.match(source, /protocol\.handle\('qilin-app'/, 'app 路由挂载')
+  assert.match(source, /appDocumentFile/, '文档路由镜像宿主语义（landing/auth/index）')
+  assert.match(source, /resolveDistFile/, '静态文件防穿越解析')
+  assert.match(source, /injectBootGate/, 'index 注入 __QILIN_BOOT_READY__ 闸')
+  assert.match(source, /forwardRequest/, '动态请求反代宿主')
+  assert.match(source, /forbidden origin/, 'Origin 白名单强制 qilin-app://app')
+  assert.match(source, /set-cookie/, '响应剥离 set-cookie（cookie 不进 renderer）')
+  assert.match(source, /onBeforeSendHeaders/, 'ws://127.0.0.1/* 头改写（流式 mux 载体）')
+  assert.match(source, /authenticateWebHost/, '壳侧 token→cookie 兑换')
+  const hostEntry = await readFile(new URL('../desktop/host/main.mjs', import.meta.url), 'utf8')
+  assert.match(hostEntry, /runProfile/, '宿主程序化 boot（不经 CLI 子进程）')
+  assert.match(hostEntry, /profile: 'qilin'/, '产品面 profile')
+  assert.match(hostEntry, /'--no-open', '--port', String\(hostPort\)/, '壳传入的稳定端口透传 profile（0 = 随机）')
+  assert.match(hostEntry, /collectIndexInjections/, '就绪回传插件注入表')
+  assert.match(hostEntry, /whenListened/, 'socket 绑定后才取 port（settle 竞态守卫）')
+  assert.match(hostEntry, /inspectTasks/, '任务检查读真实引擎面（M3.2）')
+  assert.match(hostEntry, /agents.*list|list\(\).*agents/s, 'Agent 回合状态（ctx.agents）')
+  assert.match(hostEntry, /jobs/, '后台任务状态（ctx.jobs）')
+  assert.match(hostEntry, /schedule/, '定时提醒状态（ctx.schedule.catalog）')
+  const index = await readFile(new URL('../desktop/main/index.mjs', import.meta.url), 'utf8')
+  assert.match(index, /registerAppScheme\(\)/, 'app ready 前注册 scheme')
+  assert.match(index, /authenticateWebHost/, '就绪后壳侧兑换 cookie')
+  assert.match(index, /attachAppProtocol/, '窗口加载前挂协议')
+  assert.match(index, /pickHostPort/, '稳定端口决策（记忆优先、被占才换，M3.1）')
+  assert.match(index, /loadJar/, 'cookie 罐按端口回灌（跨启动会话，M3.1）')
+  assert.match(index, /scheduleJarSave/, '罐去抖落盘 userData（0600）')
+  assert.match(index, /splash:recover-disable-plugins/, '恢复入口接线（禁用第三方插件后重启）')
+  assert.match(index, /writeCrashReport/, '失败态先落崩溃报告再报给启动页（M3.3）')
+})
+
+test('品牌面：Dock 图标 / 中文菜单 / 系统托盘接线', async () => {
+  for (const rel of [
+    'branding/logo/qilin.svg',
+    'branding/logo/qilin-tray.svg',
+    'branding/icons/qilin.icns',
+    'branding/icons/qilin-512.png',
+    'branding/icons/tray-Template.png',
+    'branding/icons/tray-Template@2x.png',
+    'scripts/gen-icons.mjs',
+  ]) {
+    await assert.doesNotReject(access(new URL(`../${rel}`, import.meta.url)), undefined, rel)
+  }
+  const index = await readFile(new URL('../desktop/main/index.mjs', import.meta.url), 'utf8')
+  assert.match(index, /app\.dock\?\.setIcon/, 'dev 期 Dock 图标（打包后由 .icns 提供）')
+  assert.match(index, /installAppMenu/, '中文应用菜单挂载')
+  assert.match(index, /tray-Template\.png/, '系统托盘挂载（QL template 图）')
+  const menu = await readFile(new URL('../desktop/main/menu.mjs', import.meta.url), 'utf8')
+  assert.match(menu, /setApplicationMenu/, 'Electron 默认英文菜单被接管')
+  assert.match(menu, /关于 QiLin Desktop/, '关于项中文化（setAboutPanelOptions 配套）')
+  assert.match(menu, /退出 QiLin Desktop/, '退出项中文化')
+  assert.match(menu, /role: 'toggleDevTools'/, '开发者工具仅 dev 菜单提供（打包后 boot 闸不被破坏）')
+  assert.match(menu, /isPackaged === false/, 'dev 专属项按发布形态收紧')
+  const gen = await readFile(new URL('../scripts/gen-icons.mjs', import.meta.url), 'utf8')
+  assert.match(gen, /iconutil/, 'icns 由 macOS 自带 iconutil 合成')
+  assert.match(gen, /offscreen: true/, '渲染走 offscreen 截图（矢量按目标像素栅格化）')
 })
 
 test('设置页覆盖层 inset 补丁已注册且命中上游锚点', async () => {
@@ -259,67 +505,18 @@ test('设置页覆盖层 inset 补丁已注册且命中上游锚点', async () =
   assert.match(patch, /top: var\(--ok-tb-h, 0px\)/, 'fixed 覆盖层让出标题栏；纯 web 回落 0')
 })
 
-/* ---------- 内置终端插件（vendor 物化） ---------- */
-
-test('vendored dsh-terminal 是合法的 dsh bundle 层', async () => {
-  const manifest = JSON.parse(await readFile(new URL('../vendor/dsh-terminal/package.json', import.meta.url), 'utf8'))
-  assert.equal(manifest.name, TERMINAL_PACKAGE)
-  assert.equal(manifest.dsh?.bundle?.patch, './cordis.patch.yml', '上游 dsh 兼容层读取的 bundle 声明')
-  assert.equal(manifest.qilin?.bundle?.patch, './cordis.patch.yml', 'QiLin 插件管理器只认的原生 bundle 键（缺失即"没有声明组合包"）')
-  assert.equal(manifest.exports?.['./client'], './client.js', 'client 交付物（xterm.js 面板）')
-  await assert.doesNotReject(access(new URL('../vendor/dsh-terminal/entry.js', import.meta.url)), undefined, 'entry.js')
-  await assert.doesNotReject(access(new URL('../vendor/dsh-terminal/vendor/xterm.js', import.meta.url)), undefined, 'xterm vendor')
-  const client = await readFile(new URL('../vendor/dsh-terminal/client.js', import.meta.url), 'utf8')
-  assert.match(client, /--dsh-sidebar-width/, 'KCoder 宿主变量探针保留')
-  assert.match(client, /querySelector\('\[data-rightbar-col\]'\)/, 'QiLin 右栏回退探针（变量缺失时量列宽）')
-  assert.match(client, /ResizeObserver\(readRightPanel\)/, '右栏开合/拖宽驱动面板重排（不侵占右侧栏下方区域）')
+test('上游锁锚定 QiLin 3.1.1 独立版本线', async () => {
+  const lock = JSON.parse(await readFile(new URL('../upstream/qilin.lock.json', import.meta.url), 'utf8'))
+  assert.equal(lock.qilinVersion, '3.1.1')
+  assert.equal(lock.qilinRepository, 'https://github.com/kkutysllb/QiLin.git', '独立线后上游即 QiLin 仓本身')
+  assert.match(lock.qilinCommit, /^[0-9a-f]{40}$/)
 })
 
-test('内置终端物化：进 profile 私有安装锚 + 注册 bundle 层（幂等，pty 缺失不阻塞）', async () => {
-  const repoRoot = new URL('..', import.meta.url).pathname.replace(/\/$/, '')
-  const home = await mkdtemp(join(tmpdir(), 'ok-terminal-home-'))
-  const previousEnv = process.env.OPENKYLIN_NO_BUILTIN_TERMINAL
-  delete process.env.OPENKYLIN_NO_BUILTIN_TERMINAL
-  try {
-    // 预置可解析的假 node-pty 探针（共享锚）：测试环境不真装 native 包；
-    // 共享锚副本经 ancestor 解析可达，同样应让 pty 探测通过
-    const fakePty = join(home, 'profiles', 'node_modules', 'node-pty')
-    await mkdir(fakePty, { recursive: true })
-    await writeFile(join(fakePty, 'package.json'), JSON.stringify({ name: 'node-pty', main: 'index.js' }))
-    await writeFile(join(fakePty, 'index.js'), 'module.exports = {}\n')
-    // 预置 alpha.2 前的旧共享锚布局：物化时应清走，避免双副本
-    const legacy = join(home, 'profiles', 'node_modules', '@kkutysllb', 'dsh-terminal')
-    await mkdir(legacy, { recursive: true })
+/* ---------- dev 脚本（自备 Electron） ---------- */
 
-    const first = ensureBuiltinTerminal({ repoRoot, home })
-    assert.equal(first.installed, true, '物化成功')
-    assert.equal(first.pty, true, '探针在 → 不触发 npm')
-
-    const destination = join(home, 'profiles', 'qilin', 'node_modules', '@kkutysllb', 'dsh-terminal')
-    const copied = JSON.parse(await readFile(join(destination, 'package.json'), 'utf8'))
-    assert.equal(copied.name, TERMINAL_PACKAGE, '包已拷贝到 profile 私有安装锚（runtime+enforce 解析可达）')
-    assert.equal(existsSync(legacy), false, '旧共享锚副本被清理（enforce 禁区不留死层包）')
-
-    const manifest = JSON.parse(await readFile(join(home, 'profiles', 'qilin', 'package.json'), 'utf8'))
-    assert.deepEqual(
-      manifest.qilin.profile.bundles,
-      ['@qilin/base', '@qilin/web-app', '@qilin/web-brand', TERMINAL_PACKAGE],
-      'bundle 层按序追加',
-    )
-
-    const second = ensureBuiltinTerminal({ repoRoot, home })
-    assert.equal(second.installed, true, '幂等重跑不抛错')
-
-    process.env.OPENKYLIN_NO_BUILTIN_TERMINAL = '1'
-    assert.equal(ensureBuiltinTerminal({ repoRoot, home }).reason, 'disabled-by-env', '环境开关可关闭')
-  } finally {
-    if (previousEnv === undefined) delete process.env.OPENKYLIN_NO_BUILTIN_TERMINAL
-    else process.env.OPENKYLIN_NO_BUILTIN_TERMINAL = previousEnv
-    await rm(home, { recursive: true, force: true })
-  }
-})
-
-test('dev 脚本已接入内置终端物化步骤', async () => {
+test('dev 脚本自备 Electron（上游 apps/desktop 已移除）', async () => {
   const dev = await readFile(new URL('../scripts/dev.mjs', import.meta.url), 'utf8')
-  assert.match(dev, /ensureBuiltinTerminal/, 'launch 前物化')
+  assert.match(dev, /electron-tool/, 'Electron 自备（上游 apps/desktop 已移除）')
+  assert.match(dev, /profile-boot\.js/, '构建物完整性检查锚定宿主 boot 模块')
+  assert.doesNotMatch(dev, /ensureBuiltinTerminal/, '内置终端插件已退役，不再物化')
 })

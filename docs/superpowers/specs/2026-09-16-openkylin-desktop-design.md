@@ -87,6 +87,11 @@ OpenKylin Desktop
 
 ### 3.1 复用的上游能力
 
+> 版本注记（2026-10-07 摸牌）：本节描述 QiLin 3.0.x 形态。上游 3.1.0 起
+> 走独立版本线并**移除了 `apps/desktop`（含 Desktop Host 与
+> `package:desktop:*` 打包链）**，3.1.x 只余 `apps/cli` + `apps/web`；
+> 升级锁后本节能力面以 §11 基线修订为准（自有壳为打包主体）。
+
 上游 QiLin `apps/desktop` 和 `apps/desktop-host` 已经提供以下能力，本项目优先复用，不复制实现：
 
 - Electron 主进程生命周期和窗口管理；
@@ -109,7 +114,7 @@ OpenKylin Desktop
 {
   "schemaVersion": 1,
   "productVersion": "0.1.0",
-  "qilinRepository": "https://github.com/deepseek-ai/deepseek-harness.git",
+  "qilinRepository": "https://github.com/kkutysllb/QiLin.git",
   "qilinCommit": "0123456789abcdef0123456789abcdef01234567",
   "qilinVersion": "3.0.0",
   "nodeVersion": "24.17.0",
@@ -118,7 +123,7 @@ OpenKylin Desktop
 }
 ```
 
-实际发布时，`productVersion`、上游包版本、Desktop Host 版本、内置 Node 版本、pnpm 版本和目标架构必须通过构建检查彼此一致。禁止使用浮动分支、`latest` 标签或未锁定的依赖解析结果。
+实际发布时，`productVersion`、上游包版本、Desktop Host 版本、内置 Node 版本、pnpm 版本和目标架构必须通过构建检查彼此一致。禁止使用浮动分支、`latest` 标签或未锁定的依赖解析结果。（版本注记 2026-10-07：示例仓库 URL 已按 QiLin 独立版本线更新为 QiLin 仓本身；当前锁文件仍指 3.0.0 的 deepseek-harness 地址，随锁升级一并切换，见 §11。）
 
 ### 3.3 Web 与 Desktop 同源同步
 
@@ -514,3 +519,8 @@ QiLin Agent / Plugin / Session 运行
 - 选择 Web Client 作为工作区唯一实现，Desktop 只复用其构建物并提供原生壳层；以资源摘要、功能目录摘要和双端同场景测试阻止后续同步漂移。
 - 实施期修订：取消独立的 `featureCatalogSha256`——功能注册表、路由与插件入口均包含在 Web Client 构建物内，`webBundleSha256` 双端全等已蕴含功能一致性；`sharedThemeVersion` 改为从 `branding/brand-manifest.json` 记录进发布清单，用于追溯注入主题的版本。
 - 实施期修订（2026-09-16，桌面开发环境）：本地桌面端环境改用 **KCoder host & sidecar 机制**（参考 DSH Desktop）——Electron 壳 spawn 品牌化 `qilin --port 0 --no-open`（裸命令 = 上游**产品面** profile：base + web-app + web-brand）侧车并加载其就绪 URL（含 launch token），shell 窗口是侧车的纯浏览器载体（sandbox、无 preload、零注入）。桌面工作区与 web 端因此**按构造完全一致**（同一 server、同一构建物、同一 `$QILIN_HOME` 数据），且不依赖上游 `apps/desktop` 的 `qilin-app://` 私有协议与 Desktop Host 打包链。品牌视觉走上游原生 web-brand 层（麒麟印章品牌位 + 宣纸/墨色主题层），`shared-web-branding.patch` 将印章渐变与印章色 token 统一为 OpenKylin 朱砂；注意 unbranded 的 `qilin web` 面没有品牌层（鲸鱼兜底），不得作为桌面工作区的服务面。该机制落地在产品仓库自有目录 `desktop/`（零 npm 依赖的 ESM 主进程 + 本地启动页），与 §3 的发布路线并存：CI 打包门禁不变，本地 `npm run dev` 即得与 web 端完全一致的桌面环境；上游契约（就绪行 label、CLI flags、bin 路径、home）集中收敛在 `desktop/main/qilin-contract.mjs` 单一适配点。进程纪律超出原设计：除 SIGTERM → 宽限 → SIGKILL 优雅退出外，增加 detached watchdog 兜底主进程被 SIGKILL 直杀的孤儿侧车场景。
+- 基线修订（2026-10-07，QiLin 3.1.1 独立版本线）：上游 QiLin 自 **3.1.0 起走独立版本线**（3.0.11 为 dsh 升级 saga 闭环点；此后版本自主演进，原 deepseek-harness 上游降为参考源，借鉴不 merge；决策记录见 QiLin 仓 `plans/2026-10-05-independent-version-line-baseline.md`）。对本设计的直接影响：
+  1. **§3.1 能力面失效**：上游 3.1.x 移除 `apps/desktop`（含 Desktop Host、`qilin-app://` 协议与 `package:desktop:*` 打包链），只余 `apps/cli` + `apps/web`。§5 构建流程中"上游 Desktop 构建与打包"步骤随之作废——锁升级后发布管线须重建为以本仓库自有 `desktop/` 壳为打包主体（Electron 自备 + 侧车构建物入包），`desktop-runtime.json` 运行时清单契约由本仓重建。
+  2. **面收敛**：3.1.0 起 `qilin web` profile 也组装 web-brand 品牌层、鲸鱼兜底去化，与产品面（裸 `qilin`）收敛；就绪行 label 两种形态仅对缺品牌层的构建有意义。产品侧只依赖裸 `qilin` 面的约定不变。
+  3. **dsh 定位**：`@qilin/dsh-compat` 是长期兼容面（第三方 dsh 插件可安装可激活，管理侧清单双通道），但 QiLin 原生契约一律 `qilin.*` 键、命名空间 rescope 为 `@qilin/*`；§6/§7 的品牌注入走原生 web-brand 层的约定不受影响。client 主题 token 词汇表 `--dsw-*` 更名 `--qilin-*`（旧名经 dsw-compat.css 垫片兼容），`shared-web-branding.patch` 重生成时需核对。
+  4. **锁升级待办**：当前锁仍锚 3.0.0（aff05948，deepseek-harness 仓库地址）；升级 3.1.1（tag `v3.1.1`，commit `fdca446ccd…`，仓库 kkutysllb/QiLin）时 `qilinRepository` 切换、补丁重生成、发布管线重建的工作清单见 README 跟进项。本设计其余约束（仓库边界、同源同步、品牌规范、进程纪律）在 3.1.x 下继续成立。

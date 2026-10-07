@@ -1,123 +1,107 @@
 // desktop/main/qilin-contract.mjs
 /**
- * 上游 QiLin 契约适配层（KCoder host & sidecar 机制的桌面壳）。
+ * 上游 QiLin 契约适配层（原生桌面产品：Electron 壳 + 引擎宿主子进程）。
  *
- * 桌面端与 QiLin 的关系是"宿主与侧车"：QiLin web 侧车拥有 agent loop、
- * API 网关、会话与持久化（`$QILIN_HOME`），桌面壳只负责进程与窗口，
- * 绝不侵入其运行时。shell 窗口加载的就是 `qilin web` 侧车本身——因此
- * 桌面工作区与上游 QiLin 的 web 端是同一份实现、同一份数据，天然完全
- * 一致；QiLin 升级自动跟随，无需桌面侧改动。
+ * 桌面端与 QiLin 的关系（2026-10-07 原生设计，取代 sidecar 套壳）：
+ * 壳 spawn **宿主子进程**（Electron-as-Node），宿主以 `runProfile`
+ * 程序化 boot 产品面引擎（`qilin` profile = base + web-app + web-brand，
+ * cordis 同进程装配，不经 CLI 子进程），宿主 loopback 127.0.0.1:0 随机
+ * 端口 + launch token；壳经 Node IPC 收 `ready{url, injections}`，用
+ * 特权协议 `qilin-app://` 承载共享 Web client——静态资源壳直读 dist，
+ * 动态请求壳认证反代到宿主，认证 cookie 只存在于主进程。
  *
  * 本文件是桌面壳对上游约定的唯一引用点；升级上游后若行为不符，只
- * 需要修改这里。
- *
- * 契约依据（upstream 3.0.0, commit 81072195ac724ff63f49450da02768032a1b50fe）：
- * - 就绪行：packages/bundle/web-app/src/index.ts `printUrl`
- *   `<label>: http://127.0.0.1:<port>/workspace?token=<launch-token> (LAN: …)`
- *   ——loader 结算后打印，是就绪信号；URL 携带进程 launch token，首次
- *   加载经 302 换取设备 cookie 后落回干净的 entry URL（packages/client/
- *   connection/src/browser-auth.ts），因此导航白名单必须按 origin 判断。
- *   label 由 web-runtime 行决定：产品 profile（web-brand 层）为 `qilin`，
- *   unbranded web profile 为 `qilin web`（packages/bundle/web-brand/
- *   cordis.patch.yml）。
- * - CLI：裸 `qilin` 启动**产品面**（shipped profile `qilin` = base +
- *   web-app + web-brand，apps/cli/src/args.ts `PRODUCT_PROFILE` 与
- *   packages/boot/app-boot/src/profile.ts `PROFILE_TEMPLATES`）——web-brand
- *   层把 `ui-brand`（麒麟印章品牌位）与 `ui-theme-brand`（宣纸/墨色主题
- *   层）插入浏览器模块清单，这就是"与上游 QiLin 产品 web 端完全一致"的
- *   上游原生开关；`qilin web` 是 **unbranded** web 面（鲸鱼兜底，无品牌
- *   层）。launcher  flags 之后的 token 全部直通 booted app
- *   （allowUnknownOption + passThroughOptions），因此 `--port <N> --no-open`
- *   直接跟在裸命令后：`--port` 为稳定记忆端口（见「端口」条目），`--no-open`
- *   抑制默认浏览器（桌面壳就是它的浏览器）。
- * - 构建产物 bin：apps/cli/package.json `bin.qilin = lib/bin.js`。
+ * 需要修改这里。契约依据（upstream 3.1.1，commit d9dc36d499…（历史锚 fdca446…→b2d1861…），锁定于
+ * upstream/qilin.lock.json；接入缝逐条实测核对）：
+ * - 程序化 boot：apps/cli `exports['./profile-boot']` → lib/profile-boot.js
+ *   `runProfile({environment, profile, patchFiles, args}) → {ctx, shutdown}`
+ *   （apps/cli/src/profile-boot.ts:254）；INSTALL_ANCHOR 自锚
+ *   apps/cli/package.json。
+ * - 产品面：PROFILE_TEMPLATES['qilin'] = base + web-app + web-brand
+ *   （packages/boot/app-boot/src/profile.ts:246）。`--no-open`/`--port`
+ *   由 web-app bundle 的 webStartup 服务从 cmdlineArgs 解析
+ *   （packages/bundle/web-app/src/startup.ts）。
+ * - 就绪：webServer.whenListened() 后 `connection.authenticatedUrl(
+ *   http://127.0.0.1:<port>)`（token URL，首访 302 兑换 HMAC 签名
+ *   cookie——cookie 名绑定 authority，packages/client/connection/src/
+ *   browser-auth.ts）；`webServer.collectIndexInjections()` 收插件
+ *   index 注入表（packages/host/webserver/src/index.ts）。
+ * - 桌面启动门（上游契约，桥名/闸名必须一致）：client 找
+ *   `window.qilinDesktopBoot.ready() → {injections, streamBaseUrl}`，
+ *   等文档内 `__QILIN_BOOT_READY__` deferred，随后自设
+ *   `__QILIN_TRANSPORT__ = {ownsHost:true, streamBaseUrl}`
+ *   （apps/web/src/main.ts:5-36；packages/client/connection/src/client/
+ *   index.ts:79-113）。
+ * - 入口路径：`/workspace`（packages/client/connection/src/web-entry.ts
+ *   WEB_ENTRY_PATH）；静态资源锚 `@qilin/web-frontend/dist`
+ *   （packages/bundle/web-app/src/index.ts:181）。
  * - Harness home：packages/util/home-paths `QILIN_HOME`，默认 `~/.qilin`，
  *   与 qilin CLI / 浏览器端共享同一份数据（会话、凭据、插件）。
- * - 端口：优先复用 QILIN_HOME 内记忆的稳定端口（desktop-sidecar-port.json，
- *   占用则换新口并重记）。登录会话 cookie 绑定 host:port，随机端口会
- *   让凭证每次启动失效；稳定端口让 shell 打开 `/workspace?token=…` 时
- *   凭证未过期即直达工作区。
- * - Electron 二进制：品牌化 checkout 的 apps/desktop devDependencies
- *   （dev 态借用，与上游同版本；打包态由发行链自带）。
+ * - 进程收尾：runProfile 返回 `shutdown.shutdown(code)`（5s 强制，
+ *   apps/cli/src/process-shutdown.ts）。
  *
  * @module desktop/main/qilin-contract
  */
 
-import { existsSync } from 'node:fs'
 import { homedir } from 'node:os'
-import { join } from 'node:path'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { join, sep } from 'node:path'
 
-/** 就绪行的解析规则：`qilin: http://127.0.0.1:<port>…`（产品 profile）或 `qilin web: …`（unbranded web profile）。 */
-export const READY_LINE_RE = /^qilin(?: web)?: (http:\/\/127\.0\.0\.1:\d+(?:\/[^\s]*)?)/
+/** 壳自有特权协议（dsh 参考实现为 dsh-app；本产品命名 qilin-app）。 */
+export const SCHEME = 'qilin-app'
 
-/** 就绪等待上限（毫秒）：qilin 需等 loader 结算后才打印 URL；首次冷启动还要初始化 profile。 */
+/** Web client 载体 hostname（协议三路由之一：qilin-app://app/*）。 */
+export const APP_HOSTNAME = 'app'
+
+/** Web client 载体 origin。 */
+export const APP_ORIGIN = `${SCHEME}://${APP_HOSTNAME}`
+
+/** 工作区入口路径（上游 WEB_ENTRY_PATH）。 */
+export const APP_ENTRY_PATH = '/workspace'
+
+/** shell 窗口的加载地址。 */
+export const APP_ENTRY_URL = `${APP_ORIGIN}${APP_ENTRY_PATH}`
+
+/** 壳 ↔ 宿主 IPC 小协议版本（结构演进时递增）。 */
+export const HOST_PROTOCOL_VERSION = 1
+
+/** 宿主就绪等待上限（毫秒）：首次冷启动要 pnpm 结算 + profile 初始化。 */
 export const READY_TIMEOUT_MS = 120_000
 
 /** 崩溃自动重启次数上限。 */
 export const MAX_AUTO_RESTARTS = 3
 
-/** 优雅退出宽限（毫秒）：SIGTERM 之后仍未退出则 SIGKILL。 */
+/** 优雅退出宽限（毫秒）：shutdown 消息后未退则 SIGTERM，再宽限后 SIGKILL。 */
 export const TERM_GRACE_MS = 5_000
 
-/** 侧车日志环形缓冲容量（诊断信息展示尾部）。 */
+/** shutdown 消息后的额外排水等待（毫秒），随后才 SIGTERM。 */
+export const SHUTDOWN_DRAIN_MS = 10_000
+
+/** 宿主日志环形缓冲容量（诊断信息展示尾部）。 */
 export const LOG_RING_SIZE = 500
 
-/** 上游 web profile 名称（unbranded 面；产品面为裸 `qilin`）。 */
-export const WEB_PROFILE = 'web'
+/** 品牌化运行树内宿主 boot 模块（相对 checkout/runtime 根）。 */
+export const PROFILE_BOOT_ENTRY = join('apps', 'cli', 'lib', 'profile-boot.js')
 
-/** 桌面侧车端口记忆文件名（QILIN_HOME 内）。 */
-export const SIDECAR_PORT_FILE = 'desktop-sidecar-port.json'
+/** 品牌化运行树内 app-boot lib（loadLayeredEnv 所在，相对 checkout/runtime 根）。 */
+export const APP_BOOT_ENTRY = join('packages', 'boot', 'app-boot', 'lib', 'index.js')
 
-/**
- * 读侧车端口记忆。
- *
- * 端口必须稳定的原因：上游登录会话 cookie 的名字与载荷都绑定请求
- * authority（host:port，packages/identity/accounts-local/src/session.ts
- * cookieName/read）。`--port 0` 的随机端口每次启动都变，旧 cookie 成
- * 孤儿，用户每次打开都要重新登录；固定端口让凭证跨启动存活，shell
- * 加载 `/workspace?token=…` 时凭证未过期即直达工作区。
- *
- * @param {string} [home] - QiLin home（默认 qilinHome()）。
- * @returns {number | null} 记忆的端口；无记忆或非法返回 null。
- */
-export function readPersistedPort(home = qilinHome()) {
-  try {
-    const raw = JSON.parse(readFileSync(join(home, SIDECAR_PORT_FILE), 'utf8'))
-    const port = Number(raw?.port)
-    return Number.isInteger(port) && port >= 1024 && port <= 65535 ? port : null
-  } catch {
-    return null
-  }
-}
+/** 品牌化运行树内 Web client dist（相对 checkout/runtime 根）。 */
+export const WEB_DIST_DIR = join('apps', 'web', 'dist')
 
-/**
- * 写侧车端口记忆（失败不阻塞启动——端口记忆只是优化，不是状态）。
- * @param {number} port - 要记忆的端口。
- * @param {string} [home] - QiLin home（默认 qilinHome()）。
- */
-export function persistPort(port, home = qilinHome()) {
-  try {
-    mkdirSync(home, { recursive: true })
-    writeFileSync(join(home, SIDECAR_PORT_FILE), `${JSON.stringify({ port })}\n`)
-  } catch { /* 私有只读 home 等：下次启动重新选口 */ }
-}
-
-/** 品牌化上游 checkout 内的 CLI bin（相对 checkout 根）。 */
+/** 运行树内可执行 CLI bin（健存：dev 构建完整性检查用）。 */
 export const UPSTREAM_BIN = join('apps', 'cli', 'lib', 'bin.js')
 
-/** 品牌化上游 checkout 内可借用的 Electron 二进制（相对 checkout 根）。 */
-export const UPSTREAM_ELECTRON = join('apps', 'desktop', 'node_modules', '.bin', 'electron')
-
 /**
- * 从一行 stdout 解析侧车就绪 URL。
+ * QiLin Harness home（与 qilin CLI / 浏览器端共享同一份数据）。
  *
- * @param {string} line - 侧车 stdout 的一行。
- * @returns {string | null} 完整就绪 URL（含 launch token）；不匹配返回 null。
+ * @param {NodeJS.ProcessEnv} [env]
+ * @returns {string}
  */
-export function parseReadyLine(line) {
-  const match = READY_LINE_RE.exec(line)
-  return match === null ? null : match[1]
+export function qilinHome(env = process.env) {
+  const override = env.QILIN_HOME
+  if (typeof override === 'string' && override.trim() !== '') return override
+  return join(homedir(), '.qilin')
 }
 
 /**
@@ -134,109 +118,208 @@ export function urlOrigin(url) {
   }
 }
 
+/** 宿主稳定端口记忆文件（QILIN_HOME 内，产品私有命名空间）。 */
+export const HOST_PORT_FILE = 'desktop-host-port.json'
+
 /**
- * 判断一次导航是否允许停留在侧车页面。
+ * 读取记忆的宿主端口。账号会话 cookie 的名字绑定 authority（host:port，
+ * packages/client/connection/src/browser-auth.ts）——端口稳定是登录跨启动
+ * 存活的前提，所以宿主端口要"记忆优先、被占才换"。
  *
- * 规则：仅允许与当前侧车就绪 URL 同 origin 的 http 导航。token 换
- * cookie 后的 302、SPA 内部路由与静态资源都在同一 origin 下；任何
- * 其他地址（外链、file://、别的端口）都不许停留。
- *
- * @param {string} url - 将要导航到的地址。
- * @param {string} allowedOrigin - 当前侧车就绪 URL 的 origin。
- * @returns {boolean}
+ * @param {string} [home] - QILIN_HOME（缺省 qilinHome()）。
+ * @returns {number | null} 合法端口（1024-65535）；无记忆/损坏返回 null。
  */
-export function isAllowedNavigation(url, allowedOrigin) {
-  if (allowedOrigin === '') return false
-  let target
+export function readPersistedHostPort(home = qilinHome()) {
   try {
-    target = new URL(url)
+    const payload = JSON.parse(readFileSync(join(home, HOST_PORT_FILE), 'utf8'))
+    const port = payload?.port
+    if (Number.isInteger(port) && port >= 1024 && port <= 65_535) return port
   } catch {
-    return false
+    // 无记忆文件 / JSON 损坏：等价于无记忆
   }
-  return target.protocol === 'http:' && target.origin === allowedOrigin
+  return null
 }
 
 /**
- * 侧车进程的完整参数（裸 `qilin` = 产品面 profile，麒麟印章品牌位与
- * 宣纸/墨色主题层随 web-brand bundle 生效；`--expose-internals` 供 web
- * profile 的 HMR 服务使用 node internal ESM loader，生产侧车带上无害）。
+ * 记忆宿主端口（QILIN_HOME 内 0600 单字段 JSON；写失败不阻塞启动）。
  *
- * 端口由调用方传入（优先稳定记忆端口，见 readPersistedPort）：登录
- * 会话 cookie 绑定 host:port，端口漂移 = 每次启动都要重新登录。
- *
- * @param {string} binPath - 品牌化 checkout 内 apps/cli/lib/bin.js 的绝对路径。
- * @param {number} [port] - 侧车监听端口（0 = OS 分配）。
- * @returns {string[]} 解释器参数 + CLI flags。
+ * @param {number} port
+ * @param {string} [home] - QILIN_HOME（缺省 qilinHome()）。
  */
-export function sidecarArgs(binPath, port = 0) {
-  return ['--expose-internals', binPath, '--port', String(port), '--no-open']
+export function persistHostPort(port, home = qilinHome()) {
+  try {
+    mkdirSync(home, { recursive: true })
+    writeFileSync(join(home, HOST_PORT_FILE), `${JSON.stringify({ port })}\n`, { encoding: 'utf8', mode: 0o600 })
+  } catch {
+    // 只读 home 等异常场景：端口记忆退化为本次会话内有效
+  }
 }
 
 /**
- * 解析一条可执行的 qilin 侧车命令。
+ * 宿主子进程的启动参数（Electron-as-Node 解释器 + `--expose-internals`
+ * 供上游 HMR/loader 使用 node internal ESM loader；`--port` 由宿主
+ * 透传给 runProfile——0 = 随机端口）。
  *
- * 优先级：
- * 1. `QILIN_BIN` 环境变量（可执行文件或 `node script.js` 形式）
- * 2. `OPENKYLIN_QILIN_RUN` 指向的品牌化运行树（dev 态为
- *    `.tmp/dev/qilin-src`；其 apps/cli/lib/bin.js 已构建）
- *
- * @param {{ runRoot?: string, env?: NodeJS.ProcessEnv, port?: number }} options
- * @returns {{ source: string, command: string, baseArgs: string[], cwd: string, env: NodeJS.ProcessEnv, describe: string } | null}
- *   找不到可用来源时返回 null。
+ * @param {string} hostEntry - desktop/host/main.mjs 的绝对路径。
+ * @param {string} runtimeDir - 品牌化运行树（checkout/runtime）根。
+ * @param {number} [port] - 宿主监听端口（0 = 随机）。
+ * @returns {string[]} 解释器参数（不含解释器本身）。
  */
-export function resolveSidecar(options = {}) {
-  const env = options.env ?? process.env
-  // 1) 显式环境变量：支持 "qilin" 或 "node /path/bin.js"（端口自管，
-  //    不代传稳定端口）
-  const envBin = env.QILIN_BIN
-  if (envBin !== undefined && envBin !== '') {
-    const parts = envBin.split(/\s+/)
-    return {
-      source: 'env',
-      command: parts[0],
-      baseArgs: parts.slice(1),
-      cwd: options.runRoot ?? process.cwd(),
-      env: {},
-      describe: `$QILIN_BIN: ${envBin}`,
-    }
+export function hostArgs(hostEntry, runtimeDir, port = 0) {
+  return ['--expose-internals', hostEntry, runtimeDir, '--port', String(port)]
+}
+
+/**
+ * 校验并归一化一条宿主 → 壳的 IPC 消息。
+ *
+ * @param {unknown} value - child 'message' 事件载荷。
+ * @returns {object | null} 归一化消息；不合法返回 null（进日志，不进状态机）。
+ */
+export function isHostEvent(value) {
+  if (typeof value !== 'object' || value === null) return null
+  const { type } = value
+  if (type === 'booting') return { type }
+  if (type === 'ready') {
+    const url = typeof value.url === 'string' ? value.url : ''
+    if (!/^http:\/\/127\.0\.0\.1:\d+\//.test(url)) return null
+    if (!Array.isArray(value.injections)) return null
+    return { type, url, injections: value.injections }
   }
-  // 2) 品牌化运行树的构建产物
-  if (options.runRoot !== undefined) {
-    const bin = join(options.runRoot, UPSTREAM_BIN)
-    if (existsSync(bin)) {
-      const port = options.port ?? 0
+  if (type === 'fatal') {
+    const message = typeof value.message === 'string' && value.message !== '' ? value.message : null
+    if (message === null) return null
+    return { type, message, diagnostic: typeof value.diagnostic === 'string' ? value.diagnostic : '' }
+  }
+  if (type === 'shutdown-complete') return { type }
+  if (typeof value.requestId === 'number' && Number.isInteger(value.requestId) && value.requestId > 0) {
+    if (type === 'quit-inspection') {
       return {
-        source: 'runtime',
-        command: 'node',
-        baseArgs: sidecarArgs(bin, port),
-        cwd: options.runRoot,
-        env: {},
-        describe: `node ${bin} --port ${String(port)} --no-open（产品面）`,
+        type,
+        requestId: value.requestId,
+        activeTasks: value.activeTasks === true,
+        scheduledTasks: value.scheduledTasks === true,
       }
+    }
+    if (type === 'update-tasks') {
+      return { type, requestId: value.requestId, active: value.active === true }
     }
   }
   return null
 }
 
 /**
- * QiLin Harness home（与 qilin CLI / 浏览器端共享同一份数据）。
+ * 导航白名单：只允许停留在壳自有协议（qilin-app://app）。
+ * 外链、http(s)、file:// 一律拒绝——调用方转系统浏览器。
  *
- * @param {NodeJS.ProcessEnv} [env]
- * @returns {string}
+ * @param {string} url - 将要导航到的地址。
+ * @returns {boolean}
  */
-export function qilinHome(env = process.env) {
-  const override = env.QILIN_HOME
-  if (typeof override === 'string' && override.trim() !== '') return override
-  return join(homedir(), '.qilin')
+export function isAllowedNavigation(url) {
+  try {
+    return new URL(url).protocol === `${SCHEME}:`
+  } catch {
+    return false
+  }
 }
 
 /**
- * 品牌化运行树内可借用的 Electron 二进制路径（dev 态）。
+ * app 路径 → dist 内文档文件名（镜像上游 frontend-static 语义）。
  *
- * @param {string} runRoot - 品牌化 checkout 根。
- * @returns {string | null} 二进制存在返回路径，否则 null。
+ * 返回 null = 非入口文档：先按静态资源解析，解析不到再走反代。
+ * 入口应用文档（index.html）由壳直读并注入 boot 闸；公开文档
+ * （landing/auth）按宿主同款映射直读（浏览器流中它们无需授权）。
+ *
+ * @param {string} pathname - URL 路径（已编码原样）。
+ * @returns {string | null} dist 内文件名。
  */
-export function electronBinary(runRoot) {
-  const bin = join(runRoot, UPSTREAM_ELECTRON)
-  return existsSync(bin) ? bin : null
+export function appDocumentFile(pathname) {
+  if (pathname === '/index.html' || pathname === APP_ENTRY_PATH) return 'index.html'
+  if (pathname === '/') return 'landing.html'
+  if (pathname === '/login' || pathname === '/setup') return 'auth.html'
+  return null
+}
+
+/**
+ * dist 内安全解析 URL 路径（防穿越、防空字节）。
+ *
+ * @param {string} distRoot - dist 绝对路径。
+ * @param {string} pathname - URL 路径（原样编码）。
+ * @returns {string | null} 绝对文件路径；越界/非法返回 null。
+ */
+export function resolveDistFile(distRoot, pathname) {
+  let decoded
+  try {
+    decoded = decodeURIComponent(pathname)
+  } catch {
+    return null
+  }
+  if (decoded.includes('\0')) return null
+  const rel = decoded.replace(/^\/+/, '')
+  if (rel === '') return null
+  const abs = join(distRoot, rel)
+  const rootWithSep = distRoot.endsWith(sep) ? distRoot : distRoot + sep
+  if (!abs.startsWith(rootWithSep)) return null
+  return abs
+}
+
+/**
+ * 往 index.html 注入 boot 闸 deferred（client 的 qilinDesktopBoot.ready()
+ * 落完注入表后 resolve；浏览器流由宿主 renderIndex 注入，壳流由此注入）。
+ *
+ * @param {string} html - dist/index.html 原文。
+ * @returns {string}
+ */
+export function injectBootGate(html) {
+  const gate = '<script>globalThis.__QILIN_BOOT_READY__ = Promise.withResolvers()</script>'
+  const head = /<head[^>]*>/i.exec(html)
+  if (head === null) return `${gate}${html}`
+  const at = head.index + head[0].length
+  return `${html.slice(0, at)}${gate}${html.slice(at)}`
+}
+
+/** 反代请求剥离的头：逐跳头 + 会把壳侧 origin/cookie 泄漏给宿主的头。 */
+export const FORWARD_STRIP_HEADERS = new Set([
+  'host',
+  'origin',
+  'cookie',
+  'connection',
+  'keep-alive',
+  'transfer-encoding',
+  'upgrade',
+  'content-length',
+  'sec-fetch-site',
+])
+
+/**
+ * 组装反代请求头：剥离 FORWARD_STRIP_HEADERS，附宿主会话 cookie。
+ *
+ * @param {Headers} requestHeaders - renderer 请求头。
+ * @param {string} cookie - 壳托管的宿主会话 cookie（空串不附加）。
+ * @returns {Record<string, string>}
+ */
+export function forwardHeaders(requestHeaders, cookie) {
+  const out = {}
+  for (const [key, value] of requestHeaders) {
+    if (FORWARD_STRIP_HEADERS.has(key.toLowerCase())) continue
+    out[key] = value
+  }
+  if (cookie !== '') out.cookie = cookie
+  return out
+}
+
+/**
+ * 从宿主响应提取会话 cookie（只取名=值对；属性留在主进程认知之外，
+ * cookie 全程不进 renderer）。
+ *
+ * @param {{ headers: { getSetCookie?: () => string[], get: (name: string) => string | null } }} response
+ * @returns {string} `name=value; name2=value2`；无会话头返回空串。
+ */
+export function extractAuthCookie(response) {
+  const raw = typeof response.headers.getSetCookie === 'function'
+    ? response.headers.getSetCookie()
+    : []
+  const pairs = raw
+    .map((line) => line.split(';', 1)[0].trim())
+    .filter((pair) => pair !== '')
+  return pairs.join('; ')
 }

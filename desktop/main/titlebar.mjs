@@ -12,15 +12,16 @@
  * 结构（照抄 KCoder）：工作区按钮（文件夹图标 + 名字，点击打开目录）+
  * " / " + 任务标题（尾部省略）+ 预设徽章（上游 AgentPresetLabel 收纳到
  * 此处）。配色：--dsw-specific-sidebar-fill，回退深浅双色；文字色深浅
- * 固定 rgba（KCoder 同款）。
+ * 固定 rgba（KCoder 同款）。配色 token：3.0.x 词汇表为 --dsw-*，
+ * 3.1.0 起上游更名为 --qilin-*（旧名经上游 dsw-compat.css 垫片继续可用；
+ * 见 README 跟进项的探针迁移）。
  *
  * 与 KCoder 的差异仅两处（QiLin 侧无对应物时的等价替换）：
  * 1. 工作区名/路径来源：KCoder 读 DSH web 写入的 CSS 变量；QiLin 由
  *    主进程读会话投影缓存（workspace.mjs）经 IPC 桥供给；
  * 2. 右侧按钮：KCoder 的面板按钮是其 web 自有件；此处为注入的窗口级
  *    组件——编辑器/终端选择（自持菜单，真实应用图标，直启上游
- *    /open-in-app 接口）、右侧边栏开关（最右槽位）、内嵌终端
- *    （dsh-terminal 插件按宿主契约挂载于 right:44px 槽位）。
+ *    /open-in-app 接口）与右侧边栏开关（最右槽位）。
  *
  * @module desktop/main/titlebar
  */
@@ -56,28 +57,34 @@ const INJECT_SCRIPT = `(() => {
   ].join(';')
 
   // 双段结构（KCoder 同款）：工作区前缀（弱化色，含 " / " 分隔）+
-  // 标题主体（省略号打在标题尾部；工作区自身过长独立截断）
+  // 标题主体（省略号打在标题尾部；工作区自身过长独立截断）。
+  // 对齐用 baseline 而非 center：latin（工作区名）与 CJK（会话标题）的
+  // 字形视觉中心不同高，盒居中会显得"agent 沉底"；共享一条基线才是
+  // 混排面包屑的正确对齐。
   const label = document.createElement('span')
   label.style.cssText = [
     'flex:0 1 auto',
     'margin-left:max(calc(' + LEFT_PAD + 'px + var(--ok-extra-left, 0px)), var(--ok-sidebar-w, 0px) + 12px)',
     'max-width:calc(100% - max(calc(' + LEFT_PAD + 'px + var(--ok-extra-left, 0px)), var(--ok-sidebar-w, 0px) + 12px) - 134px)',
-    'display:flex', 'align-items:center', 'min-width:0', 'white-space:nowrap',
+    'display:flex', 'align-items:baseline', 'min-width:0', 'white-space:nowrap',
   ].join(';')
-  // 工作区段：实体按钮（文件夹图标 + 名字；点击打开工作区目录）
+  // 工作区段：实体按钮（文件夹图标 + 名字；点击打开工作区目录）。
+  // 按钮自身对齐到 label 基线，内部也用 baseline（合成基线取文字而非
+  // 图标盒底），图标以 center 居中于文字行——三段文字同盒同基线。
   const wsBtn = document.createElement('button')
   wsBtn.id = 'ok-ws-btn'
   wsBtn.type = 'button'
   wsBtn.style.cssText = [
-    'all:unset', 'box-sizing:border-box', 'flex:none', 'display:inline-flex', 'align-items:center', 'gap:5px',
+    'all:unset', 'box-sizing:border-box', 'flex:none', 'display:inline-flex', 'align-items:baseline', 'gap:5px',
+    'align-self:baseline',
     'max-width:240px', 'min-width:0', 'padding:3px 7px', 'border-radius:7px',
     'cursor:pointer', '-webkit-app-region:no-drag', 'pointer-events:auto',
   ].join(';')
   const wsIco = document.createElement('span')
-  wsIco.style.cssText = 'flex:none;display:inline-flex;width:16px;height:16px'
+  wsIco.style.cssText = 'flex:none;display:inline-flex;width:16px;height:16px;align-self:center'
   wsIco.innerHTML = '<svg viewBox="0 0 16 16" fill="none"><path d="M1.8 4.4c0-.7.6-1.3 1.3-1.3h2.8c.4 0 .8.2 1 .5l1 1.1h3.9c.7 0 1.3.6 1.3 1.3v5.6c0 .7-.6 1.3-1.3 1.3H3.1c-.7 0-1.3-.6-1.3-1.3V4.4Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>'
   const wsName = document.createElement('span')
-  wsName.style.cssText = 'min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:400;line-height:1;display:block'
+  wsName.style.cssText = 'min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:400;display:block'
   wsBtn.append(wsIco, wsName)
   const wsSep = document.createElement('span')
   wsSep.style.cssText = 'flex:none;font-weight:400'
@@ -91,20 +98,24 @@ const INJECT_SCRIPT = `(() => {
   bar.append(label)
   document.body.append(bar)
 
-  // 工作区按钮 hover/图标规则（KCoder 同款；svg 16px 块化 + 半像素下移
-  // 补字体光学中心）
+  // 工作区按钮 hover/图标规则（KCoder 同款；svg 16px 块化，随文字基线
+  // 在按钮内垂直居中——基线对齐制下无需像素级补偿）
   const wsStyle = document.createElement('style')
   wsStyle.textContent = [
     '#ok-ws-btn{transition:background .12s ease}',
     '#ok-ws-btn:hover{background:color-mix(in srgb,currentColor 10%,transparent)}',
-    '#ok-ws-btn svg{width:16px;height:16px;display:block;transform:translateY(.5px)}',
-    // 右侧窗口级按钮（注入组件；槽位固定，不参与 flex 流）
-    '#ok-titlebar .ok-btn{position:absolute;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;justify-content:center;gap:1px;height:26px;border:none;border-radius:7px;padding:0 4px;background:transparent;color:var(--ok-tb-fg,#221d15);opacity:.82;cursor:pointer;font-family:inherit;pointer-events:auto;-webkit-app-region:no-drag}',
+    '#ok-ws-btn svg{width:16px;height:16px;display:block}',
+    // 右侧窗口级按钮（注入组件）：动作簇自适应流式排布——按钮位置由
+    // 内容决定，簇内挂载点（KCoder 宿主契约同款 id）随插件增减自然重排，
+    // 不留固定槽位空隙
+    '#ok-actions{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;gap:2px}',
+    '#ok-titlebar .ok-btn{display:inline-flex;align-items:center;justify-content:center;gap:1px;height:26px;border:none;border-radius:7px;padding:0 4px;background:transparent;color:var(--ok-tb-fg,#221d15);opacity:.82;cursor:pointer;font-family:inherit;pointer-events:auto;-webkit-app-region:no-drag}',
     '#ok-titlebar .ok-btn:hover{background:color-mix(in srgb,currentColor 10%,transparent);opacity:1}',
     '#ok-titlebar .ok-btn[hidden]{display:none}',
     '#ok-titlebar .ok-btn svg{display:block;flex:none}',
-    '#ok-titlebar .ok-btn-panel{right:10px;width:30px}',
-    '#ok-titlebar .ok-btn-app{right:76px;width:44px}',
+    '#ok-titlebar .ok-btn-panel{width:30px}',
+    '#ok-titlebar .ok-btn-app{width:44px}',
+    '#ok-titlebar #__dsh_desktop_titlebar{display:inline-flex;align-items:center}',
     '#ok-titlebar .ok-app-ico{width:15px;height:15px;flex:none;background:center / contain no-repeat}',
     '#ok-menu{position:fixed;z-index:2147483001;min-width:168px;padding:4px;border-radius:10px;background:var(--ok-tb-bg,#f8f5ee);color:var(--ok-tb-fg,#221d15);box-shadow:0 10px 28px rgba(0,0,0,.22);font-family:-apple-system,"PingFang SC","Hiragino Sans GB",sans-serif;-webkit-app-region:no-drag}',
     '#ok-menu[hidden]{display:none}',
@@ -128,8 +139,6 @@ const INJECT_SCRIPT = `(() => {
     'body.ok-tb-solid [class*="sidebarCol"] [class*="_logoRow"] { height: 44px; padding: 4px 0 4px 4px; margin-bottom: 6px; }',
     // 折叠 rail 保持上游自身几何（上一条优先级更高，须显式还原）
     'body.ok-tb-solid [class*="sidebarCol"] [class*="_collapsed"] [class*="_logoRow"] { height: 36px; padding: 0; margin-bottom: 12px; }',
-    // 内置终端插件按 KCoder 宿主契约挂载于 right:44px 槽位；配色对齐本栏
-    '#ok-titlebar #__dsh_kc_term_btn { color: var(--ok-tb-fg, #221d15) !important; opacity: .82; }',
   ].join('\\n')
   document.head.append(wsStyle)
 
@@ -191,9 +200,14 @@ const INJECT_SCRIPT = `(() => {
   }
   const btnApp = mk('ok-btn ok-btn-app', '<span class="ok-app-ico"></span>' + ICONS.chev, '在编辑器 / 终端中打开')
   const btnPanel = mk('ok-btn ok-btn-panel', ICONS.panel, '右侧边栏')
+  // 动作簇：插件挂载点（KCoder 宿主契约同款 id）夹在应用按钮与右栏
+  // 开关之间（旧终端插件的槽位）——插件增减只影响簇内排布，永不留坑
+  const actions = document.createElement('span')
+  actions.id = 'ok-actions'
   const termHost = document.createElement('span')
   termHost.id = '__dsh_desktop_titlebar'
-  bar.append(btnApp, btnPanel, termHost)
+  actions.append(btnApp, termHost, btnPanel)
+  bar.append(actions)
   // 无痕安全默认：全部隐藏 + 拖拽带右缩 64px，待探针确认主框架
   // （setSolid(true)）再亮相；避免探针未落定时 landing/登录页闪出
   // 工作区条目或盖住主题切换按钮
@@ -301,9 +315,14 @@ const INJECT_SCRIPT = `(() => {
     closeMenu()
   }, true)
 
-  // 右侧边栏开关（plain toggle 转发，无浮层链路）
+  // 右侧边栏开关（plain toggle 转发，无浮层链路）。
+  // 顺序有讲究：展开钮（data-sidebar-right-expand，会话头角落）只在收起态
+  // 挂载，点击 = setExpanded(true)；面板内折叠钮（data-sidebar-right-
+  // toggle）即使面板已收起也还在 DOM（面板只是滑出边缘）——编码模式下它
+  // 的动作是 setExpanded(false)（显式收起而非翻转），收起态点了是 no-op。
+  // 所以展开钮优先：收起态必然命中它，展开态它不渲染自然落到折叠钮。
   btnPanel.addEventListener('click', () => {
-    (q('[data-sidebar-right-toggle]') ?? q('[data-sidebar-right-expand]'))?.click()
+    (q('[data-sidebar-right-expand]') ?? q('[data-sidebar-right-toggle]'))?.click()
   })
 
   // 工作区点击 → 主进程解析 cwd 后 Finder 打开
@@ -347,6 +366,8 @@ const INJECT_SCRIPT = `(() => {
   /* ---- 重画（KCoder apply 同款：配色/标题/徽章 + 异步落定自愈） ---- */
   const apply = () => {
     let color = ''
+    // 3.0.x 词汇 --dsw-specific-sidebar-fill；3.1.0 起主名为 --qilin-*，旧名经
+    // 上游 dsw-compat.css 垫片仍定义，双版本皆可读（迁移见 README 跟进项）
     try { color = getComputedStyle(document.body).getPropertyValue('--dsw-specific-sidebar-fill').trim() } catch {}
     const dark = document.body.hasAttribute('data-ds-dark-theme')
       || document.documentElement.style.colorScheme === 'dark'

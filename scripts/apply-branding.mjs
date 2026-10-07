@@ -3,7 +3,7 @@
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import { access, copyFile, mkdir, readFile, writeFile } from 'node:fs/promises'
-import { basename, dirname, join } from 'node:path'
+import { basename, dirname, join, resolve } from 'node:path'
 import { sha256File } from './lib/hash.mjs'
 
 const run = promisify(execFile)
@@ -38,7 +38,9 @@ export async function applyBranding({ productRoot, upstreamRoot, registry }) {
   }
   const patches = []
   for (const patch of registry.patches ?? []) {
-    const patchPath = join(productRoot, patch.patch)
+    // git -C <upstream> apply resolves paths against the upstream cwd: the patch
+    // must be joined onto an ABSOLUTE product root or a relative one ('.') breaks.
+    const patchPath = join(resolve(productRoot), patch.patch)
     await run('git', ['-C', upstreamRoot, 'apply', '--check', patchPath])
     await run('git', ['-C', upstreamRoot, 'apply', patchPath])
     patches.push(patch.patch)

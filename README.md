@@ -10,6 +10,31 @@ QiLin 商标及 Logo 归其权利人所有；本发行版由 OpenKylin 维护。
 仓库只保留清单与校验元数据。完整约束见
 [设计文档](docs/superpowers/specs/2026-09-16-openkylin-desktop-design.md)。
 
+## 上游基线（2026-10-07 摸牌）
+
+QiLin 自 **3.1.0 起走独立版本线**（上游基线决策，见 QiLin 仓
+`plans/2026-10-05-independent-version-line-baseline.md`）：3.0.11 是 dsh
+升级 saga 的闭环点，此后版本号自主演进，原 dsh（deepseek-harness）上游降为
+参考源——借鉴不 merge。对本仓库有直接影响的 3.1.x 事实：
+
+- **DSH 兼容面收窄为兼容层**：`@qilin/dsh-compat` 是长期兼容面（第三方 dsh
+  插件可安装可加载），但 QiLin 自身契约一律以原生 `qilin.*` 键为准；命名
+  空间已整体从 `@deepseek-ai/dsh-*` rescope 为 `@qilin/*`。
+- **上游 `apps/desktop` 已移除**（3.1.x 只剩 `apps/cli` + `apps/web`）：
+  上游不再提供 Electron 壳与 `package:desktop:mac:arm64` 打包链——升级锁
+  后发布管线必须改为以本仓库自有 `desktop/` 壳为打包主体（见跟进项）。
+- **web 与产品 profile 收敛**：3.1.0 起 `qilin web` 也组装 web-brand 品牌
+  层，鲸鱼兜底去化；`--dsw-*` 主题 token 词汇表更名 `--qilin-*`（旧名经
+  上游 dsw-compat.css 垫片兼容）。
+- 当前锁仍锚 3.0.0（aff05948），`desktop/` 壳与补丁按该形态工作；升级到
+  3.1.1 的工作清单见文末跟进项。
+- **桌面端原生产品重设计已立项**：基于 3.1.1 的接入缝（`qilinDesktopBoot`
+  桌面启动门、`__QILIN_TRANSPORT__` 钩子、`runProfile` 程序化 boot），把
+  桌面端从"web 套壳"升级为真正的桌面端产品（自有壳 + 引擎宿主子进程 +
+  `qilin-app://` 私有协议承载 + 完整产品链），参考 dsh `apps/desktop` +
+  `apps/desktop-host` 已验证形态。设计见
+  [桌面端原生产品设计](docs/superpowers/specs/2026-10-07-openkylin-desktop-native-design.md)。
+
 ## 常用命令
 
 ```sh
@@ -39,12 +64,12 @@ OpenKylin Desktop（Electron 壳，desktop/ 目录，零 npm 依赖）
 ```
 
 侧车启动的是上游**产品面**（裸 `qilin`，shipped profile `qilin` = base +
-web-app + web-brand），而非 unbranded 的 `qilin web` 面：web-brand 层把
-麒麟印章品牌位与宣纸/墨色主题层（`ui-brand` + `ui-theme-brand`）插入浏览
-器模块清单——这是上游原生的产品视觉，`shared-web-branding.patch` 再把印
-章渐变与印章色 token 统一到 OpenKylin 朱砂（`#B7352C`/`#C94A40`）。桌面
-工作区与上游 QiLin 的 web 端因此**按构造完全一致**：shell 窗口是侧车的纯
-浏览器载体（sandbox、无 preload、无任何注入），QiLin 升级自动跟随。安全
+web-app + web-brand）：web-brand 层把麒麟印章品牌位与宣纸/墨色主题层
+（`ui-brand` + `ui-theme-brand`）插入浏览器模块清单——这是上游原生的产品
+视觉，`shared-web-branding.patch` 再把印章渐变与印章色 token 统一到
+OpenKylin 朱砂（`#B7352C`/`#C94A40`）。桌面工作区与上游 QiLin 的 web 端
+因此**按构造完全一致**：shell 窗口是侧车的纯浏览器载体（sandbox、无
+preload、无任何注入），QiLin 升级自动跟随。安全
 边界：导航只允许停留在当前侧车 origin，外链转系统浏览器，权限请求一律
 拒绝；进程纪律：侧车崩溃指数退避重启（上限 3 次），退出走 SIGTERM → 5s
 宽限 → SIGKILL，另有 detached watchdog 兜底——即使主进程被 `kill -9`
@@ -93,5 +118,9 @@ sandbox 的干扰）、`OPENKYLIN_ELECTRON_NO_GPU=1`（无头/CPU-only runner �
 
 ## 跟进项
 
+- **原生桌面端（2026-10-07 设计，按 [桌面端原生产品设计](docs/superpowers/specs/2026-10-07-openkylin-desktop-native-design.md) 实施）**：
+  - 已完成：M0 锁升级 3.1.1（`upstream/qilin.lock.json` 指 kkutysllb/QiLin @ `d9dc36d499…`——2026-10-08 对齐到 3.1.1 线最新提交（tag 第四次重发），含文件行类型徽章两连修；历史锚 fdca446ccd…→b2d18618fc…）；M1 引擎宿主子进程（`desktop/host/main.mjs`，`runProfile` 程序化 boot 产品面）；M2 `qilin-app://` 协议承载 + 认证反代 + cookie 罐 + 桌面 boot 门；dev 流程 Electron 自备（钉 44.0.0，原生加载器指纹要求）；M3 产品链（稳定记忆端口 + cookie 罐持久化 0600 → 账号会话跨启动存活；quit-inspection / update-tasks 接 `ctx.agents` / `ctx.jobs` / `ctx.schedule` 真实任务检查；崩溃报告落盘 + 出厂插件面恢复，详见设计文档 §14）。真实任务场景（登录跨启动、任务运行中退出询问、坏插件恢复）待真机验证。
+  - 待做 M4：发布打包管线（自有壳 + 运行树封盘 desktop-runtime.json + 签名公证），`scripts/build-desktop.mjs` 的 package 阶段在管线落地前显式失败；release.yml 相应演进。
 - **双端同场景 e2e**：设计 §9.2 要求 Web 浏览器端与 Desktop 端跑同一组功能场景（新建会话、发送消息、流式响应、Session 切换、设置、错误提示与恢复重试）及文案/主题 Token 一致性检查；当前由构建物摘要门禁（webBundleSha256 全等）保证同源，场景级 e2e 需在首次真实构建可产出后补齐（拟复用上游 `apps/web/tests` fixture 形态）。
 - `verify-upstream` 默认路径改为模块相对定位；CLI 入口守卫改用 `pathToFileURL` 精确比较（累积审查 Nice-to-have）。
+- 标题栏配色探针改读 `--qilin-specific-sidebar-fill`（3.1.0 起的主词汇表；旧名 `--dsw-*` 由上游 dsw-compat.css 垫片兼容，当前双版本均可工作）。

@@ -1,6 +1,6 @@
 <!doctype html>
 <!-- desktop/renderer/splash.html
-  OpenKylin Desktop 中文品牌启动页（本地资源，不依赖 qilin 侧车）。
+  OpenKylin Desktop 中文品牌启动页（本地资源，不依赖引擎宿主进程）。
 
   视觉遵循 branding/theme/tokens.css 的共享主题 Token：宣纸/墨黑为底，
   朱砂仅用于进度与主动作，玉青作品牌副色（对比度 ≥ 4.5 由 CI 对
@@ -153,6 +153,7 @@
       <pre class="error-text" id="error-text"></pre>
       <div class="actions">
         <button id="retry" type="button">重试启动</button>
+        <button id="recover" type="button" class="secondary" title="把插件面重置为出厂模板层（已安装的第三方插件保留但不再装配），然后重启引擎">禁用插件并重启</button>
         <button id="copy" type="button" class="secondary">复制诊断信息</button>
       </div>
     </div>
@@ -184,6 +185,20 @@
 
     document.getElementById('retry').addEventListener('click', () => {
       window.openkylin.retry()
+    })
+    document.getElementById('recover').addEventListener('click', async (event) => {
+      const button = /** @type {HTMLButtonElement} */ (event.currentTarget)
+      button.disabled = true
+      button.textContent = '正在恢复…'
+      try {
+        const result = await window.openkylin.disablePluginsAndRestart()
+        if (result?.ok === true && Array.isArray(result.removed) && result.removed.length > 0) {
+          errorText.textContent = `已禁用 ${result.removed.length} 个第三方插件（${result.removed.join('、')}），正在以出厂插件面重启……`
+        }
+      } finally {
+        button.disabled = false
+        button.textContent = '禁用插件并重启'
+      }
     })
     copyButton.addEventListener('click', async () => {
       await window.openkylin.copyDiagnostics()
