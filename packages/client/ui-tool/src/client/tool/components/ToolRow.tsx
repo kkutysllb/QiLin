@@ -1,8 +1,8 @@
 import { useMemo, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react'
 import clsx from 'clsx'
 import {
-  CodeBlock, DiffBlock, DisclosureRow, IconInspectOutline12, ReadBlock, SearchBlock, StateDot, TerminalBlock, WebBlock,
-  TextShimmer, diffTotals,
+  CodeBlock, DiffBlock, DisclosureRow, FileTypeIcon, IconInspectOutline12, ReadBlock, SearchBlock, StateDot,
+  TerminalBlock, WebBlock, TextShimmer, diffTotals,
 } from '@qilin/client-ui-primitives'
 import type { PropsRenderSlots, TranslateNS } from '@qilin/client-ui-slots'
 import type { OpenFileOptions, UseDisclosure } from '@qilin/client-ui-chat/client'
@@ -226,6 +226,13 @@ export function ToolRow({
              its title shows no trailing dot). */
           <>
             <span className={css.sep} data-shimmer-decoration aria-hidden />
+            {/* The operated-on file leads with its type badge, the same identity
+                the turn-tail file rows carry; rows without a path skip it. */}
+            {filePath !== undefined && (
+              <span className={css.fileBadge} data-file-badge aria-hidden>
+                <FileTypeIcon path={filePath} size={12} />
+              </span>
+            )}
             {openFile !== undefined ? (
               <button
                 type="button"

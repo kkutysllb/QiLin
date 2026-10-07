@@ -47,6 +47,22 @@
   background: var(--qilin-alias-label-caption);
 }
 
+/* The operated-on file's type badge: one small tile between the title's
+   separator and the path link, matching the turn-tail file rows' treatment. */
+.fileBadge {
+  box-sizing: border-box;
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-right: 6px;
+  overflow: hidden;
+  border: 0.5px solid var(--qilin-alias-border-l1);
+  border-radius: 5px;
+  color: var(--qilin-alias-link);
+}
+
 .summary {
   flex: 1 1 auto;
   min-width: 0;

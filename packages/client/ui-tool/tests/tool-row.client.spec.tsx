@@ -577,6 +577,13 @@ describe('GenericToolCard', () => {
     expect(view.getByText('src/x.ts')).toBeTruthy()
     expect(view.container.querySelector('[data-variant="write"]')).not.toBeNull()
     expect(view.container.querySelector('svg')).not.toBeNull()
+    // The operated-on file carries its type badge, like the turn-tail file rows.
+    expect(view.container.querySelector('[data-file-badge] svg')).not.toBeNull()
+  })
+
+  it('leaves a row without a file path free of the file badge', () => {
+    const view = render(<GenericToolCard {...props('bash', result())} />)
+    expect(view.container.querySelector('[data-file-badge]')).toBeNull()
   })
 
   it('passes the owner inspect callback through to the expanded row pill', () => {
