@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
+  <!-- QiLin 托盘标识：大写艺术字 QL——镂空 · 三维 · 斜体（template image 规格：
+       纯黑 + alpha，macOS 菜单栏按明暗自动着色）。
+       v3 交叠式 monogram（专业排布参考）：L 竖笔嵌入 Q 环内、底横穿环而出，
+       整体只有一个 Q 环的宽度——16pt 下笔画可加粗一倍；Q 环孔透底 = 镂空，
+       组合实心右下偏移经 mask 只余月牙 = 三维，skewX(-10°) = 斜体；
+       Q 尾左下 45° 斜切（刀锋语言与麒麟印章一脉）。 -->
+  <defs>
+    <mask id="kcs-front" maskUnits="userSpaceOnUse" x="-2" y="-2" width="22" height="22">
+      <rect x="-2" y="-2" width="22" height="22" fill="#ffffff"/>
+      <g fill="#000000">
+        <!-- Q：实心环（evenodd 挖孔）+ 左下 45° 斜尾 -->
+        <path fill-rule="evenodd" d="
+          M1 8 A5.2 5.2 0 1 0 11.4 8 A5.2 5.2 0 1 0 1 8 Z
+          M3.1 8 A3.1 3.1 0 1 0 9.3 8 A3.1 3.1 0 1 0 3.1 8 Z"/>
+        <path d="M3.4 11.2 L4.9 13.7 L6.6 12.7 L5.1 10.2 Z"/>
+        <!-- L：竖笔嵌环内、底横穿环而出 -->
+        <path d="M7.7 3.7 L9.7 3.7 L9.7 10.3 L13.7 10.3 L13.7 12.4 L7.7 12.4 Z"/>
+      </g>
+    </mask>
+  </defs>
+  <g transform="translate(1.9 1.9) scale(0.76) skewX(-10)">
+    <!-- 背层：组合实心右下偏移；mask 挖除正面覆盖区 → 只余月牙侧面 -->
+    <g mask="url(#kcs-front)">
+      <g fill="#000000" transform="translate(1.8 1.8)">
+        <path fill-rule="evenodd" d="
+          M1 8 A5.2 5.2 0 1 0 11.4 8 A5.2 5.2 0 1 0 1 8 Z
+          M3.1 8 A3.1 3.1 0 1 0 9.3 8 A3.1 3.1 0 1 0 3.1 8 Z"/>
+        <path d="M3.4 11.2 L4.9 13.7 L6.6 12.7 L5.1 10.2 Z"/>
+        <path d="M7.7 3.7 L9.7 3.7 L9.7 10.3 L13.7 10.3 L13.7 12.4 L7.7 12.4 Z"/>
+      </g>
+    </g>
+    <!-- 正面：组合实心（环孔透底即镂空） -->
+    <g fill="#000000">
+      <path fill-rule="evenodd" d="
+        M1 8 A5.2 5.2 0 1 0 11.4 8 A5.2 5.2 0 1 0 1 8 Z
+        M3.1 8 A3.1 3.1 0 1 0 9.3 8 A3.1 3.1 0 1 0 3.1 8 Z"/>
+      <path d="M3.4 11.2 L4.9 13.7 L6.6 12.7 L5.1 10.2 Z"/>
+      <path d="M7.7 3.7 L9.7 3.7 L9.7 10.3 L13.7 10.3 L13.7 12.4 L7.7 12.4 Z"/>
+    </g>
+  </g>
+</svg>
