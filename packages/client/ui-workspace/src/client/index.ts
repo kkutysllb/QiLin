@@ -135,7 +135,6 @@ export function apply(ctx: Context): void {
     // Explicit group actions keep their target; unscoped New Session inherits
     // the current Session Workspace before the recent-Workspace fallback.
     startSession: (workspaceId) => { uiWorkspace.startSession(workspaceId) },
-    shows: (preset, tag) => workbench.shows(preset, tag),
     open: openSession,
     searchSessions,
     searchResultLimit: sessions.searchResultLimit,
@@ -171,7 +170,7 @@ export function apply(ctx: Context): void {
     setDirectoryBusy: shortcutControls.directoryBusy,
     hooks: {
       directoryFlow: browserFlowSource, hostInfo, workspaceShortcuts: shortcutControls.state,
-      shortcuts: ctx.shortcuts.catalog, workbench: workbench.state,
+      shortcuts: ctx.shortcuts.catalog,
     },
   })
   installWorkspaceShortcuts(ctx, uiWorkspace, shortcutControls, (sessionId) => { void uiWorkspace.archiveSession(sessionId) })

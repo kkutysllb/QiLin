@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-This package owns the workbench selection: which of the two workbench tags — general or coding — the client surfaces show, and which agent preset each tag's new task carries. It exposes one `workbench` client service holding the persisted selection, the per-tag preset memory, and the visibility fold that decides whether a session's recorded preset belongs to a tag's list. The package owns state only: surfaces that switch the tag, filter their lists, or rebind sessions consume the service, so the dependency edge stays one-directional.
+This package owns the workbench selection: which of the two workbench tags — general or coding — the client surfaces show, and which agent preset each tag's new task carries. It exposes one `workbench` client service holding the persisted selection, the per-tag preset memory, and the visibility fold that decides which blank sessions rebind to the active tag's preset after a switch. The package owns state only: surfaces that switch the tag or rebind sessions consume the service, so the dependency edge stays one-directional.
 
 ## Table of Contents
 

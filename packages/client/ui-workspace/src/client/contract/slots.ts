@@ -129,14 +129,7 @@ export type WorkspaceBrowserInjected = {
     workspaceShortcuts: HostObservable<WorkspaceShortcutState>
     /** Effective command catalog for row shortcut hints. */
     shortcuts: HostObservable<readonly ShortcutCatalogEntry[]>
-    /** The workbench tag selection and per-tag preset memory (the `workbench` service state). */
-    workbench: HostObservable<WorkbenchState>
   }
-  /**
-   * The workbench owner's visibility fold, reached as a service callback so
-   * the browser imports no cross-plugin value (the purity gate forbids one).
-   */
-  shows: (preset: string | null | undefined, tag: WorkbenchTag) => boolean
   /** Open the browser search and focus its input. */
   requestSearch: () => void
   /** Request the existing directory picker. */
