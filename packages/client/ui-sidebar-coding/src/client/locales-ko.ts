@@ -181,7 +181,6 @@ export const ko: Record<string, string> = {
   uploadFailedUnknown: '알 수 없는 오류',
   uploadTooLarge: '파일이 너무 커 업로드 상한을 초과했습니다',
   uploadCancelled: '업로드가 취소됨',
-  settingsNav: '사이드 카드',
   settingsIntro: '사이드 카드의 표시 내용과 기본 동작을 관리합니다',
   settingsPopupDesc: '"{feature}" 관련 옵션을 구성합니다',
   settingsDone: '완료',

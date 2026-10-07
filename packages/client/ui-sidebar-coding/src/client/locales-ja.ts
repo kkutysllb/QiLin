@@ -189,7 +189,6 @@ export const ja: Record<string, string> = {
   uploadFailedUnknown: '不明なエラー',
   uploadTooLarge: 'ファイルが大きすぎます（アップロード上限超過）',
   uploadCancelled: 'アップロードはキャンセルされました',
-  settingsNav: 'サイドカード',
   settingsIntro: 'サイドカードの表示内容とデフォルト挙動を管理',
   settingsPopupDesc: '「{feature}」の関連オプションを設定',
   settingsDone: '完了',

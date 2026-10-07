@@ -182,7 +182,6 @@ export const fr: Record<string, string> = {
   uploadFailedUnknown: 'Erreur inconnue',
   uploadTooLarge: 'Fichier trop volumineux, limite d’import dépassée',
   uploadCancelled: 'Import annulé',
-  settingsNav: 'Carte latérale',
   settingsIntro: 'Gérer le contenu affiché par la carte latérale et son comportement par défaut',
   settingsPopupDesc: 'Configurer les options liées à « {feature} »',
   settingsDone: 'Terminé',

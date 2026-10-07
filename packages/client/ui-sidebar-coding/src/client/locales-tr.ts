@@ -189,7 +189,6 @@ export const tr: Record<string, string> = {
   uploadFailedUnknown: 'Bilinmeyen hata',
   uploadTooLarge: 'Dosya çok büyük (yükleme sınırını aşıyor)',
   uploadCancelled: 'Yükleme iptal edildi',
-  settingsNav: 'Yan kart',
   settingsIntro: 'Yan kartın ne gösterdiğini ve nasıl davrandığını yönetin',
   settingsPopupDesc: '«{feature}» için ilgili seçenekleri yapılandırın',
   settingsDone: 'Bitti',

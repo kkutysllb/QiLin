@@ -25,7 +25,7 @@
  */
 import type { ReactElement } from 'react'
 import { IconCodeOutline16 } from '@qilin/client-ui-primitives'
-import type { Context, SidebarRemoteService } from '../context-types.ts'
+import type { Context } from '../context-types.ts'
 import { firstLeaf, revealPaths, togglePanel, type SidebarStore } from './state.ts'
 import { t } from './locales.ts'
 import { resolveSidebarPath, selectProducedFiles } from './produced-files.ts'
@@ -375,7 +375,7 @@ export function registerOpenPathInterception(ctx: Context, store: SidebarStore, 
   // settings/document-updated listener): a direct `ctx.remote` property
   // read throws under cordis's inject enforcement ("cannot get property
   // ... without inject") — ctx.get just returns undefined instead.
-  const remote = ctx.get('remote') as SidebarRemoteService | undefined
+  const remote = ctx.get('remote')
   const disposeRemote = remote === undefined
     ? () => {}
     : wrapRemoteOpenPath(remote.session, deps)

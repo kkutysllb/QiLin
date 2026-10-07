@@ -172,7 +172,6 @@ export const pt: Record<string, string> = {
   uploadFailedUnknown: 'Erro desconhecido',
   uploadTooLarge: 'Arquivo grande demais (acima do limite de envio)',
   uploadCancelled: 'Envio cancelado',
-  settingsNav: 'Cartão lateral',
   settingsIntro: 'Gerencie o que o cartão lateral mostra e como ele se comporta',
   settingsPopupDesc: 'Configurar opções relacionadas para {feature}',
   settingsDone: 'Concluído',

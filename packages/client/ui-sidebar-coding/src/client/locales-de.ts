@@ -175,7 +175,6 @@ export const de: Record<string, string> = {
   uploadFailedUnknown: 'Unbekannter Fehler',
   uploadTooLarge: 'Datei zu groß (über dem Upload-Limit)',
   uploadCancelled: 'Upload abgebrochen',
-  settingsNav: 'Seitenkarte',
   settingsIntro: 'Verwalten Sie, was die Seitenkarte anzeigt und wie sie sich verhält',
   settingsPopupDesc: 'Optionen für „{feature}“ konfigurieren',
   settingsDone: 'Fertig',

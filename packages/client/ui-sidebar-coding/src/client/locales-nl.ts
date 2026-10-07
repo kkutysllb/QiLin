@@ -193,7 +193,6 @@ export const nl: Record<string, string> = {
   uploadFailedUnknown: 'Onbekende fout',
   uploadTooLarge: 'Bestand te groot (boven de uploadlimiet)',
   uploadCancelled: 'Upload geannuleerd',
-  settingsNav: 'Zijkaart',
   settingsIntro: 'Beheer wat de zijkaart toont en hoe deze zich gedraagt',
   settingsPopupDesc: 'Gerelateerde opties voor {feature} configureren',
   settingsDone: 'Klaar',

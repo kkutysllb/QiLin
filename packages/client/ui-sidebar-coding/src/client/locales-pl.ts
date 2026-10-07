@@ -191,7 +191,6 @@ export const pl: Record<string, string> = {
   uploadFailedUnknown: 'Nieznany błąd',
   uploadTooLarge: 'Plik zbyt duży (ponad limit wgrywania)',
   uploadCancelled: 'Wgrywanie anulowane',
-  settingsNav: 'Karta boczna',
   settingsIntro: 'Zarządzaj tym, co pokazuje karta boczna i jak się zachowuje',
   settingsPopupDesc: 'Skonfiguruj opcje powiązane z: {feature}',
   settingsDone: 'Gotowe',

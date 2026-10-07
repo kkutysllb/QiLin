@@ -180,7 +180,6 @@ export const it: Record<string, string> = {
   uploadFailedUnknown: 'Errore sconosciuto',
   uploadTooLarge: 'File troppo grande (oltre il limite di caricamento)',
   uploadCancelled: 'Caricamento annullato',
-  settingsNav: 'Scheda laterale',
   settingsIntro: 'Gestisca cosa mostra la scheda laterale e come si comporta',
   settingsPopupDesc: 'Configuri le opzioni relative a {feature}',
   settingsDone: 'Fatto',

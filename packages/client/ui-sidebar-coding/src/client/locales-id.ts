@@ -187,7 +187,6 @@ export const id: Record<string, string> = {
   uploadFailedUnknown: 'Galat tak dikenal',
   uploadTooLarge: 'Berkas terlalu besar (melebihi batas unggah)',
   uploadCancelled: 'Unggahan dibatalkan',
-  settingsNav: 'Kartu samping',
   settingsIntro: 'Kelola apa yang ditampilkan kartu samping dan perilakunya',
   settingsPopupDesc: 'Konfigurasikan opsi terkait untuk {feature}',
   settingsDone: 'Selesai',

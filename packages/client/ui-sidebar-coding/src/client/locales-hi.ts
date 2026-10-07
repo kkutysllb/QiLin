@@ -189,7 +189,6 @@ export const hi: Record<string, string> = {
   uploadFailedUnknown: 'अज्ञात त्रुटि',
   uploadTooLarge: 'फ़ाइल बहुत बड़ी (अपलोड सीमा से अधिक)',
   uploadCancelled: 'अपलोड रद्द',
-  settingsNav: 'साइड कार्ड',
   settingsIntro: 'साइड कार्ड क्या दिखाता है और कैसे व्यवहार करता है प्रबंधित करें',
   settingsPopupDesc: '{feature} के लिए संबंधित विकल्प कॉन्फ़िगर करें',
   settingsDone: 'पूर्ण',

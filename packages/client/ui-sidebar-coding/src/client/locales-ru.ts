@@ -186,7 +186,6 @@ export const ru: Record<string, string> = {
   uploadTooLarge: 'Файл слишком велик — превышен лимит загрузки',
   uploadCancelled: 'Загрузка отменена',
 
-  settingsNav: 'Боковая карточка',
   settingsIntro: 'Управление содержимым и поведением боковой карточки по умолчанию',
   settingsPopupDesc: 'Настройка параметров «{feature}»',
   settingsDone: 'Готово',

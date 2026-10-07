@@ -21,9 +21,7 @@ import { RenderBoundary } from './RenderBoundary.tsx'
 import { registerOpenPathInterception, registerTurnTailInterception } from './intercept.tsx'
 import { registerLinkInterception } from './link-intercept.ts'
 import { registerImeGuard } from './ime-guard.ts'
-import { SETTINGS_SECTION_ID } from './channel-policy.ts'
 import { loadPrefs } from './prefs.ts'
-import { SideCardSection } from './SideCardSection.tsx'
 import { api } from './api.ts'
 import { observeUiWorkspaceFace } from './workspace-nav.ts'
 import { LOCALE_NS, attachLocale, attachBetterLocale, t, zh, en } from './locales.ts'
@@ -282,21 +280,6 @@ export function apply(ctx: Context): void {
     },
     'ui-sidebar-coding: IME composition guard',
   )
-
-  // The "Side card" settings section: this package's own row in the Settings
-  // shell — its own id at default priority (D11 deleted the stock-cell
-  // takeover and the nav-icon marker; the native declarative settings face
-  // and this row are the only surfaces). slots.inject waits for the shell's
-  // declaration; the section reads/writes the prefs through the plugin's own
-  // fenced settings route and renders the declarative enable/disable
-  // inventory from the tab/viewer registry.
-  ctx.slots.inject('settings.section', () => ctx.slots.register({
-    name: 'settings.section',
-    id: SETTINGS_SECTION_ID,
-    order: 100,
-    label: () => t('settingsNav'),
-    inject: () => ({ store: sidebarStore, service }),
-  }, SideCardSection))
 
   // Prefs resolve once at activation so the first body mount carries the
   // user's choices; a failure falls back to the schema defaults. (The DSH

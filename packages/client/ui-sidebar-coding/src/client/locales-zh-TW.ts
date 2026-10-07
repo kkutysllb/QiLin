@@ -210,7 +210,6 @@ export const zhTW: Record<string, string> = {
   uploadFailedUnknown: '未知錯誤',
   uploadTooLarge: '檔案過大，超出上傳上限',
   uploadCancelled: '上傳已取消',
-  settingsNav: '側邊卡片',
   settingsIntro: '管理側邊卡片的顯示內容與預設行為',
   settingsPopupDesc: '為「{feature}」設定相關選項',
   settingsDone: '完成',

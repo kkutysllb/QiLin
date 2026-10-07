@@ -172,7 +172,6 @@ export const sv: Record<string, string> = {
   uploadFailedUnknown: 'Okänt fel',
   uploadTooLarge: 'Filen för stor (över uppladdningsgränsen)',
   uploadCancelled: 'Uppladdning avbruten',
-  settingsNav: 'Sidokort',
   settingsIntro: 'Hantera vad sidokortet visar och hur det beter sig',
   settingsPopupDesc: 'Konfigurera relaterade alternativ för {feature}',
   settingsDone: 'Klar',

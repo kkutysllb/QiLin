@@ -189,7 +189,6 @@ export const vi: Record<string, string> = {
   uploadFailedUnknown: 'Lỗi không xác định',
   uploadTooLarge: 'Tệp quá lớn, vượt giới hạn tải lên',
   uploadCancelled: 'Đã hủy tải lên',
-  settingsNav: 'Thẻ bên',
   settingsIntro: 'Quản lý nội dung hiển thị và hành vi mặc định của thẻ bên',
   settingsPopupDesc: 'Cấu hình tùy chọn cho «{feature}»',
   settingsDone: 'Xong',

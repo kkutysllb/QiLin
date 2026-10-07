@@ -259,7 +259,11 @@ export function wrapNativeBrowserOpen(
 
 /** Placement/typing options a caller may attach to an address. */
 export interface SidebarRightOpenOptions {
-  /** The page type the caller demands; present means "not ours to reroute". */
+  /**
+   * The page type the caller demands. `'text'` — the document-preview open —
+   * is claimed under takeover (the coding content body renders it in the
+   * editor tab's viewer); any other kind passes through untouched.
+   */
   readonly kind?: string
   /** That type's navigation parameters (e.g. `{ line }`). */
   readonly params?: unknown
@@ -337,7 +341,7 @@ export function fileTargetOfAddress(address: string): FileAddressTarget | undefi
  * The address is decoded and rerouted into the sidebar editor; the
  * folder-reveal gesture reaches the explorer, exactly like the older doors.
  *
- * TWO address families are claimed here, and the second one is why the wrapper
+ * Two address families are claimed here, and the second one is why the wrapper
  * cannot decline blindly:
  *
  * - `qilin-resource://file/…` (the file funnel above);
@@ -346,12 +350,17 @@ export function fileTargetOfAddress(address: string): FileAddressTarget | undefi
  *   NATIVE right Sidebar, which KCoder suppresses on purpose (铁律 1), so the
  *   gesture produced a blank column and never showed the clicked file
  *   (2026-10-05 现场). {@link OpenPathInterceptDeps.openReview} claims it.
+ * - `options.kind === 'text'` — the delivery card's DOCUMENT preview open
+ *   (`openFile` names the preview viewer for renderable files). The kind once
+ *   meant "the caller demands a native page", but in the dual content body the
+ *   coding content has no native page for it: an unclaimed open expands the
+ *   sidebar onto the bare panel grid with no content. Claimed like the file
+ *   funnel — the editor tab's viewer registry renders the document.
  *
- * Three declines keep the wrapper honest: an address neither family claims, a
- * call whose `options.kind` names the page type the caller demands (that caller
- * is addressing the right Sidebar on purpose, so rerouting would silently
- * ignore its request), and — for the review family — a client half that wired
- * no `openReview` (the address then passes through as before). The Session the
+ * Two declines keep the wrapper honest: a call whose `options.kind` names any
+ * other page type (that caller is addressing a page neither content body
+ * reroutes), and — for the review family — a client half that wired no
+ * `openReview` (the address then passes through as before). The Session the
  * address names wins over the current one — a fork's file belongs to the fork,
  * and `ctx.sessions…current` is whatever conversation the user is looking at.
  * `openResource` is a prototype method on the controller, so the raw reference
@@ -366,7 +375,11 @@ export function wrapSidebarRight(right: SidebarRightStub, deps: OpenPathIntercep
   const original = right.openResource
   if (typeof original !== 'function') return () => {}
   right.openResource = function (this: SidebarRightStub, address: string, options?: SidebarRightOpenOptions): void {
-    if (deps.takeoverEnabled() && options?.kind === undefined) {
+    // `kind: 'text'` is the document-preview family (the delivery card's
+    // preview gesture): claimed with the plain file opens, never declined —
+    // the coding content body has no native preview page to fall through to.
+    const textPreview = options?.kind === 'text'
+    if (deps.takeoverEnabled() && (options?.kind === undefined || textPreview)) {
       // The review family is claimed first: its addresses share the resource
       // scheme but name no file, so the file scope below would only decline.
       const review = parseChangesReviewAddress(address)

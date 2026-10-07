@@ -189,7 +189,6 @@ export const th: Record<string, string> = {
   uploadFailedUnknown: 'ข้อผิดพลาดที่ไม่รู้จัก',
   uploadTooLarge: 'ไฟล์ใหญ่เกินไป (เกินขีดจำกัดการอัปโหลด)',
   uploadCancelled: 'การอัปโหลดถูกยกเลิก',
-  settingsNav: 'การ์ดด้านข้าง',
   settingsIntro: 'จัดการสิ่งที่การ์ดด้านข้างแสดงและพฤติกรรมของมัน',
   settingsPopupDesc: 'กำหนดค่าตัวเลือกที่เกี่ยวข้องสำหรับ {feature}',
   settingsDone: 'เสร็จสิ้น',

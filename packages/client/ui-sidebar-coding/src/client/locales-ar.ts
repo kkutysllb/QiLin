@@ -190,7 +190,6 @@ export const ar: Record<string, string> = {
   uploadFailedUnknown: 'خطأ غير معروف',
   uploadTooLarge: 'الملف كبير جداً (يتجاوز حد الرفع)',
   uploadCancelled: 'تم إلغاء الرفع',
-  settingsNav: 'البطاقة الجانبية',
   settingsIntro: 'إدارة ما تعرضه البطاقة الجانبية وكيف تتصرف',
   settingsPopupDesc: 'تكوين خيارات ذات صلة بـ {feature}',
   settingsDone: 'تم',
