@@ -84,9 +84,11 @@ async function bench() {
     select: vi.fn(async () => ({ ok: true as const, value: 'ptc' })),
     list: vi.fn(async () => ({ ok: true as const, value: { presets: [], authorable: false, modeSelectionEnabled: false } })),
   }
-  Object.assign(new TestRemote(ctx), { directoryPicker, agentPresets })
+  const workspaceGit = { isRepo: vi.fn(async () => false) }
+  Object.assign(new TestRemote(ctx), { directoryPicker, agentPresets, workspaceGit })
   ctx.provide('remote.directoryPicker', directoryPicker as never)
   ctx.provide('remote.agentPresets', (ctx.remote as { agentPresets: unknown }).agentPresets)
+  ctx.provide('remote.workspaceGit', (ctx.remote as { workspaceGit: unknown }).workspaceGit)
   // The real workbench owner backs the browser's tag hook and the D3 preset reads.
   await ctx.plugin({ inject: [], apply: workbenchApply }).await()
   const registerShortcut = vi.fn(() => () => {})
@@ -124,7 +126,7 @@ describe('ui-workspace apply', () => {
   it('declares the services it drives', () => {
     expect(inject).toEqual([
       'slots', 'sessions', 'workspaces', 'locale', 'remote', 'remote.directoryPicker', 'remote.agentPresets',
-      'workbench', 'layout', 'shortcuts',
+      'remote.workspaceGit', 'workbench', 'layout', 'shortcuts',
     ])
   })
 

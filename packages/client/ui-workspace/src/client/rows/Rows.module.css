@@ -220,6 +220,18 @@
   color: var(--qilin-alias-label-tertiary);
 }
 
+/* The D2 Git fallback's tag badge on a preset-less row: a quiet chip between
+   the title and the timestamp, sized to the row's 20px line. */
+.inferredTag {
+  flex: none;
+  padding: 0 5px;
+  border-radius: 4px;
+  font-size: 10px;
+  line-height: 14px;
+  color: var(--qilin-alias-label-tertiary);
+  background: var(--qilin-alias-fill-tertiary);
+}
+
 .dot {
   flex: none;
 }

@@ -15,7 +15,7 @@ import {
 
 export {
   rehydrateWorkbenchState, WORKBENCH_DEFAULT_STATE, WORKBENCH_STORAGE_KEY, WORKBENCH_TAG_PRESETS,
-  WORKBENCH_TAGS, workbenchShows,
+  WORKBENCH_TAGS, workbenchFallbackShows, workbenchShows,
   type WorkbenchState, type WorkbenchTag,
 } from './workbench.ts'
 

@@ -1,5 +1,5 @@
 ---
-description: "qilin Web 客户端的工作台标签状态属主：通用/编码选择、每个标签记住的新任务预设，以及预设到标签的会话可见性折叠。"
+description: "qilin Web 客户端的工作台标签状态属主：通用/编码选择、每个标签记住的新任务预设，以及预设到标签、工作区 Git 类型的会话可见性折叠。"
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-本包持有工作台选择：客户端界面显示两个工作台标签——通用或编码——中的哪一个，以及每个标签的新任务携带哪个 agent preset。它对外提供一个 `workbench` 客户端服务，内含持久化的选择、每标签的预设记忆，以及判断某个会话记录的预设是否属于某标签列表的可见性折叠。本包只管状态：切换标签、过滤列表、换绑会话的界面消费该服务，因此依赖边保持单向。
+本包持有工作台选择：客户端界面显示两个工作台标签——通用或编码——中的哪一个，以及每个标签的新任务携带哪个 agent preset。它对外提供一个 `workbench` 客户端服务，内含持久化的选择、每标签的预设记忆，以及判断某个会话记录的预设是否属于某标签列表、无预设会话按其工作区 Git 类型归入哪个标签的可见性折叠。本包只管状态：切换标签、过滤列表、换绑会话的界面消费该服务，因此依赖边保持单向。
 
 ## 目录
 
@@ -32,7 +32,7 @@ kind: "package-reference"
 
 ### 消费该服务
 
-注入 `workbench` 服务并把 `state` 当作可观察快照读取。`setActive(tag)` 切换标签；`presetFor(tag)` 与 `setPresetFor(tag, presetId)` 读写每个标签记住的新任务选择；`shows(preset, tag)` 对单个会话的 `agentPreset` 投影值回答可见性折叠。折叠与标签词汇表也以纯值导出，测试无需启动服务即可断言成员关系。
+注入 `workbench` 服务并把 `state` 当作可观察快照读取。`setActive(tag)` 切换标签；`presetFor(tag)` 与 `setPresetFor(tag, presetId)` 读写每个标签记住的新任务选择；`shows(preset, tag)` 对单个会话的 `agentPreset` 投影值回答预设折叠，`workbenchFallbackShows(git, tag)` 对无预设会话的工作区回答 Git 类型折叠。折叠与标签词汇表也以纯值导出，测试无需启动服务即可断言成员关系。
 
 -----
 

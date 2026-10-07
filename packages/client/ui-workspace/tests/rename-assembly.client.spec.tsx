@@ -45,7 +45,9 @@ async function createRuntime(): Promise<SlotTestRuntime> {
     select: vi.fn(async () => ({ ok: true as const, value: 'ptc' })),
     list: vi.fn(async () => ({ ok: true as const, value: { presets: [], authorable: false, modeSelectionEnabled: false } })),
   }
-  runtime.remote.provideNamespaces({ directoryPicker, agentPresets })
+  // Git kinds answer false: these flows' preset-less rows stay general-tag rows.
+  const workspaceGit = { isRepo: vi.fn(async () => false) }
+  runtime.remote.provideNamespaces({ directoryPicker, agentPresets, workspaceGit })
   await runtime.mount({ inject: [], apply: workbenchApply })
   const locale = new LocaleRuntime(runtime.ctx)
   runtime.ctx.provide('locale', locale)

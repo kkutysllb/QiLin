@@ -17,6 +17,7 @@ import {
 } from '@qilin/client-ui-primitives'
 import type { StateDotState } from '@qilin/client-ui-primitives'
 import type { PropsRenderSlots } from '@qilin/client-ui-slots'
+import type { WorkbenchTag } from '@qilin/client-ui-workbench/client'
 import { abbreviateHomePath } from '@qilin/util-workspace-path'
 import type { WorkspaceBrowserProps } from '../contract/slots.ts'
 import type { GroupNode, SearchResultNode, SessionNode } from '../tree.ts'
@@ -414,11 +415,17 @@ export function SearchResultItem({ result, currentId, onOpen, t }: {
  * @returns the session row.
  */
 export function SessionNodeItem({
-  node, currentId, now, onOpen, onRename, onFork, onArchive, onPin, onUnpin, onReveal, drag, renderSlot, t,
+  node, currentId, now, onOpen, onRename, onFork, onArchive, onPin, onUnpin, onReveal, drag, renderSlot, t, inferredTag,
 }: {
   node: SessionNode
   currentId: string | undefined
   now: number
+  /**
+   * The D2 Git fallback's classification for this preset-less row: the tag
+   * name badges onto the row so an inferred placement reads as deliberate.
+   * Absent for rows with a recorded preset and while the kind is unknown.
+   */
+  inferredTag?: WorkbenchTag | undefined
   onOpen: (id: SessionNode['id']) => void
   /** Open the browser-owned session rename dialog (row menu action). */
   onRename: (id: SessionNode['id'], currentTitle: string) => void
@@ -521,6 +528,9 @@ export function SessionNodeItem({
           : renderSlot('sidebar.session.row.leading', { sessionId: node.id }))}
       </span>
       <span ref={titleRef} className={css.title}>{title}</span>
+      {inferredTag !== undefined
+        ? <span className={css.inferredTag}>{t(inferredTag === 'coding' ? 'workbench.coding' : 'workbench.general')}</span>
+        : undefined}
       {/* A blank New Session row is a provisional placeholder: nothing has
           happened in it yet, so a "now" timestamp and the row verbs
           (rename/fork/archive) would all act on content that does not
