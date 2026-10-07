@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/development.md
 /development-guide:
-  en: 0dc90560394c05ab
-  zh: 77b4378666e62c51
+  en: 640c0d2899e9508b
+  zh: 4dc87459d4691457
 /development-guide/setup-tutorial:
   en: 5207d17725c07a27
   zh: 258884c4300ac63a
 /development-guide/setup-tutorial/prerequisites:
-  en: 0483819ef2a86a02
-  zh: e525732f688a4cba
+  en: c9a178e2d4921882
+  zh: 4289ea95970ee66a
 /development-guide/setup-tutorial/windows-and-wsl-2:
   en: e86be579be6f1813
   zh: 14f6a220337d0861
@@ -21,17 +21,17 @@
   en: 3221d1076554001f
   zh: 29f166be6a5c04d9
 /development-guide/contributor-reference/typescript-project-layout:
-  en: b6625980313559ac
-  zh: e5990152c034c23f
+  en: bedf8020ff161a64
+  zh: 443567391204cb05
 /development-guide/contributor-reference/environment-variables:
   en: dba2c72ee6ffa930
   zh: b65c27fbb9129ec8
 /development-guide/contributor-reference/git-integrations:
-  en: dc98eda4f4021feb
-  zh: b08766708803cf10
-/development-guide/contributor-reference/ci-gates:
-  en: 69b885dfc2a5ef9c
-  zh: 154f172d231751b0
+  en: 61ded491305937d5
+  zh: c28f11e0cb7d677d
+/development-guide/contributor-reference/gate-lanes:
+  en: a75f0d990ce1c7f7
+  zh: 13fff1eeb442d904
 /development-guide/contributor-reference/daily-commands:
   en: 08aa6ec1cdabfeb7
   zh: dcce5ae9d3c829d0

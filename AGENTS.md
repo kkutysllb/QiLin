@@ -84,7 +84,7 @@ Package groups: [packages/README.md](packages/README.md).
 pnpm install            # pnpm workspaces, node ^22.19 || >=24
 pnpm run clean           # remove build outputs and safe residue from deleted packages
 pnpm run test           # unit tests
-pnpm run test:coverage  # CI coverage gate: per-file 100% on packages/*/*/src
+pnpm run test:coverage  # coverage gate: per-file 100% on packages/*/*/src
 pnpm run test:e2e       # real-API tests; self-skip without DEEPSEEK_API_KEY
 pnpm run test:expected  # owner-local process expectations
 pnpm run test:snapshot  # keyless recorded-session replay through shipped profiles; filter: -t <name>
@@ -94,7 +94,7 @@ pnpm run lint
 pnpm run duplication    # cross-file TypeScript clone detection
 pnpm run build          # tsc emits lib/types, tsdown bundles runtime
 pnpm run hygiene        # publint + workspace/package/dependency checks + NodeNext consumer check
-pnpm run check:windows-wine  # ONLY when diagnosing a known Windows failure (needs wine); CI owns this signal
+pnpm run check:windows-wine  # ONLY when diagnosing a known Windows failure (needs wine)
 pnpm run doc-sync       # documentation gates (scripts/run-gates.ts)
 pnpm run test:docs      # quick documentation checks (no build; doc-quick aggregate)
 pnpm run website:build  # VitePress build (doubles as dead-link check)
@@ -111,13 +111,13 @@ If a required `gh`, `pnpm`, build, test, or generator command fails because the 
 Before pushing, follow [qilin-pre-push-checks](.agents/skills/qilin-pre-push-checks/SKILL.md); report only commands run. After `gh stack sync`, validate immediately; do not merge before checks pass.
 
 - Match evidence to the surface: focused behavior tests, model/user-output snapshots, `doc-sync` for docs, built smokes for published paths, and real-API e2e for providers.
-- Never default to the full suite or repeat a passing check for commit or push. CI owns exhaustive coverage and the platform matrix; rehearse all locally only by explicit request, for CI diagnosis, or for an irreducibly repository-wide change.
-- `test:coverage`, not `test`, is the CI coverage gate ([why](docs/testing.md)).
+- Never default to the full suite or repeat a passing check. No workflow runs automatically in this fork ([why](.agents/notes/implemented/process/2026-10-07-fork-ci-runs-on-demand.md)), so the platform matrix and exhaustive coverage stay local or on demand; rehearse them only by explicit request or for an irreducibly repository-wide change.
+- `test:coverage`, not `test`, is the coverage gate ([why](docs/testing.md)).
 - **Web browser automation and GIF recording:** launch with `pnpm qilin web --patch apps/web/tests/pin-browse-picker.overlay.yml` to use the [in-page directory picker](apps/web/tests/pin-browse-picker.overlay.yml); omit this override only when testing native picker behavior explicitly.
 
 ## Secrets / .env
 
-Real-API tests/demos read `DEEPSEEK_API_KEY`, optional `DEEPSEEK_BASE_URL`, and root `.env`. cordis.yml allows `!!js` (never `!js`) under plugin `config` and entry `disabled`; other metadata stays literal, so conditional composition also uses overlays ([primer](docs/kylin-primer.md#loader-configuration)). Never commit credentials. CI e2e skips without a key; [testing.md](docs/testing.md) owns key policy.
+Real-API tests/demos read `DEEPSEEK_API_KEY`, optional `DEEPSEEK_BASE_URL`, and root `.env`. cordis.yml allows `!!js` (never `!js`) under plugin `config` and entry `disabled`; other metadata stays literal, so conditional composition also uses overlays ([primer](docs/kylin-primer.md#loader-configuration)). Never commit credentials. E2e skips without a key; [testing.md](docs/testing.md) owns key policy.
 
 ## Desktop and account alignment boundaries
 
