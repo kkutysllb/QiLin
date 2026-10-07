@@ -20,7 +20,8 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
 import {
-  FishLogo, IconNewChatOutline16, IconPanelLeftOutline16, isDarwinDesktop, ShortcutKeys, Tooltip,
+  FishLogo, IconChevronDownOutline14, IconNewChatOutline16, IconPanelLeftOutline16, isDarwinDesktop,
+  ShortcutKeys, Tooltip,
 } from '@qilin/client-ui-primitives'
 import type { InjectFace, PropsRenderSlots, PropsRuntime } from '@qilin/client-ui-slots'
 import type {
@@ -30,6 +31,49 @@ import css from './SidebarRoot.module.css'
 
 /** Wide-content unmount delay; matches the 150ms wide-content fade-out. */
 const COLLAPSE_SETTLE_MS = 150
+
+// KStock patch: 分组头折叠/展开——「投研」+「扩展」把侧栏菜单撑得太长；默认全展开
+// （不改现状），窄轨道不设开关，键位落在 localStorage。
+/**
+ * Storage key for the sections the user folded. Versioned and namespaced like
+ * the client's other browser preferences (`qilin.<area>.<fact>.v1`), so a
+ * future record layout can ship beside this one instead of parsing it.
+ */
+export const FOLDED_SECTIONS_KEY = 'qilin.sidebar.folded-sections.v1'
+
+/**
+ * Read the persisted fold set. Storage can be denied outright, and the record
+ * can be foreign or hand-edited, so an unreadable or non-string-list value
+ * reads as "nothing folded" instead of failing the sidebar render.
+ * @returns the folded section labels, empty when the record is unusable.
+ */
+function readFoldedSections(): ReadonlySet<string> {
+  try {
+    const raw = window.localStorage.getItem(FOLDED_SECTIONS_KEY)
+    if (raw === null) return new Set()
+    const parsed: unknown = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return new Set()
+    const labels = parsed.filter((value): value is string => typeof value === 'string')
+    // One junk entry makes the whole record unusable: applying the readable
+    // part would hide rows the user never folded.
+    return labels.length === parsed.length ? new Set(labels) : new Set()
+  } catch {
+    // A denied read (storage disabled) and a non-JSON record take the same answer.
+    return new Set()
+  }
+}
+
+/**
+ * Persist the fold set for the next mount.
+ * @param sections - the folded section labels.
+ */
+function writeFoldedSections(sections: ReadonlySet<string>): void {
+  try {
+    window.localStorage.setItem(FOLDED_SECTIONS_KEY, JSON.stringify([...sections]))
+  } catch {
+    // A refused write (quota, disabled storage) leaves this mount's fold in memory.
+  }
+}
 
 /**
  * How long the column's scrollbars stay drawn after the pointer leaves it.
@@ -118,6 +162,18 @@ export function SidebarRoot({
   renderSlot,
 }: SidebarRootComponentProps) {
   const panels = usePanels(snapshot => snapshot)
+  // Folded sections are a per-user display preference, not session data, so
+  // they live in localStorage beside the client's other browser preferences
+  // (never in the session log) and outlive the mount. The section label is the
+  // only identifier panel metadata carries.
+  const [foldedSections, setFoldedSections] = useState<ReadonlySet<string>>(readFoldedSections)
+  const toggleSection = (section: string): void => {
+    const next = new Set(foldedSections)
+    if (next.has(section)) next.delete(section)
+    else next.add(section)
+    writeFoldedSections(next)
+    setFoldedSections(next)
+  }
   const shortcut = useShortcuts(rows => rows.find(row => row.id === 'sidebar.left.toggle'))
   const newShortcut = useShortcuts(rows => rows.find(row => row.id === 'session.new'))
   // Wide content stays mounted while the collapse animates (fading via
@@ -282,26 +338,50 @@ export function SidebarRoot({
 
       {panels.length > 0 && (
         <nav className={css.panelList} aria-label={t('panels.label')}>
-          {panels.map(({ id, label, section }, index) => (
-            <Fragment key={id}>
-              {/* A header opens a section and never repeats inside it. Rows
-                  without a section render header-less, so a host that never
-                  sets one keeps the original flat list exactly. */}
-              {section !== undefined && section !== panels[index - 1]?.section ? (
-                <div className={clsx(css.panelSection, wide && css.wide)} aria-hidden={!wide}>
-                  {wide ? section : <span className={css.panelSectionRail} />}
-                </div>
-              ) : null}
-              <PanelRow
-                id={id}
-                label={label}
-                wide={wide}
-                usePanelInfo={usePanelInfo}
-                selectPanel={selectPanel}
-                renderSlot={renderSlot}
-              />
-            </Fragment>
-          ))}
+          {panels.map(({ id, label, section }, index) => {
+            // A header opens a section and never repeats inside it. Rows
+            // without a section render header-less, so a host that never
+            // sets one keeps the original flat list exactly.
+            const opensSection = section !== undefined && section !== panels[index - 1]?.section
+            // A folded section keeps its header — wide, that button is the
+            // control that restores the rows — and drops them otherwise. The
+            // rail carries its own hairline and no control, so it keeps
+            // every row.
+            const folded = wide && section !== undefined && foldedSections.has(section)
+            if (folded && !opensSection) return null
+            return (
+              <Fragment key={id}>
+                {opensSection ? (wide ? (
+                  <button
+                    type="button"
+                    className={clsx(css.panelSection, css.wide, folded && css.panelSectionFolded)}
+                    aria-expanded={!folded}
+                    title={t('panels.section.toggle')}
+                    onClick={() => { toggleSection(section) }}
+                  >
+                    {section}
+                    <IconChevronDownOutline14
+                      className={clsx(css.panelSectionChevron, folded && css.panelSectionChevronFolded)}
+                    />
+                  </button>
+                ) : (
+                  <div className={css.panelSection} aria-hidden="true">
+                    <span className={css.panelSectionRail} />
+                  </div>
+                )) : null}
+                {!folded && (
+                  <PanelRow
+                    id={id}
+                    label={label}
+                    wide={wide}
+                    usePanelInfo={usePanelInfo}
+                    selectPanel={selectPanel}
+                    renderSlot={renderSlot}
+                  />
+                )}
+              </Fragment>
+            )
+          })}
         </nav>
       )}
 

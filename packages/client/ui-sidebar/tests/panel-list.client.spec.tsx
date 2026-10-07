@@ -10,6 +10,7 @@ import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
 import { IconGlobeOutline14 } from '@qilin/client-ui-primitives'
 import type { ILayout, MainPanelId } from '@qilin/client-ui-layout/client'
 import type { PropsRenderSlots, PropsRuntime, SlotLabel } from '@qilin/client-ui-slots'
+import { FOLDED_SECTIONS_KEY } from '../src/client/SidebarRoot.tsx'
 import { apply, inject } from '../src/client/index.ts'
 
 declare module '@qilin/client-ui-slots' {
@@ -29,6 +30,8 @@ afterEach(async () => {
   } finally {
     runtimes.clear()
     cleanup()
+    // The fold record outlives a runtime by design; one case must not leak into the next.
+    window.localStorage.clear()
   }
 })
 
@@ -120,6 +123,20 @@ async function mountPanels(runtime: SlotTestRuntime, locale: LocaleRuntime, beta
   return { alpha, beta }
 }
 
+/** Section headers in the panel list: a fold button when wide, a hairline row on the rail. */
+function sectionHeaders(navigation: HTMLElement): HTMLElement[] {
+  return [...navigation.children].filter((child): child is HTMLElement => (
+    child.tagName !== 'BUTTON' || child.hasAttribute('aria-expanded')
+  ))
+}
+
+/** Panel rows, excluding the section headers that are buttons in the wide list. */
+function panelRows(navigation: HTMLElement): HTMLElement[] {
+  return [...navigation.children].filter((child): child is HTMLElement => (
+    child.tagName === 'BUTTON' && !child.hasAttribute('aria-expanded')
+  ))
+}
+
 describe('sidebar global panels', () => {
   it('adds late registrations, removes each plugin contribution, and leaves no empty panel-list DOM', async () => {
     const { runtime, locale, view } = await bench()
@@ -189,11 +206,11 @@ describe('sidebar global panels', () => {
     await mountPanel(runtime, { id: BETA, heading: 'Beta content', label: 'Beta panel', order: 20 })
     await mountPanel(runtime, { id: GAMMA, heading: 'Gamma content', label: 'Gamma panel', order: 30, section: 'Alpha group' })
     const navigation = await view.findByRole('navigation', { name: 'Global panels' })
-    const headers = [...navigation.children].filter(child => child.tagName !== 'BUTTON')
+    const headers = sectionHeaders(navigation)
     expect(headers).toHaveLength(2)
     expect(headers.map(header => header.textContent)).toEqual(['Alpha group', 'Alpha group'])
-    expect(headers.map(header => header.getAttribute('aria-hidden'))).toEqual(['false', 'false'])
-    expect(within(navigation).getAllByRole('button').map(row => row.textContent))
+    expect(headers.map(header => header.getAttribute('aria-expanded'))).toEqual(['true', 'true'])
+    expect(panelRows(navigation).map(row => row.textContent))
       .toEqual(['Alpha panel', 'Beta panel', 'Gamma panel'])
     const entries = runtime.slots.entries('sidebar.panellist')
     expect(entries[0]!.options.section).toBe('Alpha group')
@@ -220,10 +237,9 @@ describe('sidebar global panels', () => {
       },
     })
     const navigation = await view.findByRole('navigation', { name: 'Global panels' })
-    expect(within(navigation).getAllByRole('button').map(row => row.textContent))
+    expect(panelRows(navigation).map(row => row.textContent))
       .toEqual(['Beta panel', 'Alpha panel', 'Gamma panel'])
-    const headers = [...navigation.children].filter(child => child.tagName !== 'BUTTON')
-    expect(headers.map(header => header.textContent)).toEqual(['Extensions'])
+    expect(sectionHeaders(navigation).map(header => header.textContent)).toEqual(['Extensions'])
   })
 
   it('renders a single header for consecutive rows sharing one section', async () => {
@@ -231,7 +247,7 @@ describe('sidebar global panels', () => {
     await mountPanel(runtime, { id: ALPHA, heading: 'Alpha content', label: 'Alpha panel', order: 10, section: 'One group' })
     await mountPanel(runtime, { id: BETA, heading: 'Beta content', label: 'Beta panel', order: 20, section: 'One group' })
     const navigation = await view.findByRole('navigation', { name: 'Global panels' })
-    const headers = [...navigation.children].filter(child => child.tagName !== 'BUTTON')
+    const headers = sectionHeaders(navigation)
     expect(headers).toHaveLength(1)
     expect(headers[0]!.textContent).toBe('One group')
   })
@@ -241,14 +257,14 @@ describe('sidebar global panels', () => {
     await mountPanel(runtime, { id: ALPHA, heading: 'Alpha content', label: 'Alpha panel', order: 10, section: 'Alpha group' })
     await mountPanel(runtime, { id: BETA, heading: 'Beta content', label: 'Beta panel', order: 20, section: 'Beta group' })
     const navigation = await view.findByRole('navigation', { name: 'Global panels' })
-    const headers = [...navigation.children].filter(child => child.tagName !== 'BUTTON')
+    const headers = sectionHeaders(navigation)
     expect(headers).toHaveLength(2)
     for (const header of headers) {
       expect(header.textContent).toBe('')
       expect(header.getAttribute('aria-hidden')).toBe('true')
       expect(header.querySelector('span')).toBeTruthy()
     }
-    expect(within(navigation).getAllByRole('button').map(row => row.textContent)).toEqual(['', ''])
+    expect(panelRows(navigation).map(row => row.textContent)).toEqual(['', ''])
   })
 
   it('resolves section labels through the active locale and re-projects when only the section moves', async () => {
@@ -257,7 +273,7 @@ describe('sidebar global panels', () => {
     await mountPanel(runtime, { id: ALPHA, heading: 'Alpha content', label: 'Alpha panel', order: 10, section: () => t('group') })
     await mountPanel(runtime, { id: BETA, heading: 'Beta content', label: 'Beta panel', order: 20, section: () => t('group') })
     const navigation = await view.findByRole('navigation', { name: 'Global panels' })
-    const headers = () => [...navigation.children].filter(child => child.tagName !== 'BUTTON')
+    const headers = () => sectionHeaders(navigation)
     expect(headers()).toHaveLength(1)
     expect(headers()[0]!.textContent).toBe('Alpha group')
 
@@ -358,5 +374,122 @@ describe('sidebar global panels', () => {
     expect(view.getByRole('heading', { name: 'Alpha content' })).toBeTruthy()
     act(() => { locale.setLocale('zh') })
     expect(view.queryByRole('navigation')).toBeNull()
+  })
+})
+
+const RESEARCH_SECTION = 'Research'
+const EXTENSIONS_SECTION = 'Extensions'
+
+/** One sidebar with two sectioned groups, so folding one leaves the other observable. */
+async function benchSections(collapsed = false) {
+  const mounted = await bench(collapsed)
+  await mountPanel(mounted.runtime, {
+    id: ALPHA, heading: 'Alpha content', label: 'Alpha panel', order: 10, section: RESEARCH_SECTION,
+  })
+  await mountPanel(mounted.runtime, {
+    id: BETA, heading: 'Beta content', label: 'Beta panel', order: 20, section: RESEARCH_SECTION,
+  })
+  await mountPanel(mounted.runtime, {
+    id: GAMMA, heading: 'Gamma content', label: 'Gamma panel', order: 30, section: EXTENSIONS_SECTION,
+  })
+  const navigation = await mounted.view.findByRole('navigation', { name: 'Global panels' })
+  return { ...mounted, navigation }
+}
+
+describe('sidebar section folding', () => {
+  it('folds one section from its header and restores it on the next click', async () => {
+    const { navigation } = await benchSections()
+    const research = within(navigation).getByRole('button', { name: RESEARCH_SECTION })
+    act(() => { research.focus() })
+    expect(document.activeElement).toBe(research)
+    expect(research.getAttribute('aria-expanded')).toBe('true')
+
+    fireEvent.click(research)
+    expect(research.getAttribute('aria-expanded')).toBe('false')
+    expect(within(navigation).queryByRole('button', { name: 'Alpha panel' })).toBeNull()
+    expect(within(navigation).queryByRole('button', { name: 'Beta panel' })).toBeNull()
+    expect(within(navigation).getByRole('button', { name: 'Gamma panel' })).toBeTruthy()
+    expect(within(navigation).getByRole('button', { name: EXTENSIONS_SECTION }).getAttribute('aria-expanded'))
+      .toBe('true')
+
+    fireEvent.click(research)
+    expect(research.getAttribute('aria-expanded')).toBe('true')
+    expect(within(navigation).getByRole('button', { name: 'Alpha panel' })).toBeTruthy()
+    expect(within(navigation).getByRole('button', { name: 'Beta panel' })).toBeTruthy()
+  })
+
+  it('restores a folded section after the sidebar remounts', async () => {
+    const { runtime, view, sidebar, navigation } = await benchSections()
+    fireEvent.click(within(navigation).getByRole('button', { name: RESEARCH_SECTION }))
+    expect(within(navigation).queryByRole('button', { name: 'Alpha panel' })).toBeNull()
+
+    // The runtime wipes storage on dispose, so the remount runs in place: the
+    // sidebar plugin leaves and mounts again, which mounts a fresh component.
+    await sidebar.dispose()
+    await runtime.mount({ inject: [...inject], apply })
+    const remounted = await view.findByRole('navigation', { name: 'Global panels' })
+    expect(within(remounted).getByRole('button', { name: RESEARCH_SECTION }).getAttribute('aria-expanded'))
+      .toBe('false')
+    expect(within(remounted).queryByRole('button', { name: 'Alpha panel' })).toBeNull()
+    expect(within(remounted).getByRole('button', { name: 'Gamma panel' })).toBeTruthy()
+  })
+
+  it.each([
+    ['not JSON', '{'],
+    ['not an array', '{"Research":true}'],
+    ['not all strings', '["Research",7]'],
+  ])('starts unfolded when the stored fold record is %s', async (_record, raw) => {
+    window.localStorage.setItem(FOLDED_SECTIONS_KEY, raw)
+    const { navigation } = await benchSections()
+    expect(within(navigation).getByRole('button', { name: RESEARCH_SECTION }).getAttribute('aria-expanded'))
+      .toBe('true')
+    expect(within(navigation).getByRole('button', { name: 'Alpha panel' })).toBeTruthy()
+  })
+
+  it('starts unfolded when the browser denies the stored fold record', async () => {
+    window.localStorage.setItem(FOLDED_SECTIONS_KEY, JSON.stringify([RESEARCH_SECTION]))
+    const read = Storage.prototype.getItem
+    const denied = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(function (this: Storage, key: string) {
+      if (key === FOLDED_SECTIONS_KEY) throw new Error('storage denied')
+      return read.call(this, key)
+    })
+    try {
+      const { navigation } = await benchSections()
+      expect(within(navigation).getByRole('button', { name: RESEARCH_SECTION }).getAttribute('aria-expanded'))
+        .toBe('true')
+    } finally {
+      denied.mockRestore()
+    }
+  })
+
+  it('keeps a fold for this mount when the browser refuses the write', async () => {
+    const { navigation } = await benchSections()
+    const research = within(navigation).getByRole('button', { name: RESEARCH_SECTION })
+    const write = Storage.prototype.setItem
+    const refused = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (
+      this: Storage, key: string, value: string,
+    ) {
+      if (key === FOLDED_SECTIONS_KEY) throw new Error('storage full')
+      write.call(this, key, value)
+    })
+    try {
+      fireEvent.click(research)
+    } finally {
+      refused.mockRestore()
+    }
+    expect(research.getAttribute('aria-expanded')).toBe('false')
+    expect(within(navigation).queryByRole('button', { name: 'Alpha panel' })).toBeNull()
+  })
+
+  it('draws the rail hairline without a fold control', async () => {
+    const { navigation } = await benchSections(true)
+    const headers = sectionHeaders(navigation)
+    expect(headers).toHaveLength(2)
+    for (const header of headers) {
+      expect(header.getAttribute('aria-hidden')).toBe('true')
+      expect(header.querySelector('span')).toBeTruthy()
+    }
+    expect(within(navigation).queryByRole('button', { name: RESEARCH_SECTION })).toBeNull()
+    expect(within(navigation).queryByRole('button', { name: EXTENSIONS_SECTION })).toBeNull()
   })
 })

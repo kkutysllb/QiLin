@@ -451,6 +451,50 @@
   user-select: none;
 }
 
+/* Wide, the header itself is the section's fold control: a full-width button
+   with the row surface's hover and focus chrome. The rail keeps the plain
+   hairline below — it has no header text to carry the control. */
+button.panelSection {
+  width: 100%;
+  box-sizing: border-box;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-weight: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+button.panelSection:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+button.panelSection:focus-visible {
+  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline-offset: -2px;
+}
+
+/* Folded, the header is the section's last visible row: it takes the trailing
+   rhythm its hidden rows no longer provide. Placed after .panelSection so the
+   shorthand padding there cannot win. */
+.panelSectionFolded {
+  padding-bottom: 8px;
+}
+
+/* Fold indicator: a down chevron while open, turned toward the folded rows'
+   former place. */
+.panelSectionChevron {
+  flex: none;
+  margin-left: auto;
+  color: var(--dsw-alias-label-tertiary);
+  transition: transform 150ms var(--ds-ease-in-out);
+}
+
+.panelSectionChevronFolded {
+  transform: rotate(-90deg);
+}
+
 /* Narrow state: with no room for a header, the rail alone marks the break.
    Filled divider, so it carries the same hairline weight as every other one. */
 .panelSectionRail {
@@ -597,7 +641,8 @@
   .railIn .newSession,
   .railIn .panelList,
   .railIn .footArea,
-  .railIn .regionArea {
+  .railIn .regionArea,
+  .panelSectionChevron {
     transition: none;
     animation: none;
   }
