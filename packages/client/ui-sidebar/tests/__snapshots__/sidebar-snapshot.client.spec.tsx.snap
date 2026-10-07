@@ -141,9 +141,9 @@ exports[`sidebar shell snapshots > renders Windows caption controls in expanded 
             </div>
             <span
               class="buildBadge"
-              title="1.2.3-rc.4-abc1234-dirty"
+              title="2.0.1-abc1234-dirty（引擎 1.2.3-rc.4）"
             >
-              1.2.3-rc.4
+              2.0.1
             </span>
           </span>
         </span>
@@ -384,9 +384,9 @@ exports[`sidebar shell snapshots > renders the expanded column (wordmark, capsul
             </div>
             <span
               class="buildBadge"
-              title="1.2.3-rc.4-abc1234-dirty"
+              title="2.0.1-abc1234-dirty（引擎 1.2.3-rc.4）"
             >
-              1.2.3-rc.4
+              2.0.1
             </span>
           </span>
         </span>
@@ -521,9 +521,9 @@ exports[`sidebar shell snapshots > renders the expanded column in the default lo
             </div>
             <span
               class="buildBadge"
-              title="1.2.3-rc.4-abc1234-dirty"
+              title="2.0.1-abc1234-dirty（引擎 1.2.3-rc.4）"
             >
-              1.2.3-rc.4
+              2.0.1
             </span>
           </span>
         </span>
