@@ -18,6 +18,37 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
 if (location.protocol === 'qilin-app:' && location.hostname === 'app') {
+  // 引擎 darwin 桌面分支的启闭标记（ui-primitives isDarwinDesktop 与全套
+  // [data-platform='darwin'] CSS 读它）：折叠侧栏整列归零（无痕）、会话头
+  // leading 座位补回开关/新会话、侧栏分区表头。纯 web 永不设置——这正是
+  // 桌面形态与浏览器形态的分叉点。preload 执行极早（沙箱下
+  // documentElement 可能为 null，2026-10-08 实测崩整个 preload 链），
+  // 兜底挂 DOMContentLoaded——引擎在渲染期才读标记，必然晚于它。
+  const markDarwin = () => { document.documentElement.dataset.platform = 'darwin' }
+  if (document.documentElement !== null) markDarwin()
+  else document.addEventListener('DOMContentLoaded', markDarwin, { once: true })
+
+  // qilinDesktop 桥（上游桌面契约的另两张面孔；darwin 运行时的 shortcuts
+  // 服务要求 keyboard + shortcuts 双面俱在，缺任一即 throw——见
+  // keyboard-bridge.mjs 头注）。纯转发：偏好存储与 accelerator 仲裁都在
+  // 主进程（file paths and accelerators never cross from Renderer）。
+  const onMain = (channel, listener) => {
+    const handler = (_event, payload) => listener(payload)
+    ipcRenderer.on(channel, handler)
+    return () => { ipcRenderer.removeListener(channel, handler) }
+  }
+  contextBridge.exposeInMainWorld('qilinDesktop', {
+    shortcuts: {
+      get: (definitions) => ipcRenderer.invoke('qilin:shortcuts:get', definitions),
+      edit: (edit, revision) => ipcRenderer.invoke('qilin:shortcuts:edit', edit, revision),
+      subscribe: (listener) => onMain('qilin:shortcuts:snapshot', listener),
+      recording: (active) => ipcRenderer.invoke('qilin:shortcuts:recording', active),
+    },
+    keyboard: {
+      subscribe: (listener) => onMain('qilin:keyboard:input', listener),
+      closeWindow: (revision) => ipcRenderer.invoke('qilin:keyboard:close', revision),
+    },
+  })
   contextBridge.exposeInMainWorld('qilinDesktopBoot', {
     /** 上游桌面启动门：{injections, streamBaseUrl}（宿主就绪后可用）。 */
     ready: () => ipcRenderer.invoke('ok:desktop-boot'),

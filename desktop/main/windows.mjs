@@ -16,7 +16,6 @@ import { pathToFileURL } from 'node:url'
 import { BrowserWindow, nativeTheme, shell } from 'electron'
 import { APP_ENTRY_PATH, APP_ORIGIN, isAllowedNavigation } from './qilin-contract.mjs'
 import { hostProcess } from './host-process.mjs'
-import { attachTitlebar, TITLEBAR_HEIGHT } from './titlebar.mjs'
 
 /** 本文件所在目录（desktop/main）——ESM 主进程没有 __dirname。 */
 const HERE = import.meta.dirname
@@ -116,19 +115,15 @@ export function showShellWindow(entryPath = APP_ENTRY_PATH) {
       show: false,
       title: 'QiLin Desktop',
       backgroundColor: splashBackgroundColor(),
-      // 无边框桌面（KCoder 同款观感）：整窗无原生边框与标题栏，红绿灯
-      // 以悬浮按钮回归并垂直居中在自绘拖拽带里；拖拽带、标题与面板
-      // 按钮由 titlebar.mjs 注入绘制。
+      // 无边框桌面：红绿灯叠在引擎 darwin 分支自绘的 topStrip（52px 侧栏
+      // 顶拖拽条）里。trafficLightPosition 是第一枚按钮的位置（12px 高，
+      // 中心 y = 52/2 = 26 → top-left y = 20；x=13 与 KCoder/KStock 同款）。
+      // 顶带、标题、面板按钮全部引擎自持——壳不再注入任何标题栏（KStock
+      // 同款形态；旧注入式标题栏随无痕化退役，见 desktop/main/titlebar.mjs）。
       frame: false,
       ...(process.platform === 'darwin'
         ? {
-            // y 为实测校准值：Electron 把该值视作按钮组垂直中心（配置 18
-            // 实测中心 ≈17.75），取栏高一半让红绿灯与标题文字共享 24px
-            // 光学中线
-            trafficLightPosition: {
-              x: 12,
-              y: Math.round(TITLEBAR_HEIGHT / 2),
-            },
+            trafficLightPosition: { x: 13, y: 20 },
           }
         : {}),
       // 沙箱载体：无 node、仅标题栏 + 桌面 boot 白名单桥、webSecurity 开启
@@ -149,7 +144,8 @@ export function showShellWindow(entryPath = APP_ENTRY_PATH) {
         console.warn('[windows] setWindowButtonVisibility failed:', error)
       }
     }
-    attachTitlebar(shellWindow)
+    // 顶带全部引擎自持（darwin 分支的 topStrip + 会话头 data-window-drag），
+    // 不再注入壳标题栏
     shellWindow.once('ready-to-show', () => {
       shellWindow?.maximize()
       shellWindow?.show()

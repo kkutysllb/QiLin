@@ -1,5 +1,14 @@
 // desktop/main/titlebar.mjs
 /**
+ * 【已退役 2026-10-08（v0.1.0 无痕化）】壳不再注入自绘标题栏：引擎 darwin
+ * 分支自持顶带（topStrip + 会话头 data-window-drag + 折叠态会话头补回开
+ * 关），与 KStock/KCoder 桌面端同款形态——windows.mjs 也不再调用本文件。
+ * 保留源码供回归参考（含工作区面包屑、编辑器/终端直启、右栏开关转发等
+ * 已随注入退役的能力）；desktop-titlebar-inset.patch 的 --ok-tb-h 让位规
+ * 则在无注入时自然失效（回落 0），无需回滚补丁。
+ *
+ * ==========================================================================
+ *
  * 自绘标题栏——KCoder `SHELL_TITLEBAR_JS` 的忠实移植（同源机制：主进程
  * executeJavaScript 注入，值取自 KCoder 主进程常量）。
  *
@@ -64,8 +73,10 @@ const INJECT_SCRIPT = `(() => {
   const label = document.createElement('span')
   label.style.cssText = [
     'flex:0 1 auto',
-    'margin-left:max(calc(' + LEFT_PAD + 'px + var(--ok-extra-left, 0px)), var(--ok-sidebar-w, 0px) + 12px)',
-    'max-width:calc(100% - max(calc(' + LEFT_PAD + 'px + var(--ok-extra-left, 0px)), var(--ok-sidebar-w, 0px) + 12px) - 134px)',
+    // --ok-left-reserve：左栏折叠开关（btnSidebar，darwin 分支的侧栏开关
+    // 代管位）亮相时让出其宽度，纯按钮排布不与面包屑打架
+    'margin-left:max(calc(' + LEFT_PAD + 'px + var(--ok-extra-left, 0px) + var(--ok-left-reserve, 0px)), var(--ok-sidebar-w, 0px) + 12px)',
+    'max-width:calc(100% - max(calc(' + LEFT_PAD + 'px + var(--ok-extra-left, 0px) + var(--ok-left-reserve, 0px)), var(--ok-sidebar-w, 0px) + 12px) - 134px)',
     'display:flex', 'align-items:baseline', 'min-width:0', 'white-space:nowrap',
   ].join(';')
   // 工作区段：实体按钮（文件夹图标 + 名字；点击打开工作区目录）。
@@ -109,6 +120,7 @@ const INJECT_SCRIPT = `(() => {
     // 内容决定，簇内挂载点（KCoder 宿主契约同款 id）随插件增减自然重排，
     // 不留固定槽位空隙
     '#ok-actions{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;gap:2px}',
+    '#ok-titlebar .ok-btn-left{position:absolute;left:64px;top:50%;transform:translateY(-50%);width:30px}',
     '#ok-titlebar .ok-btn{display:inline-flex;align-items:center;justify-content:center;gap:1px;height:26px;border:none;border-radius:7px;padding:0 4px;background:transparent;color:var(--ok-tb-fg,#221d15);opacity:.82;cursor:pointer;font-family:inherit;pointer-events:auto;-webkit-app-region:no-drag}',
     '#ok-titlebar .ok-btn:hover{background:color-mix(in srgb,currentColor 10%,transparent);opacity:1}',
     '#ok-titlebar .ok-btn[hidden]{display:none}',
@@ -139,6 +151,10 @@ const INJECT_SCRIPT = `(() => {
     'body.ok-tb-solid [class*="sidebarCol"] [class*="_logoRow"] { height: 44px; padding: 4px 0 4px 4px; margin-bottom: 6px; }',
     // 折叠 rail 保持上游自身几何（上一条优先级更高，须显式还原）
     'body.ok-tb-solid [class*="sidebarCol"] [class*="_collapsed"] [class*="_logoRow"] { height: 36px; padding: 0; margin-bottom: 12px; }',
+    // darwin 分支的 topStrip（侧栏列顶 52px 拖拽条 + 折叠开关）与本栏
+    // 重叠成第二行——隐藏之；开关 DOM 常驻（列宽归零也在文档里），点击
+    // 转发照常生效（btnSidebar）
+    'body.ok-tb-solid [class*="sidebarCol"] [class*="_topStrip"] { display: none !important; }',
   ].join('\\n')
   document.head.append(wsStyle)
 
@@ -156,9 +172,12 @@ const INJECT_SCRIPT = `(() => {
     label.style.display = on ? '' : 'none'
     btnApp.hidden = !on
     btnPanel.hidden = !on
+    btnSidebar.hidden = !on
     // 无痕模式拖拽带右侧留 64px 不覆盖：登陆页主题切换按钮
     // （top:1rem; right:1rem; 30px 见方）在带下完全裸露可点击
     bar.style.right = on ? '0' : '64px'
+    // 面包屑为左栏折叠开关让位（仅实心模式；无痕覆盖无按钮不占位）
+    bar.style.setProperty('--ok-left-reserve', on ? '34px' : '0px')
     apply()
   }
   const watchSidebarCol = () => {
@@ -186,6 +205,10 @@ const INJECT_SCRIPT = `(() => {
       + '<rect x="1.7" y="2.7" width="12.6" height="10.6" rx="2.2"/>'
       + '<path d="M9.8 2.7v10.6"/>'
       + '<rect x="9.8" y="2.7" width="4.5" height="10.6" rx="0" fill="currentColor" stroke="none" opacity=".28"/></svg>',
+    panelLeft: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3">'
+      + '<rect x="1.7" y="2.7" width="12.6" height="10.6" rx="2.2"/>'
+      + '<path d="M6.2 2.7v10.6"/>'
+      + '<rect x="1.7" y="2.7" width="4.5" height="10.6" rx="0" fill="currentColor" stroke="none" opacity=".28"/></svg>',
     chev: '<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">'
       + '<path d="M4 6.5 8 10.5 12 6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   }
@@ -200,6 +223,10 @@ const INJECT_SCRIPT = `(() => {
   }
   const btnApp = mk('ok-btn ok-btn-app', '<span class="ok-app-ico"></span>' + ICONS.chev, '在编辑器 / 终端中打开')
   const btnPanel = mk('ok-btn ok-btn-panel', ICONS.panel, '右侧边栏')
+  // 左侧边栏折叠开关：darwin 分支把开关从品牌行挪进 topStrip（本栏已隐藏
+  // 该条），代管按钮放标题栏左侧红绿灯旁——macOS 惯例位置（Finder/备忘录
+  // 同款），用户视线自然落点；右上动作簇两个面板图标并排难分辨（真机反馈）
+  const btnSidebar = mk('ok-btn ok-btn-left', ICONS.panelLeft, '折叠侧边栏')
   // 动作簇：插件挂载点（KCoder 宿主契约同款 id）夹在应用按钮与右栏
   // 开关之间（旧终端插件的槽位）——插件增减只影响簇内排布，永不留坑
   const actions = document.createElement('span')
@@ -208,12 +235,14 @@ const INJECT_SCRIPT = `(() => {
   termHost.id = '__dsh_desktop_titlebar'
   actions.append(btnApp, termHost, btnPanel)
   bar.append(actions)
+  bar.append(btnSidebar)
   // 无痕安全默认：全部隐藏 + 拖拽带右缩 64px，待探针确认主框架
   // （setSolid(true)）再亮相；避免探针未落定时 landing/登录页闪出
   // 工作区条目或盖住主题切换按钮
   label.style.display = 'none'
   btnApp.hidden = true
   btnPanel.hidden = true
+  btnSidebar.hidden = true
   bar.style.right = '64px'
   const menu = document.createElement('div')
   menu.id = 'ok-menu'
@@ -325,6 +354,14 @@ const INJECT_SCRIPT = `(() => {
     (q('[data-sidebar-right-expand]') ?? q('[data-sidebar-right-toggle]'))?.click()
   })
 
+  // 左侧边栏开关（无痕折叠代管）。引擎 darwin 分支把开关放进侧栏 topStrip
+  // （本栏已隐藏该条），但 topStrip 的 DOM 常驻——折叠态整列 width=0 也
+  // 在文档里，.click() 转发生效；收起态引擎还会在会话头补回展开钮
+  // （HeaderLeadingControls），两条路都通向同一个 layout.toggleSidebar。
+  btnSidebar.addEventListener('click', () => {
+    q('[class*="sidebarCol"] [class*="_topStrip"] button')?.click()
+  })
+
   // 工作区点击 → 主进程解析 cwd 后 Finder 打开
   wsBtn.addEventListener('click', () => {
     const crumb = q('[class*="_crumbCurrent"]')
@@ -395,6 +432,9 @@ const INJECT_SCRIPT = `(() => {
     presetTag.style.display = preset !== '' ? '' : 'none'
     presetTag.title = preset
     btnPanel.hidden = !solid || q('[data-sidebar-right-toggle], [data-sidebar-right-expand]') === null
+    btnSidebar.hidden = !solid || q('[class*="sidebarCol"] [class*="_topStrip"] button') === null
+    // 悬停文案随折叠态翻转（引擎在 AppFrame 落 data-sidebar-collapsed）
+    btnSidebar.title = q('[data-sidebar-collapsed]') !== null ? '展开侧边栏' : '折叠侧边栏'
   }
   let settleTimers = []
   const applyWithSettle = () => {

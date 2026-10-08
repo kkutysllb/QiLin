@@ -22,6 +22,7 @@ import { fileURLToPath } from 'node:url'
 import { WEB_DIST_DIR, persistHostPort, qilinHome, readPersistedHostPort, urlOrigin } from './qilin-contract.mjs'
 import { hostProcess } from './host-process.mjs'
 import { installAppMenu } from './menu.mjs'
+import { attachQilinDesktopBridge } from './keyboard-bridge.mjs'
 import { attachAppProtocol, attachWsRelay, authenticateWebHost, registerAppScheme, relayDebug } from './protocol.mjs'
 import { ensureRuntimeTree, resolveRuntimeRoot } from './runtime-install.mjs'
 import { CRASH_REPORT_KEEP, profileManifestPath, restoreShippedBundles } from './recovery.mjs'
@@ -38,6 +39,8 @@ const ICONS_DIR = join(REPO_ROOT, 'branding', 'icons')
 /** 品牌化 qilin 运行树：dev = 环境变量/标准落位；打包态由 runtime-install 解析（首启解压闭包）。 */
 /** 当前运行树（launchHost 内 ensureRuntimeTree 后落值；诊断文本消费）。 */
 let runtimeDirInUse = resolveRuntimeRoot({ isPackaged: app.isPackaged, userData: app.getPath('userData'), resourcesPath: process.resourcesPath })
+/** 已挂 qilinDesktop 桥的窗口（一窗一桥；复用窗口不重挂）。 */
+let bridgedWindow = null
 
 // 特权 scheme 必须在 app ready 前注册（Electron 硬性时序）
 registerAppScheme()
@@ -403,8 +406,17 @@ if (!gotLock) {
         // 再关 splash——顺序反了会在 await 空窗期落进 window-all-closed
         // 而整壳退出。
         const entryPath = await entryPathFor(relayState)
-        showShellWindow(entryPath)
+        const shellWindow = showShellWindow(entryPath)
         closeSplash()
+        // qilinDesktop 桥（darwin 运行时 keyboard/shortcuts 双面，缺任一
+        // client-shortcuts 即 throw）：运行树就绪后挂载，一个窗口只挂一次
+        //（宿主崩溃重启复用窗口，重复挂会双份 before-input-event 转发）
+        if (bridgedWindow !== shellWindow) {
+          bridgedWindow = shellWindow
+          void attachQilinDesktopBridge(shellWindow, runtimeDirInUse).catch((error) => {
+            console.error('[openkylin] keyboard bridge attach failed:', error)
+          })
+        }
       }).catch((error) => {
         reportFatalToSplash(`宿主认证失败：${error instanceof Error ? error.message : String(error)}`)
       })

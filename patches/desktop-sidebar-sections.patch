@@ -1,0 +1,190 @@
+diff --git a/packages/client/ui-sidebar/src/client/HeaderLeadingControls.module.css b/packages/client/ui-sidebar/src/client/HeaderLeadingControls.module.css
+index 90f24d702d..40a8a0d919 100644
+--- a/packages/client/ui-sidebar/src/client/HeaderLeadingControls.module.css
++++ b/packages/client/ui-sidebar/src/client/HeaderLeadingControls.module.css
+@@ -22,6 +22,14 @@
+   margin-right: 8px;
+ }
+ 
++/* OpenKylin: one optical line with the hiddenInset traffic lights and the
++   sidebar's topStrip toggle — both center at y 26 (the 52px strip), while
++   this 48px header centers its items at y 24. align-items:center centers the
++   margin box, so a 4px top margin lands the controls' center at 26. */
++:global(html[data-platform='darwin']) :global([data-sidebar-collapsed]) .controls {
++  margin-top: 4px;
++}
++
+ .iconButton {
+   flex: none;
+   display: inline-flex;
+diff --git a/packages/client/ui-sidebar/src/client/SidebarRoot.module.css b/packages/client/ui-sidebar/src/client/SidebarRoot.module.css
+index 8f2b8a47f1..8d691a698b 100644
+--- a/packages/client/ui-sidebar/src/client/SidebarRoot.module.css
++++ b/packages/client/ui-sidebar/src/client/SidebarRoot.module.css
+@@ -457,6 +457,23 @@
+   user-select: none;
+ }
+ 
++/* OpenKylin: foldable section header (KStock K19-lite). The header is a
++   wide-only button; the caret flips and the section's rows hide when folded. */
++.sectionCaret {
++  margin-left: auto;
++  display: inline-flex;
++  opacity: 0.55;
++  transition: transform 0.15s ease;
++}
++
++.panelSection[role='button'] {
++  cursor: pointer;
++}
++
++.sectionCaretFolded {
++  transform: rotate(-90deg);
++}
++
+ /* Narrow state: with no room for a header, the rail alone marks the break.
+    Filled divider, so it carries the same hairline weight as every other one. */
+ .panelSectionRail {
+diff --git a/packages/client/ui-sidebar/src/client/SidebarRoot.tsx b/packages/client/ui-sidebar/src/client/SidebarRoot.tsx
+index 8a8d7774ea..4453f1a57a 100644
+--- a/packages/client/ui-sidebar/src/client/SidebarRoot.tsx
++++ b/packages/client/ui-sidebar/src/client/SidebarRoot.tsx
+@@ -17,7 +17,7 @@
+  * scrollbar indirection away while it is elsewhere, so a list the user is not
+  * pointing at carries no bar.
+  */
+-import { Fragment, useEffect, useRef, useState } from 'react'
++import { Fragment, useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react'
+ import clsx from 'clsx'
+ import {
+   IconNewChatOutline16, IconPanelLeftOutline16, isDarwinDesktop, QilinSeal, ShortcutKeys, Tooltip,
+@@ -188,6 +188,25 @@ export function SidebarRoot({
+   const build = localBuild()
+ 
+   const darwinDesktop = isDarwinDesktop()
++  // OpenKylin 桌面：分区折叠（KStock K19 同款语义）。折叠只收该分区的行，
++  // 表头保留、箭头翻转；状态持久在 localStorage（qilin.sidebar.folded-
++  // sections.v1）。rail 态表头本来就只剩一条竖线，不参与折叠。
++  const [foldedSections, setFoldedSections] = useState<ReadonlySet<string>>(() => {
++    try {
++      const raw = localStorage.getItem('qilin.sidebar.folded-sections.v1')
++      const list = raw === null ? [] : JSON.parse(raw) as unknown
++      return new Set(Array.isArray(list) ? list.filter((row): row is string => typeof row === 'string') : [])
++    } catch { return new Set<string>() }
++  })
++  const toggleSection = (section: string): void => {
++    setFoldedSections((previous) => {
++      const next = new Set(previous)
++      if (next.has(section)) next.delete(section)
++      else next.add(section)
++      try { localStorage.setItem('qilin.sidebar.folded-sections.v1', JSON.stringify([...next])) } catch { /* 私有模式等：仅记忆失败 */ }
++      return next
++    })
++  }
+   // Rail resting state is the seal mark; hovering swaps in the panel icon
+   // (the expand affordance, figma sidebar-hover flow). Expanded it is a plain
+   // panel icon.
+@@ -286,26 +305,54 @@ export function SidebarRoot({
+ 
+       {panels.length > 0 && (
+         <nav className={css.panelList} aria-label={t('panels.label')}>
+-          {panels.map(({ id, label, section }, index) => (
+-            <Fragment key={id}>
+-              {/* A header opens a section and never repeats inside it. Rows
+-                  without a section render header-less, so a host that never
+-                  sets one keeps the original flat list exactly. */}
+-              {section !== undefined && section !== panels[index - 1]?.section ? (
+-                <div className={clsx(css.panelSection, wide && css.wide)} aria-hidden={!wide}>
+-                  {wide ? section : <span className={css.panelSectionRail} />}
+-                </div>
+-              ) : null}
+-              <PanelRow
+-                id={id}
+-                label={label}
+-                wide={wide}
+-                usePanelInfo={usePanelInfo}
+-                selectPanel={selectPanel}
+-                renderSlot={renderSlot}
+-              />
+-            </Fragment>
+-          ))}
++          {panels.map(({ id, label, section }, index) => {
++            const sectionFolded = section !== undefined && foldedSections.has(section)
++            return (
++              <Fragment key={id}>
++                {/* A header opens a section and never repeats inside it. Rows
++                    without a section render header-less, so a host that never
++                    sets one keeps the original flat list exactly. Foldable
++                    when wide (the rail's header is just a divider). */}
++                {section !== undefined && section !== panels[index - 1]?.section ? (
++                  <div
++                    className={clsx(css.panelSection, wide && css.wide)}
++                    aria-hidden={!wide}
++                    {...(wide
++                      ? {
++                          role: 'button',
++                          tabIndex: 0,
++                          'aria-expanded': !foldedSections.has(section),
++                          onClick: () => { toggleSection(section) },
++                          onKeyDown: (event: ReactKeyboardEvent) => {
++                            if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleSection(section) }
++                          },
++                        }
++                      : {})}
++                  >
++                    {wide ? section : <span className={css.panelSectionRail} />}
++                    {wide && (
++                      <span
++                        className={clsx(css.sectionCaret, foldedSections.has(section) && css.sectionCaretFolded)}
++                        aria-hidden="true"
++                      >
++                        <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6.5 8 10.5 12 6.5" /></svg>
++                      </span>
++                    )}
++                  </div>
++                ) : null}
++                {section === undefined || !sectionFolded ? (
++                  <PanelRow
++                    id={id}
++                    label={label}
++                    wide={wide}
++                    usePanelInfo={usePanelInfo}
++                    selectPanel={selectPanel}
++                    renderSlot={renderSlot}
++                  />
++                ) : null}
++              </Fragment>
++            )
++          })}
+         </nav>
+       )}
+ 
+diff --git a/packages/client/ui-sidebar/src/client/index.ts b/packages/client/ui-sidebar/src/client/index.ts
+index 7916cb09f3..40a72202df 100644
+--- a/packages/client/ui-sidebar/src/client/index.ts
++++ b/packages/client/ui-sidebar/src/client/index.ts
+@@ -2,6 +2,7 @@
+ import type { Context as ClientContext } from '@qilin/kylin'
+ import { createSnapshotStore } from '@qilin/client-store'
+ import { resolveSlotLabel } from '@qilin/client-ui-slots'
++import { isDarwinDesktop } from '@qilin/client-ui-primitives'
+ import type { MainPanelId } from '@qilin/client-ui-layout/client'
+ // Type-only: pulls the locale plugin's Context merge (ctx.locale).
+ import type {} from '@qilin/client-locale/client'
+@@ -115,5 +116,16 @@ export function apply(ctx: ClientContext): void {
+     locale: NS,
+     inject: injectProps,
+   }, HeaderLeadingControls))
++  // OpenKylin 桌面（darwin 壳）：侧栏面板分区。引擎原生分组渲染——连续
++  // 同段行共享一枚表头（SidebarRoot 对 section 变化插 .panelSection）；
++  // 部署侧集中声明引擎面板行的归属（KStock client-shell 同款机制），
++  // 第三方行不带 section，渲染为无表头的平铺尾部。
++  if (isDarwinDesktop()) {
++    ctx.slots.inject('sidebar.section.assignments', () => ctx.slots.register({
++      name: 'sidebar.section.assignments',
++      id: 'ok-desktop-sections',
++      inject: () => ({ assignments: { plugins: '通用', schedules: '通用' } }),
++    }, () => null))
++  }
+   syncPanels()
+ }

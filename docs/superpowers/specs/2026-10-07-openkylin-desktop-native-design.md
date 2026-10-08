@@ -383,3 +383,22 @@ M3 三项已全部实施，产品层测试 64 项全绿；真实任务场景（�
 经验三条：①签名链路任何一环静默降级（跳过签名/跳过公证）都不报错，fail-closed 门与产物验签必须前置；②公证不只验 .app 本体，深入一切嵌套归档——闭包预签是必需环节不是优化项；③workflow env 变量名即契约，改名时全链路（注入/门/脚本）同步。
 
 发布瑕疵两处（已修或手补）：publish job 的 TAG 用 `github.ref`（带 `refs/tags/` 前缀）致标题错、notes 文件没匹配上回退自动 changelog——workflow 改 `github.ref_name`，本版标题/正文用 `gh release edit` 手补。
+
+## 16. v0.1.0 后真机调整（2026-10-08）
+
+三条真机反馈，逐条落地：
+
+### 16.1 Dock 点击不重载 + 托盘右键菜单
+- `focusShellWindow`（windows.mjs）：activate / second-instance 只 show+focus 不重载——`showShellWindow` 的语义是入口加载（boot 门要求整页重载），此前 Dock 点击每次都把用户从设置页拽回 workspace。窗口不在才按宿主状态回落重建。
+- 托盘右键菜单：打开 QiLin（走 revealShell 同一条不重载路径）/ 引擎状态行（随 hostProcess.status 现算，运行态带端口）/ 检查更新…（接 initializeUpdater 预留的 checkNow，dev 态无 electron-updater 不出项）/ 关于 / 退出（走 before-quit 优雅关停）。左键聚焦语义保留。验证：CGEvent 合成右键真点托盘图标 + AX 树读菜单项。
+
+### 16.2 无痕 UI（KStock 同款 darwin 自持形态）
+核心认知：**引擎原生就有完整的 macOS 桌面形态**，全部挂在 `html[data-platform="darwin"]` 标记上（ui-primitives `isDarwinDesktop` + 各模块 `:global([data-platform='darwin'])` CSS）——壳此前从没落过这个标记，等于一直跑通用 web 布局。激活后的形态：折叠侧栏**整列归零**（collapsedWidth=0，不再留 56px 图标轨）、折叠态由会话头 leading 座位补回「侧栏开关 + 新会话」两钮（HeaderLeadingControls）、侧栏顶 52px topStrip 拖拽条、透明框 + 半透明侧栏。
+
+改造内容（KStock 实机截图对齐）：
+1. **preload 落标记**（shell.cjs）：`documentElement.dataset.platform = 'darwin'`。坑：沙箱 preload 执行极早，documentElement 可能为 null——实测直接写崩掉整个 preload（连 boot 桥一起没），兜底挂 DOMContentLoaded。
+2. **qilinDesktop 桥（keyboard-bridge.mjs，KStock qilin-bridge 同款 mjs 移植）**：desktop 运行时的 shortcuts 服务要求 `window.qilinDesktop` 的 keyboard + shortcuts 双面俱在，缺任一 `client-shortcuts` 即 throw、整条插件图 pending（实测 33 项挂起）。桥 = 偏好存储（引擎 `ShortcutPersistence` + userData/keybindings.json 原子文件）+ 原生键盘输入（before-input-event → 渲染端注册表，生效组合键 preventDefault 转发、其余带修饰键手势只转发配对、壳自留键 F12/重载/缩放除外、recording 期放行）。**引擎协议实现直接从运行时闭包动态 import**（`packages/client/shortcuts/lib/protocol.js`，ESM 自包含，bare specifier 沿闭包 node_modules 解析）——零语义复刻。revision 一致性：偏好存储与键盘通道同进程（主进程），输入消息盖当前 accepted revision。
+3. **撤注入式标题栏**（titlebar.mjs 退役，windows.mjs 不再调用）：KStock 形态里顶带全部引擎自持——topStrip（红绿灯行）+ 会话头（data-window-drag）。红绿灯对齐 `{x:13, y:20}`（top-left；中心 y=26 = 52px strip 中线）。注入条退役后 `--ok-tb-h` 永不定义，desktop-titlebar-inset.patch 的让位规则自然失效，无需回滚。
+4. **侧栏分区**（patches/desktop-sidebar-sections.patch，registry 新条目）：引擎 3.1.1 原生支持 `sidebar.section.assignments` 槽位 + 连续同段行共享表头的分组渲染，只是无人注册——补丁在 ui-sidebar apply 内注册 `{plugins:'通用', schedules:'通用'}`（isDarwinDesktop 门控）。另加 **K19-lite 分区折叠**：表头渲染折叠箭头，点击收起该分区行，状态持久 localStorage `qilin.sidebar.folded-sections.v1`。
+5. **一条光学线**（同补丁）：会话头 48px 中心 y=24 vs topStrip 52px 中心 y=26——收起态 leading 控件加 `margin-top: 4px`（align-items:center 居中 margin 盒）对到 26，与红绿灯、strip 开关三线合一。真机反馈的红框错位即此。
+6. dev 快速迭代法：改 `.tmp/dev/qilin-src` 源 → `pnpm run build:lib:client && build:web` → 重启 dev 壳（titlebar/主进程改动须重启，preload 改动须刷新页面）；定稿后 `git diff` 生成补丁入 patches/。
