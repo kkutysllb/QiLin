@@ -116,14 +116,15 @@ export function showShellWindow(entryPath = APP_ENTRY_PATH) {
       title: 'QiLin Desktop',
       backgroundColor: splashBackgroundColor(),
       // 无边框桌面：红绿灯叠在引擎 darwin 分支自绘的 topStrip（52px 侧栏
-      // 顶拖拽条）里。trafficLightPosition 是第一枚按钮的位置（12px 高，
-      // 中心 y = 52/2 = 26 → top-left y = 20；x=13 与 KCoder/KStock 同款）。
-      // 顶带、标题、面板按钮全部引擎自持——壳不再注入任何标题栏（KStock
-      // 同款形态；旧注入式标题栏随无痕化退役，见 desktop/main/titlebar.mjs）。
+      // 顶拖拽条）里。trafficLightPosition 的 y 是按钮组的**垂直中心**
+      //（本文件老注释实测：配 18 实测中心 ≈17.75）——与 strip 开关、收起
+      // 态会话头控件同一条光学线（三者中心 y=26）。v0.1.1 教训：配成
+      // top-left 20 让红绿灯高出 6px（真机截图实锤）；CDP 截图渲染不出
+      // 原生按钮，这类对齐只能真机看。
       frame: false,
       ...(process.platform === 'darwin'
         ? {
-            trafficLightPosition: { x: 13, y: 20 },
+            trafficLightPosition: { x: 13, y: 26 },
           }
         : {}),
       // 沙箱载体：无 node、仅标题栏 + 桌面 boot 白名单桥、webSecurity 开启

@@ -415,7 +415,7 @@ test('窗口层：整窗无边框 + 红绿灯召回 + 沙箱 preload 双桥 + ap
   const windows = await readFile(new URL('../desktop/main/windows.mjs', import.meta.url), 'utf8')
   assert.match(windows, /frame: false/, 'shell 窗口无边框')
   assert.match(windows, /setWindowButtonVisibility\(true\)/, 'macOS frameless 红绿灯显式召回')
-  assert.match(windows, /trafficLightPosition: \{ x: 13, y: 20 \}/, '红绿灯落在引擎 topStrip（52px）光学中线：中心 y=26 → top-left y=20，与 strip 开关/收起态会话头控件同线')
+  assert.match(windows, /trafficLightPosition: \{ x: 13, y: 26 \}/, '红绿灯中心 y=26——Electron 该值即按钮组垂直中心（老注释实测），与 strip 开关/收起态控件同线；配 top-left 20 会高出 6px（真机实锤）')
   assert.match(windows, /preload: SHELL_PRELOAD/, 'shell 窗口挂 preload 桥')
   assert.match(windows, /APP_ENTRY_PATH/, 'shell 加载壳自有协议入口')
   assert.match(windows, /loadURL\(`\$\{APP_ORIGIN\}\$\{entryPath\}`\)/, '入口地址 = 协议 origin + 登录态选定的路径')
