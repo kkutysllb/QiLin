@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/tool-skill",
   "description": "Model-facing skill loading tool for the QiLin",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "publishConfig": {
     "access": "public"
   },

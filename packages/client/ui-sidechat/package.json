@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/client-ui-sidechat",
   "description": "Sidechat tab type for the right Sidebar: one panel with this Session's side threads, each forked from the parent log with the inherited prefix as reference context",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "publishConfig": {
     "access": "public"
   },

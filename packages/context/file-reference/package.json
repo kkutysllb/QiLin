@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/file-reference",
   "description": "File-reference discovery contract and shared @file grammar",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "publishConfig": {
     "access": "public"
   },

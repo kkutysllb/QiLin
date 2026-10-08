@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/sdk-client",
   "description": "TypeScript client SDK for driving a QiLin runtime subprocess over stdio JSON-RPC: the DeepSeekHarness high-level turns API and the lower-level HarnessClient",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "publishConfig": {
     "access": "public"
   },

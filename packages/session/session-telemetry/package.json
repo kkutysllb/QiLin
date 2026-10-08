@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/session-telemetry",
   "description": "SessionTelemetryBackend seam for the QiLin: session-event capture, projection, redaction, and handoff to a reporting backend",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "publishConfig": {
     "access": "public"
   },

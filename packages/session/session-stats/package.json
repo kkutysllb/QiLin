@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/session-stats",
   "description": "Whole-log conversation counts and wall times projection (sessionStats) for the QiLin",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "publishConfig": {
     "access": "public"
   },

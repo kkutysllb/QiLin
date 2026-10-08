@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/sdk-app",
   "description": "The qilin SDK profile bundle: stdio JSON-RPC serving and process lifecycle over qilin-base",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "publishConfig": {
     "access": "public"
   },

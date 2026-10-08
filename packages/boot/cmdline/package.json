@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/cmdline",
   "description": "Immutable command-line handoff from a qilin launcher to any app plugin that injects cmdlineArgs",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "publishConfig": {
     "access": "public"
   },

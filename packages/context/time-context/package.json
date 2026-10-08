@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/time-context",
   "description": "Durable per-step context with the current time and elapsed time",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "publishConfig": {
     "access": "public"
   },

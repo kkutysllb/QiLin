@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/llm-deepseek",
   "description": "DeepSeek Messages adapter",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "publishConfig": {
     "access": "public"
   },

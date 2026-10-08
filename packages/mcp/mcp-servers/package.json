@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/mcp-servers",
   "description": "MCP server settings repository: CRUD over the mcp-client entries of the user patch layer",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "publishConfig": {
     "access": "public"
   },
