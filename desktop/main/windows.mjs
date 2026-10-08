@@ -116,17 +116,20 @@ export function showShellWindow(entryPath = APP_ENTRY_PATH) {
       title: 'QiLin Desktop',
       backgroundColor: splashBackgroundColor(),
       // 无边框桌面：红绿灯叠在引擎 darwin 分支自绘的 topStrip（52px 侧栏
-      // 顶拖拽条）里。trafficLightPosition 的 y 是按钮组的**垂直中心**
-      //（本文件老注释实测：配 18 实测中心 ≈17.75）——与 strip 开关、收起
-      // 态会话头控件同一条光学线（三者中心 y=26）。v0.1.1 教训：配成
-      // top-left 20 让红绿灯高出 6px（真机截图实锤）；CDP 截图渲染不出
-      // 原生按钮，这类对齐只能真机看。
-      frame: false,
+      // 顶拖拽条）里。两个实测结论（Electron 44，AXCloseButton 闭环校准）：
+      // 1. **frame:false 下 trafficLightPosition 根本不生效**（配置 26/36
+      //    按钮 AX 位置纹丝不动，停在 macOS 默认 center 16——"红绿灯偏高"
+      //    的真因）；darwin 必须走 titleBarStyle:'hidden'（等价无边框观感
+      //    + 红绿灯受控）。
+      // 2. hidden 下 y ≈ 16px 按钮的 top-left：实测 y:26 → 中心 33（+7）。
+      //    要中心落在 26 光学线（strip 开关/收起态控件 DOM 实测 cy=26）
+      //    → 配 y:19。CDP 截图渲染不出原生按钮，对齐只能 AX 实测量。
       ...(process.platform === 'darwin'
         ? {
-            trafficLightPosition: { x: 13, y: 26 },
+            titleBarStyle: 'hidden',
+            trafficLightPosition: { x: 13, y: 19 },
           }
-        : {}),
+        : { frame: false }),
       // 沙箱载体：无 node、仅标题栏 + 桌面 boot 白名单桥、webSecurity 开启
       webPreferences: {
         preload: SHELL_PRELOAD,
