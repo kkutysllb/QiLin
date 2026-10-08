@@ -27,7 +27,7 @@ import { ensureRuntimeTree, resolveRuntimeRoot } from './runtime-install.mjs'
 import { CRASH_REPORT_KEEP, profileManifestPath, restoreShippedBundles } from './recovery.mjs'
 import { initializeUpdater } from './updater.mjs'
 import { createWorkspaceResolver } from './workspace.mjs'
-import { closeSplash, getShellWindow, reportFatalToSplash, showShellWindow, showSplash } from './windows.mjs'
+import { closeSplash, focusShellWindow, getShellWindow, reportFatalToSplash, showShellWindow, showSplash } from './windows.mjs'
 
 /** 产品仓库根（desktop/main 的上上级）。 */
 const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url))
@@ -298,7 +298,8 @@ if (!gotLock) {
 } else {
   app.on('second-instance', () => {
     const status = hostProcess.status
-    if (status.state === 'ready') showShellWindow()
+    // 仅聚焦不重载：保留用户停留页面（同 activate 语义）
+    if (status.state === 'ready' && !focusShellWindow()) showShellWindow()
   })
 
   app.whenReady().then(() => {
@@ -376,8 +377,12 @@ if (!gotLock) {
     })
 
     app.on('activate', () => {
-      // macOS dock 图标点击/Cmd+Tab 切回：宿主就绪则回到工作区
+      // macOS dock 图标点击/Cmd+Tab 切回：仅聚焦现有窗口（保留页面现场，
+      // 用户可能停在设置页——整页重载会把他拽回工作区）。窗口不在才按
+      // 宿主状态重建：就绪 → 工作区，未就绪 → 启动页。
+      if (focusShellWindow()) return
       if (hostProcess.status.state === 'ready') showShellWindow()
+      else showSplash()
     })
   }).catch((error) => {
     // whenReady 链兜底：单点异常不再静默吞掉 splash/launchHost 全链

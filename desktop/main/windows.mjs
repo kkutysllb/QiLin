@@ -179,3 +179,20 @@ export function showShellWindow(entryPath = APP_ENTRY_PATH) {
 export function getShellWindow() {
   return shellWindow
 }
+
+/**
+ * 聚焦已存在的 shell 窗口，**不重载页面**。
+ *
+ * dock 图标点击 / Cmd+Tab 切回 / 二次启动等"回到应用"场景专用：用户可能
+ * 停留在设置页等任意位置，整页重载会丢现场（v0.1.0 用户实测反馈）。
+ * 宿主就绪后的入口加载走 showShellWindow（boot 门要求整页重载，语义不同）。
+ *
+ * @returns {boolean} 是否存在可聚焦的 shell 窗口
+ */
+export function focusShellWindow() {
+  if (shellWindow === null || shellWindow.isDestroyed()) return false
+  if (shellWindow.isMinimized()) shellWindow.restore()
+  shellWindow.show()
+  shellWindow.focus()
+  return true
+}
