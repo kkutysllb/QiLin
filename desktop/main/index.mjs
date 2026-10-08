@@ -14,7 +14,7 @@
  * @module desktop/main
  */
 
-import { clipboard, ipcMain, app, shell, Tray, nativeImage } from 'electron'
+import { clipboard, ipcMain, app, shell, Tray, Menu, nativeImage } from 'electron'
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:net'
 import { join } from 'node:path'
@@ -292,14 +292,73 @@ ipcMain.handle('ok:workspace:reveal', async (_event, hint) => {
 
 /* ---------- 单实例：第二次启动只聚焦现有窗口 ---------- */
 
+/** 回到产品面：聚焦现有 shell（不重载，保留页面现场）；不在则按宿主状态重建。 */
+function revealShell() {
+  if (focusShellWindow()) return
+  if (hostProcess.status.state === 'ready') showShellWindow()
+  else showSplash()
+}
+
+/** 托盘菜单的引擎状态行——开菜单时现算，永远新鲜。 */
+function trayEngineLine() {
+  const status = hostProcess.status
+  switch (status.state) {
+    case 'ready': {
+      let port = ''
+      try { port = `:${new URL(status.url ?? '').port}` } catch {}
+      return `引擎运行中${port}`
+    }
+    case 'starting': return '引擎启动中…'
+    case 'restarting': return '引擎重启中…'
+    case 'failed': return '引擎异常（详情见启动页）'
+    default: return '引擎已停止'
+  }
+}
+
+/**
+ * 系统托盘（QL 模板图）。左键 = 聚焦工作区（既有语义，不重载）；右键 =
+ * 菜单：打开 / 引擎状态 / 检查更新（打包态才有）/ 关于 / 退出。
+ * 退出走 before-quit 的优雅关停序列（先停引擎再退，绝不留孤儿）。
+ * @param {{ checkNow: (() => void) | null }} hooks
+ */
+function installTray({ checkNow }) {
+  try {
+    const tray = new Tray(join(ICONS_DIR, 'tray-Template.png'))
+    tray.setToolTip('QiLin Desktop')
+    tray.on('click', () => {
+      revealShell()
+      app.focus({ steal: true })
+    })
+    tray.on('right-click', () => {
+      /** @type {Electron.MenuItemConstructorOptions[]} */
+      const items = [
+        { label: '打开 QiLin', click: () => { revealShell(); app.focus({ steal: true }) } },
+        { type: 'separator' },
+        { label: trayEngineLine(), enabled: false },
+        { type: 'separator' },
+        { label: '关于 QiLin Desktop', click: () => app.showAboutPanel() },
+      ]
+      if (checkNow !== null) {
+        items.push({ type: 'separator' }, { label: '检查更新…', click: () => checkNow() })
+      }
+      items.push({ type: 'separator' }, { label: '退出 QiLin Desktop', click: () => app.quit() })
+      tray.popUpContextMenu(Menu.buildFromTemplate(items))
+    })
+    return tray
+  } catch (error) {
+    console.warn('[openkylin] tray init failed:', error)
+    return null
+  }
+}
+
+
 const gotLock = app.requestSingleInstanceLock()
 if (!gotLock) {
   app.quit()
 } else {
   app.on('second-instance', () => {
-    const status = hostProcess.status
     // 仅聚焦不重载：保留用户停留页面（同 activate 语义）
-    if (status.state === 'ready' && !focusShellWindow()) showShellWindow()
+    revealShell()
   })
 
   app.whenReady().then(() => {
@@ -314,28 +373,13 @@ if (!gotLock) {
       console.warn('[openkylin] dock icon set failed:', error)
     }
     installAppMenu()
-    try {
-      const tray = new Tray(join(ICONS_DIR, 'tray-Template.png'))
-      tray.setToolTip('QiLin Desktop')
-      tray.on('click', () => {
-        const shellWindow = getShellWindow()
-        if (shellWindow !== null && !shellWindow.isDestroyed()) {
-          shellWindow.show()
-          shellWindow.focus()
-        } else {
-          showSplash()
-        }
-        app.focus({ steal: true })
-      })
-    } catch (error) {
-      console.warn('[openkylin] tray init failed:', error)
-    }
-
-    // 自动更新（仅打包态挂载；安装前先停引擎，见 updater.mjs 时序纪律）
-    initializeUpdater({
+    // 自动更新（仅打包态挂载；安装前先停引擎，见 updater.mjs 时序纪律）；
+    // checkNow 交给托盘菜单（dev 态未挂载 → 菜单不出该项）
+    const updater = initializeUpdater({
       stopEngine: () => hostProcess.stop(),
       ready: () => app.isPackaged === true,
     })
+    installTray({ checkNow: updater?.checkNow ?? null })
 
     // 启动即显示中文品牌启动页；宿主在后台准备
     showSplash()
@@ -377,12 +421,8 @@ if (!gotLock) {
     })
 
     app.on('activate', () => {
-      // macOS dock 图标点击/Cmd+Tab 切回：仅聚焦现有窗口（保留页面现场，
-      // 用户可能停在设置页——整页重载会把他拽回工作区）。窗口不在才按
-      // 宿主状态重建：就绪 → 工作区，未就绪 → 启动页。
-      if (focusShellWindow()) return
-      if (hostProcess.status.state === 'ready') showShellWindow()
-      else showSplash()
+      // macOS dock 图标点击/Cmd+Tab 切回：见 revealShell——保留页面现场
+      revealShell()
     })
   }).catch((error) => {
     // whenReady 链兜底：单点异常不再静默吞掉 splash/launchHost 全链
