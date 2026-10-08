@@ -363,6 +363,23 @@ M3 三项已全部实施，产品层测试 64 项全绿；真实任务场景（�
 - **产物门 V1–V7**（scripts/verify-desktop-artifacts.sh）：安装包/更新元数据/交叉引用/闭包 sha256/dmg hdiutil 校验/三处版本一致/闭包解压冒烟。本地与 CI 同源。
 - **发版入口**（scripts/release.sh）：版本单一事实源（根 + 打包域 package.json）→ npm test → build-desktop → 产物门 → annotated tag → atomic push。release/<tag>.md 为 Release 正文。
 - **CI**（.github/workflows/release.yml，取代 sidecar 旧版）：仅 tag 触发（日常 push 零 Actions 消耗——配额策略），单平台 macos-latest（arm64 对齐 lock.target），build → 产物门 → publish（gh release create，正文取 release/<tag>.md）。
-- **签名公证**：首版 unsigned（builder identity: null 显式未签名；Gatekeeper 需右键打开）。Apple 凭据到位后启用 KStock 同款 fail-closed 门（builder 26 缺凭据会静默跳过公证并照常出包——必须门前拦）。
+- **签名公证**（v0.1.0 起实装，KStock 同款专用钥匙串路线）：CI secrets 注 `MAC_CERTIFICATE`（base64 .p12）/`MAC_CERTIFICATE_PWD`/公证三件套 → `scripts/ensure-macos-keychain.sh` 建专用钥匙串导出 `CSC_KEYCHAIN`+`CSC_NAME`（身份自动发现，仓库无需额外 secret）→ builder 签 .app（hardened runtime + entitlements jit/unsigned-executable-memory/disable-library-validation）+ notarytool 公证。fail-closed 凭据门在 release.yml 前置步骤（缺凭据即拒，不靠 builder 静默跳过）。**闭包预签**在封盘脚本内（tar 前对全量 Mach-O `codesign --force --options runtime --timestamp`）——公证服务会拆嵌套归档逐个验二进制，见 §15.1 第五轮。
 - **打包态首启冒烟实证**（本地 dist-exe 真跑）：闭包解压 ✓ → 宿主自 app.asar.unpacked 启动 ✓ → 稳定端口记忆复用（60795）✓ → 引擎 API/插件 API 200 ✓ → updater 无源报错正确吞掉 ✓。坑位：whenReady 回调内单点异常（setIcon 路径缺失）会静默吞掉 splash/launchHost 全链——图标设置 try/catch + launchHost/whenReady 双层 catch 兜底。
 - 体积现状：dmg 594MB（闭包 449MB 为大头）——后续可做闭包瘦身（source map 剔除、重复平台二进制清理）。
+
+### 15.1 v0.1.0 首发实录（2026-10-08，六轮 CI）
+
+首发连续六轮才绿，每轮都是独立的实坑，全记入脚本头注防复发：
+
+| 轮 | 死因 | 修复 |
+|---|---|---|
+| 1 | 凭据门误报：step 级 env 不跨步骤，门检查看不到凭据 | 凭据提升 job 级 env |
+| 2 | `CSC_LINK` 临时钥匙串分支上游缺陷：创建即 `SecKeychainUnlock` 密码错（electron-builder 已知坑，KStock 坑 3 同款实踩） | 弃 CSC_LINK，专用钥匙串路线（ensure-macos-keychain.sh） |
+| 3 | 变量名错配：workflow 把 p12 注成 `CSC_LINK`，脚本认 `MAC_CERTIFICATE`——专用钥匙串分支没被触发，遗留 CSC_LINK 又把 builder 拖回缺陷分支（同一崩法白跑） | workflow env 改名注入 + 门禁同步改检；CSC_LINK/CSC_KEY_PASSWORD 彻底不进环境 |
+| 4 | ①`find-identity` 行首两空格没被 `^[0-9]+` 吃掉，CSC_NAME 导出成整行垃圾 → builder 找不到身份**静默跳过签名**；②builder 见 git tag + publish:github 触发隐式发布，构建步无 GH_TOKEN → GitHubPublisher ×4 → Cannot cleanup | 正则改 `[[:space:]]*` 起头（按 CI 真实行格式本地回归）；`--publish never` 收口，上传归还发布 job |
+| 5 | 公证被 notarytool 驳回：它拆嵌套归档（app → extraResources tar → node_modules）逐个验 Mach-O，闭包 23 个原生二进制（node-pty 双架构/sharp/esbuild/ripgrep/koffi/sherpa-onnx…）无 Developer ID 签名/无安全时间戳/未开 hardened runtime | 封盘脚本步骤 4.5 闭包预签（tar 前全量 Mach-O 签名）；连带修幂等分支——CI 同 job 二次 source 时须遍历搜索列表定位持身份的钥匙串，不能取默认（空） |
+| 6 | **成功** | — |
+
+经验三条：①签名链路任何一环静默降级（跳过签名/跳过公证）都不报错，fail-closed 门与产物验签必须前置；②公证不只验 .app 本体，深入一切嵌套归档——闭包预签是必需环节不是优化项；③workflow env 变量名即契约，改名时全链路（注入/门/脚本）同步。
+
+发布瑕疵两处（已修或手补）：publish job 的 TAG 用 `github.ref`（带 `refs/tags/` 前缀）致标题错、notes 文件没匹配上回退自动 changelog——workflow 改 `github.ref_name`，本版标题/正文用 `gh release edit` 手补。
