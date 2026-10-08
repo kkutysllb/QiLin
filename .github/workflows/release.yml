@@ -37,10 +37,14 @@ jobs:
     timeout-minutes: 120
     permissions:
       contents: write
-    # 签名公证凭据 job 级注入：检查与打包步骤共享（step 级 env 不跨步骤）
+    # 签名公证凭据 job 级注入：检查与打包步骤共享（step 级 env 不跨步骤）。
+    # 变量名必须是 MAC_CERTIFICATE*（build-desktop.sh/ensure-macos-keychain.sh
+    # 认的名字），绝不能叫 CSC_LINK/CSC_KEY_PASSWORD——那会触发 electron-builder
+    # 有缺陷的临时钥匙串分支（SecKeychainUnlock 必败，v0.1.0 二三轮实踩）。
+    # 专用钥匙串路线由 ensure-macos-keychain.sh 导出 CSC_KEYCHAIN + CSC_NAME。
     env:
-      CSC_LINK: ${{ secrets.MAC_CERTIFICATE }}
-      CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PWD }}
+      MAC_CERTIFICATE: ${{ secrets.MAC_CERTIFICATE }}
+      MAC_CERTIFICATE_PWD: ${{ secrets.MAC_CERTIFICATE_PWD }}
       APPLE_ID: ${{ secrets.APPLE_ID }}
       APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
@@ -66,7 +70,7 @@ jobs:
       # 静默跳过公证并照常出包——门前拦，不指望 builder）
       - name: 签名公证凭据检查
         run: |
-          for v in CSC_LINK CSC_KEY_PASSWORD APPLE_ID APPLE_APP_SPECIFIC_PASSWORD APPLE_TEAM_ID; do
+          for v in MAC_CERTIFICATE MAC_CERTIFICATE_PWD APPLE_ID APPLE_APP_SPECIFIC_PASSWORD APPLE_TEAM_ID; do
             if [ -z "$(eval "echo \$$v")" ]; then echo "缺 secrets 对应凭据: $v——发布必须签名公证" >&2; exit 1; fi
           done
           echo "签名公证凭据齐备"

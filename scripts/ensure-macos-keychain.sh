@@ -18,6 +18,7 @@ OK_TMP="${RUNNER_TEMP:-${TMPDIR:-/tmp}}"
 
 if security find-identity -v -p codesigning 2>/dev/null | grep -qF "Developer ID Application"; then
   echo "==> 签名身份已在钥匙串可见，跳过导入"
+  OK_KC="$(security default-keychain -d user | tr -d '"' | xargs)"
 else
   [ -n "${MAC_CERTIFICATE:-}" ] || { echo "ERROR: 缺 MAC_CERTIFICATE（base64 .p12）" >&2; return 1 2>/dev/null || exit 1; }
   OK_KC="$OK_TMP/openkylin-sign.keychain-db"

@@ -7,10 +7,11 @@
 # desktop/main/runtime-install.mjs）。
 #
 # 签名公证（KStock 同款）：凭据经 CI secrets 注入（MAC_CERTIFICATE=base64
-# .p12 → CSC_LINK、MAC_CERTIFICATE_PWD → CSC_KEY_PASSWORD；公证三件套
-# APPLE_ID/APPLE_APP_SPECIFIC_PASSWORD/APPLE_TEAM_ID），env 缺席时 electron-
-# builder 自动降级为未签名本地包——发布 fail-closed 门在 release.yml 前置步骤
-# （缺凭据即拒，不靠 builder 的静默跳过）。本地无凭据构建=显式 unsigned。
+# .p12、MAC_CERTIFICATE_PWD；公证三件套 APPLE_ID/APPLE_APP_SPECIFIC_PASSWORD/
+# APPLE_TEAM_ID）。签名走 CSC_KEYCHAIN + CSC_NAME 专用钥匙串（ensure-macos-
+# keychain.sh 引导；CSC_LINK 临时钥匙串分支上游缺陷，SecKeychainUnlock 必败，
+# 刻意不用）。env 缺席时 electron-builder 自动降级为未签名本地包——发布
+# fail-closed 门在 release.yml 前置步骤（缺凭据即拒，不靠 builder 的静默跳过）。
 appId: com.openkylin.desktop
 productName: QiLin Desktop
 copyright: Copyright © 2026 OpenKylin
