@@ -18,7 +18,7 @@ index 90f24d702d..40a8a0d919 100644
    flex: none;
    display: inline-flex;
 diff --git a/packages/client/ui-sidebar/src/client/SidebarRoot.module.css b/packages/client/ui-sidebar/src/client/SidebarRoot.module.css
-index 8f2b8a47f1..8d691a698b 100644
+index 8f2b8a47f1..01886efccc 100644
 --- a/packages/client/ui-sidebar/src/client/SidebarRoot.module.css
 +++ b/packages/client/ui-sidebar/src/client/SidebarRoot.module.css
 @@ -457,6 +457,23 @@
@@ -45,8 +45,38 @@ index 8f2b8a47f1..8d691a698b 100644
  /* Narrow state: with no room for a header, the rail alone marks the break.
     Filled divider, so it carries the same hairline weight as every other one. */
  .panelSectionRail {
+@@ -608,3 +625,29 @@
+     animation: none;
+   }
+ }
++
++/* OpenKylin: fixed fallback strip — panel pages (插件管理/自动化任务…) have
++   no conversation header, so the header's leading controls don't exist there
++   and a collapsed sidebar leaves no toggle at all. Fixed positioning escapes
++   the zero-width column clip; 52px tall puts the controls on the same 26px
++   optical line as the traffic lights. Hidden again when the conversation
++   header (with its own leading controls) is mounted. */
++.topStripFixed {
++  display: none;
++  position: fixed;
++  top: 0;
++  left: 0;
++  height: 52px;
++  align-items: center;
++  gap: 8px;
++  padding: 0 8px 0 88px;
++  z-index: 40;
++}
++
++:global([data-sidebar-collapsed]) .topStripFixed {
++  display: flex;
++}
++
++:global([data-sidebar-collapsed]):has([class*='_headerLeading']) .topStripFixed {
++  display: none;
++}
 diff --git a/packages/client/ui-sidebar/src/client/SidebarRoot.tsx b/packages/client/ui-sidebar/src/client/SidebarRoot.tsx
-index 8a8d7774ea..4453f1a57a 100644
+index 8a8d7774ea..b05ffc4e4c 100644
 --- a/packages/client/ui-sidebar/src/client/SidebarRoot.tsx
 +++ b/packages/client/ui-sidebar/src/client/SidebarRoot.tsx
 @@ -17,7 +17,7 @@
@@ -84,7 +114,45 @@ index 8a8d7774ea..4453f1a57a 100644
    // Rail resting state is the seal mark; hovering swaps in the panel icon
    // (the expand affordance, figma sidebar-hover flow). Expanded it is a plain
    // panel icon.
-@@ -286,26 +305,54 @@ export function SidebarRoot({
+@@ -231,6 +250,37 @@ export function SidebarRoot({
+           mark makes the strip's own box the window drag region (ui-web
+           base.css declares the one darwin rule). */}
+       {darwinDesktop && <div className={css.topStrip} data-window-drag>{toggle}</div>}
++      {/* OpenKylin: fixed fallback strip for panel pages (插件管理/自动化任务
++          …) — they have no conversation header, so the header's leading
++          controls don't exist there and a collapsed sidebar would strand the
++          user without a toggle. Sits beside the traffic lights on the same
++          26px optical line; CSS hides it when the conversation header's own
++          controls are mounted ([_headerLeading] present). */}
++      {darwinDesktop && !wide && (
++        <div className={css.topStripFixed} data-window-drag>
++          <Tooltip label={t('toggle.open')} delayMs={500}>
++            <button
++              type="button"
++              className={css.iconButton}
++              aria-label={t('toggle.open')}
++              onClick={() => { toggleSidebar() }}
++            >
++              <IconPanelLeftOutline16 size={16} />
++            </button>
++          </Tooltip>
++          <Tooltip label={t('session.new.label')} delayMs={500}>
++            <button
++              type="button"
++              className={css.iconButton}
++              aria-label={t('session.new.label')}
++              aria-keyshortcuts={newShortcut?.aria}
++              onClick={() => { startSession() }}
++            >
++              <IconNewChatOutline16 size={16} />
++            </button>
++          </Tooltip>
++        </div>
++      )}
+       <div className={css.logoRow}>
+         {/* Expanded, the brand doubles as a New Session shortcut; the
+             collapsed rail's logo is the expand toggle below instead. */}
+@@ -286,26 +336,54 @@ export function SidebarRoot({
  
        {panels.length > 0 && (
          <nav className={css.panelList} aria-label={t('panels.label')}>
