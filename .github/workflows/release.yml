@@ -37,6 +37,13 @@ jobs:
     timeout-minutes: 120
     permissions:
       contents: write
+    # 签名公证凭据 job 级注入：检查与打包步骤共享（step 级 env 不跨步骤）
+    env:
+      CSC_LINK: ${{ secrets.MAC_CERTIFICATE }}
+      CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PWD }}
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -59,19 +66,13 @@ jobs:
       # 静默跳过公证并照常出包——门前拦，不指望 builder）
       - name: 签名公证凭据检查
         run: |
-          for v in MAC_CERTIFICATE MAC_CERTIFICATE_PWD APPLE_ID APPLE_APP_SPECIFIC_PASSWORD APPLE_TEAM_ID; do
-            if [ -z "${!v:-}" ]; then echo "缺 secrets/$v——发布必须签名公证" >&2; exit 1; fi
+          for v in CSC_LINK CSC_KEY_PASSWORD APPLE_ID APPLE_APP_SPECIFIC_PASSWORD APPLE_TEAM_ID; do
+            if [ -z "$(eval "echo \$$v")" ]; then echo "缺 secrets 对应凭据: $v——发布必须签名公证" >&2; exit 1; fi
           done
           echo "签名公证凭据齐备"
 
       # electron-builder（dmg/zip arm64 + latest-mac.yml + blockmap；签名+公证）
       - name: 桌面打包（签名 + 公证）
-        env:
-          CSC_LINK: ${{ secrets.MAC_CERTIFICATE }}
-          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PWD }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: bash scripts/build-desktop.sh --skip-bundle
 
       # 产物门禁 V1–V7（安装包/更新元数据/交叉引用/闭包哈希/dmg 校验/版本一致/闭包冒烟）
