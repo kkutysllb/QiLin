@@ -18,10 +18,44 @@ index 90f24d702d..40a8a0d919 100644
    flex: none;
    display: inline-flex;
 diff --git a/packages/client/ui-sidebar/src/client/SidebarRoot.module.css b/packages/client/ui-sidebar/src/client/SidebarRoot.module.css
-index 8f2b8a47f1..01886efccc 100644
+index 8f2b8a47f1..fa8bf36e1b 100644
 --- a/packages/client/ui-sidebar/src/client/SidebarRoot.module.css
 +++ b/packages/client/ui-sidebar/src/client/SidebarRoot.module.css
-@@ -457,6 +457,23 @@
+@@ -388,8 +388,12 @@
+   background: color-mix(in srgb, var(--qilin-alias-button-elevated-fill) 75%, transparent);
+ }
+ 
++/* OpenKylin 桌面：宽栏 hover 不改底色——上游 hover 用 floating-hover（比
++   elevated-fill 暗一档），而宽栏里可见的反馈只有右侧 ⌘N；再压暗一档会让主
++   按钮发灰。这里钉回与默认同一个 75% 混色（显式写死，不依赖规则顺序）。
++   纯 web 无 data-platform 不受影响。 */
+ :global([data-platform='darwin']) .newSession:hover {
+-  background: color-mix(in srgb, var(--qilin-alias-button-floating-hover) 75%, transparent);
++  background: color-mix(in srgb, var(--qilin-alias-button-elevated-fill) 75%, transparent);
+ }
+ 
+ .collapsed .newSession {
+@@ -435,6 +439,19 @@
+   mask-image: linear-gradient(to right, black calc(100% - 16px), transparent);
+ }
+ 
++/* OpenKylin 桌面：hover 不裁标签。上游那条 mask 是给「长标签贴到右侧快捷键」
++   兜底，但宽栏里标签是居中的，mask 只会把末字右缘吃掉（真机反馈：hover 后
++   「话」字发灰）。darwin 改成不裁 + 宽度上限：标签最远停在快捷键左侧 8px，
++   长文案（en 等）在窄侧栏下也不会压住 ⌘N；root 未折叠时才收窄，避免和折叠
++   动画里 .collapsed 的 max-width: 0 抢。纯 web 无 data-platform 不受影响。 */
++:global(html[data-platform='darwin']) .root:not(.collapsed) .newSessionLabel {
++  max-width: min(200px, calc(100% - 88px));
++}
++
++:global(html[data-platform='darwin']) .newSession:hover .newSessionLabel {
++  mask-image: none;
++}
++
+ .panelList {
+   flex: none;
+   display: flex;
+@@ -457,6 +474,23 @@
    user-select: none;
  }
  
@@ -45,7 +79,7 @@ index 8f2b8a47f1..01886efccc 100644
  /* Narrow state: with no room for a header, the rail alone marks the break.
     Filled divider, so it carries the same hairline weight as every other one. */
  .panelSectionRail {
-@@ -608,3 +625,29 @@
+@@ -608,3 +642,29 @@
      animation: none;
    }
  }
@@ -76,7 +110,7 @@ index 8f2b8a47f1..01886efccc 100644
 +  display: none;
 +}
 diff --git a/packages/client/ui-sidebar/src/client/SidebarRoot.tsx b/packages/client/ui-sidebar/src/client/SidebarRoot.tsx
-index 8a8d7774ea..b05ffc4e4c 100644
+index e60565a23e..5bd05c15d5 100644
 --- a/packages/client/ui-sidebar/src/client/SidebarRoot.tsx
 +++ b/packages/client/ui-sidebar/src/client/SidebarRoot.tsx
 @@ -17,7 +17,7 @@
@@ -228,7 +262,7 @@ index 8a8d7774ea..b05ffc4e4c 100644
        )}
  
 diff --git a/packages/client/ui-sidebar/src/client/index.ts b/packages/client/ui-sidebar/src/client/index.ts
-index 7916cb09f3..defc9b6f38 100644
+index 88a04c94ed..ac92b30f73 100644
 --- a/packages/client/ui-sidebar/src/client/index.ts
 +++ b/packages/client/ui-sidebar/src/client/index.ts
 @@ -2,6 +2,7 @@

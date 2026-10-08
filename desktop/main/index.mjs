@@ -14,7 +14,7 @@
  * @module desktop/main
  */
 
-import { clipboard, ipcMain, app, shell, Tray, Menu, nativeImage } from 'electron'
+import { clipboard, dialog, ipcMain, app, shell, Tray, Menu, nativeImage } from 'electron'
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:net'
 import { join } from 'node:path'
@@ -28,7 +28,7 @@ import { ensureRuntimeTree, resolveRuntimeRoot } from './runtime-install.mjs'
 import { CRASH_REPORT_KEEP, migrateLegacyBundles, profileManifestPath, restoreShippedBundles } from './recovery.mjs'
 import { initializeUpdater } from './updater.mjs'
 import { createWorkspaceResolver } from './workspace.mjs'
-import { closeSplash, focusShellWindow, getShellWindow, reportFatalToSplash, showShellWindow, showSplash } from './windows.mjs'
+import { closeSplash, focusShellWindow, getShellWindow, reportFatalToSplash, showAboutWindow, showShellWindow, showSplash } from './windows.mjs'
 
 /** 产品仓库根（desktop/main 的上上级）。 */
 const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url))
@@ -325,12 +325,33 @@ function trayEngineLine() {
 }
 
 /**
- * 系统托盘（QL 模板图）。左键 = 聚焦工作区（既有语义，不重载）；右键 =
- * 菜单：打开 / 引擎状态 / 检查更新（打包态才有）/ 关于 / 退出。
- * 退出走 before-quit 的优雅关停序列（先停引擎再退，绝不留孤儿）。
- * @param {{ checkNow: (() => void) | null }} hooks
+ * 检查更新：打包态交给 electron-updater 的手动入口；dev 态（未打包，没有更新
+ * 通道）弹框说明，避免点了没反应。
+ *
+ * @param {(() => void) | null} checkNow - updater 手动检查入口；未挂载为 null。
+ * @returns {Promise<void>}
  */
-function installTray({ checkNow }) {
+async function checkForUpdates(checkNow) {
+  if (checkNow !== null) {
+    checkNow()
+    return
+  }
+  await dialog.showMessageBox({
+    type: 'info',
+    message: '当前形态不提供自动更新',
+    detail: '自动更新只在打包发行版中可用；开发形态请直接更新源码与运行时闭包。',
+    buttons: ['好'],
+  })
+}
+
+/**
+ * 系统托盘（QL 模板图）。左键 = 聚焦工作区（既有语义，不重载）；右键 =
+ * 菜单：打开 / 引擎状态 / 检查更新 / 关于 / 退出。
+ * 退出走 before-quit 的优雅关停序列（先停引擎再退，绝不留孤儿）。
+ * @param {{ checkNow: (() => void) | null, showAbout: () => void }} hooks - checkNow
+ *   为 null（dev 态无更新通道）时「检查更新」仍出项，点了明说不可用而不是无反应。
+ */
+function installTray({ checkNow, showAbout }) {
   try {
     const tray = new Tray(join(ICONS_DIR, 'tray-Template.png'))
     tray.setToolTip('QiLin Desktop')
@@ -345,12 +366,11 @@ function installTray({ checkNow }) {
         { type: 'separator' },
         { label: trayEngineLine(), enabled: false },
         { type: 'separator' },
-        { label: '关于 QiLin Desktop', click: () => app.showAboutPanel() },
+        { label: '检查更新…', click: () => { void checkForUpdates(checkNow) } },
+        { label: '关于 QiLin Desktop', click: () => { showAbout() } },
+        { type: 'separator' },
+        { label: '退出 QiLin Desktop', click: () => app.quit() },
       ]
-      if (checkNow !== null) {
-        items.push({ type: 'separator' }, { label: '检查更新…', click: () => checkNow() })
-      }
-      items.push({ type: 'separator' }, { label: '退出 QiLin Desktop', click: () => app.quit() })
       tray.popUpContextMenu(Menu.buildFromTemplate(items))
     })
     return tray
@@ -381,14 +401,14 @@ if (!gotLock) {
     } catch (error) {
       console.warn('[openkylin] dock icon set failed:', error)
     }
-    installAppMenu()
+    installAppMenu({ showAbout: showAboutWindow })
     // 自动更新（仅打包态挂载；安装前先停引擎，见 updater.mjs 时序纪律）；
-    // checkNow 交给托盘菜单（dev 态未挂载 → 菜单不出该项）
+    // checkNow 交给托盘菜单：dev 态未挂载时该项仍在，点了弹框说明（checkForUpdates）
     const updater = initializeUpdater({
       stopEngine: () => hostProcess.stop(),
       ready: () => app.isPackaged === true,
     })
-    installTray({ checkNow: updater?.checkNow ?? null })
+    installTray({ checkNow: updater?.checkNow ?? null, showAbout: showAboutWindow })
 
     // 启动即显示中文品牌启动页；宿主在后台准备
     showSplash()

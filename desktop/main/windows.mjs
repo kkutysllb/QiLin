@@ -1,6 +1,6 @@
 // desktop/main/windows.mjs
 /**
- * 窗口层：qilin-app://app 承载的主工作区窗口（shell）+ 中文品牌启动页。
+ * 窗口层：qilin-app://app 承载的主工作区窗口（shell）+ 中文品牌启动页 + 关于面板。
  *
  * shell 窗口加载壳自有特权协议的入口地址（qilin-app://app/workspace）：
  * 静态资源壳直读 dist、动态请求壳认证反代到宿主——renderer 可见面里
@@ -13,7 +13,7 @@
 
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { BrowserWindow, nativeTheme, shell } from 'electron'
+import { BrowserWindow, app, nativeImage, nativeTheme, shell } from 'electron'
 import { APP_ENTRY_PATH, APP_ORIGIN, isAllowedNavigation } from './qilin-contract.mjs'
 import { hostProcess } from './host-process.mjs'
 
@@ -29,6 +29,12 @@ const SHELL_PRELOAD = join(HERE, '../preload/shell.cjs')
 /** 启动页 HTML 的本地 URL。 */
 const SPLASH_URL = pathToFileURL(join(HERE, '../renderer/splash.html')).href
 
+/** 关于面板 HTML 的本地 URL（壳自绘，见 showAboutWindow）。 */
+const ABOUT_URL = pathToFileURL(join(HERE, '../renderer/about.html')).href
+
+/** 关于面板的麒麟印章图（品牌图标；dev 与打包态同路径，打包由 files 收进 asar）。 */
+const ABOUT_SEAL = join(HERE, '../../branding/icons/qilin-512.png')
+
 /** 按系统主题选窗口底色（共享主题 Token 的 paper 对），避免加载期白闪/黑闪。 */
 export function splashBackgroundColor() {
   return nativeTheme.shouldUseDarkColors ? '#17191C' : '#F7F3EA'
@@ -38,6 +44,8 @@ export function splashBackgroundColor() {
 let splashWindow = null
 /** @type {BrowserWindow | null} */
 let shellWindow = null
+/** @type {BrowserWindow | null} */
+let aboutWindow = null
 
 /**
  * 创建并显示中文品牌启动页。
@@ -178,6 +186,77 @@ export function showShellWindow(entryPath = APP_ENTRY_PATH) {
 /** 供单实例/激活路径引用。 */
 export function getShellWindow() {
   return shellWindow
+}
+
+/**
+ * 显示「关于 QiLin Desktop」面板（壳自绘）。
+ *
+ * 不用 app.showAboutPanel：macOS 原生面板的图标取自 .app bundle，运行时改不了
+ * （AboutPanelOptions.iconPath 仅 linux/win32）——dev 形态跑 Electron 二进制，
+ * 原生面板只会显示 Electron 默认图标。自绘面板在两种形态下都显示麒麟印章：
+ * 印章图由主进程读成 data URL，页面加载落定后经 window.okAboutPaint 注入。
+ *
+ * @returns {BrowserWindow} 面板窗口（重复调用聚焦既有窗口）
+ */
+export function showAboutWindow() {
+  if (aboutWindow !== null && !aboutWindow.isDestroyed()) {
+    aboutWindow.show()
+    aboutWindow.focus()
+    return aboutWindow
+  }
+  const win = new BrowserWindow({
+    width: 380,
+    height: 368,
+    resizable: false,
+    minimizable: false,
+    maximizable: false,
+    fullscreenable: false,
+    show: false,
+    frame: false,
+    // 圆角卡片：透明底 + 页面内自绘圆角/描边（不透明窗口的方角会露白）
+    transparent: true,
+    hasShadow: true,
+    alwaysOnTop: true,
+    skipTaskbar: true,
+    title: '关于 QiLin Desktop',
+    webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true },
+  })
+  aboutWindow = win
+  win.once('ready-to-show', () => {
+    win.show()
+    win.focus()
+  })
+  // 焦点离开即收起（原生 About 面板同款手感）；窗口销毁后清引用
+  win.on('blur', () => { win.close() })
+  win.on('closed', () => { aboutWindow = null })
+  /** 关于面板正文：印章 data URL + 版本 + 版权行。 */
+  const payload = {
+    icon: aboutSealDataUrl(),
+    version: app.getVersion(),
+    credits: '基于 QiLin 构建\nQiLin 商标及 Logo 归其权利人所有；本发行版由 OpenKylin 维护',
+  }
+  void win.loadURL(ABOUT_URL)
+    .then(() => win.webContents.executeJavaScript(`window.okAboutPaint(${JSON.stringify(payload)})`))
+    .catch((error) => {
+      console.warn('[windows] about panel paint failed:', error)
+    })
+  return win
+}
+
+/**
+ * 麒麟印章的 data URL（2x 供 Retina；读图失败返回空串——页面回落到朱砂底纹，
+ * 印章缺失只降级观感，不阻塞面板）。
+ *
+ * @returns {string}
+ */
+function aboutSealDataUrl() {
+  try {
+    const image = nativeImage.createFromPath(ABOUT_SEAL).resize({ width: 184 })
+    return image.isEmpty() ? '' : image.toDataURL()
+  } catch (error) {
+    console.warn('[windows] about seal load failed:', error)
+    return ''
+  }
 }
 
 /**

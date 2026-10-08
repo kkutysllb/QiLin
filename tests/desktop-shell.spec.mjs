@@ -484,7 +484,7 @@ test('品牌面：Dock 图标 / 中文菜单 / 系统托盘接线', async () => 
   assert.match(index, /tray-Template\.png/, '系统托盘挂载（QL template 图）')
   const menu = await readFile(new URL('../desktop/main/menu.mjs', import.meta.url), 'utf8')
   assert.match(menu, /setApplicationMenu/, 'Electron 默认英文菜单被接管')
-  assert.match(menu, /关于 QiLin Desktop/, '关于项中文化（setAboutPanelOptions 配套）')
+  assert.match(menu, /关于 QiLin Desktop/, '关于项中文化（动作走壳自绘面板）')
   assert.match(menu, /退出 QiLin Desktop/, '退出项中文化')
   assert.match(menu, /role: 'toggleDevTools'/, '开发者工具仅 dev 菜单提供（打包后 boot 闸不被破坏）')
   assert.match(menu, /isPackaged === false/, 'dev 专属项按发布形态收紧')
@@ -493,7 +493,39 @@ test('品牌面：Dock 图标 / 中文菜单 / 系统托盘接线', async () => 
   assert.match(gen, /offscreen: true/, '渲染走 offscreen 截图（矢量按目标像素栅格化）')
 })
 
-test('设置页覆盖层 inset 补丁已注册且命中上游锚点', async () => {
+test('托盘「检查更新」常驻 + 壳自绘关于面板（麒麟印章）', async () => {
+  const index = await readFile(new URL('../desktop/main/index.mjs', import.meta.url), 'utf8')
+  assert.match(index, /\{ label: '检查更新…', click: \(\) => \{ void checkForUpdates\(checkNow\) \} \}/, '托盘出「检查更新」项')
+  assert.doesNotMatch(index, /items\.push\(\{ type: 'separator' \}, \{ label: '检查更新…'/, '检查更新项不再条件插入（dev 真机反馈：菜单里没有这一项）')
+  assert.match(index, /async function checkForUpdates\(checkNow\)/, 'dev（checkNow 为 null）也有可点的处理')
+  assert.match(index, /当前形态不提供自动更新/, 'dev 态弹框说明，而不是点了没反应')
+  assert.match(index, /installAppMenu\(\{ showAbout: showAboutWindow \}\)/, '应用菜单关于项走壳自绘面板')
+  assert.match(
+    index,
+    /installTray\(\{ checkNow: updater\?\.checkNow \?\? null, showAbout: showAboutWindow \}\)/,
+    '托盘关于项同样走壳自绘面板',
+  )
+
+  const menu = await readFile(new URL('../desktop/main/menu.mjs', import.meta.url), 'utf8')
+  assert.doesNotMatch(menu, /role: 'about'/, '不再用原生 About 面板（图标取自 .app bundle，运行时换不成印章）')
+  assert.doesNotMatch(menu, /setAboutPanelOptions/, '原生面板配置随面板一起退役')
+  assert.match(menu, /export function installAppMenu\(\{ showAbout \}\)/, '关于动作由壳注入')
+  assert.match(menu, /\{ label: '关于 QiLin Desktop', click: \(\) => \{ showAbout\(\) \} \}/, '关于项文案与动作')
+
+  const windows = await readFile(new URL('../desktop/main/windows.mjs', import.meta.url), 'utf8')
+  assert.match(windows, /export function showAboutWindow\(\)/, '关于面板归窗口层')
+  assert.match(windows, /\.\.\/renderer\/about\.html/, '面板内容为壳自绘页面')
+  assert.match(windows, /branding\/icons\/qilin-512\.png/, '印章取品牌图标（dev 与打包态同路径）')
+  assert.match(windows, /okAboutPaint/, '印章 data URL 经页面注入点落位')
+  assert.match(windows, /win\.on\('blur'/, '焦点离开即收起（原生面板同款手感）')
+
+  const about = await readFile(new URL('../desktop/renderer/about.html', import.meta.url), 'utf8')
+  assert.match(about, /id="seal"/, '印章位')
+  assert.match(about, /window\.okAboutPaint/, '注入点')
+  assert.match(about, /Content-Security-Policy/, '本地资源页带 CSP')
+})
+
+test('设置页让位补丁（覆盖层 inset + 返回键让开红绿灯）已注册且命中上游锚点', async () => {
   const registry = JSON.parse(await readFile(new URL('../patches/registry.json', import.meta.url), 'utf8'))
   assert.ok(
     registry.patches.some((entry) => entry.patch === 'patches/desktop-titlebar-inset.patch'),
@@ -504,6 +536,35 @@ test('设置页覆盖层 inset 补丁已注册且命中上游锚点', async () =
   assert.match(patch, /landing\.css/, '命中 landing 页 site-header（logo/标签/主题切换）')
   assert.doesNotMatch(patch, /auth\.css/, '注册登录页保持纯 web 观感（无痕覆盖不压内容、不让位）')
   assert.match(patch, /top: var\(--ok-tb-h, 0px\)/, 'fixed 覆盖层让出标题栏；纯 web 回落 0')
+  assert.match(
+    patch,
+    /:global\(html\[data-platform='darwin'\]\) \.navBack \{\n\+  margin-top: 10px;/,
+    'darwin 下返回工作区再下移 10px（红绿灯灯带与轨道顶齐平时贴得过紧）；:global 让纯 web 不受影响',
+  )
+})
+
+test('侧栏补丁：darwin 宽栏「新会话」hover 不再压暗（registry 已登记）', async () => {
+  const registry = JSON.parse(await readFile(new URL('../patches/registry.json', import.meta.url), 'utf8'))
+  assert.ok(
+    registry.patches.some((entry) => entry.patch === 'patches/desktop-sidebar-sections.patch'),
+    'registry 必须列出侧栏补丁（否则 checkout 不带侧栏分区/固定兜底条/本次 hover 修复）',
+  )
+  const patch = await readFile(new URL('../patches/desktop-sidebar-sections.patch', import.meta.url), 'utf8')
+  assert.match(
+    patch,
+    /:global\(\[data-platform='darwin'\]\) \.newSession:hover \{\n-  background: color-mix\(in srgb, var\(--qilin-alias-button-floating-hover\) 75%, transparent\);\n\+  background: color-mix\(in srgb, var\(--qilin-alias-button-elevated-fill\) 75%, transparent\);/,
+    'darwin hover 底色从 floating-hover 换成与默认同值的 elevated-fill（宽栏 hover 不再比默认暗一档）',
+  )
+  assert.match(
+    patch,
+    /:global\(html\[data-platform='darwin'\]\) \.newSession:hover \.newSessionLabel \{\n\+  mask-image: none;/,
+    'darwin hover 不再给标签打 mask（上游 mask 会把居中标签的末字右缘吃掉——真机反馈的「话」字发灰）',
+  )
+  assert.match(
+    patch,
+    /:global\(html\[data-platform='darwin'\]\) \.root:not\(\.collapsed\) \.newSessionLabel \{\n\+  max-width: min\(200px, calc\(100% - 88px\)\);/,
+    'darwin 用宽度上限替代 mask：长标签最远停在右侧快捷键左 8px，不再压 ⌘N',
+  )
 })
 
 test('上游锁锚定 QiLin 3.1.3（@qilin-agent 改名后的首个版本线）', async () => {

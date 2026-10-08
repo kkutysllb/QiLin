@@ -13,20 +13,21 @@
 
 import { Menu, app } from 'electron'
 
-/** 打包后收起 dev 专属项（重新加载 / 开发者工具）。 */
-export function installAppMenu() {
+/**
+ * 打包后收起 dev 专属项（重新加载 / 开发者工具）。
+ *
+ * @param {{ showAbout: () => void }} hooks - 关于项动作：壳自绘关于面板
+ *   （windows.showAboutWindow）。不用原生 About 面板——macOS 面板图标取自
+ *   .app bundle，运行时换不成麒麟印章。
+ */
+export function installAppMenu({ showAbout }) {
   if (process.platform !== 'darwin') return
-  app.setAboutPanelOptions({
-    applicationName: 'QiLin Desktop',
-    applicationVersion: app.getVersion(),
-    credits: '基于 QiLin 构建\nQiLin 商标及 Logo 归其权利人所有；本发行版由 OpenKylin 维护',
-  })
   const dev = app.isPackaged === false
   const template = [
     {
       label: 'QiLin Desktop',
       submenu: [
-        { role: 'about', label: '关于 QiLin Desktop' },
+        { label: '关于 QiLin Desktop', click: () => { showAbout() } },
         { type: 'separator' },
         { role: 'hide', label: '隐藏 QiLin Desktop' },
         { role: 'hideOthers', label: '隐藏其他' },
