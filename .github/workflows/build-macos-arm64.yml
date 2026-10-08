@@ -40,7 +40,11 @@ jobs:
           # pack-destination 必须绝对路径：pnpm --dir 会把相对路径锚到 apps/web
           # （历史 bug：tgz 落 apps/web/.openkylin-pack，根目录 tar 找不到直接红）
           pnpm --dir apps/web pack --pack-destination "$PWD/.openkylin-pack"
-          tar -xzf .openkylin-pack/qilin-web-frontend-*.tgz -C .openkylin-pack
+          # 包名随上游作用域改名移动（@qilin → @qilin-agent），glob 只认尾部
+          # web-frontend 段——硬编码旧名会让这一步在改名后直接红（v0.1.1 实踩：
+          # tar 找不到文件 → 解包目录缺失 → 摘要门误报不同步）
+          TGZ="$(ls .openkylin-pack/*web-frontend-*.tgz)"
+          tar -xzf "$TGZ" -C .openkylin-pack
           node "$GITHUB_WORKSPACE/scripts/verify-web-desktop-sync.mjs" \
             "$PWD/apps/web/dist" \
             "$PWD/.openkylin-pack/package/dist"
