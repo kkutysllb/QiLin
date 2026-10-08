@@ -411,4 +411,42 @@ M3 三项已全部实施，产品层测试 64 项全绿；真实任务场景（�
 - lock 锚 d61554c8a2（v3.1.3 本体 commit——**不能钉 tag 对象哈希**，annotated tag 的 rev-parse 是对象不是 commit）；产品源码引用同步：`SHIPPED_PROFILE_BUNDLES`、web dist 锚 `@qilin-agent/web-frontend/dist`、sync 脚本、测试夹具、README。
 - `desktop-sidebar-sections.patch` 对 3.1.3 重新作用域化（6 处引用含新增 import），干净树 `git apply --check` 通过。
 - **profile 迁移（recovery.mjs `migrateLegacyBundles`）**：旧版本写进 profile manifest 的 `@qilin/*` 条目在新闭包不存在也不再发布，宿主装配解析必败 → 崩溃-重启循环（升级首启实测卡「正在恢复」）。宿主只追加新名不清旧名，迁移只能在壳侧：launchHost 前剔除 legacy `@qilin/` 作用域条目（幂等、删除前备份 .pre-migration）。**所有 v0.1.0 → 后续版本自动升级的用户都会走到这条路径**。
+- **scheduler 兼容层（desktop/host/main.mjs，真机反馈「历史会话全部清空」）**：升级后侧栏工作区渲染但会话零行。CDP 抓包定位：客户端一直有发 `session/list`，宿主回 `gateway/internal: "scheduler is not defined"`。根因是引擎 `session-controller/list.ts` 与 `session-persistence-jsonl` 的协作式让路路径用裸全局 `scheduler.yield()`（Web Scheduler API，只有 Chromium 129+/Node 25+ 有）——数据量越过 `listWorkSliceMs`（默认 16ms）就 ReferenceError 炸掉整个 RPC。上游自己知道：polyfill 装在其 `apps/cli/src/bin.ts` 顶部（setImmediate 语义、宿主自带时不覆盖），但我们的宿主入口是 `desktop/host/main.mjs` → `profile-boot.js`，不经过 bin。~/.qilin/sessions 全库 151 条记录冷启动必超 16ms 预算，3.1.1 时代纯属侥幸没踩到。修法 = 在宿主入口装上游同款 polyfill。
 - 真机验证：新闭包首启 20s，平台标记/键盘桥双面/分区[通用,扩展]+折叠箭头/52px strip/无痕折叠全绿；`worktree apply --check` 补丁干净可套；npm test 63 全绿。
+
+### 16.3 设置页返回键让开红绿灯（2026-10-08，真机反馈）
+
+真机反馈：设置页左轨的「返回工作区」贴着窗顶红绿灯，需下移 10px。
+
+根因：红绿灯中心压在 26px 光学线上（`trafficLightPosition {x:13, y:19}`，按钮带 y≈20–32），而设置页轨道不参与这条线——上游 `.nav` 的 22px 顶距正好把 40px 返回键的**顶边**（y=22）落进灯带里，两者看上去齐平。
+
+落地（`desktop-titlebar-inset.patch` 追加一个 hunk，与该补丁同改 SettingsRoot.module.css）：
+- `:global(html[data-platform='darwin']) .navBack { margin-top: 10px }`——darwin 桌面下返回键 y 22→32（中心 42→52），让出灯带；纯 web 不落 `data-platform` 标记，规则不命中，仍是 22。
+- 轨道其余几何不动：`.nav` 保持 figma 的 pad (12,22,12,0)，返回键多出的 10px 由 `navSpacer`（flex:1）吸收，「关于 QiLin」行位置实测不变（968）。
+- 验证：干净树 `git apply --check` 通过；重建 `lib/client.js` 产出 `html[data-platform=darwin] ._4l23KW_navBack{margin-top:10px}`；真实渲染器（dev 壳）内注入真实产物 CSS 实测 darwin 32 / 去标记 22、差值 10；`npm test` 63 全绿（desktop-shell.spec 增加补丁锚点断言）。
+
+### 16.4 宽栏「新会话」hover：不压暗、也不裁标签（2026-10-08，真机反馈）
+
+真机反馈：宽栏 hover「新会话」时底色反而比默认暗一档，主按钮看着发灰；截图确认 hover 时唯一可见的反馈只剩右侧 ⌘N 冒出 + 标签末字被上游 mask 淡出。
+
+根因：darwin 下默认底色是 `color-mix(elevated-fill 75%)`，hover 换成 `color-mix(floating-hover 75%)`——而品牌主题里 floating-hover（#26211c）比 elevated-fill（#2b251c）暗一档，等于"越悬停越沉"。
+
+落地（`desktop-sidebar-sections.patch`，同改 ui-sidebar SidebarRoot.module.css）：把 `:global([data-platform='darwin']) .newSession:hover` 的混色基色改回 `--qilin-alias-button-elevated-fill`，hover 与默认同值（显式写死，不依赖规则先后）；纯 web 无 `data-platform` 不受影响。折叠 rail 的 hover（`--qilin-alias-interactive-bg-hover`）与 hover 才出现的 ⌘N、标签 mask 行为均不变。
+
+验证：干净树 `git apply --check` 通过；重建 `lib/client.js` 后 darwin 默认与 hover 两条规则同为 `elevated-fill 75%`；真实渲染器里 `CSS.forcePseudoState('hover')` 前后 computed `background-color` 完全一致（`color(srgb 0.168627 0.145098 0.109804 / 0.75)`，改前 hover 是 `color(srgb 0.14902 0.129412 0.109804 / 0.75)`）；`npm test` 全绿（新增 registry + 补丁锚点断言）。
+
+**同一条反馈的第二处（同日追加）**：底色改完后真机仍报「hover 有问题」——量像素发现 hover 时第三个字「话」右缘被上游 `.newSession:hover .newSessionLabel:has(+ .newSessionShortcut)` 的 `mask-image` 淡出。该 mask 的设计前提是「标签左对齐、尾部会贴到右侧快捷键」，而宽栏里标签是居中的，mask 的 16px 淡出只会吃掉末字。
+
+落地（同补丁）：darwin 下 `mask-image: none`，并加宽度上限 `min(200px, calc(100% - 88px))`（`.root:not(.collapsed)` 限定，避免与折叠动画的 `.collapsed { max-width: 0 }` 抢）——标签最远停在快捷键左侧 8px，长文案（en 等）在窄侧栏下也不会压 ⌘N。纯 web 保持上游 mask 不变。
+
+验证：离屏 Electron（`offscreen: true` + `webContents.debugger` 强制 `:hover`）A/B 实测——darwin 下 computed `mask-image` = `none`、标签宽 42px（zh 文案不被上限收窄）；去掉 `data-platform` 后仍是上游 `linear-gradient(90deg, rgb(0,0,0) calc(100% - 16px), rgba(0,0,0,0))`。同一次渲染的像素剖面：darwin 下「话」字笔画峰值 213–254 全亮，web 下同位置 209→67 单调衰减（即真机截图里那个发灰的末字）。
+
+### 16.5 托盘「检查更新」常驻 + 关于面板改壳自绘（2026-10-08，真机反馈）
+
+两条反馈：① 托盘右键菜单里没有「检查更新」；② 关于面板的图标是 Electron 默认原子标，要换成麒麟印章。
+
+① 根因：该项原先 `if (checkNow !== null)` 才插入，而 updater 只在打包态挂载（dev 恒为 null）——开发形态下这一项永远不出现。落地：菜单项常驻；dev（无更新通道）点击弹框「当前形态不提供自动更新」，不再点了没反应。
+
+② 根因：macOS 原生 About 面板的图标取自 .app bundle，`AboutPanelOptions.iconPath` 仅 linux/win32（electron.d.ts），dev 跑的是 Electron 二进制——原生面板只能是 Electron 默认图标，运行时改不了。落地：关于面板改壳自绘（新增 `desktop/renderer/about.html` + `windows.showAboutWindow`）：主进程把 `branding/icons/qilin-512.png` 读成 184px data URL（2x），页面加载落定后经 `window.okAboutPaint` 注入；透明圆角卡片、焦点离开即收起、Esc/关闭钮可关、读图失败回落朱砂底纹。应用菜单与托盘「关于」都指向它，`app.setAboutPanelOptions` 随原生面板退役。面板截图：[docs/desktop-about-panel.png](../../../docs/desktop-about-panel.png)。
+
+验证：离屏 Electron 直接跑真实 `showAboutWindow()`——印章 data URL 注入成功（`naturalWidth > 0`，渲染 92px）、版本行 = `app.getVersion()`、版权两行齐全、内容不溢出（`scrollHeight` 368 = `clientHeight` 368）；`npm test` 65 全绿（新增托盘常驻与关于面板断言）。
