@@ -9,7 +9,7 @@
 #                           打包期随 extraResources 进包，壳启动时校验。
 #
 # 流程（本地/CI 同源）：浅克隆锁定 commit → 品牌补丁 → 全量安装 → build:qilin
-# → 生产重装收闭包 → tar（排除源码/测试/文档）→ 清单。
+# → 生产重装收闭包 → 闭包预签（CI 凭据在场时）→ tar（排除源码/测试/文档）→ 清单。
 #
 # 用法：bash scripts/build-runtime-bundle.sh
 # 环境变量：OPENKYLIN_QILIN_SRC（本地引擎仓，缺省 ../QiLin；CI 不设则走 GitHub 克隆）
@@ -77,6 +77,26 @@ if (m.scripts) delete m.scripts.postinstall
 fs.writeFileSync(p, JSON.stringify(m, null, 2) + "\n")
 ' "$SRC"
 (cd "$SRC" && rm -rf node_modules && CI=true pnpm install --prod)
+
+# 4.5) 闭包预签：公证服务会扫描包内嵌套归档（app → extraResources tar →
+#      node_modules），闭包里每个 Mach-O 都须带 Developer ID 签名 + 安全
+#      时间戳 + hardened runtime（v0.1.0 第五轮实踩：node-pty/sharp/esbuild/
+#      ripgrep 等 23 个二进制无签名，notarytool 整批驳回）。无凭据环境
+#      （本地开发）跳过——出未签名闭包。签名在 tar 之前，清单 sha256
+#      随签后产物计算，无需改封盘流程。
+if [ "$(uname -s)" = "Darwin" ] && [ -n "${MAC_CERTIFICATE:-}" ]; then
+  log "闭包预签（Developer ID + hardened runtime + secure timestamp）"
+  source "$REPO_ROOT/scripts/ensure-macos-keychain.sh"
+  SIGNED_COUNT=0
+  while IFS= read -r -d '' f; do
+    if file -b "$f" | grep -q '^Mach-O'; then
+      codesign --force --sign "$CSC_NAME" --keychain "$CSC_KEYCHAIN" \
+        --options runtime --timestamp "$f"
+      SIGNED_COUNT=$((SIGNED_COUNT + 1))
+    fi
+  done < <(find "$SRC" -type f -print0)
+  log "闭包预签完成：$SIGNED_COUNT 个 Mach-O"
+fi
 
 # 5) 封盘：tar 排除源码/测试/文档/CI 配置；node_modules 保留 symlink 结构
 #    （pnpm 相对链接，同构解压后仍有效）

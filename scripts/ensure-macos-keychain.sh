@@ -18,7 +18,17 @@ OK_TMP="${RUNNER_TEMP:-${TMPDIR:-/tmp}}"
 
 if security find-identity -v -p codesigning 2>/dev/null | grep -qF "Developer ID Application"; then
   echo "==> 签名身份已在钥匙串可见，跳过导入"
-  OK_KC="$(security default-keychain -d user | tr -d '"' | xargs)"
+  # 定位实际持有身份的钥匙串：不能想当然取默认——CI 同一 job 里封盘步骤
+  # 先建专用钥匙串并插入搜索列表，打包步骤再 source 时身份经搜索列表可见、
+  # 默认钥匙串是空的，CSC_KEYCHAIN 指错会导致 builder 又静默跳过签名
+  OK_KC=""
+  for kc in $(security list-keychains -d user | tr -d '"'); do
+    if security find-identity -v -p codesigning "$kc" 2>/dev/null | grep -qF "Developer ID Application"; then
+      OK_KC="$kc"
+      break
+    fi
+  done
+  [ -n "$OK_KC" ] || OK_KC="$(security default-keychain -d user | tr -d '"' | xargs)"
 else
   [ -n "${MAC_CERTIFICATE:-}" ] || { echo "ERROR: 缺 MAC_CERTIFICATE（base64 .p12）" >&2; return 1 2>/dev/null || exit 1; }
   OK_KC="$OK_TMP/openkylin-sign.keychain-db"
