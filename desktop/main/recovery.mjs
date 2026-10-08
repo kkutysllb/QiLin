@@ -23,7 +23,7 @@ import { qilinHome } from './qilin-contract.mjs'
 
 /** 产品出厂插件面（上游 PROFILE_TEMPLATES['qilin'].bundles，
  * packages/boot/app-boot/src/profile.ts:252）。 */
-export const SHIPPED_PROFILE_BUNDLES = Object.freeze(['@qilin/base', '@qilin/web-app', '@qilin/web-brand'])
+export const SHIPPED_PROFILE_BUNDLES = Object.freeze(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand'])
 
 /** 产品 profile 名（runProfile 的 profile: 'qilin'）。 */
 export const PROFILE_NAME = 'qilin'
@@ -88,6 +88,48 @@ export function restoreShippedBundles(home = qilinHome()) {
     result.changed = true
     result.removed = removed
     result.backupPath = backupPath
+  } catch (error) {
+    result.error = `写回 profile manifest 失败：${String(error)}`
+  }
+  return result
+}
+
+/**
+ * 3.1.3 升级迁移：剔除 legacy `@qilin/` 作用域的 bundle 条目。
+ *
+ * 引擎 3.1.3 把发布作用域 @qilin 全量改名 @qilin-agent（npm 发布链路）。
+ * 旧版本写进 profile manifest 的内置/实验 bundles（@qilin/base、
+ * @qilin/web-app、@qilin/experimental-* …）在新闭包里不存在也不再发布，
+ * 宿主装配解析必败 → 崩溃-重启循环（v0.1.1 升级路径实测）。宿主只会
+ * 追加新名不会清理旧名，迁移只能在壳侧做：启动前把 legacy 作用域条目
+ * 整体剔除（dsh-* 等第三方条目不受影响）。幂等；删除前整份备份为
+ * package.json.pre-migration。
+ *
+ * @param {string} [home] - QILIN_HOME（缺省 qilinHome()）。
+ * @returns {{ changed: boolean, removed: string[], error: string | null }}
+ */
+export function migrateLegacyBundles(home = qilinHome()) {
+  const manifestPath = profileManifestPath(home)
+  const result = { changed: false, removed: [], error: null }
+  /** @type {any} */
+  let manifest
+  try {
+    manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
+  } catch (error) {
+    if (/** @type {NodeJS.ErrnoException} */ (error)?.code === 'ENOENT') return result
+    result.error = `读取 profile manifest 失败：${String(error)}`
+    return result
+  }
+  const profile = manifest?.qilin?.profile
+  if (!Array.isArray(profile?.bundles)) return result
+  const legacy = profile.bundles.filter((/** @type {string} */ name) => name.startsWith('@qilin/'))
+  if (legacy.length === 0) return result
+  try {
+    writeFileSync(`${manifestPath}.pre-migration`, `${JSON.stringify(manifest, undefined, 2)}\n`, { encoding: 'utf8', mode: 0o600 })
+    profile.bundles = profile.bundles.filter((/** @type {string} */ name) => !name.startsWith('@qilin/'))
+    writeFileSync(manifestPath, `${JSON.stringify(manifest, undefined, 2)}\n`, { encoding: 'utf8', mode: 0o600 })
+    result.changed = true
+    result.removed = legacy
   } catch (error) {
     result.error = `写回 profile manifest 失败：${String(error)}`
   }

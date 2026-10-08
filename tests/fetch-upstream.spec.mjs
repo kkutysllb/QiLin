@@ -16,7 +16,7 @@ async function initUpstreamFixture() {
   await runIn(['init', '-b', 'main'])
   await runIn(['config', 'user.email', 't@example.com'])
   await runIn(['config', 'user.name', 't'])
-  await writeFile(join(repo, 'package.json'), JSON.stringify({ name: '@qilin/root', version: '3.0.0' }))
+  await writeFile(join(repo, 'package.json'), JSON.stringify({ name: '@qilin-agent/root', version: '3.0.0' }))
   await runIn(['add', '.'])
   await runIn(['commit', '-m', 'init'])
   const { stdout } = await runIn(['rev-parse', 'HEAD'])

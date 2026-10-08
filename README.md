@@ -17,9 +17,9 @@ QiLin 自 **3.1.0 起走独立版本线**（上游基线决策，见 QiLin 仓
 升级 saga 的闭环点，此后版本号自主演进，原 dsh（deepseek-harness）上游降为
 参考源——借鉴不 merge。对本仓库有直接影响的 3.1.x 事实：
 
-- **DSH 兼容面收窄为兼容层**：`@qilin/dsh-compat` 是长期兼容面（第三方 dsh
+- **DSH 兼容面收窄为兼容层**：`@qilin-agent/dsh-compat` 是长期兼容面（第三方 dsh
   插件可安装可加载），但 QiLin 自身契约一律以原生 `qilin.*` 键为准；命名
-  空间已整体从 `@deepseek-ai/dsh-*` rescope 为 `@qilin/*`。
+  空间已整体从 `@deepseek-ai/dsh-*` rescope 为 `@qilin-agent/*`（3.1.3 起；`@qilin` scope 被第三方持有）。
 - **上游 `apps/desktop` 已移除**（3.1.x 只剩 `apps/cli` + `apps/web`）：
   上游不再提供 Electron 壳与 `package:desktop:mac:arm64` 打包链——升级锁
   后发布管线必须改为以本仓库自有 `desktop/` 壳为打包主体（见跟进项）。

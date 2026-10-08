@@ -92,7 +92,7 @@ const hostPort = hostPortOf(process.argv)
 
 send({ type: 'booting' })
 
-/** @type {import('@qilin/app-boot').ProcessShutdown | null} */
+/** @type {import('@qilin-agent/app-boot').ProcessShutdown | null} */
 let shutdown = null
 let stopping = false
 

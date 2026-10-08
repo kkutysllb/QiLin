@@ -25,7 +25,7 @@ import { installAppMenu } from './menu.mjs'
 import { attachQilinDesktopBridge } from './keyboard-bridge.mjs'
 import { attachAppProtocol, attachWsRelay, authenticateWebHost, registerAppScheme, relayDebug } from './protocol.mjs'
 import { ensureRuntimeTree, resolveRuntimeRoot } from './runtime-install.mjs'
-import { CRASH_REPORT_KEEP, profileManifestPath, restoreShippedBundles } from './recovery.mjs'
+import { CRASH_REPORT_KEEP, migrateLegacyBundles, profileManifestPath, restoreShippedBundles } from './recovery.mjs'
 import { initializeUpdater } from './updater.mjs'
 import { createWorkspaceResolver } from './workspace.mjs'
 import { closeSplash, focusShellWindow, getShellWindow, reportFatalToSplash, showShellWindow, showSplash } from './windows.mjs'
@@ -157,6 +157,12 @@ async function pickHostPort() {
 /** 启动引擎宿主：运行树就位（打包态首启解压闭包）→ 端口决策 → 罐回灌 → spawn。 */
 async function launchHost() {
   runtimeDirInUse = await ensureRuntimeTree({ isPackaged: app.isPackaged, userData: app.getPath('userData'), resourcesPath: process.resourcesPath })
+  // 3.1.3 升级迁移：剔除 profile manifest 里 legacy @qilin/ 作用域条目
+  //（旧内置/实验 bundles 在新闭包不存在，宿主装配解析必败 → 重启循环）
+  const migrated = migrateLegacyBundles()
+  if (migrated.removed.length > 0) {
+    console.warn('[openkylin] profile 迁移：移除 legacy bundles', migrated.removed)
+  }
   // 协议承载：distRoot 依赖运行树（打包态首启解压后才知道路径），挂载必须
   // 在 shell 窗口加载前完成——宿主 ready 早于窗口创建，此处时序安全
   attachAppProtocol({ distRoot: join(runtimeDirInUse, WEB_DIST_DIR), state: relayState })

@@ -402,3 +402,13 @@ M3 三项已全部实施，产品层测试 64 项全绿；真实任务场景（�
 4. **侧栏分区**（patches/desktop-sidebar-sections.patch，registry 新条目）：引擎 3.1.1 原生支持 `sidebar.section.assignments` 槽位 + 连续同段行共享表头的分组渲染，只是无人注册——补丁在 ui-sidebar 内注册 `{plugins:'通用', schedules:'通用'}`（isDarwinDesktop 门控），并内联 KStock placement seat 的 **trailingSection 语义**：未归区且非引擎自带面板的行（第三方插件）一律归「扩展」尾部区。另加 **K19-lite 分区折叠**：表头渲染折叠箭头，点击收起该分区行，状态持久 localStorage `qilin.sidebar.folded-sections.v1`。
 5. **一条光学线**（同补丁）：会话头 48px 中心 y=24 vs topStrip 52px 中心 y=26——收起态 leading 控件加 `margin-top: 4px`（align-items:center 居中 margin 盒）对到 26，与红绿灯、strip 开关三线合一。真机反馈的红框错位即此。
 6. dev 快速迭代法：改 `.tmp/dev/qilin-src` 源 → `pnpm run build:lib:client && build:web` → 重启 dev 壳（titlebar/主进程改动须重启，preload 改动须刷新页面）；定稿后 `git diff` 生成补丁入 patches/。
+
+### 16.2 引擎升级 3.1.1 → 3.1.3（2026-10-08）
+
+上游唯一功能变化：npm 发布作用域 **`@qilin/*` 全量改名 `@qilin-agent/*`**（`@qilin` scope 被第三方持有；v3.1.2 落地，v3.1.3 纯版本收尾）。上游在改名提交里写明下游契约：pin 推过此提交 + 自有引用同文本替换。
+
+跟进内容：
+- lock 锚 d61554c8a2（v3.1.3 本体 commit——**不能钉 tag 对象哈希**，annotated tag 的 rev-parse 是对象不是 commit）；产品源码引用同步：`SHIPPED_PROFILE_BUNDLES`、web dist 锚 `@qilin-agent/web-frontend/dist`、sync 脚本、测试夹具、README。
+- `desktop-sidebar-sections.patch` 对 3.1.3 重新作用域化（6 处引用含新增 import），干净树 `git apply --check` 通过。
+- **profile 迁移（recovery.mjs `migrateLegacyBundles`）**：旧版本写进 profile manifest 的 `@qilin/*` 条目在新闭包不存在也不再发布，宿主装配解析必败 → 崩溃-重启循环（升级首启实测卡「正在恢复」）。宿主只追加新名不清旧名，迁移只能在壳侧：launchHost 前剔除 legacy `@qilin/` 作用域条目（幂等、删除前备份 .pre-migration）。**所有 v0.1.0 → 后续版本自动升级的用户都会走到这条路径**。
+- 真机验证：新闭包首启 20s，平台标记/键盘桥双面/分区[通用,扩展]+折叠箭头/52px strip/无痕折叠全绿；`worktree apply --check` 补丁干净可套；npm test 63 全绿。

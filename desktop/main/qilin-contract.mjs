@@ -33,7 +33,7 @@
  *   （apps/web/src/main.ts:5-36；packages/client/connection/src/client/
  *   index.ts:79-113）。
  * - 入口路径：`/workspace`（packages/client/connection/src/web-entry.ts
- *   WEB_ENTRY_PATH）；静态资源锚 `@qilin/web-frontend/dist`
+ *   WEB_ENTRY_PATH）；静态资源锚 `@qilin-agent/web-frontend/dist`
  *   （packages/bundle/web-app/src/index.ts:181）。
  * - Harness home：packages/util/home-paths `QILIN_HOME`，默认 `~/.qilin`，
  *   与 qilin CLI / 浏览器端共享同一份数据（会话、凭据、插件）。

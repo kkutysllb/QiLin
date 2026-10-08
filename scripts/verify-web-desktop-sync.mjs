@@ -5,7 +5,7 @@ import { basename } from 'node:path'
 import { dirDigest } from './lib/hash.mjs'
 
 /**
- * Entries the packed @qilin/web-frontend tarball drops (its `files` filter
+ * Entries the packed @qilin-agent/web-frontend tarball drops (its `files` filter
  * excludes every `dist` source map, `dist/preview.html` and the `dist/preview`
  * directory) while raw `apps/web/dist` Vite output carries them. Both sides of
  * the comparison are digested under this same exclusion, so the gate compares

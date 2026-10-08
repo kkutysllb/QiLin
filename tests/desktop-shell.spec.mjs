@@ -170,7 +170,7 @@ test('恢复出厂插件面：dsh 旧 face 兜底（上游 profileDeclarationOf 
     const manifestPath = profileManifestPath(home)
     await mkdir(dirname(manifestPath), { recursive: true })
     await writeFile(manifestPath, JSON.stringify({
-      dsh: { profile: { bundles: ['@qilin/base', 'legacy-plugin'] } },
+      dsh: { profile: { bundles: ['@qilin-agent/base', 'legacy-plugin'] } },
     }))
     const result = restoreShippedBundles(home)
     assert.equal(result.changed, true)
@@ -506,9 +506,10 @@ test('设置页覆盖层 inset 补丁已注册且命中上游锚点', async () =
   assert.match(patch, /top: var\(--ok-tb-h, 0px\)/, 'fixed 覆盖层让出标题栏；纯 web 回落 0')
 })
 
-test('上游锁锚定 QiLin 3.1.1 独立版本线', async () => {
+test('上游锁锚定 QiLin 3.1.3（@qilin-agent 改名后的首个版本线）', async () => {
   const lock = JSON.parse(await readFile(new URL('../upstream/qilin.lock.json', import.meta.url), 'utf8'))
-  assert.equal(lock.qilinVersion, '3.1.1')
+  assert.equal(lock.qilinVersion, '3.1.3')
+  assert.equal(lock.qilinCommit, 'd61554c8a23415b91065d23df1a4552adfb32f20', 'v3.1.3 tag 的本体 commit（锁不钉 tag 对象）')
   assert.equal(lock.qilinRepository, 'https://github.com/kkutysllb/QiLin.git', '独立线后上游即 QiLin 仓本身')
   assert.match(lock.qilinCommit, /^[0-9a-f]{40}$/)
 })

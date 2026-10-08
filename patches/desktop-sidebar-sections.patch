@@ -232,13 +232,13 @@ index 7916cb09f3..defc9b6f38 100644
 --- a/packages/client/ui-sidebar/src/client/index.ts
 +++ b/packages/client/ui-sidebar/src/client/index.ts
 @@ -2,6 +2,7 @@
- import type { Context as ClientContext } from '@qilin/kylin'
- import { createSnapshotStore } from '@qilin/client-store'
- import { resolveSlotLabel } from '@qilin/client-ui-slots'
-+import { isDarwinDesktop } from '@qilin/client-ui-primitives'
- import type { MainPanelId } from '@qilin/client-ui-layout/client'
+ import type { Context as ClientContext } from '@qilin-agent/kylin'
+ import { createSnapshotStore } from '@qilin-agent/client-store'
+ import { resolveSlotLabel } from '@qilin-agent/client-ui-slots'
++import { isDarwinDesktop } from '@qilin-agent/client-ui-primitives'
+ import type { MainPanelId } from '@qilin-agent/client-ui-layout/client'
  // Type-only: pulls the locale plugin's Context merge (ctx.locale).
- import type {} from '@qilin/client-locale/client'
+ import type {} from '@qilin-agent/client-locale/client'
 @@ -62,7 +63,15 @@ export function apply(ctx: ClientContext): void {
      const next = ctx.slots.entriesOfSlot('sidebar.panellist').map(({ options }) => {
        // The list registration requires an id; StoredEntry erases the slot kind.
