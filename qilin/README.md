@@ -148,3 +148,14 @@ pnpm run test:snapshot  # 免密钥录制回放，132 项中 127 项通过
 | 发布到 registry | `.github/workflows/release-publish.yml` 手动 dispatch（从 `v*` tag） | 待首次执行 |
 
 两条发布前提保持成立：打包前必须 `pnpm run build:official`（发布门禁要求客户端产物来自 official 画像）；发布目标是 `https://registry.npmjs.org`（CI 路径由 workflow 的 `registry-url` 固定，本机 npmmirror 默认不影响）。改名前的最后一个发布版本留在改名前 tag 上，供下游产品按需固定。
+
+## 9. 升级注意（跑过改名前构建的用户）
+
+`~/.qilin/profiles/` 下由改名前构建生成的 profile 引用旧 scope 的插件名（如 `@qilin/base`），新版 CLI 启动报 `cannot resolve profile bundle "@qilin/base"`。处理：搁置旧 profile，让 CLI 按内置模板重新生成——
+
+```sh
+mv ~/.qilin/profiles/web ~/.qilin/profiles/web.pre-rename.bak
+npx -y @qilin-agent/cli web
+```
+
+另外：web 面默认端口 3080 与 dsh 相同且无自动避让（占用时报错退出）；同机共跑用 `--port 0`（OS 随机）或 `--port 3090` 显式指定。
