@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/http-proxy",
   "description": "Process-wide outbound HTTP proxy policy for QiLin: resolve it from the launch environment and install it as undici's global dispatcher",
-  "version": "3.1.2",
+  "version": "3.1.3",
   "publishConfig": {
     "access": "public"
   },

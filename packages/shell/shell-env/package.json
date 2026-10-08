@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/shell-env",
   "description": "Tool-independent managed QILIN_* shell environment registry",
-  "version": "3.1.2",
+  "version": "3.1.3",
   "publishConfig": {
     "access": "public"
   },

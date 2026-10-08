@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/tool-present",
   "description": "Explicit workspace file delivery declarations for the QiLin",
-  "version": "3.1.2",
+  "version": "3.1.3",
   "publishConfig": {
     "access": "public"
   },
