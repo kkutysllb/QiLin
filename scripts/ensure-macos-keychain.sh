@@ -40,7 +40,9 @@ fi
 
 IDENTITY_LINE="$(security find-identity -v -p codesigning | grep "Developer ID Application" | head -1)"
 [ -n "$IDENTITY_LINE" ] || { echo "ERROR: 钥匙串无 Developer ID Application 身份" >&2; return 1 2>/dev/null || exit 1; }
-OK_IDENTITY="$(echo "$IDENTITY_LINE" | sed -E 's/^[0-9]+\) ([0-9A-F]+) "(.*)"/\2/')"
+# find-identity 行首有两个前导空格（v0.1.0 第四轮实踩：正则 ^[0-9]+ 没吃掉，
+# CSC_NAME 导出成整行垃圾 → builder 找不到身份 → 静默跳过签名）
+OK_IDENTITY="$(echo "$IDENTITY_LINE" | sed -E 's/^[[:space:]]*[0-9]+\) ([0-9A-F]+) "(.*)"/\2/')"
 export CSC_KEYCHAIN="${OK_KC:-$OK_TMP/openkylin-sign.keychain-db}"
 export CSC_NAME="${OK_IDENTITY#Developer ID Application: }"
 # CSC_LINK 路线上游缺陷（见头注）：身份经 CSC_KEYCHAIN/CSC_NAME 提供，必须摘除

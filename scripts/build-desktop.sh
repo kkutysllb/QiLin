@@ -73,8 +73,11 @@ fi
 # 5) 打包（dmg/zip，arm64）。
 #    Electron dist 下载走镜像（@electron/get 同 dev.mjs 的镜像策略）
 export ELECTRON_MIRROR="${ELECTRON_MIRROR:-https://npmmirror.com/mirrors/electron/}"
+# --publish never：Release 上传是发布 job（gh release create）的职责。builder
+# 见 git tag + publish: github 配置会触发隐式发布（v0.1.0 第四轮实踩：构建步
+# 无 GH_TOKEN → GitHubPublisher ×4 → Cannot cleanup 退出 1）
 log "electron-builder 打包（mirror: ${ELECTRON_MIRROR}）"
-(cd "$APP_DIR" && "$BUILDER_BIN" --config electron-builder.yml)
+(cd "$APP_DIR" && "$BUILDER_BIN" --config electron-builder.yml --publish never)
 
 log "打包完成：dist-exe/"
 ls -la "$REPO_ROOT/dist-exe/" | grep -E "dmg|zip|yml|blockmap" || true
