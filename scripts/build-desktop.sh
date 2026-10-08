@@ -60,7 +60,17 @@ require("fs").writeFileSync(process.argv[1], JSON.stringify(pkg, null, 2) + "\n"
 log "安装打包域依赖（electron-updater + electron 版本锚）"
 (cd "$APP_DIR" && ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm install --loglevel=error)
 
-# 4) 打包（dmg/zip，arm64；identity: null = 未签名首版）。
+# 4) 签名钥匙串引导（CI 注入 MAC_CERTIFICATE 时生效；本地无凭据自动跳过
+#    = 未签名包）。CSC_LINK 临时钥匙串分支上游缺陷，走 KStock 同款
+#    CSC_KEYCHAIN + CSC_NAME 专用钥匙串路线（见 ensure-macos-keychain.sh）。
+if [ -n "${MAC_CERTIFICATE:-}" ]; then
+  log "签名钥匙串引导"
+  source "$REPO_ROOT/scripts/ensure-macos-keychain.sh"
+else
+  log "未注入 MAC_CERTIFICATE——出未签名包（本地开发形态）"
+fi
+
+# 5) 打包（dmg/zip，arm64）。
 #    Electron dist 下载走镜像（@electron/get 同 dev.mjs 的镜像策略）
 export ELECTRON_MIRROR="${ELECTRON_MIRROR:-https://npmmirror.com/mirrors/electron/}"
 log "electron-builder 打包（mirror: ${ELECTRON_MIRROR}）"
