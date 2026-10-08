@@ -160,7 +160,7 @@ index 8a8d7774ea..4453f1a57a 100644
        )}
  
 diff --git a/packages/client/ui-sidebar/src/client/index.ts b/packages/client/ui-sidebar/src/client/index.ts
-index 7916cb09f3..40a72202df 100644
+index 7916cb09f3..defc9b6f38 100644
 --- a/packages/client/ui-sidebar/src/client/index.ts
 +++ b/packages/client/ui-sidebar/src/client/index.ts
 @@ -2,6 +2,7 @@
@@ -171,7 +171,24 @@ index 7916cb09f3..40a72202df 100644
  import type { MainPanelId } from '@qilin/client-ui-layout/client'
  // Type-only: pulls the locale plugin's Context merge (ctx.locale).
  import type {} from '@qilin/client-locale/client'
-@@ -115,5 +116,16 @@ export function apply(ctx: ClientContext): void {
+@@ -62,7 +63,15 @@ export function apply(ctx: ClientContext): void {
+     const next = ctx.slots.entriesOfSlot('sidebar.panellist').map(({ options }) => {
+       // The list registration requires an id; StoredEntry erases the slot kind.
+       const id = options.id as MainPanelId
+-      const section = assigned[id] ?? resolveSlotLabel(options.section)
++      // OpenKylin 桌面：未归区且非引擎自带面板的行——即第三方插件——一律
++      // 归「扩展」尾部区（KStock placement seat 的 trailingSection 语义；
++      // 3.1.1 无该 seat，内联在此）。纯 web 保持原生行为：无区 = 无表头平铺。
++      const trailing = isDarwinDesktop()
++        && assigned[id] === undefined
++        && resolveSlotLabel(options.section) === undefined
++        ? '扩展'
++        : undefined
++      const section = assigned[id] ?? resolveSlotLabel(options.section) ?? trailing
+       return { id, order: options.order ?? 0, label: resolveSlotLabel(options.label) ?? id, section }
+     }).sort((a, b) => a.order - b.order)
+     const previous = panels.getSnapshot()
+@@ -115,5 +124,16 @@ export function apply(ctx: ClientContext): void {
      locale: NS,
      inject: injectProps,
    }, HeaderLeadingControls))
