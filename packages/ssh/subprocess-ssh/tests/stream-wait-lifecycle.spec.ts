@@ -1,10 +1,10 @@
 /** Caller-owned stream closure and bounded observations across remote allocation. */
 import { duplexPair, type Duplex } from 'node:stream'
 import { getEventListeners } from 'node:events'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, onTestFinished } from 'vitest'
 import { z } from 'zod'
-import type { SubprocessSpawnSpec } from '@qilin/subprocess'
+import type { SubprocessSpawnSpec } from '@qilin-agent/subprocess'
 import { SshSubprocessRuntime } from '../src/index.ts'
 
 type Stage = 'prepare' | 'connect' | 'start' | 'wait' | 'terminate'

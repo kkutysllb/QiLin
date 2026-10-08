@@ -11,9 +11,9 @@ import {
   PROTOCOL_VERSION,
   type SessionNotification,
 } from '@agentclientprotocol/sdk'
-import { withFileLock, writeFileAtomic } from '@qilin/atomic-write'
-import { startMockLlmServer } from '@qilin/llm-mock-server'
-import { entryListSchema } from '@qilin/kylin-plugin-include'
+import { withFileLock, writeFileAtomic } from '@qilin-agent/atomic-write'
+import { startMockLlmServer } from '@qilin-agent/llm-mock-server'
+import { entryListSchema } from '@qilin-agent/kylin-plugin-include'
 import { execa } from 'execa'
 import * as yaml from 'js-yaml'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -116,9 +116,9 @@ function createProfileLifecycleFixture(): ProfileLifecycleFixture {
   writeFileSync(join(bundleDir, 'cordis.patch.yml'), [
     '- insert:',
     '    - id: hmr-timer',
-    "      name: '@qilin/kylin-plugin-timer'",
+    "      name: '@qilin-agent/kylin-plugin-timer'",
     '    - id: hmr',
-    "      name: '@qilin/hmr'",
+    "      name: '@qilin-agent/hmr'",
     '      config:',
     '        root: []',
     '    - id: profile-lifecycle-fixture',
@@ -211,7 +211,7 @@ function createEnvironmentProbeProfile(home: string, project: string): void {
     name: 'qilin-profile-environment-probe',
     private: true,
     dependencies: {},
-    qilin: { profile: { bundles: ['@qilin/base'] } },
+    qilin: { profile: { bundles: ['@qilin-agent/base'] } },
   }, undefined, 2))
   writeFileSync(join(profileDir, 'cordis.patch.yml'), [
     '- insert:',
@@ -234,7 +234,7 @@ interface StartupFixture {
  * A custom profile whose ordinary provider plugin injects `cmdlineArgs`, plus
  * a row that reads its app-owned service through a `!!js` config expression.
  * Both plugin modules resolve
- * `@qilin/cmdline` and `commander` through the profile module
+ * `@qilin-agent/cmdline` and `commander` through the profile module
  * fallback, exactly as an installed out-of-tree bundle does.
  */
 function createStartupFixture(): StartupFixture {
@@ -247,7 +247,7 @@ function createStartupFixture(): StartupFixture {
   mkdirSync(bundleDir, { recursive: true })
   writeFileSync(join(bundleDir, 'startup.mjs'), [
     "import { Command } from 'commander'",
-    "import { parseCmdline } from '@qilin/cmdline'",
+    "import { parseCmdline } from '@qilin-agent/cmdline'",
     "export const name = 'fixture-startup'",
     "export const inject = ['cmdlineArgs']",
     'export function apply(ctx) {',
@@ -286,9 +286,9 @@ function createStartupFixture(): StartupFixture {
   writeFileSync(join(bundleDir, 'cordis.patch.yml'), [
     '- insert:',
     '    - id: hmr-timer',
-    "      name: '@qilin/kylin-plugin-timer'",
+    "      name: '@qilin-agent/kylin-plugin-timer'",
     '    - id: hmr',
-    "      name: '@qilin/hmr'",
+    "      name: '@qilin-agent/hmr'",
     '      config:',
     '        root: []',
     '    - id: startup-fixture',
@@ -421,7 +421,7 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
     writeFileSync(patch, [
       '- insert:',
       '    - id: missing-sdk-startup-plugin',
-      '      name: "@qilin/missing-sdk-startup-plugin"',
+      '      name: "@qilin-agent/missing-sdk-startup-plugin"',
       '',
     ].join('\n'))
     try {
@@ -433,7 +433,7 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
       expect(result.code).toBe(0)
       expect(result.stdout).toBe('')
       expect(result.stderr).toContain('warning: 1 entry did not activate')
-      expect(result.stderr).toContain('@qilin/missing-sdk-startup-plugin')
+      expect(result.stderr).toContain('@qilin-agent/missing-sdk-startup-plugin')
     } finally {
       rmSync(home, { recursive: true, force: true })
     }
@@ -683,7 +683,7 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
       }
       expect(manifest.dependencies).toEqual({})
       expect(manifest.qilin.profile).toEqual({
-        bundles: ['@qilin/base', '@qilin/web-app'],
+        bundles: ['@qilin-agent/base', '@qilin-agent/web-app'],
       })
       expect(readFileSync(join(dir, 'cordis.patch.yml'), 'utf8')).toContain('[]')
       expect(readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8')).toContain('nodeLinker: hoisted')
@@ -1126,14 +1126,14 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
         qilin: { profile: { bundles: string[] } }
       }
       expect(Object.keys(installed.dependencies).sort()).toEqual(['bundle-alias', 'ordinary-library'])
-      expect(installed.qilin.profile.bundles).toEqual(['@qilin/base', 'bundle-alias'])
-      installed.qilin.profile.bundles = ['@qilin/base']
+      expect(installed.qilin.profile.bundles).toEqual(['@qilin-agent/base', 'bundle-alias'])
+      installed.qilin.profile.bundles = ['@qilin-agent/base']
       writeFileSync(manifestPath, JSON.stringify(installed))
       const refreshed = await runBuiltBin(['plugin', '--profile', 'alias', 'root'], { QILIN_HOME: home }, home)
       expect(refreshed.code).toBe(0)
       expect(refreshed.stderr).not.toContain('declares no qilin.bundle')
       const active = JSON.parse(readFileSync(manifestPath, 'utf8')) as { qilin: { profile: { bundles: string[] } } }
-      expect(active.qilin.profile.bundles).toEqual(['@qilin/base'])
+      expect(active.qilin.profile.bundles).toEqual(['@qilin-agent/base'])
       const removed = await runBuiltBin(['plugin', '--profile', 'alias', 'remove', 'bundle-alias'], { QILIN_HOME: home }, home)
       expect(removed.code).toBe(0)
       const remaining = JSON.parse(readFileSync(manifestPath, 'utf8')) as {
@@ -1141,7 +1141,7 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
         qilin: { profile: { bundles: string[] } }
       }
       expect(Object.keys(remaining.dependencies)).toEqual(['ordinary-library'])
-      expect(remaining.qilin.profile.bundles).toEqual(['@qilin/base'])
+      expect(remaining.qilin.profile.bundles).toEqual(['@qilin-agent/base'])
     } finally {
       rmSync(home, { recursive: true, force: true })
     }
@@ -1157,7 +1157,7 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
         name: 'qilin-profile-up',
         private: true,
         dependencies: { 'late-bundle': 'file:./late-bundle' },
-        qilin: { profile: { bundles: ['@qilin/base'] } },
+        qilin: { profile: { bundles: ['@qilin-agent/base'] } },
       }))
       writeFileSync(join(profileDir, 'cordis.patch.yml'), '[]\n')
       // v1: no qilin manifest — a plain dependency.
@@ -1165,7 +1165,7 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
       const first = await runBuiltBin(['plugin', '--profile', 'up', 'root'], { QILIN_HOME: home })
       expect(first.code).toBe(0)
       let manifest = JSON.parse(readFileSync(join(profileDir, 'package.json'), 'utf8')) as { qilin: { profile: { bundles: string[] } } }
-      expect(manifest.qilin.profile.bundles).toEqual(['@qilin/base'])
+      expect(manifest.qilin.profile.bundles).toEqual(['@qilin-agent/base'])
       // v2: the installed package now declares qilin.bundle (an update landed).
       writeFileSync(join(installed, 'package.json'), JSON.stringify({
         name: 'late-bundle', version: '2.0.0', qilin: { bundle: { patch: './cordis.patch.yml' } },
@@ -1174,7 +1174,7 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
       const second = await runBuiltBin(['plugin', '--profile', 'up', 'root'], { QILIN_HOME: home })
       expect(second.code).toBe(0)
       manifest = JSON.parse(readFileSync(join(profileDir, 'package.json'), 'utf8')) as { qilin: { profile: { bundles: string[] } } }
-      expect(manifest.qilin.profile.bundles).toEqual(['@qilin/base'])
+      expect(manifest.qilin.profile.bundles).toEqual(['@qilin-agent/base'])
     } finally {
       rmSync(home, { recursive: true, force: true })
     }
@@ -1189,10 +1189,10 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
       const { stdout, code, stderr } = await runBuiltBin(['web', '--dump-default-config'], { QILIN_HOME: home })
       expect(code).toBe(0)
       expect(stderr).toBe('')
-      expect(stdout).toContain("name: '@qilin/agent-loop'")
+      expect(stdout).toContain("name: '@qilin-agent/agent-loop'")
       expect(stdout).toContain('agents: []')
-      expect(stdout).toContain('# == @qilin/base')
-      expect(stdout).toContain("name: '@qilin/host-webserver'")
+      expect(stdout).toContain('# == @qilin-agent/base')
+      expect(stdout).toContain("name: '@qilin-agent/host-webserver'")
       expect(existsSync(join(home, 'profiles', 'node_modules'))).toBe(false)
     }, SPAWN_TIMEOUT_MS + 30_000)
 
@@ -1203,7 +1203,7 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
       )
       expect(code).toBe(0)
       expect(stderr).toBe('')
-      expect(stdout).toContain('# == @qilin/web-app')
+      expect(stdout).toContain('# == @qilin-agent/web-app')
       expect(existsSync(join(home, 'profiles', 'rescue', 'package.json'))).toBe(true)
     }, SPAWN_TIMEOUT_MS + 30_000)
 
@@ -1226,10 +1226,10 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
       )
       expect(code).toBe(0)
       expect(stderr).toBe('')
-      expect(stdout).toContain("name: '@qilin/headless'")
-      expect(stdout).not.toMatch(/name: '@qilin\/host-/)
-      expect(stdout).not.toContain("name: '@qilin/web-app'")
-      expect(stdout).not.toMatch(/name: '@qilin\/client-/)
+      expect(stdout).toContain("name: '@qilin-agent/headless'")
+      expect(stdout).not.toMatch(/name: '@qilin-agent\/host-/)
+      expect(stdout).not.toContain("name: '@qilin-agent/web-app'")
+      expect(stdout).not.toMatch(/name: '@qilin-agent\/client-/)
     }, SPAWN_TIMEOUT_MS + 30_000)
 
     it('prints the exact standalone sdk-minimal tree without qilin-base', async () => {
@@ -1241,37 +1241,37 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
       expect(stderr).toBe('')
       const rows = yaml.load(stdout, { schema: entryListSchema }) as Array<{ id?: string; name?: string }>
       expect(rows.map(row => [row.id, row.name])).toEqual([
-        ['sdk-app-startup', '@qilin/sdk-app'],
-        ['sdk-jsonrpc-server', '@qilin/sdk-jsonrpc-server'],
-        ['deepseek-llm-api-extensions', '@qilin/deepseek-llm-api-extensions'],
-        ['session-log-deepseek', '@qilin/session-log-deepseek'],
-        ['plugin-package-inventory-deepseek', '@qilin/plugin-package-inventory-deepseek'],
-        ['llm-deepseek', '@qilin/llm-deepseek'],
-        ['sandbox', '@qilin/sandbox-local'],
-        ['session-projection', '@qilin/session-projection'],
-        ['sandbox-policy', '@qilin/sandbox-policy'],
-        ['subprocess', '@qilin/subprocess-local'],
-        ['pty', '@qilin/terminal'],
-        ['terminal-bash', '@qilin/terminal-bash'],
-        ['terminal-pwsh', '@qilin/terminal-bash'],
-        ['timer', '@qilin/kylin-plugin-timer'],
-        ['llm', '@qilin/llm'],
-        ['session', '@qilin/session'],
-        ['session-title', '@qilin/session-title'],
-        ['system-prompt', '@qilin/system-prompt'],
-        ['tools', '@qilin/tools'],
-        ['mcp-resources', '@qilin/mcp-resources'],
-        ['agent', '@qilin/agent'],
-        ['llm-retry', '@qilin/llm-retry'],
-        ['jobs', '@qilin/jobs-local'],
-        ['agent-loop', '@qilin/agent-loop'],
-        ['persistent-bash', '@qilin/tool-bash-persistent'],
-        ['persistent-pwsh', '@qilin/tool-pwsh-persistent'],
-        ['sessions', '@qilin/session-persistence-jsonl'],
+        ['sdk-app-startup', '@qilin-agent/sdk-app'],
+        ['sdk-jsonrpc-server', '@qilin-agent/sdk-jsonrpc-server'],
+        ['deepseek-llm-api-extensions', '@qilin-agent/deepseek-llm-api-extensions'],
+        ['session-log-deepseek', '@qilin-agent/session-log-deepseek'],
+        ['plugin-package-inventory-deepseek', '@qilin-agent/plugin-package-inventory-deepseek'],
+        ['llm-deepseek', '@qilin-agent/llm-deepseek'],
+        ['sandbox', '@qilin-agent/sandbox-local'],
+        ['session-projection', '@qilin-agent/session-projection'],
+        ['sandbox-policy', '@qilin-agent/sandbox-policy'],
+        ['subprocess', '@qilin-agent/subprocess-local'],
+        ['pty', '@qilin-agent/terminal'],
+        ['terminal-bash', '@qilin-agent/terminal-bash'],
+        ['terminal-pwsh', '@qilin-agent/terminal-bash'],
+        ['timer', '@qilin-agent/kylin-plugin-timer'],
+        ['llm', '@qilin-agent/llm'],
+        ['session', '@qilin-agent/session'],
+        ['session-title', '@qilin-agent/session-title'],
+        ['system-prompt', '@qilin-agent/system-prompt'],
+        ['tools', '@qilin-agent/tools'],
+        ['mcp-resources', '@qilin-agent/mcp-resources'],
+        ['agent', '@qilin-agent/agent'],
+        ['llm-retry', '@qilin-agent/llm-retry'],
+        ['jobs', '@qilin-agent/jobs-local'],
+        ['agent-loop', '@qilin-agent/agent-loop'],
+        ['persistent-bash', '@qilin-agent/tool-bash-persistent'],
+        ['persistent-pwsh', '@qilin-agent/tool-pwsh-persistent'],
+        ['sessions', '@qilin-agent/session-persistence-jsonl'],
       ])
-      expect(stdout).toContain('# == @qilin/sdk-minimal')
-      expect(stdout).not.toContain('@qilin/base')
-      expect(stdout).not.toContain('@qilin/web-app')
+      expect(stdout).toContain('# == @qilin-agent/sdk-minimal')
+      expect(stdout).not.toContain('@qilin-agent/base')
+      expect(stdout).not.toContain('@qilin-agent/web-app')
     }, SPAWN_TIMEOUT_MS * 2 + 30_000)
 
     it('composes the profile user layer and a --patch overlay in order', async () => {

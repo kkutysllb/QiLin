@@ -9,10 +9,10 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import LocalSpillStore, { sessionDir } from '@qilin/spill-local'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import LocalSpillStore, { sessionDir } from '@qilin-agent/spill-local'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 
@@ -43,7 +43,7 @@ describe('spill-local real Loader composition through cordis.yml', () => {
 
     const configPath = join(root, 'cordis.yml')
     await writeFile(configPath, [
-      "- name: '@qilin/spill-local'",
+      "- name: '@qilin-agent/spill-local'",
       '  config:',
       `    root: ${JSON.stringify(root)}`,
       '    cleanupPeriodDays: 30',
@@ -57,7 +57,7 @@ describe('spill-local real Loader composition through cordis.yml', () => {
     context.loader.internal = {
       version: 'v2',
       async import(specifier: string) {
-        if (specifier !== '@qilin/spill-local') throw new Error(`unexpected Loader import: ${specifier}`)
+        if (specifier !== '@qilin-agent/spill-local') throw new Error(`unexpected Loader import: ${specifier}`)
         return LocalSpillStore
       },
     } as unknown as NonNullable<typeof context.loader.internal>

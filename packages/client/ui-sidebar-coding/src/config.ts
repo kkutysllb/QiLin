@@ -9,17 +9,17 @@
  * `cordis.patch.yml` 对应条目的 config 并原地更新引用，随后发
  * `loader/volatile-update`，本插件据此重读并同步门控。
  *
- * 依赖面备注（关键）：schema 必须由 **fork 的 `@qilin/schemastery`**
+ * 依赖面备注（关键）：schema 必须由 **fork 的 `@qilin-agent/schemastery`**
  * 构造——volatile 的引用包装发生在该 fork 的 `Schema.resolve` 内
  * （`createVolatile`），stock schemastery 只认 meta 标记、不产生引用，
  * 会让 loader 的 `_commitVolatile` 因收集不到引用而静默跳过更新。
- * 本仓钉版 `@qilin/kylin` 不含 `Volatile` 类型、也未装 cosmokit，
+ * 本仓钉版 `@qilin-agent/kylin` 不含 `Volatile` 类型、也未装 cosmokit，
  * 故此处以结构类型 {@link VolatileRef} 承接类型面——判定符号与 fork 一致
  * （{@link VOLATILE_WRITE}，`Symbol.for` 保证跨 ESM/CJS 副本可识别）。
- * @module @qilin/client-ui-sidebar-coding/config
+ * @module @qilin-agent/client-ui-sidebar-coding/config
  */
 
-import z from '@qilin/schemastery'
+import z from '@qilin-agent/schemastery'
 import {
   SIDEBAR_PREFS_DEFAULTS,
   TERMINAL_FONT_SIZE_DEFAULT,
@@ -53,7 +53,7 @@ export {
 // ── volatile 契约（0.1.7）────────────────────────────────────────────────────
 
 /**
- * 运行时 volatile 引用的结构面（上游 `@qilin/kylin` 的 `Volatile<T>`）。
+ * 运行时 volatile 引用的结构面（上游 `@qilin-agent/kylin` 的 `Volatile<T>`）。
  * 值经 `get()` 读取；Loader 在每次提交后原地更新引用。
  */
 export interface VolatileRef<T> {
@@ -121,7 +121,7 @@ function plainValue<T>(value: ConfigField<T>): T | undefined {
 
 declare global {
   namespace Schemastery {
-    // Declaration merging with @qilin/schemastery requires the identical
+    // Declaration merging with @qilin-agent/schemastery requires the identical
     // `T = any` parameter default (TS2428), so the `any` stays.
     // oxlint-disable-next-line typescript/no-explicit-any
     interface Meta<T = any> {

@@ -8,9 +8,9 @@
  * @module qilin-llm-pi-ai/stream
  */
 
-import { brandString } from '@qilin/brand'
-import { CONTEXT_WINDOW_EXCEEDED_CODE, EMPTY_RESPONSE_CODE, isContextWindowExceededError, isQuotaExceededError, LlmError, QUOTA_EXCEEDED_CODE } from '@qilin/llm'
-import type { FinishReason, StreamChunk, TokenUsage, ToolCallId } from '@qilin/llm'
+import { brandString } from '@qilin-agent/brand'
+import { CONTEXT_WINDOW_EXCEEDED_CODE, EMPTY_RESPONSE_CODE, isContextWindowExceededError, isQuotaExceededError, LlmError, QUOTA_EXCEEDED_CODE } from '@qilin-agent/llm'
+import type { FinishReason, StreamChunk, TokenUsage, ToolCallId } from '@qilin-agent/llm'
 import { isContextOverflow } from '@earendil-works/pi-ai/utils/overflow'
 import type { AssistantMessage, AssistantMessageEvent, Usage as PiUsage } from '@earendil-works/pi-ai'
 import { toPiReplayState } from './replay.ts'

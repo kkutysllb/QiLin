@@ -11,16 +11,16 @@
  * between this module and one in-package caller, not something a plugin may
  * depend on.
  *
- * @module @qilin/subagent/lifecycle
+ * @module @qilin-agent/subagent/lifecycle
  */
 
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import type { ContentBlock } from '@qilin/llm'
-import { foldConsumedWork } from '@qilin/agent'
-import { SessionLogOffset } from '@qilin/session'
-import type { SessionEvent, SessionId, SessionLogOffset as SessionLogOffsetType } from '@qilin/session'
+import type { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import type { ContentBlock } from '@qilin-agent/llm'
+import { foldConsumedWork } from '@qilin-agent/agent'
+import { SessionLogOffset } from '@qilin-agent/session'
+import type { SessionEvent, SessionId, SessionLogOffset as SessionLogOffsetType } from '@qilin-agent/session'
 import { finalAssistantOutput } from './assistant-output.ts'
 import { SubagentRunId } from './types.ts'
 import type { SubagentResult, SubagentRun, SubagentRunEndInfo, SubagentRunInfo } from './types.ts'

@@ -8,9 +8,9 @@
  * behind the conflict.
  */
 import { describe, expect, it } from 'vitest'
-import { RemoteError } from '@qilin/client-test-runtime'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
 import { createFilesStore } from '../src/client/store.ts'
-import type { TabId } from '@qilin/client-ui-dockkit'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
 
 const TAB = 'tab-f' as TabId
 

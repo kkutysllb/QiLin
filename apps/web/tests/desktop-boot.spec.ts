@@ -5,7 +5,7 @@ const boot = vi.hoisted(() => ({
   run: vi.fn(),
   applyIndexInjections: vi.fn(async () => {}),
 }))
-vi.mock('@qilin/client-web', () => ({
+vi.mock('@qilin-agent/client-web', () => ({
   AppWebEntry: class { run = boot.run },
   applyIndexInjections: boot.applyIndexInjections,
 }))

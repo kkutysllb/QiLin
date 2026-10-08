@@ -3,7 +3,7 @@ description: "MCP 服务器设置服务：通过 mcpServers Remote 列出、新�
 kind: "package-reference"
 ---
 
-# @qilin/mcp-servers
+# @qilin-agent/mcp-servers
 
 [English](README.md) | 中文
 
@@ -44,7 +44,7 @@ kind: "package-reference"
 
 ### 条目位于何处
 
-每个受管理的服务器都是某个顶层 `- insert:` 项里的一个条目，这也是补丁层添加下层 bundle 从未声明过的行的方式。`@qilin/kylin-plugin-include` 会为插入的行建立索引，因此本层能定位自己插入的行，后续层也能定位它们。启用状态就是条目自身的 `disabled` 键，由同一套补丁应用逻辑读取；因此被停用的服务器保留完整定义，下次启用时无需二次编辑即可恢复。
+每个受管理的服务器都是某个顶层 `- insert:` 项里的一个条目，这也是补丁层添加下层 bundle 从未声明过的行的方式。`@qilin-agent/kylin-plugin-include` 会为插入的行建立索引，因此本层能定位自己插入的行，后续层也能定位它们。启用状态就是条目自身的 `disabled` 键，由同一套补丁应用逻辑读取；因此被停用的服务器保留完整定义，下次启用时无需二次编辑即可恢复。
 
 ### 为什么是 home 层
 
@@ -56,14 +56,14 @@ kind: "package-reference"
 
 ### 该服务仅面向 Remote
 
-`McpServers` 不声明同进程 Kylin `Context` merge；`mcpServers` 命名空间是给设置页使用的 Remote 客户端的。它注入 subprocess 提供方，是因为可用性探测必须按 `@qilin/mcp-client` 将要采用的方式解析命令。
+`McpServers` 不声明同进程 Kylin `Context` merge；`mcpServers` 命名空间是给设置页使用的 Remote 客户端的。它注入 subprocess 提供方，是因为可用性探测必须按 `@qilin-agent/mcp-client` 将要采用的方式解析命令。
 
 <a id="further-exploration"></a>
 ## 进一步探索
 
-- [`@qilin/mcp-client`](../mcp-client/README.zh.md)——本服务写入的每个条目实际挂载了什么，以及它的服务器产生的工具名。
-- [`@qilin/app-boot`](../../boot/app-boot/README.zh.md)——profile 组合、各补丁层，以及启动器安装的用户层重载。
-- [`@qilin/host-plugin-inventory`](../../host/plugin-inventory/README.zh.md)——Loader 从该文件挂载了什么内容的只读投影。
+- [`@qilin-agent/mcp-client`](../mcp-client/README.zh.md)——本服务写入的每个条目实际挂载了什么，以及它的服务器产生的工具名。
+- [`@qilin-agent/app-boot`](../../boot/app-boot/README.zh.md)——profile 组合、各补丁层，以及启动器安装的用户层重载。
+- [`@qilin-agent/host-plugin-inventory`](../../host/plugin-inventory/README.zh.md)——Loader 从该文件挂载了什么内容的只读投影。
 
 <a id="model-experience"></a>
 ## 模型体验
@@ -72,7 +72,7 @@ kind: "package-reference"
 
 #### 模型看到什么
 
-本服务不贡献任何内容：它只写一个补丁文件，不注册自己的提示词文本、工具或结果。它写入的条目由 `@qilin/mcp-client` 挂载，其服务器把各自声明的工具注册为 `mcp__<serverName>__<rawName>`，因此新增、启用或删除服务器会在下一次重载后改变该工具列表。
+本服务不贡献任何内容：它只写一个补丁文件，不注册自己的提示词文本、工具或结果。它写入的条目由 `@qilin-agent/mcp-client` 挂载，其服务器把各自声明的工具注册为 `mcp__<serverName>__<rawName>`，因此新增、启用或删除服务器会在下一次重载后改变该工具列表。
 
 #### Token 影响
 
@@ -104,7 +104,7 @@ kind: "package-reference"
 本开发备注是维护者的工作上下文：开放设计问题与尚未决定的探索方向。它明确不具权威性——已交付行为、限制与既定理由以上文、包代码与所链接的 Agent Note 为准。
 
 - 条目 id 约定 `mcp-<serverName>` 由本服务与设置页共享；出现第三个消费方时它就应当成为公开契约。
-- `SERVER_NAME_PATTERN` 在此处从 `@qilin/mcp-client` 重述，因为该包没有导出它；把它导出即可消除这份重复。
+- `SERVER_NAME_PATTERN` 在此处从 `@qilin-agent/mcp-client` 重述，因为该包没有导出它；把它导出即可消除这份重复。
 - 推荐集合是否应在首次启动时物化——即 KCoder 采用的形态——仍未决定。改为「提供」使可选能力不进入出厂默认，代价是每个服务器一次点击。
 - 若要只读地展示其他层插入的服务器，需要组合后的 Loader 树而非该文件，那是另一个服务边界。
 

@@ -5,7 +5,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { zstdDecompress } from 'node:zlib'
-import { resolveExampleLaunch } from '@qilin/loader-smoke'
+import { resolveExampleLaunch } from '@qilin-agent/loader-smoke'
 import { execa } from 'execa'
 import { describe, expect, it } from 'vitest'
 
@@ -71,7 +71,7 @@ describe('Python SDK qilin profile keyless smoke', () => {
     if (editorEnabled) await writeFile(editorPatch, [
       '- insert:',
       '    - id: tool-str-replace-editor',
-      "      name: '@qilin/tool-str-replace-editor'",
+      "      name: '@qilin-agent/tool-str-replace-editor'",
       '',
     ].join('\n'))
     const modelRequests: Record<string, unknown>[] = []
@@ -295,7 +295,7 @@ describe('Python SDK qilin profile keyless smoke', () => {
         await readFile(join(root, '.qilin', 'profiles', 'sdk-minimal', 'package.json'), 'utf8'),
       ) as { qilin?: { profile?: { bundles?: string[] } } }
       expect(profile.qilin?.profile).toEqual({
-        bundles: ['@qilin/sdk-minimal'],
+        bundles: ['@qilin-agent/sdk-minimal'],
       })
       expect(modelRequests[0]?.tools).toEqual(expect.any(Array))
       const tools = modelRequests[0]?.tools as { name?: string }[]
@@ -401,7 +401,7 @@ describe('Python SDK qilin profile keyless smoke', () => {
       expect(exitCode, stderr).toBe(1)
       expect(stdout).toBe('')
       expect(stderr).toContain('startup failed:')
-      expect(stderr).toContain('sdk-jsonrpc-server (required)\n    Package: @qilin/sdk-jsonrpc-server\n    SyntaxError')
+      expect(stderr).toContain('sdk-jsonrpc-server (required)\n    Package: @qilin-agent/sdk-jsonrpc-server\n    SyntaxError')
       expect(stderr).toContain('sometimes')
     } finally {
       await rm(root, { recursive: true, force: true })

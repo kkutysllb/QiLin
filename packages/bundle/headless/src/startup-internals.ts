@@ -1,7 +1,7 @@
 /**
  * Process facts the startup provider reads, kept out of the `./startup` entry
  * so substituting them in tests adds no public package API.
- * @module @qilin/headless/startup-internals
+ * @module @qilin-agent/headless/startup-internals
  */
 
 /** Process facts the provider reads; tests substitute them. */

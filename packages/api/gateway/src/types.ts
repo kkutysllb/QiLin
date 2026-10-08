@@ -1,10 +1,10 @@
 /**
  * Carrier-independent Typert Gateway request, service, and error contracts.
- * @module @qilin/api-gateway/types
+ * @module @qilin-agent/api-gateway/types
  */
 
-import type { Context } from '@qilin/kylin'
-import type { PeerScope } from '@qilin/typert-protocol'
+import type { Context } from '@qilin-agent/kylin'
+import type { PeerScope } from '@qilin-agent/typert-protocol'
 import type { RemoteEventHostInfo } from './stream-protocol.ts'
 
 /** One Remote method request after a carrier has decoded its envelope. */
@@ -172,7 +172,7 @@ export interface TypertGateway {
   stream(request: InvokeRemoteRequest): Promise<AsyncIterable<unknown>>
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Host dispatcher for Typert Remote calls. */
     typertGateway: TypertGateway

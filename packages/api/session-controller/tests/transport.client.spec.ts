@@ -3,12 +3,12 @@ import {
   RemoteStream,
   RemoteStreamCarrierError,
   type RemoteStreamOptions,
-} from '@qilin/api-gateway/client'
-import { RemoteError } from '@qilin/typert-protocol'
-import { streamHandle } from '@qilin/remote-mock'
-import { LlmAttemptId } from '@qilin/llm'
-import { SESSION_FORMAT_VERSION } from '@qilin/session/types'
-import type { RemoteResult, RemoteStreamHandle } from '@qilin/typert-protocol'
+} from '@qilin-agent/api-gateway/client'
+import { RemoteError } from '@qilin-agent/typert-protocol'
+import { streamHandle } from '@qilin-agent/remote-mock'
+import { LlmAttemptId } from '@qilin-agent/llm'
+import { SESSION_FORMAT_VERSION } from '@qilin-agent/session/types'
+import type { RemoteResult, RemoteStreamHandle } from '@qilin-agent/typert-protocol'
 import {
   createSessionControlStream,
   SessionEventStream,

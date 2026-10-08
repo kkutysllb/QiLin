@@ -4,11 +4,11 @@
  * credential generation it was minted under. The cookie is HttpOnly and
  * SameSite=Strict, so it travels only with same-site navigations and requests
  * and never becomes readable script state.
- * @module @qilin/accounts-local/src/session
+ * @module @qilin-agent/accounts-local/src/session
  */
 
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto'
-import type { ConnectionTrustRequest } from '@qilin/client-connection'
+import type { ConnectionTrustRequest } from '@qilin-agent/client-connection'
 import type { AccountRecord } from './accounts.ts'
 import { isRecord } from './json.ts'
 

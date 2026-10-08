@@ -9,9 +9,9 @@
  * @module
  */
 
-import type { Context } from '@qilin/kylin'
-import { errorChain } from '@qilin/llm'
-import type { Session, SessionEvent, SessionHeader, SessionId, SessionLogOffset } from '@qilin/session'
+import type { Context } from '@qilin-agent/kylin'
+import { errorChain } from '@qilin-agent/llm'
+import type { Session, SessionEvent, SessionHeader, SessionId, SessionLogOffset } from '@qilin-agent/session'
 import {
   assertContiguous,
   SessionAlreadyExistsError,
@@ -21,7 +21,7 @@ import {
   SessionPersistenceNotFoundError,
   SessionPersistenceRevision,
   SessionReadOnlyError,
-} from '@qilin/session-persistence'
+} from '@qilin-agent/session-persistence'
 import type {
   SessionAccess,
   SessionHandle,
@@ -29,7 +29,7 @@ import type {
   SessionHandleFlushOptions,
   SessionHandleReadOptions,
   SessionHandleReadResult,
-} from '@qilin/session-persistence'
+} from '@qilin-agent/session-persistence'
 import type { SessionWriteLease } from './lease.ts'
 
 /** Maximum intentional wait before a routed live session batch starts writing. */

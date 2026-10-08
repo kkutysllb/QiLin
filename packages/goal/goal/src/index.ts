@@ -1,21 +1,21 @@
 /**
  * Same-session goal domain: event-sourced state, compare-and-set mutations,
  * and process-local continuation activation.
- * @module @qilin/goal
+ * @module @qilin-agent/goal
  */
 
 import { randomUUID } from 'node:crypto'
-import { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
+import { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
 import { z as zod } from 'zod'
 import type { ZodType } from 'zod'
-import { agentEvents } from '@qilin/agent'
-import type { Agent } from '@qilin/agent'
-import { SessionSeq } from '@qilin/session'
-import type { Session, SessionEvent, SessionLogOffset } from '@qilin/session'
-import { TypertRemoteService, Remote } from '@qilin/typert-protocol'
-import type {} from '@qilin/session-projection'
-import type { ProjectionDefinition } from '@qilin/session-projection'
+import { agentEvents } from '@qilin-agent/agent'
+import type { Agent } from '@qilin-agent/agent'
+import { SessionSeq } from '@qilin-agent/session'
+import type { Session, SessionEvent, SessionLogOffset } from '@qilin-agent/session'
+import { TypertRemoteService, Remote } from '@qilin-agent/typert-protocol'
+import type {} from '@qilin-agent/session-projection'
+import type { ProjectionDefinition } from '@qilin-agent/session-projection'
 import {
   applyGoalEvent,
   goalChangeRef,
@@ -56,7 +56,7 @@ export type * from './domain.ts'
 export { GOAL_CHANGE_VERSION, GoalError, GoalId } from './runtime.ts'
 export { decodeGoalChange, foldGoal, goalChangeRef } from './fold.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     goals: GoalService
   }

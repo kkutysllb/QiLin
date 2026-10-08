@@ -1,8 +1,8 @@
 /** Strict per-session header/body content inserted into the resident conversation layout. */
 
 import clsx from 'clsx'
-import type { SessionListState, SessionSummary } from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
+import type { SessionListState, SessionSummary } from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import type {
   ConversationSessionHeaderSlotProps, ConversationSessionSlotProps,
 } from '../contract/slots.ts'

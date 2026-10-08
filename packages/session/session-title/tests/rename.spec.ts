@@ -1,16 +1,16 @@
 // SessionTitleService.rename: user-source acceptance, normalization/rejection
 // boundaries, and the pin (a user-sourced latest title schedules no automatic
 // revision; explicit refresh stays the unpin).
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
-import { createUserMessage } from '@qilin/llm'
-import SessionStore, { Session, SessionId } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
+import { createUserMessage } from '@qilin-agent/llm'
+import SessionStore, { Session, SessionId } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import SessionTitleService, {
   SessionTitleProviderId,
   foldSessionTitle,
   type SessionTitleProviderRequest,
-} from '@qilin/session-title'
+} from '@qilin-agent/session-title'
 
 const CONFIG = {
   fallbackMaxWords: 5,

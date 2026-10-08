@@ -1,6 +1,6 @@
 /** Live DOM ownership for docked and floating sidebar pages. */
-import type { LayoutState, PaneId, TabId } from '@qilin/client-ui-dockkit'
-import type { SessionId } from '@qilin/session/types'
+import type { LayoutState, PaneId, TabId } from '@qilin-agent/client-ui-dockkit'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { TabOccurrence } from './tab-domain.ts'
 
 /** A page captured from the currently mounted Session and its current occurrence. */

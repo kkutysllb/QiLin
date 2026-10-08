@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createUserMessage, ToolCallId , createMessage, createToolResultMessage } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
+import { Context } from '@qilin-agent/kylin'
+import { createUserMessage, ToolCallId , createMessage, createToolResultMessage } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
 import SessionStore, {
   SESSION_FORMAT_VERSION,
   SessionId,
   SessionSeq,
-} from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import type { SessionEvent, SessionHeader } from '@qilin/session'
+} from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import type { SessionEvent, SessionHeader } from '@qilin-agent/session'
 import {
   buildSessionEventRecords,
   buildSessionEventSearchDocuments,
@@ -19,10 +19,10 @@ import {
   materializeSessionEventResultFilters,
   materializeSessionResultFilters,
   type SessionQueryErrorCode,
-} from '@qilin/session-query'
+} from '@qilin-agent/session-query'
 import { TestSessionQueryEngine } from './test-service.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

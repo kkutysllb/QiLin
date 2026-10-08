@@ -1,9 +1,9 @@
-import { createSessionFormatCatalog } from '@qilin/session-format'
+import { createSessionFormatCatalog } from '@qilin-agent/session-format'
 import type {
   SessionFormatArtifact,
   SessionFormatCurrentEncoder,
   SessionFormatRecovery,
-} from '@qilin/session-format'
+} from '@qilin-agent/session-format'
 import { releasedV0SessionFormatCodec, releasedV1SessionFormatCodec } from '../codec.ts'
 import { sessionFormatV0ToV1 } from '../migration.ts'
 import { assertReleasedV1Header } from '../validation.ts'

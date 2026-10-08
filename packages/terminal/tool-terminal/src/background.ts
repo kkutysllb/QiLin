@@ -2,11 +2,11 @@
  * Generic-job adaptation for background terminal sends: the registry pull
  * source over the backend's consuming send reader.
  *
- * @module @qilin/tool-terminal/background
+ * @module @qilin-agent/tool-terminal/background
  */
 
-import type { JobOutputSource } from '@qilin/jobs'
-import type { TerminalSendOperation } from '@qilin/terminal'
+import type { JobOutputSource } from '@qilin-agent/jobs'
+import type { TerminalSendOperation } from '@qilin-agent/terminal'
 import { renderSendRead } from './render.ts'
 
 /**

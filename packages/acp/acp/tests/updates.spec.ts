@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { Context } from '@qilin/kylin'
-import { ToolCallId, MessageId } from '@qilin/llm'
-import { SessionSeq, type Session, type SessionEvent } from '@qilin/session'
+import type { Context } from '@qilin-agent/kylin'
+import { ToolCallId, MessageId } from '@qilin-agent/llm'
+import { SessionSeq, type Session, type SessionEvent } from '@qilin-agent/session'
 import { assistantUpdates, toolCallUpdate, toolResultUpdate } from '../src/updates.ts'
 
 /** Minimal committed assistant event for pure update projection tests. */

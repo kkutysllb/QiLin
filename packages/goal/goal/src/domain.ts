@@ -4,10 +4,10 @@
  * event. Kept separate from ./types.ts (the pure client-safe outlet) because
  * these declarations pull qilin-agent, qilin-llm, and cordis into the program —
  * the one-program-per-side layout forbids that on client aggregates.
- * @module @qilin/goal
+ * @module @qilin-agent/goal
  */
 
-import type { Agent } from '@qilin/agent'
+import type { Agent } from '@qilin-agent/agent'
 import type { GoalId, GoalRef, GoalSnapshot, GoalView } from './types.ts'
 
 /** Goal state-changing verbs recorded in the durable source change. */
@@ -52,13 +52,13 @@ export interface GoalMessageSource {
   readonly round: number
 }
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     goal: GoalMessageSource
   }
 }
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /**
      * Complete post-mutation goal state or clear tombstone.
@@ -101,16 +101,16 @@ export type GoalErrorCode =
   | 'GOAL_INVALID_EDIT'
   | 'GOAL_INVALID_TRANSITION'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Events {
     /**
      * Goal mutation accepted by one live agent. The matching `goal/change`
      * session event has already committed. Listener failures are contained.
-     * Scope-filtered dispatch (`@qilin/scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@qilin-agent/scope`): agent-scoped listeners receive only that agent.
      * @param payload.agent - agent whose session owns the goal.
      * @param payload.change - fresh current projection or clear tombstone.
      * @mode emit
      */
-    'goal/changed'(this: import('@qilin/scope').Scoped<Agent>, payload: { agent: Agent; change: GoalChanged }): void
+    'goal/changed'(this: import('@qilin-agent/scope').Scoped<Agent>, payload: { agent: Agent; change: GoalChanged }): void
   }
 }

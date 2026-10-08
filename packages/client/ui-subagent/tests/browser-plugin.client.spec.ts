@@ -1,16 +1,16 @@
 /** ui-subagent browser half: catalog actions and read-only composer routing. */
-import { Context } from '@qilin/kylin'
-import { createSnapshotStore } from '@qilin/client-store'
-import { stubConfigForm } from '@qilin/client-test-runtime'
+import { Context } from '@qilin-agent/kylin'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { stubConfigForm } from '@qilin-agent/client-test-runtime'
 import { describe, expect, it } from 'vitest'
 import type {
   SessionListState, SessionSnapshot, SessionSummary,
-} from '@qilin/api-session-controller/client'
-import type { SubagentAddress } from '@qilin/subagent/client'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import type { SessionId } from '@qilin/session/types'
-import type { ComposerChainProps } from '@qilin/client-ui-conversation/client'
-import { apply as applyLocale, inject as localeInject } from '@qilin/client-locale/client'
+} from '@qilin-agent/api-session-controller/client'
+import type { SubagentAddress } from '@qilin-agent/subagent/client'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { ComposerChainProps } from '@qilin-agent/client-ui-conversation/client'
+import { apply as applyLocale, inject as localeInject } from '@qilin-agent/client-locale/client'
 import {
   SubagentHeaderLineage, type SubagentCatalogInjected,
 } from '../src/client/SubagentHeaderLineage.tsx'

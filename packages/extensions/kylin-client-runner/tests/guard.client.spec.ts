@@ -7,7 +7,7 @@
  * dynamic package from reaching a foreign context. Registrations ride the
  * CALLING fiber, so disposing it must remove them (HMR safety).
  */
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
 import type { FC } from 'react'
 import type {
@@ -15,8 +15,8 @@ import type {
   CordisDynamicPluginId,
   CordisDynamicPluginRunId,
   DynamicCordisPackage,
-} from '@qilin/api-remotes/client'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
+} from '@qilin-agent/api-remotes/client'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
 import { dynamicCordisContext } from '../src/client/guard.ts'
 import type { DynamicCordisSlotLedgerRow } from '../src/client/guard.ts'
 

@@ -1,8 +1,8 @@
 /** Map system snapshots, tool changes, and conversation turns to Messages using the configured route capability. */
 
-import { LlmError, requestImageHandleText } from '@qilin/llm'
-import type { ContentBlock, GenerateOptions, ImageAttachmentAccessResolver, Message, RequestMessage } from '@qilin/llm'
-import type { ImageAttachmentRef, RequestImageAttachment } from '@qilin/attachment'
+import { LlmError, requestImageHandleText } from '@qilin-agent/llm'
+import type { ContentBlock, GenerateOptions, ImageAttachmentAccessResolver, Message, RequestMessage } from '@qilin-agent/llm'
+import type { ImageAttachmentRef, RequestImageAttachment } from '@qilin-agent/attachment'
 import type { DeepSeekConnectionOptions as Connection } from './types.ts'
 import type { DeepSeekFileId } from './file-id.ts'
 import { readReplay } from './replay.ts'

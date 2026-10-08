@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import * as yaml from 'js-yaml'
 import { describe, expect, it } from 'vitest'
-import { entryListSchema } from '@qilin/kylin-plugin-include'
+import { entryListSchema } from '@qilin-agent/kylin-plugin-include'
 
 describe('qilin-sdk-app bundle', () => {
   it('declares startup-gated JSON-RPC serving without overriding base HMR policy', () => {
@@ -15,7 +15,7 @@ describe('qilin-sdk-app bundle', () => {
       qilin?: { bundle?: { patch?: string } }
     }
     expect(manifest.qilin?.bundle?.patch).toBe('./cordis.patch.yml')
-    expect(manifest.dependencies).toHaveProperty('@qilin/sdk-jsonrpc-server')
+    expect(manifest.dependencies).toHaveProperty('@qilin-agent/sdk-jsonrpc-server')
     const patches = yaml.load(
       readFileSync(resolve(root, manifest.qilin!.bundle!.patch!), 'utf8'),
       { schema: entryListSchema },
@@ -23,7 +23,7 @@ describe('qilin-sdk-app bundle', () => {
     expect(patches.find(patch => patch.id === 'hmr')).toMatchObject({ disabled: true })
     expect(patches.find(patch => patch.id === 'session-title-llm')).toMatchObject({ disabled: true })
     const rows = patches.flatMap(patch => patch.insert ?? [])
-    expect(rows.find(row => row.id === 'sdk-app-startup')?.name).toBe('@qilin/sdk-app')
+    expect(rows.find(row => row.id === 'sdk-app-startup')?.name).toBe('@qilin-agent/sdk-app')
     expect(rows.find(row => row.id === 'sdk-jsonrpc-server')?.inject).toEqual(['sdkAppStartup', 'loader'])
   })
 })

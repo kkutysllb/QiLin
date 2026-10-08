@@ -3,7 +3,7 @@ description: "随包附带的 Word、PowerPoint 和 Excel 指令，供需要 Off
 kind: "package-reference"
 ---
 
-# @qilin/skill-office
+# @qilin-agent/skill-office
 
 [English](README.md) | 中文
 
@@ -30,7 +30,7 @@ Agent（智能体）可以加载 Word、PowerPoint 和 Excel 工作流，默认�
 ### 最小配置
 
 ```yaml
-- name: '@qilin/skill-office'
+- name: '@qilin-agent/skill-office'
 ```
 
 | 字段 | 默认值 | 含义 |

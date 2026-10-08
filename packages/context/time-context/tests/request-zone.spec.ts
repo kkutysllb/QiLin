@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { createUserMessage } from '@qilin/llm'
-import type { UserMessage } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
+import { createUserMessage } from '@qilin-agent/llm'
+import type { UserMessage } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
 import {
   deriveBrowserTimeZoneContext,
   renderBrowserTimeZoneContext,
 } from '../src/request-zone.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

@@ -2,8 +2,8 @@
 
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Context } from '@qilin/kylin'
-import { BrowserMcpConfig, mountSessionMcp, validateBrowserMcpConfig } from '@qilin/experimental-browser-use-runtime/mcp'
+import type { Context } from '@qilin-agent/kylin'
+import { BrowserMcpConfig, mountSessionMcp, validateBrowserMcpConfig } from '@qilin-agent/experimental-browser-use-runtime/mcp'
 
 /** Cordis identity for the Playwright MCP browser provider. */
 export const name = 'experimental-browser-use-playwright-mcp'

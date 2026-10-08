@@ -3,7 +3,7 @@ description: "面向 Host 与浏览器 Client Cordis 运行时的实验性 Chrom
 kind: "package-reference"
 ---
 
-# @qilin/experimental-inspector
+# @qilin-agent/experimental-inspector
 
 [English](README.md) | 中文
 
@@ -94,7 +94,7 @@ Host 插件注入 `webServer` 和 `connection`，接受以下字段：
 | `maxCordisNodes` | `2048` | 一个 realm 快照截断前允许的 Context 与 Fiber 节点数 |
 | `maxDisconnectedCordisTrees` | `8` | 作为非实时快照保留的最近断联 realm 树数量 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#qilinexperimental-inspector)是全部已接受字段及其声明的详尽来源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#qilin-agentexperimental-inspector)是全部已接受字段及其声明的详尽来源。
 
 Worker 监听后，Host 会记录一个 `devtools://` URL。同一个 Worker 提供 `/json`、`/json/list`、`/json/version`、`/devtools/page/<id>` target WebSocket 和 `/ingest` Client source。
 
@@ -104,8 +104,8 @@ Worker 监听后，Host 会记录一个 `devtools://` URL。同一个 Worker 提
 两个插件端都提供同一个服务：
 
 ```ts
-import type { Context } from '@qilin/kylin'
-import type { InspectorJsonValue } from '@qilin/experimental-inspector'
+import type { Context } from '@qilin-agent/kylin'
+import type { InspectorJsonValue } from '@qilin-agent/experimental-inspector'
 
 declare const ctx: Context
 declare const topic: string

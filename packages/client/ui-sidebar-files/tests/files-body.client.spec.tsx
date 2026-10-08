@@ -12,10 +12,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent } from '@testing-library/react'
 import type { RenderResult } from '@testing-library/react'
-import { makeTranslate, RemoteError } from '@qilin/client-test-runtime'
-import type { RemoteFailure } from '@qilin/api-remotes/client'
-import type { TabId } from '@qilin/client-ui-dockkit'
-import { fileAddressFor, sessionFileAddress } from '@qilin/util-workspace-path'
+import { makeTranslate, RemoteError } from '@qilin-agent/client-test-runtime'
+import type { RemoteFailure } from '@qilin-agent/api-remotes/client'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
+import { fileAddressFor, sessionFileAddress } from '@qilin-agent/util-workspace-path'
 import { copyTextOf, failureLine, orderEntries } from '../src/client/FileTree.tsx'
 import { SEARCH_SETTLE_MS } from '../src/client/face.ts'
 import type { DirLevel } from '../src/client/store.ts'
@@ -24,8 +24,8 @@ import { mountBody, ROOT, SESSION, TAB } from './mount.client.tsx'
 
 /** The host clipboard write, mocked so a copy lands somewhere observable. */
 const clipboard = vi.hoisted(() => ({ write: vi.fn().mockResolvedValue(true) }))
-vi.mock('@qilin/client-ui-primitives', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@qilin/client-ui-primitives')>()
+vi.mock('@qilin-agent/client-ui-primitives', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@qilin-agent/client-ui-primitives')>()
   return { ...actual, writeClipboard: clipboard.write }
 })
 

@@ -3,7 +3,7 @@ description: "The bundled 'powered by qilin' badge skill for users and maintaine
 kind: "package-reference"
 ---
 
-# @qilin/skill-badge
+# @qilin-agent/skill-badge
 
 English | [中文](README.zh.md)
 
@@ -36,7 +36,7 @@ Choose this provider when content produced with QiLin should carry official attr
 The plugin has no configuration. Add its composition row to a composition; the shipped CLI composition carries the row as `disabled: true`, so enable it explicitly there.
 
 ```yaml
-- name: '@qilin/skill-badge'
+- name: '@qilin-agent/skill-badge'
 ```
 
 After enabling, `qilin-badge` appears in the available skills of the session catalog. The skill covers remote Markdown badges (Shields.io-based) and a packaged PNG badge asset for targets that cannot fetch remote images reliably.

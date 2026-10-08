@@ -3,7 +3,7 @@ description: "QiLin 在 qilin Web 表面之上的产品层：一个补丁 bundle
 kind: "package-bundle"
 ---
 
-# @qilin/web-brand
+# @qilin-agent/web-brand
 
 [English](README.md) | 中文
 
@@ -30,9 +30,9 @@ kind: "package-bundle"
   "qilin": {
     "profile": {
       "bundles": [
-        "@qilin/base",
-        "@qilin/web-app",
-        "@qilin/web-brand"
+        "@qilin-agent/base",
+        "@qilin-agent/web-app",
+        "@qilin-agent/web-brand"
       ]
     }
   }

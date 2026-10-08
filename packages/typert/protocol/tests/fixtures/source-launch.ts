@@ -1,10 +1,10 @@
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import {
   TypertRemoteService,
   Remote,
   RemoteScope,
   remoteMethods,
-} from '@qilin/typert-protocol'
+} from '@qilin-agent/typert-protocol'
 
 class Goals extends TypertRemoteService {
   constructor(ctx: Context) {

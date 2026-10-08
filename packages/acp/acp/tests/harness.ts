@@ -1,6 +1,6 @@
 /** In-memory ACP transport fixture over the real agent factory and loop. */
 
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { createHash } from 'node:crypto'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -18,13 +18,13 @@ import {
   type SessionNotification,
   type Stream,
 } from '@agentclientprotocol/sdk'
-import AttachmentStore, { AttachmentError, AttachmentId } from '@qilin/attachment'
-import type { ImageAttachmentLimits, ImageAttachmentRef, SaveImageAttachment, StoredImageAttachment } from '@qilin/attachment'
-import { type GenerateOptions, LlmAdapter, ReasoningEffortId, type LlmResolvedModelInfo, type StreamChunk } from '@qilin/llm'
-import AgentLoop from '@qilin/agent-loop'
-import { mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'
-import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
-import TokenMeter from '@qilin/token-meter'
+import AttachmentStore, { AttachmentError, AttachmentId } from '@qilin-agent/attachment'
+import type { ImageAttachmentLimits, ImageAttachmentRef, SaveImageAttachment, StoredImageAttachment } from '@qilin-agent/attachment'
+import { type GenerateOptions, LlmAdapter, ReasoningEffortId, type LlmResolvedModelInfo, type StreamChunk } from '@qilin-agent/llm'
+import AgentLoop from '@qilin-agent/agent-loop'
+import { mountAgentLoopTestDependencies } from '@qilin-agent/agent-loop-testkit'
+import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
+import TokenMeter from '@qilin-agent/token-meter'
 import * as AcpPlugin from '../src/index.ts'
 import type { AcpConfig } from '../src/index.ts'
 

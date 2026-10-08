@@ -3,7 +3,7 @@ description: "Target-neutral 对话装配与浏览器 shell：事件和视图注
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-conversation
+# @qilin-agent/client-ui-conversation
 
 [English](README.md) | 中文
 
@@ -94,9 +94,9 @@ interface ComposerChainProps {
 业务包仅可在一个 Remote waterfall request pending 期间安装 entry：
 
 ```tsx
-import type { ComposerChainProps } from '@qilin/client-ui-conversation/client'
-import type { ChainSelect, PropsRuntime } from '@qilin/client-ui-slots'
-import type { SessionId } from '@qilin/session/types'
+import type { ComposerChainProps } from '@qilin-agent/client-ui-conversation/client'
+import type { ChainSelect, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type { SessionId } from '@qilin-agent/session/types'
 
 interface Request {
   readonly sessionId: SessionId

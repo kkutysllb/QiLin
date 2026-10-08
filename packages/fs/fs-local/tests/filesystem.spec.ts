@@ -13,10 +13,10 @@ import { chmod, mkdir, mkdtemp, readFile, realpath, rm, stat, symlink, unlink, u
 import { tmpdir } from 'node:os'
 import { join, parse, relative } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { Context } from '@qilin/kylin'
-import { LocalFileSystem } from '@qilin/fs-local'
-import { FsVersion } from '@qilin/fs'
-import type { FsTarget } from '@qilin/fs'
+import { Context } from '@qilin-agent/kylin'
+import { LocalFileSystem } from '@qilin-agent/fs-local'
+import { FsVersion } from '@qilin-agent/fs'
+import type { FsTarget } from '@qilin-agent/fs'
 
 let dir: string
 let ctx: Context

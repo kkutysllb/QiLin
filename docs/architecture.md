@@ -30,7 +30,7 @@ YAML controls HMR: base enables config-only `qilin-hmr`; headless, SDK and ACP d
 
 Base includes [Plugin Manager](../packages/boot/plugin-manager/README.md) for Web and agents.
 
-The web and qilin profiles stack @qilin/web-app; the right Sidebar is the stock ui-sidebar-right surface with its tab-type rows (ui-sidebar-files, ui-sidebar-documentpreview, ui-sidebar-terminal).
+The web and qilin profiles stack @qilin-agent/web-app; the right Sidebar is the stock ui-sidebar-right surface with its tab-type rows (ui-sidebar-files, ui-sidebar-documentpreview, ui-sidebar-terminal).
 
 To see the tree your machine boots:
 

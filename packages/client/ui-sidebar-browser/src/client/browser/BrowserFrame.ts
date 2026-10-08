@@ -1,7 +1,7 @@
 /** BrowserFrame interface and the current iframe implementation. */
-import { createSnapshotStore } from '@qilin/client-store'
-import type { SnapshotStore } from '@qilin/client-store'
-import type { HostObservable } from '@qilin/client-ui-slots'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { SnapshotStore } from '@qilin-agent/client-store'
+import type { HostObservable } from '@qilin-agent/client-ui-slots'
 import type { BrowserTarget } from './url.ts'
 
 /** One prepared document rendered by a BrowserFrame implementation. */

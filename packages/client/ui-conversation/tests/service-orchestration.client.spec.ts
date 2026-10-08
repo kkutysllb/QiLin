@@ -3,15 +3,15 @@
 // TestSessions mints tagged scopes through the production createScope, so the
 // service's scopeOf/binding path runs against production resolution (no local
 // tag probe).
-import type { UserMessage } from '@qilin/llm/types'
-import type { MessageId } from '@qilin/llm/brand'
-import { Context } from '@qilin/kylin'
+import type { UserMessage } from '@qilin-agent/llm/types'
+import type { MessageId } from '@qilin-agent/llm/brand'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
-import { makeTranslate, RemoteError, SlotTestRuntime } from '@qilin/client-test-runtime'
+import { makeTranslate, RemoteError, SlotTestRuntime } from '@qilin-agent/client-test-runtime'
 import type {
   BeginSubmissionInput, PendingSubmissionRetirement,
-} from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
+} from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import { ComposerBlockRegistry } from '../src/client/input/blocks.ts'
 import { InputHub } from '../src/client/input/hub.ts'
 import { ConversationController } from '../src/client/service.ts'

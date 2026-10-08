@@ -1,6 +1,6 @@
 /** Stream scripts, live stream control, cancellation, and the built-in `$events` opening. */
 import { describe, expect, it } from 'vitest'
-import type { RemoteStreamHandle } from '@qilin/typert-protocol'
+import type { RemoteStreamHandle } from '@qilin-agent/typert-protocol'
 import { RemoteMock, frames, openStream, streamHandle, streamMethod } from '../src/index.ts'
 
 const idle = (): AbortSignal => new AbortController().signal

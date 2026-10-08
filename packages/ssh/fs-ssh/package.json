@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/fs-ssh",
+  "name": "@qilin-agent/fs-ssh",
   "description": "Filesystem provider over the shared POSIX SSH helper",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,21 +30,21 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/ssh": "workspace:*",
-    "@qilin/fs": "workspace:*",
-    "@qilin/sandbox": "workspace:*",
-    "@qilin/sandbox-policy": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/ssh": "workspace:*",
+    "@qilin-agent/fs": "workspace:*",
+    "@qilin-agent/sandbox": "workspace:*",
+    "@qilin-agent/sandbox-policy": "workspace:*"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:~",
+    "@qilin-agent/schemastery": "workspace:~",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/ssh": "workspace:*",
-    "@qilin/fs": "workspace:*",
-    "@qilin/sandbox": "workspace:*",
-    "@qilin/sandbox-policy": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/ssh": "workspace:*",
+    "@qilin-agent/fs": "workspace:*",
+    "@qilin-agent/sandbox": "workspace:*",
+    "@qilin-agent/sandbox-policy": "workspace:*"
   }
 }

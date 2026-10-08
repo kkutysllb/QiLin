@@ -1,18 +1,18 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createToolResultMessage, ToolCallId, type ToolSchema } from '@qilin/llm'
-import AgentRegistry, { type Agent } from '@qilin/agent'
-import { Session, SessionId, SessionSeq, SESSION_FORMAT_VERSION, type SessionEvent } from '@qilin/session'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
+import { Context } from '@qilin-agent/kylin'
+import { createToolResultMessage, ToolCallId, type ToolSchema } from '@qilin-agent/llm'
+import AgentRegistry, { type Agent } from '@qilin-agent/agent'
+import { Session, SessionId, SessionSeq, SESSION_FORMAT_VERSION, type SessionEvent } from '@qilin-agent/session'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
 import UserQuestionService, {
   isTimedAskUserQuestionSchema,
   type AskUserQuestionAnswer,
   type AskUserQuestionRequest,
-} from '@qilin/user-questions'
+} from '@qilin-agent/user-questions'
 // The fold is the projection's own reader of a recorded result, not a service method.
-import { foldUserQuestions } from '@qilin/user-questions/src/projection.ts'
-import * as toolAskUser from '@qilin/tool-ask-user'
+import { foldUserQuestions } from '@qilin-agent/user-questions/src/projection.ts'
+import * as toolAskUser from '@qilin-agent/tool-ask-user'
 
 const testToolSignal = new AbortController().signal
 

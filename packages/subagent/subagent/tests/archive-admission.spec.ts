@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import AgentRegistry from '@qilin/agent'
-import type { Agent, AgentCancelCause, AgentStatus, CancelOptions } from '@qilin/agent'
-import { unsupportedInbox } from '@qilin/agent-loop-testkit'
-import SessionStore, { SessionId } from '@qilin/session'
-import type { Session } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import type { SessionActivity } from '@qilin/workspace'
+import { Context } from '@qilin-agent/kylin'
+import AgentRegistry from '@qilin-agent/agent'
+import type { Agent, AgentCancelCause, AgentStatus, CancelOptions } from '@qilin-agent/agent'
+import { unsupportedInbox } from '@qilin-agent/agent-loop-testkit'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import type { Session } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import type { SessionActivity } from '@qilin-agent/workspace'
 import SubagentRuntime, { SUBAGENT_DESCRIPTOR_VERSION } from '../src/index.ts'
 import { TestSessionQuery } from './test-session-query.ts'
 
@@ -175,7 +175,7 @@ describe('Subagent archive admission: lifetime', () => {
 })
 
 // The runtime knows only its own family; this suite merges a trailing one to observe ordering.
-declare module '@qilin/workspace/types' {
+declare module '@qilin-agent/workspace/types' {
   interface SessionActivityKindMap {
     probe: true
   }

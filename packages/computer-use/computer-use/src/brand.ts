@@ -1,6 +1,6 @@
-/** Computer-use provider identities. @module @qilin/computer-use/brand */
+/** Computer-use provider identities. @module @qilin-agent/computer-use/brand */
 
-import type { Branded } from '@qilin/brand'
+import type { Branded } from '@qilin-agent/brand'
 
 /** Provider-owned name identifying a computer-use registration. */
 export type ComputerUseProviderName = Branded<'ComputerUseProviderName'>

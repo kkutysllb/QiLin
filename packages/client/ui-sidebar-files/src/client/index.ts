@@ -18,14 +18,14 @@
  * what it says (`locales.ts`), and this module, which only wires them
  * together.
  */
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { BoundActions } from '@qilin/client-store'
-import type { SessionId } from '@qilin/session/types'
-import type { ClientRemote } from '@qilin/api-remotes/client'
-import type {} from '@qilin/api-remotes/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-session/client'
-import type {} from '@qilin/client-ui-sidebar-right/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { BoundActions } from '@qilin-agent/client-store'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { ClientRemote } from '@qilin-agent/api-remotes/client'
+import type {} from '@qilin-agent/api-remotes/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-session/client'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
 import { FILES_ID, filesDefinition } from './definition.tsx'
 import { FILE_ID, fileDefinition } from './file-definition.ts'
 import { createList, createSearch, filesFace } from './face.ts'
@@ -44,7 +44,7 @@ import { FileTitle } from './FileTitle.tsx'
 import { en, zh } from './locales.ts'
 import { createFilesStore } from './store.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface SlotMap {
     /** Workspace directory actions after the file tree's reload control. */
     'sidebar.right.tab.files.actions': {

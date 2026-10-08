@@ -9,8 +9,8 @@ Accept configuration supplied through `cordis.yml`.
 Export a `Config` type and a same-named Schemastery schema. Put defaults directly on the schema fields:
 
 ```ts
-import type { Context } from '@qilin/kylin'
-import Schema from '@qilin/schemastery'
+import type { Context } from '@qilin-agent/kylin'
+import Schema from '@qilin-agent/schemastery'
 
 export const name = 'my-plugin'
 
@@ -49,8 +49,8 @@ When loading the plugin, Kylin uses the exported schema to validate configuratio
 Use Schemastery to express stricter validation:
 
 ```ts
-import type { Context } from '@qilin/kylin'
-import Schema from '@qilin/schemastery'
+import type { Context } from '@qilin-agent/kylin'
+import Schema from '@qilin-agent/schemastery'
 
 export const name = 'validated-plugin'
 

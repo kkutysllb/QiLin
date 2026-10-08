@@ -20,7 +20,7 @@ function createWorkspace(): string {
   const root = mkdtempSync(join(tmpdir(), 'qilin-package-licenses-'))
   roots.push(root)
   writeManifest(root, 'package.json', {
-    name: '@qilin/root',
+    name: '@qilin-agent/root',
     license: 'MIT',
     workspaces: ['apps/*', 'packages/*/*', 'vendor/*'],
   })
@@ -30,31 +30,31 @@ function createWorkspace(): string {
 describe('QILIN package license gate', () => {
   it('checks root, unhyphenated CLI, and qilin-prefixed package names while ignoring other families', () => {
     const root = createWorkspace()
-    writeManifest(root, 'apps/cli/package.json', { name: '@qilin/cli', license: 'MIT' })
+    writeManifest(root, 'apps/cli/package.json', { name: '@qilin-agent/cli', license: 'MIT' })
     writeManifest(root, 'packages/core/agent/package.json', {
-      name: '@qilin/agent',
+      name: '@qilin-agent/agent',
       license: 'BSD-3-Clause',
     })
     writeManifest(root, 'vendor/cordis/package.json', {
-      name: '@qilin/kylin',
+      name: '@qilin-agent/kylin',
       license: 'BSD-3-Clause',
     })
 
     expect(inspectQilinPackageLicenses(root)).toEqual({
       packageCount: 4,
       failures: [
-        'packages/core/agent/package.json: @qilin/agent must declare "license": "MIT"; found "BSD-3-Clause".',
-        'vendor/cordis/package.json: @qilin/kylin must declare "license": "MIT"; found "BSD-3-Clause".',
+        'packages/core/agent/package.json: @qilin-agent/agent must declare "license": "MIT"; found "BSD-3-Clause".',
+        'vendor/cordis/package.json: @qilin-agent/kylin must declare "license": "MIT"; found "BSD-3-Clause".',
       ],
     })
   })
 
   it('rejects a missing license declaration', () => {
     const root = createWorkspace()
-    writeManifest(root, 'packages/core/agent/package.json', { name: '@qilin/agent' })
+    writeManifest(root, 'packages/core/agent/package.json', { name: '@qilin-agent/agent' })
 
     expect(inspectQilinPackageLicenses(root).failures).toEqual([
-      'packages/core/agent/package.json: @qilin/agent must declare "license": "MIT"; found undefined.',
+      'packages/core/agent/package.json: @qilin-agent/agent must declare "license": "MIT"; found undefined.',
     ])
   })
 })

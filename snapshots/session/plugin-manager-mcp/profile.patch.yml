@@ -1,6 +1,6 @@
 - insert:
     - id: demo
-      name: '@qilin/mcp-client'
+      name: '@qilin-agent/mcp-client'
       disabled: true
       config:
         serverName: demo

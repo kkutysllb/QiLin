@@ -1,8 +1,8 @@
 /** General Settings row for the Composer's busy-state Enter preference. */
 import { useState } from 'react'
-import type { SnapshotStore } from '@qilin/client-store'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
-import { IconChevronDownOutline14, Menu } from '@qilin/client-ui-primitives'
+import type { SnapshotStore } from '@qilin-agent/client-store'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import { IconChevronDownOutline14, Menu } from '@qilin-agent/client-ui-primitives'
 import type { BusyEnterBehavior } from '../contract/composer-submission.ts'
 import type { ConversationKey } from '../locales.ts'
 import css from './EnterBehaviorRow.module.css'

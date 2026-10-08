@@ -1,10 +1,10 @@
 /**
  * Typed failures shared by subagent service and provider operations.
  *
- * @module @qilin/subagent
+ * @module @qilin-agent/subagent
  */
 
-import { HarnessError } from '@qilin/llm'
+import { HarnessError } from '@qilin-agent/llm'
 
 /** Typed failure for the subagent seam. */
 export class SubagentError extends HarnessError {

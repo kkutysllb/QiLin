@@ -3,7 +3,7 @@ description: "面向客户端与维护者的全日志会话计数与墙钟时间
 kind: "package-reference"
 ---
 
-# @qilin/session-stats
+# @qilin-agent/session-stats
 
 [English](README.md) | 中文
 
@@ -30,9 +30,9 @@ kind: "package-reference"
 ### 组合
 
 ```yaml
-- name: '@qilin/session'
-- name: '@qilin/session-projection'
-- name: '@qilin/session-stats'
+- name: '@qilin-agent/session'
+- name: '@qilin-agent/session-projection'
+- name: '@qilin-agent/session-stats'
 ```
 
 ### 各字段含义

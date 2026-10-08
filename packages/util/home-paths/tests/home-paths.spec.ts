@@ -12,7 +12,7 @@ import {
   qilinHomePath,
   expandHomePath,
   resolveQilinHome,
-} from '@qilin/home-paths'
+} from '@qilin-agent/home-paths'
 
 afterEach(() => {
   vi.unstubAllEnvs()

@@ -2,9 +2,9 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import LocalCredentialProvider from '@qilin/credentials-local'
-import { credentialKey, credentialRef } from '@qilin/credentials'
+import { Context } from '@qilin-agent/kylin'
+import LocalCredentialProvider from '@qilin-agent/credentials-local'
+import { credentialKey, credentialRef } from '@qilin-agent/credentials'
 import { authContextFrom, credentialStoreFrom, recordKeyFor } from '../src/auth.ts'
 
 const CODEX = recordKeyFor('openai-codex')

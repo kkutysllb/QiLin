@@ -10,12 +10,12 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import SessionStore, { SessionId } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import * as SessionStatsPlugin from '@qilin/session-stats'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import * as SessionStatsPlugin from '@qilin-agent/session-stats'
 
 let root: string | undefined
 let context: Context | undefined
@@ -37,9 +37,9 @@ async function loadYaml(lines: readonly string[]): Promise<Context> {
   await context.plugin(Loader)
   context.loader.builtins.include = Include
   const modules = new Map<string, unknown>([
-    ['@qilin/session', SessionStore],
-    ['@qilin/session-projection', SessionProjectionRegistry],
-    ['@qilin/session-stats', SessionStatsPlugin],
+    ['@qilin-agent/session', SessionStore],
+    ['@qilin-agent/session-projection', SessionProjectionRegistry],
+    ['@qilin-agent/session-stats', SessionStatsPlugin],
   ])
   context.loader.internal = {
     version: 'v2',
@@ -59,9 +59,9 @@ async function loadYaml(lines: readonly string[]): Promise<Context> {
 describe('real Loader composition', () => {
   it('loads the shipped session-stats YAML shape and serves whole-log counts', async () => {
     const loaded = await loadYaml([
-      "- name: '@qilin/session'",
-      "- name: '@qilin/session-projection'",
-      "- name: '@qilin/session-stats'",
+      "- name: '@qilin-agent/session'",
+      "- name: '@qilin-agent/session-projection'",
+      "- name: '@qilin-agent/session-stats'",
     ])
 
     const unloaded = [...loaded.loader.entries()]

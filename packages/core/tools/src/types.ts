@@ -1,11 +1,11 @@
 /**
  * Durable Tool event vocabulary shared with type-only consumers.
  *
- * @module @qilin/tools/types
+ * @module @qilin-agent/tools/types
  */
 
-import type { ToolCallId } from '@qilin/llm/brand'
-import type { ContentBlock } from '@qilin/llm/types'
+import type { ToolCallId } from '@qilin-agent/llm/brand'
+import type { ContentBlock } from '@qilin-agent/llm/types'
 
 /** Payload recorded when one nested PTC mode Tool dispatch starts. */
 export interface PtcDispatchStartEventData {
@@ -24,7 +24,7 @@ export interface PtcDispatchEventData extends PtcDispatchStartEventData {
   error?: { name: string; code: string; reason?: string }
 }
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /**
      * One sub-dispatch STARTING inside a `run_code` program: the parent

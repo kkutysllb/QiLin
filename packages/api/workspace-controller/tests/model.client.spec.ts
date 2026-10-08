@@ -22,9 +22,9 @@ import type {
   WorkspaceId,
   WorkspaceView,
 } from '../src/types.ts'
-import { RemoteError, type RemoteFailure, type RemoteResult, type RemoteStreamHandle } from '@qilin/typert-protocol'
-import { streamHandle } from '@qilin/remote-mock'
-import type { SessionId } from '@qilin/session/types'
+import { RemoteError, type RemoteFailure, type RemoteResult, type RemoteStreamHandle } from '@qilin-agent/typert-protocol'
+import { streamHandle } from '@qilin-agent/remote-mock'
+import type { SessionId } from '@qilin-agent/session/types'
 
 const sid = (id: string): SessionId => id as SessionId
 

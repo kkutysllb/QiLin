@@ -5,8 +5,8 @@
  */
 import clsx from 'clsx'
 import type { ReactNode } from 'react'
-import { ReferenceIcon } from '@qilin/client-ui-primitives'
-import type { ReferenceIconKind } from '@qilin/client-ui-primitives'
+import { ReferenceIcon } from '@qilin-agent/client-ui-primitives'
+import type { ReferenceIconKind } from '@qilin-agent/client-ui-primitives'
 import css from './ReferenceChip.module.css'
 import referenceCss from './composer-editor.module.css'
 

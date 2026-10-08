@@ -3,7 +3,7 @@ description: "Shared React UI atoms for the qilin web client: controls, icons, m
 kind: "package-library"
 ---
 
-# @qilin/client-ui-primitives
+# @qilin-agent/client-ui-primitives
 
 English | [中文](README.zh.md)
 

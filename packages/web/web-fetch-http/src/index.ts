@@ -2,12 +2,12 @@
  * Anonymous public HTTP(S) `WebFetchProvider` plugin. It contributes to the
  * `ctx.web` registry without owning the service.
  *
- * @module @qilin/web-fetch-http
+ * @module @qilin-agent/web-fetch-http
  */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type {} from '@qilin/web'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type {} from '@qilin-agent/web'
 import { HttpFetchProvider } from './provider.ts'
 import type { HttpFetchLimits } from './provider.ts'
 

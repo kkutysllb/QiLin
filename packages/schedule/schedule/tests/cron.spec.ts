@@ -9,8 +9,8 @@ import {
 } from '../src/domain.ts'
 import { resolveScheduleUpdate } from '../src/update.ts'
 import type { CronInput, CronScheduleRecord, ScheduleRecord, ScheduleTimingChange } from '../src/types.ts'
-import { SessionSeq } from '@qilin/session'
-import type { SessionEvent } from '@qilin/session'
+import { SessionSeq } from '@qilin-agent/session'
+import type { SessionEvent } from '@qilin-agent/session'
 
 function cron(now: string, expression: string, timeZone = 'UTC'): CronScheduleRecord {
   return createCronScheduleRecord(

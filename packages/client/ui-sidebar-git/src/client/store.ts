@@ -7,10 +7,10 @@
  * expanded. A bucket is born at `start` and dies with the tab record's abort,
  * which is also the only thing that ends its life.
  */
-import { defineStore, type EngineStoreHandle } from '@qilin/client-store'
-import type { RemoteFailure } from '@qilin/api-remotes/client'
-import type { GhPr, GitBranch, GitLogEntry, GitStatus } from '@qilin/api-workspace-git/types'
-import type { TabId } from '@qilin/client-ui-dockkit'
+import { defineStore, type EngineStoreHandle } from '@qilin-agent/client-store'
+import type { RemoteFailure } from '@qilin-agent/api-remotes/client'
+import type { GhPr, GitBranch, GitLogEntry, GitStatus } from '@qilin-agent/api-workspace-git/types'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
 import { HISTORY_PAGE_SIZE } from './git-model.ts'
 
 /** What the repository probe and the status reads settled on. */

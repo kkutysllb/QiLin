@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-ui-sidebar-documentpreview",
+  "name": "@qilin-agent/client-ui-sidebar-documentpreview",
   "description": "Extensible document previews for Sidebar files: Office, Markdown, highlighted code, images, PDF, HTML, and plain text",
   "version": "3.1.1",
   "publishConfig": {
@@ -31,15 +31,15 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/api-gateway",
-        "@qilin/api-workspace-files",
-        "@qilin/client-resources",
-        "@qilin/client-ui-sidebar-right",
-        "@qilin/client-ui-session",
-        "@qilin/client-ui-conversation",
-        "@qilin/api-remotes",
-        "@qilin/client-locale",
-        "@qilin/client-ui-settings"
+        "@qilin-agent/api-gateway",
+        "@qilin-agent/api-workspace-files",
+        "@qilin-agent/client-resources",
+        "@qilin-agent/client-ui-sidebar-right",
+        "@qilin-agent/client-ui-session",
+        "@qilin-agent/client-ui-conversation",
+        "@qilin-agent/api-remotes",
+        "@qilin-agent/client-locale",
+        "@qilin-agent/client-ui-settings"
       ],
       "platform": "web"
     }
@@ -50,29 +50,29 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/api-gateway": "workspace:*",
-    "@qilin/api-remotes": "workspace:*",
-    "@qilin/api-workspace-files": "workspace:*",
-    "@qilin/client-connection": "workspace:*",
-    "@qilin/client-locale": "workspace:*",
-    "@qilin/client-resources": "workspace:*",
-    "@qilin/client-store": "workspace:*",
-    "@qilin/client-test-runtime": "workspace:*",
-    "@qilin/client-ui-dockkit": "workspace:*",
-    "@qilin/client-ui-conversation": "workspace:*",
-    "@qilin/client-ui-primitives": "workspace:*",
-    "@qilin/client-ui-renderer": "workspace:*",
-    "@qilin/client-ui-session": "workspace:*",
-    "@qilin/client-ui-settings": "workspace:*",
-    "@qilin/client-ui-sidebar-right": "workspace:*",
-    "@qilin/client-ui-slots": "workspace:*",
-    "@qilin/host-webserver": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/util-workspace-path": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/api-gateway": "workspace:*",
+    "@qilin-agent/api-remotes": "workspace:*",
+    "@qilin-agent/api-workspace-files": "workspace:*",
+    "@qilin-agent/client-connection": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-resources": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-dockkit": "workspace:*",
+    "@qilin-agent/client-ui-conversation": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-session": "workspace:*",
+    "@qilin-agent/client-ui-settings": "workspace:*",
+    "@qilin-agent/client-ui-sidebar-right": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/host-webserver": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/util-workspace-path": "workspace:*",
     "@fortune-sheet/core": "1.0.4",
     "@fortune-sheet/react": "1.0.4",
     "@testing-library/react": "^16.1.0",
@@ -89,7 +89,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
-    "@qilin/office-to-pdf": "workspace:*"
+    "@qilin-agent/office-to-pdf": "workspace:*"
   },
   "files": [
     "lib/index.js",
@@ -98,6 +98,6 @@
     "lib/types/**/*.d.ts"
   ],
   "dependencies": {
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/schemastery": "workspace:~"
   }
 }

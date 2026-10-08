@@ -1,9 +1,9 @@
 /** The bundled skill owns its registry candidate and extracted resource directory. */
 
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import SkillRegistry from '@qilin/skill'
+import SkillRegistry from '@qilin-agent/skill'
 import { describe, expect, it } from 'vitest'
 import { ACL_DIAGNOSIS_SKILL, registerAclDiagnosisSkill } from '../src/acl-skill.ts'
 

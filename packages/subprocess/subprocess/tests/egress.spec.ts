@@ -2,8 +2,8 @@ import { createServer, type Server } from 'node:http'
 import { spawn } from 'node:child_process'
 import type { AddressInfo } from 'node:net'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { clearedProxyEnv, installProxyFromEnvironment } from '@qilin/http-proxy'
-import { createLaunchEnvironmentSnapshot } from '@qilin/launch-environment'
+import { clearedProxyEnv, installProxyFromEnvironment } from '@qilin-agent/http-proxy'
+import { createLaunchEnvironmentSnapshot } from '@qilin-agent/launch-environment'
 import { scrubbedParentEnv } from '../src/index.ts'
 
 /**

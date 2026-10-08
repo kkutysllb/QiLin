@@ -5,7 +5,7 @@
  *
  * Usage: pnpm run version:set 3.0.6 | pnpm run version:set --check
  *
- * The family is the root manifest plus every `@qilin/...` package under
+ * The family is the root manifest plus every `@qilin-agent/...` package under
  * `packages/<group>/<package>` and `apps/<app>` — the same set
  * `check-workspace-constraints` holds to the root version. Vendored packages
  * and the native addon family keep their own version lines and are outside
@@ -29,14 +29,14 @@ export interface VersionedManifest {
 
 /**
  * Whether one manifest joins the version family: the root manifest, or a
- * `@qilin/*` package (which is how every workspace package and the CLI name
+ * `@qilin-agent/*` package (which is how every workspace package and the CLI name
  * themselves).
  * @param manifest - Manifest name, absent for the root.
  * @returns Whether the root version governs it.
  */
 export function inVersionFamily(manifest: { readonly name?: string | undefined }): boolean {
   const name = manifest.name
-  return name === undefined || name === '@qilin/cli' || name.startsWith('@qilin/')
+  return name === undefined || name === '@qilin-agent/cli' || name.startsWith('@qilin-agent/')
 }
 
 /**

@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/user-approval",
+  "name": "@qilin-agent/user-approval",
   "description": "User-approval seam (ctx.approval) for the QiLin: one-shot permission decisions dispatched to composed answerers over the approval/request waterfall, fail-closed by default",
   "version": "3.1.1",
   "publishConfig": {
@@ -35,24 +35,24 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/brand": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/scope": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/scope": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/brand": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/scope": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/scope": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   }
 }

@@ -9,7 +9,7 @@ import { performance } from 'node:perf_hooks'
 import type { Browser, CDPSession, Locator, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import type { StreamChunk } from '@qilin/llm'
+import type { StreamChunk } from '@qilin-agent/llm'
 import {
   ToolCallId,
   createAssistantMessage,
@@ -17,16 +17,16 @@ import {
   createToolResultMessage,
   createUserMessage,
   expandAssistantStream,
-} from '@qilin/llm'
-import type { ReplayEntry, ReplayOverrideDoc } from '@qilin/llm-replay'
-import type { SessionEvent, SessionSeq } from '@qilin/session'
+} from '@qilin-agent/llm'
+import type { ReplayEntry, ReplayOverrideDoc } from '@qilin-agent/llm-replay'
+import type { SessionEvent, SessionSeq } from '@qilin-agent/session'
 import {
   SESSION_FORMAT_VERSION,
   Session,
   SessionId,
-} from '@qilin/session'
+} from '@qilin-agent/session'
 // Carries the session/title event declaration into the fixture builder.
-import type {} from '@qilin/session-title'
+import type {} from '@qilin-agent/session-title'
 import {
   launchWebScaffold,
   seedSession,

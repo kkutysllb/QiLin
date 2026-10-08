@@ -1,13 +1,13 @@
 /** Compiled worker for Client history folding and live tool preparation. */
 
 import { performance } from 'node:perf_hooks'
-import { Context } from '@qilin/kylin'
-import { AssistantStreamAccumulator } from '@qilin/llm/assistant-stream'
-import { LlmAttemptId, ToolCallId } from '@qilin/llm/brand'
-import type { StreamChunk } from '@qilin/llm'
-import type { SessionEvent } from '@qilin/session/types'
-import type { ChatNode, ChatSnapshot } from '@qilin/client-ui-chat/client'
-import type { SessionEventLikeEntry } from '@qilin/api-session-controller/client'
+import { Context } from '@qilin-agent/kylin'
+import { AssistantStreamAccumulator } from '@qilin-agent/llm/assistant-stream'
+import { LlmAttemptId, ToolCallId } from '@qilin-agent/llm/brand'
+import type { StreamChunk } from '@qilin-agent/llm'
+import type { SessionEvent } from '@qilin-agent/session/types'
+import type { ChatNode, ChatSnapshot } from '@qilin-agent/client-ui-chat/client'
+import type { SessionEventLikeEntry } from '@qilin-agent/api-session-controller/client'
 // These Client-only fold modules have no plain-Node package export and are compiled into this worker.
 import { ConversationNodeAssembler } from '../../packages/client/ui-conversation/src/client/conversation/assembler.ts'
 import { ConversationEventRegistry } from '../../packages/client/ui-conversation/src/client/conversation/event-registry.ts'
@@ -258,12 +258,12 @@ function preparingTool(tool: 'write' | 'bash', characters: number, definitions: 
 }
 
 assertBuiltBenchmarkRuntime(import.meta.url, {
-  '@qilin/brand': import.meta.resolve('@qilin/brand'),
-  '@qilin/client-store': import.meta.resolve('@qilin/client-store'),
-  '@qilin/llm/assistant-stream': import.meta.resolve('@qilin/llm/assistant-stream'),
-  '@qilin/session/surface': import.meta.resolve('@qilin/session/surface'),
-  '@qilin/token-meter/client': import.meta.resolve('@qilin/token-meter/client'),
-  '@qilin/util-values': import.meta.resolve('@qilin/util-values'),
+  '@qilin-agent/brand': import.meta.resolve('@qilin-agent/brand'),
+  '@qilin-agent/client-store': import.meta.resolve('@qilin-agent/client-store'),
+  '@qilin-agent/llm/assistant-stream': import.meta.resolve('@qilin-agent/llm/assistant-stream'),
+  '@qilin-agent/session/surface': import.meta.resolve('@qilin-agent/session/surface'),
+  '@qilin-agent/token-meter/client': import.meta.resolve('@qilin-agent/token-meter/client'),
+  '@qilin-agent/util-values': import.meta.resolve('@qilin-agent/util-values'),
 })
 const scope = new Context()
 try {

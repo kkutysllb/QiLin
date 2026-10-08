@@ -3,7 +3,7 @@ description: "Workspace file service for the web GUI: bounded file reads, one gu
 kind: "package-reference"
 ---
 
-# @qilin/api-workspace-files
+# @qilin-agent/api-workspace-files
 
 English | [中文](README.zh.md)
 
@@ -86,7 +86,7 @@ Every operation that needs an existing entry first uses `lstat` to reject a miss
 | `maxSearchVisited` | `100000` | Cap on directory entries one filename search visits; past it the walk reports the cut |
 | `searchExcludedDirectories` | [`.git`, `node_modules`, …](src/index.ts) | Directory basenames a filename search neither matches nor descends into |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#qilinapi-workspace-files) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agentapi-workspace-files) is the exhaustive source for every accepted field and its JSDoc.
 
 ### Failures
 

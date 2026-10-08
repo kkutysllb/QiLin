@@ -2,19 +2,19 @@
 # a separate SDK child runtime. Both runtimes persist their request headers.
 
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
+  name: '@qilin-agent/llm-deepseek'
   disabled: true
 
 - id: tool-subagent
-  name: '@qilin/tool-subagent'
+  name: '@qilin-agent/tool-subagent'
   disabled: true
 
 - id: sdk-jsonrpc-server
-  name: '@qilin/sdk-jsonrpc-server'
+  name: '@qilin-agent/sdk-jsonrpc-server'
   disabled: true
 
 - id: session-persistence-jsonl
-  name: '@qilin/session-persistence-jsonl'
+  name: '@qilin-agent/session-persistence-jsonl'
   config:
     root: !!js qilinHomePath('sessions')
     compression: none
@@ -25,7 +25,7 @@
       disabled: !!js process.env.QILIN_SNAPSHOT !== 'record'
 
     - id: subagent-qilin-sdk
-      name: '@qilin/subagent-qilin-sdk'
+      name: '@qilin-agent/subagent-qilin-sdk'
       config:
         profile: sdk
         patches: !!js JSON.parse(process.env.QILIN_TEST_CHILD_PATCHES ?? '[]')
@@ -36,7 +36,7 @@
           QILIN_TELEMETRY_DISABLED: '1'
 
     - id: subagent-model-selection-settings
-      name: '@qilin/tool-subagent/model-selection-settings'
+      name: '@qilin-agent/tool-subagent/model-selection-settings'
       config:
         enabled: true
         allowedModels:
@@ -54,7 +54,7 @@
         maxDepth: 'provider-managed'
 
     - id: sdk-jsonrpc-server-dynamic-live
-      name: '@qilin/sdk-jsonrpc-server'
+      name: '@qilin-agent/sdk-jsonrpc-server'
       inject: [sdkAppStartup, loader]
       disabled: !!js process.env.QILIN_SNAPSHOT !== 'record'
       config:

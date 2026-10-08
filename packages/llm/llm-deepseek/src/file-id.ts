@@ -1,6 +1,6 @@
 /** DeepSeek Files API identifiers. @module qilin-llm-deepseek/file-id */
 
-import type { Branded } from '@qilin/brand'
+import type { Branded } from '@qilin-agent/brand'
 
 /** Opaque identifier returned by the DeepSeek Files API. */
 export type DeepSeekFileId = Branded<'DeepSeekFileId'>

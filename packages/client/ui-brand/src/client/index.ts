@@ -1,10 +1,10 @@
 /** QiLin occupants for the generic sidebar and conversation brand slots. */
 
-import type { Context as ClientContext } from '@qilin/kylin'
-import type {} from '@qilin/client-ui-conversation/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-sidebar/client'
-import type {} from '@qilin/client-ui-settings/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/client-ui-conversation/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-sidebar/client'
+import type {} from '@qilin-agent/client-ui-settings/client'
 import { QilinSealArtist, QilinSealHeroMark, QilinSealMark } from './Seal.tsx'
 
 /** Required service: the UI slot registry. */

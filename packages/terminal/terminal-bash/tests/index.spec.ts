@@ -1,29 +1,29 @@
 import { describe, expect, it, vi } from 'vitest'
 import { PassThrough } from 'node:stream'
 import { resolve } from 'node:path'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import SessionStore, { SESSION_FORMAT_VERSION, Session, SessionId } from '@qilin/session'
-import AgentRegistry, { type Agent } from '@qilin/agent'
-import SandboxProvider from '@qilin/sandbox'
-import type { ConfinedArgv, SandboxPolicy } from '@qilin/sandbox'
-import SandboxPolicyService, { setSandboxMode } from '@qilin/sandbox-policy'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import TerminalSessionService, { TerminalBackendCleanupError, TerminalSessionId } from '@qilin/terminal'
-import type { TerminalSendRequest, TerminalWaitReason } from '@qilin/terminal'
-import { BashTerminalBackend, PWSH_PROMPT_SETUP } from '@qilin/terminal-bash'
-import { ENCODING_PREAMBLE } from '@qilin/pwsh-local'
-import * as ptyLocal from '@qilin/terminal-bash'
-import type { ResolvedConfig } from '@qilin/terminal-bash/src/config.ts'
-import type { LocalPtySession } from '@qilin/terminal-bash/src/session.ts'
-import { SubprocessRuntime } from '@qilin/subprocess'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import SessionStore, { SESSION_FORMAT_VERSION, Session, SessionId } from '@qilin-agent/session'
+import AgentRegistry, { type Agent } from '@qilin-agent/agent'
+import SandboxProvider from '@qilin-agent/sandbox'
+import type { ConfinedArgv, SandboxPolicy } from '@qilin-agent/sandbox'
+import SandboxPolicyService, { setSandboxMode } from '@qilin-agent/sandbox-policy'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import TerminalSessionService, { TerminalBackendCleanupError, TerminalSessionId } from '@qilin-agent/terminal'
+import type { TerminalSendRequest, TerminalWaitReason } from '@qilin-agent/terminal'
+import { BashTerminalBackend, PWSH_PROMPT_SETUP } from '@qilin-agent/terminal-bash'
+import { ENCODING_PREAMBLE } from '@qilin-agent/pwsh-local'
+import * as ptyLocal from '@qilin-agent/terminal-bash'
+import type { ResolvedConfig } from '@qilin-agent/terminal-bash/src/config.ts'
+import type { LocalPtySession } from '@qilin-agent/terminal-bash/src/session.ts'
+import { SubprocessRuntime } from '@qilin-agent/subprocess'
 import type {
   SubprocessHandle,
   SubprocessSpawnSpec,
   SubprocessTerminalHandle,
   SubprocessTerminalSpawnSpec,
-} from '@qilin/subprocess'
-import { unsupportedInbox } from '@qilin/agent-loop-testkit'
+} from '@qilin-agent/subprocess'
+import { unsupportedInbox } from '@qilin-agent/agent-loop-testkit'
 
 class EmptySandbox extends SandboxProvider {
   async confine(_argv: readonly string[], _policy: SandboxPolicy): Promise<ConfinedArgv> {

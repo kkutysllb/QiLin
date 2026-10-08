@@ -11,12 +11,12 @@ import {
   normalizeStdout,
   scrubModelRequestBulk,
   type NormalizeContext,
-} from '@qilin/session-snapshot'
-import { LOADER_SMOKE_TEST_TIMEOUT_MS, runLoaderSmoke } from '@qilin/loader-smoke'
+} from '@qilin-agent/session-snapshot'
+import { LOADER_SMOKE_TEST_TIMEOUT_MS, runLoaderSmoke } from '@qilin-agent/loader-smoke'
 import {
   decompressZstdFrame,
   scanZstdFrames,
-} from '@qilin/session-persistence-jsonl/src/zstd.ts'
+} from '@qilin-agent/session-persistence-jsonl/src/zstd.ts'
 import { describe, expect, it } from 'vitest'
 
 const goldensDir = fileURLToPath(new URL('./expected/', import.meta.url))

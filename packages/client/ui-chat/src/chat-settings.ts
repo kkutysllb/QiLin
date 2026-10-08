@@ -1,6 +1,6 @@
 /** Chat display preferences stored in the Host user-settings document. */
 
-import z from '@qilin/schemastery'
+import z from '@qilin-agent/schemastery'
 
 /** Settings namespace owned by the Chat target. */
 export const CHAT_SETTINGS_NAMESPACE = 'ui-chat'

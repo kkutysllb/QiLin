@@ -3,7 +3,7 @@ description: "CPython-subprocess PTC runtime: the qilin-ptc-runtime seam impleme
 kind: "package-reference"
 ---
 
-# @qilin/experimental-ptc-runtime-python
+# @qilin-agent/experimental-ptc-runtime-python
 
 English | [中文](README.zh.md)
 

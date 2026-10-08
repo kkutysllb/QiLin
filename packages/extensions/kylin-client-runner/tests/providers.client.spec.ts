@@ -1,7 +1,7 @@
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it } from 'vitest'
-import type { JsonValue } from '@qilin/util-values'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
+import type { JsonValue } from '@qilin-agent/util-values'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
 import { clientInspectProviders } from '../src/client/providers.ts'
 
 const Component = () => null

@@ -12,7 +12,7 @@ export interface TypertGatewayFaultDetails {
   readonly field?: string
 }
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface RemoteErrorDetailsMap {
     'gateway/ambiguous-endpoint': TypertGatewayFaultDetails
     'gateway/arguments-invalid': TypertGatewayFaultDetails

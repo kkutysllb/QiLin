@@ -1,17 +1,17 @@
-import * as Protocol from '@qilin/llm-deepseek'
+import * as Protocol from '@qilin-agent/llm-deepseek'
 import { readFileSync } from 'node:fs'
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { randomBytes } from 'node:crypto'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import AgentRegistry from '@qilin/agent'
-import LlmRuntime, { createToolResultMessage, createUserMessage, ToolCallId, ReasoningEffortId, createMessage, createSystemMessage } from '@qilin/llm'
-import type { Message, ToolSchema } from '@qilin/llm'
-import AttachmentStore, { AttachmentId, ImageVariantId } from '@qilin/attachment'
-import LocalAttachments from '@qilin/attachment-local'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import AgentRegistry from '@qilin-agent/agent'
+import LlmRuntime, { createToolResultMessage, createUserMessage, ToolCallId, ReasoningEffortId, createMessage, createSystemMessage } from '@qilin-agent/llm'
+import type { Message, ToolSchema } from '@qilin-agent/llm'
+import AttachmentStore, { AttachmentId, ImageVariantId } from '@qilin-agent/attachment'
+import LocalAttachments from '@qilin-agent/attachment-local'
 import type {
   ImageAttachmentLimits,
   ImageAttachmentRef,
@@ -19,14 +19,14 @@ import type {
   RequestImageAttachment,
   SaveImageAttachment,
   StoredImageAttachment,
-} from '@qilin/attachment'
-import { LocalCredentialProvider } from '@qilin/credentials-local'
-import SessionStore, { SessionId } from '@qilin/session'
-import DeepSeekLlmApiExtensionRegistry from '@qilin/deepseek-llm-api-extensions'
-import * as PluginPackageInventoryDeepSeek from '@qilin/plugin-package-inventory-deepseek'
-import * as SessionLogDeepSeek from '@qilin/session-log-deepseek'
-import * as LlmDeepSeek from '@qilin/llm-deepseek-api-key'
-import type { Options as Config } from '@qilin/llm-deepseek'
+} from '@qilin-agent/attachment'
+import { LocalCredentialProvider } from '@qilin-agent/credentials-local'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import DeepSeekLlmApiExtensionRegistry from '@qilin-agent/deepseek-llm-api-extensions'
+import * as PluginPackageInventoryDeepSeek from '@qilin-agent/plugin-package-inventory-deepseek'
+import * as SessionLogDeepSeek from '@qilin-agent/session-log-deepseek'
+import * as LlmDeepSeek from '@qilin-agent/llm-deepseek-api-key'
+import type { Options as Config } from '@qilin-agent/llm-deepseek'
 import type { WireRequest } from '../src/wire-types.ts'
 import { assemble, type AssembledResult } from './assemble.ts'
 

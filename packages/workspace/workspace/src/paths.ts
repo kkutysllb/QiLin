@@ -1,6 +1,6 @@
 /**
  * Path canonicalization for workspace identity.
- * @module @qilin/workspace/src/paths
+ * @module @qilin-agent/workspace/src/paths
  */
 
 import { realpath } from 'node:fs/promises'

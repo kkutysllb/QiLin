@@ -1,6 +1,6 @@
 /** Assistant reasoning disclosure, independent of Tool-call presentation. */
 import { useMemo, useState } from 'react'
-import { DisclosureRow, IconThinkOutline14, MarkdownText } from '@qilin/client-ui-primitives'
+import { DisclosureRow, IconThinkOutline14, MarkdownText } from '@qilin-agent/client-ui-primitives'
 import type { ChatViewSlotProps, UsePresentation } from '../contract/slots.ts'
 import { markdownLabels } from '../markdown-labels.ts'
 import a11yCss from './accessibility.module.css'

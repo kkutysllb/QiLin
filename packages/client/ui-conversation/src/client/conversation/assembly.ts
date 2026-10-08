@@ -1,14 +1,14 @@
 /** Per-Session target-neutral Conversation assembly. */
-import { Service, type Context } from '@qilin/kylin'
-import type { ImageAttachmentRef } from '@qilin/attachment'
+import { Service, type Context } from '@qilin-agent/kylin'
+import type { ImageAttachmentRef } from '@qilin-agent/attachment'
 import type {
   ISessions, SessionBinding, SessionEventSource, SessionEventWindow,
-} from '@qilin/api-session-controller/client'
-import type { SessionEvent, SessionId } from '@qilin/session/types'
-import { WeakMapWithValues } from '@qilin/util-values'
+} from '@qilin-agent/api-session-controller/client'
+import type { SessionEvent, SessionId } from '@qilin-agent/session/types'
+import { WeakMapWithValues } from '@qilin-agent/util-values'
 import {
   createSnapshotStore, type ObservableSnapshot, type SnapshotStore,
-} from '@qilin/client-store'
+} from '@qilin-agent/client-store'
 import type {
   ConversationPublication, ConversationViewSnapshotMap,
   ConversationViewSnapshotStore,

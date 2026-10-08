@@ -1,13 +1,13 @@
 // @vitest-environment jsdom
 /** LineSpacingRow behavior: signed value display, arrow clicks drive
  * setLeading, bound-value arrows disable, display follows the store mirror. */
-import type { GlobalStandardProps } from '@qilin/client-ui-slots'
+import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
-import type { SessionListState } from '@qilin/api-session-controller/client'
-import type { WorkspaceSnapshot } from '@qilin/api-workspace-controller/client'
-import { createSnapshotStore } from '@qilin/client-store'
-import { bindSnapshotSelector } from '@qilin/client-test-runtime'
+import type { SessionListState } from '@qilin-agent/api-session-controller/client'
+import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/client'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { bindSnapshotSelector } from '@qilin-agent/client-test-runtime'
 import { LineSpacingRow } from '../src/client/LineSpacingRow.tsx'
 import type { LineSpacingRowComponentProps } from '../src/client/LineSpacingRow.tsx'
 import { createTypographyRowStore } from '../src/client/settings-store.ts'

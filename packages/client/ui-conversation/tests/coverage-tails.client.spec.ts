@@ -1,4 +1,4 @@
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it } from 'vitest'
 import { apply as nodeApply } from '../src/index.ts'
 

@@ -4,8 +4,8 @@ import { spawn, execFile, type ChildProcessWithoutNullStreams } from 'node:child
 import { mkdtemp, rm } from 'node:fs/promises'
 import { join } from 'node:path'
 import { createConnection, type Socket } from 'node:net'
-import { Context, Service } from '@qilin/kylin'
-import schema from '@qilin/schemastery'
+import { Context, Service } from '@qilin-agent/kylin'
+import schema from '@qilin-agent/schemastery'
 import { z } from 'zod'
 import { SshRpcPeer, SSH_PROTOCOL_VERSION } from './protocol.ts'
 import { helloSchema, type SshStreamEndpoint } from './schemas.ts'
@@ -39,7 +39,7 @@ export interface Config {
   leaseMs?: number
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context { ssh: SshConnection }
 }
 

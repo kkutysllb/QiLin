@@ -6,14 +6,14 @@
  * argument validation, argv construction, result parsing, inline sampling,
  * and formatting; process concerns (spawn execution, tree termination,
  * environment scrubbing, output capture) stay behind `ctx.subprocess`.
- * @module @qilin/tool-fs-search/glob
+ * @module @qilin-agent/tool-fs-search/glob
  */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { sep } from 'node:path'
-import { defineTool } from '@qilin/tools'
-import type { GenericCallView, SearchResultView, ToolResult } from '@qilin/tools'
-import type { SpillRef } from '@qilin/spill'
+import { defineTool } from '@qilin-agent/tools'
+import type { GenericCallView, SearchResultView, ToolResult } from '@qilin-agent/tools'
+import type { SpillRef } from '@qilin-agent/spill'
 import { runRipgrep, toWorkdirRelative, trySaveFormattedResult } from './search-core.ts'
 import { globSearchMeta, searchViewFromMeta } from './presentation.ts'
 import { acceptedDirectCallValue } from './direct-call.ts'

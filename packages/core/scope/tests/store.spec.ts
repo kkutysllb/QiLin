@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import {
   AnonymousEntries,
   createScope,
@@ -8,7 +8,7 @@ import {
   type Scope,
   type ScopeKey,
   type ScopeLayer,
-} from '@qilin/scope'
+} from '@qilin-agent/scope'
 
 class TestLayer implements ScopeLayer {
   readonly named: NamedEntries<number>

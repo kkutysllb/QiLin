@@ -14,25 +14,25 @@ import type {
   InboxTarget,
   PreStepDecision,
   RequestErrorAction,
-} from '@qilin/agent'
-import { agentEvents, assembleContextFor } from '@qilin/agent'
-import type { GenerateOptions, LlmCallConfig, Message, PreparedLlmCall } from '@qilin/llm'
+} from '@qilin-agent/agent'
+import { agentEvents, assembleContextFor } from '@qilin-agent/agent'
+import type { GenerateOptions, LlmCallConfig, Message, PreparedLlmCall } from '@qilin-agent/llm'
 import {
   LlmError,
   createAssistantMessage,
   createDeveloperMessage,
   errorChain,
   markAgentLoopRequest,
-} from '@qilin/llm'
-import { assertNever, deepFreeze } from '@qilin/util-values'
-import type { Scope } from '@qilin/scope'
-import { createScope } from '@qilin/scope'
-import type { EpochHeader, RequestContext, Session, SessionId, SessionSeq, TurnEndReason, UserMessage } from '@qilin/session'
-import { canonicalHeader, headerEquals, ToolCallRecovery } from '@qilin/session'
-import { joinContextSections, renderContextSections, renderPrompt } from '@qilin/system-prompt'
-import type { PromptAssembly } from '@qilin/system-prompt'
-import type {} from '@qilin/session-projection'
-import type { Context } from '@qilin/kylin'
+} from '@qilin-agent/llm'
+import { assertNever, deepFreeze } from '@qilin-agent/util-values'
+import type { Scope } from '@qilin-agent/scope'
+import { createScope } from '@qilin-agent/scope'
+import type { EpochHeader, RequestContext, Session, SessionId, SessionSeq, TurnEndReason, UserMessage } from '@qilin-agent/session'
+import { canonicalHeader, headerEquals, ToolCallRecovery } from '@qilin-agent/session'
+import { joinContextSections, renderContextSections, renderPrompt } from '@qilin-agent/system-prompt'
+import type { PromptAssembly } from '@qilin-agent/system-prompt'
+import type {} from '@qilin-agent/session-projection'
+import type { Context } from '@qilin-agent/kylin'
 import { ReactLoopInbox } from './inbox.ts'
 import { RuntimeContextProjection } from './runtime-context.ts'
 import { AssistantStreamAttempt } from './assistant-stream.ts'

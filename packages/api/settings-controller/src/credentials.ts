@@ -2,14 +2,14 @@
  * Host owner of the `credentials` Remote namespace: the reference half of
  * `ctx.credentials` as a browser configuration page reads and writes it.
  *
- * @module @qilin/api-settings-controller/src/credentials.ts
+ * @module @qilin-agent/api-settings-controller/src/credentials.ts
  */
 
-import { Context } from '@qilin/kylin'
-import { credentialRef } from '@qilin/credentials'
-import type { CredentialProvider } from '@qilin/credentials'
-import type { CredentialInfo } from '@qilin/credentials/types'
-import { Remote, RemoteError, TypertRemoteService } from '@qilin/typert-protocol'
+import { Context } from '@qilin-agent/kylin'
+import { credentialRef } from '@qilin-agent/credentials'
+import type { CredentialProvider } from '@qilin-agent/credentials'
+import type { CredentialInfo } from '@qilin-agent/credentials/types'
+import { Remote, RemoteError, TypertRemoteService } from '@qilin-agent/typert-protocol'
 import { z } from 'zod'
 
 /**
@@ -50,7 +50,7 @@ function projectCredentialInfo(info: CredentialInfo): CredentialInfo {
   }
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Host owner of the `credentials` Remote namespace. */
     credentialsController: CredentialsController
@@ -123,7 +123,7 @@ export class CredentialsController extends TypertRemoteService {
     if (credentials === undefined) {
       throw new RemoteError(
         'gateway/internal',
-        'credentials service is absent: this deployment does not mount a credential provider (e.g. @qilin/credentials-local) in its composition',
+        'credentials service is absent: this deployment does not mount a credential provider (e.g. @qilin-agent/credentials-local) in its composition',
         {},
       )
     }

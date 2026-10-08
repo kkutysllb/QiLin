@@ -7,7 +7,7 @@
  */
 
 /** The user-settings namespace holding the side card preferences. */
-export const SIDEBAR_PREFS_NS = '@qilin/client-ui-sidebar-coding'
+export const SIDEBAR_PREFS_NS = '@qilin-agent/client-ui-sidebar-coding'
 
 /** User-facing side card preferences (new-conversation defaults). */
 export interface SidebarPrefs {

@@ -1,9 +1,9 @@
 /** All voice views share one readiness subscription, including reconnect and terminal failure. */
-import { Context } from '@qilin/kylin'
-import type { RemoteStreamOptions } from '@qilin/api-gateway/client'
-import { RemoteStreamCarrierError } from '@qilin/api-gateway/client'
-import type { SpeechProviderId } from '@qilin/experimental-speech-to-text/types'
-import type { SpeechCatalog } from '@qilin/experimental-api-speech-to-text/types'
+import { Context } from '@qilin-agent/kylin'
+import type { RemoteStreamOptions } from '@qilin-agent/api-gateway/client'
+import { RemoteStreamCarrierError } from '@qilin-agent/api-gateway/client'
+import type { SpeechProviderId } from '@qilin-agent/experimental-speech-to-text/types'
+import type { SpeechCatalog } from '@qilin-agent/experimental-api-speech-to-text/types'
 import { expect, it, vi, onTestFinished } from 'vitest'
 import { observeReadiness } from '../src/client/readiness.ts'
 

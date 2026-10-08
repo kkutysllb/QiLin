@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/kylin-plugin-hmr",
+  "name": "@qilin-agent/kylin-plugin-hmr",
   "description": "Hot Module Replacement Plugin for Cordis",
   "version": "1.0.18",
   "publishConfig": {
@@ -32,7 +32,7 @@
   ],
   "author": "Shigma <shigma10826@gmail.com>",
   "license": "MIT",
-  "@qilin/kylin": {
+  "@qilin-agent/kylin": {
     "services": {
       "required": [
         "timer"
@@ -44,15 +44,15 @@
     }
   },
   "peerDependencies": {
-    "@qilin/kylin-plugin-timer": "workspace:~",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin-plugin-timer": "workspace:~",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "dependencies": {
     "@babel/code-frame": "^7.29.0",
     "chokidar": "^4.0.3",
-    "@qilin/cosmokit": "workspace:~",
+    "@qilin-agent/cosmokit": "workspace:~",
     "picomatch": "^4.0.3",
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "devDependencies": {
     "@types/babel__code-frame": "^7.27.0",

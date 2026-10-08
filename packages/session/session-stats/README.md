@@ -3,7 +3,7 @@ description: "Whole-log conversation counts and wall times for clients and maint
 kind: "package-reference"
 ---
 
-# @qilin/session-stats
+# @qilin-agent/session-stats
 
 English | [中文](README.zh.md)
 
@@ -30,9 +30,9 @@ Mount the plugin beside the session store and the projection registry when clien
 ### Composition
 
 ```yaml
-- name: '@qilin/session'
-- name: '@qilin/session-projection'
-- name: '@qilin/session-stats'
+- name: '@qilin-agent/session'
+- name: '@qilin-agent/session-projection'
+- name: '@qilin-agent/session-stats'
 ```
 
 ### What the figures mean

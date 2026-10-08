@@ -1,9 +1,9 @@
 /** Node-half coverage for the model guidance paired with Web file references. */
 
 import { readFile } from 'node:fs/promises'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { afterEach, describe, expect, it } from 'vitest'
-import SystemPrompt from '@qilin/system-prompt'
+import SystemPrompt from '@qilin-agent/system-prompt'
 import { apply, inject } from '../src/index.ts'
 
 let ctx: Context | undefined

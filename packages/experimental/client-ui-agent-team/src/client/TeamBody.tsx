@@ -11,8 +11,8 @@
  */
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import type { TeamMemberProjection, TeamTaskView as TeamTask } from '@qilin/experimental-agent-team/client'
-import type {} from '@qilin/api-session-controller/client'
+import type { TeamMemberProjection, TeamTaskView as TeamTask } from '@qilin-agent/experimental-agent-team/client'
+import type {} from '@qilin-agent/api-session-controller/client'
 import {
   IconCloseOutline16,
   IconPlusOutline16,
@@ -20,18 +20,18 @@ import {
   IconTrashOutline16,
   IconUserOutline16,
   StateDot,
-} from '@qilin/client-ui-primitives'
+} from '@qilin-agent/client-ui-primitives'
 import type {
   InjectFace,
   PropsLocale,
   PropsRuntime,
   PropsStore,
   TranslateNS,
-} from '@qilin/client-ui-slots'
-import type {} from '@qilin/client-ui-sidebar-right/client'
-import type {} from '@qilin/client-ui-session/client'
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-ui-renderer/client'
+} from '@qilin-agent/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
+import type {} from '@qilin-agent/client-ui-session/client'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
 import {
   emptyTeamDraft,
   isTeamDraftCommittable,

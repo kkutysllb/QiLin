@@ -1,11 +1,11 @@
 /** Code preview metadata and body registered through the public document extension points. */
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {} from '../index.ts'
 import { CodeBody } from './CodeBody.tsx'
 import { CODE_EXTENSIONS } from './languages.ts'
 import { en, zh } from './locales.ts'
 
-const ID = '@qilin/client-ui-sidebar-documentpreview/code'
+const ID = '@qilin-agent/client-ui-sidebar-documentpreview/code'
 const NS = 'sidebarCodePreview'
 
 /** @param ctx - owning plugin context. Register localized metadata and the matching keyed document body. */

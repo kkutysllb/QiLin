@@ -5,7 +5,7 @@
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render } from '@testing-library/react'
-import { makeTranslate } from '@qilin/client-test-runtime'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
 import { PARENT, fakeRemote, row, sid } from './fixtures.client.ts'
 import { sidechatFace } from '../src/client/face.ts'
 import type { SidechatInjected } from '../src/client/face.ts'

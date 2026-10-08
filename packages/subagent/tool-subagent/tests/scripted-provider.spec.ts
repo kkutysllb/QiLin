@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { type Agent } from '@qilin/agent'
-import SubagentRuntime, { type SubagentStartRequest } from '@qilin/subagent'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import { SessionId } from '@qilin/session'
+import { Context } from '@qilin-agent/kylin'
+import { type Agent } from '@qilin-agent/agent'
+import SubagentRuntime, { type SubagentStartRequest } from '@qilin-agent/subagent'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import { SessionId } from '@qilin-agent/session'
 import * as scripted from './scripted-provider.ts'
 
 /** A minimal parent; the scripted provider only reads its id. */

@@ -1,12 +1,12 @@
 /**
  * Test-only direct-agent turn driver shared by assembled Loader fixtures.
- * @module @qilin/loader-smoke/agent-turn
+ * @module @qilin-agent/loader-smoke/agent-turn
  */
 
-import type { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import { createUserMessage, expandAssistantStream, type TokenUsage } from '@qilin/llm'
-import type { SessionEvent } from '@qilin/session'
+import type { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import { createUserMessage, expandAssistantStream, type TokenUsage } from '@qilin-agent/llm'
+import type { SessionEvent } from '@qilin-agent/session'
 
 /** Result envelope consumed only by snapshot and composition tests. */
 export interface FixtureTurnResult {

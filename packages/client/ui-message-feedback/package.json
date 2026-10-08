@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-ui-message-feedback",
+  "name": "@qilin-agent/client-ui-message-feedback",
   "description": "The Web feedback surface: per-message Like/Dislike in the assistant-message action strip and the feedback dialog behind both ratings and /feedback, backed by the messageFeedback and sessionFeedback Host Remotes",
   "version": "3.1.1",
   "publishConfig": {
@@ -31,11 +31,11 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/api-remotes",
-        "@qilin/client-locale",
-        "@qilin/client-ui-conversation",
-        "@qilin/client-ui-renderer",
-        "@qilin/client-ui-commands"
+        "@qilin-agent/api-remotes",
+        "@qilin-agent/client-locale",
+        "@qilin-agent/client-ui-conversation",
+        "@qilin-agent/client-ui-renderer",
+        "@qilin-agent/client-ui-commands"
       ],
       "platform": "web"
     }
@@ -46,32 +46,32 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/api-remotes": "workspace:*",
-    "@qilin/client-connection": "workspace:*",
-    "@qilin/client-locale": "workspace:*",
-    "@qilin/client-test-runtime": "workspace:*",
-    "@qilin/client-ui-conversation": "workspace:*",
-    "@qilin/client-ui-primitives": "workspace:*",
-    "@qilin/client-ui-renderer": "workspace:*",
-    "@qilin/client-ui-slots": "workspace:*",
-    "@qilin/message-feedback": "workspace:*",
-    "@qilin/remote-mock": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/typert-protocol": "workspace:*",
-    "@qilin/kylin": "workspace:~",
+    "@qilin-agent/api-remotes": "workspace:*",
+    "@qilin-agent/client-connection": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-conversation": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/message-feedback": "workspace:*",
+    "@qilin-agent/remote-mock": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
     "@testing-library/react": "^16.1.0",
     "@types/react": "~18.3.1",
     "@types/react-dom": "~18.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@qilin/client-ui-chat": "workspace:*",
-    "@qilin/client-ui-session": "workspace:*",
-    "@qilin/client-ui-commands": "workspace:*",
-    "@qilin/command-feedback": "workspace:*",
-    "@qilin/client-store": "workspace:*"
+    "@qilin-agent/client-ui-chat": "workspace:*",
+    "@qilin-agent/client-ui-session": "workspace:*",
+    "@qilin-agent/client-ui-commands": "workspace:*",
+    "@qilin-agent/command-feedback": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*"
   },
   "files": [
     "lib/index.js",

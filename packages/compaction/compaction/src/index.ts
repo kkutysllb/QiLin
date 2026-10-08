@@ -4,12 +4,12 @@
  * {@link CompactionEngine}. This interface necessarily depends on session and LLM
  * vocabulary; the rationale is in the
  * [compaction Agent Note](../../../../.agents/notes/implemented/feature/2026-06-18-compaction-capability-seam.md).
- * @module @qilin/compaction
+ * @module @qilin-agent/compaction
  */
 
-import { Context, Service } from '@qilin/kylin'
-import type { Session, SessionSeq } from '@qilin/session'
-import type { CommandId } from '@qilin/commands/brand'
+import { Context, Service } from '@qilin-agent/kylin'
+import type { Session, SessionSeq } from '@qilin-agent/session'
+import type { CommandId } from '@qilin-agent/commands/brand'
 import type { CompactionResult } from './types.ts'
 import type { CompactionCheckpointSource } from './checkpoint.ts'
 
@@ -22,7 +22,7 @@ export { toolPairingBalancedAfter, toolPairingBalancedBefore } from './tool-pair
 export { compactCheckpointSource, isCompactCheckpointSource } from './checkpoint.ts'
 export type { CompactionCheckpointSource } from './checkpoint.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'compact-checkpoint': CompactionCheckpointSource
   }
@@ -85,7 +85,7 @@ export interface ManualCompactAgentContext extends CompactionAgentContext {
   runMaintenance<T>(task: (signal: AbortSignal) => Promise<T>): Promise<T>
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     compaction: CompactionEngine
   }

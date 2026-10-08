@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/agent-tool-presentation",
+  "name": "@qilin-agent/agent-tool-presentation",
   "description": "Agent-plane presentation selector: composes one agent's tools as PTC mode, native, or both",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,19 +30,19 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "peerDependencies": {
-    "@qilin/tools": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/ptc-runtime": "workspace:*",
-    "@qilin/scope": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/ptc-runtime": "workspace:*",
+    "@qilin-agent/scope": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   }
 }

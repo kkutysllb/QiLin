@@ -2,7 +2,7 @@
  * Cordis-free local filesystem mechanics. This provider layer returns validated UTF-8 text,
  * streams large files, and rejects binary data; line windows belong to `qilin-tool-fs`. Writes
  * stage an exclusive owner-only file in a private sibling directory and atomically publish it.
- * @module @qilin/fs-local/fsio
+ * @module @qilin-agent/fs-local/fsio
  */
 
 import { randomUUID } from 'node:crypto'
@@ -11,8 +11,8 @@ import { chmod, link, lstat, mkdir, open, readFile, readdir, rename, rm, rmdir, 
 import type { BigIntStats, Dirent, Stats } from 'node:fs'
 import { basename, dirname, isAbsolute, join, resolve, sep } from 'node:path'
 import { TextDecoder, promisify } from 'node:util'
-import { FsError, FsTargetKey, FsVersion } from '@qilin/fs'
-import type { FsMoveOutcome, FsRemoveOutcome } from '@qilin/fs'
+import { FsError, FsTargetKey, FsVersion } from '@qilin-agent/fs'
+import type { FsMoveOutcome, FsRemoveOutcome } from '@qilin-agent/fs'
 import { copyFileDaclWin32, replaceFileWin32 } from './win32.ts'
 
 const BINARY_SAMPLE_BYTES = 8192

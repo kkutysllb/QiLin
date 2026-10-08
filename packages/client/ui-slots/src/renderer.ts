@@ -1,7 +1,7 @@
 /** React-free contracts between the slot host and an installed renderer. */
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type { ReactNode } from 'react'
-import type { ObservableSnapshot } from '@qilin/client-store'
+import type { ObservableSnapshot } from '@qilin-agent/client-store'
 import type {
   SessionAreaProps, SlotEntryDef, SlotScope, SlotSpec, StoredEntry, StoredFactory, Translate,
 } from './index.ts'

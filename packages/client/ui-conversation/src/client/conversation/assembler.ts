@@ -1,7 +1,7 @@
 import type {
   SessionAssistantSettlementEntry, SessionEventLikeEntry, SessionTransientEventEntry,
-} from '@qilin/api-session-controller/client'
-import type { LlmAttemptId } from '@qilin/llm/brand'
+} from '@qilin-agent/api-session-controller/client'
+import type { LlmAttemptId } from '@qilin-agent/llm/brand'
 import type {
   ConversationContextReader, ConversationLocationData, ConversationMatch,
   ConversationNodeContext, ConversationNodeDefinition, ConversationPreviousContext,

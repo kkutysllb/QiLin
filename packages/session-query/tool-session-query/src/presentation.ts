@@ -1,7 +1,7 @@
 /**
  * Model text rendering and generic tool-call presentation.
  *
- * @module @qilin/tool-session-query/presentation
+ * @module @qilin-agent/tool-session-query/presentation
  */
 
 import {
@@ -12,12 +12,12 @@ import {
   type SessionLineageTrace,
   type SessionRecord,
   type SessionSearchHit,
-} from '@qilin/session-query'
+} from '@qilin-agent/session-query'
 import type {
   SessionEvent,
   SessionId,
-} from '@qilin/session'
-import type { GenericCallView } from '@qilin/tools'
+} from '@qilin-agent/session'
+import type { GenericCallView } from '@qilin-agent/tools'
 import { workspaceAccess } from './workspace-access.ts'
 
 type TitleView = Awaited<ReturnType<typeof workspaceAccess.readTitle>>

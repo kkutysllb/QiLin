@@ -1,6 +1,6 @@
 import { clientBundle } from '../tsdown.client.ts'
 
 export default clientBundle(
-  '@qilin/client-modules',
+  '@qilin-agent/client-modules',
   ['lib/types/index.js'],
 )

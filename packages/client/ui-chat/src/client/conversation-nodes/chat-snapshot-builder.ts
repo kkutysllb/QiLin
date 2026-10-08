@@ -1,10 +1,10 @@
-import type { Context } from '@qilin/kylin'
-import { notifySubscribers, type ObservableSnapshot } from '@qilin/client-store'
+import type { Context } from '@qilin-agent/kylin'
+import { notifySubscribers, type ObservableSnapshot } from '@qilin-agent/client-store'
 import type {
   ConversationGroupInput, ConversationLocation, ConversationNode, ConversationTimelineSnapshot,
   ConversationViewBuilder, ConversationViewDefinition, GroupNodePosition, NodeChange, NodeKey,
   PartialAssistant, RunningToolCall,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 import type { ChatConversationViewNode, ChatNode, ChatNodeDataMap, ChatNodeKind } from '../contract/chat-nodes.ts'
 import { isRunningTool } from '../contract/chat-nodes.ts'
 import type {

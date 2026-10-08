@@ -1,12 +1,12 @@
 /** Scoped model-facing tools for the opt-in Agent Teams runtime. */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type { Agent } from '@qilin/agent'
-import { TeamTaskId } from '@qilin/experimental-agent-team'
-import type { TeamMemberView } from '@qilin/experimental-agent-team'
-import { defineTool } from '@qilin/tools'
-import type { InferValue, ValueSchemaSpec } from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type { Agent } from '@qilin-agent/agent'
+import { TeamTaskId } from '@qilin-agent/experimental-agent-team'
+import type { TeamMemberView } from '@qilin-agent/experimental-agent-team'
+import { defineTool } from '@qilin-agent/tools'
+import type { InferValue, ValueSchemaSpec } from '@qilin-agent/tools'
 
 /** Cordis plugin name. */
 export const name = 'tool-agent-team'

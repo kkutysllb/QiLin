@@ -27,7 +27,7 @@
 
 - insert:
     - id: replay
-      name: '@qilin/llm-replay'
+      name: '@qilin-agent/llm-replay'
 
     # Publish the persisted agent before the driver selects the single root.
     - id: resumed-agent

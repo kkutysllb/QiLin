@@ -10,13 +10,13 @@ import {
   type SessionHeader,
   type SessionLogOffset as SessionLogOffsetType,
   type SessionSeq as SessionSeqType,
-} from '@qilin/session'
+} from '@qilin-agent/session'
 import {
   eventLines, generationLogFilename, projectKey, toHeaderLine,
-} from '@qilin/session-persistence-jsonl/src/format.ts'
-import { projectionCacheDomainSpec } from '@qilin/session-projection-cache'
-import { scheduleDomain } from '@qilin/schedule'
-import { snapshotSubagentDescriptor } from '@qilin/subagent'
+} from '@qilin-agent/session-persistence-jsonl/src/format.ts'
+import { projectionCacheDomainSpec } from '@qilin-agent/session-projection-cache'
+import { scheduleDomain } from '@qilin-agent/schedule'
+import { snapshotSubagentDescriptor } from '@qilin-agent/subagent'
 
 /** Root copied by the preview image's repository adapter. */
 export const VFS_EXAMPLE_ROOT = fileURLToPath(new URL('./fixtures/vfs-example', import.meta.url))

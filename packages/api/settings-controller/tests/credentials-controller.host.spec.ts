@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import type { CredentialInfo } from '@qilin/credentials/types'
-import { remoteErrorOf, remoteMethods } from '@qilin/typert-protocol'
+import { Context } from '@qilin-agent/kylin'
+import type { CredentialInfo } from '@qilin-agent/credentials/types'
+import { remoteErrorOf, remoteMethods } from '@qilin-agent/typert-protocol'
 import CredentialsController from '../src/credentials.ts'
 import { MemoryCredentials } from '../../../credentials/credentials/tests/memory.ts'
 
@@ -62,7 +62,7 @@ describe('the credentials Remote namespace a configuration surface calls', () =>
       const failure = await call().catch((error: unknown) => error)
       expect(remoteErrorOf(failure)).toMatchObject({
         code: 'gateway/internal',
-        message: 'credentials service is absent: this deployment does not mount a credential provider (e.g. @qilin/credentials-local) in its composition',
+        message: 'credentials service is absent: this deployment does not mount a credential provider (e.g. @qilin-agent/credentials-local) in its composition',
         details: {},
       })
     }

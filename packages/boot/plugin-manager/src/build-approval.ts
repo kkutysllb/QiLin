@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { isAlias, isMap, isNode, isScalar, parseDocument, visit } from 'yaml'
 import { ManagementFailure } from './failure.ts'
-import { writeFileAtomic } from '@qilin/atomic-write'
+import { writeFileAtomic } from '@qilin-agent/atomic-write'
 
 async function readPolicy(dir: string) {
   let text: string

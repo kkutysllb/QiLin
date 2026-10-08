@@ -1,5 +1,5 @@
-import { Context } from '@qilin/kylin'
-import { SettingsSchemaService } from '@qilin/client-ui-settings/src/client/schema.ts'
+import { Context } from '@qilin-agent/kylin'
+import { SettingsSchemaService } from '@qilin-agent/client-ui-settings/src/client/schema.ts'
 import { createSettingsSchemaOperations } from '../src/client/schema-operations.ts'
 
 /** Stateless schema operations used by settings-model component fixtures. */

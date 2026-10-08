@@ -3,7 +3,7 @@ description: "QiLin 在 Web 客户端侧边栏、会话 hero 与设置品牌槽�
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-brand
+# @qilin-agent/client-ui-brand
 
 [English](README.md) | 中文
 
@@ -31,7 +31,7 @@ kind: "package-reference"
 | `conversation.hero.brand.mark` | 按 hero 请求尺寸与摆放类渲染的印章 |
 | `settings.about.mark` | 外壳 About 页面中的印章 |
 
-两个字形轮廓与印身、圆环、字形格子的几何现在位于 [`@qilin/client-ui-primitives`](../ui-primitives/README.zh.md)（`seal-glyphs.ts`、`seal-geometry.ts`），让外壳的无品牌兜底画出同一枚印章；[`Seal.tsx`](src/client/Seal.tsx) 用它占据品牌槽位，并为每个实例生成独立的渐变 id。
+两个字形轮廓与印身、圆环、字形格子的几何现在位于 [`@qilin-agent/client-ui-primitives`](../ui-primitives/README.zh.md)（`seal-glyphs.ts`、`seal-geometry.ts`），让外壳的无品牌兜底画出同一枚印章；[`Seal.tsx`](src/client/Seal.tsx) 用它占据品牌槽位，并为每个实例生成独立的渐变 id。
 
 <a id="dev-note"></a>
 ## 开发备注

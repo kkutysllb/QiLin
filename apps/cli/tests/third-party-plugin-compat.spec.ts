@@ -21,8 +21,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   boot, createProfileResolutionGeneration, doctorPluginPackage, initProfile,
   loadProfile, readProfileManifest, reconcileProfileBundles, resolveProfileDir, writeProfileManifest,
-} from '@qilin/app-boot'
-import { clientDeclarationOf, dshCompatModuleId } from '@qilin/dsh-compat'
+} from '@qilin-agent/app-boot'
+import { clientDeclarationOf, dshCompatModuleId } from '@qilin-agent/dsh-compat'
 import { INSTALL_ANCHOR, PROFILE_ROOT_FILENAME } from '../src/profile-boot.ts'
 
 const NAME = 'qilin'
@@ -137,7 +137,7 @@ describe('third-party plugin installed into a profile', () => {
     expect(declaration?.key).toBe('dsh.client')
     const inject = (declaration?.value as { inject: string[] }).inject
     expect(inject.map(name => dshCompatModuleId(name)))
-      .toEqual(['@qilin/client-locale', '@qilin/client-ui-slots'])
+      .toEqual(['@qilin-agent/client-locale', '@qilin-agent/client-ui-slots'])
   })
 
   it('maps the declared legacy engine peer onto the installation copy', async () => {
@@ -145,12 +145,12 @@ describe('third-party plugin installed into a profile', () => {
     // An installation that provides the QiLin package the peer maps onto; the
     // plugin declares only the DSH-era name.
     const installation = tmp()
-    file(join(installation, 'node_modules', '@qilin', 'session', 'package.json'), JSON.stringify({ name: '@qilin/session', version: '3.0.0' }))
+    file(join(installation, 'node_modules', '@qilin-agent', 'session', 'package.json'), JSON.stringify({ name: '@qilin-agent/session', version: '3.0.0' }))
     const anchor = join(installation, 'package.json')
-    file(anchor, JSON.stringify({ name: 'qilin-app', version: '3.0.0', dependencies: { '@qilin/session': '3.0.0' } }))
+    file(anchor, JSON.stringify({ name: 'qilin-app', version: '3.0.0', dependencies: { '@qilin-agent/session': '3.0.0' } }))
     const profile = loadProfile(NAME, 'test', INSTALL_ANCHOR, home)
     const generation = await createProfileResolutionGeneration({ installAnchor: anchor, profile, home })
-    const installed = join(installation, 'node_modules', '@qilin', 'session')
+    const installed = join(installation, 'node_modules', '@qilin-agent', 'session')
     const published = generation.entries.filter(entry => entry.name === '@deepseek-ai/dsh-session')
     // The plugin's declaration is what publishes the legacy name, in the profile scope.
     expect(published.length).toBeGreaterThan(0)
@@ -161,7 +161,7 @@ describe('third-party plugin installed into a profile', () => {
     // Every published spelling of the legacy name is the installation's copy, so
     // a plugin importing it shares one engine instance with the launcher.
     expect(published.every(entry => entry.packageDir === installed)).toBe(true)
-    expect(generation.entries.find(entry => entry.name === '@qilin/session')?.packageDir).toBe(installed)
+    expect(generation.entries.find(entry => entry.name === '@qilin-agent/session')?.packageDir).toBe(installed)
   })
 
   it('leaves no engine copy in the profile and no DSH-era home behind', () => {

@@ -3,7 +3,7 @@ description: "Host owner of the workspaceGit Remote namespace: repository discov
 kind: "package-reference"
 ---
 
-# @qilin/api-workspace-git
+# @qilin-agent/api-workspace-git
 
 English | [中文](README.zh.md)
 
@@ -25,7 +25,7 @@ Use this package to drive Git on a Session's workspace root from the web client:
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount the package beside the Typert Gateway and `@qilin/api-workspace-files`, which supplies the `workspaceFileScope` lookup this service consumes; the bundle loads it right after `workspace-files`. Every method takes the Session identity on the wire, so a Client calls `remote.workspaceGit.isRepo(sessionId, signal)` and never names a root itself. This package is the Host half; the sidebar panel's Client half arrives separately.
+Mount the package beside the Typert Gateway and `@qilin-agent/api-workspace-files`, which supplies the `workspaceFileScope` lookup this service consumes; the bundle loads it right after `workspace-files`. Every method takes the Session identity on the wire, so a Client calls `remote.workspaceGit.isRepo(sessionId, signal)` and never names a root itself. This package is the Host half; the sidebar panel's Client half arrives separately.
 
 | Method | Returns | Purpose |
 |---|---|---|
@@ -52,7 +52,7 @@ Mount the package beside the Typert Gateway and `@qilin/api-workspace-files`, wh
 
 ### Fixed argv, no shell
 
-The `@qilin/shell` seam executes one command-line string through a shell, so a one-call-one-fixed-argv spawn is not expressible there; this service spawns `node:child_process` directly and every argument is one argv element. Caller strings enter argv only as a pathspec after `--` (which makes any leading `-` a pathspec character, not an option), as the one `-m` commit message, as the `--title`/`--body` pull-request values, as a branch name matching `/^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$/`, or as a revision matching `/^[A-Za-z0-9][A-Za-z0-9._/~^@{}-]{0,255}$/` — anything else fails with `bad-branch` or `gateway/bad-request` before git runs. That first-character class keeps every accepted name and revision from spelling a git option.
+The `@qilin-agent/shell` seam executes one command-line string through a shell, so a one-call-one-fixed-argv spawn is not expressible there; this service spawns `node:child_process` directly and every argument is one argv element. Caller strings enter argv only as a pathspec after `--` (which makes any leading `-` a pathspec character, not an option), as the one `-m` commit message, as the `--title`/`--body` pull-request values, as a branch name matching `/^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$/`, or as a revision matching `/^[A-Za-z0-9][A-Za-z0-9._/~^@{}-]{0,255}$/` — anything else fails with `bad-branch` or `gateway/bad-request` before git runs. That first-character class keeps every accepted name and revision from spelling a git option.
 
 ### The gh pull-request face
 
@@ -81,7 +81,7 @@ The `@qilin/shell` seam executes one command-line string through a shell, so a o
 | `maxStderrChars` | `2000` | Character cap on the stderr one command failure carries |
 | `maxListEntries` | `200` | Cap on returned branch entries and on the gh pull-request `--limit` |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#qilinapi-workspace-git) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agentapi-workspace-git) is the exhaustive source for every accepted field and its JSDoc.
 
 ### Failures
 
@@ -97,7 +97,7 @@ Each failure is one `RemoteError` code with typed details, declared in [`src/typ
 
 ### Design concept
 
-The workspace root arrives through the `workspaceFileScope` Typert lookup that `@qilin/api-workspace-files` registers; this package declares no lookup of its own and imports the scope type type-only, because Typert binds a lookup parameter by its Host type symbol, not by structural shape. One private `run` spawns the configured binary — git or gh — with a fixed argv, applies the call's timeout, honors caller cancellation by rejecting with the abort reason, and optionally kills the child once stdout passes `maxDiffBytes` so an oversized diff never buffers whole. Every method maps failures at one place: discovery refusals to `not-a-repo`, validated refusals before any spawn, and everything else to `command-failed` with the invocation and trimmed stderr. The parsers are pure functions over recorded output strings, exported for fixture specs.
+The workspace root arrives through the `workspaceFileScope` Typert lookup that `@qilin-agent/api-workspace-files` registers; this package declares no lookup of its own and imports the scope type type-only, because Typert binds a lookup parameter by its Host type symbol, not by structural shape. One private `run` spawns the configured binary — git or gh — with a fixed argv, applies the call's timeout, honors caller cancellation by rejecting with the abort reason, and optionally kills the child once stdout passes `maxDiffBytes` so an oversized diff never buffers whole. Every method maps failures at one place: discovery refusals to `not-a-repo`, validated refusals before any spawn, and everything else to `command-failed` with the invocation and trimmed stderr. The parsers are pure functions over recorded output strings, exported for fixture specs.
 
 ### Source map
 

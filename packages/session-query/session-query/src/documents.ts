@@ -1,8 +1,8 @@
 /** Shared event metadata and semantic-document projection. */
 
-import { currentSessionMessageProjections } from '@qilin/session-format-catalog/message-projections'
-import { foldSurface } from '@qilin/session'
-import type { SessionEvent, SessionId, SessionSeq } from '@qilin/session'
+import { currentSessionMessageProjections } from '@qilin-agent/session-format-catalog/message-projections'
+import { foldSurface } from '@qilin-agent/session'
+import type { SessionEvent, SessionId, SessionSeq } from '@qilin-agent/session'
 import type { SessionEventRecord, SessionEventSearchDocument, SessionEventSurface } from './types.ts'
 import { SessionQueryError } from './config.ts'
 import { extractSessionEventText } from './extraction.ts'

@@ -1,7 +1,7 @@
 /** Test-only Loader plugin that creates a goal at the first real step edge. */
 
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/goal'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/goal'
 
 export const name = 'seed-goal'
 export const inject = ['goals']

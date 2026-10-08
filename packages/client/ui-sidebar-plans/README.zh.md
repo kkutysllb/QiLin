@@ -3,7 +3,7 @@ description: "qilin Web 客户端右侧边栏的任务计划页：按约定扫�
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-sidebar-plans
+# @qilin-agent/client-ui-sidebar-plans
 
 [English](README.md) | 中文
 
@@ -24,7 +24,7 @@ kind: "package-reference"
 <a id="what-it-registers"></a>
 ## 注册了什么
 
-- **类型** —— `ctx.sidebarRightTabs.register(...)`，kind 为 `plans`，id 为 `@qilin/client-ui-sidebar-plans`，band 为 `builtin`，不声明 patterns，`single`，并给引导页一个入口（order 50，标题与描述取自 `sidebarPlans` 命名空间，图标是共用的清单字形），点它即打开这个类型。
+- **类型** —— `ctx.sidebarRightTabs.register(...)`，kind 为 `plans`，id 为 `@qilin-agent/client-ui-sidebar-plans`，band 为 `builtin`，不声明 patterns，`single`，并给引导页一个入口（order 50，标题与描述取自 `sidebarPlans` 命名空间，图标是共用的清单字形），点它即打开这个类型。
 - **主体** —— 该 id 下键控的 `sidebar.right.pane.tab` 座位：条带下方一行 38px 的搜索行 —— 共用的 `Input` 加搜索字形，末尾是重新扫描按钮 —— 再往下每个计划文档一行，标题在上、工作区相对路径在下。
 
 `src/client/` 下七个源文件：`definition.tsx`（类型）、`store.ts`（它保存什么）、`plans.ts`（约定与其中的纯规则）、`face.ts`（怎么读，含 Remote 绑定）、`PlansBody.tsx`（画什么，含状态行助手）、`locales.ts`（说什么）、`index.ts`（接线）。

@@ -1,15 +1,15 @@
-import { createUserMessage } from '@qilin/llm'
-import { Context, type Fiber } from '@qilin/kylin'
+import { createUserMessage } from '@qilin-agent/llm'
+import { Context, type Fiber } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
-import SessionStore, { Session, SessionId, SessionSeq } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
+import SessionStore, { Session, SessionId, SessionSeq } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import SessionTitleService, {
   SessionTitleProviderId,
   type Config,
   type SessionTitleProvider,
   type SessionTitleProviderRequest,
   type SessionTitleProviderResult,
-} from '@qilin/session-title'
+} from '@qilin-agent/session-title'
 
 const CONFIG = {
   fallbackMaxWords: 5,

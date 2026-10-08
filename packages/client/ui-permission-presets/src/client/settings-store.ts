@@ -6,14 +6,14 @@
  * back into the mirror.
  */
 
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { SettingsNamespaceView } from '@qilin/api-remotes/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { SettingsNamespaceView } from '@qilin-agent/api-remotes/client'
 import {
   createSnapshotStore, type SnapshotStore,
-} from '@qilin/client-store'
+} from '@qilin-agent/client-store'
 import type {
   SchemaNode, SettingsDescribeFace, SettingsSchemaService,
-} from '@qilin/client-ui-settings/client'
+} from '@qilin-agent/client-ui-settings/client'
 import { displayPermissionPreset } from './presentation.ts'
 
 /** Permission's settings namespace on the host wire. */

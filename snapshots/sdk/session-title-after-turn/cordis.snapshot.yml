@@ -5,24 +5,24 @@
   disabled: true
 
 - id: agent-default-model
-  name: '@qilin/agent-default-model'
+  name: '@qilin-agent/agent-default-model'
   config:
     provider: deepseek-official
     model: deepseek-v4-flash
 
 - id: session-persistence-jsonl
-  name: '@qilin/session-persistence-jsonl'
+  name: '@qilin-agent/session-persistence-jsonl'
   config:
     root: !!js qilinHomePath('sessions')
     compression: none
 
 - id: agent-instructions
-  name: '@qilin/agent-instructions'
+  name: '@qilin-agent/agent-instructions'
   config:
     maxBytes: 65536
 
 - id: system-prompt
-  name: '@qilin/system-prompt'
+  name: '@qilin-agent/system-prompt'
   config:
     personaPrefix: |
       You are a coding assistant powered by the {{model}} model. Your working directory is {{cwd}}. Your bash tool runs under a file sandbox — a `[sandbox: file access denied …]` result is policy, not a command bug.
@@ -31,7 +31,7 @@
 
 - insert:
     - id: llm-replay-main
-      name: '@qilin/llm-replay'
+      name: '@qilin-agent/llm-replay'
       config:
         overrideFile: ./.missing-main-replay-override.json
         providers:
@@ -40,7 +40,7 @@
             models:
               - id: deepseek-v4-flash
     - id: llm-replay-title
-      name: '@qilin/llm-replay'
+      name: '@qilin-agent/llm-replay'
       config:
         paceMs: 10
         providers:
@@ -49,7 +49,7 @@
             models:
               - id: title-model
     - id: session-title-provider
-      name: '@qilin/session-title-first-prompt-llm'
+      name: '@qilin-agent/session-title-first-prompt-llm'
       config:
         targetWords: 5
         targetCjkCharacters: 10

@@ -1,11 +1,11 @@
 /**
  * Client-safe wire vocabulary of the dynamic Cordis plugin runner.
- * @module @qilin/kylin-host-runner/types
+ * @module @qilin-agent/kylin-host-runner/types
  */
 
-import type { Branded } from '@qilin/brand'
-import type { SessionId } from '@qilin/session/types'
-import type { JsonValue } from '@qilin/util-values'
+import type { Branded } from '@qilin-agent/brand'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { JsonValue } from '@qilin-agent/util-values'
 
 /** Stable identity of one dynamic plugin instance. */
 export type CordisDynamicPluginId = Branded<'CordisDynamicPluginId'>
@@ -361,7 +361,7 @@ export type DynamicCordisInvokeResult =
   | { ok: true; value: JsonValue }
   | ({ ok: false; code: 'plugin-not-running' | 'stale-run' | 'method-not-found' | 'handler-error' } & CordisErrorDetails)
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Events {
     /**
      * A Client-bearing activation needs a browser page, and may require a user decision.

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { SessionFormatEventCollector, type SessionFormatEvent, type SessionFormatJsonObject } from '@qilin/session-format'
-import { createSessionFormatCatalogWithChildren, sessionFormatCatalog } from '@qilin/session-format-catalog'
-import { Session, SessionId, SessionLogOffset, type SessionEvent, type SessionHeader } from '@qilin/session'
-import { imageOffloadProjection } from '@qilin/compaction-image-offload/projection'
+import { SessionFormatEventCollector, type SessionFormatEvent, type SessionFormatJsonObject } from '@qilin-agent/session-format'
+import { createSessionFormatCatalogWithChildren, sessionFormatCatalog } from '@qilin-agent/session-format-catalog'
+import { Session, SessionId, SessionLogOffset, type SessionEvent, type SessionHeader } from '@qilin-agent/session'
+import { imageOffloadProjection } from '@qilin-agent/compaction-image-offload/projection'
 import { createSessionFormatV3ToV4 } from '../src/index.ts'
 import { remapV3References } from '../src/references.ts'
 

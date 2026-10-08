@@ -28,7 +28,7 @@
  * and `icon` — so the Side card settings page can render the enable/disable
  * inventory without hardcoding (eating our own dogfood).
  */
-import { IconCodeOutline16, IconDownloadOutline16 } from '@qilin/client-ui-primitives'
+import { IconCodeOutline16, IconDownloadOutline16 } from '@qilin-agent/client-ui-primitives'
 import { lazyChunkComponent } from '../lazy-chunk.tsx'
 import { PdfView } from '../PdfView.tsx'
 import { VideoView } from '../VideoView.tsx'

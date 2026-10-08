@@ -1,6 +1,6 @@
 /** Shared image zoom preferences remain isolated by tab identity. */
 import { describe, expect, it } from 'vitest'
-import type { TabId } from '@qilin/client-ui-dockkit'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
 import { createZoomStore, DEFAULT_ZOOM } from '../src/client/zoom/store.ts'
 
 describe('document zoom store', () => {

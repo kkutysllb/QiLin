@@ -9,14 +9,14 @@
   disabled: true
 
 - id: session-persistence-jsonl
-  name: '@qilin/session-persistence-jsonl'
+  name: '@qilin-agent/session-persistence-jsonl'
   config:
     root: !!js qilinHomePath('sessions')
     compression: none
 
 - insert:
     - id: llm-replay
-      name: '@qilin/llm-replay'
+      name: '@qilin-agent/llm-replay'
       config:
         providers:
           - id: deepseek-official

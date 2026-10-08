@@ -1,6 +1,6 @@
 /**
  * `SandboxedFileSystem`: the sandbox-enforcing implementation of the
- * `@qilin/fs` Service Definition. It extends `LocalFileSystem` so all
+ * `@qilin-agent/fs` Service Definition. It extends `LocalFileSystem` so all
  * text-storage mechanics — resolve, stat, read/stream, list, the atomic
  * write, the read-match-write edit critical section, removal, move, and
  * directory creation — are the local implementation's, verbatim; this package
@@ -14,7 +14,7 @@
  * and only the target path is untrusted, so canonicalize-then-contain is the
  * complete answer to this surface. This is containment, not a security
  * boundary; kernel-grade isolation of untrusted CODE stays `ctx.shell`'s job
- * (`@qilin/bash-sandbox`). The residual
+ * (`@qilin-agent/bash-sandbox`). The residual
  * TOCTOU (an ancestor symlink swapped between the containment re-check and the
  * syscall) is narrowed by re-canonicalizing immediately before delegating and
  * is accepted for this threat model.
@@ -25,17 +25,17 @@
  * `danger-full-access` delegates unfenced. A denial throws the structured
  * `FS_SANDBOX_DENIED`.
  *
- * @module @qilin/fs-sandbox
+ * @module @qilin-agent/fs-sandbox
  */
 
-import { Context } from '@qilin/kylin'
-import { LocalFileSystem } from '@qilin/fs-local'
-import type { Config as LocalConfig } from '@qilin/fs-local'
-import { FsError } from '@qilin/fs'
-import type { FsEditOutcome, FsEditRequest, FsMoveOutcome, FsRemoveOutcome, FsTarget, FsVersion, FsWriteIntent, FsWriteOutcome } from '@qilin/fs'
-import { writableRoots } from '@qilin/sandbox'
-import type { SandboxExecutionPolicy, SandboxMode } from '@qilin/sandbox'
-import type {} from '@qilin/sandbox-policy'
+import { Context } from '@qilin-agent/kylin'
+import { LocalFileSystem } from '@qilin-agent/fs-local'
+import type { Config as LocalConfig } from '@qilin-agent/fs-local'
+import { FsError } from '@qilin-agent/fs'
+import type { FsEditOutcome, FsEditRequest, FsMoveOutcome, FsRemoveOutcome, FsTarget, FsVersion, FsWriteIntent, FsWriteOutcome } from '@qilin-agent/fs'
+import { writableRoots } from '@qilin-agent/sandbox'
+import type { SandboxExecutionPolicy, SandboxMode } from '@qilin-agent/sandbox'
+import type {} from '@qilin-agent/sandbox-policy'
 import { isPathUnder } from './containment.ts'
 
 /**

@@ -1,5 +1,5 @@
 /** Lift an async-generator fake into the stream handle a generated Remote method returns. */
-import type { RemoteStreamHandle } from '@qilin/typert-protocol'
+import type { RemoteStreamHandle } from '@qilin-agent/typert-protocol'
 
 /** Downlink item type of one generated stream method. */
 type StreamItem<Method> = Method extends (...args: never[]) => RemoteStreamHandle<infer Out, unknown> ? Out : never

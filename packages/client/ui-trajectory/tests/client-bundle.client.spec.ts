@@ -4,22 +4,22 @@
  * window.__ModuleLoader__.load, resolves externals through the injected
  * require, returns the exports (apply + inject), and a mounted apply
  * registers the Sidebar tab type and its keyed body seat. Skips when dist/
- * is not built (`pnpm --filter @qilin/client-ui-trajectory bundle`).
+ * is not built (`pnpm --filter @qilin-agent/client-ui-trajectory bundle`).
  */
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { Context } from '@qilin/kylin'
-import { createSnapshotStore } from '@qilin/client-store'
-import { stubConfigForm } from '@qilin/client-test-runtime'
+import { Context } from '@qilin-agent/kylin'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { stubConfigForm } from '@qilin-agent/client-test-runtime'
 import { afterEach, describe, expect, it } from 'vitest'
-import { UiConversation } from '@qilin/client-ui-conversation/client'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import { tabInfoFactory } from '@qilin/client-ui-sidebar-right/src/client/tab-info.ts'
-import { SidebarRightTabRegistry } from '@qilin/client-ui-sidebar-right/src/client/tab-registry.ts'
+import { UiConversation } from '@qilin-agent/client-ui-conversation/client'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import { tabInfoFactory } from '@qilin-agent/client-ui-sidebar-right/src/client/tab-info.ts'
+import { SidebarRightTabRegistry } from '@qilin-agent/client-ui-sidebar-right/src/client/tab-registry.ts'
 import { TRAJECTORY_ID, TRAJECTORY_KIND } from '../src/client/trajectory-tab-definition.ts'
 import { TRAJECTORY_GRAPH_ID } from '../src/client/trajectory-graph-tab-definition.ts'
 
-const PLUGIN_ID = '@qilin/client-ui-trajectory'
+const PLUGIN_ID = '@qilin-agent/client-ui-trajectory'
 
 interface Handoff { id: string; factory: (require: (spec: string) => unknown) => Record<string, unknown> }
 type Win = { __ModuleLoader__?: { load(h: Handoff): void } }
@@ -54,9 +54,9 @@ describe('tsdown client artifact', () => {
       ['react', await import('react')],
       ['react/jsx-runtime', await import('react/jsx-runtime')],
       ['react-dom', await import('react-dom')],
-      ['@qilin/client-store', await import('@qilin/client-store')],
-      ['@qilin/client-ui-conversation/client', await import('@qilin/client-ui-conversation/client')],
-      ['@qilin/client-ui-primitives', await import('@qilin/client-ui-primitives')],
+      ['@qilin-agent/client-store', await import('@qilin-agent/client-store')],
+      ['@qilin-agent/client-ui-conversation/client', await import('@qilin-agent/client-ui-conversation/client')],
+      ['@qilin-agent/client-ui-primitives', await import('@qilin-agent/client-ui-primitives')],
     ])
     const exports = handoff!.factory((spec) => {
       if (!modules.has(spec)) throw new Error(`unexpected require: ${spec}`)
@@ -107,7 +107,7 @@ describe('tsdown client artifact', () => {
     ctx.provide('connection', { api: { settings: {} }, isLoopback: false } as never)
     ctx.provide('remote', { $on: () => () => {} } as never)
     ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => stubConfigForm().scope } as never)
-    const locale = await import('@qilin/client-locale/client')
+    const locale = await import('@qilin-agent/client-locale/client')
     ctx.plugin({ inject: [...locale.inject], apply: locale.apply })
     const fiber = ctx.plugin(exports as { apply: (ctx: Context) => void })
     await fiber.await()

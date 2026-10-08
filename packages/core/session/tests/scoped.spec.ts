@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createScope, scopeOf } from '@qilin/scope'
-import type { Scope, ScopeKey } from '@qilin/scope'
-import SessionStore from '@qilin/session'
-import type { Session } from '@qilin/session'
+import { Context } from '@qilin-agent/kylin'
+import { createScope, scopeOf } from '@qilin-agent/scope'
+import type { Scope, ScopeKey } from '@qilin-agent/scope'
+import SessionStore from '@qilin-agent/session'
+import type { Session } from '@qilin-agent/session'
 
 async function mount(): Promise<Context> {
   const ctx = new Context()

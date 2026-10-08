@@ -1,7 +1,7 @@
 /** Remap released V3 local event references after interrupted-turn insertion. */
 
-import { SessionFormatError, isSessionFormatJsonObject, sessionFormatCount } from '@qilin/session-format'
-import type { SessionFormatEvent, SessionFormatJsonObject, SessionFormatJsonValue } from '@qilin/session-format'
+import { SessionFormatError, isSessionFormatJsonObject, sessionFormatCount } from '@qilin-agent/session-format'
+import type { SessionFormatEvent, SessionFormatJsonObject, SessionFormatJsonValue } from '@qilin-agent/session-format'
 
 function object(value: SessionFormatJsonValue | undefined): SessionFormatJsonObject {
   if (!isSessionFormatJsonObject(value)) throw new SessionFormatError('V3 event reference container must be an object')

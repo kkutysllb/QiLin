@@ -1,13 +1,13 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
-import type { JobsSnapshot, JobView, ObservedJob } from '@qilin/api-job-controller/client'
-import type { SessionId } from '@qilin/session/types'
+import type { JobsSnapshot, JobView, ObservedJob } from '@qilin-agent/api-job-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import {
   IconChevronDownOutline14, IconStopFill16, StateDot, TerminalBlock, useDismissOnOutsidePointer,
   type StateDotState, type TerminalBlockLabels,
-} from '@qilin/client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRuntime, TranslateNS } from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-primitives'
+import type { InjectFace, PropsLocale, PropsRuntime, TranslateNS } from '@qilin-agent/client-ui-slots'
 import { NS } from './locales.ts'
-import type {} from '@qilin/client-ui-conversation/client'
+import type {} from '@qilin-agent/client-ui-conversation/client'
 import css from './JobListAction.module.css'
 
 /** Registration-side business face for the job list. */

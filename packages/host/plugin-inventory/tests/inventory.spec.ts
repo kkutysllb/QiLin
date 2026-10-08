@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context, FiberState, type Plugin } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import { remoteMethods } from '@qilin/typert-protocol'
-import type { AgentPresets } from '@qilin/agent-presets'
+import { Context, FiberState, type Plugin } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import { remoteMethods } from '@qilin-agent/typert-protocol'
+import type { AgentPresets } from '@qilin-agent/agent-presets'
 import PluginInventoryGateway from '../src/index.ts'
 
 const contexts: Context[] = []

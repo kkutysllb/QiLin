@@ -1,5 +1,5 @@
 /** Question-owned summary action and transcript disclosure. */
-import { DisclosureRow, IconQuestionOutline14, TextShimmer } from '@qilin/client-ui-primitives'
+import { DisclosureRow, IconQuestionOutline14, TextShimmer } from '@qilin-agent/client-ui-primitives'
 import type { ToolRowProps } from './ToolRow.tsx'
 import { formatToolBody } from '../models/tool-call-model.ts'
 import { AskQuestionCard } from './AskQuestionCard.tsx'

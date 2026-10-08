@@ -1,20 +1,20 @@
 /**
  * Driver-owned durable agent inbox projection and command facade.
  *
- * @module @qilin/agent-loop/inbox
+ * @module @qilin-agent/agent-loop/inbox
  */
 
-import type { MessageId } from '@qilin/llm'
-import type { ProjectionDefinition } from '@qilin/session-projection'
-import type SessionProjectionRegistry from '@qilin/session-projection'
-import type { Session, SessionEventMap, UserMessage } from '@qilin/session'
+import type { MessageId } from '@qilin-agent/llm'
+import type { ProjectionDefinition } from '@qilin-agent/session-projection'
+import type SessionProjectionRegistry from '@qilin-agent/session-projection'
+import type { Session, SessionEventMap, UserMessage } from '@qilin-agent/session'
 import type {
   AgentEventDispatch,
   Inbox as InboxContract,
   InboxState,
   InboxTarget,
   InboxWireState,
-} from '@qilin/agent'
+} from '@qilin-agent/agent'
 import { z } from 'zod'
 
 /** Wire validation for pending agent input reconstructed from durable inbox splices. */

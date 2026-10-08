@@ -2,11 +2,11 @@
  * Production client composition without the page: mount the Loader over a
  * module system, create every manifest row, wait for quiescence, and audit
  * activation. `AppWebEntry` and the whole-client test carrier both call it.
- * @module @qilin/client-web/src/boot-client
+ * @module @qilin-agent/client-web/src/boot-client
  */
-import type { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import type { BootManifest, ClientModuleLoader } from '@qilin/client-modules/client'
+import type { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import type { BootManifest, ClientModuleLoader } from '@qilin-agent/client-modules/client'
 import { STATE_LABELS } from './loader-status.ts'
 
 /** Entry state label as the boot page renders it. */

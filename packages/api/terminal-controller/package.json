@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/api-terminal-controller",
+  "name": "@qilin-agent/api-terminal-controller",
   "description": "Session-owned interactive terminals with shell discovery, screen recovery and typed Remote control",
   "version": "3.1.1",
   "publishConfig": {
@@ -43,10 +43,10 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/api-gateway"
+        "@qilin-agent/api-gateway"
       ],
       "external": [
-        "@qilin/api-gateway/client"
+        "@qilin-agent/api-gateway/client"
       ],
       "platform": "web"
     }
@@ -57,31 +57,31 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@qilin/deque": "workspace:*",
-    "@qilin/lazy-require": "workspace:*",
-    "@qilin/typert-protocol": "workspace:*",
-    "@qilin/schemastery": "workspace:~",
+    "@qilin-agent/deque": "workspace:*",
+    "@qilin-agent/lazy-require": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~",
     "@xterm/headless": "^6.0.0",
     "@xterm/addon-serialize": "^0.14.0",
     "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/api-gateway": "workspace:*",
-    "@qilin/brand": "workspace:*",
-    "@qilin/client-store": "workspace:*",
-    "@qilin/fs": "workspace:*",
-    "@qilin/sandbox": "workspace:*",
-    "@qilin/sandbox-policy": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-projection": "workspace:*",
-    "@qilin/subprocess": "workspace:*",
-    "@qilin/subprocess-local": "workspace:*",
-    "@qilin/util-crypto": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/api-gateway": "workspace:*",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/fs": "workspace:*",
+    "@qilin-agent/sandbox": "workspace:*",
+    "@qilin-agent/sandbox-policy": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/subprocess": "workspace:*",
+    "@qilin-agent/subprocess-local": "workspace:*",
+    "@qilin-agent/util-crypto": "workspace:*"
   },
   "files": [
     "lib/index.js",

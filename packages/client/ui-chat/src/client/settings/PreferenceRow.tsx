@@ -1,7 +1,7 @@
 /** Localized two-column selector shared by Chat preference rows. */
 
 import { useRef, useState } from 'react'
-import { IconChevronDownOutline14, Menu } from '@qilin/client-ui-primitives'
+import { IconChevronDownOutline14, Menu } from '@qilin-agent/client-ui-primitives'
 import css from './PreferenceRow.module.css'
 
 /**

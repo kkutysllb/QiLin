@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import WebRuntime from '@qilin/web'
-import { ExaSearchProvider, EXA_PROVIDER_ID } from '@qilin/web-search-exa'
-import * as exaPlugin from '@qilin/web-search-exa'
+import { Context } from '@qilin-agent/kylin'
+import WebRuntime from '@qilin-agent/web'
+import { ExaSearchProvider, EXA_PROVIDER_ID } from '@qilin-agent/web-search-exa'
+import * as exaPlugin from '@qilin-agent/web-search-exa'
 import { mapExaResponse, mapExaResult } from '../src/provider.ts'
 
 const options = { apiKey: 'exa-key', baseURL: 'https://api.exa.test', searchType: 'auto' as const, highlightsPerResult: 1 }

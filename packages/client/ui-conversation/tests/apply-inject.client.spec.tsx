@@ -1,21 +1,21 @@
 // @vitest-environment jsdom
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import type { CommandContribution, CommandUiContract } from '@qilin/client-ui-commands/client'
-import type { ISession, SessionReference } from '@qilin/api-session-controller/client'
-import { LocaleRuntime } from '@qilin/client-locale/client'
-import { createSnapshotStore, type ObservableSnapshot } from '@qilin/client-store'
+import type { CommandContribution, CommandUiContract } from '@qilin-agent/client-ui-commands/client'
+import type { ISession, SessionReference } from '@qilin-agent/api-session-controller/client'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
+import { createSnapshotStore, type ObservableSnapshot } from '@qilin-agent/client-store'
 import {
   SlotTestRuntime, stubConfigForm, usePinnedBrowserLanguages,
-} from '@qilin/client-test-runtime'
-import type { SessionBehaviorOverrides } from '@qilin/client-test-runtime'
+} from '@qilin-agent/client-test-runtime'
+import type { SessionBehaviorOverrides } from '@qilin-agent/client-test-runtime'
 import {
   apply, inject, type ComposerBarInjected, type ConversationInjected,
   type ConversationSessionHeaderInjected, type ConversationSessionInjected, type ViewTab,
-} from '@qilin/client-ui-conversation/client'
-import type { SessionId } from '@qilin/session/types'
-import type { WorkspaceId } from '@qilin/workspace/types'
+} from '@qilin-agent/client-ui-conversation/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { WorkspaceId } from '@qilin-agent/workspace/types'
 import { createConversationStore } from '../src/client/stores.ts'
-import { RemoteError } from '@qilin/client-test-runtime'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
 
 usePinnedBrowserLanguages('zh-CN')
 

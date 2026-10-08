@@ -1,12 +1,12 @@
 /**
  * Shared path resolution and regular-file validation for model-facing read tools.
- * @module @qilin/tool-fs/src/read-target
+ * @module @qilin-agent/tool-fs/src/read-target
  */
 
-import type { Context } from '@qilin/kylin'
-import { FsError } from '@qilin/fs'
-import type { FsInfo, FsTarget } from '@qilin/fs'
-import type { ToolExecution } from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import { FsError } from '@qilin-agent/fs'
+import type { FsInfo, FsTarget } from '@qilin-agent/fs'
+import type { ToolExecution } from '@qilin-agent/tools'
 import { sessionResolveOptions } from './session-cwd.ts'
 
 /**

@@ -3,19 +3,19 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, fireEvent } from '@testing-library/react'
 import { useEffect, useState, useSyncExternalStore } from 'react'
-import { SlotTestRuntime, type SlotView } from '@qilin/client-test-runtime'
-import { LocaleRuntime } from '@qilin/client-locale/client'
-import { createSnapshotStore } from '@qilin/client-store'
-import type { ShortcutCatalogEntry, ShortcutCommandId } from '@qilin/client-shortcuts/client'
-import type { PropsRuntime } from '@qilin/client-ui-slots'
-import type { MainPanelId } from '@qilin/client-ui-layout/client'
-import type { PaneId, SplitId, TabId } from '@qilin/client-ui-dockkit'
-import { dockPaneIds, getPane } from '@qilin/client-ui-dockkit'
-import type { SessionId } from '@qilin/session/types'
+import { SlotTestRuntime, type SlotView } from '@qilin-agent/client-test-runtime'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { ShortcutCatalogEntry, ShortcutCommandId } from '@qilin-agent/client-shortcuts/client'
+import type { PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type { MainPanelId } from '@qilin-agent/client-ui-layout/client'
+import type { PaneId, SplitId, TabId } from '@qilin-agent/client-ui-dockkit'
+import { dockPaneIds, getPane } from '@qilin-agent/client-ui-dockkit'
+import type { SessionId } from '@qilin-agent/session/types'
 import { apply, inject } from '../src/client/index.ts'
 import { intentsFor } from '../src/client/shell/SidebarRight.tsx'
 import { registerSidebarShortcuts } from '../src/client/shortcuts.ts'
-import { ShortcutRegistry } from '@qilin/client-shortcuts/src/client/registry.ts'
+import { ShortcutRegistry } from '@qilin-agent/client-shortcuts/src/client/registry.ts'
 import type { SidebarRightTabInfo, SidebarRightTabMenuOwnerProps } from '../src/client/contract/slots.ts'
 import type { createSidebarRightStore } from '../src/client/stores.ts'
 
@@ -25,7 +25,7 @@ declare module '../src/client/contract/params.ts' {
   }
 }
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface SlotMap {
     /** A Conversation-column stand-in rendered before the seat, opening a resource as soon as a seat is mounted. */
     'sidebar-right.test.opener': { kind: 'single'; scope: 'session'; owner: { armed: boolean } }

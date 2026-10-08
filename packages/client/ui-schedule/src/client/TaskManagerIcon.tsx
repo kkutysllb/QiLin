@@ -1,6 +1,6 @@
 /** Decorative occupant for the task-manager sidebar entry. */
-import type { PropsRuntime } from '@qilin/client-ui-slots'
-import type {} from '@qilin/client-ui-sidebar/client'
+import type { PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-sidebar/client'
 
 /**
  * Render the clock glyph at the size the sidebar asks for; the sidebar owns

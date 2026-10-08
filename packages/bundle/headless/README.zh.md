@@ -3,7 +3,7 @@ description: "qilin 的一次性任务模式：从命令行运行单个任务并
 kind: "package-bundle"
 ---
 
-# @qilin/headless
+# @qilin-agent/headless
 
 [English](README.md) | 中文
 
@@ -47,7 +47,7 @@ agent 会完成该任务，把提供方的每个非空推理（reasoning）增�
 | `sessionId` | `session-<uuid>` | 要沿用的精确 Session 标识；未知 id 会失败 |
 | `json` | `false` | 把本次运行投影为 stdout 上的按行 JSON 事件 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#qilinheadless)是所有受支持字段及其 JSDoc 的完整真源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#qilin-agentheadless)是所有受支持字段及其 JSDoc 的完整真源。
 
 ### 选择 Session 标识
 
@@ -112,7 +112,7 @@ patch 叠加在 `qilin-base` 之上：继承投影缓存与共享 PTC 运行时�
 - [qilin-base](../base/README.zh.md)——headless 运行其上的共享核心。
 - [qilin-web-app](../web-app/README.zh.md)——用于多轮工作的同级交互式浏览器入口。
 - [qilin-cmdline](../../boot/cmdline/README.zh.md)——启动器如何把命令行交给应用。
-- [生成配置目录](../../../docs/config-catalog.zh.md#qilinheadless)——每个受支持配置字段及其源声明。
+- [生成配置目录](../../../docs/config-catalog.zh.md#qilin-agentheadless)——每个受支持配置字段及其源声明。
 
 -----
 

@@ -2,12 +2,12 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { LocalBashExecutor } from '@qilin/bash-local'
-import LocalSubprocessRuntime from '@qilin/subprocess-local'
-import type { SubprocessHandle, SubprocessOutputReader } from '@qilin/subprocess'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
-import type { ShellProcess } from '@qilin/shell'
+import { Context } from '@qilin-agent/kylin'
+import { LocalBashExecutor } from '@qilin-agent/bash-local'
+import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
+import type { SubprocessHandle, SubprocessOutputReader } from '@qilin-agent/subprocess'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
+import type { ShellProcess } from '@qilin-agent/shell'
 
 const spillDir = mkdtempSync(join(tmpdir(), 'qilin-bash-exec-spec-'))
 

@@ -1,4 +1,4 @@
-# `@qilin/cli`
+# `@qilin-agent/cli`
 
 English | [中文](README.zh.md)
 
@@ -25,7 +25,7 @@ The invoking directory is the default workspace root. The `web`, `headless`, `sd
 
 `list` marks a shipped template layer with `(shipped)`: it moves with the running installation and cannot be dropped from the profile. Every other listed layer belongs to the profile — for example the retired `dsh-animations` animations skill pack installed back through `qilin plugin add` — and upgrades or removes in place without a QiLin release.
 
-Install the command itself from the published package (`npm install -g @qilin/cli`) to get `qilin` on `PATH`; the manifest declares `lib/bin.js` as the `qilin` bin and ships only that bundle.
+Install the command itself from the published package (`npm install -g @qilin-agent/cli`) to get `qilin` on `PATH`; the manifest declares `lib/bin.js` as the `qilin` bin and ships only that bundle.
 
 ## App arguments
 
@@ -51,7 +51,7 @@ The tree composes over an empty root:
 - then the profile's `cordis.patch.yml`, then the home-level `$QILIN_HOME/cordis.patch.yml`
 - then `--patch` overlays
 
-Bundles named in `qilin.profile.bundles` resolve from the qilin installation first (`@qilin/base`, `@qilin/web-app`, `@qilin/headless`, `@qilin/sdk-app`, `@qilin/sdk-minimal`, `@qilin/acp-app`), then from the profile's own `node_modules`, where pnpm installs out-of-tree plugins.
+Bundles named in `qilin.profile.bundles` resolve from the qilin installation first (`@qilin-agent/base`, `@qilin-agent/web-app`, `@qilin-agent/headless`, `@qilin-agent/sdk-app`, `@qilin-agent/sdk-minimal`, `@qilin-agent/acp-app`), then from the profile's own `node_modules`, where pnpm installs out-of-tree plugins.
 
 Use `--dump-default-config` and `--dump-config` to inspect the composed tree without booting it.
 
@@ -65,6 +65,6 @@ The [CLI behavior reference](reference/README.md) owns exact layer precedence, f
 
 Production runs require built package and frontend artifacts. From the repository root, run `pnpm run build` separately, then use `pnpm qilin <args...>` to run the TypeScript entry and forward every argument; the [source-execution reference](reference/README.md#source-execution) owns the module-resolution contract.
 
-The `@qilin/cli/profile-boot` export provides the shared profile lifecycle to the Desktop host. A resolved application profile supplies its own installation anchor for runtime package resolution while retaining the Harness home patch, proxy environment, telemetry switch, patch reload, and bounded shutdown.
+The `@qilin-agent/cli/profile-boot` export provides the shared profile lifecycle to the Desktop host. A resolved application profile supplies its own installation anchor for runtime package resolution while retaining the Harness home patch, proxy environment, telemetry switch, patch reload, and bounded shutdown.
 
 The [Web failure matrix](tests/profiles/web/tests/web-failure-matrix.expected.e2e.ts) runs the built CLI through startup failures and native configuration HMR with `awaitWriteFinish` enabled in `test:expected`. It verifies authenticated HTTP responses, diagnostics, recovery, process exits, and disposal without model API calls; the [startup acceptance](tests/profiles/web/tests/web-best-effort-startup.expected.e2e.ts) also covers the shipped required Web dependencies and port conflicts.

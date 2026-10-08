@@ -1,9 +1,9 @@
 /** Client-side Workspace state model shared by Remote transport and UI projection. */
 
-import { notifySubscribers } from '@qilin/client-store'
-import type {} from '@qilin/api-workspace-controller/remote'
-import { isRemoteFailure } from '@qilin/api-gateway/client'
-import type { RemoteFailure, RemoteResult, TypertClientRemote } from '@qilin/typert-protocol'
+import { notifySubscribers } from '@qilin-agent/client-store'
+import type {} from '@qilin-agent/api-workspace-controller/remote'
+import { isRemoteFailure } from '@qilin-agent/api-gateway/client'
+import type { RemoteFailure, RemoteResult, TypertClientRemote } from '@qilin-agent/typert-protocol'
 import type {
   WorkspaceArchiveSessionRequest,
   WorkspaceArchiveValue,

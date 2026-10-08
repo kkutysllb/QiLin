@@ -6,13 +6,13 @@
       name: './web-fetch-fixture-server.mjs'
 
 - id: web
-  name: '@qilin/web'
+  name: '@qilin-agent/web'
 
 - id: web-fetch-http
-  name: '@qilin/web-fetch-http'
+  name: '@qilin-agent/web-fetch-http'
   disabled: true
 
 - id: tool-web
-  name: '@qilin/tool-web'
+  name: '@qilin-agent/tool-web'
   config:
     search: false

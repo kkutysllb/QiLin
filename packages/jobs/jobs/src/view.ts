@@ -3,12 +3,12 @@
  * chunks its output ring hands out. This leaf reaches no Host package, so
  * browser programs and Remote wire types import it without pulling the
  * registry's Host declaration merges.
- * @module @qilin/jobs/view
+ * @module @qilin-agent/jobs/view
  */
 
-import type { SessionId } from '@qilin/session/types'
+import type { SessionId } from '@qilin-agent/session/types'
 // Type-only: the Workspace registry's archive-admission family map this seam merges `job` into.
-import type {} from '@qilin/workspace/types'
+import type {} from '@qilin-agent/workspace/types'
 import type { JobId } from './brand.ts'
 
 /**
@@ -18,7 +18,7 @@ import type { JobId } from './brand.ts'
  */
 export type JobStatus = 'running' | 'stopping' | 'completed' | 'killed' | 'failed'
 
-declare module '@qilin/workspace/types' {
+declare module '@qilin-agent/workspace/types' {
   interface SessionActivityKindMap {
     /** A background job owned by this session is running or stopping. */
     job: true

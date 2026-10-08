@@ -1,7 +1,7 @@
 /** User control for model-selectable subagent delegation in new sessions. */
 
-import { Switch } from '@qilin/client-ui-primitives'
-import type { PropsLocale } from '@qilin/client-ui-slots'
+import { Switch } from '@qilin-agent/client-ui-primitives'
+import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import type {
   SubagentModelCandidate,
   SubagentModelSelectionCardFace,

@@ -1,5 +1,5 @@
-import { Context } from '@qilin/kylin'
-import type { IndexInjection } from '@qilin/host-webserver'
+import { Context } from '@qilin-agent/kylin'
+import type { IndexInjection } from '@qilin-agent/host-webserver'
 import { expect, it } from 'vitest'
 import { Config, apply } from '../src/index.ts'
 

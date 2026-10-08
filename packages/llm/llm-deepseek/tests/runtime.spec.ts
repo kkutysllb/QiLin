@@ -1,12 +1,12 @@
-import * as Protocol from '@qilin/llm-deepseek'
+import * as Protocol from '@qilin-agent/llm-deepseek'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Context } from '@qilin/kylin'
-import { AttachmentId, ImageVariantId } from '@qilin/attachment'
-import type { AttachmentStore, ImageAttachmentRef, RequestImageAttachment } from '@qilin/attachment'
-import { createLaunchEnvironmentSnapshot } from '@qilin/launch-environment'
+import { Context } from '@qilin-agent/kylin'
+import { AttachmentId, ImageVariantId } from '@qilin-agent/attachment'
+import type { AttachmentStore, ImageAttachmentRef, RequestImageAttachment } from '@qilin-agent/attachment'
+import { createLaunchEnvironmentSnapshot } from '@qilin-agent/launch-environment'
 import LlmRuntime, { ToolCallId, createUserMessage,
   CONTEXT_WINDOW_EXCEEDED_CODE,
   createToolResultMessage,
@@ -16,15 +16,15 @@ import LlmRuntime, { ToolCallId, createUserMessage,
   QUOTA_EXCEEDED_CODE,
   ReasoningEffortId,
   userAgent,
-} from '@qilin/llm'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
-import { getOrCreateAnonymousUserId, type AnonymousUserId } from '@qilin/anonymous-user-id'
-import { SessionId } from '@qilin/session'
-import DeepSeekLlmApiExtensionRegistry from '@qilin/deepseek-llm-api-extensions'
-import type { PreparedDeepSeekLlmApiExtensions } from '@qilin/deepseek-llm-api-extensions'
-import * as LlmDeepSeek from '@qilin/llm-deepseek-api-key'
-import { DeepSeekAdapter, resolveAdapterOptions } from '@qilin/llm-deepseek'
-import type { ContextFormed } from '@qilin/llm'
+} from '@qilin-agent/llm'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
+import { getOrCreateAnonymousUserId, type AnonymousUserId } from '@qilin-agent/anonymous-user-id'
+import { SessionId } from '@qilin-agent/session'
+import DeepSeekLlmApiExtensionRegistry from '@qilin-agent/deepseek-llm-api-extensions'
+import type { PreparedDeepSeekLlmApiExtensions } from '@qilin-agent/deepseek-llm-api-extensions'
+import * as LlmDeepSeek from '@qilin-agent/llm-deepseek-api-key'
+import { DeepSeekAdapter, resolveAdapterOptions } from '@qilin-agent/llm-deepseek'
+import type { ContextFormed } from '@qilin-agent/llm'
 import { providerError } from '../src/transport.ts'
 import { resolveRequestImageTarget } from '../src/request-pricing.ts'
 import { assemble } from './assemble.ts'
@@ -32,7 +32,7 @@ import { closeMockServers, mockServer, textEvents } from './mock-server.ts'
 import type { Behavior } from './mock-server.ts'
 import { requestImageStore } from './helpers.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

@@ -11,7 +11,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render } from '@testing-library/react'
 import { useSyncExternalStore } from 'react'
-import { makeTranslate } from '@qilin/client-test-runtime'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
 import type { TaskNodeVM, TasksGraphModel } from '../src/client/tasks-graph-model.ts'
 import { TasksGraphView } from '../src/client/TasksGraphView.tsx'
 import { createTasksGraphStore } from '../src/client/tasks-graph-store.ts'

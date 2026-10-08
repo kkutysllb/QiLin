@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/host-plugin-inventory",
+  "name": "@qilin-agent/host-plugin-inventory",
   "description": "Read-only Remote projection of current Cordis Loader plugin state",
   "version": "3.1.1",
   "publishConfig": {
@@ -50,22 +50,22 @@
     "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/agent-presets": "workspace:*",
-    "@qilin/brand": "workspace:*",
-    "@qilin/typert-protocol": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/agent-presets": "workspace:*",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "peerDependenciesMeta": {
-    "@qilin/agent-presets": {
+    "@qilin-agent/agent-presets": {
       "optional": true
     }
   },
   "devDependencies": {
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/agent-presets": "workspace:*",
-    "@qilin/brand": "workspace:*",
-    "@qilin/typert-protocol": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/agent-presets": "workspace:*",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   }
 }

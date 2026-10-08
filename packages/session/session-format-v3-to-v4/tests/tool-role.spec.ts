@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import type { SessionFormatEvent, SessionFormatHeader, SessionFormatJsonObject } from '@qilin/session-format'
-import { SessionFormatEventCollector, SessionFormatUnsupportedMigrationError } from '@qilin/session-format'
-import { createToolResultMessage, ToolCallId } from '@qilin/llm'
+import type { SessionFormatEvent, SessionFormatHeader, SessionFormatJsonObject } from '@qilin-agent/session-format'
+import { SessionFormatEventCollector, SessionFormatUnsupportedMigrationError } from '@qilin-agent/session-format'
+import { createToolResultMessage, ToolCallId } from '@qilin-agent/llm'
 import { createSessionFormatV3ToV4, releasedV4SessionFormatCodec, restoreReleasedV4Artifact, sessionFormatV3ToV4 } from '../src/index.ts'
 import { assertV4ToolResultMessage, liftToolResult } from '../src/tool-role.ts'
 

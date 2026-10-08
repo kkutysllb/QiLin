@@ -3,7 +3,7 @@ description: "Prerequisite mounting, production AgentLoop drivers, and explicit 
 kind: "package-library"
 ---
 
-# @qilin/agent-loop-testkit
+# @qilin-agent/agent-loop-testkit
 
 English | [中文](README.zh.md)
 
@@ -32,12 +32,12 @@ This package gives an AgentLoop test a working service topology and keeps the ch
 Use `mountAgentLoopTestHarness()` when the test covers durable Inbox events, projection recovery or validation, live Inbox notifications, or loop-driver claims. Mount any load-order-sensitive consumers after the prerequisites and before creating the Agent. The context owns the loop and every Agent returned by the harness.
 
 ```ts
-import { Context } from '@qilin/kylin'
-import { SessionId, type UserMessage } from '@qilin/session'
+import { Context } from '@qilin-agent/kylin'
+import { SessionId, type UserMessage } from '@qilin-agent/session'
 import {
   mountAgentLoopTestDependencies,
   mountAgentLoopTestHarness,
-} from '@qilin/agent-loop-testkit'
+} from '@qilin-agent/agent-loop-testkit'
 
 const ctx = new Context()
 
@@ -58,7 +58,7 @@ The dependency helper forwards system-prompt and tool-registry configuration thr
 Use `createInboxStub()` when the test subject needs mutable pending lists but does not exercise durability, projection validation, live Inbox notifications, or the driver's claim policy. The stub implements the public queue operations with two process-local arrays and never writes to a Session. Use `unsupportedInbox()` when the test subject must not touch pending input; every mutation throws at the first unexpected dependency.
 
 ```ts
-import { createInboxStub } from '@qilin/agent-loop-testkit'
+import { createInboxStub } from '@qilin-agent/agent-loop-testkit'
 
 const agent = {
   // ...

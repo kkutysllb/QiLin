@@ -1,9 +1,9 @@
 /** Process-local assistant state retained for reconnecting Web followers. */
 
-import type { AssistantStreamFrame } from '@qilin/agent'
-import { AssistantStreamAccumulator } from '@qilin/llm'
-import type { SessionSeqCursor } from '@qilin/session'
-import type { JsonValue } from '@qilin/util-values'
+import type { AssistantStreamFrame } from '@qilin-agent/agent'
+import { AssistantStreamAccumulator } from '@qilin-agent/llm'
+import type { SessionSeqCursor } from '@qilin-agent/session'
+import type { JsonValue } from '@qilin-agent/util-values'
 import type {
   SessionAssistantStreamAttempt,
   SessionAssistantStreamBaseline,

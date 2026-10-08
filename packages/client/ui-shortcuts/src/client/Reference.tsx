@@ -1,9 +1,9 @@
 /** Searchable editable shortcut reference and its General Settings row. */
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Button, IconCloseOutline16, IconRefreshOutline16, Modal, ShortcutKeys, Tooltip, Toast, focusWithoutRing, isBehindModal, rankByName } from '@qilin/client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
-import type { ObservableSnapshot, PropsStore } from '@qilin/client-store'
-import type { ShortcutCatalogEntry, ShortcutPlatform, Shortcuts } from '@qilin/client-shortcuts/client'
+import { Button, IconCloseOutline16, IconRefreshOutline16, Modal, ShortcutKeys, Tooltip, Toast, focusWithoutRing, isBehindModal, rankByName } from '@qilin-agent/client-ui-primitives'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type { ObservableSnapshot, PropsStore } from '@qilin-agent/client-store'
+import type { ShortcutCatalogEntry, ShortcutPlatform, Shortcuts } from '@qilin-agent/client-shortcuts/client'
 import { ShortcutEditor } from './Editor.tsx'
 import { ShortcutIcon } from './Icons.tsx'
 import { shortcutFailure, shortcutReadFailure } from './feedback.ts'

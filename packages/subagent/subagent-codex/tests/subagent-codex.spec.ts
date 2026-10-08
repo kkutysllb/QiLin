@@ -2,21 +2,21 @@ import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { PassThrough } from 'node:stream'
 import { fileURLToPath } from 'node:url'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
 import * as yaml from 'js-yaml'
 import { describe, expect, it, vi } from 'vitest'
-import type { Agent } from '@qilin/agent'
-import type { ContentBlock } from '@qilin/llm'
-import SubagentRuntime from '@qilin/subagent'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
+import type { Agent } from '@qilin-agent/agent'
+import type { ContentBlock } from '@qilin-agent/llm'
+import SubagentRuntime from '@qilin-agent/subagent'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 import type {
   SubprocessHandle,
   SubprocessOutcome,
   SubprocessSpawnSpec,
-} from '@qilin/subprocess'
-import LocalSubprocessRuntime from '@qilin/subprocess-local'
+} from '@qilin-agent/subprocess'
+import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
 import * as codex from '../src/index.ts'
 import {
   CODEX_PERMISSION_MODES,
@@ -366,11 +366,11 @@ describe('task admission and package contracts', () => {
     expect(manifest.qilin?.bundle?.patch).toBe('./cordis.patch.yml')
     expect(manifest.files).toContain('cordis.patch.yml')
     expect(manifest.dependencies).toHaveProperty(
-      '@qilin/sdk-protocol',
+      '@qilin-agent/sdk-protocol',
       'workspace:*',
     )
     expect(manifest.dependencies).toHaveProperty('@openai/codex', CODEX_VERSION)
-    expect(manifest.dependencies).not.toHaveProperty('@qilin/subagent-claude-code')
+    expect(manifest.dependencies).not.toHaveProperty('@qilin-agent/subagent-claude-code')
 
     const codexPackageJson = fileURLToPath(import.meta.resolve('@openai/codex/package.json'))
     const codexManifest = JSON.parse(readFileSync(codexPackageJson, 'utf8')) as {
@@ -408,7 +408,7 @@ describe('task admission and package contracts', () => {
       : []
     expect(rows).toEqual([{
       id: 'subagent-codex',
-      name: '@qilin/subagent-codex',
+      name: '@qilin-agent/subagent-codex',
     }])
     expect(JSON.stringify(rows)).not.toContain('tool-subagent')
   })

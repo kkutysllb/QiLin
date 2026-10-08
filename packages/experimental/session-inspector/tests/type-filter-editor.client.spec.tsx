@@ -2,7 +2,7 @@
 /** Drafts and asynchronous candidates cannot change the applied filter without confirmation. */
 
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
-import { makeTranslate } from '@qilin/client-test-runtime'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
 import { afterEach, expect, it, vi } from 'vitest'
 import { TypeFilter } from '../src/client/views/TypeFilter.tsx'
 import { en } from '../src/client/locales.ts'

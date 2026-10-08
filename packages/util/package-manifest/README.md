@@ -3,7 +3,7 @@ description: "Shared TypeScript declarations for package identity, runtime requi
 kind: "package-library"
 ---
 
-# @qilin/package-manifest
+# @qilin-agent/package-manifest
 
 English | [中文](README.zh.md)
 
@@ -28,7 +28,7 @@ Use `QilinPackageManifest` for package metadata, `QilinManifest` for the public 
 Import from the package root. Use a development dependency when only checking your own source; use a production dependency if your published declarations reference these types.
 
 ```ts
-import type { QilinClientManifest, QilinPackageManifest } from '@qilin/package-manifest'
+import type { QilinClientManifest, QilinPackageManifest } from '@qilin-agent/package-manifest'
 
 const client: QilinClientManifest = { platform: 'web' }
 const manifest: QilinPackageManifest = {

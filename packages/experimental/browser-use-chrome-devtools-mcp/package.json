@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/experimental-browser-use-chrome-devtools-mcp",
+  "name": "@qilin-agent/experimental-browser-use-chrome-devtools-mcp",
   "description": "Experimental per-Session Chromium browser tools through chrome-devtools-mcp",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,27 +30,27 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@qilin/experimental-browser-use-runtime": "workspace:*",
+    "@qilin-agent/experimental-browser-use-runtime": "workspace:*",
     "chrome-devtools-mcp": "1.9.0"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/browser-use": "workspace:*",
-    "@qilin/agent": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/system-prompt": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/browser-use": "workspace:*",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/kylin-plugin-include": "workspace:~",
-    "@qilin/browser-use": "workspace:*",
-    "@qilin/agent": "workspace:*",
-    "@qilin/agent-loop": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/session-projection": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/browser-use": "workspace:*",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-loop": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*"
   }
 }

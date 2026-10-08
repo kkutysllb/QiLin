@@ -16,11 +16,11 @@
  * the record is gone has nothing left to write to.
  * @module
  */
-import type { BoundActions } from '@qilin/client-store'
-import type { RemoteResult } from '@qilin/api-remotes/client'
-import type { WorkspaceFileStat } from '@qilin/api-workspace-files/types'
-import type { TabId } from '@qilin/client-ui-dockkit'
-import type { SessionId } from '@qilin/session/types'
+import type { BoundActions } from '@qilin-agent/client-store'
+import type { RemoteResult } from '@qilin-agent/api-remotes/client'
+import type { WorkspaceFileStat } from '@qilin-agent/api-workspace-files/types'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { WholeFileResult } from './file-pages.ts'
 import type { SessionFile } from './file-guard.ts'
 import type { createFilesStore } from './store.ts'

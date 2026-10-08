@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { LocaleRuntime } from '@qilin/client-locale/client'
+import { Context } from '@qilin-agent/kylin'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
 import ShortcutsService from '../src/client/index.ts'
 import { initialShortcutConfig } from '../src/protocol.ts'
 import type { DesktopKeyboardApi, DesktopShortcutsApi, ShortcutConfigSnapshot, ShortcutCommandId } from '../src/protocol.ts'

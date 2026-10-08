@@ -10,8 +10,8 @@ import {
   parseLspArgs,
   presentLspCall,
   renderUri,
-} from '@qilin/tool-lsp'
-import type { LspLocation } from '@qilin/lsp'
+} from '@qilin-agent/tool-lsp'
+import type { LspLocation } from '@qilin-agent/lsp'
 
 const WS = resolve('/home/u/proj')
 const WS_URI = pathToFileURL(WS).href

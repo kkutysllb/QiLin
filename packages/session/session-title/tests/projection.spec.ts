@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createUserMessage } from '@qilin/llm'
-import SessionStore, { SessionId, SessionLogOffset, SessionSeq } from '@qilin/session'
-import type { Session, SessionSeq as SessionSeqType } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import SessionTitleService from '@qilin/session-title'
+import { Context } from '@qilin-agent/kylin'
+import { createUserMessage } from '@qilin-agent/llm'
+import SessionStore, { SessionId, SessionLogOffset, SessionSeq } from '@qilin-agent/session'
+import type { Session, SessionSeq as SessionSeqType } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import SessionTitleService from '@qilin-agent/session-title'
 
 const CONFIG = { fallbackMaxWords: 8, fallbackMaxBytes: 64, maxTitleBytes: 256 }
 

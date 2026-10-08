@@ -3,7 +3,7 @@ description: "受管 QILIN_* shell 环境，供选择、配置或扩展每次模
 kind: "package-reference"
 ---
 
-# @qilin/shell-env
+# @qilin-agent/shell-env
 
 [English](README.md) | 中文
 
@@ -36,8 +36,8 @@ kind: "package-reference"
 其他插件通过注册一个 contributor 来贡献事实，需要提供稳定名称、它可能返回的完整 `QILIN_*` 键集合、每个键的描述，以及为一次执行计算取值的 resolver：
 
 ```ts
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/shell-env'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/shell-env'
 
 export const inject = ['shellEnv']
 
@@ -60,7 +60,7 @@ contributor 必须声明它返回的每个键；返回未声明或非字符串�
 |---|---|---|
 | `qilinHome` | `$QILIN_HOME`，然后 `~/.qilin` | 暴露为 `QILIN_HOME` 的 Harness 主目录绝对路径 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#qilinshell-env)是每个受支持字段及其 JSDoc 的穷尽式真源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#qilin-agentshell-env)是每个受支持字段及其 JSDoc 的穷尽式真源。
 
 ### 可能出什么问题
 
@@ -106,7 +106,7 @@ contributor 必须声明它返回的每个键；返回未声明或非字符串�
 - [tool-bash](../tool-bash/README.zh.md)——消费本环境的 bash 工具。
 - [tool-pwsh](../tool-pwsh/README.zh.md)——消费本环境的 pwsh 工具。
 - [home paths 包](../../util/home-paths/README.zh.md)——`QILIN_HOME` 如何解析。
-- [生成的配置目录](../../../docs/config-catalog.zh.md#qilinshell-env)——每个受支持配置字段及其源声明。
+- [生成的配置目录](../../../docs/config-catalog.zh.md#qilin-agentshell-env)——每个受支持配置字段及其源声明。
 
 -----
 

@@ -10,12 +10,12 @@
  * (`face.ts`), what it draws (`SidechatBody.tsx`), and this module, which
  * wires them.
  */
-import type { Context as ClientContext } from '@qilin/kylin'
-import type {} from '@qilin/api-remotes/client'
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-session/client'
-import type {} from '@qilin/client-ui-sidebar-right/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/api-remotes/client'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-session/client'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
 import { SIDECHAT_ID, sidechatDefinition } from './definition.tsx'
 import { sidechatFace } from './face.ts'
 import type { SidechatRemote } from './face.ts'

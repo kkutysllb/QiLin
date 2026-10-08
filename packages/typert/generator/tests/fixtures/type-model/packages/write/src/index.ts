@@ -1,4 +1,4 @@
-import { Service } from '@qilin/kylin'
+import { Service } from '@qilin-agent/kylin'
 
 /** Service whose public annotations are intentionally absent. */
 export class WritableService extends Service {
@@ -9,7 +9,7 @@ export class WritableService extends Service {
   }
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     writable: WritableService
   }

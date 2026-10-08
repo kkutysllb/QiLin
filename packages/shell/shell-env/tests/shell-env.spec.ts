@@ -1,5 +1,5 @@
 /**
- * Registry tests for `@qilin/shell-env`: built-in facts, contributor
+ * Registry tests for `@qilin-agent/shell-env`: built-in facts, contributor
  * ownership and validation, collection ordering, effect-scoped disposal, and
  * the explicit disposer contract.
  */
@@ -7,13 +7,13 @@
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { ToolCallId } from '@qilin/llm'
-import type { Agent } from '@qilin/agent'
-import { SESSION_FORMAT_VERSION } from '@qilin/session'
-import type { ToolExecution } from '@qilin/tools'
-import { ShellEnvRegistry } from '@qilin/shell-env'
-import * as BashEnvPlugin from '@qilin/shell-env'
+import { Context } from '@qilin-agent/kylin'
+import { ToolCallId } from '@qilin-agent/llm'
+import type { Agent } from '@qilin-agent/agent'
+import { SESSION_FORMAT_VERSION } from '@qilin-agent/session'
+import type { ToolExecution } from '@qilin-agent/tools'
+import { ShellEnvRegistry } from '@qilin-agent/shell-env'
+import * as BashEnvPlugin from '@qilin-agent/shell-env'
 
 const testToolSignal = new AbortController().signal
 

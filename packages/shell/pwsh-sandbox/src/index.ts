@@ -1,6 +1,6 @@
 /**
  * Sandbox-consuming PowerShell executor — the pwsh twin of
- * `@qilin/bash-sandbox`. It wraps the exact local pwsh argv through
+ * `@qilin-agent/bash-sandbox`. It wraps the exact local pwsh argv through
  * `ctx.sandbox` (which on Windows resolves to the ACL restricted-token runner
  * chain), inherits local process mechanics, and reports the selected mode,
  * enforcement, and denial facts. Positive runner-executable evidence
@@ -9,12 +9,12 @@
  * other provider rejections retain stage-neutral local-executor semantics. The
  * tool layer owns the escalation approval flow through `ctx.approval`; this
  * executor reports the sandbox facts the tool renders.
- * @module @qilin/pwsh-sandbox
+ * @module @qilin-agent/pwsh-sandbox
  */
 
-import { Context } from '@qilin/kylin'
-import type { ShellExecRequest, ShellExecSpec, ShellProcess, ShellRunResult } from '@qilin/shell'
-import { SandboxUnavailableError } from '@qilin/sandbox'
+import { Context } from '@qilin-agent/kylin'
+import type { ShellExecRequest, ShellExecSpec, ShellProcess, ShellRunResult } from '@qilin-agent/shell'
+import { SandboxUnavailableError } from '@qilin-agent/sandbox'
 import type {
   ConfinedArgv,
   ConfinedSandboxMode,
@@ -23,16 +23,16 @@ import type {
   SandboxExecutionPolicy,
   SandboxMode,
   SandboxPolicy,
-} from '@qilin/sandbox'
-import type {} from '@qilin/sandbox-policy'
-import { PwshLocalExecutor } from '@qilin/pwsh-local'
-import type { Config as LocalConfig } from '@qilin/pwsh-local'
+} from '@qilin-agent/sandbox'
+import type {} from '@qilin-agent/sandbox-policy'
+import { PwshLocalExecutor } from '@qilin-agent/pwsh-local'
+import type { Config as LocalConfig } from '@qilin-agent/pwsh-local'
 import { classifyDenial, classifyRunnerFailure, isRunnerSpawnFailure, matchesSignature } from './helpers.ts'
 
 /**
  * Plugin config: the local executor's knobs, verbatim. The sandbox policy —
  * the default mode and fallback `workspace-write` root — is NOT here: it lives
- * on `ctx.sandboxPolicy` (`@qilin/sandbox-policy`), which resolves
+ * on `ctx.sandboxPolicy` (`@qilin-agent/sandbox-policy`), which resolves
  * each calling session's mode and cwd for every enforcing capability. The
  * runner choice is likewise the `ctx.sandbox` provider's config, not this
  * executor's.

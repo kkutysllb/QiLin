@@ -8,8 +8,8 @@
 
 ```ts
 import { readFile } from 'node:fs/promises'
-import type { Context } from '@qilin/kylin'
-import { defineTool } from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import { defineTool } from '@qilin-agent/tools'
 
 export const name = 'my-tool'
 export const inject = ['tools']

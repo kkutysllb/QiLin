@@ -1,15 +1,15 @@
 /** Authenticated, cancellation-aware Client access to the speech capability. */
-import { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { Remote, RemoteError, TypertRemoteService } from '@qilin/typert-protocol'
-import type {} from '@qilin/experimental-speech-to-text'
-import type { SpeechPreparationOptions, SpeechProviderId, SpeechSelectionPatch, Transcript } from '@qilin/experimental-speech-to-text/types'
+import { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { Remote, RemoteError, TypertRemoteService } from '@qilin-agent/typert-protocol'
+import type {} from '@qilin-agent/experimental-speech-to-text'
+import type { SpeechPreparationOptions, SpeechProviderId, SpeechSelectionPatch, Transcript } from '@qilin-agent/experimental-speech-to-text/types'
 import type { SpeechCatalog, TranscriptionRequest } from './types.ts'
-import { validateWave } from '@qilin/experimental-speech-to-text/wave'
+import { validateWave } from '@qilin-agent/experimental-speech-to-text/wave'
 
 export type * from './types.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Experimental speech Remote controller. */
     speechController: SpeechController

@@ -1,6 +1,6 @@
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it } from 'vitest'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
 import { apply as applyHost } from '../src/index.ts'
 import { apply, inject } from '../src/client/index.ts'
 import { ComposerAttachments } from '../src/client/ComposerAttachments.tsx'

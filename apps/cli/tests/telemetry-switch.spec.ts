@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { resolveTelemetryPatch } from '@qilin/app-boot'
+import { resolveTelemetryPatch } from '@qilin-agent/app-boot'
 
 describe('resolveTelemetryPatch', () => {
   it('preserves the configured telemetry mode when the hard-disable switch is unset or empty', () => {

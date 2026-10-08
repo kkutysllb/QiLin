@@ -4,10 +4,10 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execa } from 'execa'
 import { describe, expect, it } from 'vitest'
-import { runLoaderSmoke } from '@qilin/loader-smoke'
-import { readImageFile } from '@qilin/attachment-local'
-import { parseSessionLog } from '@qilin/llm-replay'
-import type { SessionEvent } from '@qilin/session'
+import { runLoaderSmoke } from '@qilin-agent/loader-smoke'
+import { readImageFile } from '@qilin-agent/attachment-local'
+import { parseSessionLog } from '@qilin-agent/llm-replay'
+import type { SessionEvent } from '@qilin-agent/session'
 
 const repo = fileURLToPath(new URL('../../../../', import.meta.url))
 // QILIN_PRIMARY_RUNTIME names the same runtime.json + dependencies/ payload used by shipped deployments.
@@ -114,8 +114,8 @@ process.exitCode = result.status ?? 1;
         }
         await writeFile(join(cwd, 'office.patch.json'), JSON.stringify([
           { insert: [
-            { id: 'office-validation', name: '@qilin/skill-office', ...kind === 'blank' ? { config: { cli: fixtureCli } } : {} },
-            { id: 'office-dependencies', name: '@qilin/tool-workspace-dependencies', config: { source: runtime } },
+            { id: 'office-validation', name: '@qilin-agent/skill-office', ...kind === 'blank' ? { config: { cli: fixtureCli } } : {} },
+            { id: 'office-dependencies', name: '@qilin-agent/tool-workspace-dependencies', config: { source: runtime } },
           ] },
           ...completions ? [
             { id: 'llm-deepseek', disabled: true },

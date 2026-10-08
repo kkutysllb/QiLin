@@ -2,23 +2,23 @@
 
 import { Readable } from 'node:stream'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { brandString } from '@qilin/brand'
-import AgentRegistry from '@qilin/agent'
+import { Context } from '@qilin-agent/kylin'
+import { brandString } from '@qilin-agent/brand'
+import AgentRegistry from '@qilin-agent/agent'
 import type {
   Agent,
   AgentHandle,
   AssistantStreamFrame,
   CreateAgentOptions,
   ResumeAgentOptions,
-} from '@qilin/agent'
-import AgentDefaultModelConfig from '@qilin/agent-default-model'
-import { LlmAttemptId, ToolCallId, createAssistantMessage, createToolResultMessage, type MessageId, type StreamChunk } from '@qilin/llm'
-import SessionStore from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import type { Session, SessionId, UserMessage } from '@qilin/session'
-import { SessionQueryError } from '@qilin/session-query'
-import { createInboxStub } from '@qilin/agent-loop-testkit'
+} from '@qilin-agent/agent'
+import AgentDefaultModelConfig from '@qilin-agent/agent-default-model'
+import { LlmAttemptId, ToolCallId, createAssistantMessage, createToolResultMessage, type MessageId, type StreamChunk } from '@qilin-agent/llm'
+import SessionStore from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import type { Session, SessionId, UserMessage } from '@qilin-agent/session'
+import { SessionQueryError } from '@qilin-agent/session-query'
+import { createInboxStub } from '@qilin-agent/agent-loop-testkit'
 import { apply, Config } from '../src/index.ts'
 import { internals } from '../src/runner-internals.ts'
 

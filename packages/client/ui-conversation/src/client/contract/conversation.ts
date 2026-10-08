@@ -1,5 +1,5 @@
-import type { SessionEventLike } from '@qilin/api-session-controller/client'
-import type { SessionEvent } from '@qilin/session/types'
+import type { SessionEventLike } from '@qilin-agent/api-session-controller/client'
+import type { SessionEvent } from '@qilin-agent/session/types'
 import type {
   ConversationGroupData, ConversationGroupedView, ConversationGroupInput,
 } from './groups.ts'

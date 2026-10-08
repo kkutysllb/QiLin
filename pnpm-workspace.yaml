@@ -16,8 +16,8 @@ packages:
 
 overrides:
   'extract-zip>yauzl': '3.4.0'
-  '@qilin/cosmokit': 'link:vendor/cosmokit'
-  '@qilin/schemastery': 'link:vendor/schemastery'
+  '@qilin-agent/cosmokit': 'link:vendor/cosmokit'
+  '@qilin-agent/schemastery': 'link:vendor/schemastery'
 
 peerDependencyRules:
   allowedVersions:
@@ -46,7 +46,7 @@ allowBuilds:
   koffi: true
   # The Python runtime deploy includes the reviewed workspace postinstall that
   # restores the executable bit on node-pty's macOS spawn helper.
-  '@qilin/subprocess-local@file:packages/subprocess/subprocess-local': true
+  '@qilin-agent/subprocess-local@file:packages/subprocess/subprocess-local': true
   # Store-index rewriting only needs msgpackr's portable JavaScript codec.
   msgpackr-extract: false
 

@@ -11,20 +11,20 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createScope, type Scope } from '@qilin/scope'
+import { Context } from '@qilin-agent/kylin'
+import { createScope, type Scope } from '@qilin-agent/scope'
 import { join, sep } from 'node:path'
-import { createUserMessage, ToolCallId } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import SystemPrompt, { renderPrompt } from '@qilin/system-prompt'
-import ToolRuntime, { TOOL_ABORTED_BEFORE_DISPATCH, type ToolExecution, type ToolExecutionToken } from '@qilin/tools'
-import { SubprocessRuntime } from '@qilin/subprocess'
-import type { SubprocessCollectedOutputs, SubprocessHandle, SubprocessOutcome, SubprocessOutputRead, SubprocessOutputReader, SubprocessSpawnSpec } from '@qilin/subprocess'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
+import { createUserMessage, ToolCallId } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import SystemPrompt, { renderPrompt } from '@qilin-agent/system-prompt'
+import ToolRuntime, { TOOL_ABORTED_BEFORE_DISPATCH, type ToolExecution, type ToolExecutionToken } from '@qilin-agent/tools'
+import { SubprocessRuntime } from '@qilin-agent/subprocess'
+import type { SubprocessCollectedOutputs, SubprocessHandle, SubprocessOutcome, SubprocessOutputRead, SubprocessOutputReader, SubprocessSpawnSpec } from '@qilin-agent/subprocess'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 import { rgPath } from '@vscode/ripgrep'
-import { SpillLocator, SpillStore } from '@qilin/spill'
-import type { SaveTextSpill, SpillRef } from '@qilin/spill'
-import * as ToolFsSearch from '@qilin/tool-fs-search'
+import { SpillLocator, SpillStore } from '@qilin-agent/spill'
+import type { SaveTextSpill, SpillRef } from '@qilin-agent/spill'
+import * as ToolFsSearch from '@qilin-agent/tool-fs-search'
 import {
   buildGlobCommand,
   buildGrepCommand,
@@ -39,9 +39,9 @@ import {
   runRipgrep,
   sampleAcrossTopLevel,
   toWorkdirRelative,
-} from '@qilin/tool-fs-search'
+} from '@qilin-agent/tool-fs-search'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

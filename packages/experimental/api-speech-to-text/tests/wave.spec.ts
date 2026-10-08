@@ -1,6 +1,6 @@
 /** Wire audio validation rejects malformed headers and inconsistent duration. */
 import { expect, it } from 'vitest'
-import { validateWave } from '@qilin/experimental-speech-to-text/wave'
+import { validateWave } from '@qilin-agent/experimental-speech-to-text/wave'
 
 function wave(): Buffer {
   const bytes = Buffer.alloc(44 + 32000)

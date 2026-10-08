@@ -8,9 +8,9 @@
  */
 
 import { useState } from 'react'
-import { IconClockOutline16 } from '@qilin/client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
-import type {} from '@qilin/client-ui-workspace/client'
+import { IconClockOutline16 } from '@qilin-agent/client-ui-primitives'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-workspace/client'
 import { formatScheduleFrequency, nextRunParts, orderScheduleRecords, taskName } from './schedule-format.ts'
 import {
   useSessionScheduleFacts, type SessionScheduleCatalogObservable,

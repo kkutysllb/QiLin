@@ -24,13 +24,13 @@ A resource address is a `qilin-resource://<type>/…` URL. The host names the pr
 The owner of a protocol declares its value type on `ResourceProtocolMap` and registers one provider inside its own `ctx.effect`, so the protocol lives exactly as long as the plugin ([provide a protocol](../../packages/client/resources/README.md#provide-a-protocol)). `open(address, { signal })` returns a stream of `RemoteResult` frames — the current state first, then one frame per change — and must stop when `signal` aborts. A failure is an `ok: false` frame carrying a `RemoteFailure`; a throw inside the stream is a programming error and is not caught.
 
 ```ts ignore-check
-import type { Context } from '@qilin/kylin'
-import type { RemoteResult } from '@qilin/typert-protocol'
-import type {} from '@qilin/client-resources/client'
+import type { Context } from '@qilin-agent/kylin'
+import type { RemoteResult } from '@qilin-agent/typert-protocol'
+import type {} from '@qilin-agent/client-resources/client'
 
 interface NoteView { readonly title: string; readonly updatedAt: string }
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface ResourceProtocolMap { note: NoteView }
 }
 
@@ -62,8 +62,8 @@ Every slot component receives `useResource` in its props, whatever its scope ([S
 | `failed` | The latest frame reported a failure | the last `ok` value, kept | the frame's `RemoteFailure` |
 
 ```tsx ignore-check
-import type { PropsRuntime } from '@qilin/client-ui-slots'
-import type {} from '@qilin/api-workspace-files/client'
+import type { PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type {} from '@qilin-agent/api-workspace-files/client'
 
 type Props = PropsRuntime<'sidebar.right.pane.tab'>
 

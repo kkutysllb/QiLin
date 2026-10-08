@@ -6,25 +6,25 @@
  * every mutable residency decision to this registry, so delivery and teardown
  * share one child lock and one Activation map.
  *
- * @module @qilin/subagent/continuation-activation
+ * @module @qilin-agent/subagent/continuation-activation
  */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   Agent,
   AgentHandle,
   AgentOptions,
   CreateAgentOptions,
-} from '@qilin/agent'
-import { errorChain } from '@qilin/llm'
-import type { MessageId } from '@qilin/llm'
+} from '@qilin-agent/agent'
+import { errorChain } from '@qilin-agent/llm'
+import type { MessageId } from '@qilin-agent/llm'
 import type {
   SessionEvent,
   SessionId,
   SessionLogOffset as SessionLogOffsetType,
   UserMessage,
-} from '@qilin/session'
-import type { ToolRestriction } from '@qilin/tools'
+} from '@qilin-agent/session'
+import type { ToolRestriction } from '@qilin-agent/tools'
 import {
   appendDelegatedPolicyOverrides,
   applyChildComposition,

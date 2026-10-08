@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { ToolCallId } from '@qilin/llm'
-import { SESSION_FORMAT_VERSION, Session, SessionId } from '@qilin/session'
-import AgentRegistry from '@qilin/agent'
-import type { Agent } from '@qilin/agent'
-import TerminalSessionService from '@qilin/terminal'
+import { Context } from '@qilin-agent/kylin'
+import { ToolCallId } from '@qilin-agent/llm'
+import { SESSION_FORMAT_VERSION, Session, SessionId } from '@qilin-agent/session'
+import AgentRegistry from '@qilin-agent/agent'
+import type { Agent } from '@qilin-agent/agent'
+import TerminalSessionService from '@qilin-agent/terminal'
 import type {
   TerminalBackend,
   TerminalBackendSession,
@@ -14,11 +14,11 @@ import type {
   TerminalSessionStatus,
   TerminalSignal,
   TerminalWaitReason,
-} from '@qilin/terminal'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRegistry from '@qilin/tools'
-import * as ToolPwshPersistent from '@qilin/tool-pwsh-persistent'
-import { unsupportedInbox } from '@qilin/agent-loop-testkit'
+} from '@qilin-agent/terminal'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRegistry from '@qilin-agent/tools'
+import * as ToolPwshPersistent from '@qilin-agent/tool-pwsh-persistent'
+import { unsupportedInbox } from '@qilin-agent/agent-loop-testkit'
 
 const contexts: Context[] = []
 let callNumber = 0

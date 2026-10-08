@@ -5,12 +5,12 @@
  * leave no layer behind when its plugin fiber unloads.
  */
 
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { stubConfigForm } from '@qilin/client-test-runtime'
-import { ThemeRuntime } from '@qilin/client-ui-theme/client'
-import type { ThemeSettings } from '@qilin/client-ui-theme/client'
+import { stubConfigForm } from '@qilin-agent/client-test-runtime'
+import { ThemeRuntime } from '@qilin-agent/client-ui-theme/client'
+import type { ThemeSettings } from '@qilin-agent/client-ui-theme/client'
 import { describe, expect, it } from 'vitest'
 import { apply, inject } from '../src/client/index.ts'
 import { apply as hostApply } from '../src/index.ts'

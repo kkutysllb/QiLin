@@ -3,11 +3,11 @@
  * the one-shot background path uses Jobs; continuable children have no Task,
  * no per-message result, and no Task cancellation.
  *
- * @module @qilin/subagent/run-settlement
+ * @module @qilin-agent/subagent/run-settlement
  */
 
-import type { ContentBlock } from '@qilin/llm'
-import type { JobOutcome } from '@qilin/jobs'
+import type { ContentBlock } from '@qilin-agent/llm'
+import type { JobOutcome } from '@qilin-agent/jobs'
 import type { SubagentResult, SubagentRun } from './types.ts'
 
 /** Flatten a child's final output blocks to the task's final text. */

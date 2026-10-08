@@ -1,11 +1,11 @@
 /** Context and Fiber identities collected from live Cordis plugins. */
 
-import { Context, Service, type Fiber } from '@qilin/kylin'
+import { Context, Service, type Fiber } from '@qilin-agent/kylin'
 import { assert, describe, expect, it, type TestContext } from 'vitest'
 import { CordisTreeCollector } from '../src/shared/cordis/collector.ts'
 import type { CordisTreeNode } from '../src/shared/cordis/snapshot.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     collectorSpawner: CollectorSpawner
   }

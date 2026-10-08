@@ -9,7 +9,7 @@ In the loader configuration used here, a Kylin plugin module named-exports an `a
 In your `tmp/kylin-tutorial` directory (see [setup](index.md#setup)), create `hello.ts`:
 
 ```ts
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 
 export const name = 'hello'
 
@@ -55,7 +55,7 @@ There is no framework bootstrap code in your file: a plugin describes what it co
 A function is the most common form, but Kylin accepts three:
 
 ```ts
-import { Service, type Context } from '@qilin/kylin'
+import { Service, type Context } from '@qilin-agent/kylin'
 
 // 1. Function plugin (what you just wrote).
 export function apply(ctx: Context) {}

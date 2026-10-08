@@ -2,19 +2,19 @@ import { existsSync, mkdirSync, mkdtempSync, realpathSync, rmSync } from 'node:f
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import SessionStore, { SessionId } from '@qilin/session'
-import Storage from '@qilin/storage'
-import { DomainFacility } from '@qilin/storage-domain'
-import { RemoteError } from '@qilin/typert-protocol'
-import WorkspaceRegistry from '@qilin/workspace'
-import type { WorkspaceId } from '@qilin/workspace/types'
+import { Context } from '@qilin-agent/kylin'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import Storage from '@qilin-agent/storage'
+import { DomainFacility } from '@qilin-agent/storage-domain'
+import { RemoteError } from '@qilin-agent/typert-protocol'
+import WorkspaceRegistry from '@qilin-agent/workspace'
+import type { WorkspaceId } from '@qilin-agent/workspace/types'
 import WorkspaceController from '../src/index.ts'
 import { WorkspaceFeed } from '../src/feed.ts'
 import type { WorkspaceFollowFrame } from '../src/types.ts'
 import { MemoryStorageBackend } from '../../../storage/storage-domain/tests/helpers/memory-backend.ts'
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface RemoteErrorDetailsMap {
     'fixture/failure': {}
   }

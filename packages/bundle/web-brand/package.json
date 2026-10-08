@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/web-brand",
+  "name": "@qilin-agent/web-brand",
   "description": "The QiLin browser-surface bundle: QiLin product identity layered over the qilin web surface",
   "version": "3.1.1",
   "publishConfig": {
@@ -37,16 +37,16 @@
     }
   },
   "dependencies": {
-    "@qilin/client-ui-brand": "workspace:*",
-    "@qilin/client-ui-theme-brand": "workspace:*"
+    "@qilin-agent/client-ui-brand": "workspace:*",
+    "@qilin-agent/client-ui-theme-brand": "workspace:*"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/kylin-plugin-include": "workspace:~",
-    "@qilin/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
     "js-yaml": "^4.1.0"
   }
 }

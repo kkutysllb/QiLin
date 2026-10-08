@@ -12,13 +12,13 @@ import { homedir } from 'node:os'
 import { access } from 'node:fs/promises'
 import { resolve as resolvePath } from 'node:path'
 import type { AuthContext, Credential, CredentialInfo, CredentialStore } from '@earendil-works/pi-ai'
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import {
   credentialKey, credentialKeyId, credentialKeyScope, credentialRef, isCredentialKeySegment, isCredentialRefName,
-} from '@qilin/credentials'
-import type { CredentialKey, CredentialProvider, CredentialRecord } from '@qilin/credentials'
-import { launchEnvironmentOf } from '@qilin/launch-environment'
-import { LlmError } from '@qilin/llm'
+} from '@qilin-agent/credentials'
+import type { CredentialKey, CredentialProvider, CredentialRecord } from '@qilin-agent/credentials'
+import { launchEnvironmentOf } from '@qilin-agent/launch-environment'
+import { LlmError } from '@qilin-agent/llm'
 
 /**
  * The record scope every credential this adapter family stores is written

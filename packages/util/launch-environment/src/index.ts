@@ -3,10 +3,10 @@
  * supplied each value. Harness consumers resolve through it instead of a flattened
  * `process.env`; launchers may still materialize accepted values for config
  * expressions and third-party libraries.
- * @module @qilin/launch-environment
+ * @module @qilin-agent/launch-environment
  */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 
 /**
  * Which layer supplied a value, from most to least trusted. `dsh-compat` is the
@@ -140,7 +140,7 @@ export function launchedThroughSsh(environment: LaunchEnvironmentSnapshot): bool
   })
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Launcher-owned snapshot of this run's environment; absent in compositions the product CLI did not boot. */
     launchEnvironment?: LaunchEnvironmentSnapshot

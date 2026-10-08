@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { fileURLToPath } from 'node:url'
-import { LspConnection } from '@qilin/lsp-stdio'
-import type { ConnectionWriter } from '@qilin/lsp-stdio/src/connection.ts'
-import { scrubbedParentEnv } from '@qilin/subprocess'
-import { spawnSubprocess } from '@qilin/subprocess-local/src/spawn.ts'
+import { LspConnection } from '@qilin-agent/lsp-stdio'
+import type { ConnectionWriter } from '@qilin-agent/lsp-stdio/src/connection.ts'
+import { scrubbedParentEnv } from '@qilin-agent/subprocess'
+import { spawnSubprocess } from '@qilin-agent/subprocess-local/src/spawn.ts'
 
 const fixtureServer = fileURLToPath(new URL('./fixture-server.ts', import.meta.url))
 

@@ -1,7 +1,7 @@
 /** Weak identity index for materialized Nodes, Groups, Turn/Step locations, and their Data readers. */
 
-import type { ChatSnapshot } from '@qilin/client-ui-chat/client'
-import type { ConversationBinding, GroupKey, StepLocation, TurnLocation } from '@qilin/client-ui-conversation/client'
+import type { ChatSnapshot } from '@qilin-agent/client-ui-chat/client'
+import type { ConversationBinding, GroupKey, StepLocation, TurnLocation } from '@qilin-agent/client-ui-conversation/client'
 import type { InspectorChatTarget, InspectorObjectReference } from '../objects.ts'
 
 type Reference = Omit<InspectorObjectReference, 'rowKey'>

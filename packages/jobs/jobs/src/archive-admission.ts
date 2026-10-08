@@ -5,12 +5,12 @@
  * implementation through the seam's constructor, so it holds for each of
  * them through the abstract `list` and `kill` alone.
  *
- * @module @qilin/jobs
+ * @module @qilin-agent/jobs
  */
 
-import type { Context } from '@qilin/kylin'
-import type { SessionId } from '@qilin/session'
-import type { SessionActivity } from '@qilin/workspace'
+import type { Context } from '@qilin-agent/kylin'
+import type { SessionId } from '@qilin-agent/session'
+import type { SessionActivity } from '@qilin-agent/workspace'
 import type { JobRegistry } from './index.ts'
 import type { JobView } from './view.ts'
 

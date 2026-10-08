@@ -4,19 +4,19 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { LocalSandboxProvider } from '@qilin/sandbox-local'
-import { SandboxPolicyService } from '@qilin/sandbox-policy'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import { seatbeltProfileArgs } from '@qilin/sandbox-local/src/profiles.ts'
-import { SandboxBashExecutor } from '@qilin/bash-sandbox'
-import LocalSubprocessRuntime from '@qilin/subprocess-local'
+import { Context } from '@qilin-agent/kylin'
+import { LocalSandboxProvider } from '@qilin-agent/sandbox-local'
+import { SandboxPolicyService } from '@qilin-agent/sandbox-policy'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import { seatbeltProfileArgs } from '@qilin-agent/sandbox-local/src/profiles.ts'
+import { SandboxBashExecutor } from '@qilin-agent/bash-sandbox'
+import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
 
 /**
  * Keyless macOS integration of the real provider and executor through public run/start paths.
  * Linux rungs are forced off so Seatbelt is selected. The tests check world effects and stamped
  * facts, including EPERM classification through the wrap-carried dialect; backend-only
- * confinement is covered by `@qilin/sandbox-local`. Skips off macOS or when
+ * confinement is covered by `@qilin-agent/sandbox-local`. Skips off macOS or when
  * `sandbox-exec` rejects the profile.
  */
 

@@ -3,7 +3,7 @@ description: "Interactive user terminals with execution-environment shell defaul
 kind: "package-reference"
 ---
 
-# @qilin/api-terminal-controller
+# @qilin-agent/api-terminal-controller
 
 English | [中文](README.zh.md)
 

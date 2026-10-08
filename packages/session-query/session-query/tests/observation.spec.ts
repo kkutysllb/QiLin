@@ -1,13 +1,13 @@
-import { Context } from '@qilin/kylin'
-import { createUserMessage } from '@qilin/llm'
-import SessionStore, { SessionLogOffset, SessionSeq, SESSION_FORMAT_VERSION, SessionId } from '@qilin/session'
-import type { SessionEvent, SessionHeader, SessionId as SessionIdType } from '@qilin/session'
+import { Context } from '@qilin-agent/kylin'
+import { createUserMessage } from '@qilin-agent/llm'
+import SessionStore, { SessionLogOffset, SessionSeq, SESSION_FORMAT_VERSION, SessionId } from '@qilin-agent/session'
+import type { SessionEvent, SessionHeader, SessionId as SessionIdType } from '@qilin-agent/session'
 import SessionPersistence, {
   SessionPersistenceCorruptionError,
   SessionPersistenceNotFoundError,
   SessionPersistenceRevision,
   SessionReadOnlyError,
-} from '@qilin/session-persistence'
+} from '@qilin-agent/session-persistence'
 import type {
   SessionAccess,
   SessionHandle,
@@ -15,8 +15,8 @@ import type {
   SessionHandleReadResult,
   SessionPersistenceSnapshot,
   SessionPersistenceStatOptions,
-} from '@qilin/session-persistence'
-import SessionProjectionRegistry from '@qilin/session-projection'
+} from '@qilin-agent/session-persistence'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import { describe, expect, it, vi } from 'vitest'
 import { SessionObservationReader } from '../src/observation.ts'
 

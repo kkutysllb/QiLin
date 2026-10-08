@@ -1,5 +1,5 @@
 /** A bounded output queue for one Remote stream generation. */
-import { Deque } from '@qilin/deque'
+import { Deque } from '@qilin-agent/deque'
 import type { TerminalFrame } from './types.ts'
 
 /** Slow followers fail explicitly; a later attachment recovers from the screen. */

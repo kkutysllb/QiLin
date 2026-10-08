@@ -1,6 +1,6 @@
 /**
  * Build-time packer for the browser runtime's VFS image.
- * @module @qilin/experimental-webworker-packer
+ * @module @qilin-agent/experimental-webworker-packer
  */
 export {
   WRAPPER_CONTRACT,

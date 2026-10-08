@@ -1,7 +1,7 @@
 /**
  * Normalization for values thrown by a final LLM adapter boundary.
  *
- * @module @qilin/llm/adapter-failure
+ * @module @qilin-agent/llm/adapter-failure
  */
 
 import { HarnessError } from './error.ts'

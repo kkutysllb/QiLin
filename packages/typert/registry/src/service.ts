@@ -2,10 +2,10 @@
  * Runtime registry for generated Typert reflection, Remote invocations, and
  * dependency-inverted lookup/Context providers. It performs no TypeScript
  * analysis or schema generation.
- * @module @qilin/typert-registry
+ * @module @qilin-agent/typert-registry
  */
 
-import { Context, Service } from '@qilin/kylin'
+import { Context, Service } from '@qilin-agent/kylin'
 import { z } from 'zod'
 import type {
   InvocationDescriptor,
@@ -29,7 +29,7 @@ import type {
   TypertRegistryChange,
   TypertRegistryListener,
   TypertRegistryContract,
-} from '@qilin/typert-protocol'
+} from '@qilin-agent/typert-protocol'
 import type {
   TypertContribution,
   TypertFace,

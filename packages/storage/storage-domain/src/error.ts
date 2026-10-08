@@ -1,6 +1,6 @@
 /**
  * Error vocabulary of the domain data form.
- * @module @qilin/storage-domain/src/error
+ * @module @qilin-agent/storage-domain/src/error
  */
 
 /** Discriminant codes carried by every {@link DomainError}. */

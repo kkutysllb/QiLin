@@ -1,4 +1,4 @@
-import { CredentialProvider } from '@qilin/credentials'
+import { CredentialProvider } from '@qilin-agent/credentials'
 import type {
   CredentialInfo,
   CredentialKey,
@@ -7,7 +7,7 @@ import type {
   CredentialRecordInfo,
   CredentialRef,
   ResolvedCredential,
-} from '@qilin/credentials'
+} from '@qilin-agent/credentials'
 
 /**
  * In-memory credentials provider for the authorization suite. Only the record

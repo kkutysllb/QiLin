@@ -1,6 +1,6 @@
 /** Pure Team-page arithmetic: copy keys, dot states, and the draft rules. */
 import { describe, expect, it } from 'vitest'
-import type { TeamTaskId, TeamTaskView as TeamTask } from '@qilin/experimental-agent-team/client'
+import type { TeamTaskId, TeamTaskView as TeamTask } from '@qilin-agent/experimental-agent-team/client'
 import {
   emptyTeamDraft,
   isTeamDraftCommittable,

@@ -2,7 +2,7 @@
  * DSH plugin ecosystem compatibility for QiLin: module-name aliases and
  * manifest-key fallback readers. See {@link ./aliases.ts} and
  * {@link ./manifest.ts}.
- * @module @qilin/dsh-compat
+ * @module @qilin-agent/dsh-compat
  */
 
 export {

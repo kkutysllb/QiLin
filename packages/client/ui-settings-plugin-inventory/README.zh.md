@@ -3,7 +3,7 @@ description: "qilin Web 客户端设置中按作用域分组的只读插件清�
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-settings-plugin-inventory
+# @qilin-agent/client-ui-settings-plugin-inventory
 
 [English](README.md) | 中文
 

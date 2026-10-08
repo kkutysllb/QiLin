@@ -7,8 +7,8 @@
  * replay of arbitrary logged arguments, so every step narrows wire JSON and
  * returns empty rather than throwing.
  */
-import type { ScheduleId, ScheduleRecord } from '@qilin/schedule/client'
-import type { ToolCallViewProps } from '@qilin/client-ui-tool/client'
+import type { ScheduleId, ScheduleRecord } from '@qilin-agent/schedule/client'
+import type { ToolCallViewProps } from '@qilin-agent/client-ui-tool/client'
 import { taskName } from './schedule-format.ts'
 
 /** One Tool call block as the card receives it: a running call or a settled result. */

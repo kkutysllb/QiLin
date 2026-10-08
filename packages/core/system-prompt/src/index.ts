@@ -1,16 +1,16 @@
 /**
  * Registry for ordered system sections, dynamic context, tool schemas, and prompt variables.
  *
- * @module @qilin/system-prompt
+ * @module @qilin-agent/system-prompt
  */
 
-import { Context, Service } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { AnonymousEntries, NamedEntries, ScopedLayers, scopeTarget } from '@qilin/scope'
-import type { ScopeKey, ScopeLayer, Scoped } from '@qilin/scope'
-import type { ContextSnapshotSection, ToolSchema } from '@qilin/llm'
+import { Context, Service } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { AnonymousEntries, NamedEntries, ScopedLayers, scopeTarget } from '@qilin-agent/scope'
+import type { ScopeKey, ScopeLayer, Scoped } from '@qilin-agent/scope'
+import type { ContextSnapshotSection, ToolSchema } from '@qilin-agent/llm'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     systemPrompt: SystemPrompt
   }
@@ -18,7 +18,7 @@ declare module '@qilin/kylin' {
   interface Events {
     /**
      * Expert waterfall over the assembled sections, contexts, tools, and variables.
-     * Scope-filtered dispatch (`@qilin/scope`): scoped listeners
+     * Scope-filtered dispatch (`@qilin-agent/scope`): scoped listeners
      * receive only that scope's assemblies. The returned value is authoritative.
      * A supplied signal controls only this explicit assembly request and must not
      * be retained to control later turns. A registered complete section is

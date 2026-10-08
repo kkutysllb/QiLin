@@ -71,7 +71,7 @@ let capturedFace: SidebarUiWorkspaceService | undefined
  * ```ts
  * ctx.effect(() => ctx.inject(['uiWorkspace'], (scope) => {
  *   observeUiWorkspaceFace((scope as { uiWorkspace?: unknown }).uiWorkspace)
- * }), '@qilin/client-ui-sidebar-coding: uiWorkspace seat')
+ * }), '@qilin-agent/client-ui-sidebar-coding: uiWorkspace seat')
  * ```
  *
  * Non-object faces are ignored (the capture keeps its previous value).

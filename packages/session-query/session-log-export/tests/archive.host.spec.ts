@@ -6,21 +6,21 @@
  * 404, missing descendant → errored stream).
  */
 
-import { SESSION_FORMAT_VERSION, SessionSeq } from '@qilin/session'
+import { SESSION_FORMAT_VERSION, SessionSeq } from '@qilin-agent/session'
 import { randomBytes } from 'node:crypto'
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { unzipSync, strFromU8 } from 'fflate'
-import type { FileAttachmentRef, ImageAttachmentRef } from '@qilin/attachment'
-import type { SessionEvent, SessionHeader, SessionId, ToolResultMessage, UserMessage } from '@qilin/session'
-import type { SessionLineageNode } from '@qilin/session-query'
-import { SessionPersistenceNotFoundError } from '@qilin/session-persistence'
-import type { SessionAccess, SessionHandle } from '@qilin/session-persistence'
-import { HostConnectionService } from '@qilin/client-connection'
-import type { BrowserAuth } from '@qilin/client-connection/src/browser-auth.ts'
+import type { FileAttachmentRef, ImageAttachmentRef } from '@qilin-agent/attachment'
+import type { SessionEvent, SessionHeader, SessionId, ToolResultMessage, UserMessage } from '@qilin-agent/session'
+import type { SessionLineageNode } from '@qilin-agent/session-query'
+import { SessionPersistenceNotFoundError } from '@qilin-agent/session-persistence'
+import type { SessionAccess, SessionHandle } from '@qilin-agent/session-persistence'
+import { HostConnectionService } from '@qilin-agent/client-connection'
+import type { BrowserAuth } from '@qilin-agent/client-connection/src/browser-auth.ts'
 import * as SessionLogExport from '../src/index.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface ContentBlockMap {
     'plugin:vendor': { type: 'plugin:vendor'; data: { content: readonly unknown[] }; content: readonly unknown[] }
   }

@@ -1,12 +1,12 @@
 /**
  * Configuration normalization for workspace instruction discovery and rendering.
  *
- * @module @qilin/agent-instructions/config
+ * @module @qilin-agent/agent-instructions/config
  */
 
 import { relative } from 'node:path'
-import z from '@qilin/schemastery'
-import { resolveQilinHome } from '@qilin/home-paths'
+import z from '@qilin-agent/schemastery'
+import { resolveQilinHome } from '@qilin-agent/home-paths'
 
 const DEFAULT_PROJECT_ROOT_MARKERS = ['.git'] as const
 const DEFAULT_INSTRUCTION_FILE_CANDIDATES = ['AGENTS.md', 'CLAUDE.md'] as const

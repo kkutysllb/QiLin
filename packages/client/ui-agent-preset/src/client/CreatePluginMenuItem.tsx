@@ -1,10 +1,10 @@
 /** Create a plugin through the existing Creator flow from the Add plugin menu. */
 import { useEffect } from 'react'
-import type { SnapshotStore } from '@qilin/client-store'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
+import type { SnapshotStore } from '@qilin-agent/client-store'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 // Type-only: pulls the plugin page's SlotMap merge (the 'plugins.add.actions' entry).
-import type {} from '@qilin/client-ui-plugin-manager/client'
-import { IconAgentPresetOutline16, MenuItemButton } from '@qilin/client-ui-primitives'
+import type {} from '@qilin-agent/client-ui-plugin-manager/client'
+import { IconAgentPresetOutline16, MenuItemButton } from '@qilin-agent/client-ui-primitives'
 import type { AgentPresetSettingsState } from './settings-store.ts'
 import css from './CreatePluginMenuItem.module.css'
 

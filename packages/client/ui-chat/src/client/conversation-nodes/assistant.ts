@@ -1,11 +1,11 @@
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   AssistantBlock, AssistantMessageNode, ConversationLocation, ConversationMatch,
   ConversationNodeContext, ConversationNodeDefinition,
-} from '@qilin/client-ui-conversation/client'
-import type { StreamChunk } from '@qilin/llm'
-import type {} from '@qilin/llm-retry/types'
-import type { SessionEvent } from '@qilin/session/types'
+} from '@qilin-agent/client-ui-conversation/client'
+import type { StreamChunk } from '@qilin-agent/llm'
+import type {} from '@qilin-agent/llm-retry/types'
+import type { SessionEvent } from '@qilin-agent/session/types'
 import type { AssistantChatData } from '../contract/chat-nodes.ts'
 import { CHAT_SYNTHETIC_SEQ_OFFSETS, chatNode } from './common.ts'
 import {
@@ -19,7 +19,7 @@ declare module '../contract/chat-nodes.ts' {
   }
 }
 
-declare module '@qilin/client-ui-conversation/client' {
+declare module '@qilin-agent/client-ui-conversation/client' {
   interface ConversationStepDataMap {
     /** Streaming, settled, or interrupted Assistant material for this Step. */
     'assistant-step': AssistantChatData

@@ -1,17 +1,17 @@
 // @vitest-environment jsdom
-import type { GlobalStandardProps } from '@qilin/client-ui-slots'
+import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
-import type { SessionId } from '@qilin/session/types'
-import type { ToolCallId } from '@qilin/llm/brand'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { ToolCallId } from '@qilin-agent/llm/brand'
 import {
   createWaterfallRequest, PendingQuestion, planReviewOf, type QuestionComposerProps, type QuestionWait,
 } from '../src/client/contract/slots.ts'
 import { createQuestionDraftStore } from '../src/client/draft-store.ts'
 import { QuestionComposer } from '../src/client/QuestionComposer.tsx'
 import { en, zh } from '../src/client/locales.ts'
-import { en as commonEn } from '@qilin/client-locale/src/locales/en.ts'
-import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
+import { en as commonEn } from '@qilin-agent/client-locale/src/locales/en.ts'
+import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 
 // Every session-scope fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']

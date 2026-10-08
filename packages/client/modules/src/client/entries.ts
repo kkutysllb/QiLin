@@ -1,7 +1,7 @@
 /** Page-owned Loader entries; transport-independent reconciliation, retries and code replacement. */
-import type { FiberState } from '@qilin/kylin'
-import type { Entry, Loader } from '@qilin/kylin-plugin-loader'
-import type { ObservableSnapshot } from '@qilin/client-store'
+import type { FiberState } from '@qilin-agent/kylin'
+import type { Entry, Loader } from '@qilin-agent/kylin-plugin-loader'
+import type { ObservableSnapshot } from '@qilin-agent/client-store'
 import { parseBootManifest } from './manifest.ts'
 import type { BootManifest, ClientModuleLoader } from './manifest.ts'
 import { removeOwnedStyles, tearDownEntryFiber } from './entry-lifecycle.ts'

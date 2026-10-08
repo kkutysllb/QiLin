@@ -11,18 +11,18 @@
 import { describe, expect, it, vi } from 'vitest'
 import { act, fireEvent, render } from '@testing-library/react'
 import { useEffect, useState, type ReactNode } from 'react'
-import { Context } from '@qilin/kylin'
-import type { SessionReference } from '@qilin/api-session-controller/client'
-import type {} from '@qilin/client-ui-session/client'
+import { Context } from '@qilin-agent/kylin'
+import type { SessionReference } from '@qilin-agent/api-session-controller/client'
+import type {} from '@qilin-agent/client-ui-session/client'
 import {
   SlotOwnershipError, StaleAuthorizationError,
   type ActionsDecl, type SessionProviderComponent, type SlotEntryDef,
   type SlotSpec, type StoreHandle, type StoredEntry,
-} from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-slots'
 import type {
   RenderOpts, ScopedStandardSourceBinding, SlotRendererHost, SlotScopeAdapter,
   StandardSourceBinding, StoreInstanceLike,
-} from '@qilin/client-ui-renderer/client'
+} from '@qilin-agent/client-ui-renderer/client'
 import { createSlotRenderer } from '../src/client/scoped-slots.tsx'
 
 type AnyProps = Record<string, unknown>

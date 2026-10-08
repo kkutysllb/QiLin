@@ -1,9 +1,9 @@
 import { useState, type KeyboardEvent, type ReactNode } from 'react'
 import {
   IconChevronDownOutline14, IconInspectOutline12, IconSkillOutline16, StateDot, TextShimmer,
-} from '@qilin/client-ui-primitives'
-import type { StartedToolCallViewProps, ToolCallViewProps } from '@qilin/client-ui-tool/client'
-import type { PropsLocale } from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-primitives'
+import type { StartedToolCallViewProps, ToolCallViewProps } from '@qilin-agent/client-ui-tool/client'
+import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import css from './SkillRow.module.css'
 
 /** Skill row lifecycle derived solely from the durable call slice. */

@@ -10,7 +10,7 @@
  * this component owns only its own section.
  */
 import { useState } from 'react'
-import { IconCloseOutline16 } from '@qilin/client-ui-primitives'
+import { IconCloseOutline16 } from '@qilin-agent/client-ui-primitives'
 import {
   isValidCustomEditor,
   newCustomEditorId,

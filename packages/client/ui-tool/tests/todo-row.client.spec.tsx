@@ -1,17 +1,17 @@
 // @vitest-environment jsdom
-import { useDisclosure } from '@qilin/client-ui-chat/src/client/chat/use-disclosure.ts'
+import { useDisclosure } from '@qilin-agent/client-ui-chat/src/client/chat/use-disclosure.ts'
 /** todo_write atomic Tool presentation and its plan-summary model. */
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { TodoItem } from '@qilin/client-ui-conversation/client'
-import type { ToolResultNode } from '@qilin/client-ui-chat/client'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
+import type { TodoItem } from '@qilin-agent/client-ui-conversation/client'
+import type { ToolResultNode } from '@qilin-agent/client-ui-chat/client'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 import { TodoRow, todoToolview } from '../src/client/tool/toolviews/todo-row.tsx'
 import { planSummary } from '../src/client/tool/toolviews/plan-summary.ts'
 import { CONVERSATION_NS as NS } from '../src/client/locale.ts'
-import { zh } from '@qilin/client-ui-conversation/src/client/locales.ts'
-import { PartialArguments } from '@qilin/util-values'
+import { zh } from '@qilin-agent/client-ui-conversation/src/client/locales.ts'
+import { PartialArguments } from '@qilin-agent/util-values'
 
 type TodoRowProps = Parameters<typeof TodoRow>[0]
 

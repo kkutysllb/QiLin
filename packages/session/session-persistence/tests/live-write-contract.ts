@@ -7,13 +7,13 @@
  * ordering. Each provider owns its storage runtime; this suite pins the
  * equivalent observable behavior the seam requires.
  *
- * @module @qilin/session-persistence/tests/live-write-contract
+ * @module @qilin-agent/session-persistence/tests/live-write-contract
  */
 
 import { describe, expect, it, vi } from 'vitest'
-import type { Context } from '@qilin/kylin'
-import { SessionId } from '@qilin/session'
-import type { SessionEvent } from '@qilin/session'
+import type { Context } from '@qilin-agent/kylin'
+import { SessionId } from '@qilin-agent/session'
+import type { SessionEvent } from '@qilin-agent/session'
 import type { SessionPersistence } from '../src/index.ts'
 
 /** One mounted backend under a session store, plus same-storage remount support. */

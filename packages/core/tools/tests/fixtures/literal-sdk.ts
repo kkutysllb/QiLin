@@ -1,7 +1,7 @@
 /** Tool documentation containing literal template syntax for recorded PTC replay. */
 
-import type { Context } from '@qilin/kylin'
-import { defineTool } from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import { defineTool } from '@qilin-agent/tools'
 
 export const name = 'literal-sdk'
 export const inject = ['tools']

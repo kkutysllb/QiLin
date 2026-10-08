@@ -30,11 +30,11 @@ import { expect, it } from 'vitest'
 import {
   composeProfile, configTrees, indexWorkspacePackages, packVfsImage, packVfsOverlay,
   previewFixtures, WRAPPER_CONTRACT,
-} from '@qilin/experimental-webworker-packer'
+} from '@qilin-agent/experimental-webworker-packer'
 import {
   IMAGE_FILE_NAME, PREVIEW_FIXTURE_MANIFEST_FILE, PREVIEW_FIXTURE_MANIFEST_VERSION,
   type PreviewFixtureManifest,
-} from '@qilin/experimental-webworker-runtime'
+} from '@qilin-agent/experimental-webworker-runtime'
 import {
   VFS_EXAMPLE_SESSION_IDS,
   buildVfsExampleFiles,

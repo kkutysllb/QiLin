@@ -1,7 +1,7 @@
-import { Context } from '@qilin/kylin'
-import { CordisInspectRegistryService } from '@qilin/kylin-host-runner'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRegistry from '@qilin/tools'
+import { Context } from '@qilin-agent/kylin'
+import { CordisInspectRegistryService } from '@qilin-agent/kylin-host-runner'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRegistry from '@qilin-agent/tools'
 import { describe, expect, it } from 'vitest'
 import * as CordisInspectProviders from '../src/host.ts'
 

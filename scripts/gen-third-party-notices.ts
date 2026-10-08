@@ -41,11 +41,11 @@ const DEV_ONLY_AREAS = [
 
 /** First-party public native packages: reachable at runtime but not third-party. */
 const FIRST_PARTY = new Set([
-  '@qilin/node-addon-system',
-  '@qilin/node-addon-system-darwin-arm64',
-  '@qilin/node-addon-system-darwin-x64',
-  '@qilin/node-addon-system-linux-arm64',
-  '@qilin/node-addon-system-linux-x64',
+  '@qilin-agent/node-addon-system',
+  '@qilin-agent/node-addon-system-darwin-arm64',
+  '@qilin-agent/node-addon-system-darwin-x64',
+  '@qilin-agent/node-addon-system-linux-arm64',
+  '@qilin-agent/node-addon-system-linux-x64',
 ])
 
 /** Official SDK identity covered by the project's narrow owner authorization. */
@@ -748,7 +748,7 @@ The complete npm transitive closure, including the Landlock launcher workspace, 
 
 ## Vendored source (\`vendor/\`)
 
-The Cordis framework and its foundation libraries are source-vendored into this repository rather than consumed from npm, and republished under the \`@qilin\` scope. All are MIT-licensed; each directory preserves its upstream \`LICENSE\` file. Exact upstream commits and local modifications are recorded in [\`vendor/README.md\`](vendor/README.md).
+The Cordis framework and its foundation libraries are source-vendored into this repository rather than consumed from npm, and republished under the \`@qilin-agent\` scope. All are MIT-licensed; each directory preserves its upstream \`LICENSE\` file. Exact upstream commits and local modifications are recorded in [\`vendor/README.md\`](vendor/README.md).
 
 | Package | Upstream name | Source | License |
 | --- | --- | --- | --- |
@@ -789,7 +789,7 @@ ${python.map(dep => `| [\`${dep.name}\`](${dep.repo}) | ${dep.license} | ${dep.r
 
 ## First-party native packages
 
-\`@qilin/node-addon-system\` (and its platform packages) is built and released from this repository under BSD 3-Clause. It is listed here for completeness; it is first-party, not third-party.
+\`@qilin-agent/node-addon-system\` (and its platform packages) is built and released from this repository under BSD 3-Clause. It is listed here for completeness; it is first-party, not third-party.
 `
 }
 

@@ -1,10 +1,10 @@
 /** Live plugin Config discovery projected from the running Loader tree. */
 
-import type { Context } from '@qilin/kylin'
-import type { Entry } from '@qilin/kylin-plugin-loader'
+import type { Context } from '@qilin-agent/kylin'
+import type { Entry } from '@qilin-agent/kylin-plugin-loader'
 // Declares `Context.pluginPackages`, the profile package lookup that resolves an entry's package directory.
-import { createConfigProjector, isNativeConfigSchema, LOADER_EXPRESSION_SCHEMA, type NativeConfigSchema } from '@qilin/app-boot'
-import type { JsonValue } from '@qilin/util-values'
+import { createConfigProjector, isNativeConfigSchema, LOADER_EXPRESSION_SCHEMA, type NativeConfigSchema } from '@qilin-agent/app-boot'
+import type { JsonValue } from '@qilin-agent/util-values'
 
 /**
  * `schema`: the running plugin declares a native Schemastery Config. `absent`: it runs without one.

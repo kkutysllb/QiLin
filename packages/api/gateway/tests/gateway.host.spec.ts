@@ -1,12 +1,12 @@
 import { createServer } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { describe, expect, it } from 'vitest'
-import { Context, Service, symbols } from '@qilin/kylin'
+import { Context, Service, symbols } from '@qilin-agent/kylin'
 import { z } from 'zod'
-import { apply as applyConnection, inject as connectionInject } from '@qilin/client-connection'
-import type { HostConnectionHandle } from '@qilin/client-connection'
-import type { PeerId, PeerScope } from '@qilin/typert-protocol'
-import type { WebServer, WebRoute } from '@qilin/host-webserver'
+import { apply as applyConnection, inject as connectionInject } from '@qilin-agent/client-connection'
+import type { HostConnectionHandle } from '@qilin-agent/client-connection'
+import type { PeerId, PeerScope } from '@qilin-agent/typert-protocol'
+import type { WebServer, WebRoute } from '@qilin-agent/host-webserver'
 import {
   bindTypertRemote,
   Remote,
@@ -16,9 +16,9 @@ import {
   type TypertContext,
   type TypertLookup,
   type TypertLookupProvider,
-} from '@qilin/typert-protocol'
-import TypertRegistry, { type TypertContribution } from '@qilin/typert-registry'
-import TypertGatewayService, { TypertGatewayError } from '@qilin/api-gateway'
+} from '@qilin-agent/typert-protocol'
+import TypertRegistry, { type TypertContribution } from '@qilin-agent/typert-registry'
+import TypertGatewayService, { TypertGatewayError } from '@qilin-agent/api-gateway'
 import { provideBrowserCredentials } from './browser-credentials.ts'
 
 interface FixtureAgent {
@@ -29,7 +29,7 @@ interface MarkedContext extends Context {
   readonly fixtureScope?: string
 }
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface TypertLookupMap {
     gatewayFixture: TypertLookup<FixtureAgent, string>
     gatewayFixtureAlias: TypertLookup<FixtureAgent, string>

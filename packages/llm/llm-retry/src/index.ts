@@ -2,16 +2,16 @@
  * Provider-routed model-request retry policy on the agent loop's request
  * recovery extension point. Each scheduled retry is durable before its cancellable wait.
  *
- * @module @qilin/llm-retry
+ * @module @qilin-agent/llm-retry
  */
 
 import { randomUUID } from 'node:crypto'
-import type { Context, Events } from '@qilin/kylin'
-import z from '@qilin/schemastery'
+import type { Context, Events } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
 import { z as zod } from 'zod'
-import type { Agent, RequestErrorAction } from '@qilin/agent'
-import type { LlmFailure, ResolvedRetryPolicy } from '@qilin/llm'
-import type {} from '@qilin/session-projection'
+import type { Agent, RequestErrorAction } from '@qilin-agent/agent'
+import type { LlmFailure, ResolvedRetryPolicy } from '@qilin-agent/llm'
+import type {} from '@qilin-agent/session-projection'
 import { RetryId } from './brand.ts'
 import type { LlmRetryEventData } from './types.ts'
 
@@ -113,7 +113,7 @@ const llmRetryStateSchema: zod.ZodType<LlmRetryState> = zod.record(zod.string(),
   retry: zod.number().int().nonnegative(),
   retryId: zod.string(),
 })) as unknown as zod.ZodType<LlmRetryState>
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionStateMap {
     /** Retry state for the current step by provider and policy. */
     llmRetry: LlmRetryState

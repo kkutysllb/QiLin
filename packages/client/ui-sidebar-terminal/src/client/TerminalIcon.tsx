@@ -1,6 +1,6 @@
 /** Terminal glyphs for the sidebar guide and tab title. */
 import type { ReactNode } from 'react'
-import type { IconProps } from '@qilin/client-ui-primitives'
+import type { IconProps } from '@qilin-agent/client-ui-primitives'
 
 /**
  * Render the tab title's terminal prompt in the surrounding text color.

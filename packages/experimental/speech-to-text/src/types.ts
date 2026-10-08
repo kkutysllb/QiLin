@@ -1,5 +1,5 @@
 /** Provider-neutral speech transcription inputs and registration metadata. */
-import type { Branded } from '@qilin/brand'
+import type { Branded } from '@qilin-agent/brand'
 
 /** Configured identity of one transcription provider. */
 export type SpeechProviderId = Branded<'SpeechProviderId'>

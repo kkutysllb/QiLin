@@ -1,9 +1,9 @@
 import { describe, expect, expectTypeOf, it, onTestFinished, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { type Agent } from '@qilin/agent'
+import { Context } from '@qilin-agent/kylin'
+import { type Agent } from '@qilin-agent/agent'
 
-import { HarnessError, ReasoningEffortId } from '@qilin/llm'
-import { carrierKeyOf } from '@qilin/scope'
+import { HarnessError, ReasoningEffortId } from '@qilin-agent/llm'
+import { carrierKeyOf } from '@qilin-agent/scope'
 import SubagentRuntime, {
   foldSubagentDescriptor,
   snapshotSubagentDescriptor,
@@ -17,9 +17,9 @@ import SubagentRuntime, {
   type SubagentRun,
   type SubagentRunEndInfo,
   type SubagentStartRequest,
-} from '@qilin/subagent'
-import { Session, SessionId, type SessionEvent } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
+} from '@qilin-agent/subagent'
+import { Session, SessionId, type SessionEvent } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
 
 function fakeParent(id = 'parent-1'): Agent {
   return { id: SessionId(id) } as unknown as Agent

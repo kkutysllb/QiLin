@@ -6,7 +6,7 @@ import { expect, it } from 'vitest'
 import {
   runScenario,
   type InputScript,
-} from '@qilin/session-snapshot'
+} from '@qilin-agent/session-snapshot'
 
 const AGENT = {
   binScript: fileURLToPath(new URL('../../../../src/bin.ts', import.meta.url)),

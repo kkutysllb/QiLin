@@ -2,7 +2,7 @@
  * The built-in file and folder glyphs for the file tree (feature: fileIcons).
  *
  * The built-in set IS DSH's own file-type artwork: `FileTypeIcon` from
- * `@qilin/client-ui-primitives` classifies a path and draws the
+ * `@qilin-agent/client-ui-primitives` classifies a path and draws the
  * same glyph the host's own explorer draws — the full-color code and
  * configuration categories plus the category-colored sheet glyphs for
  * markdown, images, PDFs, office documents, video, folders and the generic
@@ -12,7 +12,7 @@
  * token the host resolves).
  *
  * Nothing here needs a lazy chunk: the artwork lives in a platform module
- * (`@qilin/client-ui-primitives`, already externalized in
+ * (`@qilin-agent/client-ui-primitives`, already externalized in
  * tsdown.config.ts) that the client holds in its frozen module table, so a
  * bundle gains a function call rather than hundreds of icon rules.
  *
@@ -22,7 +22,7 @@
  * (see file-icon-registry.ts for the chain).
  */
 import type { ReactNode } from 'react'
-import { FileTypeIcon } from '@qilin/client-ui-primitives'
+import { FileTypeIcon } from '@qilin-agent/client-ui-primitives'
 import type { FileIconBuiltins } from './file-icon-registry.ts'
 
 /**

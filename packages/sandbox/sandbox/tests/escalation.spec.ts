@@ -14,8 +14,8 @@ import {
   escalationHintMarker,
   sandboxDenialMarker,
   validateEscalationArgs,
-} from '@qilin/sandbox'
-import type { EscalationApprover, EscalationOutcome } from '@qilin/sandbox'
+} from '@qilin-agent/sandbox'
+import type { EscalationApprover, EscalationOutcome } from '@qilin-agent/sandbox'
 
 describe('the strictly-wider ladder', () => {
   it('read-only escalates to either wider mode; workspace-write only to full access', () => {

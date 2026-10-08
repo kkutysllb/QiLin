@@ -1,7 +1,7 @@
 /** Filesystem-seam source access for the generic stdio LSP provider. */
 
 import { Buffer } from 'node:buffer'
-import type { FileSystem, FsTarget } from '@qilin/fs'
+import type { FileSystem, FsTarget } from '@qilin-agent/fs'
 import { throwIfAborted } from './abort.ts'
 
 /** A canonical workspace in the filesystem/subprocess execution world. */

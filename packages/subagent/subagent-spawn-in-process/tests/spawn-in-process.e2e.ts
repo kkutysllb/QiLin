@@ -1,11 +1,11 @@
-import { createUserMessage } from '@qilin/llm'
+import { createUserMessage } from '@qilin-agent/llm'
 import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { spawnHarness, waitForIdle } from './harness.ts'
-import { SessionId } from '@qilin/session'
+import { SessionId } from '@qilin-agent/session'
 
 /** Key-gated smoke for a real parent delegating filesystem work to a real child. */
 

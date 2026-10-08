@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from 'vitest'
 import { en } from '../src/client/locales.ts'
-import type { LocalizedText } from '@qilin/package-manifest'
+import type { LocalizedText } from '@qilin-agent/package-manifest'
 import { managementText, noticeText, packageText, registryText, shortName } from '../src/client/presentation.ts'
 
 /** The translate seat over the English dictionary, with the placeholders this spec needs. */
@@ -42,19 +42,19 @@ describe('packageText and shortName', () => {
     expect(packageText({ name: '@acme/qilin-tool', description: 'A tool.' }, t, resolveEn)).toEqual({
       title: 'tool', description: 'A tool.', beta: false,
     })
-    expect(packageText({ name: '@qilin/experimental-auto-review' }, t, resolveEn)).toEqual({
+    expect(packageText({ name: '@qilin-agent/experimental-auto-review' }, t, resolveEn)).toEqual({
       title: en.builtinAutoReviewTitle, description: en.builtinAutoReviewDescription, beta: true,
     })
   })
 
   it('resolves exported package metadata ahead of the manifest description, built-ins keep their copy', () => {
     expect(packageText({
-      name: '@qilin/experimental-schedule-bundle', description: 'Optional bundle',
+      name: '@qilin-agent/experimental-schedule-bundle', description: 'Optional bundle',
       meta: { title: { en: 'Automation tasks', zh: '自动化任务' }, description: { en: 'Run tasks.', zh: '按设定时间执行。' } },
     }, t, resolveEn)).toEqual({ title: 'Automation tasks', description: 'Run tasks.', beta: false })
     // A built-in keeps its dictionary copy even when the Host attached package metadata.
     expect(packageText({
-      name: '@qilin/experimental-auto-review',
+      name: '@qilin-agent/experimental-auto-review',
       meta: { title: { en: 'Auto Authorization Review', zh: '自动授权审查' } },
     }, t, resolveEn)).toEqual({ title: en.builtinAutoReviewTitle, description: en.builtinAutoReviewDescription, beta: true })
     // Metadata without a description falls back to the manifest description.

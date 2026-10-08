@@ -1,10 +1,10 @@
 /** Developer field classification matches native admission and metadata preservation. */
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { Session, SessionId, SessionLogOffset } from '@qilin/session'
-import type { SessionEvent, SessionHeader } from '@qilin/session'
-import type { SessionFormatEvent } from '@qilin/session-format'
-import { sessionFormatCatalog } from '@qilin/session-format-catalog'
+import { Session, SessionId, SessionLogOffset } from '@qilin-agent/session'
+import type { SessionEvent, SessionHeader } from '@qilin-agent/session'
+import type { SessionFormatEvent } from '@qilin-agent/session-format'
+import { sessionFormatCatalog } from '@qilin-agent/session-format-catalog'
 import { canonicalizeSchema, schemaDigest } from './persistence-schema-model.ts'
 import { classifyPersistenceChange, parsePersistenceSnapshot } from './persistence-changes.ts'
 

@@ -1,6 +1,6 @@
 /** Validate and capture the binding names available to one program. */
-import { DUNDER_MEMBER, PORTABLE_RESERVED_WORDS, RESERVED_BINDING_GLOBALS, RESERVED_ERROR_MEMBERS } from '@qilin/ptc-runtime'
-import type { PtcBindingNamespace, PtcRunRequest } from '@qilin/ptc-runtime'
+import { DUNDER_MEMBER, PORTABLE_RESERVED_WORDS, RESERVED_BINDING_GLOBALS, RESERVED_ERROR_MEMBERS } from '@qilin-agent/ptc-runtime'
+import type { PtcBindingNamespace, PtcRunRequest } from '@qilin-agent/ptc-runtime'
 const IDENTIFIER = /^[A-Za-z_][A-Za-z0-9_]*$/
 /**
  * Reject unusable namespaces before starting a process.

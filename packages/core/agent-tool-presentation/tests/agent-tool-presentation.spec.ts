@@ -7,19 +7,19 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createScope } from '@qilin/scope'
-import SystemPrompt from '@qilin/system-prompt'
-import { PtcRuntime } from '@qilin/ptc-runtime'
-import type { PtcRunRequest, PtcRunResult } from '@qilin/ptc-runtime'
-import ToolRuntime, { RUN_CODE_NAME, defineTool } from '@qilin/tools'
-import type { Agent } from '@qilin/agent'
-import { SessionId } from '@qilin/session'
-import { apply, Config, inject, name } from '@qilin/agent-tool-presentation'
+import { Context } from '@qilin-agent/kylin'
+import { createScope } from '@qilin-agent/scope'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import { PtcRuntime } from '@qilin-agent/ptc-runtime'
+import type { PtcRunRequest, PtcRunResult } from '@qilin-agent/ptc-runtime'
+import ToolRuntime, { RUN_CODE_NAME, defineTool } from '@qilin-agent/tools'
+import type { Agent } from '@qilin-agent/agent'
+import { SessionId } from '@qilin-agent/session'
+import { apply, Config, inject, name } from '@qilin-agent/agent-tool-presentation'
 
 /** A runtime that never runs anything: presentation never dispatches. */
 class StubRuntime extends PtcRuntime {
-  resolve(request: import('@qilin/ptc-runtime').PtcRunRequest): import('@qilin/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+  resolve(request: import('@qilin-agent/ptc-runtime').PtcRunRequest): import('@qilin-agent/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
   readonly language = 'typescript'
   readonly isolation = 'stub'

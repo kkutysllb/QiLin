@@ -1,8 +1,8 @@
 /** Browser-session authentication for the Host Connection carrier. */
 
 import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto'
-import { credentialKey } from '@qilin/credentials'
-import type { CredentialProvider, CredentialRecord } from '@qilin/credentials'
+import { credentialKey } from '@qilin-agent/credentials'
+import type { CredentialProvider, CredentialRecord } from '@qilin-agent/credentials'
 import type {
   ConnectionIndexRequest,
   ConnectionIndexResponse,

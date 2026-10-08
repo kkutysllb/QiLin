@@ -1,23 +1,23 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import type { Agent } from '@qilin/agent'
-import { createUserMessage, ToolCallId  } from '@qilin/llm'
+import type { Agent } from '@qilin-agent/agent'
+import { createUserMessage, ToolCallId  } from '@qilin-agent/llm'
 import SessionStore, {
   SESSION_FORMAT_VERSION,
   SessionId,
   SessionSeq,
   type Session,
-} from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import { turnBoundaryProjectionDefinition } from '@qilin/agent-loop'
-import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
-import SqliteSessionQueryEngine from '@qilin/session-query-sqlite'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
-import * as ToolSessionQuery from '@qilin/tool-session-query'
+} from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import { turnBoundaryProjectionDefinition } from '@qilin-agent/agent-loop'
+import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
+import SqliteSessionQueryEngine from '@qilin-agent/session-query-sqlite'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
+import * as ToolSessionQuery from '@qilin-agent/tool-session-query'
 
 const temporaryDirectories: string[] = []
 const contexts: Context[] = []

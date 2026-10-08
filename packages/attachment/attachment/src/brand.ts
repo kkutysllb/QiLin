@@ -1,6 +1,6 @@
-/** Attachment identifier brand. @module @qilin/attachment/brand */
+/** Attachment identifier brand. @module @qilin-agent/attachment/brand */
 
-import type { Branded } from '@qilin/brand'
+import type { Branded } from '@qilin-agent/brand'
 
 /** Opaque content-addressed identifier for one immutable attachment object. */
 export type AttachmentId = Branded<'AttachmentId'>

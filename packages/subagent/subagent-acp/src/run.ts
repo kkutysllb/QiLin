@@ -2,7 +2,7 @@
  * Fresh-process ACP subagent client. Drives one child session and owns cancellation and
  * quiescent disposal.
  *
- * @module @qilin/subagent-acp/run
+ * @module @qilin-agent/subagent-acp/run
  */
 
 import { randomUUID } from 'node:crypto'
@@ -16,12 +16,12 @@ import {
   type StopReason,
   type ToolKind,
 } from '@agentclientprotocol/sdk'
-import type { ContentBlock } from '@qilin/llm'
-import { brandString } from '@qilin/brand'
-import type { SessionId } from '@qilin/session'
-import { AssistantOutputFold, settleRunResult, subprocessRunHandle } from '@qilin/subagent'
-import type { SubagentResult, SubagentRun, SubagentStartRequest, SubagentStopReason } from '@qilin/subagent'
-import type { SubprocessHandle, SubprocessOutcome, SubprocessSpawnSpec } from '@qilin/subprocess'
+import type { ContentBlock } from '@qilin-agent/llm'
+import { brandString } from '@qilin-agent/brand'
+import type { SessionId } from '@qilin-agent/session'
+import { AssistantOutputFold, settleRunResult, subprocessRunHandle } from '@qilin-agent/subagent'
+import type { SubagentResult, SubagentRun, SubagentStartRequest, SubagentStopReason } from '@qilin-agent/subagent'
+import type { SubprocessHandle, SubprocessOutcome, SubprocessSpawnSpec } from '@qilin-agent/subprocess'
 
 /** Fixed response to child permission requests: reject by default, or select the first allow option. */
 export type PermissionPolicy = 'allow' | 'reject'

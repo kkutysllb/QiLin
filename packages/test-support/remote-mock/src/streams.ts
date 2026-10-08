@@ -1,6 +1,6 @@
 /** Stream scripts and the pushable, abort-aware stream a script drives. */
 
-import { isRemoteUplinkItem, type RemoteStreamHandle } from '@qilin/typert-protocol'
+import { isRemoteUplinkItem, type RemoteStreamHandle } from '@qilin-agent/typert-protocol'
 import type { StreamRecord } from './log.ts'
 
 /**

@@ -2,9 +2,9 @@
  * `sidebarSidechat` namespace dictionaries, and the namespace's declaration.
  * The zh dictionary is the source of truth for the key set; en mirrors it.
  */
-import type {} from '@qilin/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-slots'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Sidechat panel type name, thread list copy, and transcript copy. */
     sidebarSidechat: SidechatKey

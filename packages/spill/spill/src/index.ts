@@ -3,24 +3,24 @@
  * spill backend does — persist oversized text and return a model-facing
  * locator plus retrieval guidance — without saying HOW. Implementations
  * subclass {@link SpillStore} and register as the `spillStore` service;
- * `@qilin/spill-local` (host filesystem) is the first.
+ * `@qilin-agent/spill-local` (host filesystem) is the first.
  *
  * The Service Definition is deliberately minimal: `saveText` and nothing else. It owns NO
- * retention policy (that is `@qilin/output-retention`), NO tool-result
- * replacement (that is `@qilin/spill-policy`), and NO retrieval or
+ * retention policy (that is `@qilin-agent/output-retention`), NO tool-result
+ * replacement (that is `@qilin-agent/spill-policy`), and NO retrieval or
  * search API. The backend supplies the locator and retrieval hint appropriate
  * for its storage substrate.
  *
- * @module @qilin/spill
+ * @module @qilin-agent/spill
  */
 
-import { Context, Service } from '@qilin/kylin'
+import { Context, Service } from '@qilin-agent/kylin'
 import type { SaveTextSpill, SpillRef } from './types.ts'
 
 export { SpillLocator } from './types.ts'
 export type { SaveTextSpill, SpillOwner, SpillRef, SpillSource } from './types.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     spillStore: SpillStore
   }

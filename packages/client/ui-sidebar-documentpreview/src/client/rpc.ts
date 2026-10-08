@@ -6,10 +6,10 @@
  * session and a workspace path while a tab carries a `qilin-resource://file/`
  * session address, so this module also owns that translation.
  */
-import type { RemoteResult } from '@qilin/api-remotes/client'
-import type { SessionId } from '@qilin/session/types'
-import type { WorkspaceFileBytes, WorkspaceFileRange, WorkspaceFileText } from '@qilin/api-workspace-files/types'
-import { parseFileAddress } from '@qilin/util-workspace-path'
+import type { RemoteResult } from '@qilin-agent/api-remotes/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { WorkspaceFileBytes, WorkspaceFileRange, WorkspaceFileText } from '@qilin-agent/api-workspace-files/types'
+import { parseFileAddress } from '@qilin-agent/util-workspace-path'
 
 /** The slice of the Client Remote this package calls. */
 export interface WorkspaceFilesReadRemote {

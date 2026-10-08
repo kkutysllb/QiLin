@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
-import { createSnapshotStore } from '@qilin/client-store'
-import { JsonBlock } from '@qilin/client-ui-primitives'
-import type { ConversationLocationDataStore, ConversationTurnDataMap } from '@qilin/client-ui-conversation/client'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { JsonBlock } from '@qilin-agent/client-ui-primitives'
+import type { ConversationLocationDataStore, ConversationTurnDataMap } from '@qilin-agent/client-ui-conversation/client'
 import type {
   ChatNodeHookContext, ChatNodeOwnerProps, ChatViewSlotProps, UsePresentation,
 } from '../contract/slots.ts'

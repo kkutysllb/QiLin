@@ -1,15 +1,15 @@
 /**
  * Semantic durability checkpoints for model requests, top-level tool dispatch,
  * and completed agent steps.
- * @module @qilin/session-checkpoint-policy
+ * @module @qilin-agent/session-checkpoint-policy
  */
 
-import type { Context } from '@qilin/kylin'
-import type { Session } from '@qilin/session'
-import type { StreamChunk } from '@qilin/llm'
-import { TOOL_ABORTED_BEFORE_DISPATCH, type ToolExecutionResult } from '@qilin/tools'
-import type { PreStepDecision } from '@qilin/agent'
-import type {} from '@qilin/session-persistence'
+import type { Context } from '@qilin-agent/kylin'
+import type { Session } from '@qilin-agent/session'
+import type { StreamChunk } from '@qilin-agent/llm'
+import { TOOL_ABORTED_BEFORE_DISPATCH, type ToolExecutionResult } from '@qilin-agent/tools'
+import type { PreStepDecision } from '@qilin-agent/agent'
+import type {} from '@qilin-agent/session-persistence'
 
 /** Cordis plugin name used by Loader diagnostics. */
 export const name = 'session-checkpoint-policy'

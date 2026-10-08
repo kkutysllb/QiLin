@@ -2,16 +2,16 @@
 import type { ReactNode } from 'react'
 import { cleanup, render } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   ISessions, SessionListState, SessionReference, SessionSnapshot,
-} from '@qilin/api-session-controller/client'
-import type { ResourceProvider } from '@qilin/client-resources/client'
-import { sessionSnapshot } from '@qilin/client-test-runtime'
-import type { ConversationViewsProps } from '@qilin/client-ui-conversation/client'
-import type { SidebarRightTabDefinition } from '@qilin/client-ui-sidebar-right/client'
-import type { SessionId } from '@qilin/session/types'
-import type { SubagentAddress } from '@qilin/subagent/client'
+} from '@qilin-agent/api-session-controller/client'
+import type { ResourceProvider } from '@qilin-agent/client-resources/client'
+import { sessionSnapshot } from '@qilin-agent/client-test-runtime'
+import type { ConversationViewsProps } from '@qilin-agent/client-ui-conversation/client'
+import type { SidebarRightTabDefinition } from '@qilin-agent/client-ui-sidebar-right/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { SubagentAddress } from '@qilin-agent/subagent/client'
 import {
   ConversationSlotPanel, FixedChatConversationView, parseSubagentChatAddress,
   registerSidebarChat, subagentChatAddress, SUBAGENT_CHAT_ID, type SidebarChatTabProps,

@@ -18,7 +18,7 @@ import {
 const experimental = {
   dir: 'packages/experimental/prototype',
   manifest: {
-    name: '@qilin/experimental-prototype',
+    name: '@qilin-agent/experimental-prototype',
     publishConfig: { access: 'public' },
   },
 } satisfies WorkspaceManifest
@@ -27,9 +27,9 @@ describe('experimental workspace constraints', () => {
   it('requires the experimental package-name prefix', () => {
     expect(checkExperimentalManifest({
       ...experimental,
-      manifest: { ...experimental.manifest, name: '@qilin/prototype' },
+      manifest: { ...experimental.manifest, name: '@qilin-agent/prototype' },
     })).toEqual([
-      '@qilin/prototype: experimental package name must start with "@qilin/experimental-"',
+      '@qilin-agent/prototype: experimental package name must start with "@qilin-agent/experimental-"',
     ])
   })
 
@@ -39,8 +39,8 @@ describe('experimental workspace constraints', () => {
       ...experimental,
       manifest: { name: experimental.manifest.name, private: true },
     })).toEqual([
-      '@qilin/experimental-prototype: public experimental package must not set "private": true',
-      '@qilin/experimental-prototype: public experimental package must set publishConfig.access to "public"',
+      '@qilin-agent/experimental-prototype: public experimental package must not set "private": true',
+      '@qilin-agent/experimental-prototype: public experimental package must set publishConfig.access to "public"',
     ])
   })
 
@@ -79,28 +79,28 @@ describe('experimental workspace constraints', () => {
       expect(checkExperimentalDependencyIsolation([experimental, {
         dir: 'packages/core/consumer',
         manifest: {
-          name: '@qilin/consumer',
-          [section]: { '@qilin/experimental-prototype': 'workspace:^' },
+          name: '@qilin-agent/consumer',
+          [section]: { '@qilin-agent/experimental-prototype': 'workspace:^' },
         },
       }])).toEqual([
-        `@qilin/consumer: ${section}.@qilin/experimental-prototype must not reference an experimental package`,
+        `@qilin-agent/consumer: ${section}.@qilin-agent/experimental-prototype must not reference an experimental package`,
       ])
     },
   )
 
   it('allows the qilin installation to ship the optional bundles the launcher names, and nothing else experimental', () => {
-    const listed = { '@qilin/experimental-prototype': 'workspace:^' }
-    const installation = { dir: 'apps/cli', manifest: { name: '@qilin/cli', dependencies: listed } } satisfies WorkspaceManifest
-    expect(checkExperimentalDependencyIsolation([experimental, installation], ['@qilin/experimental-prototype'])).toEqual([])
+    const listed = { '@qilin-agent/experimental-prototype': 'workspace:^' }
+    const installation = { dir: 'apps/cli', manifest: { name: '@qilin-agent/cli', dependencies: listed } } satisfies WorkspaceManifest
+    expect(checkExperimentalDependencyIsolation([experimental, installation], ['@qilin-agent/experimental-prototype'])).toEqual([])
     expect(checkExperimentalDependencyIsolation([experimental, installation], [])).toEqual([
-      '@qilin/cli: dependencies.@qilin/experimental-prototype must not reference an experimental package',
+      '@qilin-agent/cli: dependencies.@qilin-agent/experimental-prototype must not reference an experimental package',
     ])
     // Only a plain dependency edge is offered; a peer would make the bundle a requirement of every consumer.
     expect(checkExperimentalDependencyIsolation([experimental, {
       dir: 'apps/cli',
-      manifest: { name: '@qilin/cli', peerDependencies: listed },
-    }], ['@qilin/experimental-prototype'])).toEqual([
-      '@qilin/cli: peerDependencies.@qilin/experimental-prototype must not reference an experimental package',
+      manifest: { name: '@qilin-agent/cli', peerDependencies: listed },
+    }], ['@qilin-agent/experimental-prototype'])).toEqual([
+      '@qilin-agent/cli: peerDependencies.@qilin-agent/experimental-prototype must not reference an experimental package',
     ])
   })
 
@@ -108,25 +108,25 @@ describe('experimental workspace constraints', () => {
     const manifests: WorkspaceManifest[] = [experimental, {
       dir: 'packages/core/test-only',
       manifest: {
-        name: '@qilin/test-only',
-        devDependencies: { '@qilin/experimental-prototype': 'workspace:^' },
+        name: '@qilin-agent/test-only',
+        devDependencies: { '@qilin-agent/experimental-prototype': 'workspace:^' },
       },
     }, {
       dir: 'packages/experimental/consumer',
       manifest: {
-        name: '@qilin/experimental-consumer',
-        dependencies: { '@qilin/experimental-prototype': 'workspace:^' },
+        name: '@qilin-agent/experimental-consumer',
+        dependencies: { '@qilin-agent/experimental-prototype': 'workspace:^' },
       },
     }, {
       dir: 'python/sdk-runtime',
       manifest: {
-        name: '@qilin/python-runtime',
-        dependencies: { '@qilin/experimental-prototype': 'workspace:^' },
+        name: '@qilin-agent/python-runtime',
+        dependencies: { '@qilin-agent/experimental-prototype': 'workspace:^' },
       },
     }]
 
     expect(checkExperimentalDependencyIsolation(manifests)).toEqual([
-      '@qilin/python-runtime: dependencies.@qilin/experimental-prototype must not reference an experimental package',
+      '@qilin-agent/python-runtime: dependencies.@qilin-agent/experimental-prototype must not reference an experimental package',
     ])
   })
 })
@@ -134,29 +134,29 @@ describe('experimental workspace constraints', () => {
 describe('qilin family version coherence', () => {
   it('rejects a package carrying a stale shared version', () => {
     expect(checkQilinFamilyVersion(
-      { name: '@qilin/http-proxy', version: '0.1.2-alpha.5' },
+      { name: '@qilin-agent/http-proxy', version: '0.1.2-alpha.5' },
       '0.1.2-rc.1',
-    )).toBe('@qilin/http-proxy: package.json version must match root version 0.1.2-rc.1')
+    )).toBe('@qilin-agent/http-proxy: package.json version must match root version 0.1.2-rc.1')
   })
 
   it('rejects the root-named CLI app on a stale shared version', () => {
     expect(checkQilinFamilyVersion(
-      { name: '@qilin/cli', version: '0.1.2-alpha.5' },
+      { name: '@qilin-agent/cli', version: '0.1.2-alpha.5' },
       '0.1.2-rc.1',
-    )).toBe('@qilin/cli: package.json version must match root version 0.1.2-rc.1')
+    )).toBe('@qilin-agent/cli: package.json version must match root version 0.1.2-rc.1')
   })
 
   it('accepts a manifest carrying the shared version', () => {
     expect(checkQilinFamilyVersion(
-      { name: '@qilin/http-proxy', version: '0.1.2-rc.1' },
+      { name: '@qilin-agent/http-proxy', version: '0.1.2-rc.1' },
       '0.1.2-rc.1',
     )).toBeUndefined()
   })
 
   it('leaves other sequences to their own version lines', () => {
-    expect(checkQilinFamilyVersion({ name: '@qilin/kylin', version: '4.0.1' }, '0.1.2-rc.1')).toBeUndefined()
+    expect(checkQilinFamilyVersion({ name: '@qilin-agent/kylin', version: '4.0.1' }, '0.1.2-rc.1')).toBeUndefined()
     expect(checkQilinFamilyVersion(
-      { name: '@qilin/node-addon-system', version: '0.1.1' },
+      { name: '@qilin-agent/node-addon-system', version: '0.1.1' },
       '0.1.2-rc.1',
     )).toBeUndefined()
     expect(checkQilinFamilyVersion({ version: '0.1.2-alpha.5' }, '0.1.2-rc.1')).toBeUndefined()
@@ -166,7 +166,7 @@ describe('qilin family version coherence', () => {
 describe('package payload constraints', () => {
   it('includes a declared profile patch without a package-name allowlist', () => {
     expect(expectedQilinPackageFiles({
-      name: '@qilin/private-profile',
+      name: '@qilin-agent/private-profile',
       qilin: { bundle: { patch: './cordis.patch.yml' } },
     })).toEqual([
       'lib/index.js',
@@ -189,7 +189,7 @@ describe('package payload constraints', () => {
     { exports: { './locale/*.json': './locale/*.json', './search/locale/*.json': './locale/*.json' }, resources: ['locale/*.json'] },
     { exports: { './search/locale/*.json': './z/*.json', './locale/*.json': './a/*.json' }, resources: ['a/*.json', 'z/*.json'] },
   ])('includes declared locale resources in the canonical payload: $exports', ({ exports, resources }) => {
-    expect(expectedQilinPackageFiles({ name: '@qilin/localized', exports })).toEqual([
+    expect(expectedQilinPackageFiles({ name: '@qilin-agent/localized', exports })).toEqual([
       ...resources, 'lib/index.js', 'lib/types/**/*.d.ts',
     ])
   })
@@ -239,7 +239,7 @@ it('publishes CLI runtime declarations and rejects a payload that omits them', (
   const manifest = JSON.parse(readFileSync(new URL('../apps/cli/package.json', import.meta.url), 'utf8')) as WorkspaceManifest['manifest']
   expect(checkWorkspaceManifest({ dir: 'apps/cli', manifest })).toEqual([])
   expect(checkWorkspaceManifest({ dir: 'apps/cli', manifest: { ...manifest, files: ['lib/*.js'] } }))
-    .toEqual([expect.stringContaining('@qilin/cli: package.json files must be ["lib/*.js","lib/types/*.d.ts"]')])
+    .toEqual([expect.stringContaining('@qilin-agent/cli: package.json files must be ["lib/*.js","lib/types/*.d.ts"]')])
 })
 
 it('requires the shared Web injection entry in the published payload', () => {

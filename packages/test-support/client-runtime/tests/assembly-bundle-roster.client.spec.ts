@@ -2,14 +2,14 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { getStaticModules } from '@qilin/client-web/src/seed.ts'
+import { getStaticModules } from '@qilin-agent/client-web/src/seed.ts'
 import { afterAll, describe, expect, it } from 'vitest'
 import { MODULES_PACKAGE } from '../src/assembly/modules.ts'
 import { WEB_PROFILE_BUNDLES, bundleRoster, webApp } from '../src/assembly/bundle-roster.ts'
 
 describe('webApp (the real web profile)', () => {
   it('composes qilin-base then qilin-web-app: unique names, inject edges on roster rows or platform seed words', () => {
-    expect(WEB_PROFILE_BUNDLES).toEqual(['@qilin/base', '@qilin/web-app'])
+    expect(WEB_PROFILE_BUNDLES).toEqual(['@qilin-agent/base', '@qilin-agent/web-app'])
     const names = webApp.rows.map(row => row.name)
     expect(new Set(names).size).toBe(names.length)
     const known = new Set([...names, ...Object.keys(getStaticModules())])
@@ -21,14 +21,14 @@ describe('webApp (the real web profile)', () => {
   it('keeps browser rows with their declarations and drops Host-only, disabled, and subpath rows', () => {
     const immediate = new Set(webApp.rows.filter(row => row.immediately).map(row => row.name))
     expect(immediate.has(MODULES_PACKAGE)).toBe(true)
-    expect(immediate.has('@qilin/client-connection')).toBe(true)
-    expect(webApp.rows.find(row => row.name === '@qilin/api-gateway')?.inject)
-      .toEqual(['@qilin/typert-registry', '@qilin/client-connection'])
+    expect(immediate.has('@qilin-agent/client-connection')).toBe(true)
+    expect(webApp.rows.find(row => row.name === '@qilin-agent/api-gateway')?.inject)
+      .toEqual(['@qilin-agent/typert-registry', '@qilin-agent/client-connection'])
     const names = webApp.rows.map(row => row.name)
-    expect(names).toContain('@qilin/client-ui-settings-general')
-    expect(names).not.toContain('@qilin/llm') // Host only
-    expect(names).not.toContain('@qilin/client-ui-schedule') // inserted disabled
-    expect(names).not.toContain('@qilin/web-app') // Host runtime glue, its `/startup` row is a subpath
+    expect(names).toContain('@qilin-agent/client-ui-settings-general')
+    expect(names).not.toContain('@qilin-agent/llm') // Host only
+    expect(names).not.toContain('@qilin-agent/client-ui-schedule') // inserted disabled
+    expect(names).not.toContain('@qilin-agent/web-app') // Host runtime glue, its `/startup` row is a subpath
   })
 })
 
@@ -170,7 +170,7 @@ describe('bundleRoster on a scratch installation', () => {
       name: '@t/dsh-web'
 ` })
     expect(bundleRoster(['@t/dsh-base'], scratch.anchor).rows).toEqual([
-      { name: '@t/dsh-web', inject: ['@qilin/client-store'], immediately: false },
+      { name: '@t/dsh-web', inject: ['@qilin-agent/client-store'], immediately: false },
     ])
   })
 

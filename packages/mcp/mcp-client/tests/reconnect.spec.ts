@@ -5,12 +5,12 @@
  * Isolated file so vi.mock of the MCP SDK doesn't pollute other test suites.
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { Context } from '@qilin/kylin'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
-import McpResources from '@qilin/mcp-resources'
-import { ToolCallId } from '@qilin/llm'
-import type { Config } from '@qilin/mcp-client'
+import { Context } from '@qilin-agent/kylin'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
+import McpResources from '@qilin-agent/mcp-resources'
+import { ToolCallId } from '@qilin-agent/llm'
+import type { Config } from '@qilin-agent/mcp-client'
 
 // ---- Mock MCP SDK ----
 
@@ -55,8 +55,8 @@ vi.mock('@modelcontextprotocol/client/stdio', () => ({
 
 // vi.mock is hoisted above static imports, so the modules under test see the
 // mocked SDK even through a static import.
-import { apply } from '@qilin/mcp-client/src/index.ts'
-import { RECONNECT_DEFAULTS, resolveReconnectPolicy, startConnection } from '@qilin/mcp-client/src/connection.ts'
+import { apply } from '@qilin-agent/mcp-client/src/index.ts'
+import { RECONNECT_DEFAULTS, resolveReconnectPolicy, startConnection } from '@qilin-agent/mcp-client/src/connection.ts'
 
 // ---- Helpers ----
 

@@ -810,7 +810,7 @@ export function buildTrajectoryGraph(snapshot: TrajectorySnapshotLike | null | u
   pending.sort((left, right) => left.order - right.order || left.node.id.localeCompare(right.node.id))
   const nodes = pending.map(entry => entry.node)
   /* jscpd:ignore-start — ledger builder shared verbatim with
-     @qilin/client-ui-trajectory src/client/trajectory-graph.ts (kept independent) */
+     @qilin-agent/client-ui-trajectory src/client/trajectory-graph.ts (kept independent) */
   const byId = new Map(nodes.map(node => [node.id, node]))
 
   // 7. Turn attribution: requests own their declared turn; a tool record

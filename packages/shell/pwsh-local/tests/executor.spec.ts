@@ -1,5 +1,5 @@
 /**
- * Real-process tests for `@qilin/pwsh-local`: the LOCAL subprocess
+ * Real-process tests for `@qilin-agent/pwsh-local`: the LOCAL subprocess
  * service plus a REAL pwsh executable, exercised through the executor seam
  * (`resolve` → `run`/`start`). These verify the world — actual PowerShell
  * runs, output capture, truncation and spill, deadlines, kill escalation, and
@@ -14,13 +14,13 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { afterAll, afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { PwshLocalExecutor, ENCODING_PREAMBLE, candidatePwshPaths, resolvePwshPath } from '@qilin/pwsh-local'
-import LocalSubprocessRuntime from '@qilin/subprocess-local'
-import SubprocessRuntime from '@qilin/subprocess'
-import type { SubprocessHandle, SubprocessOutcome, SubprocessOutputReader, SubprocessSpawnSpec } from '@qilin/subprocess'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
-import type { ShellProcess } from '@qilin/shell'
+import { Context } from '@qilin-agent/kylin'
+import { PwshLocalExecutor, ENCODING_PREAMBLE, candidatePwshPaths, resolvePwshPath } from '@qilin-agent/pwsh-local'
+import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
+import SubprocessRuntime from '@qilin-agent/subprocess'
+import type { SubprocessHandle, SubprocessOutcome, SubprocessOutputReader, SubprocessSpawnSpec } from '@qilin-agent/subprocess'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
+import type { ShellProcess } from '@qilin-agent/shell'
 
 const spillDir = mkdtempSync(join(tmpdir(), 'qilin-pwsh-exec-spec-'))
 

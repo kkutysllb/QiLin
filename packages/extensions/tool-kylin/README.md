@@ -3,7 +3,7 @@ description: "Read-only runtime API discovery for agents developing and configur
 kind: "package-reference"
 ---
 
-# @qilin/tool-kylin
+# @qilin-agent/tool-kylin
 
 English | [中文](README.zh.md)
 
@@ -25,7 +25,7 @@ Inspect Host and Client runtime APIs before writing plugin code. Creator mode pr
 <a id="use-this-package"></a>
 ## Use this package
 
-Creator mode includes this toolset. Other compositions mount `@qilin/tool-kylin` alongside the host runner that provides `cordisInspect`. Call `cordis_inspect_list` to discover providers, then `cordis_inspect_query` for a provider's exact methods and types, or for the live `Config` provider's projected JSON Schema of one running entry. Use [Plugin Manager](../../boot/plugin-manager/README.md) to install bundles containing plugin code or MCP configuration.
+Creator mode includes this toolset. Other compositions mount `@qilin-agent/tool-kylin` alongside the host runner that provides `cordisInspect`. Call `cordis_inspect_list` to discover providers, then `cordis_inspect_query` for a provider's exact methods and types, or for the live `Config` provider's projected JSON Schema of one running entry. Use [Plugin Manager](../../boot/plugin-manager/README.md) to install bundles containing plugin code or MCP configuration.
 
 -----
 
@@ -35,7 +35,7 @@ Creator mode includes this toolset. Other compositions mount `@qilin/tool-kylin`
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-Host providers combine generated Service/Event catalogs, the running Loader's declared `Config` schemas projected through [`@qilin/app-boot`](../../boot/app-boot/README.md), and the requesting agent's tool registry. Client providers synchronize their manifests through the existing inspection registry and answer queries from a connected page. The tool plugin owns its registrations through Kylin effects; disposal removes both tools and prompt contributions.
+Host providers combine generated Service/Event catalogs, the running Loader's declared `Config` schemas projected through [`@qilin-agent/app-boot`](../../boot/app-boot/README.md), and the requesting agent's tool registry. Client providers synchronize their manifests through the existing inspection registry and answer queries from a connected page. The tool plugin owns its registrations through Kylin effects; disposal removes both tools and prompt contributions.
 
 </details>
 
@@ -54,7 +54,7 @@ Host providers combine generated Service/Event catalogs, the running Loader's de
 
 #### What the model sees
 
-The [tool catalog](../../../docs/tool-catalog.md#qilintool-kylin) describes two read-only inspection tools. The [prompt](src/prompt.ts) directs persistent changes through Plugin Manager and describes MCP setup. Creator visual requests default to an installed UI plugin displayed in the current Web page; the development skill covers Client packaging and slot registration. Query results contain the requested API declarations or live tool schemas.
+The [tool catalog](../../../docs/tool-catalog.md#qilin-agenttool-kylin) describes two read-only inspection tools. The [prompt](src/prompt.ts) directs persistent changes through Plugin Manager and describes MCP setup. Creator visual requests default to an installed UI plugin displayed in the current Web page; the development skill covers Client packaging and slot registration. Query results contain the requested API declarations or live tool schemas.
 
 #### Token effect
 

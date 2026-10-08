@@ -4,16 +4,16 @@
  * the concrete class. Widening this interface is the
  * explicit act of widening what features may do to the sessions domain.
  */
-import type { Context } from '@qilin/kylin'
-import type { SubagentAddress } from '@qilin/subagent/client'
-import type { SessionId } from '@qilin/session/types'
-import type { WorkspaceId } from '@qilin/workspace/types'
-import type { RemoteResult } from '@qilin/typert-protocol'
+import type { Context } from '@qilin-agent/kylin'
+import type { SubagentAddress } from '@qilin-agent/subagent/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { WorkspaceId } from '@qilin-agent/workspace/types'
+import type { RemoteResult } from '@qilin-agent/typert-protocol'
 import type { AgentContext } from '../scope.ts'
 import type { SessionSearchResultItem } from '../sessions/manager.ts'
 import type { SessionBinding, SessionListState } from '../sessions/service.ts'
 import type { SessionFace } from './session.ts'
-import type { ObservableSnapshot } from '@qilin/client-store'
+import type { ObservableSnapshot } from '@qilin-agent/client-store'
 import type { SessionReferenceSource } from '../index.ts'
 
 export type { AgentContext } from '../scope.ts'

@@ -1,9 +1,9 @@
 /** Real JSONL publication and provider-neutral message preservation across the V2 PTC rename. */
 
-import { Context } from '@qilin/kylin'
-import { SESSION_FORMAT_VERSION, Session, SessionId } from '@qilin/session'
-import type { SessionFormatEvent } from '@qilin/session-format'
-import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
+import { Context } from '@qilin-agent/kylin'
+import { SESSION_FORMAT_VERSION, Session, SessionId } from '@qilin-agent/session'
+import type { SessionFormatEvent } from '@qilin-agent/session-format'
+import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
 import { createHash } from 'node:crypto'
 import { mkdir, mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'

@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/api-job-controller",
+  "name": "@qilin-agent/api-job-controller",
   "description": "Job Remote observation stream and the reference-counted client job-output service",
   "version": "3.1.1",
   "publishConfig": {
@@ -43,11 +43,11 @@
   "qilin": {
     "client": {
       "external": [
-        "@qilin/api-gateway/client"
+        "@qilin-agent/api-gateway/client"
       ],
       "inject": [
-        "@qilin/api-gateway",
-        "@qilin/client-connection"
+        "@qilin-agent/api-gateway",
+        "@qilin-agent/client-connection"
       ],
       "platform": "web"
     }
@@ -68,22 +68,22 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@qilin/schemastery": "workspace:~",
-    "@qilin/typert-protocol": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~",
+    "@qilin-agent/typert-protocol": "workspace:*",
     "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/api-gateway": "workspace:*",
-    "@qilin/client-connection": "workspace:*",
-    "@qilin/client-store": "workspace:*",
-    "@qilin/jobs": "workspace:*",
-    "@qilin/jobs-local": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/typert-registry": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/api-gateway": "workspace:*",
+    "@qilin-agent/client-connection": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/jobs": "workspace:*",
+    "@qilin-agent/jobs-local": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/typert-registry": "workspace:*"
   }
 }

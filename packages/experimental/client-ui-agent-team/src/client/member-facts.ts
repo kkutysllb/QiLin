@@ -3,9 +3,9 @@
  * action's rows and the page's roster: the model its Session selected, its
  * settled status, and whether it is the current Session.
  */
-import type { TeamMemberProjection } from '@qilin/experimental-agent-team/client'
-import type { UseSessionStatus, UseSessions } from '@qilin/client-ui-session/client'
-import type { SessionId } from '@qilin/session/types'
+import type { TeamMemberProjection } from '@qilin-agent/experimental-agent-team/client'
+import type { UseSessionStatus, UseSessions } from '@qilin-agent/client-ui-session/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { MemberStatus } from './team-model.ts'
 
 /** The two seats the facts come through: the Session list and one Session's status. */

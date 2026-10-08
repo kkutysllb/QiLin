@@ -1,4 +1,4 @@
-import { brandNumber, brandString, type Branded, type BrandedNumber } from '@qilin/brand'
+import { brandNumber, brandString, type Branded, type BrandedNumber } from '@qilin-agent/brand'
 import type {
   AssistantMessage,
   DeveloperMessage,
@@ -13,8 +13,8 @@ import type {
   ToolResultMessage,
   ToolSchema,
   UserMessage,
-} from '@qilin/llm'
-import type { JsonValue } from '@qilin/util-values'
+} from '@qilin-agent/llm'
+import type { JsonValue } from '@qilin-agent/util-values'
 
 /** Identifies one session in the store (and its persistence artifacts). */
 export type SessionId = Branded<'SessionId'>
@@ -515,7 +515,7 @@ export type SessionEvent<T extends SessionEventType = SessionEventType> = {
   })
 }[T]
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** The named Session does not exist; produced by every layer that resolves a SessionId. */
     'session/not-found': { readonly sessionId: SessionId }

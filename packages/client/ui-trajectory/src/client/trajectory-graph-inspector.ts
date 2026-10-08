@@ -4,7 +4,7 @@
  * pretty-printed JSON the arguments disclosure renders.
  */
 
-import { fileSizeText } from '@qilin/client-ui-primitives'
+import { fileSizeText } from '@qilin-agent/client-ui-primitives'
 import type { TrajectoryTranslate } from './locales.ts'
 import type { TrajectoryAttachment } from './trajectory-graph.ts'
 

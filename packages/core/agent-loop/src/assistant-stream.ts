@@ -10,9 +10,9 @@ import {
   type ReplayEnvelope,
   type StreamChunk,
   type TokenUsage,
-} from '@qilin/llm'
-import type { AssistantStreamFrame } from '@qilin/agent'
-import type { SessionEventMap, SessionId, SessionSeq } from '@qilin/session'
+} from '@qilin-agent/llm'
+import type { AssistantStreamFrame } from '@qilin-agent/agent'
+import type { SessionEventMap, SessionId, SessionSeq } from '@qilin-agent/session'
 
 /** Folds one model attempt into one compact stream plus ordered transient frames. */
 export class AssistantStreamAttempt {

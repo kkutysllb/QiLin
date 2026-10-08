@@ -3,7 +3,7 @@ description: "Expose bounded transient transcription through the authenticated W
 kind: "package-reference"
 ---
 
-# @qilin/experimental-api-speech-to-text
+# @qilin-agent/experimental-api-speech-to-text
 
 English | [中文](README.zh.md)
 

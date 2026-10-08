@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/skill",
+  "name": "@qilin-agent/skill",
   "description": "Agent skill provider registry for the QiLin",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,17 +30,17 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/llm": "workspace:*",
-    "@qilin/scope": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/scope": "workspace:*"
   },
   "dependencies": {
-    "@qilin/util-values": "workspace:*",
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/util-values": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/llm": "workspace:*",
-    "@qilin/scope": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/scope": "workspace:*"
   }
 }

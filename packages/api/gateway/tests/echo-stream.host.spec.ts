@@ -1,12 +1,12 @@
 import { once } from 'node:events'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import WebSocket, { type RawData } from 'ws'
-import { Context } from '@qilin/kylin'
-import { apply as applyConnection, inject as connectionInject } from '@qilin/client-connection'
-import WebServer from '@qilin/host-webserver'
-import { Remote, TypertRemoteService, type RemoteStream } from '@qilin/typert-protocol'
-import TypertRegistry from '@qilin/typert-registry'
-import TypertGatewayService from '@qilin/api-gateway'
+import { Context } from '@qilin-agent/kylin'
+import { apply as applyConnection, inject as connectionInject } from '@qilin-agent/client-connection'
+import WebServer from '@qilin-agent/host-webserver'
+import { Remote, TypertRemoteService, type RemoteStream } from '@qilin-agent/typert-protocol'
+import TypertRegistry from '@qilin-agent/typert-registry'
+import TypertGatewayService from '@qilin-agent/api-gateway'
 import { browserCookie, provideBrowserCredentials } from './browser-credentials.ts'
 
 /** The smallest Remote stream that reads its uplink: every carrier has to serve it alike. */

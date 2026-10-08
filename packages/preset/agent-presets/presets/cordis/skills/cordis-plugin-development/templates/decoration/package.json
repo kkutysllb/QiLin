@@ -9,7 +9,7 @@
     "client": {
       "platform": "web",
       "immediately": true,
-      "inject": ["@qilin/client-ui-conversation"]
+      "inject": ["@qilin-agent/client-ui-conversation"]
     }
   }
 }

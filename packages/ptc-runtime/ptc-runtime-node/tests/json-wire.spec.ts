@@ -1,6 +1,6 @@
 import { runInNewContext } from 'node:vm'
 import { describe, expect, it } from 'vitest'
-import { snapshotJsonValue } from '@qilin/util-values'
+import { snapshotJsonValue } from '@qilin-agent/util-values'
 import { decodePtcJsonWire, encodePtcJsonWire, snapshotPtcJsonValue } from '../src/json-wire.ts'
 
 describe('snapshotPtcJsonValue', () => {

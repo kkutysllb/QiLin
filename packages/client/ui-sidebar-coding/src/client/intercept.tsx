@@ -258,7 +258,7 @@ export interface InterceptGates {
  * when the slot is already declared, otherwise it runs inside the declaring
  * register() call once the declaration commits; declaration collapse
  * disposes the entry and a later declaration re-registers it. This mirrors
- * @qilin/client-ui-deliverables' registration of the same slot.
+ * @qilin-agent/client-ui-deliverables' registration of the same slot.
  */
 export function registerTurnTailInterception(ctx: Context, store: SidebarStore, gates: InterceptGates): () => void {
   /**
@@ -301,8 +301,8 @@ export function registerTurnTailInterception(ctx: Context, store: SidebarStore, 
     // dsh 0.1.6-alpha.2: the slot became a list — id is required, and
     // select/priority no longer exist. The match/decline decision moved into
     // the component (SidebarTurnTail) so it re-runs on every render.
-    id: '@qilin/client-ui-sidebar-coding',
-    registrant: '@qilin/client-ui-sidebar-coding',
+    id: '@qilin-agent/client-ui-sidebar-coding',
+    registrant: '@qilin-agent/client-ui-sidebar-coding',
     inject: (sessionId: string) => ({
       openInSidebar: (path: string) => { openSidebarFile(ctx, store, sessionId, path) },
       onShowInFolder: (files: readonly string[]) => { revealInExplorer(ctx, store, sessionId, files, gates.revealColumn) },

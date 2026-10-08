@@ -3,12 +3,12 @@
  * dialog controller, plus the routing between them. A message target puts a
  * selected judgment through the message controller; the Session target records
  * through the `sessionFeedback` Remote.
- * @module @qilin/client-ui-message-feedback/client/surface
+ * @module @qilin-agent/client-ui-message-feedback/client/surface
  */
 
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { SessionId } from '@qilin/session/types'
-import type { FeedbackRecord } from '@qilin/command-feedback/types'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { FeedbackRecord } from '@qilin-agent/command-feedback/types'
 import { MessageFeedbackController, describe, type MessageFeedbackActionResult } from './controller.ts'
 import { FeedbackDialogController } from './dialog.ts'
 

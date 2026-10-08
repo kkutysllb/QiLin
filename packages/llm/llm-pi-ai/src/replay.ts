@@ -8,8 +8,8 @@
  * @module qilin-llm-pi-ai/replay
  */
 
-import { LlmError } from '@qilin/llm'
-import type { AssistantMessage as HarnessAssistantMessage, ModelMessageSource, ReplayEnvelope } from '@qilin/llm'
+import { LlmError } from '@qilin-agent/llm'
+import type { AssistantMessage as HarnessAssistantMessage, ModelMessageSource, ReplayEnvelope } from '@qilin-agent/llm'
 import type { Api, AssistantMessage, ToolCall, Usage as PiUsage } from '@earendil-works/pi-ai'
 
 /** Per-block half of the pi-ai replay envelope, one entry per content block. */

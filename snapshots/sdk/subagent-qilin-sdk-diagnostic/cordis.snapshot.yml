@@ -5,7 +5,7 @@
 
 - insert:
     - id: llm-replay
-      name: '@qilin/llm-replay'
+      name: '@qilin-agent/llm-replay'
       config:
         providers:
           - id: deepseek-official

@@ -26,7 +26,7 @@ import clsx from 'clsx'
 import {
   IconChevronRightOutline14, IconCodeOutline16, IconCopyOutline16, IconDownloadOutline16,
   IconLinkOutline16, Menu, type MenuEntry, type MenuItem, Modal, Button, writeClipboard,
-} from '@qilin/client-ui-primitives'
+} from '@qilin-agent/client-ui-primitives'
 import { SiCursor, SiZedindustries } from 'react-icons/si'
 import { VscFolderOpened, VscLinkExternal, VscPin, VscPinned } from 'react-icons/vsc'
 import { api, downloadUrl, type FsEntry } from './api.ts'

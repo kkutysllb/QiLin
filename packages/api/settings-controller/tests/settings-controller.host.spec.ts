@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type { SettingsDescriptor } from '@qilin/settings'
-import { RemoteError, remoteErrorOf, remoteMethods } from '@qilin/typert-protocol'
+import { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type { SettingsDescriptor } from '@qilin-agent/settings'
+import { RemoteError, remoteErrorOf, remoteMethods } from '@qilin-agent/typert-protocol'
 import SettingsController from '../src/index.ts'
 import { MemorySettings } from '../../../settings/settings/tests/memory.ts'
 
@@ -99,7 +99,7 @@ describe('the settings Remote namespace a configuration page calls', () => {
       const failure = await Promise.resolve().then(call).catch((error: unknown) => error)
       expect(remoteErrorOf(failure)).toMatchObject({
         code: 'gateway/internal',
-        message: 'settings service is absent: this deployment does not mount a settings provider (e.g. @qilin/settings-file) in its composition',
+        message: 'settings service is absent: this deployment does not mount a settings provider (e.g. @qilin-agent/settings-file) in its composition',
         details: {},
       })
     }

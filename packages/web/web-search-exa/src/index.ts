@@ -2,13 +2,13 @@
  * Exa-backed `WebSearchProvider` plugin. It contributes to the `ctx.web`
  * registry without owning the service.
  *
- * @module @qilin/web-search-exa
+ * @module @qilin-agent/web-search-exa
  */
 
-import type { Context } from '@qilin/kylin'
-import { launchEnvironmentOf } from '@qilin/launch-environment'
-import z from '@qilin/schemastery'
-import type {} from '@qilin/web'
+import type { Context } from '@qilin-agent/kylin'
+import { launchEnvironmentOf } from '@qilin-agent/launch-environment'
+import z from '@qilin-agent/schemastery'
+import type {} from '@qilin-agent/web'
 import {
   ExaSearchProvider,
   EXA_DEFAULT_BASE_URL,

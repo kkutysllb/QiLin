@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import type { CommandDefinition, CommandInvocation } from '@qilin/commands'
+import { Context } from '@qilin-agent/kylin'
+import type { CommandDefinition, CommandInvocation } from '@qilin-agent/commands'
 import * as SessionLogDownload from '../src/index.ts'
 
 describe('/export Web download command', () => {

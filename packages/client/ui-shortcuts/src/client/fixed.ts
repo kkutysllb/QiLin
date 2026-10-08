@@ -1,6 +1,6 @@
 /** Menu reservations contributed by the product's shortcut reference integration. */
-import type { ShortcutFixedCommand, ShortcutCommandId } from '@qilin/client-shortcuts/client'
-import type { PropsLocale } from '@qilin/client-ui-slots'
+import type { ShortcutFixedCommand, ShortcutCommandId } from '@qilin-agent/client-shortcuts/client'
+import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 
 /**
  * Describe shared menu actions for display and conflict checking.

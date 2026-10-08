@@ -3,10 +3,10 @@ import clsx from 'clsx'
 import {
   CodeBlock, DiffBlock, DisclosureRow, FileTypeIcon, IconInspectOutline12, ReadBlock, SearchBlock, StateDot,
   TerminalBlock, WebBlock, TextShimmer, diffTotals,
-} from '@qilin/client-ui-primitives'
-import type { PropsRenderSlots, TranslateNS } from '@qilin/client-ui-slots'
-import type { OpenFileOptions, UseDisclosure } from '@qilin/client-ui-chat/client'
-import type { MessageImageLoader } from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-primitives'
+import type { PropsRenderSlots, TranslateNS } from '@qilin-agent/client-ui-slots'
+import type { OpenFileOptions, UseDisclosure } from '@qilin-agent/client-ui-chat/client'
+import type { MessageImageLoader } from '@qilin-agent/client-ui-conversation/client'
 import { CHAT_DIFF_MAX_LINES, type DiffCardModel } from '../models/diff-card-model.ts'
 import { CHAT_READ_MAX_LINES, type ReadCardModel } from '../models/read-card-model.ts'
 import type { ImageCardModel } from '../models/image-card-model.ts'

@@ -11,7 +11,7 @@
  *
  * Four functions, one per way a caller needs the policy — install it, ask how to send one request,
  * build a child's environment, and strip the ambient one for a replay.
- * @module @qilin/http-proxy
+ * @module @qilin-agent/http-proxy
  */
 
 export {

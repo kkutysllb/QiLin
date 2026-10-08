@@ -1,12 +1,12 @@
 /**
  * Three shared tools adapt model arguments to scoped resource operations.
  *
- * @module @qilin/mcp-resources
+ * @module @qilin-agent/mcp-resources
  */
 
-import type { Context } from '@qilin/kylin'
-import { defineTool, type ToolExecution } from '@qilin/tools'
-import type { JsonValue } from '@qilin/util-values'
+import type { Context } from '@qilin-agent/kylin'
+import { defineTool, type ToolExecution } from '@qilin-agent/tools'
+import type { JsonValue } from '@qilin-agent/util-values'
 import type { McpResourceRequest } from './index.ts'
 import { renderResourceResult } from './render.ts'
 

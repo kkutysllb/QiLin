@@ -15,8 +15,8 @@
  * @module
  */
 
-import { StorageError } from '@qilin/storage'
-import type { KvFacet, KvUnit, KvUnitDescriptor, StorageBackend } from '@qilin/storage'
+import { StorageError } from '@qilin-agent/storage'
+import type { KvFacet, KvUnit, KvUnitDescriptor, StorageBackend } from '@qilin-agent/storage'
 
 /** One unit's medium: tables of records plus the global slot (`null` = never written). */
 export interface MemoryMedium {

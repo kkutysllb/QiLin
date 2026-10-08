@@ -1,9 +1,9 @@
 /** Host catalog, durable projection caches, and explicitly retained Client instances. */
 
-import type { SubagentAddress } from '@qilin/subagent/client'
-import { SessionSeq, type SessionId, type SessionSeqCursor } from '@qilin/session/types'
-import type { SessionProjectionMap } from '@qilin/session-projection/types'
-import type { WorkspaceId } from '@qilin/workspace/types'
+import type { SubagentAddress } from '@qilin-agent/subagent/client'
+import { SessionSeq, type SessionId, type SessionSeqCursor } from '@qilin-agent/session/types'
+import type { SessionProjectionMap } from '@qilin-agent/session-projection/types'
+import type { WorkspaceId } from '@qilin-agent/workspace/types'
 import type {
   SessionControlBaseline,
   SessionControlFrame,
@@ -12,15 +12,15 @@ import type {
   SessionSummary,
 } from '../../types.ts'
 import { mergeOrderedBaseline } from '../ordered-baseline.ts'
-import { isRemoteFailure } from '@qilin/api-gateway/client'
-import { assertNever } from '@qilin/util-values'
-import type { RemoteFailure, RemoteResult } from '@qilin/typert-protocol'
+import { isRemoteFailure } from '@qilin-agent/api-gateway/client'
+import { assertNever } from '@qilin-agent/util-values'
+import type { RemoteFailure, RemoteResult } from '@qilin-agent/typert-protocol'
 import type { SessionListEntry, TitledSessionSummary } from './lineage.ts'
 import { flattenLineage } from './lineage.ts'
 // Type-only merge edge: the title domain's client-namespace outlet declares
 // the 'title' projection key this manager projects into list rows (and any
 // useProjection('title') consumer reads). Zero value imports by construction.
-import type {} from '@qilin/session-title/client'
+import type {} from '@qilin-agent/session-title/client'
 import { Notifier } from './notifier.ts'
 import { ProjectionValueStore } from './projection-store.ts'
 import { Session } from './session.ts'

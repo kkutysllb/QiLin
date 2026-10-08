@@ -2,13 +2,13 @@
  * The workspace domain declaration: record schema and the `defineDomain` spec
  * the registry opens. The zod schema validates the shipped format at the
  * durability boundary and is the direct source of a future RPC wire projection.
- * @module @qilin/workspace/src/spec
+ * @module @qilin-agent/workspace/src/spec
  */
 
 import { z } from 'zod'
-import { brandString } from '@qilin/brand'
-import type { SessionId } from '@qilin/session'
-import { defineDomain, domainTable } from '@qilin/storage-domain'
+import { brandString } from '@qilin-agent/brand'
+import type { SessionId } from '@qilin-agent/session'
+import { defineDomain, domainTable } from '@qilin-agent/storage-domain'
 import type { WorkspaceId } from './types.ts'
 
 /** Workspace id schema at the durable boundary; branding has no runtime representation. */

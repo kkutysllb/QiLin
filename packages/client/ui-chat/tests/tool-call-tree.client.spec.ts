@@ -1,5 +1,5 @@
-import type { SessionEvent } from '@qilin/session/types'
-import { PartialArguments } from '@qilin/util-values'
+import type { SessionEvent } from '@qilin-agent/session/types'
+import { PartialArguments } from '@qilin-agent/util-values'
 import { describe, expect, it } from 'vitest'
 import type { StartedToolCall, ToolCallBlock } from '../src/client/contract/snapshot.ts'
 import {

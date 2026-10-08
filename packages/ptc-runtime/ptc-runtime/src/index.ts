@@ -1,12 +1,12 @@
 /**
  * Service Definition for the PTC execution capability seam that runs one model-written program against host async bindings.
  * Runtimes know nothing about tools or sessions; consumers own those concerns.
- * @module @qilin/ptc-runtime
+ * @module @qilin-agent/ptc-runtime
  */
 
-import { Context, Service } from '@qilin/kylin'
+import { Context, Service } from '@qilin-agent/kylin'
 import type { PtcRunRequest, PtcRunResult, PtcRunSpec } from './types.ts'
-import type { SandboxMode } from '@qilin/sandbox'
+import type { SandboxMode } from '@qilin-agent/sandbox'
 
 export type {
   PtcBindingErrorClass,
@@ -88,7 +88,7 @@ export const PORTABLE_RESERVED_WORDS: ReadonlySet<string> = new Set([
   'global', 'is', 'lambda', 'nonlocal', 'not', 'or', 'pass', 'raise', 'match', 'type', '_',
 ])
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     ptcRuntime: PtcRuntime
   }

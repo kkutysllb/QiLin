@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-ui-settings",
+  "name": "@qilin-agent/client-ui-settings",
   "description": "Settings domain base plugin: the settings-namespace scope service and the canonical settings slot-type contract",
   "version": "3.1.1",
   "publishConfig": {
@@ -31,7 +31,7 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/api-remotes"
+        "@qilin-agent/api-remotes"
       ],
       "platform": "web"
     }
@@ -42,18 +42,18 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/api-remotes": "workspace:*",
-    "@qilin/client-store": "workspace:*",
-    "@qilin/client-test-runtime": "workspace:*",
-    "@qilin/client-ui-slots": "workspace:*",
-    "@qilin/settings": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/api-remotes": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/settings": "workspace:*",
     "@types/react": "~18.3.1",
     "react": "^18.2.0",
-    "@qilin/util-values": "workspace:*"
+    "@qilin-agent/util-values": "workspace:*"
   },
   "files": [
     "lib/index.js",
@@ -61,6 +61,6 @@
     "lib/types/**/*.d.ts"
   ],
   "dependencies": {
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/schemastery": "workspace:~"
   }
 }

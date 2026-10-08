@@ -1,4 +1,4 @@
-import type { ContextPressureProjection } from '@qilin/token-meter/client'
+import type { ContextPressureProjection } from '@qilin-agent/token-meter/client'
 
 /** Context usage rendered by conversation and Chat status surfaces. */
 export interface ContextOccupancy {

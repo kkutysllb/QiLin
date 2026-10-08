@@ -4,17 +4,17 @@ import { realpath } from 'node:fs/promises'
 import { join, dirname, resolve } from 'node:path'
 import { homedir, tmpdir } from 'node:os'
 import { pathToFileURL } from 'node:url'
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import {
   boot, composeEntries, getQilinRuntimeVersion, initProfile, readProfilePatches, readProfileManifest, reconcileProfilePatches,
   OPTIONAL_BUNDLES, type ProfileContext,
-} from '@qilin/app-boot'
+} from '@qilin-agent/app-boot'
 import PluginManager, { type Config, type PluginChange, type PluginInstallLogChunk, type PluginInstallProgress, type PluginInstallRequestId } from '../src/index.ts'
-import Hmr from '@qilin/hmr'
-import Timer from '@qilin/kylin-plugin-timer'
-import type { PatchOptions } from '@qilin/kylin-plugin-include'
-import { Group } from '@qilin/kylin-plugin-loader'
+import Hmr from '@qilin-agent/hmr'
+import Timer from '@qilin-agent/kylin-plugin-timer'
+import type { PatchOptions } from '@qilin-agent/kylin-plugin-include'
+import { Group } from '@qilin-agent/kylin-plugin-loader'
 import * as operations from '../src/operations.ts'
 import * as githubConnection from '../src/github-connection.ts'
 import { parse, parseDocument } from 'yaml'
@@ -101,7 +101,7 @@ it('reports shipped layers locked at the layer level and owner layers switchable
   // The shipped template locks the layer: a profile switches it off through its
   // rows, because dropping the entry would come back on the next load.
   const { manager, dir, profile } = await fixture('live', false, undefined, {}, undefined, undefined, 'web')
-  const shipped = '@qilin/web-app'
+  const shipped = '@qilin-agent/web-app'
   const owner = 'dsh-animations'
   for (const [name, version] of [[shipped, '3.0.4'], [owner, '1.2.3']] as const) {
     const installedDir = join(dirname(profile.installAnchor), 'node_modules', name)
@@ -551,9 +551,9 @@ it('records one bundle\'s audience, refuses unknown and shipped names, and drops
   expect(await manager.setAudience('ghost', 'coding')).toMatchObject({ application: 'failed', error: { code: 'unknown-plugin' } })
   // A shipped layer moves with the installation and takes no audience.
   const manifest = readProfileManifest('web', dir)
-  manifest.qilin = { profile: { bundles: ['core', 'extra', '@qilin/web-app'], audiences: { extra: 'coding' } } }
+  manifest.qilin = { profile: { bundles: ['core', 'extra', '@qilin-agent/web-app'], audiences: { extra: 'coding' } } }
   writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
-  expect(await manager.setAudience('@qilin/web-app', 'coding'))
+  expect(await manager.setAudience('@qilin-agent/web-app', 'coding'))
     .toMatchObject({ application: 'failed', error: { code: 'shipped-layer' } })
   // Removing the bundle drops its audience record with the rest of its bookkeeping.
   // Its running plugin is switched off first, the way a live unload makes room for pnpm.
@@ -571,9 +571,9 @@ it('records one bundle\'s audience, refuses unknown and shipped names, and drops
 })
 
 it.each([
-  '@qilin/host-plugin-inventory',
-  '@qilin/typert-registry',
-  '@qilin/api-remotes',
+  '@qilin-agent/host-plugin-inventory',
+  '@qilin-agent/typert-registry',
+  '@qilin-agent/api-remotes',
 ])('protects the management dependency %s and its containing bundle', async (name) => {
   const { ctx, manager, bundle, profile, dir } = await fixture('startup')
   bundle('extra', [{ id: 'dependency', name, disabled: true }])
@@ -1119,7 +1119,7 @@ it.each(['live', 'startup'] as const)('requires exact risk acknowledgement and r
     const guarded = join(dir, 'node_modules', 'guarded')
     mkdirSync(guarded, { recursive: true })
     writeFileSync(join(guarded, 'package.json'), JSON.stringify({
-      name: 'guarded', version: '1.0.0', type: 'module', peerDependencies: { '@qilin/session': '999.0.0' },
+      name: 'guarded', version: '1.0.0', type: 'module', peerDependencies: { '@qilin-agent/session': '999.0.0' },
     }))
     writeFileSync(join(guarded, 'index.mjs'), 'export function apply(ctx) { ctx.provide("guardedProbe", true) }\n')
     writeFileSync(join(dir, 'node_modules', 'extra', 'cordis.patch.yml'), JSON.stringify([
@@ -1153,7 +1153,7 @@ it.each(['live', 'startup'] as const)('requires exact risk acknowledgement and r
 
 it('reports a package run refused for compatibility as a typed refusal', async () => {
   const { manager } = await fixture()
-  const incompatible = [{ name: 'qilin-x', version: '2.0.0', runtimeVersion: getQilinRuntimeVersion(), peers: { '@qilin/session': '999.0.0' } }]
+  const incompatible = [{ name: 'qilin-x', version: '2.0.0', runtimeVersion: getQilinRuntimeVersion(), peers: { '@qilin-agent/session': '999.0.0' } }]
   const install = vi.spyOn(operations, 'runProfilePnpm').mockResolvedValue({
     exitCode: 1, output: 'qilin: installation rejected', truncated: false, logPath: 'pnpm.log', incompatible,
   })
@@ -1171,7 +1171,7 @@ it.each([false, true])('rechecks installed bundle peers before accepting a disab
     bundle('incompatible', [])
     const file = join(dir, 'node_modules', 'incompatible', 'package.json')
     const metadata = JSON.parse(readFileSync(file, 'utf8')) as Record<string, unknown>
-    writeFileSync(file, JSON.stringify({ ...metadata, peerDependencies: { '@qilin/session': '<0.0.0' } }))
+    writeFileSync(file, JSON.stringify({ ...metadata, peerDependencies: { '@qilin-agent/session': '<0.0.0' } }))
     const profile = readProfileManifest('test', dir)
     profile.dependencies = { ...profile.dependencies, incompatible: '1.0.0' }
     writeFileSync(join(dir, 'package.json'), JSON.stringify(profile))

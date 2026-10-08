@@ -3,7 +3,7 @@
 import { accessSync, constants } from 'node:fs'
 import { homedir, tmpdir } from 'node:os'
 import { dirname, isAbsolute, parse, relative, sep } from 'node:path'
-import { canonicalPath, writableRoots } from '@qilin/sandbox'
+import { canonicalPath, writableRoots } from '@qilin-agent/sandbox'
 
 function contains(root: string, path: string): boolean {
   const suffix = relative(root, path)

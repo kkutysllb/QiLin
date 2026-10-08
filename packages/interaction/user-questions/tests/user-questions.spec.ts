@@ -1,15 +1,15 @@
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import AgentRegistry, { agentEvents, type Agent } from '@qilin/agent'
+import { Context } from '@qilin-agent/kylin'
+import AgentRegistry, { agentEvents, type Agent } from '@qilin-agent/agent'
 import UserQuestionService, {
   TIMED_WAIT_PARAMETER,
   UserQuestionError,
   type AskUserQuestionAnswer,
   type AskUserQuestionRequest,
-} from '@qilin/user-questions'
-import { createToolResultMessage, createUserMessage, ToolCallId, type ToolSchema, type UserMessage } from '@qilin/llm'
-import { Session, SessionId, TOOL_OUTCOME_UNKNOWN } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
+} from '@qilin-agent/user-questions'
+import { createToolResultMessage, createUserMessage, ToolCallId, type ToolSchema, type UserMessage } from '@qilin-agent/llm'
+import { Session, SessionId, TOOL_OUTCOME_UNKNOWN } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
 
 interface QuestionAnswerer {
   ask(request: AskUserQuestionRequest): Promise<AskUserQuestionAnswer>

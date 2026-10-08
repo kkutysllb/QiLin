@@ -11,11 +11,11 @@
  * VFS as well would pass either way.
  */
 import { describe, expect, it } from 'vitest'
-import { runShellCommand } from '@qilin/experimental-webworker-runtime/src/shell/interpret.ts'
-import { filesystemError } from '@qilin/experimental-webworker-runtime/src/shell/fs-access.ts'
+import { runShellCommand } from '@qilin-agent/experimental-webworker-runtime/src/shell/interpret.ts'
+import { filesystemError } from '@qilin-agent/experimental-webworker-runtime/src/shell/fs-access.ts'
 import type {
   ShellDirent, ShellFileSystem, ShellRunOutcome, ShellStats,
-} from '@qilin/experimental-webworker-runtime/src/shell/types.ts'
+} from '@qilin-agent/experimental-webworker-runtime/src/shell/types.ts'
 
 const WORKSPACE = '/qilin/workspace'
 

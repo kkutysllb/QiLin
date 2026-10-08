@@ -3,7 +3,7 @@ description: "Runtime compatibility helpers that let QiLin load DSH-era plugin m
 kind: "package-library"
 ---
 
-# @qilin/dsh-compat
+# @qilin-agent/dsh-compat
 
 English | [中文](README.zh.md)
 
@@ -33,7 +33,7 @@ The exact platform aliases are exported as `DSH_PLATFORM_MODULE_ALIASES`. Unknow
 <a id="understand-the-implementation"></a>
 ## Understand the implementation
 
-The manifest reader gives a QiLin declaration precedence when both keys exist. The module resolver applies explicit aliases first, then maps `@deepseek-ai/dsh-<name>` to `@qilin/<name>`; `client-runtime` maps to QiLin’s `client-modules` package. The browser shell seeds static platform aliases, while dynamic graph edges and factory requests are canonicalized at their owning loaders.
+The manifest reader gives a QiLin declaration precedence when both keys exist. The module resolver applies explicit aliases first, then maps `@deepseek-ai/dsh-<name>` to `@qilin-agent/<name>`; `client-runtime` maps to QiLin’s `client-modules` package. The browser shell seeds static platform aliases, while dynamic graph edges and factory requests are canonicalized at their owning loaders.
 
 -----
 

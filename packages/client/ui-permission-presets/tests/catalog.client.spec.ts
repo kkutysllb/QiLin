@@ -1,10 +1,10 @@
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
 import type {
   ConnectionGeneration, ConnectionHandle,
-} from '@qilin/client-connection/client'
-import { TestRemote } from '@qilin/client-test-runtime'
-import type { PermissionCatalog } from '@qilin/permission-presets/client'
+} from '@qilin-agent/client-connection/client'
+import { TestRemote } from '@qilin-agent/client-test-runtime'
+import type { PermissionCatalog } from '@qilin-agent/permission-presets/client'
 import { PermissionCatalogDirectory } from '../src/client/catalog.ts'
 
 const FIRST: PermissionCatalog = {

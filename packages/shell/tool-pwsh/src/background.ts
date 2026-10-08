@@ -2,13 +2,13 @@
  * Generic-job adaptation for pwsh process handles: the terminal outcome the
  * registry records and the pull source it pumps into the job's output ring.
  *
- * @module @qilin/tool-pwsh/background
+ * @module @qilin-agent/tool-pwsh/background
  */
 
-import type { SandboxMode } from '@qilin/sandbox'
-import { escalationHintMarker, sandboxDenialMarker } from '@qilin/sandbox'
-import type { ShellProcess, ShellSandboxInfo } from '@qilin/shell'
-import type { JobHooks, JobOutcome, JobOutputSource } from '@qilin/jobs'
+import type { SandboxMode } from '@qilin-agent/sandbox'
+import { escalationHintMarker, sandboxDenialMarker } from '@qilin-agent/sandbox'
+import type { ShellProcess, ShellSandboxInfo } from '@qilin-agent/shell'
+import type { JobHooks, JobOutcome, JobOutputSource } from '@qilin-agent/jobs'
 import { renderPwshProcessRead } from './render.ts'
 
 /* jscpd:ignore-start -- deliberate twin of qilin-tool-bash/background.ts: the

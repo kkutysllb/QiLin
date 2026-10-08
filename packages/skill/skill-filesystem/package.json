@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/skill-filesystem",
+  "name": "@qilin-agent/skill-filesystem",
   "description": "Local filesystem skill provider for the QiLin",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,20 +30,20 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/fs": "workspace:*",
-    "@qilin/home-paths": "workspace:*",
-    "@qilin/skill": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/fs": "workspace:*",
+    "@qilin-agent/home-paths": "workspace:*",
+    "@qilin-agent/skill": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "dependencies": {
     "chokidar": "^5.0.0",
-    "@qilin/schemastery": "workspace:~",
+    "@qilin-agent/schemastery": "workspace:~",
     "yaml": "^2.4.2"
   },
   "devDependencies": {
-    "@qilin/fs": "workspace:*",
-    "@qilin/home-paths": "workspace:*",
-    "@qilin/skill": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/fs": "workspace:*",
+    "@qilin-agent/home-paths": "workspace:*",
+    "@qilin-agent/skill": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   }
 }

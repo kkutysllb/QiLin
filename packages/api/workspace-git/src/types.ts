@@ -1,12 +1,12 @@
 /**
  * Wire types of the `workspaceGit` Remote namespace. Types only: generated
  * Remote clients consume this module without Host runtime code.
- * @module @qilin/api-workspace-git/types
+ * @module @qilin-agent/api-workspace-git/types
  */
 
 // Import the protocol module so the declaration at the end of this file
 // augments its error map rather than defining an unrelated ambient module.
-import type {} from '@qilin/typert-protocol'
+import type {} from '@qilin-agent/typert-protocol'
 
 /**
  * Ahead/behind position of the current branch against its upstream, as
@@ -132,7 +132,7 @@ export interface GhCreatedPr {
   readonly url: string
 }
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** The workspace root is not inside a Git work tree, or discovery could not answer. */
     'workspace-git/not-a-repo': {}

@@ -1,9 +1,9 @@
 /** The SDK app command provider and stdin shutdown binding. */
 
 import { EventEmitter } from 'node:events'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { afterEach, describe, expect, it } from 'vitest'
-import { internals, provideCmdline } from '@qilin/cmdline'
+import { internals, provideCmdline } from '@qilin-agent/cmdline'
 import { apply, type Config, SDK_APP_STARTUP_SERVICE } from '../src/index.ts'
 
 /** Controllable stdin for one startup invocation. */

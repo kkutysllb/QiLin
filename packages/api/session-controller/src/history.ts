@@ -1,24 +1,24 @@
 /** Cold Session history pagination and live-event source. */
 
-import type { Context } from '@qilin/kylin'
-import { Deque } from '@qilin/deque'
-import type { AssistantStreamFrame } from '@qilin/agent'
+import type { Context } from '@qilin-agent/kylin'
+import { Deque } from '@qilin-agent/deque'
+import type { AssistantStreamFrame } from '@qilin-agent/agent'
 import {
   isAppendSurfaceEvent,
   SessionLogOffset,
   SessionSeq,
-} from '@qilin/session'
+} from '@qilin-agent/session'
 import type {
   SessionEvent,
   SessionHeader,
   SessionId,
   SessionLogOffset as SessionLogOffsetType,
   SessionSeqCursor,
-} from '@qilin/session'
-import { SessionQueryError, type SessionObservation } from '@qilin/session-query'
-import type {} from '@qilin/subagent'
-import { RemoteError } from '@qilin/typert-protocol'
-import type { JsonValue } from '@qilin/util-values'
+} from '@qilin-agent/session'
+import { SessionQueryError, type SessionObservation } from '@qilin-agent/session-query'
+import type {} from '@qilin-agent/subagent'
+import { RemoteError } from '@qilin-agent/typert-protocol'
+import type { JsonValue } from '@qilin-agent/util-values'
 import type {
   SessionAddress,
   SessionAssistantStreamFrame,

@@ -1,9 +1,9 @@
 /** Optional local SenseVoice provider; activation performs no downloads or model loading. */
 import { isAbsolute } from 'node:path'
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/experimental-speech-to-text'
-import type {} from '@qilin/subprocess'
-import type { SpeechProviderId } from '@qilin/experimental-speech-to-text/types'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/experimental-speech-to-text'
+import type {} from '@qilin-agent/subprocess'
+import type { SpeechProviderId } from '@qilin-agent/experimental-speech-to-text/types'
 import { Config } from './config.ts'
 import { SenseVoiceWorker } from './recognizer.ts'
 import { languages } from './input.ts'

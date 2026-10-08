@@ -20,12 +20,12 @@
  * time stays uncounted in every time figure — matching the window, which
  * renders it as an untimed interrupted node.
  *
- * @module @qilin/session-stats/projection
+ * @module @qilin-agent/session-stats/projection
  */
 
 import { z } from 'zod'
-import { assistantStreamFirstTokenTime } from '@qilin/llm'
-import type { ProjectionDefinition } from '@qilin/session-projection'
+import { assistantStreamFirstTokenTime } from '@qilin-agent/llm'
+import type { ProjectionDefinition } from '@qilin-agent/session-projection'
 
 
 /** Accumulated whole-log figures (the view is exactly these totals). */
@@ -63,7 +63,7 @@ interface SessionStatsState extends SessionStatsTotals {
   pendingCalls: Record<string, number>
 }
 
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionStateMap {
     sessionStats: SessionStatsState
   }

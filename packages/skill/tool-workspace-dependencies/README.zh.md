@@ -3,7 +3,7 @@ description: "load_workspace_dependencies 工具：返回随包 Python、Node.js
 kind: "package-reference"
 ---
 
-# @qilin/tool-workspace-dependencies
+# @qilin-agent/tool-workspace-dependencies
 
 [English](README.md) | 中文
 
@@ -25,12 +25,12 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-将本插件与 payload 目录一同挂载到工具注册表旁。配置校验要求 `source` 非空，并在激活前拒绝空的 `root`；两个路径都必须为绝对路径。随包的 Office skills（`@qilin/skill-office`）按名称调用本工具以取得默认解释器。
+将本插件与 payload 目录一同挂载到工具注册表旁。配置校验要求 `source` 非空，并在激活前拒绝空的 `root`；两个路径都必须为绝对路径。随包的 Office skills（`@qilin-agent/skill-office`）按名称调用本工具以取得默认解释器。
 
 ### 最小配置
 
 ```yaml
-- name: '@qilin/tool-workspace-dependencies'
+- name: '@qilin-agent/tool-workspace-dependencies'
   config:
     source: /path/to/primary-runtime
 ```
@@ -46,7 +46,7 @@ kind: "package-reference"
 
 ### 载体启用
 
-`sdk` profile 仅在存在载体路径时挂载本工具与 `@qilin/skill-office`。部署方声明下面两个环境变量之一；两者都未设置时，两行保持禁用，也不会读取任何 payload。
+`sdk` profile 仅在存在载体路径时挂载本工具与 `@qilin-agent/skill-office`。部署方声明下面两个环境变量之一；两者都未设置时，两行保持禁用，也不会读取任何 payload。
 
 | 环境变量 | 含义 |
 |---|---|
@@ -104,7 +104,7 @@ kind: "package-reference"
 
 #### 模型看到什么
 
-模型看到生成的 [`load_workspace_dependencies` schema](../../../docs/tool-catalog.zh.md#qilintool-workspace-dependencies)。
+模型看到生成的 [`load_workspace_dependencies` schema](../../../docs/tool-catalog.zh.md#qilin-agenttool-workspace-dependencies)。
 
 #### Token 影响
 

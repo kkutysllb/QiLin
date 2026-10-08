@@ -35,7 +35,7 @@
 # layer stacks over whichever palette the user selected in Settings.
 - insert:
     - id: ui-brand
-      name: '@qilin/client-ui-brand'
+      name: '@qilin-agent/client-ui-brand'
 
     - id: ui-theme-brand
-      name: '@qilin/client-ui-theme-brand'
+      name: '@qilin-agent/client-ui-theme-brand'

@@ -5,9 +5,9 @@ import {
   Session,
   SessionId,
   SessionLogOffset,
-} from '@qilin/session'
-import type { SessionEvent, SessionHeader } from '@qilin/session'
-import type { SessionFormatArtifact, SessionFormatHeader } from '@qilin/session-format'
+} from '@qilin-agent/session'
+import type { SessionEvent, SessionHeader } from '@qilin-agent/session'
+import type { SessionFormatArtifact, SessionFormatHeader } from '@qilin-agent/session-format'
 import { currentSessionMessageProjections } from './message-projections.ts'
 
 /**

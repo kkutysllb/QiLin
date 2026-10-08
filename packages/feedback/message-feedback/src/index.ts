@@ -1,21 +1,21 @@
 /**
  * Canonical Session-log feedback for finalized assistant messages.
- * @module @qilin/message-feedback
+ * @module @qilin-agent/message-feedback
  */
 
 import { Buffer } from 'node:buffer'
 import { randomUUID } from 'node:crypto'
 import { isDeepStrictEqual } from 'node:util'
-import { Context, Service } from '@qilin/kylin'
-import s from '@qilin/schemastery'
+import { Context, Service } from '@qilin-agent/kylin'
+import s from '@qilin-agent/schemastery'
 import { z } from 'zod'
-import { FEEDBACK_CATEGORIES } from '@qilin/command-feedback'
-import { SessionSeq } from '@qilin/session/types'
-import { deriveEventMessage, isAppendSurfaceEvent } from '@qilin/session/surface'
-import type { SessionEvent, SessionId } from '@qilin/session/types'
-import type {} from '@qilin/session'
-import type { SessionInspection } from '@qilin/session-persistence'
-import { TypertRemoteService, Remote } from '@qilin/typert-protocol'
+import { FEEDBACK_CATEGORIES } from '@qilin-agent/command-feedback'
+import { SessionSeq } from '@qilin-agent/session/types'
+import { deriveEventMessage, isAppendSurfaceEvent } from '@qilin-agent/session/surface'
+import type { SessionEvent, SessionId } from '@qilin-agent/session/types'
+import type {} from '@qilin-agent/session'
+import type { SessionInspection } from '@qilin-agent/session-persistence'
+import { TypertRemoteService, Remote } from '@qilin-agent/typert-protocol'
 import type {
   MessageFeedbackDeleteRequest,
   MessageFeedbackDeleteResult,
@@ -42,7 +42,7 @@ export interface Config {
   readonly maxNoteBytes: number
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     messageFeedback: MessageFeedbackService
   }

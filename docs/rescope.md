@@ -2,23 +2,23 @@
 
 English | [中文](rescope.zh.md)
 
-The Cordis framework and its foundation libraries are vendored under [`vendor/`](../vendor/README.md) and published under our owned scopes — the framework family as **Kylin** under `@qilin`, the foundation libraries under `@deepseek-ai` — because every harness package declares the framework as a peer dependency: publishing the harness publishes this layer with it, and under the upstream names that publication would squat them on the registry. This page is the name mapping; the decision and its consequences live in the [rescope Agent Note](../.agents/notes/archived/process/2026-08-10-vendor-package-rescope.md), and the upstream commits in [`vendor/README.md`](../vendor/README.md).
+The Cordis framework and its foundation libraries are vendored under [`vendor/`](../vendor/README.md) and published under our owned scopes — the framework family as **Kylin** under `@qilin-agent`, the foundation libraries under `@deepseek-ai` — because every harness package declares the framework as a peer dependency: publishing the harness publishes this layer with it, and under the upstream names that publication would squat them on the registry. This page is the name mapping; the decision and its consequences live in the [rescope Agent Note](../.agents/notes/archived/process/2026-08-10-vendor-package-rescope.md), and the upstream commits in [`vendor/README.md`](../vendor/README.md).
 
 ## Name mapping
 
 | Directory | Upstream name | Published name | Upstream version | Role |
 |---|---|---|---|---|
-| `vendor/cordis/` | `cordis` | `@qilin/kylin` | 4.0.0-rc.7 | Framework core: `Context`, `Service`, `Fiber`, events |
-| `vendor/cosmokit/` | `cosmokit` | `@qilin/cosmokit` | 1.8.1 | Shared utilities the framework and Schemastery build on |
-| `vendor/schemastery/` | `schemastery` | `@qilin/schemastery` | 3.18.0 | Config schemas (`Schema`) behind every plugin's `Config` |
-| `vendor/loader/` | `@cordisjs/plugin-loader` | `@qilin/kylin-plugin-loader` | 1.0.0-rc.5 | `cordis.yml` loading, plugin resolution, repository cache |
-| `vendor/include/` | `@cordisjs/plugin-include` | `@qilin/kylin-plugin-include` | 1.0.4 | Config includes and patch overlays |
-| `vendor/group/` | `@cordisjs/plugin-group` | `@qilin/kylin-plugin-group` | 1.0.0 | Nested plugin groups |
-| `vendor/timer/` | `@cordisjs/plugin-timer` | `@qilin/kylin-plugin-timer` | 1.1.2 | Disposal-aware timers on `ctx` |
-| `vendor/hmr/` | `@cordisjs/plugin-hmr` | `@qilin/kylin-plugin-hmr` | 1.0.15 | Hot module replacement for plugins and config |
-| `vendor/logger-console/` | `@cordisjs/plugin-logger-console` | `@qilin/kylin-plugin-logger-console` | 1.0.0 | Console logger exporter |
+| `vendor/cordis/` | `cordis` | `@qilin-agent/kylin` | 4.0.0-rc.7 | Framework core: `Context`, `Service`, `Fiber`, events |
+| `vendor/cosmokit/` | `cosmokit` | `@qilin-agent/cosmokit` | 1.8.1 | Shared utilities the framework and Schemastery build on |
+| `vendor/schemastery/` | `schemastery` | `@qilin-agent/schemastery` | 3.18.0 | Config schemas (`Schema`) behind every plugin's `Config` |
+| `vendor/loader/` | `@cordisjs/plugin-loader` | `@qilin-agent/kylin-plugin-loader` | 1.0.0-rc.5 | `cordis.yml` loading, plugin resolution, repository cache |
+| `vendor/include/` | `@cordisjs/plugin-include` | `@qilin-agent/kylin-plugin-include` | 1.0.4 | Config includes and patch overlays |
+| `vendor/group/` | `@cordisjs/plugin-group` | `@qilin-agent/kylin-plugin-group` | 1.0.0 | Nested plugin groups |
+| `vendor/timer/` | `@cordisjs/plugin-timer` | `@qilin-agent/kylin-plugin-timer` | 1.1.2 | Disposal-aware timers on `ctx` |
+| `vendor/hmr/` | `@cordisjs/plugin-hmr` | `@qilin-agent/kylin-plugin-hmr` | 1.0.15 | Hot module replacement for plugins and config |
+| `vendor/logger-console/` | `@cordisjs/plugin-logger-console` | `@qilin-agent/kylin-plugin-logger-console` | 1.0.0 | Console logger exporter |
 
-Subpath exports keep their path: `@cordisjs/plugin-loader/repository` becomes `@qilin/kylin-plugin-loader/repository`.
+Subpath exports keep their path: `@cordisjs/plugin-loader/repository` becomes `@qilin-agent/kylin-plugin-loader/repository`.
 
 ## What the rename does not touch
 
@@ -26,7 +26,7 @@ Subpath exports keep their path: `@cordisjs/plugin-loader/repository` becomes `@
 - **Dependency ranges.** Renaming changes dependency keys without changing ranges. Workspace manifests use `workspace:^` for repository-owned runtime dependencies, so pnpm resolves the pinned local packages and substitutes release ranges when publishing.
 - **The Loader's `cordis:` builtin prefix.** `cordis:include` and `cordis:group` are a protocol prefix, not a package name.
 - **The `cordis.yml` configuration family**, including `*.cordis.yml`, `*.cordis.snapshot.yml`, and `cordis.patch.yml`.
-- **Harness packages whose own names contain the word**, such as `@qilin/tool-kylin`.
+- **Harness packages whose own names contain the word**, such as `@qilin-agent/tool-kylin`.
 - **Upstream runtime identifiers**, such as Schemastery's `Symbol.for('schemastery')` and its `vendor:` metadata field.
 - **Prose outside `docs/`.** `vendor/*/README.md`, package READMEs, and Agent Notes keep the names they were written with; a bare `cordis` there can also be the Python SDK's option name or an agent-preset id. Inside `docs/`, prose and every Markdown fence follow the rename.
 
@@ -34,10 +34,10 @@ Subpath exports keep their path: `@cordisjs/plugin-loader/repository` becomes `@
 
 | Site | Before | After |
 |---|---|---|
-| Module import | `import { Context } from 'cordis'` | `import { Context } from '@qilin/kylin'` |
-| Typed-event merge | `declare module 'cordis'` | `declare module '@qilin/kylin'` |
-| `package.json` dependency key | `"@cordisjs/plugin-hmr": "^1.0.15"` | `"@qilin/kylin-plugin-hmr": "^1.0.15"` |
-| `cordis.yml` plugin entry | `name: '@cordisjs/plugin-include'` | `name: '@qilin/kylin-plugin-include'` |
+| Module import | `import { Context } from 'cordis'` | `import { Context } from '@qilin-agent/kylin'` |
+| Typed-event merge | `declare module 'cordis'` | `declare module '@qilin-agent/kylin'` |
+| `package.json` dependency key | `"@cordisjs/plugin-hmr": "^1.0.15"` | `"@qilin-agent/kylin-plugin-hmr": "^1.0.15"` |
+| `cordis.yml` plugin entry | `name: '@cordisjs/plugin-include'` | `name: '@qilin-agent/kylin-plugin-include'` |
 
 ## Applying, verifying, and reverting
 

@@ -1,8 +1,8 @@
-import { Context } from '@qilin/kylin'
-import AgentRegistry from '@qilin/agent'
-import type { Agent } from '@qilin/agent'
-import { unsupportedInbox } from '@qilin/agent-loop-testkit'
-import { Session, SessionId } from '@qilin/session'
+import { Context } from '@qilin-agent/kylin'
+import AgentRegistry from '@qilin-agent/agent'
+import type { Agent } from '@qilin-agent/agent'
+import { unsupportedInbox } from '@qilin-agent/agent-loop-testkit'
+import { Session, SessionId } from '@qilin-agent/session'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { SessionResources } from '../src/index.ts'
 

@@ -9,11 +9,11 @@
  */
 import { vi } from 'vitest'
 import type { Mock } from 'vitest'
-import type { RemoteResult } from '@qilin/api-remotes/client'
-import type { SessionId } from '@qilin/session/types'
+import type { RemoteResult } from '@qilin-agent/api-remotes/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import type {
   GhAuthStatus, GhCreatedPr, GhPr, GitBranches, GitLogEntry, GitStatus,
-} from '@qilin/api-workspace-git/types'
+} from '@qilin-agent/api-workspace-git/types'
 import type { WorkspaceGitRemote } from '../src/client/face.ts'
 
 /** The void-result answers every mutation method returns on success. */

@@ -2,11 +2,11 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { VideoBody, type VideoBodyProps } from '../src/client/video/VideoBody.tsx'
-import { makeTranslate } from '@qilin/client-test-runtime'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
 import { zh } from '../src/client/video/locales.ts'
 import type { DocumentBodyOwner, DocumentContent } from '../src/client/document/contract.ts'
-import type { SidebarRightTabInfo } from '@qilin/client-ui-sidebar-right/client'
-import type { PaneId, TabId } from '@qilin/client-ui-dockkit'
+import type { SidebarRightTabInfo } from '@qilin-agent/client-ui-sidebar-right/client'
+import type { PaneId, TabId } from '@qilin-agent/client-ui-dockkit'
 
 const t = makeTranslate(zh, zh)
 

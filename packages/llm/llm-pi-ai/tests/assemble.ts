@@ -5,9 +5,9 @@
  * one-shot convenience method.
  */
 
-import { BlockAssembler } from '@qilin/llm'
-import type { Context } from '@qilin/kylin'
-import type { FinishReason, GenerateOptions, Message, TokenUsage } from '@qilin/llm'
+import { BlockAssembler } from '@qilin-agent/llm'
+import type { Context } from '@qilin-agent/kylin'
+import type { FinishReason, GenerateOptions, Message, TokenUsage } from '@qilin-agent/llm'
 
 export interface AssembledResult {
   message: Message

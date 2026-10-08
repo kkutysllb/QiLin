@@ -1,12 +1,12 @@
 import { useId, useState } from 'react'
-import type { Context } from '@qilin/kylin'
-import type { PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
+import type { Context } from '@qilin-agent/kylin'
+import type { PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 // The domain's client-namespace pure-type outlet: one import edge delivers
 // the `todos` projection-key merge (single source, no consumer-side restated
 // declare) and the payload type. Type-only by construction — the outlet is
 // free of host value imports, so no host Context merge enters this program.
-import type { TodoItem } from '@qilin/tool-todo/client'
-import { IconChecklistOutline14, IconChevronDownOutline14, IconChevronUpOutline14 } from '@qilin/client-ui-primitives'
+import type { TodoItem } from '@qilin-agent/tool-todo/client'
+import { IconChecklistOutline14, IconChevronDownOutline14, IconChevronUpOutline14 } from '@qilin-agent/client-ui-primitives'
 import { NS } from '../locales.ts'
 import css from './TodoPanel.module.css'
 

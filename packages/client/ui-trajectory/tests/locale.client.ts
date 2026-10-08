@@ -1,5 +1,5 @@
-import { en as commonEn } from '@qilin/client-locale/src/locales/en.ts'
-import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
+import { en as commonEn } from '@qilin-agent/client-locale/src/locales/en.ts'
+import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 import { en, zh, type TrajectoryTranslate } from '../src/client/locales.ts'
 
 function translator(dictionary: Record<string, string>): TrajectoryTranslate {

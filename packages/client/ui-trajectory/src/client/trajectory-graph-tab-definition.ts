@@ -4,15 +4,15 @@
  * The type is a page, not a viewer: it claims no address. It opens by kind from
  * the guide page's entry box, and it sits beside the ledger type it draws.
  */
-import type { TranslateNS } from '@qilin/client-locale/client'
-import type { SidebarRightTabDefinition } from '@qilin/client-ui-sidebar-right/client'
-import { IconShareOutline16 } from '@qilin/client-ui-primitives'
+import type { TranslateNS } from '@qilin-agent/client-locale/client'
+import type { SidebarRightTabDefinition } from '@qilin-agent/client-ui-sidebar-right/client'
+import { IconShareOutline16 } from '@qilin-agent/client-ui-primitives'
 
 /** The tab kind this package owns under the graph implementation; ctx.sidebarRight.openTab names it. */
 export const TRAJECTORY_GRAPH_KIND = 'trajectory-graph'
 
 /** The graph implementation's identity in the tab system, and the key its body registers under. */
-export const TRAJECTORY_GRAPH_ID = '@qilin/client-ui-trajectory/graph'
+export const TRAJECTORY_GRAPH_ID = '@qilin-agent/client-ui-trajectory/graph'
 
 /**
  * The trajectory-graph type's registry definition.

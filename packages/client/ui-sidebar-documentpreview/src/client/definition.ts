@@ -8,15 +8,15 @@
  * refuses an address `parseFileAddress` rejects or that has no Session at claim time, where an
  * unclaimed address is the documented wiring error.
  */
-import type { SidebarRightTabDefinition } from '@qilin/client-ui-sidebar-right/client'
-import type { TranslateNS } from '@qilin/client-locale/client'
-import { parseFileAddress } from '@qilin/util-workspace-path'
+import type { SidebarRightTabDefinition } from '@qilin-agent/client-ui-sidebar-right/client'
+import type { TranslateNS } from '@qilin-agent/client-locale/client'
+import { parseFileAddress } from '@qilin-agent/util-workspace-path'
 
 /** The tab kind this package owns. */
 export const TEXTPREVIEW_KIND = 'text'
 
 /** This implementation's identity in the tab system: the key its body registers under. */
-export const TEXTPREVIEW_ID = '@qilin/client-ui-sidebar-documentpreview'
+export const TEXTPREVIEW_ID = '@qilin-agent/client-ui-sidebar-documentpreview'
 
 /**
  * The tab title for one `file:` address: its decoded basename.

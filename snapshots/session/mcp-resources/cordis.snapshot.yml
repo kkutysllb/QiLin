@@ -3,7 +3,7 @@
 
 - insert:
     - id: llm-replay
-      name: '@qilin/llm-replay'
+      name: '@qilin-agent/llm-replay'
       config:
         providers:
           - id: deepseek-official
@@ -17,7 +17,7 @@
 
 - insert:
     - id: mcp-resource-catalog
-      name: '@qilin/mcp-client'
+      name: '@qilin-agent/mcp-client'
       config:
         transport: stdio
         serverName: catalog

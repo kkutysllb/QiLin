@@ -1,7 +1,7 @@
 /** Display labels and toast sentences for global plugin management. */
 
-import type { IncompatiblePlugin, ManagementError, Registry } from '@qilin/api-remotes/client'
-import type { PropsLocale } from '@qilin/client-ui-slots'
+import type { IncompatiblePlugin, ManagementError, Registry } from '@qilin-agent/api-remotes/client'
+import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import type { PluginManagerLocaleKey } from './locales.ts'
 import type { FailedAction, ManagerNotice, PackageView, PluginManagerFace } from './manager-store.ts'
 
@@ -10,16 +10,16 @@ export type Translate = PropsLocale<'pluginManager'>['t']
 
 /** The official packages with copy of their own, and whether each is a beta feature the page tags as such. */
 const BUILTIN_COPY = new Map<string, { title: PluginManagerLocaleKey; description: PluginManagerLocaleKey; beta: boolean }>([
-  ['@qilin/experimental-agent-team-profile', {
+  ['@qilin-agent/experimental-agent-team-profile', {
     title: 'builtinAgentTeamTitle', description: 'builtinAgentTeamDescription', beta: true,
   }],
-  ['@qilin/experimental-auto-review', {
+  ['@qilin-agent/experimental-auto-review', {
     title: 'builtinAutoReviewTitle', description: 'builtinAutoReviewDescription', beta: true,
   }],
-  ['@qilin/experimental-voice-input-bundle', {
+  ['@qilin-agent/experimental-voice-input-bundle', {
     title: 'builtinVoiceInputTitle', description: 'builtinVoiceInputDescription', beta: true,
   }],
-  ['@qilin/experimental-inspector-profile', {
+  ['@qilin-agent/experimental-inspector-profile', {
     title: 'builtinDevtoolsTitle', description: 'builtinDevtoolsDescription', beta: true,
   }],
 ])

@@ -4,7 +4,7 @@
   - paragraph: 输入插件的包名、GitHub 仓库地址或本地目录路径。
   - text: 包名或地址
   - textbox "包名或地址":
-    - /placeholder: 例如 @qilin/experimental-auto-review
+    - /placeholder: 例如 @qilin-agent/experimental-auto-review
     - text: slow-package
   - button "安装源 默认安装源"
   - button "不知道该填什么？"

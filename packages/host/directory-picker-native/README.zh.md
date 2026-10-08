@@ -3,7 +3,7 @@ description: "目录选择 seam 的原生 OS 选择器后端：为坐在 web GUI
 kind: "package-reference"
 ---
 
-# @qilin/host-directory-picker-native
+# @qilin-agent/host-directory-picker-native
 
 [English](README.md) | 中文
 

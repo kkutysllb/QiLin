@@ -3,7 +3,7 @@ description: "Attachment presentation for the conversation UI: mixed draft-attac
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-attachment
+# @qilin-agent/client-ui-attachment
 
 English | [中文](README.zh.md)
 

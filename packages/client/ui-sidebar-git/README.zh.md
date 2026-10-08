@@ -3,13 +3,13 @@ description: "qilin web 客户端右侧 Sidebar 的 Git 面板 tab 类型：分�
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-sidebar-git
+# @qilin-agent/client-ui-sidebar-git
 
 [English](README.md) | 中文
 
 ## 概述
 
-右侧 Sidebar 的源代码管理面板：一个从引导页进入的 `git` 页面，展示工作区根目录下的仓库。头部携带分支与上游位置，旁边是拉取、推送与刷新；变更按未暂存、已暂存、未跟踪分组，每行有自己的上下文菜单；点击一行在下方打开该文件的内联差异；提交框按全部暂存语义提交；历史节按最新在前分页读取提交，并可将一行展开为该提交的补丁；分支列表支持检出与新建；GitHub 节在 `gh` 可应答时列出、创建并合并拉取请求。一切走 `@qilin/api-workspace-git` Remote 命名空间。
+右侧 Sidebar 的源代码管理面板：一个从引导页进入的 `git` 页面，展示工作区根目录下的仓库。头部携带分支与上游位置，旁边是拉取、推送与刷新；变更按未暂存、已暂存、未跟踪分组，每行有自己的上下文菜单；点击一行在下方打开该文件的内联差异；提交框按全部暂存语义提交；历史节按最新在前分页读取提交，并可将一行展开为该提交的补丁；分支列表支持检出与新建；GitHub 节在 `gh` 可应答时列出、创建并合并拉取请求。一切走 `@qilin-agent/api-workspace-git` Remote 命名空间。
 
 ## 目录
 
@@ -26,8 +26,8 @@ kind: "package-reference"
 <a id="what-it-registers"></a>
 ## 注册内容
 
-- **`git` 类型** — `ctx.sidebarRightTabs.register(...)`：kind 为 `git`，id 为 `@qilin/client-ui-sidebar-git`，`builtin` 档，无 patterns，引导页一条目（order 20，标题与描述来自 `sidebarGit` 命名空间，图形是共享的分支图标）打开该类型。每个 surface 一个面板：声明 `single: true`。
-- **正文与 chip 标题** — `@qilin/client-ui-sidebar-git` 名下键控的 `sidebar.right.pane.tab` 与 `sidebar.right.pane.tab.title` 两个座位：面板本身，以及 chip 里标题前的分支图形。
+- **`git` 类型** — `ctx.sidebarRightTabs.register(...)`：kind 为 `git`，id 为 `@qilin-agent/client-ui-sidebar-git`，`builtin` 档，无 patterns，引导页一条目（order 20，标题与描述来自 `sidebarGit` 命名空间，图形是共享的分支图标）打开该类型。每个 surface 一个面板：声明 `single: true`。
+- **正文与 chip 标题** — `@qilin-agent/client-ui-sidebar-git` 名下键控的 `sidebar.right.pane.tab` 与 `sidebar.right.pane.tab.title` 两个座位：面板本身，以及 chip 里标题前的分支图形。
 
 两个座位共享每会话一个 store 实例，按 tab id 分桶；浏览器半边在 `src/client/` 下：`definition.tsx`（类型是什么）、`store.ts`（留下什么）、`face.ts`（如何请求 `workspaceGit` 命名空间，带代次守卫）、`git-model.ts`（分组、角标、差异行、提交时间与失败文案的纯计算）、`GitBody.tsx` 与 `GitTitle.tsx`（画什么）、`locales.ts`（说什么）、`index.ts`（接线）。
 

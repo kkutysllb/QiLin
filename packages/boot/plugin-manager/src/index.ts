@@ -4,22 +4,22 @@ import { existsSync, readFileSync } from 'node:fs'
 import { readFile, rm } from 'node:fs/promises'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { withFileLock, writeFileAtomic } from '@qilin/atomic-write'
-import { Context } from '@qilin/kylin'
-import type { EntryOptions } from '@qilin/kylin-plugin-loader'
-import type { PatchOptions } from '@qilin/kylin-plugin-include'
-import z from '@qilin/schemastery'
-import { TypertRemoteService, Remote } from '@qilin/typert-protocol'
-import { pluginEntryId, readPluginInventory } from '@qilin/host-plugin-inventory'
+import { withFileLock, writeFileAtomic } from '@qilin-agent/atomic-write'
+import { Context } from '@qilin-agent/kylin'
+import type { EntryOptions } from '@qilin-agent/kylin-plugin-loader'
+import type { PatchOptions } from '@qilin-agent/kylin-plugin-include'
+import z from '@qilin-agent/schemastery'
+import { TypertRemoteService, Remote } from '@qilin-agent/typert-protocol'
+import { pluginEntryId, readPluginInventory } from '@qilin-agent/host-plugin-inventory'
 import {
   readPluginMeta, readProfileManifest, resolveBundleDir, loadOverlayPatches, composeEntries, reconcileProfilePatches,
   readProfilePatches, OPTIONAL_BUNDLES, PROFILE_TEMPLATES, profileLayerUpdatable,
   evaluatePluginCompatibility, readProfileCompatibility, readProfileVersionExemptions, setProfileVersionExemption,
   PROFILE_COMPATIBILITY_FILENAME,
-} from '@qilin/app-boot'
-import { bundlePatchOf } from '@qilin/dsh-compat'
-import type {} from '@qilin/hmr'
-import type { ProfileContext, ProfileManifest } from '@qilin/app-boot'
+} from '@qilin-agent/app-boot'
+import { bundlePatchOf } from '@qilin-agent/dsh-compat'
+import type {} from '@qilin-agent/hmr'
+import type { ProfileContext, ProfileManifest } from '@qilin-agent/app-boot'
 import {
   bundleManifest, readProfileRegistry, registryArguments, runProfilePnpm, saveManifest, viewProfilePackage,
 } from './operations.ts'
@@ -63,15 +63,15 @@ export interface Config {
 }
 
 const protectedModules = new Set([
-  '@qilin/plugin-manager', '@qilin/kylin-plugin-loader',
-  '@qilin/kylin-plugin-include', '@qilin/api-gateway',
-  '@qilin/host-webserver', '@qilin/client-modules',
-  '@qilin/client-ui-settings-plugin-inventory', '@qilin/client-ui-plugin-manager',
-  '@qilin/host-plugin-inventory', '@qilin/typert-registry',
-  '@qilin/api-remotes',
-  '@qilin/kylin-plugin-timer', '@qilin/client-connection',
-  '@qilin/host-frontend-static', '@qilin/tools',
-  '@qilin/hmr',
+  '@qilin-agent/plugin-manager', '@qilin-agent/kylin-plugin-loader',
+  '@qilin-agent/kylin-plugin-include', '@qilin-agent/api-gateway',
+  '@qilin-agent/host-webserver', '@qilin-agent/client-modules',
+  '@qilin-agent/client-ui-settings-plugin-inventory', '@qilin-agent/client-ui-plugin-manager',
+  '@qilin-agent/host-plugin-inventory', '@qilin-agent/typert-registry',
+  '@qilin-agent/api-remotes',
+  '@qilin-agent/kylin-plugin-timer', '@qilin-agent/client-connection',
+  '@qilin-agent/host-frontend-static', '@qilin-agent/tools',
+  '@qilin-agent/hmr',
 ])
 
 /** The profile files an installation writes and a failed or cancelled one restores. */
@@ -178,7 +178,7 @@ function parsedForRegistry(spec: string): ParsedInstallSpec {
   }
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Persistent management of the current profile's composition and packages. */
     pluginManager: PluginManager

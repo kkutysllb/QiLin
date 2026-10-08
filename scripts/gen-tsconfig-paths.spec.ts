@@ -16,27 +16,27 @@ describe('generated tsconfig package aliases', () => {
   it('maps each package to its own source directory', () => {
     const aliases = collectPackageAliases()
     expect(aliases.length).toBeGreaterThan(100)
-    const session = aliases.find(alias => alias.specifier === '@qilin/session')
+    const session = aliases.find(alias => alias.specifier === '@qilin-agent/session')
     expect(session).toEqual({
-      specifier: '@qilin/session',
+      specifier: '@qilin-agent/session',
       source: './packages/core/session/src',
     })
     // Sorted, so a package added anywhere lands in a stable spot in the diff.
     expect([...aliases].sort((a, b) => a.specifier.localeCompare(b.specifier))).toEqual(aliases)
     // Only packages named after their directory: the rest carry hand-written
     // aliases, because the removed wildcards could never have resolved them.
-    expect(aliases.some(alias => alias.specifier === '@qilin/typert-protocol')).toBe(false)
+    expect(aliases.some(alias => alias.specifier === '@qilin-agent/typert-protocol')).toBe(false)
   })
 
   it('yields to a hand-written alias and closes without a trailing comma', () => {
     const aliases = [
-      { specifier: '@qilin/a', source: './packages/g/a/src' },
-      { specifier: '@qilin/b', source: './packages/g/b/src' },
+      { specifier: '@qilin-agent/a', source: './packages/g/a/src' },
+      { specifier: '@qilin-agent/b', source: './packages/g/b/src' },
     ]
-    const body = renderAliases(aliases, new Set(['@qilin/a']))
+    const body = renderAliases(aliases, new Set(['@qilin-agent/a']))
 
     // The hand-written bare alias is skipped; the generated one is kept.
-    expect(body).toBe('      "@qilin/b": ["./packages/g/b/src"]')
+    expect(body).toBe('      "@qilin-agent/b": ["./packages/g/b/src"]')
     expect(body.endsWith(',')).toBe(false)
   })
 
@@ -67,11 +67,11 @@ describe('generated tsconfig package aliases', () => {
     // directory is skipped by the generator, so without this check it would
     // resolve through the workspace symlink to built lib/types instead.
     expect(uncoveredPackages(
-      ['@qilin/a', '@qilin/b'],
-      new Set(['@qilin/a', '@qilin/a/invariant']),
-    )).toEqual(['@qilin/b'])
+      ['@qilin-agent/a', '@qilin-agent/b'],
+      new Set(['@qilin-agent/a', '@qilin-agent/a/invariant']),
+    )).toEqual(['@qilin-agent/b'])
 
-    expect(uncoveredPackages(['@qilin/a'], new Set(['@qilin/a']))).toEqual([])
+    expect(uncoveredPackages(['@qilin-agent/a'], new Set(['@qilin-agent/a']))).toEqual([])
   })
 
   it('covers every workspace package in the committed config', () => {
@@ -79,7 +79,7 @@ describe('generated tsconfig package aliases', () => {
     // Includes the packages the generator skips because their name does not
     // match their directory: those carry hand-written aliases.
     const names = collectPackageNames()
-    expect(names).toContain('@qilin/typert-protocol')
+    expect(names).toContain('@qilin-agent/typert-protocol')
     expect(uncoveredPackages(names, mappedSpecifiers(config))).toEqual([])
   })
 
@@ -88,7 +88,7 @@ describe('generated tsconfig package aliases', () => {
     // These two listed one candidate per group, so resolving a package late in
     // the list cost a filesystem probe — and under tsx a decorated module
     // error — for every group before it.
-    expect(config).not.toContain('"@qilin/*":')
-    expect(config).not.toContain('"@qilin/*/invariant":')
+    expect(config).not.toContain('"@qilin-agent/*":')
+    expect(config).not.toContain('"@qilin-agent/*/invariant":')
   })
 })

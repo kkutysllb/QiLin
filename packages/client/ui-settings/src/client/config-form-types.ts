@@ -2,7 +2,7 @@
  * Client configuration values and atomic write operations.
  */
 
-import type { SettingsPathOpView } from '@qilin/api-remotes/client'
+import type { SettingsPathOpView } from '@qilin-agent/api-remotes/client'
 
 /** Client-side sync state of one settings namespace. */
 export interface ConfigFormSnapshot<T> {

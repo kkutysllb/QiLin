@@ -3,7 +3,7 @@ description: "对话 UI 的附件呈现：混合草稿附件栏、文档拖放�
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-attachment
+# @qilin-agent/client-ui-attachment
 
 [English](README.md) | 中文
 

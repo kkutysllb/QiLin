@@ -1,8 +1,8 @@
 /** Model catalog and request-local dependencies for DeepSeek Messages. */
-import type { LlmModelInfo, ModelModality, SystemPromptUpdate, ToolUpdate, ResolvedRetryPolicy, ImageAttachmentAccess } from '@qilin/llm'
-import type { AttachmentStore, ImageAttachmentRef } from '@qilin/attachment'
-import type { AnonymousUserId } from '@qilin/anonymous-user-id'
-import type { DeepSeekLlmApiExtensionRequest, PreparedDeepSeekLlmApiExtensions } from '@qilin/deepseek-llm-api-extensions'
+import type { LlmModelInfo, ModelModality, SystemPromptUpdate, ToolUpdate, ResolvedRetryPolicy, ImageAttachmentAccess } from '@qilin-agent/llm'
+import type { AttachmentStore, ImageAttachmentRef } from '@qilin-agent/attachment'
+import type { AnonymousUserId } from '@qilin-agent/anonymous-user-id'
+import type { DeepSeekLlmApiExtensionRequest, PreparedDeepSeekLlmApiExtensions } from '@qilin-agent/deepseek-llm-api-extensions'
 import type { DeepSeekFileStore, DeepSeekFilePolicy } from './file-store.ts'
 
 /** One optional model entry advertised by the direct-fetch adapter. */

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import SystemPrompt from '@qilin/system-prompt'
+import { Context } from '@qilin-agent/kylin'
+import SystemPrompt from '@qilin-agent/system-prompt'
 import {
   agentEvents,
   installModelSelection,
@@ -13,8 +13,8 @@ import {
   ReasoningEffortId,
   type LlmCallConfig,
   type UserMessage,
-} from '@qilin/llm'
-import { Session, SessionId } from '@qilin/session'
+} from '@qilin-agent/llm'
+import { Session, SessionId } from '@qilin-agent/session'
 
 const SIGNAL = new AbortController().signal
 const INPUT = createUserMessage({

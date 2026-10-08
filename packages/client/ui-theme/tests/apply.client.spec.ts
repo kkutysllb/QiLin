@@ -1,14 +1,14 @@
 /** ui-theme apply wiring: service provision, settings dictionaries riding the
  * locale service, declaration-aware Appearance row registration, snapshot
  * projection into the row store, and HMR collapse recovery. */
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import { LocaleRuntime } from '@qilin/client-locale/client'
-import { TestRemote } from '@qilin/client-test-runtime'
-import { apply as settingsApply, inject as settingsInject } from '@qilin/client-ui-settings/client'
-import { apply, inject, SETTINGS_NS } from '@qilin/client-ui-theme/client'
-import type { AppearanceRowInjected, FontSizeRowInjected, LineSpacingRowInjected, ThemeRuntime } from '@qilin/client-ui-theme/client'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
+import { TestRemote } from '@qilin-agent/client-test-runtime'
+import { apply as settingsApply, inject as settingsInject } from '@qilin-agent/client-ui-settings/client'
+import { apply, inject, SETTINGS_NS } from '@qilin-agent/client-ui-theme/client'
+import type { AppearanceRowInjected, FontSizeRowInjected, LineSpacingRowInjected, ThemeRuntime } from '@qilin-agent/client-ui-theme/client'
 import { THEME_SETTINGS_NAMESPACE, ThemeSettingsSchema } from '../src/theme-settings.ts'
 import { AppearanceRow } from '../src/client/AppearanceRow.tsx'
 import { FontSizeRow } from '../src/client/FontSizeRow.tsx'

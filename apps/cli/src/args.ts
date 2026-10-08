@@ -5,14 +5,14 @@
  * patch overlays to apply, and the config dumps — and hands **everything after
  * its own flags** to the booted tree verbatim, where injected app plugins parse
  * their own flag families and print their own `--help` (see
- * `@qilin/cmdline`). Launcher flags therefore come first: the first
+ * `@qilin-agent/cmdline`). Launcher flags therefore come first: the first
  * token this parser does not recognize starts the inner arguments, so
  * `qilin --profile tui --resume abc` boots the tui profile with `--resume abc`,
  * and `qilin --profile web -h` prints the web app's help, not this one's.
  *
  * `qilin <name>` abbreviates `qilin --profile <name>`; `plugin` manages a profile's
  * plugin dependencies by forwarding to pnpm.
- * @module @qilin/cli/args
+ * @module @qilin-agent/cli/args
  */
 
 import { Command, CommanderError, InvalidArgumentError } from 'commander'

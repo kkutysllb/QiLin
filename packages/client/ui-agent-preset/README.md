@@ -3,7 +3,7 @@ description: "Agent-preset surfaces for the Web GUI: picker visibility and defau
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-agent-preset
+# @qilin-agent/client-ui-agent-preset
 
 English | [中文](README.zh.md)
 

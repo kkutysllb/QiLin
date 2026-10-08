@@ -1,6 +1,6 @@
 - insert:
     - id: mcp-resource-catalog
-      name: '@qilin/mcp-client'
+      name: '@qilin-agent/mcp-client'
       config:
         transport: stdio
         serverName: catalog
@@ -11,6 +11,6 @@
           enabled: false
 
 - id: tools
-  name: '@qilin/tools'
+  name: '@qilin-agent/tools'
   config:
     mode: ptc

@@ -3,7 +3,7 @@ description: "Target-neutral conversation assembly and browser shell: event and 
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-conversation
+# @qilin-agent/client-ui-conversation
 
 English | [中文](README.zh.md)
 
@@ -94,9 +94,9 @@ interface ComposerChainProps {
 A business package may install one entry only while a Remote waterfall request is pending:
 
 ```tsx
-import type { ComposerChainProps } from '@qilin/client-ui-conversation/client'
-import type { ChainSelect, PropsRuntime } from '@qilin/client-ui-slots'
-import type { SessionId } from '@qilin/session/types'
+import type { ComposerChainProps } from '@qilin-agent/client-ui-conversation/client'
+import type { ChainSelect, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type { SessionId } from '@qilin-agent/session/types'
 
 interface Request {
   readonly sessionId: SessionId

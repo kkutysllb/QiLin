@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/loader-smoke",
+  "name": "@qilin-agent/loader-smoke",
   "description": "Shared subprocess and direct-agent harness for keyless real-Loader example smoke tests",
   "version": "3.1.1",
   "publishConfig": {
@@ -34,18 +34,18 @@
     "tsx": "^4.22.4"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/http-proxy": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/http-proxy": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/app-boot": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/http-proxy": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/app-boot": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/http-proxy": "workspace:*"
   }
 }

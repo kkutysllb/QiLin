@@ -2,15 +2,15 @@
  * Concrete agent-loop plugin: creates scoped ReactLoopAgents, publishes them
  * through the agent/session registries, and owns their ordered teardown.
  *
- * @module @qilin/agent-loop
+ * @module @qilin-agent/agent-loop
  */
-import type { Volatile } from '@qilin/cosmokit'
+import type { Volatile } from '@qilin-agent/cosmokit'
 
-import { Context, FiberState, Service } from '@qilin/kylin'
+import { Context, FiberState, Service } from '@qilin-agent/kylin'
 import { randomUUID } from 'node:crypto'
-import z from '@qilin/schemastery'
+import z from '@qilin-agent/schemastery'
 import { z as zod } from 'zod'
-import { brandString } from '@qilin/brand'
+import { brandString } from '@qilin-agent/brand'
 import type {
   Agent,
   AgentFactory,
@@ -21,17 +21,17 @@ import type {
   ResumeAgentOptions,
   SessionStartSource,
   TurnBoundaryProjection,
-} from '@qilin/agent'
-import { errorChain, ReasoningEffortId } from '@qilin/llm'
-import type {} from '@qilin/settings'
-import { interruptedTurnClosers, SessionLogOffset, SessionPreparation, SessionSeq } from '@qilin/session'
-import type { Session, SessionHeader, SessionId } from '@qilin/session'
-import type {} from '@qilin/system-prompt'
-import type {} from '@qilin/tools'
-import type {} from '@qilin/session-projection'
-import type { ProjectionDefinition } from '@qilin/session-projection'
-import { SessionPersistenceNotFoundError } from '@qilin/session-persistence'
-import type { SessionHandle, SessionPersistence } from '@qilin/session-persistence'
+} from '@qilin-agent/agent'
+import { errorChain, ReasoningEffortId } from '@qilin-agent/llm'
+import type {} from '@qilin-agent/settings'
+import { interruptedTurnClosers, SessionLogOffset, SessionPreparation, SessionSeq } from '@qilin-agent/session'
+import type { Session, SessionHeader, SessionId } from '@qilin-agent/session'
+import type {} from '@qilin-agent/system-prompt'
+import type {} from '@qilin-agent/tools'
+import type {} from '@qilin-agent/session-projection'
+import type { ProjectionDefinition } from '@qilin-agent/session-projection'
+import { SessionPersistenceNotFoundError } from '@qilin-agent/session-persistence'
+import type { SessionHandle, SessionPersistence } from '@qilin-agent/session-persistence'
 import { ReactLoopAgent } from './agent.ts'
 import { inboxProjectionDefinition } from './inbox.ts'
 import { DEFAULT_MAX_PARALLEL_TOOL_CALLS } from './constants.ts'
@@ -213,7 +213,7 @@ interface PreparedAgent {
   dispose(): Promise<void>
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     agentLoop: AgentLoop
     /**

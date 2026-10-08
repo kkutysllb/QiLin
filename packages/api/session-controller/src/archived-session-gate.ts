@@ -7,10 +7,10 @@
  * through the Workspace registry's archive-admission events.
  */
 
-import type { Context, Plugin } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import type { SessionId } from '@qilin/session'
-import type {} from '@qilin/workspace'
+import type { Context, Plugin } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import type { SessionId } from '@qilin-agent/session'
+import type {} from '@qilin-agent/workspace'
 
 /**
  * The gate as a plugin for `ctx.plugin(...)`: it loads once the Agent

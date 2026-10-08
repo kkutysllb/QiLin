@@ -4,12 +4,12 @@
  * and the injected controller face.
  */
 
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import { LocaleRuntime } from '@qilin/client-locale/client'
-import type { StoredEntry } from '@qilin/client-ui-slots'
-import type {} from '@qilin/client-ui-conversation/client'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
+import type { StoredEntry } from '@qilin-agent/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-conversation/client'
 import { apply, inject, type OpenInAppActionInjected } from '../src/client/index.ts'
 import { apply as nodeApply } from '../src/index.ts'
 import { OpenInAppAction } from '../src/client/OpenInAppAction.tsx'

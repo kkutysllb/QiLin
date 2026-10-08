@@ -19,15 +19,15 @@
 import { useRef, useState } from 'react'
 import type { MouseEvent, ReactNode } from 'react'
 import clsx from 'clsx'
-import type { RemoteFailure } from '@qilin/api-remotes/client'
-import type { TranslateNS } from '@qilin/client-locale/client'
+import type { RemoteFailure } from '@qilin-agent/api-remotes/client'
+import type { TranslateNS } from '@qilin-agent/client-locale/client'
 import {
   Button, FileTypeIcon, IconCloseOutline16, IconFolderClose16, IconFolderOpen16, IconLinkOutline14, Input, Menu,
   Modal, classifyFileType, writeClipboard,
-} from '@qilin/client-ui-primitives'
-import type { MenuEntry } from '@qilin/client-ui-primitives'
-import type { WorkspaceDirectoryEntry } from '@qilin/api-workspace-files/types'
-import { pathPartsOf } from '@qilin/util-workspace-path'
+} from '@qilin-agent/client-ui-primitives'
+import type { MenuEntry } from '@qilin-agent/client-ui-primitives'
+import type { WorkspaceDirectoryEntry } from '@qilin-agent/api-workspace-files/types'
+import { pathPartsOf } from '@qilin-agent/util-workspace-path'
 import { joinEntryPath, mutationFailureLine, normalizedEntryName } from './file-mutations.ts'
 import type { EntryKind } from './file-mutations.ts'
 import type {} from './locales.ts'

@@ -7,11 +7,11 @@
  * workspace-relative matches, split for display only.
  */
 import type { ReactNode } from 'react'
-import type { TranslateNS } from '@qilin/client-locale/client'
+import type { TranslateNS } from '@qilin-agent/client-locale/client'
 import {
   FileTypeIcon, IconCloseOutline16, IconSearchOutline16, Input, classifyFileType,
-} from '@qilin/client-ui-primitives'
-import { pathPartsOf } from '@qilin/util-workspace-path'
+} from '@qilin-agent/client-ui-primitives'
+import { pathPartsOf } from '@qilin-agent/util-workspace-path'
 import { failureLine } from './FileTree.tsx'
 import type { FileSearchState } from './store.ts'
 import type {} from './locales.ts'

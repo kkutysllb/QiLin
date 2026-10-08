@@ -1,18 +1,18 @@
 import {
   ToolCallId, createMessage, createToolResultMessage, createUserMessage,
-} from '@qilin/llm'
-import { SessionSeq } from '@qilin/session/types'
+} from '@qilin-agent/llm'
+import { SessionSeq } from '@qilin-agent/session/types'
 // Minimal SessionEvent builders for orchestration tests (shape mirrors what the
 // host emits; only the fields the object layer reads).
-import type { ContentBlock } from '@qilin/llm/types'
-import type { SessionEvent } from '@qilin/session/types'
+import type { ContentBlock } from '@qilin-agent/llm/types'
+import type { SessionEvent } from '@qilin-agent/session/types'
 import type {
   SessionEventEntry,
   SessionPage,
   SessionWireEvent,
 } from '../src/types.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'compact-checkpoint': { kind: 'compact-checkpoint'; compactionId: string }
   }

@@ -25,7 +25,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { createElement } from 'react'
 import clsx from 'clsx'
-import { IconCheckOutline16, IconFolderOpenOutline16, IconRefreshOutline16 } from '@qilin/client-ui-primitives'
+import { IconCheckOutline16, IconFolderOpenOutline16, IconRefreshOutline16 } from '@qilin-agent/client-ui-primitives'
 import type { Context } from '../context-types.ts'
 import { api, mediaUrl, type SessionScope } from './api.ts'
 import { BinaryDownload } from './binary-download.tsx'

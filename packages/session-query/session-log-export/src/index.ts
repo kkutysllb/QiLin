@@ -1,12 +1,12 @@
 /** Session-log download command and Host-owned streaming route. */
 
-import type { Context } from '@qilin/kylin'
-import type { CommandDefinitionId } from '@qilin/commands/brand'
-import Schema from '@qilin/schemastery'
-import { brandString } from '@qilin/brand'
-import type {} from '@qilin/attachment'
-import type { CommandResult } from '@qilin/commands'
-import type { SessionId } from '@qilin/session/types'
+import type { Context } from '@qilin-agent/kylin'
+import type { CommandDefinitionId } from '@qilin-agent/commands/brand'
+import Schema from '@qilin-agent/schemastery'
+import { brandString } from '@qilin-agent/brand'
+import type {} from '@qilin-agent/attachment'
+import type { CommandResult } from '@qilin-agent/commands'
+import type { SessionId } from '@qilin-agent/session/types'
 import {
   DEFAULT_SESSION_LOG_COMPRESSION_LEVEL,
   flushLiveSessionLog,
@@ -77,7 +77,7 @@ const REQUESTED: CommandResult = {
  */
 export function apply(ctx: Context, config: Config = {}): void {
   ctx.effect(() => ctx.commands.register({
-    definitionId: brandString<CommandDefinitionId>('@qilin/session-log-export'),
+    definitionId: brandString<CommandDefinitionId>('@qilin-agent/session-log-export'),
     name: 'export',
     description: 'Download this Session log as a ZIP archive',
     handler: invocation => Promise.resolve(invocation.rawInput.trim() === ''

@@ -3,7 +3,7 @@ description: "Declare accessible files as deliverables with present; configurati
 kind: "package-reference"
 ---
 
-# @qilin/tool-present
+# @qilin-agent/tool-present
 
 English | [中文](README.zh.md)
 
@@ -30,7 +30,7 @@ The `standard`, `ptc`, and `cordis` agent presets mount this plugin. Call `prese
 Mount it in an agent's Kylin composition with `tools`, `fs`, and the `turnBoundary` Session projection available:
 
 ```yaml
-- name: '@qilin/tool-present'
+- name: '@qilin-agent/tool-present'
   config:
     maxFiles: 8
 ```

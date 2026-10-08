@@ -1,5 +1,5 @@
-import type { ToolCallId } from '@qilin/llm'
-import type { SessionSeq } from '@qilin/session/types'
+import type { ToolCallId } from '@qilin-agent/llm'
+import type { SessionSeq } from '@qilin-agent/session/types'
 
 /** Character-budget policy for deterministic tool-result pruning. */
 export interface ToolResultPruneConfig {

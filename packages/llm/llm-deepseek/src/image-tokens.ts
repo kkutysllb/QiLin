@@ -11,8 +11,8 @@
  * @module qilin-llm-deepseek/image-tokens
  */
 
-import { longEdgeDimensions } from '@qilin/attachment'
-import type { ProjectedDimensions } from '@qilin/attachment'
+import { longEdgeDimensions } from '@qilin-agent/attachment'
+import type { ProjectedDimensions } from '@qilin-agent/attachment'
 /** Vision patch edge in pixels. */
 const PATCH_SIZE = 14
 /** Per-axis patch-to-token downsampling ratio. */

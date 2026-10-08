@@ -21,7 +21,7 @@ export const en = {
   'mermaid.enlarged': 'Mermaid diagram (enlarged)',
 } satisfies Record<MarkdownPreviewKey, string>
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Markdown document renderer and its code/footnote controls. */
     documentMarkdown: MarkdownPreviewKey

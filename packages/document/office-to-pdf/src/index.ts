@@ -3,13 +3,13 @@ import { randomUUID } from 'node:crypto'
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { extname, isAbsolute, join } from 'node:path'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { createConverter, type Converter, type ConverterOptions } from '@deepseek-ai/libreoffice-kit'
-import z from '@qilin/schemastery'
-import type { WorkspaceFileScope, WorkspaceFileStat } from '@qilin/api-workspace-files'
-import type {} from '@qilin/fs'
-import { brandString } from '@qilin/brand'
-import { Remote, RemoteError, TypertRemoteService } from '@qilin/typert-protocol'
+import z from '@qilin-agent/schemastery'
+import type { WorkspaceFileScope, WorkspaceFileStat } from '@qilin-agent/api-workspace-files'
+import type {} from '@qilin-agent/fs'
+import { brandString } from '@qilin-agent/brand'
+import { Remote, RemoteError, TypertRemoteService } from '@qilin-agent/typert-protocol'
 import { OfficeToPdfError } from './errors.ts'
 import { OfficeToPdfGeneration, type OfficeSourceKey } from './identity.ts'
 import type { OfficeExtension, OfficeToPdfRequest, OfficeToPdfResult, OfficeToPdfPriority, RenderedDocumentBytes } from './types.ts'
@@ -20,7 +20,7 @@ export * from './errors.ts'
 export * from './identity.ts'
 export * from './types.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Shared Office conversion and authorized workspace-file rendering. */
     officeToPdf: OfficeToPdf

@@ -3,13 +3,13 @@
  * layout version, the database open/configure sequence (permissions, pragmas,
  * version stamp/reject), and the unit metadata tables. Unit record tables are
  * created per descriptor in `unit.ts`.
- * @module @qilin/storage-sqlite/schema
+ * @module @qilin-agent/storage-sqlite/schema
  */
 
 import { DatabaseSync } from 'node:sqlite'
 import { mkdir, open } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
-import { StorageError } from '@qilin/storage'
+import { StorageError } from '@qilin-agent/storage'
 
 /**
  * The on-disk physical layout version, stored in `PRAGMA user_version`.

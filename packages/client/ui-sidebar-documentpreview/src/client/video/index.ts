@@ -4,7 +4,7 @@
  * windows), so scrubbing works and the file never counts against the
  * whole-file cap. The player is a few KB — no lazy chunk.
  */
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {} from '../index.ts'
 import { VideoBody } from './VideoBody.tsx'
 import { en, zh } from './locales.ts'
@@ -20,7 +20,7 @@ export const VIDEO_EXTENSIONS = [
  * @param ctx - Preview and locale registries.
  */
 export function apply(ctx: Context): void {
-  const id = '@qilin/client-ui-sidebar-documentpreview/video'
+  const id = '@qilin-agent/client-ui-sidebar-documentpreview/video'
   ctx.effect(() => ctx.locale.register('sidebarVideo', { zh, en }))
   const t = ctx.locale.bind('sidebarVideo')
   ctx.effect(() => ctx.documentPreviews.register({

@@ -4,14 +4,14 @@
  * registration follows the slot declaration, resolves the per-session controller from the slot's
  * sessionId, and unregisters on fiber teardown.
  */
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it } from 'vitest'
-import { LocaleRuntime } from '@qilin/client-locale/client'
-import { createScope, scopeOf } from '@qilin/api-session-controller/client'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import type { SessionId } from '@qilin/session/types'
-import { apply, inject, InputTriggerService } from '@qilin/client-ui-input-trigger/client'
-import type { MenuViewInjected } from '@qilin/client-ui-input-trigger/client'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
+import { createScope, scopeOf } from '@qilin-agent/api-session-controller/client'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import { apply, inject, InputTriggerService } from '@qilin-agent/client-ui-input-trigger/client'
+import type { MenuViewInjected } from '@qilin-agent/client-ui-input-trigger/client'
 
 const sid = (k: string): SessionId => k as SessionId
 

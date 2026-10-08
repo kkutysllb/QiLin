@@ -1,9 +1,9 @@
 /** Fixed Escape routing into the current Conversation turn's scoped cancellation. */
-import type { ISessions, SessionBinding } from '@qilin/api-session-controller/client'
-import type { Shortcuts } from '@qilin/client-shortcuts/client'
-import type { UiSession } from '@qilin/client-ui-session/client'
-import type { SessionId } from '@qilin/session/types'
-import type { ObservableSnapshot } from '@qilin/client-store'
+import type { ISessions, SessionBinding } from '@qilin-agent/api-session-controller/client'
+import type { Shortcuts } from '@qilin-agent/client-shortcuts/client'
+import type { UiSession } from '@qilin-agent/client-ui-session/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { ObservableSnapshot } from '@qilin-agent/client-store'
 import { StopSequence } from './stop-sequence.ts'
 
 /**

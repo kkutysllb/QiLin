@@ -1,28 +1,28 @@
 /** Session commands whose activation policy is explicit at each Remote method. */
 
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@qilin/kylin'
-import { brandString } from '@qilin/brand'
-import type { Agent, ModelSelection as AgentModelSelection } from '@qilin/agent'
-import { AttachmentError } from '@qilin/attachment'
+import type { Context } from '@qilin-agent/kylin'
+import { brandString } from '@qilin-agent/brand'
+import type { Agent, ModelSelection as AgentModelSelection } from '@qilin-agent/agent'
+import { AttachmentError } from '@qilin-agent/attachment'
 import type {
   AttachmentAdmissionPart, FileAttachmentRef, ImageAttachmentRef,
-} from '@qilin/attachment'
-import type { FileUploadReceiptId } from '@qilin/client-file-upload/types'
-import type {} from '@qilin/client-file-upload'
+} from '@qilin-agent/attachment'
+import type { FileUploadReceiptId } from '@qilin-agent/client-file-upload/types'
+import type {} from '@qilin-agent/client-file-upload'
 import {
   ReasoningEffortId, assistantStreamChunks, createUserMessage, freezeMessage,
-} from '@qilin/llm'
-import type { MessageSource } from '@qilin/llm'
-import { buildForkSeed } from '@qilin/session/fork'
-import { SessionLogOffset, SessionSeq } from '@qilin/session'
-import type { SessionEvent, SessionHeader, SessionId, UserMessage } from '@qilin/session'
-import { SessionQueryError, type SessionObservation } from '@qilin/session-query'
-import { SessionTitleInvalidError } from '@qilin/session-title'
-import { canonicalClientTimeZone } from '@qilin/util-time'
-import { assertNever } from '@qilin/util-values'
-import { RemoteError, remoteErrorOf } from '@qilin/typert-protocol'
-import type { Workspace } from '@qilin/workspace'
+} from '@qilin-agent/llm'
+import type { MessageSource } from '@qilin-agent/llm'
+import { buildForkSeed } from '@qilin-agent/session/fork'
+import { SessionLogOffset, SessionSeq } from '@qilin-agent/session'
+import type { SessionEvent, SessionHeader, SessionId, UserMessage } from '@qilin-agent/session'
+import { SessionQueryError, type SessionObservation } from '@qilin-agent/session-query'
+import { SessionTitleInvalidError } from '@qilin-agent/session-title'
+import { canonicalClientTimeZone } from '@qilin-agent/util-time'
+import { assertNever } from '@qilin-agent/util-values'
+import { RemoteError, remoteErrorOf } from '@qilin-agent/typert-protocol'
+import type { Workspace } from '@qilin-agent/workspace'
 import {
   ApiSessionAgentController,
   ApiSessionCwdConflict,

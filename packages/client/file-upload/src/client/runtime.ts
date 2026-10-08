@@ -1,10 +1,10 @@
 /** Background browser upload implementation for Blob and byte-stream bodies. */
 
-import { Service, type Context } from '@qilin/kylin'
-import { bytesToBase64 } from '@qilin/util-crypto'
-import { RemoteError } from '@qilin/typert-protocol'
-import type { RemoteResult } from '@qilin/typert-protocol'
-import type { SessionId } from '@qilin/session/types'
+import { Service, type Context } from '@qilin-agent/kylin'
+import { bytesToBase64 } from '@qilin-agent/util-crypto'
+import { RemoteError } from '@qilin-agent/typert-protocol'
+import type { RemoteResult } from '@qilin-agent/typert-protocol'
+import type { SessionId } from '@qilin-agent/session/types'
 import { FILE_UPLOAD_ROUTE } from '../protocol.ts'
 import type {
   ClientFileUploadHooks, EncodedFileUploadRequest, FileUploadFetch, FileUploadValue,

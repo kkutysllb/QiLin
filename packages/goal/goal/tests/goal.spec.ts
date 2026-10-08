@@ -1,21 +1,21 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import AgentRegistry, { agentEvents } from '@qilin/agent'
-import type { Agent } from '@qilin/agent'
-import { createUserMessage, HarnessError } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import SessionStore, { Session, SessionId, type UserMessage } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
+import { Context } from '@qilin-agent/kylin'
+import AgentRegistry, { agentEvents } from '@qilin-agent/agent'
+import type { Agent } from '@qilin-agent/agent'
+import { createUserMessage, HarnessError } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import SessionStore, { Session, SessionId, type UserMessage } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import GoalService, {
   GoalError,
   GoalId,
   decodeGoalChange,
   foldGoal,
-} from '@qilin/goal'
-import type { GoalChangeMeta, GoalRef, GoalSnapshotChangeMeta } from '@qilin/goal'
-import { createInboxStub } from '@qilin/agent-loop-testkit'
+} from '@qilin-agent/goal'
+import type { GoalChangeMeta, GoalRef, GoalSnapshotChangeMeta } from '@qilin-agent/goal'
+import { createInboxStub } from '@qilin-agent/agent-loop-testkit'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
     'ordinary-user-message': { kind: 'ordinary-user-message' } & ContextFormed
@@ -79,7 +79,7 @@ function stubAgentForSession(session: Session, suppliedCtx?: Context): StubAgent
 /** Build a registry-compatible agent around a fresh session. */
 function stubAgent(
   rawId: string,
-  seed?: readonly import('@qilin/session').SessionEvent[],
+  seed?: readonly import('@qilin-agent/session').SessionEvent[],
   ctx?: Context,
 ): StubAgent {
   const session = ctx === undefined

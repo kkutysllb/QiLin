@@ -1,4 +1,4 @@
-import { deepFreeze, snapshotJsonValue } from '@qilin/util-values'
+import { deepFreeze, snapshotJsonValue } from '@qilin-agent/util-values'
 import { SessionFormatError } from './error.ts'
 import type {
   SessionFormatHeader,

@@ -5,7 +5,7 @@ import { installProfileResolution, type ProfileResolutionBehavior } from './reso
 import type { ProfileResolutionGeneration } from '../profile.ts'
 
 const registration = getEnvironmentData(
-  '@qilin/app-boot/profile-resolution',
+  '@qilin-agent/app-boot/profile-resolution',
 ) as {
   generation: ProfileResolutionGeneration
   behavior: ProfileResolutionBehavior

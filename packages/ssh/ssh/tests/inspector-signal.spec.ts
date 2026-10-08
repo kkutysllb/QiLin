@@ -3,8 +3,8 @@ import { spawn, spawnSync } from 'node:child_process'
 import { once } from 'node:events'
 import { mkdtemp, realpath, rm } from 'node:fs/promises'
 import { createInterface } from 'node:readline'
-import { Context } from '@qilin/kylin'
-import { LocalSandboxProvider } from '@qilin/sandbox-local'
+import { Context } from '@qilin-agent/kylin'
+import { LocalSandboxProvider } from '@qilin-agent/sandbox-local'
 import { describe, expect, it } from 'vitest'
 
 // This fixture has no credentials, application state, or descendants. Port zero

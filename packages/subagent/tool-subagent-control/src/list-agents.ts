@@ -4,17 +4,17 @@
  * `descendants` scope, `ctx.subagents.listDescendants()`. It stays separately
  * loadable from the root `send_message` plugin so a deployment can register
  * continuation delivery without exposing discovery.
- * @module @qilin/tool-subagent-control/list-agents
+ * @module @qilin-agent/tool-subagent-control/list-agents
  */
 
-import type { Context } from '@qilin/kylin'
-import { defineTool } from '@qilin/tools'
-import type { Agent } from '@qilin/agent'
-import type { SessionId } from '@qilin/session'
+import type { Context } from '@qilin-agent/kylin'
+import { defineTool } from '@qilin-agent/tools'
+import type { Agent } from '@qilin-agent/agent'
+import type { SessionId } from '@qilin-agent/session'
 import type {
   SubagentCatalogEntry, SubagentDescendantListEntry, SubagentListEntry,
-} from '@qilin/subagent'
-import { assertNever } from '@qilin/util-values'
+} from '@qilin-agent/subagent'
+import { assertNever } from '@qilin-agent/util-values'
 
 export const name = 'tool-subagent-list-agents'
 export const inject = ['tools', 'subagents', 'agents']

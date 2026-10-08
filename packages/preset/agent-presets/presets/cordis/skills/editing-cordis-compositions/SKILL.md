@@ -29,7 +29,7 @@ Locally authored presets live one directory per preset under `${QILIN_HOME:-$HOM
 
 ## Authoring a preset
 
-Use shell and file tools to locate the installed `@qilin/agent-presets` package under the active profile's `node_modules` or the deployment installation. Its `presets/<id>/` directory contains each shipped preset. If those files are unavailable, ask the user to copy the preset through the Web preset picker and provide the copied directory; runtime API inspection does not execute Remote methods. When this section leaves a question open, read the `@qilin/agent-presets` README and `lib/types` declarations under that package directory; the roster's Loader row id is `agent-presets`.
+Use shell and file tools to locate the installed `@qilin-agent/agent-presets` package under the active profile's `node_modules` or the deployment installation. Its `presets/<id>/` directory contains each shipped preset. If those files are unavailable, ask the user to copy the preset through the Web preset picker and provide the copied directory; runtime API inspection does not execute Remote methods. When this section leaves a question open, read the `@qilin-agent/agent-presets` README and `lib/types` declarations under that package directory; the roster's Loader row id is `agent-presets`.
 
 Copy the complete source directory, including skills and assets, into a new `${QILIN_HOME:-$HOME/.qilin}/.agent-presets/<new-id>/` directory (or the explicitly configured writable root). Refuse an existing destination. Set `name` and `description` in `preset.yml` and remove the copied roster `order`. Never overwrite the installed source.
 
@@ -47,11 +47,11 @@ A preset row that publishes a service needs an `isolate` realm containing both t
     workflowEngine: true
   config:
     - id: workflow-ptc
-      name: '@qilin/workflow-ptc'
+      name: '@qilin-agent/workflow-ptc'
       config:
         provider: spawn
     - id: tool-workflow
-      name: '@qilin/tool-workflow'
+      name: '@qilin-agent/tool-workflow'
 ```
 
 Scope controls contributions and event visibility; `isolate` controls service instances. Use ordinary Cordis groups for nested plugin lists, keep `!!js` expressions only in plugin configuration or `disabled`, and resolve assets from installed packages rather than from a preset directory.

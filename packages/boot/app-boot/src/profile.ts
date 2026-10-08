@@ -20,7 +20,7 @@
  * dependency closure through Node's ordinary parent-walk. Plain Node uses
  * symlinks for that shared fallback; packaged executables use ESM proxies so
  * external plugins retain the installation's module instances.
- * @module @qilin/app-boot/profile
+ * @module @qilin-agent/app-boot/profile
  */
 
 import { createRequire } from 'node:module'
@@ -30,14 +30,14 @@ import {
 } from 'node:fs'
 import { basename, dirname, join, relative, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { withFileLock } from '@qilin/atomic-write'
-import type { EntryOptions } from '@qilin/kylin-plugin-loader'
-import { applyEntryPatches, type PatchOptions } from '@qilin/kylin-plugin-include'
-import { resolveQilinHome } from '@qilin/home-paths'
-import { bundlePatchOf, dshCompatModuleId } from '@qilin/dsh-compat'
+import { withFileLock } from '@qilin-agent/atomic-write'
+import type { EntryOptions } from '@qilin-agent/kylin-plugin-loader'
+import { applyEntryPatches, type PatchOptions } from '@qilin-agent/kylin-plugin-include'
+import { resolveQilinHome } from '@qilin-agent/home-paths'
+import { bundlePatchOf, dshCompatModuleId } from '@qilin-agent/dsh-compat'
 import { evaluatePluginCompatibility, pluginCompatibilityWarning } from './plugin-compatibility.ts'
 import { readProfileVersionExemptions } from './profile-compatibility.ts'
-import type { QilinManifest, QilinPackageManifest } from '@qilin/package-manifest'
+import type { QilinManifest, QilinPackageManifest } from '@qilin-agent/package-manifest'
 import { resolve as resolvePackage, type Package as ResolvePackageManifest } from 'resolve.exports'
 import { loadOverlayPatches } from './index.ts'
 import {
@@ -245,40 +245,40 @@ export function resolveProfileDir(name: string, home: string = resolveQilinHome(
 /** The shipped profile templates auto-initialized on first use, by name. */
 export const PROFILE_TEMPLATES: Record<string, ProfileTemplate> = {
   acp: {
-    bundles: ['@qilin/base', '@qilin/acp-app'],
+    bundles: ['@qilin-agent/base', '@qilin-agent/acp-app'],
   },
   web: {
-    bundles: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand'],
+    bundles: ['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand'],
   },
   headless: {
-    bundles: ['@qilin/base', '@qilin/headless'],
+    bundles: ['@qilin-agent/base', '@qilin-agent/headless'],
   },
   qilin: {
-    bundles: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand'],
+    bundles: ['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand'],
   },
   sdk: {
-    bundles: ['@qilin/base', '@qilin/sdk-app'],
+    bundles: ['@qilin-agent/base', '@qilin-agent/sdk-app'],
   },
   'sdk-minimal': {
-    bundles: ['@qilin/sdk-minimal'],
+    bundles: ['@qilin-agent/sdk-minimal'],
   },
 }
 
 /** Installation-owned bundle tuples normalized to the shipped template. */
 const INSTALLATION_OWNED_PROFILE_TUPLES: Record<string, readonly string[]> = {
-  headless: ['@qilin/base', '@qilin/web-app', '@qilin/headless'],
+  headless: ['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/headless'],
   // The browser surfaces used to ship `dsh-animations` as a built-in layer.
   // Normalization now retires it: a profile their owner never edited drops it
   // on the next load, and one carrying a custom list loses the entry while
   // keeping its own additions. A profile that owns the package — the plugin
   // channel recorded it in `dependencies`, or an `audiences` entry names it —
   // keeps the layer as a profile-owned one.
-  web: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand', 'dsh-animations'],
-  qilin: ['@qilin/base', '@qilin/web-app', '@qilin/web-brand', 'dsh-animations'],
+  web: ['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', 'dsh-animations'],
+  qilin: ['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', 'dsh-animations'],
 }
 
 /** The bundle list a `qilin plugin` init uses for a name with no shipped template. */
-export const DEFAULT_PROFILE_BUNDLES: readonly string[] = ['@qilin/base']
+export const DEFAULT_PROFILE_BUNDLES: readonly string[] = ['@qilin-agent/base']
 
 /**
  * The bundles the qilin installation ships for a person to switch on: each a
@@ -289,11 +289,11 @@ export const DEFAULT_PROFILE_BUNDLES: readonly string[] = ['@qilin/base']
  * [admission](../../../../.agents/notes/implemented/architecture/2026-09-21-experimental-capabilities-as-optional-bundles.md)).
  */
 export const OPTIONAL_BUNDLES: readonly string[] = [
-  '@qilin/experimental-agent-team-profile',
-  '@qilin/experimental-voice-input-bundle',
-  '@qilin/experimental-auto-review',
-  '@qilin/experimental-schedule-bundle',
-  '@qilin/experimental-inspector-profile',
+  '@qilin-agent/experimental-agent-team-profile',
+  '@qilin-agent/experimental-voice-input-bundle',
+  '@qilin-agent/experimental-auto-review',
+  '@qilin-agent/experimental-schedule-bundle',
+  '@qilin-agent/experimental-inspector-profile',
 ]
 
 const PROFILE_PATCH_TEMPLATE = `# Your patch layer for this qilin profile, applied after every bundle layer:
@@ -1067,7 +1067,7 @@ export function installationProvides(packageName: string, installAnchor: string)
 /**
  * Resolve one bundle package's directory: installation anchor first, then the
  * profile directory. The installation-first order is the contract that
- * `@qilin/base` (and every other in-box bundle) always comes from
+ * `@qilin-agent/base` (and every other in-box bundle) always comes from
  * the same installation as the running qilin, never from a profile-local copy,
  * while a name the installation does not ship resolves from the profile that
  * installed it. Resolution does not require the package to export
@@ -1144,7 +1144,7 @@ export class EngineNameCollisionError extends Error {
  * fallback that maps the old name onto QiLin's, so the process would load two
  * copies of the engine and plugin registrations would fail in ways the plugin
  * cannot explain. A name the compatibility layer keeps verbatim
- * (`@qilin/cosmokit`, `@qilin/schemastery`) never collides, and
+ * (`@qilin-agent/cosmokit`, `@qilin-agent/schemastery`) never collides, and
  * neither does this installation's own fallback link, which is the projection
  * that makes the old name resolve to the QiLin package.
  * @param binName - diagnostic prefix for manifest errors.

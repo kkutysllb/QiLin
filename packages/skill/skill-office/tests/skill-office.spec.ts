@@ -2,11 +2,11 @@ import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import SkillRegistry from '@qilin/skill'
-import * as SkillOffice from '@qilin/skill-office'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import SkillRegistry from '@qilin-agent/skill'
+import * as SkillOffice from '@qilin-agent/skill-office'
 import { isSea } from 'node:sea'
 import { describe, expect, it, vi } from 'vitest'
 import { execa } from 'execa'
@@ -49,8 +49,8 @@ describe('bundled Office skills', () => {
       await cp(assets, external, { recursive: true })
       const configPath = join(root, 'cordis.yml')
       await writeFile(configPath, [
-        "- name: '@qilin/skill'",
-        "- name: '@qilin/skill-office'",
+        "- name: '@qilin-agent/skill'",
+        "- name: '@qilin-agent/skill-office'",
         '  config:',
         `    assetRoot: ${JSON.stringify(external)}`,
         '',
@@ -59,8 +59,8 @@ describe('bundled Office skills', () => {
       await ctx.plugin(Loader)
       ctx.loader.builtins.include = Include
       const modules = new Map<string, unknown>([
-        ['@qilin/skill', SkillRegistry],
-        ['@qilin/skill-office', SkillOffice],
+        ['@qilin-agent/skill', SkillRegistry],
+        ['@qilin-agent/skill-office', SkillOffice],
       ])
       ctx.loader.internal = {
         version: 'v2',

@@ -60,7 +60,7 @@ export function buildSelectionInsert(
 function lineAt(source: string, index: number): number {
   let line = 1
   /* jscpd:ignore-start — selection→lines mapping pinned verbatim to
-     @qilin/client-ui-sidebar-documentpreview src/client/selection-payload.ts (ported twin) */
+     @qilin-agent/client-ui-sidebar-documentpreview src/client/selection-payload.ts (ported twin) */
   for (let i = 0; i < index && i < source.length; i++) {
     if (source[i] === '\n') line++
   }

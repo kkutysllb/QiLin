@@ -38,7 +38,7 @@ tab 身份是 `(kind, address)` 二元组：注册表的认领把地址原文用
 
 | 字段 | 含义 |
 |---|---|
-| `id` | 该实现的身份，在所有注册中唯一；包名是自然取值（`@qilin/client-ui-sidebar-files`）。正文与标题坑位按它注册。 |
+| `id` | 该实现的身份，在所有注册中唯一；包名是自然取值（`@qilin-agent/client-ui-sidebar-files`）。正文与标题坑位按它注册。 |
 | `kind` | 类型的判别名：它的 tab 是什么，也是 `openTab` 点名的对象。不唯一——extension 可以接管 builtin 的 kind。内置 kind 为 `guide`、`text`、`files`。 |
 | `label()` | 类型自己的名字，供命名类型的界面使用——首要是开关行。页类型的 `title(address)` 命名的是它打开的内容，资源类型根本没有单一地址可命名，两者都不能代表类型本身。 |
 | `icon?` | chip 在标题之前绘制的图形；标题本身已承载全部身份时省略。 |
@@ -54,8 +54,8 @@ tab 身份是 `(kind, address)` 二元组：注册表的认领把地址原文用
 同一个 `kind` 可同时携带一个 `builtin` 与一个 `extension` 注册。extension 在认领、`get(kind)`、`openTab(kind)` 与引导页上生效，席位按生效定义的 `id` 找 tab 的正文与标题，不涉及任何 slot 优先级；extension 注销后 builtin 恢复。kind 上的其它任何撞名以及任何重复的 `id` 都抛错。
 
 ```ts ignore-check
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/client-ui-sidebar-right/client'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
 
 export const inject = ['sidebarRightTabs', 'slots']
 

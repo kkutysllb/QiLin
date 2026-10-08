@@ -7,26 +7,26 @@
  * the Session's workspace root — no shell ever interprets it. Caller strings
  * enter argv only as a pathspec after `--`, as the one `-m` commit message,
  * as the `--title`/`--body` pull-request values, or as a branch name that
- * passed the accepted-name check. The `@qilin/shell` seam takes a single
+ * passed the accepted-name check. The `@qilin-agent/shell` seam takes a single
  * command-line string, so a fixed-argv spawn is not expressible there; this
  * service uses `node:child_process` directly.
  *
  * The workspace root arrives through the `workspaceFileScope` Typert lookup
- * that `@qilin/api-workspace-files` registers; this package declares no
+ * that `@qilin-agent/api-workspace-files` registers; this package declares no
  * lookup of its own.
  */
 
 import { spawn } from 'node:child_process'
-import type { Context } from '@qilin/kylin'
-import type { WorkspaceFileScope } from '@qilin/api-workspace-files'
-import z from '@qilin/schemastery'
-import { Remote, RemoteError, TypertRemoteService } from '@qilin/typert-protocol'
+import type { Context } from '@qilin-agent/kylin'
+import type { WorkspaceFileScope } from '@qilin-agent/api-workspace-files'
+import z from '@qilin-agent/schemastery'
+import { Remote, RemoteError, TypertRemoteService } from '@qilin-agent/typert-protocol'
 import { firstLine, parseAheadBehind, parseBranches, parseGhAccount, parseGhPrNumber, parseGhPrs, parseGhPrUrl, parseGitLog, parseStatusPorcelain } from './parse.ts'
 import type { GhAuthStatus, GhCreatedPr, GhPr, GitBranches, GitLogEntry, GitStatus, GitUpstream } from './types.ts'
 
 export type * from './types.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Host owner of the `workspaceGit` Remote namespace. */
     workspaceGit: WorkspaceGit

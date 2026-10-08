@@ -3,16 +3,16 @@
  * highlight contents). It maps the first non-blank highlight to `snippet`, maps
  * `publishedDate` to `publishedAt`, drops entries without a snippet, and omits `content`
  * because Exa returns no generated answer.
- * @module @qilin/web-search-exa/provider
+ * @module @qilin-agent/web-search-exa/provider
  */
 
-import { WebError } from '@qilin/web'
+import { WebError } from '@qilin-agent/web'
 import type {
   WebSearchProvider,
   WebSearchRequest,
   WebSearchResult,
   WebSearchSource,
-} from '@qilin/web'
+} from '@qilin-agent/web'
 import type { ExaError, ExaResult, ExaSearchResponse } from './types.ts'
 
 /** Stable id this provider registers under. */

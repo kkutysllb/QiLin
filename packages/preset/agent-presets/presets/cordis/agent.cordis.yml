@@ -16,7 +16,7 @@
 # The preset's own persona, shadowing the deployment default for this agent.
 # `{{model}}` and `{{cwd}}` resolve from the agent's own route and workspace.
 - id: persona
-  name: '@qilin/persona'
+  name: '@qilin-agent/persona'
   config:
     suffix: Your working directory is {{cwd}}.
     prefix: |-
@@ -36,12 +36,12 @@
 
       Load the cordis-plugin-development skill before authoring an installed plugin. Use cordis_inspect_list to discover Host and Client providers, then cordis_inspect_query to read exact Service, Event, Tool, Theme or Slot APIs. These tools are read-only; queries do not invoke business methods.
 
-      To connect an MCP server, create a configuration-only bundle whose patch inserts @qilin/mcp-client, then install it with plugin_manager. Load cordis-plugin-development for the package and YAML examples. After successful activation, call one of the newly available mcp__<serverName>__<tool> tools to verify the connection.
+      To connect an MCP server, create a configuration-only bundle whose patch inserts @qilin-agent/mcp-client, then install it with plugin_manager. Load cordis-plugin-development for the package and YAML examples. After successful activation, call one of the newly available mcp__<serverName>__<tool> tools to verify the connection.
 
       Use installed bundles for new plugin code. Package installation may require explicit user approval for build scripts. Preserve returned failures and pending states; only report success after observing the requested capability.
 
 - id: agent-instructions
-  name: '@qilin/agent-instructions'
+  name: '@qilin-agent/agent-instructions'
   config:
     maxBytes: 65536
 
@@ -55,25 +55,25 @@
 # registry from here; their executors (`bash-sandbox`/`pwsh-sandbox`) are
 # host-plane too.
 - id: tool-bash
-  name: '@qilin/tool-bash'
+  name: '@qilin-agent/tool-bash'
   disabled: !!js process.platform === 'win32'
 
 - id: tool-pwsh
-  name: '@qilin/tool-pwsh'
+  name: '@qilin-agent/tool-pwsh'
   disabled: !!js process.platform !== 'win32'
 
 - id: tool-schedule
-  name: '@qilin/tool-schedule'
+  name: '@qilin-agent/tool-schedule'
 
 # ── filesystem ──────────────────────────────────────────────────────────────
 
 # Both register into the host `tools` registry and provide nothing, so
 # they need no realm. The `fs` service and its policy stay in the host.
 - id: tool-fs
-  name: '@qilin/tool-fs'
+  name: '@qilin-agent/tool-fs'
 
 - id: tool-fs-search
-  name: '@qilin/tool-fs-search'
+  name: '@qilin-agent/tool-fs-search'
   config:
     sampleOverCapGlobResults: false
 
@@ -87,7 +87,7 @@
 # owning agent anyway, so one host instance serves every session. What a preset
 # chooses is whether its agent can collect and stop background work at all.
 - id: tool-jobs
-  name: '@qilin/tool-jobs'
+  name: '@qilin-agent/tool-jobs'
 
 # ── goals ───────────────────────────────────────────────────────────────────
 
@@ -95,10 +95,10 @@
 # can resolve them. The human command and model-facing tool register into this
 # preset's scoped layers.
 - id: command-goal
-  name: '@qilin/command-goal'
+  name: '@qilin-agent/command-goal'
 
 - id: tool-goal
-  name: '@qilin/tool-goal'
+  name: '@qilin-agent/tool-goal'
 
 # ── plan mode ───────────────────────────────────────────────────────────────
 
@@ -111,7 +111,7 @@
     planMode: true
   config:
     - id: plan-mode
-      name: '@qilin/plan-mode'
+      name: '@qilin-agent/plan-mode'
       config:
         section: |
               You are in plan mode. Stay in plan mode until exit_plan_mode succeeds or the user switches the session mode. Imperative language to implement changes means plan the implementation, not execute it. A user's conversational agreement — including an answer confirming something you asked — approves nothing and does not end plan mode; fold the confirmed decision into the plan and submit it through exit_plan_mode.
@@ -145,13 +145,13 @@
     toolResultPruner: true
   config:
     - id: compaction-basic
-      name: '@qilin/compaction-basic'
+      name: '@qilin-agent/compaction-basic'
 
     - id: command-compact
-      name: '@qilin/command-compact'
+      name: '@qilin-agent/command-compact'
 
     - id: tool-result-pruner
-      name: '@qilin/compaction-tool-result-pruner'
+      name: '@qilin-agent/compaction-tool-result-pruner'
       config:
         thresholdChars: 8192
         headChars: 4096
@@ -175,13 +175,13 @@
     workflowEngine: true
   config:
     - id: tool-subagent-control
-      name: '@qilin/tool-subagent-control'
+      name: '@qilin-agent/tool-subagent-control'
 
     - id: tool-subagent-list-agents
-      name: '@qilin/tool-subagent-control/list-agents'
+      name: '@qilin-agent/tool-subagent-control/list-agents'
 
     - id: tool-subagent
-      name: '@qilin/tool-subagent'
+      name: '@qilin-agent/tool-subagent'
       config:
         provider: spawn
         toolName: subagent
@@ -193,7 +193,7 @@
     # keeps fork continuable; parent and child inherit the same messaging tool,
     # while the parent id and return guidance follow the inherited history.
     - id: tool-subagent-fork
-      name: '@qilin/tool-subagent'
+      name: '@qilin-agent/tool-subagent'
       config:
         provider: fork
         toolName: subagent_fork
@@ -204,7 +204,7 @@
     # preset and remove `disabled` from the matching tool row. Host availability
     # alone grants no tool.
     - id: tool-subagent-codex
-      name: '@qilin/tool-subagent'
+      name: '@qilin-agent/tool-subagent'
       disabled: true
       config:
         provider: codex
@@ -213,7 +213,7 @@
         maxDepth: provider-managed
 
     - id: tool-subagent-claude-code
-      name: '@qilin/tool-subagent'
+      name: '@qilin-agent/tool-subagent'
       disabled: true
       config:
         provider: claude-code
@@ -222,12 +222,12 @@
         maxDepth: provider-managed
 
     - id: workflow-ptc
-      name: '@qilin/workflow-ptc'
+      name: '@qilin-agent/workflow-ptc'
       config:
         provider: spawn
 
     - id: tool-workflow
-      name: '@qilin/tool-workflow'
+      name: '@qilin-agent/tool-workflow'
 
     # Off by default with the base row it mirrors: the tool description
     # restricts `ralph` to runs the human explicitly asked for, and completion
@@ -236,7 +236,7 @@
     # id and drops `disabled`; the shipped root shadows a copy that reuses this
     # id.
     - id: tool-ralph
-      name: '@qilin/tool-ralph'
+      name: '@qilin-agent/tool-ralph'
       disabled: true
       config:
         subagentProvider: spawn
@@ -245,17 +245,17 @@
 # ── remaining model-facing rows ─────────────────────────────────────────────
 
 - id: tool-ask-user
-  name: '@qilin/tool-ask-user'
+  name: '@qilin-agent/tool-ask-user'
 
 - id: tool-todo
-  name: '@qilin/tool-todo'
+  name: '@qilin-agent/tool-todo'
   config:
     allowParallelInProgress: true
 
 # The `web` service and its search provider stay in the host composition; only
 # the model-facing tool is per-session.
 - id: tool-web
-  name: '@qilin/tool-web'
+  name: '@qilin-agent/tool-web'
   config:
     fetch: true
     searchTimeoutMs: 60000
@@ -264,7 +264,7 @@
 
 # Discover the Host and Client APIs used by installed plugins.
 - id: tool-kylin
-  name: '@qilin/tool-kylin'
+  name: '@qilin-agent/tool-kylin'
 
 # The composition-authoring skill travels with this preset rather than living
 # in the user's skill root: it documents THIS deployment's two planes, and a
@@ -274,16 +274,16 @@
 # they need no realm; the agent's merged catalog also carries whatever the
 # deployment registered globally (repository plugins).
 - id: skill-filesystem
-  name: '@qilin/skill-filesystem'
+  name: '@qilin-agent/skill-filesystem'
   config:
     customSkillDirs:
       - !!js "process.getBuiltinModule('node:url').fileURLToPath(new URL('skills/', baseUrl))"
 
 - id: tool-skill
-  name: '@qilin/tool-skill'
+  name: '@qilin-agent/tool-skill'
 
 - id: present
-  name: '@qilin/tool-present'
+  name: '@qilin-agent/tool-present'
 
 - id: tool-plugin-manager
-  name: '@qilin/plugin-manager/tools'
+  name: '@qilin-agent/plugin-manager/tools'

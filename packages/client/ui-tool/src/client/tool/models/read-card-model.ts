@@ -1,6 +1,6 @@
 /** Pure read-card derivation from raw result content and metadata. @module */
-import type { ReadBlockLine, ReadBlockProps } from '@qilin/client-ui-primitives'
-import { abbreviateHomePath, relativizeToCwd } from '@qilin/util-workspace-path'
+import type { ReadBlockLine, ReadBlockProps } from '@qilin-agent/client-ui-primitives'
+import { abbreviateHomePath, relativizeToCwd } from '@qilin-agent/util-workspace-path'
 import type { ToolCallBlock } from './tool-call-model.ts'
 import { parsedToolCall, singleResultText } from './raw-tool-call.ts'
 

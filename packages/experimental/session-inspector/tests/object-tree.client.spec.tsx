@@ -2,11 +2,11 @@
 /** Reference links stop traversal; expanded collections retain original entry values. */
 
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
-import { createSnapshotStore } from '@qilin/client-store'
+import { createSnapshotStore } from '@qilin-agent/client-store'
 import { afterEach, expect, it, vi } from 'vitest'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import { SessionSeq, type SessionId } from '@qilin/session/types'
-import { ConversationLocationIndex } from '@qilin/client-ui-conversation/client'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import { SessionSeq, type SessionId } from '@qilin-agent/session/types'
+import { ConversationLocationIndex } from '@qilin-agent/client-ui-conversation/client'
 import { InspectorJsonTree, InspectorObjectTree } from '../src/client/views/InspectorObjectTree.tsx'
 import type { InspectorObjects, InspectorObjectReference } from '../src/client/views/objects.ts'
 import { en } from '../src/client/locales.ts'
@@ -15,7 +15,7 @@ interface TreeProbeData {
   readonly status: string
 }
 
-declare module '@qilin/client-ui-conversation/client' {
+declare module '@qilin-agent/client-ui-conversation/client' {
   interface ConversationTurnDataMap {
     'tree-probe': TreeProbeData
   }

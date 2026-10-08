@@ -2,8 +2,8 @@
 /** The refresh-failure toast: one store notice behind one app-wide overlay banner. */
 import { act, cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createSnapshotStore } from '@qilin/client-store'
-import { makeTranslate } from '@qilin/client-test-runtime'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
 import { PluginRefreshToast, type PluginRefreshToastProps } from '../src/client/PluginRefreshToast.tsx'
 import { en, zh } from '../src/client/locales.ts'
 import type { InstallState, PluginManagerState } from '../src/client/manager-store.ts'

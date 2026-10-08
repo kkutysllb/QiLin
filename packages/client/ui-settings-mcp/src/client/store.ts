@@ -5,11 +5,11 @@
  * page never re-derives what it just wrote.
  */
 
-import type { Context as ClientContext } from '@qilin/kylin'
-import { createSnapshotStore } from '@qilin/client-store'
-import type { SnapshotStore } from '@qilin/client-store'
-import type { McpBuiltinView, McpServerDraft, McpServersSnapshot, McpServerView } from '@qilin/mcp-servers/types'
-import type { RemoteResult } from '@qilin/typert-protocol'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { SnapshotStore } from '@qilin-agent/client-store'
+import type { McpBuiltinView, McpServerDraft, McpServersSnapshot, McpServerView } from '@qilin-agent/mcp-servers/types'
+import type { RemoteResult } from '@qilin-agent/typert-protocol'
 
 /** What the MCP servers page renders at any moment. */
 export interface McpPageState {

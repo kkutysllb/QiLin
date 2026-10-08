@@ -6,10 +6,10 @@
  * exactly the tab whose record went away.
  */
 import { describe, expect, it } from 'vitest'
-import type { RemoteFailure } from '@qilin/api-remotes/client'
-import type { TabId } from '@qilin/client-ui-dockkit'
+import type { RemoteFailure } from '@qilin-agent/api-remotes/client'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
 import type { PlanRow } from '../src/client/plans.ts'
-import { RemoteError } from '@qilin/client-test-runtime'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
 import { createPlansStore } from '../src/client/store.ts'
 
 const TAB = 'tab-1' as TabId

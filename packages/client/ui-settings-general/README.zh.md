@@ -3,7 +3,7 @@ description: "qilin Web 客户端的设置外壳、无特定功能归属文案�
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-settings-general
+# @qilin-agent/client-ui-settings-general
 
 [English](README.md) | 中文
 

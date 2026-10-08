@@ -1,15 +1,15 @@
 /** Session-addressed, cold-readable skill catalog Remote. */
 
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/agent-presets/types'
-import type { SessionId } from '@qilin/session'
-import { SessionQueryError } from '@qilin/session-query'
-import { isUserInvocable } from '@qilin/skill'
-import type { ScopeKey } from '@qilin/scope'
-import { Remote, RemoteError, TypertRemoteService } from '@qilin/typert-protocol'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/agent-presets/types'
+import type { SessionId } from '@qilin-agent/session'
+import { SessionQueryError } from '@qilin-agent/session-query'
+import { isUserInvocable } from '@qilin-agent/skill'
+import type { ScopeKey } from '@qilin-agent/scope'
+import { Remote, RemoteError, TypertRemoteService } from '@qilin-agent/typert-protocol'
 import type { SkillListRequest, SkillListValue } from './types.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Host owner of the Session-addressed `skills` Remote namespace. */
     sessionSkillCatalog: SessionSkillCatalog
@@ -67,7 +67,7 @@ export class SessionSkillCatalog extends TypertRemoteService {
     if (skillRegistry === undefined) {
       throw new RemoteError(
         'gateway/internal',
-        'skill registry is absent: neither this session\'s agent preset nor the host composition mounts @qilin/skill',
+        'skill registry is absent: neither this session\'s agent preset nor the host composition mounts @qilin-agent/skill',
         {},
       )
     }

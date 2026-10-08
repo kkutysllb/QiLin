@@ -8,11 +8,11 @@
  * capability kind. The dialog's copy is locale-registered here — the flow
  * package owns its own strings.
  */
-import type { Context as ClientContext } from '@qilin/kylin'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
 // Type-only: pulls the SlotMap merge declaring the directory-flow holes.
-import type {} from '@qilin/client-ui-workspace/client'
+import type {} from '@qilin-agent/client-ui-workspace/client'
 // Type-only: pulls the SlotRegistry service merge (ctx.slots).
-import type {} from '@qilin/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
 import type { BrowseFlowInjected } from './flow.ts'
 import { BrowseDirectoryFlow } from './flow.ts'
 

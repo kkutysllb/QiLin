@@ -2,18 +2,18 @@
  * Whole-client test carrier: boots an {@link AssemblyPlan} through the
  * production `bootClient` over an in-process module table, with a
  * `RemoteMock` bound to that client's Connection plugin instance.
- * @module @qilin/client-test-runtime/src/assembly/test-client
+ * @module @qilin-agent/client-test-runtime/src/assembly/test-client
  */
-import { Context, type Plugin } from '@qilin/kylin'
-import type { Entry } from '@qilin/kylin-plugin-loader'
-import { tearDownEntryFiber } from '@qilin/client-modules/client'
+import { Context, type Plugin } from '@qilin-agent/kylin'
+import type { Entry } from '@qilin-agent/kylin-plugin-loader'
+import { tearDownEntryFiber } from '@qilin-agent/client-modules/client'
 import {
   installConnection,
   type ConnectionHandle,
-} from '@qilin/client-connection/client'
-import { bootClient } from '@qilin/client-web/src/boot-client.ts'
-import { mountClient } from '@qilin/client-web/src/mount.ts'
-import type { RemoteMock } from '@qilin/remote-mock'
+} from '@qilin-agent/client-connection/client'
+import { bootClient } from '@qilin-agent/client-web/src/boot-client.ts'
+import { mountClient } from '@qilin-agent/client-web/src/mount.ts'
+import type { RemoteMock } from '@qilin-agent/remote-mock'
 import { act } from '@testing-library/react'
 import { createInProcessModules, loadPluginModules } from './modules.ts'
 import { assertPlan, graphFromRoster, type AssemblyPlan } from './roster.ts'
@@ -60,7 +60,7 @@ class SharedJsdomShims {
 
 const sharedJsdomShims = new SharedJsdomShims()
 
-const CONNECTION_PACKAGE = '@qilin/client-connection'
+const CONNECTION_PACKAGE = '@qilin-agent/client-connection'
 
 /** Default readiness budget; the mock answers `$events` immediately, so a miss means a boot-time fixture is absent. */
 const DEFAULT_CONNECT_TIMEOUT_MS = 5_000
@@ -181,7 +181,7 @@ export class TestClient {
    * `installConnection`, while this path supplies the mock carrier, uses
    * default recovery timings, and captures the current page hostname once for
    * later reloads. A caller-provided Connection row remains unchanged and owns
-   * its readiness behavior. The `@qilin/api-remotes` row is
+   * its readiness behavior. The `@qilin-agent/api-remotes` row is
    * dropped from the roster: its generated Remote clients exist only in built
    * `lib/`, and the `remote.<ns>` services the roster injects (plus the
    * namespaces the mock has rules for at this point) are provided as

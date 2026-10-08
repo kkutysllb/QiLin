@@ -17,7 +17,7 @@
  */
 import { useEffect, useRef, useState, type InputHTMLAttributes } from 'react'
 import clsx from 'clsx'
-import { IconFolderOpenOutline16, IconRefreshOutline16 } from '@qilin/client-ui-primitives'
+import { IconFolderOpenOutline16, IconRefreshOutline16 } from '@qilin-agent/client-ui-primitives'
 import { api } from './api.ts'
 import { FileTree, type FileTreeSharedProps } from './FileTree.tsx'
 import { IconUploadOutline16 } from './icons.tsx'

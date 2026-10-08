@@ -1,4 +1,4 @@
-import { defineProperty } from '@qilin/cosmokit'
+import { defineProperty } from '@qilin-agent/cosmokit'
 import { Context } from './context.ts'
 import { createCallable, joinPrototype, symbols, type Tracker } from './utils.ts'
 

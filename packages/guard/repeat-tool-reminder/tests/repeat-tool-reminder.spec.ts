@@ -1,17 +1,17 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createUserMessage, ToolCallId  } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import { SessionId, type SessionEvent } from '@qilin/session'
-import { defineContentToolFixture } from '@qilin/tools'
-import type { Agent } from '@qilin/agent'
-import AgentLoop from '@qilin/agent-loop'
-import { mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'
-import * as RepeatToolGuard from '@qilin/repeat-tool-reminder'
-import type { Config } from '@qilin/repeat-tool-reminder'
+import { Context } from '@qilin-agent/kylin'
+import { createUserMessage, ToolCallId  } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import { SessionId, type SessionEvent } from '@qilin-agent/session'
+import { defineContentToolFixture } from '@qilin-agent/tools'
+import type { Agent } from '@qilin-agent/agent'
+import AgentLoop from '@qilin-agent/agent-loop'
+import { mountAgentLoopTestDependencies } from '@qilin-agent/agent-loop-testkit'
+import * as RepeatToolGuard from '@qilin-agent/repeat-tool-reminder'
+import type { Config } from '@qilin-agent/repeat-tool-reminder'
 import { MockAdapter, textResponse, toolCallResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

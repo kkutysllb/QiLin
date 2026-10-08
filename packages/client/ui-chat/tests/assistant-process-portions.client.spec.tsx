@@ -8,8 +8,8 @@
  */
 import { cleanup, render } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 import { zh } from '../src/client/locale.ts'
 import { AssistantMarkdown } from '../src/client/chat/AssistantMarkdown.tsx'
 import type { ChatNodeOwnerProps, ChatViewSlotProps } from '../src/client/contract/slots.ts'

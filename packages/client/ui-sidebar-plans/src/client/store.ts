@@ -10,9 +10,9 @@
  * Writers run between `scanning` and `forget`, and the face stops dispatching
  * once the record's signal aborts.
  */
-import { defineStore, type EngineStoreHandle } from '@qilin/client-store'
-import type { RemoteFailure } from '@qilin/api-remotes/client'
-import type { TabId } from '@qilin/client-ui-dockkit'
+import { defineStore, type EngineStoreHandle } from '@qilin-agent/client-store'
+import type { RemoteFailure } from '@qilin-agent/api-remotes/client'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
 import type { PlanRow } from './plans.ts'
 
 /** What one tab last scanned. */

@@ -1,5 +1,5 @@
 /** Hold child execution until the parent's capacity probe has been recorded. */
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 
 export const name = 'subagent-activation-limit'
 export const inject = ['agents', 'settings', 'subagents']

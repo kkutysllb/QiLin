@@ -1,7 +1,7 @@
 /** Focus continuity after page operations replace docked or floating pane elements. */
 import { flushSync } from 'react-dom'
-import type { PaneId } from '@qilin/client-ui-dockkit'
-import type { SessionId } from '@qilin/session/types'
+import type { PaneId } from '@qilin-agent/client-ui-dockkit'
+import type { SessionId } from '@qilin-agent/session/types'
 import { visibleSidebarPane } from '../focus.ts'
 
 /**

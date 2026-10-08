@@ -1,8 +1,8 @@
 /** Session objects owned by a client test's explicitly started Gateway assembly. */
 import { onTestFinished } from 'vitest'
-import type { RemoteMock } from '@qilin/remote-mock'
-import type { TestClient } from '@qilin/client-test-runtime/src/assembly/index.ts'
-import type { SessionId } from '@qilin/session/types'
+import type { RemoteMock } from '@qilin-agent/remote-mock'
+import type { TestClient } from '@qilin-agent/client-test-runtime/src/assembly/index.ts'
+import type { SessionId } from '@qilin-agent/session/types'
 import { Session, type SessionOptions } from '../../src/client/sessions/session.ts'
 import { sessionWorld } from './session.client.ts'
 

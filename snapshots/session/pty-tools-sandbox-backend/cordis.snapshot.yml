@@ -4,15 +4,15 @@
 
 - insert:
     - id: pty
-      name: '@qilin/terminal'
+      name: '@qilin-agent/terminal'
     - id: pty-snapshot-backend
       name: './pty-snapshot-backend.mjs'
     - id: tool-terminal
-      name: '@qilin/tool-terminal'
+      name: '@qilin-agent/tool-terminal'
       config:
         maxResultBytes: 64
     - id: llm-replay
-      name: '@qilin/llm-replay'
+      name: '@qilin-agent/llm-replay'
       config:
         providers:
           - id: deepseek-official

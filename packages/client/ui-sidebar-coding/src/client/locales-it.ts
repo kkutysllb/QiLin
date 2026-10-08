@@ -3,7 +3,7 @@
  * consumed by the better-locale override store (see `locales.ts` for the
  * zh/en/ja lookup chain and the `attachBetterLocale` contract).
  *
- * @module @qilin/client-ui-sidebar-coding/client/locales-it
+ * @module @qilin-agent/client-ui-sidebar-coding/client/locales-it
  */
 
 export const it: Record<string, string> = {

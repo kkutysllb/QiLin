@@ -1,9 +1,9 @@
 /** Inspector ranks precise and nearby reveal candidates from the loaded Chat model. */
 
 import { expect, it } from 'vitest'
-import { ConversationLocationIndex } from '@qilin/client-ui-conversation/client'
-import { SessionSeq, type SessionEvent } from '@qilin/session/types'
-import type { ChatConversationViewNode } from '@qilin/client-ui-chat/client'
+import { ConversationLocationIndex } from '@qilin-agent/client-ui-conversation/client'
+import { SessionSeq, type SessionEvent } from '@qilin-agent/session/types'
+import type { ChatConversationViewNode } from '@qilin-agent/client-ui-chat/client'
 import { resolveChatRevealTargets } from '../src/client/views/chat-node/reveal-target.ts'
 
 function node(key: string, anchorSeq: number, kind = 'user', turnNumber = 1, stepNumber = 1): ChatConversationViewNode {

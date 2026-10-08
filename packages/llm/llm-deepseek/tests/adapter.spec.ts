@@ -1,30 +1,30 @@
 /** HTTP lifecycle, routing and optional Cordis services under real composition. */
-import type { AnonymousUserId } from '@qilin/anonymous-user-id'
+import type { AnonymousUserId } from '@qilin-agent/anonymous-user-id'
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context, LoggerLevel, Service } from '@qilin/kylin'
-import LocalAttachments from '@qilin/attachment-local'
-import AgentRegistry from '@qilin/agent'
-import AgentLoop from '@qilin/agent-loop'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import { AttachmentId } from '@qilin/attachment'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import LlmRuntime, { createAssistantMessage, createDeveloperMessage, createSystemMessage, createToolResultMessage, createUserMessage, ToolCallId } from '@qilin/llm'
-import type { Message } from '@qilin/llm'
-import { credentialRef } from '@qilin/credentials'
-import LocalCredentials from '@qilin/credentials-local'
+import { Context, LoggerLevel, Service } from '@qilin-agent/kylin'
+import LocalAttachments from '@qilin-agent/attachment-local'
+import AgentRegistry from '@qilin-agent/agent'
+import AgentLoop from '@qilin-agent/agent-loop'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import { AttachmentId } from '@qilin-agent/attachment'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import LlmRuntime, { createAssistantMessage, createDeveloperMessage, createSystemMessage, createToolResultMessage, createUserMessage, ToolCallId } from '@qilin-agent/llm'
+import type { Message } from '@qilin-agent/llm'
+import { credentialRef } from '@qilin-agent/credentials'
+import LocalCredentials from '@qilin-agent/credentials-local'
 import { MemorySettings } from '../../../settings/settings/tests/memory.ts'
-import SessionStore, { SessionId } from '@qilin/session'
+import SessionStore, { SessionId } from '@qilin-agent/session'
 import { DeepSeekAdapter } from '../src/adapter.ts'
 import { object } from '../src/replay.ts'
 import { DeepSeekFileStore } from '../src/file-store.ts'
-import * as Messages from '@qilin/llm-deepseek-api-key'
+import * as Messages from '@qilin-agent/llm-deepseek-api-key'
 import { adapter, assemble, chunks, MODEL, options, prepareExtensions, server, sse, textEvents, user, sourceModuleLoader } from './helpers.ts'
 
 const cleanup: (() => Promise<unknown>)[] = []
@@ -49,7 +49,7 @@ async function context() {
   return { ctx, home }
 }
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'saved-notice': { kind: 'saved-notice' }
   }
@@ -254,7 +254,7 @@ describe('direct Messages HTTP', () => {
       resolveAuth: () => Promise.resolve({ headers: { 'x-api-key': 'fixture-key' },
         onRequestError: async () => { throw new Error('credential storage unavailable') },
       }),
-      resolveUserId: () => 'fixture-user' as import('@qilin/anonymous-user-id').AnonymousUserId,
+      resolveUserId: () => 'fixture-user' as import('@qilin-agent/anonymous-user-id').AnonymousUserId,
       prepareExtensions,
     })
     await expect(chunks(llm.stream(options()))).rejects.toMatchObject({ code: 'AUTH', failure: { status: 401 } })
@@ -302,11 +302,11 @@ describe('Cordis provider composition', () => {
     await ctx.plugin(Loader)
     ctx.loader.builtins.include = Include
     const modules = new Map<string, unknown>([
-      ['@qilin/llm', LlmRuntime], ['@qilin/llm-deepseek-api-key', Messages],
-      ['@qilin/credentials-local', LocalCredentials],
-      ['@qilin/agent', AgentRegistry], ['@qilin/agent-loop', AgentLoop],
-      ['@qilin/session', SessionStore], ['@qilin/session-projection', SessionProjectionRegistry],
-      ['@qilin/system-prompt', SystemPrompt], ['@qilin/tools', ToolRuntime],
+      ['@qilin-agent/llm', LlmRuntime], ['@qilin-agent/llm-deepseek-api-key', Messages],
+      ['@qilin-agent/credentials-local', LocalCredentials],
+      ['@qilin-agent/agent', AgentRegistry], ['@qilin-agent/agent-loop', AgentLoop],
+      ['@qilin-agent/session', SessionStore], ['@qilin-agent/session-projection', SessionProjectionRegistry],
+      ['@qilin-agent/system-prompt', SystemPrompt], ['@qilin-agent/tools', ToolRuntime],
     ])
     // The importer supplies source modules while Loader still owns configuration and effects.
     for (const name of modules.keys()) {
@@ -462,6 +462,6 @@ it('selects the API-key credential from the actual endpoint', async () => {
 })
 
 // TODO(deepseek-account): restore "selects account or API-key credentials from
-// the actual endpoint" once `@qilin/deepseek-account` and the
-// `@qilin/llm-deepseek-account` provider exist here; until then every endpoint
+// the actual endpoint" once `@qilin-agent/deepseek-account` and the
+// `@qilin-agent/llm-deepseek-account` provider exist here; until then every endpoint
 // uses the API key and the account-token header is never sent.

@@ -13,12 +13,12 @@
  * `GitTitle.tsx`), what it says (`locales.ts`), and this module, which only
  * wires them together.
  */
-import type { Context as ClientContext } from '@qilin/kylin'
-import type {} from '@qilin/api-remotes/client'
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-session/client'
-import type {} from '@qilin/client-ui-sidebar-right/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/api-remotes/client'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-session/client'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
 import { GIT_ID, gitDefinition } from './definition.tsx'
 import { createGitReader, gitFace } from './face.ts'
 import { GitBody } from './GitBody.tsx'

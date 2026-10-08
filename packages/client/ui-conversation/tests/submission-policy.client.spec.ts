@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from 'vitest'
-import { stubConfigForm } from '@qilin/client-test-runtime'
+import { stubConfigForm } from '@qilin-agent/client-test-runtime'
 import {
   ComposerSubmissionPolicy, DEFAULT_BUSY_ENTER_BEHAVIOR, resolveSubmitMode,
 } from '../src/client/input/submission-policy.ts'

@@ -1,8 +1,8 @@
 /** Comment-preserving profile plugin enablement edits. */
 import { readFile } from 'node:fs/promises'
 import { isMap, isSeq, parseDocument } from 'yaml'
-import { loadOptionalPatches } from '@qilin/app-boot'
-import { writeFileAtomic } from '@qilin/atomic-write'
+import { loadOptionalPatches } from '@qilin-agent/app-boot'
+import { writeFileAtomic } from '@qilin-agent/atomic-write'
 
 /** Replace the last matching override or append one after existing insertions.
  * @param filename Current profile patch file.

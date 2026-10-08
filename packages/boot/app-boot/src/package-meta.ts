@@ -3,8 +3,8 @@
 import { readdirSync, readFileSync, realpathSync, statSync } from 'node:fs'
 import { dirname, extname, isAbsolute, relative, resolve, sep, win32 } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { ModuleLoader } from '@qilin/kylin-plugin-loader'
-import type { LocalizedText, PluginLocalizedMeta } from '@qilin/package-manifest'
+import { ModuleLoader } from '@qilin-agent/kylin-plugin-loader'
+import type { LocalizedText, PluginLocalizedMeta } from '@qilin-agent/package-manifest'
 import { barePackageName } from './profile-resolution/resolver.ts'
 
 const LANGUAGE_ID = /^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$/u

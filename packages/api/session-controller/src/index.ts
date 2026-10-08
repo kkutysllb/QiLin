@@ -2,17 +2,17 @@
 
 import { hostname } from 'node:os'
 import { resolve } from 'node:path'
-import type { Agent } from '@qilin/agent'
-import type {} from '@qilin/fs'
-import { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { errorChain } from '@qilin/llm'
-import type {} from '@qilin/client-file-upload'
-import { canOpenNativePath, nativeFileManager, nativeFileApplications, openNativeFileApplication, openNativeAssociatedPath, revealNativePath } from '@qilin/native-command'
-import type { SessionId } from '@qilin/session'
-import type { SessionInspection } from '@qilin/session-persistence'
-import { SessionQueryError, type SessionObservation } from '@qilin/session-query'
-import { Remote, RemoteError, TypertRemoteService } from '@qilin/typert-protocol'
+import type { Agent } from '@qilin-agent/agent'
+import type {} from '@qilin-agent/fs'
+import { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { errorChain } from '@qilin-agent/llm'
+import type {} from '@qilin-agent/client-file-upload'
+import { canOpenNativePath, nativeFileManager, nativeFileApplications, openNativeFileApplication, openNativeAssociatedPath, revealNativePath } from '@qilin-agent/native-command'
+import type { SessionId } from '@qilin-agent/session'
+import type { SessionInspection } from '@qilin-agent/session-persistence'
+import { SessionQueryError, type SessionObservation } from '@qilin-agent/session-query'
+import { Remote, RemoteError, TypertRemoteService } from '@qilin-agent/typert-protocol'
 import {
   ApiSessionAgentController,
   inspectApiSession,
@@ -81,7 +81,7 @@ export { ApiSessionNotFound } from './agent.ts'
 export { SessionFileReferences } from './file-references.ts'
 export { SessionSkillCatalog } from './skill-catalog.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Host Session business API and Remote namespace owner. */
     sessionController: SessionController

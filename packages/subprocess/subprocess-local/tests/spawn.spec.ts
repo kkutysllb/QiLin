@@ -12,8 +12,8 @@ import {
   taskkillProcessTree,
   validateSubprocessSpec,
 } from '../src/spawn.ts'
-import type { SubprocessHandle, SubprocessOutputReader } from '@qilin/subprocess'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
+import type { SubprocessHandle, SubprocessOutputReader } from '@qilin-agent/subprocess'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 import { waitWithAbort } from '../src/managed-owner.ts'
 
 vi.mock('node:child_process', async (importOriginal) => {
@@ -956,8 +956,8 @@ describe.skipIf(process.platform === 'win32')('tree-survivor escalation (termina
   })
 
   it('service teardown awaits tree survivors, not just handle settlement', async () => {
-    const { Context } = await import('@qilin/kylin')
-    const { default: LocalSubprocessRuntime } = await import('@qilin/subprocess-local')
+    const { Context } = await import('@qilin-agent/kylin')
+    const { default: LocalSubprocessRuntime } = await import('@qilin-agent/subprocess-local')
     const ctx = new Context()
     const fiber = await ctx.plugin(LocalSubprocessRuntime)
     ;(ctx.subprocess as InstanceType<typeof LocalSubprocessRuntime>).internals = { spillDir }

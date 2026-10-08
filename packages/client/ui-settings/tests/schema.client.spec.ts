@@ -1,5 +1,5 @@
-import { Context } from '@qilin/kylin'
-import Schema from '@qilin/schemastery'
+import { Context } from '@qilin-agent/kylin'
+import Schema from '@qilin-agent/schemastery'
 import { describe, expect, it } from 'vitest'
 import type { SchemaNode } from '../src/client/schema.ts'
 import { SettingsSchemaService } from '../src/client/schema.ts'

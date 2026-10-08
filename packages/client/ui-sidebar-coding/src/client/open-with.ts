@@ -9,7 +9,7 @@
  * without a DOM or a host route. The menu and the settings panel only consume
  * the exported types and functions.
  */
-import { randomUUID } from '@qilin/util-crypto'
+import { randomUUID } from '@qilin-agent/util-crypto'
 import type { CopyKey } from './locales.ts'
 
 /** One user-configured editor (persisted in `pluginSettings['editor'].openWith`). */

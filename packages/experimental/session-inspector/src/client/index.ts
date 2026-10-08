@@ -1,8 +1,8 @@
 /** Browser plugin contributing the Session Inspector Log sidebar tab. */
 
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-ui-sidebar-right/client'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
 import { en, NS, zh } from './locales.ts'
 import { registerInspectorTab } from './views/index.ts'
 

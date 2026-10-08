@@ -1,14 +1,14 @@
 /**
  * Durable and model-facing Schedule value types.
- * @module @qilin/schedule
+ * @module @qilin-agent/schedule
  */
 
-import type { SessionId } from '@qilin/session/types'
-import type { MessageId } from '@qilin/llm/brand'
-import type { Branded } from '@qilin/brand'
-import type {} from '@qilin/session/types'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { MessageId } from '@qilin-agent/llm/brand'
+import type { Branded } from '@qilin-agent/brand'
+import type {} from '@qilin-agent/session/types'
 // Type-only: the Workspace registry's archive-admission family map this plugin merges `schedule` into.
-import type {} from '@qilin/workspace/types'
+import type {} from '@qilin-agent/workspace/types'
 
 /** Stable globally unique reminder identity. */
 export type ScheduleId = Branded<'ScheduleId'>
@@ -349,14 +349,14 @@ export type ScheduleDeleteResult =
 /** Canonical `schedule_delete` value. */
 export type ScheduleDeleteValue = ScheduleDeleteResult | ScheduleToolError
 
-declare module '@qilin/workspace/types' {
+declare module '@qilin-agent/workspace/types' {
   interface SessionActivityKindMap {
     /** A scheduled follow-up for this session is still active. */
     schedule: true
   }
 }
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /**
      * Versioned Schedule mutation. The owning package validates the complete
@@ -470,7 +470,7 @@ export type ScheduleDeliveryHistoryResult =
   }
   | { readonly id: ScheduleId; readonly code: 'schedule_not_found' | 'delivery_cursor_not_found' }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Events {
     /** Durable task set changed; clients refetch global task and Session-active catalogs.
      * @mode emit

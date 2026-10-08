@@ -2,8 +2,8 @@
 
 import type { IncomingMessage } from 'node:http'
 import type { Duplex } from 'node:stream'
-import { Deque } from '@qilin/deque'
-import { RemoteError, remoteErrorOf, type PeerScope } from '@qilin/typert-protocol'
+import { Deque } from '@qilin-agent/deque'
+import { RemoteError, remoteErrorOf, type PeerScope } from '@qilin-agent/typert-protocol'
 import WebSocket, { WebSocketServer, type RawData } from 'ws'
 import {
   parseRemoteStreamClientMessage,

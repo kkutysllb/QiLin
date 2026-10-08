@@ -1,22 +1,22 @@
 /** Workspace archive and directory UI capability. */
 
-import { Service, type Context } from '@qilin/kylin'
-import type { ClientRemote, DirectoryListing, RemoteFailure, RemoteResult } from '@qilin/api-remotes/client'
+import { Service, type Context } from '@qilin-agent/kylin'
+import type { ClientRemote, DirectoryListing, RemoteFailure, RemoteResult } from '@qilin-agent/api-remotes/client'
 import type {
   ISessions,
   SessionReference,
   SessionTarget,
   SessionListState,
-} from '@qilin/api-session-controller/client'
-import { createSnapshotStore, type ObservableSnapshot } from '@qilin/client-store'
-import type { SubagentAddress } from '@qilin/subagent/client'
+} from '@qilin-agent/api-session-controller/client'
+import { createSnapshotStore, type ObservableSnapshot } from '@qilin-agent/client-store'
+import type { SubagentAddress } from '@qilin-agent/subagent/client'
 import type {
   IWorkspaces, WorkspaceId, WorkspaceView,
-} from '@qilin/api-workspace-controller/client'
-import type { SessionId } from '@qilin/session/types'
+} from '@qilin-agent/api-workspace-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
 // Type-only: the workbench state owner this navigation coordinates with (D3).
-import type { Workbench } from '@qilin/client-ui-workbench/client'
-import type {} from '@qilin/client-ui-layout/client'
+import type { Workbench } from '@qilin-agent/client-ui-workbench/client'
+import type {} from '@qilin-agent/client-ui-layout/client'
 import { pinOrderAccounts, pinOrderSource } from './pin-order.ts'
 import type { WorkspaceViewStoreActions } from './stores.ts'
 
@@ -112,7 +112,7 @@ export interface UiWorkspace {
   createDirectory(path: string, name: string): Promise<string>
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Cross-Controller Workspace navigation and directory UI capability. */
     uiWorkspace: UiWorkspace

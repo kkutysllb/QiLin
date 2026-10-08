@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { SessionFormatEventCollector, type SessionFormatEvent } from '@qilin/session-format'
-import { createSessionFormatCatalogWithChildren, sessionFormatCatalog } from '@qilin/session-format-catalog'
+import { SessionFormatEventCollector, type SessionFormatEvent } from '@qilin-agent/session-format'
+import { createSessionFormatCatalogWithChildren, sessionFormatCatalog } from '@qilin-agent/session-format-catalog'
 import { releasedV4SessionFormatCodec } from '../src/codec.ts'
 
 const header = { type: 'session', version: 4, id: 'system-fields', createdAt: 1, delegationDepth: 0, isSeeded: false }
@@ -9,7 +9,7 @@ for (const event of [
   { type: 'turn/start', seq: 0, time: 1, data: { turn: 1 } },
   { type: 'step/start', seq: 1, time: 1, data: { turn: 1, step: 1 } },
   { type: 'system/message', seq: 2, time: 1, surfaceOp: 'append', data: { turn: 1, step: 1, message: {
-    id: 'system', role: 'system', source: { kind: 'plugin', plugin: '@qilin/system-prompt' }, content: [],
+    id: 'system', role: 'system', source: { kind: 'plugin', plugin: '@qilin-agent/system-prompt' }, content: [],
   } } },
 ]) migrated.decodeRow(event)
 const source = (migrated.finish().events[2]?.data as { message: { source: object } }).message.source

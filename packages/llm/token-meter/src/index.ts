@@ -1,30 +1,30 @@
 /**
  * Single replay-aware token-meter service for request and surface pressure.
  *
- * @module @qilin/token-meter
+ * @module @qilin-agent/token-meter
  */
 
-import { Context, Service } from '@qilin/kylin'
-import type {} from '@qilin/compaction-image-offload/projection'
-import z from '@qilin/schemastery'
-import { assembleAssistantStream } from '@qilin/llm'
-import type { LlmImageRequestPricing, LlmRuntime, Message, TokenUsage } from '@qilin/llm'
-import { deepFreeze } from '@qilin/util-values'
+import { Context, Service } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/compaction-image-offload/projection'
+import z from '@qilin-agent/schemastery'
+import { assembleAssistantStream } from '@qilin-agent/llm'
+import type { LlmImageRequestPricing, LlmRuntime, Message, TokenUsage } from '@qilin-agent/llm'
+import { deepFreeze } from '@qilin-agent/util-values'
 import type {
   EpochHeader,
   Session,
   SessionEvent,
   SessionLogOffset as SessionLogOffsetType,
-} from '@qilin/session'
+} from '@qilin-agent/session'
 import {
   canonicalHeader,
   headerEquals,
   isSurfaceEvent,
   SessionLogOffset,
   SessionSeq,
-} from '@qilin/session'
+} from '@qilin-agent/session'
 // Type-only: activates the `ctx.sessionProjections` Context declaration.
-import type {} from '@qilin/session-projection'
+import type {} from '@qilin-agent/session-projection'
 import type {
   TokenMeasurement,
   TokenMeasurementBaseline,
@@ -91,7 +91,7 @@ function validateConfigKeys(config: TokenMeterConfig): void {
   }
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     tokenMeter: TokenMeter
   }

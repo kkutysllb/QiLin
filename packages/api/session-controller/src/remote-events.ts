@@ -6,7 +6,7 @@ type SessionControllerRemoteEvent =
   | 'api-session/removed'
   | 'api-session/status'
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface TypertRemoteEventSelection extends
     Record<SessionControllerRemoteEvent, true> {}
 }

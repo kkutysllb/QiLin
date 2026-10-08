@@ -3,7 +3,7 @@ description: "动态 Kylin 包的浏览器半说明，供选择、组合或排�
 kind: "package-reference"
 ---
 
-# @qilin/kylin-client-runner
+# @qilin-agent/kylin-client-runner
 
 [English](README.md) | 中文
 

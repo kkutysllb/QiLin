@@ -3,24 +3,24 @@
  * QueueDock rendering and operations: authoritative rows, inline editing,
  * collapse state, removal, QueueDock Steer, failure notices, and live retirement.
  */
-import type { GlobalStandardProps } from '@qilin/client-ui-slots'
+import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react'
 import { useSyncExternalStore } from 'react'
 import type {
   SessionListState, SessionSnapshot, UseProjection,
-} from '@qilin/api-session-controller/client'
-import type { InboxState } from '@qilin/agent/types'
-import type { UserMessage } from '@qilin/llm/types'
-import type { MessageId } from '@qilin/llm/brand'
-import type { SessionId } from '@qilin/session/types'
-import type { SnapshotSelectorHook } from '@qilin/client-ui-slots'
-import { createSnapshotStore } from '@qilin/client-store'
+} from '@qilin-agent/api-session-controller/client'
+import type { InboxState } from '@qilin-agent/agent/types'
+import type { UserMessage } from '@qilin-agent/llm/types'
+import type { MessageId } from '@qilin-agent/llm/brand'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { SnapshotSelectorHook } from '@qilin-agent/client-ui-slots'
+import { createSnapshotStore } from '@qilin-agent/client-store'
 import {
   bindSnapshotSelector, conversationSnapshot, makeTranslate,
-} from '@qilin/client-test-runtime'
-import type { SessionStatusSnapshot } from '@qilin/client-ui-session/client'
-import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
+} from '@qilin-agent/client-test-runtime'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
+import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 import type { InputState } from '../src/client/contract/input.ts'
 import { zh } from '../src/client/locales.ts'
 import { QueueDock, queueDockEntry, type QueueDockInjected, type QueueDockProps } from '../src/client/queue/QueueDock.tsx'

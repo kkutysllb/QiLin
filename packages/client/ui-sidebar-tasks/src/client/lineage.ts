@@ -1,6 +1,6 @@
 /** UI Sidebar Tasks-owned projection of descendant counts from Session summaries. */
 
-import type { SessionId } from '@qilin/session/types'
+import type { SessionId } from '@qilin-agent/session/types'
 
 interface LineageEntry {
   readonly id: SessionId

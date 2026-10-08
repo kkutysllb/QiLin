@@ -8,8 +8,8 @@
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { expect, it, onTestFailed } from 'vitest'
-import { LlmAdapter, type GenerateOptions, type StreamChunk } from '@qilin/llm'
-import type {} from '@qilin/agent-default-model'
+import { LlmAdapter, type GenerateOptions, type StreamChunk } from '@qilin-agent/llm'
+import type {} from '@qilin-agent/agent-default-model'
 import { launchWebScaffold, watchConsole, type WebScaffold } from '../tests/scaffold.ts'
 import {
   connectFreshWorkspace, newEnglishPage, saveFailureShot, writeComposerDraft,

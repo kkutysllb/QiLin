@@ -2,7 +2,7 @@
 description: "渲染会话对话节点、历史图片、操作、本地化和滚动状态的浏览器 Chat target。"
 kind: "package-reference"
 ---
-# @qilin/client-ui-chat
+# @qilin-agent/client-ui-chat
 
 [English](README.md) | 中文
 

@@ -2,16 +2,16 @@
  * Backend-shared storage validation: the version gate, the fail-closed event
  * vocabulary, append-batch materialization, and contiguity — one place so
  * every backend refuses the same inputs identically.
- * @module @qilin/session-persistence/storage-contract
+ * @module @qilin-agent/session-persistence/storage-contract
  */
 
 import {
   adoptSessionEvent,
   KNOWN_SESSION_EVENT_TYPES,
   SESSION_FORMAT_VERSION,
-} from '@qilin/session'
-import { snapshotJsonValue } from '@qilin/util-values'
-import type { SessionEvent, SessionHeader, SessionId } from '@qilin/session'
+} from '@qilin-agent/session'
+import { snapshotJsonValue } from '@qilin-agent/util-values'
+import type { SessionEvent, SessionHeader, SessionId } from '@qilin-agent/session'
 import {
   SessionFormatUnsupportedError,
   SessionPersistenceCorruptionError,

@@ -20,8 +20,8 @@ import {
   IconAgentPresetOutline16, IconArchiveOutline20, IconChevronLeftOutline14,
   IconCloseOutline16, IconDataOutline16, IconPersonalizationOutline16,
   IconQuestionOutline14, IconSettingsOutline16, useModalLayer,
-} from '@qilin/client-ui-primitives'
-import type { ConnectionIndicatorState } from '@qilin/client-ui-primitives'
+} from '@qilin-agent/client-ui-primitives'
+import type { ConnectionIndicatorState } from '@qilin-agent/client-ui-primitives'
 import type { SettingsRootComponentProps, SettingsSectionRow } from './shell-contract.ts'
 import css from './SettingsRoot.module.css'
 

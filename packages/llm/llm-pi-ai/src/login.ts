@@ -8,9 +8,9 @@
  */
 
 import type { AuthEvent, AuthPrompt, AuthType, Provider } from '@earendil-works/pi-ai'
-import type { Context } from '@qilin/kylin'
-import type { AuthorizationMethod, AuthorizationPrompt, AuthorizationSession } from '@qilin/authorization'
-import { isCredentialKeySegment } from '@qilin/credentials'
+import type { Context } from '@qilin-agent/kylin'
+import type { AuthorizationMethod, AuthorizationPrompt, AuthorizationSession } from '@qilin-agent/authorization'
+import { isCredentialKeySegment } from '@qilin-agent/credentials'
 import { catalogProvider, catalogProviderIds } from './catalog.ts'
 import { recordKeyFor } from './auth.ts'
 import type { PiAiAuthInjection } from './adapter.ts'

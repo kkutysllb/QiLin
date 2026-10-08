@@ -3,7 +3,7 @@ description: "面向用户与维护者的语义会话持久性检查点说明，
 kind: "package-reference"
 ---
 
-# @qilin/session-checkpoint-policy
+# @qilin-agent/session-checkpoint-policy
 
 [English](README.md) | 中文
 
@@ -37,10 +37,10 @@ kind: "package-reference"
 
 ```yaml
 - id: session-persistence
-  name: '@qilin/session-persistence-jsonl'
+  name: '@qilin-agent/session-persistence-jsonl'
 
 - id: session-checkpoints
-  name: '@qilin/session-checkpoint-policy'
+  name: '@qilin-agent/session-checkpoint-policy'
 ```
 
 ### 什么会变得持久

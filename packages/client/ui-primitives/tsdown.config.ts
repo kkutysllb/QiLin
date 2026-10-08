@@ -1,6 +1,6 @@
 import { staticLinked } from '../tsdown.client.ts'
 
 export default staticLinked(
-  '@qilin/client-ui-primitives',
+  '@qilin-agent/client-ui-primitives',
   ['lib/types/index.js'],
 )

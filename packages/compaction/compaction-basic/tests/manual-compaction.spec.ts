@@ -1,17 +1,17 @@
-import { imageOffloadProjection } from '@qilin/compaction-image-offload/projection'
+import { imageOffloadProjection } from '@qilin-agent/compaction-image-offload/projection'
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import AgentLoop from '@qilin/agent-loop'
-import { mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'
-import { CommandId } from '@qilin/commands/brand'
-import { BasicCompactionEngine } from '@qilin/compaction-basic'
-import { CompactionId, isCompactCheckpointSource, ManualCompactionError } from '@qilin/compaction'
-import type { CompactionResult } from '@qilin/compaction'
+import { Context } from '@qilin-agent/kylin'
+import AgentLoop from '@qilin-agent/agent-loop'
+import { mountAgentLoopTestDependencies } from '@qilin-agent/agent-loop-testkit'
+import { CommandId } from '@qilin-agent/commands/brand'
+import { BasicCompactionEngine } from '@qilin-agent/compaction-basic'
+import { CompactionId, isCompactCheckpointSource, ManualCompactionError } from '@qilin-agent/compaction'
+import type { CompactionResult } from '@qilin-agent/compaction'
 import {
   createAssistantMessage,
   createUserMessage,
   LlmAdapter,
-} from '@qilin/llm'
+} from '@qilin-agent/llm'
 import type {
   ContentBlock,
   LlmResolvedModelInfo,
@@ -19,19 +19,19 @@ import type {
   RequestMessage,
   StreamChunk,
   TokenUsage,
-} from '@qilin/llm'
-import SessionStore, { buildForkSeed, Session, SessionId, type SessionEvent } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import LlmRuntime from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import TokenMeter from '@qilin/token-meter'
-import type { Agent } from '@qilin/agent'
+} from '@qilin-agent/llm'
+import SessionStore, { buildForkSeed, Session, SessionId, type SessionEvent } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import LlmRuntime from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import TokenMeter from '@qilin-agent/token-meter'
+import type { Agent } from '@qilin-agent/agent'
 import type {
   SummarizationInput,
   SummaryResult,
-} from '@qilin/compaction-basic/src/summarizer.ts'
+} from '@qilin-agent/compaction-basic/src/summarizer.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'listener': { kind: 'listener' } & ContextFormed
     'rival': { kind: 'rival' } & ContextFormed

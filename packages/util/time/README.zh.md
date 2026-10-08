@@ -34,7 +34,7 @@ kind: "package-library"
 ## API
 
 ```ts
-import { canonicalClientTimeZone } from '@qilin/util-time'
+import { canonicalClientTimeZone } from '@qilin-agent/util-time'
 ```
 
 | 导出 | 职责 |

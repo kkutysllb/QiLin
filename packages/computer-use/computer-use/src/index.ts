@@ -1,12 +1,12 @@
 /**
  * Exclusive named registration for the computer-use capability.
- * @module @qilin/computer-use
+ * @module @qilin-agent/computer-use
  */
 
-import { Context, Service } from '@qilin/kylin'
+import { Context, Service } from '@qilin-agent/kylin'
 import type { ComputerUseProviderName } from './brand.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     computerUse: ComputerUseRegistry
   }

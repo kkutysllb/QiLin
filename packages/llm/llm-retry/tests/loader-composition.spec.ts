@@ -3,17 +3,17 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import AgentRegistry from '@qilin/agent'
-import AgentLoop from '@qilin/agent-loop'
-import LlmRuntime, { createUserMessage, LlmAdapter, LlmError, resolveRetryPolicy  } from '@qilin/llm'
-import type { GenerateOptions, ResolvedRetryPolicy, StreamChunk } from '@qilin/llm'
-import SessionStore, { SessionId } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import AgentRegistry from '@qilin-agent/agent'
+import AgentLoop from '@qilin-agent/agent-loop'
+import LlmRuntime, { createUserMessage, LlmAdapter, LlmError, resolveRetryPolicy  } from '@qilin-agent/llm'
+import type { GenerateOptions, ResolvedRetryPolicy, StreamChunk } from '@qilin-agent/llm'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
 import * as retry from '../src/index.ts'
 
 let root: string | undefined
@@ -59,14 +59,14 @@ async function loadYaml(lines: readonly string[]): Promise<Context> {
   await context.plugin(Loader)
   context.loader.builtins.include = Include
   const modules = new Map<string, unknown>([
-    ['@qilin/llm', LlmRuntime],
-    ['@qilin/session', SessionStore],
-    ['@qilin/session-projection', SessionProjectionRegistry],
-    ['@qilin/system-prompt', SystemPrompt],
-    ['@qilin/tools', ToolRuntime],
-    ['@qilin/agent', AgentRegistry],
-    ['@qilin/llm-retry', retry],
-    ['@qilin/agent-loop', AgentLoop],
+    ['@qilin-agent/llm', LlmRuntime],
+    ['@qilin-agent/session', SessionStore],
+    ['@qilin-agent/session-projection', SessionProjectionRegistry],
+    ['@qilin-agent/system-prompt', SystemPrompt],
+    ['@qilin-agent/tools', ToolRuntime],
+    ['@qilin-agent/agent', AgentRegistry],
+    ['@qilin-agent/llm-retry', retry],
+    ['@qilin-agent/agent-loop', AgentLoop],
   ])
   context.loader.internal = {
     version: 'v2',
@@ -89,14 +89,14 @@ describe('real Loader composition', () => {
   // to trip the default 5s budget on cold caches.
   it('loads provider-supplied policy and records recovery through the shipping loop', { timeout: 60_000 }, async () => {
     const loaded = await loadYaml([
-      "- name: '@qilin/llm'",
-      "- name: '@qilin/session'",
-      "- name: '@qilin/session-projection'",
-      "- name: '@qilin/system-prompt'",
-      "- name: '@qilin/tools'",
-      "- name: '@qilin/agent'",
-      "- name: '@qilin/llm-retry'",
-      "- name: '@qilin/agent-loop'",
+      "- name: '@qilin-agent/llm'",
+      "- name: '@qilin-agent/session'",
+      "- name: '@qilin-agent/session-projection'",
+      "- name: '@qilin-agent/system-prompt'",
+      "- name: '@qilin-agent/tools'",
+      "- name: '@qilin-agent/agent'",
+      "- name: '@qilin-agent/llm-retry'",
+      "- name: '@qilin-agent/agent-loop'",
     ])
 
     const unloaded = [...loaded.loader.entries()]

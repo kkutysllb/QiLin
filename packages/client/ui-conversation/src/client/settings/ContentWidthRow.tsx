@@ -4,9 +4,9 @@
  * value — and steps it by CONTENT_WIDTH_STEP. Reverting to the clamp is an
  * explicit action, never a stepper bound.
  */
-import type { SnapshotStore } from '@qilin/client-store'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
-import { IconChevronDownOutline14, IconChevronUpOutline14 } from '@qilin/client-ui-primitives'
+import type { SnapshotStore } from '@qilin-agent/client-store'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import { IconChevronDownOutline14, IconChevronUpOutline14 } from '@qilin-agent/client-ui-primitives'
 import {
   CONTENT_WIDTH_ADAPTIVE, CONTENT_WIDTH_MAX, CONTENT_WIDTH_MIN, CONTENT_WIDTH_STEP,
 } from '../../conversation-settings.ts'

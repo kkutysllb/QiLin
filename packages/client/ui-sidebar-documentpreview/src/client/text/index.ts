@@ -1,11 +1,11 @@
 /** Plain text implementation registered through the same document extension points as other viewers. */
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {} from '../index.ts'
 import type { DocumentPreviewDefinition } from '../document/registry.ts'
 import { TextBody } from './TextBody.tsx'
 
 /** Stable plain-text implementation identity within this package. */
-export const PLAIN_BODY_ID = '@qilin/client-ui-sidebar-documentpreview/text'
+export const PLAIN_BODY_ID = '@qilin-agent/client-ui-sidebar-documentpreview/text'
 
 /**
  * Describe the plain-text fallback.

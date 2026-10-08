@@ -3,7 +3,7 @@ description: "Enable experimental speech input from the plugin manager."
 kind: "package-bundle"
 ---
 
-# @qilin/experimental-voice-input-bundle
+# @qilin-agent/experimental-voice-input-bundle
 
 English | [中文](README.zh.md)
 

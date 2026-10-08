@@ -4,7 +4,7 @@ import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, expect, it, vi } from 'vitest'
-import { TimeoutReason } from '@qilin/timeout'
+import { TimeoutReason } from '@qilin-agent/timeout'
 import { downloadAsset } from '../src/runtime.ts'
 
 const cleanup: Array<() => Promise<void>> = []

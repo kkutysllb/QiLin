@@ -115,7 +115,7 @@ export function FloatingPane(props: {
         : resizePane(drag.start, drag.mode, dx, dy, viewport()))
     }
     /* jscpd:ignore-start — window pointer-listener boilerplate identical to the graph
-       canvas effects in @qilin/client-ui-sidebar-tasks TasksGraphView.tsx and this
+       canvas effects in @qilin-agent/client-ui-sidebar-tasks TasksGraphView.tsx and this
        package's WorkflowGraph.tsx; each effect keeps its own deps, so the shared
        shape is marked rather than forced into a hook */
     const onUp = (): void => { setInteracting(false) }

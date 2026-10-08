@@ -5,13 +5,13 @@
  * reconciles from the authoritative item carried by the reply, mutations
  * serialize per Session, and a disposed controller stops publishing.
  */
-import { RemoteMock, ok } from '@qilin/remote-mock'
+import { RemoteMock, ok } from '@qilin-agent/remote-mock'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { MessageId, SessionId } from '@qilin/api-remotes/client'
-import { RemoteError } from '@qilin/client-test-runtime'
+import type { MessageId, SessionId } from '@qilin-agent/api-remotes/client'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
 import type {
   MessageFeedbackItem, MessageFeedbackVersion,
-} from '@qilin/message-feedback/types'
+} from '@qilin-agent/message-feedback/types'
 import { MessageFeedbackController } from '../src/client/controller.ts'
 
 const SESSION = 's-1' as SessionId

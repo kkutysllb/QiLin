@@ -5,10 +5,10 @@
  * fiber unloads.
  */
 
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup, render } from '@testing-library/react'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
 import { apply, inject } from '../src/client/index.ts'
 import { QilinSealArtist, QilinSealHeroMark, QilinSealMark } from '../src/client/Seal.tsx'
 import { apply as hostApply } from '../src/index.ts'

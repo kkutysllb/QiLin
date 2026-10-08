@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import type { Agent } from '@qilin/agent'
-import { ReasoningEffortId } from '@qilin/llm'
-import { Session, SessionId } from '@qilin/session'
+import type { Agent } from '@qilin-agent/agent'
+import { ReasoningEffortId } from '@qilin-agent/llm'
+import { Session, SessionId } from '@qilin-agent/session'
 import { resolveChildAgentOptions } from '../src/child-agent.ts'
 
 function parentAgent(): Agent {

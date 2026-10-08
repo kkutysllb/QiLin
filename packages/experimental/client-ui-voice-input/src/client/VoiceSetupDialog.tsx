@@ -1,7 +1,7 @@
 /** Shared modal for voice activation and unavailable recognition. */
-import { Button, Modal } from '@qilin/client-ui-primitives'
-import type { PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
-import type {} from '@qilin/client-ui-plugin-manager/client'
+import { Button, Modal } from '@qilin-agent/client-ui-primitives'
+import type { PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-plugin-manager/client'
 import type { NS } from './locales.ts'
 
 type VoiceSetupDialogProps = PropsLocale<typeof NS>

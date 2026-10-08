@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { brandString } from '@qilin/brand'
+import { brandString } from '@qilin-agent/brand'
 import type { ConversationViewNode } from '../src/client/contract/conversation.ts'
 import type { GroupKey, GroupSnapshot, GroupUpdate, NodeKey, NodeReference, RenderEntry } from '../src/client/contract/groups.ts'
 import { ConversationGroupStore } from '../src/client/conversation/group-store.ts'

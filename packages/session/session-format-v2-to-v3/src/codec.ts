@@ -1,13 +1,13 @@
 /** V3 framing with hard structural admission and recoverable canonical event validation. */
 
-import { SessionFormatError, isSessionFormatJsonObject, snapshotSessionFormatJson } from '@qilin/session-format'
+import { SessionFormatError, isSessionFormatJsonObject, snapshotSessionFormatJson } from '@qilin-agent/session-format'
 import type {
   SessionFormatCodec,
   SessionFormatCurrentEncoder,
   SessionFormatEvent,
   SessionFormatHeader,
-} from '@qilin/session-format'
-import { releasedV2SessionFormatCodec } from '@qilin/session-format-v1-to-v2'
+} from '@qilin-agent/session-format'
+import { releasedV2SessionFormatCodec } from '@qilin-agent/session-format-v1-to-v2'
 import { assertReleasedV3Header, assertV3EventAdmission } from './validation.ts'
 import { assertV3Event, assertV3StructuralRow } from './payload.ts'
 

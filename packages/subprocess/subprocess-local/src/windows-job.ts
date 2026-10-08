@@ -5,11 +5,11 @@ import { spawn } from 'node:child_process'
 import { closeSync, openSync } from 'node:fs'
 import { devNull } from 'node:os'
 import type { Readable, Writable } from 'node:stream'
-import type { SubprocessOutcome, SubprocessSpawnSpec } from '@qilin/subprocess'
+import type { SubprocessOutcome, SubprocessSpawnSpec } from '@qilin-agent/subprocess'
 import {
   loadWin32ProcessBindings,
   probeCurrentTokenJobSupport,
-} from '@qilin/win32-process'
+} from '@qilin-agent/win32-process'
 import type { BoundProcessOwner, ManagedProcessLaunch } from './managed-owner.ts'
 import {
   type SerializedRunnerError,

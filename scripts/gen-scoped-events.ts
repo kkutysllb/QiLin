@@ -84,7 +84,7 @@ class ScopedEventGenerator {
       ' * Generated scoped-event routing-subject resolvers for qilin-scope dispatch.',
       ' * Do not edit by hand; run `pnpm run gen-scoped-events`.',
       ' *',
-      ' * @module @qilin/scope/scoped-events.generated',
+      ' * @module @qilin-agent/scope/scoped-events.generated',
       ' */',
       '',
       'type ScopedSubjectResolver = (args: readonly unknown[]) => unknown',
@@ -309,14 +309,14 @@ class ScopedEventGenerator {
   }
 }
 
-/** Return whether an Events interface is inside declare module '@qilin/kylin'. */
+/** Return whether an Events interface is inside declare module '@qilin-agent/kylin'. */
 function isCordisModuleInterface(node: ts.InterfaceDeclaration): boolean {
   const block = node.parent
   const declaration = block.parent
   return ts.isModuleBlock(block)
     && ts.isModuleDeclaration(declaration)
     && ts.isStringLiteral(declaration.name)
-    && declaration.name.text === '@qilin/kylin'
+    && declaration.name.text === '@qilin-agent/kylin'
 }
 
 /** Return whether a parameter is the explicit TypeScript this receiver. */

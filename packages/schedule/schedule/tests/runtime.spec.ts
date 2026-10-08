@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Agent } from '@qilin/agent'
-import { SessionId } from '@qilin/session'
-import { MessageId } from '@qilin/llm/brand'
-import { RemoteError } from '@qilin/typert-protocol'
+import type { Agent } from '@qilin-agent/agent'
+import { SessionId } from '@qilin-agent/session'
+import { MessageId } from '@qilin-agent/llm/brand'
+import { RemoteError } from '@qilin-agent/typert-protocol'
 import { ScheduleRuntime, MAX_TIMER_DELAY_MS } from '../src/runtime.ts'
 import {
   createAfterScheduleRecord, createAtScheduleRecord, createDailyScheduleRecord, createEveryScheduleRecord, ScheduleId,

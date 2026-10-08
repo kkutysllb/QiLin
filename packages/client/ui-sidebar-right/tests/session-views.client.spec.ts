@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { afterEach, expect, it, vi } from 'vitest'
-import { SlotTestRuntime } from '@qilin/client-test-runtime'
-import type { SessionId } from '@qilin/session/types'
-import type { TabId } from '@qilin/client-ui-dockkit'
+import { SlotTestRuntime } from '@qilin-agent/client-test-runtime'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
 import { SidebarSessionView } from '../src/client/session-view.ts'
 import { SidebarSessionViews } from '../src/client/session-views.ts'
 

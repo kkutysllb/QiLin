@@ -1,17 +1,17 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createMessage, createUserMessage } from '@qilin/llm'
-import type { TokenUsage } from '@qilin/llm'
-import SessionStore from '@qilin/session'
-import type { Session, SessionSeq } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import TokenMeter from '@qilin/token-meter'
-import type { ContextPressureProjection, TokenUsageProjection } from '@qilin/token-meter/client'
-import { RetryId } from '@qilin/llm-retry'
-import type { ContextFormed } from '@qilin/llm'
-import { CompactionId } from '@qilin/compaction'
+import { Context } from '@qilin-agent/kylin'
+import { createMessage, createUserMessage } from '@qilin-agent/llm'
+import type { TokenUsage } from '@qilin-agent/llm'
+import SessionStore from '@qilin-agent/session'
+import type { Session, SessionSeq } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import TokenMeter from '@qilin-agent/token-meter'
+import type { ContextPressureProjection, TokenUsageProjection } from '@qilin-agent/token-meter/client'
+import { RetryId } from '@qilin-agent/llm-retry'
+import type { ContextFormed } from '@qilin-agent/llm'
+import { CompactionId } from '@qilin-agent/compaction'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

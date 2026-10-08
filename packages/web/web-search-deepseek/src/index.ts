@@ -2,17 +2,17 @@
  * Register a DeepSeek-backed provider in `ctx.web`. It calls the Anthropic-compatible Messages API
  * with native `web_search_20250305`. The provider reuses `DEEPSEEK_API_KEY` but not
  * `DEEPSEEK_BASE_URL`; auxiliary search has its own endpoint configuration.
- * @module @qilin/web-search-deepseek
+ * @module @qilin-agent/web-search-deepseek
  */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type {} from '@qilin/agent'
-import { credentialRef } from '@qilin/credentials'
-import type {} from '@qilin/settings'
-import { launchEnvironmentOf } from '@qilin/launch-environment'
-import type {} from '@qilin/session'
-import type {} from '@qilin/web'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type {} from '@qilin-agent/agent'
+import { credentialRef } from '@qilin-agent/credentials'
+import type {} from '@qilin-agent/settings'
+import { launchEnvironmentOf } from '@qilin-agent/launch-environment'
+import type {} from '@qilin-agent/session'
+import type {} from '@qilin-agent/web'
 import {
   DeepSeekSearchProvider,
   DEEPSEEK_DEFAULT_API_VERSION,

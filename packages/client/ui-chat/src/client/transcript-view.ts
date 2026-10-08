@@ -1,7 +1,7 @@
 /** Host-backed work-details presentation policy. */
 
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
-import type { ConfigForm } from '@qilin/client-ui-settings/client'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
+import type { ConfigForm } from '@qilin-agent/client-ui-settings/client'
 import {
   DEFAULT_TRANSCRIPT_VIEW_MODE, LEGACY_TRANSCRIPT_VIEW_MODE, LEGACY_EXPANDED_TRANSCRIPT_VIEW_MODE, TRANSCRIPT_VIEW_FIELD,
   type ChatSettings, type TranscriptViewMode,

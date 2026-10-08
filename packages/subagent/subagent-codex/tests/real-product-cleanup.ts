@@ -1,5 +1,5 @@
 import { rm } from 'node:fs/promises'
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type { ResponsesFixture } from './responses-fixture.ts'
 
 interface RealProductResources {

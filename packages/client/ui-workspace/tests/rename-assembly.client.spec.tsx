@@ -13,14 +13,14 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, waitFor, within } from '@testing-library/react'
-import type { ISession } from '@qilin/api-session-controller/client'
-import type { WorkspaceId } from '@qilin/api-workspace-controller/client'
-import { SessionSeq, type SessionId } from '@qilin/session/types'
-import type { PropsRenderSlots } from '@qilin/client-ui-slots'
-import { RemoteError, SlotTestRuntime, usePinnedBrowserLanguages } from '@qilin/client-test-runtime'
-import { LocaleRuntime } from '@qilin/client-locale/client'
-import { apply as workbenchApply } from '@qilin/client-ui-workbench/client'
-import { apply, inject } from '@qilin/client-ui-workspace/client'
+import type { ISession } from '@qilin-agent/api-session-controller/client'
+import type { WorkspaceId } from '@qilin-agent/api-workspace-controller/client'
+import { SessionSeq, type SessionId } from '@qilin-agent/session/types'
+import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
+import { RemoteError, SlotTestRuntime, usePinnedBrowserLanguages } from '@qilin-agent/client-test-runtime'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
+import { apply as workbenchApply } from '@qilin-agent/client-ui-workbench/client'
+import { apply, inject } from '@qilin-agent/client-ui-workspace/client'
 
 // The service reads its initial locale from the browser; these specs assert
 // the shipped Chinese copy, so they state the browser they assume.

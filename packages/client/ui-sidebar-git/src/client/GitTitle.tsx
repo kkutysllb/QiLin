@@ -4,8 +4,8 @@
  * show the bare label.
  */
 import type { ReactNode } from 'react'
-import { IconBranchOutline16 } from '@qilin/client-ui-primitives'
-import type { PropsRuntime } from '@qilin/client-ui-slots'
+import { IconBranchOutline16 } from '@qilin-agent/client-ui-primitives'
+import type { PropsRuntime } from '@qilin-agent/client-ui-slots'
 import css from './GitBody.module.css'
 
 /**

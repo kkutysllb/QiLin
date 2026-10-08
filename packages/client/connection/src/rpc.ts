@@ -1,7 +1,7 @@
 /** Generic unary RPC contracts shared by the Host and Client Connection halves. */
 
-import type { Branded } from '@qilin/brand'
-import type { PeerScope } from '@qilin/typert-protocol'
+import type { Branded } from '@qilin-agent/brand'
+import type { PeerScope } from '@qilin-agent/typert-protocol'
 
 /** Correlation id minted by a caller and echoed by the Connection response. */
 export type RpcId = Branded<'rpc-id'>

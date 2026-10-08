@@ -1,7 +1,7 @@
 /** Validate declared workspace paths and address their native-open actions. */
-import type { PresentedFile } from '@qilin/tool-present/types'
-import type { SessionId } from '@qilin/session/types'
-import type { ToolCallId } from '@qilin/llm/brand'
+import type { PresentedFile } from '@qilin-agent/tool-present/types'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { ToolCallId } from '@qilin-agent/llm/brand'
 
 /** Authenticated POST route for opening a workspace file on the Host desktop. */
 export const PRESENT_OPEN_PATH = '/api/present.open'

@@ -2,12 +2,12 @@
 import { EventEmitter } from 'node:events'
 import { createServer, request as httpRequest } from 'node:http'
 import { Readable } from 'node:stream'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it } from 'vitest'
 import type { AddressInfo } from 'node:net'
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import type { AttachmentStore } from '@qilin/attachment'
-import type { IndexInjection, WebServer, WebRoute, WebUpgradeRoute } from '@qilin/host-webserver'
+import type { AttachmentStore } from '@qilin-agent/attachment'
+import type { IndexInjection, WebServer, WebRoute, WebUpgradeRoute } from '@qilin-agent/host-webserver'
 import {
   API_PATH,
   RpcId,

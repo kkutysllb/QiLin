@@ -11,10 +11,10 @@
  * stop-on-throw) or touch the agent loop. Composed by a backend in its
  * constructor.
  *
- * @module @qilin/session-telemetry/coordinator
+ * @module @qilin-agent/session-telemetry/coordinator
  */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import {
   SessionSeq,
   SessionLogOffset,
@@ -22,8 +22,8 @@ import {
   type SessionEvent,
   type SessionSeq as SessionSeqType,
   type SessionSeqCursor,
-} from '@qilin/session'
-import type { Agent } from '@qilin/agent'
+} from '@qilin-agent/session'
+import type { Agent } from '@qilin-agent/agent'
 import type { SessionTelemetrySink, SessionTelemetryRecord, SessionTelemetrySeverity } from './index.ts'
 
 /** Whether capture follows live events or reads the canonical log only when requested. */

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest'
-import { stubConfigForm } from '@qilin/client-test-runtime'
+import { stubConfigForm } from '@qilin-agent/client-test-runtime'
 import type { ChatSettings } from '../src/chat-settings.ts'
 import { TranscriptViewPolicy } from '../src/client/transcript-view.ts'
 

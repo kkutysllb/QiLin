@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/kylin-plugin-logger-console",
+  "name": "@qilin-agent/kylin-plugin-logger-console",
   "description": "Console logger exporter for cordis",
   "version": "1.0.3",
   "publishConfig": {
@@ -35,11 +35,11 @@
   "author": "Shigma <shigma10826@gmail.com>",
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "dependencies": {
-    "@qilin/cosmokit": "workspace:~",
-    "@qilin/schemastery": "workspace:~",
+    "@qilin-agent/cosmokit": "workspace:~",
+    "@qilin-agent/schemastery": "workspace:~",
     "supports-color": "^9.4.0"
   }
 }

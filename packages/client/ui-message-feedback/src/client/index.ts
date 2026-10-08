@@ -4,23 +4,23 @@
  * acknowledgement and failure toasts in conversation.input.overlay, and the `/feedback`
  * decoration that opens the dialog from the composer menu or a bare typed
  * command. One FeedbackSurface per Session backs every entry in that Session.
- * @module @qilin/client-ui-message-feedback/client
+ * @module @qilin-agent/client-ui-message-feedback/client
  */
 
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { SessionId } from '@qilin/session/types'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { SessionId } from '@qilin-agent/session/types'
 // Type-only: pulls the generated Remote API and ctx.remote merge through the Client assembly boundary.
-import type {} from '@qilin/api-remotes/client'
+import type {} from '@qilin-agent/api-remotes/client'
 // Type-only: pulls the ui-conversation SlotMap merge (the assistant-actions and overlay entries).
-import type {} from '@qilin/client-ui-conversation/client'
+import type {} from '@qilin-agent/client-ui-conversation/client'
 // Type-only: pulls the command UI's Context merge (ctx.commandUi).
-import type {} from '@qilin/client-ui-commands/client'
+import type {} from '@qilin-agent/client-ui-commands/client'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
-import type {} from '@qilin/client-locale/client'
+import type {} from '@qilin-agent/client-locale/client'
 // Type-only: pulls the SlotRegistry service merge (ctx.slots).
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-chat/client'
-import type {} from '@qilin/client-ui-session/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-chat/client'
+import type {} from '@qilin-agent/client-ui-session/client'
 import { FeedbackDialog } from './FeedbackDialog.tsx'
 import { MessageFeedbackActions } from './MessageFeedbackActions.tsx'
 import type { FeedbackDialogInjected, MessageFeedbackInjected } from './slots.ts'

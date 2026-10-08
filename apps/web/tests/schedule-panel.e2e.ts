@@ -3,7 +3,7 @@
 // The three rows that make durable scheduled tasks work ship together — the
 // Host service, the time context the model resolves "tomorrow at nine" with,
 // and this page — so this scenario is the only lane that observes them
-// composed: `@qilin/client-ui-schedule` renders its sidebar row and its task
+// composed: `@qilin-agent/client-ui-schedule` renders its sidebar row and its task
 // catalog only when the two Host rows above it activated. Zero model calls:
 // the page renders from one Host catalog read.
 import type { Browser, Page } from 'playwright'

@@ -1,9 +1,9 @@
 /** Client scope generations route local events independently of Host Agent residency. */
-import { Context as CordisContext } from '@qilin/kylin'
-import type { Context, Fiber } from '@qilin/kylin'
-import type { ClientRemote } from '@qilin/api-gateway/client'
-import type { SessionId } from '@qilin/session/types'
-import type { TypertRemoteScopeApi } from '@qilin/typert-protocol'
+import { Context as CordisContext } from '@qilin-agent/kylin'
+import type { Context, Fiber } from '@qilin-agent/kylin'
+import type { ClientRemote } from '@qilin-agent/api-gateway/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { TypertRemoteScopeApi } from '@qilin-agent/typert-protocol'
 
 /** Client Cordis Context carrying one Agent identity and its scoped Remote namespaces. */
 export type AgentContext = Omit<Context, 'remote'> & {

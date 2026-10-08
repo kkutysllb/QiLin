@@ -1,6 +1,6 @@
 /** Authorized Office input and complete PDF output, for the shared Host converter. */
-import type { WorkspaceFileBytes } from '@qilin/api-workspace-files/types'
-import type {} from '@qilin/typert-protocol'
+import type { WorkspaceFileBytes } from '@qilin-agent/api-workspace-files/types'
+import type {} from '@qilin-agent/typert-protocol'
 import type { OfficeSourceKey, OfficeToPdfGeneration, OfficeToPdfKey } from './identity.ts'
 export type { OfficeSourceKey, OfficeToPdfGeneration, OfficeToPdfKey } from './identity.ts'
 
@@ -50,7 +50,7 @@ export interface RenderedDocumentBytes extends WorkspaceFileBytes {
   readonly generation: OfficeToPdfGeneration
 }
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** The source was authorized, but its conversion failed. */
     'document-render/failed': { readonly reason: OfficeToPdfErrorCode }

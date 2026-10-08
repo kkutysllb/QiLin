@@ -23,11 +23,11 @@
  * already ended, and when the record goes away the bucket and the tab's
  * listing bookkeeping are forgotten, so no later settlement writes to it.
  */
-import type { ClientRemote, RemoteResult } from '@qilin/api-remotes/client'
-import type { BoundActions } from '@qilin/client-store'
-import type { TabId } from '@qilin/client-ui-dockkit'
-import type { WorkspaceFileNameSearch } from '@qilin/api-workspace-files/types'
-import type { SessionId } from '@qilin/session/types'
+import type { ClientRemote, RemoteResult } from '@qilin-agent/api-remotes/client'
+import type { BoundActions } from '@qilin-agent/client-store'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
+import type { WorkspaceFileNameSearch } from '@qilin-agent/api-workspace-files/types'
+import type { SessionId } from '@qilin-agent/session/types'
 import { joinEntryPath, parentDirectoryOf } from './file-mutations.ts'
 import type { EntryKind, TabReconcile, WorkspaceFileMutations } from './file-mutations.ts'
 import type { DirLevel, createFilesStore } from './store.ts'

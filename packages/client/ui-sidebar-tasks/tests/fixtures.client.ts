@@ -2,10 +2,10 @@
  * Fixtures the tasks specs share: one direct-child catalog, its child and
  * diagnostic rows, and one background-job row.
  */
-import type { SessionProjectionSnapshot } from '@qilin/api-session-controller/client'
-import type { JobView } from '@qilin/jobs/view'
-import type { SessionId } from '@qilin/session/types'
-import type { SubagentCatalogEntry, SubagentListEntry } from '@qilin/subagent/client'
+import type { SessionProjectionSnapshot } from '@qilin-agent/api-session-controller/client'
+import type { JobView } from '@qilin-agent/jobs/view'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { SubagentCatalogEntry, SubagentListEntry } from '@qilin-agent/subagent/client'
 import type { CatalogRow, CatalogSnapshot } from '../src/client/rows.ts'
 
 /**

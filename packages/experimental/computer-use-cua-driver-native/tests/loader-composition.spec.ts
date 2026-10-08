@@ -5,19 +5,19 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import AgentRegistry from '@qilin/agent'
-import AgentLoop from '@qilin/agent-loop'
-import ComputerUseRegistry from '@qilin/computer-use'
-import LocalAttachmentStore from '@qilin/attachment-local'
-import LlmRuntime, { LlmAdapter, ToolCallId, createUserMessage } from '@qilin/llm'
-import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@qilin/llm'
-import SessionStore, { SessionId } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import AgentRegistry from '@qilin-agent/agent'
+import AgentLoop from '@qilin-agent/agent-loop'
+import ComputerUseRegistry from '@qilin-agent/computer-use'
+import LocalAttachmentStore from '@qilin-agent/attachment-local'
+import LlmRuntime, { LlmAdapter, ToolCallId, createUserMessage } from '@qilin-agent/llm'
+import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@qilin-agent/llm'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
 import * as NativeProvider from '../src/index.ts'
 import { resetFixture, screenshotBase64 } from './fixtures/cua-driver.ts'
 
@@ -60,20 +60,20 @@ it('loads from cordis.yml and logs the native screenshot before the next model r
   root = await mkdtemp(join(tmpdir(), 'qilin-native-composition-'))
   const configPath = join(root, 'cordis.yml')
   const modules = new Map<string, unknown>([
-    ['@qilin/llm', LlmRuntime],
-    ['@qilin/session', SessionStore],
-    ['@qilin/session-projection', SessionProjectionRegistry],
-    ['@qilin/system-prompt', SystemPrompt],
-    ['@qilin/tools', ToolRuntime],
-    ['@qilin/agent', AgentRegistry],
-    ['@qilin/agent-loop', AgentLoop],
-    ['@qilin/attachment-local', LocalAttachmentStore],
-    ['@qilin/computer-use', ComputerUseRegistry],
-    ['@qilin/experimental-computer-use-cua-driver-native', NativeProvider],
+    ['@qilin-agent/llm', LlmRuntime],
+    ['@qilin-agent/session', SessionStore],
+    ['@qilin-agent/session-projection', SessionProjectionRegistry],
+    ['@qilin-agent/system-prompt', SystemPrompt],
+    ['@qilin-agent/tools', ToolRuntime],
+    ['@qilin-agent/agent', AgentRegistry],
+    ['@qilin-agent/agent-loop', AgentLoop],
+    ['@qilin-agent/attachment-local', LocalAttachmentStore],
+    ['@qilin-agent/computer-use', ComputerUseRegistry],
+    ['@qilin-agent/experimental-computer-use-cua-driver-native', NativeProvider],
   ])
   await writeFile(configPath, [...modules.keys()].flatMap(name => [
     `- name: '${name}'`,
-    ...name === '@qilin/attachment-local' ? ['  config:', `    qilinHome: ${JSON.stringify(root)}`] : [],
+    ...name === '@qilin-agent/attachment-local' ? ['  config:', `    qilinHome: ${JSON.stringify(root)}`] : [],
   ]).join('\n') + '\n')
 
   const context = ctx = new Context()

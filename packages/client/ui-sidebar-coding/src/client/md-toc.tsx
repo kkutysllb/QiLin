@@ -18,7 +18,7 @@
  */
 import { useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { IconListPenOutline16 } from '@qilin/client-ui-primitives'
+import { IconListPenOutline16 } from '@qilin-agent/client-ui-primitives'
 import { t } from './locales.ts'
 import css from './sidebar.module.css'
 

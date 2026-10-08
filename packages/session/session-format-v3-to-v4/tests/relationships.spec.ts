@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { Session, SessionId, SessionLogOffset, type SessionEvent, type SessionHeader } from '@qilin/session'
-import { sessionFormatCatalog } from '@qilin/session-format-catalog'
-import type { SessionFormatEvent } from '@qilin/session-format'
+import { Session, SessionId, SessionLogOffset, type SessionEvent, type SessionHeader } from '@qilin-agent/session'
+import { sessionFormatCatalog } from '@qilin-agent/session-format-catalog'
+import type { SessionFormatEvent } from '@qilin-agent/session-format'
 
 type Row = { type: string; data: Record<string, unknown>; surfaceOp?: unknown; sourceEventSeqs?: number[]; ignorable?: true }
 const row = (type: string, data: Record<string, unknown>): Row => ({ type, data })

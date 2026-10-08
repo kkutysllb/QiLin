@@ -3,7 +3,7 @@ description: "The process-sandbox service contract for users and maintainers com
 kind: "package-reference"
 ---
 
-# @qilin/sandbox
+# @qilin-agent/sandbox
 
 English | [中文](README.zh.md)
 
@@ -37,14 +37,14 @@ Mount the service with a backend and a confined executor; the [base bundle](../.
 
 ```yaml
 - id: sandbox
-  name: '@qilin/sandbox-local'     # the per-platform backend provider (ctx.sandbox)
+  name: '@qilin-agent/sandbox-local'     # the per-platform backend provider (ctx.sandbox)
 - id: sandbox-policy
-  name: '@qilin/sandbox-policy'    # the deployment default mode and workspace-write root
+  name: '@qilin-agent/sandbox-policy'    # the deployment default mode and workspace-write root
   config:
     mode: workspace-write                    # the deployment default every session starts from
     workspaceRoot: !!js process.cwd()        # the boundary workspace-write may write under
 - id: bash
-  name: '@qilin/bash-sandbox'      # the confined executor behind ctx.shell
+  name: '@qilin-agent/bash-sandbox'      # the confined executor behind ctx.shell
 ```
 
 With this composition, a bash call runs confined under `workspace-write`: writes inside the workspace succeed, writes outside it are denied, and the model can recover through the escalation flow below.

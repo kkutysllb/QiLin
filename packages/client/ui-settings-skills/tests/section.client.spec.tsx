@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { SkillEntry } from '@qilin/api-remotes/client'
-import type { SessionId } from '@qilin/session/types'
+import type { SkillEntry } from '@qilin-agent/api-remotes/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import { SkillsSection } from '../src/client/SkillsSection.tsx'
 import type { SkillsSectionInjected, SkillsSectionProps } from '../src/client/SkillsSection.tsx'
 import type { SkillsPageState } from '../src/client/store.ts'

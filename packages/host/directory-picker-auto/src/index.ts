@@ -8,14 +8,14 @@
  * entries, so the surface is discovered exactly as a config-row's would be
  * and one resolved choice still swaps both faces; pinning an interaction
  * remains composing that pair directly instead of this row.
- * @module @qilin/host-directory-picker-auto
+ * @module @qilin-agent/host-directory-picker-auto
  */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 // Empty type imports carry the `loader` and `webServer` Context merges for the reads below.
-import type {} from '@qilin/kylin-plugin-loader'
-import type {} from '@qilin/host-webserver'
-import { launchedThroughSsh, launchEnvironmentOf } from '@qilin/launch-environment'
+import type {} from '@qilin-agent/kylin-plugin-loader'
+import type {} from '@qilin-agent/host-webserver'
+import { launchedThroughSsh, launchEnvironmentOf } from '@qilin-agent/launch-environment'
 import { canExecute, hasLinuxChooserBinary } from './probe.ts'
 import type { DirectoryPickerBackendKind } from './resolve.ts'
 import { resolveDirectoryPickerBackend } from './resolve.ts'
@@ -36,8 +36,8 @@ export const inject = ['webServer', 'loader']
  * app composing this chooser to declare both values as dependencies.
  */
 export const BACKEND_PACKAGES: Record<DirectoryPickerBackendKind, string> = {
-  native: '@qilin/host-directory-picker-native',
-  browse: '@qilin/host-directory-picker-browse',
+  native: '@qilin-agent/host-directory-picker-native',
+  browse: '@qilin-agent/host-directory-picker-browse',
 }
 
 /**
@@ -48,8 +48,8 @@ export const BACKEND_PACKAGES: Record<DirectoryPickerBackendKind, string> = {
  * program, so no import of them exists on this side.
  */
 export const SURFACE_PACKAGES: Record<DirectoryPickerBackendKind, string> = {
-  native: '@qilin/client-ui-directory-picker-native',
-  browse: '@qilin/client-ui-directory-picker-browse',
+  native: '@qilin-agent/client-ui-directory-picker-native',
+  browse: '@qilin-agent/client-ui-directory-picker-browse',
 }
 
 /**

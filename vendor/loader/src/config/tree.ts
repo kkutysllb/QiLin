@@ -1,5 +1,5 @@
-import { composeError, Context } from '@qilin/kylin'
-import { isNonNullable, type Dict } from '@qilin/cosmokit'
+import { composeError, Context } from '@qilin-agent/kylin'
+import { isNonNullable, type Dict } from '@qilin-agent/cosmokit'
 import { Entry, type EntryOptions } from './entry.ts'
 import { EntryGroup } from './group.ts'
 

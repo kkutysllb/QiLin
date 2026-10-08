@@ -1,7 +1,7 @@
 /** Handle-based session-persistence helpers shared by the subagent test suites. */
 
-import type { SessionEvent, SessionHeader, SessionId, SessionLogOffset } from '@qilin/session'
-import type { SessionPersistence } from '@qilin/session-persistence'
+import type { SessionEvent, SessionHeader, SessionId, SessionLogOffset } from '@qilin-agent/session'
+import type { SessionPersistence } from '@qilin-agent/session-persistence'
 
 /** Read one stored session's header and complete event log through a read handle. */
 export async function loadStoredSession(

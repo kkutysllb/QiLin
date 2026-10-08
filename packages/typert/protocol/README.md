@@ -3,13 +3,13 @@ description: "The shared Typert Remote protocol: decorators, wire descriptors, c
 kind: "package-library"
 ---
 
-# @qilin/typert-protocol
+# @qilin-agent/typert-protocol
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-With `@qilin/typert-protocol`, business packages can expose Host methods to Remote clients: mark a method with `@Remote` (or `@RemoteScope` for scoped receivers), bind the service to a wire namespace, and associate Host objects and scoped Contexts with wire identities through the merge-extensible protocol maps. Generated artifacts, the Host Gateway, and the Client API consume the same invocation descriptors, codecs, and provider contracts. Invocation-owned values transfer cleanup to Gateway without adding a reference count. The package registers no Kylin service and runs no TypeScript analysis.
+With `@qilin-agent/typert-protocol`, business packages can expose Host methods to Remote clients: mark a method with `@Remote` (or `@RemoteScope` for scoped receivers), bind the service to a wire namespace, and associate Host objects and scoped Contexts with wire identities through the merge-extensible protocol maps. Generated artifacts, the Host Gateway, and the Client API consume the same invocation descriptors, codecs, and provider contracts. Invocation-owned values transfer cleanup to Gateway without adding a reference count. The package registers no Kylin service and runs no TypeScript analysis.
 
 ## Table of Contents
 
@@ -32,7 +32,7 @@ This package is for business-package and assembly maintainers who expose Host ca
 A business package marks a public instance method with `@Remote` (or `@RemoteScope(key)` when the receiver comes from a scoped Context), and the owning service either extends `TypertRemoteService` or declares a `typertRemote` binding through `bindTypertRemote()`:
 
 ```text
-import { Remote, TypertRemoteService } from '@qilin/typert-protocol'
+import { Remote, TypertRemoteService } from '@qilin-agent/typert-protocol'
 
 export class GoalService extends TypertRemoteService {
   @Remote
@@ -57,7 +57,7 @@ Client Context resolution is synchronous. `typertOwnedValue(value, release)` tra
 One class carries every Remote failure: `RemoteError`, holding a stable `<domain>/<reason>` code and the details typed for that code. This package declares the universal carrier codes (`gateway/bad-request`, `gateway/cancelled`, `gateway/internal`) and owns `RemoteErrorDetailsMap`, the merge-extensible table every other package extends beside its own throwing code:
 
 ```text
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface RemoteErrorDetailsMap {
     'goal/not-found': { readonly goalId: string }
   }

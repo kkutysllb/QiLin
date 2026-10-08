@@ -1,4 +1,4 @@
-/** Durable attachment vocabulary. @module @qilin/attachment/types */
+/** Durable attachment vocabulary. @module @qilin-agent/attachment/types */
 
 import type { AttachmentId, ImageVariantId } from './brand.ts'
 

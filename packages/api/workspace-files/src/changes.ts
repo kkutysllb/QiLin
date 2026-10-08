@@ -7,9 +7,9 @@
  * root with `ready` before emitting any queued or live changes.
  */
 
-import type { Context } from '@qilin/kylin'
-import { Deque } from '@qilin/deque'
-import type { FsObservation, FsTarget } from '@qilin/fs'
+import type { Context } from '@qilin-agent/kylin'
+import { Deque } from '@qilin-agent/deque'
+import type { FsObservation, FsTarget } from '@qilin-agent/fs'
 import type { WorkspaceFileWatchFrame } from './types.ts'
 
 /** One `fs/observed` emission as received, before any generation filters it. */

@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createSnapshotStore } from '@qilin/client-store'
-import type { RemoteResult } from '@qilin/api-remotes/client'
-import type { GoalActivationChanged, GoalId, GoalProjection, GoalView } from '@qilin/goal/client'
-import { RemoteError } from '@qilin/client-test-runtime'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { RemoteResult } from '@qilin-agent/api-remotes/client'
+import type { GoalActivationChanged, GoalId, GoalProjection, GoalView } from '@qilin-agent/goal/client'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
 import { createGoalActivationSource } from '../src/client/activation-source.ts'
 
 const GOAL_ID = 'g-1' as GoalId

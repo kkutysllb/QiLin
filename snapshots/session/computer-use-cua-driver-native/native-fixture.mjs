@@ -16,6 +16,6 @@ export async function apply(ctx) {
     })
     return () => hooks.deregister()
   }, 'computer-use-native-fixture.module')
-  const provider = await import('@qilin/experimental-computer-use-cua-driver-native')
+  const provider = await import('@qilin-agent/experimental-computer-use-cua-driver-native')
   await ctx.plugin(provider)
 }

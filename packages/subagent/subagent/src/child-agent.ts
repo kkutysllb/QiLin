@@ -5,28 +5,28 @@
  * provider driver and the continuation manager compose children this way, so
  * depth accounting, lineage stamping, and delegation policy have one home.
  *
- * @module @qilin/subagent/child-agent
+ * @module @qilin-agent/subagent/child-agent
  */
 
-import type { Context } from '@qilin/kylin'
-import type { Agent, AgentOptions, CreateAgentOptions } from '@qilin/agent'
-import type { SandboxMode } from '@qilin/sandbox'
-import type { Session, SessionId } from '@qilin/session'
-import type {} from '@qilin/system-prompt'
-import type { ToolRestriction } from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import type { Agent, AgentOptions, CreateAgentOptions } from '@qilin-agent/agent'
+import type { SandboxMode } from '@qilin-agent/sandbox'
+import type { Session, SessionId } from '@qilin-agent/session'
+import type {} from '@qilin-agent/system-prompt'
+import type { ToolRestriction } from '@qilin-agent/tools'
 // Type-only: make `ctx.get('sandboxPolicy')`, `ctx.get('approval')`, and
 // `ctx.get('permissionPresets')` resolve to their services when composed — delegation consumes them
 // opportunistically (the documented `ctx.get` pattern), never as a hard dep —
 // and merge the inherited permission session-event payloads.
-import type {} from '@qilin/sandbox-policy'
-import type {} from '@qilin/user-approval'
-import type {} from '@qilin/permission-presets'
+import type {} from '@qilin-agent/sandbox-policy'
+import type {} from '@qilin-agent/user-approval'
+import type {} from '@qilin-agent/permission-presets'
 // Type-only: make `ctx.get('agentPresets')` resolve to the preset roster when
 // composed — a child inherits its parent's composition opportunistically (the
 // documented `ctx.get` pattern), never as a hard dep. A rosterless deployment
 // keeps its model-facing rows on the host plane, where the child already sees
 // them through the tool registry's global layer.
-import type {} from '@qilin/agent-presets'
+import type {} from '@qilin-agent/agent-presets'
 import { delegationDepthOf } from './depth.ts'
 
 /** Thrown when starting a child would exceed the requested depth cap. */

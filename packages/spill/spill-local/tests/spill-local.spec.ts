@@ -10,14 +10,14 @@
  */
 
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync, utimesSync, writeFileSync } from 'node:fs'
 import { realpath } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { basename, dirname, isAbsolute, join, normalize } from 'node:path'
-import { ToolCallId } from '@qilin/llm'
-import { SessionId } from '@qilin/session'
-import type { SaveTextSpill } from '@qilin/spill'
+import { ToolCallId } from '@qilin-agent/llm'
+import { SessionId } from '@qilin-agent/session'
+import type { SaveTextSpill } from '@qilin-agent/spill'
 import LocalSpillStore, {
   DEFAULT_ROOT_PREFIX,
   discoverDefaultRoots,
@@ -27,8 +27,8 @@ import LocalSpillStore, {
   saveTextFile,
   sessionDir,
   sweepSpillRoots,
-} from '@qilin/spill-local'
-import type { SweepRoot } from '@qilin/spill-local'
+} from '@qilin-agent/spill-local'
+import type { SweepRoot } from '@qilin-agent/spill-local'
 import { gatherSweepRoots } from '../src/cleanup.ts'
 
 const DAY_MS = 24 * 60 * 60 * 1000

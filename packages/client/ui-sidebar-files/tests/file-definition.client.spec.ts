@@ -4,10 +4,10 @@
  * switch-row label from the dictionary.
  */
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import { SidebarRightTabRegistry } from '@qilin/client-ui-sidebar-right/src/client/tab-registry.ts'
-import { sessionFileAddress } from '@qilin/util-workspace-path'
+import { Context } from '@qilin-agent/kylin'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import { SidebarRightTabRegistry } from '@qilin-agent/client-ui-sidebar-right/src/client/tab-registry.ts'
+import { sessionFileAddress } from '@qilin-agent/util-workspace-path'
 import { FILE_ID, FILE_KIND, fileDefinition } from '../src/client/file-definition.ts'
 import { zh } from '../src/client/locales.ts'
 

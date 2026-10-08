@@ -3,13 +3,13 @@ description: "Opens what the model asked to see in the Session's own Sidebar."
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-agent-opens
+# @qilin-agent/client-ui-agent-opens
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-The browser half of `sidebar_open`: it follows `ctx.remote.sidebarOpens.watch` for the Session the user is viewing and opens each request there. A page opens in the built-in browser when `@qilin/client-ui-sidebar-browser` is composed and in a new browser tab otherwise; a file opens through its resource address, because which tab type claims an address is the Sidebar's decision. The plugin keeps no state: a request is delivered once and never replayed.
+The browser half of `sidebar_open`: it follows `ctx.remote.sidebarOpens.watch` for the Session the user is viewing and opens each request there. A page opens in the built-in browser when `@qilin-agent/client-ui-sidebar-browser` is composed and in a new browser tab otherwise; a file opens through its resource address, because which tab type claims an address is the Sidebar's decision. The plugin keeps no state: a request is delivered once and never replayed.
 
 ## Table of Contents
 

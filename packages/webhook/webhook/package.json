@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/webhook",
+  "name": "@qilin-agent/webhook",
   "description": "Fire-and-forget webhook rule runtime that creates Workspace-backed QiLin Sessions",
   "version": "3.1.1",
   "publishConfig": {
@@ -35,31 +35,31 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/agent-default-model": "workspace:*",
-    "@qilin/agent-presets": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/permission-presets": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-title": "workspace:*",
-    "@qilin/workspace": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-default-model": "workspace:*",
+    "@qilin-agent/agent-presets": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/permission-presets": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-title": "workspace:*",
+    "@qilin-agent/workspace": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/kylin-plugin-include": "workspace:~",
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/agent-default-model": "workspace:*",
-    "@qilin/agent-presets": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/permission-presets": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-title": "workspace:*",
-    "@qilin/workspace": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-default-model": "workspace:*",
+    "@qilin-agent/agent-presets": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/permission-presets": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-title": "workspace:*",
+    "@qilin-agent/workspace": "workspace:*"
   },
   "dependencies": {
-    "@qilin/brand": "workspace:*",
-    "@qilin/util-values": "workspace:*"
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/util-values": "workspace:*"
   }
 }

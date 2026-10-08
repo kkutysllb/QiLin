@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/api-workspace-controller",
+  "name": "@qilin-agent/api-workspace-controller",
   "description": "Workspace Remote commands and reconnect-safe state transport",
   "version": "3.1.1",
   "publishConfig": {
@@ -43,11 +43,11 @@
   "qilin": {
     "client": {
       "external": [
-        "@qilin/api-gateway/client"
+        "@qilin-agent/api-gateway/client"
       ],
       "inject": [
-        "@qilin/api-gateway",
-        "@qilin/client-connection"
+        "@qilin-agent/api-gateway",
+        "@qilin-agent/client-connection"
       ],
       "platform": "web"
     }
@@ -68,30 +68,30 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@qilin/deque": "workspace:*",
+    "@qilin-agent/deque": "workspace:*",
     "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/api-gateway": "workspace:*",
-    "@qilin/client-connection": "workspace:*",
-    "@qilin/host-directory-picker": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/storage-domain": "workspace:*",
-    "@qilin/typert-protocol": "workspace:*",
-    "@qilin/workspace": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/api-gateway": "workspace:*",
+    "@qilin-agent/client-connection": "workspace:*",
+    "@qilin-agent/host-directory-picker": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/storage-domain": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*",
+    "@qilin-agent/workspace": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/api-gateway": "workspace:*",
-    "@qilin/client-connection": "workspace:*",
-    "@qilin/client-store": "workspace:*",
-    "@qilin/client-test-runtime": "workspace:*",
-    "@qilin/host-directory-picker": "workspace:*",
-    "@qilin/remote-mock": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/storage-domain": "workspace:*",
-    "@qilin/typert-protocol": "workspace:*",
-    "@qilin/workspace": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/api-gateway": "workspace:*",
+    "@qilin-agent/client-connection": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/host-directory-picker": "workspace:*",
+    "@qilin-agent/remote-mock": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/storage-domain": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*",
+    "@qilin-agent/workspace": "workspace:*"
   }
 }

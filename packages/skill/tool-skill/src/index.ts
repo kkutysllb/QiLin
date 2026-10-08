@@ -1,16 +1,16 @@
 /**
  * Durable session skill catalog and model-facing `skill` loader tool.
  *
- * @module @qilin/tool-skill
+ * @module @qilin-agent/tool-skill
  */
 
 import { createHash } from 'node:crypto'
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type { Agent, PreStepDecision } from '@qilin/agent'
-import { defineTool } from '@qilin/tools'
-import { createUserMessage } from '@qilin/llm'
-import { SessionSeq, type UserMessage } from '@qilin/session'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type { Agent, PreStepDecision } from '@qilin-agent/agent'
+import { defineTool } from '@qilin-agent/tools'
+import { createUserMessage } from '@qilin-agent/llm'
+import { SessionSeq, type UserMessage } from '@qilin-agent/session'
 import {
   escapeText,
   isModelInvocable,
@@ -19,7 +19,7 @@ import {
   renderSkillContent,
   type SkillInvocationSource,
   type SkillSummary,
-} from '@qilin/skill'
+} from '@qilin-agent/skill'
 
 export const name = 'tool-skill'
 export const inject = ['agents', 'tools', 'skills']
@@ -40,7 +40,7 @@ export interface SkillCatalogSource {
   readonly entries: readonly { readonly name: string; readonly description: string }[]
 }
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'skill-catalog': SkillCatalogSource
   }

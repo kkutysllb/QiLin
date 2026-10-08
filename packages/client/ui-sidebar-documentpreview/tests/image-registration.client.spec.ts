@@ -1,8 +1,8 @@
 /** Image metadata, keyed slot, dictionary, and disposal registration. */
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { SessionId } from '@qilin/session/types'
-import type { TabId } from '@qilin/client-ui-dockkit'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
 import { DocumentPreviewRegistry } from '../src/client/document/registry.ts'
 import { ImageBody } from '../src/client/image/ImageBody.tsx'
 import { apply, BINARY_IMAGE_EXTENSIONS, IMAGE_BODY_ID, IMAGE_EXTENSIONS, imageBodyDefinition } from '../src/client/image/index.ts'

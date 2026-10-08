@@ -1,5 +1,5 @@
 /**
- * Rescope the vendored Cordis packages into our owned scopes (framework family `@qilin`, foundation libraries `@qilinpe, and undo
+ * Rescope the vendored Cordis packages into our owned scopes (framework family `@qilin-agent`, foundation libraries `@qilinpe, and undo
  * that rescope with `--reverse`. Every harness package declares `kylin` as a
  * peer dependency, so publication carries this framework layer too; publishing
  * it under the upstream names would squat them on the registry
@@ -10,7 +10,7 @@
  * scalar. A match needs a quote (or `name: `) immediately left and the matching
  * quote — optionally after a `/subpath` — immediately right, which excludes
  * `kylin.yml`, the Loader's `kylin:` builtin prefix, `kylin-config-entry`,
- * `@qilin/tool-kylin`, and `cordiverse/kylin`, and makes the
+ * `@qilin-agent/tool-kylin`, and `cordiverse/kylin`, and makes the
  * rewrite idempotent because the scoped name's `kylin` is preceded by `/`.
  * Markdown follows the rename inside every fence, and in `docs/` prose too:
  * a tutorial that teaches an unresolvable name is wrong, while prose elsewhere
@@ -43,15 +43,15 @@ interface Rename {
 
 /** The mapping this codemod applies; `vendor/README.md` carries the same table. */
 const RENAMES: readonly Rename[] = [
-  { directory: 'cordis', upstream: 'cordis', scoped: '@qilin/kylin' },
-  { directory: 'cosmokit', upstream: 'cosmokit', scoped: '@qilin/cosmokit' },
-  { directory: 'schemastery', upstream: 'schemastery', scoped: '@qilin/schemastery' },
-  { directory: 'loader', upstream: '@cordisjs/plugin-loader', scoped: '@qilin/kylin-plugin-loader' },
-  { directory: 'include', upstream: '@cordisjs/plugin-include', scoped: '@qilin/kylin-plugin-include' },
-  { directory: 'group', upstream: '@cordisjs/plugin-group', scoped: '@qilin/kylin-plugin-group' },
-  { directory: 'timer', upstream: '@cordisjs/plugin-timer', scoped: '@qilin/kylin-plugin-timer' },
-  { directory: 'hmr', upstream: '@cordisjs/plugin-hmr', scoped: '@qilin/kylin-plugin-hmr' },
-  { directory: 'logger-console', upstream: '@cordisjs/plugin-logger-console', scoped: '@qilin/kylin-plugin-logger-console' },
+  { directory: 'cordis', upstream: 'cordis', scoped: '@qilin-agent/kylin' },
+  { directory: 'cosmokit', upstream: 'cosmokit', scoped: '@qilin-agent/cosmokit' },
+  { directory: 'schemastery', upstream: 'schemastery', scoped: '@qilin-agent/schemastery' },
+  { directory: 'loader', upstream: '@cordisjs/plugin-loader', scoped: '@qilin-agent/kylin-plugin-loader' },
+  { directory: 'include', upstream: '@cordisjs/plugin-include', scoped: '@qilin-agent/kylin-plugin-include' },
+  { directory: 'group', upstream: '@cordisjs/plugin-group', scoped: '@qilin-agent/kylin-plugin-group' },
+  { directory: 'timer', upstream: '@cordisjs/plugin-timer', scoped: '@qilin-agent/kylin-plugin-timer' },
+  { directory: 'hmr', upstream: '@cordisjs/plugin-hmr', scoped: '@qilin-agent/kylin-plugin-hmr' },
+  { directory: 'logger-console', upstream: '@cordisjs/plugin-logger-console', scoped: '@qilin-agent/kylin-plugin-logger-console' },
 ]
 
 const EXTENSIONS = ['.ts', '.tsx', '.js', '.mjs', '.cjs', '.tpl', '.json', '.yml', '.yaml', '.md'] as const
@@ -119,7 +119,7 @@ const GENERIC_SKIPS: readonly GenericSkip[] = [
   // library's wire contract, not a package specifier.
   { file: 'packages/boot/app-boot/src/config-schema/native.ts', upstream: ['schemastery'] },
   { file: 'packages/boot/app-boot/tests/config-schema.spec.ts', upstream: ['schemastery'] },
-  // The alias table's keys ARE the upstream spellings it maps onto @qilin names.
+  // The alias table's keys ARE the upstream spellings it maps onto @qilin-agent names.
   { file: 'packages/util/dsh-compat/src/aliases.ts', upstream: ['cordis'] },
   { file: 'packages/util/dsh-compat/tests/dsh-compat.spec.ts', upstream: ['cordis'] },
   // GROUP_ORDER holds `packages/<group>/` directory names, not package names.
@@ -173,17 +173,17 @@ interface PostCondition {
 }
 
 const POSTCONDITIONS: readonly PostCondition[] = [
-  { file: 'vendor/cordis/package.json', text: '"name": "@qilin/kylin"', count: 1 },
-  { file: 'vendor/hmr/package.json', text: '"name": "@qilin/kylin-plugin-hmr"', count: 1 },
-  { file: 'scripts/cordis-walk.ts', text: '@qilin\\/kylin', count: 1 },
-  { file: 'scripts/cordis-walk.ts', text: '!== \'@qilin/kylin\'', count: 1 },
-  { file: 'scripts/gen-scoped-events.ts', text: '=== \'@qilin/kylin\'', count: 1 },
-  { file: 'packages/typert/generator/src/analyzer.ts', text: '!== \'@qilin/kylin\'', count: 2 },
-  { file: 'scripts/check-workspace-constraints.ts', text: '?.[\'@qilin/kylin\']', count: 2 },
-  { file: 'packages/boot/app-boot/tsdown.config.ts', text: '[\'@qilin/kylin-plugin-include\']', count: 1 },
-  { file: 'tsconfig.base.json', text: '"@qilin/kylin-plugin-loader": ["./vendor/loader/src"]', count: 1 },
+  { file: 'vendor/cordis/package.json', text: '"name": "@qilin-agent/kylin"', count: 1 },
+  { file: 'vendor/hmr/package.json', text: '"name": "@qilin-agent/kylin-plugin-hmr"', count: 1 },
+  { file: 'scripts/cordis-walk.ts', text: '@qilin-agent\\/kylin', count: 1 },
+  { file: 'scripts/cordis-walk.ts', text: '!== \'@qilin-agent/kylin\'', count: 1 },
+  { file: 'scripts/gen-scoped-events.ts', text: '=== \'@qilin-agent/kylin\'', count: 1 },
+  { file: 'packages/typert/generator/src/analyzer.ts', text: '!== \'@qilin-agent/kylin\'', count: 2 },
+  { file: 'scripts/check-workspace-constraints.ts', text: '?.[\'@qilin-agent/kylin\']', count: 2 },
+  { file: 'packages/boot/app-boot/tsdown.config.ts', text: '[\'@qilin-agent/kylin-plugin-include\']', count: 1 },
+  { file: 'tsconfig.base.json', text: '"@qilin-agent/kylin-plugin-loader": ["./vendor/loader/src"]', count: 1 },
   // The vendored README owns this required entry; reject its deletion or duplication.
-  { file: 'vendor/README.md', text: '17. **`@qilin` rescope**', count: 1 },
+  { file: 'vendor/README.md', text: '17. **`@qilin-agent` rescope**', count: 1 },
   { file: 'pnpm-workspace.yaml', text: 'kylin@4.0.0-rc.7', count: 0 },
   // The preset ids in this table are product data, not package names.
   { file: 'packages/client/ui-agent-preset/tests/locales.client.spec.ts', text: '[\'cordis\', \'presetCordisName\'', count: 1 },
@@ -202,14 +202,14 @@ const EXACT_EDITS: readonly ExactEdit[] = [
     id: 'loader-diff-schemastery-import',
     file: 'vendor/loader/src/config/diff.ts',
     find: "import type Schema from 'schemastery'",
-    replace: "import type Schema from '@qilin/schemastery'",
+    replace: "import type Schema from '@qilin-agent/schemastery'",
     expect: 1,
   },
   {
     id: 'kylin-walk-merge-head',
     file: 'scripts/cordis-walk.ts',
     find: 'const MERGE_HEAD = /declare module [\'"](?:kylin|\\.\\/context\\.ts)[\'"]/',
-    replace: 'const MERGE_HEAD = /declare module [\'"](?:@qilin\\/kylin|\\.\\/context\\.ts)[\'"]/',
+    replace: 'const MERGE_HEAD = /declare module [\'"](?:@qilin-agent\\/kylin|\\.\\/context\\.ts)[\'"]/',
     expect: 1,
   },
   {
@@ -222,13 +222,13 @@ const EXACT_EDITS: readonly ExactEdit[] = [
     if (!dev) errors.push(\`\${label}: kylin must also be a devDependency\`)
     if (peer && dev && peer !== dev) {
       errors.push(\`\${label}: kylin peer (\${peer}) and dev (\${dev}) ranges must match\`)`,
-    replace: `    const peer = manifest.peerDependencies?.['@qilin/kylin']
-    const dev = manifest.devDependencies?.['@qilin/kylin']
+    replace: `    const peer = manifest.peerDependencies?.['@qilin-agent/kylin']
+    const dev = manifest.devDependencies?.['@qilin-agent/kylin']
 
-    if (!peer) errors.push(\`\${label}: @qilin/kylin must be a peerDependency\`)
-    if (!dev) errors.push(\`\${label}: @qilin/kylin must also be a devDependency\`)
+    if (!peer) errors.push(\`\${label}: @qilin-agent/kylin must be a peerDependency\`)
+    if (!dev) errors.push(\`\${label}: @qilin-agent/kylin must also be a devDependency\`)
     if (peer && dev && peer !== dev) {
-      errors.push(\`\${label}: @qilin/kylin peer (\${peer}) and dev (\${dev}) ranges must match\`)`,
+      errors.push(\`\${label}: @qilin-agent/kylin peer (\${peer}) and dev (\${dev}) ranges must match\`)`,
     expect: 1,
   },
   {
@@ -247,17 +247,17 @@ const EXACT_EDITS: readonly ExactEdit[] = [
   {
     id: 'publication-set-scope-assertion',
     file: 'scripts/publish-npm-baseline.ts',
-    find: '      if (!isVendored && !name.startsWith(\'@qilin/\')) {',
+    find: '      if (!isVendored && !name.startsWith(\'@qilin-agent/\')) {',
     replace: `      // Vendored packages are rescoped too (vendor/README.md), so publication
       // never carries an upstream name that would squat it on the registry.
-      if (!name.startsWith('@qilin/')) {`,
+      if (!name.startsWith('@qilin-agent/')) {`,
     expect: 1,
   },
   {
     id: 'vendor-readme-preamble',
     file: 'vendor/README.md',
     find: 'All vendored packages keep their **original npm names** (they are resolved through pnpm workspaces) and are marked `private: true` — they are never published from this repo.',
-    replace: 'All vendored packages are **renamed into the `@qilin` scope**',
+    replace: 'All vendored packages are **renamed into the `@qilin-agent` scope**',
     expect: 1,
   },
   {
@@ -272,11 +272,11 @@ const EXACT_EDITS: readonly ExactEdit[] = [
     id: 'root-agents-vendored-name-contract',
     file: 'AGENTS.md',
     find: 'vendored packages keep upstream names and are `private: true`. `kylin` is a peerDependency (+ dev) of every harness package.',
-    replace: 'vendored packages are rescoped ([mapping](docs/rescope.md)) and `private: true`. `@qilin/kylin` is a peerDependency (+ dev) of every harness package.',
+    replace: 'vendored packages are rescoped ([mapping](docs/rescope.md)) and `private: true`. `@qilin-agent/kylin` is a peerDependency (+ dev) of every harness package.',
     expect: 1,
   },
   {
-    // The client purity gate reads `@qilin/` as "another plugin package".
+    // The client purity gate reads `@qilin-agent/` as "another plugin package".
     // The rescope moves the vendored framework and its libraries into that
     // namespace, where the gate would reject the library imports client
     // bundles have always inlined, so it needs their names.
@@ -284,12 +284,12 @@ const EXACT_EDITS: readonly ExactEdit[] = [
     file: 'packages/client/tsdown.client.ts',
     find: '/** Generated descriptor/codec contribution with no shared runtime identity. */',
     replace: `/**
- * Vendored framework libraries: rescoped into @qilin, so the gate below
+ * Vendored framework libraries: rescoped into @qilin-agent, so the gate below
  * would read them as plugin packages. They carry no cross-plugin runtime
  * identity to share — the framework itself is a requested module-table row
  * (external), while these are ordinary libraries a browser bundle inlines.
  */
-const VENDORED_LIBRARY = /^@qilin\\/(cosmokit|schemastery)(\\/|$)/
+const VENDORED_LIBRARY = /^@qilin-agent\\/(cosmokit|schemastery)(\\/|$)/
 
 /** Generated descriptor/codec contribution with no shared runtime identity. */`,
     expect: 1,
@@ -338,14 +338,14 @@ const VENDORED_LIBRARY = /^@qilin\\/(cosmokit|schemastery)(\\/|$)/
     id: 'agent-preset-spec-framework-import',
     file: 'packages/client/ui-agent-preset/tests/apply.client.spec.ts',
     find: "import { Context } from 'kylin'",
-    replace: "import { Context } from '@qilin/kylin'",
+    replace: "import { Context } from '@qilin-agent/kylin'",
     expect: 1,
   },
   {
     id: 'web-agent-presets-e2e-framework-import',
     file: 'apps/cli/tests/web-agent-presets.e2e.ts',
     find: "import { Context } from 'kylin'",
-    replace: "import { Context } from '@qilin/kylin'",
+    replace: "import { Context } from '@qilin-agent/kylin'",
     expect: 1,
   },
   {
@@ -383,7 +383,7 @@ const VENDORED_LIBRARY = /^@qilin\\/(cosmokit|schemastery)(\\/|$)/
     id: 'notices-vendored-section',
     file: 'scripts/gen-third-party-notices.ts',
     find: 'The Cordis framework and its foundation libraries are source-vendored into this repository rather than consumed from npm. All are MIT-licensed',
-    replace: 'The Cordis framework and its foundation libraries are source-vendored into this repository rather than consumed from npm, and republished under the \\`@qilin\\` scope. All are MIT-licensed',
+    replace: 'The Cordis framework and its foundation libraries are source-vendored into this repository rather than consumed from npm, and republished under the \\`@qilin-agent\\` scope. All are MIT-licensed',
     expect: 1,
   },
   {
@@ -402,7 +402,7 @@ const VENDORED_LIBRARY = /^@qilin\\/(cosmokit|schemastery)(\\/|$)/
     file: 'scripts/gen-third-party-notices.spec.ts',
     find: '    expect(rows).toContainEqual({ npmName: \'kylin\', upstream: \'https://github.com/cordiverse/kylin\' })',
     replace: `    expect(rows).toContainEqual({
-      npmName: '@qilin/kylin',
+      npmName: '@qilin-agent/kylin',
       upstreamName: 'cordis',
       upstream: 'https://github.com/cordiverse/cordis',
     })`,
@@ -412,7 +412,7 @@ const VENDORED_LIBRARY = /^@qilin\\/(cosmokit|schemastery)(\\/|$)/
     id: 'notices-spec-shape-fixture',
     file: 'scripts/gen-third-party-notices.spec.ts',
     find: 'parseVendoredRows(\'| `cordis/` | cordis | 4.0.0 | https://example.com | `abc123` |\\n\')',
-    replace: 'parseVendoredRows(\'| `cordis/` | `@qilin/kylin` | cordis | 4.0.0 | https://example.com | `abc123` |\\n\')',
+    replace: 'parseVendoredRows(\'| `cordis/` | `@qilin-agent/kylin` | cordis | 4.0.0 | https://example.com | `abc123` |\\n\')',
     expect: 1,
   },
   {

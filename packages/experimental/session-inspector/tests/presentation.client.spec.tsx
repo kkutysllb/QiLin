@@ -3,9 +3,9 @@
 
 import { act, cleanup, fireEvent, render, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, onTestFinished, vi } from 'vitest'
-import { createSnapshotStore } from '@qilin/client-store'
-import { bindSnapshotSelector, makeTranslate, sessionSnapshot } from '@qilin/client-test-runtime'
-import type { SessionId } from '@qilin/session/types'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { bindSnapshotSelector, makeTranslate, sessionSnapshot } from '@qilin-agent/client-test-runtime'
+import type { SessionId } from '@qilin-agent/session/types'
 import { SessionInspectorView, type SessionInspectorProps } from '../src/client/views/View.tsx'
 import type { InspectorChatTarget, InspectorObjectReference } from '../src/client/views/objects.ts'
 import type { InspectorRecord, InspectorRow } from '../src/client/views/table-model.ts'

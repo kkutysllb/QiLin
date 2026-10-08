@@ -1,20 +1,20 @@
 // @vitest-environment jsdom
-import { useDisclosure } from '@qilin/client-ui-chat/src/client/chat/use-disclosure.ts'
+import { useDisclosure } from '@qilin-agent/client-ui-chat/src/client/chat/use-disclosure.ts'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render } from '@testing-library/react'
-import { bindSnapshotSelector } from '@qilin/client-test-runtime'
-import { createSnapshotStore } from '@qilin/client-store'
-import type { StartedToolCall, ToolResultNode } from '@qilin/client-ui-chat/client'
-import type { SessionListState } from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
+import { bindSnapshotSelector } from '@qilin-agent/client-test-runtime'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { StartedToolCall, ToolResultNode } from '@qilin-agent/client-ui-chat/client'
+import type { SessionListState } from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 import { CHAT_DIFF_MAX_LINES, diffCardModel } from '../src/client/tool/models/diff-card-model.ts'
 import { GenericToolCard, type GenericToolCardProps } from '../src/client/tool/toolviews/GenericToolCard.tsx'
 import { FileMutationRow, fileMutationToolview } from '../src/client/tool/toolviews/file-mutation-row.tsx'
-import { zh } from '@qilin/client-ui-conversation/src/client/locales.ts'
-import { PartialArguments } from '@qilin/util-values'
+import { zh } from '@qilin-agent/client-ui-conversation/src/client/locales.ts'
+import { PartialArguments } from '@qilin-agent/util-values'
 
 afterEach(cleanup)
 

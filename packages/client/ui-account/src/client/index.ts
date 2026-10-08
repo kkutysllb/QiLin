@@ -4,19 +4,19 @@
  * and signs out. It joins the sidebar's footer action list, reads the account
  * gate's status itself, and owns no other state.
  */
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { BoundActions } from '@qilin/client-ui-slots'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { BoundActions } from '@qilin-agent/client-ui-slots'
 // Type-only: pulls the ctx.locale merge (the language rows and their writes).
-import type {} from '@qilin/client-locale/client'
+import type {} from '@qilin-agent/client-locale/client'
 // Type-only: pulls the ctx.theme merge (the theme rows and their writes).
-import type {} from '@qilin/client-ui-theme/client'
+import type {} from '@qilin-agent/client-ui-theme/client'
 // Type-only: pulls the ctx.settingsShell merge (the panel's open channel).
-import type {} from '@qilin/client-ui-settings-general/client'
+import type {} from '@qilin-agent/client-ui-settings-general/client'
 // Type-only: pulls the SlotRegistry service merge and the sidebar's own
 // 'sidebar.account' declaration. Cross-plugin collaboration goes through
 // services and slots, never a value import (client bundle purity gate).
-import type {} from '@qilin/client-ui-sidebar/client'
-import type {} from '@qilin/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-sidebar/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
 import { AccountMenu } from './AccountMenu.tsx'
 import type { AccountMenuInjected } from './AccountMenu.tsx'
 import { createAccountMenuInjected } from './injected.ts'
@@ -30,7 +30,7 @@ export type { AccountFacts, AccountStatus, AccountUser } from './account-api.ts'
 export type { AccountMenuActions, AccountMenuState, AccountMenuStoreHandle } from './store.ts'
 export type { AccountLocaleKey } from './locales.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Sidebar account menu copy. */
     account: AccountLocaleKey

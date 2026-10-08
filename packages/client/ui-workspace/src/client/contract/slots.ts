@@ -22,19 +22,19 @@
  * and a hole has exactly one declaring entry — they carry the same owner
  * contract and the same occupant.
  */
-import type { HostObservable, PropsHooks, PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore } from '@qilin/client-ui-slots'
+import type { HostObservable, PropsHooks, PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore } from '@qilin-agent/client-ui-slots'
 // Type-only: pull the owner SlotMap merges into programs that resolve the
 // runtime shares below.
-import type {} from '@qilin/client-ui-sidebar/client'
-import type {} from '@qilin/client-ui-conversation/client'
-import type { SessionSearchResultItem } from '@qilin/api-session-controller/client'
-import type { RemoteHostFacts } from '@qilin/api-remotes/client'
-import type { WorkspaceId, WorkspaceView } from '@qilin/api-workspace-controller/client'
-import type { SessionId } from '@qilin/session/types'
+import type {} from '@qilin-agent/client-ui-sidebar/client'
+import type {} from '@qilin-agent/client-ui-conversation/client'
+import type { SessionSearchResultItem } from '@qilin-agent/api-session-controller/client'
+import type { RemoteHostFacts } from '@qilin-agent/api-remotes/client'
+import type { WorkspaceId, WorkspaceView } from '@qilin-agent/api-workspace-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
 // Type-only: the workbench tag vocabulary this surface consumes.
-import type { WorkbenchState, WorkbenchTag } from '@qilin/client-ui-workbench/client'
+import type { WorkbenchState, WorkbenchTag } from '@qilin-agent/client-ui-workbench/client'
 import type { createWorkspaceViewStore } from '../stores.ts'
-import type { ShortcutCatalogEntry } from '@qilin/client-shortcuts/client'
+import type { ShortcutCatalogEntry } from '@qilin-agent/client-shortcuts/client'
 import type { WorkspaceShortcutState } from '../shortcuts.ts'
 
 /**
@@ -65,7 +65,7 @@ export interface SessionRowScheduleOwnerProps {
   readonly sessionId: SessionId
 }
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface SlotMap {
     /** Directory-flow hole under the conversation empty-state picker (declared by the WorkspacePicker entry). */
     'conversation.hero.workspace.directoryFlow': { kind: 'single'; scope: 'root'; owner: DirectoryFlowOwnerProps }

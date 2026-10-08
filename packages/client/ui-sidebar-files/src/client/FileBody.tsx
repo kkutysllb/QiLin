@@ -21,12 +21,12 @@ import type { ReactNode } from 'react'
 import clsx from 'clsx'
 import {
   IconBrowseOutline16, IconCheckOutline16, IconPanelLeftOutline16, IconRefreshOutline16,
-} from '@qilin/client-ui-primitives'
-import type { PropsLocale, PropsRuntime, PropsStore } from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-primitives'
+import type { PropsLocale, PropsRuntime, PropsStore } from '@qilin-agent/client-ui-slots'
 // The `file` entry of `SidebarRightResourceParamsMap`, which types the line
 // navigation read below (the same type-only edge ui-chat declares).
-import type {} from '@qilin/client-ui-sidebar-documentpreview/client'
-import { fileAddressFor } from '@qilin/util-workspace-path'
+import type {} from '@qilin-agent/client-ui-sidebar-documentpreview/client'
+import { fileAddressFor } from '@qilin-agent/util-workspace-path'
 import { FileTree } from './FileTree.tsx'
 import { fileFailureLine } from './file-failure.ts'
 import { mountFileEditor } from './file-editor.ts'

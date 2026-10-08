@@ -3,7 +3,7 @@ description: "让 QiLin 加载 DSH 时代插件 manifest 与模块名称的运�
 kind: "package-library"
 ---
 
-# @qilin/dsh-compat
+# @qilin-agent/dsh-compat
 
 [English](README.md) | 中文
 
@@ -33,7 +33,7 @@ Profile 加载、插件管理器的安装门与 bundle 清单、以及客户端�
 <a id="understand-the-implementation"></a>
 ## 实现说明
 
-当两个键同时存在时，manifest 读取器优先使用 QiLin 声明。模块解析先应用精确别名，再把 `@deepseek-ai/dsh-<name>` 映射到 `@qilin/<name>`；其中 `client-runtime` 映射到 QiLin 的 `client-modules`。浏览器 shell 提供静态平台别名，动态图边与工厂请求在各自的加载器中归一化。
+当两个键同时存在时，manifest 读取器优先使用 QiLin 声明。模块解析先应用精确别名，再把 `@deepseek-ai/dsh-<name>` 映射到 `@qilin-agent/<name>`；其中 `client-runtime` 映射到 QiLin 的 `client-modules`。浏览器 shell 提供静态平台别名，动态图边与工厂请求在各自的加载器中归一化。
 
 -----
 

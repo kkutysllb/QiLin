@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { ToolCallId } from '@qilin/llm'
-import { SessionId } from '@qilin/session'
-import type { Agent } from '@qilin/agent'
-import type { ToolExecutionToken } from '@qilin/tools'
+import { ToolCallId } from '@qilin-agent/llm'
+import { SessionId } from '@qilin-agent/session'
+import type { Agent } from '@qilin-agent/agent'
+import type { ToolExecutionToken } from '@qilin-agent/tools'
 import * as ToolSchedule from '../src/index.ts'
-import { MAX_TITLE_LENGTH, REQUIRED_TITLE_MESSAGE, ScheduleId, createAfterScheduleRecord, scheduleDomain } from '@qilin/schedule'
+import { MAX_TITLE_LENGTH, REQUIRED_TITLE_MESSAGE, ScheduleId, createAfterScheduleRecord, scheduleDomain } from '@qilin-agent/schedule'
 import { agentFor, harness, mountToolSchedule } from './harness.ts'
 
 const tests: Awaited<ReturnType<typeof harness>>[] = []

@@ -9,9 +9,9 @@ export type {
   ServerResponse,
 } from '../rpc.ts'
 export { RpcId, transportError } from '../rpc.ts'
-export type { SessionId, SessionEvent } from '@qilin/session/types'
-export type { MessageId } from '@qilin/llm/brand'
-export type { ContentBlock, StreamChunk } from '@qilin/llm/types'
+export type { SessionId, SessionEvent } from '@qilin-agent/session/types'
+export type { MessageId } from '@qilin-agent/llm/brand'
+export type { ContentBlock, StreamChunk } from '@qilin-agent/llm/types'
 
 import type { RpcResponse, RpcResult } from '../rpc.ts'
 

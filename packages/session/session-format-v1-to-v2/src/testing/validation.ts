@@ -1,20 +1,20 @@
-import { BlockAssembler, expandAssistantStream } from '@qilin/llm'
-import { deepEqualJson } from '@qilin/util-values'
+import { BlockAssembler, expandAssistantStream } from '@qilin-agent/llm'
+import { deepEqualJson } from '@qilin-agent/util-values'
 import {
   SessionFormatError,
   SessionFormatUnsupportedMigrationError,
   sessionFormatCount,
   snapshotSessionFormatJson,
-} from '@qilin/session-format'
+} from '@qilin-agent/session-format'
 import type {
   SessionFormatArtifact,
   SessionFormatEvent,
   SessionFormatJsonValue,
-} from '@qilin/session-format'
+} from '@qilin-agent/session-format'
 import {
   assertReleasedPayloadSemantics,
   assertReleasedSurfaceMetadata,
-} from '@qilin/session-format-v0-to-v1'
+} from '@qilin-agent/session-format-v0-to-v1'
 import { RELEASED_V2_EVENT_DISPOSITIONS, RELEASED_V2_EVENT_TYPES } from '../dispositions.ts'
 import {
   assertReleasedV2Keys,

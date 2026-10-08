@@ -1,5 +1,5 @@
 /** Target-indexed business grouping registrations with the existing effect lifecycle. */
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type { ConversationViewNode } from '../contract/conversation.ts'
 import type {
   ConversationGroupData, ConversationGroupDefinition,

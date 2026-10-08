@@ -65,9 +65,9 @@ export const PAGE_ASSETS: readonly string[] = [
  * `worker-host.ts`.
  */
 export const IMAGE_ENTRY_SEEDS: readonly string[] = [
-  '@qilin/app-boot',
-  '@qilin/cmdline',
-  '@qilin/kylin',
-  '@qilin/kylin-plugin-include',
+  '@qilin-agent/app-boot',
+  '@qilin-agent/cmdline',
+  '@qilin-agent/kylin',
+  '@qilin-agent/kylin-plugin-include',
   'js-yaml',
 ]

@@ -19,13 +19,13 @@ function lockfile() {
   const lock = {
     lockfileVersion: 3,
     packages: {
-      '': { dependencies: { '@qilin/cli': 'latest' } },
-      'node_modules/@qilin/cli': {
+      '': { dependencies: { '@qilin-agent/cli': 'latest' } },
+      'node_modules/@qilin-agent/cli': {
         version: '1.0.0', dependencies: { library: '^2.0.0', alias: 'npm:original@1.0.0' },
         optionalDependencies: { unavailable: '1.0.0' },
       },
       'node_modules/library': { version: '1.0.0' },
-      'node_modules/@qilin/cli/node_modules/library': { version: '2.0.0', dependencies: { plugin: '*' } },
+      'node_modules/@qilin-agent/cli/node_modules/library': { version: '2.0.0', dependencies: { plugin: '*' } },
       'node_modules/alias': { name: 'original', version: '1.0.0' },
       'node_modules/plugin': {
         version: '1.0.0', dependencies: { library: '^1.0.0' }, peerDependencies: { peer: '*' },
@@ -76,8 +76,8 @@ describe('published npm dependency catalog', () => {
     expect(() => collectDependencies({ lockfileVersion: 2 })).toThrow('lockfileVersion 3')
     expect(() => collectDependencies({ lockfileVersion: 3, packages: {} })).toThrow('consumer must be an object')
     const input = lockfile()
-    input.packages[''].dependencies['@qilin/cli'] = 'next'
-    expect(() => collectDependencies(input)).toThrow('must request only @qilin/cli@latest')
+    input.packages[''].dependencies['@qilin-agent/cli'] = 'next'
+    expect(() => collectDependencies(input)).toThrow('must request only @qilin-agent/cli@latest')
     const missing = lockfile()
     Reflect.deleteProperty(missing.packages, 'node_modules/alias')
     expect(() => collectDependencies(missing)).toThrow('missing direct dependency alias')

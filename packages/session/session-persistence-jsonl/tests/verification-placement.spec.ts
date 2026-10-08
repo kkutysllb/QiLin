@@ -5,9 +5,9 @@
  * exercises both placements against a refusing `Worker` and asserts the inline
  * one still refuses a corrupt generation.
  */
-import { Context } from '@qilin/kylin'
-import { SessionId } from '@qilin/session'
-import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
+import { Context } from '@qilin-agent/kylin'
+import { SessionId } from '@qilin-agent/session'
+import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'

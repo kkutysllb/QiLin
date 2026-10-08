@@ -1,8 +1,8 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { Context, Service, symbols } from '@qilin/kylin'
-import { Session, SessionId } from '@qilin/session'
-import AgentRegistry, { agentEvents } from '@qilin/agent'
-import TypertRegistry from '@qilin/typert-registry'
+import { Context, Service, symbols } from '@qilin-agent/kylin'
+import { Session, SessionId } from '@qilin-agent/session'
+import AgentRegistry, { agentEvents } from '@qilin-agent/agent'
+import TypertRegistry from '@qilin-agent/typert-registry'
 
 import type {
   Agent,
@@ -11,7 +11,7 @@ import type {
   AgentStatus,
   CreateAgentOptions,
   ResumeAgentOptions,
-} from '@qilin/agent'
+} from '@qilin-agent/agent'
 
 function stubAgent(rawId: string, overrides: Partial<Agent> = {}): Agent {
   const id = SessionId(rawId)
@@ -51,8 +51,8 @@ describe('AgentRegistry', () => {
     expect(lookup).toMatchObject({
       parameter: 'agent',
       wire: 'agentId',
-      hostTypeSymbol: '@qilin/agent#Agent',
-      wireTypeSymbol: '@qilin/session/types#SessionId',
+      hostTypeSymbol: '@qilin-agent/agent#Agent',
+      wireTypeSymbol: '@qilin-agent/session/types#SessionId',
     })
     expect(lookup?.resolve(agent.id)).toBe(agent)
     const context = ctx.typert.contexts.getHost('agent')

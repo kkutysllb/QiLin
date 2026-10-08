@@ -7,25 +7,25 @@
  * through one property read; assignment through the tracker proxy and `#`
  * private fields bypass that rebinding.
  */
-import { Service } from '@qilin/kylin'
-import type { Context } from '@qilin/kylin'
-import { randomUUID } from '@qilin/util-crypto'
+import { Service } from '@qilin-agent/kylin'
+import type { Context } from '@qilin-agent/kylin'
+import { randomUUID } from '@qilin-agent/util-crypto'
 // Type-only imports: a plugin-to-plugin value import is a bundle purity
 // error, so scope resolution goes through the sessions service (scopeOf
 // method) instead of the standalone helper.
 import type {
   ISessions, PendingSubmissionRetirement, SessionFace,
-} from '@qilin/api-session-controller/client'
-import type {} from '@qilin/client-file-upload/client'
-import type { SessionId } from '@qilin/session/types'
-import type { ImageMediaType } from '@qilin/attachment'
-import { createSnapshotStore } from '@qilin/client-store'
-import type { SnapshotStore } from '@qilin/client-store'
+} from '@qilin-agent/api-session-controller/client'
+import type {} from '@qilin-agent/client-file-upload/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { ImageMediaType } from '@qilin-agent/attachment'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { SnapshotStore } from '@qilin-agent/client-store'
 import type {
   ComposerAttachment, ComposerFileAttachment, ComposerImageAttachment, DraftFileUpload,
 } from './contract/slots.ts'
-import type { QueueAction } from '@qilin/api-session-controller/types'
-import type { MessageId } from '@qilin/llm/brand'
+import type { QueueAction } from '@qilin-agent/api-session-controller/types'
+import type { MessageId } from '@qilin-agent/llm/brand'
 import type { ComposerBlocks } from './contract/composer-blocks.ts'
 import type {
   DraftAttachmentId, DraftAttachmentSerializationResult, SessionInputResolver, SubmitAttachment, SubmitOutcome,

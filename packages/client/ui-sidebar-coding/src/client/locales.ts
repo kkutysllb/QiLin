@@ -17,7 +17,7 @@
  * `LocaleRuntime.prototype.lookup` so QiLin's own translate chain also
  * returns ja where the `betterSidebar` namespace has a ja entry — that
  * path covers external callers of `ctx.locale.bind('betterSidebar')`,
- * while the override-aware `t()` here covers @qilin/client-ui-sidebar-coding's own
+ * while the override-aware `t()` here covers @qilin-agent/client-ui-sidebar-coding's own
  * components (which bypass `ctx.locale` and call `t()` directly).
  */
 

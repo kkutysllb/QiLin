@@ -3,7 +3,7 @@ description: "The load_workspace_dependencies tool: absolute paths into a bundle
 kind: "package-reference"
 ---
 
-# @qilin/tool-workspace-dependencies
+# @qilin-agent/tool-workspace-dependencies
 
 English | [中文](README.zh.md)
 
@@ -25,12 +25,12 @@ Deployments that ship their own script runtimes — a container image layer or a
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount the plugin beside the tool registry with the payload directory. Configuration validation requires a nonempty `source` and rejects empty `root` values before activation; both paths must be absolute. The bundled Office skills (`@qilin/skill-office`) call this tool by name for their default interpreter.
+Mount the plugin beside the tool registry with the payload directory. Configuration validation requires a nonempty `source` and rejects empty `root` values before activation; both paths must be absolute. The bundled Office skills (`@qilin-agent/skill-office`) call this tool by name for their default interpreter.
 
 ### Minimal configuration
 
 ```yaml
-- name: '@qilin/tool-workspace-dependencies'
+- name: '@qilin-agent/tool-workspace-dependencies'
   config:
     source: /path/to/primary-runtime
 ```
@@ -46,7 +46,7 @@ Mount the plugin beside the tool registry with the payload directory. Configurat
 
 ### Carrier activation
 
-The `sdk` profile mounts this tool and `@qilin/skill-office` only when a carrier path exists. A deployment declares one of two environment variables; with neither set, both rows stay disabled and no payload is read.
+The `sdk` profile mounts this tool and `@qilin-agent/skill-office` only when a carrier path exists. A deployment declares one of two environment variables; with neither set, both rows stay disabled and no payload is read.
 
 | Variable | Meaning |
 |---|---|
@@ -104,7 +104,7 @@ The three Office workflows and their shared checker ship in this repository unde
 
 #### What the model sees
 
-The model sees the generated [`load_workspace_dependencies` schema](../../../docs/tool-catalog.md#qilintool-workspace-dependencies).
+The model sees the generated [`load_workspace_dependencies` schema](../../../docs/tool-catalog.md#qilin-agenttool-workspace-dependencies).
 
 #### Token effect
 

@@ -16,10 +16,10 @@
  * away its bucket and its generations are forgotten together, so no later
  * settlement writes to it.
  */
-import type { ClientRemote, RemoteResult } from '@qilin/api-remotes/client'
-import type { BoundActions } from '@qilin/client-store'
-import type { TabId } from '@qilin/client-ui-dockkit'
-import type { SessionId } from '@qilin/session/types'
+import type { ClientRemote, RemoteResult } from '@qilin-agent/api-remotes/client'
+import type { BoundActions } from '@qilin-agent/client-store'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
+import type { SessionId } from '@qilin-agent/session/types'
 import { HISTORY_PAGE_SIZE } from './git-model.ts'
 import type { createGitStore, GhPrState } from './store.ts'
 

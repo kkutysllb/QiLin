@@ -20,12 +20,12 @@ import {
   MarkdownText,
   Tooltip,
   writeClipboard,
-} from '@qilin/client-ui-primitives'
-import type { JsonTreeLabels, JsonTreeProps, MarkdownLabels } from '@qilin/client-ui-primitives'
+} from '@qilin-agent/client-ui-primitives'
+import type { JsonTreeLabels, JsonTreeProps, MarkdownLabels } from '@qilin-agent/client-ui-primitives'
 import { structuredPatch } from 'diff'
 import type {
   AssistantRequestConfig, ConversationPromptSnapshot, RenderMessageImages,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 import type {
   AssistantMetricDetail, TrajectoryCellKind, TrajectoryCellProps, TrajectorySourceBlock,
 } from './trajectory-record.ts'

@@ -9,11 +9,11 @@
  * is what makes a reload safe. The seats' components have their own specs.
  */
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createSnapshotStore } from '@qilin/client-store'
-import type { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import type { SessionId } from '@qilin/session/types'
-import type { Shortcuts, ShortcutCommand } from '@qilin/client-shortcuts/client'
+import { Context } from '@qilin-agent/kylin'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { Shortcuts, ShortcutCommand } from '@qilin-agent/client-shortcuts/client'
 import { apply, inject } from '../src/client/index.ts'
 import type { GuideInjected, SidebarRightInjected } from '../src/client/index.ts'
 import { apply as hostApply } from '../src/index.ts'

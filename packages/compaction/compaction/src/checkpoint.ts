@@ -3,17 +3,17 @@
  * every backend uses for its replacement user message, plus the predicate that
  * recognizes persisted checkpoints.
  *
- * The seam itself lives in `@qilin/compaction`, which re-exports these
+ * The seam itself lives in `@qilin-agent/compaction`, which re-exports these
  * contracts; this module is a pure type/value/predicate outlet (no cordis
  * imports, no module augmentation) so client and wire programs can name the
  * checkpoint source without loading the host plugin's Context merges — the
  * `qilin-commands/brand` shape.
  *
- * @module @qilin/compaction/checkpoint
+ * @module @qilin-agent/compaction/checkpoint
  */
 
-import type { MessageSource } from '@qilin/llm/message'
-import type { CommandId } from '@qilin/commands/brand'
+import type { MessageSource } from '@qilin-agent/llm/message'
+import type { CommandId } from '@qilin-agent/commands/brand'
 import type { CompactionId } from './brand.ts'
 
 const COMPACT_CHECKPOINT_MARKER = Object.freeze({ kind: 'compact-checkpoint' } as const)

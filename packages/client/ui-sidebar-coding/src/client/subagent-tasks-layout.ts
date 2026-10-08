@@ -12,7 +12,7 @@
 import type { TaskNodeVM, TasksViewModel } from './subagent-tasks-model.ts'
 
 /* jscpd:ignore-start — Tasks-graph layout pinned verbatim to
-   @qilin/client-ui-sidebar-tasks src/client/tasks-graph-layout.ts (ported twin, kept independent) */
+   @qilin-agent/client-ui-sidebar-tasks src/client/tasks-graph-layout.ts (ported twin, kept independent) */
 /** Node card metrics (px, at zoom 1). The card is top segment + bottom bar. */
 export const TASK_NODE_W = 208
 export const TASK_NODE_TOP_H = 46

@@ -1,23 +1,23 @@
 /**
  * Caller identity, workspace authorization, and visible lineage projection.
  *
- * @module @qilin/tool-session-query/workspace-access
+ * @module @qilin-agent/tool-session-query/workspace-access
  */
 
-import type { Context } from '@qilin/kylin'
-import { brandString } from '@qilin/brand'
-import { HarnessError } from '@qilin/llm'
+import type { Context } from '@qilin-agent/kylin'
+import { brandString } from '@qilin-agent/brand'
+import { HarnessError } from '@qilin-agent/llm'
 import {
   type SessionHeader,
   type SessionId as SessionIdValue,
-} from '@qilin/session'
-import type { TurnBoundaryProjection } from '@qilin/agent'
+} from '@qilin-agent/session'
+import type { TurnBoundaryProjection } from '@qilin-agent/agent'
 import type {
   SessionLineageNode,
   SessionRecord,
-} from '@qilin/session-query'
-import type { ToolRunContext } from '@qilin/tools'
-import type {} from '@qilin/session-projection'
+} from '@qilin-agent/session-query'
+import type { ToolRunContext } from '@qilin-agent/tools'
+import type {} from '@qilin-agent/session-projection'
 import { serviceBoundary } from './service-boundary.ts'
 
 interface Caller {

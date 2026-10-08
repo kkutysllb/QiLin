@@ -1,8 +1,8 @@
 import {
   type AssistantLiveChunkEvent, type SessionEventLike, type SessionEventLikeEntry,
-} from '@qilin/api-session-controller/client'
-import { notifySubscribers } from '@qilin/client-store'
-import type { SessionEvent } from '@qilin/session/types'
+} from '@qilin-agent/api-session-controller/client'
+import { notifySubscribers } from '@qilin-agent/client-store'
+import type { SessionEvent } from '@qilin-agent/session/types'
 import type {
   ConversationLocation, ConversationLocationData,
   ConversationLocationDataSource, ConversationLocationDataStore, ConversationStepDataMap,

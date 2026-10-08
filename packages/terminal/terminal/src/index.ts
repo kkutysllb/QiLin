@@ -1,11 +1,11 @@
 /**
  * Owner-scoped persistent PTY registry. Backends own terminal mechanics while
  * this service owns ids, publication, authorization, and awaited cleanup.
- * @module @qilin/terminal
+ * @module @qilin-agent/terminal
  */
 
-import { Context, Service } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
+import { Context, Service } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
 import { TerminalBackendCleanupError } from './types.ts'
 import type {
   TerminalBackend,
@@ -45,7 +45,7 @@ export { TerminalBackendCleanupError } from './types.ts'
 /** Opaque identity minted by {@link TerminalSessionService} for one live PTY session. */
 export type TerminalSessionId = TerminalSessionIdValue
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     terminals: TerminalSessionService
   }

@@ -7,9 +7,9 @@
  * the contract version it was lowered against. Bodies emitted against a
  * different wrapper contract are refused at mount time rather than
  * half-working at run time.
- * @module @qilin/experimental-webworker-packer/src/transform-image
+ * @module @qilin-agent/experimental-webworker-packer/src/transform-image
  */
-import { LOWERING_VERSION } from '@qilin/experimental-webworker-runtime'
+import { LOWERING_VERSION } from '@qilin-agent/experimental-webworker-runtime'
 
 /** Image entries, keyed by their path relative to the virtual root. */
 export type ImageFiles = Record<string, Uint8Array>

@@ -1,4 +1,4 @@
-import { SESSION_FORMAT_VERSION } from '@qilin/session'
+import { SESSION_FORMAT_VERSION } from '@qilin-agent/session'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createHash } from 'node:crypto'
 import {
@@ -31,13 +31,13 @@ import {
 import { createJsonlGenerationTestRuntime } from '../src/testing/generation.ts'
 import { compressZstdFrame, decompressZstdFrame, scanZstdFrames } from '../src/zstd.ts'
 import type { JsonlCompression } from '../src/format.ts'
-import { createSessionFormatCatalogWithChildren, sessionFormatCatalog } from '@qilin/session-format-catalog'
+import { createSessionFormatCatalogWithChildren, sessionFormatCatalog } from '@qilin-agent/session-format-catalog'
 import type {
   SessionFormatArtifact,
   SessionFormatEvent,
   SessionFormatJsonValue,
   SessionFormatRestore,
-} from '@qilin/session-format'
+} from '@qilin-agent/session-format'
 
 const roots: string[] = []
 

@@ -5,7 +5,7 @@
  */
 import { useEffect, useState, type ReactNode } from 'react'
 import clsx from 'clsx'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import type { SidechatInjected } from './face.ts'
 import type { SidechatTranscriptEntry } from './sidechat-model.ts'
 import { NS } from './locales.ts'

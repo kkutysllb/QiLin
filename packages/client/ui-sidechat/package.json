@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-ui-sidechat",
+  "name": "@qilin-agent/client-ui-sidechat",
   "description": "Sidechat tab type for the right Sidebar: one panel with this Session's side threads, each forked from the parent log with the inherited prefix as reference context",
   "version": "3.1.1",
   "publishConfig": {
@@ -31,8 +31,8 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/api-remotes",
-        "@qilin/client-ui-sidebar-right"
+        "@qilin-agent/api-remotes",
+        "@qilin-agent/client-ui-sidebar-right"
       ],
       "platform": "web"
     }
@@ -43,23 +43,23 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/api-remotes": "workspace:*",
-    "@qilin/api-session-controller": "workspace:*",
-    "@qilin/client-locale": "workspace:*",
-    "@qilin/client-test-runtime": "workspace:*",
-    "@qilin/client-ui-primitives": "workspace:*",
-    "@qilin/client-ui-renderer": "workspace:*",
-    "@qilin/client-ui-session": "workspace:*",
-    "@qilin/client-ui-sidebar-right": "workspace:*",
-    "@qilin/client-ui-slots": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/remote-mock": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/subagent": "workspace:*",
-    "@qilin/typert-protocol": "workspace:*",
+    "@qilin-agent/api-remotes": "workspace:*",
+    "@qilin-agent/api-session-controller": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-session": "workspace:*",
+    "@qilin-agent/client-ui-sidebar-right": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/remote-mock": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/subagent": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*",
     "@testing-library/react": "^16.1.0",
     "@types/react": "~18.3.1",
     "@types/react-dom": "~18.3.0",

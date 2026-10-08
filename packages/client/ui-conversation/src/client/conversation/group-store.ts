@@ -1,6 +1,6 @@
 /** Keyed group publication and incremental validation of rendering positions. */
-import { createSnapshotStore, type ObservableSnapshot, type SnapshotStore } from '@qilin/client-store'
-import { assertNever } from '@qilin/util-values'
+import { createSnapshotStore, type ObservableSnapshot, type SnapshotStore } from '@qilin-agent/client-store'
+import { assertNever } from '@qilin-agent/util-values'
 import type { ConversationViewNode } from '../contract/conversation.ts'
 import type {
   ConversationGroupedView, GroupKey, GroupSnapshot, GroupUpdate, NodeKey, NodeReference, RenderEntry,

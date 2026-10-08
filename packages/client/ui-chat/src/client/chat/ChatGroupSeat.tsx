@@ -5,8 +5,8 @@ import {
   IconChevronUpOutline14, IconCodeOutline16, IconEditOutline16, IconGlobeOutline14,
   IconPlanOutline14, IconQuestionOutline14, IconSearchOutline16, IconSparkle16,
   IconThinkOutline14,
-} from '@qilin/client-ui-primitives'
-import type { GroupKey, NodeReference } from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-primitives'
+import type { GroupKey, NodeReference } from '@qilin-agent/client-ui-conversation/client'
 import type { ProcessActivity } from '../contract/process-groups.ts'
 import type { ChatStoreState } from '../contract/store.ts'
 import type { ChatViewSlotProps } from '../contract/slots.ts'

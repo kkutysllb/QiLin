@@ -1,7 +1,7 @@
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { appendFileSync } from 'node:fs'
-import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@qilin/llm'
-import { ToolCallId, LlmAdapter, ReasoningEffortId } from '@qilin/llm'
+import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@qilin-agent/llm'
+import { ToolCallId, LlmAdapter, ReasoningEffortId } from '@qilin-agent/llm'
 
 /**
  * Test adapter for the `mock-delegate` model: the first request calls the

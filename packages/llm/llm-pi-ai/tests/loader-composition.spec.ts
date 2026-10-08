@@ -13,13 +13,13 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import LlmRuntime, { createMessage, createUserMessage, userAgent } from '@qilin/llm'
-import LocalCredentialProvider from '@qilin/credentials-local'
-import FileSettingsProvider from '@qilin/settings-file'
-import * as LlmPiAi from '@qilin/llm-pi-ai'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import LlmRuntime, { createMessage, createUserMessage, userAgent } from '@qilin-agent/llm'
+import LocalCredentialProvider from '@qilin-agent/credentials-local'
+import FileSettingsProvider from '@qilin-agent/settings-file'
+import * as LlmPiAi from '@qilin-agent/llm-pi-ai'
 import { assemble } from './assemble.ts'
 import { closeMockServers, mockServer, textEvents } from './mock-server.ts'
 
@@ -56,17 +56,17 @@ async function loadComposition(): Promise<{ ctx: Context; settingsPath: string }
     '- id: llm',
     "  name: 'test-llm-service'",
     '- id: settings',
-    "  name: '@qilin/settings-file'",
+    "  name: '@qilin-agent/settings-file'",
     '  config:',
     `    path: ${JSON.stringify(settingsPath)}`,
     '    debounceMs: 10',
     '- id: credentials',
-    "  name: '@qilin/credentials-local'",
+    "  name: '@qilin-agent/credentials-local'",
     '  config:',
     `    path: ${JSON.stringify(join(root, '.credentials.yaml'))}`,
     '    debounceMs: 10',
     '- id: llm-pi-ai',
-    "  name: '@qilin/llm-pi-ai'",
+    "  name: '@qilin-agent/llm-pi-ai'",
     '',
   ].join('\n'))
 
@@ -77,9 +77,9 @@ async function loadComposition(): Promise<{ ctx: Context; settingsPath: string }
   ctx.loader.builtins.include = Include
   const modules = new Map<string, unknown>([
     ['test-llm-service', LlmRuntime],
-    ['@qilin/settings-file', FileSettingsProvider],
-    ['@qilin/credentials-local', LocalCredentialProvider],
-    ['@qilin/llm-pi-ai', LlmPiAi],
+    ['@qilin-agent/settings-file', FileSettingsProvider],
+    ['@qilin-agent/credentials-local', LocalCredentialProvider],
+    ['@qilin-agent/llm-pi-ai', LlmPiAi],
   ])
   ctx.loader.internal = {
     version: 'v2',

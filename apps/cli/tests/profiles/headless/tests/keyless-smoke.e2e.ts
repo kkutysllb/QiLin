@@ -3,9 +3,9 @@ import { zstdDecompressSync } from 'node:zlib'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { runLoaderSmoke } from '@qilin/loader-smoke'
-import type { SessionEvent } from '@qilin/session'
-import { scanZstdFrames } from '@qilin/session-persistence-jsonl/src/zstd.js'
+import { runLoaderSmoke } from '@qilin-agent/loader-smoke'
+import type { SessionEvent } from '@qilin-agent/session'
+import { scanZstdFrames } from '@qilin-agent/session-persistence-jsonl/src/zstd.js'
 
 const PRODUCTION_PROFILE_PROCESS_TIMEOUT_MS = 60_000
 const PRODUCTION_PROFILE_TEST_TIMEOUT_MS = PRODUCTION_PROFILE_PROCESS_TIMEOUT_MS + 15_000

@@ -1,5 +1,5 @@
-import { SessionFormatError, isSessionFormatJsonObject } from '@qilin/session-format'
-import type { SessionFormatJsonValue } from '@qilin/session-format'
+import { SessionFormatError, isSessionFormatJsonObject } from '@qilin-agent/session-format'
+import type { SessionFormatJsonValue } from '@qilin-agent/session-format'
 
 /**
  * Require one plain JSON object.

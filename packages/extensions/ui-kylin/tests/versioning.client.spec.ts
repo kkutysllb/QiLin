@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { DynamicCordisLivePackage } from '@qilin/kylin-client-runner/client'
-import { PartialArguments } from '@qilin/util-values'
+import type { DynamicCordisLivePackage } from '@qilin-agent/kylin-client-runner/client'
+import { PartialArguments } from '@qilin-agent/util-values'
 import type {
   CordisDynamicPackageId, CordisDynamicPluginId, CordisDynamicPluginRunId,
   DynamicCordisInventoryRow,

@@ -1,16 +1,16 @@
 // @vitest-environment jsdom
-import { useDisclosure } from '@qilin/client-ui-chat/src/client/chat/use-disclosure.ts'
+import { useDisclosure } from '@qilin-agent/client-ui-chat/src/client/chat/use-disclosure.ts'
 /** ToolCallTree-owned root/subcall markers and selection projection. */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render } from '@testing-library/react'
-import type { SessionSnapshot } from '@qilin/api-session-controller/client'
-import type { ToolCallBlock, ToolResultNode } from '@qilin/client-ui-chat/client'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
+import type { SessionSnapshot } from '@qilin-agent/api-session-controller/client'
+import type { ToolCallBlock, ToolResultNode } from '@qilin-agent/client-ui-chat/client'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 import type { ToolCallOwnerProps, ToolTreeProps } from '../src/client/contract/slots.ts'
 import { ToolCallTree } from '../src/client/tool/ToolCallTree.tsx'
-import { zh } from '@qilin/client-ui-conversation/src/client/locales.ts'
-import { PartialArguments } from '@qilin/util-values'
+import { zh } from '@qilin-agent/client-ui-conversation/src/client/locales.ts'
+import { PartialArguments } from '@qilin-agent/util-values'
 
 afterEach(cleanup)
 

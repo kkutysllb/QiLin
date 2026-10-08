@@ -1,7 +1,7 @@
 /** Wire types for lossless incremental DeepSeek session-log upload. */
 
-import type { SessionEvent, SurfaceEventType } from '@qilin/session'
-import type { JsonValue } from '@qilin/util-values'
+import type { SessionEvent, SurfaceEventType } from '@qilin-agent/session'
+import type { JsonValue } from '@qilin-agent/util-values'
 
 /** Session header fields serialized as raw JSON primitives on the external request wire. */
 export interface DeepSeekSessionLogWireHeader {
@@ -69,22 +69,22 @@ export interface DeepSeekSessionLogExtension {
   readonly events: readonly DeepSeekSessionLogWireEvent[]
 }
 
-declare module '@qilin/deepseek-llm-api-extensions/types' {
+declare module '@qilin-agent/deepseek-llm-api-extensions/types' {
   interface DeepSeekLlmApiExtensionMap {
     qilin_session_log: DeepSeekSessionLogExtension
   }
 }
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /** Records that the configured endpoint accepted one delivery through `throughSeq`. */
     'session-log-deepseek/delivery-accepted': {
       /** Session identity the accepted delivery carried; inherited fork markers retain the parent's id. */
-      sessionId: import('@qilin/session/types').SessionId
+      sessionId: import('@qilin-agent/session/types').SessionId
       /** Accepted Session format generation; absence identifies version 0. */
       sessionFormatVersion?: number
       /** Last canonical event included in the accepted request. */
-      throughSeq: import('@qilin/session/types').SessionSeq
+      throughSeq: import('@qilin-agent/session/types').SessionSeq
     }
   }
 }

@@ -9,24 +9,24 @@
  * re-verifies each path before any native command runs.
  */
 
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { ShortcutCommandId } from '@qilin/client-shortcuts/client'
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-ui-layout/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-session/client'
-import type {} from '@qilin/client-ui-sidebar-documentpreview/client'
-import type {} from '@qilin/api-remotes/client'
-import type {} from '@qilin/api-session-controller/remote'
-import { OPEN_IN_APP_ICON_PREFIX_ROUTE } from '@qilin/host-open-in-app/shared'
-import type {} from '@qilin/client-ui-sidebar-files/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { ShortcutCommandId } from '@qilin-agent/client-shortcuts/client'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-ui-layout/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-session/client'
+import type {} from '@qilin-agent/client-ui-sidebar-documentpreview/client'
+import type {} from '@qilin-agent/api-remotes/client'
+import type {} from '@qilin-agent/api-session-controller/remote'
+import { OPEN_IN_APP_ICON_PREFIX_ROUTE } from '@qilin-agent/host-open-in-app/shared'
+import type {} from '@qilin-agent/client-ui-sidebar-files/client'
 import { OpenInAppController } from './controller.ts'
 import { OpenInAppAction, type OpenInAppActionInjected } from './OpenInAppAction.tsx'
 import { OpenInAppPathController } from './open-path.ts'
 import { OpenPathAction, OpenPathEmptyAction, type OpenPathInjected } from './OpenPathAction.tsx'
 import { en, NS, zh, type OpenInAppKey } from './locales.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Session-header "open workspace in application" copy and document file-open copy. */
     'open-in-app': OpenInAppKey

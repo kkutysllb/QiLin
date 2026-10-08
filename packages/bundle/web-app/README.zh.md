@@ -3,7 +3,7 @@ description: "qilin 的浏览器 GUI：交互式聊天、模型与设置管理�
 kind: "package-bundle"
 ---
 
-# @qilin/web-app
+# @qilin-agent/web-app
 
 [English](README.md) | 中文
 
@@ -52,11 +52,11 @@ qilin --profile web --no-open --port 8080
 | `surfaceContext` | `true` | 给 agent 提供 GUI 定位上下文，并把 `QILIN_WEB_URL` 暴露给其 shell 命令 |
 | `trustedHosts` | `[]` | 允许从网络访问 GUI 的额外主机 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#qilinweb-app)是每个受支持字段及其 JSDoc 的穷尽式真源。 随发行版交付的组合将 `schedule`、`ui-schedule` 与 `time-context` 一起启用：上游默认把这三行全部禁用，且产品内没有入口可以反转它——插件管理页按设计排除内置 profile 组合包。承载它们的 profile 就是恢复它们的层。
+生成的[配置目录](../../../docs/config-catalog.zh.md#qilin-agentweb-app)是每个受支持字段及其 JSDoc 的穷尽式真源。 随发行版交付的组合将 `schedule`、`ui-schedule` 与 `time-context` 一起启用：上游默认把这三行全部禁用，且产品内没有入口可以反转它——插件管理页按设计排除内置 profile 组合包。承载它们的 profile 就是恢复它们的层。
 
 ### 账户与入口文档
 
-该 patch 把 `@qilin/accounts-local` 作为 `accounts` 行挂载，带 `enabled: true`、`registration: open` 与 `sessionMaxAgeDays: 30`，因此浏览器访问控制台以及鉴权面之外的每个 `/api` 请求都需要账户会话。随发行版交付的 loopback 绑定只承载一个用户，这正是注册保持开放的原因；绑定到 loopback 之外的部署要在该行设 `registration: closed`，否则任何能访问该端口的人都可以创建一个拥有完整 harness 访问权限的账户。胶水插件在任何会话存在之前送出三份公开文档——`/` 上的产品落地页，以及 `/login` 与 `/setup` 上的登录或首次运行文档——而应用文档本身是传输层入口路径上配置的 index。把该行设为 `enabled: false` 可恢复启动 token 交接。
+该 patch 把 `@qilin-agent/accounts-local` 作为 `accounts` 行挂载，带 `enabled: true`、`registration: open` 与 `sessionMaxAgeDays: 30`，因此浏览器访问控制台以及鉴权面之外的每个 `/api` 请求都需要账户会话。随发行版交付的 loopback 绑定只承载一个用户，这正是注册保持开放的原因；绑定到 loopback 之外的部署要在该行设 `registration: closed`，否则任何能访问该端口的人都可以创建一个拥有完整 harness 访问权限的账户。胶水插件在任何会话存在之前送出三份公开文档——`/` 上的产品落地页，以及 `/login` 与 `/setup` 上的登录或首次运行文档——而应用文档本身是传输层入口路径上配置的 index。把该行设为 `enabled: false` 可恢复启动 token 交接。
 
 ### LAN 访问与可信主机
 
@@ -117,7 +117,7 @@ URL 行与浏览器交接都是就绪信号：监督方一观察到该行就发�
 - [qilin-base](../base/README.zh.md)——GUI 运行其上的共享核心。
 - [qilin-client-hmr](../../client/hmr/README.zh.md)——开发期间客户端插件变更如何重载。
 - [frontend-static](../../host/frontend-static/README.zh.md)——已构建的前端如何被服务。
-- [生成配置目录](../../../docs/config-catalog.zh.md#qilinweb-app)——每个受支持配置字段及其源声明。
+- [生成配置目录](../../../docs/config-catalog.zh.md#qilin-agentweb-app)——每个受支持配置字段及其源声明。
 
 -----
 

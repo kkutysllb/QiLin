@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/http-proxy",
+  "name": "@qilin-agent/http-proxy",
   "description": "Process-wide outbound HTTP proxy policy for QiLin: resolve it from the launch environment and install it as undici's global dispatcher",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,12 +30,12 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "dependencies": {
     "undici": "^8.10.0"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   }
 }

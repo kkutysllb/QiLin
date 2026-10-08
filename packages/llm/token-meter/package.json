@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/token-meter",
+  "name": "@qilin-agent/token-meter",
   "description": "Replay-aware token measurement service (ctx.tokenMeter) for the QiLin",
   "version": "3.1.1",
   "publishConfig": {
@@ -39,26 +39,26 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/compaction": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/llm-retry": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-projection": "workspace:*",
-    "@qilin/compaction-image-offload": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/compaction": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/llm-retry": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/compaction-image-offload": "workspace:*"
   },
   "dependencies": {
-    "@qilin/util-values": "workspace:*",
-    "@qilin/schemastery": "workspace:~",
+    "@qilin-agent/util-values": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/compaction": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/llm-retry": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-projection": "workspace:*",
-    "@qilin/compaction-image-offload": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/compaction": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/llm-retry": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/compaction-image-offload": "workspace:*"
   }
 }

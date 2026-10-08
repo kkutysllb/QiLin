@@ -133,46 +133,18 @@ pnpm run test:snapshot  # 免密钥录制回放，132 项中 127 项通过
 - `pnpm run test:snapshot` 有 3 项失败（bash-tool、persistent-tools、session-sandbox-root），`test:web` 有 12 个文件失败；这些用例依赖 qilin 内部的 macOS Seatbelt 沙箱，在外层沙箱下会因 sandbox-exec 被拒而失败。已在原始基线提交的独立 worktree 上复跑确认，失败数与本次重构无关。
 - 未配置 API Key 时，界面会一直停留在 API Key 引导；点稍后配置即可跳过并浏览四区。
 
-## 8. 发布状态：暂不发布到 npm
+## 8. 发布状态：npm 发布已启用（scope `@qilin-agent`）
 
-**结论：本分支不做 npm 发布，只在本地构建并运行 Web 服务；包作用域保持 `@qilin`。**
+**结论：包作用域已于 2026-10-08 全量改名为 `@qilin-agent`，npm 发布链路启用；org `qilin-agent` 已认领，CI 凭据走仓库 Secret `NPM_TOKEN`，发布入口为 `npx -y @qilin-agent/cli web`。** 本节旧版"暂不发布"决策的三个阻塞点逐一解除：`@qilin` scope 被第三方占用 → 改用自有 org 的 `@qilin-agent`；2FA 逐次 OTP → 发布走 CI 的 granular token，不逐次输码；下游改名影响 → 三个下游产品（LingShu、KStock、OpenKyLin）都在各自锁定的分支/commit 上消费引擎，按 [rescope Agent Note](../.agents/notes/implemented/architecture/2026-10-08-npm-publish-scope-rescope.md) 的跟进契约在各自下一次引擎升级时替换，不强制同时行动。
 
-本地起服务：
-
-```sh
-pnpm qilin                 # 产品 profile（qilin，含 QiLin 品牌层），默认自动开浏览器
-pnpm qilin --no-open       # 不自动开浏览器
-pnpm qilin --port 3090     # 指定端口
-```
-
-终端打印的地址必须整行使用：令牌一次性，且是进入 workspace 的凭据。首次运行会先过一次 pnpm 依赖校验，网络慢时约一分钟。
-
-### 8.1 为什么不发
-
-1. **`@qilin` 作用域已被他人占用。** npm 上存在 `https://www.npmjs.com/org/qilin`（当前 0 个包），但本账号不属于它：`npm team ls qilin` 返回 403 Forbidden；granular access token 表单的「Select organizations」列表为空；账号头像菜单的 Organizations 里也没有它。向 `@qilin/*` 发布需要该 org 的所有权。
-2. **账号的 2FA 模式使命令行发布必须逐次 OTP。** `npm profile get` 显示 `tfa.mode = auth-and-writes`。仓库 `~/.npmrc` 里原有的 `//registry.npmjs.org/:_authToken`、以及 `npm login --registry=https://registry.npmjs.org --auth-type=web` 之后拿到的凭据，在 `npm publish` 时都返回 `EOTP`；npm 11 在非交互调用下只打印浏览器授权链接、不等待授权完成。304 + 9 个包逐次输入动态码不可行。
-3. **换作用域会影响下游产品。** `@qilin/` 在本仓出现 31,514 处、覆盖 4,903 个文件。当前有两个产品基于本引擎开发，改名会同时改掉它们的依赖名，代价不在本轮范围。实测可用的替代名有 `@kqilin`、`@qilin-harness`、`@qilin-ai`、`@qilinkit` 等，但属于产品决策。
-
-另外，npm 自 2026-07-31 起限制 bypass-2FA granular token 的账户类操作，并计划 2027-01 取消其直接发布权，推荐迁移到 trusted publishing (OIDC) 或 staged publishing。即使作用域问题解决，自动化发布也应走 OIDC 而不是长期 token。
-
-### 8.2 发布链路仍然保留
-
-它们与「是否发布」正交，且都已实测可跑：
+发布链路沿用原有流水线（与"是否发布"正交，且都已实测可跑）：
 
 | 能力 | 命令 | 状态 |
 |---|---|---|
-| 把版本写进全家族 manifest 与 lockfile | `pnpm run release:qilin <version>` | 已用过，自动提交 |
+| 把版本写进全家族 manifest 与 lockfile | `pnpm run release:qilin <version>` | 自动提交 |
 | official 构建画像门禁 | `pnpm run build:official`，`pnpm run release:verify --family <qilin\|vendor>` | 通过 |
-| 打包 | `pnpm run release:pack --family <qilin\|vendor> --out <dir>` | 304 + 9 个 tarball |
-| 安装后起 Web 的机器证据 | `pnpm run release:verify-packed-install --family qilin --from …` | 通过：装出来的 CLI 报版本，并服务 `/` 与 `/workspace?token=…` |
-| 发布到 registry | `pnpm run release:publish --family <qilin\|vendor> --from <dir>` | **未执行**，卡在 8.1 的第 1、2 条 |
+| 打包 | `pnpm run release:pack --family <qilin\|vendor> --out <dir>` | 全家族 tarball |
+| 安装后起 Web 的机器证据 | `pnpm run release:verify-packed-install --family qilin --from …` | 装出来的 CLI 报版本，并服务 `/` 与 `/workspace?token=…` |
+| 发布到 registry | `.github/workflows/release-publish.yml` 手动 dispatch（从 `v*` tag） | 待首次执行 |
 
-两条仍然成立的前提：发布门禁要求客户端产物来自 official 画像（`packages/client/ui-brand-official` 只在 `QILIN_CLIENT_BUILD_PROFILE === 'official'` 时注册官方品牌插件），因此打包前必须 `pnpm run build:official`；本机 `npm config get registry` 指向 npmmirror，若将来发布需显式加 `npm_config_registry=https://registry.npmjs.org`，该变量同时覆盖发布与脚本内部的查重调用。
-
-### 8.3 如果将来要发布
-
-1. 先解决作用域归属：新建一个属于本账号的 org（`@kqilin`、`@qilin-harness` 等实测可用），或与 `@qilin` 的持有者协商；
-2. 把发布迁到 trusted publishing (OIDC)：`.github/workflows/release-publish.yml` 增加 `permissions: id-token: write`，在 npm 侧配置 trusted publisher，移除长期 token；
-3. 换作用域意味着 4,903 个文件的机械改名，并需同步两个下游产品的依赖名后重建重打包。
-
-另有两条与本决策无关、已在 3.0.4 完成的历史项：native 加装包族已改名为 `@qilin/node-addon-system*` 并可用 musl 工具链逐架构构建（darwin-arm64 / linux-arm64 / linux-x64，含 glibc 与 musl 两个 addon）；`pnpm run constraints`、`pnpm run hygiene`、`pnpm run test:docs` 现均通过。
+两条发布前提保持成立：打包前必须 `pnpm run build:official`（发布门禁要求客户端产物来自 official 画像）；发布目标是 `https://registry.npmjs.org`（CI 路径由 workflow 的 `registry-url` 固定，本机 npmmirror 默认不影响）。改名前的最后一个发布版本留在改名前 tag 上，供下游产品按需固定。

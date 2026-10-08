@@ -13,8 +13,8 @@ import { join } from 'node:path'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import type { SessionEvent } from '@qilin/session'
-import type { SessionId } from '@qilin/session/types'
+import type { SessionEvent } from '@qilin-agent/session'
+import type { SessionId } from '@qilin-agent/session/types'
 import {
   assertFixtureInventory, captureExpandedTurnProcessAria, captureStableAria,
   compareOrRefreshGolden, fixtureUserPrompts,

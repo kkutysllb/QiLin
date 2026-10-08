@@ -1,18 +1,18 @@
 /**
  * Bundled `qilin-badge` skill provider.
  *
- * @module @qilin/skill-badge
+ * @module @qilin-agent/skill-badge
  */
 
 import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import {
   BUNDLED_SKILL_RANK,
   type SkillCandidate,
   type SkillDefinition,
   type SkillProvider,
-} from '@qilin/skill'
+} from '@qilin-agent/skill'
 
 const PROVIDER_NAME = 'qilin-badge'
 const SKILL_BODY_URL = new URL('../assets/qilin-badge.md', import.meta.url)

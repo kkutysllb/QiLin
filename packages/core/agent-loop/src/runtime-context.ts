@@ -2,15 +2,15 @@
  * Durable projection state for the two loop-owned surface messages the system
  * prompt plugin forms: the system prompt (surface node 0 and any in-history
  * replacement) and the dynamic runtime-context snapshot.
- * @module @qilin/agent-loop/runtime-context
+ * @module @qilin-agent/agent-loop/runtime-context
  */
 
-import { createSystemMessage, createUserMessage } from '@qilin/llm'
-import type { ContextFormed, ContextSnapshotSection, Message } from '@qilin/llm'
-import type { Session, SessionEvent, SessionSeq, SurfaceIntent, SystemMessage, UserMessage } from '@qilin/session'
-import { isReplacementSurfaceEvent } from '@qilin/session'
-import type { Context } from '@qilin/kylin'
-declare module '@qilin/llm' {
+import { createSystemMessage, createUserMessage } from '@qilin-agent/llm'
+import type { ContextFormed, ContextSnapshotSection, Message } from '@qilin-agent/llm'
+import type { Session, SessionEvent, SessionSeq, SurfaceIntent, SystemMessage, UserMessage } from '@qilin-agent/session'
+import { isReplacementSurfaceEvent } from '@qilin-agent/session'
+import type { Context } from '@qilin-agent/kylin'
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'runtime-context': { kind: 'runtime-context' } & ContextFormed
   }

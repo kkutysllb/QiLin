@@ -1,7 +1,7 @@
 /** Per-job observation generations: anchor, coalesced output, terminal status. */
 
-import type { JobId } from '@qilin/jobs/brand'
-import type { JobChunk, JobRegistry, JobStatus, JobView } from '@qilin/jobs'
+import type { JobId } from '@qilin-agent/jobs/brand'
+import type { JobChunk, JobRegistry, JobStatus, JobView } from '@qilin-agent/jobs'
 import type { JobFollowFrame, JobFollowRequest } from './types.ts'
 import { OutputWaiter, sleep } from './wake.ts'
 

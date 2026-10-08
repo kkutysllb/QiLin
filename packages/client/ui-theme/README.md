@@ -3,7 +3,7 @@ description: "Theme and content typography settings for the qilin web client: --
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-theme
+# @qilin-agent/client-ui-theme
 
 English | [中文](README.zh.md)
 

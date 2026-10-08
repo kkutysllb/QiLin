@@ -232,12 +232,12 @@ describe('client build environment', () => {
   it('feeds the same build-process value to dynamic tsdown bundles and the Vite shell', async () => {
     process.env[PROBE_NAME] = 'shared-value'
 
-    const configs = clientBundle('@qilin/client-ui-sidebar', [
+    const configs = clientBundle('@qilin-agent/client-ui-sidebar', [
       'lib/types/index.js',
       'lib/types/invariant.js',
     ])({ env: { QILIN_BUILD_FACE: 'client' } })
     if (!Array.isArray(configs)) throw new TypeError('client bundle config must be an array')
-    const dynamic = configs.find(config => config.name === '@qilin/client-ui-sidebar/client')
+    const dynamic = configs.find(config => config.name === '@qilin-agent/client-ui-sidebar/client')
     expect(dynamic?.define).toMatchObject({
       'process.env': '{}',
       [PROBE_KEY]: '"shared-value"',

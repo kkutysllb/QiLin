@@ -4,8 +4,8 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { SESSION_FORMAT_VERSION, SessionId } from '@qilin/session'
-import type { SessionEvent } from '@qilin/session'
+import { SESSION_FORMAT_VERSION, SessionId } from '@qilin-agent/session'
+import type { SessionEvent } from '@qilin-agent/session'
 import {
   SessionAlreadyExistsError,
   SessionAlreadyOwnedError,

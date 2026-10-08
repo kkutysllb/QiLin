@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-ui-shortcuts",
+  "name": "@qilin-agent/client-ui-shortcuts",
   "description": "Keyboard shortcut reference, recording, and local preference editing",
   "version": "3.1.1",
   "publishConfig": {
@@ -41,29 +41,29 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/client-shortcuts",
-        "@qilin/client-locale",
-        "@qilin/client-ui-layout",
-        "@qilin/client-ui-settings"
+        "@qilin-agent/client-shortcuts",
+        "@qilin-agent/client-locale",
+        "@qilin-agent/client-ui-layout",
+        "@qilin-agent/client-ui-settings"
       ],
       "platform": "web"
     }
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/brand": "workspace:*",
-    "@qilin/client-locale": "workspace:*",
-    "@qilin/client-shortcuts": "workspace:*",
-    "@qilin/client-store": "workspace:*",
-    "@qilin/client-test-runtime": "workspace:*",
-    "@qilin/client-ui-layout": "workspace:*",
-    "@qilin/client-ui-primitives": "workspace:*",
-    "@qilin/client-ui-renderer": "workspace:*",
-    "@qilin/client-ui-settings": "workspace:*",
-    "@qilin/client-ui-slots": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-shortcuts": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-layout": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-settings": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
     "@types/react": "~18.3.1",
     "clsx": "^2.1.1",
     "react": "^18.2.0"

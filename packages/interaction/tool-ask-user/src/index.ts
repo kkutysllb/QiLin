@@ -3,14 +3,14 @@
  * The tool pauses until a UI provider returns a human answer, then feeds that
  * answer back into the agent loop as an ordinary tool result.
  *
- * @module @qilin/tool-ask-user
+ * @module @qilin-agent/tool-ask-user
  */
 
-import type { Context } from '@qilin/kylin'
-import { defineTool } from '@qilin/tools'
-import z from '@qilin/schemastery'
+import type { Context } from '@qilin-agent/kylin'
+import { defineTool } from '@qilin-agent/tools'
+import z from '@qilin-agent/schemastery'
 import { registerTimedAskUser } from './timed.ts'
-import '@qilin/user-questions'
+import '@qilin-agent/user-questions'
 
 /** Cordis row selecting the tool schema and its default foreground wait. */
 export interface Config {

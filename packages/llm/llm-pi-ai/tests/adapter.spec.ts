@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context, Service } from '@qilin/kylin'
-import { AttachmentId, AttachmentStore, ImageVariantId } from '@qilin/attachment'
+import { Context, Service } from '@qilin-agent/kylin'
+import { AttachmentId, AttachmentStore, ImageVariantId } from '@qilin-agent/attachment'
 import type {
   ImageAttachmentLimits,
   ImageAttachmentRef,
@@ -8,11 +8,11 @@ import type {
   RequestImageAttachment,
   SaveImageAttachment,
   StoredImageAttachment,
-} from '@qilin/attachment'
-import LlmRuntime, { createToolResultMessage, createUserMessage, CONTEXT_WINDOW_EXCEEDED_CODE, LlmError, ReasoningEffortId, userAgent } from '@qilin/llm'
-import * as LlmPiAi from '@qilin/llm-pi-ai'
-import { PiAiAdapter } from '@qilin/llm-pi-ai'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
+} from '@qilin-agent/attachment'
+import LlmRuntime, { createToolResultMessage, createUserMessage, CONTEXT_WINDOW_EXCEEDED_CODE, LlmError, ReasoningEffortId, userAgent } from '@qilin-agent/llm'
+import * as LlmPiAi from '@qilin-agent/llm-pi-ai'
+import { PiAiAdapter } from '@qilin-agent/llm-pi-ai'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 import { getBuiltinModels } from '@earendil-works/pi-ai/providers/all'
 import { DEFAULT_MAX_REQUEST_IMAGE_BYTES, resolveProfiles } from '../src/config.ts'
 import { memoryAuth } from './auth-double.ts'

@@ -3,11 +3,11 @@
  * the plan that annotates one with the rows the test provides itself. `webApp`
  * and `bundleRoster` (`./bundle-roster.ts`) read rosters from the bundle patch
  * files; a spec may also build one inline with {@link ClientRoster.of}.
- * @module @qilin/client-test-runtime/src/assembly/roster
+ * @module @qilin-agent/client-test-runtime/src/assembly/roster
  */
-import type { Context } from '@qilin/kylin'
-import type { WebBootEntry, WebBootGraph } from '@qilin/client-modules/client'
-import { PLATFORM_MODULES } from '@qilin/client-web/src/platform.ts'
+import type { Context } from '@qilin-agent/kylin'
+import type { WebBootEntry, WebBootGraph } from '@qilin-agent/client-modules/client'
+import { PLATFORM_MODULES } from '@qilin-agent/client-web/src/platform.ts'
 
 /** One browser plugin row as `qilin.client` declares it, keyed by package name. */
 export interface ClientRosterRow {

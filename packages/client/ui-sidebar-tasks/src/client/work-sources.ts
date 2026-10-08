@@ -6,11 +6,11 @@
  * keeps it here rather than in either component.
  */
 import { useEffect, useMemo } from 'react'
-import type { SessionListState } from '@qilin/api-session-controller/client'
-import type { JobView } from '@qilin/jobs/view'
-import type { UseSessions } from '@qilin/client-ui-session/client'
-import type { InjectFace } from '@qilin/client-ui-slots'
-import type { SessionId } from '@qilin/session/types'
+import type { SessionListState } from '@qilin-agent/api-session-controller/client'
+import type { JobView } from '@qilin-agent/jobs/view'
+import type { UseSessions } from '@qilin-agent/client-ui-session/client'
+import type { InjectFace } from '@qilin-agent/client-ui-slots'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { TasksJobsFace } from './face.ts'
 import { NO_JOBS, catalogsOf } from './rows.ts'
 

@@ -1,5 +1,5 @@
 /** Localizable rejections shared by profile management operations. */
-import type { PluginCompatibility } from '@qilin/app-boot'
+import type { PluginCompatibility } from '@qilin-agent/app-boot'
 import type { IncompatiblePlugin, ManagementError } from './types.ts'
 
 /** Expected management rejection; presentation belongs to the caller's locale. */

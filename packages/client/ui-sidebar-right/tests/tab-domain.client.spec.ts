@@ -7,9 +7,9 @@
  * records are left alone, and a tab's own actions name the tab's session and land where the tab is now.
  */
 import { describe, expect, it, vi } from 'vitest'
-import type { SessionId } from '@qilin/session/types'
-import type { LayoutState, TabId } from '@qilin/client-ui-dockkit'
-import { DockController, getPane } from '@qilin/client-ui-dockkit'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { LayoutState, TabId } from '@qilin-agent/client-ui-dockkit'
+import { DockController, getPane } from '@qilin-agent/client-ui-dockkit'
 import { TabDomain } from '../src/client/tab-domain.ts'
 import type { SidebarRightNavigator } from '../src/client/tab-domain.ts'
 

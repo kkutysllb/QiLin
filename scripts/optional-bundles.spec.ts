@@ -28,14 +28,14 @@ function bundle(name: string): { dir: string; patches: ReturnType<typeof loadOve
 }
 
 describe('optional bundles', () => {
-  const shipped = ['@qilin/base', '@qilin/web-app'].map(name => bundle(name).patches)
+  const shipped = ['@qilin-agent/base', '@qilin-agent/web-app'].map(name => bundle(name).patches)
 
   it('ships at least one bundle switched off', () => {
     expect(OPTIONAL_BUNDLES.length).toBeGreaterThan(0)
   })
 
   it('keeps the Inspector out of the default plugin list', () => {
-    expect(OPTIONAL_BUNDLES).not.toContain('@qilin/experimental-inspector')
+    expect(OPTIONAL_BUNDLES).not.toContain('@qilin-agent/experimental-inspector')
   })
 
   it.each(OPTIONAL_BUNDLES)('%s composes over the Web profile without a skipped patch', (name) => {
@@ -65,14 +65,14 @@ describe('optional bundles', () => {
   })
 
   it('adds the three Schedule rows the shipped Web composition leaves out', () => {
-    const { patches } = bundle('@qilin/experimental-schedule-bundle')
+    const { patches } = bundle('@qilin-agent/experimental-schedule-bundle')
     const scheduleRows = (entries: ReturnType<typeof composeEntries>) =>
       entries.filter(entry => ['time-context', 'schedule', 'ui-schedule'].includes(entry.id))
     expect(scheduleRows(composeEntries(shipped))).toEqual([])
     expect(scheduleRows(composeEntries([...shipped, patches]))).toEqual([
-      { id: 'time-context', name: '@qilin/time-context' },
-      { id: 'schedule', name: '@qilin/schedule' },
-      { id: 'ui-schedule', name: '@qilin/client-ui-schedule' },
+      { id: 'time-context', name: '@qilin-agent/time-context' },
+      { id: 'schedule', name: '@qilin-agent/schedule' },
+      { id: 'ui-schedule', name: '@qilin-agent/client-ui-schedule' },
     ])
   })
 

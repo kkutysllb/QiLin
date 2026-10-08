@@ -7,8 +7,8 @@ import {
 } from '../src/domain.ts'
 import { resolveScheduleUpdate } from '../src/update.ts'
 import type { ScheduleRecord, ScheduleTimingChange, WeeklyInput, WeeklyScheduleRecord } from '../src/types.ts'
-import { SessionSeq } from '@qilin/session'
-import type { SessionEvent } from '@qilin/session'
+import { SessionSeq } from '@qilin-agent/session'
+import type { SessionEvent } from '@qilin-agent/session'
 
 function weekly(now: string, weekdays: number[], time = '09:00:00', timeZone = 'UTC'): WeeklyScheduleRecord {
   return createWeeklyScheduleRecord(

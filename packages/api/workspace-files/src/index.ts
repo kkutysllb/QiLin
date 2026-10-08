@@ -23,8 +23,8 @@
  */
 
 import { posix, win32 } from 'node:path'
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
 import {
   FsVersion,
   type FsDirEntry,
@@ -33,13 +33,13 @@ import {
   type FsTarget,
   type FsWriteIntent,
   type FsWriteOutcome,
-} from '@qilin/fs'
-import type {} from '@qilin/sandbox-policy'
-import type { SandboxExecutionPolicy } from '@qilin/sandbox'
-import type {} from '@qilin/session'
-import type {} from '@qilin/session-persistence'
-import type { SessionId } from '@qilin/session/types'
-import { Remote, RemoteError, TypertRemoteService, type TypertLookup } from '@qilin/typert-protocol'
+} from '@qilin-agent/fs'
+import type {} from '@qilin-agent/sandbox-policy'
+import type { SandboxExecutionPolicy } from '@qilin-agent/sandbox'
+import type {} from '@qilin-agent/session'
+import type {} from '@qilin-agent/session-persistence'
+import type { SessionId } from '@qilin-agent/session/types'
+import { Remote, RemoteError, TypertRemoteService, type TypertLookup } from '@qilin-agent/typert-protocol'
 import { WorkspaceChangeFeed } from './changes.ts'
 import type {
   WorkspaceByteRange,
@@ -57,7 +57,7 @@ import type {
 
 export type * from './types.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Host owner of the `workspaceFiles` Remote namespace. */
     workspaceFiles: WorkspaceFiles
@@ -72,7 +72,7 @@ export interface WorkspaceFileScope {
   readonly workspaceRoot: string
 }
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface TypertLookupMap {
     /** Resolve a Session id to its workspace root without loading its event body or activating an Agent. */
     workspaceFileScope: TypertLookup<WorkspaceFileScope, SessionId>
@@ -249,8 +249,8 @@ export class WorkspaceFiles extends TypertRemoteService {
       scope.typert.lookups.register('workspaceFileScope', {
         parameter: 'workspaceFileScope',
         wire: 'workspaceFileScopeId',
-        hostTypeSymbol: '@qilin/api-workspace-files#WorkspaceFileScope',
-        wireTypeSymbol: '@qilin/session/types#SessionId',
+        hostTypeSymbol: '@qilin-agent/api-workspace-files#WorkspaceFileScope',
+        wireTypeSymbol: '@qilin-agent/session/types#SessionId',
         resolve: async (sessionId) => {
           const live = scope.sessions.get(sessionId)?.header
           const stored = live === undefined

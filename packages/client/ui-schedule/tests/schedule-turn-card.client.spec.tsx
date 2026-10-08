@@ -6,24 +6,24 @@
  */
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { makeTranslate } from '@qilin/client-test-runtime'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
 import {
   ConversationNodeAssembler, type ConversationLocationDataSource, type ConversationLocationDataStore,
   type ConversationMatch, type ConversationNodeDefinition, type ConversationStartMatch,
   type ConversationTimelineSnapshot, type ConversationTurnDataMap,
   type ConversationViewDefinition, type ConversationViewNode, type ToolResultNode, type TurnLocation,
-} from '@qilin/client-ui-conversation/client'
-import type { SessionLiveEventEntry } from '@qilin/api-session-controller/client'
-import { createToolResultMessage, ToolCallId } from '@qilin/llm'
-import type { SessionEvent } from '@qilin/session/types'
-import type { ScheduleCatalogEntry, ScheduleId } from '@qilin/schedule/client'
+} from '@qilin-agent/client-ui-conversation/client'
+import type { SessionLiveEventEntry } from '@qilin-agent/api-session-controller/client'
+import { createToolResultMessage, ToolCallId } from '@qilin-agent/llm'
+import type { SessionEvent } from '@qilin-agent/session/types'
+import type { ScheduleCatalogEntry, ScheduleId } from '@qilin-agent/schedule/client'
 import { ScheduleTurnCard, type ScheduleTurnCardProps } from '../src/client/ScheduleTurnCard.tsx'
 import { zoneLabel } from '../src/client/schedule-format.ts'
 import {
   scheduleTasksForClosing, scheduleTurnDefinition, selectScheduleTasks,
   type ScheduleTurnData, type ScheduleTurnOwner,
 } from '../src/client/schedule-turn.ts'
-import { PartialArguments } from '@qilin/util-values'
+import { PartialArguments } from '@qilin-agent/util-values'
 import { en, zh } from '../src/client/task-manager-locales.ts'
 
 const CALL = 'call-created'

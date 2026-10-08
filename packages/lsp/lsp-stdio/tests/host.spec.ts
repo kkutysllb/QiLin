@@ -6,10 +6,10 @@ import { realpath } from 'node:fs/promises'
 import { execFile } from 'node:child_process'
 import { pathToFileURL } from 'node:url'
 import { promisify } from 'node:util'
-import { Context } from '@qilin/kylin'
-import LocalFileSystem from '@qilin/fs-local'
-import { deadline } from '@qilin/timeout'
-import { canonicalizeWorkspace, readHostSource } from '@qilin/lsp-stdio'
+import { Context } from '@qilin-agent/kylin'
+import LocalFileSystem from '@qilin-agent/fs-local'
+import { deadline } from '@qilin-agent/timeout'
+import { canonicalizeWorkspace, readHostSource } from '@qilin-agent/lsp-stdio'
 
 const execFileAsync = promisify(execFile)
 

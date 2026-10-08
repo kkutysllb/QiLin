@@ -1,20 +1,20 @@
 import { describe, expect, it } from 'vitest'
 import type {
   ChatConversationViewNode, ChatSnapshot,
-} from '@qilin/client-ui-chat/client'
+} from '@qilin-agent/client-ui-chat/client'
 import type {
   SessionEventLikeEntry, SessionLiveEventEntry,
-} from '@qilin/api-session-controller/client'
+} from '@qilin-agent/api-session-controller/client'
 import {
   ConversationNodeAssembler,
   type ConversationNodeDefinition,
   type ConversationViewDefinition,
-} from '@qilin/client-ui-conversation/client'
-import type { SessionEvent } from '@qilin/session/types'
+} from '@qilin-agent/client-ui-conversation/client'
+import type { SessionEvent } from '@qilin-agent/session/types'
 import { inspectSystemPrompt } from '../../ui-conversation/src/client/contract/system-prompt.ts'
-import { AssistantStreamAccumulator } from '@qilin/llm/assistant-stream'
-import { LlmAttemptId } from '@qilin/llm/brand'
-import type { StreamChunk } from '@qilin/llm'
+import { AssistantStreamAccumulator } from '@qilin-agent/llm/assistant-stream'
+import { LlmAttemptId } from '@qilin-agent/llm/brand'
+import type { StreamChunk } from '@qilin-agent/llm'
 import { hasAssistantReplyContent } from '../src/client/contract/assistant-content.ts'
 import { assistantDefinition } from '../src/client/conversation-nodes/assistant.ts'
 import { chatViewDefinition } from '../src/client/conversation-nodes/chat-snapshot-builder.ts'
@@ -23,7 +23,7 @@ import { compactionDefinition } from '../src/client/conversation-nodes/compactio
 import { unknownFallbackDefinition } from '../src/client/conversation-nodes/fallback.ts'
 import { nextStepInboxDefinition } from '../src/client/conversation-nodes/inbox.ts'
 import { developerMessageDefinition, messageDefinition } from '../src/client/conversation-nodes/message.ts'
-import { inspectRequestPrompt } from '@qilin/client-ui-conversation/client'
+import { inspectRequestPrompt } from '@qilin-agent/client-ui-conversation/client'
 import { requestPromptDefinition, systemMessageDefinition } from '../src/client/conversation-nodes/request-prompt.ts'
 import { retryDefinition } from '../src/client/conversation-nodes/retry.ts'
 import { toolDefinition } from '../src/client/conversation-nodes/tool.ts'
@@ -181,7 +181,7 @@ function systemMessage(text: string) {
     id: `system-${text}`,
     role: 'system',
     content: text === '' ? [] : [{ type: 'text', text }],
-    source: { kind: 'plugin', plugin: '@qilin/system-prompt' },
+    source: { kind: 'plugin', plugin: '@qilin-agent/system-prompt' },
   }
 }
 
@@ -1666,7 +1666,7 @@ describe('built-in conversation node Definitions', () => {
       at(4, 'user/message', textMessage('direct-user', 'prompt'), { surfaceOp: 'append' }),
       at(5, 'user/message', {
         ...textMessage('runtime-context', 'runtime facts'),
-        source: { kind: 'plugin', plugin: '@qilin/system-prompt', form: 'snapshot' },
+        source: { kind: 'plugin', plugin: '@qilin-agent/system-prompt', form: 'snapshot' },
       }, { surfaceOp: 'append' }),
       at(6, 'request/header', {
         reason: 'initial',

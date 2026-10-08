@@ -2,13 +2,13 @@
  * The SDK profile's command-line and stdin-lifetime provider. A successful
  * parse publishes {@link SDK_APP_STARTUP_SERVICE}; the JSON-RPC server waits
  * for that service, so help starts no transport.
- * @module @qilin/sdk-app
+ * @module @qilin-agent/sdk-app
  */
 
 import { Command } from 'commander'
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { exitOnStdinEnd, parseCmdline } from '@qilin/cmdline'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { exitOnStdinEnd, parseCmdline } from '@qilin-agent/cmdline'
 
 /** Stable Cordis plugin name. */
 export const name = 'sdk-app-startup'

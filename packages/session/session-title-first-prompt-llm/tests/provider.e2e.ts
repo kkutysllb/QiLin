@@ -1,12 +1,12 @@
-import { createUserMessage } from '@qilin/llm'
+import { createUserMessage } from '@qilin-agent/llm'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import LlmRuntime from '@qilin/llm'
-import * as LlmDeepSeek from '@qilin/llm-deepseek-api-key'
-import SessionStore, { SessionId } from '@qilin/session'
-import SessionTitleService from '@qilin/session-title'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import * as FirstMessageTitleProvider from '@qilin/session-title-first-prompt-llm'
+import { Context } from '@qilin-agent/kylin'
+import LlmRuntime from '@qilin-agent/llm'
+import * as LlmDeepSeek from '@qilin-agent/llm-deepseek-api-key'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import SessionTitleService from '@qilin-agent/session-title'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import * as FirstMessageTitleProvider from '@qilin-agent/session-title-first-prompt-llm'
 
 const contexts: Context[] = []
 

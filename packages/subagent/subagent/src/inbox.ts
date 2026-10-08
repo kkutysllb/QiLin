@@ -1,11 +1,11 @@
 /**
  * Activation-local admission around one continuable subagent's Agent inbox.
  *
- * @module @qilin/subagent/inbox
+ * @module @qilin-agent/subagent/inbox
  */
 
-import type { Agent } from '@qilin/agent'
-import type { UserMessage } from '@qilin/session'
+import type { Agent } from '@qilin-agent/agent'
+import type { UserMessage } from '@qilin-agent/session'
 import type { SubagentPromptRequest } from './control-types.ts'
 import { SubagentError } from './error.ts'
 

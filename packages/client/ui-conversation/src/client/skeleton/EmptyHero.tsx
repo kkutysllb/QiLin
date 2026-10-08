@@ -5,8 +5,8 @@ import { useState } from 'react'
 import type { ReactNode, RefObject } from 'react'
 import {
   IconChevronDownOutline14, IconFolderClose16, IconFolderOpen16, QilinSeal,
-} from '@qilin/client-ui-primitives'
-import { workspaceTitleOf } from '@qilin/util-workspace-path'
+} from '@qilin-agent/client-ui-primitives'
+import { workspaceTitleOf } from '@qilin-agent/util-workspace-path'
 import type { ConversationContentProps } from '../contract/slots.ts'
 import css from './HeroShell.module.css'
 

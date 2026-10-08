@@ -8,12 +8,12 @@
  */
 import { vi } from 'vitest'
 import type { Mock } from 'vitest'
-import type { RemoteFailure } from '@qilin/api-remotes/client'
-import { RemoteError } from '@qilin/client-test-runtime'
+import type { RemoteFailure } from '@qilin-agent/api-remotes/client'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
 
 import type {
   WorkspaceDirectoryEntry, WorkspaceDirectoryListing, WorkspaceFileStat, WorkspaceFileText,
-} from '@qilin/api-workspace-files/types'
+} from '@qilin-agent/api-workspace-files/types'
 import type { PlanReader } from '../src/client/plans.ts'
 
 /** The virtual workspace one scripted reader answers from. */

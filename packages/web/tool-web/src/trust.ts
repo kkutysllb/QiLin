@@ -1,6 +1,6 @@
 /**
  * Model-visible labeling shared by web tools.
- * @module @qilin/tool-web/trust
+ * @module @qilin-agent/tool-web/trust
  */
 
 /** Prefix that keeps provider-controlled text visibly outside agent instructions. */

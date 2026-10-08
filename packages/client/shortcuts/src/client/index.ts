@@ -1,7 +1,7 @@
 /** Browser command service, with one keyboard adapter per plugin lifetime. */
-import { Service } from '@qilin/kylin'
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/client-locale/client'
+import { Service } from '@qilin-agent/kylin'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/client-locale/client'
 import { ShortcutRegistry } from './registry.ts'
 import { detectEnvironment, installKeyboard } from './dom.ts'
 import { bindingIssue, initialShortcutConfig, normalizeBinding, overlappingBindings, presentBinding } from '../protocol.ts'
@@ -16,7 +16,7 @@ export type { ShortcutCatalogEntry, ShortcutCommand, ShortcutContext, ShortcutGe
 export type { ShortcutFixedInput, ShortcutFixedCommand, ShortcutFixedCatalogEntry } from './types.ts'
 export type { ShortcutBinding, ShortcutCommandId, ShortcutPlatform, ShortcutRuntime } from '../protocol.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Window-local application commands and effective keycap catalog. */
     shortcuts: Shortcuts

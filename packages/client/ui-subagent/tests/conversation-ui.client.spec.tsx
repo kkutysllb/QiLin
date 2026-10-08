@@ -1,13 +1,13 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
-import { makeTranslate, RemoteError, sessionSnapshot } from '@qilin/client-test-runtime'
+import { makeTranslate, RemoteError, sessionSnapshot } from '@qilin-agent/client-test-runtime'
 import type {
   SessionListState, SessionSummary, SessionSnapshot,
-} from '@qilin/api-session-controller/client'
-import type { SubagentAddress, SubagentCatalogRow } from '@qilin/subagent/client'
-import type { SessionId } from '@qilin/session/types'
-import type { SessionStatusSnapshot } from '@qilin/client-ui-session/client'
+} from '@qilin-agent/api-session-controller/client'
+import type { SubagentAddress, SubagentCatalogRow } from '@qilin-agent/subagent/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
 import {
   SubagentCatalogAction, SubagentHeaderLineage,
   type SubagentCatalogActionProps, type SubagentHeaderLineageProps,

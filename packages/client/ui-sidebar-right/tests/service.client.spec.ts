@@ -9,10 +9,10 @@
  * complete until the tab knows how it was navigated to.
  */
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import type { SessionId } from '@qilin/session/types'
-import type { LayoutState, PaneId, TabId } from '@qilin/client-ui-dockkit'
-import { dockPaneIds, findTabPane, getPane } from '@qilin/client-ui-dockkit'
+import { Context } from '@qilin-agent/kylin'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { LayoutState, PaneId, TabId } from '@qilin-agent/client-ui-dockkit'
+import { dockPaneIds, findTabPane, getPane } from '@qilin-agent/client-ui-dockkit'
 import { createSidebarRightController } from '../src/client/service.ts'
 import { SidebarRightTabRegistry } from '../src/client/tab-registry.ts'
 import { createSidebarRightStore } from '../src/client/stores.ts'

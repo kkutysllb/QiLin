@@ -1,7 +1,7 @@
 /** Slash-menu props for the Conversation-owned input overlay. */
-import type {} from '@qilin/client-ui-conversation/client'
+import type {} from '@qilin-agent/client-ui-conversation/client'
 import type { InputTriggerCrumb, PickAction } from '../types.ts'
-import type { SnapshotStore } from '@qilin/client-store'
+import type { SnapshotStore } from '@qilin-agent/client-store'
 import type { MenuState } from '../core/contract.ts'
 
 /** Injected business face of the MenuView overlay entry (copy rides the standard locale seat, not this face). */

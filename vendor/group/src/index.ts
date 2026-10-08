@@ -1,3 +1,3 @@
-import { Group } from '@qilin/kylin-plugin-loader'
+import { Group } from '@qilin-agent/kylin-plugin-loader'
 
 export default Group

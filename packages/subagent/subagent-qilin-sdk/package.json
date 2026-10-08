@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/subagent-qilin-sdk",
+  "name": "@qilin-agent/subagent-qilin-sdk",
   "description": "Out-of-process SDK subagent backend: drives a child QiLin runtime subprocess over stdio JSON-RPC through the TypeScript SDK client",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,37 +30,37 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/sdk-client": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/subagent": "workspace:*",
-    "@qilin/subprocess": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/sdk-client": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/subagent": "workspace:*",
+    "@qilin-agent/subprocess": "workspace:*"
   },
   "dependencies": {
-    "@qilin/brand": "workspace:*",
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/agent-instructions": "workspace:*",
-    "@qilin/app-boot": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/llm-deepseek": "workspace:*",
-    "@qilin/loader-smoke": "workspace:*",
-    "@qilin/sdk-client": "workspace:*",
-    "@qilin/sdk-protocol": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-checkpoint-policy": "workspace:*",
-    "@qilin/session-persistence-jsonl": "workspace:*",
-    "@qilin/session-projection": "workspace:*",
-    "@qilin/skill-filesystem": "workspace:*",
-    "@qilin/subagent": "workspace:*",
-    "@qilin/subprocess": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/tool-subagent": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-instructions": "workspace:*",
+    "@qilin-agent/app-boot": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/llm-deepseek": "workspace:*",
+    "@qilin-agent/loader-smoke": "workspace:*",
+    "@qilin-agent/sdk-client": "workspace:*",
+    "@qilin-agent/sdk-protocol": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-checkpoint-policy": "workspace:*",
+    "@qilin-agent/session-persistence-jsonl": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/skill-filesystem": "workspace:*",
+    "@qilin-agent/subagent": "workspace:*",
+    "@qilin-agent/subprocess": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tool-subagent": "workspace:*"
   }
 }

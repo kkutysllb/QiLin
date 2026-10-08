@@ -2,15 +2,15 @@
  * Workspace entity registry (`ctx.workspaceRegistry`): durable workspace records,
  * stable registry order, and header-validated session membership over the
  * domain data form.
- * @module @qilin/workspace
+ * @module @qilin-agent/workspace
  */
 
 import { randomUUID } from 'node:crypto'
 import { mkdir, stat } from 'node:fs/promises'
-import { Context, Service } from '@qilin/kylin'
-import type { SessionHeader, SessionId } from '@qilin/session'
-import type {} from '@qilin/session-persistence'
-import type { DomainGlobal, KvTable } from '@qilin/storage-domain'
+import { Context, Service } from '@qilin-agent/kylin'
+import type { SessionHeader, SessionId } from '@qilin-agent/session'
+import type {} from '@qilin-agent/session-persistence'
+import type { DomainGlobal, KvTable } from '@qilin-agent/storage-domain'
 import { WorkspaceEntity } from './entity.ts'
 import type { WorkspaceEntityHost } from './entity.ts'
 
@@ -110,7 +110,7 @@ export interface ArchiveSessionOptions {
   readonly stopActivity?: boolean
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     workspaceRegistry: WorkspaceRegistry
   }

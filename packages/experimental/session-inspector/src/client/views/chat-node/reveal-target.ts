@@ -1,7 +1,7 @@
 /** Precise and nearby Chat reveal candidates from the Inspector's loaded Chat snapshot. */
 
 import type { InspectorChatTarget } from '../objects.ts'
-import type { ChatConversationViewNode, ToolChatData } from '@qilin/client-ui-chat/client'
+import type { ChatConversationViewNode, ToolChatData } from '@qilin-agent/client-ui-chat/client'
 
 function nearest(nodes: readonly ChatConversationViewNode[], seq: number): ChatConversationViewNode | undefined {
   let best: ChatConversationViewNode | undefined

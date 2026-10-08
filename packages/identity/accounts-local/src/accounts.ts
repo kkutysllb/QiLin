@@ -4,12 +4,12 @@
  * mutation replaces the file atomically and publishes in memory only after the
  * successor bytes are in place, so a failed write leaves the running server on
  * the previous account set.
- * @module @qilin/accounts-local/src/accounts
+ * @module @qilin-agent/accounts-local/src/accounts
  */
 
 import { randomUUID } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
-import { writeFileAtomic } from '@qilin/atomic-write'
+import { writeFileAtomic } from '@qilin-agent/atomic-write'
 import { isRecord } from './json.ts'
 import { hashPassword } from './password.ts'
 

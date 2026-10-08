@@ -7,14 +7,14 @@
  * App flags are not the launcher's business: the invocation's inner arguments
  * are provided to the tree through `ctx.cmdlineArgs`, where any injected app
  * plugin may read the same immutable snapshot.
- * @module @qilin/cli/profile-boot
+ * @module @qilin-agent/cli/profile-boot
  */
 
 import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { FiberState, type Context } from '@qilin/kylin'
-import type { PatchOptions } from '@qilin/kylin-plugin-include'
+import { FiberState, type Context } from '@qilin-agent/kylin'
+import type { PatchOptions } from '@qilin-agent/kylin-plugin-include'
 import {
   boot,
   readProfilePatches,
@@ -35,11 +35,11 @@ import {
   type Profile,
   type ProfileResolutionGeneration,
   type ProfileResolutionMode,
-} from '@qilin/app-boot'
-import { resolveQilinHome } from '@qilin/home-paths'
-import { installProxyFromEnvironment } from '@qilin/http-proxy'
-import { QILIN_LAUNCH_ENVIRONMENT_KEY, type LaunchEnvironmentSnapshot } from '@qilin/launch-environment'
-import { provideCmdline, type AppReady } from '@qilin/cmdline'
+} from '@qilin-agent/app-boot'
+import { resolveQilinHome } from '@qilin-agent/home-paths'
+import { installProxyFromEnvironment } from '@qilin-agent/http-proxy'
+import { QILIN_LAUNCH_ENVIRONMENT_KEY, type LaunchEnvironmentSnapshot } from '@qilin-agent/launch-environment'
+import { provideCmdline, type AppReady } from '@qilin-agent/cmdline'
 import { createProcessShutdown, type ProcessShutdown } from './process-shutdown.ts'
 
 const NAME = 'qilin'

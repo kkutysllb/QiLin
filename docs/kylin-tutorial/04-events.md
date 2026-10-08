@@ -9,9 +9,9 @@ Services support direct calls; **events** let a plugin announce something withou
 Create `stats.ts` in `tmp/kylin-tutorial` — a service that counts things and announces each change:
 
 ```ts
-import { Service, type Context } from '@qilin/kylin'
+import { Service, type Context } from '@qilin-agent/kylin'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     stats: StatsService
   }
@@ -46,7 +46,7 @@ The `interface Events` merge is the event-system twin of the `interface Context`
 Create `reporter.ts`:
 
 ```ts ignore-check
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {} from './stats.ts'
 
 export const name = 'reporter'
@@ -96,9 +96,9 @@ Every harness event documents its mode in the generated reference on its owning 
 Waterfall is the mode that powers interception. Each listener receives the arguments plus a `next()` continuation; it can transform what `next()` returns, or return without calling `next()` and short-circuit the rest of the chain — what the Kylin docs call the veto. Create `waterfall-demo.ts`:
 
 ```ts
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Events {
     'demo/transform'(input: string, next: () => Promise<string>): Promise<string>
   }

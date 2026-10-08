@@ -3,7 +3,7 @@ description: "Web @file and @session reference source for the composer: candidat
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-reference
+# @qilin-agent/client-ui-reference
 
 English | [中文](README.zh.md)
 

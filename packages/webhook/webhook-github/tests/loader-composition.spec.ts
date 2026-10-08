@@ -3,10 +3,10 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { Context } from '@qilin/kylin'
-import Include from '@qilin/kylin-plugin-include'
-import Loader from '@qilin/kylin-plugin-loader'
-import WebServer from '@qilin/host-webserver'
+import { Context } from '@qilin-agent/kylin'
+import Include from '@qilin-agent/kylin-plugin-include'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import WebServer from '@qilin-agent/host-webserver'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as GitHubAdapter from '../src/index.ts'
 
@@ -26,11 +26,11 @@ describe('real Loader composition', () => {
     const configPath = join(root, 'cordis.yml')
     await writeFile(configPath, [
       '- name: fixture-dependencies',
-      "- name: '@qilin/host-webserver'",
+      "- name: '@qilin-agent/host-webserver'",
       '  config:',
       "    host: '127.0.0.1'",
       '    port: 0',
-      "- name: '@qilin/webhook-github'",
+      "- name: '@qilin-agent/webhook-github'",
       '  config:',
       '    source: loader',
       '    path: /github',
@@ -55,8 +55,8 @@ describe('real Loader composition', () => {
     context.loader.builtins.include = Include
     const modules = new Map<string, unknown>([
       ['fixture-dependencies', dependencies],
-      ['@qilin/host-webserver', WebServer],
-      ['@qilin/webhook-github', GitHubAdapter],
+      ['@qilin-agent/host-webserver', WebServer],
+      ['@qilin-agent/webhook-github', GitHubAdapter],
     ])
     context.loader.internal = {
       version: 'v2',

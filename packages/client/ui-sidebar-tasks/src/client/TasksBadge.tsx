@@ -6,11 +6,11 @@
  * `useSessions` hook and derives nothing else.
  */
 import type { ReactNode } from 'react'
-import type { JobsSnapshot } from '@qilin/api-job-controller/client'
-import { Tag } from '@qilin/client-ui-primitives'
-import type { InjectFace, PropsRuntime } from '@qilin/client-ui-slots'
-import type { SessionId } from '@qilin/session/types'
-import type {} from '@qilin/client-ui-session/client'
+import type { JobsSnapshot } from '@qilin-agent/api-job-controller/client'
+import { Tag } from '@qilin-agent/client-ui-primitives'
+import type { InjectFace, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type { SessionId } from '@qilin-agent/session/types'
+import type {} from '@qilin-agent/client-ui-session/client'
 import { activeWorkCount } from './rows.ts'
 import { useWorkSources } from './work-sources.ts'
 

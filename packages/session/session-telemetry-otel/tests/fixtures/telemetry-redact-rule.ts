@@ -1,4 +1,4 @@
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 
 /**
  * Deployment-style redaction rule for the telemetry e2e: scrubs the fixture

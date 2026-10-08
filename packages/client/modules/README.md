@@ -3,7 +3,7 @@ description: "Client module system for the web GUI: the host composes the boot g
 kind: "package-reference"
 ---
 
-# @qilin/client-modules
+# @qilin-agent/client-modules
 
 English | [中文](README.zh.md)
 

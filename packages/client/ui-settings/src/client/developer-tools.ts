@@ -1,5 +1,5 @@
 /** One accepted preference drives every developer-tool consumer. */
-import { createSnapshotStore, type ObservableSnapshot } from '@qilin/client-store'
+import { createSnapshotStore, type ObservableSnapshot } from '@qilin-agent/client-store'
 import type { DeveloperToolsSettings } from '../developer-tools-settings.ts'
 import type { ConfigForm } from './config-form-types.ts'
 

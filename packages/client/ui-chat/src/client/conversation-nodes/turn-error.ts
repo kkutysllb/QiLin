@@ -1,7 +1,7 @@
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   ConversationMatch, ConversationNodeContext, ConversationNodeDefinition, TurnErrorNode,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 import { chatNode } from './common.ts'
 import { displayFailure } from './event-projection.ts'
 

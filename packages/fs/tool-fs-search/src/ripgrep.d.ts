@@ -3,7 +3,7 @@
  * resolves the platform ripgrep binary (`@vscode/ripgrep-<platform>-<arch>`
  * optional dependency) and exports its absolute path as the named export
  * `rgPath` (no bundled type declarations).
- * @module @qilin/tool-fs-search/ripgrep-types
+ * @module @qilin-agent/tool-fs-search/ripgrep-types
  */
 
 declare module '@vscode/ripgrep' {

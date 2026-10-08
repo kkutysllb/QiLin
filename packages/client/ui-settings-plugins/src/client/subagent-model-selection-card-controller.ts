@@ -1,9 +1,9 @@
 /** Staged editor for the Host-owned subagent model allowlist. */
 
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { ModelProviderGroup } from '@qilin/api-remotes/client'
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
-import type { ConfigForm } from '@qilin/client-ui-settings/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { ModelProviderGroup } from '@qilin-agent/api-remotes/client'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
+import type { ConfigForm } from '@qilin-agent/client-ui-settings/client'
 import type { CardShell } from './card-form.ts'
 
 /** Namespace of the Host-owned subagent model-selection preference. */

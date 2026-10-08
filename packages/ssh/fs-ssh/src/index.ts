@@ -1,13 +1,13 @@
 /** Filesystem provider preserving remote identities and helper-owned atomic mutations. */
 import { posix } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { FileSystem, FsError } from '@qilin/fs'
-import type { FsDirEntry, FsEditOutcome, FsEditRequest, FsErrorCode, FsInfo, FsMoveOutcome, FsPathInfo, FsRemoveOutcome, FsTarget, FsVersion, FsWriteIntent, FsWriteOutcome } from '@qilin/fs'
-import type { SandboxExecutionPolicy, SandboxMode } from '@qilin/sandbox'
-import type {} from '@qilin/sandbox-policy'
-import type {} from '@qilin/ssh'
-import { RemoteOperationError } from '@qilin/ssh/protocol'
-import { editResultSchema, entriesSchema, infoSchema, pathInfoSchema, targetSchema, textStreamIdSchema, writeResultSchema } from '@qilin/ssh/schemas'
+import { FileSystem, FsError } from '@qilin-agent/fs'
+import type { FsDirEntry, FsEditOutcome, FsEditRequest, FsErrorCode, FsInfo, FsMoveOutcome, FsPathInfo, FsRemoveOutcome, FsTarget, FsVersion, FsWriteIntent, FsWriteOutcome } from '@qilin-agent/fs'
+import type { SandboxExecutionPolicy, SandboxMode } from '@qilin-agent/sandbox'
+import type {} from '@qilin-agent/sandbox-policy'
+import type {} from '@qilin-agent/ssh'
+import { RemoteOperationError } from '@qilin-agent/ssh/protocol'
+import { editResultSchema, entriesSchema, infoSchema, pathInfoSchema, targetSchema, textStreamIdSchema, writeResultSchema } from '@qilin-agent/ssh/schemas'
 import { z } from 'zod'
 
 const errorCodes: Record<FsErrorCode, true> = {

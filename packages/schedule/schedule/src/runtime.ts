@@ -1,13 +1,13 @@
 /** Host timer over stored tasks; Session activation is a delivery operation. */
-import { createUserMessage } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-declare module '@qilin/llm' {
+import { createUserMessage } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'schedule': { kind: 'schedule' } & ContextFormed
   }
 }
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/api-session-controller'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/api-session-controller'
 import { isRecurringScheduleRecord, renderReminderFraming, renderRecurringReminderBatchFraming, resolveRecurringOccurrence } from './domain.ts'
 import type { DeliveryRetentionBounds, RecurringScheduleRecord } from './types.ts'
 import type { ScheduleTask } from './storage.ts'

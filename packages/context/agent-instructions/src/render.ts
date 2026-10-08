@@ -1,11 +1,11 @@
 /**
  * Model-facing workspace instruction rendering within an explicit byte budget.
  *
- * @module @qilin/agent-instructions/render
+ * @module @qilin-agent/agent-instructions/render
  */
 
 import { basename, dirname } from 'node:path'
-import { DEFAULT_QILIN_HOME_DISPLAY, QILIN_HOME_ENV } from '@qilin/home-paths'
+import { DEFAULT_QILIN_HOME_DISPLAY, QILIN_HOME_ENV } from '@qilin-agent/home-paths'
 import type { InstructionFile, LoadedInstructionFile } from './files.ts'
 
 const SYSTEM_REMINDER_OPEN = '<system-reminder>'

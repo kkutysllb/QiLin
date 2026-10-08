@@ -14,10 +14,10 @@ import {
   IconPinFillRegular, IconPinOutlineRegular, IconPlusOutline16, IconTrashOutline16,
   IconTriangleRightFill14, Menu, relativeTime,
   StateDot,
-} from '@qilin/client-ui-primitives'
-import type { StateDotState } from '@qilin/client-ui-primitives'
-import type { PropsRenderSlots } from '@qilin/client-ui-slots'
-import { abbreviateHomePath } from '@qilin/util-workspace-path'
+} from '@qilin-agent/client-ui-primitives'
+import type { StateDotState } from '@qilin-agent/client-ui-primitives'
+import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
+import { abbreviateHomePath } from '@qilin-agent/util-workspace-path'
 import type { WorkspaceBrowserProps } from '../contract/slots.ts'
 import type { GroupNode, SearchResultNode, SessionNode } from '../tree.ts'
 import css from './Rows.module.css'

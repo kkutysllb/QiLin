@@ -3,8 +3,8 @@
 import { fileURLToPath } from 'node:url'
 import { chromium, type Browser, type Page } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { createUserMessage } from '@qilin/llm'
-import { SESSION_FORMAT_VERSION, SessionId, SessionSeq } from '@qilin/session'
+import { createUserMessage } from '@qilin-agent/llm'
+import { SESSION_FORMAT_VERSION, SessionId, SessionSeq } from '@qilin-agent/session'
 import {
   captureStableAria, compareOrRefreshGolden, launchWebScaffold,
   watchConsole, webSnapshotMode, type WebScaffold,

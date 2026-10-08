@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { SessionFormatUnsupportedMigrationError } from '@qilin/session-format'
+import { SessionFormatUnsupportedMigrationError } from '@qilin-agent/session-format'
 import {
   sessionFormatV0ToV1,
 } from '../src/index.ts'

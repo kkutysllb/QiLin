@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { IconChevronDownOutline14 } from '@qilin/client-ui-primitives'
+import { IconChevronDownOutline14 } from '@qilin-agent/client-ui-primitives'
 import type { ChatNodeViewProps } from '../contract/slots.ts'
 import { turnProcessAlwaysOpen } from '../contract/turn-process.ts'
 import { formatRunDuration } from './message-chrome.ts'

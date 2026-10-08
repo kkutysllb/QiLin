@@ -1,7 +1,7 @@
 /** Event-local acceptance for raw Session journal responses; payloads remain owner-defined JSON. */
 
-import { validateSessionEventData, validateSurfaceMetadata } from '@qilin/session/surface'
-import type { SessionEvent } from '@qilin/session/types'
+import { validateSessionEventData, validateSurfaceMetadata } from '@qilin-agent/session/surface'
+import type { SessionEvent } from '@qilin-agent/session/types'
 import type { SessionWireEvent } from '../types.ts'
 
 /**

@@ -5,9 +5,9 @@
  * line carrying the carrier's message.
  * @module
  */
-import type { RemoteFailure } from '@qilin/api-remotes/client'
-import type { TranslateNS } from '@qilin/client-locale/client'
-import { fileSizeRoundedText } from '@qilin/client-ui-primitives'
+import type { RemoteFailure } from '@qilin-agent/api-remotes/client'
+import type { TranslateNS } from '@qilin-agent/client-locale/client'
+import { fileSizeRoundedText } from '@qilin-agent/client-ui-primitives'
 
 /**
  * Say what went wrong, in terms of the file rather than of the transport.

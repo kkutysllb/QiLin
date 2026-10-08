@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/llm-deepseek-api-key",
+  "name": "@qilin-agent/llm-deepseek-api-key",
   "description": "DeepSeek api-key provider authentication and discovery",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,44 +30,44 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/anonymous-user-id": "workspace:*",
-    "@qilin/attachment": "workspace:*",
-    "@qilin/credentials": "workspace:*",
-    "@qilin/fs": "workspace:*",
-    "@qilin/launch-environment": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/llm-deepseek": "workspace:*",
-    "@qilin/settings": "workspace:*",
-    "@qilin/kylin-plugin-loader": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/anonymous-user-id": "workspace:*",
+    "@qilin-agent/attachment": "workspace:*",
+    "@qilin-agent/credentials": "workspace:*",
+    "@qilin-agent/fs": "workspace:*",
+    "@qilin-agent/launch-environment": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/llm-deepseek": "workspace:*",
+    "@qilin-agent/settings": "workspace:*",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~"
   },
   "peerDependenciesMeta": {
-    "@qilin/kylin-plugin-loader": {
+    "@qilin-agent/kylin-plugin-loader": {
       "optional": true
     }
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/anonymous-user-id": "workspace:*",
-    "@qilin/attachment": "workspace:*",
-    "@qilin/attachment-local": "workspace:*",
-    "@qilin/credentials": "workspace:*",
-    "@qilin/credentials-local": "workspace:*",
-    "@qilin/deepseek-llm-api-extensions": "workspace:*",
-    "@qilin/fs": "workspace:*",
-    "@qilin/home-paths": "workspace:*",
-    "@qilin/launch-environment": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/llm-deepseek": "workspace:*",
-    "@qilin/settings": "workspace:*",
-    "@qilin/settings-file": "workspace:*",
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/kylin-plugin-include": "workspace:~",
-    "@qilin/atomic-write": "workspace:*",
-    "@qilin/brand": "workspace:*",
-    "@qilin/util-values": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/anonymous-user-id": "workspace:*",
+    "@qilin-agent/attachment": "workspace:*",
+    "@qilin-agent/attachment-local": "workspace:*",
+    "@qilin-agent/credentials": "workspace:*",
+    "@qilin-agent/credentials-local": "workspace:*",
+    "@qilin-agent/deepseek-llm-api-extensions": "workspace:*",
+    "@qilin-agent/fs": "workspace:*",
+    "@qilin-agent/home-paths": "workspace:*",
+    "@qilin-agent/launch-environment": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/llm-deepseek": "workspace:*",
+    "@qilin-agent/settings": "workspace:*",
+    "@qilin-agent/settings-file": "workspace:*",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/atomic-write": "workspace:*",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/util-values": "workspace:*"
   }
 }

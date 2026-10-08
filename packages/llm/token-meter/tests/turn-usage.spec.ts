@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { StreamChunk, TokenUsage } from '@qilin/llm'
-import type { SessionEvent } from '@qilin/session'
+import type { StreamChunk, TokenUsage } from '@qilin-agent/llm'
+import type { SessionEvent } from '@qilin-agent/session'
 import { deriveTurnTokenUsage } from '../src/turn-usage.ts'
 
 function event(seq: number, type: string, data: unknown): SessionEvent {

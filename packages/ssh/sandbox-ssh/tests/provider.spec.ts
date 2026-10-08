@@ -1,6 +1,6 @@
 /** Each confinement request resolves remotely before any subprocess receives its argv. */
-import { Context, Service } from '@qilin/kylin'
-import { SandboxUnavailableError, type SandboxPolicy } from '@qilin/sandbox'
+import { Context, Service } from '@qilin-agent/kylin'
+import { SandboxUnavailableError, type SandboxPolicy } from '@qilin-agent/sandbox'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import { z } from 'zod'
 import { SshSandboxProvider } from '../src/index.ts'

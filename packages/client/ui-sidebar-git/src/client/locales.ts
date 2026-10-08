@@ -8,9 +8,9 @@
  * any module naming `TranslateNS<'sidebarGit'>` or `PropsLocale<'sidebarGit'>`
  * needs only this file, whichever entry a program loads first.
  */
-import type {} from '@qilin/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-slots'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Source-control type name, guide entry, change groups, commit box, branches, history, and failure lines. */
     sidebarGit: SidebarGitKey

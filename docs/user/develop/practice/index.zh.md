@@ -34,7 +34,7 @@
 
 ```yaml
 # Local execution
-- name: '@qilin/bash-local'
+- name: '@qilin-agent/bash-local'
 
 # Replace this row with another package that provides the same service.
 ```
@@ -61,9 +61,9 @@
 
 ```ts ignore-check
 // packages/my-cap/my-cap/src/index.ts
-import { Service, type Context } from '@qilin/kylin'
+import { Service, type Context } from '@qilin-agent/kylin'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     myCap: MyCapService
   }
@@ -91,8 +91,8 @@ export interface MyCapResult {
 
 ```ts ignore-check
 // packages/my-cap/my-cap-local/src/index.ts
-import type { Context } from '@qilin/kylin'
-import { MyCapService, type MyCapRequest, type MyCapResult } from '@qilin/my-cap'
+import type { Context } from '@qilin-agent/kylin'
+import { MyCapService, type MyCapRequest, type MyCapResult } from '@qilin-agent/my-cap'
 
 class MyCapLocal extends MyCapService {
   async execute(request: MyCapRequest): Promise<MyCapResult> {
@@ -112,8 +112,8 @@ export function apply(ctx: Context) {
 
 ```ts ignore-check
 // packages/my-cap/tool-my-cap/src/index.ts
-import type { Context } from '@qilin/kylin'
-import { defineTool } from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import { defineTool } from '@qilin-agent/tools'
 
 export const name = 'tool-my-cap'
 export const inject = ['tools', 'myCap']
@@ -140,8 +140,8 @@ export function apply(ctx: Context) {
 ### 在 cordis.yml 中组合
 
 ```yaml
-- name: '@qilin/my-cap-local'
-- name: '@qilin/tool-my-cap'
+- name: '@qilin-agent/my-cap-local'
+- name: '@qilin-agent/tool-my-cap'
 ```
 
 ## 设计要点

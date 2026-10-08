@@ -85,9 +85,9 @@ A waterfall listener **must call `next()`**. Omitting it short-circuits the pipe
 Harness uses TypeScript declaration merging for type-safe events:
 
 ```ts
-import '@qilin/kylin'
+import '@qilin-agent/kylin'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Events {
     'my-plugin/ready': (payload: { id: string }) => void
     'my-plugin/check': (input: string) => boolean | undefined
@@ -121,8 +121,8 @@ export function apply(ctx: Context) {
 This plugin logs tool calls and results:
 
 ```ts
-import type { Context } from '@qilin/kylin'
-import '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import '@qilin-agent/tools'
 
 export const name = 'tool-logger'
 

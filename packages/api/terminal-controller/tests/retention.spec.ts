@@ -1,6 +1,6 @@
 /** Monotonic idle grace, independent window holds, and retryable terminal ownership. */
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import type { SubprocessTerminalActivity } from '@qilin/subprocess'
+import type { SubprocessTerminalActivity } from '@qilin-agent/subprocess'
 import { TerminalRetention, type TerminalRetentionPolicy } from '../src/retention.ts'
 
 const owners: TerminalRetention[] = []

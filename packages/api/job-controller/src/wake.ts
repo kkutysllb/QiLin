@@ -2,7 +2,7 @@
  * Wake bookkeeping shared by the two observation generators: a wake-flag
  * waiter that never loses a wake between waits, and an abortable sleep that
  * coalesces bursts into bounded frames.
- * @module @qilin/api-job-controller/wake
+ * @module @qilin-agent/api-job-controller/wake
  */
 
 /** Wake-flag waiter: a wake between waits is never lost. */

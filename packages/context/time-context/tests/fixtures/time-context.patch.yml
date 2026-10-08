@@ -24,4 +24,4 @@
       name: './mock-llm.ts'
 
     - id: time-context
-      name: '@qilin/time-context'
+      name: '@qilin-agent/time-context'

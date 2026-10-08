@@ -4,7 +4,7 @@
  * graph. With auto peer installation disabled, either omission can otherwise
  * fail only when Cordis loads the packaged plugin. QiLin ships agent presets as
  * the agent-plane compositions under `packages/preset/agent-presets/presets/`,
- * mounted once per process by `@qilin/agent-presets`; each `agent.cordis.yml`
+ * mounted once per process by `@qilin-agent/agent-presets`; each `agent.cordis.yml`
  * is one composition.
  */
 import { globSync } from 'node:fs'

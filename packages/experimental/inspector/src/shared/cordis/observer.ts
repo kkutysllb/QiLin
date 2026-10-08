@@ -1,6 +1,6 @@
 /** Lifecycle-driven Cordis tree publication shared by Host and Client plugin faces. */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type { CordisTreeSnapshot } from './snapshot.ts'
 import { CordisTreeCollector, type CordisTreeLimits } from './collector.ts'
 

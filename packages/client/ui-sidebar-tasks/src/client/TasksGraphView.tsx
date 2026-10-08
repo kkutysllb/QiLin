@@ -22,7 +22,7 @@
 import clsx from 'clsx'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react'
-import type { PropsLocale, PropsStore, TranslateNS } from '@qilin/client-ui-slots'
+import type { PropsLocale, PropsStore, TranslateNS } from '@qilin-agent/client-ui-slots'
 import type { NS } from './locales.ts'
 import {
   dragOffsets, hasOffsets, layoutTasksGraph,

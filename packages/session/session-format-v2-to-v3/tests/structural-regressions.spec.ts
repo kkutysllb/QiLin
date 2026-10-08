@@ -1,8 +1,8 @@
 /** Structural promotion preserves each historical request and distinguishes local from captured coordinates. */
 
 import { describe, expect, it } from 'vitest'
-import { SessionFormatEventCollector, SessionFormatUnsupportedMigrationError } from '@qilin/session-format'
-import type { SessionFormatArtifact, SessionFormatEvent, SessionFormatHeader, SessionFormatJsonObject } from '@qilin/session-format'
+import { SessionFormatEventCollector, SessionFormatUnsupportedMigrationError } from '@qilin-agent/session-format'
+import type { SessionFormatArtifact, SessionFormatEvent, SessionFormatHeader, SessionFormatJsonObject } from '@qilin-agent/session-format'
 import { releasedV3SessionFormatCodec, restoreReleasedV3Artifact, sessionFormatV2ToV3 } from '../src/index.ts'
 
 const header: SessionFormatHeader = {

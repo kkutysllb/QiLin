@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-store",
+  "name": "@qilin-agent/client-store",
   "description": "React-free observable and snapshot-store contracts with the shared Zustand/Immer engine",
   "version": "3.1.1",
   "publishConfig": {
@@ -26,10 +26,10 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
+    "@qilin-agent/kylin": "workspace:~",
     "zustand": "~4.4.7",
     "immer": "^10.1.1"
   },

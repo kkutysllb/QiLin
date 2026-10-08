@@ -1,6 +1,6 @@
 /** Chat-owned approval detail resolving a correlated Tool call's command. */
-import type { PropsRuntime } from '@qilin/client-ui-slots'
-import type {} from '@qilin/client-ui-approval/client'
+import type { PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-approval/client'
 import type { ChatNode } from '../contract/chat-nodes.ts'
 
 interface ApprovalToolCall {

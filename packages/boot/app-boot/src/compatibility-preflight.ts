@@ -3,9 +3,9 @@ import { existsSync, readFileSync, realpathSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, extname, isAbsolute, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import type { Context } from '@qilin/kylin'
-import { ModuleLoader, type EntryOptions } from '@qilin/kylin-plugin-loader'
-import { applyEntryPatches, entryListSchema, type PatchOptions } from '@qilin/kylin-plugin-include'
+import type { Context } from '@qilin-agent/kylin'
+import { ModuleLoader, type EntryOptions } from '@qilin-agent/kylin-plugin-loader'
+import { applyEntryPatches, entryListSchema, type PatchOptions } from '@qilin-agent/kylin-plugin-include'
 import { load } from 'js-yaml'
 import { barePackageName } from './profile-resolution/resolver.ts'
 import type {} from './profile-resolution/service.ts'
@@ -145,9 +145,9 @@ function preflight(
         continue
       }
       // The `group` marker, not the module name, is what makes a row another tree carrier.
-      if ((row.group === true || row.name === 'cordis:group' || row.name === '@qilin/kylin-plugin-group')
+      if ((row.group === true || row.name === 'cordis:group' || row.name === '@qilin-agent/kylin-plugin-group')
         && Array.isArray(row.config) && check(row.config as EntryOptions[], base)) blocked = true
-      if (row.name !== 'cordis:include' && row.name !== '@qilin/kylin-plugin-include') continue
+      if (row.name !== 'cordis:include' && row.name !== '@qilin-agent/kylin-plugin-include') continue
       const reached = includedConflicts(row, base)
       if (reached !== undefined) {
         deny(row, reached)

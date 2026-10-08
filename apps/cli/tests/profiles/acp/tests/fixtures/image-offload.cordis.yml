@@ -2,7 +2,7 @@
 # local provider endpoint is supplied by the snapshot test; the real attachment
 # store and ACP bridge carry two uploaded images into one model request.
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
+  name: '@qilin-agent/llm-deepseek'
   config:
     apiKeyEnv: QILIN_SNAPSHOT_API_KEY
     baseURL: !!js process.env.QILIN_SNAPSHOT_BASE_URL
@@ -16,24 +16,24 @@
         inputModalities: [text, image]
 
 - id: acp
-  name: '@qilin/acp'
+  name: '@qilin-agent/acp'
   config:
     provider: deepseek-official
     model: deepseek-v4-flash-vision-exp
 
 - id: session-persistence-jsonl
-  name: '@qilin/session-persistence-jsonl'
+  name: '@qilin-agent/session-persistence-jsonl'
   config:
     root: !!js process.env.QILIN_SNAPSHOT_SESSIONS_ROOT ?? './.sessions'
     compression: none
 
 - id: agent-instructions
-  name: '@qilin/agent-instructions'
+  name: '@qilin-agent/agent-instructions'
   config:
     maxBytes: 65536
 
 - id: system-prompt
-  name: '@qilin/system-prompt'
+  name: '@qilin-agent/system-prompt'
   config:
     personaPrefix: |
       You are a coding assistant powered by the {{model}} model. Your working directory is {{cwd}}.
@@ -41,4 +41,4 @@
       Keep answers brief and factual.
 
 - id: attachment-local
-  name: '@qilin/attachment-local'
+  name: '@qilin-agent/attachment-local'

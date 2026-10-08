@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import WebRuntime from '@qilin/web'
+import { Context } from '@qilin-agent/kylin'
+import WebRuntime from '@qilin-agent/web'
 import {
   PerplexitySearchProvider,
   PERPLEXITY_PROVIDER_ID,
-} from '@qilin/web-search-perplexity'
-import * as perplexityPlugin from '@qilin/web-search-perplexity'
+} from '@qilin-agent/web-search-perplexity'
+import * as perplexityPlugin from '@qilin-agent/web-search-perplexity'
 import { mapPerplexityResponse } from '../src/provider.ts'
 
 const options = { apiKey: 'pplx-key', baseURL: 'https://api.perplexity.test', model: 'sonar', maxTokens: 1024 }

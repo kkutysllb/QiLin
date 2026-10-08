@@ -1,5 +1,5 @@
 /** Cache limits shared by the Host configuration and browser document previews. */
-import z from '@qilin/schemastery'
+import z from '@qilin-agent/schemastery'
 
 /** Transient Office conversion reuse within one Client connection. */
 export interface Config {

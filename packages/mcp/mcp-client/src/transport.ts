@@ -9,7 +9,7 @@
 import type { Transport } from '@modelcontextprotocol/client'
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio'
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/client'
-import { scrubbedParentEnv } from '@qilin/subprocess'
+import { scrubbedParentEnv } from '@qilin-agent/subprocess'
 import type { Config } from './index.ts'
 
 /**

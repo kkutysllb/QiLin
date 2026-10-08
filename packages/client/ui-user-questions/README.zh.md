@@ -3,7 +3,7 @@ description: "qilin Web 客户端的 ask_user_question 功能：接管编辑器�
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-user-questions
+# @qilin-agent/client-ui-user-questions
 
 [English](README.md) | 中文
 

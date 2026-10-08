@@ -1,9 +1,9 @@
 /** Unknown producer attribution survives the native codec and detached Session reader. */
 import { describe, expect, it } from 'vitest'
-import { Session, SessionId, SessionLogOffset } from '@qilin/session'
-import type { SessionEvent, SessionHeader } from '@qilin/session'
-import { SessionFormatEventCollector } from '@qilin/session-format'
-import type { SessionFormatEvent } from '@qilin/session-format'
+import { Session, SessionId, SessionLogOffset } from '@qilin-agent/session'
+import type { SessionEvent, SessionHeader } from '@qilin-agent/session'
+import { SessionFormatEventCollector } from '@qilin-agent/session-format'
+import type { SessionFormatEvent } from '@qilin-agent/session-format'
 import { releasedV4SessionFormatCodec as codec, restoreReleasedV4Artifact } from '../src/index.ts'
 
 const header = { version: 4, id: 'unknown-attribution', createdAt: 1, isSeeded: false, delegationDepth: 0 }

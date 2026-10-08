@@ -9,8 +9,8 @@ This tutorial adds a `greet` tool to the Web UI. Complete [Your first plugin](./
 Replace `scratch-plugin/src/my-plugin.ts` with:
 
 ```ts
-import type { Context } from '@qilin/kylin'
-import { defineTool } from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import { defineTool } from '@qilin-agent/tools'
 
 export const name = 'greet-tool'
 export const inject = ['tools']

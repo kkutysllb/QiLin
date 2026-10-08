@@ -28,7 +28,7 @@ function parseAuthority(authority: string): URL | undefined {
   }
 }
 
-/* jscpd:ignore-start — verbatim copy of @qilin/client-connection src/api-request-trust.ts +
+/* jscpd:ignore-start — verbatim copy of @qilin-agent/client-connection src/api-request-trust.ts +
    src/loopback-hostname.ts (ported tree, pinned; see file header and docs/rescope.md) */
 /** Whether a normalized URL hostname names the local loopback authority. */
 export function isLoopbackHostname(hostname: string): boolean {

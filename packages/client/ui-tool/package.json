@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-ui-tool",
+  "name": "@qilin-agent/client-ui-tool",
   "description": "Client Tool call-tree renderer and keyed per-tool presentation slot",
   "version": "3.1.1",
   "publishConfig": {
@@ -31,10 +31,10 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/api-workspace-controller",
-        "@qilin/client-connection",
-        "@qilin/client-locale",
-        "@qilin/client-ui-conversation"
+        "@qilin-agent/api-workspace-controller",
+        "@qilin-agent/client-connection",
+        "@qilin-agent/client-locale",
+        "@qilin-agent/client-ui-conversation"
       ],
       "platform": "web"
     }
@@ -45,41 +45,41 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/spill-policy": "workspace:*",
-    "@qilin/agent": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/tool-jobs": "workspace:*",
-    "@qilin/tool-session-query": "workspace:*",
-    "@qilin/tool-terminal": "workspace:*",
-    "@qilin/spill": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/api-remotes": "workspace:*",
-    "@qilin/api-session-controller": "workspace:*",
-    "@qilin/client-connection": "workspace:*",
-    "@qilin/client-locale": "workspace:*",
-    "@qilin/client-test-runtime": "workspace:*",
-    "@qilin/client-ui-conversation": "workspace:*",
-    "@qilin/client-ui-primitives": "workspace:*",
-    "@qilin/client-ui-slots": "workspace:*",
+    "@qilin-agent/spill-policy": "workspace:*",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/tool-jobs": "workspace:*",
+    "@qilin-agent/tool-session-query": "workspace:*",
+    "@qilin-agent/tool-terminal": "workspace:*",
+    "@qilin-agent/spill": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/api-remotes": "workspace:*",
+    "@qilin-agent/api-session-controller": "workspace:*",
+    "@qilin-agent/client-connection": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-conversation": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
     "@testing-library/react": "^16.1.0",
     "@types/react": "~18.3.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@qilin/api-workspace-controller": "workspace:*",
-    "@qilin/client-ui-chat": "workspace:*",
-    "@qilin/client-ui-renderer": "workspace:*",
-    "@qilin/client-ui-session": "workspace:*",
-    "@qilin/util-workspace-path": "workspace:*",
-    "@qilin/attachment": "workspace:*",
+    "@qilin-agent/api-workspace-controller": "workspace:*",
+    "@qilin-agent/client-ui-chat": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-session": "workspace:*",
+    "@qilin-agent/util-workspace-path": "workspace:*",
+    "@qilin-agent/attachment": "workspace:*",
     "clsx": "^2.0.0",
-    "@qilin/ptc-runtime": "workspace:*",
-    "@qilin/user-questions": "workspace:*"
+    "@qilin-agent/ptc-runtime": "workspace:*",
+    "@qilin-agent/user-questions": "workspace:*"
   },
   "files": [
     "lib/index.js",

@@ -3,18 +3,18 @@ import { existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, rmSync, wr
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Context } from '@qilin/kylin'
-import { createLaunchEnvironmentSnapshot } from '@qilin/launch-environment'
+import { Context } from '@qilin-agent/kylin'
+import { createLaunchEnvironmentSnapshot } from '@qilin-agent/launch-environment'
 import {
   boot, composeEntries, createProfileResolutionGeneration, healIsolatedProfileModuleFallback,
   PluginPackages, type Profile,
-} from '@qilin/app-boot'
-import { installProxyFromEnvironment } from '@qilin/http-proxy'
+} from '@qilin-agent/app-boot'
+import { installProxyFromEnvironment } from '@qilin-agent/http-proxy'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { runProfile } from '../src/profile-boot.ts'
 
-vi.mock('@qilin/app-boot', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@qilin/app-boot')>()
+vi.mock('@qilin-agent/app-boot', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@qilin-agent/app-boot')>()
   return {
     ...actual,
     boot: vi.fn(),
@@ -23,7 +23,7 @@ vi.mock('@qilin/app-boot', async (importOriginal) => {
     installFailLoud: vi.fn(),
   }
 })
-vi.mock('@qilin/http-proxy', () => ({ installProxyFromEnvironment: vi.fn() }))
+vi.mock('@qilin-agent/http-proxy', () => ({ installProxyFromEnvironment: vi.fn() }))
 
 const homes: string[] = []
 afterEach(() => {

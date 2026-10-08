@@ -1,14 +1,14 @@
 // @vitest-environment jsdom
-import type { GlobalStandardProps } from '@qilin/client-ui-slots'
-import { Context } from '@qilin/kylin'
+import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
+import { Context } from '@qilin-agent/kylin'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { bindSnapshotSelector, RemoteError } from '@qilin/client-test-runtime'
-import type { SettingsNamespaceView } from '@qilin/api-remotes/client'
-import { SettingsSchemaService } from '@qilin/client-ui-settings/src/client/schema.ts'
+import { bindSnapshotSelector, RemoteError } from '@qilin-agent/client-test-runtime'
+import type { SettingsNamespaceView } from '@qilin-agent/api-remotes/client'
+import { SettingsSchemaService } from '@qilin-agent/client-ui-settings/src/client/schema.ts'
 import { PermissionRow, type PermissionRowProps } from '../src/client/PermissionRow.tsx'
 import { zh } from '../src/client/locales.ts'
-import { SettingsDescribeMirror } from '@qilin/client-ui-settings/src/client/settings-mirror.ts'
+import { SettingsDescribeMirror } from '@qilin-agent/client-ui-settings/src/client/settings-mirror.ts'
 import { PermissionPresetSettingsController } from '../src/client/settings-store.ts'
 
 // Every fixture carries the resource hook the resources plugin merges into GlobalStandardProps.

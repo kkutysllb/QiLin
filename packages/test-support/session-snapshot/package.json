@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/session-snapshot",
+  "name": "@qilin-agent/session-snapshot",
   "description": "Session-log snapshot core with an ACP protocol adapter, expected-output normalization, and fixture invariants",
   "version": "3.1.1",
   "publishConfig": {
@@ -31,31 +31,31 @@
   "license": "MIT",
   "dependencies": {
     "@agentclientprotocol/sdk": "1.4.0",
-    "@qilin/kylin-plugin-include": "workspace:~",
-    "@qilin/llm-replay": "workspace:*",
-    "@qilin/loader-smoke": "workspace:*",
-    "@qilin/session-format": "workspace:*",
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/llm-replay": "workspace:*",
+    "@qilin-agent/loader-smoke": "workspace:*",
+    "@qilin-agent/session-format": "workspace:*",
     "js-yaml": "^4.2.0",
     "vitest": "^4.1.8"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/session": "workspace:*",
-    "@qilin/http-proxy": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/http-proxy": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/agent-loop": "workspace:*",
-    "@qilin/compaction": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/sandbox": "workspace:*",
-    "@qilin/sandbox-policy": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/subagent": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/user-questions": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-loop": "workspace:*",
+    "@qilin-agent/compaction": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/sandbox": "workspace:*",
+    "@qilin-agent/sandbox-policy": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/subagent": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/user-questions": "workspace:*",
     "@types/js-yaml": "^4.0.9",
-    "@qilin/http-proxy": "workspace:*"
+    "@qilin-agent/http-proxy": "workspace:*"
   }
 }

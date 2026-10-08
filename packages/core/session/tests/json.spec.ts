@@ -1,6 +1,6 @@
 import { runInNewContext } from 'node:vm'
 import { describe, expect, it, vi } from 'vitest'
-import { isJsonValue, snapshotJsonValue, type JsonValue } from '@qilin/util-values'
+import { isJsonValue, snapshotJsonValue, type JsonValue } from '@qilin-agent/util-values'
 
 function objectWithForgedIntrinsicPrototype(revoked = false): Record<string, unknown> {
   const prototype = Object.create(null) as Record<string, unknown>

@@ -1,7 +1,7 @@
 /** Pure task-view derivation shared by the task board and the client projection. */
 
-import { brandString } from '@qilin/brand'
-import type { SessionId } from '@qilin/session'
+import { brandString } from '@qilin-agent/brand'
+import type { SessionId } from '@qilin-agent/session'
 import type { TeamState } from './projection.ts'
 import type { TeamTaskSnapshot, TeamTaskView } from './types.ts'
 

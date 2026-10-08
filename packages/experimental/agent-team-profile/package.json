@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/experimental-agent-team-profile",
+  "name": "@qilin-agent/experimental-agent-team-profile",
   "description": "Experimental profile bundle enabling Agent Teams over qilin-base",
   "icon": "./icon.svg",
   "version": "3.1.1",
@@ -41,16 +41,16 @@
     }
   },
   "dependencies": {
-    "@qilin/experimental-agent-team": "workspace:*",
-    "@qilin/experimental-client-ui-agent-team": "workspace:*",
-    "@qilin/experimental-tool-agent-team": "workspace:*"
+    "@qilin-agent/experimental-agent-team": "workspace:*",
+    "@qilin-agent/experimental-client-ui-agent-team": "workspace:*",
+    "@qilin-agent/experimental-tool-agent-team": "workspace:*"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin-plugin-include": "workspace:~",
-    "@qilin/kylin": "workspace:~",
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/kylin": "workspace:~",
     "js-yaml": "^4.2.0"
   }
 }

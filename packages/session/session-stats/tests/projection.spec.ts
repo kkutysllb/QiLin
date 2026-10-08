@@ -11,15 +11,15 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createMessage, ToolCallId } from '@qilin/llm'
-import type { StreamChunk, TokenUsage } from '@qilin/llm'
-import SessionStore, { SessionId } from '@qilin/session'
-import type { Session, SessionEvent } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import * as SessionStatsPlugin from '@qilin/session-stats'
-import { sessionStatsProjectionDefinition } from '@qilin/session-stats/src/projection.ts'
-import type { SessionStatsProjection } from '@qilin/session-stats/types'
+import { Context } from '@qilin-agent/kylin'
+import { createMessage, ToolCallId } from '@qilin-agent/llm'
+import type { StreamChunk, TokenUsage } from '@qilin-agent/llm'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import type { Session, SessionEvent } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import * as SessionStatsPlugin from '@qilin-agent/session-stats'
+import { sessionStatsProjectionDefinition } from '@qilin-agent/session-stats/src/projection.ts'
+import type { SessionStatsProjection } from '@qilin-agent/session-stats/types'
 
 async function harness(withStatsPlugin: boolean): Promise<{ ctx: Context; session: Session }> {
   const ctx = new Context()

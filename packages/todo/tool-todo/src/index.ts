@@ -2,17 +2,17 @@
  * Model-facing whole-list replacement. Each call appends a `todo/write` snapshot to the calling
  * agent's session; replay is last-write-wins, and UIs render from session events. A non-agent
  * caller has no owning list and is rejected. Named exports preserve loader injection metadata.
- * @module @qilin/tool-todo
+ * @module @qilin-agent/tool-todo
  */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
 import { z as zod } from 'zod'
 import type { ZodType } from 'zod'
-import { defineTool } from '@qilin/tools'
+import { defineTool } from '@qilin-agent/tools'
 import type { TodoItem } from './types.ts'
 // Type-only: resolves the required ctx.sessionProjections service declaration.
-import type {} from '@qilin/session-projection'
+import type {} from '@qilin-agent/session-projection'
 // The `todos` projection-key declaration lives in src/types.ts (its one home);
 // this re-export projects the type face onto the package root AND keeps the
 // module edge in the emitted index.d.ts, so aggregate programs consuming the

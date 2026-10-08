@@ -5,11 +5,11 @@
  * / epoch-guard behavior of the original global cache; the session-key axis
  * is the only extra dimension.
  */
-import type { CommandDescriptor } from '@qilin/commands/types'
-import type { SessionId } from '@qilin/session/types'
+import type { CommandDescriptor } from '@qilin-agent/commands/types'
+import type { SessionId } from '@qilin-agent/session/types'
 import { resolveCommand } from './resolution.ts'
 
-export type { CommandDescriptor } from '@qilin/commands/types'
+export type { CommandDescriptor } from '@qilin-agent/commands/types'
 
 /**
  * cold = never pulled; pending = pull in flight with nothing servable;

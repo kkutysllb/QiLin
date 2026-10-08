@@ -2,11 +2,11 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
   SlotTestRuntime, stubConfigForm, usePinnedBrowserLanguages,
-} from '@qilin/client-test-runtime'
-import { LocaleRuntime } from '@qilin/client-locale/client'
-import { createSnapshotStore, type ObservableSnapshot } from '@qilin/client-store'
-import type { SessionId } from '@qilin/session/types'
-import { apply, inject, type ViewTab } from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-test-runtime'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
+import { createSnapshotStore, type ObservableSnapshot } from '@qilin-agent/client-store'
+import type { SessionId } from '@qilin-agent/session/types'
+import { apply, inject, type ViewTab } from '@qilin-agent/client-ui-conversation/client'
 
 usePinnedBrowserLanguages('zh-CN')
 

@@ -1,6 +1,6 @@
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { afterEach, expect, it, onTestFinished, vi } from 'vitest'
-import { NPMMIRROR_REGISTRY, OFFICIAL_NPM_REGISTRY } from '@qilin/plugin-manager/registry'
+import { NPMMIRROR_REGISTRY, OFFICIAL_NPM_REGISTRY } from '@qilin-agent/plugin-manager/registry'
 import PluginRegistryProbe, { type Config } from '../src/index.ts'
 
 afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers() })

@@ -1,7 +1,7 @@
-import { lastAssistantStreamChunk } from '@qilin/llm/assistant-stream'
-import type { AssistantMessage, TokenUsage } from '@qilin/llm/types'
-import type {} from '@qilin/llm-retry/types'
-import type { SessionEvent } from '@qilin/session/types'
+import { lastAssistantStreamChunk } from '@qilin-agent/llm/assistant-stream'
+import type { AssistantMessage, TokenUsage } from '@qilin-agent/llm/types'
+import type {} from '@qilin-agent/llm-retry/types'
+import type { SessionEvent } from '@qilin-agent/session/types'
 
 /** One provider/model route that contributed a billed request attempt. */
 export interface TurnTokenUsageRoute {

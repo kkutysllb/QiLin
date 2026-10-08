@@ -1,13 +1,13 @@
 /** Agent-facing current-profile management using the same service as Web controls. */
-import { assertNever } from '@qilin/util-values'
-import type { Context } from '@qilin/kylin'
+import { assertNever } from '@qilin-agent/util-values'
+import type { Context } from '@qilin-agent/kylin'
 import type {} from './index.ts'
-import type {} from '@qilin/sandbox-policy'
-import type {} from '@qilin/user-approval'
-import { approveEscalation } from '@qilin/sandbox'
+import type {} from '@qilin-agent/sandbox-policy'
+import type {} from '@qilin-agent/user-approval'
+import { approveEscalation } from '@qilin-agent/sandbox'
 import type { PluginEntryId } from './types.ts'
-import { defineTool } from '@qilin/tools'
-import { getQilinRuntimeVersion } from '@qilin/app-boot'
+import { defineTool } from '@qilin-agent/tools'
+import { getQilinRuntimeVersion } from '@qilin-agent/app-boot'
 
 /** Required services for the management tool. */
 export const inject = ['tools', 'pluginManager', 'sandboxPolicy']

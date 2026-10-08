@@ -1,5 +1,5 @@
 /** Browser wire client: Remote transport and connection generations. */
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import {
   ConnectionController,
   type ConnectionRecoveryConfig,
@@ -13,7 +13,7 @@ import { isLoopbackHostname } from '../loopback-hostname.ts'
 import type { ClientConnectionRpc } from '../rpc.ts'
 import { resolveConnectionConfig } from '../recovery-config.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Events {
     /**
      * A connection generation was established. Wire-derived caches must

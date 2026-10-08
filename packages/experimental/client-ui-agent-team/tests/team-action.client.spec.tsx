@@ -3,15 +3,15 @@
 import { Profiler } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
-import type { SessionId } from '@qilin/session/types'
+import type { SessionId } from '@qilin-agent/session/types'
 import type {
   TeamMemberProjection, TeamProjection, TeamTaskId, TeamTaskView as TeamTask,
-} from '@qilin/experimental-agent-team/client'
-import type { SessionListState, SessionSnapshot, SessionSummary, UseProjection } from '@qilin/api-session-controller/client'
-import type { SessionStatusSnapshot } from '@qilin/client-ui-session/client'
-import { createSnapshotStore } from '@qilin/client-store'
-import { bindSnapshotSelector, makeTranslate } from '@qilin/client-test-runtime'
-import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
+} from '@qilin-agent/experimental-agent-team/client'
+import type { SessionListState, SessionSnapshot, SessionSummary, UseProjection } from '@qilin-agent/api-session-controller/client'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
+import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 import { TeamAction, type TeamActionInjected, type TeamActionProps } from '../src/client/TeamAction.tsx'
 import { zh } from '../src/client/locales.ts'
 

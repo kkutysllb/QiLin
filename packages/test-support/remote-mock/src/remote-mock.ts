@@ -1,6 +1,6 @@
 /** `RemoteMock`: an endpoint table (unary answers or stream scripts), live stream control, a log, and the Connection carrier face. */
 
-import type { ClientConnectionRpc, ConnectionRpcResult } from '@qilin/client-connection/client'
+import type { ClientConnectionRpc, ConnectionRpcResult } from '@qilin-agent/client-connection/client'
 import { fn, type Mock } from '@vitest/spy'
 import { MockLogStore, type MockLog } from './log.ts'
 import { HandleUplink, MockClientStream, MockStream, toError, type StreamScript } from './streams.ts'

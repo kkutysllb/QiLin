@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os'
 import { isAbsolute, join, relative, resolve as resolvePath } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ReasoningEffortId } from '@qilin/llm'
+import { ReasoningEffortId } from '@qilin-agent/llm'
 import {
   DeepSeekHarness,
   HarnessClient,

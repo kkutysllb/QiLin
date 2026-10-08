@@ -1,8 +1,8 @@
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   CompactionSummaryNode, ConversationMatch, ConversationNodeContext, ConversationNodeDefinition,
-} from '@qilin/client-ui-conversation/client'
-import type {} from '@qilin/compaction/types'
+} from '@qilin-agent/client-ui-conversation/client'
+import type {} from '@qilin-agent/compaction/types'
 import { chatNode } from './common.ts'
 import { compactSource, compactSummary, updateCompactionState } from './command.ts'
 

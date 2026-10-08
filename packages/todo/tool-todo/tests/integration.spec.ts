@@ -1,11 +1,11 @@
-import { createUserMessage } from '@qilin/llm'
+import { createUserMessage } from '@qilin-agent/llm'
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { SessionId, type SessionEvent } from '@qilin/session'
-import type { Agent } from '@qilin/agent'
-import AgentLoop from '@qilin/agent-loop'
-import { mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'
-import * as ToolTodo from '@qilin/tool-todo'
+import { Context } from '@qilin-agent/kylin'
+import { SessionId, type SessionEvent } from '@qilin-agent/session'
+import type { Agent } from '@qilin-agent/agent'
+import AgentLoop from '@qilin-agent/agent-loop'
+import { mountAgentLoopTestDependencies } from '@qilin-agent/agent-loop-testkit'
+import * as ToolTodo from '@qilin-agent/tool-todo'
 import { MockAdapter, textResponse, toolCallResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
 
 /**

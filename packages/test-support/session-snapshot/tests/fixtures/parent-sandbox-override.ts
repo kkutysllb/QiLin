@@ -1,6 +1,6 @@
-import type { Context } from '@qilin/kylin'
-import { setSandboxMode } from '@qilin/sandbox-policy'
-import type {} from '@qilin/agent'
+import type { Context } from '@qilin-agent/kylin'
+import { setSandboxMode } from '@qilin-agent/sandbox-policy'
+import type {} from '@qilin-agent/agent'
 
 export const name = 'parent-sandbox-override'
 

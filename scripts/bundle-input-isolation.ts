@@ -35,7 +35,7 @@ export class BundleInputIsolation {
   }
 
   private checkInput(id: string, allowMissing: boolean): void {
-    if (/(?:^|[/:\u0000])@qilin\/experimental-[^/?#]+/.test(id)) {
+    if (/(?:^|[/:\u0000])@qilin-agent\/experimental-[^/?#]+/.test(id)) {
       throw new Error(`${this.label}: experimental input ${id}`)
     }
     const file = physicalBundleInput(id)
@@ -54,7 +54,7 @@ export class BundleInputIsolation {
     const canonical = resolve(realpathSync(existing), relative(existing, file))
     if (canonical !== file) this.checkInput(canonical, allowMissing)
     const name = this.packageName(dirname(canonical))
-    if (name?.startsWith('@qilin/experimental-')) {
+    if (name?.startsWith('@qilin-agent/experimental-')) {
       throw new Error(`${this.label}: ${id} belongs to experimental package ${name}`)
     }
   }

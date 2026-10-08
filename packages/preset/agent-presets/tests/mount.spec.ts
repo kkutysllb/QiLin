@@ -3,27 +3,27 @@ import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import Group from '@qilin/kylin-plugin-group'
-import { getQilinRuntimeVersion, PluginPackages, PROFILE_COMPATIBILITY_FILENAME, type ProfileContext } from '@qilin/app-boot'
-import LlmRuntime from '@qilin/llm'
-import SessionStore, { SessionId } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
-import AgentRegistry, { assembleContextFor, type Agent } from '@qilin/agent'
-import AgentLoop from '@qilin/agent-loop'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import Group from '@qilin-agent/kylin-plugin-group'
+import { getQilinRuntimeVersion, PluginPackages, PROFILE_COMPATIBILITY_FILENAME, type ProfileContext } from '@qilin-agent/app-boot'
+import LlmRuntime from '@qilin-agent/llm'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
+import AgentRegistry, { assembleContextFor, type Agent } from '@qilin-agent/agent'
+import AgentLoop from '@qilin-agent/agent-loop'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import AgentPresets, {
   COMPOSITION_FILE, inactiveRows, leakedServices, livePresetMounts, mountPreset, serviceForAgent,
-} from '@qilin/agent-presets'
-import type { Config } from '@qilin/agent-presets'
-import type {} from '@qilin/agent-presets/types'
-import { bindScopeParent, createScope, scopeOf } from '@qilin/scope'
+} from '@qilin-agent/agent-presets'
+import type { Config } from '@qilin-agent/agent-presets'
+import type {} from '@qilin-agent/agent-presets/types'
+import { bindScopeParent, createScope, scopeOf } from '@qilin-agent/scope'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Published by the `isolated` fixture preset behind an entry-local realm. */
     fixtureIsolatedSvc: { label: string }
@@ -884,7 +884,7 @@ it('mounts a profile-denied preset row disabled and the same row active once exe
   const loaded = join(pluginDir, 'loaded.txt')
   writeFileSync(join(pluginDir, 'package.json'), JSON.stringify({
     name: 'incompatible-preset-plugin', version: '1.0.0', type: 'module', main: 'index.mjs',
-    peerDependencies: { '@qilin/session': '<0.0.0' },
+    peerDependencies: { '@qilin-agent/session': '<0.0.0' },
   }))
   writeFileSync(join(pluginDir, 'index.mjs'), [
     "import { writeFileSync } from 'node:fs'",

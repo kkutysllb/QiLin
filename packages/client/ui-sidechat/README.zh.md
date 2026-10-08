@@ -3,7 +3,7 @@ description: "qilin Web 客户端右侧边栏的侧聊页：当前会话的侧�
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-sidechat
+# @qilin-agent/client-ui-sidechat
 
 [English](README.md) | 中文
 
@@ -24,7 +24,7 @@ kind: "package-reference"
 <a id="what-it-registers"></a>
 ## 注册内容
 
-- **类型** —— `ctx.sidebarRightTabs.register(...)`：kind `sidechat`、id `@qilin/client-ui-sidechat`、band `builtin`、`single`、无 patterns；`ctx.sidebarRight.openTab('sidechat')` 打开它。
+- **类型** —— `ctx.sidebarRightTabs.register(...)`：kind `sidechat`、id `@qilin-agent/client-ui-sidechat`、band `builtin`、`single`、无 patterns；`ctx.sidebarRight.openTab('sidechat')` 打开它。
 - **面板体** —— 该 id 下带键的 `sidebar.right.pane.tab` 座位，经 `hooks` 舱注入面板的状态源，经 inject 面注入操作。
 
 `src/client/` 下九个源文件：`definition.tsx`（类型）、`sidechat-model.ts`（纯视图模型：follow 地址与转录折叠）、`sidechat-source.ts`（对象层状态源）、`face.ts`（操作及其远程绑定）、`SidechatBody.tsx` 与 `SidechatBody.module.css`（绘制内容）、`locales.ts`（文案），以及 `index.ts`（装配）。

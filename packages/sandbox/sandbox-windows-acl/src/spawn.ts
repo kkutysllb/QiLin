@@ -4,15 +4,15 @@ import {
   spawnInheritedJobProcess,
   spawnPipedProcess,
   waitForProcessExit,
-} from '@qilin/win32-process'
+} from '@qilin-agent/win32-process'
 import type {
   NativePtr,
   SpawnedJobProcess,
   SpawnedPipedProcess,
-} from '@qilin/win32-process'
+} from '@qilin-agent/win32-process'
 import type { Win32Bindings } from './ffi.ts'
 
-export { drainPipe } from '@qilin/win32-process'
+export { drainPipe } from '@qilin-agent/win32-process'
 
 /** Restricted-token child with piped stdio resources. */
 export interface SpawnedNative extends SpawnedPipedProcess {}

@@ -3,7 +3,7 @@ description: "The on-demand /compact command for interactive compositions: what 
 kind: "package-reference"
 ---
 
-# @qilin/command-compact
+# @qilin-agent/command-compact
 
 English | [中文](README.zh.md)
 
@@ -55,11 +55,11 @@ Mount the command registry, one condensation backend, and this plugin:
 
 ```yaml
 - id: commands
-  name: '@qilin/commands'
+  name: '@qilin-agent/commands'
 - id: compaction-basic
-  name: '@qilin/compaction-basic'
+  name: '@qilin-agent/compaction-basic'
 - id: command-compact
-  name: '@qilin/command-compact'
+  name: '@qilin-agent/command-compact'
 ```
 
 The shipped `qilin` base mounts it beside the default backend, and the Web client provides the command adapter. Automation surfaces that compose no command adapter keep automatic condensation only.

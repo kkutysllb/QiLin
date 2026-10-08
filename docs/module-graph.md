@@ -3,7 +3,7 @@
 
 # Shared-instance dependency graph
 
-Peer dependencies among the `@qilin/*` harness packages. A peer means the consumer requires a shared instance; ordinary runtime dependencies and development-only relationships are not shown. The graph is grouped by the `packages/<group>/<pkg>` hierarchy. An edge `a --> b` means package `a` has package `b` as a peer. Names omit the `@qilin/` prefix.
+Peer dependencies among the `@qilin-agent/*` harness packages. A peer means the consumer requires a shared instance; ordinary runtime dependencies and development-only relationships are not shown. The graph is grouped by the `packages/<group>/<pkg>` hierarchy. An edge `a --> b` means package `a` has package `b` as a peer. Names omit the `@qilin-agent/` prefix.
 
 ```mermaid
 flowchart TD

@@ -1,12 +1,12 @@
 /** Session Controller adapter for Agent-scoped file-reference discovery. */
 
-import type { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import type {} from '@qilin/file-reference'
-import type { FileReferenceCandidate } from '@qilin/file-reference/types'
-import { Remote, TypertRemoteService } from '@qilin/typert-protocol'
+import type { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import type {} from '@qilin-agent/file-reference'
+import type { FileReferenceCandidate } from '@qilin-agent/file-reference/types'
+import { Remote, TypertRemoteService } from '@qilin-agent/typert-protocol'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Host owner of the `fileReferences` Remote namespace. */
     sessionFileReferences: SessionFileReferences

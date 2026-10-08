@@ -1,8 +1,8 @@
 /** Deterministic provider-independent image normalization. */
 
 import type { Sharp } from 'sharp'
-import { AttachmentError, requestImageDimensions } from '@qilin/attachment'
-import type { ImageMediaType } from '@qilin/attachment'
+import { AttachmentError, requestImageDimensions } from '@qilin-agent/attachment'
+import type { ImageMediaType } from '@qilin-agent/attachment'
 import { encodeFirstWithinLimit, encodingLadder, isExhaustedEncoding } from './encoding.ts'
 import { detectImage, encodedAlphaIsCompatible } from './image.ts'
 import type { DetectedImage } from './image.ts'

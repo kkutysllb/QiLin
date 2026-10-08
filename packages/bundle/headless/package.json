@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/headless",
+  "name": "@qilin-agent/headless",
   "description": "The qilin one-shot bundle: a direct core Agent/Session runner over qilin-base with no Host, HTTP, or browser layer",
   "version": "3.1.1",
   "publishConfig": {
@@ -43,32 +43,32 @@
     }
   },
   "dependencies": {
-    "@qilin/brand": "workspace:*",
-    "@qilin/cmdline": "workspace:*",
-    "@qilin/util-values": "workspace:*",
-    "@qilin/schemastery": "workspace:~",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/cmdline": "workspace:*",
+    "@qilin-agent/util-values": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~",
     "commander": "^15.0.0"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/agent-default-model": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-query": "workspace:*",
-    "@qilin/fs": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-default-model": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-query": "workspace:*",
+    "@qilin-agent/fs": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/agent-default-model": "workspace:*",
-    "@qilin/agent-loop": "workspace:*",
-    "@qilin/agent-loop-testkit": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-query": "workspace:*",
-    "@qilin/fs": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-default-model": "workspace:*",
+    "@qilin-agent/agent-loop": "workspace:*",
+    "@qilin-agent/agent-loop-testkit": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-query": "workspace:*",
+    "@qilin-agent/fs": "workspace:*"
   }
 }

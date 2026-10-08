@@ -1,7 +1,7 @@
 /** Browser entry for the experimental Agent Teams write bridge, popover, and Team page. */
 
-import type { Context as ClientContext } from '@qilin/kylin'
-import teamRemote from '@qilin/experimental-agent-team/remote'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import teamRemote from '@qilin-agent/experimental-agent-team/remote'
 import { mountAgentTeamUi } from './mount.ts'
 
 export { inject } from './mount.ts'

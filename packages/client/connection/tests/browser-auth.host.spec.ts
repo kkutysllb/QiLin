@@ -2,8 +2,8 @@
 
 import { createHash, createHmac } from 'node:crypto'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import type { CredentialProvider } from '@qilin/credentials'
+import { Context } from '@qilin-agent/kylin'
+import type { CredentialProvider } from '@qilin-agent/credentials'
 import { BrowserAuth } from '../src/browser-auth.ts'
 import { HostConnectionService } from '../src/rpc-host.ts'
 import type { ConnectionIndexRequest, ConnectionIndexResponse } from '../src/rpc.ts'

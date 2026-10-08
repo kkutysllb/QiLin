@@ -16,8 +16,8 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import type { LlmDiscoveredModel } from '@qilin/api-remotes/client'
-import { Button, IconPlusOutline16, Modal } from '@qilin/client-ui-primitives'
+import type { LlmDiscoveredModel } from '@qilin-agent/api-remotes/client'
+import { Button, IconPlusOutline16, Modal } from '@qilin-agent/client-ui-primitives'
 import { formatCapacity, parseCapacity } from './DeepSeekModelsEditor.tsx'
 import type { ModelsOperations } from './operations.ts'
 import type { DeepSeekModelDraft } from './DeepSeekModelsEditor.tsx'

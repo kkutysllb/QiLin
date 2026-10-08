@@ -9,9 +9,9 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterAll, afterEach, describe, expect, it, onTestFinished } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Include, { type PatchOptions } from '@qilin/kylin-plugin-include'
-import Loader from '@qilin/kylin-plugin-loader'
+import { Context } from '@qilin-agent/kylin'
+import Include, { type PatchOptions } from '@qilin-agent/kylin-plugin-include'
+import Loader from '@qilin-agent/kylin-plugin-loader'
 import {
   boot,
   loadOptionalPatches,
@@ -46,12 +46,12 @@ describe('loadOptionalPatches', () => {
     const dir = tmp()
     writeFileSync(join(dir, PROFILE_PATCH_FILENAME), [
       '- id: agent-loop',
-      "  name: '@qilin/agent-loop'",
+      "  name: '@qilin-agent/agent-loop'",
       '  config:',
       '    model: !!js process.env.QILIN_SPEC_MODEL',
       '- insert:',
       '    - id: llm',
-      "      name: '@qilin/llm-pi-ai'",
+      "      name: '@qilin-agent/llm-pi-ai'",
       '',
     ].join('\n'))
     const patches = loadOptionalPatches(NAME, join(dir, PROFILE_PATCH_FILENAME))
@@ -77,7 +77,7 @@ describe('loadOptionalPatches', () => {
       { insert: [
         { id: 'absolute', name: pluginPath },
         { id: 'url', name: pluginUrl },
-        { id: 'bare', name: '@qilin/system-prompt' },
+        { id: 'bare', name: '@qilin-agent/system-prompt' },
         { id: 'nested', name: 'cordis:group', group: true, config: [
           { id: 'child', name: pluginPath },
         ] },
@@ -86,7 +86,7 @@ describe('loadOptionalPatches', () => {
     const patches = load(NAME, patchPath)!
     expect(patches[0]?.name).toBe(pluginPath)
     expect(patches[1]?.insert?.map(entry => entry.name)).toEqual([
-      pluginUrl, pluginUrl, '@qilin/system-prompt', 'cordis:group',
+      pluginUrl, pluginUrl, '@qilin-agent/system-prompt', 'cordis:group',
     ])
     expect((patches[1]?.insert?.[3]?.config as { name: string }[])[0]?.name).toBe(pluginUrl)
 

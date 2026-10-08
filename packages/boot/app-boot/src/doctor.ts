@@ -8,12 +8,12 @@
  * map the module names it injects. The report is advisory — only a profile that
  * actually installed an upstream engine package is refused, by
  * `reconcileProfileBundles`.
- * @module @qilin/app-boot/doctor
+ * @module @qilin-agent/app-boot/doctor
  */
 
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
-import { clientDeclarationOf, dshCompatModuleId } from '@qilin/dsh-compat'
+import { clientDeclarationOf, dshCompatModuleId } from '@qilin-agent/dsh-compat'
 import { installationProvides } from './profile.ts'
 
 /** Which compatibility question a finding answers. */
@@ -174,7 +174,7 @@ function lineOf(source: string, offset: number): number {
  * @returns the bare engine package name, or `undefined`.
  */
 function engineNameOf(specifier: string): string | undefined {
-  if (specifier.startsWith('@deepseek-ai/') || specifier.startsWith('@qilin/')) {
+  if (specifier.startsWith('@deepseek-ai/') || specifier.startsWith('@qilin-agent/')) {
     const [scope, name] = specifier.split('/')
     return name === undefined || name === '' ? undefined : `${scope as string}/${name}`
   }
@@ -280,7 +280,7 @@ function clientInjectFindings(manifest: Record<string, unknown>): PluginDoctorFi
       message: `${declaration.key}.inject must be an array of module names`,
     }]
   }
-  const unmapped = (inject as string[]).filter(name => dshCompatModuleId(name) === name && !name.startsWith('@qilin/'))
+  const unmapped = (inject as string[]).filter(name => dshCompatModuleId(name) === name && !name.startsWith('@qilin-agent/'))
   if (unmapped.length === 0) return []
   return [{
     check: 'client-inject',

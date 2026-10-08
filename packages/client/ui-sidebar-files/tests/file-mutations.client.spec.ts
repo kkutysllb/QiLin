@@ -8,10 +8,10 @@
  * which call each gesture makes and exactly which tabs it settles.
  */
 import { describe, expect, it, vi } from 'vitest'
-import { RemoteError, makeTranslate } from '@qilin/client-test-runtime'
-import type { SessionId } from '@qilin/session/types'
-import type { TabId } from '@qilin/client-ui-dockkit'
-import { absoluteFileAddress, sessionFileAddress } from '@qilin/util-workspace-path'
+import { RemoteError, makeTranslate } from '@qilin-agent/client-test-runtime'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
+import { absoluteFileAddress, sessionFileAddress } from '@qilin-agent/util-workspace-path'
 import {
   createMutations, createTabReconcile, joinEntryPath, mutationFailureLine, normalizedEntryName, parentDirectoryOf,
   pathAtOrUnder,

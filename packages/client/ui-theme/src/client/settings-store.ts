@@ -3,7 +3,7 @@
  * service snapshot. The plugin's apply-world change listener is the only
  * writer; the rows read their fields via props.useStore.
  */
-import { defineStore, type EngineStoreHandle } from '@qilin/client-store'
+import { defineStore, type EngineStoreHandle } from '@qilin-agent/client-store'
 import { DEFAULT_FONT_SIZE, DEFAULT_LEADING, DEFAULT_PREFERENCE, type ThemePreference } from '../theme-settings.ts'
 
 /** Store state mirrored from the theme snapshot's appearance preference. */

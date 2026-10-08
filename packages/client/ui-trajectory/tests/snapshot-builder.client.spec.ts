@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { RequestView } from '@qilin/client-ui-conversation/client'
-import { PartialArguments } from '@qilin/util-values'
+import type { RequestView } from '@qilin-agent/client-ui-conversation/client'
+import { PartialArguments } from '@qilin-agent/util-values'
 import type {
   TrajectoryContribution, TrajectoryConversationViewNode, TrajectoryRequestHeaderState,
 } from '../src/client/trajectory-contract.ts'

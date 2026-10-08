@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/experimental-computer-use-cua-driver-native",
+  "name": "@qilin-agent/experimental-computer-use-cua-driver-native",
   "description": "Experimental computer-use provider embedding the Cua Driver native npm SDK",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,31 +30,31 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/computer-use": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/tools": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/computer-use": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tools": "workspace:*"
   },
   "dependencies": {
-    "@qilin/mcp-client": "workspace:*",
-    "@qilin/schemastery": "workspace:~",
+    "@qilin-agent/mcp-client": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~",
     "@trycua/cua-driver": "0.28.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/kylin-plugin-include": "workspace:~",
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/agent-loop": "workspace:*",
-    "@qilin/agent-loop-testkit": "workspace:*",
-    "@qilin/attachment": "workspace:*",
-    "@qilin/attachment-local": "workspace:*",
-    "@qilin/computer-use": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-projection": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/tools": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-loop": "workspace:*",
+    "@qilin-agent/agent-loop-testkit": "workspace:*",
+    "@qilin-agent/attachment": "workspace:*",
+    "@qilin-agent/attachment-local": "workspace:*",
+    "@qilin-agent/computer-use": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tools": "workspace:*"
   }
 }

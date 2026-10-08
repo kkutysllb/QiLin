@@ -5,7 +5,7 @@
  * phase force-stops any ranges the service still owns. It has no config: every
  * disposition and limit arrives on the spec, so deployment-varying choices
  * stay with the caller's config (the bash executor's, the LSP host's, …).
- * @module @qilin/subprocess-local
+ * @module @qilin-agent/subprocess-local
  */
 
 import { constants } from 'node:fs'
@@ -13,18 +13,18 @@ import { access, stat } from 'node:fs/promises'
 import { userInfo } from 'node:os'
 import { delimiter, extname, isAbsolute, resolve } from 'node:path'
 import type { Duplex } from 'node:stream'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import type * as NodePty from 'node-pty'
 import type { IPtyForkOptions } from 'node-pty'
-import { createLazyRequire } from '@qilin/lazy-require'
-import { SubprocessRuntime, SubprocessExecutableNotFoundError } from '@qilin/subprocess'
+import { createLazyRequire } from '@qilin-agent/lazy-require'
+import { SubprocessRuntime, SubprocessExecutableNotFoundError } from '@qilin-agent/subprocess'
 import type {
   SubprocessHandle,
   SubprocessSpawnSpec,
   SubprocessTerminalHandle,
   SubprocessTerminalEnvironment,
   SubprocessTerminalSpawnSpec,
-} from '@qilin/subprocess'
+} from '@qilin-agent/subprocess'
 import {
   bindManagedProcess,
   childEnv,

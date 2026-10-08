@@ -43,7 +43,7 @@ afterEach(() => { vi.restoreAllMocks() })
 describe('worker host log sink', () => {
   it('registers one exporter and renders through cordis', () => {
     const { register, requested } = harness()
-    expect(requested).toEqual(['@qilin/kylin'])
+    expect(requested).toEqual(['@qilin-agent/kylin'])
     // Colors off: the page console has no terminal escapes to interpret.
     expect(register().colors).toBe(false)
   })

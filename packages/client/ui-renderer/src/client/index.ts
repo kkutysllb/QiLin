@@ -6,7 +6,7 @@
 import { createElement, useLayoutEffect, useState, type ReactNode } from 'react'
 import { flushSync } from 'react-dom'
 import { createRoot, hydrateRoot, type Root } from 'react-dom/client'
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { createSlotRenderer } from './scoped-slots.tsx'
 import { buildRenderApp } from './app.tsx'
 import { SlotRegistry } from './registry.ts'
@@ -18,7 +18,7 @@ export type {
   ChainRenderOpts, HostObservable, RenderOpts, SnapshotSelectorHook, SlotAdmissionGate, SlotRenderer,
   ScopedStandardSourceBinding, SlotRendererHost, SlotScopeAdapter,
   StandardSourceBinding, StoreInstanceLike,
-} from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-slots'
 
 /** Mount operation exposed to the framework-free boot kernel. */
 export interface UiRendererService {
@@ -30,7 +30,7 @@ export interface UiRendererService {
   mount: (container: HTMLElement) => () => void
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Events {
     /**
      * An ordinary Slot declaration or entry registration set changed. Factory

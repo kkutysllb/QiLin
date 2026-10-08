@@ -2,15 +2,15 @@
  * Client-safe complete-descendant rows and browser continuation requests,
  * receipts, and failures.
  *
- * @module @qilin/subagent/control-types
+ * @module @qilin-agent/subagent/control-types
  */
 
-import type { PromptContentPart } from '@qilin/attachment/types'
-import type { Branded } from '@qilin/brand'
-import type { MessageId } from '@qilin/llm/brand'
-import type { SessionId } from '@qilin/session/types'
+import type { PromptContentPart } from '@qilin-agent/attachment/types'
+import type { Branded } from '@qilin-agent/brand'
+import type { MessageId } from '@qilin-agent/llm/brand'
+import type { SessionId } from '@qilin-agent/session/types'
 // Type-only: the Workspace registry's archive-admission family map this runtime merges `subagent` into.
-import type {} from '@qilin/workspace/types'
+import type {} from '@qilin-agent/workspace/types'
 
 /**
  * Client-minted identity of one browser prompt, persisted on the exact accepted
@@ -119,14 +119,14 @@ export interface SubagentInterruptReceipt {
  * Failure details the control surface answers with. Prompts and interrupts
  * share these failures with the Client Remote result.
  */
-declare module '@qilin/workspace/types' {
+declare module '@qilin-agent/workspace/types' {
   interface SessionActivityKindMap {
     /** A subagent session delegated from this session (at any depth) is inside a turn. */
     subagent: true
   }
 }
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** A browser-supplied zone is neither UTC nor a canonical IANA name. */
     'subagent/invalid-time-zone': { readonly value: string }

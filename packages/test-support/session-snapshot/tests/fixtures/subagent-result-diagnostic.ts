@@ -1,12 +1,12 @@
 /** Deterministic provider for model-visible foreground and Job diagnostic snapshots. */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import {
   NO_START_CAPABILITIES,
   type ResolvedSubagentStartRequest,
   type SubagentProvider,
-} from '@qilin/subagent'
-import { SessionId } from '@qilin/session'
+} from '@qilin-agent/subagent'
+import { SessionId } from '@qilin-agent/session'
 
 export const name = 'subagent-result-diagnostic'
 export const inject = ['subagents']

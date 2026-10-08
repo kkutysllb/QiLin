@@ -1,5 +1,5 @@
 /** Source locators and converter-owned identities for shared PDF reuse. */
-import { brandString, type Branded } from '@qilin/brand'
+import { brandString, type Branded } from '@qilin-agent/brand'
 
 /** Authorized execution scope and canonical source path, encoded by the consumer. */
 export type OfficeSourceKey = Branded<'OfficeSourceKey'>

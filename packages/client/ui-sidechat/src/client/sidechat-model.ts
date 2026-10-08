@@ -2,8 +2,8 @@
  * Pure sidechat view model: the follow address of one thread, and the fold
  * from durable Session events to the panel's transcript entries.
  */
-import type { SessionId } from '@qilin/session'
-import type { SessionFollowFrame, SessionHistoryRecord } from '@qilin/api-session-controller/types'
+import type { SessionId } from '@qilin-agent/session'
+import type { SessionFollowFrame, SessionHistoryRecord } from '@qilin-agent/api-session-controller/types'
 
 /** One rendered line of a thread's transcript. */
 export interface SidechatTranscriptEntry {

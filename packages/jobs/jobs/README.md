@@ -3,7 +3,7 @@ description: "The background-job registry contract for users and maintainers com
 kind: "package-reference"
 ---
 
-# @qilin/jobs
+# @qilin-agent/jobs
 
 English | [中文](README.zh.md)
 
@@ -42,8 +42,8 @@ A producer can start work only while a controller that serves the owner is attac
 ### Smallest working composition
 
 ```yaml
-- name: '@qilin/jobs-local'
-- name: '@qilin/tool-jobs'
+- name: '@qilin-agent/jobs-local'
+- name: '@qilin-agent/tool-jobs'
 ```
 
 Loading these two plugins on a harness base that already provides the agent, tools, and system-prompt services gives the full feature: `qilin-jobs-local` provides the in-process background-job registry, and `qilin-tool-jobs` provides the `job_output`, `job_list`, and `job_kill` tools plus completion-notice delivery.

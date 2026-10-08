@@ -6,10 +6,10 @@
  * turn of a session and target history paging at exact seqs without holding
  * the events. The plugin owns only the fold; delivery is the seam's.
  *
- * @module @qilin/session-turn-outline
+ * @module @qilin-agent/session-turn-outline
  */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { turnOutlineProjectionDefinition } from './projection.ts'
 
 export type * from './types.ts'

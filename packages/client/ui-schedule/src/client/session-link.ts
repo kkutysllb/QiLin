@@ -1,7 +1,7 @@
 /** Original-Session link label and availability from the current public Session and Workspace feeds. */
-import type { SessionListState } from '@qilin/api-session-controller/client'
-import type { WorkspaceSnapshot } from '@qilin/api-workspace-controller/client'
-import type { SessionId } from '@qilin/session/types'
+import type { SessionListState } from '@qilin-agent/api-session-controller/client'
+import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
 
 /** Navigation state shown beside the retained task's original Session id. */
 export type SessionLinkState = 'available' | 'loading' | 'archived' | 'unavailable'

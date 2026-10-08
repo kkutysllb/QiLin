@@ -1,12 +1,12 @@
 /** Native SDK lifecycle and catalog behavior without desktop access. */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import ComputerUseRegistry from '@qilin/computer-use'
-import { ComputerUseProviderName } from '@qilin/computer-use/brand'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
-import { ToolCallId } from '@qilin/llm'
+import { Context } from '@qilin-agent/kylin'
+import ComputerUseRegistry from '@qilin-agent/computer-use'
+import { ComputerUseProviderName } from '@qilin-agent/computer-use/brand'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
+import { ToolCallId } from '@qilin-agent/llm'
 import * as NativeProvider from '../src/index.ts'
 import { catalog, fixture, resetFixture } from './fixtures/cua-driver.ts'
 

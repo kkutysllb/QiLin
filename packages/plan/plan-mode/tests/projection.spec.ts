@@ -1,17 +1,17 @@
 /** Plan projection behavior. */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import AgentRegistry from '@qilin/agent'
-import type { Agent } from '@qilin/agent'
-import SessionStore from '@qilin/session'
-import type { Session } from '@qilin/session'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import UserQuestionService from '@qilin/user-questions'
-import { CommandId } from '@qilin/commands/brand'
-import PlanModeController from '@qilin/plan-mode'
+import { Context } from '@qilin-agent/kylin'
+import AgentRegistry from '@qilin-agent/agent'
+import type { Agent } from '@qilin-agent/agent'
+import SessionStore from '@qilin-agent/session'
+import type { Session } from '@qilin-agent/session'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import UserQuestionService from '@qilin-agent/user-questions'
+import { CommandId } from '@qilin-agent/commands/brand'
+import PlanModeController from '@qilin-agent/plan-mode'
 
 interface Bench {
   ctx: Context

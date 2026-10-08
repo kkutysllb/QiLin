@@ -32,7 +32,7 @@ import { swift } from '@codemirror/legacy-modes/mode/swift'
 import { cmake } from '@codemirror/legacy-modes/mode/cmake'
 import { properties } from '@codemirror/legacy-modes/mode/properties'
 import { diff } from '@codemirror/legacy-modes/mode/diff'
-import { extensionOf } from '@qilin/util-workspace-path'
+import { extensionOf } from '@qilin-agent/util-workspace-path'
 
 /** The lower-case extension each legacy mode serves. */
 const LEGACY_MODES: Readonly<Record<string, () => Extension>> = {

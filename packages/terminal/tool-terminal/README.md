@@ -3,7 +3,7 @@ description: "Six model-facing persistent terminal tools with owner isolation, b
 kind: "package-reference"
 ---
 
-# @qilin/tool-terminal
+# @qilin-agent/tool-terminal
 
 English | [中文](README.zh.md)
 
@@ -41,12 +41,12 @@ Enable these tools when the composition mounts a terminal backend and the model 
 ### Composition
 
 ```yaml
-- name: '@qilin/terminal'
-- name: '@qilin/terminal-bash'
-- name: '@qilin/tool-terminal'
+- name: '@qilin-agent/terminal'
+- name: '@qilin-agent/terminal-bash'
+- name: '@qilin-agent/tool-terminal'
 ```
 
-The tools need `ctx.terminals` — a backend must be mounted — and the system-prompt service for the guidance section. Background sends additionally require the jobs service and its model-facing controller (`@qilin/tool-jobs`).
+The tools need `ctx.terminals` — a backend must be mounted — and the system-prompt service for the guidance section. Background sends additionally require the jobs service and its model-facing controller (`@qilin-agent/tool-jobs`).
 
 ### Configuration
 
@@ -55,7 +55,7 @@ The tools need `ctx.terminals` — a backend must be mounted — and the system-
 | `enableRunInBackground` | `true` | Expose and accept `run_in_background`; `false` removes the schema field and rejects the argument |
 | `maxResultBytes` | `262144` | UTF-8 cap (minimum `64`) for each complete terminal result after wait, session, pagination, truncation, and job-status metadata |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#qilintool-terminal) and [tool catalog](../../../docs/tool-catalog.md#qilintool-terminal) are the exhaustive sources for config fields and schemas.
+The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agenttool-terminal) and [tool catalog](../../../docs/tool-catalog.md#qilin-agenttool-terminal) are the exhaustive sources for config fields and schemas.
 
 ### Background sends
 
@@ -103,7 +103,7 @@ Foreground sends use terminal call and result cards; background sends and the ot
 
 Read these pages when the package-level contract is not enough. They move from the generated schemas to the service contract, the backend, and the background-job surface.
 
-- [Tool catalog](../../../docs/tool-catalog.md#qilintool-terminal) — the six generated schemas and result shapes.
+- [Tool catalog](../../../docs/tool-catalog.md#qilin-agenttool-terminal) — the six generated schemas and result shapes.
 - [Terminal subsystem reference](../../../docs/subsystems/terminal.md) — the service contract and shared types behind the tools.
 - [terminal service](../terminal/README.md) — session operations, owner fencing, and cleanup semantics.
 - [terminal-bash backend](../terminal-bash/README.md) — the shipped shell backend that provides sessions.
@@ -139,7 +139,7 @@ Prefix-stable while the registration scope and guidance text are unchanged.
 
 #### What the model sees
 
-The six generated schemas are listed in the [`qilin-tool-terminal` catalog section](../../../docs/tool-catalog.md#qilintool-terminal). Their fixed schema tokens are present whenever this plugin is active; agent-scoped tool filtering may hide them.
+The six generated schemas are listed in the [`qilin-tool-terminal` catalog section](../../../docs/tool-catalog.md#qilin-agenttool-terminal). Their fixed schema tokens are present whenever this plugin is active; agent-scoped tool filtering may hide them.
 
 #### Token effect
 
@@ -171,7 +171,7 @@ Append-only; new results follow the reusable request prefix.
 These limits define the model-facing surface that is absent. They are current package constraints, not a task backlog.
 
 - **No TUI or key-sequence surface** — named key sequences, full-screen TUI interaction, BEL, resize, and auto-start are not exposed in any schema.
-- **Background mode requires the jobs surface** — `run_in_background` needs both `@qilin/jobs` and its model-facing controller (`@qilin/tool-jobs`); without them the argument is rejected.
+- **Background mode requires the jobs surface** — `run_in_background` needs both `@qilin-agent/jobs` and its model-facing controller (`@qilin-agent/tool-jobs`); without them the argument is rejected.
 
 <a id="dev-note"></a>
 ### Dev Note

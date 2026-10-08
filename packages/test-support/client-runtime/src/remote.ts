@@ -1,10 +1,10 @@
 /** Test-owned Remote face: `$on` subscriptions with an explicit test event driver. */
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 
 // Value re-export for spec-side failure construction: the api-remotes facade
 // cannot carry it — its src top-level imports owner /remote lib artifacts, so a
 // value import from a spec would load the unbuilt assembly chain.
-export { RemoteError } from '@qilin/typert-protocol'
+export { RemoteError } from '@qilin-agent/typert-protocol'
 
 /**
  * Remote service test double for the forwarded-event path. Feature specs need

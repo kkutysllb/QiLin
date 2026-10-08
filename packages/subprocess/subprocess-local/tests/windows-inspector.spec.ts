@@ -5,13 +5,13 @@ import {
   isInvalidHandle,
   windowsProcessTree,
   WindowsProcessInspector,
-} from '@qilin/subprocess-local/src/windows-inspector.ts'
+} from '@qilin-agent/subprocess-local/src/windows-inspector.ts'
 import type {
   NativePtr,
   ProcessEntry,
   WindowsProcessInspectorInternals,
   WindowsProcessState,
-} from '@qilin/subprocess-local/src/windows-inspector.ts'
+} from '@qilin-agent/subprocess-local/src/windows-inspector.ts'
 
 vi.mock('node:child_process', async (importOriginal) => {
   const actual = await importOriginal<typeof import('node:child_process')>()

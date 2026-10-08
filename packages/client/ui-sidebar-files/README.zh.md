@@ -3,7 +3,7 @@ description: "qilin Web 客户端右侧 Sidebar 的文件树与文件编辑器 t
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-sidebar-files
+# @qilin-agent/client-ui-sidebar-files
 
 [English](README.md) | 中文
 
@@ -25,10 +25,10 @@ kind: "package-reference"
 <a id="what-it-registers"></a>
 ## 注册了什么
 
-- **`files` 类型**：`ctx.sidebarRightTabs.register(...)`，kind 为 `files`，id 为 `@qilin/client-ui-sidebar-files`，档位 `builtin`，没有 patterns，另有一个打开该类型的引导页入口（order 10，标题与描述取自 `sidebarFiles` 命名空间，图标是共享的文件夹图标）。整个侧栏只有一棵工作区树：它声明了 `single: true`。
-- **`file` 类型**：kind 为 `file`，id 为 `@qilin/client-ui-sidebar-files/file`，档位 `builtin`，patterns 为 `qilin-resource://file/**`。它的 `canOpen` 只接受路径扩展名属于已知文本或代码集合（即 `@qilin/util-workspace-path` 里的共享可编辑集合）的会话地址，图片、PDF、未知扩展名与裸绝对地址都落到 `text` 兜底查看器；绝对地址被拒绝，因为保存它没有授权会话。它不声明 `single`（按注册表默认，一个地址一个 tab）、没有引导页入口、也没有静态 `icon`——标签页上的图标就是打开文件自己的类型图标，由标题坑位绘制。tab 标题是地址解码后的基名。
-- **`files` 正文与标签页标题**：以 `@qilin/client-ui-sidebar-files` 为键的 `sidebar.right.pane.tab` 与 `sidebar.right.pane.tab.title` 两个坑位：标题行、文件名搜索与树。标题行与文档预览（`ui-sidebar-documentpreview`）的相同：根路径，目录部分灰色、最后一段正色，从不省略号截断（比行宽的路径保留末尾、淡出开头），右端是它唯一的控件、重新读取。这一行是复制而非共享，因为插件 bundle 只经平台模块共享运行时代码；待 artifact 与各 slot 的形态定下来后，可以在 `ui-primitives` 放一份供每个 pane 标题行使用。
-- **`file` 正文与标签页标题**：同样两个坑位，键为 `@qilin/client-ui-sidebar-files/file`：工作台（左侧固定宽度、可收起的树窗格；右侧编辑器）与打开文件的 `FileTypeIcon` 图标加基名。
+- **`files` 类型**：`ctx.sidebarRightTabs.register(...)`，kind 为 `files`，id 为 `@qilin-agent/client-ui-sidebar-files`，档位 `builtin`，没有 patterns，另有一个打开该类型的引导页入口（order 10，标题与描述取自 `sidebarFiles` 命名空间，图标是共享的文件夹图标）。整个侧栏只有一棵工作区树：它声明了 `single: true`。
+- **`file` 类型**：kind 为 `file`，id 为 `@qilin-agent/client-ui-sidebar-files/file`，档位 `builtin`，patterns 为 `qilin-resource://file/**`。它的 `canOpen` 只接受路径扩展名属于已知文本或代码集合（即 `@qilin-agent/util-workspace-path` 里的共享可编辑集合）的会话地址，图片、PDF、未知扩展名与裸绝对地址都落到 `text` 兜底查看器；绝对地址被拒绝，因为保存它没有授权会话。它不声明 `single`（按注册表默认，一个地址一个 tab）、没有引导页入口、也没有静态 `icon`——标签页上的图标就是打开文件自己的类型图标，由标题坑位绘制。tab 标题是地址解码后的基名。
+- **`files` 正文与标签页标题**：以 `@qilin-agent/client-ui-sidebar-files` 为键的 `sidebar.right.pane.tab` 与 `sidebar.right.pane.tab.title` 两个坑位：标题行、文件名搜索与树。标题行与文档预览（`ui-sidebar-documentpreview`）的相同：根路径，目录部分灰色、最后一段正色，从不省略号截断（比行宽的路径保留末尾、淡出开头），右端是它唯一的控件、重新读取。这一行是复制而非共享，因为插件 bundle 只经平台模块共享运行时代码；待 artifact 与各 slot 的形态定下来后，可以在 `ui-primitives` 放一份供每个 pane 标题行使用。
+- **`file` 正文与标签页标题**：同样两个坑位，键为 `@qilin-agent/client-ui-sidebar-files/file`：工作台（左侧固定宽度、可收起的树窗格；右侧编辑器）与打开文件的 `FileTypeIcon` 图标加基名。
 
 两组坑位共享一个按会话实例化的 store，按 tab id 分桶：树的桶与编辑器的桶互不掺混。
 
@@ -37,12 +37,12 @@ kind: "package-reference"
 <a id="the-tree"></a>
 ## 树
 
-根是会话的工作目录，读自 `useSessions().byId[sessionId].cwd`，标题行里的拆分由 `@qilin/util-workspace-path` 的 `pathPartsOf` 给出。每一层以绝对路径为键；子路径是父路径以 `/` 拼上条目名。一层在首次展开时经 `@qilin/api-workspace-files` 命名空间的 `remote.workspaceFiles.list(sessionId, absolutePath)` 列出；适配层保留列表的条目与截断标志，丢弃其工作区相对路径。行序为目录优先，其后按自然序、不分大小写的名称排列；dotfiles 与其他条目一样显示。
+根是会话的工作目录，读自 `useSessions().byId[sessionId].cwd`，标题行里的拆分由 `@qilin-agent/util-workspace-path` 的 `pathPartsOf` 给出。每一层以绝对路径为键；子路径是父路径以 `/` 拼上条目名。一层在首次展开时经 `@qilin-agent/api-workspace-files` 命名空间的 `remote.workspaceFiles.list(sessionId, absolutePath)` 列出；适配层保留列表的条目与截断标志，丢弃其工作区相对路径。行序为目录优先，其后按自然序、不分大小写的名称排列；dotfiles 与其他条目一样显示。
 
 | 条目类型 | 行 |
 |---|---|
 | `directory` | 切换展开与折叠；该层在首次打开时拉取，折叠期间保留。 |
-| `file` | 经 `useTabInfo().tab.actions.openResource` 打开 `qilin-resource://file/session/<sessionId>/<编码后的相对路径>`，地址由 `@qilin/util-workspace-path` 的 `fileAddressFor` 生成，落在该 tab 自己的 pane 里。从编辑器的树里打开时，它落到本包的 `file` 类型上并按地址去重，所以打开的文件不会就地切换。 |
+| `file` | 经 `useTabInfo().tab.actions.openResource` 打开 `qilin-resource://file/session/<sessionId>/<编码后的相对路径>`，地址由 `@qilin-agent/util-workspace-path` 的 `fileAddressFor` 生成，落在该 tab 自己的 pane 里。从编辑器的树里打开时，它落到本包的 `file` 类型上并按地址去重，所以打开的文件不会就地切换。 |
 | `other` | 灰显且不可点击，使目录被完整报告。 |
 
 被端点条目上限截断的层以一条标记收尾；空层如实说明；失败的层按错误码各显示一行（`workspace-file/not-found`、`outside-workspace`、`not-directory`），其他情况显示传输层自己的消息。重新读取丢弃所有已列出的层并只对展开中的层重新请求；折叠的层在下次打开时重新拉取。没有工作目录的会话只显示一行说明，而不是树。

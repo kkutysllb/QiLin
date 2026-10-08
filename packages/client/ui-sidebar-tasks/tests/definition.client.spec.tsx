@@ -5,7 +5,7 @@
  * entry — read through the namespace's translate.
  */
 import { describe, expect, it } from 'vitest'
-import { makeTranslate } from '@qilin/client-test-runtime'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
 import { TASKS_ID, TASKS_KIND, tasksDefinition } from '../src/client/definition.tsx'
 import { zh } from '../src/client/locales.ts'
 

@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/terminal-bash",
+  "name": "@qilin-agent/terminal-bash",
   "description": "Persistent shell PTY backend over the QiLin subprocess terminal primitive",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,30 +30,30 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/terminal": "workspace:*",
-    "@qilin/sandbox": "workspace:*",
-    "@qilin/sandbox-policy": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/subprocess": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/session-projection": "workspace:*"
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/terminal": "workspace:*",
+    "@qilin-agent/sandbox": "workspace:*",
+    "@qilin-agent/sandbox-policy": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/subprocess": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/session-projection": "workspace:*"
   },
   "dependencies": {
-    "@qilin/lazy-require": "workspace:*",
-    "@qilin/pwsh-local": "workspace:*",
-    "@qilin/schemastery": "workspace:~",
+    "@qilin-agent/lazy-require": "workspace:*",
+    "@qilin-agent/pwsh-local": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~",
     "@xterm/headless": "^6.0.0"
   },
   "devDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/agent-loop-testkit": "workspace:*",
-    "@qilin/terminal": "workspace:*",
-    "@qilin/sandbox": "workspace:*",
-    "@qilin/sandbox-policy": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/subprocess": "workspace:*",
-    "@qilin/subprocess-local": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-loop-testkit": "workspace:*",
+    "@qilin-agent/terminal": "workspace:*",
+    "@qilin-agent/sandbox": "workspace:*",
+    "@qilin-agent/sandbox-policy": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/subprocess": "workspace:*",
+    "@qilin-agent/subprocess-local": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   }
 }

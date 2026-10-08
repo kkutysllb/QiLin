@@ -1,13 +1,13 @@
 /**
  * Model-facing, workspace-authorized session-history search and read tools.
  *
- * @module @qilin/tool-session-query
+ * @module @qilin-agent/tool-session-query
  */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
-import { defineTool } from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
+import { defineTool } from '@qilin-agent/tools'
 import { toolInput } from './input.ts'
 import { operations } from './operations.ts'
 import { presentation } from './presentation.ts'

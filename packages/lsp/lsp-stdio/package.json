@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/lsp-stdio",
+  "name": "@qilin-agent/lsp-stdio",
   "description": "Generic stdio language-server provider for the QiLin LSP capability seam (ctx.lsp) — spawns configured servers, translates JSON-RPC, and serves transient-open goToDefinition/findReferences/goToImplementation/hover queries in the host filesystem namespace",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,28 +30,28 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/brand": "workspace:*",
-    "@qilin/fs": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/lsp": "workspace:*",
-    "@qilin/subprocess": "workspace:*",
-    "@qilin/timeout": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/fs": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/lsp": "workspace:*",
+    "@qilin-agent/subprocess": "workspace:*",
+    "@qilin-agent/timeout": "workspace:*"
   },
   "dependencies": {
-    "@qilin/util-values": "workspace:*",
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/util-values": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/brand": "workspace:*",
-    "@qilin/fs": "workspace:*",
-    "@qilin/fs-local": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/lsp": "workspace:*",
-    "@qilin/subprocess": "workspace:*",
-    "@qilin/subprocess-local": "workspace:*",
-    "@qilin/timeout": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/fs": "workspace:*",
+    "@qilin-agent/fs-local": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/lsp": "workspace:*",
+    "@qilin-agent/subprocess": "workspace:*",
+    "@qilin-agent/subprocess-local": "workspace:*",
+    "@qilin-agent/timeout": "workspace:*",
     "typescript": "^6.0.3",
     "typescript-language-server": "^5.0.0"
   }

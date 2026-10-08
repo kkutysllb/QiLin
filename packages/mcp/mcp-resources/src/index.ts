@@ -1,17 +1,17 @@
 /**
  * Scoped MCP resource providers and the shared model-facing resource tools.
  *
- * @module @qilin/mcp-resources
+ * @module @qilin-agent/mcp-resources
  */
 
-import { Service, type Context } from '@qilin/kylin'
-import { createScope, NamedEntries, ScopedLayers, scopeOf, type ScopeKey, type ScopeLayer } from '@qilin/scope'
-import type { JsonValue } from '@qilin/util-values'
-import type { ToolExecution } from '@qilin/tools'
-import type {} from '@qilin/system-prompt'
+import { Service, type Context } from '@qilin-agent/kylin'
+import { createScope, NamedEntries, ScopedLayers, scopeOf, type ScopeKey, type ScopeLayer } from '@qilin-agent/scope'
+import type { JsonValue } from '@qilin-agent/util-values'
+import type { ToolExecution } from '@qilin-agent/tools'
+import type {} from '@qilin-agent/system-prompt'
 import { registerResourceTools } from './tools.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     mcpResources: McpResourceRuntime
   }

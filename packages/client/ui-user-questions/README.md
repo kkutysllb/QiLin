@@ -3,7 +3,7 @@ description: "Web ask_user_question feature for the qilin web client: the compos
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-user-questions
+# @qilin-agent/client-ui-user-questions
 
 English | [中文](README.zh.md)
 

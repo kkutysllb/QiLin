@@ -1,8 +1,8 @@
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import { createSnapshotStore } from '@qilin/client-store'
-import { RemoteError } from '@qilin/client-test-runtime'
-import type { Resources, ResourceSnapshot } from '@qilin/client-resources/client'
-import type { WorkspaceFileStat } from '@qilin/api-workspace-files/types'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
+import type { Resources, ResourceSnapshot } from '@qilin-agent/client-resources/client'
+import type { WorkspaceFileStat } from '@qilin-agent/api-workspace-files/types'
 import { ResourceGroup } from '../src/client/document/resource-group.ts'
 
 function harness() {

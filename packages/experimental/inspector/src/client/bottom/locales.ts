@@ -16,7 +16,7 @@ export const en: Record<keyof typeof zh, string> = {
   frameTitle: 'NodeJS Inspector',
 }
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Shared Inspector frontend copy. */
     inspectorPanel: keyof typeof zh

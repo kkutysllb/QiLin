@@ -1,14 +1,14 @@
 /** Initial and incremental tool definitions survive current-format restoration and forks. */
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { createDeveloperMessage } from '@qilin/llm'
-import type { ToolAdditionBlock, ToolSchema } from '@qilin/llm'
-import { Session, SessionId, SessionLogOffset } from '@qilin/session'
-import type { SessionEvent, SessionHeader } from '@qilin/session'
-import { buildForkSeed } from '@qilin/session/fork'
-import { createSessionFormatCatalog } from '@qilin/session-format'
-import { restoreReleasedV4Artifact } from '@qilin/session-format-v3-to-v4'
+import { createDeveloperMessage } from '@qilin-agent/llm'
+import type { ToolAdditionBlock, ToolSchema } from '@qilin-agent/llm'
+import { Session, SessionId, SessionLogOffset } from '@qilin-agent/session'
+import type { SessionEvent, SessionHeader } from '@qilin-agent/session'
+import { buildForkSeed } from '@qilin-agent/session/fork'
+import { createSessionFormatCatalog } from '@qilin-agent/session-format'
+import { restoreReleasedV4Artifact } from '@qilin-agent/session-format-v3-to-v4'
 import { sessionFormatCatalogOptions } from '../src/generated.ts'
-import type { SessionFormatEvent } from '@qilin/session-format'
+import type { SessionFormatEvent } from '@qilin-agent/session-format'
 import { sessionFormatCatalog } from '../src/index.ts'
 
 function restore(session: Session): Session {

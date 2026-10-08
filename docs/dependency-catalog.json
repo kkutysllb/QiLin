@@ -1,7 +1,7 @@
 {
-  "package": "@qilin/cli",
+  "package": "@qilin-agent/cli",
   "version": "0.1.5-rc.1",
-  "requested": "@qilin/cli@latest",
+  "requested": "@qilin-agent/cli@latest",
   "resolution": {
     "capturedAt": "2026-09-12T08:56:20.434Z",
     "npm": "11.17.0",
@@ -1771,11 +1771,11 @@
       ]
     },
     {
-      "name": "@qilin/acp",
+      "name": "@qilin-agent/acp",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/acp",
+          "location": "node_modules/@qilin-agent/acp",
           "direct": false,
           "optional": false,
           "peer": false
@@ -1783,11 +1783,11 @@
       ]
     },
     {
-      "name": "@qilin/acp-app",
+      "name": "@qilin-agent/acp-app",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/acp-app",
+          "location": "node_modules/@qilin-agent/acp-app",
           "direct": true,
           "optional": false,
           "peer": false
@@ -1795,11 +1795,11 @@
       ]
     },
     {
-      "name": "@qilin/agent",
+      "name": "@qilin-agent/agent",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/agent",
+          "location": "node_modules/@qilin-agent/agent",
           "direct": false,
           "optional": false,
           "peer": false
@@ -1807,11 +1807,11 @@
       ]
     },
     {
-      "name": "@qilin/agent-default-model",
+      "name": "@qilin-agent/agent-default-model",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/agent-default-model",
+          "location": "node_modules/@qilin-agent/agent-default-model",
           "direct": false,
           "optional": false,
           "peer": false
@@ -1819,11 +1819,11 @@
       ]
     },
     {
-      "name": "@qilin/agent-instructions",
+      "name": "@qilin-agent/agent-instructions",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/agent-instructions",
+          "location": "node_modules/@qilin-agent/agent-instructions",
           "direct": true,
           "optional": false,
           "peer": false
@@ -1831,11 +1831,11 @@
       ]
     },
     {
-      "name": "@qilin/agent-loop",
+      "name": "@qilin-agent/agent-loop",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/agent-loop",
+          "location": "node_modules/@qilin-agent/agent-loop",
           "direct": false,
           "optional": false,
           "peer": false
@@ -1843,11 +1843,11 @@
       ]
     },
     {
-      "name": "@qilin/agent-presets",
+      "name": "@qilin-agent/agent-presets",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/agent-presets",
+          "location": "node_modules/@qilin-agent/agent-presets",
           "direct": false,
           "optional": false,
           "peer": false
@@ -1855,11 +1855,11 @@
       ]
     },
     {
-      "name": "@qilin/agent-tool-presentation",
+      "name": "@qilin-agent/agent-tool-presentation",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/agent-tool-presentation",
+          "location": "node_modules/@qilin-agent/agent-tool-presentation",
           "direct": true,
           "optional": false,
           "peer": false
@@ -1867,11 +1867,11 @@
       ]
     },
     {
-      "name": "@qilin/anonymous-user-id",
+      "name": "@qilin-agent/anonymous-user-id",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/anonymous-user-id",
+          "location": "node_modules/@qilin-agent/anonymous-user-id",
           "direct": false,
           "optional": false,
           "peer": true
@@ -1879,11 +1879,11 @@
       ]
     },
     {
-      "name": "@qilin/api-gateway",
+      "name": "@qilin-agent/api-gateway",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/api-gateway",
+          "location": "node_modules/@qilin-agent/api-gateway",
           "direct": false,
           "optional": false,
           "peer": false
@@ -1891,11 +1891,11 @@
       ]
     },
     {
-      "name": "@qilin/api-remotes",
+      "name": "@qilin-agent/api-remotes",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/api-remotes",
+          "location": "node_modules/@qilin-agent/api-remotes",
           "direct": false,
           "optional": false,
           "peer": false
@@ -1903,11 +1903,11 @@
       ]
     },
     {
-      "name": "@qilin/api-session-controller",
+      "name": "@qilin-agent/api-session-controller",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/api-session-controller",
+          "location": "node_modules/@qilin-agent/api-session-controller",
           "direct": false,
           "optional": false,
           "peer": false
@@ -1915,11 +1915,11 @@
       ]
     },
     {
-      "name": "@qilin/api-settings-controller",
+      "name": "@qilin-agent/api-settings-controller",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/api-settings-controller",
+          "location": "node_modules/@qilin-agent/api-settings-controller",
           "direct": false,
           "optional": false,
           "peer": false
@@ -1927,11 +1927,11 @@
       ]
     },
     {
-      "name": "@qilin/api-workspace-controller",
+      "name": "@qilin-agent/api-workspace-controller",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/api-workspace-controller",
+          "location": "node_modules/@qilin-agent/api-workspace-controller",
           "direct": false,
           "optional": false,
           "peer": false
@@ -1939,11 +1939,11 @@
       ]
     },
     {
-      "name": "@qilin/api-workspace-files",
+      "name": "@qilin-agent/api-workspace-files",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/api-workspace-files",
+          "location": "node_modules/@qilin-agent/api-workspace-files",
           "direct": false,
           "optional": false,
           "peer": false
@@ -1951,11 +1951,11 @@
       ]
     },
     {
-      "name": "@qilin/app-boot",
+      "name": "@qilin-agent/app-boot",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/app-boot",
+          "location": "node_modules/@qilin-agent/app-boot",
           "direct": true,
           "optional": false,
           "peer": false
@@ -1963,11 +1963,11 @@
       ]
     },
     {
-      "name": "@qilin/atomic-write",
+      "name": "@qilin-agent/atomic-write",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/atomic-write",
+          "location": "node_modules/@qilin-agent/atomic-write",
           "direct": false,
           "optional": false,
           "peer": false
@@ -1975,11 +1975,11 @@
       ]
     },
     {
-      "name": "@qilin/attachment",
+      "name": "@qilin-agent/attachment",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/attachment",
+          "location": "node_modules/@qilin-agent/attachment",
           "direct": false,
           "optional": false,
           "peer": true
@@ -1987,11 +1987,11 @@
       ]
     },
     {
-      "name": "@qilin/attachment-local",
+      "name": "@qilin-agent/attachment-local",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/attachment-local",
+          "location": "node_modules/@qilin-agent/attachment-local",
           "direct": false,
           "optional": false,
           "peer": false
@@ -1999,35 +1999,11 @@
       ]
     },
     {
-      "name": "@qilin/authorization",
+      "name": "@qilin-agent/authorization",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/authorization",
-          "direct": false,
-          "optional": false,
-          "peer": true
-        }
-      ]
-    },
-    {
-      "name": "@qilin/base",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/base",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/bash-local",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/bash-local",
+          "location": "node_modules/@qilin-agent/authorization",
           "direct": false,
           "optional": false,
           "peer": true
@@ -2035,119 +2011,11 @@
       ]
     },
     {
-      "name": "@qilin/bash-sandbox",
+      "name": "@qilin-agent/base",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/bash-sandbox",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/brand",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/brand",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/chunked-list",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/chunked-list",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-connection",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-connection",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-file-upload",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-file-upload",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-hmr",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-hmr",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-locale",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-locale",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-modules",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-modules",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-resources",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-resources",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-agent-preset",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-agent-preset",
+          "location": "node_modules/@qilin-agent/base",
           "direct": true,
           "optional": false,
           "peer": false
@@ -2155,503 +2023,11 @@
       ]
     },
     {
-      "name": "@qilin/client-ui-approval",
+      "name": "@qilin-agent/bash-local",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/client-ui-approval",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-attachment",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-attachment",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-brand-official",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-brand-official",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-chat",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-chat",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-commands",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-commands",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-conversation",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-conversation",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-cordis",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-cordis",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-deliverables",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-deliverables",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-directory-picker-browse",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-directory-picker-browse",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-directory-picker-native",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-directory-picker-native",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-goal",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-goal",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-input-trigger",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-input-trigger",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-jobs",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-jobs",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-layout",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-layout",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-message-feedback",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-message-feedback",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-model-selection",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-model-selection",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-open-in-app",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-open-in-app",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-permission-presets",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-permission-presets",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-plan",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-plan",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-reference",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-reference",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-renderer",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-renderer",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-schedule",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-schedule",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-session",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-session",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-settings",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-settings",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-settings-general",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-settings-general",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-settings-models",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-settings-models",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-settings-plugin-inventory",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-settings-plugin-inventory",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-settings-plugins",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-settings-plugins",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-sidebar",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-sidebar",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-sidebar-documentpreview",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-sidebar-documentpreview",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-sidebar-files",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-sidebar-files",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-sidebar-right",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-sidebar-right",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-skill",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-skill",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-subagent",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-subagent",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-theme",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-theme",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-tool",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-tool",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-trajectory",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-trajectory",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-user-questions",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-user-questions",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-workflow-run",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-workflow-run",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/client-ui-workspace",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/client-ui-workspace",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/cmdline",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/cmdline",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/code-runtime",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/code-runtime",
+          "location": "node_modules/@qilin-agent/bash-local",
           "direct": false,
           "optional": false,
           "peer": true
@@ -2659,11 +2035,11 @@
       ]
     },
     {
-      "name": "@qilin/code-runtime-worker-thread",
+      "name": "@qilin-agent/bash-sandbox",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/code-runtime-worker-thread",
+          "location": "node_modules/@qilin-agent/bash-sandbox",
           "direct": false,
           "optional": false,
           "peer": false
@@ -2671,11 +2047,107 @@
       ]
     },
     {
-      "name": "@qilin/command-compact",
+      "name": "@qilin-agent/brand",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/command-compact",
+          "location": "node_modules/@qilin-agent/brand",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/chunked-list",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/chunked-list",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-connection",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-connection",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-file-upload",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-file-upload",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-hmr",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-hmr",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-locale",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-locale",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-modules",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-modules",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-resources",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-resources",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-agent-preset",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-agent-preset",
           "direct": true,
           "optional": false,
           "peer": false
@@ -2683,11 +2155,11 @@
       ]
     },
     {
-      "name": "@qilin/command-feedback",
+      "name": "@qilin-agent/client-ui-approval",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/command-feedback",
+          "location": "node_modules/@qilin-agent/client-ui-approval",
           "direct": false,
           "optional": false,
           "peer": false
@@ -2695,11 +2167,71 @@
       ]
     },
     {
-      "name": "@qilin/command-goal",
+      "name": "@qilin-agent/client-ui-attachment",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/command-goal",
+          "location": "node_modules/@qilin-agent/client-ui-attachment",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-brand-official",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-brand-official",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-chat",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-chat",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-commands",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-commands",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-conversation",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-conversation",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-cordis",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-cordis",
           "direct": true,
           "optional": false,
           "peer": false
@@ -2707,11 +2239,11 @@
       ]
     },
     {
-      "name": "@qilin/commands",
+      "name": "@qilin-agent/client-ui-deliverables",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/commands",
+          "location": "node_modules/@qilin-agent/client-ui-deliverables",
           "direct": false,
           "optional": false,
           "peer": false
@@ -2719,11 +2251,407 @@
       ]
     },
     {
-      "name": "@qilin/compaction",
+      "name": "@qilin-agent/client-ui-directory-picker-browse",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/compaction",
+          "location": "node_modules/@qilin-agent/client-ui-directory-picker-browse",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-directory-picker-native",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-directory-picker-native",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-goal",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-goal",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-input-trigger",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-input-trigger",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-jobs",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-jobs",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-layout",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-layout",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-message-feedback",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-message-feedback",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-model-selection",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-model-selection",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-open-in-app",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-open-in-app",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-permission-presets",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-permission-presets",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-plan",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-plan",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-reference",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-reference",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-renderer",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-renderer",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-schedule",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-schedule",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-session",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-session",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-settings",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-settings",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-settings-general",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-settings-general",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-settings-models",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-settings-models",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-settings-plugin-inventory",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-settings-plugin-inventory",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-settings-plugins",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-settings-plugins",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-sidebar",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-sidebar",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-sidebar-documentpreview",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-sidebar-documentpreview",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-sidebar-files",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-sidebar-files",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-sidebar-right",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-sidebar-right",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-skill",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-skill",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-subagent",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-subagent",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-theme",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-theme",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-tool",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-tool",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-trajectory",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-trajectory",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-user-questions",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-user-questions",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-workflow-run",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-workflow-run",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/client-ui-workspace",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/client-ui-workspace",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/cmdline",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/cmdline",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/code-runtime",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/code-runtime",
           "direct": false,
           "optional": false,
           "peer": true
@@ -2731,11 +2659,23 @@
       ]
     },
     {
-      "name": "@qilin/compaction-basic",
+      "name": "@qilin-agent/code-runtime-worker-thread",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/compaction-basic",
+          "location": "node_modules/@qilin-agent/code-runtime-worker-thread",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/command-compact",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/command-compact",
           "direct": true,
           "optional": false,
           "peer": false
@@ -2743,11 +2683,23 @@
       ]
     },
     {
-      "name": "@qilin/compaction-tool-result-pruner",
+      "name": "@qilin-agent/command-feedback",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/compaction-tool-result-pruner",
+          "location": "node_modules/@qilin-agent/command-feedback",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/command-goal",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/command-goal",
           "direct": true,
           "optional": false,
           "peer": false
@@ -2755,11 +2707,11 @@
       ]
     },
     {
-      "name": "@qilin/credentials",
+      "name": "@qilin-agent/commands",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/credentials",
+          "location": "node_modules/@qilin-agent/commands",
           "direct": false,
           "optional": false,
           "peer": false
@@ -2767,71 +2719,11 @@
       ]
     },
     {
-      "name": "@qilin/credentials-local",
+      "name": "@qilin-agent/compaction",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/credentials-local",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/deepseek-llm-api-extensions",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/deepseek-llm-api-extensions",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/deque",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/deque",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/file-reference",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/file-reference",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/file-reference-local",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/file-reference-local",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/fs",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/fs",
+          "location": "node_modules/@qilin-agent/compaction",
           "direct": false,
           "optional": false,
           "peer": true
@@ -2839,11 +2731,11 @@
       ]
     },
     {
-      "name": "@qilin/fs-local",
+      "name": "@qilin-agent/compaction-basic",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/fs-local",
+          "location": "node_modules/@qilin-agent/compaction-basic",
           "direct": true,
           "optional": false,
           "peer": false
@@ -2851,11 +2743,23 @@
       ]
     },
     {
-      "name": "@qilin/fs-observation-policy",
+      "name": "@qilin-agent/compaction-tool-result-pruner",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/fs-observation-policy",
+          "location": "node_modules/@qilin-agent/compaction-tool-result-pruner",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/credentials",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/credentials",
           "direct": false,
           "optional": false,
           "peer": false
@@ -2863,11 +2767,11 @@
       ]
     },
     {
-      "name": "@qilin/fs-sandbox",
+      "name": "@qilin-agent/credentials-local",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/fs-sandbox",
+          "location": "node_modules/@qilin-agent/credentials-local",
           "direct": false,
           "optional": false,
           "peer": false
@@ -2875,59 +2779,59 @@
       ]
     },
     {
-      "name": "@qilin/goal",
+      "name": "@qilin-agent/deepseek-llm-api-extensions",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/goal",
-          "direct": true,
+          "location": "node_modules/@qilin-agent/deepseek-llm-api-extensions",
+          "direct": false,
           "optional": false,
           "peer": false
         }
       ]
     },
     {
-      "name": "@qilin/goal-round-driver",
+      "name": "@qilin-agent/deque",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/goal-round-driver",
-          "direct": true,
+          "location": "node_modules/@qilin-agent/deque",
+          "direct": false,
           "optional": false,
           "peer": false
         }
       ]
     },
     {
-      "name": "@qilin/headless",
+      "name": "@qilin-agent/file-reference",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/headless",
-          "direct": true,
+          "location": "node_modules/@qilin-agent/file-reference",
+          "direct": false,
           "optional": false,
           "peer": false
         }
       ]
     },
     {
-      "name": "@qilin/home-paths",
+      "name": "@qilin-agent/file-reference-local",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/home-paths",
-          "direct": true,
+          "location": "node_modules/@qilin-agent/file-reference-local",
+          "direct": false,
           "optional": false,
           "peer": false
         }
       ]
     },
     {
-      "name": "@qilin/hook-protocol",
+      "name": "@qilin-agent/fs",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/hook-protocol",
+          "location": "node_modules/@qilin-agent/fs",
           "direct": false,
           "optional": false,
           "peer": true
@@ -2935,11 +2839,11 @@
       ]
     },
     {
-      "name": "@qilin/hooks-claude-code",
+      "name": "@qilin-agent/fs-local",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/hooks-claude-code",
+          "location": "node_modules/@qilin-agent/fs-local",
           "direct": true,
           "optional": false,
           "peer": false
@@ -2947,11 +2851,35 @@
       ]
     },
     {
-      "name": "@qilin/hooks-codex",
+      "name": "@qilin-agent/fs-observation-policy",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/hooks-codex",
+          "location": "node_modules/@qilin-agent/fs-observation-policy",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/fs-sandbox",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/fs-sandbox",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/goal",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/goal",
           "direct": true,
           "optional": false,
           "peer": false
@@ -2959,107 +2887,11 @@
       ]
     },
     {
-      "name": "@qilin/host-directory-picker",
+      "name": "@qilin-agent/goal-round-driver",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/host-directory-picker",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/host-directory-picker-auto",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/host-directory-picker-auto",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/host-directory-picker-browse",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/host-directory-picker-browse",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/host-directory-picker-native",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/host-directory-picker-native",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/host-frontend-static",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/host-frontend-static",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/host-open-in-app",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/host-open-in-app",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/host-plugin-inventory",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/host-plugin-inventory",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/host-webserver",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/host-webserver",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/http-proxy",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/http-proxy",
+          "location": "node_modules/@qilin-agent/goal-round-driver",
           "direct": true,
           "optional": false,
           "peer": false
@@ -3067,23 +2899,35 @@
       ]
     },
     {
-      "name": "@qilin/invariants",
+      "name": "@qilin-agent/headless",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/invariants",
-          "direct": false,
+          "location": "node_modules/@qilin-agent/headless",
+          "direct": true,
           "optional": false,
           "peer": false
         }
       ]
     },
     {
-      "name": "@qilin/jobs",
+      "name": "@qilin-agent/home-paths",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/jobs",
+          "location": "node_modules/@qilin-agent/home-paths",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/hook-protocol",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/hook-protocol",
           "direct": false,
           "optional": false,
           "peer": true
@@ -3091,11 +2935,11 @@
       ]
     },
     {
-      "name": "@qilin/jobs-local",
+      "name": "@qilin-agent/hooks-claude-code",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/jobs-local",
+          "location": "node_modules/@qilin-agent/hooks-claude-code",
           "direct": true,
           "optional": false,
           "peer": false
@@ -3103,11 +2947,167 @@
       ]
     },
     {
-      "name": "@qilin/kylin",
+      "name": "@qilin-agent/hooks-codex",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/hooks-codex",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/host-directory-picker",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/host-directory-picker",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/host-directory-picker-auto",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/host-directory-picker-auto",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/host-directory-picker-browse",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/host-directory-picker-browse",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/host-directory-picker-native",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/host-directory-picker-native",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/host-frontend-static",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/host-frontend-static",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/host-open-in-app",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/host-open-in-app",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/host-plugin-inventory",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/host-plugin-inventory",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/host-webserver",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/host-webserver",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/http-proxy",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/http-proxy",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/invariants",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/invariants",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/jobs",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/jobs",
+          "direct": false,
+          "optional": false,
+          "peer": true
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/jobs-local",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/jobs-local",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/kylin",
       "version": "4.0.2",
       "installations": [
         {
-          "location": "node_modules/@qilin/kylin",
+          "location": "node_modules/@qilin-agent/kylin",
           "direct": true,
           "optional": false,
           "peer": false
@@ -3115,11 +3115,11 @@
       ]
     },
     {
-      "name": "@qilin/kylin-client-runner",
+      "name": "@qilin-agent/kylin-client-runner",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/kylin-client-runner",
+          "location": "node_modules/@qilin-agent/kylin-client-runner",
           "direct": true,
           "optional": false,
           "peer": false
@@ -3127,11 +3127,11 @@
       ]
     },
     {
-      "name": "@qilin/kylin-host-runner",
+      "name": "@qilin-agent/kylin-host-runner",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/kylin-host-runner",
+          "location": "node_modules/@qilin-agent/kylin-host-runner",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3139,11 +3139,11 @@
       ]
     },
     {
-      "name": "@qilin/kylin-plugin-group",
+      "name": "@qilin-agent/kylin-plugin-group",
       "version": "1.0.2",
       "installations": [
         {
-          "location": "node_modules/@qilin/kylin-plugin-group",
+          "location": "node_modules/@qilin-agent/kylin-plugin-group",
           "direct": false,
           "optional": false,
           "peer": true
@@ -3151,11 +3151,11 @@
       ]
     },
     {
-      "name": "@qilin/kylin-plugin-hmr",
+      "name": "@qilin-agent/kylin-plugin-hmr",
       "version": "1.0.17",
       "installations": [
         {
-          "location": "node_modules/@qilin/kylin-plugin-hmr",
+          "location": "node_modules/@qilin-agent/kylin-plugin-hmr",
           "direct": true,
           "optional": false,
           "peer": false
@@ -3163,11 +3163,11 @@
       ]
     },
     {
-      "name": "@qilin/kylin-plugin-include",
+      "name": "@qilin-agent/kylin-plugin-include",
       "version": "1.0.7",
       "installations": [
         {
-          "location": "node_modules/@qilin/kylin-plugin-include",
+          "location": "node_modules/@qilin-agent/kylin-plugin-include",
           "direct": true,
           "optional": false,
           "peer": false
@@ -3175,11 +3175,11 @@
       ]
     },
     {
-      "name": "@qilin/kylin-plugin-loader",
+      "name": "@qilin-agent/kylin-plugin-loader",
       "version": "1.0.3",
       "installations": [
         {
-          "location": "node_modules/@qilin/kylin-plugin-loader",
+          "location": "node_modules/@qilin-agent/kylin-plugin-loader",
           "direct": true,
           "optional": false,
           "peer": false
@@ -3187,11 +3187,11 @@
       ]
     },
     {
-      "name": "@qilin/kylin-plugin-timer",
+      "name": "@qilin-agent/kylin-plugin-timer",
       "version": "1.1.4",
       "installations": [
         {
-          "location": "node_modules/@qilin/kylin-plugin-timer",
+          "location": "node_modules/@qilin-agent/kylin-plugin-timer",
           "direct": true,
           "optional": false,
           "peer": false
@@ -3199,11 +3199,11 @@
       ]
     },
     {
-      "name": "@qilin/launch-environment",
+      "name": "@qilin-agent/launch-environment",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/launch-environment",
+          "location": "node_modules/@qilin-agent/launch-environment",
           "direct": true,
           "optional": false,
           "peer": false
@@ -3211,11 +3211,11 @@
       ]
     },
     {
-      "name": "@qilin/llm",
+      "name": "@qilin-agent/llm",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/llm",
+          "location": "node_modules/@qilin-agent/llm",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3223,11 +3223,11 @@
       ]
     },
     {
-      "name": "@qilin/llm-deepseek",
+      "name": "@qilin-agent/llm-deepseek",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/llm-deepseek",
+          "location": "node_modules/@qilin-agent/llm-deepseek",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3235,11 +3235,11 @@
       ]
     },
     {
-      "name": "@qilin/llm-pi-ai",
+      "name": "@qilin-agent/llm-pi-ai",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/llm-pi-ai",
+          "location": "node_modules/@qilin-agent/llm-pi-ai",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3247,11 +3247,11 @@
       ]
     },
     {
-      "name": "@qilin/llm-retry",
+      "name": "@qilin-agent/llm-retry",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/llm-retry",
+          "location": "node_modules/@qilin-agent/llm-retry",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3259,11 +3259,11 @@
       ]
     },
     {
-      "name": "@qilin/mcp-client",
+      "name": "@qilin-agent/mcp-client",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/mcp-client",
+          "location": "node_modules/@qilin-agent/mcp-client",
           "direct": true,
           "optional": false,
           "peer": false
@@ -3271,11 +3271,11 @@
       ]
     },
     {
-      "name": "@qilin/message-feedback",
+      "name": "@qilin-agent/message-feedback",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/message-feedback",
+          "location": "node_modules/@qilin-agent/message-feedback",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3283,11 +3283,11 @@
       ]
     },
     {
-      "name": "@qilin/native-command",
+      "name": "@qilin-agent/native-command",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/native-command",
+          "location": "node_modules/@qilin-agent/native-command",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3295,11 +3295,11 @@
       ]
     },
     {
-      "name": "@qilin/output-retention",
+      "name": "@qilin-agent/output-retention",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/output-retention",
+          "location": "node_modules/@qilin-agent/output-retention",
           "direct": false,
           "optional": false,
           "peer": true
@@ -3307,11 +3307,11 @@
       ]
     },
     {
-      "name": "@qilin/package-manifest",
+      "name": "@qilin-agent/package-manifest",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/package-manifest",
+          "location": "node_modules/@qilin-agent/package-manifest",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3319,11 +3319,11 @@
       ]
     },
     {
-      "name": "@qilin/permission-presets",
+      "name": "@qilin-agent/permission-presets",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/permission-presets",
+          "location": "node_modules/@qilin-agent/permission-presets",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3331,11 +3331,11 @@
       ]
     },
     {
-      "name": "@qilin/persona",
+      "name": "@qilin-agent/persona",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/persona",
+          "location": "node_modules/@qilin-agent/persona",
           "direct": true,
           "optional": false,
           "peer": false
@@ -3343,11 +3343,11 @@
       ]
     },
     {
-      "name": "@qilin/plan-mode",
+      "name": "@qilin-agent/plan-mode",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/plan-mode",
+          "location": "node_modules/@qilin-agent/plan-mode",
           "direct": true,
           "optional": false,
           "peer": false
@@ -3355,11 +3355,11 @@
       ]
     },
     {
-      "name": "@qilin/plugin-package-inventory-deepseek",
+      "name": "@qilin-agent/plugin-package-inventory-deepseek",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/plugin-package-inventory-deepseek",
+          "location": "node_modules/@qilin-agent/plugin-package-inventory-deepseek",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3367,11 +3367,11 @@
       ]
     },
     {
-      "name": "@qilin/pwsh-local",
+      "name": "@qilin-agent/pwsh-local",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/pwsh-local",
+          "location": "node_modules/@qilin-agent/pwsh-local",
           "direct": true,
           "optional": false,
           "peer": false
@@ -3379,11 +3379,11 @@
       ]
     },
     {
-      "name": "@qilin/pwsh-sandbox",
+      "name": "@qilin-agent/pwsh-sandbox",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/pwsh-sandbox",
+          "location": "node_modules/@qilin-agent/pwsh-sandbox",
           "direct": true,
           "optional": false,
           "peer": false
@@ -3391,11 +3391,11 @@
       ]
     },
     {
-      "name": "@qilin/repeat-tool-reminder",
+      "name": "@qilin-agent/repeat-tool-reminder",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/repeat-tool-reminder",
+          "location": "node_modules/@qilin-agent/repeat-tool-reminder",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3403,11 +3403,11 @@
       ]
     },
     {
-      "name": "@qilin/sandbox",
+      "name": "@qilin-agent/sandbox",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/sandbox",
+          "location": "node_modules/@qilin-agent/sandbox",
           "direct": false,
           "optional": false,
           "peer": true
@@ -3415,11 +3415,11 @@
       ]
     },
     {
-      "name": "@qilin/sandbox-local",
+      "name": "@qilin-agent/sandbox-local",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/sandbox-local",
+          "location": "node_modules/@qilin-agent/sandbox-local",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3427,11 +3427,11 @@
       ]
     },
     {
-      "name": "@qilin/sandbox-policy",
+      "name": "@qilin-agent/sandbox-policy",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/sandbox-policy",
+          "location": "node_modules/@qilin-agent/sandbox-policy",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3439,11 +3439,11 @@
       ]
     },
     {
-      "name": "@qilin/sandbox-windows-acl",
+      "name": "@qilin-agent/sandbox-windows-acl",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/sandbox-windows-acl",
+          "location": "node_modules/@qilin-agent/sandbox-windows-acl",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3451,11 +3451,11 @@
       ]
     },
     {
-      "name": "@qilin/schedule",
+      "name": "@qilin-agent/schedule",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/schedule",
+          "location": "node_modules/@qilin-agent/schedule",
           "direct": true,
           "optional": false,
           "peer": false
@@ -3463,11 +3463,11 @@
       ]
     },
     {
-      "name": "@qilin/scope",
+      "name": "@qilin-agent/scope",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/scope",
+          "location": "node_modules/@qilin-agent/scope",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3475,11 +3475,11 @@
       ]
     },
     {
-      "name": "@qilin/sdk-app",
+      "name": "@qilin-agent/sdk-app",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/sdk-app",
+          "location": "node_modules/@qilin-agent/sdk-app",
           "direct": true,
           "optional": false,
           "peer": false
@@ -3487,11 +3487,11 @@
       ]
     },
     {
-      "name": "@qilin/sdk-jsonrpc-server",
+      "name": "@qilin-agent/sdk-jsonrpc-server",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/sdk-jsonrpc-server",
+          "location": "node_modules/@qilin-agent/sdk-jsonrpc-server",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3499,11 +3499,11 @@
       ]
     },
     {
-      "name": "@qilin/sdk-minimal",
+      "name": "@qilin-agent/sdk-minimal",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/sdk-minimal",
+          "location": "node_modules/@qilin-agent/sdk-minimal",
           "direct": true,
           "optional": false,
           "peer": false
@@ -3511,11 +3511,11 @@
       ]
     },
     {
-      "name": "@qilin/sdk-protocol",
+      "name": "@qilin-agent/sdk-protocol",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/sdk-protocol",
+          "location": "node_modules/@qilin-agent/sdk-protocol",
           "direct": false,
           "optional": false,
           "peer": true
@@ -3523,11 +3523,11 @@
       ]
     },
     {
-      "name": "@qilin/session",
+      "name": "@qilin-agent/session",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/session",
+          "location": "node_modules/@qilin-agent/session",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3535,11 +3535,11 @@
       ]
     },
     {
-      "name": "@qilin/session-checkpoint-policy",
+      "name": "@qilin-agent/session-checkpoint-policy",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/session-checkpoint-policy",
+          "location": "node_modules/@qilin-agent/session-checkpoint-policy",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3547,11 +3547,11 @@
       ]
     },
     {
-      "name": "@qilin/session-format",
+      "name": "@qilin-agent/session-format",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/session-format",
+          "location": "node_modules/@qilin-agent/session-format",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3559,11 +3559,11 @@
       ]
     },
     {
-      "name": "@qilin/session-format-catalog",
+      "name": "@qilin-agent/session-format-catalog",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/session-format-catalog",
+          "location": "node_modules/@qilin-agent/session-format-catalog",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3571,11 +3571,11 @@
       ]
     },
     {
-      "name": "@qilin/session-format-v0-to-v1",
+      "name": "@qilin-agent/session-format-v0-to-v1",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/session-format-v0-to-v1",
+          "location": "node_modules/@qilin-agent/session-format-v0-to-v1",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3583,11 +3583,11 @@
       ]
     },
     {
-      "name": "@qilin/session-format-v1-to-v2",
+      "name": "@qilin-agent/session-format-v1-to-v2",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/session-format-v1-to-v2",
+          "location": "node_modules/@qilin-agent/session-format-v1-to-v2",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3595,11 +3595,11 @@
       ]
     },
     {
-      "name": "@qilin/session-format-v2-to-v3",
+      "name": "@qilin-agent/session-format-v2-to-v3",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/session-format-v2-to-v3",
+          "location": "node_modules/@qilin-agent/session-format-v2-to-v3",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3607,11 +3607,11 @@
       ]
     },
     {
-      "name": "@qilin/session-log-deepseek",
+      "name": "@qilin-agent/session-log-deepseek",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/session-log-deepseek",
+          "location": "node_modules/@qilin-agent/session-log-deepseek",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3619,11 +3619,11 @@
       ]
     },
     {
-      "name": "@qilin/session-log-export",
+      "name": "@qilin-agent/session-log-export",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/session-log-export",
+          "location": "node_modules/@qilin-agent/session-log-export",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3631,59 +3631,11 @@
       ]
     },
     {
-      "name": "@qilin/session-persistence",
+      "name": "@qilin-agent/session-persistence",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/session-persistence",
-          "direct": false,
-          "optional": false,
-          "peer": true
-        }
-      ]
-    },
-    {
-      "name": "@qilin/session-persistence-jsonl",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/session-persistence-jsonl",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/session-projection",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/session-projection",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/session-projection-cache",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/session-projection-cache",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/session-query",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/session-query",
+          "location": "node_modules/@qilin-agent/session-persistence",
           "direct": false,
           "optional": false,
           "peer": true
@@ -3691,11 +3643,11 @@
       ]
     },
     {
-      "name": "@qilin/session-query-sqlite",
+      "name": "@qilin-agent/session-persistence-jsonl",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/session-query-sqlite",
+          "location": "node_modules/@qilin-agent/session-persistence-jsonl",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3703,11 +3655,11 @@
       ]
     },
     {
-      "name": "@qilin/session-reference",
+      "name": "@qilin-agent/session-projection",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/session-reference",
+          "location": "node_modules/@qilin-agent/session-projection",
           "direct": true,
           "optional": false,
           "peer": false
@@ -3715,11 +3667,11 @@
       ]
     },
     {
-      "name": "@qilin/session-stats",
+      "name": "@qilin-agent/session-projection-cache",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/session-stats",
+          "location": "node_modules/@qilin-agent/session-projection-cache",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3727,11 +3679,11 @@
       ]
     },
     {
-      "name": "@qilin/session-telemetry",
+      "name": "@qilin-agent/session-query",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/session-telemetry",
+          "location": "node_modules/@qilin-agent/session-query",
           "direct": false,
           "optional": false,
           "peer": true
@@ -3739,11 +3691,11 @@
       ]
     },
     {
-      "name": "@qilin/session-telemetry-otel",
+      "name": "@qilin-agent/session-query-sqlite",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/session-telemetry-otel",
+          "location": "node_modules/@qilin-agent/session-query-sqlite",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3751,11 +3703,23 @@
       ]
     },
     {
-      "name": "@qilin/session-title",
+      "name": "@qilin-agent/session-reference",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/session-title",
+          "location": "node_modules/@qilin-agent/session-reference",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/session-stats",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/session-stats",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3763,23 +3727,11 @@
       ]
     },
     {
-      "name": "@qilin/session-title-first-prompt-llm",
+      "name": "@qilin-agent/session-telemetry",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/session-title-first-prompt-llm",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/session-title-llm",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/session-title-llm",
+          "location": "node_modules/@qilin-agent/session-telemetry",
           "direct": false,
           "optional": false,
           "peer": true
@@ -3787,11 +3739,11 @@
       ]
     },
     {
-      "name": "@qilin/session-turn-outline",
+      "name": "@qilin-agent/session-telemetry-otel",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/session-turn-outline",
+          "location": "node_modules/@qilin-agent/session-telemetry-otel",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3799,23 +3751,11 @@
       ]
     },
     {
-      "name": "@qilin/settings",
+      "name": "@qilin-agent/session-title",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/settings",
-          "direct": false,
-          "optional": false,
-          "peer": true
-        }
-      ]
-    },
-    {
-      "name": "@qilin/settings-file",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/settings-file",
+          "location": "node_modules/@qilin-agent/session-title",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3823,23 +3763,11 @@
       ]
     },
     {
-      "name": "@qilin/shell",
+      "name": "@qilin-agent/session-title-first-prompt-llm",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/shell",
-          "direct": false,
-          "optional": false,
-          "peer": true
-        }
-      ]
-    },
-    {
-      "name": "@qilin/shell-env",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/shell-env",
+          "location": "node_modules/@qilin-agent/session-title-first-prompt-llm",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3847,47 +3775,11 @@
       ]
     },
     {
-      "name": "@qilin/skill",
+      "name": "@qilin-agent/session-title-llm",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/skill",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/skill-badge",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/skill-badge",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/skill-filesystem",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/skill-filesystem",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/spill",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/spill",
+          "location": "node_modules/@qilin-agent/session-title-llm",
           "direct": false,
           "optional": false,
           "peer": true
@@ -3895,11 +3787,11 @@
       ]
     },
     {
-      "name": "@qilin/spill-local",
+      "name": "@qilin-agent/session-turn-outline",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/spill-local",
+          "location": "node_modules/@qilin-agent/session-turn-outline",
           "direct": false,
           "optional": false,
           "peer": false
@@ -3907,83 +3799,11 @@
       ]
     },
     {
-      "name": "@qilin/spill-policy",
+      "name": "@qilin-agent/settings",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/spill-policy",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/storage",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/storage",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/storage-domain",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/storage-domain",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/storage-json",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/storage-json",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/subagent",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/subagent",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/subagent-fork-in-process",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/subagent-fork-in-process",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/subagent-in-process-driver",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/subagent-in-process-driver",
+          "location": "node_modules/@qilin-agent/settings",
           "direct": false,
           "optional": false,
           "peer": true
@@ -3991,11 +3811,11 @@
       ]
     },
     {
-      "name": "@qilin/subagent-spawn-in-process",
+      "name": "@qilin-agent/settings-file",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/subagent-spawn-in-process",
+          "location": "node_modules/@qilin-agent/settings-file",
           "direct": false,
           "optional": false,
           "peer": false
@@ -4003,443 +3823,11 @@
       ]
     },
     {
-      "name": "@qilin/subprocess",
+      "name": "@qilin-agent/shell",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/subprocess",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/subprocess-local",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/subprocess-local",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/system-prompt",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/system-prompt",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/terminal",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/terminal",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/terminal-bash",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/terminal-bash",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/time-context",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/time-context",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/timeout",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/timeout",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/tmux-context",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/tmux-context",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/token-meter",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/token-meter",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/tool-ask-user",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/tool-ask-user",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/tool-bash",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/tool-bash",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/tool-bash-persistent",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/tool-bash-persistent",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/tool-call-timeout-policy",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/tool-call-timeout-policy",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/tool-cordis",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/tool-cordis",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/tool-fs",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/tool-fs",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/tool-fs-search",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/tool-fs-search",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/tool-goal",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/tool-goal",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/tool-jobs",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/tool-jobs",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/tool-present",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/tool-present",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/tool-pwsh",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/tool-pwsh",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/tool-pwsh-persistent",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/tool-pwsh-persistent",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/tool-ralph",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/tool-ralph",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/tool-skill",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/tool-skill",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/tool-str-replace-editor",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/tool-str-replace-editor",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/tool-subagent",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/tool-subagent",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/tool-subagent-control",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/tool-subagent-control",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/tool-todo",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/tool-todo",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/tool-web",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/tool-web",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/tool-workflow",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/tool-workflow",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/tools",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/tools",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/typert-loader",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/typert-loader",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/typert-protocol",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/typert-protocol",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/typert-registry",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/typert-registry",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/user-approval",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/user-approval",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/user-questions",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/user-questions",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/util-crypto",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/util-crypto",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/util-time",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/util-time",
+          "location": "node_modules/@qilin-agent/shell",
           "direct": false,
           "optional": false,
           "peer": true
@@ -4447,11 +3835,11 @@
       ]
     },
     {
-      "name": "@qilin/util-values",
+      "name": "@qilin-agent/shell-env",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/util-values",
+          "location": "node_modules/@qilin-agent/shell-env",
           "direct": false,
           "optional": false,
           "peer": false
@@ -4459,11 +3847,47 @@
       ]
     },
     {
-      "name": "@qilin/util-workspace-path",
+      "name": "@qilin-agent/skill",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/util-workspace-path",
+          "location": "node_modules/@qilin-agent/skill",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/skill-badge",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/skill-badge",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/skill-filesystem",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/skill-filesystem",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/spill",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/spill",
           "direct": false,
           "optional": false,
           "peer": true
@@ -4471,11 +3895,11 @@
       ]
     },
     {
-      "name": "@qilin/web",
+      "name": "@qilin-agent/spill-local",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/web",
+          "location": "node_modules/@qilin-agent/spill-local",
           "direct": false,
           "optional": false,
           "peer": false
@@ -4483,23 +3907,11 @@
       ]
     },
     {
-      "name": "@qilin/web-app",
+      "name": "@qilin-agent/spill-policy",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/web-app",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/web-fetch-http",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/web-fetch-http",
+          "location": "node_modules/@qilin-agent/spill-policy",
           "direct": false,
           "optional": false,
           "peer": false
@@ -4507,11 +3919,11 @@
       ]
     },
     {
-      "name": "@qilin/web-frontend",
+      "name": "@qilin-agent/storage",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/web-frontend",
+          "location": "node_modules/@qilin-agent/storage",
           "direct": false,
           "optional": false,
           "peer": false
@@ -4519,11 +3931,11 @@
       ]
     },
     {
-      "name": "@qilin/web-search-deepseek",
+      "name": "@qilin-agent/storage-domain",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/web-search-deepseek",
+          "location": "node_modules/@qilin-agent/storage-domain",
           "direct": false,
           "optional": false,
           "peer": false
@@ -4531,35 +3943,11 @@
       ]
     },
     {
-      "name": "@qilin/webhook",
+      "name": "@qilin-agent/storage-json",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/webhook",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/webhook-github",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/webhook-github",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin/win32-process",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin/win32-process",
+          "location": "node_modules/@qilin-agent/storage-json",
           "direct": false,
           "optional": false,
           "peer": false
@@ -4567,11 +3955,35 @@
       ]
     },
     {
-      "name": "@qilin/workflow",
+      "name": "@qilin-agent/subagent",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/workflow",
+          "location": "node_modules/@qilin-agent/subagent",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/subagent-fork-in-process",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/subagent-fork-in-process",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/subagent-in-process-driver",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/subagent-in-process-driver",
           "direct": false,
           "optional": false,
           "peer": true
@@ -4579,11 +3991,59 @@
       ]
     },
     {
-      "name": "@qilin/workflow-worker-thread",
+      "name": "@qilin-agent/subagent-spawn-in-process",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/workflow-worker-thread",
+          "location": "node_modules/@qilin-agent/subagent-spawn-in-process",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/subprocess",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/subprocess",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/subprocess-local",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/subprocess-local",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/system-prompt",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/system-prompt",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/terminal",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/terminal",
           "direct": true,
           "optional": false,
           "peer": false
@@ -4591,11 +4051,551 @@
       ]
     },
     {
-      "name": "@qilin/workspace",
+      "name": "@qilin-agent/terminal-bash",
       "version": "3.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/workspace",
+          "location": "node_modules/@qilin-agent/terminal-bash",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/time-context",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/time-context",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/timeout",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/timeout",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/tmux-context",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/tmux-context",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/token-meter",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/token-meter",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/tool-ask-user",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/tool-ask-user",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/tool-bash",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/tool-bash",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/tool-bash-persistent",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/tool-bash-persistent",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/tool-call-timeout-policy",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/tool-call-timeout-policy",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/tool-cordis",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/tool-cordis",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/tool-fs",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/tool-fs",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/tool-fs-search",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/tool-fs-search",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/tool-goal",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/tool-goal",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/tool-jobs",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/tool-jobs",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/tool-present",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/tool-present",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/tool-pwsh",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/tool-pwsh",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/tool-pwsh-persistent",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/tool-pwsh-persistent",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/tool-ralph",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/tool-ralph",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/tool-skill",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/tool-skill",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/tool-str-replace-editor",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/tool-str-replace-editor",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/tool-subagent",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/tool-subagent",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/tool-subagent-control",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/tool-subagent-control",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/tool-todo",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/tool-todo",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/tool-web",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/tool-web",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/tool-workflow",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/tool-workflow",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/tools",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/tools",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/typert-loader",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/typert-loader",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/typert-protocol",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/typert-protocol",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/typert-registry",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/typert-registry",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/user-approval",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/user-approval",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/user-questions",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/user-questions",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/util-crypto",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/util-crypto",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/util-time",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/util-time",
+          "direct": false,
+          "optional": false,
+          "peer": true
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/util-values",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/util-values",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/util-workspace-path",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/util-workspace-path",
+          "direct": false,
+          "optional": false,
+          "peer": true
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/web",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/web",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/web-app",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/web-app",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/web-fetch-http",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/web-fetch-http",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/web-frontend",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/web-frontend",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/web-search-deepseek",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/web-search-deepseek",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/webhook",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/webhook",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/webhook-github",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/webhook-github",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/win32-process",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/win32-process",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/workflow",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/workflow",
+          "direct": false,
+          "optional": false,
+          "peer": true
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/workflow-worker-thread",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/workflow-worker-thread",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/workspace",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/workspace",
           "direct": false,
           "optional": false,
           "peer": false
@@ -5201,7 +5201,7 @@
       "version": "5.0.0",
       "installations": [
         {
-          "location": "node_modules/@qilin/skill-filesystem/node_modules/chokidar",
+          "location": "node_modules/@qilin-agent/skill-filesystem/node_modules/chokidar",
           "direct": false,
           "optional": false,
           "peer": false
@@ -6845,7 +6845,7 @@
       "version": "5.1.1",
       "installations": [
         {
-          "location": "node_modules/@qilin/skill-filesystem/node_modules/readdirp",
+          "location": "node_modules/@qilin-agent/skill-filesystem/node_modules/readdirp",
           "direct": false,
           "optional": false,
           "peer": false

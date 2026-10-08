@@ -1,7 +1,7 @@
 /** QiLin brand color layer for the Web client theme. */
 
-import type { Context as ClientContext } from '@qilin/kylin'
-import type {} from '@qilin/client-ui-theme/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/client-ui-theme/client'
 import { QILIN_THEME_SOURCE, QILIN_TOKENS } from './tokens.ts'
 
 /** Required service: the theme registry and override stack. */

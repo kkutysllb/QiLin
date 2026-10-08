@@ -1,17 +1,17 @@
 /** Source-labelled Client references over real history transport and scoped Contexts. */
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, onTestFinished, vi } from 'vitest'
 import type {
   SessionReference, SessionReferenceSource, SessionRetainInfo,
-} from '@qilin/api-session-controller/client'
-import { SessionId } from '@qilin/session/types'
-import { RemoteError } from '@qilin/typert-protocol'
-import { ok, type RemoteMock } from '@qilin/remote-mock'
-import { createClientTest, webApp, type TestClient } from '@qilin/client-test-runtime/src/assembly/index.ts'
+} from '@qilin-agent/api-session-controller/client'
+import { SessionId } from '@qilin-agent/session/types'
+import { RemoteError } from '@qilin-agent/typert-protocol'
+import { ok, type RemoteMock } from '@qilin-agent/remote-mock'
+import { createClientTest, webApp, type TestClient } from '@qilin-agent/client-test-runtime/src/assembly/index.ts'
 import { ClientSessions } from '../src/client/sessions/service.ts'
 import { FOLLOW, followScript, type HistoryAnswer } from './remote/session.client.ts'
 
-declare module '@qilin/api-session-controller/client' {
+declare module '@qilin-agent/api-session-controller/client' {
   interface SessionReferenceSourceMap {
     referenceTestView: unknown
     referenceTestWork: unknown
@@ -22,7 +22,7 @@ const viewSource: SessionReferenceSource = 'referenceTestView'
 const workSource: SessionReferenceSource = 'referenceTestWork'
 const ID = SessionId('reference-session')
 const EMPTY_HISTORY = ok({ records: [], hasMore: false })
-const it = createClientTest({ roster: webApp.closure(['@qilin/api-gateway']) })
+const it = createClientTest({ roster: webApp.closure(['@qilin-agent/api-gateway']) })
 
 async function bench(mock: RemoteMock, start: () => Promise<TestClient>, listed = true) {
   const client = await start()

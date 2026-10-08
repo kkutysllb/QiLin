@@ -1,10 +1,10 @@
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it } from 'vitest'
-import type { IndexInjection } from '@qilin/host-webserver'
-import { SettingsProvider, type SettingsNamespace } from '@qilin/settings'
+import type { IndexInjection } from '@qilin-agent/host-webserver'
+import { SettingsProvider, type SettingsNamespace } from '@qilin-agent/settings'
 import {
   DEFAULT_PREFERENCE, THEME_SETTINGS_NAMESPACE, apply,
-} from '@qilin/client-ui-theme'
+} from '@qilin-agent/client-ui-theme'
 
 class MemorySettings extends SettingsProvider {
   readonly writable = true

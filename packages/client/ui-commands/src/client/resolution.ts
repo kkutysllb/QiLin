@@ -1,15 +1,15 @@
 /** Command identity and localized input spelling over the effective Host catalog. */
-import type { CommandDescriptor } from '@qilin/commands/types'
-import type { TranslateNS } from '@qilin/client-locale/client'
+import type { CommandDescriptor } from '@qilin-agent/commands/types'
+import type { TranslateNS } from '@qilin-agent/client-locale/client'
 import { en, zh } from './locales.ts'
 
 const BUILTINS = {
-  goal: '@qilin/command-goal',
-  plan: '@qilin/plan-mode',
-  feedback: '@qilin/command-feedback',
-  compact: '@qilin/command-compact',
-  permission: '@qilin/permission-presets',
-  export: '@qilin/session-log-export',
+  goal: '@qilin-agent/command-goal',
+  plan: '@qilin-agent/plan-mode',
+  feedback: '@qilin-agent/command-feedback',
+  compact: '@qilin-agent/command-compact',
+  permission: '@qilin-agent/permission-presets',
+  export: '@qilin-agent/session-log-export',
 } as const
 
 /** Names whose first-party definitions have localized client presentation. */

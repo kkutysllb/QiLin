@@ -1,15 +1,15 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { IDisposable, IPty } from 'node-pty'
-import { LocalTerminalHandle } from '@qilin/subprocess-local/src/terminal.ts'
-import { createProcessInspector } from '@qilin/subprocess-local/src/process-inspector.ts'
+import { LocalTerminalHandle } from '@qilin-agent/subprocess-local/src/terminal.ts'
+import { createProcessInspector } from '@qilin-agent/subprocess-local/src/process-inspector.ts'
 import type {
   ProcessIdentity,
   ProcessInspector,
   ProcessInspectorInternals,
   ProcessSnapshot,
-} from '@qilin/subprocess-local/src/process-inspector.ts'
-import type { BoundProcessOwner } from '@qilin/subprocess-local/src/managed-owner.ts'
-import type { SubprocessTerminalActivity, SubprocessTerminalSignal } from '@qilin/subprocess'
+} from '@qilin-agent/subprocess-local/src/process-inspector.ts'
+import type { BoundProcessOwner } from '@qilin-agent/subprocess-local/src/managed-owner.ts'
+import type { SubprocessTerminalActivity, SubprocessTerminalSignal } from '@qilin-agent/subprocess'
 
 class FakePty {
   pid = 123

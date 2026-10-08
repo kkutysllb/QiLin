@@ -30,7 +30,7 @@
       name: './mock-delegating-llm.ts'
 
     - id: subagent-acp
-      name: '@qilin/subagent-acp'
+      name: '@qilin-agent/subagent-acp'
       config:
         providerName: acp
         command: !!js process.execPath

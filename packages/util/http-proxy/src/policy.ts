@@ -5,7 +5,7 @@
  *
  * Nothing here imports `undici`, so the module stays loadable in the browser-worker runtime that
  * evaluates `qilin-web-fetch-http` without a Node transport.
- * @module @qilin/http-proxy/policy
+ * @module @qilin-agent/http-proxy/policy
  */
 
 /**

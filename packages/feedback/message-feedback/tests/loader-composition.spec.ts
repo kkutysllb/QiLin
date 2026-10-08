@@ -3,12 +3,12 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Include from '@qilin/kylin-plugin-include'
-import Loader from '@qilin/kylin-plugin-loader'
-import SessionStore, { SessionId } from '@qilin/session'
-import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
-import { remoteMethods } from '@qilin/typert-protocol'
+import { Context } from '@qilin-agent/kylin'
+import Include from '@qilin-agent/kylin-plugin-include'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
+import { remoteMethods } from '@qilin-agent/typert-protocol'
 import MessageFeedbackService from '../src/index.ts'
 import { appendMessageFixture } from './helpers.ts'
 
@@ -27,9 +27,9 @@ async function loadComposition(configPath: string): Promise<Context> {
   await ctx.plugin(Loader)
   ctx.loader.builtins.include = Include
   const modules = new Map<string, unknown>([
-    ['@qilin/session', SessionStore],
-    ['@qilin/session-persistence-jsonl', JsonlSessionPersistence],
-    ['@qilin/message-feedback', MessageFeedbackService],
+    ['@qilin-agent/session', SessionStore],
+    ['@qilin-agent/session-persistence-jsonl', JsonlSessionPersistence],
+    ['@qilin-agent/message-feedback', MessageFeedbackService],
   ])
   ctx.loader.internal = {
     version: 'v2',
@@ -55,12 +55,12 @@ describe('message feedback through a real Loader composition', () => {
     root = await mkdtemp(join(tmpdir(), 'qilin-message-feedback-loader-'))
     const configPath = join(root, 'cordis.yml')
     await writeFile(configPath, [
-      "- name: '@qilin/session'",
-      "- name: '@qilin/session-persistence-jsonl'",
+      "- name: '@qilin-agent/session'",
+      "- name: '@qilin-agent/session-persistence-jsonl'",
       '  config:',
       `    root: ${JSON.stringify(join(root, 'sessions'))}`,
       '    compression: none',
-      "- name: '@qilin/message-feedback'",
+      "- name: '@qilin-agent/message-feedback'",
       '  config:',
       '    maxNoteBytes: 32',
       '',

@@ -8,18 +8,18 @@
  *
  * Namespace plugin (named exports, no default export). Lifecycle is effect-scoped: disposal
  * unregisters from `ctx.lsp` and tears down every live server.
- * @module @qilin/lsp-stdio
+ * @module @qilin-agent/lsp-stdio
  */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { LspError, LspProviderId } from '@qilin/lsp'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { LspError, LspProviderId } from '@qilin-agent/lsp'
 import type {
   LspProvider,
   LspProviderQuery,
   LspQueryResult,
-} from '@qilin/lsp'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
+} from '@qilin-agent/lsp'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 import { abortable, abortError } from './abort.ts'
 import { canonicalizeWorkspace, readHostSource } from './host.ts'
 import type { HostWorkspace } from './host.ts'

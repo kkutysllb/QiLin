@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { decodeSeqRanges, encodeSeqRanges, SessionSeq } from '@qilin/session'
+import { decodeSeqRanges, encodeSeqRanges, SessionSeq } from '@qilin-agent/session'
 
 const seqs = (values: readonly number[]) => values.map(SessionSeq)
 

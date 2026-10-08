@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { PluginEntryId, PluginRegistries } from '@qilin/api-remotes/client'
-import { bindSnapshotSelector } from '@qilin/client-test-runtime'
-import { createSnapshotStore } from '@qilin/client-store'
+import type { PluginEntryId, PluginRegistries } from '@qilin-agent/api-remotes/client'
+import { bindSnapshotSelector } from '@qilin-agent/client-test-runtime'
+import { createSnapshotStore } from '@qilin-agent/client-store'
 import type { ReactNode } from 'react'
 import { PluginManagerPage } from '../src/client/PluginManagerPage.tsx'
 import type { PluginManagerPageProps } from '../src/client/PluginManagerPage.tsx'
@@ -39,10 +39,10 @@ function row(overrides: Partial<PackageRow> = {}): PackageRow {
   return { entryId: 'include:sidebar' as PluginEntryId, rowId: 'sidebar', moduleName: 'qilin-better-sidebar', enabled: true, phase: 'active', ...overrides }
 }
 
-const INCOMPATIBLE = { name: 'qilin-late', version: '2.0.0', runtimeVersion: '0.1.0', peers: { '@qilin/session': '^0.2.0', '@qilin/tools': '^0.2.0' } }
+const INCOMPATIBLE = { name: 'qilin-late', version: '2.0.0', runtimeVersion: '0.1.0', peers: { '@qilin-agent/session': '^0.2.0', '@qilin-agent/tools': '^0.2.0' } }
 /** The English sentence an incompatibility of {@link INCOMPATIBLE}, optionally renamed, reads as. */
 const incompatibleText = (name = INCOMPATIBLE.name): string => en.reasonIncompatibleVersion
-  .replace('{plugin}', `${name}@2.0.0`).replace('{runtime}', '0.1.0').replace('{peers}', '@qilin/session ^0.2.0, @qilin/tools ^0.2.0')
+  .replace('{plugin}', `${name}@2.0.0`).replace('{runtime}', '0.1.0').replace('{peers}', '@qilin-agent/session ^0.2.0, @qilin-agent/tools ^0.2.0')
 
 const IDLE_INSTALL: InstallState = {
   open: false, spec: '', phase: 'idle', registries: null, registry: { kind: 'offered', registry: null }, registryOpen: false,
@@ -446,19 +446,19 @@ describe('PluginManagerPage', () => {
       packages: [
         pkg({ description: 'A sidebar.' }),
         pkg({ name: 'qilin-broken', enabled: false, error: { code: 'not-bundle' } }),
-        pkg({ name: '@qilin/web-app', installed: false }),
+        pkg({ name: '@qilin-agent/web-app', installed: false }),
         pkg({ name: 'qilin-protected', readOnlyReason: 'management-required' }),
         pkg({ name: '@acme/qilin-tool', enabled: false }),
         // Selected by the profile but not a bundle: a problem the person can switch off, in the profile's own group.
         pkg({ name: 'qilin-selected', installed: false, error: { code: 'not-bundle' } }),
-        pkg({ name: '@qilin/experimental-agent-team-profile', installed: false, optional: true, enabled: false }),
+        pkg({ name: '@qilin-agent/experimental-agent-team-profile', installed: false, optional: true, enabled: false }),
       ],
       busy: ['qilin-protected'],
     })
     const cards = screen.getAllByRole('listitem')
     // The Official group comes first.
     expect(cards.map(card => card.getAttribute('data-plugin-package'))).toEqual([
-      '@qilin/experimental-agent-team-profile', 'qilin-better-sidebar', 'qilin-broken', 'qilin-protected', '@acme/qilin-tool', 'qilin-selected',
+      '@qilin-agent/experimental-agent-team-profile', 'qilin-better-sidebar', 'qilin-broken', 'qilin-protected', '@acme/qilin-tool', 'qilin-selected',
     ])
     expect(cards.map(card => card.getAttribute('data-plugin-status'))).toEqual(['disabled', 'running', 'problem', 'running', 'disabled', 'problem'])
     // Each group heads with its title and its bare count; the official bundle carries its beta tag, no official tag.
@@ -483,20 +483,20 @@ describe('PluginManagerPage', () => {
     renderTab({
       packages: [
         ...[
-          '@qilin/base',
-          '@qilin/web-app',
-          '@qilin/headless',
-          '@qilin/sdk-app',
-          '@qilin/acp-app',
-          '@qilin/sdk-minimal',
+          '@qilin-agent/base',
+          '@qilin-agent/web-app',
+          '@qilin-agent/headless',
+          '@qilin-agent/sdk-app',
+          '@qilin-agent/acp-app',
+          '@qilin-agent/sdk-minimal',
         ].map(name => pkg({ name })),
         pkg({ name: '@acme/qilin-base', readOnlyReason: 'management-required' }),
         pkg({ name: 'qilin-better-sidebar' }),
-        pkg({ name: '@qilin/experimental-agent-team-profile', installed: false, optional: true }),
+        pkg({ name: '@qilin-agent/experimental-agent-team-profile', installed: false, optional: true }),
       ],
     })
     expect(screen.getAllByRole('listitem').map(card => card.getAttribute('data-plugin-package'))).toEqual([
-      '@qilin/experimental-agent-team-profile', '@acme/qilin-base', 'qilin-better-sidebar',
+      '@qilin-agent/experimental-agent-team-profile', '@acme/qilin-base', 'qilin-better-sidebar',
     ])
     expect([...document.querySelectorAll('[data-plugin-count]')].map(count => count.textContent)).toEqual(['1', '2'])
   })
@@ -506,11 +506,11 @@ describe('PluginManagerPage', () => {
     // problem the Host reports; it is not profile-installed, optional, or updatable.
     renderTab({
       packages: [pkg({
-        name: '@qilin/web-brand', installed: false, updatable: false,
+        name: '@qilin-agent/web-brand', installed: false, updatable: false,
         error: { code: 'operation-error', diagnostic: 'Unreadable bundle' },
       })],
     })
-    expect(screen.getAllByRole('listitem').map(card => card.getAttribute('data-plugin-package'))).toEqual(['@qilin/web-brand'])
+    expect(screen.getAllByRole('listitem').map(card => card.getAttribute('data-plugin-package'))).toEqual(['@qilin-agent/web-brand'])
     expect(screen.getByText(en.statusProblem)).toBeTruthy()
   })
 
@@ -536,7 +536,7 @@ describe('PluginManagerPage', () => {
 
   it.each([false, true])('shows an empty list for built-in bundles with errors and installed=%s', (installed) => {
     renderTab({
-      packages: ['@qilin/base', '@qilin/web-app'].map(name => pkg({
+      packages: ['@qilin-agent/base', '@qilin-agent/web-app'].map(name => pkg({
         name, installed, error: { code: 'operation-error', diagnostic: 'Unreadable bundle' },
       })),
     })
@@ -547,14 +547,14 @@ describe('PluginManagerPage', () => {
 
   it('opens an official bundle\'s page with its beta tag and no uninstall, and switches it on', () => {
     const { actions } = renderTab({
-      packages: [pkg({ name: '@qilin/experimental-agent-team-profile', installed: false, optional: true, enabled: false })],
+      packages: [pkg({ name: '@qilin-agent/experimental-agent-team-profile', installed: false, optional: true, enabled: false })],
     })
     fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', en.builtinAgentTeamTitle) }))
     const detail = document.querySelector('[data-plugin-detail]') as HTMLElement
     expect(within(detail).getByText(en.statusBeta)).toBeTruthy()
     expect(within(detail).queryByRole('button', { name: en.uninstallLabel.replace('{name}', en.builtinAgentTeamTitle) })).toBeNull()
     fireEvent.click(within(detail).getByRole('switch', { name: en.enableToggle.replace('{name}', en.builtinAgentTeamTitle) }))
-    expect(actions.setEnabled).toHaveBeenCalledExactlyOnceWith('@qilin/experimental-agent-team-profile', true)
+    expect(actions.setEnabled).toHaveBeenCalledExactlyOnceWith('@qilin-agent/experimental-agent-team-profile', true)
   })
 
   it.each([
@@ -562,7 +562,7 @@ describe('PluginManagerPage', () => {
     ['auto-review', 'builtinAutoReviewTitle', 'builtinAutoReviewDescription'],
     ['voice-input-bundle', 'builtinVoiceInputTitle', 'builtinVoiceInputDescription'],
   ] as const)('localizes %s across cards, details, switches, and uninstall confirmation', (suffix, titleKey, descriptionKey) => {
-    const name = `@qilin/experimental-${suffix}`
+    const name = `@qilin-agent/experimental-${suffix}`
     const { actions, set, setLanguage } = renderTab({ packages: [pkg({ name, description: 'Original metadata.' })] })
     const assertCard = (dict: typeof en) => {
       expect(screen.getByRole('button', { name: dict.openDetail.replace('{name}', dict[titleKey]) }).textContent).toBe(dict[titleKey])
@@ -643,13 +643,13 @@ describe('PluginManagerPage', () => {
 
     it('lists an official plugin after the official bundles with its summary, and opens its page', () => {
       renderTab(
-        { packages: [pkg({ name: '@qilin/experimental-agent-team-profile', installed: false, optional: true, enabled: false })] },
+        { packages: [pkg({ name: '@qilin-agent/experimental-agent-team-profile', installed: false, optional: true, enabled: false })] },
         { items: [{ id: 'bash', label: 'Shell' }] },
         bodies,
       )
       const official = document.querySelector('[data-plugin-group="official"]') as HTMLElement
       expect(within(official).getAllByRole('listitem').map(card => card.getAttribute('data-plugin-item') ?? card.getAttribute('data-plugin-package')))
-        .toEqual(['@qilin/experimental-agent-team-profile', 'bash'])
+        .toEqual(['@qilin-agent/experimental-agent-team-profile', 'bash'])
       expect(document.querySelector('[data-plugin-count]')?.textContent).toBe('2')
       expect(within(official).getByText('Limits every command.')).toBeTruthy()
       // An official plugin has no switch of its own: the Host composes it.

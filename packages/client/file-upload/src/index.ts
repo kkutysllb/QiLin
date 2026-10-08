@@ -1,20 +1,20 @@
 /** Host file-upload service: streamed intake and Session-owned staged receipts. */
 
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import type { FileAttachmentRef } from '@qilin/attachment'
-import type {} from '@qilin/client-connection'
-import type { CommandFileReceiptResolver } from '@qilin/commands'
-import type { Session, SessionEvent, SessionId } from '@qilin/session'
-import { Remote, RemoteError, TypertRemoteService } from '@qilin/typert-protocol'
+import type { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import type { FileAttachmentRef } from '@qilin-agent/attachment'
+import type {} from '@qilin-agent/client-connection'
+import type { CommandFileReceiptResolver } from '@qilin-agent/commands'
+import type { Session, SessionEvent, SessionId } from '@qilin-agent/session'
+import { Remote, RemoteError, TypertRemoteService } from '@qilin-agent/typert-protocol'
 import { handleFileUploadHttp } from './http-route.ts'
 import { FILE_UPLOAD_PATH } from './protocol.ts'
 import type { EncodedFileUploadRequest, FileUploadReceiptId, FileUploadValue } from './types.ts'
 
 export type * from './types.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Host storage and staged-receipt service for browser file uploads. */
     fileUploads: FileUploads

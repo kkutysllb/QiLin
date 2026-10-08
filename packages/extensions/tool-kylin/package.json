@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/tool-kylin",
+  "name": "@qilin-agent/tool-kylin",
   "description": "Read-only runtime API inspection for Harness plugin development",
   "version": "3.1.1",
   "publishConfig": {
@@ -35,21 +35,21 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/app-boot": "workspace:*",
-    "@qilin/kylin-host-runner": "workspace:*",
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/app-boot": "workspace:*",
+    "@qilin-agent/kylin-host-runner": "workspace:*",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/app-boot": "workspace:*",
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/kylin-host-runner": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/app-boot": "workspace:*",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/kylin-host-runner": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   }
 }

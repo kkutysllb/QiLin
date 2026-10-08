@@ -13,7 +13,7 @@ export const en = {
   downloadToView: 'Download the file to view it',
 } satisfies Record<VideoPreviewKey, string>
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Video preview status and fallback copy. */
     sidebarVideo: VideoPreviewKey

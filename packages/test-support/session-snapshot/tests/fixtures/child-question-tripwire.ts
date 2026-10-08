@@ -1,5 +1,5 @@
-import type { Context } from '@qilin/kylin'
-import '@qilin/user-questions'
+import type { Context } from '@qilin-agent/kylin'
+import '@qilin-agent/user-questions'
 
 /** Snapshot-only answerer whose invocation means the child guard failed. */
 export const name = 'child-question-tripwire'

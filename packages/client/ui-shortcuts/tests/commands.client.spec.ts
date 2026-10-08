@@ -2,10 +2,10 @@
 import { describe, expect, onTestFinished, vi } from 'vitest'
 import { createElement, Fragment, useSyncExternalStore } from 'react'
 import { act, cleanup, render } from '@testing-library/react'
-import { createClientTest, webApp } from '@qilin/client-test-runtime/src/assembly/index.ts'
-import { Modal } from '@qilin/client-ui-primitives'
-import type {} from '@qilin/client-shortcuts/client'
-import type { DesktopKeyboardApi, DesktopShortcutInput, ShortcutCommandId } from '@qilin/client-shortcuts/protocol'
+import { createClientTest, webApp } from '@qilin-agent/client-test-runtime/src/assembly/index.ts'
+import { Modal } from '@qilin-agent/client-ui-primitives'
+import type {} from '@qilin-agent/client-shortcuts/client'
+import type { DesktopKeyboardApi, DesktopShortcutInput, ShortcutCommandId } from '@qilin-agent/client-shortcuts/protocol'
 import type { createSettingsShellStore } from '../../ui-settings-general/src/client/shell-store.ts'
 import type { createLayoutStore } from '../../ui-layout/src/client/stores.ts'
 import type { ReferenceInjected } from '../src/client/Reference.tsx'
@@ -41,12 +41,12 @@ describe('assembled shortcut command owners', () => {
     expect(fixedIds()).toEqual(expect.arrayContaining(conversationIds))
     expect(shortcuts.fixedCatalog.getSnapshot().find(row => row.id === 'response.stop'))
       .toMatchObject({ group: 'input', keys: ['Esc', 'Esc'] })
-    await client.unload('@qilin/client-ui-shortcuts')
+    await client.unload('@qilin-agent/client-ui-shortcuts')
     expect(fixedIds()).toEqual(expect.arrayContaining(conversationIds))
     expect(fixedIds()).not.toContain('fixed.move')
-    await client.unload('@qilin/client-ui-conversation')
+    await client.unload('@qilin-agent/client-ui-conversation')
     for (const id of conversationIds) expect(fixedIds()).not.toContain(id)
-    for (const owner of ['ui-settings-general', 'ui-layout']) await client.unload(`@qilin/client-${owner}`)
+    for (const owner of ['ui-settings-general', 'ui-layout']) await client.unload(`@qilin-agent/client-${owner}`)
     expect(ownedRows()).toEqual([])
     expect(shortcuts.fixedCatalog.getSnapshot().some(row => row.id.startsWith('fixed.'))).toBe(false)
   }, 60_000)

@@ -1,5 +1,5 @@
 /** Web SSE transport for page-owned client entry reconciliation and rebuilt code replacement. */
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type { PluginsEventParseResult } from '../events.ts'
 import { EVENTS_ROUTE, parsePluginsEventFrame } from '../events.ts'
 

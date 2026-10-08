@@ -1,4 +1,4 @@
-import type { Branded } from '@qilin/brand'
+import type { Branded } from '@qilin-agent/brand'
 
 /** Stable Loader-tree identity of one configured plugin entry. */
 export type PluginEntryId = Branded<'PluginEntryId'>

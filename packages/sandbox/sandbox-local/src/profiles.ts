@@ -1,12 +1,12 @@
 /**
  * Internal platform-profile builders for the local sandbox provider.
  *
- * @module @qilin/sandbox-local/profiles
+ * @module @qilin-agent/sandbox-local/profiles
  */
 
-import { grantArgs as landlockGrantArgs } from '@qilin/node-addon-system/landlock-run'
-import { writableRoots } from '@qilin/sandbox'
-import type { SandboxPolicy } from '@qilin/sandbox'
+import { grantArgs as landlockGrantArgs } from '@qilin-agent/node-addon-system/landlock-run'
+import { writableRoots } from '@qilin-agent/sandbox'
+import type { SandboxPolicy } from '@qilin-agent/sandbox'
 
 /**
  * Build the bwrap profile arguments for one file-effect policy.
@@ -44,7 +44,7 @@ function sbplString(path: string): string {
  * Build the sandbox-exec arguments and SBPL profile for one policy. The
  * writable roots come from the shared {@link writableRoots} helper (canonical,
  * deduplicated) so the Seatbelt grant and the in-process fs fence
- * (`@qilin/fs-sandbox`) can never drift apart.
+ * (`@qilin-agent/fs-sandbox`) can never drift apart.
  * @param policy - file-effect policy to express as an SBPL profile.
  * @returns sandbox-exec arguments before the trailing separator and command argv.
  */

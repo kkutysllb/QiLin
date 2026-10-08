@@ -10,14 +10,14 @@
  */
 import { describe, expect, it } from 'vitest'
 import { act, render } from '@testing-library/react'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { useSyncExternalStore } from 'react'
-import type { SessionReference } from '@qilin/api-session-controller/client'
-import type { SessionProviderComponent, StoredEntry } from '@qilin/client-ui-slots'
-import type {} from '@qilin/client-ui-session/client'
+import type { SessionReference } from '@qilin-agent/api-session-controller/client'
+import type { SessionProviderComponent, StoredEntry } from '@qilin-agent/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-session/client'
 import type {
   ScopedStandardSourceBinding, SlotRendererHost, SlotScopeAdapter, StandardSourceBinding,
-} from '@qilin/client-ui-renderer/client'
+} from '@qilin-agent/client-ui-renderer/client'
 import { createSlotRenderer } from '../src/client/scoped-slots.tsx'
 
 type SessionBinding = ScopedStandardSourceBinding

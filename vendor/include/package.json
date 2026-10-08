@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/kylin-plugin-include",
+  "name": "@qilin-agent/kylin-plugin-include",
   "description": "Include files in cordis configurations",
   "version": "1.0.8",
   "publishConfig": {
@@ -33,11 +33,11 @@
   "author": "Shigma <shigma10826@gmail.com>",
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "dependencies": {
-    "@qilin/cosmokit": "workspace:~",
+    "@qilin-agent/cosmokit": "workspace:~",
     "js-yaml": "^4.1.0"
   }
 }

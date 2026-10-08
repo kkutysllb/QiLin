@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import LlmRuntime, { createToolResultMessage, createUserMessage, ToolCallId, ReasoningEffortId } from '@qilin/llm'
-import type { Message, ToolSchema } from '@qilin/llm'
-import * as LlmPiAi from '@qilin/llm-pi-ai'
-import type { PiAiProviderProfile } from '@qilin/llm-pi-ai'
-import { PUBLIC_BASE_URL as deepseekPublicBaseUrl } from '@qilin/llm-deepseek'
-import * as LlmDeepSeek from '@qilin/llm-deepseek-api-key'
+import { Context } from '@qilin-agent/kylin'
+import LlmRuntime, { createToolResultMessage, createUserMessage, ToolCallId, ReasoningEffortId } from '@qilin-agent/llm'
+import type { Message, ToolSchema } from '@qilin-agent/llm'
+import * as LlmPiAi from '@qilin-agent/llm-pi-ai'
+import type { PiAiProviderProfile } from '@qilin-agent/llm-pi-ai'
+import { PUBLIC_BASE_URL as deepseekPublicBaseUrl } from '@qilin-agent/llm-deepseek'
+import * as LlmDeepSeek from '@qilin-agent/llm-deepseek-api-key'
 import { assemble, type AssembledResult } from './assemble.ts'
 
 /**

@@ -16,7 +16,7 @@ interface CssPlugin {
 
 function cssPlugin(name: 'qilin-css-modules-inline' | 'qilin-css-global-inline' | 'qilin-css-text-inline'): CssPlugin {
   const configs = clientBundle(
-    '@qilin/client-test',
+    '@qilin-agent/client-test',
     ['lib/types/index.js', 'lib/types/invariant.js'],
   )({ env: { QILIN_BUILD_FACE: 'client' } })
   const client = configs.find(config => config.platform === 'browser')

@@ -2,7 +2,7 @@
 /** The chip title: the person glyph, then the type's label. */
 import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup, render } from '@testing-library/react'
-import type { PropsRuntime } from '@qilin/client-ui-slots'
+import type { PropsRuntime } from '@qilin-agent/client-ui-slots'
 import { TeamTitle } from '../src/client/TeamBody.tsx'
 
 afterEach(cleanup)

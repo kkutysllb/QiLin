@@ -16,7 +16,7 @@
  * declaration in a newer version. A profile that installed an upstream DSH-era
  * engine package is refused before any layer changes, with the removal command
  * in the diagnostic.
- * @module @qilin/cli/plugin
+ * @module @qilin-agent/cli/plugin
  */
 
 import { spawnSync } from 'node:child_process'
@@ -36,9 +36,9 @@ import {
   resolveBundleDir,
   resolveProfileDir,
   setProfileVersionExemption,
-} from '@qilin/app-boot'
-import { withFileLock } from '@qilin/atomic-write'
-import { refusedInstallSpecs } from '@qilin/plugin-manager/operations'
+} from '@qilin-agent/app-boot'
+import { withFileLock } from '@qilin-agent/atomic-write'
+import { refusedInstallSpecs } from '@qilin-agent/plugin-manager/operations'
 import { INSTALL_ANCHOR } from './profile-boot.ts'
 
 const NAME = 'qilin'

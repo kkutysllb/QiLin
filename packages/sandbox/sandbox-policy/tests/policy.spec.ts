@@ -8,12 +8,12 @@ import { mkdirSync, mkdtempSync, rmSync, symlinkSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve, sep } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import { SESSION_FORMAT_VERSION, Session, SessionId } from '@qilin/session'
-import SandboxPolicyService, { SANDBOX_MODES, setSandboxMode } from '@qilin/sandbox-policy'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import SystemPrompt, { renderContextSnapshot, renderPrompt } from '@qilin/system-prompt'
+import { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import { SESSION_FORMAT_VERSION, Session, SessionId } from '@qilin-agent/session'
+import SandboxPolicyService, { SANDBOX_MODES, setSandboxMode } from '@qilin-agent/sandbox-policy'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import SystemPrompt, { renderContextSnapshot, renderPrompt } from '@qilin-agent/system-prompt'
 
 async function mounted(config: { mode?: 'read-only' | 'workspace-write' | 'danger-full-access'; workspaceRoot?: string } = {}) {
   const ctx = new Context()

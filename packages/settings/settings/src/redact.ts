@@ -5,11 +5,11 @@
  * with a sidecar recording each schema-declared secret position and whether it
  * currently holds a value, so a configuration surface can render a write-only
  * input without ever receiving the secret itself.
- * @module @qilin/settings/redact
+ * @module @qilin-agent/settings/redact
  */
 
-import type z from '@qilin/schemastery'
-import { isVolatile } from '@qilin/cosmokit'
+import type z from '@qilin-agent/schemastery'
+import { isVolatile } from '@qilin-agent/cosmokit'
 
 /**
  * Minimal structural view of a live schemastery node. Only the relations the

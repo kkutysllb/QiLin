@@ -3,10 +3,10 @@
  * vocabulary remains in `./types` so Client programs never import Agent or
  * host Cordis context declarations.
  *
- * @module @qilin/workflow
+ * @module @qilin-agent/workflow
  */
 
-import type { Agent } from '@qilin/agent'
+import type { Agent } from '@qilin-agent/agent'
 import type {
   WorkflowMeta, WorkflowResult, WorkflowRunId,
 } from './types.ts'

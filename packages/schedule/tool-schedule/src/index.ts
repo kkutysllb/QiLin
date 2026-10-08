@@ -3,22 +3,22 @@
  * `schedule_delete` tools over the Host `ctx.schedule` service. Mounting the
  * plugin registers them in the mounting scope, so a preset decides which
  * agents receive them; every call acts on the calling Agent's Session.
- * @module @qilin/tool-schedule
+ * @module @qilin-agent/tool-schedule
  */
 
-import type { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import type { ContentBlock } from '@qilin/llm'
-import { delegationDepthOf } from '@qilin/subagent'
-import { defineTool } from '@qilin/tools'
-import type { GenericCallView } from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import type { ContentBlock } from '@qilin-agent/llm'
+import { delegationDepthOf } from '@qilin-agent/subagent'
+import { defineTool } from '@qilin-agent/tools'
+import type { GenericCallView } from '@qilin-agent/tools'
 import {
   MAX_TITLE_LENGTH, MIN_EVERY_INTERVAL_SECONDS, REQUIRED_TITLE_MESSAGE, ScheduleId, ScheduleInputError, scheduleView,
-} from '@qilin/schedule'
+} from '@qilin-agent/schedule'
 import type {
   AtInput, CronInput, DailyInput, WeeklyInput, InternalScheduleError, ScheduleCreateValue, ScheduleDeleteValue,
   ScheduleListValue, ScheduleTimingChange, ScheduleToolError, ScheduleUpdateValue,
-} from '@qilin/schedule'
+} from '@qilin-agent/schedule'
 
 /** Plugin name registered with the Loader. */
 export const name = 'tool-schedule'

@@ -1,6 +1,6 @@
 /** Loaded Office previews survive body remounts until reload or tab closure. */
-import { defineStore, type EngineStoreHandle } from '@qilin/client-store'
-import type { TabId } from '@qilin/client-ui-dockkit'
+import { defineStore, type EngineStoreHandle } from '@qilin-agent/client-store'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
 import type { OfficeFileBytes } from './cache.ts'
 
 /** One requested source revision and its settled preview. */

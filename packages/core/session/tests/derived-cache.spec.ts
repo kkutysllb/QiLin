@@ -1,5 +1,5 @@
-import { createUserMessage, createMessage } from '@qilin/llm'
-import type { MessageSource } from '@qilin/llm'
+import { createUserMessage, createMessage } from '@qilin-agent/llm'
+import type { MessageSource } from '@qilin-agent/llm'
 /**
  * Derived-message cache contract against a scratch oracle: project new nodes
  * once, rebuild on surface replacements, return fresh arrays over shared
@@ -7,7 +7,7 @@ import type { MessageSource } from '@qilin/llm'
  */
 
 import { describe, expect, it } from 'vitest'
-import { Session, SessionId } from '@qilin/session'
+import { Session, SessionId } from '@qilin-agent/session'
 
 type CheckpointSource = Extract<MessageSource, { readonly kind: 'compact-checkpoint' }>
 

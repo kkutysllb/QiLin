@@ -7,7 +7,7 @@ export const name = 'python-snapshot-image-offload'
 export const inject = ['attachments', 'agents', 'llm']
 
 /**
- * @param {import('@qilin/kylin').Context} ctx - Scenario-local host context.
+ * @param {import('@qilin-agent/kylin').Context} ctx - Scenario-local host context.
  * @param {{ parentSessionId: string }} config - The one session receiving the authored failure.
  */
 export function apply(ctx, config) {

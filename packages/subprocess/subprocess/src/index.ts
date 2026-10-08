@@ -4,12 +4,12 @@
  * collected stdio, and one terminal-process primitive. Command defaulting,
  * shell semantics, deadlines, protocol framing, terminal readiness, and
  * presentation belong to consumers. The local implementation lives in
- * `@qilin/subprocess-local`.
- * @module @qilin/subprocess
+ * `@qilin-agent/subprocess-local`.
+ * @module @qilin-agent/subprocess
  */
 
-import { Context, Service } from '@qilin/kylin'
-import { proxyEnvironmentForChild } from '@qilin/http-proxy'
+import { Context, Service } from '@qilin-agent/kylin'
+import { proxyEnvironmentForChild } from '@qilin-agent/http-proxy'
 import { QILIN_ENV_PREFIX } from './types.ts'
 import type { SubprocessHandle, SubprocessSpawnSpec } from './types.ts'
 import type { SubprocessTerminalEnvironment, SubprocessTerminalHandle, SubprocessTerminalSpawnSpec } from './types.ts'
@@ -79,7 +79,7 @@ export function scrubbedParentEnv(): Record<string, string> {
   return env
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     subprocess: SubprocessRuntime
   }

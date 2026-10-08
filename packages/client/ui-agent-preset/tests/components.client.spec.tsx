@@ -8,10 +8,10 @@
 
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { bindSnapshotSelector } from '@qilin/client-test-runtime'
-import { createSnapshotStore } from '@qilin/client-store'
-import type { SessionRetainInfo } from '@qilin/api-session-controller/client'
-import { SessionId } from '@qilin/session/types'
+import { bindSnapshotSelector } from '@qilin-agent/client-test-runtime'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { SessionRetainInfo } from '@qilin-agent/api-session-controller/client'
+import { SessionId } from '@qilin-agent/session/types'
 import { AgentPresetLabel } from '../src/client/AgentPresetLabel.tsx'
 import type { AgentPresetLabelProps } from '../src/client/AgentPresetLabel.tsx'
 import { AgentPresetSeat } from '../src/client/AgentPresetSeat.tsx'
@@ -202,7 +202,7 @@ describe('a refused switch', () => {
     try {
       const refusal = {
         preset: SEAT_READY.options.find(option => option.id === 'mine')!,
-        reason: 'failed to import loader entry live-on-mac (@qilin/also-gone)',
+        reason: 'failed to import loader entry live-on-mac (@qilin-agent/also-gone)',
       }
       const actions = renderSeat({ error: refusal })
 

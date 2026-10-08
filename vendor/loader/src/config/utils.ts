@@ -1,4 +1,4 @@
-import { valueMap } from '@qilin/cosmokit'
+import { valueMap } from '@qilin-agent/cosmokit'
 
 // eslint-disable-next-line no-new-func
 /** Evaluate a JavaScript expression against a loader context scope. */

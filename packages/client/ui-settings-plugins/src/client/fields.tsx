@@ -7,7 +7,7 @@
  */
 
 import { useState, type ReactNode } from 'react'
-import { IconInfoOutline14, Tag } from '@qilin/client-ui-primitives'
+import { IconInfoOutline14, Tag } from '@qilin-agent/client-ui-primitives'
 import css from './fields.module.css'
 
 /** What every field control needs regardless of its value type. */

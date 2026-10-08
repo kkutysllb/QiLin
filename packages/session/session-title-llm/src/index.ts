@@ -1,34 +1,34 @@
 /**
  * Shared route, framing, timeout, assembly, and validation policy for
  * model-backed session-title providers.
- * @module @qilin/session-title-llm
+ * @module @qilin-agent/session-title-llm
  */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { createUserMessage, BlockAssembler } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-declare module '@qilin/llm' {
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { createUserMessage, BlockAssembler } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'qilin-session-title-llm': { kind: 'qilin-session-title-llm' } & ContextFormed
   }
 }
 
-import type { FinishReason, GenerateOptions, Message } from '@qilin/llm'
-import { deadline, MAX_TIMER_DELAY_MS } from '@qilin/timeout'
-import { deepFreeze } from '@qilin/util-values'
-import type { SessionSeq } from '@qilin/session'
+import type { FinishReason, GenerateOptions, Message } from '@qilin-agent/llm'
+import { deadline, MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
+import { deepFreeze } from '@qilin-agent/util-values'
+import type { SessionSeq } from '@qilin-agent/session'
 import {
   normalizeSessionTitle,
   SessionTitleProviderId,
-} from '@qilin/session-title'
+} from '@qilin-agent/session-title'
 import type {
   SessionTitleAutomaticMode,
   SessionTitleModelIdentity,
   SessionTitleProviderRequest,
   SessionTitleProviderResult,
   SessionTitleUserMessage,
-} from '@qilin/session-title'
+} from '@qilin-agent/session-title'
 
 /** Exact model-visible request recorded before one auxiliary title dispatch. */
 export interface SessionTitleLlmRequestEventData {
@@ -46,7 +46,7 @@ export interface SessionTitleLlmRequestEventData {
   readonly maxTokens: number
 }
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /** Log-only pre-dispatch record of one session-title model request. */
     'session/title-llm-request': SessionTitleLlmRequestEventData

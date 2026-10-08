@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type { McpServer } from '@agentclientprotocol/sdk'
-import type { Config as McpClientConfig } from '@qilin/mcp-client'
+import type { Config as McpClientConfig } from '@qilin-agent/mcp-client'
 import { mountAcpMcpServers } from '../src/mcp.ts'
 
 /** Context stand-in that captures validated MCP configs without opening transports. */

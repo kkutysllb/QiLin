@@ -3,7 +3,7 @@ description: "Skills page in Web Settings: the skill catalog one Session's compo
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-settings-skills
+# @qilin-agent/client-ui-settings-skills
 
 English | [中文](README.zh.md)
 

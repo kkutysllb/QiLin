@@ -24,11 +24,11 @@
  * Everything here is pure over an injected {@link PlanReader}, so discovery,
  * dedupe, cap, title, and filter rules are unit-tested without a filesystem.
  */
-import type { RemoteFailure, RemoteResult } from '@qilin/api-remotes/client'
+import type { RemoteFailure, RemoteResult } from '@qilin-agent/api-remotes/client'
 import type {
   WorkspaceDirectoryListing, WorkspaceFileRange, WorkspaceFileStat, WorkspaceFileText,
-} from '@qilin/api-workspace-files/types'
-import type { SessionId } from '@qilin/session/types'
+} from '@qilin-agent/api-workspace-files/types'
+import type { SessionId } from '@qilin-agent/session/types'
 
 /** Directories whose top level is scanned for `*.md` plan documents. */
 export const PLAN_DIRS = ['plans', 'docs/plans', '.plans'] as const

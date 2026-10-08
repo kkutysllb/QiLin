@@ -9,12 +9,12 @@
  * git, the summary lists file-tool edits only.
  */
 import { homedir, tmpdir } from 'node:os'
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type {} from '@qilin/agent'
-import type { Session, SessionId } from '@qilin/session'
-import type {} from '@qilin/subprocess'
-import type {} from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type {} from '@qilin-agent/agent'
+import type { Session, SessionId } from '@qilin-agent/session'
+import type {} from '@qilin-agent/subprocess'
+import type {} from '@qilin-agent/tools'
 import { GitRunner } from './git.ts'
 import { TurnRecorder } from './recorder.ts'
 import type { WorkspaceChanges } from './types.ts'

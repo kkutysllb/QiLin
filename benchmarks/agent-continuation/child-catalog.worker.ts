@@ -1,13 +1,13 @@
 /** Cold parent-catalog observations beside fork children with tool-heavy inherited histories. */
 
 import { performance } from 'node:perf_hooks'
-import { Context } from '@qilin/kylin'
-import SessionStore, { SESSION_FORMAT_VERSION, SessionId, SessionLogOffset, SessionSeq } from '@qilin/session'
-import type { SessionEvent } from '@qilin/session'
-import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import SessionQueryEngine from '@qilin/session-query'
-import SubagentRuntime, { SUBAGENT_DESCRIPTOR_VERSION } from '@qilin/subagent'
+import { Context } from '@qilin-agent/kylin'
+import SessionStore, { SESSION_FORMAT_VERSION, SessionId, SessionLogOffset, SessionSeq } from '@qilin-agent/session'
+import type { SessionEvent } from '@qilin-agent/session'
+import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import SessionQueryEngine from '@qilin-agent/session-query'
+import SubagentRuntime, { SUBAGENT_DESCRIPTOR_VERSION } from '@qilin-agent/subagent'
 import { assertBuiltBenchmarkRuntime } from '../support/built-worker.ts'
 import { PARENT_ID, syntheticHistory, TIME_ZERO, WORKLOAD } from './workload.ts'
 
@@ -99,8 +99,8 @@ async function run(root: string, mode: string): Promise<CatalogReport | { seeded
 }
 
 assertBuiltBenchmarkRuntime(import.meta.url, Object.fromEntries([
-  '@qilin/subagent', '@qilin/session-query',
-  '@qilin/session-persistence-jsonl',
+  '@qilin-agent/subagent', '@qilin-agent/session-query',
+  '@qilin-agent/session-persistence-jsonl',
 ].map(name => [name, import.meta.resolve(name)])))
 const [root, mode] = process.argv.slice(2)
 if (root === undefined || (mode !== 'seed' && mode !== 'catalog')) {

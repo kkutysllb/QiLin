@@ -56,8 +56,8 @@ def test_bundled_runtime_boots_the_sdk_profile(
     assert init.serverInfo.name == "deepseek-harness-sdk-runtime"
     profile = json.loads((tmp_path / "home" / "profiles" / "sdk" / "package.json").read_text())
     assert profile["qilin"]["profile"]["bundles"] == [
-        "@qilin/base",
-        "@qilin/sdk-app",
+        "@qilin-agent/base",
+        "@qilin-agent/sdk-app",
     ]
 
 
@@ -92,7 +92,7 @@ def test_bundled_runtime_surfaces_unbundled_plugin_failure(
 ) -> None:
     patch = tmp_path / "missing.patch.yml"
     patch.write_text(json.dumps([{
-        "insert": [{"id": "missing", "name": "@qilin/does-not-exist"}],
+        "insert": [{"id": "missing", "name": "@qilin-agent/does-not-exist"}],
     }]))
 
     client = _client(tmp_path, mode, monkeypatch, patch)
@@ -103,4 +103,4 @@ def test_bundled_runtime_surfaces_unbundled_plugin_failure(
     finally:
         client.close()
 
-    assert "@qilin/does-not-exist" in str(excinfo.value)
+    assert "@qilin-agent/does-not-exist" in str(excinfo.value)

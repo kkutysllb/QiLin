@@ -24,11 +24,11 @@
  * Thunked copy (`title`, `guide[].title`, `guide[].description`) is read again
  * on every use, so a language change needs no re-registration.
  */
-import type { ShortcutCommandId } from '@qilin/client-shortcuts/client'
+import type { ShortcutCommandId } from '@qilin-agent/client-shortcuts/client'
 import type { ComponentType } from 'react'
-import type { Context } from '@qilin/kylin'
-import type { IconProps } from '@qilin/client-ui-primitives'
-import { notifySubscribers } from '@qilin/client-store'
+import type { Context } from '@qilin-agent/kylin'
+import type { IconProps } from '@qilin-agent/client-ui-primitives'
+import { notifySubscribers } from '@qilin-agent/client-store'
 // The POSIX build: the browser bundle must not reach for node's `path`, and
 // addresses are `/`-separated regardless of the host platform.
 import picomatch from 'picomatch/posix'

@@ -15,9 +15,9 @@ import type { ReactNode } from 'react'
 import {
   Button, IconBrowseOutline16, IconCopyOutline16, IconFolderOpenOutline16,
   IconPlusOutline16, IconTrashOutline16, Modal, Switch, Tag, Tooltip,
-} from '@qilin/client-ui-primitives'
-import type { SnapshotStore } from '@qilin/client-store'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-primitives'
+import type { SnapshotStore } from '@qilin-agent/client-store'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import { draftBlocker, type AgentPresetSectionState } from './section-store.ts'
 import { presetDisplayText, type AgentPresetSettingsKey } from './locales.ts'
 import css from './AgentPresetSection.module.css'

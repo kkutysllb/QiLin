@@ -1,9 +1,9 @@
-import type { SessionEvent } from '@qilin/session/types'
-import type { CommandId } from '@qilin/commands/brand'
-import type {} from '@qilin/commands/types'
+import type { SessionEvent } from '@qilin-agent/session/types'
+import type { CommandId } from '@qilin-agent/commands/brand'
+import type {} from '@qilin-agent/commands/types'
 import type {
   ConversationNodeDefinition,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 
 /** The command name whose runs this projection owns. */
 export const GOAL_COMMAND = 'goal'
@@ -15,7 +15,7 @@ export interface GoalCommandInputData {
   readonly time: number
 }
 
-declare module '@qilin/client-ui-chat/client' {
+declare module '@qilin-agent/client-ui-chat/client' {
   interface ChatNodeDataMap {
     /** Human-entered `/goal` command input. */
     'command-input': GoalCommandInputData

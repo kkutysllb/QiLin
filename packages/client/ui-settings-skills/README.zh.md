@@ -3,7 +3,7 @@ description: "Web 设置中的技能页面：把当前会话组成解析出的�
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-settings-skills
+# @qilin-agent/client-ui-settings-skills
 
 [English](README.md) | 中文
 

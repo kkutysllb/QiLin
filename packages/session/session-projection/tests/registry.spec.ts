@@ -8,7 +8,7 @@
  */
 
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { z } from 'zod'
 import SessionStore, {
   SESSION_FORMAT_VERSION,
@@ -16,12 +16,12 @@ import SessionStore, {
   SessionId,
   SessionLogOffset,
   SessionSeq,
-} from '@qilin/session'
-import type { SessionEvent, SessionHeader } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import type { ProjectionDefinition } from '@qilin/session-projection'
+} from '@qilin-agent/session'
+import type { SessionEvent, SessionHeader } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import type { ProjectionDefinition } from '@qilin-agent/session-projection'
 
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionStateMap {
     'test/marks': MarksState
     'test/count': number
@@ -35,7 +35,7 @@ declare module '@qilin/session-projection/types' {
   }
 }
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     'test/mark': { marks: string[] }
   }

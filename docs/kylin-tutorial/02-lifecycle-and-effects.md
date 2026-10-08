@@ -11,7 +11,7 @@ For a resource Kylin does not already manage — a timer, a connection, a watche
 Create `lifecycle.ts` in `tmp/kylin-tutorial`:
 
 ```ts
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 
 export const name = 'lifecycle-demo'
 

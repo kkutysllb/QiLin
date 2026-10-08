@@ -1,12 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { PROTOCOL_VERSION } from '@agentclientprotocol/sdk'
-import { createUserMessage, ToolCallId, type StreamChunk  } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import { SessionId } from '@qilin/session'
-import { defineContentToolFixture } from '@qilin/tools'
+import { createUserMessage, ToolCallId, type StreamChunk  } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import { SessionId } from '@qilin-agent/session'
+import { defineContentToolFixture } from '@qilin-agent/tools'
 import { makeBridgeHarness, textResponse, type BridgeHarness } from './harness.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

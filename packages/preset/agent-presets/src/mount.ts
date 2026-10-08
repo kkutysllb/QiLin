@@ -11,16 +11,16 @@
  * published a service into the ROOT realm is rejected, because such a service
  * is process-global rather than per-session and the second session mounting the
  * same preset collides with the first.
- * @module @qilin/agent-presets/mount
+ * @module @qilin-agent/agent-presets/mount
  */
 
 import { pathToFileURL } from 'node:url'
-import { Context, type Fiber } from '@qilin/kylin'
-import { prepareProfileEntries } from '@qilin/app-boot'
-import { Include } from '@qilin/kylin-plugin-include'
-import { EntryGroup, type EntryOptions, type EntryTree } from '@qilin/kylin-plugin-loader'
-import { scopeOf, scopeParentOf, type ScopeKey } from '@qilin/scope'
-import { RemoteError } from '@qilin/typert-protocol'
+import { Context, type Fiber } from '@qilin-agent/kylin'
+import { prepareProfileEntries } from '@qilin-agent/app-boot'
+import { Include } from '@qilin-agent/kylin-plugin-include'
+import { EntryGroup, type EntryOptions, type EntryTree } from '@qilin-agent/kylin-plugin-loader'
+import { scopeOf, scopeParentOf, type ScopeKey } from '@qilin-agent/scope'
+import { RemoteError } from '@qilin-agent/typert-protocol'
 import type { AgentPreset } from './preset.ts'
 import { classifyRowSpecifier } from './specifier.ts'
 
@@ -107,7 +107,7 @@ class PresetTree extends Include {
    * relative specifier — a preset's own files travel with it — and wrong for
    * a package name: a locally authored preset lives under the user's home,
    * where Node's upward `node_modules` walk never reaches the harness's own
-   * dependencies, so every `@qilin/*` row would fail to import. The
+   * dependencies, so every `@qilin-agent/*` row would fail to import. The
    * mount records the host composition's base instead, which is inside the
    * installed harness, and bare names resolve from there. An absolute
    * filesystem path names neither base and becomes a file URL before Node's

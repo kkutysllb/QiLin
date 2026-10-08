@@ -1,14 +1,14 @@
 /** What the browser half registers, and that it all leaves with the fiber. */
 
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import { resolveSlotLabel } from '@qilin/client-ui-slots'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import { RemoteError, TestRemote } from '@qilin/client-test-runtime'
-import { LocaleRuntime } from '@qilin/client-locale/client'
-import { apply as settingsApply, inject as settingsInject } from '@qilin/client-ui-settings/client'
-import { apply, inject } from '@qilin/client-ui-settings-plugins/client'
-import type { PluginsSettingsSectionInjected } from '@qilin/client-ui-settings-plugins/client'
+import { resolveSlotLabel } from '@qilin-agent/client-ui-slots'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import { RemoteError, TestRemote } from '@qilin-agent/client-test-runtime'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
+import { apply as settingsApply, inject as settingsInject } from '@qilin-agent/client-ui-settings/client'
+import { apply, inject } from '@qilin-agent/client-ui-settings-plugins/client'
+import type { PluginsSettingsSectionInjected } from '@qilin-agent/client-ui-settings-plugins/client'
 import { SubagentModelSelectionCardController } from '../src/client/subagent-model-selection-card-controller.ts'
 import { apply as hostApply } from '../src/index.ts'
 

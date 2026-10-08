@@ -2,11 +2,11 @@
 import { chmod, mkdir, readdir, readFile, realpath, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import LocalSubprocessRuntime from '@qilin/subprocess-local'
+import { Context } from '@qilin-agent/kylin'
+import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
 import { GitRunner, blobText, diffTrees, ignoredPaths, locateGitWorkspace, snapshotTree, treeBlob } from '../src/git.ts'
 import { TurnRecorder } from '../src/recorder.ts'
-import SessionStore, { SessionId } from '@qilin/session'
+import SessionStore, { SessionId } from '@qilin-agent/session'
 import { git, scratchDir, startTurn, toolCall } from './support.ts'
 
 /** An object directory factory under a scratch root. */

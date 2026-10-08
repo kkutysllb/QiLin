@@ -3,9 +3,9 @@
  * hiding rules (no roster, failed roster, fewer than two choices). */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { bindSnapshotSelector, makeTranslate } from '@qilin/client-test-runtime'
-import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
-import type { WorkbenchState } from '@qilin/client-ui-workbench/client'
+import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
+import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
+import type { WorkbenchState } from '@qilin-agent/client-ui-workbench/client'
 import type { AgentPresetChipProps, AgentPresetRosterState } from '../src/client/contract/slots.ts'
 import { AgentPresetChip } from '../src/client/AgentPresetChip.tsx'
 import { zh } from '../src/client/locales.ts'

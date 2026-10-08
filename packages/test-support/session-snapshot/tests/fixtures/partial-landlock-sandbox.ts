@@ -1,6 +1,6 @@
 import { join } from 'node:path'
-import type { ConfinedArgv, SandboxPolicy } from '@qilin/sandbox'
-import { SandboxProvider } from '@qilin/sandbox'
+import type { ConfinedArgv, SandboxPolicy } from '@qilin-agent/sandbox'
+import { SandboxProvider } from '@qilin-agent/sandbox'
 
 const NOTICE = 'landlock-run: partial enforcement (older Landlock ABI)'
 const MISSING_RUNNER_ENV = 'QILIN_SNAPSHOT_MISSING_SANDBOX_RUNNER'

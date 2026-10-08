@@ -4,11 +4,11 @@
  * Adapters expose one resolved policy per registered provider route; the
  * optional qilin-llm-retry plugin executes it on the agent's failed-step extension point.
  *
- * @module @qilin/llm/retry-policy
+ * @module @qilin-agent/llm/retry-policy
  */
 
-import z from '@qilin/schemastery'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
+import z from '@qilin-agent/schemastery'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 import { EMPTY_RESPONSE_CODE } from './error.ts'
 
 const DEFAULT_MAX_RETRIES = 5

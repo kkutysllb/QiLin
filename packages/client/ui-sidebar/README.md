@@ -3,7 +3,7 @@ description: "Sidebar shell plugin for the qilin web client: brand row, New Sess
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-sidebar
+# @qilin-agent/client-ui-sidebar
 
 English | [中文](README.zh.md)
 

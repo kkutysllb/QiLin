@@ -7,9 +7,9 @@
 
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import { Button, Input, Switch, Tag } from '@qilin/client-ui-primitives'
-import type { InjectFace, PropsRuntime } from '@qilin/client-ui-slots'
-import type { McpServerDraft, McpServerView } from '@qilin/mcp-servers/types'
+import { Button, Input, Switch, Tag } from '@qilin-agent/client-ui-primitives'
+import type { InjectFace, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type { McpServerDraft, McpServerView } from '@qilin-agent/mcp-servers/types'
 import type { McpServersStore } from './store.ts'
 import type { en } from './locales.ts'
 import styles from './McpSection.module.css'

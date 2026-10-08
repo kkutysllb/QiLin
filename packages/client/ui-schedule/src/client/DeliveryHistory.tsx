@@ -1,12 +1,12 @@
 /** Lazy saved delivery pages owned by the selected task's mounted records view. */
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
-import type { RemoteResult } from '@qilin/api-remotes/client'
-import type { PropsLocale } from '@qilin/client-ui-slots'
+import type { RemoteResult } from '@qilin-agent/api-remotes/client'
+import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import {
   Button, IconChevronDownOutline14, IconChevronUpOutline14, IconClockOutline16, IconInfoOutline14,
   IconWarningOutline16, StateDot, Tooltip,
-} from '@qilin/client-ui-primitives'
-import type { ScheduleDeliveryHistoryRequest, ScheduleDeliveryHistoryResult } from '@qilin/schedule/client'
+} from '@qilin-agent/client-ui-primitives'
+import type { ScheduleDeliveryHistoryRequest, ScheduleDeliveryHistoryResult } from '@qilin-agent/schedule/client'
 import { formatScheduleNextRun } from './schedule-format.ts'
 import css from './TaskManagerPage.module.css'
 

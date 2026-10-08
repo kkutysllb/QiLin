@@ -1,5 +1,5 @@
 /** Host-plane registration of the first-party Kylin inspect providers. */
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { hostInspectProviders } from './providers.ts'
 
 export const name = 'cordis-inspect-providers'

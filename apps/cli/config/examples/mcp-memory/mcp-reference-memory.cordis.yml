@@ -2,7 +2,7 @@
 # the pinned executable first; QILIN starts it but does not run a package manager.
 - insert:
     - id: memory-mcp-reference
-      name: '@qilin/mcp-client'
+      name: '@qilin-agent/mcp-client'
       config:
         serverName: reference_memory
         transport: stdio

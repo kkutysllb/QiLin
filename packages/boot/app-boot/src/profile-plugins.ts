@@ -1,7 +1,7 @@
 /** Installed profile dependencies and their bundle activation after package-manager operations. */
 
 import { join } from 'node:path'
-import { bundlePatchOf } from '@qilin/dsh-compat'
+import { bundlePatchOf } from '@qilin-agent/dsh-compat'
 import { readProfileManifest, resolveBundleDir, writeProfileManifest, type ProfileManifest } from './profile.ts'
 
 /** Profile directory and installation used by the shared bundle resolver. */

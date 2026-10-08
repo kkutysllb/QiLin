@@ -1,11 +1,11 @@
 /** Office preview registration backed by authorized Host rendering and the existing PDF body. */
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { retainDocumentTabs } from '../document/tab-lifetime.ts'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/office-to-pdf/remote'
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/api-workspace-files/remote'
-import type {} from '@qilin/client-connection/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/office-to-pdf/remote'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/api-workspace-files/remote'
+import type {} from '@qilin-agent/client-connection/client'
 import { documentFileBytes } from '../rpc.ts'
 import { failureLine } from '../failure-line.ts'
 import { documentTabInfoFactory } from '../document/contract.ts'
@@ -17,7 +17,7 @@ import { OfficeBody, type OfficeBodyInjected } from './OfficeBody.tsx'
 import { createOfficeStore } from './store.ts'
 import type { Config } from '../../config.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     sidebarOffice: OfficePreviewKey
   }
@@ -29,7 +29,7 @@ declare module '@qilin/client-ui-slots' {
  * @param config - Resolved Office preview cache limits.
  */
 export function apply(ctx: Context, config: Config['office']): void {
-  const id = '@qilin/client-ui-sidebar-documentpreview/office'
+  const id = '@qilin-agent/client-ui-sidebar-documentpreview/office'
   const extensions = ['doc', 'docx', 'ppt', 'pptx']
   ctx.effect(() => ctx.locale.register('sidebarOffice', { zh, en }))
   const t = ctx.locale.bind('sidebarOffice')

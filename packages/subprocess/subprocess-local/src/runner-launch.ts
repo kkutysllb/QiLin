@@ -5,10 +5,10 @@ import { accessSync, constants as fsConstants, lstatSync, statSync } from 'node:
 import { extname, isAbsolute } from 'node:path'
 import { inspect } from 'node:util'
 import { fileURLToPath } from 'node:url'
-import type { SubprocessSpawnSpec } from '@qilin/subprocess'
+import type { SubprocessSpawnSpec } from '@qilin-agent/subprocess'
 import { childEnv } from './spawn.ts'
 import { controlEnvironment } from './control-spawn.ts'
-import { SUBPROCESS_CONTROL_FD } from '@qilin/subprocess/control'
+import { SUBPROCESS_CONTROL_FD } from '@qilin-agent/subprocess/control'
 
 /** The one private environment variable consumed before target state is restored. */
 export const SUBPROCESS_RUNNER_ENV = 'QILIN_SUBPROCESS_RUNNER' as const
@@ -31,7 +31,7 @@ export function spawnRunnerInvocation(): RunnerInvocation {
   /* v8 ignore next -- built-artifact smoke imports the emitted JavaScript runner entry;
    * source-unit coverage cannot change import.meta.url. */
   if (extname(fileURLToPath(import.meta.url)) !== '.ts') {
-    return [process.execPath, fileURLToPath(import.meta.resolve('@qilin/subprocess-local/runner'))]
+    return [process.execPath, fileURLToPath(import.meta.resolve('@qilin-agent/subprocess-local/runner'))]
   }
   return [
     process.execPath,

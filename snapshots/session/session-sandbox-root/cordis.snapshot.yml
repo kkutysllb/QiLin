@@ -4,24 +4,24 @@
   disabled: true
 
 - id: agent-default-model
-  name: '@qilin/agent-default-model'
+  name: '@qilin-agent/agent-default-model'
   config:
     provider: deepseek-official
     model: deepseek-v4-flash
 
 - id: session-persistence-jsonl
-  name: '@qilin/session-persistence-jsonl'
+  name: '@qilin-agent/session-persistence-jsonl'
   config:
     root: !!js qilinHomePath('sessions')
     compression: none
 
 - id: agent-instructions
-  name: '@qilin/agent-instructions'
+  name: '@qilin-agent/agent-instructions'
   config:
     maxBytes: 65536
 
 - id: system-prompt
-  name: '@qilin/system-prompt'
+  name: '@qilin-agent/system-prompt'
   config:
     personaPrefix: |
       You are a coding assistant powered by the {{model}} model. Your working directory is {{cwd}}. Your bash tool runs under a file sandbox — a `[sandbox: file access denied …]` result is policy, not a command bug.
@@ -29,7 +29,7 @@
       Verify your work by running the code or tests. Keep answers brief and factual.
 
 - id: sandbox
-  name: '@qilin/sandbox-local'
+  name: '@qilin-agent/sandbox-local'
   config:
     runnerCommand:
       - bash
@@ -40,14 +40,14 @@
       - 'passthrough-runner: profile rejected'
 
 - id: sandbox-policy
-  name: '@qilin/sandbox-policy'
+  name: '@qilin-agent/sandbox-policy'
   config:
     mode: workspace-write
     workspaceRoot: /tmp
 
 - insert:
     - id: llm-replay
-      name: '@qilin/llm-replay'
+      name: '@qilin-agent/llm-replay'
       config:
         providers:
           - id: deepseek-official

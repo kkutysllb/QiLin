@@ -1,8 +1,8 @@
 /** Incrementally highlighted source; the document owner supplies the accumulated text and wrap preference. */
 import type { ReactNode } from 'react'
-import type { PropsLocale } from '@qilin/client-ui-slots'
-import { CodeBlock } from '@qilin/client-ui-primitives'
-import { parseFileAddress } from '@qilin/util-workspace-path'
+import type { PropsLocale } from '@qilin-agent/client-ui-slots'
+import { CodeBlock } from '@qilin-agent/client-ui-primitives'
+import { parseFileAddress } from '@qilin-agent/util-workspace-path'
 import type { DocumentPreviewProps } from '../document/contract.ts'
 import { languageForPath } from './languages.ts'
 import type {} from './locales.ts'

@@ -1,5 +1,5 @@
-import type { SnapshotStore } from '@qilin/client-store'
-import type { SessionId } from '@qilin/session/types'
+import type { SnapshotStore } from '@qilin-agent/client-store'
+import type { SessionId } from '@qilin-agent/session/types'
 
 /** Why one session's composer is inert. */
 export interface ComposerBlock {

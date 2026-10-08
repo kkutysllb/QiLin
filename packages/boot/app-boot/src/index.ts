@@ -3,7 +3,7 @@
  * `.env`, install the fail-loud Loader guards, resolve the config path (snapshot-aware), load the
  * optional user patch layers from the Harness home (`~/.qilin`), expose its path resolver to
  * config expressions, and drive the Cordis Loader against a leaf `cordis.yml` until the tree settles.
- * @module @qilin/app-boot
+ * @module @qilin-agent/app-boot
  */
 
 import { pathToFileURL } from 'node:url'
@@ -11,12 +11,12 @@ import { readFileSync } from 'node:fs'
 import { parseEnv } from 'node:util'
 import { basename, dirname, isAbsolute, resolve } from 'node:path'
 import * as yaml from 'js-yaml'
-import { Context, type FiberState } from '@qilin/kylin'
-import Loader, { type Entry, type EntryOptions } from '@qilin/kylin-plugin-loader'
-import Include, { applyEntryPatches, entryListSchema, type PatchOptions } from '@qilin/kylin-plugin-include'
-import Group from '@qilin/kylin-plugin-group'
-import { qilinHomePath, resolveQilinHome } from '@qilin/home-paths'
-import { createLaunchEnvironmentSnapshot, DSH_HOME_COMPAT_NAME, type LaunchEnvironmentSnapshot } from '@qilin/launch-environment'
+import { Context, type FiberState } from '@qilin-agent/kylin'
+import Loader, { type Entry, type EntryOptions } from '@qilin-agent/kylin-plugin-loader'
+import Include, { applyEntryPatches, entryListSchema, type PatchOptions } from '@qilin-agent/kylin-plugin-include'
+import Group from '@qilin-agent/kylin-plugin-group'
+import { qilinHomePath, resolveQilinHome } from '@qilin-agent/home-paths'
+import { createLaunchEnvironmentSnapshot, DSH_HOME_COMPAT_NAME, type LaunchEnvironmentSnapshot } from '@qilin-agent/launch-environment'
 export { readProfilePatches, resolveTelemetryPatch, type ProfileContext, type ProfilePnpmInvocation } from './profile-context.ts'
 export { sanitizeProfile } from './profile-sanitize.ts'
 export { getQilinRuntimeVersion, evaluatePluginCompatibility, pluginCompatibilityWarning, type PluginCompatibility } from './plugin-compatibility.ts'
@@ -26,14 +26,14 @@ export {
 } from './profile-compatibility.ts'
 import { prepareProfilePatches } from './compatibility-preflight.ts'
 export { prepareProfileEntries, prepareProfilePatches } from './compatibility-preflight.ts'
-import type {} from '@qilin/system-prompt'
+import type {} from '@qilin-agent/system-prompt'
 
 export {
   readProfilePlugins, reconcileProfilePlugins, writeProfileBundles,
   type ProfilePluginLocation, type ProfilePluginDependency, type ProfilePluginInventory, type ProfilePluginReconciliation,
 } from './profile-plugins.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Harness-home path resolver available to Loader `!!js` config expressions. */
     qilinHomePath?: typeof qilinHomePath
@@ -322,7 +322,7 @@ export async function reconcileProfilePatches(
 
 /**
  * Load an optional patch-list file: a top-level YAML array of loader patch
- * entries (`@qilin/kylin-plugin-include`'s `PatchOptions`): id-targeted config
+ * entries (`@qilin-agent/kylin-plugin-include`'s `PatchOptions`): id-targeted config
  * overrides and `insert` lists, with `!!js` expressions allowed. A missing
  * file means "no layer"; an unreadable, unparsable, or non-array file throws —
  * a present patch file that cannot apply is a misconfiguration and must fail
@@ -375,7 +375,7 @@ function anchorInsertedPluginNames(patches: PatchOptions[], file: string): Patch
 }
 /**
  * Parse one loader patch list: a top-level YAML array of
- * `@qilin/kylin-plugin-include` `PatchOptions` (id-targeted config overrides and
+ * `@qilin-agent/kylin-plugin-include` `PatchOptions` (id-targeted config overrides and
  * `insert` lists, `!!js` expressions allowed). Every invalid field or value throws,
  * because a patch file that cannot be applied at all is a misconfiguration; a
  * single patch whose target row is absent stays a per-entry Loader warning, so
@@ -576,7 +576,7 @@ export async function mountRootInclude(
     }
   // `cordis:group` alongside it: a group row is how a composition gives one
   // `isolate` realm to a provider and its consumers together, and an agent
-  // preset living outside this workspace cannot resolve `@qilin/kylin-plugin-group`
+  // preset living outside this workspace cannot resolve `@qilin-agent/kylin-plugin-group`
   // by name. Both builtins load through the ambient module pipeline, so neither
   // depends on the included tree's own specifier resolution.
   ctx.loader.builtins.group = Group

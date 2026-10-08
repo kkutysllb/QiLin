@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import * as yaml from 'js-yaml'
 import { describe, expect, it } from 'vitest'
-import { entryListSchema } from '@qilin/kylin-plugin-include'
+import { entryListSchema } from '@qilin-agent/kylin-plugin-include'
 
 function packageName(specifier: string): string {
   return specifier.startsWith('@') ? specifier.split('/').slice(0, 2).join('/') : specifier.split('/')[0]!
@@ -26,33 +26,33 @@ describe('qilin-sdk-minimal bundle', () => {
     expect(patches).toHaveLength(1)
     const rows = patches[0]?.insert ?? []
     expect(rows.map(row => [row.id, row.name])).toEqual([
-      ['sdk-app-startup', '@qilin/sdk-app'],
-      ['sdk-jsonrpc-server', '@qilin/sdk-jsonrpc-server'],
-      ['deepseek-llm-api-extensions', '@qilin/deepseek-llm-api-extensions'],
-      ['session-log-deepseek', '@qilin/session-log-deepseek'],
-      ['plugin-package-inventory-deepseek', '@qilin/plugin-package-inventory-deepseek'],
-      ['llm-deepseek', '@qilin/llm-deepseek-api-key'],
-      ['sandbox', '@qilin/sandbox-local'],
-      ['session-projection', '@qilin/session-projection'],
-      ['sandbox-policy', '@qilin/sandbox-policy'],
-      ['subprocess', '@qilin/subprocess-local'],
-      ['pty', '@qilin/terminal'],
-      ['terminal-bash', '@qilin/terminal-bash'],
-      ['terminal-pwsh', '@qilin/terminal-bash'],
-      ['timer', '@qilin/kylin-plugin-timer'],
-      ['llm', '@qilin/llm'],
-      ['session', '@qilin/session'],
-      ['session-title', '@qilin/session-title'],
-      ['system-prompt', '@qilin/system-prompt'],
-      ['tools', '@qilin/tools'],
-      ['mcp-resources', '@qilin/mcp-resources'],
-      ['agent', '@qilin/agent'],
-      ['llm-retry', '@qilin/llm-retry'],
-      ['jobs', '@qilin/jobs-local'],
-      ['agent-loop', '@qilin/agent-loop'],
-      ['persistent-bash', '@qilin/tool-bash-persistent'],
-      ['persistent-pwsh', '@qilin/tool-pwsh-persistent'],
-      ['sessions', '@qilin/session-persistence-jsonl'],
+      ['sdk-app-startup', '@qilin-agent/sdk-app'],
+      ['sdk-jsonrpc-server', '@qilin-agent/sdk-jsonrpc-server'],
+      ['deepseek-llm-api-extensions', '@qilin-agent/deepseek-llm-api-extensions'],
+      ['session-log-deepseek', '@qilin-agent/session-log-deepseek'],
+      ['plugin-package-inventory-deepseek', '@qilin-agent/plugin-package-inventory-deepseek'],
+      ['llm-deepseek', '@qilin-agent/llm-deepseek-api-key'],
+      ['sandbox', '@qilin-agent/sandbox-local'],
+      ['session-projection', '@qilin-agent/session-projection'],
+      ['sandbox-policy', '@qilin-agent/sandbox-policy'],
+      ['subprocess', '@qilin-agent/subprocess-local'],
+      ['pty', '@qilin-agent/terminal'],
+      ['terminal-bash', '@qilin-agent/terminal-bash'],
+      ['terminal-pwsh', '@qilin-agent/terminal-bash'],
+      ['timer', '@qilin-agent/kylin-plugin-timer'],
+      ['llm', '@qilin-agent/llm'],
+      ['session', '@qilin-agent/session'],
+      ['session-title', '@qilin-agent/session-title'],
+      ['system-prompt', '@qilin-agent/system-prompt'],
+      ['tools', '@qilin-agent/tools'],
+      ['mcp-resources', '@qilin-agent/mcp-resources'],
+      ['agent', '@qilin-agent/agent'],
+      ['llm-retry', '@qilin-agent/llm-retry'],
+      ['jobs', '@qilin-agent/jobs-local'],
+      ['agent-loop', '@qilin-agent/agent-loop'],
+      ['persistent-bash', '@qilin-agent/tool-bash-persistent'],
+      ['persistent-pwsh', '@qilin-agent/tool-pwsh-persistent'],
+      ['sessions', '@qilin-agent/session-persistence-jsonl'],
     ])
     expect(rows.find(row => row.id === 'sdk-app-startup')?.config).toEqual({ profile: 'sdk-minimal' })
     expect(rows.find(row => row.id === 'sdk-jsonrpc-server')).toMatchObject({

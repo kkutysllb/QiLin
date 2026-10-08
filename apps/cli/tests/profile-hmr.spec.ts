@@ -3,8 +3,8 @@
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { composeEntries, loadOverlayPatches } from '@qilin/app-boot'
-import type { PatchOptions } from '@qilin/kylin-plugin-include'
+import { composeEntries, loadOverlayPatches } from '@qilin-agent/app-boot'
+import type { PatchOptions } from '@qilin-agent/kylin-plugin-include'
 
 const REPOSITORY_ROOT = fileURLToPath(new URL('../../../', import.meta.url))
 

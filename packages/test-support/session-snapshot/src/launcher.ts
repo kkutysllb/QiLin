@@ -4,7 +4,7 @@
  * stdout tee, SDK client, update collection, permission fallback, and process
  * shutdown so e2e and snapshot suites do not each reconstruct that boundary.
  *
- * @module @qilin/session-snapshot/launcher
+ * @module @qilin-agent/session-snapshot/launcher
  */
 
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
@@ -37,8 +37,8 @@ import {
   type SetSessionConfigOptionResponse,
   type SessionNotification,
 } from '@agentclientprotocol/sdk'
-import { entryListSchema, type PatchOptions } from '@qilin/kylin-plugin-include'
-import { resolveExampleLaunch } from '@qilin/loader-smoke'
+import { entryListSchema, type PatchOptions } from '@qilin-agent/kylin-plugin-include'
+import { resolveExampleLaunch } from '@qilin-agent/loader-smoke'
 
 const EXIT_MARKER_GRACE_MS = 250
 

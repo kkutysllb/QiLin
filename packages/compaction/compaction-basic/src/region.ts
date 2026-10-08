@@ -2,7 +2,7 @@
  * Surface retention selection and the shared log-recorded compaction
  * transaction for automatic open-turn and manual idle-session compaction.
  *
- * @module @qilin/compaction-basic/region
+ * @module @qilin-agent/compaction-basic/region
  */
 
 import { randomUUID } from 'node:crypto'
@@ -13,14 +13,14 @@ import {
   compactCheckpointSource,
   toolPairingBalancedAfter,
   toolPairingBalancedBefore,
-} from '@qilin/compaction'
-import type { CompactionResult } from '@qilin/compaction'
-import type { CommandId } from '@qilin/commands/brand'
-import { createUserMessage, errorChain } from '@qilin/llm'
-import type { Message, UserMessage } from '@qilin/llm'
-import type { TokenMeasurement, TokenMeter } from '@qilin/token-meter'
-import { SessionSeq, type Session, type SessionEvent } from '@qilin/session'
-import type { Agent } from '@qilin/agent'
+} from '@qilin-agent/compaction'
+import type { CompactionResult } from '@qilin-agent/compaction'
+import type { CommandId } from '@qilin-agent/commands/brand'
+import { createUserMessage, errorChain } from '@qilin-agent/llm'
+import type { Message, UserMessage } from '@qilin-agent/llm'
+import type { TokenMeasurement, TokenMeter } from '@qilin-agent/token-meter'
+import { SessionSeq, type Session, type SessionEvent } from '@qilin-agent/session'
+import type { Agent } from '@qilin-agent/agent'
 import { frameSummary } from './summarizer.ts'
 import type { SummarizationInput, SummaryResult } from './summarizer.ts'
 interface RegionDependencies {

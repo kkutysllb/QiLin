@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/tmux-context",
+  "name": "@qilin-agent/tmux-context",
   "description": "Opt-in durable per-step context with this agent's tmux pane and window location",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,24 +30,24 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@qilin/schemastery": "workspace:~",
+    "@qilin-agent/schemastery": "workspace:~",
     "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/shell": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/session-projection": "workspace:*"
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/shell": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/session-projection": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/agent-loop-testkit": "workspace:*",
-    "@qilin/shell": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/session-projection": "workspace:*"
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-loop-testkit": "workspace:*",
+    "@qilin-agent/shell": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/session-projection": "workspace:*"
   }
 }

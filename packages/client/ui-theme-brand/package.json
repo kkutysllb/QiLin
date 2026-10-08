@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-ui-theme-brand",
+  "name": "@qilin-agent/client-ui-theme-brand",
   "description": "QiLin brand color layer for the Web client theme: alias-token overrides stacked over the user's active palette",
   "version": "3.1.1",
   "publishConfig": {
@@ -31,7 +31,7 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/client-ui-theme"
+        "@qilin-agent/client-ui-theme"
       ],
       "platform": "web"
     }
@@ -42,12 +42,12 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/client-test-runtime": "workspace:*",
-    "@qilin/client-ui-theme": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-theme": "workspace:*"
   },
   "files": [
     "lib/index.js",

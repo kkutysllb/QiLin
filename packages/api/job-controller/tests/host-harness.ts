@@ -1,10 +1,10 @@
-import { Context } from '@qilin/kylin'
-import AgentRegistry from '@qilin/agent'
-import { unsupportedInbox } from '@qilin/agent-loop-testkit'
-import type { Agent } from '@qilin/agent'
-import type { JobAppendOptions, JobHandle, JobOutcome } from '@qilin/jobs'
-import LocalJobRegistry from '@qilin/jobs-local'
-import { Session, SessionId } from '@qilin/session'
+import { Context } from '@qilin-agent/kylin'
+import AgentRegistry from '@qilin-agent/agent'
+import { unsupportedInbox } from '@qilin-agent/agent-loop-testkit'
+import type { Agent } from '@qilin-agent/agent'
+import type { JobAppendOptions, JobHandle, JobOutcome } from '@qilin-agent/jobs'
+import LocalJobRegistry from '@qilin-agent/jobs-local'
+import { Session, SessionId } from '@qilin-agent/session'
 
 /** A registry with a tiny ring so eviction is cheap to reach. */
 export async function harness(): Promise<Context> {

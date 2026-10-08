@@ -2,16 +2,16 @@
  * Agent service: live registry, factory delegation, and process-local
  * initiator scope. Concrete creation and driving belong to the loop.
  *
- * @module @qilin/agent
+ * @module @qilin-agent/agent
  */
 
-import { Context, FiberState, getTraceable, Service, symbols } from '@qilin/kylin'
-import type { Fiber } from '@qilin/kylin'
+import { Context, FiberState, getTraceable, Service, symbols } from '@qilin-agent/kylin'
+import type { Fiber } from '@qilin-agent/kylin'
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { isPromise } from 'node:util/types'
-import { scopeTarget } from '@qilin/scope'
-import type { Scoped } from '@qilin/scope'
-import type { SessionEvent, SessionId, SessionLogOffset } from '@qilin/session'
+import { scopeTarget } from '@qilin-agent/scope'
+import type { Scoped } from '@qilin-agent/scope'
+import type { SessionEvent, SessionId, SessionLogOffset } from '@qilin-agent/session'
 import { installTurnArchiveAdmission } from './archive-admission.ts'
 import type { Agent } from './types.ts'
 import type { AgentOptions, SessionStartSource } from './runtime-types.ts'
@@ -24,7 +24,7 @@ export * from './model-selection.ts'
 export { agentCarrier, agentEvents, assembleContextFor, emitAgentEvent } from './dispatch.ts'
 export type { AgentEventDispatch, AgentSubjectEvent } from './dispatch.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     agents: AgentRegistry
   }
@@ -234,7 +234,7 @@ interface FactorySlot {
  * Agent service (`ctx.agents`): tracks live agents and carries the initiating
  * Agent through one process-local asynchronous driver chain. Agent *creation*
  * is provided by whichever plugin implements the {@link AgentFactory}
- * (`@qilin/agent-loop`), registered via {@link setFactory}.
+ * (`@qilin-agent/agent-loop`), registered via {@link setFactory}.
  *
  * Initiator methods provide same-process causal attribution only. Ambient
  * presence is neither liveness proof nor authorization; subjects and owners
@@ -258,13 +258,13 @@ export class AgentRegistry extends Service {
       typeCtx.typert.lookups.register('agent', {
         parameter: 'agent',
         wire: 'agentId',
-        hostTypeSymbol: '@qilin/agent#Agent',
-        wireTypeSymbol: '@qilin/session/types#SessionId',
+        hostTypeSymbol: '@qilin-agent/agent#Agent',
+        wireTypeSymbol: '@qilin-agent/session/types#SessionId',
         resolve: sessionId => this.get(sessionId),
       })
       typeCtx.typert.contexts.registerHost('agent', {
         wire: 'agentId',
-        wireTypeSymbol: '@qilin/session/types#SessionId',
+        wireTypeSymbol: '@qilin-agent/session/types#SessionId',
         resolve: sessionId => this.get(sessionId)?.ctx,
       })
     })

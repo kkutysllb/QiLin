@@ -8,7 +8,7 @@
  *
  * Ids are stable because the settings section keys localized names and
  * descriptions by them.
- * @module @qilin/mcp-servers/builtins
+ * @module @qilin-agent/mcp-servers/builtins
  */
 
 /** One recommended MCP server definition, expressed as an `mcp-client` stdio config. */

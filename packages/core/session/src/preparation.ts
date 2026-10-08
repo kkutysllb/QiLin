@@ -1,6 +1,6 @@
 /**
  * Ownership of one unpublished Session before registry publication.
- * @module @qilin/session/preparation
+ * @module @qilin-agent/session/preparation
  */
 
 import type { Session } from './index.ts'

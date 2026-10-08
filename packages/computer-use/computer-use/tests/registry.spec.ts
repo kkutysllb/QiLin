@@ -1,4 +1,4 @@
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it } from 'vitest'
 import ComputerUseRegistry from '../src/index.ts'
 import { ComputerUseProviderName } from '../src/brand.ts'

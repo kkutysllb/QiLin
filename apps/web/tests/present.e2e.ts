@@ -6,8 +6,8 @@ import { chromium, type Browser, type Page } from 'playwright'
 import { unzipSync, strFromU8 } from 'fflate'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { tmpdir, release } from 'node:os'
-import type { SessionEvent, SessionId } from '@qilin/session'
-import type {} from '@qilin/tool-present/types'
+import type { SessionEvent, SessionId } from '@qilin-agent/session'
+import type {} from '@qilin-agent/tool-present/types'
 import {
   acknowledgeReloadConnectionLoss, assertFinalWorkspaceSnapshot, captureExpandedTurnProcessAria,
   compareOrRefreshGolden, fixtureUserPrompts, launchWebScaffold, recordFixture,

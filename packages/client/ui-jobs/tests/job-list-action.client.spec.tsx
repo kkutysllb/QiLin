@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import type { JobsSnapshot, JobView, ObservedJob } from '@qilin/api-job-controller/client'
-import type { SessionId } from '@qilin/session/types'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import type { JobsSnapshot, JobView, ObservedJob } from '@qilin-agent/api-job-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import { JobListAction, type JobListActionProps } from '../src/client/JobListAction.tsx'
 import { zh } from '../src/client/locales.ts'
 

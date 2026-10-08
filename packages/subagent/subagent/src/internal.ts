@@ -1,13 +1,13 @@
 /**
  * Continuation integration markers and host adapters outside the public
  * Service Definition and model-facing Agent messaging contract.
- * @module @qilin/subagent/internal
+ * @module @qilin-agent/subagent/internal
  */
 
-import type { Agent } from '@qilin/agent'
-import type { ContentBlock, MessageId, MessageSource } from '@qilin/llm'
-import type { SessionId } from '@qilin/session'
-import type { ToolDefinition } from '@qilin/tools'
+import type { Agent } from '@qilin-agent/agent'
+import type { ContentBlock, MessageId, MessageSource } from '@qilin-agent/llm'
+import type { SessionId } from '@qilin-agent/session'
+import type { ToolDefinition } from '@qilin-agent/tools'
 import type SubagentRuntime from './index.ts'
 import type { SubagentDelivery } from './inbox.ts'
 

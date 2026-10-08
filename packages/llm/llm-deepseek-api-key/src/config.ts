@@ -1,10 +1,10 @@
 /** API-key configuration resolved together with one Messages endpoint generation. */
-import type { Volatile } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { credentialRef, type CredentialRef } from '@qilin/credentials'
-import type { LaunchEnvironmentSnapshot } from '@qilin/launch-environment'
-import { deepSeekConfigFields, type Config as ProtocolConfig, plainOptions as protocolOptions, resolveAdapterOptions as resolveProtocolOptions } from '@qilin/llm-deepseek'
-import type { Options as ProtocolOptions, DeepSeekConnectionOptions } from '@qilin/llm-deepseek'
+import type { Volatile } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { credentialRef, type CredentialRef } from '@qilin-agent/credentials'
+import type { LaunchEnvironmentSnapshot } from '@qilin-agent/launch-environment'
+import { deepSeekConfigFields, type Config as ProtocolConfig, plainOptions as protocolOptions, resolveAdapterOptions as resolveProtocolOptions } from '@qilin-agent/llm-deepseek'
+import type { Options as ProtocolOptions, DeepSeekConnectionOptions } from '@qilin-agent/llm-deepseek'
 
 /** Messages configuration with a per-request API-key reference. */
 export interface Config extends ProtocolConfig {

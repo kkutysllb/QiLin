@@ -3,7 +3,7 @@ description: "The right Sidebar's task-plan page for the qilin web client: the s
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-sidebar-plans
+# @qilin-agent/client-ui-sidebar-plans
 
 English | [中文](README.zh.md)
 
@@ -24,7 +24,7 @@ The right Sidebar's task-plan page: the plan documents of the session's workspac
 <a id="what-it-registers"></a>
 ## What it registers
 
-- **The type** — `ctx.sidebarRightTabs.register(...)` with kind `plans`, id `@qilin/client-ui-sidebar-plans`, band `builtin`, no patterns, `single`, and one guide entry (order 50, its title and description from the `sidebarPlans` namespace, its glyph the shared checklist icon) that opens the type.
+- **The type** — `ctx.sidebarRightTabs.register(...)` with kind `plans`, id `@qilin-agent/client-ui-sidebar-plans`, band `builtin`, no patterns, `single`, and one guide entry (order 50, its title and description from the `sidebarPlans` namespace, its glyph the shared checklist icon) that opens the type.
 - **The body** — the keyed `sidebar.right.pane.tab` seat under that id: a 38px search row under the strip — the shared `Input` with a search glyph, and the reload control at its end — then one row per plan document, its title over its workspace-relative path.
 
 Seven source files under `src/client/`: `definition.tsx` (the type), `store.ts` (what it keeps), `plans.ts` (the convention and its pure rules), `face.ts` (how it reads, Remote binding included), `PlansBody.tsx` (what it draws, with its status-line helper), `locales.ts` (what it says), and `index.ts` (the wiring).

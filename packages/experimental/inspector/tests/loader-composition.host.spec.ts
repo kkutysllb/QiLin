@@ -4,13 +4,13 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { Context } from '@qilin/kylin'
-import Include from '@qilin/kylin-plugin-include'
-import Loader from '@qilin/kylin-plugin-loader'
-import WebServer from '@qilin/host-webserver'
-import { HostConnectionService } from '@qilin/client-connection'
-import { composeEntries, loadOverlayPatches } from '@qilin/app-boot'
-import type { BrowserAuth } from '@qilin/client-connection/src/browser-auth.ts'
+import { Context } from '@qilin-agent/kylin'
+import Include from '@qilin-agent/kylin-plugin-include'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import WebServer from '@qilin-agent/host-webserver'
+import { HostConnectionService } from '@qilin-agent/client-connection'
+import { composeEntries, loadOverlayPatches } from '@qilin-agent/app-boot'
+import type { BrowserAuth } from '@qilin-agent/client-connection/src/browser-auth.ts'
 import open from 'open'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as Inspector from '../src/index.ts'
@@ -38,7 +38,7 @@ describe('experimental Inspector through a real Loader composition', () => {
     ))])
     const inspector = entries.find(entry => entry.id === 'experimental-inspector')!
     await writeFile(configPath, JSON.stringify([
-      { name: '@qilin/host-webserver', config: { host: '127.0.0.1', port: 0 } },
+      { name: '@qilin-agent/host-webserver', config: { host: '127.0.0.1', port: 0 } },
       { name: 'fixture:connection' },
     ]))
 
@@ -56,9 +56,9 @@ describe('experimental Inspector through a real Loader composition', () => {
     })
     context.loader.builtins.include = Include
     const modules = new Map<string, unknown>([
-      ['@qilin/host-webserver', WebServer],
+      ['@qilin-agent/host-webserver', WebServer],
       ['fixture:connection', (ctx: Context) => { new HostConnectionService(ctx, [], {} as BrowserAuth) }],
-      ['@qilin/experimental-inspector', Inspector],
+      ['@qilin-agent/experimental-inspector', Inspector],
     ])
     context.loader.internal = {
       version: 'v2',
@@ -80,7 +80,7 @@ describe('experimental Inspector through a real Loader composition', () => {
       .filter(entry => entry.fiber === undefined && !entry.disabled))
       .toEqual([])
     const inspectorEntry = [...context.loader.entries()]
-      .find(entry => entry.options.name === '@qilin/experimental-inspector')
+      .find(entry => entry.options.name === '@qilin-agent/experimental-inspector')
     expect(inspectorEntry?.disabled).toBe(false)
     expect(open).toHaveBeenCalledTimes(flag ? 1 : 0)
     const api = (context.connection as HostConnectionService).createSharedFetchHandler('/api')

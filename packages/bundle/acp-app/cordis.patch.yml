@@ -11,10 +11,10 @@
 
 - insert:
     - id: acp-app-startup
-      name: '@qilin/acp-app'
+      name: '@qilin-agent/acp-app'
 
     - id: acp
-      name: '@qilin/acp'
+      name: '@qilin-agent/acp'
       inject: [acpAppStartup]
       config:
         provider: deepseek-official

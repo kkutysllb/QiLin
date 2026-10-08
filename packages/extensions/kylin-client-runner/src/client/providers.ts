@@ -1,9 +1,9 @@
 /** Built-in Client inspect providers over live Client-owned services. */
 
-import type { Context } from '@qilin/kylin'
-import type { JsonValue } from '@qilin/util-values'
-import type { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-theme/client'
+import type { Context } from '@qilin-agent/kylin'
+import type { JsonValue } from '@qilin-agent/util-values'
+import type { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-theme/client'
 import { queryEventApi, queryServiceApi } from './api-catalog.ts'
 import type { ClientCordisInspectProviderRegistration } from './inspect-registry.ts'
 import { CLIENT_SLOT_API } from './slot-catalog.ts'

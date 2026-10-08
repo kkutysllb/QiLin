@@ -4,10 +4,10 @@
  * chooser; the unchanged Host connector then owns the Worker handshake.
  * Everything after those calls is the served startup chain verbatim.
  */
-import QilinWorker from '@qilin/experimental-webworker-runtime/worker?worker'
+import QilinWorker from '@qilin-agent/experimental-webworker-runtime/worker?worker'
 import {
   chooseWorkerHostSource, connectWorkerHost, IMAGE_FILE_NAME,
-} from '@qilin/experimental-webworker-runtime/client'
+} from '@qilin-agent/experimental-webworker-runtime/client'
 
 const image = `preview/${IMAGE_FILE_NAME}`
 const source = await chooseWorkerHostSource({ image })

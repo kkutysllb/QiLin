@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/mcp-resources",
+  "name": "@qilin-agent/mcp-resources",
   "description": "Scoped MCP resource discovery and reading through shared model tools",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,26 +30,26 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/llm": "workspace:*",
-    "@qilin/scope": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/tools": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/scope": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tools": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/llm": "workspace:*",
-    "@qilin/ptc-runtime": "workspace:*",
-    "@qilin/scope": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/agent": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/ptc-runtime": "workspace:*",
+    "@qilin-agent/scope": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/agent": "workspace:*"
   },
   "dependencies": {
-    "@qilin/util-values": "workspace:*"
+    "@qilin-agent/util-values": "workspace:*"
   },
   "peerDependenciesMeta": {
-    "@qilin/system-prompt": {
+    "@qilin-agent/system-prompt": {
       "optional": true
     }
   }

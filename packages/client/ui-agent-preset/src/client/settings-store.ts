@@ -6,11 +6,11 @@
  * the surface that writes them.
  */
 
-import type { Context as ClientContext } from '@qilin/kylin'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
 // Type-only: pulls the ctx.remote merge into this program.
-import type {} from '@qilin/api-remotes/client'
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
-import type { AgentPresetRoster } from '@qilin/agent-presets/types'
+import type {} from '@qilin-agent/api-remotes/client'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
+import type { AgentPresetRoster } from '@qilin-agent/agent-presets/types'
 
 /** The agent-preset settings namespace on the host wire. */
 export const AGENT_PRESET_SETTINGS_NS = 'agent-presets'

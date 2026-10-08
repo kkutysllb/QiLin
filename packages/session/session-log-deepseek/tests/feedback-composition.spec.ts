@@ -3,17 +3,17 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import SessionStore, { SessionId } from '@qilin/session'
-import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
-import MessageFeedback from '@qilin/message-feedback'
-import { recordFeedback } from '@qilin/command-feedback'
-import LlmRuntime, { createAssistantMessage, createUserMessage } from '@qilin/llm'
-import * as LlmDeepSeek from '@qilin/llm-deepseek-api-key'
-import DeepSeekLlmApiExtensions from '@qilin/deepseek-llm-api-extensions'
-import { startMockLlmServer, type MockLlmServer } from '@qilin/llm-mock-server'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
+import MessageFeedback from '@qilin-agent/message-feedback'
+import { recordFeedback } from '@qilin-agent/command-feedback'
+import LlmRuntime, { createAssistantMessage, createUserMessage } from '@qilin-agent/llm'
+import * as LlmDeepSeek from '@qilin-agent/llm-deepseek-api-key'
+import DeepSeekLlmApiExtensions from '@qilin-agent/deepseek-llm-api-extensions'
+import { startMockLlmServer, type MockLlmServer } from '@qilin-agent/llm-mock-server'
 import * as SessionLogDeepSeek from '../src/index.ts'
 import type { DeepSeekSessionLogExtension } from '../src/types.ts'
 
@@ -37,24 +37,24 @@ it('uploads freeform feedback and message put/edit/delete through the unchanged 
   vi.stubEnv('DEEPSEEK_API_KEY', 'feedback-test-key')
   server = await startMockLlmServer({ sequence: ['invalid_request', 'success', 'success'] })
   const modules = new Map<string, unknown>([
-    ['@qilin/session', SessionStore],
-    ['@qilin/session-persistence-jsonl', JsonlSessionPersistence],
-    ['@qilin/message-feedback', MessageFeedback],
-    ['@qilin/llm', LlmRuntime],
-    ['@qilin/llm-deepseek-api-key', LlmDeepSeek],
-    ['@qilin/deepseek-llm-api-extensions', DeepSeekLlmApiExtensions],
-    ['@qilin/session-log-deepseek', SessionLogDeepSeek],
+    ['@qilin-agent/session', SessionStore],
+    ['@qilin-agent/session-persistence-jsonl', JsonlSessionPersistence],
+    ['@qilin-agent/message-feedback', MessageFeedback],
+    ['@qilin-agent/llm', LlmRuntime],
+    ['@qilin-agent/llm-deepseek-api-key', LlmDeepSeek],
+    ['@qilin-agent/deepseek-llm-api-extensions', DeepSeekLlmApiExtensions],
+    ['@qilin-agent/session-log-deepseek', SessionLogDeepSeek],
   ])
   const config = join(root, 'cordis.yml')
   await writeFile(config, JSON.stringify([...modules.keys()].map(name => ({
     name,
-    ...name === '@qilin/session-persistence-jsonl'
+    ...name === '@qilin-agent/session-persistence-jsonl'
       ? { config: { root: join(root!, 'sessions'), compression: 'none' } }
-      : name === '@qilin/message-feedback'
+      : name === '@qilin-agent/message-feedback'
         ? { config: { maxNoteBytes: 1024 } }
-        : name === '@qilin/llm-deepseek-api-key'
+        : name === '@qilin-agent/llm-deepseek-api-key'
           ? { config: { baseURL: server!.baseURL } }
-          : name === '@qilin/session-log-deepseek'
+          : name === '@qilin-agent/session-log-deepseek'
             ? { config: { enabled: true } }
             : {},
   }))))

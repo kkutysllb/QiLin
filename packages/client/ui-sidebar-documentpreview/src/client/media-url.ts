@@ -1,5 +1,5 @@
 /**
- * URLs for the host preview-media route (`@qilin/host-preview-media`): one
+ * URLs for the host preview-media route (`@qilin-agent/host-preview-media`): one
  * session file over `/sidebar/media`, Range-streamable for the video viewer
  * and switchable to a download disposition.
  */

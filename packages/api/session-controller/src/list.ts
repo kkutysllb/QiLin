@@ -1,14 +1,14 @@
 /** Cold-safe Session list and search projection. */
 
 import { performance } from 'node:perf_hooks'
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/agent-presets'
-import type { ImageAttachmentLimits } from '@qilin/attachment'
-import type { Session, SessionEvent, SessionHeader, SessionId } from '@qilin/session'
-import type { ProjectionSnapshot } from '@qilin/session-projection'
-import type {} from '@qilin/session-projection-cache'
-import { SessionQueryError, type SessionSearchCursor } from '@qilin/session-query'
-import { RemoteError } from '@qilin/typert-protocol'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/agent-presets'
+import type { ImageAttachmentLimits } from '@qilin-agent/attachment'
+import type { Session, SessionEvent, SessionHeader, SessionId } from '@qilin-agent/session'
+import type { ProjectionSnapshot } from '@qilin-agent/session-projection'
+import type {} from '@qilin-agent/session-projection-cache'
+import { SessionQueryError, type SessionSearchCursor } from '@qilin-agent/session-query'
+import { RemoteError } from '@qilin-agent/typert-protocol'
 import { z } from 'zod'
 import {
   SESSION_SEARCH_RESULT_LIMIT,
@@ -190,7 +190,7 @@ export class ApiSessionList {
     if (provider === undefined) {
       throw new RemoteError(
         'gateway/internal',
-        'session search is unavailable: this deployment does not mount @qilin/session-query',
+        'session search is unavailable: this deployment does not mount @qilin-agent/session-query',
         {},
       )
     }

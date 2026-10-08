@@ -3,7 +3,7 @@ description: "面向组合 compaction 的部署的图片省略执行器说明：
 kind: "package-reference"
 ---
 
-# @qilin/compaction-image-offload
+# @qilin-agent/compaction-image-offload
 
 [English](README.md) | 中文
 
@@ -30,7 +30,7 @@ kind: "package-reference"
 ### 最小可用组合
 
 ```yaml
-- name: '@qilin/compaction-image-offload'
+- name: '@qilin-agent/compaction-image-offload'
 ```
 
 ### 你可以观察到什么

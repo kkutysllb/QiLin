@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { createSnapshotStore } from '@qilin/client-store'
-import { bindSnapshotSelector, makeTranslate } from '@qilin/client-test-runtime'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
 import type {
   PermissionCatalog, PermissionSelection,
-} from '@qilin/permission-presets/client'
+} from '@qilin-agent/permission-presets/client'
 import {
   PermissionSelect, type PermissionSelectProps,
 } from '../src/client/PermissionSelect.tsx'

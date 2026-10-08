@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/acp-app",
+  "name": "@qilin-agent/acp-app",
   "description": "The qilin ACP profile bundle: automation-only JSON-RPC stdio and process lifecycle over qilin-base",
   "version": "3.1.1",
   "publishConfig": {
@@ -37,15 +37,15 @@
     }
   },
   "dependencies": {
-    "@qilin/acp": "workspace:*",
-    "@qilin/cmdline": "workspace:*",
+    "@qilin-agent/acp": "workspace:*",
+    "@qilin-agent/cmdline": "workspace:*",
     "commander": "^15.0.0"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin-plugin-include": "workspace:~",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/kylin": "workspace:~"
   }
 }

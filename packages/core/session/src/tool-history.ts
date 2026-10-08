@@ -1,7 +1,7 @@
 /** Stateful reconstruction of historical tool definitions for request projection. */
 
-import type { ToolHistory, ToolSchema } from '@qilin/llm'
-import { deepFreeze } from '@qilin/util-values'
+import type { ToolHistory, ToolSchema } from '@qilin-agent/llm'
+import { deepFreeze } from '@qilin-agent/util-values'
 import type { SessionEvent, SessionSeq } from './types.ts'
 
 /** Folds committed headers and developer messages independently of model capability. */

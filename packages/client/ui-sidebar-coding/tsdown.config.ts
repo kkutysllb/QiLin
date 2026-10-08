@@ -23,7 +23,7 @@
  *   chunk entry.
  *
  * Both browser faces carry the client-bundle purity gate: Node builtins and
- * non-inline-safe `@qilin/*` value imports fail the build — cross-plugin
+ * non-inline-safe `@qilin-agent/*` value imports fail the build — cross-plugin
  * collaboration goes through cordis services, never value imports
  * (type-only imports are erased and never reach the gate).
  */
@@ -42,7 +42,7 @@ const require = createRequire(import.meta.url)
 const PKG_VERSION = (JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as { version: string }).version
 
 /** The browser bundle id: the package name (client-modules composes keys on it). */
-const PLUGIN_ID = '@qilin/client-ui-sidebar-coding'
+const PLUGIN_ID = '@qilin-agent/client-ui-sidebar-coding'
 
 /** Build mode is explicit-only: environment NODE_ENV never reaches a byte. */
 const BUILD_MODE = process.env.QILIN_SIDEBAR_BUILD_MODE === 'development' ? 'development' : 'production'
@@ -59,9 +59,9 @@ const CLIENT_EXTERNALS = [
   'react/jsx-runtime',
   'react-dom',
   'react-dom/client',
-  '@qilin/kylin',
-  '@qilin/client-ui-slots',
-  '@qilin/client-ui-primitives',
+  '@qilin-agent/kylin',
+  '@qilin-agent/client-ui-slots',
+  '@qilin-agent/client-ui-primitives',
 ]
 
 /**
@@ -77,7 +77,7 @@ const REACT_ICONS_ESM_ALIAS = {
 }
 
 /** Vendored libraries (re-entered under @deepseek-ai) may inline wholesale. */
-const VENDORED_LIBRARY = /^@qilin\/(cosmokit|schemastery)(\/|$)/
+const VENDORED_LIBRARY = /^@qilin-agent\/(cosmokit|schemastery)(\/|$)/
 
 const CSS_VIRTUAL_PREFIX = '\0qilin-css:'
 const CSS_VIRTUAL_SUFFIX = '.mjs'
@@ -238,7 +238,7 @@ function purityGatePlugin(): BuildPlugin {
           + 'select the dependency browser export or add an explicit browser implementation',
         )
       }
-      if (!source.startsWith('@qilin/')) return null
+      if (!source.startsWith('@qilin-agent/')) return null
       if (CLIENT_EXTERNALS.includes(source)) return null // platform module: external wins
       if (INLINE_SAFE.test(source)) return null // wire/type layer: inline is the point
       if (VENDORED_LIBRARY.test(source)) return null // vendored library: inline is the point

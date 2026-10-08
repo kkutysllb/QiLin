@@ -10,13 +10,13 @@
  * That constraint is the reason the row exists. An agent preset cannot mount
  * the prompt registry itself, so without a row of its own a preset could
  * change an agent's tools but never its identity.
- * @module @qilin/persona
+ * @module @qilin-agent/persona
  */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type {} from '@qilin/system-prompt'
-import { PERSONA_PREFIX_SECTION, PERSONA_SUFFIX_SECTION } from '@qilin/system-prompt'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type {} from '@qilin-agent/system-prompt'
+import { PERSONA_PREFIX_SECTION, PERSONA_SUFFIX_SECTION } from '@qilin-agent/system-prompt'
 
 export { PERSONA_PREFIX_SECTION, PERSONA_SUFFIX_SECTION }
 

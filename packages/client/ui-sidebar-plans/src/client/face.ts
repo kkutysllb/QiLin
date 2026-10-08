@@ -13,10 +13,10 @@
  * that already ended, and when the record goes away its bucket and its
  * generation are forgotten together.
  */
-import type { ClientRemote } from '@qilin/api-remotes/client'
-import type { BoundActions } from '@qilin/client-store'
-import type { TabId } from '@qilin/client-ui-dockkit'
-import type { SessionId } from '@qilin/session/types'
+import type { ClientRemote } from '@qilin-agent/api-remotes/client'
+import type { BoundActions } from '@qilin-agent/client-store'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
+import type { SessionId } from '@qilin-agent/session/types'
 import { scanPlans } from './plans.ts'
 import type { PlanReader } from './plans.ts'
 import type { createPlansStore } from './store.ts'

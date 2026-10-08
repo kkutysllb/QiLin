@@ -1,11 +1,11 @@
-import { Context } from '@qilin/kylin'
-import type { Fiber } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
+import type { Fiber } from '@qilin-agent/kylin'
 import type {
   RemoteEventHostInfo,
   TypertRemoteEventInvocation,
   TypertRemoteEventSource,
-} from '@qilin/api-gateway'
-import { scopeTarget } from '@qilin/scope'
+} from '@qilin-agent/api-gateway'
+import { scopeTarget } from '@qilin-agent/scope'
 import { describe, expect, it } from 'vitest'
 import { apply, inject } from '../src/index.ts'
 

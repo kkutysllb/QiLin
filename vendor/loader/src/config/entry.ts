@@ -1,5 +1,5 @@
-import { Context, Fiber, FiberState, Inject, resolveConfig } from '@qilin/kylin'
-import { deepEqual, isNullable, updateVolatile, volatileEntries, type Volatile } from '@qilin/cosmokit'
+import { Context, Fiber, FiberState, Inject, resolveConfig } from '@qilin-agent/kylin'
+import { deepEqual, isNullable, updateVolatile, volatileEntries, type Volatile } from '@qilin-agent/cosmokit'
 import { Loader } from '../index.ts'
 import { EntryGroup } from './group.ts'
 import { EntryTree } from './tree.ts'

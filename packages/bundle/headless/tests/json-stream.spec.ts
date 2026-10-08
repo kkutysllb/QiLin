@@ -1,9 +1,9 @@
 /** The `--json` run projection: commit-point emission, ordering, bounding, and disposal. */
 
 import { describe, expect, it } from 'vitest'
-import type { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import type { Session, SessionEvent } from '@qilin/session'
+import type { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import type { Session, SessionEvent } from '@qilin-agent/session'
 import { boundJsonLine, MAX_STRING_BYTES, projectJsonRun, type JsonProjectionOptions } from '../src/json-stream.ts'
 
 interface ProjectionHarness {

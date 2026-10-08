@@ -8,16 +8,16 @@
  * is the session's workspace cwd. This plugin uses named
  * exports only; a default would hide its loader metadata (see
  * `docs/postmortem/0001-acp-default-export-drops-inject.md`).
- * @module @qilin/subagent-qilin-sdk
+ * @module @qilin-agent/subagent-qilin-sdk
  */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { statSync } from 'node:fs'
 import { isAbsolute, resolve } from 'node:path'
-import z from '@qilin/schemastery'
-import type { AgentOptions } from '@qilin/agent'
-import type { SubagentCapabilities, SubagentProvider, SubagentStartRequest } from '@qilin/subagent'
-import { assertPositiveFinite, NO_START_CAPABILITIES, resolveChildCwd, validateConfiguredCwd } from '@qilin/subagent'
+import z from '@qilin-agent/schemastery'
+import type { AgentOptions } from '@qilin-agent/agent'
+import type { SubagentCapabilities, SubagentProvider, SubagentStartRequest } from '@qilin-agent/subagent'
+import { assertPositiveFinite, NO_START_CAPABILITIES, resolveChildCwd, validateConfiguredCwd } from '@qilin-agent/subagent'
 import {
   DEFAULT_DISPOSE_EOF_GRACE_MS,
   DEFAULT_DISPOSE_GRACE_MS,

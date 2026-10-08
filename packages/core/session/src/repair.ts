@@ -2,12 +2,12 @@
  * Pending tool-result recovery shared by failed live steps, interrupted logs,
  * and fork seeds. Tail repair preserves closed steps and supplies only missing
  * tool results and lifecycle boundaries, with cause-specific retry guidance.
- * @module @qilin/session/repair
+ * @module @qilin-agent/session/repair
  */
 
-import { brandString } from '@qilin/brand'
-import type { MessageId, ToolCallId, ToolResultMessage } from '@qilin/llm'
-import { deepFreeze } from '@qilin/util-values'
+import { brandString } from '@qilin-agent/brand'
+import type { MessageId, ToolCallId, ToolResultMessage } from '@qilin-agent/llm'
+import { deepFreeze } from '@qilin-agent/util-values'
 import { SessionSeq } from './types.ts'
 import type { SessionEvent, SessionSeq as SessionSeqType } from './types.ts'
 

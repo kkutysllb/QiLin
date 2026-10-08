@@ -3,7 +3,7 @@ description: "Durable workflow-run Conversation Node for the qilin web client: r
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-workflow-run
+# @qilin-agent/client-ui-workflow-run
 
 English | [中文](README.zh.md)
 

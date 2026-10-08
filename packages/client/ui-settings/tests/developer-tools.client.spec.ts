@@ -1,7 +1,7 @@
 /** Developer-tool choices share settings validation, persistence and accepted-state publication. */
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import { stubConfigForm, TestRemote, RemoteError } from '@qilin/client-test-runtime'
+import { stubConfigForm, TestRemote, RemoteError } from '@qilin-agent/client-test-runtime'
 import { DEVELOPER_TOOLS_NAMESPACE, DeveloperToolsSettingsSchema, type DeveloperToolsSettings } from '../src/developer-tools-settings.ts'
 import { DeveloperToolsPreference } from '../src/client/developer-tools.ts'
 import { apply as clientApply, inject } from '../src/client/index.ts'

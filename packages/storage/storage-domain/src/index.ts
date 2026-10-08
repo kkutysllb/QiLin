@@ -4,12 +4,12 @@
  * layer — consumers depend on this package and never touch backends directly.
  * Plugin `Config` is schemastery; record schemas inside domain specs are zod
  * (see `src/spec.ts` for the split rationale).
- * @module @qilin/storage-domain
+ * @module @qilin-agent/storage-domain
  */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { storageBackendServiceKey } from '@qilin/storage'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { storageBackendServiceKey } from '@qilin-agent/storage'
 import { DomainError } from './error.ts'
 import { descriptorOf } from './spec.ts'
 import type { DomainSpec } from './spec.ts'
@@ -26,13 +26,13 @@ export type {
 export type { DomainChanged } from './events.ts'
 export type { Domain, DomainGlobal, DomainGlobalHandleOf, KvTable } from './domain.ts'
 
-declare module '@qilin/storage' {
+declare module '@qilin-agent/storage' {
   interface StorageForms {
     domain: DomainFacility
   }
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     storageDomain: DomainFacility
   }

@@ -3,13 +3,13 @@ description: "Shared resolution of the QiLin home and user-data paths for packag
 kind: "package-library"
 ---
 
-# @qilin/home-paths
+# @qilin-agent/home-paths
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`@qilin/home-paths` lets package authors resolve one QiLin data root and derive child paths from it. An explicit path wins over `$QILIN_HOME`, which wins over `~/.qilin`; blank environment values are ignored. Its public helpers can render the root without revealing an absolute machine path, expand only bare or current-user tilde forms, and canonicalize watch targets whose final components do not yet exist. Use it as a direct library dependency, not through `cordis.yml`.
+`@qilin-agent/home-paths` lets package authors resolve one QiLin data root and derive child paths from it. An explicit path wins over `$QILIN_HOME`, which wins over `~/.qilin`; blank environment values are ignored. Its public helpers can render the root without revealing an absolute machine path, expand only bare or current-user tilde forms, and canonicalize watch targets whose final components do not yet exist. Use it as a direct library dependency, not through `cordis.yml`.
 
 ## Table of Contents
 
@@ -29,7 +29,7 @@ Use these helpers wherever a package must agree with the rest of the harness abo
 ### Resolving the home
 
 ```ts
-import { resolveQilinHome, qilinHomePath, qilinCachePath } from '@qilin/home-paths'
+import { resolveQilinHome, qilinHomePath, qilinCachePath } from '@qilin-agent/home-paths'
 
 const home = resolveQilinHome()                // configured path, else $QILIN_HOME, else ~/.qilin
 const settings = qilinHomePath('settings')     // join one child onto the resolved home

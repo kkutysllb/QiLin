@@ -9,9 +9,9 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { credentialRef } from '@qilin/credentials'
-import type { SessionEvent } from '@qilin/session'
-import { WEB_SEARCH_MAX_RESULTS } from '@qilin/tool-web'
+import { credentialRef } from '@qilin-agent/credentials'
+import type { SessionEvent } from '@qilin-agent/session'
+import { WEB_SEARCH_MAX_RESULTS } from '@qilin-agent/tool-web'
 import {
   assertFixtureInventory, captureStableAria, compareOrRefreshGolden, fixtureUserPrompts,
   launchWebScaffold, recordFixture, watchConsole, webSnapshotMode, type WebScaffold,

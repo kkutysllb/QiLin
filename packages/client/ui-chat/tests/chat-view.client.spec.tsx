@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
-import type { InboxState } from '@qilin/agent/types'
-import type { GlobalStandardProps } from '@qilin/client-ui-slots'
+import type { InboxState } from '@qilin-agent/agent/types'
+import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { useEffect } from 'react'
@@ -15,23 +15,23 @@ import type {
   LegacyConversationSlice, ModelRetryNode, StartedToolCall, SteeringMessageNode,
   ToolCallBlock, ToolResultNode, TurnErrorNode, TurnMaxTokensNode, UseChatNodeTurnData,
   TranscriptViewMode, UserMessageNode,
-} from '@qilin/client-ui-chat/client'
+} from '@qilin-agent/client-ui-chat/client'
 import type {
   SessionListState, SessionSnapshot,
-} from '@qilin/api-session-controller/client'
-import type { WorkspaceSnapshot } from '@qilin/api-workspace-controller/client'
-import { SessionSeq, type SessionId } from '@qilin/session/types'
-import type { SessionStatusSnapshot } from '@qilin/client-ui-session/client'
+} from '@qilin-agent/api-session-controller/client'
+import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/client'
+import { SessionSeq, type SessionId } from '@qilin-agent/session/types'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
 import type {
   InjectFace, KeyedSnapshotSelectorHook, SnapshotSelectorHook,
-} from '@qilin/client-ui-slots'
-import { bindSnapshotSelector, makeTranslate } from '@qilin/client-test-runtime'
-import { createSnapshotStore, type ObservableSnapshot } from '@qilin/client-store'
+} from '@qilin-agent/client-ui-slots'
+import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
+import { createSnapshotStore, type ObservableSnapshot } from '@qilin-agent/client-store'
 import { derivePresentationPolicy } from '../src/client/presentation-policy.ts'
-import { EMPTY_CONVERSATION_SNAPSHOT } from '@qilin/client-ui-conversation/client'
-import type { StepLocation } from '@qilin/client-ui-conversation/client'
-import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
-import { PartialArguments } from '@qilin/util-values'
+import { EMPTY_CONVERSATION_SNAPSHOT } from '@qilin-agent/client-ui-conversation/client'
+import type { StepLocation } from '@qilin-agent/client-ui-conversation/client'
+import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
+import { PartialArguments } from '@qilin-agent/util-values'
 import { createChatStore } from '../src/client/stores.ts'
 import { ChatView } from '../src/client/chat/ChatView.tsx'
 import { ChatNodeSeat } from '../src/client/chat/ChatNodeSeat.tsx'

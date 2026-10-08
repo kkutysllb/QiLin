@@ -1,5 +1,5 @@
-import { Binary, clone, deepEqual, filterKeys, isNullable, isPlainObject, pick, valueMap, type Dict } from '@qilin/cosmokit'
-import { createVolatile, isVolatile, type Volatile } from '@qilin/cosmokit'
+import { Binary, clone, deepEqual, filterKeys, isNullable, isPlainObject, pick, valueMap, type Dict } from '@qilin-agent/cosmokit'
+import { createVolatile, isVolatile, type Volatile } from '@qilin-agent/cosmokit'
 import type { StandardSchemaV1 } from '@standard-schema/spec'
 
 const kSchema = Symbol.for('schemastery')

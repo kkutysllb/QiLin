@@ -3,7 +3,7 @@ description: "Session feedback: the `/feedback` command, the `sessionFeedback` H
 kind: "package-reference"
 ---
 
-# @qilin/command-feedback
+# @qilin-agent/command-feedback
 
 English | [中文](README.zh.md)
 
@@ -61,11 +61,11 @@ Feedback does not have to come from the slash command or the dialog: any UI, hoo
 
 ```yaml
 - id: session
-  name: '@qilin/session'
+  name: '@qilin-agent/session'
 - id: commands
-  name: '@qilin/commands'
+  name: '@qilin-agent/commands'
 - id: command-feedback
-  name: '@qilin/command-feedback'
+  name: '@qilin-agent/command-feedback'
 ```
 
 The Web client ships the command. Headless mode, ACP automation, and JSON-RPC provide no slash commands, so `/feedback` is unavailable there.

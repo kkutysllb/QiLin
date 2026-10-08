@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/dsh-compat",
+  "name": "@qilin-agent/dsh-compat",
   "description": "DSH-era plugin ecosystem compatibility: module-name aliases and manifest-key fallback readers",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,9 +30,9 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   }
 }

@@ -29,12 +29,12 @@
  * composes the wire.
  */
 
-import type {} from '@qilin/kylin'
-import type { QilinClientManifest } from '@qilin/package-manifest'
+import type {} from '@qilin-agent/kylin'
+import type { QilinClientManifest } from '@qilin-agent/package-manifest'
 import type { ClientEntries } from './entries.ts'
 import type { ClientModuleSystem } from './system.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** The client module system the web shell builds at boot (provided by the `./client` wrapper plugin). */
     modules: ClientModuleLoader

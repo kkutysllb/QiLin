@@ -1,21 +1,21 @@
 /** Right-Sidebar presentation of an existing subagent Conversation. */
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   ISessions, SessionReference,
-} from '@qilin/api-session-controller/client'
-import type { ResourceProvider } from '@qilin/client-resources/client'
-import type { ConversationViewsProps } from '@qilin/client-ui-conversation/client'
-import type { SidebarRightTabDefinition } from '@qilin/client-ui-sidebar-right/client'
+} from '@qilin-agent/api-session-controller/client'
+import type { ResourceProvider } from '@qilin-agent/client-resources/client'
+import type { ConversationViewsProps } from '@qilin-agent/client-ui-conversation/client'
+import type { SidebarRightTabDefinition } from '@qilin-agent/client-ui-sidebar-right/client'
 import type {
   PropsRenderFactories, PropsRenderSlots, PropsRuntime, TranslateNS,
-} from '@qilin/client-ui-slots'
-import type { SessionId } from '@qilin/session/types'
-import type { SubagentAddress } from '@qilin/subagent/client'
+} from '@qilin-agent/client-ui-slots'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { SubagentAddress } from '@qilin-agent/subagent/client'
 import type { NS } from '../locales.ts'
 import css from './SidebarChat.module.css'
 
 /** Stable implementation identity for the Sidebar tab body. */
-export const SUBAGENT_CHAT_ID = '@qilin/client-ui-subagent'
+export const SUBAGENT_CHAT_ID = '@qilin-agent/client-ui-subagent'
 
 /** Resource-address prefix for an embedded Session chat. */
 export const SUBAGENT_CHAT_ADDRESS = 'qilin-resource://subagentchat/session/'
@@ -26,13 +26,13 @@ export interface SubagentChatResource {
   readonly reference: SessionReference
 }
 
-declare module '@qilin/api-session-controller/client' {
+declare module '@qilin-agent/api-session-controller/client' {
   interface SessionReferenceSourceMap {
     sidebarChat: unknown
   }
 }
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface ResourceProtocolMap {
     subagentchat: SubagentChatResource
   }

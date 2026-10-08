@@ -8,7 +8,7 @@ import { evaluatePluginCompatibility, getQilinRuntimeVersion, pluginCompatibilit
 
 const runtime = '0.1.7-alpha.1'
 const identity = { name: '@example/plugin', version: '2.0.0' }
-const incompatible = { ...identity, peerDependencies: { '@qilin/session': '^0.2.0' } }
+const incompatible = { ...identity, peerDependencies: { '@qilin-agent/session': '^0.2.0' } }
 
 function check(peerDependencies: object) {
   return evaluatePluginCompatibility({ ...identity, peerDependencies }, {}, runtime)
@@ -48,47 +48,47 @@ describe('qilin runtime version', () => {
 describe('plugin compatibility', () => {
   it('defaults to the installed runtime and needs no identity without mismatches', () => {
     expect(evaluatePluginCompatibility({})).toBeUndefined()
-    expect(evaluatePluginCompatibility({ peerDependencies: { '@qilin/session': getQilinRuntimeVersion() } })).toBeUndefined()
+    expect(evaluatePluginCompatibility({ peerDependencies: { '@qilin-agent/session': getQilinRuntimeVersion() } })).toBeUndefined()
     expect(check({})).toBeUndefined()
   })
 
   it.each(['*', '^0.1.0', '~0.1.0', '>=0.1.0 <0.2.0', '0.1.x', '0.1.0 - 0.1.9', '^0.2.0 || ^0.1.0', runtime])(
     'includes prereleases in supported semver range %s', (range) => {
-      expect(check({ '@qilin/session': range, '@qilin/tools': range })).toBeUndefined()
+      expect(check({ '@qilin-agent/session': range, '@qilin-agent/tools': range })).toBeUndefined()
     },
   )
 
   it.each(['workspace:^', 'workspace:~', 'workspace:*'])('uses the source runtime for %s', (range) => {
-    expect(check({ '@qilin/session': range })).toBeUndefined()
+    expect(check({ '@qilin-agent/session': range })).toBeUndefined()
   })
 
   it('checks the intersection of runtime requirements and returns only mismatches', () => {
     expect(check({
-      '@qilin/cli': '^0.1.0',
-      '@qilin/session': '>=0.2.0',
-      '@qilin/tools': '<0.1.0',
-      '@qilin/kylin': '^99.0.0',
+      '@qilin-agent/cli': '^0.1.0',
+      '@qilin-agent/session': '>=0.2.0',
+      '@qilin-agent/tools': '<0.1.0',
+      '@qilin-agent/kylin': '^99.0.0',
     })).toEqual({
       ...identity,
       runtimeVersion: runtime,
-      peers: { '@qilin/session': '>=0.2.0', '@qilin/tools': '<0.1.0' },
+      peers: { '@qilin-agent/session': '>=0.2.0', '@qilin-agent/tools': '<0.1.0' },
       exempted: false,
     })
   })
 
   it.each(['^0.2.0', '>=0.1.7', 'broken', '', ' ', 'workspace:>=0.2.0', 'file:../qilin', 'npm:qilin@*'])(
     'fails closed for an incompatible or malformed range %j', (range) => {
-      expect(check({ '@qilin/session': range })?.peers).toEqual({ '@qilin/session': range })
+      expect(check({ '@qilin-agent/session': range })?.peers).toEqual({ '@qilin-agent/session': range })
     },
   )
 
   it('ignores framework, plugin, and unrelated names and dependency fields', () => {
     expect(check({
-      '@qilin/kylin': 'broken', '@qilin/kylin-plugin-loader': '^99', '@qilin/cosmokit': '^99',
+      '@qilin-agent/kylin': 'broken', '@qilin-agent/kylin-plugin-loader': '^99', '@qilin-agent/cosmokit': '^99',
       '@other/qilin': '^99', '@qilinx/session': '^99', qilin: '^99',
       constructor: '^99', hasOwnProperty: '^99', ['__proto__']: '^99',
     })).toBeUndefined()
-    expect(evaluatePluginCompatibility({ dependencies: { '@qilin/session': '^99' } }, {}, runtime)).toBeUndefined()
+    expect(evaluatePluginCompatibility({ dependencies: { '@qilin-agent/session': '^99' } }, {}, runtime)).toBeUndefined()
   })
 
   it.each([null, [], 'bad', 1, false, undefined])('rejects malformed peerDependencies: %j', (peerDependencies) => {
@@ -96,7 +96,7 @@ describe('plugin compatibility', () => {
   })
 
   it.each([null, [], {}, 1, false, undefined])('rejects non-string peer ranges: %j', (range) => {
-    for (const name of ['@qilin/session', '@qilin/kylin']) {
+    for (const name of ['@qilin-agent/session', '@qilin-agent/kylin']) {
       expect(() => check({ [name]: range })).toThrow(`peerDependencies[${JSON.stringify(name)}] must be a string`)
     }
   })
@@ -116,7 +116,7 @@ describe('plugin compatibility', () => {
   it('ignores inherited peer declarations and inherited peer entries', () => {
     expect(evaluatePluginCompatibility(Object.create(incompatible) as object, {}, runtime)).toBeUndefined()
     expect(check(Object.create(incompatible.peerDependencies) as object)).toBeUndefined()
-    expect(check(Object.assign(Object.create({ '@qilin/session': '^99' }) as object, { '@qilin/tools': '*' }))).toBeUndefined()
+    expect(check(Object.assign(Object.create({ '@qilin-agent/session': '^99' }) as object, { '@qilin-agent/tools': '*' }))).toBeUndefined()
   })
 
   it('rejects an invalid explicit runtime even when no peers are declared', () => {
@@ -156,7 +156,7 @@ describe('exact-version exemptions', () => {
   })
 
   it('does not produce issues for compatible exempted plugins', () => {
-    expect(evaluatePluginCompatibility({ ...identity, peerDependencies: { '@qilin/session': '*' } }, exemptions, runtime)).toBeUndefined()
+    expect(evaluatePluginCompatibility({ ...identity, peerDependencies: { '@qilin-agent/session': '*' } }, exemptions, runtime)).toBeUndefined()
   })
 })
 
@@ -164,10 +164,10 @@ describe('compatibility warning', () => {
   it.each([false, true])('retains mismatch details and risk when exemption status is %s', (exempted) => {
     expect(pluginCompatibilityWarning({
       ...identity, runtimeVersion: runtime,
-      peers: { '@qilin/session': '^0.2.0', '@qilin/tools': 'broken' }, exempted,
+      peers: { '@qilin-agent/session': '^0.2.0', '@qilin-agent/tools': 'broken' }, exempted,
     })).toBe(
       'Plugin @example/plugin@2.0.0 is incompatible with QiLin 0.1.7-alpha.1: '
-      + 'peerDependencies {"@qilin/session":"^0.2.0","@qilin/tools":"broken"}. '
+      + 'peerDependencies {"@qilin-agent/session":"^0.2.0","@qilin-agent/tools":"broken"}. '
       + 'Running it may cause crashes or data loss. '
       + 'Update the plugin or install a plugin version compatible with this QiLin runtime. '
       + 'To accept this risk explicitly, grant the exact-version exemption for @example/plugin@2.0.0 on QiLin 0.1.7-alpha.1 '

@@ -1,7 +1,7 @@
 /** Package-private continuation owners used to place deterministic lifecycle races. */
 
-import type { Context } from '@qilin/kylin'
-import type { SessionId } from '@qilin/session'
+import type { Context } from '@qilin-agent/kylin'
+import type { SessionId } from '@qilin-agent/session'
 import type { Activation, ContinuableActivationRegistry } from '../src/continuation-activation.ts'
 import type SubagentContinuationManager from '../src/continuation.ts'
 

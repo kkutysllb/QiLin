@@ -2,7 +2,7 @@
  * Public records for exact reads and relationship traces over the
  * live-preferred logical session corpus.
  *
- * @module @qilin/session-query/types
+ * @module @qilin-agent/session-query/types
  */
 
 import type {
@@ -14,8 +14,8 @@ import type {
   SessionSeq,
   OptionalSessionSeq,
   SurfaceEvent,
-} from '@qilin/session'
-import type { SessionTitleSnapshot } from '@qilin/session-title'
+} from '@qilin-agent/session'
+import type { SessionTitleSnapshot } from '@qilin-agent/session-title'
 import type { SessionSearchCursor } from './cursor.ts'
 
 export type { SessionSearchCursor } from './cursor.ts'

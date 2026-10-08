@@ -4,7 +4,7 @@
     - id: subagent-result-diagnostic
       name: '../../../packages/test-support/session-snapshot/tests/fixtures/subagent-result-diagnostic.ts'
     - id: tool-subagent-codex
-      name: '@qilin/tool-subagent'
+      name: '@qilin-agent/tool-subagent'
       config:
         provider: snapshot-diagnostic
         toolName: subagent_codex

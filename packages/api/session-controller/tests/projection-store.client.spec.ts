@@ -9,12 +9,12 @@
  * rows' title projection).
  */
 import { describe, expect } from 'vitest'
-import type { SessionId } from '@qilin/api-remotes/client'
-import { SessionSeq } from '@qilin/session/types'
-import { ok, type RemoteMock } from '@qilin/remote-mock'
+import type { SessionId } from '@qilin-agent/api-remotes/client'
+import { SessionSeq } from '@qilin-agent/session/types'
+import { ok, type RemoteMock } from '@qilin-agent/remote-mock'
 import {
   createClientTest, type ClientTestFixtures, webApp,
-} from '@qilin/client-test-runtime/src/assembly/index.ts'
+} from '@qilin-agent/client-test-runtime/src/assembly/index.ts'
 import { ProjectionValueStore } from '../src/client/sessions/projection-store.ts'
 import { SessionManager } from '../src/client/sessions/manager.ts'
 import type { SessionRemotes } from '../src/client/sessions/remotes.ts'
@@ -24,7 +24,7 @@ import { FOLLOW, followScript, sessionWorld } from './remote/session.client.ts'
 
 // Test-domain keys merged into the projection map (the Service Definition package's
 // pure-type outlet), the same way domain host plugins merge theirs.
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionMap {
     'test/marks': { marks: string[] }
   }
@@ -32,7 +32,7 @@ declare module '@qilin/session-projection/types' {
 
 const SID = 'fk-s1' as SessionId
 /** A Session talks through the Gateway client; its dependency cone is the Typert registry and the Connection. */
-const API_ROSTER = webApp.closure(['@qilin/api-gateway'])
+const API_ROSTER = webApp.closure(['@qilin-agent/api-gateway'])
 const it = createClientTest({ roster: API_ROSTER })
 /** The first client boot pays the cold module transform of the api cone. */
 const COLD_BOOT_TIMEOUT_MS = 60_000

@@ -1,5 +1,5 @@
 /** Pure diff-card derivation from raw file-mutation calls and result metadata. @module */
-import type { DiffBlockProps, DiffHunk } from '@qilin/client-ui-primitives'
+import type { DiffBlockProps, DiffHunk } from '@qilin-agent/client-ui-primitives'
 import type { ToolCallBlock } from './tool-call-model.ts'
 import { parsedToolCall } from './raw-tool-call.ts'
 

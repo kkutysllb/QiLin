@@ -6,16 +6,16 @@
  * classification, the model-friendly terminal environment, and the model-facing
  * stdout/stderr merge for background reads. Execution policy belongs in
  * `tools/pre-execute` or a sandboxing executor.
- * @module @qilin/bash-local
+ * @module @qilin-agent/bash-local
  */
 
-import { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { SHELL_SETTINGS_NAMESPACE, ShellExecutor } from '@qilin/shell'
-import type { ShellExecRequest, ShellExecSpec, ShellProcess, ShellProcessRead, ShellRunResult, CollectedOutput } from '@qilin/shell'
-import type { SubprocessCollect, SubprocessHandle, SubprocessOutputReader, SubprocessSpawnSpec } from '@qilin/subprocess'
-import type {} from '@qilin/settings'
-import { clampTimeout, deadline, MAX_TIMER_DELAY_MS, timeoutOf } from '@qilin/timeout'
+import { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { SHELL_SETTINGS_NAMESPACE, ShellExecutor } from '@qilin-agent/shell'
+import type { ShellExecRequest, ShellExecSpec, ShellProcess, ShellProcessRead, ShellRunResult, CollectedOutput } from '@qilin-agent/shell'
+import type { SubprocessCollect, SubprocessHandle, SubprocessOutputReader, SubprocessSpawnSpec } from '@qilin-agent/subprocess'
+import type {} from '@qilin-agent/settings'
+import { clampTimeout, deadline, MAX_TIMER_DELAY_MS, timeoutOf } from '@qilin-agent/timeout'
 
 /**
  * Model-friendly environment overrides: disable colors, pagers, and

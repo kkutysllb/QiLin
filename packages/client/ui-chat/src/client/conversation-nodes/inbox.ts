@@ -1,7 +1,7 @@
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   ConversationNodeDefinition, ConversationPreviousContext,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 
 interface InboxIdentity {
   readonly id: string

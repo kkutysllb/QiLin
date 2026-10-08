@@ -80,7 +80,7 @@ export function apply(ctx: Context) {
 To stop a plugin instance early:
 
 ```ts
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 
 declare const ctx: Context
 declare function myPlugin(ctx: Context): void

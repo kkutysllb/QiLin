@@ -1,19 +1,19 @@
 import { describe, expect, it, vi } from 'vitest'
 import type {
   SessionEventLike, SessionEventLikeEntry, SessionLiveEventEntry,
-} from '@qilin/api-session-controller/client'
-import { LlmAttemptId, ToolCallId } from '@qilin/llm/brand'
-import type { StreamChunk } from '@qilin/llm'
-import { SessionSeq } from '@qilin/session/types'
-import type { SessionEvent } from '@qilin/session/types'
+} from '@qilin-agent/api-session-controller/client'
+import { LlmAttemptId, ToolCallId } from '@qilin-agent/llm/brand'
+import type { StreamChunk } from '@qilin-agent/llm'
+import { SessionSeq } from '@qilin-agent/session/types'
+import type { SessionEvent } from '@qilin-agent/session/types'
 import {
   ConversationLocationIndex,
   ConversationNodeAssembler as RuntimeConversationNodeAssembler,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 import type {
   ConversationMatch, ConversationNodeContext,
   ConversationNodeDefinition, ConversationViewDefinition, ConversationViewNode,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 
 interface ScopeProbeStepData {
   readonly value: number
@@ -23,7 +23,7 @@ interface ScopeProbeTurnData {
   readonly valueSeenFromStep: number
 }
 
-declare module '@qilin/client-ui-conversation/client' {
+declare module '@qilin-agent/client-ui-conversation/client' {
   interface ConversationStepDataMap {
     'scope-probe': ScopeProbeStepData
   }

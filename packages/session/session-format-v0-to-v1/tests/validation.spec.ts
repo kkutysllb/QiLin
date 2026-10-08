@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { SessionFormatEvent, SessionFormatJsonValue } from '@qilin/session-format'
-import { KNOWN_SESSION_EVENT_TYPES } from '@qilin/session'
+import type { SessionFormatEvent, SessionFormatJsonValue } from '@qilin-agent/session-format'
+import { KNOWN_SESSION_EVENT_TYPES } from '@qilin-agent/session'
 import {
   RELEASED_V0_EVENT_TYPES,
   RELEASED_V0_EVENT_DISPOSITIONS,

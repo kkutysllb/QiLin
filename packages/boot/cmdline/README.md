@@ -3,7 +3,7 @@ description: "App-owned command lines for qilin app bins: your app parses its ow
 kind: "package-library"
 ---
 
-# @qilin/cmdline
+# @qilin-agent/cmdline
 
 English | [中文](README.zh.md)
 
@@ -45,14 +45,14 @@ You bring your own commander program: declare your flags and your actions, and t
 
 ```yaml
 - id: web-startup
-  name: '@qilin/web-app/startup'
+  name: '@qilin-agent/web-app/startup'
 ```
 
 Rows configured from the parsed values inject the published service and read it directly in their config:
 
 ```yaml
 - id: webserver
-  name: '@qilin/host-webserver'
+  name: '@qilin-agent/host-webserver'
   inject: [webStartup]
   config:
     host: !!js ctx.webStartup.host ?? '127.0.0.1'

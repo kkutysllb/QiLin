@@ -1,15 +1,15 @@
 /** Client catalog and source-labelled ownership of exact Session generations. */
-import type { Context, Fiber } from '@qilin/kylin'
-import type { SubagentAddress } from '@qilin/subagent/client'
-import { SessionSeq, type SessionId } from '@qilin/session/types'
-import { workspaceTitleOf } from '@qilin/util-workspace-path'
-import type { WorkspaceId } from '@qilin/workspace/types'
+import type { Context, Fiber } from '@qilin-agent/kylin'
+import type { SubagentAddress } from '@qilin-agent/subagent/client'
+import { SessionSeq, type SessionId } from '@qilin-agent/session/types'
+import { workspaceTitleOf } from '@qilin-agent/util-workspace-path'
+import type { WorkspaceId } from '@qilin-agent/workspace/types'
 import { SESSION_SEARCH_RESULT_LIMIT } from '../../types.ts'
-import type { SessionProjectionMap } from '@qilin/session-projection/types'
+import type { SessionProjectionMap } from '@qilin-agent/session-projection/types'
 import {
   createSnapshotStore, notifySubscribers, type ObservableSnapshot, type SnapshotStore,
-} from '@qilin/client-store'
-import type { RemoteFailure, RemoteResult } from '@qilin/typert-protocol'
+} from '@qilin-agent/client-store'
+import type { RemoteFailure, RemoteResult } from '@qilin-agent/typert-protocol'
 import type { SessionEventSource } from '../contract/events.ts'
 import type { SessionFace } from '../contract/session.ts'
 import type {

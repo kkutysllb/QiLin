@@ -4,13 +4,13 @@
  */
 import { describe, expect, it, vi } from 'vitest'
 import type { Mock } from 'vitest'
-import type { SessionId } from '@qilin/session/types'
-import type { TeamTaskId } from '@qilin/experimental-agent-team/client'
-import { RemoteError } from '@qilin/typert-protocol'
-import type { RemoteErrorCode } from '@qilin/typert-protocol'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { TeamTaskId } from '@qilin-agent/experimental-agent-team/client'
+import { RemoteError } from '@qilin-agent/typert-protocol'
+import type { RemoteErrorCode } from '@qilin-agent/typert-protocol'
 import { createTeamPageStore } from '../src/client/team-page-store.ts'
 import { teamOpenTeammate, teamWritesFace, type TeamTaskFormFields, type TeamWriter } from '../src/client/team-writes.ts'
-import type { TeamTaskView as TeamTask } from '@qilin/experimental-agent-team/client'
+import type { TeamTaskView as TeamTask } from '@qilin-agent/experimental-agent-team/client'
 
 const SESSION = 'lead' as SessionId
 const CHILD = 'child' as SessionId

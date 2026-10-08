@@ -3,7 +3,7 @@ description: "The coding workbench content body of the dual workbench for the qi
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-sidebar-coding
+# @qilin-agent/client-ui-sidebar-coding
 
 English | [中文](README.zh.md)
 
@@ -85,7 +85,7 @@ The same shape as the terminal tools: the switch flip rewrites the tool section 
 
 - **A wholesale port, not a rewrite.** The tree keeps its internal component style — components that reach the cordis context directly and one shared per-activation store — instead of the props discipline of the newer client packages; the debt is recorded, not hidden.
 - **No in-repo unit suite yet.** The ported src sits outside the per-file coverage gate as recorded port debt; behavior is exercised through the web e2e lanes and the upstream repository's own test suite.
-- **`sidebar_open` collides with the native tool.** The base bundle mounts `@qilin/sidebar-opens`, whose tool carries the same name; a composition that turns this package's open switch on while the native tool is mounted fails the second registration loudly — the tool registry refuses a duplicate name.
+- **`sidebar_open` collides with the native tool.** The base bundle mounts `@qilin-agent/sidebar-opens`, whose tool carries the same name; a composition that turns this package's open switch on while the native tool is mounted fails the second registration loudly — the tool registry refuses a duplicate name.
 - **The title-bar/desktop-shell compat subsystem is dormant.** The overlay-era toggle cluster is hidden in the in-column layout; the subsystem rides along with the port until the column layout needs it or the debt is retired.
 
 <a id="dev-note"></a>
@@ -102,10 +102,10 @@ One source tree builds four artifact families: `lib/index.js` plus `lib/invarian
 
 #### Sourcemap rebasing and the purity gate
 
-Browser sourcemaps rebase lib-relative sources back onto the package's `../src` tree, so an editor lands on source instead of build output. The build-time purity gate fails any Node builtin or non-inline-safe `@qilin/*` value import in a browser face — cross-plugin collaboration goes through cordis services, and type-only imports are erased before the gate sees them.
+Browser sourcemaps rebase lib-relative sources back onto the package's `../src` tree, so an editor lands on source instead of build output. The build-time purity gate fails any Node builtin or non-inline-safe `@qilin-agent/*` value import in a browser face — cross-plugin collaboration goes through cordis services, and type-only imports are erased before the gate sees them.
 
 #### Port source
 
-Ported from dsh-coding-sidebar 1.0.39 (MIT; the KCoder fork of DSH-better-sidebar): specifiers and identity rewritten to `@qilin/client-*`, the body-level self-mount replaced by the `rightbar.session.coding` slot registration, and the settings takeover plus nav-icon marker deleted (D11), leaving the declarative Side card section as the only settings face.
+Ported from dsh-coding-sidebar 1.0.39 (MIT; the KCoder fork of DSH-better-sidebar): specifiers and identity rewritten to `@qilin-agent/client-*`, the body-level self-mount replaced by the `rightbar.session.coding` slot registration, and the settings takeover plus nav-icon marker deleted (D11), leaving the declarative Side card section as the only settings face.
 
 </details>

@@ -1,8 +1,8 @@
 /** The Session projection that records which preset a Session runs. */
 
 import { describe, expect, it } from 'vitest'
-import { SESSION_FORMAT_VERSION, SessionId, SessionSeq } from '@qilin/session'
-import type { SessionEvent, SessionHeader } from '@qilin/session'
+import { SESSION_FORMAT_VERSION, SessionId, SessionSeq } from '@qilin-agent/session'
+import type { SessionEvent, SessionHeader } from '@qilin-agent/session'
 import { agentPresetProjectionDefinition } from '../src/session.ts'
 
 /** A header carrying the creation-time preset, if any. */

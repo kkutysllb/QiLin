@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/experimental-session-inspector",
+  "name": "@qilin-agent/experimental-session-inspector",
   "description": "Experimental virtualized Session log and live Chat group/node inspectors",
   "version": "3.1.1",
   "publishConfig": {
@@ -29,11 +29,11 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/client-locale",
-        "@qilin/client-ui-conversation",
-        "@qilin/client-ui-sidebar-right",
-        "@qilin/client-ui-session",
-        "@qilin/client-ui-renderer"
+        "@qilin-agent/client-locale",
+        "@qilin-agent/client-ui-conversation",
+        "@qilin-agent/client-ui-sidebar-right",
+        "@qilin-agent/client-ui-session",
+        "@qilin-agent/client-ui-renderer"
       ],
       "platform": "web"
     }
@@ -50,29 +50,29 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
     "@testing-library/react": "^16.1.0",
     "@types/react-dom": "~18.3.0",
     "react-dom": "^18.2.0",
-    "@qilin/api-session-controller": "workspace:*",
-    "@qilin/client-store": "workspace:*",
-    "@qilin/client-ui-chat": "workspace:*",
-    "@qilin/client-ui-primitives": "workspace:*",
-    "@qilin/client-ui-sidebar-right": "workspace:*",
-    "@qilin/client-ui-session": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/llm": "workspace:*",
+    "@qilin-agent/api-session-controller": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/client-ui-chat": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-sidebar-right": "workspace:*",
+    "@qilin-agent/client-ui-session": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
     "@tanstack/react-virtual": "^3.14.9",
     "@types/react": "~18.3.1",
     "react": "^18.2.0",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/client-locale": "workspace:*",
-    "@qilin/client-ui-conversation": "workspace:*",
-    "@qilin/client-ui-renderer": "workspace:*",
-    "@qilin/client-ui-slots": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-ui-conversation": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*"
   },
   "engines": {
     "node": "^22.19.0 || >=24.0.0"

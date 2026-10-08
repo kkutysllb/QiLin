@@ -1,7 +1,7 @@
 /** Per-tab Browser controller. */
-import type { BoundActions } from '@qilin/client-store'
-import type { TabId } from '@qilin/client-ui-dockkit'
-import type { HostObservable } from '@qilin/client-ui-slots'
+import type { BoundActions } from '@qilin-agent/client-store'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
+import type { HostObservable } from '@qilin-agent/client-ui-slots'
 import { IframeImpl } from './BrowserFrame.ts'
 import type { BrowserFrame, BrowserFrameState } from './BrowserFrame.ts'
 import { BrowserNavigation } from './BrowserNavigation.ts'

@@ -4,25 +4,25 @@
  * `ctx.settings`, owned by the class below; and `credentials`, mounted from
  * here as its own plugin.
  *
- * @module @qilin/api-settings-controller
+ * @module @qilin-agent/api-settings-controller
  */
 
 import { dirname } from 'node:path'
-import { Context } from '@qilin/kylin'
-import Schema from '@qilin/schemastery'
+import { Context } from '@qilin-agent/kylin'
+import Schema from '@qilin-agent/schemastery'
 // Type-only: resolves the `agentPresets` Context augmentation this controller reads.
-import type {} from '@qilin/agent-presets'
+import type {} from '@qilin-agent/agent-presets'
 import {
   canOpenNativePath,
   openNativePath,
   openNativeTextFile,
-} from '@qilin/native-command'
-import type { SettingsDescriptor, SettingsPathOp, SettingsProvider } from '@qilin/settings'
+} from '@qilin-agent/native-command'
+import type { SettingsDescriptor, SettingsPathOp, SettingsProvider } from '@qilin-agent/settings'
 import type {
   SettingsDescribeValue, SettingsNamespaceView, SettingsPathOpView,
-} from '@qilin/settings/types'
-import { Remote, RemoteError, TypertRemoteService } from '@qilin/typert-protocol'
-import type { JsonValue } from '@qilin/util-values'
+} from '@qilin-agent/settings/types'
+import { Remote, RemoteError, TypertRemoteService } from '@qilin-agent/typert-protocol'
+import type { JsonValue } from '@qilin-agent/util-values'
 import { z } from 'zod'
 import { CredentialsController } from './credentials.ts'
 import type { AgentPresetDirectoryOpenValue, SettingsDocumentOpenValue } from './types.ts'
@@ -71,7 +71,7 @@ function namespaceView(descriptor: SettingsDescriptor): SettingsNamespaceView {
   }
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Host owner of the `settings` Remote namespace. */
     settingsController: SettingsController
@@ -291,7 +291,7 @@ export class SettingsController extends TypertRemoteService {
     if (settings === undefined) {
       throw new RemoteError(
         'gateway/internal',
-        'settings service is absent: this deployment does not mount a settings provider (e.g. @qilin/settings-file) in its composition',
+        'settings service is absent: this deployment does not mount a settings provider (e.g. @qilin-agent/settings-file) in its composition',
         {},
       )
     }

@@ -8,9 +8,9 @@ import { join } from 'node:path'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import type { StreamChunk } from '@qilin/llm'
-import type { ReplayEntry, ReplayOverrideDoc } from '@qilin/llm-replay'
-import { SessionId, type SessionEvent } from '@qilin/session'
+import type { StreamChunk } from '@qilin-agent/llm'
+import type { ReplayEntry, ReplayOverrideDoc } from '@qilin-agent/llm-replay'
+import { SessionId, type SessionEvent } from '@qilin-agent/session'
 import { createChatScrollFixture } from './chat-scroll-fixture.ts'
 import {
   launchWebScaffold,

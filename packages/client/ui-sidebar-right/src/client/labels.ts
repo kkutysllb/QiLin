@@ -5,9 +5,9 @@
  * handed over from here. This is a projection of the dictionary, not a second
  * home for copy: the strings live in `locales.ts`.
  */
-import type { ShortcutCatalogEntry } from '@qilin/client-shortcuts/client'
-import type { DockLabels } from '@qilin/client-ui-dockkit'
-import type { TranslateNS } from '@qilin/client-locale/client'
+import type { ShortcutCatalogEntry } from '@qilin-agent/client-shortcuts/client'
+import type { DockLabels } from '@qilin-agent/client-ui-dockkit'
+import type { TranslateNS } from '@qilin-agent/client-locale/client'
 
 /**
  * Project the dictionary into the kit's label contract.

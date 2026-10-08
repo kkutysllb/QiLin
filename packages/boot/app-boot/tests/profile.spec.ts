@@ -11,7 +11,7 @@ import {
 import { tmpdir } from 'node:os'
 import { createRequire } from 'node:module'
 import { basename, dirname, join } from 'node:path'
-import { withFileLock } from '@qilin/atomic-write'
+import { withFileLock } from '@qilin-agent/atomic-write'
 import { afterAll, describe, expect, it } from 'vitest'
 import {
   assertNoEngineNameCollisions,
@@ -230,9 +230,9 @@ describe('initProfile', () => {
   it('creates manifest, user patch layer, and pnpm workspace once, never overwriting', () => {
     const home = tmp()
     const dir = resolveProfileDir('tui', home)
-    initProfile(dir, ['@qilin/base'])
+    initProfile(dir, ['@qilin-agent/base'])
     const manifest = readProfileManifest('t', dir)
-    expect(manifest.qilin?.profile?.bundles).toEqual(['@qilin/base'])
+    expect(manifest.qilin?.profile?.bundles).toEqual(['@qilin-agent/base'])
     expect(readFileSync(join(dir, PROFILE_PATCH_FILENAME), 'utf8')).toContain('[]')
     // Both settings are part of the DSH-plugin compatibility contract: hoisted
     // entries keep one installed copy per name, and refusing peer auto-install
@@ -243,7 +243,7 @@ describe('initProfile', () => {
     // Re-init keeps user edits.
     writeFileSync(join(dir, PROFILE_PATCH_FILENAME), '- id: x\n  config: {}\n')
     initProfile(dir, ['other'])
-    expect(readProfileManifest('t', dir).qilin?.profile?.bundles).toEqual(['@qilin/base'])
+    expect(readProfileManifest('t', dir).qilin?.profile?.bundles).toEqual(['@qilin-agent/base'])
     expect(readFileSync(join(dir, PROFILE_PATCH_FILENAME), 'utf8')).toContain('- id: x')
   })
 })
@@ -284,7 +284,7 @@ describe('engine name collisions', () => {
     declare(dir, ['@deepseek-ai/dsh-session', 'left-pad'])
     install(dir, '@deepseek-ai/dsh-session')
     install(dir, 'left-pad')
-    expect(engineNameCollisions('qilin', dir)).toEqual([{ name: '@deepseek-ai/dsh-session', canonical: '@qilin/session' }])
+    expect(engineNameCollisions('qilin', dir)).toEqual([{ name: '@deepseek-ai/dsh-session', canonical: '@qilin-agent/session' }])
     let thrown: unknown
     try {
       assertNoEngineNameCollisions('qilin', dir)
@@ -293,18 +293,18 @@ describe('engine name collisions', () => {
     }
     expect(thrown).toBeInstanceOf(EngineNameCollisionError)
     const collision = thrown as EngineNameCollisionError
-    expect(collision.collisions).toEqual([{ name: '@deepseek-ai/dsh-session', canonical: '@qilin/session' }])
-    expect(collision.message).toContain('\'@deepseek-ai/dsh-session\' (QiLin provides it as \'@qilin/session\')')
+    expect(collision.collisions).toEqual([{ name: '@deepseek-ai/dsh-session', canonical: '@qilin-agent/session' }])
+    expect(collision.message).toContain('\'@deepseek-ai/dsh-session\' (QiLin provides it as \'@qilin-agent/session\')')
     expect(collision.message).toContain(`qilin plugin --profile ${basename(dir)} remove @deepseek-ai/dsh-session`)
     expect(collision.message).toContain('second copy of the engine')
   })
 
   it('ignores names the compatibility layer keeps verbatim and QiLin names', () => {
     const dir = tmp()
-    declare(dir, ['@qilin/schemastery', '@qilin/cosmokit', '@qilin/session'])
-    install(dir, '@qilin/schemastery')
-    install(dir, '@qilin/cosmokit')
-    install(dir, '@qilin/session')
+    declare(dir, ['@qilin-agent/schemastery', '@qilin-agent/cosmokit', '@qilin-agent/session'])
+    install(dir, '@qilin-agent/schemastery')
+    install(dir, '@qilin-agent/cosmokit')
+    install(dir, '@qilin-agent/session')
     expect(engineNameCollisions('qilin', dir)).toEqual([])
   })
 
@@ -490,7 +490,7 @@ describe('loadProfile', () => {
     })
     const manifestPath = join(anchor, '..', 'node_modules', 'guarded', 'package.json')
     writeFileSync(manifestPath, JSON.stringify({
-      ...JSON.parse(readFileSync(manifestPath, 'utf8')) as object, peerDependencies: { '@qilin/session': '999.0.0' },
+      ...JSON.parse(readFileSync(manifestPath, 'utf8')) as object, peerDependencies: { '@qilin-agent/session': '999.0.0' },
     }))
     const dir = resolveProfileDir('demo', tmp())
     initProfile(dir, ['guarded', 'kept'])
@@ -518,17 +518,17 @@ describe('loadProfile', () => {
     // the browser templates no longer seed the retired animations bundle, and
     // both compose the QiLin product layer.
     expect(PROFILE_TEMPLATES.web?.bundles)
-      .toEqual(['@qilin/base', '@qilin/web-app', '@qilin/web-brand'])
+      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand'])
     expect(PROFILE_TEMPLATES.qilin?.bundles)
-      .toEqual(['@qilin/base', '@qilin/web-app', '@qilin/web-brand'])
+      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand'])
     expect(PROFILE_TEMPLATES.acp).toEqual({
-      bundles: ['@qilin/base', '@qilin/acp-app'],
+      bundles: ['@qilin-agent/base', '@qilin-agent/acp-app'],
     })
     expect(PROFILE_TEMPLATES.sdk).toEqual({
-      bundles: ['@qilin/base', '@qilin/sdk-app'],
+      bundles: ['@qilin-agent/base', '@qilin-agent/sdk-app'],
     })
     expect(PROFILE_TEMPLATES['sdk-minimal']).toEqual({
-      bundles: ['@qilin/sdk-minimal'],
+      bundles: ['@qilin-agent/sdk-minimal'],
     })
     try {
       loadProfile('t', 'web', anchor, home)
@@ -541,21 +541,21 @@ describe('loadProfile', () => {
 
   it('restores the shipped template layers of a headless profile and keeps added ones', () => {
     const anchor = stageInstallation({
-      '@qilin/base': { patch: '[]\n' },
-      '@qilin/web-app': { patch: '[]\n' },
-      '@qilin/headless': { patch: '[]\n' },
+      '@qilin-agent/base': { patch: '[]\n' },
+      '@qilin-agent/web-app': { patch: '[]\n' },
+      '@qilin-agent/headless': { patch: '[]\n' },
       'custom-bundle': { patch: '[]\n' },
     })
     const home = tmp()
     const stock = resolveProfileDir('headless', home)
     initProfile(stock, [
-      '@qilin/base', '@qilin/web-app', '@qilin/headless',
+      '@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/headless',
     ])
     const retiredManifest = readProfileManifest('t', stock)
     writeProfileManifest(stock, retiredManifest)
     loadProfile('t', 'headless', anchor, home)
     expect(readProfileManifest('t', stock).qilin?.profile).toEqual({
-      bundles: ['@qilin/base', '@qilin/headless'],
+      bundles: ['@qilin-agent/base', '@qilin-agent/headless'],
     })
 
     // A layer the template never supplied belongs to the profile's owner and
@@ -563,45 +563,45 @@ describe('loadProfile', () => {
     const customHome = tmp()
     const custom = resolveProfileDir('headless', customHome)
     initProfile(custom, [
-      '@qilin/base', '@qilin/web-app', '@qilin/headless', 'custom-bundle',
+      '@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/headless', 'custom-bundle',
     ])
     loadProfile('t', 'headless', anchor, customHome)
     expect(readProfileManifest('t', custom).qilin?.profile?.bundles).toEqual([
-      '@qilin/base', '@qilin/headless', 'custom-bundle',
+      '@qilin-agent/base', '@qilin-agent/headless', 'custom-bundle',
     ])
   })
 
   it('retires the animations layer from browser profiles on normalization', () => {
     const anchor = stageInstallation({
-      '@qilin/base': { patch: '[]\n' },
-      '@qilin/web-app': { patch: '[]\n' },
-      '@qilin/web-brand': { patch: '[]\n' },
+      '@qilin-agent/base': { patch: '[]\n' },
+      '@qilin-agent/web-app': { patch: '[]\n' },
+      '@qilin-agent/web-brand': { patch: '[]\n' },
       'dsh-animations': { patch: '[]\n' },
       'custom-bundle': { patch: '[]\n' },
     })
     // A list an owner never edited, still carrying the seeded layer, drops it.
     const home = tmp()
     const web = resolveProfileDir('web', home)
-    initProfile(web, ['@qilin/base', '@qilin/web-app', 'dsh-animations'])
+    initProfile(web, ['@qilin-agent/base', '@qilin-agent/web-app', 'dsh-animations'])
     loadProfile('t', 'web', anchor, home)
     expect(readProfileManifest('t', web).qilin?.profile?.bundles)
-      .toEqual(['@qilin/base', '@qilin/web-app', '@qilin/web-brand'])
+      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand'])
 
     const qilinHome = tmp()
     const qilin = resolveProfileDir('qilin', qilinHome)
-    initProfile(qilin, ['@qilin/base', '@qilin/web-app', '@qilin/web-brand', 'dsh-animations'])
+    initProfile(qilin, ['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', 'dsh-animations'])
     loadProfile('t', 'qilin', anchor, qilinHome)
     expect(readProfileManifest('t', qilin).qilin?.profile?.bundles)
-      .toEqual(['@qilin/base', '@qilin/web-app', '@qilin/web-brand'])
+      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand'])
 
     // A list its owner extended keeps the additions and still loses the
     // retired layer.
     const customHome = tmp()
     const custom = resolveProfileDir('web', customHome)
-    initProfile(custom, ['@qilin/base', '@qilin/web-app', 'dsh-animations', 'custom-bundle'])
+    initProfile(custom, ['@qilin-agent/base', '@qilin-agent/web-app', 'dsh-animations', 'custom-bundle'])
     loadProfile('t', 'web', anchor, customHome)
     expect(readProfileManifest('t', custom).qilin?.profile?.bundles)
-      .toEqual(['@qilin/base', '@qilin/web-app', '@qilin/web-brand', 'custom-bundle'])
+      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', 'custom-bundle'])
     // Loading again writes nothing: the restored list converges.
     const settled = readProfileManifest('t', custom)
     loadProfile('t', 'web', anchor, customHome)
@@ -610,27 +610,27 @@ describe('loadProfile', () => {
 
   it('keeps a retired layer the plugin channel gave the profile', () => {
     const anchor = stageInstallation({
-      '@qilin/base': { patch: '[]\n' },
-      '@qilin/web-app': { patch: '[]\n' },
-      '@qilin/web-brand': { patch: '[]\n' },
+      '@qilin-agent/base': { patch: '[]\n' },
+      '@qilin-agent/web-app': { patch: '[]\n' },
+      '@qilin-agent/web-brand': { patch: '[]\n' },
       'dsh-animations': { patch: '[]\n' },
     })
     // A profile dependency says the plugin channel installed this copy, so the
     // retirement of the seeded layer must not undo the owner's install.
     const installedHome = tmp()
     const installed = resolveProfileDir('web', installedHome)
-    initProfile(installed, ['@qilin/base', '@qilin/web-app', 'dsh-animations'])
+    initProfile(installed, ['@qilin-agent/base', '@qilin-agent/web-app', 'dsh-animations'])
     const owned = readProfileManifest('t', installed)
     writeProfileManifest(installed, { ...owned, dependencies: { ...owned.dependencies, 'dsh-animations': '^1.2.4' } })
     loadProfile('t', 'web', anchor, installedHome)
     expect(readProfileManifest('t', installed).qilin?.profile?.bundles)
-      .toEqual(['@qilin/base', '@qilin/web-app', '@qilin/web-brand', 'dsh-animations'])
+      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', 'dsh-animations'])
 
     // An audiences record without the dependency says the owner manages the
     // layer through the plugin manager; it keeps the layer too.
     const recordedHome = tmp()
     const recorded = resolveProfileDir('web', recordedHome)
-    initProfile(recorded, ['@qilin/base', '@qilin/web-app', 'dsh-animations'])
+    initProfile(recorded, ['@qilin-agent/base', '@qilin-agent/web-app', 'dsh-animations'])
     const seeded = readProfileManifest('t', recorded)
     writeProfileManifest(recorded, {
       ...seeded,
@@ -638,57 +638,57 @@ describe('loadProfile', () => {
     })
     loadProfile('t', 'web', anchor, recordedHome)
     expect(readProfileManifest('t', recorded).qilin?.profile?.bundles)
-      .toEqual(['@qilin/base', '@qilin/web-app', '@qilin/web-brand', 'dsh-animations'])
+      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', 'dsh-animations'])
   })
 
   it('brands a web profile that an older installation initialized without the product layer', () => {
     const anchor = stageInstallation({
-      '@qilin/base': { patch: '[]\n' },
-      '@qilin/web-app': { patch: '[]\n' },
-      '@qilin/web-brand': { patch: '[]\n' },
+      '@qilin-agent/base': { patch: '[]\n' },
+      '@qilin-agent/web-app': { patch: '[]\n' },
+      '@qilin-agent/web-brand': { patch: '[]\n' },
     })
     // The 3.0.x web template seeded two layers; the template floor restores
     // the product layer on the next load without touching owner additions.
     const home = tmp()
     const dir = resolveProfileDir('web', home)
-    initProfile(dir, ['@qilin/base', '@qilin/web-app'])
+    initProfile(dir, ['@qilin-agent/base', '@qilin-agent/web-app'])
     loadProfile('t', 'web', anchor, home)
     expect(readProfileManifest('t', dir).qilin?.profile?.bundles)
-      .toEqual(['@qilin/base', '@qilin/web-app', '@qilin/web-brand'])
+      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand'])
   })
 
   it('restores a lost template layer for a template with no recorded retired tuple', () => {
     // Only the headless and browser surfaces carry installation-owned tuples;
     // every other template still restores a layer its profile lost.
     const anchor = stageInstallation({
-      '@qilin/base': { patch: '[]\n' },
-      '@qilin/acp-app': { patch: '[]\n' },
+      '@qilin-agent/base': { patch: '[]\n' },
+      '@qilin-agent/acp-app': { patch: '[]\n' },
       'custom-bundle': { patch: '[]\n' },
     })
     const home = tmp()
     const dir = resolveProfileDir('acp', home)
-    initProfile(dir, ['@qilin/base', 'custom-bundle'])
+    initProfile(dir, ['@qilin-agent/base', 'custom-bundle'])
     loadProfile('t', 'acp', anchor, home)
     expect(readProfileManifest('t', dir).qilin?.profile?.bundles)
-      .toEqual(['@qilin/base', '@qilin/acp-app', 'custom-bundle'])
+      .toEqual(['@qilin-agent/base', '@qilin-agent/acp-app', 'custom-bundle'])
   })
 
   it('marks every shipped layer fixed and a profile-installed layer updatable and removable', () => {
     const anchor = stageInstallation({
-      '@qilin/base': { patch: '[]\n' },
+      '@qilin-agent/base': { patch: '[]\n' },
     })
     // Inside the staged installation, so the shipped layer resolves from it.
     const dir = join(dirname(anchor), 'profile')
-    initProfile(dir, ['@qilin/base', 'dsh-animations'])
+    initProfile(dir, ['@qilin-agent/base', 'dsh-animations'])
     const installed = join(dir, 'node_modules', 'dsh-animations')
     mkdirSync(installed, { recursive: true })
     writeFileSync(join(installed, 'package.json'), JSON.stringify({ name: 'dsh-animations', version: '1.2.3' }))
-    const rows = readProfilePluginRows('t', dir, anchor, ['@qilin/base'])
+    const rows = readProfilePluginRows('t', dir, anchor, ['@qilin-agent/base'])
     // The retired animations bundle installed back through the plugin channel
     // is an owner layer: it upgrades and removes in place, unlike the shipped
     // layers that move with the installation.
     expect(rows).toEqual([
-      { name: '@qilin/base', layer: 0, version: '0.0.0', source: 'builtin', updatable: false, removable: false },
+      { name: '@qilin-agent/base', layer: 0, version: '0.0.0', source: 'builtin', updatable: false, removable: false },
       { name: 'dsh-animations', layer: 1, version: '1.2.3', source: 'user', updatable: true, removable: true },
     ])
   })
@@ -720,9 +720,9 @@ describe('healProfilesModuleFallback', () => {
   it('links legacy DSH dependency names to the installed QiLin package', async () => {
     const root = tmp()
     const app = join(root, 'app')
-    const canonical = join(app, 'node_modules', '@qilin', 'settings')
+    const canonical = join(app, 'node_modules', '@qilin-agent', 'settings')
     mkdirSync(canonical, { recursive: true })
-    writeFileSync(join(canonical, 'package.json'), JSON.stringify({ name: '@qilin/settings', version: '0.0.0' }))
+    writeFileSync(join(canonical, 'package.json'), JSON.stringify({ name: '@qilin-agent/settings', version: '0.0.0' }))
     const anchor = join(app, 'package.json')
     writeFileSync(anchor, JSON.stringify({ name: 'qilin-app', version: '0.0.0', dependencies: { '@deepseek-ai/dsh-settings': '0.0.0' } }))
     const home = tmp()

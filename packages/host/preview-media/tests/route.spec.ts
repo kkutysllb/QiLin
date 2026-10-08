@@ -14,17 +14,17 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterAll, beforeAll, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import * as Connection from '@qilin/client-connection'
-import LocalCredentials from '@qilin/credentials-local'
-import HttpServer from '@qilin/host-webserver'
-import * as FrontendStatic from '@qilin/host-frontend-static'
-import SessionStore, { SessionId } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import SandboxPolicyService from '@qilin/sandbox-policy'
-import SandboxedFileSystem from '@qilin/fs-sandbox'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import * as Connection from '@qilin-agent/client-connection'
+import LocalCredentials from '@qilin-agent/credentials-local'
+import HttpServer from '@qilin-agent/host-webserver'
+import * as FrontendStatic from '@qilin-agent/host-frontend-static'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import SandboxPolicyService from '@qilin-agent/sandbox-policy'
+import SandboxedFileSystem from '@qilin-agent/fs-sandbox'
 import * as PreviewMedia from '../src/index.ts'
 
 const MEDIA_LIMIT = 1024
@@ -51,29 +51,29 @@ beforeAll(async () => {
   await writeFile(join(root, 'index.html'), '<head></head><body>shell</body>')
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, [
-    "- name: '@qilin/credentials-local'",
+    "- name: '@qilin-agent/credentials-local'",
     '  config:',
     `    path: '${join(root, '.credentials.yaml')}'`,
     '    watch: false',
-    "- name: '@qilin/host-webserver'",
+    "- name: '@qilin-agent/host-webserver'",
     '  config:',
     "    host: '127.0.0.1'",
     '    port: 0',
-    "- name: '@qilin/client-connection'",
+    "- name: '@qilin-agent/client-connection'",
     '- id: frontend',
-    "  name: '@qilin/host-frontend-static'",
+    "  name: '@qilin-agent/host-frontend-static'",
     '  config:',
     `    distIndex: '${join(root, 'index.html')}'`,
-    "- name: '@qilin/session'",
-    "- name: '@qilin/session-projection'",
-    "- name: '@qilin/sandbox-policy'",
+    "- name: '@qilin-agent/session'",
+    "- name: '@qilin-agent/session-projection'",
+    "- name: '@qilin-agent/sandbox-policy'",
     '  config:',
     `    workspaceRoot: '${workspace}'`,
-    "- name: '@qilin/fs-sandbox'",
+    "- name: '@qilin-agent/fs-sandbox'",
     '  config:',
     `    cwd: '${workspace}'`,
     '- id: preview-media',
-    "  name: '@qilin/host-preview-media'",
+    "  name: '@qilin-agent/host-preview-media'",
     '  config:',
     `    mediaLimitBytes: ${String(MEDIA_LIMIT)}`,
     '',
@@ -83,15 +83,15 @@ beforeAll(async () => {
   await context.plugin(Loader)
   context.loader.builtins.include = Include
   const modules = new Map<string, unknown>([
-    ['@qilin/credentials-local', LocalCredentials],
-    ['@qilin/host-webserver', HttpServer],
-    ['@qilin/client-connection', Connection],
-    ['@qilin/host-frontend-static', FrontendStatic],
-    ['@qilin/session', SessionStore],
-    ['@qilin/session-projection', SessionProjectionRegistry],
-    ['@qilin/sandbox-policy', SandboxPolicyService],
-    ['@qilin/fs-sandbox', SandboxedFileSystem],
-    ['@qilin/host-preview-media', PreviewMedia],
+    ['@qilin-agent/credentials-local', LocalCredentials],
+    ['@qilin-agent/host-webserver', HttpServer],
+    ['@qilin-agent/client-connection', Connection],
+    ['@qilin-agent/host-frontend-static', FrontendStatic],
+    ['@qilin-agent/session', SessionStore],
+    ['@qilin-agent/session-projection', SessionProjectionRegistry],
+    ['@qilin-agent/sandbox-policy', SandboxPolicyService],
+    ['@qilin-agent/fs-sandbox', SandboxedFileSystem],
+    ['@qilin-agent/host-preview-media', PreviewMedia],
   ])
   const internal: Partial<NonNullable<typeof context.loader.internal>> = {
     version: 'v2',

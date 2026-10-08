@@ -7,18 +7,18 @@
  * Feature-owned rows and sections stay with their features.
  * Export discipline: packages/client/AGENTS.md.
  */
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { ConnectionHandle } from '@qilin/client-connection/client'
-import { resolveSlotLabel } from '@qilin/client-ui-slots'
-import { closeTopModal } from '@qilin/client-ui-primitives'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { ConnectionHandle } from '@qilin-agent/client-connection/client'
+import { resolveSlotLabel } from '@qilin-agent/client-ui-slots'
+import { closeTopModal } from '@qilin-agent/client-ui-primitives'
 // Type-only: the settings slot declarations. Cross-plugin collaboration goes
 // through the service, never a value import (client bundle purity gate).
-import type {} from '@qilin/client-ui-settings/client'
+import type {} from '@qilin-agent/client-ui-settings/client'
 // Type-only: pulls ctx.locale into this program.
-import type {} from '@qilin/client-locale/client'
-import type { ShortcutCommandId } from '@qilin/client-shortcuts/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-session/client'
+import type {} from '@qilin-agent/client-locale/client'
+import type { ShortcutCommandId } from '@qilin-agent/client-shortcuts/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-session/client'
 import type {
   SettingsOnboardingStep, SettingsRootInjected, SettingsSectionRow, SettingsShell,
 } from './shell-contract.ts'
@@ -46,7 +46,7 @@ export type { SettingsDocumentState } from './settings-document-store.ts'
 export { SettingsDocumentStore } from './settings-document-store.ts'
 export type { SettingsKey } from './locales.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Shell chrome + shell-owned General section copy. */
     settings: SettingsKey

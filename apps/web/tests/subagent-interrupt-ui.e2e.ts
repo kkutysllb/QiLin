@@ -18,9 +18,9 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import type { SessionEvent, SessionId } from '@qilin/session'
-import type { Agent } from '@qilin/agent'
-import type { SubagentPromptRequestId } from '@qilin/subagent'
+import type { SessionEvent, SessionId } from '@qilin-agent/session'
+import type { Agent } from '@qilin-agent/agent'
+import type { SubagentPromptRequestId } from '@qilin-agent/subagent'
 import {
   acknowledgeReloadConnectionLoss, assertFixtureInventory, captureStableAria, compareOrRefreshGolden,
   launchWebScaffold, readPersistedEvents, watchConsole, webSnapshotMode, type WebScaffold,

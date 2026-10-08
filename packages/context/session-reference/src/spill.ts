@@ -1,7 +1,7 @@
 /** Full projected transcripts and model-visible spill outcomes for bounded reference previews. */
 
-import type { SessionId } from '@qilin/session'
-import type { SaveTextSpill, SpillRef, SpillStore } from '@qilin/spill'
+import type { SessionId } from '@qilin-agent/session'
+import type { SaveTextSpill, SpillRef, SpillStore } from '@qilin-agent/spill'
 import type { ReferencedSessionData, ReferenceRetentionStats } from './projection.ts'
 
 /** Warning shared by inline previews and retrievable full transcripts. */

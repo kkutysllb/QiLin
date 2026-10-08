@@ -13,10 +13,10 @@ import { dirname, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { act, cleanup } from '@testing-library/react'
 import { afterEach, beforeEach, vi } from 'vitest'
-import { bootInjections, orderByModuleGraph } from '@qilin/client-modules'
-import type { ClientModuleLoaderTarget, WebBootEntry, WebBootGraph } from '@qilin/client-modules/client'
-import type { RemoteMock } from '@qilin/remote-mock'
-import { AppWebEntry } from '@qilin/client-web'
+import { bootInjections, orderByModuleGraph } from '@qilin-agent/client-modules'
+import type { ClientModuleLoaderTarget, WebBootEntry, WebBootGraph } from '@qilin-agent/client-modules/client'
+import type { RemoteMock } from '@qilin-agent/remote-mock'
+import { AppWebEntry } from '@qilin-agent/client-web'
 import {
   createAssembledRemote, type AssembledRemote, type AssembledRemoteOptions,
 } from './assembled-remote.ts'
@@ -76,7 +76,7 @@ const workspacePackageManifests = new Map(globSync('packages/*/*/package.json', 
   if (pkg.name === undefined) throw new Error(`assembled boot: workspace package has no name: ${path}`)
   return [pkg.name, path]
 }))
-const appBoot = await import(pathToFileURL(webBundleResolver.resolve('@qilin/app-boot')).href) as unknown as BootComposition
+const appBoot = await import(pathToFileURL(webBundleResolver.resolve('@qilin-agent/app-boot')).href) as unknown as BootComposition
 
 function resolvePackageManifest(specifier: string): string | undefined {
   return workspacePackageManifests.get(specifier)
@@ -129,7 +129,7 @@ function loadAssembledPlugins(): readonly AssembledPlugin[] {
 
 const PLUGINS = loadAssembledPlugins()
 
-const BOOTSTRAP_IDS = ['@qilin/client-modules'] as const
+const BOOTSTRAP_IDS = ['@qilin-agent/client-modules'] as const
 
 /** Build the fixture graph after applying per-scenario package exclusions. */
 function bootGraph(plugins: readonly AssembledPlugin[]): WebBootGraph {

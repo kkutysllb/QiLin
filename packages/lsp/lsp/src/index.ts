@@ -8,11 +8,11 @@
  * invalid or conflicting registration publishes nothing, and its disposer releases every
  * reservation together. Selection routes a query by the file's final extension; it never depends on
  * registration order. The seam exposes exactly the four operations and no JSON-RPC escape hatch.
- * @module @qilin/lsp
+ * @module @qilin-agent/lsp
  */
 
-import { Context, Service } from '@qilin/kylin'
-import { HarnessError } from '@qilin/llm'
+import { Context, Service } from '@qilin-agent/kylin'
+import { HarnessError } from '@qilin-agent/llm'
 import type { LspProviderId } from './brand.ts'
 import type {
   LspProvider,
@@ -35,7 +35,7 @@ export type {
   LspService,
 } from './types.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     lsp: LspService
   }

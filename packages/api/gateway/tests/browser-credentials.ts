@@ -1,4 +1,4 @@
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 
 const browserCookies = new WeakMap<Context, string>()
 

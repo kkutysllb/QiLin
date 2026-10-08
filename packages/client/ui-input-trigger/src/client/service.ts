@@ -5,12 +5,12 @@
  * {@link InputTriggerController}; the service only registers sources, resolves
  * controllers by session scope, and relays roster changes.
  */
-import { Service } from '@qilin/kylin'
-import type { Context } from '@qilin/kylin'
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { ISessions, SessionBinding } from '@qilin/api-session-controller/client'
-import { WeakMapWithValues } from '@qilin/util-values'
-import type {} from '@qilin/client-locale/client'
+import { Service } from '@qilin-agent/kylin'
+import type { Context } from '@qilin-agent/kylin'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { ISessions, SessionBinding } from '@qilin-agent/api-session-controller/client'
+import { WeakMapWithValues } from '@qilin-agent/util-values'
+import type {} from '@qilin-agent/client-locale/client'
 import type { InputTriggerSource } from '../types.ts'
 import { InputTriggerController } from './controller.ts'
 import type { InputTriggerServiceContract } from './contract.ts'

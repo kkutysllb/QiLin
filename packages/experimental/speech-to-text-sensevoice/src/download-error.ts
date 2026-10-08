@@ -1,6 +1,6 @@
 /** Download failures retain their cause locally and expose only safe, structured diagnostics to clients. */
-import type { SpeechDownloadFailure } from '@qilin/experimental-speech-to-text/types'
-import { TimeoutReason } from '@qilin/timeout'
+import type { SpeechDownloadFailure } from '@qilin-agent/experimental-speech-to-text/types'
+import { TimeoutReason } from '@qilin-agent/timeout'
 
 type FailureKind = Pick<SpeechDownloadFailure, 'reason' | 'code'>
 

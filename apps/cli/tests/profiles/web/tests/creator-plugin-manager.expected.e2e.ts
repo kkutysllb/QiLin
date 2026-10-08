@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { expect, it } from 'vitest'
-import { readProfileManifest } from '@qilin/app-boot'
+import { readProfileManifest } from '@qilin-agent/app-boot'
 import { startHttpMcpFixture } from '../../../../../../packages/mcp/mcp-client/tests/http-fixture.ts'
 
 interface Observation {
@@ -36,7 +36,7 @@ it('configures MCP on a live profile, restores it on restart, and removes its to
   await writeFile(join(bundle, 'package.json'), JSON.stringify({ name: '@test/creator-mcp', version: '1.0.0',
     qilin: { bundle: { patch: './cordis.patch.yml' } } }))
   await writeFile(join(bundle, 'cordis.patch.yml'), JSON.stringify([{ insert: [{ id: 'demo',
-    name: '@qilin/mcp-client', config: { serverName: 'demo', transport: 'streamable-http',
+    name: '@qilin-agent/mcp-client', config: { serverName: 'demo', transport: 'streamable-http',
       url: mcp.url, failOnStartupError: true },
   }] }]))
   const patch = join(root, 'test.patch.yml')

@@ -3,7 +3,7 @@ description: "Control Chromium through Stagehand native browser operations and e
 kind: "package-reference"
 ---
 
-# @qilin/experimental-browser-use-stagehand-native
+# @qilin-agent/experimental-browser-use-stagehand-native
 
 English | [中文](README.zh.md)
 
@@ -30,8 +30,8 @@ Mount this provider in a profile that supplies Agents, Sessions, the tool regist
 ### Minimal configuration
 
 ```yaml
-- name: '@qilin/browser-use'
-- name: '@qilin/experimental-browser-use-stagehand-native'
+- name: '@qilin-agent/browser-use'
+- name: '@qilin-agent/experimental-browser-use-stagehand-native'
   config:
     mode: launch
     headless: true
@@ -134,7 +134,7 @@ Unchanged guidance preserves its prompt prefix. Mounting or removing the provide
 
 #### What the model sees
 
-The [`stagehand_` tool catalog](../../../docs/tool-catalog.md#qilinexperimental-browser-use-stagehand-native) defines navigation, tab management, screenshots, actions, observation, and extraction. Results contain current page facts or validated structured data. Supported screenshots appear as durable image attachments. Errors remain visible so the model can inspect state before retrying.
+The [`stagehand_` tool catalog](../../../docs/tool-catalog.md#qilin-agentexperimental-browser-use-stagehand-native) defines navigation, tab management, screenshots, actions, observation, and extraction. Results contain current page facts or validated structured data. Supported screenshots appear as durable image attachments. Errors remain visible so the model can inspect state before retrying.
 
 #### Token effect
 

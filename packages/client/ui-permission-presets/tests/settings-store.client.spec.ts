@@ -1,9 +1,9 @@
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
-import type { SettingsNamespaceView } from '@qilin/api-remotes/client'
-import { SettingsSchemaService } from '@qilin/client-ui-settings/src/client/schema.ts'
-import { SettingsDescribeMirror } from '@qilin/client-ui-settings/src/client/settings-mirror.ts'
-import { RemoteError } from '@qilin/client-test-runtime'
+import type { SettingsNamespaceView } from '@qilin-agent/api-remotes/client'
+import { SettingsSchemaService } from '@qilin-agent/client-ui-settings/src/client/schema.ts'
+import { SettingsDescribeMirror } from '@qilin-agent/client-ui-settings/src/client/settings-mirror.ts'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
 import {
   PermissionPresetSettingsController, permissionDefaultOf,
 } from '../src/client/settings-store.ts'

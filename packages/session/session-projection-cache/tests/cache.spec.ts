@@ -14,7 +14,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { z } from 'zod'
 import SessionStore, {
   SESSION_FORMAT_VERSION,
@@ -22,22 +22,22 @@ import SessionStore, {
   SessionId,
   SessionLogOffset,
   SessionSeq,
-} from '@qilin/session'
-import type { SessionEvent, SessionHeader } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import type { ProjectionDefinition } from '@qilin/session-projection'
-import Storage from '@qilin/storage'
+} from '@qilin-agent/session'
+import type { SessionEvent, SessionHeader } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import type { ProjectionDefinition } from '@qilin-agent/session-projection'
+import Storage from '@qilin-agent/storage'
 import {
   apply as storageJsonApply, Config as storageJsonConfig, inject as storageJsonInject, name as storageJsonName,
-} from '@qilin/storage-json'
+} from '@qilin-agent/storage-json'
 import {
   apply as storageDomainApply, Config as storageDomainConfig, inject as storageDomainInject, name as storageDomainName,
-} from '@qilin/storage-domain'
+} from '@qilin-agent/storage-domain'
 import SessionProjectionCache from '../src/index.ts'
 import { checkpointRecord, projectionCacheDomainSpec } from '../src/spec.ts'
 import type { CheckpointRecord } from '../src/spec.ts'
 
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionStateMap {
     'cache-test/marks': MarksState
     'cache-test/secondary-marks': MarksState
@@ -55,7 +55,7 @@ declare module '@qilin/session-projection/types' {
   }
 }
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     'cache-test/mark': { marks: string[] }
   }

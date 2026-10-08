@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
-import { credentialRef } from '@qilin/credentials'
-import { createLaunchEnvironmentSnapshot, QILIN_LAUNCH_ENVIRONMENT_KEY } from '@qilin/launch-environment'
-import type { CredentialRef } from '@qilin/credentials'
+import { credentialRef } from '@qilin-agent/credentials'
+import { createLaunchEnvironmentSnapshot, QILIN_LAUNCH_ENVIRONMENT_KEY } from '@qilin-agent/launch-environment'
+import type { CredentialRef } from '@qilin-agent/credentials'
 import { LocalCredentialProvider, resolveSpec } from '../src/index.ts'
 
 function writeCredentials(file: string, text: string): Promise<void> {

@@ -8,11 +8,11 @@
  * viewer: the editor writes, and a write needs the authorizing Session a bare
  * absolute address does not carry. The editable-extension classification the
  * claim shares with the preview's edit affordance lives in
- * `@qilin/util-workspace-path`.
+ * `@qilin-agent/util-workspace-path`.
  * @module
  */
-import { acceptsPath, parseFileAddress } from '@qilin/util-workspace-path'
-import type { SessionId } from '@qilin/session/types'
+import { acceptsPath, parseFileAddress } from '@qilin-agent/util-workspace-path'
+import type { SessionId } from '@qilin-agent/session/types'
 
 /** The session and path one claimed address names, as the endpoints receive them. */
 export interface SessionFile {

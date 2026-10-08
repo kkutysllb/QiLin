@@ -4,14 +4,14 @@ import {
   SessionFormatUnsupportedMigrationError,
   sessionFormatCount,
   sessionFormatSafeInteger,
-} from '@qilin/session-format'
-import { isJsonValue } from '@qilin/util-values'
+} from '@qilin-agent/session-format'
+import { isJsonValue } from '@qilin-agent/util-values'
 import type {
   SessionFormatArtifact,
   SessionFormatEvent,
   SessionFormatHeader,
   SessionFormatJsonValue,
-} from '@qilin/session-format'
+} from '@qilin-agent/session-format'
 import { RELEASED_V0_EVENT_DISPOSITIONS } from './dispositions.ts'
 import { assertReleasedPayloadSemantics } from './payload-validation.ts'
 import { assertReleasedV0Keys, releasedV0Record } from './validation-helpers.ts'

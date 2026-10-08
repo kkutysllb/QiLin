@@ -1,7 +1,7 @@
 /** Browser implementation of the Cordis timer Service. */
 
-import { Service } from '@qilin/kylin'
-import type { Context } from '@qilin/kylin'
+import { Service } from '@qilin-agent/kylin'
+import type { Context } from '@qilin-agent/kylin'
 
 /*
  * The browser Service preserves the vendored Host TimerService's erased callback tuples and arbitrary
@@ -14,7 +14,7 @@ import type { Context } from '@qilin/kylin'
 /* oxlint-disable typescript/no-unsafe-return -- The erased generic return values pass through unchanged. */
 /* oxlint-disable typescript/prefer-promise-reject-errors -- Async iterators preserve arbitrary throw reasons. */
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context extends Pick<ClientTimerService, 'interval' | 'timeout' | 'throttle' | 'debounce' | 'setTimeout' | 'setInterval'> {
     /** Browser timer Service used by the mixed-in Context helpers. */
     timer: ClientTimerService

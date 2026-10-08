@@ -14,8 +14,8 @@
  */
 import { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
 import clsx from 'clsx'
-import { IconChevronRightOutline14, ReferenceIcon, useAnchoredMaxHeight } from '@qilin/client-ui-primitives'
-import type { PropsLocale } from '@qilin/client-ui-slots'
+import { IconChevronRightOutline14, ReferenceIcon, useAnchoredMaxHeight } from '@qilin-agent/client-ui-primitives'
+import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import css from './MenuView.module.css'
 import type { MenuViewInjected } from './slots.ts'
 import type { MenuKey } from './locales.ts'

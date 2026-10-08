@@ -1,24 +1,24 @@
 /**
  * Log-backed session title service, deterministic fallback, and provider contract.
- * @module @qilin/session-title
+ * @module @qilin-agent/session-title
  */
 
-import { Context, FiberState, Service, type Fiber } from '@qilin/kylin'
-import z from '@qilin/schemastery'
+import { Context, FiberState, Service, type Fiber } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
 import { z as zod } from 'zod'
 import type { ZodType } from 'zod'
-import type { Branded } from '@qilin/brand'
-import { isAgentLoopRequest } from '@qilin/llm'
-import type { GenerateOptions } from '@qilin/llm'
-import { assertNever, deepFreeze } from '@qilin/util-values'
+import type { Branded } from '@qilin-agent/brand'
+import { isAgentLoopRequest } from '@qilin-agent/llm'
+import type { GenerateOptions } from '@qilin-agent/llm'
+import { assertNever, deepFreeze } from '@qilin-agent/util-values'
 import type {
   Session,
   SessionEvent,
-} from '@qilin/session'
-import { SessionSeq } from '@qilin/session'
-import type {} from '@qilin/session-projection'
-import type { ProjectionDefinition } from '@qilin/session-projection'
-import type {} from '@qilin/agent'
+} from '@qilin-agent/session'
+import { SessionSeq } from '@qilin-agent/session'
+import type {} from '@qilin-agent/session-projection'
+import type { ProjectionDefinition } from '@qilin-agent/session-projection'
+import type {} from '@qilin-agent/agent'
 export type {
   SessionTitleEventData,
   SessionTitleModelIdentity,
@@ -62,13 +62,13 @@ export interface Config {
   readonly maxTitleBytes: number
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     sessionTitle: SessionTitleService
   }
 }
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /**
      * Latest-wins session title snapshot. Log-only: it never enters the model

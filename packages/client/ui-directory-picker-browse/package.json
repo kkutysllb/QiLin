@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-ui-directory-picker-browse",
+  "name": "@qilin-agent/client-ui-directory-picker-browse",
   "description": "In-app directory browsing surface: the workspace directory-flow owner rendering the host's listing and creation primitives",
   "version": "3.1.1",
   "publishConfig": {
@@ -31,10 +31,10 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/api-remotes",
-        "@qilin/client-ui-renderer",
-        "@qilin/client-ui-workspace",
-        "@qilin/client-locale"
+        "@qilin-agent/api-remotes",
+        "@qilin-agent/client-ui-renderer",
+        "@qilin-agent/client-ui-workspace",
+        "@qilin-agent/client-locale"
       ],
       "platform": "web"
     }
@@ -45,19 +45,19 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/api-remotes": "workspace:*",
-    "@qilin/client-locale": "workspace:*",
-    "@qilin/client-test-runtime": "workspace:*",
-    "@qilin/client-ui-primitives": "workspace:*",
-    "@qilin/client-ui-renderer": "workspace:*",
-    "@qilin/client-ui-slots": "workspace:*",
-    "@qilin/client-ui-workspace": "workspace:*",
+    "@qilin-agent/api-remotes": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/client-ui-workspace": "workspace:*",
     "@testing-library/react": "^16.1.0",
     "@types/react": "~18.3.1",
-    "@qilin/kylin": "workspace:~",
+    "@qilin-agent/kylin": "workspace:~",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "clsx": "^2.0.0"

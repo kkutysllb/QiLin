@@ -3,10 +3,10 @@
  * Only command hooks run; other hook types are returned as skipped so the
  * bridge can warn. Plugin-root and project-directory substitutions are applied
  * to commands at parse time.
- * @module @qilin/hooks-claude-code/config
+ * @module @qilin-agent/hooks-claude-code/config
  */
 
-import { matcherDiagnostic, type MatcherGroup } from '@qilin/hook-protocol'
+import { matcherDiagnostic, type MatcherGroup } from '@qilin-agent/hook-protocol'
 
 const CLAUDE_EVENTS = [
   'SessionStart',

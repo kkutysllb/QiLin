@@ -15,14 +15,14 @@
  * This row therefore waits for it rather than assuming it: a preset selecting
  * PTC mode against a deployment that composes no runtime fails at mount, named
  * in the preset's own activation audit, instead of at the first prompt.
- * @module @qilin/agent-tool-presentation
+ * @module @qilin-agent/agent-tool-presentation
  */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type { ToolPresentationMode } from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type { ToolPresentationMode } from '@qilin-agent/tools'
 // Type-only: brings the `ctx.tools` Context merge into this program.
-import type {} from '@qilin/tools'
+import type {} from '@qilin-agent/tools'
 
 /** Cordis plugin name. */
 export const name = 'tool-presentation'

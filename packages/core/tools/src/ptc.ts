@@ -3,24 +3,24 @@
  * tools through nested executions scheduled under the native concurrency
  * contract; each sub-dispatch is logged for reconstruction, while only the
  * outer curated result enters model history.
- * @module @qilin/tools/src/ptc
+ * @module @qilin-agent/tools/src/ptc
  */
 
-import { brandString } from '@qilin/brand'
-import { createUserMessage, HarnessError } from '@qilin/llm'
-declare module '@qilin/llm' {
+import { brandString } from '@qilin-agent/brand'
+import { createUserMessage, HarnessError } from '@qilin-agent/llm'
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     /** Images deferred from a successful PTC subcall's final result. */
     'ptc-mode': { kind: 'ptc-mode' }
   }
 }
 
-import type { ContentBlock, ToolCallId, ToolSchema } from '@qilin/llm'
-import type { PtcBindingFunction, PtcRunResult, PtcRunSandbox, PtcRuntime } from '@qilin/ptc-runtime'
-import { approveEscalation, ESCALATION_TARGETS, validateEscalationArgs } from '@qilin/sandbox'
-import type { SandboxExecutionPolicy } from '@qilin/sandbox'
-import type { ApprovalService } from '@qilin/user-approval'
-import { deepFreeze, snapshotJsonValue, type JsonValue } from '@qilin/util-values'
+import type { ContentBlock, ToolCallId, ToolSchema } from '@qilin-agent/llm'
+import type { PtcBindingFunction, PtcRunResult, PtcRunSandbox, PtcRuntime } from '@qilin-agent/ptc-runtime'
+import { approveEscalation, ESCALATION_TARGETS, validateEscalationArgs } from '@qilin-agent/sandbox'
+import type { SandboxExecutionPolicy } from '@qilin-agent/sandbox'
+import type { ApprovalService } from '@qilin-agent/user-approval'
+import { deepFreeze, snapshotJsonValue, type JsonValue } from '@qilin-agent/util-values'
 import { defineTool, parameterSchemaSpecToJsonSchema } from './schema.ts'
 import { TOOL_RUNTIME_SCHEDULER } from './index.ts'
 import type { PtcDispatchLog, ToolDefinition, ToolExecutionResult, ToolRuntime, ToolRunContext } from './index.ts'

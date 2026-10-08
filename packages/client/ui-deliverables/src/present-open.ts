@@ -1,13 +1,13 @@
 /** Serve change summaries and comparisons, and open declared or changed workspace files verified by the viewed Session's filesystem. */
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/api-session-controller'
-import type {} from '@qilin/api-workspace-files'
-import type {} from '@qilin/fs'
-import type {} from '@qilin/sandbox-policy'
-import { remoteErrorOf } from '@qilin/typert-protocol'
-import type {} from '@qilin/client-connection'
-import type {} from '@qilin/session-query'
-import type { SessionId, SessionSeq } from '@qilin/session'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/api-session-controller'
+import type {} from '@qilin-agent/api-workspace-files'
+import type {} from '@qilin-agent/fs'
+import type {} from '@qilin-agent/sandbox-policy'
+import { remoteErrorOf } from '@qilin-agent/typert-protocol'
+import type {} from '@qilin-agent/client-connection'
+import type {} from '@qilin-agent/session-query'
+import type { SessionId, SessionSeq } from '@qilin-agent/session'
 import {
   CHANGES_DIFF_PATH, CHANGES_OPEN_PATH, CHANGES_SESSION_PATH, CHANGED_FILES_PATH, type ChangesSession,
   type ChangesSummary,

@@ -1,16 +1,16 @@
 /** Click-to-record toolbar activity; transcripts remain in the original Session draft. */
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
-import type { TokenSpan } from '@qilin/client-ui-conversation/client'
-import type { TranscriptionRequest } from '@qilin/experimental-api-speech-to-text/types'
-import type { SpeechPreparationOptions, SpeechProviderId, SpeechSelection, SpeechSelectionPatch, Transcript } from '@qilin/experimental-speech-to-text/types'
-import type { RemoteResult } from '@qilin/typert-protocol'
+import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type { TokenSpan } from '@qilin-agent/client-ui-conversation/client'
+import type { TranscriptionRequest } from '@qilin-agent/experimental-api-speech-to-text/types'
+import type { SpeechPreparationOptions, SpeechProviderId, SpeechSelection, SpeechSelectionPatch, Transcript } from '@qilin-agent/experimental-speech-to-text/types'
+import type { RemoteResult } from '@qilin-agent/typert-protocol'
 import { RecordingError, audioBase64, type Recording } from './audio.ts'
 import type { SpeechReadiness } from './readiness.ts'
 import { Waveform } from './Waveform.tsx'
 import { VoiceSetupDialog } from './VoiceSetupDialog.tsx'
 import { NS } from './locales.ts'
-import { Button, IconCloseOutline16, IconStopFill16, IconMicrophoneOutline16, StateDot, Tooltip } from '@qilin/client-ui-primitives'
+import { Button, IconCloseOutline16, IconStopFill16, IconMicrophoneOutline16, StateDot, Tooltip } from '@qilin-agent/client-ui-primitives'
 import css from './VoiceInput.module.css'
 
 /** Host calls injected without exposing a Cordis Context to React. */

@@ -3,7 +3,7 @@ description: "右侧 Sidebar 浏览器 tab：在 sandbox 中访问 HTTP(S) 页�
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-sidebar-browser
+# @qilin-agent/client-ui-sidebar-browser
 
 [English](README.md) | 中文
 
@@ -37,7 +37,7 @@ kind: "package-reference"
 
 ```yaml
 - id: ui-sidebar-browser
-  name: '@qilin/client-ui-sidebar-browser'
+  name: '@qilin-agent/client-ui-sidebar-browser'
 ```
 
 Client 插件可以调用 `ctx.sidebarRight.openTab('browser', { params: { url } })` 打开 tab。可选 URL 会在导航前接受与地址栏输入相同的校验。

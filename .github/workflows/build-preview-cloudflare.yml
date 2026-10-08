@@ -87,7 +87,7 @@ jobs:
       - name: Build the preview page and pack the VFS image
         env:
           QILIN_CLIENT_TITLE: QILIN preview pr-${{ github.event.pull_request.number }}
-        run: pnpm --filter @qilin/web-frontend run build:preview
+        run: pnpm --filter @qilin-agent/web-frontend run build:preview
 
       # Sourcemaps carry complete sources and stay off the deployment platform.
       # index.html is the served page, which cannot boot without a host

@@ -3,7 +3,7 @@ description: "The managed QILIN_* shell environment for users and maintainers ch
 kind: "package-reference"
 ---
 
-# @qilin/shell-env
+# @qilin-agent/shell-env
 
 English | [中文](README.zh.md)
 
@@ -36,8 +36,8 @@ Every call receives `QILIN_HOME` (the absolute Harness home), `QILIN_SHELL=1`, a
 Other plugins contribute facts by registering a contributor with a stable name, the complete set of `QILIN_*` keys it may return, a description per key, and a resolver that computes values for one execution:
 
 ```ts
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/shell-env'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/shell-env'
 
 export const inject = ['shellEnv']
 
@@ -60,7 +60,7 @@ The single config field picks the home directory exposed as `QILIN_HOME`; the de
 |---|---|---|
 | `qilinHome` | `$QILIN_HOME`, then `~/.qilin` | Absolute Harness home exposed as `QILIN_HOME` |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#qilinshell-env) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agentshell-env) is the exhaustive source for every accepted field and its JSDoc.
 
 ### What can go wrong
 
@@ -106,7 +106,7 @@ Read these pages when the package-level contract is not enough. They move from t
 - [tool-bash](../tool-bash/README.md) — the bash tool that consumes this environment.
 - [tool-pwsh](../tool-pwsh/README.md) — the pwsh tool that consumes this environment.
 - [home paths package](../../util/home-paths/README.md) — how `QILIN_HOME` is resolved.
-- [Generated configuration catalog](../../../docs/config-catalog.md#qilinshell-env) — every accepted config field and its source declaration.
+- [Generated configuration catalog](../../../docs/config-catalog.md#qilin-agentshell-env) — every accepted config field and its source declaration.
 
 -----
 

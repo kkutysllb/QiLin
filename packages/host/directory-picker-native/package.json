@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/host-directory-picker-native",
+  "name": "@qilin-agent/host-directory-picker-native",
   "description": "Native-OS-chooser backend of the directory-picker seam for the QiLin web GUI host",
   "version": "3.1.1",
   "publishConfig": {
@@ -35,15 +35,15 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@qilin/host-directory-picker": "workspace:*",
-    "@qilin/native-command": "workspace:*",
+    "@qilin-agent/host-directory-picker": "workspace:*",
+    "@qilin-agent/native-command": "workspace:*",
     "koffi": "3.1.1"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
+    "@qilin-agent/kylin": "workspace:~",
     "tsx": "^4.19.2"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/sandbox-windows-acl",
+  "name": "@qilin-agent/sandbox-windows-acl",
   "description": "Windows ACL write-restriction sandbox backend (restricted-token spawn with capability-SID write allowlist) for the QiLin sandbox seam",
   "version": "3.1.1",
   "publishConfig": {
@@ -37,24 +37,24 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/subprocess": "workspace:*",
-    "@qilin/skill": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/subprocess": "workspace:*",
+    "@qilin-agent/skill": "workspace:*"
   },
   "dependencies": {
-    "@qilin/lazy-require": "workspace:*",
-    "@qilin/win32-process": "workspace:*",
+    "@qilin-agent/lazy-require": "workspace:*",
+    "@qilin-agent/win32-process": "workspace:*",
     "koffi": "3.1.1",
     "yaml": "^2.4.2"
   },
   "devDependencies": {
-    "@qilin/pwsh-local": "workspace:*",
-    "@qilin/sandbox-local": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/subprocess": "workspace:*",
-    "@qilin/subprocess-local": "workspace:*",
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/kylin-plugin-include": "workspace:~",
-    "@qilin/skill": "workspace:*"
+    "@qilin-agent/pwsh-local": "workspace:*",
+    "@qilin-agent/sandbox-local": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/subprocess": "workspace:*",
+    "@qilin-agent/subprocess-local": "workspace:*",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/skill": "workspace:*"
   }
 }

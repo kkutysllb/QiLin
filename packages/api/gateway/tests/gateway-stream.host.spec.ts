@@ -3,11 +3,11 @@ import { once } from 'node:events'
 import { queryObjects } from 'node:v8'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import WebSocket, { type RawData } from 'ws'
-import { Context, symbols } from '@qilin/kylin'
-import { apply as applyConnection, inject as connectionInject } from '@qilin/client-connection'
-import WebServer from '@qilin/host-webserver'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
-import type { AppReady } from '@qilin/cmdline'
+import { Context, symbols } from '@qilin-agent/kylin'
+import { apply as applyConnection, inject as connectionInject } from '@qilin-agent/client-connection'
+import WebServer from '@qilin-agent/host-webserver'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
+import type { AppReady } from '@qilin-agent/cmdline'
 import {
   Remote,
   remoteErrorOf,
@@ -19,10 +19,10 @@ import {
   type TypertContextMap,
   type TypertContextWire,
   RemoteError,
-} from '@qilin/typert-protocol'
-import TypertRegistry from '@qilin/typert-registry'
+} from '@qilin-agent/typert-protocol'
+import TypertRegistry from '@qilin-agent/typert-registry'
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface RemoteErrorDetailsMap {
     'fixture/rejected': { readonly retryable: boolean }
     'fixture/broken': { readonly count: bigint }
@@ -35,7 +35,7 @@ import TypertGatewayService, {
   type TypertRemoteEventDispatch,
   type TypertRemoteEventInvocation,
   type TypertRemoteEventOutcome,
-} from '@qilin/api-gateway'
+} from '@qilin-agent/api-gateway'
 import { z } from 'zod'
 import type {
   RemoteEventClientId,

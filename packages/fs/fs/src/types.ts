@@ -2,11 +2,11 @@
  * Vocabulary for the filesystem Service Definition (`ctx.fs`): the opaque target/version
  * identities, the metadata `stat` returns, the write-intent and outcome shapes, the
  * literal-edit request/outcome, and the typed error taxonomy.
- * @module @qilin/fs/types
+ * @module @qilin-agent/fs/types
  */
 
-import { HarnessError } from '@qilin/llm'
-import type { Branded } from '@qilin/brand'
+import { HarnessError } from '@qilin-agent/llm'
+import type { Branded } from '@qilin-agent/brand'
 
 /**
  * Opaque key for stale guards and target lookup. The local backend uses a

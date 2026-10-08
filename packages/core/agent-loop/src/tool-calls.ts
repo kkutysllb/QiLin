@@ -11,11 +11,11 @@
  * @module qilin-agent-loop/tool-calls
  */
 
-import type { Context } from '@qilin/kylin'
-import { createToolResultMessage, type ToolCallBlock } from '@qilin/llm'
-import type { Session, SessionSeq, UserMessage } from '@qilin/session'
-import { TOOL_ABORTED_BEFORE_DISPATCH, TOOL_RUNTIME_SCHEDULER, type ToolExecutionInput, type ToolExecutionMode, type ToolExecutionResult, type ToolRunContext } from '@qilin/tools'
-import { assertNever } from '@qilin/util-values'
+import type { Context } from '@qilin-agent/kylin'
+import { createToolResultMessage, type ToolCallBlock } from '@qilin-agent/llm'
+import type { Session, SessionSeq, UserMessage } from '@qilin-agent/session'
+import { TOOL_ABORTED_BEFORE_DISPATCH, TOOL_RUNTIME_SCHEDULER, type ToolExecutionInput, type ToolExecutionMode, type ToolExecutionResult, type ToolRunContext } from '@qilin-agent/tools'
+import { assertNever } from '@qilin-agent/util-values'
 
 /** One tool call after argument parsing, ready to schedule. */
 interface PlannedCall {

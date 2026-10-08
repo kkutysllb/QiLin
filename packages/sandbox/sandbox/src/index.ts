@@ -2,12 +2,12 @@
  * Service Definition for the same-world process-confinement capability seam: wrap exact subprocess argv under a
  * host-path file policy. Containers, microVMs, and remote execution replace the
  * surrounding capability seam instead; this service shares the host kernel and filesystem.
- * @module @qilin/sandbox
+ * @module @qilin-agent/sandbox
  */
 
-import { Context, Service } from '@qilin/kylin'
-import { HarnessError } from '@qilin/llm'
-import type { SessionId } from '@qilin/session'
+import { Context, Service } from '@qilin-agent/kylin'
+import { HarnessError } from '@qilin-agent/llm'
+import type { SessionId } from '@qilin-agent/session'
 
 export {
   ESCALATION_TARGETS,
@@ -143,7 +143,7 @@ export class SandboxUnavailableError extends HarnessError {
   }
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     sandbox: SandboxProvider
   }

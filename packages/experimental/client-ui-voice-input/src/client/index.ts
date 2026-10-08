@@ -1,6 +1,6 @@
 /** Browser entry for the optional speech Remote contribution and composer control. */
-import type { Context } from '@qilin/kylin'
-import speechRemote from '@qilin/experimental-api-speech-to-text/remote'
+import type { Context } from '@qilin-agent/kylin'
+import speechRemote from '@qilin-agent/experimental-api-speech-to-text/remote'
 import { mountVoiceInput } from './mount.ts'
 
 export { inject } from './mount.ts'

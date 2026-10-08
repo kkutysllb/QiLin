@@ -1,13 +1,13 @@
 /** Turn-node Locations and Assistant timing across partial windows and transient retirement. */
 import { describe, expect, it } from 'vitest'
-import { createAssistantMessage, createToolResultMessage, LlmAttemptId, ToolCallId } from '@qilin/llm'
-import { AssistantStreamAccumulator } from '@qilin/llm/assistant-stream'
-import { SessionSeq, type SessionEvent } from '@qilin/session/types'
+import { createAssistantMessage, createToolResultMessage, LlmAttemptId, ToolCallId } from '@qilin-agent/llm'
+import { AssistantStreamAccumulator } from '@qilin-agent/llm/assistant-stream'
+import { SessionSeq, type SessionEvent } from '@qilin-agent/session/types'
 import type {
   SessionAssistantSettlementEntry, SessionEventLikeEntry, SessionLiveEventEntry, SessionTransientEventEntry,
-} from '@qilin/api-session-controller/client'
-import { ConversationNodeAssembler } from '@qilin/client-ui-conversation/client'
-import type { ChatSnapshot } from '@qilin/client-ui-chat/client'
+} from '@qilin-agent/api-session-controller/client'
+import { ConversationNodeAssembler } from '@qilin-agent/client-ui-conversation/client'
+import type { ChatSnapshot } from '@qilin-agent/client-ui-chat/client'
 import { assistantDefinition } from '../src/client/conversation-nodes/assistant.ts'
 import { chatViewDefinition } from '../src/client/conversation-nodes/chat-snapshot-builder.ts'
 import { turnProcessDefinition } from '../src/client/conversation-nodes/turn-process.ts'

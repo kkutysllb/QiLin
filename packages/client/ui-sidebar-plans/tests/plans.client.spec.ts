@@ -8,9 +8,9 @@
  * name, and that the search filters on title or path.
  */
 import { describe, expect, it } from 'vitest'
-import { RemoteError } from '@qilin/client-test-runtime'
-import type { RemoteFailure } from '@qilin/api-remotes/client'
-import type { SessionId } from '@qilin/session/types'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
+import type { RemoteFailure } from '@qilin-agent/api-remotes/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import {
   filterPlans, PLAN_FILES, planTitleFromHead, scanPlans, selectPlans,
 } from '../src/client/plans.ts'

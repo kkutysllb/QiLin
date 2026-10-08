@@ -23,10 +23,10 @@
  * that face for the same reason — an older Host without them degrades to "no runs /
  * cannot delete" instead of failing the whole card.
  *
- * @module @qilin/client-ui-sidebar-coding/client/ScheduleTaskPreview
+ * @module @qilin-agent/client-ui-sidebar-coding/client/ScheduleTaskPreview
  */
 import { useEffect, useRef, useState } from 'react'
-import { IconCloseOutline16 } from '@qilin/client-ui-primitives'
+import { IconCloseOutline16 } from '@qilin-agent/client-ui-primitives'
 import type { Context } from '../context-types.ts'
 import { t } from './locales.ts'
 import css from './sidebar.module.css'

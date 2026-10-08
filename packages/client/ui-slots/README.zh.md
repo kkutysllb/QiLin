@@ -3,7 +3,7 @@ description: "qilin Web 客户端的 slot 注册表纯核心：普通扩展 slot
 kind: "package-library"
 ---
 
-# @qilin/client-ui-slots
+# @qilin-agent/client-ui-slots
 
 [English](README.md) | 中文
 

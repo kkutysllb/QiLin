@@ -3,7 +3,7 @@ description: "Prepare and operate a local CPU SenseVoice worker on demand."
 kind: "package-reference"
 ---
 
-# @qilin/experimental-speech-to-text-sensevoice
+# @qilin-agent/experimental-speech-to-text-sensevoice
 
 English | [中文](README.zh.md)
 

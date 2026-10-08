@@ -12,13 +12,13 @@
  */
 import { randomUUID } from 'node:crypto'
 import { basename } from 'node:path'
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { defineTool } from '@qilin/tools'
-import type {} from '@qilin/agent'
-import type {} from '@qilin/fs'
-import type { SessionId } from '@qilin/session'
-import { Remote, TypertRemoteService } from '@qilin/typert-protocol'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { defineTool } from '@qilin-agent/tools'
+import type {} from '@qilin-agent/agent'
+import type {} from '@qilin-agent/fs'
+import type { SessionId } from '@qilin-agent/session'
+import { Remote, TypertRemoteService } from '@qilin-agent/typert-protocol'
 import type { SidebarOpenRequest } from './types.ts'
 
 export type * from './types.ts'
@@ -29,7 +29,7 @@ export const name = 'sidebar-opens'
 /** Services the tool verifies its target through. */
 export const inject = ['tools', 'fs']
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Pending and live sidebar opens, one bounded queue per Session. */
     sidebarOpens: SidebarOpens

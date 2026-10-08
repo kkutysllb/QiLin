@@ -3,18 +3,18 @@
  * `ctx.subagents` that runs each child as a fresh child {@link Agent} on the same cordis
  * context (its own session, own system prompt, zero parent context). The cheapest transport,
  * reusing the agent factory's quiescent teardown.
- * @module @qilin/subagent-spawn-in-process
+ * @module @qilin-agent/subagent-spawn-in-process
  */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
 import type {
   ContinuableCreateSpec,
   ResolvedSubagentStartRequest,
   SubagentCapabilities,
   SubagentProvider,
-} from '@qilin/subagent'
-import { startInProcessRun } from '@qilin/subagent-in-process-driver'
+} from '@qilin-agent/subagent'
+import { startInProcessRun } from '@qilin-agent/subagent-in-process-driver'
 
 export const name = 'subagent-spawn-in-process'
 // `tools` is deliberately not injected: the child factory already provides it during setup,

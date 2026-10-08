@@ -13,7 +13,7 @@ it.each([false, true])('settles startup after parent IPC disconnect (boot failur
   const modules = join(root, 'node_modules', '@deepseek-ai')
   const hostDirectory = fileURLToPath(new URL('../../desktop-host/', import.meta.url))
   const manifest = JSON.parse(readFileSync(join(hostDirectory, 'package.json'), 'utf8')) as { dependencies: Record<string, string> }
-  const stubbed = new Set(['@qilin/app-boot', '@qilin/cli', '@qilin/home-paths', '@qilin/tools'])
+  const stubbed = new Set(['@qilin-agent/app-boot', '@qilin-agent/cli', '@qilin-agent/home-paths', '@qilin-agent/tools'])
   for (const name of Object.keys(manifest.dependencies)) {
     const destination = join(root, 'node_modules', name)
     mkdirSync(dirname(destination), { recursive: true })

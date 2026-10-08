@@ -6,7 +6,7 @@
 import { useEffect, useRef } from 'react'
 import type { ReactElement } from 'react'
 // Type-only: the owner contract of the directory-flow holes.
-import type { DirectoryFlowOwnerProps } from '@qilin/client-ui-workspace/client'
+import type { DirectoryFlowOwnerProps } from '@qilin-agent/client-ui-workspace/client'
 
 /** Injected face: the native chooser call the flow drives (bound in apply's closure). */
 export interface NativeFlowInjected {

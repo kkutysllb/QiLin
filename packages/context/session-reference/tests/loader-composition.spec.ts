@@ -5,21 +5,21 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import { agentEvents, type Agent } from '@qilin/agent'
-import { createUserMessage, ToolCallId } from '@qilin/llm'
-import * as systemPromptPlugin from '@qilin/system-prompt'
-import * as toolsPlugin from '@qilin/tools'
-import * as fsPlugin from '@qilin/fs-local'
-import * as toolFsPlugin from '@qilin/tool-fs'
-import * as sessionPlugin from '@qilin/session'
-import { Session, SessionId } from '@qilin/session'
-import * as queryPlugin from '@qilin/session-query-sqlite'
-import * as referencePlugin from '@qilin/session-reference'
-import * as spillPlugin from '@qilin/spill-local'
-import { sessionDir } from '@qilin/spill-local'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import { agentEvents, type Agent } from '@qilin-agent/agent'
+import { createUserMessage, ToolCallId } from '@qilin-agent/llm'
+import * as systemPromptPlugin from '@qilin-agent/system-prompt'
+import * as toolsPlugin from '@qilin-agent/tools'
+import * as fsPlugin from '@qilin-agent/fs-local'
+import * as toolFsPlugin from '@qilin-agent/tool-fs'
+import * as sessionPlugin from '@qilin-agent/session'
+import { Session, SessionId } from '@qilin-agent/session'
+import * as queryPlugin from '@qilin-agent/session-query-sqlite'
+import * as referencePlugin from '@qilin-agent/session-reference'
+import * as spillPlugin from '@qilin-agent/spill-local'
+import { sessionDir } from '@qilin-agent/spill-local'
 import * as sourcePlugin from './fixtures/source-session.ts'
 
 let context: Context | undefined
@@ -44,14 +44,14 @@ describe('session-reference real Loader composition', () => {
     await ctx.plugin(Loader)
     ctx.loader.builtins.include = Include
     const modules = new Map<string, unknown>([
-      ['@qilin/session', sessionPlugin],
-      ['@qilin/system-prompt', systemPromptPlugin],
-      ['@qilin/tools', toolsPlugin],
-      ['@qilin/fs-local', fsPlugin],
-      ['@qilin/tool-fs', toolFsPlugin],
-      ['@qilin/session-query-sqlite', queryPlugin],
-      ['@qilin/session-reference', referencePlugin],
-      ['@qilin/spill-local', spillPlugin],
+      ['@qilin-agent/session', sessionPlugin],
+      ['@qilin-agent/system-prompt', systemPromptPlugin],
+      ['@qilin-agent/tools', toolsPlugin],
+      ['@qilin-agent/fs-local', fsPlugin],
+      ['@qilin-agent/tool-fs', toolFsPlugin],
+      ['@qilin-agent/session-query-sqlite', queryPlugin],
+      ['@qilin-agent/session-reference', referencePlugin],
+      ['@qilin-agent/spill-local', spillPlugin],
       ['./source-session.ts', sourcePlugin],
     ])
     ctx.loader.internal = {

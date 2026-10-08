@@ -1,6 +1,6 @@
 /** Ordered preference writes and notices that survive the settings panel. */
-import { createSnapshotStore } from '@qilin/client-store'
-import type { ConfigForm } from '@qilin/client-ui-settings/client'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { ConfigForm } from '@qilin-agent/client-ui-settings/client'
 
 /** Fields exposed by the Session-log plugin. */
 export interface UploadSettings {

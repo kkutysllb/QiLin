@@ -10,12 +10,12 @@
  * null; the overlay slot stays mounted. The card height clamps to the space
  * above the composer.
  */
-import { MenuGroup, MenuSurface, observeStickyMenuGroups } from '@qilin/client-ui-primitives'
+import { MenuGroup, MenuSurface, observeStickyMenuGroups } from '@qilin-agent/client-ui-primitives'
 import { Fragment, useEffect, useMemo, useRef } from 'react'
 import { useSyncExternalStore } from 'react'
 import clsx from 'clsx'
-import { IconCheckOutline16, RiskConfirmation, useAnchoredMaxHeight } from '@qilin/client-ui-primitives'
-import type { PropsLocale } from '@qilin/client-ui-slots'
+import { IconCheckOutline16, RiskConfirmation, useAnchoredMaxHeight } from '@qilin-agent/client-ui-primitives'
+import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import { filterOptions } from './popup.ts'
 import type { SelectOption } from './contract.ts'
 import { groupOptions } from './option-groups.ts'

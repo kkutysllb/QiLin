@@ -1,6 +1,6 @@
-import type { Inbox, InboxTarget } from '@qilin/agent'
-import type { MessageId } from '@qilin/llm'
-import type { UserMessage } from '@qilin/session'
+import type { Inbox, InboxTarget } from '@qilin-agent/agent'
+import type { MessageId } from '@qilin-agent/llm'
+import type { UserMessage } from '@qilin-agent/session'
 
 /**
  * Create a mutable in-memory Inbox stub for tests that exercise only the public

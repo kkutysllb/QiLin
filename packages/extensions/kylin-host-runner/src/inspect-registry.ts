@@ -1,12 +1,12 @@
 /** Host registry for model-visible, read-only Cordis capability queries. */
 
-import { Service } from '@qilin/kylin'
-import type { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import type {} from '@qilin/api-gateway'
-import { snapshotJsonValue, type JsonValue } from '@qilin/util-values'
-import { assertSupportedJsonSchema, validateJsonSchemaValue } from '@qilin/tools'
-import type { JsonSchemaNode } from '@qilin/tools'
+import { Service } from '@qilin-agent/kylin'
+import type { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import type {} from '@qilin-agent/api-gateway'
+import { snapshotJsonValue, type JsonValue } from '@qilin-agent/util-values'
+import { assertSupportedJsonSchema, validateJsonSchemaValue } from '@qilin-agent/tools'
+import type { JsonSchemaNode } from '@qilin-agent/tools'
 import type {
   CordisInspectMethodManifest, CordisInspectPlatform, CordisInspectProviderManifest,
   CordisInspectProviderView, CordisInspectQueryRequest, CordisInspectQueryResolution,
@@ -36,7 +36,7 @@ interface PendingClientQuery {
   settle(resolution: CordisInspectQueryResolution): void
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Host registry for Cordis inspect providers and Client manifest/query routing. */
     cordisInspect: CordisInspectRegistryService

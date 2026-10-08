@@ -1,11 +1,11 @@
 /** Client terminal model service; views are keyed independently from Host terminal identities. */
-import { Service, type Context } from '@qilin/kylin'
-import { remoteErrorOf } from '@qilin/typert-protocol'
-import type { SessionId } from '@qilin/session/types'
-import type {} from '@qilin/api-gateway/client'
+import { Service, type Context } from '@qilin-agent/kylin'
+import { remoteErrorOf } from '@qilin-agent/typert-protocol'
+import type { SessionId } from '@qilin-agent/session/types'
+import type {} from '@qilin-agent/api-gateway/client'
 import { TerminalView, type TerminalRemote } from './model.ts'
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
-import { randomUUID } from '@qilin/util-crypto'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
+import { randomUUID } from '@qilin-agent/util-crypto'
 import type { TerminalShell, WebTerminalId, WebTerminalInfo } from '../types.ts'
 import { preferredShell, rememberShell } from './shell-preference.ts'
 import { TerminalCloseRequests, type TerminalCloseRequest } from './close-requests.ts'
@@ -14,7 +14,7 @@ import { TerminalBindings } from './bindings.ts'
 
 export type { TerminalView, TerminalViewState, TerminalViewIssue, TerminalRenderFrame, TerminalRemote } from './model.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** React-free browser terminal views and explicit process cleanup. */
     webTerminals: ClientTerminals

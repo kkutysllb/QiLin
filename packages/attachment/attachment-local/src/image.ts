@@ -1,8 +1,8 @@
 /** Raster inspection: full decode at admission, header-only probe on verified reads. */
 
 import type { Sharp } from 'sharp'
-import { AttachmentError } from '@qilin/attachment'
-import type { ImageMediaType } from '@qilin/attachment'
+import { AttachmentError } from '@qilin-agent/attachment'
+import type { ImageMediaType } from '@qilin-agent/attachment'
 import { requireSharp } from './sharp.ts'
 
 /** Decoded metadata from a supported image. */

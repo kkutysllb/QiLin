@@ -1,10 +1,10 @@
 /** Tool additions bind to one historical request header across Session lifecycle paths. */
 import { describe, expect, it } from 'vitest'
-import { createDeveloperMessage } from '@qilin/llm'
-import type { ToolSchema } from '@qilin/llm'
-import { Session, SessionId, SessionLogOffset, SessionSeq } from '@qilin/session'
-import type { SessionEvent } from '@qilin/session'
-import { buildForkSeed } from '@qilin/session/fork'
+import { createDeveloperMessage } from '@qilin-agent/llm'
+import type { ToolSchema } from '@qilin-agent/llm'
+import { Session, SessionId, SessionLogOffset, SessionSeq } from '@qilin-agent/session'
+import type { SessionEvent } from '@qilin-agent/session'
+import { buildForkSeed } from '@qilin-agent/session/fork'
 import { foldSurface } from '../src/surface.ts'
 
 const first: ToolSchema = { name: 'search', description: 'First', parameters: { type: 'object' } }

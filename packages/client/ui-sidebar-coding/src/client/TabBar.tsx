@@ -12,7 +12,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import clsx from 'clsx'
 import {
   IconCloseFill14, IconPlusOutline16, Menu,
-} from '@qilin/client-ui-primitives'
+} from '@qilin-agent/client-ui-primitives'
 import type { SidebarTab } from './state.ts'
 import { isAgentTabId } from './state.ts'
 import { isPinnedVirtualTab } from './pinned.ts'

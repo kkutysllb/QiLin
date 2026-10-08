@@ -1,19 +1,19 @@
 /**
  * Persistent shell PTY backend over the subprocess terminal primitive, shared
  * sandbox policy, bounded output, and provider-owned session cleanup.
- * @module @qilin/terminal-bash
+ * @module @qilin-agent/terminal-bash
  */
 
-import { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import type { Session, SessionEvent } from '@qilin/session'
-import { TerminalBackendCleanupError } from '@qilin/terminal'
-import type { TerminalBackend, TerminalBackendSpawnSpec, TerminalSendOperation } from '@qilin/terminal'
-import type { SubprocessTerminalHandle, SubprocessTerminalSpawnSpec } from '@qilin/subprocess'
-import type { SandboxExecutionPolicy } from '@qilin/sandbox'
-import type {} from '@qilin/sandbox-policy'
-import type {} from '@qilin/session-projection'
-import { ENCODING_PREAMBLE } from '@qilin/pwsh-local'
+import { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import type { Session, SessionEvent } from '@qilin-agent/session'
+import { TerminalBackendCleanupError } from '@qilin-agent/terminal'
+import type { TerminalBackend, TerminalBackendSpawnSpec, TerminalSendOperation } from '@qilin-agent/terminal'
+import type { SubprocessTerminalHandle, SubprocessTerminalSpawnSpec } from '@qilin-agent/subprocess'
+import type { SandboxExecutionPolicy } from '@qilin-agent/sandbox'
+import type {} from '@qilin-agent/sandbox-policy'
+import type {} from '@qilin-agent/session-projection'
+import { ENCODING_PREAMBLE } from '@qilin-agent/pwsh-local'
 import { type Config, type ResolvedConfig, resolveConfig, type ShellDialect, validateConfig } from './config.ts'
 import { LocalPtySession } from './session.ts'
 import { CONTROLLED_PROMPT } from './sanitize.ts'

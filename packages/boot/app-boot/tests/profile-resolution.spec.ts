@@ -845,7 +845,7 @@ describe('profile resolution generation', { concurrent: false }, () => {
 
     const esm = thrownMessage(() => resolveFrom('@deepseek-ai/dsh-session', parent))
     expect(esm).toContain('cannot resolve the DSH-era engine package "@deepseek-ai/dsh-session"')
-    expect(esm).toContain('"@qilin/session"')
+    expect(esm).toContain('"@qilin-agent/session"')
     expect(esm).toContain('peerDependencies')
 
     // CommonJS reaches the same diagnostic through its own pass-through.
@@ -862,11 +862,11 @@ describe('profile resolution generation', { concurrent: false }, () => {
 
   it('resolves a translated DSH-era fallback onto its QiLin package', async () => {
     const f = fixture()
-    const session = join(f.root, 'install', 'node_modules', '@qilin', 'session')
-    pkg(session, '@qilin/session', 3)
+    const session = join(f.root, 'install', 'node_modules', '@qilin-agent', 'session')
+    pkg(session, '@qilin-agent/session', 3)
     file(f.installAnchor, JSON.stringify({
       name: 'test-app', version: '0.0.0',
-      dependencies: { 'resolution-lib': '*', '@qilin/session': '*' },
+      dependencies: { 'resolution-lib': '*', '@qilin-agent/session': '*' },
     }))
     const bundle = join(f.profile.dir, 'node_modules', 'dsh-bundle')
     pkg(bundle, 'dsh-bundle', 4, {}, { '@deepseek-ai/dsh-session': '*' })
@@ -1560,7 +1560,7 @@ describe('profile resolution generation', { concurrent: false }, () => {
   it('publishes and restores the generation inherited by owned Workers', async () => {
     const f = fixture()
     const generation = await generationOf(f)
-    const key = '@qilin/app-boot/profile-resolution'
+    const key = '@qilin-agent/app-boot/profile-resolution'
     const previous = getEnvironmentData(key)
     const dispose = registerWorkerResolution(generation, 'verify')
     try {

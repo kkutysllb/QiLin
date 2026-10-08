@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { RemoteError } from '@qilin/typert-protocol'
+import { RemoteError } from '@qilin-agent/typert-protocol'
 import { planResourceProvider } from '../src/client/plan-resource.ts'
 
 const address = 'qilin-resource://plan/session/call'

@@ -1,6 +1,6 @@
 /** Validated current-layout snapshots; undo history belongs to the live window. */
 import { z } from 'zod'
-import { EMPTY_HISTORY, type LayoutState } from '@qilin/client-ui-dockkit'
+import { EMPTY_HISTORY, type LayoutState } from '@qilin-agent/client-ui-dockkit'
 import type { SurfaceState } from './stores.ts'
 
 /** Persistence namespace shared by scoped stores and startup discovery. */

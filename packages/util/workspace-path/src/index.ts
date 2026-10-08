@@ -1,6 +1,6 @@
 /**
  * Browser-safe Workspace path and display helpers.
- * @module @qilin/util-workspace-path
+ * @module @qilin-agent/util-workspace-path
  */
 import { sessionFileAddress } from './file-address.ts'
 

@@ -1,16 +1,16 @@
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { useEffect, useId, useMemo, useState } from 'react'
-import type { FileAttachmentRef, ImageAttachmentRef } from '@qilin/attachment'
-import type { PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
-import type { SessionId } from '@qilin/session/types'
+import type { FileAttachmentRef, ImageAttachmentRef } from '@qilin-agent/attachment'
+import type { PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type { SessionId } from '@qilin-agent/session/types'
 import {
   IconCheckOutline16, IconChevronDownOutline14, IconChevronUpOutline14, IconCloseOutline16,
   FileTypeIcon, fileSizeText, IconEditOutline16, IconQueueOutline14, IconSendOutline14,
   IconTrashOutline16, projectUserText, Tooltip,
-} from '@qilin/client-ui-primitives'
-import type { InboxState } from '@qilin/agent/types'
-import type { QueueAction } from '@qilin/api-session-controller/types'
-import type { MessageId } from '@qilin/llm/brand'
+} from '@qilin-agent/client-ui-primitives'
+import type { InboxState } from '@qilin-agent/agent/types'
+import type { QueueAction } from '@qilin-agent/api-session-controller/types'
+import type { MessageId } from '@qilin-agent/llm/brand'
 import { NS } from '../locales.ts'
 import css from './QueueDock.module.css'
 

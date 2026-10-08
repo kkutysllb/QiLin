@@ -5,7 +5,7 @@ import {
   IconChevronDownOutline14, IconContextInjectionOutline16, IconCordisPluginOutline14,
   IconGoalOutline16, IconGlobeOutline14, IconPaperPlaneOutline14, IconQueueOutline14,
   type IconProps,
-} from '@qilin/client-ui-primitives'
+} from '@qilin-agent/client-ui-primitives'
 import type { ChatNodeViewProps } from '../contract/slots.ts'
 import { formatMessageClock } from './message-chrome.ts'
 import { NoticeBody } from './ContextBody.tsx'

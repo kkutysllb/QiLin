@@ -3,7 +3,7 @@ description: "Local browser accounts for the Web surface: one account file under
 kind: "package-reference"
 ---
 
-# @qilin/accounts-local
+# @qilin-agent/accounts-local
 
 English | [中文](README.zh.md)
 
@@ -30,7 +30,7 @@ Compose this plugin beside [`qilin-client-connection`](../../client/connection/R
 ### Minimal configuration
 
 ```yaml
-- name: '@qilin/accounts-local'
+- name: '@qilin-agent/accounts-local'
   config:
     registration: closed
 ```
@@ -42,7 +42,7 @@ Compose this plugin beside [`qilin-client-connection`](../../client/connection/R
 | `sessionMaxAgeDays` | `7` | Absolute browser-session lifetime in days |
 | `qilinHome` | `$QILIN_HOME`, then `~/.qilin` | Harness home holding `auth/accounts.json` |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#qilinaccounts-local) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agentaccounts-local) is the exhaustive source for every accepted field and its JSDoc.
 
 ### The sign-in flow
 
@@ -83,7 +83,7 @@ The package is one function plugin. `apply` opens the account file of the resolv
 
 ### The account file
 
-`$QILIN_HOME/auth/accounts.json` is a versioned document holding one record per account: an opaque id, the normalized address, the encoded scrypt hash, the creation time, and a credential generation. Every mutation writes the complete successor through `@qilin/atomic-write` with mode 0600, then publishes it in memory, so a failed write leaves the running server on the previous account set. An absent file is the empty account set — the state the first sign-up initializes — while a file this build did not write fails the load instead of being migrated.
+`$QILIN_HOME/auth/accounts.json` is a versioned document holding one record per account: an opaque id, the normalized address, the encoded scrypt hash, the creation time, and a credential generation. Every mutation writes the complete successor through `@qilin-agent/atomic-write` with mode 0600, then publishes it in memory, so a failed write leaves the running server on the previous account set. An absent file is the empty account set — the state the first sign-up initializes — while a file this build did not write fails the load instead of being migrated.
 
 ### Passwords and sessions
 
@@ -121,7 +121,7 @@ Read these when the package-level contract is not enough: the transport that own
 - [qilin-credentials](../../credentials/credentials/README.md) — the provider holding the session-signing secret.
 - [qilin-home-paths](../../util/home-paths/README.md) — `$QILIN_HOME` and `~/.qilin` resolution.
 - [Local accounts decision](../../../.agents/notes/implemented/feature/2026-09-12-qilin-local-accounts-and-landing.md) — why the gate is server-side and why registration defaults to open.
-- [Generated configuration catalog](../../../docs/config-catalog.md#qilinaccounts-local) — every accepted config field and its source declaration.
+- [Generated configuration catalog](../../../docs/config-catalog.md#qilin-agentaccounts-local) — every accepted config field and its source declaration.
 
 -----
 

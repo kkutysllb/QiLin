@@ -3,11 +3,11 @@
  * including the format refusals shared by every backend: a stored log this
  * build cannot faithfully interpret is refused, never misread, and the
  * refusal points at the raw artifact when the backend keeps one per session.
- * @module @qilin/session-persistence/errors
+ * @module @qilin-agent/session-persistence/errors
  */
 
-import { SESSION_FORMAT_VERSION } from '@qilin/session'
-import type { SessionId } from '@qilin/session'
+import { SESSION_FORMAT_VERSION } from '@qilin-agent/session'
+import type { SessionId } from '@qilin-agent/session'
 
 /** The requested Session identity has no durable log visible to this caller. */
 export class SessionPersistenceNotFoundError extends Error {

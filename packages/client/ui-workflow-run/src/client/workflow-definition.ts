@@ -1,12 +1,12 @@
 import type {
   ConversationLocation, ConversationNodeContext, ConversationNodeDefinition,
-} from '@qilin/client-ui-conversation/client'
-import type { ChatConversationViewNode } from '@qilin/client-ui-chat/client'
-import type { SessionId } from '@qilin/session/types'
+} from '@qilin-agent/client-ui-conversation/client'
+import type { ChatConversationViewNode } from '@qilin-agent/client-ui-chat/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import type {
   ToolWorkflowAgentEndData, ToolWorkflowAgentStartData,
-} from '@qilin/tool-workflow/types'
-import type { WorkflowAgentOutcome, WorkflowStopReason } from '@qilin/workflow/types'
+} from '@qilin-agent/tool-workflow/types'
+import type { WorkflowAgentOutcome, WorkflowStopReason } from '@qilin-agent/workflow/types'
 
 /** Status shown for a workflow, phase, or member. */
 export type WorkflowRunStatus = 'running' | 'completed' | 'failed' | 'cancelled' | 'interrupted'
@@ -34,7 +34,7 @@ export interface WorkflowRunChatData {
   readonly phases: readonly WorkflowRunPhaseData[]
 }
 
-declare module '@qilin/client-ui-chat/client' {
+declare module '@qilin-agent/client-ui-chat/client' {
   interface ChatNodeDataMap {
     /** Durable top-level workflow run and all members that actually started. */
     'workflow-run': WorkflowRunChatData

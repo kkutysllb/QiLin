@@ -2,11 +2,11 @@
  * Scoped-context primitive: mint a Cordis context that tags registrations with
  * an opaque identity and build routing-only event carriers for that identity.
  *
- * @module @qilin/scope
+ * @module @qilin-agent/scope
  */
 
-import type { Context, Fiber } from '@qilin/kylin'
-import { Context as CordisContext } from '@qilin/kylin'
+import type { Context, Fiber } from '@qilin-agent/kylin'
+import { Context as CordisContext } from '@qilin-agent/kylin'
 
 export { AnonymousEntries, NamedEntries, ScopedLayers } from './store.ts'
 export type { ScopeLayer } from './store.ts'

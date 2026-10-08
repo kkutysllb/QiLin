@@ -2,7 +2,7 @@
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { basename, join } from 'node:path'
-import type { SubprocessTerminalActivity, SubprocessTerminalSpawnSpec } from '@qilin/subprocess'
+import type { SubprocessTerminalActivity, SubprocessTerminalSpawnSpec } from '@qilin-agent/subprocess'
 
 function quote(value: string): string { return `'${value.replaceAll("'", "'\\''")}'` }
 

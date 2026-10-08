@@ -1,5 +1,5 @@
 /**
- * @qilin/cmdline — the command line a qilin launcher hands to the app
+ * @qilin-agent/cmdline — the command line a qilin launcher hands to the app
  * it boots.
  *
  * The launcher parses only its own flags (`--profile`, `--patch`, the config
@@ -13,11 +13,11 @@
  * can inject that service and read it from lazily resolved config —
  * `port: !!js ctx.webStartup.port ?? 3080` — so a flag beats the value written
  * beside it. No row has launcher-level command-line status.
- * @module @qilin/cmdline
+ * @module @qilin-agent/cmdline
  */
 
 import type { Command } from 'commander'
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 
 /**
  * The invocation's inner arguments: everything after the launcher's own flags,
@@ -52,7 +52,7 @@ export interface AppReady {
   onReady(listener: () => void): () => void
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** The invocation's inner arguments; provided by a launcher before the tree mounts. */
     cmdlineArgs?: CmdlineArgs

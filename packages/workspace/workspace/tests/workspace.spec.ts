@@ -3,15 +3,15 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mkdir, mkdtemp, realpath, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { basename, join, relative } from 'node:path'
-import { Context } from '@qilin/kylin'
-import Storage from '@qilin/storage'
-import type { StorageBackend } from '@qilin/storage'
-import { DomainFacility } from '@qilin/storage-domain'
-import type { DomainChanged } from '@qilin/storage-domain'
-import SessionStore, { SESSION_FORMAT_VERSION, SessionId } from '@qilin/session'
-import type { SessionHeader } from '@qilin/session'
-import { SessionPersistenceRevision } from '@qilin/session-persistence'
-import type { SessionPersistenceSnapshot } from '@qilin/session-persistence'
+import { Context } from '@qilin-agent/kylin'
+import Storage from '@qilin-agent/storage'
+import type { StorageBackend } from '@qilin-agent/storage'
+import { DomainFacility } from '@qilin-agent/storage-domain'
+import type { DomainChanged } from '@qilin-agent/storage-domain'
+import SessionStore, { SESSION_FORMAT_VERSION, SessionId } from '@qilin-agent/session'
+import type { SessionHeader } from '@qilin-agent/session'
+import { SessionPersistenceRevision } from '@qilin-agent/session-persistence'
+import type { SessionPersistenceSnapshot } from '@qilin-agent/session-persistence'
 import { MemoryMediaPool, MemoryStorageBackend } from '../../../storage/storage-domain/tests/helpers/memory-backend.ts'
 import WorkspaceRegistry, {
   WorkspaceId,
@@ -1379,7 +1379,7 @@ describe('first-use Workspace preparation', () => {
 })
 
 // The registry knows no family: the providers merge theirs, and this suite merges its own.
-declare module '@qilin/workspace/types' {
+declare module '@qilin-agent/workspace/types' {
   interface SessionActivityKindMap {
     probe: true
     'probe-items': true

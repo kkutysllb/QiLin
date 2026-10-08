@@ -8,10 +8,10 @@
  * its bootstrap export, which constructs the system and retains the same
  * exports for this package's graph row. The plugin face enrolls the module
  * system attached to its own Loader as `ctx.modules`.
- * @module @qilin/client-modules/client
+ * @module @qilin-agent/client-modules/client
  */
-import type { Context } from '@qilin/kylin'
-import type { Loader } from '@qilin/kylin-plugin-loader'
+import type { Context } from '@qilin-agent/kylin'
+import type { Loader } from '@qilin-agent/kylin-plugin-loader'
 import { ClientModuleSystem } from './system.ts'
 import { parseBootManifest } from './manifest.ts'
 import type {

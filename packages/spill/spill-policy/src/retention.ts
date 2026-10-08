@@ -1,5 +1,5 @@
-/** Ordered head/tail retention of text and indivisible images. @module @qilin/spill-policy/retention */
-import type { ContentBlock } from '@qilin/llm'
+/** Ordered head/tail retention of text and indivisible images. @module @qilin-agent/spill-policy/retention */
+import type { ContentBlock } from '@qilin-agent/llm'
 
 /** Content whose text can be split and whose images must remain whole. */
 export type RetainableBlock = Extract<ContentBlock, { type: 'text' | 'image' }>

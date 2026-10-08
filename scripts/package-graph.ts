@@ -8,11 +8,11 @@
 import { globSync, readFileSync } from 'node:fs'
 import { dirname, resolve, sep } from 'node:path'
 
-const SCOPE = '@qilin/'
+const SCOPE = '@qilin-agent/'
 
 /** One harness package and its in-repo peer-dependency edges. */
 export interface PackageGraphNode {
-  /** Package name with the `@qilin/` prefix removed. */
+  /** Package name with the `@qilin-agent/` prefix removed. */
   short: string
   /** Full npm package name. */
   name: string
@@ -61,7 +61,7 @@ export function collectPackageGraph(root: string, groupOrder: readonly string[],
 /**
  * Names of the vendored framework packages under `vendor/`.
  *
- * They are workspace packages and satisfy a `@qilin/` peer for resolution, but
+ * They are workspace packages and satisfy a `@qilin-agent/` peer for resolution, but
  * they are not graph nodes: the generated documents track `packages/` only, and
  * an edge into a package that never gets placed would stall the ordering.
  * @param root - absolute repository root.

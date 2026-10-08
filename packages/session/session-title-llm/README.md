@@ -3,7 +3,7 @@ description: "Shared model-backed title generation policy for users and maintain
 kind: "package-library"
 ---
 
-# @qilin/session-title-llm
+# @qilin-agent/session-title-llm
 
 English | [中文](README.zh.md)
 

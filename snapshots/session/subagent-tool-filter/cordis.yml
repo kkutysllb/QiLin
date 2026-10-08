@@ -1,6 +1,6 @@
 # Restrict inherited capabilities before the child assembles its first request.
 - id: tool-subagent
-  name: '@qilin/tool-subagent'
+  name: '@qilin-agent/tool-subagent'
   config:
     provider: spawn
     toolName: subagent

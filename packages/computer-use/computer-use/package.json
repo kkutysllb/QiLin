@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/computer-use",
+  "name": "@qilin-agent/computer-use",
   "description": "Exclusive named computer-use provider registration",
   "version": "3.1.1",
   "publishConfig": {
@@ -35,11 +35,11 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/brand": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/brand": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/brand": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/brand": "workspace:*"
   }
 }

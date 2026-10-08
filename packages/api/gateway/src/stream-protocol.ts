@@ -1,7 +1,7 @@
 /** Wire messages for Gateway-owned Remote streams and event-result RPCs. */
 
-import type { Branded } from '@qilin/brand'
-import { isRemoteJsonValue } from '@qilin/typert-protocol'
+import type { Branded } from '@qilin-agent/brand'
+import { isRemoteJsonValue } from '@qilin-agent/typert-protocol'
 
 /** Exact WebSocket route carrying every Typert Remote stream. */
 export const REMOTE_STREAM_MUX_PATH = '/api/remote.mux'

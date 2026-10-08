@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { AttachmentId, AttachmentStore, ImageVariantId } from '@qilin/attachment'
+import { Context } from '@qilin-agent/kylin'
+import { AttachmentId, AttachmentStore, ImageVariantId } from '@qilin-agent/attachment'
 import type {
   ImageAttachmentLimits,
   ImageAttachmentRef,
@@ -9,10 +9,10 @@ import type {
   RequestImageAttachment,
   SaveImageAttachment,
   StoredImageAttachment,
-} from '@qilin/attachment'
-import LlmRuntime, { createToolResultMessage, createUserMessage, ToolCallId } from '@qilin/llm'
-import type { Message, ToolSchema } from '@qilin/llm'
-import * as LlmPiAi from '@qilin/llm-pi-ai'
+} from '@qilin-agent/attachment'
+import LlmRuntime, { createToolResultMessage, createUserMessage, ToolCallId } from '@qilin-agent/llm'
+import type { Message, ToolSchema } from '@qilin-agent/llm'
+import * as LlmPiAi from '@qilin-agent/llm-pi-ai'
 import type { PiAiReplayResponse } from '../src/replay.ts'
 import { assemble, type AssembledResult } from './assemble.ts'
 

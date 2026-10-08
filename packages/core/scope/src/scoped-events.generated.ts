@@ -2,7 +2,7 @@
  * Generated scoped-event routing-subject resolvers for qilin-scope dispatch.
  * Do not edit by hand; run `pnpm run gen-scoped-events`.
  *
- * @module @qilin/scope/scoped-events.generated
+ * @module @qilin-agent/scope/scoped-events.generated
  */
 
 type ScopedSubjectResolver = (args: readonly unknown[]) => unknown

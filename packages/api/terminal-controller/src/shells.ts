@@ -1,5 +1,5 @@
 /** Shell selection and executable verification use the target execution provider. */
-import type { SubprocessRuntime } from '@qilin/subprocess'
+import type { SubprocessRuntime } from '@qilin-agent/subprocess'
 import type { TerminalShell } from './types.ts'
 
 /**

@@ -1,18 +1,18 @@
-import { createUserMessage } from '@qilin/llm'
+import { createUserMessage } from '@qilin-agent/llm'
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import AgentRegistry, { type Agent } from '@qilin/agent'
-import AgentLoop from '@qilin/agent-loop'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import LlmRuntime from '@qilin/llm'
-import type { MessageSource } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import SessionStore, { SessionId } from '@qilin/session'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
+import { Context } from '@qilin-agent/kylin'
+import AgentRegistry, { type Agent } from '@qilin-agent/agent'
+import AgentLoop from '@qilin-agent/agent-loop'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import LlmRuntime from '@qilin-agent/llm'
+import type { MessageSource } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
 import { MockAdapter, textResponse } from './mock-adapter.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'p': { kind: 'p' } & ContextFormed
     'test': { kind: 'test' } & ContextFormed

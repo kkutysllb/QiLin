@@ -4,8 +4,8 @@ import { resolve } from 'node:path'
 import ts from 'typescript'
 import type { MaybeMockedDeep } from '@vitest/spy'
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import type { TypertRemoteNamespace, TypertRemoteNamespaceMap } from '@qilin/typert-protocol'
-import type {} from '@qilin/api-settings-controller/remote'
+import type { TypertRemoteNamespace, TypertRemoteNamespaceMap } from '@qilin-agent/typert-protocol'
+import type {} from '@qilin-agent/api-settings-controller/remote'
 import type { RemoteMock } from '../src/index.ts'
 
 const root = resolve(import.meta.dirname, '../../../..')
@@ -40,9 +40,9 @@ function compile(source: string, artifact?: string) {
     rewriteRelativeImportExtensions: false,
     types: ['node'],
     paths: {
-      '@qilin/kylin': [cordisEntry],
-      '@qilin/brand': [brandEntry],
-      '@qilin/typert-protocol': [protocolEntry],
+      '@qilin-agent/kylin': [cordisEntry],
+      '@qilin-agent/brand': [brandEntry],
+      '@qilin-agent/typert-protocol': [protocolEntry],
       '@deepseek-ai/fixture/remote': [artifactPath],
     },
   }
@@ -80,7 +80,7 @@ function compile(source: string, artifact?: string) {
 describe('RemoteMock proxy types', { timeout: 60_000 }, () => {
   it('keeps production closed while an empty generated map permits Mock calls and overrides', () => {
     compile(`
-import type { TypertRemoteNamespace, TypertClientRemote } from '@qilin/typert-protocol'
+import type { TypertRemoteNamespace, TypertClientRemote } from '@qilin-agent/typert-protocol'
 import type { MockedRemote } from '../src/remote-proxy.ts'
 type IsAny<T> = 0 extends (1 & T) ? true : false
 declare const local: MockedRemote
@@ -124,7 +124,7 @@ void [argumentIsTyped, resultIsTyped, result]
 
   it('keeps partial and empty namespaces closed inside a non-empty map', () => {
     compile(`
-import type { TypertClientRemote, TypertRemoteNamespace } from '@qilin/typert-protocol'
+import type { TypertClientRemote, TypertRemoteNamespace } from '@qilin-agent/typert-protocol'
 import type { MockedRemote } from '../src/remote-proxy.ts'
 import type {} from '@deepseek-ai/fixture/remote'
 type PartialMap = { fixture: Pick<TypertRemoteNamespace<'fixture'>, 'echo'>; empty: {} }
@@ -166,15 +166,15 @@ void known
       fileName: proxyPath,
       compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2024 },
     })
-    expect(runtime.outputText).not.toContain('@qilin/typert-protocol')
+    expect(runtime.outputText).not.toContain('@qilin-agent/typert-protocol')
     expect(runtime.outputText).not.toContain('@vitest/spy')
   })
 })
 
 /** Synthetic Remote methods exercise the mapping without copying business signatures. */
 const fixtureDeclaration = `
-import type { TypertRemoteNamespace } from '@qilin/typert-protocol'
-declare module '@qilin/typert-protocol' {
+import type { TypertRemoteNamespace } from '@qilin-agent/typert-protocol'
+declare module '@qilin-agent/typert-protocol' {
   interface TypertRemoteMap {
     'fixture/echo': (value: string) => number
     'fixture/watch': (after: number, signal?: AbortSignal) => AsyncIterable<number>

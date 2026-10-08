@@ -1,10 +1,10 @@
 /** Per-invocation plans use resolved Conversation locations for final Turn artifacts. */
-import type {} from '@qilin/tools/types'
-import type { ChatNode } from '@qilin/client-ui-chat/client'
-import type { ConversationNodeDefinition } from '@qilin/client-ui-conversation/client'
+import type {} from '@qilin-agent/tools/types'
+import type { ChatNode } from '@qilin-agent/client-ui-chat/client'
+import type { ConversationNodeDefinition } from '@qilin-agent/client-ui-conversation/client'
 import { submittedPlan, type SubmittedPlan } from './plan.ts'
 
-declare module '@qilin/client-ui-chat/client' {
+declare module '@qilin-agent/client-ui-chat/client' {
   interface ChatNodeDataMap {
     /** Complete plan submitted through exit_plan_mode, including rejected or dismissed reviews. */
     'submitted-plan': SubmittedPlan

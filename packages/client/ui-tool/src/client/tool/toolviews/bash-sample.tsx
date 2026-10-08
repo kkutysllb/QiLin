@@ -1,10 +1,10 @@
 import { useMemo, type KeyboardEvent } from 'react'
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import clsx from 'clsx'
 import {
   IconApiOutline14, IconChevronDownOutline14, IconInspectOutline12, StateDot, TerminalBlock, TextShimmer,
-} from '@qilin/client-ui-primitives'
-import type { PropsLocale } from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-primitives'
+import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import type { ToolCallViewProps } from '../../contract/slots.ts'
 import {
   isSettledPersistentShellCall,

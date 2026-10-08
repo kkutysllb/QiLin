@@ -1,7 +1,7 @@
 /** General Settings row for Chat HTTP(S) link destinations. */
 
-import type { ObservableSnapshot } from '@qilin/client-store'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
+import type { ObservableSnapshot } from '@qilin-agent/client-store'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import type { LinkOpening } from '../../chat-settings.ts'
 import { PreferenceRow } from './PreferenceRow.tsx'
 

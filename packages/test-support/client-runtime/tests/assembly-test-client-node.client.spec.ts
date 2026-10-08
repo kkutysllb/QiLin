@@ -1,12 +1,12 @@
 /** TestClient without a DOM: the api roster boots and connects; mount is refused; flush degrades to a microtask flush. */
-import type { ClientTransportHooks } from '@qilin/client-connection/client'
-import { RemoteMock } from '@qilin/remote-mock'
+import type { ClientTransportHooks } from '@qilin-agent/client-connection/client'
+import { RemoteMock } from '@qilin-agent/remote-mock'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import { TestClient, remoteDefaultResponses, webApp } from '../src/assembly/index.ts'
 
 /** The Gateway client and what it injects: the Typert registry and the Connection. */
-const API_ROSTER = webApp.closure(['@qilin/api-gateway'])
-const TYPERT_ONLY = webApp.pick(['@qilin/typert-registry'])
+const API_ROSTER = webApp.closure(['@qilin-agent/api-gateway'])
+const TYPERT_ONLY = webApp.pick(['@qilin-agent/typert-registry'])
 const globals = globalThis as { __QILIN_TRANSPORT__?: ClientTransportHooks }
 
 describe('TestClient (node environment)', () => {
@@ -40,7 +40,7 @@ describe('TestClient (node environment)', () => {
 
   it('rethrows a row that fails to apply and lets the next client boot', async () => {
     const failing = { apply(): void { throw new Error('apply boom') } }
-    await expect(TestClient.start({ roster: TYPERT_ONLY, provide: { '@qilin/typert-registry': failing } }, RemoteMock.create()))
+    await expect(TestClient.start({ roster: TYPERT_ONLY, provide: { '@qilin-agent/typert-registry': failing } }, RemoteMock.create()))
       .rejects.toThrow(/apply boom|typert-registry/)
     const mock = RemoteMock.create().load(remoteDefaultResponses)
     const client = await TestClient.start({ roster: API_ROSTER }, mock)
@@ -49,9 +49,9 @@ describe('TestClient (node environment)', () => {
   })
 
   it('refuses a provide entry for the api-remotes row, whose services are the proxies', async () => {
-    const roster = webApp.closure(['@qilin/api-remotes'])
-    await expect(TestClient.start({ roster, provide: { '@qilin/api-remotes': { apply() {} } } }, RemoteMock.create()))
-      .rejects.toThrow('@qilin/api-remotes cannot be provided; its remote.<ns> services are the tier\'s proxies')
+    const roster = webApp.closure(['@qilin-agent/api-remotes'])
+    await expect(TestClient.start({ roster, provide: { '@qilin-agent/api-remotes': { apply() {} } } }, RemoteMock.create()))
+      .rejects.toThrow('@qilin-agent/api-remotes cannot be provided; its remote.<ns> services are the tier\'s proxies')
   })
 
   it('reports unmatched requests alongside a failed teardown instead of hiding them', async () => {

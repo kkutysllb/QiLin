@@ -4,8 +4,8 @@
  * reviews in one session keep their own choices; the bucket ends with the
  * tab record's signal.
  */
-import { defineStore, type EngineStoreHandle } from '@qilin/client-store'
-import type { TabId } from '@qilin/client-ui-dockkit'
+import { defineStore, type EngineStoreHandle } from '@qilin-agent/client-store'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
 
 /** One review tab's choices. */
 export interface ReviewTabState {

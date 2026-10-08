@@ -1,9 +1,9 @@
 /** The committed log keeps its relational contract: one monotone seq, turn/step enclosure, and closed tool calls. */
 
 import { describe, expect, it, onTestFinished } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createMessage, createUserMessage, ToolCallId, createToolResultMessage } from '@qilin/llm'
-import SessionStore, { SessionId, type SessionEvent } from '@qilin/session'
+import { Context } from '@qilin-agent/kylin'
+import { createMessage, createUserMessage, ToolCallId, createToolResultMessage } from '@qilin-agent/llm'
+import SessionStore, { SessionId, type SessionEvent } from '@qilin-agent/session'
 
 async function setup(): Promise<Context> {
   const ctx = new Context()

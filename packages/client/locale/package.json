@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-locale",
+  "name": "@qilin-agent/client-locale",
   "description": "Locale plugin: Host-backed preference, extensible language catalog, browser fallback, and typed built-in dictionaries",
   "version": "3.1.1",
   "publishConfig": {
@@ -31,10 +31,10 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/client-connection",
-        "@qilin/client-ui-renderer",
-        "@qilin/client-ui-settings",
-        "@qilin/api-remotes"
+        "@qilin-agent/client-connection",
+        "@qilin-agent/client-ui-renderer",
+        "@qilin-agent/client-ui-settings",
+        "@qilin-agent/api-remotes"
       ],
       "platform": "web",
       "immediately": true
@@ -42,25 +42,25 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/api-remotes": "workspace:*",
-    "@qilin/client-store": "workspace:*",
-    "@qilin/client-test-runtime": "workspace:*",
-    "@qilin/client-ui-primitives": "workspace:*",
-    "@qilin/client-ui-renderer": "workspace:*",
-    "@qilin/client-ui-settings": "workspace:*",
-    "@qilin/client-ui-slots": "workspace:*",
-    "@qilin/package-manifest": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/api-remotes": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-settings": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/package-manifest": "workspace:*",
     "@types/react": "~18.3.1",
     "react": "^18.2.0",
-    "@qilin/client-connection": "workspace:*",
-    "@qilin/settings": "workspace:*"
+    "@qilin-agent/client-connection": "workspace:*",
+    "@qilin-agent/settings": "workspace:*"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "files": [
     "lib/index.js",

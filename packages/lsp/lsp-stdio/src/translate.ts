@@ -2,7 +2,7 @@
  * Pure protocol translation for the local host: what the server's capabilities allow, and how its
  * `Location`/`LocationLink`/`Hover` payloads normalize into the seam's closed result unions. No I/O
  * or process state — every function here is a pure transform, which the fake-stdio tests pin exactly.
- * @module @qilin/lsp-stdio/translate
+ * @module @qilin-agent/lsp-stdio/translate
  */
 
 import type {
@@ -10,9 +10,9 @@ import type {
   LspLocation,
   LspOperation,
   LspRange,
-} from '@qilin/lsp'
-import { LspError } from '@qilin/lsp'
-import { assertNever } from '@qilin/util-values'
+} from '@qilin-agent/lsp'
+import { LspError } from '@qilin-agent/lsp'
+import { assertNever } from '@qilin-agent/util-values'
 import type {
   WireHover,
   WireLocation,

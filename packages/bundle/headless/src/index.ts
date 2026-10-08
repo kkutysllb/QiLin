@@ -1,5 +1,5 @@
 /**
- * @qilin/headless — one-shot direct Agent driver. The bundle patch
+ * @qilin-agent/headless — one-shot direct Agent driver. The bundle patch
  * rides over qilin-base without Host, HTTP, or browser plugins; this runner
  * creates one Agent through the core registry (or adopts the exact Session a
  * `--session-id` names), drives the task to quiescence, streams provider
@@ -7,28 +7,28 @@
  * stdout, and exits. With `--json` it projects the run as newline-delimited
  * events instead of the final text.
  *
- * @module @qilin/headless
+ * @module @qilin-agent/headless
  */
 
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { brandString } from '@qilin/brand'
-import { installModelSelection } from '@qilin/agent'
-import type { Agent, ModelSelectionRef } from '@qilin/agent'
-import type {} from '@qilin/agent-default-model'
-import type {} from '@qilin/fs'
-import { createUserMessage } from '@qilin/llm'
-import { assertNever } from '@qilin/util-values'
-import { SessionSeq } from '@qilin/session'
-import type { Session, SessionEvent, SessionId, SessionLogOffset } from '@qilin/session'
-import { SessionQueryError } from '@qilin/session-query'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { brandString } from '@qilin-agent/brand'
+import { installModelSelection } from '@qilin-agent/agent'
+import type { Agent, ModelSelectionRef } from '@qilin-agent/agent'
+import type {} from '@qilin-agent/agent-default-model'
+import type {} from '@qilin-agent/fs'
+import { createUserMessage } from '@qilin-agent/llm'
+import { assertNever } from '@qilin-agent/util-values'
+import { SessionSeq } from '@qilin-agent/session'
+import type { Session, SessionEvent, SessionId, SessionLogOffset } from '@qilin-agent/session'
+import { SessionQueryError } from '@qilin-agent/session-query'
 // Empty type imports carry the loader Context merge for the settlement await,
 // the cmdline Context merge for the appExit host value, and the sessionQuery
 // Context merge for exact Session adoption.
-import type {} from '@qilin/kylin-plugin-loader'
-import type {} from '@qilin/cmdline'
-import type {} from '@qilin/session-query'
+import type {} from '@qilin-agent/kylin-plugin-loader'
+import type {} from '@qilin-agent/cmdline'
+import type {} from '@qilin-agent/session-query'
 import { internals } from './runner-internals.ts'
 import { projectJsonRun, boundJsonLine } from './json-stream.ts'
 
@@ -334,7 +334,7 @@ async function run(ctx: Context, config: Config, io: HeadlessIo): Promise<void> 
   // This bundle composes no preset roster, so the model-facing rows sit in the
   // host plane and the agent reads them from the global layer. A deployment
   // that DOES configure one has to join it here first
-  // (@qilin/agent-presets README, "Composing a child agent").
+  // (@qilin-agent/agent-presets README, "Composing a child agent").
   const setup = (agentCtx: Context): void => {
     const selected: ModelSelectionRef = { current: selection, assembled: undefined }
     installModelSelection(agentCtx, selected)

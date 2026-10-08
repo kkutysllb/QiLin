@@ -3,7 +3,7 @@ description: "Abstract PTC execution seam (`ctx.ptcRuntime`) for users and maint
 kind: "package-reference"
 ---
 
-# @qilin/ptc-runtime
+# @qilin-agent/ptc-runtime
 
 English | [中文](README.zh.md)
 

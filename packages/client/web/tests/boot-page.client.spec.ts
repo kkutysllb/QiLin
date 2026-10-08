@@ -35,11 +35,11 @@ describe('BootPage', () => {
 
   it('lists failed entries', () => {
     const { el, page } = mount()
-    page.setState('@qilin/client-ui-layout', 'failed')
+    page.setState('@qilin-agent/client-ui-layout', 'failed')
     page.setState('ok', 'active')
-    page.setState('@qilin/client-ui-tool', 'failed')
-    expect(el.textContent).toContain('@qilin/client-ui-layout')
-    expect(el.textContent).toContain('@qilin/client-ui-tool')
+    page.setState('@qilin-agent/client-ui-tool', 'failed')
+    expect(el.textContent).toContain('@qilin-agent/client-ui-layout')
+    expect(el.textContent).toContain('@qilin-agent/client-ui-tool')
     expect(el.textContent).not.toContain('ok')
     expect(el.textContent).not.toContain('Loading plugins…')
   })

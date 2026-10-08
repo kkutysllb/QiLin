@@ -10,8 +10,8 @@ import type {
   SDKResultMessage,
   SpawnOptions,
 } from '@anthropic-ai/claude-agent-sdk'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
 import * as yaml from 'js-yaml'
 import {
   afterEach,
@@ -22,17 +22,17 @@ import {
   type Mock,
   vi,
 } from 'vitest'
-import type { Agent } from '@qilin/agent'
-import type { ContentBlock } from '@qilin/llm'
-import SubagentRuntime from '@qilin/subagent'
-import SessionProjectionRegistry from '@qilin/session-projection'
+import type { Agent } from '@qilin-agent/agent'
+import type { ContentBlock } from '@qilin-agent/llm'
+import SubagentRuntime from '@qilin-agent/subagent'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import type {
   SubprocessHandle,
   SubprocessOutcome,
   SubprocessSpawnSpec,
-} from '@qilin/subprocess'
-import LocalSubprocessRuntime from '@qilin/subprocess-local'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
+} from '@qilin-agent/subprocess'
+import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 import * as claudeCode from '../src/index.ts'
 import {
   claudeSpawnSpec,
@@ -358,7 +358,7 @@ describe('task admission and package contracts', () => {
       '^1.29.0',
     )
     expect(manifest.dependencies).toHaveProperty('zod', '^4.4.3')
-    expect(manifest.dependencies).not.toHaveProperty('@qilin/subagent-codex')
+    expect(manifest.dependencies).not.toHaveProperty('@qilin-agent/subagent-codex')
 
     const sdkRoot = dirname(fileURLToPath(
       import.meta.resolve('@anthropic-ai/claude-agent-sdk'),
@@ -395,7 +395,7 @@ describe('task admission and package contracts', () => {
       : []
     expect(rows).toEqual([{
       id: 'subagent-claude-code',
-      name: '@qilin/subagent-claude-code',
+      name: '@qilin-agent/subagent-claude-code',
     }])
     expect(JSON.stringify(rows)).not.toContain('tool-subagent')
   })

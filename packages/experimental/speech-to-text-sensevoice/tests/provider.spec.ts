@@ -1,7 +1,7 @@
 /** Provider activation remains lazy and rejects relative deployment paths. */
-import { Context } from '@qilin/kylin'
-import LocalSubprocess from '@qilin/subprocess-local'
-import SpeechToText from '@qilin/experimental-speech-to-text'
+import { Context } from '@qilin-agent/kylin'
+import LocalSubprocess from '@qilin-agent/subprocess-local'
+import SpeechToText from '@qilin-agent/experimental-speech-to-text'
 import { afterEach, expect, it, vi } from 'vitest'
 import * as Provider from '../src/index.ts'
 import { SenseVoiceWorker } from '../src/recognizer.ts'

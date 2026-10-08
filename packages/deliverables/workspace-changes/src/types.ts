@@ -1,5 +1,5 @@
 /** Per-turn workspace change summaries, the Session event announcing them, and the Host service serving them with their comparisons. */
-import type { SessionId } from '@qilin/session/types'
+import type { SessionId } from '@qilin-agent/session/types'
 
 /** One file changed during a turn, with line counts from git or from the whole-file captures around its file-tool edits. */
 export interface WorkspaceChangedFile {
@@ -140,7 +140,7 @@ export interface WorkspaceChanges {
   diff(sessionId: SessionId, seq: number, index: number, signal: AbortSignal): Promise<WorkspaceFileDiff | undefined>
 }
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /**
      * A completed top-level turn's changed files were summarized; the summary itself stays on the
@@ -151,7 +151,7 @@ declare module '@qilin/session/types' {
   }
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Per-turn changed-file summaries and comparisons of live Sessions. */
     workspaceChanges: WorkspaceChanges

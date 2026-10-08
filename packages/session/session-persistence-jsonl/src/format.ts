@@ -13,23 +13,23 @@ import {
   SESSION_FORMAT_VERSION,
   KNOWN_SESSION_EVENT_TYPES,
   SessionLogOffset,
-} from '@qilin/session'
+} from '@qilin-agent/session'
 import type {
   SessionEvent,
   SessionHeader,
   SessionId,
   SessionLogOffset as SessionLogOffsetType,
-} from '@qilin/session'
-import { parseSessionFormatLogFilename, sessionFormatLogFilename, SessionFormatUnsupportedMigrationError } from '@qilin/session-format'
-import type { SessionFormatEvent } from '@qilin/session-format'
-import type { SessionFormatRecovery, SessionFormatRestore } from '@qilin/session-format'
-import { sessionFormatCatalog } from '@qilin/session-format-catalog'
-import { assertV4RowAdmission, assertReleasedV4Relationships } from '@qilin/session-format-v3-to-v4'
+} from '@qilin-agent/session'
+import { parseSessionFormatLogFilename, sessionFormatLogFilename, SessionFormatUnsupportedMigrationError } from '@qilin-agent/session-format'
+import type { SessionFormatEvent } from '@qilin-agent/session-format'
+import type { SessionFormatRecovery, SessionFormatRestore } from '@qilin-agent/session-format'
+import { sessionFormatCatalog } from '@qilin-agent/session-format-catalog'
+import { assertV4RowAdmission, assertReleasedV4Relationships } from '@qilin-agent/session-format-v3-to-v4'
 import {
   SessionFormatUnsupportedError,
   sessionFormatVersionRefusal,
   type SessionStorageMetadata,
-} from '@qilin/session-persistence'
+} from '@qilin-agent/session-persistence'
 
 /** Physical encoding selected for JSONL session artifacts. */
 export type JsonlCompression = 'zstd' | 'none'

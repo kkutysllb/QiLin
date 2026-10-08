@@ -1,5 +1,5 @@
 /** Decorative running mark for the Chat status: the QiLin seal, gently breathing. */
-import { QilinSeal } from '@qilin/client-ui-primitives'
+import { QilinSeal } from '@qilin-agent/client-ui-primitives'
 import css from './ChatView.module.css'
 
 /**

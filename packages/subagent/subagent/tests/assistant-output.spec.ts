@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { ContentBlock } from '@qilin/llm'
-import type { SessionEvent } from '@qilin/session'
+import type { ContentBlock } from '@qilin-agent/llm'
+import type { SessionEvent } from '@qilin-agent/session'
 import { AssistantOutputFold, finalAssistantOutput } from '../src/assistant-output.ts'
 
 function message(content: ContentBlock[]): SessionEvent {

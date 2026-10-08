@@ -3,7 +3,7 @@ description: "Web GUI 的权限预设界面：通用设置中的默认行与切�
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-permission-presets
+# @qilin-agent/client-ui-permission-presets
 
 [English](README.md) | 中文
 

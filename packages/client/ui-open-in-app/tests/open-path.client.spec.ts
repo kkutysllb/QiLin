@@ -4,9 +4,9 @@
  * distinct from an empty handler list.
  */
 import { describe, expect, it, vi } from 'vitest'
-import { RemoteError } from '@qilin/client-test-runtime'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
 import { OpenInAppPathController, type OpenInAppPathRemote } from '../src/client/open-path.ts'
-import type { SessionWorkspacePathApplication } from '@qilin/api-session-controller/types'
+import type { SessionWorkspacePathApplication } from '@qilin-agent/api-session-controller/types'
 
 const APPS: readonly SessionWorkspacePathApplication[] = [
   { id: 'vscode', name: 'VS Code', default: true, icon: null },

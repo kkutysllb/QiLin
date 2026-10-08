@@ -7,11 +7,11 @@
  * aggregates — with zero content duplication. Host-coupled domain
  * vocabulary (message sources, events, fold shapes) lives in ./domain.ts.
  *
- * @module @qilin/goal/types
+ * @module @qilin-agent/goal/types
  */
 
-import type { Branded } from '@qilin/brand'
-import type { SessionId } from '@qilin/session/types'
+import type { Branded } from '@qilin-agent/brand'
+import type { SessionId } from '@qilin-agent/session/types'
 
 /** Identifies one goal across its durable revisions. */
 export type GoalId = Branded<'GoalId'>
@@ -125,7 +125,7 @@ export interface GoalProjectionState {
   readonly failure: string | null
 }
 
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionStateMap {
     goal: GoalProjectionState
   }
@@ -140,7 +140,7 @@ declare module '@qilin/session-projection/types' {
   }
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Events {
     /**
      * Process-local goal activation changed for one session.

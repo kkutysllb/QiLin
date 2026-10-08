@@ -7,26 +7,26 @@ import { createHash } from 'node:crypto'
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import {
   fixtureContext,
   normalizeSessionSnapshot,
   normalizeSessionSnapshots,
   type NormalizeContext,
-} from '@qilin/session-snapshot'
-import { LOADER_SMOKE_TEST_TIMEOUT_MS, runLoaderSmoke } from '@qilin/loader-smoke'
-import { createMessage, createUserMessage } from '@qilin/llm'
+} from '@qilin-agent/session-snapshot'
+import { LOADER_SMOKE_TEST_TIMEOUT_MS, runLoaderSmoke } from '@qilin-agent/loader-smoke'
+import { createMessage, createUserMessage } from '@qilin-agent/llm'
 import {
   SESSION_FORMAT_VERSION,
   SessionId,
   SessionSeq,
   type SessionEvent,
   type SessionHeader,
-} from '@qilin/session'
-import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
+} from '@qilin-agent/session'
+import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
 import { logPath } from '../../../../../../packages/session/session-persistence-jsonl/src/format.ts'
-import { renderAgentInstructions } from '@qilin/agent-instructions'
-import { resolveConfig, workspaceBaselineIdentity } from '@qilin/agent-instructions/src/config.ts'
+import { renderAgentInstructions } from '@qilin-agent/agent-instructions'
+import { resolveConfig, workspaceBaselineIdentity } from '@qilin-agent/agent-instructions/src/config.ts'
 import { describe, expect, it } from 'vitest'
 
 const fixtureDir = join(dirname(fileURLToPath(import.meta.url)), 'expected/workspace-context-resume/offline-edit')

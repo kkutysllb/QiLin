@@ -1,12 +1,12 @@
-import { createUserMessage } from '@qilin/llm'
+import { createUserMessage } from '@qilin-agent/llm'
 import { spawnSync } from 'node:child_process'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { codingHarness, finalText, SYSTEM_PROMPT, waitForIdle } from './harness.ts'
-import { SessionId } from '@qilin/session'
+import { SessionId } from '@qilin-agent/session'
 
 /**
  * The swebench-style smoke test: a real model fixes a real bug in a temp

@@ -16,7 +16,7 @@
  * string only if a locale key ever earns its place in all 19 dictionaries).
  */
 import type { ComponentProps } from 'react'
-import { MarkdownText } from '@qilin/client-ui-primitives'
+import { MarkdownText } from '@qilin-agent/client-ui-primitives'
 
 /** The flat copy-button pair the plugin threads through its own props
  *  (e.g. MermaidMarkdownProps.codeLabels — the chunk contract stays put). */

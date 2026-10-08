@@ -1,14 +1,14 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { agentEvents, installModelSelection, type Agent, type ModelSelectionRef } from '@qilin/agent'
-import { CompactionId, compactCheckpointSource } from '@qilin/compaction'
-import LlmRuntime, { createDeveloperMessage, createMessage, createSystemMessage, createToolResultMessage, createUserMessage, LlmError, ToolCallId } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import SessionStore, { Session, SessionId, SessionSeq } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import SessionQueryEngine from '@qilin/session-query'
-import SessionTitleService from '@qilin/session-title'
-import SystemPrompt from '@qilin/system-prompt'
+import { Context } from '@qilin-agent/kylin'
+import { agentEvents, installModelSelection, type Agent, type ModelSelectionRef } from '@qilin-agent/agent'
+import { CompactionId, compactCheckpointSource } from '@qilin-agent/compaction'
+import LlmRuntime, { createDeveloperMessage, createMessage, createSystemMessage, createToolResultMessage, createUserMessage, LlmError, ToolCallId } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import SessionStore, { Session, SessionId, SessionSeq } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import SessionQueryEngine from '@qilin-agent/session-query'
+import SessionTitleService from '@qilin-agent/session-title'
+import SystemPrompt from '@qilin-agent/system-prompt'
 import SessionReferenceResolver, {
   decodeSessionReferenceUri,
   encodeSessionReferenceUri,
@@ -16,11 +16,11 @@ import SessionReferenceResolver, {
   parseSessionReferenceText,
   type Config,
   type SessionReferenceErrorCode,
-} from '@qilin/session-reference'
+} from '@qilin-agent/session-reference'
 import { stringifyTagSafeJson } from '../src/serialization.ts'
-import { SpillLocator, SpillStore, type SaveTextSpill, type SpillRef } from '@qilin/spill'
+import { SpillLocator, SpillStore, type SaveTextSpill, type SpillRef } from '@qilin-agent/spill'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
     'workspace': { kind: 'workspace' } & ContextFormed

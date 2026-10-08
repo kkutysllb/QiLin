@@ -1,9 +1,9 @@
 /** Plain-Node smoke of the published provider and its independently configured attachment Worker. */
-import { Context } from '@qilin/kylin'
-import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@qilin/agent-loop-testkit'
-import BrowserUseRegistry from '@qilin/browser-use'
-import { ToolCallId } from '@qilin/llm'
-import { SessionId } from '@qilin/session'
+import { Context } from '@qilin-agent/kylin'
+import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@qilin-agent/agent-loop-testkit'
+import BrowserUseRegistry from '@qilin-agent/browser-use'
+import { ToolCallId } from '@qilin-agent/llm'
+import { SessionId } from '@qilin-agent/session'
 import * as Provider from '../../lib/index.js'
 
 const [endpoint, url] = process.argv.slice(2)

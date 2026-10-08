@@ -1,9 +1,9 @@
 /** Minimal concrete Session query for Agent Team continuation tests. */
 
-import { SessionLogOffset } from '@qilin/session'
-import type { SessionEvent, SessionHeader, SessionId } from '@qilin/session'
-import SessionQueryEngine from '@qilin/session-query'
-import type { SessionObservation, SessionObservationOptions } from '@qilin/session-query'
+import { SessionLogOffset } from '@qilin-agent/session'
+import type { SessionEvent, SessionHeader, SessionId } from '@qilin-agent/session'
+import SessionQueryEngine from '@qilin-agent/session-query'
+import type { SessionObservation, SessionObservationOptions } from '@qilin-agent/session-query'
 
 /** Undisposable immutable cut over one session's header and events. */
 function cut(

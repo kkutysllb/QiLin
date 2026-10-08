@@ -10,20 +10,20 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Context } from '@qilin/kylin'
-import { PtcRuntime } from '@qilin/ptc-runtime'
-import type { PtcRunRequest, PtcRunResult } from '@qilin/ptc-runtime'
-import { ToolCallId, LlmAdapter, LlmRuntime } from '@qilin/llm'
-import type { GenerateOptions, LlmModelInfo, LlmResolvedModelInfo, Message, StreamChunk } from '@qilin/llm'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime, { RUN_CODE_NAME } from '@qilin/tools'
-import type { Config as ToolConfig } from '@qilin/tools'
-import LocalFileSystem from '@qilin/fs-local'
-import * as FsPolicy from '@qilin/fs-observation-policy'
-import LocalAttachmentStore from '@qilin/attachment-local'
-import { AttachmentError, AttachmentId, AttachmentStore } from '@qilin/attachment'
-import type { ImageAttachmentLimits, ImageAttachmentRef, SaveImageAttachment, StoredImageAttachment } from '@qilin/attachment'
-import * as ToolFs from '@qilin/tool-fs'
+import { Context } from '@qilin-agent/kylin'
+import { PtcRuntime } from '@qilin-agent/ptc-runtime'
+import type { PtcRunRequest, PtcRunResult } from '@qilin-agent/ptc-runtime'
+import { ToolCallId, LlmAdapter, LlmRuntime } from '@qilin-agent/llm'
+import type { GenerateOptions, LlmModelInfo, LlmResolvedModelInfo, Message, StreamChunk } from '@qilin-agent/llm'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime, { RUN_CODE_NAME } from '@qilin-agent/tools'
+import type { Config as ToolConfig } from '@qilin-agent/tools'
+import LocalFileSystem from '@qilin-agent/fs-local'
+import * as FsPolicy from '@qilin-agent/fs-observation-policy'
+import LocalAttachmentStore from '@qilin-agent/attachment-local'
+import { AttachmentError, AttachmentId, AttachmentStore } from '@qilin-agent/attachment'
+import type { ImageAttachmentLimits, ImageAttachmentRef, SaveImageAttachment, StoredImageAttachment } from '@qilin-agent/attachment'
+import * as ToolFs from '@qilin-agent/tool-fs'
 import {
   applyReadImageTool,
   formatImageReadOutput,
@@ -71,7 +71,7 @@ class CatalogAdapter extends LlmAdapter {
 
 /** In-process PTC mode seam fake that invokes the real registry bindings. */
 class FakeRuntime extends PtcRuntime {
-  resolve(request: import('@qilin/ptc-runtime').PtcRunRequest): import('@qilin/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+  resolve(request: import('@qilin-agent/ptc-runtime').PtcRunRequest): import('@qilin-agent/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
   readonly language = 'typescript'
   readonly isolation = 'fake'

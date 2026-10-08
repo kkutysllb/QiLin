@@ -3,7 +3,7 @@ description: "The web access service (ctx.web): how deployments and plugin autho
 kind: "package-reference"
 ---
 
-# @qilin/web
+# @qilin-agent/web
 
 English | [中文](README.zh.md)
 
@@ -36,9 +36,9 @@ Choose the service when a plugin or tool must search or fetch without hard-codin
 Load the service and let a single mounted backend auto-select, or pin a provider id with `searchProvider`/`fetchProvider`. The environment variables `$QILIN_WEB_SEARCH_PROVIDER` and `$QILIN_WEB_FETCH_PROVIDER` feed the same fields and are not a separate priority chain.
 
 ```yaml
-- name: '@qilin/web'
-- name: '@qilin/web-search-exa'
-- name: '@qilin/web-fetch-http'
+- name: '@qilin-agent/web'
+- name: '@qilin-agent/web-search-exa'
+- name: '@qilin-agent/web-fetch-http'
 ```
 
 | Field | Default | Meaning |
@@ -46,7 +46,7 @@ Load the service and let a single mounted backend auto-select, or pin a provider
 | `searchProvider` | (unset) | Pinned search provider id; unset auto-selects when exactly one is usable |
 | `fetchProvider` | (unset) | Pinned fetch provider id; unset auto-selects when exactly one is usable |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#qilinweb) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agentweb) is the exhaustive source for every accepted field and its JSDoc.
 
 ### Searching and fetching
 
@@ -127,7 +127,7 @@ Read these pages when the package-level contract is not enough. They move from t
 - [Web package map](../README.md) — the six-package family and each role.
 - [qilin-tool-web](../tool-web/README.md) — the model-facing `web_search` and `web_fetch` tools over this service.
 - [qilin-web-fetch-http](../web-fetch-http/README.md) — the shipped anonymous HTTP(S) fetch backend.
-- [Generated configuration catalog](../../../docs/config-catalog.md#qilinweb) — every accepted config field and its source declaration.
+- [Generated configuration catalog](../../../docs/config-catalog.md#qilin-agentweb) — every accepted config field and its source declaration.
 - [Web capability seam decision](../../../.agents/notes/implemented/architecture/2026-06-24-web-capability-seam.md) — why search and fetch share one provider-selection service.
 
 -----

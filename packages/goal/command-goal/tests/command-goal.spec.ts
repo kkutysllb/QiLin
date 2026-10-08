@@ -1,15 +1,15 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import AgentRegistry from '@qilin/agent'
-import type { Agent, AgentStatus } from '@qilin/agent'
-import CommandRuntime from '@qilin/commands'
-import GoalService from '@qilin/goal'
-import type { GoalRef } from '@qilin/goal'
-import SessionStore, { Session, SessionId, type SessionEvent } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import * as commandGoal from '@qilin/command-goal'
-import { createInboxStub } from '@qilin/agent-loop-testkit'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import AgentRegistry from '@qilin-agent/agent'
+import type { Agent, AgentStatus } from '@qilin-agent/agent'
+import CommandRuntime from '@qilin-agent/commands'
+import GoalService from '@qilin-agent/goal'
+import type { GoalRef } from '@qilin-agent/goal'
+import SessionStore, { Session, SessionId, type SessionEvent } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import * as commandGoal from '@qilin-agent/command-goal'
+import { createInboxStub } from '@qilin-agent/agent-loop-testkit'
 
 interface Harness {
   readonly ctx: Context
@@ -88,7 +88,7 @@ function ref(goal: NonNullable<ReturnType<GoalService['get']>>): GoalRef {
   return { id: goal.id, revision: goal.revision }
 }
 
-describe('@qilin/command-goal registration', () => {
+describe('@qilin-agent/command-goal registration', () => {
   it('registers one global command with Loader-safe exports and disposes it', async () => {
     const test = await harness()
     expect(commandGoal.name).toBe('command-goal')
@@ -98,7 +98,7 @@ describe('@qilin/command-goal registration', () => {
     expect(loader.unwrapExports(commandGoal)).toBe(commandGoal)
 
     expect(test.ctx.commands.list(test.agent)).toContainEqual({
-      definitionId: '@qilin/command-goal',
+      definitionId: '@qilin-agent/command-goal',
       name: 'goal',
       description: 'Set or view the goal for a long-running task',
       input: { hint: '[<objective>|clear|edit <objective>|pause|resume]', attachments: true },

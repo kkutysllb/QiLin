@@ -1,14 +1,14 @@
 /**
  * Session-visible workspace instruction state and dynamic reconciliation.
  *
- * @module @qilin/agent-instructions/state
+ * @module @qilin-agent/agent-instructions/state
  */
 
-import type { Agent } from '@qilin/agent'
-import { createUserMessage } from '@qilin/llm'
-import type { Message } from '@qilin/llm'
-import type { Session, UserMessage } from '@qilin/session'
-import type { FileSystem, FsVersion } from '@qilin/fs'
+import type { Agent } from '@qilin-agent/agent'
+import { createUserMessage } from '@qilin-agent/llm'
+import type { Message } from '@qilin-agent/llm'
+import type { Session, UserMessage } from '@qilin-agent/session'
+import type { FileSystem, FsVersion } from '@qilin-agent/fs'
 import type { ResolvedConfig } from './config.ts'
 import { instructionContentSha1, trimmedInstructionDigest } from './digest.ts'
 import {
@@ -45,7 +45,7 @@ export interface AgentInstructionSource {
   changes: AgentInstructionChange[]
 }
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'agent-instructions': AgentInstructionSource
   }

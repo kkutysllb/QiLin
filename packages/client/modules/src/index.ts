@@ -20,7 +20,7 @@
  * the browser module; distinct active Loader sources for that package are a
  * composition error. Bundle content changes reach the graph only through
  * {@link ClientModuleRegistry.rebuilt}.
- * @module @qilin/client-modules
+ * @module @qilin-agent/client-modules
  */
 
 import { createHash, randomBytes } from 'node:crypto'
@@ -29,11 +29,11 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { createRequire } from 'node:module'
 import { dirname, isAbsolute, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { dshCompatModuleId, clientDeclarationOf } from '@qilin/dsh-compat'
-import { Service } from '@qilin/kylin'
-import type { Context } from '@qilin/kylin'
-import type { Entry } from '@qilin/kylin-plugin-loader'
-import type { IndexInjection } from '@qilin/host-webserver'
+import { dshCompatModuleId, clientDeclarationOf } from '@qilin-agent/dsh-compat'
+import { Service } from '@qilin-agent/kylin'
+import type { Context } from '@qilin-agent/kylin'
+import type { Entry } from '@qilin-agent/kylin-plugin-loader'
+import type { IndexInjection } from '@qilin-agent/host-webserver'
 import { exactPackageSpecifier, parseQilinClient, stripClientSuffix } from './client/manifest.ts'
 import type { WebBootBatch, WebBootBatchPhase, WebBootEntry, WebBootGraph } from './client/manifest.ts'
 
@@ -42,7 +42,7 @@ export type {
   BootManifest, BootModuleRow, BootPluginRow, WebBootBatch, WebBootBatchPhase, WebBootEntry, WebBootGraph,
 } from './client/manifest.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** The web plugin table (provided by the client-modules node half). */
     clientModules: ClientModuleRegistry
@@ -494,7 +494,7 @@ export function orderByModuleGraph(entries: readonly WebBootEntry[]): WebBootEnt
 }
 
 /** Bootstrap package whose ordinary client bundle supplies the module-system implementation. */
-const CLIENT_MODULES_ID = '@qilin/client-modules'
+const CLIENT_MODULES_ID = '@qilin-agent/client-modules'
 
 /** Dynamic bundles grouped into the parser bootstrap batch before the Vite shell. */
 const PARSER_PRELOAD_IDS = [CLIENT_MODULES_ID] as const

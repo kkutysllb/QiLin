@@ -3,11 +3,11 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import type { Agent } from '@qilin/agent'
-import CommandRuntime from '@qilin/commands'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import type { Agent } from '@qilin-agent/agent'
+import CommandRuntime from '@qilin-agent/commands'
 import {
   CompactionId,
   CompactionEngine,
@@ -15,9 +15,9 @@ import {
   type CompactionResult,
   type CompactionTrigger,
   type ManualCompactAgentContext,
-} from '@qilin/compaction'
-import * as commandCompact from '@qilin/command-compact'
-import { Session, SessionId, SessionSeq } from '@qilin/session'
+} from '@qilin-agent/compaction'
+import * as commandCompact from '@qilin-agent/command-compact'
+import { Session, SessionId, SessionSeq } from '@qilin-agent/session'
 
 const COMPACTION_ID = CompactionId('loader-command-compact-test')
 
@@ -84,9 +84,9 @@ describe('command-compact real Loader composition', () => {
     root = await mkdtemp(join(tmpdir(), 'qilin-command-compact-loader-'))
     const configPath = join(root, 'cordis.yml')
     await writeFile(configPath, [
-      "- name: '@qilin/commands'",
+      "- name: '@qilin-agent/commands'",
       "- name: '@test/compact-backend'",
-      "- name: '@qilin/command-compact'",
+      "- name: '@qilin-agent/command-compact'",
       '',
     ].join('\n'))
 
@@ -95,9 +95,9 @@ describe('command-compact real Loader composition', () => {
     await context.plugin(Loader)
     context.loader.builtins.include = Include
     const modules = new Map<string, unknown>([
-      ['@qilin/commands', CommandRuntime],
+      ['@qilin-agent/commands', CommandRuntime],
       ['@test/compact-backend', LoaderCompactionEngine],
-      ['@qilin/command-compact', commandCompact],
+      ['@qilin-agent/command-compact', commandCompact],
     ])
     context.loader.internal = {
       version: 'v2',
@@ -120,7 +120,7 @@ describe('command-compact real Loader composition', () => {
       reserveTurnAdmission: () => () => undefined,
     } as unknown as Agent
     expect(context.commands.list(agent)).toContainEqual({
-      definitionId: '@qilin/command-compact',
+      definitionId: '@qilin-agent/command-compact',
       name: 'compact',
       description: 'Compact older conversation history',
     })

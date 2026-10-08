@@ -3,7 +3,7 @@ description: "Web 设置中的 MCP 服务器页面：经 mcpServers Remote 列�
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-settings-mcp
+# @qilin-agent/client-ui-settings-mcp
 
 [English](README.md) | 中文
 
@@ -51,9 +51,9 @@ MCP 服务器页面是设置中的一个分区。它渲染 home 级用户补丁�
 <a id="further-exploration"></a>
 ## 进一步探索
 
-- [\`@qilin/mcp-servers\`](../../mcp/mcp-servers/README.zh.md)——本页面读写的 Host 服务，以及一次写入遵循的补丁层保真规则。
-- [\`@qilin/mcp-client\`](../../mcp/mcp-client/README.zh.md)——每个被写入的条目实际挂载了什么，以及它的服务器产生的工具名。
-- [\`@qilin/client-ui-settings\`](../ui-settings/README.zh.md)——声明本页面注册所用分区槽位的设置外壳。
+- [\`@qilin-agent/mcp-servers\`](../../mcp/mcp-servers/README.zh.md)——本页面读写的 Host 服务，以及一次写入遵循的补丁层保真规则。
+- [\`@qilin-agent/mcp-client\`](../../mcp/mcp-client/README.zh.md)——每个被写入的条目实际挂载了什么，以及它的服务器产生的工具名。
+- [\`@qilin-agent/client-ui-settings\`](../ui-settings/README.zh.md)——声明本页面注册所用分区槽位的设置外壳。
 
 <a id="model-experience"></a>
 ## 模型体验

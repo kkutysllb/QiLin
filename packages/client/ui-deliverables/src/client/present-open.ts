@@ -1,6 +1,6 @@
 /** Shared native-open status for delivery cards, the changed-files card, and closing-message file mentions. */
-import { createSnapshotStore } from '@qilin/client-store'
-import type { SessionId } from '@qilin/session/types'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { SessionId } from '@qilin-agent/session/types'
 import { changedFileUrl } from '../changes.ts'
 import { presentedFileUrl, PRESENT_HOST_ROUTE, isPresentedHost, type PresentedAction, type PresentedHost } from '../presented.ts'
 

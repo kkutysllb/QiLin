@@ -9,11 +9,11 @@
  * belongs to ui-tool's generic keyed tool view, so this package contributes
  * only the Turn-level card.
  */
-import { isAppendSurfaceEvent } from '@qilin/session/surface'
-import { PartialArguments } from '@qilin/util-values'
+import { isAppendSurfaceEvent } from '@qilin-agent/session/surface'
+import { PartialArguments } from '@qilin-agent/util-values'
 import type {
   ConversationMatch, ConversationNodeDefinition, ToolResultNode, TurnLocation,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 import { scheduleCreateCardModel } from './schedule-create-card.ts'
 
 /** Wire Tool name whose settled result carries one created task. */
@@ -27,7 +27,7 @@ export interface ScheduleTurnData {
   readonly created: readonly ScheduleCreatedTask[]
 }
 
-declare module '@qilin/client-ui-conversation/client' {
+declare module '@qilin-agent/client-ui-conversation/client' {
   interface ConversationTurnDataMap {
     /** `schedule_create` results settled in this Turn, in settlement order. */
     'schedule-created': ScheduleTurnData

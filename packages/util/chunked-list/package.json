@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/chunked-list",
+  "name": "@qilin-agent/chunked-list",
   "description": "Persistent append-only chunked lists with bounded copying and JSON checkpoint validation",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,10 +30,10 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "dependencies": {
     "zod": "^4.4.3"

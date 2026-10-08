@@ -1,5 +1,5 @@
-import { EntryGroup, EntryTree, isJsExpr, type EntryOptions } from '@qilin/kylin-plugin-loader'
-import { Context, Service } from '@qilin/kylin'
+import { EntryGroup, EntryTree, isJsExpr, type EntryOptions } from '@qilin-agent/kylin-plugin-loader'
+import { Context, Service } from '@qilin-agent/kylin'
 import { extname } from 'node:path'
 import { access, constants, readFile, rename, writeFile } from 'node:fs/promises'
 import { setTimeout as delay } from 'node:timers/promises'

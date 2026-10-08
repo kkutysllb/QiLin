@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { ContentBlock } from '@qilin/llm/types'
+import type { ContentBlock } from '@qilin-agent/llm/types'
 import {
   contextForm, contextProducer, displayFailure, emptyAssistantBlock, isTokenDelta,
   toAssistantBlock, toAssistantBlocks,

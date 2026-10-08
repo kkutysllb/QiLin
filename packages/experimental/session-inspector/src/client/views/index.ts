@@ -1,11 +1,11 @@
 /** Session-scoped Sidebar tab backed by the existing Chat and Session-log models. */
 
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-sidebar-right/client'
-import type {} from '@qilin/client-ui-session/client'
-import type { SessionBinding } from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
+import type {} from '@qilin-agent/client-ui-session/client'
+import type { SessionBinding } from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import { ChatNodeModel } from './chat-node/model.ts'
 import { SessionLogModel } from './session-log/model.ts'
 import { sessionLogChatTarget } from './session-log/chat-target.ts'
@@ -24,7 +24,7 @@ export function registerInspectorTab(ctx: Context): void {
   let disposed = false
   ctx.effect(() => () => { disposed = true; activePicker?.dispose() }, 'session-inspector: chat picker')
   const t = ctx.locale.bind(NS)
-  const id = '@qilin/experimental-session-inspector'
+  const id = '@qilin-agent/experimental-session-inspector'
   ctx.effect(() => ctx.sidebarRightTabs.register({
     id, kind: 'session-inspector-log', title: () => t('tab.title'),
     guide: [{ id: 'open', order: 60, title: () => t('tab.title'), description: () => t('tab.description') }],

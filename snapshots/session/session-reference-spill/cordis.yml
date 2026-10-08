@@ -1,12 +1,12 @@
 - id: spill-local
-  name: '@qilin/spill-local'
+  name: '@qilin-agent/spill-local'
   config:
     root: !!js process.env.QILIN_SNAPSHOT_SPILL_ROOT ?? './.spill'
     cleanupPeriodDays: 0
 
 - insert:
     - id: session-reference
-      name: '@qilin/session-reference'
+      name: '@qilin-agent/session-reference'
       config:
         maxReferenceBytes: 360
     - id: reference-source-fixture

@@ -4,8 +4,8 @@
  * @module subagent-send-message-fence
  */
 
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/agent-loop'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/agent-loop'
 
 /** Fixture plugin name. */
 export const name = 'subagent-send-message-fence'

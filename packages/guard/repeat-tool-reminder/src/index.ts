@@ -3,23 +3,23 @@
  * with logged model context without vetoing or rewriting calls. Configuration
  * and chain semantics live in the package README; rationale lives in the
  * repeat-tool-reminder Agent Note.
- * @module @qilin/repeat-tool-reminder
+ * @module @qilin-agent/repeat-tool-reminder
  */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type { Agent, PreStepDecision } from '@qilin/agent'
-import { createUserMessage } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-declare module '@qilin/llm' {
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type { Agent, PreStepDecision } from '@qilin-agent/agent'
+import { createUserMessage } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'repeat-tool-reminder': { kind: 'repeat-tool-reminder' } & ContextFormed
   }
 }
 
-import type { MessageSource } from '@qilin/llm'
-import type { UserMessage } from '@qilin/session'
-import type { PostToolDecision, ToolExecution } from '@qilin/tools'
+import type { MessageSource } from '@qilin-agent/llm'
+import type { UserMessage } from '@qilin-agent/session'
+import type { PostToolDecision, ToolExecution } from '@qilin-agent/tools'
 
 export const name = 'repeat-tool-reminder'
 

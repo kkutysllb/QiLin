@@ -14,12 +14,12 @@ import { existsSync } from 'node:fs'
 import { mkdir, mkdtemp, rm, utimes, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Context } from '@qilin/kylin'
-import { ToolCallId } from '@qilin/llm'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime, { TOOL_ABORTED_BEFORE_DISPATCH } from '@qilin/tools'
-import LocalSubprocessRuntime from '@qilin/subprocess-local'
-import * as ToolFsSearch from '@qilin/tool-fs-search'
+import { Context } from '@qilin-agent/kylin'
+import { ToolCallId } from '@qilin-agent/llm'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime, { TOOL_ABORTED_BEFORE_DISPATCH } from '@qilin-agent/tools'
+import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
+import * as ToolFsSearch from '@qilin-agent/tool-fs-search'
 
 const testToolSignal = new AbortController().signal
 

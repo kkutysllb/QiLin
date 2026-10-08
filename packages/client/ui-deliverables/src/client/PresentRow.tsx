@@ -1,8 +1,8 @@
 /** Present call status and expandable durable result text. */
 import { useState } from 'react'
-import { DisclosureRow, StateDot } from '@qilin/client-ui-primitives'
-import type { ToolCallViewProps } from '@qilin/client-ui-tool/client'
-import type { PropsLocale } from '@qilin/client-ui-slots'
+import { DisclosureRow, StateDot } from '@qilin-agent/client-ui-primitives'
+import type { ToolCallViewProps } from '@qilin-agent/client-ui-tool/client'
+import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import type { NS } from './locales.ts'
 import css from './PresentRow.module.css'
 

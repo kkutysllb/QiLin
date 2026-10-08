@@ -1,11 +1,11 @@
 /** ACP wire-content admission and projection owned by the ACP adapter. @module */
 
 import type { ContentBlock as AcpContentBlock } from '@agentclientprotocol/sdk'
-import type { Context } from '@qilin/kylin'
-import { isImageAdmissionError } from '@qilin/attachment'
-import type { ImageAttachmentRef, ImageMediaType, SaveImageAttachment } from '@qilin/attachment'
-import type { ModelSelection } from '@qilin/agent'
-import type { ContentBlock } from '@qilin/llm'
+import type { Context } from '@qilin-agent/kylin'
+import { isImageAdmissionError } from '@qilin-agent/attachment'
+import type { ImageAttachmentRef, ImageMediaType, SaveImageAttachment } from '@qilin-agent/attachment'
+import type { ModelSelection } from '@qilin-agent/agent'
+import type { ContentBlock } from '@qilin-agent/llm'
 
 /** Raster formats shared by ACP image blocks and the core attachment vocabulary. */
 const IMAGE_MEDIA_TYPES: readonly ImageMediaType[] = [

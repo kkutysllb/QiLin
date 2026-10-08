@@ -2,15 +2,15 @@
 /** Recorded detail cards, conservative fallback, and standard row interactions. */
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { ToolResultNode } from '@qilin/client-ui-chat/client'
-import { IconUserOutline16 } from '@qilin/client-ui-primitives'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import { en } from '@qilin/client-ui-conversation/src/client/locales.ts'
-import { en as commonEn } from '@qilin/client-locale/src/locales/en.ts'
+import type { ToolResultNode } from '@qilin-agent/client-ui-chat/client'
+import { IconUserOutline16 } from '@qilin-agent/client-ui-primitives'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import { en } from '@qilin-agent/client-ui-conversation/src/client/locales.ts'
+import { en as commonEn } from '@qilin-agent/client-locale/src/locales/en.ts'
 import { detailsCardModel, todosDetail } from '../src/client/tool/models/details-card-model.ts'
 import { DetailsRow, detailsToolview } from '../src/client/tool/toolviews/details-row.tsx'
-import { useDisclosure } from '@qilin/client-ui-chat/src/client/chat/use-disclosure.ts'
-import { PartialArguments } from '@qilin/util-values'
+import { useDisclosure } from '@qilin-agent/client-ui-chat/src/client/chat/use-disclosure.ts'
+import { PartialArguments } from '@qilin-agent/util-values'
 
 const t = makeTranslate(en, commonEn)
 const goal = { id: 'goal-1', revision: 2, objective: 'Ship compact cards', phase: 'active', roundsStarted: 2, maxGoalRounds: 8 }

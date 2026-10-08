@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { jsonSchemaToTs, renderToolsSdk } from '@qilin/tools/src/ts-types.ts'
-import type { ToolSdkSchema } from '@qilin/tools/src/ts-types.ts'
-import type { JsonSchemaNode } from '@qilin/tools/src/json-schema.ts'
-import { parameterSchemaSpecToJsonSchema } from '@qilin/tools'
+import { jsonSchemaToTs, renderToolsSdk } from '@qilin-agent/tools/src/ts-types.ts'
+import type { ToolSdkSchema } from '@qilin-agent/tools/src/ts-types.ts'
+import type { JsonSchemaNode } from '@qilin-agent/tools/src/json-schema.ts'
+import { parameterSchemaSpecToJsonSchema } from '@qilin-agent/tools'
 
 describe('jsonSchemaToTs', () => {
   it('maps every unified schema construct', () => {

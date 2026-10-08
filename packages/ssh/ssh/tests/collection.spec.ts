@@ -1,9 +1,9 @@
 /** Collected output remains byte-addressable and recoverable across transport lag and helper teardown. */
 import { createHash } from 'node:crypto'
 import { readFile, rm } from 'node:fs/promises'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it } from 'vitest'
-import { SshSubprocessRuntime } from '@qilin/subprocess-ssh'
+import { SshSubprocessRuntime } from '@qilin-agent/subprocess-ssh'
 import { createHelperHarness } from './fixtures/helper.ts'
 import { doneSchema, preparedSchema } from '../src/schemas.ts'
 import { z } from 'zod'

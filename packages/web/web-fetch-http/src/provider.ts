@@ -1,16 +1,16 @@
 /**
  * Safe HTTP(S) retrieval for `ctx.web`: validates and pins public IP destinations, follows
  * only same-origin redirects, enforces time and size limits, classifies and decodes text,
- * and leaves presentation to `@qilin/tool-web`. Requests carry no browser cookies
+ * and leaves presentation to `@qilin-agent/tool-web`. Requests carry no browser cookies
  * or ambient credentials.
- * @module @qilin/web-fetch-http/provider
+ * @module @qilin-agent/web-fetch-http/provider
  */
 
-import { WebError } from '@qilin/web'
-import type { WebFetchBody, WebFetchProvider, WebFetchRequest, WebFetchResult } from '@qilin/web'
-import { deadline, timeoutOf } from '@qilin/timeout'
+import { WebError } from '@qilin-agent/web'
+import type { WebFetchBody, WebFetchProvider, WebFetchRequest, WebFetchResult } from '@qilin-agent/web'
+import { deadline, timeoutOf } from '@qilin-agent/timeout'
 import type { Response } from 'undici'
-import { proxyRouteFor } from '@qilin/http-proxy'
+import { proxyRouteFor } from '@qilin-agent/http-proxy'
 import { isNonPublicIpLiteral, publicHttpNetwork } from './network.ts'
 import type { PublicAddress } from './network.ts'
 import { classifyContentType, decoderForCharset, isSameOrigin, parseCharset, validateFetchUrl } from './policy.ts'

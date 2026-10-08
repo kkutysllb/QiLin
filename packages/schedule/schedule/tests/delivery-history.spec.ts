@@ -1,7 +1,7 @@
 /** Saved delivery queries use task storage, never Session history or Agent activation. */
-import type { Context } from '@qilin/kylin'
-import { SessionId } from '@qilin/session'
-import { MessageId } from '@qilin/llm/brand'
+import type { Context } from '@qilin-agent/kylin'
+import { SessionId } from '@qilin-agent/session'
+import { MessageId } from '@qilin-agent/llm/brand'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { ScheduleId, ScheduleInputError, createAfterScheduleRecord } from '../src/domain.ts'
 import { scheduleDomain, type ScheduleTask } from '../src/storage.ts'

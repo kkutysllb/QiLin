@@ -17,5 +17,5 @@
 # the way a deployment that ships the section would; the explicit flag keeps
 # the restatement correct under either patch-field semantics.
 - id: ui-agent-preset
-  name: '@qilin/client-ui-agent-preset'
+  name: '@qilin-agent/client-ui-agent-preset'
   disabled: false

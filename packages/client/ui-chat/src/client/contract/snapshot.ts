@@ -1,8 +1,8 @@
 import type {
   ConversationNode, ConversationTimelineSnapshot, PartialAssistant, RunningToolCall,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 import type { ChatConversationViewNode, ChatNodeDataMap, ChatNodeKind } from './chat-nodes.ts'
-import type { ObservableSnapshot } from '@qilin/client-store'
+import type { ObservableSnapshot } from '@qilin-agent/client-store'
 import type { TurnProcessSpec } from './turn-process.ts'
 
 export type {
@@ -11,7 +11,7 @@ export type {
   ModelRetryNode, PartialAssistant, PreparingToolCall, RunningToolCall, StartedToolCall, SteeringMessageNode, TodoItem,
   ToolArgs, ToolCallBlock, ToolResultNode, TurnErrorNode, TurnMaxTokensNode, UnknownSurfaceNode,
   UserMessageNode,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 
 /** Per-key observable used by one mounted Chat Node Seat. */
 export interface ChatNodeSource {
@@ -112,7 +112,7 @@ export interface ChatSnapshot {
   readonly legacy: LegacyConversationSlice
 }
 
-declare module '@qilin/client-ui-conversation/client' {
+declare module '@qilin-agent/client-ui-conversation/client' {
   interface ConversationViewSnapshotMap {
     chat: ChatSnapshot
   }

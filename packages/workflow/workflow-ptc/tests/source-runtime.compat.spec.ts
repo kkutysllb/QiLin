@@ -2,9 +2,9 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import SubagentRuntime from '@qilin/subagent'
-import type { SandboxMode } from '@qilin/sandbox'
+import { Context } from '@qilin-agent/kylin'
+import SubagentRuntime from '@qilin-agent/subagent'
+import type { SandboxMode } from '@qilin-agent/sandbox'
 import PtcWorkflowEngine from '../src/index.ts'
 import { fakeParent, mountPtcRuntime } from './setup.ts'
 

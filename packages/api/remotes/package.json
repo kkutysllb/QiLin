@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/api-remotes",
+  "name": "@qilin-agent/api-remotes",
   "description": "Remote BFF assembly for application-selected Host capabilities",
   "version": "3.1.1",
   "publishConfig": {
@@ -35,7 +35,7 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/api-gateway"
+        "@qilin-agent/api-gateway"
       ],
       "platform": "web",
       "immediately": true
@@ -53,50 +53,50 @@
     "lib/types/**/*.d.ts"
   ],
   "dependencies": {
-    "@qilin/deque": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/util-values": "workspace:*"
+    "@qilin-agent/deque": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/util-values": "workspace:*"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/scope": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/scope": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/agent-presets": "workspace:*",
-    "@qilin/api-gateway": "workspace:*",
-    "@qilin/api-session-controller": "workspace:*",
-    "@qilin/api-settings-controller": "workspace:*",
-    "@qilin/api-job-controller": "workspace:*",
-    "@qilin/api-terminal-controller": "workspace:*",
-    "@qilin/api-workspace-controller": "workspace:*",
-    "@qilin/api-workspace-files": "workspace:*",
-    "@qilin/api-workspace-git": "workspace:*",
-    "@qilin/client-connection": "workspace:*",
-    "@qilin/client-file-upload": "workspace:*",
-    "@qilin/client-ui-plugin-manager": "workspace:*",
-    "@qilin/command-feedback": "workspace:*",
-    "@qilin/commands": "workspace:*",
-    "@qilin/credentials": "workspace:*",
-    "@qilin/file-reference": "workspace:*",
-    "@qilin/goal": "workspace:*",
-    "@qilin/host-plugin-inventory": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/kylin-host-runner": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/mcp-servers": "workspace:*",
-    "@qilin/message-feedback": "workspace:*",
-    "@qilin/office-to-pdf": "workspace:*",
-    "@qilin/permission-presets": "workspace:*",
-    "@qilin/plugin-manager": "workspace:*",
-    "@qilin/schedule": "workspace:*",
-    "@qilin/scope": "workspace:*",
-    "@qilin/session-reference": "workspace:*",
-    "@qilin/settings": "workspace:*",
-    "@qilin/subagent": "workspace:*",
-    "@qilin/typert-protocol": "workspace:*",
-    "@qilin/user-approval": "workspace:*",
-    "@qilin/user-questions": "workspace:*",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-presets": "workspace:*",
+    "@qilin-agent/api-gateway": "workspace:*",
+    "@qilin-agent/api-session-controller": "workspace:*",
+    "@qilin-agent/api-settings-controller": "workspace:*",
+    "@qilin-agent/api-job-controller": "workspace:*",
+    "@qilin-agent/api-terminal-controller": "workspace:*",
+    "@qilin-agent/api-workspace-controller": "workspace:*",
+    "@qilin-agent/api-workspace-files": "workspace:*",
+    "@qilin-agent/api-workspace-git": "workspace:*",
+    "@qilin-agent/client-connection": "workspace:*",
+    "@qilin-agent/client-file-upload": "workspace:*",
+    "@qilin-agent/client-ui-plugin-manager": "workspace:*",
+    "@qilin-agent/command-feedback": "workspace:*",
+    "@qilin-agent/commands": "workspace:*",
+    "@qilin-agent/credentials": "workspace:*",
+    "@qilin-agent/file-reference": "workspace:*",
+    "@qilin-agent/goal": "workspace:*",
+    "@qilin-agent/host-plugin-inventory": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/kylin-host-runner": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/mcp-servers": "workspace:*",
+    "@qilin-agent/message-feedback": "workspace:*",
+    "@qilin-agent/office-to-pdf": "workspace:*",
+    "@qilin-agent/permission-presets": "workspace:*",
+    "@qilin-agent/plugin-manager": "workspace:*",
+    "@qilin-agent/schedule": "workspace:*",
+    "@qilin-agent/scope": "workspace:*",
+    "@qilin-agent/session-reference": "workspace:*",
+    "@qilin-agent/settings": "workspace:*",
+    "@qilin-agent/subagent": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*",
+    "@qilin-agent/user-approval": "workspace:*",
+    "@qilin-agent/user-questions": "workspace:*",
     "zod": "^4.4.3"
   }
 }

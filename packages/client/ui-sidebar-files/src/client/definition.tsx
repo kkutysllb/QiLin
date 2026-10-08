@@ -5,16 +5,16 @@
  * it as an entry box, and the tree opens files through `tabActions.openResource`
  * for the `qilin-resource://file` viewers to claim.
  */
-import type { SidebarRightTabDefinition } from '@qilin/client-ui-sidebar-right/client'
-import type { TranslateNS } from '@qilin/client-locale/client'
+import type { SidebarRightTabDefinition } from '@qilin-agent/client-ui-sidebar-right/client'
+import type { TranslateNS } from '@qilin-agent/client-locale/client'
 import type {} from './locales.ts'
-import { FileTypeIcon, type IconProps } from '@qilin/client-ui-primitives'
+import { FileTypeIcon, type IconProps } from '@qilin-agent/client-ui-primitives'
 
 /** The tab kind this package owns. */
 export const FILES_KIND = 'files'
 
 /** This implementation's identity in the tab system, and the key its body registers under. */
-export const FILES_ID = '@qilin/client-ui-sidebar-files'
+export const FILES_ID = '@qilin-agent/client-ui-sidebar-files'
 
 /** The type's coloured folder sheet at the guide capsule's glyph size. The chip title owns the tab's folder glyph. */
 function FolderSheetGlyph({ size, className }: IconProps) {

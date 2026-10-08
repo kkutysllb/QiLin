@@ -1,11 +1,11 @@
 /**
  * Pure generated-artifact and runtime-registry types. The registry stores Zod
  * schemas separately from generated package reflection metadata.
- * @module @qilin/typert-registry/types
+ * @module @qilin-agent/typert-registry/types
  */
 
 import type { z } from 'zod'
-import type { InvocationDescriptor } from '@qilin/typert-protocol'
+import type { InvocationDescriptor } from '@qilin-agent/typert-protocol'
 
 /** Independently compiled side that produced a contribution. */
 export type TypertFace = 'host' | 'client'

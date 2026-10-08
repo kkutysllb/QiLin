@@ -1,24 +1,24 @@
 /** Browser plugin owning Session export download state and its shared modal. */
 
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { SessionId } from '@qilin/session/types'
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-ui-commands/client'
-import type {} from '@qilin/client-ui-conversation/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-session/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { SessionId } from '@qilin-agent/session/types'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-ui-commands/client'
+import type {} from '@qilin-agent/client-ui-conversation/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-session/client'
 import { SessionLogDownloadController } from './controller.ts'
 import type { SessionLogDownloadDialogInjected } from './Dialog.tsx'
 import { SessionLogDownloadHeaderAction } from './HeaderAction.tsx'
 import { en, NS, zh, type SessionLogDownloadKey } from './locales.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     sessionLogDownload: SessionLogDownloadController
   }
 }
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     'session-log-download': SessionLogDownloadKey
   }

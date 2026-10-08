@@ -2,9 +2,9 @@
  * The plugin body: one `file` provider registered into `ctx.resources` for the
  * fiber's lifetime, reading through `ctx.remote` in the Session each address names.
  */
-import { Context } from '@qilin/kylin'
-import type { ResourceProvider } from '@qilin/client-resources/client'
-import { sessionFileAddress } from '@qilin/util-workspace-path'
+import { Context } from '@qilin-agent/kylin'
+import type { ResourceProvider } from '@qilin-agent/client-resources/client'
+import { sessionFileAddress } from '@qilin-agent/util-workspace-path'
 import { describe, expect, it, onTestFinished } from 'vitest'
 import { apply, inject } from '../src/client/index.ts'
 import { FakeRemote, settle } from './fake-remote.client.ts'

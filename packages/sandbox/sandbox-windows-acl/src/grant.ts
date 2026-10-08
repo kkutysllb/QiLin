@@ -9,7 +9,7 @@
  * instance (revoking every path granted so far); `dispose` revokes every
  * revocable grant, leaves the standing workspace edits in place, and reports
  * every cleanup failure.
- * @module @qilin/sandbox-windows-acl/grant
+ * @module @qilin-agent/sandbox-windows-acl/grant
  */
 
 import { grantWrite, revokeWrite } from './acl.ts'

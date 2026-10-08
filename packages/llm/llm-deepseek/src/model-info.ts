@@ -1,6 +1,6 @@
 /** Protocol-independent model capabilities and reasoning choices. */
-import { ReasoningEffortId } from '@qilin/llm'
-import type { LlmModelInfo, LlmResolvedModelInfo } from '@qilin/llm'
+import { ReasoningEffortId } from '@qilin-agent/llm'
+import type { LlmModelInfo, LlmResolvedModelInfo } from '@qilin-agent/llm'
 import type { DeepSeekCatalogModel, DeepSeekConnectionOptions } from './types.ts'
 
 const OFF_REASONING_EFFORT = ReasoningEffortId('off')

@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/command-feedback",
+  "name": "@qilin-agent/command-feedback",
   "description": "Log-only session feedback: the record event, the sessionFeedback Host Remote, and the human-facing slash command",
   "version": "3.1.1",
   "publishConfig": {
@@ -47,25 +47,25 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/commands": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/anonymous-user-id": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/typert-protocol": "workspace:*"
+    "@qilin-agent/commands": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/anonymous-user-id": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/typert-protocol": "workspace:*"
   },
   "dependencies": {
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@qilin/kylin-plugin-include": "workspace:~",
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/agent-loop-testkit": "workspace:*",
-    "@qilin/commands": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/anonymous-user-id": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/typert-protocol": "workspace:*"
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-loop-testkit": "workspace:*",
+    "@qilin-agent/commands": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/anonymous-user-id": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/typert-protocol": "workspace:*"
   }
 }

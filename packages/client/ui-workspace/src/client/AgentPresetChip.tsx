@@ -11,7 +11,7 @@
  */
 import { useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import { IconAgentPresetOutline16, IconChevronDownOutline14, Menu } from '@qilin/client-ui-primitives'
+import { IconAgentPresetOutline16, IconChevronDownOutline14, Menu } from '@qilin-agent/client-ui-primitives'
 import type { AgentPresetChipProps } from './contract/slots.ts'
 import css from './AgentPresetChip.module.css'
 

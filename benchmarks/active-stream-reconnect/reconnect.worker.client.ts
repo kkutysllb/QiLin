@@ -1,8 +1,8 @@
 /** Compiled production Client fold for a reconnect during a long Assistant attempt. */
 import { performance } from 'node:perf_hooks'
-import { AssistantStreamAccumulator } from '@qilin/llm/assistant-stream'
-import { LlmAttemptId } from '@qilin/llm/brand'
-import type { SessionAssistantStreamBaseline } from '@qilin/api-session-controller/types'
+import { AssistantStreamAccumulator } from '@qilin-agent/llm/assistant-stream'
+import { LlmAttemptId } from '@qilin-agent/llm/brand'
+import type { SessionAssistantStreamBaseline } from '@qilin-agent/api-session-controller/types'
 // The Client implementation has no plain-Node export; only this adapter is bundled.
 import { ClientAssistantStream } from '../../packages/api/session-controller/src/client/sessions/assistant-stream.ts'
 import { assertBuiltBenchmarkRuntime } from '../support/built-worker.ts'
@@ -18,7 +18,7 @@ export interface ReconnectReport {
 }
 
 assertBuiltBenchmarkRuntime(import.meta.url, {
-  '@qilin/llm/assistant-stream': import.meta.resolve('@qilin/llm/assistant-stream'),
+  '@qilin-agent/llm/assistant-stream': import.meta.resolve('@qilin-agent/llm/assistant-stream'),
 })
 const deltas = 100000
 const accumulator = new AssistantStreamAccumulator()

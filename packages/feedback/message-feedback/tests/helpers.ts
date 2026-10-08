@@ -1,16 +1,16 @@
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Context } from '@qilin/kylin'
-import { createAssistantMessage, createUserMessage } from '@qilin/llm'
-import type { MessageId } from '@qilin/llm/brand'
+import { Context } from '@qilin-agent/kylin'
+import { createAssistantMessage, createUserMessage } from '@qilin-agent/llm'
+import type { MessageId } from '@qilin-agent/llm/brand'
 import SessionStore, { SessionLogOffset,
   SESSION_FORMAT_VERSION,
   Session,
   SessionId,
   type SessionEvent,
   type SessionHeader,
-} from '@qilin/session'
+} from '@qilin-agent/session'
 import SessionPersistence, {
   SessionAlreadyExistsError,
   SessionHandleClosedError,
@@ -20,7 +20,7 @@ import SessionPersistence, {
   type SessionAccess,
   type SessionHandle,
   type SessionPersistenceSnapshot,
-} from '@qilin/session-persistence'
+} from '@qilin-agent/session-persistence'
 import MessageFeedbackService from '../src/index.ts'
 
 export interface MessageFixture {

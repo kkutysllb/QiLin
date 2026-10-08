@@ -1,8 +1,8 @@
 /** Host timing updates share delivery FIFO and publish only durable task writes. */
-import type { Context } from '@qilin/kylin'
-import type { KvTable } from '@qilin/storage-domain'
-import { SessionId } from '@qilin/session'
-import { MessageId } from '@qilin/llm/brand'
+import type { Context } from '@qilin-agent/kylin'
+import type { KvTable } from '@qilin-agent/storage-domain'
+import { SessionId } from '@qilin-agent/session'
+import { MessageId } from '@qilin-agent/llm/brand'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { createDailyScheduleRecord, createEveryScheduleRecord, ScheduleId } from '../src/domain.ts'
 import { scheduleDomain, type ScheduleTask } from '../src/storage.ts'

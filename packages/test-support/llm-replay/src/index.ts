@@ -4,21 +4,21 @@
  * compaction calls, then binds fresh live sessions to parent/child scripts by
  * first-call order. Throw and hang cases require an explicit override because
  * a session log cannot reconstruct them alone.
- * @module @qilin/llm-replay
+ * @module @qilin-agent/llm-replay
  */
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { delimiter as pathDelimiter } from 'node:path'
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/compaction'
-import type {} from '@qilin/deepseek-llm-api-extensions'
-import { SESSION_FORMAT_VERSION, SessionLogOffset, type SessionEvent } from '@qilin/session'
-import type { SessionLogOffset as SessionLogOffsetType } from '@qilin/session'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/compaction'
+import type {} from '@qilin-agent/deepseek-llm-api-extensions'
+import { SESSION_FORMAT_VERSION, SessionLogOffset, type SessionEvent } from '@qilin-agent/session'
+import type { SessionLogOffset as SessionLogOffsetType } from '@qilin-agent/session'
 import {
   createSessionFormatCatalogWithChildren,
   SessionFormatUnsupportedMigrationError,
   sessionFormatCatalog,
-} from '@qilin/session-format-catalog'
+} from '@qilin-agent/session-format-catalog'
 import type {
   ContentBlock,
   GenerateOptions,
@@ -33,9 +33,9 @@ import type {
   SystemPromptUpdate,
   TokenUsage,
   ToolUpdate,
-} from '@qilin/llm'
-import { LlmAdapter, LlmError, ReasoningEffortId, expandAssistantStream, offloadedImageText, requestImageHandleText, resolveRetryPolicy } from '@qilin/llm'
-import { assertNever } from '@qilin/util-values'
+} from '@qilin-agent/llm'
+import { LlmAdapter, LlmError, ReasoningEffortId, expandAssistantStream, offloadedImageText, requestImageHandleText, resolveRetryPolicy } from '@qilin-agent/llm'
+import { assertNever } from '@qilin-agent/util-values'
 
 const PACKED_CHUNK_ROW_TYPES = new Set(['text-chunks', 'reasoning-chunks', 'tool-call-chunks'])
 

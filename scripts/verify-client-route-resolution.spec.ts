@@ -148,7 +148,7 @@ describe('browser app-route guard', () => {
 
   it('rejects a route key resolved against a location read reached through a local helper', () => {
     const source = `
-      import { OPEN_IN_APP_APPS_ROUTE } from '@qilin/host-open-in-app/shared'
+      import { OPEN_IN_APP_APPS_ROUTE } from '@qilin-agent/host-open-in-app/shared'
       function hostBase(): string {
         const origin = (globalThis as { location?: { origin?: string } }).location?.origin
         return origin !== undefined && origin !== 'null' ? origin : 'http://qilin.internal'
@@ -163,7 +163,7 @@ describe('browser app-route guard', () => {
 
   it('leaves a URL whose base is not a location read, and a non-route operand, alone', () => {
     const source = `
-      import { OPEN_IN_APP_APPS_ROUTE } from '@qilin/host-open-in-app/shared'
+      import { OPEN_IN_APP_APPS_ROUTE } from '@qilin-agent/host-open-in-app/shared'
       const item = new URL(input, location.origin)
       const route = new URL(OPEN_IN_APP_APPS_ROUTE, scene.base)
       return [item, route]

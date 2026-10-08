@@ -5,17 +5,17 @@
  * the registry itself while plugins can register additional, enumerable facts
  * with effect-scoped disposal.
  *
- * @module @qilin/shell-env
+ * @module @qilin-agent/shell-env
  */
 
-import { Service, type Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { QILIN_ENV_PREFIX } from '@qilin/shell'
-import type { QilinEnvironment, QilinEnvironmentKey } from '@qilin/shell'
-import { QILIN_HOME_ENV, resolveQilinHome } from '@qilin/home-paths'
-import type { ToolExecution } from '@qilin/tools'
+import { Service, type Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { QILIN_ENV_PREFIX } from '@qilin-agent/shell'
+import type { QilinEnvironment, QilinEnvironmentKey } from '@qilin-agent/shell'
+import { QILIN_HOME_ENV, resolveQilinHome } from '@qilin-agent/home-paths'
+import type { ToolExecution } from '@qilin-agent/tools'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     shellEnv: ShellEnvRegistry
   }

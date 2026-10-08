@@ -7,10 +7,10 @@
  */
 
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { ToolCallId } from '@qilin/llm'
-import type { ToolExecution } from '@qilin/tools'
-import { resolveRgPath, runRipgrep } from '@qilin/tool-fs-search'
+import { Context } from '@qilin-agent/kylin'
+import { ToolCallId } from '@qilin-agent/llm'
+import type { ToolExecution } from '@qilin-agent/tools'
+import { resolveRgPath, runRipgrep } from '@qilin-agent/tool-fs-search'
 
 // Any access to the mocked module's surface throws — the shape a missing
 // platform package produces at module evaluation.

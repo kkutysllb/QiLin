@@ -1,5 +1,5 @@
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import type { ShellProcess } from '@qilin/shell'
+import type { ShellProcess } from '@qilin-agent/shell'
 import { processJob, processOutcome, processSources } from '../src/background.ts'
 
 function processHandle() {

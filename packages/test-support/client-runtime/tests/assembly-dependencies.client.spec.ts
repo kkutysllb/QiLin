@@ -1,12 +1,12 @@
 /** Real bundle dependency closures activate their requested client plugins without extra roster rows. */
-import { FiberState } from '@qilin/kylin'
+import { FiberState } from '@qilin-agent/kylin'
 import { describe, expect, vi } from 'vitest'
 import { createClientTest, webApp } from '../src/assembly/index.ts'
 
-const HMR = '@qilin/client-hmr'
-const MODULES = '@qilin/client-modules'
-const SESSIONS = '@qilin/api-session-controller'
-const FILE_UPLOAD = '@qilin/client-file-upload'
+const HMR = '@qilin-agent/client-hmr'
+const MODULES = '@qilin-agent/client-modules'
+const SESSIONS = '@qilin-agent/api-session-controller'
+const FILE_UPLOAD = '@qilin-agent/client-file-upload'
 const hmrRoster = webApp.closure([HMR])
 const sessionRoster = webApp.closure([SESSIONS])
 const hmrTest = createClientTest({ roster: hmrRoster }, { awaitConnected: false })

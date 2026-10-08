@@ -10,22 +10,22 @@
  * execute addresses the session's agent by sessionId — sessions are always
  * agent-backed.
  */
-import { Service } from '@qilin/kylin'
-import type { Context } from '@qilin/kylin'
+import { Service } from '@qilin-agent/kylin'
+import type { Context } from '@qilin-agent/kylin'
 // Type-only: pulls the ctx.remote merge and the forwarded-event key face
 // (`commands/change` rides the allowlist) into this program.
-import type {} from '@qilin/api-remotes/client'
-import type { CommandResult } from '@qilin/commands/types'
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { ISessions, SessionBinding } from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
-import { WeakMapWithValues } from '@qilin/util-values'
-import type { TranslateNS } from '@qilin/client-locale/client'
-import { rankByName } from '@qilin/client-ui-primitives'
+import type {} from '@qilin-agent/api-remotes/client'
+import type { CommandResult } from '@qilin-agent/commands/types'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { ISessions, SessionBinding } from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import { WeakMapWithValues } from '@qilin-agent/util-values'
+import type { TranslateNS } from '@qilin-agent/client-locale/client'
+import { rankByName } from '@qilin-agent/client-ui-primitives'
 import type {
   CandidateRequest, ClientSessionContext, CommandClaim, PickOutcome, InputTriggerCandidate, InputTriggerPick,
   SubmitAttachment, SubmitEnvelope, SubmitOutcome,
-} from '@qilin/client-ui-input-trigger/client'
+} from '@qilin-agent/client-ui-input-trigger/client'
 import type { CommandContribution, CommandDecoration, CommandUiContract } from './contract.ts'
 import type { CommandDescriptor } from './directory.ts'
 import { CommandDirectory } from './directory.ts'
@@ -34,7 +34,7 @@ import { builtinRowFace, sectionRows } from './presentation.ts'
 import { claimToken } from './resolution.ts'
 import type { TokenSegment } from './popup.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Events {
     /**
      * This browser client completed one admitted Host command execution.

@@ -4,12 +4,12 @@
  * archived with its work. Installed by the registry's constructor, so it
  * answers for every Agent the registry publishes.
  *
- * @module @qilin/agent
+ * @module @qilin-agent/agent
  */
 
-import type { Context } from '@qilin/kylin'
-import type { SessionId } from '@qilin/session'
-import type { SessionActivity } from '@qilin/workspace'
+import type { Context } from '@qilin-agent/kylin'
+import type { SessionId } from '@qilin-agent/session'
+import type { SessionActivity } from '@qilin-agent/workspace'
 import type { Agent } from './types.ts'
 
 /**

@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import SystemPrompt, { renderPrompt } from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
-import { ToolCallId } from '@qilin/llm'
-import McpResources from '@qilin/mcp-resources'
-import { createScope } from '@qilin/scope'
+import { Context } from '@qilin-agent/kylin'
+import SystemPrompt, { renderPrompt } from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
+import { ToolCallId } from '@qilin-agent/llm'
+import McpResources from '@qilin-agent/mcp-resources'
+import { createScope } from '@qilin-agent/scope'
 import { registerServerContext } from '../src/server-context.ts'
 
 const roots: Context[] = []

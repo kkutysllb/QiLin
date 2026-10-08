@@ -1,5 +1,5 @@
-import type { Context } from '@qilin/kylin'
-import { LlmAdapter, type StreamChunk } from '@qilin/llm'
+import type { Context } from '@qilin-agent/kylin'
+import { LlmAdapter, type StreamChunk } from '@qilin-agent/llm'
 
 /** Deterministic one-step adapter for the time-context Loader fixture. */
 class TimeContextMockAdapter extends LlmAdapter {

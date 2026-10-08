@@ -1,7 +1,7 @@
 import { createRequire } from 'node:module'
 import { describe, expect, it } from 'vitest'
-import { APP_IDENTITY, attributionHeaders, userAgent } from '@qilin/llm'
-import type { AppIdentity } from '@qilin/llm'
+import { APP_IDENTITY, attributionHeaders, userAgent } from '@qilin-agent/llm'
+import type { AppIdentity } from '@qilin-agent/llm'
 
 const manifest = createRequire(import.meta.url)('../package.json') as { version: string }
 

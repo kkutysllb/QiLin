@@ -1,9 +1,9 @@
 /** Standard ACP updates derived from committed QILIN session events. */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type { SessionUpdate, ToolCallContent } from '@agentclientprotocol/sdk'
-import type { Session, SessionEvent } from '@qilin/session'
-import type {} from '@qilin/token-meter'
+import type { Session, SessionEvent } from '@qilin-agent/session'
+import type {} from '@qilin-agent/token-meter'
 import { assistantBlockToAcp } from './content.ts'
 
 /**

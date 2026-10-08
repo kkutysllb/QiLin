@@ -9,11 +9,11 @@
  */
 import { statSync } from 'node:fs'
 import type { ServerResponse } from 'node:http'
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
 // Type imports carry the clientModules/webServer Context merges.
-import type { ClientArtifactBaseline } from '@qilin/client-modules'
-import type {} from '@qilin/host-webserver'
+import type { ClientArtifactBaseline } from '@qilin-agent/client-modules'
+import type {} from '@qilin-agent/host-webserver'
 import type { PluginsEventFrame } from './events.ts'
 import { EVENTS_ENDPOINT } from './events.ts'
 

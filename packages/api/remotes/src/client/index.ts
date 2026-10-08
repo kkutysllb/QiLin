@@ -1,35 +1,35 @@
 /** Platform-neutral assembly of generated Host Remote contributions. */
 
-import type { Context } from '@qilin/kylin'
-import agentPresetsRemote from '@qilin/agent-presets/remote'
-import commandsRemote from '@qilin/commands/remote'
-import settingsControllerRemote from '@qilin/api-settings-controller/remote'
-import officeToPdfRemote from '@qilin/office-to-pdf/remote'
-import userQuestionsRemote from '@qilin/user-questions/remote'
-export type {} from '@qilin/user-questions/remote'
-import goalsRemote from '@qilin/goal/remote'
-import scheduleRemote from '@qilin/schedule/remote'
-import llmRemote from '@qilin/llm/remote'
-import dynamicRemote from '@qilin/kylin-host-runner/remote'
-import pluginInventoryRemote from '@qilin/host-plugin-inventory/remote'
-import pluginManagerRemote from '@qilin/plugin-manager/remote'
-import pluginRegistryProbeRemote from '@qilin/client-ui-plugin-manager/remote'
-import mcpServersRemote from '@qilin/mcp-servers/remote'
-import messageFeedbackRemote from '@qilin/message-feedback/remote'
-import permissionPresetsRemote from '@qilin/permission-presets/remote'
-import sessionFeedbackRemote from '@qilin/command-feedback/remote'
-import fileUploadsRemote from '@qilin/client-file-upload/remote'
-import sessionReferencesRemote from '@qilin/session-reference/remote'
-import subagentsRemote from '@qilin/subagent/remote'
-import sessionRemote from '@qilin/api-session-controller/remote'
-import workspaceRemote from '@qilin/api-workspace-controller/remote'
-import jobRemote from '@qilin/api-job-controller/remote'
-import terminalRemote from '@qilin/api-terminal-controller/remote'
-import workspaceFilesRemote from '@qilin/api-workspace-files/remote'
-import workspaceGitRemote from '@qilin/api-workspace-git/remote'
-import type { ClientRemote } from '@qilin/api-gateway/client'
+import type { Context } from '@qilin-agent/kylin'
+import agentPresetsRemote from '@qilin-agent/agent-presets/remote'
+import commandsRemote from '@qilin-agent/commands/remote'
+import settingsControllerRemote from '@qilin-agent/api-settings-controller/remote'
+import officeToPdfRemote from '@qilin-agent/office-to-pdf/remote'
+import userQuestionsRemote from '@qilin-agent/user-questions/remote'
+export type {} from '@qilin-agent/user-questions/remote'
+import goalsRemote from '@qilin-agent/goal/remote'
+import scheduleRemote from '@qilin-agent/schedule/remote'
+import llmRemote from '@qilin-agent/llm/remote'
+import dynamicRemote from '@qilin-agent/kylin-host-runner/remote'
+import pluginInventoryRemote from '@qilin-agent/host-plugin-inventory/remote'
+import pluginManagerRemote from '@qilin-agent/plugin-manager/remote'
+import pluginRegistryProbeRemote from '@qilin-agent/client-ui-plugin-manager/remote'
+import mcpServersRemote from '@qilin-agent/mcp-servers/remote'
+import messageFeedbackRemote from '@qilin-agent/message-feedback/remote'
+import permissionPresetsRemote from '@qilin-agent/permission-presets/remote'
+import sessionFeedbackRemote from '@qilin-agent/command-feedback/remote'
+import fileUploadsRemote from '@qilin-agent/client-file-upload/remote'
+import sessionReferencesRemote from '@qilin-agent/session-reference/remote'
+import subagentsRemote from '@qilin-agent/subagent/remote'
+import sessionRemote from '@qilin-agent/api-session-controller/remote'
+import workspaceRemote from '@qilin-agent/api-workspace-controller/remote'
+import jobRemote from '@qilin-agent/api-job-controller/remote'
+import terminalRemote from '@qilin-agent/api-terminal-controller/remote'
+import workspaceFilesRemote from '@qilin-agent/api-workspace-files/remote'
+import workspaceGitRemote from '@qilin-agent/api-workspace-git/remote'
+import type { ClientRemote } from '@qilin-agent/api-gateway/client'
 
-export type { ClientRemote } from '@qilin/api-gateway/client'
+export type { ClientRemote } from '@qilin-agent/api-gateway/client'
 export type {
   BundleInfo, BundleRowInfo, ChangeResult, CommunityPluginEntry, CommunityPluginSnapshot, IncompatiblePlugin,
   InstallBundleOptions, InstallSpecKind,
@@ -37,54 +37,54 @@ export type {
   PluginInstallCancellation,
   PluginInstallFailureKind, PluginInstallLogChunk, PluginInstallProgress, PluginInstallRequestId, PluginRegistries, PluginSpecInspection,
   PluginUpdateEntry, PluginUpdateSnapshot, ReadOnlyReason, Registry,
-} from '@qilin/plugin-manager/types'
-export type {} from '@qilin/plugin-manager/remote'
-export type {} from '@qilin/client-ui-plugin-manager/remote'
-export type { PluginInventorySnapshot } from '@qilin/host-plugin-inventory/types'
-export type {} from '@qilin/agent-presets/remote'
-export type {} from '@qilin/commands/remote'
-export type {} from '@qilin/api-settings-controller/remote'
-export type {} from '@qilin/goal/remote'
-export type {} from '@qilin/schedule/remote'
-export type {} from '@qilin/office-to-pdf/remote'
-export type {} from '@qilin/llm/remote'
-export type {} from '@qilin/host-plugin-inventory/remote'
-export type {} from '@qilin/mcp-servers/remote'
-export type {} from '@qilin/message-feedback/remote'
-export type {} from '@qilin/permission-presets/remote'
-export type {} from '@qilin/command-feedback/remote'
-export type {} from '@qilin/client-file-upload/remote'
-export type {} from '@qilin/session-reference/remote'
-export type {} from '@qilin/subagent/remote'
-export type * from '@qilin/subagent/client'
-export type {} from '@qilin/api-session-controller/remote'
-export type * from '@qilin/api-session-controller/types'
-export type {} from '@qilin/api-workspace-controller/remote'
-export type * from '@qilin/api-workspace-controller/types'
-export type {} from '@qilin/api-workspace-files/remote'
-export type * from '@qilin/api-workspace-files/types'
-export type {} from '@qilin/api-workspace-git/remote'
-export type {} from '@qilin/api-terminal-controller/remote'
-export type * from '@qilin/api-terminal-controller/types'
-export type {} from '@qilin/api-job-controller/remote'
-export type * from '@qilin/api-job-controller/types'
+} from '@qilin-agent/plugin-manager/types'
+export type {} from '@qilin-agent/plugin-manager/remote'
+export type {} from '@qilin-agent/client-ui-plugin-manager/remote'
+export type { PluginInventorySnapshot } from '@qilin-agent/host-plugin-inventory/types'
+export type {} from '@qilin-agent/agent-presets/remote'
+export type {} from '@qilin-agent/commands/remote'
+export type {} from '@qilin-agent/api-settings-controller/remote'
+export type {} from '@qilin-agent/goal/remote'
+export type {} from '@qilin-agent/schedule/remote'
+export type {} from '@qilin-agent/office-to-pdf/remote'
+export type {} from '@qilin-agent/llm/remote'
+export type {} from '@qilin-agent/host-plugin-inventory/remote'
+export type {} from '@qilin-agent/mcp-servers/remote'
+export type {} from '@qilin-agent/message-feedback/remote'
+export type {} from '@qilin-agent/permission-presets/remote'
+export type {} from '@qilin-agent/command-feedback/remote'
+export type {} from '@qilin-agent/client-file-upload/remote'
+export type {} from '@qilin-agent/session-reference/remote'
+export type {} from '@qilin-agent/subagent/remote'
+export type * from '@qilin-agent/subagent/client'
+export type {} from '@qilin-agent/api-session-controller/remote'
+export type * from '@qilin-agent/api-session-controller/types'
+export type {} from '@qilin-agent/api-workspace-controller/remote'
+export type * from '@qilin-agent/api-workspace-controller/types'
+export type {} from '@qilin-agent/api-workspace-files/remote'
+export type * from '@qilin-agent/api-workspace-files/types'
+export type {} from '@qilin-agent/api-workspace-git/remote'
+export type {} from '@qilin-agent/api-terminal-controller/remote'
+export type * from '@qilin-agent/api-terminal-controller/types'
+export type {} from '@qilin-agent/api-job-controller/remote'
+export type * from '@qilin-agent/api-job-controller/types'
 // The forwarded-event allowlist's selection seat: without it in the consumer's
 // compilation face `TypertRemoteEvent` is `never` and every `$on` call fails.
 export type { ApiRemoteForwardedEvent } from '../types.ts'
 // The owner packages' client-safe `./types` exports supply the `Events`
 // signatures `$on` hands to a listener, so a consumer reads the very
 // declaration the Host emits rather than a flattened restatement of it.
-export type {} from '@qilin/commands/types'
-export type {} from '@qilin/kylin-host-runner/types'
-export type {} from '@qilin/credentials/types'
-export type {} from '@qilin/llm/types'
-export type {} from '@qilin/agent-presets/types'
-export type {} from '@qilin/permission-presets/types'
-export type {} from '@qilin/settings/types'
-export type {} from '@qilin/user-approval/types'
-export type {} from '@qilin/user-questions/types'
-export type {} from '@qilin/user-questions/types'
-export type {} from '@qilin/api-session-controller/types'
+export type {} from '@qilin-agent/commands/types'
+export type {} from '@qilin-agent/kylin-host-runner/types'
+export type {} from '@qilin-agent/credentials/types'
+export type {} from '@qilin-agent/llm/types'
+export type {} from '@qilin-agent/agent-presets/types'
+export type {} from '@qilin-agent/permission-presets/types'
+export type {} from '@qilin-agent/settings/types'
+export type {} from '@qilin-agent/user-approval/types'
+export type {} from '@qilin-agent/user-questions/types'
+export type {} from '@qilin-agent/user-questions/types'
+export type {} from '@qilin-agent/api-session-controller/types'
 
 /**
  * The carrier's Client-facing types, re-exported so a business package names one
@@ -96,9 +96,9 @@ export type {
   MessageId,
   RpcId, RpcRequest, RpcResponse, RpcResult, SessionId,
   StreamChunk,
-} from '@qilin/client-connection/client'
-export type {} from '@qilin/api-gateway/client'
-export type {} from '@qilin/kylin-host-runner/remote'
+} from '@qilin-agent/client-connection/client'
+export type {} from '@qilin-agent/api-gateway/client'
+export type {} from '@qilin-agent/kylin-host-runner/remote'
 
 // The payload vocabulary of the selected namespaces, re-exported so a Client
 // contribution can name what it sends and receives without importing a Host
@@ -136,23 +136,23 @@ export type {
   DynamicCordisStopResponse,
   DynamicCordisUndefineReceipt,
   RequestRunOutcome,
-} from '@qilin/kylin-host-runner/types'
+} from '@qilin-agent/kylin-host-runner/types'
 // Credential state vocabulary for the credentials namespace (values never ride it).
-export type { CredentialInfo } from '@qilin/credentials/types'
+export type { CredentialInfo } from '@qilin-agent/credentials/types'
 // Redacted namespace vocabulary for the settings namespace (secrets never ride
 // it). It travels with its seam, whose `./types` the Client face already reads.
 export type {
   SettingsDescribeValue, SettingsNamespaceView, SettingsPathOpView, SettingsSecretView,
-} from '@qilin/settings/types'
+} from '@qilin-agent/settings/types'
 // Provider registry and discovery vocabulary for the llm namespace.
 export type {
   LlmConfigurableProvider, LlmDiscoveredModel,
   LlmModelDiscoveryRequest, LlmProviderInfo,
-} from '@qilin/llm/types'
+} from '@qilin-agent/llm/types'
 // Reference-discovery result vocabulary for the fileReferences and
 // sessionReferenceResolver namespaces.
-export type { FileReferenceCandidate } from '@qilin/file-reference/types'
-export type { SessionReferenceMentionCandidate } from '@qilin/session-reference/types'
+export type { FileReferenceCandidate } from '@qilin-agent/file-reference/types'
+export type { SessionReferenceMentionCandidate } from '@qilin-agent/session-reference/types'
 
 // The Remote failure vocabulary, re-exported so business packages keep naming
 // this assembly alone. Types only: a value export would make spec imports load
@@ -160,10 +160,10 @@ export type { SessionReferenceMentionCandidate } from '@qilin/session-reference/
 // qilin-client-test-runtime instead.
 export type {
   RemoteErrorCode, RemoteErrorDetailsMap, RemoteFailure, RemoteResult,
-} from '@qilin/typert-protocol'
-export type { RemoteHostFacts } from '@qilin/api-gateway/client'
+} from '@qilin-agent/typert-protocol'
+export type { RemoteHostFacts } from '@qilin-agent/api-gateway/client'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Generated Remote namespaces selected by this Client assembly. */
     remote: ClientRemote

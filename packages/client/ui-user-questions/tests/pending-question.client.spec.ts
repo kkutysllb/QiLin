@@ -1,7 +1,7 @@
 /** Card and waterfall settlement edges the composer and plugin specs do not reach. */
 import { describe, expect, it, vi } from 'vitest'
-import type { SessionId } from '@qilin/session/types'
-import { ToolCallId } from '@qilin/llm'
+import type { SessionId } from '@qilin-agent/session/types'
+import { ToolCallId } from '@qilin-agent/llm'
 import { createWaterfallRequest, PendingQuestion } from '../src/client/contract/slots.ts'
 
 const SID = 's1' as SessionId

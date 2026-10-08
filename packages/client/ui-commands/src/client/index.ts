@@ -5,16 +5,16 @@
  * popupSelect shell self-registers into conversation.input.overlay with
  * per-session resolution.
  */
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { ISessions } from '@qilin/api-session-controller/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { ISessions } from '@qilin-agent/api-session-controller/client'
 // Type-only: pulls the 'conversation.input.overlay' SlotMap declaration (the
 // key's owner) into this program so the overlay registration below typechecks
 // against the real declaration — no runtime edge to ui-conversation.
-import type {} from '@qilin/client-ui-conversation/client'
+import type {} from '@qilin-agent/client-ui-conversation/client'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-session/client'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-session/client'
 import { CommandUiRuntime } from './service.ts'
 import type { PopupSelectInjected } from './PopupSelectView.tsx'
 import { PopupSelectView } from './PopupSelectView.tsx'
@@ -32,13 +32,13 @@ export type {
 } from './contract.ts'
 export type { CommandKey } from './locales.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     commandUi: CommandUiRuntime
   }
 }
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** The menu rows' and the popupSelect shell's copy. */
     command: CommandKey

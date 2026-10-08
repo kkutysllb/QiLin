@@ -1,9 +1,9 @@
-/** Local durable attachment backend rooted below `QILIN_HOME`. @module @qilin/attachment-local */
+/** Local durable attachment backend rooted below `QILIN_HOME`. @module @qilin-agent/attachment-local */
 
 import { join } from 'node:path'
-import { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { AttachmentStore } from '@qilin/attachment'
+import { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { AttachmentStore } from '@qilin-agent/attachment'
 import type {
   FileAttachmentRef,
   ImageAttachmentLimits,
@@ -14,8 +14,8 @@ import type {
   SaveFileStreamAttachment,
   SaveImageAttachment,
   StoredImageAttachment,
-} from '@qilin/attachment'
-import { qilinCachePath, resolveQilinHome } from '@qilin/home-paths'
+} from '@qilin-agent/attachment'
+import { qilinCachePath, resolveQilinHome } from '@qilin-agent/home-paths'
 import type { NormalizationPolicy } from './normalization.ts'
 import { CompressionLimiter, compressionFailure } from './compression-limiter.ts'
 import { commitPreparedImageFile, normalizedImagePath, prepareImageFile, readImageFile, validateImageFile } from './store.ts'

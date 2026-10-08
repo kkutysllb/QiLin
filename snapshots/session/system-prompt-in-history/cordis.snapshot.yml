@@ -4,20 +4,20 @@
   disabled: true
 
 - id: agent-default-model
-  name: '@qilin/agent-default-model'
+  name: '@qilin-agent/agent-default-model'
   config:
     provider: deepseek-official
     model: deepseek-flash
 
 - id: session-persistence-jsonl
-  name: '@qilin/session-persistence-jsonl'
+  name: '@qilin-agent/session-persistence-jsonl'
   config:
     root: !!js qilinHomePath('sessions')
     compression: none
 
 - insert:
     - id: llm-replay
-      name: '@qilin/llm-replay'
+      name: '@qilin-agent/llm-replay'
       config:
         providers:
           - id: deepseek-official

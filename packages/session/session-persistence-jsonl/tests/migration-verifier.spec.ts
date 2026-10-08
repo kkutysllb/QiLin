@@ -1,4 +1,4 @@
-import { SESSION_FORMAT_VERSION } from '@qilin/session'
+import { SESSION_FORMAT_VERSION } from '@qilin-agent/session'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createHash } from 'node:crypto'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'

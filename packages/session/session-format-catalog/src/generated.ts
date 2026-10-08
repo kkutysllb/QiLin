@@ -3,14 +3,14 @@
  * The direct imports make historical readability independent of mounted plugins.
  */
 
-import { KNOWN_SESSION_EVENT_TYPES } from '@qilin/session'
-import { createSessionFormatCatalog } from '@qilin/session-format'
-import type { SessionFormatCatalogOptions } from '@qilin/session-format'
+import { KNOWN_SESSION_EVENT_TYPES } from '@qilin-agent/session'
+import { createSessionFormatCatalog } from '@qilin-agent/session-format'
+import type { SessionFormatCatalogOptions } from '@qilin-agent/session-format'
 import { validateInstalledCurrentSessionArtifact, validateInstalledCurrentSessionHeader } from './current.ts'
-import { releasedV0SessionFormatCodec, releasedV1SessionFormatCodec, sessionFormatV0ToV1 } from '@qilin/session-format-v0-to-v1'
-import { releasedV2SessionFormatCodec, sessionFormatV1ToV2 } from '@qilin/session-format-v1-to-v2'
-import { releasedV3SessionFormatCodec, sessionFormatV2ToV3 } from '@qilin/session-format-v2-to-v3'
-import { assertReleasedV4Header, releasedV4SessionFormatCodec, restoreReleasedV4Artifact, sessionFormatV3ToV4 } from '@qilin/session-format-v3-to-v4'
+import { releasedV0SessionFormatCodec, releasedV1SessionFormatCodec, sessionFormatV0ToV1 } from '@qilin-agent/session-format-v0-to-v1'
+import { releasedV2SessionFormatCodec, sessionFormatV1ToV2 } from '@qilin-agent/session-format-v1-to-v2'
+import { releasedV3SessionFormatCodec, sessionFormatV2ToV3 } from '@qilin-agent/session-format-v2-to-v3'
+import { assertReleasedV4Header, releasedV4SessionFormatCodec, restoreReleasedV4Artifact, sessionFormatV3ToV4 } from '@qilin-agent/session-format-v3-to-v4'
 
 /** Static assembly shared by current reads and parent-specific historical restoration. */
 export const sessionFormatCatalogOptions: SessionFormatCatalogOptions = {

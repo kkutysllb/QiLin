@@ -6,25 +6,25 @@
  * hook plus the four mutation verbs through the generated Goal Remote API.
  * This plugin does not create goals; deployments may expose /goal separately.
  */
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { SessionId } from '@qilin/session/types'
-import type { HostObservable } from '@qilin/client-ui-slots'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { HostObservable } from '@qilin-agent/client-ui-slots'
 // Type-only: pulls the generated Remote API and ctx.remote merge through the Client assembly boundary.
-import type {} from '@qilin/api-remotes/client'
+import type {} from '@qilin-agent/api-remotes/client'
 // Type-only: pulls the Session Controller service used for projected goal state.
-import type {} from '@qilin/api-session-controller/client'
+import type {} from '@qilin-agent/api-session-controller/client'
 // Type-only: pulls the Chat node slot and its keyed data map.
-import type {} from '@qilin/client-ui-chat/client'
+import type {} from '@qilin-agent/client-ui-chat/client'
 // Type-only: pulls the Conversation service and input-dock slot.
-import type {} from '@qilin/client-ui-conversation/client'
+import type {} from '@qilin-agent/client-ui-conversation/client'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
-import type {} from '@qilin/client-locale/client'
+import type {} from '@qilin-agent/client-locale/client'
 // Type-only: pulls the renderer-owned slots service.
-import type {} from '@qilin/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
 // Type-only: pulls the Session standard useProjection seat.
-import type {} from '@qilin/client-ui-session/client'
+import type {} from '@qilin-agent/client-ui-session/client'
 // Type-only: the `goal` SessionProjectionMap key merge (single source, the domain's pure outlet).
-import type { GoalProjection, GoalRef } from '@qilin/goal/client'
+import type { GoalProjection, GoalRef } from '@qilin-agent/goal/client'
 import type { GoalActionResult, GoalBarInjected } from './slots.ts'
 import { createGoalActivationSource } from './activation-source.ts'
 import { GoalDock } from './GoalBar.tsx'
@@ -38,7 +38,7 @@ export type {
 } from './slots.ts'
 export type { GoalKey } from './locales.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** The goal strip's copy. */
     goal: GoalKey

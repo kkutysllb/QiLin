@@ -8,10 +8,10 @@
  */
 import {
   IconChevronDownOutline14, IconChevronUpOutline14,
-} from '@qilin/client-ui-primitives'
-import type { PropsLocale, PropsRuntime, PropsStore } from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-primitives'
+import type { PropsLocale, PropsRuntime, PropsStore } from '@qilin-agent/client-ui-slots'
 import { LEADING_MAX, LEADING_MIN } from '../theme-settings.ts'
-import type {} from '@qilin/client-ui-settings/client'
+import type {} from '@qilin-agent/client-ui-settings/client'
 import type { createTypographyRowStore } from './settings-store.ts'
 import css from './settings-row.module.css'
 

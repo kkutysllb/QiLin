@@ -1,5 +1,5 @@
-import { Context } from '@qilin/kylin'
-import type { SessionId } from '@qilin/session/types'
+import { Context } from '@qilin-agent/kylin'
+import type { SessionId } from '@qilin-agent/session/types'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { apply } from '../src/client/index.ts'
 import { fileUploadWorker, FileUploadRuntime } from '../src/client/runtime.ts'

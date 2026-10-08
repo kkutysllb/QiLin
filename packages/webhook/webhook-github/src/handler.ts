@@ -1,16 +1,16 @@
 /** GitHub HTTP authentication, parsing, and fire-and-forget dispatch. */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { Webhooks } from '@octokit/webhooks'
-import type { CredentialRef } from '@qilin/credentials'
-import { snapshotJsonValue } from '@qilin/util-values'
+import type { CredentialRef } from '@qilin-agent/credentials'
+import { snapshotJsonValue } from '@qilin-agent/util-values'
 import {
   WebhookDeliveryId,
   WebhookSourceId,
   type VerifiedWebhookDelivery,
-} from '@qilin/webhook'
-import type { WebRoute } from '@qilin/host-webserver'
+} from '@qilin-agent/webhook'
+import type { WebRoute } from '@qilin-agent/host-webserver'
 import { readBoundedUtf8Body, WebhookHttpError } from './body.ts'
 import type { GitHubJsonObject } from './types.ts'
 

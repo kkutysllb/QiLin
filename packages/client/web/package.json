@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-web",
+  "name": "@qilin-agent/client-web",
   "description": "Web boot kernel: static module table, Cordis loader, framework-free boot page, and UI-renderer handoff",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,24 +30,24 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/dsh-compat": "workspace:*",
-    "@qilin/client-modules": "workspace:*",
-    "@qilin/client-store": "workspace:*",
-    "@qilin/client-ui-dockkit": "workspace:*",
-    "@qilin/client-ui-renderer": "workspace:*",
-    "@qilin/client-ui-primitives": "workspace:*",
-    "@qilin/client-ui-slots": "workspace:*",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/dsh-compat": "workspace:*",
+    "@qilin-agent/client-modules": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/client-ui-dockkit": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
     "@types/react": "~18.3.1",
     "@types/react-dom": "~18.3.0",
-    "@qilin/kylin": "workspace:~",
+    "@qilin-agent/kylin": "workspace:~",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "typescript": "^6.0.3",
-    "@qilin/host-webserver": "workspace:*"
+    "@qilin-agent/host-webserver": "workspace:*"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "files": [
     "lib/index.js",

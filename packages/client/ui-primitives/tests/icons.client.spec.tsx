@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
 import { cleanup, render } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
-import * as primitives from '@qilin/client-ui-primitives'
+import * as primitives from '@qilin-agent/client-ui-primitives'
 import {
   IconAlarmClockOutline16, IconApiOutline14, IconArchiveOutline20, IconFolderClose16,
   IconGoalOutline16, IconSendOutline16,
-} from '@qilin/client-ui-primitives'
+} from '@qilin-agent/client-ui-primitives'
 
 afterEach(cleanup)
 

@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
 import { act, cleanup, renderHook } from '@testing-library/react'
-import type { SessionLiveEventEntry } from '@qilin/api-session-controller/client'
-import { createSnapshotStore } from '@qilin/client-store'
-import { EMPTY_CHAT_SNAPSHOT } from '@qilin/client-ui-chat/client'
-import { EMPTY_CONVERSATION_SNAPSHOT } from '@qilin/client-ui-conversation/client'
-import type { SessionId } from '@qilin/session/types'
-import type { MainPanelId, PanelInfo } from '@qilin/client-ui-layout/client'
-import type { PropsRuntime } from '@qilin/client-ui-slots'
+import type { SessionLiveEventEntry } from '@qilin-agent/api-session-controller/client'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { EMPTY_CHAT_SNAPSHOT } from '@qilin-agent/client-ui-chat/client'
+import { EMPTY_CONVERSATION_SNAPSHOT } from '@qilin-agent/client-ui-conversation/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { MainPanelId, PanelInfo } from '@qilin-agent/client-ui-layout/client'
+import type { PropsRuntime } from '@qilin-agent/client-ui-slots'
 import { afterAll, afterEach, describe, expect, it, vi } from 'vitest'
 import {
   bindSnapshotSelector,
@@ -19,7 +19,7 @@ import {
 const originalLanguages = [...navigator.languages]
 const originalLanguage = navigator.language
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface SlotMap {
     'trt.panel-info': { kind: 'keyed'; scope: 'root'; owner: { label: string } }
   }

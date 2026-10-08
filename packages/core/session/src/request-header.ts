@@ -7,8 +7,8 @@
  * @module qilin-session/request-header
  */
 
-import { callConfigEquals } from '@qilin/llm'
-import type { ToolSchema } from '@qilin/llm'
+import { callConfigEquals } from '@qilin-agent/llm'
+import type { ToolSchema } from '@qilin-agent/llm'
 import type { EpochHeader, SessionEvent } from './types.ts'
 
 /**

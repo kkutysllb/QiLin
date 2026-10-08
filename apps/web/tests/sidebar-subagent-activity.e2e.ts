@@ -4,12 +4,12 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import type { AgentHandle } from '@qilin/agent'
-import { createUserMessage, LlmAdapter } from '@qilin/llm'
-import type { GenerateOptions, StreamChunk } from '@qilin/llm'
-import { SessionId, type SessionId as SessionIdValue } from '@qilin/session'
-import type {} from '@qilin/subagent'
-import type {} from '@qilin/workspace'
+import type { AgentHandle } from '@qilin-agent/agent'
+import { createUserMessage, LlmAdapter } from '@qilin-agent/llm'
+import type { GenerateOptions, StreamChunk } from '@qilin-agent/llm'
+import { SessionId, type SessionId as SessionIdValue } from '@qilin-agent/session'
+import type {} from '@qilin-agent/subagent'
+import type {} from '@qilin-agent/workspace'
 import {
   assertFixtureInventory,
   captureStableAria,

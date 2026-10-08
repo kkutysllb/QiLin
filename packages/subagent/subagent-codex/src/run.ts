@@ -4,16 +4,16 @@
  * creation, flatten post-publication failures, and dispose to whole-range
  * quiescence.
  *
- * @module @qilin/subagent-codex/run
+ * @module @qilin-agent/subagent-codex/run
  */
 
 import { randomUUID } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, resolve } from 'node:path'
-import { brandString } from '@qilin/brand'
-import type { ContentBlock } from '@qilin/llm'
-import type { SessionId } from '@qilin/session'
+import { brandString } from '@qilin-agent/brand'
+import type { ContentBlock } from '@qilin-agent/llm'
+import type { SessionId } from '@qilin-agent/session'
 import {
   settleRunResult,
   subprocessRunHandle,
@@ -21,12 +21,12 @@ import {
   type SubagentRun,
   type SubagentStartRequest,
   type SubagentStopReason,
-} from '@qilin/subagent'
+} from '@qilin-agent/subagent'
 import type {
   SubprocessHandle,
   SubprocessOutcome,
   SubprocessSpawnSpec,
-} from '@qilin/subprocess'
+} from '@qilin-agent/subprocess'
 import {
   CodexAppServerWire,
   type CodexWireFailureFacts,

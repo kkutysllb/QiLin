@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/plan-mode",
+  "name": "@qilin-agent/plan-mode",
   "description": "Logged per-agent plan mode with deployment guidance, a direct slash command, and a user-reviewed exit",
   "version": "3.1.1",
   "publishConfig": {
@@ -39,36 +39,36 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/commands": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-projection": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/user-questions": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/commands": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/user-questions": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "peerDependenciesMeta": {
-    "@qilin/commands": {
+    "@qilin-agent/commands": {
       "optional": true
     }
   },
   "dependencies": {
-    "@qilin/brand": "workspace:*",
+    "@qilin-agent/brand": "workspace:*",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/agent-loop": "workspace:*",
-    "@qilin/ptc-runtime": "workspace:*",
-    "@qilin/commands": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-projection": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/user-questions": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-loop": "workspace:*",
+    "@qilin-agent/ptc-runtime": "workspace:*",
+    "@qilin-agent/commands": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/user-questions": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   }
 }

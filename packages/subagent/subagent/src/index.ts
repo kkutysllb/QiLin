@@ -8,8 +8,8 @@
  * select one by name.
  *
  * This package owns the Service Definition role of the capability seam. Service Providers
- * (`@qilin/subagent-spawn-in-process`, `-fork`, `-acp`) and the model-facing
- * consumer (`@qilin/tool-subagent`) are separate packages.
+ * (`@qilin-agent/subagent-spawn-in-process`, `-fork`, `-acp`) and the model-facing
+ * consumer (`@qilin-agent/tool-subagent`) are separate packages.
  *
  * Public operations express caller intent: `start` returns one published owned
  * one-shot run, `startContinuable` establishes a durable continuable child, and
@@ -26,20 +26,20 @@
  * serialization and hostile-input validation belong at real process, worker,
  * persistence, and model boundaries.
  *
- * @module @qilin/subagent
+ * @module @qilin-agent/subagent
  */
-import { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type {} from '@qilin/settings'
-import type {} from '@qilin/attachment'
-import { scopeTarget } from '@qilin/scope'
-import type { Scoped } from '@qilin/scope'
-import { assertObjectJsonSchema } from '@qilin/tools'
-import type { ContentBlock, MessageId, MessageSource } from '@qilin/llm'
-import type { Agent } from '@qilin/agent'
-import type { SessionId } from '@qilin/session'
-import { canonicalClientTimeZone } from '@qilin/util-time'
-import { Remote, RemoteError, TypertRemoteService } from '@qilin/typert-protocol'
+import { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type {} from '@qilin-agent/settings'
+import type {} from '@qilin-agent/attachment'
+import { scopeTarget } from '@qilin-agent/scope'
+import type { Scoped } from '@qilin-agent/scope'
+import { assertObjectJsonSchema } from '@qilin-agent/tools'
+import type { ContentBlock, MessageId, MessageSource } from '@qilin-agent/llm'
+import type { Agent } from '@qilin-agent/agent'
+import type { SessionId } from '@qilin-agent/session'
+import { canonicalClientTimeZone } from '@qilin-agent/util-time'
+import { Remote, RemoteError, TypertRemoteService } from '@qilin-agent/typert-protocol'
 import {
   rejectPrompt, validateControlRequest,
 } from './control.ts'
@@ -133,7 +133,7 @@ export type { SubagentDescendantListEntry } from './list-children.ts'
 export type { SubagentRunEndInfo, SubagentRunInfo } from './types.ts'
 export type { SubagentIdentityProjection, SubagentTimingProjection } from './projection-types.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     subagents: SubagentRuntime
   }

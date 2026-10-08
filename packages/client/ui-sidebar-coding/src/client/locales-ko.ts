@@ -1,5 +1,5 @@
 /**
- * Korean dictionary for the @qilin/client-ui-sidebar-coding plugin (LOCALE_NS `betterSidebar`).
+ * Korean dictionary for the @qilin-agent/client-ui-sidebar-coding plugin (LOCALE_NS `betterSidebar`).
  *
  * Key-set-equal to the zh dictionary in `./locales.ts` (zh is the source of
  * truth). Registered through the better-locale override store when that

@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { stubConfigForm, type StubConfigForm } from '@qilin/client-test-runtime'
-import type { LocaleSettings, LocaleSnapshot } from '@qilin/client-locale/client'
-import { FALLBACK_LOCALE, LocaleRuntime } from '@qilin/client-locale/client'
+import { Context } from '@qilin-agent/kylin'
+import { stubConfigForm, type StubConfigForm } from '@qilin-agent/client-test-runtime'
+import type { LocaleSettings, LocaleSnapshot } from '@qilin-agent/client-locale/client'
+import { FALLBACK_LOCALE, LocaleRuntime } from '@qilin-agent/client-locale/client'
 const make = (host?: StubConfigForm<LocaleSettings>): {
   ctx: Context
   svc: LocaleRuntime

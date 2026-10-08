@@ -1,8 +1,8 @@
 /** Host registry and HTTP adapter for generic Connection RPC channels. */
 
-import { Context, Service } from '@qilin/kylin'
-import type { WebRoute } from '@qilin/host-webserver'
-import type { PeerScope } from '@qilin/typert-protocol'
+import { Context, Service } from '@qilin-agent/kylin'
+import type { WebRoute } from '@qilin-agent/host-webserver'
+import type { PeerScope } from '@qilin-agent/typert-protocol'
 import {
   RpcId,
   type ClientRequest,
@@ -62,7 +62,7 @@ interface ConnectionServerResponse {
   readonly result: ConnectionRpcResult<unknown>
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Host Connection transport and RPC registrations. */
     connection: HostConnectionHandle

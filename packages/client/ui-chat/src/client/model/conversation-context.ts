@@ -1,6 +1,6 @@
 import type {
   ConversationNode, ConversationPromptSnapshot,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 
 /** Operation that started a new append-only model context. */
 export type ConversationContextOriginKind = 'compaction' | 'rewind' | 'rewrite'

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import fc from 'fast-check'
-import type { SessionEvent } from '@qilin/session'
+import type { SessionEvent } from '@qilin-agent/session'
 import {
   ScheduleId,
   createEveryScheduleRecord,

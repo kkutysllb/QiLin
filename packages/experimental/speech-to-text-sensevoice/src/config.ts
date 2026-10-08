@@ -1,6 +1,6 @@
 /** Deployment configuration for the managed local SenseVoice recognizer. */
-import z from '@qilin/schemastery'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
+import z from '@qilin-agent/schemastery'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 
 /** Local runtime, inference, and retention settings. */
 export interface Config {

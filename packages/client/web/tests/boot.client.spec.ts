@@ -1,14 +1,14 @@
 // @vitest-environment jsdom
-import type { Context } from '@qilin/kylin'
-import * as modulesClient from '@qilin/client-modules/client'
+import type { Context } from '@qilin-agent/kylin'
+import * as modulesClient from '@qilin-agent/client-modules/client'
 import type {
   ClientBundleRegistration, ClientModuleCreateOptions, ClientModuleLoaderTarget, QilinWindow,
   WebBootEntry,
-} from '@qilin/client-modules/client'
+} from '@qilin-agent/client-modules/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AppWebEntry } from '../src/boot.ts'
 
-const MODULES_ID = '@qilin/client-modules'
+const MODULES_ID = '@qilin-agent/client-modules'
 const PROVIDER_CLIENT_ID = 'provider/client'
 const RUNTIME_CLIENT_ID = 'runtime/client'
 const win = globalThis as QilinWindow

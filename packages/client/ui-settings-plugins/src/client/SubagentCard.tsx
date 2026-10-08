@@ -1,8 +1,8 @@
 /** One settings card for Subagent delegation limits and model authorization. */
 
 import { useId } from 'react'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
-import type {} from '@qilin/client-ui-plugin-manager/client'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-plugin-manager/client'
 import { PluginConfigForm } from './PluginConfigForm.tsx'
 import { SubagentLimitsFields } from './SubagentLimitsFields.tsx'
 import { SubagentModelSelectionFields } from './SubagentModelSelectionFields.tsx'

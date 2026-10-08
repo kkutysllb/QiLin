@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/acp",
+  "name": "@qilin-agent/acp",
   "description": "Automation-only Agent Client Protocol server for driving QiLin agents over JSON-RPC stdio",
   "version": "3.1.1",
   "publishConfig": {
@@ -31,39 +31,39 @@
   "license": "MIT",
   "dependencies": {
     "@agentclientprotocol/sdk": "1.4.0",
-    "@qilin/brand": "workspace:*",
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/attachment": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/mcp-client": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-persistence": "workspace:*",
-    "@qilin/token-meter": "workspace:*",
-    "@qilin/user-approval": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/attachment": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/mcp-client": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-persistence": "workspace:*",
+    "@qilin-agent/token-meter": "workspace:*",
+    "@qilin-agent/user-approval": "workspace:*"
   },
   "peerDependenciesMeta": {
-    "@qilin/token-meter": {
+    "@qilin-agent/token-meter": {
       "optional": true
     }
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/agent-loop": "workspace:*",
-    "@qilin/agent-loop-testkit": "workspace:*",
-    "@qilin/attachment": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/mcp-client": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-persistence": "workspace:*",
-    "@qilin/session-persistence-jsonl": "workspace:*",
-    "@qilin/session-projection": "workspace:*",
-    "@qilin/token-meter": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/user-approval": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-loop": "workspace:*",
+    "@qilin-agent/agent-loop-testkit": "workspace:*",
+    "@qilin-agent/attachment": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/mcp-client": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-persistence": "workspace:*",
+    "@qilin-agent/session-persistence-jsonl": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/token-meter": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/user-approval": "workspace:*"
   }
 }

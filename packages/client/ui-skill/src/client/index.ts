@@ -30,22 +30,22 @@
  * accent row derived only from each logged call/result slice.
  */
 // Type-only: the carrier types, the forwarded Host-event face and the ctx.remote merge.
-import type {} from '@qilin/client-ui-sidebar-right/client'
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { SkillEntry } from '@qilin/api-remotes/client'
-import type {} from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
-import type { InputTriggerServiceContract, InputTriggerSource } from '@qilin/client-ui-input-trigger/client'
-import { fileAddressFor } from '@qilin/util-workspace-path'
-import { rankByName } from '@qilin/client-ui-primitives'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { SkillEntry } from '@qilin-agent/api-remotes/client'
+import type {} from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { InputTriggerServiceContract, InputTriggerSource } from '@qilin-agent/client-ui-input-trigger/client'
+import { fileAddressFor } from '@qilin-agent/util-workspace-path'
+import { rankByName } from '@qilin-agent/client-ui-primitives'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
-import type {} from '@qilin/client-locale/client'
+import type {} from '@qilin-agent/client-locale/client'
 // Type-only: pulls the SlotRegistry service merge (ctx.slots).
-import type {} from '@qilin/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
 import { SkillRow } from './SkillRow.tsx'
 import { en, NS, zh, type SkillKey } from './locales.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** The dedicated skill tool row's copy. */
     skill: SkillKey

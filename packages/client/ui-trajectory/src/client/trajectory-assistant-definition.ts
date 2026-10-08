@@ -1,12 +1,12 @@
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   AssistantBlock, AssistantMessageNode, ConversationLocation,
   ConversationMatch, ConversationNodeContext, ConversationNodeDefinition,
   PartialAssistant, RequestView,
-} from '@qilin/client-ui-conversation/client'
-import type { StreamChunk } from '@qilin/llm'
-import { assistantStreamFirstTokenTime } from '@qilin/llm/assistant-stream'
-import type { SessionEvent } from '@qilin/session/types'
+} from '@qilin-agent/client-ui-conversation/client'
+import type { StreamChunk } from '@qilin-agent/llm'
+import { assistantStreamFirstTokenTime } from '@qilin-agent/llm/assistant-stream'
+import type { SessionEvent } from '@qilin-agent/session/types'
 import { trajectoryNode } from './trajectory-definition-common.ts'
 import {
   displayFailure, emptyAssistantBlock, isTokenDelta, toAssistantBlock, toAssistantBlocks,

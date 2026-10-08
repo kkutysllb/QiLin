@@ -3,7 +3,7 @@ description: "Workspace entity registry (ctx.workspaceRegistry) for hosts choosi
 kind: "package-reference"
 ---
 
-# @qilin/workspace
+# @qilin-agent/workspace
 
 English | [中文](README.zh.md)
 
@@ -36,14 +36,14 @@ Use it when the product shows a persistent workspace surface — a sidebar, sess
 The package needs a session store, a session persistence backend, and the storage rows that keep its records. A minimal composition:
 
 ```yaml
-- name: '@qilin/session'
-- name: '@qilin/session-persistence-jsonl'
-- name: '@qilin/storage'
-- name: '@qilin/storage-json'
-- name: '@qilin/storage-domain'
+- name: '@qilin-agent/session'
+- name: '@qilin-agent/session-persistence-jsonl'
+- name: '@qilin-agent/storage'
+- name: '@qilin-agent/storage-json'
+- name: '@qilin-agent/storage-domain'
   config:
     backend: json
-- name: '@qilin/workspace'
+- name: '@qilin-agent/workspace'
 ```
 
 With these rows mounted, creating a project shows up in the list immediately and survives a restart; the first start also groups existing sessions by the directory they ran in. If a required peer is missing, the workspace feature stays unavailable until it is mounted.

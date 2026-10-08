@@ -1,22 +1,22 @@
 /** Plan-mode control, persistent Chat cards, and Session-backed sidebar previews. */
-import type {} from '@qilin/api-remotes/client'
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { SessionId } from '@qilin/session/types'
+import type {} from '@qilin-agent/api-remotes/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { SessionId } from '@qilin-agent/session/types'
 // Type-only: pulls the ui-conversation SlotMap merge (the input.plan seat).
-import type {} from '@qilin/client-ui-conversation/client'
+import type {} from '@qilin-agent/client-ui-conversation/client'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
-import type {} from '@qilin/client-locale/client'
+import type {} from '@qilin-agent/client-locale/client'
 // Type-only: pulls the `plan` SessionProjectionMap merge for useProjection.
-import type {} from '@qilin/plan-mode/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-session/client'
-import type {} from '@qilin/api-session-controller/remote'
-import type {} from '@qilin/client-ui-chat/client'
-import type {} from '@qilin/client-ui-user-questions/client'
-import type {} from '@qilin/client-ui-sidebar-right/client'
-import type {} from '@qilin/client-resources/client'
-import { extractMarkdownPlainText } from '@qilin/client-ui-primitives'
-import { randomUUID } from '@qilin/util-crypto'
+import type {} from '@qilin-agent/plan-mode/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-session/client'
+import type {} from '@qilin-agent/api-session-controller/remote'
+import type {} from '@qilin-agent/client-ui-chat/client'
+import type {} from '@qilin-agent/client-ui-user-questions/client'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
+import type {} from '@qilin-agent/client-resources/client'
+import { extractMarkdownPlainText } from '@qilin-agent/client-ui-primitives'
+import { randomUUID } from '@qilin-agent/util-crypto'
 import { PlanCards, PlanReviewOpen, type PlanOpenInjected, type PlanReviewOpenInjected } from './PlanCard.tsx'
 import { PlanPreview, PlanTitle } from './PlanPreview.tsx'
 import { planDefinition } from './plan-definition.ts'
@@ -29,7 +29,7 @@ import { en, zh, type PlanKey } from './locales.ts'
 
 export type { PlanKey } from './locales.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** The composer plan chip's copy. */
     plan: PlanKey
@@ -58,7 +58,7 @@ export const inject = ['slots', 'remote', 'remote.commands', 'remote.session', '
 export function apply(ctx: ClientContext): void {
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-plan: dictionaries')
 
-  const previewId = '@qilin/client-ui-plan'
+  const previewId = '@qilin-agent/client-ui-plan'
   const t = ctx.locale.bind(NS)
   ctx.effect(() => ctx.uiConversation.events.register(planDefinition), 'ui-plan: conversation definition')
   ctx.effect(() => ctx.resources.register(planResourceProvider(ctx.remote.session)), 'ui-plan: resources')

@@ -5,10 +5,10 @@
  */
 import { createElement } from 'react'
 import type { ReactElement } from 'react'
-import type { DirectoryListing } from '@qilin/api-remotes/client'
-import type { Translate } from '@qilin/client-locale/client'
+import type { DirectoryListing } from '@qilin-agent/api-remotes/client'
+import type { Translate } from '@qilin-agent/client-locale/client'
 // Type-only: the owner contract of the directory-flow holes.
-import type { DirectoryFlowOwnerProps } from '@qilin/client-ui-workspace/client'
+import type { DirectoryFlowOwnerProps } from '@qilin-agent/client-ui-workspace/client'
 import { DirectoryBrowser } from './DirectoryBrowser.tsx'
 
 /** Injected face: the browse wire calls and copy the dialog drives (bound in apply's closure). */

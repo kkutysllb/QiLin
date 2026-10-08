@@ -4,12 +4,12 @@
  * only the redacted authorized prefix; the canonical log keeps every event.
  */
 
-import type { SessionEvent } from '@qilin/session'
+import type { SessionEvent } from '@qilin-agent/session'
 import { readFile, readdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { LOADER_SMOKE_TEST_TIMEOUT_MS, runLoaderSmoke } from '@qilin/loader-smoke'
+import { LOADER_SMOKE_TEST_TIMEOUT_MS, runLoaderSmoke } from '@qilin-agent/loader-smoke'
 
 const driver = fileURLToPath(new URL(
   './fixtures/driver.ts',

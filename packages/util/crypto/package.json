@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/util-crypto",
+  "name": "@qilin-agent/util-crypto",
   "description": "Zero-dependency browser-safe UUID and byte-encoding helpers",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,9 +30,9 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   }
 }

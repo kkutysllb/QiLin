@@ -3,7 +3,7 @@ description: "Open, recover and control interactive shell tabs in the Web right 
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-sidebar-terminal
+# @qilin-agent/client-ui-sidebar-terminal
 
 English | [中文](README.zh.md)
 

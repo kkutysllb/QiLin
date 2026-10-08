@@ -16,7 +16,7 @@ import {
   sessionFixtureFiles,
   sessionFixtureNames,
   type SnapshotManifest,
-} from '@qilin/session-snapshot'
+} from '@qilin-agent/session-snapshot'
 import { assertSnapshotCorpusPolicy } from './session-snapshot-corpus-policy.ts'
 
 const repoRoot = resolve(import.meta.dirname, '..')

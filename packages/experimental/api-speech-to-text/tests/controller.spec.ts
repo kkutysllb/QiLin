@@ -1,8 +1,8 @@
 /** Authenticated speech domain methods validate audio before selecting a recognizer. */
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { afterEach, expect, it, vi } from 'vitest'
-import SpeechToText from '@qilin/experimental-speech-to-text'
-import type { SpeechProviderId } from '@qilin/experimental-speech-to-text/types'
+import SpeechToText from '@qilin-agent/experimental-speech-to-text'
+import type { SpeechProviderId } from '@qilin-agent/experimental-speech-to-text/types'
 import SpeechController from '../src/index.ts'
 
 const roots: Context[] = []

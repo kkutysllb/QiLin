@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type {
   ComposerAttachment, ComposerAttachmentsProps, ComposerImageAttachment,
-} from '@qilin/client-ui-conversation/client'
-import { IconCloseFill14 } from '@qilin/client-ui-primitives'
+} from '@qilin-agent/client-ui-conversation/client'
+import { IconCloseFill14 } from '@qilin-agent/client-ui-primitives'
 import { AttachmentRail } from '../AttachmentRail.tsx'
 import type { AttachmentRailItem } from '../AttachmentRail.tsx'
 import { DropOverlay } from '../DropOverlay.tsx'
 import { FileCard } from '../FileCard.tsx'
-import { ImageLightbox } from '@qilin/client-ui-primitives'
+import { ImageLightbox } from '@qilin-agent/client-ui-primitives'
 import { attachmentRailLabels, dropOverlayLabels, fileCardLabels, lightboxLabels } from './labels.ts'
 import { installDocumentDropEvents } from './drop-events.ts'
 import css from './ComposerAttachments.module.css'

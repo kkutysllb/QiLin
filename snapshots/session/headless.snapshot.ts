@@ -9,9 +9,9 @@ import { basename, delimiter, dirname, isAbsolute, join, relative, sep } from 'n
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import ts from 'typescript'
-import { SESSION_FORMAT_VERSION } from '@qilin/session'
-import { releasedV0SessionFormatCodec } from '@qilin/session-format-v0-to-v1'
-import type { SessionFormatEvent, SessionFormatMigrationContext } from '@qilin/session-format'
+import { SESSION_FORMAT_VERSION } from '@qilin-agent/session'
+import { releasedV0SessionFormatCodec } from '@qilin-agent/session-format-v0-to-v1'
+import type { SessionFormatEvent, SessionFormatMigrationContext } from '@qilin-agent/session-format'
 import { assertWorkspaceOutsideTemp, outsideTempWorkspaceParent } from '../../scripts/snapshot-workspace-parent.ts'
 import {
   assertPersistedSessionVersion,
@@ -49,10 +49,10 @@ import {
   type NormalizeContext,
   type SnapshotManifest,
   type WorkspaceSnapshotEntry,
-} from '@qilin/session-snapshot'
-import { LOADER_SMOKE_TEST_TIMEOUT_MS, runLoaderSmoke } from '@qilin/loader-smoke'
-import { resolvePwshPath } from '@qilin/pwsh-local'
-import { parseSessionLog, prepareSessionSnapshotFixtureForComparison } from '@qilin/llm-replay'
+} from '@qilin-agent/session-snapshot'
+import { LOADER_SMOKE_TEST_TIMEOUT_MS, runLoaderSmoke } from '@qilin-agent/loader-smoke'
+import { resolvePwshPath } from '@qilin-agent/pwsh-local'
+import { parseSessionLog, prepareSessionSnapshotFixtureForComparison } from '@qilin-agent/llm-replay'
 
 const repoRoot = fileURLToPath(new URL('../../', import.meta.url))
 const snapshotsRoot = fileURLToPath(new URL('./', import.meta.url))
@@ -970,7 +970,7 @@ describe('headless recorded-session snapshots', () => {
         { type: 'system/message', seq: 2, time: 3, data: {
           turn: 1, step: 1,
           message: { role: 'system', content: [{ type: 'text', text: 'fresh system prompt' }],
-            source: { kind: 'plugin', plugin: '@qilin/system-prompt' }, id: 'fresh-msg' },
+            source: { kind: 'plugin', plugin: '@qilin-agent/system-prompt' }, id: 'fresh-msg' },
         }, surfaceOp: 'append' },
         {
           type: 'request/header',

@@ -2,9 +2,9 @@
 /** The switch follows accepted Host state, including refused and delayed saves. */
 import { afterEach, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { bindSnapshotSelector } from '@qilin/client-test-runtime'
-import { createSnapshotStore } from '@qilin/client-store'
-import type { ConfigForm, ConfigFormSnapshot } from '@qilin/client-ui-settings/client'
+import { bindSnapshotSelector } from '@qilin-agent/client-test-runtime'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { ConfigForm, ConfigFormSnapshot } from '@qilin-agent/client-ui-settings/client'
 import type { ComponentProps } from 'react'
 import { UploadRow, UploadToast } from '../src/client/UploadRow.tsx'
 import { UploadPreference, type UploadSettings } from '../src/client/upload-preference.ts'

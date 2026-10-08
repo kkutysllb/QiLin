@@ -2,7 +2,7 @@
 /** Path labels retain their full hover text and update clipping with layout and file changes. */
 import { act, cleanup, render } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { PathLabel } from '@qilin/client-ui-primitives'
+import { PathLabel } from '@qilin-agent/client-ui-primitives'
 
 afterEach(() => {
   cleanup()

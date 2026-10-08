@@ -28,8 +28,8 @@ import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
 // Type-only: pulls the plan/mode SessionEventMap merge so the discriminant
 // filter below types as the plan-mode event in the host aggregate.
-import type {} from '@qilin/plan-mode'
-import type { SessionEvent } from '@qilin/session'
+import type {} from '@qilin-agent/plan-mode'
+import type { SessionEvent } from '@qilin-agent/session'
 import {
   assertFixtureInventory, compareOrRefreshGolden,
   launchWebScaffold, watchConsole, webSnapshotMode, type WebScaffold,

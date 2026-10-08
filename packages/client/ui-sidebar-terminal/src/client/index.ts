@@ -1,17 +1,17 @@
 /** Register interactive terminal tabs and explicit process cleanup with the sidebar. */
-import type { Context } from '@qilin/kylin'
-import type { WebTerminalId } from '@qilin/api-terminal-controller/types'
-import type { SidebarRightTabParamsMap, TabId } from '@qilin/client-ui-sidebar-right/client'
-import type { SessionId } from '@qilin/session/types'
-import type {} from '@qilin/api-terminal-controller/client'
-import type {} from '@qilin/client-ui-sidebar-right/client'
-import type {} from '@qilin/client-ui-sidebar-browser/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-ui-session/client'
-import type {} from '@qilin/client-ui-theme/client'
-import type {} from '@qilin/client-ui-settings/client'
-import { createSnapshotStore } from '@qilin/client-store'
+import type { Context } from '@qilin-agent/kylin'
+import type { WebTerminalId } from '@qilin-agent/api-terminal-controller/types'
+import type { SidebarRightTabParamsMap, TabId } from '@qilin-agent/client-ui-sidebar-right/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type {} from '@qilin-agent/api-terminal-controller/client'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
+import type {} from '@qilin-agent/client-ui-sidebar-browser/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-ui-session/client'
+import type {} from '@qilin-agent/client-ui-theme/client'
+import type {} from '@qilin-agent/client-ui-settings/client'
+import { createSnapshotStore } from '@qilin-agent/client-store'
 import { TerminalGuideIcon } from './TerminalIcon.tsx'
 import { TerminalGuide, type TerminalGuideInjected } from './TerminalGuide.tsx'
 import { LazyTerminalBody } from './LazyTerminalBody.tsx'
@@ -62,7 +62,7 @@ export function apply(ctx: Context): void {
       params !== undefined && 'shellPath' in params ? params.shellPath : undefined)
   }
   const namespace = 'sidebarTerminal'
-  const id = '@qilin/client-ui-sidebar-terminal'
+  const id = '@qilin-agent/client-ui-sidebar-terminal'
   const t = ctx.locale.bind(namespace)
   ctx.effect(() => ctx.locale.register(namespace, { zh, en }), 'ui-sidebar-terminal.copy')
   ctx.effect(() => ctx.sidebarRightTabs.register({

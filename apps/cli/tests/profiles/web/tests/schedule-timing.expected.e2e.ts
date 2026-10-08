@@ -4,9 +4,9 @@ import { randomUUID } from 'node:crypto'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { DailyScheduleRecord, ScheduleCatalogEntry } from '@qilin/schedule'
+import type { DailyScheduleRecord, ScheduleCatalogEntry } from '@qilin-agent/schedule'
 import { expect, it } from 'vitest'
-import { WEB_ENTRY_PATH } from '@qilin/client-connection'
+import { WEB_ENTRY_PATH } from '@qilin-agent/client-connection'
 import { withDefaultWeb, webGet, webRequest } from './default-web-process.ts'
 
 const patches = [fileURLToPath(new URL('./fixtures/schedule.patch.yml', import.meta.url))]

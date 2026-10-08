@@ -9,10 +9,10 @@ Both language versions of this file are GENERATED from source (`scripts/gen-conf
 
 Each package entry labels its data with three identifiers: `inject` lists the service keys the plugin injects, so its `cordis.yml` tree must also load providers for those services; `refs` lists the referenced types that are not pasted here; `source` links the file that declares the config. Scope is the harness tier (`packages/`); the vendored cordis plugins a config tree may also load (`hmr`, the console logger, …) are pinned upstream source ([vendoring policy](../vendor/README.md)) and not catalogued here.
 
-<!-- BEGIN GENERATED config-catalog:@qilin/accounts-local -->
-<a id="qilinaccounts-local"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/accounts-local -->
+<a id="qilin-agentaccounts-local"></a>
 
-## `@qilin/accounts-local`
+## `@qilin-agent/accounts-local`
 
 - `inject`: `connection` · `credentials`
 - `source`: [`packages/identity/accounts-local/src/index.ts:43`](../packages/identity/accounts-local/src/index.ts)
@@ -40,12 +40,12 @@ export interface Config {
   qilinHome?: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/accounts-local -->
+<!-- END GENERATED config-catalog:@qilin-agent/accounts-local -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/acp -->
-<a id="qilinacp"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/acp -->
+<a id="qilin-agentacp"></a>
 
-## `@qilin/acp`
+## `@qilin-agent/acp`
 
 - `inject`: `agents` · `llm` · `sessionPersistence` · `sessions`
 - `refs`: `Stream` (`@agentclientprotocol/sdk`)
@@ -64,12 +64,12 @@ export interface AcpConfig {
   stream?: Stream
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/acp -->
+<!-- END GENERATED config-catalog:@qilin-agent/acp -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/agent-default-model -->
-<a id="qilinagent-default-model"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/agent-default-model -->
+<a id="qilin-agentagent-default-model"></a>
 
-## `@qilin/agent-default-model`
+## `@qilin-agent/agent-default-model`
 
 - `source`: [`packages/core/agent-default-model/src/index.ts:41`](../packages/core/agent-default-model/src/index.ts)
 
@@ -82,12 +82,12 @@ export interface Config {
   model: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/agent-default-model -->
+<!-- END GENERATED config-catalog:@qilin-agent/agent-default-model -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/agent-instructions -->
-<a id="qilinagent-instructions"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/agent-instructions -->
+<a id="qilin-agentagent-instructions"></a>
 
-## `@qilin/agent-instructions`
+## `@qilin-agent/agent-instructions`
 
 - `inject`: `sessionProjections`
 - `source`: [`packages/context/agent-instructions/src/config.ts:18`](../packages/context/agent-instructions/src/config.ts)
@@ -115,15 +115,15 @@ export interface Config {
   localInstructionFileCandidates?: string[]
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/agent-instructions -->
+<!-- END GENERATED config-catalog:@qilin-agent/agent-instructions -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/agent-loop -->
-<a id="qilinagent-loop"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/agent-loop -->
+<a id="qilin-agentagent-loop"></a>
 
-## `@qilin/agent-loop`
+## `@qilin-agent/agent-loop`
 
 - `inject`: `agents` · `sessions` · `llm` · `tools` · `systemPrompt` · `sessionProjections`
-- `refs`: [`AgentOptions`](subsystems/core.md) · [`SessionId`](subsystems/core.md) · `Volatile` (`@qilin/cosmokit`)
+- `refs`: [`AgentOptions`](subsystems/core.md) · [`SessionId`](subsystems/core.md) · `Volatile` (`@qilin-agent/cosmokit`)
 - `source`: [`packages/core/agent-loop/src/index.ts:311`](../packages/core/agent-loop/src/index.ts)
 
 ```ts config-catalog
@@ -147,12 +147,12 @@ export interface Config {
   })[]
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/agent-loop -->
+<!-- END GENERATED config-catalog:@qilin-agent/agent-loop -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/agent-presets -->
-<a id="qilinagent-presets"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/agent-presets -->
+<a id="qilin-agentagent-presets"></a>
 
-## `@qilin/agent-presets`
+## `@qilin-agent/agent-presets`
 
 - `inject`: `loader` · `sessionProjections`
 - `source`: [`packages/preset/agent-presets/src/preset.ts:52`](../packages/preset/agent-presets/src/preset.ts)
@@ -194,12 +194,12 @@ export interface PresetRoot {
  */
 export type PresetTrust = 'system' | 'user'
 ```
-<!-- END GENERATED config-catalog:@qilin/agent-presets -->
+<!-- END GENERATED config-catalog:@qilin-agent/agent-presets -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/agent-tool-presentation -->
-<a id="qilinagent-tool-presentation"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/agent-tool-presentation -->
+<a id="qilin-agentagent-tool-presentation"></a>
 
-## `@qilin/agent-tool-presentation`
+## `@qilin-agent/agent-tool-presentation`
 
 - `inject`: `tools`
 - `refs`: [`ToolPresentationMode`](subsystems/tools.md)
@@ -218,12 +218,12 @@ export interface Config {
   mode: ToolPresentationMode
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/agent-tool-presentation -->
+<!-- END GENERATED config-catalog:@qilin-agent/agent-tool-presentation -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/api-gateway -->
-<a id="qilinapi-gateway"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/api-gateway -->
+<a id="qilin-agentapi-gateway"></a>
 
-## `@qilin/api-gateway`
+## `@qilin-agent/api-gateway`
 
 - `inject`: `typert`
 - `source`: [`packages/api/gateway/src/index.ts:145`](../packages/api/gateway/src/index.ts)
@@ -237,12 +237,12 @@ export interface Config {
   readonly streamInboxBytes?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/api-gateway -->
+<!-- END GENERATED config-catalog:@qilin-agent/api-gateway -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/api-job-controller -->
-<a id="qilinapi-job-controller"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/api-job-controller -->
+<a id="qilin-agentapi-job-controller"></a>
 
-## `@qilin/api-job-controller`
+## `@qilin-agent/api-job-controller`
 
 - `inject`: `jobs` · `typert`
 - `source`: [`packages/api/job-controller/src/index.ts:35`](../packages/api/job-controller/src/index.ts)
@@ -256,12 +256,12 @@ export interface Config {
   readonly observeMaxFrameBytes?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/api-job-controller -->
+<!-- END GENERATED config-catalog:@qilin-agent/api-job-controller -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/api-session-controller -->
-<a id="qilinapi-session-controller"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/api-session-controller -->
+<a id="qilin-agentapi-session-controller"></a>
 
-## `@qilin/api-session-controller`
+## `@qilin-agent/api-session-controller`
 
 - `inject`: `agentDefaultModel` · `agents` · `attachments` · `fileUploads` · `fs` · `llm` · `sessions` · `sessionProjections` · `sessionQuery` · `typert` · `workspaceRegistry`
 - `source`: [`packages/api/session-controller/src/index.ts:92`](../packages/api/session-controller/src/index.ts)
@@ -279,12 +279,12 @@ export interface Config {
   readonly listWorkSliceMs?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/api-session-controller -->
+<!-- END GENERATED config-catalog:@qilin-agent/api-session-controller -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/api-settings-controller -->
-<a id="qilinapi-settings-controller"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/api-settings-controller -->
+<a id="qilin-agentapi-settings-controller"></a>
 
-## `@qilin/api-settings-controller`
+## `@qilin-agent/api-settings-controller`
 
 - `source`: [`packages/api/settings-controller/src/index.ts:36`](../packages/api/settings-controller/src/index.ts)
 
@@ -295,12 +295,12 @@ export interface Config {
   readonly nativeOpen?: boolean
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/api-settings-controller -->
+<!-- END GENERATED config-catalog:@qilin-agent/api-settings-controller -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/api-terminal-controller -->
-<a id="qilinapi-terminal-controller"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/api-terminal-controller -->
+<a id="qilin-agentapi-terminal-controller"></a>
 
-## `@qilin/api-terminal-controller`
+## `@qilin-agent/api-terminal-controller`
 
 - `inject`: `subprocess` · `sandboxPolicy` · `typert`
 - `source`: [`packages/api/terminal-controller/src/index.ts:26`](../packages/api/terminal-controller/src/index.ts)
@@ -341,12 +341,12 @@ export interface Config {
   readonly cleanupRetryMs: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/api-terminal-controller -->
+<!-- END GENERATED config-catalog:@qilin-agent/api-terminal-controller -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/api-workspace-files -->
-<a id="qilinapi-workspace-files"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/api-workspace-files -->
+<a id="qilin-agentapi-workspace-files"></a>
 
-## `@qilin/api-workspace-files`
+## `@qilin-agent/api-workspace-files`
 
 - `inject`: `fs` · `sandboxPolicy` · `sessions` · `typert`
 - `source`: [`packages/api/workspace-files/src/index.ts:83`](../packages/api/workspace-files/src/index.ts)
@@ -382,12 +382,12 @@ export interface Config {
   readonly searchExcludedDirectories: string[]
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/api-workspace-files -->
+<!-- END GENERATED config-catalog:@qilin-agent/api-workspace-files -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/api-workspace-git -->
-<a id="qilinapi-workspace-git"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/api-workspace-git -->
+<a id="qilin-agentapi-workspace-git"></a>
 
-## `@qilin/api-workspace-git`
+## `@qilin-agent/api-workspace-git`
 
 - `source`: [`packages/api/workspace-git/src/index.ts:37`](../packages/api/workspace-git/src/index.ts)
 
@@ -412,12 +412,12 @@ export interface Config {
   readonly maxListEntries: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/api-workspace-git -->
+<!-- END GENERATED config-catalog:@qilin-agent/api-workspace-git -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/attachment-local -->
-<a id="qilinattachment-local"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/attachment-local -->
+<a id="qilin-agentattachment-local"></a>
 
-## `@qilin/attachment-local`
+## `@qilin-agent/attachment-local`
 
 - `source`: [`packages/attachment/attachment-local/src/index.ts:61`](../packages/attachment/attachment-local/src/index.ts)
 
@@ -449,12 +449,12 @@ export interface Config {
   imageCompressionConcurrency?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/attachment-local -->
+<!-- END GENERATED config-catalog:@qilin-agent/attachment-local -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/bash-local -->
-<a id="qilinbash-local"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/bash-local -->
+<a id="qilin-agentbash-local"></a>
 
-## `@qilin/bash-local`
+## `@qilin-agent/bash-local`
 
 - `inject`: `subprocess`
 - `source`: [`packages/shell/bash-local/src/index.ts:41`](../packages/shell/bash-local/src/index.ts)
@@ -476,33 +476,33 @@ export interface Config {
   graceMs?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/bash-local -->
+<!-- END GENERATED config-catalog:@qilin-agent/bash-local -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/bash-sandbox -->
-<a id="qilinbash-sandbox"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/bash-sandbox -->
+<a id="qilin-agentbash-sandbox"></a>
 
-## `@qilin/bash-sandbox`
+## `@qilin-agent/bash-sandbox`
 
 - `inject`: `subprocess` · `sandbox` · `sandboxPolicy`
-- `refs`: [`LocalConfig`](#qilinbash-local)
+- `refs`: [`LocalConfig`](#qilin-agentbash-local)
 - `source`: [`packages/shell/bash-sandbox/src/index.ts:36`](../packages/shell/bash-sandbox/src/index.ts)
 
 ```ts config-catalog
 /**
  * Plugin config: the local executor's knobs, verbatim. The sandbox policy —
  * the default mode and fallback `workspace-write` root — is NOT here: it lives
- * on `ctx.sandboxPolicy` (`@qilin/sandbox-policy`), which resolves
+ * on `ctx.sandboxPolicy` (`@qilin-agent/sandbox-policy`), which resolves
  * each calling session's mode and cwd for every enforcing capability. The runner
  * choice is likewise the `ctx.sandbox` provider's config, not this executor's.
  */
 export type Config = LocalConfig
 ```
-<!-- END GENERATED config-catalog:@qilin/bash-sandbox -->
+<!-- END GENERATED config-catalog:@qilin-agent/bash-sandbox -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/client-connection -->
-<a id="qilinclient-connection"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/client-connection -->
+<a id="qilin-agentclient-connection"></a>
 
-## `@qilin/client-connection`
+## `@qilin-agent/client-connection`
 
 - `inject`: `credentials`
 - `source`: [`packages/client/connection/src/index.ts:93`](../packages/client/connection/src/index.ts)
@@ -544,12 +544,12 @@ export interface ConnectionRecoveryConfig {
   generationReadyTimeoutMs?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/client-connection -->
+<!-- END GENERATED config-catalog:@qilin-agent/client-connection -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/client-hmr -->
-<a id="qilinclient-hmr"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/client-hmr -->
+<a id="qilin-agentclient-hmr"></a>
 
-## `@qilin/client-hmr`
+## `@qilin-agent/client-hmr`
 
 - `inject`: `clientModules` · `webServer`
 - `source`: [`packages/client/hmr/src/index.ts:30`](../packages/client/hmr/src/index.ts)
@@ -561,12 +561,12 @@ export interface Config {
   pollIntervalMs?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/client-hmr -->
+<!-- END GENERATED config-catalog:@qilin-agent/client-hmr -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/client-shortcuts -->
-<a id="qilinclient-shortcuts"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/client-shortcuts -->
+<a id="qilin-agentclient-shortcuts"></a>
 
-## `@qilin/client-shortcuts`
+## `@qilin-agent/client-shortcuts`
 
 - `source`: [`packages/client/shortcuts/src/config.ts:5`](../packages/client/shortcuts/src/config.ts)
 
@@ -577,12 +577,12 @@ export interface Config {
   stopSequenceMs: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/client-shortcuts -->
+<!-- END GENERATED config-catalog:@qilin-agent/client-shortcuts -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/client-ui-plugin-manager -->
-<a id="qilinclient-ui-plugin-manager"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/client-ui-plugin-manager -->
+<a id="qilin-agentclient-ui-plugin-manager"></a>
 
-## `@qilin/client-ui-plugin-manager`
+## `@qilin-agent/client-ui-plugin-manager`
 
 - `source`: [`packages/client/ui-plugin-manager/src/index.ts:15`](../packages/client/ui-plugin-manager/src/index.ts)
 
@@ -597,12 +597,12 @@ export interface Config {
   registryProbeCacheTtlMs: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/client-ui-plugin-manager -->
+<!-- END GENERATED config-catalog:@qilin-agent/client-ui-plugin-manager -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/client-ui-sidebar-coding -->
-<a id="qilinclient-ui-sidebar-coding"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/client-ui-sidebar-coding -->
+<a id="qilin-agentclient-ui-sidebar-coding"></a>
 
-## `@qilin/client-ui-sidebar-coding`
+## `@qilin-agent/client-ui-sidebar-coding`
 
 - `inject`: `webServer` · `sessions` · `webRuntime` · `tools` · `connection`
 - `source`: [`packages/client/ui-sidebar-coding/src/config.ts:199`](../packages/client/ui-sidebar-coding/src/config.ts)
@@ -719,12 +719,12 @@ export interface VolatileStringRef {
 
 export type TitleBarScheme = typeof TITLEBAR_SCHEMES[number]
 ```
-<!-- END GENERATED config-catalog:@qilin/client-ui-sidebar-coding -->
+<!-- END GENERATED config-catalog:@qilin-agent/client-ui-sidebar-coding -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/client-ui-sidebar-documentpreview -->
-<a id="qilinclient-ui-sidebar-documentpreview"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/client-ui-sidebar-documentpreview -->
+<a id="qilin-agentclient-ui-sidebar-documentpreview"></a>
 
-## `@qilin/client-ui-sidebar-documentpreview`
+## `@qilin-agent/client-ui-sidebar-documentpreview`
 
 - `source`: [`packages/client/ui-sidebar-documentpreview/src/config.ts:5`](../packages/client/ui-sidebar-documentpreview/src/config.ts)
 
@@ -753,12 +753,12 @@ export interface Config {
   }
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/client-ui-sidebar-documentpreview -->
+<!-- END GENERATED config-catalog:@qilin-agent/client-ui-sidebar-documentpreview -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/compaction-basic -->
-<a id="qilincompaction-basic"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/compaction-basic -->
+<a id="qilin-agentcompaction-basic"></a>
 
-## `@qilin/compaction-basic`
+## `@qilin-agent/compaction-basic`
 
 - `inject`: `llm` · `tokenMeter` · `sessions`
 - `source`: [`packages/compaction/compaction-basic/src/types.ts:40`](../packages/compaction/compaction-basic/src/types.ts)
@@ -802,12 +802,12 @@ export interface ModelCompactPolicyConfig extends CompactionPolicyConfig {
   model: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/compaction-basic -->
+<!-- END GENERATED config-catalog:@qilin-agent/compaction-basic -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/compaction-tool-result-pruner -->
-<a id="qilincompaction-tool-result-pruner"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/compaction-tool-result-pruner -->
+<a id="qilin-agentcompaction-tool-result-pruner"></a>
 
-## `@qilin/compaction-tool-result-pruner`
+## `@qilin-agent/compaction-tool-result-pruner`
 
 - `inject`: `tokenMeter`
 - `source`: [`packages/compaction/compaction-tool-result-pruner/src/types.ts:5`](../packages/compaction/compaction-tool-result-pruner/src/types.ts)
@@ -823,12 +823,12 @@ export interface ToolResultPruneConfig {
   tailChars?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/compaction-tool-result-pruner -->
+<!-- END GENERATED config-catalog:@qilin-agent/compaction-tool-result-pruner -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/credentials-local -->
-<a id="qilincredentials-local"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/credentials-local -->
+<a id="qilin-agentcredentials-local"></a>
 
-## `@qilin/credentials-local`
+## `@qilin-agent/credentials-local`
 
 - `source`: [`packages/credentials/credentials-local/src/index.ts:64`](../packages/credentials/credentials-local/src/index.ts)
 
@@ -845,12 +845,12 @@ export interface Config {
   debounceMs?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/credentials-local -->
+<!-- END GENERATED config-catalog:@qilin-agent/credentials-local -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/experimental-agent-team -->
-<a id="qilinexperimental-agent-team"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-agent-team -->
+<a id="qilin-agentexperimental-agent-team"></a>
 
-## `@qilin/experimental-agent-team`
+## `@qilin-agent/experimental-agent-team`
 
 - `inject`: `agents` · `sessions` · `sessionPersistence` · `sessionProjections` · `subagents`
 - `source`: [`packages/experimental/agent-team/src/types.ts:152`](../packages/experimental/agent-team/src/types.ts)
@@ -870,12 +870,12 @@ export interface Config {
   readonly disposalTimeoutMs?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/experimental-agent-team -->
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-agent-team -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/experimental-api-speech-to-text -->
-<a id="qilinexperimental-api-speech-to-text"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-api-speech-to-text -->
+<a id="qilin-agentexperimental-api-speech-to-text"></a>
 
-## `@qilin/experimental-api-speech-to-text`
+## `@qilin-agent/experimental-api-speech-to-text`
 
 - `inject`: `speechToText` · `typert`
 - `source`: [`packages/experimental/api-speech-to-text/src/index.ts:20`](../packages/experimental/api-speech-to-text/src/index.ts)
@@ -889,42 +889,42 @@ export interface Config {
   maxDurationSeconds: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/experimental-api-speech-to-text -->
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-api-speech-to-text -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/experimental-browser-use-chrome-devtools-mcp -->
-<a id="qilinexperimental-browser-use-chrome-devtools-mcp"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-browser-use-chrome-devtools-mcp -->
+<a id="qilin-agentexperimental-browser-use-chrome-devtools-mcp"></a>
 
-## `@qilin/experimental-browser-use-chrome-devtools-mcp`
+## `@qilin-agent/experimental-browser-use-chrome-devtools-mcp`
 
 - `inject`: `browserUse` · `agents` · `tools` · `systemPrompt`
-- `refs`: `BrowserMcpConfig` (`@qilin/experimental-browser-use-runtime/mcp`)
+- `refs`: `BrowserMcpConfig` (`@qilin-agent/experimental-browser-use-runtime/mcp`)
 - `source`: [`packages/experimental/browser-use-chrome-devtools-mcp/src/index.ts:14`](../packages/experimental/browser-use-chrome-devtools-mcp/src/index.ts)
 
 ```ts config-catalog
 /** Fixed Chromium launch or existing-browser attachment settings. */
 export type Config = BrowserMcpConfig
 ```
-<!-- END GENERATED config-catalog:@qilin/experimental-browser-use-chrome-devtools-mcp -->
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-browser-use-chrome-devtools-mcp -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/experimental-browser-use-playwright-mcp -->
-<a id="qilinexperimental-browser-use-playwright-mcp"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-browser-use-playwright-mcp -->
+<a id="qilin-agentexperimental-browser-use-playwright-mcp"></a>
 
-## `@qilin/experimental-browser-use-playwright-mcp`
+## `@qilin-agent/experimental-browser-use-playwright-mcp`
 
 - `inject`: `browserUse` · `agents` · `tools` · `systemPrompt`
-- `refs`: `BrowserMcpConfig` (`@qilin/experimental-browser-use-runtime/mcp`)
+- `refs`: `BrowserMcpConfig` (`@qilin-agent/experimental-browser-use-runtime/mcp`)
 - `source`: [`packages/experimental/browser-use-playwright-mcp/src/index.ts:15`](../packages/experimental/browser-use-playwright-mcp/src/index.ts)
 
 ```ts config-catalog
 /** Fixed Chromium launch or existing-browser attachment settings. */
 export type Config = BrowserMcpConfig
 ```
-<!-- END GENERATED config-catalog:@qilin/experimental-browser-use-playwright-mcp -->
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-browser-use-playwright-mcp -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/experimental-browser-use-stagehand-native -->
-<a id="qilinexperimental-browser-use-stagehand-native"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-browser-use-stagehand-native -->
+<a id="qilin-agentexperimental-browser-use-stagehand-native"></a>
 
-## `@qilin/experimental-browser-use-stagehand-native`
+## `@qilin-agent/experimental-browser-use-stagehand-native`
 
 - `inject`: `browserUse` · `agents` · `tools` · `systemPrompt`
 - `refs`: `ModelConfig` (`@browserbasehq/stagehand`)
@@ -961,12 +961,12 @@ export interface StagehandModelConfig {
   headers?: Record<string, string>
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/experimental-browser-use-stagehand-native -->
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-browser-use-stagehand-native -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/experimental-computer-use-cua-driver-mcp -->
-<a id="qilinexperimental-computer-use-cua-driver-mcp"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-computer-use-cua-driver-mcp -->
+<a id="qilin-agentexperimental-computer-use-cua-driver-mcp"></a>
 
-## `@qilin/experimental-computer-use-cua-driver-mcp`
+## `@qilin-agent/experimental-computer-use-cua-driver-mcp`
 
 - `inject`: `computerUse` · `tools`
 - `refs`: [`McpClient`](../packages/mcp/mcp-client/src/index.ts)
@@ -985,12 +985,12 @@ export interface Config {
   reconnect: McpClient.ReconnectConfig
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/experimental-computer-use-cua-driver-mcp -->
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-computer-use-cua-driver-mcp -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/experimental-inspector -->
-<a id="qilinexperimental-inspector"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-inspector -->
+<a id="qilin-agentexperimental-inspector"></a>
 
-## `@qilin/experimental-inspector`
+## `@qilin-agent/experimental-inspector`
 
 - `inject`: `webServer` · `connection`
 - `source`: [`packages/experimental/inspector/src/index.ts:66`](../packages/experimental/inspector/src/index.ts)
@@ -1054,12 +1054,12 @@ export interface InspectorOptions {
   readonly maxDisconnectedCordisTrees?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/experimental-inspector -->
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-inspector -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/experimental-ptc-runtime-python -->
-<a id="qilinexperimental-ptc-runtime-python"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-ptc-runtime-python -->
+<a id="qilin-agentexperimental-ptc-runtime-python"></a>
 
-## `@qilin/experimental-ptc-runtime-python`
+## `@qilin-agent/experimental-ptc-runtime-python`
 
 - `source`: [`packages/experimental/ptc-runtime-python/src/index.ts:42`](../packages/experimental/ptc-runtime-python/src/index.ts)
 
@@ -1122,14 +1122,14 @@ export interface Config {
   pythonBin?: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/experimental-ptc-runtime-python -->
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-ptc-runtime-python -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/experimental-speech-to-text -->
-<a id="qilinexperimental-speech-to-text"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-speech-to-text -->
+<a id="qilin-agentexperimental-speech-to-text"></a>
 
-## `@qilin/experimental-speech-to-text`
+## `@qilin-agent/experimental-speech-to-text`
 
-- `refs`: `Volatile` (`@qilin/kylin`)
+- `refs`: `Volatile` (`@qilin-agent/kylin`)
 - `source`: [`packages/experimental/speech-to-text/src/index.ts:20`](../packages/experimental/speech-to-text/src/index.ts)
 
 ```ts config-catalog
@@ -1141,12 +1141,12 @@ export interface Config {
   language: Volatile<string>
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/experimental-speech-to-text -->
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-speech-to-text -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/experimental-speech-to-text-sensevoice -->
-<a id="qilinexperimental-speech-to-text-sensevoice"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-speech-to-text-sensevoice -->
+<a id="qilin-agentexperimental-speech-to-text-sensevoice"></a>
 
-## `@qilin/experimental-speech-to-text-sensevoice`
+## `@qilin-agent/experimental-speech-to-text-sensevoice`
 
 - `inject`: `speechToText` · `subprocess`
 - `source`: [`packages/experimental/speech-to-text-sensevoice/src/config.ts:6`](../packages/experimental/speech-to-text-sensevoice/src/config.ts)
@@ -1200,12 +1200,12 @@ export interface Config {
   progressIntervalMs: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/experimental-speech-to-text-sensevoice -->
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-speech-to-text-sensevoice -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/experimental-tool-agent-team -->
-<a id="qilinexperimental-tool-agent-team"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-tool-agent-team -->
+<a id="qilin-agentexperimental-tool-agent-team"></a>
 
-## `@qilin/experimental-tool-agent-team`
+## `@qilin-agent/experimental-tool-agent-team`
 
 - `inject`: `agents` · `agentTeams` · `tools` · `systemPrompt`
 - `source`: [`packages/experimental/tool-agent-team/src/index.ts:17`](../packages/experimental/tool-agent-team/src/index.ts)
@@ -1219,12 +1219,12 @@ export interface Config {
   readonly forkProvider?: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/experimental-tool-agent-team -->
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-tool-agent-team -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/file-reference-local -->
-<a id="qilinfile-reference-local"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/file-reference-local -->
+<a id="qilin-agentfile-reference-local"></a>
 
-## `@qilin/file-reference-local`
+## `@qilin-agent/file-reference-local`
 
 - `inject`: `agents`
 - `source`: [`packages/context/file-reference-local/src/index.ts:34`](../packages/context/file-reference-local/src/index.ts)
@@ -1240,12 +1240,12 @@ export interface Config {
   excludedDirectories?: string[]
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/file-reference-local -->
+<!-- END GENERATED config-catalog:@qilin-agent/file-reference-local -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/fs-local -->
-<a id="qilinfs-local"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/fs-local -->
+<a id="qilin-agentfs-local"></a>
 
-## `@qilin/fs-local`
+## `@qilin-agent/fs-local`
 
 - `source`: [`packages/fs/fs-local/src/index.ts:48`](../packages/fs/fs-local/src/index.ts)
 
@@ -1261,15 +1261,15 @@ export interface Config {
   diffBasisMaxBytes?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/fs-local -->
+<!-- END GENERATED config-catalog:@qilin-agent/fs-local -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/fs-sandbox -->
-<a id="qilinfs-sandbox"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/fs-sandbox -->
+<a id="qilin-agentfs-sandbox"></a>
 
-## `@qilin/fs-sandbox`
+## `@qilin-agent/fs-sandbox`
 
 - `inject`: `sandboxPolicy`
-- `refs`: [`LocalConfig`](#qilinfs-local)
+- `refs`: [`LocalConfig`](#qilin-agentfs-local)
 - `source`: [`packages/fs/fs-sandbox/src/index.ts:47`](../packages/fs/fs-sandbox/src/index.ts)
 
 ```ts config-catalog
@@ -1281,12 +1281,12 @@ export interface Config {
  */
 export type Config = LocalConfig
 ```
-<!-- END GENERATED config-catalog:@qilin/fs-sandbox -->
+<!-- END GENERATED config-catalog:@qilin-agent/fs-sandbox -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/goal -->
-<a id="qilingoal"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/goal -->
+<a id="qilin-agentgoal"></a>
 
-## `@qilin/goal`
+## `@qilin-agent/goal`
 
 - `inject`: `agents` · `sessionProjections`
 - `source`: [`packages/goal/goal/src/index.ts:172`](../packages/goal/goal/src/index.ts)
@@ -1298,12 +1298,12 @@ export interface Config {
   defaultMaxGoalRounds?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/goal -->
+<!-- END GENERATED config-catalog:@qilin-agent/goal -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/headless -->
-<a id="qilinheadless"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/headless -->
+<a id="qilin-agentheadless"></a>
 
-## `@qilin/headless`
+## `@qilin-agent/headless`
 
 - `inject`: `agentDefaultModel` · `agents` · `sessions`
 - `source`: [`packages/bundle/headless/src/index.ts:42`](../packages/bundle/headless/src/index.ts)
@@ -1319,12 +1319,12 @@ export interface Config {
   json?: boolean
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/headless -->
+<!-- END GENERATED config-catalog:@qilin-agent/headless -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/hmr -->
-<a id="qilinhmr"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/hmr -->
+<a id="qilin-agenthmr"></a>
 
-## `@qilin/hmr`
+## `@qilin-agent/hmr`
 
 - `refs`: `ChokidarOptions` (`chokidar`)
 - `source`: [`packages/boot/hmr/src/index.ts:53`](../packages/boot/hmr/src/index.ts)
@@ -1342,12 +1342,12 @@ export interface HmrConfig extends ChokidarOptions {
   ignored: string[]
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/hmr -->
+<!-- END GENERATED config-catalog:@qilin-agent/hmr -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/hooks-claude-code -->
-<a id="qilinhooks-claude-code"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/hooks-claude-code -->
+<a id="qilin-agenthooks-claude-code"></a>
 
-## `@qilin/hooks-claude-code`
+## `@qilin-agent/hooks-claude-code`
 
 - `inject`: `shell` · `sessionProjections`
 - `source`: [`packages/hooks/hooks-claude-code/src/index.ts:51`](../packages/hooks/hooks-claude-code/src/index.ts)
@@ -1381,12 +1381,12 @@ export interface Config {
   stderrSummaryMaxChars?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/hooks-claude-code -->
+<!-- END GENERATED config-catalog:@qilin-agent/hooks-claude-code -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/hooks-codex -->
-<a id="qilinhooks-codex"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/hooks-codex -->
+<a id="qilin-agenthooks-codex"></a>
 
-## `@qilin/hooks-codex`
+## `@qilin-agent/hooks-codex`
 
 - `inject`: `shell` · `sessionProjections`
 - `source`: [`packages/hooks/hooks-codex/src/index.ts:50`](../packages/hooks/hooks-codex/src/index.ts)
@@ -1409,12 +1409,12 @@ export interface Config {
   stderrSummaryMaxChars?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/hooks-codex -->
+<!-- END GENERATED config-catalog:@qilin-agent/hooks-codex -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/host-directory-picker-browse -->
-<a id="qilinhost-directory-picker-browse"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/host-directory-picker-browse -->
+<a id="qilin-agenthost-directory-picker-browse"></a>
 
-## `@qilin/host-directory-picker-browse`
+## `@qilin-agent/host-directory-picker-browse`
 
 - `source`: [`packages/host/directory-picker-browse/src/index.ts:181`](../packages/host/directory-picker-browse/src/index.ts)
 
@@ -1425,12 +1425,12 @@ export interface Config {
   maxEntries: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/host-directory-picker-browse -->
+<!-- END GENERATED config-catalog:@qilin-agent/host-directory-picker-browse -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/host-frontend-static -->
-<a id="qilinhost-frontend-static"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/host-frontend-static -->
+<a id="qilin-agenthost-frontend-static"></a>
 
-## `@qilin/host-frontend-static`
+## `@qilin-agent/host-frontend-static`
 
 - `inject`: `webServer` · `connection`
 - `source`: [`packages/host/frontend-static/src/index.ts:41`](../packages/host/frontend-static/src/index.ts)
@@ -1463,12 +1463,12 @@ export interface StaticDocument {
   file: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/host-frontend-static -->
+<!-- END GENERATED config-catalog:@qilin-agent/host-frontend-static -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/host-open-in-app -->
-<a id="qilinhost-open-in-app"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/host-open-in-app -->
+<a id="qilin-agenthost-open-in-app"></a>
 
-## `@qilin/host-open-in-app`
+## `@qilin-agent/host-open-in-app`
 
 - `inject`: `webServer` · `connection` · `subprocess`
 - `source`: [`packages/host/open-in-app/src/index.ts:50`](../packages/host/open-in-app/src/index.ts)
@@ -1495,12 +1495,12 @@ export interface Config {
   readonly launchWatchMs: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/host-open-in-app -->
+<!-- END GENERATED config-catalog:@qilin-agent/host-open-in-app -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/host-preview-media -->
-<a id="qilinhost-preview-media"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/host-preview-media -->
+<a id="qilin-agenthost-preview-media"></a>
 
-## `@qilin/host-preview-media`
+## `@qilin-agent/host-preview-media`
 
 - `inject`: `webServer` · `connection` · `sessions` · `sandboxPolicy` · `fs`
 - `source`: [`packages/host/preview-media/src/index.ts:44`](../packages/host/preview-media/src/index.ts)
@@ -1512,12 +1512,12 @@ export interface Config {
   mediaLimitBytes?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/host-preview-media -->
+<!-- END GENERATED config-catalog:@qilin-agent/host-preview-media -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/host-webserver -->
-<a id="qilinhost-webserver"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/host-webserver -->
+<a id="qilin-agenthost-webserver"></a>
 
-## `@qilin/host-webserver`
+## `@qilin-agent/host-webserver`
 
 - `source`: [`packages/host/webserver/src/index.ts:59`](../packages/host/webserver/src/index.ts)
 
@@ -1547,12 +1547,12 @@ export interface Config {
   listenOn?: 'activate' | 'settle'
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/host-webserver -->
+<!-- END GENERATED config-catalog:@qilin-agent/host-webserver -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/jobs-local -->
-<a id="qilinjobs-local"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/jobs-local -->
+<a id="qilin-agentjobs-local"></a>
 
-## `@qilin/jobs-local`
+## `@qilin-agent/jobs-local`
 
 - `source`: [`packages/jobs/jobs-local/src/index.ts:45`](../packages/jobs/jobs-local/src/index.ts)
 
@@ -1576,12 +1576,12 @@ export interface Config {
   pumpPollMs?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/jobs-local -->
+<!-- END GENERATED config-catalog:@qilin-agent/jobs-local -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/kylin-host-runner -->
-<a id="qilinkylin-host-runner"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/kylin-host-runner -->
+<a id="qilin-agentkylin-host-runner"></a>
 
-## `@qilin/kylin-host-runner`
+## `@qilin-agent/kylin-host-runner`
 
 - `inject`: `tools`
 - `source`: [`packages/extensions/kylin-host-runner/src/index.ts:94`](../packages/extensions/kylin-host-runner/src/index.ts)
@@ -1595,15 +1595,15 @@ export interface Config {
   clientInspectTimeoutMs?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/kylin-host-runner -->
+<!-- END GENERATED config-catalog:@qilin-agent/kylin-host-runner -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/llm-deepseek-api-key -->
-<a id="qilinllm-deepseek-api-key"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/llm-deepseek-api-key -->
+<a id="qilin-agentllm-deepseek-api-key"></a>
 
-## `@qilin/llm-deepseek-api-key`
+## `@qilin-agent/llm-deepseek-api-key`
 
 - `inject`: `llm`
-- `refs`: [`ProtocolConfig`](../packages/llm/llm-deepseek/src/index.ts) · `Volatile` (`@qilin/kylin`)
+- `refs`: [`ProtocolConfig`](../packages/llm/llm-deepseek/src/index.ts) · `Volatile` (`@qilin-agent/kylin`)
 - `source`: [`packages/llm/llm-deepseek-api-key/src/config.ts:10`](../packages/llm/llm-deepseek-api-key/src/config.ts)
 
 ```ts config-catalog
@@ -1613,12 +1613,12 @@ export interface Config extends ProtocolConfig {
   apiKeyEnv: Volatile<string>
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/llm-deepseek-api-key -->
+<!-- END GENERATED config-catalog:@qilin-agent/llm-deepseek-api-key -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/llm-pi-ai -->
-<a id="qilinllm-pi-ai"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/llm-pi-ai -->
+<a id="qilin-agentllm-pi-ai"></a>
 
-## `@qilin/llm-pi-ai`
+## `@qilin-agent/llm-pi-ai`
 
 - `inject`: `llm`
 - `refs`: `Api` (`@earendil-works/pi-ai`) · `CacheRetention` (`@earendil-works/pi-ai`) · `Model` (`@earendil-works/pi-ai`) · `ModelThinkingLevel` (`@earendil-works/pi-ai`) · `OpenAICompletionsCompat` (`@earendil-works/pi-ai`) · [`RetryPolicyConfig`](../packages/llm/llm/src/index.ts) · `ThinkingBudgets` (`@earendil-works/pi-ai`) · `Transport` (`@earendil-works/pi-ai`)
@@ -1888,12 +1888,12 @@ export type PiAiThinkingFormat = NonNullable<OpenAICompletionsCompat['thinkingFo
 /** The reasoning-budget field spellings pi-ai accepts. */
 export type PiAiThinkingTokenBudgetField = NonNullable<OpenAICompletionsCompat['thinkingTokenBudgetField']>
 ```
-<!-- END GENERATED config-catalog:@qilin/llm-pi-ai -->
+<!-- END GENERATED config-catalog:@qilin-agent/llm-pi-ai -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/llm-replay -->
-<a id="qilinllm-replay"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/llm-replay -->
+<a id="qilin-agentllm-replay"></a>
 
-## `@qilin/llm-replay`
+## `@qilin-agent/llm-replay`
 
 - `inject`: `llm`
 - `refs`: [`ModelModality`](../packages/llm/llm/src/index.ts) · [`RetryPolicyConfig`](../packages/llm/llm/src/index.ts) · [`SystemPromptUpdate`](../packages/llm/llm/src/index.ts) · [`ToolUpdate`](../packages/llm/llm/src/index.ts)
@@ -1969,12 +1969,12 @@ export interface ReplayModelConfig {
   toolUpdate?: ToolUpdate
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/llm-replay -->
+<!-- END GENERATED config-catalog:@qilin-agent/llm-replay -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/llm-retry -->
-<a id="qilinllm-retry"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/llm-retry -->
+<a id="qilin-agentllm-retry"></a>
 
-## `@qilin/llm-retry`
+## `@qilin-agent/llm-retry`
 
 - `inject`: `agents` · `sessionProjections`
 - `source`: [`packages/llm/llm-retry/src/index.ts:25`](../packages/llm/llm-retry/src/index.ts)
@@ -1983,12 +1983,12 @@ export interface ReplayModelConfig {
 /** This policy executor has no config; providers own `retryPolicy`. */
 export type Config = Readonly<Record<string, never>>
 ```
-<!-- END GENERATED config-catalog:@qilin/llm-retry -->
+<!-- END GENERATED config-catalog:@qilin-agent/llm-retry -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/lsp-stdio -->
-<a id="qilinlsp-stdio"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/lsp-stdio -->
+<a id="qilin-agentlsp-stdio"></a>
 
-## `@qilin/lsp-stdio`
+## `@qilin-agent/lsp-stdio`
 
 - `inject`: `fs` · `lsp` · `subprocess`
 - `source`: [`packages/lsp/lsp-stdio/src/index.ts:82`](../packages/lsp/lsp-stdio/src/index.ts)
@@ -2026,12 +2026,12 @@ export interface LspLocalServerConfig {
   killGraceMs?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/lsp-stdio -->
+<!-- END GENERATED config-catalog:@qilin-agent/lsp-stdio -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/mcp-client -->
-<a id="qilinmcp-client"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/mcp-client -->
+<a id="qilin-agentmcp-client"></a>
 
-## `@qilin/mcp-client`
+## `@qilin-agent/mcp-client`
 
 - `inject`: `tools`
 - `source`: [`packages/mcp/mcp-client/src/index.ts:104`](../packages/mcp/mcp-client/src/index.ts)
@@ -2104,12 +2104,12 @@ export interface ReconnectConfig {
   maxAttempts?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/mcp-client -->
+<!-- END GENERATED config-catalog:@qilin-agent/mcp-client -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/message-feedback -->
-<a id="qilinmessage-feedback"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/message-feedback -->
+<a id="qilin-agentmessage-feedback"></a>
 
-## `@qilin/message-feedback`
+## `@qilin-agent/message-feedback`
 
 - `inject`: `sessionPersistence` · `sessions`
 - `source`: [`packages/feedback/message-feedback/src/index.ts:40`](../packages/feedback/message-feedback/src/index.ts)
@@ -2121,12 +2121,12 @@ export interface Config {
   readonly maxNoteBytes: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/message-feedback -->
+<!-- END GENERATED config-catalog:@qilin-agent/message-feedback -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/office-to-pdf -->
-<a id="qilinoffice-to-pdf"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/office-to-pdf -->
+<a id="qilin-agentoffice-to-pdf"></a>
 
-## `@qilin/office-to-pdf`
+## `@qilin-agent/office-to-pdf`
 
 - `source`: [`packages/document/office-to-pdf/src/index.ts:31`](../packages/document/office-to-pdf/src/index.ts)
 
@@ -2173,12 +2173,12 @@ export interface Config {
   maxLoadedFontBytes: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/office-to-pdf -->
+<!-- END GENERATED config-catalog:@qilin-agent/office-to-pdf -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/permission-presets -->
-<a id="qilinpermission-presets"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/permission-presets -->
+<a id="qilin-agentpermission-presets"></a>
 
-## `@qilin/permission-presets`
+## `@qilin-agent/permission-presets`
 
 - `inject`: `shell` · `approval` · `sessions` · `sessionProjections`
 - `refs`: [`ApprovalPolicy`](subsystems/approval.md) · [`SandboxMode`](subsystems/sandbox.md)
@@ -2213,12 +2213,12 @@ export interface PresetSpec {
   description?: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/permission-presets -->
+<!-- END GENERATED config-catalog:@qilin-agent/permission-presets -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/persona -->
-<a id="qilinpersona"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/persona -->
+<a id="qilin-agentpersona"></a>
 
-## `@qilin/persona`
+## `@qilin-agent/persona`
 
 - `inject`: `systemPrompt`
 - `source`: [`packages/preset/persona/src/index.ts:30`](../packages/preset/persona/src/index.ts)
@@ -2243,12 +2243,12 @@ export interface Config {
   includeRuntimeContext?: boolean
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/persona -->
+<!-- END GENERATED config-catalog:@qilin-agent/persona -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/plan-mode -->
-<a id="qilinplan-mode"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/plan-mode -->
+<a id="qilin-agentplan-mode"></a>
 
-## `@qilin/plan-mode`
+## `@qilin-agent/plan-mode`
 
 - `inject`: `tools` · `systemPrompt` · `sessionProjections`
 - `source`: [`packages/plan/plan-mode/src/index.ts:70`](../packages/plan/plan-mode/src/index.ts)
@@ -2260,12 +2260,12 @@ export interface PlanModeConfig {
   section: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/plan-mode -->
+<!-- END GENERATED config-catalog:@qilin-agent/plan-mode -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/plugin-manager -->
-<a id="qilinplugin-manager"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/plugin-manager -->
+<a id="qilin-agentplugin-manager"></a>
 
-## `@qilin/plugin-manager`
+## `@qilin-agent/plugin-manager`
 
 - `inject`: `loader` · `profileContext`
 - `source`: [`packages/boot/plugin-manager/src/index.ts:44`](../packages/boot/plugin-manager/src/index.ts)
@@ -2293,12 +2293,12 @@ export interface Config {
   fallbackRegistries?: string[]
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/plugin-manager -->
+<!-- END GENERATED config-catalog:@qilin-agent/plugin-manager -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/plugin-package-inventory-deepseek -->
-<a id="qilinplugin-package-inventory-deepseek"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/plugin-package-inventory-deepseek -->
+<a id="qilin-agentplugin-package-inventory-deepseek"></a>
 
-## `@qilin/plugin-package-inventory-deepseek`
+## `@qilin-agent/plugin-package-inventory-deepseek`
 
 - `inject`: `agents` · `deepseekLlmApiExtensions` · `loader`
 - `source`: [`packages/llm/plugin-package-inventory-deepseek/src/index.ts:32`](../packages/llm/plugin-package-inventory-deepseek/src/index.ts)
@@ -2310,12 +2310,12 @@ export interface Config {
   enabled?: boolean
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/plugin-package-inventory-deepseek -->
+<!-- END GENERATED config-catalog:@qilin-agent/plugin-package-inventory-deepseek -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/ptc-runtime-node -->
-<a id="qilinptc-runtime-node"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/ptc-runtime-node -->
+<a id="qilin-agentptc-runtime-node"></a>
 
-## `@qilin/ptc-runtime-node`
+## `@qilin-agent/ptc-runtime-node`
 
 - `inject`: `fs` · `subprocess` · `sandbox` · `sandboxPolicy`
 - `source`: [`packages/ptc-runtime/ptc-runtime-node/src/index.ts:26`](../packages/ptc-runtime/ptc-runtime-node/src/index.ts)
@@ -2347,12 +2347,12 @@ export interface LaunchConfig {
   bootstrapPath?: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/ptc-runtime-node -->
+<!-- END GENERATED config-catalog:@qilin-agent/ptc-runtime-node -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/pwsh-local -->
-<a id="qilinpwsh-local"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/pwsh-local -->
+<a id="qilin-agentpwsh-local"></a>
 
-## `@qilin/pwsh-local`
+## `@qilin-agent/pwsh-local`
 
 - `inject`: `subprocess`
 - `source`: [`packages/shell/pwsh-local/src/index.ts:58`](../packages/shell/pwsh-local/src/index.ts)
@@ -2381,34 +2381,34 @@ export interface Config {
   pwshPath?: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/pwsh-local -->
+<!-- END GENERATED config-catalog:@qilin-agent/pwsh-local -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/pwsh-sandbox -->
-<a id="qilinpwsh-sandbox"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/pwsh-sandbox -->
+<a id="qilin-agentpwsh-sandbox"></a>
 
-## `@qilin/pwsh-sandbox`
+## `@qilin-agent/pwsh-sandbox`
 
 - `inject`: `subprocess` · `sandbox` · `sandboxPolicy`
-- `refs`: [`LocalConfig`](#qilinpwsh-local)
+- `refs`: [`LocalConfig`](#qilin-agentpwsh-local)
 - `source`: [`packages/shell/pwsh-sandbox/src/index.ts:40`](../packages/shell/pwsh-sandbox/src/index.ts)
 
 ```ts config-catalog
 /**
  * Plugin config: the local executor's knobs, verbatim. The sandbox policy —
  * the default mode and fallback `workspace-write` root — is NOT here: it lives
- * on `ctx.sandboxPolicy` (`@qilin/sandbox-policy`), which resolves
+ * on `ctx.sandboxPolicy` (`@qilin-agent/sandbox-policy`), which resolves
  * each calling session's mode and cwd for every enforcing capability. The
  * runner choice is likewise the `ctx.sandbox` provider's config, not this
  * executor's.
  */
 export type Config = LocalConfig
 ```
-<!-- END GENERATED config-catalog:@qilin/pwsh-sandbox -->
+<!-- END GENERATED config-catalog:@qilin-agent/pwsh-sandbox -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/repeat-tool-reminder -->
-<a id="qilinrepeat-tool-reminder"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/repeat-tool-reminder -->
+<a id="qilin-agentrepeat-tool-reminder"></a>
 
-## `@qilin/repeat-tool-reminder`
+## `@qilin-agent/repeat-tool-reminder`
 
 - `source`: [`packages/guard/repeat-tool-reminder/src/index.ts:35`](../packages/guard/repeat-tool-reminder/src/index.ts)
 
@@ -2439,12 +2439,12 @@ export interface Config {
   argumentsPreviewChars?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/repeat-tool-reminder -->
+<!-- END GENERATED config-catalog:@qilin-agent/repeat-tool-reminder -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/sandbox-local -->
-<a id="qilinsandbox-local"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/sandbox-local -->
+<a id="qilin-agentsandbox-local"></a>
 
-## `@qilin/sandbox-local`
+## `@qilin-agent/sandbox-local`
 
 - `source`: [`packages/sandbox/sandbox-local/src/index.ts:44`](../packages/sandbox/sandbox-local/src/index.ts)
 
@@ -2473,12 +2473,12 @@ export interface Config {
   probeTimeoutMs?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/sandbox-local -->
+<!-- END GENERATED config-catalog:@qilin-agent/sandbox-local -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/sandbox-policy -->
-<a id="qilinsandbox-policy"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/sandbox-policy -->
+<a id="qilin-agentsandbox-policy"></a>
 
-## `@qilin/sandbox-policy`
+## `@qilin-agent/sandbox-policy`
 
 - `inject`: `sessionProjections`
 - `refs`: [`SandboxMode`](subsystems/sandbox.md)
@@ -2502,12 +2502,12 @@ export interface Config {
   workspaceRoot?: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/sandbox-policy -->
+<!-- END GENERATED config-catalog:@qilin-agent/sandbox-policy -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/schedule -->
-<a id="qilinschedule"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/schedule -->
+<a id="qilin-agentschedule"></a>
 
-## `@qilin/schedule`
+## `@qilin-agent/schedule`
 
 - `inject`: `agents` · `sessions` · `tools` · `storageDomain` · `sessionController` · `sessionPersistence`
 - `source`: [`packages/schedule/schedule/src/index.ts:72`](../packages/schedule/schedule/src/index.ts)
@@ -2527,12 +2527,12 @@ export interface Config {
   deliveryHistoryRecords?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/schedule -->
+<!-- END GENERATED config-catalog:@qilin-agent/schedule -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/sdk-app -->
-<a id="qilinsdk-app"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/sdk-app -->
+<a id="qilin-agentsdk-app"></a>
 
-## `@qilin/sdk-app`
+## `@qilin-agent/sdk-app`
 
 - `inject`: `cmdlineArgs`
 - `source`: [`packages/bundle/sdk-app/src/index.ts:23`](../packages/bundle/sdk-app/src/index.ts)
@@ -2544,12 +2544,12 @@ export interface Config {
   profile?: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/sdk-app -->
+<!-- END GENERATED config-catalog:@qilin-agent/sdk-app -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/sdk-jsonrpc-server -->
-<a id="qilinsdk-jsonrpc-server"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/sdk-jsonrpc-server -->
+<a id="qilin-agentsdk-jsonrpc-server"></a>
 
-## `@qilin/sdk-jsonrpc-server`
+## `@qilin-agent/sdk-jsonrpc-server`
 
 - `inject`: `agents`
 - `refs`: `Readable` (`node:stream`) · `Writable` (`node:stream`)
@@ -2568,15 +2568,15 @@ export interface JsonRpcConfig {
   exit?: (code: number) => void
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/sdk-jsonrpc-server -->
+<!-- END GENERATED config-catalog:@qilin-agent/sdk-jsonrpc-server -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/session-log-deepseek -->
-<a id="qilinsession-log-deepseek"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/session-log-deepseek -->
+<a id="qilin-agentsession-log-deepseek"></a>
 
-## `@qilin/session-log-deepseek`
+## `@qilin-agent/session-log-deepseek`
 
 - `inject`: `deepseekLlmApiExtensions` · `sessions`
-- `refs`: `Volatile` (`@qilin/kylin`)
+- `refs`: `Volatile` (`@qilin-agent/kylin`)
 - `source`: [`packages/session/session-log-deepseek/src/index.ts:38`](../packages/session/session-log-deepseek/src/index.ts)
 
 ```ts config-catalog
@@ -2592,12 +2592,12 @@ export interface Config {
   maxBytes: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/session-log-deepseek -->
+<!-- END GENERATED config-catalog:@qilin-agent/session-log-deepseek -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/session-log-export -->
-<a id="qilinsession-log-export"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/session-log-export -->
+<a id="qilin-agentsession-log-export"></a>
 
-## `@qilin/session-log-export`
+## `@qilin-agent/session-log-export`
 
 - `inject`: `commands` · `connection`
 - `source`: [`packages/session-query/session-log-export/src/index.ts:46`](../packages/session-query/session-log-export/src/index.ts)
@@ -2612,12 +2612,12 @@ export interface Config {
 /** Valid fflate DEFLATE levels accepted by session-log export. */
 export type SessionLogCompressionLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 ```
-<!-- END GENERATED config-catalog:@qilin/session-log-export -->
+<!-- END GENERATED config-catalog:@qilin-agent/session-log-export -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/session-persistence-jsonl -->
-<a id="qilinsession-persistence-jsonl"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/session-persistence-jsonl -->
+<a id="qilin-agentsession-persistence-jsonl"></a>
 
-## `@qilin/session-persistence-jsonl`
+## `@qilin-agent/session-persistence-jsonl`
 
 - `source`: [`packages/session/session-persistence-jsonl/src/index.ts:102`](../packages/session/session-persistence-jsonl/src/index.ts)
 
@@ -2655,12 +2655,12 @@ export type JsonlCompression = 'zstd' | 'none'
 /** Where full-generation verification runs. */
 export type JsonlVerification = 'isolated' | 'inline'
 ```
-<!-- END GENERATED config-catalog:@qilin/session-persistence-jsonl -->
+<!-- END GENERATED config-catalog:@qilin-agent/session-persistence-jsonl -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/session-projection-cache -->
-<a id="qilinsession-projection-cache"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/session-projection-cache -->
+<a id="qilin-agentsession-projection-cache"></a>
 
-## `@qilin/session-projection-cache`
+## `@qilin-agent/session-projection-cache`
 
 - `inject`: `storageDomain` · `sessionProjections` · `sessions`
 - `source`: [`packages/session/session-projection-cache/src/index.ts:75`](../packages/session/session-projection-cache/src/index.ts)
@@ -2680,12 +2680,12 @@ export interface Config {
   writeIntervalMs: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/session-projection-cache -->
+<!-- END GENERATED config-catalog:@qilin-agent/session-projection-cache -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/session-query-sqlite -->
-<a id="qilinsession-query-sqlite"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/session-query-sqlite -->
+<a id="qilin-agentsession-query-sqlite"></a>
 
-## `@qilin/session-query-sqlite`
+## `@qilin-agent/session-query-sqlite`
 
 - `inject`: `sessions`
 - `refs`: [`SessionQueryConfig`](../packages/session-query/session-query/src/index.ts)
@@ -2728,12 +2728,12 @@ export type OpenAt = 'startup' | 'first-search' | 'never'
 /** Supported SQLite journal modes. */
 export type JournalMode = 'wal' | 'delete' | 'truncate' | 'persist'
 ```
-<!-- END GENERATED config-catalog:@qilin/session-query-sqlite -->
+<!-- END GENERATED config-catalog:@qilin-agent/session-query-sqlite -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/session-reference -->
-<a id="qilinsession-reference"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/session-reference -->
+<a id="qilin-agentsession-reference"></a>
 
-## `@qilin/session-reference`
+## `@qilin-agent/session-reference`
 
 - `inject`: `sessionQuery`
 - `source`: [`packages/context/session-reference/src/config.ts:11`](../packages/context/session-reference/src/config.ts)
@@ -2751,12 +2751,12 @@ export interface Config {
   referenceContextFraction?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/session-reference -->
+<!-- END GENERATED config-catalog:@qilin-agent/session-reference -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/session-telemetry-otel -->
-<a id="qilinsession-telemetry-otel"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/session-telemetry-otel -->
+<a id="qilin-agentsession-telemetry-otel"></a>
 
-## `@qilin/session-telemetry-otel`
+## `@qilin-agent/session-telemetry-otel`
 
 - `inject`: `sessions` · `otel`
 - `refs`: `BatchLogRecordProcessorOptions` (`@opentelemetry/sdk-logs`) · `OTLPExporterNodeConfigBase` (`@opentelemetry/otlp-exporter-base`)
@@ -2796,12 +2796,12 @@ export enum SessionTelemetryMode {
   DISABLED = 'DISABLED',
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/session-telemetry-otel -->
+<!-- END GENERATED config-catalog:@qilin-agent/session-telemetry-otel -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/session-title -->
-<a id="qilinsession-title"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/session-title -->
+<a id="qilin-agentsession-title"></a>
 
-## `@qilin/session-title`
+## `@qilin-agent/session-title`
 
 - `inject`: `sessions` · `sessionProjections`
 - `source`: [`packages/session/session-title/src/index.ts:56`](../packages/session/session-title/src/index.ts)
@@ -2817,12 +2817,12 @@ export interface Config {
   readonly maxTitleBytes: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/session-title -->
+<!-- END GENERATED config-catalog:@qilin-agent/session-title -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/session-title-all-prompts-llm -->
-<a id="qilinsession-title-all-prompts-llm"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/session-title-all-prompts-llm -->
+<a id="qilin-agentsession-title-all-prompts-llm"></a>
 
-## `@qilin/session-title-all-prompts-llm`
+## `@qilin-agent/session-title-all-prompts-llm`
 
 - `inject`: `sessionTitle` · `llm` · `sessions`
 - `refs`: [`SessionTitleLlmConfig`](../packages/session/session-title-llm/src/index.ts)
@@ -2832,12 +2832,12 @@ export interface Config {
 /** Required LLM policy; this plugin adds no defaults. */
 export type Config = SessionTitleLlmConfig
 ```
-<!-- END GENERATED config-catalog:@qilin/session-title-all-prompts-llm -->
+<!-- END GENERATED config-catalog:@qilin-agent/session-title-all-prompts-llm -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/session-title-first-prompt-llm -->
-<a id="qilinsession-title-first-prompt-llm"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/session-title-first-prompt-llm -->
+<a id="qilin-agentsession-title-first-prompt-llm"></a>
 
-## `@qilin/session-title-first-prompt-llm`
+## `@qilin-agent/session-title-first-prompt-llm`
 
 - `inject`: `sessionTitle` · `llm` · `sessions`
 - `refs`: [`SessionTitleLlmConfig`](../packages/session/session-title-llm/src/index.ts)
@@ -2847,12 +2847,12 @@ export type Config = SessionTitleLlmConfig
 /** Required LLM policy; this plugin adds no defaults. */
 export type Config = SessionTitleLlmConfig
 ```
-<!-- END GENERATED config-catalog:@qilin/session-title-first-prompt-llm -->
+<!-- END GENERATED config-catalog:@qilin-agent/session-title-first-prompt-llm -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/settings-file -->
-<a id="qilinsettings-file"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/settings-file -->
+<a id="qilin-agentsettings-file"></a>
 
-## `@qilin/settings-file`
+## `@qilin-agent/settings-file`
 
 - `source`: [`packages/settings/settings-file/src/index.ts:22`](../packages/settings/settings-file/src/index.ts)
 
@@ -2869,12 +2869,12 @@ export interface Config {
   debounceMs?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/settings-file -->
+<!-- END GENERATED config-catalog:@qilin-agent/settings-file -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/shell-env -->
-<a id="qilinshell-env"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/shell-env -->
+<a id="qilin-agentshell-env"></a>
 
-## `@qilin/shell-env`
+## `@qilin-agent/shell-env`
 
 - `source`: [`packages/shell/shell-env/src/index.ts:28`](../packages/shell/shell-env/src/index.ts)
 
@@ -2885,12 +2885,12 @@ export interface Config {
   qilinHome?: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/shell-env -->
+<!-- END GENERATED config-catalog:@qilin-agent/shell-env -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/sidebar-opens -->
-<a id="qilinsidebar-opens"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/sidebar-opens -->
+<a id="qilin-agentsidebar-opens"></a>
 
-## `@qilin/sidebar-opens`
+## `@qilin-agent/sidebar-opens`
 
 - `inject`: `tools` · `fs`
 - `source`: [`packages/host/sidebar-opens/src/index.ts:40`](../packages/host/sidebar-opens/src/index.ts)
@@ -2902,12 +2902,12 @@ export interface Config {
   readonly maxQueued: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/sidebar-opens -->
+<!-- END GENERATED config-catalog:@qilin-agent/sidebar-opens -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/skill -->
-<a id="qilinskill"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/skill -->
+<a id="qilin-agentskill"></a>
 
-## `@qilin/skill`
+## `@qilin-agent/skill`
 
 - `source`: [`packages/skill/skill/src/index.ts:278`](../packages/skill/skill/src/index.ts)
 
@@ -2918,12 +2918,12 @@ export interface Config {
   readonly collectCacheMaxEntries?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/skill -->
+<!-- END GENERATED config-catalog:@qilin-agent/skill -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/skill-filesystem -->
-<a id="qilinskill-filesystem"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/skill-filesystem -->
+<a id="qilin-agentskill-filesystem"></a>
 
-## `@qilin/skill-filesystem`
+## `@qilin-agent/skill-filesystem`
 
 - `inject`: `skills`
 - `source`: [`packages/skill/skill-filesystem/src/index.ts:49`](../packages/skill/skill-filesystem/src/index.ts)
@@ -2957,12 +2957,12 @@ export interface Config {
   bundledSkillDir?: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/skill-filesystem -->
+<!-- END GENERATED config-catalog:@qilin-agent/skill-filesystem -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/skill-office -->
-<a id="qilinskill-office"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/skill-office -->
+<a id="qilin-agentskill-office"></a>
 
-## `@qilin/skill-office`
+## `@qilin-agent/skill-office`
 
 - `inject`: `skills`
 - `source`: [`packages/skill/skill-office/src/index.ts:16`](../packages/skill/skill-office/src/index.ts)
@@ -2978,12 +2978,12 @@ export interface Config {
   cli?: string | false
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/skill-office -->
+<!-- END GENERATED config-catalog:@qilin-agent/skill-office -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/spill-local -->
-<a id="qilinspill-local"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/spill-local -->
+<a id="qilin-agentspill-local"></a>
 
-## `@qilin/spill-local`
+## `@qilin-agent/spill-local`
 
 - `source`: [`packages/spill/spill-local/src/index.ts:31`](../packages/spill/spill-local/src/index.ts)
 
@@ -3009,12 +3009,12 @@ export interface Config {
   cleanupPeriodDays?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/spill-local -->
+<!-- END GENERATED config-catalog:@qilin-agent/spill-local -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/spill-policy -->
-<a id="qilinspill-policy"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/spill-policy -->
+<a id="qilin-agentspill-policy"></a>
 
-## `@qilin/spill-policy`
+## `@qilin-agent/spill-policy`
 
 - `inject`: `tools`
 - `source`: [`packages/spill/spill-policy/src/index.ts:25`](../packages/spill/spill-policy/src/index.ts)
@@ -3026,12 +3026,12 @@ export interface Config {
   maxInlineTokens?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/spill-policy -->
+<!-- END GENERATED config-catalog:@qilin-agent/spill-policy -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/ssh -->
-<a id="qilinssh"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/ssh -->
+<a id="qilin-agentssh"></a>
 
-## `@qilin/ssh`
+## `@qilin-agent/ssh`
 
 - `source`: [`packages/ssh/ssh/src/index.ts:17`](../packages/ssh/ssh/src/index.ts)
 
@@ -3062,12 +3062,12 @@ export interface Config {
   leaseMs?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/ssh -->
+<!-- END GENERATED config-catalog:@qilin-agent/ssh -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/storage-domain -->
-<a id="qilinstorage-domain"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/storage-domain -->
+<a id="qilin-agentstorage-domain"></a>
 
-## `@qilin/storage-domain`
+## `@qilin-agent/storage-domain`
 
 - `inject`: `storage`
 - `source`: [`packages/storage/storage-domain/src/index.ts:52`](../packages/storage/storage-domain/src/index.ts)
@@ -3086,12 +3086,12 @@ export interface Config {
   routes?: Record<string, string>
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/storage-domain -->
+<!-- END GENERATED config-catalog:@qilin-agent/storage-domain -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/storage-json -->
-<a id="qilinstorage-json"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/storage-json -->
+<a id="qilin-agentstorage-json"></a>
 
-## `@qilin/storage-json`
+## `@qilin-agent/storage-json`
 
 - `inject`: `storage`
 - `source`: [`packages/storage/storage-json/src/index.ts:28`](../packages/storage/storage-json/src/index.ts)
@@ -3108,12 +3108,12 @@ export interface Config {
   root: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/storage-json -->
+<!-- END GENERATED config-catalog:@qilin-agent/storage-json -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/storage-sqlite -->
-<a id="qilinstorage-sqlite"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/storage-sqlite -->
+<a id="qilin-agentstorage-sqlite"></a>
 
-## `@qilin/storage-sqlite`
+## `@qilin-agent/storage-sqlite`
 
 - `inject`: `storage`
 - `source`: [`packages/storage/storage-sqlite/src/index.ts:24`](../packages/storage/storage-sqlite/src/index.ts)
@@ -3149,12 +3149,12 @@ export interface Config {
  */
 export type JournalMode = 'wal' | 'delete' | 'truncate' | 'persist'
 ```
-<!-- END GENERATED config-catalog:@qilin/storage-sqlite -->
+<!-- END GENERATED config-catalog:@qilin-agent/storage-sqlite -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/subagent -->
-<a id="qilinsubagent"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/subagent -->
+<a id="qilin-agentsubagent"></a>
 
-## `@qilin/subagent`
+## `@qilin-agent/subagent`
 
 - `source`: [`packages/subagent/subagent/src/index.ts:191`](../packages/subagent/subagent/src/index.ts)
 
@@ -3167,12 +3167,12 @@ export interface Config {
   maxDepth?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/subagent -->
+<!-- END GENERATED config-catalog:@qilin-agent/subagent -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/subagent-acp -->
-<a id="qilinsubagent-acp"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/subagent-acp -->
+<a id="qilin-agentsubagent-acp"></a>
 
-## `@qilin/subagent-acp`
+## `@qilin-agent/subagent-acp`
 
 - `inject`: `subagents` · `subprocess`
 - `source`: [`packages/subagent/subagent-acp/src/index.ts:27`](../packages/subagent/subagent-acp/src/index.ts)
@@ -3221,12 +3221,12 @@ export interface Config {
 /** Fixed response to child permission requests: reject by default, or select the first allow option. */
 export type PermissionPolicy = 'allow' | 'reject'
 ```
-<!-- END GENERATED config-catalog:@qilin/subagent-acp -->
+<!-- END GENERATED config-catalog:@qilin-agent/subagent-acp -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/subagent-claude-code -->
-<a id="qilinsubagent-claude-code"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/subagent-claude-code -->
+<a id="qilin-agentsubagent-claude-code"></a>
 
-## `@qilin/subagent-claude-code`
+## `@qilin-agent/subagent-claude-code`
 
 - `inject`: `subagents` · `subprocess`
 - `source`: [`packages/subagent/subagent-claude-code/src/index.ts:38`](../packages/subagent/subagent-claude-code/src/index.ts)
@@ -3257,12 +3257,12 @@ export interface Config {
 /** Profile-selectable non-interactive Claude Code permission mode. */
 export type ClaudeCodePermissionMode = typeof CLAUDE_CODE_PERMISSION_MODES[number]
 ```
-<!-- END GENERATED config-catalog:@qilin/subagent-claude-code -->
+<!-- END GENERATED config-catalog:@qilin-agent/subagent-claude-code -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/subagent-codex -->
-<a id="qilinsubagent-codex"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/subagent-codex -->
+<a id="qilin-agentsubagent-codex"></a>
 
-## `@qilin/subagent-codex`
+## `@qilin-agent/subagent-codex`
 
 - `inject`: `subagents` · `subprocess`
 - `source`: [`packages/subagent/subagent-codex/src/index.ts:36`](../packages/subagent/subagent-codex/src/index.ts)
@@ -3291,12 +3291,12 @@ export type CodexPermissionMode =
   | 'approve-for-me'
   | 'dangerously-bypass-approvals-and-sandbox'
 ```
-<!-- END GENERATED config-catalog:@qilin/subagent-codex -->
+<!-- END GENERATED config-catalog:@qilin-agent/subagent-codex -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/subagent-fork-in-process -->
-<a id="qilinsubagent-fork-in-process"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/subagent-fork-in-process -->
+<a id="qilin-agentsubagent-fork-in-process"></a>
 
-## `@qilin/subagent-fork-in-process`
+## `@qilin-agent/subagent-fork-in-process`
 
 - `inject`: `subagents`
 - `source`: [`packages/subagent/subagent-fork-in-process/src/index.ts:31`](../packages/subagent/subagent-fork-in-process/src/index.ts)
@@ -3308,12 +3308,12 @@ export interface Config {
   providerName: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/subagent-fork-in-process -->
+<!-- END GENERATED config-catalog:@qilin-agent/subagent-fork-in-process -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/subagent-qilin-sdk -->
-<a id="qilinsubagent-qilin-sdk"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/subagent-qilin-sdk -->
+<a id="qilin-agentsubagent-qilin-sdk"></a>
 
-## `@qilin/subagent-qilin-sdk`
+## `@qilin-agent/subagent-qilin-sdk`
 
 - `inject`: `subagents`
 - `source`: [`packages/subagent/subagent-qilin-sdk/src/index.ts:34`](../packages/subagent/subagent-qilin-sdk/src/index.ts)
@@ -3365,12 +3365,12 @@ export interface Config {
   disposeGraceMs?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/subagent-qilin-sdk -->
+<!-- END GENERATED config-catalog:@qilin-agent/subagent-qilin-sdk -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/subagent-spawn-in-process -->
-<a id="qilinsubagent-spawn-in-process"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/subagent-spawn-in-process -->
+<a id="qilin-agentsubagent-spawn-in-process"></a>
 
-## `@qilin/subagent-spawn-in-process`
+## `@qilin-agent/subagent-spawn-in-process`
 
 - `inject`: `subagents`
 - `source`: [`packages/subagent/subagent-spawn-in-process/src/index.ts:25`](../packages/subagent/subagent-spawn-in-process/src/index.ts)
@@ -3382,12 +3382,12 @@ export interface Config {
   providerName: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/subagent-spawn-in-process -->
+<!-- END GENERATED config-catalog:@qilin-agent/subagent-spawn-in-process -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/system-prompt -->
-<a id="qilinsystem-prompt"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/system-prompt -->
+<a id="qilin-agentsystem-prompt"></a>
 
-## `@qilin/system-prompt`
+## `@qilin-agent/system-prompt`
 
 - `source`: [`packages/core/system-prompt/src/index.ts:248`](../packages/core/system-prompt/src/index.ts)
 
@@ -3416,12 +3416,12 @@ export interface Config {
   toolOrder?: string[]
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/system-prompt -->
+<!-- END GENERATED config-catalog:@qilin-agent/system-prompt -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/terminal-bash -->
-<a id="qilinterminal-bash"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/terminal-bash -->
+<a id="qilin-agentterminal-bash"></a>
 
-## `@qilin/terminal-bash`
+## `@qilin-agent/terminal-bash`
 
 - `inject`: `terminals` · `sandboxPolicy` · `sessionProjections` · `subprocess`
 - `source`: [`packages/terminal/terminal-bash/src/config.ts:10`](../packages/terminal/terminal-bash/src/config.ts)
@@ -3476,12 +3476,12 @@ export interface Config {
 /** One supported interactive shell dialect. */
 export type ShellDialect = 'bash' | 'pwsh'
 ```
-<!-- END GENERATED config-catalog:@qilin/terminal-bash -->
+<!-- END GENERATED config-catalog:@qilin-agent/terminal-bash -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/time-context -->
-<a id="qilintime-context"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/time-context -->
+<a id="qilin-agenttime-context"></a>
 
-## `@qilin/time-context`
+## `@qilin-agent/time-context`
 
 - `inject`: `agents` · `sessionProjections`
 - `source`: [`packages/context/time-context/src/index.ts:56`](../packages/context/time-context/src/index.ts)
@@ -3495,12 +3495,12 @@ export interface Config {
   refreshIntervalMs?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/time-context -->
+<!-- END GENERATED config-catalog:@qilin-agent/time-context -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/tmux-context -->
-<a id="qilintmux-context"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tmux-context -->
+<a id="qilin-agenttmux-context"></a>
 
-## `@qilin/tmux-context`
+## `@qilin-agent/tmux-context`
 
 - `inject`: `agents` · `sessionProjections`
 - `source`: [`packages/context/tmux-context/src/index.ts:47`](../packages/context/tmux-context/src/index.ts)
@@ -3512,12 +3512,12 @@ export interface Config {
   refreshIntervalMs?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/tmux-context -->
+<!-- END GENERATED config-catalog:@qilin-agent/tmux-context -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/token-meter -->
-<a id="qilintoken-meter"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/token-meter -->
+<a id="qilin-agenttoken-meter"></a>
 
-## `@qilin/token-meter`
+## `@qilin-agent/token-meter`
 
 - `inject`: `sessionProjections`
 - `source`: [`packages/llm/token-meter/src/types.ts:13`](../packages/llm/token-meter/src/types.ts)
@@ -3526,12 +3526,12 @@ export interface Config {
 /** Token-meter plugin configuration; the fixed estimator has no settings. */
 export type TokenMeterConfig = Record<string, never>
 ```
-<!-- END GENERATED config-catalog:@qilin/token-meter -->
+<!-- END GENERATED config-catalog:@qilin-agent/token-meter -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/tool-ask-user -->
-<a id="qilintool-ask-user"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-ask-user -->
+<a id="qilin-agenttool-ask-user"></a>
 
-## `@qilin/tool-ask-user`
+## `@qilin-agent/tool-ask-user`
 
 - `inject`: `tools` · `userQuestions`
 - `source`: [`packages/interaction/tool-ask-user/src/index.ts:16`](../packages/interaction/tool-ask-user/src/index.ts)
@@ -3545,12 +3545,12 @@ export interface Config {
   timeout?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/tool-ask-user -->
+<!-- END GENERATED config-catalog:@qilin-agent/tool-ask-user -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/tool-bash -->
-<a id="qilintool-bash"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-bash -->
+<a id="qilin-agenttool-bash"></a>
 
-## `@qilin/tool-bash`
+## `@qilin-agent/tool-bash`
 
 - `inject`: `tools` · `shell` · `systemPrompt` · `shellEnv`
 - `source`: [`packages/shell/tool-bash/src/index.ts:33`](../packages/shell/tool-bash/src/index.ts)
@@ -3562,12 +3562,12 @@ export interface Config {
   enableRunInBackground?: boolean
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/tool-bash -->
+<!-- END GENERATED config-catalog:@qilin-agent/tool-bash -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/tool-bash-persistent -->
-<a id="qilintool-bash-persistent"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-bash-persistent -->
+<a id="qilin-agenttool-bash-persistent"></a>
 
-## `@qilin/tool-bash-persistent`
+## `@qilin-agent/tool-bash-persistent`
 
 - `inject`: `tools` · `terminals`
 - `source`: [`packages/shell/tool-bash-persistent/src/index.ts:443`](../packages/shell/tool-bash-persistent/src/index.ts)
@@ -3585,12 +3585,12 @@ export interface Config {
   description?: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/tool-bash-persistent -->
+<!-- END GENERATED config-catalog:@qilin-agent/tool-bash-persistent -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/tool-fs -->
-<a id="qilintool-fs"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-fs -->
+<a id="qilin-agenttool-fs"></a>
 
-## `@qilin/tool-fs`
+## `@qilin-agent/tool-fs`
 
 - `inject`: `tools` · `fs` · `systemPrompt`
 - `source`: [`packages/fs/tool-fs/src/index.ts:25`](../packages/fs/tool-fs/src/index.ts)
@@ -3608,12 +3608,12 @@ export interface Config {
   readStreamMinSize?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/tool-fs -->
+<!-- END GENERATED config-catalog:@qilin-agent/tool-fs -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/tool-fs-search -->
-<a id="qilintool-fs-search"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-fs-search -->
+<a id="qilin-agenttool-fs-search"></a>
 
-## `@qilin/tool-fs-search`
+## `@qilin-agent/tool-fs-search`
 
 - `inject`: `tools` · `systemPrompt` · `subprocess`
 - `source`: [`packages/fs/tool-fs-search/src/index.ts:73`](../packages/fs/tool-fs-search/src/index.ts)
@@ -3639,17 +3639,17 @@ export interface Config {
   stderrMaxBytes?: number
   /**
    * Cooperative tool-call timeout budget (ms) on both tools, enforced by
-   * `@qilin/tool-call-timeout-policy` through `exec.signal`.
+   * `@qilin-agent/tool-call-timeout-policy` through `exec.signal`.
    */
   timeoutMs?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/tool-fs-search -->
+<!-- END GENERATED config-catalog:@qilin-agent/tool-fs-search -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/tool-goal -->
-<a id="qilintool-goal"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-goal -->
+<a id="qilin-agenttool-goal"></a>
 
-## `@qilin/tool-goal`
+## `@qilin-agent/tool-goal`
 
 - `inject`: `agents` · `goals` · `tools` · `systemPrompt` · `sessionProjections`
 - `source`: [`packages/goal/tool-goal/src/index.ts:32`](../packages/goal/tool-goal/src/index.ts)
@@ -3661,12 +3661,12 @@ export interface Config {
   blockedAfterConsecutiveRounds?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/tool-goal -->
+<!-- END GENERATED config-catalog:@qilin-agent/tool-goal -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/tool-jobs -->
-<a id="qilintool-jobs"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-jobs -->
+<a id="qilin-agenttool-jobs"></a>
 
-## `@qilin/tool-jobs`
+## `@qilin-agent/tool-jobs`
 
 - `inject`: `tools` · `jobs` · `systemPrompt`
 - `source`: [`packages/jobs/tool-jobs/src/index.ts:41`](../packages/jobs/tool-jobs/src/index.ts)
@@ -3698,12 +3698,12 @@ export interface Config {
  */
 export type CompletionDelivery = 'quiet' | 'wakeup'
 ```
-<!-- END GENERATED config-catalog:@qilin/tool-jobs -->
+<!-- END GENERATED config-catalog:@qilin-agent/tool-jobs -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/tool-lsp -->
-<a id="qilintool-lsp"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-lsp -->
+<a id="qilin-agenttool-lsp"></a>
 
-## `@qilin/tool-lsp`
+## `@qilin-agent/tool-lsp`
 
 - `inject`: `tools` · `lsp` · `systemPrompt`
 - `source`: [`packages/lsp/tool-lsp/src/index.ts:57`](../packages/lsp/tool-lsp/src/index.ts)
@@ -3719,12 +3719,12 @@ export interface Config {
   timeoutMs?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/tool-lsp -->
+<!-- END GENERATED config-catalog:@qilin-agent/tool-lsp -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/tool-present -->
-<a id="qilintool-present"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-present -->
+<a id="qilin-agenttool-present"></a>
 
-## `@qilin/tool-present`
+## `@qilin-agent/tool-present`
 
 - `inject`: `tools` · `fs` · `sessionProjections`
 - `source`: [`packages/deliverables/tool-present/src/index.ts:15`](../packages/deliverables/tool-present/src/index.ts)
@@ -3736,12 +3736,12 @@ export interface Config {
   maxFiles: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/tool-present -->
+<!-- END GENERATED config-catalog:@qilin-agent/tool-present -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/tool-pwsh -->
-<a id="qilintool-pwsh"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-pwsh -->
+<a id="qilin-agenttool-pwsh"></a>
 
-## `@qilin/tool-pwsh`
+## `@qilin-agent/tool-pwsh`
 
 - `inject`: `tools` · `shell` · `systemPrompt` · `shellEnv`
 - `source`: [`packages/shell/tool-pwsh/src/index.ts:51`](../packages/shell/tool-pwsh/src/index.ts)
@@ -3753,12 +3753,12 @@ export interface Config {
   enableRunInBackground?: boolean
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/tool-pwsh -->
+<!-- END GENERATED config-catalog:@qilin-agent/tool-pwsh -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/tool-pwsh-persistent -->
-<a id="qilintool-pwsh-persistent"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-pwsh-persistent -->
+<a id="qilin-agenttool-pwsh-persistent"></a>
 
-## `@qilin/tool-pwsh-persistent`
+## `@qilin-agent/tool-pwsh-persistent`
 
 - `inject`: `tools` · `terminals`
 - `source`: [`packages/shell/tool-pwsh-persistent/src/index.ts:481`](../packages/shell/tool-pwsh-persistent/src/index.ts)
@@ -3776,12 +3776,12 @@ export interface Config {
   description?: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/tool-pwsh-persistent -->
+<!-- END GENERATED config-catalog:@qilin-agent/tool-pwsh-persistent -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/tool-ralph -->
-<a id="qilintool-ralph"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-ralph -->
+<a id="qilin-agenttool-ralph"></a>
 
-## `@qilin/tool-ralph`
+## `@qilin-agent/tool-ralph`
 
 - `inject`: `tools` · `workflowEngine` · `subagents` · `systemPrompt`
 - `source`: [`packages/workflow/tool-ralph/src/index.ts:21`](../packages/workflow/tool-ralph/src/index.ts)
@@ -3799,12 +3799,12 @@ export interface Config {
   maxResultChars?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/tool-ralph -->
+<!-- END GENERATED config-catalog:@qilin-agent/tool-ralph -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/tool-session-query -->
-<a id="qilintool-session-query"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-session-query -->
+<a id="qilin-agenttool-session-query"></a>
 
-## `@qilin/tool-session-query`
+## `@qilin-agent/tool-session-query`
 
 - `inject`: `tools` · `systemPrompt` · `sessionQuery` · `sessionProjections`
 - `source`: [`packages/session-query/tool-session-query/src/index.ts:28`](../packages/session-query/tool-session-query/src/index.ts)
@@ -3818,12 +3818,12 @@ export interface Config {
   searchTimeoutMs?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/tool-session-query -->
+<!-- END GENERATED config-catalog:@qilin-agent/tool-session-query -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/tool-skill -->
-<a id="qilintool-skill"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-skill -->
+<a id="qilin-agenttool-skill"></a>
 
-## `@qilin/tool-skill`
+## `@qilin-agent/tool-skill`
 
 - `inject`: `agents` · `tools` · `skills`
 - `source`: [`packages/skill/tool-skill/src/index.ts:61`](../packages/skill/tool-skill/src/index.ts)
@@ -3835,12 +3835,12 @@ export interface Config {
   catalogDescriptionMaxLength?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/tool-skill -->
+<!-- END GENERATED config-catalog:@qilin-agent/tool-skill -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/tool-str-replace-editor -->
-<a id="qilintool-str-replace-editor"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-str-replace-editor -->
+<a id="qilin-agenttool-str-replace-editor"></a>
 
-## `@qilin/tool-str-replace-editor`
+## `@qilin-agent/tool-str-replace-editor`
 
 - `inject`: `tools` · `fs`
 - `source`: [`packages/fs/tool-str-replace-editor/src/index.ts:505`](../packages/fs/tool-str-replace-editor/src/index.ts)
@@ -3854,12 +3854,12 @@ export interface Config {
   description?: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/tool-str-replace-editor -->
+<!-- END GENERATED config-catalog:@qilin-agent/tool-str-replace-editor -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/tool-subagent -->
-<a id="qilintool-subagent"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-subagent -->
+<a id="qilin-agenttool-subagent"></a>
 
-## `@qilin/tool-subagent`
+## `@qilin-agent/tool-subagent`
 
 - `inject`: `tools` · `subagents` · `systemPrompt` · `sessionProjections`
 - `refs`: [`AgentOptions`](subsystems/core.md)
@@ -3925,12 +3925,12 @@ export interface Config {
   maxDepth?: number | 'provider-managed'
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/tool-subagent -->
+<!-- END GENERATED config-catalog:@qilin-agent/tool-subagent -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/tool-terminal -->
-<a id="qilintool-terminal"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-terminal -->
+<a id="qilin-agenttool-terminal"></a>
 
-## `@qilin/tool-terminal`
+## `@qilin-agent/tool-terminal`
 
 - `inject`: `terminals` · `tools` · `systemPrompt`
 - `source`: [`packages/terminal/tool-terminal/src/index.ts:36`](../packages/terminal/tool-terminal/src/index.ts)
@@ -3944,12 +3944,12 @@ export interface Config {
   maxResultBytes?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/tool-terminal -->
+<!-- END GENERATED config-catalog:@qilin-agent/tool-terminal -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/tool-todo -->
-<a id="qilintool-todo"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-todo -->
+<a id="qilin-agenttool-todo"></a>
 
-## `@qilin/tool-todo`
+## `@qilin-agent/tool-todo`
 
 - `inject`: `tools` · `sessionProjections`
 - `source`: [`packages/todo/tool-todo/src/index.ts:29`](../packages/todo/tool-todo/src/index.ts)
@@ -3967,12 +3967,12 @@ export interface Config {
   allowParallelInProgress: boolean
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/tool-todo -->
+<!-- END GENERATED config-catalog:@qilin-agent/tool-todo -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/tool-web -->
-<a id="qilintool-web"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-web -->
+<a id="qilin-agenttool-web"></a>
 
-## `@qilin/tool-web`
+## `@qilin-agent/tool-web`
 
 - `inject`: `tools` · `web` · `systemPrompt`
 - `source`: [`packages/web/tool-web/src/index.ts:37`](../packages/web/tool-web/src/index.ts)
@@ -3996,12 +3996,12 @@ export interface Config {
   fetchMaxOutputChars?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/tool-web -->
+<!-- END GENERATED config-catalog:@qilin-agent/tool-web -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/tool-workflow -->
-<a id="qilintool-workflow"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-workflow -->
+<a id="qilin-agenttool-workflow"></a>
 
-## `@qilin/tool-workflow`
+## `@qilin-agent/tool-workflow`
 
 - `inject`: `tools` · `workflowEngine` · `systemPrompt`
 - `source`: [`packages/workflow/tool-workflow/src/index.ts:44`](../packages/workflow/tool-workflow/src/index.ts)
@@ -4016,19 +4016,19 @@ export interface Config {
   /**
    * Expose `run_in_background` (default true); disabled calls are also
    * rejected. A background run needs a live `ctx.jobs` registry with a
-   * controller serving the caller (`@qilin/jobs-local` plus `@qilin/tool-jobs`
+   * controller serving the caller (`@qilin-agent/jobs-local` plus `@qilin-agent/tool-jobs`
    * in the shipped composition); without one the call fails with the missing
    * piece named.
    */
   enableRunInBackground?: boolean
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/tool-workflow -->
+<!-- END GENERATED config-catalog:@qilin-agent/tool-workflow -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/tool-workspace-dependencies -->
-<a id="qilintool-workspace-dependencies"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-workspace-dependencies -->
+<a id="qilin-agenttool-workspace-dependencies"></a>
 
-## `@qilin/tool-workspace-dependencies`
+## `@qilin-agent/tool-workspace-dependencies`
 
 - `inject`: `tools`
 - `source`: [`packages/skill/tool-workspace-dependencies/src/index.ts:15`](../packages/skill/tool-workspace-dependencies/src/index.ts)
@@ -4046,12 +4046,12 @@ export interface Config {
   readonly root?: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/tool-workspace-dependencies -->
+<!-- END GENERATED config-catalog:@qilin-agent/tool-workspace-dependencies -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/tools -->
-<a id="qilintools"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tools -->
+<a id="qilin-agenttools"></a>
 
-## `@qilin/tools`
+## `@qilin-agent/tools`
 
 - `inject`: `systemPrompt`
 - `source`: [`packages/core/tools/src/index.ts:668`](../packages/core/tools/src/index.ts)
@@ -4083,12 +4083,12 @@ export interface Config {
 /** How the registry presents its tools to the model (see {@link Config.mode}). */
 export type ToolPresentationMode = 'native' | 'ptc' | 'both'
 ```
-<!-- END GENERATED config-catalog:@qilin/tools -->
+<!-- END GENERATED config-catalog:@qilin-agent/tools -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/typert-loader -->
-<a id="qilintypert-loader"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/typert-loader -->
+<a id="qilin-agenttypert-loader"></a>
 
-## `@qilin/typert-loader`
+## `@qilin-agent/typert-loader`
 
 - `inject`: `typert` · `loader`
 - `source`: [`packages/typert/loader/src/index.ts:48`](../packages/typert/loader/src/index.ts)
@@ -4100,12 +4100,12 @@ export interface Config {
   packages?: string[]
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/typert-loader -->
+<!-- END GENERATED config-catalog:@qilin-agent/typert-loader -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/user-approval -->
-<a id="qilinuser-approval"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/user-approval -->
+<a id="qilin-agentuser-approval"></a>
 
-## `@qilin/user-approval`
+## `@qilin-agent/user-approval`
 
 - `source`: [`packages/interaction/user-approval/src/index.ts:135`](../packages/interaction/user-approval/src/index.ts)
 
@@ -4133,12 +4133,12 @@ export interface Config {
  */
 export type ApprovalPolicy = 'ask' | 'never'
 ```
-<!-- END GENERATED config-catalog:@qilin/user-approval -->
+<!-- END GENERATED config-catalog:@qilin-agent/user-approval -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/web -->
-<a id="qilinweb"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/web -->
+<a id="qilin-agentweb"></a>
 
-## `@qilin/web`
+## `@qilin-agent/web`
 
 - `source`: [`packages/web/web/src/index.ts:55`](../packages/web/web/src/index.ts)
 
@@ -4156,12 +4156,12 @@ export interface WebRuntimeConfig {
   readonly fetchProvider?: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/web -->
+<!-- END GENERATED config-catalog:@qilin-agent/web -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/web-app -->
-<a id="qilinweb-app"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/web-app -->
+<a id="qilin-agentweb-app"></a>
 
-## `@qilin/web-app`
+## `@qilin-agent/web-app`
 
 - `inject`: `webServer`
 - `source`: [`packages/bundle/web-app/src/index.ts:45`](../packages/bundle/web-app/src/index.ts)
@@ -4186,12 +4186,12 @@ export interface Config {
   trustedHosts: string[]
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/web-app -->
+<!-- END GENERATED config-catalog:@qilin-agent/web-app -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/web-fetch-http -->
-<a id="qilinweb-fetch-http"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/web-fetch-http -->
+<a id="qilin-agentweb-fetch-http"></a>
 
-## `@qilin/web-fetch-http`
+## `@qilin-agent/web-fetch-http`
 
 - `inject`: `web`
 - `source`: [`packages/web/web-fetch-http/src/index.ts:32`](../packages/web/web-fetch-http/src/index.ts)
@@ -4211,12 +4211,12 @@ export interface Config {
   userAgent?: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/web-fetch-http -->
+<!-- END GENERATED config-catalog:@qilin-agent/web-fetch-http -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/web-search-deepseek -->
-<a id="qilinweb-search-deepseek"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/web-search-deepseek -->
+<a id="qilin-agentweb-search-deepseek"></a>
 
-## `@qilin/web-search-deepseek`
+## `@qilin-agent/web-search-deepseek`
 
 - `inject`: `web`
 - `source`: [`packages/web/web-search-deepseek/src/index.ts:46`](../packages/web/web-search-deepseek/src/index.ts)
@@ -4240,12 +4240,12 @@ export interface Config {
   maxUses?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/web-search-deepseek -->
+<!-- END GENERATED config-catalog:@qilin-agent/web-search-deepseek -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/web-search-exa -->
-<a id="qilinweb-search-exa"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/web-search-exa -->
+<a id="qilin-agentweb-search-exa"></a>
 
-## `@qilin/web-search-exa`
+## `@qilin-agent/web-search-exa`
 
 - `inject`: `web`
 - `source`: [`packages/web/web-search-exa/src/index.ts:35`](../packages/web/web-search-exa/src/index.ts)
@@ -4265,12 +4265,12 @@ export interface Config {
   highlightsPerResult?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/web-search-exa -->
+<!-- END GENERATED config-catalog:@qilin-agent/web-search-exa -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/web-search-perplexity -->
-<a id="qilinweb-search-perplexity"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/web-search-perplexity -->
+<a id="qilin-agentweb-search-perplexity"></a>
 
-## `@qilin/web-search-perplexity`
+## `@qilin-agent/web-search-perplexity`
 
 - `inject`: `web`
 - `source`: [`packages/web/web-search-perplexity/src/index.ts:30`](../packages/web/web-search-perplexity/src/index.ts)
@@ -4290,12 +4290,12 @@ export interface Config {
   searchRecency?: 'day' | 'week' | 'month' | 'year'
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/web-search-perplexity -->
+<!-- END GENERATED config-catalog:@qilin-agent/web-search-perplexity -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/webhook-github -->
-<a id="qilinwebhook-github"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/webhook-github -->
+<a id="qilin-agentwebhook-github"></a>
 
-## `@qilin/webhook-github`
+## `@qilin-agent/webhook-github`
 
 - `inject`: `webServer` · `webhookRuntime` · `credentials`
 - `source`: [`packages/webhook/webhook-github/src/index.ts:17`](../packages/webhook/webhook-github/src/index.ts)
@@ -4313,12 +4313,12 @@ export interface Config {
   readonly maxBodyBytes: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/webhook-github -->
+<!-- END GENERATED config-catalog:@qilin-agent/webhook-github -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/workflow-ptc -->
-<a id="qilinworkflow-ptc"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/workflow-ptc -->
+<a id="qilin-agentworkflow-ptc"></a>
 
-## `@qilin/workflow-ptc`
+## `@qilin-agent/workflow-ptc`
 
 - `inject`: `subagents` · `ptcRuntime` · `sandboxPolicy`
 - `source`: [`packages/workflow/workflow-ptc/src/index.ts:32`](../packages/workflow/workflow-ptc/src/index.ts)
@@ -4338,12 +4338,12 @@ export interface Config {
   syncTimeoutMs?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/workflow-ptc -->
+<!-- END GENERATED config-catalog:@qilin-agent/workflow-ptc -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin/workspace-changes -->
-<a id="qilinworkspace-changes"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/workspace-changes -->
+<a id="qilin-agentworkspace-changes"></a>
 
-## `@qilin/workspace-changes`
+## `@qilin-agent/workspace-changes`
 
 - `inject`: `subprocess`
 - `source`: [`packages/deliverables/workspace-changes/src/index.ts:34`](../packages/deliverables/workspace-changes/src/index.ts)
@@ -4366,7 +4366,7 @@ export interface Config {
   diffTimeoutMs: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin/workspace-changes -->
+<!-- END GENERATED config-catalog:@qilin-agent/workspace-changes -->
 
 ## Loadable plugins with no config
 
@@ -4375,113 +4375,113 @@ These load from a `cordis.yml` entry with no `config:` block; they declare no co
 <!-- BEGIN GENERATED config-catalog:no-config -->
 | `package` | `inject` | `source` |
 | --- | --- | --- |
-| `@qilin/acp-app` | `cmdlineArgs` | [`packages/bundle/acp-app/src/index.ts`](../packages/bundle/acp-app/src/index.ts) |
-| `@qilin/agent` | — | [`packages/core/agent/src/index.ts`](../packages/core/agent/src/index.ts) |
-| `@qilin/api-remotes` | `typertGateway` | [`packages/api/remotes/src/index.ts`](../packages/api/remotes/src/index.ts) |
-| `@qilin/api-workspace-controller` | `typert` · `workspaceRegistry` | [`packages/api/workspace-controller/src/index.ts`](../packages/api/workspace-controller/src/index.ts) |
-| `@qilin/authorization` | `credentials` | [`packages/credentials/authorization/src/index.ts`](../packages/credentials/authorization/src/index.ts) |
-| `@qilin/browser-use` | — | [`packages/browser-use/browser-use/src/index.ts`](../packages/browser-use/browser-use/src/index.ts) |
-| `@qilin/client-file-upload` | `agents` · `attachments` · `commands` · `connection` | [`packages/client/file-upload/src/index.ts`](../packages/client/file-upload/src/index.ts) |
-| `@qilin/client-locale` | — | [`packages/client/locale/src/index.ts`](../packages/client/locale/src/index.ts) |
-| `@qilin/client-modules` | `loader` | [`packages/client/modules/src/index.ts`](../packages/client/modules/src/index.ts) |
-| `@qilin/client-resources` | — | [`packages/client/resources/src/index.ts`](../packages/client/resources/src/index.ts) |
-| `@qilin/client-ui-account` | — | [`packages/client/ui-account/src/index.ts`](../packages/client/ui-account/src/index.ts) |
-| `@qilin/client-ui-agent-opens` | — | [`packages/client/ui-agent-opens/src/index.ts`](../packages/client/ui-agent-opens/src/index.ts) |
-| `@qilin/client-ui-agent-preset` | — | [`packages/client/ui-agent-preset/src/index.ts`](../packages/client/ui-agent-preset/src/index.ts) |
-| `@qilin/client-ui-approval` | — | [`packages/client/ui-approval/src/index.ts`](../packages/client/ui-approval/src/index.ts) |
-| `@qilin/client-ui-attachment` | — | [`packages/client/ui-attachment/src/index.ts`](../packages/client/ui-attachment/src/index.ts) |
-| `@qilin/client-ui-brand` | — | [`packages/client/ui-brand/src/index.ts`](../packages/client/ui-brand/src/index.ts) |
-| `@qilin/client-ui-chat` | — | [`packages/client/ui-chat/src/index.ts`](../packages/client/ui-chat/src/index.ts) |
-| `@qilin/client-ui-commands` | — | [`packages/client/ui-commands/src/index.ts`](../packages/client/ui-commands/src/index.ts) |
-| `@qilin/client-ui-conversation` | — | [`packages/client/ui-conversation/src/index.ts`](../packages/client/ui-conversation/src/index.ts) |
-| `@qilin/client-ui-deliverables` | `systemPrompt` · `connection` · `sessionQuery` · `sessionController` · `workspaceFiles` · `fs` · `sandboxPolicy` · `workspaceChanges` | [`packages/client/ui-deliverables/src/index.ts`](../packages/client/ui-deliverables/src/index.ts) |
-| `@qilin/client-ui-directory-picker-browse` | — | [`packages/client/ui-directory-picker-browse/src/index.ts`](../packages/client/ui-directory-picker-browse/src/index.ts) |
-| `@qilin/client-ui-directory-picker-native` | — | [`packages/client/ui-directory-picker-native/src/index.ts`](../packages/client/ui-directory-picker-native/src/index.ts) |
-| `@qilin/client-ui-goal` | — | [`packages/client/ui-goal/src/index.ts`](../packages/client/ui-goal/src/index.ts) |
-| `@qilin/client-ui-input-trigger` | — | [`packages/client/ui-input-trigger/src/index.ts`](../packages/client/ui-input-trigger/src/index.ts) |
-| `@qilin/client-ui-jobs` | — | [`packages/client/ui-jobs/src/index.ts`](../packages/client/ui-jobs/src/index.ts) |
-| `@qilin/client-ui-kylin` | — | [`packages/extensions/ui-kylin/src/index.ts`](../packages/extensions/ui-kylin/src/index.ts) |
-| `@qilin/client-ui-layout` | — | [`packages/client/ui-layout/src/index.ts`](../packages/client/ui-layout/src/index.ts) |
-| `@qilin/client-ui-message-feedback` | — | [`packages/client/ui-message-feedback/src/index.ts`](../packages/client/ui-message-feedback/src/index.ts) |
-| `@qilin/client-ui-model-selection` | — | [`packages/client/ui-model-selection/src/index.ts`](../packages/client/ui-model-selection/src/index.ts) |
-| `@qilin/client-ui-open-in-app` | — | [`packages/client/ui-open-in-app/src/index.ts`](../packages/client/ui-open-in-app/src/index.ts) |
-| `@qilin/client-ui-permission-presets` | — | [`packages/client/ui-permission-presets/src/index.ts`](../packages/client/ui-permission-presets/src/index.ts) |
-| `@qilin/client-ui-plan` | — | [`packages/client/ui-plan/src/index.ts`](../packages/client/ui-plan/src/index.ts) |
-| `@qilin/client-ui-reference` | — | [`packages/client/ui-reference/src/index.ts`](../packages/client/ui-reference/src/index.ts) |
-| `@qilin/client-ui-renderer` | — | [`packages/client/ui-renderer/src/index.ts`](../packages/client/ui-renderer/src/index.ts) |
-| `@qilin/client-ui-schedule` | — | [`packages/client/ui-schedule/src/index.ts`](../packages/client/ui-schedule/src/index.ts) |
-| `@qilin/client-ui-session` | — | [`packages/client/ui-session/src/index.ts`](../packages/client/ui-session/src/index.ts) |
-| `@qilin/client-ui-settings` | — | [`packages/client/ui-settings/src/index.ts`](../packages/client/ui-settings/src/index.ts) |
-| `@qilin/client-ui-settings-general` | — | [`packages/client/ui-settings-general/src/index.ts`](../packages/client/ui-settings-general/src/index.ts) |
-| `@qilin/client-ui-settings-mcp` | — | [`packages/client/ui-settings-mcp/src/index.ts`](../packages/client/ui-settings-mcp/src/index.ts) |
-| `@qilin/client-ui-settings-models` | — | [`packages/client/ui-settings-models/src/index.ts`](../packages/client/ui-settings-models/src/index.ts) |
-| `@qilin/client-ui-settings-plugin-inventory` | — | [`packages/client/ui-settings-plugin-inventory/src/index.ts`](../packages/client/ui-settings-plugin-inventory/src/index.ts) |
-| `@qilin/client-ui-settings-plugins` | — | [`packages/client/ui-settings-plugins/src/index.ts`](../packages/client/ui-settings-plugins/src/index.ts) |
-| `@qilin/client-ui-settings-session-log` | — | [`packages/client/ui-settings-session-log/src/index.ts`](../packages/client/ui-settings-session-log/src/index.ts) |
-| `@qilin/client-ui-settings-skills` | — | [`packages/client/ui-settings-skills/src/index.ts`](../packages/client/ui-settings-skills/src/index.ts) |
-| `@qilin/client-ui-settings-unarchive-sessions` | — | [`packages/client/ui-settings-unarchive-sessions/src/index.ts`](../packages/client/ui-settings-unarchive-sessions/src/index.ts) |
-| `@qilin/client-ui-shortcuts` | — | [`packages/client/ui-shortcuts/src/index.ts`](../packages/client/ui-shortcuts/src/index.ts) |
-| `@qilin/client-ui-sidebar` | — | [`packages/client/ui-sidebar/src/index.ts`](../packages/client/ui-sidebar/src/index.ts) |
-| `@qilin/client-ui-sidebar-browser` | — | [`packages/client/ui-sidebar-browser/src/index.ts`](../packages/client/ui-sidebar-browser/src/index.ts) |
-| `@qilin/client-ui-sidebar-files` | — | [`packages/client/ui-sidebar-files/src/index.ts`](../packages/client/ui-sidebar-files/src/index.ts) |
-| `@qilin/client-ui-sidebar-git` | — | [`packages/client/ui-sidebar-git/src/index.ts`](../packages/client/ui-sidebar-git/src/index.ts) |
-| `@qilin/client-ui-sidebar-plans` | — | [`packages/client/ui-sidebar-plans/src/index.ts`](../packages/client/ui-sidebar-plans/src/index.ts) |
-| `@qilin/client-ui-sidebar-right` | — | [`packages/client/ui-sidebar-right/src/index.ts`](../packages/client/ui-sidebar-right/src/index.ts) |
-| `@qilin/client-ui-sidebar-tasks` | — | [`packages/client/ui-sidebar-tasks/src/index.ts`](../packages/client/ui-sidebar-tasks/src/index.ts) |
-| `@qilin/client-ui-sidebar-terminal` | — | [`packages/client/ui-sidebar-terminal/src/index.ts`](../packages/client/ui-sidebar-terminal/src/index.ts) |
-| `@qilin/client-ui-sidechat` | — | [`packages/client/ui-sidechat/src/index.ts`](../packages/client/ui-sidechat/src/index.ts) |
-| `@qilin/client-ui-skill` | — | [`packages/client/ui-skill/src/index.ts`](../packages/client/ui-skill/src/index.ts) |
-| `@qilin/client-ui-subagent` | — | [`packages/client/ui-subagent/src/index.ts`](../packages/client/ui-subagent/src/index.ts) |
-| `@qilin/client-ui-theme` | — | [`packages/client/ui-theme/src/index.ts`](../packages/client/ui-theme/src/index.ts) |
-| `@qilin/client-ui-theme-brand` | — | [`packages/client/ui-theme-brand/src/index.ts`](../packages/client/ui-theme-brand/src/index.ts) |
-| `@qilin/client-ui-tool` | — | [`packages/client/ui-tool/src/index.ts`](../packages/client/ui-tool/src/index.ts) |
-| `@qilin/client-ui-trajectory` | — | [`packages/client/ui-trajectory/src/index.ts`](../packages/client/ui-trajectory/src/index.ts) |
-| `@qilin/client-ui-user-questions` | — | [`packages/client/ui-user-questions/src/index.ts`](../packages/client/ui-user-questions/src/index.ts) |
-| `@qilin/client-ui-workbench` | — | [`packages/client/ui-workbench/src/index.ts`](../packages/client/ui-workbench/src/index.ts) |
-| `@qilin/client-ui-workflow-run` | — | [`packages/client/ui-workflow-run/src/index.ts`](../packages/client/ui-workflow-run/src/index.ts) |
-| `@qilin/client-ui-workspace` | — | [`packages/client/ui-workspace/src/index.ts`](../packages/client/ui-workspace/src/index.ts) |
-| `@qilin/command-compact` | `commands` · `compaction` | [`packages/compaction/command-compact/src/index.ts`](../packages/compaction/command-compact/src/index.ts) |
-| `@qilin/command-feedback` | `commands` | [`packages/feedback/command-feedback/src/index.ts`](../packages/feedback/command-feedback/src/index.ts) |
-| `@qilin/command-goal` | `commands` · `goals` | [`packages/goal/command-goal/src/index.ts`](../packages/goal/command-goal/src/index.ts) |
-| `@qilin/commands` | — | [`packages/interaction/commands/src/index.ts`](../packages/interaction/commands/src/index.ts) |
-| `@qilin/compaction-image-offload` | `agents` · `sessions` | [`packages/compaction/compaction-image-offload/src/index.ts`](../packages/compaction/compaction-image-offload/src/index.ts) |
-| `@qilin/computer-use` | — | [`packages/computer-use/computer-use/src/index.ts`](../packages/computer-use/computer-use/src/index.ts) |
-| `@qilin/deepseek-llm-api-extensions` | — | [`packages/llm/deepseek-llm-api-extensions/src/index.ts`](../packages/llm/deepseek-llm-api-extensions/src/index.ts) |
-| `@qilin/experimental-auto-review` | `approval` · `llm` · `permissionPresets` · `sessions` · `tools` | [`packages/experimental/auto-review/src/index.ts`](../packages/experimental/auto-review/src/index.ts) |
-| `@qilin/experimental-client-ui-agent-team` | — | [`packages/experimental/client-ui-agent-team/src/index.ts`](../packages/experimental/client-ui-agent-team/src/index.ts) |
-| `@qilin/experimental-client-ui-voice-input` | — | [`packages/experimental/client-ui-voice-input/src/index.ts`](../packages/experimental/client-ui-voice-input/src/index.ts) |
-| `@qilin/experimental-computer-use-cua-driver-native` | `computerUse` · `tools` · `systemPrompt` | [`packages/experimental/computer-use-cua-driver-native/src/index.ts`](../packages/experimental/computer-use-cua-driver-native/src/index.ts) |
-| `@qilin/experimental-session-inspector` | — | [`packages/experimental/session-inspector/src/index.ts`](../packages/experimental/session-inspector/src/index.ts) |
-| `@qilin/fs-observation-policy` | — | [`packages/fs/fs-observation-policy/src/index.ts`](../packages/fs/fs-observation-policy/src/index.ts) |
-| `@qilin/fs-ssh` | `ssh` · `sandboxPolicy` | [`packages/ssh/fs-ssh/src/index.ts`](../packages/ssh/fs-ssh/src/index.ts) |
-| `@qilin/goal-round-driver` | `agents` · `goals` · `sessions` | [`packages/goal/goal-round-driver/src/index.ts`](../packages/goal/goal-round-driver/src/index.ts) |
-| `@qilin/host-directory-picker-auto` | `webServer` · `loader` | [`packages/host/directory-picker-auto/src/index.ts`](../packages/host/directory-picker-auto/src/index.ts) |
-| `@qilin/host-directory-picker-native` | — | [`packages/host/directory-picker-native/src/index.ts`](../packages/host/directory-picker-native/src/index.ts) |
-| `@qilin/host-plugin-inventory` | `loader` | [`packages/host/plugin-inventory/src/index.ts`](../packages/host/plugin-inventory/src/index.ts) |
-| `@qilin/kylin-client-runner` | — | [`packages/extensions/kylin-client-runner/src/index.ts`](../packages/extensions/kylin-client-runner/src/index.ts) |
-| `@qilin/llm` | — | [`packages/llm/llm/src/index.ts`](../packages/llm/llm/src/index.ts) |
-| `@qilin/lsp` | — | [`packages/lsp/lsp/src/index.ts`](../packages/lsp/lsp/src/index.ts) |
-| `@qilin/mcp-resources` | `tools` | [`packages/mcp/mcp-resources/src/index.ts`](../packages/mcp/mcp-resources/src/index.ts) |
-| `@qilin/mcp-servers` | `subprocess` | [`packages/mcp/mcp-servers/src/index.ts`](../packages/mcp/mcp-servers/src/index.ts) |
-| `@qilin/otel` | — | [`packages/telemetry/otel/src/index.ts`](../packages/telemetry/otel/src/index.ts) |
-| `@qilin/sandbox-ssh` | `ssh` | [`packages/ssh/sandbox-ssh/src/index.ts`](../packages/ssh/sandbox-ssh/src/index.ts) |
-| `@qilin/session` | — | [`packages/core/session/src/index.ts`](../packages/core/session/src/index.ts) |
-| `@qilin/session-checkpoint-policy` | `llm` · `sessionPersistence` · `sessions` · `tools` | [`packages/session/session-checkpoint-policy/src/index.ts`](../packages/session/session-checkpoint-policy/src/index.ts) |
-| `@qilin/session-projection` | — | [`packages/session/session-projection/src/index.ts`](../packages/session/session-projection/src/index.ts) |
-| `@qilin/session-stats` | `sessionProjections` | [`packages/session/session-stats/src/index.ts`](../packages/session/session-stats/src/index.ts) |
-| `@qilin/session-turn-outline` | `sessionProjections` | [`packages/session/session-turn-outline/src/index.ts`](../packages/session/session-turn-outline/src/index.ts) |
-| `@qilin/skill-badge` | `skills` | [`packages/skill/skill-badge/src/index.ts`](../packages/skill/skill-badge/src/index.ts) |
-| `@qilin/storage` | — | [`packages/storage/storage/src/index.ts`](../packages/storage/storage/src/index.ts) |
-| `@qilin/subprocess-local` | — | [`packages/subprocess/subprocess-local/src/index.ts`](../packages/subprocess/subprocess-local/src/index.ts) |
-| `@qilin/subprocess-ssh` | `ssh` | [`packages/ssh/subprocess-ssh/src/index.ts`](../packages/ssh/subprocess-ssh/src/index.ts) |
-| `@qilin/terminal` | — | [`packages/terminal/terminal/src/index.ts`](../packages/terminal/terminal/src/index.ts) |
-| `@qilin/tool-call-timeout-policy` | `tools` | [`packages/guard/timeout-policy/src/index.ts`](../packages/guard/timeout-policy/src/index.ts) |
-| `@qilin/tool-kylin` | `tools` · `systemPrompt` · `cordisInspect` | [`packages/extensions/tool-kylin/src/index.ts`](../packages/extensions/tool-kylin/src/index.ts) |
-| `@qilin/tool-schedule` | `tools` | [`packages/schedule/tool-schedule/src/index.ts`](../packages/schedule/tool-schedule/src/index.ts) |
-| `@qilin/tool-subagent-control` | `tools` · `subagents` | [`packages/subagent/tool-subagent-control/src/index.ts`](../packages/subagent/tool-subagent-control/src/index.ts) |
-| `@qilin/user-questions` | — | [`packages/interaction/user-questions/src/index.ts`](../packages/interaction/user-questions/src/index.ts) |
-| `@qilin/webhook` | `agents` · `agentDefaultModel` · `agentPresets` · `permissionPresets` · `sessionTitle` · `workspaceRegistry` | [`packages/webhook/webhook/src/index.ts`](../packages/webhook/webhook/src/index.ts) |
-| `@qilin/workspace` | `storageDomain` · `sessionPersistence` | [`packages/workspace/workspace/src/index.ts`](../packages/workspace/workspace/src/index.ts) |
+| `@qilin-agent/acp-app` | `cmdlineArgs` | [`packages/bundle/acp-app/src/index.ts`](../packages/bundle/acp-app/src/index.ts) |
+| `@qilin-agent/agent` | — | [`packages/core/agent/src/index.ts`](../packages/core/agent/src/index.ts) |
+| `@qilin-agent/api-remotes` | `typertGateway` | [`packages/api/remotes/src/index.ts`](../packages/api/remotes/src/index.ts) |
+| `@qilin-agent/api-workspace-controller` | `typert` · `workspaceRegistry` | [`packages/api/workspace-controller/src/index.ts`](../packages/api/workspace-controller/src/index.ts) |
+| `@qilin-agent/authorization` | `credentials` | [`packages/credentials/authorization/src/index.ts`](../packages/credentials/authorization/src/index.ts) |
+| `@qilin-agent/browser-use` | — | [`packages/browser-use/browser-use/src/index.ts`](../packages/browser-use/browser-use/src/index.ts) |
+| `@qilin-agent/client-file-upload` | `agents` · `attachments` · `commands` · `connection` | [`packages/client/file-upload/src/index.ts`](../packages/client/file-upload/src/index.ts) |
+| `@qilin-agent/client-locale` | — | [`packages/client/locale/src/index.ts`](../packages/client/locale/src/index.ts) |
+| `@qilin-agent/client-modules` | `loader` | [`packages/client/modules/src/index.ts`](../packages/client/modules/src/index.ts) |
+| `@qilin-agent/client-resources` | — | [`packages/client/resources/src/index.ts`](../packages/client/resources/src/index.ts) |
+| `@qilin-agent/client-ui-account` | — | [`packages/client/ui-account/src/index.ts`](../packages/client/ui-account/src/index.ts) |
+| `@qilin-agent/client-ui-agent-opens` | — | [`packages/client/ui-agent-opens/src/index.ts`](../packages/client/ui-agent-opens/src/index.ts) |
+| `@qilin-agent/client-ui-agent-preset` | — | [`packages/client/ui-agent-preset/src/index.ts`](../packages/client/ui-agent-preset/src/index.ts) |
+| `@qilin-agent/client-ui-approval` | — | [`packages/client/ui-approval/src/index.ts`](../packages/client/ui-approval/src/index.ts) |
+| `@qilin-agent/client-ui-attachment` | — | [`packages/client/ui-attachment/src/index.ts`](../packages/client/ui-attachment/src/index.ts) |
+| `@qilin-agent/client-ui-brand` | — | [`packages/client/ui-brand/src/index.ts`](../packages/client/ui-brand/src/index.ts) |
+| `@qilin-agent/client-ui-chat` | — | [`packages/client/ui-chat/src/index.ts`](../packages/client/ui-chat/src/index.ts) |
+| `@qilin-agent/client-ui-commands` | — | [`packages/client/ui-commands/src/index.ts`](../packages/client/ui-commands/src/index.ts) |
+| `@qilin-agent/client-ui-conversation` | — | [`packages/client/ui-conversation/src/index.ts`](../packages/client/ui-conversation/src/index.ts) |
+| `@qilin-agent/client-ui-deliverables` | `systemPrompt` · `connection` · `sessionQuery` · `sessionController` · `workspaceFiles` · `fs` · `sandboxPolicy` · `workspaceChanges` | [`packages/client/ui-deliverables/src/index.ts`](../packages/client/ui-deliverables/src/index.ts) |
+| `@qilin-agent/client-ui-directory-picker-browse` | — | [`packages/client/ui-directory-picker-browse/src/index.ts`](../packages/client/ui-directory-picker-browse/src/index.ts) |
+| `@qilin-agent/client-ui-directory-picker-native` | — | [`packages/client/ui-directory-picker-native/src/index.ts`](../packages/client/ui-directory-picker-native/src/index.ts) |
+| `@qilin-agent/client-ui-goal` | — | [`packages/client/ui-goal/src/index.ts`](../packages/client/ui-goal/src/index.ts) |
+| `@qilin-agent/client-ui-input-trigger` | — | [`packages/client/ui-input-trigger/src/index.ts`](../packages/client/ui-input-trigger/src/index.ts) |
+| `@qilin-agent/client-ui-jobs` | — | [`packages/client/ui-jobs/src/index.ts`](../packages/client/ui-jobs/src/index.ts) |
+| `@qilin-agent/client-ui-kylin` | — | [`packages/extensions/ui-kylin/src/index.ts`](../packages/extensions/ui-kylin/src/index.ts) |
+| `@qilin-agent/client-ui-layout` | — | [`packages/client/ui-layout/src/index.ts`](../packages/client/ui-layout/src/index.ts) |
+| `@qilin-agent/client-ui-message-feedback` | — | [`packages/client/ui-message-feedback/src/index.ts`](../packages/client/ui-message-feedback/src/index.ts) |
+| `@qilin-agent/client-ui-model-selection` | — | [`packages/client/ui-model-selection/src/index.ts`](../packages/client/ui-model-selection/src/index.ts) |
+| `@qilin-agent/client-ui-open-in-app` | — | [`packages/client/ui-open-in-app/src/index.ts`](../packages/client/ui-open-in-app/src/index.ts) |
+| `@qilin-agent/client-ui-permission-presets` | — | [`packages/client/ui-permission-presets/src/index.ts`](../packages/client/ui-permission-presets/src/index.ts) |
+| `@qilin-agent/client-ui-plan` | — | [`packages/client/ui-plan/src/index.ts`](../packages/client/ui-plan/src/index.ts) |
+| `@qilin-agent/client-ui-reference` | — | [`packages/client/ui-reference/src/index.ts`](../packages/client/ui-reference/src/index.ts) |
+| `@qilin-agent/client-ui-renderer` | — | [`packages/client/ui-renderer/src/index.ts`](../packages/client/ui-renderer/src/index.ts) |
+| `@qilin-agent/client-ui-schedule` | — | [`packages/client/ui-schedule/src/index.ts`](../packages/client/ui-schedule/src/index.ts) |
+| `@qilin-agent/client-ui-session` | — | [`packages/client/ui-session/src/index.ts`](../packages/client/ui-session/src/index.ts) |
+| `@qilin-agent/client-ui-settings` | — | [`packages/client/ui-settings/src/index.ts`](../packages/client/ui-settings/src/index.ts) |
+| `@qilin-agent/client-ui-settings-general` | — | [`packages/client/ui-settings-general/src/index.ts`](../packages/client/ui-settings-general/src/index.ts) |
+| `@qilin-agent/client-ui-settings-mcp` | — | [`packages/client/ui-settings-mcp/src/index.ts`](../packages/client/ui-settings-mcp/src/index.ts) |
+| `@qilin-agent/client-ui-settings-models` | — | [`packages/client/ui-settings-models/src/index.ts`](../packages/client/ui-settings-models/src/index.ts) |
+| `@qilin-agent/client-ui-settings-plugin-inventory` | — | [`packages/client/ui-settings-plugin-inventory/src/index.ts`](../packages/client/ui-settings-plugin-inventory/src/index.ts) |
+| `@qilin-agent/client-ui-settings-plugins` | — | [`packages/client/ui-settings-plugins/src/index.ts`](../packages/client/ui-settings-plugins/src/index.ts) |
+| `@qilin-agent/client-ui-settings-session-log` | — | [`packages/client/ui-settings-session-log/src/index.ts`](../packages/client/ui-settings-session-log/src/index.ts) |
+| `@qilin-agent/client-ui-settings-skills` | — | [`packages/client/ui-settings-skills/src/index.ts`](../packages/client/ui-settings-skills/src/index.ts) |
+| `@qilin-agent/client-ui-settings-unarchive-sessions` | — | [`packages/client/ui-settings-unarchive-sessions/src/index.ts`](../packages/client/ui-settings-unarchive-sessions/src/index.ts) |
+| `@qilin-agent/client-ui-shortcuts` | — | [`packages/client/ui-shortcuts/src/index.ts`](../packages/client/ui-shortcuts/src/index.ts) |
+| `@qilin-agent/client-ui-sidebar` | — | [`packages/client/ui-sidebar/src/index.ts`](../packages/client/ui-sidebar/src/index.ts) |
+| `@qilin-agent/client-ui-sidebar-browser` | — | [`packages/client/ui-sidebar-browser/src/index.ts`](../packages/client/ui-sidebar-browser/src/index.ts) |
+| `@qilin-agent/client-ui-sidebar-files` | — | [`packages/client/ui-sidebar-files/src/index.ts`](../packages/client/ui-sidebar-files/src/index.ts) |
+| `@qilin-agent/client-ui-sidebar-git` | — | [`packages/client/ui-sidebar-git/src/index.ts`](../packages/client/ui-sidebar-git/src/index.ts) |
+| `@qilin-agent/client-ui-sidebar-plans` | — | [`packages/client/ui-sidebar-plans/src/index.ts`](../packages/client/ui-sidebar-plans/src/index.ts) |
+| `@qilin-agent/client-ui-sidebar-right` | — | [`packages/client/ui-sidebar-right/src/index.ts`](../packages/client/ui-sidebar-right/src/index.ts) |
+| `@qilin-agent/client-ui-sidebar-tasks` | — | [`packages/client/ui-sidebar-tasks/src/index.ts`](../packages/client/ui-sidebar-tasks/src/index.ts) |
+| `@qilin-agent/client-ui-sidebar-terminal` | — | [`packages/client/ui-sidebar-terminal/src/index.ts`](../packages/client/ui-sidebar-terminal/src/index.ts) |
+| `@qilin-agent/client-ui-sidechat` | — | [`packages/client/ui-sidechat/src/index.ts`](../packages/client/ui-sidechat/src/index.ts) |
+| `@qilin-agent/client-ui-skill` | — | [`packages/client/ui-skill/src/index.ts`](../packages/client/ui-skill/src/index.ts) |
+| `@qilin-agent/client-ui-subagent` | — | [`packages/client/ui-subagent/src/index.ts`](../packages/client/ui-subagent/src/index.ts) |
+| `@qilin-agent/client-ui-theme` | — | [`packages/client/ui-theme/src/index.ts`](../packages/client/ui-theme/src/index.ts) |
+| `@qilin-agent/client-ui-theme-brand` | — | [`packages/client/ui-theme-brand/src/index.ts`](../packages/client/ui-theme-brand/src/index.ts) |
+| `@qilin-agent/client-ui-tool` | — | [`packages/client/ui-tool/src/index.ts`](../packages/client/ui-tool/src/index.ts) |
+| `@qilin-agent/client-ui-trajectory` | — | [`packages/client/ui-trajectory/src/index.ts`](../packages/client/ui-trajectory/src/index.ts) |
+| `@qilin-agent/client-ui-user-questions` | — | [`packages/client/ui-user-questions/src/index.ts`](../packages/client/ui-user-questions/src/index.ts) |
+| `@qilin-agent/client-ui-workbench` | — | [`packages/client/ui-workbench/src/index.ts`](../packages/client/ui-workbench/src/index.ts) |
+| `@qilin-agent/client-ui-workflow-run` | — | [`packages/client/ui-workflow-run/src/index.ts`](../packages/client/ui-workflow-run/src/index.ts) |
+| `@qilin-agent/client-ui-workspace` | — | [`packages/client/ui-workspace/src/index.ts`](../packages/client/ui-workspace/src/index.ts) |
+| `@qilin-agent/command-compact` | `commands` · `compaction` | [`packages/compaction/command-compact/src/index.ts`](../packages/compaction/command-compact/src/index.ts) |
+| `@qilin-agent/command-feedback` | `commands` | [`packages/feedback/command-feedback/src/index.ts`](../packages/feedback/command-feedback/src/index.ts) |
+| `@qilin-agent/command-goal` | `commands` · `goals` | [`packages/goal/command-goal/src/index.ts`](../packages/goal/command-goal/src/index.ts) |
+| `@qilin-agent/commands` | — | [`packages/interaction/commands/src/index.ts`](../packages/interaction/commands/src/index.ts) |
+| `@qilin-agent/compaction-image-offload` | `agents` · `sessions` | [`packages/compaction/compaction-image-offload/src/index.ts`](../packages/compaction/compaction-image-offload/src/index.ts) |
+| `@qilin-agent/computer-use` | — | [`packages/computer-use/computer-use/src/index.ts`](../packages/computer-use/computer-use/src/index.ts) |
+| `@qilin-agent/deepseek-llm-api-extensions` | — | [`packages/llm/deepseek-llm-api-extensions/src/index.ts`](../packages/llm/deepseek-llm-api-extensions/src/index.ts) |
+| `@qilin-agent/experimental-auto-review` | `approval` · `llm` · `permissionPresets` · `sessions` · `tools` | [`packages/experimental/auto-review/src/index.ts`](../packages/experimental/auto-review/src/index.ts) |
+| `@qilin-agent/experimental-client-ui-agent-team` | — | [`packages/experimental/client-ui-agent-team/src/index.ts`](../packages/experimental/client-ui-agent-team/src/index.ts) |
+| `@qilin-agent/experimental-client-ui-voice-input` | — | [`packages/experimental/client-ui-voice-input/src/index.ts`](../packages/experimental/client-ui-voice-input/src/index.ts) |
+| `@qilin-agent/experimental-computer-use-cua-driver-native` | `computerUse` · `tools` · `systemPrompt` | [`packages/experimental/computer-use-cua-driver-native/src/index.ts`](../packages/experimental/computer-use-cua-driver-native/src/index.ts) |
+| `@qilin-agent/experimental-session-inspector` | — | [`packages/experimental/session-inspector/src/index.ts`](../packages/experimental/session-inspector/src/index.ts) |
+| `@qilin-agent/fs-observation-policy` | — | [`packages/fs/fs-observation-policy/src/index.ts`](../packages/fs/fs-observation-policy/src/index.ts) |
+| `@qilin-agent/fs-ssh` | `ssh` · `sandboxPolicy` | [`packages/ssh/fs-ssh/src/index.ts`](../packages/ssh/fs-ssh/src/index.ts) |
+| `@qilin-agent/goal-round-driver` | `agents` · `goals` · `sessions` | [`packages/goal/goal-round-driver/src/index.ts`](../packages/goal/goal-round-driver/src/index.ts) |
+| `@qilin-agent/host-directory-picker-auto` | `webServer` · `loader` | [`packages/host/directory-picker-auto/src/index.ts`](../packages/host/directory-picker-auto/src/index.ts) |
+| `@qilin-agent/host-directory-picker-native` | — | [`packages/host/directory-picker-native/src/index.ts`](../packages/host/directory-picker-native/src/index.ts) |
+| `@qilin-agent/host-plugin-inventory` | `loader` | [`packages/host/plugin-inventory/src/index.ts`](../packages/host/plugin-inventory/src/index.ts) |
+| `@qilin-agent/kylin-client-runner` | — | [`packages/extensions/kylin-client-runner/src/index.ts`](../packages/extensions/kylin-client-runner/src/index.ts) |
+| `@qilin-agent/llm` | — | [`packages/llm/llm/src/index.ts`](../packages/llm/llm/src/index.ts) |
+| `@qilin-agent/lsp` | — | [`packages/lsp/lsp/src/index.ts`](../packages/lsp/lsp/src/index.ts) |
+| `@qilin-agent/mcp-resources` | `tools` | [`packages/mcp/mcp-resources/src/index.ts`](../packages/mcp/mcp-resources/src/index.ts) |
+| `@qilin-agent/mcp-servers` | `subprocess` | [`packages/mcp/mcp-servers/src/index.ts`](../packages/mcp/mcp-servers/src/index.ts) |
+| `@qilin-agent/otel` | — | [`packages/telemetry/otel/src/index.ts`](../packages/telemetry/otel/src/index.ts) |
+| `@qilin-agent/sandbox-ssh` | `ssh` | [`packages/ssh/sandbox-ssh/src/index.ts`](../packages/ssh/sandbox-ssh/src/index.ts) |
+| `@qilin-agent/session` | — | [`packages/core/session/src/index.ts`](../packages/core/session/src/index.ts) |
+| `@qilin-agent/session-checkpoint-policy` | `llm` · `sessionPersistence` · `sessions` · `tools` | [`packages/session/session-checkpoint-policy/src/index.ts`](../packages/session/session-checkpoint-policy/src/index.ts) |
+| `@qilin-agent/session-projection` | — | [`packages/session/session-projection/src/index.ts`](../packages/session/session-projection/src/index.ts) |
+| `@qilin-agent/session-stats` | `sessionProjections` | [`packages/session/session-stats/src/index.ts`](../packages/session/session-stats/src/index.ts) |
+| `@qilin-agent/session-turn-outline` | `sessionProjections` | [`packages/session/session-turn-outline/src/index.ts`](../packages/session/session-turn-outline/src/index.ts) |
+| `@qilin-agent/skill-badge` | `skills` | [`packages/skill/skill-badge/src/index.ts`](../packages/skill/skill-badge/src/index.ts) |
+| `@qilin-agent/storage` | — | [`packages/storage/storage/src/index.ts`](../packages/storage/storage/src/index.ts) |
+| `@qilin-agent/subprocess-local` | — | [`packages/subprocess/subprocess-local/src/index.ts`](../packages/subprocess/subprocess-local/src/index.ts) |
+| `@qilin-agent/subprocess-ssh` | `ssh` | [`packages/ssh/subprocess-ssh/src/index.ts`](../packages/ssh/subprocess-ssh/src/index.ts) |
+| `@qilin-agent/terminal` | — | [`packages/terminal/terminal/src/index.ts`](../packages/terminal/terminal/src/index.ts) |
+| `@qilin-agent/tool-call-timeout-policy` | `tools` | [`packages/guard/timeout-policy/src/index.ts`](../packages/guard/timeout-policy/src/index.ts) |
+| `@qilin-agent/tool-kylin` | `tools` · `systemPrompt` · `cordisInspect` | [`packages/extensions/tool-kylin/src/index.ts`](../packages/extensions/tool-kylin/src/index.ts) |
+| `@qilin-agent/tool-schedule` | `tools` | [`packages/schedule/tool-schedule/src/index.ts`](../packages/schedule/tool-schedule/src/index.ts) |
+| `@qilin-agent/tool-subagent-control` | `tools` · `subagents` | [`packages/subagent/tool-subagent-control/src/index.ts`](../packages/subagent/tool-subagent-control/src/index.ts) |
+| `@qilin-agent/user-questions` | — | [`packages/interaction/user-questions/src/index.ts`](../packages/interaction/user-questions/src/index.ts) |
+| `@qilin-agent/webhook` | `agents` · `agentDefaultModel` · `agentPresets` · `permissionPresets` · `sessionTitle` · `workspaceRegistry` | [`packages/webhook/webhook/src/index.ts`](../packages/webhook/webhook/src/index.ts) |
+| `@qilin-agent/workspace` | `storageDomain` · `sessionPersistence` | [`packages/workspace/workspace/src/index.ts`](../packages/workspace/workspace/src/index.ts) |
 <!-- END GENERATED config-catalog:no-config -->
 
 ## Seam packages (not directly loadable)
@@ -4491,22 +4491,22 @@ Abstract service classes — a deployment loads a concrete implementation packag
 <!-- BEGIN GENERATED config-catalog:seam -->
 | `package` | `class` | `inject` | `source` |
 | --- | --- | --- | --- |
-| `@qilin/attachment` | `AttachmentStore` | — | [`packages/attachment/attachment/src/index.ts`](../packages/attachment/attachment/src/index.ts) |
-| `@qilin/compaction` | `CompactionEngine` | — | [`packages/compaction/compaction/src/index.ts`](../packages/compaction/compaction/src/index.ts) |
-| `@qilin/credentials` | `CredentialProvider` | — | [`packages/credentials/credentials/src/index.ts`](../packages/credentials/credentials/src/index.ts) |
-| `@qilin/file-reference` | `FileReferenceService` | — | [`packages/context/file-reference/src/index.ts`](../packages/context/file-reference/src/index.ts) |
-| `@qilin/fs` | `FileSystem` | — | [`packages/fs/fs/src/index.ts`](../packages/fs/fs/src/index.ts) |
-| `@qilin/host-directory-picker` | `DirectoryPicker` | — | [`packages/host/directory-picker/src/index.ts`](../packages/host/directory-picker/src/index.ts) |
-| `@qilin/jobs` | `JobRegistry` | — | [`packages/jobs/jobs/src/index.ts`](../packages/jobs/jobs/src/index.ts) |
-| `@qilin/ptc-runtime` | `PtcRuntime` | — | [`packages/ptc-runtime/ptc-runtime/src/index.ts`](../packages/ptc-runtime/ptc-runtime/src/index.ts) |
-| `@qilin/sandbox` | `SandboxProvider` | — | [`packages/sandbox/sandbox/src/index.ts`](../packages/sandbox/sandbox/src/index.ts) |
-| `@qilin/session-persistence` | `SessionPersistence` | — | [`packages/session/session-persistence/src/index.ts`](../packages/session/session-persistence/src/index.ts) |
-| `@qilin/session-query` | `SessionQueryEngine` | — | [`packages/session-query/session-query/src/index.ts`](../packages/session-query/session-query/src/index.ts) |
-| `@qilin/settings` | `SettingsProvider` | — | [`packages/settings/settings/src/index.ts`](../packages/settings/settings/src/index.ts) |
-| `@qilin/shell` | `ShellExecutor` | — | [`packages/shell/shell/src/index.ts`](../packages/shell/shell/src/index.ts) |
-| `@qilin/spill` | `SpillStore` | — | [`packages/spill/spill/src/index.ts`](../packages/spill/spill/src/index.ts) |
-| `@qilin/subprocess` | `SubprocessRuntime` | — | [`packages/subprocess/subprocess/src/index.ts`](../packages/subprocess/subprocess/src/index.ts) |
-| `@qilin/workflow` | `WorkflowEngine` | — | [`packages/workflow/workflow/src/index.ts`](../packages/workflow/workflow/src/index.ts) |
+| `@qilin-agent/attachment` | `AttachmentStore` | — | [`packages/attachment/attachment/src/index.ts`](../packages/attachment/attachment/src/index.ts) |
+| `@qilin-agent/compaction` | `CompactionEngine` | — | [`packages/compaction/compaction/src/index.ts`](../packages/compaction/compaction/src/index.ts) |
+| `@qilin-agent/credentials` | `CredentialProvider` | — | [`packages/credentials/credentials/src/index.ts`](../packages/credentials/credentials/src/index.ts) |
+| `@qilin-agent/file-reference` | `FileReferenceService` | — | [`packages/context/file-reference/src/index.ts`](../packages/context/file-reference/src/index.ts) |
+| `@qilin-agent/fs` | `FileSystem` | — | [`packages/fs/fs/src/index.ts`](../packages/fs/fs/src/index.ts) |
+| `@qilin-agent/host-directory-picker` | `DirectoryPicker` | — | [`packages/host/directory-picker/src/index.ts`](../packages/host/directory-picker/src/index.ts) |
+| `@qilin-agent/jobs` | `JobRegistry` | — | [`packages/jobs/jobs/src/index.ts`](../packages/jobs/jobs/src/index.ts) |
+| `@qilin-agent/ptc-runtime` | `PtcRuntime` | — | [`packages/ptc-runtime/ptc-runtime/src/index.ts`](../packages/ptc-runtime/ptc-runtime/src/index.ts) |
+| `@qilin-agent/sandbox` | `SandboxProvider` | — | [`packages/sandbox/sandbox/src/index.ts`](../packages/sandbox/sandbox/src/index.ts) |
+| `@qilin-agent/session-persistence` | `SessionPersistence` | — | [`packages/session/session-persistence/src/index.ts`](../packages/session/session-persistence/src/index.ts) |
+| `@qilin-agent/session-query` | `SessionQueryEngine` | — | [`packages/session-query/session-query/src/index.ts`](../packages/session-query/session-query/src/index.ts) |
+| `@qilin-agent/settings` | `SettingsProvider` | — | [`packages/settings/settings/src/index.ts`](../packages/settings/settings/src/index.ts) |
+| `@qilin-agent/shell` | `ShellExecutor` | — | [`packages/shell/shell/src/index.ts`](../packages/shell/shell/src/index.ts) |
+| `@qilin-agent/spill` | `SpillStore` | — | [`packages/spill/spill/src/index.ts`](../packages/spill/spill/src/index.ts) |
+| `@qilin-agent/subprocess` | `SubprocessRuntime` | — | [`packages/subprocess/subprocess/src/index.ts`](../packages/subprocess/subprocess/src/index.ts) |
+| `@qilin-agent/workflow` | `WorkflowEngine` | — | [`packages/workflow/workflow/src/index.ts`](../packages/workflow/workflow/src/index.ts) |
 <!-- END GENERATED config-catalog:seam -->
 
 ## Library packages (no plugin entry)
@@ -4516,64 +4516,64 @@ Imported as libraries by other packages; a `cordis.yml` cannot load them.
 <!-- BEGIN GENERATED config-catalog:library -->
 | `package` | `inject` | `source` |
 | --- | --- | --- |
-| `@qilin/agent-loop-testkit` | — | [`packages/test-support/agent-loop-testkit/src/index.ts`](../packages/test-support/agent-loop-testkit/src/index.ts) |
-| `@qilin/anonymous-user-id` | — | [`packages/identity/anonymous-user-id/src/index.ts`](../packages/identity/anonymous-user-id/src/index.ts) |
-| `@qilin/app-boot` | — | [`packages/boot/app-boot/src/index.ts`](../packages/boot/app-boot/src/index.ts) |
-| `@qilin/atomic-write` | — | [`packages/util/atomic-write/src/index.ts`](../packages/util/atomic-write/src/index.ts) |
-| `@qilin/base` | — | [`packages/bundle/base/src/index.ts`](../packages/bundle/base/src/index.ts) |
-| `@qilin/brand` | — | [`packages/util/brand/src/index.ts`](../packages/util/brand/src/index.ts) |
-| `@qilin/chunked-list` | — | [`packages/util/chunked-list/src/index.ts`](../packages/util/chunked-list/src/index.ts) |
-| `@qilin/client-store` | — | [`packages/client/store/src/index.ts`](../packages/client/store/src/index.ts) |
-| `@qilin/client-test-runtime` | — | [`packages/test-support/client-runtime/src/index.ts`](../packages/test-support/client-runtime/src/index.ts) |
-| `@qilin/client-ui-dockkit` | — | [`packages/client/ui-dockkit/src/index.ts`](../packages/client/ui-dockkit/src/index.ts) |
-| `@qilin/client-ui-primitives` | — | [`packages/client/ui-primitives/src/index.ts`](../packages/client/ui-primitives/src/index.ts) |
-| `@qilin/client-ui-slots` | — | [`packages/client/ui-slots/src/index.ts`](../packages/client/ui-slots/src/index.ts) |
-| `@qilin/client-web` | — | [`packages/client/web/src/index.ts`](../packages/client/web/src/index.ts) |
-| `@qilin/cmdline` | — | [`packages/boot/cmdline/src/index.ts`](../packages/boot/cmdline/src/index.ts) |
-| `@qilin/deque` | — | [`packages/util/deque/src/index.ts`](../packages/util/deque/src/index.ts) |
-| `@qilin/dsh-compat` | — | [`packages/util/dsh-compat/src/index.ts`](../packages/util/dsh-compat/src/index.ts) |
-| `@qilin/experimental-agent-team-profile` | — | [`packages/experimental/agent-team-profile/src/index.ts`](../packages/experimental/agent-team-profile/src/index.ts) |
-| `@qilin/experimental-browser-use-runtime` | — | [`packages/experimental/browser-use-runtime/src/index.ts`](../packages/experimental/browser-use-runtime/src/index.ts) |
-| `@qilin/experimental-inspector-profile` | — | [`packages/experimental/inspector-profile/src/index.ts`](../packages/experimental/inspector-profile/src/index.ts) |
-| `@qilin/experimental-schedule-bundle` | — | [`packages/experimental/schedule-bundle/src/index.ts`](../packages/experimental/schedule-bundle/src/index.ts) |
-| `@qilin/experimental-voice-input-bundle` | — | [`packages/experimental/voice-input-bundle/src/index.ts`](../packages/experimental/voice-input-bundle/src/index.ts) |
-| `@qilin/experimental-webworker-packer` | — | [`packages/experimental/webworker-packer/src/index.ts`](../packages/experimental/webworker-packer/src/index.ts) |
-| `@qilin/experimental-webworker-runtime` | — | [`packages/experimental/webworker-runtime/src/index.ts`](../packages/experimental/webworker-runtime/src/index.ts) |
-| `@qilin/home-paths` | — | [`packages/util/home-paths/src/index.ts`](../packages/util/home-paths/src/index.ts) |
-| `@qilin/hook-protocol` | — | [`packages/hooks/hook-protocol/src/index.ts`](../packages/hooks/hook-protocol/src/index.ts) |
-| `@qilin/http-proxy` | — | [`packages/util/http-proxy/src/index.ts`](../packages/util/http-proxy/src/index.ts) |
-| `@qilin/launch-environment` | — | [`packages/util/launch-environment/src/index.ts`](../packages/util/launch-environment/src/index.ts) |
-| `@qilin/lazy-require` | — | [`packages/util/lazy-require/src/index.ts`](../packages/util/lazy-require/src/index.ts) |
-| `@qilin/llm-deepseek` | — | [`packages/llm/llm-deepseek/src/index.ts`](../packages/llm/llm-deepseek/src/index.ts) |
-| `@qilin/llm-mock-server` | — | [`packages/test-support/llm-mock-server/src/index.ts`](../packages/test-support/llm-mock-server/src/index.ts) |
-| `@qilin/loader-smoke` | — | [`packages/test-support/loader-smoke/src/index.ts`](../packages/test-support/loader-smoke/src/index.ts) |
-| `@qilin/native-command` | — | [`packages/util/native-command/src/index.ts`](../packages/util/native-command/src/index.ts) |
-| `@qilin/output-retention` | — | [`packages/util/output-retention/src/index.ts`](../packages/util/output-retention/src/index.ts) |
-| `@qilin/package-manifest` | — | [`packages/util/package-manifest/src/index.ts`](../packages/util/package-manifest/src/index.ts) |
-| `@qilin/remote-mock` | — | [`packages/test-support/remote-mock/src/index.ts`](../packages/test-support/remote-mock/src/index.ts) |
-| `@qilin/sandbox-windows-acl` | — | [`packages/sandbox/sandbox-windows-acl/src/index.ts`](../packages/sandbox/sandbox-windows-acl/src/index.ts) |
-| `@qilin/scope` | — | [`packages/core/scope/src/index.ts`](../packages/core/scope/src/index.ts) |
-| `@qilin/sdk-client` | — | [`packages/sdk/client/src/index.ts`](../packages/sdk/client/src/index.ts) |
-| `@qilin/sdk-minimal` | — | [`packages/bundle/sdk-minimal/src/index.ts`](../packages/bundle/sdk-minimal/src/index.ts) |
-| `@qilin/sdk-protocol` | — | [`packages/sdk/protocol/src/index.ts`](../packages/sdk/protocol/src/index.ts) |
-| `@qilin/session-format` | — | [`packages/session/session-format/src/index.ts`](../packages/session/session-format/src/index.ts) |
-| `@qilin/session-format-catalog` | — | [`packages/session/session-format-catalog/src/index.ts`](../packages/session/session-format-catalog/src/index.ts) |
-| `@qilin/session-format-v0-to-v1` | — | [`packages/session/session-format-v0-to-v1/src/index.ts`](../packages/session/session-format-v0-to-v1/src/index.ts) |
-| `@qilin/session-format-v1-to-v2` | — | [`packages/session/session-format-v1-to-v2/src/index.ts`](../packages/session/session-format-v1-to-v2/src/index.ts) |
-| `@qilin/session-format-v2-to-v3` | — | [`packages/session/session-format-v2-to-v3/src/index.ts`](../packages/session/session-format-v2-to-v3/src/index.ts) |
-| `@qilin/session-format-v3-to-v4` | — | [`packages/session/session-format-v3-to-v4/src/index.ts`](../packages/session/session-format-v3-to-v4/src/index.ts) |
-| `@qilin/session-snapshot` | — | [`packages/test-support/session-snapshot/src/index.ts`](../packages/test-support/session-snapshot/src/index.ts) |
-| `@qilin/session-telemetry` | — | [`packages/session/session-telemetry/src/index.ts`](../packages/session/session-telemetry/src/index.ts) |
-| `@qilin/session-title-llm` | — | [`packages/session/session-title-llm/src/index.ts`](../packages/session/session-title-llm/src/index.ts) |
-| `@qilin/subagent-in-process-driver` | — | [`packages/subagent/subagent-in-process-driver/src/index.ts`](../packages/subagent/subagent-in-process-driver/src/index.ts) |
-| `@qilin/timeout` | — | [`packages/util/timeout/src/index.ts`](../packages/util/timeout/src/index.ts) |
-| `@qilin/typert-generator` | — | [`packages/typert/generator/src/index.ts`](../packages/typert/generator/src/index.ts) |
-| `@qilin/typert-protocol` | — | [`packages/typert/protocol/src/index.ts`](../packages/typert/protocol/src/index.ts) |
-| `@qilin/typert-registry` | — | [`packages/typert/registry/src/index.ts`](../packages/typert/registry/src/index.ts) |
-| `@qilin/util-crypto` | — | [`packages/util/crypto/src/index.ts`](../packages/util/crypto/src/index.ts) |
-| `@qilin/util-time` | — | [`packages/util/time/src/index.ts`](../packages/util/time/src/index.ts) |
-| `@qilin/util-values` | — | [`packages/util/values/src/index.ts`](../packages/util/values/src/index.ts) |
-| `@qilin/util-workspace-path` | — | [`packages/util/workspace-path/src/index.ts`](../packages/util/workspace-path/src/index.ts) |
-| `@qilin/web-brand` | — | [`packages/bundle/web-brand/src/index.ts`](../packages/bundle/web-brand/src/index.ts) |
-| `@qilin/win32-process` | — | [`packages/subprocess/win32-process/src/index.ts`](../packages/subprocess/win32-process/src/index.ts) |
+| `@qilin-agent/agent-loop-testkit` | — | [`packages/test-support/agent-loop-testkit/src/index.ts`](../packages/test-support/agent-loop-testkit/src/index.ts) |
+| `@qilin-agent/anonymous-user-id` | — | [`packages/identity/anonymous-user-id/src/index.ts`](../packages/identity/anonymous-user-id/src/index.ts) |
+| `@qilin-agent/app-boot` | — | [`packages/boot/app-boot/src/index.ts`](../packages/boot/app-boot/src/index.ts) |
+| `@qilin-agent/atomic-write` | — | [`packages/util/atomic-write/src/index.ts`](../packages/util/atomic-write/src/index.ts) |
+| `@qilin-agent/base` | — | [`packages/bundle/base/src/index.ts`](../packages/bundle/base/src/index.ts) |
+| `@qilin-agent/brand` | — | [`packages/util/brand/src/index.ts`](../packages/util/brand/src/index.ts) |
+| `@qilin-agent/chunked-list` | — | [`packages/util/chunked-list/src/index.ts`](../packages/util/chunked-list/src/index.ts) |
+| `@qilin-agent/client-store` | — | [`packages/client/store/src/index.ts`](../packages/client/store/src/index.ts) |
+| `@qilin-agent/client-test-runtime` | — | [`packages/test-support/client-runtime/src/index.ts`](../packages/test-support/client-runtime/src/index.ts) |
+| `@qilin-agent/client-ui-dockkit` | — | [`packages/client/ui-dockkit/src/index.ts`](../packages/client/ui-dockkit/src/index.ts) |
+| `@qilin-agent/client-ui-primitives` | — | [`packages/client/ui-primitives/src/index.ts`](../packages/client/ui-primitives/src/index.ts) |
+| `@qilin-agent/client-ui-slots` | — | [`packages/client/ui-slots/src/index.ts`](../packages/client/ui-slots/src/index.ts) |
+| `@qilin-agent/client-web` | — | [`packages/client/web/src/index.ts`](../packages/client/web/src/index.ts) |
+| `@qilin-agent/cmdline` | — | [`packages/boot/cmdline/src/index.ts`](../packages/boot/cmdline/src/index.ts) |
+| `@qilin-agent/deque` | — | [`packages/util/deque/src/index.ts`](../packages/util/deque/src/index.ts) |
+| `@qilin-agent/dsh-compat` | — | [`packages/util/dsh-compat/src/index.ts`](../packages/util/dsh-compat/src/index.ts) |
+| `@qilin-agent/experimental-agent-team-profile` | — | [`packages/experimental/agent-team-profile/src/index.ts`](../packages/experimental/agent-team-profile/src/index.ts) |
+| `@qilin-agent/experimental-browser-use-runtime` | — | [`packages/experimental/browser-use-runtime/src/index.ts`](../packages/experimental/browser-use-runtime/src/index.ts) |
+| `@qilin-agent/experimental-inspector-profile` | — | [`packages/experimental/inspector-profile/src/index.ts`](../packages/experimental/inspector-profile/src/index.ts) |
+| `@qilin-agent/experimental-schedule-bundle` | — | [`packages/experimental/schedule-bundle/src/index.ts`](../packages/experimental/schedule-bundle/src/index.ts) |
+| `@qilin-agent/experimental-voice-input-bundle` | — | [`packages/experimental/voice-input-bundle/src/index.ts`](../packages/experimental/voice-input-bundle/src/index.ts) |
+| `@qilin-agent/experimental-webworker-packer` | — | [`packages/experimental/webworker-packer/src/index.ts`](../packages/experimental/webworker-packer/src/index.ts) |
+| `@qilin-agent/experimental-webworker-runtime` | — | [`packages/experimental/webworker-runtime/src/index.ts`](../packages/experimental/webworker-runtime/src/index.ts) |
+| `@qilin-agent/home-paths` | — | [`packages/util/home-paths/src/index.ts`](../packages/util/home-paths/src/index.ts) |
+| `@qilin-agent/hook-protocol` | — | [`packages/hooks/hook-protocol/src/index.ts`](../packages/hooks/hook-protocol/src/index.ts) |
+| `@qilin-agent/http-proxy` | — | [`packages/util/http-proxy/src/index.ts`](../packages/util/http-proxy/src/index.ts) |
+| `@qilin-agent/launch-environment` | — | [`packages/util/launch-environment/src/index.ts`](../packages/util/launch-environment/src/index.ts) |
+| `@qilin-agent/lazy-require` | — | [`packages/util/lazy-require/src/index.ts`](../packages/util/lazy-require/src/index.ts) |
+| `@qilin-agent/llm-deepseek` | — | [`packages/llm/llm-deepseek/src/index.ts`](../packages/llm/llm-deepseek/src/index.ts) |
+| `@qilin-agent/llm-mock-server` | — | [`packages/test-support/llm-mock-server/src/index.ts`](../packages/test-support/llm-mock-server/src/index.ts) |
+| `@qilin-agent/loader-smoke` | — | [`packages/test-support/loader-smoke/src/index.ts`](../packages/test-support/loader-smoke/src/index.ts) |
+| `@qilin-agent/native-command` | — | [`packages/util/native-command/src/index.ts`](../packages/util/native-command/src/index.ts) |
+| `@qilin-agent/output-retention` | — | [`packages/util/output-retention/src/index.ts`](../packages/util/output-retention/src/index.ts) |
+| `@qilin-agent/package-manifest` | — | [`packages/util/package-manifest/src/index.ts`](../packages/util/package-manifest/src/index.ts) |
+| `@qilin-agent/remote-mock` | — | [`packages/test-support/remote-mock/src/index.ts`](../packages/test-support/remote-mock/src/index.ts) |
+| `@qilin-agent/sandbox-windows-acl` | — | [`packages/sandbox/sandbox-windows-acl/src/index.ts`](../packages/sandbox/sandbox-windows-acl/src/index.ts) |
+| `@qilin-agent/scope` | — | [`packages/core/scope/src/index.ts`](../packages/core/scope/src/index.ts) |
+| `@qilin-agent/sdk-client` | — | [`packages/sdk/client/src/index.ts`](../packages/sdk/client/src/index.ts) |
+| `@qilin-agent/sdk-minimal` | — | [`packages/bundle/sdk-minimal/src/index.ts`](../packages/bundle/sdk-minimal/src/index.ts) |
+| `@qilin-agent/sdk-protocol` | — | [`packages/sdk/protocol/src/index.ts`](../packages/sdk/protocol/src/index.ts) |
+| `@qilin-agent/session-format` | — | [`packages/session/session-format/src/index.ts`](../packages/session/session-format/src/index.ts) |
+| `@qilin-agent/session-format-catalog` | — | [`packages/session/session-format-catalog/src/index.ts`](../packages/session/session-format-catalog/src/index.ts) |
+| `@qilin-agent/session-format-v0-to-v1` | — | [`packages/session/session-format-v0-to-v1/src/index.ts`](../packages/session/session-format-v0-to-v1/src/index.ts) |
+| `@qilin-agent/session-format-v1-to-v2` | — | [`packages/session/session-format-v1-to-v2/src/index.ts`](../packages/session/session-format-v1-to-v2/src/index.ts) |
+| `@qilin-agent/session-format-v2-to-v3` | — | [`packages/session/session-format-v2-to-v3/src/index.ts`](../packages/session/session-format-v2-to-v3/src/index.ts) |
+| `@qilin-agent/session-format-v3-to-v4` | — | [`packages/session/session-format-v3-to-v4/src/index.ts`](../packages/session/session-format-v3-to-v4/src/index.ts) |
+| `@qilin-agent/session-snapshot` | — | [`packages/test-support/session-snapshot/src/index.ts`](../packages/test-support/session-snapshot/src/index.ts) |
+| `@qilin-agent/session-telemetry` | — | [`packages/session/session-telemetry/src/index.ts`](../packages/session/session-telemetry/src/index.ts) |
+| `@qilin-agent/session-title-llm` | — | [`packages/session/session-title-llm/src/index.ts`](../packages/session/session-title-llm/src/index.ts) |
+| `@qilin-agent/subagent-in-process-driver` | — | [`packages/subagent/subagent-in-process-driver/src/index.ts`](../packages/subagent/subagent-in-process-driver/src/index.ts) |
+| `@qilin-agent/timeout` | — | [`packages/util/timeout/src/index.ts`](../packages/util/timeout/src/index.ts) |
+| `@qilin-agent/typert-generator` | — | [`packages/typert/generator/src/index.ts`](../packages/typert/generator/src/index.ts) |
+| `@qilin-agent/typert-protocol` | — | [`packages/typert/protocol/src/index.ts`](../packages/typert/protocol/src/index.ts) |
+| `@qilin-agent/typert-registry` | — | [`packages/typert/registry/src/index.ts`](../packages/typert/registry/src/index.ts) |
+| `@qilin-agent/util-crypto` | — | [`packages/util/crypto/src/index.ts`](../packages/util/crypto/src/index.ts) |
+| `@qilin-agent/util-time` | — | [`packages/util/time/src/index.ts`](../packages/util/time/src/index.ts) |
+| `@qilin-agent/util-values` | — | [`packages/util/values/src/index.ts`](../packages/util/values/src/index.ts) |
+| `@qilin-agent/util-workspace-path` | — | [`packages/util/workspace-path/src/index.ts`](../packages/util/workspace-path/src/index.ts) |
+| `@qilin-agent/web-brand` | — | [`packages/bundle/web-brand/src/index.ts`](../packages/bundle/web-brand/src/index.ts) |
+| `@qilin-agent/win32-process` | — | [`packages/subprocess/win32-process/src/index.ts`](../packages/subprocess/win32-process/src/index.ts) |
 <!-- END GENERATED config-catalog:library -->

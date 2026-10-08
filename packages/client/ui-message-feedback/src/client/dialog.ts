@@ -3,13 +3,13 @@
  * failure toasts. One form serves two targets: the Session itself (a bare `/feedback`)
  * and one assistant message (Like or Dislike). The overlay view renders from
  * the store and raises the acknowledgement after a successful submission.
- * @module @qilin/client-ui-message-feedback/client/dialog
+ * @module @qilin-agent/client-ui-message-feedback/client/dialog
  */
 
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
-import type { MessageId } from '@qilin/api-remotes/client'
-import type { FeedbackCategory, FeedbackRecord } from '@qilin/command-feedback/types'
-import type { MessageFeedbackRating } from '@qilin/message-feedback/types'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
+import type { MessageId } from '@qilin-agent/api-remotes/client'
+import type { FeedbackCategory, FeedbackRecord } from '@qilin-agent/command-feedback/types'
+import type { MessageFeedbackRating } from '@qilin-agent/message-feedback/types'
 import type { MessageFeedbackActionResult } from './controller.ts'
 
 /** What one open dialog submits to. */

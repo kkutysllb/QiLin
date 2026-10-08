@@ -44,7 +44,7 @@ export class SidebarError extends Error {
  * A preferences write refused because the document moved since the editor
  * read it. The route layer maps it to `settings-conflict` (HTTP 409); the
  * client re-reads and retries. Mirrors the engine's own conflict error class
- * (`@qilin/settings`), which this plugin no longer depends on.
+ * (`@qilin-agent/settings`), which this plugin no longer depends on.
  */
 export class SettingsConflictError extends Error {}
 

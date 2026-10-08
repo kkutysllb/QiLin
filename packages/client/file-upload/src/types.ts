@@ -1,7 +1,7 @@
 /** Browser-safe request and receipt types for staged file uploads. */
 
-import type { FileAttachmentRef } from '@qilin/attachment/types'
-import type { Branded } from '@qilin/brand'
+import type { FileAttachmentRef } from '@qilin-agent/attachment/types'
+import type { Branded } from '@qilin-agent/brand'
 
 /** Canonical encoded upload accepted by the Remote fallback. */
 export interface EncodedFileUploadRequest {

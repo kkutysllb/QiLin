@@ -5,14 +5,14 @@
  */
 
 import { z } from 'zod'
-import { canonicalHeader, isSurfaceEvent, SessionSeq } from '@qilin/session'
-import type { ProjectionDefinition } from '@qilin/session-projection'
+import { canonicalHeader, isSurfaceEvent, SessionSeq } from '@qilin-agent/session'
+import type { ProjectionDefinition } from '@qilin-agent/session-projection'
 import { estimateToolsTokens } from './estimate.ts'
 import { commitSurfaceTokens, planSurfaceTokens } from './surface-fold.ts'
 // Import for the `contextBreakdown` SessionProjectionStateMap key merge.
 import type {} from './projection.ts'
 
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionStateMap {
     contextBreakdown: ContextBreakdownState
   }

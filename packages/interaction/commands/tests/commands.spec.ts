@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createScope } from '@qilin/scope'
-import type { Scope } from '@qilin/scope'
-import type { Agent } from '@qilin/agent'
-import SessionStore, { SessionId } from '@qilin/session'
-import CommandRuntime, { CommandDefinitionId, parseCommand, type CommandDefinition } from '@qilin/commands'
-import { AttachmentStore } from '@qilin/attachment'
+import { Context } from '@qilin-agent/kylin'
+import { createScope } from '@qilin-agent/scope'
+import type { Scope } from '@qilin-agent/scope'
+import type { Agent } from '@qilin-agent/agent'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import CommandRuntime, { CommandDefinitionId, parseCommand, type CommandDefinition } from '@qilin-agent/commands'
+import { AttachmentStore } from '@qilin-agent/attachment'
 
 function command(name: string, text = `ran:${name}`): CommandDefinition {
   return {

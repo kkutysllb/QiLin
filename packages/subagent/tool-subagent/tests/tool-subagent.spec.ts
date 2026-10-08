@@ -2,27 +2,27 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import { ToolCallId, ReasoningEffortId } from '@qilin/llm'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime, { TOOL_ABORTED_BEFORE_DISPATCH } from '@qilin/tools'
-import { assembleContextFor, type Agent } from '@qilin/agent'
-import AgentRegistry from '@qilin/agent'
-import AgentLoop from '@qilin/agent-loop'
-import { mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'
-import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import SubagentRuntime from '@qilin/subagent'
-import type { SubagentStartRequest } from '@qilin/subagent'
-import LocalJobRegistry from '@qilin/jobs-local'
-import * as SubagentSpawn from '@qilin/subagent-spawn-in-process'
-import * as ToolJobs from '@qilin/tool-jobs'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import { ToolCallId, ReasoningEffortId } from '@qilin-agent/llm'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime, { TOOL_ABORTED_BEFORE_DISPATCH } from '@qilin-agent/tools'
+import { assembleContextFor, type Agent } from '@qilin-agent/agent'
+import AgentRegistry from '@qilin-agent/agent'
+import AgentLoop from '@qilin-agent/agent-loop'
+import { mountAgentLoopTestDependencies } from '@qilin-agent/agent-loop-testkit'
+import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import SubagentRuntime from '@qilin-agent/subagent'
+import type { SubagentStartRequest } from '@qilin-agent/subagent'
+import LocalJobRegistry from '@qilin-agent/jobs-local'
+import * as SubagentSpawn from '@qilin-agent/subagent-spawn-in-process'
+import * as ToolJobs from '@qilin-agent/tool-jobs'
 import { MockAdapter, textResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
 import { loadStoredSession } from '../../subagent/tests/persistence-helpers.ts'
 import * as mock from './scripted-provider.ts'
 import * as tool from '../src/index.ts'
-import { Session, SessionId } from '@qilin/session'
+import { Session, SessionId } from '@qilin-agent/session'
 import {
   callSubagent,
   disposeSetupProvider,
@@ -928,7 +928,7 @@ describe('qilin-tool-subagent background mode', () => {
     const ctx = await setup({ provider: 'mock' })
     const result = await callSubagent(ctx, { description: 'd', prompt: 'p', run_in_background: true })
     expect(result.isError).toBe(true)
-    expect(text(result)).toContain('background jobs unavailable: load @qilin/jobs')
+    expect(text(result)).toContain('background jobs unavailable: load @qilin-agent/jobs')
   })
 
   it('skips background startup when the tool signal is already aborted', async () => {

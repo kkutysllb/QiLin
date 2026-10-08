@@ -27,7 +27,7 @@ export interface UploadOverlayProps {
   /** Ask the owner to refresh the tree after uploads land. */
   readonly onUploaded: () => void
   /** Localized copy for the overlay and its report. */
-  readonly t: import('@qilin/client-ui-slots').TranslateNS<'sidebarFiles'>
+  readonly t: import('@qilin-agent/client-ui-slots').TranslateNS<'sidebarFiles'>
   /** The wrapped tree. */
   readonly children: ReactNode
 }

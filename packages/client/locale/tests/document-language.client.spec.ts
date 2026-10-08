@@ -9,12 +9,12 @@
  * document language rather than merely looking untidy.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import { apply as settingsApply, inject as settingsInject } from '@qilin/client-ui-settings/client'
-import { TestRemote } from '@qilin/client-test-runtime'
-import { apply, inject } from '@qilin/client-locale/client'
-import type { LocaleRuntime } from '@qilin/client-locale/client'
+import { Context } from '@qilin-agent/kylin'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import { apply as settingsApply, inject as settingsInject } from '@qilin-agent/client-ui-settings/client'
+import { TestRemote } from '@qilin-agent/client-test-runtime'
+import { apply, inject } from '@qilin-agent/client-locale/client'
+import type { LocaleRuntime } from '@qilin-agent/client-locale/client'
 import { LOCALE_SETTINGS_NAMESPACE, LocaleSettingsSchema } from '../src/locale-settings.ts'
 
 /** Boot the plugin over a stub Host settings document. */

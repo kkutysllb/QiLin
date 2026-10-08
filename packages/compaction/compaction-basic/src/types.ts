@@ -1,10 +1,10 @@
 /**
  * Configuration vocabulary for the replay-aware basic compaction backend.
  *
- * @module @qilin/compaction-basic/types
+ * @module @qilin-agent/compaction-basic/types
  */
 
-import type { LlmCallConfig } from '@qilin/llm'
+import type { LlmCallConfig } from '@qilin-agent/llm'
 
 /** Policy fields shared by the default policy and exact model overrides. */
 export interface CompactionPolicyConfig {

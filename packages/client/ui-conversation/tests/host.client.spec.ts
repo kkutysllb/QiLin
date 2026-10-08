@@ -1,9 +1,9 @@
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it } from 'vitest'
-import { SettingsProvider, type SettingsNamespace } from '@qilin/settings'
+import { SettingsProvider, type SettingsNamespace } from '@qilin-agent/settings'
 import {
   CONTENT_WIDTH_MAX, CONVERSATION_SETTINGS_NAMESPACE, DEFAULT_BUSY_ENTER_BEHAVIOR, apply,
-} from '@qilin/client-ui-conversation'
+} from '@qilin-agent/client-ui-conversation'
 
 class MemorySettings extends SettingsProvider {
   readonly writable = true

@@ -1,7 +1,7 @@
 /** Developer messages and deferred schemas survive native V4 persistence. */
 import { describe, expect, it } from 'vitest'
-import { SessionFormatEventCollector } from '@qilin/session-format'
-import type { SessionFormatEvent, SessionFormatJsonObject } from '@qilin/session-format'
+import { SessionFormatEventCollector } from '@qilin-agent/session-format'
+import type { SessionFormatEvent, SessionFormatJsonObject } from '@qilin-agent/session-format'
 import { assertV4RowAdmission, releasedV4SessionFormatCodec as codec, restoreReleasedV4Artifact } from '../src/index.ts'
 
 const header = { version: 4, id: 'developer', createdAt: 1, isSeeded: false, delegationDepth: 0 }

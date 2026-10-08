@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { createUserMessage } from '@qilin/llm'
-import { Session, SessionId } from '@qilin/session'
-import type { TurnEndReason } from '@qilin/session'
-import { foldConsumedWork } from '@qilin/agent'
+import { createUserMessage } from '@qilin-agent/llm'
+import { Session, SessionId } from '@qilin-agent/session'
+import type { TurnEndReason } from '@qilin-agent/session'
+import { foldConsumedWork } from '@qilin-agent/agent'
 
 /** One pending message, as the inbox records it. */
 function message(text: string) {

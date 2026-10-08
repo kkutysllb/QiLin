@@ -18,9 +18,9 @@ function fixture(packages: Readonly<Record<string, readonly string[]>>): string 
     const directory = join(root, 'packages', 'client', name)
     mkdirSync(directory, { recursive: true })
     writeFileSync(join(directory, 'package.json'), `${JSON.stringify({
-      name: `@qilin/${name}`,
+      name: `@qilin-agent/${name}`,
       peerDependencies: Object.fromEntries(dependencies.map(dependency => [
-        `@qilin/${dependency}`,
+        `@qilin-agent/${dependency}`,
         'workspace:^',
       ])),
     }, null, 2)}\n`)
@@ -47,15 +47,15 @@ describe('collectPackageGraph', () => {
     const root = fixture({ consumer: ['missing'] })
 
     expect(() => collectPackageGraph(root, ['client'], 'fixture'))
-      .toThrow('fixture: @qilin/consumer references missing in-repo peer @qilin/missing')
+      .toThrow('fixture: @qilin-agent/consumer references missing in-repo peer @qilin-agent/missing')
   })
 })
 
 describe('renderModuleGraph', () => {
   it('renders the same peer edge in both generated languages', () => {
     const packages = [
-      { short: 'provider', name: '@qilin/provider', group: 'core', rel: 'packages/core/provider', deps: [] },
-      { short: 'consumer', name: '@qilin/consumer', group: 'core', rel: 'packages/core/consumer', deps: ['provider'] },
+      { short: 'provider', name: '@qilin-agent/provider', group: 'core', rel: 'packages/core/provider', deps: [] },
+      { short: 'consumer', name: '@qilin-agent/consumer', group: 'core', rel: 'packages/core/consumer', deps: ['provider'] },
     ]
 
     const english = renderModuleGraph(packages, 'en')

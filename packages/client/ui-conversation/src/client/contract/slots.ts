@@ -1,20 +1,20 @@
 /** Target-neutral Conversation slot declarations and composed component props. */
 import type { ReactNode, RefObject } from 'react'
-import type { FileAttachmentRef, ImageAttachmentRef } from '@qilin/attachment'
-import type { SessionSnapshot } from '@qilin/api-session-controller/client'
-import type { FileUploadReceiptId } from '@qilin/client-file-upload/client'
-import type { WorkspaceSnapshot } from '@qilin/api-workspace-controller/client'
+import type { FileAttachmentRef, ImageAttachmentRef } from '@qilin-agent/attachment'
+import type { SessionSnapshot } from '@qilin-agent/api-session-controller/client'
+import type { FileUploadReceiptId } from '@qilin-agent/client-file-upload/client'
+import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/client'
 import type {
   MaybeSnapshotSelectorHook, ObservableSnapshot, SnapshotSelectorHook,
-} from '@qilin/client-store'
+} from '@qilin-agent/client-store'
 import type {
   FactoryComponentPropsOf, FactoryLocalComponentPropsOf,
   InjectFace, PropsLocale, PropsRenderFactories, PropsRenderSlots, PropsRuntime, PropsStore,
-} from '@qilin/client-ui-slots'
-import type { SessionPendingInteraction } from '@qilin/client-ui-session/client'
-import type {} from '@qilin/client-ui-layout/client'
-import type { SessionId } from '@qilin/session/types'
-import type { WorkspaceId } from '@qilin/workspace/types'
+} from '@qilin-agent/client-ui-slots'
+import type { SessionPendingInteraction } from '@qilin-agent/client-ui-session/client'
+import type {} from '@qilin-agent/client-ui-layout/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { WorkspaceId } from '@qilin-agent/workspace/types'
 import type { ComposerBlock } from './composer-blocks.ts'
 import type { DraftAttachmentId, InputActions, InputNotice, InputState } from './input.ts'
 import type { ComposerKeyboard, EditSelection } from './draft-editor.ts'
@@ -121,7 +121,7 @@ export type UseConversation = SnapshotSelectorHook<ConversationSnapshot>
 /** Selector hook over the registered Conversation View roster. */
 export type UseConversationViews = SnapshotSelectorHook<readonly ViewTab[]>
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface SlotMap {
     /** Conversation shell beneath its root-scoped main-panel entry. */
     'main.conversation': { kind: 'single'; scope: 'session-maybe' }

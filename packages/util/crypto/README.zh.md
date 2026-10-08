@@ -32,7 +32,7 @@ kind: "package-library"
 ## API
 
 ```ts
-import { bytesToBase64, randomUUID, type Uuid } from '@qilin/util-crypto'
+import { bytesToBase64, randomUUID, type Uuid } from '@qilin-agent/util-crypto'
 ```
 
 | 导出 | 角色 |

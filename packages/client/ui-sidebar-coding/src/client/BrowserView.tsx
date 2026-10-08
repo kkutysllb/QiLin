@@ -33,7 +33,7 @@ import {
   IconLinkOutline16,
   IconRefreshOutline16,
   IconWarningOutline16,
-} from '@qilin/client-ui-primitives'
+} from '@qilin-agent/client-ui-primitives'
 import { VscLinkExternal, VscRemoteExplorer } from 'react-icons/vsc'
 import { api } from './api.ts'
 import { embeddabilityOf, normalizeBrowserUrl, type BrowserFailureReason } from './browser.ts'

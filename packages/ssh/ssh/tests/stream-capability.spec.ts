@@ -1,7 +1,7 @@
 import { mkdtemp, rm } from 'node:fs/promises'
 import { createConnection, type Socket } from 'node:net'
 import { once } from 'node:events'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { connect as tlsConnect } from 'node:tls'
 import { describe, expect, it, vi } from 'vitest'
 import { RemoteProcesses } from '../src/helper-processes.ts'

@@ -1,6 +1,6 @@
 import { clientLibrary } from '../../client/tsdown.client.ts'
 
 export default clientLibrary(
-  '@qilin/client-test-runtime',
+  '@qilin-agent/client-test-runtime',
   ['lib/types/index.js'],
 )

@@ -1,7 +1,7 @@
 /** Every historical entry generation migrates all preset selections before projection or fork. */
 
 import { describe, expect, it } from 'vitest'
-import { SESSION_FORMAT_VERSION } from '@qilin/session'
+import { SESSION_FORMAT_VERSION } from '@qilin-agent/session'
 import { createSessionFormatCatalogWithChildren } from '../src/index.ts'
 
 describe('catalog preset migration', () => {

@@ -2,24 +2,24 @@
  * Cross-session snapshot preparation. Hosts adapt mentions into structured
  * references; this service owns exact reads, projection, budgets, and durable context.
  *
- * @module @qilin/session-reference
+ * @module @qilin-agent/session-reference
  */
 
-import { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type { Agent, PreStepDecision } from '@qilin/agent'
-import { Remote, TypertRemoteService } from '@qilin/typert-protocol'
-import { createUserMessage, freezeMessage, LlmError } from '@qilin/llm'
-import type { ContentBlock, LlmResolvedModelInfo, UserMessage } from '@qilin/llm'
-import type { SessionId } from '@qilin/session'
+import { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type { Agent, PreStepDecision } from '@qilin-agent/agent'
+import { Remote, TypertRemoteService } from '@qilin-agent/typert-protocol'
+import { createUserMessage, freezeMessage, LlmError } from '@qilin-agent/llm'
+import type { ContentBlock, LlmResolvedModelInfo, UserMessage } from '@qilin-agent/llm'
+import type { SessionId } from '@qilin-agent/session'
 // Type-only: the `title` projection key plus the live registry and durable
 // cache Context merges — the two projection faces discovery labels from.
-import type { ProjectionSnapshot } from '@qilin/session-projection'
-import type {} from '@qilin/session-projection-cache'
-import type {} from '@qilin/session-title'
-import type {} from '@qilin/subagent'
-import type {} from '@qilin/system-prompt'
-import type { SessionRecord, SessionSurfaceSnapshot } from '@qilin/session-query'
+import type { ProjectionSnapshot } from '@qilin-agent/session-projection'
+import type {} from '@qilin-agent/session-projection-cache'
+import type {} from '@qilin-agent/session-title'
+import type {} from '@qilin-agent/subagent'
+import type {} from '@qilin-agent/system-prompt'
+import type { SessionRecord, SessionSurfaceSnapshot } from '@qilin-agent/session-query'
 import { prepareReferenceOmission, REFERENCE_WARNING } from './spill.ts'
 import {
   DEFAULT_CANDIDATE_LIMIT,
@@ -63,7 +63,7 @@ ${REFERENCE_WARNING}
 `
 const PROMPT_SUFFIX = '\n</referenced-sessions>'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     sessionReferenceResolver: SessionReferenceResolver
   }

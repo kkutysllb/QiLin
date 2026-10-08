@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createUserMessage, ToolCallId, createMessage } from '@qilin/llm'
-import type { MessageSource } from '@qilin/llm'
-import SessionStore, { Session, SessionForkError, SessionId, SessionLogOffset, SessionSeq, TOOL_NOT_STARTED, TOOL_OUTCOME_UNKNOWN } from '@qilin/session'
-import type { SessionEvent, SurfaceEvent, TurnEndReason } from '@qilin/session'
+import { Context } from '@qilin-agent/kylin'
+import { createUserMessage, ToolCallId, createMessage } from '@qilin-agent/llm'
+import type { MessageSource } from '@qilin-agent/llm'
+import SessionStore, { Session, SessionForkError, SessionId, SessionLogOffset, SessionSeq, TOOL_NOT_STARTED, TOOL_OUTCOME_UNKNOWN } from '@qilin-agent/session'
+import type { SessionEvent, SurfaceEvent, TurnEndReason } from '@qilin-agent/session'
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     'test/log-only': { value: string }
     /** Stands in for a plugin's open/close bracket (`compaction/start`). */

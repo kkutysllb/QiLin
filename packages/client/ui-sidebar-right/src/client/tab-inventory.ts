@@ -1,7 +1,7 @@
 /** Metadata inventory of saved and adopted layouts without mounting their content. */
-import { createSnapshotStore, type ObservableSnapshot } from '@qilin/client-store'
-import type { SessionId } from '@qilin/session/types'
-import type { TabId, TabRecord } from '@qilin/client-ui-dockkit'
+import { createSnapshotStore, type ObservableSnapshot } from '@qilin-agent/client-store'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { TabId, TabRecord } from '@qilin-agent/client-ui-dockkit'
 import { readSidebarLayout, sidebarPersistence } from './persistence.ts'
 
 /** One open occurrence; resource recovery belongs to its kind's provider. */

@@ -12,9 +12,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, within } from '@testing-library/react'
 import type { RenderResult } from '@testing-library/react'
-import { RemoteError } from '@qilin/client-test-runtime'
-import type { GhPr, GitBranches, GitLogEntry, GitStatus } from '@qilin/api-workspace-git/types'
-import type { RemoteFailure } from '@qilin/api-remotes/client'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
+import type { GhPr, GitBranches, GitLogEntry, GitStatus } from '@qilin-agent/api-workspace-git/types'
+import type { RemoteFailure } from '@qilin-agent/api-remotes/client'
 import { HISTORY_PAGE_SIZE } from '../src/client/git-model.ts'
 import { zh } from '../src/client/locales.ts'
 import { mountBody, SESSION, TAB } from './mount.client.tsx'
@@ -22,8 +22,8 @@ import { CLEAN_STATUS, DIRTY_STATUS, LOG, logPage } from './scripted-git.client.
 
 /** The host clipboard write, mocked so a copy lands somewhere observable. */
 const clipboard = vi.hoisted(() => ({ write: vi.fn().mockResolvedValue(true) }))
-vi.mock('@qilin/client-ui-primitives/src/clipboard.ts', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@qilin/client-ui-primitives/src/clipboard.ts')>()
+vi.mock('@qilin-agent/client-ui-primitives/src/clipboard.ts', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@qilin-agent/client-ui-primitives/src/clipboard.ts')>()
   return { ...actual, writeClipboard: clipboard.write }
 })
 

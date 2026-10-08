@@ -4,9 +4,9 @@
 
 - insert:
     - id: lsp
-      name: '@qilin/lsp'
+      name: '@qilin-agent/lsp'
     - id: lsp-stdio
-      name: '@qilin/lsp-stdio'
+      name: '@qilin-agent/lsp-stdio'
       config:
         servers:
           fixture:
@@ -15,11 +15,11 @@
             extensionToLanguage:
               '.ts': typescript
     - id: tool-lsp
-      name: '@qilin/tool-lsp'
+      name: '@qilin-agent/tool-lsp'
       config:
         maxLocations: 1
     - id: llm-replay
-      name: '@qilin/llm-replay'
+      name: '@qilin-agent/llm-replay'
       config:
         providers:
           - id: deepseek-official
@@ -29,7 +29,7 @@
               - id: deepseek-v4-pro
 
 - id: timeout-policy
-  name: '@qilin/tool-call-timeout-policy'
+  name: '@qilin-agent/tool-call-timeout-policy'
 
 - id: plugin-package-inventory-deepseek
   disabled: true

@@ -1,7 +1,7 @@
 /** Builtin image metadata and keyed document-body registration. */
-import type { Context } from '@qilin/kylin'
-import type { BoundActions } from '@qilin/client-store'
-import type { SessionId } from '@qilin/session/types'
+import type { Context } from '@qilin-agent/kylin'
+import type { BoundActions } from '@qilin-agent/client-store'
+import type { SessionId } from '@qilin-agent/session/types'
 import type {} from '../index.ts'
 import type { DocumentPreviewDefinition } from '../document/registry.ts'
 import { retainDocumentTabs } from '../document/tab-lifetime.ts'
@@ -10,7 +10,7 @@ import { ImageBody } from './ImageBody.tsx'
 import { en, zh } from './locales.ts'
 
 /** Image implementation identity, shared by metadata and the keyed slot. */
-export const IMAGE_BODY_ID = '@qilin/client-ui-sidebar-documentpreview/image'
+export const IMAGE_BODY_ID = '@qilin-agent/client-ui-sidebar-documentpreview/image'
 
 /** File suffixes rendered by the builtin image body. */
 export const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'ico', 'svg'] as const

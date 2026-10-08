@@ -9,7 +9,7 @@
  * `base64` codec, so the bytes always come from the package and only the
  * spelling is this module's. `fill` and `alloc` reach it through `from`, which
  * is why the string boundary is patched rather than the individual codecs.
- * @module @qilin/experimental-webworker-runtime/src/polyfill/buffer/base64url
+ * @module @qilin-agent/experimental-webworker-runtime/src/polyfill/buffer/base64url
  */
 
 /** The spelling the npm package decodes. */

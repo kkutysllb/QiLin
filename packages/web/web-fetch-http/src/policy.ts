@@ -3,10 +3,10 @@
  * provider — the pure, network-free half. The provider's `fetch()` composes
  * these with transport (redirect following, byte caps, decoding).
  *
- * @module @qilin/web-fetch-http/policy
+ * @module @qilin-agent/web-fetch-http/policy
  */
 
-import { WebError } from '@qilin/web'
+import { WebError } from '@qilin-agent/web'
 
 /** Maximum accepted request URL length enforced by the public fetch provider. */
 export const WEB_FETCH_MAX_URL_LENGTH = 2048

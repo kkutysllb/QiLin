@@ -18,7 +18,7 @@ import {
   type ClientPackageFacts,
 } from './verify-client-packages.ts'
 
-const CORDIS = '@qilin/kylin'
+const CORDIS = '@qilin-agent/kylin'
 const roots: string[] = []
 
 afterEach(() => {
@@ -30,7 +30,7 @@ function declaration(
   fields: Partial<Omit<ClientDeclaration, 'name' | 'manifest'>> = {},
 ): ClientDeclaration {
   return {
-    name: short.startsWith('@') ? short : '@qilin/client-' + short,
+    name: short.startsWith('@') ? short : '@qilin-agent/client-' + short,
     manifest: 'packages/client/' + short.replace(/^.*\//, '') + '/package.json',
     dynamic: true,
     external: [],
@@ -96,34 +96,34 @@ describe('source package uses', () => {
 
   it('counts type imports, module augmentations, dynamic imports, and JSX', () => {
     const uses = collectSourcePackageUses('feature.tsx', [
-      "import type { A } from '@qilin/a/subpath'",
-      "declare module '@qilin/client-ui-slots' {}",
-      "const load = () => import('@qilin/b/remote')",
+      "import type { A } from '@qilin-agent/a/subpath'",
+      "declare module '@qilin-agent/client-ui-slots' {}",
+      "const load = () => import('@qilin-agent/b/remote')",
       'export const view = <div />',
       "export type { Local } from './local.ts'",
     ].join('\n'))
 
     expect([...uses].sort()).toEqual([
-      '@qilin/a',
-      '@qilin/b',
-      '@qilin/client-ui-slots',
+      '@qilin-agent/a',
+      '@qilin-agent/b',
+      '@qilin-agent/client-ui-slots',
       'react',
     ])
     expect([...collectRuntimeSourcePackageUses('feature.tsx', [
-      "import type { A } from '@qilin/a/subpath'",
-      "declare module '@qilin/client-ui-slots' {}",
-      "const load = () => import('@qilin/b')",
+      "import type { A } from '@qilin-agent/a/subpath'",
+      "declare module '@qilin-agent/client-ui-slots' {}",
+      "const load = () => import('@qilin-agent/b')",
       'export const view = <div />',
     ].join('\n'))].sort()).toEqual([
-      '@qilin/b',
+      '@qilin-agent/b',
       'react',
     ])
     expect([...collectRuntimeSourceSpecifiers('feature.tsx', [
-      "import type { A } from '@qilin/a/subpath'",
-      "const load = () => import('@qilin/b/remote')",
+      "import type { A } from '@qilin-agent/a/subpath'",
+      "const load = () => import('@qilin-agent/b/remote')",
       'export const view = <div />',
     ].join('\n'))].sort()).toEqual([
-      '@qilin/b/remote',
+      '@qilin-agent/b/remote',
       'react',
     ])
     expect([...collectLocalSourceSpecifiers('feature.ts', [
@@ -132,7 +132,7 @@ describe('source package uses', () => {
       "const load = () => import('./lazy.ts')",
       "const legacy = require('./legacy.ts')",
       "declare module './augmentation.ts' {}",
-      "import '@qilin/a'",
+      "import '@qilin-agent/a'",
     ].join('\n'))].sort()).toEqual([
       './lazy.ts',
       './legacy.ts',
@@ -179,7 +179,7 @@ describe('package modes', () => {
       parserPreloadIds: [],
     }))).toEqual([
       'packages/client/web/src/platform.ts: parser-preloaded external '
-      + '"@qilin/client-bootstrap/client" has no matching PARSER_PRELOAD_IDS row in '
+      + '"@qilin-agent/client-bootstrap/client" has no matching PARSER_PRELOAD_IDS row in '
       + 'packages/client/modules/src/index.ts',
     ])
   })
@@ -188,57 +188,57 @@ describe('package modes', () => {
 describe('module requests', () => {
   it('rejects runtime requests from one client feature package to another dynamic row', () => {
     const ui = declaration('ui', {
-      external: ['@qilin/client-slots/client'],
+      external: ['@qilin-agent/client-slots/client'],
       runtimeSourceUses: {
-        '@qilin/client-slots': ['packages/client/ui/src/client/index.ts'],
+        '@qilin-agent/client-slots': ['packages/client/ui/src/client/index.ts'],
       },
     })
     const slots = declaration('slots')
     expect(collectClientPackageViolations(facts([], { declarations: [ui, slots] }))).toEqual([
       ui.manifest + ': client feature package requests runtime external '
-      + '"@qilin/client-slots/client"; import shared types only or call an injected Cordis service',
+      + '"@qilin-agent/client-slots/client"; import shared types only or call an injected Cordis service',
     ])
   })
 
   it('rejects stale externals and accepts a runtime import outside client feature packages', () => {
     const gateway = {
-      ...declaration('@qilin/api-gateway'), manifest: 'packages/api/gateway/package.json',
+      ...declaration('@qilin-agent/api-gateway'), manifest: 'packages/api/gateway/package.json',
     }
-    const stale = { ...declaration('@qilin/api-stale', {
-      external: ['@qilin/api-gateway/client'],
+    const stale = { ...declaration('@qilin-agent/api-stale', {
+      external: ['@qilin-agent/api-gateway/client'],
     }), manifest: 'packages/api/stale/package.json' }
-    const live = { ...declaration('@qilin/api-live', {
-      external: ['@qilin/api-gateway/client'],
+    const live = { ...declaration('@qilin-agent/api-live', {
+      external: ['@qilin-agent/api-gateway/client'],
       runtimeSourceUses: {
-        '@qilin/api-gateway': ['packages/api/live/src/client/index.ts'],
+        '@qilin-agent/api-gateway': ['packages/api/live/src/client/index.ts'],
       },
       runtimeSourceSpecifiers: {
-        '@qilin/api-gateway/client': ['packages/api/live/src/client/index.ts'],
+        '@qilin-agent/api-gateway/client': ['packages/api/live/src/client/index.ts'],
       },
     }), manifest: 'packages/api/live/package.json' }
     expect(collectClientPackageViolations(facts([], {
       declarations: [gateway, stale, live],
     }))).toEqual([
-      stale.manifest + ': qilin.client.external "@qilin/api-gateway/client"'
+      stale.manifest + ': qilin.client.external "@qilin-agent/api-gateway/client"'
       + ' has no runtime import or re-export in production source; remove the stale declaration',
     ])
   })
 
   it('requires the exact external subpath to be imported at runtime', () => {
     const gateway = {
-      ...declaration('@qilin/api-gateway'), manifest: 'packages/api/gateway/package.json',
+      ...declaration('@qilin-agent/api-gateway'), manifest: 'packages/api/gateway/package.json',
     }
-    const subject = { ...declaration('@qilin/api-session-controller', {
-      external: ['@qilin/api-gateway/client'],
+    const subject = { ...declaration('@qilin-agent/api-session-controller', {
+      external: ['@qilin-agent/api-gateway/client'],
       runtimeSourceUses: {
-        '@qilin/api-gateway': ['packages/api/session-controller/src/client/index.ts'],
+        '@qilin-agent/api-gateway': ['packages/api/session-controller/src/client/index.ts'],
       },
       runtimeSourceSpecifiers: {
-        '@qilin/api-gateway/remote': ['packages/api/session-controller/src/client/index.ts'],
+        '@qilin-agent/api-gateway/remote': ['packages/api/session-controller/src/client/index.ts'],
       },
     }), manifest: 'packages/api/session-controller/package.json' }
     expect(collectClientPackageViolations(facts([], { declarations: [gateway, subject] }))).toEqual([
-      subject.manifest + ': qilin.client.external "@qilin/api-gateway/client"'
+      subject.manifest + ': qilin.client.external "@qilin-agent/api-gateway/client"'
       + ' has no runtime import or re-export in production source; remove the stale declaration',
     ])
   })
@@ -255,8 +255,8 @@ describe('module requests', () => {
 
   it('rejects duplicates, empty values, self-requests, and missing suppliers', () => {
     const ui = declaration('ui', {
-      external: ['', '@qilin/client-ui', '@qilin/missing', '@qilin/missing'],
-      inject: ['', '@qilin/a', '@qilin/a'],
+      external: ['', '@qilin-agent/client-ui', '@qilin-agent/missing', '@qilin-agent/missing'],
+      inject: ['', '@qilin-agent/a', '@qilin-agent/a'],
     })
     const found = collectClientPackageViolations(facts([], { declarations: [ui] }))
     expect(found).toHaveLength(6)
@@ -267,17 +267,17 @@ describe('module requests', () => {
   })
 
   it('rejects synchronous module-request cycles but ignores inject cycles', () => {
-    const a = { ...declaration('@qilin/api-a', {
-      external: ['@qilin/api-b'],
-      inject: ['@qilin/api-b'],
-      runtimeSourceUses: { '@qilin/api-b': ['packages/api/a/src/client.ts'] },
-      runtimeSourceSpecifiers: { '@qilin/api-b': ['packages/api/a/src/client.ts'] },
+    const a = { ...declaration('@qilin-agent/api-a', {
+      external: ['@qilin-agent/api-b'],
+      inject: ['@qilin-agent/api-b'],
+      runtimeSourceUses: { '@qilin-agent/api-b': ['packages/api/a/src/client.ts'] },
+      runtimeSourceSpecifiers: { '@qilin-agent/api-b': ['packages/api/a/src/client.ts'] },
     }), manifest: 'packages/api/a/package.json' }
-    const b = { ...declaration('@qilin/api-b', {
-      external: ['@qilin/api-a'],
-      inject: ['@qilin/api-a'],
-      runtimeSourceUses: { '@qilin/api-a': ['packages/client/b/src/client.ts'] },
-      runtimeSourceSpecifiers: { '@qilin/api-a': ['packages/client/b/src/client.ts'] },
+    const b = { ...declaration('@qilin-agent/api-b', {
+      external: ['@qilin-agent/api-a'],
+      inject: ['@qilin-agent/api-a'],
+      runtimeSourceUses: { '@qilin-agent/api-a': ['packages/client/b/src/client.ts'] },
+      runtimeSourceSpecifiers: { '@qilin-agent/api-a': ['packages/client/b/src/client.ts'] },
     }), manifest: 'packages/api/b/package.json' }
     const found = collectClientPackageViolations(facts([], { declarations: [a, b] }))
     expect(found).toHaveLength(1)
@@ -312,19 +312,19 @@ describe('manifest declarations', () => {
     const root = mkdtempSync(join(tmpdir(), 'client-packages-fix-'))
     roots.push(root)
     const subject = pkg('feature', {
-      external: ['', 'react', '@qilin/client-feature', '@qilin/missing'],
-      inject: ['', '@qilin/agent', '@qilin/agent'],
+      external: ['', 'react', '@qilin-agent/client-feature', '@qilin-agent/missing'],
+      inject: ['', '@qilin-agent/agent', '@qilin-agent/agent'],
       sourceUses: {
-        '@qilin/agent': ['packages/client/feature/src/index.ts'],
-        '@qilin/client-ui-slots': ['packages/client/feature/src/view.tsx'],
+        '@qilin-agent/agent': ['packages/client/feature/src/index.ts'],
+        '@qilin-agent/client-ui-slots': ['packages/client/feature/src/view.tsx'],
       },
       dependencies: {
         [CORDIS]: 'workspace:^',
-        '@qilin/agent': 'workspace:*',
+        '@qilin-agent/agent': 'workspace:*',
       },
       peerDependencies: {
-        '@qilin/client-ui-slots': 'workspace:^',
-        '@qilin/kylin-plugin-loader': 'workspace:^',
+        '@qilin-agent/client-ui-slots': 'workspace:^',
+        '@qilin-agent/kylin-plugin-loader': 'workspace:^',
       },
       devDependencies: {},
     })
@@ -353,8 +353,8 @@ describe('manifest declarations', () => {
       devDependencies: Record<string, string>
     }
     expect(fixed.qilin.client).toMatchObject({
-      external: ['@qilin/missing'],
-      inject: ['@qilin/agent'],
+      external: ['@qilin-agent/missing'],
+      inject: ['@qilin-agent/agent'],
     })
     expect(fixed.dependencies).toEqual(subject.dependencies)
     expect(fixed.peerDependencies).toEqual(subject.peerDependencies)

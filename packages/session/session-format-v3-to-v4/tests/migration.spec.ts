@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { restoreReleasedV3Artifact } from '@qilin/session-format-v2-to-v3'
-import { SessionFormatEventCollector } from '@qilin/session-format'
-import type { SessionFormatEvent, SessionFormatHeader, SessionFormatJsonObject } from '@qilin/session-format'
-import { createSessionFormatCatalogWithChildren, historicalSessionFormatCatalog, sessionFormatCatalog } from '@qilin/session-format-catalog'
+import { restoreReleasedV3Artifact } from '@qilin-agent/session-format-v2-to-v3'
+import { SessionFormatEventCollector } from '@qilin-agent/session-format'
+import type { SessionFormatEvent, SessionFormatHeader, SessionFormatJsonObject } from '@qilin-agent/session-format'
+import { createSessionFormatCatalogWithChildren, historicalSessionFormatCatalog, sessionFormatCatalog } from '@qilin-agent/session-format-catalog'
 import { releasedV3SessionFormatCodec, createSessionFormatV3ToV4, sessionFormatV3ToV4 } from '../src/index.ts'
 
 const header: SessionFormatHeader = { version: 3, id: 'identity', createdAt: 1, isSeeded: false, delegationDepth: 0 }

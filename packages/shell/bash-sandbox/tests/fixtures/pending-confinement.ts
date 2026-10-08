@@ -1,10 +1,10 @@
 /** Snapshot provider that awaits cancellation and records any premature process allocation. */
 import { writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import type { Context } from '@qilin/kylin'
-import { SandboxProvider } from '@qilin/sandbox'
-import type { ConfinedArgv, SandboxPolicy } from '@qilin/sandbox'
-import LocalSubprocessRuntime from '@qilin/subprocess-local'
+import type { Context } from '@qilin-agent/kylin'
+import { SandboxProvider } from '@qilin-agent/sandbox'
+import type { ConfinedArgv, SandboxPolicy } from '@qilin-agent/sandbox'
+import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
 
 export const name = 'snapshot-pending-confinement'
 

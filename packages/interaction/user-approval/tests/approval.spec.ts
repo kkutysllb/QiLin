@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import { ToolCallId } from '@qilin/llm'
-import { carrierKeyOf, createScope } from '@qilin/scope'
-import type { Scope } from '@qilin/scope'
-import SessionStore, { Session, SessionId } from '@qilin/session'
-import type { SessionEvent } from '@qilin/session'
-import SystemPrompt from '@qilin/system-prompt'
-import ApprovalService, { ApprovalOutcome, ApprovalRequest, setApprovalPolicy } from '@qilin/user-approval'
+import { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import { ToolCallId } from '@qilin-agent/llm'
+import { carrierKeyOf, createScope } from '@qilin-agent/scope'
+import type { Scope } from '@qilin-agent/scope'
+import SessionStore, { Session, SessionId } from '@qilin-agent/session'
+import type { SessionEvent } from '@qilin-agent/session'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ApprovalService, { ApprovalOutcome, ApprovalRequest, setApprovalPolicy } from '@qilin-agent/user-approval'
 
 /**
  * A minimal Agent stand-in — the service only reaches `agent.session.append`

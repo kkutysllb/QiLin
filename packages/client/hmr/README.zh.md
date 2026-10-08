@@ -3,13 +3,13 @@ description: "Web 客户端插件的动态图同步与开发时 bundle 重载。
 kind: "package-reference"
 ---
 
-# @qilin/client-hmr
+# @qilin-agent/client-hmr
 
 [English](README.md) | 中文
 
 ## 概述
 
-`@qilin/client-hmr` 让已打开的 Web 页面与 Host 插件图保持同步，并重载重建后的浏览器 bundle。普通插件的启停无需刷新页面或重启 Host 即可生效。代码重建会替换受影响插件并重置其组件状态。模型不会收到新的输入或输出。
+`@qilin-agent/client-hmr` 让已打开的 Web 页面与 Host 插件图保持同步，并重载重建后的浏览器 bundle。普通插件的启停无需刷新页面或重启 Host 即可生效。代码重建会替换受影响插件并重置其组件状态。模型不会收到新的输入或输出。
 
 ## 目录
 
@@ -41,7 +41,7 @@ kind: "package-reference"
 |---|---|---|
 | `pollIntervalMs` | `500` | bundle stat 轮询间隔，单位为毫秒 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#qilinclient-hmr)是每个受支持字段及其 JSDoc 的穷尽式真源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#qilin-agentclient-hmr)是每个受支持字段及其 JSDoc 的穷尽式真源。
 
 ### 观察成功
 
@@ -93,7 +93,7 @@ fiber 的激活 epoch 会串联其服务提供方的 uid，因此替换提供方
 - [客户端模块系统](../modules/README.zh.md)——本驱动器驱动的惰性 CJS 模块表与 `invalidate`/`prefetch` 钩子。
 - [Web 启动内核](../web/README.zh.md)——启动插件树并展示 entry 状态的外壳。
 - [客户端组地图](../README.zh.md)——本包重载的浏览器半侧。
-- [生成配置目录](../../../docs/config-catalog.zh.md#qilinclient-hmr)——每个受支持配置字段及其源声明。
+- [生成配置目录](../../../docs/config-catalog.zh.md#qilin-agentclient-hmr)——每个受支持配置字段及其源声明。
 
 -----
 

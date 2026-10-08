@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createUserMessage } from '@qilin/llm'
-import { Session, SessionId, SessionSeq } from '@qilin/session'
-import { renderPrompt } from '@qilin/system-prompt'
+import { Context } from '@qilin-agent/kylin'
+import { createUserMessage } from '@qilin-agent/llm'
+import { Session, SessionId, SessionSeq } from '@qilin-agent/session'
+import { renderPrompt } from '@qilin-agent/system-prompt'
 import {
   createInboxStub,
   mountAgentLoopTestDependencies,

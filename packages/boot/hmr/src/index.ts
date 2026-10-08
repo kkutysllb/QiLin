@@ -2,23 +2,23 @@
 import assert from 'node:assert/strict'
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { watchConfig as watchExactConfig } from './watch-config.ts'
-import { Context, Inject, Service, type Fiber, type Plugin } from '@qilin/kylin'
-import type { ModuleLoader, ModuleJob, ResolveResult } from '@qilin/kylin-plugin-loader'
-import type { Include } from '@qilin/kylin-plugin-include'
+import { Context, Inject, Service, type Fiber, type Plugin } from '@qilin-agent/kylin'
+import type { ModuleLoader, ModuleJob, ResolveResult } from '@qilin-agent/kylin-plugin-loader'
+import type { Include } from '@qilin-agent/kylin-plugin-include'
 import { FSWatcher, watch, type ChokidarOptions } from 'chokidar'
 import { basename, dirname, join, relative, resolve, sep } from 'node:path'
 import { readFileSync, realpathSync } from 'node:fs'
-import { readProfileManifest, readProfilePatches, reconcileProfilePatches, PROFILE_PATCH_FILENAME } from '@qilin/app-boot'
-import type {} from '@qilin/cmdline'
+import { readProfileManifest, readProfilePatches, reconcileProfilePatches, PROFILE_PATCH_FILENAME } from '@qilin-agent/app-boot'
+import type {} from '@qilin-agent/cmdline'
 import { handleError } from './error.ts'
 import { PackageManifests } from './package-manifest.ts'
-import type {} from '@qilin/kylin-plugin-timer'
+import type {} from '@qilin-agent/kylin-plugin-timer'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createRequire } from 'node:module'
 import picomatch from 'picomatch'
-import z from '@qilin/schemastery'
+import z from '@qilin-agent/schemastery'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Serialized plugin-code and configuration reloads. */
     hmr: Hmr

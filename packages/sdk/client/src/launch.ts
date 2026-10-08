@@ -1,6 +1,6 @@
 /**
  * Resolve the public SDK launch configuration to one qilin subprocess.
- * @module @qilin/sdk-client/launch
+ * @module @qilin-agent/sdk-client/launch
  */
 
 import { existsSync, readFileSync } from 'node:fs'
@@ -61,7 +61,7 @@ export function resolveQilinBinFromManifests(qilinManifestUrl: string, clientMan
   const bin = typeof qilinManifest.bin === 'object' && qilinManifest.bin !== null
     ? (qilinManifest.bin as Record<string, unknown>).qilin
     : qilinManifest.bin
-  if (typeof bin !== 'string' || bin === '') throw new Error('@qilin/cli declares no qilin executable')
+  if (typeof bin !== 'string' || bin === '') throw new Error('@qilin-agent/cli declares no qilin executable')
   return resolve(dirname(fileURLToPath(qilinManifestUrl)), bin)
 }
 
@@ -71,7 +71,7 @@ export function resolveQilinBinFromManifests(qilinManifestUrl: string, clientMan
  */
 export function installedQilinBin(): string {
   return resolveQilinBinFromManifests(
-    import.meta.resolve('@qilin/cli/package.json'),
+    import.meta.resolve('@qilin-agent/cli/package.json'),
     new URL('../package.json', import.meta.url).href,
   )
 }
@@ -97,7 +97,7 @@ export function resolveQilinNodeLaunchFromManifests(
   const sourceTsconfig = resolve(packageDir, 'tsconfig.json')
   if (!existsSync(sourceBin) || !existsSync(sourcePatch) || !existsSync(sourceTsconfig)) {
     throw new Error(
-      `@qilin/cli is missing its built executable ${bin} and complete source launch files ${sourceBin}, ${sourcePatch}, ${sourceTsconfig}`,
+      `@qilin-agent/cli is missing its built executable ${bin} and complete source launch files ${sourceBin}, ${sourcePatch}, ${sourceTsconfig}`,
     )
   }
   const loader = sourceLoaderUrl ?? import.meta.resolve('tsx/esm')
@@ -114,7 +114,7 @@ export function resolveQilinNodeLaunchFromManifests(
  */
 function installedQilinNodeLaunch(): QilinNodeLaunch {
   return resolveQilinNodeLaunchFromManifests(
-    import.meta.resolve('@qilin/cli/package.json'),
+    import.meta.resolve('@qilin-agent/cli/package.json'),
     new URL('../package.json', import.meta.url).href,
   )
 }

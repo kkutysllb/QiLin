@@ -2,15 +2,15 @@
 // codes. Session Controller owns catalog observation and transport.
 
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import AttachmentStore, { AttachmentError } from '@qilin/attachment'
-import type { MessageId } from '@qilin/llm'
-import { SessionId } from '@qilin/session'
+import { Context } from '@qilin-agent/kylin'
+import AttachmentStore, { AttachmentError } from '@qilin-agent/attachment'
+import type { MessageId } from '@qilin-agent/llm'
+import { SessionId } from '@qilin-agent/session'
 import SubagentRuntime, {
   SubagentError,
   type SubagentPromptRequestId,
-} from '@qilin/subagent'
-import { deliverSubagentPrompt, type HostPromptDeliverer } from '@qilin/subagent/internal'
+} from '@qilin-agent/subagent'
+import { deliverSubagentPrompt, type HostPromptDeliverer } from '@qilin-agent/subagent/internal'
 
 const PARENT = SessionId('parent')
 const CHILD = SessionId('child')

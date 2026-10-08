@@ -2,13 +2,13 @@
 
 import { Buffer } from 'node:buffer'
 import type { IDisposable, Terminal as HeadlessTerminalType } from '@xterm/headless'
-import { createLazyRequire } from '@qilin/lazy-require'
+import { createLazyRequire } from '@qilin-agent/lazy-require'
 import type {
   SubprocessOutcome,
   SubprocessTerminalForeground,
   SubprocessTerminalHandle,
-} from '@qilin/subprocess'
-import { TerminalError } from '@qilin/terminal'
+} from '@qilin-agent/subprocess'
+import { TerminalError } from '@qilin-agent/terminal'
 import type {
   TerminalBackendSession,
   TerminalReadRequest,
@@ -21,7 +21,7 @@ import type {
   TerminalSignal,
   TerminalSignalResult,
   TerminalWaitReason,
-} from '@qilin/terminal'
+} from '@qilin-agent/terminal'
 import type { ResolvedConfig } from './config.ts'
 import { CONTROLLED_PROMPT, TerminalSanitizer } from './sanitize.ts'
 

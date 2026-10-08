@@ -16,7 +16,7 @@
 import type { ReactNode } from 'react'
 import type {
   BoundActions, HandleOf, PropsStore, SnapshotSelectorHook, StoreDecl,
-} from '@qilin/client-store'
+} from '@qilin-agent/client-store'
 import type { HostObservable, KeyedStandardSource } from './renderer.ts'
 
 export * from './store.ts'

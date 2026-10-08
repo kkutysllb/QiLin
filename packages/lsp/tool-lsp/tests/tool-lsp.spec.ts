@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { Context } from '@qilin/kylin'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
-import Lsp, { LspProviderId, type LspProvider, type LspProviderQuery, type LspQueryResult } from '@qilin/lsp'
-import * as ToolLsp from '@qilin/tool-lsp'
-import { DEFAULT_LSP_TOOL_TIMEOUT_MS, LSP_PROMPT_TEXT } from '@qilin/tool-lsp'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
+import { Context } from '@qilin-agent/kylin'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
+import Lsp, { LspProviderId, type LspProvider, type LspProviderQuery, type LspQueryResult } from '@qilin-agent/lsp'
+import * as ToolLsp from '@qilin-agent/tool-lsp'
+import { DEFAULT_LSP_TOOL_TIMEOUT_MS, LSP_PROMPT_TEXT } from '@qilin-agent/tool-lsp'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 
 /** A scripted provider recording queries; `respond` yields the result or throws. */
 function stubProvider(

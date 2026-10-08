@@ -9,24 +9,24 @@
  * decision-table contract at the `InputTriggerSource` boundary.
  */
 import './control-row-dom.ts'
-import type { GlobalStandardProps } from '@qilin/client-ui-slots'
+import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
-import type { SessionSnapshot } from '@qilin/api-session-controller/client'
-import { createSnapshotStore } from '@qilin/client-store'
-import { InputTriggerService } from '@qilin/client-ui-input-trigger/client'
+import type { SessionSnapshot } from '@qilin-agent/api-session-controller/client'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { InputTriggerService } from '@qilin-agent/client-ui-input-trigger/client'
 import type {
   ClientSessionContext, SubmitEnvelope,
-} from '@qilin/client-ui-input-trigger/client'
+} from '@qilin-agent/client-ui-input-trigger/client'
 import type {
   CommandClaim, PickOutcome, SubmitAttachment, SubmitOutcome,
 } from '../src/client/contract/input.ts'
 import {
   bindSnapshotSelector, conversationSnapshot, makeTranslate, sessionSnapshot, SlotTestRuntime,
-} from '@qilin/client-test-runtime'
-import type { SessionStatusSnapshot } from '@qilin/client-ui-session/client'
-import type { SessionId } from '@qilin/session/types'
-import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
+} from '@qilin-agent/client-test-runtime'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 import type { DraftAttachmentId } from '../src/client/contract/input.ts'
 import { SessionInputShell } from '../src/client/input/facade.ts'
 import { $replaceDetectSpanWithText } from '../src/client/input/editor/span-map.ts'

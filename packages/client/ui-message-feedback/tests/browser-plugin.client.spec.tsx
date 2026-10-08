@@ -9,15 +9,15 @@
  * and registration plus surface disposal ride the plugin fiber (HMR safety).
  * The node half stays inert.
  */
-import { Context, Service } from '@qilin/kylin'
+import { Context, Service } from '@qilin-agent/kylin'
 import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup } from '@testing-library/react'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import type { SessionId } from '@qilin/session/types'
-import { LocaleRuntime } from '@qilin/client-locale/client'
-import type { MessageId } from '@qilin/api-remotes/client'
-import type { MessageFeedbackItem, MessageFeedbackVersion } from '@qilin/message-feedback/types'
-import type { CommandDecoration } from '@qilin/client-ui-commands/client'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
+import type { MessageId } from '@qilin-agent/api-remotes/client'
+import type { MessageFeedbackItem, MessageFeedbackVersion } from '@qilin-agent/message-feedback/types'
+import type { CommandDecoration } from '@qilin-agent/client-ui-commands/client'
 import type { FeedbackDialogInjected, MessageFeedbackInjected } from '../src/client/slots.ts'
 import { apply, inject } from '../src/client/index.ts'
 import { apply as nodeApply } from '../src/index.ts'

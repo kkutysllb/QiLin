@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import * as yaml from 'js-yaml'
-import { entryListSchema } from '@qilin/kylin-plugin-include'
+import { entryListSchema } from '@qilin-agent/kylin-plugin-include'
 
 describe('Agent Teams profile bundle', () => {
   it('declares a public parseable layer with Team-owned controls', () => {
@@ -20,9 +20,9 @@ describe('Agent Teams profile bundle', () => {
     expect(manifest.publishConfig?.access).toBe('public')
     expect(manifest.qilin?.bundle?.patch).toBe('./cordis.patch.yml')
     expect(manifest.dependencies).toMatchObject({
-      '@qilin/experimental-agent-team': 'workspace:*',
-      '@qilin/experimental-client-ui-agent-team': 'workspace:*',
-      '@qilin/experimental-tool-agent-team': 'workspace:*',
+      '@qilin-agent/experimental-agent-team': 'workspace:*',
+      '@qilin-agent/experimental-client-ui-agent-team': 'workspace:*',
+      '@qilin-agent/experimental-tool-agent-team': 'workspace:*',
     })
 
     const parsed = yaml.load(
@@ -42,17 +42,17 @@ describe('Agent Teams profile bundle', () => {
     expect(patches.find(patch => patch.id === 'tool-subagent-fork')).toMatchObject({ disabled: true })
     const inserted = patches.flatMap(patch => patch.insert ?? [])
     expect(inserted.find(entry => entry.id === 'agent-team')).toMatchObject({
-      name: '@qilin/experimental-agent-team',
+      name: '@qilin-agent/experimental-agent-team',
       config: { maxMembers: 8 },
     })
     expect(inserted.find(entry => entry.id === 'tool-agent-team')).toMatchObject({
-      name: '@qilin/experimental-tool-agent-team',
+      name: '@qilin-agent/experimental-tool-agent-team',
       config: { freshProvider: 'spawn', forkProvider: 'fork' },
     })
     // The Team page travels with the capability: the browser half must be in
     // this layer, because no other layer names it.
     expect(inserted.find(entry => entry.id === 'client-ui-agent-team')).toMatchObject({
-      name: '@qilin/experimental-client-ui-agent-team',
+      name: '@qilin-agent/experimental-client-ui-agent-team',
     })
   })
 })

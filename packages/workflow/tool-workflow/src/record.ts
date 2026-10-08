@@ -5,12 +5,12 @@
  * model's `job_output` never renders — and keeps the job's live progress
  * line on the current phase. Appends against a settled job log and drop
  * inside the registry, so a straggling event after settlement is harmless.
- * @module @qilin/tool-workflow/record
+ * @module @qilin-agent/tool-workflow/record
  */
 
-import type { Context } from '@qilin/kylin'
-import type { JobHandle } from '@qilin/jobs'
-import type { WorkflowRunId } from '@qilin/workflow'
+import type { Context } from '@qilin-agent/kylin'
+import type { JobHandle } from '@qilin-agent/jobs'
+import type { WorkflowRunId } from '@qilin-agent/workflow'
 
 /** Job-ring taps for the background runs the tool tracks. */
 export interface WorkflowRecordMirror {

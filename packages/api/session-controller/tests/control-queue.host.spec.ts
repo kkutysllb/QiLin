@@ -1,17 +1,17 @@
-import { Context } from '@qilin/kylin'
-import type { Agent, Inbox, InboxState } from '@qilin/agent'
-import { createUserMessage } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import { SessionId } from '@qilin/session'
+import { Context } from '@qilin-agent/kylin'
+import type { Agent, Inbox, InboxState } from '@qilin-agent/agent'
+import { createUserMessage } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import { SessionId } from '@qilin-agent/session'
 import { afterEach, describe, expect, it } from 'vitest'
 import { SessionControlController } from '../src/control.ts'
 import type { SessionControlFrame } from '../src/types.ts'
 import {
   mountAgentLoopTestDependencies,
   mountAgentLoopTestHarness,
-} from '@qilin/agent-loop-testkit'
+} from '@qilin-agent/agent-loop-testkit'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'fixture': { kind: 'fixture' } & ContextFormed
   }

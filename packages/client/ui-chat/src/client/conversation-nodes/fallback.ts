@@ -1,8 +1,8 @@
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   ConversationNodeDefinition, UnknownSurfaceNode,
-} from '@qilin/client-ui-conversation/client'
-import { isAppendSurfaceEvent } from '@qilin/session/surface'
+} from '@qilin-agent/client-ui-conversation/client'
+import { isAppendSurfaceEvent } from '@qilin-agent/session/surface'
 import { chatNode } from './common.ts'
 
 declare module '../contract/chat-nodes.ts' {

@@ -1,5 +1,5 @@
 /** Shell-owned About page for the QiLin settings surface. */
-import type { PropsLocale, PropsRenderSlots, PropsRuntime } from '@qilin/client-ui-slots'
+import type { PropsLocale, PropsRenderSlots, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import css from './AboutSection.module.css'
 
 /** Props for the About settings section and its brand-mark child slot. */

@@ -7,24 +7,24 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import SubagentRuntime from '@qilin/subagent'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import type { Agent, AgentOptions } from '@qilin/agent'
+import SubagentRuntime from '@qilin-agent/subagent'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import type { Agent, AgentOptions } from '@qilin-agent/agent'
 import {
   DeepSeekHarness,
   HarnessClient,
   HarnessSession,
   SdkProtocolError,
-} from '@qilin/sdk-client'
+} from '@qilin-agent/sdk-client'
 import { createProcessDeepSeekHarness } from '../../../sdk/client/src/api.ts'
 import type { RuntimeProcessOptions } from '../../../sdk/client/src/launch.ts'
-import type { DeepSeekHarnessOptions } from '@qilin/sdk-client'
-import { ReasoningEffortId } from '@qilin/llm'
+import type { DeepSeekHarnessOptions } from '@qilin-agent/sdk-client'
+import { ReasoningEffortId } from '@qilin-agent/llm'
 import * as sdk from '../src/index.ts'
 import {
   DEFAULT_DISPOSE_EOF_GRACE_MS,
@@ -155,7 +155,7 @@ describe('sdkChildOutcome', () => {
 describe('qilin-subagent-qilin-sdk provider', () => {
   it('constructs the production qilin-backed harness lazily', async () => {
     const harness = defaultCreateHarness({})
-    expect(harness).toBeInstanceOf((await import('@qilin/sdk-client')).DeepSeekHarness)
+    expect(harness).toBeInstanceOf((await import('@qilin-agent/sdk-client')).DeepSeekHarness)
     await harness.close()
   })
 

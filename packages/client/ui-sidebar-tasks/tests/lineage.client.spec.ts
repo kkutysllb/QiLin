@@ -4,7 +4,7 @@
  * guard that makes a cyclic parent an ordinary stop.
  */
 import { describe, expect, it } from 'vitest'
-import type { SessionId } from '@qilin/session/types'
+import type { SessionId } from '@qilin-agent/session/types'
 import { indexSubagentDescendants } from '../src/client/lineage.ts'
 
 const sid = (value: string): SessionId => value as SessionId

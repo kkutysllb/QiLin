@@ -21,12 +21,12 @@ import {
   IconChevronDownOutline14, IconCloseOutline16, IconFullscreenOutline16,
   IconGaugeOutline16, IconPaperclipOutline16, IconPauseOutline16, IconPlayOutline16, IconStopFill16,
   ImageLightbox, MarkdownText,
-} from '@qilin/client-ui-primitives'
-import type { ImageLightboxLabels } from '@qilin/client-ui-primitives'
-import type { MessageImageLoader } from '@qilin/client-ui-conversation/client'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-primitives'
+import type { ImageLightboxLabels } from '@qilin-agent/client-ui-primitives'
+import type { MessageImageLoader } from '@qilin-agent/client-ui-conversation/client'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 // Type-only: the 'sidebar.right.pane.tab' SlotMap row.
-import type {} from '@qilin/client-ui-sidebar-right/client'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
 import type { TrajectoryKey, TrajectoryTranslate } from './locales.ts'
 import {
   ZOOM_MAX, ZOOM_MIN, ZOOM_WHEEL_STEP, anchoredScroll, clamp, hopDelay, nextSpeed,

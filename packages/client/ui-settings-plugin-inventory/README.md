@@ -3,7 +3,7 @@ description: "Scope-grouped read-only plugin inventory tab in Web Plugins settin
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-settings-plugin-inventory
+# @qilin-agent/client-ui-settings-plugin-inventory
 
 English | [中文](README.zh.md)
 

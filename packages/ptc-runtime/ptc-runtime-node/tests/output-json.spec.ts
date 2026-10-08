@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { PtcJsonValue } from '@qilin/ptc-runtime'
+import type { PtcJsonValue } from '@qilin-agent/ptc-runtime'
 import { jsonStringBytesUpTo, jsonValueBytesUpTo, truncateJsonStringBytes } from '../src/output-json.ts'
 
 describe('truncateJsonStringBytes', () => {

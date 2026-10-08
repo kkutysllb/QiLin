@@ -7,15 +7,15 @@
  * document. The plugin also registers the Appearance preference row into the
  * settings General section — the theme feature owns its own settings surface.
  */
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { BoundActions } from '@qilin/client-ui-slots'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { BoundActions } from '@qilin-agent/client-ui-slots'
 // Type-only: the ctx.configForms Context merge. Cross-plugin collaboration
 // goes through the service, never a value import (client bundle purity gate).
-import type { ConfigForm } from '@qilin/client-ui-settings/client'
+import type { ConfigForm } from '@qilin-agent/client-ui-settings/client'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
-import type {} from '@qilin/client-locale/client'
+import type {} from '@qilin-agent/client-locale/client'
 // Type-only: pulls the SlotRegistry service merge (ctx.slots).
-import type {} from '@qilin/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
 import type { FontSizeRowInjected } from './FontSizeRow.tsx'
 import { FontSizeRow } from './FontSizeRow.tsx'
 import type { LineSpacingRowInjected } from './LineSpacingRow.tsx'
@@ -43,7 +43,7 @@ export type { ThemePreference, ThemeSettings } from '../theme-settings.ts'
 /** Namespace owning this feature's settings-row copy. */
 export const SETTINGS_NS = 'settings.theme'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** The Appearance settings row's copy. */
     'settings.theme': ThemeKey
@@ -115,7 +115,7 @@ export interface ThemeTokenInspection {
   cssVariable?: string
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     theme: ThemeRuntime
   }

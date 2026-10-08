@@ -1,9 +1,9 @@
 /** Chat-owned conversion from durable Session events to Chat view data. */
 
-import type { ContentBlock, StreamChunk } from '@qilin/llm/types'
+import type { ContentBlock, StreamChunk } from '@qilin-agent/llm/types'
 import type {
   AssistantBlock, ContextProducerView, KnownContextForm,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 
 /* jscpd:ignore-start -- Chat and Trajectory own independent event-to-view projections. */
 

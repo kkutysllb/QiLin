@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/api-workspace-files",
+  "name": "@qilin-agent/api-workspace-files",
   "description": "Workspace file service and Client resource provider: bounded reads, directory listing, and live metadata over the workspaceFiles Remote namespace",
   "version": "3.1.1",
   "publishConfig": {
@@ -43,8 +43,8 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/api-gateway",
-        "@qilin/client-resources"
+        "@qilin-agent/api-gateway",
+        "@qilin-agent/client-resources"
       ],
       "platform": "web"
     }
@@ -55,25 +55,25 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@qilin/deque": "workspace:*",
-    "@qilin/typert-protocol": "workspace:*",
-    "@qilin/schemastery": "workspace:~",
+    "@qilin-agent/deque": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~",
     "zod": "^4.4.3",
-    "@qilin/fs": "workspace:*"
+    "@qilin-agent/fs": "workspace:*"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/api-gateway": "workspace:*",
-    "@qilin/client-resources": "workspace:*",
-    "@qilin/client-ui-slots": "workspace:*",
-    "@qilin/sandbox": "workspace:*",
-    "@qilin/sandbox-policy": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-persistence": "workspace:*",
-    "@qilin/util-workspace-path": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/api-gateway": "workspace:*",
+    "@qilin-agent/client-resources": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/sandbox": "workspace:*",
+    "@qilin-agent/sandbox-policy": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-persistence": "workspace:*",
+    "@qilin-agent/util-workspace-path": "workspace:*"
   },
   "files": [
     "lib/index.js",

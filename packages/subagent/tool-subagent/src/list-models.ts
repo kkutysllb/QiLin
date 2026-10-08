@@ -1,9 +1,9 @@
 /** Model-facing discovery of LLM routes available to child Agents. */
 
-import type { Context } from '@qilin/kylin'
-import type LlmRuntime from '@qilin/llm'
-import type { LlmProviderInfo } from '@qilin/llm'
-import { defineTool } from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import type LlmRuntime from '@qilin-agent/llm'
+import type { LlmProviderInfo } from '@qilin-agent/llm'
+import { defineTool } from '@qilin-agent/tools'
 import type { ModelSelectionPolicy } from './model-selection.ts'
 
 interface ListSubagentModelsRequest {

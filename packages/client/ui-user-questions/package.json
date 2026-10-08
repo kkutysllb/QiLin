@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-ui-user-questions",
+  "name": "@qilin-agent/client-ui-user-questions",
   "description": "Web ask_user_question composer takeover and plan-review presentation UI",
   "version": "3.1.1",
   "publishConfig": {
@@ -31,12 +31,12 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/api-remotes",
-        "@qilin/api-session-controller",
-        "@qilin/client-locale",
-        "@qilin/client-ui-conversation",
-        "@qilin/client-ui-renderer",
-        "@qilin/client-ui-session"
+        "@qilin-agent/api-remotes",
+        "@qilin-agent/api-session-controller",
+        "@qilin-agent/client-locale",
+        "@qilin-agent/client-ui-conversation",
+        "@qilin-agent/client-ui-renderer",
+        "@qilin-agent/client-ui-session"
       ],
       "platform": "web"
     }
@@ -47,33 +47,33 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/api-remotes": "workspace:*",
-    "@qilin/api-session-controller": "workspace:*",
-    "@qilin/client-connection": "workspace:*",
-    "@qilin/client-locale": "workspace:*",
-    "@qilin/client-store": "workspace:*",
-    "@qilin/client-ui-chat": "workspace:*",
-    "@qilin/client-ui-conversation": "workspace:*",
-    "@qilin/client-ui-primitives": "workspace:*",
-    "@qilin/client-ui-renderer": "workspace:*",
-    "@qilin/client-ui-session": "workspace:*",
-    "@qilin/client-ui-slots": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/typert-protocol": "workspace:*",
-    "@qilin/user-questions": "workspace:*",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/api-remotes": "workspace:*",
+    "@qilin-agent/api-session-controller": "workspace:*",
+    "@qilin-agent/client-connection": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/client-ui-chat": "workspace:*",
+    "@qilin-agent/client-ui-conversation": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-session": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*",
+    "@qilin-agent/user-questions": "workspace:*",
     "@types/react": "~18.3.1",
     "clsx": "^2.0.0",
     "react": "^18.2.0",
-    "@qilin/client-ui-tool": "workspace:*",
-    "@qilin/brand": "workspace:*"
+    "@qilin-agent/client-ui-tool": "workspace:*",
+    "@qilin-agent/brand": "workspace:*"
   },
   "files": [
     "lib/index.js",

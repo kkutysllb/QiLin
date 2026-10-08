@@ -1,20 +1,20 @@
 /**
  * Service Definition for combined session-history reads, traces, filters, and full-text search.
  *
- * @module @qilin/session-query
+ * @module @qilin-agent/session-query
  */
 
-import { currentSessionMessageProjections } from '@qilin/session-format-catalog/message-projections'
-import { Context, Service } from '@qilin/kylin'
+import { currentSessionMessageProjections } from '@qilin-agent/session-format-catalog/message-projections'
+import { Context, Service } from '@qilin-agent/kylin'
 import {
   Session,
   SessionSeq,
   snapshotSessionEvent,
   type SessionId,
   type SessionSeq as SessionSeqType,
-} from '@qilin/session'
-import { foldSessionTitle } from '@qilin/session-title'
-import type { SessionTitleSnapshot } from '@qilin/session-title'
+} from '@qilin-agent/session'
+import { foldSessionTitle } from '@qilin-agent/session-title'
+import type { SessionTitleSnapshot } from '@qilin-agent/session-title'
 import type {
   SessionEventResultFilter,
   SessionEventSearchPage,
@@ -82,7 +82,7 @@ export {
 export { assertSessionHeadersCompatible } from './sources.ts'
 export type { SessionObservation, SessionObservationOptions } from './observation.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     sessionQuery: SessionQueryEngine
   }

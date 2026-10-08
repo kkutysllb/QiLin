@@ -17,9 +17,9 @@
  */
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import { IconClockOutline16 } from '@qilin/client-ui-primitives'
-import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
-import type { ScheduleCatalogEntry } from '@qilin/schedule/client'
+import { IconClockOutline16 } from '@qilin-agent/client-ui-primitives'
+import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type { ScheduleCatalogEntry } from '@qilin-agent/schedule/client'
 import type { CatalogSnapshot } from './catalog-source.ts'
 import { CatalogFeedback } from './CatalogFeedback.tsx'
 import { TaskDetail, useTaskDetail, type TaskDetailInjected } from './TaskDetail.tsx'

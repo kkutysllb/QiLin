@@ -48,50 +48,50 @@ describe('release families', () => {
     expect(members
       .filter(member => member.directory.startsWith('packages/experimental/'))
       .map(member => member.name)).toEqual([
-      '@qilin/experimental-agent-team-profile',
-      '@qilin/experimental-agent-team',
-      '@qilin/experimental-api-speech-to-text',
-      '@qilin/experimental-auto-review',
-      '@qilin/experimental-browser-use-chrome-devtools-mcp',
-      '@qilin/experimental-browser-use-playwright-mcp',
-      '@qilin/experimental-browser-use-runtime',
-      '@qilin/experimental-browser-use-stagehand-native',
-      '@qilin/experimental-client-ui-agent-team',
-      '@qilin/experimental-client-ui-voice-input',
-      '@qilin/experimental-computer-use-cua-driver-mcp',
-      '@qilin/experimental-computer-use-cua-driver-native',
-      '@qilin/experimental-inspector-profile',
-      '@qilin/experimental-inspector',
-      '@qilin/experimental-ptc-runtime-python',
-      '@qilin/experimental-schedule-bundle',
-      '@qilin/experimental-session-inspector',
-      '@qilin/experimental-speech-to-text-sensevoice',
-      '@qilin/experimental-speech-to-text',
-      '@qilin/experimental-tool-agent-team',
-      '@qilin/experimental-voice-input-bundle',
-      '@qilin/experimental-webworker-packer',
-      '@qilin/experimental-webworker-runtime',
+      '@qilin-agent/experimental-agent-team-profile',
+      '@qilin-agent/experimental-agent-team',
+      '@qilin-agent/experimental-api-speech-to-text',
+      '@qilin-agent/experimental-auto-review',
+      '@qilin-agent/experimental-browser-use-chrome-devtools-mcp',
+      '@qilin-agent/experimental-browser-use-playwright-mcp',
+      '@qilin-agent/experimental-browser-use-runtime',
+      '@qilin-agent/experimental-browser-use-stagehand-native',
+      '@qilin-agent/experimental-client-ui-agent-team',
+      '@qilin-agent/experimental-client-ui-voice-input',
+      '@qilin-agent/experimental-computer-use-cua-driver-mcp',
+      '@qilin-agent/experimental-computer-use-cua-driver-native',
+      '@qilin-agent/experimental-inspector-profile',
+      '@qilin-agent/experimental-inspector',
+      '@qilin-agent/experimental-ptc-runtime-python',
+      '@qilin-agent/experimental-schedule-bundle',
+      '@qilin-agent/experimental-session-inspector',
+      '@qilin-agent/experimental-speech-to-text-sensevoice',
+      '@qilin-agent/experimental-speech-to-text',
+      '@qilin-agent/experimental-tool-agent-team',
+      '@qilin-agent/experimental-voice-input-bundle',
+      '@qilin-agent/experimental-webworker-packer',
+      '@qilin-agent/experimental-webworker-runtime',
     ])
   })
 
   it('excludes private applications from the publish set', () => {
     const root = mkdtempSync(join(tmpdir(), 'qilin-release-private-'))
     roots.push(root)
-    write(join(root, 'apps/public/package.json'), '{"name":"@qilin/public","version":"0.0.1"}\n')
-    write(join(root, 'apps/private/package.json'), '{"name":"@qilin/private","version":"0.0.1","private":true}\n')
+    write(join(root, 'apps/public/package.json'), '{"name":"@qilin-agent/public","version":"0.0.1"}\n')
+    write(join(root, 'apps/private/package.json'), '{"name":"@qilin-agent/private","version":"0.0.1","private":true}\n')
 
-    expect(releaseFamily('qilin').members(root).map(entry => entry.name)).toEqual(['@qilin/public'])
+    expect(releaseFamily('qilin').members(root).map(entry => entry.name)).toEqual(['@qilin-agent/public'])
   })
 
   it('publishes every rescoped vendored package', () => {
     const root = mkdtempSync(join(tmpdir(), 'qilin-release-vendor-'))
     roots.push(root)
-    write(join(root, 'vendor/cordis/package.json'), '{"name":"@qilin/kylin","version":"4.0.2"}\n')
-    write(join(root, 'vendor/cosmokit/package.json'), '{"name":"@qilin/cosmokit","version":"1.8.3"}\n')
-    write(join(root, 'vendor/schemastery/package.json'), '{"name":"@qilin/schemastery","version":"3.18.2"}\n')
+    write(join(root, 'vendor/cordis/package.json'), '{"name":"@qilin-agent/kylin","version":"4.0.2"}\n')
+    write(join(root, 'vendor/cosmokit/package.json'), '{"name":"@qilin-agent/cosmokit","version":"1.8.3"}\n')
+    write(join(root, 'vendor/schemastery/package.json'), '{"name":"@qilin-agent/schemastery","version":"3.18.2"}\n')
 
     expect(releaseFamily('vendor').members(root).map(entry => entry.name))
-      .toEqual(['@qilin/kylin', '@qilin/cosmokit', '@qilin/schemastery'])
+      .toEqual(['@qilin-agent/kylin', '@qilin-agent/cosmokit', '@qilin-agent/schemastery'])
   })
 
   it('rejects a vendored package that is not rescoped', () => {
@@ -99,7 +99,7 @@ describe('release families', () => {
     roots.push(root)
     write(join(root, 'vendor/foreign/package.json'), '{"name":"@other/foreign","version":"1.0.0"}\n')
 
-    expect(() => releaseFamily('vendor').members(root)).toThrow(/must name a @qilin package/)
+    expect(() => releaseFamily('vendor').members(root)).toThrow(/must name a @qilin-agent package/)
   })
 
   it('rejects a foreign-scope member of the qilin family', () => {
@@ -107,25 +107,25 @@ describe('release families', () => {
     roots.push(root)
     write(join(root, 'packages/core/foreign/package.json'), '{"name":"@other/foreign","version":"0.0.1"}\n')
 
-    expect(() => releaseFamily('qilin').members(root)).toThrow(/must name a @qilin package/)
+    expect(() => releaseFamily('qilin').members(root)).toThrow(/must name a @qilin-agent package/)
   })
 
   it('publishes unlisted experimental packages while retaining private exclusions', () => {
     const root = mkdtempSync(join(tmpdir(), 'qilin-release-experimental-'))
     roots.push(root)
     write(join(root, 'packages/experimental/prototype/package.json'), JSON.stringify({
-      name: '@qilin/experimental-prototype',
+      name: '@qilin-agent/experimental-prototype',
       version: '0.0.1',
       publishConfig: { access: 'public' },
     }))
     write(join(root, 'packages/experimental/inspector/package.json'), JSON.stringify({
-      name: '@qilin/experimental-inspector',
+      name: '@qilin-agent/experimental-inspector',
       version: '0.0.1',
       private: true,
     }))
 
     expect(releaseFamily('qilin').members(root).map(entry => entry.name)).toEqual([
-      '@qilin/experimental-prototype',
+      '@qilin-agent/experimental-prototype',
     ])
   })
 
@@ -138,7 +138,7 @@ describe('release families', () => {
     write(join(root, 'packages/core/unselected/package.json'), '{"version":"0.0.1"}\n')
 
     const qilin = releaseFamily('qilin')
-    const published = member('packages/core/published', '@qilin/published')
+    const published = member('packages/core/published', '@qilin-agent/published')
     const { planned } = planShared(qilin, root, [published], '0.0.2')
 
     expect(planned.map(entry => ({ path: entry.manifestPath, tag: entry.tag }))).toEqual([
@@ -157,7 +157,7 @@ describe('release families', () => {
       write(join(root, 'package.json'), '{"version":"0.0.1"}\n')
 
       const qilin = releaseFamily('qilin')
-      const published = member('packages/core/published', '@qilin/published')
+      const published = member('packages/core/published', '@qilin-agent/published')
       const plan = planShared(qilin, root, [published], version)
 
       expect(plan.version).toBe(version)
@@ -168,8 +168,8 @@ describe('release families', () => {
   it('names one tag for the whole qilin family and one per vendored package', () => {
     const qilin = releaseFamily('qilin')
     const vendor = releaseFamily('vendor')
-    const cli = member('apps/cli', '@qilin/cli')
-    const cordis = { ...member('vendor/cordis', '@qilin/kylin'), version: '4.0.1' }
+    const cli = member('apps/cli', '@qilin-agent/cli')
+    const cordis = { ...member('vendor/cordis', '@qilin-agent/kylin'), version: '4.0.1' }
 
     expect(qilin.tagFor(cli)).toBe('v0.0.1')
     expect(vendor.tagFor(cordis)).toBe('vendor-cordis-v4.0.1')
@@ -193,7 +193,7 @@ describe('release families', () => {
 
   it('rejects a family whose members disagree on the shared version', () => {
     const qilin = releaseFamily('qilin')
-    const members = [member('apps/cli', '@qilin/cli'), { ...member('apps/web', '@qilin/web-frontend'), version: '0.0.2' }]
+    const members = [member('apps/cli', '@qilin-agent/cli'), { ...member('apps/web', '@qilin-agent/web-frontend'), version: '0.0.2' }]
 
     expect(() => { qilin.verifyVersions(members) }).toThrow(/must share one version/)
     expect(() => { qilin.verifyVersions([members[0]!]) }).not.toThrow()
@@ -202,8 +202,8 @@ describe('release families', () => {
   it('accepts independent vendored versions and rejects an unpublishable one', () => {
     const vendor = releaseFamily('vendor')
     const members = [
-      { ...member('vendor/cordis', '@qilin/kylin'), version: '4.0.1' },
-      { ...member('vendor/cosmokit', '@qilin/cosmokit'), version: '1.8.2' },
+      { ...member('vendor/cordis', '@qilin-agent/kylin'), version: '4.0.1' },
+      { ...member('vendor/cosmokit', '@qilin-agent/cosmokit'), version: '1.8.2' },
     ]
 
     expect(() => { vendor.verifyVersions(members) }).not.toThrow()
@@ -232,23 +232,23 @@ describe('release families', () => {
   it('publishes a dependency before its consumer, and orders ties by name', () => {
     const qilin = releaseFamily('qilin')
     const members = [
-      member('packages/a/consumer', '@qilin/consumer', { dependencies: { '@qilin/library': 'workspace:^' } }),
-      member('packages/a/library', '@qilin/library'),
-      member('packages/a/zebra', '@qilin/zebra'),
+      member('packages/a/consumer', '@qilin-agent/consumer', { dependencies: { '@qilin-agent/library': 'workspace:^' } }),
+      member('packages/a/library', '@qilin-agent/library'),
+      member('packages/a/zebra', '@qilin-agent/zebra'),
     ]
 
     expect(qilin.publishOrder(members).order.map(entry => entry.name)).toEqual([
-      '@qilin/library',
-      '@qilin/consumer',
-      '@qilin/zebra',
+      '@qilin-agent/library',
+      '@qilin-agent/consumer',
+      '@qilin-agent/zebra',
     ])
   })
 
   it('reports a runtime dependency cycle instead of emitting an arbitrary order', () => {
     const qilin = releaseFamily('qilin')
     const members = [
-      member('packages/a/left', '@qilin/left', { dependencies: { '@qilin/right': 'workspace:^' } }),
-      member('packages/a/right', '@qilin/right', { dependencies: { '@qilin/left': 'workspace:^' } }),
+      member('packages/a/left', '@qilin-agent/left', { dependencies: { '@qilin-agent/right': 'workspace:^' } }),
+      member('packages/a/right', '@qilin-agent/right', { dependencies: { '@qilin-agent/left': 'workspace:^' } }),
     ]
 
     expect(() => { qilin.publishOrder(members) }).toThrow(/dependency cycle/)
@@ -257,44 +257,44 @@ describe('release families', () => {
   it('publishes a peer before its consumer', () => {
     const qilin = releaseFamily('qilin')
     const members = [
-      member('packages/a/consumer', '@qilin/consumer', { peerDependencies: { '@qilin/zebra': 'workspace:^' } }),
-      member('packages/a/zebra', '@qilin/zebra'),
+      member('packages/a/consumer', '@qilin-agent/consumer', { peerDependencies: { '@qilin-agent/zebra': 'workspace:^' } }),
+      member('packages/a/zebra', '@qilin-agent/zebra'),
     ]
 
     // Name order alone would place the consumer first; the peer edge moves it.
     expect(qilin.publishOrder(members).order.map(entry => entry.name)).toEqual([
-      '@qilin/zebra',
-      '@qilin/consumer',
+      '@qilin-agent/zebra',
+      '@qilin-agent/consumer',
     ])
   })
 
   it('orders around a peer cycle rather than refusing to publish, and reports the edge it dropped', () => {
     const qilin = releaseFamily('qilin')
     const members = [
-      member('packages/a/left', '@qilin/left', { peerDependencies: { '@qilin/right': 'workspace:^' } }),
-      member('packages/a/right', '@qilin/right', { peerDependencies: { '@qilin/left': 'workspace:^' } }),
+      member('packages/a/left', '@qilin-agent/left', { peerDependencies: { '@qilin-agent/right': 'workspace:^' } }),
+      member('packages/a/right', '@qilin-agent/right', { peerDependencies: { '@qilin-agent/left': 'workspace:^' } }),
     ]
 
     // Sibling packages declare each other as peers, and npm treats an unmet peer
     // as a warning, so this pair has to publish rather than fail the release.
     const plan = qilin.publishOrder(members)
     expect(plan.order.map(entry => entry.name)).toEqual([
-      '@qilin/right',
-      '@qilin/left',
+      '@qilin-agent/right',
+      '@qilin-agent/left',
     ])
     // One of the two edges has to give, and which one it is belongs in the log.
     expect(plan.droppedPeerEdges).toEqual([
-      { consumer: '@qilin/right', peer: '@qilin/left' },
+      { consumer: '@qilin-agent/right', peer: '@qilin-agent/left' },
     ])
   })
 
   it('honours an install edge even when a peer cycle surrounds it', () => {
     const qilin = releaseFamily('qilin')
     const members = [
-      member('packages/a/base', '@qilin/base', { peerDependencies: { '@qilin/consumer': 'workspace:^' } }),
-      member('packages/a/consumer', '@qilin/consumer', {
-        dependencies: { '@qilin/base': 'workspace:^' },
-        peerDependencies: { '@qilin/base': 'workspace:^' },
+      member('packages/a/base', '@qilin-agent/base', { peerDependencies: { '@qilin-agent/consumer': 'workspace:^' } }),
+      member('packages/a/consumer', '@qilin-agent/consumer', {
+        dependencies: { '@qilin-agent/base': 'workspace:^' },
+        peerDependencies: { '@qilin-agent/base': 'workspace:^' },
       }),
     ]
 
@@ -302,49 +302,49 @@ describe('release families', () => {
     // would reverse it is the one dropped.
     const plan = qilin.publishOrder(members)
     expect(plan.order.map(entry => entry.name)).toEqual([
-      '@qilin/base',
-      '@qilin/consumer',
+      '@qilin-agent/base',
+      '@qilin-agent/consumer',
     ])
     expect(plan.droppedPeerEdges).toEqual([
-      { consumer: '@qilin/base', peer: '@qilin/consumer' },
+      { consumer: '@qilin-agent/base', peer: '@qilin-agent/consumer' },
     ])
   })
 
   it('refuses an order that would publish a consumer before a dependency it installs', () => {
     const qilin = releaseFamily('qilin')
     const members = [
-      member('packages/a/alpha', '@qilin/alpha', { peerDependencies: { '@qilin/bravo': 'workspace:^' } }),
-      member('packages/a/bravo', '@qilin/bravo', { peerDependencies: { '@qilin/charlie': 'workspace:^' } }),
-      member('packages/a/charlie', '@qilin/charlie', { dependencies: { '@qilin/alpha': 'workspace:^' } }),
+      member('packages/a/alpha', '@qilin-agent/alpha', { peerDependencies: { '@qilin-agent/bravo': 'workspace:^' } }),
+      member('packages/a/bravo', '@qilin-agent/bravo', { peerDependencies: { '@qilin-agent/charlie': 'workspace:^' } }),
+      member('packages/a/charlie', '@qilin-agent/charlie', { dependencies: { '@qilin-agent/alpha': 'workspace:^' } }),
     ]
 
     // A cycle of two peer edges closed by one install edge: dropping a peer edge
     // would order this, and the traversal drops the install edge instead. That
     // order would publish charlie before the alpha it installs, so it is refused
     // here rather than published.
-    expect(() => { qilin.publishOrder(members) }).toThrow(/no publish order honours @qilin\/charlie -> @qilin\/alpha/)
+    expect(() => { qilin.publishOrder(members) }).toThrow(/no publish order honours @qilin-agent\/charlie -> @qilin-agent\/alpha/)
   })
 
   it('ignores devDependencies when ordering', () => {
     const qilin = releaseFamily('qilin')
     const members = [
-      member('packages/a/alpha', '@qilin/alpha', { devDependencies: { '@qilin/zebra': 'workspace:^' } }),
-      member('packages/a/zebra', '@qilin/zebra'),
+      member('packages/a/alpha', '@qilin-agent/alpha', { devDependencies: { '@qilin-agent/zebra': 'workspace:^' } }),
+      member('packages/a/zebra', '@qilin-agent/zebra'),
     ]
 
     // A dev dependency is absent from the published package, so it must not move
     // the consumer behind it.
     expect(qilin.publishOrder(members).order.map(entry => entry.name)).toEqual([
-      '@qilin/alpha',
-      '@qilin/zebra',
+      '@qilin-agent/alpha',
+      '@qilin-agent/zebra',
     ])
   })
 
   it('applies the harness payload policy to qilin and keeps upstream payloads for vendored packages', () => {
     const qilin = releaseFamily('qilin')
     const vendor = releaseFamily('vendor')
-    const harness = member('packages/a/library', '@qilin/library')
-    const vendored = member('vendor/cordis', '@qilin/kylin')
+    const harness = member('packages/a/library', '@qilin-agent/library')
+    const vendored = member('vendor/cordis', '@qilin-agent/kylin')
 
     expect(() => { qilin.validatePayload(harness, ['package/lib/index.js', 'package/src/index.ts']) })
       .toThrow(/publishes source file/)
@@ -353,7 +353,7 @@ describe('release families', () => {
   })
 
   it('drives the installed entry only for the family that publishes one', () => {
-    expect(releaseFamily('qilin').installedEntry).toEqual({ packageName: '@qilin/cli', binPath: 'lib/bin.js' })
+    expect(releaseFamily('qilin').installedEntry).toEqual({ packageName: '@qilin-agent/cli', binPath: 'lib/bin.js' })
     expect(releaseFamily('vendor').installedEntry).toBeUndefined()
   })
 
@@ -414,10 +414,10 @@ describe('version precedence', () => {
 })
 
 describe('payload change judgement', () => {
-  const sourceShipping = member('vendor/cosmokit', '@qilin/cosmokit', {
+  const sourceShipping = member('vendor/cosmokit', '@qilin-agent/cosmokit', {
     files: ['lib/index.js', 'lib/types/**/*.d.ts', 'src'],
   })
-  const buildOutputOnly = member('vendor/cordis', '@qilin/kylin', {
+  const buildOutputOnly = member('vendor/cordis', '@qilin-agent/kylin', {
     files: ['lib/index.js', 'lib/types/**/*.d.ts', 'bin.js'],
   })
 
@@ -442,7 +442,7 @@ describe('payload change judgement', () => {
     // unnecessary patch bump, while under-reporting fails the next publish on a
     // version whose bytes moved.
     expect(reachesPayload(sourceShipping, 'vendor/cosmokit/README.i18n.yaml')).toBe(true)
-    expect(reachesPayload(member('packages/a/library', '@qilin/library', { files: ['lib/index.js'] }),
+    expect(reachesPayload(member('packages/a/library', '@qilin-agent/library', { files: ['lib/index.js'] }),
       'packages/a/library/tests/library.spec.ts')).toBe(false)
   })
 })

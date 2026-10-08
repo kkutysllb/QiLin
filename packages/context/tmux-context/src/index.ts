@@ -15,18 +15,18 @@
  * absent `ctx.shell`, or a failed query is a no-op, never an error: an executor
  * rejection is contained and logged as a warning so the turn continues.
  *
- * @module @qilin/tmux-context
+ * @module @qilin-agent/tmux-context
  */
 
-import type { Context, LoggerService } from '@qilin/kylin'
-import z from '@qilin/schemastery'
+import type { Context, LoggerService } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
 import { z as zod } from 'zod'
-import type { PreStepDecision } from '@qilin/agent'
-import type {} from '@qilin/session-projection'
-import type { ShellExecutor, ShellRunResult } from '@qilin/shell'
-import { createUserMessage } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-declare module '@qilin/llm' {
+import type { PreStepDecision } from '@qilin-agent/agent'
+import type {} from '@qilin-agent/session-projection'
+import type { ShellExecutor, ShellRunResult } from '@qilin-agent/shell'
+import { createUserMessage } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     /** Location attribution; readers preserve the content without this producer.
      * Its projection uses the kind to avoid repeated injection.
@@ -216,7 +216,7 @@ type TmuxContextState = zod.infer<typeof tmuxContextStateSchema>
  * @param config - durable refresh scheduling configuration.
  * @throws when the refresh interval is invalid.
  */
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionStateMap {
     /** The stable state block of this plugin's latest durable injection, or null. */
     tmuxContext: TmuxContextState

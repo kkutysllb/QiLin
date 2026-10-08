@@ -2,7 +2,7 @@
  * Shell chrome content registered into the settings header and close seats.
  * The shell renders the surrounding chrome and reads each entry's own copy.
  */
-import type { PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
+import type { PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 
 /** Header content props: the standard locale seat only. */
 export type HeaderContentProps = PropsRuntime<'settings.header'> & PropsLocale<'settings'>

@@ -9,10 +9,10 @@ import { existsSync, mkdtempSync, realpathSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { basename, join } from 'node:path'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import type { SandboxPolicy } from '@qilin/sandbox'
-import { SessionId } from '@qilin/session'
-import { LocalSandboxProvider } from '@qilin/sandbox-local'
+import { Context } from '@qilin-agent/kylin'
+import type { SandboxPolicy } from '@qilin-agent/sandbox'
+import { SessionId } from '@qilin-agent/session'
+import { LocalSandboxProvider } from '@qilin-agent/sandbox-local'
 
 /** Cross-file state shared with the vi.mock factory (hoisting contract). */
 const mockState = vi.hoisted(() => ({
@@ -24,7 +24,7 @@ const mockState = vi.hoisted(() => ({
   disposeFailure: undefined as Error | undefined,
 }))
 
-vi.mock('@qilin/sandbox-windows-acl', () => {
+vi.mock('@qilin-agent/sandbox-windows-acl', () => {
   class MockAclWriteGrant {
     readonly writeSid: string
     readonly added: Array<{ path: string; standing: boolean }> = []

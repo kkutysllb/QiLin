@@ -5,11 +5,11 @@
  * failure codes and Remote namespaces stay in the apply world.
  */
 
-import type { Context as ClientContext } from '@qilin/kylin'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
 import type {
   CredentialInfo, LlmDiscoveredModel, LlmModelDiscoveryRequest,
   SettingsNamespaceView, SettingsPathOpView,
-} from '@qilin/api-remotes/client'
+} from '@qilin-agent/api-remotes/client'
 
 /** What one namespace write answered. */
 export type SettingsWriteOutcome =

@@ -2,7 +2,7 @@
 import { Buffer } from 'node:buffer'
 import { performance } from 'node:perf_hooks'
 import { Readable } from 'node:stream'
-import type { SubprocessOutcome, SubprocessTerminalHandle } from '@qilin/subprocess'
+import type { SubprocessOutcome, SubprocessTerminalHandle } from '@qilin-agent/subprocess'
 import { assertBuiltBenchmarkRuntime } from '../support/built-worker.ts'
 import { LocalPtySession } from './session-adapter.ts'
 
@@ -97,7 +97,7 @@ async function measure(capacityBytes: number, mode: string): Promise<TerminalIoR
 }
 
 assertBuiltBenchmarkRuntime(import.meta.url, {
-  '@qilin/terminal': import.meta.resolve('@qilin/terminal'),
+  '@qilin-agent/terminal': import.meta.resolve('@qilin-agent/terminal'),
 })
 const capacityBytes = Number(process.argv[2])
 const mode = process.argv[3]

@@ -5,9 +5,9 @@ import {
   createSystemMessage,
   createToolResultMessage,
   createUserMessage,
-} from '@qilin/llm/message'
-import { brandString } from '@qilin/brand'
-import type { MessageId, ToolCallId } from '@qilin/llm/brand'
+} from '@qilin-agent/llm/message'
+import { brandString } from '@qilin-agent/brand'
+import type { MessageId, ToolCallId } from '@qilin-agent/llm/brand'
 import type {
   AssistantMessage,
   ContentBlock,
@@ -17,30 +17,30 @@ import type {
   TokenUsage,
   ToolResultMessage,
   UserMessage,
-} from '@qilin/llm'
-import { LlmAttemptId } from '@qilin/llm/brand'
+} from '@qilin-agent/llm'
+import { LlmAttemptId } from '@qilin-agent/llm/brand'
 import {
   AssistantStreamAccumulator,
   expandAssistantStream,
   type AssistantStreamRecord,
-} from '@qilin/llm/assistant-stream'
-import type { AttachmentIdType, ImageAttachmentRef } from '@qilin/attachment'
+} from '@qilin-agent/llm/assistant-stream'
+import type { AttachmentIdType, ImageAttachmentRef } from '@qilin-agent/attachment'
 import type {
   SessionEvent,
   SessionId,
   SessionSeqCursor,
-} from '@qilin/session/types'
-import { SESSION_FORMAT_VERSION, SessionSeq } from '@qilin/session/types'
-import type { JsonValue } from '@qilin/util-values'
-import type { TodoItem } from '@qilin/tool-todo/client'
+} from '@qilin-agent/session/types'
+import { SESSION_FORMAT_VERSION, SessionSeq } from '@qilin-agent/session/types'
+import type { JsonValue } from '@qilin-agent/util-values'
+import type { TodoItem } from '@qilin-agent/tool-todo/client'
 // Type-only: the brand constructor is host-side; the fixture casts at its
 // wire-fabrication boundary (the schema layer's one-cast-point posture).
-import type { CommandId } from '@qilin/commands/brand'
-import type { CommandDescriptor, CommandExecution, CommandResult } from '@qilin/commands/types'
-import type { CredentialInfo } from '@qilin/credentials/types'
-import type { DirectoryListing as FixtureDirectoryListing } from '@qilin/host-directory-picker/types'
-import type { SettingsDescribeValue, SettingsNamespaceView } from '@qilin/settings/types'
-import { deriveEventMessage, foldSurface } from '@qilin/session/surface'
+import type { CommandId } from '@qilin-agent/commands/brand'
+import type { CommandDescriptor, CommandExecution, CommandResult } from '@qilin-agent/commands/types'
+import type { CredentialInfo } from '@qilin-agent/credentials/types'
+import type { DirectoryListing as FixtureDirectoryListing } from '@qilin-agent/host-directory-picker/types'
+import type { SettingsDescribeValue, SettingsNamespaceView } from '@qilin-agent/settings/types'
+import { deriveEventMessage, foldSurface } from '@qilin-agent/session/surface'
 import type { RpcResult } from './api.ts'
 import { randomUuid } from './random-uuid.ts'
 import type {
@@ -49,7 +49,7 @@ import type {
 
 const FIXTURE_SESSION_SEARCH_RESULT_LIMIT = 20
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'fixture': { kind: 'fixture' } & ContextFormed
   }
@@ -1988,9 +1988,9 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
    * roster a GUI journey sees after writing is the text it wrote.
    */
   const fixturePresets = new Map<string, { trust: 'system' | 'user'; content: string }>([
-    ['standard', { trust: 'system', content: "- id: tool-bash\n  name: '@qilin/tool-bash'\n" }],
-    ['minimal', { trust: 'system', content: "- id: tool-web-search\n  name: '@qilin/tool-web-search'\n" }],
-    ['my-agent', { trust: 'user', content: "- id: tool-read\n  name: '@qilin/tool-read'\n" }],
+    ['standard', { trust: 'system', content: "- id: tool-bash\n  name: '@qilin-agent/tool-bash'\n" }],
+    ['minimal', { trust: 'system', content: "- id: tool-web-search\n  name: '@qilin-agent/tool-web-search'\n" }],
+    ['my-agent', { trust: 'user', content: "- id: tool-read\n  name: '@qilin-agent/tool-read'\n" }],
   ])
   let fixtureDefaultPreset = 'standard'
   const nextTurn = new Map<SessionId, number>([[sid('fx-alpha'), 75]])

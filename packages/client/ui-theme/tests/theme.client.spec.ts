@@ -1,13 +1,13 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { stubConfigForm, type StubConfigForm } from '@qilin/client-test-runtime'
+import { Context } from '@qilin-agent/kylin'
+import { stubConfigForm, type StubConfigForm } from '@qilin-agent/client-test-runtime'
 import type {
   ThemeSettings,
   ThemeSnapshot,
   ThemeTokenOverrides,
-} from '@qilin/client-ui-theme/client'
-import { ThemeRuntime } from '@qilin/client-ui-theme/client'
+} from '@qilin-agent/client-ui-theme/client'
+import { ThemeRuntime } from '@qilin-agent/client-ui-theme/client'
 
 const make = (host = stubConfigForm<ThemeSettings>()): {
   ctx: Context

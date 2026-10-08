@@ -1,15 +1,15 @@
 /**
  * Internal sandbox-result classification helpers — deliberate call-for-call
- * mirror of `@qilin/bash-sandbox/src/helpers.ts` (the pwsh twin of
+ * mirror of `@qilin-agent/bash-sandbox/src/helpers.ts` (the pwsh twin of
  * the bash consumer shares the identical classification dialect).
  *
- * @module @qilin/pwsh-sandbox/helpers
+ * @module @qilin-agent/pwsh-sandbox/helpers
  */
 
 /* jscpd:ignore-start */
 import { accessSync, constants, statSync } from 'node:fs'
-import type { ShellRunResult } from '@qilin/shell'
-import type { RunnerFailureRule } from '@qilin/sandbox'
+import type { ShellRunResult } from '@qilin-agent/shell'
+import type { RunnerFailureRule } from '@qilin-agent/sandbox'
 
 /** Node-local spawn codes proven to identify executable resolution or permission failure. */
 const EXECUTABLE_SPAWN_CODES = new Set(['EACCES', 'ENOENT'])

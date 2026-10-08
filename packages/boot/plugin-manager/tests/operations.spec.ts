@@ -4,7 +4,7 @@ import { join, resolve } from 'node:path'
 import { tmpdir } from 'node:os'
 import { PassThrough } from 'node:stream'
 import { expect, it, onTestFinished, vi } from 'vitest'
-import { getQilinRuntimeVersion, initProfile, readProfileManifest } from '@qilin/app-boot'
+import { getQilinRuntimeVersion, initProfile, readProfileManifest } from '@qilin-agent/app-boot'
 import { anchorPathSpec, runPluginCommand, runProfilePnpm, viewProfilePackage } from '../src/operations.ts'
 
 const command = vi.hoisted(() => ({ run: vi.fn<(...args: unknown[]) => ReturnType<typeof result>>() }))
@@ -120,7 +120,7 @@ it('initializes missing profiles under the same lock and reports initialization'
     await runPluginCommand({ ...context, profile }, ['root'], {
       execution: 'service', outputBytes: 100, lockWaitMs: 1000, onOutput: (text) => { messages.push(text) },
     })
-    expect(readProfileManifest('test', join(home, 'profiles', profile)).qilin?.profile?.bundles).toContain('@qilin/base')
+    expect(readProfileManifest('test', join(home, 'profiles', profile)).qilin?.profile?.bundles).toContain('@qilin-agent/base')
   }
   expect(messages.filter(text => text.includes('initialized profile'))).toHaveLength(2)
 })
@@ -420,7 +420,7 @@ function pnpm(): FakePnpm {
 function writePathSpec(home: string, peer: string): void {
   mkdirSync(join(home, 'plugin'), { recursive: true })
   writeFileSync(join(home, 'plugin', 'package.json'), JSON.stringify({
-    name: 'plugin', version: '1.0.0', peerDependencies: { '@qilin/app-boot': peer },
+    name: 'plugin', version: '1.0.0', peerDependencies: { '@qilin-agent/app-boot': peer },
   }))
 }
 
@@ -428,7 +428,7 @@ function writePathSpec(home: string, peer: string): void {
 function installGuarded(dir: string, dependency: string, name = dependency, version = '1.0.0', peer = '>=999.0.0'): void {
   install(dir, dependency)
   writeFileSync(join(dir, 'node_modules', dependency, 'package.json'), JSON.stringify({
-    name, version, peerDependencies: { '@qilin/app-boot': peer }, qilin: { bundle: { patch: './cordis.patch.yml' } },
+    name, version, peerDependencies: { '@qilin-agent/app-boot': peer }, qilin: { bundle: { patch: './cordis.patch.yml' } },
   }))
 }
 
@@ -448,7 +448,7 @@ it.each([
   })
   expect(outcome.exitCode).toBe(1)
   expect(outcome.incompatible).toEqual([
-    { name: 'plugin', version: '1.0.0', runtimeVersion: getQilinRuntimeVersion(), peers: { '@qilin/app-boot': '999.0.0' } },
+    { name: 'plugin', version: '1.0.0', runtimeVersion: getQilinRuntimeVersion(), peers: { '@qilin-agent/app-boot': '999.0.0' } },
   ])
   expect(outcome.output).toContain('installation rejected')
   expect(outcome.output).toContain('plugin@1.0.0')
@@ -466,7 +466,7 @@ it.each(['plugin@1.0.0', '@scope/plugin@1.0.0'])('rejects the registry spec %s t
   const { dir, context } = fixture()
   const state = pnpm()
   const name = spec.slice(0, spec.lastIndexOf('@'))
-  state.view = () => ({ exitCode: 0, stdout: JSON.stringify({ name, version: '1.0.0', peerDependencies: { '@qilin/app-boot': '999.0.0' } }) })
+  state.view = () => ({ exitCode: 0, stdout: JSON.stringify({ name, version: '1.0.0', peerDependencies: { '@qilin-agent/app-boot': '999.0.0' } }) })
   const manifestBefore = readFileSync(join(dir, 'package.json'), 'utf8')
   const outcome = await runProfilePnpm(context, ['add', spec], { execution: 'service', outputBytes: 8192 })
   expect(outcome).toMatchObject({ exitCode: 1 })
@@ -488,7 +488,7 @@ it('reads the last match when the registry lookup answers with several versions'
     exitCode: 0,
     stdout: JSON.stringify([
       { name: 'plugin', version: '1.0.0' },
-      { name: 'plugin', version: '2.0.0', peerDependencies: { '@qilin/app-boot': '999.0.0' } },
+      { name: 'plugin', version: '2.0.0', peerDependencies: { '@qilin-agent/app-boot': '999.0.0' } },
     ]),
   })
   const outcome = await runProfilePnpm(context, ['add', 'plugin@^2', '--registry=https://registry.example'], {
@@ -520,7 +520,7 @@ it('installs an incompatible path spec the profile exempts', async () => {
   state.mutate = (target) => {
     install(target, 'plugin')
     writeFileSync(join(target, 'node_modules', 'plugin', 'package.json'), JSON.stringify({
-      name: 'plugin', version: '1.0.0', peerDependencies: { '@qilin/app-boot': '999.0.0' },
+      name: 'plugin', version: '1.0.0', peerDependencies: { '@qilin-agent/app-boot': '999.0.0' },
       qilin: { bundle: { patch: './cordis.patch.yml' } },
     }))
   }
@@ -546,7 +546,7 @@ it.each([true, false])('rejects an incompatible installed manifest before activa
     execution: 'service', outputBytes: 8192, activateNewBundles, onOutput: (text) => { messages.push(text) },
   })
   expect(outcome.exitCode).toBe(1)
-  expect(outcome.incompatible).toMatchObject([{ name: 'incompatible', version: '1.0.0', peers: { '@qilin/app-boot': '>=999.0.0' } }])
+  expect(outcome.incompatible).toMatchObject([{ name: 'incompatible', version: '1.0.0', peers: { '@qilin-agent/app-boot': '>=999.0.0' } }])
   expect(outcome.output).toContain('incompatible@1.0.0')
   expect(outcome.output).toContain('installation rejected')
   expect(readFileSync(outcome.logPath, 'utf8')).toContain('incompatible@1.0.0')
@@ -602,7 +602,7 @@ it('installs a dependency whose installed manifest declares compatible peers', a
   state.mutate = (target) => {
     install(target, 'plugin')
     writeFileSync(join(target, 'node_modules', 'plugin', 'package.json'), JSON.stringify({
-      name: 'plugin', version: '1.0.0', peerDependencies: { '@qilin/app-boot': '*' },
+      name: 'plugin', version: '1.0.0', peerDependencies: { '@qilin-agent/app-boot': '*' },
       qilin: { bundle: { patch: './cordis.patch.yml' } },
     }))
   }

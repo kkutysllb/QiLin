@@ -2,7 +2,7 @@
 description: "JavaScript entry for the prebuilt Landlock launcher and asynchronous POSIX flock."
 kind: "package-library"
 ---
-# @qilin/node-addon-system
+# @qilin-agent/node-addon-system
 
 English | [中文](README.zh.md)
 

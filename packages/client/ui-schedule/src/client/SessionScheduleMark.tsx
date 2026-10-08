@@ -11,9 +11,9 @@
 
 import {
   IconClockOutline16,
-} from '@qilin/client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
-import type {} from '@qilin/client-ui-workspace/client'
+} from '@qilin-agent/client-ui-primitives'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-workspace/client'
 import {
   useSessionScheduleFacts, type SessionScheduleCatalogObservable,
 } from './session-schedule-state.ts'

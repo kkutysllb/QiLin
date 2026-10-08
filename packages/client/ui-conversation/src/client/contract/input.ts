@@ -6,10 +6,10 @@
  * and its reference chips live in the shell's Lexical editor; the machine
  * here is the submit plane (phase, claim, attempt) alone.
  */
-import type { Context } from '@qilin/kylin'
-import type { InboxState } from '@qilin/agent/types'
-import type { ObservableSnapshot, SnapshotStore } from '@qilin/client-store'
-import type { Branded } from '@qilin/brand'
+import type { Context } from '@qilin-agent/kylin'
+import type { InboxState } from '@qilin-agent/agent/types'
+import type { ObservableSnapshot, SnapshotStore } from '@qilin-agent/client-store'
+import type { Branded } from '@qilin-agent/brand'
 import type { ArbitrateKey, ArbitrateOutcome, Occurrence, ReferenceInsert, TokenSpan } from './draft-editor.ts'
 import type { InputSubmitMode } from './composer-submission.ts'
 
@@ -128,7 +128,7 @@ export interface InputTriggerController {
   toggleSource(source: string, hit: InputTriggerHit): void
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Events {
     /**
      * Claim a command token for the scoped input machine.

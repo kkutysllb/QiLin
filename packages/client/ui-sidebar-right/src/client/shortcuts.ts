@@ -1,7 +1,7 @@
 /** Sidebar-owned commands resolved against the currently mounted page. */
-import type { Shortcuts, ShortcutBinding, ShortcutCommandId } from '@qilin/client-shortcuts/client'
-import type { TranslateNS } from '@qilin/client-locale/client'
-import { closeTopModal } from '@qilin/client-ui-primitives'
+import type { Shortcuts, ShortcutBinding, ShortcutCommandId } from '@qilin-agent/client-shortcuts/client'
+import type { TranslateNS } from '@qilin-agent/client-locale/client'
+import { closeTopModal } from '@qilin-agent/client-ui-primitives'
 import type { SidebarRightController } from './service.ts'
 import type { SidebarRightTarget } from './focus.ts'
 import type {} from './locales.ts'

@@ -3,12 +3,12 @@
  * per-namespace sections; plugins register a namespace schema and read the
  * resolved value, which layers schema defaults, the registrant's composition
  * `base`, and the user document section, in that order.
- * @module @qilin/settings
+ * @module @qilin-agent/settings
  */
 
-import { Context, Service } from '@qilin/kylin'
-import type z from '@qilin/schemastery'
-import { deepEqualJson, deepFreeze } from '@qilin/util-values'
+import { Context, Service } from '@qilin-agent/kylin'
+import type z from '@qilin-agent/schemastery'
+import { deepEqualJson, deepFreeze } from '@qilin-agent/util-values'
 import { plainConfig, redactSecrets } from './redact.ts'
 import type { RedactedSecret } from './redact.ts'
 import type { SettingsNamespace, SettingsUpdateSource } from './types.ts'
@@ -140,7 +140,7 @@ export interface SettingsScope<T> {
   replace(section: object): Promise<void>
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     settings: SettingsProvider
   }

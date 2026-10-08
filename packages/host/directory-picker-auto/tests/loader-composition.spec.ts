@@ -13,16 +13,16 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import HttpServer from '@qilin/host-webserver'
-import type { DirectoryPicker } from '@qilin/host-directory-picker'
-import BrowseDirectoryPicker from '@qilin/host-directory-picker-browse'
-import NativeDirectoryPicker from '@qilin/host-directory-picker-native'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import HttpServer from '@qilin-agent/host-webserver'
+import type { DirectoryPicker } from '@qilin-agent/host-directory-picker'
+import BrowseDirectoryPicker from '@qilin-agent/host-directory-picker-browse'
+import NativeDirectoryPicker from '@qilin-agent/host-directory-picker-native'
 import {
   createLaunchEnvironmentSnapshot, QILIN_LAUNCH_ENVIRONMENT_KEY, type LaunchEnvironmentSnapshot,
-} from '@qilin/launch-environment'
+} from '@qilin-agent/launch-environment'
 import * as DirectoryPickerAuto from '../src/index.ts'
 
 const renameControl = vi.hoisted(() => ({
@@ -48,11 +48,11 @@ vi.mock('node:fs/promises', async (importOriginal) => {
   }
 })
 
-const AUTO = '@qilin/host-directory-picker-auto'
-const NATIVE = '@qilin/host-directory-picker-native'
-const BROWSE = '@qilin/host-directory-picker-browse'
-const NATIVE_SURFACE = '@qilin/client-ui-directory-picker-native'
-const BROWSE_SURFACE = '@qilin/client-ui-directory-picker-browse'
+const AUTO = '@qilin-agent/host-directory-picker-auto'
+const NATIVE = '@qilin-agent/host-directory-picker-native'
+const BROWSE = '@qilin-agent/host-directory-picker-browse'
+const NATIVE_SURFACE = '@qilin-agent/client-ui-directory-picker-native'
+const BROWSE_SURFACE = '@qilin-agent/client-ui-directory-picker-browse'
 
 /**
  * Loader-visible stand-in for a client surface package: the surfaces belong to
@@ -98,7 +98,7 @@ async function loadComposition(
   root = await mkdtemp(join(tmpdir(), 'qilin-directory-picker-auto-'))
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, [
-    "- name: '@qilin/host-webserver'",
+    "- name: '@qilin-agent/host-webserver'",
     '  config:',
     `    host: '${bindHost}'`,
     '    port: 0',
@@ -112,7 +112,7 @@ async function loadComposition(
   await context.plugin(Loader)
   context.loader.builtins.include = Include
   const modules = new Map<string, unknown>([
-    ['@qilin/host-webserver', HttpServer],
+    ['@qilin-agent/host-webserver', HttpServer],
     [AUTO, DirectoryPickerAuto],
     [NATIVE, NativeDirectoryPicker],
     [BROWSE, BrowseDirectoryPicker],

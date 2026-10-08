@@ -3,7 +3,7 @@ description: "The browser GUI for qilin: interactive chat, model and settings ma
 kind: "package-bundle"
 ---
 
-# @qilin/web-app
+# @qilin-agent/web-app
 
 English | [中文](README.zh.md)
 
@@ -52,11 +52,11 @@ Most users never set these; the command-line flags feed the four settings below 
 | `surfaceContext` | `true` | Give the agent GUI-orientation context and expose `QILIN_WEB_URL` to its shell commands |
 | `trustedHosts` | `[]` | Extra hosts allowed to reach the GUI from the network |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#qilinweb-app) is the exhaustive source for every accepted field and its JSDoc. The shipped composition enables `schedule`, `ui-schedule`, and `time-context` together: the upstream default disables all three, and no in-product control reverses it, because the plugin manager excludes built-in profile bundles. The profile that ships them is the layer that restores them.
+The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agentweb-app) is the exhaustive source for every accepted field and its JSDoc. The shipped composition enables `schedule`, `ui-schedule`, and `time-context` together: the upstream default disables all three, and no in-product control reverses it, because the plugin manager excludes built-in profile bundles. The profile that ships them is the layer that restores them.
 
 ### Accounts and the entry documents
 
-The patch mounts `@qilin/accounts-local` as the `accounts` row with `enabled: true`, `registration: open`, and `sessionMaxAgeDays: 30`, so a browser needs an account session for the console and for every `/api` request outside the authentication surface. The shipped loopback bind holds one user, which is why registration stays open; a deployment that binds beyond loopback sets `registration: closed` on that row, because anyone who can reach the port could otherwise create an account with full harness access. The glue plugin serves three public documents before any session exists — the product landing page at `/` and the sign-in or first-run document at `/login` and `/setup` — while the application document itself is the configured index at the transport's entry path. `enabled: false` on the row restores the launch-token handoff.
+The patch mounts `@qilin-agent/accounts-local` as the `accounts` row with `enabled: true`, `registration: open`, and `sessionMaxAgeDays: 30`, so a browser needs an account session for the console and for every `/api` request outside the authentication surface. The shipped loopback bind holds one user, which is why registration stays open; a deployment that binds beyond loopback sets `registration: closed` on that row, because anyone who can reach the port could otherwise create an account with full harness access. The glue plugin serves three public documents before any session exists — the product landing page at `/` and the sign-in or first-run document at `/login` and `/setup` — while the application document itself is the configured index at the transport's entry path. `enabled: false` on the row restores the launch-token handoff.
 
 ### LAN access and trusted hosts
 
@@ -117,7 +117,7 @@ Read these pages when you want to go deeper into the shared core, the browser re
 - [qilin-base](../base/README.md) — the shared core the GUI runs on.
 - [qilin-client-hmr](../../client/hmr/README.md) — how client-plugin changes reload during development.
 - [frontend-static](../../host/frontend-static/README.md) — how the built frontend is served.
-- [Generated configuration catalog](../../../docs/config-catalog.md#qilinweb-app) — every accepted config field and its source declaration.
+- [Generated configuration catalog](../../../docs/config-catalog.md#qilin-agentweb-app) — every accepted config field and its source declaration.
 
 -----
 

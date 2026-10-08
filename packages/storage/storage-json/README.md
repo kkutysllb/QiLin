@@ -3,7 +3,7 @@ description: "JSON storage backend for hosts and maintainers choosing, configuri
 kind: "package-reference"
 ---
 
-# @qilin/storage-json
+# @qilin-agent/storage-json
 
 English | [中文](README.zh.md)
 
@@ -36,11 +36,11 @@ Choose the default `single` layout for small units that benefit from one complet
 The only plugin field is `root`, which holds the unit files and directories. It is required because the backend does not fall back to `process.cwd()`. The backend creates the root with mode `0o700` on demand. A domain specification selects its layout; this plugin has no layout override.
 
 ```yaml
-- name: '@qilin/storage'
-- name: '@qilin/storage-json'
+- name: '@qilin-agent/storage'
+- name: '@qilin-agent/storage-json'
   config:
     root: /var/lib/qilin/data
-- name: '@qilin/storage-domain'
+- name: '@qilin-agent/storage-domain'
   config:
     backend: json
 ```
@@ -49,7 +49,7 @@ The only plugin field is `root`, which holds the unit files and directories. It 
 |---|---|---|
 | `root` | required | Directory holding `<unit>.json` files and `<unit>/` trees; created `0o700` on demand |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#qilinstorage-json) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agentstorage-json) is the exhaustive source for every accepted field and its JSDoc.
 
 ### Observable behavior
 

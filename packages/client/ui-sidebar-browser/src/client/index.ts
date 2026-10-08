@@ -1,9 +1,9 @@
 /** Register the HTTP(S) Browser tab type in the right Sidebar. */
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-session/client'
-import type {} from '@qilin/client-ui-sidebar-right/client'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-session/client'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
 import { BrowserBody } from './view/BrowserBody.tsx'
 import { BrowserTitle } from './view/BrowserTitle.tsx'
 import { createBrowserControllers } from './browser/BrowserController.ts'
@@ -19,7 +19,7 @@ export type { SidebarBrowserKey } from './locales.ts'
 export type { BrowserState } from './browser/store.ts'
 export type { BrowserAddressFailure, BrowserAddressResult, BrowserTarget } from './browser/url.ts'
 
-declare module '@qilin/client-ui-sidebar-right/client' {
+declare module '@qilin-agent/client-ui-sidebar-right/client' {
   interface SidebarRightTabParamsMap {
     /** Optional initial Browser URL. */
     browser: { readonly url?: string }

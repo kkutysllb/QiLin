@@ -1,8 +1,8 @@
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { afterEach, describe, expect, it } from 'vitest'
-import ToolRuntime from '@qilin/tools'
-import SystemPrompt from '@qilin/system-prompt'
-import UserQuestionService from '@qilin/user-questions'
+import ToolRuntime from '@qilin-agent/tools'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import UserQuestionService from '@qilin-agent/user-questions'
 import { apply } from '../src/index.ts'
 
 let ctx: Context | undefined

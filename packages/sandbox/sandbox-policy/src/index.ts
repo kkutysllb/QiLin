@@ -17,18 +17,18 @@
  * reads session state once at each operation boundary; executors and providers
  * remain session-free.
  *
- * @module @qilin/sandbox-policy
+ * @module @qilin-agent/sandbox-policy
  */
 
 import { isAbsolute } from 'node:path'
-import { Context, Service } from '@qilin/kylin'
+import { Context, Service } from '@qilin-agent/kylin'
 import { z as zod } from 'zod'
-import z from '@qilin/schemastery'
-import type {} from '@qilin/agent'
-import type { SandboxExecutionPolicy, SandboxMode } from '@qilin/sandbox'
-import type { Session } from '@qilin/session'
-import type {} from '@qilin/session-projection'
-import type {} from '@qilin/system-prompt'
+import z from '@qilin-agent/schemastery'
+import type {} from '@qilin-agent/agent'
+import type { SandboxExecutionPolicy, SandboxMode } from '@qilin-agent/sandbox'
+import type { Session } from '@qilin-agent/session'
+import type {} from '@qilin-agent/session-projection'
+import type {} from '@qilin-agent/system-prompt'
 
 export { SANDBOX_MODES, setSandboxMode } from './session-mode.ts'
 
@@ -55,7 +55,7 @@ function renderPolicyContext(policy: SandboxExecutionPolicy): string {
   }
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     sandboxPolicy: SandboxPolicyService
   }
@@ -94,7 +94,7 @@ const sandboxModeStateSchema = zod.union([
 ]).nullable()
 
 type SandboxModeState = zod.infer<typeof sandboxModeStateSchema>
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionStateMap {
     /** Last logged sandbox-mode override, or null before one (deployment default applies at resolve time). */
     sandboxMode: SandboxModeState

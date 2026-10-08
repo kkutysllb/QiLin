@@ -1,12 +1,12 @@
 /** Browser view ownership across slow RPCs, remounts and transport generations. */
 import { setImmediate } from 'node:timers/promises'
 import { afterEach, expect, it, vi } from 'vitest'
-import { RemoteStream, RemoteStreamCarrierError, type ClientRemote, type RemoteStreamOptions } from '@qilin/api-gateway/client'
-import { createSnapshotStore } from '@qilin/client-store'
-import { RemoteError, type RemoteResult } from '@qilin/typert-protocol'
+import { RemoteStream, RemoteStreamCarrierError, type ClientRemote, type RemoteStreamOptions } from '@qilin-agent/api-gateway/client'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { RemoteError, type RemoteResult } from '@qilin-agent/typert-protocol'
 import { streamMethod } from './stream-method.client.ts'
-import type {} from '@qilin/api-terminal-controller/remote'
-import type { SessionId } from '@qilin/session/types'
+import type {} from '@qilin-agent/api-terminal-controller/remote'
+import type { SessionId } from '@qilin-agent/session/types'
 import { TerminalView, type TerminalRemote } from '../src/client/model.ts'
 import type { TerminalEnvironment, TerminalFrame, WebTerminalId, WebTerminalInfo } from '../src/types.ts'
 

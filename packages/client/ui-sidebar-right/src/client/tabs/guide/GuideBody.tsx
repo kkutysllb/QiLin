@@ -17,11 +17,11 @@
  * in this tab's place, so the guide is a doorway rather than a page that stays
  * open.
  */
-import { ShortcutKeys } from '@qilin/client-ui-primitives'
-import type { ShortcutCatalogEntry } from '@qilin/client-shortcuts/client'
+import { ShortcutKeys } from '@qilin-agent/client-ui-primitives'
+import type { ShortcutCatalogEntry } from '@qilin-agent/client-shortcuts/client'
 import type { ReactNode } from 'react'
-import type { ObservableSnapshot } from '@qilin/client-store'
-import type { ChainRenderOpts, HookContextOf, InjectFace, PropsRenderSlots, PropsRuntime } from '@qilin/client-ui-slots'
+import type { ObservableSnapshot } from '@qilin-agent/client-store'
+import type { ChainRenderOpts, HookContextOf, InjectFace, PropsRenderSlots, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import type { SidebarRightGuideBox } from '../../tab-registry.ts'
 import { CompassGlyph, CubeGlyph } from './GuideTitle.tsx'
 import css from './GuideBody.module.css'

@@ -4,8 +4,8 @@
  * domain, never into the settings section, so the literal never rides a response.
  */
 
-import type {} from '@qilin/client-ui-plugin-manager/client'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-plugin-manager/client'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import { SecretField, ValueField } from './fields.tsx'
 import { PluginConfigForm } from './PluginConfigForm.tsx'
 import type { WebSearchCardFace } from './web-search-card-controller.ts'

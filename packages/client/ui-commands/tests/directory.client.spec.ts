@@ -6,8 +6,8 @@
  * gate, and the per-key ensureReady strong-wait policy.
  */
 import { describe, expect, it } from 'vitest'
-import type { SessionId } from '@qilin/api-remotes/client'
-import { CommandDefinitionId } from '@qilin/commands/brand'
+import type { SessionId } from '@qilin-agent/api-remotes/client'
+import { CommandDefinitionId } from '@qilin-agent/commands/brand'
 import type { CommandDescriptor } from '../src/client/directory.ts'
 import { CommandDirectory } from '../src/client/directory.ts'
 
@@ -55,7 +55,7 @@ function bench() {
 describe('status and resolve (per key)', () => {
   it('resolves bilingual aliases by definition identity and retains exact-name priority', async () => {
     const goal = {
-      definitionId: CommandDefinitionId('@qilin/command-goal'),
+      definitionId: CommandDefinitionId('@qilin-agent/command-goal'),
       name: 'objective',
       description: 'Reworded description.',
     }

@@ -1,7 +1,7 @@
 import { once } from 'node:events'
 import { createServer, type Server } from 'node:http'
-import { Context } from '@qilin/kylin'
-import { remoteErrorOf, type PeerId, type PeerScope } from '@qilin/typert-protocol'
+import { Context } from '@qilin-agent/kylin'
+import { remoteErrorOf, type PeerId, type PeerScope } from '@qilin-agent/typert-protocol'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import WebSocket from 'ws'
 import {

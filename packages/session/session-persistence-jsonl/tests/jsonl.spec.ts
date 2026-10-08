@@ -1,14 +1,14 @@
-import { MessageId, createMessage } from '@qilin/llm'
+import { MessageId, createMessage } from '@qilin-agent/llm'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { appendFile, mkdtemp, mkdir, rm, readFile, writeFile, readdir, stat, symlink } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join, relative, resolve } from 'node:path'
 import { scheduler } from 'node:timers/promises'
-import { SESSION_FORMAT_VERSION, SessionLogOffset, SessionSeq, SessionId } from '@qilin/session'
-import type { SessionEvent, SessionHeader } from '@qilin/session'
-import type { SessionPersistence } from '@qilin/session-persistence'
-import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
+import { SESSION_FORMAT_VERSION, SessionLogOffset, SessionSeq, SessionId } from '@qilin-agent/session'
+import type { SessionEvent, SessionHeader } from '@qilin-agent/session'
+import type { SessionPersistence } from '@qilin-agent/session-persistence'
+import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
 import {
   assertNoRetiredHeaderFields, encodeSegment, eventLines, generationLogFilename, generationLogPath,
   logPath, parseGenerationLogFilename, projectDir, projectKey, scanLog, sessionDir, SessionLogScanner,
@@ -20,7 +20,7 @@ import {
 import { runLiveWritePathContract } from '../../session-persistence/tests/live-write-contract.ts'
 import { LIVE_WRITE_BATCH_MAX_DELAY_MS, type JsonlSessionHandle } from '../src/storage.ts'
 import { JsonlGenerationSourceChangedError } from '../src/generation.ts'
-import SessionStore from '@qilin/session'
+import SessionStore from '@qilin-agent/session'
 
 const statRace = vi.hoisted(() => ({
   path: undefined as string | undefined,

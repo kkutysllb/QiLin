@@ -2,8 +2,8 @@
 
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { bindSnapshotSelector } from '@qilin/client-test-runtime'
-import { createSnapshotStore } from '@qilin/client-store'
+import { bindSnapshotSelector } from '@qilin-agent/client-test-runtime'
+import { createSnapshotStore } from '@qilin-agent/client-store'
 import { SubagentCard, type SubagentCardProps } from '../src/client/SubagentCard.tsx'
 import type { SubagentLimitsCardState } from '../src/client/subagent-limits-card-controller.ts'
 import { AgentLoopCard } from '../src/client/AgentLoopCard.tsx'
@@ -23,7 +23,7 @@ import type { CardFieldState, CardShell } from '../src/client/card-form.ts'
 import type { WebSearchCardState } from '../src/client/web-search-card-controller.ts'
 import type { SubagentModelSelectionCardState } from '../src/client/subagent-model-selection-card-controller.ts'
 import { en } from '../src/client/locales.ts'
-import { makeTranslate } from '@qilin/client-test-runtime'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
 
 afterEach(cleanup)
 

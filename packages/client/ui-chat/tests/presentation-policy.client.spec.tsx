@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { act, cleanup, render } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createSnapshotStore } from '@qilin/client-store'
-import { bindSnapshotSelector } from '@qilin/client-test-runtime'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { bindSnapshotSelector } from '@qilin-agent/client-test-runtime'
 import type { TranscriptViewMode } from '../src/chat-settings.ts'
 import { derivePresentationPolicy, presentationPolicyFor } from '../src/client/presentation-policy.ts'
 

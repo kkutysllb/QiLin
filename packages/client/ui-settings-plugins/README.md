@@ -3,7 +3,7 @@ description: "Built-in plugins settings section for the qilin web client, and th
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-settings-plugins
+# @qilin-agent/client-ui-settings-plugins
 
 English | [中文](README.zh.md)
 

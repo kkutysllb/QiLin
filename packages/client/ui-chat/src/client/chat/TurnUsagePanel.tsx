@@ -1,7 +1,7 @@
 /** Completed-Turn token usage action and its accounting details dialog. */
 
 import { createPortal } from 'react-dom'
-import { IconDatabaseOutline16 } from '@qilin/client-ui-primitives'
+import { IconDatabaseOutline16 } from '@qilin-agent/client-ui-primitives'
 import type { TurnTokenUsage } from '../contract/chat-nodes.ts'
 import type { ChatViewSlotProps } from '../contract/slots.ts'
 import { formatCacheHitPercent, formatExactTokens, formatTokens } from './token-format.ts'

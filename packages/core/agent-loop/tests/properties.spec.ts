@@ -10,17 +10,17 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import LlmRuntime from '@qilin/llm'
-import { createUserMessage, LlmAdapter } from '@qilin/llm'
-import type { GenerateOptions, StreamChunk } from '@qilin/llm'
-import SessionStore, { SessionId } from '@qilin/session'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
-import AgentRegistry, { type Agent } from '@qilin/agent'
+import { Context } from '@qilin-agent/kylin'
+import LlmRuntime from '@qilin-agent/llm'
+import { createUserMessage, LlmAdapter } from '@qilin-agent/llm'
+import type { GenerateOptions, StreamChunk } from '@qilin-agent/llm'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
+import AgentRegistry, { type Agent } from '@qilin-agent/agent'
 
-import AgentLoop from '@qilin/agent-loop'
-import SessionProjectionRegistry from '@qilin/session-projection'
+import AgentLoop from '@qilin-agent/agent-loop'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import fc from 'fast-check'
 
 /** A never-exhausting adapter: every model call returns the same short reply. */

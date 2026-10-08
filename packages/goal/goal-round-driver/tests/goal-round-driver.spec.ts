@@ -1,19 +1,19 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import type { Agent, PreStepDecision } from '@qilin/agent'
-import { agentEvents } from '@qilin/agent'
-import AgentLoop from '@qilin/agent-loop'
-import { mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'
-import GoalService, { GoalId } from '@qilin/goal'
-import type { GoalView } from '@qilin/goal'
-import { createUserMessage, LlmAdapter, LlmError  } from '@qilin/llm'
-import type { GenerateOptions, StreamChunk } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import { SessionId } from '@qilin/session'
-import type { UserMessage } from '@qilin/session'
+import { Context } from '@qilin-agent/kylin'
+import type { Agent, PreStepDecision } from '@qilin-agent/agent'
+import { agentEvents } from '@qilin-agent/agent'
+import AgentLoop from '@qilin-agent/agent-loop'
+import { mountAgentLoopTestDependencies } from '@qilin-agent/agent-loop-testkit'
+import GoalService, { GoalId } from '@qilin-agent/goal'
+import type { GoalView } from '@qilin-agent/goal'
+import { createUserMessage, LlmAdapter, LlmError  } from '@qilin-agent/llm'
+import type { GenerateOptions, StreamChunk } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import { SessionId } from '@qilin-agent/session'
+import type { UserMessage } from '@qilin-agent/session'
 import * as goalSession from '../src/index.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

@@ -8,16 +8,16 @@ import { join } from 'node:path'
 import type { Browser, Locator, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { createUserMessage } from '@qilin/llm'
-import { abbreviateHomePath } from '@qilin/util-workspace-path'
+import { createUserMessage } from '@qilin-agent/llm'
+import { abbreviateHomePath } from '@qilin-agent/util-workspace-path'
 import {
   SESSION_FORMAT_VERSION,
   Session,
   SessionId,
   SessionSeq,
-} from '@qilin/session'
-import type {} from '@qilin/session-reference/types'
-import type {} from '@qilin/session-title'
+} from '@qilin-agent/session'
+import type {} from '@qilin-agent/session-reference/types'
+import type {} from '@qilin-agent/session-title'
 import {
   assertFixtureInventory,
   captureStableAria,

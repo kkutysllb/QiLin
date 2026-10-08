@@ -4,12 +4,12 @@
  * guards from that state, and the provider performs the atomic freshness/no-clobber check. Without
  * this plugin, tools retain the bare provider's unconditional mutation behavior. See the package
  * README for composition rules.
- * @module @qilin/fs-observation-policy
+ * @module @qilin-agent/fs-observation-policy
  */
 
-import type { Context } from '@qilin/kylin'
-import { FsError } from '@qilin/fs'
-import type { FsObservation, FsTarget, FsVersion, FsWriteIntent } from '@qilin/fs'
+import type { Context } from '@qilin-agent/kylin'
+import { FsError } from '@qilin-agent/fs'
+import type { FsObservation, FsTarget, FsVersion, FsWriteIntent } from '@qilin-agent/fs'
 import type { FsObservationActor } from './types.ts'
 
 export type { FsObservationActor } from './types.ts'

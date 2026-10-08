@@ -1,18 +1,18 @@
 /** Client owner for forwarded Remote Event subscriptions and deliveries. */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   ConnectionGenerationSource,
   ConnectionHostInfo,
   ConnectionHandle,
-} from '@qilin/client-connection/client'
+} from '@qilin-agent/client-connection/client'
 import type {
   TypertClientEventListener,
   TypertOwnedValue,
   TypertRemoteEvent,
-} from '@qilin/typert-protocol'
-import { isRemoteJsonValue, isTypertOwnedValue } from '@qilin/typert-protocol'
-import { randomUUID } from '@qilin/util-crypto'
+} from '@qilin-agent/typert-protocol'
+import { isRemoteJsonValue, isTypertOwnedValue } from '@qilin-agent/typert-protocol'
+import { randomUUID } from '@qilin-agent/util-crypto'
 import {
   REMOTE_EVENT_RESULT_ENDPOINT,
   REMOTE_EVENT_STREAM_ENDPOINT,

@@ -1,20 +1,20 @@
-import { createUserMessage } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
+import { createUserMessage } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import {
   CompactionId,
   CompactionEngine,
   compactCheckpointSource,
   isCompactCheckpointSource,
-} from '@qilin/compaction'
-import type { CompactionResult, CompactionTrigger } from '@qilin/compaction'
-import { Session, SessionId } from '@qilin/session'
-import type { SessionSeq } from '@qilin/session'
-import type { CompactionAgentContext } from '@qilin/compaction'
-import type { ManualCompactAgentContext } from '@qilin/compaction'
+} from '@qilin-agent/compaction'
+import type { CompactionResult, CompactionTrigger } from '@qilin-agent/compaction'
+import { Session, SessionId } from '@qilin-agent/session'
+import type { SessionSeq } from '@qilin-agent/session'
+import type { CompactionAgentContext } from '@qilin-agent/compaction'
+import type { ManualCompactAgentContext } from '@qilin-agent/compaction'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'other': { kind: 'other' } & ContextFormed
   }

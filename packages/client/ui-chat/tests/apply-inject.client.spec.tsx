@@ -1,23 +1,23 @@
 // @vitest-environment jsdom
 /** Chat inject factories exercised over independently mounted Conversation and Chat plugins. */
 import { describe, expect, it, vi } from 'vitest'
-import { createSnapshotStore } from '@qilin/client-store'
-import { AttachmentId } from '@qilin/attachment'
-import type { ISession, SessionReference } from '@qilin/api-session-controller/client'
-import { LocaleRuntime } from '@qilin/client-locale/client'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { AttachmentId } from '@qilin-agent/attachment'
+import type { ISession, SessionReference } from '@qilin-agent/api-session-controller/client'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
 import {
   SlotTestRuntime, stubConfigForm, usePinnedBrowserLanguages,
-} from '@qilin/client-test-runtime'
-import type { SessionBehaviorOverrides } from '@qilin/client-test-runtime'
-import type { ClientRemote } from '@qilin/api-remotes/client'
+} from '@qilin-agent/client-test-runtime'
+import type { SessionBehaviorOverrides } from '@qilin-agent/client-test-runtime'
+import type { ClientRemote } from '@qilin-agent/api-remotes/client'
 import {
   apply as applyConversation, inject as injectConversation,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 import {
   apply as applyChat, inject as injectChat, type ChatViewInjected,
-} from '@qilin/client-ui-chat/client'
-import { SessionSeq, type SessionId } from '@qilin/session/types'
-import type { WorkspaceId } from '@qilin/workspace/types'
+} from '@qilin-agent/client-ui-chat/client'
+import { SessionSeq, type SessionId } from '@qilin-agent/session/types'
+import type { WorkspaceId } from '@qilin-agent/workspace/types'
 import { createChatStore } from '../src/client/stores.ts'
 
 usePinnedBrowserLanguages('zh-CN')

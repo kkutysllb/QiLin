@@ -1,15 +1,15 @@
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import { RemoteError, TestRemote } from '@qilin/client-test-runtime'
-import { LocaleRuntime } from '@qilin/client-locale/client'
-import { apply, inject } from '@qilin/client-ui-workspace/client'
-import type { WorkspaceBrowserInjected, WorkspacePickerInjected } from '@qilin/client-ui-workspace/client'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import { RemoteError, TestRemote } from '@qilin-agent/client-test-runtime'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
+import { apply, inject } from '@qilin-agent/client-ui-workspace/client'
+import type { WorkspaceBrowserInjected, WorkspacePickerInjected } from '@qilin-agent/client-ui-workspace/client'
 import { WorkspaceBrowser } from '../src/client/rows/WorkspaceBrowser.tsx'
 import { WorkspacePicker } from '../src/client/WorkspacePicker.tsx'
-import { apply as workbenchApply } from '@qilin/client-ui-workbench/client'
+import { apply as workbenchApply } from '@qilin-agent/client-ui-workbench/client'
 import { apply as hostApply } from '../src/index.ts'
-import type { SessionReference } from '@qilin/api-session-controller/client'
+import type { SessionReference } from '@qilin-agent/api-session-controller/client'
 
 async function bench() {
   const ctx = new Context()

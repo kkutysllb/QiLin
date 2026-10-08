@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { RemoteResult } from '@qilin/api-remotes/client'
-import { RemoteError } from '@qilin/client-test-runtime'
+import type { RemoteResult } from '@qilin-agent/api-remotes/client'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
 import type {
   ScheduleCatalogEntry, ScheduleDeleteResult, ScheduleId, ScheduleRecord,
-} from '@qilin/schedule/client'
-import type { SessionId } from '@qilin/session/types'
+} from '@qilin-agent/schedule/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { CatalogSnapshot } from '../src/client/catalog-source.ts'
 import {
   createSessionScheduleSource, selectSessionScheduleFacts,

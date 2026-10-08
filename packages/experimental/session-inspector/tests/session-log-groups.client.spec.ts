@@ -1,8 +1,8 @@
 /** Turn/Step intervals preserve original log rows, sticky ancestry, and live stream identities. */
 
-import { MutableSessionEventSource, type SessionEventLikeEntry } from '@qilin/api-session-controller/client'
-import { SessionSeq, type SessionEvent } from '@qilin/session/types'
-import type { LlmAttemptId, MessageId, ToolCallId } from '@qilin/llm'
+import { MutableSessionEventSource, type SessionEventLikeEntry } from '@qilin-agent/api-session-controller/client'
+import { SessionSeq, type SessionEvent } from '@qilin-agent/session/types'
+import type { LlmAttemptId, MessageId, ToolCallId } from '@qilin-agent/llm'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import { SessionLogModel } from '../src/client/views/session-log/model.ts'
 import { InspectorTableHierarchy } from '../src/client/views/table-model.ts'

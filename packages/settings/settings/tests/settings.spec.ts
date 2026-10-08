@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
+import { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
 import { SettingsProvider, SettingsConflictError, type SettingsNamespace, type SettingsScope, type SettingsUpdateSource } from '../src/index.ts'
-import { deepEqualJson } from '@qilin/util-values'
+import { deepEqualJson } from '@qilin-agent/util-values'
 import { MemorySettings } from './memory.ts'
 
 /** A provider implementing only the three primitives: the Service Definition owns initialization. */

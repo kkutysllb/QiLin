@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/session-format",
+  "name": "@qilin-agent/session-format",
   "description": "Streaming adjacent Session format migration machinery",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,12 +30,12 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@qilin/util-values": "workspace:*"
+    "@qilin-agent/util-values": "workspace:*"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   }
 }

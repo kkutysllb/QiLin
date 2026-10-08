@@ -1,16 +1,16 @@
 /**
  * Default model selection for an Agent without a session-specific selection.
  *
- * @module @qilin/agent-default-model
+ * @module @qilin-agent/agent-default-model
  */
 
-import { Context, Service } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type { ModelSelection } from '@qilin/agent'
-import { ReasoningEffortId } from '@qilin/llm'
-import type {} from '@qilin/settings'
+import { Context, Service } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type { ModelSelection } from '@qilin-agent/agent'
+import { ReasoningEffortId } from '@qilin-agent/llm'
+import type {} from '@qilin-agent/settings'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Default model selection for Agents created without an explicit model. */
     agentDefaultModel: AgentDefaultModelConfig

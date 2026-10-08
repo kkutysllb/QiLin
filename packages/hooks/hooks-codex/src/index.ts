@@ -5,28 +5,28 @@
  * or command substitution, and no pre-tool approval or rewrite path; only
  * blocking decisions are honored. Shared execution and parsing live in
  * `qilin-hook-protocol`.
- * @module @qilin/hooks-codex
+ * @module @qilin-agent/hooks-codex
  */
 
 // Each dialect bridge keeps its complete dependency list visible at the entry
 // point; a cross-package facade for imports alone would add indirection.
 /* jscpd:ignore-start */
 import { readFileSync } from 'node:fs'
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type { Agent, PreStepDecision } from '@qilin/agent'
-import type {} from '@qilin/session-projection'
-import { createUserMessage } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-declare module '@qilin/llm' {
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type { Agent, PreStepDecision } from '@qilin-agent/agent'
+import type {} from '@qilin-agent/session-projection'
+import { createUserMessage } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'hooks-codex': { kind: 'hooks-codex' } & ContextFormed
   }
 }
 
-import type { ContentBlock, MessageSource } from '@qilin/llm'
-import type { UserMessage } from '@qilin/session'
-import type { PostToolDecision, PreToolDecision, ToolExecution, ToolExecutionResult } from '@qilin/tools'
+import type { ContentBlock, MessageSource } from '@qilin-agent/llm'
+import type { UserMessage } from '@qilin-agent/session'
+import type { PostToolDecision, PreToolDecision, ToolExecution, ToolExecutionResult } from '@qilin-agent/tools'
 import {
   appendHookInvoked,
   appendHookResult,
@@ -39,7 +39,7 @@ import {
   type HookOutput,
   type MatcherGroup,
   type MergedHookOutcome,
-} from '@qilin/hook-protocol'
+} from '@qilin-agent/hook-protocol'
 import { parseCodexConfig, type CodexHookConfig } from './config.ts'
 /* jscpd:ignore-end */
 

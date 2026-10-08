@@ -4,17 +4,17 @@
  * version this controller last observed, and a `version-conflict` reply carries
  * the authoritative item, so a lost race reconciles from the reply itself
  * instead of refetching the whole Session.
- * @module @qilin/client-ui-message-feedback/client/controller
+ * @module @qilin-agent/client-ui-message-feedback/client/controller
  */
 
-import type { HostObservable } from '@qilin/client-ui-slots'
-import type { ClientRemote, MessageId } from '@qilin/api-remotes/client'
-import type { SessionId } from '@qilin/session/types'
-import type { FeedbackRecord } from '@qilin/command-feedback/types'
+import type { HostObservable } from '@qilin-agent/client-ui-slots'
+import type { ClientRemote, MessageId } from '@qilin-agent/api-remotes/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { FeedbackRecord } from '@qilin-agent/command-feedback/types'
 import type {
   MessageFeedbackItem,
   MessageFeedbackRating,
-} from '@qilin/message-feedback/types'
+} from '@qilin-agent/message-feedback/types'
 
 /** Load state of the one list read that seeds every per-message control. */
 export type MessageFeedbackStatus = 'cold' | 'loading' | 'ready' | 'error'

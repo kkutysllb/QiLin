@@ -1,20 +1,20 @@
 /**
  * Concrete session-query service with SQLite FTS5 over the live-preferred corpus.
  *
- * @module @qilin/session-query-sqlite
+ * @module @qilin-agent/session-query-sqlite
  */
 
 import { createHash, randomUUID } from 'node:crypto'
-import { SESSION_FORMAT_VERSION, SessionSeq } from '@qilin/session'
+import { SESSION_FORMAT_VERSION, SessionSeq } from '@qilin-agent/session'
 import type { DatabaseSync } from 'node:sqlite'
-import { Context, Service, type Fiber } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type { Session, SessionEvent, SessionHeader, SessionId, SessionLogOffset } from '@qilin/session'
-import type SessionPersistence from '@qilin/session-persistence'
+import { Context, Service, type Fiber } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type { Session, SessionEvent, SessionHeader, SessionId, SessionLogOffset } from '@qilin-agent/session'
+import type SessionPersistence from '@qilin-agent/session-persistence'
 import type {
   SessionPersistenceRevision,
   SessionPersistenceSnapshot,
-} from '@qilin/session-persistence'
+} from '@qilin-agent/session-persistence'
 import SessionQueryEngine, {
   SESSION_QUERY_DEFAULT_PERSISTED_INSPECT_CONCURRENCY,
   SESSION_QUERY_DEFAULT_PREPARED_SESSION_CACHE_SIZE,
@@ -24,7 +24,7 @@ import SessionQueryEngine, {
   assertSessionHeadersCompatible,
   buildSessionEventSearchDocuments,
   readColdSessionLog,
-} from '@qilin/session-query'
+} from '@qilin-agent/session-query'
 import type {
   Config as SessionQueryConfig,
   SessionEventSearchDocument,
@@ -36,7 +36,7 @@ import type {
   SessionSearchCursor as SessionSearchCursorValue,
   SessionSearchPage,
   SessionSearchRequest,
-} from '@qilin/session-query'
+} from '@qilin-agent/session-query'
 import {
   type JournalMode,
   openSearchDatabase,
@@ -68,7 +68,7 @@ export {
 /** Boot-context slot for a launcher-owned absolute path to this process's derived query index. */
 export const SESSION_QUERY_SQLITE_PATH_KEY = 'launcherSessionQueryPath'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Launcher-owned absolute path to this process's disposable derived query index. */
     launcherSessionQueryPath?: string

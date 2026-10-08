@@ -1,10 +1,10 @@
 /**
  * Wire model of the MCP server settings service. Every field is plain JSON and
  * crosses the Typert Remote boundary in both directions.
- * @module @qilin/mcp-servers/types
+ * @module @qilin-agent/mcp-servers/types
  */
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** The submitted serverName is outside the pattern the Loader accepts. */
     'mcp-server/invalid-name': {}

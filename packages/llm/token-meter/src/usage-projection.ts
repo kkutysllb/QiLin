@@ -3,11 +3,11 @@
  */
 
 import { z } from 'zod'
-import { lastAssistantStreamChunk, type TokenUsage } from '@qilin/llm'
-import type {} from '@qilin/llm-retry/types'
-import { SessionSeq } from '@qilin/session'
-import type { SessionEvent } from '@qilin/session'
-import type { ProjectionDefinition } from '@qilin/session-projection'
+import { lastAssistantStreamChunk, type TokenUsage } from '@qilin-agent/llm'
+import type {} from '@qilin-agent/llm-retry/types'
+import { SessionSeq } from '@qilin-agent/session'
+import type { SessionEvent } from '@qilin-agent/session'
+import type { ProjectionDefinition } from '@qilin-agent/session-projection'
 import type { ContextPressureProjection, TokenUsageProjection } from './projection.ts'
 import { foldSurfaceProjection } from './surface-projection.ts'
 
@@ -85,7 +85,7 @@ function usageOf(event: SessionEvent): TokenUsage | undefined {
   return lastAssistantStreamChunk(event.data.stream, 'usage')?.usage
 }
 
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionStateMap {
     tokenUsage: TokenUsageState
     contextPressure: ContextPressureState

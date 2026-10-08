@@ -6,8 +6,8 @@
  * behavior for a bad historical stream.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { SessionId, SessionSeq } from '@qilin/session'
-import type { SessionEvent } from '@qilin/session'
+import { SessionId, SessionSeq } from '@qilin-agent/session'
+import type { SessionEvent } from '@qilin-agent/session'
 import { harness } from './harness.ts'
 
 const tests: Awaited<ReturnType<typeof harness>>[] = []

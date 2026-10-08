@@ -7,7 +7,7 @@ import { globSync, readFileSync } from 'node:fs'
 import { resolve, sep } from 'node:path'
 
 const ROOT = resolve(import.meta.dirname, '..')
-const QILIN_PACKAGE_NAME = /^@qilin\//
+const QILIN_PACKAGE_NAME = /^@qilin-agent\//
 
 /** Result of checking every QILIN package reachable through the root workspace list. */
 export interface QilinPackageLicenseReport {

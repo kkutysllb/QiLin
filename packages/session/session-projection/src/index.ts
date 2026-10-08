@@ -14,20 +14,20 @@
  * carry the complete post-change state, never a bare delta — it keeps every
  * unit's transition trivially cheap and every served value self-describing.
  *
- * @module @qilin/session-projection
+ * @module @qilin-agent/session-projection
  */
 
-import { Context, Service } from '@qilin/kylin'
+import { Context, Service } from '@qilin-agent/kylin'
 import type { ZodType } from 'zod'
-import { SessionLogOffset, SessionSeq } from '@qilin/session'
+import { SessionLogOffset, SessionSeq } from '@qilin-agent/session'
 import type {
   Session,
   SessionEvent,
   SessionHeader,
   SessionSeqCursor,
-} from '@qilin/session'
+} from '@qilin-agent/session'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     sessionProjections: SessionProjectionRegistry
   }

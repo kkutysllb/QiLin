@@ -5,16 +5,16 @@
  * offers it as an entry box, and every section inside works on the session's
  * workspace through the `workspaceGit` Remote namespace.
  */
-import type { SidebarRightTabDefinition } from '@qilin/client-ui-sidebar-right/client'
-import type { TranslateNS } from '@qilin/client-ui-slots'
-import { IconBranchOutline16, type IconProps } from '@qilin/client-ui-primitives'
+import type { SidebarRightTabDefinition } from '@qilin-agent/client-ui-sidebar-right/client'
+import type { TranslateNS } from '@qilin-agent/client-ui-slots'
+import { IconBranchOutline16, type IconProps } from '@qilin-agent/client-ui-primitives'
 import type {} from './locales.ts'
 
 /** The tab kind this package owns. */
 export const GIT_KIND = 'git'
 
 /** This implementation's identity in the tab system, and the key its body registers under. */
-export const GIT_ID = '@qilin/client-ui-sidebar-git'
+export const GIT_ID = '@qilin-agent/client-ui-sidebar-git'
 
 /** The type's branch glyph at whatever size the drawing surface asks for. */
 function BranchGlyph({ size, className }: IconProps) {

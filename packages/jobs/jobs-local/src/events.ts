@@ -1,14 +1,14 @@
 /**
  * Event routing for the local registry: subscriptions file by filter, and
  * every commit dispatches once to each matching listener with containment.
- * @module @qilin/jobs-local/events
+ * @module @qilin-agent/jobs-local/events
  */
 
-import type { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import { AnonymousEntries, ScopedLayers, scopeOf } from '@qilin/scope'
-import type { ScopeLayer } from '@qilin/scope'
-import type { JobEvent, JobEventFilter, JobEventListener } from '@qilin/jobs'
+import type { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import { AnonymousEntries, ScopedLayers, scopeOf } from '@qilin-agent/scope'
+import type { ScopeLayer } from '@qilin-agent/scope'
+import type { JobEvent, JobEventFilter, JobEventListener } from '@qilin-agent/jobs'
 
 /** One registered listener and the filter it declared. */
 interface Subscription {

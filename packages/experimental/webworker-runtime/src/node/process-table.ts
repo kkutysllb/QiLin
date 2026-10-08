@@ -6,7 +6,7 @@
  *
  * Kept apart from both consumers because they need it from opposite sides —
  * the shim registers entries, the `process` global signals them.
- * @module @qilin/experimental-webworker-runtime/src/node/process-table
+ * @module @qilin-agent/experimental-webworker-runtime/src/node/process-table
  */
 
 import type { RunningProcess } from '../shell/process/host.ts'

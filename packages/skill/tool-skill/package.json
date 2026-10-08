@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/tool-skill",
+  "name": "@qilin-agent/tool-skill",
   "description": "Model-facing skill loading tool for the QiLin",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,24 +30,24 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/skill": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/skill": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/agent-loop-testkit": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/scope": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/skill": "workspace:*",
-    "@qilin/skill-filesystem": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-loop-testkit": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/scope": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/skill": "workspace:*",
+    "@qilin-agent/skill-filesystem": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   }
 }

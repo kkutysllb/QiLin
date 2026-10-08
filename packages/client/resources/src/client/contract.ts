@@ -14,18 +14,18 @@
  * consumer names the protocol as a type argument and receives the owner's value
  * type without importing the owner's runtime.
  */
-import type { RemoteFailure, RemoteResult } from '@qilin/typert-protocol'
-import type { ObservableSnapshot } from '@qilin/client-store'
-import type { ResourceProtocolMap } from '@qilin/client-ui-slots'
+import type { RemoteFailure, RemoteResult } from '@qilin-agent/typert-protocol'
+import type { ObservableSnapshot } from '@qilin-agent/client-store'
+import type { ResourceProtocolMap } from '@qilin-agent/client-ui-slots'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface GlobalStandardProps {
     /** Live value of one address, resolved through the provider registered for its protocol. */
     useResource: UseResource
   }
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Resource model: protocol providers, pins, and per-address live sources. */
     resources: Resources

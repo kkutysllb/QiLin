@@ -23,7 +23,7 @@
 import { createElement, memo, useCallback, useEffect, useMemo, useRef, useState, type DragEvent as ReactDragEvent, type ReactNode } from 'react'
 import { useSyncExternalStore } from 'react'
 import clsx from 'clsx'
-import { Tooltip } from '@qilin/client-ui-primitives'
+import { Tooltip } from '@qilin-agent/client-ui-primitives'
 import type { Context, SidebarSessionList } from '../context-types.ts'
 import { appendToDraft, insertFileReference } from './conversation-draft.ts'
 import {

@@ -11,28 +11,28 @@
  */
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve as resolvePath } from 'node:path'
-import { ToolCallId } from '@qilin/llm'
-import SystemPrompt, { renderPrompt } from '@qilin/system-prompt'
-import ToolRuntime, { TOOL_ABORTED, TOOL_ABORTED_BEFORE_DISPATCH } from '@qilin/tools'
-import LocalJobRegistry from '@qilin/jobs-local'
-import * as ToolJobs from '@qilin/tool-jobs'
-import AgentRegistry from '@qilin/agent'
-import type { Agent } from '@qilin/agent'
-import { SESSION_FORMAT_VERSION, SessionId, SessionLogOffset, SessionSeq } from '@qilin/session'
-import ApprovalService from '@qilin/user-approval'
-import type { ApprovalOutcome } from '@qilin/user-approval'
-import { ShellExecutor } from '@qilin/shell'
-import type { ShellExecRequest, ShellExecSpec, ShellProcess, ShellRunResult } from '@qilin/shell'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import { turnBoundaryProjectionDefinition } from '@qilin/agent-loop'
-import SandboxPolicyService from '@qilin/sandbox-policy'
-import * as ToolPwsh from '@qilin/tool-pwsh'
-import * as BashEnvPlugin from '@qilin/shell-env'
-import type { ShellProcessRead } from '@qilin/shell'
+import { ToolCallId } from '@qilin-agent/llm'
+import SystemPrompt, { renderPrompt } from '@qilin-agent/system-prompt'
+import ToolRuntime, { TOOL_ABORTED, TOOL_ABORTED_BEFORE_DISPATCH } from '@qilin-agent/tools'
+import LocalJobRegistry from '@qilin-agent/jobs-local'
+import * as ToolJobs from '@qilin-agent/tool-jobs'
+import AgentRegistry from '@qilin-agent/agent'
+import type { Agent } from '@qilin-agent/agent'
+import { SESSION_FORMAT_VERSION, SessionId, SessionLogOffset, SessionSeq } from '@qilin-agent/session'
+import ApprovalService from '@qilin-agent/user-approval'
+import type { ApprovalOutcome } from '@qilin-agent/user-approval'
+import { ShellExecutor } from '@qilin-agent/shell'
+import type { ShellExecRequest, ShellExecSpec, ShellProcess, ShellRunResult } from '@qilin-agent/shell'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import { turnBoundaryProjectionDefinition } from '@qilin-agent/agent-loop'
+import SandboxPolicyService from '@qilin-agent/sandbox-policy'
+import * as ToolPwsh from '@qilin-agent/tool-pwsh'
+import * as BashEnvPlugin from '@qilin-agent/shell-env'
+import type { ShellProcessRead } from '@qilin-agent/shell'
 import { processOutcome } from '../src/background.ts'
 import { renderPwshProcessRead, renderPwshResult } from '../src/render.ts'
 
@@ -793,7 +793,7 @@ describe('background execution through the job runtime', () => {
     const { ctx } = await setup() // no LocalJobRegistry / ToolJobs
     const result = await call(ctx, 'pwsh', { command: 'Start-Sleep -Seconds 60', description: 'test command', run_in_background: true })
     expect(result.isError).toBe(true)
-    expect(text(result)).toContain('background jobs unavailable: load @qilin/jobs and @qilin/tool-jobs')
+    expect(text(result)).toContain('background jobs unavailable: load @qilin-agent/jobs and @qilin-agent/tool-jobs')
   })
 
   it('a pre-aborted call is skipped before the process starts', async () => {

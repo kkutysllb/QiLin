@@ -7,9 +7,9 @@
  * activation hook source.
  */
 
-import type { RemoteResult } from '@qilin/api-remotes/client'
-import type { HostObservable } from '@qilin/client-ui-slots'
-import type { GoalActivation, GoalId } from '@qilin/goal/client'
+import type { RemoteResult } from '@qilin-agent/api-remotes/client'
+import type { HostObservable } from '@qilin-agent/client-ui-slots'
+import type { GoalActivation, GoalId } from '@qilin-agent/goal/client'
 
 /**
  * The one failure the strip reports without a wire call: the session projects

@@ -1,22 +1,22 @@
 // @vitest-environment jsdom
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createSnapshotStore } from '@qilin/client-store'
+import { createSnapshotStore } from '@qilin-agent/client-store'
 import { cleanup, fireEvent } from '@testing-library/react'
-import type { ISession } from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
-import type { WorkspaceId } from '@qilin/workspace/types'
+import type { ISession } from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { WorkspaceId } from '@qilin-agent/workspace/types'
 import {
   apply as applyChat, inject as injectChat, type ToolResultNode,
-} from '@qilin/client-ui-chat/client'
-import type { PropsRenderSlots } from '@qilin/client-ui-slots'
-import { SlotTestRuntime, stubConfigForm } from '@qilin/client-test-runtime'
-import { LocaleRuntime } from '@qilin/client-locale/client'
-import { apply as applyConversation, inject as injectConversation } from '@qilin/client-ui-conversation/client'
-import { apply as applyTool, inject as injectTool } from '@qilin/client-ui-tool/client'
-import type { ToolCallViewProps } from '@qilin/client-ui-tool/client'
+} from '@qilin-agent/client-ui-chat/client'
+import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
+import { SlotTestRuntime, stubConfigForm } from '@qilin-agent/client-test-runtime'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
+import { apply as applyConversation, inject as injectConversation } from '@qilin-agent/client-ui-conversation/client'
+import { apply as applyTool, inject as injectTool } from '@qilin-agent/client-ui-tool/client'
+import type { ToolCallViewProps } from '@qilin-agent/client-ui-tool/client'
 import { toolSessionEvents } from './tool-fixtures.client.ts'
-import { PartialArguments } from '@qilin/util-values'
+import { PartialArguments } from '@qilin-agent/util-values'
 
 const SID = 's1' as SessionId
 

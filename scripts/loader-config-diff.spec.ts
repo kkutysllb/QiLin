@@ -1,6 +1,6 @@
 /** Raw config comparison reads schema metadata without resolving config or committing references. */
 import { expect, it, vi } from 'vitest'
-import z from '@qilin/schemastery'
+import z from '@qilin-agent/schemastery'
 import { equalExceptVolatile as equal } from '../vendor/loader/src/config/diff.ts'
 
 it('ignores volatile fields in frozen raw inputs without running schema callbacks', () => {

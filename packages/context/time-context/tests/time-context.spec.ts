@@ -1,19 +1,19 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import { createUserMessage, ToolCallId, LlmAdapter } from '@qilin/llm'
-import type { GenerateOptions, StreamChunk } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import { Session, SessionId, type SessionEvent } from '@qilin/session'
-import AgentRegistry, { agentEvents, type Agent } from '@qilin/agent'
-import { defineContentToolFixture } from '@qilin/tools'
-import AgentLoop from '@qilin/agent-loop'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import { unsupportedInbox, mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'
-import * as timeContext from '@qilin/time-context'
-import type { Config } from '@qilin/time-context'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import { createUserMessage, ToolCallId, LlmAdapter } from '@qilin-agent/llm'
+import type { GenerateOptions, StreamChunk } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import { Session, SessionId, type SessionEvent } from '@qilin-agent/session'
+import AgentRegistry, { agentEvents, type Agent } from '@qilin-agent/agent'
+import { defineContentToolFixture } from '@qilin-agent/tools'
+import AgentLoop from '@qilin-agent/agent-loop'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import { unsupportedInbox, mountAgentLoopTestDependencies } from '@qilin-agent/agent-loop-testkit'
+import * as timeContext from '@qilin-agent/time-context'
+import type { Config } from '@qilin-agent/time-context'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'compaction-basic': { kind: 'compaction-basic' } & ContextFormed
     'time-context-test': { kind: 'time-context-test' } & ContextFormed

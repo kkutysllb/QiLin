@@ -3,7 +3,7 @@ description: "In-process fork subagent backend for users and maintainers choosin
 kind: "package-reference"
 ---
 
-# @qilin/subagent-fork-in-process
+# @qilin-agent/subagent-fork-in-process
 
 English | [中文](README.zh.md)
 
@@ -40,9 +40,9 @@ The seed ends at the parent's last completed turn. A parent's current tool-calli
 Load the subagent service and this backend, then configure a delegation tool. This composition exposes a `subagent` tool backed by fork:
 
 ```yaml
-- name: '@qilin/subagent'
-- name: '@qilin/subagent-fork-in-process'
-- name: '@qilin/tool-subagent'
+- name: '@qilin-agent/subagent'
+- name: '@qilin-agent/subagent-fork-in-process'
+- name: '@qilin-agent/tool-subagent'
   config:
     provider: fork
 ```
@@ -51,7 +51,7 @@ Load the subagent service and this backend, then configure a delegation tool. Th
 |---|---|---|
 | `providerName` | `fork` | Provider name registered on `ctx.subagents` |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#qilinsubagent-fork-in-process) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agentsubagent-fork-in-process) is the exhaustive source for every accepted field and its JSDoc.
 
 ### What a fork delegation does
 
@@ -98,7 +98,7 @@ Read these pages when the package-level contract is not enough; they move from t
 - [qilin-subagent-in-process-driver](../subagent-in-process-driver/README.md) — the shared run driver this backend calls.
 - [qilin-subagent-spawn-in-process](../subagent-spawn-in-process/README.md) — the fresh-child sibling backend.
 - [qilin-tool-subagent](../tool-subagent/README.md) — the model-facing delegation tool that reaches this provider.
-- [Generated configuration catalog](../../../docs/config-catalog.md#qilinsubagent-fork-in-process) — every accepted config field and its source declaration.
+- [Generated configuration catalog](../../../docs/config-catalog.md#qilin-agentsubagent-fork-in-process) — every accepted config field and its source declaration.
 - [Fork children stay one-shot](../../../.agents/notes/implemented/architecture/2026-08-10-fork-children-stay-one-shot.md) — why shipped compositions bind fork to one-shot.
 
 -----

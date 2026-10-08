@@ -27,44 +27,44 @@ const workspaceGlobs = [
   { dir: 'apps', depth: 1 },
 ] as const
 const vendoredPackages = new Set([
-  '@qilin/kylin',
-  '@qilin/cosmokit',
-  '@qilin/schemastery',
-  '@qilin/kylin-plugin-loader',
-  '@qilin/kylin-plugin-include',
-  '@qilin/kylin-plugin-group',
-  '@qilin/kylin-plugin-timer',
-  '@qilin/kylin-plugin-hmr',
-  '@qilin/kylin-plugin-logger-console',
+  '@qilin-agent/kylin',
+  '@qilin-agent/cosmokit',
+  '@qilin-agent/schemastery',
+  '@qilin-agent/kylin-plugin-loader',
+  '@qilin-agent/kylin-plugin-include',
+  '@qilin-agent/kylin-plugin-group',
+  '@qilin-agent/kylin-plugin-timer',
+  '@qilin-agent/kylin-plugin-hmr',
+  '@qilin-agent/kylin-plugin-logger-console',
 ])
 /** Name prefix every member of the native addon sequence shares, including its workspace root. */
-const nativePackagePrefix = '@qilin/node-addon-system'
+const nativePackagePrefix = '@qilin-agent/node-addon-system'
 const publicNativePackages = new Set([
-  '@qilin/node-addon-system',
-  '@qilin/node-addon-system-darwin-arm64',
-  '@qilin/node-addon-system-darwin-x64',
-  '@qilin/node-addon-system-linux-arm64',
-  '@qilin/node-addon-system-linux-x64',
+  '@qilin-agent/node-addon-system',
+  '@qilin-agent/node-addon-system-darwin-arm64',
+  '@qilin-agent/node-addon-system-darwin-x64',
+  '@qilin-agent/node-addon-system-linux-arm64',
+  '@qilin-agent/node-addon-system-linux-x64',
 ])
 /** Deliberate source payloads whose exact bytes are part of the package's audit surface. */
 const publicationSourceAllowlist: Readonly<Record<string, readonly string[]>> = {
-  '@qilin/node-addon-system': ['src/main.c', 'src/flock.c'],
+  '@qilin-agent/node-addon-system': ['src/main.c', 'src/flock.c'],
 }
 /** Public source home recorded in maintained package manifests. */
 const publishedRepositoryUrl = 'git+https://github.com/kkutysllb/QiLin.git'
 /** Packages that participate in the experimental policy. */
 const experimentalPackageDirectory = /^packages\/experimental\/[^/]+$/
 /** npm namespace reserved for experimental packages. */
-const experimentalPackageNamePrefix = '@qilin/experimental-'
+const experimentalPackageNamePrefix = '@qilin-agent/experimental-'
 /** Ordinary directories whose packages this repository publishes: one release member each. */
 const standardReleaseMemberDirectory = /^(?:packages\/(?!experimental\/)[^/]+\/[^/]+|apps\/[^/]+|vendor\/[^/]+)$/
 const localArtifactDirs = new Set(['node_modules'])
 const appPackageFiles: Readonly<Record<string, readonly string[]>> = {
-  '@qilin/cli': ['lib/*.js', 'lib/types/*.d.ts'],
+  '@qilin-agent/cli': ['lib/*.js', 'lib/types/*.d.ts'],
   // Sourcemaps stay out by payload policy; the worker-preview surface
   // (dist/preview.html and dist/preview/) backs opt-in experimental
   // packages and is not published.
-  '@qilin/web-frontend': ['dist', '!dist/**/*.map', '!dist/preview.html', '!dist/preview'],
+  '@qilin-agent/web-frontend': ['dist', '!dist/**/*.map', '!dist/preview.html', '!dist/preview'],
 }
 
 /** The subset of package.json fields this constraint check cares about. */
@@ -151,57 +151,57 @@ function workspaceManifests(): WorkspaceManifest[] {
 
 const packageFileExtras: Readonly<Record<string, readonly string[]>> = {
   // Owned Worker bundles import this public bootstrap before their business entry.
-  '@qilin/app-boot': ['lib/worker/profile-resolution-bootstrap.js'],
+  '@qilin-agent/app-boot': ['lib/worker/profile-resolution-bootstrap.js'],
   // Statically linked client libraries keep their stylesheets next to the emitted
   // JavaScript, which imports them by relative path: the compile shell runs
   // them through its own CSS pipeline, so the sheets are published artifacts.
   // The glob covers whichever sheets a package emits; sourcemaps stay
   // unpublished, as everywhere else in the repository.
-  '@qilin/client-ui-primitives': ['lib/**/*.css'],
-  '@qilin/client-ui-dockkit': ['lib/**/*.css'],
-  '@qilin/client-ui-sidebar-documentpreview': ['lib/client.*.js'],
-  '@qilin/client-ui-sidebar-terminal': ['lib/client.*.js'],
+  '@qilin-agent/client-ui-primitives': ['lib/**/*.css'],
+  '@qilin-agent/client-ui-dockkit': ['lib/**/*.css'],
+  '@qilin-agent/client-ui-sidebar-documentpreview': ['lib/client.*.js'],
+  '@qilin-agent/client-ui-sidebar-terminal': ['lib/client.*.js'],
   // The coding workbench ships the same lazy `/sidebar/bundle` chunk family.
-  '@qilin/client-ui-sidebar-coding': ['lib/client.*.js'],
-  '@qilin/client-web': ['lib/**/*.css', 'lib/apply-injections.js'],
-  '@qilin/client-ui-theme': ['lib/styles'],
+  '@qilin-agent/client-ui-sidebar-coding': ['lib/client.*.js'],
+  '@qilin-agent/client-web': ['lib/**/*.css', 'lib/apply-injections.js'],
+  '@qilin-agent/client-ui-theme': ['lib/styles'],
   // The physical-key protocol is a public entry usable without the browser service.
-  '@qilin/client-shortcuts': ['lib/protocol.js'],
+  '@qilin-agent/client-shortcuts': ['lib/protocol.js'],
   // The CPython side ships as source .py files, published as-is rather than built.
-  '@qilin/experimental-ptc-runtime-python': ['py/**/*.py'],
+  '@qilin-agent/experimental-ptc-runtime-python': ['py/**/*.py'],
   // The local recognizer reads its revision-pinned model catalog from this
   // runtime file; the Worker bundle and the packaged payload both need it.
-  '@qilin/experimental-speech-to-text-sensevoice': ['runtime/assets.json'],
+  '@qilin-agent/experimental-speech-to-text-sensevoice': ['runtime/assets.json'],
   // The isolated Node bootstrap is a separately launched bundle.
-  '@qilin/ptc-runtime-node': ['lib/process.js'],
+  '@qilin-agent/ptc-runtime-node': ['lib/process.js'],
   // The Host entry starts its sibling Worker by URL rather than a package export.
   // The page-level client bundle and the vendored Chrome devtools frontend
   // assets ship beside it.
-  '@qilin/experimental-inspector': ['lib/worker.js', 'lib/client.*.js', 'lib/devtools/**', 'cordis.patch.yml'],
+  '@qilin-agent/experimental-inspector': ['lib/worker.js', 'lib/client.*.js', 'lib/devtools/**', 'cordis.patch.yml'],
   // The shipped preset compositions travel inside the roster package.
-  '@qilin/agent-presets': ['presets'],
+  '@qilin-agent/agent-presets': ['presets'],
   // The Web Host mounts the default-off settings owner independently of each
   // Agent-scoped delegation-tool instance.
-  '@qilin/tool-subagent': ['lib/model-selection-settings.js'],
+  '@qilin-agent/tool-subagent': ['lib/model-selection-settings.js'],
   // The JSONL backend resolves its private verification Worker relative to
   // import.meta.url; it is shipped without a public package subpath.
-  '@qilin/session-persistence-jsonl': ['lib/worker.cjs'],
+  '@qilin-agent/session-persistence-jsonl': ['lib/worker.cjs'],
   // The argv-prefix runner entry ships beside the lib as its own bundle;
   // sandbox-local resolves it through the package's ./runner export. tsdown
   // also shares its generated FFI code through a hashed runtime chunk.
-  '@qilin/sandbox-windows-acl': ['lib/runner.js', 'lib/types-*.js', 'assets'],
-  '@qilin/skill-badge': ['assets'],
-  '@qilin/skill-office': ['assets'],
-  '@qilin/subprocess': ['lib/control.js'],
+  '@qilin-agent/sandbox-windows-acl': ['lib/runner.js', 'lib/types-*.js', 'assets'],
+  '@qilin-agent/skill-badge': ['assets'],
+  '@qilin-agent/skill-office': ['assets'],
+  '@qilin-agent/subprocess': ['lib/control.js'],
   // SSH launches a private helper and shares wire definitions and TLS setup
   // between that helper and the connection owner.
-  '@qilin/ssh': [
+  '@qilin-agent/ssh': [
     'lib/helper.js', 'lib/protocol.js', 'lib/schemas.js',
     'lib/protocol-*.js', 'lib/schemas-*.js', 'lib/stream-security-*.js',
   ],
   // Ordinary native containment ships a path-loaded runner and its shared
   // runner chunk beside the existing node-pty permission repair.
-  '@qilin/subprocess-local': [
+  '@qilin-agent/subprocess-local': [
     'lib/runner.js',
     'lib/runner-*.js',
     'lib/output.js',
@@ -210,10 +210,10 @@ const packageFileExtras: Readonly<Record<string, readonly string[]>> = {
   // tsdown shares the repository/pack code between the lib entry and the bin
   // through a hashed chunk. The committed bin.js is the link target pnpm can
   // resolve at install time, before the build produces lib/bin.js.
-  '@qilin/experimental-webworker-packer': ['bin.js', 'lib/repository-*.js'],
+  '@qilin-agent/experimental-webworker-packer': ['bin.js', 'lib/repository-*.js'],
   // The headless entry and its startup row share the JSON projection code
   // through a hashed tsdown chunk; both import it by relative path.
-  '@qilin/headless': ['lib/json-stream-*.js'],
+  '@qilin-agent/headless': ['lib/json-stream-*.js'],
 }
 
 function sameStringList(actual: readonly string[] | undefined, expected: readonly string[]): boolean {
@@ -345,7 +345,7 @@ function isReleaseMemberDirectory(dir: string): boolean {
  * shared with the workspace root. This name test is that boundary: it covers
  * the family wherever the manifest lives, so apps/ members cannot drift with
  * only the release lane noticing. The vendored framework and the native addon
- * family share the `@qilin` scope but not the version line: each publishes from
+ * family share the `@qilin-agent` scope but not the version line: each publishes from
  * its own sequence, so both stay outside this boundary.
  * @param manifest - the workspace package manifest.
  * @param expected - the version every qilin-family manifest must carry (the root's).
@@ -354,7 +354,7 @@ function isReleaseMemberDirectory(dir: string): boolean {
  */
 export function checkQilinFamilyVersion(manifest: PackageManifest, expected: string | undefined): string | undefined {
   const name = manifest.name
-  if (name !== '@qilin/cli' && name?.startsWith('@qilin/') !== true) return undefined
+  if (name !== '@qilin-agent/cli' && name?.startsWith('@qilin-agent/') !== true) return undefined
   // The vendored framework and the native addon family keep their own version
   // lines and publish from their own sequences, so the shared qilin version does
   // not apply to them.
@@ -415,7 +415,7 @@ export function checkWorkspaceManifest({ dir, manifest }: WorkspaceManifest): st
       errors.push(`${label}: release member repository must use ${publishedRepositoryUrl} with directory ${dir}`)
     }
     // npm reads this floor from the manifest a consumer installs, not from the
-    // workspace root, which is never published: `npx @qilin/cli` on an
+    // workspace root, which is never published: `npx @qilin-agent/cli` on an
     // unsupported Node must refuse with the supported range rather than fail
     // later inside the boot.
     if (publishedNodeFloor !== undefined && manifest.engines?.node !== publishedNodeFloor) {
@@ -429,7 +429,7 @@ export function checkWorkspaceManifest({ dir, manifest }: WorkspaceManifest): st
     return errors
   }
 
-  if (manifest.name?.startsWith('@qilin/')) {
+  if (manifest.name?.startsWith('@qilin-agent/')) {
     const allowedSources = publicationSourceAllowlist[manifest.name] ?? []
     for (const file of manifest.files ?? []) {
       if (isForbiddenPublicationFile(file) && !allowedSources.includes(file)) {
@@ -438,7 +438,7 @@ export function checkWorkspaceManifest({ dir, manifest }: WorkspaceManifest): st
     }
   }
 
-  if (dir.startsWith('apps/') && manifest.name?.startsWith('@qilin/')) {
+  if (dir.startsWith('apps/') && manifest.name?.startsWith('@qilin-agent/')) {
     const expectedFiles = appPackageFiles[manifest.name]
     if (expectedFiles === undefined) {
       errors.push(`${label}: app package has no publication files policy`)
@@ -456,14 +456,14 @@ export function checkWorkspaceManifest({ dir, manifest }: WorkspaceManifest): st
     }
   }
 
-  if (dir.startsWith('packages/') && manifest.name?.startsWith('@qilin/')) {
-    const peer = manifest.peerDependencies?.['@qilin/kylin']
-    const dev = manifest.devDependencies?.['@qilin/kylin']
+  if (dir.startsWith('packages/') && manifest.name?.startsWith('@qilin-agent/')) {
+    const peer = manifest.peerDependencies?.['@qilin-agent/kylin']
+    const dev = manifest.devDependencies?.['@qilin-agent/kylin']
 
-    if (!peer) errors.push(`${label}: @qilin/kylin must be a peerDependency`)
-    if (!dev) errors.push(`${label}: @qilin/kylin must also be a devDependency`)
+    if (!peer) errors.push(`${label}: @qilin-agent/kylin must be a peerDependency`)
+    if (!dev) errors.push(`${label}: @qilin-agent/kylin must also be a devDependency`)
     if (peer && dev && peer !== dev) {
-      errors.push(`${label}: @qilin/kylin peer (${peer}) and dev (${dev}) ranges must match`)
+      errors.push(`${label}: @qilin-agent/kylin peer (${peer}) and dev (${dev}) ranges must match`)
     }
     if (manifest.type !== 'module') {
       errors.push(`${label}: package.json must set "type": "module"`)
@@ -558,7 +558,7 @@ export function checkExperimentalDependencyIsolation(
   const errors: string[] = []
   for (const { dir, manifest } of manifests) {
     if (!standardReleaseMemberDirectory.test(dir) && dir !== 'python/sdk-runtime') continue
-    const offered = manifest.name === '@qilin/cli' ? new Set(optionalBundles) : new Set<string>()
+    const offered = manifest.name === '@qilin-agent/cli' ? new Set(optionalBundles) : new Set<string>()
     for (const section of runtimeDependencySections) {
       for (const name of Object.keys(manifest[section] ?? {})) {
         if (!experimentalNames.has(name)) continue

@@ -1,4 +1,4 @@
-import { ToolCallId, createUserMessage, expandAssistantStream } from '@qilin/llm'
+import { ToolCallId, createUserMessage, expandAssistantStream } from '@qilin-agent/llm'
 /**
  * Tests for the queue-aware `Agent.cancel()` primitive. The default clears
  * queued and steering work, while `keepInbox` preserves pending input for a
@@ -9,14 +9,14 @@ import { ToolCallId, createUserMessage, expandAssistantStream } from '@qilin/llm
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import LlmRuntime from '@qilin/llm'
-import SessionStore, { Session, SessionId, SessionLogOffset, TurnEndReason } from '@qilin/session'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime, { defineContentToolFixture, TOOL_ABORTED_BEFORE_DISPATCH } from '@qilin/tools'
-import AgentRegistry, { type Agent, type AgentCancelCause } from '@qilin/agent'
-import AgentLoop from '@qilin/agent-loop'
-import SessionProjectionRegistry from '@qilin/session-projection'
+import { Context } from '@qilin-agent/kylin'
+import LlmRuntime from '@qilin-agent/llm'
+import SessionStore, { Session, SessionId, SessionLogOffset, TurnEndReason } from '@qilin-agent/session'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime, { defineContentToolFixture, TOOL_ABORTED_BEFORE_DISPATCH } from '@qilin-agent/tools'
+import AgentRegistry, { type Agent, type AgentCancelCause } from '@qilin-agent/agent'
+import AgentLoop from '@qilin-agent/agent-loop'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import { MockAdapter, textResponse, toolCallResponse } from './mock-adapter.ts'
 
 function driverDone(agent: Agent): Promise<void> {

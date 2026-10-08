@@ -3,7 +3,7 @@ description: "Replay-aware token and context-pressure measurement for users and 
 kind: "package-reference"
 ---
 
-# @qilin/token-meter
+# @qilin-agent/token-meter
 
 English | [中文](README.zh.md)
 
@@ -57,8 +57,8 @@ Image offload reprices existing node identities while preserving prior usage anc
 ### Composition
 
 ```yaml
-- name: '@qilin/token-meter'
-- name: '@qilin/compaction-basic'
+- name: '@qilin-agent/token-meter'
+- name: '@qilin-agent/compaction-basic'
 ```
 
 Both plugins have usable defaults. The meter consumes only the optional `llm` service, and only to resolve route-declared request-image pricing; compaction remains optional. A deployment configures capacity and image pricing on its LLM adapter and compaction policy on `qilin-compaction-basic`.

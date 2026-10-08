@@ -1,13 +1,13 @@
 /**
  * Model-visible messages owned by continuable-subagent orchestration.
  *
- * @module @qilin/subagent/continuation-messages
+ * @module @qilin-agent/subagent/continuation-messages
  */
 
-import type { Agent } from '@qilin/agent'
-import { boundContextSummary, createUserMessage } from '@qilin/llm'
-import type { ContentBlock } from '@qilin/llm'
-import type { SessionId } from '@qilin/session'
+import type { Agent } from '@qilin-agent/agent'
+import { boundContextSummary, createUserMessage } from '@qilin-agent/llm'
+import type { ContentBlock } from '@qilin-agent/llm'
+import type { SessionId } from '@qilin-agent/session'
 import type { ActivationTerminal } from './lifecycle.ts'
 import type { SubagentResult } from './types.ts'
 
@@ -37,7 +37,7 @@ export interface SubagentSettledMessageSource {
   readonly senderSessionId: SessionId
 }
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'agent-message': AgentMessageSource
     'subagent-settled': SubagentSettledMessageSource

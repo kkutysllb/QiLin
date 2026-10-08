@@ -20,20 +20,20 @@
  * registering into one already depends on it for the declaration. The types
  * therefore live with their declarer.
  */
-import type { ShortcutCatalogEntry } from '@qilin/client-shortcuts/client'
-import type {} from '@qilin/client-ui-slots'
-import type { RightbarOwnerProps } from '@qilin/client-ui-layout/client'
+import type { ShortcutCatalogEntry } from '@qilin-agent/client-shortcuts/client'
+import type {} from '@qilin-agent/client-ui-slots'
+import type { RightbarOwnerProps } from '@qilin-agent/client-ui-layout/client'
 // The locale plugin's own merge carries the shared `common` vocabulary that the
 // lookup chain consults after this namespace misses.
-import type {} from '@qilin/client-locale/client'
-import type { PaneId, TabId, TabRecord } from '@qilin/client-ui-dockkit'
-import type { SnapshotSelectorHook, SlotHookFactory } from '@qilin/client-ui-slots'
-import type { WorkbenchState } from '@qilin/client-ui-workbench/client'
+import type {} from '@qilin-agent/client-locale/client'
+import type { PaneId, TabId, TabRecord } from '@qilin-agent/client-ui-dockkit'
+import type { SnapshotSelectorHook, SlotHookFactory } from '@qilin-agent/client-ui-slots'
+import type { WorkbenchState } from '@qilin-agent/client-ui-workbench/client'
 import type { TabHookContext } from '../tab-info.ts'
 import type { SidebarRightKey } from '../locales.ts'
 import type { SidebarRightNavigationParams, SidebarRightResourceParams, SidebarRightTabParamsFor } from './params.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Right-Sidebar chrome, docking-kit vocabulary, and guide copy. */
     sidebarRight: SidebarRightKey

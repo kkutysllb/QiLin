@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { createAssistantMessage, createToolResultMessage, createUserMessage, ToolCallId } from '@qilin/llm'
-import type { ContentBlock, ImageBlock } from '@qilin/llm'
-import { deriveEventMessage, foldSurface, Session, SessionId, SessionLogOffset, SessionSeq } from '@qilin/session'
-import type { SessionEvent, SessionEventMap } from '@qilin/session'
+import { createAssistantMessage, createToolResultMessage, createUserMessage, ToolCallId } from '@qilin-agent/llm'
+import type { ContentBlock, ImageBlock } from '@qilin-agent/llm'
+import { deriveEventMessage, foldSurface, Session, SessionId, SessionLogOffset, SessionSeq } from '@qilin-agent/session'
+import type { SessionEvent, SessionEventMap } from '@qilin-agent/session'
 import { imageOffloadProjection } from '../src/projection.ts'
 
 function createSession(...args: Parameters<typeof Session.create>): Session {

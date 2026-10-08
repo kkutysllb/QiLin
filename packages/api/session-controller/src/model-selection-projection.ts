@@ -1,8 +1,8 @@
 /** Durable model-selection intent and request-use projection. */
 
-import type { Context } from '@qilin/kylin'
-import type { SessionEvent } from '@qilin/session'
-import type { ProjectionDefinition } from '@qilin/session-projection'
+import type { Context } from '@qilin-agent/kylin'
+import type { SessionEvent } from '@qilin-agent/session'
+import type { ProjectionDefinition } from '@qilin-agent/session-projection'
 import { z } from 'zod'
 import type {
   ModelSelection,

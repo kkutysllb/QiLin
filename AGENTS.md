@@ -14,7 +14,7 @@ Acknowledge [declared persistence-type changes](docs/cookbook/reviewing-persiste
 
 ```
 vendor/      Vendored Cordis (vendor/README.md)
-packages/    @qilin/<pkg> workspaces at packages/<group>/<pkg>/
+packages/    @qilin-agent/<pkg> workspaces at packages/<group>/<pkg>/
   core/                 agent/session API
   api/                  remote BFF
   typert/               type graphs
@@ -68,7 +68,7 @@ packages/    @qilin/<pkg> workspaces at packages/<group>/<pkg>/
   test-support/         test infrastructure
   util/                 zero-dependency utilities
 python/      Python SDK/runtime (python/README.md)
-native/      @qilin/node-addon-system source (native/README.md)
+native/      @qilin-agent/node-addon-system source (native/README.md)
 benchmarks/  performance gates
 .agents/     Agent workflows/notes
 docs/        Documentation (docs/AGENTS.md)
@@ -125,7 +125,7 @@ QiLin's desktop application is a separate project: no desktop shell lives here a
 
 ## Conventions
 
-- Every npm package is `@qilin/<name>`; vendored packages are rescoped ([mapping](docs/rescope.md)) and `private: true`. `@qilin/kylin` is a peerDependency (+ dev) of every harness package.
+- Every npm package is `@qilin-agent/<name>`; vendored packages are rescoped ([mapping](docs/rescope.md)) and `private: true`. `@qilin-agent/kylin` is a peerDependency (+ dev) of every harness package.
 - ESM everywhere (`"type": "module"`). Use package names across packages and `.ts` in local relative imports. Config subprocesses run built `lib/` under plain Node; source regressions use their declared launcher ([testing policy](docs/testing.md#test-subprocess-launch-modes)). The `qilin` CLI source launch runs through tsx's ESM-only hook (`node --import tsx/esm`); modules it reaches must stay ESM (no CJS-only exports) — Node's native TypeScript modes are unavailable across the engines range ([source-launch contract](.agents/notes/implemented/architecture/2026-07-29-dsh-source-launch-tsx-esm.md)). Raw/Web `cordis.yml` bare plugins must appear in their resolver manifest's `dependencies`; `verify-cordis-config` enforces it.
 - **Registrations are effects**: every contribution goes through `ctx.effect()` / `ctx.on()`; a registry's `register()` returns the disposer.
 - **Typed events use declaration merging** and merge-extensible maps. Event JSDoc needs `@mode` and payload `@param`; scoped keys absent from payloads need `@qilinScopeScan unsupported`. Public service methods document parameters and non-void returns. `SessionEventMap` members are required-on-read by default — builds that do not know a type refuse the log unless the event carries the envelope's `ignorable: true`; only structural format changes bump `SESSION_FORMAT_VERSION` ([mechanism](.agents/notes/implemented/architecture/2026-08-10-session-log-version-mechanism.md)).

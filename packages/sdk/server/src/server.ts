@@ -2,20 +2,20 @@
  * JSON-RPC methods and notifications for out-of-process harness SDKs.
  * The surrounding context owns plugins, persistence, and configured adapters.
  *
- * @module @qilin/sdk-jsonrpc-server/server
+ * @module @qilin-agent/sdk-jsonrpc-server/server
  */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { resolve } from 'node:path'
-import { brandString } from '@qilin/brand'
-import type { Agent, AgentHandle } from '@qilin/agent'
-import { admitEncodedImages, type EncodedImageAttachment, type ImageAttachmentRef } from '@qilin/attachment'
-import { createUserMessage, ReasoningEffortId, type ContentBlock, type LlmRuntime } from '@qilin/llm'
-import { carrierKeyOf, type Scoped } from '@qilin/scope'
-import type { SessionId } from '@qilin/session'
-import type SubagentRuntime from '@qilin/subagent'
-import type { SubagentRunEndInfo } from '@qilin/subagent'
-import * as LlmDeepSeek from '@qilin/llm-deepseek-api-key'
+import { brandString } from '@qilin-agent/brand'
+import type { Agent, AgentHandle } from '@qilin-agent/agent'
+import { admitEncodedImages, type EncodedImageAttachment, type ImageAttachmentRef } from '@qilin-agent/attachment'
+import { createUserMessage, ReasoningEffortId, type ContentBlock, type LlmRuntime } from '@qilin-agent/llm'
+import { carrierKeyOf, type Scoped } from '@qilin-agent/scope'
+import type { SessionId } from '@qilin-agent/session'
+import type SubagentRuntime from '@qilin-agent/subagent'
+import type { SubagentRunEndInfo } from '@qilin-agent/subagent'
+import * as LlmDeepSeek from '@qilin-agent/llm-deepseek-api-key'
 import type {
   InitializeParams,
   InitializeResult,
@@ -26,7 +26,7 @@ import type {
   SdkEncodedImageBlock,
   SubagentFinishedNotification,
   SubagentStartedNotification,
-} from '@qilin/sdk-protocol'
+} from '@qilin-agent/sdk-protocol'
 
 interface SessionRecord {
   handle: AgentHandle
@@ -277,7 +277,7 @@ export class HarnessSdkJsonRpcServer {
     // No preset composition: this server's compositions keep the model-facing
     // rows in the host plane, so this agent reads them from the global layer. A
     // deployment that configures a roster has to join one here first
-    // (@qilin/agent-presets README, "Composing a child agent").
+    // (@qilin-agent/agent-presets README, "Composing a child agent").
     const handle = await this.ctx.agents.create({
       sessionId: brandString<SessionId>(sessionId),
       meta: { cwd: this.cwd },

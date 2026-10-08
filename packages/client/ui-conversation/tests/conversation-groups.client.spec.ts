@@ -1,6 +1,6 @@
-import { Context } from '@qilin/kylin'
-import { brandString } from '@qilin/brand'
-import { SessionSeq, type SessionEvent } from '@qilin/session/types'
+import { Context } from '@qilin-agent/kylin'
+import { brandString } from '@qilin-agent/brand'
+import { SessionSeq, type SessionEvent } from '@qilin-agent/session/types'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import type {
   ConversationTimelineSnapshot, ConversationViewBuilder, ConversationViewDefinition, ConversationViewNode,
@@ -12,7 +12,7 @@ import { ConversationNodeAssembler } from '../src/client/conversation/assembler.
 import { ConversationGroupRegistry } from '../src/client/conversation/group-registry.ts'
 import { ConversationViewRegistry } from '../src/client/conversation/view-registry.ts'
 
-declare module '@qilin/client-ui-conversation/client' {
+declare module '@qilin-agent/client-ui-conversation/client' {
   interface ConversationGroupDataMap {
     'group-test': number
   }

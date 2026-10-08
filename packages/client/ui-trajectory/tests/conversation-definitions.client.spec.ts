@@ -1,16 +1,16 @@
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { describe, expect, it } from 'vitest'
 import type {
   SessionEventLikeEntry, SessionLiveEventEntry,
-} from '@qilin/api-session-controller/client'
+} from '@qilin-agent/api-session-controller/client'
 import type {
   ConversationNodeDefinition, ConversationViewDefinition,
-} from '@qilin/client-ui-conversation/client'
-import { ConversationNodeAssembler, inspectRequestPrompt } from '@qilin/client-ui-conversation/client'
-import type { SessionEvent } from '@qilin/session/types'
+} from '@qilin-agent/client-ui-conversation/client'
+import { ConversationNodeAssembler, inspectRequestPrompt } from '@qilin-agent/client-ui-conversation/client'
+import type { SessionEvent } from '@qilin-agent/session/types'
 import { inspectSystemPrompt } from '../../ui-conversation/src/client/contract/system-prompt.ts'
-import { AssistantStreamAccumulator } from '@qilin/llm/assistant-stream'
-import type { StreamChunk } from '@qilin/llm'
+import { AssistantStreamAccumulator } from '@qilin-agent/llm/assistant-stream'
+import type { StreamChunk } from '@qilin-agent/llm'
 import { registerTrajectoryAssistantDefinition } from '../src/client/trajectory-assistant-definition.ts'
 import { registerTrajectoryCompactionDefinitions } from '../src/client/trajectory-compaction-definition.ts'
 import type { TrajectorySnapshot } from '../src/client/trajectory-contract.ts'
@@ -167,7 +167,7 @@ function systemMessage(text: string) {
     id: `system-${text}`,
     role: 'system',
     content: [{ type: 'text', text }],
-    source: { kind: 'plugin', plugin: '@qilin/system-prompt' },
+    source: { kind: 'plugin', plugin: '@qilin-agent/system-prompt' },
   }
 }
 

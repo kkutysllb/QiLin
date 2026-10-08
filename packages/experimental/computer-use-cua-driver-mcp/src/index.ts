@@ -4,11 +4,11 @@
  * @module
  */
 
-import type { Context, Fiber } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { ComputerUseProviderName } from '@qilin/computer-use/brand'
-import * as McpClient from '@qilin/mcp-client'
-import type {} from '@qilin/computer-use'
+import type { Context, Fiber } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { ComputerUseProviderName } from '@qilin-agent/computer-use/brand'
+import * as McpClient from '@qilin-agent/mcp-client'
+import type {} from '@qilin-agent/computer-use'
 
 /** Cordis plugin identity for the installed Cua Driver provider. */
 export const name = 'experimental-computer-use-cua-driver-mcp'

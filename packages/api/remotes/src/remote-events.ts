@@ -6,11 +6,11 @@
  * type-only.
  */
 
-import type {} from '@qilin/api-session-controller/remote-events'
-import type {} from '@qilin/schedule/client'
-import type {} from '@qilin/permission-presets/types'
-import type {} from '@qilin/plugin-manager/types'
-import type { TypertForwardableEventEntry } from '@qilin/typert-protocol'
+import type {} from '@qilin-agent/api-session-controller/remote-events'
+import type {} from '@qilin-agent/schedule/client'
+import type {} from '@qilin-agent/permission-presets/types'
+import type {} from '@qilin-agent/plugin-manager/types'
+import type { TypertForwardableEventEntry } from '@qilin-agent/typert-protocol'
 
 /**
  * Host events this application forwards without renaming. The explicit mode is

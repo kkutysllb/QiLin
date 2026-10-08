@@ -4,7 +4,7 @@ import {
   PORTABLE_RESERVED_WORDS,
   RESERVED_BINDING_GLOBALS,
   RESERVED_ERROR_MEMBERS,
-} from '@qilin/ptc-runtime'
+} from '@qilin-agent/ptc-runtime'
 
 /**
  * The Service Definition owns the portable-identifier exclusion sets so every backend

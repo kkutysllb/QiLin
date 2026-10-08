@@ -11,9 +11,9 @@
  * not, and a failure passes through untouched.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { RemoteError } from '@qilin/client-test-runtime'
-import type { SessionId } from '@qilin/session/types'
-import type { WorkspaceDirectoryListing } from '@qilin/api-workspace-files/types'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { WorkspaceDirectoryListing } from '@qilin-agent/api-workspace-files/types'
 import { SEARCH_SETTLE_MS, createList, createSearch, filesFace } from '../src/client/face.ts'
 import type { WorkspaceFilesTreeRemote } from '../src/client/face.ts'
 import { createFilesStore } from '../src/client/store.ts'
@@ -21,8 +21,8 @@ import type { DirLevel } from '../src/client/store.ts'
 import { scriptedList } from './scripted-list.client.ts'
 import { scriptedSearch } from './scripted-search.client.ts'
 import { recordedReconcile, scriptedMutations } from './scripted-mutations.client.ts'
-import type { TabId } from '@qilin/client-ui-dockkit'
-import type { WorkspaceFileNameSearch } from '@qilin/api-workspace-files/types'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
+import type { WorkspaceFileNameSearch } from '@qilin-agent/api-workspace-files/types'
 
 const SESSION = 's-1' as SessionId
 const ROOT = '/work/app'

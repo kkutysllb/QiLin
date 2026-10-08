@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, expectTypeOf, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import type { Fiber } from '@qilin/kylin'
-import LlmRuntime, { createUserMessage, ToolCallId, EMPTY_RESPONSE_CODE, LlmAdapter, LlmError, expandAssistantStream, resolveRetryPolicy  } from '@qilin/llm'
+import { Context } from '@qilin-agent/kylin'
+import type { Fiber } from '@qilin-agent/kylin'
+import LlmRuntime, { createUserMessage, ToolCallId, EMPTY_RESPONSE_CODE, LlmAdapter, LlmError, expandAssistantStream, resolveRetryPolicy  } from '@qilin-agent/llm'
 import type {
   AlwaysRetryPolicyConfig,
   BackoffConfig,
@@ -10,16 +10,16 @@ import type {
   ResolvedRetryPolicy,
   RetryPolicyConfig,
   StreamChunk,
-} from '@qilin/llm'
-import SessionStore, { SessionId } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import type { SessionEvent, SessionEventMap } from '@qilin/session'
-import type { LlmRetryEventData } from '@qilin/llm-retry/types'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime, { defineContentToolFixture } from '@qilin/tools'
-import AgentRegistry from '@qilin/agent'
-import type { Agent, RequestErrorAction } from '@qilin/agent'
-import AgentLoop from '@qilin/agent-loop'
+} from '@qilin-agent/llm'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import type { SessionEvent, SessionEventMap } from '@qilin-agent/session'
+import type { LlmRetryEventData } from '@qilin-agent/llm-retry/types'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime, { defineContentToolFixture } from '@qilin-agent/tools'
+import AgentRegistry from '@qilin-agent/agent'
+import type { Agent, RequestErrorAction } from '@qilin-agent/agent'
+import AgentLoop from '@qilin-agent/agent-loop'
 import * as retry from '../src/index.ts'
 
 type ScriptEntry = Error | Iterable<StreamChunk> | AsyncIterable<StreamChunk>

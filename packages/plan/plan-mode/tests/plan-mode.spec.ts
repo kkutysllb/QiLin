@@ -1,18 +1,18 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createUserMessage, ToolCallId } from '@qilin/llm'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime, { RUN_CODE_NAME, defineContentToolFixture } from '@qilin/tools'
-import { Session, SessionId, type SessionEvent, type UserMessage } from '@qilin/session'
-import AgentRegistry, { agentEvents, type Agent } from '@qilin/agent'
-import { createScope } from '@qilin/scope'
+import { Context } from '@qilin-agent/kylin'
+import { createUserMessage, ToolCallId } from '@qilin-agent/llm'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime, { RUN_CODE_NAME, defineContentToolFixture } from '@qilin-agent/tools'
+import { Session, SessionId, type SessionEvent, type UserMessage } from '@qilin-agent/session'
+import AgentRegistry, { agentEvents, type Agent } from '@qilin-agent/agent'
+import { createScope } from '@qilin-agent/scope'
 import UserQuestionService, {
   UserQuestionError, type AskUserQuestionAnswer, type AskUserQuestionRequest,
-} from '@qilin/user-questions'
-import CommandRuntime from '@qilin/commands'
-import { PtcRuntime, type PtcRunRequest, type PtcRunResult } from '@qilin/ptc-runtime'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import { turnBoundaryProjectionDefinition } from '@qilin/agent-loop'
+} from '@qilin-agent/user-questions'
+import CommandRuntime from '@qilin-agent/commands'
+import { PtcRuntime, type PtcRunRequest, type PtcRunResult } from '@qilin-agent/ptc-runtime'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import { turnBoundaryProjectionDefinition } from '@qilin-agent/agent-loop'
 import PlanModeController, { EXIT_PLAN_MODE, planProjectionDefinition, resolveConfig } from '../src/index.ts'
 import type { PlanModeConfig } from '../src/index.ts'
 import type { PlanUnitState } from '../src/types.ts'
@@ -509,7 +509,7 @@ describe('the soft layer', () => {
     // Minimal scriptable runtime: the SDK section resolves ctx.ptcRuntime at
     // assembly time (the ptc.spec fake's shape).
     class FakeRuntime extends PtcRuntime {
-      resolve(request: import('@qilin/ptc-runtime').PtcRunRequest): import('@qilin/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+      resolve(request: import('@qilin-agent/ptc-runtime').PtcRunRequest): import('@qilin-agent/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
       readonly language = 'typescript'
       readonly isolation = 'fake'
@@ -533,7 +533,7 @@ describe('the soft layer', () => {
 
   it('keeps native wire schemas and the SDK in step under mode both', async () => {
     class FakeRuntime extends PtcRuntime {
-      resolve(request: import('@qilin/ptc-runtime').PtcRunRequest): import('@qilin/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+      resolve(request: import('@qilin-agent/ptc-runtime').PtcRunRequest): import('@qilin-agent/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
       readonly language = 'typescript'
       readonly isolation = 'fake'
@@ -557,7 +557,7 @@ describe('the soft layer', () => {
 
   it('keeps the PTC mode SDK byte-identical across mode switches', async () => {
     class FakeRuntime extends PtcRuntime {
-      resolve(request: import('@qilin/ptc-runtime').PtcRunRequest): import('@qilin/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+      resolve(request: import('@qilin-agent/ptc-runtime').PtcRunRequest): import('@qilin-agent/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
       readonly language = 'typescript'
       readonly isolation = 'fake'
@@ -626,7 +626,7 @@ describe('/plan', () => {
     const plainSteer = vi.fn()
     ;(plainAgent as unknown as { steer: typeof plainSteer }).steer = plainSteer
     expect(ctx.commands.list(plainAgent)).toEqual([
-      { definitionId: '@qilin/plan-mode', name: 'plan', description: 'Enter or leave plan mode', input: { hint: '[off|message]', attachments: true } },
+      { definitionId: '@qilin-agent/plan-mode', name: 'plan', description: 'Enter or leave plan mode', input: { hint: '[off|message]', attachments: true } },
     ])
 
     const signal = new AbortController().signal
@@ -932,7 +932,7 @@ describe('exit_plan_mode', () => {
   it('carries the exact plan through a PTC mode review and logs the nested dispatch', async () => {
     const plan = '# PTC mode plan\n\nUse the existing seam.'
     class ExitRuntime extends PtcRuntime {
-      resolve(request: import('@qilin/ptc-runtime').PtcRunRequest): import('@qilin/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+      resolve(request: import('@qilin-agent/ptc-runtime').PtcRunRequest): import('@qilin-agent/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
       readonly language = 'typescript'
       readonly isolation = 'fake'

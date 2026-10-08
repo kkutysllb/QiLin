@@ -9,8 +9,8 @@ import {
   IconRightUpOutline16,
   SHIELD_OUTLINE_PATH,
   SHIELD_OUTLINE_STROKE,
-} from '@qilin/client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRuntime, PropsStore } from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-primitives'
+import type { InjectFace, PropsLocale, PropsRuntime, PropsStore } from '@qilin-agent/client-ui-slots'
 import type { BrowserInjected } from '../browser/BrowserController.ts'
 import type { BrowserFrameState } from '../browser/BrowserFrame.ts'
 import { BrowserNavigation } from '../browser/BrowserNavigation.ts'

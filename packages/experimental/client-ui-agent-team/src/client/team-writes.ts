@@ -11,11 +11,11 @@
  * notice and refreshes the Lead's projections so the board shows the current
  * revisions; every other refusal records the wire failure's message.
  */
-import type { ClientRemote, RemoteResult } from '@qilin/api-remotes/client'
-import type { BoundActions } from '@qilin/client-store'
-import type { SessionTarget } from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
-import type { TeamTaskId, TeamTaskView as TeamTask } from '@qilin/experimental-agent-team/client'
+import type { ClientRemote, RemoteResult } from '@qilin-agent/api-remotes/client'
+import type { BoundActions } from '@qilin-agent/client-store'
+import type { SessionTarget } from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { TeamTaskId, TeamTaskView as TeamTask } from '@qilin-agent/experimental-agent-team/client'
 import { sameTeamSet } from './team-model.ts'
 import type { createTeamPageStore } from './team-page-store.ts'
 

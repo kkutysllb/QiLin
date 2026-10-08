@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
+import { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
 import { redactSecrets } from '../src/index.ts'
 import { MemorySettings } from './memory.ts'
 

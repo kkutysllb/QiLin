@@ -1,5 +1,5 @@
 /** Exercise Messages request conversion with recorded responses from another protocol. */
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { resolveAdapterOptions } from '../../src/config.ts'
 import { serialize } from '../../src/serialize.ts'
 

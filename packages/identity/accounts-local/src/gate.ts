@@ -4,14 +4,14 @@
  * index document request that carries no session. Serving a gated document
  * without a session is impossible here — the gate owns the redirect that sends
  * the browser to the product's public page, which owns the way in.
- * @module @qilin/accounts-local/src/gate
+ * @module @qilin-agent/accounts-local/src/gate
  */
 
 import type {
   ConnectionIndexResponse,
   ConnectionSessionAuthority,
   ConnectionTrustRequest,
-} from '@qilin/client-connection'
+} from '@qilin-agent/client-connection'
 import type { AccountRecord } from './accounts.ts'
 import { AUTH_API_PREFIX, LANDING_PATH } from './paths.ts'
 

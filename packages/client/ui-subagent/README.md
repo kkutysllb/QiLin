@@ -3,7 +3,7 @@ description: "Subagent conversation catalog, continuation routing UI, and '@' re
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-subagent
+# @qilin-agent/client-ui-subagent
 
 English | [中文](README.zh.md)
 

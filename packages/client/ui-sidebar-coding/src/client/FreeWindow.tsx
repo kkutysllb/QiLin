@@ -16,7 +16,7 @@
  */
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react'
 import clsx from 'clsx'
-import { IconCloseFill14, Menu } from '@qilin/client-ui-primitives'
+import { IconCloseFill14, Menu } from '@qilin-agent/client-ui-primitives'
 import type { FloatWindow, SidebarTab } from './state.ts'
 import { FLOAT_MIN_H, FLOAT_MIN_W } from './state.ts'
 import { t } from './locales.ts'

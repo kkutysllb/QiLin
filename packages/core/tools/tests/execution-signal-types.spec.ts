@@ -1,13 +1,13 @@
 import { describe, expectTypeOf, it } from 'vitest'
-import type { Context } from '@qilin/kylin'
-import { ToolCallId } from '@qilin/llm'
-import { defineTool } from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import { ToolCallId } from '@qilin-agent/llm'
+import { defineTool } from '@qilin-agent/tools'
 import type {
   ToolDispatchExecution,
   ToolExecution,
   ToolExecutionInput,
   ToolRunContext,
-} from '@qilin/tools'
+} from '@qilin-agent/tools'
 
 function inputAndExecutionContracts(
   input: ToolExecutionInput,

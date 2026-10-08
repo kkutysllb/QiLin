@@ -1,9 +1,9 @@
 /** Messages file-reference admission, bounded recovery and request-wide inline fallback. */
-import type { AnonymousUserId } from '@qilin/anonymous-user-id'
+import type { AnonymousUserId } from '@qilin-agent/anonymous-user-id'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { AttachmentId, ImageVariantId } from '@qilin/attachment'
-import type { ImageAttachmentRef, RequestImageAttachment } from '@qilin/attachment'
-import { createAssistantMessage, createToolResultMessage, LlmError, ToolCallId } from '@qilin/llm'
+import { AttachmentId, ImageVariantId } from '@qilin-agent/attachment'
+import type { ImageAttachmentRef, RequestImageAttachment } from '@qilin-agent/attachment'
+import { createAssistantMessage, createToolResultMessage, LlmError, ToolCallId } from '@qilin-agent/llm'
 import { DeepSeekFileId } from '../src/file-id.ts'
 import { DeepSeekFileStore } from '../src/file-store.ts'
 import { resolveAdapterOptions } from '../src/config.ts'

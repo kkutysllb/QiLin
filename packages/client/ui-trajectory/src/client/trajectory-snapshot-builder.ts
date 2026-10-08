@@ -1,8 +1,8 @@
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   AssistantMessageNode, ConversationNode, ConversationPromptSnapshot, ConversationViewBuilder,
   ConversationViewDefinition, RequestPromptChange, RequestView, ToolCallBlock,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 import { COMPACTION_INTERRUPTED_ERROR } from './copy-codes.ts'
 import type {
   TrajectoryConversationViewNode, TrajectoryRequestHeaderState,

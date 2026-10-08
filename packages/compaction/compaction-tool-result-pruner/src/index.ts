@@ -1,18 +1,18 @@
 /**
  * Replay-safe, model-free tool-result pruning service.
  *
- * @module @qilin/compaction-tool-result-pruner
+ * @module @qilin-agent/compaction-tool-result-pruner
  */
 
-import { Context, Service } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { freezeMessage } from '@qilin/llm'
-import type { ContentBlock } from '@qilin/llm'
-import type { Session, SessionEvent, SessionSeq, ToolResultMessage } from '@qilin/session'
+import { Context, Service } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { freezeMessage } from '@qilin-agent/llm'
+import type { ContentBlock } from '@qilin-agent/llm'
+import type { Session, SessionEvent, SessionSeq, ToolResultMessage } from '@qilin-agent/session'
 // Type-only: the `compaction/*` SessionEventMap merges (the shadow-price event).
-import type {} from '@qilin/compaction'
+import type {} from '@qilin-agent/compaction'
 // Type-only: the `ctx.tokenMeter` Context merge for the declared injection.
-import type {} from '@qilin/token-meter'
+import type {} from '@qilin-agent/token-meter'
 import { codePointLength, DEFAULTS, PRUNE_MARKER, resolveConfig } from './config.ts'
 import type {
   PrunedEntry,
@@ -29,7 +29,7 @@ export type {
   ToolResultPruneConfig,
 } from './types.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     toolResultPruner: ToolResultPruner
   }

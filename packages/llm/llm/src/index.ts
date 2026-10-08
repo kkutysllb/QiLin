@@ -3,12 +3,12 @@
  * API. Exports the `LlmRuntime` default, the abstract `LlmAdapter` for
  * provider backends, and `BlockAssembler` for chunk assembly.
  *
- * @module @qilin/llm
+ * @module @qilin-agent/llm
  */
 
-import { Context } from '@qilin/kylin'
-import { Remote, RemoteError, TypertRemoteService } from '@qilin/typert-protocol'
-import { deepFreeze } from '@qilin/util-values'
+import { Context } from '@qilin-agent/kylin'
+import { Remote, RemoteError, TypertRemoteService } from '@qilin-agent/typert-protocol'
+import { deepFreeze } from '@qilin-agent/util-values'
 import type {
   GenerateOptions,
   RequestMessage,
@@ -39,7 +39,7 @@ import { normalizeApiKey } from './api-key.ts'
 import {
   contentHasFile, contentHasImage, fileHandleText, projectFilesToText, projectImagesForTextModel, projectToolUpdates,
 } from './content.ts'
-import type { FileAttachmentRef } from '@qilin/attachment'
+import type { FileAttachmentRef } from '@qilin-agent/attachment'
 
 export * from './attribution.ts'
 export * from './brand.ts'
@@ -54,7 +54,7 @@ export { BlockAssembler } from './assembler.ts'
 export { callConfigEquals, isAgentLoopRequest, markAgentLoopRequest } from './call-config.ts'
 export type { LlmCallConfig, LlmCallConfigAdapterDefaults } from './call-config.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     llm: LlmRuntime
   }

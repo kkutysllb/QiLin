@@ -3,7 +3,7 @@ description: "CPython 子进程 PTC 运行时：为 Python 模型代码实现 qi
 kind: "package-reference"
 ---
 
-# @qilin/experimental-ptc-runtime-python
+# @qilin-agent/experimental-ptc-runtime-python
 
 [English](README.md) | 中文
 

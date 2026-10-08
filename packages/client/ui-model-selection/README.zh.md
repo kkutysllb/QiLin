@@ -3,7 +3,7 @@ description: "Web GUI 的模型选择：/model 弹窗与 composer 模型位共�
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-model-selection
+# @qilin-agent/client-ui-model-selection
 
 [English](README.md) | 中文
 

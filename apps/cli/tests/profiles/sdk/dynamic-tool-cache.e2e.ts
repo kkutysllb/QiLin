@@ -4,9 +4,9 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { TokenUsage } from '@qilin/llm'
-import { DeepSeekHarness } from '@qilin/sdk-client'
-import type { SessionEvent } from '@qilin/session'
+import type { TokenUsage } from '@qilin-agent/llm'
+import { DeepSeekHarness } from '@qilin-agent/sdk-client'
+import type { SessionEvent } from '@qilin-agent/session'
 import { describe, expect, it, onTestFinished } from 'vitest'
 
 const fixturePath = fileURLToPath(new URL('./fixtures/dynamic-tool-cache.mjs', import.meta.url))

@@ -1,13 +1,13 @@
 /**
  * Browser-safe failure vocabulary of the configuration surfaces this package
  * serves. The redacted views themselves live with their seam in
- * `@qilin/settings/types`, whose Cordis event declarations already
+ * `@qilin-agent/settings/types`, whose Cordis event declarations already
  * register that file for the Client compilation face.
  *
- * @module @qilin/api-settings-controller/types
+ * @module @qilin-agent/api-settings-controller/types
  */
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface RemoteErrorDetailsMap {
     /**
      * Every seam refusal that is not a stale write: an unregistered or malformed

@@ -4,12 +4,12 @@
  * reaches a Host-only symbol, so a Client compilation face reads the same
  * `commands/change` signature the Host emits.
  *
- * @module @qilin/commands/types
+ * @module @qilin-agent/commands/types
  */
 
-import type { SessionSeq } from '@qilin/session/types'
+import type { SessionSeq } from '@qilin-agent/session/types'
 import type { CommandDefinitionId, CommandId } from './brand.ts'
-import type { EncodedImageAttachment } from '@qilin/attachment/types'
+import type { EncodedImageAttachment } from '@qilin-agent/attachment/types'
 
 /** One browser-submitted command attachment: encoded image input or a staged file receipt. */
 export type CommandSubmitAttachment =
@@ -78,7 +78,7 @@ export interface CommandSourceMap {
 /** The union over {@link CommandSourceMap} — who issued a command line. */
 export type CommandSource = CommandSourceMap[keyof CommandSourceMap]
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Events {
     /**
      * A command was registered or unregistered. This is an unfiltered registry
@@ -90,7 +90,7 @@ declare module '@qilin/kylin' {
   }
 }
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /**
      * A resolved slash command entered its handler. Log-only (never model
@@ -113,7 +113,7 @@ declare module '@qilin/session/types' {
       commandId: CommandId
       kind: 'success' | 'error'
       text?: string
-      sourceEventSeq?: import('@qilin/session/types').SessionSeq
+      sourceEventSeq?: import('@qilin-agent/session/types').SessionSeq
     }
   }
 }

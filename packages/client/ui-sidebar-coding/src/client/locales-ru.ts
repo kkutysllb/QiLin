@@ -1,5 +1,5 @@
 /**
- * Russian (ru) dictionary for the @qilin/client-ui-sidebar-coding plugin.
+ * Russian (ru) dictionary for the @qilin-agent/client-ui-sidebar-coding plugin.
  *
  * Translated from the Simplified-Chinese (zh) source-of-truth dictionary in
  * `./locales.ts`. Placeholders like `{name}` / `{path}` / `{dir}` are

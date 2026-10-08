@@ -1,11 +1,11 @@
 /** Opt-in native SDK compatibility check without screenshots, input, or permission prompts. */
 
 import { expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import ComputerUseRegistry from '@qilin/computer-use'
-import { ToolCallId } from '@qilin/llm'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
+import { Context } from '@qilin-agent/kylin'
+import ComputerUseRegistry from '@qilin-agent/computer-use'
+import { ToolCallId } from '@qilin-agent/llm'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
 import * as NativeProvider from '../src/index.ts'
 
 it.skipIf(process.env.QILIN_COMPUTER_USE_NATIVE_E2E !== '1')(

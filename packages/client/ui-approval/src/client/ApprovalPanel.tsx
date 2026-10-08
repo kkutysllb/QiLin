@@ -1,7 +1,7 @@
 /** Composer takeover for one pending approval waterfall. */
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { KeyboardEvent } from 'react'
-import { Button } from '@qilin/client-ui-primitives'
+import { Button } from '@qilin-agent/client-ui-primitives'
 import type { ApprovalComposerProps, PendingApproval } from './contract/slots.ts'
 import css from './ApprovalPanel.module.css'
 

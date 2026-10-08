@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/goal",
+  "name": "@qilin-agent/goal",
   "description": "Event-sourced same-session goal state and lifecycle service for the QiLin",
   "version": "3.1.1",
   "publishConfig": {
@@ -51,34 +51,34 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/session-projection": "workspace:*",
-    "@qilin/brand": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/scope": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/typert-protocol": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/scope": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:~",
+    "@qilin-agent/schemastery": "workspace:~",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/agent-loop": "workspace:*",
-    "@qilin/agent-loop-testkit": "workspace:*",
-    "@qilin/bash-local": "workspace:*",
-    "@qilin/session-projection": "workspace:*",
-    "@qilin/brand": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/loader-smoke": "workspace:*",
-    "@qilin/scope": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-checkpoint-policy": "workspace:*",
-    "@qilin/session-persistence-jsonl": "workspace:*",
-    "@qilin/subprocess-local": "workspace:*",
-    "@qilin/typert-protocol": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-loop": "workspace:*",
+    "@qilin-agent/agent-loop-testkit": "workspace:*",
+    "@qilin-agent/bash-local": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/loader-smoke": "workspace:*",
+    "@qilin-agent/scope": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-checkpoint-policy": "workspace:*",
+    "@qilin-agent/session-persistence-jsonl": "workspace:*",
+    "@qilin-agent/subprocess-local": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   }
 }

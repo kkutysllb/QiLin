@@ -2,13 +2,13 @@
  * Model-facing literal edit, unique-match by default. It obtains an optional guard from the
  * single intent slot, calls `ctx.fs.editText` without a separate stat, then records the observed
  * version; no policy means an unconditional atomic edit.
- * @module @qilin/tool-fs/src/edit
+ * @module @qilin-agent/tool-fs/src/edit
  */
 
-import type { Context } from '@qilin/kylin'
-import { defineTool } from '@qilin/tools'
-import type { DiffCallView, DiffResultView, ToolResult } from '@qilin/tools'
-import type {} from '@qilin/fs'
+import type { Context } from '@qilin-agent/kylin'
+import { defineTool } from '@qilin-agent/tools'
+import type { DiffCallView, DiffResultView, ToolResult } from '@qilin-agent/tools'
+import type {} from '@qilin-agent/fs'
 import { computeHunkDiffs, diffsFromMeta } from './diff.ts'
 import { remediateFsError } from './error.ts'
 import { sessionResolveOptions } from './session-cwd.ts'

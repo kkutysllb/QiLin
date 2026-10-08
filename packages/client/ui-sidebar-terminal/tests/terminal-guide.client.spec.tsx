@@ -2,8 +2,8 @@
 /** Guide shell discovery, direct launch and cancellation stay within the entry lifetime. */
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import type { TerminalLaunchShells } from '@qilin/api-terminal-controller/client'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import type { TerminalLaunchShells } from '@qilin-agent/api-terminal-controller/client'
 import { TerminalGuide, type TerminalGuideProps } from '../src/client/TerminalGuide.tsx'
 import { en } from '../src/client/locales.ts'
 

@@ -1,7 +1,7 @@
 /** Selection and retention policy for independently owned Sidebar Session views. */
-import type { ISessions, SessionReference } from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
-import { createSnapshotStore } from '@qilin/client-store'
+import type { ISessions, SessionReference } from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import { createSnapshotStore } from '@qilin-agent/client-store'
 import { SidebarSessionView } from './session-view.ts'
 
 /** The reference is exclusively a framework SessionProvider target, not a business-component service. */

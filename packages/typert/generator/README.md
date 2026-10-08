@@ -3,7 +3,7 @@ description: "The build-time Typert generator: source type analysis, compiler-in
 kind: "package-library"
 ---
 
-# @qilin/typert-generator
+# @qilin-agent/typert-generator
 
 English | [中文](README.zh.md)
 

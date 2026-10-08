@@ -3,7 +3,7 @@ description: "The file-backed settings provider for users and maintainers choosi
 kind: "package-reference"
 ---
 
-# @qilin/settings-file
+# @qilin-agent/settings-file
 
 English | [中文](README.zh.md)
 
@@ -34,7 +34,7 @@ Choose it as the default user-settings store: one human-readable document that u
 ### Minimal configuration
 
 ```yaml
-- name: '@qilin/settings-file'
+- name: '@qilin-agent/settings-file'
   config:
     path: /absolute/path/to/settings.yaml
 ```
@@ -46,7 +46,7 @@ Choose it as the default user-settings store: one human-readable document that u
 | `watch` | `true` | Watch the document and hot-publish external edits |
 | `debounceMs` | `100` | Watcher write-settle window, in milliseconds |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#qilinsettings-file) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agentsettings-file) is the exhaustive source for every accepted field and its JSDoc.
 
 ### Editing the document
 
@@ -113,7 +113,7 @@ Read these pages when the provider-level contract is not enough. They move from 
 - [Settings package map](../README.md) — the two packages of the user-settings capability.
 - [Atomic write](../../util/atomic-write/README.md) — the writer lock and atomic replacement every write uses.
 - [Home paths](../../util/home-paths/README.md) — `$QILIN_HOME` resolution and canonical watch paths.
-- [Generated configuration catalog](../../../docs/config-catalog.md#qilinsettings-file) — every accepted config field and its source declaration.
+- [Generated configuration catalog](../../../docs/config-catalog.md#qilin-agentsettings-file) — every accepted config field and its source declaration.
 
 -----
 

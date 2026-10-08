@@ -1,8 +1,8 @@
 /** Page-store join: directory × namespaces × credentials, with last-good rows on failure. */
 import { describe, expect, it } from 'vitest'
-import type { RpcResponse } from '@qilin/api-remotes/client'
-import { RemoteError } from '@qilin/client-test-runtime'
-import { SettingsDescribeMirror } from '@qilin/client-ui-settings/src/client/settings-mirror.ts'
+import type { RpcResponse } from '@qilin-agent/api-remotes/client'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
+import { SettingsDescribeMirror } from '@qilin-agent/client-ui-settings/src/client/settings-mirror.ts'
 import { settingsSchema } from './settings-schema.client.ts'
 import { joinProviderDirectory, ModelsSettingsStore } from '../src/client/store.ts'
 

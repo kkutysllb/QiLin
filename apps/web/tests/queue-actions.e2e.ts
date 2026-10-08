@@ -10,8 +10,8 @@ import { join } from 'node:path'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterEach, describe, expect, it, onTestFailed, vi } from 'vitest'
-import { deriveReplayScript, parseSessionLog, type ReplayEntry } from '@qilin/llm-replay'
-import type { SessionEvent } from '@qilin/session'
+import { deriveReplayScript, parseSessionLog, type ReplayEntry } from '@qilin-agent/llm-replay'
+import type { SessionEvent } from '@qilin-agent/session'
 import {
   assertFixtureInventory, captureExpandedTurnProcessAria, captureStableAria, compareOrRefreshGolden,
   launchWebScaffold, watchConsole, webSnapshotMode, type WebScaffold,

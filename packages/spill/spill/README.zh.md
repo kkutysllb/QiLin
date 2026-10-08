@@ -3,7 +3,7 @@ description: "spill 存储服务：保存超大工具文本或已捕获的会话
 kind: "package-reference"
 ---
 
-# @qilin/spill
+# @qilin-agent/spill
 
 [English](README.md) | 中文
 
@@ -36,8 +36,8 @@ kind: "package-reference"
 把后端与策略一起挂载；设置 `maxInlineTokens` 后，过大的图文工具结果都会自动变成预览加定位信息。
 
 ```yaml
-- name: '@qilin/spill-local'
-- name: '@qilin/spill-policy'
+- name: '@qilin-agent/spill-local'
+- name: '@qilin-agent/spill-policy'
   config:
     maxInlineTokens: 12500
 ```

@@ -10,8 +10,8 @@
  * execute through `ctx.subprocess.spawn()` with fixed ripgrep argv templates —
  * never `ctx.shell`, never `ctx.shell.start()`, never a model-visible background
  * task. The tool layer owns schemas, argument validation, argv construction
- * ({@link module:@qilin/tool-fs-search/glob} /
- * {@link module:@qilin/tool-fs-search/grep}), result parsing,
+ * ({@link module:@qilin-agent/tool-fs-search/glob} /
+ * {@link module:@qilin-agent/tool-fs-search/grep}), result parsing,
  * retention, formatted-result spill, and timeout declaration; the subprocess
  * seam owns spawn execution, process-tree termination, environment scrubbing,
  * and raw output capture. The package injects `tools`, `systemPrompt`, and
@@ -23,12 +23,12 @@
  * filesystem `read` root are the same workspace — a documented v1 deployment
  * requirement, not runtime-validated.
  *
- * @module @qilin/tool-fs-search
+ * @module @qilin-agent/tool-fs-search
  */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 import { GLOB_MAX_RESULTS, applyGlobTool } from './glob.ts'
 import { GREP_MAX_LINE_BYTES, GREP_MAX_MATCHES, applyGrepTool } from './grep.ts'
 import { RAW_OUTPUT_MAX_BYTES, SEARCH_GRACE_MS, SEARCH_META_MAX_BYTES, SEARCH_STDERR_MAX_BYTES, SEARCH_TIMEOUT_MS } from './search-core.ts'
@@ -89,7 +89,7 @@ export interface Config {
   stderrMaxBytes?: number
   /**
    * Cooperative tool-call timeout budget (ms) on both tools, enforced by
-   * `@qilin/tool-call-timeout-policy` through `exec.signal`.
+   * `@qilin-agent/tool-call-timeout-policy` through `exec.signal`.
    */
   timeoutMs?: number
 }

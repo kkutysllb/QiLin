@@ -1,5 +1,5 @@
 /** Client-safe payloads and event declarations owned by the agent-preset domain. */
-import type { SessionId } from '@qilin/session/types'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { PresetTrust } from './preset.ts'
 
 export type { PresetTrust } from './preset.ts'
@@ -33,7 +33,7 @@ export interface AgentPresetRoster {
   readonly modeSelectionEnabled: boolean
 }
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** No configured root supplies the requested id. */
     'agent-preset/not-found': { readonly agentPreset: string; readonly available: readonly string[] }
@@ -60,7 +60,7 @@ export interface AgentPresetDocument {
   readonly description?: string
 }
 
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionStateMap {
     agentPreset: string | null
   }
@@ -70,7 +70,7 @@ declare module '@qilin/session-projection/types' {
   }
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Events {
     /**
      * One session committed a different agent preset to its durable log.

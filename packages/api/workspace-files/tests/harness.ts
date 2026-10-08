@@ -11,10 +11,10 @@
 import { mkdir, mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Context } from '@qilin/kylin'
-import { LocalFileSystem } from '@qilin/fs-local'
-import { SessionId } from '@qilin/session/types'
-import { remoteErrorOf } from '@qilin/typert-protocol'
+import { Context } from '@qilin-agent/kylin'
+import { LocalFileSystem } from '@qilin-agent/fs-local'
+import { SessionId } from '@qilin-agent/session/types'
+import { remoteErrorOf } from '@qilin-agent/typert-protocol'
 import { WorkspaceFiles, type Config, type WorkspaceFileScope } from '../src/index.ts'
 
 /** Build the header-derived scope that direct service calls receive after Typert lookup. */

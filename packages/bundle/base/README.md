@@ -3,7 +3,7 @@ description: "The shared qilin core: model access, tools, durable sessions, and 
 kind: "package-bundle"
 ---
 
-# @qilin/base
+# @qilin-agent/base
 
 English | [中文](README.zh.md)
 
@@ -29,7 +29,7 @@ You get the qilin core automatically: the shipped `web`, `headless`, `sdk`, and 
 
 ### A minimal custom profile
 
-To build a profile on the shared core, create a profile with a `package.json` that names `@qilin/base` first:
+To build a profile on the shared core, create a profile with a `package.json` that names `@qilin-agent/base` first:
 
 ```json
 {
@@ -37,7 +37,7 @@ To build a profile on the shared core, create a profile with a `package.json` th
   "private": true,
   "qilin": {
     "profile": {
-      "bundles": ["@qilin/base"]
+      "bundles": ["@qilin-agent/base"]
     }
   }
 }
@@ -54,7 +54,7 @@ Default file editing uses `read`, `write`, and `edit`. The `str_replace_editor` 
 ```yaml
 - insert:
     - id: tool-str-replace-editor
-      name: '@qilin/tool-str-replace-editor'
+      name: '@qilin-agent/tool-str-replace-editor'
       config:
         maxOutputChars: 16000
 ```
@@ -85,7 +85,7 @@ A patch replaces the targeted row's whole `config` rather than merging into it. 
 
 ### Platform gating
 
-The patch gates the two shell stacks by platform on its own rows: `bash-sandbox` and `tool-bash` carry `disabled: !!js process.platform === 'win32'`, and their twins `pwsh-sandbox` and `tool-pwsh` mount on win32 only with the inverted expression. The permission surface stays identical to POSIX: the sandbox policy executes the same file-effect policy through the Windows ACL restricted-token runner (`qilin-sandbox-local` → `@qilin/sandbox-windows-acl`), and `fs-sandbox` keeps fencing `ctx.fs` writes — mounting `qilin-fs-local` alongside it would double-register `ctx.fs` and fail the load.
+The patch gates the two shell stacks by platform on its own rows: `bash-sandbox` and `tool-bash` carry `disabled: !!js process.platform === 'win32'`, and their twins `pwsh-sandbox` and `tool-pwsh` mount on win32 only with the inverted expression. The permission surface stays identical to POSIX: the sandbox policy executes the same file-effect policy through the Windows ACL restricted-token runner (`qilin-sandbox-local` → `@qilin-agent/sandbox-windows-acl`), and `fs-sandbox` keeps fencing `ctx.fs` writes — mounting `qilin-fs-local` alongside it would double-register `ctx.fs` and fail the load.
 
 ### Source map
 
@@ -130,7 +130,7 @@ These limits tell you when the core needs extra care or where an override must g
 
 - **Overrides replace whole settings blocks** — a patch entry replaces the target's entire configuration, so your override must restate every setting you want to keep; nothing merges automatically.
 - **Per-surface settings belong to the surface's bundle** — a default that differs between the web GUI and headless mode lives in that surface's bundle, not in the shared core.
-- **Windows temp grants are private per-session subdirectories** — `workspace-write` confines writes to the workspace plus the session's own temp subdirectory (`<temp>\qilin-<hash>`, TMP/TEMP rewritten for confined children); `read-only` grants nothing. See `@qilin/sandbox-windows-acl`.
+- **Windows temp grants are private per-session subdirectories** — `workspace-write` confines writes to the workspace plus the session's own temp subdirectory (`<temp>\qilin-<hash>`, TMP/TEMP rewritten for confined children); `read-only` grants nothing. See `@qilin-agent/sandbox-windows-acl`.
 - **Adding the plain filesystem provider on top of the sandboxed one fails the profile** — the two register the same service, so the profile refuses to load; use one or the other.
 
 <a id="dev-note"></a>

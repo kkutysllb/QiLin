@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { SessionFormatEventCollector } from '@qilin/session-format'
+import { SessionFormatEventCollector } from '@qilin-agent/session-format'
 import type {
   SessionFormatArtifact,
   SessionFormatArtifactDecoder,
   SessionFormatEvent,
   SessionFormatJsonObject,
   SessionFormatRecovery,
-} from '@qilin/session-format'
-import { decodeSeqRanges as decodeCurrentSeqRanges } from '@qilin/session'
-import { releasedV2SessionFormatCodec } from '@qilin/session-format-v1-to-v2'
+} from '@qilin-agent/session-format'
+import { decodeSeqRanges as decodeCurrentSeqRanges } from '@qilin-agent/session'
+import { releasedV2SessionFormatCodec } from '@qilin-agent/session-format-v1-to-v2'
 
 const minimalPhysicalHeader = {
   type: 'session', version: 2, id: 'codec', createdAt: 1, isSeeded: false, delegationDepth: 0,

@@ -1,11 +1,11 @@
 /** Current-surface projection and byte-bounded rendering. */
 
-import { isCompactCheckpointSource } from '@qilin/compaction'
-import type { SessionSurfaceSnapshot } from '@qilin/session-query'
-import { TextRetainer } from '@qilin/output-retention'
-import { assertNever } from '@qilin/util-values'
-import { SessionSeq } from '@qilin/session'
-import type { OptionalSessionSeq, SessionId } from '@qilin/session'
+import { isCompactCheckpointSource } from '@qilin-agent/compaction'
+import type { SessionSurfaceSnapshot } from '@qilin-agent/session-query'
+import { TextRetainer } from '@qilin-agent/output-retention'
+import { assertNever } from '@qilin-agent/util-values'
+import { SessionSeq } from '@qilin-agent/session'
+import type { OptionalSessionSeq, SessionId } from '@qilin-agent/session'
 import { stringifyTagSafeJson } from './serialization.ts'
 import type { ReferencedConversationItem } from './types.ts'
 

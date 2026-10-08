@@ -3,11 +3,11 @@
  * consumes and produces, plus the fields in the `workflow/*` event payloads.
  * Types only (plus the id-brand factory), per the package convention.
  *
- * @module @qilin/workflow/types
+ * @module @qilin-agent/workflow/types
  */
 
-import type { Branded } from '@qilin/brand'
-import type { SessionId } from '@qilin/session/types'
+import type { Branded } from '@qilin-agent/brand'
+import type { SessionId } from '@qilin-agent/session/types'
 
 /** Identifies one workflow run. */
 export type WorkflowRunId = Branded<'WorkflowRunId'>

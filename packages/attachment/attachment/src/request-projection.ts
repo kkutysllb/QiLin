@@ -1,6 +1,6 @@
 /**
  * Pure request-projection geometry shared by model routes and provider-side
- * request pricing. @module @qilin/attachment/request-projection
+ * request pricing. @module @qilin-agent/attachment/request-projection
  */
 
 /** Integer width and height of one projected image. */

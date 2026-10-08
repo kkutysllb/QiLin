@@ -2,14 +2,14 @@
 
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { fileURLToPath } from 'node:url'
 import { connect } from 'node:net'
 import type { Duplex } from 'node:stream'
 import serveStatic from 'serve-static'
-import type { IndexInjection } from '@qilin/host-webserver'
-import type {} from '@qilin/client-connection'
-import type {} from '@qilin/cmdline'
+import type { IndexInjection } from '@qilin-agent/host-webserver'
+import type {} from '@qilin-agent/client-connection'
+import type {} from '@qilin-agent/cmdline'
 import open, { apps } from 'open'
 import { resolveInspectorOptions, startInspector, type InspectorOptions } from './bridge/controller.ts'
 import { createInspectorService } from '../shared/service.ts'
@@ -20,9 +20,9 @@ import { disposeInspectorResources } from '../shared/dispose.ts'
 /** Resolve this package's manifest URL; Vitest's module runner lacks import.meta.resolve. */
 function resolvePackageManifest(): string {
   try {
-    return import.meta.resolve('@qilin/experimental-inspector/package.json')
+    return import.meta.resolve('@qilin-agent/experimental-inspector/package.json')
   } catch {
-    return pathToFileURL(createRequire(import.meta.url).resolve('@qilin/experimental-inspector/package.json')).href
+    return pathToFileURL(createRequire(import.meta.url).resolve('@qilin-agent/experimental-inspector/package.json')).href
   }
 }
 

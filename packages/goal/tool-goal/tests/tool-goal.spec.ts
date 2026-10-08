@@ -1,28 +1,28 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import AgentRegistry, { agentEvents } from '@qilin/agent'
-import type { Agent, AgentStatus, Inbox } from '@qilin/agent'
-import { turnBoundaryProjectionDefinition } from '@qilin/agent-loop'
-import GoalService, { GoalId } from '@qilin/goal'
-import type { GoalRef } from '@qilin/goal'
-import { createUserMessage, ToolCallId } from '@qilin/llm'
-import type { MessageSource } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import AgentRegistry, { agentEvents } from '@qilin-agent/agent'
+import type { Agent, AgentStatus, Inbox } from '@qilin-agent/agent'
+import { turnBoundaryProjectionDefinition } from '@qilin-agent/agent-loop'
+import GoalService, { GoalId } from '@qilin-agent/goal'
+import type { GoalRef } from '@qilin-agent/goal'
+import { createUserMessage, ToolCallId } from '@qilin-agent/llm'
+import type { MessageSource } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
 import SessionStore, {
   SESSION_FORMAT_VERSION,
   Session,
   SessionId,
   SessionLogOffset,
-} from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
-import type { ToolExecutionResult } from '@qilin/tools'
-import * as toolGoal from '@qilin/tool-goal'
-import { createInboxStub } from '@qilin/agent-loop-testkit'
+} from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
+import type { ToolExecutionResult } from '@qilin-agent/tools'
+import * as toolGoal from '@qilin-agent/tool-goal'
+import { createInboxStub } from '@qilin-agent/agent-loop-testkit'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

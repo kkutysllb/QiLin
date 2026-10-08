@@ -21,10 +21,10 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { ToolCallId, createAssistantMessage, createToolResultMessage, createUserMessage } from '@qilin/llm'
-import { SESSION_FORMAT_VERSION, Session, SessionId } from '@qilin/session'
-import type { JsonValue } from '@qilin/util-values'
-import type {} from '@qilin/session-title'
+import { ToolCallId, createAssistantMessage, createToolResultMessage, createUserMessage } from '@qilin-agent/llm'
+import { SESSION_FORMAT_VERSION, Session, SessionId } from '@qilin-agent/session'
+import type { JsonValue } from '@qilin-agent/util-values'
+import type {} from '@qilin-agent/session-title'
 import {
   assertFixtureInventory,
   captureStableAria,

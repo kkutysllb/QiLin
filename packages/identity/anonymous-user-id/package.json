@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/anonymous-user-id",
+  "name": "@qilin-agent/anonymous-user-id",
   "description": "Shared anonymous user identity for QiLin telemetry and feedback correlation",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,13 +30,13 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/brand": "workspace:*",
-    "@qilin/home-paths": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/home-paths": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/brand": "workspace:*",
-    "@qilin/home-paths": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/home-paths": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   }
 }

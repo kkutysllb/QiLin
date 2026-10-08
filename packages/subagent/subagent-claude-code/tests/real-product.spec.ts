@@ -17,17 +17,17 @@ import type {
   SDKMessage,
   SDKSystemMessage,
 } from '@anthropic-ai/claude-agent-sdk'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
-import type { Agent } from '@qilin/agent'
-import SubagentRuntime from '@qilin/subagent'
-import SessionProjectionRegistry from '@qilin/session-projection'
+import type { Agent } from '@qilin-agent/agent'
+import SubagentRuntime from '@qilin-agent/subagent'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import type {
   SubprocessHandle,
   SubprocessOutcome,
   SubprocessSpawnSpec,
-} from '@qilin/subprocess'
-import LocalSubprocessRuntime from '@qilin/subprocess-local'
+} from '@qilin-agent/subprocess'
+import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
 import * as claudeCode from '../src/index.ts'
 import type { ClaudeCodePermissionMode } from '../src/run.ts'
 import {

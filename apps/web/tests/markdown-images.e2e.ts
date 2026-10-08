@@ -6,13 +6,13 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { createMessage, createUserMessage } from '@qilin/llm'
+import { createMessage, createUserMessage } from '@qilin-agent/llm'
 import {
   SESSION_FORMAT_VERSION,
   Session,
   SessionId,
-} from '@qilin/session'
-import type {} from '@qilin/session-title'
+} from '@qilin-agent/session'
+import type {} from '@qilin-agent/session-title'
 import {
   assertFixtureInventory,
   captureStableAria,

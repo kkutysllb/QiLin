@@ -1,5 +1,5 @@
-import type { Context } from '@qilin/kylin'
-import { ReasoningEffortId, type LlmCallConfig } from '@qilin/llm'
+import type { Context } from '@qilin-agent/kylin'
+import { ReasoningEffortId, type LlmCallConfig } from '@qilin-agent/llm'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   WebhookDeliveryId,

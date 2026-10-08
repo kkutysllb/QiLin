@@ -7,9 +7,9 @@
  * surface's module into the other.
  */
 import type { ReactNode } from 'react'
-import type { TeamTaskView as TeamTask } from '@qilin/experimental-agent-team/client'
-import { StateDot } from '@qilin/client-ui-primitives'
-import type { TranslateNS } from '@qilin/client-ui-slots'
+import type { TeamTaskView as TeamTask } from '@qilin-agent/experimental-agent-team/client'
+import { StateDot } from '@qilin-agent/client-ui-primitives'
+import type { TranslateNS } from '@qilin-agent/client-ui-slots'
 import { NS } from './locales.ts'
 import { statusKey, taskDotState } from './team-model.ts'
 

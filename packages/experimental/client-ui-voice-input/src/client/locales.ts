@@ -1,5 +1,5 @@
 /** Locale-owned copy for experimental voice input. */
-import type {} from '@qilin/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-slots'
 /** Dictionary namespace for every voice control. */
 export const NS = 'voice-input'
 
@@ -192,7 +192,7 @@ export const en: Record<VoiceKey, string> = {
   tooLarge: 'The recording exceeds the service limit. Try a shorter recording.',
 }
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Experimental microphone and transcription controls. */
     'voice-input': VoiceKey

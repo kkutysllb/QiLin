@@ -2,14 +2,14 @@
 import { StrictMode, useEffect, useState, type ReactNode } from 'react'
 import { act, fireEvent } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { SlotTestRuntime } from '@qilin/client-test-runtime'
-import type { SessionReference } from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
+import { SlotTestRuntime } from '@qilin-agent/client-test-runtime'
+import type { SessionReference } from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import type {
   ActionsDecl, FactoryComponentPropsOf, FactoryLocalComponentPropsOf, HostObservable,
   PropsRenderFactories, PropsRuntime, StoreHandle, StoreInstanceLike,
-} from '@qilin/client-ui-slots'
-import { StaleAuthorizationError } from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-slots'
+import { StaleAuthorizationError } from '@qilin-agent/client-ui-slots'
 
 interface CounterState { count: number }
 interface CounterActions extends ActionsDecl<CounterState> {
@@ -17,7 +17,7 @@ interface CounterActions extends ActionsDecl<CounterState> {
 }
 type CounterStore = StoreHandle<CounterState, CounterActions>
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface SlotMap {
     'renderer.factory.child': { kind: 'list'; scope: 'root' }
     'renderer.factory.chain': { kind: 'chain'; scope: 'root'; owner: { enabled: boolean } }

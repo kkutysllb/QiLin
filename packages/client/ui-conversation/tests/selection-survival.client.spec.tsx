@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 /** Exercises Conversation persistence through the real SlotRegistry store axis. */
 import { beforeEach, describe, expect, it, onTestFinished } from 'vitest'
-import { SlotTestRuntime } from '@qilin/client-test-runtime'
-import type { SessionId } from '@qilin/session/types'
-import type { PropsRenderSlots } from '@qilin/client-ui-slots'
+import { SlotTestRuntime } from '@qilin-agent/client-test-runtime'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
 import { createConversationStore } from '../src/client/stores.ts'
 
 const sid = (value: string): SessionId => value as SessionId

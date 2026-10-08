@@ -18,26 +18,26 @@
  * agent factory's `setup(agentCtx)` hook is the one supported call site,
  * because only there is the join installed while the agent is still
  * unpublished, so a rejected composition rolls the whole creation back.
- * @module @qilin/agent-presets
+ * @module @qilin-agent/agent-presets
  */
 
 import { stat } from 'node:fs/promises'
-import { Context } from '@qilin/kylin'
-import { evaluate } from '@qilin/kylin-plugin-loader'
-import z from '@qilin/schemastery'
-import { Remote, RemoteError, TypertRemoteService } from '@qilin/typert-protocol'
-import { bindScopeParent, createScope, scopeOf, type Scope, type ScopeKey, type ScopeParentBinding } from '@qilin/scope'
+import { Context } from '@qilin-agent/kylin'
+import { evaluate } from '@qilin-agent/kylin-plugin-loader'
+import z from '@qilin-agent/schemastery'
+import { Remote, RemoteError, TypertRemoteService } from '@qilin-agent/typert-protocol'
+import { bindScopeParent, createScope, scopeOf, type Scope, type ScopeKey, type ScopeParentBinding } from '@qilin-agent/scope'
 // Type-only: resolves the `agent/created` lifecycle event this service watches.
-import type {} from '@qilin/agent'
-import type {} from '@qilin/app-boot'
-import type { Agent } from '@qilin/agent'
+import type {} from '@qilin-agent/agent'
+import type {} from '@qilin-agent/app-boot'
+import type { Agent } from '@qilin-agent/agent'
 import type { AgentPresetDocument, AgentPresetRoster } from './types.ts'
-import type {} from '@qilin/session-projection'
+import type {} from '@qilin-agent/session-projection'
 // Type-only: resolves the registry notification emitted after scope reparenting.
-import type {} from '@qilin/tools'
-import type SettingsService from '@qilin/settings'
-import type { SettingsScope } from '@qilin/settings'
-import { qilinHomePath } from '@qilin/home-paths'
+import type {} from '@qilin-agent/tools'
+import type SettingsService from '@qilin-agent/settings'
+import type { SettingsScope } from '@qilin-agent/settings'
+import { qilinHomePath } from '@qilin-agent/home-paths'
 import { discoverPresets, SHIPPED_PRESET_ROOT, USER_PRESET_DIR } from './discovery.ts'
 import { copyComposition, deleteComposition, presetExists, readComposition } from './authoring.ts'
 import { livePresetMounts, mountPreset, serviceForAgent, standingMountFor } from './mount.ts'
@@ -88,7 +88,7 @@ export { copyComposition, deleteComposition, readComposition, writableRoot } fro
 export { agentPresetProjectionDefinition } from './session.ts'
 export type { AgentPreset, Config, PresetRoot, PresetTrust } from './preset.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     agentPresets: AgentPresets
   }

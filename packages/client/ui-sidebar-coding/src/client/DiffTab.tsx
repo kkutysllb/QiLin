@@ -8,7 +8,7 @@
  * very content it shows.
  */
 import { useCallback, useEffect, useState } from 'react'
-import { IconRefreshOutline16 } from '@qilin/client-ui-primitives'
+import { IconRefreshOutline16 } from '@qilin-agent/client-ui-primitives'
 import type { SessionScope } from './api.ts'
 import { api } from './api.ts'
 import type { SidebarDiffRef } from './state.ts'

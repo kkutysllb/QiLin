@@ -8,8 +8,8 @@
  * right-panel show/hide from ui-sidebar-right) — writes stay inside the
  * store's declared action set, shared with the root registration.
  */
-import type { BoundActions, HostObservable } from '@qilin/client-ui-slots'
-import type { Branded } from '@qilin/brand'
+import type { BoundActions, HostObservable } from '@qilin-agent/client-ui-slots'
+import type { Branded } from '@qilin-agent/brand'
 import type { createLayoutStore } from './stores.ts'
 
 /** Identity shared by a sidebar panel entry and its main-slot occupant. */

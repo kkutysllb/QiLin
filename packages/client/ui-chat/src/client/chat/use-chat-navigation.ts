@@ -1,6 +1,6 @@
 /** Turn jumps and history-prepend anchoring, independent of DOM measurement. */
 import { useLayoutEffect, useState } from 'react'
-import type { SessionSeq } from '@qilin/session/types'
+import type { SessionSeq } from '@qilin-agent/session/types'
 import type { ChatNode } from '../contract/chat-nodes.ts'
 import type { ChatViewSlotProps } from '../contract/slots.ts'
 import type { TurnRailItem } from './turn-rail-items.ts'

@@ -12,9 +12,9 @@
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent } from '@testing-library/react'
-import { makeTranslate, RemoteError } from '@qilin/client-test-runtime'
-import type { RemoteFailure } from '@qilin/api-remotes/client'
-import { fileAddressFor } from '@qilin/util-workspace-path'
+import { makeTranslate, RemoteError } from '@qilin-agent/client-test-runtime'
+import type { RemoteFailure } from '@qilin-agent/api-remotes/client'
+import { fileAddressFor } from '@qilin-agent/util-workspace-path'
 import { PLAN_POLL_MS, plansNotice } from '../src/client/PlansBody.tsx'
 import type { PlansTabState } from '../src/client/store.ts'
 import { zh } from '../src/client/locales.ts'

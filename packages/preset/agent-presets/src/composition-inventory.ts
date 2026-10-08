@@ -7,14 +7,14 @@
  * evaluated through the caller-supplied Loader evaluator so the file answer
  * matches the decision a mount on this host would make. A row whose
  * expression the evaluator refuses stays `'conditional'`.
- * @module @qilin/agent-presets/composition-inventory
+ * @module @qilin-agent/agent-presets/composition-inventory
  */
 
 import { readFile } from 'node:fs/promises'
 import { load } from 'js-yaml'
-import type { FiberState } from '@qilin/kylin'
-import { isJsExpr, type EntryTree } from '@qilin/kylin-plugin-loader'
-import { entryListSchema } from '@qilin/kylin-plugin-include'
+import type { FiberState } from '@qilin-agent/kylin'
+import { isJsExpr, type EntryTree } from '@qilin-agent/kylin-plugin-loader'
+import { entryListSchema } from '@qilin-agent/kylin-plugin-include'
 import { entryListProblem } from './discovery.ts'
 import type { PresetTrust } from './preset.ts'
 

@@ -3,7 +3,7 @@ description: "Configure DeepSeek Messages, reasoning, and image input."
 kind: "package-reference"
 ---
 
-# @qilin/llm-deepseek
+# @qilin-agent/llm-deepseek
 
 English | [中文](README.zh.md)
 
@@ -38,7 +38,7 @@ Choose this adapter for DeepSeek's official API or a Messages-compatible gateway
 ### Minimal configuration
 
 ```yaml
-- name: '@qilin/llm-deepseek-api-key'
+- name: '@qilin-agent/llm-deepseek-api-key'
   config:
     apiKeyEnv: DEEPSEEK_API_KEY  # credential reference, resolved per request
     reasoningEffort: high        # optional; off | low | high | max
@@ -72,7 +72,7 @@ A request selects the route with `provider: deepseek-official`; the model id pas
 | `fileQuotaCleanupBatch` | `100` | Oldest harness-owned files removed before one quota retry |
 | `retryPolicy` | normal, 5 retries | Provider-owned retry policy executed by `qilin-llm-retry` |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#qilinllm-deepseek-api-key) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agentllm-deepseek-api-key) is the exhaustive source for every accepted field and its JSDoc.
 
 When [proactive compaction](../../compaction/compaction-basic/README.md#use-this-package) is enabled, `models[].contextWindow` (or `defaultContextWindow` when absent) must exceed the effective request `maxTokens` plus the compaction policy’s `headroomTokens`. Requests without an explicit output cap use the model’s `maxTokens` or the adapter default. For small-window deployments, configure headroom within that capacity; lower `thresholdRatio` to compact earlier.
 

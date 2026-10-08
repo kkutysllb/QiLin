@@ -10,7 +10,7 @@
  * classify a row's name before they can act on it, and they must classify it
  * the same way — a row discovery resolves from one base and the mount imports
  * from another would be reported healthy and then fail to load.
- * @module @qilin/agent-presets/specifier
+ * @module @qilin-agent/agent-presets/specifier
  */
 
 import { isAbsolute } from 'node:path'

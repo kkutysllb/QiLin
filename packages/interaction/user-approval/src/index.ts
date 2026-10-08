@@ -1,33 +1,33 @@
 /**
  * Service Definition for the approval capability seam, covering requests, cancellation, audit, and per-session policy. Missing
  * answerers fail closed; grants apply only to the requested action.
- * @module @qilin/user-approval
+ * @module @qilin-agent/user-approval
  */
 
 import { randomUUID } from 'node:crypto'
-import { Context, Service } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type { Agent } from '@qilin/agent'
-import { createUserMessage, type ToolCallId } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-declare module '@qilin/llm' {
+import { Context, Service } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type { Agent } from '@qilin-agent/agent'
+import { createUserMessage, type ToolCallId } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'user-approval': { kind: 'user-approval' } & ContextFormed
   }
 }
 
-import { scopeTarget } from '@qilin/scope'
-import type { Session } from '@qilin/session'
-import { SessionSeq } from '@qilin/session'
-import type {} from '@qilin/system-prompt'
+import { scopeTarget } from '@qilin-agent/scope'
+import type { Session } from '@qilin-agent/session'
+import { SessionSeq } from '@qilin-agent/session'
+import type {} from '@qilin-agent/system-prompt'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     approval: ApprovalService
   }
 }
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /**
      * The session's approval policy was switched — log-only, durable,

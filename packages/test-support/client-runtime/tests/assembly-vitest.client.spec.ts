@@ -1,10 +1,10 @@
 /** Native fixture cleanup remains active after assertion failure and without a started client. */
 import { afterAll, describe, expect } from 'vitest'
-import { ok } from '@qilin/remote-mock'
-import type { SessionId } from '@qilin/session/types'
+import { ok } from '@qilin-agent/remote-mock'
+import type { SessionId } from '@qilin-agent/session/types'
 import { createClientTest, webApp, type TestClient } from '../src/assembly/index.ts'
 
-const test = createClientTest({ roster: webApp.closure(['@qilin/api-gateway']) })
+const test = createClientTest({ roster: webApp.closure(['@qilin-agent/api-gateway']) })
 const clients: TestClient[] = []
 const expired: (() => Promise<TestClient>)[] = []
 
@@ -56,7 +56,7 @@ describe('createClientTest', () => {
   })
 })
 
-const missingConnection = createClientTest({ roster: webApp.pick(['@qilin/typert-registry']) })
+const missingConnection = createClientTest({ roster: webApp.pick(['@qilin-agent/typert-registry']) })
 missingConnection('keeps a rejected startup with its caller and releases its globals', async ({ start }) => {
   expired.push(start)
   await expect(start()).rejects.toThrow('provides no `connection` service')

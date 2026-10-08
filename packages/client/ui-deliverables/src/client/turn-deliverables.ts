@@ -4,11 +4,11 @@
  * changed files from the Host's recorded git summary, and deliveries from
  * `present`; never from presentation data or the closing prose.
  */
-import { isAppendSurfaceEvent } from '@qilin/session/surface'
-import type { TurnTailOwnerProps } from '@qilin/client-ui-chat/client'
-import type { ConversationNodeDefinition } from '@qilin/client-ui-conversation/client'
-import type { MarkdownFileMentions } from '@qilin/client-ui-primitives'
-import type { PresentedFile } from '@qilin/tool-present/types'
+import { isAppendSurfaceEvent } from '@qilin-agent/session/surface'
+import type { TurnTailOwnerProps } from '@qilin-agent/client-ui-chat/client'
+import type { ConversationNodeDefinition } from '@qilin-agent/client-ui-conversation/client'
+import type { MarkdownFileMentions } from '@qilin-agent/client-ui-primitives'
+import type { PresentedFile } from '@qilin-agent/tool-present/types'
 import { isChangesEvent } from '../changes.ts'
 import { basename, isPresentedData, isPresentedFile } from '../presented.ts'
 
@@ -35,7 +35,7 @@ export interface DeliverablesTurnData {
   readonly changes?: ChangesTurnData
 }
 
-declare module '@qilin/client-ui-conversation/client' {
+declare module '@qilin-agent/client-ui-conversation/client' {
   interface ConversationTurnDataMap {
     /** Successful mutation paths, recorded changed files, and deliveries accumulated in this Turn. */
     deliverables: DeliverablesTurnData

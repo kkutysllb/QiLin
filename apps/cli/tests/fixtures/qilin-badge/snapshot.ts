@@ -1,11 +1,11 @@
 import { fileURLToPath } from 'node:url'
-import { agentEvents, type Agent } from '@qilin/agent'
-import { ToolCallId } from '@qilin/llm'
-import { boot, loadOverlayPatches } from '@qilin/app-boot'
-import { SessionId } from '@qilin/session'
-import type {} from '@qilin/skill'
-import type {} from '@qilin/tools'
-import { unsupportedInbox } from '@qilin/agent-loop-testkit'
+import { agentEvents, type Agent } from '@qilin-agent/agent'
+import { ToolCallId } from '@qilin-agent/llm'
+import { boot, loadOverlayPatches } from '@qilin-agent/app-boot'
+import { SessionId } from '@qilin-agent/session'
+import type {} from '@qilin-agent/skill'
+import type {} from '@qilin-agent/tools'
+import { unsupportedInbox } from '@qilin-agent/agent-loop-testkit'
 
 const overlayPath = process.argv[2]
 if (overlayPath === undefined) throw new Error('qilin-badge snapshot requires an overlay path')

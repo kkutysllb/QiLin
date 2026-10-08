@@ -1,8 +1,8 @@
 /** Native V4 metadata and generation-owned relationship validation. */
 
 import { isAbsolute } from 'node:path'
-import { SessionFormatError, SessionFormatUnsupportedMigrationError, isSessionFormatJsonObject, sessionFormatCount } from '@qilin/session-format'
-import type { SessionFormatArtifact, SessionFormatEvent } from '@qilin/session-format'
+import { SessionFormatError, SessionFormatUnsupportedMigrationError, isSessionFormatJsonObject, sessionFormatCount } from '@qilin-agent/session-format'
+import type { SessionFormatArtifact, SessionFormatEvent } from '@qilin-agent/session-format'
 import { assertV4DeveloperData } from './developer.ts'
 import { assertV4LifecycleRelationships } from './relationships.ts'
 import { assertV4MessageSources } from './message-sources.ts'

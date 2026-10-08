@@ -1,9 +1,9 @@
 /** Chat-owned segmentation and incremental summaries over materialized Node inputs. */
-import { brandString } from '@qilin/brand'
+import { brandString } from '@qilin-agent/brand'
 import type {
   ConversationGroupDefinition, ConversationGroupInput, GroupKey, GroupSnapshot,
   GroupUpdate, NodeKey, NodeReference, RenderEntry,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 import type { ChatConversationViewNode, ChatNode } from '../contract/chat-nodes.ts'
 import type { ProcessActivitySummary, ProcessGroupData } from '../contract/process-groups.ts'
 import { hasAssistantReplyContent } from '../contract/assistant-content.ts'

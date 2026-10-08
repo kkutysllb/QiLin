@@ -3,7 +3,7 @@ description: "qilin profile 与临时 Python SDK 运行时的共享 Loader 启�
 kind: "package-library"
 ---
 
-# @qilin/app-boot
+# @qilin-agent/app-boot
 
 [English](README.md) | 中文
 
@@ -45,13 +45,13 @@ const ctx = await boot('qilin', resolveConfigPath(argv[2], process.env.QILIN_SNA
 <a id="profiles"></a>
 ### Profile
 
-Profile 与组合包的声明类型从 [`@qilin/package-manifest`](../../util/package-manifest/README.zh.md) 导入。App-boot 将 `DshPackageManifest` 适配为包身份可选的 `ProfileManifest`，因为本地 profile 无需发布版本。App-boot 负责 profile 加载、JSON 校验和解析后的运行时数据。
+Profile 与组合包的声明类型从 [`@qilin-agent/package-manifest`](../../util/package-manifest/README.zh.md) 导入。App-boot 将 `DshPackageManifest` 适配为包身份可选的 `ProfileManifest`，因为本地 profile 无需发布版本。App-boot 负责 profile 加载、JSON 校验和解析后的运行时数据。
 
 profile 是同一套 qilin 安装提供不同应用界面的方式：`web`、`headless`、`acp`、`sdk` 与 `sdk-minimal` 从同一 launcher 启动不同组合。profile 位于 `$QILIN_HOME/profiles/<name>`，由可安装组合包和自身 `cordis.patch.yml` 组成。YAML 组合决定是否启用 HMR。随产品交付的 `web` 模板实时重载，其他随附模板只在启动时应用 patch。`sdk-minimal` 只列出自身的独立组合包，其他模板保留 base 加模式的组合包栈。`qilin --profile <name> --from-default-profile <template>` 从一个随附模板，在新的非内置名称处创建自定义 profile；`qilin plugin` 则初始化以 base 为基础的 profile，并管理其中安装的组合包。缺失组合包或未声明 patch 的组合包会让启动明确失败。协调 profile 已安装依赖（`reconcileProfilePlugins`）时还会拒绝安装了上游 DSH 时代引擎包的 profile：诊断指明每个冲突包、它映射到的 QiLin 包与清除命令；bundle 列表保持不变，CLI 与 Web 插件管理器共用这一规则。由应用持有的 npm 项目（例如 Electron 保留的 Desktop profile）通过 `loadProfileDirectory` 加载已经初始化的目录，而不会将它暴露给 CLI profile 查找。
 
 浏览器模板不再种下 `dsh-animations` 动效技能包：需要它的 profile 通过 `qilin plugin` 或[插件管理器](../plugin-manager/README.zh.md)自行安装，装下的副本属于 profile 所有，可原地升级或移除。加载随附 profile 时会恢复模板自身的层，并保留模板从未持有过的每一个条目，而安装实例曾经种下的条目归安装实例所有：浏览器模板曾种下的 `dsh-animations` 会在下次加载时从 profile 的列表中退役（自行添加的其他条目留在原处），装回的副本不受影响；列表等于模板加这些条目时不再写盘，因此该写入会收敛。
 
-在 profile 导入插件之前，QiLin 会用 `getQilinRuntimeVersion()` 返回的单一运行时版本检查插件对 `@qilin/cli` 与 `@qilin/*` 的 `peerDependencies`。每条声明的范围都必须匹配，预发布版本也参与范围匹配。源码工作区的 `workspace:^`、`workspace:~` 与 `workspace:*` 指的就是该运行时。随仓库 vendor 的 `@qilin/kylin` 框架族虽然发布在同一 scope 下，但版本独立于 harness 发布，因此它以及 `@qilin/` 之外的任何 peer 都不构成约束；非法范围视为不兼容。这些检查读取的是 peer 声明，不是 `engines.qilin`，也不能作为防范恶意包代码的沙箱。
+在 profile 导入插件之前，QiLin 会用 `getQilinRuntimeVersion()` 返回的单一运行时版本检查插件对 `@qilin-agent/cli` 与 `@qilin-agent/*` 的 `peerDependencies`。每条声明的范围都必须匹配，预发布版本也参与范围匹配。源码工作区的 `workspace:^`、`workspace:~` 与 `workspace:*` 指的就是该运行时。随仓库 vendor 的 `@qilin-agent/kylin` 框架族虽然发布在同一 scope 下，但版本独立于 harness 发布，因此它以及 `@qilin-agent/` 之外的任何 peer 都不构成约束；非法范围视为不兼容。这些检查读取的是 peer 声明，不是 `engines.qilin`，也不能作为防范恶意包代码的沙箱。
 
 准入只发生在 QiLin 自己掌握的组态边界上，被拒绝的行是在启动器自己那份组态里被拒绝的：profile 的 patch 层、依赖清单与组合包列表都不会改变。`prepareProfilePatches` 在启动器的空 profile 根上组合，并在根 Include 挂载期间以及每次 profile 重组时运行，因此被拒绝的插件永远不会导入它的模块；`prepareProfileEntries` 对 preset 的行做同样的事。被拒绝的普通行会变成分离的 `disabled: true` 行；原生 group 保持挂载而其被拒绝的子行不会加载；触达被拒绝插件的原生 Include 会被整体省略，因为它的文件永远不会被改写。被策略拒绝的行在 profile 中保留其配置的 `disabled` 值，每次拒绝都会报告包、版本与风险。组合包不是行，因此 `loadProfileDirectory` 在加载 profile 的组合包层时，会在启动和每次重组时检查每个组合包自身的 qilin peer；不兼容的组合包会像缺少组合包、或组合包未声明 patch 一样让启动明确失败。这些边界不覆盖其他嵌入方通过自己的 `ctx.plugin` 调用挂载的插件。会话期间直接对文件做的两处修改只会在下次重组或启动时被判定：运行中插件自身 `package.json` 的 peer 声明，以及 Loader 自己读取的条目列表文件（例如启动器的根配置或嵌套的 `cordis:include` 文件）。`--dump-config` 报告的是配置出的组态，因此被拒绝的插件行仍然出现在其中，而被拒绝的组合包不贡献任何行；`generateConfigSchema` 读取的是每个组合后模块声明的 Config schema（而非配置值），请只对已信任其插件的 profile 运行。
 
@@ -76,7 +76,7 @@ profile 是同一套 qilin 安装提供不同应用界面的方式：`web`、`he
 
 ### 投影已声明的 Config schema
 
-`generateConfigSchema(profile, layers, installAnchor)` 组合传入的 patch 层，并返回一份 JSON Schema 2020-12 文档，描述组合后的条目列表与可单独寻址的 patch 列表，既不挂载插件也不求值 `!!js` 表达式。每个条目声明的 `Config` 会投影进 `$defs`，并由 `x-cordis.entries` 引用；`Config` 不是原生 Schemastery 图的条目会被报告为 `unsupported`，每条投影限制都会成为一条诊断。`createConfigProjector()` 供已持有原生图的调用方投影单个图——[`@qilin/tool-kylin`](../../extensions/tool-kylin/README.zh.md) 的实时 Config 检查 provider 用它读取运行中的 Loader 树——`isNativeConfigSchema` 是两条路径共用的身份判定。投影不会运行原生校验器或 transform 回调，但读取插件声明的 `Config` 会导入其模块，从而执行该插件的代码。
+`generateConfigSchema(profile, layers, installAnchor)` 组合传入的 patch 层，并返回一份 JSON Schema 2020-12 文档，描述组合后的条目列表与可单独寻址的 patch 列表，既不挂载插件也不求值 `!!js` 表达式。每个条目声明的 `Config` 会投影进 `$defs`，并由 `x-cordis.entries` 引用；`Config` 不是原生 Schemastery 图的条目会被报告为 `unsupported`，每条投影限制都会成为一条诊断。`createConfigProjector()` 供已持有原生图的调用方投影单个图——[`@qilin-agent/tool-kylin`](../../extensions/tool-kylin/README.zh.md) 的实时 Config 检查 provider 用它读取运行中的 Loader 树——`isNativeConfigSchema` 是两条路径共用的身份判定。投影不会运行原生校验器或 transform 回调，但读取插件声明的 `Config` 会导入其模块，从而执行该插件的代码。
 
 <a id="startup-and-reload-failures"></a>
 ### 启动与重载失败
@@ -124,11 +124,11 @@ Loader 结算后，app-boot 在仅 optional 条目未激活时输出警告。如
 - **运行时版本。** `getQilinRuntimeVersion()` 通过文件系统路径读取本包的清单，包括可执行文件的虚拟文件系统；版本缺失或非法会明确失败，而不是绕过兼容性检查。
 - **Profile 启动数据。** `ctx.profileContext` 只包含 profile 位置、启动时组合包名称、已解析的调用级 overlay 与遥测退出值。`readProfilePatches()` 组合传入的启动 profile，或读取这些位置上的当前文件；调用方负责调度和应用结果。
 - **进程内模块解析。** runtime 和 dual 模式会在挂载 profile 条目前，将一份 generation 安装到 Node 的 ESM 与 CommonJS 内部 resolver；link 模式不修改这两个 resolver。exports、conditions、subpath、模块缓存和错误码仍由 Node 负责；路由后的 ESM 失败会报告原始 importer，而不是内部查找锚点。`ctx.pluginPackages` 从同一 generation 提供 package metadata，不记录 Entry import；安装 generation 后，即使查询未命中也以 generation 为准，仅安装服务而未提供 generation 的底层嵌入方仍使用 Node 原生查找。
-- **两个 Loader builtin。** `mountRootInclude` 把 `cordis:include` 与 `cordis:group` 注册为 Loader builtin：group 行能把一个提供方与它的消费方放进同一个 `isolate` realm，而位于本工作区之外的 agent preset 无法按名称解析 `@qilin/kylin-plugin-group`。两者都通过宿主的模块管线加载，而非被包含树自身的说明符解析。
+- **两个 Loader builtin。** `mountRootInclude` 把 `cordis:include` 与 `cordis:group` 注册为 Loader builtin：group 行能把一个提供方与它的消费方放进同一个 `isolate` realm，而位于本工作区之外的 agent preset 无法按名称解析 `@qilin-agent/kylin-plugin-group`。两者都通过宿主的模块管线加载，而非被包含树自身的说明符解析。
 - **由 consumer 持有严格语义。** 普通 Loader group 保留成功 sibling。App-boot 在首次结算后应用全局 required-entry policy；agent preset 与动态多 entry 组合在需要 all-or-nothing setup 时，持有并拆卸各自的独立 generation。App-boot 读取 failed fiber 来报告已记录的错误，并在一个进程检查点内合并 Loader 重复的 rejection 通知。
 - **唯一 fallback generation。** 安装优先、有序 bundle 逐根 breadth-first 遍历同时生成运行时表和保留的磁盘 materializer。runtime 模式不创建解析链接，并在旧链接原来的查找位置忽略陈旧投影。package `imports` 选中的外部 bare target 使用相同的选包顺序，映射、conditions 和精确 target 解析仍由 Node 负责。link 模式物化同一张表；dual 模式还会比较 Node 的磁盘结果与表。完整后继 generation 可以原子增加 package name，修改或删除既有映射则要求重启。
 - **应用自有 profile。** link 模式在 profile 内投影缺失的安装包及 bundle 包，不写共享的 Harness-home 后备目录。runtime 模式提供相同的安装包及 bundle generation，不创建链接。包操作仅移除 qilin 所有的 profile 链接；pnpm 管理的条目保持不变。
-- **自有 Worker。** Worker 构建 banner 会在业务 bundle 前导入 `@qilin/app-boot/worker/profile-resolution-bootstrap`。每个 Worker 在自己的 isolate 中安装结构化克隆的 generation。bootstrap bundle 不静态导入任何包。源码 Worker 入口保留自包含依赖，第三方 Worker 不接受注入。
+- **自有 Worker。** Worker 构建 banner 会在业务 bundle 前导入 `@qilin-agent/app-boot/worker/profile-resolution-bootstrap`。每个 Worker 在自己的 isolate 中安装结构化克隆的 generation。bootstrap bundle 不静态导入任何包。源码 Worker 入口保留自包含依赖，第三方 Worker 不接受注入。
 - **更新完成。** App boot 通过 `internal/update` waterfall 观察重启失败。实时 patch 重载在检查激活状态前等待配置树中的 fiber；单独调用 `Fiber.update()` 或 `Entry.update()` 不能确定重启成功。
 - **单一 rejection 检查点。** `inactiveEntries` 把折入启动诊断的确切原因保持到下一个进程级 rejection 检查点可见，使 `installFailLoud` 能合并 Loader 的重复通知，而所有无关的未处理 rejection 仍然致命。
 - **两阶段失败标签。** 除启动审计失败外，`boot()` 区分 `host preparation failed`（`prepare` 在任何配置树条目挂载前抛出）与 `plugin tree failed to load`，并追加最深层插件错误的堆栈。插件诊断保留嵌套原因和聚合错误中的各项失败；原因链出现循环时会停止遍历，但不会替换原始错误。

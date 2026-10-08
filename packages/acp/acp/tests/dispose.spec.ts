@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { PROTOCOL_VERSION } from '@agentclientprotocol/sdk'
-import type { Agent } from '@qilin/agent'
-import type { StreamChunk } from '@qilin/llm'
-import { SessionId } from '@qilin/session'
+import type { Agent } from '@qilin-agent/agent'
+import type { StreamChunk } from '@qilin-agent/llm'
+import { SessionId } from '@qilin-agent/session'
 import { makeBridgeHarness, type BridgeHarness } from './harness.ts'
 
 describe('ACP connection ownership', () => {

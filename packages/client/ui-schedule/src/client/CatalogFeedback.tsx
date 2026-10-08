@@ -1,7 +1,7 @@
 /** Catalog query states shared by the task list, the detail, and the task tab. */
 import type { ReactNode } from 'react'
-import { Button, IconWarningOutline16, StateDot } from '@qilin/client-ui-primitives'
-import type { PropsLocale } from '@qilin/client-ui-slots'
+import { Button, IconWarningOutline16, StateDot } from '@qilin-agent/client-ui-primitives'
+import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import css from './TaskManagerPage.module.css'
 
 /** Props of the catalog states: query state, shown content, and the retry action. */

@@ -262,7 +262,7 @@ export function buildTasksViewModel(input: BuildTasksViewModelInput): TasksViewM
       }
       children.push(runNode)
       /* jscpd:ignore-start — view-model builders pinned verbatim to
-         @qilin/client-ui-sidebar-tasks src/client/tasks-graph-model.ts (ported twin) */
+         @qilin-agent/client-ui-sidebar-tasks src/client/tasks-graph-model.ts (ported twin) */
       nodes.push(runNode)
 
       const runChildren: TaskNodeVM[] = []

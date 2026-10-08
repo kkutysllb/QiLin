@@ -11,8 +11,8 @@
  */
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react'
-import { RemoteError } from '@qilin/client-test-runtime'
-import type { TabId } from '@qilin/client-ui-dockkit'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
 import { TextPreview } from '../src/client/TextPreview.tsx'
 import type { TextPreviewProps } from '../src/client/TextPreview.tsx'
 import { CodeBody } from '../src/client/code/CodeBody.tsx'

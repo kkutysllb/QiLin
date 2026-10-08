@@ -1,8 +1,8 @@
 /** One Sidebar Inspector with locally selected Chat and Session-log presentations. */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
-import type {} from '@qilin/client-ui-sidebar-right/client'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
 import type { InspectorInjected } from './InspectorTable.tsx'
 import { InspectorTable } from './InspectorTable.tsx'
 import type { InspectorObjects, InspectorChatTarget } from './objects.ts'

@@ -4,13 +4,13 @@
  * text and reasoning come from committed `assistant/message` content, never
  * from a live attempt that may still be retried or discarded, so the stream
  * never carries content the durable log does not contain.
- * @module @qilin/headless/json-stream
+ * @module @qilin-agent/headless/json-stream
  */
 
-import type { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import { lastAssistantStreamChunk } from '@qilin/llm/assistant-stream'
-import type { SessionEvent } from '@qilin/session'
+import type { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import { lastAssistantStreamChunk } from '@qilin-agent/llm/assistant-stream'
+import type { SessionEvent } from '@qilin-agent/session'
 
 /** Default per-string and per-key cap applied to every bounded projected payload. */
 export const MAX_STRING_BYTES = 8 * 1024

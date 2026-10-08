@@ -2,21 +2,21 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import { credentialRef } from '@qilin/credentials'
-import LocalCredentialProvider from '@qilin/credentials-local'
-import WebRuntime, { WebError } from '@qilin/web'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import { credentialRef } from '@qilin-agent/credentials'
+import LocalCredentialProvider from '@qilin-agent/credentials-local'
+import WebRuntime, { WebError } from '@qilin-agent/web'
 import {
   DeepSeekSearchProvider,
   DEEPSEEK_PROVIDER_ID,
-} from '@qilin/web-search-deepseek'
-import * as deepseekPlugin from '@qilin/web-search-deepseek'
+} from '@qilin-agent/web-search-deepseek'
+import * as deepseekPlugin from '@qilin-agent/web-search-deepseek'
 import { citationSnippets, mapAnthropicResponse } from '../src/provider.ts'
-import type { AnthropicResponse } from '@qilin/web-search-deepseek/src/types.ts'
+import type { AnthropicResponse } from '@qilin-agent/web-search-deepseek/src/types.ts'
 
 /** Construct the provider over a fixed options value; production passes a live thunk. */
-import type { DeepSeekSearchProviderOptions } from '@qilin/web-search-deepseek'
+import type { DeepSeekSearchProviderOptions } from '@qilin-agent/web-search-deepseek'
 
 const searchProvider = (options: DeepSeekSearchProviderOptions): DeepSeekSearchProvider =>
   new DeepSeekSearchProvider(() => options)

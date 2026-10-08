@@ -3,7 +3,7 @@ description: "qilin Web 客户端右侧边栏的 Trajectory 页面：按轮次�
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-trajectory
+# @qilin-agent/client-ui-trajectory
 
 [English](README.md) | 中文
 

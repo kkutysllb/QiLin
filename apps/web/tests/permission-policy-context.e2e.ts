@@ -10,10 +10,10 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { canonicalPath } from '@qilin/sandbox'
-import type { SessionEvent } from '@qilin/session'
-import type { WebTerminalId } from '@qilin/api-terminal-controller/types'
-import type {} from '@qilin/api-terminal-controller'
+import { canonicalPath } from '@qilin-agent/sandbox'
+import type { SessionEvent } from '@qilin-agent/session'
+import type { WebTerminalId } from '@qilin-agent/api-terminal-controller/types'
+import type {} from '@qilin-agent/api-terminal-controller'
 import {
   assertFinalWorkspaceSnapshot, assertFixtureInventory, fixtureUserPrompts, launchWebScaffold, recordFixture,
   watchConsole, webSnapshotMode, type WebScaffold,

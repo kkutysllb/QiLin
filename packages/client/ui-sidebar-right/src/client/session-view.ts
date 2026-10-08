@@ -1,9 +1,9 @@
 /** One Sidebar view's Session reference, retained bodies and committed mount lifetime. */
-import type { ISessions, SessionReference } from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
-import type { TabId } from '@qilin/client-ui-dockkit'
+import type { ISessions, SessionReference } from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
 
-declare module '@qilin/api-session-controller/client' {
+declare module '@qilin-agent/api-session-controller/client' {
   interface SessionReferenceSourceMap {
     sidebarView: unknown
   }

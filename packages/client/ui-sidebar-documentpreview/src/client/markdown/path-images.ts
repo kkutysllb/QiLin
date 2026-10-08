@@ -1,5 +1,5 @@
 /** Local Markdown image destinations served by the authenticated file route. */
-import { fileMediaUrl, isAbsoluteWorkspacePath, pathPartsOf } from '@qilin/util-workspace-path'
+import { fileMediaUrl, isAbsoluteWorkspacePath, pathPartsOf } from '@qilin-agent/util-workspace-path'
 
 /**
  * Build a file URL, resolving relative destinations beside the previewed file.

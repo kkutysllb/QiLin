@@ -8,12 +8,12 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, screen } from '@testing-library/react'
-import type { WorkspaceId } from '@qilin/api-workspace-controller/client'
-import type { PropsRenderSlots } from '@qilin/client-ui-slots'
-import { SlotTestRuntime, usePinnedBrowserLanguages } from '@qilin/client-test-runtime'
-import { LocaleRuntime } from '@qilin/client-locale/client'
-import { apply as workbenchApply } from '@qilin/client-ui-workbench/client'
-import { apply, inject } from '@qilin/client-ui-workspace/client'
+import type { WorkspaceId } from '@qilin-agent/api-workspace-controller/client'
+import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
+import { SlotTestRuntime, usePinnedBrowserLanguages } from '@qilin-agent/client-test-runtime'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
+import { apply as workbenchApply } from '@qilin-agent/client-ui-workbench/client'
+import { apply, inject } from '@qilin-agent/client-ui-workspace/client'
 
 usePinnedBrowserLanguages('zh-CN')
 

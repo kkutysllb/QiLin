@@ -1,7 +1,7 @@
 /**
  * The one definition of a well-formed provider API key, shared by every
  * adapter that puts one in an HTTP header.
- * @module @qilin/llm/api-key
+ * @module @qilin-agent/llm/api-key
  */
 
 /**

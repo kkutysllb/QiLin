@@ -10,12 +10,12 @@
  * Host-effective default again.
  */
 
-import type { Context as ClientContext } from '@qilin/kylin'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
 // Type-only: pulls the ctx.remote merge into this program.
-import type {} from '@qilin/api-remotes/client'
-import type { SessionSummary } from '@qilin/api-session-controller/client'
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
-import type {} from '@qilin/agent-presets/types'
+import type {} from '@qilin-agent/api-remotes/client'
+import type { SessionSummary } from '@qilin-agent/api-session-controller/client'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
+import type {} from '@qilin-agent/agent-presets/types'
 import { presetOptions, readRoster } from './settings-store.ts'
 import type { AgentPresetOption } from './settings-store.ts'
 

@@ -6,7 +6,7 @@
  * activation waiting on the panel's service.
  */
 
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
 
 /** Live availability of the settings panel behind the menu's Settings row. */
 export class SettingsPanelPresence {

@@ -12,10 +12,10 @@
  */
 
 /** The name shown in the settings section's identity badge. */
-export const PLUGIN_DISPLAY_NAME = '@qilin/client-ui-sidebar-coding'
+export const PLUGIN_DISPLAY_NAME = '@qilin-agent/client-ui-sidebar-coding'
 
 /** The `settings.section` list id this plugin registers under. */
-export const SETTINGS_SECTION_ID = '@qilin/client-ui-sidebar-coding'
+export const SETTINGS_SECTION_ID = '@qilin-agent/client-ui-sidebar-coding'
 
 /**
  * Whether the settings section replaces the stock sidebar settings cell

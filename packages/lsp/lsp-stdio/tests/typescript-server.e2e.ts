@@ -9,11 +9,11 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { mkdtemp, mkdir, rm, writeFile, realpath } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Context } from '@qilin/kylin'
-import LocalSubprocessRuntime from '@qilin/subprocess-local'
-import LocalFileSystem from '@qilin/fs-local'
-import Lsp, { type LspQueryRequest, type LspQueryResult } from '@qilin/lsp'
-import * as LspLocal from '@qilin/lsp-stdio'
+import { Context } from '@qilin-agent/kylin'
+import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
+import LocalFileSystem from '@qilin-agent/fs-local'
+import Lsp, { type LspQueryRequest, type LspQueryResult } from '@qilin-agent/lsp'
+import * as LspLocal from '@qilin-agent/lsp-stdio'
 
 // The server binary is a dev dependency of this package; resolve its pnpm-hoisted .bin path.
 const serverBin = join(

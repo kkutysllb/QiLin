@@ -6,10 +6,10 @@
  * compaction cannot change. The plugin owns only the fold; delivery is the
  * seam's.
  *
- * @module @qilin/session-stats
+ * @module @qilin-agent/session-stats
  */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { sessionStatsProjectionDefinition } from './projection.ts'
 
 export type * from './types.ts'

@@ -1,5 +1,5 @@
-import type { Context } from '@qilin/kylin'
-import type { SessionEvent } from '@qilin/session'
+import type { Context } from '@qilin-agent/kylin'
+import type { SessionEvent } from '@qilin-agent/session'
 import { describe, expect, it, vi } from 'vitest'
 import { runFixtureTurn } from '../src/agent-turn.ts'
 

@@ -181,7 +181,7 @@ function createJobOutputMirror(ctx: Context): { entries(sessionId: string): read
       push(sessionId, trace)
     }
   })
-  ctx.effect(() => dispose, '@qilin/client-ui-sidebar-coding: job-output event mirror')
+  ctx.effect(() => dispose, '@qilin-agent/client-ui-sidebar-coding: job-output event mirror')
 
   const push = (sessionId: string, trace: JobOutputTrace): void => {
     let list = perSession.get(sessionId)

@@ -3,7 +3,7 @@ description: "workspaceGit Remote 命名空间的 Host 方：仓库探测、porc
 kind: "package-reference"
 ---
 
-# @qilin/api-workspace-git
+# @qilin-agent/api-workspace-git
 
 [English](README.md) | 中文
 
@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 何时使用本包
 
-把本包与 Typert Gateway、以及提供本服务消费的 `workspaceFileScope` 查找的 `@qilin/api-workspace-files` 一起挂载；bundle 在 `workspace-files` 之后立即加载它。每个方法都在线上携带 Session 身份，因此 Client 调用 `remote.workspaceGit.isRepo(sessionId, signal)`，从不自行指定根目录。本包是 Host 半边；侧栏面板的 Client 半边另行落地。
+把本包与 Typert Gateway、以及提供本服务消费的 `workspaceFileScope` 查找的 `@qilin-agent/api-workspace-files` 一起挂载；bundle 在 `workspace-files` 之后立即加载它。每个方法都在线上携带 Session 身份，因此 Client 调用 `remote.workspaceGit.isRepo(sessionId, signal)`，从不自行指定根目录。本包是 Host 半边；侧栏面板的 Client 半边另行落地。
 
 | 方法 | 返回 | 用途 |
 |---|---|---|
@@ -52,7 +52,7 @@ kind: "package-reference"
 
 ### 固定 argv，无 shell
 
-`@qilin/shell` seam 通过 shell 执行单条命令行字符串，因此"一次调用等于一次固定 argv 拉起"在那里无法表达；本服务直接使用 `node:child_process` 拉起，每个参数都是独立的 argv 元素。caller 字符串进入 argv 只有五种途径：`--` 之后的路径规格（任何前导 `-` 因此是路径字符而非选项）、唯一一条 `-m` 提交消息、`--title`/`--body` pull request 取值、匹配 `/^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$/` 的分支名、以及匹配 `/^[A-Za-z0-9][A-Za-z0-9._/~^@{}-]{0,255}$/` 的 revision——其余一律在 git 运行前以 `bad-branch` 或 `gateway/bad-request` 失败。首字符类别保证任何被接受的名称与 revision 都不可能拼出 git 选项。
+`@qilin-agent/shell` seam 通过 shell 执行单条命令行字符串，因此"一次调用等于一次固定 argv 拉起"在那里无法表达；本服务直接使用 `node:child_process` 拉起，每个参数都是独立的 argv 元素。caller 字符串进入 argv 只有五种途径：`--` 之后的路径规格（任何前导 `-` 因此是路径字符而非选项）、唯一一条 `-m` 提交消息、`--title`/`--body` pull request 取值、匹配 `/^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$/` 的分支名、以及匹配 `/^[A-Za-z0-9][A-Za-z0-9._/~^@{}-]{0,255}$/` 的 revision——其余一律在 git 运行前以 `bad-branch` 或 `gateway/bad-request` 失败。首字符类别保证任何被接受的名称与 revision 都不可能拼出 git 选项。
 
 ### gh pull request 面
 
@@ -81,7 +81,7 @@ kind: "package-reference"
 | `maxStderrChars` | `2000` | 单条命令失败所携带 stderr 的字符上限 |
 | `maxListEntries` | `200` | 返回分支条目的上限，也是 gh pull request `--limit` 的上限 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#qilinapi-workspace-git)是每个受支持字段及其 JSDoc 的穷尽来源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#qilin-agentapi-workspace-git)是每个受支持字段及其 JSDoc 的穷尽来源。
 
 ### 失败
 
@@ -97,7 +97,7 @@ kind: "package-reference"
 
 ### 设计概念
 
-工作区根目录经 `@qilin/api-workspace-files` 注册的 `workspaceFileScope` Typert 查找到达；本包不声明自己的查找，只以 type-only 方式导入 scope 类型，因为 Typert 按 Host 类型符号而非结构形状绑定查找参数。一个私有的 `run` 以固定 argv 拉起所配置的二进制——git 或 gh，套用该调用的超时，尊重 caller 取消（以中止原因拒绝），并在 stdout 越过 `maxDiffBytes` 时杀死子进程，使超限的 diff 绝不整体缓冲。每个方法在一处映射失败：探测拒绝到 `not-a-repo`、任何拉起前的校验拒绝、其余全部到 `command-failed` 并附调用与修剪后的 stderr。各解析器是对录制输出字符串的纯函数，导出以供 fixture 规格。
+工作区根目录经 `@qilin-agent/api-workspace-files` 注册的 `workspaceFileScope` Typert 查找到达；本包不声明自己的查找，只以 type-only 方式导入 scope 类型，因为 Typert 按 Host 类型符号而非结构形状绑定查找参数。一个私有的 `run` 以固定 argv 拉起所配置的二进制——git 或 gh，套用该调用的超时，尊重 caller 取消（以中止原因拒绝），并在 stdout 越过 `maxDiffBytes` 时杀死子进程，使超限的 diff 绝不整体缓冲。每个方法在一处映射失败：探测拒绝到 `not-a-repo`、任何拉起前的校验拒绝、其余全部到 `command-failed` 并附调用与修剪后的 stderr。各解析器是对录制输出字符串的纯函数，导出以供 fixture 规格。
 
 ### 源码地图
 

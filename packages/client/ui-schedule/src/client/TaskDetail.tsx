@@ -1,5 +1,5 @@
 /** One retained task's rule, saved deliveries, run-time edits, deletion, and original-Session link. */
-import { assertNever } from '@qilin/util-values'
+import { assertNever } from '@qilin-agent/util-values'
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, KeyboardEvent, ReactNode } from 'react'
 import clsx from 'clsx'
@@ -7,14 +7,14 @@ import {
   Button, IconChevronDownOutline14, IconChevronRightOutline14, IconChevronUpOutline14,
   IconClockOutline16, IconCloseOutline16,
   IconEllipsisOutline16, IconTrashOutline16, Modal, Pill,
-} from '@qilin/client-ui-primitives'
-import type { PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
-import type { RemoteResult } from '@qilin/api-remotes/client'
+} from '@qilin-agent/client-ui-primitives'
+import type { PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type { RemoteResult } from '@qilin-agent/api-remotes/client'
 import type {
   ScheduleCatalogEntry, ScheduleId, ScheduleRecord, ScheduleTimingChange, ScheduleUpdateContent,
   ScheduleUpdateRequest, ScheduleUpdateResult,
-} from '@qilin/schedule/client'
-import type { SessionId } from '@qilin/session/types'
+} from '@qilin-agent/schedule/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import { CatalogFeedback } from './CatalogFeedback.tsx'
 import { IconCalendarOutlineRegular } from './CalendarIcon.tsx'
 import { ClockPicker } from './ClockPicker.tsx'

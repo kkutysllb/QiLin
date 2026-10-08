@@ -1,5 +1,5 @@
-import type { Context } from '@qilin/kylin'
-import type { PropsLocale } from '@qilin/client-ui-slots'
+import type { Context } from '@qilin-agent/kylin'
+import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import type { ToolCallViewProps } from '../../contract/slots.ts'
 import { readCallLine, readCardModel } from '../models/read-card-model.ts'
 import { readFamilyRow } from './read-family-row.tsx'

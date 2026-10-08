@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor, act } from '@testing-library/react'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import { createSnapshotStore } from '@qilin/client-store'
-import type { SessionListState } from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { SessionListState } from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import { OpenInAppAction, type OpenInAppActionProps } from '../src/client/OpenInAppAction.tsx'
 import { zh } from '../src/client/locales.ts'
 

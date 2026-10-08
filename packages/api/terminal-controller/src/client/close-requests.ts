@@ -1,5 +1,5 @@
 /** Unfinished close requests survive reload independently of the removed sidebar tabs. */
-import type { SessionId } from '@qilin/session/types'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { WebTerminalId } from '../types.ts'
 
 /** An explicit cleanup request; no process or open-tab metadata is mirrored here. */

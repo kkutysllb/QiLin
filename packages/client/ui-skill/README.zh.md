@@ -3,7 +3,7 @@ description: "qilin Web 客户端的 skill 引用与专属 skill 工具行：/ �
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-skill
+# @qilin-agent/client-ui-skill
 
 [English](README.md) | 中文
 

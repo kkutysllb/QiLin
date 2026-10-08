@@ -23,7 +23,7 @@
 
 - insert:
     - id: llm-replay
-      name: '@qilin/llm-replay'
+      name: '@qilin-agent/llm-replay'
 
     # Hold the parent's second step until the manager notice enters its inbox.
     - id: settlement-fence

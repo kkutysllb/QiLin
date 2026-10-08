@@ -1,8 +1,8 @@
 /** The workbench-audience presentation gate: what it admits, and when it republishes. */
 import { describe, expect, it, vi } from 'vitest'
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
 import { audienceAdmits, installAudienceGate } from '../src/client/admission.ts'
-import type { SlotAdmissionGate } from '@qilin/client-ui-renderer/client'
+import type { SlotAdmissionGate } from '@qilin-agent/client-ui-renderer/client'
 import type { PackageView, PluginManagerState } from '../src/client/manager-store.ts'
 
 const pkg = (overrides: Partial<PackageView> = {}): PackageView => ({

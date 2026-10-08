@@ -1,5 +1,5 @@
 /**
- * French translation of the @qilin/client-ui-sidebar-coding copy.
+ * French translation of the @qilin-agent/client-ui-sidebar-coding copy.
  *
  * Mirrors the key set of the zh dictionary in `locales.ts` (enforced by
  * the `Record<keyof typeof zh, string>` type annotation). The better-locale

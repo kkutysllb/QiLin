@@ -1,7 +1,7 @@
 /** Host registration for the shared developer-tool preference. */
 
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/settings'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/settings'
 import { DEVELOPER_TOOLS_NAMESPACE, DeveloperToolsSettingsSchema } from './developer-tools-settings.ts'
 
 export { DEVELOPER_TOOLS_NAMESPACE, type DeveloperToolsSettings } from './developer-tools-settings.ts'

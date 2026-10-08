@@ -2,16 +2,16 @@
  * Remote namespaces the Session cluster calls. One parameter for one concept:
  * the generated surface a Session and its manager reach the Host through.
  *
- * @module @qilin/api-session-controller/client/sessions/remotes
+ * @module @qilin-agent/api-session-controller/client/sessions/remotes
  */
 
-import type { ClientRemote } from '@qilin/api-gateway/client'
-import type { CommandSubmitAttachment } from '@qilin/commands/types'
-import type { SessionId } from '@qilin/session/types'
+import type { ClientRemote } from '@qilin-agent/api-gateway/client'
+import type { CommandSubmitAttachment } from '@qilin-agent/commands/types'
+import type { SessionId } from '@qilin-agent/session/types'
 import type {
   SubagentInterruptReceipt, SubagentPromptReceipt, SubagentPromptRequest,
-} from '@qilin/subagent/client'
-import type { RemoteResult } from '@qilin/typert-protocol'
+} from '@qilin-agent/subagent/client'
+import type { RemoteResult } from '@qilin-agent/typert-protocol'
 import type { SessionRemote } from '../transport.ts'
 
 /** Narrow Commands namespace consumed by a Client Session. */

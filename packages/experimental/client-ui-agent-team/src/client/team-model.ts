@@ -3,8 +3,8 @@
  * create/edit draft rules, shared by the conversation popover and the
  * right-Sidebar page. No React, no stores, no Remote calls.
  */
-import type { TeamTaskId, TeamTaskView as TeamTask } from '@qilin/experimental-agent-team/client'
-import type { StateDotState } from '@qilin/client-ui-primitives'
+import type { TeamTaskId, TeamTaskView as TeamTask } from '@qilin-agent/experimental-agent-team/client'
+import type { StateDotState } from '@qilin-agent/client-ui-primitives'
 import type { TeamKey } from './locales.ts'
 
 /** Durable lifecycle overlaid with the member Session's live turn activity. */

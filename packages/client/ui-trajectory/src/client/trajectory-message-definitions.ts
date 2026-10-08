@@ -1,9 +1,9 @@
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   ContextMessageNode, ConversationNodeDefinition, ConversationPreviousContext,
   SteeringMessageNode, UserMessageNode,
-} from '@qilin/client-ui-conversation/client'
-import type {} from '@qilin/agent/types'
+} from '@qilin-agent/client-ui-conversation/client'
+import type {} from '@qilin-agent/agent/types'
 import { trajectoryNode } from './trajectory-definition-common.ts'
 import { contextForm, contextProducer } from './trajectory-event-projection.ts'
 

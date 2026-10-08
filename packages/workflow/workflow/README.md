@@ -3,7 +3,7 @@ description: "The workflow orchestration capability: run a model-written script 
 kind: "package-reference"
 ---
 
-# @qilin/workflow
+# @qilin-agent/workflow
 
 English | [中文](README.zh.md)
 

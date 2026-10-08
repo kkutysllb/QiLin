@@ -2,14 +2,14 @@
  * Hand-built wire facts the sidechat specs share: Session ids, thread rows,
  * message events, and a scriptable fake of the Session Remote slice.
  */
-import type { SessionId } from '@qilin/session'
-import { streamHandle } from '@qilin/remote-mock'
+import type { SessionId } from '@qilin-agent/session'
+import { streamHandle } from '@qilin-agent/remote-mock'
 import type {
   SessionEventEntry,
   SessionFollowFrame,
   SessionFollowRequest,
   SidechatThreadRow,
-} from '@qilin/api-session-controller/types'
+} from '@qilin-agent/api-session-controller/types'
 import type { SidechatRemote } from '../src/client/face.ts'
 
 /** Brand one plain string as a Session id. */

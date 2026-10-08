@@ -1,22 +1,22 @@
 /**
- * @qilin/accounts-local — the local account surface of a Web deployment: one
+ * @qilin-agent/accounts-local — the local account surface of a Web deployment: one
  * account file under the harness home, scrypt password hashes, signed HttpOnly
  * session cookies, the `/api/auth` endpoints, and the account-session gate the
  * browser transport consults for its index documents and its shared `/api`
  * route. Accounts gate access to one harness home; they are not a tenancy
  * boundary, and a second account reaches the same Sessions, credentials, and
  * files as the first.
- * @module @qilin/accounts-local
+ * @module @qilin-agent/accounts-local
  */
 
 import { randomBytes } from 'node:crypto'
 import { join } from 'node:path'
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type { ConnectionTrustRequest } from '@qilin/client-connection'
-import { credentialKey } from '@qilin/credentials'
-import type { CredentialProvider, CredentialRecord } from '@qilin/credentials'
-import { resolveQilinHome } from '@qilin/home-paths'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type { ConnectionTrustRequest } from '@qilin-agent/client-connection'
+import { credentialKey } from '@qilin-agent/credentials'
+import type { CredentialProvider, CredentialRecord } from '@qilin-agent/credentials'
+import { resolveQilinHome } from '@qilin-agent/home-paths'
 import { AccountStore, type AccountRecord } from './accounts.ts'
 import { createSessionAuthority } from './gate.ts'
 import { isRecord } from './json.ts'

@@ -3,12 +3,12 @@
  * framework-free boot page; plugin composition and the renderer handoff are
  * `bootClient` and `mountClient`. The dynamic UI renderer receives the mount
  * point after every client entry activates.
- * @module @qilin/client-web/src/boot
+ * @module @qilin-agent/client-web/src/boot
  */
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import type {
   BootManifest, ClientModuleCreateOptions, ClientModuleSystem, QilinWindow,
-} from '@qilin/client-modules/client'
+} from '@qilin-agent/client-modules/client'
 import { bootClient } from './boot-client.ts'
 import { BootPage } from './boot-page.ts'
 import { mountClient } from './mount.ts'
@@ -62,7 +62,7 @@ export class AppWebEntry {
       }
       // A pre-injected transport (the worker preview page) owns bundle bytes;
       // its loadBundle is the default and explicit seams still win. The global
-      // is `ClientTransportHooks`, owned by @qilin/client-connection;
+      // is `ClientTransportHooks`, owned by @qilin-agent/client-connection;
       // this structural slice reads one optional member without adding a
       // package edge.
       const transport = (globalThis as {

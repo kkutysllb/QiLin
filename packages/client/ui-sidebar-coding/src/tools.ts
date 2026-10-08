@@ -12,10 +12,10 @@
  *   C6 — `exec.signal.throwIfAborted()` before any spawn.
  *   C10 — no UI/transport vocabulary in the canonical value.
  */
-import { defineTool } from '@qilin/tools'
-import type { ToolRunContext } from '@qilin/tools'
-import type { ContentBlock } from '@qilin/llm'
-import type { Agent } from '@qilin/agent'
+import { defineTool } from '@qilin-agent/tools'
+import type { ToolRunContext } from '@qilin-agent/tools'
+import type { ContentBlock } from '@qilin-agent/llm'
+import type { Agent } from '@qilin-agent/agent'
 import { registerBatch } from './registration.ts'
 import type { Context } from './context-types.ts'
 import {

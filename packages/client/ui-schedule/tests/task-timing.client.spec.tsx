@@ -1,7 +1,7 @@
 /** Exact rules, native drafts, and Host failure mapping the retained-task detail composes. */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { ScheduleCatalogEntry, ScheduleId, ScheduleRecord } from '@qilin/schedule/client'
-import type { SessionId } from '@qilin/session/types'
+import type { ScheduleCatalogEntry, ScheduleId, ScheduleRecord } from '@qilin-agent/schedule/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import {
   draftZone, timingDraft, timingError, timingSnapshot, zonedWallClock,
 } from '../src/client/task-timing.ts'

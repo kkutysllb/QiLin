@@ -1,7 +1,7 @@
 /**
  * Content identity for workspace instruction duplicate suppression.
  *
- * @module @qilin/agent-instructions/digest
+ * @module @qilin-agent/agent-instructions/digest
  */
 
 import { createHash } from 'node:crypto'

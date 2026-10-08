@@ -10,10 +10,10 @@
  * open Session's tasks.
  */
 
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { HostObservable, SnapshotSelectorHook } from '@qilin/client-ui-slots'
-import type { ScheduleCatalogEntry } from '@qilin/schedule/client'
-import type { SessionId } from '@qilin/session/types'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { HostObservable, SnapshotSelectorHook } from '@qilin-agent/client-ui-slots'
+import type { ScheduleCatalogEntry } from '@qilin-agent/schedule/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import { createCatalogSource, type CatalogInjected, type CatalogSnapshot } from './catalog-source.ts'
 
 /** Per-Session source factory handed to the Session-header catalog occupant. */

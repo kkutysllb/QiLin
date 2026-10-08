@@ -1,8 +1,8 @@
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   ConversationLocation, ConversationMatch, ConversationNodeDefinition, ModelRetryNode,
-} from '@qilin/client-ui-conversation/client'
-import type {} from '@qilin/llm-retry/types'
+} from '@qilin-agent/client-ui-conversation/client'
+import type {} from '@qilin-agent/llm-retry/types'
 import type { RetryChatData } from '../contract/chat-nodes.ts'
 import { chatNode } from './common.ts'
 

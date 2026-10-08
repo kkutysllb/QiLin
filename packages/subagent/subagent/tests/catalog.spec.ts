@@ -1,15 +1,15 @@
 import { describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
-import { Context } from '@qilin/kylin'
-import SessionStore from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
+import { Context } from '@qilin-agent/kylin'
+import SessionStore from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import {
   SessionLogOffset,
   SessionSeq,
   SESSION_FORMAT_VERSION,
   SessionId,
-} from '@qilin/session'
-import type { SessionEvent, SessionHeader } from '@qilin/session'
+} from '@qilin-agent/session'
+import type { SessionEvent, SessionHeader } from '@qilin-agent/session'
 import {
   subagentCatalogProjectionDefinition,
 } from '../src/catalog.ts'

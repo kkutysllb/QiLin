@@ -3,14 +3,14 @@
  * subagent descendants of a Session are still inside a turn, and how they
  * stop when the Session is archived with its work.
  *
- * @module @qilin/subagent
+ * @module @qilin-agent/subagent
  */
 
-import type { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import type { SessionId } from '@qilin/session'
-import type {} from '@qilin/session-query'
-import type { SessionActivity, SessionActivityItem } from '@qilin/workspace'
+import type { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import type { SessionId } from '@qilin-agent/session'
+import type {} from '@qilin-agent/session-query'
+import type { SessionActivity, SessionActivityItem } from '@qilin-agent/workspace'
 import { foldSubagentDescriptor } from './descriptor.ts'
 
 /**

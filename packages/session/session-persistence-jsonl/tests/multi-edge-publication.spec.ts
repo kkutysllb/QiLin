@@ -1,16 +1,16 @@
 /** Durable composition of historical chunk collapse and V3 system/reference migration. */
 
-import { Context } from '@qilin/kylin'
-import { SESSION_FORMAT_VERSION, Session, SessionId, SessionLogOffset, SessionSeq } from '@qilin/session'
-import type { SessionEvent, SessionHeader } from '@qilin/session'
-import { createSessionFormatCatalog } from '@qilin/session-format'
-import { releasedV0SessionFormatCodec, releasedV1SessionFormatCodec, sessionFormatV0ToV1 } from '@qilin/session-format-v0-to-v1'
+import { Context } from '@qilin-agent/kylin'
+import { SESSION_FORMAT_VERSION, Session, SessionId, SessionLogOffset, SessionSeq } from '@qilin-agent/session'
+import type { SessionEvent, SessionHeader } from '@qilin-agent/session'
+import { createSessionFormatCatalog } from '@qilin-agent/session-format'
+import { releasedV0SessionFormatCodec, releasedV1SessionFormatCodec, sessionFormatV0ToV1 } from '@qilin-agent/session-format-v0-to-v1'
 import {
   assertReleasedV2Header, RELEASED_V2_EVENT_TYPES, releasedV2SessionFormatCodec,
   restoreReleasedV2Artifact, sessionFormatV1ToV2,
-} from '@qilin/session-format-v1-to-v2'
-import { SessionFormatUnsupportedError } from '@qilin/session-persistence'
-import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
+} from '@qilin-agent/session-format-v1-to-v2'
+import { SessionFormatUnsupportedError } from '@qilin-agent/session-persistence'
+import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
 import { appendFile, mkdir, mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { basename, dirname, join } from 'node:path'

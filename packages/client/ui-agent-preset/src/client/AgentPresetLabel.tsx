@@ -9,12 +9,12 @@
  */
 
 import { useEffect } from 'react'
-import type { SnapshotStore } from '@qilin/client-store'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
-import { IconAgentPresetOutline16 } from '@qilin/client-ui-primitives'
+import type { SnapshotStore } from '@qilin-agent/client-store'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import { IconAgentPresetOutline16 } from '@qilin-agent/client-ui-primitives'
 // Type-only: pulls the ui-conversation SlotMap merge (the header actions).
-import type {} from '@qilin/client-ui-conversation/client'
-import type {} from '@qilin/agent-presets/types'
+import type {} from '@qilin-agent/client-ui-conversation/client'
+import type {} from '@qilin-agent/agent-presets/types'
 import type { AgentPresetSettingsState } from './settings-store.ts'
 import { presetDisplayText } from './locales.ts'
 import css from './AgentPresetLabel.module.css'

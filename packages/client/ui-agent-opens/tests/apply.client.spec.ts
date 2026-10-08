@@ -4,10 +4,10 @@
  * Session switch re-subscribes, and that leaving the plugin abandons the stream.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { SessionId } from '@qilin/session/types'
-import { fileAddressFor } from '@qilin/util-workspace-path'
-import type { SidebarOpenRequest } from '@qilin/sidebar-opens/types'
+import { Context } from '@qilin-agent/kylin'
+import { SessionId } from '@qilin-agent/session/types'
+import { fileAddressFor } from '@qilin-agent/util-workspace-path'
+import type { SidebarOpenRequest } from '@qilin-agent/sidebar-opens/types'
 import { apply, inject } from '../src/client/index.ts'
 
 const VIEWED = SessionId('viewed')

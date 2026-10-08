@@ -13,22 +13,22 @@
  */
 
 // Type-only: pulls the Session Controller service merge (ctx.sessions).
-import type { SessionBinding } from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
-import { WeakMapWithValues } from '@qilin/util-values'
+import type { SessionBinding } from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import { WeakMapWithValues } from '@qilin-agent/util-values'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
-import type {} from '@qilin/client-locale/client'
+import type {} from '@qilin-agent/client-locale/client'
 // Type-only: pulls the ctx.remote merge and the forwarded-event key face
 // (the settings invalidation rides the allowlist) into this program.
-import type {} from '@qilin/api-remotes/client'
+import type {} from '@qilin-agent/api-remotes/client'
 // Type-only: pulls the settings shell's SlotMap merge (the 'settings.section' entry).
-import type {} from '@qilin/client-ui-settings/client'
-import type {} from '@qilin/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-settings/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
 // Type-only: pulls the Workspace UI navigation service merge (ctx.uiWorkspace).
-import type {} from '@qilin/client-ui-workspace/client'
+import type {} from '@qilin-agent/client-ui-workspace/client'
 // Type-only: pulls the plugin page's SlotMap merge (the 'plugins.add.actions' entry).
-import type {} from '@qilin/client-ui-plugin-manager/client'
-import type { Context as ClientContext } from '@qilin/kylin'
+import type {} from '@qilin-agent/client-ui-plugin-manager/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
 import { AgentPresetLabel } from './AgentPresetLabel.tsx'
 import type { AgentPresetLabelInjected } from './AgentPresetLabel.tsx'
 import { AgentPresetSeat } from './AgentPresetSeat.tsx'
@@ -41,7 +41,7 @@ import { AgentPresetSectionController } from './section-store.ts'
 import { en, zh, type AgentPresetSettingsKey } from './locales.ts'
 import { AGENT_PRESET_SETTINGS_NS, AgentPresetSettingsController } from './settings-store.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Agent-preset surface copy. */
     'settings.agentPreset': AgentPresetSettingsKey

@@ -1,7 +1,7 @@
 /** Session-local object references used by the Chat Inspector's detail tree. */
 
-import type { SessionId } from '@qilin/session/types'
-import type { ObservableSnapshot } from '@qilin/client-store'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { ObservableSnapshot } from '@qilin-agent/client-store'
 
 /**
  * Inspector-owned coordinates read from DOM attributes or Chat's string-keyed snapshots.

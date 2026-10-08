@@ -13,9 +13,9 @@
  * `TranslateNS<'sidebarTasks'>` or `PropsLocale<'sidebarTasks'>` needs only
  * this file, whichever entry a program loads first.
  */
-import type {} from '@qilin/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-slots'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Tasks page type name, guide entry, section copy, and job status words. */
     sidebarTasks: SidebarTasksKey

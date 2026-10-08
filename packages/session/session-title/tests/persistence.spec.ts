@@ -1,13 +1,13 @@
-import { createUserMessage } from '@qilin/llm'
+import { createUserMessage } from '@qilin-agent/llm'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import SessionStore, { SessionId } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
-import SessionTitleService, { foldSessionTitle } from '@qilin/session-title'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
+import SessionTitleService, { foldSessionTitle } from '@qilin-agent/session-title'
 
 const CONFIG = {
   fallbackMaxWords: 5,

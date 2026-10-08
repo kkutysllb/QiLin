@@ -3,7 +3,7 @@ description: "面向注册可信外部事件策略并创建 Workspace 会话的�
 kind: "package-reference"
 ---
 
-# @qilin/webhook
+# @qilin-agent/webhook
 
 [English](README.md) | 中文
 

@@ -4,10 +4,10 @@
  * dictionaries it registers, and the injected face that routes to the theme,
  * locale, and settings services.
  */
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
-import { LocaleRuntime } from '@qilin/client-locale/client'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
 import { AccountMenu } from '../src/client/AccountMenu.tsx'
 import type { AccountMenuInjected } from '../src/client/AccountMenu.tsx'
 import { apply, inject, NS } from '../src/client/index.ts'

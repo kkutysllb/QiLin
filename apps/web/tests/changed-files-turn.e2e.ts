@@ -6,8 +6,8 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium, type Browser, type Page } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import type {} from '@qilin/workspace-changes'
-import { deriveReplayScript, parseSessionLog } from '@qilin/llm-replay'
+import type {} from '@qilin-agent/workspace-changes'
+import { deriveReplayScript, parseSessionLog } from '@qilin-agent/llm-replay'
 import {
   assertFinalWorkspaceSnapshot, captureExpandedTurnProcessAria, compareOrRefreshGolden,
   fixtureUserPrompts, launchWebScaffold, recordFixture, watchConsole,

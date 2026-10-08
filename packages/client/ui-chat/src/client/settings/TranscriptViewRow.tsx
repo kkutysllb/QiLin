@@ -1,7 +1,7 @@
 /** General Settings row for work-details presentation. */
 
-import type { SnapshotStore } from '@qilin/client-store'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
+import type { SnapshotStore } from '@qilin-agent/client-store'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import { TRANSCRIPT_VIEW_MODES, type TranscriptViewMode } from '../../chat-settings.ts'
 import type { ChatKey } from '../locale.ts'
 import { PreferenceRow } from './PreferenceRow.tsx'

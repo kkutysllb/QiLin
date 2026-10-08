@@ -80,7 +80,7 @@ describe('published document preview licenses', () => {
         factory: (resolve: (specifier: string) => unknown) => { ExcelBody: unknown }
       }) => {
         const loaded = registration.factory((specifier) => {
-          if (specifier === '@qilin/client-ui-primitives') return {}
+          if (specifier === '@qilin-agent/client-ui-primitives') return {}
           if (specifier === 'react' || specifier === 'react/jsx-runtime' || specifier === 'react-dom') return require(specifier)
           throw new Error(`Unexpected browser dependency: ${specifier}`)
         })

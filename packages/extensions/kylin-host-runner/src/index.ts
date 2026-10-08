@@ -1,22 +1,22 @@
 /**
  * Dynamic Cordis Plugin service: immutable package definitions, one active run
  * per Plugin, human-approved Client activation, and Host/Client invocation.
- * @module @qilin/kylin-host-runner
+ * @module @qilin-agent/kylin-host-runner
  */
 
-import { Context } from '@qilin/kylin'
-import type { Fiber } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type { Agent } from '@qilin/agent'
-import { createUserMessage } from '@qilin/llm'
-declare module '@qilin/llm' {
+import { Context } from '@qilin-agent/kylin'
+import type { Fiber } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type { Agent } from '@qilin-agent/agent'
+import { createUserMessage } from '@qilin-agent/llm'
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'kylin-host-runner': { kind: 'kylin-host-runner' }
   }
 }
 
-import { TypertRemoteService, Remote } from '@qilin/typert-protocol'
-import type { JsonValue } from '@qilin/util-values'
+import { TypertRemoteService, Remote } from '@qilin-agent/typert-protocol'
+import type { JsonValue } from '@qilin-agent/util-values'
 import { isPlugin, normalizeHandler } from './guard.ts'
 import { CordisInspectRegistryService } from './inspect-registry.ts'
 import { missingServices, startHostHalf } from './lifecycle.ts'
@@ -83,7 +83,7 @@ export function ApprovalRequestId(id: string): ApprovalRequestId {
   return id as ApprovalRequestId
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Process-local dynamic Plugin registry and lifecycle service. */
     dynamicCordisRunner: DynamicCordisRunnerService

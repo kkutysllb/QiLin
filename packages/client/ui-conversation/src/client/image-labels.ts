@@ -1,7 +1,7 @@
 /** Attachment error and limit copy owned by the conversation input flow. */
 
-import type { ImageAttachmentLimits } from '@qilin/attachment'
-import type { Translate } from '@qilin/client-ui-slots'
+import type { ImageAttachmentLimits } from '@qilin-agent/attachment'
+import type { Translate } from '@qilin-agent/client-ui-slots'
 import type { ConversationKey } from './locales.ts'
 
 /**

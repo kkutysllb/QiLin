@@ -1,8 +1,8 @@
 /** AgentHandle disposal must release blocking browser work before waiting for idle. */
 
-import { Context } from '@qilin/kylin'
-import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@qilin/agent-loop-testkit'
-import { SessionId } from '@qilin/session'
+import { Context } from '@qilin-agent/kylin'
+import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@qilin-agent/agent-loop-testkit'
+import { SessionId } from '@qilin-agent/session'
 import { expect, it, vi } from 'vitest'
 import { SessionResources } from '../src/index.ts'
 

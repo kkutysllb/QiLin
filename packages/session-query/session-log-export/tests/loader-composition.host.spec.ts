@@ -3,13 +3,13 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import type { Agent } from '@qilin/agent'
-import CommandRuntime from '@qilin/commands'
-import SessionStore, { SessionId } from '@qilin/session'
-import * as SessionLogDownload from '@qilin/session-log-export'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import type { Agent } from '@qilin-agent/agent'
+import CommandRuntime from '@qilin-agent/commands'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import * as SessionLogDownload from '@qilin-agent/session-log-export'
 
 let root: string | undefined
 let context: Context | undefined
@@ -26,9 +26,9 @@ describe('session-log-download real Loader composition', () => {
     root = await mkdtemp(join(tmpdir(), 'qilin-session-export-loader-'))
     const configPath = join(root, 'cordis.yml')
     await writeFile(configPath, [
-      "- name: '@qilin/session'",
-      "- name: '@qilin/commands'",
-      "- name: '@qilin/session-log-export'",
+      "- name: '@qilin-agent/session'",
+      "- name: '@qilin-agent/commands'",
+      "- name: '@qilin-agent/session-log-export'",
       '',
     ].join('\n'))
 
@@ -40,9 +40,9 @@ describe('session-log-download real Loader composition', () => {
     await context.plugin(Loader)
     context.loader.builtins.include = Include
     const modules = new Map<string, unknown>([
-      ['@qilin/session', SessionStore],
-      ['@qilin/commands', CommandRuntime],
-      ['@qilin/session-log-export', SessionLogDownload],
+      ['@qilin-agent/session', SessionStore],
+      ['@qilin-agent/commands', CommandRuntime],
+      ['@qilin-agent/session-log-export', SessionLogDownload],
     ])
     context.loader.internal = {
       version: 'v2',
@@ -61,7 +61,7 @@ describe('session-log-download real Loader composition', () => {
       .create(SessionId('loader-session-export'), { meta: { createdAt: 1 } })
     const agent = { session, status: 'idle', options: {} } as unknown as Agent
     expect(context.commands.list(agent)).toContainEqual({
-      definitionId: '@qilin/session-log-export',
+      definitionId: '@qilin-agent/session-log-export',
       name: 'export', description: 'Download this Session log as a ZIP archive',
     })
     const execution = await context.commands.execute(agent, '/export', [], new AbortController().signal)

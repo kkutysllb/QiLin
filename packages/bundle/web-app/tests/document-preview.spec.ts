@@ -3,20 +3,20 @@ import { mkdtemp, readFile, realpath, rm, symlink, writeFile } from 'node:fs/pro
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include, { applyEntryPatches } from '@qilin/kylin-plugin-include'
-import { loadOverlayPatches } from '@qilin/app-boot'
-import WorkspaceFiles, { type WorkspaceFileScope } from '@qilin/api-workspace-files'
-import OfficeToPdf from '@qilin/office-to-pdf'
-import * as DocumentPreview from '@qilin/client-ui-sidebar-documentpreview'
-import type { IndexInjection } from '@qilin/host-webserver'
-import SessionStore, { SessionId } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import SandboxPolicyService from '@qilin/sandbox-policy'
-import LocalFileSystem from '@qilin/fs-local'
-import { FsError } from '@qilin/fs'
-import TypertRegistry from '@qilin/typert-registry'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include, { applyEntryPatches } from '@qilin-agent/kylin-plugin-include'
+import { loadOverlayPatches } from '@qilin-agent/app-boot'
+import WorkspaceFiles, { type WorkspaceFileScope } from '@qilin-agent/api-workspace-files'
+import OfficeToPdf from '@qilin-agent/office-to-pdf'
+import * as DocumentPreview from '@qilin-agent/client-ui-sidebar-documentpreview'
+import type { IndexInjection } from '@qilin-agent/host-webserver'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import SandboxPolicyService from '@qilin-agent/sandbox-policy'
+import LocalFileSystem from '@qilin-agent/fs-local'
+import { FsError } from '@qilin-agent/fs'
+import TypertRegistry from '@qilin-agent/typert-registry'
 import type { Converter, ConverterOptions } from '@deepseek-ai/libreoffice-kit'
 import { expect, it, onTestFinished, vi } from 'vitest'
 
@@ -32,8 +32,8 @@ it('loads the shipped Office rows with separately patched settings and authorize
   })
   const configPath = join(directory, 'cordis.yml')
   const expectedRows = {
-    'office-to-pdf': '@qilin/office-to-pdf',
-    'ui-sidebar-documentpreview': '@qilin/client-ui-sidebar-documentpreview',
+    'office-to-pdf': '@qilin-agent/office-to-pdf',
+    'ui-sidebar-documentpreview': '@qilin-agent/client-ui-sidebar-documentpreview',
   }
   const rows = loadOverlayPatches('web-office-test', fileURLToPath(new URL('../cordis.patch.yml', import.meta.url)))
     .flatMap(patch => patch.insert ?? []).filter(row => row.id !== undefined && Object.hasOwn(expectedRows, row.id))
@@ -46,12 +46,12 @@ it('loads the shipped Office rows with separately patched settings and authorize
   ], (message) => { throw new Error(message) })
   expect(configured.find(row => row.id === 'ui-sidebar-documentpreview')!.config).toEqual(clientConfig)
   await writeFile(configPath, JSON.stringify([
-    { name: '@qilin/session' },
-    { name: '@qilin/session-projection' },
-    { name: '@qilin/sandbox-policy', config: { workspaceRoot: directory } },
-    { name: '@qilin/fs-local', config: { cwd: directory } },
-    { name: '@qilin/typert-registry' },
-    { name: '@qilin/api-workspace-files', config: { maxFileBytes: 1 } },
+    { name: '@qilin-agent/session' },
+    { name: '@qilin-agent/session-projection' },
+    { name: '@qilin-agent/sandbox-policy', config: { workspaceRoot: directory } },
+    { name: '@qilin-agent/fs-local', config: { cwd: directory } },
+    { name: '@qilin-agent/typert-registry' },
+    { name: '@qilin-agent/api-workspace-files', config: { maxFileBytes: 1 } },
     ...configured,
   ]))
   const pdf = Buffer.from('%PDF-1.7\nLoader preview\n%%EOF\n')
@@ -71,14 +71,14 @@ it('loads the shipped Office rows with separately patched settings and authorize
   ctx.loader.builtins.include = Include
   // Loader's native imports must share the test's source-plane Service classes.
   const modules = new Map<string, unknown>([
-    ['@qilin/session', SessionStore],
-    ['@qilin/session-projection', SessionProjectionRegistry],
-    ['@qilin/sandbox-policy', SandboxPolicyService],
-    ['@qilin/fs-local', LocalFileSystem],
-    ['@qilin/typert-registry', TypertRegistry],
-    ['@qilin/api-workspace-files', WorkspaceFiles],
-    ['@qilin/office-to-pdf', OfficeToPdf],
-    ['@qilin/client-ui-sidebar-documentpreview', DocumentPreview],
+    ['@qilin-agent/session', SessionStore],
+    ['@qilin-agent/session-projection', SessionProjectionRegistry],
+    ['@qilin-agent/sandbox-policy', SandboxPolicyService],
+    ['@qilin-agent/fs-local', LocalFileSystem],
+    ['@qilin-agent/typert-registry', TypertRegistry],
+    ['@qilin-agent/api-workspace-files', WorkspaceFiles],
+    ['@qilin-agent/office-to-pdf', OfficeToPdf],
+    ['@qilin-agent/client-ui-sidebar-documentpreview', DocumentPreview],
   ])
   ctx.loader.internal = {
     version: 'v2',

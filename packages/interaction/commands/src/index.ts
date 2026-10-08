@@ -1,19 +1,19 @@
 /**
  * Plugin-owned human-command registry shared by interactive UI adapters.
- * @module @qilin/commands
+ * @module @qilin-agent/commands
  */
 
-import { Context } from '@qilin/kylin'
-import { randomUUID } from '@qilin/util-crypto'
-import type { Agent } from '@qilin/agent'
-import { AttachmentError, admitEncodedImages } from '@qilin/attachment'
-import type { EncodedImageAttachment, FileAttachmentRef, ImageAttachmentRef } from '@qilin/attachment/types'
-import type { FileBlock, ImageBlock } from '@qilin/llm'
-import { NamedEntries, ScopedLayers } from '@qilin/scope'
-import type { ScopeKey, ScopeLayer } from '@qilin/scope'
-import { SessionSeq } from '@qilin/session'
-import type { Session, SessionEvent, SessionEventMap } from '@qilin/session'
-import { TypertRemoteService, Remote } from '@qilin/typert-protocol'
+import { Context } from '@qilin-agent/kylin'
+import { randomUUID } from '@qilin-agent/util-crypto'
+import type { Agent } from '@qilin-agent/agent'
+import { AttachmentError, admitEncodedImages } from '@qilin-agent/attachment'
+import type { EncodedImageAttachment, FileAttachmentRef, ImageAttachmentRef } from '@qilin-agent/attachment/types'
+import type { FileBlock, ImageBlock } from '@qilin-agent/llm'
+import { NamedEntries, ScopedLayers } from '@qilin-agent/scope'
+import type { ScopeKey, ScopeLayer } from '@qilin-agent/scope'
+import { SessionSeq } from '@qilin-agent/session'
+import type { Session, SessionEvent, SessionEventMap } from '@qilin-agent/session'
+import { TypertRemoteService, Remote } from '@qilin-agent/typert-protocol'
 import { CommandId } from './brand.ts'
 import type { CommandDefinitionId } from './brand.ts'
 import type {
@@ -110,7 +110,7 @@ class CommandLayer implements ScopeLayer {
   }
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     commands: CommandRuntime
   }

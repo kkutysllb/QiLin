@@ -3,7 +3,7 @@ description: "Circular deque for Host and browser packages that need amortized c
 kind: "package-library"
 ---
 
-# @qilin/deque
+# @qilin-agent/deque
 
 English | [中文](README.zh.md)
 
@@ -34,7 +34,7 @@ Use `Deque<T>` when entries can accumulate across asynchronous work and the cons
 Import the deque, append entries at the tail, and check `size` before removing an entry whose type may include `undefined`:
 
 ```ts
-import { Deque } from '@qilin/deque'
+import { Deque } from '@qilin-agent/deque'
 
 const frames = new Deque<string>()
 frames.pushBack('first')

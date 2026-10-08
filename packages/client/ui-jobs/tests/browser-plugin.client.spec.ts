@@ -3,14 +3,14 @@
  * registrations against the real SlotRegistry (with fiber teardown proving
  * removal — HMR safety), and the inert node entry.
  */
-import { Context } from '@qilin/kylin'
-import { createSnapshotStore } from '@qilin/client-store'
-import { JobId } from '@qilin/jobs/brand'
-import { SessionId } from '@qilin/session/types'
+import { Context } from '@qilin-agent/kylin'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { JobId } from '@qilin-agent/jobs/brand'
+import { SessionId } from '@qilin-agent/session/types'
 import { describe, expect, it } from 'vitest'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import { stubConfigForm } from '@qilin/client-test-runtime'
-import { apply as applyLocale, inject as localeInject } from '@qilin/client-locale/client'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import { stubConfigForm } from '@qilin-agent/client-test-runtime'
+import { apply as applyLocale, inject as localeInject } from '@qilin-agent/client-locale/client'
 import { apply, inject } from '../src/client/index.ts'
 import type { JobListInjected } from '../src/client/JobListAction.tsx'
 import { apply as applyNode } from '../src/index.ts'

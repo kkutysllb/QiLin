@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { MenuSurface, useAnchoredPosition } from '@qilin/client-ui-primitives'
-import type { PropsLocale } from '@qilin/client-ui-slots'
+import { MenuSurface, useAnchoredPosition } from '@qilin-agent/client-ui-primitives'
+import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import css from './inspector.module.css'
 
 /** Current confirmed query and an asynchronous candidate source. */

@@ -52,7 +52,7 @@ export interface BrowserTabState {
   readonly entries: readonly BrowserHistoryEntry[]
   readonly index: number
   /** Last application-directed load; carrier observations never rewrite it. */
-  /* jscpd:ignore-start — 1:1 port of @qilin/client-ui-sidebar-browser
+  /* jscpd:ignore-start — 1:1 port of @qilin-agent/client-ui-sidebar-browser
      src/client/browser/BrowserNavigation.ts (kept semantically identical; see file header) */
   readonly request: { readonly revision: number; readonly target: BrowserHistoryEntry } | undefined
   readonly navigation: BrowserNavigationStatus

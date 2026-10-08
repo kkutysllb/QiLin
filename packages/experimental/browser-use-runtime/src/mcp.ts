@@ -1,16 +1,16 @@
 /** Session-owned MCP browser processes and provider catalog activation. @module */
 
-import type { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import Schema from '@qilin/schemastery'
-import { BrowserUseProviderName } from '@qilin/browser-use/brand'
-import * as McpClient from '@qilin/mcp-client'
-import { createScope } from '@qilin/scope'
-import type { Scope } from '@qilin/scope'
+import type { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import Schema from '@qilin-agent/schemastery'
+import { BrowserUseProviderName } from '@qilin-agent/browser-use/brand'
+import * as McpClient from '@qilin-agent/mcp-client'
+import { createScope } from '@qilin-agent/scope'
+import type { Scope } from '@qilin-agent/scope'
 import { SessionResources } from './index.ts'
-import type {} from '@qilin/browser-use'
-import type {} from '@qilin/tools'
-import type {} from '@qilin/system-prompt'
+import type {} from '@qilin-agent/browser-use'
+import type {} from '@qilin-agent/tools'
+import type {} from '@qilin-agent/system-prompt'
 
 /** Browser launch settings shared by the MCP integrations. */
 export interface BrowserMcpLaunchConfig {

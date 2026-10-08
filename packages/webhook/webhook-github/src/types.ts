@@ -1,6 +1,6 @@
 /** GitHub event values projected after signature verification. */
 
-import type { JsonValue } from '@qilin/util-values'
+import type { JsonValue } from '@qilin-agent/util-values'
 
 /** Signed GitHub JSON object. Event-specific field validation belongs to each rule. */
 export type GitHubJsonObject = { readonly [key: string]: JsonValue }
@@ -13,7 +13,7 @@ export interface GitHubWebhookEvent {
   readonly payload: GitHubJsonObject
 }
 
-declare module '@qilin/webhook' {
+declare module '@qilin-agent/webhook' {
   interface WebhookEventMap {
     github: GitHubWebhookEvent
   }

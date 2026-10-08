@@ -3,20 +3,20 @@ import { existsSync, readFileSync } from 'node:fs'
 import { mkdir, mkdtemp, open, rm } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { execa } from 'execa'
-import type { EntryOptions } from '@qilin/kylin-plugin-loader'
-import { withFileLock, writeFileAtomic } from '@qilin/atomic-write'
+import type { EntryOptions } from '@qilin-agent/kylin-plugin-loader'
+import { withFileLock, writeFileAtomic } from '@qilin-agent/atomic-write'
 import {
   composeEntries, DEFAULT_PROFILE_BUNDLES, evaluatePluginCompatibility, initProfile, loadOverlayPatches,
   pluginCompatibilityWarning, PROFILE_TEMPLATES, readProfileManifest, readProfileVersionExemptions,
   resolveBundleDir, resolveProfileDir, type ProfileManifest,
-} from '@qilin/app-boot'
-import { bundlePatchOf } from '@qilin/dsh-compat'
-import { scrubbedParentEnv } from '@qilin/subprocess'
+} from '@qilin-agent/app-boot'
+import { bundlePatchOf } from '@qilin-agent/dsh-compat'
+import { scrubbedParentEnv } from '@qilin-agent/subprocess'
 import { awaitTreeGone, leadsOwnGroup, treeAlive, type RunTree } from './run-tree.ts'
 import { parseInstallSpec } from './install-spec.ts'
 import { incompatiblePlugin } from './failure.ts'
 import type { IncompatiblePlugin, PackageResult, Registry } from './types.ts'
-export { setProfileVersionExemption, readProfileVersionExemptions } from '@qilin/app-boot'
+export { setProfileVersionExemption, readProfileVersionExemptions } from '@qilin-agent/app-boot'
 
 /** Profile and invocation locations supplied by the launcher. */
 export interface PackageOperationContext {

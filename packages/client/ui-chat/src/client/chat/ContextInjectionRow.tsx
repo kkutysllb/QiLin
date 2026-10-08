@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { ChatViewSlotProps } from '../contract/slots.ts'
-import { DisclosureRow, IconBrowseOutline16, IconContextInjectionOutline16, ReferenceIcon } from '@qilin/client-ui-primitives'
+import { DisclosureRow, IconBrowseOutline16, IconContextInjectionOutline16, ReferenceIcon } from '@qilin-agent/client-ui-primitives'
 import type { ContextMessageNode } from '../contract/snapshot.ts'
 import { contextBody } from './ContextBody.tsx'
 import css from './ContextInjectionRow.module.css'

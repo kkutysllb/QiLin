@@ -3,7 +3,7 @@ description: "浏览器 UI 渲染器：普通 Slot 与可复用 Component Factor
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-renderer
+# @qilin-agent/client-ui-renderer
 
 [English](README.md) | 中文
 

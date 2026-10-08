@@ -14,7 +14,7 @@
  * NOTE: ./suite.ts imports vitest, so this package is importable only inside a
  * vitest run — a support-tier constraint stated in the README.
  *
- * @module @qilin/session-snapshot
+ * @module @qilin-agent/session-snapshot
  */
 
 export {

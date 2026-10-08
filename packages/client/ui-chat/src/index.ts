@@ -1,7 +1,7 @@
 /** Host registration for browser Chat preferences. */
 
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/settings'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/settings'
 import { CHAT_SETTINGS_NAMESPACE, ChatSettingsSchema } from './chat-settings.ts'
 
 export {

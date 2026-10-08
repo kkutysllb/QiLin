@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Button, Tooltip } from '@qilin/client-ui-primitives'
+import { Button, Tooltip } from '@qilin-agent/client-ui-primitives'
 
 afterEach(cleanup)
 

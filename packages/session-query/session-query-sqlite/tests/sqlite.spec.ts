@@ -1,19 +1,19 @@
-import { createAssistantMessage, createUserMessage } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
+import { createAssistantMessage, createUserMessage } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context, type Fiber } from '@qilin/kylin'
+import { Context, type Fiber } from '@qilin-agent/kylin'
 import { DatabaseSync } from 'node:sqlite'
 import { chmod, mkdtemp, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
-import SessionStore, { SessionLogOffset, SessionSeq, SESSION_FORMAT_VERSION, SessionId } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import type { SessionEvent, SessionHeader, SessionId as SessionIdType } from '@qilin/session'
+import SessionStore, { SessionLogOffset, SessionSeq, SESSION_FORMAT_VERSION, SessionId } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import type { SessionEvent, SessionHeader, SessionId as SessionIdType } from '@qilin-agent/session'
 import SessionPersistence, {
   SessionPersistenceNotFoundError,
   SessionPersistenceRevision,
   SessionReadOnlyError,
-} from '@qilin/session-persistence'
+} from '@qilin-agent/session-persistence'
 import type {
   SessionAccess,
   SessionHandle,
@@ -21,11 +21,11 @@ import type {
   SessionHandleReadResult,
   SessionPersistenceListOptions,
   SessionPersistenceSnapshot,
-} from '@qilin/session-persistence'
-import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
+} from '@qilin-agent/session-persistence'
+import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
 import SqliteSessionQueryEngine, {
   SESSION_QUERY_SQLITE_SCHEMA_VERSION,
-} from '@qilin/session-query-sqlite'
+} from '@qilin-agent/session-query-sqlite'
 import {
   SESSION_QUERY_DEFAULT_PERSISTED_INSPECT_CONCURRENCY,
   SessionQueryError,
@@ -33,9 +33,9 @@ import {
   type SessionAvailability,
   type SessionQueryErrorCode,
   type SessionSearchRequest,
-} from '@qilin/session-query'
+} from '@qilin-agent/session-query'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

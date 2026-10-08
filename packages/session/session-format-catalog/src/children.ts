@@ -1,8 +1,8 @@
 /** Bind parent-specific child evidence into the static first-party migration inventory. */
 
-import { createSessionFormatCatalog } from '@qilin/session-format'
-import type { SessionFormatCatalog, SessionFormatJsonValue } from '@qilin/session-format'
-import { createSessionFormatV3ToV4, sessionFormatV3ToV4 } from '@qilin/session-format-v3-to-v4'
+import { createSessionFormatCatalog } from '@qilin-agent/session-format'
+import type { SessionFormatCatalog, SessionFormatJsonValue } from '@qilin-agent/session-format'
+import { createSessionFormatV3ToV4, sessionFormatV3ToV4 } from '@qilin-agent/session-format-v3-to-v4'
 import { sessionFormatCatalogOptions } from './generated.ts'
 
 /**

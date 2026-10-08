@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const httpMock = vi.hoisted(() => ({ createServer: vi.fn() }))

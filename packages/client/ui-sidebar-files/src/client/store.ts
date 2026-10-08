@@ -11,10 +11,10 @@
  * listener (editor): the owner's `signal` is what ends a bucket's life, and
  * the faces stop dispatching once it aborts.
  */
-import { defineStore, type EngineStoreHandle } from '@qilin/client-store'
-import type { RemoteFailure } from '@qilin/api-remotes/client'
-import type { TabId } from '@qilin/client-ui-dockkit'
-import type { WorkspaceDirectoryEntry, WorkspaceFileNameMatch } from '@qilin/api-workspace-files/types'
+import { defineStore, type EngineStoreHandle } from '@qilin-agent/client-store'
+import type { RemoteFailure } from '@qilin-agent/api-remotes/client'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
+import type { WorkspaceDirectoryEntry, WorkspaceFileNameMatch } from '@qilin-agent/api-workspace-files/types'
 
 /**
  * One directory's contents, as one expanded level of the tree.

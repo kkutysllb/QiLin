@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/message-feedback",
+  "name": "@qilin-agent/message-feedback",
   "description": "Canonical Session-log ratings and notes for finalized assistant messages",
   "version": "3.1.1",
   "publishConfig": {
@@ -47,28 +47,28 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/brand": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-persistence": "workspace:*",
-    "@qilin/typert-protocol": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/command-feedback": "workspace:*"
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-persistence": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/command-feedback": "workspace:*"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:~",
+    "@qilin-agent/schemastery": "workspace:~",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@qilin/kylin-plugin-include": "workspace:~",
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/brand": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-persistence": "workspace:*",
-    "@qilin/session-persistence-jsonl": "workspace:*",
-    "@qilin/typert-protocol": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/command-feedback": "workspace:*"
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-persistence": "workspace:*",
+    "@qilin-agent/session-persistence-jsonl": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/command-feedback": "workspace:*"
   }
 }

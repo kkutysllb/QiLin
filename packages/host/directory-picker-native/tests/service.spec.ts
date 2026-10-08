@@ -1,7 +1,7 @@
 /** Registration/capability behavior of the native backend (the seam's cordis half). */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import NativeDirectoryPicker from '../src/index.ts'
 
 describe('NativeDirectoryPicker', () => {

@@ -1,15 +1,15 @@
 /** Covers fail-closed per-call classification and model-schema isolation. */
 
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { ToolCallId } from '@qilin/llm'
-import SystemPrompt from '@qilin/system-prompt'
+import { Context } from '@qilin-agent/kylin'
+import { ToolCallId } from '@qilin-agent/llm'
+import SystemPrompt from '@qilin-agent/system-prompt'
 import ToolRuntime, {
   defineContentToolFixture,
   type ToolDefinition,
   type ToolExecutionInput,
   type ToolExecutionMode,
-} from '@qilin/tools'
+} from '@qilin-agent/tools'
 
 const testToolSignal = new AbortController().signal
 

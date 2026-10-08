@@ -1,9 +1,9 @@
-import type { SessionEvent } from '@qilin/session/types'
-import type {} from '@qilin/tools/types'
+import type { SessionEvent } from '@qilin-agent/session/types'
+import type {} from '@qilin-agent/tools/types'
 import type {
   ConversationNode, RunningToolCall, ToolCallBlock, ToolResultNode,
-} from '@qilin/client-ui-conversation/client'
-import { PartialArguments } from '@qilin/util-values'
+} from '@qilin-agent/client-ui-conversation/client'
+import { PartialArguments } from '@qilin-agent/util-values'
 
 interface ProjectedBlock {
   source: ToolCallBlock

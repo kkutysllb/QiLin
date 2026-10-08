@@ -1,9 +1,9 @@
 /** Shell launch menu owned by the terminal provider's guide entry. */
 import { useEffect, useState, type ReactNode } from 'react'
-import { Button, IconChevronDownOutline14, Menu } from '@qilin/client-ui-primitives'
-import type { TerminalLaunchShells } from '@qilin/api-terminal-controller/client'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
-import type {} from '@qilin/client-ui-sidebar-right/client'
+import { Button, IconChevronDownOutline14, Menu } from '@qilin-agent/client-ui-primitives'
+import type { TerminalLaunchShells } from '@qilin-agent/api-terminal-controller/client'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
 import type {} from './locales.ts'
 import { TerminalGuideIcon } from './TerminalIcon.tsx'
 import css from './TerminalGuide.module.css'

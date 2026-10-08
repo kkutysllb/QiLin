@@ -2,9 +2,9 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { Context } from '@qilin/kylin'
-import Include from '@qilin/kylin-plugin-include'
-import Loader from '@qilin/kylin-plugin-loader'
+import { Context } from '@qilin-agent/kylin'
+import Include from '@qilin-agent/kylin-plugin-include'
+import Loader from '@qilin-agent/kylin-plugin-loader'
 import { afterEach, describe, expect, it } from 'vitest'
 import WebhookRuntime, {
   WebhookDeliveryId,
@@ -28,7 +28,7 @@ describe('real Loader composition', () => {
     const configPath = join(root, 'cordis.yml')
     await writeFile(configPath, [
       '- name: fixture-dependencies',
-      "- name: '@qilin/webhook'",
+      "- name: '@qilin-agent/webhook'",
       '- name: fixture-rule',
       '',
     ].join('\n'))
@@ -65,7 +65,7 @@ describe('real Loader composition', () => {
     context.loader.builtins.include = Include
     const modules = new Map<string, unknown>([
       ['fixture-dependencies', dependencies],
-      ['@qilin/webhook', WebhookRuntime],
+      ['@qilin-agent/webhook', WebhookRuntime],
       ['fixture-rule', rule],
     ])
     context.loader.internal = {

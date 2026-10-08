@@ -6,20 +6,20 @@
  * user roots, parses YAML frontmatter, and loads bodies through `ctx.fs` when a
  * filesystem service is present.
  *
- * @module @qilin/skill-filesystem
+ * @module @qilin-agent/skill-filesystem
  */
 
 import { access, lstat, readdir, readFile, realpath, stat } from 'node:fs/promises'
 import { unwatchFile, watchFile, type Stats } from 'node:fs'
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { homedir } from 'node:os'
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import chokidar from 'chokidar'
-import z from '@qilin/schemastery'
-import type Schema from '@qilin/schemastery'
+import z from '@qilin-agent/schemastery'
+import type Schema from '@qilin-agent/schemastery'
 import { parse as parseYaml } from 'yaml'
-import type { FileSystem, FsDirEntry, FsTarget } from '@qilin/fs'
-import { canonicalizeWatchPath, resolveQilinHome } from '@qilin/home-paths'
+import type { FileSystem, FsDirEntry, FsTarget } from '@qilin-agent/fs'
+import { canonicalizeWatchPath, resolveQilinHome } from '@qilin-agent/home-paths'
 import {
   BUNDLED_SKILL_RANK,
   isSkillName,
@@ -31,7 +31,7 @@ import {
   type SkillProviderControl,
   type SkillProviderObservation,
   type SkillSource,
-} from '@qilin/skill'
+} from '@qilin-agent/skill'
 
 const PROJECT_QILIN_RANK = 100
 const PROJECT_AGENTS_RANK = 200

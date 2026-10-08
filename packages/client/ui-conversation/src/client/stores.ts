@@ -1,6 +1,6 @@
 /** Per-session Conversation store shared by the shell body and header. */
-import { defineStore, type EngineStoreHandle } from '@qilin/client-store'
-import type { SessionId } from '@qilin/session/types'
+import { defineStore, type EngineStoreHandle } from '@qilin-agent/client-store'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { ConversationStoreState } from './contract/views.ts'
 
 const CONVERSATION_STORE_KEY = 'qilin.conversation'

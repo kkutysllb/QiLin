@@ -37,7 +37,7 @@ import { HOST_FILE_ICONS } from './file-icons.tsx'
 /**
  * The file-icon registration vocabulary, re-exported so external plugins can
  * name it from this entry (`import type { FileIconDescriptor } from
- * '@qilin/client-ui-sidebar-coding/client/service'`).
+ * '@qilin-agent/client-ui-sidebar-coding/client/service'`).
  */
 export type { FileIconDescriptor } from './file-icon-registry.ts'
 export { FOLDER_EXT, FOLDER_OPEN_EXT } from './file-icon-registry.ts'
@@ -986,12 +986,12 @@ function findPaneIdOf(state: SidebarState, tabId: string): string {
 
 /**
  * Consumer-facing augmentation: a plugin that imports `Context` from
- * `@qilin/kylin` and `import type {} from '@qilin/client-ui-sidebar-coding/client'`
+ * `@qilin-agent/kylin` and `import type {} from '@qilin-agent/client-ui-sidebar-coding/client'`
  * sees `ctx.betterSidebar` without importing this package's own Context type.
  * Declared on the client half on purpose — a host-side program must not reach
  * into src/client (the host root exports the structural Context only).
  */
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     betterSidebar: BetterSidebarService
   }

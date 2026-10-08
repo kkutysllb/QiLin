@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-ui-theme",
+  "name": "@qilin-agent/client-ui-theme",
   "description": "Theme plugin: Host bootstrap for the pre-plugin palette; DOM-free ThemeRuntime for light/dark/system state; --qilin-* token styles and Appearance settings row",
   "version": "3.1.1",
   "publishConfig": {
@@ -31,11 +31,11 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/client-connection",
-        "@qilin/client-locale",
-        "@qilin/client-ui-renderer",
-        "@qilin/client-ui-settings",
-        "@qilin/api-remotes"
+        "@qilin-agent/client-connection",
+        "@qilin-agent/client-locale",
+        "@qilin-agent/client-ui-renderer",
+        "@qilin-agent/client-ui-settings",
+        "@qilin-agent/api-remotes"
       ],
       "platform": "web",
       "immediately": true
@@ -43,23 +43,23 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/api-remotes": "workspace:*",
-    "@qilin/client-connection": "workspace:*",
-    "@qilin/client-locale": "workspace:*",
-    "@qilin/client-store": "workspace:*",
-    "@qilin/client-test-runtime": "workspace:*",
-    "@qilin/client-ui-primitives": "workspace:*",
-    "@qilin/client-ui-renderer": "workspace:*",
-    "@qilin/client-ui-settings": "workspace:*",
-    "@qilin/client-ui-slots": "workspace:*",
-    "@qilin/host-webserver": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/api-remotes": "workspace:*",
+    "@qilin-agent/client-connection": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-settings": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/host-webserver": "workspace:*",
     "@types/react": "~18.3.1",
     "react": "^18.2.0",
-    "@qilin/settings": "workspace:*",
+    "@qilin-agent/settings": "workspace:*",
     "clsx": "^2.0.0"
   },
   "files": [
@@ -73,6 +73,6 @@
     "watch": "tsdown --watch"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/schemastery": "workspace:~"
   }
 }

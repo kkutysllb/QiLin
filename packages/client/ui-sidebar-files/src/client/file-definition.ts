@@ -8,8 +8,8 @@
  * control opens the rendered document. One tab opens per address: the registry's default, and the reason
  * the type declares no `single` and no guide entry.
  */
-import type { SidebarRightTabDefinition } from '@qilin/client-ui-sidebar-right/client'
-import type { TranslateNS } from '@qilin/client-locale/client'
+import type { SidebarRightTabDefinition } from '@qilin-agent/client-ui-sidebar-right/client'
+import type { TranslateNS } from '@qilin-agent/client-locale/client'
 import { canOpenFileAddress, fileTabTitle } from './file-guard.ts'
 import type {} from './locales.ts'
 
@@ -17,7 +17,7 @@ import type {} from './locales.ts'
 export const FILE_KIND = 'file'
 
 /** This implementation's identity, and the key its body and title register under. */
-export const FILE_ID = '@qilin/client-ui-sidebar-files/file'
+export const FILE_ID = '@qilin-agent/client-ui-sidebar-files/file'
 
 /**
  * The editor type's registry definition.

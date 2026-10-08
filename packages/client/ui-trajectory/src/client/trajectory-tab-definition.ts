@@ -7,22 +7,22 @@
  * action, which addresses the call to focus through `params.focus`, and the
  * graph page's Ledger control.
  */
-import type { SidebarRightTabDefinition } from '@qilin/client-ui-sidebar-right/client'
-import type { TranslateNS } from '@qilin/client-locale/client'
-import { IconGaugeOutline16 } from '@qilin/client-ui-primitives'
+import type { SidebarRightTabDefinition } from '@qilin-agent/client-ui-sidebar-right/client'
+import type { TranslateNS } from '@qilin-agent/client-locale/client'
+import { IconGaugeOutline16 } from '@qilin-agent/client-ui-primitives'
 
 /** The tab kind this package owns; `ctx.sidebarRight.openTab` names it. */
 export const TRAJECTORY_KIND = 'trajectory'
 
 /** This implementation's identity in the tab system, and the key its body registers under. */
-export const TRAJECTORY_ID = '@qilin/client-ui-trajectory/trajectory'
+export const TRAJECTORY_ID = '@qilin-agent/client-ui-trajectory/trajectory'
 
 /** Navigation parameters the trajectory page accepts: the tool-call identity to focus. */
 export interface TrajectoryTabParams {
   readonly focus?: string
 }
 
-declare module '@qilin/client-ui-sidebar-right/client' {
+declare module '@qilin-agent/client-ui-sidebar-right/client' {
   interface SidebarRightTabParamsMap {
     /** The trajectory page focuses the ledger on this call when opened from Chat. */
     trajectory: TrajectoryTabParams

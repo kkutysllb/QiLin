@@ -11,14 +11,14 @@
  */
 /* oxlint-disable typescript/no-unsafe-assignment -- Vitest asymmetric matchers are typed as any. */
 
-import { Context } from '@qilin/kylin'
-import type { Loader } from '@qilin/kylin-plugin-loader'
+import { Context } from '@qilin-agent/kylin'
+import type { Loader } from '@qilin-agent/kylin-plugin-loader'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import type {
   CordisDynamicPackageId, CordisDynamicPluginId, CordisDynamicPluginRunId, SessionId,
-} from '@qilin/api-remotes/client'
-import type { ClientModuleSystem } from '@qilin/client-modules/client'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
+} from '@qilin-agent/api-remotes/client'
+import type { ClientModuleSystem } from '@qilin-agent/client-modules/client'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
 import { DYNAMIC_CLIENT_REDIRECTS } from '../src/client/evaluator.ts'
 import { DynamicCordisPackageRunner } from '../src/client/runtime.ts'
 import type { DynamicCordisClientHalf, DynamicCordisRenderFailure } from '../src/client/runtime.ts'

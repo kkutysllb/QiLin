@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { isSessionFormatJsonObject } from '@qilin/session-format'
+import { isSessionFormatJsonObject } from '@qilin-agent/session-format'
 import { catalogFact, childCatalogFact, childCatalogSubject } from '../src/facts.ts'
-import type { SessionFormatEvent, SessionFormatJsonValue } from '@qilin/session-format'
+import type { SessionFormatEvent, SessionFormatJsonValue } from '@qilin-agent/session-format'
 import { createSessionFormatV3ToV4, historicalChildCatalogSource, sessionFormatV3ToV4 } from '../src/index.ts'
 
 const header = { version: 3, id: 'parent', createdAt: 1, isSeeded: false, delegationDepth: 0 }

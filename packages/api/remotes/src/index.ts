@@ -1,34 +1,34 @@
 /** Host BFF entry and Loader shell for the Remote contribution assembly. */
 
 import { homedir } from 'node:os'
-import type { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
+import type { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
 import type {
   TypertRemoteEventDispatch,
   TypertRemoteEventInvocation,
   TypertRemoteEventOutcome,
   TypertRemoteEventSource,
-} from '@qilin/api-gateway'
-import { Deque } from '@qilin/deque'
-import { carrierKeyOf } from '@qilin/scope'
-import { isJsonValue, type JsonValue } from '@qilin/util-values'
+} from '@qilin-agent/api-gateway'
+import { Deque } from '@qilin-agent/deque'
+import { carrierKeyOf } from '@qilin-agent/scope'
+import { isJsonValue, type JsonValue } from '@qilin-agent/util-values'
 import { API_REMOTE_FORWARDED_EVENTS } from './remote-events.ts'
 
 // The owner packages' client-safe `./types` exports carry the cordis `Events`
 // declarations for every allowlisted event. Pulling them into this face is what
 // makes the shape assertion below judge real signatures rather than an empty
 // event vocabulary.
-import type {} from '@qilin/commands/types'
-import type {} from '@qilin/kylin-host-runner/types'
-import type {} from '@qilin/credentials/types'
-import type {} from '@qilin/goal/types'
-import type {} from '@qilin/llm/types'
-import type {} from '@qilin/agent-presets/types'
-import type {} from '@qilin/permission-presets/types'
-import type {} from '@qilin/settings/types'
-import type {} from '@qilin/user-approval'
-import type {} from '@qilin/user-questions'
-export type {} from '@qilin/api-session-controller/types'
+import type {} from '@qilin-agent/commands/types'
+import type {} from '@qilin-agent/kylin-host-runner/types'
+import type {} from '@qilin-agent/credentials/types'
+import type {} from '@qilin-agent/goal/types'
+import type {} from '@qilin-agent/llm/types'
+import type {} from '@qilin-agent/agent-presets/types'
+import type {} from '@qilin-agent/permission-presets/types'
+import type {} from '@qilin-agent/settings/types'
+import type {} from '@qilin-agent/user-approval'
+import type {} from '@qilin-agent/user-questions'
+export type {} from '@qilin-agent/api-session-controller/types'
 
 export { API_REMOTE_FORWARDED_EVENTS } from './remote-events.ts'
 export type { ApiRemoteForwardedEvent } from './types.ts'

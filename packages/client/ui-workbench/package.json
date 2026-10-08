@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-ui-workbench",
+  "name": "@qilin-agent/client-ui-workbench",
   "description": "Workbench tag state owner: the general/coding workbench selection, per-tag preset memory, and the preset-to-tag visibility fold",
   "version": "3.1.1",
   "publishConfig": {
@@ -40,11 +40,11 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/client-store": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "files": [
     "lib/index.js",

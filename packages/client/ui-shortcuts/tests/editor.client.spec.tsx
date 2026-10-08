@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 import { afterEach, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { bindSnapshotSelector, makeTranslate } from '@qilin/client-test-runtime'
+import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
 import { ShortcutRegistry } from '../../shortcuts/src/client/registry.ts'
-import { bindingIssue, initialShortcutConfig, normalizeBinding, overlappingBindings, presentBinding, ShortcutPersistence } from '@qilin/client-shortcuts/protocol'
-import type { ShortcutCommandId, ShortcutSaveResult } from '@qilin/client-shortcuts/protocol'
+import { bindingIssue, initialShortcutConfig, normalizeBinding, overlappingBindings, presentBinding, ShortcutPersistence } from '@qilin-agent/client-shortcuts/protocol'
+import type { ShortcutCommandId, ShortcutSaveResult } from '@qilin-agent/client-shortcuts/protocol'
 import { ShortcutEditor } from '../src/client/Editor.tsx'
 import type {} from '../src/client/index.ts'
 import { en } from '../src/client/locales.ts'

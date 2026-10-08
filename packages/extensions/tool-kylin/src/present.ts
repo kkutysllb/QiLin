@@ -1,5 +1,5 @@
 /** Pure replay-safe render intents for runtime inspection. */
-import type { GenericCallView } from '@qilin/tools'
+import type { GenericCallView } from '@qilin-agent/tools'
 
 /**
  * Render provider-directory inspection.

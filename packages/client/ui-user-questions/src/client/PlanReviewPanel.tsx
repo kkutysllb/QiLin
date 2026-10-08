@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Button, extractMarkdownPlainText, IconEditOutline16 } from '@qilin/client-ui-primitives'
+import { Button, extractMarkdownPlainText, IconEditOutline16 } from '@qilin-agent/client-ui-primitives'
 import type { PendingQuestion, PlanReview, QuestionComposerProps } from './contract/slots.ts'
 import css from './PlanReviewPanel.module.css'
 

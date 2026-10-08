@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { SkillEntry } from '@qilin/api-remotes/client'
-import type { SessionId } from '@qilin/session/types'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { SkillEntry } from '@qilin-agent/api-remotes/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import { SkillsStore } from '../src/client/store.ts'
 
 /** One answer the fake Remote hands back. */

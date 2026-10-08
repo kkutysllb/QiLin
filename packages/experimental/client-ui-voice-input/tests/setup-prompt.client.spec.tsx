@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 /** Activation guidance waits for cache inspection and leaves installation to the detail page. */
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { bindSnapshotSelector, makeTranslate } from '@qilin/client-test-runtime'
-import { createSnapshotStore } from '@qilin/client-store'
-import type { SpeechPreparationState, SpeechProviderId } from '@qilin/experimental-speech-to-text/types'
+import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { SpeechPreparationState, SpeechProviderId } from '@qilin-agent/experimental-speech-to-text/types'
 import { afterEach, expect, it, vi } from 'vitest'
 import { VoiceSetupPrompt, type VoiceSetupPromptProps } from '../src/client/VoiceSetupPrompt.tsx'
 import type { SpeechReadiness } from '../src/client/readiness.ts'

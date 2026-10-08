@@ -1,16 +1,16 @@
 /** Registers the sidebar shell and global panel navigation. */
-import type { Context as ClientContext } from '@qilin/kylin'
-import { createSnapshotStore } from '@qilin/client-store'
-import { resolveSlotLabel } from '@qilin/client-ui-slots'
-import type { MainPanelId } from '@qilin/client-ui-layout/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { resolveSlotLabel } from '@qilin-agent/client-ui-slots'
+import type { MainPanelId } from '@qilin-agent/client-ui-layout/client'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
-import type {} from '@qilin/client-locale/client'
+import type {} from '@qilin-agent/client-locale/client'
 // Type-only: pulls the SlotRegistry service merge (ctx.slots).
-import type {} from '@qilin/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
 // Type-only: pulls the Session root standard-props merge.
-import type {} from '@qilin/client-ui-session/client'
+import type {} from '@qilin-agent/client-ui-session/client'
 // Type-only: pulls the conversation header slot declarations.
-import type {} from '@qilin/client-ui-conversation/client'
+import type {} from '@qilin-agent/client-ui-conversation/client'
 import type { SidebarPanelMetadata, SidebarRootInjected, SidebarSectionAssignmentsOwnerProps } from './contract/slots.ts'
 import { HeaderLeadingControls } from './HeaderLeadingControls.tsx'
 import { SidebarRoot } from './SidebarRoot.tsx'
@@ -24,7 +24,7 @@ export type {
 } from './contract/slots.ts'
 export type { SidebarKey } from './locales.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Sidebar controls and global panel copy. */
     sidebar: SidebarKey

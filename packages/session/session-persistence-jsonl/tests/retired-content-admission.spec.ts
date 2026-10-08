@@ -1,8 +1,8 @@
 /** Interpreted retired content must fail before migration publication or recoverable native-tail suppression. */
-import { Context } from '@qilin/kylin'
-import { SessionId } from '@qilin/session'
-import { SessionFormatUnsupportedError, SessionPersistenceCorruptionError } from '@qilin/session-persistence'
-import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
+import { Context } from '@qilin-agent/kylin'
+import { SessionId } from '@qilin-agent/session'
+import { SessionFormatUnsupportedError, SessionPersistenceCorruptionError } from '@qilin-agent/session-persistence'
+import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { basename, dirname, join } from 'node:path'

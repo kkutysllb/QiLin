@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-connection",
+  "name": "@qilin-agent/client-connection",
   "description": "Authenticated RPC transport and generation lifecycle",
   "version": "3.1.1",
   "publishConfig": {
@@ -37,8 +37,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@qilin/credentials": "workspace:*",
-    "@qilin/schemastery": "workspace:~",
+    "@qilin-agent/credentials": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~",
     "zod": "^4.4.3"
   },
   "files": [
@@ -47,22 +47,22 @@
     "lib/types/**/*.d.ts"
   ],
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/scope": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/scope": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/attachment": "workspace:*",
-    "@qilin/brand": "workspace:*",
-    "@qilin/host-webserver": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/scope": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/typert-protocol": "workspace:*",
-    "@qilin/util-values": "workspace:*",
-    "@qilin/tool-todo": "workspace:*",
-    "@qilin/commands": "workspace:*",
-    "@qilin/host-directory-picker": "workspace:*",
-    "@qilin/settings": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/attachment": "workspace:*",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/host-webserver": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/scope": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*",
+    "@qilin-agent/util-values": "workspace:*",
+    "@qilin-agent/tool-todo": "workspace:*",
+    "@qilin-agent/commands": "workspace:*",
+    "@qilin-agent/host-directory-picker": "workspace:*",
+    "@qilin-agent/settings": "workspace:*"
   }
 }

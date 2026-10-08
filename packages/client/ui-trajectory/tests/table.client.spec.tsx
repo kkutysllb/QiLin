@@ -3,9 +3,9 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
-import { AttachmentId } from '@qilin/attachment'
+import { AttachmentId } from '@qilin-agent/attachment'
 import type { ComponentProps } from 'react'
-import type { RenderMessageImages } from '@qilin/client-ui-conversation/client'
+import type { RenderMessageImages } from '@qilin-agent/client-ui-conversation/client'
 import { TrajectoryTable as LocalizedTrajectoryTable } from '../src/client/TrajectoryTable.tsx'
 import { deriveTrajectoryLayout, type TrajectoryTurnModel } from '../src/client/layout.ts'
 import { trajectoryRecordId } from '../src/client/trajectory-record.ts'

@@ -2,7 +2,7 @@
 import { dirname, relative, resolve } from 'node:path'
 import { realpath, stat } from 'node:fs/promises'
 import { watch, type ChokidarOptions } from 'chokidar'
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 
 const registrations = new WeakMap<Context, Set<string>>()
 

@@ -6,18 +6,18 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import { ToolCallId } from '@qilin/llm'
-import { Session, SessionId } from '@qilin/session'
-import AgentRegistry from '@qilin/agent'
-import type { Agent } from '@qilin/agent'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import * as ToolTodo from '@qilin/tool-todo'
-import { unsupportedInbox } from '@qilin/agent-loop-testkit'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import { ToolCallId } from '@qilin-agent/llm'
+import { Session, SessionId } from '@qilin-agent/session'
+import AgentRegistry from '@qilin-agent/agent'
+import type { Agent } from '@qilin-agent/agent'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import * as ToolTodo from '@qilin-agent/tool-todo'
+import { unsupportedInbox } from '@qilin-agent/agent-loop-testkit'
 
 let root: string | undefined
 let context: Context | undefined
@@ -57,11 +57,11 @@ async function boot(configLines: readonly string[]): Promise<Context> {
   root = await mkdtemp(join(tmpdir(), 'qilin-todo-loader-'))
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, [
-    "- name: '@qilin/agent'",
-    "- name: '@qilin/system-prompt'",
-    "- name: '@qilin/tools'",
-    "- name: '@qilin/session-projection'",
-    "- name: '@qilin/tool-todo'",
+    "- name: '@qilin-agent/agent'",
+    "- name: '@qilin-agent/system-prompt'",
+    "- name: '@qilin-agent/tools'",
+    "- name: '@qilin-agent/session-projection'",
+    "- name: '@qilin-agent/tool-todo'",
     ...configLines.length > 0 ? ['  config:', ...configLines] : [],
     '',
   ].join('\n'))
@@ -72,11 +72,11 @@ async function boot(configLines: readonly string[]): Promise<Context> {
   await ctx.plugin(Loader)
   ctx.loader.builtins.include = Include
   const modules = new Map<string, unknown>([
-    ['@qilin/agent', AgentRegistry],
-    ['@qilin/system-prompt', SystemPrompt],
-    ['@qilin/tools', ToolRuntime],
-    ['@qilin/session-projection', SessionProjectionRegistry],
-    ['@qilin/tool-todo', ToolTodo],
+    ['@qilin-agent/agent', AgentRegistry],
+    ['@qilin-agent/system-prompt', SystemPrompt],
+    ['@qilin-agent/tools', ToolRuntime],
+    ['@qilin-agent/session-projection', SessionProjectionRegistry],
+    ['@qilin-agent/tool-todo', ToolTodo],
   ])
   ctx.loader.internal = {
     version: 'v2',

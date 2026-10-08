@@ -1,6 +1,6 @@
 import {
   createSnapshotStore, type SnapshotStore,
-} from '@qilin/client-store'
+} from '@qilin-agent/client-store'
 
 /**
  * Create the browser-wide default for expanded JSON strings.

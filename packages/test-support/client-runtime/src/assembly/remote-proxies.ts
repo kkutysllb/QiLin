@@ -10,16 +10,16 @@
  * throw (`gateway/internal`, or `gateway/cancelled` once the caller's signal
  * aborted), so product code that never awaits a rejection sees none; stream
  * items and failures pass through as the stream yields them.
- * @module @qilin/client-test-runtime/src/assembly/remote-proxies
+ * @module @qilin-agent/client-test-runtime/src/assembly/remote-proxies
  */
-import type { Context } from '@qilin/kylin'
-import { cancelledFailure, carrierFailure } from '@qilin/api-gateway/client'
-import type { ConnectionHandle } from '@qilin/client-connection/client'
-import type { RemoteMock } from '@qilin/remote-mock'
+import type { Context } from '@qilin-agent/kylin'
+import { cancelledFailure, carrierFailure } from '@qilin-agent/api-gateway/client'
+import type { ConnectionHandle } from '@qilin-agent/client-connection/client'
+import type { RemoteMock } from '@qilin-agent/remote-mock'
 import type { ClientPluginModule } from './roster.ts'
 
 /** The assembly row the proxies stand in for; its generated clients exist only in built `lib/`. */
-export const REMOTES_PACKAGE = '@qilin/api-remotes'
+export const REMOTES_PACKAGE = '@qilin-agent/api-remotes'
 
 const PREFIX = 'remote.'
 

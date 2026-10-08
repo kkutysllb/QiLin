@@ -1,8 +1,8 @@
 /** The changed-files card: a header and per-file rows that open the turn's review, and a three-row fold. */
 import { useState } from 'react'
-import { resolveWorkspacePath } from '@qilin/util-workspace-path'
-import { FileTypeIcon, IconChevronDownOutline14, IconChevronUpOutline14 } from '@qilin/client-ui-primitives'
-import type { PropsLocale } from '@qilin/client-ui-slots'
+import { resolveWorkspacePath } from '@qilin-agent/util-workspace-path'
+import { FileTypeIcon, IconChevronDownOutline14, IconChevronUpOutline14 } from '@qilin-agent/client-ui-primitives'
+import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import type { ChangesSummary } from '../changes.ts'
 import { IconCodeBracketsOutline16 } from './icons.tsx'
 import type { NS } from './locales.ts'

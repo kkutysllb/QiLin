@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/ptc-runtime-node",
+  "name": "@qilin-agent/ptc-runtime-node",
   "description": "Sandboxed Node process implementation of the QiLin PTC execution capability",
   "version": "3.1.1",
   "publishConfig": {
@@ -34,31 +34,31 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/ptc-runtime": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/timeout": "workspace:*",
-    "@qilin/fs": "workspace:*",
-    "@qilin/subprocess": "workspace:*",
-    "@qilin/sandbox": "workspace:*",
-    "@qilin/sandbox-policy": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/ptc-runtime": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/timeout": "workspace:*",
+    "@qilin-agent/fs": "workspace:*",
+    "@qilin-agent/subprocess": "workspace:*",
+    "@qilin-agent/sandbox": "workspace:*",
+    "@qilin-agent/sandbox-policy": "workspace:*"
   },
   "dependencies": {
-    "@qilin/util-values": "workspace:*",
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/util-values": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/ptc-runtime": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/timeout": "workspace:*",
-    "@qilin/fs": "workspace:*",
-    "@qilin/subprocess": "workspace:*",
-    "@qilin/sandbox": "workspace:*",
-    "@qilin/sandbox-policy": "workspace:*",
-    "@qilin/fs-local": "workspace:*",
-    "@qilin/subprocess-local": "workspace:*",
-    "@qilin/session-projection": "workspace:*",
-    "@qilin/sandbox-local": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/ptc-runtime": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/timeout": "workspace:*",
+    "@qilin-agent/fs": "workspace:*",
+    "@qilin-agent/subprocess": "workspace:*",
+    "@qilin-agent/sandbox": "workspace:*",
+    "@qilin-agent/sandbox-policy": "workspace:*",
+    "@qilin-agent/fs-local": "workspace:*",
+    "@qilin-agent/subprocess-local": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/sandbox-local": "workspace:*"
   }
 }

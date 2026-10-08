@@ -9,7 +9,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import type { JsonValue } from '@qilin/util-values'
+import type { JsonValue } from '@qilin-agent/util-values'
 import {
   globSearchMeta,
   grepSearchMeta,

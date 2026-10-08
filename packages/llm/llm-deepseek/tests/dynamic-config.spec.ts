@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context, Service } from '@qilin/kylin'
+import { Context, Service } from '@qilin-agent/kylin'
 import { access, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import LlmRuntime, { createUserMessage, INVALID_CREDENTIAL_CODE } from '@qilin/llm'
-import AttachmentStore, { AttachmentId, ImageVariantId } from '@qilin/attachment'
+import LlmRuntime, { createUserMessage, INVALID_CREDENTIAL_CODE } from '@qilin-agent/llm'
+import AttachmentStore, { AttachmentId, ImageVariantId } from '@qilin-agent/attachment'
 import type {
   ImageAttachmentLimits,
   ImageAttachmentRef,
@@ -12,16 +12,16 @@ import type {
   RequestImageAttachment,
   SaveImageAttachment,
   StoredImageAttachment,
-} from '@qilin/attachment'
-import { credentialRef } from '@qilin/credentials'
-import { LocalCredentialProvider } from '@qilin/credentials-local'
+} from '@qilin-agent/attachment'
+import { credentialRef } from '@qilin-agent/credentials'
+import { LocalCredentialProvider } from '@qilin-agent/credentials-local'
 import { liveConfig } from '../../../settings/settings/tests/live-config.ts'
-import * as LlmDeepSeek from '@qilin/llm-deepseek-api-key'
-import type { ContextFormed } from '@qilin/llm'
+import * as LlmDeepSeek from '@qilin-agent/llm-deepseek-api-key'
+import type { ContextFormed } from '@qilin-agent/llm'
 import { assemble } from './assemble.ts'
 import { closeMockServers, mockServer, textEvents } from './mock-server.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

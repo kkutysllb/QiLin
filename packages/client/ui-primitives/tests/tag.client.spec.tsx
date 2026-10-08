@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Tag } from '@qilin/client-ui-primitives'
-import type { TagTone } from '@qilin/client-ui-primitives'
+import { Tag } from '@qilin-agent/client-ui-primitives'
+import type { TagTone } from '@qilin-agent/client-ui-primitives'
 
 afterEach(cleanup)
 

@@ -1,7 +1,7 @@
 /** The shell card's staged form over the `bash` settings namespace. */
 
-import type { SnapshotStore } from '@qilin/client-store'
-import type { ConfigForm } from '@qilin/client-ui-settings/client'
+import type { SnapshotStore } from '@qilin-agent/client-store'
+import type { ConfigForm } from '@qilin-agent/client-ui-settings/client'
 import { CardForm, numberField, type CardActions, type CardFieldState, type CardShell } from './card-form.ts'
 
 /**

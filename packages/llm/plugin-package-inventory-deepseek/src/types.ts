@@ -12,7 +12,7 @@ export interface DeepSeekPluginPackageInventoryExtension {
   readonly packages: readonly DeepSeekPluginPackageIdentity[]
 }
 
-declare module '@qilin/deepseek-llm-api-extensions/types' {
+declare module '@qilin-agent/deepseek-llm-api-extensions/types' {
   interface DeepSeekLlmApiExtensionMap {
     qilin_plugin_packages: DeepSeekPluginPackageInventoryExtension
   }

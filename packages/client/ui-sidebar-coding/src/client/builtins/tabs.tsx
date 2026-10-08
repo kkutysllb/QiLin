@@ -7,8 +7,8 @@
  * `browser:<n>` the same way (no quota). The editor IS the files window
  * (the old standalone explorer merged into it).
  */
-import { IconCodeOutline16, IconPanelLeftOutline16 } from '@qilin/client-ui-primitives'
-import { randomUUID } from '@qilin/util-crypto'
+import { IconCodeOutline16, IconPanelLeftOutline16 } from '@qilin-agent/client-ui-primitives'
+import { randomUUID } from '@qilin-agent/util-crypto'
 import type { Context } from '../../context-types.ts'
 import {
   browserTabIcon, changesTabIcon, filesTabIcon, plansTabIcon, tasksTabIcon,

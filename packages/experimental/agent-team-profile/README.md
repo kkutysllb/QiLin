@@ -3,13 +3,13 @@ description: "Published experimental Agent Teams profile layer over qilin-base w
 kind: "package-bundle"
 ---
 
-# @qilin/experimental-agent-team-profile
+# @qilin-agent/experimental-agent-team-profile
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`qilin-experimental-agent-team-profile` is a published experimental profile layer that enables [Agent Teams](../agent-team/README.md) over `@qilin/base`. Its patch inserts the Team domain, the Team-scoped tools, and the browser half that draws the Team page in the right Sidebar, and disables ordinary subagent delegation and the overlapping global continuable-child controls. Workflow remains available with fresh children. The qilin installation ships it as an optional bundle that no shipped profile enables; switch it on from the Web sidebar's Plugins page, or add it explicitly to an initialized profile.
+`qilin-experimental-agent-team-profile` is a published experimental profile layer that enables [Agent Teams](../agent-team/README.md) over `@qilin-agent/base`. Its patch inserts the Team domain, the Team-scoped tools, and the browser half that draws the Team page in the right Sidebar, and disables ordinary subagent delegation and the overlapping global continuable-child controls. Workflow remains available with fresh children. The qilin installation ships it as an optional bundle that no shipped profile enables; switch it on from the Web sidebar's Plugins page, or add it explicitly to an initialized profile.
 
 ## Table of Contents
 
@@ -30,11 +30,11 @@ English | [中文](README.zh.md)
 Add the package to an initialized profile, then run a task that asks the Lead to delegate work:
 
 ```sh
-qilin plugin --profile headless add @qilin/experimental-agent-team-profile
+qilin plugin --profile headless add @qilin-agent/experimental-agent-team-profile
 qilin --profile headless "Use Agent Teams to split this task between two teammates, wait, and summarize."
 ```
 
-The profile must already contain `@qilin/base`, whose Subagent services and provider rows this layer consumes. Removing the package with `qilin plugin --profile <name> remove @qilin/experimental-agent-team-profile` removes the bundle from the profile's ordered layer list.
+The profile must already contain `@qilin-agent/base`, whose Subagent services and provider rows this layer consumes. Removing the package with `qilin plugin --profile <name> remove @qilin-agent/experimental-agent-team-profile` removes the bundle from the profile's ordered layer list.
 
 ### What you get
 
@@ -48,7 +48,7 @@ The layer adds the Agent Teams domain and its scoped creation, roster, messaging
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The package's runtime content is [`cordis.patch.yml`](cordis.patch.yml). Applied after `qilin-base`, the patch disables `tool-subagent-control`, `tool-subagent-list-agents`, `tool-subagent`, and `tool-subagent-fork`, and inserts the Team service and tool rows with explicit providers and limits, together with the browser half ([`@qilin/experimental-client-ui-agent-team`](../client-ui-agent-team/README.md)) that registers the Team page.
+The package's runtime content is [`cordis.patch.yml`](cordis.patch.yml). Applied after `qilin-base`, the patch disables `tool-subagent-control`, `tool-subagent-list-agents`, `tool-subagent`, and `tool-subagent-fork`, and inserts the Team service and tool rows with explicit providers and limits, together with the browser half ([`@qilin-agent/experimental-client-ui-agent-team`](../client-ui-agent-team/README.md)) that registers the Team page.
 
 | File | Role |
 |---|---|
@@ -76,11 +76,11 @@ The package's runtime content is [`cordis.patch.yml`](cordis.patch.yml). Applied
 
 #### What the model sees
 
-The Team policy and schemas belong to [`@qilin/experimental-tool-agent-team`](../tool-agent-team/README.md). This bundle changes composition only: Team-scoped `list_agents`, `send_message`, and `interrupt_agent` replace the disabled global continuable-child controls. `spawn_teammate` is the direct delegation tool. Workflow’s `agent()` calls create fresh one-shot children; their prompts must contain the context needed for their tasks.
+The Team policy and schemas belong to [`@qilin-agent/experimental-tool-agent-team`](../tool-agent-team/README.md). This bundle changes composition only: Team-scoped `list_agents`, `send_message`, and `interrupt_agent` replace the disabled global continuable-child controls. `spawn_teammate` is the direct delegation tool. Workflow’s `agent()` calls create fresh one-shot children; their prompts must contain the context needed for their tasks.
 
 #### Token effect
 
-The bundle adds the Team policy and tool schemas described by `@qilin/experimental-tool-agent-team`; it adds no prompt text of its own.
+The bundle adds the Team policy and tool schemas described by `@qilin-agent/experimental-tool-agent-team`; it adds no prompt text of its own.
 
 #### KV Cache effect
 

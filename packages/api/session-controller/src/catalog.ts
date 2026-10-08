@@ -1,6 +1,6 @@
 /** Shared projection of the live LLM registry into the browser model catalog. */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   ModelCatalog,
   ModelReasoning,

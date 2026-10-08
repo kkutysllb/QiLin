@@ -1,7 +1,7 @@
 /** Refresh failure feedback hosted outside the Plugins panel's lifetime. */
 import type { ReactNode } from 'react'
-import { IconWarningOutline16, Toast } from '@qilin/client-ui-primitives'
-import type { InjectFace, PropsLocale } from '@qilin/client-ui-slots'
+import { IconWarningOutline16, Toast } from '@qilin-agent/client-ui-primitives'
+import type { InjectFace, PropsLocale } from '@qilin-agent/client-ui-slots'
 import type { PluginManagerFace } from './manager-store.ts'
 import { noticeText } from './presentation.ts'
 

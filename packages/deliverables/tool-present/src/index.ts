@@ -1,11 +1,11 @@
 /** Scoped tool that declares filesystem deliveries in their owning Session. */
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { FsError } from '@qilin/fs'
-import { defineTool, type ToolExecution } from '@qilin/tools'
-import type {} from '@qilin/agent'
-import type {} from '@qilin/session-projection'
-import type { Session } from '@qilin/session'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { FsError } from '@qilin-agent/fs'
+import { defineTool, type ToolExecution } from '@qilin-agent/tools'
+import type {} from '@qilin-agent/agent'
+import type {} from '@qilin-agent/session-projection'
+import type { Session } from '@qilin-agent/session'
 import type { PresentedFile } from './types.ts'
 
 /** Stable Loader identity. */

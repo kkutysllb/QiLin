@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { SessionLogOffset, SessionSeq, TOOL_OUTCOME_UNKNOWN, type SessionEvent } from '@qilin/session'
-import { createToolResultMessage, createUserMessage, ToolCallId, type ToolSchema } from '@qilin/llm'
-import type {} from '@qilin/tools/types'
+import { SessionLogOffset, SessionSeq, TOOL_OUTCOME_UNKNOWN, type SessionEvent } from '@qilin-agent/session'
+import { createToolResultMessage, createUserMessage, ToolCallId, type ToolSchema } from '@qilin-agent/llm'
+import type {} from '@qilin-agent/tools/types'
 import {
   applyUserQuestionEvent, foldUserQuestions, isTimedAskUserQuestionSchema, questionsOf, TIMED_WAIT_PARAMETER,
   userQuestionProjectionDefinition,

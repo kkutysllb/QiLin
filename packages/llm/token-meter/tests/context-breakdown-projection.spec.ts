@@ -2,16 +2,16 @@
 // plus the shared estimator's pricing branches.
 
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createMessage, createSystemMessage, createUserMessage } from '@qilin/llm'
-import type { ContentBlock, ToolSchema } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import SessionStore, { SessionLogOffset, SessionSeq } from '@qilin/session'
-import type { Session, SessionEvent, SessionSeq as SessionSeqType } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import TokenMeter from '@qilin/token-meter'
-import type { ContextBreakdownProjection } from '@qilin/token-meter/client'
-import { CompactionId } from '@qilin/compaction'
+import { Context } from '@qilin-agent/kylin'
+import { createMessage, createSystemMessage, createUserMessage } from '@qilin-agent/llm'
+import type { ContentBlock, ToolSchema } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import SessionStore, { SessionLogOffset, SessionSeq } from '@qilin-agent/session'
+import type { Session, SessionEvent, SessionSeq as SessionSeqType } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import TokenMeter from '@qilin-agent/token-meter'
+import type { ContextBreakdownProjection } from '@qilin-agent/token-meter/client'
+import { CompactionId } from '@qilin-agent/compaction'
 import { contextBreakdownProjectionDefinition } from '../src/breakdown-projection.ts'
 import {
   estimateContent,
@@ -20,7 +20,7 @@ import {
   estimateToolsTokens,
 } from '../src/estimate.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

@@ -53,7 +53,7 @@ export const en = {
   'web.unknown': 'The page navigated inside the iframe; Web mode cannot read its current URL.',
 } satisfies Record<SidebarBrowserKey, string>
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Sidebar Browser labels, navigation controls, and failures. */
     sidebarBrowser: SidebarBrowserKey

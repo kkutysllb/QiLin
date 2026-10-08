@@ -1,5 +1,5 @@
-import { Service, type Context } from '@qilin/kylin'
-import { notifySubscribers } from '@qilin/client-store'
+import { Service, type Context } from '@qilin-agent/kylin'
+import { notifySubscribers } from '@qilin-agent/client-store'
 
 /** Shared lifecycle and stable-entry storage for one Conversation Definition registry. */
 export abstract class ConversationDefinitionRegistry<Definition> {

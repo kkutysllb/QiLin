@@ -5,13 +5,13 @@
  */
 import {
   type SessionListState, type SessionSearchResultItem, type SessionSummary,
-} from '@qilin/api-session-controller/client'
-import type { WorkspaceId, WorkspaceView } from '@qilin/api-workspace-controller/client'
+} from '@qilin-agent/api-session-controller/client'
+import type { WorkspaceId, WorkspaceView } from '@qilin-agent/api-workspace-controller/client'
 import type {
   SessionStatusSnapshot,
-} from '@qilin/client-ui-session/client'
-import type { SessionId } from '@qilin/session/types'
-import { workspaceTitleOf } from '@qilin/util-workspace-path'
+} from '@qilin-agent/client-ui-session/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import { workspaceTitleOf } from '@qilin-agent/util-workspace-path'
 import {
   indexSubagentDescendants, type SubagentDescendantSummary,
 } from './subagent-lineage.ts'

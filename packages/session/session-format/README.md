@@ -3,7 +3,7 @@ description: "Pure adjacent Session format planning, lossless JSON value checks,
 kind: "package-library"
 ---
 
-# @qilin/session-format
+# @qilin-agent/session-format
 
 English | [中文](README.zh.md)
 

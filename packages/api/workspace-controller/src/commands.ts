@@ -1,15 +1,15 @@
 /** Workspace command implementation and stable Remote failure mapping. */
 
-import type { Context } from '@qilin/kylin'
-import type { Workspace } from '@qilin/workspace'
+import type { Context } from '@qilin-agent/kylin'
+import type { Workspace } from '@qilin-agent/workspace'
 import {
   WorkspaceArchivedSessionPinError,
   WorkspaceId,
   WorkspaceMoveInvalidError,
   WorkspaceOrderInvalidError,
   WorkspaceUnknownSessionError,
-} from '@qilin/workspace'
-import { RemoteError, remoteErrorOf } from '@qilin/typert-protocol'
+} from '@qilin-agent/workspace'
+import { RemoteError, remoteErrorOf } from '@qilin-agent/typert-protocol'
 import { workspaceView } from './feed.ts'
 import type {
   WorkspaceArchiveSessionRequest,

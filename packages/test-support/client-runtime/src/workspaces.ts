@@ -1,10 +1,10 @@
 /** Test-owned workspaces face: the renderer standard-kit observable plus recorded actions. */
-import { createSnapshotStore } from '@qilin/client-store'
+import { createSnapshotStore } from '@qilin-agent/client-store'
 import type {
   IWorkspaces, WorkspaceId, WorkspaceSnapshot, WorkspaceView,
-} from '@qilin/api-workspace-controller/client'
-import type { SessionId } from '@qilin/session/types'
-import type { SnapshotStore } from '@qilin/client-store'
+} from '@qilin-agent/api-workspace-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { SnapshotStore } from '@qilin-agent/client-store'
 import { workspaceSnapshot } from './fixtures.ts'
 import type { FixtureSnapshot, Stabilizer } from './fixtures.ts'
 

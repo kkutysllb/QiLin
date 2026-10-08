@@ -1,13 +1,13 @@
 /** Real Web startup, mounted plugin package identities, and delivered Client graph isolation. */
 
-import { FiberState } from '@qilin/kylin'
-import type { WebBootGraph } from '@qilin/client-modules/client'
+import { FiberState } from '@qilin-agent/kylin'
+import type { WebBootGraph } from '@qilin-agent/client-modules/client'
 import { expect, it } from 'vitest'
 import { experimentalRuntimeReferences, modulePackage } from './runtime-roster.ts'
-import { WEB_ENTRY_PATH } from '@qilin/client-connection'
+import { WEB_ENTRY_PATH } from '@qilin-agent/client-connection'
 import { withDefaultWeb, webGet } from './default-web-process.ts'
 
-const experimentalName = '@qilin/experimental-client-ui-agent-team'
+const experimentalName = '@qilin-agent/experimental-client-ui-agent-team'
 
 it('boots the default Web profile without experimental Host modules or mounted plugins', async (test) => {
   await withDefaultWeb(test, async ({ url, request }) => {
@@ -25,27 +25,27 @@ it('boots the default Web profile without experimental Host modules or mounted p
     const roster = await request('roster')
     expect(roster.client).toEqual(delivered)
     expect(roster.entries).toEqual(expect.arrayContaining([
-      expect.objectContaining({ name: '@qilin/host-webserver', state: FiberState.ACTIVE }),
-      expect.objectContaining({ name: '@qilin/client-modules', state: FiberState.ACTIVE }),
+      expect.objectContaining({ name: '@qilin-agent/host-webserver', state: FiberState.ACTIVE }),
+      expect.objectContaining({ name: '@qilin-agent/client-modules', state: FiberState.ACTIVE }),
     ]))
     expect(roster.entries.some(entry => entry.name.endsWith('/runtime-roster-observer.js') && entry.state === FiberState.ACTIVE)).toBe(true)
     expect(roster.plugins.length).toBeGreaterThan(roster.entries.length)
-    expect(roster.modules.some(url => modulePackage(url) === '@qilin/cli')).toBe(true)
+    expect(roster.modules.some(url => modulePackage(url) === '@qilin-agent/cli')).toBe(true)
     expect(roster.client.entries.length).toBeGreaterThan(0)
     // The shipped schedule capability: the profile enables the Host service,
     // the time context, and the browser half together, and all three reach the
     // Client graph. The built-in browser row keeps its upstream default,
     // because its value is decided by profile name rather than by this bundle.
-    for (const name of ['@qilin/time-context', '@qilin/schedule']) {
+    for (const name of ['@qilin-agent/time-context', '@qilin-agent/schedule']) {
       expect(roster.entries, name).toEqual(expect.arrayContaining([
         expect.objectContaining({ name, state: FiberState.ACTIVE }),
       ]))
     }
-    expect(delivered.entries.some(entry => entry.id === '@qilin/client-ui-schedule')).toBe(true)
+    expect(delivered.entries.some(entry => entry.id === '@qilin-agent/client-ui-schedule')).toBe(true)
     // The shipped graph resolves this row but leaves it disabled: it appears in
     // the roster with no settled state and is never delivered.
     for (const name of [
-      '@qilin/client-ui-sidebar-browser',
+      '@qilin-agent/client-ui-sidebar-browser',
     ]) {
       const entry = roster.entries.find(entry => entry.name === name)
       expect(entry, name).toBeDefined()

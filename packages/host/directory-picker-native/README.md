@@ -3,7 +3,7 @@ description: "Native-OS-chooser backend of the directory-picker seam: opens one 
 kind: "package-reference"
 ---
 
-# @qilin/host-directory-picker-native
+# @qilin-agent/host-directory-picker-native
 
 English | [中文](README.zh.md)
 

@@ -1,8 +1,8 @@
 /** The served-namespace watch: a registration that lives exactly while the Host serves a namespace. */
 
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
-import { TestRemote } from '@qilin/client-test-runtime'
+import { TestRemote } from '@qilin-agent/client-test-runtime'
 import { SettingsSchemaService } from '../src/client/schema.ts'
 import { ConfigForms } from '../src/client/config-form.ts'
 import { SettingsDescribeMirror } from '../src/client/settings-mirror.ts'

@@ -3,15 +3,15 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import LlmRuntime from '@qilin/llm'
-import SessionStore from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import TokenMeter from '@qilin/token-meter'
-import BasicCompactionEngine from '@qilin/compaction-basic'
-import ToolResultPruner from '@qilin/compaction-tool-result-pruner'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import LlmRuntime from '@qilin-agent/llm'
+import SessionStore from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import TokenMeter from '@qilin-agent/token-meter'
+import BasicCompactionEngine from '@qilin-agent/compaction-basic'
+import ToolResultPruner from '@qilin-agent/compaction-tool-result-pruner'
 
 let root: string | undefined
 let context: Context | undefined
@@ -33,12 +33,12 @@ async function loadYaml(lines: readonly string[]): Promise<Context> {
   await context.plugin(Loader)
   context.loader.builtins.include = Include
   const modules = new Map<string, unknown>([
-    ['@qilin/llm', LlmRuntime],
-    ['@qilin/session', SessionStore],
-    ['@qilin/session-projection', SessionProjectionRegistry],
-    ['@qilin/token-meter', TokenMeter],
-    ['@qilin/compaction-tool-result-pruner', ToolResultPruner],
-    ['@qilin/compaction-basic', BasicCompactionEngine],
+    ['@qilin-agent/llm', LlmRuntime],
+    ['@qilin-agent/session', SessionStore],
+    ['@qilin-agent/session-projection', SessionProjectionRegistry],
+    ['@qilin-agent/token-meter', TokenMeter],
+    ['@qilin-agent/compaction-tool-result-pruner', ToolResultPruner],
+    ['@qilin-agent/compaction-basic', BasicCompactionEngine],
   ])
   context.loader.internal = {
     version: 'v2',
@@ -58,16 +58,16 @@ async function loadYaml(lines: readonly string[]): Promise<Context> {
 describe('real Loader composition', () => {
   it('loads the shipped token-meter, pruning, and compaction-basic YAML order', async () => {
     const loaded = await loadYaml([
-      "- name: '@qilin/llm'",
-      "- name: '@qilin/session'",
-      "- name: '@qilin/session-projection'",
-      "- name: '@qilin/token-meter'",
-      "- name: '@qilin/compaction-tool-result-pruner'",
+      "- name: '@qilin-agent/llm'",
+      "- name: '@qilin-agent/session'",
+      "- name: '@qilin-agent/session-projection'",
+      "- name: '@qilin-agent/token-meter'",
+      "- name: '@qilin-agent/compaction-tool-result-pruner'",
       '  config:',
       '    thresholdChars: 100',
       '    headChars: 20',
       '    tailChars: 10',
-      "- name: '@qilin/compaction-basic'",
+      "- name: '@qilin-agent/compaction-basic'",
       '  config:',
       '    thresholdRatio: 0.5',
       '    headroomTokens: 4000',

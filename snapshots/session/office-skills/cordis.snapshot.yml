@@ -11,13 +11,13 @@
   disabled: true
 
 - id: session-persistence-jsonl
-  name: '@qilin/session-persistence-jsonl'
+  name: '@qilin-agent/session-persistence-jsonl'
   config:
     root: !!js qilinHomePath('sessions')
     compression: none
 
 - id: sandbox
-  name: '@qilin/sandbox-local'
+  name: '@qilin-agent/sandbox-local'
   config:
     runnerCommand:
       - bash
@@ -29,7 +29,7 @@
 
 - insert:
     - id: llm-replay
-      name: '@qilin/llm-replay'
+      name: '@qilin-agent/llm-replay'
       config:
         providers:
           - id: deepseek-official
@@ -45,7 +45,7 @@
 
 - insert:
     - id: office-skills
-      name: '@qilin/skill-office'
+      name: '@qilin-agent/skill-office'
       config:
         assetRoot: !!js process.cwd() + '/office-skills'
         node: !!js process.cwd() + '/office-node'

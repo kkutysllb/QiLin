@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-ui-subagent",
+  "name": "@qilin-agent/client-ui-subagent",
   "description": "Subagent conversation catalog, continuation routing UI, and '@' reference source",
   "version": "3.1.1",
   "publishConfig": {
@@ -31,15 +31,15 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/api-session-controller",
-        "@qilin/client-locale",
-        "@qilin/client-resources",
-        "@qilin/client-ui-chat",
-        "@qilin/client-ui-conversation",
-        "@qilin/client-ui-primitives",
-        "@qilin/client-ui-sidebar-right",
-        "@qilin/client-ui-input-trigger",
-        "@qilin/client-ui-workspace"
+        "@qilin-agent/api-session-controller",
+        "@qilin-agent/client-locale",
+        "@qilin-agent/client-resources",
+        "@qilin-agent/client-ui-chat",
+        "@qilin-agent/client-ui-conversation",
+        "@qilin-agent/client-ui-primitives",
+        "@qilin-agent/client-ui-sidebar-right",
+        "@qilin-agent/client-ui-input-trigger",
+        "@qilin-agent/client-ui-workspace"
       ],
       "platform": "web"
     }
@@ -50,31 +50,31 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/client-locale": "workspace:*",
-    "@qilin/client-resources": "workspace:*",
-    "@qilin/client-test-runtime": "workspace:*",
-    "@qilin/client-ui-chat": "workspace:*",
-    "@qilin/client-ui-conversation": "workspace:*",
-    "@qilin/client-ui-input-trigger": "workspace:*",
-    "@qilin/client-ui-primitives": "workspace:*",
-    "@qilin/client-ui-slots": "workspace:*",
-    "@qilin/subagent": "workspace:*",
-    "@qilin/token-meter": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-resources": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-chat": "workspace:*",
+    "@qilin-agent/client-ui-conversation": "workspace:*",
+    "@qilin-agent/client-ui-input-trigger": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/subagent": "workspace:*",
+    "@qilin-agent/token-meter": "workspace:*",
     "@types/react": "~18.3.1",
     "@types/react-dom": "~18.3.0",
-    "@qilin/kylin": "workspace:~",
+    "@qilin-agent/kylin": "workspace:~",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@qilin/api-session-controller": "workspace:*",
-    "@qilin/client-connection": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/client-ui-renderer": "workspace:*",
-    "@qilin/client-ui-sidebar-right": "workspace:*",
-    "@qilin/client-ui-session": "workspace:*",
-    "@qilin/client-ui-workspace": "workspace:*"
+    "@qilin-agent/api-session-controller": "workspace:*",
+    "@qilin-agent/client-connection": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-sidebar-right": "workspace:*",
+    "@qilin-agent/client-ui-session": "workspace:*",
+    "@qilin-agent/client-ui-workspace": "workspace:*"
   },
   "files": [
     "lib/index.js",

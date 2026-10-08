@@ -1,16 +1,16 @@
 import { useEffect, useId, useMemo, useState, type ReactNode } from 'react'
-import type { ClientEntryState } from '@qilin/client-modules/client'
-import type { ObservableSnapshot } from '@qilin/client-store'
-import type { PluginInventorySnapshot } from '@qilin/api-remotes/client'
+import type { ClientEntryState } from '@qilin-agent/client-modules/client'
+import type { ObservableSnapshot } from '@qilin-agent/client-store'
+import type { PluginInventorySnapshot } from '@qilin-agent/api-remotes/client'
 import {
   IconChevronDownOutline14,
   IconSearchOutline16,
   Menu,
   StateDot,
   Tag,
-} from '@qilin/client-ui-primitives'
-import type { StateDotState, TagTone } from '@qilin/client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-primitives'
+import type { StateDotState, TagTone } from '@qilin-agent/client-ui-primitives'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import type { PluginInventoryLocaleKey } from './locales.ts'
 import css from './PluginInventorySettingsTab.module.css'
 

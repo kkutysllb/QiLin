@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/experimental-inspector-profile",
+  "name": "@qilin-agent/experimental-inspector-profile",
   "description": "Optional Web bundle for raw Session logs and Chat node inspection",
   "version": "3.1.1",
   "icon": "./icon.svg",
@@ -38,15 +38,15 @@
     }
   },
   "dependencies": {
-    "@qilin/experimental-inspector": "workspace:*",
-    "@qilin/experimental-session-inspector": "workspace:*"
+    "@qilin-agent/experimental-inspector": "workspace:*",
+    "@qilin-agent/experimental-session-inspector": "workspace:*"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
     "js-yaml": "^4.2.0"
   },
   "engines": {

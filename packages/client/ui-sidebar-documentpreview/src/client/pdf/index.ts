@@ -1,18 +1,18 @@
 /** Builtin PDF registration through document metadata and the keyed body slot. */
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { retainDocumentTabs } from '../document/tab-lifetime.ts'
 import type {} from '../index.ts'
 import type { DocumentPreviewDefinition } from '../document/registry.ts'
 import type { PdfBodyInjected } from './pdf.tsx'
 import { LazyPdfBody } from './LazyPdfBody.tsx'
-import type { BoundActions } from '@qilin/client-store'
-import type { SessionId } from '@qilin/session/types'
+import type { BoundActions } from '@qilin-agent/client-store'
+import type { SessionId } from '@qilin-agent/session/types'
 import { createPdfStore, type PdfStore } from './store.ts'
 import { ZoomViewport, zoomSurfaceClass } from '../zoom/ZoomViewport.tsx'
 import { en, zh } from './locales.ts'
 
 /** PDF metadata and keyed body share this package-local implementation identity. */
-export const PDF_BODY_ID = '@qilin/client-ui-sidebar-documentpreview/pdf'
+export const PDF_BODY_ID = '@qilin-agent/client-ui-sidebar-documentpreview/pdf'
 
 /**
  * Describe the builtin PDF renderer independently from its keyed body slot.

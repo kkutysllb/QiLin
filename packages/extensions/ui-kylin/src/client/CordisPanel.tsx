@@ -5,11 +5,11 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import {
   IconCheckOutline16, IconCloseOutline16, IconCordisPluginOutline14, IconPlayOutline16,
   IconStopFill16, IconTrashOutline16, Tooltip, useDismissOnOutsidePointer,
-} from '@qilin/client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
-import type {} from '@qilin/client-ui-sidebar/client'
-import type { CordisRunActivity } from '@qilin/kylin-client-runner/client'
-import type { SessionId } from '@qilin/api-remotes/client'
+} from '@qilin-agent/client-ui-primitives'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-sidebar/client'
+import type { CordisRunActivity } from '@qilin-agent/kylin-client-runner/client'
+import type { SessionId } from '@qilin-agent/api-remotes/client'
 import type { CordisInventoryRow } from './dynamic-port.ts'
 import type { CordisPanelFace } from './slots.ts'
 import type { CordisKey } from './locales.ts'

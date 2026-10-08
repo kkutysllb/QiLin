@@ -3,19 +3,19 @@
 # first read, so the second step appends a `system/message` after the cached
 # history instead of replacing node 0.
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
+  name: '@qilin-agent/llm-deepseek'
   config:
     thinking: enabled
     reasoningEffort: max
 
 - id: agent-default-model
-  name: '@qilin/agent-default-model'
+  name: '@qilin-agent/agent-default-model'
   config:
     provider: deepseek-official
     model: deepseek-flash
 
 - id: session-persistence-jsonl
-  name: '@qilin/session-persistence-jsonl'
+  name: '@qilin-agent/session-persistence-jsonl'
   config:
     root: !!js qilinHomePath('sessions')
     compression: !!js 'process.env.QILIN_SNAPSHOT === undefined ? ''zstd'' : ''none'''

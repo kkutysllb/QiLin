@@ -1,6 +1,6 @@
 /** Immutable system-only interpretation of the loaded Session surface. */
-import type { SessionEvent } from '@qilin/session/types'
-import { isSurfaceEvent } from '@qilin/session/surface'
+import type { SessionEvent } from '@qilin-agent/session/types'
+import { isSurfaceEvent } from '@qilin-agent/session/surface'
 import type { SystemPromptNode } from './request-inspection.ts'
 
 interface PositionedSystem {

@@ -1,5 +1,5 @@
 /** Pure history response builders for assembled Session tests. */
-import { SESSION_FORMAT_VERSION } from '@qilin/session/types'
+import { SESSION_FORMAT_VERSION } from '@qilin-agent/session/types'
 import type {
   SessionAssistantStreamBaseline, SessionFollowFrame, SessionFollowRequest, SessionPage, SessionProjectionBaseline,
 } from '../../src/types.ts'

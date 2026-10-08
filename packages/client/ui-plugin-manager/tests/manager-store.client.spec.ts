@@ -7,16 +7,16 @@ import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import type {
   BundleInfo, ChangeResult, CommunityPluginEntry, CommunityPluginSnapshot, ManagementError, PluginEntryId, PluginInfo,
   PluginInstallRequestId, PluginUpdateSnapshot,
-} from '@qilin/api-remotes/client'
-import { RemoteError } from '@qilin/client-test-runtime'
-import type { HostObservable } from '@qilin/client-ui-slots'
+} from '@qilin-agent/api-remotes/client'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
+import type { HostObservable } from '@qilin-agent/client-ui-slots'
 import type { ConfigLedger } from '../src/client/config-ledger.ts'
 import {
   asksMirror, githubRecoveryRegistry, offeredRegistries, packageView, PluginManagerController, registryKey, rowKey, sortPackages, updatable,
   type InstallState,
 } from '../src/client/manager-store.ts'
 
-const INCOMPATIBLE = { name: 'qilin-late', version: '2.0.0', runtimeVersion: '0.1.0', peers: { '@qilin/session': '^0.2.0' } }
+const INCOMPATIBLE = { name: 'qilin-late', version: '2.0.0', runtimeVersion: '0.1.0', peers: { '@qilin-agent/session': '^0.2.0' } }
 const ROW_ENTRY = 'include:sidebar' as PluginEntryId
 
 const BUNDLE: BundleInfo = {
@@ -35,7 +35,7 @@ const BUNDLE: BundleInfo = {
 
 const PLUGINS: PluginInfo[] = [
   { entryId: ROW_ENTRY, moduleName: 'qilin-better-sidebar', enabled: true, fiberPhase: 'active', patchId: 'sidebar' },
-  { entryId: 'include:core' as PluginEntryId, moduleName: '@qilin/base', enabled: true, fiberPhase: 'active', readOnlyReason: 'management-required' },
+  { entryId: 'include:core' as PluginEntryId, moduleName: '@qilin-agent/base', enabled: true, fiberPhase: 'active', readOnlyReason: 'management-required' },
 ]
 
 /** What the check answers for a registry name. */
@@ -528,18 +528,18 @@ describe('packageView', () => {
     })
     // A row the inventory no longer lists, a protected row, and a bundle the Host cannot read.
     const protectedBundle: BundleInfo = {
-      name: '@qilin/base', enabled: true, installed: false, optional: false, audience: 'both', updatable: false, removable: false,
+      name: '@qilin-agent/base', enabled: true, installed: false, optional: false, audience: 'both', updatable: false, removable: false,
       readOnlyReason: 'management-required',
       error: { code: 'operation-error', diagnostic: 'broken' },
-      rows: [{ rowId: 'core', moduleName: '@qilin/base', entryId: 'include:core' as PluginEntryId }, { rowId: 'gone', moduleName: 'x', entryId: 'include:gone' as PluginEntryId }],
+      rows: [{ rowId: 'core', moduleName: '@qilin-agent/base', entryId: 'include:core' as PluginEntryId }, { rowId: 'gone', moduleName: 'x', entryId: 'include:gone' as PluginEntryId }],
       overrides: [],
     }
     expect(packageView(protectedBundle, PLUGINS)).toEqual({
-      name: '@qilin/base', installed: false, optional: false, audience: 'both', updatable: false, enabled: true,
+      name: '@qilin-agent/base', installed: false, optional: false, audience: 'both', updatable: false, enabled: true,
       readOnlyReason: 'management-required',
       error: { code: 'operation-error', diagnostic: 'broken' },
       rows: [
-        { rowId: 'core', moduleName: '@qilin/base', entryId: 'include:core', enabled: true, phase: 'active', readOnlyReason: 'management-required' },
+        { rowId: 'core', moduleName: '@qilin-agent/base', entryId: 'include:core', enabled: true, phase: 'active', readOnlyReason: 'management-required' },
         { rowId: 'gone', moduleName: 'x', entryId: 'include:gone', enabled: false, phase: null },
       ],
     })

@@ -1,22 +1,22 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import LlmRuntime, { createUserMessage, ToolCallId, HarnessError, type ContentBlock  } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import SessionStore, { Session, SessionId } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import SystemPrompt from '@qilin/system-prompt'
-import AgentRegistry, { type Agent } from '@qilin/agent'
-import AgentLoop from '@qilin/agent-loop'
-import ApprovalService, { type ApprovalOutcome, type ApprovalRequest } from '@qilin/user-approval'
+import { Context } from '@qilin-agent/kylin'
+import LlmRuntime, { createUserMessage, ToolCallId, HarnessError, type ContentBlock  } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import SessionStore, { Session, SessionId } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import AgentRegistry, { type Agent } from '@qilin-agent/agent'
+import AgentLoop from '@qilin-agent/agent-loop'
+import ApprovalService, { type ApprovalOutcome, type ApprovalRequest } from '@qilin-agent/user-approval'
 import ToolRuntime, {
   defineContentToolFixture, defineTool, JsonSchemaError, parameterSchemaSpecToJsonSchema, validateArgs, ToolArgsError, ToolNotFoundError,
   TOOL_ABORTED, TOOL_ABORTED_BEFORE_DISPATCH,
   type InferArgs, type ParameterSchemaSpec, type PreToolDecision, type PostToolDecision,
   type JsonSchemaNode, type ToolDefinition, type ToolDispatchExecution, type ToolExecutionResult, type ToolExecutionToken,
-} from '@qilin/tools'
-import type { JsonValue } from '@qilin/util-values'
+} from '@qilin-agent/tools'
+import type { JsonValue } from '@qilin-agent/util-values'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'blocker': { kind: 'blocker' } & ContextFormed
     'child': { kind: 'child' } & ContextFormed
@@ -694,7 +694,7 @@ describe('ToolRuntime', () => {
   })
 
   it('ToolNotFoundError carries a stable message and code', async () => {
-    const { HarnessError } = await import('@qilin/llm')
+    const { HarnessError } = await import('@qilin-agent/llm')
     const err = new ToolNotFoundError('ghost')
     expect(err).toBeInstanceOf(HarnessError)
     expect(err.name).toBe('ToolNotFoundError')
@@ -2700,7 +2700,7 @@ describe('defineTool validation (the runtime-validation Agent Note, part 1)', ()
   })
 
   it('a tool throwing a HarnessError surfaces its name and code', async () => {
-    const { HarnessError } = await import('@qilin/llm')
+    const { HarnessError } = await import('@qilin-agent/llm')
     const ctx = await setup()
     ctx.tools.register({
       ...echoTool,

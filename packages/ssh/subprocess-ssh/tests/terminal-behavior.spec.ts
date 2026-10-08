@@ -1,8 +1,8 @@
 /** Published terminal operations and cleanup failures over the remote provider seam. */
 import { duplexPair } from 'node:stream'
 import { once } from 'node:events'
-import { Context } from '@qilin/kylin'
-import type { SubprocessTerminalSpawnSpec } from '@qilin/subprocess'
+import { Context } from '@qilin-agent/kylin'
+import type { SubprocessTerminalSpawnSpec } from '@qilin-agent/subprocess'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import { z } from 'zod'
 import { SshSubprocessRuntime } from '../src/index.ts'

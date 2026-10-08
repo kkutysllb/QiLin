@@ -9,8 +9,8 @@ import { basename, dirname, extname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { JSDOM } from 'jsdom'
 import ts from 'typescript'
-import { applyEntryPatches, type PatchOptions } from '@qilin/kylin-plugin-include'
-import type { EntryOptions } from '@qilin/kylin-plugin-loader'
+import { applyEntryPatches, type PatchOptions } from '@qilin-agent/kylin-plugin-include'
+import type { EntryOptions } from '@qilin-agent/kylin-plugin-loader'
 import { loadOverlayPatches, resolveBundleDir } from '../packages/boot/app-boot/src/index.ts'
 import { composeEntries } from '../packages/boot/app-boot/src/profile.ts'
 import { isCordisGroupEntry, loadCordisYaml } from './cordis-yaml.ts'
@@ -19,7 +19,7 @@ import {
   collectRuntimeSourceSpecifiers,
 } from './verify-client-packages.ts'
 
-const EXPERIMENTAL_PREFIX = '@qilin/experimental-'
+const EXPERIMENTAL_PREFIX = '@qilin-agent/experimental-'
 // The independently published entry package owns platform-engine dependencies.
 const EXTERNAL_KIT_PACKAGES = new Set(['@deepseek-ai/libreoffice-kit'])
 const PROFILE_SOURCE = 'packages/boot/app-boot/src/profile.ts'
@@ -78,8 +78,8 @@ export function verifyDefaultProductIsolation(root: string): ProductIsolationRes
     if (!existsSync(resolve(root, path))) failures.push(`missing default product root ${path}`)
   }
   const cli = directories.get(resolve(root, 'apps/cli'))
-  if (cli?.manifest.name !== '@qilin/cli') {
-    failures.push('apps/cli/package.json must identify @qilin/cli')
+  if (cli?.manifest.name !== '@qilin-agent/cli') {
+    failures.push('apps/cli/package.json must identify @qilin-agent/cli')
   }
   // The bundles the launcher ships switched off: each a runtime dependency of the installation that is a bundle
   // with an icon and locale display metadata for the plugin manager's Official group, none a default.
@@ -197,7 +197,7 @@ export function verifyDefaultProductIsolation(root: string): ProductIsolationRes
         (entry.config as unknown[]).forEach(visit)
       }
       if (Array.isArray(entry.insert)) entry.insert.forEach(visit)
-      if ((entry.name === '@qilin/kylin-plugin-include' || entry.name === 'cordis:include') && isRecord(entry.config)) {
+      if ((entry.name === '@qilin-agent/kylin-plugin-include' || entry.name === 'cordis:include') && isRecord(entry.config)) {
         if (!composedWeb && Array.isArray(entry.config.patches)) entry.config.patches.forEach(visit)
         const included = entry.config.path
         if (typeof included !== 'string') return

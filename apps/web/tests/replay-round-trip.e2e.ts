@@ -14,8 +14,8 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { ToolCallId, expandAssistantStream } from '@qilin/llm'
-import type { Session, SessionEvent, SessionId } from '@qilin/session'
+import { ToolCallId, expandAssistantStream } from '@qilin-agent/llm'
+import type { Session, SessionEvent, SessionId } from '@qilin-agent/session'
 import {
   assertFixtureInventory, captureExpandedTurnProcessAria, captureStableAria,
   compareOrRefreshGolden, fixtureUserPrompts,

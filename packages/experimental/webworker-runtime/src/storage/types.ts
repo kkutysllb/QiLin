@@ -3,7 +3,7 @@
  * is in memory; browser persistence hydrates it and consumes its committed
  * mutation stream. Errors carry Node's `code` values because roster plugins
  * branch on them (`ENOENT` for optional files, `EACCES` for read-only trees).
- * @module @qilin/experimental-webworker-runtime/src/storage/types
+ * @module @qilin-agent/experimental-webworker-runtime/src/storage/types
  */
 
 /** Encodings the VFS accepts where Node accepts any `BufferEncoding`. */

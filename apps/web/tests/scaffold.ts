@@ -30,11 +30,11 @@ import { basename, dirname, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import type { Locator, Page } from 'playwright'
 import { expect } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { QILIN_LAUNCH_ENVIRONMENT_KEY, type LaunchEnvironmentSnapshot } from '@qilin/launch-environment'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include, { type PatchOptions } from '@qilin/kylin-plugin-include'
-import Group from '@qilin/kylin-plugin-group'
+import { Context } from '@qilin-agent/kylin'
+import { QILIN_LAUNCH_ENVIRONMENT_KEY, type LaunchEnvironmentSnapshot } from '@qilin-agent/launch-environment'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include, { type PatchOptions } from '@qilin-agent/kylin-plugin-include'
+import Group from '@qilin-agent/kylin-plugin-group'
 import {
   captureExpectedWorkspaceSnapshot,
   captureWorkspaceSnapshot,
@@ -56,36 +56,36 @@ import {
   stabilizeRefreshLog,
   writesCurrentSessionFixtures,
   type NormalizeContext,
-} from '@qilin/session-snapshot'
-import type { Profile, ProfileContext, ProfileResolutionMode } from '@qilin/app-boot'
-import { qilinHomePath } from '@qilin/home-paths'
-import { LlmAdapter } from '@qilin/llm'
+} from '@qilin-agent/session-snapshot'
+import type { Profile, ProfileContext, ProfileResolutionMode } from '@qilin-agent/app-boot'
+import { qilinHomePath } from '@qilin-agent/home-paths'
+import { LlmAdapter } from '@qilin-agent/llm'
 import type {
   LlmModelInfo, LlmProviderInfo, LlmResolvedModelInfo, RetryPolicyConfig, StreamChunk,
-} from '@qilin/llm'
-import type { ReplayHandle, ReplayProviderConfig } from '@qilin/llm-replay'
+} from '@qilin-agent/llm'
+import type { ReplayHandle, ReplayProviderConfig } from '@qilin-agent/llm-replay'
 import {
   installLlmReplay,
   parseSessionLog,
   prepareSessionSnapshotFixtureForComparison,
-} from '@qilin/llm-replay'
-import type { SessionFormatEvent } from '@qilin/session-format'
-import { sessionFormatCatalog } from '@qilin/session-format-catalog'
+} from '@qilin-agent/llm-replay'
+import type { SessionFormatEvent } from '@qilin-agent/session-format'
+import { sessionFormatCatalog } from '@qilin-agent/session-format-catalog'
 import {
   SESSION_FORMAT_VERSION,
   SessionId,
   type Session,
   type SessionEvent,
   type SessionHeader,
-} from '@qilin/session'
-import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
+} from '@qilin-agent/session'
+import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
 // Empty type imports carry the webServer/agents/sessionPersistence Context merges.
-import type {} from '@qilin/host-webserver'
-import type {} from '@qilin/agent'
-import { provideCmdline } from '@qilin/cmdline'
+import type {} from '@qilin-agent/host-webserver'
+import type {} from '@qilin-agent/agent'
+import { provideCmdline } from '@qilin-agent/cmdline'
 import { REPO_ROOT, requireBuilt, requireDist } from './support.ts'
 
-type AppBoot = typeof import('@qilin/app-boot')
+type AppBoot = typeof import('@qilin-agent/app-boot')
 let builtAppBoot: AppBoot | undefined
 
 /**
@@ -96,7 +96,7 @@ let builtAppBoot: AppBoot | undefined
  * helpers this module also exports load without one.
  */
 function appBoot(): AppBoot {
-  builtAppBoot ??= requireBuilt('@qilin/app-boot') as AppBoot
+  builtAppBoot ??= requireBuilt('@qilin-agent/app-boot') as AppBoot
   return builtAppBoot
 }
 
@@ -641,7 +641,7 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
       },
     },
     // The bundle's web-runtime row resolves the same built dist under test
-    // (apps/web IS @qilin/web-frontend); native browser opening and the
+    // (apps/web IS @qilin-agent/web-frontend); native browser opening and the
     // URL line are disabled because this scaffold owns its Playwright browser.
     // Preserve the composed surface-context choice because a patch replaces
     // the row's complete config.
@@ -659,8 +659,8 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
     // disable+insert pair.
     { id: 'directory-picker', disabled: true },
     { insert: [
-      { id: 'directory-picker-browse', name: '@qilin/host-directory-picker-browse' },
-      { id: 'ui-directory-picker-browse', name: '@qilin/client-ui-directory-picker-browse' },
+      { id: 'directory-picker-browse', name: '@qilin-agent/host-directory-picker-browse' },
+      { id: 'ui-directory-picker-browse', name: '@qilin-agent/client-ui-directory-picker-browse' },
     ] },
     // Ordinary scenarios exclude host-dependent application discovery. The
     // Open In scenario supplies launch facts that suppress every native probe.
@@ -743,7 +743,7 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
       // A real profile: the shipped web bundles plus each fixture package,
       // installed the way `qilin plugin add` leaves them.
       const dependencies: Record<string, string> = {}
-      const bundles = ['@qilin/base', '@qilin/web-app']
+      const bundles = ['@qilin-agent/base', '@qilin-agent/web-app']
       for (const entry of options.profile.packages) {
         const manifest = JSON.parse(await readFile(join(entry.dir, 'package.json'), 'utf8')) as { name: string }
         dependencies[manifest.name] = `file:${entry.dir}`
@@ -790,7 +790,7 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
       // `cordis:group` beside it, exactly as `boot()` registers it: a group row is
       // how a preset gives one `isolate` realm to a provider and its consumers,
       // and a preset resolving package names from its own directory cannot reach
-      // `@qilin/kylin-plugin-group` by name.
+      // `@qilin-agent/kylin-plugin-group` by name.
       ctx.loader.builtins.group = Group
       await ctx.loader.create({
         name: 'cordis:include',

@@ -7,13 +7,13 @@
  * the foot is the `sidebar.settings` registrant's (ui-settings), followed by
  * optional footer actions in `sidebar.footer.action`.
  */
-import type { InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime } from '@qilin/client-ui-slots'
-import type { ObservableSnapshot } from '@qilin/client-store'
-import type { WorkspaceId } from '@qilin/api-workspace-controller/client'
-import type { MainPanelId } from '@qilin/client-ui-layout/client'
-import type { ShortcutCatalogEntry } from '@qilin/client-shortcuts/client'
+import type { InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type { ObservableSnapshot } from '@qilin-agent/client-store'
+import type { WorkspaceId } from '@qilin-agent/api-workspace-controller/client'
+import type { MainPanelId } from '@qilin-agent/client-ui-layout/client'
+import type { ShortcutCatalogEntry } from '@qilin-agent/client-shortcuts/client'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface SlotMap {
     /** Non-interactive notification inside the collapsed sidebar expand button. */
     'sidebar.toggle.badge': { kind: 'single'; scope: 'root'; owner: Record<never, never> }

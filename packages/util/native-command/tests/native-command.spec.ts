@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { runNativeCommand } from '@qilin/native-command'
+import { runNativeCommand } from '@qilin-agent/native-command'
 
 const node = process.execPath
 

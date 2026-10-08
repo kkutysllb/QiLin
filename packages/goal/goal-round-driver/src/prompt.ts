@@ -1,7 +1,7 @@
 /** Model-visible continuation prompt for one same-session goal round. */
 
-import type { ContentBlock } from '@qilin/llm'
-import type { GoalView } from '@qilin/goal'
+import type { ContentBlock } from '@qilin-agent/llm'
+import type { GoalView } from '@qilin-agent/goal'
 
 /**
  * Render the complete goal-round instruction retained in session history.

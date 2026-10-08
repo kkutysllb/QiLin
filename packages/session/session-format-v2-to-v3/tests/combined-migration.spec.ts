@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { v3Catalog as sessionFormatCatalog } from './catalog.ts'
-import { SessionFormatEventCollector, SessionFormatUnsupportedMigrationError } from '@qilin/session-format'
-import type { SessionFormatEvent, SessionFormatJsonObject } from '@qilin/session-format'
+import { SessionFormatEventCollector, SessionFormatUnsupportedMigrationError } from '@qilin-agent/session-format'
+import type { SessionFormatEvent, SessionFormatJsonObject } from '@qilin-agent/session-format'
 import { releasedV3SessionFormatCodec, restoreReleasedV3Artifact } from '../src/index.ts'
 
 const header = { type: 'session', version: 2, id: 'combined', createdAt: 1, isSeeded: false, delegationDepth: 0 }

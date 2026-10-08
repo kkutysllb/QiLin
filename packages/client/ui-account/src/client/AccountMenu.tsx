@@ -11,13 +11,13 @@ import {
   IconCheckOutline16, IconDarkOutline16, IconFollowsystemOutline16, IconGlobeOutline14,
   IconLightOutline16, IconLogoutOutline16, IconPersonalizationOutline16, IconSettingsOutline16,
   IconUserOutline16, Menu, Tooltip,
-} from '@qilin/client-ui-primitives'
-import type { MenuEntry } from '@qilin/client-ui-primitives'
+} from '@qilin-agent/client-ui-primitives'
+import type { MenuEntry } from '@qilin-agent/client-ui-primitives'
 import type {
   HostObservable, InjectFace, PropsLocale, PropsRuntime, PropsStore,
-} from '@qilin/client-ui-slots'
-import type { LocaleSnapshot } from '@qilin/client-locale/client'
-import type { ThemeSnapshot } from '@qilin/client-ui-theme/client'
+} from '@qilin-agent/client-ui-slots'
+import type { LocaleSnapshot } from '@qilin-agent/client-locale/client'
+import type { ThemeSnapshot } from '@qilin-agent/client-ui-theme/client'
 import type { AccountLocaleKey } from './locales.ts'
 import type { AccountMenuStoreHandle } from './store.ts'
 import css from './AccountMenu.module.css'

@@ -40,12 +40,12 @@
  *    the CALLER owns the DACLs (the sandbox seam's grant reuse):
  *    init()/dispose() skip grant/revoke entirely and the caller must not
  *    revoke under live children.
- * @module @qilin/sandbox-windows-acl
+ * @module @qilin-agent/sandbox-windows-acl
  */
 
 import { existsSync, statSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { Win32Error } from '@qilin/win32-process'
+import { Win32Error } from '@qilin-agent/win32-process'
 
 import { grantWrite, revokeWrite } from './acl.ts'
 import { allocPtrSlot, decodePtr, isNullPtr, throwLastError, win32 } from './ffi.ts'

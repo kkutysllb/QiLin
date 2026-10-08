@@ -4,13 +4,13 @@
   disabled: true
 
 - id: session-persistence-jsonl
-  name: '@qilin/session-persistence-jsonl'
+  name: '@qilin-agent/session-persistence-jsonl'
   config:
     root: !!js qilinHomePath('sessions')
     compression: none
 
 - id: compaction-basic
-  name: '@qilin/compaction-basic'
+  name: '@qilin-agent/compaction-basic'
   config:
     thresholdRatio: 0.99
     retainTokens: 20
@@ -18,7 +18,7 @@
 
 - insert:
     - id: llm-replay
-      name: '@qilin/llm-replay'
+      name: '@qilin-agent/llm-replay'
       config:
         providers:
           - id: deepseek-official

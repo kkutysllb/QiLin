@@ -1,6 +1,6 @@
 /** Document view state belongs to tab records, including while their bodies are hidden. */
-import type { Context } from '@qilin/kylin'
-import type { TabId } from '@qilin/client-ui-dockkit'
+import type { Context } from '@qilin-agent/kylin'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
 
 /**
  * Release retained view state on tab closure or plugin disposal.

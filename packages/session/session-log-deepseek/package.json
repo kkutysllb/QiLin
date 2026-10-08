@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/session-log-deepseek",
+  "name": "@qilin-agent/session-log-deepseek",
   "description": "Incremental lossless session-log request extension for the official DeepSeek LLM API",
   "version": "3.1.1",
   "publishConfig": {
@@ -35,27 +35,27 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@qilin/brand": "workspace:*",
-    "@qilin/util-values": "workspace:*",
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/util-values": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/deepseek-llm-api-extensions": "workspace:*",
-    "@qilin/session": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/deepseek-llm-api-extensions": "workspace:*",
+    "@qilin-agent/session": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/kylin-plugin-include": "workspace:~",
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/command-feedback": "workspace:*",
-    "@qilin/deepseek-llm-api-extensions": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/llm-deepseek": "workspace:*",
-    "@qilin/llm-deepseek-api-key": "workspace:*",
-    "@qilin/llm-mock-server": "workspace:*",
-    "@qilin/message-feedback": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-persistence-jsonl": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/command-feedback": "workspace:*",
+    "@qilin-agent/deepseek-llm-api-extensions": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/llm-deepseek": "workspace:*",
+    "@qilin-agent/llm-deepseek-api-key": "workspace:*",
+    "@qilin-agent/llm-mock-server": "workspace:*",
+    "@qilin-agent/message-feedback": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-persistence-jsonl": "workspace:*"
   }
 }

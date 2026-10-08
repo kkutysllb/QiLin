@@ -1,6 +1,6 @@
 /** File-resource membership and invalidation for one document preview. */
-import type { Resources, ResourceSnapshot } from '@qilin/client-resources/client'
-import type { WorkspaceFileStat } from '@qilin/api-workspace-files/types'
+import type { Resources, ResourceSnapshot } from '@qilin-agent/client-resources/client'
+import type { WorkspaceFileStat } from '@qilin-agent/api-workspace-files/types'
 
 /** Forwards member metadata changes to one document preview. */
 export class ResourceGroup {

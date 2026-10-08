@@ -1,8 +1,8 @@
 /** Read-only Markdown viewer for logged plans and temporary review documents. */
 import { useMemo } from 'react'
-import { IconCopyOutline16, IconPlanOutline14, MarkdownText, writeClipboard } from '@qilin/client-ui-primitives'
-import type { PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
-import type {} from '@qilin/client-ui-sidebar-right/client'
+import { IconCopyOutline16, IconPlanOutline14, MarkdownText, writeClipboard } from '@qilin-agent/client-ui-primitives'
+import type { PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
 import type {} from './plan-resource.ts'
 import { isReviewPreviewAddress } from './review-preview.ts'
 import { planFailureLine } from './failure-line.ts'

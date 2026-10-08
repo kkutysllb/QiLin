@@ -1,6 +1,6 @@
 - insert:
     - id: mcp-pagination-limit
-      name: '@qilin/mcp-client'
+      name: '@qilin-agent/mcp-client'
       config:
         transport: stdio
         serverName: pagination-limit

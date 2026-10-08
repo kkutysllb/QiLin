@@ -9,15 +9,15 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, describe, expect, it, onTestFinished, vi } from 'vitest'
 import { FSWatcher, type ChokidarOptions } from 'chokidar'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import Hmr from '../src/index.ts'
-import Timer from '@qilin/kylin-plugin-timer'
+import Timer from '@qilin-agent/kylin-plugin-timer'
 import {
   boot,
   loadOptionalPatches,
   PROFILE_PATCH_FILENAME,
   reconcileProfilePatches,
-} from '@qilin/app-boot'
+} from '@qilin-agent/app-boot'
 
 const NAME = 'qilin-test-bin'
 

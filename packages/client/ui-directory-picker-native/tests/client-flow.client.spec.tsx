@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
 import { act, cleanup, render } from '@testing-library/react'
 import { afterEach } from 'vitest'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import type { DirectoryFlowOwnerProps } from '@qilin/client-ui-workspace/client'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import type { DirectoryFlowOwnerProps } from '@qilin-agent/client-ui-workspace/client'
 import { apply, inject } from '../src/client/index.ts'
 import { NativeDirectoryFlow } from '../src/client/flow.ts'
 import { apply as nodeApply } from '../src/index.ts'

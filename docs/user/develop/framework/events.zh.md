@@ -85,9 +85,9 @@ waterfall 监听器**必须调用 `next()`**。不调用 `next` 会短路整个�
 Harness 使用 TypeScript 声明合并来为事件提供类型安全：
 
 ```ts
-import '@qilin/kylin'
+import '@qilin-agent/kylin'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Events {
     'my-plugin/ready': (payload: { id: string }) => void
     'my-plugin/check': (input: string) => boolean | undefined
@@ -121,8 +121,8 @@ export function apply(ctx: Context) {
 这个插件记录工具调用和工具结果：
 
 ```ts
-import type { Context } from '@qilin/kylin'
-import '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import '@qilin-agent/tools'
 
 export const name = 'tool-logger'
 

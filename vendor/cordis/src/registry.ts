@@ -1,5 +1,5 @@
-import { defineProperty } from '@qilin/cosmokit'
-import type { Dict } from '@qilin/cosmokit'
+import { defineProperty } from '@qilin-agent/cosmokit'
+import type { Dict } from '@qilin-agent/cosmokit'
 import type { StandardSchemaV1 } from '@standard-schema/spec'
 import { Context } from './context.ts'
 import { Fiber } from './fiber.ts'

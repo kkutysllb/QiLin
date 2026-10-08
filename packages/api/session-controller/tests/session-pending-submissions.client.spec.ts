@@ -5,12 +5,12 @@
  */
 
 import { afterEach, describe, expect, vi } from 'vitest'
-import { createUserMessage } from '@qilin/llm'
-import type { FileAttachmentRef, ImageAttachmentRef } from '@qilin/attachment'
-import { SessionSeq, type SessionEvent } from '@qilin/session/types'
-import type { SessionId } from '@qilin/api-remotes/client'
-import { RemoteError } from '@qilin/typert-protocol'
-import { createClientTest, webApp } from '@qilin/client-test-runtime/src/assembly/index.ts'
+import { createUserMessage } from '@qilin-agent/llm'
+import type { FileAttachmentRef, ImageAttachmentRef } from '@qilin-agent/attachment'
+import { SessionSeq, type SessionEvent } from '@qilin-agent/session/types'
+import type { SessionId } from '@qilin-agent/api-remotes/client'
+import { RemoteError } from '@qilin-agent/typert-protocol'
+import { createClientTest, webApp } from '@qilin-agent/client-test-runtime/src/assembly/index.ts'
 import type { PendingSubmissionRetirement } from '../src/client/contract/session.ts'
 import type { SessionRequestId } from '../src/types.ts'
 import { ev, historyValue } from './event-script.client.ts'
@@ -20,7 +20,7 @@ import {
 } from './remote/session.client.ts'
 
 /** A Session talks through the Gateway client; its dependency cone is the Typert registry and the Connection. */
-const API_ROSTER = webApp.closure(['@qilin/api-gateway'])
+const API_ROSTER = webApp.closure(['@qilin-agent/api-gateway'])
 const it = createClientTest({ roster: API_ROSTER })
 const SID = 'fk-s1' as SessionId
 /** The first client boot pays the cold module transform of the api cone. */

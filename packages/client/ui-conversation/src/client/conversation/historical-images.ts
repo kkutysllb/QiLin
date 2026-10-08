@@ -1,10 +1,10 @@
 /** Session-scoped durable image URL cache shared by Conversation targets. */
-import type { Context } from '@qilin/kylin'
-import type { ImageAttachmentRef } from '@qilin/attachment'
-import type { ISessions, SessionBinding } from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
-import { bytesToBase64 } from '@qilin/util-crypto'
-import { WeakMapWithValues } from '@qilin/util-values'
+import type { Context } from '@qilin-agent/kylin'
+import type { ImageAttachmentRef } from '@qilin-agent/attachment'
+import type { ISessions, SessionBinding } from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import { bytesToBase64 } from '@qilin-agent/util-crypto'
+import { WeakMapWithValues } from '@qilin-agent/util-values'
 
 interface ImageUrlEntry {
   readonly binding: SessionBinding

@@ -1,10 +1,10 @@
 /** Request-header canonicalization, equality, and snapshot folding. */
 
 import { describe, expect, it } from 'vitest'
-import { Session, SessionId, SessionSeq, canonicalHeader, foldRequestHeader, headerEquals } from '@qilin/session'
-import type { EpochHeader, SessionEvent } from '@qilin/session'
-import { createUserMessage, ReasoningEffortId } from '@qilin/llm'
-import type { ToolSchema } from '@qilin/llm'
+import { Session, SessionId, SessionSeq, canonicalHeader, foldRequestHeader, headerEquals } from '@qilin-agent/session'
+import type { EpochHeader, SessionEvent } from '@qilin-agent/session'
+import { createUserMessage, ReasoningEffortId } from '@qilin-agent/llm'
+import type { ToolSchema } from '@qilin-agent/llm'
 
 const CONFIG = { provider: 'mock', model: 'm' }
 

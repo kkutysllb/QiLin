@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { SessionListState, SessionSummary } from '@qilin/api-session-controller/client'
-import type { WorkspaceSnapshot, WorkspaceView } from '@qilin/api-workspace-controller/client'
-import type { SessionId } from '@qilin/session/types'
+import type { SessionListState, SessionSummary } from '@qilin-agent/api-session-controller/client'
+import type { WorkspaceSnapshot, WorkspaceView } from '@qilin-agent/api-workspace-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import { ArchivedSessionsSection } from '../src/client/ArchivedSessionsSection.tsx'
 import type { ArchivedSessionsSectionProps } from '../src/client/ArchivedSessionsSection.tsx'
 import { en, type ArchivedSessionsLocaleKey } from '../src/client/locales.ts'

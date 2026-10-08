@@ -1,7 +1,7 @@
 /** Observable contiguous Session event window consumed by domain assemblers. */
-import { notifySubscribers, type ObservableSnapshot } from '@qilin/client-store'
-import type { LlmAttemptId, StreamChunk } from '@qilin/llm'
-import type { SessionEvent } from '@qilin/session/types'
+import { notifySubscribers, type ObservableSnapshot } from '@qilin-agent/client-store'
+import type { LlmAttemptId, StreamChunk } from '@qilin-agent/llm'
+import type { SessionEvent } from '@qilin-agent/session/types'
 
 /** Client-only live chunk presentation; `seq` orders the transient row between durable Session seqs. */
 export interface AssistantLiveChunkEvent {

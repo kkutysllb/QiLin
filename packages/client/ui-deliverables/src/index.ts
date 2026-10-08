@@ -5,9 +5,9 @@
  * qilin.client declaration.
  */
 
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/system-prompt'
-import type {} from '@qilin/workspace-changes/types'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/system-prompt'
+import type {} from '@qilin-agent/workspace-changes/types'
 import { registerPresentOpen } from './present-open.ts'
 
 /** Services required for file-reference guidance, change summaries, and authenticated native opens. */

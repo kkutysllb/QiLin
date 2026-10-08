@@ -1,8 +1,8 @@
 /** A window hold accepts each physical acknowledgement and releases pending consumers. */
 import { afterEach, expect, it, vi } from 'vitest'
-import { createSnapshotStore } from '@qilin/client-store'
-import { RemoteStream, type ClientRemote } from '@qilin/api-gateway/client'
-import type { SessionId } from '@qilin/session/types'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { RemoteStream, type ClientRemote } from '@qilin-agent/api-gateway/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import { streamMethod } from './stream-method.client.ts'
 import type { TerminalRemote } from '../src/client/model.ts'
 import { TerminalWindowHold } from '../src/client/retention.ts'

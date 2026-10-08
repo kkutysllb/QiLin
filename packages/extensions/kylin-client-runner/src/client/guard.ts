@@ -13,10 +13,10 @@
  * as trusted as the host process that accepted its definition.
  */
 
-import { Context } from '@qilin/kylin'
-import type { DynamicCordisPackage } from '@qilin/api-remotes/client'
-import type { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import type { ThemeRuntime } from '@qilin/client-ui-theme/client'
+import { Context } from '@qilin-agent/kylin'
+import type { DynamicCordisPackage } from '@qilin-agent/api-remotes/client'
+import type { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import type { ThemeRuntime } from '@qilin-agent/client-ui-theme/client'
 
 /** Facade verbs beyond declared services (host CTX_VERBS twin). */
 const CTX_VERBS = new Set([

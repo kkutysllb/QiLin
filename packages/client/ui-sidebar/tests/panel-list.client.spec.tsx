@@ -1,18 +1,18 @@
 // @vitest-environment jsdom
 /** Global panel rows and DOM focus through the production slot renderer. */
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, waitFor, within } from '@testing-library/react'
-import { SlotTestRuntime } from '@qilin/client-test-runtime'
-import { LocaleRuntime } from '@qilin/client-locale/client'
-import { en as commonEn } from '@qilin/client-locale/src/locales/en.ts'
-import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
-import { IconGlobeOutline14 } from '@qilin/client-ui-primitives'
-import type { ILayout, MainPanelId } from '@qilin/client-ui-layout/client'
-import type { PropsRenderSlots, PropsRuntime, SlotLabel } from '@qilin/client-ui-slots'
+import { SlotTestRuntime } from '@qilin-agent/client-test-runtime'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
+import { en as commonEn } from '@qilin-agent/client-locale/src/locales/en.ts'
+import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
+import { IconGlobeOutline14 } from '@qilin-agent/client-ui-primitives'
+import type { ILayout, MainPanelId } from '@qilin-agent/client-ui-layout/client'
+import type { PropsRenderSlots, PropsRuntime, SlotLabel } from '@qilin-agent/client-ui-slots'
 import { apply, inject } from '../src/client/index.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     'sidebar-panel-test': 'alpha' | 'group'
   }

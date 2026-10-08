@@ -1,7 +1,7 @@
 /** The abstract service preserves the provider's discovery contract. */
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
-import type { Agent } from '@qilin/agent'
+import type { Agent } from '@qilin-agent/agent'
 import { FileReferenceService } from '../src/index.ts'
 import type { FileReferenceCandidate } from '../src/types.ts'
 

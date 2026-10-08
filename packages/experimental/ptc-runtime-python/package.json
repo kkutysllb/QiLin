@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/experimental-ptc-runtime-python",
+  "name": "@qilin-agent/experimental-ptc-runtime-python",
   "description": "CPython subprocess implementation of the QiLin PTC execution seam",
   "version": "3.1.1",
   "repository": {
@@ -27,19 +27,19 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/ptc-runtime": "workspace:*",
-    "@qilin/timeout": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/util-values": "workspace:*"
+    "@qilin-agent/ptc-runtime": "workspace:*",
+    "@qilin-agent/timeout": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/util-values": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/ptc-runtime": "workspace:*",
-    "@qilin/timeout": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/util-values": "workspace:*"
+    "@qilin-agent/ptc-runtime": "workspace:*",
+    "@qilin-agent/timeout": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/util-values": "workspace:*"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "publishConfig": {
     "access": "public"

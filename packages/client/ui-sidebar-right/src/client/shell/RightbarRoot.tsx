@@ -1,8 +1,8 @@
 /** Root-scoped controller for the right Sidebar's Session content. */
 import { useLayoutEffect } from 'react'
-import type { HostObservable, InjectFace, PropsRenderSlots, PropsRuntime } from '@qilin/client-ui-slots'
-import type { SessionReference } from '@qilin/api-session-controller/client'
-import type { WorkbenchState } from '@qilin/client-ui-workbench/client'
+import type { HostObservable, InjectFace, PropsRenderSlots, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type { SessionReference } from '@qilin-agent/api-session-controller/client'
+import type { WorkbenchState } from '@qilin-agent/client-ui-workbench/client'
 import type { SidebarSessionViewSnapshot } from '../session-views.ts'
 import type {} from '../contract/slots.ts'
 import css from './SidebarRight.module.css'

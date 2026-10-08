@@ -2,7 +2,7 @@
 import type { ReactNode } from 'react'
 import type {
   SessionAreaProps, StandardSourceBinding,
-} from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-slots'
 
 /**
  * Render the selected Session body or its empty branch.

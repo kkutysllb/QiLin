@@ -1,8 +1,8 @@
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/agent'
-import { CompactionId, compactCheckpointSource } from '@qilin/compaction'
-import { createUserMessage } from '@qilin/llm'
-import type {} from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/agent'
+import { CompactionId, compactCheckpointSource } from '@qilin-agent/compaction'
+import { createUserMessage } from '@qilin-agent/llm'
+import type {} from '@qilin-agent/tools'
 
 export const name = 'workspace-context-compaction'
 

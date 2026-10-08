@@ -3,7 +3,7 @@ description: "Standalone SDK profile with one default shell tool for users who n
 kind: "package-bundle"
 ---
 
-# `@qilin/sdk-minimal`
+# `@qilin-agent/sdk-minimal`
 
 English | [中文](README.zh.md)
 

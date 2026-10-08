@@ -1,11 +1,11 @@
 /** API-key authentication and discovery for the official DeepSeek route. */
-import type { Context } from '@qilin/kylin'
-import type z from '@qilin/schemastery'
-import { assertUsableApiKey, LlmError } from '@qilin/llm'
-import type {} from '@qilin/kylin-plugin-loader'
-import type {} from '@qilin/settings'
-import { launchEnvironmentOf } from '@qilin/launch-environment'
-import { catalogModelInfo, registerDeepSeekProvider } from '@qilin/llm-deepseek'
+import type { Context } from '@qilin-agent/kylin'
+import type z from '@qilin-agent/schemastery'
+import { assertUsableApiKey, LlmError } from '@qilin-agent/llm'
+import type {} from '@qilin-agent/kylin-plugin-loader'
+import type {} from '@qilin-agent/settings'
+import { launchEnvironmentOf } from '@qilin-agent/launch-environment'
+import { catalogModelInfo, registerDeepSeekProvider } from '@qilin-agent/llm-deepseek'
 import { Config, plainOptions, resolveAdapterOptions } from './config.ts'
 import type { ResolvedDeepSeekOptions } from './config.ts'
 

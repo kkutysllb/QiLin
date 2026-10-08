@@ -6,16 +6,16 @@
  * Plugin lifecycle reads use the optional `ctx.fs` provider, so providerless products
  * mount it as a no-op.
  *
- * @module @qilin/agent-instructions
+ * @module @qilin-agent/agent-instructions
  */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { isDeepStrictEqual } from 'node:util'
-import type { Agent, PreStepDecision } from '@qilin/agent'
-import { createUserMessage } from '@qilin/llm'
-import type { Session, UserMessage } from '@qilin/session'
-import type {} from '@qilin/session-projection'
-import type { ToolExecution, ToolExecutionResult, ToolExecutionToken } from '@qilin/tools'
+import type { Agent, PreStepDecision } from '@qilin-agent/agent'
+import { createUserMessage } from '@qilin-agent/llm'
+import type { Session, UserMessage } from '@qilin-agent/session'
+import type {} from '@qilin-agent/session-projection'
+import type { ToolExecution, ToolExecutionResult, ToolExecutionToken } from '@qilin-agent/tools'
 import { Config, resolveConfig, workspaceBaselineIdentity, type ResolvedConfig } from './config.ts'
 import { findProjectRoot, loadBaselineInstructionSet } from './files.ts'
 import {

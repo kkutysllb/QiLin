@@ -1,7 +1,7 @@
 /** Short-lived read-handle access to persisted Team member Sessions. */
 
-import type { SessionEvent, SessionHeader, SessionId , SessionLogOffset } from '@qilin/session'
-import type { SessionPersistence } from '@qilin/session-persistence'
+import type { SessionEvent, SessionHeader, SessionId , SessionLogOffset } from '@qilin-agent/session'
+import type { SessionPersistence } from '@qilin-agent/session-persistence'
 
 /** One persisted Session's detached header and complete committed event log. */
 export interface PersistedSessionView {

@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/experimental-schedule-bundle",
+  "name": "@qilin-agent/experimental-schedule-bundle",
   "description": "Optional bundle that adds Schedule, its task page, and time context to the Web composition",
   "version": "3.1.1",
   "icon": "./icon.svg",
@@ -33,16 +33,16 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@qilin/client-ui-schedule": "workspace:*",
-    "@qilin/schedule": "workspace:*",
-    "@qilin/time-context": "workspace:*"
+    "@qilin-agent/client-ui-schedule": "workspace:*",
+    "@qilin-agent/schedule": "workspace:*",
+    "@qilin-agent/time-context": "workspace:*"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
     "js-yaml": "^4.2.0"
   },
   "qilin": {

@@ -1,10 +1,10 @@
 /** Authorized source identity and cancellation survive Host rendering. */
-import { Context } from '@qilin/kylin'
-import { SessionId } from '@qilin/session/types'
-import type { WorkspaceFiles } from '@qilin/api-workspace-files'
-import type { FileSystem, FsInfo, FsTarget } from '@qilin/fs'
+import { Context } from '@qilin-agent/kylin'
+import { SessionId } from '@qilin-agent/session/types'
+import type { WorkspaceFiles } from '@qilin-agent/api-workspace-files'
+import type { FileSystem, FsInfo, FsTarget } from '@qilin-agent/fs'
 import { OfficeToPdfError, OfficeToPdfKey, type OfficeToPdfResult } from '../src/index.ts'
-import { RemoteError } from '@qilin/typert-protocol'
+import { RemoteError } from '@qilin-agent/typert-protocol'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import OfficeToPdf from '../src/index.ts'
 

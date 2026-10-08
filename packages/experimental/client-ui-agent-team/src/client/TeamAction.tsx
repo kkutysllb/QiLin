@@ -1,19 +1,19 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import type { SessionId } from '@qilin/session/types'
+import type { SessionId } from '@qilin-agent/session/types'
 import type {
   TeamMemberProjection,
   TeamTaskView as TeamTask,
-} from '@qilin/experimental-agent-team/client'
-import type {} from '@qilin/api-session-controller/client'
+} from '@qilin-agent/experimental-agent-team/client'
+import type {} from '@qilin-agent/api-session-controller/client'
 import {
   IconChevronDownOutline14,
   IconUserOutline16, StateDot, Tag, Tooltip,
   useAnchoredPosition, useDismissOnOutsidePointer,
-} from '@qilin/client-ui-primitives'
-import type { PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
-import type { TranslateNS } from '@qilin/client-ui-slots'
-import type {} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-primitives'
+import type { PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type { TranslateNS } from '@qilin-agent/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-conversation/client'
 import {
   memberDotState,
   memberStatusKey,

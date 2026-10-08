@@ -3,7 +3,7 @@
  * Each takes a recorded output string and returns wire values with no
  * filesystem or process access, so fixtures in `tests/parse.spec.ts` and
  * `tests/gh-parse.spec.ts` pin the grammar.
- * @module @qilin/api-workspace-git
+ * @module @qilin-agent/api-workspace-git
  */
 
 import type { GhPr, GitBranch, GitLogEntry, GitStatusEntry, GitUpstream } from './types.ts'

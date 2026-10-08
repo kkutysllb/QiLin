@@ -5,7 +5,7 @@
  * unmounts. One bucket per store instance; the registration is session-scoped,
  * so a tree's framing comes back with its Session.
  */
-import { defineStore, type EngineStoreHandle } from '@qilin/client-store'
+import { defineStore, type EngineStoreHandle } from '@qilin-agent/client-store'
 import type { NodeOffsets, TaskLayoutMode } from './tasks-graph-layout.ts'
 
 /** Which form the subagents section draws. */

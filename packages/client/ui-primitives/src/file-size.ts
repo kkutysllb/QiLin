@@ -1,4 +1,4 @@
-/** Human-readable byte counts shared by the client's attachment and file surfaces. @module @qilin/client-ui-primitives/file-size */
+/** Human-readable byte counts shared by the client's attachment and file surfaces. @module @qilin-agent/client-ui-primitives/file-size */
 
 /**
  * Byte count as compact user-facing size text (`312B`, `4.2KB`, `1.5MB`, `2.4GB`).

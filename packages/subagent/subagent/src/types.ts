@@ -6,14 +6,14 @@
  * continuation host in `./continuation.ts` — so this module stays the published
  * surface rather than a bag of everything type-shaped.
  *
- * @module @qilin/subagent/types
+ * @module @qilin-agent/subagent/types
  */
 
-import type { Agent, AgentOptions } from '@qilin/agent'
-import type { Branded } from '@qilin/brand'
-import type { ContentBlock, MessageId } from '@qilin/llm'
-import type { SessionEvent, SessionId } from '@qilin/session'
-import type { ObjectJsonSchema, ToolRestriction } from '@qilin/tools'
+import type { Agent, AgentOptions } from '@qilin-agent/agent'
+import type { Branded } from '@qilin-agent/brand'
+import type { ContentBlock, MessageId } from '@qilin-agent/llm'
+import type { SessionEvent, SessionId } from '@qilin-agent/session'
+import type { ObjectJsonSchema, ToolRestriction } from '@qilin-agent/tools'
 import type { SubagentDescriptorData } from './descriptor.ts'
 
 /** Identifies one accepted subagent run across its lifecycle event pair. */

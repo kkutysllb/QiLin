@@ -3,7 +3,7 @@ description: "Endpoint-named mock for Typert Remote traffic: a table of unary an
 kind: "package-library"
 ---
 
-# @qilin/remote-mock
+# @qilin-agent/remote-mock
 
 English | [中文](README.zh.md)
 

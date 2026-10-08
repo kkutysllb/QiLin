@@ -3,13 +3,13 @@ description: "Historical Kylin cards and controls for process-local runner defin
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-kylin
+# @qilin-agent/client-ui-kylin
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`@qilin/client-ui-kylin` renders historical generated-plugin cards and a control panel for process-local definitions. Users can operate definitions supplied by programmatic consumers; persisted cards remain readable after restart without recreating those definitions. New Creator plugins use Plugin Manager.
+`@qilin-agent/client-ui-kylin` renders historical generated-plugin cards and a control panel for process-local definitions. Users can operate definitions supplied by programmatic consumers; persisted cards remain readable after restart without recreating those definitions. New Creator plugins use Plugin Manager.
 
 ## Table of Contents
 

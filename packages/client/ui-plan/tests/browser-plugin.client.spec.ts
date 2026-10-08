@@ -5,13 +5,13 @@
  * outcomes into null (admitted) or a user-visible failure line; teardown
  * empties the seat (HMR safety).
  */
-import { ConversationEventRegistry } from '@qilin/client-ui-conversation/client'
-import { Context } from '@qilin/kylin'
+import { ConversationEventRegistry } from '@qilin-agent/client-ui-conversation/client'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import type { SessionId } from '@qilin/session/types'
-import { LocaleRuntime } from '@qilin/client-locale/client'
-import { RemoteError } from '@qilin/client-test-runtime'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
 import { PlanChip } from '../src/client/PlanModeControl.tsx'
 import { PlanCards, PlanReviewOpen, type PlanOpenInjected, type PlanReviewOpenInjected } from '../src/client/PlanCard.tsx'
 import { PlanPreview, PlanTitle } from '../src/client/PlanPreview.tsx'

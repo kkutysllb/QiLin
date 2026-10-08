@@ -1,6 +1,6 @@
 /** Host configuration for browser document previews. */
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/host-webserver'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/host-webserver'
 import type { Config } from './config.ts'
 
 export { Config } from './config.ts'

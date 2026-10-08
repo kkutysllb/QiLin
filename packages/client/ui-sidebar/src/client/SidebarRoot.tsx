@@ -21,8 +21,8 @@ import { Fragment, useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
 import {
   IconNewChatOutline16, IconPanelLeftOutline16, isDarwinDesktop, QilinSeal, ShortcutKeys, Tooltip,
-} from '@qilin/client-ui-primitives'
-import type { InjectFace, PropsRenderSlots, PropsRuntime } from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-primitives'
+import type { InjectFace, PropsRenderSlots, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import type {
   SidebarPanelMetadata, SidebarRootComponentProps, SidebarRootInjected, SidebarSectionOwnerProps,
 } from './contract/slots.ts'

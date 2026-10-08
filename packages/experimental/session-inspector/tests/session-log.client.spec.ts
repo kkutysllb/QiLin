@@ -1,9 +1,9 @@
 /** Raw log pagination and settlement preserve original delta boundaries. */
 
-import { MutableSessionEventSource } from '@qilin/api-session-controller/client'
-import type { SessionEventLikeEntry } from '@qilin/api-session-controller/client'
-import { SessionSeq } from '@qilin/session/types'
-import type { LlmAttemptId, StreamChunk, ToolCallId } from '@qilin/llm'
+import { MutableSessionEventSource } from '@qilin-agent/api-session-controller/client'
+import type { SessionEventLikeEntry } from '@qilin-agent/api-session-controller/client'
+import { SessionSeq } from '@qilin-agent/session/types'
+import type { LlmAttemptId, StreamChunk, ToolCallId } from '@qilin-agent/llm'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import { SessionLogModel } from '../src/client/views/session-log/model.ts'
 import { InspectorTableHierarchy } from '../src/client/views/table-model.ts'

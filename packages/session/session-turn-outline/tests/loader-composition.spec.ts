@@ -10,13 +10,13 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import { createAssistantMessage, createUserMessage } from '@qilin/llm'
-import SessionStore, { SessionId } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import * as SessionTurnOutlinePlugin from '@qilin/session-turn-outline'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import { createAssistantMessage, createUserMessage } from '@qilin-agent/llm'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import * as SessionTurnOutlinePlugin from '@qilin-agent/session-turn-outline'
 
 let root: string | undefined
 let context: Context | undefined
@@ -38,9 +38,9 @@ async function loadYaml(lines: readonly string[]): Promise<Context> {
   await context.plugin(Loader)
   context.loader.builtins.include = Include
   const modules = new Map<string, unknown>([
-    ['@qilin/session', SessionStore],
-    ['@qilin/session-projection', SessionProjectionRegistry],
-    ['@qilin/session-turn-outline', SessionTurnOutlinePlugin],
+    ['@qilin-agent/session', SessionStore],
+    ['@qilin-agent/session-projection', SessionProjectionRegistry],
+    ['@qilin-agent/session-turn-outline', SessionTurnOutlinePlugin],
   ])
   context.loader.internal = {
     version: 'v2',
@@ -60,9 +60,9 @@ async function loadYaml(lines: readonly string[]): Promise<Context> {
 describe('real Loader composition', () => {
   it('loads the shipped session-turn-outline YAML shape and serves the outline', async () => {
     const loaded = await loadYaml([
-      "- name: '@qilin/session'",
-      "- name: '@qilin/session-projection'",
-      "- name: '@qilin/session-turn-outline'",
+      "- name: '@qilin-agent/session'",
+      "- name: '@qilin-agent/session-projection'",
+      "- name: '@qilin-agent/session-turn-outline'",
     ])
 
     const unloaded = [...loaded.loader.entries()]

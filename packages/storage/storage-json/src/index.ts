@@ -3,14 +3,14 @@
  * configured root — a whole-unit file (`single` layout) or one document per
  * record (`per-record` layout), published by atomic rewrite. Registers as
  * backend `json` on the storage hub.
- * @module @qilin/storage-json
+ * @module @qilin-agent/storage-json
  */
 
 import { mkdir } from 'node:fs/promises'
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { StorageError, UNIT_NAME_RE, storageBackendServiceKey } from '@qilin/storage'
-import type { KvFacet, KvUnit, KvUnitDescriptor, StorageBackend } from '@qilin/storage'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { StorageError, UNIT_NAME_RE, storageBackendServiceKey } from '@qilin-agent/storage'
+import type { KvFacet, KvUnit, KvUnitDescriptor, StorageBackend } from '@qilin-agent/storage'
 import { openSingleUnit } from './single-unit.ts'
 import { openPerRecordUnit } from './per-record-unit.ts'
 

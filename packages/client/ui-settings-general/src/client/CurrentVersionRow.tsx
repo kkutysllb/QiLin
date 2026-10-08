@@ -1,6 +1,6 @@
 /** Installed release version in General Settings. */
 
-import type { PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
+import type { PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import css from './CurrentVersionRow.module.css'
 
 /**

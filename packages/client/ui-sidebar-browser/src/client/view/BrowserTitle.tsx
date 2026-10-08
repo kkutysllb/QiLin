@@ -1,7 +1,7 @@
 /** Live Browser tab title from the Browser store. */
 import type { ReactNode } from 'react'
-import { IconGlobeOutline14 } from '@qilin/client-ui-primitives'
-import type { PropsRuntime, PropsStore } from '@qilin/client-ui-slots'
+import { IconGlobeOutline14 } from '@qilin-agent/client-ui-primitives'
+import type { PropsRuntime, PropsStore } from '@qilin-agent/client-ui-slots'
 import { BrowserNavigation } from '../browser/BrowserNavigation.ts'
 import type { BrowserStore } from '../browser/store.ts'
 import css from './Browser.module.css'

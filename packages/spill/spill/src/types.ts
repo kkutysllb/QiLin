@@ -1,14 +1,14 @@
 /**
  * Vocabulary for the spill storage Service Definition. Types only — the abstract service
  * lives in `./index.ts`, implementations in sibling packages
- * (`@qilin/spill-local` first).
+ * (`@qilin-agent/spill-local` first).
  *
- * @module @qilin/spill/types
+ * @module @qilin-agent/spill/types
  */
 
-import type { Branded } from '@qilin/brand'
-import type { ToolCallId } from '@qilin/llm'
-import type { SessionId } from '@qilin/session'
+import type { Branded } from '@qilin-agent/brand'
+import type { ToolCallId } from '@qilin-agent/llm'
+import type { SessionId } from '@qilin-agent/session'
 
 /**
  * Opaque model-facing handle for one spilled artifact. A local backend may use a

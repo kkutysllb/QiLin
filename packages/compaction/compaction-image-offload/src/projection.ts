@@ -1,8 +1,8 @@
 /** Browser-safe durable image selection declaration and pure replay definition. */
 
-import type { Message } from '@qilin/llm'
-import type { SessionSeq } from '@qilin/session/types'
-import type { SessionMessageProjection } from '@qilin/session/surface'
+import type { Message } from '@qilin-agent/llm'
+import type { SessionSeq } from '@qilin-agent/session/types'
+import type { SessionMessageProjection } from '@qilin-agent/session/surface'
 import { offloadMessageImages } from './project-message.ts'
 
 /** Exact input-image occurrences selected by one durable offload decision. */
@@ -13,7 +13,7 @@ export interface ImageOffloadTarget {
   imageIndexes: number[]
 }
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /**
      * Permanently omit selected input-image occurrences from subsequent model requests.

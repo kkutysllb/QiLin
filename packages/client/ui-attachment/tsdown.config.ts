@@ -1,6 +1,6 @@
 import { clientBundle } from '../tsdown.client.ts'
 
 export default clientBundle(
-  '@qilin/client-ui-attachment',
+  '@qilin-agent/client-ui-attachment',
   ['lib/types/index.js'],
 )

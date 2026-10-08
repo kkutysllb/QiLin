@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canonicalClientTimeZone } from '@qilin/util-time'
+import { canonicalClientTimeZone } from '@qilin-agent/util-time'
 
 describe('canonicalClientTimeZone', () => {
   it('accepts UTC and Area/Location names unchanged', () => {

@@ -1,7 +1,7 @@
 /** Length-prefixed JSON transport with bounded input and queued writes. */
 import { Buffer } from 'node:buffer'
 import type { Duplex } from 'node:stream'
-import type { PtcJsonValue } from '@qilin/ptc-runtime'
+import type { PtcJsonValue } from '@qilin-agent/ptc-runtime'
 import { jsonValueBytesUpTo } from './output-json.ts'
 
 const stringify = JSON.stringify

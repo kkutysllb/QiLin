@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
  * Command-line entry for qilin.
- * @module @qilin/cli/bin
+ * @module @qilin-agent/cli/bin
  */
 
 /* v8 ignore file -- built-bin acceptance exercises this self-executing dispatch. */
 
-import { getQilinRuntimeVersion, loadLayeredEnv, StartupError } from '@qilin/app-boot'
-import { resolveQilinHome } from '@qilin/home-paths'
+import { getQilinRuntimeVersion, loadLayeredEnv, StartupError } from '@qilin-agent/app-boot'
+import { resolveQilinHome } from '@qilin-agent/home-paths'
 import { parseQilinArgs } from './args.ts'
 import { reportStartupFailure } from './startup-diagnostics.ts'
 

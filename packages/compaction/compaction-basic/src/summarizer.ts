@@ -1,16 +1,16 @@
 /**
  * Default one-shot summarization and durable checkpoint framing.
  *
- * @module @qilin/compaction-basic/summarizer
+ * @module @qilin-agent/compaction-basic/summarizer
  */
 
-import type { Context } from '@qilin/kylin'
-import { contentHasImage, BlockAssembler, LlmError } from '@qilin/llm'
-import { deepFreeze } from '@qilin/util-values'
+import type { Context } from '@qilin-agent/kylin'
+import { contentHasImage, BlockAssembler, LlmError } from '@qilin-agent/llm'
+import { deepFreeze } from '@qilin-agent/util-values'
 import type {
   ContentBlock, FinishReason, GenerateOptions, Message, RequestMessage, TokenUsage, ToolSchema,
-} from '@qilin/llm'
-import type { Agent } from '@qilin/agent'
+} from '@qilin-agent/llm'
+import type { Agent } from '@qilin-agent/agent'
 
 interface SummaryConfig {
   readonly summarizationProvider: string

@@ -6,13 +6,13 @@
  */
 
 import { describe, expect, onTestFinished, vi } from 'vitest'
-import { SessionSeq, type SessionEvent } from '@qilin/session/types'
-import { AttachmentId } from '@qilin/attachment'
-import type { SessionId } from '@qilin/api-remotes/client'
-import { RemoteStreamCarrierError } from '@qilin/api-gateway/client'
-import { RemoteError, type RemoteResult } from '@qilin/typert-protocol'
-import { ok, type RemoteMock } from '@qilin/remote-mock'
-import { createClientTest, type TestClient, webApp } from '@qilin/client-test-runtime/src/assembly/index.ts'
+import { SessionSeq, type SessionEvent } from '@qilin-agent/session/types'
+import { AttachmentId } from '@qilin-agent/attachment'
+import type { SessionId } from '@qilin-agent/api-remotes/client'
+import { RemoteStreamCarrierError } from '@qilin-agent/api-gateway/client'
+import { RemoteError, type RemoteResult } from '@qilin-agent/typert-protocol'
+import { ok, type RemoteMock } from '@qilin-agent/remote-mock'
+import { createClientTest, type TestClient, webApp } from '@qilin-agent/client-test-runtime/src/assembly/index.ts'
 import { JUMP_PAGE_MESSAGES, Session } from '../src/client/sessions/session.ts'
 import { SessionEventStream } from '../src/client/transport.ts'
 import type { SessionFollowRequest, SessionPage, SessionPageRequest } from '../src/types.ts'
@@ -23,7 +23,7 @@ import {
 } from './remote/session.client.ts'
 
 /** A Session talks through the Gateway client; its dependency cone is the Typert registry and the Connection. */
-const API_ROSTER = webApp.closure(['@qilin/api-gateway'])
+const API_ROSTER = webApp.closure(['@qilin-agent/api-gateway'])
 const it = createClientTest({ roster: API_ROSTER })
 const SID = 'fk-s1' as SessionId
 const PARENT = 'fk-parent' as SessionId

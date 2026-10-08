@@ -1,7 +1,7 @@
 /** DeepSeek Files API transport. @module qilin-llm-deepseek/files-api */
 
-import { attributionHeaders, LlmError } from '@qilin/llm'
-import type { ImageMediaType } from '@qilin/attachment'
+import { attributionHeaders, LlmError } from '@qilin-agent/llm'
+import type { ImageMediaType } from '@qilin-agent/attachment'
 import { DeepSeekFileId } from './file-id.ts'
 import type { DeepSeekFileId as DeepSeekFileIdType } from './file-id.ts'
 import { messagesApiRoot, MESSAGES_FILES_BETA } from './messages-api.ts'

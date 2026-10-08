@@ -1,6 +1,6 @@
 /** Pure image-card derivation from raw result content and metadata. @module */
-import type { AttachmentId, ImageAttachmentRef, ImageMediaType } from '@qilin/attachment'
-import { abbreviateHomePath, relativizeToCwd } from '@qilin/util-workspace-path'
+import type { AttachmentId, ImageAttachmentRef, ImageMediaType } from '@qilin-agent/attachment'
+import { abbreviateHomePath, relativizeToCwd } from '@qilin-agent/util-workspace-path'
 import type { ToolCallBlock } from './tool-call-model.ts'
 import { parsedToolCall } from './raw-tool-call.ts'
 

@@ -6,45 +6,45 @@
  * and fiber disposal removes both. The ledger's timeline projection and
  * inclusive focus edge cases ride along.
  */
-import type { GlobalStandardProps, StoredEntry } from '@qilin/client-ui-slots'
+import type { GlobalStandardProps, StoredEntry } from '@qilin-agent/client-ui-slots'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { createElement, type ComponentProps, type FC } from 'react'
-import { bindSnapshotSelector, SlotTestRuntime, stubConfigForm } from '@qilin/client-test-runtime'
+import { bindSnapshotSelector, SlotTestRuntime, stubConfigForm } from '@qilin-agent/client-test-runtime'
 import {
   EMPTY_CONVERSATION_SNAPSHOT, UiConversation,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 import type {
   ConversationBinding, ConversationSnapshot, ConversationViewSnapshotMap,
   InputActions, InputState, RequestView,
-} from '@qilin/client-ui-conversation/client'
-import { EMPTY_CHAT_SNAPSHOT } from '@qilin/client-ui-chat/client'
+} from '@qilin-agent/client-ui-conversation/client'
+import { EMPTY_CHAT_SNAPSHOT } from '@qilin-agent/client-ui-chat/client'
 import type {
   ChatSnapshot, LegacyConversationSlice,
-} from '@qilin/client-ui-chat/client'
+} from '@qilin-agent/client-ui-chat/client'
 import type {
   SidebarRightTabInfo, SidebarRightTabNavigation,
-} from '@qilin/client-ui-sidebar-right/client'
-import { tabInfoFactory } from '@qilin/client-ui-sidebar-right/src/client/tab-info.ts'
-import { SidebarRightTabRegistry } from '@qilin/client-ui-sidebar-right/src/client/tab-registry.ts'
-import { createSnapshotStore } from '@qilin/client-store'
-import type { ObservableSnapshot } from '@qilin/client-store'
+} from '@qilin-agent/client-ui-sidebar-right/client'
+import { tabInfoFactory } from '@qilin-agent/client-ui-sidebar-right/src/client/tab-info.ts'
+import { SidebarRightTabRegistry } from '@qilin-agent/client-ui-sidebar-right/src/client/tab-registry.ts'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { ObservableSnapshot } from '@qilin-agent/client-store'
 import type {
   SessionBinding, SessionListState, SessionProjectionMap, SessionSnapshot, UseProjection,
-} from '@qilin/api-session-controller/client'
-import type { WorkspaceSnapshot } from '@qilin/api-workspace-controller/client'
-import type { SessionId } from '@qilin/session/types'
-import type { SessionStatusSnapshot } from '@qilin/client-ui-session/client'
-import { apply as localeApply, inject as localeInject } from '@qilin/client-locale/client'
-import { apply, inject } from '@qilin/client-ui-trajectory/client'
-import { apply as nodeApply } from '@qilin/client-ui-trajectory'
+} from '@qilin-agent/api-session-controller/client'
+import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
+import { apply as localeApply, inject as localeInject } from '@qilin-agent/client-locale/client'
+import { apply, inject } from '@qilin-agent/client-ui-trajectory/client'
+import { apply as nodeApply } from '@qilin-agent/client-ui-trajectory'
 import { TRAJECTORY_ID, TRAJECTORY_KIND } from '../src/client/trajectory-tab-definition.ts'
 import {
   TRAJECTORY_GRAPH_ID, TRAJECTORY_GRAPH_KIND,
 } from '../src/client/trajectory-graph-tab-definition.ts'
 import { TrajectoryGraphView } from '../src/client/TrajectoryGraphView.tsx'
 import type { TrajectoryTurnModel } from '../src/client/layout.ts'
-import { PartialArguments } from '@qilin/util-values'
+import { PartialArguments } from '@qilin-agent/util-values'
 import { TrajectoryTimeline as LocalizedTrajectoryTimeline } from '../src/client/TrajectoryTimeline.tsx'
 import {
   TrajectoryView, type TrajectoryViewInjected, type TrajectoryViewProps,

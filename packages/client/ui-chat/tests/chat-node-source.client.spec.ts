@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import type {
   ChatConversationViewNode, ChatNodeSource,
-} from '@qilin/client-ui-chat/client'
-import type { ConversationTimelineSnapshot } from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-chat/client'
+import type { ConversationTimelineSnapshot } from '@qilin-agent/client-ui-conversation/client'
 import { ChatSnapshotBuilder } from '../src/client/conversation-nodes/chat-snapshot-builder.ts'
 
 const timeline: ConversationTimelineSnapshot = { turnOrder: [], turns: new Map() }

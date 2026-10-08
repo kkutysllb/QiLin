@@ -1,7 +1,7 @@
 /** Late-reply conversation node: source matching and payload projection. */
 import { describe, expect, it } from 'vitest'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import { SessionSeq } from '@qilin/session'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import { SessionSeq } from '@qilin-agent/session'
 import { messageDefinition } from '../../ui-chat/src/client/conversation-nodes/message.ts'
 import { en } from '../src/client/locales.ts'
 import type { QuestionReplyData } from '../src/client/question-reply.ts'

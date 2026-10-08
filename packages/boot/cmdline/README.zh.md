@@ -3,7 +3,7 @@ description: "qilin app bin 的应用自有命令行：应用从启动器剩余�
 kind: "package-library"
 ---
 
-# @qilin/cmdline
+# @qilin-agent/cmdline
 
 [English](README.md) | 中文
 
@@ -45,14 +45,14 @@ kind: "package-library"
 
 ```yaml
 - id: web-startup
-  name: '@qilin/web-app/startup'
+  name: '@qilin-agent/web-app/startup'
 ```
 
 由解析值配置的行注入发布的服务，并在其配置中直接读取它：
 
 ```yaml
 - id: webserver
-  name: '@qilin/host-webserver'
+  name: '@qilin-agent/host-webserver'
   inject: [webStartup]
   config:
     host: !!js ctx.webStartup.host ?? '127.0.0.1'

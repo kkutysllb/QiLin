@@ -6,10 +6,10 @@
  * derives them from its log, and builders for the attachment references
  * the Host's log carries.
  */
-import { AttachmentId, type FileAttachmentRef, type ImageAttachmentRef } from '@qilin/attachment'
-import { ok, type RemoteMock, type RemoteTable, type StreamScript, type UnaryRuleFn } from '@qilin/remote-mock'
-import type { SessionEvent } from '@qilin/session/types'
-import type { RemoteFailure, RemoteResult } from '@qilin/typert-protocol'
+import { AttachmentId, type FileAttachmentRef, type ImageAttachmentRef } from '@qilin-agent/attachment'
+import { ok, type RemoteMock, type RemoteTable, type StreamScript, type UnaryRuleFn } from '@qilin-agent/remote-mock'
+import type { SessionEvent } from '@qilin-agent/session/types'
+import type { RemoteFailure, RemoteResult } from '@qilin-agent/typert-protocol'
 import type {
   SessionAssistantStreamBaseline, SessionFollowFrame, SessionFollowRequest,
   SessionPage, SessionPageRequest,

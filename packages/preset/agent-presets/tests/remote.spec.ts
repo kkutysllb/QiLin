@@ -8,21 +8,21 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import LlmRuntime from '@qilin/llm'
-import SessionStore, { SessionId } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
-import AgentRegistry, { type Agent } from '@qilin/agent'
-import AgentLoop from '@qilin/agent-loop'
-import { remoteErrorOf, type RemoteFailure } from '@qilin/typert-protocol'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import LlmRuntime from '@qilin-agent/llm'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
+import AgentRegistry, { type Agent } from '@qilin-agent/agent'
+import AgentLoop from '@qilin-agent/agent-loop'
+import { remoteErrorOf, type RemoteFailure } from '@qilin-agent/typert-protocol'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import AgentPresets, { COMPOSITION_FILE, METADATA_FILE } from '@qilin/agent-presets'
-import type { Config } from '@qilin/agent-presets'
-import type {} from '@qilin/agent-presets/types'
+import AgentPresets, { COMPOSITION_FILE, METADATA_FILE } from '@qilin-agent/agent-presets'
+import type { Config } from '@qilin-agent/agent-presets'
+import type {} from '@qilin-agent/agent-presets/types'
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), 'fixtures')
 const ROOTS = [
@@ -32,7 +32,7 @@ const ROOTS = [
 // A row naming a package, the way an authored preset's rows do. Health
 // resolves every row it can prove will start, so a path reaching outside the
 // temp preset directory these tests seed would report the composition broken.
-const VALID = '- id: prompt\n  name: \'@qilin/system-prompt\'\n'
+const VALID = '- id: prompt\n  name: \'@qilin-agent/system-prompt\'\n'
 
 /** Every temp preset root created by this file, removed after each test. */
 const roots: string[] = []

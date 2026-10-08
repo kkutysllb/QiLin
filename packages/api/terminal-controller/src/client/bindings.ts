@@ -1,5 +1,5 @@
 /** Independent content-to-terminal records keep concurrent browser writes disjoint. */
-import type { SessionId } from '@qilin/session/types'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { WebTerminalId } from '../types.ts'
 
 const PREFIX = 'qilin.terminal.binding.v1.'

@@ -19,9 +19,9 @@ import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
 import {
   SESSION_FORMAT_VERSION, SessionId as sessionId, type SessionEvent, type SessionHeader, type SessionId,
-} from '@qilin/session'
-import { snapshotSubagentDescriptor } from '@qilin/subagent'
-import { createSystemMessage, createUserMessage } from '@qilin/llm'
+} from '@qilin-agent/session'
+import { snapshotSubagentDescriptor } from '@qilin-agent/subagent'
+import { createSystemMessage, createUserMessage } from '@qilin-agent/llm'
 import {
   captureStableAria, compareOrRefreshGolden, launchWebScaffold, seedSession, watchConsole,
   webSnapshotMode, type WebScaffold,

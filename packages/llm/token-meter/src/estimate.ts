@@ -3,11 +3,11 @@
  * pure context-breakdown projection, so both surfaces price identical content
  * to identical numbers.
  *
- * @module @qilin/token-meter/estimate
+ * @module @qilin-agent/token-meter/estimate
  */
 
-import type { ContentBlock, Message } from '@qilin/llm'
-import type { EpochHeader } from '@qilin/session'
+import type { ContentBlock, Message } from '@qilin-agent/llm'
+import type { EpochHeader } from '@qilin-agent/session'
 
 /** Fixed text-density estimate used until exact tokenization is needed. */
 const CHARS_PER_TOKEN = 4

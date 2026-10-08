@@ -1,15 +1,15 @@
 // @vitest-environment jsdom
 import { useState, useSyncExternalStore, type ReactNode } from 'react'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
-import type { SessionBinding as ControllerBinding, SessionReference } from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
+import type { SessionBinding as ControllerBinding, SessionReference } from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import type {
   SessionProviderComponent, StoredEntry, ScopedStandardSourceBinding,
   SlotRendererHost, SlotScopeAdapter, StandardSourceBinding,
-} from '@qilin/client-ui-slots'
-import type {} from '@qilin/client-ui-session/client'
+} from '@qilin-agent/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-session/client'
 import { renderSessionArea } from '../../ui-session/src/client/session-provider.tsx'
 import { createSlotRenderer } from '../src/client/scoped-slots.tsx'
 

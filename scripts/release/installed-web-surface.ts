@@ -3,7 +3,7 @@
  *
  * `release:verify-packed-install` already proves the packed payload is complete
  * enough to print a version. That is not the claim one-click deployment makes:
- * `npx @qilin/cli` installs the published tree and serves the browser surface,
+ * `npx @qilin-agent/cli` installs the published tree and serves the browser surface,
  * so the artifacts only the Web boot touches — the frontend dist resolved
  * through the bundle, the profile bundles, the launcher's server composition —
  * have to answer a request before publication. This module owns that proof.

@@ -5,25 +5,25 @@ import { describe, expect, it, vi } from 'vitest'
 import { basename, dirname, join, relative, resolve } from 'node:path'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { Context } from '@qilin/kylin'
-import LocalSubprocessRuntime from '@qilin/subprocess-local'
-import type { SubprocessSpawnSpec, SubprocessTerminalHandle, SubprocessTerminalSpawnSpec } from '@qilin/subprocess'
+import { Context } from '@qilin-agent/kylin'
+import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
+import type { SubprocessSpawnSpec, SubprocessTerminalHandle, SubprocessTerminalSpawnSpec } from '@qilin-agent/subprocess'
 import { childEnv } from '../src/spawn.ts'
 import { signalLinuxDirectProcess } from '../src/linux-scope.ts'
 
 function mockWin32ForIsolatedRuntime(): void {
-  vi.doMock('@qilin/win32-process', () => ({
+  vi.doMock('@qilin-agent/win32-process', () => ({
     loadWin32ProcessBindings: vi.fn(),
     probeCurrentTokenJobSupport: vi.fn(),
   }))
 }
 
 function unmockWin32ForIsolatedRuntime(): void {
-  vi.doUnmock('@qilin/win32-process')
+  vi.doUnmock('@qilin-agent/win32-process')
 }
 
 function mockNodePtyForIsolatedRuntime(spawn: unknown): void {
-  vi.doMock('@qilin/lazy-require', () => ({
+  vi.doMock('@qilin-agent/lazy-require', () => ({
     createLazyRequire: (specifier: string) => () => {
       if (specifier === 'node-pty') return { spawn }
       throw new Error(`unexpected lazy dependency ${specifier}`)
@@ -32,7 +32,7 @@ function mockNodePtyForIsolatedRuntime(spawn: unknown): void {
 }
 
 function unmockLazyRequireForIsolatedRuntime(): void {
-  vi.doUnmock('@qilin/lazy-require')
+  vi.doUnmock('@qilin-agent/lazy-require')
 }
 
 function spec(command: string, overrides: Partial<SubprocessSpawnSpec> = {}): SubprocessSpawnSpec {

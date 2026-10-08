@@ -19,7 +19,7 @@ import {
 describe('verify-cordis-config metadata expressions', () => {
   it('accepts a disabled !!js expression', () => {
     const problems = metadataExpressionErrors(
-      { id: 'tool-bash', name: '@qilin/tool-bash', disabled: { __jsExpr: "process.platform === 'win32'" } },
+      { id: 'tool-bash', name: '@qilin-agent/tool-bash', disabled: { __jsExpr: "process.platform === 'win32'" } },
       '[0]',
     )
     expect(problems).toEqual([])
@@ -56,11 +56,11 @@ describe('workspace Bundle discovery and product dependency closures', () => {
       mkdirSync(bundleDir, { recursive: true })
       mkdirSync(plainDir, { recursive: true })
       writeFileSync(join(bundleDir, 'package.json'), JSON.stringify({
-        name: '@qilin/subagent-example',
+        name: '@qilin-agent/subagent-example',
         qilin: { bundle: { patch: './cordis.patch.yml' } },
       }))
       writeFileSync(join(plainDir, 'package.json'), JSON.stringify({
-        name: '@qilin/plain',
+        name: '@qilin-agent/plain',
       }))
 
       expect(bundleManifestPaths(fixture)).toEqual([
@@ -75,16 +75,16 @@ describe('workspace Bundle discovery and product dependency closures', () => {
     const manifestPath = 'packages/subagent/example/package.json'
     const file = 'packages/subagent/example/cordis.patch.yml'
     const manifest = {
-      name: '@qilin/subagent-example',
+      name: '@qilin-agent/subagent-example',
       dependencies: {},
     }
-    const self = { file, name: '@qilin/subagent-example' }
+    const self = { file, name: '@qilin-agent/subagent-example' }
     expect(bundlePluginDependencyErrors(manifestPath, manifest, [self])).toEqual([])
     expect(bundlePluginDependencyErrors(manifestPath, manifest, [
       self,
-      { file, name: '@qilin/missing-plugin' },
+      { file, name: '@qilin-agent/missing-plugin' },
     ])).toEqual([
-      `${file}: @qilin/missing-plugin must be declared in ${manifestPath} dependencies`,
+      `${file}: @qilin-agent/missing-plugin must be declared in ${manifestPath} dependencies`,
     ])
   })
 })
@@ -94,18 +94,18 @@ describe('package-owned Loader test dependency closures', () => {
     const manifestPath = 'packages/example/owner/package.json'
     const file = 'packages/example/owner/tests/fixtures/cordis.yml'
     const manifest = {
-      name: '@qilin/owner',
+      name: '@qilin-agent/owner',
       dependencies: {},
       devDependencies: {
-        '@qilin/declared': 'workspace:^',
+        '@qilin-agent/declared': 'workspace:^',
       },
     }
     expect(packageTestPluginDependencyErrors(manifestPath, manifest, [
-      { file, name: '@qilin/owner' },
-      { file, name: '@qilin/declared' },
-      { file, name: '@qilin/missing' },
+      { file, name: '@qilin-agent/owner' },
+      { file, name: '@qilin-agent/declared' },
+      { file, name: '@qilin-agent/missing' },
     ])).toEqual([
-      `${file}: @qilin/missing must be declared in ${manifestPath} dependencies or devDependencies`,
+      `${file}: @qilin-agent/missing must be declared in ${manifestPath} dependencies or devDependencies`,
     ])
   })
 
@@ -116,25 +116,25 @@ describe('package-owned Loader test dependency closures', () => {
       const driverDir = join(packageDir, 'tests/fixtures/loader')
       mkdirSync(driverDir, { recursive: true })
       writeFileSync(join(packageDir, 'package.json'), JSON.stringify({
-        name: '@qilin/owner',
+        name: '@qilin-agent/owner',
         devDependencies: {
-          '@qilin/declared': 'workspace:^',
+          '@qilin-agent/declared': 'workspace:^',
         },
       }))
       writeFileSync(join(driverDir, 'driver.ts'), [
-        "import '@qilin/owner'",
-        "import '@qilin/declared'",
-        "import '@qilin/missing'",
+        "import '@qilin-agent/owner'",
+        "import '@qilin-agent/declared'",
+        "import '@qilin-agent/missing'",
       ].join('\n'))
       writeFileSync(join(driverDir, 'cordis.yml'), '[]\n')
-      writeFileSync(join(driverDir, 'fixture.mjs'), "import '@qilin/declared'\n")
+      writeFileSync(join(driverDir, 'fixture.mjs'), "import '@qilin-agent/declared'\n")
       const unrelatedDir = join(packageDir, 'tests/fixtures/unrelated')
       mkdirSync(unrelatedDir, { recursive: true })
-      writeFileSync(join(unrelatedDir, 'driver.ts'), "import '@qilin/unrelated'\n")
+      writeFileSync(join(unrelatedDir, 'driver.ts'), "import '@qilin-agent/unrelated'\n")
 
       expect(packageTestFixtureDependencyErrors(fixture)).toEqual([
         'packages/example/owner/tests/fixtures/loader/driver.ts: '
-        + '@qilin/missing must be declared in '
+        + '@qilin-agent/missing must be declared in '
         + 'packages/example/owner/package.json dependencies or devDependencies',
       ])
     } finally {

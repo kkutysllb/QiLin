@@ -19,16 +19,16 @@ import {
 } from './verify-client-packages.ts'
 
 const GATE = 'verify-package-dependencies'
-const CORDIS = '@qilin/kylin'
+const CORDIS = '@qilin-agent/kylin'
 /**
  * Vendored workspaces version independently of the repository, so they take
  * `workspace:~`; every other workspace package is a harness package that moves
  * in lockstep at `workspace:*`.
  */
-const VENDORED_WORKSPACES = ['@qilin/kylin', '@qilin/cosmokit', '@qilin/schemastery', '@qilin/node-addon-system'] as const
+const VENDORED_WORKSPACES = ['@qilin-agent/kylin', '@qilin-agent/cosmokit', '@qilin-agent/schemastery', '@qilin-agent/node-addon-system'] as const
 
 function workspaceRange(name: string): 'workspace:*' | 'workspace:~' {
-  return name.startsWith('@qilin/kylin-plugin-') || (VENDORED_WORKSPACES as readonly string[]).includes(name)
+  return name.startsWith('@qilin-agent/kylin-plugin-') || (VENDORED_WORKSPACES as readonly string[]).includes(name)
     ? 'workspace:~'
     : 'workspace:*'
 }
@@ -228,7 +228,7 @@ export function collectRuntimeSourceExportUses(path: string, source: string): Ru
   for (const statement of sourceFile.statements) {
     if (!ts.isImportDeclaration(statement)
       || !ts.isStringLiteralLike(statement.moduleSpecifier)
-      || statement.moduleSpecifier.text !== '@qilin/lazy-require') continue
+      || statement.moduleSpecifier.text !== '@qilin-agent/lazy-require') continue
     const bindings = statement.importClause?.namedBindings
     if (bindings !== undefined && ts.isNamespaceImport(bindings)) {
       lazyRequireNamespaces.add(bindings.name.text)
@@ -455,7 +455,7 @@ function walkRuntimeExportUses(
  * Runtime export uses of packages OUTSIDE the dependency-managed selection.
  * The Host export classifications describe a provider's surface, so every
  * possible consumer keeps a classification alive — including host-only
- * packages the dependency sections never manage (`@qilin/subprocess-local`
+ * packages the dependency sections never manage (`@qilin-agent/subprocess-local`
  * using `SubprocessExecutableNotFoundError`, issue #10). Scans each
  * uncovered package's entry closure: `src/index.ts` when present, else the
  * declared `bin` targets and `exports` subpaths mapped back to source

@@ -1,7 +1,7 @@
 /** One reconnecting window hold, shared by all occurrences of a terminal. */
-import type { ClientRemote, RemoteStream } from '@qilin/api-gateway/client'
-import { RemoteError } from '@qilin/typert-protocol'
-import type { SessionId } from '@qilin/session/types'
+import type { ClientRemote, RemoteStream } from '@qilin-agent/api-gateway/client'
+import { RemoteError } from '@qilin-agent/typert-protocol'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { TerminalRetentionFrame, WebTerminalId } from '../types.ts'
 import type { TerminalRemote } from './model.ts'
 

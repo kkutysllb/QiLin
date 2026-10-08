@@ -12,17 +12,17 @@ import { tmpdir } from 'node:os'
 import { delimiter, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { Agent } from '@qilin/agent'
-import SubagentRuntime from '@qilin/subagent'
-import SessionProjectionRegistry from '@qilin/session-projection'
+import type { Agent } from '@qilin-agent/agent'
+import SubagentRuntime from '@qilin-agent/subagent'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import type {
   SubprocessHandle,
   SubprocessOutcome,
   SubprocessSpawnSpec,
-} from '@qilin/subprocess'
-import LocalSubprocessRuntime from '@qilin/subprocess-local'
+} from '@qilin-agent/subprocess'
+import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
 import * as codex from '../src/index.ts'
 import type { CodexPermissionMode } from '../src/run.ts'
 import {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { SessionFormatEventCollector } from '@qilin/session-format'
-import type { SessionFormatEvent, SessionFormatJsonObject, SessionFormatJsonValue } from '@qilin/session-format'
+import { SessionFormatEventCollector } from '@qilin-agent/session-format'
+import type { SessionFormatEvent, SessionFormatJsonObject, SessionFormatJsonValue } from '@qilin-agent/session-format'
 import { v3Catalog as sessionFormatCatalog } from './catalog.ts'
 import { restoreReleasedV3Artifact, sessionFormatV2ToV3 } from '../src/index.ts'
 

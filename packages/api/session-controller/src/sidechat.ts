@@ -1,29 +1,29 @@
 /** Sidechat threads: seeded child sessions owned by the Session Controller. */
 
 import { randomUUID } from 'node:crypto'
-import type { AgentHandle } from '@qilin/agent'
-import { brandString } from '@qilin/brand'
-import type { Context } from '@qilin/kylin'
-import type { MessageSource } from '@qilin/llm'
-import { createUserMessage } from '@qilin/llm'
+import type { AgentHandle } from '@qilin-agent/agent'
+import { brandString } from '@qilin-agent/brand'
+import type { Context } from '@qilin-agent/kylin'
+import type { MessageSource } from '@qilin-agent/llm'
+import { createUserMessage } from '@qilin-agent/llm'
 import type {
   ContinuableSubagentDescriptorData, SubagentDescriptorData,
-} from '@qilin/subagent'
+} from '@qilin-agent/subagent'
 import {
   foldSubagentDescriptor,
   snapshotSubagentDescriptor,
-} from '@qilin/subagent'
-import type { SessionObservation } from '@qilin/session-query'
-import { SessionQueryError } from '@qilin/session-query'
-import { SessionTitleInvalidError } from '@qilin/session-title'
+} from '@qilin-agent/subagent'
+import type { SessionObservation } from '@qilin-agent/session-query'
+import { SessionQueryError } from '@qilin-agent/session-query'
+import { SessionTitleInvalidError } from '@qilin-agent/session-title'
 import {
   SessionLogOffset,
   SessionSeq,
-} from '@qilin/session'
+} from '@qilin-agent/session'
 import type {
   SessionEvent, SessionId, SessionSeq as SessionSeqType,
-} from '@qilin/session'
-import { RemoteError } from '@qilin/typert-protocol'
+} from '@qilin-agent/session'
+import { RemoteError } from '@qilin-agent/typert-protocol'
 import type { ApiSessionAgentController } from './agent.ts'
 import { prepareForkSeed } from './commands.ts'
 import { pageRecords } from './history.ts'
@@ -33,7 +33,7 @@ import type {
   SessionSidechatStartRequest, SessionSidechatStartValue, SidechatThreadInfo, SidechatThreadRow,
 } from './types.ts'
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** The addressed Session exists but is not a sidechat thread. */
     'sidechat/not-a-thread': { readonly sessionId: SessionId }

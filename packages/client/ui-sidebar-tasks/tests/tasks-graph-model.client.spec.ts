@@ -7,8 +7,8 @@
  * than internals.
  */
 import { describe, expect, it } from 'vitest'
-import type { SessionId } from '@qilin/session/types'
-import type { SubagentAddress } from '@qilin/subagent/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { SubagentAddress } from '@qilin-agent/subagent/client'
 import { catalog, child, diagnostic, sid } from './fixtures.client.ts'
 import type { GraphSummaryEntry } from '../src/client/tasks-graph-model.ts'
 import { FOLD_MIN, buildTasksGraphModel } from '../src/client/tasks-graph-model.ts'

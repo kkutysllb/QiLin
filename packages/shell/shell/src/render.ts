@@ -3,7 +3,7 @@
  * `qilin-tool-pwsh`): the exit-status marker contract the tools' renderers emit,
  * Host `presentResult` implementations parse here, and the Web terminal card
  * model mirrors without importing Host code.
- * @module @qilin/shell/render
+ * @module @qilin-agent/shell/render
  */
 
 /**

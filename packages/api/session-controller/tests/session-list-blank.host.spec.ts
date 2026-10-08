@@ -8,15 +8,15 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import AgentRegistry from '@qilin/agent'
-import type { Agent } from '@qilin/agent'
-import SessionStore from '@qilin/session'
-import type { Session } from '@qilin/session'
-import { CommandId } from '@qilin/commands/brand'
+import { Context } from '@qilin-agent/kylin'
+import AgentRegistry from '@qilin-agent/agent'
+import type { Agent } from '@qilin-agent/agent'
+import SessionStore from '@qilin-agent/session'
+import type { Session } from '@qilin-agent/session'
+import { CommandId } from '@qilin-agent/commands/brand'
 // Side-effect type imports: the configuration-event SessionEventMap merges.
-import type {} from '@qilin/permission-presets'
-import type {} from '@qilin/sandbox-policy'
+import type {} from '@qilin-agent/permission-presets'
+import type {} from '@qilin-agent/sandbox-policy'
 import { createSessionTestRemote, type TestSessionRemote } from './test-remote.ts'
 
 async function harness(): Promise<{ ctx: Context; remote: TestSessionRemote; attach: (session: Session) => Promise<void> }> {

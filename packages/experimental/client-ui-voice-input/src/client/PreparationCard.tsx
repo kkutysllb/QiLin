@@ -1,8 +1,8 @@
 /** Provider-owned preparation steps and persisted recognition preferences. */
 import { useEffect, useState } from 'react'
-import { Button, DisclosureRow, IconChevronDownOutline14, StateDot, type StateDotState } from '@qilin/client-ui-primitives'
-import type { InjectFace, PropsLocale } from '@qilin/client-ui-slots'
-import type { SpeechPreparationState, SpeechProviderId, SpeechProviderView, SpeechSelectionPatch } from '@qilin/experimental-speech-to-text/types'
+import { Button, DisclosureRow, IconChevronDownOutline14, StateDot, type StateDotState } from '@qilin-agent/client-ui-primitives'
+import type { InjectFace, PropsLocale } from '@qilin-agent/client-ui-slots'
+import type { SpeechPreparationState, SpeechProviderId, SpeechProviderView, SpeechSelectionPatch } from '@qilin-agent/experimental-speech-to-text/types'
 import type { VoiceInputInjected } from './VoiceInput.tsx'
 import { NS } from './locales.ts'
 import css from './VoiceInput.module.css'

@@ -3,19 +3,19 @@
  * Trajectory target — the event ledger, and the graph view that draws it as a
  * node and edge flow — without defining a service.
  */
-import type { Context } from '@qilin/kylin'
-import type { ImageAttachmentRef } from '@qilin/attachment'
-import type { SessionBinding } from '@qilin/api-session-controller/client'
-import type { ObservableSnapshot } from '@qilin/client-store'
-import type { SessionId } from '@qilin/session/types'
+import type { Context } from '@qilin-agent/kylin'
+import type { ImageAttachmentRef } from '@qilin-agent/attachment'
+import type { SessionBinding } from '@qilin-agent/api-session-controller/client'
+import type { ObservableSnapshot } from '@qilin-agent/client-store'
+import type { SessionId } from '@qilin-agent/session/types'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
-import type {} from '@qilin/client-locale/client'
+import type {} from '@qilin-agent/client-locale/client'
 // Type-only: the 'sidebar.right.pane.tab' SlotMap row and the tab-type
 // registry's Context merge, both declared by the Sidebar's owning package.
-import type {} from '@qilin/client-ui-sidebar-right/client'
-import type {} from '@qilin/client-ui-conversation/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-session/client'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
+import type {} from '@qilin-agent/client-ui-conversation/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-session/client'
 import { createTrajectoryDurationStore } from './duration-store.ts'
 import { createTrajectoryStringWrappingStore } from './string-wrapping-store.ts'
 import { en, NS, zh } from './locales.ts'

@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/skill-office",
+  "name": "@qilin-agent/skill-office",
   "description": "Bundled Word, PowerPoint, and Excel workflows and structural checks",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,18 +30,18 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/skill": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/skill": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/skill": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/kylin-plugin-include": "workspace:~"
+    "@qilin-agent/skill": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/kylin-plugin-include": "workspace:~"
   },
   "dependencies": {
     "@deepseek-ai/libreoffice-kit": "^0.1.0",
-    "@qilin/schemastery": "workspace:~",
+    "@qilin-agent/schemastery": "workspace:~",
     "yaml": "^2.4.2"
   }
 }

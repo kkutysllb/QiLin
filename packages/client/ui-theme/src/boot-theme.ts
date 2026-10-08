@@ -7,7 +7,7 @@
  * activates.
  */
 
-import type { IndexInjection } from '@qilin/host-webserver'
+import type { IndexInjection } from '@qilin-agent/host-webserver'
 import {
   DEFAULT_FONT_SIZE, DEFAULT_LEADING, DEFAULT_PREFERENCE, type ThemePreference,
 } from './theme-settings.ts'

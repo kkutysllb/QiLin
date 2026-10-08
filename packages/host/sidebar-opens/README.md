@@ -3,13 +3,13 @@ description: "Model-facing requests to open a file or an http(s) page in the Ses
 kind: "package-reference"
 ---
 
-# @qilin/sidebar-opens
+# @qilin-agent/sidebar-opens
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-`sidebar_open` lets the model show something instead of describing it: one existing file, or one http(s) page. The request travels as a Host Remote stream (`sidebarOpens.watch`) to [`@qilin/client-ui-agent-opens`](../../client/ui-agent-opens/README.md), which opens the Session's own Sidebar on it. Delivery is transient: a request is consumed on send while a view is attached, and otherwise waits in a bounded per-Session queue a later attachment replays.
+`sidebar_open` lets the model show something instead of describing it: one existing file, or one http(s) page. The request travels as a Host Remote stream (`sidebarOpens.watch`) to [`@qilin-agent/client-ui-agent-opens`](../../client/ui-agent-opens/README.md), which opens the Session's own Sidebar on it. Delivery is transient: a request is consumed on send while a view is attached, and otherwise waits in a bounded per-Session queue a later attachment replays.
 
 ## Table of Contents
 
@@ -54,7 +54,7 @@ None directly. A call and its result append to the Session like any other tool t
 ## Known Limitations and Deferred Work
 
 - **Folders are not openable.** The Sidebar's file tree is rooted at the workspace, so "show me this directory" has no tab to reach; only a regular file or a page can be opened. A folder path fails the call.
-- **A page is only as good as the composing browser tab type.** With `@qilin/client-ui-sidebar-browser` composed out, the consumer falls back to a new browser tab, which leaves the application.
+- **A page is only as good as the composing browser tab type.** With `@qilin-agent/client-ui-sidebar-browser` composed out, the consumer falls back to a new browser tab, which leaves the application.
 - **Requests do not survive a reload.** A request made while no view was attached waits only in the Host process's memory for that Session; restarting the Host or disposing the Session drops it.
 - **The queue is bounded and drops oldest-first.** A Session whose sidebar is never shown keeps only its most recent `maxQueued` requests.
 

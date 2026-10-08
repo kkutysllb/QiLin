@@ -1,15 +1,15 @@
 /**
  * Instruction-file discovery and bounded, abort-aware provider reads.
  *
- * @module @qilin/agent-instructions/files
+ * @module @qilin-agent/agent-instructions/files
  */
 
 import { createReadStream } from 'node:fs'
 import { stat } from 'node:fs/promises'
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path'
-import type { FileSystem, FsInfo, FsTarget, FsVersion } from '@qilin/fs'
-import { qilinHomeDisplay } from '@qilin/home-paths'
-import { assertNever } from '@qilin/util-values'
+import type { FileSystem, FsInfo, FsTarget, FsVersion } from '@qilin-agent/fs'
+import { qilinHomeDisplay } from '@qilin-agent/home-paths'
+import { assertNever } from '@qilin-agent/util-values'
 import { resolveConfig, resolveDiscoveryConfig, type ResolvedConfig } from './config.ts'
 import { trimmedInstructionDigest } from './digest.ts'
 import {

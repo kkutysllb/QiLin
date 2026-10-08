@@ -1,16 +1,16 @@
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
-import LlmRuntime, { createUserMessage, markAgentLoopRequest } from '@qilin/llm'
-import { deepFreeze } from '@qilin/util-values'
-import SessionStore, { SessionId, SessionSeq } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import { turnBoundaryProjectionDefinition } from '@qilin/agent-loop'
+import LlmRuntime, { createUserMessage, markAgentLoopRequest } from '@qilin-agent/llm'
+import { deepFreeze } from '@qilin-agent/util-values'
+import SessionStore, { SessionId, SessionSeq } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import { turnBoundaryProjectionDefinition } from '@qilin-agent/agent-loop'
 import SessionTitleService, {
   SessionTitleProviderId,
   type SessionTitleProvider,
   type SessionTitleProviderRequest,
   type SessionTitleProviderResult,
-} from '@qilin/session-title'
+} from '@qilin-agent/session-title'
 
 const CONFIG = {
   fallbackMaxWords: 5,

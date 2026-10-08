@@ -3,17 +3,17 @@
  * stable wire failure vocabulary over the `ctx.directoryPicker` seam.
  */
 
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { z } from 'zod'
-import { DirectoryPickerError } from '@qilin/host-directory-picker'
+import { DirectoryPickerError } from '@qilin-agent/host-directory-picker'
 import type {
   DirectoryPickerCapabilities, DirectoryPickerErrorCode,
-} from '@qilin/host-directory-picker'
+} from '@qilin-agent/host-directory-picker'
 // The seam owns the listing declaration; the generator requires the reference
 // site to name that package rather than this package's re-export of it.
-import type { DirectoryListing } from '@qilin/host-directory-picker/types'
-import { Remote, RemoteError, TypertRemoteService } from '@qilin/typert-protocol'
-import type { RemoteErrorCode } from '@qilin/typert-protocol'
+import type { DirectoryListing } from '@qilin-agent/host-directory-picker/types'
+import { Remote, RemoteError, TypertRemoteService } from '@qilin-agent/typert-protocol'
+import type { RemoteErrorCode } from '@qilin-agent/typert-protocol'
 
 const createDirectoryRequestSchema = z.object({
   path: z.string(),
@@ -24,7 +24,7 @@ const createDirectoryRequestSchema = z.object({
   { message: 'host.createDirectory requires a single non-blank path segment name' },
 )
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Host directory-picking Remote namespace owner. */
     directoryPickerController: DirectoryPickerController

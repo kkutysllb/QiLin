@@ -5,24 +5,24 @@
  *
  * TODO(permissions): deployment policy belongs in `tools/pre-execute` and
  * sandboxing executors; see docs/architecture.md § Where new behavior goes.
- * @module @qilin/tool-bash
+ * @module @qilin-agent/tool-bash
  */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
 import { isAbsolute, sep } from 'node:path'
-import { defineTool, TOOL_ABORTED } from '@qilin/tools'
-import type { GenericCallView, TerminalCallView, ToolExecution, ToolResult, ToolResultView } from '@qilin/tools'
-import { HarnessError } from '@qilin/llm'
-import type { Agent } from '@qilin/agent'
-import type {} from '@qilin/jobs'
-import type {} from '@qilin/user-approval'
-import type {} from '@qilin/shell-env'
-import type { SandboxExecutionPolicy, SandboxMode } from '@qilin/sandbox'
-import { ESCALATION_TARGETS, approveEscalation, validateEscalationArgs } from '@qilin/sandbox'
-import type { SandboxPolicyService } from '@qilin/sandbox-policy'
-import { QILIN_ENV_PREFIX } from '@qilin/shell'
-import type { ShellProcess, ShellRunResult } from '@qilin/shell'
+import { defineTool, TOOL_ABORTED } from '@qilin-agent/tools'
+import type { GenericCallView, TerminalCallView, ToolExecution, ToolResult, ToolResultView } from '@qilin-agent/tools'
+import { HarnessError } from '@qilin-agent/llm'
+import type { Agent } from '@qilin-agent/agent'
+import type {} from '@qilin-agent/jobs'
+import type {} from '@qilin-agent/user-approval'
+import type {} from '@qilin-agent/shell-env'
+import type { SandboxExecutionPolicy, SandboxMode } from '@qilin-agent/sandbox'
+import { ESCALATION_TARGETS, approveEscalation, validateEscalationArgs } from '@qilin-agent/sandbox'
+import type { SandboxPolicyService } from '@qilin-agent/sandbox-policy'
+import { QILIN_ENV_PREFIX } from '@qilin-agent/shell'
+import type { ShellProcess, ShellRunResult } from '@qilin-agent/shell'
 import { processJob, processOutcome, processSources } from './background.ts'
 import { parseExitStatus, renderResult } from './render.ts'
 
@@ -358,7 +358,7 @@ export function apply(ctx: Context, config: Config = {}): void {
         }
         const jobs = ctx.get('jobs')
         if (jobs === undefined) {
-          throw new Error('background jobs unavailable: load @qilin/jobs and @qilin/tool-jobs')
+          throw new Error('background jobs unavailable: load @qilin-agent/jobs and @qilin-agent/tool-jobs')
         }
         // The caller owns cancellation until ctx.jobs commits detached ownership.
         if (exec.signal.aborted) {

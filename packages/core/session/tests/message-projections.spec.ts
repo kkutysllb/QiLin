@@ -1,13 +1,13 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createUserMessage } from '@qilin/llm'
-import { deepFreeze } from '@qilin/util-values'
+import { Context } from '@qilin-agent/kylin'
+import { createUserMessage } from '@qilin-agent/llm'
+import { deepFreeze } from '@qilin-agent/util-values'
 import SessionStore, { Session, SessionId, SessionSeq, SessionLogOffset, foldSurface, deriveEventMessage } from '../src/index.ts'
 import type { SessionEvent, SessionMessageProjection } from '../src/index.ts'
 import { MESSAGE_PROJECTION_EVENT_TYPES } from '../src/known-event-types.ts'
 import { SurfaceManager } from '../src/surface.ts'
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     'test/project': { seq: SessionSeq; text: string }
   }

@@ -4,21 +4,21 @@
  * parent's session log — so the child inherits the parent's conversation context instead of
  * starting fresh. The seed ends at the last `turn/end`: the current tool-call turn is
  * unbalanced and cannot be replayed as a valid child session.
- * @module @qilin/subagent-fork-in-process
+ * @module @qilin-agent/subagent-fork-in-process
  */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type { SessionEvent } from '@qilin/session'
-import type { Agent } from '@qilin/agent'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type { SessionEvent } from '@qilin-agent/session'
+import type { Agent } from '@qilin-agent/agent'
 import type {
   ContinuableCreateRequest,
   ContinuableCreateSpec,
   ResolvedSubagentStartRequest,
   SubagentCapabilities,
   SubagentProvider,
-} from '@qilin/subagent'
-import { startInProcessRun } from '@qilin/subagent-in-process-driver'
+} from '@qilin-agent/subagent'
+import { startInProcessRun } from '@qilin-agent/subagent-in-process-driver'
 
 export const name = 'subagent-fork-in-process'
 // `tools` is deliberately NOT injected — same rationale as subagent-spawn-in-process: the

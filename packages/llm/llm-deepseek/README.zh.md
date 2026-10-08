@@ -3,7 +3,7 @@ description: "配置 DeepSeek Messages、推理与图片输入。"
 kind: "package-reference"
 ---
 
-# @qilin/llm-deepseek
+# @qilin-agent/llm-deepseek
 
 [English](README.md) | 中文
 
@@ -38,7 +38,7 @@ kind: "package-reference"
 ### 最小配置
 
 ```yaml
-- name: '@qilin/llm-deepseek-api-key'
+- name: '@qilin-agent/llm-deepseek-api-key'
   config:
     apiKeyEnv: DEEPSEEK_API_KEY  # credential reference, resolved per request
     reasoningEffort: high        # optional; off | low | high | max
@@ -72,7 +72,7 @@ kind: "package-reference"
 | `fileQuotaCleanupBatch` | `100` | 配额重试前删除的、归 harness 所有的最旧文件数 |
 | `retryPolicy` | normal，5 次重试 | 由 `qilin-llm-retry` 执行的提供方自有重试策略 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#qilinllm-deepseek-api-key)是每个受支持字段及其 JSDoc 的穷尽式真源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#qilin-agentllm-deepseek-api-key)是每个受支持字段及其 JSDoc 的穷尽式真源。
 
 启用[主动压缩](../../compaction/compaction-basic/README.zh.md#use-this-package)时，`models[].contextWindow`（未声明时使用 `defaultContextWindow`）必须大于生效请求的 `maxTokens` 与压缩策略 `headroomTokens` 之和。请求未覆盖输出上限时，使用模型的 `maxTokens` 或适配器默认值。小窗口部署应在容量范围内配置余量；降低 `thresholdRatio` 可以提早压缩。
 

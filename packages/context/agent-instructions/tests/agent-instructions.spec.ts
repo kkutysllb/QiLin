@@ -2,16 +2,16 @@ import { chmod, mkdtemp, mkdir, rm, stat, symlink, utimes, writeFile } from 'nod
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path'
 import { tmpdir } from 'node:os'
 import { afterAll, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import * as AgentInstructions from '@qilin/agent-instructions'
-import LlmRuntime, { createUserMessage, ToolCallId, type Message, type MessageSource, type StreamChunk } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import SessionStore, { SessionId, SessionSeq, type SessionEvent, type SurfaceIntent, type UserMessage } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import AgentRegistry, { agentEvents, type Agent } from '@qilin/agent'
-import AgentLoop, { turnBoundaryProjectionDefinition } from '@qilin/agent-loop'
-import { FileSystem, FsTargetKey, FsVersion } from '@qilin/fs'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import * as AgentInstructions from '@qilin-agent/agent-instructions'
+import LlmRuntime, { createUserMessage, ToolCallId, type Message, type MessageSource, type StreamChunk } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import SessionStore, { SessionId, SessionSeq, type SessionEvent, type SurfaceIntent, type UserMessage } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import AgentRegistry, { agentEvents, type Agent } from '@qilin-agent/agent'
+import AgentLoop, { turnBoundaryProjectionDefinition } from '@qilin-agent/agent-loop'
+import { FileSystem, FsTargetKey, FsVersion } from '@qilin-agent/fs'
 import type {
   FsDirEntry,
   FsEditOutcome,
@@ -21,20 +21,20 @@ import type {
   FsTarget,
   FsWriteIntent,
   FsWriteOutcome,
-} from '@qilin/fs'
-import LocalFileSystem from '@qilin/fs-local'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime, { defineContentToolFixture } from '@qilin/tools'
+} from '@qilin-agent/fs'
+import LocalFileSystem from '@qilin-agent/fs-local'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime, { defineContentToolFixture } from '@qilin-agent/tools'
 import type {
   ToolExecution,
   ToolExecutionToken,
-} from '@qilin/tools'
-import * as ToolFs from '@qilin/tool-fs'
+} from '@qilin-agent/tools'
+import * as ToolFs from '@qilin-agent/tool-fs'
 import {
   discoverBaselineInstructionFiles,
   loadBaselineInstructions,
   renderAgentInstructions,
-} from '@qilin/agent-instructions'
+} from '@qilin-agent/agent-instructions'
 import {
   applyInstructionVersionUpdates,
   baselineInstructionState,
@@ -47,9 +47,9 @@ import { MockAdapter, textResponse, toolCallResponse } from '../../../core/agent
 import {
   mountAgentLoopTestDependencies,
   mountAgentLoopTestHarness,
-} from '@qilin/agent-loop-testkit'
+} from '@qilin-agent/agent-loop-testkit'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'downstream': { kind: 'downstream' } & ContextFormed
     'other': { kind: 'other' } & ContextFormed
@@ -690,7 +690,7 @@ describe('workspace context instruction discovery', () => {
       vi.stubEnv('QILIN_HOME', '')
       vi.resetModules()
       vi.doMock('node:os', () => ({ homedir: () => home }))
-      const isolated = await import('@qilin/agent-instructions')
+      const isolated = await import('@qilin-agent/agent-instructions')
       const files = await isolated.discoverBaselineInstructionFiles({ cwd: root })
 
       expect(files.map(file => file.displayPath)).toEqual(['~/.qilin/AGENTS.md'])
@@ -711,7 +711,7 @@ describe('workspace context instruction discovery', () => {
 
       vi.resetModules()
       vi.doMock('node:os', () => ({ homedir: () => home }))
-      const isolated = await import('@qilin/agent-instructions')
+      const isolated = await import('@qilin-agent/agent-instructions')
       const files = await isolated.discoverBaselineInstructionFiles({ cwd: root, qilinHome: '~/.qilin' })
 
       expect(files).toEqual([{ absolutePath: join(home, '.qilin/AGENTS.md'), displayPath: '~/.qilin/AGENTS.md' }])
@@ -2547,7 +2547,7 @@ describe('workspace context request injection', () => {
           },
         }
       })
-      const isolated = await import('@qilin/agent-instructions')
+      const isolated = await import('@qilin-agent/agent-instructions')
       await isolated.loadBaselineInstructions({ cwd: root, qilinHome: home, maxBytes: 65536 })
       observedStats.clear()
       await isolated.loadBaselineInstructions({ cwd: root, qilinHome: home, maxBytes: 65536 })
@@ -2580,7 +2580,7 @@ describe('workspace context request injection', () => {
           },
         }
       })
-      const isolated = await import('@qilin/agent-instructions')
+      const isolated = await import('@qilin-agent/agent-instructions')
 
       const rendered = await isolated.loadBaselineInstructions({ cwd: root, qilinHome: home, maxBytes: 65536 })
 
@@ -2617,7 +2617,7 @@ describe('workspace context request injection', () => {
           },
         }
       })
-      const isolated = await import('@qilin/agent-instructions')
+      const isolated = await import('@qilin-agent/agent-instructions')
 
       await expect(isolated.loadBaselineInstructions({ cwd, qilinHome: home, maxBytes: 65536 }))
         .rejects.toBe(failure)

@@ -1,7 +1,7 @@
 /** Plan text and resource identities derived from logged native or PTC calls. */
-import type { ToolCallId } from '@qilin/llm/brand'
-import type { SessionId } from '@qilin/session/types'
-import type { SessionAddress } from '@qilin/api-session-controller/types'
+import type { ToolCallId } from '@qilin-agent/llm/brand'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { SessionAddress } from '@qilin-agent/api-session-controller/types'
 
 /** Complete Markdown and the heading displayed by a plan preview. */
 export interface PlanDocument {

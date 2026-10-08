@@ -15,7 +15,7 @@
  * own folder artwork (`FileTypeIcon`), matching the file rows that tab shows.
  */
 import type { ReactNode } from 'react'
-import { FileTypeIcon } from '@qilin/client-ui-primitives'
+import { FileTypeIcon } from '@qilin-agent/client-ui-primitives'
 import {
   VscGitCommit,
   VscGlobe,

@@ -1,6 +1,6 @@
 /**
  * Fork seed construction over an exact source-event prefix.
- * @module @qilin/session/fork
+ * @module @qilin-agent/session/fork
  */
 
 import { openTurnClosers } from './repair.ts'

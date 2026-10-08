@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-ui-commands",
+  "name": "@qilin-agent/client-ui-commands",
   "description": "Client command surface: global directory cache, '/' source, three command UI kinds, popupSelect registry",
   "version": "3.1.1",
   "publishConfig": {
@@ -31,10 +31,10 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/api-remotes",
-        "@qilin/client-locale",
-        "@qilin/client-ui-input-trigger",
-        "@qilin/client-ui-conversation"
+        "@qilin-agent/api-remotes",
+        "@qilin-agent/client-locale",
+        "@qilin-agent/client-ui-input-trigger",
+        "@qilin-agent/client-ui-conversation"
       ],
       "platform": "web"
     }
@@ -45,27 +45,27 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/api-remotes": "workspace:*",
-    "@qilin/client-connection": "workspace:*",
-    "@qilin/client-locale": "workspace:*",
-    "@qilin/client-test-runtime": "workspace:*",
-    "@qilin/client-ui-conversation": "workspace:*",
-    "@qilin/client-ui-primitives": "workspace:*",
-    "@qilin/client-ui-input-trigger": "workspace:*",
-    "@qilin/client-ui-slots": "workspace:*",
-    "@qilin/commands": "workspace:*",
+    "@qilin-agent/api-remotes": "workspace:*",
+    "@qilin-agent/client-connection": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-conversation": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-input-trigger": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/commands": "workspace:*",
     "@types/react": "~18.3.1",
-    "@qilin/kylin": "workspace:~",
+    "@qilin-agent/kylin": "workspace:~",
     "react": "^18.2.0",
-    "@qilin/api-session-controller": "workspace:*",
-    "@qilin/client-store": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/util-values": "workspace:*",
-    "@qilin/client-ui-renderer": "workspace:*",
-    "@qilin/client-ui-session": "workspace:*",
+    "@qilin-agent/api-session-controller": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/util-values": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-session": "workspace:*",
     "clsx": "^2.0.0"
   },
   "files": [

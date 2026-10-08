@@ -6,9 +6,9 @@
  * presentation only.
  */
 
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { PluginAudience } from '@qilin/api-remotes/client'
-import type { Workbench, WorkbenchTag } from '@qilin/client-ui-workbench/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { PluginAudience } from '@qilin-agent/api-remotes/client'
+import type { Workbench, WorkbenchTag } from '@qilin-agent/client-ui-workbench/client'
 import type { PluginManagerState } from './manager-store.ts'
 
 /**

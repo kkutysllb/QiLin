@@ -1,4 +1,4 @@
-import type { SessionFormatArtifact } from '@qilin/session-format'
+import type { SessionFormatArtifact } from '@qilin-agent/session-format'
 import { RELEASED_V0_EVENT_DISPOSITIONS } from '../dispositions.ts'
 import { assertReleasedArtifactRelationships } from '../relationships.ts'
 import {

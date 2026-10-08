@@ -1,17 +1,17 @@
 /**
  * Computer use through the in-process Cua Driver native SDK and its own tools.
- * @module @qilin/experimental-computer-use-cua-driver-native
+ * @module @qilin-agent/experimental-computer-use-cua-driver-native
  */
 
-import type { Context } from '@qilin/kylin'
-import Schema from '@qilin/schemastery'
-import { ComputerUseProviderName } from '@qilin/computer-use/brand'
-import { createMcpToolDefinition } from '@qilin/mcp-client'
+import type { Context } from '@qilin-agent/kylin'
+import Schema from '@qilin-agent/schemastery'
+import { ComputerUseProviderName } from '@qilin-agent/computer-use/brand'
+import { createMcpToolDefinition } from '@qilin-agent/mcp-client'
 import { z } from 'zod'
 import type { CuaDriver as NativeDriver } from '@trycua/cua-driver'
-import type {} from '@qilin/computer-use'
-import type {} from '@qilin/system-prompt'
-import type {} from '@qilin/tools'
+import type {} from '@qilin-agent/computer-use'
+import type {} from '@qilin-agent/system-prompt'
+import type {} from '@qilin-agent/tools'
 
 /** Cordis plugin identity for the native Cua Driver provider. */
 export const name = 'experimental-computer-use-cua-driver-native'

@@ -1,7 +1,7 @@
 /** Excel registration remains independent of the Office conversion service. */
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { expect, it, vi } from 'vitest'
-import { makeTranslate } from '@qilin/client-test-runtime'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
 import { binaryDocumentPath, DocumentPreviewRegistry } from '../src/client/document/registry.ts'
 import { Config } from '../src/config.ts'
 import { apply } from '../src/client/excel/index.ts'

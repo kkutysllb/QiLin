@@ -11,8 +11,8 @@ import type {
   RequestView,
   ToolCallBlock,
   ToolResultNode,
-} from '@qilin/client-ui-conversation/client'
-import type { FileAttachmentRef, ImageAttachmentRef } from '@qilin/attachment'
+} from '@qilin-agent/client-ui-conversation/client'
+import type { FileAttachmentRef, ImageAttachmentRef } from '@qilin-agent/attachment'
 import type {
   TrajectoryCellProps,
   TrajectorySourceBlock,

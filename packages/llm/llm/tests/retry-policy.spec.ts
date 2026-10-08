@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest'
 import {
   resolveRetryPolicy,
   RetryPolicySchema,
-} from '@qilin/llm'
-import type { RetryPolicyConfig } from '@qilin/llm'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
+} from '@qilin-agent/llm'
+import type { RetryPolicyConfig } from '@qilin-agent/llm'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 
 describe('provider retry policy', () => {
   it('resolves immutable normal defaults', () => {

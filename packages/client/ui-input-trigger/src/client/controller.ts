@@ -7,12 +7,12 @@
  * only the source roster. One controller per session scope; the service
  * disposes it with the scope fiber.
  */
-import type { Context as ClientContext } from '@qilin/kylin'
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
 import type {
   ArbitrateKey, ArbitrateOutcome, PickOutcome, ReferenceInsert,
-} from '@qilin/client-ui-conversation/client'
-import type { SessionId } from '@qilin/session/types'
+} from '@qilin-agent/client-ui-conversation/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import { detectTrigger } from '../core/detect.ts'
 import { MENU_CLOSED, menuReduce, seedGroups } from '../core/menu.ts'
 import type { MenuEvent, MenuState, TriggerHit } from '../core/contract.ts'

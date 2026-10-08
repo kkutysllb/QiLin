@@ -2,10 +2,10 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import TypertRegistry from '@qilin/typert-registry'
-import type { TypertContribution } from '@qilin/typert-registry/types'
-import { EVENT_API, SERVICE_API, TYPE_API } from '@qilin/tool-kylin/src/api-catalog.ts'
+import { Context } from '@qilin-agent/kylin'
+import TypertRegistry from '@qilin-agent/typert-registry'
+import type { TypertContribution } from '@qilin-agent/typert-registry/types'
+import { EVENT_API, SERVICE_API, TYPE_API } from '@qilin-agent/tool-kylin/src/api-catalog.ts'
 import { WorkspaceAnalyzer } from '../src/analyzer.ts'
 import { FaceModelEmitter } from '../src/emitter.ts'
 
@@ -21,11 +21,11 @@ describe('model-driven qilin-tools generation', () => {
     const workspace = new WorkspaceAnalyzer({
       root: workspaceRoot,
       faces: ['host'],
-      packages: ['@qilin/tools'],
+      packages: ['@qilin-agent/tools'],
     }).analyze()
     const host = workspace.faces.find(candidate => candidate.face === 'host')
     if (host === undefined) throw new Error('qilin-tools has no analyzed host face')
-    const artifact = new FaceModelEmitter(host).emit('@qilin/tools')
+    const artifact = new FaceModelEmitter(host).emit('@qilin-agent/tools')
 
     const root = mkdtempSync(join(import.meta.dirname, '.generated-tools-'))
     temporaryRoots.push(root)
@@ -38,7 +38,7 @@ describe('model-driven qilin-tools generation', () => {
     const ctx = new Context()
     await ctx.plugin(TypertRegistry)
     const dispose = ctx.typert.register(generated.TYPERT)
-    const record = ctx.typert.getPackage('@qilin/tools', 'host')
+    const record = ctx.typert.getPackage('@qilin-agent/tools', 'host')
     const service = record?.model.services.find(candidate => candidate.key === 'tools')
     expect(service).toBeDefined()
     expect({
@@ -71,6 +71,6 @@ describe('model-driven qilin-tools generation', () => {
     )
 
     await dispose()
-    expect(ctx.typert.getPackage('@qilin/tools', 'host')).toBeUndefined()
+    expect(ctx.typert.getPackage('@qilin-agent/tools', 'host')).toBeUndefined()
   })
 })

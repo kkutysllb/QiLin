@@ -169,7 +169,7 @@ describe.skipIf(!builtArtifactsExist)('qilin Web profile best-effort startup', (
       expect(html).toContain('__QILIN_BOOT__')
       expect(readFileSync(fixture.events, 'utf8')).toBe('good apply\n')
       expect(startup.stderr).toContain('web-probe-import-failure')
-      expect(startup.stderr).toContain('@qilin/tool-todo')
+      expect(startup.stderr).toContain('@qilin-agent/tool-todo')
       expect(startup.stderr).toContain('web sync apply failure')
       expect(startup.stderr).toContain('web async apply failure')
       expect(startup.stderr).toContain('pending (waiting for service: webProbeMissingService)')
@@ -294,7 +294,7 @@ describe.skipIf(!builtArtifactsExist)('qilin Web profile best-effort startup', (
       expect(result.stderr).toContain('startup failed:')
       expect(result.stderr).toContain('qilin: startup failed: 2 required plugins did not activate')
       expect(result.stderr).toContain('Failed plugins (1):')
-      expect(result.stderr).toContain('  webserver (required)\n    Package: @qilin/host-webserver')
+      expect(result.stderr).toContain('  webserver (required)\n    Package: @qilin-agent/host-webserver')
       expect(result.stderr).toContain('Plugins waiting for services (')
       expect(result.stderr).toMatch(/connection \(required\) +webRuntime/u)
       expect(result.stderr).toContain('at Server.setupListenHandle')
@@ -319,7 +319,7 @@ describe.skipIf(!builtArtifactsExist)('qilin Web profile best-effort startup', (
       expect(report).toContain('configurationPath:')
       expect(report).toContain("code: 'EADDRINUSE'")
       expect(report).toContain(`port: ${String(address.port)}`)
-      expect(report).toContain("module: '@qilin/client-connection'")
+      expect(report).toContain("module: '@qilin-agent/client-connection'")
       expect(report).toContain('at auditStartupEntries')
     } finally {
       await new Promise<void>((resolve, reject) => {

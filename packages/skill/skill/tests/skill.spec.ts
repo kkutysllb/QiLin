@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { bindScopeParent, createScope, scopeOf } from '@qilin/scope'
+import { Context } from '@qilin-agent/kylin'
+import { bindScopeParent, createScope, scopeOf } from '@qilin-agent/scope'
 import SkillRegistry, {
   isModelInvocable,
   isUserInvocable,
@@ -11,7 +11,7 @@ import SkillRegistry, {
   type SkillLookupOptions,
   type SkillProvider,
   type SkillProviderObservation,
-} from '@qilin/skill'
+} from '@qilin-agent/skill'
 
 function memorySkill(name: string, description: string, rank: number, body = `${name} body.`): SkillCandidate {
   return {

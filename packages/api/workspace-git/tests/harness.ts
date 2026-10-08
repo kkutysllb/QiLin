@@ -12,10 +12,10 @@ import { chmod, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { promisify } from 'node:util'
-import { Context } from '@qilin/kylin'
-import { SessionId } from '@qilin/session/types'
-import type { WorkspaceFileScope } from '@qilin/api-workspace-files'
-import { remoteErrorOf } from '@qilin/typert-protocol'
+import { Context } from '@qilin-agent/kylin'
+import { SessionId } from '@qilin-agent/session/types'
+import type { WorkspaceFileScope } from '@qilin-agent/api-workspace-files'
+import { remoteErrorOf } from '@qilin-agent/typert-protocol'
 import { WorkspaceGit, type Config } from '../src/index.ts'
 
 const run = promisify(execFile)

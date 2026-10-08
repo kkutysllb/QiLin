@@ -1,23 +1,23 @@
-import { imageOffloadProjection } from '@qilin/compaction-image-offload/projection'
+import { imageOffloadProjection } from '@qilin-agent/compaction-image-offload/projection'
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { ToolCallId , createMessage, createToolResultMessage } from '@qilin/llm'
-import type { ContentBlock } from '@qilin/llm'
+import { Context } from '@qilin-agent/kylin'
+import { ToolCallId , createMessage, createToolResultMessage } from '@qilin-agent/llm'
+import type { ContentBlock } from '@qilin-agent/llm'
 import {
   Session,
   SessionId,
   SessionSeq,
-} from '@qilin/session'
-import type { SurfaceEvent } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import TokenMeter from '@qilin/token-meter'
+} from '@qilin-agent/session'
+import type { SurfaceEvent } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import TokenMeter from '@qilin-agent/token-meter'
 import ToolResultPruner, {
   codePointLength,
   DEFAULTS,
   PRUNE_MARKER,
   resolveConfig,
-} from '@qilin/compaction-tool-result-pruner'
-import type { ToolResultPruneConfig } from '@qilin/compaction-tool-result-pruner'
+} from '@qilin-agent/compaction-tool-result-pruner'
+import type { ToolResultPruneConfig } from '@qilin-agent/compaction-tool-result-pruner'
 
 const MODEL = 'test-model'
 const SMALL: ToolResultPruneConfig = {

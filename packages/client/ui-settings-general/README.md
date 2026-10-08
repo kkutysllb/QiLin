@@ -3,7 +3,7 @@ description: "Settings shell, ownerless copy, and durable product-onboarding nam
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-settings-general
+# @qilin-agent/client-ui-settings-general
 
 English | [中文](README.zh.md)
 

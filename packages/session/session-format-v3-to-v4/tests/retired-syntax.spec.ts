@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { SessionFormatEventCollector, type SessionFormatEvent } from '@qilin/session-format'
-import { sessionFormatCatalog } from '@qilin/session-format-catalog'
+import { SessionFormatEventCollector, type SessionFormatEvent } from '@qilin-agent/session-format'
+import { sessionFormatCatalog } from '@qilin-agent/session-format-catalog'
 import { releasedV4SessionFormatCodec, restoreReleasedV4Artifact } from '../src/index.ts'
 
 const header = { version: 4, id: 'native-syntax', createdAt: 1, delegationDepth: 0, isSeeded: false }

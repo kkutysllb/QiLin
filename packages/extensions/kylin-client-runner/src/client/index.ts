@@ -10,14 +10,14 @@
  * it until asked again.
  */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   ApprovalRequestId, CordisDynamicPluginId, DynamicCordisInvokeResult,
   DynamicCordisInventoryRow,
-} from '@qilin/api-remotes/client'
-import type { ClientModuleSystem } from '@qilin/client-modules/client'
-import type { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import type { JsonValue } from '@qilin/util-values'
+} from '@qilin-agent/api-remotes/client'
+import type { ClientModuleSystem } from '@qilin-agent/client-modules/client'
+import type { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import type { JsonValue } from '@qilin-agent/util-values'
 // The Client Remote assembly is the one place the two planes meet: it mounts the
 // `dynamicCordisRunner` namespace and re-exports its payload vocabulary, so this
 // package names what it sends without importing a Host package.
@@ -55,7 +55,7 @@ export { ClientTimerService } from './timer.ts'
 export type {
   ApprovalRequestId, CordisDynamicPackageId, CordisDynamicPluginId, CordisDynamicPluginRunId,
   DynamicCordisPackage,
-} from '@qilin/api-remotes/client'
+} from '@qilin-agent/api-remotes/client'
 
 
 /**
@@ -123,7 +123,7 @@ export interface CordisRunnerFace {
   isLoaded(pluginId: CordisDynamicPluginId): boolean
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Run orchestration and page-local load state: what run surfaces read and call. */
     dynamicCordisRunner: CordisRunnerFace

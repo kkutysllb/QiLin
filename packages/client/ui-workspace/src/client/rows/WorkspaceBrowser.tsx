@@ -14,12 +14,12 @@ import clsx from 'clsx'
 import {
   Button, IconCloseFill14, IconPersonalizationOutline16,
   IconProjectAddOutline16, IconSearchOutline16, Menu, Modal, Tooltip,
-} from '@qilin/client-ui-primitives'
+} from '@qilin-agent/client-ui-primitives'
 import type {
   SessionListState, SessionSearchResultItem,
-} from '@qilin/api-session-controller/client'
-import type { WorkspaceId, WorkspaceView } from '@qilin/api-workspace-controller/client'
-import type { SessionId } from '@qilin/session/types'
+} from '@qilin-agent/api-session-controller/client'
+import type { WorkspaceId, WorkspaceView } from '@qilin-agent/api-workspace-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { WorkspaceBrowserProps } from '../contract/slots.ts'
 import type { GroupNode, SessionNode, SessionOrderBy } from '../tree.ts'
 import {

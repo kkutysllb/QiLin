@@ -1,4 +1,4 @@
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   export interface TypertLookup<Host, Wire> {
     readonly host: Host
     readonly wire: Wire

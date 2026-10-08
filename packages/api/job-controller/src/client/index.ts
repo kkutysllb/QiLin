@@ -4,11 +4,11 @@
  * own context is current, because stream (re)opens run on caller stacks — a
  * React event, a carrier retry — whose dynamic context has not declared
  * `remote.job`.
- * @module @qilin/api-job-controller/client
+ * @module @qilin-agent/api-job-controller/client
  */
 
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/api-job-controller/remote'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/api-job-controller/remote'
 import { ClientJobsModel } from './model.ts'
 import { ClientJobs } from './service.ts'
 

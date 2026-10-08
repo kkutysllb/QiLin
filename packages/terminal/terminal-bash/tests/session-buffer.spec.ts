@@ -1,8 +1,8 @@
 import { Buffer } from 'node:buffer'
 import { PassThrough } from 'node:stream'
 import { afterEach, describe, expect, it } from 'vitest'
-import type { SubprocessOutcome, SubprocessTerminalHandle } from '@qilin/subprocess'
-import type { TerminalReadRequest } from '@qilin/terminal'
+import type { SubprocessOutcome, SubprocessTerminalHandle } from '@qilin-agent/subprocess'
+import type { TerminalReadRequest } from '@qilin-agent/terminal'
 import type { ResolvedConfig } from '../src/config.ts'
 import { LocalPtySession } from '../src/session.ts'
 

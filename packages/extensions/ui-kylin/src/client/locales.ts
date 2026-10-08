@@ -60,7 +60,7 @@ export const zh = {
 /** Translation keys owned by the Kylin UI namespace. */
 export type CordisKey = keyof typeof zh
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Dynamic Kylin UI copy. */
     cordis: CordisKey

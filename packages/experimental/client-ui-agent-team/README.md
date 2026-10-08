@@ -3,7 +3,7 @@ description: "Use and drive the experimental Web Agent Teams roster, shared task
 kind: "package-reference"
 ---
 
-# @qilin/experimental-client-ui-agent-team
+# @qilin-agent/experimental-client-ui-agent-team
 
 English | [中文](README.zh.md)
 

@@ -4,9 +4,9 @@ import { copyFile, mkdir, mkdtemp, readFile, readdir, rm } from 'node:fs/promise
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { Session, SessionId, SESSION_FORMAT_VERSION } from '@qilin/session'
-import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
+import { Context } from '@qilin-agent/kylin'
+import { Session, SessionId, SESSION_FORMAT_VERSION } from '@qilin-agent/session'
+import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
 import {
   runBuiltBenchmarkWorker,
   type BuiltBenchmarkWorkerRun,

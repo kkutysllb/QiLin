@@ -8,14 +8,14 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import SessionStore from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import AgentRegistry from '@qilin/agent'
-import type { Agent, AgentHandle, CreateAgentOptions } from '@qilin/agent'
-import { createUserMessage } from '@qilin/llm'
-import SessionTitleService from '@qilin/session-title'
-import type { Session, SessionId } from '@qilin/session'
+import { Context } from '@qilin-agent/kylin'
+import SessionStore from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import AgentRegistry from '@qilin-agent/agent'
+import type { Agent, AgentHandle, CreateAgentOptions } from '@qilin-agent/agent'
+import { createUserMessage } from '@qilin-agent/llm'
+import SessionTitleService from '@qilin-agent/session-title'
+import type { Session, SessionId } from '@qilin-agent/session'
 import { createSessionTestRemote } from './test-remote.ts'
 
 const sid = (id: string): SessionId => id as SessionId

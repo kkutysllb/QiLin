@@ -3,7 +3,7 @@ description: "Storage hub (ctx.storage) for compositions and maintainers choosin
 kind: "package-reference"
 ---
 
-# @qilin/storage
+# @qilin-agent/storage
 
 English | [中文](README.zh.md)
 
@@ -34,11 +34,11 @@ Mount the hub whenever any package in the composition persists data that is not 
 ### A minimal composition
 
 ```yaml
-- name: '@qilin/storage'
-- name: '@qilin/storage-json'
+- name: '@qilin-agent/storage'
+- name: '@qilin-agent/storage-json'
   config:
     root: /var/lib/qilin/data
-- name: '@qilin/storage-domain'
+- name: '@qilin-agent/storage-domain'
   config:
     backend: json
 ```

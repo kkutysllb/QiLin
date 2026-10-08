@@ -1,6 +1,6 @@
 /** Conversation preferences stored in the Host user-settings document. */
 
-import z from '@qilin/schemastery'
+import z from '@qilin-agent/schemastery'
 
 /** Settings namespace owned by the conversation plugin. */
 export const CONVERSATION_SETTINGS_NAMESPACE = 'ui-conversation'

@@ -7,10 +7,10 @@
  * The failure lines name each code the editor can meet.
  */
 import { describe, expect, it, vi } from 'vitest'
-import { makeTranslate, RemoteError } from '@qilin/client-test-runtime'
-import type { SessionId } from '@qilin/session/types'
-import type { RemoteFailure } from '@qilin/api-remotes/client'
-import type { WorkspaceFileText } from '@qilin/api-workspace-files/types'
+import { makeTranslate, RemoteError } from '@qilin-agent/client-test-runtime'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { RemoteFailure } from '@qilin-agent/api-remotes/client'
+import type { WorkspaceFileText } from '@qilin-agent/api-workspace-files/types'
 import { createReadWhole, MAX_EDIT_BYTES, reassemblePages } from '../src/client/file-pages.ts'
 import type { ReadWorkspaceFilePage } from '../src/client/file-pages.ts'
 import { fileFailureLine } from '../src/client/file-failure.ts'

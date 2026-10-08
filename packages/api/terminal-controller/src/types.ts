@@ -1,8 +1,8 @@
 /** Browser terminal identities, metadata and screen-stream frames. */
-import type { Branded } from '@qilin/brand'
-import type {} from '@qilin/typert-protocol'
+import type { Branded } from '@qilin-agent/brand'
+import type {} from '@qilin-agent/typert-protocol'
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** The terminal identity is missing or has begun process cleanup. */
     'terminal/unavailable': Record<string, never>

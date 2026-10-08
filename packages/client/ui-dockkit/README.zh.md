@@ -3,7 +3,7 @@ description: "qilin Web 客户端的停靠布局套件：带可逆操作的标�
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-dockkit
+# @qilin-agent/client-ui-dockkit
 
 [English](README.md) | 中文
 

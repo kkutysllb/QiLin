@@ -3,11 +3,11 @@
  * algorithm used by the agent loop to build an assistant message from a chunk
  * stream while logging the raw chunks for replay fidelity.
  *
- * @module @qilin/llm/assembler
+ * @module @qilin-agent/llm/assembler
  */
 
-import { brandString } from '@qilin/brand'
-import { assertNever } from '@qilin/util-values'
+import { brandString } from '@qilin-agent/brand'
+import { assertNever } from '@qilin-agent/util-values'
 import type { ToolCallId } from './brand.ts'
 import { createAssistantMessage } from './message.ts'
 import type { AssistantMessage, ModelMessageSource } from './message.ts'

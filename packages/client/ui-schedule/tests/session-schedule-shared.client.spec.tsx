@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 import { act, cleanup, render } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { HostObservable } from '@qilin/client-ui-slots'
-import type { ScheduleCatalogEntry, ScheduleId } from '@qilin/schedule/client'
-import type { SessionId } from '@qilin/session/types'
-import { bindSnapshotSelector } from '@qilin/client-ui-renderer/src/client/bind.ts'
+import type { HostObservable } from '@qilin-agent/client-ui-slots'
+import type { ScheduleCatalogEntry, ScheduleId } from '@qilin-agent/schedule/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import { bindSnapshotSelector } from '@qilin-agent/client-ui-renderer/src/client/bind.ts'
 import type { CatalogSnapshot } from '../src/client/catalog-source.ts'
 import { useSessionScheduleFacts } from '../src/client/session-schedule-state.ts'
 

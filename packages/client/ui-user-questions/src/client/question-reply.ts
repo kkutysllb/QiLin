@@ -1,10 +1,10 @@
 /** Late-reply conversation node: the steered `user-question-reply` message projected as question and answer pairs. */
-import type {} from '@qilin/client-ui-chat/client'
-import type { ConversationNodeDefinition } from '@qilin/client-ui-conversation/client'
-import type { PropsLocale } from '@qilin/client-ui-slots'
-import { isAppendSurfaceEvent } from '@qilin/session/surface'
-import type { SessionEvent } from '@qilin/session/types'
-import type {} from '@qilin/user-questions/types'
+import type {} from '@qilin-agent/client-ui-chat/client'
+import type { ConversationNodeDefinition } from '@qilin-agent/client-ui-conversation/client'
+import type { PropsLocale } from '@qilin-agent/client-ui-slots'
+import { isAppendSurfaceEvent } from '@qilin-agent/session/surface'
+import type { SessionEvent } from '@qilin-agent/session/types'
+import type {} from '@qilin-agent/user-questions/types'
 
 /** One asked question as echoed in the reply payload. */
 export interface QuestionReplyQuestion {
@@ -35,7 +35,7 @@ export interface QuestionReplyData {
   readonly time: number
 }
 
-declare module '@qilin/client-ui-chat/client' {
+declare module '@qilin-agent/client-ui-chat/client' {
   interface ChatNodeDataMap {
     /** Late answer to a continued question. */
     'question-reply': QuestionReplyData

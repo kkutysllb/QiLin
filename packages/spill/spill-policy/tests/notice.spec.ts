@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { SpillLocator } from '@qilin/spill'
+import { SpillLocator } from '@qilin-agent/spill'
 import { formatSpillNotice, hasSpillNotice } from '../src/notice.ts'
 
 const ref = { locator: SpillLocator('/spill/output.txt'), retrievalHint: 'Read the file.' }

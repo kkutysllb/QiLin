@@ -3,7 +3,7 @@
  * constants rather than deployment tunables: the sign-in documents, the
  * endpoint prefix, and the redirect targets a browser is sent to are what
  * makes this surface one thing.
- * @module @qilin/accounts-local/src/paths
+ * @module @qilin-agent/accounts-local/src/paths
  */
 
 /** Absolute path prefix of the authentication endpoints below `/api`. */

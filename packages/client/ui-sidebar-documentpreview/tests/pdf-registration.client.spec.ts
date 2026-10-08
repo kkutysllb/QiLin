@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
 /** PDF metadata, keyed slot, dictionary, and tab-view lifetime registration. */
 import { createElement } from 'react'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { SessionId } from '@qilin/session/types'
-import type { TabId } from '@qilin/client-ui-dockkit'
-import { makeTranslate } from '@qilin/client-test-runtime'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
 import { DocumentPreviewRegistry } from '../src/client/document/registry.ts'
 import { createPdfStore } from '../src/client/pdf/store.ts'
 import type { PdfBodyInjected } from '../src/client/pdf/pdf.tsx'

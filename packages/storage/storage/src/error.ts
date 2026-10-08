@@ -1,6 +1,6 @@
 /**
  * Error vocabulary for the storage hub and its backends.
- * @module @qilin/storage/src/error
+ * @module @qilin-agent/storage/src/error
  */
 
 /** Discriminant codes carried by every {@link StorageError}. */

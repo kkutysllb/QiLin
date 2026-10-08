@@ -10,8 +10,8 @@
  * @module
  */
 import { useEffect, useMemo } from 'react'
-import type { SidebarRightNavigationParams } from '@qilin/client-ui-sidebar-right/client'
-import type { SessionId } from '@qilin/session/types'
+import type { SidebarRightNavigationParams } from '@qilin-agent/client-ui-sidebar-right/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import { scheduleTaskParams } from './definition.ts'
 import type { TaskTabBindings, TaskTabPage, TaskTabTarget } from './task-tab-bindings.ts'
 

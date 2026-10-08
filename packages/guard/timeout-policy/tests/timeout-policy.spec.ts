@@ -1,5 +1,5 @@
 /**
- * Unit + real-load-path coverage for @qilin/tool-call-timeout-policy. The
+ * Unit + real-load-path coverage for @qilin-agent/tool-call-timeout-policy. The
  * timeout-wins cases drive the deadline under fake timers (deterministic — no
  * wall-clock race) and use a COOPERATIVE tool that settles only when its
  * `exec.signal` aborts, mirroring how a real capability forwards the signal and
@@ -7,13 +7,13 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import { ToolCallId, HarnessError } from '@qilin/llm'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime, { defineContentToolFixture, TOOL_ABORTED, type ToolExecutionInput, type PostToolDecision } from '@qilin/tools'
-import * as timeoutPolicy from '@qilin/tool-call-timeout-policy'
-import { TOOL_TIMEOUT } from '@qilin/tool-call-timeout-policy'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import { ToolCallId, HarnessError } from '@qilin-agent/llm'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime, { defineContentToolFixture, TOOL_ABORTED, type ToolExecutionInput, type PostToolDecision } from '@qilin-agent/tools'
+import * as timeoutPolicy from '@qilin-agent/tool-call-timeout-policy'
+import { TOOL_TIMEOUT } from '@qilin-agent/tool-call-timeout-policy'
 
 const testToolSignal = new AbortController().signal
 

@@ -25,7 +25,7 @@ export const en = {
   retry: 'Retry',
 } satisfies Record<ExcelPreviewKey, string>
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Excel preview status and third-party locale selection. */
     sidebarExcel: ExcelPreviewKey

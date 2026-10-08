@@ -3,13 +3,13 @@ description: "The right Sidebar's Git panel tab type for the qilin web client: b
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-sidebar-git
+# @qilin-agent/client-ui-sidebar-git
 
 English | [中文](README.zh.md)
 
 ## Summary
 
-The right Sidebar's source-control panel: one `git` page, reached from the guide, showing the repository at the workspace root. The header carries the branch and its upstream position beside pull, push, and refresh; changes are grouped unstaged, staged, and untracked with a per-file context menu; a row click opens that file's inline diff; the commit box commits with stage-all semantics; the history pages commits newest first and expands a row into its patch; the branch list checks out and creates; and the GitHub section lists, creates, and merges pull requests when `gh` answers. Everything travels over the `@qilin/api-workspace-git` Remote namespace.
+The right Sidebar's source-control panel: one `git` page, reached from the guide, showing the repository at the workspace root. The header carries the branch and its upstream position beside pull, push, and refresh; changes are grouped unstaged, staged, and untracked with a per-file context menu; a row click opens that file's inline diff; the commit box commits with stage-all semantics; the history pages commits newest first and expands a row into its patch; the branch list checks out and creates; and the GitHub section lists, creates, and merges pull requests when `gh` answers. Everything travels over the `@qilin-agent/api-workspace-git` Remote namespace.
 
 ## Table of Contents
 
@@ -26,8 +26,8 @@ The right Sidebar's source-control panel: one `git` page, reached from the guide
 <a id="what-it-registers"></a>
 ## What it registers
 
-- **The `git` type** — `ctx.sidebarRightTabs.register(...)` with kind `git`, id `@qilin/client-ui-sidebar-git`, band `builtin`, no patterns, and one guide entry (order 20, its title and description from the `sidebarGit` namespace, its glyph the shared branch icon) that opens the type. One panel per surface: it declares `single: true`.
-- **The body and chip title** — the keyed `sidebar.right.pane.tab` and `sidebar.right.pane.tab.title` seats under `@qilin/client-ui-sidebar-git`: the panel itself, and the branch glyph before the tab's title in the chip.
+- **The `git` type** — `ctx.sidebarRightTabs.register(...)` with kind `git`, id `@qilin-agent/client-ui-sidebar-git`, band `builtin`, no patterns, and one guide entry (order 20, its title and description from the `sidebarGit` namespace, its glyph the shared branch icon) that opens the type. One panel per surface: it declares `single: true`.
+- **The body and chip title** — the keyed `sidebar.right.pane.tab` and `sidebar.right.pane.tab.title` seats under `@qilin-agent/client-ui-sidebar-git`: the panel itself, and the branch glyph before the tab's title in the chip.
 
 Both seats share one store instance per session, bucketed by tab id; the browser half lives under `src/client/`: `definition.tsx` (what the type is), `store.ts` (what it keeps), `face.ts` (how it asks the `workspaceGit` namespace, generation-guarded), `git-model.ts` (the pure grouping, badge, diff-line, commit-time, and failure arithmetic), `GitBody.tsx` and `GitTitle.tsx` (what they draw), `locales.ts` (what they say), and `index.ts` (the wiring).
 

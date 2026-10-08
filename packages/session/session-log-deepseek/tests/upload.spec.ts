@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, expectTypeOf, it } from 'vitest'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import SessionStore, {
   SESSION_FORMAT_VERSION,
   Session,
@@ -8,10 +8,10 @@ import SessionStore, {
   SessionSeq,
   type CreateSessionOptions,
   type SessionEvent,
-} from '@qilin/session'
-import DeepSeekLlmApiExtensionRegistry from '@qilin/deepseek-llm-api-extensions'
-import { createDeveloperMessage, createAssistantMessage, createSystemMessage, createUserMessage } from '@qilin/llm'
-import type { JsonValue } from '@qilin/util-values'
+} from '@qilin-agent/session'
+import DeepSeekLlmApiExtensionRegistry from '@qilin-agent/deepseek-llm-api-extensions'
+import { createDeveloperMessage, createAssistantMessage, createSystemMessage, createUserMessage } from '@qilin-agent/llm'
+import type { JsonValue } from '@qilin-agent/util-values'
 import * as SessionLogDeepSeek from '../src/index.ts'
 import type { DeepSeekSessionLogExtension, DeepSeekSessionLogWireEvent, DeepSeekSessionLogWireSurfaceOp } from '../src/types.ts'
 

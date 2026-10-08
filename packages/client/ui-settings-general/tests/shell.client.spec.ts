@@ -6,14 +6,14 @@
  * roster's Connection, and it survives a Loader rebuild of the declarer.
  */
 import { describe, expect, vi } from 'vitest'
-import type {} from '@qilin/client-ui-renderer/client'
-import { createClientTest, type TestClient, webApp } from '@qilin/client-test-runtime/src/assembly/index.ts'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import { createClientTest, type TestClient, webApp } from '@qilin-agent/client-test-runtime/src/assembly/index.ts'
 import { inject } from '../src/client/index.ts'
 import type { SettingsRootInjected } from '../src/client/shell-contract.ts'
 import { SettingsRoot } from '../src/client/SettingsRoot.tsx'
 
-const SELF = '@qilin/client-ui-settings-general'
-const SIDEBAR = '@qilin/client-ui-sidebar'
+const SELF = '@qilin-agent/client-ui-settings-general'
+const SIDEBAR = '@qilin-agent/client-ui-sidebar'
 const it = createClientTest({ roster: webApp })
 /** The whole roster's first boot pays the cold module transform of every plugin package. */
 const COLD_BOOT_TIMEOUT_MS = 60_000

@@ -8,11 +8,11 @@
  * Package-private; the hub alone constructs it and wires the scoped event
  * listeners onto it.
  */
-import type { Context } from '@qilin/kylin'
-import type { InboxState } from '@qilin/agent/types'
+import type { Context } from '@qilin-agent/kylin'
+import type { InboxState } from '@qilin-agent/agent/types'
 import {
   createSnapshotStore, type ObservableSnapshot, type SnapshotStore,
-} from '@qilin/client-store'
+} from '@qilin-agent/client-store'
 import type { LexicalEditor } from 'lexical'
 import type {
   CommandClaim, ConsumeTokenRequest, DraftAttachmentId,

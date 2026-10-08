@@ -1,14 +1,14 @@
 /** The loop logs tool changes as developer messages and carries session tool history to the runtime. */
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import AgentRegistry, { type Agent } from '@qilin/agent'
-import AgentLoop from '@qilin/agent-loop'
-import LlmRuntime, { createUserMessage } from '@qilin/llm'
-import type { GenerateOptions } from '@qilin/llm'
-import SessionStore, { SessionId } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime, { defineContentToolFixture } from '@qilin/tools'
+import { Context } from '@qilin-agent/kylin'
+import AgentRegistry, { type Agent } from '@qilin-agent/agent'
+import AgentLoop from '@qilin-agent/agent-loop'
+import LlmRuntime, { createUserMessage } from '@qilin-agent/llm'
+import type { GenerateOptions } from '@qilin-agent/llm'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime, { defineContentToolFixture } from '@qilin-agent/tools'
 import { MockAdapter, textResponse } from './mock-adapter.ts'
 
 const contexts: Context[] = []

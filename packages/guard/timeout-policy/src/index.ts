@@ -3,17 +3,17 @@
  * promises to honor `exec.signal`; this wrapper arms that deadline and maps its
  * own expiry to `TOOL_TIMEOUT` without racing or abandoning the tool promise.
  *
- * FIXME: settle the intended `@qilin/timeout-guard` rename before the
+ * FIXME: settle the intended `@qilin-agent/timeout-guard` rename before the
  * first tagged release — suggestion only, aligning the name with its `guard/`
  * home; decide at resolution time
  * ([regrouping Agent Note](../../../../.agents/notes/archived/architecture/2026-07-29-package-regrouping.md)).
  *
- * @module @qilin/tool-call-timeout-policy
+ * @module @qilin-agent/tool-call-timeout-policy
  */
 
-import type { Context } from '@qilin/kylin'
-import { deadline, timeoutOf } from '@qilin/timeout'
-import type { ToolExecutionResult } from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import { deadline, timeoutOf } from '@qilin-agent/timeout'
+import type { ToolExecutionResult } from '@qilin-agent/tools'
 
 /**
  * The code owned by this plugin, used BOTH as the internal {@link deadline}

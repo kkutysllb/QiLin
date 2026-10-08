@@ -2,7 +2,7 @@
  * The sidechat tab type's registry definition and the dictionaries' pairing.
  */
 import { describe, expect, it } from 'vitest'
-import { makeTranslate } from '@qilin/client-test-runtime'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
 import { SIDECHAT_ID, SIDECHAT_KIND, sidechatDefinition } from '../src/client/definition.tsx'
 import { NS, en, zh } from '../src/client/locales.ts'
 

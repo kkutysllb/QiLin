@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-ui-skill",
+  "name": "@qilin-agent/client-ui-skill",
   "description": "Web skill references and the dedicated skill tool row",
   "version": "3.1.1",
   "publishConfig": {
@@ -31,13 +31,13 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/api-session-controller",
-        "@qilin/client-locale",
-        "@qilin/client-ui-renderer",
-        "@qilin/client-ui-tool",
-        "@qilin/client-ui-input-trigger",
-        "@qilin/api-remotes",
-        "@qilin/client-ui-sidebar-right"
+        "@qilin-agent/api-session-controller",
+        "@qilin-agent/client-locale",
+        "@qilin-agent/client-ui-renderer",
+        "@qilin-agent/client-ui-tool",
+        "@qilin-agent/client-ui-input-trigger",
+        "@qilin-agent/api-remotes",
+        "@qilin-agent/client-ui-sidebar-right"
       ],
       "platform": "web"
     }
@@ -48,27 +48,27 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/api-remotes": "workspace:*",
-    "@qilin/api-session-controller": "workspace:*",
-    "@qilin/client-connection": "workspace:*",
-    "@qilin/client-locale": "workspace:*",
-    "@qilin/client-test-runtime": "workspace:*",
-    "@qilin/client-ui-primitives": "workspace:*",
-    "@qilin/client-ui-input-trigger": "workspace:*",
-    "@qilin/client-ui-renderer": "workspace:*",
-    "@qilin/client-ui-slots": "workspace:*",
-    "@qilin/client-ui-tool": "workspace:*",
-    "@qilin/session": "workspace:*",
+    "@qilin-agent/api-remotes": "workspace:*",
+    "@qilin-agent/api-session-controller": "workspace:*",
+    "@qilin-agent/client-connection": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-input-trigger": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/client-ui-tool": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
     "@testing-library/react": "^16.1.0",
     "@types/react": "~18.3.1",
-    "@qilin/kylin": "workspace:~",
+    "@qilin-agent/kylin": "workspace:~",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@qilin/client-ui-sidebar-right": "workspace:*",
-    "@qilin/util-workspace-path": "workspace:*"
+    "@qilin-agent/client-ui-sidebar-right": "workspace:*",
+    "@qilin-agent/util-workspace-path": "workspace:*"
   },
   "files": [
     "lib/index.js",

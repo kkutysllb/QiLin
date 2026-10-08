@@ -2,9 +2,9 @@
 
 import {
   IconInspectOutline12, IconStopFill16, IconTrashOutline16, StateDot,
-} from '@qilin/client-ui-primitives'
-import type { PropsLocale } from '@qilin/client-ui-slots'
-import type { ToolCallViewProps } from '@qilin/client-ui-tool/client'
+} from '@qilin-agent/client-ui-primitives'
+import type { PropsLocale } from '@qilin-agent/client-ui-slots'
+import type { ToolCallViewProps } from '@qilin-agent/client-ui-tool/client'
 import { cordisActionCard } from './card-model.ts'
 import css from './CordisRunRow.module.css'
 import { CordisPreparingRow } from './CordisPreparingRow.tsx'

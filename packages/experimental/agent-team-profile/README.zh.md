@@ -3,13 +3,13 @@ description: "叠加在 qilin-base 上公开发布的实验性 Agent Teams profi
 kind: "package-bundle"
 ---
 
-# @qilin/experimental-agent-team-profile
+# @qilin-agent/experimental-agent-team-profile
 
 [English](README.md) | 中文
 
 ## 概述
 
-`qilin-experimental-agent-team-profile` 是在 `@qilin/base` 之上启用 [Agent Teams](../agent-team/README.zh.md) 的公开实验性 profile 层。它的 patch 会插入 Team domain、Team-scoped 工具，以及绘制右侧栏团队页的浏览器半，并禁用普通 subagent 委派和名称重叠的全局 continuable-child control。Workflow 仍可创建 fresh 子代理。qilin 安装随附本包作为可选组合包，随附 profile 都不会启用它；可在 Web 侧栏的插件页开启，或显式添加到已初始化的 profile。
+`qilin-experimental-agent-team-profile` 是在 `@qilin-agent/base` 之上启用 [Agent Teams](../agent-team/README.zh.md) 的公开实验性 profile 层。它的 patch 会插入 Team domain、Team-scoped 工具，以及绘制右侧栏团队页的浏览器半，并禁用普通 subagent 委派和名称重叠的全局 continuable-child control。Workflow 仍可创建 fresh 子代理。qilin 安装随附本包作为可选组合包，随附 profile 都不会启用它；可在 Web 侧栏的插件页开启，或显式添加到已初始化的 profile。
 
 ## 目录
 
@@ -30,11 +30,11 @@ kind: "package-bundle"
 将本包添加到已初始化的 profile，然后运行一个要求 Lead 委派工作的任务：
 
 ```sh
-qilin plugin --profile headless add @qilin/experimental-agent-team-profile
+qilin plugin --profile headless add @qilin-agent/experimental-agent-team-profile
 qilin --profile headless "Use Agent Teams to split this task between two teammates, wait, and summarize."
 ```
 
-profile 必须已经包含 `@qilin/base`，本层会使用其中的 Subagent 服务与提供方配置行。执行 `qilin plugin --profile <name> remove @qilin/experimental-agent-team-profile` 移除本包时，bundle 也会从 profile 的有序层列表中移除。
+profile 必须已经包含 `@qilin-agent/base`，本层会使用其中的 Subagent 服务与提供方配置行。执行 `qilin plugin --profile <name> remove @qilin-agent/experimental-agent-team-profile` 移除本包时，bundle 也会从 profile 的有序层列表中移除。
 
 ### 获得的功能
 
@@ -48,7 +48,7 @@ profile 必须已经包含 `@qilin/base`，本层会使用其中的 Subagent 服
 <details>
 <summary>实现细节——点击展开</summary>
 
-本包的运行时内容是 [`cordis.patch.yml`](cordis.patch.yml)。在 `qilin-base` 之后应用时，patch 会禁用 `tool-subagent-control`、`tool-subagent-list-agents`、`tool-subagent` 和 `tool-subagent-fork`，并以显式 provider 和限制插入 Team 服务与工具行，同时插入注册团队页的浏览器半（[`@qilin/experimental-client-ui-agent-team`](../client-ui-agent-team/README.zh.md)）。
+本包的运行时内容是 [`cordis.patch.yml`](cordis.patch.yml)。在 `qilin-base` 之后应用时，patch 会禁用 `tool-subagent-control`、`tool-subagent-list-agents`、`tool-subagent` 和 `tool-subagent-fork`，并以显式 provider 和限制插入 Team 服务与工具行，同时插入注册团队页的浏览器半（[`@qilin-agent/experimental-client-ui-agent-team`](../client-ui-agent-team/README.zh.md)）。
 
 | 文件 | 职责 |
 |---|---|
@@ -76,11 +76,11 @@ profile 必须已经包含 `@qilin/base`，本层会使用其中的 Subagent 服
 
 #### 模型会看到什么
 
-Team 策略与 schema 由 [`@qilin/experimental-tool-agent-team`](../tool-agent-team/README.zh.md) 所有。本 bundle 只改变 composition：Team-scoped `list_agents`、`send_message` 与 `interrupt_agent` 会替代已禁用的全局 continuable-child control。`spawn_teammate` 是直接委派工具。Workflow 的 `agent()` 调用创建 fresh 一次性子代理；其提示词必须包含任务所需的上下文。
+Team 策略与 schema 由 [`@qilin-agent/experimental-tool-agent-team`](../tool-agent-team/README.zh.md) 所有。本 bundle 只改变 composition：Team-scoped `list_agents`、`send_message` 与 `interrupt_agent` 会替代已禁用的全局 continuable-child control。`spawn_teammate` 是直接委派工具。Workflow 的 `agent()` 调用创建 fresh 一次性子代理；其提示词必须包含任务所需的上下文。
 
 #### Token 影响
 
-本 bundle 会加入 `@qilin/experimental-tool-agent-team` 描述的 Team 策略与工具 schema；它自身不增加提示词文本。
+本 bundle 会加入 `@qilin-agent/experimental-tool-agent-team` 描述的 Team 策略与工具 schema；它自身不增加提示词文本。
 
 #### KV Cache 影响
 

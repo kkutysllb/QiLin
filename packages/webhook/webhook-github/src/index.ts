@@ -1,9 +1,9 @@
 /** Signed GitHub HTTP adapter for the provider-neutral webhook runtime. */
 
-import type { Context } from '@qilin/kylin'
-import { credentialRef } from '@qilin/credentials'
-import type {} from '@qilin/host-webserver'
-import z from '@qilin/schemastery'
+import type { Context } from '@qilin-agent/kylin'
+import { credentialRef } from '@qilin-agent/credentials'
+import type {} from '@qilin-agent/host-webserver'
+import z from '@qilin-agent/schemastery'
 import { createGitHubWebhookHandler } from './handler.ts'
 
 export type * from './types.ts'

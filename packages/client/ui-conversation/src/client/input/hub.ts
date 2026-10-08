@@ -7,14 +7,14 @@
  * listeners on each Session context and owns the default-sink choreography: every session is a
  * real host entity, so the sink is one unconditional prompt path.
  */
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   ISessions, SessionBinding, SessionFace,
-} from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
-import type { TranslateNS } from '@qilin/client-locale/client'
-import type { InboxState } from '@qilin/agent/types'
-import type { ObservableSnapshot } from '@qilin/client-store'
+} from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { TranslateNS } from '@qilin-agent/client-locale/client'
+import type { InboxState } from '@qilin-agent/agent/types'
+import type { ObservableSnapshot } from '@qilin-agent/client-store'
 import type {
   DraftAttachmentId, DraftAttachmentSerializationResult, InputTriggerController,
   SessionInputResolver, SessionInput, SubmitOutcome,

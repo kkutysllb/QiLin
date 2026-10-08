@@ -3,7 +3,7 @@ description: "当前 Kylin Loader 插件状态的只读投影，并附带每个 
 kind: "package-reference"
 ---
 
-# @qilin/host-plugin-inventory
+# @qilin-agent/host-plugin-inventory
 
 [English](README.md) | 中文
 

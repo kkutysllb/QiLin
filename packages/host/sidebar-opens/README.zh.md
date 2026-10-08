@@ -3,13 +3,13 @@ description: "面向模型的请求：在所属会话的侧栏中打开一个文
 kind: "package-reference"
 ---
 
-# @qilin/sidebar-opens
+# @qilin-agent/sidebar-opens
 
 [English](README.md) | 中文
 
 ## 概述
 
-`sidebar_open` 让模型直接"展示"而不是"描述"：一个已存在的文件，或一个 http(s) 页面。请求以 Host Remote 流（`sidebarOpens.watch`）送到 [`@qilin/client-ui-agent-opens`](../../client/ui-agent-opens/README.zh.md)，由它在**该会话自己的**侧栏中打开。投递是瞬时的：视图附着时随发随取，否则在每会话的有界队列里等待下一次附着重放。
+`sidebar_open` 让模型直接"展示"而不是"描述"：一个已存在的文件，或一个 http(s) 页面。请求以 Host Remote 流（`sidebarOpens.watch`）送到 [`@qilin-agent/client-ui-agent-opens`](../../client/ui-agent-opens/README.zh.md)，由它在**该会话自己的**侧栏中打开。投递是瞬时的：视图附着时随发随取，否则在每会话的有界队列里等待下一次附着重放。
 
 ## 目录
 
@@ -58,7 +58,7 @@ kind: "package-reference"
 ## 已知限制与后续工作
 
 - **目录不可打开。** 侧栏的文件树以工作区为根，"给我看这个目录"没有可到达的 tab；只有普通文件或页面可以打开。目录路径会让调用失败。
-- **页面的落点取决于组合进来的浏览器 tab 类型。** 把 `@qilin/client-ui-sidebar-browser` 组合掉时，消费者退回新浏览器标签页，即离开应用。
+- **页面的落点取决于组合进来的浏览器 tab 类型。** 把 `@qilin-agent/client-ui-sidebar-browser` 组合掉时，消费者退回新浏览器标签页，即离开应用。
 - **请求不跨重新加载。** 无人附着时发出的请求只在该 Host 进程内存中等待，直到该会话结束；重启 Host 或销毁会话即丢弃。
 - **队列有界且丢弃最旧。** 从不开侧栏的会话只保留最近 `maxQueued` 个请求。
 

@@ -1,8 +1,8 @@
 /** PDF page presentation; binary content and tab information come from the document owner. */
 import { useCallback, useEffect, useRef, useState, type ComponentType, type CSSProperties, type ReactNode } from 'react'
-import { Button, IconLoadingOutline16 } from '@qilin/client-ui-primitives'
-import type { PropsLocale, PropsStore } from '@qilin/client-ui-slots'
-import type { TabId } from '@qilin/client-ui-dockkit'
+import { Button, IconLoadingOutline16 } from '@qilin-agent/client-ui-primitives'
+import type { PropsLocale, PropsStore } from '@qilin-agent/client-ui-slots'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
 import type { DocumentPreviewProps } from '../document/contract.ts'
 import type { PdfStore, PdfView } from './store.ts'
 import { renderPdfPage, type PdfDocument } from './document.ts'

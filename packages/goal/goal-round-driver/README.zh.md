@@ -3,7 +3,7 @@ description: "面向选择、组合或排查自动 Goal Round 的用户与维护
 kind: "package-reference"
 ---
 
-# @qilin/goal-round-driver
+# @qilin-agent/goal-round-driver
 
 [English](README.md) | 中文
 
@@ -33,13 +33,13 @@ kind: "package-reference"
 
 ```yaml
 - id: goal
-  name: '@qilin/goal'
+  name: '@qilin-agent/goal'
 
 - id: tool-goal
-  name: '@qilin/tool-goal'
+  name: '@qilin-agent/tool-goal'
 
 - id: goal-round-driver
-  name: '@qilin/goal-round-driver'
+  name: '@qilin-agent/goal-round-driver'
 ```
 
 `maxGoalRounds` 属于 goal 定义，面向模型的阻塞阈值属于 `qilin-tool-goal`；在驱动器中重复任一数值都可能产生分歧策略。

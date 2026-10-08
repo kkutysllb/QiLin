@@ -1,13 +1,13 @@
 /** Browser background-upload Cordis service. */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { FileUploadRuntime } from './runtime.ts'
 import type { FileUploadService } from './contract.ts'
 
 export type { FileUploadProgress, FileUploadService } from './contract.ts'
 export type { FileUploadReceiptId, FileUploadValue } from '../types.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Session-addressed browser service for staged file uploads. */
     fileUpload: FileUploadService

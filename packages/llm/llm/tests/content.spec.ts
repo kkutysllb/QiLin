@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { AttachmentId, ImageVariantId } from '@qilin/attachment'
-import type { AttachmentStore, ImageMediaType } from '@qilin/attachment'
+import { AttachmentId, ImageVariantId } from '@qilin-agent/attachment'
+import type { AttachmentStore, ImageMediaType } from '@qilin-agent/attachment'
 import {
   ToolCallId,
   contentHasFile,

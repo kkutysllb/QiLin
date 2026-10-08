@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { SessionFormatEvent, SessionFormatJsonObject, SessionFormatJsonValue } from '@qilin/session-format'
+import type { SessionFormatEvent, SessionFormatJsonObject, SessionFormatJsonValue } from '@qilin-agent/session-format'
 import { mapEventMessages, rewritePluginSource, rewriteV3MessageSource } from '../src/sources.ts'
 
 function event(type: string, data: SessionFormatJsonObject): SessionFormatEvent {
@@ -57,8 +57,8 @@ describe('rewritePluginSource', () => {
   it('rewrites renamed and role-sensitive producers, dropping the plugin field', () => {
     expect(rewritePluginSource({ kind: 'plugin', plugin: 'tools-ptc' }, 1, 'user')).toEqual({ kind: 'ptc-mode' })
     expect(rewritePluginSource({ kind: 'plugin', plugin: 'tools-code-mode' }, 1, 'user')).toEqual({ kind: 'ptc-mode' })
-    expect(rewritePluginSource({ kind: 'plugin', plugin: '@qilin/system-prompt' }, 1, 'system')).toEqual({ kind: 'system-prompt' })
-    expect(rewritePluginSource({ kind: 'plugin', plugin: '@qilin/system-prompt' }, 1, 'user')).toEqual({ kind: 'runtime-context' })
+    expect(rewritePluginSource({ kind: 'plugin', plugin: '@qilin-agent/system-prompt' }, 1, 'system')).toEqual({ kind: 'system-prompt' })
+    expect(rewritePluginSource({ kind: 'plugin', plugin: '@qilin-agent/system-prompt' }, 1, 'user')).toEqual({ kind: 'runtime-context' })
     // The title plugin's pre-rename id lifts to the current producer kind, so
     // the migrated artifact clears the V4 title-request source assertions.
     expect(rewritePluginSource({ kind: 'plugin', plugin: 'dsh-session-title-llm' }, 1, 'user'))
@@ -86,7 +86,7 @@ describe('rewritePluginSource', () => {
     expect(rewritePluginSource({ kind: 'plugin', plugin: 'agent-instructions', form: 'instructions', changes: [] }, 3, 'user'))
       .toEqual({ kind: 'agent-instructions', form: 'instructions', changes: [] })
     expect(rewritePluginSource({ kind: 'plugin', plugin: 'tool-jobs' }, 3, 'user')).toEqual({ kind: 'tool-jobs' })
-    expect(rewritePluginSource({ kind: 'plugin', plugin: '@qilin/system-prompt' }, 3, 'system')).toEqual({ kind: 'system-prompt' })
+    expect(rewritePluginSource({ kind: 'plugin', plugin: '@qilin-agent/system-prompt' }, 3, 'system')).toEqual({ kind: 'system-prompt' })
   })
 })
 

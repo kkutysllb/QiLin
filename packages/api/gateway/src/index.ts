@@ -2,20 +2,20 @@
  * Live Typert Remote dispatch over Cordis Services and registered providers.
  * Unary transport and response envelopes belong to Connection; live Remote
  * streams use the Gateway-owned WebSocket mux.
- * @module @qilin/api-gateway
+ * @module @qilin-agent/api-gateway
  */
 
 import { randomUUID } from 'node:crypto'
-import { Context, Service, symbols } from '@qilin/kylin'
+import { Context, Service, symbols } from '@qilin-agent/kylin'
 import {
   OperatorPeer,
   type ConnectionRpcHandler,
-} from '@qilin/client-connection'
-import { Deque } from '@qilin/deque'
-import type { WebUpgradeRoute } from '@qilin/host-webserver'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
-import z from '@qilin/schemastery'
-import type {} from '@qilin/cmdline'
+} from '@qilin-agent/client-connection'
+import { Deque } from '@qilin-agent/deque'
+import type { WebUpgradeRoute } from '@qilin-agent/host-webserver'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
+import z from '@qilin-agent/schemastery'
+import type {} from '@qilin-agent/cmdline'
 export type { TypertGatewayFaultDetails } from './remote-error-codes.ts'
 import {
   RemoteError,
@@ -28,7 +28,7 @@ import {
   type RemoteInvocation,
   type TypertCodec,
   type TypertGatewayBinding,
-} from '@qilin/typert-protocol'
+} from '@qilin-agent/typert-protocol'
 import type {
   InvokeRemoteRequest,
   TypertGateway,

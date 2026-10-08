@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { execa } from 'execa'
 import { describe, expect, it } from 'vitest'
-import { resolveExampleLaunch } from '@qilin/loader-smoke'
+import { resolveExampleLaunch } from '@qilin-agent/loader-smoke'
 
 const qilinBinScript = fileURLToPath(new URL('../src/bin.ts', import.meta.url))
 const tsconfigPath = fileURLToPath(new URL('../../../tsconfig.json', import.meta.url))
@@ -28,14 +28,14 @@ describe('qilin run with Agent Teams enabled', () => {
         name: 'qilin-profile-headless',
         private: true,
         dependencies: {
-          '@qilin/experimental-agent-team-profile': 'workspace:^',
+          '@qilin-agent/experimental-agent-team-profile': 'workspace:^',
         },
         qilin: {
           profile: {
             bundles: [
-              '@qilin/base',
-              '@qilin/headless',
-              '@qilin/experimental-agent-team-profile',
+              '@qilin-agent/base',
+              '@qilin-agent/headless',
+              '@qilin-agent/experimental-agent-team-profile',
             ],
           },
         },

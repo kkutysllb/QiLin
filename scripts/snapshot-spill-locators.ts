@@ -1,8 +1,8 @@
 /** Fixture-only logical locators for filesystem and subprocess reads of real spill files; preview budgets retain recorded path lengths. */
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { join, relative, resolve, sep } from 'node:path'
-import type { SpillLocator } from '@qilin/spill'
-import type {} from '@qilin/fs'
+import type { SpillLocator } from '@qilin-agent/spill'
+import type {} from '@qilin-agent/fs'
 
 export const name = 'snapshot-spill-locators'
 export const inject = ['spillStore', 'fs']

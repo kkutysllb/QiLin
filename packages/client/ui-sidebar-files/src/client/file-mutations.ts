@@ -16,11 +16,11 @@
  * calls.
  * @module
  */
-import type { ClientRemote, RemoteFailure, RemoteResult } from '@qilin/api-remotes/client'
-import type { TabId } from '@qilin/client-ui-dockkit'
-import type { TranslateNS } from '@qilin/client-locale/client'
-import type { SessionId } from '@qilin/session/types'
-import { fileAddressFor, parseFileAddress, pathPartsOf, resolveWorkspacePath } from '@qilin/util-workspace-path'
+import type { ClientRemote, RemoteFailure, RemoteResult } from '@qilin-agent/api-remotes/client'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
+import type { TranslateNS } from '@qilin-agent/client-locale/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import { fileAddressFor, parseFileAddress, pathPartsOf, resolveWorkspacePath } from '@qilin-agent/util-workspace-path'
 
 /** The two entry kinds a create gesture makes. */
 export type EntryKind = 'file' | 'directory'

@@ -3,12 +3,12 @@
  * fresh official package-local Codex wrapper with `app-server --stdio` in the
  * delegating Session's workspace and publishes only after an ephemeral thread exists.
  *
- * @module @qilin/subagent-codex
+ * @module @qilin-agent/subagent-codex
  */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 import {
   assertPositiveFinite,
   NO_START_CAPABILITIES,
@@ -16,7 +16,7 @@ import {
   type ResolvedSubagentStartRequest,
   type SubagentCapabilities,
   type SubagentProvider,
-} from '@qilin/subagent'
+} from '@qilin-agent/subagent'
 import {
   CODEX_PERMISSION_MODES,
   DEFAULT_CODEX_PERMISSION_MODE,

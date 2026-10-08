@@ -7,12 +7,12 @@
  * saved server joins the running tree through Cordis HMR without a restart.
  * The service is Remote-only — it declares no same-process Context merge —
  * because its only consumer is the settings section.
- * @module @qilin/mcp-servers
+ * @module @qilin-agent/mcp-servers
  */
 
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/subprocess'
-import { Remote, RemoteError, TypertRemoteService } from '@qilin/typert-protocol'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/subprocess'
+import { Remote, RemoteError, TypertRemoteService } from '@qilin-agent/typert-protocol'
 import { MCP_BUILTINS, builtinByName, type McpBuiltinDefinition } from './builtins.ts'
 import {
   McpServerNameError,

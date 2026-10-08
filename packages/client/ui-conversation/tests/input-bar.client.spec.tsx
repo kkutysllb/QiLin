@@ -9,21 +9,21 @@
 // the shell (jsdom's beforeinput lacks the ranges Lexical needs).
 
 import './control-row-dom.ts'
-import type { InboxState } from '@qilin/agent/types'
-import type { GlobalStandardProps } from '@qilin/client-ui-slots'
+import type { InboxState } from '@qilin-agent/agent/types'
+import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
 import { $getRoot, $isTextNode } from 'lexical'
 import {
   bindSnapshotSelector, conversationSnapshot as conversationFixture, makeTranslate, RemoteError,
   sessionSnapshot as sessionFixture,
-} from '@qilin/client-test-runtime'
-import { createSnapshotStore } from '@qilin/client-store'
-import type { SessionListState, SessionSnapshot } from '@qilin/api-session-controller/client'
-import type { ContextPressureProjection } from '@qilin/token-meter/client'
-import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
-import type { Context } from '@qilin/kylin'
-import type { SessionId } from '@qilin/session/types'
+} from '@qilin-agent/client-test-runtime'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { SessionListState, SessionSnapshot } from '@qilin-agent/api-session-controller/client'
+import type { ContextPressureProjection } from '@qilin-agent/token-meter/client'
+import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
+import type { Context } from '@qilin-agent/kylin'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { SubmitOutcome } from '../src/client/contract/input.ts'
 import { SessionInputShell } from '../src/client/input/facade.ts'
 import { $replaceDetectSpanWithText, $selectDetectSpan } from '../src/client/input/editor/span-map.ts'

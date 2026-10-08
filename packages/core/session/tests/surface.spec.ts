@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { SessionEvent, SurfaceEvent, SurfaceEventType } from '@qilin/session'
+import type { SessionEvent, SurfaceEvent, SurfaceEventType } from '@qilin-agent/session'
 import {
   Session,
   SessionId,
@@ -11,8 +11,8 @@ import {
   isReplacementSurfaceEvent,
   isSurfaceEligibleType,
   isSurfaceEvent,
-} from '@qilin/session'
-import { SurfaceManager } from '@qilin/session/surface'
+} from '@qilin-agent/session'
+import { SurfaceManager } from '@qilin-agent/session/surface'
 import {
   MessageId,
   ToolCallId,
@@ -22,10 +22,10 @@ import {
   createToolResultMessage,
   createUserMessage,
   freezeMessage,
-} from '@qilin/llm'
-import type { ContextFormed, MessageSource } from '@qilin/llm'
+} from '@qilin-agent/llm'
+import type { ContextFormed, MessageSource } from '@qilin-agent/llm'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
     'watcher': { kind: 'watcher' } & ContextFormed

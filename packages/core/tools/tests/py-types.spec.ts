@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { jsonSchemaToPy, renderToolsSdkPy } from '@qilin/tools/src/py-types.ts'
-import { parameterSchemaSpecToJsonSchema } from '@qilin/tools'
-import type { ToolSdkSchema } from '@qilin/tools/src/ts-types.ts'
+import { jsonSchemaToPy, renderToolsSdkPy } from '@qilin-agent/tools/src/py-types.ts'
+import { parameterSchemaSpecToJsonSchema } from '@qilin-agent/tools'
+import type { ToolSdkSchema } from '@qilin-agent/tools/src/ts-types.ts'
 
 describe('jsonSchemaToPy', () => {
   it('maps the defineTool DSL subset', () => {

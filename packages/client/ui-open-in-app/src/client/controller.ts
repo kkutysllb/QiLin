@@ -1,10 +1,10 @@
 /** Browser availability/choice state and the launch carrier for the split button. */
 
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
 import {
   OPEN_IN_APP_APPS_ROUTE, OPEN_IN_APP_OPEN_ROUTE,
   type OpenInAppAppsPayload, type OpenInAppOpenPayload,
-} from '@qilin/host-open-in-app/shared'
+} from '@qilin-agent/host-open-in-app/shared'
 
 /** Shared launch status for controls targeting the captured workspace path. */
 export interface OpenInAppLaunchState {

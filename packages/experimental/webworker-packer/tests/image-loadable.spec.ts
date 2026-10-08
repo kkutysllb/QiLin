@@ -21,14 +21,14 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import picomatch from 'picomatch'
-import { FiberState } from '@qilin/kylin'
-import { createNodeBuiltins, REPLACED_PREFIXES } from '@qilin/experimental-webworker-runtime/src/node/builtins.ts'
+import { FiberState } from '@qilin-agent/kylin'
+import { createNodeBuiltins, REPLACED_PREFIXES } from '@qilin-agent/experimental-webworker-runtime/src/node/builtins.ts'
 import {
   setActiveModuleLoader, WorkerModuleLoader,
-} from '@qilin/experimental-webworker-runtime/src/module-system/module-loader.ts'
-import { inflateImage } from '@qilin/experimental-webworker-runtime/src/storage/image-gzip.ts'
-import { loadVfsImage } from '@qilin/experimental-webworker-runtime/src/storage/memory.ts'
-import { setActiveVfs } from '@qilin/experimental-webworker-runtime/src/storage/active.ts'
+} from '@qilin-agent/experimental-webworker-runtime/src/module-system/module-loader.ts'
+import { inflateImage } from '@qilin-agent/experimental-webworker-runtime/src/storage/image-gzip.ts'
+import { loadVfsImage } from '@qilin-agent/experimental-webworker-runtime/src/storage/memory.ts'
+import { setActiveVfs } from '@qilin-agent/experimental-webworker-runtime/src/storage/active.ts'
 import { indexWorkspacePackages, previewFixtures } from '../src/repository.ts'
 import { DEFAULT_ROOT, MANIFEST_PATH, packVfsImage, packVfsOverlay } from '../src/pack.ts'
 import { PAGE_ASSETS } from '../src/rules.ts'
@@ -36,11 +36,11 @@ import { PAGE_ASSETS } from '../src/rules.ts'
 const repoRoot = fileURLToPath(new URL('../../../../', import.meta.url))
 
 /** A leaf workspace package: real build output, no dependencies to drag in. */
-const SUBJECT = '@qilin/timeout'
-const LANDLOCK = '@qilin/node-addon-system'
+const SUBJECT = '@qilin-agent/timeout'
+const LANDLOCK = '@qilin-agent/node-addon-system'
 const LANDLOCK_ENTRY = `${LANDLOCK}/landlock-run`
-const PLUGIN_INVENTORY = '@qilin/plugin-package-inventory-deepseek'
-const WEB_SERVER = '@qilin/host-webserver'
+const PLUGIN_INVENTORY = '@qilin-agent/plugin-package-inventory-deepseek'
+const WEB_SERVER = '@qilin-agent/host-webserver'
 
 const workspaces = indexWorkspacePackages(repoRoot)
 

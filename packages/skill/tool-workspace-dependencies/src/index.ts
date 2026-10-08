@@ -2,9 +2,9 @@
 
 import { cp, lstat, mkdir, mkdtemp, readFile, rename, rm, stat } from 'node:fs/promises'
 import { dirname, isAbsolute, join } from 'node:path'
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { defineTool } from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { defineTool } from '@qilin-agent/tools'
 
 /** Cordis plugin identity. */
 export const name = 'tool-workspace-dependencies'

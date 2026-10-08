@@ -3,7 +3,7 @@ description: "Web 客户端侧边栏底部的账户菜单：主题与语言切�
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-account
+# @qilin-agent/client-ui-account
 
 [English](README.md) | 中文
 

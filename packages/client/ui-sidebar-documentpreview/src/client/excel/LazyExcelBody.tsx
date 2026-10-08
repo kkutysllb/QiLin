@@ -1,6 +1,6 @@
 /** Load the spreadsheet renderer only when a supported workbook is opened. */
 import { lazy, Suspense, type ReactNode } from 'react'
-import type { PropsLocale } from '@qilin/client-ui-slots'
+import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import type { DocumentPreviewProps } from '../document/contract.ts'
 import { excelFormat, type ExcelFormat } from './format.ts'
 import type { ExcelLimits } from './model.ts'

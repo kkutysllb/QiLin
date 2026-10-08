@@ -4,9 +4,9 @@ import { readFile, realpath } from 'node:fs/promises'
 import { extname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import * as yaml from 'js-yaml'
-import Loader, { EntryGroup, ModuleLoader, isJsExpr, type EntryOptions } from '@qilin/kylin-plugin-loader'
-import Group from '@qilin/kylin-plugin-group'
-import Include, { applyEntryPatches, entryListSchema, type PatchOptions } from '@qilin/kylin-plugin-include'
+import Loader, { EntryGroup, ModuleLoader, isJsExpr, type EntryOptions } from '@qilin-agent/kylin-plugin-loader'
+import Group from '@qilin-agent/kylin-plugin-group'
+import Include, { applyEntryPatches, entryListSchema, type PatchOptions } from '@qilin-agent/kylin-plugin-include'
 import type { Profile, ProfileResolutionGeneration } from '../profile.ts'
 import { installProfileResolution } from '../profile-resolution/resolver.ts'
 import { buildConfigSchemaDocument } from './document.ts'
@@ -99,8 +99,8 @@ export async function collectConfigSchemas(
       if (resolved === undefined) {
         // Include may be bundled into app-boot; compare against the native packages resolved for this tree as well.
         resolved = Promise.allSettled([
-          loader.import('@qilin/kylin-plugin-group', baseUrl, {}),
-          loader.import('@qilin/kylin-plugin-include', baseUrl, {}),
+          loader.import('@qilin-agent/kylin-plugin-group', baseUrl, {}),
+          loader.import('@qilin-agent/kylin-plugin-include', baseUrl, {}),
         ]).then(([group, include]) => {
           const groupPlugin: unknown = group.status === 'fulfilled' ? Loader.prototype.unwrapExports(group.value) : undefined
           const includePlugin: unknown = include.status === 'fulfilled' ? Loader.prototype.unwrapExports(include.value) : undefined

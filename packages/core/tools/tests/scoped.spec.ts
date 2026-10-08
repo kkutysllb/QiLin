@@ -1,15 +1,15 @@
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import type { Events } from '@qilin/kylin'
-import { bindScopeParent, createScope } from '@qilin/scope'
-import type { Scope } from '@qilin/scope'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
-import type { PreToolDecision, ToolDefinition, ToolExecution, ToolExecutionInput, ToolExecutionToken } from '@qilin/tools'
-import type { Agent } from '@qilin/agent'
+import { Context } from '@qilin-agent/kylin'
+import type { Events } from '@qilin-agent/kylin'
+import { bindScopeParent, createScope } from '@qilin-agent/scope'
+import type { Scope } from '@qilin-agent/scope'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
+import type { PreToolDecision, ToolDefinition, ToolExecution, ToolExecutionInput, ToolExecutionToken } from '@qilin-agent/tools'
+import type { Agent } from '@qilin-agent/agent'
 
-import { ToolCallId } from '@qilin/llm'
-import type { SessionId } from '@qilin/session'
+import { ToolCallId } from '@qilin-agent/llm'
+import type { SessionId } from '@qilin-agent/session'
 
 const testToolSignal = new AbortController().signal
 

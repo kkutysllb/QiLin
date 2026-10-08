@@ -13,18 +13,18 @@
  * which tab type claims an address is the Sidebar's decision, not this
  * dispatcher's.
  */
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/api-remotes/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-session/client'
-import type {} from '@qilin/client-ui-sidebar-right/client'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/api-remotes/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-session/client'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
 // Type-only: the browser tab type's own parameter declaration, so a page opens
 // with its address rather than through a bare kind.
-import type {} from '@qilin/client-ui-sidebar-browser/client'
-import type {} from '@qilin/sidebar-opens/remote'
-import type { SidebarOpenRequest } from '@qilin/sidebar-opens/types'
-import { fileAddressFor } from '@qilin/util-workspace-path'
-import type { SessionId } from '@qilin/session/types'
+import type {} from '@qilin-agent/client-ui-sidebar-browser/client'
+import type {} from '@qilin-agent/sidebar-opens/remote'
+import type { SidebarOpenRequest } from '@qilin-agent/sidebar-opens/types'
+import { fileAddressFor } from '@qilin-agent/util-workspace-path'
+import type { SessionId } from '@qilin-agent/session/types'
 
 /** Required browser services: the Remote carrier, the Sidebar's tabs, and the viewed Session. */
 export const inject = ['remote', 'sidebarRight', 'sidebarRightTabs', 'sessions', 'uiSession']

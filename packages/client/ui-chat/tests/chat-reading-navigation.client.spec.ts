@@ -6,7 +6,7 @@ import { ChatNavigation, type ChatNavigationInput } from '../src/client/chat/use
 import { ChatReading, type ChatReadingState } from '../src/client/chat/use-chat-reading.ts'
 import { ChatViewport } from '../src/client/chat/use-chat-viewport.ts'
 import { ScrollFollow } from '../src/client/chat/use-scroll-follow.ts'
-import { SessionSeq } from '@qilin/session/types'
+import { SessionSeq } from '@qilin-agent/session/types'
 
 type PositionStore = ChatViewSlotProps['chatScroll']
 // use-chat-reading composes its follower at FOLLOW_THRESHOLD + 1.

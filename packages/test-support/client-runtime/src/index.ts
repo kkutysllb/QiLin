@@ -8,42 +8,42 @@
  * Not part of the product plugin graph (no `qilin.client`); feature packages
  * depend on it in devDependencies only. It copies no SlotCore/renderer/store
  * machinery — everything mounts the production implementations.
- * @module @qilin/client-test-runtime
+ * @module @qilin-agent/client-test-runtime
  */
 /* oxlint-disable typescript/no-redundant-type-constituents --
  * `keyof SlotMap & string` is the declare-merge key pattern (see ui-slots):
  * this compilation unit sees only the runtime's 'root' row, but consumer
  * programs merge their own keys in; the rule fires on the narrow-map view. */
-import { Context, Inject } from '@qilin/kylin'
-import type { Fiber, Plugin } from '@qilin/kylin'
+import { Context, Inject } from '@qilin-agent/kylin'
+import type { Fiber, Plugin } from '@qilin-agent/kylin'
 import { createElement, Fragment, useSyncExternalStore } from 'react'
 import type { ReactNode } from 'react'
 import { act, render, within } from '@testing-library/react'
 import type { RenderResult } from '@testing-library/react'
 import type { queries } from '@testing-library/dom'
 import type { BoundFunctions } from '@testing-library/dom'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import { bindSnapshotSelector as bindRendererSnapshotSelector } from '@qilin/client-ui-renderer/src/client/bind.ts'
-import { createSlotRenderer as createRenderer } from '@qilin/client-ui-renderer/src/client/scoped-slots.tsx'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import { bindSnapshotSelector as bindRendererSnapshotSelector } from '@qilin-agent/client-ui-renderer/src/client/bind.ts'
+import { createSlotRenderer as createRenderer } from '@qilin-agent/client-ui-renderer/src/client/scoped-slots.tsx'
 import {
   apply as applyUiSession, inject as uiSessionInject,
-} from '@qilin/client-ui-session/client'
-import type { SessionReference } from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
-import { createSnapshotStore } from '@qilin/client-store'
-import type { PanelInfo } from '@qilin/client-ui-layout/client'
+} from '@qilin-agent/client-ui-session/client'
+import type { SessionReference } from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { PanelInfo } from '@qilin-agent/client-ui-layout/client'
 import type {
   ChildrenDecl, ComposedProps, HostObservable, OwnerOf, RenderOpts, SlotComponent, SlotMap, SlotRenderer,
   ScopedStandardSourceBinding, SessionProviderComponent, SlotEntryDef, SlotFactoryMap, SlotRendererHost, SlotSpec,
   SnapshotSelectorHook, StoredFactory, StoreInstanceLike,
-} from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-slots'
 import { registerDomSnapshotSerializer } from './snapshot.ts'
 import { TestRemote } from './remote.ts'
 import { TestSessions } from './sessions.ts'
 import { TestWorkspaces } from './workspaces.ts'
 import type { Stabilizer } from './fixtures.ts'
 
-export type { UseSession } from '@qilin/client-ui-session/client'
+export type { UseSession } from '@qilin-agent/client-ui-session/client'
 export { domSnapshotSerializer, registerDomSnapshotSerializer } from './snapshot.ts'
 export { FixtureSession, TestSessions } from './sessions.ts'
 export { stubConfigForm } from './config-form.ts'

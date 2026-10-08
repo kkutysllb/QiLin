@@ -1,14 +1,14 @@
 // @vitest-environment jsdom
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import {
   createClientModuleSystem, parseBootManifest,
   type ClientBundleRegistration, type ClientModuleLoader, type ClientModuleLoaderTarget, type WebBootEntry, type WebBootGraph,
-} from '@qilin/client-modules/client'
+} from '@qilin-agent/client-modules/client'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import { assertEntriesActive, bootClient, type EntryStateLabel } from '../src/boot-client.ts'
 import { FIBER_STATE } from '../src/loader-status.ts'
 
-const BOOTSTRAP_ID = '@qilin/client-modules'
+const BOOTSTRAP_ID = '@qilin-agent/client-modules'
 
 function graphOf(ids: readonly string[]): WebBootGraph {
   const entries: WebBootEntry[] = ids.map(id => ({ id, url: `/${id}.js`, rev: '1' }))

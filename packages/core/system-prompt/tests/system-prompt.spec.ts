@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import SystemPrompt, {
   AssembleContext, PromptAssembly, renderContextSnapshot, renderPrompt,
-} from '@qilin/system-prompt'
-import type { PromptContextOrderName, PromptSectionOrderName } from '@qilin/system-prompt'
+} from '@qilin-agent/system-prompt'
+import type { PromptContextOrderName, PromptSectionOrderName } from '@qilin-agent/system-prompt'
 
 /**
  * Every assembly carries the plugin's own built-ins — `harness:identity`

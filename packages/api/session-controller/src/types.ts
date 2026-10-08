@@ -1,18 +1,18 @@
 /** Browser-safe request, result, and lifecycle vocabulary for the Session Remote service. */
-import type { NativeFileApplication } from '@qilin/native-command/types'
+import type { NativeFileApplication } from '@qilin-agent/native-command/types'
 
 import type {
   AttachmentIdType, ImageAttachmentLimits, ImageAttachmentRef, ImageMediaType,
-} from '@qilin/attachment'
-import type { Branded } from '@qilin/brand'
-import type { LlmAttemptId, MessageId } from '@qilin/llm/brand'
-import type { TextBlock } from '@qilin/llm'
-import type { SessionId, SessionSeqCursor } from '@qilin/session/types'
-import type { SessionProjectionMap } from '@qilin/session-projection/types'
-import type { JsonValue } from '@qilin/util-values'
-import type { WorkspaceId } from '@qilin/workspace/types'
+} from '@qilin-agent/attachment'
+import type { Branded } from '@qilin-agent/brand'
+import type { LlmAttemptId, MessageId } from '@qilin-agent/llm/brand'
+import type { TextBlock } from '@qilin-agent/llm'
+import type { SessionId, SessionSeqCursor } from '@qilin-agent/session/types'
+import type { SessionProjectionMap } from '@qilin-agent/session-projection/types'
+import type { JsonValue } from '@qilin-agent/util-values'
+import type { WorkspaceId } from '@qilin-agent/workspace/types'
 
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionStateMap {
     /** Host state persisted for cold Session list summaries. */
     sessionListMetadata: SessionListMetadata
@@ -31,7 +31,7 @@ declare module '@qilin/session-projection/types' {
   }
 }
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /**
      * Complete validated model selection requested for subsequent prompt
@@ -199,7 +199,7 @@ export const SESSION_SEARCH_RESULT_LIMIT = 20
 /** Maximum search snippet length in Unicode code points. */
 export const SESSION_SEARCH_SNIPPET_MAX_CODE_POINTS = 240
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface RemoteErrorDetailsMap {
     'session/model-unavailable': { readonly provider: string; readonly model: string }
     'session/conflict': {
@@ -506,7 +506,7 @@ export interface SessionOpenWorkspacePathValue {
 /** Client-minted prompt identity used to reconcile optimistic and durable messages. */
 export type SessionRequestId = Branded<'session-request-id'>
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     /** Browser prompt correlation and optional Host-validated time zone. */
     'user-rpc': { kind: 'user'; rpcId: SessionRequestId; clientTimeZone?: string }
@@ -689,7 +689,7 @@ export type SessionControlFrame =
   | { readonly type: 'baseline'; readonly value: SessionControlBaseline }
   | ({ readonly type: 'projection' } & SessionProjectionUpdate)
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Events {
     /**
      * A Session became visible or its Agent was created or disposed.

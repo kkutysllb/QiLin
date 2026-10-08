@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { Session, SessionId } from '@qilin/session'
-import AgentRegistry from '@qilin/agent'
-import type { Agent, AgentCancelCause, AgentStatus, CancelOptions } from '@qilin/agent'
-import type { SessionActivity } from '@qilin/workspace'
+import { Context } from '@qilin-agent/kylin'
+import { Session, SessionId } from '@qilin-agent/session'
+import AgentRegistry from '@qilin-agent/agent'
+import type { Agent, AgentCancelCause, AgentStatus, CancelOptions } from '@qilin-agent/agent'
+import type { SessionActivity } from '@qilin-agent/workspace'
 
 type CancelCall = [AgentCancelCause, CancelOptions | undefined]
 
@@ -85,7 +85,7 @@ describe('Turn archive admission', () => {
 })
 
 // The registry knows only its own family; this suite merges a second one to observe ordering.
-declare module '@qilin/workspace/types' {
+declare module '@qilin-agent/workspace/types' {
   interface SessionActivityKindMap {
     probe: true
   }

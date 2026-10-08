@@ -1,17 +1,17 @@
 /** The `agent-loop` settings section layered over the composition entry. */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import type { Fiber } from '@qilin/kylin'
-import LlmRuntime from '@qilin/llm'
-import SessionStore from '@qilin/session'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
-import AgentRegistry from '@qilin/agent'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import { SettingsProvider } from '@qilin/settings'
-import type { SettingsNamespace } from '@qilin/settings'
-import AgentLoop, { AGENT_LOOP_SETTINGS_NAMESPACE } from '@qilin/agent-loop'
+import { Context } from '@qilin-agent/kylin'
+import type { Fiber } from '@qilin-agent/kylin'
+import LlmRuntime from '@qilin-agent/llm'
+import SessionStore from '@qilin-agent/session'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
+import AgentRegistry from '@qilin-agent/agent'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import { SettingsProvider } from '@qilin-agent/settings'
+import type { SettingsNamespace } from '@qilin-agent/settings'
+import AgentLoop, { AGENT_LOOP_SETTINGS_NAMESPACE } from '@qilin-agent/agent-loop'
 
 /** The smallest real provider: one in-memory document, always writable. */
 class MemorySettings extends SettingsProvider {

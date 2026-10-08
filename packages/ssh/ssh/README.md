@@ -3,7 +3,7 @@ description: "OpenSSH connection configuration and remote helper lifecycle for d
 kind: "package-reference"
 ---
 
-# @qilin/ssh
+# @qilin-agent/ssh
 
 English | [中文](README.zh.md)
 

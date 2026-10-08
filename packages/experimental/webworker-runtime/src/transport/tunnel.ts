@@ -13,7 +13,7 @@
  *
  * A boot failure rejects the whole queue with 503 rather than leaving the page
  * waiting.
- * @module @qilin/experimental-webworker-runtime/src/transport/tunnel
+ * @module @qilin-agent/experimental-webworker-runtime/src/transport/tunnel
  */
 import {
   parseInboundFrame, type TunnelOutboundFrame, type TunnelRequestFrame, type TunnelRequestId,

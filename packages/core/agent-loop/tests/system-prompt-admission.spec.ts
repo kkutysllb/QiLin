@@ -1,18 +1,18 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import AgentRegistry, { installModelSelection, type Agent, type ModelSelectionRef } from '@qilin/agent'
-import AgentLoop from '@qilin/agent-loop'
-import LlmRuntime, { createUserMessage, LlmError, type GenerateOptions } from '@qilin/llm'
-import { toPiContext } from '@qilin/llm-pi-ai/src/context.ts'
-import SessionStore, { Session, SessionId } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime, { defineContentToolFixture } from '@qilin/tools'
+import { Context } from '@qilin-agent/kylin'
+import AgentRegistry, { installModelSelection, type Agent, type ModelSelectionRef } from '@qilin-agent/agent'
+import AgentLoop from '@qilin-agent/agent-loop'
+import LlmRuntime, { createUserMessage, LlmError, type GenerateOptions } from '@qilin-agent/llm'
+import { toPiContext } from '@qilin-agent/llm-pi-ai/src/context.ts'
+import SessionStore, { Session, SessionId } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime, { defineContentToolFixture } from '@qilin-agent/tools'
 import { MockAdapter, textResponse } from './mock-adapter.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
-    'test-compaction': { kind: 'test-compaction' } & import('@qilin/llm').ContextFormed
+    'test-compaction': { kind: 'test-compaction' } & import('@qilin-agent/llm').ContextFormed
   }
 }
 

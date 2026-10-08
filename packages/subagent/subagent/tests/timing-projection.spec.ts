@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import SessionStore from '@qilin/session'
-import type { SessionEvent, TurnEndReason } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
+import { Context } from '@qilin-agent/kylin'
+import SessionStore from '@qilin-agent/session'
+import type { SessionEvent, TurnEndReason } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import SubagentRuntime from '../src/index.ts'
 import { subagentTimingProjectionDefinition, type TimingState } from '../src/projection.ts'
 

@@ -3,7 +3,7 @@ description: "Enable profile plugins and install, remove or select bundles from 
 kind: "package-reference"
 ---
 
-# @qilin/plugin-manager
+# @qilin-agent/plugin-manager
 
 English | [中文](README.zh.md)
 
@@ -103,7 +103,7 @@ Results contain the last attempted stage, target, saved-state change, applicatio
 
 #### What the model sees
 
-The [`plugin_manager` tool](../../../docs/tool-catalog.md#qilinplugin-manager) lists plugin entries and bundles and performs profile-wide changes. Its results include saved-state changes, application status and package diagnostics. Management operations do not inject messages into Agents.
+The [`plugin_manager` tool](../../../docs/tool-catalog.md#qilin-agentplugin-manager) lists plugin entries and bundles and performs profile-wide changes. Its results include saved-state changes, application status and package diagnostics. Management operations do not inject messages into Agents.
 
 #### Token effect
 

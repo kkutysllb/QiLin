@@ -34,7 +34,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Terminal, type ITheme } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
-import { writeClipboard } from '@qilin/client-ui-primitives'
+import { writeClipboard } from '@qilin-agent/client-ui-primitives'
 import '@xterm/xterm/css/xterm.css'
 import { t } from './locales.ts'
 import { openWhenSized } from './open-when-sized.ts'
@@ -179,7 +179,7 @@ export function TerminalView(props: { scope: SessionScope; tabId: string; store:
         // the URL text would come from the wrong row while `range.y` still
         // pointed at the requested row — links landed one line too high.
         /* jscpd:ignore-start — same xterm link-provider wiring as
-           @qilin/client-ui-sidebar-terminal src/client/terminal.tsx (ported xterm glue) */
+           @qilin-agent/client-ui-sidebar-terminal src/client/terminal.tsx (ported xterm glue) */
         const line = term.buffer.active.getLine(lineNumber - 1)
         if (line === undefined) {
           callback(undefined)

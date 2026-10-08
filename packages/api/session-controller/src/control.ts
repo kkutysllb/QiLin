@@ -1,11 +1,11 @@
 /** Live Session jobs and projection state with reconnect baselines. */
 
-import type { Context } from '@qilin/kylin'
-import { Deque } from '@qilin/deque'
+import type { Context } from '@qilin-agent/kylin'
+import { Deque } from '@qilin-agent/deque'
 import type {
   Session, SessionId,
-} from '@qilin/session'
-import type { JsonValue } from '@qilin/util-values'
+} from '@qilin-agent/session'
+import type { JsonValue } from '@qilin-agent/util-values'
 import type {
   SessionControlBaseline,
   SessionControlFrame,

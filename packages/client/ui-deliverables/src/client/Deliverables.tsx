@@ -1,9 +1,9 @@
 /** The changed-files card, shown only while the Host serves the turn's summary, and explicitly declared files for a closing turn. */
 import { useEffect, useState } from 'react'
-import type { TurnTailOwnerProps } from '@qilin/client-ui-chat/client'
-import { Button, IconChevronDownOutline14, IconChevronUpOutline14 } from '@qilin/client-ui-primitives'
-import type { GlobalStandardProps, InjectFace, PropsLocale, PropsRuntime, SessionStandardProps } from '@qilin/client-ui-slots'
-import type { ObservableSnapshot } from '@qilin/client-store'
+import type { TurnTailOwnerProps } from '@qilin-agent/client-ui-chat/client'
+import { Button, IconChevronDownOutline14, IconChevronUpOutline14 } from '@qilin-agent/client-ui-primitives'
+import type { GlobalStandardProps, InjectFace, PropsLocale, PropsRuntime, SessionStandardProps } from '@qilin-agent/client-ui-slots'
+import type { ObservableSnapshot } from '@qilin-agent/client-store'
 import type { PresentedOpenController } from './present-open.ts'
 import type { ChangesSummaryStore } from './changes-summary.ts'
 import { ChangedFiles } from './ChangedFiles.tsx'

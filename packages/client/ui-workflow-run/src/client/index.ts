@@ -1,18 +1,18 @@
 /** Browser plugin for durable workflow-run Conversation Nodes. */
 
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { SessionTarget } from '@qilin/api-session-controller/client'
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-ui-chat/client'
-import type {} from '@qilin/client-ui-conversation/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-session/client'
-import type {} from '@qilin/client-ui-workspace/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { SessionTarget } from '@qilin-agent/api-session-controller/client'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-ui-chat/client'
+import type {} from '@qilin-agent/client-ui-conversation/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-session/client'
+import type {} from '@qilin-agent/client-ui-workspace/client'
 import { WorkflowRunPanel, type WorkflowRunInjected } from './WorkflowRunPanel.tsx'
 import { en, NS, type WorkflowRunKey, zh } from './locales.ts'
 import { workflowRunDefinition } from './workflow-definition.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Durable workflow-run node copy. */
     workflowRun: WorkflowRunKey

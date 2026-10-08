@@ -1,9 +1,9 @@
 /** First-party Host inspect providers registered by the Cordis tool package. */
 
-import type { Context } from '@qilin/kylin'
-import { HOST_BUILTIN_INSPECTION } from '@qilin/kylin-host-runner'
-import type { HostCordisInspectProviderRegistration } from '@qilin/kylin-host-runner'
-import type { JsonValue } from '@qilin/util-values'
+import type { Context } from '@qilin-agent/kylin'
+import { HOST_BUILTIN_INSPECTION } from '@qilin-agent/kylin-host-runner'
+import type { HostCordisInspectProviderRegistration } from '@qilin-agent/kylin-host-runner'
+import type { JsonValue } from '@qilin-agent/util-values'
 import { EVENT_API, queryEventApi, queryServiceApi } from './api-catalog.ts'
 import { queryLiveConfig } from './config.ts'
 

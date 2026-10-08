@@ -2,22 +2,22 @@
  * Active Loader-backed plugin package inventory for official DeepSeek requests.
  * Host entries and the requesting agent's standing preset are resolved at request time;
  * installed dependencies and plugin fibers without Loader-backed package identity are excluded.
- * @module @qilin/plugin-package-inventory-deepseek
+ * @module @qilin-agent/plugin-package-inventory-deepseek
  */
 
 import { existsSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, isAbsolute, join, parse } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { FiberState, type Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { brandString } from '@qilin/brand'
-import type { Entry, EntryTree } from '@qilin/kylin-plugin-loader'
-import type {} from '@qilin/agent'
-import type {} from '@qilin/deepseek-llm-api-extensions'
-import type { SessionId } from '@qilin/session'
-import type {} from '@qilin/agent-presets'
-import type {} from '@qilin/app-boot'
+import { FiberState, type Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { brandString } from '@qilin-agent/brand'
+import type { Entry, EntryTree } from '@qilin-agent/kylin-plugin-loader'
+import type {} from '@qilin-agent/agent'
+import type {} from '@qilin-agent/deepseek-llm-api-extensions'
+import type { SessionId } from '@qilin-agent/session'
+import type {} from '@qilin-agent/agent-presets'
+import type {} from '@qilin-agent/app-boot'
 import type { DeepSeekPluginPackageIdentity, DeepSeekPluginPackageInventoryExtension } from './types.ts'
 import type {} from './types.ts'
 
@@ -166,7 +166,7 @@ async function collectActivePluginPackages(
     if (agent !== undefined) {
       // The optional peer is loaded only when its service is present. Its existing
       // mount query keeps Loader internals off the public AgentPresets service.
-      const { standingMountFor } = await import('@qilin/agent-presets')
+      const { standingMountFor } = await import('@qilin-agent/agent-presets')
       const presetTree = standingMountFor(agent.ctx)?.tree
       // PresetTree deliberately resolves its root bare rows from the harness;
       // nested ordinary includes retain their own tree base.

@@ -197,7 +197,7 @@ export interface SubprocessHandle {
 
 /**
  * Signals supported by the terminal-process primitive. Kept member-identical
- * to `TerminalSignal` in `@qilin/terminal` without a cross-seam dependency;
+ * to `TerminalSignal` in `@qilin-agent/terminal` without a cross-seam dependency;
  * change both together.
  */
 export type SubprocessTerminalSignal = 'SIGINT' | 'SIGTERM' | 'SIGKILL' | 'SIGTSTP' | 'SIGHUP'

@@ -3,7 +3,7 @@ description: "Reload plugin code and profile configuration through one coordinat
 kind: "package-reference"
 ---
 
-# @qilin/hmr
+# @qilin-agent/hmr
 
 English | [中文](README.zh.md)
 
@@ -33,7 +33,7 @@ The base bundle enables HMR with `root: []` when the launcher supplies `profileC
     root: ["."]
 ```
 
-Existing configurations replace the module name `@qilin/kylin-plugin-hmr` with `@qilin/hmr`. The `hmr` service key, `baseDir`, `config`, `getLinked()`, `getOuterStack()`, `hmr/change` and `hmr/reload` remain available. The vendored package remains available; QILIN profiles use this package.
+Existing configurations replace the module name `@qilin-agent/kylin-plugin-hmr` with `@qilin-agent/hmr`. The `hmr` service key, `baseDir`, `config`, `getLinked()`, `getOuterStack()`, `hmr/change` and `hmr/reload` remain available. The vendored package remains available; QILIN profiles use this package.
 
 ### Configuration
 

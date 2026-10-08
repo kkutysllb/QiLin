@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/tool-workflow",
+  "name": "@qilin-agent/tool-workflow",
   "description": "Model-facing workflow tool: run a JavaScript orchestration script over ctx.workflowEngine",
   "version": "3.1.1",
   "publishConfig": {
@@ -35,27 +35,27 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/workflow": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/workflow": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/subagent": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/workflow": "workspace:*",
-    "@qilin/workflow-ptc": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/session-projection": "workspace:*"
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/subagent": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/workflow": "workspace:*",
+    "@qilin-agent/workflow-ptc": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/session-projection": "workspace:*"
   }
 }

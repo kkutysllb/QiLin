@@ -1,16 +1,16 @@
-import { imageOffloadProjection } from '@qilin/compaction-image-offload/projection'
+import { imageOffloadProjection } from '@qilin-agent/compaction-image-offload/projection'
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import {
   LlmRuntime, LlmAdapter, createMessage, createToolResultMessage, createUserMessage, projectFilesToText, ToolCallId,
-} from '@qilin/llm'
-import type { GenerateOptions, LlmImageRequestPricing, Message, StreamChunk, TokenUsage, UserMessage } from '@qilin/llm'
-import { AttachmentId } from '@qilin/attachment'
-import type { FileAttachmentRef, ImageAttachmentRef } from '@qilin/attachment'
-import { Session, SessionId, canonicalHeader } from '@qilin/session'
-import type { EpochHeader } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import TokenMeter from '@qilin/token-meter'
+} from '@qilin-agent/llm'
+import type { GenerateOptions, LlmImageRequestPricing, Message, StreamChunk, TokenUsage, UserMessage } from '@qilin-agent/llm'
+import { AttachmentId } from '@qilin-agent/attachment'
+import type { FileAttachmentRef, ImageAttachmentRef } from '@qilin-agent/attachment'
+import { Session, SessionId, canonicalHeader } from '@qilin-agent/session'
+import type { EpochHeader } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import TokenMeter from '@qilin-agent/token-meter'
 import { estimateContent, estimateMessage } from '../src/estimate.ts'
 
 /** Adapter double declaring fixed per-occurrence image prices for one route. */

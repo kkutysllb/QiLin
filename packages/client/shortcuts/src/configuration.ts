@@ -1,5 +1,5 @@
 /** Validated preference documents and deterministic conflict resolution, without browser dependencies. */
-import { assertNever } from '@qilin/util-values'
+import { assertNever } from '@qilin-agent/util-values'
 import { bindingKey, isWebBindingAllowed, normalizeBinding } from './binding.ts'
 import type { NormalizedBinding, ShortcutBinding, ShortcutCommandId, ShortcutModifier, ShortcutPlatform, ShortcutProfile, ShortcutRuntime } from './binding.ts'
 

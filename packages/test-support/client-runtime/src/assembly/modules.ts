@@ -3,21 +3,21 @@
  * the plan's replacement) and register each as a pre-arrived factory on a
  * production `ClientModuleSystem`, so neither the Loader's `internal.import`
  * nor a stage-one `prefetch` ever fetches a bundle.
- * @module @qilin/client-test-runtime/src/assembly/modules
+ * @module @qilin-agent/client-test-runtime/src/assembly/modules
  */
-import * as modulesClient from '@qilin/client-modules/client'
-import { createClientModuleSystem } from '@qilin/client-modules/client'
-import type { ClientModuleLoader, ClientModuleLoaderTarget, WebBootGraph } from '@qilin/client-modules/client'
+import * as modulesClient from '@qilin-agent/client-modules/client'
+import { createClientModuleSystem } from '@qilin-agent/client-modules/client'
+import type { ClientModuleLoader, ClientModuleLoaderTarget, WebBootGraph } from '@qilin-agent/client-modules/client'
 import type { AssemblyPlan, ClientPluginModule } from './roster.ts'
 
 /** The bootstrap row: always this process's static namespace, never a dynamic import or a `provide` replacement. */
-export const MODULES_PACKAGE = '@qilin/client-modules'
+export const MODULES_PACKAGE = '@qilin-agent/client-modules'
 
 /**
  * Resolve each roster row to its plugin module: `plan.provide[name]` when
  * present, otherwise a `/client` import resolved by the repository's tsconfig
  * path aliases under Vitest. The bootstrap row is the
- * statically imported `@qilin/client-modules/client` namespace.
+ * statically imported `@qilin-agent/client-modules/client` namespace.
  * @param plan - validated plan.
  * @returns package name → module, in roster order.
  * @throws {Error} when an import fails (the package name prefixes the original message) or the bootstrap row is provided.

@@ -9,7 +9,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { getQilinRuntimeVersion, PROFILE_TEMPLATES, readProfileVersionExemptions } from '@qilin/app-boot'
+import { getQilinRuntimeVersion, PROFILE_TEMPLATES, readProfileVersionExemptions } from '@qilin-agent/app-boot'
 import { runPlugin } from '../src/plugin.ts'
 
 vi.mock('node:child_process', async importOriginal => ({
@@ -90,7 +90,7 @@ describe('qilin plugin list', () => {
   it('prints the profile layers in activation order without running pnpm', async () => {
     const dir = stageProfile('tui', {
       dependencies: { 'dsh-super-ppts': '1.2.1' },
-      qilin: { profile: { bundles: ['@qilin/base', 'dsh-super-ppts', '@example/absent'] } },
+      qilin: { profile: { bundles: ['@qilin-agent/base', 'dsh-super-ppts', '@example/absent'] } },
     })
     file(join(dir, 'node_modules', 'dsh-super-ppts', 'package.json'), JSON.stringify({ name: 'dsh-super-ppts', version: '1.2.1' }))
     const { code, out } = await capture(() => runPlugin('tui', ['list']))
@@ -98,7 +98,7 @@ describe('qilin plugin list', () => {
     const lines = out.trim().split('\n')
     // `tui` ships no template, so every declared layer is a user layer, and a
     // layer that resolves from the installation reports that version.
-    expect(lines[0]).toMatch(/^0\t@qilin\/base@\d/u)
+    expect(lines[0]).toMatch(/^0\t@qilin-agent\/base@\d/u)
     expect(lines[1]).toBe('1\tdsh-super-ppts@1.2.1\tuser')
     expect(lines[2]).toBe('2\t@example/absent@not installed\tuser')
     expect(out).not.toContain('(shipped)')
@@ -106,7 +106,7 @@ describe('qilin plugin list', () => {
   })
 
   it('marks the shipped layers of a template profile', async () => {
-    stageProfile('web', { qilin: { profile: { bundles: ['@qilin/base', '@qilin/web-app'] } } })
+    stageProfile('web', { qilin: { profile: { bundles: ['@qilin-agent/base', '@qilin-agent/web-app'] } } })
     const { code, out } = await capture(() => runPlugin('web', ['list']))
     expect(code).toBe(0)
     expect(out.match(/\(shipped\)/gu)).toHaveLength(2)
@@ -120,7 +120,7 @@ describe('qilin plugin list', () => {
     // carrying the once-seeded layer shows it as an owner layer: not shipped,
     // no in-place upgrade marker of its own.
     const dir = stageProfile('web', {
-      qilin: { profile: { bundles: ['@qilin/base', '@qilin/web-app', 'dsh-animations'] } },
+      qilin: { profile: { bundles: ['@qilin-agent/base', '@qilin-agent/web-app', 'dsh-animations'] } },
     })
     file(join(dir, 'node_modules', 'dsh-animations', 'package.json'), JSON.stringify({ name: 'dsh-animations', version: '1.2.3' }))
     const { code, out } = await capture(() => runPlugin('web', ['list']))
@@ -243,7 +243,7 @@ describe('qilin plugin forwarding', () => {
     file(join(pluginDir, 'package.json'), JSON.stringify({
       name: 'incompatible-plugin',
       version: '1.0.0',
-      peerDependencies: { '@qilin/session': '999.0.0' },
+      peerDependencies: { '@qilin-agent/session': '999.0.0' },
     }))
     const { code, err } = await capture(() => runPlugin('tui', ['add', pluginDir]))
     expect(code).toBe(1)

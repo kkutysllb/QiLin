@@ -18,25 +18,25 @@ import { cp, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/pr
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { z } from 'zod'
-import SessionStore, { SESSION_FORMAT_VERSION, SessionId } from '@qilin/session'
-import type { SessionHeader } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import type { ProjectionDefinition } from '@qilin/session-projection'
-import Storage from '@qilin/storage'
+import SessionStore, { SESSION_FORMAT_VERSION, SessionId } from '@qilin-agent/session'
+import type { SessionHeader } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import type { ProjectionDefinition } from '@qilin-agent/session-projection'
+import Storage from '@qilin-agent/storage'
 import {
   apply as storageJsonApply, Config as storageJsonConfig, inject as storageJsonInject, name as storageJsonName,
-} from '@qilin/storage-json'
+} from '@qilin-agent/storage-json'
 import {
   apply as storageDomainApply, Config as storageDomainConfig, inject as storageDomainInject, name as storageDomainName,
-} from '@qilin/storage-domain'
+} from '@qilin-agent/storage-domain'
 import SessionProjectionCache from '../src/index.ts'
 import { checkpointRow, projectionCacheDomainSpec } from '../src/spec.ts'
 
 // Declarations must match the shipped title unit's exactly (the repo-wide
 // compile face sees both).
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionStateMap {
     title: string | null
   }
@@ -45,7 +45,7 @@ declare module '@qilin/session-projection/types' {
   }
 }
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     'fixtures-test/set-title': { title: string }
   }

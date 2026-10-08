@@ -2,7 +2,7 @@
 # this integration lane covers both in-process lifecycle modes.
 - insert:
     - id: auto-review-one-shot-subagent
-      name: '@qilin/tool-subagent'
+      name: '@qilin-agent/tool-subagent'
       config:
         provider: spawn
         toolName: subagent_one_shot

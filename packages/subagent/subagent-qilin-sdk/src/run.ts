@@ -1,17 +1,17 @@
 /**
  * Fresh-process SDK subagent client. Drives one child QiLin
- * runtime over stdio JSON-RPC through `@qilin/sdk-client` and owns
+ * runtime over stdio JSON-RPC through `@qilin-agent/sdk-client` and owns
  * cancellation and quiescent disposal. It publishes after the child
  * handshake, maps child failures to stop reasons, and tears down to
  * quiescence. The SDK client spawns the child rather than using
  * `ctx.subprocess` — the subprocess seam's documented exception for
  * SDK-managed transports — so this driver applies the seam's shared env scrub.
  *
- * @module @qilin/subagent-qilin-sdk/run
+ * @module @qilin-agent/subagent-qilin-sdk/run
  */
 
 import { randomUUID } from 'node:crypto'
-import { brandString } from '@qilin/brand'
+import { brandString } from '@qilin-agent/brand'
 import {
   DeepSeekHarness,
   type DeepSeekHarnessOptions,
@@ -19,12 +19,12 @@ import {
   JsonRpcResponseError,
   SdkProtocolError,
   TransportClosedError,
-} from '@qilin/sdk-client'
-import type { ContentBlock, ReasoningEffortId } from '@qilin/llm'
-import type { SessionEvent, SessionId, TurnEndReason } from '@qilin/session'
-import type { SubagentResult, SubagentRun, SubagentStartRequest, SubagentStopReason } from '@qilin/subagent'
-import { AssistantOutputFold, settleRunResult, subprocessRunHandle } from '@qilin/subagent'
-import { scrubbedParentEnv } from '@qilin/subprocess'
+} from '@qilin-agent/sdk-client'
+import type { ContentBlock, ReasoningEffortId } from '@qilin-agent/llm'
+import type { SessionEvent, SessionId, TurnEndReason } from '@qilin-agent/session'
+import type { SubagentResult, SubagentRun, SubagentStartRequest, SubagentStopReason } from '@qilin-agent/subagent'
+import { AssistantOutputFold, settleRunResult, subprocessRunHandle } from '@qilin-agent/subagent'
+import { scrubbedParentEnv } from '@qilin-agent/subprocess'
 
 /** Resolved spawn spec for an SDK runtime child process (no defaults — see Config). */
 export interface SdkRunSpec {

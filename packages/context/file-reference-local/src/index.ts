@@ -1,17 +1,17 @@
 /**
  * Local-filesystem implementation of `ctx.fileReferences`.
  *
- * @module @qilin/file-reference-local
+ * @module @qilin-agent/file-reference-local
  */
 
-import { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type { Agent } from '@qilin/agent'
+import { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type { Agent } from '@qilin-agent/agent'
 import FileReferenceService, {
   FILE_REFERENCE_PROMPT,
   type FileReferenceCandidate,
-} from '@qilin/file-reference'
-import type {} from '@qilin/tools'
+} from '@qilin-agent/file-reference'
+import type {} from '@qilin-agent/tools'
 import {
   DEFAULT_FILE_SEARCH_EXCLUDED_DIRECTORIES,
   DEFAULT_FILE_SEARCH_MAX_ENTRIES,
@@ -27,8 +27,8 @@ export {
   WorkspaceFileSearch,
 } from './search.ts'
 export type { FileSearchConfig } from './search.ts'
-export { FILE_REFERENCE_PROMPT } from '@qilin/file-reference'
-export { activeAtToken, formatFileMention } from '@qilin/file-reference/grammar'
+export { FILE_REFERENCE_PROMPT } from '@qilin-agent/file-reference'
+export { activeAtToken, formatFileMention } from '@qilin-agent/file-reference/grammar'
 
 /** Local file-reference discovery configuration. */
 export interface Config {

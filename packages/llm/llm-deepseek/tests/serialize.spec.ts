@@ -1,9 +1,9 @@
 /** Request conversion and durable replay validation. */
 import { describe, expect, it, vi } from 'vitest'
-import { createDeveloperMessage, createUserMessage, createAssistantMessage, createMessage, createSystemMessage, createToolResultMessage, ReasoningEffortId, ToolCallId } from '@qilin/llm'
-import type { ContentBlock, GenerateOptions, ImageBlock, Message, RequestMessage, RequestUserInput } from '@qilin/llm'
-import { AttachmentId, ImageVariantId } from '@qilin/attachment'
-import type { ImageAttachmentRef, RequestImageAttachment } from '@qilin/attachment'
+import { createDeveloperMessage, createUserMessage, createAssistantMessage, createMessage, createSystemMessage, createToolResultMessage, ReasoningEffortId, ToolCallId } from '@qilin-agent/llm'
+import type { ContentBlock, GenerateOptions, ImageBlock, Message, RequestMessage, RequestUserInput } from '@qilin-agent/llm'
+import { AttachmentId, ImageVariantId } from '@qilin-agent/attachment'
+import type { ImageAttachmentRef, RequestImageAttachment } from '@qilin-agent/attachment'
 import { resolveAdapterOptions } from '../src/config.ts'
 import { modelInfo } from '../src/model-info.ts'
 import type { Options as Config } from '../src/config.ts'

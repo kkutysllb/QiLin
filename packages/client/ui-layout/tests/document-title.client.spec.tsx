@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { act, cleanup, render } from '@testing-library/react'
-import { createSnapshotStore } from '@qilin/client-store'
-import { bindSnapshotSelector } from '@qilin/client-test-runtime'
-import type { SessionListState } from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { bindSnapshotSelector } from '@qilin-agent/client-test-runtime'
+import type { SessionListState } from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import { DocumentTitle } from '../src/client/DocumentTitle.tsx'
 import type { MainPanelId, PanelInfo } from '../src/client/service.ts'
 

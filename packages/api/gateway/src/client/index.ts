@@ -4,13 +4,13 @@
  * participates in method lookup, invocation, or type exposure.
  */
 
-import { Service } from '@qilin/kylin'
-import { RemoteError, isRemoteUplinkItem, remoteErrorOf } from '@qilin/typert-protocol'
+import { Service } from '@qilin-agent/kylin'
+import { RemoteError, isRemoteUplinkItem, remoteErrorOf } from '@qilin-agent/typert-protocol'
 export type { TypertGatewayFaultDetails } from '../remote-error-codes.ts'
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   ConnectionHandle,
-} from '@qilin/client-connection/client'
+} from '@qilin-agent/client-connection/client'
 import type {
   InvocationDescriptor,
   TypertClientEventListener,
@@ -22,7 +22,7 @@ import type {
   TypertDisposer,
   TypertRemoteContribution,
   TypertRemoteEvent,
-} from '@qilin/typert-protocol'
+} from '@qilin-agent/typert-protocol'
 import {
   ClientUplinkQueue,
   RemoteStreamCarrierError,
@@ -123,7 +123,7 @@ export interface RemoteHostFacts {
   readonly isLoopback: boolean
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Generated Remote namespaces selected by the Client assembly. */
     remote: ClientRemote

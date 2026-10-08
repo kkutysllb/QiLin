@@ -1,5 +1,5 @@
-import type { Context } from '@qilin/kylin'
-import type { ObservableSnapshot } from '@qilin/client-store'
+import type { Context } from '@qilin-agent/kylin'
+import type { ObservableSnapshot } from '@qilin-agent/client-store'
 import type { PerformanceUsageMode } from '../../chat-settings.ts'
 import type { ChatPresentationPolicy } from '../presentation-policy.ts'
 import { NS } from '../locale.ts'

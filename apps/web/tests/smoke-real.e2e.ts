@@ -385,7 +385,7 @@ describe('qilin web keyless CLI smoke', () => {
         /^\/plugins\/\?\?.+\/client\.js,.+\/client\.js&rev=[a-f\d]{12}$/,
       ))
       expect(batchPaths).toContainEqual(expect.stringMatching(
-        /^\/plugins\/\?\?@qilin\/client-modules\/client\.js&rev=[a-f\d]{12}$/,
+        /^\/plugins\/\?\?@qilin-agent\/client-modules\/client\.js&rev=[a-f\d]{12}$/,
       ))
       const readyOrigin = ready.origin
       expect([...cacheHeaders.values()]).toEqual([

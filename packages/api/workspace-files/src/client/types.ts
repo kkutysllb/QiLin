@@ -4,10 +4,10 @@
  */
 // Bring the base `ResourceProtocolMap` declaration into this program so the
 // augmentation below merges into it instead of declaring a second interface.
-import type {} from '@qilin/client-resources/client'
+import type {} from '@qilin-agent/client-resources/client'
 import type { WorkspaceFileStat } from '../types.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface ResourceProtocolMap {
     /**
      * One workspace file's metadata, addressed as
@@ -23,7 +23,7 @@ export interface WorkspaceFileParams {
   readonly line?: number
 }
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface RemoteErrorDetailsMap {
     /**
      * The address is not a `qilin-resource://file/` address in a scope the

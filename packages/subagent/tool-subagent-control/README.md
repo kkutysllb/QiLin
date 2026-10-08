@@ -3,7 +3,7 @@ description: "Global send_message, interrupt_agent, and list_agents tools for us
 kind: "package-reference"
 ---
 
-# @qilin/tool-subagent-control
+# @qilin-agent/tool-subagent-control
 
 English | [中文](README.zh.md)
 
@@ -32,14 +32,14 @@ Mount this package in any composition with continuable children the model should
 Load the subagent service, a backend, the delegation tool, and this package. Adding the separate list plugin exposes all three tools:
 
 ```yaml
-- name: '@qilin/subagent'
-- name: '@qilin/subagent-spawn-in-process'
-- name: '@qilin/tool-subagent'
+- name: '@qilin-agent/subagent'
+- name: '@qilin-agent/subagent-spawn-in-process'
+- name: '@qilin-agent/tool-subagent'
   config:
     provider: spawn
     backgroundMode: continuable
-- name: '@qilin/tool-subagent-control'
-- name: '@qilin/tool-subagent-control/list-agents'
+- name: '@qilin-agent/tool-subagent-control'
+- name: '@qilin-agent/tool-subagent-control/list-agents'
 ```
 
 This package takes no configuration: the root plugin provides `send_message` and `interrupt_agent`, and the list plugin provides `list_agents`.
@@ -96,7 +96,7 @@ Read these pages when the package-level contract is not enough; they move from t
 
 - [Subagent subsystem](../../../docs/subsystems/subagent.md) — continuable children, activations, inbox, interrupt, and follow-up authority.
 - [qilin-tool-subagent](../tool-subagent/README.md) — the delegation tool that starts continuable children.
-- [Generated tool catalog](../../../docs/tool-catalog.md#qilintool-subagent-control) — the three tool schemas.
+- [Generated tool catalog](../../../docs/tool-catalog.md#qilin-agenttool-subagent-control) — the three tool schemas.
 
 -----
 
@@ -107,7 +107,7 @@ Read these pages when the package-level contract is not enough; they move from t
 
 #### What the model sees
 
-The generated [schemas](../../../docs/tool-catalog.md#qilintool-subagent-control): `send_message` takes `agent_id` and `message`; `interrupt_agent` takes `agent_id`; `list_agents` takes the optional `scope` enum.
+The generated [schemas](../../../docs/tool-catalog.md#qilin-agenttool-subagent-control): `send_message` takes `agent_id` and `message`; `interrupt_agent` takes `agent_id`; `list_agents` takes the optional `scope` enum.
 
 #### Token effect
 

@@ -1,17 +1,17 @@
 import { queryObjects } from 'node:v8'
-import { RemoteError, typertOwnedValue } from '@qilin/typert-protocol'
-import { Context, Service } from '@qilin/kylin'
-import type { Fiber } from '@qilin/kylin'
+import { RemoteError, typertOwnedValue } from '@qilin-agent/typert-protocol'
+import { Context, Service } from '@qilin-agent/kylin'
+import type { Fiber } from '@qilin-agent/kylin'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { z } from 'zod'
-import { RemoteMock } from '@qilin/remote-mock'
+import { RemoteMock } from '@qilin-agent/remote-mock'
 import {
   apply as applyConnection,
   type ClientTransportHooks,
   type ConnectionGeneration,
   type ConnectionGenerationSource,
   type ConnectionHandle,
-} from '@qilin/client-connection/client'
+} from '@qilin-agent/client-connection/client'
 import type {
   InvocationDescriptor,
   RemoteResult,
@@ -21,9 +21,9 @@ import type {
   TypertLookup,
   TypertRemoteScopeApi,
   TypertRemoteNamespace,
-} from '@qilin/typert-protocol'
-import type { RemoteStreamHandle } from '@qilin/typert-protocol'
-import TypertRegistry from '@qilin/typert-registry'
+} from '@qilin-agent/typert-protocol'
+import type { RemoteStreamHandle } from '@qilin-agent/typert-protocol'
+import TypertRegistry from '@qilin-agent/typert-registry'
 import type { ClientRemote } from '../src/client/index.ts'
 import { apply, inject, RemoteStream } from '../src/client/index.ts'
 import {
@@ -42,7 +42,7 @@ interface FixtureAgent {
   readonly agentId: string
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Events {
     /**
      * Test-only forwarded Host event.
@@ -77,7 +77,7 @@ declare module '@qilin/kylin' {
   }
 }
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface TypertRemoteEventSelection extends
     Record<'fixture/changed' | 'fixture/idle' | 'fixture/approval', true> {}
 

@@ -1,9 +1,9 @@
 /** Workspace command registration and browser-owned opening requests. */
-import type { Context } from '@qilin/kylin'
-import type { SessionForkError } from '@qilin/api-session-controller/client'
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
-import type { ShortcutCommand, ShortcutCommandId } from '@qilin/client-shortcuts/client'
-import type { SessionId } from '@qilin/session/types'
+import type { Context } from '@qilin-agent/kylin'
+import type { SessionForkError } from '@qilin-agent/api-session-controller/client'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
+import type { ShortcutCommand, ShortcutCommandId } from '@qilin-agent/client-shortcuts/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { UiWorkspace } from './navigation.ts'
 
 /** Transient requests consumed by the existing workspace browser. */

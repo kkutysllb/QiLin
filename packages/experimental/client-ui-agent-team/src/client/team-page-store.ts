@@ -7,7 +7,7 @@
  * The write face performs every mutation and records each outcome here; the
  * body only reads.
  */
-import { defineStore, type EngineStoreHandle } from '@qilin/client-store'
+import { defineStore, type EngineStoreHandle } from '@qilin-agent/client-store'
 
 /** What one settled write reported. */
 export type TeamNotice =

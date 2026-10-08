@@ -1,6 +1,6 @@
 /** Block-indexed hierarchy for one live or durable Assistant stream. */
 
-import type { StreamChunk } from '@qilin/llm'
+import type { StreamChunk } from '@qilin-agent/llm'
 import type { InspectorRow } from '../table-model.ts'
 import { INSPECTOR_PREVIEW_LIMIT } from '../format.ts'
 

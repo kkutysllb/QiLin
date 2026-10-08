@@ -5,37 +5,37 @@ const CLIENT_FACE_INCLUDE: readonly string[] = []
 
 /** Packages exempted from automatic Client/Host treatment despite declaring `qilin.client`. */
 const CLIENT_FACE_EXCLUDE: readonly string[] = [
-  '@qilin/api-session-controller',
-  '@qilin/api-workspace-controller',
+  '@qilin-agent/api-session-controller',
+  '@qilin-agent/api-workspace-controller',
 ]
 
 /** Host-only packages whose peer relays are deliberately flattened. */
 const HOST_DEPENDENCY_PACKAGES: readonly string[] = [
-  '@qilin/llm',
-  '@qilin/session',
+  '@qilin-agent/llm',
+  '@qilin-agent/session',
 ]
 
 /** Development-only package relationships not represented by source imports. */
 const CONFIGURATION_ONLY_DEV_DEPENDENCIES = {
-  '@qilin/client-locale': ['@qilin/api-remotes'],
-  '@qilin/client-ui-conversation': [
-    '@qilin/api-remotes',
-    '@qilin/client-ui-workspace',
+  '@qilin-agent/client-locale': ['@qilin-agent/api-remotes'],
+  '@qilin-agent/client-ui-conversation': [
+    '@qilin-agent/api-remotes',
+    '@qilin-agent/client-ui-workspace',
   ],
-  '@qilin/client-ui-model-selection': ['@qilin/client-ui-input-trigger'],
-  '@qilin/client-ui-sidebar': ['@qilin/client-ui-workspace'],
-  '@qilin/client-ui-subagent': ['@qilin/client-ui-input-trigger'],
-  '@qilin/client-ui-theme': ['@qilin/api-remotes'],
-  '@qilin/client-ui-tool': ['@qilin/api-remotes'],
+  '@qilin-agent/client-ui-model-selection': ['@qilin-agent/client-ui-input-trigger'],
+  '@qilin-agent/client-ui-sidebar': ['@qilin-agent/client-ui-workspace'],
+  '@qilin-agent/client-ui-subagent': ['@qilin-agent/client-ui-input-trigger'],
+  '@qilin-agent/client-ui-theme': ['@qilin-agent/api-remotes'],
+  '@qilin-agent/client-ui-tool': ['@qilin-agent/api-remotes'],
 } as const satisfies Readonly<Record<string, readonly string[]>>
 
 /** Workspace packages whose complete runtime surface is safe across duplicate installations. */
 const DUPLICATE_SAFE_PACKAGES: readonly string[] = [
-  '@qilin/brand',
-  '@qilin/lazy-require',
-  '@qilin/typert-protocol',
-  '@qilin/util-crypto',
-  '@qilin/util-values',
+  '@qilin-agent/brand',
+  '@qilin-agent/lazy-require',
+  '@qilin-agent/typert-protocol',
+  '@qilin-agent/util-crypto',
+  '@qilin-agent/util-values',
 ]
 
 /**
@@ -51,35 +51,35 @@ const SAFE_HOST_DEPENDENCY_EXPORTS = {
   // produce interchangeable values.
   // Installs waterfall listeners on the caller-provided Context and selection ref;
   // all state is caller-owned, so any copy of the function behaves identically.
-  '@qilin/agent': ['installModelSelection'],
-  '@qilin/credentials': ['credentialKey'],
+  '@qilin-agent/agent': ['installModelSelection'],
+  '@qilin-agent/credentials': ['credentialKey'],
   // A pure type-assertion brand (`FsVersion(v) { return v as FsVersion }`) with no
   // runtime identity, so two installed copies produce interchangeable values. It is
   // added here because packages/api/workspace-files re-brands the opaque wire token
   // on its way back to the provider, and reviewed as an exception to the default.
-  '@qilin/fs': ['FsVersion'],
-  '@qilin/dsh-compat': ['clientDeclarationOf', 'dshCompatModuleId'],
-  '@qilin/deque': ['Deque'],
-  '@qilin/llm': ['callConfigEquals', 'createUserMessage'],
-  '@qilin/session-format': ['sessionFormatLogFilename'],
+  '@qilin-agent/fs': ['FsVersion'],
+  '@qilin-agent/dsh-compat': ['clientDeclarationOf', 'dshCompatModuleId'],
+  '@qilin-agent/deque': ['Deque'],
+  '@qilin-agent/llm': ['callConfigEquals', 'createUserMessage'],
+  '@qilin-agent/session-format': ['sessionFormatLogFilename'],
   // A validating brand over a number (`SessionLogOffset(v)`), no runtime identity —
   // the FsVersion precedent.
-  '@qilin/session': ['SessionLogOffset'],
+  '@qilin-agent/session': ['SessionLogOffset'],
   // Pure input → detached versioned payload projection.
-  '@qilin/subagent': ['snapshotSubagentDescriptor'],
-  '@qilin/timeout': ['MAX_TIMER_DELAY_MS'],
+  '@qilin-agent/subagent': ['snapshotSubagentDescriptor'],
+  '@qilin-agent/timeout': ['MAX_TIMER_DELAY_MS'],
   // Pure ToolDefinition factory: shapes the caller's options into one plain object.
-  '@qilin/tools': ['defineTool'],
-  '@qilin/schemastery': ['default'],
+  '@qilin-agent/tools': ['defineTool'],
+  '@qilin-agent/schemastery': ['default'],
 } as const satisfies HostDependencyExports
 
 /** Runtime exports that require every consumer to resolve the provider's shared peer instance. */
 const PEER_REQUIRED_HOST_EXPORTS = {
-  '@qilin/client-connection': ['OperatorPeer'],
-  '@qilin/subprocess': ['SubprocessExecutableNotFoundError'],
-  '@qilin/scope': ['carrierKeyOf', 'createScope', 'scopeOf', 'scopeTarget'],
-  '@qilin/session': ['SESSION_FORMAT_VERSION'],
-  '@qilin/session-persistence': ['SessionPersistenceNotFoundError'],
+  '@qilin-agent/client-connection': ['OperatorPeer'],
+  '@qilin-agent/subprocess': ['SubprocessExecutableNotFoundError'],
+  '@qilin-agent/scope': ['carrierKeyOf', 'createScope', 'scopeOf', 'scopeTarget'],
+  '@qilin-agent/session': ['SESSION_FORMAT_VERSION'],
+  '@qilin-agent/session-persistence': ['SessionPersistenceNotFoundError'],
 } as const satisfies HostDependencyExports
 
 /** Exact import specifier to reviewed runtime exports. */

@@ -23,7 +23,7 @@
 
 - insert:
     - id: llm-replay
-      name: '@qilin/llm-replay'
+      name: '@qilin-agent/llm-replay'
 
 - id: session-log-deepseek
   config:

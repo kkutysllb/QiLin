@@ -1,10 +1,10 @@
 /** Read-only projection of the current Cordis Loader plugin entries. */
 
-import type { Context, FiberState } from '@qilin/kylin'
-import type {} from '@qilin/kylin-plugin-loader'
+import type { Context, FiberState } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/kylin-plugin-loader'
 // Type-only: the optional agent-preset roster resolved through `ctx.get`.
-import type {} from '@qilin/agent-presets'
-import { TypertRemoteService, Remote } from '@qilin/typert-protocol'
+import type {} from '@qilin-agent/agent-presets'
+import { TypertRemoteService, Remote } from '@qilin-agent/typert-protocol'
 // Typert-generated ./typert and ./remote artifacts import Zod at runtime.
 import type {} from 'zod'
 import type {

@@ -1,16 +1,16 @@
 /** Inbox projection delivery and queue-operation transport. */
 
 import { describe, expect, onTestFinished } from 'vitest'
-import { createUserMessage } from '@qilin/llm'
-import type { InboxState } from '@qilin/agent/types'
-import type { SessionControlFrame } from '@qilin/api-session-controller/types'
-import type { SessionId } from '@qilin/session/types'
+import { createUserMessage } from '@qilin-agent/llm'
+import type { InboxState } from '@qilin-agent/agent/types'
+import type { SessionControlFrame } from '@qilin-agent/api-session-controller/types'
+import type { SessionId } from '@qilin-agent/session/types'
 import { SessionManager } from '../src/client/sessions/manager.ts'
-import { ok } from '@qilin/remote-mock'
-import { createClientTest, type ClientTestFixtures, webApp } from '@qilin/client-test-runtime/src/assembly/index.ts'
+import { ok } from '@qilin-agent/remote-mock'
+import { createClientTest, type ClientTestFixtures, webApp } from '@qilin-agent/client-test-runtime/src/assembly/index.ts'
 import type { SessionRemotes } from '../src/client/sessions/remotes.ts'
 
-const it = createClientTest({ roster: webApp.closure(['@qilin/api-gateway']) })
+const it = createClientTest({ roster: webApp.closure(['@qilin-agent/api-gateway']) })
 
 function makeManager(remote: ClientTestFixtures['remote']): SessionManager {
   const manager = new SessionManager(remote as unknown as SessionRemotes)

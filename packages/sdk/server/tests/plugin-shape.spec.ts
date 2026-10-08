@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import Loader from '@qilin/kylin-plugin-loader'
+import Loader from '@qilin-agent/kylin-plugin-loader'
 import * as jsonrpc from '../src/index.ts'
 
 /**

@@ -1,9 +1,9 @@
 /** The `changes` stream: driven by `fs/observed`, filtered by the workspace root, ended by its signal. */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { join } from 'node:path'
-import type { Context } from '@qilin/kylin'
-import type { FsObservation } from '@qilin/fs'
-import { FsVersion } from '@qilin/fs'
+import type { Context } from '@qilin-agent/kylin'
+import type { FsObservation } from '@qilin-agent/fs'
+import { FsVersion } from '@qilin-agent/fs'
 import { WorkspaceFiles } from '../src/index.ts'
 import type { WorkspaceFileWatchFrame } from '../src/types.ts'
 import { openWorkspace, type Harness } from './harness.ts'

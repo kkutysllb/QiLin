@@ -1,8 +1,8 @@
 // Target-neutral View-ring type chain and runtime ledger projection.
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it } from 'vitest'
 import type { ReactNode } from 'react'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
 import type { ConvViewProps } from '../src/client/contract/slots.ts'
 
 describe('view-ring type negatives (compile-time; body never runs)', () => {

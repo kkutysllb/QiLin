@@ -18,15 +18,15 @@
  * durable descriptor, so it neither restores the prior budget nor inherits
  * the parent's current one; the resumed route's defaults apply instead.
  *
- * @module @qilin/subagent/descriptor
+ * @module @qilin-agent/subagent/descriptor
  */
 
-import { snapshotJsonValue } from '@qilin/util-values'
-import type { SessionEvent } from '@qilin/session'
-import type { ReasoningEffortId } from '@qilin/llm'
-import type { ToolRestriction } from '@qilin/tools'
+import { snapshotJsonValue } from '@qilin-agent/util-values'
+import type { SessionEvent } from '@qilin-agent/session'
+import type { ReasoningEffortId } from '@qilin-agent/llm'
+import type { ToolRestriction } from '@qilin-agent/tools'
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /**
      * Durable identity and lifecycle mode of a session-backed subagent child,

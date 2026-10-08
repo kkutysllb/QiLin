@@ -18,7 +18,7 @@
  * DACL, and the whole get-merge-set sequence runs under a per-path exclusive
  * LockFileEx lock (see {@link withPathLock}) so concurrent sandbox instances
  * cannot clobber each other's ACEs.
- * @module @qilin/sandbox-windows-acl/acl
+ * @module @qilin-agent/sandbox-windows-acl/acl
  */
 
 import { createHash } from 'node:crypto'

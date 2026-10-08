@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-resources",
+  "name": "@qilin-agent/client-resources",
   "description": "Unified client resource model: protocol-registered providers turn URL addresses into live values, consumed through the useResource global standard hook",
   "version": "3.1.1",
   "publishConfig": {
@@ -31,7 +31,7 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/client-ui-renderer"
+        "@qilin-agent/client-ui-renderer"
       ],
       "platform": "web"
     }
@@ -42,15 +42,15 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/client-store": "workspace:*",
-    "@qilin/client-test-runtime": "workspace:*",
-    "@qilin/client-ui-renderer": "workspace:*",
-    "@qilin/client-ui-slots": "workspace:*",
-    "@qilin/typert-protocol": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*"
   },
   "files": [
     "lib/index.js",

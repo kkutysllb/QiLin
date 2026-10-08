@@ -8,8 +8,8 @@ import { fileURLToPath } from 'node:url'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import * as yaml from 'js-yaml'
-import { entryListSchema } from '@qilin/kylin-plugin-include'
-import { evaluate } from '@qilin/kylin-plugin-loader'
+import { entryListSchema } from '@qilin-agent/kylin-plugin-include'
+import { evaluate } from '@qilin-agent/kylin-plugin-loader'
 
 describe('qilin-base bundle', () => {
   it('declares a parseable patch list through the qilin.bundle.patch manifest field', () => {
@@ -44,9 +44,9 @@ describe('qilin-base bundle', () => {
     expect(rows.find(row => row.id === 'web')?.config).toMatchObject({ fetchProvider: 'http' })
     expect(rows.find(row => row.id === 'web-fetch-http')).toBeDefined()
     expect(rows.find(row => row.id === 'tool-web')?.config).toMatchObject({ fetch: true })
-    expect(manifest.dependencies).not.toHaveProperty('@qilin/subagent-codex')
-    expect(manifest.dependencies).not.toHaveProperty('@qilin/subagent-claude-code')
-    expect(manifest.dependencies).toHaveProperty('@qilin/web-fetch-http')
+    expect(manifest.dependencies).not.toHaveProperty('@qilin-agent/subagent-codex')
+    expect(manifest.dependencies).not.toHaveProperty('@qilin-agent/subagent-claude-code')
+    expect(manifest.dependencies).toHaveProperty('@qilin-agent/web-fetch-http')
   })
 
   it('gates each shell stack by platform with a symmetric disabled expression', () => {

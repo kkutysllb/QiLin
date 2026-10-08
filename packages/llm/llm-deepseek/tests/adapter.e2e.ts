@@ -1,4 +1,4 @@
-import * as Protocol from '@qilin/llm-deepseek'
+import * as Protocol from '@qilin-agent/llm-deepseek'
 /**
  * Real Messages round trips use the official root and require credentials.
  * System-update checks additionally require DEEPSEEK_IN_HISTORY_MODEL.
@@ -9,17 +9,17 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { createRequire } from 'node:module'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context, LoggerLevel } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import AgentRegistry from '@qilin/agent'
-import LocalAttachments from '@qilin/attachment-local'
-import DeepSeekLlmApiExtensionRegistry from '@qilin/deepseek-llm-api-extensions'
-import LlmRuntime, { BlockAssembler, createAssistantMessage, createSystemMessage, createToolResultMessage, ReasoningEffortId, ToolCallId } from '@qilin/llm'
-import type { Message } from '@qilin/llm'
-import * as PluginPackageInventoryDeepSeek from '@qilin/plugin-package-inventory-deepseek'
-import SessionStore, { SessionId } from '@qilin/session'
-import * as SessionLogDeepSeek from '@qilin/session-log-deepseek'
-import * as Messages from '@qilin/llm-deepseek-api-key'
+import { Context, LoggerLevel } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import AgentRegistry from '@qilin-agent/agent'
+import LocalAttachments from '@qilin-agent/attachment-local'
+import DeepSeekLlmApiExtensionRegistry from '@qilin-agent/deepseek-llm-api-extensions'
+import LlmRuntime, { BlockAssembler, createAssistantMessage, createSystemMessage, createToolResultMessage, ReasoningEffortId, ToolCallId } from '@qilin-agent/llm'
+import type { Message } from '@qilin-agent/llm'
+import * as PluginPackageInventoryDeepSeek from '@qilin-agent/plugin-package-inventory-deepseek'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import * as SessionLogDeepSeek from '@qilin-agent/session-log-deepseek'
+import * as Messages from '@qilin-agent/llm-deepseek-api-key'
 import { DeepSeekFilesClient } from '../src/files-api.ts'
 import { MESSAGES_FILES_BETA } from '../src/messages-api.ts'
 import { assemble, options, user, sourceModuleLoader } from './helpers.ts'
@@ -148,12 +148,12 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('DeepSeek Messages real API', () 
     ctx.baseUrl = import.meta.url
     // Select the source module while Loader owns its active package entry.
     ctx.loader.internal = sourceModuleLoader(async (specifier) => {
-      if (specifier !== '@qilin/plugin-package-inventory-deepseek') throw new Error(`unexpected Loader import: ${specifier}`)
+      if (specifier !== '@qilin-agent/plugin-package-inventory-deepseek') throw new Error(`unexpected Loader import: ${specifier}`)
       return PluginPackageInventoryDeepSeek
     })
-    await ctx.loader.create({ name: '@qilin/plugin-package-inventory-deepseek' })
+    await ctx.loader.create({ name: '@qilin-agent/plugin-package-inventory-deepseek' })
     await ctx.loader.await()
-    const packagePath = createRequire(import.meta.url).resolve('@qilin/plugin-package-inventory-deepseek/package.json')
+    const packagePath = createRequire(import.meta.url).resolve('@qilin-agent/plugin-package-inventory-deepseek/package.json')
     const packageIdentity = JSON.parse(await readFile(packagePath, 'utf8')) as { name: string; version: string }
     const session = ctx.sessions.create(SessionId(`real-messages-extensions-${randomUUID()}`))
     session.append('turn/start', { turn: 1 })

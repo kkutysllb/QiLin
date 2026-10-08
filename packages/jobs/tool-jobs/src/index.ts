@@ -5,23 +5,23 @@
  * collected to the owning agent: injected into a busy owner's next step, or
  * opening a turn on an idle one under the default `wakeup` delivery, unbounded
  * unless `maxConsecutiveWakes` caps it per owner.
- * @module @qilin/tool-jobs
+ * @module @qilin-agent/tool-jobs
  */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { boundContextSummary, createUserMessage, type ContentBlock } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import { TextRetainer } from '@qilin/output-retention'
-import { defineTool } from '@qilin/tools'
-import type { GenericCallView, ToolDefinition, ToolExecution } from '@qilin/tools'
-import { JobId } from '@qilin/jobs'
-import type { JobView, JobRead } from '@qilin/jobs'
-import type { Agent } from '@qilin/agent'
-import type {} from '@qilin/agent'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { boundContextSummary, createUserMessage, type ContentBlock } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import { TextRetainer } from '@qilin-agent/output-retention'
+import { defineTool } from '@qilin-agent/tools'
+import type { GenericCallView, ToolDefinition, ToolExecution } from '@qilin-agent/tools'
+import { JobId } from '@qilin-agent/jobs'
+import type { JobView, JobRead } from '@qilin-agent/jobs'
+import type { Agent } from '@qilin-agent/agent'
+import type {} from '@qilin-agent/agent'
 import { publicJob, renderModelDelta, statusLine } from './render.ts'
 import type { PublicJobSnapshot } from './render.ts'
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'tool-jobs': { kind: 'tool-jobs' } & ContextFormed
   }

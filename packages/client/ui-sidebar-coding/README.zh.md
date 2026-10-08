@@ -3,7 +3,7 @@ description: "qilin Web 客户端双工作台的编码工作台内容体：VSCod
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-sidebar-coding
+# @qilin-agent/client-ui-sidebar-coding
 
 [English](README.md) | 中文
 
@@ -85,7 +85,7 @@ Side card 的打开开关打开时，一个 `sidebar_open` 工具进入列表：
 
 - **整体移植，不是重写。** 树保留了它内部的组件风格——组件直接够到 cordis 上下文、每次激活共享一个存储——而非较新 client 包的 props 纪律；债务记录在案，不做掩盖。
 - **仓内还没有单元测试套件。** 移植的 src 作为已记录的移植债务位于逐文件覆盖门之外；行为经 web e2e 车道与上游仓库自己的测试套件演练。
-- **`sidebar_open` 与原生工具重名。** base bundle 挂载的 `@qilin/sidebar-opens` 携带同名工具；原生工具在挂载时，开启本包打开开关的组合会让第二次注册大声失败——工具注册表拒绝重名。
+- **`sidebar_open` 与原生工具重名。** base bundle 挂载的 `@qilin-agent/sidebar-opens` 携带同名工具；原生工具在挂载时，开启本包打开开关的组合会让第二次注册大声失败——工具注册表拒绝重名。
 - **标题栏/桌面壳兼容子系统休眠。** overlay 时代的开关簇在栏内布局中隐藏；该子系统随移植一路同行，直到栏布局需要它或债务清偿。
 
 <a id="dev-note"></a>
@@ -102,10 +102,10 @@ Side card 的打开开关打开时，一个 `sidebar_open` 工具进入列表：
 
 #### Source map 重定位与纯度门禁
 
-浏览器 sourcemap 把 lib 相对源码重定位回包的 `../src` 树，编辑器落在源码而不是构建产物上。构建期纯度门禁让浏览器面里任何 Node 内置模块或非 inline-safe 的 `@qilin/*` 值导入直接失败——跨插件协作走 cordis 服务，type-only 导入在门禁看到之前就被擦除。
+浏览器 sourcemap 把 lib 相对源码重定位回包的 `../src` 树，编辑器落在源码而不是构建产物上。构建期纯度门禁让浏览器面里任何 Node 内置模块或非 inline-safe 的 `@qilin-agent/*` 值导入直接失败——跨插件协作走 cordis 服务，type-only 导入在门禁看到之前就被擦除。
 
 #### 移植出处
 
-移植自 dsh-coding-sidebar 1.0.39（MIT；DSH-better-sidebar 的 KCoder fork）：说明符与身份重写为 `@qilin/client-*`，body 级自挂载替换为 `rightbar.session.coding` 槽位注册，设置接管与导航图标标记删除（D11），声明式 Side card 节成为唯一的设置面。
+移植自 dsh-coding-sidebar 1.0.39（MIT；DSH-better-sidebar 的 KCoder fork）：说明符与身份重写为 `@qilin-agent/client-*`，body 级自挂载替换为 `rightbar.session.coding` 槽位注册，设置接管与导航图标标记删除（D11），声明式 Side card 节成为唯一的设置面。
 
 </details>

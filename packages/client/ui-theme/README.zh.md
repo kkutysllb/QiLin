@@ -3,7 +3,7 @@ description: "qilin Web 客户端的主题与正文排版设置：--qilin-* toke
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-theme
+# @qilin-agent/client-ui-theme
 
 [English](README.md) | 中文
 

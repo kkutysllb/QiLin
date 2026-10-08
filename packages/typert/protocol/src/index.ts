@@ -2,10 +2,10 @@
  * Remote decorators and explicit Gateway bindings backed by versioned
  * descriptors carried on decorated class prototypes. Strict reflection
  * remains a Typert compiler responsibility.
- * @module @qilin/typert-protocol
+ * @module @qilin-agent/typert-protocol
  */
 
-import { Context, Service } from '@qilin/kylin'
+import { Context, Service } from '@qilin-agent/kylin'
 import type { TypertContextMap } from './types.ts'
 
 export { RemoteError, remoteErrorOf } from './remote-error.ts'
@@ -137,7 +137,7 @@ interface RemoteMethodDescriptorV1 {
   readonly methods: readonly StoredRemoteMethod[]
 }
 
-const REMOTE_METHOD_DESCRIPTOR = '@qilin/typert-protocol/remote-methods'
+const REMOTE_METHOD_DESCRIPTOR = '@qilin-agent/typert-protocol/remote-methods'
 
 /**
  * Bind one visible Service field to a Cordis key and Remote namespace. A

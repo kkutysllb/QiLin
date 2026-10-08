@@ -25,8 +25,8 @@ import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import type {
   CredentialInfo, SettingsNamespaceView, SettingsPathOpView,
-} from '@qilin/api-remotes/client'
-import type { JsonValue } from '@qilin/util-values'
+} from '@qilin-agent/api-remotes/client'
+import type { JsonValue } from '@qilin-agent/util-values'
 import {
   DeepSeekModelsEditor, modelDrafts, validateDeepSeekModels,
 } from './DeepSeekModelsEditor.tsx'

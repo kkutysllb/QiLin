@@ -1,15 +1,15 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
-import { RemoteError } from '@qilin/client-test-runtime'
-import { SessionId } from '@qilin/session/types'
-import type { ModelSelection } from '@qilin/api-remotes/client'
-import { createSnapshotStore } from '@qilin/client-store'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
+import { SessionId } from '@qilin-agent/session/types'
+import type { ModelSelection } from '@qilin-agent/api-remotes/client'
+import { createSnapshotStore } from '@qilin-agent/client-store'
 import type { ComponentProps } from 'react'
 import type { ModelDirectoryState } from '../src/client/directory.ts'
 import { ModelSelect } from '../src/client/ModelSelect.tsx'
 import { zh } from '../src/client/locales.ts'
-import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
+import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 
 // The seat's key domain is model ∪ common; the stub mirrors the real lookup
 // chain: package dictionary, then common vocabulary, then the key.

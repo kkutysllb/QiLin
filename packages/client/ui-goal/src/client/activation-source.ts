@@ -1,10 +1,10 @@
 /** Goal activation observable that orders Remote reads and live activation events. */
 
-import type { RemoteResult } from '@qilin/api-remotes/client'
-import type { HostObservable } from '@qilin/client-ui-slots'
+import type { RemoteResult } from '@qilin-agent/api-remotes/client'
+import type { HostObservable } from '@qilin-agent/client-ui-slots'
 import type {
   GoalActivationChanged, GoalProjection, GoalRef, GoalView,
-} from '@qilin/goal/client'
+} from '@qilin-agent/goal/client'
 import type { GoalActivationSnapshot } from './slots.ts'
 
 /** Live inputs for one Session's goal activation source. */

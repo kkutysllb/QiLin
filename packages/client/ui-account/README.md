@@ -3,7 +3,7 @@ description: "Account menu in the Web client sidebar footer: the theme and langu
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-account
+# @qilin-agent/client-ui-account
 
 English | [中文](README.zh.md)
 

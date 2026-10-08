@@ -1,5 +1,5 @@
-import { defineProperty } from '@qilin/cosmokit'
-import type { Promisify } from '@qilin/cosmokit'
+import { defineProperty } from '@qilin-agent/cosmokit'
+import type { Promisify } from '@qilin-agent/cosmokit'
 import { Context } from './context.ts'
 import { Fiber, FiberState } from './fiber.ts'
 import { DisposableList, symbols } from './utils.ts'

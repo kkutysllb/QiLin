@@ -4,21 +4,21 @@
  */
 
 import { describe, expect, it, onTestFinished } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createUserMessage, ToolCallId, StreamChunk  } from '@qilin/llm'
-import SessionStore, { SessionEvent, SessionId, TOOL_NOT_STARTED, TOOL_OUTCOME_UNKNOWN } from '@qilin/session'
-import SystemPrompt from '@qilin/system-prompt'
-import LlmRuntime from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import ToolRuntime, { defineContentToolFixture, TOOL_ABORTED_BEFORE_DISPATCH, TOOL_RUNTIME_SCHEDULER, type PostToolDecision, type PreToolDecision } from '@qilin/tools'
-import AgentRegistry, { type Agent } from '@qilin/agent'
-import AgentLoop from '@qilin/agent-loop'
-import SessionProjectionRegistry from '@qilin/session-projection'
+import { Context } from '@qilin-agent/kylin'
+import { createUserMessage, ToolCallId, StreamChunk  } from '@qilin-agent/llm'
+import SessionStore, { SessionEvent, SessionId, TOOL_NOT_STARTED, TOOL_OUTCOME_UNKNOWN } from '@qilin-agent/session'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import LlmRuntime from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import ToolRuntime, { defineContentToolFixture, TOOL_ABORTED_BEFORE_DISPATCH, TOOL_RUNTIME_SCHEDULER, type PostToolDecision, type PreToolDecision } from '@qilin-agent/tools'
+import AgentRegistry, { type Agent } from '@qilin-agent/agent'
+import AgentLoop from '@qilin-agent/agent-loop'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import { MockAdapter, textResponse } from './mock-adapter.ts'
-import { PtcRuntime } from '@qilin/ptc-runtime'
-import type { PtcRunRequest, PtcRunResult } from '@qilin/ptc-runtime'
+import { PtcRuntime } from '@qilin-agent/ptc-runtime'
+import type { PtcRunRequest, PtcRunResult } from '@qilin-agent/ptc-runtime'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'p': { kind: 'p' } & ContextFormed
   }
@@ -882,7 +882,7 @@ describe('tool-call scheduler: failure quiescence', () => {
 describe('PTC mode native-tool denial through the agent loop', () => {
   /** A minimal in-process PTC runtime for test purposes — never actually runs. */
   class FakePtcRuntime extends PtcRuntime {
-    resolve(request: import('@qilin/ptc-runtime').PtcRunRequest): import('@qilin/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+    resolve(request: import('@qilin-agent/ptc-runtime').PtcRunRequest): import('@qilin-agent/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
     readonly language = 'typescript'
     readonly isolation = 'fake' as const

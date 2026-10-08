@@ -17,7 +17,7 @@ import { GitHubView } from './GitHubView.tsx'
 import {
   Button, IconBranchOutline16, IconCloseOutline16, IconCodeOutline16, IconCopyOutline16, IconRefreshOutline16,
   IconRightUpOutline16, IconTrashOutline16, Input, Menu, Modal, writeClipboard,
-} from '@qilin/client-ui-primitives'
+} from '@qilin-agent/client-ui-primitives'
 import type {
   GitLogEntry, GitStatusEntry, GitStatusResult, GitSummary, GitWorktree, SessionScope,
 } from './api.ts'

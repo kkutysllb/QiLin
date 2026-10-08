@@ -1,14 +1,14 @@
 /**
  * Human-facing `/goal` command over the persisted same-session goal domain.
- * @module @qilin/command-goal
+ * @module @qilin-agent/command-goal
  */
 
-import type { Context } from '@qilin/kylin'
-import { CommandDefinitionId } from '@qilin/commands/brand'
-import type { CommandInvocation, CommandResult } from '@qilin/commands'
-import { GoalError } from '@qilin/goal'
-import type { GoalPhase, GoalRef, GoalView } from '@qilin/goal'
-import { createUserMessage } from '@qilin/llm'
+import type { Context } from '@qilin-agent/kylin'
+import { CommandDefinitionId } from '@qilin-agent/commands/brand'
+import type { CommandInvocation, CommandResult } from '@qilin-agent/commands'
+import { GoalError } from '@qilin-agent/goal'
+import type { GoalPhase, GoalRef, GoalView } from '@qilin-agent/goal'
+import { createUserMessage } from '@qilin-agent/llm'
 
 export const name = 'command-goal'
 export const inject = ['commands', 'goals']
@@ -189,7 +189,7 @@ function executeGoalCommand(ctx: Context, invocation: CommandInvocation): Comman
 /** Register the Codex-shaped `/goal` command for every composed command adapter. */
 export function apply(ctx: Context): void {
   ctx.commands.register({
-    definitionId: CommandDefinitionId('@qilin/command-goal'),
+    definitionId: CommandDefinitionId('@qilin-agent/command-goal'),
     name: 'goal',
     description: 'Set or view the goal for a long-running task',
     input: { hint: '[<objective>|clear|edit <objective>|pause|resume]', attachments: true },

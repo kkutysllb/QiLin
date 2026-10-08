@@ -1,5 +1,5 @@
 /**
- * @qilin/host-frontend-static — SPA dist server over the webserver fallback
+ * @qilin-agent/host-frontend-static — SPA dist server over the webserver fallback
  * seat: serves the built frontend directory with explicit index entry points
  * and public documents. A readable index renders at every configured index
  * path; missing paths return 404, traversal outside the dist root is 403,
@@ -12,16 +12,16 @@
  * is workspace knowledge of the composing application, so `distIndex` is
  * typically supplied through a `!!js` expression, never hardcoded by a
  * deployment.
- * @module @qilin/host-frontend-static
+ * @module @qilin-agent/host-frontend-static
  */
 
 import type { ServerResponse } from 'node:http'
 import { readFile } from 'node:fs/promises'
 import { dirname, extname, join, normalize, resolve, sep } from 'node:path'
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type {} from '@qilin/client-connection'
-import type {} from '@qilin/host-webserver'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type {} from '@qilin-agent/client-connection'
+import type {} from '@qilin-agent/host-webserver'
 
 /** Stable Cordis plugin name. */
 export const name = 'frontend-static'

@@ -1,21 +1,21 @@
 /**
  * Tool operation orchestration over session-query service capabilities.
  *
- * @module @qilin/tool-session-query/operations
+ * @module @qilin-agent/tool-session-query/operations
  */
 
-import type { Context } from '@qilin/kylin'
-import { HarnessError } from '@qilin/llm'
-import { SessionSeq } from '@qilin/session'
-import type { SessionId } from '@qilin/session'
+import type { Context } from '@qilin-agent/kylin'
+import { HarnessError } from '@qilin-agent/llm'
+import { SessionSeq } from '@qilin-agent/session'
+import type { SessionId } from '@qilin-agent/session'
 import {
   SessionQueryError,
   type SessionEventSearchPage,
   type SessionEventSurface,
   type SessionRecord,
   type SessionSearchCursor,
-} from '@qilin/session-query'
-import type { ToolRunContext } from '@qilin/tools'
+} from '@qilin-agent/session-query'
+import type { ToolRunContext } from '@qilin-agent/tools'
 import { toolInput } from './input.ts'
 import { presentation } from './presentation.ts'
 import { serviceBoundary } from './service-boundary.ts'

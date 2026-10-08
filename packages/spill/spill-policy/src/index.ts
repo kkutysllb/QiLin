@@ -3,17 +3,17 @@
  * Post-execute policies settle before retention; canonical program values
  * remain intact. Missing recovery storage or image pricing keeps the original
  * content and reports the reason through the logger.
- * @module @qilin/spill-policy
+ * @module @qilin-agent/spill-policy
  */
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { createUserMessage, resolveImageAttachmentAccess } from '@qilin/llm'
-import type { ContentBlock, ImageBlock, LlmImageRequestPrice, ToolCallId } from '@qilin/llm'
-import { estimateContent } from '@qilin/token-meter/estimate'
-import type { SpillRef } from '@qilin/spill'
-import type { PostToolDecision, ToolExecution } from '@qilin/tools'
-import type {} from '@qilin/attachment'
-import type {} from '@qilin/fs'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { createUserMessage, resolveImageAttachmentAccess } from '@qilin-agent/llm'
+import type { ContentBlock, ImageBlock, LlmImageRequestPrice, ToolCallId } from '@qilin-agent/llm'
+import { estimateContent } from '@qilin-agent/token-meter/estimate'
+import type { SpillRef } from '@qilin-agent/spill'
+import type { PostToolDecision, ToolExecution } from '@qilin-agent/tools'
+import type {} from '@qilin-agent/attachment'
+import type {} from '@qilin-agent/fs'
 import type { SpillPolicyExec } from './types.ts'
 import { formatSpillNotice } from './notice.ts'
 import { retainContent } from './retention.ts'

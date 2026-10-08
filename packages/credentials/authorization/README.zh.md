@@ -3,7 +3,7 @@ description: "面向用户与维护者的授权 flow 注册表：获取配置无
 kind: "package-reference"
 ---
 
-# @qilin/authorization
+# @qilin-agent/authorization
 
 [English](README.md) | 中文
 
@@ -36,9 +36,9 @@ kind: "package-reference"
 你的插件为它持有的每个凭据声明一个 flow，以该 flow 写入的 `<scope>/<id>` 凭据记录为键——scope 点名你的插件，id 点名它拥有的一条凭据：
 
 ```ts
-import type { Context } from '@qilin/kylin'
-import type { AuthorizationSession } from '@qilin/authorization'
-import { credentialKey } from '@qilin/credentials'
+import type { Context } from '@qilin-agent/kylin'
+import type { AuthorizationSession } from '@qilin-agent/authorization'
+import { credentialKey } from '@qilin-agent/credentials'
 
 declare const ctx: Context
 declare const exchangeCode: (code: string, signal: AbortSignal) => Promise<{ token: string }>

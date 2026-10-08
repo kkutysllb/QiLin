@@ -3,10 +3,10 @@
  * shell tools have always shown it (stdout, then one marked stderr section),
  * the `[status: …]` line, and the public job projection the tool schemas
  * expose.
- * @module @qilin/tool-jobs/render
+ * @module @qilin-agent/tool-jobs/render
  */
 
-import type { JobChunk, JobView } from '@qilin/jobs/view'
+import type { JobChunk, JobView } from '@qilin-agent/jobs/view'
 
 /** Job state safe for model-authored programs; ownership and offsets are omitted. */
 export interface PublicJobSnapshot {

@@ -1,9 +1,9 @@
 /** Remote process transport, output observations, and managed cleanup through the public provider. */
 import { duplexPair, type Duplex, type Readable } from 'node:stream'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import { z } from 'zod'
-import type { SubprocessSpawnSpec } from '@qilin/subprocess'
+import type { SubprocessSpawnSpec } from '@qilin-agent/subprocess'
 import { SshRpcPeer } from '../../ssh/src/protocol.ts'
 import { outputSnapshotFrameLimit } from '../../ssh/src/schemas.ts'
 import { SshSubprocessRuntime } from '../src/index.ts'

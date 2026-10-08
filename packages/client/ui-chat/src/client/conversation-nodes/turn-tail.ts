@@ -1,11 +1,11 @@
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   ConversationMatch, ConversationNodeContext, ConversationNodeDefinition, TurnLocation,
-} from '@qilin/client-ui-conversation/client'
-import type {} from '@qilin/llm-retry/types'
-import type { StreamChunk } from '@qilin/llm'
-import type { SessionEvent } from '@qilin/session/types'
-import { deriveTurnTokenUsage } from '@qilin/token-meter/client'
+} from '@qilin-agent/client-ui-conversation/client'
+import type {} from '@qilin-agent/llm-retry/types'
+import type { StreamChunk } from '@qilin-agent/llm'
+import type { SessionEvent } from '@qilin-agent/session/types'
+import { deriveTurnTokenUsage } from '@qilin-agent/token-meter/client'
 import type {
   AssistantChatData, FinalAssistantChatData, TurnTailChatData,
 } from '../contract/chat-nodes.ts'
@@ -19,7 +19,7 @@ declare module '../contract/chat-nodes.ts' {
   }
 }
 
-declare module '@qilin/client-ui-conversation/client' {
+declare module '@qilin-agent/client-ui-conversation/client' {
   interface ConversationTurnDataMap {
     /** Closing Assistant and footer facts derived for this completed Turn. */
     'turn-tail': TurnTailChatData

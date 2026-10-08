@@ -13,8 +13,8 @@
  * override equal to the composition default is still an override.
  */
 
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
-import type { ConfigForm, ConfigFormSnapshot } from '@qilin/client-ui-settings/client'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
+import type { ConfigForm, ConfigFormSnapshot } from '@qilin-agent/client-ui-settings/client'
 
 /** The write one field's staged text performs when the card is saved. */
 export type FieldWrite =

@@ -2,15 +2,15 @@
 /** Code renderer registration lifetimes through the production document and Slot registries. */
 import { afterEach, describe, expect, it } from 'vitest'
 import { act } from '@testing-library/react'
-import { SlotTestRuntime } from '@qilin/client-test-runtime'
-import { LocaleRuntime } from '@qilin/client-locale/client'
+import { SlotTestRuntime } from '@qilin-agent/client-test-runtime'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
 import { apply } from '../src/client/code/index.ts'
 import { CodeBody } from '../src/client/code/CodeBody.tsx'
 import { CODE_EXTENSIONS } from '../src/client/code/languages.ts'
 import { DocumentPreviewRegistry } from '../src/client/document/registry.ts'
 import { documentTabInfoFactory } from '../src/client/document/contract.ts'
 
-const ID = '@qilin/client-ui-sidebar-documentpreview/code'
+const ID = '@qilin-agent/client-ui-sidebar-documentpreview/code'
 const SLOT = 'sidebar.right.tab.document'
 const plugin = { inject: ['slots', 'locale', 'documentPreviews'], apply }
 let runtime: SlotTestRuntime | undefined

@@ -3,11 +3,11 @@
  * contract and rejects every violation by name. Meta arrives as schema-checked
  * JSON data, never evaluated script text. Model-written JavaScript executes
  * inside the confined PTC process.
- * @module @qilin/workflow-ptc/meta
+ * @module @qilin-agent/workflow-ptc/meta
  */
 
-import { WorkflowError } from '@qilin/workflow'
-import type { WorkflowMeta, WorkflowPhase } from '@qilin/workflow'
+import { WorkflowError } from '@qilin-agent/workflow'
+import type { WorkflowMeta, WorkflowPhase } from '@qilin-agent/workflow'
 
 /** Collect shape violations for a meta value (plain JSON data by the seam contract). */
 function validateMetaShape(meta: unknown): { meta?: WorkflowMeta; violations: string[] } {

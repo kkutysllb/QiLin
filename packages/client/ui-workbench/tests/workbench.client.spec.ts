@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 /** The workbench owner: persistence round-trip, defaults on malformed storage, and the D2 fold. */
 
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { apply, inject, type Workbench } from '../src/client/index.ts'
 import {

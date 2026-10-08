@@ -40,7 +40,7 @@ export const DEFAULT_TERMINAL_FONT_FAMILY = '"SF Mono", Menlo, Consolas, "Libera
  * whole grid would be re-measured against an icon font.
  */
 /* jscpd:ignore-start — terminal font-stack resolution pinned verbatim to
-   @qilin/client-ui-sidebar-terminal src/client/terminal-font.ts (ported twin) */
+   @qilin-agent/client-ui-sidebar-terminal src/client/terminal-font.ts (ported twin) */
 export const ICON_FONT_FALLBACKS: readonly string[] = [
   // Symbols-only patches (glyph coverage without Latin) — ideal fallbacks.
   '"Symbols Nerd Font Mono"',

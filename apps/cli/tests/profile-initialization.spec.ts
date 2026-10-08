@@ -11,7 +11,7 @@ import {
   readProfileManifest,
   resolveProfileDir,
   writeProfileManifest,
-} from '@qilin/app-boot'
+} from '@qilin-agent/app-boot'
 import { describe, expect, it } from 'vitest'
 import { execa } from 'execa'
 import { initializeProfileFromDefault } from '../src/profile-boot.ts'

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { ShellExecutor } from '@qilin/shell'
-import type { ShellExecRequest, ShellExecSpec, ShellProcess, ShellProcessRead, ShellRunResult } from '@qilin/shell'
+import { Context } from '@qilin-agent/kylin'
+import { ShellExecutor } from '@qilin-agent/shell'
+import type { ShellExecRequest, ShellExecSpec, ShellProcess, ShellProcessRead, ShellRunResult } from '@qilin-agent/shell'
 
 /**
  * Minimal concrete executor: canned foreground results, a hand-built process

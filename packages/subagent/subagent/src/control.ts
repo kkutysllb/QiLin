@@ -2,12 +2,12 @@
  * Browser-facing subagent prompt and interrupt request validation plus the
  * stable prompt failure codes returned by the Remote surface.
  *
- * @module @qilin/subagent
+ * @module @qilin-agent/subagent
  */
 
-import { AttachmentError } from '@qilin/attachment'
-import type { SessionId } from '@qilin/session'
-import { RemoteError } from '@qilin/typert-protocol'
+import { AttachmentError } from '@qilin-agent/attachment'
+import type { SessionId } from '@qilin-agent/session'
+import { RemoteError } from '@qilin-agent/typert-protocol'
 import { z } from 'zod'
 import { SubagentError } from './error.ts'
 

@@ -13,25 +13,25 @@
  * next cold read) and a `ver` mismatch discards the row instead of migrating
  * it. Design authority: the session-projection RFC
  * (.agents/notes/proposed/architecture/2026-07-27-session-projection-and-command-log.md).
- * @module @qilin/session-projection-cache
+ * @module @qilin-agent/session-projection-cache
  */
 
-import { Context, Service } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { snapshotJsonValue } from '@qilin/util-values'
-import { SessionLogOffset } from '@qilin/session'
+import { Context, Service } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { snapshotJsonValue } from '@qilin-agent/util-values'
+import { SessionLogOffset } from '@qilin-agent/session'
 import type {
   Session,
   SessionEvent,
   SessionHeader,
   SessionId,
-} from '@qilin/session'
+} from '@qilin-agent/session'
 import type {
   ProjectionCheckpoint,
   ProjectionSnapshot,
   SessionProjectionMap,
-} from '@qilin/session-projection'
-import type { KvTable } from '@qilin/storage-domain'
+} from '@qilin-agent/session-projection'
+import type { KvTable } from '@qilin-agent/storage-domain'
 import { projectionCacheDomainSpec } from './spec.ts'
 import type { CheckpointIdentity, CheckpointRecord } from './spec.ts'
 
@@ -59,7 +59,7 @@ const PREDECESSOR_TITLE_KEY = 'title' as Extract<keyof SessionProjectionMap, str
 export { checkpointIdentity, checkpointRecord, checkpointRow, projectionCacheDomainSpec } from './spec.ts'
 export type { CheckpointIdentity, CheckpointRecord } from './spec.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     sessionProjectionCache: SessionProjectionCache
   }

@@ -1,6 +1,6 @@
 /** Restorable PDF viewing preferences; document objects and canvases remain component-local. */
-import { defineStore, type EngineStoreHandle } from '@qilin/client-store'
-import type { TabId } from '@qilin/client-ui-dockkit'
+import { defineStore, type EngineStoreHandle } from '@qilin-agent/client-store'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
 import type { ZoomPreference } from '../zoom/types.ts'
 
 /** One tab's last visible page and optional PDF zoom preference. */

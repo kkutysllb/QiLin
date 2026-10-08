@@ -3,7 +3,7 @@ description: "Control Session-log upload with DeepSeek API requests from General
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-settings-session-log
+# @qilin-agent/client-ui-settings-session-log
 
 English | [中文](README.zh.md)
 

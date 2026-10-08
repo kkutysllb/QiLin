@@ -6,5 +6,5 @@
 # picker would. An explicit `disabled: false` keeps the restatement correct
 # whether a patch merges or replaces row-level fields.
 - id: ui-agent-preset
-  name: '@qilin/client-ui-agent-preset'
+  name: '@qilin-agent/client-ui-agent-preset'
   disabled: false

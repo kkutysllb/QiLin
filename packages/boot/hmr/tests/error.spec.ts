@@ -2,7 +2,7 @@
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import { handleError } from '../src/error.ts'
 

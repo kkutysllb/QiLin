@@ -6,8 +6,8 @@ import {
   requestMethod,
   supportsOperation,
   supportsTransientOpen,
-} from '@qilin/lsp-stdio'
-import type { WireServerCapabilities } from '@qilin/lsp-stdio/src/protocol.ts'
+} from '@qilin-agent/lsp-stdio'
+import type { WireServerCapabilities } from '@qilin-agent/lsp-stdio/src/protocol.ts'
 
 const RANGE = { start: { line: 1, character: 2 }, end: { line: 1, character: 5 } }
 

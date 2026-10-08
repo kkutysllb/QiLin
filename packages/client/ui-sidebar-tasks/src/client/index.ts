@@ -14,14 +14,14 @@
  * (`TasksBody.tsx`, `TasksGraphView.tsx`, `TasksBadge.tsx`), and this module,
  * which wires them.
  */
-import type { Context as ClientContext } from '@qilin/kylin'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
 // Type-only: pulls the ctx.uiWorkspace service merge.
-import type {} from '@qilin/client-ui-workspace/client'
-import type {} from '@qilin/api-remotes/client'
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-session/client'
-import type {} from '@qilin/client-ui-sidebar-right/client'
+import type {} from '@qilin-agent/client-ui-workspace/client'
+import type {} from '@qilin-agent/api-remotes/client'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-session/client'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
 import { TASKS_ID, tasksDefinition } from './definition.tsx'
 import { tasksFace } from './face.ts'
 import type { TasksJobsFace } from './face.ts'

@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import DeepSeekLlmApiExtensionRegistry from '../src/index.ts'
 
-declare module '@qilin/deepseek-llm-api-extensions/types' {
+declare module '@qilin-agent/deepseek-llm-api-extensions/types' {
   interface DeepSeekLlmApiExtensionMap {
     test_alpha: { readonly value: string }
     test_beta: readonly number[]

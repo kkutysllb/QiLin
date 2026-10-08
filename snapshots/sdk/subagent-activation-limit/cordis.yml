@@ -1,5 +1,5 @@
 - id: subagent
-  name: '@qilin/subagent'
+  name: '@qilin-agent/subagent'
   config:
     maxActiveSubagents: 8
 

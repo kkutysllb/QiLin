@@ -1,7 +1,7 @@
 /** Complete image bytes rendered in a shared zoom viewport. */
 import { useCallback, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react'
-import type { PropsLocale, PropsStore } from '@qilin/client-ui-slots'
-import { pathPartsOf } from '@qilin/util-workspace-path'
+import type { PropsLocale, PropsStore } from '@qilin-agent/client-ui-slots'
+import { pathPartsOf } from '@qilin-agent/util-workspace-path'
 import type { DocumentPreviewProps } from '../document/contract.ts'
 import { LoadingIndicator } from '../LoadingIndicator.tsx'
 import { hostFileOf } from '../rpc.ts'

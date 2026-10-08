@@ -11,9 +11,9 @@
 import { readFile, readdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import * as yaml from 'js-yaml'
-import { entryListSchema } from '@qilin/kylin-plugin-include'
+import { entryListSchema } from '@qilin-agent/kylin-plugin-include'
 import { describe, expect, it } from 'vitest'
-import { SHIPPED_PRESET_ROOT } from '@qilin/agent-presets'
+import { SHIPPED_PRESET_ROOT } from '@qilin-agent/agent-presets'
 
 /** The exact guard expressions the mounting matrix is defined in terms of. */
 const BASH_GUARD = "process.platform === 'win32'"

@@ -22,19 +22,19 @@
  * that do not use a `./typert` artifact (hand-written wire schemas,
  * tests, non-loader compositions).
  *
- * @module @qilin/typert-loader
+ * @module @qilin-agent/typert-loader
  */
 
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type {} from '@qilin/kylin-plugin-loader'
-import type {} from '@qilin/app-boot'
-import type {} from '@qilin/typert-registry'
-import type { TypertContribution } from '@qilin/typert-registry/types'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type {} from '@qilin-agent/kylin-plugin-loader'
+import type {} from '@qilin-agent/app-boot'
+import type {} from '@qilin-agent/typert-registry'
+import type { TypertContribution } from '@qilin-agent/typert-registry/types'
 
 /** The package.json exports key naming a package's host-face typert artifact. */
 export const TYPERT_HOST_EXPORT = './typert'

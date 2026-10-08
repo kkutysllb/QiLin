@@ -1,5 +1,5 @@
 /** Shared volatile schema fixture for the schema and Loader volatile specs. */
-import z from '@qilin/schemastery'
+import z from '@qilin-agent/schemastery'
 
 /** Mixed ordinary, volatile, nested and whole-object volatile fields. */
 export const Config = z.object({

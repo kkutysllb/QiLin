@@ -18,8 +18,8 @@
  * succeeded after the tab appeared cannot resolve. Only the task's Session and id are stored; its name, instruction, and
  * deliveries are not.
  */
-import type { SessionId } from '@qilin/session/types'
-import type { ScheduleId } from '@qilin/schedule/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { ScheduleId } from '@qilin-agent/schedule/client'
 
 /** The Sidebar fields that identify one task tab page across a reload. */
 export interface TaskTabPage {

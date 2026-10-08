@@ -23,12 +23,12 @@
  * })
  * ```
  *
- * @module @qilin/authorization
+ * @module @qilin-agent/authorization
  */
 
-import { Context, Service } from '@qilin/kylin'
-import type { CredentialKey } from '@qilin/credentials'
-import { HarnessError } from '@qilin/llm'
+import { Context, Service } from '@qilin-agent/kylin'
+import type { CredentialKey } from '@qilin-agent/credentials'
+import { HarnessError } from '@qilin-agent/llm'
 
 import type {
   AuthorizationEntry, AuthorizationMethod, AuthorizationNotice, AuthorizationOutcome, AuthorizationPrompt,
@@ -40,7 +40,7 @@ export type {
   AuthorizationPromptOption, AuthorizationSettlement, AuthorizationStatus,
 } from './types.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     authorization: AuthorizationService
   }

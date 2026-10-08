@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/session-log-export",
+  "name": "@qilin-agent/session-log-export",
   "description": "Web Session-log export command and shared download dialog",
   "version": "3.1.1",
   "publishConfig": {
@@ -39,45 +39,45 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@qilin/session-format": "workspace:*",
-    "@qilin/schemastery": "workspace:~",
+    "@qilin-agent/session-format": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~",
     "fflate": "^0.8.2",
-    "@qilin/brand": "workspace:*"
+    "@qilin-agent/brand": "workspace:*"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-persistence": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-persistence": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/attachment": "workspace:*",
-    "@qilin/client-connection": "workspace:*",
-    "@qilin/client-locale": "workspace:*",
-    "@qilin/client-store": "workspace:*",
-    "@qilin/client-ui-commands": "workspace:*",
-    "@qilin/client-ui-conversation": "workspace:*",
-    "@qilin/client-ui-primitives": "workspace:*",
-    "@qilin/client-ui-renderer": "workspace:*",
-    "@qilin/client-ui-session": "workspace:*",
-    "@qilin/client-ui-slots": "workspace:*",
-    "@qilin/commands": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-persistence": "workspace:*",
-    "@qilin/session-query": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/attachment": "workspace:*",
+    "@qilin-agent/client-connection": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/client-ui-commands": "workspace:*",
+    "@qilin-agent/client-ui-conversation": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-session": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/commands": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-persistence": "workspace:*",
+    "@qilin-agent/session-query": "workspace:*",
     "@types/react": "~18.3.1",
     "react": "^18.2.0"
   },
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/client-locale",
-        "@qilin/client-ui-commands",
-        "@qilin/client-ui-conversation",
-        "@qilin/client-ui-renderer",
-        "@qilin/client-ui-session"
+        "@qilin-agent/client-locale",
+        "@qilin-agent/client-ui-commands",
+        "@qilin-agent/client-ui-conversation",
+        "@qilin-agent/client-ui-renderer",
+        "@qilin-agent/client-ui-session"
       ],
       "platform": "web"
     }

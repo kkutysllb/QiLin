@@ -3,7 +3,7 @@ description: "The right Sidebar's file-tree and file-editor tab types for the qi
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-sidebar-files
+# @qilin-agent/client-ui-sidebar-files
 
 English | [中文](README.zh.md)
 
@@ -25,10 +25,10 @@ The right Sidebar's navigator: the session's workspace root as a tree, listed on
 <a id="what-it-registers"></a>
 ## What it registers
 
-- **The `files` type** — `ctx.sidebarRightTabs.register(...)` with kind `files`, id `@qilin/client-ui-sidebar-files`, band `builtin`, no patterns, and one guide entry (order 10, its title and description from the `sidebarFiles` namespace, its glyph the shared folder icon) that opens the type. One workspace tree per surface: it declares `single: true`.
-- **The `file` type** — kind `file`, id `@qilin/client-ui-sidebar-files/file`, band `builtin`, patterns `qilin-resource://file/**`. Its `canOpen` takes only session-scoped addresses whose path carries a known text or code extension (the shared editable set in `@qilin/util-workspace-path`), so images, PDFs, unknown extensions, and bare absolute addresses fall through to the `text` fallback viewer; an absolute address is refused because saving it has no authorizing Session. It declares no `single` (one tab per address, the registry's default), no guide entry, and no static `icon` — the chip's sheet is the open file's own, drawn by the title slot. The tab title is the address's decoded basename.
-- **The `files` body and chip title** — the keyed `sidebar.right.pane.tab` and `sidebar.right.pane.tab.title` seats under `@qilin/client-ui-sidebar-files`: the header row, the filename search, and the tree. The header row is the document preview's (`ui-sidebar-documentpreview`): the root path, its directories greyed and its last segment in full ink, never ellipsized (a path wider than the row keeps its end and fades its start), with the one control, reload, at its right. The row is copied rather than shared because a plugin bundle shares runtime code only through the platform modules; once the artifact and slot surfaces settle, one copy in `ui-primitives` could serve every pane header.
-- **The `file` body and chip title** — the same two seats under `@qilin/client-ui-sidebar-files/file`: the workbench (tree pane left at a fixed width, collapsible; editor right) and the per-file `FileTypeIcon` sheet before the captured basename.
+- **The `files` type** — `ctx.sidebarRightTabs.register(...)` with kind `files`, id `@qilin-agent/client-ui-sidebar-files`, band `builtin`, no patterns, and one guide entry (order 10, its title and description from the `sidebarFiles` namespace, its glyph the shared folder icon) that opens the type. One workspace tree per surface: it declares `single: true`.
+- **The `file` type** — kind `file`, id `@qilin-agent/client-ui-sidebar-files/file`, band `builtin`, patterns `qilin-resource://file/**`. Its `canOpen` takes only session-scoped addresses whose path carries a known text or code extension (the shared editable set in `@qilin-agent/util-workspace-path`), so images, PDFs, unknown extensions, and bare absolute addresses fall through to the `text` fallback viewer; an absolute address is refused because saving it has no authorizing Session. It declares no `single` (one tab per address, the registry's default), no guide entry, and no static `icon` — the chip's sheet is the open file's own, drawn by the title slot. The tab title is the address's decoded basename.
+- **The `files` body and chip title** — the keyed `sidebar.right.pane.tab` and `sidebar.right.pane.tab.title` seats under `@qilin-agent/client-ui-sidebar-files`: the header row, the filename search, and the tree. The header row is the document preview's (`ui-sidebar-documentpreview`): the root path, its directories greyed and its last segment in full ink, never ellipsized (a path wider than the row keeps its end and fades its start), with the one control, reload, at its right. The row is copied rather than shared because a plugin bundle shares runtime code only through the platform modules; once the artifact and slot surfaces settle, one copy in `ui-primitives` could serve every pane header.
+- **The `file` body and chip title** — the same two seats under `@qilin-agent/client-ui-sidebar-files/file`: the workbench (tree pane left at a fixed width, collapsible; editor right) and the per-file `FileTypeIcon` sheet before the captured basename.
 
 Both seats share one store instance per session, bucketed by tab id: the tree buckets and the editor buckets never mix.
 
@@ -37,12 +37,12 @@ The browser half lives under `src/client/`: `definition.tsx` and `file-definitio
 <a id="the-tree"></a>
 ## The tree
 
-The root is the session's working directory, read from `useSessions().byId[sessionId].cwd`, and split for the header row by `pathPartsOf` from `@qilin/util-workspace-path`. Every level is keyed by absolute path; a child's path is its parent's joined with the entry name by `/`. A level is listed when it is first expanded, through `remote.workspaceFiles.list(sessionId, absolutePath)` on the `@qilin/api-workspace-files` namespace; the adapter keeps the listing's entries and truncation flag and drops its workspace-relative path. Rows are ordered directories first, then by natural, case-insensitive name; dotfiles are shown like any other entry.
+The root is the session's working directory, read from `useSessions().byId[sessionId].cwd`, and split for the header row by `pathPartsOf` from `@qilin-agent/util-workspace-path`. Every level is keyed by absolute path; a child's path is its parent's joined with the entry name by `/`. A level is listed when it is first expanded, through `remote.workspaceFiles.list(sessionId, absolutePath)` on the `@qilin-agent/api-workspace-files` namespace; the adapter keeps the listing's entries and truncation flag and drops its workspace-relative path. Rows are ordered directories first, then by natural, case-insensitive name; dotfiles are shown like any other entry.
 
 | Entry type | Row |
 |---|---|
 | `directory` | Toggles; the level is fetched the first time it opens and kept while collapsed. |
-| `file` | Opens `qilin-resource://file/session/<sessionId>/<encoded path relative to the root>`, built by `fileAddressFor` from `@qilin/util-workspace-path`, through `useTabInfo().tab.actions.openResource`, landing in the tab's own pane. From the editor's tree the open lands on the `file` type itself and de-duplicates by address, so the open file never switches in place. |
+| `file` | Opens `qilin-resource://file/session/<sessionId>/<encoded path relative to the root>`, built by `fileAddressFor` from `@qilin-agent/util-workspace-path`, through `useTabInfo().tab.actions.openResource`, landing in the tab's own pane. From the editor's tree the open lands on the `file` type itself and de-duplicates by address, so the open file never switches in place. |
 | `other` | Shown greyed and not clickable, so the directory is reported whole. |
 
 A level cut by the endpoint's entry cap ends with a marker; an empty level says so; a level that failed shows one line per code — `workspace-file/not-found`, `outside-workspace`, `not-directory` — and the transport's own message otherwise. Reload drops every listed level and asks again for the expanded ones; collapsed levels are fetched again when they next open. A session without a working directory shows a single line instead of a tree.

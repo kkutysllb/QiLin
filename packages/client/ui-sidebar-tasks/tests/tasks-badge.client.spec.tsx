@@ -5,8 +5,8 @@
  */
 import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup } from '@testing-library/react'
-import type { SessionSummary } from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
+import type { SessionSummary } from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import { child, job, projection, sid } from './fixtures.client.ts'
 import { SESSION, mountBadge } from './mount.client.tsx'
 

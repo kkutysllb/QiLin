@@ -1,4 +1,4 @@
-import { createUserMessage } from '@qilin/llm'
+import { createUserMessage } from '@qilin-agent/llm'
 /**
  * The `session-telemetry/record` waterfall contract: pass-through when no listener is
  * mounted, listener stacking and replacement, ops-record coverage, the
@@ -6,8 +6,8 @@ import { createUserMessage } from '@qilin/llm'
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import SessionStore, { SessionId } from '@qilin/session'
+import { Context } from '@qilin-agent/kylin'
+import SessionStore, { SessionId } from '@qilin-agent/session'
 import {
   SessionTelemetryCoordinator,
   type SessionTelemetrySink,

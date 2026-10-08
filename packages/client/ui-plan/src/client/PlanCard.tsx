@@ -1,12 +1,12 @@
 /** Persistent transcript cards and pending-review sidebar navigation. */
 import { useEffect } from 'react'
-import { FileTypeIcon, IconChevronRightOutline14 } from '@qilin/client-ui-primitives'
-import type { ChatNode } from '@qilin/client-ui-chat/client'
-import { shallowEqual } from '@qilin/client-store'
+import { FileTypeIcon, IconChevronRightOutline14 } from '@qilin-agent/client-ui-primitives'
+import type { ChatNode } from '@qilin-agent/client-ui-chat/client'
+import { shallowEqual } from '@qilin-agent/client-store'
 import type {} from './plan-definition.ts'
-import type { InjectFace, PropsLocale, PropsRuntime, PropsStore } from '@qilin/client-ui-slots'
-import type { ToolCallId } from '@qilin/llm/brand'
-import type {} from '@qilin/client-ui-user-questions/client'
+import type { InjectFace, PropsLocale, PropsRuntime, PropsStore } from '@qilin-agent/client-ui-slots'
+import type { ToolCallId } from '@qilin-agent/llm/brand'
+import type {} from '@qilin-agent/client-ui-user-questions/client'
 import type { createPlanReviewStore } from './review-store.ts'
 import css from './PlanPreview.module.css'
 

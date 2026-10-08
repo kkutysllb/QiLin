@@ -3,7 +3,7 @@ description: "Slot registry pure core for the qilin web client: ordinary extensi
 kind: "package-library"
 ---
 
-# @qilin/client-ui-slots
+# @qilin-agent/client-ui-slots
 
 English | [中文](README.zh.md)
 

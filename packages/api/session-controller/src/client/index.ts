@@ -1,10 +1,10 @@
 /** Client Session object layer, Agent scopes, and Remote lifecycle wiring. */
 
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/agent/types'
-import type { ConnectionHandle } from '@qilin/client-connection/client'
-import type {} from '@qilin/client-file-upload/client'
-import { typertOwnedValue } from '@qilin/typert-protocol'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/agent/types'
+import type { ConnectionHandle } from '@qilin-agent/client-connection/client'
+import type {} from '@qilin-agent/client-file-upload/client'
+import { typertOwnedValue } from '@qilin-agent/typert-protocol'
 import { createSessionControlStream } from './transport.ts'
 import { ClientSessions } from './sessions/service.ts'
 import type { SessionRemotes } from './sessions/remotes.ts'
@@ -87,7 +87,7 @@ export interface SessionReferenceSourceMap {
 /** Declaration-merge-extensible labels carried by independent Client references. */
 export type SessionReferenceSource = Extract<keyof SessionReferenceSourceMap, string>
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Client Session object layer and Agent scope owner. */
     sessions: import('./contract/sessions.ts').ISessions

@@ -7,13 +7,13 @@
  * re-renders from the next describe, pushed or refetched.
  */
 
-import type { Context as ClientContext } from '@qilin/kylin'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
 import type {
   CredentialInfo, LlmConfigurableProvider, LlmProviderInfo, SettingsNamespaceView,
-} from '@qilin/api-remotes/client'
-import type { SnapshotStore } from '@qilin/client-store'
-import { createSnapshotStore } from '@qilin/client-store'
-import type { SettingsDescribeFace } from '@qilin/client-ui-settings/client'
+} from '@qilin-agent/api-remotes/client'
+import type { SnapshotStore } from '@qilin-agent/client-store'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { SettingsDescribeFace } from '@qilin-agent/client-ui-settings/client'
 import type { SettingsSchemaOperations } from './schema-operations.ts'
 
 /**

@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/tool-pwsh",
+  "name": "@qilin-agent/tool-pwsh",
   "description": "Model-facing pwsh tool over the bash executor seam",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,40 +30,40 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/jobs": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/sandbox": "workspace:*",
-    "@qilin/sandbox-policy": "workspace:*",
-    "@qilin/shell": "workspace:*",
-    "@qilin/shell-env": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/user-approval": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/jobs": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/sandbox": "workspace:*",
+    "@qilin-agent/sandbox-policy": "workspace:*",
+    "@qilin-agent/shell": "workspace:*",
+    "@qilin-agent/shell-env": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/user-approval": "workspace:*"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/agent-loop": "workspace:*",
-    "@qilin/app-boot": "workspace:*",
-    "@qilin/jobs": "workspace:*",
-    "@qilin/jobs-local": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/loader-smoke": "workspace:*",
-    "@qilin/pwsh-local": "workspace:*",
-    "@qilin/sandbox": "workspace:*",
-    "@qilin/sandbox-policy": "workspace:*",
-    "@qilin/session-projection": "workspace:*",
-    "@qilin/shell": "workspace:*",
-    "@qilin/shell-env": "workspace:*",
-    "@qilin/subprocess-local": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/tool-jobs": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/user-approval": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-loop": "workspace:*",
+    "@qilin-agent/app-boot": "workspace:*",
+    "@qilin-agent/jobs": "workspace:*",
+    "@qilin-agent/jobs-local": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/loader-smoke": "workspace:*",
+    "@qilin-agent/pwsh-local": "workspace:*",
+    "@qilin-agent/sandbox": "workspace:*",
+    "@qilin-agent/sandbox-policy": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/shell": "workspace:*",
+    "@qilin-agent/shell-env": "workspace:*",
+    "@qilin-agent/subprocess-local": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tool-jobs": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/user-approval": "workspace:*"
   }
 }

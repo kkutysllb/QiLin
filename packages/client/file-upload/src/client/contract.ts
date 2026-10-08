@@ -1,5 +1,5 @@
-import type { SessionId } from '@qilin/session/types'
-import type { RemoteResult } from '@qilin/typert-protocol'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { RemoteResult } from '@qilin-agent/typert-protocol'
 import type { FileUploadValue } from '../types.ts'
 
 /** Browser request body accepted by the background file-upload service. */

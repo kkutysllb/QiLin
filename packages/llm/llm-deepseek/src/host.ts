@@ -1,10 +1,10 @@
 /** Shared Host wiring for the DeepSeek protocol adapter. */
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/kylin-plugin-loader'
-import type {} from '@qilin/fs'
-import { resolveImageAttachmentAccess } from '@qilin/llm'
-import { getOrCreateAnonymousUserId, type AnonymousUserId } from '@qilin/anonymous-user-id'
-import { deepEqualJson } from '@qilin/util-values'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/kylin-plugin-loader'
+import type {} from '@qilin-agent/fs'
+import { resolveImageAttachmentAccess } from '@qilin-agent/llm'
+import { getOrCreateAnonymousUserId, type AnonymousUserId } from '@qilin-agent/anonymous-user-id'
+import { deepEqualJson } from '@qilin-agent/util-values'
 import { DeepSeekAdapter } from './adapter.ts'
 import type { DeepSeekAdapterOptions, DeepSeekConnectionOptions } from './types.ts'
 

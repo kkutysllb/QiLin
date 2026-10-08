@@ -1,5 +1,5 @@
 /** The Composer model's private Lexical editor, projections, and node operations. */
-import type { ObservableSnapshot } from '@qilin/client-store'
+import type { ObservableSnapshot } from '@qilin-agent/client-store'
 import type { LexicalEditor, NodeKey } from 'lexical'
 import {
   $addUpdateTag, $createParagraphNode, $createTextNode, $getRoot, $getSelection, $isRangeSelection,

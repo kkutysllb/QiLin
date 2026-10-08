@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/settings-file",
+  "name": "@qilin-agent/settings-file",
   "description": "File-backed settings provider (settings.yaml) for the QiLin",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,21 +30,21 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/atomic-write": "workspace:*",
-    "@qilin/home-paths": "workspace:*",
-    "@qilin/settings": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/atomic-write": "workspace:*",
+    "@qilin-agent/home-paths": "workspace:*",
+    "@qilin-agent/settings": "workspace:*"
   },
   "dependencies": {
-    "@qilin/util-values": "workspace:*",
-    "@qilin/schemastery": "workspace:~",
+    "@qilin-agent/util-values": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~",
     "chokidar": "^4.0.3",
     "yaml": "^2.9.0"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/atomic-write": "workspace:*",
-    "@qilin/home-paths": "workspace:*",
-    "@qilin/settings": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/atomic-write": "workspace:*",
+    "@qilin-agent/home-paths": "workspace:*",
+    "@qilin-agent/settings": "workspace:*"
   }
 }

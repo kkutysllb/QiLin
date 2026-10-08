@@ -3,10 +3,10 @@
  * guards that keep a stale settlement from overwriting a newer read.
  */
 import { describe, expect, it } from 'vitest'
-import { RemoteError } from '@qilin/client-test-runtime'
-import type { RemoteFailure } from '@qilin/api-remotes/client'
-import type { GhPr, GitStatus } from '@qilin/api-workspace-git/types'
-import type { TabId } from '@qilin/client-ui-dockkit'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
+import type { RemoteFailure } from '@qilin-agent/api-remotes/client'
+import type { GhPr, GitStatus } from '@qilin-agent/api-workspace-git/types'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
 import { HISTORY_PAGE_SIZE } from '../src/client/git-model.ts'
 import { createGitStore } from '../src/client/store.ts'
 import { LOG, logPage } from './scripted-git.client.ts'

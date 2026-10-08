@@ -1,8 +1,8 @@
 /** Session-owned observable state excluding Conversation target data. */
-import type { FileAttachmentRef } from '@qilin/attachment'
-import type { SessionId } from '@qilin/session/types'
-import type { SubagentAddress } from '@qilin/subagent/client'
-import type { RemoteFailure } from '@qilin/typert-protocol'
+import type { FileAttachmentRef } from '@qilin-agent/attachment'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { SubagentAddress } from '@qilin-agent/subagent/client'
+import type { RemoteFailure } from '@qilin-agent/typert-protocol'
 import type { SessionRequestId } from '../../types.ts'
 
 /** One image displayed by a local submission echo before durable admission. */

@@ -1,15 +1,15 @@
 // @vitest-environment jsdom
-import type { GlobalStandardProps } from '@qilin/client-ui-slots'
+import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
-import type { SessionListState } from '@qilin/api-session-controller/client'
+import type { SessionListState } from '@qilin-agent/api-session-controller/client'
 import type {
   WorkspaceId, WorkspaceSnapshot, WorkspaceView,
-} from '@qilin/api-workspace-controller/client'
-import type {} from '@qilin/client-locale/client'
-import { bindSnapshotSelector, makeTranslate } from '@qilin/client-test-runtime'
-import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
-import type { SessionStatusSnapshot } from '@qilin/client-ui-session/client'
+} from '@qilin-agent/api-workspace-controller/client'
+import type {} from '@qilin-agent/client-locale/client'
+import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
+import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
 import type { DirectoryFlowOwnerProps, WorkspacePickerProps } from '../src/client/contract/slots.ts'
 import { WorkspacePicker } from '../src/client/WorkspacePicker.tsx'
 import { zh } from '../src/client/locales.ts'

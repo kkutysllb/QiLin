@@ -3,7 +3,7 @@ description: "The model-facing persistent pwsh tool for users and maintainers ch
 kind: "package-reference"
 ---
 
-# @qilin/tool-pwsh-persistent
+# @qilin-agent/tool-pwsh-persistent
 
 English | [中文](README.zh.md)
 
@@ -36,11 +36,11 @@ Choose the persistent tool when work depends on cross-call PowerShell state, and
 The default `shell` backend starts a PowerShell shell through a `qilin-terminal-bash` instance configured with `shellDialect: pwsh`; deployments may register another pwsh-dialect PTY backend and select it by name.
 
 ```yaml
-- name: '@qilin/terminal'
-- name: '@qilin/terminal-bash'
+- name: '@qilin-agent/terminal'
+- name: '@qilin-agent/terminal-bash'
   config:
     shellDialect: pwsh
-- name: '@qilin/tool-pwsh-persistent'
+- name: '@qilin-agent/tool-pwsh-persistent'
 ```
 
 | Field | Default | Meaning |
@@ -50,7 +50,7 @@ The default `shell` backend starts a PowerShell shell through a `qilin-terminal-
 | `maxOutputChars` | `16,000` | Maximum retained command-output characters; fixed diagnostics are added afterward |
 | `description` | `Run commands in a persistent PowerShell shell. State, including the current directory and exported environment variables, persists across calls for this agent.` | Model-facing environment contract; deployments may describe their environment |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#qilintool-pwsh-persistent) is the exhaustive source for every accepted field and its JSDoc.
+The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agenttool-pwsh-persistent) is the exhaustive source for every accepted field and its JSDoc.
 
 ### What the agent can rely on
 
@@ -101,8 +101,8 @@ Read these pages when the package-level contract is not enough. They move from t
 - [terminal-bash backend](../../terminal/terminal-bash/README.md) — the default backend, configured with `shellDialect: pwsh`.
 - [pwsh persistent PTY Agent Note](../../../.agents/notes/archived/architecture/2026-08-11-pwsh-persistent-pty.md) — the pwsh-side session design and its rationale.
 - [Persistent PTY sessions Agent Note](../../../.agents/notes/implemented/feature/2026-07-16-persistent-pty-sessions.md) — the owner-scoped session design and its rationale.
-- [Generated tool catalog](../../../docs/tool-catalog.md#qilintool-pwsh-persistent) — the exact `pwsh` argument schema.
-- [Generated configuration catalog](../../../docs/config-catalog.md#qilintool-pwsh-persistent) — every accepted config field and its source declaration.
+- [Generated tool catalog](../../../docs/tool-catalog.md#qilin-agenttool-pwsh-persistent) — the exact `pwsh` argument schema.
+- [Generated configuration catalog](../../../docs/config-catalog.md#qilin-agenttool-pwsh-persistent) — every accepted config field and its source declaration.
 
 -----
 
@@ -113,7 +113,7 @@ Read these pages when the package-level contract is not enough. They move from t
 
 #### What the model sees
 
-The generated [`pwsh` schema](../../../docs/tool-catalog.md#qilintool-pwsh-persistent), including the configured `description`. The plugin contributes no standalone system-prompt section; the deployment owns persona and environment guidance.
+The generated [`pwsh` schema](../../../docs/tool-catalog.md#qilin-agenttool-pwsh-persistent), including the configured `description`. The plugin contributes no standalone system-prompt section; the deployment owns persona and environment guidance.
 
 #### Token effect
 

@@ -1,7 +1,7 @@
 /** Session-specific adapters for Gateway-owned Remote stream lifecycles. */
 
-import type {} from '@qilin/api-session-controller/remote'
-import { RemoteError } from '@qilin/typert-protocol'
+import type {} from '@qilin-agent/api-session-controller/remote'
+import { RemoteError } from '@qilin-agent/typert-protocol'
 import {
   RemoteJournalStream,
   RemoteSnapshotStream,
@@ -9,7 +9,7 @@ import {
   type ClientRemote,
   type RemoteJournalChange,
   type RemoteJournalFrame,
-} from '@qilin/api-gateway/client'
+} from '@qilin-agent/api-gateway/client'
 import type {
   SessionAddress,
   SessionAssistantStreamBaseline,

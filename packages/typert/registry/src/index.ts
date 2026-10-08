@@ -1,7 +1,7 @@
 /** Host entry for the shared Typert runtime registry. */
 
 import type { z } from 'zod'
-import type { TypertDisposer } from '@qilin/typert-protocol'
+import type { TypertDisposer } from '@qilin-agent/typert-protocol'
 import type {
   TypertContribution,
   TypertFace,
@@ -14,7 +14,7 @@ import type {
 export { default, TypertRegistry, typertEndpoint, typertKey, typertPackageKey } from './service.ts'
 export type * from './types.ts'
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface TypertRegistryContract {
     register(contribution: TypertContribution): TypertDisposer
     get(key: string): TypertSchemaRecord | undefined

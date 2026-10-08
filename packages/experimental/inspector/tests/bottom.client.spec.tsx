@@ -2,10 +2,10 @@
 /** Bottom Inspector lifetime and shortcuts through the production slot renderer. */
 import { afterEach, expect, it } from 'vitest'
 import { act } from '@testing-library/react'
-import { SlotTestRuntime } from '@qilin/client-test-runtime'
-import { LocaleRuntime } from '@qilin/client-locale/client'
-import ShortcutsService from '@qilin/client-shortcuts/client'
-import type { ShortcutCommandId } from '@qilin/client-shortcuts/client'
+import { SlotTestRuntime } from '@qilin-agent/client-test-runtime'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
+import ShortcutsService from '@qilin-agent/client-shortcuts/client'
+import type { ShortcutCommandId } from '@qilin-agent/client-shortcuts/client'
 import { registerInspectorPage } from '../src/client/bottom/page.tsx'
 import { inspectorId } from '../src/shared/identity.ts'
 

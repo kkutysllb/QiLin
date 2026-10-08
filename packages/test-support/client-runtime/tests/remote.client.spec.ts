@@ -3,7 +3,7 @@
  * internal plumbing event, the silent drop for an unsubscribed name, and the
  * `$mount` refusal that sends a spec to the real Client Remote service.
  */
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it } from 'vitest'
 import { TestRemote } from '../src/remote.ts'
 

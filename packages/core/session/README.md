@@ -3,7 +3,7 @@ description: "The event-sourced session log and in-memory store for users and ma
 kind: "package-reference"
 ---
 
-# @qilin/session
+# @qilin-agent/session
 
 English | [中文](README.zh.md)
 

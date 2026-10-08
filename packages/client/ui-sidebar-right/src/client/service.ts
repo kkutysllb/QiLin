@@ -34,12 +34,12 @@
  * forwards the seats' reports; callers use the service's navigation methods.
  */
 import { sidebarTargetFromElement, type SidebarRightTarget } from './focus.ts'
-import { randomUUID } from '@qilin/util-crypto'
-import { createSnapshotStore, type ObservableSnapshot } from '@qilin/client-store'
-import type { FloatRect, PaneId, TabId, TabRecord } from '@qilin/client-ui-dockkit'
-import { activeDockPaneId, canSplit, findContentTab, dockPaneIds, findTabPane, getPane } from '@qilin/client-ui-dockkit'
-import type { BoundActions } from '@qilin/client-ui-slots'
-import type { SessionId } from '@qilin/session/types'
+import { randomUUID } from '@qilin-agent/util-crypto'
+import { createSnapshotStore, type ObservableSnapshot } from '@qilin-agent/client-store'
+import type { FloatRect, PaneId, TabId, TabRecord } from '@qilin-agent/client-ui-dockkit'
+import { activeDockPaneId, canSplit, findContentTab, dockPaneIds, findTabPane, getPane } from '@qilin-agent/client-ui-dockkit'
+import type { BoundActions } from '@qilin-agent/client-ui-slots'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { SidebarRightNavigationParams, SidebarRightResourceParams, SidebarRightTabParamsFor } from './contract/params.ts'
 import { pageAddress } from './contract/seed.ts'
 import type { SidebarRightTabClaim, SidebarRightTabRegistry } from './tab-registry.ts'

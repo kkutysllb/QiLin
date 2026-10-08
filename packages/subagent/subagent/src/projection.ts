@@ -2,13 +2,13 @@
  * Pure session projections for subagent identity (mode/label) and active-turn
  * duration.
  *
- * @module @qilin/subagent/projection
+ * @module @qilin-agent/subagent/projection
  */
 
 import { z } from 'zod'
-import { SessionSeq } from '@qilin/session'
-import type { ProjectionDefinition } from '@qilin/session-projection'
-import type { SessionEvent } from '@qilin/session'
+import { SessionSeq } from '@qilin-agent/session'
+import type { ProjectionDefinition } from '@qilin-agent/session-projection'
+import type { SessionEvent } from '@qilin-agent/session'
 import { foldSubagentDescriptor } from './descriptor.ts'
 import type { SubagentDescriptorData } from './descriptor.ts'
 import type { SubagentIdentityProjection, SubagentTimingProjection } from './projection-types.ts'
@@ -50,7 +50,7 @@ const timingStateSchema: z.ZodType<TimingState> = z.object({
   lastTurnCompleted: z.boolean().optional(),
 }).strict()
 
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionStateMap {
     subagentTiming: TimingState
     subagent: IdentityState

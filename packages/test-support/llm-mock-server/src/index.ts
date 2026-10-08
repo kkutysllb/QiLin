@@ -5,7 +5,7 @@
  * accepted request consumes one behavior; the server never retries or
  * interprets harness policy.
  *
- * @module @qilin/llm-mock-server
+ * @module @qilin-agent/llm-mock-server
  */
 
 import { createServer } from 'node:http'

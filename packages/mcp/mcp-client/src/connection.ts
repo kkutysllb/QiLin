@@ -16,10 +16,10 @@
  */
 
 import { Client, type Transport } from '@modelcontextprotocol/client'
-import type { Context } from '@qilin/kylin'
-import { assertNever, type JsonValue } from '@qilin/util-values'
+import type { Context } from '@qilin-agent/kylin'
+import { assertNever, type JsonValue } from '@qilin-agent/util-values'
 import type { ServerContext } from './server-context.ts'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 import { createTransport } from './transport.ts'
 import { syncTools } from './tools.ts'
 import type { ToolBridgeOptions, ToolDisposers } from './tools.ts'

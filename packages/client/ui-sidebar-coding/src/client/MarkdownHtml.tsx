@@ -17,7 +17,7 @@
 import { useLayoutEffect, useMemo, useRef } from 'react'
 import { createElement, type ReactNode } from 'react'
 import DOMPurify from 'dompurify'
-import { MarkdownText } from '@qilin/client-ui-primitives'
+import { MarkdownText } from '@qilin-agent/client-ui-primitives'
 import type { ComponentType } from 'react'
 import { markdownTextProps } from './markdown-labels.tsx'
 import { lazyChunkComponent } from './lazy-chunk.tsx'

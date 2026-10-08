@@ -19,31 +19,31 @@
  * Agent Note:
  * - .agents/notes/implemented/simplification/2026-07-22-plan-specific-collaboration-state.md
  *
- * @module @qilin/plan-mode
+ * @module @qilin-agent/plan-mode
  */
 
-import { Context, Service } from '@qilin/kylin'
-import { brandString } from '@qilin/brand'
+import { Context, Service } from '@qilin-agent/kylin'
+import { brandString } from '@qilin-agent/brand'
 import { z as zod } from 'zod'
 import type { ZodType } from 'zod'
-import type { Agent, PreStepDecision } from '@qilin/agent'
-import { createUserMessage } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import type { Session, UserMessage } from '@qilin/session'
-import { defineTool } from '@qilin/tools'
-import { UserQuestionError } from '@qilin/user-questions'
-import type { CommandDefinitionId, CommandId } from '@qilin/commands'
-import type {} from '@qilin/session-projection'
-import type { ProjectionDefinition } from '@qilin/session-projection'
+import type { Agent, PreStepDecision } from '@qilin-agent/agent'
+import { createUserMessage } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import type { Session, UserMessage } from '@qilin-agent/session'
+import { defineTool } from '@qilin-agent/tools'
+import { UserQuestionError } from '@qilin-agent/user-questions'
+import type { CommandDefinitionId, CommandId } from '@qilin-agent/commands'
+import type {} from '@qilin-agent/session-projection'
+import type { ProjectionDefinition } from '@qilin-agent/session-projection'
 import type { PlanProjection, PlanUnitState } from './types.ts'
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'plan-mode': { kind: 'plan-mode' } & ContextFormed
   }
 }
 export type * from './types.ts'
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /**
      * Whether plan mode is in force from this point on: log-only, non-surface,
@@ -54,7 +54,7 @@ declare module '@qilin/session/types' {
   }
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     planMode: PlanModeController
   }
@@ -230,7 +230,7 @@ export class PlanModeController extends Service {
     // The command child activates only when a command registry is composed.
     ctx.inject(['commands'], (commandCtx) => {
       commandCtx.commands.register({
-        definitionId: brandString<CommandDefinitionId>('@qilin/plan-mode'),
+        definitionId: brandString<CommandDefinitionId>('@qilin-agent/plan-mode'),
         name: 'plan',
         description: 'Enter or leave plan mode',
         input: { hint: '[off|message]', attachments: true },

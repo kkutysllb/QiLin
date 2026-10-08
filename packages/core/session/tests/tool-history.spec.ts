@@ -1,9 +1,9 @@
 /** Capability-independent tool history folded from committed headers and developer messages. */
 import { describe, expect, it } from 'vitest'
-import { createDeveloperMessage, projectToolUpdates } from '@qilin/llm'
-import type { ContentBlock, ToolSchema } from '@qilin/llm'
-import { Session, SessionId, SessionLogOffset, SessionSeq } from '@qilin/session'
-import type { SessionEvent } from '@qilin/session'
+import { createDeveloperMessage, projectToolUpdates } from '@qilin-agent/llm'
+import type { ContentBlock, ToolSchema } from '@qilin-agent/llm'
+import { Session, SessionId, SessionLogOffset, SessionSeq } from '@qilin-agent/session'
+import type { SessionEvent } from '@qilin-agent/session'
 import { ToolHistoryProjection } from '../src/tool-history.ts'
 
 const search: ToolSchema = { name: 'search', description: 'Search', parameters: {} }

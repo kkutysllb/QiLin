@@ -1,6 +1,6 @@
 /** Wire failure mapping for the Team service's browser write face. */
 
-import { RemoteError } from '@qilin/typert-protocol'
+import { RemoteError } from '@qilin-agent/typert-protocol'
 import { TeamError } from './error.ts'
 
 /** Wire details the Team domain carries on its catch-all refusal code. */
@@ -9,7 +9,7 @@ export interface TeamRejectedFailureDetails {
   readonly code: string
 }
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** The wire identity resolves to a Session that is not a Team member. */
     'agent-team/not-a-member': {}

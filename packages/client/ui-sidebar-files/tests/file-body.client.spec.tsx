@@ -10,9 +10,9 @@
  */
 import { afterEach, describe, expect, it } from 'vitest'
 import { act, cleanup, fireEvent } from '@testing-library/react'
-import { RemoteError } from '@qilin/client-test-runtime'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
 import { EditorView } from '@codemirror/view'
-import { fileAddressFor } from '@qilin/util-workspace-path'
+import { fileAddressFor } from '@qilin-agent/util-workspace-path'
 import { ADDRESS, PATH, ROOT, SESSION, TAB, mountFileBody } from './mount-file.client.tsx'
 import type { DirLevel } from '../src/client/store.ts'
 import { zh } from '../src/client/locales.ts'

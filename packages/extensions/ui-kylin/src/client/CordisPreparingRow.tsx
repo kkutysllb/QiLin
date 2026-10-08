@@ -1,8 +1,8 @@
 /** Argument-free Kylin tool prefix shared by its three card families. */
 import type { ReactNode } from 'react'
-import { DisclosureRow } from '@qilin/client-ui-primitives'
-import type { PropsLocale } from '@qilin/client-ui-slots'
-import type { ToolCallViewProps } from '@qilin/client-ui-tool/client'
+import { DisclosureRow } from '@qilin-agent/client-ui-primitives'
+import type { PropsLocale } from '@qilin-agent/client-ui-slots'
+import type { ToolCallViewProps } from '@qilin-agent/client-ui-tool/client'
 
 /* v8 ignore next -- Non-expandable rows never invoke DisclosureRow's required toggle callback. */
 const noop = (): void => undefined

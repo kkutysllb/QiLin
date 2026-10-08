@@ -1,12 +1,12 @@
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it } from 'vitest'
-import LlmRuntime, { createUserMessage, LlmAdapter  } from '@qilin/llm'
-import type { GenerateOptions, StreamChunk } from '@qilin/llm'
-import SessionStore, { Session, SessionId } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import { turnBoundaryProjectionDefinition } from '@qilin/agent-loop'
-import SessionTitleService from '@qilin/session-title'
-import * as providerPlugin from '@qilin/session-title-all-prompts-llm'
+import LlmRuntime, { createUserMessage, LlmAdapter  } from '@qilin-agent/llm'
+import type { GenerateOptions, StreamChunk } from '@qilin-agent/llm'
+import SessionStore, { Session, SessionId } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import { turnBoundaryProjectionDefinition } from '@qilin-agent/agent-loop'
+import SessionTitleService from '@qilin-agent/session-title'
+import * as providerPlugin from '@qilin-agent/session-title-all-prompts-llm'
 
 class RecordingAdapter extends LlmAdapter {
   readonly requests: GenerateOptions[] = []

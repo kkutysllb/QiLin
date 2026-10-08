@@ -1,9 +1,9 @@
 /** Fixed V0–V3 composition for released-edge tests, independent of the current writer. */
 
-import { KNOWN_SESSION_EVENT_TYPES } from '@qilin/session'
-import { createSessionFormatCatalog } from '@qilin/session-format'
-import { releasedV0SessionFormatCodec, releasedV1SessionFormatCodec, sessionFormatV0ToV1 } from '@qilin/session-format-v0-to-v1'
-import { releasedV2SessionFormatCodec, sessionFormatV1ToV2 } from '@qilin/session-format-v1-to-v2'
+import { KNOWN_SESSION_EVENT_TYPES } from '@qilin-agent/session'
+import { createSessionFormatCatalog } from '@qilin-agent/session-format'
+import { releasedV0SessionFormatCodec, releasedV1SessionFormatCodec, sessionFormatV0ToV1 } from '@qilin-agent/session-format-v0-to-v1'
+import { releasedV2SessionFormatCodec, sessionFormatV1ToV2 } from '@qilin-agent/session-format-v1-to-v2'
 import { assertReleasedV3Header, releasedV3SessionFormatCodec, restoreReleasedV3Artifact, sessionFormatV2ToV3 } from '../src/index.ts'
 
 /** Restore the released V3 result through its complete predecessor chain. */

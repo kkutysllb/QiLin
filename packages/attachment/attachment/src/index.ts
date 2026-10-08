@@ -1,6 +1,6 @@
-/** Durable attachment storage seam (`ctx.attachments`). @module @qilin/attachment */
+/** Durable attachment storage seam (`ctx.attachments`). @module @qilin-agent/attachment */
 
-import { Context, Service } from '@qilin/kylin'
+import { Context, Service } from '@qilin-agent/kylin'
 import { admitEncodedFile as admitFileInput, admitEncodedImages } from './admission.ts'
 import { AttachmentError, isAttachmentError as matchesAttachmentError } from './error.ts'
 import type {
@@ -43,7 +43,7 @@ export type {
   StoredImageAttachment,
 } from './types.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     attachments: AttachmentStore
   }

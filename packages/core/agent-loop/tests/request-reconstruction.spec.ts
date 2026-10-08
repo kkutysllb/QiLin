@@ -6,20 +6,20 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import LlmRuntime, { createUserMessage, LlmError, ReasoningEffortId  } from '@qilin/llm'
-import type { GenerateOptions, LlmModelReasoningInfo, LlmResolvedModelInfo, StreamChunk } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import SessionStore, { Session, SessionId, foldRequestHeader } from '@qilin/session'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime, { defineContentToolFixture } from '@qilin/tools'
-import AgentRegistry, { type Agent } from '@qilin/agent'
+import { Context } from '@qilin-agent/kylin'
+import LlmRuntime, { createUserMessage, LlmError, ReasoningEffortId  } from '@qilin-agent/llm'
+import type { GenerateOptions, LlmModelReasoningInfo, LlmResolvedModelInfo, StreamChunk } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import SessionStore, { Session, SessionId, foldRequestHeader } from '@qilin-agent/session'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime, { defineContentToolFixture } from '@qilin-agent/tools'
+import AgentRegistry, { type Agent } from '@qilin-agent/agent'
 
-import AgentLoop from '@qilin/agent-loop'
-import SessionProjectionRegistry from '@qilin/session-projection'
+import AgentLoop from '@qilin-agent/agent-loop'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import { MockAdapter, textResponse, toolCallResponse } from './mock-adapter.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'outer-wrapper': { kind: 'outer-wrapper' } & ContextFormed
     'test': { kind: 'test' } & ContextFormed

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import type { Agent } from '@qilin/agent'
-import CommandRuntime, { type CommandResult } from '@qilin/commands'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import type { Agent } from '@qilin-agent/agent'
+import CommandRuntime, { type CommandResult } from '@qilin-agent/commands'
 import {
   CompactionId,
   CompactionEngine,
@@ -11,9 +11,9 @@ import {
   type CompactionResult,
   type CompactionTrigger,
   type ManualCompactAgentContext,
-} from '@qilin/compaction'
-import { Session, SessionId, SessionSeq } from '@qilin/session'
-import * as commandCompact from '@qilin/command-compact'
+} from '@qilin-agent/compaction'
+import { Session, SessionId, SessionSeq } from '@qilin-agent/session'
+import * as commandCompact from '@qilin-agent/command-compact'
 
 const COMPACTION_ID = CompactionId('command-compact-test')
 
@@ -153,7 +153,7 @@ function expectLastLifecycle(
   return runEvent.data.commandId
 }
 
-describe('@qilin/command-compact registration', () => {
+describe('@qilin-agent/command-compact registration', () => {
   it('registers one argument-free command with Loader-safe exports and disposes it', async () => {
     const test = await harness()
     expect(commandCompact.name).toBe('command-compact')
@@ -162,7 +162,7 @@ describe('@qilin/command-compact registration', () => {
     const loader = Object.create(Loader.prototype) as Loader
     expect(loader.unwrapExports(commandCompact)).toBe(commandCompact)
     expect(test.ctx.commands.list(test.agent)).toContainEqual({
-      definitionId: '@qilin/command-compact',
+      definitionId: '@qilin-agent/command-compact',
       name: 'compact',
       description: 'Compact older conversation history',
     })

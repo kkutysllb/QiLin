@@ -1,22 +1,22 @@
 /**
  * Six model-facing persistent terminal tools. Owner identity comes from the exact
  * tool execution Agent; generic `ctx.jobs` owns background ids and collection.
- * @module @qilin/tool-terminal
+ * @module @qilin-agent/tool-terminal
  */
 
-import { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type { Agent } from '@qilin/agent'
-import type { ContentBlock } from '@qilin/llm'
-import { TerminalSessionId } from '@qilin/terminal'
-import type { TerminalSendOperation, TerminalSendResult, TerminalSessionId as TerminalSessionIdType, TerminalSignal } from '@qilin/terminal'
-import type {} from '@qilin/jobs'
-import { defineTool } from '@qilin/tools'
-import type { ToolDefinition } from '@qilin/tools'
+import { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type { Agent } from '@qilin-agent/agent'
+import type { ContentBlock } from '@qilin-agent/llm'
+import { TerminalSessionId } from '@qilin-agent/terminal'
+import type { TerminalSendOperation, TerminalSendResult, TerminalSessionId as TerminalSessionIdType, TerminalSignal } from '@qilin-agent/terminal'
+import type {} from '@qilin-agent/jobs'
+import { defineTool } from '@qilin-agent/tools'
+import type { ToolDefinition } from '@qilin-agent/tools'
 import { sendSource } from './background.ts'
 import { boundTerminalText, renderList, renderRead, renderSend, renderSpawn } from './render.ts'
 
-declare module '@qilin/jobs' {
+declare module '@qilin-agent/jobs' {
   interface JobKindMap {
     'pty-send': 'pty-send'
   }
@@ -251,7 +251,7 @@ export function apply(ctx: Context, config: Config = {}): void {
       if (args.run_in_background === true) {
         if (!enableRunInBackground) throw new Error('background terminal sends are disabled by tool-terminal configuration')
         const jobs = ctx.get('jobs')
-        if (jobs === undefined) throw new Error('background terminal sends require @qilin/jobs and @qilin/tool-jobs')
+        if (jobs === undefined) throw new Error('background terminal sends require @qilin-agent/jobs and @qilin-agent/tool-jobs')
         let cancelRequested = false
         let operation: TerminalSendOperation | undefined
         const jobId = jobs.start({

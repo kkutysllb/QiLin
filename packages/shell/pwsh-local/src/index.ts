@@ -10,18 +10,18 @@
  * shell-quoting layer to escape (the `bash -c` string domain has no
  * equivalent here). Native Win32 paths (`C:\...`) pass through unchanged.
  *
- * @module @qilin/pwsh-local
+ * @module @qilin-agent/pwsh-local
  */
 
 /* jscpd:ignore-start -- this executor mirrors qilin-bash-local call-for-call by
    design (see this package's README), so the two import the same seam surface */
-import { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { SHELL_SETTINGS_NAMESPACE, ShellExecutor } from '@qilin/shell'
-import type { ShellExecRequest, ShellExecSpec, ShellProcess, ShellProcessRead, ShellRunResult, CollectedOutput } from '@qilin/shell'
-import type { SubprocessCollect, SubprocessHandle, SubprocessOutputReader, SubprocessSpawnSpec } from '@qilin/subprocess'
-import type {} from '@qilin/settings'
-import { clampTimeout, deadline, MAX_TIMER_DELAY_MS, timeoutOf } from '@qilin/timeout'
+import { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { SHELL_SETTINGS_NAMESPACE, ShellExecutor } from '@qilin-agent/shell'
+import type { ShellExecRequest, ShellExecSpec, ShellProcess, ShellProcessRead, ShellRunResult, CollectedOutput } from '@qilin-agent/shell'
+import type { SubprocessCollect, SubprocessHandle, SubprocessOutputReader, SubprocessSpawnSpec } from '@qilin-agent/subprocess'
+import type {} from '@qilin-agent/settings'
+import { clampTimeout, deadline, MAX_TIMER_DELAY_MS, timeoutOf } from '@qilin-agent/timeout'
 /* jscpd:ignore-end */
 import { resolvePwshPath } from './resolve.ts'
 
@@ -214,7 +214,7 @@ export class PwshLocalExecutor extends ShellExecutor {
    * The pwsh invocation argv for one resolved spec — the argv-level seam a
    * confining subclass wraps through `ctx.sandbox.confine` (the pwsh twin of
    * `qilin-bash-local`'s `runArgv`/`startArgv` hooks; see
-   * `@qilin/pwsh-sandbox`).
+   * `@qilin-agent/pwsh-sandbox`).
    */
   protected argv(spec: ShellExecSpec): string[] {
     return [this.pwshPath, '-NoLogo', '-NoProfile', '-NonInteractive', '-Command', `${ENCODING_PREAMBLE}${spec.command}`]
@@ -392,7 +392,7 @@ export class PwshLocalExecutor extends ShellExecutor {
    * Settlement hook for subclasses that attach execution facts to a process.
    * The base implementation is intentionally empty. Mirrored from
    * `qilin-bash-local` (whose sandboxing subclass consumes the same hook); the
-   * pwsh-confining consumer is `@qilin/pwsh-sandbox`.
+   * pwsh-confining consumer is `@qilin-agent/pwsh-sandbox`.
    * @param _proc - the settled process handle.
    * @param _stderr - the process's retained stderr tail used by subclasses for settlement classification.
    * @param _providerRejected - whether the subprocess promise rejected without a direct outcome.

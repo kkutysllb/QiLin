@@ -1,10 +1,10 @@
 /** macOS-desktop conversation-header controls for the fully hidden sidebar. */
 import {
   IconNewChatOutline16, IconPanelLeftOutline16, isDarwinDesktop, Tooltip,
-} from '@qilin/client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-primitives'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 // Type-only: pulls the conversation header slot declarations.
-import type {} from '@qilin/client-ui-conversation/client'
+import type {} from '@qilin-agent/client-ui-conversation/client'
 import type { SidebarRootInjected } from './contract/slots.ts'
 import css from './HeaderLeadingControls.module.css'
 

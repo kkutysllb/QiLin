@@ -1,7 +1,7 @@
 /** Agent-scoped Schedule tool tests reuse the Host Schedule harness and mount the tools under a scope. */
-import type { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import { createScope, type Scope } from '@qilin/scope'
+import type { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import { createScope, type Scope } from '@qilin-agent/scope'
 import * as ToolSchedule from '../src/index.ts'
 
 export { agentFor, harness } from '../../schedule/tests/harness.ts'

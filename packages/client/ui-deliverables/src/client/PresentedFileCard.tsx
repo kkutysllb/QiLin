@@ -1,11 +1,11 @@
 /** File identity and explicit default-app or file-manager actions for one delivery. */
 import { useRef, useState } from 'react'
-import { resolveWorkspacePath } from '@qilin/util-workspace-path'
+import { resolveWorkspacePath } from '@qilin-agent/util-workspace-path'
 import {
   Menu, FileTypeIcon, fileExtension, IconRightUpOutline16,
   IconChevronDownOutline14, IconFolderOpenOutline16,
-} from '@qilin/client-ui-primitives'
-import type { PropsLocale } from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-primitives'
+import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import type { PresentedAction, PresentedHost } from '../presented.ts'
 import type { PresentedOpenPhase } from './present-open.ts'
 import { basename, type PresentedPath } from './turn-deliverables.ts'

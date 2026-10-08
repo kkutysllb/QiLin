@@ -1,8 +1,8 @@
 /** Host configuration for window-local keyboard sequences. */
 // Host configuration injection stays with each plugin's validated Config and browser global.
 /* jscpd:ignore-start */
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/host-webserver'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/host-webserver'
 import type { Config } from './config.ts'
 
 export { Config } from './config.ts'

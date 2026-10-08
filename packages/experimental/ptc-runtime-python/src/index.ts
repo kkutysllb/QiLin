@@ -7,7 +7,7 @@
  *
  * The package also owns the versionless fd-3 wire protocol itself; its host-side codec and
  * hostile-frame validators are re-exported so every consumer of the wire shares one vocabulary.
- * @module @qilin/experimental-ptc-runtime-python
+ * @module @qilin-agent/experimental-ptc-runtime-python
  */
 
 import { execFileSync, spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
@@ -17,12 +17,12 @@ import { delimiter, dirname, isAbsolute, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { getHeapStatistics } from 'node:v8'
 import type { Duplex } from 'node:stream'
-import { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { PtcRuntime, DUNDER_MEMBER, PORTABLE_RESERVED_WORDS, RESERVED_BINDING_GLOBALS, RESERVED_ERROR_MEMBERS } from '@qilin/ptc-runtime'
-import type { PtcBindingErrorClass, PtcBindingFunction, PtcJsonValue, PtcRunFailure, PtcRunRequest, PtcRunResult, PtcRunSpec } from '@qilin/ptc-runtime'
-import { snapshotJsonValue } from '@qilin/util-values'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
+import { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { PtcRuntime, DUNDER_MEMBER, PORTABLE_RESERVED_WORDS, RESERVED_BINDING_GLOBALS, RESERVED_ERROR_MEMBERS } from '@qilin-agent/ptc-runtime'
+import type { PtcBindingErrorClass, PtcBindingFunction, PtcJsonValue, PtcRunFailure, PtcRunRequest, PtcRunResult, PtcRunSpec } from '@qilin-agent/ptc-runtime'
+import { snapshotJsonValue } from '@qilin-agent/util-values'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 import type { BootMessage, ChildToHost, ReplyMessage } from './protocol.ts'
 import { checkDoneValue, encodeJsonPlain, hasUnsafeIntegerToken, logTruncationMarker, validateChildFrame } from './protocol.ts'
 

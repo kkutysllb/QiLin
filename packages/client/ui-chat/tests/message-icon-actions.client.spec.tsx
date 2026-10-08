@@ -7,8 +7,8 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render } from '@testing-library/react'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import { en as commonEn } from '@qilin/client-locale/src/locales/en.ts'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import { en as commonEn } from '@qilin-agent/client-locale/src/locales/en.ts'
 import { MessageIconActions } from '../src/client/chat/MessageIconActions.tsx'
 import { en } from '../src/client/locale.ts'
 

@@ -1,6 +1,6 @@
 /** Keyless two-model adapter for the generic ACP control-surface conformance test. */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import {
   ToolCallId,
   LlmAdapter,
@@ -8,7 +8,7 @@ import {
   type GenerateOptions,
   type LlmResolvedModelInfo,
   type StreamChunk,
-} from '@qilin/llm'
+} from '@qilin-agent/llm'
 
 /** Adapter whose deterministic tool turn proves model selection and MCP attachment. */
 class ControlSurfaceAdapter extends LlmAdapter {

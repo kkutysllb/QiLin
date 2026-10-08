@@ -4,7 +4,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { FsError } from '@qilin/fs'
+import { FsError } from '@qilin-agent/fs'
 import { remediateFsError } from '../src/error.ts'
 
 describe('remediateFsError', () => {

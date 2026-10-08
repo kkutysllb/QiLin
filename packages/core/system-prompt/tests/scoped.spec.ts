@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createScope, scopeOf } from '@qilin/scope'
-import type { Scope, ScopeKey } from '@qilin/scope'
-import SystemPrompt, { TOOL_ORDER_REST, renderContextSnapshot, renderPrompt } from '@qilin/system-prompt'
-import type { Config, PromptAssembly } from '@qilin/system-prompt'
+import { Context } from '@qilin-agent/kylin'
+import { createScope, scopeOf } from '@qilin-agent/scope'
+import type { Scope, ScopeKey } from '@qilin-agent/scope'
+import SystemPrompt, { TOOL_ORDER_REST, renderContextSnapshot, renderPrompt } from '@qilin-agent/system-prompt'
+import type { Config, PromptAssembly } from '@qilin-agent/system-prompt'
 
 async function mount(config: Config = {}): Promise<Context> {
   const ctx = new Context()

@@ -1,7 +1,7 @@
 /** Validated configuration for the local PTY backend. */
 
-import z from '@qilin/schemastery'
-import { resolvePwshPath } from '@qilin/pwsh-local'
+import z from '@qilin-agent/schemastery'
+import { resolvePwshPath } from '@qilin-agent/pwsh-local'
 
 /** One supported interactive shell dialect. */
 export type ShellDialect = 'bash' | 'pwsh'

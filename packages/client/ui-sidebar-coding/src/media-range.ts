@@ -58,7 +58,7 @@ export type ParsedRange = ByteRange | { unsatisfiable: true } | null
 export function parseRange(raw: string | undefined, size: number): ParsedRange {
   if (raw === undefined) return null
   /* jscpd:ignore-start — HTTP Range parsing pinned verbatim to
-     @qilin/host-preview-media src/range.ts (ported twin) */
+     @qilin-agent/host-preview-media src/range.ts (ported twin) */
   const match = /^bytes=(.+)$/i.exec(raw.trim())
   if (match === null) return null
   const [firstSpec = ''] = (match[1] ?? '').split(',') // first range only

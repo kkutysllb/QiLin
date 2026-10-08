@@ -1,15 +1,15 @@
 /** Source-safe Agent Teams browser registration: write bridge, popover, and Team page. */
 
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { TypertRemoteContribution } from '@qilin/typert-protocol'
-import type { SessionId } from '@qilin/session/types'
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-session/client'
-import type {} from '@qilin/client-ui-sidebar-right/client'
-import type {} from '@qilin/client-ui-workspace/client'
-import type {} from '@qilin/experimental-agent-team/remote'
-import type {} from '@qilin/client-ui-conversation/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { TypertRemoteContribution } from '@qilin-agent/typert-protocol'
+import type { SessionId } from '@qilin-agent/session/types'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-session/client'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
+import type {} from '@qilin-agent/client-ui-workspace/client'
+import type {} from '@qilin-agent/experimental-agent-team/remote'
+import type {} from '@qilin-agent/client-ui-conversation/client'
 import { TeamBody, TeamTitle } from './TeamBody.tsx'
 import { TeamAction } from './TeamAction.tsx'
 import { TEAM_ID, teamDefinition } from './definition.tsx'
@@ -17,7 +17,7 @@ import { createTeamPageStore } from './team-page-store.ts'
 import { teamOpenTeammate, teamWritesFace, type TeamWriteDeps } from './team-writes.ts'
 import { en, NS, zh, type TeamKey } from './locales.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Agent Teams roster and task-board copy. */
     'agent-team': TeamKey

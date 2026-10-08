@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { McpServersSnapshot } from '@qilin/mcp-servers/types'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { McpServersSnapshot } from '@qilin-agent/mcp-servers/types'
 import { McpServersStore } from '../src/client/store.ts'
 
 /** One answer the fake Remote hands back. */

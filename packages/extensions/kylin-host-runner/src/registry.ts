@@ -1,10 +1,10 @@
 /**
  * Process-local dynamic Plugin registry and its opaque identity mints.
- * @module @qilin/kylin-host-runner/registry
+ * @module @qilin-agent/kylin-host-runner/registry
  */
 
-import type { Fiber } from '@qilin/kylin'
-import type { SessionId } from '@qilin/session/types'
+import type { Fiber } from '@qilin-agent/kylin'
+import type { SessionId } from '@qilin-agent/session/types'
 import type {
   ApprovalRequestId, CordisDynamicPackageId, CordisDynamicPluginId, CordisDynamicPluginRunId,
   CordisDynamicRunMode, DynamicCordisRenderFailure, DynamicCordisRunAttempt,

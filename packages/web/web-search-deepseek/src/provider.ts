@@ -3,18 +3,18 @@
  * `web_search_20250305` server tool. Each search costs a model turn, but returns structured
  * result blocks; absence of those blocks is an error rather than a prose-scraping fallback.
  * The wire format and native `fetch` client are provider-private and do not use `ctx.llm`.
- * @module @qilin/web-search-deepseek/provider
+ * @module @qilin-agent/web-search-deepseek/provider
  */
 
-import { WebError } from '@qilin/web'
+import { WebError } from '@qilin-agent/web'
 import type {
   WebSearchProvider,
   WebSearchRequest,
   WebSearchResult,
   WebSearchSource,
-} from '@qilin/web'
-import type { CredentialRef } from '@qilin/credentials'
-import type {} from '@qilin/session'
+} from '@qilin-agent/web'
+import type { CredentialRef } from '@qilin-agent/credentials'
+import type {} from '@qilin-agent/session'
 import type {
   AnthropicError,
   AnthropicResponse,
@@ -76,7 +76,7 @@ export interface DeepSeekSearchLlmRequest {
   }
 }
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /** Secret-free auxiliary DeepSeek search request recorded before dispatch. */
     'web/deepseek-search-llm-request': DeepSeekSearchLlmRequest

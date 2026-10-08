@@ -1,10 +1,10 @@
 /** Chat inspection follows grouping while content updates stay on keyed row sources. */
 
-import type { ChatConversationViewNode, ChatSnapshot } from '@qilin/client-ui-chat/client'
-import { ChatSnapshotBuilder } from '@qilin/client-ui-chat/src/client/conversation-nodes/chat-snapshot-builder.ts'
-import { ConversationGroupStore } from '@qilin/client-ui-conversation/src/client/conversation/group-store.ts'
-import type { ConversationBinding, ConversationSnapshot, GroupKey, GroupSnapshot, NodeKey } from '@qilin/client-ui-conversation/client'
-import { createSnapshotStore } from '@qilin/client-store'
+import type { ChatConversationViewNode, ChatSnapshot } from '@qilin-agent/client-ui-chat/client'
+import { ChatSnapshotBuilder } from '@qilin-agent/client-ui-chat/src/client/conversation-nodes/chat-snapshot-builder.ts'
+import { ConversationGroupStore } from '@qilin-agent/client-ui-conversation/src/client/conversation/group-store.ts'
+import type { ConversationBinding, ConversationSnapshot, GroupKey, GroupSnapshot, NodeKey } from '@qilin-agent/client-ui-conversation/client'
+import { createSnapshotStore } from '@qilin-agent/client-store'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import { ChatNodeModel } from '../src/client/views/chat-node/model.ts'
 

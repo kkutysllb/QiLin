@@ -79,10 +79,10 @@ export const CHUNK_EXTERNALS: readonly string[] = [
   'react/jsx-runtime',
   'react-dom',
   'react-dom/client',
-  '@qilin/kylin',
-  '@qilin/client-ui-slots',
-  '@qilin/client-ui-primitives',
-  '@qilin/client-modules/client',
+  '@qilin-agent/kylin',
+  '@qilin-agent/client-ui-slots',
+  '@qilin-agent/client-ui-primitives',
+  '@qilin-agent/client-modules/client',
 ]
 
 /** Chunk script endpoint served by the plugin host half (src/bundle-route.ts). */

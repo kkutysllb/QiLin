@@ -1,16 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createUserMessage, ToolCallId, type ContentBlock, type GenerateOptions } from '@qilin/llm'
-import { SessionId } from '@qilin/session'
-import AgentLoop from '@qilin/agent-loop'
-import { mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'
-import type {} from '@qilin/system-prompt'
+import { Context } from '@qilin-agent/kylin'
+import { createUserMessage, ToolCallId, type ContentBlock, type GenerateOptions } from '@qilin-agent/llm'
+import { SessionId } from '@qilin-agent/session'
+import AgentLoop from '@qilin-agent/agent-loop'
+import { mountAgentLoopTestDependencies } from '@qilin-agent/agent-loop-testkit'
+import type {} from '@qilin-agent/system-prompt'
 import SubagentRuntime, {
   type ResolvedSubagentStartRequest,
   type SubagentStartRequest,
-} from '@qilin/subagent'
-import type { Config as ToolConfig, ObjectJsonSchema } from '@qilin/tools'
-import { defineContentToolFixture, RUN_CODE_NAME } from '@qilin/tools'
+} from '@qilin-agent/subagent'
+import type { Config as ToolConfig, ObjectJsonSchema } from '@qilin-agent/tools'
+import { defineContentToolFixture, RUN_CODE_NAME } from '@qilin-agent/tools'
 import { MockAdapter, textResponse, toolCallResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
 import { startInProcessRun } from '../src/index.ts'
 import {
@@ -52,7 +52,7 @@ async function setup(script: Script, options: SetupOptions = {}) {
     ctx.provide('ptcRuntime', {
       language: 'typescript',
       isolation: 'test',
-      resolve: (request: import('@qilin/ptc-runtime').PtcRunRequest) => ({ ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: 120_000 }),
+      resolve: (request: import('@qilin-agent/ptc-runtime').PtcRunRequest) => ({ ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: 120_000 }),
       run: options.codeRun ?? (() => Promise.resolve({ logs: [] })),
     } as never)
   }

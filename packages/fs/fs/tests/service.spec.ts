@@ -6,8 +6,8 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { FileSystem, FsError, FsTargetKey, FsVersion } from '@qilin/fs'
+import { Context } from '@qilin-agent/kylin'
+import { FileSystem, FsError, FsTargetKey, FsVersion } from '@qilin-agent/fs'
 import type {
   FsDirEntry,
   FsEditOutcome,
@@ -17,7 +17,7 @@ import type {
   FsTarget,
   FsWriteIntent,
   FsWriteOutcome,
-} from '@qilin/fs'
+} from '@qilin-agent/fs'
 
 /** A minimal in-memory fake implementing the provider primitives. */
 class FakeFileSystem extends FileSystem {

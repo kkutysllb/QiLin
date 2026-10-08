@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/root",
+  "name": "@qilin-agent/root",
   "version": "3.1.1",
   "license": "MIT",
   "private": true,
@@ -24,7 +24,7 @@
     "build:lib": "pnpm run build:lib:host && pnpm run build:lib:client",
     "build:lib:host": "node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc -b tsconfig.host.json && tsdown --config-loader native --env.QILIN_BUILD_FACE host",
     "build:lib:client": "tsc -b tsconfig.client.json && tsdown --config-loader native --env.QILIN_BUILD_FACE client",
-    "build:web": "pnpm --filter @qilin/web-frontend run build",
+    "build:web": "pnpm --filter @qilin-agent/web-frontend run build",
     "clean": "tsx scripts/clean.ts",
     "verify-source-artifacts": "tsx scripts/verify-source-artifacts.ts",
     "change-scope": "tsx scripts/change-scope.ts",
@@ -186,18 +186,18 @@
     "version:set": "tsx scripts/set-version.ts"
   },
   "devDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/browser-use": "workspace:*",
-    "@qilin/experimental-browser-use-runtime": "workspace:*",
-    "@qilin/experimental-browser-use-playwright-mcp": "workspace:*",
-    "@qilin/experimental-browser-use-chrome-devtools-mcp": "workspace:*",
-    "@qilin/experimental-browser-use-stagehand-native": "workspace:*",
-    "@qilin/computer-use": "workspace:*",
-    "@qilin/experimental-computer-use-cua-driver-mcp": "workspace:*",
-    "@qilin/experimental-computer-use-cua-driver-native": "workspace:*",
-    "@qilin/llm-replay": "workspace:*",
-    "@qilin/tool-session-query": "workspace:*",
-    "@qilin/web-fetch-http": "workspace:*",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/browser-use": "workspace:*",
+    "@qilin-agent/experimental-browser-use-runtime": "workspace:*",
+    "@qilin-agent/experimental-browser-use-playwright-mcp": "workspace:*",
+    "@qilin-agent/experimental-browser-use-chrome-devtools-mcp": "workspace:*",
+    "@qilin-agent/experimental-browser-use-stagehand-native": "workspace:*",
+    "@qilin-agent/computer-use": "workspace:*",
+    "@qilin-agent/experimental-computer-use-cua-driver-mcp": "workspace:*",
+    "@qilin-agent/experimental-computer-use-cua-driver-native": "workspace:*",
+    "@qilin-agent/llm-replay": "workspace:*",
+    "@qilin-agent/tool-session-query": "workspace:*",
+    "@qilin-agent/web-fetch-http": "workspace:*",
     "@stylistic/eslint-plugin": "^5.10.0",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.2",
@@ -233,6 +233,6 @@
     "vite-tsconfig-paths": "^6.1.1",
     "vite": "8.0.16",
     "vitest": "^4.1.8",
-    "@qilin/skill-office": "workspace:*"
+    "@qilin-agent/skill-office": "workspace:*"
   }
 }

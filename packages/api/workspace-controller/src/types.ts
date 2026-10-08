@@ -5,11 +5,11 @@
  * restated: a browser consumer reads the very declaration the backend answers.
  */
 
-import type { SessionId } from '@qilin/session/types'
-import type { WorkspaceId } from '@qilin/workspace/types'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { WorkspaceId } from '@qilin-agent/workspace/types'
 
-export type { WorkspaceId } from '@qilin/workspace/types'
-export type { DirectoryEntry, DirectoryListing } from '@qilin/host-directory-picker/types'
+export type { WorkspaceId } from '@qilin-agent/workspace/types'
+export type { DirectoryEntry, DirectoryListing } from '@qilin-agent/host-directory-picker/types'
 
 /** One durable Workspace projected for browser consumers. */
 export interface WorkspaceView {
@@ -26,7 +26,7 @@ export interface WorkspaceView {
   readonly updatedAt: string
 }
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** The requested directory cannot back a Workspace. */
     'workspace/invalid-path': { readonly path: string }

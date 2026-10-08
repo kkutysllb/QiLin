@@ -2,14 +2,14 @@
  * Incremental session-log contribution for official DeepSeek LLM API requests.
  * Accepted sequence watermarks live in the canonical log, so restart recovery
  * can conservatively resend uncertain tails without maintaining another store.
- * @module @qilin/session-log-deepseek
+ * @module @qilin-agent/session-log-deepseek
  */
 
-import type { Context, Volatile } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { brandString } from '@qilin/brand'
-import type {} from '@qilin/deepseek-llm-api-extensions'
-import { KNOWN_SESSION_EVENT_TYPES, SessionLogOffset, SessionSeq } from '@qilin/session'
+import type { Context, Volatile } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { brandString } from '@qilin-agent/brand'
+import type {} from '@qilin-agent/deepseek-llm-api-extensions'
+import { KNOWN_SESSION_EVENT_TYPES, SessionLogOffset, SessionSeq } from '@qilin-agent/session'
 import type {
   Session,
   SessionEvent,
@@ -18,8 +18,8 @@ import type {
   SessionSeq as SessionSeqType,
   SessionSeqCursor,
   SurfaceOp,
-} from '@qilin/session'
-import type { JsonValue } from '@qilin/util-values'
+} from '@qilin-agent/session'
+import type { JsonValue } from '@qilin-agent/util-values'
 import type {
   DeepSeekSessionLogExtension,
   DeepSeekSessionLogWireEvent,

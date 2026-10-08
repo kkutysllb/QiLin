@@ -4,17 +4,17 @@ import './control-row-dom.ts'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, waitFor, within } from '@testing-library/react'
 import { useState } from 'react'
-import { LocaleRuntime } from '@qilin/client-locale/client'
-import { createSnapshotStore } from '@qilin/client-store'
-import type { ISession } from '@qilin/api-session-controller/client'
-import type { PropsRenderSlots, PropsRuntime } from '@qilin/client-ui-slots'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { ISession } from '@qilin-agent/api-session-controller/client'
+import type { PropsRenderSlots, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import {
   RemoteError, SlotTestRuntime, usePinnedBrowserLanguages, stubConfigForm,
-} from '@qilin/client-test-runtime'
+} from '@qilin-agent/client-test-runtime'
 import { InputHub } from '../src/client/input/hub.ts'
-import { apply, inject, type EmptyWorkspaceOwnerProps } from '@qilin/client-ui-conversation/client'
-import type { SessionId } from '@qilin/session/types'
-import type { WorkspaceId } from '@qilin/workspace/types'
+import { apply, inject, type EmptyWorkspaceOwnerProps } from '@qilin-agent/client-ui-conversation/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { WorkspaceId } from '@qilin-agent/workspace/types'
 
 // jsdom implements no Range geometry (Lexical's scroll-into-view measures the
 // caret with one once the surface is genuinely contenteditable).

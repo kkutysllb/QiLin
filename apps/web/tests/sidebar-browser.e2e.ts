@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import type {} from '@qilin/agent'
+import type {} from '@qilin-agent/agent'
 import {
   assertFixtureInventory,
   compareOrRefreshGolden,

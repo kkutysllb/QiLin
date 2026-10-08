@@ -3,7 +3,7 @@ description: "The Web feedback surface: the Like/Dislike pair in the finalized a
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-message-feedback
+# @qilin-agent/client-ui-message-feedback
 
 English | [中文](README.zh.md)
 

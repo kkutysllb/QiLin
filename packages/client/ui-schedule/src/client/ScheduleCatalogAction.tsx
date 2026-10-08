@@ -7,10 +7,10 @@ import {
   IconTrashOutline16,
   useAnchoredPosition,
   useDismissOnOutsidePointer,
-} from '@qilin/client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
-import type {} from '@qilin/client-ui-conversation/client'
-import type { ScheduleId } from '@qilin/schedule/client'
+} from '@qilin-agent/client-ui-primitives'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-conversation/client'
+import type { ScheduleId } from '@qilin-agent/schedule/client'
 import type { CatalogInjected } from './catalog-source.ts'
 import { NS } from './locales.ts'
 import {

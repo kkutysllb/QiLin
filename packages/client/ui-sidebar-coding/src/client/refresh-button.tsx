@@ -3,7 +3,7 @@
  * (Git branch list, plans list, session lens). `onRefresh` is the panel's
  * own load function — the button carries no state.
  */
-import { IconRefreshOutline16 } from '@qilin/client-ui-primitives'
+import { IconRefreshOutline16 } from '@qilin-agent/client-ui-primitives'
 import type { ReactNode } from 'react'
 import { t } from './locales.ts'
 import css from './sidebar.module.css'

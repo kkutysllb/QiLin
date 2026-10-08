@@ -7,12 +7,12 @@
  * infrastructure failures (spawn errors, aborts) surface as isError
  * results.
  *
- * @module @qilin/tool-pwsh/render
+ * @module @qilin-agent/tool-pwsh/render
  */
 
-import type { ShellProcessRead, ShellSandboxInfo, CollectedOutput } from '@qilin/shell'
-import type { SandboxMode } from '@qilin/sandbox'
-import { escalationHintMarker, sandboxDenialMarker } from '@qilin/sandbox'
+import type { ShellProcessRead, ShellSandboxInfo, CollectedOutput } from '@qilin-agent/shell'
+import type { SandboxMode } from '@qilin-agent/sandbox'
+import { escalationHintMarker, sandboxDenialMarker } from '@qilin-agent/sandbox'
 
 /* jscpd:ignore-start -- deliberate twin of qilin-tool-bash/render.ts (Agent Note). */
 

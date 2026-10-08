@@ -1,10 +1,10 @@
 /** Session-owned user terminals with the execution environment's system-user permissions. */
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type { Agent } from '@qilin/agent'
-import type { SessionId } from '@qilin/session'
-import type {} from '@qilin/sandbox-policy'
-import { Remote, RemoteError, TypertRemoteService } from '@qilin/typert-protocol'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type { Agent } from '@qilin-agent/agent'
+import type { SessionId } from '@qilin-agent/session'
+import type {} from '@qilin-agent/sandbox-policy'
+import { Remote, RemoteError, TypertRemoteService } from '@qilin-agent/typert-protocol'
 import { discoverShells, resolveShell } from './shells.ts'
 import { BrowserTerminal } from './terminal.ts'
 import { TerminalRetention } from './retention.ts'
@@ -15,7 +15,7 @@ import type {
 
 export type * from './types.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Interactive user terminals, separate from the Agent terminal tool registry. */
     terminalController: TerminalController

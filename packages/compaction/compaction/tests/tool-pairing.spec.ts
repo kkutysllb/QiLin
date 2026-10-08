@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { createUserMessage, ToolCallId , createMessage, createToolResultMessage } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import { CompactionId, compactCheckpointSource, toolPairingBalancedAfter, toolPairingBalancedBefore } from '@qilin/compaction'
-import { Session, SessionId, SessionSeq } from '@qilin/session'
-import type { SessionEvent, SessionSeq as SessionSeqType } from '@qilin/session'
+import { createUserMessage, ToolCallId , createMessage, createToolResultMessage } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import { CompactionId, compactCheckpointSource, toolPairingBalancedAfter, toolPairingBalancedBefore } from '@qilin-agent/compaction'
+import { Session, SessionId, SessionSeq } from '@qilin-agent/session'
+import type { SessionEvent, SessionSeq as SessionSeqType } from '@qilin-agent/session'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

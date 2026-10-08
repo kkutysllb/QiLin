@@ -1,4 +1,4 @@
-import type { Dict } from '@qilin/cosmokit'
+import type { Dict } from '@qilin-agent/cosmokit'
 import { EventsService } from './events.ts'
 import { LoggerService } from './logger.ts'
 import { ReflectService } from './reflect.ts'

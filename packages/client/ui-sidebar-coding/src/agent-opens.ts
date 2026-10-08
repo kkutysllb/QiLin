@@ -24,9 +24,9 @@
 import { randomUUID } from 'node:crypto'
 import { stat } from 'node:fs/promises'
 import { isAbsolute, join, resolve } from 'node:path'
-import { defineTool } from '@qilin/tools'
-import type { ToolRunContext } from '@qilin/tools'
-import type { ContentBlock } from '@qilin/llm'
+import { defineTool } from '@qilin-agent/tools'
+import type { ToolRunContext } from '@qilin-agent/tools'
+import type { ContentBlock } from '@qilin-agent/llm'
 import type { Context } from './context-types.ts'
 import type { SidebarPrefs } from './prefs-shared.ts'
 

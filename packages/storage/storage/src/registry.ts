@@ -1,6 +1,6 @@
 /**
  * Named backend registry of the storage hub.
- * @module @qilin/storage/src/registry
+ * @module @qilin-agent/storage/src/registry
  */
 
 import type { StorageBackend } from './backend.ts'

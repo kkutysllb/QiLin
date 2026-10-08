@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { SessionId } from '@qilin/session'
-import { JobId, JobRegistry } from '@qilin/jobs'
-import type { JobEvents, JobOutputRead, JobRead, JobSpec, JobStatus, JobView } from '@qilin/jobs'
-import type { SessionActivity } from '@qilin/workspace'
+import { Context } from '@qilin-agent/kylin'
+import { SessionId } from '@qilin-agent/session'
+import { JobId, JobRegistry } from '@qilin-agent/jobs'
+import type { JobEvents, JobOutputRead, JobRead, JobSpec, JobStatus, JobView } from '@qilin-agent/jobs'
+import type { SessionActivity } from '@qilin-agent/workspace'
 
 interface Row {
   readonly id: string

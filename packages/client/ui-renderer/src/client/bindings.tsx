@@ -7,7 +7,7 @@ import type {
   SlotRendererHost,
   SnapshotSelectorHook,
   StandardSourceBinding,
-} from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-slots'
 import { bindSnapshotSelector } from './bind.ts'
 import { SlotAssemblyError } from './errors.ts'
 

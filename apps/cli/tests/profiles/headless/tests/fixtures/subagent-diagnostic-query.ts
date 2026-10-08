@@ -1,6 +1,6 @@
 /** Exact-read Session query used by the descriptor-less child snapshot. */
 
-import SessionQueryEngine from '@qilin/session-query'
+import SessionQueryEngine from '@qilin-agent/session-query'
 
 /** Search is outside this fixture; inherited corpus and observation reads stay real. */
 export default class SubagentDiagnosticQuery extends SessionQueryEngine {

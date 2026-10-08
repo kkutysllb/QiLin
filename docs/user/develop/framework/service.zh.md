@@ -36,7 +36,7 @@ export function apply(ctx: Context) {
 ### 使用 Service 基类
 
 ```ts
-import { Service, type Context } from '@qilin/kylin'
+import { Service, type Context } from '@qilin-agent/kylin'
 
 export default class MetricsService extends Service {
   static inject = ['llm']  // A service may depend on other services.
@@ -67,9 +67,9 @@ export function apply(ctx: Context) {
 使用 TypeScript 声明合并让 `ctx.metrics` 有正确类型：
 
 ```ts
-import { Service, type Context } from '@qilin/kylin'
+import { Service, type Context } from '@qilin-agent/kylin'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     metrics: MetricsService
   }
@@ -116,23 +116,23 @@ export function apply(ctx: Context) {
 
 ```yaml
 - id: group-a
-  name: '@qilin/kylin-plugin-group'
+  name: '@qilin-agent/kylin-plugin-group'
   group: true
   isolate:
     shell: true
   config:
-    - name: '@qilin/bash-local'
+    - name: '@qilin-agent/bash-local'
       config:
         timeoutMs: 5000
     - name: './src/plugin-a.ts'
 
 - id: group-b
-  name: '@qilin/kylin-plugin-group'
+  name: '@qilin-agent/kylin-plugin-group'
   group: true
   isolate:
     shell: true
   config:
-    - name: '@qilin/bash-local'
+    - name: '@qilin-agent/bash-local'
       config:
         timeoutMs: 60000
     - name: './src/plugin-b.ts'

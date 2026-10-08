@@ -1,10 +1,10 @@
 /**
  * Pure client-safe subagent projection vocabulary.
  *
- * @module @qilin/subagent/projection-types
+ * @module @qilin-agent/subagent/projection-types
  */
 
-import type { SessionId, SessionSeq } from '@qilin/session/types'
+import type { SessionId, SessionSeq } from '@qilin-agent/session/types'
 
 /** One current direct-child discovery row materialized from parent facts. */
 export type SubagentCatalogEntry =
@@ -65,7 +65,7 @@ export type SubagentIdentityProjection =
     seq: SessionSeq
   }
 
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionMap {
     /** Direct children in parent catalog event order, excluding fork-inherited facts. */
     subagentCatalog: SubagentCatalogEntry[]

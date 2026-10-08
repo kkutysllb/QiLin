@@ -1,6 +1,6 @@
 /** Host companion for the interactive terminal Client plugin. */
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/settings'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/settings'
 import { TERMINAL_SETTINGS_NAMESPACE, TerminalSettingsSchema } from './terminal-settings.ts'
 
 export {

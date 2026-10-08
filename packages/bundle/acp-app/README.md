@@ -3,7 +3,7 @@ description: "Automation-only ACP stdio application profile for users and mainta
 kind: "package-bundle"
 ---
 
-# `@qilin/acp-app`
+# `@qilin-agent/acp-app`
 
 English | [中文](README.zh.md)
 

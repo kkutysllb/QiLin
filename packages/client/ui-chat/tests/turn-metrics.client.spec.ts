@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest'
 import type {
   AssistantMessageNode,
-} from '@qilin/client-ui-chat/client'
+} from '@qilin-agent/client-ui-chat/client'
 import { assistantStepReading } from '../src/client/contract/turn-metrics.ts'
 import { formatTokensPerSecond } from '../src/client/chat/message-chrome.ts'
 import { formatCacheHitPercent } from '../src/client/chat/token-format.ts'

@@ -1,5 +1,5 @@
-import type { Context } from '@qilin/kylin'
-import type { CredentialProvider, CredentialRecord } from '@qilin/credentials'
+import type { Context } from '@qilin-agent/kylin'
+import type { CredentialProvider, CredentialRecord } from '@qilin-agent/credentials'
 
 /** Mutable credential-record double for Connection authentication tests. */
 export class RecordCredentials {

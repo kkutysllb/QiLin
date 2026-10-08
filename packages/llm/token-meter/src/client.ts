@@ -1,7 +1,7 @@
 /**
  * Client-namespace projection of token-meter's browser-safe contracts and folds.
  *
- * @module @qilin/token-meter/client
+ * @module @qilin-agent/token-meter/client
  */
 
 export type * from './projection.ts'

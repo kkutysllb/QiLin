@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { Context } from '@qilin/kylin'
-import { AttachmentError, AttachmentId } from '@qilin/attachment'
-import type { ImageAttachmentRef, SaveImageAttachment } from '@qilin/attachment'
-import type { ModelSelection } from '@qilin/agent'
+import type { Context } from '@qilin-agent/kylin'
+import { AttachmentError, AttachmentId } from '@qilin-agent/attachment'
+import type { ImageAttachmentRef, SaveImageAttachment } from '@qilin-agent/attachment'
+import type { ModelSelection } from '@qilin-agent/agent'
 import {
   AcpContentError,
   admitAcpPrompt,

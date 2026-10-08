@@ -3,7 +3,7 @@ description: "Web 表层的本地浏览器账户：harness home 下的账户文�
 kind: "package-reference"
 ---
 
-# @qilin/accounts-local
+# @qilin-agent/accounts-local
 
 [English](README.md) | 中文
 
@@ -30,7 +30,7 @@ kind: "package-reference"
 ### 最小配置
 
 ```yaml
-- name: '@qilin/accounts-local'
+- name: '@qilin-agent/accounts-local'
   config:
     registration: closed
 ```
@@ -42,7 +42,7 @@ kind: "package-reference"
 | `sessionMaxAgeDays` | `7` | 浏览器会话的绝对有效期，单位为天 |
 | `qilinHome` | `$QILIN_HOME`，其次 `~/.qilin` | 存放 `auth/accounts.json` 的 harness home |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#qilinaccounts-local)是每个受支持字段及其 JSDoc 的穷尽式真源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#qilin-agentaccounts-local)是每个受支持字段及其 JSDoc 的穷尽式真源。
 
 ### 登录流程
 
@@ -83,7 +83,7 @@ kind: "package-reference"
 
 ### 账户文件
 
-`$QILIN_HOME/auth/accounts.json` 是一份带版本的文档，为每个账户保存一条记录：不透明的 id、规范化地址、编码后的 scrypt 哈希、创建时间与凭据代数。每次变更都经 `@qilin/atomic-write` 以 0600 模式写入完整后继内容，然后才在内存中发布，因此写入失败时运行中的服务器仍停留在上一份账户集合。文件缺失即空账户集合——首次注册初始化的就是这个状态；而本构建未曾写入的文件会让加载失败，而不是被迁移。
+`$QILIN_HOME/auth/accounts.json` 是一份带版本的文档，为每个账户保存一条记录：不透明的 id、规范化地址、编码后的 scrypt 哈希、创建时间与凭据代数。每次变更都经 `@qilin-agent/atomic-write` 以 0600 模式写入完整后继内容，然后才在内存中发布，因此写入失败时运行中的服务器仍停留在上一份账户集合。文件缺失即空账户集合——首次注册初始化的就是这个状态；而本构建未曾写入的文件会让加载失败，而不是被迁移。
 
 ### 密码与会话
 
@@ -121,7 +121,7 @@ kind: "package-reference"
 - [qilin-credentials](../../credentials/credentials/README.zh.md)——持有会话签名密钥的提供方。
 - [qilin-home-paths](../../util/home-paths/README.zh.md)——`$QILIN_HOME` 与 `~/.qilin` 的解析。
 - [本地账户决策](../../../.agents/notes/implemented/feature/2026-09-12-qilin-local-accounts-and-landing.zh.md)——为什么门禁在服务端，以及为什么注册默认开放。
-- [生成配置目录](../../../docs/config-catalog.zh.md#qilinaccounts-local)——每个受支持配置字段及其源声明。
+- [生成配置目录](../../../docs/config-catalog.zh.md#qilin-agentaccounts-local)——每个受支持配置字段及其源声明。
 
 -----
 

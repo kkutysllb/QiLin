@@ -3,7 +3,7 @@ description: "Trajectory pages for the qilin web client right Sidebar: a turn-aw
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-trajectory
+# @qilin-agent/client-ui-trajectory
 
 English | [中文](README.zh.md)
 

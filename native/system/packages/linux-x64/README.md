@@ -2,7 +2,7 @@
 description: "Prebuilt Landlock launcher and POSIX flock addons for Linux x64."
 kind: "package-library"
 ---
-# @qilin/node-addon-system-linux-x64
+# @qilin-agent/node-addon-system-linux-x64
 
 English | [中文](README.zh.md)
 

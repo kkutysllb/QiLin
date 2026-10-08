@@ -1,15 +1,15 @@
 // @vitest-environment jsdom
 /** Frame interactions with a real store and explicitly driven browser measurements. */
-import type { GlobalStandardProps, RenderOpts } from '@qilin/client-ui-slots'
-import { bindSnapshotSelector } from '@qilin/client-test-runtime'
+import type { GlobalStandardProps, RenderOpts } from '@qilin-agent/client-ui-slots'
+import { bindSnapshotSelector } from '@qilin-agent/client-test-runtime'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, render } from '@testing-library/react'
 import { AppFrame } from '../src/client/AppFrame.tsx'
 import type { AppFrameProps } from '../src/client/AppFrame.tsx'
 import type { MainPanelId, RightbarOwnerProps, SidebarOwnerProps } from '../src/client/index.ts'
 import { createLayoutStore } from '../src/client/stores.ts'
-import type { WorkspaceSnapshot } from '@qilin/api-workspace-controller/client'
-import type { SessionId } from '@qilin/session/types'
+import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
 
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined })) as GlobalStandardProps['useResource']
 let selectedSession: SessionId | undefined

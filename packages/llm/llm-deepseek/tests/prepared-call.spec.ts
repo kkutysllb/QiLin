@@ -1,9 +1,9 @@
 /** Prepared calls retain their endpoint and credential generation. */
 import { afterEach, expect, it } from 'vitest'
-import type { AnonymousUserId } from '@qilin/anonymous-user-id'
+import type { AnonymousUserId } from '@qilin-agent/anonymous-user-id'
 import { DeepSeekAdapter } from '../src/index.ts'
-import { Config, plainOptions, resolveAdapterOptions } from '@qilin/llm-deepseek-api-key'
-import type { ResolvedDeepSeekOptions as DeepSeekConnectionOptions } from '@qilin/llm-deepseek-api-key'
+import { Config, plainOptions, resolveAdapterOptions } from '@qilin-agent/llm-deepseek-api-key'
+import type { ResolvedDeepSeekOptions as DeepSeekConnectionOptions } from '@qilin-agent/llm-deepseek-api-key'
 import { assemble, chunks, MODEL, options, server } from './helpers.ts'
 
 const close: (() => Promise<void>)[] = []

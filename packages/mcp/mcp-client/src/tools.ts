@@ -15,14 +15,14 @@
 import { createHash } from 'node:crypto'
 import { isDeepStrictEqual } from 'node:util'
 import { specTypeSchemas, type Client, type ImageContent } from '@modelcontextprotocol/client'
-import type { Context } from '@qilin/kylin'
-import { isImageAdmissionError } from '@qilin/attachment'
-import type { AttachmentStore, ImageAttachmentRef, ImageMediaType, SaveImageAttachment } from '@qilin/attachment'
-import type { ContentBlock } from '@qilin/llm'
-import type { ToolDefinition, ToolExecution, ToolExecutionResult } from '@qilin/tools'
-import { assertSupportedJsonSchema } from '@qilin/tools'
-import type { JsonSchemaNode } from '@qilin/tools'
-import type { JsonValue } from '@qilin/util-values'
+import type { Context } from '@qilin-agent/kylin'
+import { isImageAdmissionError } from '@qilin-agent/attachment'
+import type { AttachmentStore, ImageAttachmentRef, ImageMediaType, SaveImageAttachment } from '@qilin-agent/attachment'
+import type { ContentBlock } from '@qilin-agent/llm'
+import type { ToolDefinition, ToolExecution, ToolExecutionResult } from '@qilin-agent/tools'
+import { assertSupportedJsonSchema } from '@qilin-agent/tools'
+import type { JsonSchemaNode } from '@qilin-agent/tools'
+import type { JsonValue } from '@qilin-agent/util-values'
 
 /** Resolved options relevant to tool bridging. */
 export interface ToolBridgeOptions {

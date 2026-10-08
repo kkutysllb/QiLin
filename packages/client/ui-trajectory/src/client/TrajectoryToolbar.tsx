@@ -1,7 +1,7 @@
 /** Trajectory toolbar: timeline and ledger fold controls. */
 
-import type { TranslateNS } from '@qilin/client-ui-slots'
-import { IconSearchOutline16 } from '@qilin/client-ui-primitives'
+import type { TranslateNS } from '@qilin-agent/client-ui-slots'
+import { IconSearchOutline16 } from '@qilin-agent/client-ui-primitives'
 import type { NS } from './locales.ts'
 import css from './TrajectoryToolbar.module.css'
 

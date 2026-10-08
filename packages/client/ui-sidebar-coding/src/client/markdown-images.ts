@@ -1,6 +1,6 @@
 /**
  * Markdown-preview local-image resolution. The shared `MarkdownText` (from
- * @qilin/client-ui-primitives) only renders absolute http(s) image
+ * @qilin-agent/client-ui-primitives) only renders absolute http(s) image
  * URLs — relative links are disabled for chat security — so a local image in
  * a previewed `.md` (`![alt](./img.png)`, an absolute `/cwd/img.png`, or a
  * reference definition) would otherwise fall back to its alt text. This

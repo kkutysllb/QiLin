@@ -1,5 +1,5 @@
 /**
- * @qilin/client-ui-sidebar-coding host half: the /sidebar JSON API (explorer listing, file
+ * @qilin-agent/client-ui-sidebar-coding host half: the /sidebar JSON API (explorer listing, file
  * read/write, git), the /sidebar/file media route (images), the /sidebar/html
  * preview route, the /sidebar/bundle lazy-chunk route (client code splits),
  * and the terminal WebSocket upgrade. Every route passes the same
@@ -66,11 +66,11 @@ export type { SidebarConfig, ResolvedSidebarConfig }
 // `ctx.betterSidebar` Context augmentation live on the `./client` entry — a
 // host-side program must not reach into src/client. Consumers type their
 // registerTab/registerFileViewer arguments from
-// `@qilin/client-ui-sidebar-coding/client`.
+// `@qilin-agent/client-ui-sidebar-coding/client`.
 export type { Context } from './context-types.ts'
 
 /** Plugin identity for cordis.yml rows. */
-export const name = '@qilin/client-ui-sidebar-coding'
+export const name = '@qilin-agent/client-ui-sidebar-coding'
 
 /** Services required before mounting: the webserver routes, the session store, the web runtime's trusted hosts, and the tool registry. */
 export const inject = ['webServer', 'sessions', 'webRuntime', 'tools', 'connection']
@@ -83,7 +83,7 @@ const MEDIA_TYPES: Record<string, string> = {
   '.gif': 'image/gif',
   '.webp': 'image/webp',
   /* jscpd:ignore-start — media content-type table pinned verbatim to
-     @qilin/host-preview-media src/index.ts (ported twin) */
+     @qilin-agent/host-preview-media src/index.ts (ported twin) */
   '.svg': 'image/svg+xml',
   '.bmp': 'image/bmp',
   '.ico': 'image/x-icon',
@@ -992,7 +992,7 @@ export function apply(ctx: Context, config?: SidebarConfig): void {
           throw new SettingsConflictError('the settings document changed since it was read')
         }
         // The active row may carry either id: the published bundle patch
-        // mounts it as `better-sidebar` (name `@qilin/client-ui-sidebar-coding`), while a
+        // mounts it as `better-sidebar` (name `@qilin-agent/client-ui-sidebar-coding`), while a
         // legacy manual mount line used the package name as the id — and a
         // stale pair leaves one of them disabled by the bundle's own guard.
         // Match on name OR id and skip disabled rows.
@@ -1054,7 +1054,7 @@ export function apply(ctx: Context, config?: SidebarConfig): void {
         writeError(res, error)
       }
     },
-  }), '@qilin/client-ui-sidebar-coding: /sidebar/api routes')
+  }), '@qilin-agent/client-ui-sidebar-coding: /sidebar/api routes')
 
   // ── Raw upload route ───────────────────────────────────────────────────
   // One request writes one file without JSON/base64 inflation. Folder uploads
@@ -1088,13 +1088,13 @@ export function apply(ctx: Context, config?: SidebarConfig): void {
         writeError(res, error)
       }
     },
-  }), '@qilin/client-ui-sidebar-coding: /sidebar/upload route')
+  }), '@qilin-agent/client-ui-sidebar-coding: /sidebar/upload route')
 
   // ── Lazy chunk route (client bundle splits) ─────────────────────────────
   // Serves the client half's split bundles (lib/client-<name>.js) so the
   // heavy preview/terminal libraries load on first use, not at page start
   // (see bundle-route.ts / src/client/chunk-loader.ts).
-  ctx.effect(() => registerBundleRoute(ctx, admit), '@qilin/client-ui-sidebar-coding: /sidebar/bundle chunk route')
+  ctx.effect(() => registerBundleRoute(ctx, admit), '@qilin-agent/client-ui-sidebar-coding: /sidebar/bundle chunk route')
 
   // ── Media route (images for the editor) ─────────────────────────────────
   ctx.effect(() => ctx.webServer.register({
@@ -1169,7 +1169,7 @@ export function apply(ctx: Context, config?: SidebarConfig): void {
         writeError(res, error)
       }
     },
-  }), '@qilin/client-ui-sidebar-coding: /sidebar/file media route')
+  }), '@qilin-agent/client-ui-sidebar-coding: /sidebar/file media route')
 
   // ── HTML preview route (sandboxed HTML + its relative assets) ───────────
   // Serves files under the session cwd for the built-in HTML previewer. The
@@ -1231,7 +1231,7 @@ export function apply(ctx: Context, config?: SidebarConfig): void {
         writeError(res, error)
       }
     },
-  }), '@qilin/client-ui-sidebar-coding: /sidebar/html preview route')
+  }), '@qilin-agent/client-ui-sidebar-coding: /sidebar/html preview route')
 
   // ── Terminal WebSocket ──────────────────────────────────────────────────
   // One upgrade endpoint serves both UI-tab terminals (?tab=...) and
@@ -1255,7 +1255,7 @@ export function apply(ctx: Context, config?: SidebarConfig): void {
         void attachTerminal(ctx, ptyManager, agentPtyRegistry, ws, req, resolved, () => settingsFace)
       })
     },
-  }), '@qilin/client-ui-sidebar-coding: terminal WebSocket')
+  }), '@qilin-agent/client-ui-sidebar-coding: terminal WebSocket')
 
   // ── Agent terminals push WebSocket ──────────────────────────────────────
   // Pushes the live list of agent terminals for one session to the sidebar
@@ -1277,7 +1277,7 @@ export function apply(ctx: Context, config?: SidebarConfig): void {
         attachAgentList(agentPtyRegistry, ws, req)
       })
     },
-  }), '@qilin/client-ui-sidebar-coding: agent-terminals push WebSocket')
+  }), '@qilin-agent/client-ui-sidebar-coding: agent-terminals push WebSocket')
 
   // ── Agent opens push WebSocket ─────────────────────────────────────────
   // Pushes `sidebar_open` requests for one session to the sidebar view: the
@@ -1297,7 +1297,7 @@ export function apply(ctx: Context, config?: SidebarConfig): void {
         attachAgentOpen(agentOpenRegistry, ws, req)
       })
     },
-  }), '@qilin/client-ui-sidebar-coding: agent-opens push WebSocket')
+  }), '@qilin-agent/client-ui-sidebar-coding: agent-opens push WebSocket')
 
   ctx.effect(() => () => {
     toolsDisposers?.()
@@ -1308,7 +1308,7 @@ export function apply(ctx: Context, config?: SidebarConfig): void {
     wss.close()
     agentListWss.close()
     agentOpenWss.close()
-  }, '@qilin/client-ui-sidebar-coding: teardown')
+  }, '@qilin-agent/client-ui-sidebar-coding: teardown')
 }
 
 /** Push queued `sidebar_open` requests for one session to a connected view. */

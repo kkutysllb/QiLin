@@ -1,6 +1,6 @@
 /** Localized copy adapters for Cordis-free Markdown primitives. */
 
-import type { MarkdownLabels } from '@qilin/client-ui-primitives'
+import type { MarkdownLabels } from '@qilin-agent/client-ui-primitives'
 import type { ChatViewSlotProps } from './contract/slots.ts'
 
 /**

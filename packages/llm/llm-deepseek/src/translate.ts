@@ -1,7 +1,7 @@
 /** Translate Messages events while preserving block order and cumulative usage. */
 
-import { LlmError, ToolCallId } from '@qilin/llm'
-import type { ContentBlock, FinishReason, StreamChunk, TokenUsage } from '@qilin/llm'
+import { LlmError, ToolCallId } from '@qilin-agent/llm'
+import type { ContentBlock, FinishReason, StreamChunk, TokenUsage } from '@qilin-agent/llm'
 import { object, replayState } from './replay.ts'
 import type { ReplayBlock } from './replay.ts'
 

@@ -3,7 +3,7 @@ description: "面向 Web GUI 的工作区文件服务：通过组合文件系统
 kind: "package-reference"
 ---
 
-# @qilin/api-workspace-files
+# @qilin-agent/api-workspace-files
 
 [English](README.md) | 中文
 
@@ -86,7 +86,7 @@ kind: "package-reference"
 | `maxSearchVisited` | `100000` | 单次文件名搜索访问的目录条目数上限；超过即报告截断 |
 | `searchExcludedDirectories` | [`.git`、`node_modules` 等](src/index.ts) | 文件名搜索既不匹配也不进入的目录名 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#qilinapi-workspace-files)是每个可接受字段及其 JSDoc 的完备来源。
+生成的[配置目录](../../../docs/config-catalog.zh.md#qilin-agentapi-workspace-files)是每个可接受字段及其 JSDoc 的完备来源。
 
 ### 失败
 

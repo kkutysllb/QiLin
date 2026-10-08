@@ -1,4 +1,4 @@
-import { Formatter } from '@qilin/kylin'
+import { Formatter } from '@qilin-agent/kylin'
 import { inspect } from 'node:util'
 import supportsColor from 'supports-color'
 import { ConsoleExporter as Base } from './shared.ts'

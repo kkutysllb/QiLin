@@ -7,7 +7,7 @@
     - id: acp-diagnostic-release-on-job-output
       name: './release-on-job-output.mjs'
     - id: llm-replay
-      name: '@qilin/llm-replay'
+      name: '@qilin-agent/llm-replay'
       config:
         providers:
           - id: deepseek-official
@@ -16,7 +16,7 @@
               - id: deepseek-v4-flash
               - id: deepseek-v4-pro
     - id: subagent-acp-diagnostic
-      name: '@qilin/subagent-acp'
+      name: '@qilin-agent/subagent-acp'
       config:
         providerName: acp-diagnostic
         command: !!js process.execPath
@@ -28,7 +28,7 @@
           MOCK_TOOL_KIND: execute
           MOCK_PROMPT_HOLD: .qilin/acp-diagnostic-prompt-hold
     - id: tool-subagent-acp-diagnostic
-      name: '@qilin/tool-subagent'
+      name: '@qilin-agent/tool-subagent'
       config:
         provider: acp-diagnostic
         toolName: subagent_acp

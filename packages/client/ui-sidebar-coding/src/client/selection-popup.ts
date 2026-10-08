@@ -60,7 +60,7 @@ export interface SelectionPopupControls {
 }
 
 /* jscpd:ignore-start — selection popup hook pinned verbatim to
-   @qilin/client-ui-sidebar-documentpreview src/client/selection-popup.ts (ported twin) */
+   @qilin-agent/client-ui-sidebar-documentpreview src/client/selection-popup.ts (ported twin) */
 export function useSelectionPopup(options: SelectionPopupOptions): SelectionPopupControls {
   // Latest-callback refs: the dismissal listeners live for the mount's
   // lifetime, so they must not capture stale closures across renders.

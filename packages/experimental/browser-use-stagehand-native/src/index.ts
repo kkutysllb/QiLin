@@ -1,22 +1,22 @@
 /**
  * Stagehand browser tools with one native browser runtime per live Session.
- * @module @qilin/experimental-browser-use-stagehand-native
+ * @module @qilin-agent/experimental-browser-use-stagehand-native
  */
 
-import type { Context } from '@qilin/kylin'
-import Schema from '@qilin/schemastery'
-import { BrowserUseProviderName } from '@qilin/browser-use/brand'
-import { SessionResources } from '@qilin/experimental-browser-use-runtime'
-import { createMcpToolDefinition } from '@qilin/mcp-client'
+import type { Context } from '@qilin-agent/kylin'
+import Schema from '@qilin-agent/schemastery'
+import { BrowserUseProviderName } from '@qilin-agent/browser-use/brand'
+import { SessionResources } from '@qilin-agent/experimental-browser-use-runtime'
+import { createMcpToolDefinition } from '@qilin-agent/mcp-client'
 import { z } from 'zod'
 import { browserInputs, stagehandModelSchema, StagehandDrainError } from './native.ts'
 import type { BrowserMethod, NativeBrowserRuntime, StagehandModelConfig } from './native.ts'
 import { openBrowserWorker } from './worker-client.ts'
 import { launchChromium } from './launch.ts'
-import type {} from '@qilin/agent'
-import type {} from '@qilin/browser-use'
-import type {} from '@qilin/system-prompt'
-import type {} from '@qilin/tools'
+import type {} from '@qilin-agent/agent'
+import type {} from '@qilin-agent/browser-use'
+import type {} from '@qilin-agent/system-prompt'
+import type {} from '@qilin-agent/tools'
 
 /** Cordis identity for the native Stagehand provider. */
 export const name = 'experimental-browser-use-stagehand-native'

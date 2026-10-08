@@ -8,9 +8,9 @@
  * no single feature (chrome, the General section) is owned by ui-settings-general too.
  */
 
-import type {} from '@qilin/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-slots'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface SlotMap {
     /**
      * The panel title text seat. Content renders inside the nav heading row;

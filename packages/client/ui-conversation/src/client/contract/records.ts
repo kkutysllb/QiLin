@@ -2,14 +2,14 @@
 // substructure references. Stable node and location stores make old snapshots
 // live readers rather than time-point views.
 
-import type { CommandId } from '@qilin/commands/brand'
-import type { MessageId } from '@qilin/llm/brand'
-import type { ContentBlock } from '@qilin/llm/types'
-import type { ImageAttachmentRef } from '@qilin/attachment'
-import type { LlmRetryEventData } from '@qilin/llm-retry/types'
-import type { TodoItem } from '@qilin/tool-todo/client'
+import type { CommandId } from '@qilin-agent/commands/brand'
+import type { MessageId } from '@qilin-agent/llm/brand'
+import type { ContentBlock } from '@qilin-agent/llm/types'
+import type { ImageAttachmentRef } from '@qilin-agent/attachment'
+import type { LlmRetryEventData } from '@qilin-agent/llm-retry/types'
+import type { TodoItem } from '@qilin-agent/tool-todo/client'
 import type { ContextProducerView, KnownContextForm } from './context-producer.ts'
-import type { PartialArguments } from '@qilin/util-values'
+import type { PartialArguments } from '@qilin-agent/util-values'
 export type { TodoItem }
 
 /** Request configuration recorded for one provider call. */

@@ -1,20 +1,20 @@
 /**
  * `LocalSpillStore`: the host-filesystem implementation of the
- * `@qilin/spill` storage seam. Persists oversized text to a
+ * `@qilin-agent/spill` storage seam. Persists oversized text to a
  * private, session-scoped file (see `./store.ts` for the traversal-safe naming
  * and exclusive owner-only write) and returns a path locator plus local
  * read/grep retrieval guidance. After activation it runs one best-effort
  * startup sweep that reclaims spill files older than `cleanupPeriodDays`.
  *
- * @module @qilin/spill-local
+ * @module @qilin-agent/spill-local
  */
 
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { resolve } from 'node:path'
 import { tmpdir } from 'node:os'
-import z from '@qilin/schemastery'
-import { SpillLocator, SpillStore } from '@qilin/spill'
-import type { SaveTextSpill, SpillRef } from '@qilin/spill'
+import z from '@qilin-agent/schemastery'
+import { SpillLocator, SpillStore } from '@qilin-agent/spill'
+import type { SaveTextSpill, SpillRef } from '@qilin-agent/spill'
 import { gatherSweepRoots, sweepSpillRoots } from './cleanup.ts'
 import type { SweepRoot, WarnFn } from './cleanup.ts'
 import { privateRoot, saveTextFile } from './store.ts'

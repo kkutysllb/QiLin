@@ -1,17 +1,17 @@
 /** Shortcut reference plugin; commands and entry points share one declared store. */
-import type { Context } from '@qilin/kylin'
-import type { ShortcutCommandId } from '@qilin/client-shortcuts/client'
-import { closeTopModal } from '@qilin/client-ui-primitives'
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-layout/client'
-import type {} from '@qilin/client-ui-settings/client'
+import type { Context } from '@qilin-agent/kylin'
+import type { ShortcutCommandId } from '@qilin-agent/client-shortcuts/client'
+import { closeTopModal } from '@qilin-agent/client-ui-primitives'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-layout/client'
+import type {} from '@qilin-agent/client-ui-settings/client'
 import { createShortcutsStore } from './store.ts'
 import { ShortcutReference, ShortcutsRow } from './Reference.tsx'
 import { en, zh } from './locales.ts'
 import { fixedCommands } from './fixed.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Shortcut reference and settings entry copy. */
     shortcuts: keyof typeof zh

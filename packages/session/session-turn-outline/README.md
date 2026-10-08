@@ -3,7 +3,7 @@ description: "Whole-log turn outline for clients and maintainers composing or de
 kind: "package-reference"
 ---
 
-# @qilin/session-turn-outline
+# @qilin-agent/session-turn-outline
 
 English | [中文](README.zh.md)
 
@@ -30,9 +30,9 @@ Mount the plugin beside the session store and the projection registry when clien
 ### Composition
 
 ```yaml
-- name: '@qilin/session'
-- name: '@qilin/session-projection'
-- name: '@qilin/session-turn-outline'
+- name: '@qilin-agent/session'
+- name: '@qilin-agent/session-projection'
+- name: '@qilin-agent/session-turn-outline'
 ```
 
 ### What an entry means

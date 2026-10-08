@@ -16,19 +16,19 @@
  * holds this package's 'root' row in this compilation unit, but consumers
  * merge keys in; the rule fires on the narrow-map view, not on real
  * redundancy. */
-import { Service } from '@qilin/kylin'
-import type { Context } from '@qilin/kylin'
-import { SlotCore, StaleAuthorizationError, standardHookPropName } from '@qilin/client-ui-slots'
+import { Service } from '@qilin-agent/kylin'
+import type { Context } from '@qilin-agent/kylin'
+import { SlotCore, StaleAuthorizationError, standardHookPropName } from '@qilin-agent/client-ui-slots'
 import type {
   HostObservable, LiveCompositionNode, LocaleFace, OwnerOf, RegisterFactory, SlotAdmissionGate, SlotEntryDef, SlotMap,
   SlotRenderer, SlotRendererHost,
   RootStandardSourceContribution, ScopedStandardSourceBinding, SlotScope, SlotScopeAdapter, SlotSpec,
   StandardSourceBinding, StoredEntry, StoreDecl, StoreFactory, StoredFactory,
   StoreInstanceLike,
-} from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-slots'
 import { SlotAssemblyError } from './errors.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface SlotMap {
     /**
      * The built-in render-tree root hole (seeded by SlotCore): the one slot the
@@ -648,7 +648,7 @@ export class SlotRegistry extends Service {
   /** Validate and atomically publish the current root contribution roster. */
   private rebuildRootBinding(): void {
     const hooks: Record<string, HostObservable<unknown>> = {}
-    const keyedHooks: Record<string, import('@qilin/client-ui-slots').KeyedStandardSource> = {}
+    const keyedHooks: Record<string, import('@qilin-agent/client-ui-slots').KeyedStandardSource> = {}
     const props: Record<string, unknown> = {}
     const finalProps = new Set<string>()
     for (const contribution of this._rootContributions) {

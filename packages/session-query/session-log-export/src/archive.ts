@@ -22,16 +22,16 @@
  */
 
 import { Zip, ZipDeflate } from 'fflate'
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   AttachmentStore, FileAttachmentRef, ImageAttachmentRef,
-} from '@qilin/attachment'
-import type { SessionLineageNode, SessionQueryEngine } from '@qilin/session-query'
-import { SESSION_FORMAT_VERSION } from '@qilin/session'
-import { sessionFormatLogFilename } from '@qilin/session-format'
-import type { SessionEvent, SessionHeader, SessionId, SessionStore } from '@qilin/session'
-import type { SessionHandle, SessionPersistence } from '@qilin/session-persistence'
-import { SessionPersistenceNotFoundError } from '@qilin/session-persistence'
+} from '@qilin-agent/attachment'
+import type { SessionLineageNode, SessionQueryEngine } from '@qilin-agent/session-query'
+import { SESSION_FORMAT_VERSION } from '@qilin-agent/session'
+import { sessionFormatLogFilename } from '@qilin-agent/session-format'
+import type { SessionEvent, SessionHeader, SessionId, SessionStore } from '@qilin-agent/session'
+import type { SessionHandle, SessionPersistence } from '@qilin-agent/session-persistence'
+import { SessionPersistenceNotFoundError } from '@qilin-agent/session-persistence'
 
 /** Valid fflate DEFLATE levels accepted by session-log export. */
 export type SessionLogCompressionLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9

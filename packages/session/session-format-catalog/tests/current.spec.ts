@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { SESSION_FORMAT_VERSION } from '@qilin/session'
-import type { SessionFormatArtifact, SessionFormatHeader } from '@qilin/session-format'
+import { SESSION_FORMAT_VERSION } from '@qilin-agent/session'
+import type { SessionFormatArtifact, SessionFormatHeader } from '@qilin-agent/session-format'
 import {
   validateInstalledCurrentSessionArtifact,
   validateInstalledCurrentSessionHeader,

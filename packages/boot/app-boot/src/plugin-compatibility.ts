@@ -15,7 +15,7 @@ export interface PluginCompatibility {
 }
 
 /** The scope every renamed harness package shares. */
-const QILIN_SCOPE = '@qilin/'
+const QILIN_SCOPE = '@qilin-agent/'
 
 /**
  * Vendored framework and foundation packages published under the same scope but
@@ -23,17 +23,17 @@ const QILIN_SCOPE = '@qilin/'
  * describe them ([rescope mapping](../../../../docs/rescope.md)).
  */
 const INDEPENDENTLY_VERSIONED_PACKAGES: ReadonlySet<string> = new Set([
-  '@qilin/kylin',
-  '@qilin/cosmokit',
-  '@qilin/schemastery',
-  '@qilin/node-addon-system',
+  '@qilin-agent/kylin',
+  '@qilin-agent/cosmokit',
+  '@qilin-agent/schemastery',
+  '@qilin-agent/node-addon-system',
 ])
 
 /**
  * Whether one peer name is a harness package the running runtime version describes.
  * Upstream inspects its `@deepseek-ai/dsh` and `@deepseek-ai/dsh-*` peers, which
- * all carry the release version. QiLin publishes the harness under `@qilin/`
- * beside the vendored `@qilin/kylin*` framework family, whose versions move
+ * all carry the release version. QiLin publishes the harness under `@qilin-agent/`
+ * beside the vendored `@qilin-agent/kylin*` framework family, whose versions move
  * independently, so comparing those against the harness release would refuse
  * every plugin that correctly requires them.
  * @param name - one `peerDependencies` key.
@@ -41,7 +41,7 @@ const INDEPENDENTLY_VERSIONED_PACKAGES: ReadonlySet<string> = new Set([
  */
 function isRuntimePeer(name: string): boolean {
   if (!name.startsWith(QILIN_SCOPE)) return false
-  return !INDEPENDENTLY_VERSIONED_PACKAGES.has(name) && !name.startsWith('@qilin/kylin-plugin-')
+  return !INDEPENDENTLY_VERSIONED_PACKAGES.has(name) && !name.startsWith('@qilin-agent/kylin-plugin-')
 }
 
 function objectOf(value: unknown, field: string): Record<string, unknown> {
@@ -79,7 +79,7 @@ export function getQilinRuntimeVersion(): string {
 }
 
 /**
- * Check every `@qilin/cli` or `@qilin/<harness>` peer against the runtime.
+ * Check every `@qilin-agent/cli` or `@qilin-agent/<harness>` peer against the runtime.
  * Prereleases participate in ranges. workspace:^, workspace:~, and workspace:*
  * refer to the current runtime; other invalid ranges are incompatible.
  * @param manifest - parsed plugin package.json; inherited fields are ignored.

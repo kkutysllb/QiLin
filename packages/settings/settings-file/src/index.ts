@@ -4,19 +4,19 @@
  * through the seam, and every write re-reads the document under a
  * cross-process writer lock before patching it as a comment-preserving
  * leaf-level diff.
- * @module @qilin/settings-file
+ * @module @qilin-agent/settings-file
  */
 
-import { Context, Service } from '@qilin/kylin'
-import z from '@qilin/schemastery'
+import { Context, Service } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
 import { watch as chokidarWatch } from 'chokidar'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, extname, join, resolve } from 'node:path'
 import { Document, parseDocument } from 'yaml'
-import { withFileLock, writeFileAtomic } from '@qilin/atomic-write'
-import { canonicalizeWatchPath, resolveQilinHome } from '@qilin/home-paths'
-import { SettingsProvider, type SettingsNamespace } from '@qilin/settings'
-import { deepEqualJson } from '@qilin/util-values'
+import { withFileLock, writeFileAtomic } from '@qilin-agent/atomic-write'
+import { canonicalizeWatchPath, resolveQilinHome } from '@qilin-agent/home-paths'
+import { SettingsProvider, type SettingsNamespace } from '@qilin-agent/settings'
+import { deepEqualJson } from '@qilin-agent/util-values'
 
 /** Plugin config: file location and hot-reload behavior. */
 export interface Config {

@@ -1,10 +1,10 @@
 /** V2 content admission refuses entire generations without publishing a valid prefix. */
 
-import { Context } from '@qilin/kylin'
-import { SESSION_FORMAT_VERSION, SessionId } from '@qilin/session'
-import type { SessionFormatJsonObject } from '@qilin/session-format'
-import { SessionFormatUnsupportedError } from '@qilin/session-persistence'
-import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
+import { Context } from '@qilin-agent/kylin'
+import { SESSION_FORMAT_VERSION, SessionId } from '@qilin-agent/session'
+import type { SessionFormatJsonObject } from '@qilin-agent/session-format'
+import { SessionFormatUnsupportedError } from '@qilin-agent/session-persistence'
+import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
 import { mkdir, mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { basename, dirname, join } from 'node:path'

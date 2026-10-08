@@ -1,21 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import AgentRegistry from '@qilin/agent'
-import type { Agent, AgentStatus } from '@qilin/agent'
-import CommandRuntime from '@qilin/commands'
-import SessionStore, { foldSurface, Session, SessionId } from '@qilin/session'
-import * as commandFeedback from '@qilin/command-feedback'
-import type { FeedbackRecord } from '@qilin/command-feedback/types'
-import { remoteMethods } from '@qilin/typert-protocol'
-import { unsupportedInbox } from '@qilin/agent-loop-testkit'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import AgentRegistry from '@qilin-agent/agent'
+import type { Agent, AgentStatus } from '@qilin-agent/agent'
+import CommandRuntime from '@qilin-agent/commands'
+import SessionStore, { foldSurface, Session, SessionId } from '@qilin-agent/session'
+import * as commandFeedback from '@qilin-agent/command-feedback'
+import type { FeedbackRecord } from '@qilin-agent/command-feedback/types'
+import { remoteMethods } from '@qilin-agent/typert-protocol'
+import { unsupportedInbox } from '@qilin-agent/agent-loop-testkit'
 
 const { USER_ID, getOrCreateAnonymousUserId } = vi.hoisted(() => {
   const USER_ID = '01234567-89ab-4cde-8f01-23456789abcd'
   return { USER_ID, getOrCreateAnonymousUserId: vi.fn(() => USER_ID) }
 })
 
-vi.mock('@qilin/anonymous-user-id', () => ({
+vi.mock('@qilin-agent/anonymous-user-id', () => ({
   getOrCreateAnonymousUserId,
 }))
 
@@ -85,7 +85,7 @@ function feedbackTexts(session: Session): (string | undefined)[] {
   return feedbackRecords(session).map(record => record.text)
 }
 
-describe('@qilin/command-feedback registration', () => {
+describe('@qilin-agent/command-feedback registration', () => {
   it('registers one global command with Loader-safe exports and disposes it', async () => {
     const test = await harness()
     expect(commandFeedback.name).toBe('command-feedback')
@@ -95,7 +95,7 @@ describe('@qilin/command-feedback registration', () => {
     expect(loader.unwrapExports(commandFeedback)).toBe(commandFeedback)
 
     expect(test.ctx.commands.list(test.agent)).toContainEqual({
-      definitionId: '@qilin/command-feedback',
+      definitionId: '@qilin-agent/command-feedback',
       name: 'feedback',
       description: 'Record feedback about this session',
       input: { hint: '<text>' },

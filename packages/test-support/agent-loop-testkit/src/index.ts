@@ -2,21 +2,21 @@
  * Shared service mounting, real AgentLoop drivers, and structural Inbox stubs
  * for agent-loop tests. Callers retain ownership of their contexts, adapters,
  * optional plugins, agents, and teardown.
- * @module @qilin/agent-loop-testkit
+ * @module @qilin-agent/agent-loop-testkit
  */
 
-import type { Context } from '@qilin/kylin'
-import AgentRegistry from '@qilin/agent'
-import type { Agent, AgentOptions, Inbox, InboxTarget } from '@qilin/agent'
-import AgentLoop from '@qilin/agent-loop'
-import LlmRuntime from '@qilin/llm'
-import SessionStore from '@qilin/session'
-import type { SessionHeader, SessionId, UserMessage } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import SystemPrompt from '@qilin/system-prompt'
-import type { Config as SystemPromptConfig } from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
-import type { Config as ToolRuntimeConfig } from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import AgentRegistry from '@qilin-agent/agent'
+import type { Agent, AgentOptions, Inbox, InboxTarget } from '@qilin-agent/agent'
+import AgentLoop from '@qilin-agent/agent-loop'
+import LlmRuntime from '@qilin-agent/llm'
+import SessionStore from '@qilin-agent/session'
+import type { SessionHeader, SessionId, UserMessage } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import type { Config as SystemPromptConfig } from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
+import type { Config as ToolRuntimeConfig } from '@qilin-agent/tools'
 
 export { createInboxStub, unsupportedInbox } from './inbox.ts'
 

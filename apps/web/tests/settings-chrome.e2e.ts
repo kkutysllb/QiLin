@@ -14,7 +14,7 @@ import type { Browser, Locator, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed, onTestFinished } from 'vitest'
 import { join } from 'node:path'
-import { SessionId } from '@qilin/session'
+import { SessionId } from '@qilin-agent/session'
 import {
   acknowledgeReloadConnectionLoss, assertFixtureInventory, captureStableAria, compareOrRefreshGolden,
   launchWebScaffold, openSettingsDialog, watchConsole, webSnapshotMode, type WebScaffold,

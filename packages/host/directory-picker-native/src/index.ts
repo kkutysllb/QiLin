@@ -8,11 +8,11 @@
  * background host spawned the child). Only viable when
  * the operator sits at the host's screen; remote deployments compose the
  * browse backend instead.
- * @module @qilin/host-directory-picker-native
+ * @module @qilin-agent/host-directory-picker-native
  */
 
-import { DirectoryPicker } from '@qilin/host-directory-picker'
-import type { DirectoryPickerCapability } from '@qilin/host-directory-picker'
+import { DirectoryPicker } from '@qilin-agent/host-directory-picker'
+import type { DirectoryPickerCapability } from '@qilin-agent/host-directory-picker'
 import { pickNativeDirectory } from './native-picker.ts'
 
 export type { DirectoryPickerInternals, DirectoryPickerRunner } from './native-picker.ts'

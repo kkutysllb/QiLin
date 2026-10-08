@@ -5,7 +5,7 @@
  * (boot payload, bundle transport, ApiClient, Typert RPC) speaks plain HTTP.
  */
 
-import type { IndexInjection } from '@qilin/host-webserver'
+import type { IndexInjection } from '@qilin-agent/host-webserver'
 import type {
   TunnelAbortFrame as AbortFrame,
   TunnelOutboundFrame as ResponseFrame,

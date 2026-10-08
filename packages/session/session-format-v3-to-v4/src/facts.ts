@@ -1,7 +1,7 @@
 /** Historical child identity reduced to the fields required by a parent's catalog. */
 
-import { SessionFormatError, SessionFormatUnsupportedMigrationError, isSessionFormatJsonObject, sessionFormatCount } from '@qilin/session-format'
-import type { SessionFormatArtifact, SessionFormatJsonObject, SessionFormatJsonValue } from '@qilin/session-format'
+import { SessionFormatError, SessionFormatUnsupportedMigrationError, isSessionFormatJsonObject, sessionFormatCount } from '@qilin-agent/session-format'
+import type { SessionFormatArtifact, SessionFormatJsonObject, SessionFormatJsonValue } from '@qilin-agent/session-format'
 
 /**
  * Collect a child's own descriptor without requiring one before its parent catalog is read.

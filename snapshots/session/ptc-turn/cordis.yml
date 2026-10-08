@@ -6,29 +6,29 @@
       name: '../../../packages/core/tools/tests/fixtures/literal-sdk.ts'
 
 - id: agent-default-model
-  name: '@qilin/agent-default-model'
+  name: '@qilin-agent/agent-default-model'
   config:
     provider: deepseek-official
     model: deepseek-v4-pro
 
 - id: session-persistence-jsonl
-  name: '@qilin/session-persistence-jsonl'
+  name: '@qilin-agent/session-persistence-jsonl'
   config:
     root: !!js qilinHomePath('sessions')
     compression: !!js 'process.env.QILIN_SNAPSHOT === undefined ? ''zstd'' : ''none'''
 
 - id: agent-instructions
-  name: '@qilin/agent-instructions'
+  name: '@qilin-agent/agent-instructions'
   config:
     maxBytes: 65536
 
 - id: tools
-  name: '@qilin/tools'
+  name: '@qilin-agent/tools'
   config:
     mode: ptc
 
 - id: system-prompt
-  name: '@qilin/system-prompt'
+  name: '@qilin-agent/system-prompt'
   config:
     personaPrefix: |
       You are a coding assistant powered by the {{model}} model. Your working directory is {{cwd}}.

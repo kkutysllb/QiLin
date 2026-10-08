@@ -10,7 +10,7 @@
  */
 
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
-import type { PluginAudience, PluginInstallFailureKind, Registry } from '@qilin/api-remotes/client'
+import type { PluginAudience, PluginInstallFailureKind, Registry } from '@qilin-agent/api-remotes/client'
 import type { ConfigPageForm } from './slot-contract.ts'
 import {
   Button, IconCheckOutline16, IconChevronDownOutline14, IconChevronLeftOutline14, IconChevronRightOutline14, IconCloseOutline16,
@@ -19,8 +19,8 @@ import {
   IconWarningOutline16, Input, Modal, StateDot, Switch, Tag, TerminalBlock, Toast,
   useDismissOnOutsidePointer,
   type StateDotState, type TerminalBlockLabels,
-} from '@qilin/client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime } from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-primitives'
+import type { InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import { rowConfigKey, type OfficialItem } from './config-ledger.ts'
 import type { PluginManagerLocaleKey } from './locales.ts'
 import {
@@ -118,12 +118,12 @@ const HIGHLIGHT_MS = 2_400
 
 /** Built-in profile bundles stay out of this page even when the profile declares them as dependencies. */
 const BUILTIN_PROFILE_BUNDLES = new Set([
-  '@qilin/base',
-  '@qilin/web-app',
-  '@qilin/headless',
-  '@qilin/sdk-app',
-  '@qilin/acp-app',
-  '@qilin/sdk-minimal',
+  '@qilin-agent/base',
+  '@qilin-agent/web-app',
+  '@qilin-agent/headless',
+  '@qilin-agent/sdk-app',
+  '@qilin-agent/acp-app',
+  '@qilin-agent/sdk-minimal',
 ])
 
 /** How long a toast holds: long enough to read a failure that names what broke. */

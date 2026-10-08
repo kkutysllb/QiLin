@@ -28,9 +28,9 @@ In `tmp/kylin-tutorial`, write `cordis.yml`:
 
 ```yaml
 - id: logger
-  name: '@qilin/kylin-plugin-logger-console'
+  name: '@qilin-agent/kylin-plugin-logger-console'
 - id: timer
-  name: '@qilin/kylin-plugin-timer'
+  name: '@qilin-agent/kylin-plugin-timer'
 - id: hmr
   name: '@deepseek-ai/qilin-hmr'
   config:
@@ -39,7 +39,7 @@ In `tmp/kylin-tutorial`, write `cordis.yml`:
   name: './hello.ts'
 ```
 
-Two support plugins joined the list: HMR logs through the Kylin logger service, so without a console exporter you would not see its messages, and it `inject`s the `timer` service for debouncing — without `@qilin/kylin-plugin-timer` it sits in PENDING forever, silently. That silence is the subject of the next section.
+Two support plugins joined the list: HMR logs through the Kylin logger service, so without a console exporter you would not see its messages, and it `inject`s the `timer` service for debouncing — without `@qilin-agent/kylin-plugin-timer` it sits in PENDING forever, silently. That silence is the subject of the next section.
 
 HMR reads Node's loader internals through the Loader's native helper. Run Kylin under tsx:
 
@@ -65,7 +65,7 @@ The flip side of dependency-driven loading: a plugin whose `inject` names a serv
 You can see the states directly. Every context can enumerate the plugin registry; create `diagnose.ts`:
 
 ```ts
-import { FiberState, type Context } from '@qilin/kylin'
+import { FiberState, type Context } from '@qilin-agent/kylin'
 
 export const name = 'diagnose'
 
@@ -85,7 +85,7 @@ export function apply(ctx: Context) {
 And a plugin with an unsatisfiable dependency, `needs-timer.ts`:
 
 ```ts
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 
 export const name = 'needs-timer'
 export const inject = ['timer']
@@ -106,7 +106,7 @@ Run it (plain `node --import tsx ../../vendor/cordis/bin.js`; stop with Ctrl-C):
 needs-timer is PENDING — a required service is missing
 ```
 
-`inject: ['timer']` has no provider. Add `- name: '@qilin/kylin-plugin-timer'` to the list and the plugin loads. When a plugin does nothing and reports nothing, inspect its fiber state. Iterating without the PENDING filter also shows the loader's own plugins (Loader, Include) as ACTIVE fibers because plugins mount the config file itself.
+`inject: ['timer']` has no provider. Add `- name: '@qilin-agent/kylin-plugin-timer'` to the list and the plugin loads. When a plugin does nothing and reports nothing, inspect its fiber state. Iterating without the PENDING filter also shows the loader's own plugins (Loader, Include) as ACTIVE fibers because plugins mount the config file itself.
 
 Next: [Into the harness](07-into-the-harness.md) — the same patterns against real harness services.
 

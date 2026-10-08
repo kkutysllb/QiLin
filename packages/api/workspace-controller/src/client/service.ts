@@ -1,9 +1,9 @@
 /** React-free Client Workspace service and command facade. */
 
-import { Service, type Context } from '@qilin/kylin'
-import type { SessionId } from '@qilin/session/types'
-import type { RemoteFailure } from '@qilin/typert-protocol'
-import type { WorkspaceId } from '@qilin/workspace/types'
+import { Service, type Context } from '@qilin-agent/kylin'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { RemoteFailure } from '@qilin-agent/typert-protocol'
+import type { WorkspaceId } from '@qilin-agent/workspace/types'
 import type { WorkspaceView } from '../types.ts'
 import type { ClientWorkspaceModel, WorkspaceSnapshot } from './model.ts'
 

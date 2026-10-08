@@ -12,13 +12,13 @@
  * armed claim folds with zero delta because bounded state cannot reconstruct
  * the replaced range; this preserves replay at the cost of possible drift.
  *
- * @module @qilin/token-meter/surface-projection
+ * @module @qilin-agent/token-meter/surface-projection
  */
 
-import { deriveEventMessage, isSurfaceEvent, SessionSeq } from '@qilin/session'
-import type { SessionEvent } from '@qilin/session'
+import { deriveEventMessage, isSurfaceEvent, SessionSeq } from '@qilin-agent/session'
+import type { SessionEvent } from '@qilin-agent/session'
 // Type-only: the `compaction/*` SessionEventMap merges (shadow-price events).
-import type {} from '@qilin/compaction'
+import type {} from '@qilin-agent/compaction'
 import { estimateMessage } from './estimate.ts'
 
 /**

@@ -3,7 +3,7 @@ description: "Goal surface for the Web GUI: the composer-context strip that show
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-goal
+# @qilin-agent/client-ui-goal
 
 English | [中文](README.zh.md)
 

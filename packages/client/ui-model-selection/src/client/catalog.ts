@@ -1,8 +1,8 @@
 /** One Host-generation model catalog shared by every Session selector. */
 
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { ModelCatalog } from '@qilin/api-remotes/client'
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { ModelCatalog } from '@qilin-agent/api-remotes/client'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
 
 /** Observable lifecycle of the shared model catalog. */
 export interface ModelCatalogState {

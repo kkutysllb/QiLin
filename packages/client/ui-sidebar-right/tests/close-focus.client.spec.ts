@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 /** Closing pages retains actual focus through layout replacement without stealing another input owner. */
 import { afterEach, expect, it } from 'vitest'
-import type { PaneId } from '@qilin/client-ui-dockkit'
-import type { SessionId } from '@qilin/session/types'
+import type { PaneId } from '@qilin-agent/client-ui-dockkit'
+import type { SessionId } from '@qilin-agent/session/types'
 import { closeWithPaneFocus, openWithPaneFocus } from '../src/client/shell/close-focus.ts'
 
 const session = 'closing-session' as SessionId

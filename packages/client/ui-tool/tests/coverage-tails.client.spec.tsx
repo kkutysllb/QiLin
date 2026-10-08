@@ -1,19 +1,19 @@
 // @vitest-environment jsdom
-import { useDisclosure } from '@qilin/client-ui-chat/src/client/chat/use-disclosure.ts'
+import { useDisclosure } from '@qilin-agent/client-ui-chat/src/client/chat/use-disclosure.ts'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render } from '@testing-library/react'
-import { createSnapshotStore } from '@qilin/client-store'
-import { bindSnapshotSelector, makeTranslate } from '@qilin/client-test-runtime'
-import type { SessionListState } from '@qilin/api-session-controller/client'
-import type { StartedToolCall, ToolResultNode } from '@qilin/client-ui-chat/client'
-import type { SessionId } from '@qilin/session/types'
-import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
+import type { SessionListState } from '@qilin-agent/api-session-controller/client'
+import type { StartedToolCall, ToolResultNode } from '@qilin-agent/client-ui-chat/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 import { GenericToolCard, type GenericToolCardProps } from '../src/client/tool/toolviews/GenericToolCard.tsx'
 import { ToolRow } from '../src/client/tool/components/ToolRow.tsx'
 import { BashRow } from '../src/client/tool/toolviews/bash-sample.tsx'
-import { zh } from '@qilin/client-ui-conversation/src/client/locales.ts'
-import { PartialArguments } from '@qilin/util-values'
+import { zh } from '@qilin-agent/client-ui-conversation/src/client/locales.ts'
+import { PartialArguments } from '@qilin-agent/util-values'
 
 type BashRowProps = Parameters<typeof BashRow>[0]
 

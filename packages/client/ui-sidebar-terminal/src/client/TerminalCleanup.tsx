@@ -1,9 +1,9 @@
 /** Failed background cleanup remains actionable after the originating tab disappears. */
 import type { ReactNode } from 'react'
-import type { TerminalCloseFailure } from '@qilin/api-terminal-controller/client'
-import type { WebTerminalId } from '@qilin/api-terminal-controller/types'
-import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
-import type {} from '@qilin/client-ui-layout/client'
+import type { TerminalCloseFailure } from '@qilin-agent/api-terminal-controller/client'
+import type { WebTerminalId } from '@qilin-agent/api-terminal-controller/types'
+import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-layout/client'
 import type {} from './locales.ts'
 import css from './TerminalCleanup.module.css'
 

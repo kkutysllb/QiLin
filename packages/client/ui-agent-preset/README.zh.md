@@ -3,7 +3,7 @@ description: "Web GUI 的 agent（智能体） preset 界面：选择器可见�
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-agent-preset
+# @qilin-agent/client-ui-agent-preset
 
 [English](README.md) | 中文
 

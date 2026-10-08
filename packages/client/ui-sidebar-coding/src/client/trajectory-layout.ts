@@ -146,7 +146,7 @@ const WIDE = new RegExp(
  * @returns the label, ellipsized when it does not fit.
  */
 /* jscpd:ignore-start — label/layout helpers shared verbatim with
-   @qilin/client-ui-trajectory src/client/trajectory-graph-layout.ts (kept independent) */
+   @qilin-agent/client-ui-trajectory src/client/trajectory-graph-layout.ts (kept independent) */
 export function ellipsize(text: string, maxWidth: number, fontSize: number): string {
   const column = fontSize * 0.56
   let used = 0

@@ -1,10 +1,10 @@
 /** State owner for the optional local settings-document action. */
 
-import type { Context as ClientContext } from '@qilin/kylin'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
 // Type-only: pulls the ctx.remote merge into this program.
-import type {} from '@qilin/api-remotes/client'
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
-import type { SettingsDescribeFace } from '@qilin/client-ui-settings/client'
+import type {} from '@qilin-agent/api-remotes/client'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
+import type { SettingsDescribeFace } from '@qilin-agent/client-ui-settings/client'
 
 /** Browser state of the Host-owned settings document. */
 export interface SettingsDocumentState {

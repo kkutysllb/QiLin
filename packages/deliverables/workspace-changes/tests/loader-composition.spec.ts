@@ -8,12 +8,12 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import SessionStore, { SessionId } from '@qilin/session'
-import LocalSubprocessRuntime from '@qilin/subprocess-local'
-import * as WorkspaceChangesPlugin from '@qilin/workspace-changes'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
+import * as WorkspaceChangesPlugin from '@qilin-agent/workspace-changes'
 import { changes, endTurn, git, startTurn, toolCall } from './support.ts'
 
 let root: string | undefined
@@ -31,9 +31,9 @@ describe('real Loader composition', () => {
     root = await mkdtemp(join(tmpdir(), 'qilin-workspace-changes-loader-'))
     const cwd = join(root, 'ws')
     await writeFile(join(root, 'cordis.yml'), [
-      "- name: '@qilin/session'",
-      "- name: '@qilin/subprocess-local'",
-      "- name: '@qilin/workspace-changes'",
+      "- name: '@qilin-agent/session'",
+      "- name: '@qilin-agent/subprocess-local'",
+      "- name: '@qilin-agent/workspace-changes'",
       '',
     ].join('\n'))
     context = new Context()
@@ -41,9 +41,9 @@ describe('real Loader composition', () => {
     await context.plugin(Loader)
     context.loader.builtins.include = Include
     const modules = new Map<string, unknown>([
-      ['@qilin/session', SessionStore],
-      ['@qilin/subprocess-local', LocalSubprocessRuntime],
-      ['@qilin/workspace-changes', WorkspaceChangesPlugin],
+      ['@qilin-agent/session', SessionStore],
+      ['@qilin-agent/subprocess-local', LocalSubprocessRuntime],
+      ['@qilin-agent/workspace-changes', WorkspaceChangesPlugin],
     ])
     context.loader.internal = {
       version: 'v2',

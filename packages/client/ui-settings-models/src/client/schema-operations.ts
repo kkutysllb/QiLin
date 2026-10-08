@@ -1,6 +1,6 @@
 import type {
   SettingsSchemaService,
-} from '@qilin/client-ui-settings/client'
+} from '@qilin-agent/client-ui-settings/client'
 
 /** Plain schema callbacks exposed to Models stores and presentation components. */
 export type SettingsSchemaOperations = Pick<

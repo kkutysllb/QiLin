@@ -4,9 +4,9 @@
  * The comment above each row names the plugin that calls it; endpoints boot
  * never touches stay absent so a new call fails loud. `$events` is built into
  * `RemoteMock`.
- * @module @qilin/client-test-runtime/src/assembly/remote-default-responses
+ * @module @qilin-agent/client-test-runtime/src/assembly/remote-default-responses
  */
-import { ok, openStream, type RemoteTable } from '@qilin/remote-mock'
+import { ok, openStream, type RemoteTable } from '@qilin-agent/remote-mock'
 
 /** Default responses of the boot-time Remote endpoints; a spec loads it first and layers its own table on top. */
 export const remoteDefaultResponses: RemoteTable = {

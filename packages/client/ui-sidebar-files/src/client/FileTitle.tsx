@@ -5,8 +5,8 @@
  * own sheet, which is why the type declares no static `icon`.
  */
 import type { ReactNode } from 'react'
-import { FileTypeIcon } from '@qilin/client-ui-primitives'
-import type { PropsRuntime } from '@qilin/client-ui-slots'
+import { FileTypeIcon } from '@qilin-agent/client-ui-primitives'
+import type { PropsRuntime } from '@qilin-agent/client-ui-slots'
 import css from './FilesBody.module.css'
 
 /**

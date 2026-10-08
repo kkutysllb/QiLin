@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
-import { Context } from '@qilin/kylin'
-import { createScope, scopeOf } from '@qilin/api-session-controller/client'
-import type { ToolCallId } from '@qilin/llm'
-import type { SessionId } from '@qilin/session/types'
+import { Context } from '@qilin-agent/kylin'
+import { createScope, scopeOf } from '@qilin-agent/api-session-controller/client'
+import type { ToolCallId } from '@qilin-agent/llm'
+import type { SessionId } from '@qilin-agent/session/types'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ApprovalPanel } from '../src/client/ApprovalPanel.tsx'

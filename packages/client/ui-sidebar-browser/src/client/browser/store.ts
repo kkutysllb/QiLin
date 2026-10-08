@@ -1,6 +1,6 @@
 /** Persisted Browser tab snapshots shared by the body and title slots. */
-import { defineStore, type EngineStoreHandle } from '@qilin/client-store'
-import type { TabId } from '@qilin/client-ui-dockkit'
+import { defineStore, type EngineStoreHandle } from '@qilin-agent/client-store'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
 import type { BrowserTabState } from './BrowserNavigation.ts'
 
 /** All Browser tabs in one Session-scoped store. */

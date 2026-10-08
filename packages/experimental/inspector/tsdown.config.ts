@@ -15,13 +15,13 @@ const worker: UserConfig = {
   clean: false,
   outputOptions: { inlineDynamicImports: true },
   deps: { neverBundle: specifier => (
-    specifier === 'ws' || specifier === '@qilin/app-boot/worker/profile-resolution-bootstrap'
+    specifier === 'ws' || specifier === '@qilin-agent/app-boot/worker/profile-resolution-bootstrap'
   ) },
 }
 
 /** Build the Host plugin and Worker during the Host pass, and the dynamic Client plugin during the Client pass. */
 export default clientBundle(
-  '@qilin/experimental-inspector',
+  '@qilin-agent/experimental-inspector',
   ['lib/types/index.js'],
   {
     hostPhase: true,

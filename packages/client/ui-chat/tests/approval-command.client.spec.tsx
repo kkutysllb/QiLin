@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
-import { Context } from '@qilin/kylin'
-import type { ChatSnapshot, UseChat } from '@qilin/client-ui-chat/client'
-import type { PropsRuntime } from '@qilin/client-ui-slots'
-import { PartialArguments } from '@qilin/util-values'
+import { Context } from '@qilin-agent/kylin'
+import type { ChatSnapshot, UseChat } from '@qilin-agent/client-ui-chat/client'
+import type { PropsRuntime } from '@qilin-agent/client-ui-slots'
+import { PartialArguments } from '@qilin-agent/util-values'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { ApprovalCommand, commandOf } from '../src/client/chat/ApprovalCommand.tsx'

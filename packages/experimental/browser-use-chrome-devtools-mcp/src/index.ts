@@ -1,8 +1,8 @@
 /** Chromium inspection and automation through the pinned Chrome DevTools MCP server. @module */
 
 import { fileURLToPath } from 'node:url'
-import type { Context } from '@qilin/kylin'
-import { BrowserMcpConfig, mountSessionMcp, validateBrowserMcpConfig } from '@qilin/experimental-browser-use-runtime/mcp'
+import type { Context } from '@qilin-agent/kylin'
+import { BrowserMcpConfig, mountSessionMcp, validateBrowserMcpConfig } from '@qilin-agent/experimental-browser-use-runtime/mcp'
 
 /** Cordis identity for the Chrome DevTools MCP browser provider. */
 export const name = 'experimental-browser-use-chrome-devtools-mcp'

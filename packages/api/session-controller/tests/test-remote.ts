@@ -1,15 +1,15 @@
 /** Test-only direct Remote face over the Session Controller's internal controllers. */
 import type { SessionControllerInternals } from '../src/index.ts'
 
-import { SessionLogOffset } from '@qilin/session'
-import type { Context } from '@qilin/kylin'
-import type { ModelSelection as AgentModelSelection } from '@qilin/agent'
+import { SessionLogOffset } from '@qilin-agent/session'
+import type { Context } from '@qilin-agent/kylin'
+import type { ModelSelection as AgentModelSelection } from '@qilin-agent/agent'
 import type {
   AdmittedPromptContentPart,
   AttachmentAdmissionPart,
   ImageAttachmentLimits,
-} from '@qilin/attachment'
-import type { SessionEvent, SessionHeader, SessionId } from '@qilin/session'
+} from '@qilin-agent/attachment'
+import type { SessionEvent, SessionHeader, SessionId } from '@qilin-agent/session'
 import type { SessionProjectionsValue } from '../src/types.ts'
 import {
   SessionPersistenceNotFoundError,
@@ -22,15 +22,15 @@ import {
   type SessionPersistenceOpenOptions,
   type SessionPersistenceSnapshot,
   type SessionPersistenceStatOptions,
-} from '@qilin/session-persistence'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import SessionQueryEngine from '@qilin/session-query'
+} from '@qilin-agent/session-persistence'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import SessionQueryEngine from '@qilin-agent/session-query'
 import { vi } from 'vitest'
 import {
   RemoteError,
   remoteErrorOf,
   type RemoteResult,
-} from '@qilin/typert-protocol'
+} from '@qilin-agent/typert-protocol'
 import SessionController from '../src/index.ts'
 import type {
   ModelCatalog,

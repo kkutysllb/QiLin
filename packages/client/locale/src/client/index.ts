@@ -4,17 +4,17 @@
  * switches languages; this plugin owns the preference, the registry, and the
  * document language attribute.
  */
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { LocalizedText } from '@qilin/package-manifest'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { LocalizedText } from '@qilin-agent/package-manifest'
 import {
   type LocaleDictOf, type LocaleNamespaceMap, type Translate, type TranslateNS,
-} from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-slots'
 // Type-only: the ctx.configForms Context merge and the settings slot types.
 // Cross-plugin collaboration goes through the service, never a value import
 // (client bundle purity gate).
-import type { ConfigForm } from '@qilin/client-ui-settings/client'
+import type { ConfigForm } from '@qilin-agent/client-ui-settings/client'
 // Type-only: pulls the SlotRegistry service merge (ctx.slots).
-import type {} from '@qilin/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
 import {
   LOCALE_ID_PATTERN, LOCALE_IDS, LOCALE_PREFERENCE_FIELD, LOCALE_SETTINGS_NAMESPACE,
   type BuiltInLocaleId, type LocaleId, type LocaleSettings,
@@ -27,9 +27,9 @@ export type { BuiltInLocaleId, LocaleId, LocaleSettings } from '../locale-settin
 // The translate currency lives in ui-slots (the render machinery synthesizes
 // the seat); re-exported here so dictionary owners import one package.
 // TranslateNS<'model'> is the namespace-addressed developer-facing form.
-export type { Translate, TranslateNS } from '@qilin/client-ui-slots'
+export type { Translate, TranslateNS } from '@qilin-agent/client-ui-slots'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Shared cross-feature vocabulary, consulted by the lookup chain after the entry's own namespace misses. */
     common: CommonKey
@@ -69,7 +69,7 @@ export interface LocaleSnapshot {
   revision: number
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     locale: LocaleRuntime
   }

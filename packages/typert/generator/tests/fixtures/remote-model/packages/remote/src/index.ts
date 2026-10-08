@@ -1,4 +1,4 @@
-import { TypertRemoteService, Remote, RemoteScope } from '@qilin/typert-protocol'
+import { TypertRemoteService, Remote, RemoteScope } from '@qilin-agent/typert-protocol'
 import type { Agent } from '@fixture/domain'
 import type {
   CreateGoalRequest,

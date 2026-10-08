@@ -1,7 +1,7 @@
 /** Select and log permanent image omissions in current model-request order. */
 
-import type { ContentBlock } from '@qilin/llm'
-import type { Session, SessionSeq } from '@qilin/session'
+import type { ContentBlock } from '@qilin-agent/llm'
+import type { Session, SessionSeq } from '@qilin-agent/session'
 import type { ImageOffloadTarget } from './projection.ts'
 
 /**

@@ -1,7 +1,7 @@
 /** Shell facts and lookup failures retain remote execution semantics. */
-import { Context } from '@qilin/kylin'
-import { SubprocessExecutableNotFoundError } from '@qilin/subprocess'
-import { RemoteOperationError } from '@qilin/ssh/protocol'
+import { Context } from '@qilin-agent/kylin'
+import { SubprocessExecutableNotFoundError } from '@qilin-agent/subprocess'
+import { RemoteOperationError } from '@qilin-agent/ssh/protocol'
 import { expect, it, vi } from 'vitest'
 import { z } from 'zod'
 import { SshSubprocessRuntime } from '../src/index.ts'

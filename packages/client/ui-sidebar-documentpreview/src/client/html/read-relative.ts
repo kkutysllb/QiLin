@@ -1,7 +1,7 @@
 /** Adapt a Remote relative read without changing its Session or Host path authority. */
-import type { RemoteResult } from '@qilin/api-remotes/client'
-import type { WorkspaceFileBytes } from '@qilin/api-workspace-files/types'
-import { sessionFileAddress } from '@qilin/util-workspace-path'
+import type { RemoteResult } from '@qilin-agent/api-remotes/client'
+import type { WorkspaceFileBytes } from '@qilin-agent/api-workspace-files/types'
+import { sessionFileAddress } from '@qilin-agent/util-workspace-path'
 import { documentFileBytes, hostFileOf } from '../rpc.ts'
 import type { ReadHtmlRelative } from './pack.ts'
 

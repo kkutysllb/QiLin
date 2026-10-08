@@ -1,8 +1,8 @@
 /** Deterministic projected source shared by reference snapshot and Loader tests. */
 
-import type { Context } from '@qilin/kylin'
-import { createMessage, createUserMessage } from '@qilin/llm'
-import { Session, SessionId } from '@qilin/session'
+import type { Context } from '@qilin-agent/kylin'
+import { createMessage, createUserMessage } from '@qilin-agent/llm'
+import { Session, SessionId } from '@qilin-agent/session'
 
 export const name = 'session-reference-source-fixture'
 export const inject = ['sessions']

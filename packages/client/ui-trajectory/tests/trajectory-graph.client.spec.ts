@@ -7,16 +7,16 @@ import type {
   AssistantBlock, AssistantMessageNode, CommandNode, CompactionSummaryNode, ContextMessageNode,
   ConversationNode, ModelRetryNode, PartialAssistant, RequestView, StartedToolCall, SteeringMessageNode,
   SystemPromptNode, ToolResultNode, TurnErrorNode, TurnMaxTokensNode, UnknownSurfaceNode, UserMessageNode,
-} from '@qilin/client-ui-conversation/client'
-import type { AttachmentId } from '@qilin/attachment'
-import type { ContentBlock } from '@qilin/llm/types'
+} from '@qilin-agent/client-ui-conversation/client'
+import type { AttachmentId } from '@qilin-agent/attachment'
+import type { ContentBlock } from '@qilin-agent/llm/types'
 import type { TrajectorySnapshot } from '../src/client/trajectory-contract.ts'
 import {
   buildTrajectoryGraph, searchTrajectoryNodes, slowestTools, windowTrajectoryGraph,
   type TrajectoryGraph,
 } from '../src/client/trajectory-graph.ts'
 import { t } from './locale.client.ts'
-import { PartialArguments } from '@qilin/util-values'
+import { PartialArguments } from '@qilin-agent/util-values'
 
 function text(value: string): ContentBlock {
   return { type: 'text', text: value }

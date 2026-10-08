@@ -5,10 +5,10 @@
  * here reaches a Host-only symbol, so a Client compilation face reads exactly
  * the signature the Host emits.
  *
- * @module @qilin/credentials/types
+ * @module @qilin-agent/credentials/types
  */
 
-import type { Branded } from '@qilin/brand'
+import type { Branded } from '@qilin-agent/brand'
 
 /** Nominal reference to one credential: a POSIX-style environment-variable name. */
 export type CredentialRef = Branded<'CredentialRef'>
@@ -73,7 +73,7 @@ export interface CredentialInfo {
   writable: boolean
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Events {
     /**
      * Committed change to a provider-managed credential source: a `set`, an

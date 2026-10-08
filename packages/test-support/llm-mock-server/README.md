@@ -3,7 +3,7 @@ description: "Scriptable OpenAI-compatible fault server for testing LLM adapters
 kind: "package-library"
 ---
 
-# @qilin/llm-mock-server
+# @qilin-agent/llm-mock-server
 
 English | [中文](README.zh.md)
 

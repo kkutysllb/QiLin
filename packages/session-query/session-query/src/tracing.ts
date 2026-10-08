@@ -1,13 +1,13 @@
 /** One-shot session-lineage and event-relationship tracing helpers. */
 
-import { currentSessionMessageProjections } from '@qilin/session-format-catalog/message-projections'
-import { foldSurface, isSurfaceEvent, snapshotSessionEvent } from '@qilin/session'
+import { currentSessionMessageProjections } from '@qilin-agent/session-format-catalog/message-projections'
+import { foldSurface, isSurfaceEvent, snapshotSessionEvent } from '@qilin-agent/session'
 import type {
   SessionEvent,
   SessionId,
   SessionSeq,
   SurfaceEvent,
-} from '@qilin/session'
+} from '@qilin-agent/session'
 import { SessionQueryError } from './config.ts'
 import type {
   SessionEventRecord,

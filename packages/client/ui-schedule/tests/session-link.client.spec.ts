@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import type { SessionListState } from '@qilin/api-session-controller/client'
-import type { WorkspaceSnapshot } from '@qilin/api-workspace-controller/client'
-import type { SessionId } from '@qilin/session/types'
+import type { SessionListState } from '@qilin-agent/api-session-controller/client'
+import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import { sessionLinkState } from '../src/client/session-link.ts'
 
 const id = 'session-original' as SessionId

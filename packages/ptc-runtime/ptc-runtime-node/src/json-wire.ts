@@ -1,9 +1,9 @@
 /**
  * Lossless-JSON snapshots for the dependency-free source bootstrap closure.
- * @module @qilin/ptc-runtime-node/json-wire
+ * @module @qilin-agent/ptc-runtime-node/json-wire
  */
 
-import type { PtcJsonValue } from '@qilin/ptc-runtime'
+import type { PtcJsonValue } from '@qilin-agent/ptc-runtime'
 
 /* jscpd:ignore-start -- the source bootstrap mirrors session JSON helpers without workspace runtime imports */
 type IntrinsicCallable = (this: unknown, ...args: unknown[]) => unknown

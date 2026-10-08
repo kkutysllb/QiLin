@@ -1,6 +1,6 @@
 /** Replay-stable view models for Cordis lifecycle Tool calls. */
 
-import type { StartedToolCallViewProps } from '@qilin/client-ui-tool/client'
+import type { StartedToolCallViewProps } from '@qilin-agent/client-ui-tool/client'
 import type {
   CordisDynamicPackageId, CordisDynamicPluginId, CordisDynamicPluginRunId, CordisDynamicRunMode,
 } from './events.ts'

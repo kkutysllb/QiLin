@@ -10,15 +10,15 @@
 import type { ComponentType } from 'react'
 import type {
   PickOutcome, ReferenceInsert, TokenSpan,
-} from '@qilin/client-ui-conversation/client'
-import type { IconProps } from '@qilin/client-ui-primitives'
-import type { SessionId } from '@qilin/session/types'
+} from '@qilin-agent/client-ui-conversation/client'
+import type { IconProps } from '@qilin-agent/client-ui-primitives'
+import type { SessionId } from '@qilin-agent/session/types'
 
 export type {
   ArbitrateKey, ArbitrateOutcome, BeginCommandRequest, CommandClaim, ConsumeTokenRequest,
   InsertReferenceRequest, InsertTextRequest, PickOutcome, ReferenceInsert, SubmitAttachment,
   SubmitOutcome, TokenSpan,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 
 /**
  * The provider-facing projection of one client session. It carries stable

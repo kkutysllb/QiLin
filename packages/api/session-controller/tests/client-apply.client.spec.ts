@@ -3,17 +3,17 @@
  * arriving as emit frames on the `$events` stream, the control stream over
  * the real Connection, and Agent Context identity through the Typert registry.
  */
-import { RemoteStreamCarrierError } from '@qilin/api-gateway/client'
-import { ok, type RemoteMock } from '@qilin/remote-mock'
-import { createClientTest, type TestClient, webApp } from '@qilin/client-test-runtime/src/assembly/index.ts'
-import type { SessionId } from '@qilin/session/types'
-import type { RemoteResult } from '@qilin/typert-protocol'
-import { isTypertOwnedValue } from '@qilin/typert-protocol'
+import { RemoteStreamCarrierError } from '@qilin-agent/api-gateway/client'
+import { ok, type RemoteMock } from '@qilin-agent/remote-mock'
+import { createClientTest, type TestClient, webApp } from '@qilin-agent/client-test-runtime/src/assembly/index.ts'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { RemoteResult } from '@qilin-agent/typert-protocol'
+import { isTypertOwnedValue } from '@qilin-agent/typert-protocol'
 import { afterEach, describe, expect, vi, type MockInstance } from 'vitest'
 import { ClientSessions } from '../src/client/sessions/service.ts'
 import type { SessionListValue } from '../src/types.ts'
 
-const SELF = '@qilin/api-session-controller'
+const SELF = '@qilin-agent/api-session-controller'
 const ROSTER = webApp.closure([SELF])
 const it = createClientTest({ roster: ROSTER })
 const EVENTS = '$events'

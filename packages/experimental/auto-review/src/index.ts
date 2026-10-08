@@ -5,12 +5,12 @@
  * Under the `ask` approval policy a reviewer denial asks the user; under
  * `never` it is final.
  *
- * @module @qilin/experimental-auto-review
+ * @module @qilin-agent/experimental-auto-review
  */
 
-import type { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import type {} from '@qilin/agent-instructions'
+import type { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import type {} from '@qilin-agent/agent-instructions'
 import {
   BlockAssembler,
   type ContentBlock,
@@ -19,17 +19,17 @@ import {
   type StreamChunk,
   type ToolCallId,
   type ToolSchema,
-} from '@qilin/llm'
-import { deepFreeze } from '@qilin/util-values'
-import { AUTO_PRESET } from '@qilin/permission-presets'
-import type { SessionEvent } from '@qilin/session'
-import type {} from '@qilin/subagent'
-import type {} from '@qilin/user-approval'
+} from '@qilin-agent/llm'
+import { deepFreeze } from '@qilin-agent/util-values'
+import { AUTO_PRESET } from '@qilin-agent/permission-presets'
+import type { SessionEvent } from '@qilin-agent/session'
+import type {} from '@qilin-agent/subagent'
+import type {} from '@qilin-agent/user-approval'
 import {
   RUN_CODE_NAME,
   type PreToolDecision,
   type ToolExecution,
-} from '@qilin/tools'
+} from '@qilin-agent/tools'
 
 /** Structured error name persisted for every final reviewer denial. */
 const AUTO_REVIEW_DENIED_ERROR_NAME = 'AutoReviewDeniedError'

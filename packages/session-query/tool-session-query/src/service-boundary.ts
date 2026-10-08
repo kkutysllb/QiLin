@@ -1,15 +1,15 @@
 /**
  * Session-query service error containment and model-safe translation.
  *
- * @module @qilin/tool-session-query/service-boundary
+ * @module @qilin-agent/tool-session-query/service-boundary
  */
 
-import type { Context } from '@qilin/kylin'
-import { HarnessError } from '@qilin/llm'
+import type { Context } from '@qilin-agent/kylin'
+import { HarnessError } from '@qilin-agent/llm'
 import {
   SessionQueryError,
   type SessionQueryErrorCode,
-} from '@qilin/session-query'
+} from '@qilin-agent/session-query'
 
 interface ModelSafeServiceFailure {
   readonly code: SessionQueryErrorCode | 'SESSION_QUERY_TOOL_FAILED'

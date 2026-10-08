@@ -1,17 +1,17 @@
-import { ToolCallId, createUserMessage } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
+import { ToolCallId, createUserMessage } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { type Agent, type AgentOptions } from '@qilin/agent'
-import { SessionId } from '@qilin/session'
-import AgentLoop from '@qilin/agent-loop'
-import { mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'
-import SubagentRuntime, { snapshotSubagentDescriptor } from '@qilin/subagent'
-import { defineContentToolFixture } from '@qilin/tools'
+import { Context } from '@qilin-agent/kylin'
+import { type Agent, type AgentOptions } from '@qilin-agent/agent'
+import { SessionId } from '@qilin-agent/session'
+import AgentLoop from '@qilin-agent/agent-loop'
+import { mountAgentLoopTestDependencies } from '@qilin-agent/agent-loop-testkit'
+import SubagentRuntime, { snapshotSubagentDescriptor } from '@qilin-agent/subagent'
+import { defineContentToolFixture } from '@qilin-agent/tools'
 import { maxTokensResponse, MockAdapter, textResponse, toolCallResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
 import { startInProcessRun } from '../src/index.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'late-metadata': { kind: 'late-metadata' } & ContextFormed
   }

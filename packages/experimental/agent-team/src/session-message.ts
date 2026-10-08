@@ -1,7 +1,7 @@
 /** Durable Session-message acceptance checks shared by provisioning and mailbox recovery. */
 
-import type { UserMessage } from '@qilin/llm'
-import type { SessionEvent } from '@qilin/session'
+import type { UserMessage } from '@qilin-agent/llm'
+import type { SessionEvent } from '@qilin-agent/session'
 
 type InboxProjection = Record<'next-turn' | 'next-step', UserMessage[]>
 

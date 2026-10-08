@@ -2,10 +2,10 @@
  * Types shared by job producers, the registry, and its consumers. The
  * client-safe projection vocabulary lives in `./view.ts`; the service
  * implementation lives in `./index.ts`.
- * @module @qilin/jobs/types
+ * @module @qilin-agent/jobs/types
  */
 
-import type { SessionId } from '@qilin/session'
+import type { SessionId } from '@qilin-agent/session'
 import type { JobId } from './brand.ts'
 import type { JobChannel, JobChunk, JobKind, JobView } from './view.ts'
 

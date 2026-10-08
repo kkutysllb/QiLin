@@ -9,9 +9,9 @@
 
 import { tmpdir } from 'node:os'
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import type { SandboxPolicy } from '@qilin/sandbox'
-import { LocalSandboxProvider } from '@qilin/sandbox-local'
+import { Context } from '@qilin-agent/kylin'
+import type { SandboxPolicy } from '@qilin-agent/sandbox'
+import { LocalSandboxProvider } from '@qilin-agent/sandbox-local'
 
 const RO: SandboxPolicy = { mode: 'read-only', workspaceRoot: '/ws' }
 const WW: SandboxPolicy = { mode: 'workspace-write', workspaceRoot: '/ws' }

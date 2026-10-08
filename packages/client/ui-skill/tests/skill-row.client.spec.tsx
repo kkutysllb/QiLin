@@ -2,11 +2,11 @@
 
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { StartedToolCall, ToolResultNode } from '@qilin/client-ui-chat/client'
-import type { ToolCallOwnerProps } from '@qilin/client-ui-tool/client'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
-import { PartialArguments } from '@qilin/util-values'
+import type { StartedToolCall, ToolResultNode } from '@qilin-agent/client-ui-chat/client'
+import type { ToolCallOwnerProps } from '@qilin-agent/client-ui-tool/client'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
+import { PartialArguments } from '@qilin-agent/util-values'
 import { SkillRow } from '../src/client/SkillRow.tsx'
 import { zh } from '../src/client/locales.ts'
 

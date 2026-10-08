@@ -11,7 +11,7 @@
  *
  * ```yaml
  * - id: llm
- *   name: '@qilin/llm-pi-ai'
+ *   name: '@qilin-agent/llm-pi-ai'
  *   config:
  *     providers:
  *       # Catalog route: everything but the credential comes from pi-ai.
@@ -52,16 +52,16 @@
  *               max: ultra
  * ```
  *
- * @module @qilin/llm-pi-ai
+ * @module @qilin-agent/llm-pi-ai
  */
 
-import type { Context } from '@qilin/kylin'
-import { launchEnvironmentOf } from '@qilin/launch-environment'
-import { assertUsableApiKey, LlmError, resolveImageAttachmentAccess } from '@qilin/llm'
-import type { AdapterRegistrationHandle, DirectoryRegistrationHandle, LlmConfigurableProvider } from '@qilin/llm'
-import type {} from '@qilin/fs'
-import type {} from '@qilin/settings'
-import { deepEqualJson } from '@qilin/util-values'
+import type { Context } from '@qilin-agent/kylin'
+import { launchEnvironmentOf } from '@qilin-agent/launch-environment'
+import { assertUsableApiKey, LlmError, resolveImageAttachmentAccess } from '@qilin-agent/llm'
+import type { AdapterRegistrationHandle, DirectoryRegistrationHandle, LlmConfigurableProvider } from '@qilin-agent/llm'
+import type {} from '@qilin-agent/fs'
+import type {} from '@qilin-agent/settings'
+import { deepEqualJson } from '@qilin-agent/util-values'
 import { PiAiAdapter } from './adapter.ts'
 import { authContextFrom, credentialStoreFrom } from './auth.ts'
 import { catalogProviderIds } from './catalog.ts'

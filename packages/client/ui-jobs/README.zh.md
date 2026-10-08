@@ -3,7 +3,7 @@ description: "Web 后台任务界面：列出本会话可见任务的会话头�
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-jobs
+# @qilin-agent/client-ui-jobs
 
 [English](README.md) | 中文
 

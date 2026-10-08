@@ -5,7 +5,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { deepFreeze } from '@qilin/util-values'
+import { deepFreeze } from '@qilin-agent/util-values'
 import { callConfigEquals, isAgentLoopRequest, markAgentLoopRequest } from '../src/call-config.ts'
 import { ReasoningEffortId } from '../src/brand.ts'
 import type { GenerateOptions } from '../src/types.ts'

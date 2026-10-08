@@ -4,8 +4,8 @@
  * @module
  */
 
-import type { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
+import type { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
 
 /** One provider-owned browser or connection and its quiescent cleanup. */
 export interface OwnedSessionResource<T> {

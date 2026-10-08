@@ -3,8 +3,8 @@
  * call the body's gesture means, and the jobs face passes through untouched.
  */
 import { describe, expect, it, vi } from 'vitest'
-import type { SessionId } from '@qilin/session/types'
-import type { SubagentAddress } from '@qilin/subagent/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { SubagentAddress } from '@qilin-agent/subagent/client'
 import { tasksFace } from '../src/client/face.ts'
 import { sid } from './fixtures.client.ts'
 

@@ -9,10 +9,10 @@ This chapter registers a model-callable tool with the harness's `tools` service,
 Create `greet-tool.ts` in `tmp/kylin-tutorial`:
 
 ```ts
-import type { Context } from '@qilin/kylin'
-import { brandString } from '@qilin/brand'
-import { defineTool } from '@qilin/tools'
-import type { ToolCallId } from '@qilin/llm'
+import type { Context } from '@qilin-agent/kylin'
+import { brandString } from '@qilin-agent/brand'
+import { defineTool } from '@qilin-agent/tools'
+import type { ToolCallId } from '@qilin-agent/llm'
 
 export const name = 'greet-tool'
 export const inject = ['tools']
@@ -54,8 +54,8 @@ Every pattern here is from the earlier chapters: `inject: ['tools']` ([chapter 3
 Create `tool-logger.ts` — a separate plugin that watches every tool call in the app through the harness's `tools/result` event:
 
 ```ts
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/tools'
 
 export const name = 'tool-logger'
 export const inject = ['tools']
@@ -70,18 +70,18 @@ export function apply(ctx: Context) {
 }
 ```
 
-The `import type {} from '@qilin/tools'` line pulls in the package's declaration merges so `'tools/result'` and its payload are typed — the same move as chapter 4's `stats.ts` import, at package scale.
+The `import type {} from '@qilin-agent/tools'` line pulls in the package's declaration merges so `'tools/result'` and its payload are typed — the same move as chapter 4's `stats.ts` import, at package scale.
 
 ## Compose and run
 
 ```yaml
-- name: '@qilin/system-prompt'
-- name: '@qilin/tools'
+- name: '@qilin-agent/system-prompt'
+- name: '@qilin-agent/tools'
 - name: './tool-logger.ts'
 - name: './greet-tool.ts'
 ```
 
-`@qilin/tools` injects the `systemPrompt` service because tools contribute schemas to the system prompt, so the composition lists its provider too. Without it, the tools plugin remains PENDING as described in [chapter 6](06-composition-and-hmr.md).
+`@qilin-agent/tools` injects the `systemPrompt` service because tools contribute schemas to the system prompt, so the composition lists its provider too. Without it, the tools plugin remains PENDING as described in [chapter 6](06-composition-and-hmr.md).
 
 ```sh
 node --import tsx ../../vendor/cordis/bin.js

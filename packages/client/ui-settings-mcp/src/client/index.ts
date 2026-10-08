@@ -1,11 +1,11 @@
 /** MCP servers settings page for the Web client. */
 
-import type { Context as ClientContext } from '@qilin/kylin'
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-ui-settings/client'
-import type {} from '@qilin/client-ui-renderer/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-ui-settings/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
 // Type-only: pulls the ctx.remote merge and the mcpServers namespace row.
-import type {} from '@qilin/api-remotes/client'
+import type {} from '@qilin-agent/api-remotes/client'
 import { McpSection } from './McpSection.tsx'
 import type { McpSectionInjected } from './McpSection.tsx'
 import { McpServersStore } from './store.ts'
@@ -15,7 +15,7 @@ export type { McpSectionInjected, McpSectionProps } from './McpSection.tsx'
 export type { McpPageState, McpServersStore } from './store.ts'
 export type { McpLocaleKey } from './locales.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** MCP servers page copy. */
     'settings.mcp': McpLocaleKey

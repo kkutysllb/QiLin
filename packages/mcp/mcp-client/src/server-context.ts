@@ -1,12 +1,12 @@
 /**
  * Publish connection-owned MCP resources and literal server instructions.
  *
- * @module @qilin/mcp-client
+ * @module @qilin-agent/mcp-client
  */
 
-import type { Context } from '@qilin/kylin'
-import type { McpResourceProvider } from '@qilin/mcp-resources'
-import type {} from '@qilin/system-prompt'
+import type { Context } from '@qilin-agent/kylin'
+import type { McpResourceProvider } from '@qilin-agent/mcp-resources'
+import type {} from '@qilin-agent/system-prompt'
 
 /** Connection-owned values used by the resource and prompt consumers. */
 export interface ServerContext {

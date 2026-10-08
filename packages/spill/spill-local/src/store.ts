@@ -3,7 +3,7 @@
  * session-scoped directory selection, safe-name derivation, path-traversal
  * protection, and the exclusive owner-only write.
  *
- * @module @qilin/spill-local/store
+ * @module @qilin-agent/spill-local/store
  */
 
 import { createHash, randomBytes } from 'node:crypto'

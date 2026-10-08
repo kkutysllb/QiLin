@@ -2,8 +2,8 @@
 
 import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup, fireEvent, render } from '@testing-library/react'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import { en as commonEn } from '@qilin/client-locale/src/locales/en.ts'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import { en as commonEn } from '@qilin-agent/client-locale/src/locales/en.ts'
 import { TurnUsagePanel } from '../src/client/chat/TurnUsagePanel.tsx'
 import type { TurnTokenUsage } from '../src/client/contract/chat-nodes.ts'
 import { en } from '../src/client/locale.ts'

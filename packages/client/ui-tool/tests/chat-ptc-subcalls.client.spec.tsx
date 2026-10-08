@@ -2,23 +2,23 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent } from '@testing-library/react'
-import { createSnapshotStore } from '@qilin/client-store'
+import { createSnapshotStore } from '@qilin-agent/client-store'
 import type {
   ChatSnapshot, StartedToolCall, ToolCallBlock, ToolResultNode,
-} from '@qilin/client-ui-chat/client'
-import type { SessionId } from '@qilin/session/types'
-import { SlotTestRuntime, stubConfigForm } from '@qilin/client-test-runtime'
-import { EMPTY_CONVERSATION_SNAPSHOT } from '@qilin/client-ui-conversation/client'
-import { LocaleRuntime } from '@qilin/client-locale/client'
-import type { PropsRenderSlots } from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-chat/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import { SlotTestRuntime, stubConfigForm } from '@qilin-agent/client-test-runtime'
+import { EMPTY_CONVERSATION_SNAPSHOT } from '@qilin-agent/client-ui-conversation/client'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
+import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
 import {
   ConversationEventRegistry, ConversationViewRegistry, type ConvViewOwnerProps,
-} from '@qilin/client-ui-conversation/client'
-import { en as conversationEn, NS as CONVERSATION_NS, zh as conversationZh } from '@qilin/client-ui-conversation/src/client/locales.ts'
-import { apply as applyChat, inject as injectChat } from '@qilin/client-ui-chat/client'
+} from '@qilin-agent/client-ui-conversation/client'
+import { en as conversationEn, NS as CONVERSATION_NS, zh as conversationZh } from '@qilin-agent/client-ui-conversation/src/client/locales.ts'
+import { apply as applyChat, inject as injectChat } from '@qilin-agent/client-ui-chat/client'
 import { apply as applyTool, inject as injectTool } from '../src/client/apply.ts'
 import { toolChatSnapshot } from './tool-fixtures.client.ts'
-import { PartialArguments } from '@qilin/util-values'
+import { PartialArguments } from '@qilin-agent/util-values'
 
 const SID = 's1' as SessionId
 

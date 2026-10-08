@@ -1,19 +1,19 @@
 // @vitest-environment jsdom
 /** Session Inspector's Sidebar page follows slot and plugin lifetimes. */
 
-import { Context } from '@qilin/kylin'
-import { LocaleRuntime } from '@qilin/client-locale/client'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import { SidebarRightTabRegistry } from '@qilin/client-ui-sidebar-right/src/client/tab-registry.ts'
-import type { PropsRenderSlots } from '@qilin/client-ui-slots'
+import { Context } from '@qilin-agent/kylin'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import { SidebarRightTabRegistry } from '@qilin-agent/client-ui-sidebar-right/src/client/tab-registry.ts'
+import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import { MutableSessionEventSource } from '@qilin/api-session-controller/client'
-import { createSnapshotStore } from '@qilin/client-store'
-import { ChatSnapshotBuilder } from '@qilin/client-ui-chat/src/client/conversation-nodes/chat-snapshot-builder.ts'
-import type { ChatSnapshot } from '@qilin/client-ui-chat/client'
-import { ConversationGroupStore } from '@qilin/client-ui-conversation/src/client/conversation/group-store.ts'
-import type { ConversationSnapshot, GroupKey, NodeKey } from '@qilin/client-ui-conversation/client'
-import { SessionSeq, type SessionId } from '@qilin/session/types'
+import { MutableSessionEventSource } from '@qilin-agent/api-session-controller/client'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { ChatSnapshotBuilder } from '@qilin-agent/client-ui-chat/src/client/conversation-nodes/chat-snapshot-builder.ts'
+import type { ChatSnapshot } from '@qilin-agent/client-ui-chat/client'
+import { ConversationGroupStore } from '@qilin-agent/client-ui-conversation/src/client/conversation/group-store.ts'
+import type { ConversationSnapshot, GroupKey, NodeKey } from '@qilin-agent/client-ui-conversation/client'
+import { SessionSeq, type SessionId } from '@qilin-agent/session/types'
 import type { SessionInspectorInjected } from '../src/client/views/View.tsx'
 import { chatNodeWithLocation } from './chat-node-fixture.client.ts'
 import { apply, inject } from '../src/client/index.ts'
@@ -44,7 +44,7 @@ async function fixture(services?: { sessions: object; uiConversation: object; ui
   return { ctx, tabs, declare }
 }
 
-const ID = '@qilin/experimental-session-inspector'
+const ID = '@qilin-agent/experimental-session-inspector'
 const KIND = 'session-inspector-log'
 
 function inspectorInjector(ctx: Context) {

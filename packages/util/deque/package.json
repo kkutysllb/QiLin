@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/deque",
+  "name": "@qilin-agent/deque",
   "description": "Zero-dependency circular deque with amortized constant-time end operations and bounded vacant storage",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,9 +30,9 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   }
 }

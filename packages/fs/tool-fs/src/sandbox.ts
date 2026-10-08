@@ -2,20 +2,20 @@
  * The sandbox-escalation API shared by the `write` and `edit` tools: the
  * per-call policy resolution, the advertised escalation fields, and the denial-marker
  * mapping — all delegating the vocabulary and the fail-closed approval
- * sequence to `@qilin/sandbox` (the same pieces `@qilin/tool-bash`
+ * sequence to `@qilin-agent/sandbox` (the same pieces `@qilin-agent/tool-bash`
  * uses), so bash and fs escalate identically. Built ONCE per plugin from
  * `ctx.fs.sandboxMode` (the capability fact — is a confining backend mounted?)
  * and shared by both mutating tools.
  *
- * @module @qilin/tool-fs/sandbox
+ * @module @qilin-agent/tool-fs/sandbox
  */
 
-import type { Context } from '@qilin/kylin'
-import type { ToolExecution } from '@qilin/tools'
-import type { SandboxExecutionPolicy, SandboxMode } from '@qilin/sandbox'
-import { ESCALATION_TARGETS, approveEscalation, escalationHintMarker, sandboxDenialMarker, validateEscalationArgs } from '@qilin/sandbox'
-import type { SandboxPolicyService } from '@qilin/sandbox-policy'
-import { FsError } from '@qilin/fs'
+import type { Context } from '@qilin-agent/kylin'
+import type { ToolExecution } from '@qilin-agent/tools'
+import type { SandboxExecutionPolicy, SandboxMode } from '@qilin-agent/sandbox'
+import { ESCALATION_TARGETS, approveEscalation, escalationHintMarker, sandboxDenialMarker, validateEscalationArgs } from '@qilin-agent/sandbox'
+import type { SandboxPolicyService } from '@qilin-agent/sandbox-policy'
+import { FsError } from '@qilin-agent/fs'
 
 /** The two escalation arguments a mutating tool may carry (advertised only under a confining backend). */
 export interface FsEscalationArgs {

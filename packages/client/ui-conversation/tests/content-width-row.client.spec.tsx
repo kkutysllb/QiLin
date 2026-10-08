@@ -3,8 +3,8 @@
  * and the revert action. */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { createSnapshotStore } from '@qilin/client-store'
-import { bindSnapshotSelector } from '@qilin/client-test-runtime'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { bindSnapshotSelector } from '@qilin-agent/client-test-runtime'
 import { ContentWidthRow } from '../src/client/settings/ContentWidthRow.tsx'
 import type { ContentWidthRowProps } from '../src/client/settings/ContentWidthRow.tsx'
 import {

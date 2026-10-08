@@ -1,9 +1,9 @@
 /** Identity-stable process permission catalog shared by both selection surfaces. */
 
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { ConnectionHandle } from '@qilin/client-connection/client'
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
-import type { PermissionCatalog } from '@qilin/permission-presets/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { ConnectionHandle } from '@qilin-agent/client-connection/client'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
+import type { PermissionCatalog } from '@qilin-agent/permission-presets/client'
 
 /** Observable complete catalog for the current Host generation. */
 export interface PermissionCatalogState {

@@ -1,9 +1,9 @@
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { createAssistantMessage } from '@qilin/llm'
-import { SESSION_FORMAT_VERSION, SessionSeq, type SessionEvent } from '@qilin/session'
-import { parseSessionLog, prepareSessionSnapshotFixtureForComparison } from '@qilin/llm-replay'
-import { scrubSessionSnapshot } from '@qilin/session-snapshot'
+import { createAssistantMessage } from '@qilin-agent/llm'
+import { SESSION_FORMAT_VERSION, SessionSeq, type SessionEvent } from '@qilin-agent/session'
+import { parseSessionLog, prepareSessionSnapshotFixtureForComparison } from '@qilin-agent/llm-replay'
+import { scrubSessionSnapshot } from '@qilin-agent/session-snapshot'
 import {
   canonicalSessionFixture,
   inspectSessionFixtureLayouts,

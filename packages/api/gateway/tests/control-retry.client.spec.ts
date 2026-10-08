@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import { RemoteError } from '@qilin/typert-protocol'
-import type { ConnectionHandle } from '@qilin/api-remotes/client'
+import { RemoteError } from '@qilin-agent/typert-protocol'
+import type { ConnectionHandle } from '@qilin-agent/api-remotes/client'
 import {
   RemoteStreamCarrierError,
   RemoteStream,

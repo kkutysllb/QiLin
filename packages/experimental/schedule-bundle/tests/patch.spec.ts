@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import * as yaml from 'js-yaml'
-import { entryListSchema } from '@qilin/kylin-plugin-include'
+import { entryListSchema } from '@qilin-agent/kylin-plugin-include'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
 
@@ -23,7 +23,7 @@ describe('experimental Schedule bundle', () => {
   const manifest = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')) as Manifest
 
   it('publishes as an experimental bundle with plugin-manager display metadata', () => {
-    expect(manifest.name).toBe('@qilin/experimental-schedule-bundle')
+    expect(manifest.name).toBe('@qilin-agent/experimental-schedule-bundle')
     expect(manifest.private).toBeUndefined()
     expect(manifest.publishConfig?.access).toBe('public')
     expect(manifest.icon).toBe('./icon.svg')
@@ -32,16 +32,16 @@ describe('experimental Schedule bundle', () => {
     expect(manifest.exports?.['./cordis.patch.yml']).toBe('./cordis.patch.yml')
     // Each inserted row names a package the bundle depends on, so the rows resolve from the bundle.
     expect(Object.keys(manifest.dependencies ?? {}).sort()).toEqual([
-      '@qilin/client-ui-schedule', '@qilin/schedule', '@qilin/time-context',
+      '@qilin-agent/client-ui-schedule', '@qilin-agent/schedule', '@qilin-agent/time-context',
     ])
   })
 
   it('inserts the three Schedule rows switched on', () => {
     const parsed = yaml.load(readFileSync(resolve(root, './cordis.patch.yml'), 'utf8'), { schema: entryListSchema })
     expect(parsed).toEqual([{ insert: [
-      { id: 'time-context', name: '@qilin/time-context' },
-      { id: 'schedule', name: '@qilin/schedule' },
-      { id: 'ui-schedule', name: '@qilin/client-ui-schedule' },
+      { id: 'time-context', name: '@qilin-agent/time-context' },
+      { id: 'schedule', name: '@qilin-agent/schedule' },
+      { id: 'ui-schedule', name: '@qilin-agent/client-ui-schedule' },
     ] }])
   })
 })

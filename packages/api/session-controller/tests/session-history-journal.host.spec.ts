@@ -1,14 +1,14 @@
 /** Raw Session journal transport and message-aligned pagination coverage. */
 
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import AgentRegistry, { type Agent, type AssistantStreamFrame } from '@qilin/agent'
-import SessionStore from '@qilin/session'
-import { LlmAttemptId, ToolCallId, createMessage, createToolResultMessage, createUserMessage } from '@qilin/llm'
-import type { MessageSource } from '@qilin/llm'
-import type { Session, SessionEvent, SessionId } from '@qilin/session'
-import { SessionHistoryController } from '@qilin/api-session-controller/src/history.ts'
-import type { SessionFollowFrame, SessionPage, SessionWireEvent } from '@qilin/api-session-controller/types'
+import { Context } from '@qilin-agent/kylin'
+import AgentRegistry, { type Agent, type AssistantStreamFrame } from '@qilin-agent/agent'
+import SessionStore from '@qilin-agent/session'
+import { LlmAttemptId, ToolCallId, createMessage, createToolResultMessage, createUserMessage } from '@qilin-agent/llm'
+import type { MessageSource } from '@qilin-agent/llm'
+import type { Session, SessionEvent, SessionId } from '@qilin-agent/session'
+import { SessionHistoryController } from '@qilin-agent/api-session-controller/src/history.ts'
+import type { SessionFollowFrame, SessionPage, SessionWireEvent } from '@qilin-agent/api-session-controller/types'
 import { createSessionTestRemote, installSessionReadTestServices } from './test-remote.ts'
 
 type CheckpointSource = Extract<MessageSource, { readonly kind: 'compact-checkpoint' }>

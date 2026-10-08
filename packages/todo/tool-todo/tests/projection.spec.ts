@@ -8,18 +8,18 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import AgentRegistry from '@qilin/agent'
-import type { Agent } from '@qilin/agent'
-import { createUserMessage } from '@qilin/llm'
-import SessionStore from '@qilin/session'
-import type { Session } from '@qilin/session'
-import type { TodoItem } from '@qilin/tool-todo'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import UserQuestionService from '@qilin/user-questions'
-import * as ToolTodo from '@qilin/tool-todo'
+import { Context } from '@qilin-agent/kylin'
+import AgentRegistry from '@qilin-agent/agent'
+import type { Agent } from '@qilin-agent/agent'
+import { createUserMessage } from '@qilin-agent/llm'
+import SessionStore from '@qilin-agent/session'
+import type { Session } from '@qilin-agent/session'
+import type { TodoItem } from '@qilin-agent/tool-todo'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import UserQuestionService from '@qilin-agent/user-questions'
+import * as ToolTodo from '@qilin-agent/tool-todo'
 
 interface Bench {
   ctx: Context

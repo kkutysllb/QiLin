@@ -3,16 +3,16 @@
  * deterministic ordering and labels, quoted-path suppression, pick projections, codec
  * round-trip, and registration lifecycle.
  */
-import { Context, Service } from '@qilin/kylin'
+import { Context, Service } from '@qilin-agent/kylin'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { LocaleRuntime } from '@qilin/client-locale/client'
-import type { SessionId } from '@qilin/session/types'
-import { RemoteError } from '@qilin/client-test-runtime'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
 import type {
   CandidateRequest, ClientSessionContext, InputTriggerCandidate, InputTriggerSource,
-} from '@qilin/client-ui-input-trigger/client'
-import type { FileReferenceCandidate } from '@qilin/file-reference/types'
-import type { SessionReferenceMentionCandidate } from '@qilin/session-reference/types'
+} from '@qilin-agent/client-ui-input-trigger/client'
+import type { FileReferenceCandidate } from '@qilin-agent/file-reference/types'
+import type { SessionReferenceMentionCandidate } from '@qilin-agent/session-reference/types'
 import { apply, inject } from '../src/client/index.ts'
 import { apply as nodeApply } from '../src/index.ts'
 

@@ -1,7 +1,7 @@
 /**
  * Browser-safe `@file` token grammar shared by terminal and web clients.
  *
- * @module @qilin/file-reference/grammar
+ * @module @qilin-agent/file-reference/grammar
  */
 
 import type { FileReferenceCandidate } from './types.ts'

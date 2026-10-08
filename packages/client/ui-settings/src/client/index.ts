@@ -11,15 +11,15 @@
  * ui-sidebar would close a reference cycle through ui-layout and ui-theme.
  * Export discipline: packages/client/AGENTS.md.
  */
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 // Type-only: the ctx.remote merge, the fixed Host facts, and the carrier's
 // `connection/reset` lifecycle event, all through the assembly package.
-import type {} from '@qilin/api-remotes/client'
+import type {} from '@qilin-agent/api-remotes/client'
 // Type-only pair supplying `$on` and its key face without dragging a build
 // artifact into the Host graph (rationale beside the same pair in
 // config-form.ts).
-import type {} from '@qilin/api-remotes/types'
-import type {} from '@qilin/settings/types'
+import type {} from '@qilin-agent/api-remotes/types'
+import type {} from '@qilin-agent/settings/types'
 import { SettingsSchemaService } from './schema.ts'
 import { ConfigForms } from './config-form.ts'
 import { SettingsDescribeMirror } from './settings-mirror.ts'

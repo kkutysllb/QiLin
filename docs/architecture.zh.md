@@ -30,7 +30,7 @@ YAML 控制 HMR：base 启用仅监视配置的 `qilin-hmr`；Headless、SDK 和
 
 base 提供用于 Web 和 Agent 的[插件管理器](../packages/boot/plugin-manager/README.zh.md)。
 
-web 与 qilin profile 叠加 @qilin/web-app；右侧栏使用原生 ui-sidebar-right 面及其标签类型行（ui-sidebar-files、ui-sidebar-documentpreview、ui-sidebar-terminal）。
+web 与 qilin profile 叠加 @qilin-agent/web-app；右侧栏使用原生 ui-sidebar-right 面及其标签类型行（ui-sidebar-files、ui-sidebar-documentpreview、ui-sidebar-terminal）。
 
 要查看你的机器启动的配置树：
 

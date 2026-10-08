@@ -8,7 +8,7 @@
 
 - insert:
     - id: llm-replay
-      name: '@qilin/llm-replay'
+      name: '@qilin-agent/llm-replay'
       config:
         providers:
           - id: deepseek-official
@@ -25,7 +25,7 @@
       name: './web-search-error-fixture.mjs'
 
 - id: web-search-deepseek
-  name: '@qilin/web-search-deepseek'
+  name: '@qilin-agent/web-search-deepseek'
   config:
     apiKey: snapshot-key
     # The fixture maps this recorded authority to its OS-assigned listener.

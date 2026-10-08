@@ -1,9 +1,9 @@
 /** Native directory flow using the local desktop bridge or the Host's OS chooser. */
-import type { Context as ClientContext } from '@qilin/kylin'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
 // Type-only: pulls the SlotMap merge declaring the directory-flow holes.
-import type {} from '@qilin/client-ui-workspace/client'
+import type {} from '@qilin-agent/client-ui-workspace/client'
 // Type-only: pulls the SlotRegistry service merge (ctx.slots).
-import type {} from '@qilin/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
 import type { NativeFlowInjected } from './flow.ts'
 import { NativeDirectoryFlow } from './flow.ts'
 

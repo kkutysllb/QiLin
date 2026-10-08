@@ -4,10 +4,10 @@
  * Remote request and result types. Types only; the runtime category tuple is
  * exported by the package entry, and a browser plugin imports types alone
  * because its bundle may not carry Host values.
- * @module @qilin/command-feedback/types
+ * @module @qilin-agent/command-feedback/types
  */
 
-import type { SessionId } from '@qilin/session/types'
+import type { SessionId } from '@qilin-agent/session/types'
 
 /** One of the fixed feedback categories; the ids are durable log vocabulary. */
 export type FeedbackCategory =
@@ -31,7 +31,7 @@ export interface FeedbackRecord {
   readonly category?: FeedbackCategory
 }
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /**
      * One recorded human remark about this session. Log-only and independent

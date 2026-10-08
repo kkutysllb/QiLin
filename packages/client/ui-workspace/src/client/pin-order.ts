@@ -3,9 +3,9 @@
  * the same Host snapshots the browser orders by, so the UiWorkspace service
  * completes the write without the browser in the loop.
  */
-import type { SessionListState } from '@qilin/api-session-controller/client'
-import type { WorkspaceView } from '@qilin/api-workspace-controller/client'
-import type { SessionId } from '@qilin/session/types'
+import type { SessionListState } from '@qilin-agent/api-session-controller/client'
+import type { WorkspaceView } from '@qilin-agent/api-workspace-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import { FLAT_SESSION_ORDER_KEY } from './stores.ts'
 import { owningGroupKey, sessionMemberIds, UNGROUPED_KEY } from './tree.ts'
 

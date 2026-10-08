@@ -1,6 +1,6 @@
 /** Serialized preference transactions; storage owners publish only accepted writes or read diagnostics. */
-import { randomUUID } from '@qilin/util-crypto'
-import type { Branded } from '@qilin/brand'
+import { randomUUID } from '@qilin-agent/util-crypto'
+import type { Branded } from '@qilin-agent/brand'
 import { editShortcutDocument, effectiveShortcuts, parseShortcutDocument } from './configuration.ts'
 import type { BindingIssue, ShortcutDefinition, ShortcutDocument, ShortcutEdit } from './configuration.ts'
 import type { ShortcutCommandId, ShortcutPlatform, ShortcutRuntime } from './binding.ts'

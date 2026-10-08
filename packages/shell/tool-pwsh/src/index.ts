@@ -1,7 +1,7 @@
 /**
  * Model-facing PowerShell Consumer of the `ctx.shell` capability seam. Intended for
  * Windows compositions where a PowerShell executor (e.g.
- * `@qilin/pwsh-local`) backs `ctx.shell`; the tool contract is
+ * `@qilin-agent/pwsh-local`) backs `ctx.shell`; the tool contract is
  * PowerShell-dialect: native `C:\...` paths and `$env:NAME` variables.
  *
  * Behavior mirrors `qilin-tool-bash` call-for-call: foreground and
@@ -14,31 +14,31 @@
  * `ctx.approval`), and the bash marker/truncation rendering story. UI
  * presentation mirrors the bash tool's too: a completed foreground call is
  * a terminal card with the parsed exit-status pill, using the shared
- * exit-status parse from `@qilin/shell`.
+ * exit-status parse from `@qilin-agent/shell`.
  *
- * @module @qilin/tool-pwsh
+ * @module @qilin-agent/tool-pwsh
  */
 
 import { isAbsolute, resolve as resolvePath } from 'node:path'
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { defineTool, TOOL_ABORTED } from '@qilin/tools'
-import type { GenericCallView, TerminalCallView, ToolExecution, ToolResult, ToolResultView } from '@qilin/tools'
-import { HarnessError } from '@qilin/llm'
-import type { Agent } from '@qilin/agent'
-import type {} from '@qilin/jobs'
-import type {} from '@qilin/shell-env'
-import type {} from '@qilin/user-approval'
-import type { SandboxExecutionPolicy, SandboxMode } from '@qilin/sandbox'
-import { ESCALATION_TARGETS, approveEscalation, validateEscalationArgs } from '@qilin/sandbox'
-import type { SandboxPolicyService } from '@qilin/sandbox-policy'
-import type { ShellProcess, ShellRunResult } from '@qilin/shell'
-import { parseExitStatus } from '@qilin/shell'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { defineTool, TOOL_ABORTED } from '@qilin-agent/tools'
+import type { GenericCallView, TerminalCallView, ToolExecution, ToolResult, ToolResultView } from '@qilin-agent/tools'
+import { HarnessError } from '@qilin-agent/llm'
+import type { Agent } from '@qilin-agent/agent'
+import type {} from '@qilin-agent/jobs'
+import type {} from '@qilin-agent/shell-env'
+import type {} from '@qilin-agent/user-approval'
+import type { SandboxExecutionPolicy, SandboxMode } from '@qilin-agent/sandbox'
+import { ESCALATION_TARGETS, approveEscalation, validateEscalationArgs } from '@qilin-agent/sandbox'
+import type { SandboxPolicyService } from '@qilin-agent/sandbox-policy'
+import type { ShellProcess, ShellRunResult } from '@qilin-agent/shell'
+import { parseExitStatus } from '@qilin-agent/shell'
 import { processJob, processOutcome, processSources } from './background.ts'
 import { renderPwshResult } from './render.ts'
 import type { RenderablePwshResult } from './render.ts'
 
-declare module '@qilin/jobs' {
+declare module '@qilin-agent/jobs' {
   interface JobKindMap {
     pwsh: 'pwsh'
   }
@@ -371,7 +371,7 @@ export function apply(ctx: Context, config: Config = {}): void {
         }
         const jobs = ctx.get('jobs')
         if (jobs === undefined) {
-          throw new Error('background jobs unavailable: load @qilin/jobs and @qilin/tool-jobs')
+          throw new Error('background jobs unavailable: load @qilin-agent/jobs and @qilin-agent/tool-jobs')
         }
         // The caller owns cancellation until ctx.jobs commits detached ownership.
         if (exec.signal.aborted) {

@@ -1,6 +1,6 @@
 /** Lazy namespace access for native Remote mocks; production Remote declarations stay unchanged. */
 import type { MaybeMockedDeep } from '@vitest/spy'
-import type { TypertRemoteNamespaceMap } from '@qilin/typert-protocol'
+import type { TypertRemoteNamespaceMap } from '@qilin-agent/typert-protocol'
 
 /**
  * Native mocks for every generated Remote namespace, or an unrestricted local proxy without generated types.

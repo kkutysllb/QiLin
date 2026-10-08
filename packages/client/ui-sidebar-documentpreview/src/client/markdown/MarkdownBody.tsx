@@ -1,8 +1,8 @@
 /** One retained Markdown renderer over the document owner's accumulated text. */
 import { useCallback, useMemo } from 'react'
 import type { ReactNode } from 'react'
-import { MarkdownText, type MarkdownLabels, type MarkdownPathImages } from '@qilin/client-ui-primitives'
-import type { PropsLocale } from '@qilin/client-ui-slots'
+import { MarkdownText, type MarkdownLabels, type MarkdownPathImages } from '@qilin-agent/client-ui-primitives'
+import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import type { DocumentPreviewProps } from '../document/contract.ts'
 import { markdownImageUrl } from './path-images.ts'
 import { renderableMarkdownHtml, sanitizeMarkdownHtml } from './sanitize-html.ts'

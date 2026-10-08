@@ -5,19 +5,19 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import AgentRegistry from '@qilin/agent'
-import AgentLoop from '@qilin/agent-loop'
-import BrowserUseRegistry from '@qilin/browser-use'
-import LocalAttachmentStore from '@qilin/attachment-local'
-import LlmRuntime, { LlmAdapter, ToolCallId, createUserMessage } from '@qilin/llm'
-import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@qilin/llm'
-import SessionStore, { SessionId } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import AgentRegistry from '@qilin-agent/agent'
+import AgentLoop from '@qilin-agent/agent-loop'
+import BrowserUseRegistry from '@qilin-agent/browser-use'
+import LocalAttachmentStore from '@qilin-agent/attachment-local'
+import LlmRuntime, { LlmAdapter, ToolCallId, createUserMessage } from '@qilin-agent/llm'
+import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@qilin-agent/llm'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
 import * as Provider from '../src/index.ts'
 import { resetFixture, screenshotBase64 } from './fixtures/stagehand.ts'
 
@@ -75,22 +75,22 @@ it('loads browser tools from cordis.yml, logs browser results, and admits the sc
   resetFixture()
   root = await mkdtemp(join(tmpdir(), 'qilin-stagehand-composition-'))
   const modules = new Map<string, unknown>([
-    ['@qilin/llm', LlmRuntime],
-    ['@qilin/session', SessionStore],
-    ['@qilin/session-projection', SessionProjectionRegistry],
-    ['@qilin/system-prompt', SystemPrompt],
-    ['@qilin/tools', ToolRuntime],
-    ['@qilin/agent', AgentRegistry],
-    ['@qilin/agent-loop', AgentLoop],
-    ['@qilin/attachment-local', LocalAttachmentStore],
-    ['@qilin/browser-use', BrowserUseRegistry],
-    ['@qilin/experimental-browser-use-stagehand-native', Provider],
+    ['@qilin-agent/llm', LlmRuntime],
+    ['@qilin-agent/session', SessionStore],
+    ['@qilin-agent/session-projection', SessionProjectionRegistry],
+    ['@qilin-agent/system-prompt', SystemPrompt],
+    ['@qilin-agent/tools', ToolRuntime],
+    ['@qilin-agent/agent', AgentRegistry],
+    ['@qilin-agent/agent-loop', AgentLoop],
+    ['@qilin-agent/attachment-local', LocalAttachmentStore],
+    ['@qilin-agent/browser-use', BrowserUseRegistry],
+    ['@qilin-agent/experimental-browser-use-stagehand-native', Provider],
   ])
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, [...modules.keys()].flatMap(name => [
     `- name: '${name}'`,
-    ...name === '@qilin/attachment-local' ? ['  config:', `    qilinHome: ${JSON.stringify(root)}`] : [],
-    ...name === '@qilin/experimental-browser-use-stagehand-native' ? ['  config:', '    mode: launch', '    model:', '      modelName: openai/gpt-5.4-mini', '      apiKey: fixture-model-key'] : [],
+    ...name === '@qilin-agent/attachment-local' ? ['  config:', `    qilinHome: ${JSON.stringify(root)}`] : [],
+    ...name === '@qilin-agent/experimental-browser-use-stagehand-native' ? ['  config:', '    mode: launch', '    model:', '      modelName: openai/gpt-5.4-mini', '      apiKey: fixture-model-key'] : [],
   ]).join('\n') + '\n')
   const context = ctx = new Context()
   context.baseUrl = pathToFileURL(root).href + '/'

@@ -8,8 +8,8 @@
  * makes a reload safe.
  */
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { SidebarRightTabRegistry } from '@qilin/client-ui-sidebar-right/src/client/tab-registry.ts'
+import { Context } from '@qilin-agent/kylin'
+import { SidebarRightTabRegistry } from '@qilin-agent/client-ui-sidebar-right/src/client/tab-registry.ts'
 import { FILES_ID, FILES_KIND } from '../src/client/definition.tsx'
 import { FILE_ID, FILE_KIND } from '../src/client/file-definition.ts'
 import { apply, inject } from '../src/client/index.ts'

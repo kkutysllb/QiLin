@@ -1,10 +1,10 @@
 /**
  * DeepSeek LLM API extension registry: plugins own independent top-level request
  * fields while the official adapter performs one preparation and acceptance transaction.
- * @module @qilin/deepseek-llm-api-extensions
+ * @module @qilin-agent/deepseek-llm-api-extensions
  */
 
-import { Context, Service } from '@qilin/kylin'
+import { Context, Service } from '@qilin-agent/kylin'
 import type {
   DeepSeekLlmApiExtensionMap,
   DeepSeekLlmApiExtensionProvider,
@@ -15,7 +15,7 @@ import type {
 
 export type * from './types.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     deepseekLlmApiExtensions: DeepSeekLlmApiExtensionRegistry
   }

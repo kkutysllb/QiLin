@@ -1,7 +1,7 @@
 import { resolve } from 'node:path'
-import { Context } from '@qilin/kylin'
-import SessionStore, { SESSION_FORMAT_VERSION, SessionId, type SessionHeader } from '@qilin/session'
-import TypertRegistry from '@qilin/typert-registry'
+import { Context } from '@qilin-agent/kylin'
+import SessionStore, { SESSION_FORMAT_VERSION, SessionId, type SessionHeader } from '@qilin-agent/session'
+import TypertRegistry from '@qilin-agent/typert-registry'
 import { describe, expect, it, vi } from 'vitest'
 import WorkspaceFiles from '../src/index.ts'
 
@@ -55,8 +55,8 @@ describe('Workspace Files Session scope lookup', () => {
       expect(lookup).toMatchObject({
         parameter: 'workspaceFileScope',
         wire: 'workspaceFileScopeId',
-        hostTypeSymbol: '@qilin/api-workspace-files#WorkspaceFileScope',
-        wireTypeSymbol: '@qilin/session/types#SessionId',
+        hostTypeSymbol: '@qilin-agent/api-workspace-files#WorkspaceFileScope',
+        wireTypeSymbol: '@qilin-agent/session/types#SessionId',
       })
       if (lookup === undefined) throw new Error('workspaceFileScope lookup did not register')
 

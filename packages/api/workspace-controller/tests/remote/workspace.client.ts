@@ -5,8 +5,8 @@
  * each physical generation of that stream to its own script. The stream's
  * boot-time opening baseline lives in `remoteDefaultResponses`.
  */
-import { ok, type RemoteTable, type StreamScript } from '@qilin/remote-mock'
-import type { RemoteFailure, RemoteResult } from '@qilin/typert-protocol'
+import { ok, type RemoteTable, type StreamScript } from '@qilin-agent/remote-mock'
+import type { RemoteFailure, RemoteResult } from '@qilin-agent/typert-protocol'
 import type {
   WorkspaceArchiveSessionRequest,
   WorkspaceArchiveValue,

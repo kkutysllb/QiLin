@@ -1,7 +1,7 @@
 /** Browser-safe formatting shared by Session and Host reminder catalogs. */
-import type { Translate } from '@qilin/client-ui-slots'
-import type { ScheduleRecord } from '@qilin/schedule/client'
-import { assertNever } from '@qilin/util-values'
+import type { Translate } from '@qilin-agent/client-ui-slots'
+import type { ScheduleRecord } from '@qilin-agent/schedule/client'
+import { assertNever } from '@qilin-agent/util-values'
 import type { CronDescriptionKey } from './task-cron.ts'
 import { cronPreview, parseCronExpression } from './task-cron.ts'
 

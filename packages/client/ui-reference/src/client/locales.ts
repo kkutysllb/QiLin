@@ -1,6 +1,6 @@
 /** `reference` namespace dictionaries for the unified `@` source. */
 
-import type {} from '@qilin/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-slots'
 
 /** Dictionary namespace owned by this plugin. */
 export const NS = 'reference'
@@ -29,7 +29,7 @@ export const zh = {
 /** The reference namespace key union. */
 export type ReferenceKey = keyof typeof zh
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** The unified `@` reference menu's copy. */
     reference: ReferenceKey

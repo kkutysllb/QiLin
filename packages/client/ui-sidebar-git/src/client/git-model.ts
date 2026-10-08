@@ -6,9 +6,9 @@
  * colored, which line a Remote failure reports, and what label one commit's
  * author time carries.
  */
-import type { RemoteFailure } from '@qilin/api-remotes/client'
-import type { GitStatusEntry } from '@qilin/api-workspace-git/types'
-import type { TranslateNS } from '@qilin/client-ui-slots'
+import type { RemoteFailure } from '@qilin-agent/api-remotes/client'
+import type { GitStatusEntry } from '@qilin-agent/api-workspace-git/types'
+import type { TranslateNS } from '@qilin-agent/client-ui-slots'
 import type {} from './locales.ts'
 
 /**

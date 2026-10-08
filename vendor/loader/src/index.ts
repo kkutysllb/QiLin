@@ -1,5 +1,5 @@
-import { Context, FiberState, Inject, Service, type Fiber } from '@qilin/kylin'
-import { defineProperty, isNullable, type Dict } from '@qilin/cosmokit'
+import { Context, FiberState, Inject, Service, type Fiber } from '@qilin-agent/kylin'
+import { defineProperty, isNullable, type Dict } from '@qilin-agent/cosmokit'
 import { ModuleLoader } from './internal.ts'
 import { Entry, type EntryOptions } from './config/entry.ts'
 import { EntryGroup } from './config/group.ts'
@@ -20,7 +20,7 @@ export * from './config/utils.ts'
 /** Re-export Node internal module loader compatibility types. */
 export * from './internal.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Events {
     'exit'(signal: NodeJS.Signals): Promise<void>
     'loader/config-update'(): void

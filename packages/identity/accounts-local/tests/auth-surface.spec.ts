@@ -12,16 +12,16 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context, FiberState } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
+import { Context, FiberState } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
 import * as Accounts from '../src/index.ts'
 import { SessionCookies } from '../src/session.ts'
-import * as Connection from '@qilin/client-connection'
-import type { ConnectionSessionAuthority } from '@qilin/client-connection'
-import LocalCredentials from '@qilin/credentials-local'
-import HttpServer from '@qilin/host-webserver'
-import * as FrontendStatic from '@qilin/host-frontend-static'
+import * as Connection from '@qilin-agent/client-connection'
+import type { ConnectionSessionAuthority } from '@qilin-agent/client-connection'
+import LocalCredentials from '@qilin-agent/credentials-local'
+import HttpServer from '@qilin-agent/host-webserver'
+import * as FrontendStatic from '@qilin-agent/host-frontend-static'
 
 const SESSION_SECRET_KEY = 'accounts-local/session-secret'
 const PASSWORD = 'password-1'
@@ -69,17 +69,17 @@ async function boot(options: {
   }
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, [
-    "- name: '@qilin/credentials-local'",
+    "- name: '@qilin-agent/credentials-local'",
     '  config:',
     `    path: '${credentialsPath}'`,
     '    watch: false',
-    "- name: '@qilin/host-webserver'",
+    "- name: '@qilin-agent/host-webserver'",
     '  config:',
     "    host: '127.0.0.1'",
     '    port: 0',
-    "- name: '@qilin/client-connection'",
+    "- name: '@qilin-agent/client-connection'",
     '- id: frontend',
-    "  name: '@qilin/host-frontend-static'",
+    "  name: '@qilin-agent/host-frontend-static'",
     '  config:',
     `    distIndex: '${join(dist, 'index.html')}'`,
     "    indexPaths: ['/workspace', '/index.html']",
@@ -87,7 +87,7 @@ async function boot(options: {
     "      - { path: '/', file: 'landing.html' }",
     "      - { path: '/login', file: 'auth.html' }",
     '- id: accounts',
-    "  name: '@qilin/accounts-local'",
+    "  name: '@qilin-agent/accounts-local'",
     '  config:',
     `    enabled: ${options.enabled === false ? 'false' : 'true'}`,
     `    registration: ${options.registration ?? 'open'}`,
@@ -102,11 +102,11 @@ async function boot(options: {
   await ctx.plugin(Loader)
   ctx.loader.builtins.include = Include
   const modules = new Map<string, unknown>([
-    ['@qilin/credentials-local', LocalCredentials],
-    ['@qilin/host-webserver', HttpServer],
-    ['@qilin/client-connection', Connection],
-    ['@qilin/host-frontend-static', FrontendStatic],
-    ['@qilin/accounts-local', Accounts],
+    ['@qilin-agent/credentials-local', LocalCredentials],
+    ['@qilin-agent/host-webserver', HttpServer],
+    ['@qilin-agent/client-connection', Connection],
+    ['@qilin-agent/host-frontend-static', FrontendStatic],
+    ['@qilin-agent/accounts-local', Accounts],
   ])
   ctx.loader.internal = {
     version: 'v2',

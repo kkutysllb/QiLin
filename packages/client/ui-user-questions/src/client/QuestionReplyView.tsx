@@ -1,10 +1,10 @@
 import { memo, useCallback, useState } from 'react'
-import type {} from '@qilin/client-ui-chat/client'
-import type { PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-chat/client'
+import type { PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import {
   IconCheckOutline14, IconChevronDownOutline14, IconChevronRightOutline14,
   IconCopyOutline16, Tooltip, writeClipboard,
-} from '@qilin/client-ui-primitives'
+} from '@qilin-agent/client-ui-primitives'
 import type { QuestionReplyData } from './question-reply.ts'
 import { replyAnswerValues, replyClipboardText } from './question-reply.ts'
 import css from './QuestionReplyView.module.css'

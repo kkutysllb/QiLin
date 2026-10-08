@@ -1,24 +1,24 @@
 # Python PTC composition: replace the Node provider through
 # the real Loader and render the generated Python SDK prompt.
 - id: agent-default-model
-  name: '@qilin/agent-default-model'
+  name: '@qilin-agent/agent-default-model'
   config:
     provider: deepseek-official
     model: deepseek-v4-pro
 
 - id: session-persistence-jsonl
-  name: '@qilin/session-persistence-jsonl'
+  name: '@qilin-agent/session-persistence-jsonl'
   config:
     root: !!js qilinHomePath('sessions')
     compression: !!js 'process.env.QILIN_SNAPSHOT === undefined ? ''zstd'' : ''none'''
 
 - id: agent-instructions
-  name: '@qilin/agent-instructions'
+  name: '@qilin-agent/agent-instructions'
   config:
     maxBytes: 65536
 
 - id: tools
-  name: '@qilin/tools'
+  name: '@qilin-agent/tools'
   config:
     mode: ptc
 
@@ -33,10 +33,10 @@
 
 - insert:
     - id: ptc-runtime-python
-      name: '@qilin/experimental-ptc-runtime-python'
+      name: '@qilin-agent/experimental-ptc-runtime-python'
 
 - id: system-prompt
-  name: '@qilin/system-prompt'
+  name: '@qilin-agent/system-prompt'
   config:
     personaPrefix: |
       You are a coding assistant powered by the {{model}} model. Your working directory is {{cwd}}.

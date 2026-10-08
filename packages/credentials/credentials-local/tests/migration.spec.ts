@@ -3,12 +3,12 @@
 // edit, byte for byte, while everything the recognizer cannot prove flat
 // keeps the loud rejection local.spec exercises.
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { mkdtemp, readFile, rm, stat } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { credentialRef } from '@qilin/credentials'
-import { withFileLock, writeFileAtomic } from '@qilin/atomic-write'
+import { credentialRef } from '@qilin-agent/credentials'
+import { withFileLock, writeFileAtomic } from '@qilin-agent/atomic-write'
 import { LocalCredentialProvider, renderFlatLayoutMigration } from '../src/index.ts'
 
 /** Credential documents are seeded owner-only, exactly as the provider creates them. */

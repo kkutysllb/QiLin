@@ -10,9 +10,9 @@ import { writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { once } from 'node:events'
 import { gunzipSync } from 'node:zlib'
-import { resolveConfigPath } from '@qilin/app-boot'
-import { recordFeedback } from '@qilin/command-feedback'
-import { runFixtureTurn } from '@qilin/loader-smoke'
+import { resolveConfigPath } from '@qilin-agent/app-boot'
+import { recordFeedback } from '@qilin-agent/command-feedback'
+import { runFixtureTurn } from '@qilin-agent/loader-smoke'
 import { bootProductionProfile } from '../../../../test-support/loader-smoke/tests/fixtures/production-profile.ts'
 
 const configPath = process.argv[2]

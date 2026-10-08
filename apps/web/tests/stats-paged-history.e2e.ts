@@ -9,8 +9,8 @@
 import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
-import { createSystemMessage } from '@qilin/llm'
-import { SESSION_FORMAT_VERSION } from '@qilin/session'
+import { createSystemMessage } from '@qilin-agent/llm'
+import { SESSION_FORMAT_VERSION } from '@qilin-agent/session'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
 import {
   assertFixtureInventory, captureStableAria, compareOrRefreshGolden,

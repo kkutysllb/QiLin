@@ -52,7 +52,7 @@ function findingOf(findings: readonly PluginDoctorFinding[], check: PluginDoctor
 
 describe('doctorPluginPackage', () => {
   it('reports a plugin that reads the pinned home and declares its engine peers', () => {
-    const anchor = installation(['@qilin/session'])
+    const anchor = installation(['@qilin-agent/session'])
     const dir = plugin({
       peerDependencies: { '@deepseek-ai/dsh-session': '*' },
       dsh: { client: { platform: 'web', inject: ['@deepseek-ai/dsh-client-locale'] } },
@@ -90,18 +90,18 @@ describe('doctorPluginPackage', () => {
     const dependency = findingOf(report.findings, 'engine-dependency')
     expect(dependency?.severity).toBe('fail')
     expect(dependency?.message).toContain('\'@deepseek-ai/dsh-session\'')
-    expect(dependency?.message).toContain('\'@qilin/session\'')
+    expect(dependency?.message).toContain('\'@qilin-agent/session\'')
   })
 
   it('reports a dependency the installation already provides', () => {
-    const anchor = installation(['@qilin/session'])
-    const dir = plugin({ dependencies: { '@qilin/session': '3.0.0' }, optionalDependencies: { lodash: '^4' } })
+    const anchor = installation(['@qilin-agent/session'])
+    const dir = plugin({ dependencies: { '@qilin-agent/session': '3.0.0' }, optionalDependencies: { lodash: '^4' } })
     const report = doctorPluginPackage('doctor', dir, anchor)
     expect(report.verdict).toBe('degraded')
     // Exactly one finding: a third-party library the installation does not carry
     // is not one.
     expect(report.findings.map(finding => finding.message)).toEqual([
-      expect.stringContaining('\'@qilin/session\''),
+      expect.stringContaining('\'@qilin-agent/session\''),
     ])
     const dependency = findingOf(report.findings, 'engine-dependency')
     expect(dependency?.severity).toBe('warn')
@@ -110,12 +110,12 @@ describe('doctorPluginPackage', () => {
 
   it('reports engine modules the plugin imports without declaring them', () => {
     const anchor = installation()
-    const dir = plugin({ name: 'fixture-plugin', peerDependencies: { '@qilin/schemastery': '*' } }, {
+    const dir = plugin({ name: 'fixture-plugin', peerDependencies: { '@qilin-agent/schemastery': '*' } }, {
       'lib/index.js': 'import { Context } from \'@deepseek-ai/dsh-session\'\n'
-        + 'import { Schema } from \'@qilin/schemastery\'\n'
+        + 'import { Schema } from \'@qilin-agent/schemastery\'\n'
         + 'const loader = require(\'cordis-plugin-loader\')\n'
-        + 'const side = import(\'@qilin/client-modules/client\')\n'
-        + 'const malformed = require(\'@qilin/\')\n'
+        + 'const side = import(\'@qilin-agent/client-modules/client\')\n'
+        + 'const malformed = require(\'@qilin-agent/\')\n'
         + 'const self = require(\'fixture-plugin\')\n'
         + 'const builtin = require(\'node:path\')\n',
       'lib/zz-extra.js': 'import { Context } from \'@deepseek-ai/dsh-session\'\n',
@@ -125,7 +125,7 @@ describe('doctorPluginPackage', () => {
     const imported = findingOf(report.findings, 'engine-import')
     expect(imported?.message).toContain('\'@deepseek-ai/dsh-session\' (lib/index.js:1)')
     expect(imported?.message).toContain('\'cordis-plugin-loader\' (lib/index.js:3)')
-    expect(imported?.message).toContain('\'@qilin/client-modules\' (lib/index.js:4)')
+    expect(imported?.message).toContain('\'@qilin-agent/client-modules\' (lib/index.js:4)')
     expect(imported?.message).toContain('peerDependencies')
     // Declared peers, the package's own name, and Node builtins are not findings.
     expect(imported?.message).not.toContain('schemastery')
@@ -147,7 +147,7 @@ describe('doctorPluginPackage', () => {
     expect(inject?.message).not.toContain('dsh-client-locale')
 
     // A QiLin-native declaration wins the channel and its names are already mapped.
-    const native = plugin({ qilin: { client: { platform: 'web', inject: ['@qilin/client-ui-slots'] } } })
+    const native = plugin({ qilin: { client: { platform: 'web', inject: ['@qilin-agent/client-ui-slots'] } } })
     expect(doctorPluginPackage('doctor', native, anchor).findings).toEqual([])
 
     const malformed = plugin({ qilin: { client: { platform: 'web', inject: 'nope' } } })

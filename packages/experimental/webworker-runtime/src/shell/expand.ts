@@ -3,7 +3,7 @@
  * program receives in its argv. Covers the segment kinds the grammar produces
  * — literal text, variables (with `:-` / `:+` forms), command substitution,
  * arithmetic, and globs matched against the VFS.
- * @module @qilin/experimental-webworker-runtime/src/shell/expand
+ * @module @qilin-agent/experimental-webworker-runtime/src/shell/expand
  */
 
 import picomatch from 'picomatch'

@@ -3,7 +3,7 @@ description: "Named experimental transcription providers and cancellation owners
 kind: "package-reference"
 ---
 
-# @qilin/experimental-speech-to-text
+# @qilin-agent/experimental-speech-to-text
 
 English | [中文](README.zh.md)
 

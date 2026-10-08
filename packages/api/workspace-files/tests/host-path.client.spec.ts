@@ -1,7 +1,7 @@
 /** Host-resolved file identities across pending stats, retries, and disposal. */
-import type { SessionId } from '@qilin/session/types'
-import { RemoteError } from '@qilin/typert-protocol'
-import { sessionFileAddress } from '@qilin/util-workspace-path'
+import type { SessionId } from '@qilin-agent/session/types'
+import { RemoteError } from '@qilin-agent/typert-protocol'
+import { sessionFileAddress } from '@qilin-agent/util-workspace-path'
 import { describe, expect, it, onTestFinished } from 'vitest'
 import { ChangeFeed } from '../src/client/change-feed.ts'
 import { createFileResourceProvider } from '../src/client/provider.ts'

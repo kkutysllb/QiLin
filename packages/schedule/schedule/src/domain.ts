@@ -1,11 +1,11 @@
 /**
  * Strict Schedule decoding, replay, time validation, and framing.
- * @module @qilin/schedule
+ * @module @qilin-agent/schedule
  */
 
 import { Temporal } from '@js-temporal/polyfill'
-import { SessionLogOffset } from '@qilin/session'
-import type { SessionEvent, SessionLogOffset as SessionLogOffsetType } from '@qilin/session'
+import { SessionLogOffset } from '@qilin-agent/session'
+import type { SessionEvent, SessionLogOffset as SessionLogOffsetType } from '@qilin-agent/session'
 import type {
   AfterScheduleRecord,
   AtInput,

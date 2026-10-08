@@ -1,6 +1,6 @@
 /** The Git plugin's configuration page: the binaries and limits every repository and pull-request call is bound by. */
 
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import { ValueField } from './fields.tsx'
 import { PluginConfigForm } from './PluginConfigForm.tsx'
 import type { GitCardFace } from './git-card-controller.ts'

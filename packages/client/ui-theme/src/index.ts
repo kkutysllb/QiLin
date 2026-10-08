@@ -1,8 +1,8 @@
 /** Host registration for the browser theme preference and pre-plugin palette. */
 
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/host-webserver'
-import type {} from '@qilin/settings'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/host-webserver'
+import type {} from '@qilin-agent/settings'
 import { bootThemeInjections } from './boot-theme.ts'
 import {
   DEFAULT_FONT_SIZE, DEFAULT_LEADING, DEFAULT_PREFERENCE,

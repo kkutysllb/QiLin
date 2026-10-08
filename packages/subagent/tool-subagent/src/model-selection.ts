@@ -1,9 +1,9 @@
 /** Child LLM route selection for the subagent tool. */
 
-import { ReasoningEffortId } from '@qilin/llm'
-import type { LlmRuntime } from '@qilin/llm'
-import type { AgentOptions } from '@qilin/agent'
-import z from '@qilin/schemastery'
+import { ReasoningEffortId } from '@qilin-agent/llm'
+import type { LlmRuntime } from '@qilin-agent/llm'
+import type { AgentOptions } from '@qilin-agent/agent'
+import z from '@qilin-agent/schemastery'
 
 /** One exact child LLM route authorized by a user setting. */
 export interface AllowedModelRoute {

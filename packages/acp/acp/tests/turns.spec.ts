@@ -1,8 +1,8 @@
-import { createUserMessage, type StreamChunk } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
+import { createUserMessage, type StreamChunk } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { PROTOCOL_VERSION } from '@agentclientprotocol/sdk'
-import { SessionId } from '@qilin/session'
+import { SessionId } from '@qilin-agent/session'
 import {
   errorResponse,
   makeBridgeHarness,
@@ -11,7 +11,7 @@ import {
   type BridgeHarness,
 } from './harness.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

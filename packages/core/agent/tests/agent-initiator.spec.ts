@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { runInNewContext } from 'node:vm'
-import AgentRegistry from '@qilin/agent'
-import type { Agent } from '@qilin/agent'
-import { SessionId } from '@qilin/session'
+import AgentRegistry from '@qilin-agent/agent'
+import type { Agent } from '@qilin-agent/agent'
+import { SessionId } from '@qilin-agent/session'
 
 function agent(id: string): Agent {
   return { id: SessionId(id) } as Agent

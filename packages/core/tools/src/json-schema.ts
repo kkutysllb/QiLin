@@ -11,8 +11,8 @@
  * @module qilin-tools/json-schema
  */
 
-import { HarnessError } from '@qilin/llm'
-import { assertNever, isJsonValue, type JsonValue } from '@qilin/util-values'
+import { HarnessError } from '@qilin-agent/llm'
+import { assertNever, isJsonValue, type JsonValue } from '@qilin-agent/util-values'
 
 /** Scalar JSON values supported by `enum` and `const`. */
 export type JsonSchemaScalar = string | number | boolean | null

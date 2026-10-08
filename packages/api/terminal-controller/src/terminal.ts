@@ -1,9 +1,9 @@
 /** One PTY, a bounded terminal emulator and its detachable browser followers. */
-import { RemoteError } from '@qilin/typert-protocol'
+import { RemoteError } from '@qilin-agent/typert-protocol'
 import type { Terminal as HeadlessTerminal } from '@xterm/headless'
 import type { SerializeAddon as Serializer } from '@xterm/addon-serialize'
-import type { SubprocessTerminalHandle } from '@qilin/subprocess'
-import { createLazyRequire } from '@qilin/lazy-require'
+import type { SubprocessTerminalHandle } from '@qilin-agent/subprocess'
+import { createLazyRequire } from '@qilin-agent/lazy-require'
 import { TerminalFollower } from './stream.ts'
 import { TerminalRetention, type TerminalRetentionPolicy } from './retention.ts'
 import type { TerminalAttachmentId, TerminalFrame, TerminalRetentionFrame, WebTerminalInfo } from './types.ts'

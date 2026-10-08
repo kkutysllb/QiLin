@@ -3,7 +3,7 @@ description: "MCP server settings service: list, add, edit, enable, disable, and
 kind: "package-reference"
 ---
 
-# @qilin/mcp-servers
+# @qilin-agent/mcp-servers
 
 English | [中文](README.zh.md)
 
@@ -43,7 +43,7 @@ A save replaces only the config keys this service owns: `transport`, `serverName
 
 ### Where the entries live
 
-Each managed server is one entry inside a top-level `- insert:` item, which is how a patch layer adds rows the bundles below it never declared. `@qilin/kylin-plugin-include` indexes inserted rows, so this layer can address its own rows and later layers can address them too. Enablement is the entry's own `disabled` key, read by the same patch application, so a disabled server keeps its definition and returns on the next enablement without a second edit.
+Each managed server is one entry inside a top-level `- insert:` item, which is how a patch layer adds rows the bundles below it never declared. `@qilin-agent/kylin-plugin-include` indexes inserted rows, so this layer can address its own rows and later layers can address them too. Enablement is the entry's own `disabled` key, read by the same patch application, so a disabled server keeps its definition and returns on the next enablement without a second edit.
 
 ### Why the home layer
 
@@ -55,13 +55,13 @@ Mutations are serialized inside the service: two settings actions cannot interle
 
 ### The service is Remote-only
 
-`McpServers` declares no same-process Kylin `Context` merge; the `mcpServers` namespace exists for the Remote client the settings page uses. It injects the subprocess provider because the availability probe must resolve a command exactly the way `@qilin/mcp-client` will.
+`McpServers` declares no same-process Kylin `Context` merge; the `mcpServers` namespace exists for the Remote client the settings page uses. It injects the subprocess provider because the availability probe must resolve a command exactly the way `@qilin-agent/mcp-client` will.
 
 ## Further Exploration
 
-- [`@qilin/mcp-client`](../mcp-client/README.md) — what each entry this service writes actually mounts, and the tool names its servers produce.
-- [`@qilin/app-boot`](../../boot/app-boot/README.md) — profile composition, the patch layers, and the user-layer reload the launcher installs.
-- [`@qilin/host-plugin-inventory`](../../host/plugin-inventory/README.md) — the read-only projection of what the Loader mounted from this file.
+- [`@qilin-agent/mcp-client`](../mcp-client/README.md) — what each entry this service writes actually mounts, and the tool names its servers produce.
+- [`@qilin-agent/app-boot`](../../boot/app-boot/README.md) — profile composition, the patch layers, and the user-layer reload the launcher installs.
+- [`@qilin-agent/host-plugin-inventory`](../../host/plugin-inventory/README.md) — the read-only projection of what the Loader mounted from this file.
 
 ## Model Experience
 
@@ -69,7 +69,7 @@ Mutations are serialized inside the service: two settings actions cannot interle
 
 #### What the model sees
 
-Nothing from this service: it writes a patch file and registers no prompt text, tool, or result of its own. The entries it writes are mounted by `@qilin/mcp-client`, whose servers register their advertised tools as `mcp__<serverName>__<rawName>`, so adding, enabling, or removing a server changes that tool list on the next reload.
+Nothing from this service: it writes a patch file and registers no prompt text, tool, or result of its own. The entries it writes are mounted by `@qilin-agent/mcp-client`, whose servers register their advertised tools as `mcp__<serverName>__<rawName>`, so adding, enabling, or removing a server changes that tool list on the next reload.
 
 #### Token effect
 
@@ -101,7 +101,7 @@ These limits describe what this service cannot do and when it needs attention. T
 This Dev Note is working context for maintainers: open design questions and directions that are not decided. It is explicitly non-authoritative — shipped behavior, limits, and accepted rationale live in the sections above, the package code, and the linked Agent Notes.
 
 - The entry id convention `mcp-<serverName>` is shared by this service and the settings page; a third consumer would make it a public contract.
-- `SERVER_NAME_PATTERN` is restated here from `@qilin/mcp-client` because that package does not export it; exporting it would remove the duplicate.
+- `SERVER_NAME_PATTERN` is restated here from `@qilin-agent/mcp-client` because that package does not export it; exporting it would remove the duplicate.
 - Whether the recommended set should be materialized on first boot — the shape KCoder uses — is open. Offering them keeps opt-ins out of shipped defaults, at the cost of one click per server.
 - A read-only view of servers other layers insert would need the composed Loader tree rather than the file, which is a different service boundary.
 

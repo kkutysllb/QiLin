@@ -1,25 +1,25 @@
-import { createUserMessage, createMessage } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
+import { createUserMessage, createMessage } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import SessionStore, { SessionLogOffset, SessionSeq, SESSION_FORMAT_VERSION, SessionId } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import type { Session, SessionEvent, SessionHeader, SessionId as SessionIdType } from '@qilin/session'
+import { Context } from '@qilin-agent/kylin'
+import SessionStore, { SessionLogOffset, SessionSeq, SESSION_FORMAT_VERSION, SessionId } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import type { Session, SessionEvent, SessionHeader, SessionId as SessionIdType } from '@qilin-agent/session'
 import SessionPersistence, {
   SessionPersistenceNotFoundError,
   SessionPersistenceRevision,
   SessionReadOnlyError,
-} from '@qilin/session-persistence'
+} from '@qilin-agent/session-persistence'
 import type {
   SessionAccess,
   SessionHandle,
   SessionHandleReadResult,
   SessionPersistenceSnapshot,
-} from '@qilin/session-persistence'
-import { type SessionQueryErrorCode } from '@qilin/session-query'
+} from '@qilin-agent/session-persistence'
+import { type SessionQueryErrorCode } from '@qilin-agent/session-query'
 import { TestSessionQueryEngine } from './test-service.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

@@ -7,15 +7,15 @@
  * backend stores the domain `per-record`: one document per session under
  * `<root>/session_projcache/sessions/`, so a checkpoint write rewrites one
  * session's document instead of the whole unit).
- * @module @qilin/session-projection-cache/src/spec
+ * @module @qilin-agent/session-projection-cache/src/spec
  */
 
 import { z } from 'zod'
-import { isJsonValue } from '@qilin/util-values'
-import type { JsonValue } from '@qilin/util-values'
-import { SessionLogOffset, SessionSeq } from '@qilin/session'
-import type { SessionId, SessionSeqCursor } from '@qilin/session'
-import { defineDomain, domainTable } from '@qilin/storage-domain'
+import { isJsonValue } from '@qilin-agent/util-values'
+import type { JsonValue } from '@qilin-agent/util-values'
+import { SessionLogOffset, SessionSeq } from '@qilin-agent/session'
+import type { SessionId, SessionSeqCursor } from '@qilin-agent/session'
+import { defineDomain, domainTable } from '@qilin-agent/storage-domain'
 
 /**
  * One persisted checkpoint row (the RFC's `(sessionId, key, ver, seq, val)`

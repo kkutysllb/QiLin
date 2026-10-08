@@ -3,7 +3,7 @@ description: "QiLin occupants for the Web client sidebar, conversation-hero, and
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-brand
+# @qilin-agent/client-ui-brand
 
 English | [中文](README.zh.md)
 
@@ -31,7 +31,7 @@ The `qilin` profile mounts this package through its bundle patch, so no configur
 | `conversation.hero.brand.mark` | the seal at the hero's requested size and placement class |
 | `settings.about.mark` | the seal in the shell-owned About page |
 
-The two character outlines and the body, ring, and glyph-cell geometry now live in [`@qilin/client-ui-primitives`](../ui-primitives/README.md) (`seal-glyphs.ts`, `seal-geometry.ts`), so the shell's unbranded fallbacks draw the same stamp; [`Seal.tsx`](src/client/Seal.tsx) occupies the brand slots with it, one gradient id per instance.
+The two character outlines and the body, ring, and glyph-cell geometry now live in [`@qilin-agent/client-ui-primitives`](../ui-primitives/README.md) (`seal-glyphs.ts`, `seal-geometry.ts`), so the shell's unbranded fallbacks draw the same stamp; [`Seal.tsx`](src/client/Seal.tsx) occupies the brand slots with it, one gradient id per instance.
 
 <a id="dev-note"></a>
 ## Dev Note

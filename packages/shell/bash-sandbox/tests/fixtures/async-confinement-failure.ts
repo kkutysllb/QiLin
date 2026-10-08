@@ -1,10 +1,10 @@
 /** Snapshot provider whose asynchronous refusal records every attempted underlying spawn. */
 import { writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import type { Context } from '@qilin/kylin'
-import { SandboxProvider, SandboxUnavailableError } from '@qilin/sandbox'
-import type { ConfinedArgv, SandboxPolicy } from '@qilin/sandbox'
-import LocalSubprocessRuntime from '@qilin/subprocess-local'
+import type { Context } from '@qilin-agent/kylin'
+import { SandboxProvider, SandboxUnavailableError } from '@qilin-agent/sandbox'
+import type { ConfinedArgv, SandboxPolicy } from '@qilin-agent/sandbox'
+import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
 
 export const name = 'snapshot-async-confinement-failure'
 

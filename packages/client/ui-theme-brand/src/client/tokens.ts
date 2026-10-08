@@ -16,13 +16,13 @@
  * light schemes darken (gold-700 -> #7d6126).
  */
 
-import type { ThemeTokenOverrides } from '@qilin/client-ui-theme/client'
+import type { ThemeTokenOverrides } from '@qilin-agent/client-ui-theme/client'
 
 /**
  * The layer source id. One layer per source, so this names the origin in
  * `ctx.theme` inspection and makes re-application replace rather than stack.
  */
-export const QILIN_THEME_SOURCE = '@qilin/client-ui-theme-brand'
+export const QILIN_THEME_SOURCE = '@qilin-agent/client-ui-theme-brand'
 
 /**
  * QiLin's brand tokens over the platform palettes. Every value states both

@@ -3,13 +3,13 @@
  * by `job.list` frames, and per-job accumulated output views fed by
  * `job.follow` frames. Pure data plus subscriptions — transport wiring stays
  * in the client service, UI stays in slot components.
- * @module @qilin/api-job-controller/client/model
+ * @module @qilin-agent/api-job-controller/client/model
  */
 
-import { notifySubscribers } from '@qilin/client-store'
-import type { JobId } from '@qilin/jobs/brand'
-import type { JobView } from '@qilin/jobs/view'
-import type { SessionId } from '@qilin/session/types'
+import { notifySubscribers } from '@qilin-agent/client-store'
+import type { JobId } from '@qilin-agent/jobs/brand'
+import type { JobView } from '@qilin-agent/jobs/view'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { JobFollowFrame } from '../types.ts'
 
 /** Bounded per-job render tail, in UTF-16 code units. */

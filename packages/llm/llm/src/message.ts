@@ -1,8 +1,8 @@
 /** Message value types, identity, and immutable construction helpers. */
 
-import { randomUUID } from '@qilin/util-crypto'
-import { brandString } from '@qilin/brand'
-import { deepFreeze } from '@qilin/util-values'
+import { randomUUID } from '@qilin-agent/util-crypto'
+import { brandString } from '@qilin-agent/brand'
+import { deepFreeze } from '@qilin-agent/util-values'
 import type { MessageId, ToolCallId } from './brand.ts'
 import type { ContentBlock } from './types.ts'
 

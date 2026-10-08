@@ -9,10 +9,10 @@
 创建 `greet-tool.ts`，将它放在 `tmp/kylin-tutorial` 中：
 
 ```ts
-import type { Context } from '@qilin/kylin'
-import { brandString } from '@qilin/brand'
-import { defineTool } from '@qilin/tools'
-import type { ToolCallId } from '@qilin/llm'
+import type { Context } from '@qilin-agent/kylin'
+import { brandString } from '@qilin-agent/brand'
+import { defineTool } from '@qilin-agent/tools'
+import type { ToolCallId } from '@qilin-agent/llm'
 
 export const name = 'greet-tool'
 export const inject = ['tools']
@@ -54,8 +54,8 @@ export function apply(ctx: Context) {
 创建 `tool-logger.ts`。这是一个独立插件，通过 harness 的 `tools/result` 事件观察应用中的每次工具调用：
 
 ```ts
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/tools'
 
 export const name = 'tool-logger'
 export const inject = ['tools']
@@ -70,18 +70,18 @@ export function apply(ctx: Context) {
 }
 ```
 
-`import type {} from '@qilin/tools'` 行会引入该包的声明合并，使 `'tools/result'` 及其 payload 具有类型。这与第 4 章导入 `stats.ts` 的做法相同，只是扩展到了包级别。
+`import type {} from '@qilin-agent/tools'` 行会引入该包的声明合并，使 `'tools/result'` 及其 payload 具有类型。这与第 4 章导入 `stats.ts` 的做法相同，只是扩展到了包级别。
 
 ## 组合并运行
 
 ```yaml
-- name: '@qilin/system-prompt'
-- name: '@qilin/tools'
+- name: '@qilin-agent/system-prompt'
+- name: '@qilin-agent/tools'
 - name: './tool-logger.ts'
 - name: './greet-tool.ts'
 ```
 
-`@qilin/tools` 会注入 `systemPrompt` 服务，因为工具需要向系统提示词贡献 schema，所以组合中也要列出该服务的提供方。缺少提供方时，工具插件会像[第 6 章](06-composition-and-hmr.zh.md)所述那样保持 PENDING。
+`@qilin-agent/tools` 会注入 `systemPrompt` 服务，因为工具需要向系统提示词贡献 schema，所以组合中也要列出该服务的提供方。缺少提供方时，工具插件会像[第 6 章](06-composition-and-hmr.zh.md)所述那样保持 PENDING。
 
 ```sh
 node --import tsx ../../vendor/cordis/bin.js

@@ -1,11 +1,11 @@
 /**
  * Service Definition for the workflow capability seam. Service Providers execute orchestration scripts;
  * observe-only lifecycle events never expose run control.
- * @module @qilin/workflow
+ * @module @qilin-agent/workflow
  */
 
-import { Context, Service } from '@qilin/kylin'
-import { HarnessError } from '@qilin/llm'
+import { Context, Service } from '@qilin-agent/kylin'
+import { HarnessError } from '@qilin-agent/llm'
 import type {
   WorkflowAgentEndInfo,
   WorkflowAgentInfo,
@@ -28,7 +28,7 @@ export type {
 } from './types.ts'
 export type { WorkflowRun, WorkflowStartRequest } from './runtime-types.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     workflowEngine: WorkflowEngine
   }

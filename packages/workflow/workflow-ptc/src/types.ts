@@ -1,12 +1,12 @@
 /**
  * Workflow guest inputs and the child callbacks consumed by its VM helpers.
  * PTC transfers initialization data, requests and results as lossless JSON.
- * @module @qilin/workflow-ptc/types
+ * @module @qilin-agent/workflow-ptc/types
  */
 
-import type { ContentBlock } from '@qilin/llm'
-import type { ObjectJsonSchema } from '@qilin/tools'
-import type { WorkflowMeta } from '@qilin/workflow'
+import type { ContentBlock } from '@qilin-agent/llm'
+import type { ObjectJsonSchema } from '@qilin-agent/tools'
+import type { WorkflowMeta } from '@qilin-agent/workflow'
 
 /**
  * Ordinary script limits enforced by the guest helpers.

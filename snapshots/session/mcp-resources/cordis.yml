@@ -1,6 +1,6 @@
 - insert:
     - id: mcp-resource-catalog
-      name: '@qilin/mcp-client'
+      name: '@qilin-agent/mcp-client'
       config:
         transport: stdio
         serverName: catalog

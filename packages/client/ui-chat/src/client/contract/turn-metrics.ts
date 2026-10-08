@@ -2,7 +2,7 @@
 
 import type {
   AssistantMessageNode,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 
 /** One assistant step's derivable latency facts; null marks an unrecorded part. */
 export interface StepReading {

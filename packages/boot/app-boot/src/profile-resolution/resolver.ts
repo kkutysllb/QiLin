@@ -5,13 +5,13 @@ import { createRequire, isBuiltin } from 'node:module'
 import { basename, dirname, join, resolve, sep } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { getEnvironmentData, setEnvironmentData } from 'node:worker_threads'
-import { dshCompatModuleId } from '@qilin/dsh-compat'
-import type { ModuleLoaderV1, ModuleLoaderV2, ResolveResult } from '@qilin/kylin-plugin-loader'
+import { dshCompatModuleId } from '@qilin-agent/dsh-compat'
+import type { ModuleLoaderV1, ModuleLoaderV2, ResolveResult } from '@qilin-agent/kylin-plugin-loader'
 import { imports as resolvePackageImports, type Package as ResolvePackageManifest } from 'resolve.exports'
 import { isProfileModuleFallbackLink } from './legacy-links.ts'
 import type { ProfileResolutionEntry, ProfileResolutionGeneration } from '../profile.ts'
 
-const WORKER_RESOLUTION_KEY = '@qilin/app-boot/profile-resolution'
+const WORKER_RESOLUTION_KEY = '@qilin-agent/app-boot/profile-resolution'
 const EMPTY_ATTRIBUTES: ImportAttributes = Object.freeze({})
 
 interface CommonJsParent {

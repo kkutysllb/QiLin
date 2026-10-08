@@ -3,7 +3,7 @@ description: "Frozen released-v0 Session header, event, and packed-row decoder w
 kind: "package-library"
 ---
 
-# @qilin/session-format-v0-to-v1
+# @qilin-agent/session-format-v0-to-v1
 
 English | [中文](README.zh.md)
 

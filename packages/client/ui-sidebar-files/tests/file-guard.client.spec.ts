@@ -4,7 +4,7 @@
  * known text and code extensions only — so every arm is asserted here.
  */
 import { describe, expect, it } from 'vitest'
-import { sessionFileAddress, TEXT_FILE_EXTENSIONS } from '@qilin/util-workspace-path'
+import { sessionFileAddress, TEXT_FILE_EXTENSIONS } from '@qilin-agent/util-workspace-path'
 import { canOpenFileAddress, fileTabTitle, sessionFileOf } from '../src/client/file-guard.ts'
 
 const ADDRESS = sessionFileAddress('s-1', 'src/app/a.ts')

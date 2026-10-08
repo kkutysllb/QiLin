@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { RemoteResult } from '@qilin/api-remotes/client'
-import { RemoteError } from '@qilin/client-test-runtime'
-import type { ScheduleDeleteResult, ScheduleId, ScheduleRecord } from '@qilin/schedule/client'
+import type { RemoteResult } from '@qilin-agent/api-remotes/client'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
+import type { ScheduleDeleteResult, ScheduleId, ScheduleRecord } from '@qilin-agent/schedule/client'
 import { createCatalogSource } from '../src/client/catalog-source.ts'
 
 const id = 'reminder' as ScheduleId

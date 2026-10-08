@@ -1,7 +1,7 @@
 /** SSE framing delegated to eventsource-parser; JSON errors remain provider failures. */
 
 import { EventSourceParserStream } from 'eventsource-parser/stream'
-import { LlmError } from '@qilin/llm'
+import { LlmError } from '@qilin-agent/llm'
 import { object } from './replay.ts'
 import { providerError } from './transport.ts'
 

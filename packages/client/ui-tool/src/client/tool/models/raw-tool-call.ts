@@ -1,5 +1,5 @@
 /** Shared narrowing for raw Tool call and result fields consumed by card models. */
-import type { ToolResultNode } from '@qilin/client-ui-chat/client'
+import type { ToolResultNode } from '@qilin-agent/client-ui-chat/client'
 import type { ToolCallBlock } from './tool-call-model.ts'
 
 /** A parsed, in-window Tool call whose arguments are a JSON object. */

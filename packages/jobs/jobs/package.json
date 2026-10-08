@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/jobs",
+  "name": "@qilin-agent/jobs",
   "description": "Background job registry (ctx.jobs) for the QiLin — shared ids, owner isolation, polling, cancellation, and completion listeners for long-running tool work",
   "version": "3.1.1",
   "publishConfig": {
@@ -39,22 +39,22 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/brand": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/workspace": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/workspace": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "peerDependenciesMeta": {
-    "@qilin/workspace": {
+    "@qilin-agent/workspace": {
       "optional": true
     }
   },
   "devDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/brand": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/workspace": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/workspace": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   }
 }

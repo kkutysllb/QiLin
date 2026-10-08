@@ -14,21 +14,21 @@
  * bundle change is visible at the next import. Node only — the
  * whole-client tier runs under vitest, and this is the one place it reads the
  * repository.
- * @module @qilin/client-test-runtime/src/assembly/bundle-roster
+ * @module @qilin-agent/client-test-runtime/src/assembly/bundle-roster
  */
 import { existsSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { EntryOptions } from '@qilin/kylin-plugin-loader'
-import { applyEntryPatches, entryListSchema, type PatchOptions } from '@qilin/kylin-plugin-include'
-import { bundlePatchOf, clientDeclarationOf, dshCompatModuleId } from '@qilin/dsh-compat'
-import { exactPackageSpecifier, parseQilinClient } from '@qilin/client-modules/client'
+import type { EntryOptions } from '@qilin-agent/kylin-plugin-loader'
+import { applyEntryPatches, entryListSchema, type PatchOptions } from '@qilin-agent/kylin-plugin-include'
+import { bundlePatchOf, clientDeclarationOf, dshCompatModuleId } from '@qilin-agent/dsh-compat'
+import { exactPackageSpecifier, parseQilinClient } from '@qilin-agent/client-modules/client'
 import * as yaml from 'js-yaml'
 import { ClientRoster, type ClientRosterRow } from './roster.ts'
 
 /** The `web` profile's bundle layers, in the order `qilin --profile web` applies them (app-boot `PROFILE_TEMPLATES.web`). */
-export const WEB_PROFILE_BUNDLES: readonly string[] = ['@qilin/base', '@qilin/web-app']
+export const WEB_PROFILE_BUNDLES: readonly string[] = ['@qilin-agent/base', '@qilin-agent/web-app']
 
 interface PackageManifest {
   name?: unknown

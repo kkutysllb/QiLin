@@ -5,20 +5,20 @@
  * `RemoteMock` bound to that client's Connection instance, mount, HMR-style reload,
  * unload, and fail-loud teardown.
  */
-import type {} from '@qilin/client-ui-renderer/client'
-import { RemoteMock, ok, openStream } from '@qilin/remote-mock'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import { RemoteMock, ok, openStream } from '@qilin-agent/remote-mock'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import type { AssemblyPlan, ClientPluginModule, TestClientOptions } from '../src/assembly/index.ts'
 import { ClientRoster, TestClient, remoteDefaultResponses, webApp } from '../src/assembly/index.ts'
 
 /** The Gateway client and what it injects: the Typert registry and the Connection. */
-const API_ROSTER = webApp.closure(['@qilin/api-gateway'])
-const MODULES = '@qilin/client-modules'
-const SIDEBAR = '@qilin/client-ui-sidebar'
-const PARALLEL_PROBE = '@qilin/client-test-parallel-probe'
+const API_ROSTER = webApp.closure(['@qilin-agent/api-gateway'])
+const MODULES = '@qilin-agent/client-modules'
+const SIDEBAR = '@qilin-agent/client-ui-sidebar'
+const PARALLEL_PROBE = '@qilin-agent/client-test-parallel-probe'
 /** Declared by ui-sidebar, whose SlotMap merge is outside this package's compilation face. */
 const SIDEBAR_SETTINGS = 'sidebar.settings' as never
-const BRAND = '@qilin/client-ui-approval'
+const BRAND = '@qilin-agent/client-ui-approval'
 const globals = globalThis as { EventSource?: unknown; ResizeObserver?: unknown }
 /** The whole roster's first boot pays the cold module transform of every plugin package. */
 const COLD_BOOT_TIMEOUT_MS = 60_000
@@ -79,7 +79,7 @@ describe('TestClient (jsdom)', () => {
     await expect(rename(b)).resolves.toEqual({ ok: true, value: { title: 'b', seq: 1 } })
     expect(mockA.log.calls('session/rename')).toHaveLength(1)
     expect(mockB.log.calls('session/rename')).toHaveLength(1)
-    await a.reload('@qilin/client-connection')
+    await a.reload('@qilin-agent/client-connection')
     await vi.waitFor(() => { expect(a.connection.state.getSnapshot()).toBe('connected') })
     await expect(rename(a)).resolves.toEqual({ ok: true, value: { title: 'a', seq: 1 } })
     expect(mockA.log.calls('session/rename')).toHaveLength(2)
@@ -159,7 +159,7 @@ describe('TestClient (jsdom)', () => {
   })
 
   it('creates no mount element when the roster cannot be loaded', async () => {
-    const roster = ClientRoster.of([{ name: '@qilin/client-test-runtime-missing', inject: [], immediately: true }])
+    const roster = ClientRoster.of([{ name: '@qilin-agent/client-test-runtime-missing', inject: [], immediately: true }])
     const before = document.body.childElementCount
     await expect(TestClient.start({ roster }, RemoteMock.create(), { mount: true })).rejects.toThrow()
     expect(document.body.childElementCount).toBe(before)
@@ -239,7 +239,7 @@ describe('TestClient (jsdom)', () => {
   it('reports the log when the connection never becomes ready', async () => {
     // No fixtures: workspace-controller's follow has no rule, so the proxy dispatches it as a unary call the mock
     // logs as unmatched, while $events never sends ready.
-    const roster = webApp.closure(['@qilin/api-workspace-controller'])
+    const roster = webApp.closure(['@qilin-agent/api-workspace-controller'])
     const mock = RemoteMock.create().stream('$events', openStream([]))
     await expect(TestClient.start({ roster }, mock, { connectTimeoutMs: 300 }))
       .rejects.toThrow(/connection state is \S+ after 300ms; unmatched: \[unary workspace\/follow\]; streams: \[.*\$events \(open\).*\]/)

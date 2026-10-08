@@ -5,7 +5,7 @@
  * cannot ride the `qilin-subprocess` service — this module is the seam's
  * documented exception for SDK-managed transports.
  *
- * @module @qilin/sdk-client/dispose
+ * @module @qilin-agent/sdk-client/dispose
  */
 
 import type { ChildProcess } from 'node:child_process'

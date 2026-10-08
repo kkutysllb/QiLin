@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-hmr",
+  "name": "@qilin-agent/client-hmr",
   "description": "Web client graph synchronization and rebuilt-bundle reload transport",
   "version": "3.1.1",
   "publishConfig": {
@@ -31,7 +31,7 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/client-modules"
+        "@qilin-agent/client-modules"
       ],
       "platform": "web",
       "immediately": true
@@ -39,16 +39,16 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/client-modules": "workspace:*",
-    "@qilin/host-webserver": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/client-modules": "workspace:*",
+    "@qilin-agent/host-webserver": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "files": [
     "lib/index.js",

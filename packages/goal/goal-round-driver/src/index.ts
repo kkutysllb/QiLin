@@ -1,16 +1,16 @@
 /**
  * Same-session goal-round driver over public agent, session, and goal services.
- * @module @qilin/goal-round-driver
+ * @module @qilin-agent/goal-round-driver
  */
 
 import { isDeepStrictEqual } from 'node:util'
-import { FiberState } from '@qilin/kylin'
-import type { Context } from '@qilin/kylin'
-import type { Agent, PreStepDecision } from '@qilin/agent'
-import type { GoalMessageSource, GoalRef, GoalView } from '@qilin/goal'
-import { createUserMessage } from '@qilin/llm'
-import type { ContentBlock, MessageId, MessageSource } from '@qilin/llm'
-import type { Session, SessionEvent, UserMessage } from '@qilin/session'
+import { FiberState } from '@qilin-agent/kylin'
+import type { Context } from '@qilin-agent/kylin'
+import type { Agent, PreStepDecision } from '@qilin-agent/agent'
+import type { GoalMessageSource, GoalRef, GoalView } from '@qilin-agent/goal'
+import { createUserMessage } from '@qilin-agent/llm'
+import type { ContentBlock, MessageId, MessageSource } from '@qilin-agent/llm'
+import type { Session, SessionEvent, UserMessage } from '@qilin-agent/session'
 import { renderGoalRoundPrompt } from './prompt.ts'
 
 export { renderGoalRoundPrompt } from './prompt.ts'

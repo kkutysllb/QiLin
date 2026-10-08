@@ -1,7 +1,7 @@
 import { createServer, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { installProxyFromEnvironment } from '@qilin/http-proxy'
+import { installProxyFromEnvironment } from '@qilin-agent/http-proxy'
 
 let seen: string[] = []
 let proxy: Server
@@ -35,10 +35,10 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import LlmRuntime from '@qilin/llm'
-import DeepSeekLlmApiExtensionRegistry from '@qilin/deepseek-llm-api-extensions'
-import * as LlmDeepSeek from '@qilin/llm-deepseek-api-key'
+import { Context } from '@qilin-agent/kylin'
+import LlmRuntime from '@qilin-agent/llm'
+import DeepSeekLlmApiExtensionRegistry from '@qilin-agent/deepseek-llm-api-extensions'
+import * as LlmDeepSeek from '@qilin-agent/llm-deepseek-api-key'
 
 let home: string
 beforeAll(() => {

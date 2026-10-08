@@ -3,7 +3,7 @@ description: "在 Web 右侧栏打开、恢复和控制交互式 shell 标签页
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-sidebar-terminal
+# @qilin-agent/client-ui-sidebar-terminal
 
 [English](README.md) | 中文
 

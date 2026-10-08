@@ -1,12 +1,12 @@
 /** Host-wide durable reminders and shared human/model management. */
 import { randomUUID } from 'node:crypto'
-import z from '@qilin/schemastery'
-import { Context, Service } from '@qilin/kylin'
-import { TypertRemoteService, Remote } from '@qilin/typert-protocol'
-import type { Domain } from '@qilin/storage-domain'
-import type {} from '@qilin/api-session-controller'
-import type { SessionId } from '@qilin/session'
-import type { SessionActivity } from '@qilin/workspace'
+import z from '@qilin-agent/schemastery'
+import { Context, Service } from '@qilin-agent/kylin'
+import { TypertRemoteService, Remote } from '@qilin-agent/typert-protocol'
+import type { Domain } from '@qilin-agent/storage-domain'
+import type {} from '@qilin-agent/api-session-controller'
+import type { SessionId } from '@qilin-agent/session'
+import type { SessionActivity } from '@qilin-agent/workspace'
 import { ScheduleRuntime } from './runtime.ts'
 import { scheduleDomain } from './storage.ts'
 import { deliveryHistoryPage } from './delivery-history.ts'
@@ -61,7 +61,7 @@ export {
 } from './domain.ts'
 
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Durable Host-wide reminder management. */
     schedule: ScheduleService

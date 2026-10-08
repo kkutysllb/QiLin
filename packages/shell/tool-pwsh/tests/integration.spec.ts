@@ -1,5 +1,5 @@
 /**
- * Integration tests: the REAL `@qilin/pwsh-local` executor plus the
+ * Integration tests: the REAL `@qilin-agent/pwsh-local` executor plus the
  * `pwsh` tool, exercised through `ctx.tools.execute()` with a real PowerShell
  * process. These verify the world — actual commands run, stdout/stderr come
  * back, exit codes render, timeouts abort, background jobs settle through the
@@ -14,16 +14,16 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
-import { Context } from '@qilin/kylin'
-import { ToolCallId } from '@qilin/llm'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime, { TOOL_ABORTED } from '@qilin/tools'
-import LocalJobRegistry from '@qilin/jobs-local'
-import * as ToolJobs from '@qilin/tool-jobs'
-import LocalSubprocessRuntime from '@qilin/subprocess-local'
-import { PwshLocalExecutor, resolvePwshPath } from '@qilin/pwsh-local'
-import * as ToolPwsh from '@qilin/tool-pwsh'
-import * as BashEnvPlugin from '@qilin/shell-env'
+import { Context } from '@qilin-agent/kylin'
+import { ToolCallId } from '@qilin-agent/llm'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime, { TOOL_ABORTED } from '@qilin-agent/tools'
+import LocalJobRegistry from '@qilin-agent/jobs-local'
+import * as ToolJobs from '@qilin-agent/tool-jobs'
+import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
+import { PwshLocalExecutor, resolvePwshPath } from '@qilin-agent/pwsh-local'
+import * as ToolPwsh from '@qilin-agent/tool-pwsh'
+import * as BashEnvPlugin from '@qilin-agent/shell-env'
 
 const testToolSignal = new AbortController().signal
 

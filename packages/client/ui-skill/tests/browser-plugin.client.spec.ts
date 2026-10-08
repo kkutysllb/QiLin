@@ -13,14 +13,14 @@
  * projections. Direct driving is deliberate: this spec owns only the
  * source's own contract.
  */
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import type { SessionId } from '@qilin/session/types'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import { InputTriggerService } from '@qilin/client-ui-input-trigger/client'
-import { RemoteError, TestRemote } from '@qilin/client-test-runtime'
-import type { RemoteFailure } from '@qilin/api-remotes/client'
-import type { ClientSessionContext, InputTriggerSource } from '@qilin/client-ui-input-trigger/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import { InputTriggerService } from '@qilin-agent/client-ui-input-trigger/client'
+import { RemoteError, TestRemote } from '@qilin-agent/client-test-runtime'
+import type { RemoteFailure } from '@qilin-agent/api-remotes/client'
+import type { ClientSessionContext, InputTriggerSource } from '@qilin-agent/client-ui-input-trigger/client'
 import { apply, inject } from '../src/client/index.ts'
 import { SkillRow as SkillToolRow } from '../src/client/SkillRow.tsx'
 

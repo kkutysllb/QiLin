@@ -1,11 +1,11 @@
 /**
  * Public configuration and measurement vocabulary for replay token metering.
  *
- * @module @qilin/token-meter/types
+ * @module @qilin-agent/token-meter/types
  */
 
-import type { TokenUsage } from '@qilin/llm'
-import type { SessionLogOffset, SessionSeq } from '@qilin/session/types'
+import type { TokenUsage } from '@qilin-agent/llm'
+import type { SessionLogOffset, SessionSeq } from '@qilin-agent/session/types'
 
 export type { ContextBreakdownProjection, ContextPressureProjection, TokenUsageProjection } from './projection.ts'
 

@@ -3,7 +3,7 @@ description: "Docking layout kit for the qilin web client: a split tree of tabbe
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-dockkit
+# @qilin-agent/client-ui-dockkit
 
 English | [中文](README.zh.md)
 

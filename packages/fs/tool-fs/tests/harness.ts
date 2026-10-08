@@ -1,11 +1,11 @@
-import { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import AgentLoop from '@qilin/agent-loop'
-import { mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'
-import LocalFileSystem from '@qilin/fs-local'
-import * as FsPolicy from '@qilin/fs-observation-policy'
-import * as ToolFs from '@qilin/tool-fs'
-import * as LlmDeepSeek from '@qilin/llm-deepseek-api-key'
+import { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import AgentLoop from '@qilin-agent/agent-loop'
+import { mountAgentLoopTestDependencies } from '@qilin-agent/agent-loop-testkit'
+import LocalFileSystem from '@qilin-agent/fs-local'
+import * as FsPolicy from '@qilin-agent/fs-observation-policy'
+import * as ToolFs from '@qilin-agent/tool-fs'
+import * as LlmDeepSeek from '@qilin-agent/llm-deepseek-api-key'
 
 /**
  * Build the real fs-tool stack for with-key e2e tests. Agents have no session

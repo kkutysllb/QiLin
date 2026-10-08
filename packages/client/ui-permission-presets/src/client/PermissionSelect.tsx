@@ -3,15 +3,15 @@ import type { ReactNode } from 'react'
 import clsx from 'clsx'
 import {
   IconChevronDownOutline14, Menu, RiskConfirmation, SHIELD_OUTLINE_PATH, SHIELD_OUTLINE_STROKE,
-} from '@qilin/client-ui-primitives'
-import type { MenuEntry } from '@qilin/client-ui-primitives'
+} from '@qilin-agent/client-ui-primitives'
+import type { MenuEntry } from '@qilin-agent/client-ui-primitives'
 import type {
   HostObservable, InjectFace, PropsLocale, PropsRuntime,
-} from '@qilin/client-ui-slots'
-import type { PresetOption } from '@qilin/permission-presets/client'
+} from '@qilin-agent/client-ui-slots'
+import type { PresetOption } from '@qilin-agent/permission-presets/client'
 // Type-only: pulls the conversation-owned permission slot declaration and
 // the standard session projection hook into this package's Client face.
-import type {} from '@qilin/client-ui-conversation/client'
+import type {} from '@qilin-agent/client-ui-conversation/client'
 import type { PermissionCatalogState } from './catalog.ts'
 import { PERMISSION_ACCESS_NS } from './locales.ts'
 import {

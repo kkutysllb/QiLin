@@ -4,13 +4,13 @@
  * product methods, current thread/turn association, unattended approval
  * responses, and terminal-answer selection.
  *
- * @module @qilin/subagent-codex/wire
+ * @module @qilin-agent/subagent-codex/wire
  */
 
 import type { Readable, Writable } from 'node:stream'
-import type { ContentBlock } from '@qilin/llm'
-import type { SubagentResult } from '@qilin/subagent'
-import { JsonRpcLineTransport } from '@qilin/sdk-protocol'
+import type { ContentBlock } from '@qilin-agent/llm'
+import type { SubagentResult } from '@qilin-agent/subagent'
+import { JsonRpcLineTransport } from '@qilin-agent/sdk-protocol'
 import type { CodexPermissionMode } from './run.ts'
 
 type JsonObject = Record<string, unknown>

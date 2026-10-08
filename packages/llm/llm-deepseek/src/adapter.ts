@@ -1,9 +1,9 @@
 /** Direct Messages transport with one cancellable lifecycle per model request. */
 
-import { attributionHeaders, LlmAdapter, LlmError } from '@qilin/llm'
-import type { GenerateOptions, ImageAttachmentAccessResolver, PreparedAdapterCall, StreamChunk } from '@qilin/llm'
-import type { DeepSeekLlmApiJson } from '@qilin/deepseek-llm-api-extensions'
-import { idleWatchdog, timeoutOf } from '@qilin/timeout'
+import { attributionHeaders, LlmAdapter, LlmError } from '@qilin-agent/llm'
+import type { GenerateOptions, ImageAttachmentAccessResolver, PreparedAdapterCall, StreamChunk } from '@qilin-agent/llm'
+import type { DeepSeekLlmApiJson } from '@qilin-agent/deepseek-llm-api-extensions'
+import { idleWatchdog, timeoutOf } from '@qilin-agent/timeout'
 import { modelInfo } from './model-info.ts'
 import type { DeepSeekAdapterOptions, DeepSeekConnectionOptions as Connection } from './types.ts'
 import { DeepSeekFileStore } from './file-store.ts'

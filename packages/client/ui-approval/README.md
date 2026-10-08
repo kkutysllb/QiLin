@@ -2,7 +2,7 @@
 description: "Browser approval UI that answers Host permission requests through the scoped interaction path."
 kind: "package-reference"
 ---
-# @qilin/client-ui-approval
+# @qilin-agent/client-ui-approval
 
 English | [中文](README.zh.md)
 

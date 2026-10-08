@@ -3,7 +3,7 @@ description: "预览媒体的宿主半：/sidebar/media 路由向内联预览供
 kind: "package-reference"
 ---
 
-# @qilin/host-preview-media
+# @qilin-agent/host-preview-media
 
 [English](README.md) | 中文
 

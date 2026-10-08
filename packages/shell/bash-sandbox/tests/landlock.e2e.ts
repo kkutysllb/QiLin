@@ -4,13 +4,13 @@ import { mkdtemp, rm } from 'node:fs/promises'
 import { homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { launcherPath } from '@qilin/node-addon-system/landlock-run'
-import { LocalSandboxProvider } from '@qilin/sandbox-local'
-import { SandboxPolicyService } from '@qilin/sandbox-policy'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import { SandboxBashExecutor } from '@qilin/bash-sandbox'
-import LocalSubprocessRuntime from '@qilin/subprocess-local'
+import { Context } from '@qilin-agent/kylin'
+import { launcherPath } from '@qilin-agent/node-addon-system/landlock-run'
+import { LocalSandboxProvider } from '@qilin-agent/sandbox-local'
+import { SandboxPolicyService } from '@qilin-agent/sandbox-policy'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import { SandboxBashExecutor } from '@qilin-agent/bash-sandbox'
+import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
 
 /**
  * KEYLESS consumer-integration proof: the REAL `LocalSandboxProvider` (bwrap
@@ -18,7 +18,7 @@ import LocalSubprocessRuntime from '@qilin/subprocess-local'
  * REAL `SandboxBashExecutor`, driven through the executor's public run/start
  * paths. Verifies the WORLD (files exist or don't) plus the stamped result
  * facts; the backend-only confinement proofs live with
- * `@qilin/sandbox-local`.
+ * `@qilin-agent/sandbox-local`.
  *
  * Self-skips when the running kernel does not enforce Landlock. CI builds the launcher from
  * `native/system` before running this file.

@@ -1,6 +1,6 @@
 /**
  * Shared no-shell `execFile` runner for host-native OS integrations.
- * @module @qilin/native-command/runner
+ * @module @qilin-agent/native-command/runner
  */
 
 import { execFile } from 'node:child_process'

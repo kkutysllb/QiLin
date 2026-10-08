@@ -1,8 +1,8 @@
 /** Serialized Team transactions over the exact live Lead Session log. */
 
-import type { Agent } from '@qilin/agent'
-import type { Context } from '@qilin/kylin'
-import type { SessionEventMap, SessionId } from '@qilin/session'
+import type { Agent } from '@qilin-agent/agent'
+import type { Context } from '@qilin-agent/kylin'
+import type { SessionEventMap, SessionId } from '@qilin-agent/session'
 import type { TeamEventType, TeamState } from './projection.ts'
 
 type AppendTeamEvent = <T extends TeamEventType>(type: T, data: SessionEventMap[T]) => void

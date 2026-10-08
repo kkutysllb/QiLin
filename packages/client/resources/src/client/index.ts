@@ -2,10 +2,10 @@
  * Browser half: `ctx.resources` (protocol-registered providers, pinning, live
  * sources) and the `useResource` global standard hook.
  */
-import type { Context as ClientContext } from '@qilin/kylin'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
 // Type-only service merge for ctx.slots.
-import type {} from '@qilin/client-ui-renderer/client'
-import type { RootStandardSourceContribution } from '@qilin/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type { RootStandardSourceContribution } from '@qilin-agent/client-ui-slots'
 import { ResourceRegistry } from './resources.ts'
 
 export type {
@@ -17,7 +17,7 @@ export type {
   ResourceStatus,
   UseResource,
 } from './contract.ts'
-export type { ResourceProtocolMap } from '@qilin/client-ui-slots'
+export type { ResourceProtocolMap } from '@qilin-agent/client-ui-slots'
 
 /** Required browser services. */
 export const inject = ['slots']

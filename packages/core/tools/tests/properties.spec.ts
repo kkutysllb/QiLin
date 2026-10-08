@@ -7,9 +7,9 @@
 
 import { describe, expect, it } from 'vitest'
 import fc from 'fast-check'
-import { isJsonValue } from '@qilin/util-values'
-import { parameterSchemaSpecToJsonSchema, validateArgs } from '@qilin/tools'
-import type { ParameterPropertySpec, ParameterSchemaSpec, ValueSchemaSpec } from '@qilin/tools'
+import { isJsonValue } from '@qilin-agent/util-values'
+import { parameterSchemaSpecToJsonSchema, validateArgs } from '@qilin-agent/tools'
+import type { ParameterPropertySpec, ParameterSchemaSpec, ValueSchemaSpec } from '@qilin-agent/tools'
 
 /** Remove parameter-only requiredness before nesting a schema as an array item. */
 function asValueSchema(prop: ParameterPropertySpec): ValueSchemaSpec {

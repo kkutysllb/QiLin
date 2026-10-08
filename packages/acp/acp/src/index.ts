@@ -6,18 +6,18 @@
  * committed semantic updates, cancellation, and one-shot permission decisions;
  * presentation and human-interaction features stay with the harness's UI modules.
  *
- * @module @qilin/acp
+ * @module @qilin-agent/acp
  */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { Buffer } from 'node:buffer'
 import { randomUUID } from 'node:crypto'
 import { realpath } from 'node:fs/promises'
 import { isAbsolute, resolve } from 'node:path'
 import { Readable, Writable } from 'node:stream'
-import Schema from '@qilin/schemastery'
-import { brandString } from '@qilin/brand'
-import { errorChain } from '@qilin/llm'
+import Schema from '@qilin-agent/schemastery'
+import { brandString } from '@qilin-agent/brand'
+import { errorChain } from '@qilin-agent/llm'
 import {
   agent as createAcpAgentApp,
   methods,
@@ -45,11 +45,11 @@ import {
   type SessionNotification,
   type Stream,
 } from '@agentclientprotocol/sdk'
-import type { ModelSelection } from '@qilin/agent'
-import type { SessionId } from '@qilin/session'
-import type {} from '@qilin/session-persistence'
+import type { ModelSelection } from '@qilin-agent/agent'
+import type { SessionId } from '@qilin-agent/session'
+import type {} from '@qilin-agent/session-persistence'
 // Side-effect type import: declaration-merges the approval waterfall answered below.
-import type {} from '@qilin/user-approval'
+import type {} from '@qilin-agent/user-approval'
 import { supportsAcpImagePrompts } from './content.ts'
 import { AcpMcpConfigError } from './mcp.ts'
 import { AcpModelConfigError } from './model-control.ts'
@@ -200,7 +200,7 @@ export function apply(ctx: Context, config: AcpConfig): void {
       // No preset composition: the ACP bundle keeps the model-facing rows in
       // the host plane, so this agent reads them from the global layer. A
       // deployment that configures a roster has to join one here first
-      // (@qilin/agent-presets README, "Composing a child agent").
+      // (@qilin-agent/agent-presets README, "Composing a child agent").
       let record: AcpSession
       try {
         record = await AcpSession.create(ctx, {

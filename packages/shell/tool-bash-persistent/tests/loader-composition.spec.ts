@@ -3,24 +3,24 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import { ToolCallId } from '@qilin/llm'
-import { SESSION_FORMAT_VERSION, Session, SessionId } from '@qilin/session'
-import AgentRegistry from '@qilin/agent'
-import type { Agent } from '@qilin/agent'
-import TerminalSessionService from '@qilin/terminal'
-import * as TerminalLocal from '@qilin/terminal-bash'
-import SandboxProvider from '@qilin/sandbox'
-import type { ConfinedArgv, SandboxPolicy } from '@qilin/sandbox'
-import SandboxPolicyService from '@qilin/sandbox-policy'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import LocalSubprocessRuntime from '@qilin/subprocess-local'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
-import * as ToolBashPersistent from '@qilin/tool-bash-persistent'
-import { unsupportedInbox } from '@qilin/agent-loop-testkit'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import { ToolCallId } from '@qilin-agent/llm'
+import { SESSION_FORMAT_VERSION, Session, SessionId } from '@qilin-agent/session'
+import AgentRegistry from '@qilin-agent/agent'
+import type { Agent } from '@qilin-agent/agent'
+import TerminalSessionService from '@qilin-agent/terminal'
+import * as TerminalLocal from '@qilin-agent/terminal-bash'
+import SandboxProvider from '@qilin-agent/sandbox'
+import type { ConfinedArgv, SandboxPolicy } from '@qilin-agent/sandbox'
+import SandboxPolicyService from '@qilin-agent/sandbox-policy'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
+import * as ToolBashPersistent from '@qilin-agent/tool-bash-persistent'
+import { unsupportedInbox } from '@qilin-agent/agent-loop-testkit'
 
 let root: string | undefined
 let context: Context | undefined
@@ -74,18 +74,18 @@ suite('persistent Bash through a real cordis.yml Loader composition', () => {
     root = await mkdtemp(join(tmpdir(), 'qilin-persistent-bash-loader-'))
     const configPath = join(root, 'cordis.yml')
     await writeFile(configPath, [
-      "- name: '@qilin/agent'",
-      "- name: '@qilin/system-prompt'",
-      "- name: '@qilin/tools'",
-      "- name: '@qilin/terminal'",
-      "- name: '@qilin/test-sandbox'",
-      "- name: '@qilin/session-projection'",
-      "- name: '@qilin/sandbox-policy'",
+      "- name: '@qilin-agent/agent'",
+      "- name: '@qilin-agent/system-prompt'",
+      "- name: '@qilin-agent/tools'",
+      "- name: '@qilin-agent/terminal'",
+      "- name: '@qilin-agent/test-sandbox'",
+      "- name: '@qilin-agent/session-projection'",
+      "- name: '@qilin-agent/sandbox-policy'",
       '  config:',
       '    mode: danger-full-access',
       `    workspaceRoot: ${JSON.stringify(root)}`,
-      "- name: '@qilin/subprocess-local'",
-      "- name: '@qilin/terminal-bash'",
+      "- name: '@qilin-agent/subprocess-local'",
+      "- name: '@qilin-agent/terminal-bash'",
       '  config:',
       '    pollIntervalMs: 10',
       '    exactProbeAfterMs: 20',
@@ -97,7 +97,7 @@ suite('persistent Bash through a real cordis.yml Loader composition', () => {
       '    scrollbackLines: 20000',
       '    timeoutMs: 2000',
       '    disposeGraceMs: 500',
-      "- name: '@qilin/tool-bash-persistent'",
+      "- name: '@qilin-agent/tool-bash-persistent'",
       '  config:',
       '    timeoutMs: 5000',
       '',
@@ -108,16 +108,16 @@ suite('persistent Bash through a real cordis.yml Loader composition', () => {
     await context.plugin(Loader)
     context.loader.builtins.include = Include
     const modules = new Map<string, unknown>([
-      ['@qilin/agent', AgentRegistry],
-      ['@qilin/system-prompt', SystemPrompt],
-      ['@qilin/tools', ToolRuntime],
-      ['@qilin/terminal', TerminalSessionService],
-      ['@qilin/test-sandbox', PassthroughSandbox],
-      ['@qilin/session-projection', SessionProjectionRegistry],
-      ['@qilin/sandbox-policy', SandboxPolicyService],
-      ['@qilin/subprocess-local', LocalSubprocessRuntime],
-      ['@qilin/terminal-bash', TerminalLocal],
-      ['@qilin/tool-bash-persistent', ToolBashPersistent],
+      ['@qilin-agent/agent', AgentRegistry],
+      ['@qilin-agent/system-prompt', SystemPrompt],
+      ['@qilin-agent/tools', ToolRuntime],
+      ['@qilin-agent/terminal', TerminalSessionService],
+      ['@qilin-agent/test-sandbox', PassthroughSandbox],
+      ['@qilin-agent/session-projection', SessionProjectionRegistry],
+      ['@qilin-agent/sandbox-policy', SandboxPolicyService],
+      ['@qilin-agent/subprocess-local', LocalSubprocessRuntime],
+      ['@qilin-agent/terminal-bash', TerminalLocal],
+      ['@qilin-agent/tool-bash-persistent', ToolBashPersistent],
     ])
     context.loader.internal = {
       version: 'v2',

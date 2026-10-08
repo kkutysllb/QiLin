@@ -3,7 +3,7 @@ description: "Host half of preview media: the /sidebar/media route serving sessi
 kind: "package-reference"
 ---
 
-# @qilin/host-preview-media
+# @qilin-agent/host-preview-media
 
 English | [中文](README.zh.md)
 

@@ -1,19 +1,19 @@
 /** Read-only Host plugin inventory registered into Web Settings. */
 
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-modules/client'
-import type { Context as ClientContext } from '@qilin/kylin'
-import type {} from '@qilin/client-ui-settings/client'
-import type {} from '@qilin/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-modules/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/client-ui-settings/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
 // Inline-safe shared fold: shipped ids map to dictionary keys in one home.
-import { presetDisplayText } from '@qilin/agent-presets/display'
+import { presetDisplayText } from '@qilin-agent/agent-presets/display'
 import { PluginInventorySettingsTab, type PluginInventorySettingsTabInjected } from './PluginInventorySettingsTab.tsx'
 import { en, zh, type PluginInventoryLocaleKey } from './locales.ts'
 
 export type { PluginInventorySettingsTabInjected, PluginInventorySettingsTabProps } from './PluginInventorySettingsTab.tsx'
 export type { PluginInventoryLocaleKey } from './locales.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Read-only Host plugin inventory copy. */
     'settings.pluginInventory': PluginInventoryLocaleKey

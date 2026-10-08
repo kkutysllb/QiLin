@@ -1,12 +1,12 @@
 import { useCallback } from 'react'
-import { IconQuestionOutline14 } from '@qilin/client-ui-primitives'
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/agent/types'
-import type { InjectFace, PropsLocale } from '@qilin/client-ui-slots'
+import { IconQuestionOutline14 } from '@qilin-agent/client-ui-primitives'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/agent/types'
+import type { InjectFace, PropsLocale } from '@qilin-agent/client-ui-slots'
 // Also merges the userQuestions key into SessionProjectionMap for useProjection.
 import type {
   AskUserQuestionAnswerItem, AskUserQuestionItem, AskUserQuestionOption,
-} from '@qilin/user-questions/types'
+} from '@qilin-agent/user-questions/types'
 import type { ToolCallViewProps, UserQuestionRecord } from '../../contract/slots.ts'
 import type { AskQuestionCardModel } from '../models/ask-question-card-model.ts'
 import { singleResultText } from '../models/raw-tool-call.ts'

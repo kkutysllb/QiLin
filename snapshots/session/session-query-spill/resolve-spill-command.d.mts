@@ -1,5 +1,5 @@
 /** Typed Cordis plugin exports for the query-spill verification fixture. */
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 
 /** Scenario-local plugin identifier. */
 export const name: 'query-spill-verification-path'

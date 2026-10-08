@@ -50,13 +50,13 @@ shell 拥有 View 选择，并在 binding 创建、被选为 current 或 View ro
 
 ```ts ignore-check
 import { createElement } from 'react'
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { Branded } from '@qilin/brand'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { Branded } from '@qilin-agent/brand'
 import type {
   ConversationLocation, ConversationNodeContext,
   ConversationNodeDefinition,
-} from '@qilin/client-ui-conversation/client'
-import type { ChatNodeViewProps } from '@qilin/client-ui-chat/client'
+} from '@qilin-agent/client-ui-conversation/client'
+import type { ChatNodeViewProps } from '@qilin-agent/client-ui-chat/client'
 
 type ReviewId = Branded<'ReviewId'>
 
@@ -81,7 +81,7 @@ interface ReviewEndData {
   readonly summary: string
 }
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /**
      * Opens one durable review job.
@@ -111,13 +111,13 @@ interface ReviewChatData {
   readonly summary?: string
 }
 
-declare module '@qilin/client-ui-chat/client' {
+declare module '@qilin-agent/client-ui-chat/client' {
   interface ChatNodeDataMap {
     'review-job': ReviewChatData
   }
 }
 
-declare module '@qilin/client-ui-conversation/client' {
+declare module '@qilin-agent/client-ui-conversation/client' {
   interface ConversationStepDataMap {
     'review-job': ReviewChatData
   }

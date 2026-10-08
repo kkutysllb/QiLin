@@ -3,8 +3,8 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { expect, it, onTestFinished } from 'vitest'
-import { applyEntryPatches } from '@qilin/kylin-plugin-include'
-import { loadOptionalPatches } from '@qilin/app-boot'
+import { applyEntryPatches } from '@qilin-agent/kylin-plugin-include'
+import { loadOptionalPatches } from '@qilin-agent/app-boot'
 import { writePluginEnabled } from '../src/patch.ts'
 
 async function fixture(text?: string): Promise<string> {

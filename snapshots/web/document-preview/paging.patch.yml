@@ -1,6 +1,6 @@
 # Paging and unavailable-service guidance through the shipped Office viewer.
 - id: workspace-files
-  name: '@qilin/api-workspace-files'
+  name: '@qilin-agent/api-workspace-files'
   config:
     maxLines: 64
 - id: office-to-pdf

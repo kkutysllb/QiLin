@@ -4,19 +4,19 @@ import { mkdtemp, rm } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { LocalSandboxProvider } from '@qilin/sandbox-local'
-import { SandboxPolicyService } from '@qilin/sandbox-policy'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import { bwrapProfileArgs } from '@qilin/sandbox-local/src/profiles.ts'
-import { SandboxBashExecutor } from '@qilin/bash-sandbox'
-import LocalSubprocessRuntime from '@qilin/subprocess-local'
+import { Context } from '@qilin-agent/kylin'
+import { LocalSandboxProvider } from '@qilin-agent/sandbox-local'
+import { SandboxPolicyService } from '@qilin-agent/sandbox-policy'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import { bwrapProfileArgs } from '@qilin-agent/sandbox-local/src/profiles.ts'
+import { SandboxBashExecutor } from '@qilin-agent/bash-sandbox'
+import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
 
 /**
  * Keyless integration of the real provider and executor through public run/start paths. With
  * no rung forced, a passing bwrap probe selects the ladder's first rung. The tests check world
  * effects and stamped facts, including EROFS classification through the wrap-carried dialect;
- * backend-only confinement is covered by `@qilin/sandbox-local`.
+ * backend-only confinement is covered by `@qilin-agent/sandbox-local`.
  *
  * Skips when bwrap or unprivileged user namespaces are unavailable. HOME-based paths are
  * intentional because bwrap replaces `/tmp`, which cannot prove the workspace-root boundary.

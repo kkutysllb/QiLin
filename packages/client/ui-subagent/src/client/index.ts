@@ -1,22 +1,22 @@
 /** Web subagent catalog, navigation, and addressed-session composer owner. */
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { SubagentAddress } from '@qilin/subagent/client'
-import type { SessionId } from '@qilin/session/types'
-import type { ComposerChainProps } from '@qilin/client-ui-conversation/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { SubagentAddress } from '@qilin-agent/subagent/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { ComposerChainProps } from '@qilin-agent/client-ui-conversation/client'
 import { SubagentCatalogAction, SubagentHeaderLineage, type SubagentCatalogInjected } from './SubagentHeaderLineage.tsx'
 import {
   SubagentReadOnlyComposer, type SubagentReadOnlyMatch,
 } from './SubagentReadOnlyComposer.tsx'
 import { registerSidebarChat, subagentChatAddress } from './sidebar-chat/index.tsx'
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-ui-chat/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-session/client'
-import type {} from '@qilin/client-ui-sidebar-right/client'
-import type {} from '@qilin/client-ui-workspace/client'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-ui-chat/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-session/client'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
+import type {} from '@qilin-agent/client-ui-workspace/client'
 import { en, NS, zh, type SubagentKey } from './locales.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Subagent catalog and read-only composer copy. */
     'subagent': SubagentKey

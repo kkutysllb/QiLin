@@ -1,8 +1,8 @@
 /** HTML metadata and keyed slot contributions share one identity and unwind with their fiber. */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createSnapshotStore } from '@qilin/client-store'
-import { sessionFileAddress } from '@qilin/util-workspace-path'
+import { Context } from '@qilin-agent/kylin'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { sessionFileAddress } from '@qilin-agent/util-workspace-path'
 import { DocumentPreviewRegistry } from '../src/client/document/registry.ts'
 import { apply, HTML_BODY_ID, htmlBodyDefinition } from '../src/client/html/index.ts'
 import { HtmlBody } from '../src/client/html/HtmlBody.tsx'

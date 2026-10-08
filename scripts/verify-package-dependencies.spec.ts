@@ -24,7 +24,7 @@ import {
   type WorkspacePackageManifest,
 } from './verify-package-dependencies.ts'
 
-const CORDIS = '@qilin/kylin'
+const CORDIS = '@qilin-agent/kylin'
 const roots: string[] = []
 
 afterEach(() => {
@@ -63,26 +63,26 @@ function facts(manifest: PackageDependencyManifest): PackageDependencyFacts {
     manifest,
     workspaceNames: new Set([
       CORDIS,
-      '@qilin/runtime',
-      '@qilin/types',
-      '@qilin/stale',
-      '@qilin/schemastery',
+      '@qilin-agent/runtime',
+      '@qilin-agent/types',
+      '@qilin-agent/stale',
+      '@qilin-agent/schemastery',
     ]),
     allSourceUses: new Map([
-      ['@qilin/runtime', ['packages/core/probe/src/index.ts']],
-      ['@qilin/types', ['packages/core/probe/src/types.ts']],
+      ['@qilin-agent/runtime', ['packages/core/probe/src/index.ts']],
+      ['@qilin-agent/types', ['packages/core/probe/src/types.ts']],
     ]),
     hostRuntimeSourceUses: new Map([
-      ['@qilin/runtime', ['packages/core/probe/src/index.ts']],
+      ['@qilin-agent/runtime', ['packages/core/probe/src/index.ts']],
     ]),
     hostRuntimeExportUses: [{
-      packageName: '@qilin/runtime',
-      specifier: '@qilin/runtime',
+      packageName: '@qilin-agent/runtime',
+      specifier: '@qilin-agent/runtime',
       exportName: 'runtimeValue',
       sourcePath: 'packages/core/probe/src/index.ts',
       line: 1,
       column: 10,
-      sourceLine: "import { runtimeValue } from '@qilin/runtime'",
+      sourceLine: "import { runtimeValue } from '@qilin-agent/runtime'",
     }],
     peerRequiredHostDependencies: new Set(),
     configurationOnlyDevDependencies: new Set(),
@@ -183,40 +183,40 @@ function hostRuntimeFixture(): {
 describe('package dependency scope', () => {
   it('keeps the measured Host relay roster explicit', () => {
     expect(PACKAGE_DEPENDENCY_POLICY.clientFaceExclude).toEqual([
-      '@qilin/api-session-controller',
-      '@qilin/api-workspace-controller',
+      '@qilin-agent/api-session-controller',
+      '@qilin-agent/api-workspace-controller',
     ])
     expect(PACKAGE_DEPENDENCY_POLICY.hostPackages).toEqual([
-      '@qilin/llm',
-      '@qilin/session',
+      '@qilin-agent/llm',
+      '@qilin-agent/session',
     ])
     expect(PACKAGE_DEPENDENCY_POLICY.configurationOnlyDevDependencies).toEqual({
-      '@qilin/client-locale': ['@qilin/api-remotes'],
-      '@qilin/client-ui-conversation': [
-        '@qilin/api-remotes',
-        '@qilin/client-ui-workspace',
+      '@qilin-agent/client-locale': ['@qilin-agent/api-remotes'],
+      '@qilin-agent/client-ui-conversation': [
+        '@qilin-agent/api-remotes',
+        '@qilin-agent/client-ui-workspace',
       ],
-      '@qilin/client-ui-model-selection': ['@qilin/client-ui-input-trigger'],
-      '@qilin/client-ui-sidebar': ['@qilin/client-ui-workspace'],
-      '@qilin/client-ui-subagent': ['@qilin/client-ui-input-trigger'],
-      '@qilin/client-ui-theme': ['@qilin/api-remotes'],
-      '@qilin/client-ui-tool': ['@qilin/api-remotes'],
+      '@qilin-agent/client-ui-model-selection': ['@qilin-agent/client-ui-input-trigger'],
+      '@qilin-agent/client-ui-sidebar': ['@qilin-agent/client-ui-workspace'],
+      '@qilin-agent/client-ui-subagent': ['@qilin-agent/client-ui-input-trigger'],
+      '@qilin-agent/client-ui-theme': ['@qilin-agent/api-remotes'],
+      '@qilin-agent/client-ui-tool': ['@qilin-agent/api-remotes'],
     })
     expect(PACKAGE_DEPENDENCY_POLICY.duplicateSafePackages).toEqual([
-      '@qilin/brand',
-      '@qilin/lazy-require',
-      '@qilin/typert-protocol',
-      '@qilin/util-crypto',
-      '@qilin/util-values',
+      '@qilin-agent/brand',
+      '@qilin-agent/lazy-require',
+      '@qilin-agent/typert-protocol',
+      '@qilin-agent/util-crypto',
+      '@qilin-agent/util-values',
     ])
-    expect(PACKAGE_DEPENDENCY_POLICY.safeHostDependencyExports['@qilin/deque']).toEqual(['Deque'])
-    expect(PACKAGE_DEPENDENCY_POLICY.safeHostDependencyExports['@qilin/schemastery']).toEqual(['default'])
-    expect(PACKAGE_DEPENDENCY_POLICY.safeHostDependencyExports['@qilin/session/types']).toBeUndefined()
-    expect(PACKAGE_DEPENDENCY_POLICY.safeHostDependencyExports['@qilin/typert-protocol']).toBeUndefined()
-    expect(PACKAGE_DEPENDENCY_POLICY.peerRequiredHostExports['@qilin/scope']).toEqual([
+    expect(PACKAGE_DEPENDENCY_POLICY.safeHostDependencyExports['@qilin-agent/deque']).toEqual(['Deque'])
+    expect(PACKAGE_DEPENDENCY_POLICY.safeHostDependencyExports['@qilin-agent/schemastery']).toEqual(['default'])
+    expect(PACKAGE_DEPENDENCY_POLICY.safeHostDependencyExports['@qilin-agent/session/types']).toBeUndefined()
+    expect(PACKAGE_DEPENDENCY_POLICY.safeHostDependencyExports['@qilin-agent/typert-protocol']).toBeUndefined()
+    expect(PACKAGE_DEPENDENCY_POLICY.peerRequiredHostExports['@qilin-agent/scope']).toEqual([
       'carrierKeyOf', 'createScope', 'scopeOf', 'scopeTarget',
     ])
-    expect(PACKAGE_DEPENDENCY_POLICY.peerRequiredHostExports['@qilin/typert-protocol']).toBeUndefined()
+    expect(PACKAGE_DEPENDENCY_POLICY.peerRequiredHostExports['@qilin-agent/typert-protocol']).toBeUndefined()
   })
 
   it('discovers the Client directory, qilin.client declarations, and configured Host packages', () => {
@@ -292,7 +292,7 @@ describe('package dependency scope', () => {
 
   it('lets a use from an unmanaged package keep a classification alive', () => {
     // The consumer's own facts do not carry the use (its package is outside
-    // the dependency-managed selection — the @qilin/subprocess-local shape,
+    // the dependency-managed selection — the @qilin-agent/subprocess-local shape,
     // issue #10); the supplemental corpus supplies it.
     const { provider, workspaceNames, consumerFacts } = hostRuntimeFixture()
     const policy = {
@@ -644,8 +644,8 @@ describe('face-aware source classification', () => {
       "export * from '@f/star'",
       "void import('@f/dynamic')",
       "void require('@f/required')",
-      "import { createLazyRequire as lazy } from '@qilin/lazy-require'",
-      "import * as lazyModule from '@qilin/lazy-require'",
+      "import { createLazyRequire as lazy } from '@qilin-agent/lazy-require'",
+      "import * as lazyModule from '@qilin-agent/lazy-require'",
       "void lazy('@f/lazy', import.meta.url)",
       "void lazyModule.createLazyRequire('@f/lazy-namespace', import.meta.url)",
       'void defaultValue; void local; void namespace',
@@ -662,8 +662,8 @@ describe('face-aware source classification', () => {
       { specifier: '@f/root', exportName: 'default' },
       { specifier: '@f/root', exportName: 'value' },
       { specifier: '@f/star', exportName: '*' },
-      { specifier: '@qilin/lazy-require', exportName: '*' },
-      { specifier: '@qilin/lazy-require', exportName: 'createLazyRequire' },
+      { specifier: '@qilin-agent/lazy-require', exportName: '*' },
+      { specifier: '@qilin-agent/lazy-require', exportName: 'createLazyRequire' },
     ])
     expect(uses.find(use => use.specifier === '@f/root' && use.exportName === 'value')).toMatchObject({
       line: 1,
@@ -750,8 +750,8 @@ describe('dependency sections', () => {
   it('validates every third-party range before writing any manifest in a repair batch', () => {
     const root = mkdtempSync(join(tmpdir(), 'qilin-dependency-batch-'))
     roots.push(root)
-    const valid = { ...facts({ name: '@qilin/first' }), manifestPath: 'first.json' }
-    const base = facts({ name: '@qilin/second' })
+    const valid = { ...facts({ name: '@qilin-agent/first' }), manifestPath: 'first.json' }
+    const base = facts({ name: '@qilin-agent/second' })
     const invalid: PackageDependencyFacts = {
       ...base,
       manifestPath: 'second.json',
@@ -774,9 +774,9 @@ describe('dependency sections', () => {
 
   it('moves browser-only third-party imports to development dependencies without changing their ranges', () => {
     const manifest: PackageDependencyManifest = {
-      name: '@qilin/probe',
-      dependencies: { '@qilin/runtime': 'workspace:*', external: '^1.2.3' },
-      devDependencies: { [CORDIS]: 'workspace:~', '@qilin/types': 'workspace:*' },
+      name: '@qilin-agent/probe',
+      dependencies: { '@qilin-agent/runtime': 'workspace:*', external: '^1.2.3' },
+      devDependencies: { [CORDIS]: 'workspace:~', '@qilin-agent/types': 'workspace:*' },
       peerDependencies: { [CORDIS]: 'workspace:~' },
     }
     const base = facts(manifest)
@@ -801,15 +801,15 @@ describe('dependency sections', () => {
 
   it('does not leak repository configuration into captured dependency facts', () => {
     const manifest: PackageDependencyManifest = {
-      name: '@qilin/client-locale',
-      dependencies: { '@qilin/runtime': 'workspace:*' },
-      devDependencies: { [CORDIS]: 'workspace:~', '@qilin/types': 'workspace:*' },
+      name: '@qilin-agent/client-locale',
+      dependencies: { '@qilin-agent/runtime': 'workspace:*' },
+      devDependencies: { [CORDIS]: 'workspace:~', '@qilin-agent/types': 'workspace:*' },
       peerDependencies: { [CORDIS]: 'workspace:~' },
     }
     const base = facts(manifest)
     const subject: PackageDependencyFacts = {
       ...base,
-      workspaceNames: new Set([...base.workspaceNames, '@qilin/api-remotes']),
+      workspaceNames: new Set([...base.workspaceNames, '@qilin-agent/api-remotes']),
     }
 
     expect(collectPackageDependencyViolations({
@@ -819,15 +819,15 @@ describe('dependency sections', () => {
 
   it('requires non-workspace Host runtime imports in dependencies', () => {
     const manifest: PackageDependencyManifest = {
-      name: '@qilin/probe',
-      dependencies: { '@qilin/runtime': 'workspace:*' },
-      devDependencies: { [CORDIS]: 'workspace:~', '@qilin/types': 'workspace:*', external: '^1.0.0' },
+      name: '@qilin-agent/probe',
+      dependencies: { '@qilin-agent/runtime': 'workspace:*' },
+      devDependencies: { [CORDIS]: 'workspace:~', '@qilin-agent/types': 'workspace:*', external: '^1.0.0' },
       peerDependencies: { [CORDIS]: 'workspace:~' },
     }
     const subject: PackageDependencyFacts = {
       ...facts(manifest),
       hostRuntimeSourceUses: new Map([
-        ['@qilin/runtime', ['packages/core/probe/src/index.ts']],
+        ['@qilin-agent/runtime', ['packages/core/probe/src/index.ts']],
         ['external', ['packages/core/probe/src/index.ts']],
       ]),
       allSourceUses: new Map([
@@ -859,14 +859,14 @@ describe('dependency sections', () => {
 
   it('accepts Host dependencies, development-only inputs, and shared Cordis', () => {
     const manifest: PackageDependencyManifest = {
-      name: '@qilin/probe',
+      name: '@qilin-agent/probe',
       dependencies: {
-        '@qilin/runtime': 'workspace:*',
-        '@qilin/schemastery': 'workspace:~',
+        '@qilin-agent/runtime': 'workspace:*',
+        '@qilin-agent/schemastery': 'workspace:~',
         external: '^1.0.0',
       },
       devDependencies: {
-        '@qilin/types': 'workspace:*',
+        '@qilin-agent/types': 'workspace:*',
         [CORDIS]: 'workspace:~',
       },
       peerDependencies: { [CORDIS]: 'workspace:~' },
@@ -877,20 +877,20 @@ describe('dependency sections', () => {
   })
 
   it('lists managed Host runtime dependencies for fix review', () => {
-    const subject = facts({ name: '@qilin/probe' })
+    const subject = facts({ name: '@qilin-agent/probe' })
     expect(formatManagedRuntimeDependencies({
       facts: [subject], packages: [], policyViolations: [], workspaceNames: subject.workspaceNames,
     })).toEqual([
       'verify-package-dependencies: 1 managed Host runtime edge(s) remain in dependencies across 1 package(s):',
-      '  @qilin/probe -> @qilin/runtime: @qilin/runtime#runtimeValue',
+      '  @qilin-agent/probe -> @qilin-agent/runtime: @qilin-agent/runtime#runtimeValue',
     ])
   })
 
   it('reports an unapproved Host runtime export without rewriting its dependency section', () => {
     const manifest: PackageDependencyManifest = {
-      name: '@qilin/probe',
-      dependencies: { '@qilin/runtime': 'workspace:*' },
-      devDependencies: { [CORDIS]: 'workspace:~', '@qilin/types': 'workspace:*' },
+      name: '@qilin-agent/probe',
+      dependencies: { '@qilin-agent/runtime': 'workspace:*' },
+      devDependencies: { [CORDIS]: 'workspace:~', '@qilin-agent/types': 'workspace:*' },
       peerDependencies: { [CORDIS]: 'workspace:~' },
     }
     const subject = facts(manifest)
@@ -904,23 +904,23 @@ describe('dependency sections', () => {
     }
 
     expect(safetyViolations).toEqual([
-      'packages/core/probe/src/index.ts:1:10: @qilin/runtime#runtimeValue is not classified as '
-      + 'safe or peer-required — import { runtimeValue } from \'@qilin/runtime\'',
+      'packages/core/probe/src/index.ts:1:10: @qilin-agent/runtime#runtimeValue is not classified as '
+      + 'safe or peer-required — import { runtimeValue } from \'@qilin-agent/runtime\'',
     ])
     expect(fixPackageDependencies('/unused', state)).toEqual([])
-    expect(manifest.dependencies).toEqual({ '@qilin/runtime': 'workspace:*' })
+    expect(manifest.dependencies).toEqual({ '@qilin-agent/runtime': 'workspace:*' })
   })
 
   it('keeps an edge as a peer when one imported export requires shared identity', () => {
     const manifest: PackageDependencyManifest = {
-      name: '@qilin/probe',
-      dependencies: { '@qilin/runtime': 'workspace:*' },
-      devDependencies: { [CORDIS]: 'workspace:~', '@qilin/types': 'workspace:*' },
+      name: '@qilin-agent/probe',
+      dependencies: { '@qilin-agent/runtime': 'workspace:*' },
+      devDependencies: { [CORDIS]: 'workspace:~', '@qilin-agent/types': 'workspace:*' },
       peerDependencies: { [CORDIS]: 'workspace:~' },
     }
     const subject: PackageDependencyFacts = {
       ...facts(manifest),
-      peerRequiredHostDependencies: new Set(['@qilin/runtime']),
+      peerRequiredHostDependencies: new Set(['@qilin-agent/runtime']),
     }
     expect(collectHostDependencyExportPolicyViolations(
       [subject],
@@ -928,7 +928,7 @@ describe('dependency sections', () => {
       {
         safeHostDependencyExports: {},
         peerRequiredHostExports: {
-          '@qilin/runtime': ['runtimeValue'],
+          '@qilin-agent/runtime': ['runtimeValue'],
         },
       },
     )).toEqual([])
@@ -937,38 +937,38 @@ describe('dependency sections', () => {
     expect(manifest.dependencies).toBeUndefined()
     expect(manifest.peerDependencies).toMatchObject({
       [CORDIS]: 'workspace:~',
-      '@qilin/runtime': 'workspace:*',
+      '@qilin-agent/runtime': 'workspace:*',
     })
     expect(manifest.devDependencies).toMatchObject({
       [CORDIS]: 'workspace:~',
-      '@qilin/runtime': 'workspace:*',
+      '@qilin-agent/runtime': 'workspace:*',
     })
     expect(formatPeerRequiredRuntimeDependencies({
       facts: [subject], packages: [], policyViolations: [], workspaceNames: subject.workspaceNames,
     })).toEqual([
       'verify-package-dependencies: 1 Host runtime edge(s) remain in peerDependencies because their exports require shared identity across 1 package(s):',
-      '  @qilin/probe -> @qilin/runtime: @qilin/runtime#runtimeValue',
+      '  @qilin-agent/probe -> @qilin-agent/runtime: @qilin-agent/runtime#runtimeValue',
     ])
   })
 
   it('reports wrong sections, workspace ranges, and stale peer metadata', () => {
     const manifest: PackageDependencyManifest = {
-      name: '@qilin/probe',
-      dependencies: { '@qilin/types': 'workspace:^' },
-      devDependencies: { [CORDIS]: 'workspace:~', '@qilin/runtime': 'workspace:*' },
-      peerDependencies: { [CORDIS]: 'workspace:*', '@qilin/runtime': 'workspace:*' },
-      peerDependenciesMeta: { '@qilin/missing': { optional: true } },
+      name: '@qilin-agent/probe',
+      dependencies: { '@qilin-agent/types': 'workspace:^' },
+      devDependencies: { [CORDIS]: 'workspace:~', '@qilin-agent/runtime': 'workspace:*' },
+      peerDependencies: { [CORDIS]: 'workspace:*', '@qilin-agent/runtime': 'workspace:*' },
+      peerDependenciesMeta: { '@qilin-agent/missing': { optional: true } },
     }
     const state = {
       facts: [facts(manifest)], packages: [], policyViolations: [], workspaceNames: facts(manifest).workspaceNames,
     }
     const violations = collectPackageDependencyViolations(state)
     expect(violations).toEqual(expect.arrayContaining([
-      expect.stringContaining('@qilin/runtime'),
-      expect.stringContaining('@qilin/types'),
+      expect.stringContaining('@qilin-agent/runtime'),
+      expect.stringContaining('@qilin-agent/types'),
       expect.stringContaining(`${CORDIS} must be matching peerDependencies + devDependencies`),
-      expect.stringContaining('dependencies.@qilin/types must use workspace:*'),
-      expect.stringContaining('peerDependenciesMeta.@qilin/missing has no matching'),
+      expect.stringContaining('dependencies.@qilin-agent/types must use workspace:*'),
+      expect.stringContaining('peerDependenciesMeta.@qilin-agent/missing has no matching'),
     ]))
   })
 
@@ -977,15 +977,15 @@ describe('dependency sections', () => {
     roots.push(root)
     const manifestPath = 'package.json'
     const manifest: PackageDependencyManifest = {
-      name: '@qilin/probe',
-      dependencies: { '@qilin/schemastery': 'workspace:*', external: '^1.0.0' },
-      devDependencies: { [CORDIS]: 'workspace:~', '@qilin/runtime': 'workspace:*' },
+      name: '@qilin-agent/probe',
+      dependencies: { '@qilin-agent/schemastery': 'workspace:*', external: '^1.0.0' },
+      devDependencies: { [CORDIS]: 'workspace:~', '@qilin-agent/runtime': 'workspace:*' },
       peerDependencies: {
         [CORDIS]: 'workspace:~',
-        '@qilin/runtime': 'workspace:*',
-        '@qilin/stale': 'workspace:*',
+        '@qilin-agent/runtime': 'workspace:*',
+        '@qilin-agent/stale': 'workspace:*',
       },
-      peerDependenciesMeta: { '@qilin/stale': { optional: true } },
+      peerDependenciesMeta: { '@qilin-agent/stale': { optional: true } },
     }
     writeFileSync(join(root, manifestPath), `${JSON.stringify(manifest, null, 2)}\n`)
     const subject = { ...facts(manifest), manifestPath }
@@ -994,14 +994,14 @@ describe('dependency sections', () => {
     expect(fixPackageDependencies(root, state)).toEqual([manifestPath])
     const fixed = JSON.parse(readFileSync(join(root, manifestPath), 'utf8')) as PackageDependencyManifest
     expect(fixed.dependencies).toEqual({
-      '@qilin/schemastery': 'workspace:~',
+      '@qilin-agent/schemastery': 'workspace:~',
       external: '^1.0.0',
-      '@qilin/runtime': 'workspace:*',
+      '@qilin-agent/runtime': 'workspace:*',
     })
     expect(fixed.devDependencies).toEqual({
       [CORDIS]: 'workspace:~',
-      '@qilin/types': 'workspace:*',
-      '@qilin/stale': 'workspace:*',
+      '@qilin-agent/types': 'workspace:*',
+      '@qilin-agent/stale': 'workspace:*',
     })
     expect(fixed.peerDependencies).toEqual({ [CORDIS]: 'workspace:~' })
     expect(fixed.peerDependenciesMeta).toBeUndefined()
@@ -1009,12 +1009,12 @@ describe('dependency sections', () => {
 
   it('repairs an in-memory manifest for benchmark simulation', () => {
     const manifest: PackageDependencyManifest = {
-      name: '@qilin/probe',
-      peerDependencies: { [CORDIS]: 'workspace:~', '@qilin/runtime': 'workspace:*' },
-      devDependencies: { [CORDIS]: 'workspace:~', '@qilin/runtime': 'workspace:*' },
+      name: '@qilin-agent/probe',
+      peerDependencies: { [CORDIS]: 'workspace:~', '@qilin-agent/runtime': 'workspace:*' },
+      devDependencies: { [CORDIS]: 'workspace:~', '@qilin-agent/runtime': 'workspace:*' },
     }
     repairPackageDependencyManifest(facts(manifest))
-    expect(manifest.dependencies).toEqual({ '@qilin/runtime': 'workspace:*' })
+    expect(manifest.dependencies).toEqual({ '@qilin-agent/runtime': 'workspace:*' })
     expect(manifest.peerDependencies).toEqual({ [CORDIS]: 'workspace:~' })
   })
 })

@@ -3,7 +3,7 @@ description: "The local filesystem skill provider for users and maintainers auth
 kind: "package-reference"
 ---
 
-# @qilin/skill-filesystem
+# @qilin-agent/skill-filesystem
 
 English | [中文](README.zh.md)
 
@@ -60,8 +60,8 @@ The project root is the nearest ancestor containing `.git`; without one, the cur
 Load the plugin alongside the skill registry; it requires `ctx.skills`.
 
 ```yaml
-- name: '@qilin/skill'
-- name: '@qilin/skill-filesystem'
+- name: '@qilin-agent/skill'
+- name: '@qilin-agent/skill-filesystem'
 ```
 
 | Field | Default | Meaning |
@@ -74,7 +74,7 @@ Load the plugin alongside the skill registry; it requires `ctx.skills`.
 | `watch` | `true` | Watch local roots and invalidate the provider when the catalog may have changed |
 | `bundledSkillDir` | — | Bundled skill root scanned at rank 600 when configured |
 
-The remaining `watch*` fields tune Chokidar behavior — polling, stability window, interval, project cap, and symlink following. The generated [configuration catalog](../../../docs/config-catalog.md#qilinskill-filesystem) is the exhaustive source for every field.
+The remaining `watch*` fields tune Chokidar behavior — polling, stability window, interval, project cap, and symlink following. The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agentskill-filesystem) is the exhaustive source for every field.
 
 ### Change detection
 

@@ -1,13 +1,13 @@
 /**
  * Model-facing UTF-8 read. It performs one provider stat for type, routing, and observed version,
  * streams large or size-unknown files, renders a bounded window, then emits the observation.
- * @module @qilin/tool-fs/src/read
+ * @module @qilin-agent/tool-fs/src/read
  */
 
-import type { Context } from '@qilin/kylin'
-import { defineTool } from '@qilin/tools'
-import type { GenericCallView, ReadResultView, ToolResult } from '@qilin/tools'
-import type {} from '@qilin/fs'
+import type { Context } from '@qilin-agent/kylin'
+import { defineTool } from '@qilin-agent/tools'
+import type { GenericCallView, ReadResultView, ToolResult } from '@qilin-agent/tools'
+import type {} from '@qilin-agent/fs'
 import { buildWindow, formatReadOutput, langFromPath, readMetaFromMeta } from './read-render.ts'
 import { resolveRegularReadTarget } from './read-target.ts'
 

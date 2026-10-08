@@ -1,17 +1,17 @@
 # Keyless generic ACP v1 control-surface patch over `qilin --profile acp`.
 
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
+  name: '@qilin-agent/llm-deepseek'
   disabled: true
 
 - id: acp
-  name: '@qilin/acp'
+  name: '@qilin-agent/acp'
   config:
     provider: control-fixture
     model: alpha
 
 - id: session-persistence-jsonl
-  name: '@qilin/session-persistence-jsonl'
+  name: '@qilin-agent/session-persistence-jsonl'
   config:
     root: !!js process.env.QILIN_CONFORMANCE_PERSISTENCE_ROOT
     compression: none

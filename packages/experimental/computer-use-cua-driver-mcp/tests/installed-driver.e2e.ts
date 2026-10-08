@@ -1,10 +1,10 @@
 /** Explicit opt-in compatibility check against an installed Cua Driver executable. */
 import { isAbsolute } from 'node:path'
-import { Context } from '@qilin/kylin'
-import ComputerUse from '@qilin/computer-use'
-import { ToolCallId } from '@qilin/llm'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
+import { Context } from '@qilin-agent/kylin'
+import ComputerUse from '@qilin-agent/computer-use'
+import { ToolCallId } from '@qilin-agent/llm'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
 import { expect, it } from 'vitest'
 import * as Provider from '../src/index.ts'
 

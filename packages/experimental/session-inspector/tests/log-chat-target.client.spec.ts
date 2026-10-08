@@ -1,8 +1,8 @@
 /** Log inspection submits original coordinates without reading Chat nodes. */
 
 import { expect, it } from 'vitest'
-import { SessionSeq, type SessionEvent } from '@qilin/session/types'
-import type { MessageId, ToolCallId } from '@qilin/llm'
+import { SessionSeq, type SessionEvent } from '@qilin-agent/session/types'
+import type { MessageId, ToolCallId } from '@qilin-agent/llm'
 import { sessionLogChatTarget } from '../src/client/views/session-log/chat-target.ts'
 
 it('keeps a user message’s original sequence without inventing Turn or Step coordinates', () => {

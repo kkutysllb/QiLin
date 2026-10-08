@@ -14,13 +14,13 @@
  */
 
 import type { CacheRetention, ChatTemplateKwargValue, ModelThinkingLevel, Provider, ThinkingBudgets, Transport } from '@earendil-works/pi-ai'
-import z from '@qilin/schemastery'
-import { credentialRef } from '@qilin/credentials'
-import type { CredentialRef } from '@qilin/credentials'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
-import { resolveRetryPolicy, RetryPolicySchema } from '@qilin/llm'
-import type { ResolvedRetryPolicy, RetryPolicyConfig } from '@qilin/llm'
-import { deepEqualJson } from '@qilin/util-values'
+import z from '@qilin-agent/schemastery'
+import { credentialRef } from '@qilin-agent/credentials'
+import type { CredentialRef } from '@qilin-agent/credentials'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
+import { resolveRetryPolicy, RetryPolicySchema } from '@qilin-agent/llm'
+import type { ResolvedRetryPolicy, RetryPolicyConfig } from '@qilin-agent/llm'
+import { deepEqualJson } from '@qilin-agent/util-values'
 import {
   CACHE_CONTROL_FORMATS,
   CHAT_TEMPLATE_VARS,

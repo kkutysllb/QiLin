@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /** Inspect the public Claude Code Bundle composition without invoking the product. */
 
-import { resolveConfigPath } from '@qilin/app-boot'
-import type {} from '@qilin/subagent'
-import type {} from '@qilin/tools'
+import { resolveConfigPath } from '@qilin-agent/app-boot'
+import type {} from '@qilin-agent/subagent'
+import type {} from '@qilin-agent/tools'
 import { bootProductionProfile } from '../../../../../test-support/loader-smoke/tests/fixtures/production-profile.ts'
 
 const configPath = process.argv[2]

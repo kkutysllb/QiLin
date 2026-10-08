@@ -4,11 +4,11 @@
  */
 import assert from 'node:assert/strict'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { Context } from '@qilin/kylin'
-import SystemPrompt, { renderPrompt } from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
-import { createScope } from '@qilin/scope'
-import type { Config } from '@qilin/mcp-client'
+import { Context } from '@qilin-agent/kylin'
+import SystemPrompt, { renderPrompt } from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
+import { createScope } from '@qilin-agent/scope'
+import type { Config } from '@qilin-agent/mcp-client'
 
 // ---- Mock MCP SDK ----
 
@@ -48,7 +48,7 @@ vi.mock('@modelcontextprotocol/client/stdio', () => ({
 
 // vi.mock is hoisted above static imports, so the module under test sees the
 // mocked SDK even through a static import.
-import { apply, name, inject, Config as ConfigSchema } from '@qilin/mcp-client/src/index.ts'
+import { apply, name, inject, Config as ConfigSchema } from '@qilin-agent/mcp-client/src/index.ts'
 
 // ---- Helpers ----
 

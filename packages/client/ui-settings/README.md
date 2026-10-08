@@ -3,7 +3,7 @@ description: "Settings domain base plugin: shared configuration forms, schema se
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-settings
+# @qilin-agent/client-ui-settings
 
 English | [中文](README.zh.md)
 

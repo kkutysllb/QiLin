@@ -2,9 +2,9 @@
 /** Present UI derives statuses and details from durable tool records. */
 import { cleanup, fireEvent, render } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
-import type { StartedToolCall, ToolResultNode } from '@qilin/client-ui-chat/client'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import { PartialArguments } from '@qilin/util-values'
+import type { StartedToolCall, ToolResultNode } from '@qilin-agent/client-ui-chat/client'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import { PartialArguments } from '@qilin-agent/util-values'
 import { PresentRow } from '../src/client/PresentRow.tsx'
 import { en } from '../src/client/locales.ts'
 

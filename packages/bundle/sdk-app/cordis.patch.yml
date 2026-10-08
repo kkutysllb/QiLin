@@ -11,12 +11,12 @@
 
 - insert:
     - id: sdk-app-startup
-      name: '@qilin/sdk-app'
+      name: '@qilin-agent/sdk-app'
       config:
         profile: sdk
 
     - id: sdk-jsonrpc-server
-      name: '@qilin/sdk-jsonrpc-server'
+      name: '@qilin-agent/sdk-jsonrpc-server'
       inject: [sdkAppStartup, loader]
       config:
         maxTokensAsSuccess: !!js "process.env.QILIN_MAX_TOKENS_AS_SUCCESS === undefined ? true : JSON.parse(process.env.QILIN_MAX_TOKENS_AS_SUCCESS)"
@@ -32,13 +32,13 @@
 # row can be patched independently.
 - insert:
     - id: workspace-dependencies
-      name: '@qilin/tool-workspace-dependencies'
+      name: '@qilin-agent/tool-workspace-dependencies'
       disabled: !!js "!(process.env.QILIN_PRIMARY_RUNTIME ?? process.env.QILIN_BUNDLED_PRIMARY_RUNTIME)"
       config:
         source: !!js "process.getBuiltinModule('node:path').resolve(process.env.QILIN_PRIMARY_RUNTIME ?? process.env.QILIN_BUNDLED_PRIMARY_RUNTIME ?? '')"
 
     - id: skill-office
-      name: '@qilin/skill-office'
+      name: '@qilin-agent/skill-office'
       disabled: !!js "!(process.env.QILIN_PRIMARY_RUNTIME ?? process.env.QILIN_BUNDLED_PRIMARY_RUNTIME)"
       config:
         assetRoot: !!js "process.getBuiltinModule('node:path').resolve(process.env.QILIN_PRIMARY_RUNTIME ?? process.env.QILIN_BUNDLED_PRIMARY_RUNTIME ?? '', '..', 'office-skills')"

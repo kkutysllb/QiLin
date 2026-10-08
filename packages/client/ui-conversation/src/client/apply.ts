@@ -1,17 +1,17 @@
 /** Registers the target-neutral Conversation assembly, shell, input, and docks. */
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type { ISessions, SessionBinding } from '@qilin/api-session-controller/client'
-import type { ShortcutCommandId, ShortcutFixedCommand } from '@qilin/client-shortcuts/client'
-import { IconPaperclipOutline16 } from '@qilin/client-ui-primitives'
-import { createSnapshotStore, type BoundActions } from '@qilin/client-store'
-import { resolveSlotLabel } from '@qilin/client-ui-slots'
-import type { SessionId } from '@qilin/session/types'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type { ISessions, SessionBinding } from '@qilin-agent/api-session-controller/client'
+import type { ShortcutCommandId, ShortcutFixedCommand } from '@qilin-agent/client-shortcuts/client'
+import { IconPaperclipOutline16 } from '@qilin-agent/client-ui-primitives'
+import { createSnapshotStore, type BoundActions } from '@qilin-agent/client-store'
+import { resolveSlotLabel } from '@qilin-agent/client-ui-slots'
+import type { SessionId } from '@qilin-agent/session/types'
 // Type-only service and declaration merges used by this assembly.
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-session/client'
-import type {} from '@qilin/client-ui-settings/client'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-session/client'
+import type {} from '@qilin-agent/client-ui-settings/client'
 import { UiConversation } from './conversation/assembly.ts'
 import type { ViewTab } from './contract/views.ts'
 import type {
@@ -44,7 +44,7 @@ import { TRAJECTORY_VIEW_ID, resolveActiveView } from './view-selection.ts'
 import { en, NS, zh, type ConversationKey } from './locales.ts'
 import { CONVERSATION_SETTINGS_NAMESPACE, type ConversationSettings } from '../conversation-settings.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Conversation shell, composer, queue, and dock copy. */
     conversation: ConversationKey

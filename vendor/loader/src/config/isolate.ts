@@ -1,5 +1,5 @@
-import { Context } from '@qilin/kylin'
-import type { Dict } from '@qilin/cosmokit'
+import { Context } from '@qilin-agent/kylin'
+import type { Dict } from '@qilin-agent/cosmokit'
 import { Entry } from './entry.ts'
 
 declare module './entry.ts' {

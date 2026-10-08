@@ -8,17 +8,17 @@
  * image-reading tool is useful only when the exact calling route can inspect
  * its result, so unknown capability refuses instead of relying on an adapter
  * failure after filesystem and attachment work.
- * @module @qilin/tool-fs/src/read-image
+ * @module @qilin-agent/tool-fs/src/read-image
  */
 
 import { basename, extname } from 'node:path'
-import type { Context } from '@qilin/kylin'
-import { AttachmentError, AttachmentId } from '@qilin/attachment'
-import type { AttachmentStore, ImageAttachmentRef, ImageMediaType } from '@qilin/attachment'
-import type { ContentBlock } from '@qilin/llm'
-import { defineTool } from '@qilin/tools'
-import type { GenericCallView, ToolExecution } from '@qilin/tools'
-import type {} from '@qilin/fs'
+import type { Context } from '@qilin-agent/kylin'
+import { AttachmentError, AttachmentId } from '@qilin-agent/attachment'
+import type { AttachmentStore, ImageAttachmentRef, ImageMediaType } from '@qilin-agent/attachment'
+import type { ContentBlock } from '@qilin-agent/llm'
+import { defineTool } from '@qilin-agent/tools'
+import type { GenericCallView, ToolExecution } from '@qilin-agent/tools'
+import type {} from '@qilin-agent/fs'
 import { resolveRegularReadTarget } from './read-target.ts'
 
 /** Extensions `read_image` accepts; magic-byte validation at the attachment service stays authoritative. */

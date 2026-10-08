@@ -3,7 +3,7 @@ description: "Human slash-command registry for interactive UIs: plugin-owned com
 kind: "package-reference"
 ---
 
-# @qilin/commands
+# @qilin-agent/commands
 
 English | [中文](README.zh.md)
 

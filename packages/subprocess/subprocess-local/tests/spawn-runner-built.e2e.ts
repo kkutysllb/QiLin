@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import type { SubprocessSpawnSpec } from '@qilin/subprocess'
+import type { SubprocessSpawnSpec } from '@qilin-agent/subprocess'
 import {
   cleanupLinuxLaunchFiles,
   createLinuxLaunchFiles,
@@ -21,7 +21,7 @@ import { launchWindowsJob } from '../src/windows-job.ts'
 
 const repoRoot = resolve(import.meta.dirname, '../../../..')
 const sourceRunner = resolve(repoRoot, 'packages/subprocess/subprocess-local/src/bin.ts')
-const builtRunner = fileURLToPath(import.meta.resolve('@qilin/subprocess-local/runner'))
+const builtRunner = fileURLToPath(import.meta.resolve('@qilin-agent/subprocess-local/runner'))
 
 function targetEnv(): Record<string, string> {
   return {

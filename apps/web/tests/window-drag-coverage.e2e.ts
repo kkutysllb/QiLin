@@ -6,7 +6,7 @@
 // every app-region rule to it). CDP-injected clicks cannot decide this class:
 // the swallow happens in Electron's native window, so the claims here are
 // geometry claims decided by the shared composition model
-// (@qilin/client-web window-drag/regions.ts).
+// (@qilin-agent/client-web window-drag/regions.ts).
 //
 // Probes are anchored to stable data hooks and derived from live rects, so a
 // layout change moves them rather than invalidating them. The ui-theme app-region
@@ -22,10 +22,10 @@
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { initialShortcutConfig } from '@qilin/client-shortcuts/protocol'
+import { initialShortcutConfig } from '@qilin-agent/client-shortcuts/protocol'
 import {
   INTERACTIVE_SELECTOR, RECALL_MARK, isDraggableAt, type RegionRect,
-} from '@qilin/client-web/src/window-drag/regions.ts'
+} from '@qilin-agent/client-web/src/window-drag/regions.ts'
 import { launchWebScaffold, watchConsole, type WebScaffold } from './scaffold.ts'
 import { connectFreshWorkspace, newEnglishPage, saveFailureShot } from './support.ts'
 

@@ -4,10 +4,10 @@
  * reports.
  */
 import { describe, expect, it, vi } from 'vitest'
-import { RemoteError } from '@qilin/client-test-runtime'
-import type { RemoteFailure } from '@qilin/api-remotes/client'
-import type { GitStatusEntry } from '@qilin/api-workspace-git/types'
-import { makeTranslate } from '@qilin/client-test-runtime'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
+import type { RemoteFailure } from '@qilin-agent/api-remotes/client'
+import type { GitStatusEntry } from '@qilin-agent/api-workspace-git/types'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
 import { zh } from '../src/client/locales.ts'
 import {
   badgeOf, canDiscardEntry, diffLineKind, formatCommitTime, gitFailureLine, groupChanges,

@@ -1,16 +1,16 @@
 /** Recorded todo predecessors follow incremental history repair and nested invocations. */
 import { describe, expect, it } from 'vitest'
-import { ConversationNodeAssembler, type TodoItem } from '@qilin/client-ui-conversation/client'
-import { SessionSeq, type SessionEvent } from '@qilin/session/types'
-import type { SessionLiveEventEntry } from '@qilin/api-session-controller/client'
-import { ToolCallId } from '@qilin/llm/brand'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import { en } from '@qilin/client-ui-conversation/src/client/locales.ts'
-import { en as commonEn } from '@qilin/client-locale/src/locales/en.ts'
+import { ConversationNodeAssembler, type TodoItem } from '@qilin-agent/client-ui-conversation/client'
+import { SessionSeq, type SessionEvent } from '@qilin-agent/session/types'
+import type { SessionLiveEventEntry } from '@qilin-agent/api-session-controller/client'
+import { ToolCallId } from '@qilin-agent/llm/brand'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import { en } from '@qilin-agent/client-ui-conversation/src/client/locales.ts'
+import { en as commonEn } from '@qilin-agent/client-locale/src/locales/en.ts'
 import { todoCallDefinition, todoHistoryView, todoWriteDefinition, type TodoHistory } from '../src/client/tool/models/todo-history.ts'
 import { todoDiffModel } from '../src/client/tool/models/todo-diff-model.ts'
-import type { ToolResultNode } from '@qilin/client-ui-chat/client'
-import { PartialArguments } from '@qilin/util-values'
+import type { ToolResultNode } from '@qilin-agent/client-ui-chat/client'
+import { PartialArguments } from '@qilin-agent/util-values'
 
 const t = makeTranslate(en, commonEn)
 const first: TodoItem[] = [

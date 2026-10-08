@@ -1,18 +1,18 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import LlmRuntime, { createUserMessage, ToolCallId, LlmError, ReasoningEffortId, StreamChunk, expandAssistantStream } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import type { GenerateOptions } from '@qilin/llm'
-import SessionStore, { SessionId, TurnEndReason } from '@qilin/session'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime, { defineContentToolFixture } from '@qilin/tools'
-import AgentRegistry, { type Agent, type AssistantStreamFrame } from '@qilin/agent'
+import { Context } from '@qilin-agent/kylin'
+import LlmRuntime, { createUserMessage, ToolCallId, LlmError, ReasoningEffortId, StreamChunk, expandAssistantStream } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import type { GenerateOptions } from '@qilin-agent/llm'
+import SessionStore, { SessionId, TurnEndReason } from '@qilin-agent/session'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime, { defineContentToolFixture } from '@qilin-agent/tools'
+import AgentRegistry, { type Agent, type AssistantStreamFrame } from '@qilin-agent/agent'
 
-import AgentLoop from '@qilin/agent-loop'
-import SessionProjectionRegistry from '@qilin/session-projection'
+import AgentLoop from '@qilin-agent/agent-loop'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import { MockAdapter, maxTokensResponse, textResponse, toolCallResponse } from './mock-adapter.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'loop-test': { kind: 'loop-test' } & ContextFormed
     'max-tokens-test': { kind: 'max-tokens-test' } & ContextFormed

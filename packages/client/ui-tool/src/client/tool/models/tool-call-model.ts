@@ -8,11 +8,11 @@
 // The block union's defining home is runtime (fold-product types); this
 // contract only forwards it (type-definition authority stays with the layer
 // that produces the values).
-import type { ToolArgs, ToolCallBlock, ToolResultNode } from '@qilin/client-ui-chat/client'
-import type { LocaleKeysOf } from '@qilin/client-ui-slots'
-import { abbreviateHomePath, relativizeToCwd } from '@qilin/util-workspace-path'
+import type { ToolArgs, ToolCallBlock, ToolResultNode } from '@qilin-agent/client-ui-chat/client'
+import type { LocaleKeysOf } from '@qilin-agent/client-ui-slots'
+import { abbreviateHomePath, relativizeToCwd } from '@qilin-agent/util-workspace-path'
 
-export type { ToolCallBlock } from '@qilin/client-ui-chat/client'
+export type { ToolCallBlock } from '@qilin-agent/client-ui-chat/client'
 
 /** Tool-call row variants selected by the generic atomic renderer. */
 export type ToolRowVariant = 'search' | 'read' | 'bash' | 'write' | 'edit' | 'code' | 'others'

@@ -2,12 +2,12 @@
  * Public session-reference request, candidate, and preparation records.
  * Imports stay on type-only subpaths so generated Remote clients can consume
  * this module without Host runtime code.
- * @module @qilin/session-reference/types
+ * @module @qilin-agent/session-reference/types
  */
 
-import type { UserMessage } from '@qilin/llm/message'
-import type { ContentBlock } from '@qilin/llm/types'
-import type { OptionalSessionSeq, SessionId } from '@qilin/session/types'
+import type { UserMessage } from '@qilin-agent/llm/message'
+import type { ContentBlock } from '@qilin-agent/llm/types'
+import type { OptionalSessionSeq, SessionId } from '@qilin-agent/session/types'
 
 /** Durable source session, cited event seqs, and snapshot facts for prepared cross-session context. */
 export interface SessionReferenceSource {
@@ -31,7 +31,7 @@ export interface SessionReferenceSource {
   }[]
 }
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'session-reference': SessionReferenceSource
   }

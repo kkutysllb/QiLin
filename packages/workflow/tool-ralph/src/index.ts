@@ -2,17 +2,17 @@
  * Model-facing foreground Ralph loop over the workflow and subagent seams. A
  * fixed script starts one fresh structured-output child per round, carrying
  * only the immutable objective and the previous bounded handoff between them.
- * @module @qilin/tool-ralph
+ * @module @qilin-agent/tool-ralph
  */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type { ContentBlock } from '@qilin/llm'
-import type { JsonValue } from '@qilin/util-values'
-import type { SubagentProvider } from '@qilin/subagent'
-import { defineTool } from '@qilin/tools'
-import type { ToolCallView, ToolResultView } from '@qilin/tools'
-import type { WorkflowResult, WorkflowRun } from '@qilin/workflow'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type { ContentBlock } from '@qilin-agent/llm'
+import type { JsonValue } from '@qilin-agent/util-values'
+import type { SubagentProvider } from '@qilin-agent/subagent'
+import { defineTool } from '@qilin-agent/tools'
+import type { ToolCallView, ToolResultView } from '@qilin-agent/tools'
+import type { WorkflowResult, WorkflowRun } from '@qilin-agent/workflow'
 
 export const name = 'tool-ralph'
 export const inject = ['tools', 'workflowEngine', 'subagents', 'systemPrompt']

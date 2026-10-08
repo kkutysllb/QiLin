@@ -14,8 +14,8 @@ import { join } from 'node:path'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterEach, describe, expect, it, onTestFailed } from 'vitest'
-import type { ReplayOverrideDoc } from '@qilin/llm-replay'
-import type { SessionEvent } from '@qilin/session'
+import type { ReplayOverrideDoc } from '@qilin-agent/llm-replay'
+import type { SessionEvent } from '@qilin-agent/session'
 import {
   acknowledgeReloadConnectionLoss, assertFixtureInventory, captureStableAria, compareOrRefreshGolden, fixtureUserPrompts,
   launchWebScaffold, recordFixture, watchConsole, webSnapshotMode, type WebScaffold,

@@ -10,14 +10,14 @@ import {
   type RegistryIndex,
 } from './benchmark-npm-resolution.ts'
 
-const QILIN_PACKAGE = '@qilin/cli'
-const CORDIS_PACKAGE = '@qilin/kylin'
+const QILIN_PACKAGE = '@qilin-agent/cli'
+const CORDIS_PACKAGE = '@qilin-agent/kylin'
 /** The vendored foundation packages, which version with the framework rather than the harness. */
-const VENDORED_FOUNDATION_PACKAGES = ['@qilin/cosmokit', '@qilin/schemastery'] as const
+const VENDORED_FOUNDATION_PACKAGES = ['@qilin-agent/cosmokit', '@qilin-agent/schemastery'] as const
 /** The vendored Loader plugin family, which versions with the framework. */
-const VENDORED_PLUGIN_PREFIX = '@qilin/kylin-plugin-'
+const VENDORED_PLUGIN_PREFIX = '@qilin-agent/kylin-plugin-'
 /** The native addon sequence versions and publishes independently of a harness release. */
-const NATIVE_ADDON_PACKAGE = '@qilin/node-addon-system'
+const NATIVE_ADDON_PACKAGE = '@qilin-agent/node-addon-system'
 const NESTED_QILIN_ALIAS = 'qilin-previous'
 const NESTED_QILIN_PATH = `node_modules/${NESTED_QILIN_ALIAS}`
 const DEPENDENCY_FIELDS = ['dependencies', 'optionalDependencies', 'peerDependencies'] as const
@@ -61,7 +61,7 @@ function isQilinPackage(name: string): boolean {
   // Independently versioned packages are shared layers, deliberately outside the
   // dual-release scheme; everything else must carry the workspace release version.
   if (isIndependentPackage(name)) return false
-  return name === QILIN_PACKAGE || name.startsWith('@qilin/')
+  return name === QILIN_PACKAGE || name.startsWith('@qilin-agent/')
 }
 
 function cloneForVersion(manifest: object, version: string): MutableRegistryManifest {

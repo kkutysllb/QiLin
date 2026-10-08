@@ -8,6 +8,6 @@
  */
 export function profileWorkerBanner(format: 'cjs' | 'esm'): string {
   return format === 'cjs'
-    ? '"use strict";\nrequire("@qilin/app-boot/worker/profile-resolution-bootstrap");'
-    : 'import "@qilin/app-boot/worker/profile-resolution-bootstrap";'
+    ? '"use strict";\nrequire("@qilin-agent/app-boot/worker/profile-resolution-bootstrap");'
+    : 'import "@qilin-agent/app-boot/worker/profile-resolution-bootstrap";'
 }

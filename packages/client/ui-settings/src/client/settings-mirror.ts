@@ -9,9 +9,9 @@
  * through {@link SettingsDescribeMirror.acceptView}.
  */
 
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { SettingsNamespaceView } from '@qilin/api-remotes/client'
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { SettingsNamespaceView } from '@qilin-agent/api-remotes/client'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
 
 /** The full `settings.describe` answer the mirror serves. */
 export interface SettingsDescribeView {

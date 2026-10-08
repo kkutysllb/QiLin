@@ -15,26 +15,26 @@
  * The General-settings row separately writes the default preset for sessions
  * created later through the host Settings API.
  */
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { SessionFace } from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/api-remotes/client'
-import type { PermissionCatalog, PermissionSelection } from '@qilin/permission-presets/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { SessionFace } from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/api-remotes/client'
+import type { PermissionCatalog, PermissionSelection } from '@qilin-agent/permission-presets/client'
 // Direct dependency: catalog settlements are fenced by the actual connection
 // generation rather than by a parallel domain counter.
-import type {} from '@qilin/client-connection/client'
+import type {} from '@qilin-agent/client-connection/client'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
-import type {} from '@qilin/client-locale/client'
+import type {} from '@qilin-agent/client-locale/client'
 // Type-only: the settings slot types (this package registers a General row).
-import type {} from '@qilin/client-ui-settings/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-session/client'
-import type {} from '@qilin/client-ui-conversation/client'
+import type {} from '@qilin-agent/client-ui-settings/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-session/client'
+import type {} from '@qilin-agent/client-ui-conversation/client'
 // Type-only: pulls the ctx.remote merge and the forwarded-event key face
 // (the settings invalidation rides the allowlist) into this program.
-import type {} from '@qilin/api-remotes/client'
-import type { CommandUiContract, SelectOption } from '@qilin/client-ui-commands/client'
-import type { ClientSessionContext } from '@qilin/client-ui-input-trigger/client'
-import type { TranslateNS } from '@qilin/client-ui-slots'
+import type {} from '@qilin-agent/api-remotes/client'
+import type { CommandUiContract, SelectOption } from '@qilin-agent/client-ui-commands/client'
+import type { ClientSessionContext } from '@qilin-agent/client-ui-input-trigger/client'
+import type { TranslateNS } from '@qilin-agent/client-ui-slots'
 import { PermissionCatalogDirectory } from './catalog.ts'
 import { PermissionSelect } from './PermissionSelect.tsx'
 import type { PermissionSelectInjected } from './PermissionSelect.tsx'
@@ -62,7 +62,7 @@ export const inject = [
   'configForms', 'settingsSchema',
 ]
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Current-session permission picker and confirmation copy. */
     'permission.access': keyof typeof accessEn

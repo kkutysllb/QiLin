@@ -1,9 +1,9 @@
-import { SessionFormatError, sessionFormatCount, sessionFormatSafeInteger } from '@qilin/session-format'
-import { deepEqualJson } from '@qilin/util-values'
+import { SessionFormatError, sessionFormatCount, sessionFormatSafeInteger } from '@qilin-agent/session-format'
+import { deepEqualJson } from '@qilin-agent/util-values'
 import type {
   SessionFormatEvent,
   SessionFormatJsonValue,
-} from '@qilin/session-format'
+} from '@qilin-agent/session-format'
 import { assertReleasedV0Keys, releasedV0Record } from './validation-helpers.ts'
 
 type JsonRecord = Record<string, SessionFormatJsonValue>

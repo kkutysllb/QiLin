@@ -5,7 +5,7 @@
  */
 import { afterEach, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render } from '@testing-library/react'
-import { makeTranslate } from '@qilin/client-test-runtime'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
 import { TerminalFontRow, type TerminalFontRowProps } from '../src/client/TerminalFontRow.tsx'
 import { en } from '../src/client/locales.ts'
 

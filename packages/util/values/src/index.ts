@@ -1,4 +1,4 @@
-/** Duplicate-install-safe JSON and immutable-value helpers. @module @qilin/util-values */
+/** Duplicate-install-safe JSON and immutable-value helpers. @module @qilin-agent/util-values */
 
 /** A value that round-trips through JSON without loss. */
 export type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue }

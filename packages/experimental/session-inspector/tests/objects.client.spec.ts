@@ -1,12 +1,12 @@
 /** Named references use runtime identity and read the latest materialized values. */
 
 import { expect, it, vi } from 'vitest'
-import { createSnapshotStore } from '@qilin/client-store'
-import { ChatSnapshotBuilder } from '@qilin/client-ui-chat/src/client/conversation-nodes/chat-snapshot-builder.ts'
-import type { ChatSnapshot } from '@qilin/client-ui-chat/client'
-import { ConversationGroupStore } from '@qilin/client-ui-conversation/src/client/conversation/group-store.ts'
-import type { ConversationBinding, ConversationSnapshot, GroupKey, NodeKey } from '@qilin/client-ui-conversation/client'
-import type { SessionId } from '@qilin/session/types'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { ChatSnapshotBuilder } from '@qilin-agent/client-ui-chat/src/client/conversation-nodes/chat-snapshot-builder.ts'
+import type { ChatSnapshot } from '@qilin-agent/client-ui-chat/client'
+import { ConversationGroupStore } from '@qilin-agent/client-ui-conversation/src/client/conversation/group-store.ts'
+import type { ConversationBinding, ConversationSnapshot, GroupKey, NodeKey } from '@qilin-agent/client-ui-conversation/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import { ChatNodeModel } from '../src/client/views/chat-node/model.ts'
 import { InspectorObjectValue } from '../src/client/views/object-value.ts'
 import { chatNodeWithLocation } from './chat-node-fixture.client.ts'

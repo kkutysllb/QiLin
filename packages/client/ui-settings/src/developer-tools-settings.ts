@@ -1,6 +1,6 @@
 /** Shared developer-tool preference stored by the Host user-settings document. */
 
-import z from '@qilin/schemastery'
+import z from '@qilin-agent/schemastery'
 
 /** Namespace for developer UI and HTML preview capabilities. */
 export const DEVELOPER_TOOLS_NAMESPACE = 'ui-settings'

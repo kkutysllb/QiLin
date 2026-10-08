@@ -1,19 +1,19 @@
 // @vitest-environment jsdom
 /** Detail adapters accept the exact recorded result text and retain safe fallback paths. */
 import { describe, expect, it } from 'vitest'
-import type { ToolResultNode } from '@qilin/client-ui-chat/client'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import { en, zh } from '@qilin/client-ui-conversation/src/client/locales.ts'
-import { en as commonEn } from '@qilin/client-locale/src/locales/en.ts'
-import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
-import { statusLine } from '@qilin/tool-jobs/src/render.ts'
-import { presentation } from '@qilin/tool-session-query/src/presentation.ts'
-import { renderList, renderRead, renderSpawn } from '@qilin/tool-terminal/src/render.ts'
-import { formatSpillNotice } from '@qilin/spill-policy/notice'
+import type { ToolResultNode } from '@qilin-agent/client-ui-chat/client'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import { en, zh } from '@qilin-agent/client-ui-conversation/src/client/locales.ts'
+import { en as commonEn } from '@qilin-agent/client-locale/src/locales/en.ts'
+import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
+import { statusLine } from '@qilin-agent/tool-jobs/src/render.ts'
+import { presentation } from '@qilin-agent/tool-session-query/src/presentation.ts'
+import { renderList, renderRead, renderSpawn } from '@qilin-agent/tool-terminal/src/render.ts'
+import { formatSpillNotice } from '@qilin-agent/spill-policy/notice'
 import { detailBadge, detailJson, detailList, detailRecord, inspectionItems, nonempty } from '../src/client/tool/models/detail-model-shared.ts'
 import { detailsCardModel } from '../src/client/tool/models/details-card-model.ts'
-import { SpillLocator } from '@qilin/spill'
-import { PartialArguments } from '@qilin/util-values'
+import { SpillLocator } from '@qilin-agent/spill'
+import { PartialArguments } from '@qilin-agent/util-values'
 
 const t = makeTranslate(en, commonEn)
 

@@ -2,15 +2,15 @@
  * Tests for the spill Service Definition: a minimal concrete subclass registers as
  * `ctx.spillStore`, a second load throws (duplicate service), and disposal
  * releases the service. The storage behavior is the implementation's concern
- * (`@qilin/spill-local`); here we only pin the seam contract.
+ * (`@qilin-agent/spill-local`); here we only pin the seam contract.
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { ToolCallId } from '@qilin/llm'
-import { SessionId } from '@qilin/session'
-import { SpillLocator, SpillStore } from '@qilin/spill'
-import type { SaveTextSpill, SpillRef } from '@qilin/spill'
+import { Context } from '@qilin-agent/kylin'
+import { ToolCallId } from '@qilin-agent/llm'
+import { SessionId } from '@qilin-agent/session'
+import { SpillLocator, SpillStore } from '@qilin-agent/spill'
+import type { SaveTextSpill, SpillRef } from '@qilin-agent/spill'
 
 /** Minimal concrete backend: records the last request, returns a fixed ref. */
 class StubStore extends SpillStore {

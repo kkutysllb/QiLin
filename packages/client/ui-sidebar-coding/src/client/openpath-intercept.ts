@@ -304,7 +304,7 @@ export function fileTargetOfAddress(address: string): FileAddressTarget | undefi
   if (typeof address !== 'string' || !address.startsWith(FILE_ADDRESS_PREFIX)) return undefined
   try {
     /* jscpd:ignore-start — dependency-free file-address grammar mirror of
-       @qilin/util-workspace-path src/file-address.ts parseFileAddress (see JSDoc above) */
+       @qilin-agent/util-workspace-path src/file-address.ts parseFileAddress (see JSDoc above) */
     const end = address.search(/[?#]/)
     const [scope, ...rest] = address
       .slice(FILE_ADDRESS_PREFIX.length, end === -1 ? undefined : end)

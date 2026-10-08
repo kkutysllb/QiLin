@@ -5,20 +5,20 @@
  * projections of `ctx.jobs`; the model's consuming cursor and notice state
  * never observe them, and a human kill is not the model's own, so the
  * completion notice still reaches the owning agent.
- * @module @qilin/api-job-controller
+ * @module @qilin-agent/api-job-controller
  */
 
-import { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type {} from '@qilin/jobs'
-import { Remote, RemoteError, TypertRemoteService } from '@qilin/typert-protocol'
+import { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type {} from '@qilin-agent/jobs'
+import { Remote, RemoteError, TypertRemoteService } from '@qilin-agent/typert-protocol'
 import { observeJobOutput } from './observe.ts'
 import { streamJobRows } from './rows.ts'
 import type { JobKillRequest, JobKillValue, JobFollowFrame, JobFollowRequest, JobListFrame, JobListRequest } from './types.ts'
 
 export type * from './types.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Host job Remote namespace owner. */
     jobController: JobController

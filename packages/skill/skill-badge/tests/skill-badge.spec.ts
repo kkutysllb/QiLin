@@ -1,10 +1,10 @@
 import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it } from 'vitest'
-import SkillRegistry from '@qilin/skill'
-import * as SkillBadge from '@qilin/skill-badge'
+import SkillRegistry from '@qilin-agent/skill'
+import * as SkillBadge from '@qilin-agent/skill-badge'
 
 describe('qilin-skill-badge', () => {
   it('registers and disposes the bundled badge skill', async () => {

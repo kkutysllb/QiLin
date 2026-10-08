@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-ui-settings-mcp",
+  "name": "@qilin-agent/client-ui-settings-mcp",
   "description": "MCP servers page in Web Settings: patch-layer CRUD over the mcpServers Remote",
   "version": "3.1.1",
   "publishConfig": {
@@ -31,9 +31,9 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/api-remotes",
-        "@qilin/client-ui-settings",
-        "@qilin/client-locale"
+        "@qilin-agent/api-remotes",
+        "@qilin-agent/client-ui-settings",
+        "@qilin-agent/client-locale"
       ],
       "platform": "web"
     }
@@ -44,20 +44,20 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/api-remotes": "workspace:*",
-    "@qilin/client-locale": "workspace:*",
-    "@qilin/client-store": "workspace:*",
-    "@qilin/client-test-runtime": "workspace:*",
-    "@qilin/client-ui-primitives": "workspace:*",
-    "@qilin/client-ui-renderer": "workspace:*",
-    "@qilin/client-ui-settings": "workspace:*",
-    "@qilin/client-ui-slots": "workspace:*",
-    "@qilin/mcp-servers": "workspace:*",
-    "@qilin/typert-protocol": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/api-remotes": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-settings": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/mcp-servers": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*",
     "@testing-library/react": "^16.1.0",
     "@types/react": "~18.3.1",
     "react": "^18.2.0",

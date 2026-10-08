@@ -1,18 +1,18 @@
-import { createUserMessage } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import { Context } from '@qilin/kylin'
+import { createUserMessage } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it } from 'vitest'
-import SessionStore, { Session, SessionId, SessionSeq } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
+import SessionStore, { Session, SessionId, SessionSeq } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import SessionTitleService, {
   SessionTitleProviderId,
   fallbackSessionTitle,
   foldSessionTitle,
   normalizeSessionTitle,
   truncateTitleUtf8,
-} from '@qilin/session-title'
+} from '@qilin-agent/session-title'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'seed': { kind: 'seed' } & ContextFormed
   }

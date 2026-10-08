@@ -11,8 +11,8 @@ import type { KeyboardEvent, ReactNode, RefObject } from 'react'
 import clsx from 'clsx'
 import {
   IconChevronLeftOutline14, IconChevronRightOutline14,
-} from '@qilin/client-ui-primitives'
-import type { PropsLocale } from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-primitives'
+import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import { PickerPopover } from './PickerPopover.tsx'
 import type { TaskManagerKey } from './task-manager-locales.ts'
 import css from './DatePicker.module.css'

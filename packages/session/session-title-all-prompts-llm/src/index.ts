@@ -1,12 +1,12 @@
 /** All-human-messages model provider for `ctx.sessionTitle`. */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
 import {
   registerSessionTitleLlmProvider,
   SessionTitleLlmConfigFields,
-} from '@qilin/session-title-llm'
-import type { SessionTitleLlmConfig } from '@qilin/session-title-llm'
+} from '@qilin-agent/session-title-llm'
+import type { SessionTitleLlmConfig } from '@qilin-agent/session-title-llm'
 
 export const name = 'session-title-all-prompts-llm'
 export const inject = ['sessionTitle', 'llm', 'sessions']

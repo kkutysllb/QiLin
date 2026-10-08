@@ -3,7 +3,7 @@ description: "Host-native command and path-opening utilities with shell-free exe
 kind: "package-library"
 ---
 
-# @qilin/native-command
+# @qilin-agent/native-command
 
 English | [中文](README.zh.md)
 
@@ -30,7 +30,7 @@ Use this runner when a host-side integration must execute one native command and
 ### Running a command
 
 ```ts
-import { runNativeCommand } from '@qilin/native-command'
+import { runNativeCommand } from '@qilin-agent/native-command'
 
 declare const script: string
 declare const signal: AbortSignal

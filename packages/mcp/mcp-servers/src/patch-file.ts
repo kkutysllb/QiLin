@@ -13,13 +13,13 @@
  * bundles below it never declared; a bare top-level row would be skipped by
  * `applyEntryPatches` as an unmatched patch. Enablement is the entry's own
  * `disabled` key, which the same patch application reads.
- * @module @qilin/mcp-servers/patch-file
+ * @module @qilin-agent/mcp-servers/patch-file
  */
 
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import { writeFileAtomic } from '@qilin/atomic-write'
-import { resolveQilinHome } from '@qilin/home-paths'
+import { writeFileAtomic } from '@qilin-agent/atomic-write'
+import { resolveQilinHome } from '@qilin-agent/home-paths'
 import { Document, isMap, isSeq, parseDocument, type YAMLMap, type YAMLSeq } from 'yaml'
 import type { McpBuiltinDefinition } from './builtins.ts'
 import type { McpServerDraft } from './types.ts'
@@ -27,7 +27,7 @@ import type { McpServerDraft } from './types.ts'
 /**
  * Filename of the home-level user patch layer under the QiLin home. The
  * launcher owns the same filename for a profile's own layer
- * (`PROFILE_PATCH_FILENAME` in `@qilin/app-boot`); this service addresses the
+ * (`PROFILE_PATCH_FILENAME` in `@qilin-agent/app-boot`); this service addresses the
  * home layer, which sits above every profile.
  */
 const USER_PATCH_FILENAME = 'cordis.patch.yml'
@@ -43,7 +43,7 @@ const PATCH_FILE_MODE = 0o600
 const HOME_DIR_MODE = 0o700
 
 /** Module specifier every managed entry loads. */
-const MCP_CLIENT_MODULE = '@qilin/mcp-client'
+const MCP_CLIENT_MODULE = '@qilin-agent/mcp-client'
 
 /** Prefix of a managed Loader entry id. */
 const ENTRY_ID_PREFIX = 'mcp-'

@@ -8,9 +8,9 @@
  * past it; the Sidebar controller places the open on the session on screen.
  * @module
  */
-import type { ISidebarRight, SidebarRightTabActions } from '@qilin/client-ui-sidebar-right/client'
-import type { SessionId } from '@qilin/session/types'
-import { previewedPath } from '@qilin/util-workspace-path'
+import type { ISidebarRight, SidebarRightTabActions } from '@qilin-agent/client-ui-sidebar-right/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import { previewedPath } from '@qilin-agent/util-workspace-path'
 
 /** The preview navigation the body receives. */
 export interface FilePreviewInjected {

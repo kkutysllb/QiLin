@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { DirectoryPicker, DirectoryPickerError } from '@qilin/host-directory-picker'
-import type { DirectoryPickerCapability } from '@qilin/host-directory-picker'
-import { remoteErrorOf } from '@qilin/typert-protocol'
+import { Context } from '@qilin-agent/kylin'
+import { DirectoryPicker, DirectoryPickerError } from '@qilin-agent/host-directory-picker'
+import type { DirectoryPickerCapability } from '@qilin-agent/host-directory-picker'
+import { remoteErrorOf } from '@qilin-agent/typert-protocol'
 import { DirectoryPickerController } from '../src/directory-picker.ts'
 
 const roots: Context[] = []

@@ -28,20 +28,20 @@
  * per-Session source.
  */
 
-import type { Context as ClientContext } from '@qilin/kylin'
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-ui-conversation/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-session/client'
-import type {} from '@qilin/client-ui-sidebar/client'
-import type {} from '@qilin/client-ui-sidebar-right/client'
-import type {} from '@qilin/client-ui-tool/client'
-import type {} from '@qilin/client-ui-workspace/client'
-import type { MainPanelId } from '@qilin/client-ui-layout/client'
-import type {} from '@qilin/api-remotes/client'
-import type {} from '@qilin/client-connection/client'
-import type { SessionId } from '@qilin/session/types'
-import type { ScheduleCatalogEntry, ScheduleDeliveryHistoryRequest, ScheduleId, ScheduleUpdateRequest } from '@qilin/schedule/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-ui-conversation/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-session/client'
+import type {} from '@qilin-agent/client-ui-sidebar/client'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
+import type {} from '@qilin-agent/client-ui-tool/client'
+import type {} from '@qilin-agent/client-ui-workspace/client'
+import type { MainPanelId } from '@qilin-agent/client-ui-layout/client'
+import type {} from '@qilin-agent/api-remotes/client'
+import type {} from '@qilin-agent/client-connection/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { ScheduleCatalogEntry, ScheduleDeliveryHistoryRequest, ScheduleId, ScheduleUpdateRequest } from '@qilin-agent/schedule/client'
 import { createCatalogSource, type CatalogDeleteOutcome, type CatalogInjected } from './catalog-source.ts'
 import { createDeleteToastSource, ScheduleDeleteToast } from './DeleteToast.tsx'
 import { SCHEDULE_TASK_ID, SCHEDULE_TASK_KIND, scheduleTaskDefinition } from './definition.ts'
@@ -64,7 +64,7 @@ import { en as managerEn, zh as managerZh, type TaskManagerKey } from './task-ma
 const MANAGER_NS = 'schedule.manager'
 const PANEL_ID = 'schedules' as MainPanelId
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Active Schedule catalog copy. */
     'schedule.catalog': ScheduleCatalogKey

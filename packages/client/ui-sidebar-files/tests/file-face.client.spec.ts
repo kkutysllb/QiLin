@@ -9,9 +9,9 @@
  */
 import { describe, expect, it, vi } from 'vitest'
 import type { Mock } from 'vitest'
-import { RemoteError } from '@qilin/client-test-runtime'
-import type { SessionId } from '@qilin/session/types'
-import type { TabId } from '@qilin/client-ui-dockkit'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
 import { fileEditFace } from '../src/client/file-face.ts'
 import type { WriteWorkspaceFile } from '../src/client/file-face.ts'
 import type { SessionFile } from '../src/client/file-guard.ts'

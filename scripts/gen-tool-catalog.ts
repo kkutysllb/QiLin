@@ -8,75 +8,75 @@
 
 import { globSync, readFileSync, writeFileSync } from 'node:fs'
 import { basename, resolve } from 'node:path'
-import { Context } from '@qilin/kylin'
-import LlmRuntime from '@qilin/llm'
-import type { ToolSchema } from '@qilin/llm'
-import AgentRegistry from '@qilin/agent'
-import type { Agent } from '@qilin/agent'
-import { createScope } from '@qilin/scope'
-import SessionStore, { SessionId } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import SqliteSessionQueryEngine from '@qilin/session-query-sqlite'
-import GoalService from '@qilin/goal'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime, { type Config as ToolsConfig } from '@qilin/tools'
-import LocalBashExecutor from '@qilin/bash-local'
-import * as BashEnvPlugin from '@qilin/shell-env'
-import { PwshLocalExecutor } from '@qilin/pwsh-local'
-import LocalSubprocessRuntime from '@qilin/subprocess-local'
-import LocalFileSystem from '@qilin/fs-local'
-import { AttachmentStore } from '@qilin/attachment'
-import type { ImageAttachmentLimits, ImageAttachmentRef, SaveImageAttachment, StoredImageAttachment } from '@qilin/attachment'
-import UserQuestionService from '@qilin/user-questions'
-import PlanModeController from '@qilin/plan-mode'
-import WebRuntime from '@qilin/web'
-import * as WebSearchExa from '@qilin/web-search-exa'
-import * as WebFetchLocal from '@qilin/web-fetch-http'
-import SubagentRuntime from '@qilin/subagent'
-import type { SubagentProvider } from '@qilin/subagent'
-import * as ToolSubagentControl from '@qilin/tool-subagent-control'
-import * as ToolSubagentListAgents from '@qilin/tool-subagent-control/list-agents'
-import SkillRegistry from '@qilin/skill'
-import * as SkillFileSystem from '@qilin/skill-filesystem'
-import LocalJobRegistry from '@qilin/jobs-local'
-import * as ToolAskUser from '@qilin/tool-ask-user'
-import * as ToolBash from '@qilin/tool-bash'
-import * as ToolPwsh from '@qilin/tool-pwsh'
-import * as ToolBashPersistent from '@qilin/tool-bash-persistent'
-import * as ToolPwshPersistent from '@qilin/tool-pwsh-persistent'
-import CordisHostRunner from '@qilin/kylin-host-runner'
-import * as ToolCordis from '@qilin/tool-kylin'
-import * as ToolPresent from '@qilin/tool-present'
-import * as SidebarOpens from '@qilin/sidebar-opens'
-import * as ToolFs from '@qilin/tool-fs'
-import * as ToolFsSearch from '@qilin/tool-fs-search'
-import * as ToolStrReplaceEditor from '@qilin/tool-str-replace-editor'
-import TerminalSessionService from '@qilin/terminal'
-import * as ToolPty from '@qilin/tool-terminal'
-import * as ToolGoal from '@qilin/tool-goal'
-import * as ToolSchedulePlugin from '@qilin/tool-schedule'
-import Lsp from '@qilin/lsp'
-import * as ToolLsp from '@qilin/tool-lsp'
-import * as ToolSkill from '@qilin/tool-skill'
-import * as ToolSessionQuery from '@qilin/tool-session-query'
-import * as ToolJobs from '@qilin/tool-jobs'
-import BrowserUseRegistry from '@qilin/browser-use'
-import * as StagehandBrowserTools from '@qilin/experimental-browser-use-stagehand-native'
-import type TeamService from '@qilin/experimental-agent-team'
-import * as ToolTeam from '@qilin/experimental-tool-agent-team'
-import * as ToolTodo from '@qilin/tool-todo'
-import type PluginManager from '@qilin/plugin-manager'
-import * as PluginManagerTools from '@qilin/plugin-manager/tools'
-import SandboxPolicy from '@qilin/sandbox-policy'
-import McpResources from '@qilin/mcp-resources'
-import * as ToolSubagent from '@qilin/tool-subagent'
+import { Context } from '@qilin-agent/kylin'
+import LlmRuntime from '@qilin-agent/llm'
+import type { ToolSchema } from '@qilin-agent/llm'
+import AgentRegistry from '@qilin-agent/agent'
+import type { Agent } from '@qilin-agent/agent'
+import { createScope } from '@qilin-agent/scope'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import SqliteSessionQueryEngine from '@qilin-agent/session-query-sqlite'
+import GoalService from '@qilin-agent/goal'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime, { type Config as ToolsConfig } from '@qilin-agent/tools'
+import LocalBashExecutor from '@qilin-agent/bash-local'
+import * as BashEnvPlugin from '@qilin-agent/shell-env'
+import { PwshLocalExecutor } from '@qilin-agent/pwsh-local'
+import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
+import LocalFileSystem from '@qilin-agent/fs-local'
+import { AttachmentStore } from '@qilin-agent/attachment'
+import type { ImageAttachmentLimits, ImageAttachmentRef, SaveImageAttachment, StoredImageAttachment } from '@qilin-agent/attachment'
+import UserQuestionService from '@qilin-agent/user-questions'
+import PlanModeController from '@qilin-agent/plan-mode'
+import WebRuntime from '@qilin-agent/web'
+import * as WebSearchExa from '@qilin-agent/web-search-exa'
+import * as WebFetchLocal from '@qilin-agent/web-fetch-http'
+import SubagentRuntime from '@qilin-agent/subagent'
+import type { SubagentProvider } from '@qilin-agent/subagent'
+import * as ToolSubagentControl from '@qilin-agent/tool-subagent-control'
+import * as ToolSubagentListAgents from '@qilin-agent/tool-subagent-control/list-agents'
+import SkillRegistry from '@qilin-agent/skill'
+import * as SkillFileSystem from '@qilin-agent/skill-filesystem'
+import LocalJobRegistry from '@qilin-agent/jobs-local'
+import * as ToolAskUser from '@qilin-agent/tool-ask-user'
+import * as ToolBash from '@qilin-agent/tool-bash'
+import * as ToolPwsh from '@qilin-agent/tool-pwsh'
+import * as ToolBashPersistent from '@qilin-agent/tool-bash-persistent'
+import * as ToolPwshPersistent from '@qilin-agent/tool-pwsh-persistent'
+import CordisHostRunner from '@qilin-agent/kylin-host-runner'
+import * as ToolCordis from '@qilin-agent/tool-kylin'
+import * as ToolPresent from '@qilin-agent/tool-present'
+import * as SidebarOpens from '@qilin-agent/sidebar-opens'
+import * as ToolFs from '@qilin-agent/tool-fs'
+import * as ToolFsSearch from '@qilin-agent/tool-fs-search'
+import * as ToolStrReplaceEditor from '@qilin-agent/tool-str-replace-editor'
+import TerminalSessionService from '@qilin-agent/terminal'
+import * as ToolPty from '@qilin-agent/tool-terminal'
+import * as ToolGoal from '@qilin-agent/tool-goal'
+import * as ToolSchedulePlugin from '@qilin-agent/tool-schedule'
+import Lsp from '@qilin-agent/lsp'
+import * as ToolLsp from '@qilin-agent/tool-lsp'
+import * as ToolSkill from '@qilin-agent/tool-skill'
+import * as ToolSessionQuery from '@qilin-agent/tool-session-query'
+import * as ToolJobs from '@qilin-agent/tool-jobs'
+import BrowserUseRegistry from '@qilin-agent/browser-use'
+import * as StagehandBrowserTools from '@qilin-agent/experimental-browser-use-stagehand-native'
+import type TeamService from '@qilin-agent/experimental-agent-team'
+import * as ToolTeam from '@qilin-agent/experimental-tool-agent-team'
+import * as ToolTodo from '@qilin-agent/tool-todo'
+import type PluginManager from '@qilin-agent/plugin-manager'
+import * as PluginManagerTools from '@qilin-agent/plugin-manager/tools'
+import SandboxPolicy from '@qilin-agent/sandbox-policy'
+import McpResources from '@qilin-agent/mcp-resources'
+import * as ToolSubagent from '@qilin-agent/tool-subagent'
 import { registerListSubagentModels } from '../packages/subagent/tool-subagent/src/list-models.ts'
-import * as ToolWeb from '@qilin/tool-web'
-import WorkflowEngine from '@qilin/workflow'
-import type { WorkflowRun, WorkflowStartRequest } from '@qilin/workflow'
-import * as ToolRalph from '@qilin/tool-ralph'
-import * as ToolWorkflow from '@qilin/tool-workflow'
-import * as ToolWorkspaceDependencies from '@qilin/tool-workspace-dependencies'
+import * as ToolWeb from '@qilin-agent/tool-web'
+import WorkflowEngine from '@qilin-agent/workflow'
+import type { WorkflowRun, WorkflowStartRequest } from '@qilin-agent/workflow'
+import * as ToolRalph from '@qilin-agent/tool-ralph'
+import * as ToolWorkflow from '@qilin-agent/tool-workflow'
+import * as ToolWorkspaceDependencies from '@qilin-agent/tool-workspace-dependencies'
 import { githubSlug } from './verify-md-links.ts'
 
 /** Attachment seam marker that makes the attachments-conditional `read_image` schema harvestable. */
@@ -205,7 +205,7 @@ export interface ToolPackage {
  */
 const TOOL_PACKAGES: ToolPackage[] = [
   {
-    pkg: '@qilin/plugin-manager',
+    pkg: '@qilin-agent/plugin-manager',
     dir: 'plugin-manager',
     source: 'packages/boot/plugin-manager/src/tools.ts',
     requires: ['ctx.tools', 'ctx.pluginManager', 'ctx.sandboxPolicy'],
@@ -218,7 +218,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
     },
   },
   {
-    pkg: '@qilin/mcp-resources',
+    pkg: '@qilin-agent/mcp-resources',
     dir: 'mcp-resources',
     source: 'packages/mcp/mcp-resources/src/tools.ts',
     requires: ['ctx.tools', 'ctx.mcpResources'],
@@ -231,7 +231,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
     },
   },
   {
-    pkg: '@qilin/experimental-browser-use-stagehand-native',
+    pkg: '@qilin-agent/experimental-browser-use-stagehand-native',
     dir: 'browser-use-stagehand-native',
     source: 'packages/experimental/browser-use-stagehand-native/src/index.ts',
     requires: ['ctx.browserUse', 'ctx.agents', 'ctx.tools', 'ctx.systemPrompt'],
@@ -245,7 +245,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
     },
   },
   {
-    pkg: '@qilin/tool-ask-user',
+    pkg: '@qilin-agent/tool-ask-user',
     dir: 'tool-ask-user',
     source: 'packages/interaction/tool-ask-user/src/index.ts',
     requires: ['ctx.tools', 'ctx.userQuestions'],
@@ -258,7 +258,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'ask_user_question pauses the tool call until the active UI provider returns a human answer.',
   },
   {
-    pkg: '@qilin/tools',
+    pkg: '@qilin-agent/tools',
     dir: 'tools',
     source: 'packages/core/tools/src/ptc.ts',
     requires: ['ctx.tools', 'ctx.ptcRuntime (execution time)', 'ctx.systemPrompt'],
@@ -272,7 +272,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'Owned by the tool registry as a reserved transport outside filterable capability layers under `mode: ptc` / `mode: both` (see the PTC mode Agent Note). Under `ptc` it is the registry\'s only wire contribution; the other visible capabilities are declared in a generated SDK section in the loaded runtime\'s language, and a program calls them through bindings scheduled under the native concurrency contract (submission-ordered starts and policy; concurrency-safe bodies overlap up to `maxParallelSubCalls`) that re-enter the complete guarded tool pipeline and link each nested execution to this outer result.',
   },
   {
-    pkg: '@qilin/plan-mode',
+    pkg: '@qilin-agent/plan-mode',
     dir: 'plan-mode',
     source: 'packages/plan/plan-mode/src/index.ts',
     requires: ['ctx.tools', 'ctx.systemPrompt', 'ctx.userQuestions (execution time, opportunistic)'],
@@ -284,7 +284,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'exit_plan_mode stays in the model-facing schema while planning is inactive so transitions add no tool-catalog churn on top of the plan-policy change. Its execute path rejects calls outside plan mode; in plan mode it presents the plan over the user-questions seam (approve / keep planning with feedback), and approval logs plan mode inactive at the step boundary.',
   },
   {
-    pkg: '@qilin/tool-bash',
+    pkg: '@qilin-agent/tool-bash',
     dir: 'tool-bash',
     source: 'packages/shell/tool-bash/src/index.ts',
     requires: ['ctx.tools', 'ctx.shell', 'ctx.systemPrompt', 'ctx.shellEnv', 'ctx.jobs at call time for run_in_background'],
@@ -296,10 +296,10 @@ const TOOL_PACKAGES: ToolPackage[] = [
       await ctx.plugin(ToolBash)
     },
     note:
-      'The bash tool is the model-facing consumer of the bash executor seam. A `run_in_background` run registers with the generic `ctx.jobs` runtime and is collected/stopped through the `job_*` tools from `@qilin/tool-jobs`; the `enableRunInBackground` config (default true) removes the parameter entirely when disabled.',
+      'The bash tool is the model-facing consumer of the bash executor seam. A `run_in_background` run registers with the generic `ctx.jobs` runtime and is collected/stopped through the `job_*` tools from `@qilin-agent/tool-jobs`; the `enableRunInBackground` config (default true) removes the parameter entirely when disabled.',
   },
   {
-    pkg: '@qilin/tool-present',
+    pkg: '@qilin-agent/tool-present',
     dir: 'tool-present',
     source: 'packages/deliverables/tool-present/src/index.ts',
     requires: ['ctx.tools', 'ctx.fs', 'ctx.sessionProjections'],
@@ -311,7 +311,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
     note: 'Deliveries belong to the calling Session; Web ui-deliverables supplies source-file opening and cards.',
   },
   {
-    pkg: '@qilin/tool-pwsh',
+    pkg: '@qilin-agent/tool-pwsh',
     dir: 'tool-pwsh',
     source: 'packages/shell/tool-pwsh/src/index.ts',
     requires: ['ctx.tools', 'ctx.shell', 'ctx.systemPrompt', 'ctx.shellEnv', 'ctx.jobs at call time for run_in_background'],
@@ -326,10 +326,10 @@ const TOOL_PACKAGES: ToolPackage[] = [
       await ctx.plugin(ToolPwsh)
     },
     note:
-      'The pwsh tool is the PowerShell-dialect consumer of the bash executor seam for Windows compositions (a PowerShell executor such as `@qilin/pwsh-local` backs `ctx.shell`); it mirrors the bash tool call-for-call minus sandbox controls — `run_in_background` runs register with the generic `ctx.jobs` runtime and are collected/stopped through the `job_*` tools, and the managed `QILIN_*` environment comes from `@qilin/shell-env`. Each call runs in a fresh process (no persistent PTY session), with native `C:\\...` paths and `$env:NAME` variables.',
+      'The pwsh tool is the PowerShell-dialect consumer of the bash executor seam for Windows compositions (a PowerShell executor such as `@qilin-agent/pwsh-local` backs `ctx.shell`); it mirrors the bash tool call-for-call minus sandbox controls — `run_in_background` runs register with the generic `ctx.jobs` runtime and are collected/stopped through the `job_*` tools, and the managed `QILIN_*` environment comes from `@qilin-agent/shell-env`. Each call runs in a fresh process (no persistent PTY session), with native `C:\\...` paths and `$env:NAME` variables.',
   },
   {
-    pkg: '@qilin/tool-kylin',
+    pkg: '@qilin-agent/tool-kylin',
     dir: 'tool-kylin',
     source: 'packages/extensions/tool-kylin/src/index.ts',
     requires: ['ctx.tools', 'ctx.cordisInspect'],
@@ -342,7 +342,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'Creator mode provides two read-only runtime inspection tools. The Cordis host runner supplies the inspection registry; Client queries require a connected page. Author persistent changes as bundles and install them with plugin_manager.',
   },
   {
-    pkg: '@qilin/tool-bash-persistent',
+    pkg: '@qilin-agent/tool-bash-persistent',
     dir: 'tool-bash-persistent',
     source: 'packages/shell/tool-bash-persistent/src/index.ts',
     requires: ['ctx.tools', 'ctx.terminals', 'an owning Agent at execution time'],
@@ -355,7 +355,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'One owner-isolated persistent bash tool; deployment composition supplies the PTY backend and may override the model-facing environment description.',
   },
   {
-    pkg: '@qilin/tool-pwsh-persistent',
+    pkg: '@qilin-agent/tool-pwsh-persistent',
     dir: 'tool-pwsh-persistent',
     source: 'packages/shell/tool-pwsh-persistent/src/index.ts',
     requires: ['ctx.tools', 'ctx.terminals', 'an owning Agent at execution time'],
@@ -368,7 +368,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'One owner-isolated persistent pwsh tool, the Windows counterpart of the persistent bash tool; deployment composition supplies a pwsh-dialect PTY backend and may override the model-facing environment description.',
   },
   {
-    pkg: '@qilin/tool-str-replace-editor',
+    pkg: '@qilin-agent/tool-str-replace-editor',
     dir: 'tool-str-replace-editor',
     source: 'packages/fs/tool-str-replace-editor/src/index.ts',
     requires: ['ctx.tools', 'ctx.fs'],
@@ -381,7 +381,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'Standalone view/create/unique literal replace/line insert tool over the filesystem seam; it composes with any shell or terminal API.',
   },
   {
-    pkg: '@qilin/tool-fs',
+    pkg: '@qilin-agent/tool-fs',
     dir: 'tool-fs',
     source: 'packages/fs/tool-fs/src/index.ts',
     requires: ['ctx.tools', 'ctx.fs', 'ctx.systemPrompt', 'ctx.attachments (image-tool registration)', 'ctx.llm + an image-capable route (image-tool execution)'],
@@ -395,10 +395,10 @@ const TOOL_PACKAGES: ToolPackage[] = [
       await ctx.plugin(ToolFs)
     },
     note:
-      'The read-before-write/edit policy is added by `@qilin/fs-observation-policy` (an `fs/*` event-gate plugin, no schema change); a deployment that loads these tools is expected to also load it. The image tool is not registered without `ctx.attachments`; its schema is route-independent, and execution refuses unless the exact routed model declares image input.',
+      'The read-before-write/edit policy is added by `@qilin-agent/fs-observation-policy` (an `fs/*` event-gate plugin, no schema change); a deployment that loads these tools is expected to also load it. The image tool is not registered without `ctx.attachments`; its schema is route-independent, and execution refuses unless the exact routed model declares image input.',
   },
   {
-    pkg: '@qilin/tool-fs-search',
+    pkg: '@qilin-agent/tool-fs-search',
     dir: 'tool-fs-search',
     source: 'packages/fs/tool-fs-search/src/index.ts',
     requires: ['ctx.tools', 'ctx.subprocess', 'ctx.systemPrompt'],
@@ -416,7 +416,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'glob and grep are unconditional discovery tools that spawn the packaged ripgrep binary (`@vscode/ripgrep`) through ctx.subprocess as ordinary foreground calls (never background jobs) — no host `rg` install and no shell layer. The catalog uses `sampleOverCapGlobResults: true`; deployments must choose that behavior explicitly. Capped results save the complete formatted list through the optional ctx.spillStore backend; returned locators are follow-up-readable/searchable when the backend exposes local paths in co-located deployments.',
   },
   {
-    pkg: '@qilin/tool-terminal',
+    pkg: '@qilin-agent/tool-terminal',
     dir: 'tool-terminal',
     source: 'packages/terminal/tool-terminal/src/index.ts',
     requires: ['ctx.tools', 'ctx.terminals', 'ctx.systemPrompt', 'ctx.jobs at call time for run_in_background'],
@@ -429,7 +429,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'The six terminal tools are opt-in and complement one-shot shell/filesystem tools. `terminal_send(run_in_background: true)` registers with `ctx.jobs`; TUI, named key sequences, BEL, resize, auto-start, and cross-agent sharing are absent from the schema.',
   },
   {
-    pkg: '@qilin/tool-goal',
+    pkg: '@qilin-agent/tool-goal',
     dir: 'tool-goal',
     source: 'packages/goal/tool-goal/src/index.ts',
     requires: ['ctx.tools', 'ctx.agents', 'ctx.goals', 'ctx.systemPrompt', 'a calling Agent in an authorized open turn'],
@@ -443,7 +443,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'create, edit, pause, and resume require direct-human root authority; complete and blocked also accept the exact current goal round. The default blocked lower bound is three admitted rounds.',
   },
   {
-    pkg: '@qilin/tool-schedule',
+    pkg: '@qilin-agent/tool-schedule',
     dir: 'tool-schedule',
     source: 'packages/schedule/tool-schedule/src/index.ts',
     requires: ['ctx.tools', 'ctx.schedule'],
@@ -469,7 +469,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
       + 'five-field expression. Management uses the Host storage domain; due messages resume the original Session.',
   },
   {
-    pkg: '@qilin/tool-lsp',
+    pkg: '@qilin-agent/tool-lsp',
     dir: 'tool-lsp',
     source: 'packages/lsp/tool-lsp/src/index.ts',
     requires: ['ctx.tools', 'ctx.lsp', 'ctx.systemPrompt'],
@@ -480,10 +480,10 @@ const TOOL_PACKAGES: ToolPackage[] = [
       await ctx.plugin(ToolLsp)
     },
     note:
-      'The lsp tool keeps provider selection and language-server subprocesses behind ctx.lsp, so its model-visible schema stays stable across providers. Requires a registered provider (e.g. `@qilin/lsp-stdio`) at runtime; without one, a query returns the structured `LSP_UNAVAILABLE` error rather than changing the schema.',
+      'The lsp tool keeps provider selection and language-server subprocesses behind ctx.lsp, so its model-visible schema stays stable across providers. Requires a registered provider (e.g. `@qilin-agent/lsp-stdio`) at runtime; without one, a query returns the structured `LSP_UNAVAILABLE` error rather than changing the schema.',
   },
   {
-    pkg: '@qilin/tool-ralph',
+    pkg: '@qilin-agent/tool-ralph',
     dir: 'tool-ralph',
     source: 'packages/workflow/tool-ralph/src/index.ts',
     requires: ['ctx.tools', 'ctx.workflowEngine', 'ctx.subagents', 'ctx.systemPrompt', 'a calling Agent (exec.agent parents every fresh round)'],
@@ -498,7 +498,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'A fixed foreground workflow starts one fresh structured child per round; the model selects only the immutable objective and an optional round cap.',
   },
   {
-    pkg: '@qilin/tool-skill',
+    pkg: '@qilin-agent/tool-skill',
     dir: 'tool-skill',
     source: 'packages/skill/tool-skill/src/index.ts',
     requires: ['ctx.tools', 'ctx.agents', 'ctx.skills'],
@@ -514,7 +514,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
     },
   },
   {
-    pkg: '@qilin/tool-session-query',
+    pkg: '@qilin-agent/tool-session-query',
     dir: 'tool-session-query',
     source: 'packages/session-query/tool-session-query/src/index.ts',
     requires: ['ctx.tools', 'ctx.systemPrompt', 'ctx.sessionQuery', 'a calling Agent for workspace authority'],
@@ -528,7 +528,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'The five read-only tools hide provider cursors and authorize every result from the immutable calling agent session. The package is opt-in; compositions that need enforced deadlines or bounded inline output also mount the generic timeout or spill policies.',
   },
   {
-    pkg: '@qilin/tool-subagent',
+    pkg: '@qilin-agent/tool-subagent',
     dir: 'tool-subagent',
     source: {
       list_subagent_models: 'packages/subagent/tool-subagent/src/list-models.ts',
@@ -548,7 +548,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'The registered delegation name is the load-time `toolName` config (default `subagent`); the default schema above has model selection off, while the discovery schema is shown as the fixed companion available in an enabled Session. Web presets sample the Plugins preference for each new top-level Session and preserve that decision for its child Sessions; `subagent_fork` remains fixed-route. Each instance independently controls whether it reads model-selection settings and its background behavior through `modelSelectionSettings`, `backgroundMode`, and `enableRunInBackground`.',
   },
   {
-    pkg: '@qilin/tool-subagent-control',
+    pkg: '@qilin-agent/tool-subagent-control',
     dir: 'tool-subagent-control',
     source: {
       interrupt_agent: 'packages/subagent/tool-subagent-control/src/index.ts',
@@ -569,7 +569,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'The globally named control tools over continuable background subagents: provider-bound `tool-subagent` instances register distinct delegation tools, while this package registers `send_message` and `interrupt_agent` once, plus `list_agents` from its separately loaded `/list-agents` plugin (whose catalog rows use the sessionProjections and live Agent registries).',
   },
   {
-    pkg: '@qilin/tool-jobs',
+    pkg: '@qilin-agent/tool-jobs',
     dir: 'tool-jobs',
     source: 'packages/jobs/tool-jobs/src/index.ts',
     requires: ['ctx.tools', 'ctx.jobs', 'ctx.systemPrompt'],
@@ -582,7 +582,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'The kind-agnostic background-job controller: background bash commands, PTY sends, and subagents are read, listed, and killed through the same three tools. Loading the plugin attaches the controller that arms producers\' `ctx.jobs.start()`.',
   },
   {
-    pkg: '@qilin/experimental-tool-agent-team',
+    pkg: '@qilin-agent/experimental-tool-agent-team',
     dir: 'tool-agent-team',
     source: 'packages/experimental/tool-agent-team/src/index.ts',
     requires: ['ctx.tools', 'ctx.systemPrompt', 'ctx.agentTeams', 'an exact live Team member Agent'],
@@ -620,7 +620,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'All nine tools are scoped to implicit Team Leads and durable teammates. The shipped qilin-base bundle keeps the package disabled; the documented Agent Teams profile patch enables it while disabling the legacy continuable-child control names.',
   },
   {
-    pkg: '@qilin/tool-todo',
+    pkg: '@qilin-agent/tool-todo',
     dir: 'tool-todo',
     source: 'packages/todo/tool-todo/src/index.ts',
     requires: ['ctx.tools', 'owning Agent session'],
@@ -632,7 +632,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'todo_write is session-owned state; UIs render the latest todo/write event as a checklist. `allowParallelInProgress` is required with no default, so the catalog states its choice: `true`, whose description invites several `in_progress` items. A deployment choosing `false` receives the same tool with a description asking for exactly one active task.',
   },
   {
-    pkg: '@qilin/tool-workflow',
+    pkg: '@qilin-agent/tool-workflow',
     dir: 'tool-workflow',
     source: 'packages/workflow/tool-workflow/src/index.ts',
     requires: ['ctx.tools', 'ctx.workflowEngine', 'ctx.systemPrompt', 'a calling Agent (exec.agent parents the script children)'],
@@ -645,7 +645,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
     },
   },
   {
-    pkg: '@qilin/tool-workspace-dependencies',
+    pkg: '@qilin-agent/tool-workspace-dependencies',
     dir: 'tool-workspace-dependencies',
     source: 'packages/skill/tool-workspace-dependencies/src/index.ts',
     requires: ['ctx.tools'],
@@ -656,7 +656,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
     },
   },
   {
-    pkg: '@qilin/tool-web',
+    pkg: '@qilin-agent/tool-web',
     dir: 'tool-web',
     source: 'packages/web/tool-web/src/index.ts',
     requires: ['ctx.tools', 'ctx.web', 'ctx.systemPrompt'],
@@ -673,7 +673,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'web_search and web_fetch keep provider selection behind ctx.web so model-visible schemas stay stable across backend swaps.',
   },
   {
-    pkg: '@qilin/sidebar-opens',
+    pkg: '@qilin-agent/sidebar-opens',
     dir: 'sidebar-opens',
     source: 'packages/host/sidebar-opens/src/index.ts',
     requires: ['ctx.tools', 'ctx.fs'],
@@ -683,7 +683,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
       await ctx.plugin(SidebarOpens)
     },
     note:
-      'A Host package tool: the request leaves for the browser half (`@qilin/client-ui-agent-opens`) as a Remote stream '
+      'A Host package tool: the request leaves for the browser half (`@qilin-agent/client-ui-agent-opens`) as a Remote stream '
       + 'instead of a session event, so what the model asked for stays in the log while no page load replays an old open. '
       + 'The per-Session pending queue is bounded by the `maxQueued` Config (default 16); a request a view already consumed is never replayed.',
   },

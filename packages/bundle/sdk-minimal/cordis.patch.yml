@@ -4,60 +4,60 @@
 
 - insert:
     - id: sdk-app-startup
-      name: '@qilin/sdk-app'
+      name: '@qilin-agent/sdk-app'
       config:
         profile: sdk-minimal
 
     - id: sdk-jsonrpc-server
-      name: '@qilin/sdk-jsonrpc-server'
+      name: '@qilin-agent/sdk-jsonrpc-server'
       inject: [sdkAppStartup, loader]
       config:
         maxTokensAsSuccess: false
 
     - id: deepseek-llm-api-extensions
-      name: '@qilin/deepseek-llm-api-extensions'
+      name: '@qilin-agent/deepseek-llm-api-extensions'
 
     - id: session-log-deepseek
-      name: '@qilin/session-log-deepseek'
+      name: '@qilin-agent/session-log-deepseek'
 
     - id: plugin-package-inventory-deepseek
-      name: '@qilin/plugin-package-inventory-deepseek'
+      name: '@qilin-agent/plugin-package-inventory-deepseek'
 
     - id: llm-deepseek
-      name: '@qilin/llm-deepseek-api-key'
+      name: '@qilin-agent/llm-deepseek-api-key'
       config:
         apiKeyEnv: DEEPSEEK_API_KEY
         defaultContextWindow: !!js Number(process.env.QILIN_CONTEXT_WINDOW ?? 1000000)
         streamIdleTimeoutMs: 172800000
 
     - id: sandbox
-      name: '@qilin/sandbox-local'
+      name: '@qilin-agent/sandbox-local'
 
     # Shared projection registry: sandbox-policy and terminal-bash fold
     # sandbox-mode state through its units and require it as a hard injection.
     - id: session-projection
-      name: '@qilin/session-projection'
+      name: '@qilin-agent/session-projection'
 
     - id: sandbox-policy
-      name: '@qilin/sandbox-policy'
+      name: '@qilin-agent/sandbox-policy'
       config:
         mode: danger-full-access
         workspaceRoot: !!js process.cwd()
 
     - id: subprocess
-      name: '@qilin/subprocess-local'
+      name: '@qilin-agent/subprocess-local'
 
     - id: pty
-      name: '@qilin/terminal'
+      name: '@qilin-agent/terminal'
 
     - id: terminal-bash
-      name: '@qilin/terminal-bash'
+      name: '@qilin-agent/terminal-bash'
       disabled: !!js process.platform === 'win32'
       config:
         timeoutMs: 300000
 
     - id: terminal-pwsh
-      name: '@qilin/terminal-bash'
+      name: '@qilin-agent/terminal-bash'
       disabled: !!js process.platform !== 'win32'
       config:
         shellDialect: pwsh
@@ -66,50 +66,50 @@
     # Keep the minimal agent kernel explicit: unlike qilin-base, this profile
     # owns each service row and omits every optional producer it does not use.
     - id: timer
-      name: '@qilin/kylin-plugin-timer'
+      name: '@qilin-agent/kylin-plugin-timer'
 
     - id: llm
-      name: '@qilin/llm'
+      name: '@qilin-agent/llm'
 
     - id: session
-      name: '@qilin/session'
+      name: '@qilin-agent/session'
 
     - id: session-title
-      name: '@qilin/session-title'
+      name: '@qilin-agent/session-title'
       config:
         fallbackMaxWords: 5
         fallbackMaxBytes: 40
         maxTitleBytes: 80
 
     - id: system-prompt
-      name: '@qilin/system-prompt'
+      name: '@qilin-agent/system-prompt'
       config:
         includeHarnessIdentity: false
         includeRuntimeContext: false
         personaPrefix: !!js process.env.QILIN_SYSTEM_PROMPT ?? 'You are a helpful software engineer assistant.'
 
     - id: tools
-      name: '@qilin/tools'
+      name: '@qilin-agent/tools'
 
     - id: mcp-resources
-      name: '@qilin/mcp-resources'
+      name: '@qilin-agent/mcp-resources'
 
     - id: agent
-      name: '@qilin/agent'
+      name: '@qilin-agent/agent'
 
     - id: llm-retry
-      name: '@qilin/llm-retry'
+      name: '@qilin-agent/llm-retry'
 
     - id: jobs
-      name: '@qilin/jobs-local'
+      name: '@qilin-agent/jobs-local'
 
     - id: agent-loop
-      name: '@qilin/agent-loop'
+      name: '@qilin-agent/agent-loop'
       config:
         agents: []
 
     - id: persistent-bash
-      name: '@qilin/tool-bash-persistent'
+      name: '@qilin-agent/tool-bash-persistent'
       disabled: !!js process.platform === 'win32'
       config:
         timeoutMs: 300000
@@ -123,7 +123,7 @@
           * Please run long lived commands in the background, e.g. 'sleep 10 &' or start a server in the background.
 
     - id: persistent-pwsh
-      name: '@qilin/tool-pwsh-persistent'
+      name: '@qilin-agent/tool-pwsh-persistent'
       disabled: !!js process.platform !== 'win32'
       config:
         timeoutMs: 300000
@@ -137,7 +137,7 @@
           * Please run long lived commands in the background, e.g. 'Start-Job' or start a server with Start-Process.
 
     - id: sessions
-      name: '@qilin/session-persistence-jsonl'
+      name: '@qilin-agent/session-persistence-jsonl'
       config:
         root: !!js qilinHomePath('sessions')
         compression: none

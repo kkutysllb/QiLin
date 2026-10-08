@@ -1,11 +1,11 @@
 /**
  * Resource-result projection keeps binary payloads out of model history.
  *
- * @module @qilin/mcp-resources
+ * @module @qilin-agent/mcp-resources
  */
 
-import type { ContentBlock } from '@qilin/llm'
-import type { JsonValue } from '@qilin/util-values'
+import type { ContentBlock } from '@qilin-agent/llm'
+import type { JsonValue } from '@qilin-agent/util-values'
 
 /**
  * Render resource JSON while retaining raw binary data only for programmatic callers.

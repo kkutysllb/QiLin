@@ -5,9 +5,9 @@
  * gone has no row and no action; the set itself stays host-owned.
  */
 import { useMemo, useState, type ReactNode } from 'react'
-import { Button, IconSearchOutline16, relativeTime } from '@qilin/client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
-import type { SessionId } from '@qilin/session/types'
+import { Button, IconSearchOutline16, relativeTime } from '@qilin-agent/client-ui-primitives'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type { SessionId } from '@qilin-agent/session/types'
 import css from './ArchivedSessionsSection.module.css'
 
 /** Registration-side face used by the page. */

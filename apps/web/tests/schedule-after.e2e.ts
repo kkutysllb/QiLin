@@ -6,19 +6,19 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import type { Agent, AgentHandle } from '@qilin/agent'
-import { composeEntries, loadOverlayPatches } from '@qilin/app-boot'
-import { MessageId, ToolCallId, createUserMessage, LlmAdapter } from '@qilin/llm'
+import type { Agent, AgentHandle } from '@qilin-agent/agent'
+import { composeEntries, loadOverlayPatches } from '@qilin-agent/app-boot'
+import { MessageId, ToolCallId, createUserMessage, LlmAdapter } from '@qilin-agent/llm'
 import { appendDelivery } from '../../../packages/schedule/schedule/src/delivery-history.ts'
-import type { ScheduleTask } from '@qilin/schedule'
-import type { ContextFormed, GenerateOptions, StreamChunk } from '@qilin/llm'
-import { SessionId, type SessionEvent } from '@qilin/session'
+import type { ScheduleTask } from '@qilin-agent/schedule'
+import type { ContextFormed, GenerateOptions, StreamChunk } from '@qilin-agent/llm'
+import { SessionId, type SessionEvent } from '@qilin-agent/session'
 import {
   ScheduleId,
   createEveryScheduleRecord,
   foldScheduleEvents,
   type EveryScheduleRecord,
-} from '@qilin/schedule'
+} from '@qilin-agent/schedule'
 import {
   assertFixtureInventory,
   captureStableAria,
@@ -36,7 +36,7 @@ import {
   saveFailureShot,
 } from './support.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'schedule-web-e2e': { kind: 'schedule-web-e2e' } & ContextFormed
   }
@@ -842,9 +842,9 @@ describe.skipIf(MODE === 'record')('web e2e: active Schedule catalog', () => {
     // carries a disabling expression, and a deployment opts out through an
     // overlay instead.
     for (const row of [
-      { id: 'ui-schedule', name: '@qilin/client-ui-schedule' },
-      { id: 'time-context', name: '@qilin/time-context' },
-      { id: 'schedule', name: '@qilin/schedule' },
+      { id: 'ui-schedule', name: '@qilin-agent/client-ui-schedule' },
+      { id: 'time-context', name: '@qilin-agent/time-context' },
+      { id: 'schedule', name: '@qilin-agent/schedule' },
     ]) {
       const entry = shipped.find(candidate => candidate.id === row.id && candidate.name === row.name)
       expect(entry, row.id).toBeDefined()

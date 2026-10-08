@@ -3,7 +3,7 @@ import {
   EXAMPLE_MODE_ENV,
   resolveExampleLaunch,
   resolveExampleMode,
-} from '@qilin/loader-smoke'
+} from '@qilin-agent/loader-smoke'
 
 const SRC_BIN = '/repo/apps/cli/src/bin.ts'
 const TSCONFIG = '/repo/tsconfig.json'

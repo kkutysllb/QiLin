@@ -8,9 +8,9 @@ import { join } from 'node:path'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { parseSessionLog } from '@qilin/llm-replay'
-import type { SessionEvent } from '@qilin/session'
-import { expandAssistantStream } from '@qilin/llm'
+import { parseSessionLog } from '@qilin-agent/llm-replay'
+import type { SessionEvent } from '@qilin-agent/session'
+import { expandAssistantStream } from '@qilin-agent/llm'
 import {
   assertFixtureInventory, captureExpandedTurnProcessAria, captureStableAria,
   compareOrRefreshGolden, fixtureUserPrompts,

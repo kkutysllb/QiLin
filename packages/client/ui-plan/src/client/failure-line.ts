@@ -1,6 +1,6 @@
 /** Localized plan-owned failures and unmodified external diagnostics. */
-import type { RemoteFailure } from '@qilin/typert-protocol'
-import type { TranslateNS } from '@qilin/client-locale/client'
+import type { RemoteFailure } from '@qilin-agent/typert-protocol'
+import type { TranslateNS } from '@qilin-agent/client-locale/client'
 
 /**
  * Explain a failed plan read in the current locale.

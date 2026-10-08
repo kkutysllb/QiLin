@@ -6,8 +6,8 @@
  * change made on another surface shows here without a manual refresh.
  */
 
-import { randomUUID } from '@qilin/util-crypto'
-import type { Context as ClientContext } from '@qilin/kylin'
+import { randomUUID } from '@qilin-agent/util-crypto'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
 import type {
   BundleInfo,
   ChangeResult,
@@ -27,12 +27,12 @@ import type {
   PluginUpdateEntry,
   ReadOnlyReason,
   Registry,
-} from '@qilin/api-remotes/client'
-import { normalizeRegistry, NPMMIRROR_REGISTRY, OFFICIAL_NPM_REGISTRY, REGISTRY_URL } from '@qilin/plugin-manager/registry'
-import type { LocalizedText, PluginLocalizedMeta } from '@qilin/package-manifest'
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
-import type { ConfigForms, SettingsDescribeFace } from '@qilin/client-ui-settings/client'
-import type { HostObservable } from '@qilin/client-ui-slots'
+} from '@qilin-agent/api-remotes/client'
+import { normalizeRegistry, NPMMIRROR_REGISTRY, OFFICIAL_NPM_REGISTRY, REGISTRY_URL } from '@qilin-agent/plugin-manager/registry'
+import type { LocalizedText, PluginLocalizedMeta } from '@qilin-agent/package-manifest'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
+import type { ConfigForms, SettingsDescribeFace } from '@qilin-agent/client-ui-settings/client'
+import type { HostObservable } from '@qilin-agent/client-ui-slots'
 import type { ConfigLedger } from './config-ledger.ts'
 import { shortName } from './presentation.ts'
 

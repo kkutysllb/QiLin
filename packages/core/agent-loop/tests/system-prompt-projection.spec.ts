@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createSystemMessage, createUserMessage } from '@qilin/llm'
-import SessionStore, { SessionId, SessionSeq } from '@qilin/session'
-import type { Session, SurfaceIntent } from '@qilin/session'
+import { Context } from '@qilin-agent/kylin'
+import { createSystemMessage, createUserMessage } from '@qilin-agent/llm'
+import SessionStore, { SessionId, SessionSeq } from '@qilin-agent/session'
+import type { Session, SurfaceIntent } from '@qilin-agent/session'
 import { SystemPromptProjection } from '../src/runtime-context.ts'
 import type { SystemPromptCommit, SystemPromptDecisionInput } from '../src/runtime-context.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
-    'test-compaction': { kind: 'test-compaction' } & import('@qilin/llm').ContextFormed
+    'test-compaction': { kind: 'test-compaction' } & import('@qilin-agent/llm').ContextFormed
   }
 }
 

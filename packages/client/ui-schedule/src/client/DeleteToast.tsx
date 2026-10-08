@@ -8,9 +8,9 @@
  * tab that asked for it.
  */
 import type { ReactNode } from 'react'
-import { IconWarningOutline16, Toast } from '@qilin/client-ui-primitives'
-import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
-import type {} from '@qilin/client-ui-layout/client'
+import { IconWarningOutline16, Toast } from '@qilin-agent/client-ui-primitives'
+import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-layout/client'
 import type { CatalogDeleteOutcome } from './catalog-source.ts'
 
 /** One reported deletion outcome; `seq` keys the banner so a re-show restarts it. */

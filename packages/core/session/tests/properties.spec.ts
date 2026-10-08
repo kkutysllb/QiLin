@@ -9,9 +9,9 @@
 
 import { describe, expect, it } from 'vitest'
 import fc from 'fast-check'
-import { createUserMessage, ToolCallId , createMessage, createToolResultMessage } from '@qilin/llm'
-import { Session, SessionId } from '@qilin/session'
-import type { SessionEventMap, SessionEventType, SurfaceIntent } from '@qilin/session'
+import { createUserMessage, ToolCallId , createMessage, createToolResultMessage } from '@qilin-agent/llm'
+import { Session, SessionId } from '@qilin-agent/session'
+import type { SessionEventMap, SessionEventType, SurfaceIntent } from '@qilin-agent/session'
 
 // Each arbitrary supplies its own surface intent; `build` must not synthesize
 // one or the property would fail to exercise malformed fixture choices.

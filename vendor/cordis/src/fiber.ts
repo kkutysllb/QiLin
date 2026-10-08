@@ -1,5 +1,5 @@
-import { defineProperty, isNullable } from '@qilin/cosmokit'
-import type { Awaitable, Dict } from '@qilin/cosmokit'
+import { defineProperty, isNullable } from '@qilin-agent/cosmokit'
+import type { Awaitable, Dict } from '@qilin-agent/cosmokit'
 import { Context } from './context.ts'
 import type { Plugin } from './registry.ts'
 import { buildOuterStack, composeError, DisposableList, getTraceable, isConstructor, isObject, symbols } from './utils.ts'

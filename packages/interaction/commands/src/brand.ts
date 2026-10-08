@@ -1,15 +1,15 @@
 /**
  * Command definition identities and execution ids for discovery and lifecycle pairing.
  *
- * The `Branded<B>` primitive lives in `@qilin/brand`; this module
+ * The `Branded<B>` primitive lives in `@qilin-agent/brand`; this module
  * is a pure type/constructor outlet (no cordis imports, no module
  * augmentation) so wire and client programs can name the brand without
  * loading the host plugin's Context merges — the `qilin-llm/brand` shape.
  *
- * @module @qilin/commands/brand
+ * @module @qilin-agent/commands/brand
  */
 
-import type { Branded } from '@qilin/brand'
+import type { Branded } from '@qilin-agent/brand'
 
 /** Stable, plugin-owned identity of a command definition, independent of its name and copy. */
 export type CommandDefinitionId = Branded<'CommandDefinitionId'>

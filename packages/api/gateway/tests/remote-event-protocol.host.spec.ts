@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isRemoteJsonValue } from '@qilin/typert-protocol'
+import { isRemoteJsonValue } from '@qilin-agent/typert-protocol'
 import {
   parseRemoteEventResult,
   parseRemoteStreamClientMessage,

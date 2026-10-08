@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/kylin",
+  "name": "@qilin-agent/kylin",
   "description": "Meta-Framework for Modern JavaScript Applications",
   "version": "4.0.3",
   "publishConfig": {
@@ -36,19 +36,19 @@
   "author": "Shigma <shigma10826@gmail.com>",
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin-plugin-include": "workspace:~",
-    "@qilin/kylin-plugin-loader": "workspace:~"
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~"
   },
   "peerDependenciesMeta": {
-    "@qilin/kylin-plugin-include": {
+    "@qilin-agent/kylin-plugin-include": {
       "optional": true
     },
-    "@qilin/kylin-plugin-loader": {
+    "@qilin-agent/kylin-plugin-loader": {
       "optional": true
     }
   },
   "dependencies": {
     "@standard-schema/spec": "^1.1.0",
-    "@qilin/cosmokit": "workspace:~"
+    "@qilin-agent/cosmokit": "workspace:~"
   }
 }

@@ -1,5 +1,5 @@
-import type { ModelCatalog } from '@qilin/api-remotes/client'
-import { RemoteError } from '@qilin/client-test-runtime'
+import type { ModelCatalog } from '@qilin-agent/api-remotes/client'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
 import { describe, expect, it, vi } from 'vitest'
 import { ModelCatalogDirectory } from '../src/client/catalog.ts'
 

@@ -1,9 +1,9 @@
 import { randomUUID } from 'node:crypto'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import type { MessageId } from '@qilin/llm/brand'
-import { Session, SessionId, SessionLogOffset, SessionSeq, type SessionEvent } from '@qilin/session'
-import { remoteMethods } from '@qilin/typert-protocol'
+import { Context } from '@qilin-agent/kylin'
+import type { MessageId } from '@qilin-agent/llm/brand'
+import { Session, SessionId, SessionLogOffset, SessionSeq, type SessionEvent } from '@qilin-agent/session'
+import { remoteMethods } from '@qilin-agent/typert-protocol'
 import MessageFeedbackService from '../src/index.ts'
 import type {
   MessageFeedbackItem,

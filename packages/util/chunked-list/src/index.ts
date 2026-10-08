@@ -1,6 +1,6 @@
 /**
  * Persistent append-only lists with bounded copying and JSON checkpoint validation.
- * @module @qilin/chunked-list
+ * @module @qilin-agent/chunked-list
  */
 
 import { z } from 'zod'

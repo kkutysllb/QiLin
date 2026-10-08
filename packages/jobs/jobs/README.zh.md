@@ -3,7 +3,7 @@ description: "后台任务注册表约定，供组合、实现或排查后台工
 kind: "package-reference"
 ---
 
-# @qilin/jobs
+# @qilin-agent/jobs
 
 [English](README.md) | 中文
 
@@ -42,8 +42,8 @@ kind: "package-reference"
 ### 最小可用组合
 
 ```yaml
-- name: '@qilin/jobs-local'
-- name: '@qilin/tool-jobs'
+- name: '@qilin-agent/jobs-local'
+- name: '@qilin-agent/tool-jobs'
 ```
 
 在已提供 agent、工具与系统提示词服务的 harness 基础上加载这两个插件，即可获得完整功能：`qilin-jobs-local` 提供进程内后台任务注册表，`qilin-tool-jobs` 提供 `job_output`、`job_list`、`job_kill` 工具以及完成通知投递。

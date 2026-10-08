@@ -3,7 +3,7 @@ description: "Changed files, deliveries, and clickable file references for the W
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-deliverables
+# @qilin-agent/client-ui-deliverables
 
 English | [中文](README.zh.md)
 

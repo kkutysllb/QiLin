@@ -3,7 +3,7 @@ description: "Bundled Word, PowerPoint, and Excel instructions for deployments p
 kind: "package-reference"
 ---
 
-# @qilin/skill-office
+# @qilin-agent/skill-office
 
 English | [中文](README.zh.md)
 
@@ -30,7 +30,7 @@ Mount this provider beside the skill registry and `qilin-tool-skill` to expose `
 ### Minimal configuration
 
 ```yaml
-- name: '@qilin/skill-office'
+- name: '@qilin-agent/skill-office'
 ```
 
 | Field | Default | Meaning |

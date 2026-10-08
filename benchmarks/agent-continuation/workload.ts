@@ -1,10 +1,10 @@
 /** Reviewed synthetic tool history shared by continuation and child-catalog measurements. */
 
-import { AssistantStreamAccumulator } from '@qilin/llm/assistant-stream'
-import { MessageId, ToolCallId } from '@qilin/llm'
-import type { ContentBlock, StreamChunk } from '@qilin/llm'
-import { Session, SessionId } from '@qilin/session'
-import type { SessionEvent } from '@qilin/session'
+import { AssistantStreamAccumulator } from '@qilin-agent/llm/assistant-stream'
+import { MessageId, ToolCallId } from '@qilin-agent/llm'
+import type { ContentBlock, StreamChunk } from '@qilin-agent/llm'
+import { Session, SessionId } from '@qilin-agent/session'
+import type { SessionEvent } from '@qilin-agent/session'
 
 /** Workload dimensions, independent of environment and recorded user material. */
 export const WORKLOAD = {

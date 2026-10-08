@@ -6,8 +6,8 @@ import {
   ScheduleId, ScheduleInputError, ScheduleLogError, scheduleView,
 } from '../src/domain.ts'
 import type { DailyInput, DailyScheduleRecord } from '../src/types.ts'
-import { SessionSeq } from '@qilin/session'
-import type { SessionEvent } from '@qilin/session'
+import { SessionSeq } from '@qilin-agent/session'
+import type { SessionEvent } from '@qilin-agent/session'
 
 function daily(now: string, time = '23:00:00', timeZone = 'Asia/Shanghai'): DailyScheduleRecord {
   return createDailyScheduleRecord(

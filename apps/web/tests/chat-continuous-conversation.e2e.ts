@@ -9,9 +9,9 @@ import { join } from 'node:path'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { ToolCallId, expandAssistantStream, type StreamChunk } from '@qilin/llm'
-import type { ReplayEntry, ReplayOverrideDoc } from '@qilin/llm-replay'
-import type { SessionEvent, SessionId } from '@qilin/session'
+import { ToolCallId, expandAssistantStream, type StreamChunk } from '@qilin-agent/llm'
+import type { ReplayEntry, ReplayOverrideDoc } from '@qilin-agent/llm-replay'
+import type { SessionEvent, SessionId } from '@qilin-agent/session'
 import {
   launchWebScaffold,
   watchConsole,

@@ -5,13 +5,13 @@ import { join } from 'node:path'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { prepareSessionSnapshotFixtureForComparison } from '@qilin/llm-replay'
+import { prepareSessionSnapshotFixtureForComparison } from '@qilin-agent/llm-replay'
 import {
   SESSION_FORMAT_VERSION, SessionId as sessionId, SessionLogOffset, SessionSeq,
   type SessionEvent, type SessionHeader, type SessionId,
-} from '@qilin/session'
-import type {} from '@qilin/agent'
-import { snapshotSubagentDescriptor } from '@qilin/subagent'
+} from '@qilin-agent/session'
+import type {} from '@qilin-agent/agent'
+import { snapshotSubagentDescriptor } from '@qilin-agent/subagent'
 import {
   acknowledgeReloadConnectionLoss, captureExpandedTurnProcessAria, captureStableAria,
   compareOrRefreshGolden,

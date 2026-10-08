@@ -3,7 +3,7 @@ description: "Web GUI 的改动文件、交付文件与可点击文件引用：�
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-deliverables
+# @qilin-agent/client-ui-deliverables
 
 [English](README.md) | 中文
 

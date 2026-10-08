@@ -1,7 +1,7 @@
 /**
  * Low-level JSON-RPC client for a QiLin SDK runtime subprocess.
  * {@link HarnessClient} owns the child process: it spawns the runtime, speaks
- * the `@qilin/sdk-protocol` wire over the child's stdio, fans
+ * the `@qilin-agent/sdk-protocol` wire over the child's stdio, fans
  * server notifications out to subscriptions, and tears the child down to
  * quiescence through a private EOF → SIGTERM → SIGKILL ladder. The design
  * twin is the Python SDK's `HarnessClient` (`python/sdk`); both drive the
@@ -9,7 +9,7 @@
  * spawns directly rather than through the `qilin-subprocess` service — the
  * seam's documented exception for SDK-managed transports.
  *
- * @module @qilin/sdk-client/client
+ * @module @qilin-agent/sdk-client/client
  */
 
 import { spawn, type ChildProcess } from 'node:child_process'
@@ -20,7 +20,7 @@ import {
   type InitializeResult,
   type SessionPromptParams,
   type SdkPromptContentBlock,
-} from '@qilin/sdk-protocol'
+} from '@qilin-agent/sdk-protocol'
 import { disposeRuntimeProcess } from './dispose.ts'
 import { resolveQilinLaunch, type RuntimeProcessOptions } from './launch.ts'
 import type { HarnessClientOptions, HarnessNotification, NotificationFilter } from './types.ts'

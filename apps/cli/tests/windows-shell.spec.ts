@@ -16,10 +16,10 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import yaml from 'js-yaml'
-import { entryListSchema } from '@qilin/kylin-plugin-include'
-import { evaluate } from '@qilin/kylin-plugin-loader'
-import { SHIPPED_PRESET_ROOT } from '@qilin/agent-presets'
-import { composeEntries, initProfile, loadProfile, PROFILES_DIR } from '@qilin/app-boot'
+import { entryListSchema } from '@qilin-agent/kylin-plugin-include'
+import { evaluate } from '@qilin-agent/kylin-plugin-loader'
+import { SHIPPED_PRESET_ROOT } from '@qilin-agent/agent-presets'
+import { composeEntries, initProfile, loadProfile, PROFILES_DIR } from '@qilin-agent/app-boot'
 
 /**
  * The effective disabled state of one row on one platform: a `!!js` expression
@@ -43,7 +43,7 @@ describe('the shipped shell composition (real bundle layers)', () => {
 
   it('composes the confined pwsh roster on win32 and the bash roster on POSIX from the same rows', () => {
     home = mkdtempSync(join(tmpdir(), 'qilin-windows-home-'))
-    initProfile(join(home, PROFILES_DIR, 'web'), ['@qilin/base', '@qilin/web-app'])
+    initProfile(join(home, PROFILES_DIR, 'web'), ['@qilin-agent/base', '@qilin-agent/web-app'])
     const profile = loadProfile('qilin', 'web', anchor, home)
     const warnings: string[] = []
     const rows = composeEntries(
@@ -73,7 +73,7 @@ describe('the shipped shell composition (real bundle layers)', () => {
     // dependency closure into the profile's node_modules, so every bare
     // plugin name in the base patch must resolve from there.
     const cliManifest = JSON.parse(readFileSync(anchor, 'utf8')) as { dependencies?: Record<string, string> }
-    for (const name of ['@qilin/pwsh-sandbox', '@qilin/tool-pwsh']) {
+    for (const name of ['@qilin-agent/pwsh-sandbox', '@qilin-agent/tool-pwsh']) {
       expect(cliManifest.dependencies?.[name], `cold-start closure must reach ${name}`).toBeDefined()
     }
     expect(warnings).toEqual([])
@@ -81,7 +81,7 @@ describe('the shipped shell composition (real bundle layers)', () => {
 
   it('base-only profiles carry both stacks with the same platform gating', () => {
     home = mkdtempSync(join(tmpdir(), 'qilin-windows-home-'))
-    initProfile(join(home, PROFILES_DIR, 'base-only'), ['@qilin/base'])
+    initProfile(join(home, PROFILES_DIR, 'base-only'), ['@qilin-agent/base'])
     const profile = loadProfile('qilin', 'base-only', anchor, home)
     const warnings: string[] = []
     const rows = composeEntries(

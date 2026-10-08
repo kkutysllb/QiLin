@@ -4,10 +4,10 @@
  * Format packages transform parsed JSON values. This module owns the physical
  * encoding, exact source identity, immutable generation files, and exclusive
  * current-generation publication for both configured JSONL suffixes.
- * @module @qilin/session-persistence-jsonl/generation
+ * @module @qilin-agent/session-persistence-jsonl/generation
  */
 
-import { currentSessionMessageProjections } from '@qilin/session-format-catalog/message-projections'
+import { currentSessionMessageProjections } from '@qilin-agent/session-format-catalog/message-projections'
 import { createHash, randomBytes } from 'node:crypto'
 import {
   link as fsLink,
@@ -25,16 +25,16 @@ import { pipeline, Readable } from 'node:stream'
 import { scheduler } from 'node:timers/promises'
 import { isDeepStrictEqual } from 'node:util'
 import { constants, createZstdCompress } from 'node:zlib'
-import { Session } from '@qilin/session'
-import type { SessionEvent } from '@qilin/session'
-import { BlockAssembler, expandAssistantStream } from '@qilin/llm'
-import { SessionFormatError } from '@qilin/session-format'
+import { Session } from '@qilin-agent/session'
+import type { SessionEvent } from '@qilin-agent/session'
+import { BlockAssembler, expandAssistantStream } from '@qilin-agent/llm'
+import { SessionFormatError } from '@qilin-agent/session-format'
 import type {
   SessionFormatArtifact,
   SessionFormatJsonValue,
   SessionFormatRestore,
-} from '@qilin/session-format'
-import { validateStoredEvents } from '@qilin/session-persistence'
+} from '@qilin-agent/session-format'
+import { validateStoredEvents } from '@qilin-agent/session-persistence'
 import type { JsonlCompression } from './format.ts'
 import { generationLogFilename, logSuffix, SessionLogScanner } from './format.ts'
 import { publishNewFileWin32 } from './win32.ts'

@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/agent-loop",
+  "name": "@qilin-agent/agent-loop",
   "description": "The concrete agent loop plugin for the QiLin",
   "version": "3.1.1",
   "publishConfig": {
@@ -29,36 +29,36 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/scope": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-persistence": "workspace:*",
-    "@qilin/session-projection": "workspace:*",
-    "@qilin/settings": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/tools": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/scope": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-persistence": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/settings": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tools": "workspace:*"
   },
   "dependencies": {
-    "@qilin/brand": "workspace:*",
-    "@qilin/util-values": "workspace:*",
-    "@qilin/schemastery": "workspace:~",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/util-values": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/llm-pi-ai": "workspace:*",
-    "@qilin/agent": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/scope": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-persistence": "workspace:*",
-    "@qilin/session-persistence-jsonl": "workspace:*",
-    "@qilin/session-projection": "workspace:*",
-    "@qilin/settings": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/llm-deepseek-api-key": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/llm-pi-ai": "workspace:*",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/scope": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-persistence": "workspace:*",
+    "@qilin-agent/session-persistence-jsonl": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/settings": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/llm-deepseek-api-key": "workspace:*"
   }
 }

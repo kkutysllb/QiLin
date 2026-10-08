@@ -3,7 +3,7 @@ description: "Workbench tag state owner for the qilin web client: the general/co
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-workbench
+# @qilin-agent/client-ui-workbench
 
 English | [中文](README.zh.md)
 

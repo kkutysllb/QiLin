@@ -4,14 +4,14 @@ import { createHash, randomUUID } from 'node:crypto'
 import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import type { Sharp } from 'sharp'
-import { AttachmentError, ImageVariantId } from '@qilin/attachment'
+import { AttachmentError, ImageVariantId } from '@qilin-agent/attachment'
 import type {
   ImageMediaType,
   ImageAttachmentRef,
   ImageRequestTarget,
   RequestImageAttachment,
   StoredImageAttachment,
-} from '@qilin/attachment'
+} from '@qilin-agent/attachment'
 import {
   IMAGE_ENCODING_QUALITIES,
   WEBP_ENCODING_EFFORT,

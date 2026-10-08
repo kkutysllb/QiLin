@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import type {} from '@qilin/agent-instructions'
-import { compactCheckpointSource, CompactionId } from '@qilin/compaction'
+import { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import type {} from '@qilin-agent/agent-instructions'
+import { compactCheckpointSource, CompactionId } from '@qilin-agent/compaction'
 import LlmRuntime, {
   createMessage,
   createSystemMessage,
@@ -14,35 +14,35 @@ import LlmRuntime, {
   type GenerateOptions,
   type StreamChunk,
   type ToolSchema,
-} from '@qilin/llm'
+} from '@qilin-agent/llm'
 import PermissionPresetService, {
   AUTO_PRESET,
   type Config as PermissionConfig,
-} from '@qilin/permission-presets'
+} from '@qilin-agent/permission-presets'
 import SessionStore, {
   SessionId,
   SessionLogOffset,
   type Session,
-} from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
+} from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import SubagentRuntime, {
   NO_START_CAPABILITIES,
   resolveChildCwd,
   snapshotSubagentDescriptor,
   type ResolvedSubagentStartRequest,
-} from '@qilin/subagent'
-import type {} from '@qilin/shell'
-import SystemPrompt from '@qilin/system-prompt'
-import * as ToolSubagent from '@qilin/tool-subagent'
+} from '@qilin-agent/subagent'
+import type {} from '@qilin-agent/shell'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import * as ToolSubagent from '@qilin-agent/tool-subagent'
 import ToolRuntime, {
   defineContentToolFixture,
   RUN_CODE_NAME,
   TOOL_ABORTED_BEFORE_DISPATCH,
   type PreToolDecision,
   type ToolExecutionToken,
-} from '@qilin/tools'
-import ApprovalService, { setApprovalPolicy, type ApprovalOutcome } from '@qilin/user-approval'
-import * as AutoReview from '@qilin/experimental-auto-review'
+} from '@qilin-agent/tools'
+import ApprovalService, { setApprovalPolicy, type ApprovalOutcome } from '@qilin-agent/user-approval'
+import * as AutoReview from '@qilin-agent/experimental-auto-review'
 
 const EXPECTED_REVIEW_POLICY = `REVIEW_POLICY
 You are the final authorization reviewer for exactly one pending tool call. Your decision replaces human approval for this call. If you allow it, the call executes immediately with full host access and no later confirmation.

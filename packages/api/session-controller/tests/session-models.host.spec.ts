@@ -6,23 +6,23 @@
  */
 
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import AgentRegistry, { agentEvents } from '@qilin/agent'
-import type { Agent } from '@qilin/agent'
-import AttachmentStore from '@qilin/attachment'
-import LlmRuntime, { LlmAdapter, ReasoningEffortId } from '@qilin/llm'
+import { Context } from '@qilin-agent/kylin'
+import AgentRegistry, { agentEvents } from '@qilin-agent/agent'
+import type { Agent } from '@qilin-agent/agent'
+import AttachmentStore from '@qilin-agent/attachment'
+import LlmRuntime, { LlmAdapter, ReasoningEffortId } from '@qilin-agent/llm'
 import type {
   GenerateOptions, LlmCallConfig, LlmCallConfigAdapterDefaults, LlmModelInfo,
   LlmModelReasoningInfo, LlmProviderInfo, LlmResolvedModelInfo, StreamChunk,
   UserMessage,
-} from '@qilin/llm'
-import SessionStore from '@qilin/session'
-import type { SessionId } from '@qilin/session'
+} from '@qilin-agent/llm'
+import SessionStore from '@qilin-agent/session'
+import type { SessionId } from '@qilin-agent/session'
 import type { SessionPromptRequest, SessionRequestId } from '../src/types.ts'
 import { ApiSessionAgentController } from '../src/agent.ts'
 import { buildModelCatalog } from '../src/catalog.ts'
-import SystemPrompt from '@qilin/system-prompt'
-import { RemoteError } from '@qilin/typert-protocol'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import { RemoteError } from '@qilin-agent/typert-protocol'
 import { createSessionTestRemote } from './test-remote.ts'
 
 function request<P>(payload: P): P {

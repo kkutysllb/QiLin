@@ -8,14 +8,14 @@
  * cap, and copy — so composing this plugin out of cordis.yml removes every
  * surface; the owning view renders an empty list and inert prose at zero cost.
  */
-import type { Context as ClientContext } from '@qilin/kylin'
-import type {} from '@qilin/api-remotes/client'
-import type {} from '@qilin/client-connection/client'
-import type { ChatFileMentions } from '@qilin/client-ui-chat/client'
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-ui-conversation/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-sidebar-right/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/api-remotes/client'
+import type {} from '@qilin-agent/client-connection/client'
+import type { ChatFileMentions } from '@qilin-agent/client-ui-chat/client'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-ui-conversation/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
 import { changesReviewAddress } from '../changes.ts'
 import { ChangesDiffStore } from './changes-diff.ts'
 import { ChangesSummaryStore } from './changes-summary.ts'
@@ -30,7 +30,7 @@ import {
   deliverablesDefinition, presentedForClosing, producedFileMentions, selectProducedFiles,
 } from './turn-deliverables.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Changed-files card, review tab, delivery card, and file-mention copy. */
     'deliverables': DeliverablesKey
@@ -60,7 +60,7 @@ export function apply(ctx: ClientContext): void {
     'conversation.chat.turnTail',
     () => ctx.slots.register({
       name: 'conversation.chat.turnTail',
-      id: '@qilin/client-ui-deliverables',
+      id: '@qilin-agent/client-ui-deliverables',
       locale: NS,
       inject: (): DeliverablesInjected => ({
         hooks: { presentedOpen: opener.state, presentedHost: opener.host, changesSummary: summaries.state },

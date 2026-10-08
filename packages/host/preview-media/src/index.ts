@@ -28,13 +28,13 @@
  * `mediaLimitBytes` before any byte reaches the filesystem.
  */
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/host-webserver'
-import type { FsTarget } from '@qilin/fs'
-import type {} from '@qilin/sandbox-policy'
-import type {} from '@qilin/session'
-import z from '@qilin/schemastery'
-import type { SessionId } from '@qilin/session/types'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/host-webserver'
+import type { FsTarget } from '@qilin-agent/fs'
+import type {} from '@qilin-agent/sandbox-policy'
+import type {} from '@qilin-agent/session'
+import z from '@qilin-agent/schemastery'
+import type { SessionId } from '@qilin-agent/session/types'
 import { parseRange } from './range.ts'
 
 /** Route path the browser media URL builder points at (prefix match). */

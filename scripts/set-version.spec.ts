@@ -6,11 +6,11 @@ import { describe, expect, it } from 'vitest'
 import { inVersionFamily, withVersion } from './set-version.ts'
 
 describe('inVersionFamily', () => {
-  it('admits the root manifest and every @qilin package', () => {
+  it('admits the root manifest and every @qilin-agent package', () => {
     expect(inVersionFamily({})).toBe(true)
-    expect(inVersionFamily({ name: '@qilin/cli' })).toBe(true)
-    expect(inVersionFamily({ name: '@qilin/llm-pi-ai' })).toBe(true)
-    expect(inVersionFamily({ name: '@qilin/experimental-auto-review' })).toBe(true)
+    expect(inVersionFamily({ name: '@qilin-agent/cli' })).toBe(true)
+    expect(inVersionFamily({ name: '@qilin-agent/llm-pi-ai' })).toBe(true)
+    expect(inVersionFamily({ name: '@qilin-agent/experimental-auto-review' })).toBe(true)
   })
 
   it('refuses a manifest the root version does not govern', () => {
@@ -21,9 +21,9 @@ describe('inVersionFamily', () => {
 
 describe('withVersion', () => {
   it('rewrites only the version field', () => {
-    const manifest = '{\n  "name": "@qilin/cli",\n  "version": "3.0.4",\n  "license": "MIT"\n}\n'
+    const manifest = '{\n  "name": "@qilin-agent/cli",\n  "version": "3.0.4",\n  "license": "MIT"\n}\n'
     expect(withVersion(manifest, '3.0.5')).toBe(
-      '{\n  "name": "@qilin/cli",\n  "version": "3.0.5",\n  "license": "MIT"\n}\n',
+      '{\n  "name": "@qilin-agent/cli",\n  "version": "3.0.5",\n  "license": "MIT"\n}\n',
     )
   })
 

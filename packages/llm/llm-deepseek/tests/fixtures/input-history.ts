@@ -1,12 +1,12 @@
 /** Replay persisted user input carrying assistant-only content through Messages. */
 import assert from 'node:assert/strict'
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/agent'
-import { createUserMessage, ToolCallId } from '@qilin/llm'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/agent'
+import { createUserMessage, ToolCallId } from '@qilin-agent/llm'
 import { resolveAdapterOptions } from '../../src/config.ts'
 import { serialize } from '../../src/serialize.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'plugin:messages-input-history-snapshot': { kind: 'plugin:messages-input-history-snapshot' }
   }

@@ -10,19 +10,19 @@
  * execution. No continuable path creates a Task or an intermediate
  * result-bearing wrapper.
  *
- * @module @qilin/subagent
+ * @module @qilin-agent/subagent
  */
 
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import { brandString } from '@qilin/brand'
-import { ReasoningEffortId, contentHasImage, createUserMessage } from '@qilin/llm'
-import type { ContentBlock, MessageId, MessageSource } from '@qilin/llm'
-import { SessionLogOffset } from '@qilin/session'
-import type { SessionId } from '@qilin/session'
-import type { SessionPersistence } from '@qilin/session-persistence'
-import type { SessionObservation, SessionQueryEngine } from '@qilin/session-query'
+import type { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import { brandString } from '@qilin-agent/brand'
+import { ReasoningEffortId, contentHasImage, createUserMessage } from '@qilin-agent/llm'
+import type { ContentBlock, MessageId, MessageSource } from '@qilin-agent/llm'
+import { SessionLogOffset } from '@qilin-agent/session'
+import type { SessionId } from '@qilin-agent/session'
+import type { SessionPersistence } from '@qilin-agent/session-persistence'
+import type { SessionObservation, SessionQueryEngine } from '@qilin-agent/session-query'
 import {
   childSessionMeta,
   captureDelegatedPolicyOverrides,
@@ -541,7 +541,7 @@ export class SubagentContinuationManager {
     const query = this.ctx.get('sessionQuery')
     if (query === undefined) {
       throw new SubagentError(
-        'continuable subagents require session query (load @qilin/session-query)',
+        'continuable subagents require session query (load @qilin-agent/session-query)',
         'CONTINUATION_UNAVAILABLE',
       )
     }

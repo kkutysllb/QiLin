@@ -1,27 +1,27 @@
 // @vitest-environment jsdom
-import type { GlobalStandardProps } from '@qilin/client-ui-slots'
-import { createSnapshotStore } from '@qilin/client-store'
-import { Context } from '@qilin/kylin'
+import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { Context } from '@qilin-agent/kylin'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   ConversationNodeAssembler, UiConversation,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 import type {
   ConversationMatch, ConversationNodeDefinition, ConversationStartMatch,
   ConversationViewDefinition,
-} from '@qilin/client-ui-conversation/client'
-import type { ChatConversationViewNode } from '@qilin/client-ui-chat/client'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
+} from '@qilin-agent/client-ui-conversation/client'
+import type { ChatConversationViewNode } from '@qilin-agent/client-ui-chat/client'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
 import type {
   SessionListState, SessionLiveEventEntry,
-} from '@qilin/api-session-controller/client'
-import type { SessionEvent, SessionId } from '@qilin/session/types'
-import { apply as applyLocale, inject as localeInject } from '@qilin/client-locale/client'
+} from '@qilin-agent/api-session-controller/client'
+import type { SessionEvent, SessionId } from '@qilin-agent/session/types'
+import { apply as applyLocale, inject as localeInject } from '@qilin-agent/client-locale/client'
 import {
   chatSnapshot as emptyChatSnapshot, conversationSnapshot, makeTranslate, sessionSnapshot,
   stubConfigForm, TestSessions, workspaceSnapshot,
-} from '@qilin/client-test-runtime'
+} from '@qilin-agent/client-test-runtime'
 import {
   WorkflowRunPanel, type WorkflowRunInjected, type WorkflowRunPanelProps,
 } from '../src/client/WorkflowRunPanel.tsx'

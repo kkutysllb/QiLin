@@ -5,15 +5,15 @@
  * enumeration retains the complete corpus and the child identity projection
  * because ordinary Sessions and one-shot children remain traversal nodes.
  *
- * @module @qilin/subagent
+ * @module @qilin-agent/subagent
  */
 
-import type { Context } from '@qilin/kylin'
-import type { Session } from '@qilin/session'
-import type { SessionHeader, SessionId } from '@qilin/session'
-import type { SessionProjectionRegistry } from '@qilin/session-projection'
-import type { SessionProjectionCache } from '@qilin/session-projection-cache'
-import type { SessionObservation, SessionQueryEngine } from '@qilin/session-query'
+import type { Context } from '@qilin-agent/kylin'
+import type { Session } from '@qilin-agent/session'
+import type { SessionHeader, SessionId } from '@qilin-agent/session'
+import type { SessionProjectionRegistry } from '@qilin-agent/session-projection'
+import type { SessionProjectionCache } from '@qilin-agent/session-projection-cache'
+import type { SessionObservation, SessionQueryEngine } from '@qilin-agent/session-query'
 import type { SubagentListEntry } from './control-types.ts'
 import { SubagentError } from './error.ts'
 import type { SubagentIdentityProjection } from './projection-types.ts'
@@ -72,7 +72,7 @@ export async function listChildren(
   const query = ctx.get('sessionQuery')
   if (query === undefined) {
     throw new SubagentError(
-      'listing subagents requires the sessionQuery service (load @qilin/session-query)',
+      'listing subagents requires the sessionQuery service (load @qilin-agent/session-query)',
       'SUBAGENT_CONTROL_QUERY_UNAVAILABLE',
     )
   }
@@ -134,7 +134,7 @@ async function prepareListing(
   // deployment configuration error, never an empty success.
   if (projections === undefined) {
     throw new SubagentError(
-      'listing subagents requires the sessionProjections registry (load @qilin/session-projection)',
+      'listing subagents requires the sessionProjections registry (load @qilin-agent/session-projection)',
       'SUBAGENT_CONTROL_PROJECTIONS_UNAVAILABLE',
     )
   }
@@ -144,7 +144,7 @@ async function prepareListing(
   const sessions = ctx.get('sessions')
   if (sessions === undefined) {
     throw new SubagentError(
-      'listing subagents requires the session store (load @qilin/session)',
+      'listing subagents requires the session store (load @qilin-agent/session)',
       'SUBAGENT_CONTROL_SESSION_STORE_UNAVAILABLE',
     )
   }
@@ -152,7 +152,7 @@ async function prepareListing(
   const query = ctx.get('sessionQuery')
   if (query === undefined) {
     throw new SubagentError(
-      'listing subagents requires the sessionQuery service (load @qilin/session-query)',
+      'listing subagents requires the sessionQuery service (load @qilin-agent/session-query)',
       'SUBAGENT_CONTROL_QUERY_UNAVAILABLE',
     )
   }

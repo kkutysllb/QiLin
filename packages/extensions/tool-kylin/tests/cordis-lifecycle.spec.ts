@@ -1,4 +1,4 @@
-import { Context, CordisError, FiberState, type Fiber } from '@qilin/kylin'
+import { Context, CordisError, FiberState, type Fiber } from '@qilin-agent/kylin'
 import { describe, expect, it } from 'vitest'
 
 /**

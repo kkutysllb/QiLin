@@ -1,10 +1,10 @@
 /** Browser attachment plugin: fills conversation's composer and image slots. */
-import type { Context as ClientContext } from '@qilin/kylin'
-import type {} from '@qilin/client-ui-chat/client'
-import type {} from '@qilin/client-ui-conversation/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-tool/client'
-import type {} from '@qilin/client-ui-trajectory/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/client-ui-chat/client'
+import type {} from '@qilin-agent/client-ui-conversation/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-tool/client'
+import type {} from '@qilin-agent/client-ui-trajectory/client'
 import { ComposerAttachments } from './ComposerAttachments.tsx'
 import { MessageImages } from './MessageImages.tsx'
 

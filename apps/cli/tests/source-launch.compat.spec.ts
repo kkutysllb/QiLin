@@ -48,7 +48,7 @@ describe('qilin SOURCE launcher (node --import tsx/esm)', () => {
       expect(result.exitCode).toBe(0)
       // The composed tree names the shipped product layers, and the launcher
       // initialized exactly the product profile under this home.
-      expect(result.stdout).toContain('@qilin/base')
+      expect(result.stdout).toContain('@qilin-agent/base')
       expect(existsSync(join(home, 'profiles', 'qilin', 'package.json'))).toBe(true)
     } finally {
       rmSync(home, { recursive: true, force: true })

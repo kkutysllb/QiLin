@@ -1,10 +1,10 @@
 /** Incremental raw Session rows with lossless Assistant stream children. */
 
-import type { SessionEventSource, SessionEventWindow, SessionEventLikeEntry } from '@qilin/api-session-controller/client'
-import { createSnapshotStore, type ObservableSnapshot, type SnapshotStore } from '@qilin/client-store'
-import { expandAssistantStream, type AssistantStreamRecord, type TimedStreamChunk } from '@qilin/llm/assistant-stream'
-import type { StreamChunk } from '@qilin/llm'
-import type { SessionSeq } from '@qilin/session/types'
+import type { SessionEventSource, SessionEventWindow, SessionEventLikeEntry } from '@qilin-agent/api-session-controller/client'
+import { createSnapshotStore, type ObservableSnapshot, type SnapshotStore } from '@qilin-agent/client-store'
+import { expandAssistantStream, type AssistantStreamRecord, type TimedStreamChunk } from '@qilin-agent/llm/assistant-stream'
+import type { StreamChunk } from '@qilin-agent/llm'
+import type { SessionSeq } from '@qilin-agent/session/types'
 import type { InspectorRecord, InspectorRow } from '../table-model.ts'
 import { AssistantLogStream } from './stream.ts'
 import { SessionLogGroups } from './groups.ts'

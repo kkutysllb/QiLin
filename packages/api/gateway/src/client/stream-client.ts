@@ -1,4 +1,4 @@
-import { RemoteError } from '@qilin/typert-protocol'
+import { RemoteError } from '@qilin-agent/typert-protocol'
 /** Browser owner for the Gateway multiplexed Remote stream socket. */
 
 import {
@@ -7,8 +7,8 @@ import {
   type RemoteStreamClientMessage,
   type RemoteStreamServerMessage,
 } from '../stream-protocol.ts'
-import { Deque } from '@qilin/deque'
-import { randomUUID } from '@qilin/util-crypto'
+import { Deque } from '@qilin-agent/deque'
+import { randomUUID } from '@qilin-agent/util-crypto'
 
 /** Physical Remote stream socket failure that may be retried by a domain transport. */
 export class RemoteStreamCarrierError extends Error {

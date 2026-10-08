@@ -3,7 +3,7 @@
  * resolved about the signed-in account. The plugin body owns the reads and
  * publishes their results here; the component reads through props.useStore.
  */
-import { defineStore, type EngineStoreHandle } from '@qilin/client-store'
+import { defineStore, type EngineStoreHandle } from '@qilin-agent/client-store'
 import type { AccountFacts } from './account-api.ts'
 
 /** What the account menu renders at any moment. */

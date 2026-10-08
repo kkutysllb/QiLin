@@ -1,7 +1,7 @@
 /** Remote argv wrapper that selects and applies the sandbox on the SSH host. */
-import { SandboxProvider, SandboxUnavailableError } from '@qilin/sandbox'
-import type { ConfinedArgv, SandboxPolicy } from '@qilin/sandbox'
-import type {} from '@qilin/ssh'
+import { SandboxProvider, SandboxUnavailableError } from '@qilin-agent/sandbox'
+import type { ConfinedArgv, SandboxPolicy } from '@qilin-agent/sandbox'
+import type {} from '@qilin-agent/ssh'
 import { z } from 'zod'
 
 const factsSchema = z.object({ argv: z.array(z.string()).min(1), enforcement: z.enum(['full', 'partial']), denialSignatures: z.array(z.string()), runnerFailureRules: z.array(z.object({ allowedExitCodes: z.array(z.number().int()).optional(), fatalSignatures: z.array(z.string()), informationalLines: z.array(z.string()).optional() }).strict()) }).strict()

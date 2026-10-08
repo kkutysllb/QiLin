@@ -4,18 +4,18 @@
  * `ctx.subagents.interrupt()`. They perform no lifecycle routing of their own —
  * residency, cold resume, and interrupt authorization belong to the subagent
  * service — and they live apart from the provider-bound
- * `@qilin/tool-subagent` instances so multiple delegation tools share
+ * `@qilin-agent/tool-subagent` instances so multiple delegation tools share
  * one control API.
- * @module @qilin/tool-subagent-control
+ * @module @qilin-agent/tool-subagent-control
  */
 
-import type { Context } from '@qilin/kylin'
-import { brandString } from '@qilin/brand'
-import { defineTool } from '@qilin/tools'
-import type { ContentBlock } from '@qilin/llm'
-import type { SessionId } from '@qilin/session'
-import type {} from '@qilin/subagent'
-import { markAdjacentAgentSendMessageTool } from '@qilin/subagent/internal'
+import type { Context } from '@qilin-agent/kylin'
+import { brandString } from '@qilin-agent/brand'
+import { defineTool } from '@qilin-agent/tools'
+import type { ContentBlock } from '@qilin-agent/llm'
+import type { SessionId } from '@qilin-agent/session'
+import type {} from '@qilin-agent/subagent'
+import { markAdjacentAgentSendMessageTool } from '@qilin-agent/subagent/internal'
 
 export const name = 'tool-subagent-control'
 export const inject = ['tools', 'subagents']

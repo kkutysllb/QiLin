@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/llm",
+  "name": "@qilin-agent/llm",
   "description": "Provider-neutral LLM service interface for the QiLin",
   "version": "3.1.1",
   "publishConfig": {
@@ -59,19 +59,19 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "dependencies": {
-    "@qilin/util-crypto": "workspace:*",
-    "@qilin/schemastery": "workspace:~",
+    "@qilin-agent/util-crypto": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~",
     "zod": "^4.4.3",
-    "@qilin/timeout": "workspace:*",
-    "@qilin/brand": "workspace:*",
-    "@qilin/util-values": "workspace:*",
-    "@qilin/typert-protocol": "workspace:*"
+    "@qilin-agent/timeout": "workspace:*",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/util-values": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/attachment": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/attachment": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   }
 }

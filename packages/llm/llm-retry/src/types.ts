@@ -1,9 +1,9 @@
-import type { LlmFailure } from '@qilin/llm/types'
+import type { LlmFailure } from '@qilin-agent/llm/types'
 import type { RetryId } from './brand.ts'
 
 export type { RetryId }
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /** Durable, non-surface record of one provider-routed retry scheduled after a failed request attempt. */
     'llm/retry': LlmRetryEventData

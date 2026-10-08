@@ -1,7 +1,7 @@
 /** Retained V3 replay inputs, current-writer fixtures, and bounded older migration coverage. */
 
-import { SESSION_FORMAT_VERSION } from '@qilin/session'
-import type { SnapshotSessionFormatManifest } from '@qilin/session-snapshot'
+import { SESSION_FORMAT_VERSION } from '@qilin-agent/session'
+import type { SnapshotSessionFormatManifest } from '@qilin-agent/session-snapshot'
 
 /** One owning scenario's selected parent and child generations. */
 export interface SnapshotCorpusScenarioGenerations {

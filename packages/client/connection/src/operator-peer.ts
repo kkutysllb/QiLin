@@ -2,13 +2,13 @@
  * The operator Peer: the one party this Host answers to. Connection owns it
  * for its own lifetime, admits every request as it, and hands it to each
  * Remote call as `invocation.peer`.
- * @module @qilin/client-connection/src/operator-peer
+ * @module @qilin-agent/client-connection/src/operator-peer
  */
 
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@qilin/kylin'
-import { createScope, type Scope } from '@qilin/scope'
-import type { PeerId, PeerScope } from '@qilin/typert-protocol'
+import type { Context } from '@qilin-agent/kylin'
+import { createScope, type Scope } from '@qilin-agent/scope'
+import type { PeerId, PeerScope } from '@qilin-agent/typert-protocol'
 
 /**
  * The operator's scope. The instance is its own scope key, so `scopeOf(peer.ctx)`

@@ -1,9 +1,9 @@
 /** Public plugin management records shared with clients. */
-import type { Branded } from '@qilin/brand'
-import type { PluginInventoryEntry } from '@qilin/host-plugin-inventory/types'
-export type { PluginEntryId } from '@qilin/host-plugin-inventory/types'
-import type { PluginEntryId } from '@qilin/host-plugin-inventory/types'
-import type { PluginLocalizedMeta, QilinProfileAudience } from '@qilin/package-manifest'
+import type { Branded } from '@qilin-agent/brand'
+import type { PluginInventoryEntry } from '@qilin-agent/host-plugin-inventory/types'
+export type { PluginEntryId } from '@qilin-agent/host-plugin-inventory/types'
+import type { PluginEntryId } from '@qilin-agent/host-plugin-inventory/types'
+import type { PluginLocalizedMeta, QilinProfileAudience } from '@qilin-agent/package-manifest'
 
 /** The workbench surfaces a bundle's UI presents on; the engine composition is presentation-independent. */
 export type PluginAudience = QilinProfileAudience
@@ -285,7 +285,7 @@ export interface PluginChange {
   readonly reason: 'plugin' | 'bundle' | 'install' | 'remove'
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Events {
     /**
      * The profile's plugins, bundles, or composition changed: a manager

@@ -1,6 +1,6 @@
 /** Per-session roster generations: the caller-visible job set, replaced whole after every lifecycle change. */
 
-import type { JobRegistry } from '@qilin/jobs'
+import type { JobRegistry } from '@qilin-agent/jobs'
 import type { JobListFrame, JobListRequest } from './types.ts'
 import { OutputWaiter, sleep } from './wake.ts'
 

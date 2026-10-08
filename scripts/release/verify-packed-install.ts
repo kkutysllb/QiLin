@@ -188,7 +188,7 @@ async function main(): Promise<void> {
 
     // The published claim is one-click deployment, so the installed tree has to
     // serve the browser surface — not merely print a version. The product
-    // profile is the one a bare `npx @qilin/cli` boots.
+    // profile is the one a bare `npx @qilin-agent/cli` boots.
     const surface = await verifyInstalledWebSurface({
       command: process.execPath,
       args: port => [bin, '--no-open', '--port', String(port)],

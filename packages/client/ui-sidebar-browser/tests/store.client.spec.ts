@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { TabId } from '@qilin/client-ui-dockkit'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
 import { BrowserNavigation } from '../src/client/browser/BrowserNavigation.ts'
 import { createBrowserStore } from '../src/client/browser/store.ts'
 

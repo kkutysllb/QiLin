@@ -1,7 +1,7 @@
 /** General Settings row for the terminal's font family and size. */
 import { useState, type ReactNode } from 'react'
-import { Input } from '@qilin/client-ui-primitives'
-import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
+import { Input } from '@qilin-agent/client-ui-primitives'
+import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import type { TerminalSettings } from '../terminal-settings.ts'
 import { clampTerminalFontSize, DEFAULT_TERMINAL_FONT_FAMILY } from './terminal-font.ts'
 import css from './TerminalFontRow.module.css'

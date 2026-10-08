@@ -5,11 +5,11 @@ import {
 import {
   DisclosureRow, IconChevronRightOutline14, StateDot,
   type DisclosureRowProps, type StateDotState,
-} from '@qilin/client-ui-primitives'
-import type { PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
-import type { SessionListState, SessionTarget } from '@qilin/api-session-controller/client'
-import { shallowEqual } from '@qilin/client-store'
-import type { SessionId } from '@qilin/session/types'
+} from '@qilin-agent/client-ui-primitives'
+import type { PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type { SessionListState, SessionTarget } from '@qilin-agent/api-session-controller/client'
+import { shallowEqual } from '@qilin-agent/client-store'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { WorkflowRunKey } from './locales.ts'
 import type {
   WorkflowRunMemberData, WorkflowRunPhaseData, WorkflowRunStatus,

@@ -3,15 +3,15 @@ import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi, type Mock } from 'vitest'
-import { Context, LoggerLevel } from '@qilin/kylin'
-import LlmRuntime from '@qilin/llm'
-import DeepSeekLlmApiExtensionRegistry from '@qilin/deepseek-llm-api-extensions'
-import type { DeepSeekLlmApiExtensionRequest } from '@qilin/deepseek-llm-api-extensions'
-import { SessionId } from '@qilin/session'
-import * as DeepSeek from '@qilin/llm-deepseek-api-key'
+import { Context, LoggerLevel } from '@qilin-agent/kylin'
+import LlmRuntime from '@qilin-agent/llm'
+import DeepSeekLlmApiExtensionRegistry from '@qilin-agent/deepseek-llm-api-extensions'
+import type { DeepSeekLlmApiExtensionRequest } from '@qilin-agent/deepseek-llm-api-extensions'
+import { SessionId } from '@qilin-agent/session'
+import * as DeepSeek from '@qilin-agent/llm-deepseek-api-key'
 import { adapter, assemble, options, sse, textEvents } from './helpers.ts'
 
-declare module '@qilin/deepseek-llm-api-extensions' {
+declare module '@qilin-agent/deepseek-llm-api-extensions' {
   interface DeepSeekLlmApiExtensionMap {
     dsh_messages_test: { value: string }
   }

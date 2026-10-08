@@ -3,8 +3,8 @@
  * opened `changes` generation, and a supervisor that runs one generation and
  * classifies its end the way the real one does.
  */
-import type { RemoteResult, RemoteStreamHandle } from '@qilin/typert-protocol'
-import type { SessionId } from '@qilin/session/types'
+import type { RemoteResult, RemoteStreamHandle } from '@qilin-agent/typert-protocol'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { WorkspaceFileWatchFrame, WorkspaceFileStat } from '../src/types.ts'
 import type { SupervisedStream, SupervisedStreamOptions, WorkspaceFilesRemote } from '../src/client/remote.ts'
 

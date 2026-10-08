@@ -1,21 +1,21 @@
 /**
  * Model argument schemas, normalization, and filter construction.
  *
- * @module @qilin/tool-session-query/input
+ * @module @qilin-agent/tool-session-query/input
  */
 
 import {
   type SessionEventType,
   type SessionId as SessionIdValue,
-} from '@qilin/session'
-import { brandString } from '@qilin/brand'
+} from '@qilin-agent/session'
+import { brandString } from '@qilin-agent/brand'
 import {
   SessionQueryError,
   type SessionAvailability,
   type SessionEventMetadataFilter,
   type SessionEventSurface,
   type SessionResultFilter,
-} from '@qilin/session-query'
+} from '@qilin-agent/session-query'
 
 interface SessionSearchArgs {
   query: string

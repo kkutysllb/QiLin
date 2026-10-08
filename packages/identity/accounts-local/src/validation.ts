@@ -2,7 +2,7 @@
  * Credential rules shared by the sign-in endpoints: one username and one email
  * normalization plus one minimum password length, so the page and the server
  * enforce the same acceptable input.
- * @module @qilin/accounts-local/src/validation
+ * @module @qilin-agent/accounts-local/src/validation
  */
 
 /** Minimum accepted password length. */

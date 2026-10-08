@@ -3,7 +3,7 @@ description: "Host-wide durable reminders and shared Session-bound task manageme
 kind: "package-reference"
 ---
 
-# @qilin/schedule
+# @qilin-agent/schedule
 
 English | [中文](README.zh.md)
 
@@ -94,7 +94,7 @@ The `schedule.archiveAdmission()` effect answers the Workspace registry's archiv
 
 #### What the model sees
 
-The [generated tool catalog](../../../docs/tool-catalog.md#qilintool-schedule) contains the descriptions and schemas for `schedule_create`, `schedule_list`, `schedule_delete`, and `schedule_update`, contributed by the tool-schedule package the presets mount.
+The [generated tool catalog](../../../docs/tool-catalog.md#qilin-agenttool-schedule) contains the descriptions and schemas for `schedule_create`, `schedule_list`, `schedule_delete`, and `schedule_update`, contributed by the tool-schedule package the presets mount.
 
 #### Token effect
 

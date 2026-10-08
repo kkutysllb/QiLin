@@ -5,26 +5,26 @@
  * Background policy is selected by this plugin's configuration: one-shot
  * calls own a plain Task, while continuable calls use
  * `ctx.subagents.startContinuable()`.
- * @module @qilin/tool-subagent
+ * @module @qilin-agent/tool-subagent
  */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { scopeChainOf, scopeOf } from '@qilin/scope'
-import { defineTool } from '@qilin/tools'
-import type { Agent, AgentOptions } from '@qilin/agent'
-import { ReasoningEffortId } from '@qilin/llm'
-import type { ContentBlock } from '@qilin/llm'
-import type { JsonValue } from '@qilin/util-values'
-import { SessionSeq } from '@qilin/session'
-import type { Session } from '@qilin/session'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { scopeChainOf, scopeOf } from '@qilin-agent/scope'
+import { defineTool } from '@qilin-agent/tools'
+import type { Agent, AgentOptions } from '@qilin-agent/agent'
+import { ReasoningEffortId } from '@qilin-agent/llm'
+import type { ContentBlock } from '@qilin-agent/llm'
+import type { JsonValue } from '@qilin-agent/util-values'
+import { SessionSeq } from '@qilin-agent/session'
+import type { Session } from '@qilin-agent/session'
 import {
   assertSubagentMaxDepth,
   parentAgentOptionsForDelegation,
   settleRun,
-} from '@qilin/subagent'
-import type { SubagentProvider, SubagentResult, SubagentRun } from '@qilin/subagent'
-import type { JobOutcome } from '@qilin/jobs'
+} from '@qilin-agent/subagent'
+import type { SubagentProvider, SubagentResult, SubagentRun } from '@qilin-agent/subagent'
+import type { JobOutcome } from '@qilin-agent/jobs'
 import {
   assertAllowedModelSelection,
   hasConfiguredLlmSelection,
@@ -538,7 +538,7 @@ export function apply(ctx: Context, config: Config, session?: Session): void {
             }
             const jobs = runtimeCtx.get('jobs')
             if (jobs === undefined) {
-              throw new Error('background jobs unavailable: load @qilin/jobs and @qilin/tool-jobs')
+              throw new Error('background jobs unavailable: load @qilin-agent/jobs and @qilin-agent/tool-jobs')
             }
             // One-shot background child: job preflight finishes before the
             // starter can spawn, and the task-owned signal covers startup.
@@ -615,7 +615,7 @@ export function apply(ctx: Context, config: Config, session?: Session): void {
   if (settings === undefined) {
     throw new Error(
       'tool-subagent: `modelSelectionSettings` requires '
-      + '@qilin/tool-subagent/model-selection-settings in the Host scope',
+      + '@qilin-agent/tool-subagent/model-selection-settings in the Host scope',
     )
   }
   const selectForSession = (target: Session): ModelSelectionPolicy | undefined => {

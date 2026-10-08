@@ -1,15 +1,15 @@
 /** Named transcription providers with disposable registration and explicit routing. */
-import { Context, Service, type Volatile } from '@qilin/kylin'
-import z from '@qilin/schemastery'
+import { Context, Service, type Volatile } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
 // Type-only: the `settings` service that persists `configure()` into this plugin's profile entry, and the Loader's
 // entry and `loader/volatile-update` merges.
-import type {} from '@qilin/settings'
-import type {} from '@qilin/kylin-plugin-loader'
+import type {} from '@qilin-agent/settings'
+import type {} from '@qilin-agent/kylin-plugin-loader'
 import type { SpeechPreparationOptions, SpeechProvider, SpeechProviderId, SpeechProviderInfo, SpeechSnapshot, SpeechSelectionPatch, SpeechRequest, SpeechSpec, Transcript } from './types.ts'
 
 export type * from './types.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Experimental speech recognition provider registry. */
     speechToText: SpeechToText

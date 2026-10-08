@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { PassThrough } from 'node:stream'
-import { Context } from '@qilin/kylin'
-import { scrubbedParentEnv, SubprocessRuntime } from '@qilin/subprocess'
+import { Context } from '@qilin-agent/kylin'
+import { scrubbedParentEnv, SubprocessRuntime } from '@qilin-agent/subprocess'
 import type {
   SubprocessHandle,
   SubprocessOutputRead,
   SubprocessSpawnSpec,
   SubprocessTerminalHandle,
   SubprocessTerminalSpawnSpec,
-} from '@qilin/subprocess'
+} from '@qilin-agent/subprocess'
 
 /**
  * Minimal concrete service: a hand-built handle. The seam is spawn-only —

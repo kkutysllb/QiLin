@@ -3,7 +3,7 @@ description: "The same-session continuation driver for users and maintainers cho
 kind: "package-reference"
 ---
 
-# @qilin/goal-round-driver
+# @qilin-agent/goal-round-driver
 
 English | [中文](README.zh.md)
 
@@ -33,13 +33,13 @@ Mount the driver beside the goal service and the goal tools; the driver itself t
 
 ```yaml
 - id: goal
-  name: '@qilin/goal'
+  name: '@qilin-agent/goal'
 
 - id: tool-goal
-  name: '@qilin/tool-goal'
+  name: '@qilin-agent/tool-goal'
 
 - id: goal-round-driver
-  name: '@qilin/goal-round-driver'
+  name: '@qilin-agent/goal-round-driver'
 ```
 
 `maxGoalRounds` belongs to the goal definition, while the model-facing blocked threshold belongs to `qilin-tool-goal`; duplicating either value in the driver could produce divergent policy.

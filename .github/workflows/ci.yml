@@ -241,7 +241,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install benchmark browser and hosted dependencies
-        run: pnpm --filter @qilin/benchmarks exec playwright install --with-deps chromium
+        run: pnpm --filter @qilin-agent/benchmarks exec playwright install --with-deps chromium
 
       - name: Run performance benchmarks
         env:
@@ -367,13 +367,13 @@ jobs:
         # Ephemeral runner images can carry Ubuntu mirrors whose HTTP endpoints are unreachable.
         run: |
           sudo find /etc/apt -maxdepth 2 -type f \( -name '*.list' -o -name '*.sources' \) -exec sed -i -E 's@http://([a-z]{2}\.)?archive\.ubuntu\.com/ubuntu@https://archive.ubuntu.com/ubuntu@g; s@http://security\.ubuntu\.com/ubuntu@https://security.ubuntu.com/ubuntu@g' {} +
-          pnpm --filter @qilin/web-frontend exec playwright install --with-deps chromium
+          pnpm --filter @qilin-agent/web-frontend exec playwright install --with-deps chromium
 
       # The persistent VM image owns Playwright's Linux system packages; do
       # not mutate the shared host with apt on every failover run.
       - name: Install Playwright Chromium on the failover VM
         if: vars.QILIN_CI_FAILOVER_LINUX == 'selfhosted' && github.event.pull_request.user.login != 'dependabot[bot]'
-        run: pnpm --filter @qilin/web-frontend exec playwright install chromium
+        run: pnpm --filter @qilin-agent/web-frontend exec playwright install chromium
 
       - name: Run compatibility, snapshot, and artifact gates
         run: pnpm run check:ci:consumers

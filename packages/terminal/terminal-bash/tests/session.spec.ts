@@ -1,18 +1,18 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { PassThrough } from 'node:stream'
-import { LocalPtySession } from '@qilin/terminal-bash/src/session.ts'
-import type { ResolvedConfig } from '@qilin/terminal-bash/src/config.ts'
-import type { TerminalSendOperation, TerminalSessionStatus, TerminalSignal } from '@qilin/terminal'
+import { LocalPtySession } from '@qilin-agent/terminal-bash/src/session.ts'
+import type { ResolvedConfig } from '@qilin-agent/terminal-bash/src/config.ts'
+import type { TerminalSendOperation, TerminalSessionStatus, TerminalSignal } from '@qilin-agent/terminal'
 import type {
   SubprocessOutcome,
   SubprocessTerminalHandle,
   SubprocessTerminalSignal,
-} from '@qilin/subprocess'
-import { TerminalError } from '@qilin/terminal'
+} from '@qilin-agent/subprocess'
+import { TerminalError } from '@qilin-agent/terminal'
 import type {
   ProcessIdentity,
   ProcessInspector,
-} from '@qilin/subprocess-local/src/process-inspector.ts'
+} from '@qilin-agent/subprocess-local/src/process-inspector.ts'
 
 class FakeInspector implements ProcessInspector {
   pgid: number | undefined = 456

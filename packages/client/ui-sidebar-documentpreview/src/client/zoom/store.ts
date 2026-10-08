@@ -1,6 +1,6 @@
 /** Tab-local zoom preferences for renderers without additional view state. */
-import { defineStore, type EngineStoreHandle } from '@qilin/client-store'
-import type { TabId } from '@qilin/client-ui-dockkit'
+import { defineStore, type EngineStoreHandle } from '@qilin-agent/client-store'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
 import { FIT_WIDTH, type ZoomPreference } from './types.ts'
 
 /** Tab-lifetime callback supplied by a zoomable renderer registration. */

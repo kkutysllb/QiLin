@@ -1,18 +1,18 @@
 /**
  * Agent-scoped model selection shared by runtime entry points.
- * @module @qilin/agent/model-selection
+ * @module @qilin-agent/agent/model-selection
  */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import {
   boundContextSummary,
   createUserMessage,
   type LlmCallConfig,
   type ReasoningEffortId,
-} from '@qilin/llm'
+} from '@qilin-agent/llm'
 import type { PreStepDecision } from './runtime-types.ts'
-import type { ContextFormed } from '@qilin/llm'
-declare module '@qilin/llm' {
+import type { ContextFormed } from '@qilin-agent/llm'
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'model-selection': { kind: 'model-selection' } & ContextFormed
   }

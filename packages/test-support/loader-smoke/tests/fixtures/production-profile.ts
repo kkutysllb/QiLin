@@ -4,9 +4,9 @@ import { writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Context } from '@qilin/kylin'
-import type { EntryOptions } from '@qilin/kylin-plugin-loader'
-import type { PatchOptions } from '@qilin/kylin-plugin-include'
+import type { Context } from '@qilin-agent/kylin'
+import type { EntryOptions } from '@qilin-agent/kylin-plugin-loader'
+import type { PatchOptions } from '@qilin-agent/kylin-plugin-include'
 import {
   boot,
   healProfilesModuleFallback,
@@ -14,7 +14,7 @@ import {
   loadProfile,
   PluginPackages,
   type ProfileLayer,
-} from '@qilin/app-boot'
+} from '@qilin-agent/app-boot'
 
 const installAnchor = fileURLToPath(new URL('../../../../../apps/cli/package.json', import.meta.url))
 

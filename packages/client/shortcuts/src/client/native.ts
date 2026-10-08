@@ -1,5 +1,5 @@
 /** Desktop gestures use live focus, modal state, and verified embedding ownership. */
-import { modalSelector } from '@qilin/client-ui-primitives'
+import { modalSelector } from '@qilin-agent/client-ui-primitives'
 import type { DesktopKeyboardApi, ShortcutConfigSnapshot } from '../protocol.ts'
 import type { ShortcutRegistry } from './registry.ts'
 

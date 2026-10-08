@@ -1,7 +1,7 @@
 /** Shell-result projection over shared sandbox diagnostics. */
-import type { ShellRunResult } from '@qilin/shell'
-import { matchesSignature } from '@qilin/sandbox'
-export { isRunnerSpawnFailure, classifyRunnerFailure, matchesSignature } from '@qilin/sandbox'
+import type { ShellRunResult } from '@qilin-agent/shell'
+import { matchesSignature } from '@qilin-agent/sandbox'
+export { isRunnerSpawnFailure, classifyRunnerFailure, matchesSignature } from '@qilin-agent/sandbox'
 
 /**
  * Classify a failed run against the selected backend's denial dialect.

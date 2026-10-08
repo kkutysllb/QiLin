@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import LlmRuntime, { LlmAdapter, LlmError } from '@qilin/llm'
-import type { GenerateOptions, LlmConfigurableProvider, StreamChunk } from '@qilin/llm'
+import { Context } from '@qilin-agent/kylin'
+import LlmRuntime, { LlmAdapter, LlmError } from '@qilin-agent/llm'
+import type { GenerateOptions, LlmConfigurableProvider, StreamChunk } from '@qilin-agent/llm'
 
 class NoopAdapter extends LlmAdapter {
 

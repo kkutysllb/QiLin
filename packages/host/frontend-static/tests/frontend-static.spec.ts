@@ -11,12 +11,12 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import * as Connection from '@qilin/client-connection'
-import LocalCredentials from '@qilin/credentials-local'
-import HttpServer from '@qilin/host-webserver'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import * as Connection from '@qilin-agent/client-connection'
+import LocalCredentials from '@qilin-agent/credentials-local'
+import HttpServer from '@qilin-agent/host-webserver'
 import * as FrontendStatic from '../src/index.ts'
 
 let root: string | undefined
@@ -42,17 +42,17 @@ async function loadComposition(): Promise<Context> {
   await mkdir(join(dist, 'empty'))
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, [
-    "- name: '@qilin/credentials-local'",
+    "- name: '@qilin-agent/credentials-local'",
     '  config:',
     `    path: '${join(root, '.credentials.yaml')}'`,
     '    watch: false',
-    "- name: '@qilin/host-webserver'",
+    "- name: '@qilin-agent/host-webserver'",
     '  config:',
     "    host: '127.0.0.1'",
     '    port: 0',
-    "- name: '@qilin/client-connection'",
+    "- name: '@qilin-agent/client-connection'",
     '- id: frontend',
-    "  name: '@qilin/host-frontend-static'",
+    "  name: '@qilin-agent/host-frontend-static'",
     '  config:',
     `    distIndex: '${distIndex}'`,
     '',
@@ -63,10 +63,10 @@ async function loadComposition(): Promise<Context> {
   await context.plugin(Loader)
   context.loader.builtins.include = Include
   const modules = new Map<string, unknown>([
-    ['@qilin/credentials-local', LocalCredentials],
-    ['@qilin/host-webserver', HttpServer],
-    ['@qilin/client-connection', Connection],
-    ['@qilin/host-frontend-static', FrontendStatic],
+    ['@qilin-agent/credentials-local', LocalCredentials],
+    ['@qilin-agent/host-webserver', HttpServer],
+    ['@qilin-agent/client-connection', Connection],
+    ['@qilin-agent/host-frontend-static', FrontendStatic],
   ])
   context.loader.internal = {
     version: 'v2',

@@ -3,24 +3,24 @@
 # The fixture corpus must not depend on the developer's personal skill roots.
 # Ordinary product launches retain the sdk profile's default skill discovery.
 - id: skill-filesystem
-  name: '@qilin/skill-filesystem'
+  name: '@qilin-agent/skill-filesystem'
   config:
     includeDefaultRoots: false
 
 - id: llm-deepseek
-  name: '@qilin/llm-deepseek'
+  name: '@qilin-agent/llm-deepseek'
   config:
     thinking: enabled
     reasoningEffort: max
 
 - id: session-persistence-jsonl
-  name: '@qilin/session-persistence-jsonl'
+  name: '@qilin-agent/session-persistence-jsonl'
   config:
     root: !!js qilinHomePath('sessions')
     compression: !!js "process.env.QILIN_SNAPSHOT === undefined ? 'zstd' : 'none'"
 
 - id: tool-subagent
-  name: '@qilin/tool-subagent'
+  name: '@qilin-agent/tool-subagent'
   config:
     provider: spawn
     toolName: subagent
@@ -30,7 +30,7 @@
 
 - insert:
     - id: snapshot-message-feedback
-      name: '@qilin/message-feedback'
+      name: '@qilin-agent/message-feedback'
       disabled: !!js "process.env.QILIN_SNAPSHOT_FEEDBACK !== '1'"
       config:
         maxNoteBytes: 1024

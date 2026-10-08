@@ -11,12 +11,12 @@
  * Nodes also carry durable attachment occurrences and their structural prices,
  * so `measure()` can price the request representation sent to the model.
  *
- * @module @qilin/token-meter/surface-fold
+ * @module @qilin-agent/token-meter/surface-fold
  */
 
-import { deriveEventMessage } from '@qilin/session'
-import type { SessionSeq, SurfaceEvent } from '@qilin/session'
-import type { ContentBlock, ImageBlock, Message } from '@qilin/llm'
+import { deriveEventMessage } from '@qilin-agent/session'
+import type { SessionSeq, SurfaceEvent } from '@qilin-agent/session'
+import type { ContentBlock, ImageBlock, Message } from '@qilin-agent/llm'
 import { estimateMessage, estimateStructuralBlock } from './estimate.ts'
 
 type FileAttachmentRef = Extract<ContentBlock, { type: 'file' }>['attachment']

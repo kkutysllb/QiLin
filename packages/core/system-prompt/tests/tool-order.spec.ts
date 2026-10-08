@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import SystemPrompt, { PromptAssembly, TOOL_ORDER_REST } from '@qilin/system-prompt'
-import type { ToolSchema } from '@qilin/llm'
+import { Context } from '@qilin-agent/kylin'
+import SystemPrompt, { PromptAssembly, TOOL_ORDER_REST } from '@qilin-agent/system-prompt'
+import type { ToolSchema } from '@qilin-agent/llm'
 
 function tool(name: string, description = name): ToolSchema {
   return { name, description, parameters: { type: 'object', properties: {} } }

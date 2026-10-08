@@ -1,6 +1,6 @@
 /**
  * The escalation vocabulary and choreography shared by every sandbox-enforcing
- * tool family (`@qilin/tool-bash`, `@qilin/tool-fs`): the
+ * tool family (`@qilin-agent/tool-bash`, `@qilin-agent/tool-fs`): the
  * strictly-wider ladder, the argument-pairing validation, the model-facing
  * denial/hint markers, and {@link approveEscalation} — the ordered fail-closed
  * sequence that resolves a `sandbox_permissions` request through a
@@ -16,7 +16,7 @@
  * @module qilin-sandbox/escalation
  */
 
-import { assertNever } from '@qilin/util-values'
+import { assertNever } from '@qilin-agent/util-values'
 import type { SandboxMode } from './index.ts'
 
 /**

@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-ui-layout",
+  "name": "@qilin-agent/client-ui-layout",
   "description": "Shell plugin: three-column AppFrame with drag handles, ctx.layout viewing-state service (navigation + panels)",
   "version": "3.1.1",
   "publishConfig": {
@@ -31,11 +31,11 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/client-locale",
-        "@qilin/client-shortcuts",
-        "@qilin/client-ui-renderer",
-        "@qilin/client-ui-session",
-        "@qilin/client-ui-theme"
+        "@qilin-agent/client-locale",
+        "@qilin-agent/client-shortcuts",
+        "@qilin-agent/client-ui-renderer",
+        "@qilin-agent/client-ui-session",
+        "@qilin-agent/client-ui-theme"
       ],
       "platform": "web"
     }
@@ -46,18 +46,18 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/brand": "workspace:*",
-    "@qilin/client-locale": "workspace:*",
-    "@qilin/client-store": "workspace:*",
-    "@qilin/client-ui-renderer": "workspace:*",
-    "@qilin/client-ui-session": "workspace:*",
-    "@qilin/client-ui-slots": "workspace:*",
-    "@qilin/client-ui-theme": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/client-shortcuts": "workspace:*",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-session": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/client-ui-theme": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/client-shortcuts": "workspace:*",
     "@types/react": "~18.3.1",
     "react": "^18.2.0"
   },

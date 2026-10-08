@@ -4,11 +4,11 @@ import { copyFile, mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import * as SkillRegistry from '@qilin/skill'
-import * as SandboxLocal from '@qilin/sandbox-local'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import * as SkillRegistry from '@qilin-agent/skill'
+import * as SandboxLocal from '@qilin-agent/sandbox-local'
 import { expect, it } from 'vitest'
 import { ACL_DIAGNOSIS_SKILL } from '../src/acl-skill.ts'
 
@@ -31,8 +31,8 @@ it.skipIf(process.platform !== 'win32')('loads and unloads the ACL skill through
       resolveSync: unexpectedLoaderOperation,
       load: unexpectedLoaderOperation,
       async import(specifier: string) {
-        if (specifier === '@qilin/skill') return SkillRegistry
-        if (specifier === '@qilin/sandbox-local') return SandboxLocal
+        if (specifier === '@qilin-agent/skill') return SkillRegistry
+        if (specifier === '@qilin-agent/sandbox-local') return SandboxLocal
         throw new Error(`Unexpected Loader import: ${specifier}`)
       },
     }
@@ -52,7 +52,7 @@ it.skipIf(process.platform !== 'win32')('loads and unloads the ACL skill through
     expect(await ctx.skills.list()).toEqual([])
     expect(existsSync(resources)).toBe(false)
     await ctx.loader.create({
-      name: '@qilin/sandbox-local',
+      name: '@qilin-agent/sandbox-local',
       config: { runnerCommand: ['operator-runner'], runnerFailureSignatures: ['operator runner unavailable'] },
     })
     await ctx.loader.await()

@@ -5,15 +5,15 @@
  * Session-log reporter. This plugin owns resource identity and an outer
  * shutdown deadline; the reporter owns byte-bounded SDK delivery.
  *
- * @module @qilin/session-telemetry-otel
+ * @module @qilin-agent/session-telemetry-otel
  */
 
 import { createRequire } from 'node:module'
-import z from '@qilin/schemastery'
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/command-feedback'
-import type {} from '@qilin/message-feedback'
-import { Session, type SessionEvent } from '@qilin/session'
+import z from '@qilin-agent/schemastery'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/command-feedback'
+import type {} from '@qilin-agent/message-feedback'
+import { Session, type SessionEvent } from '@qilin-agent/session'
 import {
   SessionTelemetryBackend,
   SessionTelemetryCoordinator,
@@ -21,10 +21,10 @@ import {
   type SessionTelemetryRecord,
   type SessionTelemetrySeverity,
   type SessionTelemetrySharingStatus,
-} from '@qilin/session-telemetry'
-import { APP_IDENTITY } from '@qilin/llm'
-import { getOrCreateAnonymousUserId } from '@qilin/anonymous-user-id'
-import type { SessionLogReporter } from '@qilin/otel'
+} from '@qilin-agent/session-telemetry'
+import { APP_IDENTITY } from '@qilin-agent/llm'
+import { getOrCreateAnonymousUserId } from '@qilin-agent/anonymous-user-id'
+import type { SessionLogReporter } from '@qilin-agent/otel'
 import type { BatchLogRecordProcessorOptions } from '@opentelemetry/sdk-logs'
 import type { OTLPExporterNodeConfigBase } from '@opentelemetry/otlp-exporter-base'
 import { SeverityNumber } from '@opentelemetry/api-logs'
@@ -187,7 +187,7 @@ export class OpenTelemetrySessionBackend extends SessionTelemetryBackend {
     this.shutdownTimeoutMillis = shutdownTimeoutMillis
     const { version } = createRequire(import.meta.url)('../package.json') as { version: string }
     const reporter = ctx.otel.createSessionLogReporter({
-      scope: { name: '@qilin/session-telemetry-otel', version },
+      scope: { name: '@qilin-agent/session-telemetry-otel', version },
       exporter: { ...config.exporter, url },
       ...(config.processor === undefined ? {} : { processor: config.processor }),
       ...(config.maxRequestBytes === undefined ? {} : { maxRequestBytes: config.maxRequestBytes }),

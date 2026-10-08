@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/llm-replay",
+  "name": "@qilin-agent/llm-replay",
   "description": "Replay LLM plugin: short-circuits llm/stream with model chunks reconstructed from a recorded session JSONL (keyless snapshot tests)",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,26 +30,26 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/compaction": "workspace:*",
-    "@qilin/deepseek-llm-api-extensions": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/compaction": "workspace:*",
+    "@qilin-agent/deepseek-llm-api-extensions": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*"
   },
   "peerDependenciesMeta": {
-    "@qilin/deepseek-llm-api-extensions": {
+    "@qilin-agent/deepseek-llm-api-extensions": {
       "optional": true
     }
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/compaction": "workspace:*",
-    "@qilin/deepseek-llm-api-extensions": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/compaction": "workspace:*",
+    "@qilin-agent/deepseek-llm-api-extensions": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*"
   },
   "dependencies": {
-    "@qilin/session-format-catalog": "workspace:*",
-    "@qilin/util-values": "workspace:*"
+    "@qilin-agent/session-format-catalog": "workspace:*",
+    "@qilin-agent/util-values": "workspace:*"
   }
 }

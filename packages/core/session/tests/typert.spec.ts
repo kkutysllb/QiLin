@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import SessionStore, { SessionId } from '@qilin/session'
-import TypertRegistry from '@qilin/typert-registry'
+import { Context } from '@qilin-agent/kylin'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import TypertRegistry from '@qilin-agent/typert-registry'
 
 describe('Session Typert provider', () => {
   it('contributes live Session lookup in either service load order', async () => {
@@ -15,8 +15,8 @@ describe('Session Typert provider', () => {
     expect(lookup).toMatchObject({
       parameter: 'session',
       wire: 'sessionId',
-      hostTypeSymbol: '@qilin/session#Session',
-      wireTypeSymbol: '@qilin/session/types#SessionId',
+      hostTypeSymbol: '@qilin-agent/session#Session',
+      wireTypeSymbol: '@qilin-agent/session/types#SessionId',
     })
     expect(lookup?.resolve(session.id)).toBe(session)
 

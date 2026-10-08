@@ -7,7 +7,7 @@
 
 import { describe, expect, it } from 'vitest'
 import { computeHunkDiffs, diffsFromMeta, DIFF_CONTEXT } from '../src/diff.ts'
-import type { JsonValue } from '@qilin/util-values'
+import type { JsonValue } from '@qilin-agent/util-values'
 
 const lines = (n: number): string => Array.from({ length: n }, (_, i) => `line${i + 1}`).join('\n') + '\n'
 

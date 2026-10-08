@@ -1,8 +1,8 @@
 /** Fire-and-forget webhook rule registry and Workspace-backed Session runtime. */
 
-import { Context, Service } from '@qilin/kylin'
-import { errorChain } from '@qilin/llm'
-import { deepFreeze, snapshotJsonValue } from '@qilin/util-values'
+import { Context, Service } from '@qilin-agent/kylin'
+import { errorChain } from '@qilin-agent/llm'
+import { deepFreeze, snapshotJsonValue } from '@qilin-agent/util-values'
 import type { WebhookRuleId } from './brand.ts'
 import { createWebhookSession } from './session.ts'
 import type { VerifiedWebhookDelivery, WebhookRule, WebhookSessionRequest } from './types.ts'
@@ -10,7 +10,7 @@ import type { VerifiedWebhookDelivery, WebhookRule, WebhookSessionRequest } from
 export * from './brand.ts'
 export type * from './types.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     webhookRuntime: WebhookRuntime
   }

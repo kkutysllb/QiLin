@@ -1,12 +1,12 @@
 /**
  * Human-facing `/compact` command over the backend-independent compaction seam.
- * @module @qilin/command-compact
+ * @module @qilin-agent/command-compact
  */
 
-import type { Context } from '@qilin/kylin'
-import { CommandDefinitionId } from '@qilin/commands/brand'
-import { ManualCompactionError } from '@qilin/compaction'
-import type { CommandInvocation, CommandResult } from '@qilin/commands'
+import type { Context } from '@qilin-agent/kylin'
+import { CommandDefinitionId } from '@qilin-agent/commands/brand'
+import { ManualCompactionError } from '@qilin-agent/compaction'
+import type { CommandInvocation, CommandResult } from '@qilin-agent/commands'
 
 export const name = 'command-compact'
 export const inject = ['commands', 'compaction']
@@ -99,7 +99,7 @@ export function apply(ctx: Context): void {
     // invocation can enter while already-started handler promises quiesce.
     yield async () => { await Promise.allSettled(active) }
     yield ctx.commands.register({
-      definitionId: CommandDefinitionId('@qilin/command-compact'),
+      definitionId: CommandDefinitionId('@qilin-agent/command-compact'),
       name: 'compact',
       description: 'Compact older conversation history',
       handler,

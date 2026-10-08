@@ -9,10 +9,10 @@
  * @module qilin-llm-deepseek/request-pricing
  */
 
-import { offloadedImageText, requestImageHandleText, textOnlyImageText } from '@qilin/llm'
-import type { ImageAttachmentAccessResolver, ImageBlock, LlmImageRequestPrice, LlmImageRequestPricing } from '@qilin/llm'
-import { longEdgeDimensions, requestImageDimensions } from '@qilin/attachment'
-import type { ImageAttachmentRef, ImageRequestTarget } from '@qilin/attachment'
+import { offloadedImageText, requestImageHandleText, textOnlyImageText } from '@qilin-agent/llm'
+import type { ImageAttachmentAccessResolver, ImageBlock, LlmImageRequestPrice, LlmImageRequestPricing } from '@qilin-agent/llm'
+import { longEdgeDimensions, requestImageDimensions } from '@qilin-agent/attachment'
+import type { ImageAttachmentRef, ImageRequestTarget } from '@qilin-agent/attachment'
 import { deepSeekImageTokens, deepSeekRequestImageDimensions } from './image-tokens.ts'
 import type { DeepSeekCatalogModel, DeepSeekConnectionOptions } from './types.ts'
 

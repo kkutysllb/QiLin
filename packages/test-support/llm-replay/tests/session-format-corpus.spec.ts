@@ -1,8 +1,8 @@
 import { readFileSync, readdirSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { SESSION_FORMAT_VERSION } from '@qilin/session'
-import { SessionFormatUnsupportedMigrationError } from '@qilin/session-format-catalog'
+import { SESSION_FORMAT_VERSION } from '@qilin-agent/session'
+import { SessionFormatUnsupportedMigrationError } from '@qilin-agent/session-format-catalog'
 import { expectedUnsupported, unversionedProtocolFixtures } from './session-format-corpus-inventory.ts'
 import { parseSessionLog } from '../src/index.ts'
 

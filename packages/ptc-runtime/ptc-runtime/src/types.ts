@@ -3,10 +3,10 @@
  * {@link ../index.ts | PtcRuntime} and what it gets back. Pure types — no
  * runtime code lives here.
  *
- * @module @qilin/ptc-runtime/src/types
+ * @module @qilin-agent/ptc-runtime/src/types
  */
 
-import type { SandboxEnforcement, SandboxExecutionPolicy, SandboxMode } from '@qilin/sandbox'
+import type { SandboxEnforcement, SandboxExecutionPolicy, SandboxMode } from '@qilin-agent/sandbox'
 
 /**
  * One host-side function exposed to the program as an async callable. The

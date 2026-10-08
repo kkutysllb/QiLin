@@ -12,7 +12,7 @@ import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 import {
   IconCheckOutline16, useAnchoredPosition, useDismissOnOutsidePointer,
-} from '@qilin/client-ui-primitives'
+} from '@qilin-agent/client-ui-primitives'
 import css from './TaskMenu.module.css'
 
 /** Selectable row of a {@link TaskMenu}. */

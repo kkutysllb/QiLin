@@ -4,7 +4,7 @@
  *
  * `undici` is imported dynamically so the pure {@link ProxyPolicy} half stays loadable where no Node
  * transport exists, matching how `qilin-web-fetch-http` defers its own transport import.
- * @module @qilin/http-proxy/install
+ * @module @qilin-agent/http-proxy/install
  */
 
 import type { Dispatcher, Pool } from 'undici'

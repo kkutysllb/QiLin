@@ -1,6 +1,6 @@
 /** Stable React identities for the two grouping reference kinds. */
-import type { RenderEntry } from '@qilin/client-ui-conversation/client'
-import { assertNever } from '@qilin/util-values'
+import type { RenderEntry } from '@qilin-agent/client-ui-conversation/client'
+import { assertNever } from '@qilin-agent/util-values'
 
 /**
  * Identify a rendering position independently of presentation mode.

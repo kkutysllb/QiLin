@@ -5,10 +5,10 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { composeEntries, loadProfile, PROFILE_TEMPLATES } from '@qilin/app-boot'
+import { composeEntries, loadProfile, PROFILE_TEMPLATES } from '@qilin-agent/app-boot'
 
 const installAnchor = fileURLToPath(new URL('../package.json', import.meta.url))
-const resourcePackage = '@qilin/mcp-resources'
+const resourcePackage = '@qilin-agent/mcp-resources'
 
 describe('shipped MCP resource composition', () => {
   it.each(Object.keys(PROFILE_TEMPLATES))('%s carries one shared resource consumer without a server', (name) => {
@@ -24,7 +24,7 @@ describe('shipped MCP resource composition', () => {
       expect(rows.filter(row => row.name === resourcePackage)).toEqual([
         { id: 'mcp-resources', name: resourcePackage },
       ])
-      expect(rows.filter(row => row.name === '@qilin/mcp-client')).toEqual([])
+      expect(rows.filter(row => row.name === '@qilin-agent/mcp-client')).toEqual([])
       expect(warnings).toEqual([])
 
       const owners = profile.layers.filter((layer) => {
@@ -34,7 +34,7 @@ describe('shipped MCP resource composition', () => {
         return manifest.dependencies?.[resourcePackage] !== undefined
       })
       expect(owners.map(owner => owner.packageName)).toEqual([
-        name === 'sdk-minimal' ? '@qilin/sdk-minimal' : '@qilin/base',
+        name === 'sdk-minimal' ? '@qilin-agent/sdk-minimal' : '@qilin-agent/base',
       ])
     } finally {
       rmSync(home, { recursive: true, force: true })

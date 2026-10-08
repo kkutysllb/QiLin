@@ -3,7 +3,7 @@ description: "Model selection for the Web GUI: the /model popup and the composer
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-model-selection
+# @qilin-agent/client-ui-model-selection
 
 English | [中文](README.zh.md)
 

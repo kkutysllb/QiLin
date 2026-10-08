@@ -44,7 +44,7 @@ import {
   LlmAdapter,
   LlmError,
   ReasoningEffortId,
-} from '@qilin/llm'
+} from '@qilin-agent/llm'
 import type {
   GenerateOptions,
   ImageAttachmentAccess,
@@ -55,9 +55,9 @@ import type {
   ReasoningEffortId as ReasoningEffortIdType,
   ResolvedRetryPolicy,
   StreamChunk,
-} from '@qilin/llm'
-import type { AttachmentStore, ImageAttachmentRef } from '@qilin/attachment'
-import { idleWatchdog, timeoutOf } from '@qilin/timeout'
+} from '@qilin-agent/llm'
+import type { AttachmentStore, ImageAttachmentRef } from '@qilin-agent/attachment'
+import { idleWatchdog, timeoutOf } from '@qilin-agent/timeout'
 import type { ResolvedPiAiProviderProfile } from './config.ts'
 import { toPiContext } from './context.ts'
 import { createModels, getSupportedThinkingLevels } from './models.ts'

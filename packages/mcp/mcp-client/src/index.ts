@@ -10,18 +10,18 @@
  * disposing the old instance and creating a new one; identical `serverName`
  * reproduces identical public tool names.
  *
- * @module @qilin/mcp-client
+ * @module @qilin-agent/mcp-client
  */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { scopeOf } from '@qilin/scope'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { scopeOf } from '@qilin-agent/scope'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 import { DEFAULT_MAX_INSTRUCTION_BYTES, RECONNECT_DEFAULTS, resolveReconnectPolicy, startConnection } from './connection.ts'
 import type { ReconnectConfig } from './connection.ts'
 import { registerServerContext } from './server-context.ts'
 // Side-effect type import: declaration-merges `ctx.tools` onto Context.
-import type {} from '@qilin/tools'
+import type {} from '@qilin-agent/tools'
 
 export { createMcpToolDefinition } from './tools.ts'
 export type { McpResult, McpToolDefinitionOptions } from './tools.ts'

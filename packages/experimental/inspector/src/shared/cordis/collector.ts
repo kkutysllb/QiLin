@@ -1,6 +1,6 @@
 /** Shared Host/Client projection from live Cordis objects to a bounded semantic tree. */
 
-import { Context, type Fiber } from '@qilin/kylin'
+import { Context, type Fiber } from '@qilin-agent/kylin'
 import { jsonByteLength, type InspectorJsonValue } from '../json.ts'
 import {
   CORDIS_TREE_SCHEMA_VERSION,

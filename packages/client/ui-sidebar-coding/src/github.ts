@@ -15,7 +15,7 @@
  *   bodies can never be reinterpreted as commands.
  * - Parsers stay pure and exported: the panel's list/URL/error shaping is
  *   unit-tested by plain `node` without touching the network or `gh`.
- * @module @qilin/client-ui-sidebar-coding/github
+ * @module @qilin-agent/client-ui-sidebar-coding/github
  */
 import { spawn } from 'node:child_process'
 import type { GitBranchRow } from './git.ts'

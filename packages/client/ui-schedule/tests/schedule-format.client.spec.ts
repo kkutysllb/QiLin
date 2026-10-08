@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import type { ScheduleId, ScheduleRecord } from '@qilin/schedule/client'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import type { ScheduleId, ScheduleRecord } from '@qilin-agent/schedule/client'
 import {
   FALLBACK_ZONES, formatScheduleAbsolute, formatScheduleNextRun, formatWeekdays, recordTimeZone,
   zoneChoices, zoneLabel, zoneName,

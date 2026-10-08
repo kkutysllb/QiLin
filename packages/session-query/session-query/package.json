@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/session-query",
+  "name": "@qilin-agent/session-query",
   "description": "Combined session query service contract with concrete reads, traces, and filters",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,39 +30,39 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/brand": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-title": "workspace:*",
-    "@qilin/tool-todo": "workspace:*",
-    "@qilin/session-persistence": "workspace:*",
-    "@qilin/session-projection": "workspace:*",
-    "@qilin/session-projection-cache": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-title": "workspace:*",
+    "@qilin-agent/tool-todo": "workspace:*",
+    "@qilin-agent/session-persistence": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/session-projection-cache": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "peerDependenciesMeta": {
-    "@qilin/session-persistence": {
+    "@qilin-agent/session-persistence": {
       "optional": true
     },
-    "@qilin/session-projection": {
+    "@qilin-agent/session-projection": {
       "optional": true
     },
-    "@qilin/session-projection-cache": {
+    "@qilin-agent/session-projection-cache": {
       "optional": true
     }
   },
   "devDependencies": {
-    "@qilin/brand": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-title": "workspace:*",
-    "@qilin/tool-todo": "workspace:*",
-    "@qilin/session-persistence": "workspace:*",
-    "@qilin/session-projection": "workspace:*",
-    "@qilin/session-projection-cache": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-title": "workspace:*",
+    "@qilin-agent/tool-todo": "workspace:*",
+    "@qilin-agent/session-persistence": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/session-projection-cache": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "dependencies": {
-    "@qilin/session-format-catalog": "workspace:*"
+    "@qilin-agent/session-format-catalog": "workspace:*"
   }
 }

@@ -18,7 +18,7 @@ import type {
   DynamicCordisRunResolution,
   DynamicCordisRunResponse,
   SessionId,
-} from '@qilin/api-remotes/client'
+} from '@qilin-agent/api-remotes/client'
 import { errorDetails } from './runtime.ts'
 import type { CordisErrorDetails, CordisObservable, DynamicCordisPackageRunner } from './runtime.ts'
 

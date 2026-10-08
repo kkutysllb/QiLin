@@ -1,7 +1,7 @@
 /**
  * Shared filesystem path helpers for QiLin user data.
  *
- * @module @qilin/home-paths
+ * @module @qilin-agent/home-paths
  */
 
 import { opendir, realpath } from 'node:fs/promises'

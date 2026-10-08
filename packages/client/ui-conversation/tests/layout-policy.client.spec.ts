@@ -2,7 +2,7 @@
 /** ConversationLayoutPolicy: width writes, the durable adoption, and the
  * pre-durable localStorage handoff. */
 import { beforeEach, describe, expect, it } from 'vitest'
-import { stubConfigForm } from '@qilin/client-test-runtime'
+import { stubConfigForm } from '@qilin-agent/client-test-runtime'
 import { ConversationLayoutPolicy } from '../src/client/layout-policy.ts'
 import {
   CONTENT_WIDTH_ADAPTIVE, CONTENT_WIDTH_MAX, CONTENT_WIDTH_MIN,

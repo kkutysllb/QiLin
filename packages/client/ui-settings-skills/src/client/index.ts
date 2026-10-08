@@ -1,13 +1,13 @@
 /** Skills settings page for the Web client. */
 
-import type { Context as ClientContext } from '@qilin/kylin'
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-ui-settings/client'
-import type {} from '@qilin/client-ui-renderer/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-ui-settings/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
 // Type-only: pulls the ctx.remote merge, the skills Remote row, and the
 // workspace global-prop merge this page reads its Session selection from.
-import type {} from '@qilin/api-remotes/client'
-import type {} from '@qilin/client-ui-workspace/client'
+import type {} from '@qilin-agent/api-remotes/client'
+import type {} from '@qilin-agent/client-ui-workspace/client'
 import { SkillsSection } from './SkillsSection.tsx'
 import type { SkillsSectionInjected } from './SkillsSection.tsx'
 import { SkillsStore } from './store.ts'
@@ -17,7 +17,7 @@ export type { SkillsSectionInjected, SkillsSectionProps } from './SkillsSection.
 export type { SkillsPageState, SkillsStore } from './store.ts'
 export type { SkillsLocaleKey } from './locales.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Skills page copy. */
     'settings.skills': SkillsLocaleKey

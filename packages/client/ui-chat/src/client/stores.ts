@@ -1,5 +1,5 @@
 /** Per-Session Chat view store. */
-import { defineStore, type EngineStoreHandle } from '@qilin/client-store'
+import { defineStore, type EngineStoreHandle } from '@qilin-agent/client-store'
 import type { ChatStoreState, TurnProcessViewEntry } from './contract/store.ts'
 
 type ChatActions = {

@@ -6,20 +6,20 @@
  * serves remote clients the dialog backend cannot. Policy decisions (hidden
  * entries flagged but returned, symlinks followed, whole-filesystem scope) are
  * recorded in the directory-picker seam Agent Note.
- * @module @qilin/host-directory-picker-browse
+ * @module @qilin-agent/host-directory-picker-browse
  */
 
 import { mkdir, opendir, stat } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { basename, dirname, join, posix, resolve, win32 } from 'node:path'
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
 import {
   DirectoryPicker, DirectoryPickerError,
-} from '@qilin/host-directory-picker'
+} from '@qilin-agent/host-directory-picker'
 import type {
   DirectoryEntry, DirectoryListing, DirectoryPickerCapability,
-} from '@qilin/host-directory-picker'
+} from '@qilin-agent/host-directory-picker'
 
 /**
  * Ancestor chain from the filesystem root to `target` inclusive — the

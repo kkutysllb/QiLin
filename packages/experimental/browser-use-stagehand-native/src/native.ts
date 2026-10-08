@@ -2,7 +2,7 @@
 
 import { StagehandClientCreateConfigSchema } from '@browserbasehq/stagehand'
 import type { ModelConfig, Page, StagehandBrowser } from '@browserbasehq/stagehand'
-import { assertNever } from '@qilin/util-values'
+import { assertNever } from '@qilin-agent/util-values'
 import { z } from 'zod'
 
 /** Profile-owned model settings accepted by the pinned Stagehand SDK. */

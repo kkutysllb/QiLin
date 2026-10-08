@@ -1,14 +1,14 @@
 /** Reconnect-safe Workspace baseline and increment producer. */
 
-import type { Context } from '@qilin/kylin'
-import { Deque } from '@qilin/deque'
-import type { DomainChanged } from '@qilin/storage-domain'
-import type { Workspace, WorkspaceRecord } from '@qilin/workspace'
+import type { Context } from '@qilin-agent/kylin'
+import { Deque } from '@qilin-agent/deque'
+import type { DomainChanged } from '@qilin-agent/storage-domain'
+import type { Workspace, WorkspaceRecord } from '@qilin-agent/workspace'
 import {
   workspaceDomainState,
   workspaceRecord,
   WorkspaceId,
-} from '@qilin/workspace'
+} from '@qilin-agent/workspace'
 import type {
   WorkspaceBaseline,
   WorkspaceFollowFrame,

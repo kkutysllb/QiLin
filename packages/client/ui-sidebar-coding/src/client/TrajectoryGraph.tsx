@@ -31,9 +31,9 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExtern
 import {
   IconChevronDownOutline14, IconCloseOutline16, IconFullscreenOutline16,
   IconPauseOutline16, IconPlayOutline16, IconStopFill16,
-} from '@qilin/client-ui-primitives'
+} from '@qilin-agent/client-ui-primitives'
 import { VscFile, VscFileMedia } from 'react-icons/vsc'
-import { MarkdownText } from '@qilin/client-ui-primitives'
+import { MarkdownText } from '@qilin-agent/client-ui-primitives'
 import { markdownTextProps } from './markdown-labels.tsx'
 import type { Context } from '../context-types.ts'
 import type { SessionScope } from './api.ts'
@@ -174,7 +174,7 @@ function formatBytes(bytes: number | undefined): string | undefined {
 /** Rebuild the structural ImageAttachmentRef the host image loader keys on. */
 function imageRefOf(attachment: TrajectoryAttachment): Record<string, unknown> {
   /* jscpd:ignore-start — shared verbatim with the sister renderer
-     @qilin/client-ui-trajectory src/client/TrajectoryGraphView.tsx (kept independent) */
+     @qilin-agent/client-ui-trajectory src/client/TrajectoryGraphView.tsx (kept independent) */
   return {
     attachmentId: attachment.attachmentId,
     ...(attachment.mediaType === undefined ? {} : { mediaType: attachment.mediaType }),

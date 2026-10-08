@@ -1,18 +1,18 @@
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { Session, SessionId } from '@qilin/session'
-import AgentRegistry from '@qilin/agent'
-import type { Agent } from '@qilin/agent'
-import { bindScopeParent, createScope, scopeOf } from '@qilin/scope'
-import type { ScopeKey } from '@qilin/scope'
-import { JobId } from '@qilin/jobs'
+import { Context } from '@qilin-agent/kylin'
+import { Session, SessionId } from '@qilin-agent/session'
+import AgentRegistry from '@qilin-agent/agent'
+import type { Agent } from '@qilin-agent/agent'
+import { bindScopeParent, createScope, scopeOf } from '@qilin-agent/scope'
+import type { ScopeKey } from '@qilin-agent/scope'
+import { JobId } from '@qilin-agent/jobs'
 import type {
   JobEvent, JobEventFilter, JobHandle, JobHooks, JobKind, JobOutcome, JobOutputSource, JobSpec, JobView,
-} from '@qilin/jobs'
-import LocalJobRegistry, { type Config as JobsConfig } from '@qilin/jobs-local'
-import { unsupportedInbox } from '@qilin/agent-loop-testkit'
+} from '@qilin-agent/jobs'
+import LocalJobRegistry, { type Config as JobsConfig } from '@qilin-agent/jobs-local'
+import { unsupportedInbox } from '@qilin-agent/agent-loop-testkit'
 
-declare module '@qilin/jobs' {
+declare module '@qilin-agent/jobs' {
   interface JobKindMap {
     workflow: 'workflow'
   }
@@ -167,7 +167,7 @@ describe('LocalJobRegistry.start', () => {
     const ctx = new Context()
     await ctx.plugin(LocalJobRegistry)
     expect(() => ctx.jobs.start(producer().spec))
-      .toThrow('background jobs unavailable: no job controller serves this agent (load @qilin/tool-jobs in its composition)')
+      .toThrow('background jobs unavailable: no job controller serves this agent (load @qilin-agent/tool-jobs in its composition)')
   })
 
   it('refuses an owner whose own composition attaches no controller', async () => {

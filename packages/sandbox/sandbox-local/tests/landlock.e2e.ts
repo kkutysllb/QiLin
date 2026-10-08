@@ -4,10 +4,10 @@ import { mkdtemp, rm } from 'node:fs/promises'
 import { homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import type { SandboxPolicy } from '@qilin/sandbox'
-import { launcherPath } from '@qilin/node-addon-system/landlock-run'
-import { LocalSandboxProvider } from '@qilin/sandbox-local'
+import { Context } from '@qilin-agent/kylin'
+import type { SandboxPolicy } from '@qilin-agent/sandbox'
+import { launcherPath } from '@qilin-agent/node-addon-system/landlock-run'
+import { LocalSandboxProvider } from '@qilin-agent/sandbox-local'
 
 /**
  * Keyless backend integration through `confine()` and the workspace `landlock-run` launcher, with

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { removeOwnedStyles } from '../src/client/entry-lifecycle.ts'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   apply, createClientModuleSystem, parseBootManifest,
@@ -8,7 +8,7 @@ import {
   type ClientModuleLoader, type ClientModuleLoaderTarget, type QilinWindow,
 } from '../src/client/index.ts'
 
-const MODULES_ID = '@qilin/client-modules'
+const MODULES_ID = '@qilin-agent/client-modules'
 
 const comboUrl = (ids: readonly string[], rev: string): string =>
   `/plugins/??${ids.map(id => `${id}/client.js`).join(',')}&rev=${rev}`
@@ -190,14 +190,14 @@ describe('lazy CJS arrival', () => {
         '@deepseek-ai/dsh-client-locale/client',
         '@deepseek-ai/dsh-client-ui-slots',
       ] }),
-      row('@qilin/client-locale'),
+      row('@qilin-agent/client-locale'),
     ], {
       consumer: req => ({
         runtime: req('@deepseek-ai/dsh-client-locale/client'),
         slots: req('@deepseek-ai/dsh-client-ui-slots'),
       }),
-      '@qilin/client-locale': () => ({ marker: 'runtime' }),
-    }, { seed: { '@qilin/client-ui-slots': { marker: 'slots' } } })
+      '@qilin-agent/client-locale': () => ({ marker: 'runtime' }),
+    }, { seed: { '@qilin-agent/client-ui-slots': { marker: 'slots' } } })
     const exports = await b.loader.import('consumer', '', {}) as {
       runtime: { marker: string }
       slots: { marker: string }

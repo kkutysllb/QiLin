@@ -1,6 +1,6 @@
 /** Floating controls shared by every zoomable document renderer. */
 import { forwardRef, useEffect, useImperativeHandle, useState, type ReactNode } from 'react'
-import { Button, IconChevronDownOutline14, IconPlusOutline16, Menu, Tooltip, type MenuEntry } from '@qilin/client-ui-primitives'
+import { Button, IconChevronDownOutline14, IconPlusOutline16, Menu, Tooltip, type MenuEntry } from '@qilin-agent/client-ui-primitives'
 import { MAX_FIXED_ZOOM, MIN_FIXED_ZOOM, ZOOM_OPTIONS, ZOOM_STEP, type ZoomLabels } from './types.ts'
 import css from './ZoomControls.module.css'
 

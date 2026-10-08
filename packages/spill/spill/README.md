@@ -3,7 +3,7 @@ description: "The spill storage service: save oversized tool text or captured se
 kind: "package-reference"
 ---
 
-# @qilin/spill
+# @qilin-agent/spill
 
 English | [中文](README.zh.md)
 
@@ -36,8 +36,8 @@ Choose spill storage when a deployment needs to keep full text retrievable after
 Mount a backend and the policy together; with `maxInlineTokens` set, an oversized text/image tool result becomes a preview plus a locator automatically.
 
 ```yaml
-- name: '@qilin/spill-local'
-- name: '@qilin/spill-policy'
+- name: '@qilin-agent/spill-local'
+- name: '@qilin-agent/spill-policy'
   config:
     maxInlineTokens: 12500
 ```

@@ -2,12 +2,12 @@
  * Opt-in timed `ask_user_question` tool definition.
  */
 
-import type { Context } from '@qilin/kylin'
-import { defineTool, type ToolExecution } from '@qilin/tools'
-import { TIMED_WAIT_PARAMETER } from '@qilin/user-questions'
+import type { Context } from '@qilin-agent/kylin'
+import { defineTool, type ToolExecution } from '@qilin-agent/tools'
+import { TIMED_WAIT_PARAMETER } from '@qilin-agent/user-questions'
 import type {
   AskUserQuestionAnswer, AskUserQuestionRequestEvent,
-} from '@qilin/user-questions/types'
+} from '@qilin-agent/user-questions/types'
 
 function validateTimeout(timeout: number): number {
   if (timeout !== -1 && (!Number.isInteger(timeout) || timeout < 1 || timeout > 2_147_483)) {

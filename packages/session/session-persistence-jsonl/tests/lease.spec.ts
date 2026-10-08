@@ -16,15 +16,15 @@ import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { SESSION_FORMAT_VERSION, SessionId, SessionSeq } from '@qilin/session'
-import type { SessionHeader } from '@qilin/session'
+import { Context } from '@qilin-agent/kylin'
+import { SESSION_FORMAT_VERSION, SessionId, SessionSeq } from '@qilin-agent/session'
+import type { SessionHeader } from '@qilin-agent/session'
 import {
   SessionAlreadyExistsError,
   SessionAlreadyOwnedError,
   SessionPersistenceNotFoundError,
-} from '@qilin/session-persistence'
-import type { SessionPersistence } from '@qilin/session-persistence'
+} from '@qilin-agent/session-persistence'
+import type { SessionPersistence } from '@qilin-agent/session-persistence'
 import JsonlSessionPersistence from '../src/index.ts'
 import { LEASE_FILENAME, SessionWriteLease } from '../src/lease.ts'
 import type { JsonlSessionHandle } from '../src/storage.ts'
@@ -84,8 +84,8 @@ vi.mock('node:fs/promises', async (importOriginal) => {
   }
 })
 
-vi.mock('@qilin/node-addon-system/flock', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@qilin/node-addon-system/flock')>()
+vi.mock('@qilin-agent/node-addon-system/flock', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@qilin-agent/node-addon-system/flock')>()
   return {
     tryLockExclusive: async (fd: number): Promise<void> => {
       if (refuse.flock) {

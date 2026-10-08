@@ -1,6 +1,6 @@
 /** Delivery gestures share pending state, report failures, and cancel with the plugin. */
 import { afterEach, expect, it, vi } from 'vitest'
-import { SessionId } from '@qilin/session/types'
+import { SessionId } from '@qilin-agent/session/types'
 import { PresentedOpenController } from '../src/client/present-open.ts'
 
 afterEach(() => { vi.unstubAllGlobals() })

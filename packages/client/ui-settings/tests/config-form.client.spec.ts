@@ -1,12 +1,12 @@
-import { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
+import { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
 import { describe, expect, it, vi } from 'vitest'
 import type {
   SettingsNamespaceView, SettingsPathOpView,
-} from '@qilin/api-remotes/client'
-import { RemoteError, TestRemote } from '@qilin/client-test-runtime'
-import type { JsonValue } from '@qilin/util-values'
-import type { ConfigForm } from '@qilin/client-ui-settings/client'
+} from '@qilin-agent/api-remotes/client'
+import { RemoteError, TestRemote } from '@qilin-agent/client-test-runtime'
+import type { JsonValue } from '@qilin-agent/util-values'
+import type { ConfigForm } from '@qilin-agent/client-ui-settings/client'
 import { SettingsSchemaService } from '../src/client/schema.ts'
 import { ConfigFormController, ConfigForms } from '../src/client/config-form.ts'
 import { SettingsDescribeMirror } from '../src/client/settings-mirror.ts'

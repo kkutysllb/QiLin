@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { SessionFormatEventCollector } from '@qilin/session-format'
+import { SessionFormatEventCollector } from '@qilin-agent/session-format'
 import type {
   SessionFormatArtifact,
   SessionFormatArtifactDecoder,
@@ -8,7 +8,7 @@ import type {
   SessionFormatJsonValue,
   SessionFormatMigrationContext,
   SessionFormatRecovery,
-} from '@qilin/session-format'
+} from '@qilin-agent/session-format'
 import {
   releasedV0SessionFormatCodec,
   releasedV1SessionFormatCodec,

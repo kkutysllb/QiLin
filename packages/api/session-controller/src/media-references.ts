@@ -2,14 +2,14 @@
  * Authenticated GET/HEAD /api/file reads bounded file responses through
  * the composed filesystem provider. Paths and MIME types do not restrict access;
  * the connection service authenticates requests before this handler.
- * @module @qilin/api-session-controller/media-references
+ * @module @qilin-agent/api-session-controller/media-references
  */
 
 import { isAbsolute } from 'node:path'
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/client-connection'
-import type {} from '@qilin/attachment'
-import { FsError, type FileSystem } from '@qilin/fs'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/client-connection'
+import type {} from '@qilin-agent/attachment'
+import { FsError, type FileSystem } from '@qilin-agent/fs'
 import mime from 'mime-types'
 
 const BASE_HEADERS = {

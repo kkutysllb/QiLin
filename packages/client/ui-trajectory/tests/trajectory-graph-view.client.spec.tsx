@@ -9,21 +9,21 @@
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { createSnapshotStore } from '@qilin/client-store'
-import { bindSnapshotSelector } from '@qilin/client-test-runtime'
-import type { AttachmentId } from '@qilin/attachment'
-import type { ContentBlock } from '@qilin/llm/types'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { bindSnapshotSelector } from '@qilin-agent/client-test-runtime'
+import type { AttachmentId } from '@qilin-agent/attachment'
+import type { ContentBlock } from '@qilin-agent/llm/types'
 import type {
   AssistantMessageNode, ConversationNode, MessageImageLoader, RequestView, StartedToolCall,
   ToolResultNode, UserMessageNode,
-} from '@qilin/client-ui-conversation/client'
-import type { SessionId } from '@qilin/session/types'
+} from '@qilin-agent/client-ui-conversation/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { TrajectorySnapshot } from '../src/client/trajectory-contract.ts'
 import { EMPTY_TRAJECTORY_SNAPSHOT } from '../src/client/trajectory-snapshot-builder.ts'
 import { ZOOM_MAX } from '../src/client/trajectory-graph-canvas.ts'
 import { TrajectoryGraphView } from '../src/client/TrajectoryGraphView.tsx'
 import { t as tTrajectory } from './locale.client.ts'
-import { PartialArguments } from '@qilin/util-values'
+import { PartialArguments } from '@qilin-agent/util-values'
 
 const SID = 's1' as SessionId
 

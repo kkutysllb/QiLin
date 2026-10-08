@@ -1,6 +1,6 @@
 /** Provider routing, cancellation, and fiber-owned registration lifetimes. */
-import { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
+import { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
 import { describe, expect, it, vi } from 'vitest'
 import SpeechToText from '../src/index.ts'
 import type { SpeechPreparationState, SpeechProvider, SpeechProviderId, Transcript } from '../src/types.ts'

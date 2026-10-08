@@ -6,11 +6,11 @@
  * filesystem before any native command runs.
  */
 
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
-import type { RemoteResult } from '@qilin/api-remotes/client'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
+import type { RemoteResult } from '@qilin-agent/api-remotes/client'
 import type {
   SessionOpenWorkspacePathRequest, SessionOpenWorkspacePathValue, SessionWorkspacePathApplication,
-} from '@qilin/api-session-controller/types'
+} from '@qilin-agent/api-session-controller/types'
 
 /** What one path gesture asks of the Host: the default application, or the file manager showing the file. */
 export type OpenInAppPathAction = 'open' | 'reveal'

@@ -1,14 +1,14 @@
 /**
  * The QiLin seal slot occupants. The drawing itself lives in
- * `@qilin/client-ui-primitives` so the shell's unbranded fallbacks render the
+ * `@qilin-agent/client-ui-primitives` so the shell's unbranded fallbacks render the
  * same stamp; this module owns the brand slots that place it.
  */
 
-import type { HeroBrandMarkOwnerProps } from '@qilin/client-ui-conversation/client'
-import type { SidebarBrandMarkOwnerProps } from '@qilin/client-ui-sidebar/client'
-import { QilinSeal } from '@qilin/client-ui-primitives'
+import type { HeroBrandMarkOwnerProps } from '@qilin-agent/client-ui-conversation/client'
+import type { SidebarBrandMarkOwnerProps } from '@qilin-agent/client-ui-sidebar/client'
+import { QilinSeal } from '@qilin-agent/client-ui-primitives'
 
-export { QilinSeal as QilinSealArtist } from '@qilin/client-ui-primitives'
+export { QilinSeal as QilinSealArtist } from '@qilin-agent/client-ui-primitives'
 
 /**
  * Occupy the sidebar brand-mark slot.

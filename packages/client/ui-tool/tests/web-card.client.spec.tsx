@@ -1,18 +1,18 @@
 // @vitest-environment jsdom
-import { useDisclosure } from '@qilin/client-ui-chat/src/client/chat/use-disclosure.ts'
+import { useDisclosure } from '@qilin-agent/client-ui-chat/src/client/chat/use-disclosure.ts'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render } from '@testing-library/react'
-import type { StartedToolCall, ToolResultNode } from '@qilin/client-ui-chat/client'
-import type { ToolCallOwnerProps } from '@qilin/client-ui-tool/client'
-import { IconGlobeOutline14 } from '@qilin/client-ui-primitives'
+import type { StartedToolCall, ToolResultNode } from '@qilin-agent/client-ui-chat/client'
+import type { ToolCallOwnerProps } from '@qilin-agent/client-ui-tool/client'
+import { IconGlobeOutline14 } from '@qilin-agent/client-ui-primitives'
 import { webCardModel } from '../src/client/tool/models/web-card-model.ts'
 import { GenericToolCard } from '../src/client/tool/toolviews/GenericToolCard.tsx'
 import { WebRow, webToolview } from '../src/client/tool/toolviews/web-row.tsx'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
-import { zh } from '@qilin/client-ui-conversation/src/client/locales.ts'
-import { PartialArguments } from '@qilin/util-values'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
+import { zh } from '@qilin-agent/client-ui-conversation/src/client/locales.ts'
+import { PartialArguments } from '@qilin-agent/util-values'
 
 afterEach(cleanup)
 
@@ -228,7 +228,7 @@ describe('web toolview registration', () => {
           return () => {}
         },
       },
-    } as unknown as import('@qilin/kylin').Context
+    } as unknown as import('@qilin-agent/kylin').Context
     webToolview.apply(ctx)
     expect(registered.map(r => r.key)).toEqual(['web_search', 'web_fetch'])
     // Both keys claim the conversation locale seat ToolRow's body copy needs.

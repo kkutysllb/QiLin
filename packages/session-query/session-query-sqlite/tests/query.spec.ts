@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { SessionId } from '@qilin/session'
-import { SessionSearchCursor, type SessionQueryErrorCode } from '@qilin/session-query'
+import { SessionId } from '@qilin-agent/session'
+import { SessionSearchCursor, type SessionQueryErrorCode } from '@qilin-agent/session-query'
 import {
   buildEventWhere,
   buildSessionWhere,

@@ -1,6 +1,6 @@
 /** One standard ACP session's Agent, configuration, prompt, update, and teardown lifecycle. */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import {
   RequestError,
   type McpServer,
@@ -10,9 +10,9 @@ import {
   type SessionNotification,
   type StopReason,
 } from '@agentclientprotocol/sdk'
-import type { Agent, AgentHandle, AgentOptions, ModelSelection } from '@qilin/agent'
-import { createUserMessage, errorChain, type UserMessage } from '@qilin/llm'
-import { type Session, type SessionEvent, type SessionId, type TurnEndReason } from '@qilin/session'
+import type { Agent, AgentHandle, AgentOptions, ModelSelection } from '@qilin-agent/agent'
+import { createUserMessage, errorChain, type UserMessage } from '@qilin-agent/llm'
+import { type Session, type SessionEvent, type SessionId, type TurnEndReason } from '@qilin-agent/session'
 import { AcpContentError, admitAcpPrompt } from './content.ts'
 import { turnEndToStopReason } from './codec.ts'
 import { mountAcpMcpServers } from './mcp.ts'

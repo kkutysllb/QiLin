@@ -17,7 +17,7 @@ import clsx from 'clsx'
 import {
   Button, IconBranchOutline16, IconCloseOutline16, IconPlusOutline16,
   IconTrashOutline16, Input, Modal,
-} from '@qilin/client-ui-primitives'
+} from '@qilin-agent/client-ui-primitives'
 import { SidebarApiError, api, type GitBranchRow, type SessionScope } from './api.ts'
 import { filterBranches, trackingNameOf } from './git-branch-model.ts'
 import { RefreshButton } from './refresh-button.tsx'

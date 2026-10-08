@@ -14,8 +14,8 @@
 
 import { useState } from 'react'
 import type { ReactNode } from 'react'
-import { Button, IconPlusOutline16, Modal } from '@qilin/client-ui-primitives'
-import type { InjectFace, PropsRenderSlots } from '@qilin/client-ui-slots'
+import { Button, IconPlusOutline16, Modal } from '@qilin-agent/client-ui-primitives'
+import type { InjectFace, PropsRenderSlots } from '@qilin-agent/client-ui-slots'
 // Type-only: pulls this package's SlotMap merge (the two Models child slots).
 import type {} from './slot-contract.ts'
 import { CustomProviderCard } from './CustomProviderCard.tsx'

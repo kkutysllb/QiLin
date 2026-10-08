@@ -8,14 +8,14 @@
  * `--json` record parsing, per-line preview retention, match retention,
  * grouping, and formatting; process concerns stay behind `ctx.subprocess`.
  *
- * @module @qilin/tool-fs-search/grep
+ * @module @qilin-agent/tool-fs-search/grep
  */
 
-import type { Context } from '@qilin/kylin'
-import { defineTool } from '@qilin/tools'
-import type { GenericCallView, SearchResultView, ToolResult } from '@qilin/tools'
-import type { RetainedItems } from '@qilin/output-retention'
-import type { SpillRef } from '@qilin/spill'
+import type { Context } from '@qilin-agent/kylin'
+import { defineTool } from '@qilin-agent/tools'
+import type { GenericCallView, SearchResultView, ToolResult } from '@qilin-agent/tools'
+import type { RetainedItems } from '@qilin-agent/output-retention'
+import type { SpillRef } from '@qilin-agent/spill'
 import type { GrepMatch } from './search-core.ts'
 import { SearchError, previewLine, retainGrepMatches, runRipgrep, toWorkdirRelative, trySaveFormattedResult } from './search-core.ts'
 import { grepSearchMeta, searchViewFromMeta } from './presentation.ts'

@@ -6,10 +6,10 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import type { UseProjection } from '@qilin/api-session-controller/client'
+import type { UseProjection } from '@qilin-agent/api-session-controller/client'
 // Type-only: the `contextPressure` / `contextBreakdown` projection key merges.
-import type {} from '@qilin/token-meter/client'
-import { Tooltip, useAnchoredPosition, useDismissOnOutsidePointer } from '@qilin/client-ui-primitives'
+import type {} from '@qilin-agent/token-meter/client'
+import { Tooltip, useAnchoredPosition, useDismissOnOutsidePointer } from '@qilin-agent/client-ui-primitives'
 import type { ComposerBarProps } from '../contract/slots.ts'
 import { contextOccupancy } from '../context-occupancy.ts'
 import css from './ContextMeter.module.css'

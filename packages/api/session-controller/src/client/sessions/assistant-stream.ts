@@ -4,9 +4,9 @@ import type {
   SessionAssistantStreamBaseline,
   SessionAssistantStreamFrame,
 } from '../../types.ts'
-import { expandAssistantStream } from '@qilin/llm/assistant-stream'
-import type { AssistantStreamRecord } from '@qilin/llm/assistant-stream'
-import type { LlmAttemptId } from '@qilin/llm/brand'
+import { expandAssistantStream } from '@qilin-agent/llm/assistant-stream'
+import type { AssistantStreamRecord } from '@qilin-agent/llm/assistant-stream'
+import type { LlmAttemptId } from '@qilin-agent/llm/brand'
 import type {
   SessionAssistantSettlementEntry,
   SessionEventLikeEntry,

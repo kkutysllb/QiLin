@@ -1,7 +1,7 @@
 /**
  * Shared declarations for the package.json fields used by QiLin plugin authors.
  * Each reader owns JSON validation and resolved defaults.
- * @module @qilin/package-manifest/types
+ * @module @qilin-agent/package-manifest/types
  */
 
 /** Package identity and metadata; local profile readers may accept a partial declaration. */

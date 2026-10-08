@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
-import type { Context } from '@qilin/kylin'
-import { projectToolUpdates } from '@qilin/llm'
-import { defineContentToolFixture } from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import { projectToolUpdates } from '@qilin-agent/llm'
+import { defineContentToolFixture } from '@qilin-agent/tools'
 
 export const name = 'snapshot-dynamic-tool-updates'
 export const inject = ['tools']

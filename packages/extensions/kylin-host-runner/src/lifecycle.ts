@@ -5,10 +5,10 @@
  * for. Stopping needs no helper — a host half unwinds through an ordinary
  * awaited `fiber.dispose()`, because everything the plugin registered is an
  * effect on its fiber.
- * @module @qilin/kylin-host-runner/lifecycle
+ * @module @qilin-agent/kylin-host-runner/lifecycle
  */
 
-import type { Context, Fiber, Plugin } from '@qilin/kylin'
+import type { Context, Fiber, Plugin } from '@qilin-agent/kylin'
 import { guardedPlugin } from './guard.ts'
 
 /**

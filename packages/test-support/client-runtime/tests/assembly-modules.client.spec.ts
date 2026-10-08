@@ -4,21 +4,21 @@
  * static namespace, and the resulting module system serves the vendored Loader
  * without ever loading a bundle.
  */
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import * as modulesClient from '@qilin/client-modules/client'
-import { parseBootManifest } from '@qilin/client-modules/client'
-import type { WebBootGraph } from '@qilin/client-modules/client'
-import * as uiRenderer from '@qilin/client-ui-renderer/client'
-import * as typertRegistry from '@qilin/typert-registry/client'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import * as modulesClient from '@qilin-agent/client-modules/client'
+import { parseBootManifest } from '@qilin-agent/client-modules/client'
+import type { WebBootGraph } from '@qilin-agent/client-modules/client'
+import * as uiRenderer from '@qilin-agent/client-ui-renderer/client'
+import * as typertRegistry from '@qilin-agent/typert-registry/client'
 import { describe, expect, it, onTestFinished } from 'vitest'
 import { ClientRoster } from '../src/assembly/index.ts'
 import { MODULES_PACKAGE, createInProcessModules, loadPluginModules } from '../src/assembly/modules.ts'
 
-const RENDERER = '@qilin/client-ui-renderer'
-const TYPERT = '@qilin/typert-registry'
-const BRAND = '@qilin/client-ui-approval'
-const MISSING = '@qilin/client-does-not-exist'
+const RENDERER = '@qilin-agent/client-ui-renderer'
+const TYPERT = '@qilin-agent/typert-registry'
+const BRAND = '@qilin-agent/client-ui-approval'
+const MISSING = '@qilin-agent/client-does-not-exist'
 
 const row = (name: string, immediately = false) => ({ name, inject: [], immediately })
 
@@ -72,7 +72,7 @@ describe('createInProcessModules', () => {
     await expect(system.import(MODULES_PACKAGE, '', {})).resolves.toBe(modulesClient)
     expect(system.loadCache.get(TYPERT)?.exports).toBe(typertRegistry)
     expect(system.loadCache.get(RENDERER)?.exports).toBe(uiRenderer)
-    await expect(system.import('@qilin/client-unknown', '', {})).rejects.toThrow('cannot resolve')
+    await expect(system.import('@qilin-agent/client-unknown', '', {})).rejects.toThrow('cannot resolve')
   })
 
   it('rejects loudly instead of fetching when a graph row has no loaded module', async () => {

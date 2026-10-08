@@ -3,7 +3,7 @@ description: "Web skill references and the dedicated skill tool row for the qili
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-skill
+# @qilin-agent/client-ui-skill
 
 English | [中文](README.zh.md)
 

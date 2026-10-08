@@ -7,7 +7,7 @@
 
 import { useState } from 'react'
 import type { ReactNode } from 'react'
-import { IconPlusOutline16 } from '@qilin/client-ui-primitives'
+import { IconPlusOutline16 } from '@qilin-agent/client-ui-primitives'
 import type { en } from './locales.ts'
 import { ModelRow } from './ModelRow.tsx'
 import styles from './ModelsSection.module.css'

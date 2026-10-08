@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { SessionFormatEventCollector } from '@qilin/session-format'
-import type { SessionFormatEvent, SessionFormatJsonObject } from '@qilin/session-format'
-import { createSessionFormatCatalogWithChildren, sessionFormatCatalog } from '@qilin/session-format-catalog'
+import { SessionFormatEventCollector } from '@qilin-agent/session-format'
+import type { SessionFormatEvent, SessionFormatJsonObject } from '@qilin-agent/session-format'
+import { createSessionFormatCatalogWithChildren, sessionFormatCatalog } from '@qilin-agent/session-format-catalog'
 import { assertV4MessageSources, assertV4SourceRowAdmission } from '../src/message-sources.ts'
 import { releasedV4SessionFormatCodec } from '../src/codec.ts'
 

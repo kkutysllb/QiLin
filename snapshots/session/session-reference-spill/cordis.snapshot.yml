@@ -11,13 +11,13 @@
   disabled: true
 
 - id: session-persistence-jsonl
-  name: '@qilin/session-persistence-jsonl'
+  name: '@qilin-agent/session-persistence-jsonl'
   config:
     root: !!js qilinHomePath('sessions')
     compression: none
 
 - id: sandbox
-  name: '@qilin/sandbox-local'
+  name: '@qilin-agent/sandbox-local'
   config:
     runnerCommand:
       - bash
@@ -29,7 +29,7 @@
 
 - insert:
     - id: llm-replay
-      name: '@qilin/llm-replay'
+      name: '@qilin-agent/llm-replay'
       config:
         providers:
           - id: deepseek-official
@@ -39,14 +39,14 @@
               - id: deepseek-v4-pro
 
 - id: spill-local
-  name: '@qilin/spill-local'
+  name: '@qilin-agent/spill-local'
   config:
     root: !!js process.env.QILIN_SNAPSHOT_SPILL_ROOT ?? './.spill'
     cleanupPeriodDays: 0
 
 - insert:
     - id: session-reference
-      name: '@qilin/session-reference'
+      name: '@qilin-agent/session-reference'
       config:
         maxReferenceBytes: 360
     - id: reference-source-fixture

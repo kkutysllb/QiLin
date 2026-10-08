@@ -13,12 +13,12 @@
  * The glyph is the left sidebar's collapse icon mirrored: the same affordance,
  * on the other edge.
  */
-import type { ShortcutCatalogEntry } from '@qilin/client-shortcuts/client'
-import type { InjectFace, HostObservable } from '@qilin/client-ui-slots'
+import type { ShortcutCatalogEntry } from '@qilin-agent/client-shortcuts/client'
+import type { InjectFace, HostObservable } from '@qilin-agent/client-ui-slots'
 import type { ReactNode } from 'react'
-import { Button, IconPanelLeftOutline16, Tooltip } from '@qilin/client-ui-primitives'
-import type { PropsLocale, PropsRuntime, PropsStore } from '@qilin/client-ui-slots'
-import type {} from '@qilin/client-ui-conversation/client'
+import { Button, IconPanelLeftOutline16, Tooltip } from '@qilin-agent/client-ui-primitives'
+import type { PropsLocale, PropsRuntime, PropsStore } from '@qilin-agent/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-conversation/client'
 import type { createSidebarRightStore } from '../stores.ts'
 import css from './ExpandButton.module.css'
 

@@ -5,13 +5,13 @@
  * The library half takes all of this as parameters. Keeping the lookup here is what
  * lets the same library pack a different tree, and what keeps `pack.ts` free of
  * assumptions about pnpm workspaces or the `qilin` CLI.
- * @module @qilin/experimental-webworker-packer/src/repository
+ * @module @qilin-agent/experimental-webworker-packer/src/repository
  */
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, relative } from 'node:path'
-import { QILIN_HOME_ENV } from '@qilin/home-paths'
+import { QILIN_HOME_ENV } from '@qilin-agent/home-paths'
 import type { ConfigTree, ImageTree, PackResult } from './pack.ts'
 
 /**

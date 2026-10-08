@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup, fireEvent, render } from '@testing-library/react'
-import { createSnapshotStore } from '@qilin/client-store'
-import { bindSnapshotSelector, makeTranslate } from '@qilin/client-test-runtime'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
 import type { TranscriptViewMode } from '../src/chat-settings.ts'
 import { derivePresentationPolicy } from '../src/client/presentation-policy.ts'
-import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
+import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 import { zh } from '../src/client/locale.ts'
 import { AssistantMarkdown, type AssistantMarkdownProps } from '../src/client/chat/AssistantMarkdown.tsx'
 

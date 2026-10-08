@@ -2,7 +2,7 @@
 export const name = 'python-snapshot-tool'
 export const inject = ['tools']
 
-/** @param {import('@qilin/kylin').Context} ctx - Scenario-owned tool registration. */
+/** @param {import('@qilin-agent/kylin').Context} ctx - Scenario-owned tool registration. */
 export function apply(ctx) {
   ctx.on('tools/pre-execute', (exec, next) => {
     if (exec.name !== 'snapshot_double' || exec.arguments.value !== -1) return next()

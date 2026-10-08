@@ -13,21 +13,21 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import type { Volatile } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import LlmRuntime from '@qilin/llm'
-import AgentRegistry from '@qilin/agent'
-import SessionStore, { SessionId } from '@qilin/session'
-import { credentialRef } from '@qilin/credentials'
-import LocalCredentialProvider from '@qilin/credentials-local'
-import FileSettingsProvider from '@qilin/settings-file'
-import { getOrCreateAnonymousUserId } from '@qilin/anonymous-user-id'
-import DeepSeekLlmApiExtensionRegistry from '@qilin/deepseek-llm-api-extensions'
-import * as SessionLogDeepSeek from '@qilin/session-log-deepseek'
-import * as DeepSeekPluginPackageInventory from '@qilin/plugin-package-inventory-deepseek'
-import * as LlmDeepSeek from '@qilin/llm-deepseek-api-key'
+import { Context } from '@qilin-agent/kylin'
+import type { Volatile } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import LlmRuntime from '@qilin-agent/llm'
+import AgentRegistry from '@qilin-agent/agent'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import { credentialRef } from '@qilin-agent/credentials'
+import LocalCredentialProvider from '@qilin-agent/credentials-local'
+import FileSettingsProvider from '@qilin-agent/settings-file'
+import { getOrCreateAnonymousUserId } from '@qilin-agent/anonymous-user-id'
+import DeepSeekLlmApiExtensionRegistry from '@qilin-agent/deepseek-llm-api-extensions'
+import * as SessionLogDeepSeek from '@qilin-agent/session-log-deepseek'
+import * as DeepSeekPluginPackageInventory from '@qilin-agent/plugin-package-inventory-deepseek'
+import * as LlmDeepSeek from '@qilin-agent/llm-deepseek-api-key'
 import { assemble } from './assemble.ts'
 import { closeMockServers, mockServer, textEvents } from './mock-server.ts'
 
@@ -64,36 +64,36 @@ async function loadComposition(
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, [
     '- id: llm',
-    "  name: '@qilin/llm'",
+    "  name: '@qilin-agent/llm'",
     '- id: session',
-    "  name: '@qilin/session'",
+    "  name: '@qilin-agent/session'",
     '- id: agents',
-    "  name: '@qilin/agent'",
+    "  name: '@qilin-agent/agent'",
     '- id: deepseek-llm-api-extensions',
-    "  name: '@qilin/deepseek-llm-api-extensions'",
+    "  name: '@qilin-agent/deepseek-llm-api-extensions'",
     '- id: session-log-deepseek',
-    "  name: '@qilin/session-log-deepseek'",
+    "  name: '@qilin-agent/session-log-deepseek'",
     ...options.enableSessionLog !== undefined
       ? ['  config:', `    enabled: ${String(options.enableSessionLog)}`]
       : [],
     '- id: plugin-package-inventory-deepseek',
-    "  name: '@qilin/plugin-package-inventory-deepseek'",
+    "  name: '@qilin-agent/plugin-package-inventory-deepseek'",
     ...options.withDynamic
       ? [
         '- id: settings',
-        "  name: '@qilin/settings-file'",
+        "  name: '@qilin-agent/settings-file'",
         '  config:',
         `    path: ${JSON.stringify(settingsPath)}`,
         '    debounceMs: 10',
         '- id: credentials',
-        "  name: '@qilin/credentials-local'",
+        "  name: '@qilin-agent/credentials-local'",
         '  config:',
         `    path: ${JSON.stringify(credentialsPath)}`,
         '    debounceMs: 10',
       ]
       : [],
     '- id: llm-deepseek',
-    "  name: '@qilin/llm-deepseek-api-key'",
+    "  name: '@qilin-agent/llm-deepseek-api-key'",
     '  config:',
     `    baseURL: ${JSON.stringify(options.baseURL)}`,
     '',
@@ -105,15 +105,15 @@ async function loadComposition(
   await ctx.plugin(Loader)
   ctx.loader.builtins.include = Include
   const modules = new Map<string, unknown>([
-    ['@qilin/llm', LlmRuntime],
-    ['@qilin/session', SessionStore],
-    ['@qilin/agent', AgentRegistry],
-    ['@qilin/deepseek-llm-api-extensions', DeepSeekLlmApiExtensionRegistry],
-    ['@qilin/session-log-deepseek', SessionLogDeepSeek],
-    ['@qilin/plugin-package-inventory-deepseek', DeepSeekPluginPackageInventory],
-    ['@qilin/settings-file', FileSettingsProvider],
-    ['@qilin/credentials-local', LocalCredentialProvider],
-    ['@qilin/llm-deepseek-api-key', LlmDeepSeek],
+    ['@qilin-agent/llm', LlmRuntime],
+    ['@qilin-agent/session', SessionStore],
+    ['@qilin-agent/agent', AgentRegistry],
+    ['@qilin-agent/deepseek-llm-api-extensions', DeepSeekLlmApiExtensionRegistry],
+    ['@qilin-agent/session-log-deepseek', SessionLogDeepSeek],
+    ['@qilin-agent/plugin-package-inventory-deepseek', DeepSeekPluginPackageInventory],
+    ['@qilin-agent/settings-file', FileSettingsProvider],
+    ['@qilin-agent/credentials-local', LocalCredentialProvider],
+    ['@qilin-agent/llm-deepseek-api-key', LlmDeepSeek],
   ])
   // The custom importer bypasses Node resolution; mirror the package manifests
   // a deployed cordis.yml has beside its declared dependencies.
@@ -153,9 +153,9 @@ describe('llm-deepseek real dynamic composition', () => {
     const request = server.requests[0] as { qilin_plugin_packages: { version: number; packages: unknown[] } }
     expect(request).not.toHaveProperty('qilin_session_log')
     expect(request.qilin_plugin_packages.packages).toEqual(expect.arrayContaining([
-      { name: '@qilin/deepseek-llm-api-extensions', version: '0.1.0-rc.8' },
-      { name: '@qilin/llm-deepseek-api-key', version: '0.1.0-rc.8' },
-      { name: '@qilin/session-log-deepseek', version: '0.1.0-rc.8' },
+      { name: '@qilin-agent/deepseek-llm-api-extensions', version: '0.1.0-rc.8' },
+      { name: '@qilin-agent/llm-deepseek-api-key', version: '0.1.0-rc.8' },
+      { name: '@qilin-agent/session-log-deepseek', version: '0.1.0-rc.8' },
     ]))
     expect(request.qilin_plugin_packages.version).toBe(1)
     expect(SessionLogDeepSeek.acceptedThrough(session)).toBe(-1)

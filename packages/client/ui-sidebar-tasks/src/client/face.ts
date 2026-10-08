@@ -5,11 +5,11 @@
  * `interruptChild`, and this face performs the service and Remote calls behind
  * them. Each action resolves what it needs at call time, never at render time.
  */
-import type { JobsSnapshot } from '@qilin/api-job-controller/client'
-import type { SessionTarget } from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
-import type { SubagentInterruptReceipt } from '@qilin/subagent/client'
-import type { RemoteResult } from '@qilin/typert-protocol'
+import type { JobsSnapshot } from '@qilin-agent/api-job-controller/client'
+import type { SessionTarget } from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { SubagentInterruptReceipt } from '@qilin-agent/subagent/client'
+import type { RemoteResult } from '@qilin-agent/typert-protocol'
 
 /** The `ctx.sessions` reads the page's actions perform. */
 export interface TasksSessionActions {

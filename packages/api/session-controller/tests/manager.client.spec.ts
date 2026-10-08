@@ -4,15 +4,15 @@
  */
 
 import { describe, expect, onTestFinished, vi } from 'vitest'
-import type { SessionId } from '@qilin/api-remotes/client'
-import type { SubagentAddress } from '@qilin/subagent/client'
-import { SessionSeq } from '@qilin/session/types'
-import { RemoteError } from '@qilin/typert-protocol'
-import { ok, type RemoteMock } from '@qilin/remote-mock'
+import type { SessionId } from '@qilin-agent/api-remotes/client'
+import type { SubagentAddress } from '@qilin-agent/subagent/client'
+import { SessionSeq } from '@qilin-agent/session/types'
+import { RemoteError } from '@qilin-agent/typert-protocol'
+import { ok, type RemoteMock } from '@qilin-agent/remote-mock'
 import {
   createClientTest, type ClientTestFixtures, webApp,
-} from '@qilin/client-test-runtime/src/assembly/index.ts'
-import type {} from '@qilin/session-title/client'
+} from '@qilin-agent/client-test-runtime/src/assembly/index.ts'
+import type {} from '@qilin-agent/session-title/client'
 import { SessionManager } from '../src/client/sessions/manager.ts'
 import type { SessionRemotes } from '../src/client/sessions/remotes.ts'
 import { entries, plainTurn } from './event-script.client.ts'
@@ -21,7 +21,7 @@ import { FOLLOW, err, followScript, sessionWorld } from './remote/session.client
 const S1 = 'fk-m1' as SessionId
 const S2 = 'fk-m2' as SessionId
 /** Gateway Client cone used by the subagent-catalog and connected-generation cases. */
-const API_ROSTER = webApp.closure(['@qilin/api-gateway'])
+const API_ROSTER = webApp.closure(['@qilin-agent/api-gateway'])
 const it = createClientTest({ roster: API_ROSTER })
 
 type SummaryOver = Partial<{

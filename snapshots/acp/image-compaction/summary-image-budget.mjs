@@ -3,7 +3,7 @@ export const name = 'summary-image-budget'
 export const inject = ['llm']
 
 /**
- * @param {import('@qilin/kylin').Context} ctx - Scenario-local context.
+ * @param {import('@qilin-agent/kylin').Context} ctx - Scenario-local context.
  */
 export function apply(ctx) {
   let failed = false

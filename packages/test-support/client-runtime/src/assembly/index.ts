@@ -1,8 +1,8 @@
 /**
  * Whole-client tier entry (deep import only:
- * `@qilin/client-test-runtime/src/assembly/index.ts`). Kept out of
+ * `@qilin-agent/client-test-runtime/src/assembly/index.ts`). Kept out of
  * the package root so slot-tier specs do not load the assembly machinery.
- * @module @qilin/client-test-runtime/src/assembly
+ * @module @qilin-agent/client-test-runtime/src/assembly
  */
 export { ClientRoster } from './roster.ts'
 export type { AssemblyPlan, ClientPluginModule, ClientRosterRow } from './roster.ts'

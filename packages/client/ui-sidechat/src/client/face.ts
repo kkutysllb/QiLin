@@ -3,8 +3,8 @@
  * remotes plus the follow stream, bound to one state source. The panel reads
  * everything through the source and acts only through these actions.
  */
-import type { ClientRemote } from '@qilin/api-remotes/client'
-import type { SessionId } from '@qilin/session'
+import type { ClientRemote } from '@qilin-agent/api-remotes/client'
+import type { SessionId } from '@qilin-agent/session'
 import { sidechatAddress, transcriptEntriesOfFrame } from './sidechat-model.ts'
 import type { SidechatSource } from './sidechat-source.ts'
 

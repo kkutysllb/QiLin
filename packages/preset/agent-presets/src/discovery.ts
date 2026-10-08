@@ -18,7 +18,7 @@
  * a package that was renamed or uninstalled. Resolving those names is a
  * separate pass from the shape check and stops short of importing anything,
  * so a composition is judged without running a line of plugin code.
- * @module @qilin/agent-presets/discovery
+ * @module @qilin-agent/agent-presets/discovery
  */
 
 import { existsSync } from 'node:fs'
@@ -27,8 +27,8 @@ import { isBuiltin } from 'node:module'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { load } from 'js-yaml'
-import { entryListSchema } from '@qilin/kylin-plugin-include'
-import { expandHomePath } from '@qilin/home-paths'
+import { entryListSchema } from '@qilin-agent/kylin-plugin-include'
+import { expandHomePath } from '@qilin-agent/home-paths'
 import { readPresetMetadata } from './metadata.ts'
 import { PRESET_ID, type AgentPreset, type PresetRoot } from './preset.ts'
 import { classifyRowSpecifier, type RowSpecifier } from './specifier.ts'

@@ -3,7 +3,7 @@ description: "Session-telemetry capture seam for deployments and backend authors
 kind: "package-library"
 ---
 
-# @qilin/session-telemetry
+# @qilin-agent/session-telemetry
 
 English | [中文](README.zh.md)
 

@@ -1,7 +1,7 @@
 /** The Git card's staged form over the `workspace-git` settings namespace. */
 
-import type { SnapshotStore } from '@qilin/client-store'
-import type { ConfigForm } from '@qilin/client-ui-settings/client'
+import type { SnapshotStore } from '@qilin-agent/client-store'
+import type { ConfigForm } from '@qilin-agent/client-ui-settings/client'
 import { CardForm, numberField, textField, type CardActions, type CardFieldState, type CardShell } from './card-form.ts'
 
 /**

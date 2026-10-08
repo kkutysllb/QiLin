@@ -2,9 +2,9 @@
 /** Confirmed type filters compose with folding, live rows, raw details, and picked-row navigation. */
 
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
-import { createSnapshotStore } from '@qilin/client-store'
-import { bindSnapshotSelector, makeTranslate, sessionSnapshot } from '@qilin/client-test-runtime'
-import type { SessionId } from '@qilin/session/types'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { bindSnapshotSelector, makeTranslate, sessionSnapshot } from '@qilin-agent/client-test-runtime'
+import type { SessionId } from '@qilin-agent/session/types'
 import { afterEach, beforeEach, expect, it, onTestFinished, vi } from 'vitest'
 import { InspectorTable, type InspectorTableProps } from '../src/client/views/InspectorTable.tsx'
 import type { InspectorRecord, InspectorRow } from '../src/client/views/table-model.ts'

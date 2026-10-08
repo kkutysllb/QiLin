@@ -7,10 +7,10 @@
 
 - insert:
     - id: time-context
-      name: '@qilin/time-context'
+      name: '@qilin-agent/time-context'
 
     - id: schedule
-      name: '@qilin/schedule'
+      name: '@qilin-agent/schedule'
 
     - id: ui-schedule
-      name: '@qilin/client-ui-schedule'
+      name: '@qilin-agent/client-ui-schedule'

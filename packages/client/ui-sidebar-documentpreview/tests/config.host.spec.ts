@@ -1,6 +1,6 @@
 /** Host configuration supplies bounded Office reuse settings to browser pages. */
-import { Context } from '@qilin/kylin'
-import type { IndexInjection } from '@qilin/host-webserver'
+import { Context } from '@qilin-agent/kylin'
+import type { IndexInjection } from '@qilin-agent/host-webserver'
 import { expect, it, onTestFinished } from 'vitest'
 import { Config } from '../src/config.ts'
 import * as host from '../src/index.ts'

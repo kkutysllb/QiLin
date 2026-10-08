@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/api-gateway",
+  "name": "@qilin-agent/api-gateway",
   "description": "Typert Remote Host dispatcher and Client API endpoint",
   "version": "3.1.1",
   "publishConfig": {
@@ -35,8 +35,8 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/typert-registry",
-        "@qilin/client-connection"
+        "@qilin-agent/typert-registry",
+        "@qilin-agent/client-connection"
       ],
       "platform": "web",
       "immediately": true
@@ -54,26 +54,26 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@qilin/deque": "workspace:*",
-    "@qilin/timeout": "workspace:*",
-    "@qilin/schemastery": "workspace:~",
+    "@qilin-agent/deque": "workspace:*",
+    "@qilin-agent/timeout": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~",
     "ws": "^8.21.0",
-    "@qilin/typert-protocol": "workspace:*"
+    "@qilin-agent/typert-protocol": "workspace:*"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/client-connection": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/client-connection": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/brand": "workspace:*",
-    "@qilin/cmdline": "workspace:*",
-    "@qilin/client-connection": "workspace:*",
-    "@qilin/host-webserver": "workspace:*",
-    "@qilin/remote-mock": "workspace:*",
-    "@qilin/typert-registry": "workspace:*",
-    "@qilin/util-crypto": "workspace:*",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/cmdline": "workspace:*",
+    "@qilin-agent/client-connection": "workspace:*",
+    "@qilin-agent/host-webserver": "workspace:*",
+    "@qilin-agent/remote-mock": "workspace:*",
+    "@qilin-agent/typert-registry": "workspace:*",
+    "@qilin-agent/util-crypto": "workspace:*",
     "@types/ws": "^8.18.1",
-    "@qilin/kylin": "workspace:~",
+    "@qilin-agent/kylin": "workspace:~",
     "zod": "^4.4.3"
   }
 }

@@ -1,7 +1,7 @@
 /** Compare raw plugin configs using schema metadata without executing config hooks or validators. */
-import type { Plugin } from '@qilin/kylin'
-import { deepEqual } from '@qilin/cosmokit'
-import type Schema from '@qilin/schemastery'
+import type { Plugin } from '@qilin-agent/kylin'
+import { deepEqual } from '@qilin-agent/cosmokit'
+import type Schema from '@qilin-agent/schemastery'
 import { isJsExpr } from './utils.ts'
 
 function isSchemastery(schema: Plugin.Runtime['Config']): schema is Schema {

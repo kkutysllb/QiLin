@@ -1,8 +1,8 @@
 /** Durable Host-wide Schedule tasks, independently of Session activation. */
 import { z } from 'zod'
-import { SessionId } from '@qilin/session'
-import { MessageId } from '@qilin/llm/brand'
-import { defineDomain, domainTable } from '@qilin/storage-domain'
+import { SessionId } from '@qilin-agent/session'
+import { MessageId } from '@qilin-agent/llm/brand'
+import { defineDomain, domainTable } from '@qilin-agent/storage-domain'
 import { decodeScheduleRecord } from './domain.ts'
 import type { ScheduleId, ScheduleRecord } from './types.ts'
 

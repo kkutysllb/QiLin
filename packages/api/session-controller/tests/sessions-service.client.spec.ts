@@ -1,14 +1,14 @@
 /** Client catalog projection, explicitly retained scopes, streams, and Host operations. */
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, vi } from 'vitest'
-import type { SessionId } from '@qilin/api-remotes/client'
+import type { SessionId } from '@qilin-agent/api-remotes/client'
 import type { SessionReference } from '../src/client/contract/sessions.ts'
-import { RemoteError } from '@qilin/typert-protocol'
-import { LlmAttemptId } from '@qilin/llm'
-import { RemoteStreamCarrierError } from '@qilin/api-gateway/client'
-import { SESSION_FORMAT_VERSION, SessionSeq } from '@qilin/session/types'
-import { ok, streamHandle, type RemoteMock } from '@qilin/remote-mock'
-import { createClientTest, webApp } from '@qilin/client-test-runtime/src/assembly/index.ts'
+import { RemoteError } from '@qilin-agent/typert-protocol'
+import { LlmAttemptId } from '@qilin-agent/llm'
+import { RemoteStreamCarrierError } from '@qilin-agent/api-gateway/client'
+import { SESSION_FORMAT_VERSION, SessionSeq } from '@qilin-agent/session/types'
+import { ok, streamHandle, type RemoteMock } from '@qilin-agent/remote-mock'
+import { createClientTest, webApp } from '@qilin-agent/client-test-runtime/src/assembly/index.ts'
 import { ClientSessions, SessionCreateError, SessionForkError } from '../src/client/sessions/service.ts'
 import { scopeOf } from '../src/client/scope.ts'
 import type {
@@ -18,7 +18,7 @@ import { FOLLOW, err, followScript, sessionWorld } from './remote/session.client
 
 const sid = (s: string): SessionId => s as SessionId
 /** ClientSessions uses the Gateway client for stream supervision and the native Remote mocks for responses. */
-const API_ROSTER = webApp.closure(['@qilin/api-gateway'])
+const API_ROSTER = webApp.closure(['@qilin-agent/api-gateway'])
 /** The first client boot pays the cold module transform of the api cone. */
 const COLD_BOOT_TIMEOUT_MS = 60_000
 

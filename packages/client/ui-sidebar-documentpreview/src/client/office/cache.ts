@@ -1,7 +1,7 @@
 /** Session-authorized, version-checked Office bytes shared by concurrent preview reads. */
-import type { OfficeToPdfPriority, OfficeToPdfGeneration } from '@qilin/office-to-pdf/types'
-import type { RemoteResult } from '@qilin/api-remotes/client'
-import type { WorkspaceFileStat } from '@qilin/api-workspace-files/types'
+import type { OfficeToPdfPriority, OfficeToPdfGeneration } from '@qilin-agent/office-to-pdf/types'
+import type { RemoteResult } from '@qilin-agent/api-remotes/client'
+import type { WorkspaceFileStat } from '@qilin-agent/api-workspace-files/types'
 import type { DocumentFileBytes, SessionFile } from '../rpc.ts'
 
 /** PDF bytes and conversion metadata owned by Office preview. */

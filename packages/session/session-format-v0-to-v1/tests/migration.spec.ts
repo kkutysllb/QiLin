@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { SessionFormatEventCollector } from '@qilin/session-format'
+import { SessionFormatEventCollector } from '@qilin-agent/session-format'
 import type {
   SessionFormatEvent,
   SessionFormatEventRun,
-} from '@qilin/session-format'
+} from '@qilin-agent/session-format'
 import {
   RELEASED_V0_EVENT_TYPES,
   releasedV1SessionFormatCodec,

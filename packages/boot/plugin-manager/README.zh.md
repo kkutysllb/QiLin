@@ -3,7 +3,7 @@ description: "通过 Web 侧边栏或 agent 启停 profile 插件，并安装、
 kind: "package-reference"
 ---
 
-# @qilin/plugin-manager
+# @qilin-agent/plugin-manager
 
 [English](README.md) | 中文
 
@@ -103,7 +103,7 @@ CLI 提供 `qilin plugin --profile <profile> version-exemptions`、`allow-versio
 
 #### 模型看到什么
 
-[`plugin_manager` 工具](../../../docs/tool-catalog.zh.md#qilinplugin-manager) 列出插件条目和组合包，并执行影响整个 profile 的改动。结果包含保存状态变化、应用状态和包管理诊断。管理操作不会向 Agent 注入消息。
+[`plugin_manager` 工具](../../../docs/tool-catalog.zh.md#qilin-agentplugin-manager) 列出插件条目和组合包，并执行影响整个 profile 的改动。结果包含保存状态变化、应用状态和包管理诊断。管理操作不会向 Agent 注入消息。
 
 #### Token 影响
 

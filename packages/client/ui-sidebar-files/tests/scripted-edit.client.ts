@@ -1,9 +1,9 @@
 /** A whole-file read and a write the spec settles by hand, one deferred per call. */
 import { vi } from 'vitest'
 import type { Mock } from 'vitest'
-import type { SessionId } from '@qilin/session/types'
-import type { WorkspaceFileStat } from '@qilin/api-workspace-files/types'
-import type { RemoteResult } from '@qilin/api-remotes/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { WorkspaceFileStat } from '@qilin-agent/api-workspace-files/types'
+import type { RemoteResult } from '@qilin-agent/api-remotes/client'
 import type { WriteWorkspaceFile } from '../src/client/file-face.ts'
 import type { WholeFileResult } from '../src/client/file-pages.ts'
 

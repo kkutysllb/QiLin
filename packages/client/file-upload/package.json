@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-file-upload",
+  "name": "@qilin-agent/client-file-upload",
   "description": "Agent-scoped browser file upload, streaming intake, and staged receipt service",
   "version": "3.1.1",
   "publishConfig": {
@@ -43,7 +43,7 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/api-remotes"
+        "@qilin-agent/api-remotes"
       ],
       "platform": "web",
       "immediately": true
@@ -66,21 +66,21 @@
   ],
   "dependencies": {
     "zod": "^4.4.3",
-    "@qilin/typert-protocol": "workspace:*",
-    "@qilin/brand": "workspace:*"
+    "@qilin-agent/typert-protocol": "workspace:*",
+    "@qilin-agent/brand": "workspace:*"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/client-connection": "workspace:*",
-    "@qilin/commands": "workspace:*",
-    "@qilin/scope": "workspace:*",
-    "@qilin/util-crypto": "workspace:*",
-    "@qilin/api-remotes": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/attachment": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/client-connection": "workspace:*",
+    "@qilin-agent/commands": "workspace:*",
+    "@qilin-agent/scope": "workspace:*",
+    "@qilin-agent/util-crypto": "workspace:*",
+    "@qilin-agent/api-remotes": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/attachment": "workspace:*"
   }
 }

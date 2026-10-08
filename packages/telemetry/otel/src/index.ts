@@ -1,9 +1,9 @@
 /** Cordis entry for independent ordinary-event and Session-log OTLP channels. */
-import { Context, Service } from '@qilin/kylin'
+import { Context, Service } from '@qilin-agent/kylin'
 import { EventLogReporter, type EventLogOptions } from './event-log.ts'
 import { SessionLogReporter, type SessionLogOptions } from './session-log.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     otel: OTel
   }

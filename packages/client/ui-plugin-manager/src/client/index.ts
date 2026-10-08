@@ -8,28 +8,28 @@
  * the slots the page declares (`slot-contract.ts`).
  */
 
-import type {} from '@qilin/client-locale/client'
-import type { Context as ClientContext } from '@qilin/kylin'
+import type {} from '@qilin-agent/client-locale/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
 // Type-only: declares the `shell.overlay` seat the refresh-failure toast
 // registers into, so a failed refresh outlives the Plugins tab; also the
 // `MainPanelId` brand the sidebar entry's panel id carries.
-import type { MainPanelId } from '@qilin/client-ui-layout/client'
+import type { MainPanelId } from '@qilin-agent/client-ui-layout/client'
 // Type-only: the Settings shell declares the tab list this page registers into
 // (`settings.plugins.tab`), and the Plugins section owner renders the tab and
 // mounts the page inside it.
-import type {} from '@qilin/client-ui-settings/client'
+import type {} from '@qilin-agent/client-ui-settings/client'
 // Type-only: pulls the ctx.settingsShell merge (the section open channel).
-import type {} from '@qilin/client-ui-settings-general/client'
+import type {} from '@qilin-agent/client-ui-settings-general/client'
 // Type-only: the `sidebar.panellist` entry seat the sidebar row registers into.
-import type {} from '@qilin/client-ui-sidebar/client'
+import type {} from '@qilin-agent/client-ui-sidebar/client'
 // Type-only: the Workbench face whose active tag the presentation gate reads.
-import type { Workbench } from '@qilin/client-ui-workbench/client'
-import type {} from '@qilin/client-ui-renderer/client'
+import type { Workbench } from '@qilin-agent/client-ui-workbench/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
 // Type-only: the ctx.remote Context merge and the forwarded-event key face.
-import type {} from '@qilin/api-remotes/client'
+import type {} from '@qilin-agent/api-remotes/client'
 // Type-only: the forwarded events' own declaration (`$on`'s key face resolves
 // through the owning package's client-safe types subpath).
-import type {} from '@qilin/plugin-manager/types'
+import type {} from '@qilin-agent/plugin-manager/types'
 import { PluginManagerPage } from './PluginManagerPage.tsx'
 import { PluginsPanelIcon } from './PluginsPanelIcon.tsx'
 import { PluginRefreshToast, type PluginRefreshToastFace } from './PluginRefreshToast.tsx'
@@ -45,7 +45,7 @@ export type { PluginManagerFace } from './manager-store.ts'
 export type { PluginManagerLocaleKey } from './locales.ts'
 export type { ConfigPageForm, PluginAddActionsProps, PluginConfigViewProps } from './slot-contract.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Plugin manager tab copy. */
     'pluginManager': PluginManagerLocaleKey
@@ -67,7 +67,7 @@ export const inject = [
   'workbench',
 ]
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Cross-plugin navigation to the Plugins management page. */
     pluginNavigation: {

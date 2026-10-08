@@ -1,5 +1,5 @@
 /** Window-local timing accepted by the Host and browser keyboard service. */
-import z from '@qilin/schemastery'
+import z from '@qilin-agent/schemastery'
 
 /** Fixed shortcut sequence settings. */
 export interface Config {

@@ -2,12 +2,12 @@
  * Public type vocabulary of the workspace entity: the `WorkspaceId` brand and
  * the `Workspace` consumer interface. Types only — the `WorkspaceId` factory
  * lives in `index.ts` (this file carries no runtime code).
- * @module @qilin/workspace/src/types
+ * @module @qilin-agent/workspace/src/types
  */
 
-import type { Branded } from '@qilin/brand'
-import type { SessionId } from '@qilin/session/types'
-import type {} from '@qilin/typert-protocol'
+import type { Branded } from '@qilin-agent/brand'
+import type { SessionId } from '@qilin-agent/session/types'
+import type {} from '@qilin-agent/typert-protocol'
 
 /**
  * Identifies one workspace record. A generated uuid, never the path: path
@@ -15,7 +15,7 @@ import type {} from '@qilin/typert-protocol'
  */
 export type WorkspaceId = Branded<'WorkspaceId'>
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** No registration carries that Workspace identity. */
     'workspace/not-found': { readonly workspaceId: WorkspaceId }

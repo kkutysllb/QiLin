@@ -4,10 +4,10 @@
  * carries no content, the disappearance that stats again, failures
  * as frames, and the life bounded by the signal.
  */
-import { RemoteError } from '@qilin/client-test-runtime'
-import type { SessionId } from '@qilin/session/types'
-import type { RemoteFailure } from '@qilin/typert-protocol'
-import { absoluteFileAddress, sessionFileAddress } from '@qilin/util-workspace-path'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { RemoteFailure } from '@qilin-agent/typert-protocol'
+import { absoluteFileAddress, sessionFileAddress } from '@qilin-agent/util-workspace-path'
 import type { WorkspaceFileStat } from '../src/types.ts'
 import { describe, expect, it, onTestFinished } from 'vitest'
 import { ChangeFeed } from '../src/client/change-feed.ts'

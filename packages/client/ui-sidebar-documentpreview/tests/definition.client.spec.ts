@@ -8,10 +8,10 @@
  * registry's ranking means by it.
  */
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import type { TranslateNS } from '@qilin/client-locale/client'
-import { sessionFileAddress } from '@qilin/util-workspace-path'
-import { SidebarRightTabRegistry } from '@qilin/client-ui-sidebar-right/src/client/tab-registry.ts'
+import { Context } from '@qilin-agent/kylin'
+import type { TranslateNS } from '@qilin-agent/client-locale/client'
+import { sessionFileAddress } from '@qilin-agent/util-workspace-path'
+import { SidebarRightTabRegistry } from '@qilin-agent/client-ui-sidebar-right/src/client/tab-registry.ts'
 import { TEXTPREVIEW_ID, TEXTPREVIEW_KIND, basenameOf, textDefinition } from '../src/client/definition.ts'
 
 /** The dictionary lookup the type's own name goes through; the key stands in for the translation. */

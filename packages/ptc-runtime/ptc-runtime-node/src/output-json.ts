@@ -1,6 +1,6 @@
-/** JSON string-prefix accounting for the outer-output ledger. @module @qilin/ptc-runtime-node/output-json */
+/** JSON string-prefix accounting for the outer-output ledger. @module @qilin-agent/ptc-runtime-node/output-json */
 
-import type { PtcJsonValue } from '@qilin/ptc-runtime'
+import type { PtcJsonValue } from '@qilin-agent/ptc-runtime'
 
 type IntrinsicCallable = (this: unknown, ...args: unknown[]) => unknown
 

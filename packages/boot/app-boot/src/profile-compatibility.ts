@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { parse } from 'semver'
-import { withFileLock, writeFileAtomic } from '@qilin/atomic-write'
+import { withFileLock, writeFileAtomic } from '@qilin-agent/atomic-write'
 import { getQilinRuntimeVersion } from './plugin-compatibility.ts'
 
 /** Independent profile metadata; neither package manifests nor Kylin patches carry grants. */

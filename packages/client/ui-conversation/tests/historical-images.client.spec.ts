@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from 'vitest'
-import { AttachmentId } from '@qilin/attachment'
-import type { SessionFace } from '@qilin/api-session-controller/client'
-import { RemoteError, SlotTestRuntime } from '@qilin/client-test-runtime'
+import { AttachmentId } from '@qilin-agent/attachment'
+import type { SessionFace } from '@qilin-agent/api-session-controller/client'
+import { RemoteError, SlotTestRuntime } from '@qilin-agent/client-test-runtime'
 import { HistoricalImageCache } from '../src/client/conversation/historical-images.ts'
 
 describe('HistoricalImageCache', () => {

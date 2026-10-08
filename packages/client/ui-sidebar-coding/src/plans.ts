@@ -28,7 +28,7 @@
  * Everything but the two readers is pure, so the dedupe/sort/cap/title rules
  * are unit-tested without touching a disk (tests/plans-helpers.mjs).
  *
- * @module @qilin/client-ui-sidebar-coding/plans
+ * @module @qilin-agent/client-ui-sidebar-coding/plans
  */
 import type { Dirent } from 'node:fs'
 import { open, readdir, stat, type FileHandle } from 'node:fs/promises'
@@ -81,7 +81,7 @@ export interface PlanDoc {
 }
 
 /* jscpd:ignore-start — plan discovery types/title/dedupe pinned verbatim to
-   @qilin/client-ui-sidebar-plans src/client/plans.ts (ported twin) */
+   @qilin-agent/client-ui-sidebar-plans src/client/plans.ts (ported twin) */
 /** A discovered file before identity dedupe/title read (pure-helper input). */
 export interface PlanCandidate {
   path: string

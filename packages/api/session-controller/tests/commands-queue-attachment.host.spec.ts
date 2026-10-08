@@ -1,24 +1,24 @@
-import { RemoteError } from '@qilin/typert-protocol'
-import { Context } from '@qilin/kylin'
-import AgentRegistry from '@qilin/agent'
-import type { Agent, Inbox, ModelSelectionRef } from '@qilin/agent'
-import { AttachmentError, AttachmentId } from '@qilin/attachment'
-import type { ImageAttachmentRef } from '@qilin/attachment'
-import { createAssistantMessage, createUserMessage, MessageId } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
+import { RemoteError } from '@qilin-agent/typert-protocol'
+import { Context } from '@qilin-agent/kylin'
+import AgentRegistry from '@qilin-agent/agent'
+import type { Agent, Inbox, ModelSelectionRef } from '@qilin-agent/agent'
+import { AttachmentError, AttachmentId } from '@qilin-agent/attachment'
+import type { ImageAttachmentRef } from '@qilin-agent/attachment'
+import { createAssistantMessage, createUserMessage, MessageId } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
 import SessionStore, {
   SESSION_FORMAT_VERSION, Session, SessionId, SessionLogOffset, SessionSeq,
-} from '@qilin/session'
-import type { SessionEvent, SessionHeader, UserMessage } from '@qilin/session'
-import { snapshotSubagentDescriptor, SUBAGENT_DESCRIPTOR_VERSION } from '@qilin/subagent'
-import { subagentIdentityProjectionDefinition } from '@qilin/subagent/src/projection.ts'
+} from '@qilin-agent/session'
+import type { SessionEvent, SessionHeader, UserMessage } from '@qilin-agent/session'
+import { snapshotSubagentDescriptor, SUBAGENT_DESCRIPTOR_VERSION } from '@qilin-agent/subagent'
+import { subagentIdentityProjectionDefinition } from '@qilin-agent/subagent/src/projection.ts'
 import { describe, expect, it, vi } from 'vitest'
 import { ApiSessionAgentController } from '../src/agent.ts'
 import { SessionCommandController } from '../src/commands.ts'
-import { createInboxStub } from '@qilin/agent-loop-testkit'
+import { createInboxStub } from '@qilin-agent/agent-loop-testkit'
 import { installSessionReadTestServices, testSessionPersistence } from './test-remote.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

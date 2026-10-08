@@ -7,8 +7,8 @@
  */
 
 import { writeFile } from 'node:fs/promises'
-import { boot, resolveConfigPath } from '@qilin/app-boot'
-import { ToolCallId } from '@qilin/llm'
+import { boot, resolveConfigPath } from '@qilin-agent/app-boot'
+import { ToolCallId } from '@qilin-agent/llm'
 
 const configPath = process.argv[2]
 if (configPath === undefined) throw new Error('tool-pwsh driver requires a config path')

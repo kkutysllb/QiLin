@@ -4,16 +4,16 @@
  * The type is a page, not a viewer: it claims no address, so a tab of this
  * kind is opened by kind alone — `ctx.sidebarRight.openTab('sidechat')`.
  */
-import type { TranslateNS } from '@qilin/client-locale/client'
-import { IconNewChatOutline16 } from '@qilin/client-ui-primitives'
-import type { SidebarRightTabDefinition } from '@qilin/client-ui-sidebar-right/client'
+import type { TranslateNS } from '@qilin-agent/client-locale/client'
+import { IconNewChatOutline16 } from '@qilin-agent/client-ui-primitives'
+import type { SidebarRightTabDefinition } from '@qilin-agent/client-ui-sidebar-right/client'
 import type {} from './locales.ts'
 
 /** The tab kind this package owns; `ctx.sidebarRight.openTab` names it. */
 export const SIDECHAT_KIND = 'sidechat'
 
 /** This implementation's identity in the tab system, and the key its body registers under. */
-export const SIDECHAT_ID = '@qilin/client-ui-sidechat'
+export const SIDECHAT_ID = '@qilin-agent/client-ui-sidechat'
 
 /**
  * The sidechat type's registry definition.

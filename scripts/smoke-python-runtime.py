@@ -256,9 +256,9 @@ def write_advanced_profile_patch(root: Path, name: str, sessions: Path) -> Path:
             },
         },
         {"insert": [
-            {"id": "ptc-runtime", "name": "@qilin/ptc-runtime-node"},
-            {"id": "kylin-host-runner", "name": "@qilin/kylin-host-runner"},
-            {"id": "cordis-tool", "name": "@qilin/tool-kylin"},
+            {"id": "ptc-runtime", "name": "@qilin-agent/ptc-runtime-node"},
+            {"id": "kylin-host-runner", "name": "@qilin-agent/kylin-host-runner"},
+            {"id": "cordis-tool", "name": "@qilin-agent/tool-kylin"},
         ]},
     ])
 
@@ -268,7 +268,7 @@ def write_mcp_patch(root: Path, sessions: Path, server_script: Path) -> Path:
     return write_profile_patch(root, "mcp.patch.yml", sessions, [{
         "insert": [{
             "id": "mcp-fixture",
-            "name": "@qilin/mcp-client",
+            "name": "@qilin-agent/mcp-client",
             "config": {
                 "serverName": "fixture",
                 "transport": "stdio",
@@ -1299,11 +1299,11 @@ def smoke_sdk_profile_plugin(base_url: str) -> None:
             "private": True,
             "type": "module",
             "exports": "./index.js",
-            "peerDependencies": {"@qilin/kylin": "*"},
+            "peerDependencies": {"@qilin-agent/kylin": "*"},
             "qilin": {"bundle": {"patch": "./cordis.patch.yml"}},
         }, indent=2))
         (plugin / "index.js").write_text(
-            "import { Context } from '@qilin/kylin'\n"
+            "import { Context } from '@qilin-agent/kylin'\n"
             "export const name = 'python-sdk-blackbox-plugin'\n"
             "export const inject = ['systemPrompt']\n"
             "export function apply(ctx) {\n"
@@ -1387,7 +1387,7 @@ def smoke_sdk_snapshot(base_url: str, executable: Path, update_snapshots: bool) 
             ).as_uri(), "config": {
                 "parentSessionId": SNAPSHOT_SESSION_ID, "prompt": SNAPSHOT_WORKFLOW_CHILD_PROMPT,
             }},
-            {"id": "snapshot-message-feedback", "name": "@qilin/message-feedback",
+            {"id": "snapshot-message-feedback", "name": "@qilin-agent/message-feedback",
              "config": {"maxNoteBytes": 1024}},
             {"id": "snapshot-feedback-producer", "name": (
                 Path(__file__).resolve().parent.parent / "snapshots/sdk/text-turn/feedback-producer.mjs"

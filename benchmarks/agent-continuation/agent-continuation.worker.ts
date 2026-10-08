@@ -2,15 +2,15 @@
 
 import { performance } from 'node:perf_hooks'
 import { scheduler } from 'node:timers/promises'
-import { Context } from '@qilin/kylin'
-import AgentLoop from '@qilin/agent-loop'
-import type { Agent, AgentHandle } from '@qilin/agent'
-import { mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'
-import { createUserMessage, LlmAdapter } from '@qilin/llm'
-import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@qilin/llm'
-import { SESSION_FORMAT_VERSION } from '@qilin/session'
-import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
-import { defineContentToolFixture } from '@qilin/tools'
+import { Context } from '@qilin-agent/kylin'
+import AgentLoop from '@qilin-agent/agent-loop'
+import type { Agent, AgentHandle } from '@qilin-agent/agent'
+import { mountAgentLoopTestDependencies } from '@qilin-agent/agent-loop-testkit'
+import { createUserMessage, LlmAdapter } from '@qilin-agent/llm'
+import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@qilin-agent/llm'
+import { SESSION_FORMAT_VERSION } from '@qilin-agent/session'
+import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
+import { defineContentToolFixture } from '@qilin-agent/tools'
 import { assertBuiltBenchmarkRuntime } from '../support/built-worker.ts'
 import { PARENT_ID, response, resultText, syntheticHistory, TIME_ZERO, WORKLOAD } from './workload.ts'
 
@@ -127,8 +127,8 @@ async function measure(root: string, scenario: string): Promise<ContinuationRepo
 }
 
 assertBuiltBenchmarkRuntime(import.meta.url, Object.fromEntries([
-  '@qilin/agent-loop', '@qilin/session', '@qilin/llm',
-  '@qilin/tools', '@qilin/session-persistence-jsonl',
+  '@qilin-agent/agent-loop', '@qilin-agent/session', '@qilin-agent/llm',
+  '@qilin-agent/tools', '@qilin-agent/session-persistence-jsonl',
 ].map(name => [name, import.meta.resolve(name)])))
 const [root, scenario] = process.argv.slice(2)
 if (root === undefined || scenario === undefined || !['seed', 'request-history', 'tool-continuation'].includes(scenario)) {

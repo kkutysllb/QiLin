@@ -1,7 +1,7 @@
 /** Workspace command registrations and the browser-owned opening request store. */
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
 import { createWorkspaceShortcutControls, installWorkspaceShortcuts } from '../src/client/shortcuts.ts'
 import { en, zh } from '../src/client/locales.ts'
 

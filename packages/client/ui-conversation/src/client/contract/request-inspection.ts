@@ -1,5 +1,5 @@
-import type { ContentBlock, ToolSchema } from '@qilin/llm/types'
-import type { SessionEvent } from '@qilin/session/types'
+import type { ContentBlock, ToolSchema } from '@qilin-agent/llm/types'
+import type { SessionEvent } from '@qilin-agent/session/types'
 import type {
   AssistantProviderMetadataView, AssistantRequestConfig,
 } from './records.ts'

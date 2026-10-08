@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import type { SessionFormatEvent } from '@qilin/session-format'
+import type { SessionFormatEvent } from '@qilin-agent/session-format'
 import { createSessionFormatCatalogWithChildren, historicalSessionFormatCatalog, sessionFormatCatalog } from '../src/index.ts'
 import { currentSessionMessageProjections } from '../src/message-projections.ts'
-import { MESSAGE_PROJECTION_EVENT_TYPES } from '@qilin/session/src/known-event-types.ts'
+import { MESSAGE_PROJECTION_EVENT_TYPES } from '@qilin-agent/session/src/known-event-types.ts'
 import { validateInstalledCurrentSessionArtifact } from '../src/current.ts'
-import { SESSION_FORMAT_VERSION, Session, SessionId } from '@qilin/session'
-import { createUserMessage } from '@qilin/llm'
+import { SESSION_FORMAT_VERSION, Session, SessionId } from '@qilin-agent/session'
+import { createUserMessage } from '@qilin-agent/llm'
 
 function deepFreeze<T>(value: T): T {
   if (value !== null && typeof value === 'object') {

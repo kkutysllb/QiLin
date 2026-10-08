@@ -3,7 +3,7 @@ description: "Web @file 与 @session 引用 source：候选项、排序，以及
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-reference
+# @qilin-agent/client-ui-reference
 
 [English](README.md) | 中文
 

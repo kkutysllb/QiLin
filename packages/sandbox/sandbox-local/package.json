@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/sandbox-local",
+  "name": "@qilin-agent/sandbox-local",
   "description": "Local process-sandbox backends for the QiLin sandbox seam: bwrap, the npm-distributed landlock-run launcher, macOS Seatbelt, or the Windows ACL restricted-token runner — functionally probed, fail-closed",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,21 +30,21 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/llm": "workspace:*",
-    "@qilin/sandbox": "workspace:*",
-    "@qilin/session": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/sandbox": "workspace:*",
+    "@qilin-agent/session": "workspace:*"
   },
   "dependencies": {
-    "@qilin/sandbox-windows-acl": "workspace:*",
-    "@qilin/util-values": "workspace:*",
-    "@qilin/node-addon-system": "workspace:~",
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/sandbox-windows-acl": "workspace:*",
+    "@qilin-agent/util-values": "workspace:*",
+    "@qilin-agent/node-addon-system": "workspace:~",
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/llm": "workspace:*",
-    "@qilin/sandbox": "workspace:*",
-    "@qilin/session": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/sandbox": "workspace:*",
+    "@qilin-agent/session": "workspace:*"
   }
 }

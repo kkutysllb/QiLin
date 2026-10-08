@@ -11,18 +11,18 @@
  * history outside the direct-parent continuation path.
  */
 // Type-only: the carrier types, the forwarded Host-event face and the ctx.remote merge.
-import type { ModelSelection } from '@qilin/api-session-controller/types'
-import type {} from '@qilin/api-session-controller/client'
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { CommandUiContract, SelectOption } from '@qilin/client-ui-commands/client'
+import type { ModelSelection } from '@qilin-agent/api-session-controller/types'
+import type {} from '@qilin-agent/api-session-controller/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { CommandUiContract, SelectOption } from '@qilin-agent/client-ui-commands/client'
 // Type-only: pulls the ui-conversation SlotMap merge (the input.model seat).
-import type {} from '@qilin/client-ui-conversation/client'
+import type {} from '@qilin-agent/client-ui-conversation/client'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-session/client'
-import type { TranslateNS } from '@qilin/client-ui-slots'
-import { IconDataOutline16 } from '@qilin/client-ui-primitives'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-session/client'
+import type { TranslateNS } from '@qilin-agent/client-ui-slots'
+import { IconDataOutline16 } from '@qilin-agent/client-ui-primitives'
 import type { ModelDirectoryState } from './directory.ts'
 import { ModelDirectoryResolver } from './service.ts'
 import type { ModelSelectInjected } from './slots.ts'
@@ -36,7 +36,7 @@ export { ModelDirectoryResolver } from './service.ts'
 export type { ModelSelectInjected } from './slots.ts'
 export type { ModelKey } from './locales.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** The model selection surfaces' copy (/model popup + composer seat). */
     model: ModelKey

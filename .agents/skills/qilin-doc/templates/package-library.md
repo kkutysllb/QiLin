@@ -16,7 +16,7 @@ kind: "package-library"
 ## Skeleton
 
 ```markdown
-# @qilin/<name>
+# @qilin-agent/<name>
 
 English | [中文](README.zh.md)
 

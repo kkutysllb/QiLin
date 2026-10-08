@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/experimental-voice-input-bundle",
+  "name": "@qilin-agent/experimental-voice-input-bundle",
   "description": "Experimental voice input with local SenseVoice; downloads its runtime on first use",
   "version": "3.1.1",
   "publishConfig": {
@@ -36,17 +36,17 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@qilin/experimental-speech-to-text": "workspace:*",
-    "@qilin/experimental-speech-to-text-sensevoice": "workspace:*",
-    "@qilin/experimental-api-speech-to-text": "workspace:*",
-    "@qilin/experimental-client-ui-voice-input": "workspace:*"
+    "@qilin-agent/experimental-speech-to-text": "workspace:*",
+    "@qilin-agent/experimental-speech-to-text-sensevoice": "workspace:*",
+    "@qilin-agent/experimental-api-speech-to-text": "workspace:*",
+    "@qilin-agent/experimental-client-ui-voice-input": "workspace:*"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
     "js-yaml": "^4.2.0"
   },
   "qilin": {

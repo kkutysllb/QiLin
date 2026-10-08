@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import type {
   HostObservable, InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime,
-} from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-slots'
 import type { PluginsSettingsLocaleKey } from './locales.ts'
 import css from './PluginsSettingsSection.module.css'
 
@@ -118,7 +118,7 @@ export function PluginsSettingsSection({ t, renderSlot, useTabs }: PluginsSettin
   )
 }
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Built-in plugins section and plugin configuration page copy. */
     'settings.plugins': PluginsSettingsLocaleKey

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
-import { createSnapshotStore } from '@qilin/client-store'
-import type { ClientEntryState } from '@qilin/client-modules/client'
-import { bindSnapshotSelector } from '@qilin/client-test-runtime'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { ClientEntryState } from '@qilin-agent/client-modules/client'
+import { bindSnapshotSelector } from '@qilin-agent/client-test-runtime'
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { PluginInventorySettingsTab } from '../src/client/PluginInventorySettingsTab.tsx'
@@ -38,10 +38,10 @@ const SNAPSHOT = {
   entries: [
     { entryId: 'telemetry', moduleName: '@fixture/telemetry', enabled: true, fiberPhase: 'failed' },
     { entryId: 'timer', moduleName: 'cordis:timer', enabled: true, fiberPhase: 'active' },
-    { entryId: '8a1b2c3d', moduleName: '@qilin/kylin-plugin-hmr', enabled: true, fiberPhase: 'active' },
+    { entryId: '8a1b2c3d', moduleName: '@qilin-agent/kylin-plugin-hmr', enabled: true, fiberPhase: 'active' },
     { entryId: 'unobserved', moduleName: '@fixture/unobserved-name', enabled: true, fiberPhase: null },
-    { entryId: 'bash-host', moduleName: '@qilin/tool-bash', enabled: false, fiberPhase: null },
-    { entryId: 'fs-host', moduleName: '@qilin/tool-fs', enabled: false, fiberPhase: null },
+    { entryId: 'bash-host', moduleName: '@qilin-agent/tool-bash', enabled: false, fiberPhase: null },
+    { entryId: 'fs-host', moduleName: '@qilin-agent/tool-fs', enabled: false, fiberPhase: null },
     { entryId: 'dormant', moduleName: '@fixture/dormant', enabled: false, fiberPhase: null },
   ],
   agentPresets: [
@@ -51,8 +51,8 @@ const SNAPSHOT = {
       name: '标准模式',
       isDefault: true,
       rows: [
-        { entryId: 'bash', moduleName: '@qilin/tool-bash', enabled: true, fiberPhase: 'active' },
-        { entryId: 'fs', moduleName: '@qilin/tool-fs', enabled: true, fiberPhase: null },
+        { entryId: 'bash', moduleName: '@qilin-agent/tool-bash', enabled: true, fiberPhase: 'active' },
+        { entryId: 'fs', moduleName: '@qilin-agent/tool-fs', enabled: true, fiberPhase: null },
         {
           entryId: 'pwsh',
           moduleName: '@fixture/pwsh',
@@ -70,9 +70,9 @@ const SNAPSHOT = {
       trust: 'system',
       isDefault: false,
       rows: [
-        { entryId: 'bash', moduleName: '@qilin/tool-bash', enabled: true, fiberPhase: null },
-        { entryId: 'bash-fork', moduleName: '@qilin/tool-bash', enabled: true, fiberPhase: null },
-        { entryId: 'fs', moduleName: '@qilin/tool-fs', enabled: 'conditional', fiberPhase: null },
+        { entryId: 'bash', moduleName: '@qilin-agent/tool-bash', enabled: true, fiberPhase: null },
+        { entryId: 'bash-fork', moduleName: '@qilin-agent/tool-bash', enabled: true, fiberPhase: null },
+        { entryId: 'fs', moduleName: '@qilin-agent/tool-fs', enabled: 'conditional', fiberPhase: null },
       ],
     },
     { id: 'shattered', trust: 'user', name: '坏预设', isDefault: false, broken: 'the composition file is missing', rows: [] },
@@ -184,8 +184,8 @@ describe('PluginInventorySettingsTab', () => {
         trust: 'user',
         isDefault: true,
         rows: [
-          { entryId: 'tool-subagent-primary', moduleName: '@qilin/tool-subagent', enabled: true, fiberPhase: null },
-          { entryId: longId, moduleName: '@qilin/tool-subagent', enabled: false, fiberPhase: null },
+          { entryId: 'tool-subagent-primary', moduleName: '@qilin-agent/tool-subagent', enabled: true, fiberPhase: null },
+          { entryId: longId, moduleName: '@qilin-agent/tool-subagent', enabled: false, fiberPhase: null },
         ],
       }],
     })
@@ -359,7 +359,7 @@ describe('PluginInventorySettingsTab', () => {
   it('renders a rosterless deployment as one global list, folded until opened', async () => {
     const view = await renderReady({
       entries: [
-        { entryId: 'hmr', moduleName: '@qilin/kylin-plugin-hmr', enabled: true, fiberPhase: 'active' },
+        { entryId: 'hmr', moduleName: '@qilin-agent/kylin-plugin-hmr', enabled: true, fiberPhase: 'active' },
         { entryId: 'off', moduleName: '@fixture/off', enabled: false, fiberPhase: null },
       ],
     } as unknown as Snapshot)

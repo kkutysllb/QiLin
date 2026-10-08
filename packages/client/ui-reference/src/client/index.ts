@@ -9,23 +9,23 @@
  * workspace is not the current one. A session is dated from the Host session
  * list, so the `@` menu and the session list never disagree about its age.
  *
- * @module @qilin/client-ui-reference/client
+ * @module @qilin-agent/client-ui-reference/client
  */
 // Type-only: pulls the generated Remote API and ctx.remote merge through the Client assembly boundary.
-import type {} from '@qilin/api-remotes/client'
+import type {} from '@qilin-agent/api-remotes/client'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-ui-sidebar-right/client'
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { ISessions } from '@qilin/api-session-controller/client'
-import { relativeTime } from '@qilin/client-ui-primitives'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { ISessions } from '@qilin-agent/api-session-controller/client'
+import { relativeTime } from '@qilin-agent/client-ui-primitives'
 import type {
   ClientSessionContext, InputTriggerCrumb, InputTriggerServiceContract, InputTriggerSource,
-} from '@qilin/client-ui-input-trigger/client'
-import { formatFileMention } from '@qilin/file-reference/grammar'
-import type { FileReferenceCandidate } from '@qilin/file-reference/types'
-import type { SessionReferenceMentionCandidate } from '@qilin/session-reference/types'
-import { abbreviateHomePath, fileAddressFor } from '@qilin/util-workspace-path'
+} from '@qilin-agent/client-ui-input-trigger/client'
+import { formatFileMention } from '@qilin-agent/file-reference/grammar'
+import type { FileReferenceCandidate } from '@qilin-agent/file-reference/types'
+import type { SessionReferenceMentionCandidate } from '@qilin-agent/session-reference/types'
+import { abbreviateHomePath, fileAddressFor } from '@qilin-agent/util-workspace-path'
 import { en, NS, zh, type ReferenceKey } from './locales.ts'
 
 /** Required services: the trigger registry, the Remote namespaces, and the copy. */

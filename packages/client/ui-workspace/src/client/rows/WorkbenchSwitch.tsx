@@ -6,8 +6,8 @@
  */
 import type { KeyboardEvent, ReactNode } from 'react'
 import clsx from 'clsx'
-import { IconSparkle16, IconTerminalOutline16 } from '@qilin/client-ui-primitives'
-import type { WorkbenchTag } from '@qilin/client-ui-workbench/client'
+import { IconSparkle16, IconTerminalOutline16 } from '@qilin-agent/client-ui-primitives'
+import type { WorkbenchTag } from '@qilin-agent/client-ui-workbench/client'
 import css from './WorkbenchSwitch.module.css'
 
 /** Constant visual order: coding first (left), general second (right). */

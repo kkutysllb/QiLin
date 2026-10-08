@@ -1,8 +1,8 @@
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { existsSync, writeFileSync } from 'node:fs'
 import { setTimeout } from 'node:timers/promises'
-import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@qilin/llm'
-import { LlmAdapter, ReasoningEffortId } from '@qilin/llm'
+import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@qilin-agent/llm'
+import { LlmAdapter, ReasoningEffortId } from '@qilin-agent/llm'
 
 /**
  * Scripted model for the CHILD runtime: validates either the routed success

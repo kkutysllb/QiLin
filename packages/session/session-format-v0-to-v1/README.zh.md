@@ -3,7 +3,7 @@ description: "冻结的已发布 v0 会话标头、事件与打包行解码器�
 kind: "package-library"
 ---
 
-# @qilin/session-format-v0-to-v1
+# @qilin-agent/session-format-v0-to-v1
 
 [English](README.md) | 中文
 

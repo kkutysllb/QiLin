@@ -1,12 +1,12 @@
 /**
  * Service Definition for the `ctx.shell` capability seam, covering foreground commands and background process
  * handles. Job ids, ownership, polling, and notices belong to
- * `@qilin/jobs`, keeping executors independent of sessions.
- * @module @qilin/shell
+ * `@qilin-agent/jobs`, keeping executors independent of sessions.
+ * @module @qilin-agent/shell
  */
 
-import { Context, Service } from '@qilin/kylin'
-import type { SandboxMode } from '@qilin/sandbox'
+import { Context, Service } from '@qilin-agent/kylin'
+import type { SandboxMode } from '@qilin-agent/sandbox'
 import type { ShellExecRequest, ShellExecSpec, ShellProcess, ShellRunResult } from './types.ts'
 
 /**
@@ -36,7 +36,7 @@ export type {
 export { parseExitStatus } from './render.ts'
 export type { ParsedExitStatus } from './render.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     shell: ShellExecutor
   }

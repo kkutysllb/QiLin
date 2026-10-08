@@ -3,7 +3,7 @@
  * apply exists so the plugin appears in the host cordis.yml / Loader; the
  * browser half ships via exports["./client"], discovered through the
  * package.json qilin.client declaration. The listing and creation primitives it
- * drives live in `@qilin/host-directory-picker-browse`.
+ * drives live in `@qilin-agent/host-directory-picker-browse`.
  */
 
 /** Host plugin body — no host-side behavior for this surface plugin. */

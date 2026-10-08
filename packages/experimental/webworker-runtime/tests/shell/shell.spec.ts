@@ -7,10 +7,10 @@
  * must be the same copy of `src/storage/memory.ts`.
  */
 import { beforeEach, describe, expect, it } from 'vitest'
-import { MemoryVfs } from '@qilin/experimental-webworker-runtime/src/storage/memory.ts'
-import { setActiveVfs } from '@qilin/experimental-webworker-runtime/src/storage/active.ts'
-import { runShellCommand } from '@qilin/experimental-webworker-runtime/src/shell/interpret.ts'
-import type { ShellRunOutcome } from '@qilin/experimental-webworker-runtime/src/shell/types.ts'
+import { MemoryVfs } from '@qilin-agent/experimental-webworker-runtime/src/storage/memory.ts'
+import { setActiveVfs } from '@qilin-agent/experimental-webworker-runtime/src/storage/active.ts'
+import { runShellCommand } from '@qilin-agent/experimental-webworker-runtime/src/shell/interpret.ts'
+import type { ShellRunOutcome } from '@qilin-agent/experimental-webworker-runtime/src/shell/types.ts'
 
 const WORKSPACE = '/qilin/workspace'
 

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { SessionId } from '@qilin/session'
-import { JobId, JobRegistry } from '@qilin/jobs'
+import { Context } from '@qilin-agent/kylin'
+import { SessionId } from '@qilin-agent/session'
+import { JobId, JobRegistry } from '@qilin-agent/jobs'
 import type {
   JobEvent, JobEventFilter, JobEventListener, JobHooks, JobOutputSource, JobOutputRead, JobRead, JobSpec, JobView,
-} from '@qilin/jobs'
+} from '@qilin-agent/jobs'
 
 /** Compile-time probe: does `Shape` carry a `Key` member? */
 type HasKey<Shape, Key extends string> = Key extends keyof Shape ? true : false
@@ -12,7 +12,7 @@ type HasKey<Shape, Key extends string> = Key extends keyof Shape ? true : false
 /**
  * Minimal concrete registry: one canned row. The Service Definition owns the
  * contract only (ids, caller-scoped operations, the event stream); the registry
- * behavior suite lives with `@qilin/jobs-local`.
+ * behavior suite lives with `@qilin-agent/jobs-local`.
  */
 class StubJobRegistry extends JobRegistry {
   readonly subscriptions: { filter: JobEventFilter; listener: JobEventListener }[] = []
@@ -147,6 +147,6 @@ describe('JobRegistry seam', () => {
   it('mounting the abstract seam directly fails loudly at load (stale-composition fence)', async () => {
     const ctx = new Context()
     await expect(ctx.plugin(JobRegistry as typeof StubJobRegistry))
-      .rejects.toThrow(/abstract job registry seam; load an implementation such as @qilin\/jobs-local/)
+      .rejects.toThrow(/abstract job registry seam; load an implementation such as @qilin-agent\/jobs-local/)
   })
 })

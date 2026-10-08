@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { ToolCallId, type ContentBlock } from '@qilin/llm'
-import { SessionId } from '@qilin/session'
+import { ToolCallId, type ContentBlock } from '@qilin-agent/llm'
+import { SessionId } from '@qilin-agent/session'
 import { createSettlementMessage } from '../src/continuation-messages.ts'
 
 const childId = SessionId('settled-child')

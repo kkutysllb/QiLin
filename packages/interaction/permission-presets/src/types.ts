@@ -6,7 +6,7 @@
  * browser half-entry's re-export) for client aggregates — with zero content
  * duplication.
  *
- * @module @qilin/permission-presets/types
+ * @module @qilin-agent/permission-presets/types
  */
 
 /** Presentation for an available preset or the derived `custom` current value. */
@@ -38,7 +38,7 @@ export interface PermissionSelection {
   currentValue: string
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Events {
     /**
      * The selectable process catalog changed. Payload-free by design:
@@ -49,7 +49,7 @@ declare module '@qilin/kylin' {
   }
 }
 
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionMap {
     /**
      * The session's current permission, folded from the three whole-value

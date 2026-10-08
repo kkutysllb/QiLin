@@ -7,7 +7,7 @@
  */
 import { useEffect, useState, type ReactNode } from 'react'
 import type { DocumentPreviewProps } from '../document/contract.ts'
-import type { PropsLocale } from '@qilin/client-ui-slots'
+import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import { hostFileOf } from '../rpc.ts'
 import { previewMediaUrl } from '../media-url.ts'
 import css from './VideoBody.module.css'

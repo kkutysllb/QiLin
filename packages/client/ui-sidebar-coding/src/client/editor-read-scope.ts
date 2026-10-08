@@ -3,7 +3,7 @@
  * the tab lives in.
  *
  * 现场（2026-09-19）：跨工作区预览文件报
- * `path "/Users/…/@qilin/client-ui-sidebar-coding/tests/run-openpath-tests.mjs" is outside workspace`。
+ * `path "/Users/…/@qilin-agent/client-ui-sidebar-coding/tests/run-openpath-tests.mjs" is outside workspace`。
  * 根因：页签落在**当前会话**的状态里（因此用户看得见、报错也看得见），但文件可能
  * 属于**另一个会话的另一个工作区**（分叉会话、side chat，或侧栏当前会话与点击
  * 所在会话不同步）。此时编辑器按"页签所在会话"的 cwd 去读，宿主侧的 containment

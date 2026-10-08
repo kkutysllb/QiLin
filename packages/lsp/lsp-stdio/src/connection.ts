@@ -7,11 +7,11 @@
  * fatal close, and exposes managed-range termination through the handle so the
  * instance owns teardown; platform mechanics live in the subprocess
  * Service Provider.
- * @module @qilin/lsp-stdio/connection
+ * @module @qilin-agent/lsp-stdio/connection
  */
 
 import type { Writable } from 'node:stream'
-import type { SubprocessHandle, SubprocessSpawnSpec } from '@qilin/subprocess'
+import type { SubprocessHandle, SubprocessSpawnSpec } from '@qilin-agent/subprocess'
 import { encodeMessage, MessageDecoder } from './framing.ts'
 
 /** How to launch the server and answer its config requests. */

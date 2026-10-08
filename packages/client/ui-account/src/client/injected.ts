@@ -4,9 +4,9 @@
  * face here keeps `apply` and the specs that drive the real status and
  * sign-out requests on one wiring.
  */
-import type { BoundActions, HostObservable } from '@qilin/client-ui-slots'
-import type { LocaleSnapshot } from '@qilin/client-locale/client'
-import type { ThemeSnapshot } from '@qilin/client-ui-theme/client'
+import type { BoundActions, HostObservable } from '@qilin-agent/client-ui-slots'
+import type { LocaleSnapshot } from '@qilin-agent/client-locale/client'
+import type { ThemeSnapshot } from '@qilin-agent/client-ui-theme/client'
 import { endSession, readAccountStatus } from './account-api.ts'
 import type { AccountMenuInjected } from './AccountMenu.tsx'
 import type { AccountMenuStoreHandle } from './store.ts'

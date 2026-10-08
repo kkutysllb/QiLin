@@ -12,8 +12,8 @@
  * route regardless of what any client disables.
  */
 
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
-import type { SessionId } from '@qilin/session/types'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { ComposerBlock, ComposerBlocks } from '../contract/composer-blocks.ts'
 
 /** The per-session composer-block registry (one instance per plugin fiber). */

@@ -69,30 +69,30 @@ describe('npm resolution benchmark', () => {
       devDependencies: { ignored: '^1.0.0' },
     })
     writeJson(root, 'apps/cli/package.json', {
-      name: '@qilin/cli',
+      name: '@qilin-agent/cli',
       version: '0.1.0',
-      dependencies: { '@qilin/child': 'workspace:^', external: '^2.0.0' },
+      dependencies: { '@qilin-agent/child': 'workspace:^', external: '^2.0.0' },
       devDependencies: { ignored: 'workspace:^' },
     })
     writeJson(root, 'packages/core/child/package.json', {
-      name: '@qilin/child',
+      name: '@qilin-agent/child',
       version: '0.1.0',
     })
 
     const index = buildRegistryIndex(root)
 
     expect(index.get('external')?.get('2.0.0')).toMatchObject({ dependencies: { child: '^1.0.0' } })
-    expect(index.get('@qilin/cli')?.get('0.1.0')).toEqual({
-      name: '@qilin/cli',
+    expect(index.get('@qilin-agent/cli')?.get('0.1.0')).toEqual({
+      name: '@qilin-agent/cli',
       version: '0.1.0',
-      dependencies: { '@qilin/child': '^0.1.0', external: '^2.0.0' },
+      dependencies: { '@qilin-agent/child': '^0.1.0', external: '^2.0.0' },
     })
   })
 
   it('runs npm against the local registry without requesting an archive', async () => {
     const index: RegistryIndex = new Map([[
-      '@qilin/cli',
-      new Map([['0.1.0', { name: '@qilin/cli', version: '0.1.0' }]]),
+      '@qilin-agent/cli',
+      new Map([['0.1.0', { name: '@qilin-agent/cli', version: '0.1.0' }]]),
     ]])
     const result = await benchmarkNpmResolution(index, '0.1.0', 10_000)
 
@@ -104,22 +104,22 @@ describe('npm resolution benchmark', () => {
 
   it('returns npm placement for two aliased package versions without requesting archives', async () => {
     const index: RegistryIndex = new Map([[
-      '@qilin/cli',
+      '@qilin-agent/cli',
       new Map([
-        ['0.1.0', { name: '@qilin/cli', version: '0.1.0' }],
-        ['0.2.0', { name: '@qilin/cli', version: '0.2.0' }],
+        ['0.1.0', { name: '@qilin-agent/cli', version: '0.1.0' }],
+        ['0.2.0', { name: '@qilin-agent/cli', version: '0.2.0' }],
       ]),
     ]])
 
     const result = await resolveNpmPackageLock(index, {
-      '@qilin/cli': '0.2.0',
-      'qilin-previous': 'npm:@qilin/cli@0.1.0',
+      '@qilin-agent/cli': '0.2.0',
+      'qilin-previous': 'npm:@qilin-agent/cli@0.1.0',
     }, 10_000)
 
     expect(result.archiveRequests).toBe(0)
-    expect(result.packageLock.packages['node_modules/@qilin/cli']?.version).toBe('0.2.0')
+    expect(result.packageLock.packages['node_modules/@qilin-agent/cli']?.version).toBe('0.2.0')
     expect(result.packageLock.packages['node_modules/qilin-previous']).toMatchObject({
-      name: '@qilin/cli',
+      name: '@qilin-agent/cli',
       version: '0.1.0',
     })
   })
@@ -139,21 +139,21 @@ describe('npm resolution benchmark', () => {
     process.env.npm_config_omit = 'peer'
     try {
       const index: RegistryIndex = new Map([
-        ['@qilin/cli', new Map([['0.1.0', {
-          name: '@qilin/cli',
+        ['@qilin-agent/cli', new Map([['0.1.0', {
+          name: '@qilin-agent/cli',
           version: '0.1.0',
-          peerDependencies: { '@qilin/peer': '1.0.0' },
+          peerDependencies: { '@qilin-agent/peer': '1.0.0' },
         }]])],
-        ['@qilin/peer', new Map([['1.0.0', {
-          name: '@qilin/peer',
+        ['@qilin-agent/peer', new Map([['1.0.0', {
+          name: '@qilin-agent/peer',
           version: '1.0.0',
         }]])],
       ])
 
-      const result = await resolveNpmPackageLock(index, { '@qilin/cli': '0.1.0' }, 10_000)
+      const result = await resolveNpmPackageLock(index, { '@qilin-agent/cli': '0.1.0' }, 10_000)
 
       expect(result.archiveRequests).toBe(0)
-      expect(result.packageLock.packages['node_modules/@qilin/peer']?.version).toBe('1.0.0')
+      expect(result.packageLock.packages['node_modules/@qilin-agent/peer']?.version).toBe('1.0.0')
     } finally {
       if (previous.userConfig === undefined) delete process.env.npm_config_userconfig
       else process.env.npm_config_userconfig = previous.userConfig

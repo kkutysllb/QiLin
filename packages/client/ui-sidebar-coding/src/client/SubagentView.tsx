@@ -30,7 +30,7 @@ import clsx from 'clsx'
 import {
   IconChevronDownOutline14, IconChevronRightOutline14,
   IconRefreshOutline16, StateDot,
-} from '@qilin/client-ui-primitives'
+} from '@qilin-agent/client-ui-primitives'
 import type {
   Context,
   SidebarSessionList,

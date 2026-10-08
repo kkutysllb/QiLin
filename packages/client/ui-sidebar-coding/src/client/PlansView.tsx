@@ -18,7 +18,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   IconListPenOutline16, IconRightUpOutline16, Input,
-} from '@qilin/client-ui-primitives'
+} from '@qilin-agent/client-ui-primitives'
 import { api, type PlanDoc, type SessionScope } from './api.ts'
 import { relativeTime, t } from './locales.ts'
 import { RefreshButton } from './refresh-button.tsx'

@@ -4,14 +4,14 @@ import {
   SessionFormatUnsupportedMigrationError,
   sessionFormatCount,
   sessionFormatSafeInteger,
-} from '@qilin/session-format'
+} from '@qilin-agent/session-format'
 import type {
   SessionFormatArtifact,
   SessionFormatHeader,
   SessionFormatJsonObject,
   SessionFormatJsonValue,
-} from '@qilin/session-format'
-import { assertReleasedArtifactRelationships } from '@qilin/session-format-v0-to-v1'
+} from '@qilin-agent/session-format'
+import { assertReleasedArtifactRelationships } from '@qilin-agent/session-format-v0-to-v1'
 import { RELEASED_V2_EVENT_DISPOSITIONS } from './dispositions.ts'
 
 const HEADER_REQUIRED = ['version', 'id', 'createdAt', 'isSeeded', 'delegationDepth'] as const

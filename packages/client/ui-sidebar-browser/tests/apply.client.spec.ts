@@ -1,7 +1,7 @@
 /** Browser type, Slot, locale, and HMR disposal through the real registries. */
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { SidebarRightTabRegistry } from '@qilin/client-ui-sidebar-right/src/client/tab-registry.ts'
+import { Context } from '@qilin-agent/kylin'
+import { SidebarRightTabRegistry } from '@qilin-agent/client-ui-sidebar-right/src/client/tab-registry.ts'
 import { BrowserBody } from '../src/client/view/BrowserBody.tsx'
 import { BrowserTitle } from '../src/client/view/BrowserTitle.tsx'
 import type { BrowserInjected } from '../src/client/browser/BrowserController.ts'

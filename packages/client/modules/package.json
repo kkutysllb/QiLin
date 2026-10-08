@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-modules",
+  "name": "@qilin-agent/client-modules",
   "description": "Client module system, dual-face: node half composes the __QILIN_BOOT__ entry graph (incremental qilin.client scan, bundle route, index tap, webPlugins service); browser half is the lazy-CJS module table the vendored cordis Loader consumes as its internal seam",
   "version": "3.1.1",
   "publishConfig": {
@@ -41,14 +41,14 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@qilin/dsh-compat": "workspace:*"
+    "@qilin-agent/dsh-compat": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/host-webserver": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/package-manifest": "workspace:*",
-    "@qilin/client-store": "workspace:*"
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/host-webserver": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/package-manifest": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*"
   },
   "files": [
     "lib/index.js",
@@ -56,6 +56,6 @@
     "lib/types/**/*.d.ts"
   ],
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   }
 }

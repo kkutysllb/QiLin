@@ -1,11 +1,11 @@
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   ConversationMatch, ConversationNodeContext, ConversationNodeDefinition, PreparingToolCall, StartedToolCall,
   ToolCallBlock, ToolResultNode,
-} from '@qilin/client-ui-conversation/client'
-import { isAppendSurfaceEvent } from '@qilin/session/surface'
-import type {} from '@qilin/tools/types'
-import { PartialArguments } from '@qilin/util-values'
+} from '@qilin-agent/client-ui-conversation/client'
+import { isAppendSurfaceEvent } from '@qilin-agent/session/surface'
+import type {} from '@qilin-agent/tools/types'
+import { PartialArguments } from '@qilin-agent/util-values'
 import type { ChatNode, ToolChatData } from '../contract/chat-nodes.ts'
 import { CHAT_SYNTHETIC_SEQ_OFFSETS, chatNode, contextLocation } from './common.ts'
 

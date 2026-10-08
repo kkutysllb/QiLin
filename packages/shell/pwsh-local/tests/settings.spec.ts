@@ -1,13 +1,13 @@
 /** The shared `bash` settings section as the pwsh executor family resolves it. */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import type { Fiber } from '@qilin/kylin'
-import { SettingsProvider } from '@qilin/settings'
-import type { SettingsNamespace } from '@qilin/settings'
-import { SHELL_SETTINGS_NAMESPACE } from '@qilin/shell'
-import LocalSubprocessRuntime from '@qilin/subprocess-local'
-import { PwshLocalExecutor } from '@qilin/pwsh-local'
+import { Context } from '@qilin-agent/kylin'
+import type { Fiber } from '@qilin-agent/kylin'
+import { SettingsProvider } from '@qilin-agent/settings'
+import type { SettingsNamespace } from '@qilin-agent/settings'
+import { SHELL_SETTINGS_NAMESPACE } from '@qilin-agent/shell'
+import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
+import { PwshLocalExecutor } from '@qilin-agent/pwsh-local'
 
 /** The smallest real provider: one in-memory document, always writable. */
 class MemorySettings extends SettingsProvider {

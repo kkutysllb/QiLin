@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/typert-generator",
+  "name": "@qilin-agent/typert-generator",
   "description": "TypeScript project analyzer and model-driven Typert artifact generator",
   "version": "3.1.1",
   "publishConfig": {
@@ -39,12 +39,12 @@
     "typescript": "^6.0.3"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/tool-kylin": "workspace:*",
-    "@qilin/typert-registry": "workspace:*",
-    "@qilin/kylin": "workspace:~",
+    "@qilin-agent/tool-kylin": "workspace:*",
+    "@qilin-agent/typert-registry": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
     "zod": "^4.4.3"
   }
 }

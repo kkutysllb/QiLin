@@ -1,21 +1,21 @@
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'
-import { SessionSeq } from '@qilin/session/types'
-import type { SessionId } from '@qilin/session/types'
-import { createAssistantMessage, LlmAttemptId } from '@qilin/llm'
-import { createSnapshotStore } from '@qilin/client-store'
+import { SessionSeq } from '@qilin-agent/session/types'
+import type { SessionId } from '@qilin-agent/session/types'
+import { createAssistantMessage, LlmAttemptId } from '@qilin-agent/llm'
+import { createSnapshotStore } from '@qilin-agent/client-store'
 import {
   createScope, MutableSessionEventSource,
-} from '@qilin/api-session-controller/client'
+} from '@qilin-agent/api-session-controller/client'
 import type {
   ISessions, SessionBinding, SessionEventLike, SessionFace, SessionListState, SessionSnapshot,
-} from '@qilin/api-session-controller/client'
+} from '@qilin-agent/api-session-controller/client'
 import {
   ConversationEventRegistry, ConversationNodeAssembler, ConversationViewRegistry, UiConversation,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 import type {
   ConversationNodeDefinition, ConversationViewDefinition, ConversationViewNode, InsertTextRequest,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 
 const SESSION_ID = 'resident' as SessionId
 

@@ -1,8 +1,8 @@
 /** Compiled synthetic model for the shipped sdk-minimal profile; tools remain production plugins. */
 
-import type { Context } from '@qilin/kylin'
-import { LlmAdapter, ToolCallId } from '@qilin/llm'
-import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@qilin/llm'
+import type { Context } from '@qilin-agent/kylin'
+import { LlmAdapter, ToolCallId } from '@qilin-agent/llm'
+import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@qilin-agent/llm'
 import { response, WORKLOAD } from './workload.ts'
 
 class ProfileAdapter extends LlmAdapter {

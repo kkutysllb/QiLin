@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/web-fetch-http",
+  "name": "@qilin-agent/web-fetch-http",
   "description": "Anonymous public HTTP(S) fetch provider for the QiLin web capability seam (ctx.web)",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,20 +30,20 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/timeout": "workspace:*",
-    "@qilin/web": "workspace:*",
-    "@qilin/http-proxy": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/timeout": "workspace:*",
+    "@qilin-agent/web": "workspace:*",
+    "@qilin-agent/http-proxy": "workspace:*"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:~",
+    "@qilin-agent/schemastery": "workspace:~",
     "ipaddr.js": "^2.5.0",
     "undici": "^8.10.0"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/timeout": "workspace:*",
-    "@qilin/web": "workspace:*",
-    "@qilin/http-proxy": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/timeout": "workspace:*",
+    "@qilin-agent/web": "workspace:*",
+    "@qilin-agent/http-proxy": "workspace:*"
   }
 }

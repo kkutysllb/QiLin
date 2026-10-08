@@ -14,10 +14,10 @@
  * more than the row it targeted.
  */
 
-import type { Context as ClientContext } from '@qilin/kylin'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
 // Type-only: pulls the ctx.remote merge into this program.
-import type {} from '@qilin/api-remotes/client'
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
+import type {} from '@qilin-agent/api-remotes/client'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
 import { beginRosterRead, writeDefaultPreset, writeModeSelectionEnabled } from './settings-store.ts'
 
 /** Ids a preset directory may be named, mirroring the host's own rule. */

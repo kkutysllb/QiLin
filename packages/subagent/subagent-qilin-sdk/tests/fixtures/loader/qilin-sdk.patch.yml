@@ -27,7 +27,7 @@
       name: './mock-delegating-llm.ts'
 
     - id: subagent-model-selection-settings
-      name: '@qilin/tool-subagent/model-selection-settings'
+      name: '@qilin-agent/tool-subagent/model-selection-settings'
       config:
         enabled: true
         allowedModels:
@@ -45,7 +45,7 @@
 
     # providerName is omitted to exercise the shipped `qilin-sdk` default.
     - id: subagent-qilin-sdk
-      name: '@qilin/subagent-qilin-sdk'
+      name: '@qilin-agent/subagent-qilin-sdk'
       config:
         profile: sdk
         patches: !!js JSON.parse(process.env.QILIN_TEST_CHILD_PATCHES ?? '[]')

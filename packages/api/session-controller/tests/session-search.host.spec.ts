@@ -5,18 +5,18 @@
  */
 
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import AgentRegistry from '@qilin/agent'
-import { createUserMessage } from '@qilin/llm'
-import SessionStore, { SESSION_FORMAT_VERSION, SessionSeq } from '@qilin/session'
-import type { SessionHeader, SessionId } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
+import { Context } from '@qilin-agent/kylin'
+import AgentRegistry from '@qilin-agent/agent'
+import { createUserMessage } from '@qilin-agent/llm'
+import SessionStore, { SESSION_FORMAT_VERSION, SessionSeq } from '@qilin-agent/session'
+import type { SessionHeader, SessionId } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import {
   SessionQueryEngine,
   SessionQueryError,
   type SessionSearchHit,
   type SessionSearchRequest,
-} from '@qilin/session-query'
+} from '@qilin-agent/session-query'
 import { createSessionTestRemote, testSessionPersistence } from './test-remote.ts'
 import { ApiSessionList } from '../src/list.ts'
 

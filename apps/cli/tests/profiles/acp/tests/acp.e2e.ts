@@ -8,7 +8,7 @@ import {
   launchAcpTestAgent,
   type AgentUnderTest,
   type LaunchedAcpTestAgent,
-} from '@qilin/session-snapshot'
+} from '@qilin-agent/session-snapshot'
 import { cleanupAcpExampleTest } from './cleanup.ts'
 
 /**

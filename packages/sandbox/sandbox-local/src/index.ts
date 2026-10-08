@@ -17,7 +17,7 @@
  * stops managing DACLs itself. The rung reports partial enforcement because
  * WRITE_RESTRICTED must retain Everyone in its
  * restricting list and NTFS hard links alias one file object across paths.
- * @module @qilin/sandbox-local
+ * @module @qilin-agent/sandbox-local
  */
 
 import { spawnSync } from 'node:child_process'
@@ -30,14 +30,14 @@ import {
   LAUNCHER_FAILURE_EXIT,
   launcherPath as landlockLauncherPath,
   probe as defaultProbeLandlock,
-} from '@qilin/node-addon-system/landlock-run'
-import { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { SandboxProvider, SandboxUnavailableError, canonicalPath } from '@qilin/sandbox'
-import type { ConfinedArgv, ConfinedSandboxMode, RunnerFailureRule, SandboxEnforcement, SandboxPolicy } from '@qilin/sandbox'
-import type { SessionId } from '@qilin/session'
-import { AclWriteGrant, assertTempRootOutsideWorkspace, registerAclDiagnosisSkill, tempWriteSid, workspaceWriteSid } from '@qilin/sandbox-windows-acl'
-import { assertNever } from '@qilin/util-values'
+} from '@qilin-agent/node-addon-system/landlock-run'
+import { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { SandboxProvider, SandboxUnavailableError, canonicalPath } from '@qilin-agent/sandbox'
+import type { ConfinedArgv, ConfinedSandboxMode, RunnerFailureRule, SandboxEnforcement, SandboxPolicy } from '@qilin-agent/sandbox'
+import type { SessionId } from '@qilin-agent/session'
+import { AclWriteGrant, assertTempRootOutsideWorkspace, registerAclDiagnosisSkill, tempWriteSid, workspaceWriteSid } from '@qilin-agent/sandbox-windows-acl'
+import { assertNever } from '@qilin-agent/util-values'
 import { bwrapProfileArgs, landlockProfileArgs, seatbeltProfileArgs } from './profiles.ts'
 
 /** Plugin config. All optional — `static Config` supplies the defaults. */
@@ -159,7 +159,7 @@ interface AclTempCapability {
 const PLATFORM_CHAINS: Record<string, readonly SelectedRunner['runner'][]> = {
   linux: ['bwrap', 'landlock'],
   darwin: ['seatbelt'],
-  // The Windows restricted-token runner (@qilin/sandbox-windows-acl):
+  // The Windows restricted-token runner (@qilin-agent/sandbox-windows-acl):
   // a sole candidate, selected without a probe — its execution-time refusal
   // fails closed through its stderr signature (windows-acl-run:) and exit 127.
   win32: ['windows-acl'],
@@ -568,9 +568,9 @@ export class LocalSandboxProvider extends SandboxProvider {
   private windowsAclRunnerInvocation(): string[] {
     const override = this.internals.windowsAclRunnerArgs
     if (override !== undefined) return override
-    const builtEntry = this.internals.windowsAclRunnerEntry ?? fileURLToPath(import.meta.resolve('@qilin/sandbox-windows-acl/runner'))
+    const builtEntry = this.internals.windowsAclRunnerEntry ?? fileURLToPath(import.meta.resolve('@qilin-agent/sandbox-windows-acl/runner'))
     if (existsSync(builtEntry)) return [process.execPath, builtEntry]
-    const sourceEntry = fileURLToPath(import.meta.resolve('@qilin/sandbox-windows-acl/src/runner.ts'))
+    const sourceEntry = fileURLToPath(import.meta.resolve('@qilin-agent/sandbox-windows-acl/src/runner.ts'))
     const sourceConfig = fileURLToPath(new URL('../../../../tsconfig.base.json', import.meta.url))
     const registration = `import { register } from ${JSON.stringify(import.meta.resolve('tsx/esm/api'))}; register({ tsconfig: ${JSON.stringify(sourceConfig)} });`
     return [process.execPath, '--import', `data:text/javascript,${encodeURIComponent(registration)}`, sourceEntry]

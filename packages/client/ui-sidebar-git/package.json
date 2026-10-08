@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-ui-sidebar-git",
+  "name": "@qilin-agent/client-ui-sidebar-git",
   "description": "Source-control tab type for the right Sidebar: repository status, staging, commits, branches, and push/pull over the workspaceGit Remote namespace",
   "version": "3.1.1",
   "publishConfig": {
@@ -31,8 +31,8 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/client-ui-sidebar-right",
-        "@qilin/api-remotes"
+        "@qilin-agent/client-ui-sidebar-right",
+        "@qilin-agent/api-remotes"
       ],
       "platform": "web"
     }
@@ -43,22 +43,22 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/api-remotes": "workspace:*",
-    "@qilin/api-workspace-git": "workspace:*",
-    "@qilin/client-locale": "workspace:*",
-    "@qilin/client-store": "workspace:*",
-    "@qilin/client-test-runtime": "workspace:*",
-    "@qilin/client-ui-dockkit": "workspace:*",
-    "@qilin/client-ui-primitives": "workspace:*",
-    "@qilin/client-ui-renderer": "workspace:*",
-    "@qilin/client-ui-session": "workspace:*",
-    "@qilin/client-ui-sidebar-right": "workspace:*",
-    "@qilin/client-ui-slots": "workspace:*",
-    "@qilin/session": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/api-remotes": "workspace:*",
+    "@qilin-agent/api-workspace-git": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-dockkit": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-session": "workspace:*",
+    "@qilin-agent/client-ui-sidebar-right": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
     "@testing-library/react": "^16.1.0",
     "@types/react": "~18.3.1",
     "@types/react-dom": "~18.3.0",

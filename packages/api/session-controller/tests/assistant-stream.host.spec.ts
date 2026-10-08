@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { LlmAttemptId } from '@qilin/llm'
-import { SessionSeq } from '@qilin/session'
+import { LlmAttemptId } from '@qilin-agent/llm'
+import { SessionSeq } from '@qilin-agent/session'
 import { SessionAssistantStreamAccumulator } from '../src/assistant-stream.ts'
 
 describe('SessionAssistantStreamAccumulator', () => {

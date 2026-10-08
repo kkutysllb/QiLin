@@ -2,13 +2,13 @@
  * Perplexity-backed `WebSearchProvider` plugin. It contributes to the
  * `ctx.web` registry without owning the service.
  *
- * @module @qilin/web-search-perplexity
+ * @module @qilin-agent/web-search-perplexity
  */
 
-import type { Context } from '@qilin/kylin'
-import { launchEnvironmentOf } from '@qilin/launch-environment'
-import z from '@qilin/schemastery'
-import type {} from '@qilin/web'
+import type { Context } from '@qilin-agent/kylin'
+import { launchEnvironmentOf } from '@qilin-agent/launch-environment'
+import z from '@qilin-agent/schemastery'
+import type {} from '@qilin-agent/web'
 import { PerplexitySearchProvider, PERPLEXITY_DEFAULT_BASE_URL, PERPLEXITY_DEFAULT_MAX_TOKENS, PERPLEXITY_DEFAULT_MODEL } from './provider.ts'
 
 export {

@@ -6,12 +6,12 @@
  * `SANDBOX_UNAVAILABLE`, while background processes carry `runnerFailed`;
  * other provider rejections retain stage-neutral local-executor semantics. The
  * tool owns approval and passes a complete per-call policy.
- * @module @qilin/bash-sandbox
+ * @module @qilin-agent/bash-sandbox
  */
 
-import { Context } from '@qilin/kylin'
-import type { ShellExecRequest, ShellExecSpec, ShellProcess, ShellRunResult } from '@qilin/shell'
-import { SandboxUnavailableError } from '@qilin/sandbox'
+import { Context } from '@qilin-agent/kylin'
+import type { ShellExecRequest, ShellExecSpec, ShellProcess, ShellRunResult } from '@qilin-agent/shell'
+import { SandboxUnavailableError } from '@qilin-agent/sandbox'
 import type {
   ConfinedArgv,
   ConfinedSandboxMode,
@@ -20,16 +20,16 @@ import type {
   SandboxExecutionPolicy,
   SandboxMode,
   SandboxPolicy,
-} from '@qilin/sandbox'
-import type {} from '@qilin/sandbox-policy'
-import { LocalBashExecutor } from '@qilin/bash-local'
-import type { Config as LocalConfig } from '@qilin/bash-local'
+} from '@qilin-agent/sandbox'
+import type {} from '@qilin-agent/sandbox-policy'
+import { LocalBashExecutor } from '@qilin-agent/bash-local'
+import type { Config as LocalConfig } from '@qilin-agent/bash-local'
 import { classifyDenial, classifyRunnerFailure, isRunnerSpawnFailure, matchesSignature } from './helpers.ts'
 
 /**
  * Plugin config: the local executor's knobs, verbatim. The sandbox policy —
  * the default mode and fallback `workspace-write` root — is NOT here: it lives
- * on `ctx.sandboxPolicy` (`@qilin/sandbox-policy`), which resolves
+ * on `ctx.sandboxPolicy` (`@qilin-agent/sandbox-policy`), which resolves
  * each calling session's mode and cwd for every enforcing capability. The runner
  * choice is likewise the `ctx.sandbox` provider's config, not this executor's.
  */

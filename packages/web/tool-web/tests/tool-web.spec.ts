@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createScope, type Scope } from '@qilin/scope'
+import { Context } from '@qilin-agent/kylin'
+import { createScope, type Scope } from '@qilin-agent/scope'
 import TurndownService from 'turndown'
-import { ToolCallId } from '@qilin/llm'
-import SystemPrompt, { renderPrompt } from '@qilin/system-prompt'
-import ToolRuntime, { type ToolExecutionResult } from '@qilin/tools'
-import WebRuntime from '@qilin/web'
-import type { WebSearchProvider, WebSearchResult } from '@qilin/web'
-import * as ToolWeb from '@qilin/tool-web'
+import { ToolCallId } from '@qilin-agent/llm'
+import SystemPrompt, { renderPrompt } from '@qilin-agent/system-prompt'
+import ToolRuntime, { type ToolExecutionResult } from '@qilin-agent/tools'
+import WebRuntime from '@qilin-agent/web'
+import type { WebSearchProvider, WebSearchResult } from '@qilin-agent/web'
+import * as ToolWeb from '@qilin-agent/tool-web'
 import {
   formatSearchOutput,
   formatFetchOutput,
@@ -22,9 +22,9 @@ import {
   fetchMetaFromResult,
   WEB_SEARCH_MAX_QUERIES,
   WEB_SEARCH_MAX_RESULTS,
-} from '@qilin/tool-web'
-import type { ContentBlock } from '@qilin/llm'
-import type { ToolResult } from '@qilin/tools'
+} from '@qilin-agent/tool-web'
+import type { ContentBlock } from '@qilin-agent/llm'
+import type { ToolResult } from '@qilin-agent/tools'
 import { parseSearchArgs } from '../src/search.ts'
 
 const testToolSignal = new AbortController().signal
@@ -40,7 +40,7 @@ async function mountTools(opts: {
   config?: ToolWeb.Config
   webConfig?: ConstructorParameters<typeof WebRuntime>[1]
   search?: WebSearchProvider
-  fetchProvider?: import('@qilin/web').WebFetchProvider
+  fetchProvider?: import('@qilin-agent/web').WebFetchProvider
 } = {}): Promise<{ ctx: Context; fiber: Awaited<ReturnType<Context['plugin']>>; call: (name: string, args: unknown) => Promise<ToolExecutionResult> }> {
   const ctx = new Context()
   await ctx.plugin(SystemPrompt)

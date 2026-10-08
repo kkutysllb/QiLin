@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
-import type { Context } from '@qilin/kylin'
-import type { GenerateOptions } from '@qilin/llm'
-import type {} from '@qilin/system-prompt'
+import type { Context } from '@qilin-agent/kylin'
+import type { GenerateOptions } from '@qilin-agent/llm'
+import type {} from '@qilin-agent/system-prompt'
 import { apply as registerDynamicTools } from './dynamic-tool-updates.ts'
 
 export const name = 'snapshot-dynamic-tool-prompt-updates'

@@ -4,16 +4,16 @@
  * instance owns one `(provider id, canonical workspace)` process. Queries serialize through a single
  * queue so a cancellation that fails to stop the server can terminate it without killing unrelated
  * work; distinct instances run in parallel.
- * @module @qilin/lsp-stdio/instance
+ * @module @qilin-agent/lsp-stdio/instance
  */
 
-import { LspError } from '@qilin/lsp'
+import { LspError } from '@qilin-agent/lsp'
 import type {
   LspOperation,
   LspProviderQuery,
   LspQueryResult,
-} from '@qilin/lsp'
-import { deadline } from '@qilin/timeout'
+} from '@qilin-agent/lsp'
+import { deadline } from '@qilin-agent/timeout'
 import { abortable, abortError } from './abort.ts'
 import { LspConnection } from './connection.ts'
 import type { ConnectionSpawner, ConnectionSpec, ConnectionWriter } from './connection.ts'

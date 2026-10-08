@@ -20,19 +20,19 @@
  * guide registers through those stages unmodified, exactly as a type shipped
  * from another package does — `ui-sidebar-documentpreview` is the live proof.
  */
-import type {} from '@qilin/client-shortcuts/client'
+import type {} from '@qilin-agent/client-shortcuts/client'
 import { observeSidebarFocus } from './focus.ts'
 import { registerSidebarShortcuts } from './shortcuts.ts'
-import type { Context as ClientContext } from '@qilin/kylin'
-import type {} from '@qilin/client-resources/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-session/client'
-import type { ILayout } from '@qilin/client-ui-layout/client'
-import type {} from '@qilin/client-ui-layout/client'
-import type {} from '@qilin/client-ui-conversation/client'
-import type { SessionId } from '@qilin/session/types'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/client-resources/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-session/client'
+import type { ILayout } from '@qilin-agent/client-ui-layout/client'
+import type {} from '@qilin-agent/client-ui-layout/client'
+import type {} from '@qilin-agent/client-ui-conversation/client'
+import type { SessionId } from '@qilin-agent/session/types'
 // Type-only: the workbench tag owner this package switches the content body on (D5).
-import type { Workbench } from '@qilin/client-ui-workbench/client'
+import type { Workbench } from '@qilin-agent/client-ui-workbench/client'
 import type {} from './contract/slots.ts'
 import { GuideBody, type GuideInjected } from './tabs/guide/GuideBody.tsx'
 import { GuideTitle } from './tabs/guide/GuideTitle.tsx'
@@ -47,7 +47,7 @@ import { createSidebarRightStore } from './stores.ts'
 import { en, zh } from './locales.ts'
 import { GUIDE_ID, guideDefinition } from './tabs/guide/definition.ts'
 import { guideTabInfoFactory, tabInfoFactory } from './tab-info.ts'
-import type { TabId } from '@qilin/client-ui-dockkit'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
 import { defaultSeed } from './contract/seed.ts'
 
 export type { SidebarRightTarget } from './focus.ts'
@@ -73,7 +73,7 @@ export type {
   SidebarRightTabParams, SidebarRightTabParamsFor, SidebarRightTabParamsMap,
 } from './contract/params.ts'
 // The layout ids and rectangle the navigation face takes, so a caller needs no import from the kit.
-export type { FloatRect, PaneId, TabId, TabRecord } from '@qilin/client-ui-dockkit'
+export type { FloatRect, PaneId, TabId, TabRecord } from '@qilin-agent/client-ui-dockkit'
 export type { PinResource, SidebarRightNavigator, TabOccurrence, SidebarRightOccurrenceId } from './tab-domain.ts'
 export type { SidebarRightKey } from './locales.ts'
 export type { OpenContentIntent } from './stores.ts'
@@ -86,7 +86,7 @@ const NS = 'sidebarRight'
  *  model, and the workbench tag the content body switches on. */
 export const inject = ['slots', 'layout', 'locale', 'resources', 'sessions', 'uiSession', 'shortcuts', 'workbench']
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Right-Sidebar navigation and presentation face. */
     sidebarRight: SidebarRightController

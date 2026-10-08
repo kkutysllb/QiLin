@@ -3,11 +3,11 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import type { SessionSnapshot } from '@qilin/api-session-controller/client'
-import type { ScheduleRecord } from '@qilin/schedule/client'
-import { ScheduleId } from '@qilin/schedule'
-import type { SessionId } from '@qilin/session/types'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import type { SessionSnapshot } from '@qilin-agent/api-session-controller/client'
+import type { ScheduleRecord } from '@qilin-agent/schedule/client'
+import { ScheduleId } from '@qilin-agent/schedule'
+import type { SessionId } from '@qilin-agent/session/types'
 import {
   formatScheduleAbsolute,
   formatScheduleFrequency,

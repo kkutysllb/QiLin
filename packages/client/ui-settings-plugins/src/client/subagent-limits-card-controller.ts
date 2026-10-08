@@ -1,7 +1,7 @@
 /** Staged delegation limits backed by the Host's subagent settings section. */
 
-import type { SnapshotStore } from '@qilin/client-store'
-import type { ConfigForm } from '@qilin/client-ui-settings/client'
+import type { SnapshotStore } from '@qilin-agent/client-store'
+import type { ConfigForm } from '@qilin-agent/client-ui-settings/client'
 import { CardForm, numberField, type CardActions, type CardFieldSpec, type CardFieldState, type CardShell } from './card-form.ts'
 
 /** Host-owned delegation defaults and live capacity. */

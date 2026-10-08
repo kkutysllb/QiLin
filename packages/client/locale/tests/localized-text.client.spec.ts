@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { LocaleRuntime } from '@qilin/client-locale/client'
+import { Context } from '@qilin-agent/kylin'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
 
 function make(): { ctx: Context; locale: LocaleRuntime } {
   const ctx = new Context()

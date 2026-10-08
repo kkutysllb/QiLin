@@ -1,17 +1,17 @@
 /** Authorized Host PDFs remain binary through Client reuse and disposal. */
-import type { OfficeToPdfGeneration } from '@qilin/office-to-pdf/types'
-import { Context } from '@qilin/kylin'
+import type { OfficeToPdfGeneration } from '@qilin-agent/office-to-pdf/types'
+import { Context } from '@qilin-agent/kylin'
 import { expect, it, vi } from 'vitest'
-import type { SessionId } from '@qilin/session/types'
-import type { ClientRemote } from '@qilin/api-remotes/client'
-import type {} from '@qilin/office-to-pdf/remote'
-import { makeTranslate, RemoteError } from '@qilin/client-test-runtime'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { ClientRemote } from '@qilin-agent/api-remotes/client'
+import type {} from '@qilin-agent/office-to-pdf/remote'
+import { makeTranslate, RemoteError } from '@qilin-agent/client-test-runtime'
 import { DocumentPreviewRegistry } from '../src/client/document/registry.ts'
 import { apply } from '../src/client/office/index.ts'
 import { Config } from '../src/config.ts'
 import { OfficeBody, type OfficeBodyInjected } from '../src/client/office/OfficeBody.tsx'
 import type { OfficeStore } from '../src/client/office/store.ts'
-import type { TabId } from '@qilin/client-ui-dockkit'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
 import { en, zh } from '../src/client/office/locales.ts'
 import { en as documentEn } from '../src/client/locales.ts'
 
@@ -98,7 +98,7 @@ it.each(['remote', 'render', 'files'] as const)('keeps Word and PowerPoint regis
   expect(h.registry.getSnapshot()).toEqual([])
   expect(h.removeLocale).toHaveBeenCalledOnce()
   expect(h.register).toHaveBeenCalledWith(expect.objectContaining({
-    name: 'sidebar.right.tab.document', key: '@qilin/client-ui-sidebar-documentpreview/office', locale: 'sidebarOffice',
+    name: 'sidebar.right.tab.document', key: '@qilin-agent/client-ui-sidebar-documentpreview/office', locale: 'sidebarOffice',
   }), OfficeBody)
   expect(h.removeNotice).toHaveBeenCalledTimes(2)
 })

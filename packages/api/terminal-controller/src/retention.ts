@@ -1,6 +1,6 @@
 /** Window holds and conservative idle reclamation for one terminal owner. */
-import { RemoteError } from '@qilin/typert-protocol'
-import type { SubprocessTerminalActivity } from '@qilin/subprocess'
+import { RemoteError } from '@qilin-agent/typert-protocol'
+import type { SubprocessTerminalActivity } from '@qilin-agent/subprocess'
 import type { TerminalRetentionFrame } from './types.ts'
 
 /** Validated Host timing policy for unattended terminal cleanup. */

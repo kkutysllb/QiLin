@@ -1,11 +1,11 @@
 import { existsSync } from 'node:fs'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { afterEach, expect, it, vi } from 'vitest'
-import { mountSessionMcp } from '@qilin/experimental-browser-use-runtime/mcp'
+import { mountSessionMcp } from '@qilin-agent/experimental-browser-use-runtime/mcp'
 import * as Provider from '../src/index.ts'
 
-vi.mock('@qilin/experimental-browser-use-runtime/mcp', async importOriginal => ({
-  ...await importOriginal<typeof import('@qilin/experimental-browser-use-runtime/mcp')>(),
+vi.mock('@qilin-agent/experimental-browser-use-runtime/mcp', async importOriginal => ({
+  ...await importOriginal<typeof import('@qilin-agent/experimental-browser-use-runtime/mcp')>(),
   mountSessionMcp: vi.fn(),
 }))
 afterEach(() => {

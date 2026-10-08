@@ -1,18 +1,18 @@
 /**
  * Workflow orchestration through the shared sandboxed Node PTC executor.
  * The VM supplies script helpers; the process applies the calling Session's file policy.
- * @module @qilin/workflow-ptc
+ * @module @qilin-agent/workflow-ptc
  */
 
 import { randomUUID } from 'node:crypto'
 import { availableParallelism } from 'node:os'
 import * as vm from 'node:vm'
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/ptc-runtime'
-import type {} from '@qilin/sandbox-policy'
-import z from '@qilin/schemastery'
-import WorkflowEngine, { WorkflowError, WorkflowRunId } from '@qilin/workflow'
-import type { WorkflowRun, WorkflowRunInfo, WorkflowStartRequest } from '@qilin/workflow'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/ptc-runtime'
+import type {} from '@qilin-agent/sandbox-policy'
+import z from '@qilin-agent/schemastery'
+import WorkflowEngine, { WorkflowError, WorkflowRunId } from '@qilin-agent/workflow'
+import type { WorkflowRun, WorkflowRunInfo, WorkflowStartRequest } from '@qilin-agent/workflow'
 import { PtcWorkflowRun } from './host.ts'
 import { validateMeta } from './meta.ts'
 import type { WorkerInit, WorkerLimits } from './types.ts'

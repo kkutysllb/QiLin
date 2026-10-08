@@ -27,7 +27,7 @@
  *   web bodies). `head` / `tail` / `headTail`, preserving UTF-8 boundaries at
  *   {@link TextRetainer.finish}.
  *
- * @module @qilin/output-retention
+ * @module @qilin-agent/output-retention
  */
 
 /**

@@ -1,9 +1,9 @@
 /** General Settings control for shared coding-tool visibility and previews. */
 
 import { useState } from 'react'
-import { Switch } from '@qilin/client-ui-primitives'
-import type { ObservableSnapshot } from '@qilin/client-store'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
+import { Switch } from '@qilin-agent/client-ui-primitives'
+import type { ObservableSnapshot } from '@qilin-agent/client-store'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import css from './DeveloperToolsRow.module.css'
 
 /** Accepted setting and ordered mutation supplied by the settings owner. */

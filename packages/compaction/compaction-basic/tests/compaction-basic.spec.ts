@@ -1,20 +1,20 @@
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { AttachmentId } from '@qilin/attachment'
-import BasicCompactionEngine from '@qilin/compaction-basic'
-import type { BasicCompactionConfig } from '@qilin/compaction-basic'
-import { selectCompactableRange } from '@qilin/compaction-basic/src/region.ts'
-import { frameSummary } from '@qilin/compaction-basic/src/summarizer.ts'
-import type { SummarizationInput, SummaryResult } from '@qilin/compaction-basic/src/summarizer.ts'
-import { CompactionId, toolPairingBalancedAfter, toolPairingBalancedBefore } from '@qilin/compaction'
+import { Context } from '@qilin-agent/kylin'
+import { AttachmentId } from '@qilin-agent/attachment'
+import BasicCompactionEngine from '@qilin-agent/compaction-basic'
+import type { BasicCompactionConfig } from '@qilin-agent/compaction-basic'
+import { selectCompactableRange } from '@qilin-agent/compaction-basic/src/region.ts'
+import { frameSummary } from '@qilin-agent/compaction-basic/src/summarizer.ts'
+import type { SummarizationInput, SummaryResult } from '@qilin-agent/compaction-basic/src/summarizer.ts'
+import { CompactionId, toolPairingBalancedAfter, toolPairingBalancedBefore } from '@qilin-agent/compaction'
 import {
   resolveCompactSpec,
   resolveConfig,
   resolveTargetPolicy,
-} from '@qilin/compaction-basic/src/config.ts'
-import type { CompactionResult } from '@qilin/compaction'
-import LlmRuntime, { createUserMessage, ToolCallId, CONTEXT_WINDOW_EXCEEDED_CODE, createSystemMessage, createToolResultMessage, LlmAdapter , createMessage } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
+} from '@qilin-agent/compaction-basic/src/config.ts'
+import type { CompactionResult } from '@qilin-agent/compaction'
+import LlmRuntime, { createUserMessage, ToolCallId, CONTEXT_WINDOW_EXCEEDED_CODE, createSystemMessage, createToolResultMessage, LlmAdapter , createMessage } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
 import type {
   ContentBlock,
   GenerateOptions,
@@ -23,14 +23,14 @@ import type {
   Message,
   StreamChunk,
   TokenUsage,
-} from '@qilin/llm'
-import SessionStore, { Session, SessionId, SessionSeq } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import TokenMeter from '@qilin/token-meter'
-import { agentEvents, type Agent, type RequestErrorAction } from '@qilin/agent'
-import ToolResultPruner from '@qilin/compaction-tool-result-pruner'
+} from '@qilin-agent/llm'
+import SessionStore, { Session, SessionId, SessionSeq } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import TokenMeter from '@qilin-agent/token-meter'
+import { agentEvents, type Agent, type RequestErrorAction } from '@qilin-agent/agent'
+import ToolResultPruner from '@qilin-agent/compaction-tool-result-pruner'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

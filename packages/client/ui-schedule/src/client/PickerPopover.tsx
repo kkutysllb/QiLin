@@ -3,7 +3,7 @@ import { useRef } from 'react'
 import type { CSSProperties, ReactNode, RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import clsx from 'clsx'
-import { useAnchoredPosition, useDismissOnOutsidePointer } from '@qilin/client-ui-primitives'
+import { useAnchoredPosition, useDismissOnOutsidePointer } from '@qilin-agent/client-ui-primitives'
 import css from './PickerPopover.module.css'
 
 /** Unplaced portal frame: laid out at the viewport origin but unpainted until measured. */

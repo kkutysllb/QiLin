@@ -6,12 +6,12 @@
 
 import { memo, useMemo, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { IconDatabaseOutline16, IconGaugeOutline16 } from '@qilin/client-ui-primitives'
-import type { UseProjection } from '@qilin/api-session-controller/client'
-import type { InjectFace, SnapshotSelectorHook } from '@qilin/client-ui-slots'
+import { IconDatabaseOutline16, IconGaugeOutline16 } from '@qilin-agent/client-ui-primitives'
+import type { UseProjection } from '@qilin-agent/api-session-controller/client'
+import type { InjectFace, SnapshotSelectorHook } from '@qilin-agent/client-ui-slots'
 // Type-only: merges the sessionStats key into SessionProjectionMap for useProjection.
-import type {} from '@qilin/session-stats/client'
-import type { TokenUsageProjection } from '@qilin/token-meter/client'
+import type {} from '@qilin-agent/session-stats/client'
+import type { TokenUsageProjection } from '@qilin-agent/token-meter/client'
 import type { ChatViewSlotProps, PerformanceUsageInjected } from '../contract/slots.ts'
 import type { ChatSnapshot } from '../contract/snapshot.ts'
 import { formatTokensPerSecond } from './message-chrome.ts'

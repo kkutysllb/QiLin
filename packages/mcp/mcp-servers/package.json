@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/mcp-servers",
+  "name": "@qilin-agent/mcp-servers",
   "description": "MCP server settings repository: CRUD over the mcp-client entries of the user patch layer",
   "version": "3.1.1",
   "publishConfig": {
@@ -47,20 +47,20 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@qilin/atomic-write": "workspace:*",
-    "@qilin/home-paths": "workspace:*",
+    "@qilin-agent/atomic-write": "workspace:*",
+    "@qilin-agent/home-paths": "workspace:*",
     "yaml": "^2.9.0",
     "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "@qilin/subprocess": "workspace:*",
-    "@qilin/typert-protocol": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/subprocess": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/subprocess": "workspace:*",
-    "@qilin/subprocess-local": "workspace:*",
-    "@qilin/typert-protocol": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/subprocess": "workspace:*",
+    "@qilin-agent/subprocess-local": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   }
 }

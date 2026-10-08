@@ -1,6 +1,6 @@
 /** The configured model catalog is independent of request credentials. */
-import { Context } from '@qilin/kylin'
-import LlmRuntime from '@qilin/llm'
+import { Context } from '@qilin-agent/kylin'
+import LlmRuntime from '@qilin-agent/llm'
 import { expect, it, vi } from 'vitest'
 import * as ApiKey from '../src/index.ts'
 

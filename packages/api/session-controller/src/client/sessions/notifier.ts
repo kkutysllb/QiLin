@@ -1,4 +1,4 @@
-import { notifySubscribers } from '@qilin/client-store'
+import { notifySubscribers } from '@qilin-agent/client-store'
 
 /**
  * Batches structural updates in microtasks and stream updates by animation

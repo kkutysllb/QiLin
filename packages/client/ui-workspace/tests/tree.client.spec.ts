@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import type { SessionListState, SessionSummary } from '@qilin/api-session-controller/client'
-import type { WorkspaceId, WorkspaceView } from '@qilin/api-workspace-controller/client'
+import type { SessionListState, SessionSummary } from '@qilin-agent/api-session-controller/client'
+import type { WorkspaceId, WorkspaceView } from '@qilin-agent/api-workspace-controller/client'
 import type {
   SessionPendingInteraction, SessionStatus, SessionStatusSnapshot,
-} from '@qilin/client-ui-session/client'
-import type { SessionId } from '@qilin/session/types'
+} from '@qilin-agent/client-ui-session/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import {
   deriveFlat, deriveGroups, deriveSearchResults, orderByRecency, owningGroupKey, owningParentFolder,
   pinCurrentBlank, reconcileManualOrder, sessionMemberIds, visibleSessionIds, workspaceLabel, UNGROUPED_KEY,

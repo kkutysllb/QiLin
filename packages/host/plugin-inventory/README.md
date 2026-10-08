@@ -3,7 +3,7 @@ description: "Read-only projection of the current Kylin Loader plugin state with
 kind: "package-reference"
 ---
 
-# @qilin/host-plugin-inventory
+# @qilin-agent/host-plugin-inventory
 
 English | [中文](README.zh.md)
 

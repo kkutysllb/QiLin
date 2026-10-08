@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
 import { mountClient } from '../src/mount.ts'
 

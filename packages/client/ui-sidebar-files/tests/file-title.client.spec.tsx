@@ -2,7 +2,7 @@
 /** The chip title: the open file's type sheet before its basename. */
 import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup, render } from '@testing-library/react'
-import type { PropsRuntime } from '@qilin/client-ui-slots'
+import type { PropsRuntime } from '@qilin-agent/client-ui-slots'
 import { FileTitle } from '../src/client/FileTitle.tsx'
 
 afterEach(cleanup)

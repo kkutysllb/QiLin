@@ -3,7 +3,7 @@ description: "The LSP capability seam (ctx.lsp): provider selection by file exte
 kind: "package-reference"
 ---
 
-# @qilin/lsp
+# @qilin-agent/lsp
 
 English | [中文](README.zh.md)
 
@@ -36,11 +36,11 @@ Choose this service when a deployment wants model-visible code navigation backed
 The seam needs a provider and a consumer to do anything. A minimal composition mounts the service, a stdio provider, and the tool:
 
 ```yaml
-- name: '@qilin/fs-local'
-- name: '@qilin/subprocess-local'
-- name: '@qilin/lsp'
-- name: '@qilin/lsp-stdio'
-- name: '@qilin/tool-lsp'
+- name: '@qilin-agent/fs-local'
+- name: '@qilin-agent/subprocess-local'
+- name: '@qilin-agent/lsp'
+- name: '@qilin-agent/lsp-stdio'
+- name: '@qilin-agent/tool-lsp'
 ```
 
 Server commands, extension mappings, and the filesystem/subprocess pairing are configured in the provider and tool packages; see [qilin-lsp-stdio](../lsp-stdio/README.md) and [qilin-tool-lsp](../tool-lsp/README.md).

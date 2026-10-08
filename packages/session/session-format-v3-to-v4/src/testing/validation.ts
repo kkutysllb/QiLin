@@ -1,5 +1,5 @@
-import { SessionFormatEventCollector } from '@qilin/session-format'
-import type { SessionFormatArtifact } from '@qilin/session-format'
+import { SessionFormatEventCollector } from '@qilin-agent/session-format'
+import type { SessionFormatArtifact } from '@qilin-agent/session-format'
 import { releasedV4SessionFormatCodec } from '../codec.ts'
 
 /**

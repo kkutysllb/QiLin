@@ -1,7 +1,7 @@
 /** Minimal native thinking metadata; durable Harness blocks own all response text. */
 
-import { LlmError } from '@qilin/llm'
-import type { Message, ReplayEnvelope } from '@qilin/llm'
+import { LlmError } from '@qilin-agent/llm'
+import type { Message, ReplayEnvelope } from '@qilin-agent/llm'
 
 /** Index-aligned metadata retained alongside each emitted Harness block. */
 export interface ReplayBlock {

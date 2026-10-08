@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { LlmAttemptId, createAssistantMessage } from '@qilin/llm'
-import { SessionSeq, type SessionEvent } from '@qilin/session'
+import { LlmAttemptId, createAssistantMessage } from '@qilin-agent/llm'
+import { SessionSeq, type SessionEvent } from '@qilin-agent/session'
 import type {
   SessionAssistantStreamBaseline,
   SessionAssistantStreamFrame,

@@ -80,7 +80,7 @@ export function apply(ctx: Context) {
 当你需要提前终止一个插件实例：
 
 ```ts
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 
 declare const ctx: Context
 declare function myPlugin(ctx: Context): void

@@ -3,7 +3,7 @@
 
 - insert:
     - id: webhook-runtime
-      name: '@qilin/webhook'
+      name: '@qilin-agent/webhook'
 
     - id: github-ready-review-rule
       name: './github-ready-review-rule.mjs'
@@ -21,13 +21,13 @@
         webServer: true
       config:
         - id: github-webhook-server
-          name: '@qilin/host-webserver'
+          name: '@qilin-agent/host-webserver'
           config:
             host: '127.0.0.1'
             port: !!js Number(process.env.QILIN_GITHUB_WEBHOOK_PORT ?? 3081)
 
         - id: github-webhook-adapter
-          name: '@qilin/webhook-github'
+          name: '@qilin-agent/webhook-github'
           config:
             source: primary-github
             path: /github

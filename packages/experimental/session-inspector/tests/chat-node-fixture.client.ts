@@ -1,10 +1,10 @@
 /** Real Location readers expose the store/source cycle reached by raw Node inspection. */
 
-import type { ChatConversationViewNode } from '@qilin/client-ui-chat/client'
-import { ConversationLocationIndex } from '@qilin/client-ui-conversation/client'
-import { SessionSeq, type SessionEvent } from '@qilin/session/types'
+import type { ChatConversationViewNode } from '@qilin-agent/client-ui-chat/client'
+import { ConversationLocationIndex } from '@qilin-agent/client-ui-conversation/client'
+import { SessionSeq, type SessionEvent } from '@qilin-agent/session/types'
 
-declare module '@qilin/client-ui-conversation/client' {
+declare module '@qilin-agent/client-ui-conversation/client' {
   interface ConversationStepDataMap {
     'inspector-test': { readonly text: string }
   }

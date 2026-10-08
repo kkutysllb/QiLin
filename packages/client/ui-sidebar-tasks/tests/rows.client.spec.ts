@@ -4,9 +4,9 @@
  * badge counting the rows and the chip read.
  */
 import { describe, expect, it } from 'vitest'
-import type { TranslateNS } from '@qilin/client-ui-slots'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import type { SessionId } from '@qilin/session/types'
+import type { TranslateNS } from '@qilin-agent/client-ui-slots'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { SubagentDescendantSummary } from '../src/client/lineage.ts'
 import { zh } from '../src/client/locales.ts'
 import {

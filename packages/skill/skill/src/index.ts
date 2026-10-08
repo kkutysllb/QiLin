@@ -3,20 +3,20 @@
  *
  * This package owns the Service Definition role of the skill capability seam.
  * Concrete
- * providers such as `@qilin/skill-filesystem` decide where skills come
+ * providers such as `@qilin-agent/skill-filesystem` decide where skills come
  * from; this service only merges provider catalogs, resolves the winning skill
  * for a name, and exposes the winning summaries and definitions to consumers.
  *
- * @module @qilin/skill
+ * @module @qilin-agent/skill
  */
 
-import { Context, Service } from '@qilin/kylin'
-import type {} from '@qilin/llm'
-import { assertNever } from '@qilin/util-values'
-import { NamedEntries, ScopedLayers, scopeChainOf, scopeOf } from '@qilin/scope'
-import type { ScopeKey, ScopeLayer } from '@qilin/scope'
-import z from '@qilin/schemastery'
-import type Schema from '@qilin/schemastery'
+import { Context, Service } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/llm'
+import { assertNever } from '@qilin-agent/util-values'
+import { NamedEntries, ScopedLayers, scopeChainOf, scopeOf } from '@qilin-agent/scope'
+import type { ScopeKey, ScopeLayer } from '@qilin-agent/scope'
+import z from '@qilin-agent/schemastery'
+import type Schema from '@qilin-agent/schemastery'
 
 const SKILL_NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 const DEFAULT_COLLECT_CACHE_ENTRIES = 128
@@ -151,7 +151,7 @@ export interface SkillInvocationSource {
   readonly form: 'instructions'
 }
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     /** A user-explicit skill invocation injected by the host. */
     'skill-invocation': SkillInvocationSource
@@ -280,7 +280,7 @@ export interface Config {
   readonly collectCacheMaxEntries?: number
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     skills: SkillRegistry
   }

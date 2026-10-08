@@ -1,6 +1,6 @@
-/** Browser-use provider identities. @module @qilin/browser-use/brand */
+/** Browser-use provider identities. @module @qilin-agent/browser-use/brand */
 
-import type { Branded } from '@qilin/brand'
+import type { Branded } from '@qilin-agent/brand'
 
 /** Provider-owned name identifying a browser-use registration. */
 export type BrowserUseProviderName = Branded<'BrowserUseProviderName'>

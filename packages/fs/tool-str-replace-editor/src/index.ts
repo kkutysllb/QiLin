@@ -1,18 +1,18 @@
 /**
  * Model-facing `str_replace_editor` over the Harness filesystem seam.
- * @module @qilin/tool-str-replace-editor
+ * @module @qilin-agent/tool-str-replace-editor
  */
 
 import { isAbsolute } from 'node:path'
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { FsError } from '@qilin/fs'
-import type { FsInfo, FsTarget, FsWriteIntent } from '@qilin/fs'
-import { sandboxDenialMarker } from '@qilin/sandbox'
-import type { SandboxExecutionPolicy } from '@qilin/sandbox'
-import type { SandboxPolicyService } from '@qilin/sandbox-policy'
-import { defineTool } from '@qilin/tools'
-import type { ToolCallView, ToolRunContext } from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { FsError } from '@qilin-agent/fs'
+import type { FsInfo, FsTarget, FsWriteIntent } from '@qilin-agent/fs'
+import { sandboxDenialMarker } from '@qilin-agent/sandbox'
+import type { SandboxExecutionPolicy } from '@qilin-agent/sandbox'
+import type { SandboxPolicyService } from '@qilin-agent/sandbox-policy'
+import { defineTool } from '@qilin-agent/tools'
+import type { ToolCallView, ToolRunContext } from '@qilin-agent/tools'
 
 const TRUNCATED_MESSAGE = '<response clipped><NOTE>To save on context only part of this file has been shown to you. You should retry this tool after you have searched inside the file with `grep -n` in order to find the line numbers of what you are looking for.</NOTE>'
 

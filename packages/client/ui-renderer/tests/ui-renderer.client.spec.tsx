@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup } from '@testing-library/react'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { SlotRegistry } from '../src/client/registry.ts'
 import type { SlotScopeAdapter, StandardSourceBinding } from '../src/client/index.ts'
-import { apply as nodeApply } from '@qilin/client-ui-renderer'
+import { apply as nodeApply } from '@qilin-agent/client-ui-renderer'
 import * as UiRenderer from '../src/client/index.ts'
 
 const mounted: (() => void)[] = []

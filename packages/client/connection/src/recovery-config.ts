@@ -1,5 +1,5 @@
 /** Shared validation for Host-configured and browser-local connection recovery. */
-import z from '@qilin/schemastery'
+import z from '@qilin-agent/schemastery'
 
 /** Timing for generation readiness and automatic reconnection. */
 export interface ConnectionRecoveryConfig {

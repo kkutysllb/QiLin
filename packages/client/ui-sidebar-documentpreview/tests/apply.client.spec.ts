@@ -8,8 +8,8 @@
  * makes a reload safe.
  */
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { SidebarRightTabRegistry } from '@qilin/client-ui-sidebar-right/src/client/tab-registry.ts'
+import { Context } from '@qilin-agent/kylin'
+import { SidebarRightTabRegistry } from '@qilin-agent/client-ui-sidebar-right/src/client/tab-registry.ts'
 import { TEXTPREVIEW_ID, TEXTPREVIEW_KIND } from '../src/client/definition.ts'
 import { apply, inject } from '../src/client/index.ts'
 import { OfficeBody } from '../src/client/office/OfficeBody.tsx'
@@ -30,8 +30,8 @@ import { CodeBody } from '../src/client/code/CodeBody.tsx'
 import { LazyExcelBody } from '../src/client/excel/LazyExcelBody.tsx'
 import { VideoBody } from '../src/client/video/VideoBody.tsx'
 import { en, zh } from '../src/client/locales.ts'
-import { RemoteError } from '@qilin/client-test-runtime'
-import { createSnapshotStore } from '@qilin/client-store'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
+import { createSnapshotStore } from '@qilin-agent/client-store'
 import type { textFace } from '../src/client/face.ts'
 import type { TextStore } from '../src/client/store.ts'
 import { FILE, SESSION, TAB_ID, createResources, page } from './fixtures.client.ts'
@@ -104,11 +104,11 @@ describe('ui-sidebar-documentpreview apply', () => {
       ['sidebar.right.tab.document', HTML_BODY_ID, 'documentHtml', HtmlBody],
       ['sidebar.right.tab.document', IMAGE_BODY_ID, 'sidebarImage', ImageBody],
       ['sidebar.right.tab.document', PDF_BODY_ID, 'sidebarPdf', LazyPdfBody],
-      ['sidebar.right.tab.document', '@qilin/client-ui-sidebar-documentpreview/code', 'sidebarCodePreview', CodeBody],
-      ['sidebar.right.tab.document', '@qilin/client-ui-sidebar-documentpreview/office', 'sidebarOffice', OfficeBody],
-      ['sidebar.right.tab.document.office.pdf', '@qilin/client-ui-sidebar-documentpreview/office', 'sidebarPdf', LazyPdfBody],
-      ['sidebar.right.tab.document', '@qilin/client-ui-sidebar-documentpreview/excel', 'sidebarExcel', LazyExcelBody],
-      ['sidebar.right.tab.document', '@qilin/client-ui-sidebar-documentpreview/video', 'sidebarVideo', VideoBody],
+      ['sidebar.right.tab.document', '@qilin-agent/client-ui-sidebar-documentpreview/code', 'sidebarCodePreview', CodeBody],
+      ['sidebar.right.tab.document', '@qilin-agent/client-ui-sidebar-documentpreview/office', 'sidebarOffice', OfficeBody],
+      ['sidebar.right.tab.document.office.pdf', '@qilin-agent/client-ui-sidebar-documentpreview/office', 'sidebarPdf', LazyPdfBody],
+      ['sidebar.right.tab.document', '@qilin-agent/client-ui-sidebar-documentpreview/excel', 'sidebarExcel', LazyExcelBody],
+      ['sidebar.right.tab.document', '@qilin-agent/client-ui-sidebar-documentpreview/video', 'sidebarVideo', VideoBody],
     ])
     expect(registered[0]?.store).toBeDefined()
     expect(typeof registered[0]?.inject).toBe('function')

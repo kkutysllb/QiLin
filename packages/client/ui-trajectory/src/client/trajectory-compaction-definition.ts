@@ -1,8 +1,8 @@
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   ConversationMatch, ConversationNodeDefinition, RequestView,
-} from '@qilin/client-ui-conversation/client'
-import type {} from '@qilin/compaction/types'
+} from '@qilin-agent/client-ui-conversation/client'
+import type {} from '@qilin-agent/compaction/types'
 import { trajectoryNode } from './trajectory-definition-common.ts'
 
 interface CompactionState {

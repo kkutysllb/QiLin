@@ -5,15 +5,15 @@
  * only contributes entries, so no SlotMap merge lives here. Live state
  * arrives through the `hooks` compartment (the framework standard kit binds
  * `feedback` into `useFeedback` and `dialog` into `useDialog`).
- * @module @qilin/client-ui-message-feedback/client/slots
+ * @module @qilin-agent/client-ui-message-feedback/client/slots
  */
 
 import type {
   HostObservable, InjectFace, PropsLocale, PropsRuntime,
-} from '@qilin/client-ui-slots'
-import type {} from '@qilin/client-ui-conversation/client'
-import type { MessageId } from '@qilin/api-remotes/client'
-import type { MessageFeedbackItem, MessageFeedbackRating } from '@qilin/message-feedback/types'
+} from '@qilin-agent/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-conversation/client'
+import type { MessageId } from '@qilin-agent/api-remotes/client'
+import type { MessageFeedbackItem, MessageFeedbackRating } from '@qilin-agent/message-feedback/types'
 // Type-only: pulls this package's LocaleNamespaceMap merge (the 'feedback' seat).
 import type {} from './locales.ts'
 import type { MessageFeedbackActionResult, MessageFeedbackView } from './controller.ts'

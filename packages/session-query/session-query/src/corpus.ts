@@ -1,8 +1,8 @@
 /** Live/persisted logical-corpus resolution for session-query. */
 
-import type { Context, Fiber } from '@qilin/kylin'
-import type { Session, SessionEvent, SessionHeader, SessionId , SessionLogOffset } from '@qilin/session'
-import type SessionPersistence from '@qilin/session-persistence'
+import type { Context, Fiber } from '@qilin-agent/kylin'
+import type { Session, SessionEvent, SessionHeader, SessionId , SessionLogOffset } from '@qilin-agent/session'
+import type SessionPersistence from '@qilin-agent/session-persistence'
 import type { SessionRecord } from './types.ts'
 import { SessionQueryError } from './config.ts'
 import { readColdSessionLog, type ColdSessionLog } from './cold-read.ts'

@@ -3,7 +3,7 @@ description: "Web Session-header \"Open In...\" split button: launches the remem
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-open-in-app
+# @qilin-agent/client-ui-open-in-app
 
 English | [中文](README.zh.md)
 
@@ -41,7 +41,7 @@ A document preview header carries this package's second control: a compact split
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The plugin registers the split button on `conversation.session.header.utilities` through the standard slot/inject currency and registers the `open-in-app` dictionaries as one effect. A page-lifetime controller ([`src/client/controller.ts`](src/client/controller.ts)) owns the once-per-page availability read, the persisted choice snapshot store, and the launch POST; the component receives both stores through the inject `hooks` compartment, so every Session header shares one truth. Route paths and wire payload types are inlined from the host package's browser-safe `@qilin/host-open-in-app/shared` subpath. In-flight launches are guarded by a ref — repeat clicks and menu picks during a launch are ignored whole (a pick would otherwise persist a choice the gesture never opened) — and the busy/error dress is timer-driven around the `launch` promise. Desktop availability, file associations, and the open/reveal gestures of the document controls go through a second page-lifetime controller ([\`src/client/open-path.ts\`](src/client/open-path.ts)) over the generated `session` Remote namespace — `canOpenWorkspacePath`, `workspacePathApplications`, and `openWorkspacePath` — whose Host side re-verifies each path against the composed filesystem before running a native command. One inject face carries the controller's desktop snapshot and the three calls to `sidebar.right.tab.document.actions` and `sidebar.right.tab.document.unpreviewable`. The node half is an empty `apply` that keeps the plugin on the host roster.
+The plugin registers the split button on `conversation.session.header.utilities` through the standard slot/inject currency and registers the `open-in-app` dictionaries as one effect. A page-lifetime controller ([`src/client/controller.ts`](src/client/controller.ts)) owns the once-per-page availability read, the persisted choice snapshot store, and the launch POST; the component receives both stores through the inject `hooks` compartment, so every Session header shares one truth. Route paths and wire payload types are inlined from the host package's browser-safe `@qilin-agent/host-open-in-app/shared` subpath. In-flight launches are guarded by a ref — repeat clicks and menu picks during a launch are ignored whole (a pick would otherwise persist a choice the gesture never opened) — and the busy/error dress is timer-driven around the `launch` promise. Desktop availability, file associations, and the open/reveal gestures of the document controls go through a second page-lifetime controller ([\`src/client/open-path.ts\`](src/client/open-path.ts)) over the generated `session` Remote namespace — `canOpenWorkspacePath`, `workspacePathApplications`, and `openWorkspacePath` — whose Host side re-verifies each path against the composed filesystem before running a native command. One inject face carries the controller's desktop snapshot and the three calls to `sidebar.right.tab.document.actions` and `sidebar.right.tab.document.unpreviewable`. The node half is an empty `apply` that keeps the plugin on the host roster.
 
 </details>
 

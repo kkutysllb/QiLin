@@ -15,7 +15,7 @@ export default defineConfig([
     dts: false,
     clean: false,
     deps: {
-      alwaysBundle: ['@qilin/kylin-plugin-include'],
+      alwaysBundle: ['@qilin-agent/kylin-plugin-include'],
     },
   },
   {

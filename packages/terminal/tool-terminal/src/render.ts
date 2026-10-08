@@ -1,6 +1,6 @@
 /** Model and UI rendering for persistent terminal tool results. */
 
-import { TextRetainer } from '@qilin/output-retention'
+import { TextRetainer } from '@qilin-agent/output-retention'
 
 interface RenderedSessionStatusRunning {
   kind: 'running'

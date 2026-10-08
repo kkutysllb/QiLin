@@ -13,21 +13,21 @@
  * liveness through it, and on a test host those pids belong to real processes.
  */
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import { MemoryVfs } from '@qilin/experimental-webworker-runtime/src/storage/memory.ts'
-import { setActiveVfs } from '@qilin/experimental-webworker-runtime/src/storage/active.ts'
-import { spawn, spawnSync } from '@qilin/experimental-webworker-runtime/src/node/builtin_modules/implemented/child_process.ts'
+import { MemoryVfs } from '@qilin-agent/experimental-webworker-runtime/src/storage/memory.ts'
+import { setActiveVfs } from '@qilin-agent/experimental-webworker-runtime/src/storage/active.ts'
+import { spawn, spawnSync } from '@qilin-agent/experimental-webworker-runtime/src/node/builtin_modules/implemented/child_process.ts'
 import {
   LAUNCHER_FAILURE_EXIT, grantArgs, launcherPath, probe,
-} from '@qilin/node-addon-system/landlock-run'
-import { processAlive, signalProcess } from '@qilin/experimental-webworker-runtime/src/node/process-table.ts'
-import { hostFileSystem } from '@qilin/experimental-webworker-runtime/src/shell/fs-access.ts'
+} from '@qilin-agent/node-addon-system/landlock-run'
+import { processAlive, signalProcess } from '@qilin-agent/experimental-webworker-runtime/src/node/process-table.ts'
+import { hostFileSystem } from '@qilin-agent/experimental-webworker-runtime/src/shell/fs-access.ts'
 import {
   LANDLOCK_EXECUTABLE, landlockFileSystem, parseLandlockArguments,
-} from '@qilin/experimental-webworker-runtime/src/shell/process/landlock.ts'
-import { spawnSubprocess } from '@qilin/subprocess-local/src/spawn.ts'
+} from '@qilin-agent/experimental-webworker-runtime/src/shell/process/landlock.ts'
+import { spawnSubprocess } from '@qilin-agent/subprocess-local/src/spawn.ts'
 
 vi.mock('node:child_process', async () =>
-  await import('@qilin/experimental-webworker-runtime/src/node/builtin_modules/implemented/child_process.ts'))
+  await import('@qilin-agent/experimental-webworker-runtime/src/node/builtin_modules/implemented/child_process.ts'))
 
 const WORKSPACE = '/qilin/workspace'
 const HOME = '/qilin/home'

@@ -8,13 +8,13 @@
  * vocabulary, freshness, and torn-tail repair. Backend-specific behavior
  * (file layout, encodings, artifact export) stays in each backend's own spec.
  *
- * @module @qilin/session-persistence/tests/contract
+ * @module @qilin-agent/session-persistence/tests/contract
  */
 
 import { describe, expect, it } from 'vitest'
-import { SessionSeq, SESSION_FORMAT_VERSION, SessionId } from '@qilin/session'
-import type { SessionEvent, SessionHeader } from '@qilin/session'
-import { MessageId, freezeMessage } from '@qilin/llm'
+import { SessionSeq, SESSION_FORMAT_VERSION, SessionId } from '@qilin-agent/session'
+import type { SessionEvent, SessionHeader } from '@qilin-agent/session'
+import { MessageId, freezeMessage } from '@qilin-agent/llm'
 import {
   SessionAlreadyExistsError,
   SessionAlreadyOwnedError,

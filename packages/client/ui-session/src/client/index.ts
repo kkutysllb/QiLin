@@ -1,5 +1,5 @@
 /** Session Controller adapter for React selector hooks and Slot scope data. */
-import { Service, type Context } from '@qilin/kylin'
+import { Service, type Context } from '@qilin-agent/kylin'
 import type {
   ISessions,
   SessionBinding,
@@ -8,12 +8,12 @@ import type {
   SessionRetainInfo,
   SessionSnapshot,
   UseProjection,
-} from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
-import type {} from '@qilin/api-remotes/client'
-import { notifySubscribers } from '@qilin/client-store'
-import { WeakMapWithValues } from '@qilin/util-values'
-import { standardHookPropName } from '@qilin/client-ui-slots'
+} from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type {} from '@qilin-agent/api-remotes/client'
+import { notifySubscribers } from '@qilin-agent/client-store'
+import { WeakMapWithValues } from '@qilin-agent/util-values'
+import { standardHookPropName } from '@qilin-agent/client-ui-slots'
 import type {
   HostObservable,
   KeyedStandardSource,
@@ -23,9 +23,9 @@ import type {
   SlotScopeAdapter,
   SnapshotSelectorHook,
   StandardSourceBinding,
-} from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-slots'
 // Type-only service merge for ctx.slots.
-import type {} from '@qilin/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
 import { renderSessionArea } from './session-provider.tsx'
 
 /** Selector hook over the Session Controller list and current selection. */
@@ -147,7 +147,7 @@ class PendingInteractionDomain<T extends SessionPendingInteractionBase> {
   }
 }
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface SlotScopeTargetMap {
     session: SessionReference
   }
@@ -178,13 +178,13 @@ declare module '@qilin/client-ui-slots' {
   }
 }
 
-declare module '@qilin/api-session-controller/client' {
+declare module '@qilin-agent/api-session-controller/client' {
   interface SessionReferenceSourceMap {
     mainView: unknown
   }
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Session Controller adapter and session-scoped source registry. */
     uiSession: UiSession

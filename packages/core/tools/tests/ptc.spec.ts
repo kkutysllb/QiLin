@@ -1,24 +1,24 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createUserMessage, ToolCallId  } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import type { ToolSchema } from '@qilin/llm'
-import { createScope } from '@qilin/scope'
-import type { Scope } from '@qilin/scope'
-import SystemPrompt, { renderPrompt } from '@qilin/system-prompt'
-import { PtcRuntime } from '@qilin/ptc-runtime'
-import type { PtcRunRequest, PtcRunResult } from '@qilin/ptc-runtime'
-import ToolRuntime, { CodeRunFailedError, RUN_CODE_NAME, TOOL_ABORTED_BEFORE_DISPATCH, defineContentToolFixture, defineTool } from '@qilin/tools'
-import type { Config, JsonSchemaNode, PostToolDecision, ToolExecutionResult } from '@qilin/tools'
-import type { Agent } from '@qilin/agent'
-import { Session, SessionId } from '@qilin/session'
-import ApprovalService, { type ApprovalOutcome, type ApprovalRequest } from '@qilin/user-approval'
-import type { SessionEventMap } from '@qilin/session'
-import type { JsonValue } from '@qilin/util-values'
-import SandboxPolicy from '@qilin/sandbox-policy'
-import SessionProjections from '@qilin/session-projection'
+import { Context } from '@qilin-agent/kylin'
+import { createUserMessage, ToolCallId  } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import type { ToolSchema } from '@qilin-agent/llm'
+import { createScope } from '@qilin-agent/scope'
+import type { Scope } from '@qilin-agent/scope'
+import SystemPrompt, { renderPrompt } from '@qilin-agent/system-prompt'
+import { PtcRuntime } from '@qilin-agent/ptc-runtime'
+import type { PtcRunRequest, PtcRunResult } from '@qilin-agent/ptc-runtime'
+import ToolRuntime, { CodeRunFailedError, RUN_CODE_NAME, TOOL_ABORTED_BEFORE_DISPATCH, defineContentToolFixture, defineTool } from '@qilin-agent/tools'
+import type { Config, JsonSchemaNode, PostToolDecision, ToolExecutionResult } from '@qilin-agent/tools'
+import type { Agent } from '@qilin-agent/agent'
+import { Session, SessionId } from '@qilin-agent/session'
+import ApprovalService, { type ApprovalOutcome, type ApprovalRequest } from '@qilin-agent/user-approval'
+import type { SessionEventMap } from '@qilin-agent/session'
+import type { JsonValue } from '@qilin-agent/util-values'
+import SandboxPolicy from '@qilin-agent/sandbox-policy'
+import SessionProjections from '@qilin-agent/session-projection'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'order-probe': { kind: 'order-probe' } & ContextFormed
     'test': { kind: 'test' } & ContextFormed
@@ -37,7 +37,7 @@ const testToolSignal = new AbortController().signal
 
 /** A scriptable in-repo PtcRuntime: each test sets `behavior` to drive the bindings however it needs. */
 class FakeRuntime extends PtcRuntime {
-  resolve(request: import('@qilin/ptc-runtime').PtcRunRequest): import('@qilin/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+  resolve(request: import('@qilin-agent/ptc-runtime').PtcRunRequest): import('@qilin-agent/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
   readonly language: string
   readonly isolation = 'fake'
@@ -2030,7 +2030,7 @@ describe('per-agent presentation', () => {
   })
 
   it('inherits a STANDING preset scope\'s mode down the chain, agents beside it unaffected', async () => {
-    const { bindScopeParent } = await import('@qilin/scope')
+    const { bindScopeParent } = await import('@qilin-agent/scope')
     const { ctx, systemPrompt } = await setup({ mode: 'native' })
     const calls = registerEcho(ctx)
     // The preset's standing scope declares once; the agent only PARENTS to it

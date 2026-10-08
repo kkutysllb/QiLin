@@ -1,17 +1,17 @@
 /** Tool UI slot declarations and their composed component props. */
 import type {
   HostObservable, InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime, SessionIdOf,
-} from '@qilin/client-ui-slots'
-import type { RemoteHostFacts } from '@qilin/api-remotes/client'
+} from '@qilin-agent/client-ui-slots'
+import type { RemoteHostFacts } from '@qilin-agent/api-remotes/client'
 import type {
   OpenFileOptions, PreparingToolCall, StartedToolCall,
   ToolResultNode, UseDisclosure,
-} from '@qilin/client-ui-chat/client'
-import type { MessageImageLoader, MessageImageSource } from '@qilin/client-ui-conversation/client'
-import type { AskUserQuestionAnswerItem, AskUserQuestionItem } from '@qilin/user-questions/types'
-import type {} from '@qilin/client-locale/client'
+} from '@qilin-agent/client-ui-chat/client'
+import type { MessageImageLoader, MessageImageSource } from '@qilin-agent/client-ui-conversation/client'
+import type { AskUserQuestionAnswerItem, AskUserQuestionItem } from '@qilin-agent/user-questions/types'
+import type {} from '@qilin-agent/client-locale/client'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface SlotMap {
     /**
      * Keyed Tool call view dispatched by wire Tool name. Any name is allowed,
@@ -130,7 +130,7 @@ export interface UserQuestionPanels {
   review(sessionId: SessionIdOf, callId: string, record: UserQuestionRecord): boolean
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Optional user-question answer-panel provider. */
     userQuestionPanels: UserQuestionPanels

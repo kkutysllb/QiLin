@@ -4,17 +4,17 @@
  * surface events; a separate replacement `user/message` carries the summary.
  * Backend packages own configuration and retention policy; see
  * `.agents/notes/implemented/feature/2026-06-18-compaction-capability-seam.md`.
- * @module @qilin/compaction/types
+ * @module @qilin-agent/compaction/types
  */
 
-import type { ContentBlock, TokenUsage } from '@qilin/llm'
-import type { CommandId } from '@qilin/commands/brand'
-import type { SessionSeq } from '@qilin/session/types'
+import type { ContentBlock, TokenUsage } from '@qilin-agent/llm'
+import type { CommandId } from '@qilin-agent/commands/brand'
+import type { SessionSeq } from '@qilin-agent/session/types'
 import type { CompactionId } from './brand.ts'
 
 export type { CompactionId }
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /**
      * Marks the start of a compaction — log-only, holds the lock until

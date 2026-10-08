@@ -2,11 +2,11 @@
  * Exact rule snapshots, editable timing fields, the injected task update callback, and Host
  * failure mapping; zone interpretation belongs to the Host.
  */
-import type { RemoteResult } from '@qilin/api-remotes/client'
+import type { RemoteResult } from '@qilin-agent/api-remotes/client'
 import type {
   ScheduleRecord, ScheduleUpdateRequest, ScheduleUpdateResult,
-} from '@qilin/schedule/client'
-import { assertNever } from '@qilin/util-values'
+} from '@qilin-agent/schedule/client'
+import { assertNever } from '@qilin-agent/util-values'
 import type { TaskManagerKey } from './task-manager-locales.ts'
 
 /** Task mutation callback injected by the task catalog owner. */

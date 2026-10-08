@@ -2,10 +2,10 @@
  * Model-facing diagnostics for guarded-mutation failures. Providers and
  * policies retain operation-specific causes, while this package owns the
  * stable message shown to the model.
- * @module @qilin/tool-fs/src/error
+ * @module @qilin-agent/tool-fs/src/error
  */
 
-import { FsError } from '@qilin/fs'
+import { FsError } from '@qilin-agent/fs'
 
 /**
  * Render the stable model-facing diagnostic for a guarded-mutation failure.

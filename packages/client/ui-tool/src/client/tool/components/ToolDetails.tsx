@@ -1,9 +1,9 @@
 /** Compact, read-only fields and lists for recorded Tool results. */
 import {
   CodeBlock, MarkdownText, IconCheckOutline14, IconChevronRightOutline14, IconPlayOutline16,
-} from '@qilin/client-ui-primitives'
-import type { TranslateNS } from '@qilin/client-ui-slots'
-import type { OpenFileOptions } from '@qilin/client-ui-chat/client'
+} from '@qilin-agent/client-ui-primitives'
+import type { TranslateNS } from '@qilin-agent/client-ui-slots'
+import type { OpenFileOptions } from '@qilin-agent/client-ui-chat/client'
 import { markdownLabels } from '../models/primitive-labels.ts'
 import css from './ToolDetails.module.css'
 

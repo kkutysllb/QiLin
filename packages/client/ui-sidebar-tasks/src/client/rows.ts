@@ -8,12 +8,12 @@
  * (`indexSubagentDescendants`), the only projection that sees subagents below
  * the direct children a catalog reports.
  */
-import type { SessionProjectionSnapshot } from '@qilin/api-session-controller/client'
-import type { JobView } from '@qilin/jobs/view'
-import type { StateDotState } from '@qilin/client-ui-primitives'
-import type { TranslateNS } from '@qilin/client-ui-slots'
-import type { SessionId } from '@qilin/session/types'
-import type { SubagentAddress, SubagentCatalogEntry } from '@qilin/subagent/client'
+import type { SessionProjectionSnapshot } from '@qilin-agent/api-session-controller/client'
+import type { JobView } from '@qilin-agent/jobs/view'
+import type { StateDotState } from '@qilin-agent/client-ui-primitives'
+import type { TranslateNS } from '@qilin-agent/client-ui-slots'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { SubagentAddress, SubagentCatalogEntry } from '@qilin-agent/subagent/client'
 import type { SubagentDescendantSummary } from './lineage.ts'
 import { NS } from './locales.ts'
 

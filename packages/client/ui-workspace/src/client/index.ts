@@ -8,25 +8,25 @@
  * client half (see the contract module doc). Export discipline:
  * packages/client/AGENTS.md.
  */
-import type { Context } from '@qilin/kylin'
-import type { RemoteHostFacts } from '@qilin/api-remotes/client'
-import type { ISessions } from '@qilin/api-session-controller/client'
-import type { IWorkspaces, WorkspaceSnapshot } from '@qilin/api-workspace-controller/client'
-import { createSnapshotStore } from '@qilin/client-store'
-import type { HostObservable, SnapshotSelectorHook } from '@qilin/client-ui-slots'
+import type { Context } from '@qilin-agent/kylin'
+import type { RemoteHostFacts } from '@qilin-agent/api-remotes/client'
+import type { ISessions } from '@qilin-agent/api-session-controller/client'
+import type { IWorkspaces, WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/client'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { HostObservable, SnapshotSelectorHook } from '@qilin-agent/client-ui-slots'
 // Type-only: the workbench state owner's service merge and vocabulary.
-import type {} from '@qilin/client-ui-workbench/client'
-import type { Workbench } from '@qilin/client-ui-workbench/client'
+import type {} from '@qilin-agent/client-ui-workbench/client'
+import type { Workbench } from '@qilin-agent/client-ui-workbench/client'
 // Type-only: pulls the Controller service merges.
-import type {} from '@qilin/api-session-controller/client'
-import type {} from '@qilin/api-workspace-controller/client'
+import type {} from '@qilin-agent/api-session-controller/client'
+import type {} from '@qilin-agent/api-workspace-controller/client'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
-import type {} from '@qilin/client-locale/client'
+import type {} from '@qilin-agent/client-locale/client'
 // Type-only: pulls the SlotRegistry service merge (ctx.slots).
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-layout/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-layout/client'
 // Type-only: pulls the Session root standard-hook merge.
-import type {} from '@qilin/client-ui-session/client'
+import type {} from '@qilin-agent/client-ui-session/client'
 import type { WorkbenchSwitchInjected, WorkspaceBrowserInjected, WorkspacePickerInjected } from './contract/slots.ts'
 import type { AgentPresetChipInjected, AgentPresetRosterState } from './contract/slots.ts'
 import { createWorkspaceShortcutControls, installWorkspaceShortcuts } from './shortcuts.ts'
@@ -47,7 +47,7 @@ export type {
 } from './contract/slots.ts'
 export type { WorkspaceKey } from './locales.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface GlobalStandardProps {
     /** Selector hook over the pure Workspace Controller snapshot. */
     useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>
@@ -59,7 +59,7 @@ declare module '@qilin/client-ui-slots' {
   }
 }
 
-declare module '@qilin/api-session-controller/client' {
+declare module '@qilin-agent/api-session-controller/client' {
   interface SessionReferenceSourceMap {
     workspaceOperation: unknown
   }

@@ -3,7 +3,7 @@ description: "Session-log snapshot support for keyless profile tests: manifests,
 kind: "package-library"
 ---
 
-# @qilin/session-snapshot
+# @qilin-agent/session-snapshot
 
 English | [中文](README.zh.md)
 
@@ -38,7 +38,7 @@ import {
   defineAcpSnapshotSuite,
   type Scenario,
   type SnapshotSuiteOptions,
-} from '@qilin/session-snapshot'
+} from '@qilin-agent/session-snapshot'
 
 function snapshotMode(value: string | undefined): SnapshotSuiteOptions['mode'] {
   switch (value) {

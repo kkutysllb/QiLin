@@ -10,7 +10,7 @@ import { pnpmInvocation } from '../../../../scripts/pnpm-invocation.ts'
 
 const experimentalDirectory = fileURLToPath(new URL('../..', import.meta.url))
 const packages = ['webworker-runtime', 'webworker-packer']
-const packageNames = new Set(packages.map(name => `@qilin/experimental-${name}`))
+const packageNames = new Set(packages.map(name => `@qilin-agent/experimental-${name}`))
 
 it('loads both tarballs through plain Node and mounts their base image and overlay', { retry: 0 }, async (test) => {
   const root = await mkdtemp(join(tmpdir(), 'qilin-webworker-packed-'))
@@ -73,15 +73,15 @@ it('loads both tarballs through plain Node and mounts their base image and overl
     import assert from 'node:assert/strict'
     import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
     import { fileURLToPath } from 'node:url'
-    import * as packer from '@qilin/experimental-webworker-packer'
-    import * as runtime from '@qilin/experimental-webworker-runtime'
-    import * as client from '@qilin/experimental-webworker-runtime/client'
+    import * as packer from '@qilin-agent/experimental-webworker-packer'
+    import * as runtime from '@qilin-agent/experimental-webworker-runtime'
+    import * as client from '@qilin-agent/experimental-webworker-runtime/client'
     for (const name of ['webworker-packer', 'webworker-runtime']) {
-      assert.equal(import.meta.resolve('@qilin/experimental-' + name),
-        new URL('./node_modules/@qilin/experimental-' + name + '/lib/index.js', import.meta.url).href)
+      assert.equal(import.meta.resolve('@qilin-agent/experimental-' + name),
+        new URL('./node_modules/@qilin-agent/experimental-' + name + '/lib/index.js', import.meta.url).href)
     }
     assert.equal(typeof client.connectWorkerHost, 'function')
-    const worker = fileURLToPath(import.meta.resolve('@qilin/experimental-webworker-runtime/worker'))
+    const worker = fileURLToPath(import.meta.resolve('@qilin-agent/experimental-webworker-runtime/worker'))
     assert.ok(existsSync(worker))
     assert.equal(readFileSync(worker, 'utf8').match(/^import[ \\t]/m), null)
     const base = packer.packVfsImage({ config: '[]\\n', profile: 'packed-consumer', workspaces: new Map(), resolveFrom: process.cwd(), entries: [] })

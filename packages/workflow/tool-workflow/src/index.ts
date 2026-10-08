@@ -2,28 +2,28 @@
  * The model-facing `workflow` tool: run a JavaScript orchestration script that fans out
  * subagents, and return the script's final value. It owns the model-facing schema and run lifecycle; script
  * parsing, execution, caps, and cancellation live behind `ctx.workflowEngine`
- * (`@qilin/workflow`), so a hardened engine swaps in without touching what the model
+ * (`@qilin-agent/workflow`), so a hardened engine swaps in without touching what the model
  * sees. Foreground execution awaits `run.result` and always disposes the run; non-completed reasons
  * become tool errors. `run_in_background: true` instead registers the run as an owned `ctx.jobs` job
  * and returns its id immediately — the job's output ring streams live progress, and the run's value
  * arrives with the job's completion notice. Presentation is an args-only generic card
  * titled from `meta.name`. Explicit-ask usage guidance is registered as the tool's own prompt
  * section rather than deployment persona prose.
- * @module @qilin/tool-workflow
+ * @module @qilin-agent/tool-workflow
  */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type { Agent } from '@qilin/agent'
-import type { JobId, JobOutcome } from '@qilin/jobs'
-import { defineTool } from '@qilin/tools'
-import type { ToolCallView, ToolResultView } from '@qilin/tools'
-import type { ContentBlock } from '@qilin/llm'
-import type { Session, SessionEventMap } from '@qilin/session'
-import type { JsonValue } from '@qilin/util-values'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type { Agent } from '@qilin-agent/agent'
+import type { JobId, JobOutcome } from '@qilin-agent/jobs'
+import { defineTool } from '@qilin-agent/tools'
+import type { ToolCallView, ToolResultView } from '@qilin-agent/tools'
+import type { ContentBlock } from '@qilin-agent/llm'
+import type { Session, SessionEventMap } from '@qilin-agent/session'
+import type { JsonValue } from '@qilin-agent/util-values'
 import type {
   WorkflowResult, WorkflowRun, WorkflowRunId, WorkflowStopReason,
-} from '@qilin/workflow'
+} from '@qilin-agent/workflow'
 import type {
   ToolWorkflowAgentEndData, ToolWorkflowAgentStartData,
   ToolWorkflowRunEndData, ToolWorkflowRunStartData,
@@ -31,7 +31,7 @@ import type {
 import { createWorkflowRecordMirror } from './record.ts'
 import type { WorkflowRecordMirror } from './record.ts'
 
-declare module '@qilin/jobs' {
+declare module '@qilin-agent/jobs' {
   interface JobKindMap {
     workflow: 'workflow'
   }
@@ -49,7 +49,7 @@ export interface Config {
   /**
    * Expose `run_in_background` (default true); disabled calls are also
    * rejected. A background run needs a live `ctx.jobs` registry with a
-   * controller serving the caller (`@qilin/jobs-local` plus `@qilin/tool-jobs`
+   * controller serving the caller (`@qilin-agent/jobs-local` plus `@qilin-agent/tool-jobs`
    * in the shipped composition); without one the call fails with the missing
    * piece named.
    */
@@ -276,7 +276,7 @@ function startBackgroundRun(
 ): { kind: 'background'; jobId: JobId; runId: WorkflowRunId } {
   const jobs = ctx.get('jobs')
   if (jobs === undefined) {
-    throw new Error('background jobs unavailable: load @qilin/jobs and @qilin/tool-jobs')
+    throw new Error('background jobs unavailable: load @qilin-agent/jobs and @qilin-agent/tool-jobs')
   }
   let run!: WorkflowRun
   const jobId = jobs.start({

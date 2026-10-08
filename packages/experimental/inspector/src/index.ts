@@ -1,7 +1,7 @@
 /** Repository-facing Host package entry over the mirrored implementation tree. */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
 import {
   apply as applyHost,
 } from './host/plugin.ts'
@@ -49,7 +49,7 @@ export interface InspectorService {
   readonly cordis: CordisRuntimeTreeReader
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Publish Host-realm observations and query the shared Inspector state. */
     inspector: InspectorService

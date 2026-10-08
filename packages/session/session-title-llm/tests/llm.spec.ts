@@ -1,17 +1,17 @@
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
-import LlmRuntime, { createUserMessage, ToolCallId, isAgentLoopRequest, LlmAdapter  } from '@qilin/llm'
-import type { FinishReason, GenerateOptions, StreamChunk } from '@qilin/llm'
-import SessionStore, { SessionId } from '@qilin/session'
-import { SessionTitleProviderId } from '@qilin/session-title'
-import type { SessionTitleProviderRequest } from '@qilin/session-title'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
+import LlmRuntime, { createUserMessage, ToolCallId, isAgentLoopRequest, LlmAdapter  } from '@qilin-agent/llm'
+import type { FinishReason, GenerateOptions, StreamChunk } from '@qilin-agent/llm'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import { SessionTitleProviderId } from '@qilin-agent/session-title'
+import type { SessionTitleProviderRequest } from '@qilin-agent/session-title'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 import {
   generateSessionTitleWithLlm,
   resolveSessionTitleLlmConfig,
   SESSION_TITLE_TIMEOUT_CODE,
-} from '@qilin/session-title-llm'
-import type { SessionTitleLlmConfig } from '@qilin/session-title-llm'
+} from '@qilin-agent/session-title-llm'
+import type { SessionTitleLlmConfig } from '@qilin-agent/session-title-llm'
 
 class RecordingAdapter extends LlmAdapter {
   readonly requests: GenerateOptions[] = []

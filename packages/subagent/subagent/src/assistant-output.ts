@@ -7,11 +7,11 @@
  * select the accumulated assistant text. Selection is independent of the
  * run's stop reason.
  *
- * @module @qilin/subagent/assistant-output
+ * @module @qilin-agent/subagent/assistant-output
  */
 
-import { joinAssistantStreamText, type ContentBlock } from '@qilin/llm'
-import type { SessionEvent } from '@qilin/session'
+import { joinAssistantStreamText, type ContentBlock } from '@qilin-agent/llm'
+import type { SessionEvent } from '@qilin-agent/session'
 
 /**
  * Incremental fold of the selection rule, for backends that observe a child's

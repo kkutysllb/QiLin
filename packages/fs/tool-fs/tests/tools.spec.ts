@@ -4,17 +4,17 @@
  */
 
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { PtcRuntime } from '@qilin/ptc-runtime'
-import { createScope, type Scope } from '@qilin/scope'
+import { Context } from '@qilin-agent/kylin'
+import { PtcRuntime } from '@qilin-agent/ptc-runtime'
+import { createScope, type Scope } from '@qilin-agent/scope'
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, sep } from 'node:path'
-import { turnBoundaryProjectionDefinition } from '@qilin/agent-loop'
-import { ToolCallId } from '@qilin/llm'
-import SystemPrompt, { renderPrompt } from '@qilin/system-prompt'
-import ToolRuntime, { type ToolResult } from '@qilin/tools'
-import { FileSystem, FsError, FsTargetKey, FsVersion } from '@qilin/fs'
+import { turnBoundaryProjectionDefinition } from '@qilin-agent/agent-loop'
+import { ToolCallId } from '@qilin-agent/llm'
+import SystemPrompt, { renderPrompt } from '@qilin-agent/system-prompt'
+import ToolRuntime, { type ToolResult } from '@qilin-agent/tools'
+import { FileSystem, FsError, FsTargetKey, FsVersion } from '@qilin-agent/fs'
 import type {
   FsDirEntry,
   FsEditOutcome,
@@ -24,18 +24,18 @@ import type {
   FsTarget,
   FsWriteIntent,
   FsWriteOutcome,
-} from '@qilin/fs'
-import * as FsPolicy from '@qilin/fs-observation-policy'
-import * as ToolFs from '@qilin/tool-fs'
+} from '@qilin-agent/fs'
+import * as FsPolicy from '@qilin-agent/fs-observation-policy'
+import * as ToolFs from '@qilin-agent/tool-fs'
 import { STREAM_MIN_SIZE } from '../src/read.ts'
 import { formatReadOutput } from '../src/read-render.ts'
 import type { FileReadOutcome } from '../src/read-render.ts'
 import { sessionCwd } from '../src/session-cwd.ts'
-import ApprovalService from '@qilin/user-approval'
-import type { SandboxExecutionPolicy, SandboxMode } from '@qilin/sandbox'
-import SandboxPolicyService from '@qilin/sandbox-policy'
-import { SessionId, SessionLogOffset, SessionSeq } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
+import ApprovalService from '@qilin-agent/user-approval'
+import type { SandboxExecutionPolicy, SandboxMode } from '@qilin-agent/sandbox'
+import SandboxPolicyService from '@qilin-agent/sandbox-policy'
+import { SessionId, SessionLogOffset, SessionSeq } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
 
 const testToolSignal = new AbortController().signal
 
@@ -1084,7 +1084,7 @@ function withPersona(...sections: string[]): string {
 
 /** Schema assembly only: these cases never execute user code. */
 class GuidancePtcRuntime extends PtcRuntime {
-  resolve(request: import('@qilin/ptc-runtime').PtcRunRequest): import('@qilin/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+  resolve(request: import('@qilin-agent/ptc-runtime').PtcRunRequest): import('@qilin-agent/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
   readonly language = 'typescript'
   readonly isolation = 'fake'

@@ -58,21 +58,21 @@ function styleInjectionModule(
 /**
  * Contract layers and pure folds a client bundle may inline: browser-safe
  * values with no runtime identity to share (no Symbol/instanceof/singleton state).
- * Everything else under @qilin/* is either a module-table entry
+ * Everything else under @qilin-agent/* is either a module-table entry
  * (external) or a leak the purity gate rejects.
  */
-export const INLINE_SAFE = /^(?:@qilin\/(?:dsh-compat|file-reference|session|llm|tools|brand|deque|output-retention|typert-protocol|util-crypto|util-values|util-workspace-path)(?:\/|$)|@qilin\/token-meter\/client$|@qilin\/host-open-in-app\/shared$|@qilin\/plugin-manager\/registry$|@qilin\/agent-presets\/display$|@qilin\/spill-policy\/notice$)/
+export const INLINE_SAFE = /^(?:@qilin-agent\/(?:dsh-compat|file-reference|session|llm|tools|brand|deque|output-retention|typert-protocol|util-crypto|util-values|util-workspace-path)(?:\/|$)|@qilin-agent\/token-meter\/client$|@qilin-agent\/host-open-in-app\/shared$|@qilin-agent\/plugin-manager\/registry$|@qilin-agent\/agent-presets\/display$|@qilin-agent\/spill-policy\/notice$)/
 
 /**
- * Vendored framework libraries: rescoped into @qilin, so the gate below
+ * Vendored framework libraries: rescoped into @qilin-agent, so the gate below
  * would read them as plugin packages. They carry no cross-plugin runtime
  * identity to share — the framework itself is a requested module-table row
  * (external), while these are ordinary libraries a browser bundle inlines.
  */
-const VENDORED_LIBRARY = /^@qilin\/(cosmokit|schemastery)(\/|$)/
+const VENDORED_LIBRARY = /^@qilin-agent\/(cosmokit|schemastery)(\/|$)/
 
 /** Generated descriptor/codec contribution with no shared runtime identity. */
-const GENERATED_REMOTE = /^@qilin\/[a-z0-9]+(?:-[a-z0-9]+)*\/remote$/
+const GENERATED_REMOTE = /^@qilin-agent\/[a-z0-9]+(?:-[a-z0-9]+)*\/remote$/
 
 /**
  * Workspace mode replaces an empty config array with the root defaults. A
@@ -533,7 +533,7 @@ function clientConfig(id: string, entry: string, clientBanner?: (fileName: strin
       // Cross-plugin collaboration goes through cordis services instead.
       name: 'qilin-client-bundle-purity',
       resolveId(source: string) {
-        if (!source.startsWith('@qilin/') && !source.startsWith('@deepseek-ai/')) return null
+        if (!source.startsWith('@qilin-agent/') && !source.startsWith('@deepseek-ai/')) return null
         if (isRequested(source)) return null // requested module-table row: external wins
         if (VENDORED_LIBRARY.test(source)) return null // vendored library: inline, no shared identity
         if (INLINE_SAFE.test(source) || GENERATED_REMOTE.test(source)) return null // wire contribution: inline is the point
@@ -630,7 +630,7 @@ function clientInputIsolation(id: string): {
   plugin: TsdownPlugin
   sourcePath: (source: string, mapPath: string) => string
 } {
-  const experimental = id.startsWith('@qilin/experimental-')
+  const experimental = id.startsWith('@qilin-agent/experimental-')
   const inputs = new BundleInputIsolation(REPOSITORY_ROOT, `client bundle isolation (${id})`)
   return {
     plugin: {

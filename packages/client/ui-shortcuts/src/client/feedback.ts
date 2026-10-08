@@ -1,7 +1,7 @@
 /** Localized failures shared by direct removal and inline shortcut editing. */
-import type { ShortcutConfigSnapshot, ShortcutRuntime, ShortcutSaveResult } from '@qilin/client-shortcuts/protocol'
-import type { ShortcutCatalogEntry } from '@qilin/client-shortcuts/client'
-import type { PropsLocale } from '@qilin/client-ui-slots'
+import type { ShortcutConfigSnapshot, ShortcutRuntime, ShortcutSaveResult } from '@qilin-agent/client-shortcuts/protocol'
+import type { ShortcutCatalogEntry } from '@qilin-agent/client-shortcuts/client'
+import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 
 /**
  * Identify the unreadable preferences, their recovery path, and the bindings still in use.

@@ -28,16 +28,16 @@ describe.skipIf(!built)('built workflow PTC runtime', () => {
       await writeFile(outside, 'unchanged')
       const driver = join(driverRoot, 'driver.mjs')
       await writeFile(driver, `
-import { Context } from '@qilin/kylin'
-import PtcWorkflowEngine from '@qilin/workflow-ptc'
+import { Context } from '@qilin-agent/kylin'
+import PtcWorkflowEngine from '@qilin-agent/workflow-ptc'
 const ctx = new Context()
 try {
   for (const name of ['session', 'session-projection', 'fs-local', 'subprocess-local', 'sandbox-local']) {
-    await ctx.plugin((await import('@qilin/' + name)).default, {})
+    await ctx.plugin((await import('@qilin-agent/' + name)).default, {})
   }
-  await ctx.plugin((await import('@qilin/sandbox-policy')).default, { mode: 'read-only', workspaceRoot: process.argv[2] })
-  await ctx.plugin((await import('@qilin/ptc-runtime-node')).default, {})
-  await ctx.plugin((await import('@qilin/subagent')).default, {})
+  await ctx.plugin((await import('@qilin-agent/sandbox-policy')).default, { mode: 'read-only', workspaceRoot: process.argv[2] })
+  await ctx.plugin((await import('@qilin-agent/ptc-runtime-node')).default, {})
+  await ctx.plugin((await import('@qilin-agent/subagent')).default, {})
   let selectedStarts = 0
   ctx.subagents.registerProvider({
     name: 'built-selected',

@@ -7,20 +7,20 @@
  * Registrations outlive producer and controller fibers. Agent or service
  * disposal cancels live work and awaits compliant producers; a throwing
  * teardown cancel force-fails only the record and reports a possible orphan.
- * @module @qilin/jobs-local
+ * @module @qilin-agent/jobs-local
  */
 
-import { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type { Agent } from '@qilin/agent'
-import { ScopedLayers, scopeOf } from '@qilin/scope'
-import type { SessionId } from '@qilin/session'
-import { deadline, timeoutOf } from '@qilin/timeout'
-import { JobRegistry, JobId } from '@qilin/jobs'
+import { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type { Agent } from '@qilin-agent/agent'
+import { ScopedLayers, scopeOf } from '@qilin-agent/scope'
+import type { SessionId } from '@qilin-agent/session'
+import { deadline, timeoutOf } from '@qilin-agent/timeout'
+import { JobRegistry, JobId } from '@qilin-agent/jobs'
 import type {
   JobAppendOptions, JobEvent, JobEvents, JobHandle, JobKind, JobOutcome, JobOutputRead, JobOutputSource,
   JobRead, JobSettleCause, JobSpec, JobStatus, JobView,
-} from '@qilin/jobs'
+} from '@qilin-agent/jobs'
 import { JobEventHub, JobLayer } from './events.ts'
 import { startPump } from './pump.ts'
 import type { PumpHandle } from './pump.ts'
@@ -122,7 +122,7 @@ function isTerminal(status: JobStatus): boolean {
 
 /**
  * The in-memory `jobs` registry. See the Service Definition contract in
- * `@qilin/jobs` for the ownership, isolation, and lifecycle
+ * `@qilin-agent/jobs` for the ownership, isolation, and lifecycle
  * semantics this implementation honors.
  */
 export class LocalJobRegistry extends JobRegistry {
@@ -206,7 +206,7 @@ export class LocalJobRegistry extends JobRegistry {
   start(spec: JobSpec): JobId {
     const owner = this.resolveOwner(spec.owner)
     if (!this.servesOwner(owner)) {
-      throw new Error('background jobs unavailable: no job controller serves this agent (load @qilin/tool-jobs in its composition)')
+      throw new Error('background jobs unavailable: no job controller serves this agent (load @qilin-agent/tool-jobs in its composition)')
     }
     if (spec.kind.length === 0) throw new Error('invalid job kind: expected a non-empty string')
     if (spec.label.length === 0) throw new Error('invalid job label: expected a non-empty string')
@@ -358,7 +358,7 @@ export class LocalJobRegistry extends JobRegistry {
     if (session === undefined) return undefined
     const agents = this.selfCtx.get('agents')
     if (agents === undefined) {
-      throw new Error('background job ownership requires the agent registry (load @qilin/agent)')
+      throw new Error('background job ownership requires the agent registry (load @qilin-agent/agent)')
     }
     const owner = agents.get(session)
     if (owner === undefined) {

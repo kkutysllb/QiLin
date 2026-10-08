@@ -1,7 +1,7 @@
 /** Original log coordinates submitted for target-owned Chat reveal. */
 
-import type { SessionEventLike } from '@qilin/api-session-controller/client'
-import type { StreamChunk } from '@qilin/llm'
+import type { SessionEventLike } from '@qilin-agent/api-session-controller/client'
+import type { StreamChunk } from '@qilin-agent/llm'
 import type { InspectorChatTarget } from '../objects.ts'
 
 /** Original owning event and, for an Assistant child row, its selected stream chunk. */

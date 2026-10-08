@@ -10,17 +10,17 @@
  * business, read through its face. Every import from another
  * client plugin is a type.
  */
-import type { Context as ClientContext } from '@qilin/kylin'
-import type {} from '@qilin/api-remotes/client'
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-resources/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-session/client'
-import type {} from '@qilin/client-ui-conversation/client'
-import type {} from '@qilin/client-ui-sidebar-right/client'
-import type {} from '@qilin/api-gateway/client'
-import type {} from '@qilin/api-workspace-files/remote'
-import type { WorkspaceFileParams } from '@qilin/api-workspace-files/client'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/api-remotes/client'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-resources/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-session/client'
+import type {} from '@qilin-agent/client-ui-conversation/client'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
+import type {} from '@qilin-agent/api-gateway/client'
+import type {} from '@qilin-agent/api-workspace-files/remote'
+import type { WorkspaceFileParams } from '@qilin-agent/api-workspace-files/client'
 import { TextPreview } from './TextPreview.tsx'
 import type { TextPreviewInjected } from './TextPreview.tsx'
 import { TextTitle } from './TextTitle.tsx'
@@ -53,7 +53,7 @@ export type { TextPage, TextState, TextStore, TextTabState } from './store.ts'
 export type { DocumentContent, DocumentPreviewProps, DocumentTextPage } from './document/contract.ts'
 export type { DocumentLoadMode, DocumentPreviewDefinition } from './document/registry.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** File-extension renderer registrations, independent from their keyed document bodies. */
     documentPreviews: DocumentPreviewRegistry
@@ -63,14 +63,14 @@ declare module '@qilin/kylin' {
 /** This package's copy namespace. */
 const NS = 'sidebarDocumentPreview'
 
-declare module '@qilin/client-ui-sidebar-right/client' {
+declare module '@qilin-agent/client-ui-sidebar-right/client' {
   interface SidebarRightResourceParamsMap {
     /** File line navigation supported by the text preview. */
     file: WorkspaceFileParams
   }
 }
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Text-preview progress, paging, change, control, and failure lines. */
     sidebarDocumentPreview: import('./locales.ts').SidebarDocumentPreviewKey

@@ -196,7 +196,7 @@
         }
       },
       {
-        "definitionId": "@qilin/command-goal",
+        "definitionId": "@qilin-agent/command-goal",
         "name": "goal",
         "description": "Set or view the goal for a long-running task",
         "input": {
@@ -205,7 +205,7 @@
         }
       },
       {
-        "definitionId": "@qilin/permission-presets",
+        "definitionId": "@qilin-agent/permission-presets",
         "name": "permission",
         "description": "Switch the permission preset (sandbox mode + approval policy)",
         "input": {
@@ -213,7 +213,7 @@
         }
       },
       {
-        "definitionId": "@qilin/plan-mode",
+        "definitionId": "@qilin-agent/plan-mode",
         "name": "plan",
         "description": "Enter or leave plan mode",
         "input": {

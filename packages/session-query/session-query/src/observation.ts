@@ -1,15 +1,15 @@
 /** Shared live/prepared observations for Session page and lifecycle consumers. */
 
-import type { Context } from '@qilin/kylin'
-import { SessionLogOffset, SessionSeq } from '@qilin/session'
-import type { Session, SessionEvent, SessionHeader, SessionId , SessionLogOffset as SessionLogOffsetType , SessionSeqCursor } from '@qilin/session'
-import type SessionPersistence from '@qilin/session-persistence'
+import type { Context } from '@qilin-agent/kylin'
+import { SessionLogOffset, SessionSeq } from '@qilin-agent/session'
+import type { Session, SessionEvent, SessionHeader, SessionId , SessionLogOffset as SessionLogOffsetType , SessionSeqCursor } from '@qilin-agent/session'
+import type SessionPersistence from '@qilin-agent/session-persistence'
 import type {
   SessionPersistenceRevision,
   SessionPersistenceSnapshot,
-} from '@qilin/session-persistence'
-import type { ProjectionSnapshot } from '@qilin/session-projection'
-import type {} from '@qilin/session-projection-cache'
+} from '@qilin-agent/session-persistence'
+import type { ProjectionSnapshot } from '@qilin-agent/session-projection'
+import type {} from '@qilin-agent/session-projection-cache'
 import { SESSION_QUERY_DEFAULT_PREPARED_SESSION_CACHE_SIZE, SessionQueryError } from './config.ts'
 import { readColdSessionLog, type ColdSessionLog } from './cold-read.ts'
 

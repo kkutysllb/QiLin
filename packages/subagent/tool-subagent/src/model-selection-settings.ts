@@ -1,15 +1,15 @@
 /** Host-owned opt-in setting for model-selectable subagent delegation. */
 
-import { Context, Service } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type {} from '@qilin/settings'
+import { Context, Service } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type {} from '@qilin-agent/settings'
 import {
   AllowedModelRouteSchema,
   assertAllowedModelRoutes,
   type AllowedModelRoute,
 } from './model-selection.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** User preference sampled when a new Session receives delegation tools. */
     subagentModelSelection: SubagentModelSelectionConfig

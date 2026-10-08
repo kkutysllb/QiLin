@@ -4,13 +4,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type {
   AssistantBlock, AssistantMessageNode, MessageImageLoader, RenderMessageImages,
   ToolCallBlock,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 import type {
   InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime,
-} from '@qilin/client-ui-slots'
-import type { SnapshotStore } from '@qilin/client-store'
-import type { JsonTreeProps } from '@qilin/client-ui-primitives'
-import type {} from '@qilin/client-ui-sidebar-right/client'
+} from '@qilin-agent/client-ui-slots'
+import type { SnapshotStore } from '@qilin-agent/client-store'
+import type { JsonTreeProps } from '@qilin-agent/client-ui-primitives'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
 import {
   TrajectoryTable,
   type TrajectoryRequestNumber,

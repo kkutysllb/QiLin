@@ -3,7 +3,7 @@ description: "Right-Sidebar browser tabs for sandboxed HTTP(S) pages, including 
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-sidebar-browser
+# @qilin-agent/client-ui-sidebar-browser
 
 English | [中文](README.zh.md)
 
@@ -37,7 +37,7 @@ The package has no configuration. A custom Web composition mounts its Host compa
 
 ```yaml
 - id: ui-sidebar-browser
-  name: '@qilin/client-ui-sidebar-browser'
+  name: '@qilin-agent/client-ui-sidebar-browser'
 ```
 
 Client plugins can open a tab through `ctx.sidebarRight.openTab('browser', { params: { url } })`. The optional URL passes the same validation as address-bar input before navigation.

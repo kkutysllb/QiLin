@@ -14,4 +14,4 @@ export type {
   StoreHandle,
   StoreInstance,
   StoreSpec,
-} from '@qilin/client-store'
+} from '@qilin-agent/client-store'

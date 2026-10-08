@@ -2,15 +2,15 @@
  * Named wire types for the QiLin SDK runtime protocol: the three
  * request/result pairs and the four server-to-client notification payloads
  * exchanged over the newline-delimited JSON-RPC stdio transport. The server
- * plugin (`@qilin/sdk-jsonrpc-server`) and SDK clients share these shapes;
+ * plugin (`@qilin-agent/sdk-jsonrpc-server`) and SDK clients share these shapes;
  * `serverInfo.name` stays the wire-stable `deepseek-harness-sdk-runtime`.
  *
- * @module @qilin/sdk-protocol/types
+ * @module @qilin-agent/sdk-protocol/types
  */
 
-import type { ContentBlock, ReasoningEffortId } from '@qilin/llm'
-import type { SessionEvent } from '@qilin/session'
-import type { SubagentStopReason } from '@qilin/subagent'
+import type { ContentBlock, ReasoningEffortId } from '@qilin-agent/llm'
+import type { SessionEvent } from '@qilin-agent/session'
+import type { SubagentStopReason } from '@qilin-agent/subagent'
 
 /** Parameters for the process-wide SDK handshake. */
 export interface InitializeParams {

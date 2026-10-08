@@ -2,10 +2,10 @@
  * The bounded output ring behind one job: chunks at absolute byte offsets,
  * head eviction that never moves an assigned offset, and non-consuming reads
  * from any offset.
- * @module @qilin/jobs-local/ring
+ * @module @qilin-agent/jobs-local/ring
  */
 
-import type { JobAppendOptions, JobChannel, JobOutputRead } from '@qilin/jobs'
+import type { JobAppendOptions, JobChannel, JobOutputRead } from '@qilin-agent/jobs'
 
 /** One retained ring entry; `bytes` caches the chunk's UTF-8 length. */
 interface RingChunk {

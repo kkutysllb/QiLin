@@ -1,8 +1,8 @@
 /** V4 framing with native tool-role admission and released physical rows. */
 
-import { SessionFormatError, isSessionFormatJsonObject } from '@qilin/session-format'
-import type { SessionFormatCodec, SessionFormatCurrentEncoder, SessionFormatHeader, SessionFormatEvent } from '@qilin/session-format'
-import { releasedV2SessionFormatCodec } from '@qilin/session-format-v2-to-v3'
+import { SessionFormatError, isSessionFormatJsonObject } from '@qilin-agent/session-format'
+import type { SessionFormatCodec, SessionFormatCurrentEncoder, SessionFormatHeader, SessionFormatEvent } from '@qilin-agent/session-format'
+import { releasedV2SessionFormatCodec } from '@qilin-agent/session-format-v2-to-v3'
 import { assertV4SourceRowAdmission } from './message-sources.ts'
 import { assertV4RetiredSyntax } from './retired-syntax.ts'
 import { assertV4SystemMessageFields } from './system-message.ts'

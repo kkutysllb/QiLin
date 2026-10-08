@@ -1,6 +1,6 @@
 /**
  * Browser-only host runtime: the harness Cordis tree inside a dedicated Web Worker.
- * @module @qilin/experimental-webworker-runtime
+ * @module @qilin-agent/experimental-webworker-runtime
  */
 export {
   createAlsRuntime,

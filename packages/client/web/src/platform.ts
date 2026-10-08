@@ -1,16 +1,16 @@
 /**
  * Shared browser platform modules. Seeding, bundling externals, and Vite
  * aliases consume this list so their module identities cannot drift.
- * @module @qilin/client-web/src/platform
+ * @module @qilin-agent/client-web/src/platform
  */
 
 /** The module specifiers the shell shares into the frozen module table. */
 export const PLATFORM_MODULES = [
-  'react', 'react/jsx-runtime', 'react-dom', 'react-dom/client', '@qilin/kylin',
-  '@qilin/client-store',
-  '@qilin/client-ui-slots',
-  '@qilin/client-ui-primitives',
-  '@qilin/client-ui-dockkit',
+  'react', 'react/jsx-runtime', 'react-dom', 'react-dom/client', '@qilin-agent/kylin',
+  '@qilin-agent/client-store',
+  '@qilin-agent/client-ui-slots',
+  '@qilin-agent/client-ui-primitives',
+  '@qilin-agent/client-ui-dockkit',
 ] as const
 
 /** Client-bundle specifiers whose factories the parser preloads before the shell starts. */

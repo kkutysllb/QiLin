@@ -2,11 +2,11 @@
  * Structural types for the cordis services this plugin consumes, plus the
  * Context face both halves share.
  *
- * The type base is the vendored `@qilin/kylin` Context (the runtime
+ * The type base is the vendored `@qilin-agent/kylin` Context (the runtime
  * DSH actually runs); the service members this plugin touches are restated
  * below as structural mirrors and combined with the base by INTERSECTION.
  * Intersection (not `declare module` augmentation) is deliberate: DSH's own
- * packages already augment `@qilin/kylin`, and the host and client
+ * packages already augment `@qilin-agent/kylin`, and the host and client
  * packages declare *different* types for the same member — host
  * `sessions: SessionStore` vs client runtime `sessions: ISessions` — so a
  * single program that re-declares them would fail interface merging
@@ -28,7 +28,7 @@
  * interfaces (the host casts to real Node types at the few boundaries that
  * need them — e.g. the `ws` upgrade hook in src/index.ts).
  */
-import type { Context as CordisContext } from '@qilin/kylin'
+import type { Context as CordisContext } from '@qilin-agent/kylin'
 
 /** The request face route handlers see (structural subset of node's
  *  IncomingMessage: the URL/method/header reads and the async body
@@ -763,7 +763,7 @@ export interface SidebarConfigEditorService {
 }
 
 /**
- * The tools service face (mirror of @qilin/tools' ToolRuntime).
+ * The tools service face (mirror of @qilin-agent/tools' ToolRuntime).
  * The host half registers model-facing tools here; the registry attaches the
  * returned disposer to the contributing fiber so unloading unregisters them.
  */
@@ -773,7 +773,7 @@ export interface SidebarToolsService {
 }
 
 /**
- * The agent face a tool sees on `exec.agent` (mirror of @qilin/agent's
+ * The agent face a tool sees on `exec.agent` (mirror of @qilin-agent/agent's
  * Agent). Only the slices the terminal tools touch are restated: the live
  * session identity and its header cwd, both readonly.
  */
@@ -871,6 +871,6 @@ export interface SidebarContextShape {
 /**
  * The Context this plugin sees: the vendored cordis Context intersected with
  * the structural service faces above. Re-exported from the package root so a
- * consumer can `import type { Context } from '@qilin/client-ui-sidebar-coding'`.
+ * consumer can `import type { Context } from '@qilin-agent/client-ui-sidebar-coding'`.
  */
 export type Context = CordisContext & SidebarContextShape

@@ -5,10 +5,10 @@
  * document owns its own copy for each refusal. A success that establishes a
  * session also sets this deployment's session cookie, which is why every
  * endpoint that can mint one reads the request authority first.
- * @module @qilin/accounts-local/src/routes
+ * @module @qilin-agent/accounts-local/src/routes
  */
 
-import type { ConnectionFetchRoute, ConnectionTrustRequest } from '@qilin/client-connection'
+import type { ConnectionFetchRoute, ConnectionTrustRequest } from '@qilin-agent/client-connection'
 import type { AccountRecord, AccountStore } from './accounts.ts'
 import { isRecord } from './json.ts'
 import { hashPassword, verifyPassword } from './password.ts'

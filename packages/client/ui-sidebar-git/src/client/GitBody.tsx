@@ -16,9 +16,9 @@ import {
   Button, IconBranchOutline16, IconChevronDownOutline14, IconCloseOutline16, IconCopyOutline16, IconPlusOutline16,
   IconRefreshOutline16, IconTrashOutline16, Input, Menu, useCopyFeedback, writeClipboard,
   type MenuEntry,
-} from '@qilin/client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRuntime, PropsStore } from '@qilin/client-ui-slots'
-import type { GitStatusEntry } from '@qilin/api-workspace-git/types'
+} from '@qilin-agent/client-ui-primitives'
+import type { InjectFace, PropsLocale, PropsRuntime, PropsStore } from '@qilin-agent/client-ui-slots'
+import type { GitStatusEntry } from '@qilin-agent/api-workspace-git/types'
 import type { GitInjected } from './face.ts'
 import type {} from './locales.ts'
 import { badgeOf, canDiscardEntry, diffLineKind, formatCommitTime, gitFailureLine, groupChanges } from './git-model.ts'

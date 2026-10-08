@@ -1,4 +1,4 @@
-import { createUserMessage } from '@qilin/llm'
+import { createUserMessage } from '@qilin-agent/llm'
 /**
  * Loop-level tool-order determinism: the request/header event — and therefore the frozen
  * request the adapter receives — carries the assembly's canonical tool order (system-prompt's
@@ -8,16 +8,16 @@ import { createUserMessage } from '@qilin/llm'
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import LlmRuntime from '@qilin/llm'
-import SessionStore, { SessionId, foldRequestHeader } from '@qilin/session'
-import SystemPrompt, { TOOL_ORDER_REST } from '@qilin/system-prompt'
-import type { Config as SystemPromptConfig } from '@qilin/system-prompt'
-import ToolRuntime, { defineContentToolFixture } from '@qilin/tools'
-import AgentRegistry, { type Agent } from '@qilin/agent'
+import { Context } from '@qilin-agent/kylin'
+import LlmRuntime from '@qilin-agent/llm'
+import SessionStore, { SessionId, foldRequestHeader } from '@qilin-agent/session'
+import SystemPrompt, { TOOL_ORDER_REST } from '@qilin-agent/system-prompt'
+import type { Config as SystemPromptConfig } from '@qilin-agent/system-prompt'
+import ToolRuntime, { defineContentToolFixture } from '@qilin-agent/tools'
+import AgentRegistry, { type Agent } from '@qilin-agent/agent'
 
-import AgentLoop from '@qilin/agent-loop'
-import SessionProjectionRegistry from '@qilin/session-projection'
+import AgentLoop from '@qilin-agent/agent-loop'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import { MockAdapter, textResponse } from './mock-adapter.ts'
 
 async function harness(adapter: MockAdapter, toolOrder?: SystemPromptConfig['toolOrder']) {

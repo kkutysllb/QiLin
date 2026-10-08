@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import type { ImageAttachmentRef } from '@qilin/attachment'
-import { IconLoadingOutline16, IconRefreshOutline16, ImageLightbox } from '@qilin/client-ui-primitives'
-import type { ImageLightboxLabels } from '@qilin/client-ui-primitives'
+import type { ImageAttachmentRef } from '@qilin-agent/attachment'
+import { IconLoadingOutline16, IconRefreshOutline16, ImageLightbox } from '@qilin-agent/client-ui-primitives'
+import type { ImageLightboxLabels } from '@qilin-agent/client-ui-primitives'
 import css from './MessageImage.module.css'
 
 /** Loads a session-authorized durable image URL and may expose a cached URL synchronously. */

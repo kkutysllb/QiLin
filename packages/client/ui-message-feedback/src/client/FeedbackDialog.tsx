@@ -4,14 +4,14 @@
  * The Modal and the Toast both portal to `document.body`; the overlay slot
  * only supplies the per-session controller and the composer card the toast
  * centers over.
- * @module @qilin/client-ui-message-feedback/client/FeedbackDialog
+ * @module @qilin-agent/client-ui-message-feedback/client/FeedbackDialog
  */
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {
   Button, IconCheckOutline16, IconWarningOutline16, Modal, Toast,
-} from '@qilin/client-ui-primitives'
-import type { FeedbackCategory } from '@qilin/command-feedback/types'
+} from '@qilin-agent/client-ui-primitives'
+import type { FeedbackCategory } from '@qilin-agent/command-feedback/types'
 import type { FeedbackDialogProps } from './slots.ts'
 import css from './FeedbackDialog.module.css'
 

@@ -6,8 +6,8 @@
  * surfaces (the session list today; the right bar and plugin filtering as the
  * dual-workbench slices land), which keeps the dependency edge one-directional.
  */
-import { Service, type Context } from '@qilin/kylin'
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
+import { Service, type Context } from '@qilin-agent/kylin'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
 import {
   rehydrateWorkbenchState, workbenchShows, WORKBENCH_STORAGE_KEY, WORKBENCH_TAG_PRESETS,
   type WorkbenchState, type WorkbenchTag,
@@ -19,7 +19,7 @@ export {
   type WorkbenchState, type WorkbenchTag,
 } from './workbench.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** The general/coding workbench selection and its per-tag preset memory. */
     workbench: Workbench

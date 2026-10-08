@@ -1,5 +1,5 @@
 /**
- * Real-load-path guard for @qilin/tool-fs-search. `tool-fs-search` is
+ * Real-load-path guard for @qilin-agent/tool-fs-search. `tool-fs-search` is
  * a NAMESPACE plugin with `inject` — so a stray `export default apply` would
  * make the cordis Loader's `unwrapExports` (`exports.default ?? exports`)
  * collapse the module to the bare `apply` function, DROPPING `inject`. The
@@ -15,12 +15,12 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
-import LocalSubprocessRuntime from '@qilin/subprocess-local'
-import * as toolFsSearch from '@qilin/tool-fs-search'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
+import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
+import * as toolFsSearch from '@qilin-agent/tool-fs-search'
 
 describe('qilin-tool-fs-search real-load-path guard', () => {
   it('has no default export and keeps name/inject/Config through unwrapExports', () => {

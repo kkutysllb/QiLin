@@ -3,13 +3,13 @@
  * timestamps, goal lifecycle clocks, and hook duration while preserving semantic payload values.
  * The prompt-text and tool-schema scrubbers stay composable so one scenario per header class can
  * pin prompt and tool-schema sidecars.
- * @module @qilin/session-snapshot/normalize
+ * @module @qilin-agent/session-snapshot/normalize
  */
 
 import {
   decodeSeqRanges,
-} from '@qilin/session'
-import { prepareSessionSnapshotFixtureForComparison } from '@qilin/llm-replay'
+} from '@qilin-agent/session'
+import { prepareSessionSnapshotFixtureForComparison } from '@qilin-agent/llm-replay'
 import { redactSessionSnapshotIds } from './identity.ts'
 
 const SESSION_ID = '{{sessionId}}'

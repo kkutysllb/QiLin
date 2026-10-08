@@ -3,16 +3,16 @@
  * {@link SessionEvent}s as the event-sourced log and carry non-replayable
  * {@link SessionHeader} metadata separately; callers address one stored
  * session through a {@link SessionHandle} obtained from `create`/`open`.
- * @module @qilin/session-persistence
+ * @module @qilin-agent/session-persistence
  */
 
-import { Context, Service } from '@qilin/kylin'
-import type { SessionEvent, SessionHeader, SessionId, SessionLogOffset } from '@qilin/session'
+import { Context, Service } from '@qilin-agent/kylin'
+import type { SessionEvent, SessionHeader, SessionId, SessionLogOffset } from '@qilin-agent/session'
 import type { SessionHandle, SessionAccess } from './handle.ts'
 import type { SessionPersistenceRevision } from './revision.ts'
 
 // Re-export the metadata vocabulary so Consumers import it from the Service Definition.
-export type { SessionHeader } from '@qilin/session'
+export type { SessionHeader } from '@qilin-agent/session'
 export { SessionPersistenceRevision } from './revision.ts'
 export type {
   SessionAccess,
@@ -106,7 +106,7 @@ export interface SessionPersistenceListOptions {
   readonly signal?: AbortSignal
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     sessionPersistence: SessionPersistence
   }

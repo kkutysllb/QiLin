@@ -18,10 +18,10 @@
  * @module qilin-sandbox-policy/session-mode
  */
 
-import type { Session } from '@qilin/session'
-import type { SandboxMode } from '@qilin/sandbox'
+import type { Session } from '@qilin-agent/session'
+import type { SandboxMode } from '@qilin-agent/sandbox'
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /**
      * The session's sandbox mode was switched — log-only (like `approval/*`;

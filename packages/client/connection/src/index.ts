@@ -1,11 +1,11 @@
 /** Host HTTP bridge for browser-client RPC. */
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import z from '@qilin/schemastery'
-import type {} from '@qilin/attachment'
-import type {} from '@qilin/credentials'
+import z from '@qilin-agent/schemastery'
+import type {} from '@qilin-agent/attachment'
+import type {} from '@qilin-agent/credentials'
 // Activates the webServer Context merge used below.
-import type { WebRoute } from '@qilin/host-webserver'
+import type { WebRoute } from '@qilin-agent/host-webserver'
 import { API_PATH } from './api-path.ts'
 import { bridge, DEFAULT_MAX_REQUEST_BODY_BYTES } from './http-bridge.ts'
 import { assertTrustedAuthority } from './api-request-trust.ts'
@@ -36,7 +36,7 @@ export type {
   RpcMessage,
   ServerResponse,
 } from './rpc.ts'
-export type { PeerId, PeerScope, RemoteInvocation } from '@qilin/typert-protocol'
+export type { PeerId, PeerScope, RemoteInvocation } from '@qilin-agent/typert-protocol'
 export { RpcId, transportError } from './rpc.ts'
 export { OperatorPeer } from './operator-peer.ts'
 export {
@@ -55,7 +55,7 @@ export { WEB_ENTRY_PATH } from './web-entry.ts'
 /** Stable Cordis plugin name. */
 export const name = 'client-connection'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Events {
     /**
      * Admit or wrap an authenticated shared API request, including body transfer.

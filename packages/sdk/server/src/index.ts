@@ -6,13 +6,13 @@
  * owns EOF and signal exits. Keep named plugin exports with no default export so
  * Loader `unwrapExports` preserves `name`, `inject`, `Config`, and `apply`.
  *
- * @module @qilin/sdk-jsonrpc-server
+ * @module @qilin-agent/sdk-jsonrpc-server
  */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type { Readable, Writable } from 'node:stream'
-import Schema from '@qilin/schemastery'
-import { JsonRpcLineTransport } from '@qilin/sdk-protocol'
+import Schema from '@qilin-agent/schemastery'
+import { JsonRpcLineTransport } from '@qilin-agent/sdk-protocol'
 import { HarnessSdkJsonRpcServer } from './server.ts'
 
 export * from './server.ts'

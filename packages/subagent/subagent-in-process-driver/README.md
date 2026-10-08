@@ -3,7 +3,7 @@ description: "Shared in-process subagent run driver for maintainers and backend 
 kind: "package-library"
 ---
 
-# @qilin/subagent-in-process-driver
+# @qilin-agent/subagent-in-process-driver
 
 English | [中文](README.zh.md)
 

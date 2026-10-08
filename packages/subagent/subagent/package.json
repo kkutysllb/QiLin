@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/subagent",
+  "name": "@qilin-agent/subagent",
   "description": "Abstract subagent seam (ctx.subagents): named-provider registry for delegating to child agents",
   "version": "3.1.1",
   "publishConfig": {
@@ -51,97 +51,97 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@qilin/brand": "workspace:*",
-    "@qilin/chunked-list": "workspace:*",
-    "@qilin/util-values": "workspace:*",
-    "@qilin/schemastery": "workspace:~",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/chunked-list": "workspace:*",
+    "@qilin-agent/util-values": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~",
     "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/agent-presets": "workspace:*",
-    "@qilin/attachment": "workspace:*",
-    "@qilin/jobs": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/sandbox": "workspace:*",
-    "@qilin/sandbox-policy": "workspace:*",
-    "@qilin/scope": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-persistence": "workspace:*",
-    "@qilin/session-projection": "workspace:*",
-    "@qilin/session-projection-cache": "workspace:*",
-    "@qilin/session-query": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/typert-protocol": "workspace:*",
-    "@qilin/user-approval": "workspace:*",
-    "@qilin/util-time": "workspace:*",
-    "@qilin/permission-presets": "workspace:*",
-    "@qilin/settings": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-presets": "workspace:*",
+    "@qilin-agent/attachment": "workspace:*",
+    "@qilin-agent/jobs": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/sandbox": "workspace:*",
+    "@qilin-agent/sandbox-policy": "workspace:*",
+    "@qilin-agent/scope": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-persistence": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/session-projection-cache": "workspace:*",
+    "@qilin-agent/session-query": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*",
+    "@qilin-agent/user-approval": "workspace:*",
+    "@qilin-agent/util-time": "workspace:*",
+    "@qilin-agent/permission-presets": "workspace:*",
+    "@qilin-agent/settings": "workspace:*"
   },
   "peerDependenciesMeta": {
-    "@qilin/agent-presets": {
+    "@qilin-agent/agent-presets": {
       "optional": true
     },
-    "@qilin/permission-presets": {
+    "@qilin-agent/permission-presets": {
       "optional": true
     },
-    "@qilin/sandbox": {
+    "@qilin-agent/sandbox": {
       "optional": true
     },
-    "@qilin/sandbox-policy": {
+    "@qilin-agent/sandbox-policy": {
       "optional": true
     },
-    "@qilin/session-persistence": {
+    "@qilin-agent/session-persistence": {
       "optional": true
     },
-    "@qilin/session-projection": {
+    "@qilin-agent/session-projection": {
       "optional": true
     },
-    "@qilin/session-projection-cache": {
+    "@qilin-agent/session-projection-cache": {
       "optional": true
     },
-    "@qilin/session-query": {
+    "@qilin-agent/session-query": {
       "optional": true
     },
-    "@qilin/jobs": {
+    "@qilin-agent/jobs": {
       "optional": true
     },
-    "@qilin/user-approval": {
+    "@qilin-agent/user-approval": {
       "optional": true
     },
-    "@qilin/settings": {
+    "@qilin-agent/settings": {
       "optional": true
     }
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/agent-presets": "workspace:*",
-    "@qilin/attachment": "workspace:*",
-    "@qilin/jobs": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/sandbox": "workspace:*",
-    "@qilin/sandbox-policy": "workspace:*",
-    "@qilin/schedule": "workspace:*",
-    "@qilin/tool-schedule": "workspace:*",
-    "@qilin/scope": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-persistence": "workspace:*",
-    "@qilin/session-projection": "workspace:*",
-    "@qilin/session-projection-cache": "workspace:*",
-    "@qilin/session-query": "workspace:*",
-    "@qilin/storage": "workspace:*",
-    "@qilin/storage-domain": "workspace:*",
-    "@qilin/storage-json": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/typert-protocol": "workspace:*",
-    "@qilin/user-approval": "workspace:*",
-    "@qilin/util-time": "workspace:*",
-    "@qilin/permission-presets": "workspace:*",
-    "@qilin/settings": "workspace:*",
-    "@qilin/llm-deepseek-api-key": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-presets": "workspace:*",
+    "@qilin-agent/attachment": "workspace:*",
+    "@qilin-agent/jobs": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/sandbox": "workspace:*",
+    "@qilin-agent/sandbox-policy": "workspace:*",
+    "@qilin-agent/schedule": "workspace:*",
+    "@qilin-agent/tool-schedule": "workspace:*",
+    "@qilin-agent/scope": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-persistence": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/session-projection-cache": "workspace:*",
+    "@qilin-agent/session-query": "workspace:*",
+    "@qilin-agent/storage": "workspace:*",
+    "@qilin-agent/storage-domain": "workspace:*",
+    "@qilin-agent/storage-json": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*",
+    "@qilin-agent/user-approval": "workspace:*",
+    "@qilin-agent/util-time": "workspace:*",
+    "@qilin-agent/permission-presets": "workspace:*",
+    "@qilin-agent/settings": "workspace:*",
+    "@qilin-agent/llm-deepseek-api-key": "workspace:*"
   }
 }

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /** Snapshot-only Loader driver: stream one fixture turn as canonical JSONL. */
 
-import type { Context, FiberState } from '@qilin/kylin'
-import { installFailLoud, loadEnv, resolveConfigPath } from '@qilin/app-boot'
-import { runFixtureTurn } from '@qilin/loader-smoke'
-import type { SessionEvent } from '@qilin/session'
+import type { Context, FiberState } from '@qilin-agent/kylin'
+import { installFailLoud, loadEnv, resolveConfigPath } from '@qilin-agent/app-boot'
+import { runFixtureTurn } from '@qilin-agent/loader-smoke'
+import type { SessionEvent } from '@qilin-agent/session'
 import { bootProductionProfile } from './production-profile.ts'
 
 const NAME = 'headless-test-driver'

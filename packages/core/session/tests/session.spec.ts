@@ -1,8 +1,8 @@
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createDeveloperMessage, createSystemMessage, createUserMessage, ToolCallId, createMessage, createToolResultMessage, MessageId, ReasoningEffortId } from '@qilin/llm'
-import type { ContentBlock } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
+import { Context } from '@qilin-agent/kylin'
+import { createDeveloperMessage, createSystemMessage, createUserMessage, ToolCallId, createMessage, createToolResultMessage, MessageId, ReasoningEffortId } from '@qilin-agent/llm'
+import type { ContentBlock } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
 import SessionStore, {
   adoptSessionEvent,
   SESSION_FORMAT_VERSION,
@@ -12,10 +12,10 @@ import SessionStore, {
   SessionLogOffset,
   SessionSeq,
   snapshotSessionEvent,
-} from '@qilin/session'
-import type { CreateSessionOptions, SessionEventType, SessionHeader, SessionSurface } from '@qilin/session'
+} from '@qilin-agent/session'
+import type { CreateSessionOptions, SessionEventType, SessionHeader, SessionSurface } from '@qilin-agent/session'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
     'watcher': { kind: 'watcher' } & ContextFormed

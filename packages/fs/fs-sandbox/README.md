@@ -3,7 +3,7 @@ description: "The sandbox-enforcing ctx.fs backend for deployments and maintaine
 kind: "package-reference"
 ---
 
-# @qilin/fs-sandbox
+# @qilin-agent/fs-sandbox
 
 English | [中文](README.zh.md)
 
@@ -32,14 +32,14 @@ Mount this backend instead of `fs-local` when the model's file mutations must be
 Load the shared policy service, then this backend, then the tools; the read-before-edit policy plugin stays optional.
 
 ```yaml
-- name: '@qilin/sandbox-policy'
-- name: '@qilin/fs-sandbox'
+- name: '@qilin-agent/sandbox-policy'
+- name: '@qilin-agent/fs-sandbox'
   config:
     cwd: /absolute/path/to/workspace
-- name: '@qilin/tool-fs'
+- name: '@qilin-agent/tool-fs'
 ```
 
-The backend's config is unchanged from the local backend's (`cwd` resolution default and `diffBasisMaxBytes` overwrite bound); the [configuration catalog](../../../docs/config-catalog.md#qilinfs-sandbox) is the exhaustive source.
+The backend's config is unchanged from the local backend's (`cwd` resolution default and `diffBasisMaxBytes` overwrite bound); the [configuration catalog](../../../docs/config-catalog.md#qilin-agentfs-sandbox) is the exhaustive source.
 
 ### How the fence behaves
 

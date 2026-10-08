@@ -10,21 +10,21 @@
  * `plan-review` intent as the plan decision card and every other request as
  * the generic question flow. Both use the same carrier and composer seat.
  */
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { InboxWireState } from '@qilin/agent/types'
-import type {} from '@qilin/api-remotes/client'
-import type { SessionId } from '@qilin/session/types'
-import type {} from '@qilin/client-ui-chat/client'
-import type { ComposerChainProps } from '@qilin/client-ui-conversation/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type { PendingInteractionPublisher } from '@qilin/client-ui-session/client'
-import type { TypertClientEventListener } from '@qilin/typert-protocol'
-import type { AskUserQuestionItem, PendingUserQuestion, UserQuestionProjectionView } from '@qilin/user-questions/types'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { InboxWireState } from '@qilin-agent/agent/types'
+import type {} from '@qilin-agent/api-remotes/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type {} from '@qilin-agent/client-ui-chat/client'
+import type { ComposerChainProps } from '@qilin-agent/client-ui-conversation/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type { PendingInteractionPublisher } from '@qilin-agent/client-ui-session/client'
+import type { TypertClientEventListener } from '@qilin-agent/typert-protocol'
+import type { AskUserQuestionItem, PendingUserQuestion, UserQuestionProjectionView } from '@qilin-agent/user-questions/types'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
-import type {} from '@qilin/client-locale/client'
-import type { UserQuestionPanels, UserQuestionRecord } from '@qilin/client-ui-tool/client'
-import type { ToolCallId } from '@qilin/llm'
-import { brandString } from '@qilin/brand'
+import type {} from '@qilin-agent/client-locale/client'
+import type { UserQuestionPanels, UserQuestionRecord } from '@qilin-agent/client-ui-tool/client'
+import type { ToolCallId } from '@qilin-agent/llm'
+import { brandString } from '@qilin-agent/brand'
 import { createWaterfallRequest, PendingQuestion, type QuestionRpcChannel } from './contract/slots.ts'
 import { createQuestionDraftStore } from './draft-store.ts'
 import { QuestionComposer } from './QuestionComposer.tsx'
@@ -37,7 +37,7 @@ export type {
 } from './contract/slots.ts'
 export type { QuestionKey } from './locales.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** The question composer's copy. */
     question: QuestionKey

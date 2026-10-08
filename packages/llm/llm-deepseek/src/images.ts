@@ -1,8 +1,8 @@
 /** Deterministic Messages image preparation for Files references and bounded inline fallback. */
 
-import type { AttachmentStore, ImageAttachmentRef, RequestImageAttachment } from '@qilin/attachment'
-import { contentHasImage, IMAGE_OFFLOAD_REQUIRED_CODE, LlmError, offloadedImageText, projectOffloadedImages, requiredImageOffload } from '@qilin/llm'
-import type { ContentBlock, ImageAttachmentAccessResolver, RequestMessage } from '@qilin/llm'
+import type { AttachmentStore, ImageAttachmentRef, RequestImageAttachment } from '@qilin-agent/attachment'
+import { contentHasImage, IMAGE_OFFLOAD_REQUIRED_CODE, LlmError, offloadedImageText, projectOffloadedImages, requiredImageOffload } from '@qilin-agent/llm'
+import type { ContentBlock, ImageAttachmentAccessResolver, RequestMessage } from '@qilin-agent/llm'
 import type { DeepSeekConnectionOptions as Connection } from './types.ts'
 import { resolveRequestImageTarget } from './request-pricing.ts'
 import type { DeepSeekFileId } from './file-id.ts'

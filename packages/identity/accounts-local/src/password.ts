@@ -3,7 +3,7 @@
  * as one self-describing string so a stored hash carries the parameters it was
  * derived under. The cost keeps one verification in the tens of milliseconds,
  * which is the only brute-force brake a local server has.
- * @module @qilin/accounts-local/src/password
+ * @module @qilin-agent/accounts-local/src/password
  */
 
 import { randomBytes, scrypt, timingSafeEqual } from 'node:crypto'

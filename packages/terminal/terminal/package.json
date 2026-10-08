@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/terminal",
+  "name": "@qilin-agent/terminal",
   "description": "Persistent PTY session seam for the QiLin — owner-scoped ids, backend registry, interactive sends, reads, signals, and awaited cleanup",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,15 +30,15 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/brand": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/agent-loop-testkit": "workspace:*",
-    "@qilin/brand": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-loop-testkit": "workspace:*",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   }
 }

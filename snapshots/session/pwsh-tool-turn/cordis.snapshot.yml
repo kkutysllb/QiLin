@@ -4,7 +4,7 @@
 
 - insert:
     - id: llm-replay
-      name: '@qilin/llm-replay'
+      name: '@qilin-agent/llm-replay'
       config:
         providers:
           - id: deepseek-official
@@ -13,72 +13,72 @@
               - id: deepseek-v4-pro
 
 - id: subprocess
-  name: '@qilin/subprocess-local'
+  name: '@qilin-agent/subprocess-local'
 
 - id: bash-sandbox
-  name: '@qilin/bash-sandbox'
+  name: '@qilin-agent/bash-sandbox'
   disabled: true
 
 - id: pwsh-sandbox
-  name: '@qilin/pwsh-sandbox'
+  name: '@qilin-agent/pwsh-sandbox'
   disabled: false
 
 - id: shell-env
-  name: '@qilin/shell-env'
+  name: '@qilin-agent/shell-env'
 
 - id: agent-default-model
-  name: '@qilin/agent-default-model'
+  name: '@qilin-agent/agent-default-model'
   config:
     provider: deepseek-official
     model: deepseek-v4-pro
 
 - id: session-persistence-jsonl
-  name: '@qilin/session-persistence-jsonl'
+  name: '@qilin-agent/session-persistence-jsonl'
   config:
     root: !!js qilinHomePath('sessions')
     compression: none
 
 - id: agent-instructions
-  name: '@qilin/agent-instructions'
+  name: '@qilin-agent/agent-instructions'
   disabled: true
 
 - id: system-prompt
-  name: '@qilin/system-prompt'
+  name: '@qilin-agent/system-prompt'
   config:
     personaPrefix: You are a concise snapshot agent working in {{cwd}}.
 
 - id: goal
-  name: '@qilin/goal'
+  name: '@qilin-agent/goal'
   disabled: true
 
 - id: goal-round-driver
-  name: '@qilin/goal-round-driver'
+  name: '@qilin-agent/goal-round-driver'
   disabled: true
 
 - id: command-goal
-  name: '@qilin/command-goal'
+  name: '@qilin-agent/command-goal'
   disabled: true
 
 - id: tool-goal
-  name: '@qilin/tool-goal'
+  name: '@qilin-agent/tool-goal'
   disabled: true
 
 - id: skill
-  name: '@qilin/skill'
+  name: '@qilin-agent/skill'
   disabled: true
 
 - id: skill-filesystem
-  name: '@qilin/skill-filesystem'
+  name: '@qilin-agent/skill-filesystem'
   disabled: true
 
 - id: tool-skill
-  name: '@qilin/tool-skill'
+  name: '@qilin-agent/tool-skill'
   disabled: true
 
 - id: tool-bash
-  name: '@qilin/tool-bash'
+  name: '@qilin-agent/tool-bash'
   disabled: true
 
 - id: tool-pwsh
-  name: '@qilin/tool-pwsh'
+  name: '@qilin-agent/tool-pwsh'
   disabled: false

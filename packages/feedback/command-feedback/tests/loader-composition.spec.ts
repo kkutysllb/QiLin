@@ -3,16 +3,16 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import AgentRegistry from '@qilin/agent'
-import type { Agent, AgentStatus } from '@qilin/agent'
-import CommandRuntime from '@qilin/commands'
-import SessionStore, { SessionId } from '@qilin/session'
-import * as CommandFeedback from '@qilin/command-feedback'
-import { getOrCreateAnonymousUserId } from '@qilin/anonymous-user-id'
-import { unsupportedInbox } from '@qilin/agent-loop-testkit'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import AgentRegistry from '@qilin-agent/agent'
+import type { Agent, AgentStatus } from '@qilin-agent/agent'
+import CommandRuntime from '@qilin-agent/commands'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import * as CommandFeedback from '@qilin-agent/command-feedback'
+import { getOrCreateAnonymousUserId } from '@qilin-agent/anonymous-user-id'
+import { unsupportedInbox } from '@qilin-agent/agent-loop-testkit'
 
 let root: string | undefined
 let context: Context | undefined
@@ -56,10 +56,10 @@ describe('/feedback real Loader composition through cordis.yml', () => {
     vi.stubEnv('QILIN_HOME', root)
     const configPath = join(root, 'cordis.yml')
     await writeFile(configPath, [
-      "- name: '@qilin/agent'",
-      "- name: '@qilin/session'",
-      "- name: '@qilin/commands'",
-      "- name: '@qilin/command-feedback'",
+      "- name: '@qilin-agent/agent'",
+      "- name: '@qilin-agent/session'",
+      "- name: '@qilin-agent/commands'",
+      "- name: '@qilin-agent/command-feedback'",
       '',
     ].join('\n'))
 
@@ -68,10 +68,10 @@ describe('/feedback real Loader composition through cordis.yml', () => {
     await context.plugin(Loader)
     context.loader.builtins.include = Include
     const modules = new Map<string, unknown>([
-      ['@qilin/agent', AgentRegistry],
-      ['@qilin/session', SessionStore],
-      ['@qilin/commands', CommandRuntime],
-      ['@qilin/command-feedback', CommandFeedback],
+      ['@qilin-agent/agent', AgentRegistry],
+      ['@qilin-agent/session', SessionStore],
+      ['@qilin-agent/commands', CommandRuntime],
+      ['@qilin-agent/command-feedback', CommandFeedback],
     ])
     context.loader.internal = {
       version: 'v2',

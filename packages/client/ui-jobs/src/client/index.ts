@@ -4,17 +4,17 @@
  * and the human kill all go through the `jobs` client service; this plugin
  * holds no transport state of its own.
  */
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { JobId } from '@qilin/jobs/brand'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { JobId } from '@qilin-agent/jobs/brand'
 import { JobListAction } from './JobListAction.tsx'
 import type { JobListInjected } from './JobListAction.tsx'
-import type {} from '@qilin/api-job-controller/client'
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-ui-renderer/client'
-import type {} from '@qilin/client-ui-session/client'
+import type {} from '@qilin-agent/api-job-controller/client'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-session/client'
 import { en, NS, zh, type JobKey } from './locales.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Background-job list copy. */
     'job': JobKey

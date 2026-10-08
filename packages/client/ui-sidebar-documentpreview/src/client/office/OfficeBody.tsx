@@ -1,11 +1,11 @@
 /** Office owns source loading, conversion failures, and font notices around the shared PDF view. */
 import { useEffect, type ReactNode } from 'react'
-import type { PropsLocale, PropsRenderSlots, PropsStore, SlotHookFactory } from '@qilin/client-ui-slots'
-import type { RemoteFailure } from '@qilin/api-remotes/client'
-import type { TabId } from '@qilin/client-ui-dockkit'
-import { Button, FileTypeIcon, classifyFileType } from '@qilin/client-ui-primitives'
-import { pathPartsOf } from '@qilin/util-workspace-path'
-import type { UseSidebarRightTabInfo } from '@qilin/client-ui-sidebar-right/client'
+import type { PropsLocale, PropsRenderSlots, PropsStore, SlotHookFactory } from '@qilin-agent/client-ui-slots'
+import type { RemoteFailure } from '@qilin-agent/api-remotes/client'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
+import { Button, FileTypeIcon, classifyFileType } from '@qilin-agent/client-ui-primitives'
+import { pathPartsOf } from '@qilin-agent/util-workspace-path'
+import type { UseSidebarRightTabInfo } from '@qilin-agent/client-ui-sidebar-right/client'
 import type { DocumentBodyOwner, DocumentPreviewProps } from '../document/contract.ts'
 import { hostFileOf } from '../rpc.ts'
 import { LoadingIndicator } from '../LoadingIndicator.tsx'
@@ -15,7 +15,7 @@ import { FontNotice } from './FontNotice.tsx'
 import common from '../TextPreview.module.css'
 import css from './OfficeBody.module.css'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface SlotMap {
     /** PDF presentation supplied with Office-owned converted bytes. */
     'sidebar.right.tab.document.office.pdf': {
@@ -91,6 +91,6 @@ export function OfficeBody(props: OfficeBodyProps): ReactNode {
     {props.renderSlot('sidebar.right.tab.document.office.pdf', {
       resourceAddress, content: { kind: 'bytes', data: file.data }, wrap: props.wrap, scrollportRef: props.scrollportRef,
       addResource: props.addResource, setResources: props.setResources,
-    }, { entryKey: '@qilin/client-ui-sidebar-documentpreview/office', hookContext: props.useTabInfo })}
+    }, { entryKey: '@qilin-agent/client-ui-sidebar-documentpreview/office', hookContext: props.useTabInfo })}
   </div>
 }

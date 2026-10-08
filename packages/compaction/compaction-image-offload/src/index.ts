@@ -5,13 +5,13 @@
  * and retries through the agent or compaction summary error waterfall. Every route
  * sends placeholder text for those occurrences in subsequent requests.
  *
- * @module @qilin/compaction-image-offload
+ * @module @qilin-agent/compaction-image-offload
  */
 
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/compaction'
-import type { RequestErrorAction } from '@qilin/agent'
-import { IMAGE_OFFLOAD_REQUIRED_CODE, LlmError } from '@qilin/llm'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/compaction'
+import type { RequestErrorAction } from '@qilin-agent/agent'
+import { IMAGE_OFFLOAD_REQUIRED_CODE, LlmError } from '@qilin-agent/llm'
 import { offloadOldestImages } from './image-offload.ts'
 import { imageOffloadProjection } from './projection.ts'
 

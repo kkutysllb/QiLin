@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/tool-terminal",
+  "name": "@qilin-agent/tool-terminal",
   "description": "Six model-facing persistent PTY tools with owner isolation and generic background-job integration",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,37 +30,37 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "peerDependencies": {
-    "@qilin/agent": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/terminal": "workspace:*",
-    "@qilin/output-retention": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/jobs": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/terminal": "workspace:*",
+    "@qilin-agent/output-retention": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/jobs": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin-plugin-include": "workspace:~",
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/agent-loop-testkit": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/terminal": "workspace:*",
-    "@qilin/terminal-bash": "workspace:*",
-    "@qilin/output-retention": "workspace:*",
-    "@qilin/sandbox": "workspace:*",
-    "@qilin/sandbox-policy": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/subprocess-local": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/jobs": "workspace:*",
-    "@qilin/jobs-local": "workspace:*",
-    "@qilin/tool-jobs": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/session-projection": "workspace:*"
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-loop-testkit": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/terminal": "workspace:*",
+    "@qilin-agent/terminal-bash": "workspace:*",
+    "@qilin-agent/output-retention": "workspace:*",
+    "@qilin-agent/sandbox": "workspace:*",
+    "@qilin-agent/sandbox-policy": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/subprocess-local": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/jobs": "workspace:*",
+    "@qilin-agent/jobs-local": "workspace:*",
+    "@qilin-agent/tool-jobs": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/session-projection": "workspace:*"
   }
 }

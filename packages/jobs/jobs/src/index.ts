@@ -5,12 +5,12 @@
  * and that any number of observers read at absolute byte offsets — and the
  * event stream announcing every commit, while producers retain their
  * execution resources. The process-local registry lives in
- * `@qilin/jobs-local`.
- * @module @qilin/jobs
+ * `@qilin-agent/jobs-local`.
+ * @module @qilin-agent/jobs
  */
 
-import { Context, Service } from '@qilin/kylin'
-import type { SessionId } from '@qilin/session'
+import { Context, Service } from '@qilin-agent/kylin'
+import type { SessionId } from '@qilin-agent/session'
 import { installJobArchiveAdmission } from './archive-admission.ts'
 import type { JobEvents, JobId, JobOutputRead, JobRead, JobSpec, JobView } from './types.ts'
 
@@ -38,7 +38,7 @@ export type {
   JobView,
 } from './types.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     jobs: JobRegistry
   }
@@ -88,7 +88,7 @@ export abstract class JobRegistry extends Service {
     // would register a ctx.jobs with no method implementations and fail far
     // from the misconfiguration. Fail loud at load instead.
     if (new.target === JobRegistry) {
-      throw new Error('@qilin/jobs is the abstract job registry seam; load an implementation such as @qilin/jobs-local instead')
+      throw new Error('@qilin-agent/jobs is the abstract job registry seam; load an implementation such as @qilin-agent/jobs-local instead')
     }
     super(ctx, 'jobs')
     // Archive admission: the Workspace registry asks what still runs for a

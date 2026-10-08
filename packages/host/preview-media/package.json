@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/host-preview-media",
+  "name": "@qilin-agent/host-preview-media",
   "description": "Host half of preview media: the /sidebar/media route serving session-workspace files to inline previews, with HTTP Range windows for seeking video",
   "version": "3.1.1",
   "publishConfig": {
@@ -34,14 +34,14 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/host-webserver": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/host-webserver": "workspace:*"
   }
 }

@@ -4,7 +4,7 @@
  * no served HTML, so it executes the table directly. Rows execute strictly in
  * table order, so a global row lands before the scripts that read it.
  */
-import type { IndexInjection } from '@qilin/host-webserver'
+import type { IndexInjection } from '@qilin-agent/host-webserver'
 
 function assertNever(row: never): never {
   throw new Error(`web boot: unknown index injection row ${JSON.stringify(row)}`)

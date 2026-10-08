@@ -19,8 +19,8 @@ import {
   type WorkspacePackageManifest,
 } from './verify-package-dependencies.ts'
 
-const TARGET_PACKAGE = '@qilin/cli'
-const CORDIS = '@qilin/kylin'
+const TARGET_PACKAGE = '@qilin-agent/cli'
+const CORDIS = '@qilin-agent/kylin'
 
 interface Options {
   readonly candidates?: readonly string[]

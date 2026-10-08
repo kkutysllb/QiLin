@@ -1,11 +1,11 @@
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   CommandNode, CompactionSummaryNode, ConversationMatch, ConversationNodeContext, ConversationNodeDefinition,
-} from '@qilin/client-ui-conversation/client'
-import type { CompactionCheckpointSource } from '@qilin/compaction/checkpoint'
-import type {} from '@qilin/compaction/types'
-import type {} from '@qilin/commands/types'
-import { isReplacementSurfaceEvent } from '@qilin/session/surface'
+} from '@qilin-agent/client-ui-conversation/client'
+import type { CompactionCheckpointSource } from '@qilin-agent/compaction/checkpoint'
+import type {} from '@qilin-agent/compaction/types'
+import type {} from '@qilin-agent/commands/types'
+import { isReplacementSurfaceEvent } from '@qilin-agent/session/surface'
 import type { ManualCompactionChatData } from '../contract/chat-nodes.ts'
 import { chatNode } from './common.ts'
 

@@ -1,21 +1,21 @@
 /**
  * Basic replay-aware compaction backend.
  *
- * @module @qilin/compaction-basic
+ * @module @qilin-agent/compaction-basic
  */
 
-import { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { CompactionEngine, ManualCompactionError } from '@qilin/compaction'
-import type { CompactionResult, CompactionTrigger } from '@qilin/compaction'
-import type { Session, SessionSeq } from '@qilin/session'
-import { CONTEXT_WINDOW_EXCEEDED_CODE } from '@qilin/llm'
-import type { LlmCallConfig } from '@qilin/llm'
-import { assertNever } from '@qilin/util-values'
-import type { Agent, PreStepDecision } from '@qilin/agent'
-import type { CommandId } from '@qilin/commands/brand'
+import { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { CompactionEngine, ManualCompactionError } from '@qilin-agent/compaction'
+import type { CompactionResult, CompactionTrigger } from '@qilin-agent/compaction'
+import type { Session, SessionSeq } from '@qilin-agent/session'
+import { CONTEXT_WINDOW_EXCEEDED_CODE } from '@qilin-agent/llm'
+import type { LlmCallConfig } from '@qilin-agent/llm'
+import { assertNever } from '@qilin-agent/util-values'
+import type { Agent, PreStepDecision } from '@qilin-agent/agent'
+import type { CommandId } from '@qilin-agent/commands/brand'
 // Type-only: makes the optional sibling service available to `ctx.get()`.
-import type {} from '@qilin/compaction-tool-result-pruner'
+import type {} from '@qilin-agent/compaction-tool-result-pruner'
 import {
   resolveCompactSpec,
   resolveConfig,

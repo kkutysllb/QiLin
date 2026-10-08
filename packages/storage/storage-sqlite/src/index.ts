@@ -2,14 +2,14 @@
  * SQLite storage backend for the storage hub: one database file hosts every
  * routed unit, document-per-row (`key TEXT` / `value TEXT` JSON). Registers
  * as backend `sqlite`; the disposer unregisters first, then closes the medium.
- * @module @qilin/storage-sqlite
+ * @module @qilin-agent/storage-sqlite
  */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
 import type { DatabaseSync } from 'node:sqlite'
-import { StorageError, UNIT_NAME_RE, storageBackendServiceKey } from '@qilin/storage'
-import type { KvFacet, KvUnit, KvUnitDescriptor, StorageBackend } from '@qilin/storage'
+import { StorageError, UNIT_NAME_RE, storageBackendServiceKey } from '@qilin-agent/storage'
+import type { KvFacet, KvUnit, KvUnitDescriptor, StorageBackend } from '@qilin-agent/storage'
 import { openDatabase, recordTableName, type JournalMode } from './schema.ts'
 import { SqliteKvUnit } from './unit.ts'
 

@@ -1,4 +1,4 @@
-import SessionQueryEngine from '@qilin/session-query'
+import SessionQueryEngine from '@qilin-agent/session-query'
 import type {
   SessionEventSearchPage,
   SessionEventSearchRequest,
@@ -6,7 +6,7 @@ import type {
   SessionSearchHit,
   SessionSearchPage,
   SessionSearchRequest,
-} from '@qilin/session-query'
+} from '@qilin-agent/session-query'
 
 /** Test-only concrete query service for backend-independent behavior. */
 export class TestSessionQueryEngine extends SessionQueryEngine {

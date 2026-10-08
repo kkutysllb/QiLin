@@ -20,7 +20,7 @@
 
 - insert:
     - id: replay
-      name: '@qilin/llm-replay'
+      name: '@qilin-agent/llm-replay'
       config:
         file: !!js process.env.QILIN_SNAPSHOT_FILE
         overrideFile: !!js process.env.QILIN_SNAPSHOT_OVERRIDE

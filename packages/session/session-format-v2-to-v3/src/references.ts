@@ -1,7 +1,7 @@
 /** Explicit local-coordinate remapping; captured generations and owner-local counters remain opaque. */
 
-import { SessionFormatError, sessionFormatCount } from '@qilin/session-format'
-import type { SessionFormatEvent, SessionFormatJsonObject, SessionFormatJsonValue } from '@qilin/session-format'
+import { SessionFormatError, sessionFormatCount } from '@qilin-agent/session-format'
+import type { SessionFormatEvent, SessionFormatJsonObject, SessionFormatJsonValue } from '@qilin-agent/session-format'
 import { record } from './payload.ts'
 
 /**

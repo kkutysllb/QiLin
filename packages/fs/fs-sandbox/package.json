@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/fs-sandbox",
+  "name": "@qilin-agent/fs-sandbox",
   "description": "Sandbox-enforcing implementation of the QiLin filesystem seam: fences write/edit by the per-call sandbox mode (read-only denies mutation, workspace-write contains it to the workspace + temp roots) while reads pass through",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,18 +30,18 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/fs": "workspace:*",
-    "@qilin/fs-local": "workspace:*",
-    "@qilin/sandbox": "workspace:*",
-    "@qilin/sandbox-policy": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/fs": "workspace:*",
+    "@qilin-agent/fs-local": "workspace:*",
+    "@qilin-agent/sandbox": "workspace:*",
+    "@qilin-agent/sandbox-policy": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/fs": "workspace:*",
-    "@qilin/fs-local": "workspace:*",
-    "@qilin/sandbox": "workspace:*",
-    "@qilin/sandbox-policy": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/session-projection": "workspace:*"
+    "@qilin-agent/fs": "workspace:*",
+    "@qilin-agent/fs-local": "workspace:*",
+    "@qilin-agent/sandbox": "workspace:*",
+    "@qilin-agent/sandbox-policy": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/session-projection": "workspace:*"
   }
 }

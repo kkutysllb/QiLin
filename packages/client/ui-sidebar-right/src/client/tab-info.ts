@@ -1,9 +1,9 @@
 /** Slot-owned tab information derived from framework-bound store and navigation hooks. */
-import type { ShortcutCatalogEntry } from '@qilin/client-shortcuts/client'
+import type { ShortcutCatalogEntry } from '@qilin-agent/client-shortcuts/client'
 import { useMemo } from 'react'
-import { findTabPane } from '@qilin/client-ui-dockkit'
-import type { TabId } from '@qilin/client-ui-dockkit'
-import type { KeyedSnapshotSelectorHook, PropsStore, SlotHookFactory } from '@qilin/client-ui-slots'
+import { findTabPane } from '@qilin-agent/client-ui-dockkit'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
+import type { KeyedSnapshotSelectorHook, PropsStore, SlotHookFactory } from '@qilin-agent/client-ui-slots'
 import type { SidebarRightTabActions, SidebarRightTabNavigation, UseSidebarRightTabInfo } from './contract/slots.ts'
 import type { createSidebarRightStore } from './stores.ts'
 

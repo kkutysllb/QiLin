@@ -1,9 +1,9 @@
 /** Developer surface positions and admission remain distinct from unknown ignorable records. */
 import { describe, expect, it } from 'vitest'
-import { Session, SessionId, SessionLogOffset } from '@qilin/session'
-import type { SessionEvent, SessionHeader } from '@qilin/session'
-import { SessionFormatEventCollector } from '@qilin/session-format'
-import type { SessionFormatArtifact, SessionFormatEvent, SessionFormatJsonValue } from '@qilin/session-format'
+import { Session, SessionId, SessionLogOffset } from '@qilin-agent/session'
+import type { SessionEvent, SessionHeader } from '@qilin-agent/session'
+import { SessionFormatEventCollector } from '@qilin-agent/session-format'
+import type { SessionFormatArtifact, SessionFormatEvent, SessionFormatJsonValue } from '@qilin-agent/session-format'
 import { assertV4RowAdmission, releasedV4SessionFormatCodec as codec, restoreReleasedV4Artifact } from '../src/index.ts'
 
 type Row = {

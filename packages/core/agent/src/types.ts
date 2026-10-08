@@ -1,15 +1,15 @@
 /**
  * Durable agent session-event vocabulary shared with type-only consumers.
  *
- * @module @qilin/agent/types
+ * @module @qilin-agent/agent/types
  */
 
-import type { UserMessage } from '@qilin/llm/types'
+import type { UserMessage } from '@qilin-agent/llm/types'
 // Type-only: the Workspace registry's archive-admission family map this registry merges `turn` into.
-import type {} from '@qilin/workspace/types'
-import type { OptionalSessionSeq, SessionId, SessionSeq } from '@qilin/session/types'
-import type { TypertContext, TypertLookup } from '@qilin/typert-protocol'
-import type { JsonValue } from '@qilin/util-values'
+import type {} from '@qilin-agent/workspace/types'
+import type { OptionalSessionSeq, SessionId, SessionSeq } from '@qilin-agent/session/types'
+import type { TypertContext, TypertLookup } from '@qilin-agent/typert-protocol'
+import type { JsonValue } from '@qilin-agent/util-values'
 
 /** Public live-agent handle; the runtime face augments its live capabilities. */
 export interface Agent {
@@ -17,14 +17,14 @@ export interface Agent {
   readonly id: SessionId
 }
 
-declare module '@qilin/workspace/types' {
+declare module '@qilin-agent/workspace/types' {
   interface SessionActivityKindMap {
     /** The session's own Agent is inside a turn, including one waiting for an approval or an answer. */
     turn: true
   }
 }
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface TypertLookupMap {
     agent: TypertLookup<Agent, SessionId>
   }
@@ -55,7 +55,7 @@ export interface InboxWireState {
   readonly 'next-step': readonly JsonValue[]
 }
 
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionStateMap {
     /** Pending agent input reconstructed from durable inbox splices. */
     inbox: InboxState
@@ -86,7 +86,7 @@ export interface TurnBoundaryProjection {
   readonly lastTurn: number
 }
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /**
      * One normalized mutation of an agent's durable pending-message lists.

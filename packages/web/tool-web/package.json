@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/tool-web",
+  "name": "@qilin-agent/tool-web",
   "description": "Model-facing web tools (web_search, web_fetch) over the QiLin web capability seam (ctx.web)",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,32 +30,32 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/llm": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/web": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/web": "workspace:*"
   },
   "dependencies": {
-    "@qilin/util-values": "workspace:*",
-    "@qilin/schemastery": "workspace:~",
+    "@qilin-agent/util-values": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~",
     "@joplin/turndown-plugin-gfm": "^1.0.67",
     "turndown": "^7.2.4"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/agent": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/spill-local": "workspace:*",
-    "@qilin/spill-policy": "workspace:*",
-    "@qilin/system-prompt": "workspace:*",
-    "@qilin/tool-call-timeout-policy": "workspace:*",
-    "@qilin/tools": "workspace:*",
-    "@qilin/web": "workspace:*",
-    "@qilin/web-fetch-http": "workspace:*",
-    "@qilin/web-search-exa": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/spill-local": "workspace:*",
+    "@qilin-agent/spill-policy": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tool-call-timeout-policy": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/web": "workspace:*",
+    "@qilin-agent/web-fetch-http": "workspace:*",
+    "@qilin-agent/web-search-exa": "workspace:*",
     "@types/turndown": "^5.0.6",
-    "@qilin/scope": "workspace:*"
+    "@qilin-agent/scope": "workspace:*"
   }
 }

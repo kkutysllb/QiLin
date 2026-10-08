@@ -1,7 +1,7 @@
 /** Decorative occupant for the plugin-manager sidebar entry. */
-import type { PropsRuntime } from '@qilin/client-ui-slots'
-import { IconPluginPinwheelOutline16 } from '@qilin/client-ui-primitives'
-import type {} from '@qilin/client-ui-sidebar/client'
+import type { PropsRuntime } from '@qilin-agent/client-ui-slots'
+import { IconPluginPinwheelOutline16 } from '@qilin-agent/client-ui-primitives'
+import type {} from '@qilin-agent/client-ui-sidebar/client'
 
 /**
  * Render the plugin glyph at the size the sidebar asks for; the sidebar owns

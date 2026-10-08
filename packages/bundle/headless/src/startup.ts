@@ -3,12 +3,12 @@
  * `--session-id`, `--json`, and `--help`, then publishes
  * {@link HEADLESS_STARTUP_SERVICE}. The runner is an ordinary consumer whose
  * lazy config waits for that service.
- * @module @qilin/headless/startup
+ * @module @qilin-agent/headless/startup
  */
 
 import { Command, CommanderError } from 'commander'
-import type { Context } from '@qilin/kylin'
-import { parseCmdline } from '@qilin/cmdline'
+import type { Context } from '@qilin-agent/kylin'
+import { parseCmdline } from '@qilin-agent/cmdline'
 import { boundJsonLine } from './json-stream.ts'
 import { internals } from './startup-internals.ts'
 

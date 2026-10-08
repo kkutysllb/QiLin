@@ -4,9 +4,9 @@
  * consume its registration and dismissal operations.
  */
 import type { ComponentType } from 'react'
-import type { Context as ClientContext } from '@qilin/kylin'
-import type { ClientSessionContext } from '@qilin/client-ui-input-trigger/client'
-import type { IconProps } from '@qilin/client-ui-primitives'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { ClientSessionContext } from '@qilin-agent/client-ui-input-trigger/client'
+import type { IconProps } from '@qilin-agent/client-ui-primitives'
 
 /** Copy for an option that must be acknowledged before onSelect can run. */
 export interface SelectConfirmation {

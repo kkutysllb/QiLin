@@ -1,8 +1,8 @@
 /** Mandatory native V4 relationships; incomplete tails retain their open transactions. */
 
 import { isDeepStrictEqual } from 'node:util'
-import { SessionFormatError, isSessionFormatJsonObject, sessionFormatCount } from '@qilin/session-format'
-import type { SessionFormatArtifact, SessionFormatEvent, SessionFormatJsonObject, SessionFormatJsonValue } from '@qilin/session-format'
+import { SessionFormatError, isSessionFormatJsonObject, sessionFormatCount } from '@qilin-agent/session-format'
+import type { SessionFormatArtifact, SessionFormatEvent, SessionFormatJsonObject, SessionFormatJsonValue } from '@qilin-agent/session-format'
 
 const SURFACE_TYPES = new Set(['system/message', 'user/message', 'developer/message', 'assistant/message', 'tool/result'])
 const STEP_EVENT_TYPES = new Set(['system/message', 'developer/message', 'assistant/attempt'])

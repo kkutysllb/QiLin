@@ -1,10 +1,10 @@
 /** Shared Chat-slice and Session-event fixtures for Tool row tests. */
-import type { SessionLiveEventEntry } from '@qilin/api-session-controller/client'
-import { SessionSeq } from '@qilin/session/types'
-import { isJsonValue, type JsonValue } from '@qilin/util-values'
+import type { SessionLiveEventEntry } from '@qilin-agent/api-session-controller/client'
+import { SessionSeq } from '@qilin-agent/session/types'
+import { isJsonValue, type JsonValue } from '@qilin-agent/util-values'
 import type {
   ChatConversationViewNode, ChatSnapshot, ConversationNode, StartedToolCall, ToolResultNode,
-} from '@qilin/client-ui-chat/client'
+} from '@qilin-agent/client-ui-chat/client'
 
 function jsonFixture(value: unknown): JsonValue {
   if (!isJsonValue(value)) throw new Error('tool event fixture must be lossless JSON')

@@ -3,7 +3,7 @@ description: "Official DeepSeek request-extension registry for provider plugins 
 kind: "package-reference"
 ---
 
-# @qilin/deepseek-llm-api-extensions
+# @qilin-agent/deepseek-llm-api-extensions
 
 English | [中文](README.zh.md)
 
@@ -29,12 +29,12 @@ Provider-specific registry for additive top-level fields on official DeepSeek LL
 
 Both Chat Completions and Messages prepare these fields. Each provider sees the exact serialized base body in the selected protocol, the request `AbortSignal`, plus optional `sessionId` and auxiliary-call `purpose`. It must stop its own work promptly after cancellation and returns `undefined` when its field does not apply to that request. A prepared operation retains the providers it captured even if HMR removes their registrations before HTTP acceptance.
 
-The registry owns addition and lifecycle, not field semantics. `@qilin/session-log-deepseek` owns `qilin_session_log`; `@qilin/plugin-package-inventory-deepseek` owns `qilin_plugin_packages`. The provider-neutral LLM seam and `llm-pi-ai` do not consume this registry.
+The registry owns addition and lifecycle, not field semantics. `@qilin-agent/session-log-deepseek` owns `qilin_session_log`; `@qilin-agent/plugin-package-inventory-deepseek` owns `qilin_plugin_packages`. The provider-neutral LLM seam and `llm-pi-ai` do not consume this registry.
 
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through `@qilin/llm-deepseek`, which sends registered fields outside the model's `messages`, system prompt, and tool schemas.
+Indirectly, through `@qilin-agent/llm-deepseek`, which sends registered fields outside the model's `messages`, system prompt, and tool schemas.
 
 #### KV Cache effect
 

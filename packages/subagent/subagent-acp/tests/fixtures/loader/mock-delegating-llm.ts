@@ -1,6 +1,6 @@
-import type { Context } from '@qilin/kylin'
-import type { GenerateOptions, StreamChunk } from '@qilin/llm'
-import { ToolCallId, LlmAdapter } from '@qilin/llm'
+import type { Context } from '@qilin-agent/kylin'
+import type { GenerateOptions, StreamChunk } from '@qilin-agent/llm'
+import { ToolCallId, LlmAdapter } from '@qilin-agent/llm'
 
 /**
  * Test adapter for the `mock-delegate` model: the first request calls the

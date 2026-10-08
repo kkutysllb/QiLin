@@ -13,8 +13,8 @@ import type { Browser, Page, Response } from 'playwright'
 import { chromium } from 'playwright'
 import { strFromU8, unzipSync } from 'fflate'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, onTestFailed } from 'vitest'
-import { parseSessionLog } from '@qilin/llm-replay'
-import { SESSION_FORMAT_VERSION, type SessionEvent } from '@qilin/session'
+import { parseSessionLog } from '@qilin-agent/llm-replay'
+import { SESSION_FORMAT_VERSION, type SessionEvent } from '@qilin-agent/session'
 import {
   assertFixtureInventory, captureStableAria, compareOrRefreshGolden, fixtureUserPrompts,
   launchWebScaffold, recordFixture, seedSession, watchConsole, webSnapshotMode, type WebScaffold,

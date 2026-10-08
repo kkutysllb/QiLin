@@ -3,7 +3,7 @@ description: "目录选择 seam 的自适应选择器：在启动时判定一次
 kind: "package-reference"
 ---
 
-# @qilin/host-directory-picker-auto
+# @qilin-agent/host-directory-picker-auto
 
 [English](README.md) | 中文
 

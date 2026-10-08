@@ -1,12 +1,12 @@
 /** Execution-time authority checks for the model-facing goal tools. */
 
-import type { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import type { GoalView } from '@qilin/goal'
-import { HarnessError } from '@qilin/llm'
-import type { SessionEvent, SessionSeq } from '@qilin/session'
-import type { ToolRunContext } from '@qilin/tools'
-import type {} from '@qilin/session-projection'
+import type { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import type { GoalView } from '@qilin-agent/goal'
+import { HarnessError } from '@qilin-agent/llm'
+import type { SessionEvent, SessionSeq } from '@qilin-agent/session'
+import type { ToolRunContext } from '@qilin-agent/tools'
+import type {} from '@qilin-agent/session-projection'
 
 /** The calling agent plus the immutable event cut and open-turn start seq used for authority checks. */
 export interface GoalToolExecution {

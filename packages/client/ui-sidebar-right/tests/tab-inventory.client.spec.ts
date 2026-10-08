@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 /** Dormant saved layouts expose only provider metadata, with in-window stores authoritative. */
 import { afterEach, expect, it, vi } from 'vitest'
-import type { SessionId } from '@qilin/session/types'
-import type { TabRecord } from '@qilin/client-ui-dockkit'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { TabRecord } from '@qilin-agent/client-ui-dockkit'
 import { SidebarTabInventory } from '../src/client/tab-inventory.ts'
 import { sidebarPersistence } from '../src/client/persistence.ts'
 

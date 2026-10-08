@@ -7,9 +7,9 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { createElement } from 'react'
 import { cleanup, render } from '@testing-library/react'
-import { Context } from '@qilin/kylin'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import { SidebarRightTabRegistry } from '@qilin/client-ui-sidebar-right/src/client/tab-registry.ts'
+import { Context } from '@qilin-agent/kylin'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import { SidebarRightTabRegistry } from '@qilin-agent/client-ui-sidebar-right/src/client/tab-registry.ts'
 import { GIT_ID, GIT_KIND, gitDefinition } from '../src/client/definition.tsx'
 import { zh } from '../src/client/locales.ts'
 

@@ -1,4 +1,4 @@
-import { Service } from '@qilin/kylin'
+import { Service } from '@qilin-agent/kylin'
 import type HostDefault from '@fixture/host'
 import type * as Host from '@fixture/host'
 import type { AgentPhase } from '@fixture/host'
@@ -30,7 +30,7 @@ export class ClientBridge extends Service {
   }
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     clientBridge: ClientBridge
   }

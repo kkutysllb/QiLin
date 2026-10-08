@@ -18,7 +18,7 @@ export interface ProcessGroupData {
   readonly summary: ProcessActivitySummary
 }
 
-declare module '@qilin/client-ui-conversation/client' {
+declare module '@qilin-agent/client-ui-conversation/client' {
   interface ConversationGroupDataMap {
     chat: ProcessGroupData
   }

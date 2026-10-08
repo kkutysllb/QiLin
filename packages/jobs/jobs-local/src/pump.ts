@@ -6,10 +6,10 @@
  * keeps is reported to the sink on every read, because that reference
  * outlives any chunk. Pure utility — no cordis, no timers retained past
  * settlement.
- * @module @qilin/jobs-local/pump
+ * @module @qilin-agent/jobs-local/pump
  */
 
-import type { JobAppendOptions, JobOutputSource } from '@qilin/jobs'
+import type { JobAppendOptions, JobOutputSource } from '@qilin-agent/jobs'
 
 /** One pump run; `done` resolves after the final post-settlement drain. */
 export interface PumpHandle {

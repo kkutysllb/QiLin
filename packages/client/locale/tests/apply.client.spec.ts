@@ -1,12 +1,12 @@
 /** locale apply wiring: service and base-dictionary provision, document
  * language synchronization, host-preference adoption, and clean teardown. */
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import { apply as settingsApply, inject as settingsInject } from '@qilin/client-ui-settings/client'
-import { TestRemote } from '@qilin/client-test-runtime'
-import { apply, inject } from '@qilin/client-locale/client'
-import type { LocaleRuntime } from '@qilin/client-locale/client'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import { apply as settingsApply, inject as settingsInject } from '@qilin-agent/client-ui-settings/client'
+import { TestRemote } from '@qilin-agent/client-test-runtime'
+import { apply, inject } from '@qilin-agent/client-locale/client'
+import type { LocaleRuntime } from '@qilin-agent/client-locale/client'
 import { LOCALE_SETTINGS_NAMESPACE, LocaleSettingsSchema } from '../src/locale-settings.ts'
 
 async function bench() {

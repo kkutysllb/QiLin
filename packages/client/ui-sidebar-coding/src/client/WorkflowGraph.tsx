@@ -261,7 +261,7 @@ export function WorkflowGraph(props: {
     if (!dragging) return
     const onMove = (event: PointerEvent): void => {
       /* jscpd:ignore-start — canvas-pan/node-drag listener pattern shared verbatim with
-         @qilin/client-ui-sidebar-tasks src/client/TasksGraphView.tsx (kept independent) */
+         @qilin-agent/client-ui-sidebar-tasks src/client/TasksGraphView.tsx (kept independent) */
       const drag = dragRef.current
       if (drag === null) return
       const dx = event.clientX - drag.x

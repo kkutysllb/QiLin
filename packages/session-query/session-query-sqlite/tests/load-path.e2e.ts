@@ -1,17 +1,17 @@
-import { createUserMessage } from '@qilin/llm'
+import { createUserMessage } from '@qilin-agent/llm'
 /**
  * Keyless real-Loader-path smoke for the combined SQLite session-query service.
  *
- * @module @qilin/session-query-sqlite/tests/load-path
+ * @module @qilin-agent/session-query-sqlite/tests/load-path
  */
 
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import SessionStore, { SessionSeq, SESSION_FORMAT_VERSION, SessionId } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
-import SqliteSessionQueryEngine, * as queryModule from '@qilin/session-query-sqlite'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import SessionStore, { SessionSeq, SESSION_FORMAT_VERSION, SessionId } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
+import SqliteSessionQueryEngine, * as queryModule from '@qilin-agent/session-query-sqlite'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'

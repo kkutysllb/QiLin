@@ -1,6 +1,6 @@
-import { Context } from '@qilin/kylin'
-import { LocalSubprocessRuntime } from '@qilin/subprocess-local'
-import { SUBPROCESS_CONTROL_ENV } from '@qilin/subprocess/control'
+import { Context } from '@qilin-agent/kylin'
+import { LocalSubprocessRuntime } from '@qilin-agent/subprocess-local'
+import { SUBPROCESS_CONTROL_ENV } from '@qilin-agent/subprocess/control'
 import { mkdir, mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -50,7 +50,7 @@ describe.skipIf(process.platform !== 'win32')('managed Windows ACL control pipe'
     ctx = new Context()
     await ctx.plugin(LocalSubprocessRuntime)
     const runner = fileURLToPath(new URL('../src/runner.ts', import.meta.url))
-    const helper = import.meta.resolve('@qilin/subprocess/src/control.ts')
+    const helper = import.meta.resolve('@qilin-agent/subprocess/src/control.ts')
     const program = `
       const { openInheritedControlChannel } = await import(process.argv[1]);
       const { writeFileSync } = await import('node:fs');

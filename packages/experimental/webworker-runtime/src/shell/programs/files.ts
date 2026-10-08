@@ -3,7 +3,7 @@
  * shell's filesystem. Listings print one entry per line: nothing here is ever
  * a terminal, so the column layout a real `ls` picks for a tty would only be
  * noise in a tool result.
- * @module @qilin/experimental-webworker-runtime/src/shell/programs/files
+ * @module @qilin-agent/experimental-webworker-runtime/src/shell/programs/files
  */
 
 import picomatch from 'picomatch'

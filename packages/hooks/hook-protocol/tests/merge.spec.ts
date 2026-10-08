@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { mergeHookOutputs } from '@qilin/hook-protocol'
-import type { HookOutput } from '@qilin/hook-protocol'
+import { mergeHookOutputs } from '@qilin-agent/hook-protocol'
+import type { HookOutput } from '@qilin-agent/hook-protocol'
 
 function out(over: Partial<HookOutput> = {}): HookOutput {
   return { exitCode: 0, stderr: '', stdout: '', ...over }

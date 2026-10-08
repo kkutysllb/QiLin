@@ -1,7 +1,7 @@
 /** DeepSeek Files API upload reuse, invalidation, and quota recovery. @module qilin-llm-deepseek/file-store */
 
-import type { RequestImageAttachment } from '@qilin/attachment'
-import { LlmError } from '@qilin/llm'
+import type { RequestImageAttachment } from '@qilin-agent/attachment'
+import { LlmError } from '@qilin-agent/llm'
 import { DeepSeekFilesClient, isFilesQuotaError } from './files-api.ts'
 import type { DeepSeekFileId } from './file-id.ts'
 import { messagesApiRoot } from './messages-api.ts'

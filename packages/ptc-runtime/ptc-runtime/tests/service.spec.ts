@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { PtcRuntime } from '@qilin/ptc-runtime'
-import type { PtcRunRequest, PtcRunResult } from '@qilin/ptc-runtime'
+import { Context } from '@qilin-agent/kylin'
+import { PtcRuntime } from '@qilin-agent/ptc-runtime'
+import type { PtcRunRequest, PtcRunResult } from '@qilin-agent/ptc-runtime'
 
 /**
  * Minimal concrete runtime: records requests, "executes" by invoking every
@@ -10,7 +10,7 @@ import type { PtcRunRequest, PtcRunResult } from '@qilin/ptc-runtime'
  * the smallest subclass that honors it.
  */
 class StubRuntime extends PtcRuntime {
-  resolve(request: import('@qilin/ptc-runtime').PtcRunRequest): import('@qilin/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+  resolve(request: import('@qilin-agent/ptc-runtime').PtcRunRequest): import('@qilin-agent/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
   readonly language = 'typescript'
   readonly isolation = 'in-process-stub'

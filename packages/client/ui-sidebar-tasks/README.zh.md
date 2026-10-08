@@ -3,7 +3,7 @@ description: "qilin 网页客户端右侧边栏的任务页：本会话的子代
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-sidebar-tasks
+# @qilin-agent/client-ui-sidebar-tasks
 
 [English](README.md) | 中文
 
@@ -26,7 +26,7 @@ kind: "package-reference"
 <a id="what-it-registers"></a>
 ## 注册了什么
 
-- **类型** —— `ctx.sidebarRightTabs.register(...)`：kind `tasks`、id `@qilin/client-ui-sidebar-tasks`、band `builtin`、无 patterns、`single`，以及一个启动页条目（order 40，标题与描述来自 `sidebarTasks` 命名空间，图形用共享的清单图标）。
+- **类型** —— `ctx.sidebarRightTabs.register(...)`：kind `tasks`、id `@qilin-agent/client-ui-sidebar-tasks`、band `builtin`、无 patterns、`single`，以及一个启动页条目（order 40，标题与描述来自 `sidebarTasks` 命名空间，图形用共享的清单图标）。
 - **页面主体** —— 同一 id 下的 keyed `sidebar.right.pane.tab` 席位，声明图形视图的 store，让折叠、排布与镜头在主体卸载后仍然存活。
 - **chip 徽标** —— 同一 id 下的 keyed `sidebar.right.pane.tab.badge` 席位。
 

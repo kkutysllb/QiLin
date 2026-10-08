@@ -5,9 +5,9 @@
  * register() receives the factory and the browser derives its PropsStore
  * share from the return type.
  */
-import { defineStore, type EngineStoreHandle } from '@qilin/client-store'
-import type { SessionListState } from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
+import { defineStore, type EngineStoreHandle } from '@qilin-agent/client-store'
+import type { SessionListState } from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import { reconcileManualOrder } from './tree.ts'
 
 /** Browser-local order account for the hierarchy-free flat Session list. */

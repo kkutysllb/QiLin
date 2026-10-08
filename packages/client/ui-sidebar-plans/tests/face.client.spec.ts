@@ -7,10 +7,10 @@
  * and a record whose signal aborted is never scanned and is forgotten.
  */
 import { describe, expect, it, vi } from 'vitest'
-import { RemoteError } from '@qilin/client-test-runtime'
-import type { RemoteFailure } from '@qilin/api-remotes/client'
-import type { TabId } from '@qilin/client-ui-dockkit'
-import type { SessionId } from '@qilin/session/types'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
+import type { RemoteFailure } from '@qilin-agent/api-remotes/client'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
+import type { SessionId } from '@qilin-agent/session/types'
 import { createReader, plansFace } from '../src/client/face.ts'
 import type { PlanReader, PlanRow } from '../src/client/plans.ts'
 import { createPlansStore } from '../src/client/store.ts'

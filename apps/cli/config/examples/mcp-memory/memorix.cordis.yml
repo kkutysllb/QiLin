@@ -2,7 +2,7 @@
 # first; QILIN starts it but does not run a package manager.
 - insert:
     - id: memory-memorix
-      name: '@qilin/mcp-client'
+      name: '@qilin-agent/mcp-client'
       config:
         serverName: memorix
         transport: stdio

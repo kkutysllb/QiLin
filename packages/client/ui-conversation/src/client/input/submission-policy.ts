@@ -5,8 +5,8 @@
  */
 import {
   createSnapshotStore, type SnapshotStore,
-} from '@qilin/client-store'
-import type { ConfigForm } from '@qilin/client-ui-settings/client'
+} from '@qilin-agent/client-store'
+import type { ConfigForm } from '@qilin-agent/client-ui-settings/client'
 import type {
   BusyEnterBehavior, ComposerSubmitGesture, InputSubmitMode,
 } from '../contract/composer-submission.ts'

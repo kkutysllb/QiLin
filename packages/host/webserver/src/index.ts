@@ -1,5 +1,5 @@
 /**
- * @qilin/host-webserver — node:http route registration with optional
+ * @qilin-agent/host-webserver — node:http route registration with optional
  * gzip, index injection, and one fallback seat. It knows no harness concepts
  * and serves no files; the composing application owns dist serving. Electron
  * uses file:// plus IPC instead, and this package never prints the URL.
@@ -10,8 +10,8 @@ import { createServer } from 'node:http'
 import type { IncomingMessage, ServerResponse, Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import type { Duplex } from 'node:stream'
-import { Context, Service } from '@qilin/kylin'
-import z from '@qilin/schemastery'
+import { Context, Service } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
 import compressionMiddleware from 'compression'
 import Negotiator from 'negotiator'
 import { renderIndexInjections, type IndexInjection } from './injections.ts'
@@ -19,7 +19,7 @@ import { renderIndexInjections, type IndexInjection } from './injections.ts'
 export { renderIndexInjections } from './injections.ts'
 export type { IndexInjection, IndexInjectionPlacement } from './injections.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     webServer: WebServer
   }

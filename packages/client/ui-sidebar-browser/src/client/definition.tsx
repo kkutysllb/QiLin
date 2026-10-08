@@ -1,14 +1,14 @@
 /** Static Browser tab type and guide declaration. */
-import type { TranslateNS } from '@qilin/client-locale/client'
-import { IconGlobeOutline14 } from '@qilin/client-ui-primitives'
-import type { SidebarRightTabDefinition } from '@qilin/client-ui-sidebar-right/client'
+import type { TranslateNS } from '@qilin-agent/client-locale/client'
+import { IconGlobeOutline14 } from '@qilin-agent/client-ui-primitives'
+import type { SidebarRightTabDefinition } from '@qilin-agent/client-ui-sidebar-right/client'
 import type {} from './locales.ts'
 
 /** Browser tab kind. */
 export const BROWSER_KIND = 'browser'
 
 /** Browser implementation identity and keyed Slot dispatch key. */
-export const BROWSER_ID = '@qilin/client-ui-sidebar-browser'
+export const BROWSER_ID = '@qilin-agent/client-ui-sidebar-browser'
 
 /**
  * Build the Browser type with locale-live copy.

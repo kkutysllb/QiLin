@@ -9,17 +9,17 @@
  * results.
  */
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { useDisclosure } from '@qilin/client-ui-chat/src/client/chat/use-disclosure.ts'
+import { useDisclosure } from '@qilin-agent/client-ui-chat/src/client/chat/use-disclosure.ts'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { ToolCallBlock, ToolResultNode } from '@qilin/client-ui-chat/client'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
+import type { ToolCallBlock, ToolResultNode } from '@qilin-agent/client-ui-chat/client'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 // Export discipline: packages/client/AGENTS.md.
 import { AskQuestionRow, askQuestionToolview } from '../src/client/tool/toolviews/ask-question-row.tsx'
 import type { UserQuestionPanels } from '../src/client/contract/slots.ts'
-import type { SessionId } from '@qilin/session/types'
-import { zh } from '@qilin/client-ui-conversation/src/client/locales.ts'
-import { PartialArguments } from '@qilin/util-values'
+import type { SessionId } from '@qilin-agent/session/types'
+import { zh } from '@qilin-agent/client-ui-conversation/src/client/locales.ts'
+import { PartialArguments } from '@qilin-agent/util-values'
 
 afterEach(cleanup)
 

@@ -1,11 +1,11 @@
 /** Host registry-response probing for the plugin installation dialog. */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
-import { Remote, TypertRemoteService } from '@qilin/typert-protocol'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
+import { Remote, TypertRemoteService } from '@qilin-agent/typert-protocol'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     pluginRegistryProbe: PluginRegistryProbe
   }

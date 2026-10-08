@@ -4,26 +4,26 @@
  * isolation, and prompt failure mapping.
  */
 
-import { SESSION_FORMAT_VERSION, SessionLogOffset, SessionSeq } from '@qilin/session'
+import { SESSION_FORMAT_VERSION, SessionLogOffset, SessionSeq } from '@qilin-agent/session'
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import SessionStore from '@qilin/session'
-import AgentRegistry from '@qilin/agent'
-import { SessionHistoryController } from '@qilin/api-session-controller/src/history.ts'
-import { subagentIdentityProjectionDefinition } from '@qilin/subagent/src/projection.ts'
-import TypertRegistry from '@qilin/typert-registry'
-import { createUserMessage, MessageId } from '@qilin/llm'
-import { snapshotSubagentDescriptor } from '@qilin/subagent'
-import { createInboxStub, mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@qilin/agent-loop-testkit'
-import type { Agent, Inbox } from '@qilin/agent'
-import type { SessionEvent, SessionHeader, SessionId } from '@qilin/session'
-import AttachmentStore from '@qilin/attachment'
+import { Context } from '@qilin-agent/kylin'
+import SessionStore from '@qilin-agent/session'
+import AgentRegistry from '@qilin-agent/agent'
+import { SessionHistoryController } from '@qilin-agent/api-session-controller/src/history.ts'
+import { subagentIdentityProjectionDefinition } from '@qilin-agent/subagent/src/projection.ts'
+import TypertRegistry from '@qilin-agent/typert-registry'
+import { createUserMessage, MessageId } from '@qilin-agent/llm'
+import { snapshotSubagentDescriptor } from '@qilin-agent/subagent'
+import { createInboxStub, mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@qilin-agent/agent-loop-testkit'
+import type { Agent, Inbox } from '@qilin-agent/agent'
+import type { SessionEvent, SessionHeader, SessionId } from '@qilin-agent/session'
+import AttachmentStore from '@qilin-agent/attachment'
 import type { SessionPromptRequest, SessionRequestId } from '../src/types.ts'
 import {
   SessionPersistenceRevision,
   type SessionPersistenceSnapshot,
   type SessionHandle, SessionAccess,
-} from '@qilin/session-persistence'
+} from '@qilin-agent/session-persistence'
 import {
   createSessionTestRemote,
   testSessionPersistence,
@@ -371,7 +371,7 @@ describe('Remote Agent and Session lookup policy', () => {
       list: () => Promise.resolve([meta]),
       inspect,
     })
-    const resumedSession = { id: sessionId, header: meta, events: [] } as unknown as import('@qilin/session').Session
+    const resumedSession = { id: sessionId, header: meta, events: [] } as unknown as import('@qilin-agent/session').Session
     const resumedAgent = { id: sessionId, session: resumedSession, status: 'idle', ctx } as Agent
     const release = Promise.withResolvers<undefined>()
     const resume = vi.spyOn(ctx.agents, 'resume').mockImplementation(async () => {

@@ -4,7 +4,7 @@
  * documented on the public interfaces in `./manifest.ts`; this file owns the
  * state tables and the load/materialize machinery.
  */
-import { dshCompatModuleId } from '@qilin/dsh-compat'
+import { dshCompatModuleId } from '@qilin-agent/dsh-compat'
 import { stripClientSuffix } from './manifest.ts'
 import { ClientEntries } from './entries.ts'
 import { removeOwnedStyles } from './entry-lifecycle.ts'

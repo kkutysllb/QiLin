@@ -6,10 +6,10 @@ import { join } from 'node:path'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import type { Agent } from '@qilin/agent'
-import { ToolCallId } from '@qilin/llm'
-import { SessionId } from '@qilin/session'
-import { JobId } from '@qilin/jobs'
+import type { Agent } from '@qilin-agent/agent'
+import { ToolCallId } from '@qilin-agent/llm'
+import { SessionId } from '@qilin-agent/session'
+import { JobId } from '@qilin-agent/jobs'
 import {
   assertFixtureInventory, captureStableAria, compareOrRefreshGolden,
   launchWebScaffold, seedSession, watchConsole, webSnapshotMode, type WebScaffold,

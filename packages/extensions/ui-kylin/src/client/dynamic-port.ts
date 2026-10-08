@@ -1,6 +1,6 @@
 /** Host operations used directly by the frame-wide Kylin panel. */
 
-import type { SessionId } from '@qilin/api-remotes/client'
+import type { SessionId } from '@qilin-agent/api-remotes/client'
 import type {
   CordisDynamicPluginId, DynamicCordisInventoryRow,
 } from './events.ts'

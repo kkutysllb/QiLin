@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-shortcuts",
+  "name": "@qilin-agent/client-shortcuts",
   "description": "Application keyboard command registry and physical-key routing",
   "version": "3.1.1",
   "publishConfig": {
@@ -46,26 +46,26 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/client-locale"
+        "@qilin-agent/client-locale"
       ],
       "platform": "web"
     }
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/brand": "workspace:*",
-    "@qilin/client-locale": "workspace:*",
-    "@qilin/client-store": "workspace:*",
-    "@qilin/client-test-runtime": "workspace:*",
-    "@qilin/client-ui-primitives": "workspace:*",
-    "@qilin/host-webserver": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/host-webserver": "workspace:*"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:~",
-    "@qilin/util-crypto": "workspace:*",
-    "@qilin/util-values": "workspace:*"
+    "@qilin-agent/schemastery": "workspace:~",
+    "@qilin-agent/util-crypto": "workspace:*",
+    "@qilin-agent/util-values": "workspace:*"
   }
 }

@@ -1,7 +1,7 @@
 /** Shared Files resolution, bounded stale-id recovery, and normalized-image diagnostics. */
 
-import type { RequestImageAttachment } from '@qilin/attachment'
-import { deadline } from '@qilin/timeout'
+import type { RequestImageAttachment } from '@qilin-agent/attachment'
+import { deadline } from '@qilin-agent/timeout'
 import type { DeepSeekFileStore, DeepSeekFileConnection, DeepSeekFilePolicy } from './file-store.ts'
 import type { DeepSeekFileId } from './file-id.ts'
 

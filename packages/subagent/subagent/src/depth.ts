@@ -3,12 +3,12 @@
  * children. Kept apart from the service so composition helpers can read it
  * without importing the registry.
  *
- * @module @qilin/subagent/depth
+ * @module @qilin-agent/subagent/depth
  */
 
-import type { Agent } from '@qilin/agent'
+import type { Agent } from '@qilin-agent/agent'
 
-declare module '@qilin/agent' {
+declare module '@qilin-agent/agent' {
   interface AgentOptions {
     /** Delegation depth: zero for a top-level agent and parent depth + 1 for a child. */
     subagentDepth?: number

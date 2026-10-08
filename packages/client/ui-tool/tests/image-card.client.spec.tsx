@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { useDisclosure } from '@qilin/client-ui-chat/src/client/chat/use-disclosure.ts'
+import { useDisclosure } from '@qilin-agent/client-ui-chat/src/client/chat/use-disclosure.ts'
 // The image render intent on the web side: the pure imageCardModel derivation over
 // a settled call's persisted metadata and raw envelope, and the chat tool row that
 // consumes it — the keyed ReadImageRow composing ToolRow with the image card as its
@@ -14,18 +14,18 @@ import { useDisclosure } from '@qilin/client-ui-chat/src/client/chat/use-disclos
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render } from '@testing-library/react'
-import { Context } from '@qilin/kylin'
-import { bindSnapshotSelector, makeTranslate } from '@qilin/client-test-runtime'
-import { createSnapshotStore } from '@qilin/client-store'
-import { zh as commonZh } from '@qilin/client-locale/src/locales/zh.ts'
-import { AttachmentId, type ImageAttachmentRef } from '@qilin/attachment'
-import type { StartedToolCall, ToolResultNode } from '@qilin/client-ui-chat/client'
-import type { SessionListState } from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
-import type { PropsRenderSlots } from '@qilin/client-ui-slots'
-import type { MessageImageLoader } from '@qilin/client-ui-conversation/client'
-import { zh } from '@qilin/client-ui-conversation/src/client/locales.ts'
-import { PartialArguments } from '@qilin/util-values'
+import { Context } from '@qilin-agent/kylin'
+import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
+import { AttachmentId, type ImageAttachmentRef } from '@qilin-agent/attachment'
+import type { StartedToolCall, ToolResultNode } from '@qilin-agent/client-ui-chat/client'
+import type { SessionListState } from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
+import type { MessageImageLoader } from '@qilin-agent/client-ui-conversation/client'
+import { zh } from '@qilin-agent/client-ui-conversation/src/client/locales.ts'
+import { PartialArguments } from '@qilin-agent/util-values'
 import type { ToolImagesOwnerProps, ToolTreeProps } from '../src/client/contract/slots.ts'
 import { imageCardModel } from '../src/client/tool/models/image-card-model.ts'
 import { ReadImageRow, readImageToolview } from '../src/client/tool/toolviews/read-image-row.tsx'

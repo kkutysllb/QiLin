@@ -3,7 +3,7 @@ description: "Localization for the web GUI: the zh/en preference, browser-derive
 kind: "package-reference"
 ---
 
-# @qilin/client-locale
+# @qilin-agent/client-locale
 
 English | [中文](README.zh.md)
 

@@ -4,8 +4,8 @@
  * user-settings document so the width the transcript renders at and the width
  * the General section shows are one fact.
  */
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
-import type { ConfigForm } from '@qilin/client-ui-settings/client'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
+import type { ConfigForm } from '@qilin-agent/client-ui-settings/client'
 import {
   CONTENT_WIDTH_ADAPTIVE, CONTENT_WIDTH_FIELD, CONTENT_WIDTH_MAX, CONTENT_WIDTH_MIN,
   DEFAULT_CONTENT_WIDTH,

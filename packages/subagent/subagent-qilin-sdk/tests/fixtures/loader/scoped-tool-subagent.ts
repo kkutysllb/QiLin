@@ -1,9 +1,9 @@
 /** Mount the SDK delegation tool in each fixture Agent's scope. */
 
-import type { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import * as ToolSubagent from '@qilin/tool-subagent'
-import type { Config } from '@qilin/tool-subagent'
+import type { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import * as ToolSubagent from '@qilin-agent/tool-subagent'
+import type { Config } from '@qilin-agent/tool-subagent'
 
 export const name = 'scoped-tool-subagent'
 export const inject = ['agents', 'subagentModelSelection']

@@ -1,7 +1,7 @@
 /** Pure replay fold and strict decoder for durable goal changes. */
 
-import type { MessageSource } from '@qilin/llm'
-import type { SessionEvent } from '@qilin/session'
+import type { MessageSource } from '@qilin-agent/llm'
+import type { SessionEvent } from '@qilin-agent/session'
 import { GOAL_CHANGE_VERSION, GoalId } from './runtime.ts'
 import type { GoalBlockReason, GoalPhase, GoalRef, GoalSnapshot } from './types.ts'
 import type {

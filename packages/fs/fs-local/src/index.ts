@@ -1,15 +1,15 @@
 /**
  * Host-filesystem implementation of `ctx.fs`. Realpath-derived target identity makes aliases
  * share stale guards, and writes through a symlink update its target without replacing the link.
- * @module @qilin/fs-local
+ * @module @qilin-agent/fs-local
  */
 
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { constants as bufferConstants } from 'node:buffer'
 import { isAbsolute, relative, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import z from '@qilin/schemastery'
-import { FileSystem, FsError, FsVersion } from '@qilin/fs'
+import z from '@qilin-agent/schemastery'
+import { FileSystem, FsError, FsVersion } from '@qilin-agent/fs'
 import type {
   FsDirEntry,
   FsEditOutcome,
@@ -21,7 +21,7 @@ import type {
   FsTarget,
   FsWriteIntent,
   FsWriteOutcome,
-} from '@qilin/fs'
+} from '@qilin-agent/fs'
 import {
   applyLiteralEdit,
   createDirectoryPath,

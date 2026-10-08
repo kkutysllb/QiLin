@@ -4,14 +4,14 @@
  * `job.follow` stream per observed job — so overlapping viewers share a
  * stream, rosters resume whole after a reconnect, and observations resume
  * from the model's cursor, plus the human kill passthrough over `job.kill`.
- * @module @qilin/api-job-controller/client/service
+ * @module @qilin-agent/api-job-controller/client/service
  */
 
-import { Service, type Context } from '@qilin/kylin'
-import { RemoteStreamCarrierError, type ClientRemote } from '@qilin/api-gateway/client'
-import type { RemoteResult } from '@qilin/typert-protocol'
-import type { JobId } from '@qilin/jobs/brand'
-import type { SessionId } from '@qilin/session/types'
+import { Service, type Context } from '@qilin-agent/kylin'
+import { RemoteStreamCarrierError, type ClientRemote } from '@qilin-agent/api-gateway/client'
+import type { RemoteResult } from '@qilin-agent/typert-protocol'
+import type { JobId } from '@qilin-agent/jobs/brand'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { JobKillRequest, JobKillValue, JobFollowFrame, JobFollowRequest, JobListFrame, JobListRequest } from '../types.ts'
 import type { ClientJobsModel, JobsSource } from './model.ts'
 
@@ -82,7 +82,7 @@ interface StreamEntry {
   dispose: () => Promise<void>
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** React-free client job rosters and observation control. */
     jobs: IJobs

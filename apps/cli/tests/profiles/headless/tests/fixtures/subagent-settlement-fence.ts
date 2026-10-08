@@ -3,9 +3,9 @@
  * @module subagent-settlement-fence
  */
 
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/agent-loop'
-import type {} from '@qilin/subagent'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/agent-loop'
+import type {} from '@qilin-agent/subagent'
 
 /** Fixture plugin name. */
 export const name = 'subagent-settlement-fence'

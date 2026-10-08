@@ -1,10 +1,10 @@
 /** Team state projected incrementally from committed Session events, with a durable-only client view. */
 
 import { z } from 'zod'
-import { brandString } from '@qilin/brand'
-import type { ContentBlock } from '@qilin/llm'
-import type { SessionEvent, SessionEventMap, SessionId } from '@qilin/session'
-import type { ProjectionDefinition } from '@qilin/session-projection'
+import { brandString } from '@qilin-agent/brand'
+import type { ContentBlock } from '@qilin-agent/llm'
+import type { SessionEvent, SessionEventMap, SessionId } from '@qilin-agent/session'
+import type { ProjectionDefinition } from '@qilin-agent/session-projection'
 import type {
   TeamId,
   TeamMemberProjection,
@@ -158,7 +158,7 @@ export interface TeamProjectionState extends TeamState {
   readonly failure?: string
 }
 
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionStateMap {
     agentTeam: TeamProjectionState
   }

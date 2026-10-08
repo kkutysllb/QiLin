@@ -1,8 +1,8 @@
 /** Chat-owned event-to-view projection. */
 
 import { describe, expect, it } from 'vitest'
-import { AttachmentId } from '@qilin/attachment'
-import type { ContentBlock } from '@qilin/api-remotes/client'
+import { AttachmentId } from '@qilin-agent/attachment'
+import type { ContentBlock } from '@qilin-agent/api-remotes/client'
 import {
   displayFailure, emptyAssistantBlock, toAssistantBlock, toAssistantBlocks,
   isTokenDelta,

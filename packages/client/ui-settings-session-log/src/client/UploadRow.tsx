@@ -1,8 +1,8 @@
 /** General settings row and persistent shell notice for API log uploads. */
-import { Switch, Toast } from '@qilin/client-ui-primitives'
-import type { ObservableSnapshot } from '@qilin/client-store'
-import type { ConfigFormSnapshot } from '@qilin/client-ui-settings/client'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
+import { Switch, Toast } from '@qilin-agent/client-ui-primitives'
+import type { ObservableSnapshot } from '@qilin-agent/client-store'
+import type { ConfigFormSnapshot } from '@qilin-agent/client-ui-settings/client'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import type { UploadMutation, UploadSettings } from './upload-preference.ts'
 import css from './UploadRow.module.css'
 

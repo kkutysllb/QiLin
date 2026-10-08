@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/cosmokit",
+  "name": "@qilin-agent/cosmokit",
   "description": "A collection of common utilities",
   "version": "1.8.4",
   "publishConfig": {

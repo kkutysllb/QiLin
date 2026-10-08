@@ -1,12 +1,12 @@
 /** Fold of `ask_user_question` tool events into the answerable question set, and its Session projection. */
 import { z } from 'zod'
-import { SessionLogOffset, TOOL_OUTCOME_UNKNOWN } from '@qilin/session'
-import type { SessionEvent, SessionLogOffset as SessionLogOffsetType } from '@qilin/session'
-import type { ProjectionDefinition } from '@qilin/session-projection'
-import type {} from '@qilin/agent/types'
-import type {} from '@qilin/tools/types'
-import { ToolCallId } from '@qilin/llm'
-import type { ContentBlock, ToolSchema } from '@qilin/llm'
+import { SessionLogOffset, TOOL_OUTCOME_UNKNOWN } from '@qilin-agent/session'
+import type { SessionEvent, SessionLogOffset as SessionLogOffsetType } from '@qilin-agent/session'
+import type { ProjectionDefinition } from '@qilin-agent/session-projection'
+import type {} from '@qilin-agent/agent/types'
+import type {} from '@qilin-agent/tools/types'
+import { ToolCallId } from '@qilin-agent/llm'
+import type { ContentBlock, ToolSchema } from '@qilin-agent/llm'
 import type { AskUserQuestionAnswerItem, AskUserQuestionItem, AskUserQuestionOption, PendingUserQuestion, SettledUserQuestion, UserQuestionProjectionView } from './types.ts'
 
 /**
@@ -330,7 +330,7 @@ export const userQuestionProjectionDefinition = {
   stateVersion: 2,
 } satisfies ProjectionDefinition<'userQuestions', UserQuestionProjectionState>
 
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionStateMap {
     userQuestions: UserQuestionProjectionState
   }

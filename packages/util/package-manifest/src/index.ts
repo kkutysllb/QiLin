@@ -1,6 +1,6 @@
 /**
  * Public package manifest types, with no runtime exports.
- * @module @qilin/package-manifest
+ * @module @qilin-agent/package-manifest
  */
 
 export type {

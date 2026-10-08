@@ -9,19 +9,19 @@
  */
 
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import AgentRegistry, { agentEvents } from '@qilin/agent'
-import type { Agent, AgentStatus } from '@qilin/agent'
-import { createUserMessage } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import SessionStore from '@qilin/session'
-import type { Session } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import GoalService, { GoalId, applyGoalProjection, foldGoal, goalProjectionDefinition } from '@qilin/goal'
-import type { GoalProjection, GoalProjectionState, GoalRef } from '@qilin/goal'
-import { unsupportedInbox } from '@qilin/agent-loop-testkit'
+import { Context } from '@qilin-agent/kylin'
+import AgentRegistry, { agentEvents } from '@qilin-agent/agent'
+import type { Agent, AgentStatus } from '@qilin-agent/agent'
+import { createUserMessage } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import SessionStore from '@qilin-agent/session'
+import type { Session } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import GoalService, { GoalId, applyGoalProjection, foldGoal, goalProjectionDefinition } from '@qilin-agent/goal'
+import type { GoalProjection, GoalProjectionState, GoalRef } from '@qilin-agent/goal'
+import { unsupportedInbox } from '@qilin-agent/agent-loop-testkit'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

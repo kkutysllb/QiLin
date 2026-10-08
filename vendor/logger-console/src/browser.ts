@@ -1,4 +1,4 @@
-import { Message } from '@qilin/kylin'
+import { Message } from '@qilin-agent/kylin'
 import { ConsoleExporter as Base } from './shared.ts'
 
 /** Re-export shared console exporter config and base implementation. */

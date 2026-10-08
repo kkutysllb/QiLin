@@ -2,9 +2,9 @@
 /** Virtual Inspector rows expose raw data and flash on updates. */
 
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
-import { createSnapshotStore } from '@qilin/client-store'
-import type { SessionId } from '@qilin/session/types'
-import { bindSnapshotSelector, makeTranslate, RemoteError, sessionSnapshot } from '@qilin/client-test-runtime'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { SessionId } from '@qilin-agent/session/types'
+import { bindSnapshotSelector, makeTranslate, RemoteError, sessionSnapshot } from '@qilin-agent/client-test-runtime'
 import { afterEach, beforeEach, expect, it, onTestFinished, vi } from 'vitest'
 import { InspectorTable, type InspectorTableProps } from '../src/client/views/InspectorTable.tsx'
 import type { InspectorRecord, InspectorRow } from '../src/client/views/table-model.ts'

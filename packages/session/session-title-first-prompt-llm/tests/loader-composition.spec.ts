@@ -1,17 +1,17 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import LlmRuntime, { createUserMessage, LlmAdapter  } from '@qilin/llm'
-import type { GenerateOptions, StreamChunk } from '@qilin/llm'
-import SessionStore, { SessionId } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import SessionTitleService from '@qilin/session-title'
-import * as providerPlugin from '@qilin/session-title-first-prompt-llm'
+import LlmRuntime, { createUserMessage, LlmAdapter  } from '@qilin-agent/llm'
+import type { GenerateOptions, StreamChunk } from '@qilin-agent/llm'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import SessionTitleService from '@qilin-agent/session-title'
+import * as providerPlugin from '@qilin-agent/session-title-first-prompt-llm'
 
 let root: string | undefined
 let context: Context | undefined
@@ -37,15 +37,15 @@ async function loadComposition(): Promise<Context> {
   root = await mkdtemp(join(tmpdir(), 'qilin-title-loader-'))
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, [
-    "- name: '@qilin/llm'",
-    "- name: '@qilin/session'",
-    "- name: '@qilin/session-projection'",
-    "- name: '@qilin/session-title'",
+    "- name: '@qilin-agent/llm'",
+    "- name: '@qilin-agent/session'",
+    "- name: '@qilin-agent/session-projection'",
+    "- name: '@qilin-agent/session-title'",
     '  config:',
     '    fallbackMaxWords: 5',
     '    fallbackMaxBytes: 40',
     '    maxTitleBytes: 80',
-    "- name: '@qilin/session-title-first-prompt-llm'",
+    "- name: '@qilin-agent/session-title-first-prompt-llm'",
     '  config:',
     '    targetWords: 5',
     '    targetCjkCharacters: 10',
@@ -62,11 +62,11 @@ async function loadComposition(): Promise<Context> {
   await context.plugin(Loader)
   context.loader.builtins.include = Include
   const modules = new Map<string, unknown>([
-    ['@qilin/llm', LlmRuntime],
-    ['@qilin/session', SessionStore],
-    ['@qilin/session-projection', SessionProjectionRegistry],
-    ['@qilin/session-title', SessionTitleService],
-    ['@qilin/session-title-first-prompt-llm', providerPlugin],
+    ['@qilin-agent/llm', LlmRuntime],
+    ['@qilin-agent/session', SessionStore],
+    ['@qilin-agent/session-projection', SessionProjectionRegistry],
+    ['@qilin-agent/session-title', SessionTitleService],
+    ['@qilin-agent/session-title-first-prompt-llm', providerPlugin],
   ])
   context.loader.internal = {
     version: 'v2',

@@ -1,7 +1,7 @@
 /** Canonical session URI and inline mention encoding. */
 
-import { brandString } from '@qilin/brand'
-import type { SessionId as SessionIdType } from '@qilin/session'
+import { brandString } from '@qilin-agent/brand'
+import type { SessionId as SessionIdType } from '@qilin-agent/session'
 import { SessionReferenceError } from './config.ts'
 import type { SessionReferenceInput } from './types.ts'
 

@@ -1,13 +1,13 @@
 /** The `bash` settings section layered over the executor's composition entry. */
 
 import { describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import type { Fiber } from '@qilin/kylin'
-import { SettingsProvider } from '@qilin/settings'
-import type { SettingsNamespace } from '@qilin/settings'
-import LocalSubprocessRuntime from '@qilin/subprocess-local'
-import { SHELL_SETTINGS_NAMESPACE } from '@qilin/shell'
-import { LocalBashExecutor } from '@qilin/bash-local'
+import { Context } from '@qilin-agent/kylin'
+import type { Fiber } from '@qilin-agent/kylin'
+import { SettingsProvider } from '@qilin-agent/settings'
+import type { SettingsNamespace } from '@qilin-agent/settings'
+import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
+import { SHELL_SETTINGS_NAMESPACE } from '@qilin-agent/shell'
+import { LocalBashExecutor } from '@qilin-agent/bash-local'
 
 /** The smallest real provider: one in-memory document, always writable. */
 class MemorySettings extends SettingsProvider {

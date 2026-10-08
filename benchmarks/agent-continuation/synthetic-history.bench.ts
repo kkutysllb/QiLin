@@ -1,8 +1,8 @@
 /** Current-generation benchmark seeds retain the system head across continuation. */
 import { expect, it } from 'vitest'
-import { createSystemMessage } from '@qilin/llm'
-import { parseSessionLog } from '@qilin/llm-replay'
-import { Session, SessionId, SESSION_FORMAT_VERSION } from '@qilin/session'
+import { createSystemMessage } from '@qilin-agent/llm'
+import { parseSessionLog } from '@qilin-agent/llm-replay'
+import { Session, SessionId, SESSION_FORMAT_VERSION } from '@qilin-agent/session'
 import { syntheticHistory as browserHistory } from '../long-session-browser/synthetic-history.ts'
 import { syntheticHistory } from './workload.ts'
 

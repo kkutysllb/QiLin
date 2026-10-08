@@ -1,10 +1,10 @@
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   ConversationMatch, ConversationNodeContext, ConversationNodeDefinition, StartedToolCall,
   ToolResultNode,
-} from '@qilin/client-ui-conversation/client'
-import type {} from '@qilin/tools/types'
-import { PartialArguments } from '@qilin/util-values'
+} from '@qilin-agent/client-ui-conversation/client'
+import type {} from '@qilin-agent/tools/types'
+import { PartialArguments } from '@qilin-agent/util-values'
 import { trajectoryNode } from './trajectory-definition-common.ts'
 
 /* jscpd:ignore-start -- Target-owned Definitions intentionally keep their event

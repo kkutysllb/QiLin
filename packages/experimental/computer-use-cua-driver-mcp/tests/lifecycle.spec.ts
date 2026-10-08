@@ -1,10 +1,10 @@
 /** The external MCP process is replaced by barriers to pin disposal ordering. */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import ComputerUse from '@qilin/computer-use'
-import { ComputerUseProviderName } from '@qilin/computer-use/brand'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
+import { Context } from '@qilin-agent/kylin'
+import ComputerUse from '@qilin-agent/computer-use'
+import { ComputerUseProviderName } from '@qilin-agent/computer-use/brand'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
 
 const fake = vi.hoisted(() => ({
   start: vi.fn<() => Promise<void>>(),
@@ -12,8 +12,8 @@ const fake = vi.hoisted(() => ({
   configurations: [] as unknown[],
 }))
 
-vi.mock('@qilin/mcp-client', async (importOriginal) => {
-  const original = await importOriginal<typeof import('@qilin/mcp-client')>()
+vi.mock('@qilin-agent/mcp-client', async (importOriginal) => {
+  const original = await importOriginal<typeof import('@qilin-agent/mcp-client')>()
   return {
     ...original,
     async apply(ctx: Context, config: unknown) {

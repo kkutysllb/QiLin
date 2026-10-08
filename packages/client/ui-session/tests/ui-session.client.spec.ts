@@ -1,4 +1,4 @@
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import type {
   AgentContext,
   ISessions,
@@ -7,11 +7,11 @@ import type {
   SessionReference,
   SessionRetainInfo,
   SessionSnapshot,
-} from '@qilin/api-session-controller/client'
-import { MutableSessionEventSource } from '@qilin/api-session-controller/client'
-import { createSnapshotStore } from '@qilin/client-store'
-import type { HostObservable, RootStandardSourceContribution } from '@qilin/client-ui-slots'
-import type { SessionId } from '@qilin/session/types'
+} from '@qilin-agent/api-session-controller/client'
+import { MutableSessionEventSource } from '@qilin-agent/api-session-controller/client'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { HostObservable, RootStandardSourceContribution } from '@qilin-agent/client-ui-slots'
+import type { SessionId } from '@qilin-agent/session/types'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   apply,

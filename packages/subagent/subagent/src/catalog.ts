@@ -1,20 +1,20 @@
 /**
  * Parent-owned durable subagent catalog events and their chunked projection.
  *
- * @module @qilin/subagent/catalog
+ * @module @qilin-agent/subagent/catalog
  */
 
 import { z } from 'zod'
-import { appendChunkedList, chunkedListSchema, iterateChunkedList } from '@qilin/chunked-list'
-import type { ChunkedList } from '@qilin/chunked-list'
+import { appendChunkedList, chunkedListSchema, iterateChunkedList } from '@qilin-agent/chunked-list'
+import type { ChunkedList } from '@qilin-agent/chunked-list'
 import type {
   Session,
   SessionEvent,
   SessionHeader,
   SessionId,
   SessionLogOffset,
-} from '@qilin/session'
-import type { ProjectionDefinition } from '@qilin/session-projection'
+} from '@qilin-agent/session'
+import type { ProjectionDefinition } from '@qilin-agent/session-projection'
 import type { SubagentCatalogEntry } from './projection-types.ts'
 
 /** Catalog payload version emitted by live child creation. */
@@ -34,7 +34,7 @@ export type SubagentCatalogEvent =
     | ({ readonly version: 1 } & (KnownCatalogMode | { readonly mode: 'unknown'; readonly label?: string }))
   )
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /**
      * A direct child's identity and available discovery fields.
@@ -90,7 +90,7 @@ const stateSchema: z.ZodType<SubagentCatalogState> = z.object({
   head: chunkedListSchema(eventDataSchema).optional(),
 }).strict()
 
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionStateMap {
     subagentCatalog: SubagentCatalogState
   }

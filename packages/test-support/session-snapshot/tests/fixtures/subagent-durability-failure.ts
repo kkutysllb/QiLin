@@ -1,6 +1,6 @@
-import type { Context } from '@qilin/kylin'
-import { SessionId } from '@qilin/session'
-import type { SubagentPromptRequestId } from '@qilin/subagent'
+import type { Context } from '@qilin-agent/kylin'
+import { SessionId } from '@qilin-agent/session'
+import type { SubagentPromptRequestId } from '@qilin-agent/subagent'
 
 export const name = 'subagent-durability-failure'
 export const inject = ['agents', 'sessionPersistence', 'subagents']

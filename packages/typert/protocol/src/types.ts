@@ -1,11 +1,11 @@
 /**
  * Compiler-independent Typert protocol shared by business packages, generated
  * Remote artifacts, the Host Gateway, and Client API implementations.
- * @module @qilin/typert-protocol/types
+ * @module @qilin-agent/typert-protocol/types
  */
 
-import type { Context, Events } from '@qilin/kylin'
-import type { Branded } from '@qilin/brand'
+import type { Context, Events } from '@qilin-agent/kylin'
+import type { Branded } from '@qilin-agent/brand'
 import type { TypertOwnedValue } from './owned-value.ts'
 
 declare const LOOKUP_HOST: unique symbol
@@ -689,7 +689,7 @@ export interface TypertRegistryContract {
   readonly contexts: TypertContextRegistry
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     typert: TypertRegistryContract
     /**

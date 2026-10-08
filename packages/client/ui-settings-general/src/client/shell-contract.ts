@@ -6,15 +6,15 @@
  * reference graph closes a cycle through ui-sidebar → ui-layout → ui-theme.
  * The settings SLOT types (what registrants contribute) stay in ui-settings.
  */
-import type { ConnectionState } from '@qilin/client-connection/client'
+import type { ConnectionState } from '@qilin-agent/client-connection/client'
 import type {
   HostObservable, InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore,
-} from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-slots'
 // Type-only: pulls ui-sidebar's SlotMap merge (the 'sidebar.settings' entry)
 // into every program that sees this contract.
-import type {} from '@qilin/client-ui-sidebar/client'
+import type {} from '@qilin-agent/client-ui-sidebar/client'
 // Type-only: pulls the settings slot declarations the shell renders into.
-import type {} from '@qilin/client-ui-settings/client'
+import type {} from '@qilin-agent/client-ui-settings/client'
 
 /** One nav row projected from a settings.section registration's options. */
 export interface SettingsSectionRow {
@@ -43,7 +43,7 @@ export interface SettingsShell {
   open(sectionId?: string): void
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     settingsShell: SettingsShell
   }

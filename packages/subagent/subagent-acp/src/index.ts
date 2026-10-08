@@ -4,20 +4,20 @@
  * the ONE thing it reads off `request.parent` is the session's workspace cwd (see
  * {@link resolveCwd}). This plugin uses named exports only; a default would hide its
  * loader metadata (see `docs/postmortem/0001-acp-default-export-drops-inject.md`).
- * @module @qilin/subagent-acp
+ * @module @qilin-agent/subagent-acp
  */
 
 import { accessSync, constants, statSync } from 'node:fs'
 import { isAbsolute, resolve } from 'node:path'
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
 import type {
   ResolvedSubagentStartRequest,
   SubagentCapabilities,
   SubagentProvider,
   SubagentStartRequest,
-} from '@qilin/subagent'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
+} from '@qilin-agent/subagent'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 import { acpConfigurationFailure, type AcpRunSpec, DEFAULT_DISPOSE_EOF_GRACE_MS, DEFAULT_DISPOSE_GRACE_MS, type PermissionPolicy, startAcpRun } from './run.ts'
 
 export const name = 'subagent-acp'

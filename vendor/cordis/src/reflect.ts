@@ -1,5 +1,5 @@
-import { defineProperty, isNullable } from '@qilin/cosmokit'
-import type { Dict } from '@qilin/cosmokit'
+import { defineProperty, isNullable } from '@qilin-agent/cosmokit'
+import type { Dict } from '@qilin-agent/cosmokit'
 import { Context } from './context.ts'
 import { getTraceable, symbols, withProps } from './utils.ts'
 import { Fiber, FiberState } from './fiber.ts'

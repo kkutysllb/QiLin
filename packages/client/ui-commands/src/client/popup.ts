@@ -9,11 +9,11 @@
  * Input side owns the span/bare-token CAS guard) and focuses the composer;
  * the controller never touches the input machine.
  */
-import { createSnapshotStore } from '@qilin/client-store'
-import type { SnapshotStore } from '@qilin/client-store'
-import type { TokenSpan } from '@qilin/client-ui-input-trigger/client'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { SnapshotStore } from '@qilin-agent/client-store'
+import type { TokenSpan } from '@qilin-agent/client-ui-input-trigger/client'
 import type { PopupSearchLabels, PopupSearchMode, PopupSelectSpec, SelectOption } from './contract.ts'
-import { rankByName } from '@qilin/client-ui-primitives'
+import { rankByName } from '@qilin-agent/client-ui-primitives'
 import { groupOptions } from './option-groups.ts'
 
 /**

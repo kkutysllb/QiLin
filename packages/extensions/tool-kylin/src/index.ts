@@ -1,12 +1,12 @@
 /**
  * Read-only Host and Client runtime API discovery for plugin development.
- * @module @qilin/tool-kylin
+ * @module @qilin-agent/tool-kylin
  */
-import type { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import type { JsonValue } from '@qilin/util-values'
-import { defineTool } from '@qilin/tools'
-import type { ToolExecution } from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import type { JsonValue } from '@qilin-agent/util-values'
+import { defineTool } from '@qilin-agent/tools'
+import type { ToolExecution } from '@qilin-agent/tools'
 import { presentInspectListCall, presentInspectQueryCall } from './present.ts'
 import { CORDIS_SYSTEM_PROMPT } from './prompt.ts'
 
@@ -19,7 +19,7 @@ function requireAgent(exec: ToolExecution): Agent {
 }
 
 /** Register read-only runtime inspection tools over the Host providers that
- * `@qilin/tool-kylin/host` registers once per process.
+ * `@qilin-agent/tool-kylin/host` registers once per process.
  * @param ctx Agent-scoped registration context.
  */
 export function apply(ctx: Context): void {

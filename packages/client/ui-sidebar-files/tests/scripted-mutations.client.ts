@@ -8,8 +8,8 @@
  */
 import { vi } from 'vitest'
 import type { Mock } from 'vitest'
-import type { RemoteResult } from '@qilin/api-remotes/client'
-import type { SessionId } from '@qilin/session/types'
+import type { RemoteResult } from '@qilin-agent/api-remotes/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import { createTabReconcile } from '../src/client/file-mutations.ts'
 import type {
   OpenTabRef, SidebarTabReconcile, TabReconcile, WorkspaceFileMutations,

@@ -15,12 +15,12 @@ import { fileURLToPath } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { createUserMessage } from '@qilin/llm'
-import type { ContentBlock, ContextFormed, Message, MessageSource } from '@qilin/llm'
-import { deriveEventMessage, SessionId } from '@qilin/session'
-import type { SessionEvent } from '@qilin/session'
-import type { TokenMeter } from '@qilin/token-meter'
-import type {} from '@qilin/api-terminal-controller'
+import { createUserMessage } from '@qilin-agent/llm'
+import type { ContentBlock, ContextFormed, Message, MessageSource } from '@qilin-agent/llm'
+import { deriveEventMessage, SessionId } from '@qilin-agent/session'
+import type { SessionEvent } from '@qilin-agent/session'
+import type { TokenMeter } from '@qilin-agent/token-meter'
+import type {} from '@qilin-agent/api-terminal-controller'
 import { join } from 'node:path'
 import {
   acknowledgeReloadConnectionLoss, assertFixtureInventory, captureExpandedTurnProcessAria, captureStableAria,
@@ -30,7 +30,7 @@ import {
 } from './scaffold.ts'
 import { expandOwningTurnProcess, newEnglishPage, saveFailureShot } from './support.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'fixture': { kind: 'fixture' } & ContextFormed
   }

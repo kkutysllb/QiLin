@@ -3,16 +3,16 @@
  * becomes `content`; sources prefer structured `search_results[]` and fall back to URL-only
  * `citations[]`. The wire format and native `fetch` client are provider-private and do not use
  * `ctx.llm`.
- * @module @qilin/web-search-perplexity/provider
+ * @module @qilin-agent/web-search-perplexity/provider
  */
 
-import { WebError } from '@qilin/web'
+import { WebError } from '@qilin-agent/web'
 import type {
   WebSearchProvider,
   WebSearchRequest,
   WebSearchResult,
   WebSearchSource,
-} from '@qilin/web'
+} from '@qilin-agent/web'
 import type { PerplexityError, PerplexityResponse, PerplexitySearchResult } from './types.ts'
 
 /** Stable id this provider registers under. */

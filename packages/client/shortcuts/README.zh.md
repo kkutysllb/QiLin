@@ -3,7 +3,7 @@ description: "为每台设备自定义应用键盘命令"
 kind: "package-reference"
 ---
 
-# @qilin/client-shortcuts
+# @qilin-agent/client-shortcuts
 
 [English](README.md) | 中文
 

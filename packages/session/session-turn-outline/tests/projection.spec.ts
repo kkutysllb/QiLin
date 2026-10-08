@@ -10,17 +10,17 @@
  */
 
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { createAssistantMessage, createUserMessage } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import SessionStore, { SessionId, SessionLogOffset, SessionSeq } from '@qilin/session'
-import type { Session, SessionEvent } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import * as SessionTurnOutlinePlugin from '@qilin/session-turn-outline'
-import { turnOutlineProjectionDefinition } from '@qilin/session-turn-outline/src/projection.ts'
-import type { TurnOutlineEntry, TurnOutlineState } from '@qilin/session-turn-outline/types'
+import { Context } from '@qilin-agent/kylin'
+import { createAssistantMessage, createUserMessage } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import SessionStore, { SessionId, SessionLogOffset, SessionSeq } from '@qilin-agent/session'
+import type { Session, SessionEvent } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import * as SessionTurnOutlinePlugin from '@qilin-agent/session-turn-outline'
+import { turnOutlineProjectionDefinition } from '@qilin-agent/session-turn-outline/src/projection.ts'
+import type { TurnOutlineEntry, TurnOutlineState } from '@qilin-agent/session-turn-outline/types'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test-injector': { kind: 'test-injector' } & ContextFormed
   }

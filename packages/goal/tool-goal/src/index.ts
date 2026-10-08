@@ -1,23 +1,23 @@
 /**
  * Model-facing `get_goal`, `create_goal`, and `update_goal` tools over the
  * persisted same-session goal domain.
- * @module @qilin/tool-goal
+ * @module @qilin-agent/tool-goal
  */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { GoalId } from '@qilin/goal'
-import type { GoalRef, GoalView } from '@qilin/goal'
-import { boundContextSummary, createUserMessage, HarnessError } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-declare module '@qilin/llm' {
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { GoalId } from '@qilin-agent/goal'
+import type { GoalRef, GoalView } from '@qilin-agent/goal'
+import { boundContextSummary, createUserMessage, HarnessError } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'tool-goal': { kind: 'tool-goal' } & ContextFormed
   }
 }
 
-import { defineTool } from '@qilin/tools'
-import type { GenericCallView } from '@qilin/tools'
+import { defineTool } from '@qilin-agent/tools'
+import type { GenericCallView } from '@qilin-agent/tools'
 import {
   completionAuthority,
   goalToolExecution,

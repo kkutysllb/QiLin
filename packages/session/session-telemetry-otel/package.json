@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/session-telemetry-otel",
+  "name": "@qilin-agent/session-telemetry-otel",
   "description": "Feedback-authorized Session logs over byte-bounded OpenTelemetry HTTP requests",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,36 +30,36 @@
     "@opentelemetry/api-logs": "^0.220.0",
     "@opentelemetry/otlp-exporter-base": "^0.220.0",
     "@opentelemetry/sdk-logs": "^0.220.0",
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "peerDependencies": {
-    "@qilin/command-feedback": "workspace:*",
-    "@qilin/message-feedback": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-telemetry": "workspace:*",
-    "@qilin/anonymous-user-id": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/otel": "workspace:*"
+    "@qilin-agent/command-feedback": "workspace:*",
+    "@qilin-agent/message-feedback": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-telemetry": "workspace:*",
+    "@qilin-agent/anonymous-user-id": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/otel": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin-plugin-logger-console": "workspace:~",
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/app-boot": "workspace:*",
-    "@qilin/bash-local": "workspace:*",
-    "@qilin/command-feedback": "workspace:*",
-    "@qilin/message-feedback": "workspace:*",
-    "@qilin/llm": "workspace:*",
-    "@qilin/loader-smoke": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-checkpoint-policy": "workspace:*",
-    "@qilin/session-persistence-jsonl": "workspace:*",
-    "@qilin/session-telemetry": "workspace:*",
-    "@qilin/subprocess-local": "workspace:*",
-    "@qilin/anonymous-user-id": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/http-proxy": "workspace:*",
-    "@qilin/otel": "workspace:*"
+    "@qilin-agent/kylin-plugin-logger-console": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/app-boot": "workspace:*",
+    "@qilin-agent/bash-local": "workspace:*",
+    "@qilin-agent/command-feedback": "workspace:*",
+    "@qilin-agent/message-feedback": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/loader-smoke": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-checkpoint-policy": "workspace:*",
+    "@qilin-agent/session-persistence-jsonl": "workspace:*",
+    "@qilin-agent/session-telemetry": "workspace:*",
+    "@qilin-agent/subprocess-local": "workspace:*",
+    "@qilin-agent/anonymous-user-id": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/http-proxy": "workspace:*",
+    "@qilin-agent/otel": "workspace:*"
   },
   "engines": {
     "node": "^22.19.0 || >=24.0.0"

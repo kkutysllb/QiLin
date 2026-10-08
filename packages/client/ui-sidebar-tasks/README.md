@@ -3,7 +3,7 @@ description: "The right Sidebar's tasks page for the qilin web client: the sessi
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-sidebar-tasks
+# @qilin-agent/client-ui-sidebar-tasks
 
 English | [中文](README.zh.md)
 
@@ -26,7 +26,7 @@ The right Sidebar's tasks page: this Session's subagent topology and its backgro
 <a id="what-it-registers"></a>
 ## What it registers
 
-- **The type** — `ctx.sidebarRightTabs.register(...)` with kind `tasks`, id `@qilin/client-ui-sidebar-tasks`, band `builtin`, no patterns, `single`, and one guide entry (order 40, its title and description from the `sidebarTasks` namespace, its glyph the shared checklist icon) that opens the type.
+- **The type** — `ctx.sidebarRightTabs.register(...)` with kind `tasks`, id `@qilin-agent/client-ui-sidebar-tasks`, band `builtin`, no patterns, `single`, and one guide entry (order 40, its title and description from the `sidebarTasks` namespace, its glyph the shared checklist icon) that opens the type.
 - **The body** — the keyed `sidebar.right.pane.tab` seat under that id, declaring the graph's view store so folds, arrangement, and camera survive the body's unmounts.
 - **The chip badge** — the keyed `sidebar.right.pane.tab.badge` seat under the same id.
 

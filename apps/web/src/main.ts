@@ -1,5 +1,5 @@
 /** Browser entry for the Web client. */
-import { AppWebEntry, applyIndexInjections } from '@qilin/client-web'
+import { AppWebEntry, applyIndexInjections } from '@qilin-agent/client-web'
 
 interface DesktopBootGlobal {
   qilinDesktopBoot?: {

@@ -5,11 +5,11 @@
  * operation, so a changed credential reaches the next operation without any
  * plugin restart, and configuration surfaces describe a reference without
  * ever seeing its value.
- * @module @qilin/credentials
+ * @module @qilin-agent/credentials
  */
 
-import { Context, Service } from '@qilin/kylin'
-import { brandString } from '@qilin/brand'
+import { Context, Service } from '@qilin-agent/kylin'
+import { brandString } from '@qilin-agent/brand'
 import type { CredentialInfo, CredentialKey, CredentialRecord, CredentialRef } from './types.ts'
 
 export type {
@@ -145,7 +145,7 @@ export interface CredentialRecordEntry {
   kind: CredentialRecord['kind']
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     credentials: CredentialProvider
   }

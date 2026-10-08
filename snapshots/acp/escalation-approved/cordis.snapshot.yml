@@ -6,19 +6,19 @@
   disabled: true
 
 - id: acp
-  name: '@qilin/acp'
+  name: '@qilin-agent/acp'
   config:
     provider: deepseek-official
     model: deepseek-v4-flash
 
 - id: session-persistence-jsonl
-  name: '@qilin/session-persistence-jsonl'
+  name: '@qilin-agent/session-persistence-jsonl'
   config:
     root: !!js process.env.QILIN_SNAPSHOT_SESSIONS_ROOT ?? qilinHomePath('sessions')
     compression: none
 
 - id: sandbox
-  name: '@qilin/sandbox-local'
+  name: '@qilin-agent/sandbox-local'
   config:
     runnerCommand:
       - bash
@@ -30,7 +30,7 @@
 
 - insert:
     - id: llm-replay
-      name: '@qilin/llm-replay'
+      name: '@qilin-agent/llm-replay'
       config:
         providers:
           - id: deepseek-official

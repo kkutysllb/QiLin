@@ -10,9 +10,9 @@
  * round-trips the file byte for byte.
  * @module
  */
-import type { RemoteFailure, RemoteResult } from '@qilin/api-remotes/client'
-import type { SessionId } from '@qilin/session/types'
-import type { WorkspaceFileText } from '@qilin/api-workspace-files/types'
+import type { RemoteFailure, RemoteResult } from '@qilin-agent/api-remotes/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { WorkspaceFileText } from '@qilin-agent/api-workspace-files/types'
 
 /** Largest file the editor opens, in bytes; the Host's page cap bounds each read. */
 export const MAX_EDIT_BYTES = 2 * 1024 * 1024

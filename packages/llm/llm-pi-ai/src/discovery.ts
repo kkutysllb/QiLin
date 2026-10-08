@@ -22,9 +22,9 @@
  * @module qilin-llm-pi-ai/discovery
  */
 
-import { INVALID_CREDENTIAL_CODE, LlmError, normalizeApiKey } from '@qilin/llm'
-import type { LlmDiscoveredModel, LlmModelDiscoveryOperation } from '@qilin/llm'
-import { attributionHeaders } from '@qilin/llm'
+import { INVALID_CREDENTIAL_CODE, LlmError, normalizeApiKey } from '@qilin-agent/llm'
+import type { LlmDiscoveredModel, LlmModelDiscoveryOperation } from '@qilin-agent/llm'
+import { attributionHeaders } from '@qilin-agent/llm'
 import { catalogModels } from './catalog.ts'
 
 /**

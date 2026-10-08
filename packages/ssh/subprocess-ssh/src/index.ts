@@ -1,14 +1,14 @@
 /** Remote subprocess and PTY handles with independent SSH streams and helper-owned process lifetimes. */
 import { Duplex, PassThrough, type Readable, type Writable } from 'node:stream'
 import type { Socket } from 'node:net'
-import { Context } from '@qilin/kylin'
-import { SubprocessRuntime, SubprocessExecutableNotFoundError } from '@qilin/subprocess'
-import type { SubprocessCollectedOutputs, SubprocessHandle, SubprocessOutcome, SubprocessOutputMode, SubprocessSpawnSpec, SubprocessTerminalHandle, SubprocessTerminalEnvironment, SubprocessTerminalSignal, SubprocessTerminalSpawnSpec } from '@qilin/subprocess'
-import { OutputCollector } from '@qilin/subprocess-local/output'
-import type { SshConnection } from '@qilin/ssh'
-import { doneSchema, foregroundSchema, terminalActivitySchema, outputSnapshotFrameLimit, outputSnapshotSchema, preparedSchema, remotePath, streamEndpointSchema } from '@qilin/ssh/schemas'
-import type { SshProcessId } from '@qilin/ssh/schemas'
-import { SshRpcPeer, RemoteOperationError } from '@qilin/ssh/protocol'
+import { Context } from '@qilin-agent/kylin'
+import { SubprocessRuntime, SubprocessExecutableNotFoundError } from '@qilin-agent/subprocess'
+import type { SubprocessCollectedOutputs, SubprocessHandle, SubprocessOutcome, SubprocessOutputMode, SubprocessSpawnSpec, SubprocessTerminalHandle, SubprocessTerminalEnvironment, SubprocessTerminalSignal, SubprocessTerminalSpawnSpec } from '@qilin-agent/subprocess'
+import { OutputCollector } from '@qilin-agent/subprocess-local/output'
+import type { SshConnection } from '@qilin-agent/ssh'
+import { doneSchema, foregroundSchema, terminalActivitySchema, outputSnapshotFrameLimit, outputSnapshotSchema, preparedSchema, remotePath, streamEndpointSchema } from '@qilin-agent/ssh/schemas'
+import type { SshProcessId } from '@qilin-agent/ssh/schemas'
+import { SshRpcPeer, RemoteOperationError } from '@qilin-agent/ssh/protocol'
 import { z } from 'zod'
 
 function environment(env?: NodeJS.ProcessEnv): Record<string, string | null> | undefined {

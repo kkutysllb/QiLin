@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/otel",
+  "name": "@qilin-agent/otel",
   "description": "Cordis service for independent ordinary-event and byte-bounded Session-log OTLP channels",
   "version": "3.1.1",
   "publishConfig": {
@@ -37,12 +37,12 @@
     "got": "^14.6.6"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/session": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/session": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/session": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/session": "workspace:*"
   },
   "engines": {
     "node": "^22.19.0 || >=24.0.0"

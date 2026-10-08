@@ -11,13 +11,13 @@
  * design and its trade-offs are pinned in
  * .agents/notes/implemented/feature/2026-07-23-session-telemetry-otel-revival.md.
  *
- * @module @qilin/session-telemetry
+ * @module @qilin-agent/session-telemetry
  */
 
-import { Context, Service } from '@qilin/kylin'
-import type { SessionEvent, SessionId } from '@qilin/session'
+import { Context, Service } from '@qilin-agent/kylin'
+import type { SessionEvent, SessionId } from '@qilin-agent/session'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     sessionTelemetry: SessionTelemetryBackend
   }

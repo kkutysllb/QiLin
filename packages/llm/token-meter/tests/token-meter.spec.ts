@@ -1,15 +1,15 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { AssistantStreamAccumulator, createAssistantMessage, createUserMessage, createSystemMessage, ToolCallId, createMessage } from '@qilin/llm'
-import type { ContentBlock, Message, TokenUsage } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import SessionStore, { Session, SessionId, SessionSeq, canonicalHeader } from '@qilin/session'
-import type { EpochHeader, SessionEvent, SessionSeq as SessionSeqType } from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import TokenMeter from '@qilin/token-meter'
-import type { TokenMeasurement, TokenMeterConfig } from '@qilin/token-meter'
+import { Context } from '@qilin-agent/kylin'
+import { AssistantStreamAccumulator, createAssistantMessage, createUserMessage, createSystemMessage, ToolCallId, createMessage } from '@qilin-agent/llm'
+import type { ContentBlock, Message, TokenUsage } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import SessionStore, { Session, SessionId, SessionSeq, canonicalHeader } from '@qilin-agent/session'
+import type { EpochHeader, SessionEvent, SessionSeq as SessionSeqType } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import TokenMeter from '@qilin-agent/token-meter'
+import type { TokenMeasurement, TokenMeterConfig } from '@qilin-agent/token-meter'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

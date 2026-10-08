@@ -62,7 +62,7 @@ export const zh = {
 /** Dictionary keys accepted by this plugin's translator. */
 export type SessionInspectorKey = keyof typeof zh
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Session Inspector tab and table labels. */
     'session-inspector': SessionInspectorKey

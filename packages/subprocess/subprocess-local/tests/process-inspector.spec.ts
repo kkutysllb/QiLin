@@ -3,9 +3,9 @@ import {
   createProcessInspector,
   linuxProcessGroupHasLiveMembers,
   parseProcStat,
-} from '@qilin/subprocess-local/src/process-inspector.ts'
-import type { ProcessInspectorInternals } from '@qilin/subprocess-local/src/process-inspector.ts'
-import { WindowsProcessInspector } from '@qilin/subprocess-local/src/windows-inspector.ts'
+} from '@qilin-agent/subprocess-local/src/process-inspector.ts'
+import type { ProcessInspectorInternals } from '@qilin-agent/subprocess-local/src/process-inspector.ts'
+import { WindowsProcessInspector } from '@qilin-agent/subprocess-local/src/windows-inspector.ts'
 
 function stat(
   pid: number,

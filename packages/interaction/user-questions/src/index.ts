@@ -1,25 +1,25 @@
 /**
  * Service Definition for the user-questions capability seam (`ctx.userQuestions`): a UI-backed service for
  * pausing an agent tool call until the human answers a question. The model-
- * facing tool lives in `@qilin/tool-ask-user`; UI packages compose
+ * facing tool lives in `@qilin-agent/tool-ask-user`; UI packages compose
  * answerers on the Agent-scoped Cordis waterfall.
  *
- * @module @qilin/user-questions
+ * @module @qilin-agent/user-questions
  */
 
-import { Context } from '@qilin/kylin'
-import type {} from '@qilin/agent'
-import { createUserMessage, HarnessError, type MessageId, type ToolCallId, type UserMessage } from '@qilin/llm'
-import type { Session } from '@qilin/session'
-import { scopeTarget } from '@qilin/scope'
-import { Remote, TypertRemoteService } from '@qilin/typert-protocol'
-import type { Agent } from '@qilin/agent'
-import type {} from '@qilin/session-projection'
-import z from '@qilin/schemastery'
+import { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/agent'
+import { createUserMessage, HarnessError, type MessageId, type ToolCallId, type UserMessage } from '@qilin-agent/llm'
+import type { Session } from '@qilin-agent/session'
+import { scopeTarget } from '@qilin-agent/scope'
+import { Remote, TypertRemoteService } from '@qilin-agent/typert-protocol'
+import type { Agent } from '@qilin-agent/agent'
+import type {} from '@qilin-agent/session-projection'
+import z from '@qilin-agent/schemastery'
 import { userQuestionProjectionDefinition } from './projection.ts'
 import { TimedQuestionWait } from './timed-wait.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     userQuestions: UserQuestionService
   }

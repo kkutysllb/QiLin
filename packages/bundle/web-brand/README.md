@@ -3,7 +3,7 @@ description: "The QiLin product layer over the qilin Web surface: a patch bundle
 kind: "package-bundle"
 ---
 
-# @qilin/web-brand
+# @qilin-agent/web-brand
 
 English | [中文](README.zh.md)
 
@@ -30,9 +30,9 @@ Name the package last in a profile's `qilin.profile.bundles` list so its rows wi
   "qilin": {
     "profile": {
       "bundles": [
-        "@qilin/base",
-        "@qilin/web-app",
-        "@qilin/web-brand"
+        "@qilin-agent/base",
+        "@qilin-agent/web-app",
+        "@qilin-agent/web-brand"
       ]
     }
   }

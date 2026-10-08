@@ -1,18 +1,18 @@
-- name: '@qilin/llm'
-- name: '@qilin/session'
-- name: '@qilin/session-projection'
-- name: '@qilin/system-prompt'
-- name: '@qilin/tools'
-- name: '@qilin/agent'
-- name: '@qilin/agent-loop'
+- name: '@qilin-agent/llm'
+- name: '@qilin-agent/session'
+- name: '@qilin-agent/session-projection'
+- name: '@qilin-agent/system-prompt'
+- name: '@qilin-agent/tools'
+- name: '@qilin-agent/agent'
+- name: '@qilin-agent/agent-loop'
   config:
     agents: []
-- name: '@qilin/credentials-local'
+- name: '@qilin-agent/credentials-local'
   config:
     path: {{credentials}}
     watch: false
 - id: llm-deepseek-api-key
-  name: '@qilin/llm-deepseek-api-key'
+  name: '@qilin-agent/llm-deepseek-api-key'
   config:
     apiKeyEnv: DEEPSEEK_API_KEY
     baseURL: {{endpoint}}

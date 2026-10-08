@@ -10,16 +10,16 @@
  * VM-realm schemas and canonical values are rebuilt as host objects, while rendered content and
  * presentation metadata are shape-checked before entering the registry. Common JSON-Schema spellings are normalized when they
  * have one meaning; invalid vocabulary fails during registration with a teaching error.
- * @module @qilin/kylin-host-runner/guard
+ * @module @qilin-agent/kylin-host-runner/guard
  */
 
-import { Context } from '@qilin/kylin'
-import type { Plugin } from '@qilin/kylin'
-import { scopeOf } from '@qilin/scope'
-import { assertSupportedJsonSchema, defineTool } from '@qilin/tools'
-import type { ToolDefinition } from '@qilin/tools'
-import type { ContentBlock } from '@qilin/llm'
-import type { JsonValue } from '@qilin/util-values'
+import { Context } from '@qilin-agent/kylin'
+import type { Plugin } from '@qilin-agent/kylin'
+import { scopeOf } from '@qilin-agent/scope'
+import { assertSupportedJsonSchema, defineTool } from '@qilin-agent/tools'
+import type { ToolDefinition } from '@qilin-agent/tools'
+import type { ContentBlock } from '@qilin-agent/llm'
+import type { JsonValue } from '@qilin-agent/util-values'
 
 const DYNAMIC_TOOL = Symbol('kylin-host-runner.dynamic-tool')
 const SCHEMA_TYPES = new Set<unknown>(['string', 'number', 'integer', 'boolean', 'null', 'object', 'array', 'json'])
@@ -744,7 +744,7 @@ function sandboxContext(ctx: Context, reportFailure: (error: Error) => void): Co
   }
   const get = (name: string): unknown => readService(name, false)
   // The browser half builds the same façade over its own Context
-  // (`@qilin/kylin-client-runner`, whose CTX_VERBS names this one its
+  // (`@qilin-agent/kylin-client-runner`, whose CTX_VERBS names this one its
   // twin), and the sameness is the point: a package author meets ONE contract on
   // both halves. Folding them together is not available — the two halves compile
   // in separate programs where `Context` merges different service keys — so the

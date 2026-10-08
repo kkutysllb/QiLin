@@ -284,7 +284,7 @@ export const zh = {
 /** The trajectory dictionary key union. */
 export type TrajectoryKey = keyof typeof zh
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** The complete trajectory ledger, timeline, inspector, and toolbar copy. */
     trajectory: TrajectoryKey
@@ -293,7 +293,7 @@ declare module '@qilin/client-ui-slots' {
 
 /** Namespace-bound translator threaded through trajectory presentation code. */
 export type TrajectoryTranslate =
-  import('@qilin/client-ui-slots').TranslateNS<typeof NS>
+  import('@qilin-agent/client-ui-slots').TranslateNS<typeof NS>
 
 /** English dictionary, checked complete against the Chinese source of truth. */
 export const en: Record<TrajectoryKey, string> = {

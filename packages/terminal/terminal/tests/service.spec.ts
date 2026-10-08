@@ -1,9 +1,9 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { Session, SessionId } from '@qilin/session'
-import AgentRegistry from '@qilin/agent'
-import type { Agent } from '@qilin/agent'
-import TerminalSessionService, { TerminalBackendCleanupError, TerminalError, TerminalSessionId } from '@qilin/terminal'
+import { Context } from '@qilin-agent/kylin'
+import { Session, SessionId } from '@qilin-agent/session'
+import AgentRegistry from '@qilin-agent/agent'
+import type { Agent } from '@qilin-agent/agent'
+import TerminalSessionService, { TerminalBackendCleanupError, TerminalError, TerminalSessionId } from '@qilin-agent/terminal'
 import type {
   TerminalBackend,
   TerminalBackendSession,
@@ -13,8 +13,8 @@ import type {
   TerminalSessionId as TerminalSessionIdType,
   TerminalSessionStatus,
   TerminalSignal,
-} from '@qilin/terminal'
-import { unsupportedInbox } from '@qilin/agent-loop-testkit'
+} from '@qilin-agent/terminal'
+import { unsupportedInbox } from '@qilin-agent/agent-loop-testkit'
 
 const agentScopeDisposers = new WeakMap<Agent, () => Promise<void>>()
 const ptyServiceDisposers = new WeakMap<Context, () => Promise<void>>()

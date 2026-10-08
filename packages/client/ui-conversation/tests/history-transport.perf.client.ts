@@ -10,23 +10,23 @@ import {
   createAssistantMessage,
   createUserMessage,
   expandAssistantStream,
-} from '@qilin/llm'
-import type { AssistantStreamRecord } from '@qilin/llm'
-import { SessionSeq } from '@qilin/session/types'
-import type { SessionEvent, SessionEventMap } from '@qilin/session/types'
+} from '@qilin-agent/llm'
+import type { AssistantStreamRecord } from '@qilin-agent/llm'
+import { SessionSeq } from '@qilin-agent/session/types'
+import type { SessionEvent, SessionEventMap } from '@qilin-agent/session/types'
 import type {
   SessionEventEntry,
   SessionHistoryRecord,
   SessionWireEvent,
-} from '@qilin/api-session-controller/types'
-import { historyEntries } from '@qilin/api-session-controller/src/client/sessions/history-records.ts'
-import type { SessionEventLikeEntry } from '@qilin/api-session-controller/client'
-import { ConversationNodeAssembler } from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/api-session-controller/types'
+import { historyEntries } from '@qilin-agent/api-session-controller/src/client/sessions/history-records.ts'
+import type { SessionEventLikeEntry } from '@qilin-agent/api-session-controller/client'
+import { ConversationNodeAssembler } from '@qilin-agent/client-ui-conversation/client'
 import type {
   ConversationNodeDefinition,
   ConversationViewDefinition,
   ConversationViewNode,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 
 const LOGICAL_ITEMS = 416_756
 const STREAM_MEMBERS = 416_176

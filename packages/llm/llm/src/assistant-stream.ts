@@ -5,7 +5,7 @@
  * path for records read at a durable boundary.
  */
 
-import { assertNever, deepFreeze, snapshotJsonValue } from '@qilin/util-values'
+import { assertNever, deepFreeze, snapshotJsonValue } from '@qilin-agent/util-values'
 import { BlockAssembler } from './assembler.ts'
 import type { ToolCallId } from './brand.ts'
 import type { ContentBlock, StreamChunk } from './types.ts'

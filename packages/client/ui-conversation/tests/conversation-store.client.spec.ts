@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from 'vitest'
-import type { SessionId } from '@qilin/session/types'
+import type { SessionId } from '@qilin-agent/session/types'
 import { createConversationStore, readConversationViewPreference } from '../src/client/stores.ts'
 
 const KEY = 'qilin.conversation'

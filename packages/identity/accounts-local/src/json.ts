@@ -2,7 +2,7 @@
  * JSON boundary helpers shared by the account file parser and the session
  * cookie decoder, both of which read values this package did not construct in
  * the current process.
- * @module @qilin/accounts-local/src/json
+ * @module @qilin-agent/accounts-local/src/json
  */
 
 /**

@@ -3,7 +3,7 @@
  * measures with. Declared once here because the Host registers the schema and
  * the browser reads the same section.
  */
-import z from '@qilin/schemastery'
+import z from '@qilin-agent/schemastery'
 
 /** Settings namespace owned by the terminal target. */
 export const TERMINAL_SETTINGS_NAMESPACE = 'ui-sidebar-terminal'

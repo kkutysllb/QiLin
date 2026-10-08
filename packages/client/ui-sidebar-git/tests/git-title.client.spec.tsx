@@ -2,9 +2,9 @@
 /** The chip title: the branch glyph, then the type's label. */
 import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup, render } from '@testing-library/react'
-import type { PaneId, TabId } from '@qilin/client-ui-dockkit'
-import type { SidebarRightTabInfo } from '@qilin/client-ui-sidebar-right/client'
-import type { PropsRuntime } from '@qilin/client-ui-slots'
+import type { PaneId, TabId } from '@qilin-agent/client-ui-dockkit'
+import type { SidebarRightTabInfo } from '@qilin-agent/client-ui-sidebar-right/client'
+import type { PropsRuntime } from '@qilin-agent/client-ui-slots'
 import { GitTitle } from '../src/client/GitTitle.tsx'
 
 afterEach(cleanup)

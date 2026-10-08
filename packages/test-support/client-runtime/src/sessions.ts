@@ -1,27 +1,27 @@
 /** Test-owned Session Controller faces over declarative fixtures. */
-import type { Context } from '@qilin/kylin'
-import type { AttachmentIdType } from '@qilin/attachment'
+import type { Context } from '@qilin-agent/kylin'
+import type { AttachmentIdType } from '@qilin-agent/attachment'
 import {
   createScope, MutableSessionEventSource, scopeOf, SESSION_SEARCH_RESULT_LIMIT,
-} from '@qilin/api-session-controller/client'
+} from '@qilin-agent/api-session-controller/client'
 import type {
   AgentContext, ISessions, ProjectionsFace, SessionBinding, SessionFace, SessionListState,
   SessionEventLikeEntry, SessionLiveEventEntry, SessionSearchResultItem,
   SessionReference, SessionReferenceSource, SessionRetainInfo, SessionRetainOptions,
   SessionSnapshot, SessionSummary, SessionTarget, SubmissionHandle,
-} from '@qilin/api-session-controller/client'
-import { scopeIdentityOf } from '@qilin/api-session-controller/src/client/scope.ts'
-import type { SessionRequestId } from '@qilin/api-session-controller/types'
-import type { SubagentAddress } from '@qilin/subagent/client'
-import { createSnapshotStore } from '@qilin/client-store'
-import type { ObservableSnapshot, SnapshotStore } from '@qilin/client-store'
-import type { SessionId } from '@qilin/session/types'
+} from '@qilin-agent/api-session-controller/client'
+import { scopeIdentityOf } from '@qilin-agent/api-session-controller/src/client/scope.ts'
+import type { SessionRequestId } from '@qilin-agent/api-session-controller/types'
+import type { SubagentAddress } from '@qilin-agent/subagent/client'
+import { createSnapshotStore } from '@qilin-agent/client-store'
+import type { ObservableSnapshot, SnapshotStore } from '@qilin-agent/client-store'
+import type { SessionId } from '@qilin-agent/session/types'
 import { sessionSnapshot } from './fixtures.ts'
 import type {
   SessionFixture, SessionFixtureSnapshot, Stabilizer,
 } from './fixtures.ts'
 
-declare module '@qilin/api-session-controller/client' {
+declare module '@qilin-agent/api-session-controller/client' {
   interface SessionReferenceSourceMap {
     testFixture: unknown
     testView: unknown

@@ -5,11 +5,11 @@
  */
 
 import { describe, expect, onTestFinished, vi } from 'vitest'
-import { RemoteStreamCarrierError, type ClientRemote } from '@qilin/api-gateway/client'
-import { SessionId } from '@qilin/session/types'
-import { RemoteError } from '@qilin/typert-protocol'
-import { frames, openStream, type RemoteMock, type StreamScript } from '@qilin/remote-mock'
-import { createClientTest, type TestClient, webApp } from '@qilin/client-test-runtime/src/assembly/index.ts'
+import { RemoteStreamCarrierError, type ClientRemote } from '@qilin-agent/api-gateway/client'
+import { SessionId } from '@qilin-agent/session/types'
+import { RemoteError } from '@qilin-agent/typert-protocol'
+import { frames, openStream, type RemoteMock, type StreamScript } from '@qilin-agent/remote-mock'
+import { createClientTest, type TestClient, webApp } from '@qilin-agent/client-test-runtime/src/assembly/index.ts'
 import {
   ClientWorkspaceModel,
   createWorkspaceStateStream,
@@ -20,11 +20,11 @@ import {
 import type { WorkspaceFollowFrame, WorkspaceId } from '../src/types.ts'
 import { FOLLOW, baseline, err, followGenerations, workspace, workspaceWorld } from './remote/workspace.client.ts'
 
-const SELF = '@qilin/api-workspace-controller'
+const SELF = '@qilin-agent/api-workspace-controller'
 /** The plugin as the web bundle composes it: itself plus the Gateway client, the Connection, and the Typert registry. */
 const PLUGIN_ROSTER = webApp.closure([SELF])
 /** A stream or model built by hand talks through the Gateway client alone. */
-const API_ROSTER = webApp.closure(['@qilin/api-gateway'])
+const API_ROSTER = webApp.closure(['@qilin-agent/api-gateway'])
 const pluginTest = createClientTest({ roster: PLUGIN_ROSTER })
 const it = createClientTest({ roster: API_ROSTER })
 /** The first client boot pays the cold module transform of the plugin cone. */

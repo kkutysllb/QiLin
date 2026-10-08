@@ -1,5 +1,5 @@
 /**
- * @qilin/web-app — the browser-surface bundle's runtime glue plugin
+ * @qilin-agent/web-app — the browser-surface bundle's runtime glue plugin
  * plus the bundle patch (`cordis.patch.yml`, declared by the `qilin.bundle.patch`
  * manifest field). The plugin owns the browser-surface glue: it resolves
  * the built frontend dist (workspace knowledge of this bundle, never user
@@ -8,7 +8,7 @@
  * variable, the process-token URL line, and the default-browser handoff. The
  * model and shell retain the clean URL. App command-line values arrive through
  * the `webStartup` service expressions in the bundle patch.
- * @module @qilin/web-app
+ * @module @qilin-agent/web-app
  */
 
 import { spawn, type ChildProcess } from 'node:child_process'
@@ -16,17 +16,17 @@ import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 import { networkInterfaces } from 'node:os'
 import { fileURLToPath } from 'node:url'
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { addHarnessSourceSection, auditStartupEntries } from '@qilin/app-boot'
-import type {} from '@qilin/client-connection'
-import * as FrontendStatic from '@qilin/host-frontend-static'
-import type { StaticDocument } from '@qilin/host-frontend-static'
-import { launchedThroughSsh, launchEnvironmentOf } from '@qilin/launch-environment'
-import { scrubbedParentEnv } from '@qilin/subprocess'
-import type {} from '@qilin/kylin-plugin-loader'
-import type {} from '@qilin/host-webserver'
-import type {} from '@qilin/shell-env'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { addHarnessSourceSection, auditStartupEntries } from '@qilin-agent/app-boot'
+import type {} from '@qilin-agent/client-connection'
+import * as FrontendStatic from '@qilin-agent/host-frontend-static'
+import type { StaticDocument } from '@qilin-agent/host-frontend-static'
+import { launchedThroughSsh, launchEnvironmentOf } from '@qilin-agent/launch-environment'
+import { scrubbedParentEnv } from '@qilin-agent/subprocess'
+import type {} from '@qilin-agent/kylin-plugin-loader'
+import type {} from '@qilin-agent/host-webserver'
+import type {} from '@qilin-agent/shell-env'
 
 /** Stable Cordis plugin name. */
 export const name = 'web-app'
@@ -181,10 +181,10 @@ function localWebUrl(ctx: Context): string {
 function resolveDistIndex(): string {
   const require = createRequire(import.meta.url)
   try {
-    return join(dirname(require.resolve('@qilin/web-frontend/package.json')), 'dist', 'index.html')
+    return join(dirname(require.resolve('@qilin-agent/web-frontend/package.json')), 'dist', 'index.html')
   } catch {
     /* v8 ignore next 2 -- reachable only when the frontend package is absent from the checkout */
-    throw new Error('web-app: @qilin/web-frontend is not resolvable from this composition')
+    throw new Error('web-app: @qilin-agent/web-frontend is not resolvable from this composition')
   }
 }
 

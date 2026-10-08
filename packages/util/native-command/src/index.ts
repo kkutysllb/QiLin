@@ -1,6 +1,6 @@
 /**
  * Host-native command execution and path-opening utilities.
- * @module @qilin/native-command
+ * @module @qilin-agent/native-command
  */
 
 export { runNativeCommand } from './runner.ts'

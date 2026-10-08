@@ -6,23 +6,23 @@
  * registrations' fiber-teardown removal (HMR safety) against the real
  * SlotRegistry.
  */
-import { Context } from '@qilin/kylin'
-import { createSnapshotStore } from '@qilin/client-store'
+import { Context } from '@qilin-agent/kylin'
+import { createSnapshotStore } from '@qilin-agent/client-store'
 import { cleanup, fireEvent, render, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { SessionLiveEventEntry, SessionListState } from '@qilin/api-session-controller/client'
+import type { SessionLiveEventEntry, SessionListState } from '@qilin-agent/api-session-controller/client'
 import {
   ConversationNodeAssembler, UiConversation,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 import type {
   ConversationLocationDataSource, ConversationLocationDataStore, ConversationMatch, ConversationNodeDefinition,
   ConversationStartMatch, ConversationTimelineSnapshot, ConversationTurnDataMap, ConversationViewDefinition,
   ConversationViewNode, TurnLocation,
-} from '@qilin/client-ui-conversation/client'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import { apply as applyLocale, inject as localeInject } from '@qilin/client-locale/client'
-import type { ChatFileMentions, TurnTailOwnerProps } from '@qilin/client-ui-chat/client'
-import { makeTranslate, stubConfigForm } from '@qilin/client-test-runtime'
+} from '@qilin-agent/client-ui-conversation/client'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import { apply as applyLocale, inject as localeInject } from '@qilin-agent/client-locale/client'
+import type { ChatFileMentions, TurnTailOwnerProps } from '@qilin-agent/client-ui-chat/client'
+import { makeTranslate, stubConfigForm } from '@qilin-agent/client-test-runtime'
 import { Deliverables, DeliverablesTail, selectDeliverables, type DeliverablesInjected } from '../src/client/Deliverables.tsx'
 import type { ReviewInjected } from '../src/client/ReviewTab.tsx'
 
@@ -35,8 +35,8 @@ import {
 } from '../src/client/turn-deliverables.ts'
 import { apply, inject } from '../src/client/index.ts'
 import { en, zh } from '../src/client/locales.ts'
-import { SessionId } from '@qilin/session/types'
-import type { SessionEvent } from '@qilin/session/types'
+import { SessionId } from '@qilin-agent/session/types'
+import type { SessionEvent } from '@qilin-agent/session/types'
 
 function openProps(controller = new PresentedOpenController(), summaries = new ChangesSummaryStore()) {
   controller.host.set({ name: 'desktop', available: true, fileManager: 'finder' })
@@ -724,7 +724,7 @@ describe('plugin registration', () => {
       { kind: 'changes-review', patterns: ['qilin-resource://changes-review/**'] },
     ])
     expect(ctx.slots.entries('sidebar.right.pane.tab').map(entry => entry.options.key))
-      .toEqual(['@qilin/client-ui-deliverables'])
+      .toEqual(['@qilin-agent/client-ui-deliverables'])
     const [tabEntry] = ctx.slots.entries('sidebar.right.pane.tab')
 
     // The prose face is live while the plugin is: a produced turn yields a

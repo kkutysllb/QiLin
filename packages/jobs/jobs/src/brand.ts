@@ -5,12 +5,12 @@
  * It lives in its own leaf because the package root and `./types` both reach
  * `qilin-agent` through the owner and listener signatures, which a Client program
  * cannot resolve even as a type. A browser-safe consumer imports the id here;
- * `Branded<B>` itself comes from the zero-dependency `@qilin/brand`.
+ * `Branded<B>` itself comes from the zero-dependency `@qilin-agent/brand`.
  *
- * @module @qilin/jobs/brand
+ * @module @qilin-agent/jobs/brand
  */
 
-import type { Branded } from '@qilin/brand'
+import type { Branded } from '@qilin-agent/brand'
 
 /**
  * Identifies a background job. The registry generates `<kind>-N`; predictable

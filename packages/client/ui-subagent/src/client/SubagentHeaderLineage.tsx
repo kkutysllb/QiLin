@@ -3,16 +3,16 @@ import { createPortal } from 'react-dom'
 import {
   type SessionProjectionMap, type SessionSummary,
   type SessionProjectionSnapshot,
-} from '@qilin/api-session-controller/client'
-import type { SubagentAddress } from '@qilin/subagent/client'
-import type { SessionId } from '@qilin/session/types'
+} from '@qilin-agent/api-session-controller/client'
+import type { SubagentAddress } from '@qilin-agent/subagent/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import {
   IconChevronDownOutline14, IconChevronRightOutline14, IconRefreshOutline14, StateDot,
-} from '@qilin/client-ui-primitives'
-import type { PropsLocale, PropsRuntime, TranslateNS } from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-primitives'
+import type { PropsLocale, PropsRuntime, TranslateNS } from '@qilin-agent/client-ui-slots'
 import { NS } from './locales.ts'
-import type {} from '@qilin/client-ui-conversation/client'
-import type {} from '@qilin/token-meter/client'
+import type {} from '@qilin-agent/client-ui-conversation/client'
+import type {} from '@qilin-agent/token-meter/client'
 import css from './SubagentHeaderLineage.module.css'
 
 type SubagentCatalogSnapshot = Omit<SessionProjectionSnapshot, 'values' | 'state'> & {

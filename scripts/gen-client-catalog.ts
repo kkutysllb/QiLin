@@ -392,9 +392,9 @@ const KIND_EXAMPLE: Readonly<Record<string, readonly string[]>> = {
   chain: ['select: owner => null'],
 }
 
-/** Drop the `@qilin/` prefix so rows stay readable. */
+/** Drop the `@qilin-agent/` prefix so rows stay readable. */
 function shortPackage(name: string): string {
-  return name.replace('@qilin/', '')
+  return name.replace('@qilin-agent/', '')
 }
 
 /** Truncate an over-long declaration, naming the truncation. */
@@ -453,7 +453,7 @@ export function renderClientCatalog(entries: readonly SlotEntry[]): string {
     ' * mounted for the seat to exist. Data only — this module is the one legitimate',
     ' * meeting point of the two planes, so it carries strings, never client imports.',
     ' *',
-    ' * @module @qilin/kylin-client-runner/client/slot-catalog',
+    ' * @module @qilin-agent/kylin-client-runner/client/slot-catalog',
     ' */',
     '',
     '/* jscpd:ignore-start */',

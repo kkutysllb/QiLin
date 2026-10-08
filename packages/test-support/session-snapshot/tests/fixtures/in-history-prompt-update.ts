@@ -1,6 +1,6 @@
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/system-prompt'
-import type {} from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/system-prompt'
+import type {} from '@qilin-agent/tools'
 
 export const name = 'in-history-prompt-update'
 export const inject = ['systemPrompt']

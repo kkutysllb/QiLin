@@ -7,20 +7,20 @@
  * disposal removes the contribution (HMR safety). The same plugin registers
  * its Settings row and invalidates that row on host settings changes.
  */
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import type { SessionId } from '@qilin/session/types'
-import { LocaleRuntime } from '@qilin/client-locale/client'
-import { TestRemote } from '@qilin/client-test-runtime'
-import { remoteDefaultResponses } from '@qilin/client-test-runtime/src/assembly/remote-default-responses.ts'
-import { RemoteMock } from '@qilin/remote-mock'
-import { apply as settingsApply, inject as settingsInject } from '@qilin/client-ui-settings/client'
-import type { CommandDecoration, PopupSelectSpec } from '@qilin/client-ui-commands/client'
-import { PopupSelectController } from '@qilin/client-ui-commands/client'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
+import { TestRemote } from '@qilin-agent/client-test-runtime'
+import { remoteDefaultResponses } from '@qilin-agent/client-test-runtime/src/assembly/remote-default-responses.ts'
+import { RemoteMock } from '@qilin-agent/remote-mock'
+import { apply as settingsApply, inject as settingsInject } from '@qilin-agent/client-ui-settings/client'
+import type { CommandDecoration, PopupSelectSpec } from '@qilin-agent/client-ui-commands/client'
+import { PopupSelectController } from '@qilin-agent/client-ui-commands/client'
 import type {
   PermissionCatalog, PermissionSelection,
-} from '@qilin/permission-presets/client'
+} from '@qilin-agent/permission-presets/client'
 import {
   PermissionRow, type PermissionRowInjected,
 } from '../src/client/PermissionRow.tsx'

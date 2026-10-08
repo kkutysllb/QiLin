@@ -1,7 +1,7 @@
 /**
  * Reading an install spec before pnpm sees it: which of pnpm's spec forms it
  * takes, and for a registry name whether it is one the registry can accept.
- * @module @qilin/plugin-manager/install-spec
+ * @module @qilin-agent/plugin-manager/install-spec
  */
 
 import { homedir } from 'node:os'

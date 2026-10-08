@@ -2,14 +2,14 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import LlmRuntime, { createUserMessage, ReasoningEffortId } from '@qilin/llm'
+import { Context } from '@qilin-agent/kylin'
+import LlmRuntime, { createUserMessage, ReasoningEffortId } from '@qilin-agent/llm'
 import { normalizeContext } from '@earendil-works/pi-ai'
-import type { StreamChunk } from '@qilin/llm'
-import FileSettingsProvider from '@qilin/settings-file'
-import * as LlmPiAi from '@qilin/llm-pi-ai'
-import { PiAiAdapter } from '@qilin/llm-pi-ai'
-import type { ContextFormed } from '@qilin/llm'
+import type { StreamChunk } from '@qilin-agent/llm'
+import FileSettingsProvider from '@qilin-agent/settings-file'
+import * as LlmPiAi from '@qilin-agent/llm-pi-ai'
+import { PiAiAdapter } from '@qilin-agent/llm-pi-ai'
+import type { ContextFormed } from '@qilin-agent/llm'
 import { getBuiltinModels } from '@earendil-works/pi-ai/providers/all'
 import { AssistantMessageEventStream } from '@earendil-works/pi-ai/utils/event-stream'
 import type { Api, Model, OpenAICompletionsCompat, Provider } from '@earendil-works/pi-ai'
@@ -22,7 +22,7 @@ import { closeMockServers, mockServer, textEvents } from './mock-server.ts'
 
 const homes: string[] = []
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

@@ -3,13 +3,13 @@
  * {@link agentEvents} couples the agent subject to its scope carrier, so the
  * scope key and the payload's `agent` cannot diverge; repeat dispatchers (the
  * loop driver) build it once in the agent's constructor and reuse it.
- * @module @qilin/agent/dispatch
+ * @module @qilin-agent/agent/dispatch
  */
 
-import type { Context, Events } from '@qilin/kylin'
-import { scopeTarget } from '@qilin/scope'
-import type { Scoped } from '@qilin/scope'
-import type { AssembleContext } from '@qilin/system-prompt'
+import type { Context, Events } from '@qilin-agent/kylin'
+import { scopeTarget } from '@qilin-agent/scope'
+import type { Scoped } from '@qilin-agent/scope'
+import type { AssembleContext } from '@qilin-agent/system-prompt'
 import type { Agent } from './types.ts'
 
 /** Extract the parameter tuple from an event handler type (its `this` is not part of the tuple). */

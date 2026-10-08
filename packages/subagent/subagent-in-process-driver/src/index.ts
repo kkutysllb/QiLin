@@ -8,17 +8,17 @@
  * composes and drives them directly, so this driver owns exactly one turn with
  * one result.
  *
- * @module @qilin/subagent-in-process-driver
+ * @module @qilin-agent/subagent-in-process-driver
  */
 
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@qilin/kylin'
-import { brandString } from '@qilin/brand'
-import { foldConsumedWork } from '@qilin/agent'
-import type { Agent, AgentHandle } from '@qilin/agent'
-import { SessionLogOffset } from '@qilin/session'
-import type { SessionEvent, SessionId, SessionLogOffset as SessionLogOffsetType, TurnEndReason } from '@qilin/session'
-import { createUserMessage, type ContentBlock } from '@qilin/llm'
+import type { Context } from '@qilin-agent/kylin'
+import { brandString } from '@qilin-agent/brand'
+import { foldConsumedWork } from '@qilin-agent/agent'
+import type { Agent, AgentHandle } from '@qilin-agent/agent'
+import { SessionLogOffset } from '@qilin-agent/session'
+import type { SessionEvent, SessionId, SessionLogOffset as SessionLogOffsetType, TurnEndReason } from '@qilin-agent/session'
+import { createUserMessage, type ContentBlock } from '@qilin-agent/llm'
 import {
   appendDelegatedPolicyOverrides,
   applyChildComposition,
@@ -28,14 +28,14 @@ import {
   finalAssistantOutput,
   resolveChildAgentOptions,
   resolveChildDepth,
-} from '@qilin/subagent'
+} from '@qilin-agent/subagent'
 import type {
   ResolvedSubagentStartRequest,
   SubagentDescriptorData,
   SubagentResult,
   SubagentRun,
   SubagentStopReason,
-} from '@qilin/subagent'
+} from '@qilin-agent/subagent'
 import {
   attachStructuredRuntime,
   type StructuredAttachment,

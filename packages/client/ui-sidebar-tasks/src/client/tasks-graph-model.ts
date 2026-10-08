@@ -13,8 +13,8 @@
  * Labels and secondaries are injected (`labelOf` / `secondaryOf`) so this
  * module stays free of the locale runtime. Pure over its inputs.
  */
-import type { SessionId } from '@qilin/session/types'
-import type { SubagentAddress } from '@qilin/subagent/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { SubagentAddress } from '@qilin-agent/subagent/client'
 import type { CatalogRow, Catalogs } from './rows.ts'
 
 /** Fold threshold: a done or standby group at or over this size renders as one aggregate node. */

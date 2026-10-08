@@ -1,19 +1,19 @@
 import { describe, expect, it, vi } from 'vitest'
-import { AttachmentId, ImageVariantId } from '@qilin/attachment'
+import { AttachmentId, ImageVariantId } from '@qilin-agent/attachment'
 import type {
   AttachmentStore,
   ImageAttachmentRef,
   ImageRequestTarget,
   RequestImageAttachment,
-} from '@qilin/attachment'
-import { createDeveloperMessage, ToolCallId, createAssistantMessage, createMessage, createToolResultMessage, createUserMessage, offloadedImageText } from '@qilin/llm'
-import type { ContentBlock, GenerateOptions, Message, RequestUserInput } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
+} from '@qilin-agent/attachment'
+import { createDeveloperMessage, ToolCallId, createAssistantMessage, createMessage, createToolResultMessage, createUserMessage, offloadedImageText } from '@qilin-agent/llm'
+import type { ContentBlock, GenerateOptions, Message, RequestUserInput } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
 import { toPiContext } from '../src/context.ts'
 import type { PiImageRequestContext } from '../src/context.ts'
 import { toPiAssistant } from '../src/replay.ts'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

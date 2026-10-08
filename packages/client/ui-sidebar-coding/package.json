@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-ui-sidebar-coding",
+  "name": "@qilin-agent/client-ui-sidebar-coding",
   "description": "Coding workbench content body for the right Sidebar (dual workbench D5): the VSCode-like workbench — explorer/editor/terminal/git/browser tabs, per-session isolated, with lazy preview chunks. Ported from dsh-coding-sidebar 1.0.39",
   "version": "3.1.1",
   "publishConfig": {
@@ -31,15 +31,15 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/api-remotes",
-        "@qilin/api-session-controller",
-        "@qilin/client-locale",
-        "@qilin/client-modules",
-        "@qilin/client-ui-conversation",
-        "@qilin/client-ui-primitives",
-        "@qilin/client-ui-settings",
-        "@qilin/client-ui-slots",
-        "@qilin/client-ui-workbench"
+        "@qilin-agent/api-remotes",
+        "@qilin-agent/api-session-controller",
+        "@qilin-agent/client-locale",
+        "@qilin-agent/client-modules",
+        "@qilin-agent/client-ui-conversation",
+        "@qilin-agent/client-ui-primitives",
+        "@qilin-agent/client-ui-settings",
+        "@qilin-agent/client-ui-slots",
+        "@qilin-agent/client-ui-workbench"
       ],
       "platform": "web"
     }
@@ -50,12 +50,12 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "dependencies": {
     "ws": "^8.18.0",
-    "@qilin/tools": "workspace:*",
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "devDependencies": {
     "@aiden0z/pptx-renderer": "1.2.4",
@@ -81,26 +81,26 @@
     "@codemirror/state": "^6.7.1",
     "@codemirror/view": "^6.43.8",
     "@lezer/highlight": "^1.2.3",
-    "@qilin/agent": "workspace:*",
-    "@qilin/api-remotes": "workspace:*",
-    "@qilin/api-session-controller": "workspace:*",
-    "@qilin/client-connection": "workspace:*",
-    "@qilin/client-locale": "workspace:*",
-    "@qilin/client-modules": "workspace:*",
-    "@qilin/client-store": "workspace:*",
-    "@qilin/client-ui-conversation": "workspace:*",
-    "@qilin/client-ui-primitives": "workspace:*",
-    "@qilin/client-ui-session": "workspace:*",
-    "@qilin/client-ui-settings": "workspace:*",
-    "@qilin/client-ui-slots": "workspace:*",
-    "@qilin/client-ui-workbench": "workspace:*",
-    "@qilin/host-webserver": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/settings": "workspace:*",
-    "@qilin/subagent": "workspace:*",
-    "@qilin/util-crypto": "workspace:*",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/api-remotes": "workspace:*",
+    "@qilin-agent/api-session-controller": "workspace:*",
+    "@qilin-agent/client-connection": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-modules": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/client-ui-conversation": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-session": "workspace:*",
+    "@qilin-agent/client-ui-settings": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/client-ui-workbench": "workspace:*",
+    "@qilin-agent/host-webserver": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/settings": "workspace:*",
+    "@qilin-agent/subagent": "workspace:*",
+    "@qilin-agent/util-crypto": "workspace:*",
     "@types/react": "~18.3.1",
     "@types/react-dom": "~18.3.0",
     "@univerjs/preset-sheets-core": "0.25.1",

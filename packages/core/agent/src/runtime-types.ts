@@ -1,21 +1,21 @@
 /**
  * Public agent types and live-runtime events. Durable transcript facts and
- * turn/step boundaries remain `@qilin/session` events.
+ * turn/step boundaries remain `@qilin-agent/session` events.
  *
- * @module @qilin/agent
+ * @module @qilin-agent/agent
  */
 
-import type { Context } from '@qilin/kylin'
-import type { Scoped } from '@qilin/scope'
+import type { Context } from '@qilin-agent/kylin'
+import type { Scoped } from '@qilin-agent/scope'
 import type {
   LlmAttemptId, LlmCallConfig, LlmFailure, MessageId, ReasoningEffortId, ResolvedRetryPolicy, StreamChunk,
-} from '@qilin/llm'
-import type { AgentCancelCause, Session, SessionSeq, UserMessage } from '@qilin/session'
-export type { AgentCancelCause } from '@qilin/session'
+} from '@qilin-agent/llm'
+import type { AgentCancelCause, Session, SessionSeq, UserMessage } from '@qilin-agent/session'
+export type { AgentCancelCause } from '@qilin-agent/session'
 import type { Agent, InboxTarget } from './types.ts'
 export type { Agent } from './types.ts'
-import type {} from '@qilin/system-prompt'
-declare module '@qilin/system-prompt' {
+import type {} from '@qilin-agent/system-prompt'
+declare module '@qilin-agent/system-prompt' {
   interface AssembleContext {
     /** Agent for this assembly; absent on diagnostics. When present, `scope` must identify the same agent. */
     agent?: Agent
@@ -242,7 +242,7 @@ declare module './types.ts' {
   }
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Events {
     // ---- lifecycle ----
     /**
@@ -255,7 +255,7 @@ declare module '@qilin/kylin' {
      * @param payload.agent - the newly registered agent with its live session and completed setup.
      * @param payload.source - fresh creation, resume, clear, or compaction source.
      * @param payload.signal - factory initialization cancellation signal, when provided.
-     * Scope-filtered dispatch (`@qilin/scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@qilin-agent/scope`): agent-scoped listeners receive only that agent.
      * @mode serial
      */
     'agent/created'(this: Scoped<Agent>, payload: { agent: Agent; source: SessionStartSource; signal?: AbortSignal }): undefined | Promise<undefined>
@@ -264,7 +264,7 @@ declare module '@qilin/kylin' {
      * and scoped-registration unwind, but before session detachment. Custom
      * registry users own their driver-ordering contract.
      * @param payload.agent - the exact agent removed from the registry.
-     * Scope-filtered dispatch (`@qilin/scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@qilin-agent/scope`): agent-scoped listeners receive only that agent.
      * @mode emit
      */
     'agent/disposed'(this: Scoped<Agent>, payload: { agent: Agent }): void
@@ -274,7 +274,7 @@ declare module '@qilin/kylin' {
      * driver remains scheduled or active.
      * @param payload.agent - the agent whose status flipped.
      * @param payload.status - the status just entered (the transition's destination).
-     * Scope-filtered dispatch (`@qilin/scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@qilin-agent/scope`): agent-scoped listeners receive only that agent.
      * @mode emit
      */
     'agent/status'(this: Scoped<Agent>, payload: { agent: Agent; status: AgentStatus }): void
@@ -282,7 +282,7 @@ declare module '@qilin/kylin' {
      * One message entered the live inbox.
      * @param payload.agent - the agent whose inbox changed.
      * @param payload.message - the inserted message.
-     * Scope-filtered dispatch (`@qilin/scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@qilin-agent/scope`): agent-scoped listeners receive only that agent.
      * @mode emit
      */
     'agent/inbox/inserted'(this: Scoped<Agent>, payload: { agent: Agent; message: UserMessage }): void
@@ -293,7 +293,7 @@ declare module '@qilin/kylin' {
      * @param payload.agent - the agent whose inbox changed.
      * @param payload.message - the claimed message.
      * @param payload.turn - the owning turn.
-     * Scope-filtered dispatch (`@qilin/scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@qilin-agent/scope`): agent-scoped listeners receive only that agent.
      * @mode emit
      */
     'agent/inbox/claimed'(this: Scoped<Agent>, payload: { agent: Agent; message: UserMessage; turn: number }): void
@@ -301,7 +301,7 @@ declare module '@qilin/kylin' {
      * One message was discarded from the live inbox.
      * @param payload.agent - the agent whose inbox changed.
      * @param payload.message - the discarded message.
-     * Scope-filtered dispatch (`@qilin/scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@qilin-agent/scope`): agent-scoped listeners receive only that agent.
      * @mode emit
      */
     'agent/inbox/discarded'(this: Scoped<Agent>, payload: { agent: Agent; message: UserMessage }): void
@@ -314,7 +314,7 @@ declare module '@qilin/kylin' {
      * @param payload.turn - the turn that will own the step.
      * @param payload.step - the step proposed by the loop.
      * @param payload.signal - the current turn's cancellation signal.
-     * Scope-filtered dispatch (`@qilin/scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@qilin-agent/scope`): agent-scoped listeners receive only that agent.
      * @mode waterfall
      */
     'agent/pre-step'(this: Scoped<Agent>, payload: { agent: Agent; messages: UserMessage[]; turn: number; step: number; signal: AbortSignal }, next: () => Promise<PreStepDecision>): Promise<PreStepDecision>
@@ -331,7 +331,7 @@ declare module '@qilin/kylin' {
      * @param payload.turn - the open turn number.
      * @param payload.step - the step whose request this is.
      * @param payload.signal - the current turn's explicit abort signal.
-     * Scope-filtered dispatch (`@qilin/scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@qilin-agent/scope`): agent-scoped listeners receive only that agent.
      * @mode waterfall
     */
     'agent/request'(this: Scoped<Agent>, payload: { agent: Agent; turn: number; step: number; signal: AbortSignal }, next: () => Promise<LlmCallConfig>): Promise<LlmCallConfig>
@@ -347,7 +347,7 @@ declare module '@qilin/kylin' {
      * @param payload.failure - serializable facts normalized at the final adapter boundary.
      * @param payload.retryPolicy - the policy of the adapter registration that served the failed request.
      * @param payload.signal - the turn abort signal.
-     * Scope-filtered dispatch (`@qilin/scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@qilin-agent/scope`): agent-scoped listeners receive only that agent.
      * @mode waterfall
      */
     'agent/request-error'(this: Scoped<Agent>, payload: { agent: Agent; turn: number; step: number; provider: string; failure: LlmFailure; retryPolicy: ResolvedRetryPolicy | undefined; signal: AbortSignal }, next: () => Promise<RequestErrorAction>): Promise<RequestErrorAction>
@@ -357,7 +357,7 @@ declare module '@qilin/kylin' {
      * with the same stream before a committed end frame.
      * @param payload.agent - the agent whose attempt produced the frame.
      * @param payload.frame - one ordered start, chunk, or end publication.
-     * Scope-filtered dispatch (`@qilin/scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@qilin-agent/scope`): agent-scoped listeners receive only that agent.
      * @mode emit
      */
     'agent/assistant-stream'(this: Scoped<Agent>, payload: { agent: Agent; frame: AssistantStreamFrame }): void
@@ -375,7 +375,7 @@ declare module '@qilin/kylin' {
      * @param payload.agent - the agent whose turn is at its stop boundary.
      * @param payload.turn - the turn about to close.
      * @param payload.signal - the current turn's explicit abort signal.
-     * Scope-filtered dispatch (`@qilin/scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@qilin-agent/scope`): agent-scoped listeners receive only that agent.
      * @mode serial
      */
     'agent/turn-stopping'(this: Scoped<Agent>, payload: { agent: Agent; turn: number; signal: AbortSignal }): Promise<void> | void
@@ -387,7 +387,7 @@ declare module '@qilin/kylin' {
      * @param payload.turn - the turn in which the failure surfaced.
      * @param payload.step - the step at which the failure surfaced.
      * @param payload.error - the failure, verbatim.
-     * Scope-filtered dispatch (`@qilin/scope`): agent-scoped listeners receive only that agent.
+     * Scope-filtered dispatch (`@qilin-agent/scope`): agent-scoped listeners receive only that agent.
      * @mode emit
      */
     'agent/error'(this: Scoped<Agent>, payload: { agent: Agent; turn: number; step: number; error: unknown }): void

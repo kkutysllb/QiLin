@@ -1,15 +1,15 @@
 /**
  * Model-facing persistent `bash` tool over the owner-scoped PTY seam.
- * @module @qilin/tool-bash-persistent
+ * @module @qilin-agent/tool-bash-persistent
  */
 
 import { randomUUID } from 'node:crypto'
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import type { Agent } from '@qilin/agent'
-import type { TerminalReadResult, TerminalSessionId } from '@qilin/terminal'
-import { deadline, timeoutOf } from '@qilin/timeout'
-import { defineTool } from '@qilin/tools'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import type { Agent } from '@qilin-agent/agent'
+import type { TerminalReadResult, TerminalSessionId } from '@qilin-agent/terminal'
+import { deadline, timeoutOf } from '@qilin-agent/timeout'
+import { defineTool } from '@qilin-agent/tools'
 
 // TODO: Replace the file-search advice; arbitrary command output need not come from a searchable file.
 const TRUNCATED_MESSAGE = '<response clipped><NOTE>To save on context only part of this file has been shown to you. You should retry this tool after you have searched inside the file with `grep -n` in order to find the line numbers of what you are looking for.</NOTE>'

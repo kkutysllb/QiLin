@@ -4,10 +4,10 @@ import { existsSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import type { Context, Plugin } from '@qilin/kylin'
-import type {} from '@qilin/kylin-plugin-loader'
-import type { WebBootGraph } from '@qilin/client-modules/client'
-import type {} from '@qilin/client-modules'
+import type { Context, Plugin } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/kylin-plugin-loader'
+import type { WebBootGraph } from '@qilin-agent/client-modules/client'
+import type {} from '@qilin-agent/client-modules'
 
 /** Observed Loader entries, registered plugin instances, loaded modules, and delivered Client entries. */
 export interface RuntimeRoster {
@@ -89,7 +89,7 @@ export function experimentalRuntimeReferences(roster: RuntimeRoster): string[] {
     ...roster.client.entries.flatMap(entry => [entry.id, ...entry.inject ?? [], ...entry.external ?? []]),
     ...roster.client.batches.flatMap(batch => batch.entries),
   ])
-  return [...references].filter(reference => reference.includes('@qilin/experimental-')
+  return [...references].filter(reference => reference.includes('@qilin-agent/experimental-')
     || (reference.startsWith('file:') && (fileURLToPath(reference).replaceAll('\\', '/').includes('/packages/experimental/')
-      || modulePackage(reference)?.startsWith('@qilin/experimental-')))).sort()
+      || modulePackage(reference)?.startsWith('@qilin-agent/experimental-')))).sort()
 }

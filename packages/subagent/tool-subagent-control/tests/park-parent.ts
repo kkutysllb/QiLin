@@ -4,8 +4,8 @@
  * @module park-parent
  */
 
-import type { Context } from '@qilin/kylin'
-import type { SessionId } from '@qilin/session'
+import type { Context } from '@qilin-agent/kylin'
+import type { SessionId } from '@qilin-agent/session'
 
 /**
  * Reject every step of the stand-in parent. Each child settlement wakes its

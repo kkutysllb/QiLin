@@ -1,17 +1,17 @@
 /** Chat-owned Slot declarations and composed component props. */
-import type { MessageId } from '@qilin/llm/brand'
-import type { SessionId, SessionSeq } from '@qilin/session/types'
+import type { MessageId } from '@qilin-agent/llm/brand'
+import type { SessionId, SessionSeq } from '@qilin-agent/session/types'
 import type {
   CommandNode, CompactionSummaryNode, ConversationGroupData, ConversationLocationDataStore,
   ConversationTurnDataMap, GroupSnapshot, MessageImageLoader, MessageImagesOwnerProps,
   RenderMessageImages, TurnLocation,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 import type {
   InjectFace, KeyedSnapshotSelectorHook, PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore,
   SlotHookFactory, SnapshotSelectorHook,
-} from '@qilin/client-ui-slots'
-import type { MarkdownFileMentions } from '@qilin/client-ui-primitives'
-import type {} from '@qilin/client-ui-layout/client'
+} from '@qilin-agent/client-ui-slots'
+import type { MarkdownFileMentions } from '@qilin-agent/client-ui-primitives'
+import type {} from '@qilin-agent/client-ui-layout/client'
 import type { createChatStore } from '../stores.ts'
 import type { ToolCallId } from './store.ts'
 import type { ChatConversationViewNode, ChatNode, ChatNodeKind } from './chat-nodes.ts'
@@ -19,7 +19,7 @@ import type {
   ChatNodeProcessSource, ChatNodeSource, ChatSnapshot, ChatTurnProcessPresentation,
 } from './snapshot.ts'
 import type { TurnProcessSpec } from './turn-process.ts'
-import type { ObservableSnapshot } from '@qilin/client-store'
+import type { ObservableSnapshot } from '@qilin-agent/client-store'
 import type { ChatPresentationPolicy } from '../presentation-policy.ts'
 import type { PerformanceUsageMode } from '../../chat-settings.ts'
 
@@ -68,7 +68,7 @@ export interface ChatFileMentions {
   forClosing(owner: TurnTailOwnerProps, sessionId: SessionId): MarkdownFileMentions | undefined
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Optional prose file-mention provider. */
     chatFileMentions: ChatFileMentions
@@ -230,7 +230,7 @@ export type ChatViewSlotProps =
 /** Full props of the durable-message image renderer. */
 export type MessageImagesProps = PropsRuntime<'conversation.message.images'> & PropsLocale<'conversation'>
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface SessionStandardProps {
     /** Selector hook over the current Conversation binding's Chat target. */
     useChat: UseChat

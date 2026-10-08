@@ -3,7 +3,7 @@ description: "The read-before-edit filesystem policy plugin for deployments and 
 kind: "package-reference"
 ---
 
-# @qilin/fs-observation-policy
+# @qilin-agent/fs-observation-policy
 
 English | [中文](README.zh.md)
 
@@ -32,9 +32,9 @@ Load this plugin alongside a `ctx.fs` backend and the `qilin-tool-fs` tools when
 Load a backend, then this plugin, then the tools. The policy listener should be the first decider registered for the `fs/*`-intent slots.
 
 ```yaml
-- name: '@qilin/fs-local'
-- name: '@qilin/fs-observation-policy'
-- name: '@qilin/tool-fs'
+- name: '@qilin-agent/fs-local'
+- name: '@qilin-agent/fs-observation-policy'
+- name: '@qilin-agent/tool-fs'
 ```
 
 ### What changes for the model

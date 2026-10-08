@@ -12,41 +12,41 @@
  * @module qilin-permission-presets
  */
 
-import { Context } from '@qilin/kylin'
-import { CommandDefinitionId } from '@qilin/commands/brand'
-import z from '@qilin/schemastery'
+import { Context } from '@qilin-agent/kylin'
+import { CommandDefinitionId } from '@qilin-agent/commands/brand'
+import z from '@qilin-agent/schemastery'
 import { z as zod } from 'zod'
-import { Remote, TypertRemoteService } from '@qilin/typert-protocol'
-import type { Session, SessionEvent } from '@qilin/session'
-import type { SandboxMode } from '@qilin/sandbox'
-import { SANDBOX_MODES, setSandboxMode } from '@qilin/sandbox-policy'
+import { Remote, TypertRemoteService } from '@qilin-agent/typert-protocol'
+import type { Session, SessionEvent } from '@qilin-agent/session'
+import type { SandboxMode } from '@qilin-agent/sandbox'
+import { SANDBOX_MODES, setSandboxMode } from '@qilin-agent/sandbox-policy'
 // Side-effect type import: declaration-merges `ctx.shell` (the capability fact
 // `sandboxMode` this service reads), without a value dependency on the seam.
-import type {} from '@qilin/shell'
-import type { ApprovalPolicy } from '@qilin/user-approval'
-import { APPROVAL_POLICIES, setApprovalPolicy } from '@qilin/user-approval'
-import type {} from '@qilin/settings'
+import type {} from '@qilin-agent/shell'
+import type { ApprovalPolicy } from '@qilin-agent/user-approval'
+import { APPROVAL_POLICIES, setApprovalPolicy } from '@qilin-agent/user-approval'
+import type {} from '@qilin-agent/settings'
 // Type-only: resolves the required projection service and optional settings/command children.
-import type {} from '@qilin/session-projection'
-import type {} from '@qilin/commands'
+import type {} from '@qilin-agent/session-projection'
+import type {} from '@qilin-agent/commands'
 import type { PermissionCatalog, PermissionSelection, PresetOption } from './types.ts'
 
 export type * from './types.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     permissionPresets: PermissionPresetService
   }
 }
 
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionStateMap {
     /** Latest logged permission overrides and constructor-seed status. */
     permissions: PermissionProjectionState
   }
 }
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /**
      * Records the selected preset as durable, log-only user intent. The knob
@@ -268,7 +268,7 @@ export class PermissionPresetService extends TypertRemoteService {
     // activates only when a command registry is composed.
     ctx.inject(['commands'], (commandCtx) => {
       commandCtx.commands.register({
-        definitionId: CommandDefinitionId('@qilin/permission-presets'),
+        definitionId: CommandDefinitionId('@qilin-agent/permission-presets'),
         name: 'permission',
         description: 'Switch the permission preset (sandbox mode + approval policy)',
         input: { hint: '<preset>' },

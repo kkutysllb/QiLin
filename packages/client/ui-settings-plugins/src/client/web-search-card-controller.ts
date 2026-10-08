@@ -9,11 +9,11 @@
  * covers everything the card shows.
  */
 
-import type { Context as ClientContext } from '@qilin/kylin'
+import type { Context as ClientContext } from '@qilin-agent/kylin'
 // Type-only: pulls the ctx.remote merge into this program.
-import type {} from '@qilin/api-remotes/client'
-import type { SnapshotStore } from '@qilin/client-store'
-import type { ConfigForm, ConfigFormSnapshot } from '@qilin/client-ui-settings/client'
+import type {} from '@qilin-agent/api-remotes/client'
+import type { SnapshotStore } from '@qilin-agent/client-store'
+import type { ConfigForm, ConfigFormSnapshot } from '@qilin-agent/client-ui-settings/client'
 import {
   CardForm, numberField, textField,
   type CardActions, type CardFieldState, type CardShell,

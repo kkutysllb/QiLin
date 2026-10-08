@@ -2,12 +2,12 @@
 /** Section, setup-card, and hand-written editor behavior over a scripted wire face. */
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import Schema from '@qilin/schemastery'
-import { bindSnapshotSelector, RemoteError } from '@qilin/client-test-runtime'
+import Schema from '@qilin-agent/schemastery'
+import { bindSnapshotSelector, RemoteError } from '@qilin-agent/client-test-runtime'
 import type {
   CredentialInfo, RemoteResult, SettingsNamespaceView,
-} from '@qilin/api-remotes/client'
-import type { JsonValue } from '@qilin/util-values'
+} from '@qilin-agent/api-remotes/client'
+import type { JsonValue } from '@qilin-agent/util-values'
 import {
   ModelsSection, needsSetup, providerCopy, providerTargetLabel, removeProviderProfile,
 } from '../src/client/ModelsSection.tsx'
@@ -17,7 +17,7 @@ import {
   DeepSeekModelsEditor, formatCapacity, modelDrafts, parseCapacity, validateDeepSeekModels,
 } from '../src/client/DeepSeekModelsEditor.tsx'
 import { apiKeyFailure } from '../src/client/apiKey.ts'
-import { SettingsDescribeMirror } from '@qilin/client-ui-settings/src/client/settings-mirror.ts'
+import { SettingsDescribeMirror } from '@qilin-agent/client-ui-settings/src/client/settings-mirror.ts'
 import { deriveKeyRef, ModelsSettingsStore } from '../src/client/store.ts'
 import { createModelsOperations } from '../src/client/operations.ts'
 import type { ModelsOperations } from '../src/client/operations.ts'

@@ -1,9 +1,9 @@
-import { Context } from '@qilin/kylin'
-import SystemPrompt, { renderPrompt } from '@qilin/system-prompt'
-import { createScope, type ScopeKey } from '@qilin/scope'
+import { Context } from '@qilin-agent/kylin'
+import SystemPrompt, { renderPrompt } from '@qilin-agent/system-prompt'
+import { createScope, type ScopeKey } from '@qilin-agent/scope'
 import { describe, expect, it } from 'vitest'
-import * as Persona from '@qilin/persona'
-import { PERSONA_SUFFIX_SECTION, PERSONA_PREFIX_SECTION } from '@qilin/persona'
+import * as Persona from '@qilin-agent/persona'
+import { PERSONA_SUFFIX_SECTION, PERSONA_PREFIX_SECTION } from '@qilin-agent/persona'
 
 async function harness(deploymentPersona: string): Promise<Context> {
   const ctx = new Context()

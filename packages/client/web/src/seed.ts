@@ -10,12 +10,12 @@ import * as React from 'react'
 import * as ReactJsxRuntime from 'react/jsx-runtime'
 import * as ReactDom from 'react-dom'
 import * as ReactDomClient from 'react-dom/client'
-import * as Cordis from '@qilin/kylin'
-import * as ClientStore from '@qilin/client-store'
-import * as UiSlots from '@qilin/client-ui-slots'
-import * as UiPrimitives from '@qilin/client-ui-primitives'
-import * as UiDockkit from '@qilin/client-ui-dockkit'
-import { DSH_PLATFORM_MODULE_ALIASES } from '@qilin/dsh-compat'
+import * as Cordis from '@qilin-agent/kylin'
+import * as ClientStore from '@qilin-agent/client-store'
+import * as UiSlots from '@qilin-agent/client-ui-slots'
+import * as UiPrimitives from '@qilin-agent/client-ui-primitives'
+import * as UiDockkit from '@qilin-agent/client-ui-dockkit'
+import { DSH_PLATFORM_MODULE_ALIASES } from '@qilin-agent/dsh-compat'
 import type { PlatformModule } from './platform.ts'
 
 /**
@@ -31,11 +31,11 @@ export function getStaticModules(): Record<string, unknown> {
     'react/jsx-runtime': ReactJsxRuntime,
     'react-dom': ReactDom,
     'react-dom/client': ReactDomClient,
-    '@qilin/kylin': Cordis,
-    '@qilin/client-store': ClientStore,
-    '@qilin/client-ui-slots': UiSlots,
-    '@qilin/client-ui-primitives': UiPrimitives,
-    '@qilin/client-ui-dockkit': UiDockkit,
+    '@qilin-agent/kylin': Cordis,
+    '@qilin-agent/client-store': ClientStore,
+    '@qilin-agent/client-ui-slots': UiSlots,
+    '@qilin-agent/client-ui-primitives': UiPrimitives,
+    '@qilin-agent/client-ui-dockkit': UiDockkit,
   } satisfies Record<PlatformModule, unknown>
   for (const [alias, canonical] of Object.entries(DSH_PLATFORM_MODULE_ALIASES)) {
     modules[alias] = modules[canonical as PlatformModule]

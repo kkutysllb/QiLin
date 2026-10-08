@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
 import { act, cleanup, render, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { makeTranslate, RemoteError } from '@qilin/client-test-runtime'
-import type { RemoteResult } from '@qilin/api-remotes/client'
-import type { ScheduleCatalogEntry, ScheduleDeleteResult } from '@qilin/schedule/client'
-import { ScheduleId } from '@qilin/schedule'
-import type { SessionId } from '@qilin/session/types'
-import { bindSnapshotSelector } from '@qilin/client-ui-renderer/src/client/bind.ts'
+import { makeTranslate, RemoteError } from '@qilin-agent/client-test-runtime'
+import type { RemoteResult } from '@qilin-agent/api-remotes/client'
+import type { ScheduleCatalogEntry, ScheduleDeleteResult } from '@qilin-agent/schedule/client'
+import { ScheduleId } from '@qilin-agent/schedule'
+import type { SessionId } from '@qilin-agent/session/types'
+import { bindSnapshotSelector } from '@qilin-agent/client-ui-renderer/src/client/bind.ts'
 import { createCatalogSource, type CatalogInjected } from '../src/client/catalog-source.ts'
 import {
   formatScheduleAbsolute, formatScheduleFrequency, formatScheduleRelative,

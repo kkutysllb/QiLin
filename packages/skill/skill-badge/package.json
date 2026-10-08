@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/skill-badge",
+  "name": "@qilin-agent/skill-badge",
   "description": "Bundled qilin badge skill provider for QiLin",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,11 +30,11 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/skill": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/skill": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/skill": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/skill": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   }
 }

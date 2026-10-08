@@ -16,13 +16,13 @@
  * ended, and a settlement arriving after the record is gone has nothing left to
  * write to. A tab that never read has no bucket to forget.
  */
-import type { BoundActions } from '@qilin/client-store'
-import type { TabId } from '@qilin/client-ui-dockkit'
-import type { SessionId } from '@qilin/session/types'
+import type { BoundActions } from '@qilin-agent/client-store'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { ReadDocumentBytes, ReadWorkspaceFilePage, SessionFile } from './rpc.ts'
 import type { TextStore } from './store.ts'
 import type { DocumentLoadMode } from './document/registry.ts'
-import type { Resources } from '@qilin/client-resources/client'
+import type { Resources } from '@qilin-agent/client-resources/client'
 import { ResourceGroup } from './document/resource-group.ts'
 
 /** The preview's injected business face, as the body receives it. */

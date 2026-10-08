@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/experimental-speech-to-text",
+  "name": "@qilin-agent/experimental-speech-to-text",
   "description": "Experimental speech recognition with independently selectable providers",
   "version": "3.1.1",
   "publishConfig": {
@@ -39,23 +39,23 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@qilin/brand": "workspace:*",
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/settings": "workspace:*",
-    "@qilin/kylin-plugin-loader": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/settings": "workspace:*",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~"
   },
   "peerDependenciesMeta": {
-    "@qilin/kylin-plugin-loader": {
+    "@qilin-agent/kylin-plugin-loader": {
       "optional": true
     }
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/app-boot": "workspace:*",
-    "@qilin/settings": "workspace:*",
-    "@qilin/kylin-plugin-loader": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/app-boot": "workspace:*",
+    "@qilin-agent/settings": "workspace:*",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~"
   }
 }

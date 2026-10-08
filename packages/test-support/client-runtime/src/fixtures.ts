@@ -1,17 +1,17 @@
 /** Controller and UI-domain fixture shapes for the client test runtime. */
 import type {
   ISession, SessionEventLikeEntry, SessionSnapshot, SessionSummary,
-} from '@qilin/api-session-controller/client'
-import type { WorkspaceSnapshot } from '@qilin/api-workspace-controller/client'
-import type { SessionId } from '@qilin/session/types'
+} from '@qilin-agent/api-session-controller/client'
+import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import {
   EMPTY_CONVERSATION_SNAPSHOT,
   type ConversationSnapshot,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 import {
   EMPTY_CHAT_SNAPSHOT,
   type ChatSnapshot,
-} from '@qilin/client-ui-chat/client'
+} from '@qilin-agent/client-ui-chat/client'
 
 /**
  * Fixture overrides for the session behavior face: any subset of the

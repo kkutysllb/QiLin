@@ -6,11 +6,11 @@
  */
 import type {
   ModelCatalogFailure, ModelProviderGroup, ModelSelection, ModelSelectionProjection,
-} from '@qilin/api-session-controller/types'
-import type { ModelReasoningEffort, SessionId } from '@qilin/api-remotes/client'
-import type { RemoteResult, TypertClientRemote } from '@qilin/typert-protocol'
-import type { ObservableSnapshot, SnapshotStore } from '@qilin/client-store'
-import { createSnapshotStore } from '@qilin/client-store'
+} from '@qilin-agent/api-session-controller/types'
+import type { ModelReasoningEffort, SessionId } from '@qilin-agent/api-remotes/client'
+import type { RemoteResult, TypertClientRemote } from '@qilin-agent/typert-protocol'
+import type { ObservableSnapshot, SnapshotStore } from '@qilin-agent/client-store'
+import { createSnapshotStore } from '@qilin-agent/client-store'
 import type { ModelCatalogDirectory } from './catalog.ts'
 
 /** Directory snapshot both entries render from. */

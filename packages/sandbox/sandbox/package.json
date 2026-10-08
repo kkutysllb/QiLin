@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/sandbox",
+  "name": "@qilin-agent/sandbox",
   "description": "Abstract process-sandbox seam (ctx.sandbox) for the QiLin: same-world confinement vocabulary and the SandboxProvider contract",
   "version": "3.1.1",
   "publishConfig": {
@@ -30,16 +30,16 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*"
   },
   "devDependencies": {
-    "@qilin/kylin": "workspace:~",
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*"
   },
   "dependencies": {
-    "@qilin/util-values": "workspace:*"
+    "@qilin-agent/util-values": "workspace:*"
   }
 }

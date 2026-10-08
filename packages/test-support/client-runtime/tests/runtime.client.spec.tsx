@@ -7,20 +7,20 @@
  * stack — this suite is the fixture the migrated feature specs rely on.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { stubConfigForm } from '../src/config-form.ts'
 import { act, cleanup } from '@testing-library/react'
 import { useSyncExternalStore } from 'react'
-import { createSnapshotStore, defineStore } from '@qilin/client-store'
-import { createScope, type SessionReference } from '@qilin/api-session-controller/client'
-import type { WorkspaceId } from '@qilin/api-workspace-controller/client'
-import type { SessionId } from '@qilin/session/types'
+import { createSnapshotStore, defineStore } from '@qilin-agent/client-store'
+import { createScope, type SessionReference } from '@qilin-agent/api-session-controller/client'
+import type { WorkspaceId } from '@qilin-agent/api-workspace-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import type {
   PropsRenderSlots, SessionStandardProps, SlotRendererHost,
-} from '@qilin/client-ui-slots'
-import { SlotTestRuntime } from '@qilin/client-test-runtime'
+} from '@qilin-agent/client-ui-slots'
+import { SlotTestRuntime } from '@qilin-agent/client-test-runtime'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface SlotMap {
     'trt.panel': { kind: 'single'; scope: 'root'; owner: { label?: string } }
     'trt.chat': { kind: 'single'; scope: 'session' }

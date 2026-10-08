@@ -1,6 +1,6 @@
 /** Browser-safe formatting and recognition of persisted spill-policy notices. */
-import { describeOmitted, type Omitted } from '@qilin/output-retention'
-import type { SpillRef } from '@qilin/spill'
+import { describeOmitted, type Omitted } from '@qilin-agent/output-retention'
+import type { SpillRef } from '@qilin-agent/spill'
 
 const OPEN = '('
 const CLOSE = ')'

@@ -13,14 +13,14 @@
  * touches the disk once, and a file deleted mid-run keeps the process's id
  * until the next launch.
  *
- * @module @qilin/anonymous-user-id
+ * @module @qilin-agent/anonymous-user-id
  */
 
 import { randomUUID } from 'node:crypto'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import type { Branded } from '@qilin/brand'
-import { resolveQilinHome } from '@qilin/home-paths'
+import type { Branded } from '@qilin-agent/brand'
+import { resolveQilinHome } from '@qilin-agent/home-paths'
 
 /** A harness-home-scoped anonymous user id (random UUID v4). */
 export type AnonymousUserId = Branded<'AnonymousUserId'>

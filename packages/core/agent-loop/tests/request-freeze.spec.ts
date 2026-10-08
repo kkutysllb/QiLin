@@ -1,14 +1,14 @@
 /** Request immutability through the real loop, including adopted restore graphs. */
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import AgentLoop from '@qilin/agent-loop'
-import type { Agent } from '@qilin/agent'
-import { mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'
-import { createAssistantMessage, createUserMessage, isAgentLoopRequest } from '@qilin/llm'
-import type { GenerateOptions, ToolSchema } from '@qilin/llm'
-import { Session, SessionId, SessionLogOffset, SESSION_FORMAT_VERSION } from '@qilin/session'
-import * as values from '@qilin/util-values'
+import { Context } from '@qilin-agent/kylin'
+import AgentLoop from '@qilin-agent/agent-loop'
+import type { Agent } from '@qilin-agent/agent'
+import { mountAgentLoopTestDependencies } from '@qilin-agent/agent-loop-testkit'
+import { createAssistantMessage, createUserMessage, isAgentLoopRequest } from '@qilin-agent/llm'
+import type { GenerateOptions, ToolSchema } from '@qilin-agent/llm'
+import { Session, SessionId, SessionLogOffset, SESSION_FORMAT_VERSION } from '@qilin-agent/session'
+import * as values from '@qilin-agent/util-values'
 import { ReactLoopAgent } from '../src/agent.ts'
 import { MockAdapter, textResponse } from './mock-adapter.ts'
 

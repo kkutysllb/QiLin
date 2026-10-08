@@ -2,22 +2,22 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { mkdir, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-import { Context } from '@qilin/kylin'
-import { createUserMessage, ToolCallId, type Message } from '@qilin/llm'
-import type { ContextFormed, MessageSource } from '@qilin/llm'
-import { createScope, type Scope } from '@qilin/scope'
+import { Context } from '@qilin-agent/kylin'
+import { createUserMessage, ToolCallId, type Message } from '@qilin-agent/llm'
+import type { ContextFormed, MessageSource } from '@qilin-agent/llm'
+import { createScope, type Scope } from '@qilin-agent/scope'
 import {
   SESSION_FORMAT_VERSION, Session, SessionId, type SessionEvent, type UserMessage,
-} from '@qilin/session'
-import SystemPrompt, { renderPrompt } from '@qilin/system-prompt'
-import ToolRuntime, { defineContentToolFixture } from '@qilin/tools'
-import AgentRegistry, { agentEvents, type Agent, type PreStepDecision } from '@qilin/agent'
-import SkillRegistry from '@qilin/skill'
-import * as SkillFileSystem from '@qilin/skill-filesystem'
-import * as toolSkill from '@qilin/tool-skill'
-import { unsupportedInbox } from '@qilin/agent-loop-testkit'
+} from '@qilin-agent/session'
+import SystemPrompt, { renderPrompt } from '@qilin-agent/system-prompt'
+import ToolRuntime, { defineContentToolFixture } from '@qilin-agent/tools'
+import AgentRegistry, { agentEvents, type Agent, type PreStepDecision } from '@qilin-agent/agent'
+import SkillRegistry from '@qilin-agent/skill'
+import * as SkillFileSystem from '@qilin-agent/skill-filesystem'
+import * as toolSkill from '@qilin-agent/tool-skill'
+import { unsupportedInbox } from '@qilin-agent/agent-loop-testkit'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'qilin-tool-skill': { kind: 'qilin-tool-skill' } & ContextFormed
     'later-contribution': { kind: 'later-contribution' } & ContextFormed

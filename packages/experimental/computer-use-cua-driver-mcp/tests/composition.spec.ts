@@ -4,20 +4,20 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context, FiberState } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import ComputerUse from '@qilin/computer-use'
-import { ComputerUseProviderName } from '@qilin/computer-use/brand'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime from '@qilin/tools'
-import LlmRuntime, { LlmAdapter, ToolCallId, createUserMessage } from '@qilin/llm'
-import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@qilin/llm'
-import SessionStore, { SessionId } from '@qilin/session'
-import AgentRegistry from '@qilin/agent'
-import AgentLoop from '@qilin/agent-loop'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import LocalAttachmentStore from '@qilin/attachment-local'
+import { Context, FiberState } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import ComputerUse from '@qilin-agent/computer-use'
+import { ComputerUseProviderName } from '@qilin-agent/computer-use/brand'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime from '@qilin-agent/tools'
+import LlmRuntime, { LlmAdapter, ToolCallId, createUserMessage } from '@qilin-agent/llm'
+import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@qilin-agent/llm'
+import SessionStore, { SessionId } from '@qilin-agent/session'
+import AgentRegistry from '@qilin-agent/agent'
+import AgentLoop from '@qilin-agent/agent-loop'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import LocalAttachmentStore from '@qilin-agent/attachment-local'
 import * as Provider from '../src/index.ts'
 
 const TOOL = 'mcp__cua-driver-mcp__screenshot'
@@ -60,31 +60,31 @@ async function load(mode?: string): Promise<{ ctx: Context; root: string; model:
   roots.push(root)
   const model = new ScreenshotModel()
   const modules = new Map<string, unknown>([
-    ['@qilin/computer-use', ComputerUse],
-    ['@qilin/system-prompt', SystemPrompt],
-    ['@qilin/tools', ToolRuntime],
-    ['@qilin/llm', LlmRuntime],
-    ['@qilin/session', SessionStore],
-    ['@qilin/agent', AgentRegistry],
-    ['@qilin/agent-loop', AgentLoop],
-    ['@qilin/session-projection', SessionProjectionRegistry],
-    ['@qilin/attachment-local', LocalAttachmentStore],
+    ['@qilin-agent/computer-use', ComputerUse],
+    ['@qilin-agent/system-prompt', SystemPrompt],
+    ['@qilin-agent/tools', ToolRuntime],
+    ['@qilin-agent/llm', LlmRuntime],
+    ['@qilin-agent/session', SessionStore],
+    ['@qilin-agent/agent', AgentRegistry],
+    ['@qilin-agent/agent-loop', AgentLoop],
+    ['@qilin-agent/session-projection', SessionProjectionRegistry],
+    ['@qilin-agent/attachment-local', LocalAttachmentStore],
     ['@fixture/model', { inject: ['llm'], apply(ctx: Context) { ctx.effect(() => ctx.llm.registerAdapter(['fixture'], model)) } }],
-    ['@qilin/experimental-computer-use-cua-driver-mcp', Provider],
+    ['@qilin-agent/experimental-computer-use-cua-driver-mcp', Provider],
   ])
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, JSON.stringify([...modules.keys()].map(name => ({
-    id: name === '@qilin/experimental-computer-use-cua-driver-mcp' ? 'computer-use-driver' : undefined,
+    id: name === '@qilin-agent/experimental-computer-use-cua-driver-mcp' ? 'computer-use-driver' : undefined,
     name,
-    config: name === '@qilin/experimental-computer-use-cua-driver-mcp'
+    config: name === '@qilin-agent/experimental-computer-use-cua-driver-mcp'
       ? {
         command: process.execPath,
         args: [fixture, root, ...(mode === undefined ? [] : [mode])],
         reconnect: { initialDelayMs: 20, maxDelayMs: 40, maxAttempts: 2 },
       }
-      : name === '@qilin/attachment-local'
+      : name === '@qilin-agent/attachment-local'
         ? { qilinHome: root }
-        : name === '@qilin/agent-loop' ? { agents: [] } : {},
+        : name === '@qilin-agent/agent-loop' ? { agents: [] } : {},
   }))))
   const ctx = new Context()
   contexts.push(ctx)

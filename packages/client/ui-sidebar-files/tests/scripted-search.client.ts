@@ -1,8 +1,8 @@
 /** A filename search the spec settles by hand, one deferred result per call. */
 import { vi } from 'vitest'
 import type { Mock } from 'vitest'
-import type { RemoteResult } from '@qilin/api-remotes/client'
-import type { WorkspaceFileNameSearch } from '@qilin/api-workspace-files/types'
+import type { RemoteResult } from '@qilin-agent/api-remotes/client'
+import type { WorkspaceFileNameSearch } from '@qilin-agent/api-workspace-files/types'
 import type { SearchWorkspaceFileNames } from '../src/client/face.ts'
 
 /** The scripted search: the mock the face receives, and the hand that settles it. */

@@ -1,6 +1,6 @@
-import { Context } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import type { FileReferenceCandidate } from '@qilin/file-reference/types'
+import { Context } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import type { FileReferenceCandidate } from '@qilin-agent/file-reference/types'
 import { describe, expect, it, vi } from 'vitest'
 import { SessionFileReferences } from '../src/file-references.ts'
 

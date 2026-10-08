@@ -3,7 +3,7 @@ description: "qilin Web 客户端的工作台标签状态属主：通用/编码�
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-workbench
+# @qilin-agent/client-ui-workbench
 
 [English](README.md) | 中文
 

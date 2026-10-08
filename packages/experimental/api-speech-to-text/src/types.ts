@@ -1,8 +1,8 @@
 /** JSON-safe inputs and results of the experimental speech Remote namespace. */
-import type { SpeechProviderId, SpeechSnapshot } from '@qilin/experimental-speech-to-text/types'
-import type {} from '@qilin/typert-protocol'
+import type { SpeechProviderId, SpeechSnapshot } from '@qilin-agent/experimental-speech-to-text/types'
+import type {} from '@qilin-agent/typert-protocol'
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** Audio encoding or intake limits prevented transcription. */
     'speech/invalid-audio': { readonly reason: string }

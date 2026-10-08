@@ -8,12 +8,12 @@
  * imports can create two slots, leaving the bridge with no mounted filesystem.
  */
 import { expect, test } from 'vitest'
-import { MemoryVfs } from '@qilin/experimental-webworker-runtime/src/storage/memory.ts'
-import { setActiveVfs } from '@qilin/experimental-webworker-runtime/src/storage/active.ts'
-import * as fs from '@qilin/experimental-webworker-runtime/src/node/builtin_modules/implemented/fs.ts'
-import * as fsp from '@qilin/experimental-webworker-runtime/src/node/builtin_modules/implemented/fs/promises.ts'
-import { promisify } from '@qilin/experimental-webworker-runtime/src/node/builtin_modules/implemented/util.ts'
-import type { VfsBigIntStats, VfsMutationSink, VfsStats } from '@qilin/experimental-webworker-runtime/src/storage/types.ts'
+import { MemoryVfs } from '@qilin-agent/experimental-webworker-runtime/src/storage/memory.ts'
+import { setActiveVfs } from '@qilin-agent/experimental-webworker-runtime/src/storage/active.ts'
+import * as fs from '@qilin-agent/experimental-webworker-runtime/src/node/builtin_modules/implemented/fs.ts'
+import * as fsp from '@qilin-agent/experimental-webworker-runtime/src/node/builtin_modules/implemented/fs/promises.ts'
+import { promisify } from '@qilin-agent/experimental-webworker-runtime/src/node/builtin_modules/implemented/util.ts'
+import type { VfsBigIntStats, VfsMutationSink, VfsStats } from '@qilin-agent/experimental-webworker-runtime/src/storage/types.ts'
 
 let flushes = 0
 const sink: VfsMutationSink = {

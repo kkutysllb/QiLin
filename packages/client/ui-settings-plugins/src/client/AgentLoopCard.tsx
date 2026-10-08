@@ -1,7 +1,7 @@
 /** The agent loop's configuration page: how many tool calls one step may run at once. */
 
-import type {} from '@qilin/client-ui-plugin-manager/client'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-plugin-manager/client'
+import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import { ValueField } from './fields.tsx'
 import { PluginConfigForm } from './PluginConfigForm.tsx'
 import type { AgentLoopCardFace } from './agent-loop-card-controller.ts'

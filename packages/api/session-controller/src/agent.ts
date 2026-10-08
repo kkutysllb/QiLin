@@ -1,19 +1,19 @@
 /** Agent activation, composition, and model-selection policy owned by API Session. */
 
 import { mkdir } from 'node:fs/promises'
-import type { Context } from '@qilin/kylin'
-import { installModelSelection } from '@qilin/agent'
+import type { Context } from '@qilin-agent/kylin'
+import { installModelSelection } from '@qilin-agent/agent'
 import type {
   Agent, AgentOptions, AgentSetup, ModelSelection as AgentModelSelection, ModelSelectionRef,
-} from '@qilin/agent'
-import type {} from '@qilin/agent-default-model'
-import type {} from '@qilin/agent-presets'
-import { ReasoningEffortId } from '@qilin/llm'
-import type { Session, SessionId } from '@qilin/session'
-import type { SessionInspection } from '@qilin/session-persistence'
-import { SessionQueryError, type SessionObservation } from '@qilin/session-query'
-import { RemoteError } from '@qilin/typert-protocol'
-import type {} from '@qilin/typert-registry'
+} from '@qilin-agent/agent'
+import type {} from '@qilin-agent/agent-default-model'
+import type {} from '@qilin-agent/agent-presets'
+import { ReasoningEffortId } from '@qilin-agent/llm'
+import type { Session, SessionId } from '@qilin-agent/session'
+import type { SessionInspection } from '@qilin-agent/session-persistence'
+import { SessionQueryError, type SessionObservation } from '@qilin-agent/session-query'
+import { RemoteError } from '@qilin-agent/typert-protocol'
+import type {} from '@qilin-agent/typert-registry'
 import type { ModelSelection } from './types.ts'
 
 /** Cold Session identity absent from persistence. */

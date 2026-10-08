@@ -10,8 +10,8 @@
  */
 
 import { spawnSync } from 'node:child_process'
-import type { SubprocessTerminalSignal } from '@qilin/subprocess'
-import { createLazyRequire } from '@qilin/lazy-require'
+import type { SubprocessTerminalSignal } from '@qilin-agent/subprocess'
+import { createLazyRequire } from '@qilin-agent/lazy-require'
 import type { ProcessIdentity, ProcessInspector, ProcessSnapshot } from './process-inspector.ts'
 
 type Koffi = typeof import('koffi')['default']

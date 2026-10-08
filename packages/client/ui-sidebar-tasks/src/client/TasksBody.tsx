@@ -11,14 +11,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import clsx from 'clsx'
-import type { JobView } from '@qilin/jobs/view'
+import type { JobView } from '@qilin-agent/jobs/view'
 import {
   IconChevronDownOutline14, IconChevronRightOutline14, IconRefreshOutline14, IconRefreshOutline16,
   StateDot,
-} from '@qilin/client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRuntime, PropsStore, TranslateNS } from '@qilin/client-ui-slots'
-import type {} from '@qilin/client-ui-session/client'
-import type { SessionId } from '@qilin/session/types'
+} from '@qilin-agent/client-ui-primitives'
+import type { InjectFace, PropsLocale, PropsRuntime, PropsStore, TranslateNS } from '@qilin-agent/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-session/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { TasksInjected } from './face.ts'
 import { NS } from './locales.ts'
 import { indexSubagentDescendants } from './lineage.ts'

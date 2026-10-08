@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events'
 import { Duplex, PassThrough } from 'node:stream'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import { z } from 'zod'
 import { SshRpcPeer } from '../src/protocol.ts'

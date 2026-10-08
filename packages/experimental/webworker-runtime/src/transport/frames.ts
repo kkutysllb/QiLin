@@ -1,7 +1,7 @@
 /**
  * Tunnel frame protocol between the page and the worker host. Frames cross
  * `postMessage`, so inbound frames are validated before use.
- * @module @qilin/experimental-webworker-runtime/src/transport/frames
+ * @module @qilin-agent/experimental-webworker-runtime/src/transport/frames
  */
 
 /** Request identifier minted by the page. */

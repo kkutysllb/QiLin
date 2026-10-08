@@ -7,16 +7,16 @@
  * scope-birth roster warm — is InputTriggerController behavior, tested on a real
  * session scope (createScope).
  */
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
-import { createScope, scopeOf } from '@qilin/api-session-controller/client'
-import type { LocaleSnapshot } from '@qilin/client-locale/client'
-import type { SessionId } from '@qilin/session/types'
-import { InputTriggerController, InputTriggerService } from '@qilin/client-ui-input-trigger/client'
+import { createScope, scopeOf } from '@qilin-agent/api-session-controller/client'
+import type { LocaleSnapshot } from '@qilin-agent/client-locale/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import { InputTriggerController, InputTriggerService } from '@qilin-agent/client-ui-input-trigger/client'
 import type {
   BeginCommandRequest, ClientSessionContext, CommandClaim, InsertReferenceRequest, PickOutcome,
   ReferenceInsert, InputTriggerCandidate, InputTriggerPick, InputTriggerSource, SourceRoster, TriggerChar,
-} from '@qilin/client-ui-input-trigger/client'
+} from '@qilin-agent/client-ui-input-trigger/client'
 
 const sid = (k: string): SessionId => k as SessionId
 

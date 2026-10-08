@@ -10,8 +10,8 @@
  * save control. The page draws the title, the icon, and the crumb itself.
  */
 
-import type {} from '@qilin/client-ui-slots'
-import type { ConfigForm, ConfigFormSnapshot } from '@qilin/client-ui-settings/client'
+import type {} from '@qilin-agent/client-ui-slots'
+import type { ConfigForm, ConfigFormSnapshot } from '@qilin-agent/client-ui-settings/client'
 
 /** The view the page asks a configuration entry for. */
 export interface PluginConfigViewProps {
@@ -44,7 +44,7 @@ export interface ConfigPageForm {
   readonly mutate: ConfigForm<Record<string, unknown>>['mutate']
 }
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface SlotMap {
     /** Additional MenuItemButton rows after installation: 72px high, with a title and a description capped at two lines. */
     'plugins.add.actions': { kind: 'list'; scope: 'root'; owner: PluginAddActionsProps }

@@ -11,13 +11,13 @@
  *
  * Reconstruction reads the `agentPreset` Session projection, never the header
  * alone.
- * @module @qilin/agent-presets/session
+ * @module @qilin-agent/agent-presets/session
  */
 
-import type { ProjectionDefinition } from '@qilin/session-projection'
+import type { ProjectionDefinition } from '@qilin-agent/session-projection'
 import { z } from 'zod'
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /**
      * The session's agent preset was chosen after creation, while the session

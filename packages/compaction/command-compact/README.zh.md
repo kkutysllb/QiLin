@@ -3,7 +3,7 @@ description: "面向交互式组合的按需 /compact 命令：它做什么、�
 kind: "package-reference"
 ---
 
-# @qilin/command-compact
+# @qilin-agent/command-compact
 
 [English](README.md) | 中文
 
@@ -55,11 +55,11 @@ kind: "package-reference"
 
 ```yaml
 - id: commands
-  name: '@qilin/commands'
+  name: '@qilin-agent/commands'
 - id: compaction-basic
-  name: '@qilin/compaction-basic'
+  name: '@qilin-agent/compaction-basic'
 - id: command-compact
-  name: '@qilin/command-compact'
+  name: '@qilin-agent/command-compact'
 ```
 
 随附 `qilin` 基础配置把它挂载在默认后端旁，Web 客户端提供命令适配器。未组合命令适配器的自动化接口只保留自动压缩。

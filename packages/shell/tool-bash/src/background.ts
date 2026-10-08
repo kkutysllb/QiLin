@@ -2,13 +2,13 @@
  * Generic-job adaptation for bash process handles: the terminal outcome the
  * registry records and the pull source it pumps into the job's output ring.
  *
- * @module @qilin/tool-bash/background
+ * @module @qilin-agent/tool-bash/background
  */
 
-import type { SandboxMode } from '@qilin/sandbox'
-import { escalationHintMarker, sandboxDenialMarker } from '@qilin/sandbox'
-import type { ShellProcess, ShellSandboxInfo } from '@qilin/shell'
-import type { JobHooks, JobOutcome, JobOutputSource } from '@qilin/jobs'
+import type { SandboxMode } from '@qilin-agent/sandbox'
+import { escalationHintMarker, sandboxDenialMarker } from '@qilin-agent/sandbox'
+import type { ShellProcess, ShellSandboxInfo } from '@qilin-agent/shell'
+import type { JobHooks, JobOutcome, JobOutputSource } from '@qilin-agent/jobs'
 import { renderProcessRead } from './render.ts'
 
 /**

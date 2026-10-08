@@ -3,7 +3,7 @@ import { mkdir, mkdtemp, readFile, stat, symlink, writeFile } from 'node:fs/prom
 import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import {
   boot,
   initProfile,
@@ -12,22 +12,22 @@ import {
   loadProfile,
   PluginPackages,
   type Profile,
-} from '@qilin/app-boot'
-import { provideCmdline } from '@qilin/cmdline'
-import { SessionId, SessionLogOffset } from '@qilin/session'
-import type { Agent } from '@qilin/agent'
-import type { PatchOptions } from '@qilin/kylin-plugin-include'
+} from '@qilin-agent/app-boot'
+import { provideCmdline } from '@qilin-agent/cmdline'
+import { SessionId, SessionLogOffset } from '@qilin-agent/session'
+import type { Agent } from '@qilin-agent/agent'
+import type { PatchOptions } from '@qilin-agent/kylin-plugin-include'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
-import { SUBAGENT_MODEL_SELECTION_SETTINGS_NAMESPACE } from '@qilin/tool-subagent/model-selection-settings'
-import { SETTINGS_NAMESPACE, SHIPPED_PRESET_ROOT } from '@qilin/agent-presets'
-import { applyChildComposition, childSessionMeta } from '@qilin/subagent'
-import { ToolCallId } from '@qilin/llm'
-import type {} from '@qilin/compaction-basic'
-import type {} from '@qilin/skill'
-import type {} from '@qilin/tools'
+import { SUBAGENT_MODEL_SELECTION_SETTINGS_NAMESPACE } from '@qilin-agent/tool-subagent/model-selection-settings'
+import { SETTINGS_NAMESPACE, SHIPPED_PRESET_ROOT } from '@qilin-agent/agent-presets'
+import { applyChildComposition, childSessionMeta } from '@qilin-agent/subagent'
+import { ToolCallId } from '@qilin-agent/llm'
+import type {} from '@qilin-agent/compaction-basic'
+import type {} from '@qilin-agent/skill'
+import type {} from '@qilin-agent/tools'
 // Type-only: resolves `ctx.get('sessionProjections')` and `ctx.get('tokenMeter')`.
-import type {} from '@qilin/session-projection'
-import type {} from '@qilin/token-meter'
+import type {} from '@qilin-agent/session-projection'
+import type {} from '@qilin-agent/token-meter'
 
 const REPO_ROOT = fileURLToPath(new URL('../../..', import.meta.url))
 /** The shipped Web surface: the qilin-base and qilin-web-app bundle patches over an empty preset root. */
@@ -111,8 +111,8 @@ async function bootWeb(
     // supplies `directoryPicker` without one.
     { id: 'directory-picker', disabled: true },
     { insert: [
-      { id: 'directory-picker-browse', name: '@qilin/host-directory-picker-browse' },
-      { id: 'ui-directory-picker-browse', name: '@qilin/client-ui-directory-picker-browse' },
+      { id: 'directory-picker-browse', name: '@qilin-agent/host-directory-picker-browse' },
+      { id: 'ui-directory-picker-browse', name: '@qilin-agent/client-ui-directory-picker-browse' },
     ] },
     // Pin the roster away from the developer's machine: `includeUserRoot`
     // false keeps `~/.qilin/.agent-presets` from changing a test's outcome.
@@ -125,7 +125,7 @@ async function bootWeb(
   const home = dirname(settingsFile)
   const profileDir = join(home, 'profiles', 'spec')
   await mkdir(profileDir, { recursive: true })
-  if (profileBundles === undefined) initProfile(profileDir, ['@qilin/base', '@qilin/web-app'])
+  if (profileBundles === undefined) initProfile(profileDir, ['@qilin-agent/base', '@qilin-agent/web-app'])
   // Product Bundles are installed into the Profile, not the qilin app. Model
   // pnpm's package link for only the selected products; their own production
   // dependencies resolve from the linked workspace packages, while shared
@@ -162,7 +162,7 @@ async function bootWeb(
   return await boot('qilin-test', rootConfig, [...bundlePatches, ...overrides], async (bootCtx) => {
     bootCtx.provide('profileContext', { name: 'spec', dir: profileDir, patchPath: profile.patchPath,
       installAnchor: INSTALL_ANCHOR, home, cwd: home,
-      startedBundles: profileBundles ?? ['@qilin/base', '@qilin/web-app'],
+      startedBundles: profileBundles ?? ['@qilin-agent/base', '@qilin-agent/web-app'],
       overlays: overrides, telemetryDisabledEnv: '1' })
     await bootCtx.plugin(PluginPackages, { generation: resolution })
     bootCtx.provide('connection', {
@@ -548,8 +548,8 @@ describe('product Bundle and user-preset intersection', () => {
     )
     const packageName = (product: Product): string => (
       product === 'codex'
-        ? '@qilin/subagent-codex'
-        : '@qilin/subagent-claude-code'
+        ? '@qilin-agent/subagent-codex'
+        : '@qilin-agent/subagent-claude-code'
     )
     return await bootWeb(settingsFile, [
       {
@@ -562,8 +562,8 @@ describe('product Bundle and user-preset intersection', () => {
         },
       },
     ], installed.map(packageDir), [
-      '@qilin/base',
-      '@qilin/web-app',
+      '@qilin-agent/base',
+      '@qilin-agent/web-app',
       ...installed.map(packageName),
     ])
   }
@@ -777,7 +777,7 @@ describe('a launcher that configures no writable root', () => {
     await mkdir(join(home, '.agent-presets', 'derived-mine'), { recursive: true })
     await writeFile(
       join(home, '.agent-presets', 'derived-mine', 'agent.cordis.yml'),
-      '- id: tool-todo\n  name: \'@qilin/tool-todo\'\n  config:\n    allowParallelInProgress: true\n',
+      '- id: tool-todo\n  name: \'@qilin-agent/tool-todo\'\n  config:\n    allowParallelInProgress: true\n',
     )
     const settingsFile = join(await mkdtemp(join(tmpdir(), 'qilin-preset-derived-settings-')), 'settings.yaml')
     await writeFile(settingsFile, '{}\n')

@@ -25,15 +25,15 @@
  * lockers verify against. The browser worker stubs the native flock entry to
  * immediate success: it is single-process, so the in-process write claim
  * already excludes every writer.
- * @module @qilin/session-persistence-jsonl/lease
+ * @module @qilin-agent/session-persistence-jsonl/lease
  */
 
 import { mkdir, open, stat } from 'node:fs/promises'
 import type { FileHandle } from 'node:fs/promises'
 import { join } from 'node:path'
-import { tryLockExclusive } from '@qilin/node-addon-system/flock'
-import { SessionAlreadyOwnedError } from '@qilin/session-persistence'
-import type { SessionId } from '@qilin/session'
+import { tryLockExclusive } from '@qilin-agent/node-addon-system/flock'
+import { SessionAlreadyOwnedError } from '@qilin-agent/session-persistence'
+import type { SessionId } from '@qilin-agent/session'
 import { acquireLockHandleWin32, releaseLockHandleWin32 } from './win32.ts'
 
 /** Base name of the kernel lock file inside a session's directory. */

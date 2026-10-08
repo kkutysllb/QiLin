@@ -3,7 +3,7 @@ description: "存储枢纽（ctx.storage）：面向选择、挂载或排查具�
 kind: "package-reference"
 ---
 
-# @qilin/storage
+# @qilin-agent/storage
 
 [English](README.md) | 中文
 
@@ -34,11 +34,11 @@ kind: "package-reference"
 ### 最小组合
 
 ```yaml
-- name: '@qilin/storage'
-- name: '@qilin/storage-json'
+- name: '@qilin-agent/storage'
+- name: '@qilin-agent/storage-json'
   config:
     root: /var/lib/qilin/data
-- name: '@qilin/storage-domain'
+- name: '@qilin-agent/storage-domain'
   config:
     backend: json
 ```

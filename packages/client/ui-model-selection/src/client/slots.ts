@@ -4,9 +4,9 @@
  * entry; this package only contributes the single occupant, so no SlotMap
  * merge lives here.
  */
-import type { RemoteResult } from '@qilin/typert-protocol'
-import type { ModelSelection } from '@qilin/api-remotes/client'
-import type { SnapshotStore } from '@qilin/client-store'
+import type { RemoteResult } from '@qilin-agent/typert-protocol'
+import type { ModelSelection } from '@qilin-agent/api-remotes/client'
+import type { SnapshotStore } from '@qilin-agent/client-store'
 import type { ModelDirectoryState } from './directory.ts'
 
 /** Injected business face of the composer model seat. */

@@ -5,9 +5,9 @@
  * Runs the built package under plain Node.
  */
 
-import { Context } from '@qilin/kylin'
-import { SESSION_FORMAT_VERSION } from '@qilin/session'
-import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
+import { Context } from '@qilin-agent/kylin'
+import { SESSION_FORMAT_VERSION } from '@qilin-agent/session'
+import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
 
 const [root, sessionId] = process.argv.slice(2)
 const ctx = new Context()

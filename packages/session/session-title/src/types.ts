@@ -5,13 +5,13 @@
  * `./types` for host consumers and `./client/types` for client aggregates —
  * with zero content duplication.
  *
- * @module @qilin/session-title/types
+ * @module @qilin-agent/session-title/types
  */
 
 export {}
 
-import type { Branded } from '@qilin/brand'
-import type { OptionalSessionSeq, SessionSeq } from '@qilin/session/types'
+import type { Branded } from '@qilin-agent/brand'
+import type { OptionalSessionSeq, SessionSeq } from '@qilin-agent/session/types'
 
 /** Identifies one session-title provider registration. */
 export type SessionTitleProviderId = Branded<'SessionTitleProviderId'>
@@ -76,7 +76,7 @@ export interface TitleInputState {
   readonly lastSeq: OptionalSessionSeq
 }
 
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionStateMap {
     /** Latest logged title text, or null. */
     title: string | null

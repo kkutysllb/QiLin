@@ -1,8 +1,8 @@
-import type { TranslateNS } from '@qilin/client-ui-slots'
+import type { TranslateNS } from '@qilin-agent/client-ui-slots'
 import type { AttachmentRailLabels } from '../AttachmentRail.tsx'
 import type { DropOverlayLabels } from '../DropOverlay.tsx'
 import type { FileCardLabels } from '../FileCard.tsx'
-import type { ImageLightboxLabels } from '@qilin/client-ui-primitives'
+import type { ImageLightboxLabels } from '@qilin-agent/client-ui-primitives'
 import type { MessageImageLabels } from '../MessageImage.tsx'
 
 /**

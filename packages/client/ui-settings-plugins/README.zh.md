@@ -3,7 +3,7 @@ description: "qilin Web 客户端的「内置插件」设置分区，以及注�
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-settings-plugins
+# @qilin-agent/client-ui-settings-plugins
 
 [English](README.md) | 中文
 

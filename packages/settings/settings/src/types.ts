@@ -5,11 +5,11 @@
  * runtime code, and nothing here reaches a Host-only symbol, so a Client
  * compilation face reads exactly the signatures the Host emits.
  *
- * @module @qilin/settings/types
+ * @module @qilin-agent/settings/types
  */
 
-import type { Branded } from '@qilin/brand'
-import type { JsonValue } from '@qilin/util-values'
+import type { Branded } from '@qilin-agent/brand'
+import type { JsonValue } from '@qilin-agent/util-values'
 
 /** Nominal id of one registered settings namespace. */
 export type SettingsNamespace = Branded<'SettingsNamespace'>
@@ -72,7 +72,7 @@ export interface SettingsDescribeValue {
   namespaces: SettingsNamespaceView[]
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Events {
     /**
      * Committed change to one registered namespace's resolved value. Emitted

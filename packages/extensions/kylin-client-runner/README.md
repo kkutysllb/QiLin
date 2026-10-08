@@ -3,7 +3,7 @@ description: "Browser half of dynamic Kylin packages for users and maintainers c
 kind: "package-reference"
 ---
 
-# @qilin/kylin-client-runner
+# @qilin-agent/kylin-client-runner
 
 English | [中文](README.zh.md)
 

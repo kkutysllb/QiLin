@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
 
-import type { GlobalStandardProps } from '@qilin/client-ui-slots'
+import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react'
-import { AttachmentId } from '@qilin/attachment'
-import { EMPTY_CHAT_SNAPSHOT, type MessageImagesProps } from '@qilin/client-ui-chat/client'
-import { EMPTY_CONVERSATION_SNAPSHOT } from '@qilin/client-ui-conversation/client'
+import { AttachmentId } from '@qilin-agent/attachment'
+import { EMPTY_CHAT_SNAPSHOT, type MessageImagesProps } from '@qilin-agent/client-ui-chat/client'
+import { EMPTY_CONVERSATION_SNAPSHOT } from '@qilin-agent/client-ui-conversation/client'
 import { ImageGallery, MessageImage } from '../src/MessageImage.tsx'
 import type { MessageImageLabels } from '../src/MessageImage.tsx'
 import { MessageImages } from '../src/client/MessageImages.tsx'

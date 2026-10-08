@@ -3,7 +3,7 @@ description: "MCP servers page in Web Settings: lists, adds, edits, enables, dis
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-settings-mcp
+# @qilin-agent/client-ui-settings-mcp
 
 English | [中文](README.zh.md)
 
@@ -49,9 +49,9 @@ Form fields are plain strings. The submitted draft is built at the boundary: arg
 
 ## Further Exploration
 
-- [\`@qilin/mcp-servers\`](../../mcp/mcp-servers/README.md) — the Host service this page reads and writes, and the patch-layer fidelity rules a write follows.
-- [\`@qilin/mcp-client\`](../../mcp/mcp-client/README.md) — what each written entry mounts, and the tool names its servers produce.
-- [\`@qilin/client-ui-settings\`](../ui-settings/README.md) — the settings shell that declares the section slot this page registers into.
+- [\`@qilin-agent/mcp-servers\`](../../mcp/mcp-servers/README.md) — the Host service this page reads and writes, and the patch-layer fidelity rules a write follows.
+- [\`@qilin-agent/mcp-client\`](../../mcp/mcp-client/README.md) — what each written entry mounts, and the tool names its servers produce.
+- [\`@qilin-agent/client-ui-settings\`](../ui-settings/README.md) — the settings shell that declares the section slot this page registers into.
 
 ## Model Experience
 

@@ -12,11 +12,11 @@ import type { ReactNode, RefObject } from 'react'
 import { useCallback, useEffect, useState } from 'react'
 import {
   Button, IconFolderClose16, IconPlusOutline16, Menu, Modal, type MenuEntry,
-} from '@qilin/client-ui-primitives'
+} from '@qilin-agent/client-ui-primitives'
 import type {
   WorkspaceId, WorkspaceSnapshot, WorkspaceView,
-} from '@qilin/api-workspace-controller/client'
-import type { SnapshotSelectorHook } from '@qilin/client-ui-slots'
+} from '@qilin-agent/api-workspace-controller/client'
+import type { SnapshotSelectorHook } from '@qilin-agent/client-ui-slots'
 import type { DirectoryFlowOwnerProps, WorkspacePickerProps } from './contract/slots.ts'
 import css from './WorkspacePicker.module.css'
 

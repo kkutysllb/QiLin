@@ -1,9 +1,9 @@
 /** Indexed recorded todo predecessors for root and nested Tool calls. */
-import type {} from '@qilin/tools/types'
-import type { Context } from '@qilin/kylin'
+import type {} from '@qilin-agent/tools/types'
+import type { Context } from '@qilin-agent/kylin'
 import type {
   ConversationNodeDefinition, ConversationViewDefinition, ConversationViewNode, TodoItem,
-} from '@qilin/client-ui-conversation/client'
+} from '@qilin-agent/client-ui-conversation/client'
 
 /** The durable list preceding one Tool invocation; absent before the first loaded write. */
 export interface TodoBaseline {
@@ -16,7 +16,7 @@ export interface TodoHistory {
   get(callId: string): TodoBaseline | undefined
 }
 
-declare module '@qilin/client-ui-conversation/client' {
+declare module '@qilin-agent/client-ui-conversation/client' {
   interface ConversationViewSnapshotMap {
     /** Recorded todo lists preceding each loaded todo call. */
     'tool-todo-history': TodoHistory

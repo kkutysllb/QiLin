@@ -6,8 +6,8 @@ import type {
   ReadBlockLabels,
   SearchBlockLabels,
   WebBlockLabels,
-} from '@qilin/client-ui-primitives'
-import type { TranslateNS } from '@qilin/client-ui-slots'
+} from '@qilin-agent/client-ui-primitives'
+import type { TranslateNS } from '@qilin-agent/client-ui-slots'
 
 type T = TranslateNS<'conversation'>
 

@@ -3,7 +3,7 @@ description: "Browser UI renderer: React bindings for ordinary Slots and reusabl
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-renderer
+# @qilin-agent/client-ui-renderer
 
 English | [中文](README.zh.md)
 

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { JobAppendOptions, JobOutputSource } from '@qilin/jobs'
+import type { JobAppendOptions, JobOutputSource } from '@qilin-agent/jobs'
 import { startPump } from '../src/pump.ts'
 import type { PumpSink } from '../src/pump.ts'
 

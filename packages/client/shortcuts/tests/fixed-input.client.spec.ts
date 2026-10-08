@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { afterEach, expect, it, vi } from 'vitest'
 import { fireEvent } from '@testing-library/dom'
-import { Context } from '@qilin/kylin'
-import { LocaleRuntime } from '@qilin/client-locale/client'
+import { Context } from '@qilin-agent/kylin'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
 import { installKeyboard } from '../src/client/dom.ts'
 import ShortcutsService from '../src/client/index.ts'
 import { ShortcutRegistry } from '../src/client/registry.ts'

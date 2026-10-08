@@ -1,3 +1,3 @@
 import { clientBundle } from '../tsdown.client.ts'
 
-export default clientBundle('@qilin/client-ui-agent-opens', ['lib/types/index.js'])
+export default clientBundle('@qilin-agent/client-ui-agent-opens', ['lib/types/index.js'])

@@ -2,9 +2,9 @@
 /** Cleanup errors remain reachable after the terminal tab has disappeared. */
 import { afterEach, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, within } from '@testing-library/react'
-import { makeTranslate } from '@qilin/client-test-runtime'
-import type { TerminalCloseFailure } from '@qilin/api-terminal-controller/client'
-import type { WebTerminalId } from '@qilin/api-terminal-controller/types'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import type { TerminalCloseFailure } from '@qilin-agent/api-terminal-controller/client'
+import type { WebTerminalId } from '@qilin-agent/api-terminal-controller/types'
 import { TerminalCleanup } from '../src/client/TerminalCleanup.tsx'
 import { en } from '../src/client/locales.ts'
 

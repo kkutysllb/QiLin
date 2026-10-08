@@ -1,10 +1,10 @@
-/** Client-safe question, answer, and event types. @module @qilin/user-questions/types */
+/** Client-safe question, answer, and event types. @module @qilin-agent/user-questions/types */
 
-import type { Scoped } from '@qilin/scope'
-import type { Agent } from '@qilin/agent/types'
-import type { ToolCallId } from '@qilin/llm/brand'
-import type {} from '@qilin/session/types'
-import type {} from '@qilin/session-projection/types'
+import type { Scoped } from '@qilin-agent/scope'
+import type { Agent } from '@qilin-agent/agent/types'
+import type { ToolCallId } from '@qilin-agent/llm/brand'
+import type {} from '@qilin-agent/session/types'
+import type {} from '@qilin-agent/session-projection/types'
 
 /** One selectable answer offered to the user. */
 export interface AskUserQuestionOption {
@@ -104,7 +104,7 @@ export interface UserQuestionProjectionView {
   readonly settled: readonly SettledUserQuestion[]
 }
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     /**
      * Late reply to a continued `ask_user_question` call, steered into the
@@ -118,7 +118,7 @@ declare module '@qilin/llm' {
   }
 }
 
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionMap {
     /** Timed questions that remain answerable in this Session, and the ones a late reply settled. */
     userQuestions: UserQuestionProjectionView
@@ -145,12 +145,12 @@ export interface AskUserQuestionRequestEvent {
   }
 }
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Events {
     /**
      * Ask composed answerers for structured user input. Return an answer to
      * claim the request or call `next()` to delegate. Scope-filtered dispatch
-     * (`@qilin/scope`): agent-scoped listeners receive only that agent.
+     * (`@qilin-agent/scope`): agent-scoped listeners receive only that agent.
      * @param request - pending user-question request.
      * @mode waterfall
      */

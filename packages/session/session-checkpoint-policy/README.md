@@ -3,7 +3,7 @@ description: "Semantic session durability checkpoints for users and maintainers 
 kind: "package-reference"
 ---
 
-# @qilin/session-checkpoint-policy
+# @qilin-agent/session-checkpoint-policy
 
 English | [中文](README.zh.md)
 
@@ -37,10 +37,10 @@ No configuration fields exist; the plugin is a single load beside one persistenc
 
 ```yaml
 - id: session-persistence
-  name: '@qilin/session-persistence-jsonl'
+  name: '@qilin-agent/session-persistence-jsonl'
 
 - id: session-checkpoints
-  name: '@qilin/session-checkpoint-policy'
+  name: '@qilin-agent/session-checkpoint-policy'
 ```
 
 ### What becomes durable

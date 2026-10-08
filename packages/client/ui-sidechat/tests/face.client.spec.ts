@@ -4,8 +4,8 @@
  * lifecycle.
  */
 import { describe, expect, it, vi } from 'vitest'
-import { streamHandle } from '@qilin/remote-mock'
-import { RemoteError } from '@qilin/typert-protocol'
+import { streamHandle } from '@qilin-agent/remote-mock'
+import { RemoteError } from '@qilin-agent/typert-protocol'
 import { PARENT, fakeRemote, messageEvent, ok, row, scriptedFollow, sid, snapshotFrame } from './fixtures.client.ts'
 import { sidechatFace } from '../src/client/face.ts'
 import { createSidechatSource } from '../src/client/sidechat-source.ts'

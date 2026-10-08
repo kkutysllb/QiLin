@@ -1,11 +1,11 @@
 /**
  * Load-time validation and routed-model policy resolution for compaction-basic.
  *
- * @module @qilin/compaction-basic/config
+ * @module @qilin-agent/compaction-basic/config
  */
 
-import type { LlmCallConfig } from '@qilin/llm'
-import { deepFreeze } from '@qilin/util-values'
+import type { LlmCallConfig } from '@qilin-agent/llm'
+import { deepFreeze } from '@qilin-agent/util-values'
 import type {
   BasicCompactionConfig,
   CompactionPolicyConfig,

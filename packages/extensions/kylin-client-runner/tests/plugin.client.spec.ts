@@ -8,15 +8,15 @@
  */
 /* oxlint-disable typescript/no-unsafe-assignment -- Vitest asymmetric matchers are typed as any. */
 
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
 import type {
   ApprovalRequestId, CordisDynamicPackageId, CordisDynamicPluginId, CordisDynamicPluginRunId,
   DynamicCordisInvokeResult, SessionId,
-} from '@qilin/api-remotes/client'
+} from '@qilin-agent/api-remotes/client'
 // Type-only: resolves the `ctx.remote.$on` surface.
-import type {} from '@qilin/api-gateway/client'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
+import type {} from '@qilin-agent/api-gateway/client'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
 import * as NodeHalf from '../src/index.ts'
 import * as ClientHalf from '../src/client/index.ts'
 

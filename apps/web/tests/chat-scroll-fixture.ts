@@ -8,14 +8,14 @@ import {
   createSystemMessage,
   createToolResultMessage,
   createUserMessage,
-} from '@qilin/llm'
+} from '@qilin-agent/llm'
 import {
   SESSION_FORMAT_VERSION,
   Session,
   SessionId,
-} from '@qilin/session'
+} from '@qilin-agent/session'
 // Carries the session/title event declaration into this fixture builder.
-import type {} from '@qilin/session-title'
+import type {} from '@qilin-agent/session-title'
 
 /** Options for one deterministic long-chat fixture. */
 export interface ChatScrollFixtureOptions {

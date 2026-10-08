@@ -1,10 +1,10 @@
 /**
  * Pure translation between the harness lifecycle and the automation-only ACP wire.
- * @module @qilin/acp/codec
+ * @module @qilin-agent/acp/codec
  */
 
 import type { StopReason } from '@agentclientprotocol/sdk'
-import type { TurnEndReason } from '@qilin/session'
+import type { TurnEndReason } from '@qilin-agent/session'
 
 /**
  * Map a harness turn ending to ACP's terminal reason vocabulary.

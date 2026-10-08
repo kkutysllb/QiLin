@@ -38,7 +38,7 @@ Tab identity is the pair `(kind, address)`: the registry's claim uses the addres
 
 | Field | Meaning |
 |---|---|
-| `id` | The implementation's identity, unique across every registration; a package name is the natural value (`@qilin/client-ui-sidebar-files`). It is the key the body and title register under. |
+| `id` | The implementation's identity, unique across every registration; a package name is the natural value (`@qilin-agent/client-ui-sidebar-files`). It is the key the body and title register under. |
 | `kind` | The type's discriminator: what its tabs are, and what `openTab` names. Not unique — an extension may take over a builtin's kind. The shipped kinds are `guide`, `text`, `files`. |
 | `label()` | The type's own name, for surfaces that name the type rather than one open tab — the switch row above all. A page type's `title(address)` names the content it opened and a resource type has no single address to name, so neither stands for the type. |
 | `icon?` | The glyph a chip draws before its title; omit it for a chip whose title carries the whole identity. |
@@ -54,8 +54,8 @@ Routing is a ranked claim. `candidates(address)` ranks the types whose patterns 
 One `kind` may carry one `builtin` and one `extension` registration at the same time. The extension is the one in force for claims, `get(kind)`, `openTab(kind)`, and the guide page, and the seat finds a tab's body and title under the definition in force's `id`, so no slot priority is involved; when the extension unregisters, the builtin resumes. Every other collision on a kind, and every duplicate `id`, throws.
 
 ```ts ignore-check
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/client-ui-sidebar-right/client'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/client-ui-sidebar-right/client'
 
 export const inject = ['sidebarRightTabs', 'slots']
 

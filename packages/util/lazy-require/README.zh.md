@@ -3,7 +3,7 @@ description: "按调用方解析并惰性加载 CommonJS 兼容的 Host 依赖�
 kind: "package-library"
 ---
 
-# @qilin/lazy-require
+# @qilin-agent/lazy-require
 
 [English](README.md) | 中文
 
@@ -28,7 +28,7 @@ kind: "package-library"
 传入依赖的字面量 specifier 与调用方的 `import.meta.url`：
 
 ```ts
-import { createLazyRequire } from '@qilin/lazy-require'
+import { createLazyRequire } from '@qilin-agent/lazy-require'
 
 interface NativeModule { open(): void }
 const requireNative = createLazyRequire<NativeModule>('native-package', import.meta.url)

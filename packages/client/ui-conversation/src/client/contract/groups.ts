@@ -1,6 +1,6 @@
 /** Definition-owned grouping over a target's already materialized Nodes. */
-import type { Branded } from '@qilin/brand'
-import type { ObservableSnapshot } from '@qilin/client-store'
+import type { Branded } from '@qilin-agent/brand'
+import type { ObservableSnapshot } from '@qilin-agent/client-store'
 import type { ConversationTimelineSnapshot, ConversationViewNode } from './conversation.ts'
 
 /** Existing Node identity, without allocating another execution Node. */

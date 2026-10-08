@@ -6,11 +6,11 @@
  * with one version-stamped document per record (`<table>/<key>.json`) plus a
  * `global.json` for the global slot, so a write rewrites one record instead
  * of the whole unit.
- * @module @qilin/storage-json/src/format
+ * @module @qilin-agent/storage-json/src/format
  */
 
-import { StorageError } from '@qilin/storage'
-import type { KvUnitDescriptor } from '@qilin/storage'
+import { StorageError } from '@qilin-agent/storage'
+import type { KvUnitDescriptor } from '@qilin-agent/storage'
 
 /** In-memory authoritative state of one unit; the file is its projection. `global` is `null` until first written. */
 export interface UnitState {

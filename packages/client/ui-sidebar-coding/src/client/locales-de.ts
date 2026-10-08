@@ -1,5 +1,5 @@
 /**
- * German dictionary for @qilin/client-ui-sidebar-coding.
+ * German dictionary for @qilin-agent/client-ui-sidebar-coding.
  */
 export const de: Record<string, string> = {
   files: 'Dateien',

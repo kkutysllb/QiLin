@@ -16,13 +16,13 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { createPortal } from 'react-dom'
 import type { ReactNode, RefObject } from 'react'
 import clsx from 'clsx'
-import type { ObservableSnapshot } from '@qilin/client-store'
-import type { InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore } from '@qilin/client-ui-slots'
+import type { ObservableSnapshot } from '@qilin-agent/client-store'
+import type { InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore } from '@qilin-agent/client-ui-slots'
 import {
   FileTypeIcon, IconEditOutline16, IconPauseOutline16, IconPlayOutline16,
   IconRefreshOutline16, Menu, Tooltip, classifyFileType,
-} from '@qilin/client-ui-primitives'
-import { acceptsPath, parseFileAddress, pathPartsOf } from '@qilin/util-workspace-path'
+} from '@qilin-agent/client-ui-primitives'
+import { acceptsPath, parseFileAddress, pathPartsOf } from '@qilin-agent/util-workspace-path'
 import type { TextInjected } from './face.ts'
 import { failureLine } from './failure-line.ts'
 import { IconNowrapFill16, IconWrapFill16 } from './icons.tsx'

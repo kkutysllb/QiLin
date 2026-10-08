@@ -1,7 +1,7 @@
 /** Disclosure state and sticky ancestors use the same depth-first row hierarchy. */
 
 import { expect, it } from 'vitest'
-import { createSnapshotStore } from '@qilin/client-store'
+import { createSnapshotStore } from '@qilin-agent/client-store'
 import { InspectorTableHierarchy, inspectorRowCollapsed, type InspectorDisclosure, type InspectorRow } from '../src/client/views/table-model.ts'
 import { InspectorRecordSource } from '../src/client/views/table-model.ts'
 

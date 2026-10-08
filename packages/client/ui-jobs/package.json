@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/client-ui-jobs",
+  "name": "@qilin-agent/client-ui-jobs",
   "description": "Session-header background-job list with on-demand streaming record panels",
   "version": "3.1.1",
   "type": "module",
@@ -20,10 +20,10 @@
   "qilin": {
     "client": {
       "inject": [
-        "@qilin/api-job-controller",
-        "@qilin/client-locale",
-        "@qilin/client-ui-conversation",
-        "@qilin/client-ui-primitives"
+        "@qilin-agent/api-job-controller",
+        "@qilin-agent/client-locale",
+        "@qilin-agent/client-ui-conversation",
+        "@qilin-agent/client-ui-primitives"
       ],
       "platform": "web"
     }
@@ -45,22 +45,22 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/api-job-controller": "workspace:*",
-    "@qilin/client-locale": "workspace:*",
-    "@qilin/client-test-runtime": "workspace:*",
-    "@qilin/client-ui-conversation": "workspace:*",
-    "@qilin/client-ui-primitives": "workspace:*",
-    "@qilin/client-ui-slots": "workspace:*",
+    "@qilin-agent/api-job-controller": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-conversation": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
     "@types/react": "~18.3.1",
-    "@qilin/kylin": "workspace:~",
+    "@qilin-agent/kylin": "workspace:~",
     "react": "^18.2.0",
-    "@qilin/client-ui-renderer": "workspace:*",
-    "@qilin/client-ui-session": "workspace:*",
-    "@qilin/jobs": "workspace:*",
-    "@qilin/session": "workspace:*"
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-session": "workspace:*",
+    "@qilin-agent/jobs": "workspace:*",
+    "@qilin-agent/session": "workspace:*"
   },
   "files": [
     "lib/index.js",

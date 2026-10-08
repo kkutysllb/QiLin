@@ -4,8 +4,8 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { afterEach, describe, expect, it } from 'vitest'
-import { AttachmentId } from '@qilin/attachment'
-import type { FileAttachmentRef } from '@qilin/attachment'
+import { AttachmentId } from '@qilin-agent/attachment'
+import type { FileAttachmentRef } from '@qilin-agent/attachment'
 import {
   fileLeafName, readFileStreamVerbatim, saveFileStreamVerbatim, saveFileVerbatim, storedFilePath,
 } from '../src/file-store.ts'

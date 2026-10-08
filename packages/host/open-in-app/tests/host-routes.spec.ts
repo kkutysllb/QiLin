@@ -15,14 +15,14 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import WebServer from '@qilin/host-webserver'
-import type { NativeCommandRunner } from '@qilin/native-command'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import WebServer from '@qilin-agent/host-webserver'
+import type { NativeCommandRunner } from '@qilin-agent/native-command'
 import {
   createLaunchEnvironmentSnapshot, QILIN_LAUNCH_ENVIRONMENT_KEY, type LaunchEnvironmentLayerInput,
-} from '@qilin/launch-environment'
+} from '@qilin-agent/launch-environment'
 import * as OpenInApp from '../src/index.ts'
 import { internals } from '../src/internals.ts'
 import type { OpenInAppLauncher } from '../src/resolver.ts'
@@ -53,11 +53,11 @@ async function boot(layers: readonly LaunchEnvironmentLayerInput[] = []): Promis
   root = await mkdtemp(join(tmpdir(), 'qilin-open-in-app-loader-'))
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, [
-    "- name: '@qilin/host-webserver'",
+    "- name: '@qilin-agent/host-webserver'",
     '  config:',
     "    host: '127.0.0.1'",
     '    port: 0',
-    "- name: '@qilin/host-open-in-app'",
+    "- name: '@qilin-agent/host-open-in-app'",
     '  config:',
     '    probeTimeoutMs: 5000',
     '    iconTimeoutMs: 5000',
@@ -77,8 +77,8 @@ async function boot(layers: readonly LaunchEnvironmentLayerInput[] = []): Promis
   await context.plugin(Loader)
   context.loader.builtins.include = Include
   const modules = new Map<string, unknown>([
-    ['@qilin/host-webserver', WebServer],
-    ['@qilin/host-open-in-app', OpenInApp],
+    ['@qilin-agent/host-webserver', WebServer],
+    ['@qilin-agent/host-open-in-app', OpenInApp],
   ])
   context.loader.internal = {
     version: 'v2',
@@ -482,7 +482,7 @@ describe('open-in-app host routes (real Loader composition)', () => {
     const base = await boot()
     expect((await fetch(`${base}/open-in-app/apps`)).status).toBe(200)
     const entry = [...(context as Context).loader.entries()]
-      .find(candidate => candidate.options.name === '@qilin/host-open-in-app')
+      .find(candidate => candidate.options.name === '@qilin-agent/host-open-in-app')
     await entry?.fiber?.dispose()
     // The webserver survives; the routes are gone (its 404 fallback answers).
     expect((await fetch(`${base}/open-in-app/apps`)).status).toBe(404)

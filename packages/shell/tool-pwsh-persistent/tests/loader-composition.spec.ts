@@ -4,25 +4,25 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import { Context } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
-import { ToolCallId } from '@qilin/llm'
-import { SESSION_FORMAT_VERSION, Session, SessionId } from '@qilin/session'
-import AgentRegistry from '@qilin/agent'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import type { Agent } from '@qilin/agent'
-import TerminalSessionService from '@qilin/terminal'
-import * as TerminalBash from '@qilin/terminal-bash'
-import SandboxProvider from '@qilin/sandbox'
-import type { ConfinedArgv, SandboxPolicy } from '@qilin/sandbox'
-import SandboxPolicyService from '@qilin/sandbox-policy'
-import LocalSubprocessService from '@qilin/subprocess-local'
-import { resolvePwshPath } from '@qilin/pwsh-local/src/resolve.ts'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRegistry from '@qilin/tools'
-import * as ToolPwshPersistent from '@qilin/tool-pwsh-persistent'
-import { unsupportedInbox } from '@qilin/agent-loop-testkit'
+import { Context } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
+import { ToolCallId } from '@qilin-agent/llm'
+import { SESSION_FORMAT_VERSION, Session, SessionId } from '@qilin-agent/session'
+import AgentRegistry from '@qilin-agent/agent'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import type { Agent } from '@qilin-agent/agent'
+import TerminalSessionService from '@qilin-agent/terminal'
+import * as TerminalBash from '@qilin-agent/terminal-bash'
+import SandboxProvider from '@qilin-agent/sandbox'
+import type { ConfinedArgv, SandboxPolicy } from '@qilin-agent/sandbox'
+import SandboxPolicyService from '@qilin-agent/sandbox-policy'
+import LocalSubprocessService from '@qilin-agent/subprocess-local'
+import { resolvePwshPath } from '@qilin-agent/pwsh-local/src/resolve.ts'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRegistry from '@qilin-agent/tools'
+import * as ToolPwshPersistent from '@qilin-agent/tool-pwsh-persistent'
+import { unsupportedInbox } from '@qilin-agent/agent-loop-testkit'
 
 const hasPwsh = spawnSync(
   resolvePwshPath(), ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', '$true'],
@@ -79,18 +79,18 @@ describe.skipIf(!hasPwsh)('persistent pwsh through a real cordis.yml Loader comp
     root = await realpath(await mkdtemp(join(tmpdir(), 'qilin-persistent-pwsh-loader-')))
     const configPath = join(root, 'cordis.yml')
     await writeFile(configPath, [
-      "- name: '@qilin/agent'",
-      "- name: '@qilin/system-prompt'",
-      "- name: '@qilin/tools'",
-      "- name: '@qilin/terminal'",
-      "- name: '@qilin/test-sandbox'",
-      "- name: '@qilin/session-projection'",
-      "- name: '@qilin/sandbox-policy'",
+      "- name: '@qilin-agent/agent'",
+      "- name: '@qilin-agent/system-prompt'",
+      "- name: '@qilin-agent/tools'",
+      "- name: '@qilin-agent/terminal'",
+      "- name: '@qilin-agent/test-sandbox'",
+      "- name: '@qilin-agent/session-projection'",
+      "- name: '@qilin-agent/sandbox-policy'",
       '  config:',
       '    mode: danger-full-access',
       `    workspaceRoot: ${JSON.stringify(root)}`,
-      "- name: '@qilin/subprocess-local'",
-      "- name: '@qilin/terminal-bash'",
+      "- name: '@qilin-agent/subprocess-local'",
+      "- name: '@qilin-agent/terminal-bash'",
       '  config:',
       '    shellDialect: pwsh',
       '    pollIntervalMs: 10',
@@ -113,7 +113,7 @@ describe.skipIf(!hasPwsh)('persistent pwsh through a real cordis.yml Loader comp
       // would not).
       '    timeoutMs: 300000',
       '    disposeGraceMs: 500',
-      "- name: '@qilin/tool-pwsh-persistent'",
+      "- name: '@qilin-agent/tool-pwsh-persistent'",
       '  config:',
       '    timeoutMs: 300000',
       '',
@@ -124,16 +124,16 @@ describe.skipIf(!hasPwsh)('persistent pwsh through a real cordis.yml Loader comp
     await context.plugin(Loader)
     context.loader.builtins.include = Include
     const modules = new Map<string, unknown>([
-      ['@qilin/agent', AgentRegistry],
-      ['@qilin/system-prompt', SystemPrompt],
-      ['@qilin/tools', ToolRegistry],
-      ['@qilin/terminal', TerminalSessionService],
-      ['@qilin/test-sandbox', PassthroughSandbox],
-      ['@qilin/session-projection', SessionProjectionRegistry],
-      ['@qilin/sandbox-policy', SandboxPolicyService],
-      ['@qilin/subprocess-local', LocalSubprocessService],
-      ['@qilin/terminal-bash', TerminalBash],
-      ['@qilin/tool-pwsh-persistent', ToolPwshPersistent],
+      ['@qilin-agent/agent', AgentRegistry],
+      ['@qilin-agent/system-prompt', SystemPrompt],
+      ['@qilin-agent/tools', ToolRegistry],
+      ['@qilin-agent/terminal', TerminalSessionService],
+      ['@qilin-agent/test-sandbox', PassthroughSandbox],
+      ['@qilin-agent/session-projection', SessionProjectionRegistry],
+      ['@qilin-agent/sandbox-policy', SandboxPolicyService],
+      ['@qilin-agent/subprocess-local', LocalSubprocessService],
+      ['@qilin-agent/terminal-bash', TerminalBash],
+      ['@qilin-agent/tool-pwsh-persistent', ToolPwshPersistent],
     ])
     context.loader.internal = {
       version: 'v2',

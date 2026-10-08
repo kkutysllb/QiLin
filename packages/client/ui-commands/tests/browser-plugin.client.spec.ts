@@ -6,15 +6,15 @@
  * scope → popupFor; unknown id fails loud), both fold up on fiber disposal
  * (HMR safety), and the service satisfies the frozen CommandUiContract.
  */
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, onTestFinished } from 'vitest'
-import { createScope, scopeOf } from '@qilin/api-session-controller/client'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import type { SessionId } from '@qilin/session/types'
-import type { InputTriggerSource } from '@qilin/client-ui-input-trigger/client'
+import { createScope, scopeOf } from '@qilin-agent/api-session-controller/client'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { InputTriggerSource } from '@qilin-agent/client-ui-input-trigger/client'
 import type { CommandUiContract } from '../src/client/contract.ts'
 import type { PopupSelectInjected } from '../src/client/PopupSelectView.tsx'
-import { LocaleRuntime } from '@qilin/client-locale/client'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
 import { apply, CommandUiRuntime, inject } from '../src/client/index.ts'
 
 const sid = (k: string): SessionId => k as SessionId

@@ -1,8 +1,8 @@
 /** Empty POSIX filesystem fixture whose execution coordinates differ from the Harness host. */
 import { posix } from 'node:path'
-import { Context } from '@qilin/kylin'
-import { FileSystem, FsError, FsTargetKey, FsVersion, type FsTarget, type FsInfo } from '@qilin/fs'
-import schema from '@qilin/schemastery'
+import { Context } from '@qilin-agent/kylin'
+import { FileSystem, FsError, FsTargetKey, FsVersion, type FsTarget, type FsInfo } from '@qilin-agent/fs'
+import schema from '@qilin-agent/schemastery'
 
 /** Deployment coordinates for the deterministic provider. */
 interface Config { root: string }

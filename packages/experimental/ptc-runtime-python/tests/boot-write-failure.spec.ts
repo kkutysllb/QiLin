@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { PassThrough } from 'node:stream'
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 
 /**
  * Mocked subprocess pipes control synchronous write failures and backpressure

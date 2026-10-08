@@ -147,7 +147,7 @@ function isPluginRoot(dir: string): boolean {
   if (!existsSync(file)) return false
   try {
     const parsed = JSON.parse(readFileSync(file, 'utf8')) as { name?: unknown }
-    return parsed.name === '@qilin/client-ui-sidebar-coding'
+    return parsed.name === '@qilin-agent/client-ui-sidebar-coding'
   } catch {
     return false
   }

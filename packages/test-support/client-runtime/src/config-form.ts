@@ -2,7 +2,7 @@
 import { vi } from 'vitest'
 import type {
   ConfigForm, ConfigFormSnapshot,
-} from '@qilin/client-ui-settings/client'
+} from '@qilin-agent/client-ui-settings/client'
 
 /** Handle over one stubbed scope: the scope, its write spy, and publication controls. */
 export interface StubConfigForm<T> {

@@ -7,11 +7,11 @@ const root = resolve(import.meta.dirname, '..')
 const probePath = resolve(import.meta.dirname, '__request_input_probe.ts')
 
 const probe = `
-import type { Agent } from '@qilin/agent'
-import type { Session } from '@qilin/session'
-import type { SessionTitleLlmRequestEventData } from '@qilin/session-title-llm'
-import { createUserMessage, projectFilesToText, projectImagesForTextModel, projectOffloadedImages } from '@qilin/llm'
-import type { GenerateOptions, Message, MessageId, MessageSource, RequestMessage, RequestUserInput } from '@qilin/llm'
+import type { Agent } from '@qilin-agent/agent'
+import type { Session } from '@qilin-agent/session'
+import type { SessionTitleLlmRequestEventData } from '@qilin-agent/session-title-llm'
+import { createUserMessage, projectFilesToText, projectImagesForTextModel, projectOffloadedImages } from '@qilin-agent/llm'
+import type { GenerateOptions, Message, MessageId, MessageSource, RequestMessage, RequestUserInput } from '@qilin-agent/llm'
 
 declare const session: Session
 declare const agent: Agent

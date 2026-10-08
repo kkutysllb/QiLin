@@ -14,7 +14,7 @@
  */
 import { useCallback, useEffect, useState } from 'react'
 import clsx from 'clsx'
-import { Button, Input, IconRefreshOutline16, IconRightUpOutline16 } from '@qilin/client-ui-primitives'
+import { Button, Input, IconRefreshOutline16, IconRightUpOutline16 } from '@qilin-agent/client-ui-primitives'
 import { api, type GhListResult, type GhProbeResult, type SessionScope } from './api.ts'
 import { t } from './locales.ts'
 import css from './sidebar.module.css'

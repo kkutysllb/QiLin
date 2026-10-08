@@ -8,7 +8,7 @@ import {
   parseSnapshotManifest,
   type Scenario,
   type SnapshotSuiteOptions,
-} from '@qilin/session-snapshot'
+} from '@qilin-agent/session-snapshot'
 
 const corpusDir = fileURLToPath(new URL('./', import.meta.url))
 

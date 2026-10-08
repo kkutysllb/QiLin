@@ -1,8 +1,8 @@
 /** Unified JSON-value schema DSL, inference, compilation, and typed tool helper. @module qilin-tools/schema */
 
-import { HarnessError } from '@qilin/llm'
-import type { ContentBlock } from '@qilin/llm'
-import type { JsonValue } from '@qilin/util-values'
+import { HarnessError } from '@qilin-agent/llm'
+import type { ContentBlock } from '@qilin-agent/llm'
+import type { JsonValue } from '@qilin-agent/util-values'
 import type { ToolDefinition, ToolExecution, ToolExecutionResult, ToolRunContext, ToolResult } from './index.ts'
 import { assertSupportedJsonSchema, isJsonSchemaRecord, isPlainJsonArray, JsonSchemaError, validateJsonSchemaValue } from './json-schema.ts'
 import type { JsonSchemaNode, JsonSchemaScalar, ObjectJsonSchema } from './json-schema.ts'
@@ -496,7 +496,7 @@ export interface DefineToolOptions<S extends ParameterSchemaSpec, O extends Valu
     /** Pure replayable presentation metadata for direct top-level calls. */
     presentationMeta?(args: InferArgs<S>, value: InferValue<NoInfer<O>>): JsonValue
   }
-  /** Requests deferred loading of the tool definition; see {@link @qilin/llm#ToolSchema.deferLoading}. */
+  /** Requests deferred loading of the tool definition; see {@link @qilin-agent/llm#ToolSchema.deferLoading}. */
   readonly deferLoading?: true
   /** Optional positive cooperative timeout budget in milliseconds. */
   readonly timeoutMs?: number

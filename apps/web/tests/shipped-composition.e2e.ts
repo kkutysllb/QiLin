@@ -8,21 +8,21 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterEach, expect, it } from 'vitest'
-import type { Agent } from '@qilin/agent'
-import { LlmAdapter, ToolCallId } from '@qilin/llm'
-import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@qilin/llm'
-import { canonicalPath, writableRoots } from '@qilin/sandbox'
-import { SESSION_FORMAT_VERSION, SessionId, type SessionEvent } from '@qilin/session'
-import { auditStartupEntries, composeEntries, loadOverlayPatches } from '@qilin/app-boot'
+import type { Agent } from '@qilin-agent/agent'
+import { LlmAdapter, ToolCallId } from '@qilin-agent/llm'
+import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@qilin-agent/llm'
+import { canonicalPath, writableRoots } from '@qilin-agent/sandbox'
+import { SESSION_FORMAT_VERSION, SessionId, type SessionEvent } from '@qilin-agent/session'
+import { auditStartupEntries, composeEntries, loadOverlayPatches } from '@qilin-agent/app-boot'
 // These imports carry the tools/sandboxPolicy/approval Context merges.
-import { RUN_CODE_NAME } from '@qilin/tools'
-import type {} from '@qilin/sandbox-policy'
-import type {} from '@qilin/user-approval'
-import type {} from '@qilin/permission-presets'
-import type {} from '@qilin/agent-presets'
-import type {} from '@qilin/commands'
-import type {} from '@qilin/system-prompt'
-import type {} from '@qilin/terminal'
+import { RUN_CODE_NAME } from '@qilin-agent/tools'
+import type {} from '@qilin-agent/sandbox-policy'
+import type {} from '@qilin-agent/user-approval'
+import type {} from '@qilin-agent/permission-presets'
+import type {} from '@qilin-agent/agent-presets'
+import type {} from '@qilin-agent/commands'
+import type {} from '@qilin-agent/system-prompt'
+import type {} from '@qilin-agent/terminal'
 import { launchWebScaffold, readPersistedEvents, type WebScaffold } from './scaffold.ts'
 import { AUTO_REVIEW_FIXTURE } from './auto-review-fixture.ts'
 import { REPO_ROOT } from './support.ts'
@@ -646,7 +646,7 @@ it('assembles the shipped Web transport, catalog, guidance, and defaults', async
   })
   try {
     expect(scaffold.ctx.commands.list(commandHandle.agent)).toContainEqual({
-      definitionId: '@qilin/command-feedback',
+      definitionId: '@qilin-agent/command-feedback',
       name: 'feedback',
       description: 'Record feedback about this session',
       input: { hint: '<text>' },
@@ -1083,29 +1083,29 @@ const SHELL_FIXTURE_COMPOSITION = [
   '    terminals: true',
   '  config:',
   '    - id: pty',
-  "      name: '@qilin/terminal'",
+  "      name: '@qilin-agent/terminal'",
   '',
   '    - id: terminal-bash',
-  "      name: '@qilin/terminal-bash'",
+  "      name: '@qilin-agent/terminal-bash'",
   "      disabled: !!js process.platform === 'win32'",
   '      config:',
   '        timeoutMs: 300000',
   '',
   '    - id: persistent-bash',
-  "      name: '@qilin/tool-bash-persistent'",
+  "      name: '@qilin-agent/tool-bash-persistent'",
   "      disabled: !!js process.platform === 'win32'",
   '      config:',
   '        timeoutMs: 300000',
   '',
   '    - id: terminal-pwsh',
-  "      name: '@qilin/terminal-bash'",
+  "      name: '@qilin-agent/terminal-bash'",
   "      disabled: !!js process.platform !== 'win32'",
   '      config:',
   '        shellDialect: pwsh',
   '        timeoutMs: 300000',
   '',
   '    - id: persistent-pwsh',
-  "      name: '@qilin/tool-pwsh-persistent'",
+  "      name: '@qilin-agent/tool-pwsh-persistent'",
   "      disabled: !!js process.platform !== 'win32'",
   '      config:',
   '        timeoutMs: 300000',

@@ -2,7 +2,7 @@
 /** Session terminal recovery hides ordinary work and keeps failed lookup retryable. */
 import { afterEach, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
-import { makeTranslate } from '@qilin/client-test-runtime'
+import { makeTranslate } from '@qilin-agent/client-test-runtime'
 import { TerminalRecovery } from '../src/client/TerminalRecovery.tsx'
 import { en } from '../src/client/locales.ts'
 

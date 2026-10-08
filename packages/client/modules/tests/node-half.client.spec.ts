@@ -7,15 +7,15 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { runInNewContext } from 'node:vm'
-import { Context, FiberState, type Fiber } from '@qilin/kylin'
+import { Context, FiberState, type Fiber } from '@qilin-agent/kylin'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { renderIndexInjections, type WebServer, type WebRoute } from '@qilin/host-webserver'
+import { renderIndexInjections, type WebServer, type WebRoute } from '@qilin-agent/host-webserver'
 import * as modulesClient from '../src/client/index.ts'
 import { ClientModuleRegistry, bootInjections, orderByModuleGraph } from '../src/index.ts'
 import type { ClientModuleLoaderTarget, WebBootEntry, WebBootGraph } from '../src/client/index.ts'
 
-const MODULES_ID = '@qilin/client-modules'
-const UI_RENDERER_ID = '@qilin/client-ui-renderer'
+const MODULES_ID = '@qilin-agent/client-modules'
+const UI_RENDERER_ID = '@qilin-agent/client-ui-renderer'
 
 const comboUrl = (ids: readonly string[], rev: string): string =>
   `/plugins/??${ids.map(id => `${id}/client.js`).join(',')}&rev=${rev}`
@@ -941,8 +941,8 @@ describe('shared module declarations', () => {
     writeFileSync(clientPath, 'module.exports = {}\n')
     const [row] = construct([packageName]).graph().entries
     expect(row).toMatchObject({
-      inject: ['@qilin/client-modules'],
-      external: ['@qilin/client-modules/client', '@qilin/client-ui-slots'],
+      inject: ['@qilin-agent/client-modules'],
+      external: ['@qilin-agent/client-modules/client', '@qilin-agent/client-ui-slots'],
     })
   })
 
@@ -1004,13 +1004,13 @@ describe('module graph order', () => {
   it('canonicalizes DSH package requests while ordering graph rows', () => {
     expect(ids(orderByModuleGraph([
       entry('consumer', { external: ['@deepseek-ai/dsh-client-runtime/client'] }),
-      entry('@qilin/client-modules'),
-    ]))).toEqual(['@qilin/client-modules', 'consumer'])
+      entry('@qilin-agent/client-modules'),
+    ]))).toEqual(['@qilin-agent/client-modules', 'consumer'])
   })
 
   it('leaves a request no row answers to the static assembly channel', () => {
     expect(ids(orderByModuleGraph([
-      entry('consumer', { external: ['@qilin/kylin'] }),
+      entry('consumer', { external: ['@qilin-agent/kylin'] }),
       entry('other'),
     ]))).toEqual(['consumer', 'other'])
   })

@@ -6,13 +6,13 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import Schema from '@qilin/schemastery'
+import Schema from '@qilin-agent/schemastery'
 import { Ajv2020 } from 'ajv/dist/2020.js'
 import { buildConfigSchemaDocument } from '../src/config-schema/document.ts'
 import type { CollectedConfigEntry, ConfigJsonSchemaObject, ConfigSchemaDump } from '../src/config-schema/types.ts'
-import { EntryGroup, ModuleLoader, type EntryOptions } from '@qilin/kylin-plugin-loader'
-import Group from '@qilin/kylin-plugin-group'
-import Include, { type PatchOptions } from '@qilin/kylin-plugin-include'
+import { EntryGroup, ModuleLoader, type EntryOptions } from '@qilin-agent/kylin-plugin-loader'
+import Group from '@qilin-agent/kylin-plugin-group'
+import Include, { type PatchOptions } from '@qilin-agent/kylin-plugin-include'
 import { collectConfigSchemas } from '../src/config-schema/collect.ts'
 import { generateConfigSchema } from '../src/config-schema/index.ts'
 import * as profileOperations from '../src/profile.ts'
@@ -232,7 +232,7 @@ describe('collectConfigSchemas', () => {
       static [EntryGroup.key] = true
       constructor() { throw new Error('must not activate Include') }
     }
-    modules.set('@qilin/kylin-plugin-include', { default: ExternalInclude })
+    modules.set('@qilin-agent/kylin-plugin-include', { default: ExternalInclude })
     modules.set('include-alias', { default: ExternalInclude })
     const result = await collectConfigSchemas(profile, [
       row('include-alias', { path: './missing.yml', initial: [row('noop')] }),
@@ -240,8 +240,8 @@ describe('collectConfigSchemas', () => {
     ], resolution)
     expect(result['x-cordis'].complete).toBe(true)
     expect(result['x-cordis'].entries.filter(entry => entry.tree === 'include')).toHaveLength(2)
-    expect(importModule.mock.calls.filter(([name]) => name === '@qilin/kylin-plugin-include')).toHaveLength(1)
-    expect(importModule.mock.calls.filter(([name]) => name === '@qilin/kylin-plugin-group')).toHaveLength(1)
+    expect(importModule.mock.calls.filter(([name]) => name === '@qilin-agent/kylin-plugin-include')).toHaveLength(1)
+    expect(importModule.mock.calls.filter(([name]) => name === '@qilin-agent/kylin-plugin-group')).toHaveLength(1)
   })
 
   it('recognizes an external canonical Group even when Include cannot resolve', async () => {
@@ -249,17 +249,17 @@ describe('collectConfigSchemas', () => {
       static [EntryGroup.key] = true
       constructor() { throw new Error('must not activate Group') }
     }
-    modules.set('@qilin/kylin-plugin-group', { default: ExternalGroup })
+    modules.set('@qilin-agent/kylin-plugin-group', { default: ExternalGroup })
     modules.set('group-alias', { default: ExternalGroup })
     const result = await collectConfigSchemas(profile, [row('group-alias', [row('group-alias', [row('noop')])])], resolution)
     expect(result['x-cordis'].complete).toBe(true)
     expect(result['x-cordis'].entries.map(entry => entry.path)).toEqual(['/0', '/0/config/0', '/0/config/0/config/0'])
-    expect(importModule.mock.calls.filter(([name]) => name === '@qilin/kylin-plugin-group')).toHaveLength(1)
+    expect(importModule.mock.calls.filter(([name]) => name === '@qilin-agent/kylin-plugin-group')).toHaveLength(1)
   })
 
   it('reports unknown tree-carrier identities instead of silently omitting their children', async () => {
-    modules.set('@qilin/kylin-plugin-group', { default: Group })
-    modules.set('@qilin/kylin-plugin-include', { default: Include })
+    modules.set('@qilin-agent/kylin-plugin-group', { default: Group })
+    modules.set('@qilin-agent/kylin-plugin-include', { default: Include })
     modules.set('other-include', { default: class OtherInclude {
       static [EntryGroup.key] = true
       constructor() { throw new Error('must not activate a tree carrier') }

@@ -13,12 +13,12 @@
  *   `path` argument accepts — because their consumer is a tree rooted at the
  *   workspace root.
  *
- * @module @qilin/api-workspace-files/types
+ * @module @qilin-agent/api-workspace-files/types
  */
 
 // Import the protocol module so the declaration at the end of this file
 // augments its error map rather than defining an unrelated ambient module.
-import type {} from '@qilin/typert-protocol'
+import type {} from '@qilin-agent/typert-protocol'
 
 /** Identity and freshness of one workspace file, without its content. */
 export interface WorkspaceFileStat {
@@ -188,7 +188,7 @@ export type WorkspaceFileWatchFrame =
   | { readonly kind: 'ready' }
   | { readonly kind: 'change'; readonly change: WorkspaceFileChange }
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** No entry exists at that path inside the workspace. */
     'workspace-file/not-found': { readonly path: string }

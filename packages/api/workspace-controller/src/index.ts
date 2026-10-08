@@ -1,7 +1,7 @@
 /** Host Workspace Remote owner: explicit commands and reconnect-safe state. */
 
-import { Context } from '@qilin/kylin'
-import { Remote, TypertRemoteService } from '@qilin/typert-protocol'
+import { Context } from '@qilin-agent/kylin'
+import { Remote, TypertRemoteService } from '@qilin-agent/typert-protocol'
 import { WorkspaceCommands } from './commands.ts'
 import { DirectoryPickerController } from './directory-picker.ts'
 import { WorkspaceFeed } from './feed.ts'
@@ -27,7 +27,7 @@ import type {
 export type * from './types.ts'
 export { DirectoryPickerController } from './directory-picker.ts'
 
-declare module '@qilin/kylin' {
+declare module '@qilin-agent/kylin' {
   interface Context {
     /** Host Workspace business API and Remote namespace owner. */
     workspaceController: WorkspaceController

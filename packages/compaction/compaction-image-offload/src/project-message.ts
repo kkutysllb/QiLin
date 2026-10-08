@@ -1,7 +1,7 @@
 /** Immutable application of the image occurrences recorded by image/offload. */
 
-import type { ContentBlock, Message } from '@qilin/llm'
-import { deepFreeze } from '@qilin/util-values'
+import type { ContentBlock, Message } from '@qilin-agent/llm'
+import { deepFreeze } from '@qilin-agent/util-values'
 
 /**
  * Project selected image occurrences to immutable offloaded blocks.

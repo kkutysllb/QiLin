@@ -1,9 +1,9 @@
 /** One reconnecting Host readiness mirror shared by every voice UI occurrence. */
-import type { Context } from '@qilin/kylin'
-import { RemoteStreamCarrierError } from '@qilin/api-gateway/client'
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
-import type { SpeechCatalog } from '@qilin/experimental-api-speech-to-text/types'
-import type {} from '@qilin/experimental-api-speech-to-text/remote'
+import type { Context } from '@qilin-agent/kylin'
+import { RemoteStreamCarrierError } from '@qilin-agent/api-gateway/client'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
+import type { SpeechCatalog } from '@qilin-agent/experimental-api-speech-to-text/types'
+import type {} from '@qilin-agent/experimental-api-speech-to-text/remote'
 
 /** Complete provider state, with a separate transport failure that never rewrites Host readiness. */
 export interface SpeechReadiness {

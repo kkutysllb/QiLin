@@ -8,283 +8,283 @@ The qilin-base bundle patch shared by the web, headless, sdk, and acp profiles; 
 ```mermaid
 flowchart LR
   cfg["packages/bundle/base/cordis.patch.yml<br/>cordis.yml"]
-  plugin_qilin_base_tool_plugin_manager["tool-plugin-manager<br/>@qilin/plugin-manager/tools"]
+  plugin_qilin_base_tool_plugin_manager["tool-plugin-manager<br/>@qilin-agent/plugin-manager/tools"]
   cfg --> plugin_qilin_base_tool_plugin_manager
-  plugin_qilin_base_plugin_manager["plugin-manager<br/>@qilin/plugin-manager"]
+  plugin_qilin_base_plugin_manager["plugin-manager<br/>@qilin-agent/plugin-manager"]
   cfg --> plugin_qilin_base_plugin_manager
-  plugin_qilin_base_timer["timer<br/>@qilin/kylin-plugin-timer"]
+  plugin_qilin_base_timer["timer<br/>@qilin-agent/kylin-plugin-timer"]
   cfg --> plugin_qilin_base_timer
-  plugin_qilin_base_hmr["hmr<br/>@qilin/hmr"]
+  plugin_qilin_base_hmr["hmr<br/>@qilin-agent/hmr"]
   cfg --> plugin_qilin_base_hmr
-  plugin_qilin_base_llm["llm<br/>@qilin/llm"]
+  plugin_qilin_base_llm["llm<br/>@qilin-agent/llm"]
   cfg --> plugin_qilin_base_llm
-  plugin_qilin_base_deepseek_llm_api_extensions["deepseek-llm-api-extensions<br/>@qilin/deepseek-llm-api-extensions"]
+  plugin_qilin_base_deepseek_llm_api_extensions["deepseek-llm-api-extensions<br/>@qilin-agent/deepseek-llm-api-extensions"]
   cfg --> plugin_qilin_base_deepseek_llm_api_extensions
-  plugin_qilin_base_session["session<br/>@qilin/session"]
+  plugin_qilin_base_session["session<br/>@qilin-agent/session"]
   cfg --> plugin_qilin_base_session
-  plugin_qilin_base_session_log_deepseek["session-log-deepseek<br/>@qilin/session-log-deepseek"]
+  plugin_qilin_base_session_log_deepseek["session-log-deepseek<br/>@qilin-agent/session-log-deepseek"]
   cfg --> plugin_qilin_base_session_log_deepseek
-  plugin_qilin_base_typert["typert<br/>@qilin/typert-registry"]
+  plugin_qilin_base_typert["typert<br/>@qilin-agent/typert-registry"]
   cfg --> plugin_qilin_base_typert
-  plugin_qilin_base_typert_loader["typert-loader<br/>@qilin/typert-loader"]
+  plugin_qilin_base_typert_loader["typert-loader<br/>@qilin-agent/typert-loader"]
   cfg --> plugin_qilin_base_typert_loader
-  plugin_qilin_base_typert_gateway["typert-gateway<br/>@qilin/api-gateway"]
+  plugin_qilin_base_typert_gateway["typert-gateway<br/>@qilin-agent/api-gateway"]
   cfg --> plugin_qilin_base_typert_gateway
-  plugin_qilin_base_session_title["session-title<br/>@qilin/session-title"]
+  plugin_qilin_base_session_title["session-title<br/>@qilin-agent/session-title"]
   cfg --> plugin_qilin_base_session_title
-  plugin_qilin_base_session_title_llm["session-title-llm<br/>@qilin/session-title-first-prompt-llm"]
+  plugin_qilin_base_session_title_llm["session-title-llm<br/>@qilin-agent/session-title-first-prompt-llm"]
   cfg --> plugin_qilin_base_session_title_llm
-  plugin_qilin_base_user_questions["user-questions<br/>@qilin/user-questions"]
+  plugin_qilin_base_user_questions["user-questions<br/>@qilin-agent/user-questions"]
   cfg --> plugin_qilin_base_user_questions
-  plugin_qilin_base_agent["agent<br/>@qilin/agent"]
+  plugin_qilin_base_agent["agent<br/>@qilin-agent/agent"]
   cfg --> plugin_qilin_base_agent
-  plugin_qilin_base_plugin_package_inventory_deepseek["plugin-package-inventory-deepseek<br/>@qilin/plugin-package-inventory-deepseek"]
+  plugin_qilin_base_plugin_package_inventory_deepseek["plugin-package-inventory-deepseek<br/>@qilin-agent/plugin-package-inventory-deepseek"]
   cfg --> plugin_qilin_base_plugin_package_inventory_deepseek
-  plugin_qilin_base_agent_default_model["agent-default-model<br/>@qilin/agent-default-model"]
+  plugin_qilin_base_agent_default_model["agent-default-model<br/>@qilin-agent/agent-default-model"]
   cfg --> plugin_qilin_base_agent_default_model
-  plugin_qilin_base_jobs["jobs<br/>@qilin/jobs-local"]
+  plugin_qilin_base_jobs["jobs<br/>@qilin-agent/jobs-local"]
   cfg --> plugin_qilin_base_jobs
-  plugin_qilin_base_llm_retry["llm-retry<br/>@qilin/llm-retry"]
+  plugin_qilin_base_llm_retry["llm-retry<br/>@qilin-agent/llm-retry"]
   cfg --> plugin_qilin_base_llm_retry
-  plugin_qilin_base_settings["settings<br/>@qilin/settings-file"]
+  plugin_qilin_base_settings["settings<br/>@qilin-agent/settings-file"]
   cfg --> plugin_qilin_base_settings
-  plugin_qilin_base_credentials["credentials<br/>@qilin/credentials-local"]
+  plugin_qilin_base_credentials["credentials<br/>@qilin-agent/credentials-local"]
   cfg --> plugin_qilin_base_credentials
-  plugin_qilin_base_llm_pi_ai["llm-pi-ai<br/>@qilin/llm-pi-ai"]
+  plugin_qilin_base_llm_pi_ai["llm-pi-ai<br/>@qilin-agent/llm-pi-ai"]
   cfg --> plugin_qilin_base_llm_pi_ai
-  plugin_qilin_base_session_persistence_jsonl["session-persistence-jsonl<br/>@qilin/session-persistence-jsonl"]
+  plugin_qilin_base_session_persistence_jsonl["session-persistence-jsonl<br/>@qilin-agent/session-persistence-jsonl"]
   cfg --> plugin_qilin_base_session_persistence_jsonl
-  plugin_qilin_base_attachment_local["attachment-local<br/>@qilin/attachment-local"]
+  plugin_qilin_base_attachment_local["attachment-local<br/>@qilin-agent/attachment-local"]
   cfg --> plugin_qilin_base_attachment_local
-  plugin_qilin_base_session_query_sqlite["session-query-sqlite<br/>@qilin/session-query-sqlite"]
+  plugin_qilin_base_session_query_sqlite["session-query-sqlite<br/>@qilin-agent/session-query-sqlite"]
   cfg --> plugin_qilin_base_session_query_sqlite
-  plugin_qilin_base_session_projection["session-projection<br/>@qilin/session-projection"]
+  plugin_qilin_base_session_projection["session-projection<br/>@qilin-agent/session-projection"]
   cfg --> plugin_qilin_base_session_projection
-  plugin_qilin_base_storage["storage<br/>@qilin/storage"]
+  plugin_qilin_base_storage["storage<br/>@qilin-agent/storage"]
   cfg --> plugin_qilin_base_storage
-  plugin_qilin_base_storage_json["storage-json<br/>@qilin/storage-json"]
+  plugin_qilin_base_storage_json["storage-json<br/>@qilin-agent/storage-json"]
   cfg --> plugin_qilin_base_storage_json
-  plugin_qilin_base_storage_domain["storage-domain<br/>@qilin/storage-domain"]
+  plugin_qilin_base_storage_domain["storage-domain<br/>@qilin-agent/storage-domain"]
   cfg --> plugin_qilin_base_storage_domain
-  plugin_qilin_base_session_projection_cache["session-projection-cache<br/>@qilin/session-projection-cache"]
+  plugin_qilin_base_session_projection_cache["session-projection-cache<br/>@qilin-agent/session-projection-cache"]
   cfg --> plugin_qilin_base_session_projection_cache
-  plugin_qilin_base_otel["otel<br/>@qilin/otel"]
+  plugin_qilin_base_otel["otel<br/>@qilin-agent/otel"]
   cfg --> plugin_qilin_base_otel
-  plugin_qilin_base_session_telemetry_otel["session-telemetry-otel<br/>@qilin/session-telemetry-otel"]
+  plugin_qilin_base_session_telemetry_otel["session-telemetry-otel<br/>@qilin-agent/session-telemetry-otel"]
   cfg --> plugin_qilin_base_session_telemetry_otel
-  plugin_qilin_base_subprocess["subprocess<br/>@qilin/subprocess-local"]
+  plugin_qilin_base_subprocess["subprocess<br/>@qilin-agent/subprocess-local"]
   cfg --> plugin_qilin_base_subprocess
-  plugin_qilin_base_sandbox["sandbox<br/>@qilin/sandbox-local"]
+  plugin_qilin_base_sandbox["sandbox<br/>@qilin-agent/sandbox-local"]
   cfg --> plugin_qilin_base_sandbox
-  plugin_qilin_base_sandbox_policy["sandbox-policy<br/>@qilin/sandbox-policy"]
+  plugin_qilin_base_sandbox_policy["sandbox-policy<br/>@qilin-agent/sandbox-policy"]
   cfg --> plugin_qilin_base_sandbox_policy
-  plugin_qilin_base_bash_sandbox["bash-sandbox<br/>@qilin/bash-sandbox"]
+  plugin_qilin_base_bash_sandbox["bash-sandbox<br/>@qilin-agent/bash-sandbox"]
   cfg --> plugin_qilin_base_bash_sandbox
-  plugin_qilin_base_pwsh_sandbox["pwsh-sandbox<br/>@qilin/pwsh-sandbox"]
+  plugin_qilin_base_pwsh_sandbox["pwsh-sandbox<br/>@qilin-agent/pwsh-sandbox"]
   cfg --> plugin_qilin_base_pwsh_sandbox
-  plugin_qilin_base_approval["approval<br/>@qilin/user-approval"]
+  plugin_qilin_base_approval["approval<br/>@qilin-agent/user-approval"]
   cfg --> plugin_qilin_base_approval
-  plugin_qilin_base_permission["permission<br/>@qilin/permission-presets"]
+  plugin_qilin_base_permission["permission<br/>@qilin-agent/permission-presets"]
   cfg --> plugin_qilin_base_permission
-  plugin_qilin_base_shell_env["shell-env<br/>@qilin/shell-env"]
+  plugin_qilin_base_shell_env["shell-env<br/>@qilin-agent/shell-env"]
   cfg --> plugin_qilin_base_shell_env
-  plugin_qilin_base_tool_bash["tool-bash<br/>@qilin/tool-bash"]
+  plugin_qilin_base_tool_bash["tool-bash<br/>@qilin-agent/tool-bash"]
   cfg --> plugin_qilin_base_tool_bash
-  plugin_qilin_base_tool_pwsh["tool-pwsh<br/>@qilin/tool-pwsh"]
+  plugin_qilin_base_tool_pwsh["tool-pwsh<br/>@qilin-agent/tool-pwsh"]
   cfg --> plugin_qilin_base_tool_pwsh
-  plugin_qilin_base_tool_jobs["tool-jobs<br/>@qilin/tool-jobs"]
+  plugin_qilin_base_tool_jobs["tool-jobs<br/>@qilin-agent/tool-jobs"]
   cfg --> plugin_qilin_base_tool_jobs
-  plugin_qilin_base_sidebar_opens["sidebar-opens<br/>@qilin/sidebar-opens"]
+  plugin_qilin_base_sidebar_opens["sidebar-opens<br/>@qilin-agent/sidebar-opens"]
   cfg --> plugin_qilin_base_sidebar_opens
-  plugin_qilin_base_fs_observation_policy["fs-observation-policy<br/>@qilin/fs-observation-policy"]
+  plugin_qilin_base_fs_observation_policy["fs-observation-policy<br/>@qilin-agent/fs-observation-policy"]
   cfg --> plugin_qilin_base_fs_observation_policy
-  plugin_qilin_base_tool_fs["tool-fs<br/>@qilin/tool-fs"]
+  plugin_qilin_base_tool_fs["tool-fs<br/>@qilin-agent/tool-fs"]
   cfg --> plugin_qilin_base_tool_fs
-  plugin_qilin_base_tool_fs_search["tool-fs-search<br/>@qilin/tool-fs-search"]
+  plugin_qilin_base_tool_fs_search["tool-fs-search<br/>@qilin-agent/tool-fs-search"]
   cfg --> plugin_qilin_base_tool_fs_search
-  plugin_qilin_base_agent_instructions["agent-instructions<br/>@qilin/agent-instructions"]
+  plugin_qilin_base_agent_instructions["agent-instructions<br/>@qilin-agent/agent-instructions"]
   cfg --> plugin_qilin_base_agent_instructions
-  plugin_qilin_base_skill["skill<br/>@qilin/skill"]
+  plugin_qilin_base_skill["skill<br/>@qilin-agent/skill"]
   cfg --> plugin_qilin_base_skill
-  plugin_qilin_base_skill_filesystem["skill-filesystem<br/>@qilin/skill-filesystem"]
+  plugin_qilin_base_skill_filesystem["skill-filesystem<br/>@qilin-agent/skill-filesystem"]
   cfg --> plugin_qilin_base_skill_filesystem
-  plugin_qilin_base_skill_badge["skill-badge<br/>@qilin/skill-badge"]
+  plugin_qilin_base_skill_badge["skill-badge<br/>@qilin-agent/skill-badge"]
   cfg --> plugin_qilin_base_skill_badge
-  plugin_qilin_base_tool_skill["tool-skill<br/>@qilin/tool-skill"]
+  plugin_qilin_base_tool_skill["tool-skill<br/>@qilin-agent/tool-skill"]
   cfg --> plugin_qilin_base_tool_skill
-  plugin_qilin_base_commands["commands<br/>@qilin/commands"]
+  plugin_qilin_base_commands["commands<br/>@qilin-agent/commands"]
   cfg --> plugin_qilin_base_commands
-  plugin_qilin_base_command_feedback["command-feedback<br/>@qilin/command-feedback"]
+  plugin_qilin_base_command_feedback["command-feedback<br/>@qilin-agent/command-feedback"]
   cfg --> plugin_qilin_base_command_feedback
-  plugin_qilin_base_goal["goal<br/>@qilin/goal"]
+  plugin_qilin_base_goal["goal<br/>@qilin-agent/goal"]
   cfg --> plugin_qilin_base_goal
-  plugin_qilin_base_goal_round_driver["goal-round-driver<br/>@qilin/goal-round-driver"]
+  plugin_qilin_base_goal_round_driver["goal-round-driver<br/>@qilin-agent/goal-round-driver"]
   cfg --> plugin_qilin_base_goal_round_driver
-  plugin_qilin_base_command_goal["command-goal<br/>@qilin/command-goal"]
+  plugin_qilin_base_command_goal["command-goal<br/>@qilin-agent/command-goal"]
   cfg --> plugin_qilin_base_command_goal
-  plugin_qilin_base_plan_mode["plan-mode<br/>@qilin/plan-mode"]
+  plugin_qilin_base_plan_mode["plan-mode<br/>@qilin-agent/plan-mode"]
   cfg --> plugin_qilin_base_plan_mode
-  plugin_qilin_base_token_meter["token-meter<br/>@qilin/token-meter"]
+  plugin_qilin_base_token_meter["token-meter<br/>@qilin-agent/token-meter"]
   cfg --> plugin_qilin_base_token_meter
-  plugin_qilin_base_compaction_basic["compaction-basic<br/>@qilin/compaction-basic"]
+  plugin_qilin_base_compaction_basic["compaction-basic<br/>@qilin-agent/compaction-basic"]
   cfg --> plugin_qilin_base_compaction_basic
-  plugin_qilin_base_command_compact["command-compact<br/>@qilin/command-compact"]
+  plugin_qilin_base_command_compact["command-compact<br/>@qilin-agent/command-compact"]
   cfg --> plugin_qilin_base_command_compact
-  plugin_qilin_base_subagent["subagent<br/>@qilin/subagent"]
+  plugin_qilin_base_subagent["subagent<br/>@qilin-agent/subagent"]
   cfg --> plugin_qilin_base_subagent
-  plugin_qilin_base_subagent_spawn_in_process["subagent-spawn-in-process<br/>@qilin/subagent-spawn-in-process"]
+  plugin_qilin_base_subagent_spawn_in_process["subagent-spawn-in-process<br/>@qilin-agent/subagent-spawn-in-process"]
   cfg --> plugin_qilin_base_subagent_spawn_in_process
-  plugin_qilin_base_subagent_fork_in_process["subagent-fork-in-process<br/>@qilin/subagent-fork-in-process"]
+  plugin_qilin_base_subagent_fork_in_process["subagent-fork-in-process<br/>@qilin-agent/subagent-fork-in-process"]
   cfg --> plugin_qilin_base_subagent_fork_in_process
-  plugin_qilin_base_tool_subagent_control["tool-subagent-control<br/>@qilin/tool-subagent-control"]
+  plugin_qilin_base_tool_subagent_control["tool-subagent-control<br/>@qilin-agent/tool-subagent-control"]
   cfg --> plugin_qilin_base_tool_subagent_control
-  plugin_qilin_base_tool_subagent_list_agents["tool-subagent-list-agents<br/>@qilin/tool-subagent-control/list-agents"]
+  plugin_qilin_base_tool_subagent_list_agents["tool-subagent-list-agents<br/>@qilin-agent/tool-subagent-control/list-agents"]
   cfg --> plugin_qilin_base_tool_subagent_list_agents
-  plugin_qilin_base_tool_subagent["tool-subagent<br/>@qilin/tool-subagent"]
+  plugin_qilin_base_tool_subagent["tool-subagent<br/>@qilin-agent/tool-subagent"]
   cfg --> plugin_qilin_base_tool_subagent
-  plugin_qilin_base_tool_subagent_fork["tool-subagent-fork<br/>@qilin/tool-subagent"]
+  plugin_qilin_base_tool_subagent_fork["tool-subagent-fork<br/>@qilin-agent/tool-subagent"]
   cfg --> plugin_qilin_base_tool_subagent_fork
-  plugin_qilin_base_ptc_runtime["ptc-runtime<br/>@qilin/ptc-runtime-node"]
+  plugin_qilin_base_ptc_runtime["ptc-runtime<br/>@qilin-agent/ptc-runtime-node"]
   cfg --> plugin_qilin_base_ptc_runtime
-  plugin_qilin_base_workflow_ptc["workflow-ptc<br/>@qilin/workflow-ptc"]
+  plugin_qilin_base_workflow_ptc["workflow-ptc<br/>@qilin-agent/workflow-ptc"]
   cfg --> plugin_qilin_base_workflow_ptc
-  plugin_qilin_base_tool_workflow["tool-workflow<br/>@qilin/tool-workflow"]
+  plugin_qilin_base_tool_workflow["tool-workflow<br/>@qilin-agent/tool-workflow"]
   cfg --> plugin_qilin_base_tool_workflow
-  plugin_qilin_base_timeout_policy["timeout-policy<br/>@qilin/tool-call-timeout-policy"]
+  plugin_qilin_base_timeout_policy["timeout-policy<br/>@qilin-agent/tool-call-timeout-policy"]
   cfg --> plugin_qilin_base_timeout_policy
-  plugin_qilin_base_spill_local["spill-local<br/>@qilin/spill-local"]
+  plugin_qilin_base_spill_local["spill-local<br/>@qilin-agent/spill-local"]
   cfg --> plugin_qilin_base_spill_local
-  plugin_qilin_base_spill_policy["spill-policy<br/>@qilin/spill-policy"]
+  plugin_qilin_base_spill_policy["spill-policy<br/>@qilin-agent/spill-policy"]
   cfg --> plugin_qilin_base_spill_policy
-  plugin_qilin_base_session_checkpoint_policy["session-checkpoint-policy<br/>@qilin/session-checkpoint-policy"]
+  plugin_qilin_base_session_checkpoint_policy["session-checkpoint-policy<br/>@qilin-agent/session-checkpoint-policy"]
   cfg --> plugin_qilin_base_session_checkpoint_policy
-  plugin_qilin_base_tool_result_pruner["tool-result-pruner<br/>@qilin/compaction-tool-result-pruner"]
+  plugin_qilin_base_tool_result_pruner["tool-result-pruner<br/>@qilin-agent/compaction-tool-result-pruner"]
   cfg --> plugin_qilin_base_tool_result_pruner
-  plugin_qilin_base_image_offload["image-offload<br/>@qilin/compaction-image-offload"]
+  plugin_qilin_base_image_offload["image-offload<br/>@qilin-agent/compaction-image-offload"]
   cfg --> plugin_qilin_base_image_offload
-  plugin_qilin_base_tool_todo["tool-todo<br/>@qilin/tool-todo"]
+  plugin_qilin_base_tool_todo["tool-todo<br/>@qilin-agent/tool-todo"]
   cfg --> plugin_qilin_base_tool_todo
-  plugin_qilin_base_tool_goal["tool-goal<br/>@qilin/tool-goal"]
+  plugin_qilin_base_tool_goal["tool-goal<br/>@qilin-agent/tool-goal"]
   cfg --> plugin_qilin_base_tool_goal
-  plugin_qilin_base_tool_ralph["tool-ralph<br/>@qilin/tool-ralph"]
+  plugin_qilin_base_tool_ralph["tool-ralph<br/>@qilin-agent/tool-ralph"]
   cfg --> plugin_qilin_base_tool_ralph
-  plugin_qilin_base_repeat_tool_reminder["repeat-tool-reminder<br/>@qilin/repeat-tool-reminder"]
+  plugin_qilin_base_repeat_tool_reminder["repeat-tool-reminder<br/>@qilin-agent/repeat-tool-reminder"]
   cfg --> plugin_qilin_base_repeat_tool_reminder
-  plugin_qilin_base_web["web<br/>@qilin/web"]
+  plugin_qilin_base_web["web<br/>@qilin-agent/web"]
   cfg --> plugin_qilin_base_web
-  plugin_qilin_base_web_search_deepseek["web-search-deepseek<br/>@qilin/web-search-deepseek"]
+  plugin_qilin_base_web_search_deepseek["web-search-deepseek<br/>@qilin-agent/web-search-deepseek"]
   cfg --> plugin_qilin_base_web_search_deepseek
-  plugin_qilin_base_web_fetch_http["web-fetch-http<br/>@qilin/web-fetch-http"]
+  plugin_qilin_base_web_fetch_http["web-fetch-http<br/>@qilin-agent/web-fetch-http"]
   cfg --> plugin_qilin_base_web_fetch_http
-  plugin_qilin_base_tool_web["tool-web<br/>@qilin/tool-web"]
+  plugin_qilin_base_tool_web["tool-web<br/>@qilin-agent/tool-web"]
   cfg --> plugin_qilin_base_tool_web
-  plugin_qilin_base_mcp_resources["mcp-resources<br/>@qilin/mcp-resources"]
+  plugin_qilin_base_mcp_resources["mcp-resources<br/>@qilin-agent/mcp-resources"]
   cfg --> plugin_qilin_base_mcp_resources
-  plugin_qilin_base_tools["tools<br/>@qilin/tools"]
+  plugin_qilin_base_tools["tools<br/>@qilin-agent/tools"]
   cfg --> plugin_qilin_base_tools
-  plugin_qilin_base_system_prompt["system-prompt<br/>@qilin/system-prompt"]
+  plugin_qilin_base_system_prompt["system-prompt<br/>@qilin-agent/system-prompt"]
   cfg --> plugin_qilin_base_system_prompt
-  plugin_qilin_base_agent_loop["agent-loop<br/>@qilin/agent-loop"]
+  plugin_qilin_base_agent_loop["agent-loop<br/>@qilin-agent/agent-loop"]
   cfg --> plugin_qilin_base_agent_loop
-  plugin_qilin_base_fs_sandbox["fs-sandbox<br/>@qilin/fs-sandbox"]
+  plugin_qilin_base_fs_sandbox["fs-sandbox<br/>@qilin-agent/fs-sandbox"]
   cfg --> plugin_qilin_base_fs_sandbox
-  plugin_qilin_base_llm_deepseek["llm-deepseek<br/>@qilin/llm-deepseek-api-key"]
+  plugin_qilin_base_llm_deepseek["llm-deepseek<br/>@qilin-agent/llm-deepseek-api-key"]
   cfg --> plugin_qilin_base_llm_deepseek
 ```
 
 | Plugin id | Package / module |
 | --- | --- |
-| `tool-plugin-manager` | `@qilin/plugin-manager/tools` |
-| `plugin-manager` | `@qilin/plugin-manager` |
-| `timer` | `@qilin/kylin-plugin-timer` |
-| `hmr` | `@qilin/hmr` |
-| `llm` | `@qilin/llm` |
-| `deepseek-llm-api-extensions` | `@qilin/deepseek-llm-api-extensions` |
-| `session` | `@qilin/session` |
-| `session-log-deepseek` | `@qilin/session-log-deepseek` |
-| `typert` | `@qilin/typert-registry` |
-| `typert-loader` | `@qilin/typert-loader` |
-| `typert-gateway` | `@qilin/api-gateway` |
-| `session-title` | `@qilin/session-title` |
-| `session-title-llm` | `@qilin/session-title-first-prompt-llm` |
-| `user-questions` | `@qilin/user-questions` |
-| `agent` | `@qilin/agent` |
-| `plugin-package-inventory-deepseek` | `@qilin/plugin-package-inventory-deepseek` |
-| `agent-default-model` | `@qilin/agent-default-model` |
-| `jobs` | `@qilin/jobs-local` |
-| `llm-retry` | `@qilin/llm-retry` |
-| `settings` | `@qilin/settings-file` |
-| `credentials` | `@qilin/credentials-local` |
-| `llm-pi-ai` | `@qilin/llm-pi-ai` |
-| `session-persistence-jsonl` | `@qilin/session-persistence-jsonl` |
-| `attachment-local` | `@qilin/attachment-local` |
-| `session-query-sqlite` | `@qilin/session-query-sqlite` |
-| `session-projection` | `@qilin/session-projection` |
-| `storage` | `@qilin/storage` |
-| `storage-json` | `@qilin/storage-json` |
-| `storage-domain` | `@qilin/storage-domain` |
-| `session-projection-cache` | `@qilin/session-projection-cache` |
-| `otel` | `@qilin/otel` |
-| `session-telemetry-otel` | `@qilin/session-telemetry-otel` |
-| `subprocess` | `@qilin/subprocess-local` |
-| `sandbox` | `@qilin/sandbox-local` |
-| `sandbox-policy` | `@qilin/sandbox-policy` |
-| `bash-sandbox` | `@qilin/bash-sandbox` |
-| `pwsh-sandbox` | `@qilin/pwsh-sandbox` |
-| `approval` | `@qilin/user-approval` |
-| `permission` | `@qilin/permission-presets` |
-| `shell-env` | `@qilin/shell-env` |
-| `tool-bash` | `@qilin/tool-bash` |
-| `tool-pwsh` | `@qilin/tool-pwsh` |
-| `tool-jobs` | `@qilin/tool-jobs` |
-| `sidebar-opens` | `@qilin/sidebar-opens` |
-| `fs-observation-policy` | `@qilin/fs-observation-policy` |
-| `tool-fs` | `@qilin/tool-fs` |
-| `tool-fs-search` | `@qilin/tool-fs-search` |
-| `agent-instructions` | `@qilin/agent-instructions` |
-| `skill` | `@qilin/skill` |
-| `skill-filesystem` | `@qilin/skill-filesystem` |
-| `skill-badge` | `@qilin/skill-badge` |
-| `tool-skill` | `@qilin/tool-skill` |
-| `commands` | `@qilin/commands` |
-| `command-feedback` | `@qilin/command-feedback` |
-| `goal` | `@qilin/goal` |
-| `goal-round-driver` | `@qilin/goal-round-driver` |
-| `command-goal` | `@qilin/command-goal` |
-| `plan-mode` | `@qilin/plan-mode` |
-| `token-meter` | `@qilin/token-meter` |
-| `compaction-basic` | `@qilin/compaction-basic` |
-| `command-compact` | `@qilin/command-compact` |
-| `subagent` | `@qilin/subagent` |
-| `subagent-spawn-in-process` | `@qilin/subagent-spawn-in-process` |
-| `subagent-fork-in-process` | `@qilin/subagent-fork-in-process` |
-| `tool-subagent-control` | `@qilin/tool-subagent-control` |
-| `tool-subagent-list-agents` | `@qilin/tool-subagent-control/list-agents` |
-| `tool-subagent` | `@qilin/tool-subagent` |
-| `tool-subagent-fork` | `@qilin/tool-subagent` |
-| `ptc-runtime` | `@qilin/ptc-runtime-node` |
-| `workflow-ptc` | `@qilin/workflow-ptc` |
-| `tool-workflow` | `@qilin/tool-workflow` |
-| `timeout-policy` | `@qilin/tool-call-timeout-policy` |
-| `spill-local` | `@qilin/spill-local` |
-| `spill-policy` | `@qilin/spill-policy` |
-| `session-checkpoint-policy` | `@qilin/session-checkpoint-policy` |
-| `tool-result-pruner` | `@qilin/compaction-tool-result-pruner` |
-| `image-offload` | `@qilin/compaction-image-offload` |
-| `tool-todo` | `@qilin/tool-todo` |
-| `tool-goal` | `@qilin/tool-goal` |
-| `tool-ralph` | `@qilin/tool-ralph` |
-| `repeat-tool-reminder` | `@qilin/repeat-tool-reminder` |
-| `web` | `@qilin/web` |
-| `web-search-deepseek` | `@qilin/web-search-deepseek` |
-| `web-fetch-http` | `@qilin/web-fetch-http` |
-| `tool-web` | `@qilin/tool-web` |
-| `mcp-resources` | `@qilin/mcp-resources` |
-| `tools` | `@qilin/tools` |
-| `system-prompt` | `@qilin/system-prompt` |
-| `agent-loop` | `@qilin/agent-loop` |
-| `fs-sandbox` | `@qilin/fs-sandbox` |
-| `llm-deepseek` | `@qilin/llm-deepseek-api-key` |
+| `tool-plugin-manager` | `@qilin-agent/plugin-manager/tools` |
+| `plugin-manager` | `@qilin-agent/plugin-manager` |
+| `timer` | `@qilin-agent/kylin-plugin-timer` |
+| `hmr` | `@qilin-agent/hmr` |
+| `llm` | `@qilin-agent/llm` |
+| `deepseek-llm-api-extensions` | `@qilin-agent/deepseek-llm-api-extensions` |
+| `session` | `@qilin-agent/session` |
+| `session-log-deepseek` | `@qilin-agent/session-log-deepseek` |
+| `typert` | `@qilin-agent/typert-registry` |
+| `typert-loader` | `@qilin-agent/typert-loader` |
+| `typert-gateway` | `@qilin-agent/api-gateway` |
+| `session-title` | `@qilin-agent/session-title` |
+| `session-title-llm` | `@qilin-agent/session-title-first-prompt-llm` |
+| `user-questions` | `@qilin-agent/user-questions` |
+| `agent` | `@qilin-agent/agent` |
+| `plugin-package-inventory-deepseek` | `@qilin-agent/plugin-package-inventory-deepseek` |
+| `agent-default-model` | `@qilin-agent/agent-default-model` |
+| `jobs` | `@qilin-agent/jobs-local` |
+| `llm-retry` | `@qilin-agent/llm-retry` |
+| `settings` | `@qilin-agent/settings-file` |
+| `credentials` | `@qilin-agent/credentials-local` |
+| `llm-pi-ai` | `@qilin-agent/llm-pi-ai` |
+| `session-persistence-jsonl` | `@qilin-agent/session-persistence-jsonl` |
+| `attachment-local` | `@qilin-agent/attachment-local` |
+| `session-query-sqlite` | `@qilin-agent/session-query-sqlite` |
+| `session-projection` | `@qilin-agent/session-projection` |
+| `storage` | `@qilin-agent/storage` |
+| `storage-json` | `@qilin-agent/storage-json` |
+| `storage-domain` | `@qilin-agent/storage-domain` |
+| `session-projection-cache` | `@qilin-agent/session-projection-cache` |
+| `otel` | `@qilin-agent/otel` |
+| `session-telemetry-otel` | `@qilin-agent/session-telemetry-otel` |
+| `subprocess` | `@qilin-agent/subprocess-local` |
+| `sandbox` | `@qilin-agent/sandbox-local` |
+| `sandbox-policy` | `@qilin-agent/sandbox-policy` |
+| `bash-sandbox` | `@qilin-agent/bash-sandbox` |
+| `pwsh-sandbox` | `@qilin-agent/pwsh-sandbox` |
+| `approval` | `@qilin-agent/user-approval` |
+| `permission` | `@qilin-agent/permission-presets` |
+| `shell-env` | `@qilin-agent/shell-env` |
+| `tool-bash` | `@qilin-agent/tool-bash` |
+| `tool-pwsh` | `@qilin-agent/tool-pwsh` |
+| `tool-jobs` | `@qilin-agent/tool-jobs` |
+| `sidebar-opens` | `@qilin-agent/sidebar-opens` |
+| `fs-observation-policy` | `@qilin-agent/fs-observation-policy` |
+| `tool-fs` | `@qilin-agent/tool-fs` |
+| `tool-fs-search` | `@qilin-agent/tool-fs-search` |
+| `agent-instructions` | `@qilin-agent/agent-instructions` |
+| `skill` | `@qilin-agent/skill` |
+| `skill-filesystem` | `@qilin-agent/skill-filesystem` |
+| `skill-badge` | `@qilin-agent/skill-badge` |
+| `tool-skill` | `@qilin-agent/tool-skill` |
+| `commands` | `@qilin-agent/commands` |
+| `command-feedback` | `@qilin-agent/command-feedback` |
+| `goal` | `@qilin-agent/goal` |
+| `goal-round-driver` | `@qilin-agent/goal-round-driver` |
+| `command-goal` | `@qilin-agent/command-goal` |
+| `plan-mode` | `@qilin-agent/plan-mode` |
+| `token-meter` | `@qilin-agent/token-meter` |
+| `compaction-basic` | `@qilin-agent/compaction-basic` |
+| `command-compact` | `@qilin-agent/command-compact` |
+| `subagent` | `@qilin-agent/subagent` |
+| `subagent-spawn-in-process` | `@qilin-agent/subagent-spawn-in-process` |
+| `subagent-fork-in-process` | `@qilin-agent/subagent-fork-in-process` |
+| `tool-subagent-control` | `@qilin-agent/tool-subagent-control` |
+| `tool-subagent-list-agents` | `@qilin-agent/tool-subagent-control/list-agents` |
+| `tool-subagent` | `@qilin-agent/tool-subagent` |
+| `tool-subagent-fork` | `@qilin-agent/tool-subagent` |
+| `ptc-runtime` | `@qilin-agent/ptc-runtime-node` |
+| `workflow-ptc` | `@qilin-agent/workflow-ptc` |
+| `tool-workflow` | `@qilin-agent/tool-workflow` |
+| `timeout-policy` | `@qilin-agent/tool-call-timeout-policy` |
+| `spill-local` | `@qilin-agent/spill-local` |
+| `spill-policy` | `@qilin-agent/spill-policy` |
+| `session-checkpoint-policy` | `@qilin-agent/session-checkpoint-policy` |
+| `tool-result-pruner` | `@qilin-agent/compaction-tool-result-pruner` |
+| `image-offload` | `@qilin-agent/compaction-image-offload` |
+| `tool-todo` | `@qilin-agent/tool-todo` |
+| `tool-goal` | `@qilin-agent/tool-goal` |
+| `tool-ralph` | `@qilin-agent/tool-ralph` |
+| `repeat-tool-reminder` | `@qilin-agent/repeat-tool-reminder` |
+| `web` | `@qilin-agent/web` |
+| `web-search-deepseek` | `@qilin-agent/web-search-deepseek` |
+| `web-fetch-http` | `@qilin-agent/web-fetch-http` |
+| `tool-web` | `@qilin-agent/tool-web` |
+| `mcp-resources` | `@qilin-agent/mcp-resources` |
+| `tools` | `@qilin-agent/tools` |
+| `system-prompt` | `@qilin-agent/system-prompt` |
+| `agent-loop` | `@qilin-agent/agent-loop` |
+| `fs-sandbox` | `@qilin-agent/fs-sandbox` |
+| `llm-deepseek` | `@qilin-agent/llm-deepseek-api-key` |
 
 Source config: [`packages/bundle/base/cordis.patch.yml`](../../packages/bundle/base/cordis.patch.yml).
 

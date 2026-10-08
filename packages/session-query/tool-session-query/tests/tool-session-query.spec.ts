@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context, type Fiber } from '@qilin/kylin'
-import type { Agent } from '@qilin/agent'
-import { createUserMessage, ToolCallId, HarnessError , createMessage } from '@qilin/llm'
-import type { ContextFormed } from '@qilin/llm'
-import { MAX_TIMER_DELAY_MS, TimeoutReason } from '@qilin/timeout'
-import * as TimeoutPolicy from '@qilin/tool-call-timeout-policy'
+import { Context, type Fiber } from '@qilin-agent/kylin'
+import type { Agent } from '@qilin-agent/agent'
+import { createUserMessage, ToolCallId, HarnessError , createMessage } from '@qilin-agent/llm'
+import type { ContextFormed } from '@qilin-agent/llm'
+import { MAX_TIMER_DELAY_MS, TimeoutReason } from '@qilin-agent/timeout'
+import * as TimeoutPolicy from '@qilin-agent/tool-call-timeout-policy'
 import SessionStore, {
   SESSION_FORMAT_VERSION,
   SessionId,
@@ -13,9 +13,9 @@ import SessionStore, {
   type SessionEvent,
   type SessionHeader,
   type SessionId as SessionIdValue,
-} from '@qilin/session'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import { turnBoundaryProjectionDefinition } from '@qilin/agent-loop'
+} from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import { turnBoundaryProjectionDefinition } from '@qilin-agent/agent-loop'
 import SessionQueryEngine, {
   SessionQueryError,
   SessionSearchCursor,
@@ -28,12 +28,12 @@ import SessionQueryEngine, {
   type SessionSearchPage,
   type SessionSearchRequest,
   type SessionTitleObservationResult,
-} from '@qilin/session-query'
-import SystemPrompt from '@qilin/system-prompt'
-import ToolRuntime, { type ToolExecutionResult } from '@qilin/tools'
-import * as ToolSessionQuery from '@qilin/tool-session-query'
+} from '@qilin-agent/session-query'
+import SystemPrompt from '@qilin-agent/system-prompt'
+import ToolRuntime, { type ToolExecutionResult } from '@qilin-agent/tools'
+import * as ToolSessionQuery from '@qilin-agent/tool-session-query'
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'test': { kind: 'test' } & ContextFormed
   }

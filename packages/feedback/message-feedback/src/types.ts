@@ -2,13 +2,13 @@
  * Public request, value, and failure vocabulary for per-message feedback.
  * This module contains types only so generated Remote clients can consume it
  * without importing Host runtime code.
- * @module @qilin/message-feedback/types
+ * @module @qilin-agent/message-feedback/types
  */
 
-import type { Branded } from '@qilin/brand'
-import type { MessageId } from '@qilin/llm/brand'
-import type { SessionId } from '@qilin/session/types'
-import type { FeedbackCategory } from '@qilin/command-feedback/types'
+import type { Branded } from '@qilin-agent/brand'
+import type { MessageId } from '@qilin-agent/llm/brand'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { FeedbackCategory } from '@qilin-agent/command-feedback/types'
 
 /** Opaque compare-and-set token for one exact feedback item revision. */
 export type MessageFeedbackVersion = Branded<'MessageFeedbackVersion'>
@@ -50,7 +50,7 @@ export interface MessageFeedbackDelete {
   readonly messageId: MessageId
 }
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /** Log-only human feedback; never enters model history. */
     'feedback/message-put': MessageFeedbackPut

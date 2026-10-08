@@ -1,11 +1,11 @@
 /** Standard ACP MCP-server declarations translated into Agent-scoped QILIN MCP clients. */
 
-import type { Context } from '@qilin/kylin'
+import type { Context } from '@qilin-agent/kylin'
 import { createHash } from 'node:crypto'
 import { validateHeaderName, validateHeaderValue } from 'node:http'
 import { isAbsolute } from 'node:path'
 import type { McpServer } from '@agentclientprotocol/sdk'
-import * as McpClient from '@qilin/mcp-client'
+import * as McpClient from '@qilin-agent/mcp-client'
 
 const VALID_SERVER_NAME = /^[A-Za-z0-9_-]{1,32}$/
 

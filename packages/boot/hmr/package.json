@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/hmr",
+  "name": "@qilin-agent/hmr",
   "description": "Coordinated module and profile configuration hot reload",
   "version": "3.1.1",
   "publishConfig": {
@@ -31,30 +31,30 @@
   "author": "Shigma <shigma10826@gmail.com>",
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/kylin-plugin-timer": "workspace:~",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/kylin-plugin-include": "workspace:~",
-    "@qilin/app-boot": "workspace:*",
-    "@qilin/cmdline": "workspace:*"
+    "@qilin-agent/kylin-plugin-timer": "workspace:~",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/app-boot": "workspace:*",
+    "@qilin-agent/cmdline": "workspace:*"
   },
   "dependencies": {
     "@babel/code-frame": "^7.29.0",
     "chokidar": "^4.0.3",
     "node-addon-require-builtin": "^0.1.6",
     "picomatch": "^4.0.3",
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "devDependencies": {
     "@types/babel__code-frame": "^7.27.0",
     "@types/picomatch": "^3.0.2",
     "esbuild": "^0.28.1",
-    "@qilin/kylin-plugin-timer": "workspace:~",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/kylin-plugin-include": "workspace:~",
-    "@qilin/app-boot": "workspace:*",
-    "@qilin/cmdline": "workspace:*",
-    "@qilin/atomic-write": "workspace:*"
+    "@qilin-agent/kylin-plugin-timer": "workspace:~",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/app-boot": "workspace:*",
+    "@qilin-agent/cmdline": "workspace:*",
+    "@qilin-agent/atomic-write": "workspace:*"
   }
 }

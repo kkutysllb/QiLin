@@ -3,13 +3,13 @@ description: "QiLin 主目录与用户数据路径的共享解析，供需要统
 kind: "package-library"
 ---
 
-# @qilin/home-paths
+# @qilin-agent/home-paths
 
 [English](README.md) | 中文
 
 ## 概述
 
-`@qilin/home-paths` 让包作者能够解析统一的 QiLin 数据根目录，并由它派生子路径。显式路径优先于 `$QILIN_HOME`，后者优先于 `~/.qilin`；空白环境变量会被忽略。其公开辅助函数可以在不暴露机器绝对路径的情况下显示根目录，仅展开单独或当前用户的波浪号形式，并规范化最终路径段尚不存在的监听目标。请把它作为库依赖直接使用，不要通过 `cordis.yml` 加载。
+`@qilin-agent/home-paths` 让包作者能够解析统一的 QiLin 数据根目录，并由它派生子路径。显式路径优先于 `$QILIN_HOME`，后者优先于 `~/.qilin`；空白环境变量会被忽略。其公开辅助函数可以在不暴露机器绝对路径的情况下显示根目录，仅展开单独或当前用户的波浪号形式，并规范化最终路径段尚不存在的监听目标。请把它作为库依赖直接使用，不要通过 `cordis.yml` 加载。
 
 ## 目录
 
@@ -29,7 +29,7 @@ kind: "package-library"
 ### 解析主目录
 
 ```ts
-import { resolveQilinHome, qilinHomePath, qilinCachePath } from '@qilin/home-paths'
+import { resolveQilinHome, qilinHomePath, qilinCachePath } from '@qilin-agent/home-paths'
 
 const home = resolveQilinHome()                // configured path, else $QILIN_HOME, else ~/.qilin
 const settings = qilinHomePath('settings')     // join one child onto the resolved home

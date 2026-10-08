@@ -1,8 +1,8 @@
 /** Public Agent Teams identities, durable records, and service request values. */
 
-import type { Branded } from '@qilin/brand'
-import type { ContentBlock } from '@qilin/llm/types'
-import type { SessionId } from '@qilin/session/types'
+import type { Branded } from '@qilin-agent/brand'
+import type { ContentBlock } from '@qilin-agent/llm/types'
+import type { SessionId } from '@qilin-agent/session/types'
 
 /** Identifies the implicit team rooted at one top-level Session. */
 export type TeamId = Branded<'TeamId'>
@@ -117,7 +117,7 @@ export interface TeamProjection {
   readonly failure?: string
 }
 
-declare module '@qilin/session-projection/types' {
+declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionMap {
     /** Durable roster and non-deleted task board of the Team rooted at the projected Session. */
     agentTeam: TeamProjection
@@ -142,7 +142,7 @@ export interface TeamMessageSource {
   readonly senderName: string
 }
 
-declare module '@qilin/llm' {
+declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
     'team-message': TeamMessageSource
   }
@@ -226,7 +226,7 @@ export interface TeamWaitResult {
   readonly timedOut: boolean
 }
 
-declare module '@qilin/session/types' {
+declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
     /** Whole teammate lifecycle value, stored only in the Team Lead Session. */
     'team/member': { version: 2; teamId: TeamId; member: TeamMemberSnapshot }

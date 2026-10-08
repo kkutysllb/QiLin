@@ -34,7 +34,7 @@ const INSTALL_SECTIONS = ['dependencies', 'optionalDependencies'] as const
 const PEER_SECTIONS = ['peerDependencies'] as const
 
 /** The workspace root manifest, which is never a release member. */
-const WORKSPACE_ROOT_PACKAGE = '@qilin/root'
+const WORKSPACE_ROOT_PACKAGE = '@qilin-agent/root'
 
 /** One peer declaration the publish order leaves unordered. */
 interface DroppedPeerEdge {
@@ -117,7 +117,7 @@ export abstract class ReleaseFamily {
   /**
    * Whether this family publishes a discovered manifest.
    *
-   * This repository publishes only the `@qilin` scope, so a foreign name is a
+   * This repository publishes only the `@qilin-agent` scope, so a foreign name is a
    * mistake everywhere except `vendor/`, which overrides this to keep two
    * packages on their upstream names.
    * @param name - the manifest's package name.
@@ -126,7 +126,7 @@ export abstract class ReleaseFamily {
    * @throws when the name is one this family may never publish.
    */
   protected publishes(name: string, manifestPath: string): boolean {
-    if (!name.startsWith('@qilin/')) throw new Error(`${manifestPath} must name a @qilin package`)
+    if (!name.startsWith('@qilin-agent/')) throw new Error(`${manifestPath} must name a @qilin-agent package`)
     return true
   }
 
@@ -385,7 +385,7 @@ class QilinFamily extends ReleaseFamily {
     validateTarballPayload(files, member.name)
   }
 
-  readonly installedEntry = { packageName: '@qilin/cli', binPath: 'lib/bin.js' }
+  readonly installedEntry = { packageName: '@qilin-agent/cli', binPath: 'lib/bin.js' }
 }
 
 /** `vendor/*`: every package keeps its own version line, so every package has its own tag. */
@@ -410,7 +410,7 @@ class VendorFamily extends ReleaseFamily {
    * A prefix per member, because one vendor release can carry several versions.
    *
    * The directory names the tag, not the package: a rescoped vendored package
-   * keeps its upstream directory (`vendor/cordis` publishes `@qilin/kylin`), and
+   * keeps its upstream directory (`vendor/cordis` publishes `@qilin-agent/kylin`), and
    * the upstream name is what the tag ledger has always recorded.
    * @param member - the member being published.
    * @returns `vendor-<directory name>-v`.

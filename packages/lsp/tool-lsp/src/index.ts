@@ -7,16 +7,16 @@
  * imports no provider.
  *
  * Namespace plugin (named exports, no default export).
- * @module @qilin/tool-lsp
+ * @module @qilin-agent/tool-lsp
  */
 
-import type { Context } from '@qilin/kylin'
-import z from '@qilin/schemastery'
-import { defineTool } from '@qilin/tools'
-import { LspError } from '@qilin/lsp'
-import type {} from '@qilin/lsp'
-import { MAX_TIMER_DELAY_MS } from '@qilin/timeout'
-import { assertNever } from '@qilin/util-values'
+import type { Context } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
+import { defineTool } from '@qilin-agent/tools'
+import { LspError } from '@qilin-agent/lsp'
+import type {} from '@qilin-agent/lsp'
+import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
+import { assertNever } from '@qilin-agent/util-values'
 import {
   DEFAULT_MAX_LOCATIONS,
   DEFAULT_MAX_RESULT_CHARS,

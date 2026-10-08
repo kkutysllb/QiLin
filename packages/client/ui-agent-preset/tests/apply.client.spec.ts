@@ -5,15 +5,15 @@
  * that are already showing, so a default set from one converges the other.
  */
 
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
-import { resolveSlotLabel } from '@qilin/client-ui-slots'
-import { SlotRegistry } from '@qilin/client-ui-renderer/client'
-import { LocaleRuntime } from '@qilin/client-locale/client'
-import { RemoteError, TestRemote } from '@qilin/client-test-runtime'
-import { SessionId } from '@qilin/session'
-import { apply as settingsApply, inject as settingsInject } from '@qilin/client-ui-settings/client'
-import { apply, inject } from '@qilin/client-ui-agent-preset/client'
+import { resolveSlotLabel } from '@qilin-agent/client-ui-slots'
+import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
+import { RemoteError, TestRemote } from '@qilin-agent/client-test-runtime'
+import { SessionId } from '@qilin-agent/session'
+import { apply as settingsApply, inject as settingsInject } from '@qilin-agent/client-ui-settings/client'
+import { apply, inject } from '@qilin-agent/client-ui-agent-preset/client'
 import { AgentPresetLabel } from '../src/client/AgentPresetLabel.tsx'
 import type { AgentPresetLabelInjected } from '../src/client/AgentPresetLabel.tsx'
 import { AgentPresetSection } from '../src/client/AgentPresetSection.tsx'
@@ -884,7 +884,7 @@ describe('AgentPresetSeatController reconciliation', () => {
   })
 
   it('keeps the bare cause of a mount failure, not the frame that names the preset again', async () => {
-    const reason = 'failed to import loader entry ctx (@qilin/gone): Cannot find package'
+    const reason = 'failed to import loader entry ctx (@qilin-agent/gone): Cannot find package'
     const controller = new AgentPresetSeatController({
       remote: {
         agentPresets: {

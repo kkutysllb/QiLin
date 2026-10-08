@@ -5,13 +5,13 @@
  * never by timing.
  */
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import type { RemoteFailure, RemoteResult } from '@qilin/typert-protocol'
-import { RemoteError } from '@qilin/client-test-runtime'
+import { Context } from '@qilin-agent/kylin'
+import type { RemoteFailure, RemoteResult } from '@qilin-agent/typert-protocol'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
 import { protocolOf, RESOURCE_SCHEME, ResourceRegistry } from '../src/client/resources.ts'
 import type { ResourceOpenContext, ResourceProvider } from '../src/client/contract.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface ResourceProtocolMap {
     feed: string
     counter: number

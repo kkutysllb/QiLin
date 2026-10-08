@@ -1,9 +1,9 @@
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it } from 'vitest'
-import { SettingsProvider, type SettingsNamespace } from '@qilin/settings'
+import { SettingsProvider, type SettingsNamespace } from '@qilin-agent/settings'
 import {
   LOCALE_SETTINGS_NAMESPACE, apply,
-} from '@qilin/client-locale'
+} from '@qilin-agent/client-locale'
 
 class MemorySettings extends SettingsProvider {
   readonly writable = true

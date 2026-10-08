@@ -9,14 +9,14 @@
  * No caller supplies composition text: the inputs are ids the host resolves
  * against its own roots plus an optional display name, so authoring grants no
  * capability the copied preset did not already carry.
- * @module @qilin/agent-presets/authoring
+ * @module @qilin-agent/agent-presets/authoring
  */
 
 import { chmod, cp, readdir, readFile, rm, stat } from 'node:fs/promises'
 import { dirname, isAbsolute, join, resolve } from 'node:path'
-import { writeFileAtomic } from '@qilin/atomic-write'
-import { expandHomePath } from '@qilin/home-paths'
-import { RemoteError } from '@qilin/typert-protocol'
+import { writeFileAtomic } from '@qilin-agent/atomic-write'
+import { expandHomePath } from '@qilin-agent/home-paths'
+import { RemoteError } from '@qilin-agent/typert-protocol'
 import { METADATA_FILE, renderPresetMetadata } from './metadata.ts'
 import { PRESET_ID, type AgentPreset, type PresetRoot } from './preset.ts'
 

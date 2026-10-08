@@ -14,9 +14,9 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context, FiberState } from '@qilin/kylin'
-import Loader from '@qilin/kylin-plugin-loader'
-import Include from '@qilin/kylin-plugin-include'
+import { Context, FiberState } from '@qilin-agent/kylin'
+import Loader from '@qilin-agent/kylin-plugin-loader'
+import Include from '@qilin-agent/kylin-plugin-include'
 import HttpServer, { renderIndexInjections } from '../src/index.ts'
 
 let root: string | undefined
@@ -34,7 +34,7 @@ async function loadComposition(port = 0, gzip = false, listenOn?: 'settle'): Pro
   root = await mkdtemp(join(tmpdir(), 'qilin-webserver-loader-'))
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, [
-    "- name: '@qilin/host-webserver'",
+    "- name: '@qilin-agent/host-webserver'",
     '  config:',
     "    host: '127.0.0.1'",
     `    port: ${String(port)}`,
@@ -54,7 +54,7 @@ async function loadComposition(port = 0, gzip = false, listenOn?: 'settle'): Pro
   await context.plugin(Loader)
   context.loader.builtins.include = Include
   const modules = new Map<string, unknown>([
-    ['@qilin/host-webserver', HttpServer],
+    ['@qilin-agent/host-webserver', HttpServer],
   ])
   context.loader.internal = {
     version: 'v2',
@@ -390,7 +390,7 @@ describe('real Loader composition', () => {
     const port = await freePort()
     root = await mkdtemp(join(tmpdir(), 'qilin-webserver-loader-'))
     await writeFile(join(root, 'cordis.yml'), [
-      "- name: '@qilin/host-webserver'",
+      "- name: '@qilin-agent/host-webserver'",
       '  config:',
       "    host: '127.0.0.1'",
       `    port: ${String(port)}`,
@@ -416,7 +416,7 @@ describe('real Loader composition', () => {
       },
     }
     const modules = new Map<string, unknown>([
-      ['@qilin/host-webserver', HttpServer],
+      ['@qilin-agent/host-webserver', HttpServer],
       ['test-blocker', blocker],
     ])
     context.loader.internal = {
@@ -434,7 +434,7 @@ describe('real Loader composition', () => {
     releaseBlocker()
     await loading
     await context.loader.await()
-    const entry = [...context.loader.entries()].find(candidate => candidate.options.name === '@qilin/host-webserver')
+    const entry = [...context.loader.entries()].find(candidate => candidate.options.name === '@qilin-agent/host-webserver')
     expect(entry?.fiber?.state).toBe(FiberState.ACTIVE)
     // Settlement resolves the bind as the next step; poll for the socket.
     await vi.waitFor(async () => {
@@ -469,7 +469,7 @@ describe('real Loader composition', () => {
     let second: Context | undefined
     try {
       second = await loadComposition(takenPort, false, 'settle')
-      const entry = [...second.loader.entries()].find(e => e.options.name === '@qilin/host-webserver')
+      const entry = [...second.loader.entries()].find(e => e.options.name === '@qilin-agent/host-webserver')
       expect(entry?.fiber?.state).toBe(FiberState.FAILED)
       await expect(entry?.fiber?.await()).rejects.toThrow('EADDRINUSE')
     } finally {
@@ -489,7 +489,7 @@ describe('real Loader composition', () => {
     let second: Context | undefined
     try {
       second = await loadComposition(takenPort)
-      const entry = [...second.loader.entries()].find(e => e.options.name === '@qilin/host-webserver')
+      const entry = [...second.loader.entries()].find(e => e.options.name === '@qilin-agent/host-webserver')
       expect(entry?.fiber?.state).toBe(FiberState.FAILED)
       await expect(entry?.fiber?.await()).rejects.toThrow('EADDRINUSE')
     } finally {

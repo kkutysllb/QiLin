@@ -32,19 +32,19 @@
  * as the user's environment layer; a store that doubled as the environment
  * layer would shadow non-secret entries behind its precedence, making them
  * silently unreachable.
- * @module @qilin/credentials-local
+ * @module @qilin-agent/credentials-local
  */
 
-import { Context, Service } from '@qilin/kylin'
-import z from '@qilin/schemastery'
+import { Context, Service } from '@qilin-agent/kylin'
+import z from '@qilin-agent/schemastery'
 import { watch as chokidarWatch } from 'chokidar'
 import { mkdir, readFile, stat } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { Document, isMap, isScalar, parseDocument, type YAMLError } from 'yaml'
-import { withFileLock, writeFileAtomic } from '@qilin/atomic-write'
-import { canonicalizeWatchPath, resolveQilinHome } from '@qilin/home-paths'
-import { launchEnvironmentOf } from '@qilin/launch-environment'
-import { CredentialProvider, credentialRef, parseCredentialKey } from '@qilin/credentials'
+import { withFileLock, writeFileAtomic } from '@qilin-agent/atomic-write'
+import { canonicalizeWatchPath, resolveQilinHome } from '@qilin-agent/home-paths'
+import { launchEnvironmentOf } from '@qilin-agent/launch-environment'
+import { CredentialProvider, credentialRef, parseCredentialKey } from '@qilin-agent/credentials'
 import type {
   ApiKeyRecord,
   CredentialInfo,
@@ -54,8 +54,8 @@ import type {
   CredentialRecordInfo,
   CredentialRef,
   ResolvedCredential,
-} from '@qilin/credentials'
-import type { LaunchEnvironmentEntry } from '@qilin/launch-environment'
+} from '@qilin-agent/credentials'
+import type { LaunchEnvironmentEntry } from '@qilin-agent/launch-environment'
 
 /** Basename of the credentials document inside the harness home. */
 export const CREDENTIALS_FILENAME = '.credentials.yaml'

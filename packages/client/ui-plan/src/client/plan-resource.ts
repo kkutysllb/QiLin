@@ -1,12 +1,12 @@
 /** Read immutable plan arguments from a Session snapshot and earlier history pages. */
-import type { Context } from '@qilin/kylin'
-import type { SessionFollowFrame } from '@qilin/api-session-controller/types'
-import type { ResourceProvider } from '@qilin/client-resources/client'
-import { RemoteError, remoteErrorOf } from '@qilin/typert-protocol'
-import type { RemoteResult } from '@qilin/typert-protocol'
+import type { Context } from '@qilin-agent/kylin'
+import type { SessionFollowFrame } from '@qilin-agent/api-session-controller/types'
+import type { ResourceProvider } from '@qilin-agent/client-resources/client'
+import { RemoteError, remoteErrorOf } from '@qilin-agent/typert-protocol'
+import type { RemoteResult } from '@qilin-agent/typert-protocol'
 import { parsePlanAddress, submittedPlan, type SubmittedPlan } from './plan.ts'
 
-declare module '@qilin/typert-protocol' {
+declare module '@qilin-agent/typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** The resource URL does not identify a plan invocation. */
     'plan/invalid-address': Record<string, never>
@@ -19,7 +19,7 @@ declare module '@qilin/typert-protocol' {
   }
 }
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface ResourceProtocolMap {
     /** Immutable Markdown from a logged exit_plan_mode invocation. */
     plan: SubmittedPlan

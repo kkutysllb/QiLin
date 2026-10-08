@@ -5,7 +5,7 @@
  * (`descriptor.icon`), not in a type-keyed switch — the icon mapping was
  * registry-ized with the tab types.
  */
-import type { IconProps } from '@qilin/client-ui-primitives'
+import type { IconProps } from '@qilin-agent/client-ui-primitives'
 
 /**
  * Right-panel toggle glyph (the "侧拉" button): a frame with a filled strip
@@ -188,7 +188,7 @@ export const IconVscode16 = ({ size = 16, className }: IconProps) => (
 
 /**
  * Send glyph for the side-chat composer. Vendored from
- * @qilin/client-ui-primitives 0.1.5-rc.2 (IconSendOutline16, a
+ * @qilin-agent/client-ui-primitives 0.1.5-rc.2 (IconSendOutline16, a
  * filled up-arrow): upstream DELETED that export in 0.1.6-alpha.1, which left
  * the imported binding undefined and crashed the side-chat panel with React
  * "Element type is invalid". Kept in this module (like the history / save

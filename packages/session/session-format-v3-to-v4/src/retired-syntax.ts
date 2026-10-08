@@ -1,6 +1,6 @@
 /** Retired native syntax remains a hard refusal even after a recoverable physical-row failure. */
 
-import { SessionFormatError, SessionFormatUnsupportedMigrationError, isSessionFormatJsonObject } from '@qilin/session-format'
+import { SessionFormatError, SessionFormatUnsupportedMigrationError, isSessionFormatJsonObject } from '@qilin-agent/session-format'
 
 function assertBlock(block: unknown, subject: string): void {
   if (isSessionFormatJsonObject(block) && block['type'] === 'tool-result') {

@@ -1,5 +1,5 @@
 {
-  "name": "@qilin/session-title-first-prompt-llm",
+  "name": "@qilin-agent/session-title-first-prompt-llm",
   "description": "First-message LLM provider plugin for QiLin session titles",
   "version": "3.1.1",
   "publishConfig": {
@@ -29,26 +29,26 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin/llm": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-title": "workspace:*",
-    "@qilin/session-title-llm": "workspace:*",
-    "@qilin/kylin": "workspace:~"
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-title": "workspace:*",
+    "@qilin-agent/session-title-llm": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
   },
   "dependencies": {
-    "@qilin/schemastery": "workspace:~"
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "devDependencies": {
-    "@qilin/kylin-plugin-include": "workspace:~",
-    "@qilin/kylin-plugin-loader": "workspace:~",
-    "@qilin/llm": "workspace:*",
-    "@qilin/llm-deepseek": "workspace:*",
-    "@qilin/llm-deepseek-api-key": "workspace:*",
-    "@qilin/session": "workspace:*",
-    "@qilin/session-title": "workspace:*",
-    "@qilin/session-title-llm": "workspace:*",
-    "@qilin/kylin": "workspace:~",
-    "@qilin/session-projection": "workspace:*",
-    "@qilin/agent-loop": "workspace:*"
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/llm-deepseek": "workspace:*",
+    "@qilin-agent/llm-deepseek-api-key": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-title": "workspace:*",
+    "@qilin-agent/session-title-llm": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/agent-loop": "workspace:*"
   }
 }

@@ -24,7 +24,7 @@ async function openVoiceBundle(page: Page): Promise<Locator> {
   const settings = await openSettings(page, { menu: 'Settings', dialog: 'Settings' })
   await settings.getByRole('button', { name: 'Built-in plugins', exact: true }).click()
   await settings.getByRole('tab', { name: 'Manage plugins', exact: true }).click()
-  await settings.locator('[data-plugin-package="@qilin/experimental-voice-input-bundle"]').getByRole('button').click()
+  await settings.locator('[data-plugin-package="@qilin-agent/experimental-voice-input-bundle"]').getByRole('button').click()
   return settings
 }
 

@@ -5,12 +5,12 @@ import type {
   SessionFormatHeader,
   SessionFormatJsonObject,
   SessionFormatJsonValue,
-} from '@qilin/session-format'
+} from '@qilin-agent/session-format'
 import {
   RELEASED_V2_EVENT_TYPES,
   assertReleasedV2Header,
   restoreReleasedV2Artifact,
-} from '@qilin/session-format-v1-to-v2'
+} from '@qilin-agent/session-format-v1-to-v2'
 import { assertReleasedV2Artifact } from '../src/testing/validation.ts'
 
 const textBlock = { type: 'text', text: 'hello' } as const

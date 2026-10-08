@@ -1,7 +1,7 @@
 /** Copy owned by the sidebar terminal feature. */
-import type {} from '@qilin/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-slots'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     sidebarTerminal: keyof typeof zh
   }

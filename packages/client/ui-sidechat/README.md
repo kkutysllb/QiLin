@@ -3,7 +3,7 @@ description: "The right Sidebar's sidechat page for the qilin web client: the se
 kind: "package-reference"
 ---
 
-# @qilin/client-ui-sidechat
+# @qilin-agent/client-ui-sidechat
 
 English | [中文](README.zh.md)
 
@@ -24,7 +24,7 @@ The right Sidebar's sidechat page: one column listing the current Session's side
 <a id="what-it-registers"></a>
 ## What it registers
 
-- **The type** — `ctx.sidebarRightTabs.register(...)` with kind `sidechat`, id `@qilin/client-ui-sidechat`, band `builtin`, `single`, and no patterns; `ctx.sidebarRight.openTab('sidechat')` opens it.
+- **The type** — `ctx.sidebarRightTabs.register(...)` with kind `sidechat`, id `@qilin-agent/client-ui-sidechat`, band `builtin`, `single`, and no patterns; `ctx.sidebarRight.openTab('sidechat')` opens it.
 - **The body** — the keyed `sidebar.right.pane.tab` seat under that id, injecting the panel's state source through the `hooks` compartment and the actions through the inject face.
 
 Nine source files under `src/client/`: `definition.tsx` (the type), `sidechat-model.ts` (the pure view model: the follow address and the transcript fold), `sidechat-source.ts` (the object-layer state source), `face.ts` (the actions and their Remote binding), `SidechatBody.tsx` and `SidechatBody.module.css` (what is drawn), `locales.ts` (what it says), and `index.ts` (the wiring).

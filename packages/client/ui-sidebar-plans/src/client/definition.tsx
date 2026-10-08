@@ -5,16 +5,16 @@
  * offers it as an entry box, and each row opens its document through
  * `tabActions.openResource` for the `qilin-resource://file` viewers to claim.
  */
-import type { SidebarRightTabDefinition } from '@qilin/client-ui-sidebar-right/client'
-import type { TranslateNS } from '@qilin/client-ui-slots'
-import { IconChecklistOutline14, type IconProps } from '@qilin/client-ui-primitives'
+import type { SidebarRightTabDefinition } from '@qilin-agent/client-ui-sidebar-right/client'
+import type { TranslateNS } from '@qilin-agent/client-ui-slots'
+import { IconChecklistOutline14, type IconProps } from '@qilin-agent/client-ui-primitives'
 import type {} from './locales.ts'
 
 /** The tab kind this package owns. */
 export const PLANS_KIND = 'plans'
 
 /** This implementation's identity in the tab system, and the key its body registers under. */
-export const PLANS_ID = '@qilin/client-ui-sidebar-plans'
+export const PLANS_ID = '@qilin-agent/client-ui-sidebar-plans'
 
 /** The type's checklist glyph at whatever size the drawing surface asks for. */
 function ChecklistGlyph({ size, className }: IconProps) {

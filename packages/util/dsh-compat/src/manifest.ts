@@ -8,7 +8,7 @@
  * either channel's packages unchanged. Each reader validates only its own
  * pick (string presence for the patch path); the owning consumer keeps its
  * full structural validation and error reporting.
- * @module @qilin/dsh-compat/manifest
+ * @module @qilin-agent/dsh-compat/manifest
  */
 
 /** The loose manifest shape both channels declare their metadata under. */

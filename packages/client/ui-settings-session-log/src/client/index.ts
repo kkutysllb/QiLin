@@ -1,14 +1,14 @@
 /** General settings companion for the Host Session-log upload configuration. */
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/client-locale/client'
-import type {} from '@qilin/client-ui-settings/client'
-import type {} from '@qilin/client-ui-layout/client'
-import type {} from '@qilin/client-ui-renderer/client'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/client-locale/client'
+import type {} from '@qilin-agent/client-ui-settings/client'
+import type {} from '@qilin-agent/client-ui-layout/client'
+import type {} from '@qilin-agent/client-ui-renderer/client'
 import { UploadPreference, type UploadSettings } from './upload-preference.ts'
 import { UploadRow, UploadToast, type UploadInjected } from './UploadRow.tsx'
 import { en, zh } from './locales.ts'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** API Session-log preference copy. */
     'settings.sessionLog': keyof typeof en

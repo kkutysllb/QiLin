@@ -4,8 +4,8 @@
  * the renderer binds as `useSidechat`. React-free by design; the face in
  * `face.ts` is the only writer.
  */
-import type { SessionId } from '@qilin/session'
-import type { SidechatThreadRow } from '@qilin/api-session-controller/types'
+import type { SessionId } from '@qilin-agent/session'
+import type { SidechatThreadRow } from '@qilin-agent/api-session-controller/types'
 import type { SidechatTranscriptEntry } from './sidechat-model.ts'
 
 /** How far the roster read has got. */

@@ -8,15 +8,15 @@
  * (and the reverse), the one-shared-state contract of the dual entry.
  * Scope disposal drops the directory (HMR safety).
  */
-import { Context } from '@qilin/kylin'
+import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
-import { createScope } from '@qilin/api-session-controller/client'
-import type { SessionId } from '@qilin/session/types'
-import { LocaleRuntime } from '@qilin/client-locale/client'
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
-import { RemoteError, TestRemote } from '@qilin/client-test-runtime'
-import type { ModelSelection, ModelSelectionProjection } from '@qilin/api-session-controller/types'
-import type { CommandContribution, PopupSelectSpec, SelectOption } from '@qilin/client-ui-commands/client'
+import { createScope } from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import { LocaleRuntime } from '@qilin-agent/client-locale/client'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
+import { RemoteError, TestRemote } from '@qilin-agent/client-test-runtime'
+import type { ModelSelection, ModelSelectionProjection } from '@qilin-agent/api-session-controller/types'
+import type { CommandContribution, PopupSelectSpec, SelectOption } from '@qilin-agent/client-ui-commands/client'
 import type { ModelSelectInjected } from '../src/client/slots.ts'
 import { apply, inject } from '../src/client/index.ts'
 import { zh } from '../src/client/locales.ts'

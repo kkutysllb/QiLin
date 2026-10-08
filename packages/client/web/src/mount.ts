@@ -1,10 +1,10 @@
 /**
  * Application mount through a dependency fiber, so replacing `uiRenderer`
  * remounts the application. Shared by `AppWebEntry` and the test carrier.
- * @module @qilin/client-web/src/mount
+ * @module @qilin-agent/client-web/src/mount
  */
-import type { Context } from '@qilin/kylin'
-import type {} from '@qilin/client-ui-renderer/client'
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/client-ui-renderer/client'
 
 /**
  * Mount the UI renderer into `container` through a dependency fiber on

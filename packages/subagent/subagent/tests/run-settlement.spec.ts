@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { SessionId } from '@qilin/session'
+import { SessionId } from '@qilin-agent/session'
 import {
   settleRun,
   settleRunResult,

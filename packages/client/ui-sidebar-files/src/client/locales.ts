@@ -10,9 +10,9 @@
  * `TranslateNS<'sidebarFiles'>` or `PropsLocale<'sidebarFiles'>` needs only this
  * file, whichever entry a program loads first.
  */
-import type {} from '@qilin/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-slots'
 
-declare module '@qilin/client-ui-slots' {
+declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** File-tree and file-editor type names, guide entry, row states, and failure lines. */
     sidebarFiles: SidebarFilesKey

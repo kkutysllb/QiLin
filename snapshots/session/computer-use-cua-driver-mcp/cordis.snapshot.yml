@@ -2,24 +2,24 @@
   disabled: true
 
 - id: agent-default-model
-  name: '@qilin/agent-default-model'
+  name: '@qilin-agent/agent-default-model'
   config:
     provider: deepseek-official
     model: deepseek-v4-flash-vision-exp
 
 - id: session-persistence-jsonl
-  name: '@qilin/session-persistence-jsonl'
+  name: '@qilin-agent/session-persistence-jsonl'
   config:
     root: !!js qilinHomePath('sessions')
     compression: none
 
 - id: agent-instructions
-  name: '@qilin/agent-instructions'
+  name: '@qilin-agent/agent-instructions'
   config:
     maxBytes: 65536
 
 - id: system-prompt
-  name: '@qilin/system-prompt'
+  name: '@qilin-agent/system-prompt'
   config:
     personaPrefix: |
       You are a coding assistant powered by the {{model}} model. Your working directory is {{cwd}}. Your bash tool runs under a file sandbox — a `[sandbox: file access denied …]` result is policy, not a command bug.
@@ -28,7 +28,7 @@
 
 - insert:
     - id: llm-replay
-      name: '@qilin/llm-replay'
+      name: '@qilin-agent/llm-replay'
       config:
         providers:
           - id: deepseek-official
@@ -42,13 +42,13 @@
                 inputModalities: [text, image]
 
 - id: attachment-local
-  name: '@qilin/attachment-local'
+  name: '@qilin-agent/attachment-local'
 
 - insert:
     - id: computer-use
-      name: '@qilin/computer-use'
+      name: '@qilin-agent/computer-use'
     - id: computer-use-cua-driver-mcp
-      name: '@qilin/experimental-computer-use-cua-driver-mcp'
+      name: '@qilin-agent/experimental-computer-use-cua-driver-mcp'
       config:
         command: !!js process.execPath
         args: [driver.mjs, .qilin/computer-use-fixture]

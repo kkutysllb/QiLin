@@ -1,13 +1,13 @@
 /** The `web-search-deepseek` settings section layered over the composition entry. */
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import type { Fiber } from '@qilin/kylin'
-import { SettingsProvider } from '@qilin/settings'
-import type { SettingsNamespace } from '@qilin/settings'
-import WebRuntime from '@qilin/web'
-import * as deepseekPlugin from '@qilin/web-search-deepseek'
-import { WEB_SEARCH_DEEPSEEK_SETTINGS_NAMESPACE } from '@qilin/web-search-deepseek'
+import { Context } from '@qilin-agent/kylin'
+import type { Fiber } from '@qilin-agent/kylin'
+import { SettingsProvider } from '@qilin-agent/settings'
+import type { SettingsNamespace } from '@qilin-agent/settings'
+import WebRuntime from '@qilin-agent/web'
+import * as deepseekPlugin from '@qilin-agent/web-search-deepseek'
+import { WEB_SEARCH_DEEPSEEK_SETTINGS_NAMESPACE } from '@qilin-agent/web-search-deepseek'
 
 /** The smallest real provider: one in-memory document, always writable. */
 class MemorySettings extends SettingsProvider {

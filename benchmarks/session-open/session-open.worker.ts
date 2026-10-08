@@ -2,20 +2,20 @@
 
 import { performance } from 'node:perf_hooks'
 import { scheduler } from 'node:timers/promises'
-import { Context } from '@qilin/kylin'
-import AgentLoop, { turnBoundaryProjectionDefinition } from '@qilin/agent-loop'
-import { mountAgentLoopTestDependencies } from '@qilin/agent-loop-testkit'
-import { agentPresetProjectionDefinition } from '@qilin/agent-presets'
+import { Context } from '@qilin-agent/kylin'
+import AgentLoop, { turnBoundaryProjectionDefinition } from '@qilin-agent/agent-loop'
+import { mountAgentLoopTestDependencies } from '@qilin-agent/agent-loop-testkit'
+import { agentPresetProjectionDefinition } from '@qilin-agent/agent-presets'
 import SessionStore, {
   interruptedTurnClosers,
   SessionId,
   SessionLogOffset,
   SessionPreparation,
-} from '@qilin/session'
-import type { AgentHandle } from '@qilin/agent'
-import JsonlSessionPersistence from '@qilin/session-persistence-jsonl'
-import SessionProjectionRegistry from '@qilin/session-projection'
-import SessionQueryEngine from '@qilin/session-query'
+} from '@qilin-agent/session'
+import type { AgentHandle } from '@qilin-agent/agent'
+import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import SessionQueryEngine from '@qilin-agent/session-query'
 import type {
   SessionEventSearchPage,
   SessionEventSearchRequest,
@@ -23,11 +23,11 @@ import type {
   SessionSearchHit,
   SessionSearchPage,
   SessionSearchRequest,
-} from '@qilin/session-query'
-import * as SessionStatsPlugin from '@qilin/session-stats'
-import SessionTitleService from '@qilin/session-title'
-import * as SessionTurnOutlinePlugin from '@qilin/session-turn-outline'
-import TokenMeter from '@qilin/token-meter'
+} from '@qilin-agent/session-query'
+import * as SessionStatsPlugin from '@qilin-agent/session-stats'
+import SessionTitleService from '@qilin-agent/session-title'
+import * as SessionTurnOutlinePlugin from '@qilin-agent/session-turn-outline'
+import TokenMeter from '@qilin-agent/token-meter'
 // These Host-only adapters have no public Node export and are compiled into the benchmark worker.
 import { SessionHistoryController } from '../../packages/api/session-controller/src/history.ts'
 import { installModelSelectionProjection } from '../../packages/api/session-controller/src/model-selection-projection.ts'
@@ -291,7 +291,7 @@ class SessionBenchmarkHost {
 }
 
 assertBuiltBenchmarkRuntime(import.meta.url, {
-  '@qilin/session-persistence-jsonl': import.meta.resolve('@qilin/session-persistence-jsonl'),
+  '@qilin-agent/session-persistence-jsonl': import.meta.resolve('@qilin-agent/session-persistence-jsonl'),
 })
 
 const [root, scenarioValue] = process.argv.slice(2)

@@ -1,17 +1,17 @@
 /**
  * Execution types for the bash executor seam. Background job semantics belong
- * to `@qilin/jobs`; this seam exposes only process handles. The
+ * to `@qilin-agent/jobs`; this seam exposes only process handles. The
  * managed-environment and captured-output vocabulary is owned by the
  * subprocess seam and re-exported here so bash consumers keep one import
  * root.
  * @module qilin-shell/types
  */
 
-import type { SandboxEnforcement, SandboxExecutionPolicy, SandboxMode } from '@qilin/sandbox'
-import type { CollectedOutput, QilinEnvironment } from '@qilin/subprocess'
+import type { SandboxEnforcement, SandboxExecutionPolicy, SandboxMode } from '@qilin-agent/sandbox'
+import type { CollectedOutput, QilinEnvironment } from '@qilin-agent/subprocess'
 
-export { QILIN_ENV_PREFIX } from '@qilin/subprocess'
-export type { CollectedOutput, QilinEnvironment, QilinEnvironmentKey } from '@qilin/subprocess'
+export { QILIN_ENV_PREFIX } from '@qilin-agent/subprocess'
+export type { CollectedOutput, QilinEnvironment, QilinEnvironmentKey } from '@qilin-agent/subprocess'
 
 /**
  * Sandbox facts for one run, present iff a sandboxing executor handled it.

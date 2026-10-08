@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin/kylin'
-import { installProxyFromEnvironment } from '@qilin/http-proxy'
-import SubagentRuntime from '@qilin/subagent'
+import { Context } from '@qilin-agent/kylin'
+import { installProxyFromEnvironment } from '@qilin-agent/http-proxy'
+import SubagentRuntime from '@qilin-agent/subagent'
 import PtcWorkflowEngine from '../src/index.ts'
 import { fakeParent, mountPtcRuntime } from './setup.ts'
 

@@ -8,10 +8,10 @@
  * auth, list, create, and merge flows.
  */
 import { describe, expect, it } from 'vitest'
-import { RemoteError } from '@qilin/client-test-runtime'
-import type { RemoteFailure } from '@qilin/api-remotes/client'
-import type { SessionId } from '@qilin/session/types'
-import type { TabId } from '@qilin/client-ui-dockkit'
+import { RemoteError } from '@qilin-agent/client-test-runtime'
+import type { RemoteFailure } from '@qilin-agent/api-remotes/client'
+import type { SessionId } from '@qilin-agent/session/types'
+import type { TabId } from '@qilin-agent/client-ui-dockkit'
 import { createGitReader, gitFace } from '../src/client/face.ts'
 import { HISTORY_PAGE_SIZE } from '../src/client/git-model.ts'
 import { createGitStore } from '../src/client/store.ts'

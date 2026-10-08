@@ -16,12 +16,12 @@
  * aborted on that commit. The slot framework binds the navigation sources for
  * each record's `useTabInfo` reader.
  */
-import type { Branded } from '@qilin/brand'
-import { randomUUID } from '@qilin/util-crypto'
-import type { LayoutState, PaneId, TabId, TabRecord } from '@qilin/client-ui-dockkit'
-import { findTabPane } from '@qilin/client-ui-dockkit'
-import { createSnapshotStore, type SnapshotStore } from '@qilin/client-store'
-import type { SessionId } from '@qilin/session/types'
+import type { Branded } from '@qilin-agent/brand'
+import { randomUUID } from '@qilin-agent/util-crypto'
+import type { LayoutState, PaneId, TabId, TabRecord } from '@qilin-agent/client-ui-dockkit'
+import { findTabPane } from '@qilin-agent/client-ui-dockkit'
+import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { SidebarRightNavigationParams } from './contract/params.ts'
 import type { SidebarRightTabActions, SidebarRightTabCommands, SidebarRightTabNavigation, SidebarRightTabPlacement } from './contract/slots.ts'
 import type { SidebarRightOpenResourceOptions, SidebarRightOpenTabOptions, SidebarRightPlacement } from './service.ts'

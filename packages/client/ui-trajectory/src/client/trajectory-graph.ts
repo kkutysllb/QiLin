@@ -23,9 +23,9 @@
 import type {
   AssistantBlock, ConversationNode, ModelRetryNode, RequestView, RunningToolCall,
   ToolCallBlock,
-} from '@qilin/client-ui-conversation/client'
-import type { ImageAttachmentRef, FileAttachmentRef, ImageMediaType } from '@qilin/attachment'
-import type { ContentBlock } from '@qilin/llm/types'
+} from '@qilin-agent/client-ui-conversation/client'
+import type { ImageAttachmentRef, FileAttachmentRef, ImageMediaType } from '@qilin-agent/attachment'
+import type { ContentBlock } from '@qilin-agent/llm/types'
 import type { TrajectoryKey, TrajectoryTranslate } from './locales.ts'
 import type { TrajectorySnapshot } from './trajectory-contract.ts'
 
