@@ -1,7 +1,7 @@
 {
   "name": "openkylin-desktop",
   "productName": "QiLin Desktop",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "OpenKylin Desktop —— 基于 QiLin 构建的中文桌面产品",
   "type": "module",
   "private": true,
