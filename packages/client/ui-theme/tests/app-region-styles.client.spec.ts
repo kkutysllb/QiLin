@@ -74,6 +74,12 @@ const CHROME_ROWS: readonly ChromeRow[] = [
     height: ['height', '52px'],
   },
   {
+    file: SIDEBAR,
+    selector: '.topStripFixed',
+    markup: 'client/ui-sidebar/src/client/SidebarRoot.tsx',
+    height: ['height', '52px'],
+  },
+  {
     file: CONVERSATION,
     selector: '.header',
     // The resident header owns the mark for the one header element: the

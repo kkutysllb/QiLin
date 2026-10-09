@@ -22,6 +22,14 @@
   margin-right: 8px;
 }
 
+/* OpenKylin: one optical line with the hiddenInset traffic lights and the
+   sidebar's topStrip toggle — both center at y 26 (the 52px strip), while
+   this 48px header centers its items at y 24. align-items:center centers the
+   margin box, so a 4px top margin lands the controls' center at 26. */
+:global(html[data-platform='darwin']) :global([data-sidebar-collapsed]) .controls {
+  margin-top: 4px;
+}
+
 .iconButton {
   flex: none;
   display: inline-flex;

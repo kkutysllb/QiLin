@@ -11,7 +11,7 @@ import { SEAL_GLYPH_LIN, SEAL_GLYPH_QI } from './seal-glyphs.ts'
 import { SEAL_BODY, SEAL_CELL, SEAL_RING, cellTransform } from './seal-geometry.ts'
 
 /** Cinnabar body gradient, top to bottom: the seal's warm lit upper edge. */
-const BODY_STOPS = ['#d4503d', '#c3402f', '#a23526'] as const
+const BODY_STOPS = ['#c94a40', '#b7352c', '#8f2a21'] as const
 /** Warm white of the glyphs against the cinnabar body. */
 const GLYPH_FILL = '#fff5eb'
 /** Muted gold of the hairline ring. */

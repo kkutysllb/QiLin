@@ -14,6 +14,8 @@
 .overlay {
   position: fixed;
   inset: 0;
+  /* OpenKylin 桌面壳自绘标题栏让位：--ok-tb-h 由壳注入，纯 web 无此变量回落 0 */
+  top: var(--ok-tb-h, 0px);
   z-index: 1000;
   display: flex;
 }
@@ -62,6 +64,13 @@
   box-sizing: border-box;
   background: var(--qilin-specific-sidebar-fill);
   border-right: 0.5px solid var(--qilin-alias-border-l1);
+}
+
+/* OpenKylin 桌面壳：无框窗口的红绿灯中心压在 26px 光学线上（与侧栏 topStrip
+   同一条线），设置页轨道不在这条线上——上游 22px 顶距让返回键顶边与灯带
+   齐平，贴得过紧。darwin 下再让出 10px；纯 web 无 data-platform 不受影响。 */
+:global(html[data-platform='darwin']) .navBack {
+  margin-top: 10px;
 }
 
 /* Workspace return control at the rail head: one nav-cell box above the panel

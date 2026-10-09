@@ -2,6 +2,7 @@
 import type { Context as ClientContext } from '@qilin-agent/kylin'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import { resolveSlotLabel } from '@qilin-agent/client-ui-slots'
+import { isDarwinDesktop, watchDarwinDesktop } from '@qilin-agent/client-ui-primitives'
 import type { MainPanelId } from '@qilin-agent/client-ui-layout/client'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
 import type {} from '@qilin-agent/client-locale/client'
@@ -54,6 +55,10 @@ export function apply(ctx: ClientContext): void {
     // applied before grouping, so rows the deployment does not register
     // itself (engine panels) join sections of the deployment's naming. An
     // assignment wins over the row's own `section`.
+    // 标记可能晚于 apply 落地（preload 兜底挂 DOMContentLoaded）；内置座位的
+    // face 自己按标记返回，watchDarwinDesktop 在翻转时重算本投影。部署侧
+    // 自带的座位不受门控——是否声明本来就是部署的选择。
+    const desktop = isDarwinDesktop()
     const assigned: Record<string, string> = {}
     for (const entry of ctx.slots.entriesOfSlot('sidebar.section.assignments')) {
       const face = entry.inject?.(undefined as never) as Partial<SidebarSectionAssignmentsOwnerProps> | undefined
@@ -62,7 +67,15 @@ export function apply(ctx: ClientContext): void {
     const next = ctx.slots.entriesOfSlot('sidebar.panellist').map(({ options }) => {
       // The list registration requires an id; StoredEntry erases the slot kind.
       const id = options.id as MainPanelId
-      const section = assigned[id] ?? resolveSlotLabel(options.section)
+      // OpenKylin 桌面：未归区且非引擎自带面板的行——即第三方插件——一律
+      // 归「扩展」尾部区（KStock placement seat 的 trailingSection 语义；
+      // 3.1.1 无该 seat，内联在此）。纯 web 保持原生行为：无区 = 无表头平铺。
+      const trailing = desktop
+        && assigned[id] === undefined
+        && resolveSlotLabel(options.section) === undefined
+        ? '扩展'
+        : undefined
+      const section = assigned[id] ?? resolveSlotLabel(options.section) ?? trailing
       return { id, order: options.order ?? 0, label: resolveSlotLabel(options.label) ?? id, section }
     }).sort((a, b) => a.order - b.order)
     const previous = panels.getSnapshot()
@@ -76,6 +89,7 @@ export function apply(ctx: ClientContext): void {
   ctx.effect(() => ctx.slots.subscribe('sidebar.panellist', syncPanels), 'ui-sidebar: panel entries')
   ctx.effect(() => ctx.slots.subscribe('sidebar.section.assignments', syncPanels), 'ui-sidebar: section assignments')
   ctx.effect(() => ctx.locale.subscribe(syncPanels), 'ui-sidebar: panel labels')
+  ctx.effect(() => watchDarwinDesktop(syncPanels), 'ui-sidebar: darwin mark')
   // The panel list is a presentation projection: an admission install (this
   // effect may run before the gate's own) or admitted-set move re-derives it.
   ctx.effect(() => ctx.slots.admission().subscribe(syncPanels), 'ui-sidebar: admission revisions')
@@ -115,5 +129,16 @@ export function apply(ctx: ClientContext): void {
     locale: NS,
     inject: injectProps,
   }, HeaderLeadingControls))
+  // OpenKylin 桌面（darwin 壳）：侧栏面板分区。引擎原生分组渲染——连续
+  // 同段行共享一枚表头（SidebarRoot 对 section 变化插 .panelSection）；
+  // 部署侧集中声明引擎面板行的归属（KStock client-shell 同款机制），
+  // 第三方行不带 section，渲染为无表头的平铺尾部。
+  // 座位无条件注册，face 按当下标记返回数据：apply 期不抢先读标记，标记晚到
+  // 时 watchDarwinDesktop 重算投影即可生效；纯 web 永远拿不到这份数据。
+  ctx.slots.inject('sidebar.section.assignments', () => ctx.slots.register({
+    name: 'sidebar.section.assignments',
+    id: 'ok-desktop-sections',
+    inject: () => (isDarwinDesktop() ? { assignments: { plugins: '通用', schedules: '通用' } } : undefined),
+  }, () => null))
   syncPanels()
 }

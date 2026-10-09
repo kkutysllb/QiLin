@@ -29,6 +29,9 @@ afterEach(async () => {
   } finally {
     runtimes.clear()
     cleanup()
+    document.documentElement.removeAttribute('data-platform')
+    localStorage.clear()
+    vi.restoreAllMocks()
   }
 })
 
@@ -193,11 +196,91 @@ describe('sidebar global panels', () => {
     expect(headers).toHaveLength(2)
     expect(headers.map(header => header.textContent)).toEqual(['Alpha group', 'Alpha group'])
     expect(headers.map(header => header.getAttribute('aria-hidden'))).toEqual(['false', 'false'])
-    expect(within(navigation).getAllByRole('button').map(row => row.textContent))
-      .toEqual(['Alpha panel', 'Beta panel', 'Gamma panel'])
+    // Section headers are fold toggles (role=button with aria-expanded); panel
+    // rows are the buttons without one.
+    const rows = within(navigation).getAllByRole('button').filter(row => row.getAttribute('aria-expanded') === null)
+    expect(rows.map(row => row.textContent)).toEqual(['Alpha panel', 'Beta panel', 'Gamma panel'])
+    expect(headers.every(header => header.getAttribute('aria-expanded') === 'true')).toBe(true)
     const entries = runtime.slots.entries('sidebar.panellist')
     expect(entries[0]!.options.section).toBe('Alpha group')
     expect(entries[1]!.options.section).toBeUndefined()
+  })
+
+  it('folds a section from its wide header, persists the choice, and restores on toggle', async () => {
+    const { runtime, view } = await bench()
+    await mountPanel(runtime, { id: ALPHA, heading: 'Alpha content', label: 'Alpha panel', order: 10, section: 'Alpha group' })
+    await mountPanel(runtime, { id: BETA, heading: 'Beta content', label: 'Beta panel', order: 20, section: 'Alpha group' })
+    const navigation = await view.findByRole('navigation', { name: 'Global panels' })
+    const header = within(navigation).getByRole('button', { name: 'Alpha group' })
+    expect(header.getAttribute('aria-expanded')).toBe('true')
+    fireEvent.click(header)
+    expect(header.getAttribute('aria-expanded')).toBe('false')
+    expect(within(navigation).queryByRole('button', { name: 'Alpha panel' })).toBeNull()
+    expect(JSON.parse(localStorage.getItem('qilin.sidebar.folded-sections.v1')!)).toEqual(['Alpha group'])
+    fireEvent.click(header)
+    expect(header.getAttribute('aria-expanded')).toBe('true')
+    expect(within(navigation).getByRole('button', { name: 'Alpha panel' })).not.toBeNull()
+  })
+
+  it('toggles a folded section with Enter and Space and ignores other keys', async () => {
+    const { runtime, view } = await bench()
+    await mountPanel(runtime, { id: ALPHA, heading: 'Alpha content', label: 'Alpha panel', order: 10, section: 'Alpha group' })
+    const navigation = await view.findByRole('navigation', { name: 'Global panels' })
+    const header = within(navigation).getByRole('button', { name: 'Alpha group' })
+    fireEvent.keyDown(header, { key: 'a' })
+    expect(header.getAttribute('aria-expanded')).toBe('true')
+    fireEvent.keyDown(header, { key: 'Enter' })
+    expect(header.getAttribute('aria-expanded')).toBe('false')
+    fireEvent.keyDown(header, { key: ' ' })
+    expect(header.getAttribute('aria-expanded')).toBe('true')
+  })
+
+  it('starts unfolded when the persisted fold list cannot be read', async () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => { throw new Error('blocked') })
+    const { runtime, view } = await bench()
+    await mountPanel(runtime, { id: ALPHA, heading: 'Alpha content', label: 'Alpha panel', order: 10, section: 'Alpha group' })
+    const navigation = await view.findByRole('navigation', { name: 'Global panels' })
+    expect(within(navigation).getByRole('button', { name: 'Alpha group' }).getAttribute('aria-expanded')).toBe('true')
+  })
+
+  it('keeps the fold decision in memory when persisting it fails', async () => {
+    const { runtime, view } = await bench()
+    await mountPanel(runtime, { id: ALPHA, heading: 'Alpha content', label: 'Alpha panel', order: 10, section: 'Alpha group' })
+    const navigation = await view.findByRole('navigation', { name: 'Global panels' })
+    const header = within(navigation).getByRole('button', { name: 'Alpha group' })
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new Error('quota') })
+    fireEvent.click(header)
+    // 写失败只丢持久化，内存中的折叠决定照常生效。
+    expect(header.getAttribute('aria-expanded')).toBe('false')
+    expect(within(navigation).queryByRole('button', { name: 'Alpha panel' })).toBeNull()
+    expect(localStorage.getItem('qilin.sidebar.folded-sections.v1')).toBeNull()
+  })
+
+  it('keeps the collapsed rail free of window-drag strips on plain web', async () => {
+    const { runtime, view } = await bench(true)
+    await mountPanel(runtime, { id: ALPHA, heading: 'Alpha content', label: 'Alpha panel' })
+    await view.findByRole('navigation', { name: 'Global panels' })
+    expect(view.container.querySelectorAll('[data-window-drag]')).toHaveLength(0)
+  })
+
+  it('mounts the fixed toggle strip beside the caption on darwin desktop when collapsed', async () => {
+    document.documentElement.setAttribute('data-platform', 'darwin')
+    const { runtime, view } = await bench(true)
+    await mountPanel(runtime, { id: ALPHA, heading: 'Alpha content', label: 'Alpha panel' })
+    await view.findByRole('navigation', { name: 'Global panels' })
+    const strips = [...view.container.querySelectorAll('[data-window-drag]')]
+    expect(strips).toHaveLength(2)
+    const fixed = strips[1]!
+    expect(within(fixed).getByRole('button', { name: 'Open sidebar' })).not.toBeNull()
+    expect(within(fixed).getByRole('button', { name: 'New session' })).not.toBeNull()
+  })
+
+  it('keeps only the top strip on darwin desktop when expanded', async () => {
+    document.documentElement.setAttribute('data-platform', 'darwin')
+    const { runtime, view } = await bench(false)
+    await mountPanel(runtime, { id: ALPHA, heading: 'Alpha content', label: 'Alpha panel' })
+    await view.findByRole('navigation', { name: 'Global panels' })
+    expect(view.container.querySelectorAll('[data-window-drag]')).toHaveLength(1)
   })
 
   it('renders a single header for consecutive rows sharing one section', async () => {

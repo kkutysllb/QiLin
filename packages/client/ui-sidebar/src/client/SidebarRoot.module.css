@@ -474,6 +474,23 @@
   user-select: none;
 }
 
+/* OpenKylin: foldable section header (KStock K19-lite). The header is a
+   wide-only button; the caret flips and the section's rows hide when folded. */
+.sectionCaret {
+  margin-left: auto;
+  display: inline-flex;
+  opacity: 0.55;
+  transition: transform 0.15s ease;
+}
+
+.panelSection[role='button'] {
+  cursor: pointer;
+}
+
+.sectionCaretFolded {
+  transform: rotate(-90deg);
+}
+
 /* Narrow state: with no room for a header, the rail alone marks the break.
    Filled divider, so it carries the same hairline weight as every other one. */
 .panelSectionRail {
@@ -624,4 +641,30 @@
     transition: none;
     animation: none;
   }
+}
+
+/* OpenKylin: fixed fallback strip — panel pages (插件管理/自动化任务…) have
+   no conversation header, so the header's leading controls don't exist there
+   and a collapsed sidebar leaves no toggle at all. Fixed positioning escapes
+   the zero-width column clip; 52px tall puts the controls on the same 26px
+   optical line as the traffic lights. Hidden again when the conversation
+   header (with its own leading controls) is mounted. */
+.topStripFixed {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 52px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px 0 88px;
+  z-index: 40;
+}
+
+:global([data-sidebar-collapsed]) .topStripFixed {
+  display: flex;
+}
+
+:global([data-sidebar-collapsed]):has([class*='_headerLeading']) .topStripFixed {
+  display: none;
 }

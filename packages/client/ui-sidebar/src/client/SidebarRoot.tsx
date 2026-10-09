@@ -17,7 +17,7 @@
  * scrollbar indirection away while it is elsewhere, so a list the user is not
  * pointing at carries no bar.
  */
-import { Fragment, useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react'
 import clsx from 'clsx'
 import {
   IconNewChatOutline16, IconPanelLeftOutline16, isDarwinDesktop, QilinSeal, ShortcutKeys, Tooltip,
@@ -188,6 +188,25 @@ export function SidebarRoot({
   const build = localBuild()
 
   const darwinDesktop = isDarwinDesktop()
+  // OpenKylin 桌面：分区折叠（KStock K19 同款语义）。折叠只收该分区的行，
+  // 表头保留、箭头翻转；状态持久在 localStorage（qilin.sidebar.folded-
+  // sections.v1）。rail 态表头本来就只剩一条竖线，不参与折叠。
+  const [foldedSections, setFoldedSections] = useState<ReadonlySet<string>>(() => {
+    try {
+      const raw = localStorage.getItem('qilin.sidebar.folded-sections.v1')
+      const list = raw === null ? [] : JSON.parse(raw) as unknown
+      return new Set(Array.isArray(list) ? list.filter((row): row is string => typeof row === 'string') : [])
+    } catch { return new Set<string>() }
+  })
+  const toggleSection = (section: string): void => {
+    setFoldedSections((previous) => {
+      const next = new Set(previous)
+      if (next.has(section)) next.delete(section)
+      else next.add(section)
+      try { localStorage.setItem('qilin.sidebar.folded-sections.v1', JSON.stringify([...next])) } catch { /* 私有模式等：仅记忆失败 */ }
+      return next
+    })
+  }
   // Rail resting state is the seal mark; hovering swaps in the panel icon
   // (the expand affordance, figma sidebar-hover flow). Expanded it is a plain
   // panel icon.
@@ -231,6 +250,37 @@ export function SidebarRoot({
           mark makes the strip's own box the window drag region (ui-web
           base.css declares the one darwin rule). */}
       {darwinDesktop && <div className={css.topStrip} data-window-drag>{toggle}</div>}
+      {/* OpenKylin: fixed fallback strip for panel pages (插件管理/自动化任务
+          …) — they have no conversation header, so the header's leading
+          controls don't exist there and a collapsed sidebar would strand the
+          user without a toggle. Sits beside the traffic lights on the same
+          26px optical line; CSS hides it when the conversation header's own
+          controls are mounted ([_headerLeading] present). */}
+      {darwinDesktop && !wide && (
+        <div className={css.topStripFixed} data-window-drag>
+          <Tooltip label={t('toggle.open')} delayMs={500}>
+            <button
+              type="button"
+              className={css.iconButton}
+              aria-label={t('toggle.open')}
+              onClick={() => { toggleSidebar() }}
+            >
+              <IconPanelLeftOutline16 size={16} />
+            </button>
+          </Tooltip>
+          <Tooltip label={t('session.new.label')} delayMs={500}>
+            <button
+              type="button"
+              className={css.iconButton}
+              aria-label={t('session.new.label')}
+              aria-keyshortcuts={newShortcut?.aria}
+              onClick={() => { startSession() }}
+            >
+              <IconNewChatOutline16 size={16} />
+            </button>
+          </Tooltip>
+        </div>
+      )}
       <div className={css.logoRow}>
         {/* Expanded, the brand doubles as a New Session shortcut; the
             collapsed rail's logo is the expand toggle below instead. */}
@@ -286,26 +336,54 @@ export function SidebarRoot({
 
       {panels.length > 0 && (
         <nav className={css.panelList} aria-label={t('panels.label')}>
-          {panels.map(({ id, label, section }, index) => (
-            <Fragment key={id}>
-              {/* A header opens a section and never repeats inside it. Rows
-                  without a section render header-less, so a host that never
-                  sets one keeps the original flat list exactly. */}
-              {section !== undefined && section !== panels[index - 1]?.section ? (
-                <div className={clsx(css.panelSection, wide && css.wide)} aria-hidden={!wide}>
-                  {wide ? section : <span className={css.panelSectionRail} />}
-                </div>
-              ) : null}
-              <PanelRow
-                id={id}
-                label={label}
-                wide={wide}
-                usePanelInfo={usePanelInfo}
-                selectPanel={selectPanel}
-                renderSlot={renderSlot}
-              />
-            </Fragment>
-          ))}
+          {panels.map(({ id, label, section }, index) => {
+            const sectionFolded = section !== undefined && foldedSections.has(section)
+            return (
+              <Fragment key={id}>
+                {/* A header opens a section and never repeats inside it. Rows
+                    without a section render header-less, so a host that never
+                    sets one keeps the original flat list exactly. Foldable
+                    when wide (the rail's header is just a divider). */}
+                {section !== undefined && section !== panels[index - 1]?.section ? (
+                  <div
+                    className={clsx(css.panelSection, wide && css.wide)}
+                    aria-hidden={!wide}
+                    {...(wide
+                      ? {
+                        role: 'button',
+                        tabIndex: 0,
+                        'aria-expanded': !foldedSections.has(section),
+                        onClick: () => { toggleSection(section) },
+                        onKeyDown: (event: ReactKeyboardEvent) => {
+                          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleSection(section) }
+                        },
+                      }
+                      : {})}
+                  >
+                    {wide ? section : <span className={css.panelSectionRail} />}
+                    {wide && (
+                      <span
+                        className={clsx(css.sectionCaret, foldedSections.has(section) && css.sectionCaretFolded)}
+                        aria-hidden="true"
+                      >
+                        <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6.5 8 10.5 12 6.5" /></svg>
+                      </span>
+                    )}
+                  </div>
+                ) : null}
+                {section === undefined || !sectionFolded ? (
+                  <PanelRow
+                    id={id}
+                    label={label}
+                    wide={wide}
+                    usePanelInfo={usePanelInfo}
+                    selectPanel={selectPanel}
+                    renderSlot={renderSlot}
+                  />
+                ) : null}
+              </Fragment>
+            )
+          })}
         </nav>
       )}
 
