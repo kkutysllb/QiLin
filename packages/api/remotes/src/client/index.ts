@@ -27,6 +27,7 @@ import jobRemote from '@qilin-agent/api-job-controller/remote'
 import terminalRemote from '@qilin-agent/api-terminal-controller/remote'
 import workspaceFilesRemote from '@qilin-agent/api-workspace-files/remote'
 import workspaceGitRemote from '@qilin-agent/api-workspace-git/remote'
+import sidebarOpensRemote from '@qilin-agent/sidebar-opens/remote'
 import type { ClientRemote } from '@qilin-agent/api-gateway/client'
 
 export type { ClientRemote } from '@qilin-agent/api-gateway/client'
@@ -65,6 +66,7 @@ export type {} from '@qilin-agent/api-workspace-files/remote'
 export type * from '@qilin-agent/api-workspace-files/types'
 export type {} from '@qilin-agent/api-workspace-git/remote'
 export type {} from '@qilin-agent/api-terminal-controller/remote'
+export type {} from '@qilin-agent/sidebar-opens/remote'
 export type * from '@qilin-agent/api-terminal-controller/types'
 export type {} from '@qilin-agent/api-job-controller/remote'
 export type * from '@qilin-agent/api-job-controller/types'
@@ -187,6 +189,7 @@ export async function apply(ctx: Context): Promise<() => Promise<void>> {
       fileUploadsRemote, sessionReferencesRemote,
       permissionPresetsRemote, subagentsRemote, sessionRemote, jobRemote, workspaceRemote,
       workspaceFilesRemote, workspaceGitRemote, terminalRemote, officeToPdfRemote, userQuestionsRemote,
+      sidebarOpensRemote,
     ]) {
       disposers.push(await ctx.remote.$mount(contribution))
     }

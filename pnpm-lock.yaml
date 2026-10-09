@@ -1033,6 +1033,9 @@ importers:
       '@qilin-agent/settings':
         specifier: workspace:*
         version: link:../../settings/settings
+      '@qilin-agent/sidebar-opens':
+        specifier: workspace:*
+        version: link:../../host/sidebar-opens
       '@qilin-agent/subagent':
         specifier: workspace:*
         version: link:../../subagent/subagent

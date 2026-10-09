@@ -309,6 +309,7 @@ function clientStaticGates(): Gate[] {
     pnpmScript('client-route-resolution', 'verify-client-route-resolution', { label: 'client route resolution' }),
     pnpmScript('no-bare-dispatcher', 'verify-no-bare-dispatcher', { label: 'proxy-aware dispatchers' }),
     pnpmScript('remote-method-names', 'verify-remote-method-names', { label: 'Remote method names' }),
+    pnpmScript('remote-assembly', 'verify-remote-assembly', { label: 'Remote assembly' }),
     pnpmScript('no-unknown-casts', 'verify-no-unknown-casts', { label: 'no new unknown casts' }),
   ]
 }
@@ -816,6 +817,7 @@ function builtBinSmokeGate(needs: string[] = ['build']): Gate {
     'packages/subagent/subagent-codex/tests/loader-composition.e2e.ts',
     'packages/subagent/subagent-claude-code/tests/loader-composition.e2e.ts',
     'packages/api/remotes/tests/built-lib.e2e.ts',
+    'packages/api/remotes/tests/built-assembly.e2e.ts',
     'packages/experimental/agent-team/tests/built-lib.e2e.ts',
     // Built execution consumers: the only automated proof that package-name
     // imports reach their lib/ entrypoints under plain Node. The e2e lane runs

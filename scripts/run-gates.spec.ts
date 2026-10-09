@@ -262,7 +262,7 @@ describe('gate graph validation', () => {
       'package-dependencies', 'typert-face-dependencies', 'application-entrypoints',
       'qilin-package-licenses', 'node-next-types',
       'optional-dependency-imports', 'client-packages', 'client-ui-i18n', 'client-route-resolution',
-      'no-bare-dispatcher', 'remote-method-names', 'no-unknown-casts', 'cordis-config',
+      'no-bare-dispatcher', 'remote-method-names', 'remote-assembly', 'no-unknown-casts', 'cordis-config',
       'runtime-closure',
     ])
     expect(defaultConcurrency('hygiene', ids.length, 8)).toEqual({

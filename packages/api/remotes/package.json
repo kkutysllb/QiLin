@@ -93,6 +93,7 @@
     "@qilin-agent/scope": "workspace:*",
     "@qilin-agent/session-reference": "workspace:*",
     "@qilin-agent/settings": "workspace:*",
+    "@qilin-agent/sidebar-opens": "workspace:*",
     "@qilin-agent/subagent": "workspace:*",
     "@qilin-agent/typert-protocol": "workspace:*",
     "@qilin-agent/user-approval": "workspace:*",

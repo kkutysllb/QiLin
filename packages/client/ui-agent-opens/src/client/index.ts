@@ -50,8 +50,11 @@ export function apply(ctx: Context): void {
             if (controller.signal.aborted) return
             openRequested(ctx, sessionId, request)
           }
-        } catch {
+        } catch (error) {
           // A carrier failure ends the watch; the next Session switch asks again.
+          // Logged rather than swallowed: an unmounted Remote namespace fails here,
+          // and a silent end leaves every `sidebar_open` queued with no viewer.
+          console.error('[ui-agent-opens] sidebarOpens.watch ended', error)
         }
       })()
     }
