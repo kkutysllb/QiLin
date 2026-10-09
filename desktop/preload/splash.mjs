@@ -1,11 +1,11 @@
-// desktop/preload/splash.mjs
+// preload/splash.mjs
 /**
  * 启动页 preload：contextBridge 白名单。
  *
  * 启动页是桌面壳自有的本地页面（不是上游 Web UI），只暴露状态订阅、
  * 重试、禁用插件恢复与复制诊断四个入口；渲染端零 Node 能力。
  *
- * @module desktop/preload/splash
+ * @module preload/splash
  */
 
 import { contextBridge, ipcRenderer } from 'electron'

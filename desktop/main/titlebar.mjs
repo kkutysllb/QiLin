@@ -1,4 +1,4 @@
-// desktop/main/titlebar.mjs
+// main/titlebar.mjs
 /**
  * 【已退役 2026-10-08（v0.1.0 无痕化）】壳不再注入自绘标题栏：引擎 darwin
  * 分支自持顶带（topStrip + 会话头 data-window-drag + 折叠态会话头补回开
@@ -32,7 +32,7 @@
  *    组件——编辑器/终端选择（自持菜单，真实应用图标，直启上游
  *    /open-in-app 接口）与右侧边栏开关（最右槽位）。
  *
- * @module desktop/main/titlebar
+ * @module main/titlebar
  */
 
 /** 标题栏高度（像素）：KCoder SHELL_TITLEBAR_HEIGHT。 */

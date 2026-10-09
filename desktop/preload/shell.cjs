@@ -1,4 +1,4 @@
-// desktop/preload/shell.cjs
+// preload/shell.cjs
 /**
  * shell 窗口 preload 桥（最小白名单）。
  *
@@ -13,7 +13,7 @@
  * ESM），且除 `electron` 外无任何 require 能力——这正好限定桥面。
  * 桥面按 origin 门控：只有 qilin-app://app 页面拿得到 boot 桥。
  *
- * @module desktop/preload/shell
+ * @module preload/shell
  */
 const { contextBridge, ipcRenderer } = require('electron')
 

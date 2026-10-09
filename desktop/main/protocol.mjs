@@ -1,4 +1,4 @@
-// desktop/main/protocol.mjs
+// main/protocol.mjs
 /**
  * qilin-app:// 特权协议（原生桌面产品的 Web 承载层）。
  *
@@ -15,7 +15,7 @@
  * streamBaseUrl 指向宿主 loopback origin，壳用 onBeforeSendHeaders 对
  * ws://127.0.0.1/* 改写 Origin 并附认证 cookie。
  *
- * @module desktop/main/protocol
+ * @module main/protocol
  */
 
 import { createReadStream, existsSync, statSync } from 'node:fs'

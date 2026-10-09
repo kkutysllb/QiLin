@@ -8,7 +8,7 @@
 #   npm test → build-desktop.sh（闭包封盘 + 打包）→ verify-desktop-artifacts.sh（V1–V7）
 #
 # 约定：release/<tag>.md 为 GitHub Release 正文（缺失 --allow-missing-notes 应急）；
-# 版本单一事实源 = package.json（发版时同步写 desktop/package/package.json）。
+# 版本单一事实源 = package.json（发版时同步写 package/package.json）。
 set -euo pipefail
 cd "$(dirname "$0")/.."
 REPO_ROOT="$(pwd)"
@@ -48,7 +48,7 @@ git -C "$REPO_ROOT" ls-remote --tags origin "refs/tags/$TAG" | grep -q "$TAG" &&
 log "版本 → $VERSION"
 node -e '
 const fs = require("fs")
-for (const p of ["package.json", "desktop/package/package.json"]) {
+for (const p of ["package.json", "package/package.json"]) {
   const m = JSON.parse(fs.readFileSync(p, "utf8"))
   m.version = process.argv[1]
   fs.writeFileSync(p, JSON.stringify(m, null, 2) + "\n")
@@ -72,7 +72,7 @@ bash "$REPO_ROOT/scripts/verify-desktop-artifacts.sh"
 
 # 5) commit + tag + push（atomic：分支与 tag 一次推）
 if git -C "$REPO_ROOT" status --porcelain | grep -q .; then
-  git -C "$REPO_ROOT" add package.json desktop/package/package.json
+  git -C "$REPO_ROOT" add package.json package/package.json
   git -c user.name="$(git config user.name)" commit -m "release: $TAG" --no-verify 2>/dev/null || true
   git -C "$REPO_ROOT" add -A
   git -C "$REPO_ROOT" commit -m "release: $TAG（产物与文档随发版落位）" || true

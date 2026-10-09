@@ -1,4 +1,4 @@
-// desktop/main/qilin-contract.mjs
+// main/qilin-contract.mjs
 /**
  * 上游 QiLin 契约适配层（原生桌面产品：Electron 壳 + 引擎宿主子进程）。
  *
@@ -40,7 +40,7 @@
  * - 进程收尾：runProfile 返回 `shutdown.shutdown(code)`（5s 强制，
  *   apps/cli/src/process-shutdown.ts）。
  *
- * @module desktop/main/qilin-contract
+ * @module main/qilin-contract
  */
 
 import { homedir } from 'node:os'
@@ -160,7 +160,7 @@ export function persistHostPort(port, home = qilinHome()) {
  * 供上游 HMR/loader 使用 node internal ESM loader；`--port` 由宿主
  * 透传给 runProfile——0 = 随机端口）。
  *
- * @param {string} hostEntry - desktop/host/main.mjs 的绝对路径。
+ * @param {string} hostEntry - host/main.mjs 的绝对路径。
  * @param {string} runtimeDir - 品牌化运行树（checkout/runtime）根。
  * @param {number} [port] - 宿主监听端口（0 = 随机）。
  * @returns {string[]} 解释器参数（不含解释器本身）。

@@ -35,15 +35,15 @@ if [ ! -x "$BUILDER_BIN" ]; then
 fi
 [ -x "$BUILDER_BIN" ] || die "electron-builder 安装失败"
 
-# 3) 组装 app 目录（builder files 域不可越包目录，壳源复制进 desktop/package/app）
+# 3) 组装 app 目录（builder files 域不可越包目录，壳源复制进 package/app）
 log "组装 app 目录"
-APP_DIR="$REPO_ROOT/desktop/package"
+APP_DIR="$REPO_ROOT/package"
 rm -rf "$APP_DIR/app" "$APP_DIR/icons"
 mkdir -p "$APP_DIR/app" "$APP_DIR/branding/icons"
-cp -R "$REPO_ROOT/desktop/main" "$APP_DIR/app/main"
-cp -R "$REPO_ROOT/desktop/host" "$APP_DIR/app/host"
-cp -R "$REPO_ROOT/desktop/preload" "$APP_DIR/app/preload"
-cp -R "$REPO_ROOT/desktop/renderer" "$APP_DIR/app/renderer"
+cp -R "$REPO_ROOT/main" "$APP_DIR/app/main"
+cp -R "$REPO_ROOT/host" "$APP_DIR/app/host"
+cp -R "$REPO_ROOT/preload" "$APP_DIR/app/preload"
+cp -R "$REPO_ROOT/renderer" "$APP_DIR/app/renderer"
 cp "$REPO_ROOT/branding/icons/qilin-512.png" "$APP_DIR/branding/icons/"
 cp "$REPO_ROOT/branding/icons/qilin.icns" "$APP_DIR/branding/icons/"
 cp "$REPO_ROOT/branding/icons/tray.png" "$APP_DIR/branding/icons/"

@@ -1,4 +1,4 @@
-// desktop/main/menu.mjs
+// main/menu.mjs
 /**
  * macOS 应用菜单（中文品牌化）。
  *
@@ -8,7 +8,7 @@
  * 加载与开发者工具，打包后去除；Edit 组保留（剪贴板快捷键依赖 role）。
  * Windows 的 frameless 窗口无菜单栏，无需设置。
  *
- * @module desktop/main/menu
+ * @module main/menu
  */
 
 import { Menu, app } from 'electron'

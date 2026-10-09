@@ -1,4 +1,4 @@
-// desktop/main/index.mjs
+// main/index.mjs
 /**
  * OpenKylin Desktop 主进程入口（原生桌面产品，2026-10-07 设计）。
  *
@@ -11,7 +11,7 @@
  * 运行树来源：`OPENKYLIN_QILIN_RUN`（dev 脚本传入品牌化 checkout），
  * 缺省回退到仓库内 `.tmp/dev/qilin-src`。
  *
- * @module desktop/main
+ * @module main
  */
 
 import { clipboard, dialog, ipcMain, app, shell, Tray, Menu, nativeImage, nativeTheme } from 'electron'
@@ -30,7 +30,7 @@ import { initializeUpdater } from './updater.mjs'
 import { createWorkspaceResolver } from './workspace.mjs'
 import { closeSplash, focusShellWindow, getShellWindow, reportFatalToSplash, showAboutWindow, showShellWindow, showSplash } from './windows.mjs'
 
-/** 产品仓库根（desktop/main 的上上级）。 */
+/** 产品仓库根（main 的上上级）。 */
 const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url))
 
 /** 品牌图标产物（scripts/gen-icons.mjs 生成）。 */

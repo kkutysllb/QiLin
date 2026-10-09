@@ -1,4 +1,4 @@
-// desktop/host/main.mjs
+// host/main.mjs
 /**
  * OpenKylin 引擎宿主入口（Electron-as-Node 子进程，2026-10-07 原生设计）。
  *
@@ -12,7 +12,7 @@
  * profile-boot.js` 的内部裸说明符自行解析到运行树 node_modules），
  * 本文件与产品仓库保持零 npm 依赖。
  *
- * IPC 小协议（与 desktop/main/host-process.mjs 成对，版本见
+ * IPC 小协议（与 main/host-process.mjs 成对，版本见
  * qilin-contract HOST_PROTOCOL_VERSION）：
  *   宿主 → 壳：booting / ready{url,injections} / fatal{message,diagnostic}
  *              / shutdown-complete / quit-inspection / update-tasks 应答
@@ -20,7 +20,7 @@
  * quit-inspection / update-tasks 读取真实引擎面：运行中的 Agent 回合
  * （ctx.agents）、活跃后台任务（ctx.jobs）、武装中的定时提醒（ctx.schedule）。
  *
- * @module desktop/host/main
+ * @module host/main
  */
 
 import { inspect } from 'node:util'

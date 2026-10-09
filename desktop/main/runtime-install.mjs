@@ -1,4 +1,4 @@
-// desktop/main/runtime-install.mjs
+// main/runtime-install.mjs
 /**
  * 引擎运行时树解析与首启解压（打包态）。
  *
@@ -8,7 +8,7 @@
  * 首次启动解压到 userData/runtime/<commit>/——commit 目录名 = 版本换版自然
  * 重装新树，旧树留存不冲突；解压前校验 tar 的 sha256 与清单一致。
  *
- * @module desktop/main/runtime-install
+ * @module main/runtime-install
  */
 
 import { execFile } from 'node:child_process'
@@ -20,7 +20,7 @@ import { promisify } from 'node:util'
 
 const run = promisify(execFile)
 
-/** 产品仓库根（desktop/main 的上上级）；打包态此路径在 asar 内，仅 dev 用。 */
+/** 产品仓库根（main 的上上级）；打包态此路径在 asar 内，仅 dev 用。 */
 const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url))
 
 /**

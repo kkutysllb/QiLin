@@ -1,4 +1,4 @@
-// desktop/main/workspace.mjs
+// main/workspace.mjs
 /**
  * 标题栏"工作区"解析：当前会话 → 本地目录（Finder 打开）。
  *
@@ -17,7 +17,7 @@
  * 任何失败软降级为 null（标题栏隐藏工作区段），绝不影响主流程。
  * 纯函数（sessionTitleOf / pickSession）单独导出供单测。
  *
- * @module desktop/main/workspace
+ * @module main/workspace
  */
 
 import { basename } from 'node:path'

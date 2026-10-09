@@ -1,4 +1,4 @@
-// desktop/main/keyboard-bridge.mjs
+// main/keyboard-bridge.mjs
 /**
  * qilinDesktop 主进程桥（KStock qilin-bridge 同款机制的 mjs 移植）：快捷键
  * 偏好存储（引擎 ShortcutPersistence + 原子文件）与原生键盘输入
@@ -24,7 +24,7 @@
  * - recording 期间全部放行（设置页录键需要原始按键）；
  * - 首次 get 完成前 revision 未协商 → 不转发。
  *
- * @module desktop/main/keyboard-bridge
+ * @module main/keyboard-bridge
  */
 
 import { ipcMain } from 'electron'

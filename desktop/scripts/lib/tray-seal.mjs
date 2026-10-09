@@ -9,7 +9,7 @@
 //
 // 满底白文 + 负形镂空，意味着图标不依赖 Template 自动着色：朱砂由本模块
 // 直接决定，深浅两档由 gen-icons 导出 tray.png / tray-dark.png，运行期按
-// nativeTheme.themeChanges 切换（见 desktop/main/index.mjs installTray）。
+// nativeTheme.themeChanges 切换（见 main/index.mjs installTray）。
 //
 // 坐标系 0..100，印面 x/y = 6、边长 88、圆角 8.8（内容占比 88%）。
 // 斑驳是写死的椭圆（同源同值），16pt 实尺下不可见、32px@2x 起有味道。

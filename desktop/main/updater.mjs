@@ -1,4 +1,4 @@
-// desktop/main/updater.mjs
+// main/updater.mjs
 /**
  * 自动更新（electron-updater，打包域依赖）——后台静默下载 + 确认安装。
  *
@@ -9,10 +9,10 @@
  *   （引擎未彻底退出时，替换文件会因占用失败/端口冲突）；
  * - 未就绪时一律只弹「更新尚未就绪」，绝不碰引擎。
  *
- * electron-updater 是打包域依赖（desktop/package 的 dependencies，进 asar）；
+ * electron-updater 是打包域依赖（package 的 dependencies，进 asar）；
  * dev 态不安装本模块——动态 require，缺失即静默跳过。
  *
- * @module desktop/main/updater
+ * @module main/updater
  */
 
 import { dialog, Notification } from 'electron'

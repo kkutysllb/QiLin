@@ -29,20 +29,20 @@ import {
   readPersistedHostPort,
   resolveDistFile,
   urlOrigin,
-} from '../desktop/main/qilin-contract.mjs'
-import { profileManifestPath, restoreShippedBundles, SHIPPED_PROFILE_BUNDLES } from '../desktop/main/recovery.mjs'
+} from '../main/qilin-contract.mjs'
+import { profileManifestPath, restoreShippedBundles, SHIPPED_PROFILE_BUNDLES } from '../main/recovery.mjs'
 import { brandingFingerprint } from '../scripts/lib/dev-stamp.mjs'
 import {
   sessionTitleOf,
   pickSession,
-} from '../desktop/main/workspace.mjs'
+} from '../main/workspace.mjs'
 
 /* ---------- 宿主子进程契约 ---------- */
 
 test('宿主参数：Electron-as-Node + --expose-internals + 宿主入口 + 运行树 + 稳定端口', () => {
-  assert.deepEqual(hostArgs('/repo/desktop/host/main.mjs', '/run/tree'), [
+  assert.deepEqual(hostArgs('/repo/host/main.mjs', '/run/tree'), [
     '--expose-internals',
-    '/repo/desktop/host/main.mjs',
+    '/repo/host/main.mjs',
     '/run/tree',
     '--port',
     '0',
@@ -259,7 +259,7 @@ test('反代请求头：剥离壳侧 origin/cookie/逐跳头，附宿主会话 c
 })
 
 test('认证兑换：set-cookie 只取名值对（属性留在主进程）', async () => {
-  const { extractAuthCookie } = await import('../desktop/main/qilin-contract.mjs')
+  const { extractAuthCookie } = await import('../main/qilin-contract.mjs')
   const response = {
     headers: {
       getSetCookie: () => [
@@ -281,25 +281,25 @@ test('urlOrigin 忽略查询与路径', () => {
 
 test('启动页资产齐备（splash.html + preload + 主进程六件套 + 宿主入口 + 恢复模块）', async () => {
   for (const rel of [
-    'desktop/renderer/splash.html',
-    'desktop/preload/splash.mjs',
-    'desktop/main/index.mjs',
-    'desktop/main/windows.mjs',
-    'desktop/main/protocol.mjs',
-    'desktop/main/host-process.mjs',
-    'desktop/main/qilin-contract.mjs',
-    'desktop/main/recovery.mjs',
-    'desktop/host/main.mjs',
+    'renderer/splash.html',
+    'preload/splash.mjs',
+    'main/index.mjs',
+    'main/windows.mjs',
+    'main/protocol.mjs',
+    'main/host-process.mjs',
+    'main/qilin-contract.mjs',
+    'main/recovery.mjs',
+    'host/main.mjs',
   ]) {
     await assert.doesNotReject(access(new URL(`../${rel}`, import.meta.url)), undefined, rel)
   }
-  const splash = await readFile(new URL('../desktop/renderer/splash.html', import.meta.url), 'utf8')
+  const splash = await readFile(new URL('../renderer/splash.html', import.meta.url), 'utf8')
   assert.match(splash, /云门正在开启/, '启动页主文案（与共享壳层 locale 一致）')
   assert.match(splash, /基于 QiLin 构建/, '品牌副标题')
   assert.match(splash, /重试启动/, '失败恢复入口')
   assert.match(splash, /禁用插件并重启/, '出厂插件面恢复入口（M3.3）')
   assert.match(splash, /Content-Security-Policy/, '本地页面也有 CSP')
-  const splashPreload = await readFile(new URL('../desktop/preload/splash.mjs', import.meta.url), 'utf8')
+  const splashPreload = await readFile(new URL('../preload/splash.mjs', import.meta.url), 'utf8')
   assert.match(splashPreload, /splash:recover-disable-plugins/, '恢复入口经 IPC 白名单')
 })
 
@@ -311,7 +311,7 @@ test('branding 指纹随品牌输入变化（stamp 复用的守门依据）', as
     await writeFile(join(dir, 'patches/registry.json'), JSON.stringify({
       schemaVersion: 1,
       patches: [{ patch: 'patches/shared-web-branding.patch' }],
-      overwrites: [{ mode: 'add', source: 'branding/theme/tokens.css', target: 'apps/renderer/ok-theme.css' }],
+      overwrites: [{ mode: 'add', source: 'branding/theme/tokens.css', target: 'apps/desktop/renderer/ok-theme.css' }],
     }))
     await writeFile(join(dir, 'patches/shared-web-branding.patch'), 'a\n')
     await writeFile(join(dir, 'branding/theme/tokens.css'), 'b\n')
@@ -369,7 +369,7 @@ test('会话投影 → 当前工作区：标题精确优先，crumb 提示次之
 /* ---------- 标题栏 / 无边框窗口（呈现层契约，源文件标记） ---------- */
 
 test('自绘标题栏：KCoder SHELL_TITLEBAR_JS 移植 + 窗口级按钮', async () => {
-  const source = await readFile(new URL('../desktop/main/titlebar.mjs', import.meta.url), 'utf8')
+  const source = await readFile(new URL('../main/titlebar.mjs', import.meta.url), 'utf8')
   // KCoder 实测常量：48px 栏、darwin leftPad 78、侧栏右缘跟随
   assert.match(source, /TITLEBAR_HEIGHT = 48/, '高度照抄 KCoder（红绿灯 y 自动=18）')
   assert.match(source, /LEFT_PAD = 78/, 'darwin 左基线照抄 KCoder')
@@ -412,7 +412,7 @@ test('自绘标题栏：KCoder SHELL_TITLEBAR_JS 移植 + 窗口级按钮', asyn
 })
 
 test('窗口层：整窗无边框 + 红绿灯召回 + 沙箱 preload 双桥 + app 入口', async () => {
-  const windows = await readFile(new URL('../desktop/main/windows.mjs', import.meta.url), 'utf8')
+  const windows = await readFile(new URL('../main/windows.mjs', import.meta.url), 'utf8')
   assert.match(windows, /frame: false/, 'shell 窗口无边框')
   assert.match(windows, /setWindowButtonVisibility\(true\)/, 'macOS frameless 红绿灯显式召回')
   assert.match(windows, /titleBarStyle: 'hidden'/, "darwin 走 titleBarStyle:'hidden'——frame:false 下 trafficLightPosition 根本不生效（AX 实测配置 26/36 按钮纹丝不动）")
@@ -420,20 +420,20 @@ test('窗口层：整窗无边框 + 红绿灯召回 + 沙箱 preload 双桥 + ap
   assert.match(windows, /preload: SHELL_PRELOAD/, 'shell 窗口挂 preload 桥')
   assert.match(windows, /APP_ENTRY_PATH/, 'shell 加载壳自有协议入口')
   assert.match(windows, /loadURL\(`\$\{APP_ORIGIN\}\$\{entryPath\}`\)/, '入口地址 = 协议 origin + 登录态选定的路径')
-  await assert.doesNotReject(access(new URL('../desktop/preload/shell.cjs', import.meta.url)))
-  const preload = await readFile(new URL('../desktop/preload/shell.cjs', import.meta.url), 'utf8')
+  await assert.doesNotReject(access(new URL('../preload/shell.cjs', import.meta.url)))
+  const preload = await readFile(new URL('../preload/shell.cjs', import.meta.url), 'utf8')
   assert.match(preload, /contextBridge/, '桥面走 contextBridge')
   assert.match(preload, /qilinDesktopBoot/, '上游桌面启动门契约桥（apps/web/src/main.ts 契约名）')
   assert.match(preload, /ok:desktop-boot/, 'IPC 白名单：boot 数据')
   assert.match(preload, /ok:workspace/, 'IPC 白名单：工作区解析')
   assert.match(preload, /qilin-app:/, 'boot 桥按 origin 门控')
   assert.match(preload, /require\('electron'\)/, '沙箱 preload 仅 CJS')
-  const splash = await readFile(new URL('../desktop/renderer/splash.html', import.meta.url), 'utf8')
+  const splash = await readFile(new URL('../renderer/splash.html', import.meta.url), 'utf8')
   assert.match(splash, /-webkit-app-region: drag/, '无边框启动页整页可拖')
 })
 
 test('协议承载：特权 scheme 三路由 + WS 改写 + 认证反代接线', async () => {
-  const source = await readFile(new URL('../desktop/main/protocol.mjs', import.meta.url), 'utf8')
+  const source = await readFile(new URL('../main/protocol.mjs', import.meta.url), 'utf8')
   assert.match(source, /registerSchemesAsPrivileged/, '特权 scheme（ready 前注册）')
   assert.match(source, /standard: true/, 'standard scheme（相对路径解析）')
   assert.match(source, /protocol\.handle\('qilin-app'/, 'app 路由挂载')
@@ -445,7 +445,7 @@ test('协议承载：特权 scheme 三路由 + WS 改写 + 认证反代接线', 
   assert.match(source, /set-cookie/, '响应剥离 set-cookie（cookie 不进 renderer）')
   assert.match(source, /onBeforeSendHeaders/, 'ws://127.0.0.1/* 头改写（流式 mux 载体）')
   assert.match(source, /authenticateWebHost/, '壳侧 token→cookie 兑换')
-  const hostEntry = await readFile(new URL('../desktop/host/main.mjs', import.meta.url), 'utf8')
+  const hostEntry = await readFile(new URL('../host/main.mjs', import.meta.url), 'utf8')
   assert.match(hostEntry, /runProfile/, '宿主程序化 boot（不经 CLI 子进程）')
   assert.match(hostEntry, /profile: 'qilin'/, '产品面 profile')
   assert.match(hostEntry, /'--no-open', '--port', String\(hostPort\)/, '壳传入的稳定端口透传 profile（0 = 随机）')
@@ -455,7 +455,7 @@ test('协议承载：特权 scheme 三路由 + WS 改写 + 认证反代接线', 
   assert.match(hostEntry, /agents.*list|list\(\).*agents/s, 'Agent 回合状态（ctx.agents）')
   assert.match(hostEntry, /jobs/, '后台任务状态（ctx.jobs）')
   assert.match(hostEntry, /schedule/, '定时提醒状态（ctx.schedule.catalog）')
-  const index = await readFile(new URL('../desktop/main/index.mjs', import.meta.url), 'utf8')
+  const index = await readFile(new URL('../main/index.mjs', import.meta.url), 'utf8')
   assert.match(index, /registerAppScheme\(\)/, 'app ready 前注册 scheme')
   assert.match(index, /authenticateWebHost/, '就绪后壳侧兑换 cookie')
   assert.match(index, /attachAppProtocol/, '窗口加载前挂协议')
@@ -481,14 +481,14 @@ test('品牌面：Dock 图标 / 中文菜单 / 系统托盘接线', async () => 
   ]) {
     await assert.doesNotReject(access(new URL(`../${rel}`, import.meta.url)), undefined, rel)
   }
-  const index = await readFile(new URL('../desktop/main/index.mjs', import.meta.url), 'utf8')
+  const index = await readFile(new URL('../main/index.mjs', import.meta.url), 'utf8')
   assert.match(index, /app\.dock\?\.setIcon/, 'dev 期 Dock 图标（打包后由 .icns 提供）')
   assert.match(index, /installAppMenu/, '中文应用菜单挂载')
   assert.match(index, /tray-dark\.png/, '系统托盘挂载（麒麟印章）')
   assert.match(index, /nativeTheme\.shouldUseDarkColors/, '明暗判定走 nativeTheme')
   assert.match(index, /nativeTheme\.on\('updated'/, '菜单栏翻转换同源朱砂变体')
   assert.doesNotMatch(index, /tray-Template/, '彩色章无 -Template 后缀（带了会被系统单色化）')
-  const menu = await readFile(new URL('../desktop/main/menu.mjs', import.meta.url), 'utf8')
+  const menu = await readFile(new URL('../main/menu.mjs', import.meta.url), 'utf8')
   assert.match(menu, /setApplicationMenu/, 'Electron 默认英文菜单被接管')
   assert.match(menu, /关于 QiLin Desktop/, '关于项中文化（动作走壳自绘面板）')
   assert.match(menu, /退出 QiLin Desktop/, '退出项中文化')
@@ -502,7 +502,7 @@ test('品牌面：Dock 图标 / 中文菜单 / 系统托盘接线', async () => 
 })
 
 test('托盘「检查更新」常驻 + 壳自绘关于面板（麒麟印章）', async () => {
-  const index = await readFile(new URL('../desktop/main/index.mjs', import.meta.url), 'utf8')
+  const index = await readFile(new URL('../main/index.mjs', import.meta.url), 'utf8')
   assert.match(index, /\{ label: '检查更新…', click: \(\) => \{ void checkForUpdates\(checkNow\) \} \}/, '托盘出「检查更新」项')
   assert.doesNotMatch(index, /items\.push\(\{ type: 'separator' \}, \{ label: '检查更新…'/, '检查更新项不再条件插入（dev 真机反馈：菜单里没有这一项）')
   assert.match(index, /async function checkForUpdates\(checkNow\)/, 'dev（checkNow 为 null）也有可点的处理')
@@ -514,20 +514,20 @@ test('托盘「检查更新」常驻 + 壳自绘关于面板（麒麟印章）',
     '托盘关于项同样走壳自绘面板',
   )
 
-  const menu = await readFile(new URL('../desktop/main/menu.mjs', import.meta.url), 'utf8')
+  const menu = await readFile(new URL('../main/menu.mjs', import.meta.url), 'utf8')
   assert.doesNotMatch(menu, /role: 'about'/, '不再用原生 About 面板（图标取自 .app bundle，运行时换不成印章）')
   assert.doesNotMatch(menu, /setAboutPanelOptions/, '原生面板配置随面板一起退役')
   assert.match(menu, /export function installAppMenu\(\{ showAbout \}\)/, '关于动作由壳注入')
   assert.match(menu, /\{ label: '关于 QiLin Desktop', click: \(\) => \{ showAbout\(\) \} \}/, '关于项文案与动作')
 
-  const windows = await readFile(new URL('../desktop/main/windows.mjs', import.meta.url), 'utf8')
+  const windows = await readFile(new URL('../main/windows.mjs', import.meta.url), 'utf8')
   assert.match(windows, /export function showAboutWindow\(\)/, '关于面板归窗口层')
   assert.match(windows, /\.\.\/renderer\/about\.html/, '面板内容为壳自绘页面')
   assert.match(windows, /branding\/icons\/qilin-512\.png/, '印章取品牌图标（dev 与打包态同路径）')
   assert.match(windows, /okAboutPaint/, '印章 data URL 经页面注入点落位')
   assert.match(windows, /win\.on\('blur'/, '焦点离开即收起（原生面板同款手感）')
 
-  const about = await readFile(new URL('../desktop/renderer/about.html', import.meta.url), 'utf8')
+  const about = await readFile(new URL('../renderer/about.html', import.meta.url), 'utf8')
   assert.match(about, /id="seal"/, '印章位')
   assert.match(about, /window\.okAboutPaint/, '注入点')
   assert.match(about, /Content-Security-Policy/, '本地资源页带 CSP')

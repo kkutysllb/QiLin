@@ -1,4 +1,4 @@
-// desktop/main/recovery.mjs
+// main/recovery.mjs
 /**
  * 致命错误恢复（M3.3）：禁用第三方插件。
  *
@@ -14,7 +14,7 @@
  *
  * 本模块保持 Electron 无关（纯 fs/JSON），产品层测试可直接导入。
  *
- * @module desktop/main/recovery
+ * @module main/recovery
  */
 
 import { readFileSync, writeFileSync } from 'node:fs'

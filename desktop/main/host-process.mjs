@@ -1,8 +1,8 @@
-// desktop/main/host-process.mjs
+// main/host-process.mjs
 /**
  * 引擎宿主子进程管理器（原生桌面产品）。
  *
- * 职责：以 Electron-as-Node spawn `desktop/host/main.mjs`（stdio 第 4 项
+ * 职责：以 Electron-as-Node spawn `host/main.mjs`（stdio 第 4 项
  * 开 Node IPC）→ 校验 `ready{url, injections}` 消息 → 广播状态；崩溃自动
  * 重启（指数退避，上限见 MAX_AUTO_RESTARTS）；应用退出时发 shutdown
  * 消息并按"排水 → SIGTERM → 宽限 → SIGKILL"收尾，另有 detached watchdog
@@ -11,7 +11,7 @@
  * 壳对宿主的请求（quit-inspection / update-tasks）走 requestId 关联的
  * 请求-响应，带截止时间；超时不杀进程，只拒绝本次请求。
  *
- * @module desktop/main/host-process
+ * @module main/host-process
  */
 
 import { spawn } from 'node:child_process'
@@ -29,12 +29,12 @@ import {
   isHostEvent,
 } from './qilin-contract.mjs'
 
-/** 产品仓库根（desktop/main 的上上级）；宿主入口在其 desktop/host 下。
+/** 产品仓库根（main 的上上级）；宿主入口在其 host 下。
  * 打包态结构不同：app 根下 app/host/main.mjs，且 asarUnpack 落在
  * app.asar.unpacked（ELECTRON_RUN_AS_NODE 是纯 Node fs，不识别 asar）。 */
 const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url))
 
-/** 宿主入口绝对路径（dev = desktop/host；打包 = app.asar.unpacked/app/host）。 */
+/** 宿主入口绝对路径（dev = host；打包 = app.asar.unpacked/app/host）。 */
 const HOST_ENTRY = REPO_ROOT.includes('app.asar')
   ? join(REPO_ROOT.replace('app.asar', 'app.asar.unpacked'), 'app', 'host', 'main.mjs')
   : join(REPO_ROOT, 'desktop', 'host', 'main.mjs')

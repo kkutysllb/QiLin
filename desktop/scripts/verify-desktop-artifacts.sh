@@ -56,7 +56,7 @@ fi
 
 # V6 版本一致性（包版本 = 仓库产品版本 = latest-mac.yml 版本）
 ROOT_VER="$(node -p "JSON.parse(require('fs').readFileSync('$REPO_ROOT/package.json','utf8')).version")"
-PKG_VER="$(node -p "JSON.parse(require('fs').readFileSync('$REPO_ROOT/desktop/package/package.json','utf8')).version")"
+PKG_VER="$(node -p "JSON.parse(require('fs').readFileSync('$REPO_ROOT/package/package.json','utf8')).version")"
 YML_VER="$(node -e 'const y=require("fs").readFileSync(process.argv[1],"utf8");const m=/version:\s*(\S+)/.exec(y);console.log(m?m[1]:"")' "$LM" 2>/dev/null || true)"
 if [ "$ROOT_VER" = "$PKG_VER" ] && { [ -z "$YML_VER" ] || [ "$YML_VER" = "$ROOT_VER" ]; }; then
   pass "V6 版本一致性 ${ROOT_VER}（根 = 打包域 = latest-mac.yml）"

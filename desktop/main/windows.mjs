@@ -1,4 +1,4 @@
-// desktop/main/windows.mjs
+// main/windows.mjs
 /**
  * 窗口层：qilin-app://app 承载的主工作区窗口（shell）+ 中文品牌启动页 + 关于面板。
  *
@@ -8,7 +8,7 @@
  * "桌面端与上游 web 端完全一致"的机制保证：同一份 Web client 构建
  * 物、同一套主题，桌面侧只有壳层（协议承载 + 自绘标题栏）。
  *
- * @module desktop/main/windows
+ * @module main/windows
  */
 
 import { join } from 'node:path'
@@ -17,7 +17,7 @@ import { BrowserWindow, app, nativeImage, nativeTheme, shell } from 'electron'
 import { APP_ENTRY_PATH, APP_ORIGIN, isAllowedNavigation } from './qilin-contract.mjs'
 import { hostProcess } from './host-process.mjs'
 
-/** 本文件所在目录（desktop/main）——ESM 主进程没有 __dirname。 */
+/** 本文件所在目录（main）——ESM 主进程没有 __dirname。 */
 const HERE = import.meta.dirname
 
 /** 桌面壳自有页面（启动页）的 preload 绝对路径。 */

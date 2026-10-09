@@ -1,10 +1,10 @@
-# desktop/package/electron-builder.yml — QiLin Desktop 打包契约（M4）。
+# package/electron-builder.yml — QiLin Desktop 打包契约（M4）。
 #
 # app 目录由 scripts/build-desktop.sh 组装（壳源 desktop/* + 品牌图标 +
 # package.json 的 dependencies=electron-updater 由 builder 自动装进 asar）；
 # 引擎运行时闭包（staging/qilin-runtime.tar.gz + desktop-runtime.json）走
 # extraResources，壳首启解压到 userData/runtime/<commit>/（见
-# desktop/main/runtime-install.mjs）。
+# main/runtime-install.mjs）。
 #
 # 签名公证（KStock 同款）：凭据经 CI secrets 注入（MAC_CERTIFICATE=base64
 # .p12、MAC_CERTIFICATE_PWD；公证三件套 APPLE_ID/APPLE_APP_SPECIFIC_PASSWORD/
@@ -26,7 +26,7 @@ directories:
 asar: true
 npmRebuild: false
 # 引擎宿主入口必须在真实文件系统：Electron-as-Node（ELECTRON_RUN_AS_NODE=1）
-# 是纯 Node fs，不识别 asar——desktop/host 解包到 app.asar.unpacked/
+# 是纯 Node fs，不识别 asar——host 解包到 app.asar.unpacked/
 asarUnpack:
   - app/host/**
   - app/main/**
