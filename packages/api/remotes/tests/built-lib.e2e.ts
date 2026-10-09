@@ -115,8 +115,11 @@ describe.skipIf(!requiredArtifacts)('Goal Remote built LIB chain', () => {
       if (routes.length !== 1 || routes[0].path !== '/api') {
         throw new Error('Connection did not register exactly one /api route')
       }
+      // Derive the entry path from the minted login URL so the route follows
+      // the connection's own entry constant instead of a copied literal.
+      const entryPath = new URL(host.connection.authenticatedUrl('http://127.0.0.1:0')).pathname
       const server = createServer((request, response) => {
-        if ((request.url ?? '/').startsWith('/?')) {
+        if (new URL(request.url ?? '/', 'http://127.0.0.1').pathname === entryPath) {
           if (host.connection.authorizeIndex(request, response)) {
             response.writeHead(200, { 'content-type': 'text/html' })
             response.end('<body>shell</body>')
@@ -147,6 +150,20 @@ describe.skipIf(!requiredArtifacts)('Goal Remote built LIB chain', () => {
         },
       }
       globalThis.location = { hostname: '127.0.0.1', origin, search: '' }
+      // The stream mux is out of scope for this unary-only harness: no upgrade
+      // endpoint is served here, so the socket class fails its first attempt
+      // and the loop idles instead of retrying against a server that cannot
+      // answer it.
+      class NeverWebSocket extends EventTarget {
+        static OPEN = 1
+        constructor() {
+          super()
+          queueMicrotask(() => { this.dispatchEvent(new Event('close')) })
+        }
+        close() {}
+      }
+      globalThis.document = { baseURI: origin + '/' }
+      globalThis.WebSocket = NeverWebSocket
       await import(urls.registryClient)
       await import(urls.connectionClient)
       await import(urls.apiGatewayClient)
