@@ -268,7 +268,7 @@ describe('sidebar global panels', () => {
     const { runtime, view } = await bench(true)
     await mountPanel(runtime, { id: ALPHA, heading: 'Alpha content', label: 'Alpha panel' })
     await view.findByRole('navigation', { name: 'Global panels' })
-    const strips = [...view.container.querySelectorAll('[data-window-drag]')]
+    const strips = [...view.container.querySelectorAll<HTMLElement>('[data-window-drag]')]
     expect(strips).toHaveLength(2)
     const fixed = strips[1]!
     expect(within(fixed).getByRole('button', { name: 'Open sidebar' })).not.toBeNull()

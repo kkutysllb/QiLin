@@ -138,7 +138,7 @@ export function apply(ctx: ClientContext): void {
   ctx.slots.inject('sidebar.section.assignments', () => ctx.slots.register({
     name: 'sidebar.section.assignments',
     id: 'ok-desktop-sections',
-    inject: () => (isDarwinDesktop() ? { assignments: { plugins: '通用', schedules: '通用' } } : undefined),
+    inject: () => (isDarwinDesktop() ? { assignments: { plugins: '通用', schedules: '通用' } } : {}),
   }, () => null))
   syncPanels()
 }
