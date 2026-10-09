@@ -52,7 +52,7 @@ The Python SDK follows the same application architecture. Its runtime wheel pack
 
 ## Desktop application boundary
 
-The QiLin desktop application is a separate project: this repository carries no desktop shell (its former application directories are deleted), and upstream desktop changes are not ported here. The `desktop` profile name stays reserved for that application — the public CLI rejects `--profile desktop` rather than managing its files, and the reserved `$QILIN_HOME/profiles/desktop` directory stays out of this repository's product surfaces.
+The desktop shell lives in this repository under `desktop/` (merged from the OpenKyLin repository): it boots the `qilin` profile from a runtime closure built out of this tree, and desktop artifacts ship with the repository's `v*` releases. The `desktop` profile name stays reserved — the public CLI rejects `--profile desktop`, and the reserved `$QILIN_HOME/profiles/desktop` directory stays out of this repository's product surfaces.
 
 ## Core packages
 

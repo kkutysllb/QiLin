@@ -69,6 +69,17 @@ describe('maintained repository reference policy', () => {
     expect(scanRepositoryReferences(fixture.root)).toHaveLength(4)
   })
 
+  it('exempts the merged desktop historical records from commit anchors', (test) => {
+    const fixture = repository(test)
+    fixture.write('desktop/release/v0.1.0.md', fixture.commit)
+    fixture.write('desktop/docs/design.md', fixture.commit)
+    fixture.write('desktop/main/index.mjs', fixture.commit)
+
+    expect(scanRepositoryReferences(fixture.root)).toEqual([
+      { file: 'desktop/main/index.mjs', line: 1, kind: 'commit-hash' },
+    ])
+  })
+
   it('checks available unreachable commits without requiring a branch or network', (test) => {
     const fixture = repository(test)
     const unreachable = fixture.git(['commit-tree', fixture.tree, '-m', 'unreachable fixture'])

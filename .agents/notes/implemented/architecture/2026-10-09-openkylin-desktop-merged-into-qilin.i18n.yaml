@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for 2026-10-09-openkylin-desktop-merged-into-qilin.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-10-09-openkylin-desktop-merged-into-qilin.md
+/agent-note-openkylin-desktop-shell-merged-into-qilin:
+  en: 3ec5f5e08cf1e2b9
+  zh: e80028e4ce70937f
+/agent-note-openkylin-desktop-shell-merged-into-qilin/problem:
+  en: 0a62377ee2c25d49
+  zh: 2e586f8b0e5bb4af
+/agent-note-openkylin-desktop-shell-merged-into-qilin/decision:
+  en: b4484c9284ada359
+  zh: 482b2edeb2dc540e
+/agent-note-openkylin-desktop-shell-merged-into-qilin/alternatives-considered:
+  en: 031542175246d3e6
+  zh: 6f97c736ab75ff6b
+/agent-note-openkylin-desktop-shell-merged-into-qilin/consequences:
+  en: 503950c254b10eda
+  zh: 73c2e2462536d058

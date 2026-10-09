@@ -3,7 +3,7 @@
  * PowerShell bridge is Windows-only, the Bash bridge is everywhere-but-Windows,
  * and the schedule tools mount on every platform. Inserting the tool-schedule
  * entry between tool-pwsh's name and its disabled line once migrated the guard
- * onto the schedule row (7ed1d85b28), silently unmounting the scheduler on
+ * onto the schedule row, silently unmounting the scheduler on
  * macOS/Linux while arming pwsh there — the mis-attached shape this suite
  * rejects, per preset, on the parsed guard expression itself.
  */

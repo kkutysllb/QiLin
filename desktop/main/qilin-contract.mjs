@@ -10,9 +10,8 @@
  * 特权协议 `qilin-app://` 承载共享 Web client——静态资源壳直读 dist，
  * 动态请求壳认证反代到宿主，认证 cookie 只存在于主进程。
  *
- * 本文件是桌面壳对上游约定的唯一引用点；升级上游后若行为不符，只
- * 需要修改这里。契约依据（upstream 3.1.1，commit d9dc36d499…（历史锚 fdca446…→b2d1861…），锁定于
- * upstream/qilin.lock.json；接入缝逐条实测核对）：
+ * 本文件是桌面壳对引擎契约的唯一引用点；引擎即本仓，升级引擎后若行为
+ * 不符，只需要修改这里。契约依据（本仓 apps/cli 3.1.x；接入缝逐条实测核对）：
  * - 程序化 boot：apps/cli `exports['./profile-boot']` → lib/profile-boot.js
  *   `runProfile({environment, profile, patchFiles, args}) → {ctx, shutdown}`
  *   （apps/cli/src/profile-boot.ts:254）；INSTALL_ANCHOR 自锚

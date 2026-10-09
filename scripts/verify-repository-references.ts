@@ -12,7 +12,9 @@ const organizationUrl = new RegExp(`\\bgithub\\.com/${organization}(?![a-z0-9-])
 // The independent kit repository owns the engine source and documentation.
 const kitRepositoryUrl = new RegExp(`\\bgithub\\.com/${organization}/libreoffice-kit(?:\\.git)?(?=/|[^a-zA-Z0-9_.-]|$)`, 'g')
 const commitCandidate = /(?<![a-z0-9])[\da-f]{7,40}(?![a-z0-9])/gi
-const excludedPrefixes = ['vendor/', '.agents/notes/archived/']
+// desktop/release 与 desktop/docs 是 OpenKyLin 并入时带来的冻结历史记录
+// （已发行版本说明与设计文档），其中的 commit 锚是史实，不随本仓演进。
+const excludedPrefixes = ['vendor/', '.agents/notes/archived/', 'desktop/release/', 'desktop/docs/']
 const gitOutputLimit = 64 * 1024 * 1024
 
 /** One prohibited reference in a maintained source file. */

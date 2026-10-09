@@ -119,9 +119,9 @@ Before pushing, follow [qilin-pre-push-checks](.agents/skills/qilin-pre-push-che
 
 Real-API tests/demos read `DEEPSEEK_API_KEY`, optional `DEEPSEEK_BASE_URL`, and root `.env`. cordis.yml allows `!!js` (never `!js`) under plugin `config` and entry `disabled`; other metadata stays literal, so conditional composition also uses overlays ([primer](docs/kylin-primer.md#loader-configuration)). Never commit credentials. E2e skips without a key; [testing.md](docs/testing.md) owns key policy.
 
-## Desktop and account alignment boundaries
+## Desktop shell and account boundaries
 
-QiLin's desktop application is a separate project: no desktop shell lives here and upstream desktop changes are never ported. The web-side interfaces the shell consumes — `packages/client/web` window-drag with `data-window-drag`, and the `qilinDesktop` / `__QILIN_SHORTCUTS_CONFIG__` globals — stay ([boundary note](.agents/notes/implemented/architecture/2026-09-25-desktop-and-account-alignment-boundaries.md)). The account surface is the own ui-account `/api/auth` gate; the upstream deepseek-account stack is never ported.
+The desktop shell lives in this repository under `desktop/` (merged from the OpenKyLin repository, 2026-10-09): the engine it boots is this working tree, desktop releases ride the repository `v*` tag line through `desktop-release.yml`, and former upstream adaptations are ordinary source, not patches. The `desktop` profile name stays reserved — the public CLI rejects `--profile desktop` and the shell boots the `qilin` profile ([merge note](.agents/notes/implemented/architecture/2026-10-09-openkylin-desktop-merged-into-qilin.md)). The web-side interfaces the shell consumes — `packages/client/web` window-drag with `data-window-drag`, and the `qilinDesktop` / `__QILIN_SHORTCUTS_CONFIG__` globals — stay. The account surface is the own ui-account `/api/auth` gate; the upstream deepseek-account stack is never ported ([boundary note](.agents/notes/implemented/architecture/2026-09-25-desktop-and-account-alignment-boundaries.md)).
 
 ## Conventions
 

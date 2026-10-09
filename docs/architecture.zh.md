@@ -52,7 +52,7 @@ Python SDK 遵循相同的应用架构。其运行时 wheel 把普通 `qilin` CL
 
 ## 桌面应用边界
 
-QiLin 桌面端是独立项目：本仓库不承载桌面壳（原桌面应用目录已删除），上游桌面端变更一律不移植。`desktop` profile 名仍为该应用保留——公开 CLI 拒绝 `--profile desktop`，不管理其文件；保留的 `$QILIN_HOME/profiles/desktop` 目录也不属于本仓库的产品面。
+桌面壳在本仓库 `desktop/` 下（自 OpenKyLin 仓库并入）：它从本树构建的运行时闭包启动 `qilin` profile，桌面产物随仓库的 `v*` 发行版一起出货。`desktop` profile 名仍保留——公开 CLI 拒绝 `--profile desktop`；保留的 `$QILIN_HOME/profiles/desktop` 目录也不属于本仓库的产品面。
 
 ## 核心包
 
