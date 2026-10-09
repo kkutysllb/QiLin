@@ -21,6 +21,7 @@
     "build:bench": "npm run build:native-system && npm run build:lib && tsdown --config-loader native --config benchmarks/tsdown.config.ts",
     "build:official": "tsx scripts/build.ts --profile official",
     "build:qilin": "tsx scripts/build.ts --profile qilin",
+    "build:desktop": "bash desktop/scripts/build-desktop.sh",
     "build:lib": "pnpm run build:lib:host && pnpm run build:lib:client",
     "build:lib:host": "node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc -b tsconfig.host.json && tsdown --config-loader native --env.QILIN_BUILD_FACE host",
     "build:lib:client": "tsc -b tsconfig.client.json && tsdown --config-loader native --env.QILIN_BUILD_FACE client",
@@ -184,7 +185,8 @@
     "mock:llm": "node --import tsx packages/test-support/llm-mock-server/src/bin.ts",
     "dev:web": "tsx scripts/dev-web.ts --poll",
     "postinstall": "node scripts/install-lefthook.mjs",
-    "version:set": "tsx scripts/set-version.ts"
+    "version:set": "tsx scripts/set-version.ts",
+    "test:desktop": "cd desktop && npm test"
   },
   "devDependencies": {
     "@qilin-agent/agent": "workspace:*",

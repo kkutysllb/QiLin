@@ -1,17 +1,16 @@
-# Release — QiLin Desktop 桌面发版（tag 触发，mac-arm64 先行）。
+# Desktop Release — 桌面端发版（tag 触发，mac-arm64）。
 #
-# 取代 sidecar 形态的旧 release.yml（上游 apps/desktop 构建驱动已随 3.1.x 移除）。
-# 签名公证：首版 unsigned（identity: null）；Apple 凭据到位后启用 fail-closed
-# 门（缺凭据即拒，参考 KStock check-release.sh）——不再静默跳过公证。
+# desktop/ 并入麒麟仓后与引擎同版发布：同一个 v* tag 既走引擎发布链，也走
+# 本工作流出桌面安装包，产物汇入同一个 GitHub Release（create-or-upload 收敛
+# 两个工作流的发布竞态）。
 #
-# 配额策略（减少 GitHub 配额消耗）：
-# - 只在推 tag（或手动 dispatch）时运行——日常 push 零 Actions 消耗；
-# - 单平台矩阵（macos-latest = arm64，对齐 upstream/qilin.lock.json 的 target）；
-# - 用户侧增量走 blockmap（electron-updater 只下载差异块），Release 资产一次
-#   上传不重复；引擎闭包缓存待链路验证后启用（键含 lock commit）。
+# 签名公证：凭据 job 级注入，缺一即拒（fail-closed，KStock 教训 F5——
+# electron-builder 缺凭据会静默出未签名包）。变量名必须是 MAC_CERTIFICATE*
+# （build-desktop.sh/ensure-macos-keychain.sh 认的名字），不能叫 CSC_LINK/
+# CSC_KEY_PASSWORD——那会触发 electron-builder 有缺陷的临时钥匙串分支。
 #
-# 本地入口 scripts/release.sh 与本 workflow 共用同一构建/门禁脚本（同源）。
-name: Release
+# 与本地入口 desktop/scripts/release.sh 共用同一构建/门禁脚本（同源）。
+name: Release (desktop)
 
 on:
   push:
@@ -20,14 +19,14 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "要构建发布的 tag（如 v0.1.1，须已推送）"
+        description: "要构建发布的 tag（如 v3.2.0，须已推送）"
         required: true
 
 permissions:
   contents: write
 
 concurrency:
-  group: release-${{ inputs.tag || github.ref }}
+  group: desktop-release-${{ inputs.tag || github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -37,11 +36,6 @@ jobs:
     timeout-minutes: 120
     permissions:
       contents: write
-    # 签名公证凭据 job 级注入：检查与打包步骤共享（step 级 env 不跨步骤）。
-    # 变量名必须是 MAC_CERTIFICATE*（build-desktop.sh/ensure-macos-keychain.sh
-    # 认的名字），绝不能叫 CSC_LINK/CSC_KEY_PASSWORD——那会触发 electron-builder
-    # 有缺陷的临时钥匙串分支（SecKeychainUnlock 必败，v0.1.0 二三轮实踩）。
-    # 专用钥匙串路线由 ensure-macos-keychain.sh 导出 CSC_KEYCHAIN + CSC_NAME。
     env:
       MAC_CERTIFICATE: ${{ secrets.MAC_CERTIFICATE }}
       MAC_CERTIFICATE_PWD: ${{ secrets.MAC_CERTIFICATE_PWD }}
@@ -61,13 +55,16 @@ jobs:
         with:
           version: 11.7.0
 
-      # 引擎运行时闭包：GitHub 克隆锁定 commit → 品牌补丁 → install → build
-      # → 生产重装收闭包 → tar + 封盘清单（与本地 build-desktop.sh 同源脚本）
-      - name: 运行时闭包封盘
-        run: bash scripts/build-runtime-bundle.sh
+      # 引擎运行时闭包：本仓 HEAD 的 git worktree → install → build:qilin
+      # → 生产重装收闭包 → tar + 封盘清单（与本地同源脚本，引擎即本仓）
+      - name: 桌面端测试
+        working-directory: desktop
+        run: npm test
 
-      # 签名公证 fail-closed 门（KStock 教训 F5：electron-builder 缺凭据会
-      # 静默跳过公证并照常出包——门前拦，不指望 builder）
+      - name: 运行时闭包封盘
+        run: bash desktop/scripts/build-runtime-bundle.sh
+
+      # 签名公证 fail-closed 门：缺凭据即拒，门前拦，不指望 builder
       - name: 签名公证凭据检查
         run: |
           for v in MAC_CERTIFICATE MAC_CERTIFICATE_PWD APPLE_ID APPLE_APP_SPECIFIC_PASSWORD APPLE_TEAM_ID; do
@@ -77,11 +74,11 @@ jobs:
 
       # electron-builder（dmg/zip arm64 + latest-mac.yml + blockmap；签名+公证）
       - name: 桌面打包（签名 + 公证）
-        run: bash scripts/build-desktop.sh --skip-bundle
+        run: bash desktop/scripts/build-desktop.sh --skip-bundle
 
       # 产物门禁 V1–V7（安装包/更新元数据/交叉引用/闭包哈希/dmg 校验/版本一致/闭包冒烟）
       - name: 产物门禁
-        run: bash scripts/verify-desktop-artifacts.sh
+        run: bash desktop/scripts/verify-desktop-artifacts.sh
 
       - name: 收集产物
         uses: actions/upload-artifact@v4
@@ -89,13 +86,13 @@ jobs:
           name: desktop-release
           if-no-files-found: error
           path: |
-            dist-exe/*.dmg
-            dist-exe/*.zip
-            dist-exe/*.blockmap
-            dist-exe/latest-mac.yml
+            desktop/dist-exe/*.dmg
+            desktop/dist-exe/*.zip
+            desktop/dist-exe/*.blockmap
+            desktop/dist-exe/latest-mac.yml
 
   publish:
-    name: 发布 Release
+    name: 发布到 GitHub Release
     needs: build
     runs-on: ubuntu-22.04
     permissions:
@@ -104,7 +101,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.tag || github.ref_name }}
-          sparse-checkout: release
+          sparse-checkout: desktop/release
 
       - uses: actions/download-artifact@v4
         with:
@@ -116,12 +113,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ inputs.tag || github.ref_name }}
         run: |
-          NOTES_FILE="release/${TAG}.md"
+          NOTES_FILE="desktop/release/${TAG}.md"
           NOTES_ARGS=()
           if [ -f "$NOTES_FILE" ]; then
             NOTES_ARGS+=(--notes-file "$NOTES_FILE")
           else
             NOTES_ARGS+=(--generate-notes)
           fi
-          gh release create "$TAG" dist-exe/* --title "QiLin Desktop $TAG" "${NOTES_ARGS[@]}" || \
+          gh release create "$TAG" dist-exe/* --title "QiLin $TAG" "${NOTES_ARGS[@]}" || \
             gh release upload "$TAG" dist-exe/* --clobber
