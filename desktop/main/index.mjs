@@ -8,8 +8,8 @@
  * 主进程）→ shell 窗口加载 qilin-app://app/workspace。退出时优雅关停
  * 宿主，绝不留孤儿进程。
  *
- * 运行树来源：`OPENKYLIN_QILIN_RUN`（dev 脚本传入品牌化 checkout），
- * 缺省回退到仓库内 `.tmp/dev/qilin-src`。
+ * 运行树来源：`OPENKYLIN_QILIN_RUN`（dev 脚本传入本仓根——引擎即本仓），
+ * 缺省回退到仓库根。
  *
  * @module main
  */

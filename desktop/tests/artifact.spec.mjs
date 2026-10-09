@@ -33,13 +33,10 @@ test('泄漏扫描覆盖全部 TypeScript 源形式', () => {
   ])
 })
 
-test('产物报告校验版本绑定', () => {
-  assert.throws(() => parseArtifactReport({
-    runtime: { version: '3.0.0', nodeVersion: '24.17.0', pnpmVersion: '11.7.0' },
-    lock: { qilinVersion: '3.1.0', nodeVersion: '24.17.0', pnpmVersion: '11.7.0' },
-  }), /version mismatch/)
-  assert.deepEqual(parseArtifactReport({
-    runtime: { version: '3.0.0', nodeVersion: '24.17.0', pnpmVersion: '11.7.0' },
-    lock: { qilinVersion: '3.0.0', nodeVersion: '24.17.0', pnpmVersion: '11.7.0' },
-  }), { ok: true })
+test('清单校验：commit 形态与版本绑定', () => {
+  const runtime = { qilinCommit: 'a'.repeat(40), qilinVersion: '3.2.0' }
+  assert.throws(() => parseArtifactReport({ runtime: { ...runtime, qilinCommit: 'nope' } }), /40-char sha/)
+  assert.throws(() => parseArtifactReport({ runtime, expected: { version: '3.1.3' } }), /version mismatch/)
+  assert.deepEqual(parseArtifactReport({ runtime, expected: { version: '3.2.0' } }), { ok: true })
+  assert.deepEqual(parseArtifactReport({ runtime }), { ok: true })
 })

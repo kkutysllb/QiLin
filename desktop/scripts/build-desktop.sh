@@ -37,6 +37,7 @@ fi
 
 # 3) 组装 app 目录（builder files 域不可越包目录，壳源复制进 package/app）
 log "组装 app 目录"
+ENGINE_ROOT="$(cd "$REPO_ROOT/.." && pwd)"
 APP_DIR="$REPO_ROOT/package"
 rm -rf "$APP_DIR/app" "$APP_DIR/icons"
 mkdir -p "$APP_DIR/app" "$APP_DIR/branding/icons"
@@ -55,7 +56,7 @@ const pkg = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"))
 const root = JSON.parse(require("fs").readFileSync(process.argv[2], "utf8"))
 pkg.version = root.version
 require("fs").writeFileSync(process.argv[1], JSON.stringify(pkg, null, 2) + "\n")
-' "$APP_DIR/package.json" "$REPO_ROOT/package.json"
+' "$APP_DIR/package.json" "$ENGINE_ROOT/package.json"
 
 # 3.5) 安装打包域依赖：electron-updater（进 asar 的 dependencies）+ electron
 #（devDependencies，builder 只取版本号并自行下载 dist——SKIP_BINARY 省一次下载）

@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "overwrites": [],
-  "patches": [
-    { "patch": "patches/shared-web-branding.patch", "scope": "packages/client, apps/web" },
-    { "patch": "patches/desktop-titlebar-inset.patch", "scope": "packages/client, apps/web" },
-    { "patch": "patches/desktop-sidebar-sections.patch", "scope": "packages/client, apps/web" }
-  ]
-}

@@ -1,13 +1,15 @@
 // scripts/generate-release-manifest.mjs
-/** Combine lock, sync report and checksums into releases/manifest.json. */
+/** Combine the runtime manifest, sync report and checksums into releases/manifest.json. */
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { basename, dirname } from 'node:path'
 
 /**
- * @param {{ lock: object, sync: { match: boolean, webBundleSha256: string }, checksums: string, brand?: { sharedThemeVersion?: string } }} options
+ * @param {{ runtime: { qilinVersion?: string, qilinCommit?: string }, productVersion: string, sync: { match: boolean, webBundleSha256: string }, checksums: string, brand?: { sharedThemeVersion?: string } }} options
+ *   `runtime` is staging/desktop-runtime.json (stamped by build-runtime-bundle.sh);
+ *   `productVersion` is the version the packaging domain shipped.
  * @returns {object} Release manifest for releases/manifest.json.
  */
-export function buildManifest({ lock, sync, checksums, brand }) {
+export function buildManifest({ runtime, productVersion, sync, checksums, brand }) {
   if (!sync.match) throw new Error('release manifest: refusing to record a failed sync state')
   if (typeof sync.webBundleSha256 !== 'string') throw new Error('release manifest: sync report missing webBundleSha256')
   if (typeof brand?.sharedThemeVersion !== 'string' || brand.sharedThemeVersion === '') {
@@ -17,10 +19,9 @@ export function buildManifest({ lock, sync, checksums, brand }) {
   if (artifacts.length === 0) throw new Error('release manifest: checksums contain no artifacts')
   return {
     schemaVersion: 1,
-    productVersion: lock.productVersion,
-    qilinVersion: lock.qilinVersion,
-    qilinCommit: lock.qilinCommit,
-    target: lock.target,
+    productVersion,
+    qilinVersion: runtime.qilinVersion,
+    qilinCommit: runtime.qilinCommit,
     sharedThemeVersion: brand.sharedThemeVersion,
     sync: { webBundleSha256: sync.webBundleSha256 },
     artifacts,
@@ -32,12 +33,15 @@ if (process.argv[1] !== undefined && import.meta.url.endsWith(basename(process.a
   const brandIndex = args.indexOf('--brand')
   const brandPath = brandIndex === -1 ? undefined : args[brandIndex + 1]
   const positional = args.filter((arg, index) => !arg.startsWith('--') && index !== brandIndex + 1)
-  const [lockPath, syncPath, checksumsPath, outPath] = positional
-  if (!lockPath || !syncPath || !checksumsPath) {
-    throw new Error('usage: generate-release-manifest.mjs <lock.json> <sync-report.json> <checksums.txt> [manifestOut] [--brand <brand-manifest.json>]')
+  const [runtimePath, syncPath, checksumsPath, outPath] = positional
+  if (!runtimePath || !syncPath || !checksumsPath) {
+    throw new Error('usage: generate-release-manifest.mjs <desktop-runtime.json> <sync-report.json> <checksums.txt> [manifestOut] [--brand <brand-manifest.json>]')
   }
+  const runtime = JSON.parse(await readFile(runtimePath, 'utf8'))
+  const productVersion = JSON.parse(await readFile('package/package.json', 'utf8')).version
   const manifest = buildManifest({
-    lock: JSON.parse(await readFile(lockPath, 'utf8')),
+    runtime,
+    productVersion,
     sync: JSON.parse(await readFile(syncPath, 'utf8')),
     checksums: await readFile(checksumsPath, 'utf8'),
     brand: brandPath === undefined ? undefined : JSON.parse(await readFile(brandPath, 'utf8')),

@@ -37,7 +37,7 @@ export async function collectPackages(runtimeDir) {
     .sort((a, b) => `${a.name}\0${a.version}`.localeCompare(`${b.name}\0${b.version}`))
 }
 
-export function buildSbom({ packages, lock, versions, created }) {
+export function buildSbom({ packages, product, versions, created }) {
   // Deduplicate and normalize order independently of caller input, matching collectPackages.
   const unique = [...new Map(packages.map(p => [`${p.name}\0${p.version}`, p])).values()]
     .sort((a, b) => `${a.name}\0${a.version}`.localeCompare(`${b.name}\0${b.version}`))
@@ -58,24 +58,24 @@ export function buildSbom({ packages, lock, versions, created }) {
       }],
     })
   }
-  const product = {
+  const productNode = {
     SPDXID: 'SPDXRef-OpenKylin-Desktop',
     name: 'OpenKylin Desktop',
-    versionInfo: lock.productVersion,
+    versionInfo: product.productVersion,
     downloadLocation: 'NOASSERTION',
     licenseConcluded: 'NOASSERTION',
     copyrightText: 'NOASSERTION',
-    sourceInfo: `bundled runtime: qilin ${lock.qilinVersion} @ ${lock.qilinCommit}; node ${versions.node}; pnpm ${versions.pnpm}`,
+    sourceInfo: `bundled runtime: qilin ${product.qilinVersion} @ ${product.qilinCommit}; node ${versions.node}; pnpm ${versions.pnpm}`,
   }
   return {
     spdxVersion: 'SPDX-2.3',
     dataLicense: 'CC0-1.0',
     SPDXID: 'SPDXRef-DOCUMENT',
-    name: `OpenKylin Desktop ${lock.productVersion} (${lock.target ?? 'mac-arm64'})`,
-    documentNamespace: `https://github.com/kkutysllb/OpenKylin/sbom/${lock.productVersion}`,
+    name: `QiLin Desktop ${product.productVersion} (mac-arm64)`,
+    documentNamespace: `https://github.com/kkutysllb/QiLin/sbom/${product.productVersion}`,
     creationInfo: { creators: ['Organization: OpenKylin'], created },
     documentDescribes: ['SPDXRef-OpenKylin-Desktop'],
-    packages: [product, ...components],
+    packages: [productNode, ...components],
     relationships: [{ spdxElementId: 'SPDXRef-DOCUMENT', relationshipType: 'DESCRIBES', relatedSpdxElement: 'SPDXRef-OpenKylin-Desktop' }],
   }
 }
@@ -86,15 +86,20 @@ if (process.argv[1] !== undefined && import.meta.url.endsWith(basename(process.a
   const versionsPath = versionsIndex === -1 ? undefined : args[versionsIndex + 1]
   const positional = args.filter((arg, index) =>
     !arg.startsWith('--') && (versionsIndex === -1 || index !== versionsIndex + 1))
-  const [runtimeDir, lockPath, outPath] = positional
-  if (!runtimeDir || !lockPath || !outPath) {
-    throw new Error('usage: generate-sbom.mjs <runtimeDir> <qilin.lock.json> <out.spdx.json> [--versions <versions.json>]')
+  const [runtimeDir, runtimeJsonPath, outPath] = positional
+  if (!runtimeDir || !runtimeJsonPath || !outPath) {
+    throw new Error('usage: generate-sbom.mjs <runtimeDir> <desktop-runtime.json> <out.spdx.json> [--versions <versions.json>]')
   }
-  const lock = JSON.parse(await readFile(lockPath, 'utf8'))
+  const runtime = JSON.parse(await readFile(runtimeJsonPath, 'utf8'))
+  const product = {
+    productVersion: JSON.parse(await readFile(join(process.cwd(), '..', 'package.json'), 'utf8')).version,
+    qilinVersion: runtime.qilinVersion,
+    qilinCommit: runtime.qilinCommit,
+  }
   const versions = versionsPath
     ? JSON.parse(await readFile(versionsPath, 'utf8'))
     : { node: 'unknown', pnpm: 'unknown' }
-  const doc = buildSbom({ packages: await collectPackages(runtimeDir), lock, versions, created: new Date().toISOString() })
+  const doc = buildSbom({ packages: await collectPackages(runtimeDir), product, versions, created: new Date().toISOString() })
   await writeFile(outPath, `${JSON.stringify(doc, null, 2)}\n`)
   console.log(`sbom written: ${String(doc.packages.length - 1)} component package(s)`)
 }

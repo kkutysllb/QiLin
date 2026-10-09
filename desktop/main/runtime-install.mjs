@@ -2,7 +2,7 @@
 /**
  * 引擎运行时树解析与首启解压（打包态）。
  *
- * dev 态：OPENKYLIN_QILIN_RUN（品牌化 checkout）或仓库 .tmp/dev/qilin-src。
+ * dev 态：OPENKYLIN_QILIN_RUN（dev 脚本传入本仓根——引擎即本仓）。
  * 打包态：运行时闭包（scripts/build-runtime-bundle.sh 产物）随 extraResources
  * 分发（Contents/Resources/runtime/qilin-runtime.tar.gz + desktop-runtime.json），
  * 首次启动解压到 userData/runtime/<commit>/——commit 目录名 = 版本换版自然
@@ -31,7 +31,7 @@ const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url))
 export function resolveRuntimeRoot(appLike) {
   const override = process.env.OPENKYLIN_QILIN_RUN
   if (override !== undefined && override !== '') return override
-  if (appLike.isPackaged !== true) return join(REPO_ROOT, '.tmp', 'dev', 'qilin-src')
+  if (appLike.isPackaged !== true) return join(REPO_ROOT, '..')
   const manifest = readPackagedManifest(appLike.resourcesPath)
   if (manifest === null) return null
   const dest = join(appLike.userData, 'runtime', manifest.qilinCommit)
@@ -48,7 +48,7 @@ export async function ensureRuntimeTree(appLike) {
   const resolved = resolveRuntimeRoot(appLike)
   if (resolved !== null) return resolved
   if (appLike.isPackaged !== true) {
-    throw new Error('runtime: dev 运行树缺失（先跑一次 npm run dev 构建品牌化 checkout）')
+    throw new Error('runtime: dev 运行树缺失（先跑一次 npm run dev 构建引擎产物）')
   }
   const manifest = readPackagedManifest(appLike.resourcesPath)
   if (manifest === null) {

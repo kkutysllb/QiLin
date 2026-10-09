@@ -6,7 +6,7 @@ import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-const lock = { productVersion: '0.1.0', qilinVersion: '3.0.0', qilinCommit: 'a'.repeat(40) }
+const sbomProduct = { productVersion: '3.2.0', qilinVersion: '3.2.0', qilinCommit: 'a'.repeat(40) }
 
 test('buildSbom 产出 SPDX 2.3 文档：产品包 + 去重排序组件 + purl', () => {
   const doc = buildSbom({
@@ -15,7 +15,7 @@ test('buildSbom 产出 SPDX 2.3 文档：产品包 + 去重排序组件 + purl',
       { name: '@scope/cli', version: '3.0.0', license: 'MIT' },
       { name: 'zlib', version: '1.0.0', license: null },
     ],
-    lock,
+    product: sbomProduct,
     versions: { node: '24.17.0', pnpm: '11.7.0' },
     created: '2026-09-16T00:00:00.000Z',
   })
@@ -23,10 +23,11 @@ test('buildSbom 产出 SPDX 2.3 文档：产品包 + 去重排序组件 + purl',
   assert.equal(doc.dataLicense, 'CC0-1.0')
   assert.equal(doc.SPDXID, 'SPDXRef-DOCUMENT')
   assert.deepEqual(doc.documentDescribes, ['SPDXRef-OpenKylin-Desktop'])
+  assert.equal(doc.name, 'QiLin Desktop 3.2.0 (mac-arm64)')
   assert.equal(doc.creationInfo.created, '2026-09-16T00:00:00.000Z')
   const [product, ...components] = doc.packages
   assert.equal(product.SPDXID, 'SPDXRef-OpenKylin-Desktop')
-  assert.match(product.sourceInfo, /qilin 3\.0\.0 @ a{40}/)
+  assert.match(product.sourceInfo, /qilin 3\.2\.0 @ a{40}/)
   assert.match(product.sourceInfo, /node 24\.17\.0/)
   assert.deepEqual(components.map(p => p.name), ['@scope/cli', 'zlib'])
   assert.equal(components[0].licenseConcluded, 'MIT')

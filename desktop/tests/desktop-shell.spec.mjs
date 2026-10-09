@@ -31,7 +31,6 @@ import {
   urlOrigin,
 } from '../main/qilin-contract.mjs'
 import { profileManifestPath, restoreShippedBundles, SHIPPED_PROFILE_BUNDLES } from '../main/recovery.mjs'
-import { brandingFingerprint } from '../scripts/lib/dev-stamp.mjs'
 import {
   sessionTitleOf,
   pickSession,
@@ -303,30 +302,6 @@ test('启动页资产齐备（splash.html + preload + 主进程六件套 + 宿�
   assert.match(splashPreload, /splash:recover-disable-plugins/, '恢复入口经 IPC 白名单')
 })
 
-test('branding 指纹随品牌输入变化（stamp 复用的守门依据）', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'ok-stamp-'))
-  try {
-    await mkdir(join(dir, 'patches'), { recursive: true })
-    await mkdir(join(dir, 'branding/theme'), { recursive: true })
-    await writeFile(join(dir, 'patches/registry.json'), JSON.stringify({
-      schemaVersion: 1,
-      patches: [{ patch: 'patches/shared-web-branding.patch' }],
-      overwrites: [{ mode: 'add', source: 'branding/theme/tokens.css', target: 'apps/desktop/renderer/ok-theme.css' }],
-    }))
-    await writeFile(join(dir, 'patches/shared-web-branding.patch'), 'a\n')
-    await writeFile(join(dir, 'branding/theme/tokens.css'), 'b\n')
-    const before = brandingFingerprint(dir)
-    assert.equal(brandingFingerprint(dir), before, '输入不变 → 指纹稳定')
-    await writeFile(join(dir, 'patches/shared-web-branding.patch'), 'a2\n')
-    assert.notEqual(brandingFingerprint(dir), before, 'patch 内容变化 → 指纹变化')
-    await writeFile(join(dir, 'patches/shared-web-branding.patch'), 'a\n')
-    await writeFile(join(dir, 'branding/theme/tokens.css'), 'b2\n')
-    assert.notEqual(brandingFingerprint(dir), before, '覆盖源变化 → 指纹变化')
-  } finally {
-    await rm(dir, { recursive: true, force: true })
-  }
-})
-
 /* ---------- 标题栏工作区解析（workspace.mjs 纯函数） ---------- */
 
 test('窗口标题截掉上游 DocumentTitle 尾巴，取纯会话标题', () => {
@@ -533,54 +508,43 @@ test('托盘「检查更新」常驻 + 壳自绘关于面板（麒麟印章）',
   assert.match(about, /Content-Security-Policy/, '本地资源页带 CSP')
 })
 
-test('设置页让位补丁（覆盖层 inset + 返回键让开红绿灯）已注册且命中上游锚点', async () => {
-  const registry = JSON.parse(await readFile(new URL('../patches/registry.json', import.meta.url), 'utf8'))
-  assert.ok(
-    registry.patches.some((entry) => entry.patch === 'patches/desktop-titlebar-inset.patch'),
-    'registry 必须列出 inset 补丁（否则 checkout 不带此修复）',
-  )
-  const patch = await readFile(new URL('../patches/desktop-titlebar-inset.patch', import.meta.url), 'utf8')
-  assert.match(patch, /SettingsRoot\.module\.css/, '命中设置页壳样式')
-  assert.match(patch, /landing\.css/, '命中 landing 页 site-header（logo/标签/主题切换）')
-  assert.doesNotMatch(patch, /auth\.css/, '注册登录页保持纯 web 观感（无痕覆盖不压内容、不让位）')
-  assert.match(patch, /top: var\(--ok-tb-h, 0px\)/, 'fixed 覆盖层让出标题栏；纯 web 回落 0')
+test('设置页让位已源码化（覆盖层 inset + 返回键让开红绿灯）', async () => {
+  const settings = await readFile(new URL('../../packages/client/ui-settings-general/src/client/SettingsRoot.module.css', import.meta.url), 'utf8')
+  assert.match(settings, /top: var\(--ok-tb-h, 0px\)/, 'fixed 覆盖层让出标题栏；纯 web 回落 0')
   assert.match(
-    patch,
-    /:global\(html\[data-platform='darwin'\]\) \.navBack \{\n\+  margin-top: 10px;/,
+    settings,
+    /:global\(html\[data-platform='darwin'\]\) \.navBack \{\n  margin-top: 10px;/,
     'darwin 下返回工作区再下移 10px（红绿灯灯带与轨道顶齐平时贴得过紧）；:global 让纯 web 不受影响',
   )
+  const landing = await readFile(new URL('../../apps/web/src/landing/landing.css', import.meta.url), 'utf8')
+  assert.match(landing, /top: var\(--ok-tb-h, 0px\)/, 'landing 页 site-header 让出标题栏（logo/标签/主题切换）')
 })
 
-test('侧栏补丁：darwin 宽栏「新会话」hover 不再压暗（registry 已登记）', async () => {
-  const registry = JSON.parse(await readFile(new URL('../patches/registry.json', import.meta.url), 'utf8'))
-  assert.ok(
-    registry.patches.some((entry) => entry.patch === 'patches/desktop-sidebar-sections.patch'),
-    'registry 必须列出侧栏补丁（否则 checkout 不带侧栏分区/固定兜底条/本次 hover 修复）',
-  )
-  const patch = await readFile(new URL('../patches/desktop-sidebar-sections.patch', import.meta.url), 'utf8')
+test('侧栏 darwin 宽栏「新会话」hover 修复已源码化', async () => {
+  const css = await readFile(new URL('../../packages/client/ui-sidebar/src/client/SidebarRoot.module.css', import.meta.url), 'utf8')
   assert.match(
-    patch,
-    /:global\(\[data-platform='darwin'\]\) \.newSession:hover \{\n-  background: color-mix\(in srgb, var\(--qilin-alias-button-floating-hover\) 75%, transparent\);\n\+  background: color-mix\(in srgb, var\(--qilin-alias-button-elevated-fill\) 75%, transparent\);/,
+    css,
+    /:global\(\[data-platform='darwin'\]\) \.newSession:hover \{\n  background: color-mix\(in srgb, var\(--qilin-alias-button-elevated-fill\) 75%, transparent\);\n\}/,
     'darwin hover 底色从 floating-hover 换成与默认同值的 elevated-fill（宽栏 hover 不再比默认暗一档）',
   )
   assert.match(
-    patch,
-    /:global\(html\[data-platform='darwin'\]\) \.newSession:hover \.newSessionLabel \{\n\+  mask-image: none;/,
+    css,
+    /:global\(html\[data-platform='darwin'\]\) \.newSession:hover \.newSessionLabel \{\n  mask-image: none;\n\}/,
     'darwin hover 不再给标签打 mask（上游 mask 会把居中标签的末字右缘吃掉——真机反馈的「话」字发灰）',
   )
   assert.match(
-    patch,
-    /:global\(html\[data-platform='darwin'\]\) \.root:not\(\.collapsed\) \.newSessionLabel \{\n\+  max-width: min\(200px, calc\(100% - 88px\)\);/,
+    css,
+    /:global\(html\[data-platform='darwin'\]\) \.root:not\(\.collapsed\) \.newSessionLabel \{\n  max-width: min\(200px, calc\(100% - 88px\)\);\n\}/,
     'darwin 用宽度上限替代 mask：长标签最远停在右侧快捷键左 8px，不再压 ⌘N',
   )
 })
 
-test('上游锁锚定 QiLin 3.1.3（@qilin-agent 改名后的首个版本线）', async () => {
-  const lock = JSON.parse(await readFile(new URL('../upstream/qilin.lock.json', import.meta.url), 'utf8'))
-  assert.equal(lock.qilinVersion, '3.1.3')
-  assert.equal(lock.qilinCommit, 'd61554c8a23415b91065d23df1a4552adfb32f20', 'v3.1.3 tag 的本体 commit（锁不钉 tag 对象）')
-  assert.equal(lock.qilinRepository, 'https://github.com/kkutysllb/QiLin.git', '独立线后上游即 QiLin 仓本身')
-  assert.match(lock.qilinCommit, /^[0-9a-f]{40}$/)
+test('引擎闭包从本仓 worktree 构建（不再克隆锁定副本）', async () => {
+  const bundle = await readFile(new URL('../scripts/build-runtime-bundle.sh', import.meta.url), 'utf8')
+  assert.match(bundle, /worktree add --detach/, '闭包从本仓 HEAD 的 worktree 构建')
+  assert.match(bundle, /build:qilin/, '构建走本仓产品构建')
+  assert.doesNotMatch(bundle, /qilin\.lock/, '锁定副本机制已退役')
+  assert.doesNotMatch(bundle, /apply-branding/, '品牌补丁已源码化，封盘不再打补丁')
 })
 
 /* ---------- dev 脚本（自备 Electron） ---------- */
@@ -590,4 +554,5 @@ test('dev 脚本自备 Electron（上游 apps/desktop 已移除）', async () =>
   assert.match(dev, /electron-tool/, 'Electron 自备（上游 apps/desktop 已移除）')
   assert.match(dev, /profile-boot\.js/, '构建物完整性检查锚定宿主 boot 模块')
   assert.doesNotMatch(dev, /ensureBuiltinTerminal/, '内置终端插件已退役，不再物化')
+  assert.doesNotMatch(dev, /fetchUpstream|qilin\.lock|applyBranding/, 'dev 直接用本仓工作区，不再克隆/打补丁')
 })

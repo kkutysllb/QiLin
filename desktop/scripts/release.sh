@@ -32,7 +32,7 @@ done
 
 if [ "$STATUS_ONLY" = true ]; then
   log "版本：$(node -p "require('$REPO_ROOT/package.json').version")"
-  log "上游：$(node -p "const l=JSON.parse(require('fs').readFileSync('$REPO_ROOT/upstream/qilin.lock.json','utf8'));l.qilinVersion+' @ '+l.qilinCommit.slice(0,12)")"
+  log "引擎：本仓 HEAD $(git -C "$(dirname "$REPO_ROOT")" rev-parse --short HEAD)"
   log "工作树：$(git -C "$REPO_ROOT" status --porcelain | wc -l | tr -d ' ') 个未提交文件"
   log "闭包：$([ -f "$REPO_ROOT/staging/qilin-runtime.tar.gz" ] && echo "在位 ($(du -h "$REPO_ROOT/staging/qilin-runtime.tar.gz" | awk '{print $1}'))" || echo '未构建')"
   log "桌面包：$(ls "$REPO_ROOT/dist-exe" 2>/dev/null | grep -cE 'dmg|zip' || true) 个安装包"
