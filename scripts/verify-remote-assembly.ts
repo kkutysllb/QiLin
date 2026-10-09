@@ -72,12 +72,12 @@ export interface AssemblyMounts {
 export function readAssemblyMounts(source: string): AssemblyMounts {
   const imports = new Map<string, string>()
   for (const match of source.matchAll(/^import\s+(\w+)\s+from\s+'(@[^']+)\/remote'/gm)) {
-    imports.set(match[1], match[2])
+    imports.set(match[1] as string, match[2] as string)
   }
-  const array = CONTRIBUTION_ARRAY.exec(source)
-  const contributions = array === null
+  const arraySource = CONTRIBUTION_ARRAY.exec(source)?.[1]
+  const contributions = arraySource === undefined
     ? []
-    : [...array[1].matchAll(/[A-Za-z_$][\w$]*/g)].map(match => match[0])
+    : [...arraySource.matchAll(/[A-Za-z_$][\w$]*/g)].map(match => match[0])
   return { imports, contributions }
 }
 
@@ -103,7 +103,7 @@ export function selfMountedPackages(files: readonly { path: string; source: stri
   const out = new Set<string>()
   for (const file of files) {
     if (file.path === ASSEMBLY_SOURCE || !file.source.includes(MOUNT_CALL)) continue
-    for (const match of file.source.matchAll(/from\s+'(@[^']+)\/remote'/g)) out.add(match[1])
+    for (const match of file.source.matchAll(/from\s+'(@[^']+)\/remote'/g)) out.add(match[1] as string)
   }
   return out
 }
