@@ -1,0 +1,22 @@
+# Bilingual-pair consistency record for upgrading-from-upstream.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/cookbook/upgrading-from-upstream.md
+/upgrading-from-an-upstream-dsh-release:
+  en: 3bf92ae1c2640d27
+  zh: 4dfdb270c0325280
+/upgrading-from-an-upstream-dsh-release/the-iron-rules:
+  en: 95c1d61055a3fd6f
+  zh: bf72f17fd94c211f
+/upgrading-from-an-upstream-dsh-release/phase-p0-delta-analysis:
+  en: 150fea7ca10aaefa
+  zh: ec4b7df336f24838
+/upgrading-from-an-upstream-dsh-release/phase-p1-alignment-plan:
+  en: f18820da033c6baa
+  zh: 983f83654a2e6afb
+/upgrading-from-an-upstream-dsh-release/phase-p2-post-upgrade-six-dimension-audit:
+  en: 45cf7c2536defef7
+  zh: f244ee6e93bdc54c
+/upgrading-from-an-upstream-dsh-release/verification-ladder:
+  en: 33ed7ac289455915
+  zh: 6f399d8d090b24e6
