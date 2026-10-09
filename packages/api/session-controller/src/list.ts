@@ -1,6 +1,7 @@
 /** Cold-safe Session list and search projection. */
 
 import { performance } from 'node:perf_hooks'
+import { scheduler } from 'node:timers/promises'
 import type { Context } from '@qilin-agent/kylin'
 import type {} from '@qilin-agent/agent-presets'
 import type { ImageAttachmentLimits } from '@qilin-agent/attachment'
