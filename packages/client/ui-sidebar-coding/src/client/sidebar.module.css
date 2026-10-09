@@ -706,6 +706,8 @@ body[data-dsh-sidebar-dragging] .panel {
   white-space: nowrap;
   color: var(--qilin-alias-label-secondary);
   border-radius: 999px;
+  /* Full-round radius: state the arc back against the universal superellipse. */
+  corner-shape: round;
   background: transparent;
   cursor: pointer;
   user-select: none;
@@ -793,6 +795,7 @@ body[data-dsh-sidebar-dragging] .panel {
   padding: 0;
   border: none;
   border-radius: 999px;
+  corner-shape: round;
   background: transparent;
   color: var(--qilin-alias-label-secondary);
   cursor: pointer;
