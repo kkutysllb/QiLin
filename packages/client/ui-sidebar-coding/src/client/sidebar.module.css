@@ -675,6 +675,7 @@ body[data-dsh-sidebar-dragging] .panel {
   flex: 1;
   min-width: 0;
   display: flex;
+  gap: 4px;
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -683,17 +684,28 @@ body[data-dsh-sidebar-dragging] .panel {
   display: none;
 }
 
+/* The coding tab chip mirrors the right panel's DockKit tab (dockkit.module.css
+   .tab): a 28px capsule that floats in the 48px header band, no dividers —
+   bare text at rest, the hover fill on hover, and the markdown-tag fill on the
+   active chip. The close control reserves its 20px circle in flow, so a chip
+   is the same width with and without it. The radius is the full half-height
+   (not a fixed px): whatever height a skin gives the chip, its ends stay
+   semicircular instead of flattening into a rounded rectangle. */
 .tab {
   flex: none;
-  max-width: 160px;
-  min-width: 64px;
+  align-self: center;
+  min-width: 80px;
+  max-width: 170px;
+  height: 28px;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   padding: 0 4px 0 10px;
-  font: var(--qilin-font-xxs-12);
+  font-size: var(--qilin-content-font-size-secondary, 13px);
+  line-height: 1;
+  white-space: nowrap;
   color: var(--qilin-alias-label-secondary);
-  border-right: 0.5px solid var(--qilin-alias-border-l1);
+  border-radius: 999px;
   background: transparent;
   cursor: pointer;
   user-select: none;
@@ -705,8 +717,8 @@ body[data-dsh-sidebar-dragging] .panel {
 
 .tabActive {
   color: var(--qilin-alias-label-primary);
-  /* Native selected fill (Rows .sessionRow.selected) — no underline, no shadow. */
-  background: var(--qilin-alias-interactive-bg-active);
+  /* DockKit's active-chip fill (dockkit.module.css .tabActive). */
+  background: var(--qilin-alias-markdown-tag);
 }
 
 .tabTitle {
@@ -732,19 +744,32 @@ body[data-dsh-sidebar-dragging] .panel {
   color: var(--qilin-alias-brand-primary);
 }
 
+/* DockKit's close control (dockkit.module.css .tabClose): a 20px circle that
+   shows only while the chip is hovered or active — the tab in view is the one
+   a reader closes next. Hidden means untouchable too, so a press on the
+   chip's trailing 20px activates the tab instead of closing it. */
 .tabClose {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   padding: 0;
   border: none;
-  border-radius: 4px;
+  border-radius: 20px;
   background: transparent;
   color: var(--qilin-alias-label-tertiary);
   cursor: pointer;
   flex: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tab:hover .tabClose,
+.tab:focus-within .tabClose,
+.tabActive .tabClose {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .tabClose:hover {
@@ -762,14 +787,14 @@ body[data-dsh-sidebar-dragging] .panel {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  margin: 0 6px;
+  width: 28px;
+  height: 28px;
+  margin: 0 4px;
   padding: 0;
   border: none;
-  border-radius: 5px;
+  border-radius: 999px;
   background: transparent;
-  color: var(--qilin-alias-label-tertiary);
+  color: var(--qilin-alias-label-secondary);
   cursor: pointer;
 }
 
