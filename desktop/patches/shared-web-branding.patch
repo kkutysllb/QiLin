@@ -1,0 +1,24 @@
+diff --git a/packages/client/ui-primitives/src/QilinSeal.tsx b/packages/client/ui-primitives/src/QilinSeal.tsx
+index bbcc130374..7dcca952fc 100644
+--- a/packages/client/ui-primitives/src/QilinSeal.tsx
++++ b/packages/client/ui-primitives/src/QilinSeal.tsx
+@@ -11,7 +11,7 @@ import { SEAL_GLYPH_LIN, SEAL_GLYPH_QI } from './seal-glyphs.ts'
+ import { SEAL_BODY, SEAL_CELL, SEAL_RING, cellTransform } from './seal-geometry.ts'
+ 
+ /** Cinnabar body gradient, top to bottom: the seal's warm lit upper edge. */
+-const BODY_STOPS = ['#d4503d', '#c3402f', '#a23526'] as const
++const BODY_STOPS = ['#C94A40', '#B7352C', '#8F2A21'] as const
+ /** Warm white of the glyphs against the cinnabar body. */
+ const GLYPH_FILL = '#fff5eb'
+ /** Muted gold of the hairline ring. */
+diff --git a/packages/client/ui-theme-brand/src/client/tokens.ts b/packages/client/ui-theme-brand/src/client/tokens.ts
+index 6dc5505a9e..572bd9377f 100644
+--- a/packages/client/ui-theme-brand/src/client/tokens.ts
++++ b/packages/client/ui-theme-brand/src/client/tokens.ts
+@@ -118,5 +118,5 @@ export const QILIN_TOKENS: ThemeTokenOverrides = Object.freeze({
+      mid stop on light surfaces and the lit upper stop on dark ones, so the
+      label clears 4.5:1 against both the light sidebar #f1ece0 and the dark
+      #0d0b09. Changing the seal gradient means changing this token with it. */
+-  '--qilin-specific-brand-seal-fill': { light: '#c3402f', dark: '#d4503d' },
++  '--qilin-specific-brand-seal-fill': { light: '#B7352C', dark: '#C94A40' },
+ })

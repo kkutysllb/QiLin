@@ -1,0 +1,41 @@
+diff --git a/apps/web/src/landing/landing.css b/apps/web/src/landing/landing.css
+index bd75fda963..43de2dee81 100644
+--- a/apps/web/src/landing/landing.css
++++ b/apps/web/src/landing/landing.css
+@@ -117,7 +117,8 @@ body {
+ 
+ .site-header {
+   position: fixed;
+-  top: 0;
++  /* OpenKylin 桌面壳自绘标题栏让位：--ok-tb-h 由壳注入，纯 web 无此变量回落 0 */
++  top: var(--ok-tb-h, 0px);
+   right: 0;
+   left: 0;
+   z-index: 20;
+diff --git a/packages/client/ui-settings-general/src/client/SettingsRoot.module.css b/packages/client/ui-settings-general/src/client/SettingsRoot.module.css
+index e1437a9ae5..97ea638a61 100644
+--- a/packages/client/ui-settings-general/src/client/SettingsRoot.module.css
++++ b/packages/client/ui-settings-general/src/client/SettingsRoot.module.css
+@@ -14,6 +14,8 @@
+ .overlay {
+   position: fixed;
+   inset: 0;
++  /* OpenKylin 桌面壳自绘标题栏让位：--ok-tb-h 由壳注入，纯 web 无此变量回落 0 */
++  top: var(--ok-tb-h, 0px);
+   z-index: 1000;
+   display: flex;
+ }
+@@ -64,6 +66,13 @@
+   border-right: 0.5px solid var(--qilin-alias-border-l1);
+ }
+ 
++/* OpenKylin 桌面壳：无框窗口的红绿灯中心压在 26px 光学线上（与侧栏 topStrip
++   同一条线），设置页轨道不在这条线上——上游 22px 顶距让返回键顶边与灯带
++   齐平，贴得过紧。darwin 下再让出 10px；纯 web 无 data-platform 不受影响。 */
++:global(html[data-platform='darwin']) .navBack {
++  margin-top: 10px;
++}
++
+ /* Workspace return control at the rail head: one nav-cell box above the panel
+    title, so leaving the page is the first row of the same list. */
+ .navBack {

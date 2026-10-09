@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- QiLin 托盘标识：麒麟印章 · 白文满底 · 饕餮兽面（scripts/lib/tray-seal.mjs 单一几何源）。
+       负形镂空 = 镂空透底，双目/鼻梁/口槽在 16pt 下仍读得出「一张兽脸」。 -->
+  <defs>
+    <mask id="qs-knockout" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+      <!-- 基底白：印面整体可见；其下黑 = 负形镂空，其后白 = 负形里的孤岛 -->
+      <g fill="#ffffff"><rect x="6" y="6" width="88" height="88" rx="8.8"/></g>
+      <g fill="none" stroke="#000000" stroke-linecap="round">
+        <!-- 双角 -->
+        <path d="M47 32C41 24 32 18 20 16" stroke-width="7"/>
+        <path d="M53 32C59 24 68 18 80 16" stroke-width="7"/>
+        <!-- 眉脊 -->
+        <path d="M23 41C30 35 39 34 46 38" stroke-width="5.5"/>
+        <path d="M77 41C70 35 61 34 54 38" stroke-width="5.5"/>
+      </g>
+      <g fill="#000000">
+        <!-- 双目 -->
+        <ellipse cx="31" cy="50" rx="9.5" ry="6.5"/>
+        <ellipse cx="69" cy="50" rx="9.5" ry="6.5"/>
+        <!-- 鼻梁 -->
+        <rect x="46.5" y="58" width="7" height="14" rx="3.5"/>
+        <!-- 口槽 -->
+        <rect x="24" y="76" width="52" height="10" rx="4"/>
+        <!-- 颊部耳涡 -->
+        <circle cx="17" cy="66" r="4"/>
+        <circle cx="83" cy="66" r="4"/>
+      </g>
+      <g fill="#ffffff">
+        <!-- 目珠 / 獠牙：负形里的印面孤岛，32px@2x 起显形 -->
+        <circle cx="31" cy="50" r="3.8"/>
+        <circle cx="69" cy="50" r="3.8"/>
+        <rect x="34.5" y="76" width="5" height="5.5"/>
+        <rect x="60.5" y="76" width="5" height="5.5"/>
+      </g>
+    </mask>
+    <clipPath id="qs-field"><rect x="6" y="6" width="88" height="88" rx="8.8"/></clipPath>
+  </defs>
+  <g mask="url(#qs-knockout)">
+    <g fill="#D9544A"><rect x="6" y="6" width="88" height="88" rx="8.8"/></g>
+      <g clip-path="url(#qs-field)">
+        <ellipse cx="26" cy="24" rx="14" ry="9" fill="#ffffff" opacity="0.10"/>
+        <ellipse cx="70" cy="72" rx="16" ry="10" fill="#ffffff" opacity="0.10"/>
+        <ellipse cx="58" cy="36" rx="10" ry="7" fill="#ffffff" opacity="0.07"/>
+        <ellipse cx="38" cy="80" rx="18" ry="8" fill="#000000" opacity="0.08"/>
+        <ellipse cx="80" cy="32" rx="10" ry="13" fill="#000000" opacity="0.07"/>
+        <ellipse cx="18" cy="56" rx="8" ry="11" fill="#000000" opacity="0.06"/>
+      </g>
+  </g>
+</svg>

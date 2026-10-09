@@ -1,0 +1,68 @@
+# desktop/package/electron-builder.yml — QiLin Desktop 打包契约（M4）。
+#
+# app 目录由 scripts/build-desktop.sh 组装（壳源 desktop/* + 品牌图标 +
+# package.json 的 dependencies=electron-updater 由 builder 自动装进 asar）；
+# 引擎运行时闭包（staging/qilin-runtime.tar.gz + desktop-runtime.json）走
+# extraResources，壳首启解压到 userData/runtime/<commit>/（见
+# desktop/main/runtime-install.mjs）。
+#
+# 签名公证（KStock 同款）：凭据经 CI secrets 注入（MAC_CERTIFICATE=base64
+# .p12、MAC_CERTIFICATE_PWD；公证三件套 APPLE_ID/APPLE_APP_SPECIFIC_PASSWORD/
+# APPLE_TEAM_ID）。签名走 CSC_KEYCHAIN + CSC_NAME 专用钥匙串（ensure-macos-
+# keychain.sh 引导；CSC_LINK 临时钥匙串分支上游缺陷，SecKeychainUnlock 必败，
+# 刻意不用）。env 缺席时 electron-builder 自动降级为未签名本地包——发布
+# fail-closed 门在 release.yml 前置步骤（缺凭据即拒，不靠 builder 的静默跳过）。
+appId: com.openkylin.desktop
+productName: QiLin Desktop
+copyright: Copyright © 2026 OpenKylin
+
+# 安装包/更新元数据文件名显式无空格：builder 会把空格 sanitize 成连字符写进
+# latest-mac.yml 的 url，而文件名若保留空格则两者错位 → electron-updater 404
+artifactName: "QiLin-Desktop-${version}-${arch}.${ext}"
+
+directories:
+  output: ../../dist-exe
+
+asar: true
+npmRebuild: false
+# 引擎宿主入口必须在真实文件系统：Electron-as-Node（ELECTRON_RUN_AS_NODE=1）
+# 是纯 Node fs，不识别 asar——desktop/host 解包到 app.asar.unpacked/
+asarUnpack:
+  - app/host/**
+  - app/main/**
+
+files:
+  - app/**/*
+  - branding/icons/qilin-512.png
+  - branding/icons/tray.png
+  - branding/icons/tray@2x.png
+  - branding/icons/tray-dark.png
+  - branding/icons/tray-dark@2x.png
+  - package.json
+  - "!**/*.map"
+
+extraResources:
+  - from: ../../staging/qilin-runtime.tar.gz
+    to: runtime/qilin-runtime.tar.gz
+  - from: ../../staging/desktop-runtime.json
+    to: runtime/desktop-runtime.json
+
+mac:
+  category: public.app-category.productivity
+  icon: branding/icons/qilin.icns
+  # hardened runtime + entitlements：公证硬要求；Electron 运行必需三项豁免
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: build/Entitlements.plist
+  entitlementsInherit: build/Entitlements.plist
+  notarize: true
+  target:
+    - target: dmg
+      arch: [arm64]
+    - target: zip
+      arch: [arm64]
+
+publish:
+  provider: github
+  owner: kkutysllb
+  repo: OpenKylin

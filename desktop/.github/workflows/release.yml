@@ -1,0 +1,127 @@
+# Release — QiLin Desktop 桌面发版（tag 触发，mac-arm64 先行）。
+#
+# 取代 sidecar 形态的旧 release.yml（上游 apps/desktop 构建驱动已随 3.1.x 移除）。
+# 签名公证：首版 unsigned（identity: null）；Apple 凭据到位后启用 fail-closed
+# 门（缺凭据即拒，参考 KStock check-release.sh）——不再静默跳过公证。
+#
+# 配额策略（减少 GitHub 配额消耗）：
+# - 只在推 tag（或手动 dispatch）时运行——日常 push 零 Actions 消耗；
+# - 单平台矩阵（macos-latest = arm64，对齐 upstream/qilin.lock.json 的 target）；
+# - 用户侧增量走 blockmap（electron-updater 只下载差异块），Release 资产一次
+#   上传不重复；引擎闭包缓存待链路验证后启用（键含 lock commit）。
+#
+# 本地入口 scripts/release.sh 与本 workflow 共用同一构建/门禁脚本（同源）。
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "要构建发布的 tag（如 v0.1.1，须已推送）"
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ inputs.tag || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: 打包（macOS arm64）
+    runs-on: macos-latest
+    timeout-minutes: 120
+    permissions:
+      contents: write
+    # 签名公证凭据 job 级注入：检查与打包步骤共享（step 级 env 不跨步骤）。
+    # 变量名必须是 MAC_CERTIFICATE*（build-desktop.sh/ensure-macos-keychain.sh
+    # 认的名字），绝不能叫 CSC_LINK/CSC_KEY_PASSWORD——那会触发 electron-builder
+    # 有缺陷的临时钥匙串分支（SecKeychainUnlock 必败，v0.1.0 二三轮实踩）。
+    # 专用钥匙串路线由 ensure-macos-keychain.sh 导出 CSC_KEYCHAIN + CSC_NAME。
+    env:
+      MAC_CERTIFICATE: ${{ secrets.MAC_CERTIFICATE }}
+      MAC_CERTIFICATE_PWD: ${{ secrets.MAC_CERTIFICATE_PWD }}
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref_name }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.7.0
+
+      # 引擎运行时闭包：GitHub 克隆锁定 commit → 品牌补丁 → install → build
+      # → 生产重装收闭包 → tar + 封盘清单（与本地 build-desktop.sh 同源脚本）
+      - name: 运行时闭包封盘
+        run: bash scripts/build-runtime-bundle.sh
+
+      # 签名公证 fail-closed 门（KStock 教训 F5：electron-builder 缺凭据会
+      # 静默跳过公证并照常出包——门前拦，不指望 builder）
+      - name: 签名公证凭据检查
+        run: |
+          for v in MAC_CERTIFICATE MAC_CERTIFICATE_PWD APPLE_ID APPLE_APP_SPECIFIC_PASSWORD APPLE_TEAM_ID; do
+            if [ -z "$(eval "echo \$$v")" ]; then echo "缺 secrets 对应凭据: $v——发布必须签名公证" >&2; exit 1; fi
+          done
+          echo "签名公证凭据齐备"
+
+      # electron-builder（dmg/zip arm64 + latest-mac.yml + blockmap；签名+公证）
+      - name: 桌面打包（签名 + 公证）
+        run: bash scripts/build-desktop.sh --skip-bundle
+
+      # 产物门禁 V1–V7（安装包/更新元数据/交叉引用/闭包哈希/dmg 校验/版本一致/闭包冒烟）
+      - name: 产物门禁
+        run: bash scripts/verify-desktop-artifacts.sh
+
+      - name: 收集产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-release
+          if-no-files-found: error
+          path: |
+            dist-exe/*.dmg
+            dist-exe/*.zip
+            dist-exe/*.blockmap
+            dist-exe/latest-mac.yml
+
+  publish:
+    name: 发布 Release
+    needs: build
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref_name }}
+          sparse-checkout: release
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: desktop-release
+          path: dist-exe
+
+      - name: 发布 GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          NOTES_FILE="release/${TAG}.md"
+          NOTES_ARGS=()
+          if [ -f "$NOTES_FILE" ]; then
+            NOTES_ARGS+=(--notes-file "$NOTES_FILE")
+          else
+            NOTES_ARGS+=(--generate-notes)
+          fi
+          gh release create "$TAG" dist-exe/* --title "QiLin Desktop $TAG" "${NOTES_ARGS[@]}" || \
+            gh release upload "$TAG" dist-exe/* --clobber

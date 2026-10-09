@@ -1,0 +1,112 @@
+<!doctype html>
+<!-- desktop/renderer/about.html
+  关于面板（壳自绘）。macOS 原生 About 面板的图标取自 .app bundle，运行时改不了
+  （electron.d.ts：AboutPanelOptions.iconPath 仅 linux/win32）——dev 形态跑的是
+  Electron 二进制，原生面板必然是 Electron 默认图标。故自绘：麒麟印章
+  （branding/icons/qilin-512.png）由主进程读图后经 window.okAboutPaint 注入，
+  dev 与打包态都显示品牌印章。
+-->
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:">
+  <title>关于 QiLin Desktop</title>
+  <style>
+    :root {
+      --ok-paper: #F7F3EA;
+      --ok-ink: #17191C;
+      --ok-cinnabar: #B7352C;
+      --ok-ink-60: rgba(23, 25, 28, 0.6);
+      --ok-ink-12: rgba(23, 25, 28, 0.12);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --ok-paper: #17191C;
+        --ok-ink: #F7F3EA;
+        --ok-cinnabar: #C94A40;
+        --ok-ink-60: rgba(247, 243, 234, 0.62);
+        --ok-ink-12: rgba(247, 243, 234, 0.14);
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: transparent;
+      color: var(--ok-ink);
+      font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+    main {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 26px 28px 22px;
+      text-align: center;
+      background: var(--ok-paper);
+      border: 1px solid var(--ok-ink-12);
+      border-radius: 14px;
+      /* 无边框窗口：整面可拖，按钮另立 no-drag */
+      -webkit-app-region: drag;
+    }
+    /* 麒麟印章：圆角方形，与侧栏 QilinSeal / Dock 图标同形。图标未注入时
+       留朱砂底纹，面板不会出现破图。 */
+    #seal {
+      width: 92px;
+      height: 92px;
+      margin-bottom: 16px;
+      border-radius: 22px;
+      background: var(--ok-cinnabar);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+    }
+    h1 { margin: 0; font-size: 16px; font-weight: 600; letter-spacing: 0.02em; }
+    .version { margin: 6px 0 0; font-size: 12px; color: var(--ok-ink-60); }
+    .credits {
+      margin: 12px 0 0;
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--ok-ink-60);
+      white-space: pre-line;
+    }
+    button {
+      -webkit-app-region: no-drag;
+      appearance: none;
+      margin-top: 18px;
+      padding: 7px 20px;
+      border: 1px solid var(--ok-ink-12);
+      border-radius: 8px;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+    }
+    button:hover { background: var(--ok-ink-12); }
+    button:focus-visible { outline: 2px solid var(--ok-cinnabar); outline-offset: 2px; }
+  </style>
+</head>
+<body>
+  <main>
+    <img id="seal" alt="麒麟印章" width="92" height="92">
+    <h1>QiLin Desktop</h1>
+    <p class="version" id="version"></p>
+    <p class="credits" id="credits"></p>
+    <button id="close" type="button">关闭</button>
+  </main>
+  <script>
+    /** 主进程在 about.html 加载落定后调用：注入印章 data URL、版本与版权行。 */
+    window.okAboutPaint = (data) => {
+      const seal = document.getElementById('seal')
+      if (typeof data.icon === 'string' && data.icon !== '') seal.src = data.icon
+      document.getElementById('version').textContent = '版本 ' + data.version
+      document.getElementById('credits').textContent = data.credits
+    }
+    document.getElementById('close').addEventListener('click', () => { window.close() })
+    document.addEventListener('keydown', (event) => { if (event.key === 'Escape') window.close() })
+  </script>
+</body>
+</html>

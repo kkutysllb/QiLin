@@ -1,0 +1,26 @@
+node_modules/
+.tmp/
+dist/
+*.log
+.DS_Store
+.env
+*.tgz
+/sync-report.json
+/checksums-sha256.txt
+.pnpm-store/
+
+# QiLin 侧车运行时数据（含凭据与 profile 安装树），绝不入库
+/qilin-home/
+
+# M4 发版产物（运行时闭包 / 桌面包构建输出）
+/staging/
+/dist-exe/
+
+# 发版目录：只收发布说明（release/<tag>.md）——CI 的 publish 步骤从 tag 里
+# 读它当 Release 正文，整体忽略会让正文退化成自动 changelog（v0.1.0/v0.1.1 实踩）
+/release/*
+!/release/*.md
+
+# 打包组装产物（build-desktop.sh 每次重建）
+desktop/package/app/
+.dsh/
