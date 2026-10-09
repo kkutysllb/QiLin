@@ -21,6 +21,10 @@ import type {} from '@qilin-agent/client-ui-sidebar-right/client'
 // Type-only: the browser tab type's own parameter declaration, so a page opens
 // with its address rather than through a bare kind.
 import type {} from '@qilin-agent/client-ui-sidebar-browser/client'
+// Type-only: the coding workbench's own sidebar (`betterSidebar`) and its tag
+// owner (`workbench`) — the surfaces that claim an open while coding is active.
+import type {} from '@qilin-agent/client-ui-sidebar-coding/client'
+import type {} from '@qilin-agent/client-ui-workbench/client'
 import type {} from '@qilin-agent/sidebar-opens/remote'
 import type { SidebarOpenRequest } from '@qilin-agent/sidebar-opens/types'
 import { fileAddressFor } from '@qilin-agent/util-workspace-path'
@@ -71,6 +75,7 @@ export function apply(ctx: Context): void {
  * @param request - the resolved request.
  */
 function openRequested(ctx: Context, sessionId: SessionId, request: SidebarOpenRequest): void {
+  if (openInCodingWorkbench(ctx, sessionId, request)) return
   if (request.kind === 'url') {
     if (ctx.sidebarRightTabs.get('browser') !== undefined) {
       ctx.sidebarRight.openTab('browser', { params: { url: request.target } })
@@ -81,4 +86,29 @@ function openRequested(ctx: Context, sessionId: SessionId, request: SidebarOpenR
   }
   const cwd = ctx.sessions.list.getSnapshot().byId[sessionId]?.cwd
   ctx.sidebarRight.openResource(fileAddressFor(sessionId, cwd, request.target))
+}
+
+/**
+ * Let the coding workbench's own sidebar claim the open while its tag is
+ * active: ui-sidebar-right renders the coding body there instead of the
+ * dockkit pane, so a native open would land in a surface nothing renders.
+ * A `betterSidebar` tab auto-expands the collapsed column. Without the tag
+ * owner or the coding sidebar — compositions composing neither — the native
+ * Sidebar keeps the open.
+ * @param ctx - client root context carrying both Sidebar faces.
+ * @param sessionId - the Session whose Sidebar the request targets.
+ * @param request - the resolved request.
+ * @returns whether the coding sidebar claimed the request.
+ */
+function openInCodingWorkbench(ctx: Context, sessionId: SessionId, request: SidebarOpenRequest): boolean {
+  const workbench = ctx.get('workbench')
+  const sidebar = ctx.get('betterSidebar')
+  if (workbench === undefined || sidebar === undefined) return false
+  if (workbench.state.getSnapshot().active !== 'coding') return false
+  if (request.kind === 'url') {
+    sidebar.openTab({ type: 'browser', url: request.target, title: request.title }, { sessionId })
+  } else {
+    sidebar.openFile({ sessionId }, request.target, request.title)
+  }
+  return true
 }

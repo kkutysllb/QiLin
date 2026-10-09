@@ -2793,12 +2793,18 @@ importers:
       '@qilin-agent/client-ui-sidebar-browser':
         specifier: workspace:*
         version: link:../ui-sidebar-browser
+      '@qilin-agent/client-ui-sidebar-coding':
+        specifier: workspace:*
+        version: link:../ui-sidebar-coding
       '@qilin-agent/client-ui-sidebar-right':
         specifier: workspace:*
         version: link:../ui-sidebar-right
       '@qilin-agent/client-ui-slots':
         specifier: workspace:*
         version: link:../ui-slots
+      '@qilin-agent/client-ui-workbench':
+        specifier: workspace:*
+        version: link:../ui-workbench
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis

@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The browser half of `sidebar_open`: it follows `ctx.remote.sidebarOpens.watch` for the Session the user is viewing and opens each request there. A page opens in the built-in browser when `@qilin-agent/client-ui-sidebar-browser` is composed and in a new browser tab otherwise; a file opens through its resource address, because which tab type claims an address is the Sidebar's decision. The plugin keeps no state: a request is delivered once and never replayed.
+The browser half of `sidebar_open`: it follows `ctx.remote.sidebarOpens.watch` for the Session the user is viewing and opens each request there. A page opens in the built-in browser when `@qilin-agent/client-ui-sidebar-browser` is composed and in a new browser tab otherwise; a file opens through its resource address, because which tab type claims an address is the Sidebar's decision. While the coding workbench tag is active, the coding sidebar's own tabs claim the open (and auto-expand the collapsed column); the native Sidebar takes it under the general tag or without the coding stack. The plugin keeps no state: a request is delivered once and never replayed.
 
 ## Table of Contents
 

@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-`sidebar_open` 的浏览器半边：跟随当前查看会话的 `ctx.remote.sidebarOpens.watch`，并在该会话的侧栏中打开每个请求。组合了 `@qilin-agent/client-ui-sidebar-browser` 时页面在**内置浏览器**中打开，否则退回新浏览器标签页；文件通过其资源地址打开，因为"哪个 tab 类型认领这个地址"是侧栏的决定。插件不保留状态：请求只投递一次，绝不重放。
+`sidebar_open` 的浏览器半边：跟随当前查看会话的 `ctx.remote.sidebarOpens.watch`，并在该会话的侧栏中打开每个请求。组合了 `@qilin-agent/client-ui-sidebar-browser` 时页面在**内置浏览器**中打开，否则退回新浏览器标签页；文件通过其资源地址打开，因为"哪个 tab 类型认领这个地址"是侧栏的决定。编码工作台标签激活时，由编码侧栏自己的页签认领打开（并自动展开折叠的栏框）；通用标签或未组合编码栈时仍由原生侧栏接手。插件不保留状态：请求只投递一次，绝不重放。
 
 ## 目录
 
