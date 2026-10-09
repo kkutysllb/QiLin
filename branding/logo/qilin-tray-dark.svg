@@ -36,7 +36,7 @@
     <clipPath id="qs-field"><rect x="6" y="6" width="88" height="88" rx="8.8"/></clipPath>
   </defs>
   <g mask="url(#qs-knockout)">
-    <g fill="#B7352C"><rect x="6" y="6" width="88" height="88" rx="8.8"/></g>
+    <g fill="#D9544A"><rect x="6" y="6" width="88" height="88" rx="8.8"/></g>
       <g clip-path="url(#qs-field)">
         <ellipse cx="26" cy="24" rx="14" ry="9" fill="#ffffff" opacity="0.10"/>
         <ellipse cx="70" cy="72" rx="16" ry="10" fill="#ffffff" opacity="0.10"/>

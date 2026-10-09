@@ -450,3 +450,32 @@ M3 三项已全部实施，产品层测试 64 项全绿；真实任务场景（�
 ② 根因：macOS 原生 About 面板的图标取自 .app bundle，`AboutPanelOptions.iconPath` 仅 linux/win32（electron.d.ts），dev 跑的是 Electron 二进制——原生面板只能是 Electron 默认图标，运行时改不了。落地：关于面板改壳自绘（新增 `desktop/renderer/about.html` + `windows.showAboutWindow`）：主进程把 `branding/icons/qilin-512.png` 读成 184px data URL（2x），页面加载落定后经 `window.okAboutPaint` 注入；透明圆角卡片、焦点离开即收起、Esc/关闭钮可关、读图失败回落朱砂底纹。应用菜单与托盘「关于」都指向它，`app.setAboutPanelOptions` 随原生面板退役。面板截图：[docs/desktop-about-panel.png](../../../docs/desktop-about-panel.png)。
 
 验证：离屏 Electron 直接跑真实 `showAboutWindow()`——印章 data URL 注入成功（`naturalWidth > 0`，渲染 92px）、版本行 = `app.getVersion()`、版权两行齐全、内容不溢出（`scrollHeight` 368 = `clientHeight` 368）；`npm test` 65 全绿（新增托盘常驻与关于面板断言）。
+### 16.6 托盘图标改麒麟印章（2026-10-09，设计定案）
+
+QL monogram 模板图退役，托盘换**麒麟印章**。定稿预览：[浅档](../../docs/desktop-tray-seal-light.png) / [深档](../../docs/desktop-tray-seal-dark.png)（原图 800px；实尺产物为 `branding/icons/tray*.png` 32/64px）。
+
+逐轮定案（每轮一页 HTML 对照浅/深菜单栏 + 16pt 实尺 + 32px@2x + 放大）：
+
+| 轮次 | 定案 | 含义 |
+| --- | --- | --- |
+| B | 朱砂固定色 | 托盘是品牌位不是状态位，不再走 macOS template 单色自动着色 |
+| B2 | 明暗双朱砂 | 浅栏 `#B7352C`（brand-manifest 同源）／深栏提亮 `#D9544A`（暗底 4.5:1），换明暗只换色不换形 |
+| 甲 | 白文满底 | 实心朱砂印面 + 负形镂空透出菜单栏底色；16pt 下「有面」的唯一形制 |
+| 甲3 | 微圆角 + 印泥斑驳 | 圆角 = 印面边长 88 的 10% ≈ 8.8；斑驳为写死坐标的低透明椭圆（32px@2x 起可见，16pt 不可见） |
+| C | 饕餮兽面（对称） | 双角 / 眉脊 / 双目+目珠 / 鼻梁 / 口槽+獠牙 / 颊涡；16pt 下双目负形是唯一识别锚点（正字与线描在实尺下都会糊） |
+| 资产 | 参数化单一几何源 | 手绘双份必失同步、运行时现画交不出文件——选「一份几何 + 两枚朱砂 → 一条命令导出」 |
+
+落地：
+
+- **单一几何源** `scripts/lib/tray-seal.mjs`：`traySealSvg(cinnabar)` + `SEAL_PALETTE` + `SEAL_FILES`。`gen-icons.mjs` 每次重跑先写出 `branding/logo/qilin-tray.svg`（浅）与 `qilin-tray-dark.svg`（深），再栅格化 4 张 PNG：`tray.png` / `tray@2x.png`（浅）、`tray-dark.png` / `tray-dark@2x.png`（深），尺寸与旧 template 章一致（32/64px），菜单栏占位不变。改色/改纹只动一个模块，重跑即全量同步。
+- **文件名刻意不带 `-Template` 后缀**：带了 macOS 会强制单色化，朱砂就没了。
+- **运行期切换**（`desktop/main/index.mjs installTray`）：`nativeImage.createFromPath` + `nativeTheme.shouldUseDarkColors` 选档，挂 `nativeTheme.on('updated')` 同源换色；深档文件缺失回落浅档，托盘永不空缺。
+- **打包链**：`scripts/build-desktop.sh` 复制 4 张 PNG，`desktop/package/electron-builder.yml` files 域同步 4 条，`desktop/package/branding/icons/` 随包副本同步。
+
+本次踩到并修好的三个管线坑（记坑位）：
+
+1. **`ELECTRON_RUN_AS_NODE` 泄漏**：宿主导出该变量时，渲染子进程退化成纯 Node，`require('electron')` 直接 `MODULE_NOT_FOUND`。gen-icons 现在显式剔除该变量再 spawn。
+2. **Chromium 开关挤掉 argv 下标**：受限环境需传 `--no-sandbox --disable-gpu`，而渲染脚本原按 `process.argv[2]` 读任务 JSON——开关一进来就 `JSON.parse('--disable-gpu')` 炸（且 Electron 不退出，卡到 60s 超时被 kill）。改为按「以 `{` 开头」认领 argv；开关走 dev.mjs 同款 `OPENKYLIN_ELECTRON_ARGS` 透传，不写死进管线。
+3. **mask 少了基底白**：首版把印面白底画在可见层、忘了在 mask 里放基底白，结果整枚章只剩负形里的孤岛（不透明像素 6%）。修复后 64px 不透明覆盖 64.2%、负形占印面 29.2%（32px 文件 21.5%）——负形在 16pt 下仍在。
+
+验证：`node scripts/gen-icons.mjs` 全部产物就绪（10 档 iconset + `qilin-512.png` + `qilin.icns` 回归 + 4 张托盘章）；像素级 ASCII 复核双档形制一致、仅颜色不同（浅 `#B7352C` / 深 `#D9544A`）；`npm test` 65 全绿（品牌面断言改为 4 张 PNG + 两份 SVG + `nativeTheme` 接线，并新增 `doesNotMatch(/tray-Template/)` 防回归）。

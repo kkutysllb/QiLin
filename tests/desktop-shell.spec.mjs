@@ -470,10 +470,13 @@ test('品牌面：Dock 图标 / 中文菜单 / 系统托盘接线', async () => 
   for (const rel of [
     'branding/logo/qilin.svg',
     'branding/logo/qilin-tray.svg',
+    'branding/logo/qilin-tray-dark.svg',
     'branding/icons/qilin.icns',
     'branding/icons/qilin-512.png',
-    'branding/icons/tray-Template.png',
-    'branding/icons/tray-Template@2x.png',
+    'branding/icons/tray.png',
+    'branding/icons/tray@2x.png',
+    'branding/icons/tray-dark.png',
+    'branding/icons/tray-dark@2x.png',
     'scripts/gen-icons.mjs',
   ]) {
     await assert.doesNotReject(access(new URL(`../${rel}`, import.meta.url)), undefined, rel)
@@ -481,7 +484,10 @@ test('品牌面：Dock 图标 / 中文菜单 / 系统托盘接线', async () => 
   const index = await readFile(new URL('../desktop/main/index.mjs', import.meta.url), 'utf8')
   assert.match(index, /app\.dock\?\.setIcon/, 'dev 期 Dock 图标（打包后由 .icns 提供）')
   assert.match(index, /installAppMenu/, '中文应用菜单挂载')
-  assert.match(index, /tray-Template\.png/, '系统托盘挂载（QL template 图）')
+  assert.match(index, /tray-dark\.png/, '系统托盘挂载（麒麟印章）')
+  assert.match(index, /nativeTheme\.shouldUseDarkColors/, '明暗判定走 nativeTheme')
+  assert.match(index, /nativeTheme\.on\('updated'/, '菜单栏翻转换同源朱砂变体')
+  assert.doesNotMatch(index, /tray-Template/, '彩色章无 -Template 后缀（带了会被系统单色化）')
   const menu = await readFile(new URL('../desktop/main/menu.mjs', import.meta.url), 'utf8')
   assert.match(menu, /setApplicationMenu/, 'Electron 默认英文菜单被接管')
   assert.match(menu, /关于 QiLin Desktop/, '关于项中文化（动作走壳自绘面板）')
@@ -491,6 +497,8 @@ test('品牌面：Dock 图标 / 中文菜单 / 系统托盘接线', async () => 
   const gen = await readFile(new URL('../scripts/gen-icons.mjs', import.meta.url), 'utf8')
   assert.match(gen, /iconutil/, 'icns 由 macOS 自带 iconutil 合成')
   assert.match(gen, /offscreen: true/, '渲染走 offscreen 截图（矢量按目标像素栅格化）')
+  assert.match(gen, /tray-seal\.mjs/, '托盘印章几何单一源（双朱砂同源导出）')
+  assert.match(gen, /tray-dark/, '深浅两档托盘产物齐全')
 })
 
 test('托盘「检查更新」常驻 + 壳自绘关于面板（麒麟印章）', async () => {

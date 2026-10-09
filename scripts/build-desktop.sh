@@ -46,8 +46,10 @@ cp -R "$REPO_ROOT/desktop/preload" "$APP_DIR/app/preload"
 cp -R "$REPO_ROOT/desktop/renderer" "$APP_DIR/app/renderer"
 cp "$REPO_ROOT/branding/icons/qilin-512.png" "$APP_DIR/branding/icons/"
 cp "$REPO_ROOT/branding/icons/qilin.icns" "$APP_DIR/branding/icons/"
-cp "$REPO_ROOT/branding/icons/tray-Template.png" "$APP_DIR/branding/icons/"
-cp "$REPO_ROOT/branding/icons/tray-Template@2x.png" "$APP_DIR/branding/icons/"
+cp "$REPO_ROOT/branding/icons/tray.png" "$APP_DIR/branding/icons/"
+cp "$REPO_ROOT/branding/icons/tray@2x.png" "$APP_DIR/branding/icons/"
+cp "$REPO_ROOT/branding/icons/tray-dark.png" "$APP_DIR/branding/icons/"
+cp "$REPO_ROOT/branding/icons/tray-dark@2x.png" "$APP_DIR/branding/icons/"
 node -e '
 const pkg = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"))
 const root = JSON.parse(require("fs").readFileSync(process.argv[2], "utf8"))

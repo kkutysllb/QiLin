@@ -34,8 +34,10 @@ asarUnpack:
 files:
   - app/**/*
   - branding/icons/qilin-512.png
-  - branding/icons/tray-Template.png
-  - branding/icons/tray-Template@2x.png
+  - branding/icons/tray.png
+  - branding/icons/tray@2x.png
+  - branding/icons/tray-dark.png
+  - branding/icons/tray-dark@2x.png
   - package.json
   - "!**/*.map"
 

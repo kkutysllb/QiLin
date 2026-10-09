@@ -23,3 +23,4 @@ dist/
 
 # 打包组装产物（build-desktop.sh 每次重建）
 desktop/package/app/
+.dsh/

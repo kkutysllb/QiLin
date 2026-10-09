@@ -14,7 +14,7 @@
  * @module desktop/main
  */
 
-import { clipboard, dialog, ipcMain, app, shell, Tray, Menu, nativeImage } from 'electron'
+import { clipboard, dialog, ipcMain, app, shell, Tray, Menu, nativeImage, nativeTheme } from 'electron'
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:net'
 import { join } from 'node:path'
@@ -345,15 +345,33 @@ async function checkForUpdates(checkNow) {
 }
 
 /**
- * 系统托盘（QL 模板图）。左键 = 聚焦工作区（既有语义，不重载）；右键 =
- * 菜单：打开 / 引擎状态 / 检查更新 / 关于 / 退出。
+ * 系统托盘（麒麟印章 · 白文满底 · 饕餮兽面 · 双朱砂）。左键 = 聚焦工作区
+ * （既有语义，不重载）；右键 = 菜单：打开 / 引擎状态 / 检查更新 / 关于 / 退出。
  * 退出走 before-quit 的优雅关停序列（先停引擎再退，绝不留孤儿）。
+ *
+ * 图像是彩色章，不是 macOS template 图：浅色菜单栏用品牌朱砂 #B7352C、深色
+ * 菜单栏提亮一档 #D9544A（设计决策 B/B2），随系统明暗经 nativeTheme 切换。
+ * 文件名刻意不带 -Template 后缀——带了系统会强制单色化，朱砂就没了。
+ * 几何同源于 scripts/lib/tray-seal.mjs，两档只差颜色，翻转即换不改形。
  * @param {{ checkNow: (() => void) | null, showAbout: () => void }} hooks - checkNow
  *   为 null（dev 态无更新通道）时「检查更新」仍出项，点了明说不可用而不是无反应。
  */
 function installTray({ checkNow, showAbout }) {
   try {
-    const tray = new Tray(join(ICONS_DIR, 'tray-Template.png'))
+    /** 变体文件 ↔ 系统明暗；深档缺失时回落浅档，绝不让托盘空缺。 */
+    const sealImage = (dark) => {
+      const image = nativeImage.createFromPath(join(ICONS_DIR, dark ? 'tray-dark.png' : 'tray.png'))
+      return image.isEmpty() ? nativeImage.createFromPath(join(ICONS_DIR, 'tray.png')) : image
+    }
+    const tray = new Tray(sealImage(nativeTheme.shouldUseDarkColors))
+    // 菜单栏换底 → 同源换朱砂（几何逐像素一致，只换颜色）
+    nativeTheme.on('updated', () => {
+      try {
+        tray.setImage(sealImage(nativeTheme.shouldUseDarkColors))
+      } catch (error) {
+        console.warn('[openkylin] tray theme sync failed:', error)
+      }
+    })
     tray.setToolTip('QiLin Desktop')
     tray.on('click', () => {
       revealShell()
@@ -393,7 +411,7 @@ if (!gotLock) {
   app.whenReady().then(() => {
     // （回调体末尾配 .catch 兜底，见链尾）
     // 品牌面：Dock 图标（打包后由 .icns 提供，dev 期显式设置）+ 中文应用菜单
-    // + 系统托盘（QL template 图；点击聚焦窗口，非保活——关窗即退不变）。
+    // + 系统托盘（麒麟印章双朱砂；点击聚焦窗口，非保活——关窗即退不变）。
     // 图标缺失只降级观感，绝不阻塞启动链（whenReady 回调抛错会吞掉
     // splash/launchHost 全部后续——教训见打包态首启冒烟）
     try {
