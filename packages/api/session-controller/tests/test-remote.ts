@@ -115,6 +115,7 @@ export interface TestSessionRemoteDefaults {
   readonly defaultModelSelection: () => AgentModelSelection
   readonly cwd: string
   readonly nativeOpen?: boolean
+  readonly listWorkSliceMs?: number
   readonly sidechatMaxSnapshotEvents?: number
   readonly sidechatMaxPromptChars?: number
   readonly saveDefaultModelSelection?: (selection: AgentModelSelection) => void | Promise<void>
@@ -312,6 +313,7 @@ function installControllers(
       ctx,
       {
         ...defaults.nativeOpen === undefined ? {} : { nativeOpen: defaults.nativeOpen },
+        ...defaults.listWorkSliceMs === undefined ? {} : { listWorkSliceMs: defaults.listWorkSliceMs },
         ...defaults.sidechatMaxSnapshotEvents === undefined
           ? {}
           : { sidechatMaxSnapshotEvents: defaults.sidechatMaxSnapshotEvents },

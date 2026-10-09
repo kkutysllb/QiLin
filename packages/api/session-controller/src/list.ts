@@ -1,6 +1,8 @@
 /** Cold-safe Session list and search projection. */
 
 import { performance } from 'node:perf_hooks'
+// KStock patch: session list yield（Node 无全局 scheduler，必须从 node:timers/promises 显式导入）
+import { scheduler } from 'node:timers/promises'
 import type { Context } from '@qilin/kylin'
 import type {} from '@qilin/agent-presets'
 import type { ImageAttachmentLimits } from '@qilin/attachment'
