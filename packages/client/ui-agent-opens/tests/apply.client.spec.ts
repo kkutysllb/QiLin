@@ -41,7 +41,7 @@ function request(target: string, kind: 'file' | 'url' = 'url'): SidebarOpenReque
   return { id: target, kind, target, title: target }
 }
 
-async function boot(options: { browserTab?: boolean; workbenchTag?: 'coding' | 'general' } = {}) {
+async function boot(options: { browserTab?: boolean } = {}) {
   const ctx = new Context()
   const streams = new Map<string, Stream>()
   const watch = vi.fn((sessionId: SessionId, signal: AbortSignal) => {
@@ -59,13 +59,6 @@ async function boot(options: { browserTab?: boolean; workbenchTag?: 'coding' | '
   ctx.provide('sessions', {
     list: { getSnapshot: () => ({ byId: { [VIEWED]: { cwd: '/work/app' }, [OTHER]: { cwd: '/work/other' } } }) },
   } as never)
-  const codingOpenTab = vi.fn()
-  const codingOpenFile = vi.fn()
-  const workbenchTag = options.workbenchTag
-  if (workbenchTag !== undefined) {
-    ctx.provide('workbench', { state: { getSnapshot: () => ({ active: workbenchTag }) } } as never)
-    ctx.provide('betterSidebar', { openTab: codingOpenTab, openFile: codingOpenFile } as never)
-  }
   ctx.provide('uiSession', {
     adapter: {
       current: {
@@ -82,7 +75,7 @@ async function boot(options: { browserTab?: boolean; workbenchTag?: 'coding' | '
   }
   await settle()
   return {
-    ctx, fiber, watch, openTab, openResource, streams, settle, codingOpenTab, codingOpenFile,
+    ctx, fiber, watch, openTab, openResource, streams, settle,
     switchTo(sessionId: SessionId | undefined) { current = sessionId; for (const listener of listeners) listener() },
     viewer: () => streams.get(VIEWED),
   }
@@ -116,40 +109,6 @@ describe('agent open dispatcher', () => {
     const h = await boot()
     h.viewer()?.push(request('/work/app/src/app.ts', 'file'))
     await h.settle()
-    expect(h.openResource).toHaveBeenCalledExactlyOnceWith(fileAddressFor(VIEWED, '/work/app', '/work/app/src/app.ts'))
-    await h.fiber.dispose()
-  })
-
-  it('lands a page in the coding sidebar while the coding workbench is active', async () => {
-    const h = await boot({ workbenchTag: 'coding' })
-    h.viewer()?.push(request('https://example.test/docs'))
-    await h.settle()
-    expect(h.codingOpenTab).toHaveBeenCalledExactlyOnceWith(
-      { type: 'browser', url: 'https://example.test/docs', title: 'https://example.test/docs' },
-      { sessionId: VIEWED },
-    )
-    expect(h.openTab).not.toHaveBeenCalled()
-    await h.fiber.dispose()
-  })
-
-  it('lands a file in the coding sidebar while the coding workbench is active', async () => {
-    const h = await boot({ workbenchTag: 'coding' })
-    h.viewer()?.push(request('/work/app/src/app.ts', 'file'))
-    await h.settle()
-    expect(h.codingOpenFile).toHaveBeenCalledExactlyOnceWith(
-      { sessionId: VIEWED },
-      '/work/app/src/app.ts',
-      '/work/app/src/app.ts',
-    )
-    expect(h.openResource).not.toHaveBeenCalled()
-    await h.fiber.dispose()
-  })
-
-  it('keeps the native Sidebar under the general workbench tag', async () => {
-    const h = await boot({ workbenchTag: 'general' })
-    h.viewer()?.push(request('/work/app/src/app.ts', 'file'))
-    await h.settle()
-    expect(h.codingOpenFile).not.toHaveBeenCalled()
     expect(h.openResource).toHaveBeenCalledExactlyOnceWith(fileAddressFor(VIEWED, '/work/app', '/work/app/src/app.ts'))
     await h.fiber.dispose()
   })

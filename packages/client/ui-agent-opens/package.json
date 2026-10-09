@@ -34,10 +34,8 @@
         "@qilin-agent/api-gateway",
         "@qilin-agent/api-remotes",
         "@qilin-agent/client-ui-sidebar-browser",
-        "@qilin-agent/client-ui-sidebar-coding",
         "@qilin-agent/client-ui-sidebar-right",
-        "@qilin-agent/client-ui-session",
-        "@qilin-agent/client-ui-workbench"
+        "@qilin-agent/client-ui-session"
       ],
       "platform": "web"
     }
@@ -61,7 +59,6 @@
     "@qilin-agent/client-ui-session": "workspace:*",
     "@qilin-agent/client-ui-workbench": "workspace:*",
     "@qilin-agent/client-ui-sidebar-browser": "workspace:*",
-    "@qilin-agent/client-ui-sidebar-coding": "workspace:*",
     "@qilin-agent/client-ui-sidebar-right": "workspace:*",
     "@qilin-agent/client-ui-slots": "workspace:*",
     "@qilin-agent/session": "workspace:*",

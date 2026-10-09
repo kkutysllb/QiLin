@@ -27,8 +27,7 @@ import type { RightbarOwnerProps } from '@qilin-agent/client-ui-layout/client'
 // lookup chain consults after this namespace misses.
 import type {} from '@qilin-agent/client-locale/client'
 import type { PaneId, TabId, TabRecord } from '@qilin-agent/client-ui-dockkit'
-import type { SnapshotSelectorHook, SlotHookFactory } from '@qilin-agent/client-ui-slots'
-import type { WorkbenchState } from '@qilin-agent/client-ui-workbench/client'
+import type { SlotHookFactory } from '@qilin-agent/client-ui-slots'
 import type { TabHookContext } from '../tab-info.ts'
 import type { SidebarRightKey } from '../locales.ts'
 import type { SidebarRightNavigationParams, SidebarRightResourceParams, SidebarRightTabParamsFor } from './params.ts'
@@ -48,23 +47,6 @@ declare module '@qilin-agent/client-ui-slots' {
         readonly active: boolean
         /** @param tabId - retained body. @param signal - tab occurrence lifetime. @returns releases the View-owned hold. */
         readonly retainTab: (tabId: TabId, signal: AbortSignal) => () => void
-        /** The dual-workbench tag source (D5): the seat reads it to pick the panel's content body. */
-        readonly useWorkbench: SnapshotSelectorHook<WorkbenchState>
-      }
-    }
-    /**
-     * The coding workbench's content body (dual-workbench D5): what the right
-     * Sidebar panel shows per Session while the workbench coding tag is active.
-     * The seat switches inside its panel box — the frame's chrome (width,
-     * slide, fullscreen) is this package's either way — and renders this in
-     * place of the dockkit layout, which never mounts in that mode. The
-     * registered body brings content only.
-     */
-    'rightbar.session.coding': {
-      kind: 'single'
-      scope: 'session'
-      owner: RightbarOwnerProps & {
-        readonly active: boolean
       }
     }
     /**

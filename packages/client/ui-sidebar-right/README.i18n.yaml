@@ -5,51 +5,51 @@
 /:
   en: fd3cb0c58d72d7e6
   zh: 62cd02983c58693c
-/qilin-client-ui-sidebar-right:
-  en: a9275a5a781327b3
-  zh: a849c7ac706f8cc1
-/qilin-client-ui-sidebar-right/summary:
-  en: 5433a6023dc87b7a
-  zh: c35fae7a10cd1415
-/qilin-client-ui-sidebar-right/table-of-contents:
+/qilin-agent-client-ui-sidebar-right:
+  en: 36b82665f1c22a79
+  zh: b60b5faf712d7868
+/qilin-agent-client-ui-sidebar-right/summary:
+  en: 2078910e2bbf581f
+  zh: 3f189ae154ed89ba
+/qilin-agent-client-ui-sidebar-right/table-of-contents:
   en: ff17f27d8c5557d1
   zh: 6efe4b3d4902a441
-/qilin-client-ui-sidebar-right/what-lives-here-and-what-does-not:
-  en: 5d0f7c9513da4cef
-  zh: 9b8ee3ca15757ce2
-/qilin-client-ui-sidebar-right/presentations:
+/qilin-agent-client-ui-sidebar-right/what-lives-here-and-what-does-not:
+  en: 2ab01a7dc2383605
+  zh: 671093cd1cf0eeb4
+/qilin-agent-client-ui-sidebar-right/presentations:
   en: 183df47ffaea738a
   zh: f15e06f2db21a854
-/qilin-client-ui-sidebar-right/the-expand-button:
-  en: febe7009c447c284
-  zh: 91a4e9a873a1f0c9
-/qilin-client-ui-sidebar-right/state:
+/qilin-agent-client-ui-sidebar-right/the-expand-button:
+  en: a4e46ce5e14957f2
+  zh: c26a1e8d9fa31a3a
+/qilin-agent-client-ui-sidebar-right/state:
   en: ade5a425b8620792
   zh: 8d7b7a5e960bf2ef
-/qilin-client-ui-sidebar-right/extension-seats:
-  en: bd7b9346cf5ebccc
-  zh: 0feb7cb6b59d6107
-/qilin-client-ui-sidebar-right/ctx-sidebarright:
+/qilin-agent-client-ui-sidebar-right/extension-seats:
+  en: bdba734aad1a0411
+  zh: a90173842b03397d
+/qilin-agent-client-ui-sidebar-right/ctx-sidebarright:
   en: 96e4937eba58bacc
   zh: 952fdbe62f48379a
-/qilin-client-ui-sidebar-right/the-tab-domain:
+/qilin-agent-client-ui-sidebar-right/the-tab-domain:
   en: 17e7293db961dba6
   zh: 2957776d8b948524
-/qilin-client-ui-sidebar-right/the-guide:
+/qilin-agent-client-ui-sidebar-right/the-guide:
   en: 1e671d989a55e5da
   zh: 82f5baf4cb7af1f5
-/qilin-client-ui-sidebar-right/copy:
+/qilin-agent-client-ui-sidebar-right/copy:
   en: 4315a1c03ca5fef3
   zh: c09a09f1d9b99107
-/qilin-client-ui-sidebar-right/model-experience:
+/qilin-agent-client-ui-sidebar-right/model-experience:
   en: 3120df665299c634
   zh: 242f3d68e8267e55
-/qilin-client-ui-sidebar-right/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-sidebar-right/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: f57cc48a1b5cbfa9
-/qilin-client-ui-sidebar-right/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-sidebar-right/known-limitations-and-deferred-work:
   en: a5597f70b4d3e553
   zh: a3c19118873eaced
-/qilin-client-ui-sidebar-right/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-sidebar-right/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: e88aeb617ffb74ea

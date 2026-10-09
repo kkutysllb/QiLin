@@ -144,10 +144,10 @@ describe('ui-sidebar-right apply', () => {
       ['sidebar.right.pane.tab', GUIDE_ID, undefined, GuideBody],
       ['sidebar.right.pane.tab.title', GUIDE_ID, undefined, GuideTitle],
     ])
-    // The panel declares the coding body seat (D5) and the extension seats; the
+    // The panel declares the pane-tab seats; the
     // guide declares its chain child.
     expect(Object.keys(seat('rightbar.session').children as object)).toEqual([
-      'rightbar.session.coding', 'sidebar.right.pane.tab', 'sidebar.right.pane.tab.title', 'sidebar.right.tab.menu.item',
+      'sidebar.right.pane.tab', 'sidebar.right.pane.tab.title', 'sidebar.right.tab.menu.item',
     ])
     expect(seat('sidebar.right.pane.tab').children).toMatchObject({ 'sidebar.right.tab.guide': { kind: 'chain', scope: 'session' } })
     // Both seats read one store: the button only needs to know whether the panel is expanded.

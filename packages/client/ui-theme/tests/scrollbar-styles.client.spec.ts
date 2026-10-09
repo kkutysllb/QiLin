@@ -57,16 +57,6 @@ const BASE_SURFACE_SCROLLERS: readonly {
     selector: '.root',
     reason: 'The page scroller draws on the sidebar fill, a base rung below bg-layer-2/3; the l2 notice, member, task, and form cards are descendants, not its background.',
   },
-  {
-    file: 'ui-sidebar-coding/src/client/SubagentView.module.css',
-    selector: '.subagentBody',
-    reason: 'The topology page scroller draws on the workbench canvas fill (bg-base with layer-1 cards), so its bar stays on the l1 pair; the graph canvas\u2019s bg-layer-2 active-mode chip is a control, not its background.',
-  },
-  {
-    file: 'ui-sidebar-coding/src/client/SubagentView.module.css',
-    selector: '.jobsPanePre',
-    reason: 'The job-output block is transparent over the same base canvas fill, so its bar stays on the l1 pair; the bg-layer-2 mode chip is a control, not its background.',
-  },
 ]
 
 /** The classifications naming one stylesheet. */

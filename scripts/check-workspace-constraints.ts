@@ -161,8 +161,6 @@ const packageFileExtras: Readonly<Record<string, readonly string[]>> = {
   '@qilin-agent/client-ui-dockkit': ['lib/**/*.css'],
   '@qilin-agent/client-ui-sidebar-documentpreview': ['lib/client.*.js'],
   '@qilin-agent/client-ui-sidebar-terminal': ['lib/client.*.js'],
-  // The coding workbench ships the same lazy `/sidebar/bundle` chunk family.
-  '@qilin-agent/client-ui-sidebar-coding': ['lib/client.*.js'],
   '@qilin-agent/client-web': ['lib/**/*.css', 'lib/apply-injections.js'],
   '@qilin-agent/client-ui-theme': ['lib/styles'],
   // The physical-key protocol is a public entry usable without the browser service.

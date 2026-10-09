@@ -76,7 +76,7 @@ declare module '@qilin-agent/client-ui-slots' {
 /** Required services for catalogs, ambient Session marks, the right Sidebar, Remote queries, and original-Session navigation. */
 export const inject = [
   'slots', 'locale', 'remote', 'remote.schedule', 'conversation', 'uiConversation', 'uiWorkspace', 'sessions',
-  'workspaces', 'sidebarRightTabs', 'sidebarRight', 'workbench',
+  'workspaces', 'sidebarRightTabs', 'sidebarRight',
 ]
 
 /**
@@ -187,38 +187,12 @@ export function apply(ctx: ClientContext): void {
   // the card beneath the closing prose.
   ctx.uiConversation.events.register(scheduleTurnDefinition)
   /**
-   * Open one task's detail.
-   *
-   * A deployment that mounts the Coding Sidebar workbench (KCoder) publishes a
-   * `betterSidebar` service, and there the detail belongs in that panel's task
-   * tab: expanding the right column costs the conversation a whole column of
-   * width beside the transcript, and the panel is the surface the user already
-   * works in. Only navigation travels — the panel reads the task's own records
-   * through the schedule Remote, so nothing here depends on it. Without that
-   * service the shipped right-sidebar tab stays the destination.
+   * Open one task's detail in the shipped right-sidebar tab.
    * @param sessionId - Session the task was created in.
    * @param id - Task to show.
    */
   const openTaskDetail = (sessionId: SessionId, id: ScheduleId): void => {
-    // The coding workbench's registry claims the open only under the coding
-    // tag (dual workbench D5); the general tag keeps the shipped tab as the
-    // destination even while the coding plugin is composed in.
-    const codingActive = (ctx.get('workbench') as { state: { getSnapshot(): { active: string } } } | undefined)
-      ?.state.getSnapshot().active === 'coding'
-    const sidebar = (ctx as unknown as { get(key: string): unknown }).get('betterSidebar') as {
-      openTab?: (seed: Record<string, unknown>, scope?: unknown) => void
-      updateTab?: (tabId: string, patch: Record<string, unknown>) => void
-    } | undefined
-    if (!codingActive || sidebar?.openTab === undefined) {
-      ctx.sidebarRight.openTab(SCHEDULE_TASK_KIND, { params: { sessionId, id } })
-      return
-    }
-    const meta = { kcScheduleTask: { sessionId, taskId: id } }
-    sidebar.openTab({ type: 'plans', id: 'plans', meta }, { sessionId })
-    // Its tab dedupes by type, and a deduping open only focuses the tab it
-    // finds — so the meta comes second, or the second task opened would still
-    // show the first one.
-    sidebar.updateTab?.('plans', { meta })
+    ctx.sidebarRight.openTab(SCHEDULE_TASK_KIND, { params: { sessionId, id } })
   }
   ctx.slots.inject('conversation.chat.turnTail', () => ctx.slots.register({
     name: 'conversation.chat.turnTail',

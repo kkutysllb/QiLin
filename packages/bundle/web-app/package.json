@@ -98,7 +98,6 @@
     "@qilin-agent/client-ui-shortcuts": "workspace:*",
     "@qilin-agent/client-ui-sidebar": "workspace:*",
     "@qilin-agent/client-ui-sidebar-browser": "workspace:*",
-    "@qilin-agent/client-ui-sidebar-coding": "workspace:*",
     "@qilin-agent/client-ui-sidebar-documentpreview": "workspace:*",
     "@qilin-agent/client-ui-sidebar-files": "workspace:*",
     "@qilin-agent/client-ui-sidebar-right": "workspace:*",

@@ -101,7 +101,6 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/client-ui-shortcuts` | no | Keyboard shortcut reference, recording, and local preference editing |
 | `@qilin-agent/client-ui-sidebar` | no | Sidebar plugin: session multi-level tree, search, grouping, state dots |
 | `@qilin-agent/client-ui-sidebar-browser` | no | Sandboxed Web browser tabs for the right Sidebar |
-| `@qilin-agent/client-ui-sidebar-coding` | yes | Coding workbench content body for the right Sidebar (dual workbench D5): the VSCode-like workbench — explorer/editor/terminal/git/browser tabs, per-session isolated, with lazy preview chunks. Ported from dsh-coding-sidebar 1.0.39 |
 | `@qilin-agent/client-ui-sidebar-documentpreview` | yes | Extensible document previews for Sidebar files: Office, Markdown, highlighted code, images, PDF, HTML, and plain text |
 | `@qilin-agent/client-ui-sidebar-files` | no | Workspace file tree tab type for the right Sidebar: lazy directory listing over the workspaceFiles Remote namespace, opening files into the Sidebar |
 | `@qilin-agent/client-ui-sidebar-git` | no | Source-control tab type for the right Sidebar: repository status, staging, commits, branches, and push/pull over the workspaceGit Remote namespace |

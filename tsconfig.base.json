@@ -212,8 +212,6 @@
       "@qilin-agent/client-ui-sidebar-files/client": ["./packages/client/ui-sidebar-files/src/client"],
       "@qilin-agent/client-ui-sidebar-git": ["./packages/client/ui-sidebar-git/src"],
       "@qilin-agent/client-ui-sidebar-git/client": ["./packages/client/ui-sidebar-git/src/client"],
-      "@qilin-agent/client-ui-sidebar-coding": ["./packages/client/ui-sidebar-coding/src"],
-      "@qilin-agent/client-ui-sidebar-coding/client": ["./packages/client/ui-sidebar-coding/src/client"],
       "@qilin-agent/client-store": ["./packages/client/store/src/index.ts"],
       "@qilin-agent/client-ui-renderer": ["./packages/client/ui-renderer/src"],
       "@qilin-agent/client-ui-renderer/client": ["./packages/client/ui-renderer/src/client"],

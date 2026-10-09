@@ -38,8 +38,7 @@ const CHILD_NAMES = Object.keys(CHILD_SPECS) as Array<keyof typeof CHILD_SPECS>
  * ui-settings-models, ui-settings-plugins, ui-settings-mcp,
  * ui-settings-skills, and ui-settings-unarchive-sessions. A plugin adding a
  * section changes this list; ui-agent-preset's row is disabled in the web-app
- * patch and ui-sidebar-coding's row retired with its side-card settings
- * section, so neither is on the roster. The mcp section shares order 20 with
+ * patch, so it is not on the roster. The mcp section shares order 20 with
  * the models default ordering, so the projection order within the pair
  * follows registration.
  */

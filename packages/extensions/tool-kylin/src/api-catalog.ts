@@ -5023,10 +5023,6 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export type ContentBlockType = keyof ContentBlockMap;',
   },
   {
-    name: 'Context',
-    declaration: 'export type Context = CordisContext & SidebarContextShape;',
-  },
-  {
     name: 'ContinuableCreateRequest',
     declaration: 'export interface ContinuableCreateRequest {\n    readonly sessionId: SessionId;\n    readonly parent: Agent;\n    readonly signal: AbortSignal;\n}',
   },
@@ -5459,8 +5455,16 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface GitBranches {\n    readonly branches: readonly GitBranch[];\n    readonly truncated: boolean;\n}',
   },
   {
+    name: 'GitLogEntry',
+    declaration: 'export interface GitLogEntry {\n    readonly hash: string;\n    readonly short: string;\n    readonly subject: string;\n    readonly author: string;\n    readonly date: string;\n    readonly refs: readonly string[];\n}',
+  },
+  {
     name: 'GitStatus',
     declaration: 'export interface GitStatus {\n    readonly branch?: string;\n    readonly upstream?: GitUpstream;\n    readonly entries: readonly GitStatusEntry[];\n}',
+  },
+  {
+    name: 'GitStatusEntry',
+    declaration: 'export interface GitStatusEntry {\n    readonly path: string;\n    readonly index: string;\n    readonly worktree: string;\n    readonly staged: boolean;\n    readonly unstaged: boolean;\n    readonly untracked: boolean;\n}',
   },
   {
     name: 'GitUpstream',
@@ -7283,208 +7287,8 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface ShellSandboxInfo {\n    mode: SandboxMode;\n    denied: boolean;\n    enforcement?: SandboxEnforcement;\n    runnerFailed?: boolean;\n}',
   },
   {
-    name: 'SidebarAgent',
-    declaration: 'export interface SidebarAgent {\n    readonly id: string;\n    readonly session: {\n        readonly header: {\n            readonly cwd?: string;\n        };\n    };\n}',
-  },
-  {
-    name: 'SidebarAgentPresetsService',
-    declaration: 'export interface SidebarAgentPresetsService {\n    resolve(presetId?: string): Promise<{\n        id: string;\n    }>;\n    mount(agentCtx: unknown, presetId: string): Promise<void>;\n}',
-  },
-  {
-    name: 'SidebarAgentsService',
-    declaration: 'export interface SidebarAgentsService {\n    get(id: string): SidebarAgent | undefined;\n    create?(options: unknown): Promise<{\n        agent: SidebarAgent;\n        dispose(): Promise<void>;\n    }>;\n    resume?(options: unknown): Promise<{\n        agent: SidebarAgent;\n        dispose(): Promise<void>;\n    }>;\n}',
-  },
-  {
-    name: 'SidebarAgentTeamMember',
-    declaration: 'export interface SidebarAgentTeamMember {\n    id: string;\n    name: string;\n    role: \'lead\' | \'teammate\';\n    phase: \'provisioning\' | \'active\' | \'failed\';\n    error?: string;\n}',
-  },
-  {
-    name: 'SidebarAgentTeamProjectionValue',
-    declaration: 'export interface SidebarAgentTeamProjectionValue {\n    members: readonly SidebarAgentTeamMember[];\n    tasks: readonly SidebarAgentTeamTask[];\n    failure?: string;\n}',
-  },
-  {
-    name: 'SidebarAgentTeamTask',
-    declaration: 'export interface SidebarAgentTeamTask {\n    id: string;\n    revision: number;\n    subject: string;\n    description: string;\n    status: \'pending\' | \'in_progress\' | \'completed\' | \'deleted\';\n    blockedBy: readonly string[];\n    writeScopes: readonly string[];\n    ownerName?: string;\n    ready: boolean;\n    writeScopeWarnings: readonly string[];\n}',
-  },
-  {
-    name: 'SidebarConfigEditorService',
-    declaration: 'export interface SidebarConfigEditorService {\n    entries(): SidebarLoaderEntry[];\n    edit(entry: SidebarLoaderEntry, change: (current: Record<string, unknown>, inherited: Record<string, unknown>) => Record<string, unknown>): Promise<void>;\n}',
-  },
-  {
-    name: 'SidebarConnectionHandle',
-    declaration: 'export interface SidebarConnectionHandle {\n    api: {\n        sessions: SidebarSessionHistoryRpc;\n        subagents: {\n            history(payload: SidebarSubagentAddress & {\n                beforeSeq?: number;\n                maxMessages?: number;\n            }, signal?: AbortSignal): Promise<SidebarRpcResponse<{\n                events: SidebarHistoryEntry[];\n                hasMore: boolean;\n            }>>;\n        };\n    };\n    requestRejection(request: SidebarHttpRequest): 401 | 403 | undefined;\n}',
-  },
-  {
-    name: 'SidebarContextShape',
-    declaration: 'export interface SidebarContextShape {\n    webServer: SidebarWebServer;\n    sessions: SidebarSessionStore & SidebarSessionsService;\n    connection: SidebarConnectionHandle;\n    webRuntime: SidebarWebRuntime;\n    slots: SidebarSlotsService;\n    workspaces: SidebarWorkspacesService;\n    remote?: SidebarRemoteService;\n    configEditor?: SidebarConfigEditorService;\n    loader?: SidebarLoaderService;\n    root: Context;\n    invariants: SidebarInvariantsService;\n    tools: SidebarToolsService;\n    locale: SidebarLocaleService;\n    modules: {\n        import(specifier: string): Promise<unknown>;\n    };\n    jobs: SidebarJobsService;\n    agents: SidebarAgentsService;\n    subagents: SidebarSubagentsService;\n    agentPresets: SidebarAgentPresetsService;\n    sessionTitle: SidebarSessionTitleService;\n    sessionPersistence: SidebarSessionPersistenceService;\n    conversation: SidebarConversation;\n    uiConversation?: SidebarConversationAssembly;\n    uiWorkspace?: SidebarUiWorkspaceService;\n    on(event: \'loader/volatile-update\', listener: (paths: readonly (readonly string[])[]) => void): () => void;\n    on(event: string, listener: (session: unknown, event: SidebarSessionEvent) => void): () => void;\n}',
-  },
-  {
-    name: 'SidebarConversation',
-    declaration: 'export interface SidebarConversation {\n    input: {\n        for(actx: Context): SidebarSessionInput;\n    };\n}',
-  },
-  {
-    name: 'SidebarConversationAssembly',
-    declaration: 'export interface SidebarConversationAssembly {\n    binding(sessionId: string): SidebarConversationBinding;\n    imageUrl?(sessionId: string, attachment: unknown): Promise<string>;\n    peekImageUrl?(sessionId: string, attachment: unknown): string | undefined;\n}',
-  },
-  {
-    name: 'SidebarConversationBinding',
-    declaration: 'export interface SidebarConversationBinding {\n    target(name: string): SidebarConversationTarget;\n}',
-  },
-  {
-    name: 'SidebarConversationTarget',
-    declaration: 'export interface SidebarConversationTarget {\n    getSnapshot(): unknown;\n    subscribe(listener: () => void): () => void;\n}',
-  },
-  {
-    name: 'SidebarHistoryEntry',
-    declaration: 'export interface SidebarHistoryEntry {\n    event: SidebarSessionEvent;\n    view?: unknown;\n}',
-  },
-  {
-    name: 'SidebarHttpRequest',
-    declaration: 'export interface SidebarHttpRequest {\n    url?: string;\n    method?: string;\n    headers: Record<string, string | string[] | undefined>;\n    [Symbol.asyncIterator](): AsyncIterator<string | Uint8Array>;\n}',
-  },
-  {
-    name: 'SidebarHttpResponse',
-    declaration: 'export interface SidebarHttpResponse {\n    statusCode: number;\n    writeHead(status: number, headers?: Record<string, string>): void;\n    end(body?: string | Uint8Array): void;\n}',
-  },
-  {
-    name: 'SidebarInvariantsService',
-    declaration: 'export interface SidebarInvariantsService {\n    register(packageName: string, installer: (ctx: Context, fail: (message: string) => never) => void | Promise<void>): () => void;\n}',
-  },
-  {
-    name: 'SidebarLoaderEntry',
-    declaration: 'export interface SidebarLoaderEntry {\n    readonly disabled?: boolean;\n    readonly options: {\n        readonly id?: string;\n        readonly name?: string;\n        readonly config?: unknown;\n    };\n}',
-  },
-  {
-    name: 'SidebarLoaderService',
-    declaration: 'export interface SidebarLoaderService {\n    entries(): Iterable<SidebarLoaderEntry>;\n}',
-  },
-  {
-    name: 'SidebarLocaleService',
-    declaration: 'export interface SidebarLocaleService {\n    getSnapshot(): {\n        active: string;\n    };\n    subscribe(fn: () => void): () => void;\n    register(ns: string, locale: string, dict: Record<string, string>): () => void;\n}',
-  },
-  {
     name: 'SidebarOpenRequest',
     declaration: 'export interface SidebarOpenRequest {\n    readonly id: string;\n    readonly kind: \'file\' | \'url\';\n    readonly target: string;\n    readonly title: string;\n}',
-  },
-  {
-    name: 'SidebarRemoteService',
-    declaration: 'export interface SidebarRemoteService {\n    session: {\n        openWorkspacePath(request: {\n            path: string;\n        }): Promise<unknown>;\n    };\n}',
-  },
-  {
-    name: 'SidebarRpcResponse',
-    declaration: 'export interface SidebarRpcResponse<T> {\n    rpcId: unknown;\n    result: SidebarRpcResult<T>;\n}',
-  },
-  {
-    name: 'SidebarRpcResult',
-    declaration: 'export type SidebarRpcResult<T> = {\n    ok: true;\n    value: T;\n} | {\n    ok: false;\n    error: {\n        code: string;\n        message: string;\n    };\n};',
-  },
-  {
-    name: 'SidebarSessionEvent',
-    declaration: 'export interface SidebarSessionEvent {\n    type: string;\n    seq: number;\n    time: number;\n    data: Record<string, unknown>;\n}',
-  },
-  {
-    name: 'SidebarSessionHeader',
-    declaration: 'export interface SidebarSessionHeader {\n    cwd?: string;\n}',
-  },
-  {
-    name: 'SidebarSessionHistoryRpc',
-    declaration: 'export interface SidebarSessionHistoryRpc {\n    history(payload: {\n        sessionId: string;\n        beforeSeq?: number;\n        maxMessages?: number;\n    }, signal?: AbortSignal): Promise<SidebarRpcResponse<{\n        events: SidebarHistoryEntry[];\n        hasMore: boolean;\n    }>>;\n}',
-  },
-  {
-    name: 'SidebarSessionInput',
-    declaration: 'export interface SidebarSessionInput {\n    state: {\n        getSnapshot(): {\n            draft: string;\n            draftRev?: number;\n        };\n    };\n    setDraft(text: string): void;\n}',
-  },
-  {
-    name: 'SidebarSessionList',
-    declaration: 'export interface SidebarSessionList {\n    current: string | undefined;\n    byId: Record<string, SidebarSessionSummary>;\n    projectionsBySession?: Readonly<Record<string, SidebarSessionProjection>>;\n}',
-  },
-  {
-    name: 'SidebarSessionPersistenceHandle',
-    declaration: 'export interface SidebarSessionPersistenceHandle {\n    readonly header: {\n        cwd?: string;\n        agentPreset?: string;\n    };\n    read(fromSeq?: number, toSeqExclusive?: number, options?: {\n        signal?: AbortSignal;\n    }): Promise<{\n        events: readonly SidebarSessionEvent[];\n    }>;\n    close(): Promise<void>;\n}',
-  },
-  {
-    name: 'SidebarSessionPersistenceService',
-    declaration: 'export interface SidebarSessionPersistenceService {\n    open(sessionId: string, access: \'read\', options?: {\n        signal?: AbortSignal;\n    }): Promise<SidebarSessionPersistenceHandle>;\n}',
-  },
-  {
-    name: 'SidebarSessionProjection',
-    declaration: 'export interface SidebarSessionProjection {\n    state: \'idle\' | \'loading\' | \'ready\' | \'error\';\n    error?: {\n        code?: string;\n        message?: string;\n    } | null;\n    values?: {\n        subagentCatalog?: readonly SidebarSubagentCatalogRow[];\n        agentTeam?: SidebarAgentTeamProjectionValue;\n    };\n}',
-  },
-  {
-    name: 'SidebarSessionsService',
-    declaration: 'export interface SidebarSessionsService {\n    list: {\n        getSnapshot(): SidebarSessionList;\n        subscribe(fn: () => void): () => void;\n    };\n    open?(id: string): void;\n    fork?(opts: {\n        sessionId: string;\n        atSeq?: number;\n        increaseTitle?: boolean;\n    }): Promise<string>;\n    binding?(id: string): {\n        session: {\n            rename(title: string): Promise<unknown>;\n        };\n    } | undefined;\n    scope(id: string): Context | undefined;\n    openSubagent?(address: SidebarSubagentAddress): void;\n    subagentAddress?(id: string): SidebarSubagentAddress | undefined;\n    refreshProjections?(sessionId: string): Promise<void>;\n}',
-  },
-  {
-    name: 'SidebarSessionStore',
-    declaration: 'export interface SidebarSessionStore {\n    get(id: string): {\n        header: SidebarSessionHeader;\n        snapshotEvents?(fromSeq?: number, toSeqExclusive?: number): readonly SidebarSessionEvent[];\n    } | undefined;\n}',
-  },
-  {
-    name: 'SidebarSessionSummary',
-    declaration: 'export interface SidebarSessionSummary {\n    id: string;\n    cwd?: string;\n    displayTitle: string;\n    origin?: \'subagent\';\n    parentId?: string;\n    running?: boolean;\n    retainedBy?: {\n        readonly mainView?: number;\n    };\n}',
-  },
-  {
-    name: 'SidebarSessionTitleService',
-    declaration: 'export interface SidebarSessionTitleService {\n    rename(session: unknown, title: string): {\n        title: string;\n        eventSeq: number;\n    };\n}',
-  },
-  {
-    name: 'SidebarSlotRegisterOptions',
-    declaration: 'export interface SidebarSlotRegisterOptions {\n    name: string;\n    key?: string;\n    id?: string;\n    order?: number;\n    label?: string | (() => string);\n    select?: (owner: unknown) => unknown;\n    priority?: number;\n    locale?: string;\n    registrant?: string;\n    inject?: (sessionId: string) => Record<string, unknown>;\n    children?: Record<string, unknown>;\n}',
-  },
-  {
-    name: 'SidebarSlotsService',
-    declaration: 'export interface SidebarSlotsService {\n    register(options: SidebarSlotRegisterOptions, component: unknown): () => void;\n    inject(key: string, callback: () => () => void): () => void;\n}',
-  },
-  {
-    name: 'SidebarSubagentAddress',
-    declaration: 'export interface SidebarSubagentAddress {\n    parentSessionId: string;\n    childSessionId: string;\n    mode: \'one-shot\' | \'continuable\';\n}',
-  },
-  {
-    name: 'SidebarSubagentCatalogRow',
-    declaration: 'export interface SidebarSubagentCatalogRow {\n    id: string;\n    createdAt?: number;\n    mode: \'one-shot\' | \'continuable\' | \'unknown\';\n    label?: string;\n}',
-  },
-  {
-    name: 'SidebarSubagentDescendantEntry',
-    declaration: 'export type SidebarSubagentDescendantEntry = {\n    kind: \'child\';\n    id: string;\n    activity: \'running\' | \'inactive\';\n    hasChildren: boolean;\n    mode: \'one-shot\' | \'continuable\';\n    label?: string;\n    parentId: string;\n    depth: number;\n} | {\n    kind: \'diagnostic\';\n    id: string;\n    reason: \'corrupt\' | \'unsupported\' | \'unavailable\';\n    parentId: string;\n    depth: number;\n};',
-  },
-  {
-    name: 'SidebarSubagentsService',
-    declaration: 'export interface SidebarSubagentsService {\n    listDescendants(rootSessionId: string, signal?: AbortSignal): Promise<SidebarSubagentDescendantEntry[]>;\n}',
-  },
-  {
-    name: 'SidebarToolsService',
-    declaration: 'export interface SidebarToolsService {\n    register(tool: unknown): () => void;\n}',
-  },
-  {
-    name: 'SidebarUiWorkspaceService',
-    declaration: 'export interface SidebarUiWorkspaceService {\n    openSession?(target: string | SidebarSubagentAddress): void;\n}',
-  },
-  {
-    name: 'SidebarUpgradeHead',
-    declaration: 'export type SidebarUpgradeHead = Uint8Array;',
-  },
-  {
-    name: 'SidebarUpgradeSocket',
-    declaration: 'export interface SidebarUpgradeSocket {\n    destroy(): void;\n}',
-  },
-  {
-    name: 'SidebarWebRoute',
-    declaration: 'export interface SidebarWebRoute {\n    kind: \'exact\' | \'prefix\';\n    path: string;\n    handler: (req: SidebarHttpRequest, res: SidebarHttpResponse) => void | Promise<void>;\n}',
-  },
-  {
-    name: 'SidebarWebRuntime',
-    declaration: 'export interface SidebarWebRuntime {\n    trustedHosts: readonly string[];\n}',
-  },
-  {
-    name: 'SidebarWebServer',
-    declaration: 'export interface SidebarWebServer {\n    register(route: SidebarWebRoute): () => void;\n    registerUpgrade(route: SidebarWebUpgradeRoute): () => void;\n}',
-  },
-  {
-    name: 'SidebarWebUpgradeRoute',
-    declaration: 'export interface SidebarWebUpgradeRoute {\n    path: string;\n    handler: (req: SidebarHttpRequest, socket: SidebarUpgradeSocket, head: SidebarUpgradeHead) => void | Promise<void>;\n}',
-  },
-  {
-    name: 'SidebarWorkspacesService',
-    declaration: 'export interface SidebarWorkspacesService {\n    openPath(path: string): Promise<void>;\n}',
   },
   {
     name: 'SidechatThreadInfo',

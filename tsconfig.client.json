@@ -88,7 +88,6 @@
     { "path": "./packages/client/ui-deliverables/tsconfig.client.json" },
     { "path": "./packages/client/ui-sidebar-plans" },
     { "path": "./packages/client/ui-sidebar-git" },
-    { "path": "./packages/client/ui-sidebar-coding/tsconfig.client.json" },
     { "path": "./packages/client/ui-sidebar-tasks" },
     { "path": "./packages/client/ui-sidechat" },
     { "path": "./packages/experimental/inspector/tsconfig.client.json" },

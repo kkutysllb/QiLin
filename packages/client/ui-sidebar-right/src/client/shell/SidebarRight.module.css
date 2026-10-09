@@ -48,8 +48,7 @@
    exactly like the docked layout it replaces. */
 .panel :global([data-dockkit-host='dock']),
 .panel :global([data-dockkit-empty]),
-.panel :global([data-dockkit-divider]),
-.panel .codingSeat {
+.panel :global([data-dockkit-divider]) {
   transform: translateX(var(--dsh-sidebar-width));
   visibility: hidden;
   transition:
@@ -59,32 +58,10 @@
 
 .panel[data-sidebar-right-open] :global([data-dockkit-host='dock']),
 .panel[data-sidebar-right-open] :global([data-dockkit-empty]),
-.panel[data-sidebar-right-open] :global([data-dockkit-divider]),
-.panel[data-sidebar-right-open] .codingSeat {
+.panel[data-sidebar-right-open] :global([data-dockkit-divider]) {
   transform: none;
   visibility: visible;
   transition: transform var(--ds-transition-duration-slow) var(--ds-ease-in-out);
-}
-
-/* The coding seat is the panel-body-sized box its occupant fills; relative so
-   the occupant's absolute inset resolves here rather than at the panel. */
-.codingSeat {
-  position: relative;
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-/* The coding body's collapse control: pinned to the corner the ported tab
-   strip reserves (72px padding-right), inside the strip's 34px band — the
-   overlay-era toggle's exact spot, now owned by the column chrome. Above the
-   coding body's dock-layer (10) content; pointer-events back on (the panel
-   box is click-transparent and only the coding body re-enables itself). */
-.codingCollapse {
-  position: absolute;
-  top: 3px;
-  right: 10px;
-  z-index: 45;
-  pointer-events: auto;
 }
 
 .panel[data-sidebar-right-panel='fullscreen'] {

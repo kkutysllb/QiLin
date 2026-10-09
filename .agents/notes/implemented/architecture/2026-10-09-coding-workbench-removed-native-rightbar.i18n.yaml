@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for 2026-10-09-coding-workbench-removed-native-rightbar.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-10-09-coding-workbench-removed-native-rightbar.md
+/agent-note-coding-workbench-removed-for-the-native-right-sidebar:
+  en: 8802dcd138da238c
+  zh: 37053dc507a3eb33
+/agent-note-coding-workbench-removed-for-the-native-right-sidebar/problem:
+  en: 93f881fc8d46eb50
+  zh: 9b1c026d3934b072
+/agent-note-coding-workbench-removed-for-the-native-right-sidebar/decision:
+  en: cf9c0e36e11a9dc8
+  zh: d7a8aaf9ef311fc7
+/agent-note-coding-workbench-removed-for-the-native-right-sidebar/alternatives-considered:
+  en: 41d3a8475c314814
+  zh: 32eebb5777e9139c
+/agent-note-coding-workbench-removed-for-the-native-right-sidebar/consequences:
+  en: 592d39219dbca657
+  zh: db8e0c5100fd947c

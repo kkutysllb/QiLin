@@ -375,8 +375,6 @@
     # The coding workbench content body: registers `rightbar.session.coding`
     # (rendered by ui-sidebar-right under the coding tag), the interception
     # faces, and the /sidebar host routes (plan §2.2/S3).
-    - id: ui-sidebar-coding
-      name: '@qilin-agent/client-ui-sidebar-coding'
     - id: ui-workspace
       name: '@qilin-agent/client-ui-workspace'
 

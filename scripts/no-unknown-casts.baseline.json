@@ -793,45 +793,6 @@
   "packages/client/ui-sidebar-browser/tests/browser-body.client.spec.tsx": {
     "dac38a9cc792ab6f3a345802975995e35a48d5a706c26d67cb7dba1c906ee3d5": 1
   },
-  "packages/client/ui-sidebar-coding/src/client/BrowserView.tsx": {
-    "38a7cf3dfd5da2f739390f5b233b97731f3bfa1ac3a51fdb8e1594735764bb80": 1
-  },
-  "packages/client/ui-sidebar-coding/src/client/conversation-draft.ts": {
-    "624552b08e6eedba9a07155766e273708848f7f2686ab81dced3bddd4698f6e4": 1
-  },
-  "packages/client/ui-sidebar-coding/src/client/markdown-labels.tsx": {
-    "fcb3019b7289cfe115da194a2c46145c5d94ed5c30c0bc7f907bf3078820bf97": 1
-  },
-  "packages/client/ui-sidebar-coding/src/client/ScheduleTaskPreview.tsx": {
-    "0a3513f913a4da892c91a3a8fe6b01de673cba1deb252801d7ad995bc9de9c65": 1,
-    "f3ce4a5fd5fc359b0527d348b20485967b49caa7f0b98ed6c96d7a4e6e1124b8": 1
-  },
-  "packages/client/ui-sidebar-coding/src/client/Sidebar.tsx": {
-    "38a7cf3dfd5da2f739390f5b233b97731f3bfa1ac3a51fdb8e1594735764bb80": 1
-  },
-  "packages/client/ui-sidebar-coding/src/client/SideCardSection.tsx": {
-    "c9ebb7ea34caa60c20d47d7a3c84e084a3718751f2cca32c93695eb4d5a1cbce": 2
-  },
-  "packages/client/ui-sidebar-coding/src/client/state.ts": {
-    "d3b6dad64b3538d5889bda2b5951b807880cbe039d6128f64c63afc7971b2a42": 1
-  },
-  "packages/client/ui-sidebar-coding/src/client/wco.ts": {
-    "56cede35ce34488cdae4b19aec217c9c939377eb891fe68827fbd64cd019170c": 1
-  },
-  "packages/client/ui-sidebar-coding/src/config.ts": {
-    "1c14246e145b2b5f4dc41ed43b8507728374989d327357da4c6a4ff7c0e7a063": 1,
-    "42d564df168928762be4365130ee2fa5a5c76d8ae5f011f3ff8ccd6d00e22320": 1,
-    "8b01166e4fd19d967aafe6db1830bfbd7623073becaa6a0ef68cbf4f6df60126": 1,
-    "ff7e8ad05c80e2449a5ca89cea59a58f4e0383e5c7b5812aacf25d85ef1595a4": 1
-  },
-  "packages/client/ui-sidebar-coding/src/index.ts": {
-    "016337c62f55ffcdfc006da693aaf9bb20c3bb49260939c0d50191117c48934e": 1,
-    "ac2af7411360ae904d31a91c2dc93332bf860bbf71c57fc0382577f5a4d77075": 4,
-    "f54aec5ce83774ae747ff8c080a8d0c424d4af927f40d18ce5cdd1da5c7ce3fa": 3
-  },
-  "packages/client/ui-sidebar-coding/src/wire.ts": {
-    "b121cee14635b00f7891217013e4682493cf96f676710be60722fdf8b862aea3": 1
-  },
   "packages/client/ui-sidebar-documentpreview/tests/document-toolbar.client.spec.tsx": {
     "60691e1e3472fcd6a86bc90567fe49dca956802881aecdba99f98139e531d09d": 1
   },
