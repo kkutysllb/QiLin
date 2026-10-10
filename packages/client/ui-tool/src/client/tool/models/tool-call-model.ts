@@ -10,7 +10,8 @@
 // that produces the values).
 import type { ToolArgs, ToolCallBlock, ToolResultNode } from '@qilin-agent/client-ui-chat/client'
 import type { LocaleKeysOf } from '@qilin-agent/client-ui-slots'
-import { abbreviateHomePath, relativizeToCwd } from '@qilin-agent/util-workspace-path'
+import { abbreviateHomePath, isAbsoluteWorkspacePath, relativizeToCwd } from '@qilin-agent/util-workspace-path'
+import { recordedAbsolutePath } from './recorded-path.ts'
 
 export type { ToolCallBlock } from '@qilin-agent/client-ui-chat/client'
 
@@ -328,11 +329,15 @@ export function toolRowModel(toolName: string, block: ToolCallBlock, cwd?: strin
   const output = done ? (resultText(block) || null) : null
   const errorSummary = state === 'error' && output !== null ? firstLine(output) : null
   const bodyRaw = argsRaw === '' ? null : argsRaw
+  const argumentPath = primary.filePath ?? (argsRaw === null ? undefined : deriveFilePath(variant, argsRaw))
+  const recordedPath = done ? recordedAbsolutePath(block.meta, 'path') : undefined
+  const canUseArgumentPath = argumentPath !== undefined
+    && (isAbsoluteWorkspacePath(argumentPath) || done && !block.isError && block.parentCallId === undefined)
   return {
     variant,
     titleKey,
     summary,
-    filePath: primary.filePath ?? (argsRaw === null ? undefined : deriveFilePath(variant, argsRaw)),
+    filePath: argumentPath === undefined ? undefined : recordedPath ?? (canUseArgumentPath ? argumentPath : undefined),
     bodyRaw,
     output,
     errorSummary,

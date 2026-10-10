@@ -73,6 +73,12 @@ function isFileDiff(value: unknown): value is FileDiff {
  * @param meta - result metadata.
  * @returns validated hunks, or `undefined` for absent or malformed data.
  */
+export function pathFromMeta(meta: unknown): string | undefined {
+  if (typeof meta !== 'object' || meta === null || Array.isArray(meta)) return undefined
+  const path = (meta as Record<string, unknown>).path
+  return typeof path === 'string' && path.length > 0 ? path : undefined
+}
+
 export function diffsFromMeta(meta: unknown): FileDiff[] | undefined {
   if (typeof meta !== 'object' || meta === null || Array.isArray(meta)) return undefined
   const diffs = (meta as Record<string, unknown>).diffs

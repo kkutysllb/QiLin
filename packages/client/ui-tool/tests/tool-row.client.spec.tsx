@@ -7,6 +7,7 @@ import type { StartedToolCall, ToolResultNode } from '@qilin-agent/client-ui-cha
 import { makeTranslate } from '@qilin-agent/client-test-runtime'
 import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 import { localizeAutoReviewDenial, normalizeAutoReviewReason } from '../src/client/tool/models/auto-review-denial.ts'
+import { recordedAbsolutePath } from '../src/client/tool/models/recorded-path.ts'
 import {
   classifyTool, formatToolBody, resultText, toolRowModel,
 } from '../src/client/tool/models/tool-call-model.ts'
@@ -130,10 +131,29 @@ describe('tool-call-model', () => {
     })).summary).toBe('first query, second')
   })
 
+  it('reads only absolute recorded locations from opaque result metadata', () => {
+    expect(recordedAbsolutePath({ path: '/w/a.ts' }, 'path')).toBe('/w/a.ts')
+    expect(recordedAbsolutePath({ cwd: '/w' }, 'cwd')).toBe('/w')
+    expect(recordedAbsolutePath({ path: 'a.ts' }, 'path')).toBeUndefined()
+    expect(recordedAbsolutePath({ path: 42 }, 'path')).toBeUndefined()
+    expect(recordedAbsolutePath(null, 'path')).toBeUndefined()
+    expect(recordedAbsolutePath([], 'path')).toBeUndefined()
+  })
+
+  it('prefers the recorded absolute target over the argument path on a settled row', () => {
+    const block = result({ call: { name: 'write', argsRaw: '{"file_path":"src/a.ts"}' }, meta: { path: '/w/src/a.ts' } })
+    expect(toolRowModel('write', block).filePath).toBe('/w/src/a.ts')
+  })
+
+  it('advertises no openable file for a relative argument while the call is still running', () => {
+    expect(toolRowModel('read', running({ name: 'read', argsRaw: '{"path":"src/a.ts"}' })).filePath).toBeUndefined()
+    expect(toolRowModel('read', running({ name: 'read', argsRaw: '{"path":"/w/src/a.ts"}' })).filePath).toBe('/w/src/a.ts')
+  })
+
   it('exposes filePath for path/file_path args and skips URL-only reads', () => {
-    expect(toolRowModel('read', running({ name: 'read', argsRaw: '{"path":"src/a.ts"}' })).filePath).toBe('src/a.ts')
-    expect(toolRowModel('write', running({ name: 'write', argsRaw: '{"file_path":"src/a.ts"}' })).filePath).toBe('src/a.ts')
-    expect(toolRowModel('edit', running({ name: 'edit', argsRaw: '{"file_path":"src/a.ts"}' })).filePath).toBe('src/a.ts')
+    expect(toolRowModel('read', result({ call: { name: 'read', argsRaw: '{"path":"src/a.ts"}' } })).filePath).toBe('src/a.ts')
+    expect(toolRowModel('write', result({ call: { name: 'write', argsRaw: '{"file_path":"src/a.ts"}' } })).filePath).toBe('src/a.ts')
+    expect(toolRowModel('edit', result({ call: { name: 'edit', argsRaw: '{"file_path":"src/a.ts"}' } })).filePath).toBe('src/a.ts')
     expect(toolRowModel('web_fetch', running({ name: 'web_fetch', argsRaw: '{"url":"https://example.com"}' })).filePath)
       .toBeUndefined()
     expect(toolRowModel('bash', running()).filePath).toBeUndefined()
@@ -568,9 +588,8 @@ describe('GenericToolCard', () => {
 
   it('renders write with its dedicated title, icon variant, and path summary', () => {
     const view = render(
-      <GenericToolCard {...props('write', running({
-        name: 'write',
-        argsRaw: '{"file_path":"src/x.ts","content":"hello"}',
+      <GenericToolCard {...props('write', result({
+        call: { name: 'write', argsRaw: '{"file_path":"src/x.ts","content":"hello"}' },
       }))} />,
     )
     expect(view.getByText('写入')).toBeTruthy()
@@ -595,7 +614,7 @@ describe('GenericToolCard', () => {
   })
 
   it('file-path summary click reaches openFile; bash summary does not', () => {
-    const file = props('read', running({ name: 'read', argsRaw: '{"path":"src/x.ts"}' }))
+    const file = props('read', result({ call: { name: 'read', argsRaw: '{"path":"src/x.ts"}' } }))
     const fileView = render(<GenericToolCard {...file} />)
     fireEvent.click(fileView.getByText('src/x.ts'))
     expect(file.openFile).toHaveBeenCalledWith('src/x.ts')

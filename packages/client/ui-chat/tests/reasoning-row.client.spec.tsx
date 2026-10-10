@@ -23,10 +23,11 @@ const renderMessageImages: AssistantMarkdownProps['renderMessageImages'] = () =>
 // content the default adapter would show.
 // The framework hands a slot implementation its own generic signature; this
 // suite implements the one declared Body slot, so it narrows to that member.
-const renderReasoningBody = (
-  (_name: string, props: { text: string; running: boolean }) =>
-    <MarkdownText text={props.text} streaming={props.running} labels={markdownLabels(t)} variant="compact" />
-) as unknown as PropsRenderSlots<'conversation.chat.reasoning.body'>['renderSlot']
+// The framework hands a slot implementation its own generic signature; this
+// suite implements the one declared Body slot, so it narrows to that member.
+const renderReasoningBody = ((_name: string, props: { text: string; running: boolean }) =>
+  <MarkdownText text={props.text} streaming={props.running} labels={markdownLabels(t)} variant="compact" />
+) as PropsRenderSlots<'conversation.chat.reasoning.body'>['renderSlot']
 
 describe('ReasoningRow', () => {
   it.each([

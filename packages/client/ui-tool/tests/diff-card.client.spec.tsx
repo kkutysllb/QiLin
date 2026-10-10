@@ -49,6 +49,17 @@ const settled = (over?: Partial<ToolResultNode>): ToolResultNode => {
 }
 
 describe('diffCardModel', () => {
+  it('maps a recorded canonical diff path back to the model-facing argument path', () => {
+    expect(diffCardModel(settled({
+      meta: {
+        path: '/w/notes/demo.txt',
+        diffs: [{ path: '/w/notes/demo.txt', oldText: 'hello', newText: 'hello fixture' }],
+      },
+    }))).toEqual({
+      card: { diffs: [{ path: 'notes/demo.txt', oldText: 'hello', newText: 'hello fixture' }] },
+    })
+  })
+
   it('derives a running card from raw edit arguments', () => {
     expect(diffCardModel(running())).toEqual({
       card: { diffs: [{ path: 'notes/demo.txt', oldText: 'hello', newText: 'hello fixture' }] },
