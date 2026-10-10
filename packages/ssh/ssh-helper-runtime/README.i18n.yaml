@@ -1,0 +1,37 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/ssh/ssh-helper-runtime/README.md
+/:
+  en: ac87da1229625a8d
+  zh: fbcab47a5eb15f1c
+/qilin-agent-ssh-helper-runtime:
+  en: 3f776a405149ff54
+  zh: 79a3371ae64add9d
+/qilin-agent-ssh-helper-runtime/summary:
+  en: 8cae34aa7059f6f4
+  zh: 49b0bd32b33d5350
+/qilin-agent-ssh-helper-runtime/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 725b47765ee8f30b
+/qilin-agent-ssh-helper-runtime/use-this-package:
+  en: 56f204cafa24de89
+  zh: 1d22f604267fea7d
+/qilin-agent-ssh-helper-runtime/understand-the-implementation:
+  en: 326a44ce318a6f8e
+  zh: 6c115446b0e1636b
+/qilin-agent-ssh-helper-runtime/further-exploration:
+  en: 5917c2593e265589
+  zh: c65449e4b7f6175a
+/qilin-agent-ssh-helper-runtime/model-experience:
+  en: fe11317de618b542
+  zh: 036173bcb9403218
+/qilin-agent-ssh-helper-runtime/model-experience/kv-cache-effect:
+  en: 114c43a84688994b
+  zh: 3ab0dad920967f86
+/qilin-agent-ssh-helper-runtime/known-limitations-and-deferred-work:
+  en: 2df2a059511956ca
+  zh: ebcea1e78cdf87f8
+/qilin-agent-ssh-helper-runtime/known-limitations-and-deferred-work/dev-note:
+  en: f57d5fcd5b2e8a44
+  zh: 3faa0aa5b448164d

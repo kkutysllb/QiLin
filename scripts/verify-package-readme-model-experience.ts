@@ -60,6 +60,7 @@ const SENTENCE_MODEL_EXPERIENCE: Readonly<Record<string, SentenceContract>> = {
   'packages/api/job-controller': { kind: 'none', reason: 'Job rosters and observation streams are browser and Host control state; they register no prompt, tool, or Session event.' },
   'packages/client/ui-sidebar-terminal': { kind: 'none', reason: 'The browser renders user terminal screens without exposing them to the model.' },
   'packages/ssh/ssh': { kind: 'none', reason: 'The connection owner transports private provider operations; consumers own all model-facing content.' },
+  'packages/ssh/ssh-helper-runtime': { kind: 'none', reason: 'The private executable carrier registers no model-facing content; its providers and consumers own operation results.' },
   'packages/ssh/fs-ssh': { kind: 'indirect', reason: 'The remote filesystem delegates model rendering to the existing filesystem consumers.' },
   'packages/ssh/subprocess-ssh': { kind: 'indirect', reason: 'The remote process provider delegates model rendering to Bash, terminal, LSP and ptc-runtime consumers.' },
   'packages/ssh/sandbox-ssh': { kind: 'indirect', reason: 'The remote confinement provider returns enforcement facts to its existing tool consumers.' },

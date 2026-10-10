@@ -393,6 +393,7 @@ flowchart TD
     pkg_fs_ssh["fs-ssh"]
     pkg_sandbox_ssh["sandbox-ssh"]
     pkg_ssh["ssh"]
+    pkg_ssh_helper_runtime["ssh-helper-runtime"]
     pkg_subprocess_ssh["subprocess-ssh"]
   end
   subgraph group_storage["packages/storage"]
@@ -1489,6 +1490,7 @@ flowchart TD
 | [`session-format-v1-to-v2`](../packages/session/session-format-v1-to-v2) | `session` | — |
 | [`session-format-v2-to-v3`](../packages/session/session-format-v2-to-v3) | `session` | — |
 | [`session-format-v3-to-v4`](../packages/session/session-format-v3-to-v4) | `session` | — |
+| [`ssh-helper-runtime`](../packages/ssh/ssh-helper-runtime) | `ssh` | — |
 | [`storage`](../packages/storage/storage) | `storage` | — |
 | [`win32-process`](../packages/subprocess/win32-process) | `subprocess` | — |
 | [`llm-mock-server`](../packages/test-support/llm-mock-server) | `test-support` | — |

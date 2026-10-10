@@ -481,6 +481,7 @@
       "@qilin-agent/spill-local": ["./packages/spill/spill-local/src"],
       "@qilin-agent/spill-policy": ["./packages/spill/spill-policy/src"],
       "@qilin-agent/ssh": ["./packages/ssh/ssh/src"],
+      "@qilin-agent/ssh-helper-runtime": ["./packages/ssh/ssh-helper-runtime/src"],
       "@qilin-agent/storage": ["./packages/storage/storage/src"],
       "@qilin-agent/storage-domain": ["./packages/storage/storage-domain/src"],
       "@qilin-agent/storage-json": ["./packages/storage/storage-json/src"],
