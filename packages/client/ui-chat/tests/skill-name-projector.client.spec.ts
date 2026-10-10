@@ -39,6 +39,7 @@ function storeOf(nodes: readonly ChatConversationViewNode[]): ChatNodeStore & { 
     },
     source: () => { throw new Error('unused') },
     turnDataSource: () => ({ getSnapshot: () => [], subscribe: () => () => {} }) as never,
+    bottomSource: () => ({ getSnapshot: () => false, subscribe: () => () => {} }),
     processSource: () => { throw new Error('unused') },
   }
   return store
