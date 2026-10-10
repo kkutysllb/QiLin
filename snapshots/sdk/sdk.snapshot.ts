@@ -121,6 +121,8 @@ interface SdkAssertions {
   expectedToolDescriptions?: Readonly<Record<string, string>>
   /** Expected runtime-context state in the real assembled request. */
   runtimeContext?: false | { includes: readonly string[]; excludes: readonly string[] }
+  /** Route for a curated scenario whose recording carries no request record. */
+  route?: { readonly provider: string; readonly model: string }
 }
 
 const SDK_ASSERTIONS: Readonly<Record<string, SdkAssertions>> = {
@@ -416,12 +418,19 @@ function records(log: string): JsonObject[] {
 
 function modelFromSession(log: string): { provider: string; model: string } {
   for (const record of records(log)) {
-    if (record.type !== 'request/header') continue
     const data = record.data as JsonObject | undefined
-    const header = data?.header as JsonObject | undefined
-    const config = header?.config as JsonObject | undefined
-    if (typeof config?.provider === 'string' && typeof config.model === 'string') {
-      return { provider: config.provider, model: config.model }
+    if (record.type === 'request/header') {
+      const header = data?.header as JsonObject | undefined
+      const config = header?.config as JsonObject | undefined
+      if (typeof config?.provider === 'string' && typeof config.model === 'string') {
+        return { provider: config.provider, model: config.model }
+      }
+      continue
+    }
+    // A generation recorded before the header carried the route names it here.
+    if (record.type === 'request/context'
+      && typeof data?.provider === 'string' && typeof data.model === 'string') {
+      return { provider: data.provider, model: data.model }
     }
   }
   throw new Error('SDK snapshot session has no request model')
@@ -544,10 +553,11 @@ async function runScenario(scenario: CorpusScenario): Promise<{
   const fixtureContents = await Promise.all((await fixtureFiles(scenario)).map(file => readFile(file, 'utf8')))
   const primaryFixture = fixtureContents[0]
   if (primaryFixture === undefined) throw new Error(`${scenario.name}: no primary session fixture`)
-  const route = modelFromSession(primaryFixture)
+  const assertionsForScenario = SDK_ASSERTIONS[scenario.name] ?? {}
+  const route = assertionsForScenario.route ?? modelFromSession(primaryFixture)
   const patchRoot = join(cwd, '.snapshot-patches')
   await mkdir(patchRoot, { recursive: true })
-  const assertions = SDK_ASSERTIONS[scenario.name] ?? {}
+  const assertions = assertionsForScenario
   const patches = [...authoredPatches(scenario, !recording), ...assertions.patches ?? []]
     .map((patch, index) => materializeProfilePatch(patch, cwd, 'sdk', patchRoot, index))
   let childSessionsRoot: string | undefined
