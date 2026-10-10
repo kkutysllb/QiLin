@@ -33,7 +33,6 @@
     "@qilin-agent/agent": "workspace:*",
     "@qilin-agent/session": "workspace:*",
     "@qilin-agent/subagent": "workspace:*",
-    "@qilin-agent/subagent-in-process-driver": "workspace:*",
     "@qilin-agent/kylin": "workspace:~"
   },
   "dependencies": {
@@ -47,7 +46,6 @@
     "@qilin-agent/llm": "workspace:*",
     "@qilin-agent/session": "workspace:*",
     "@qilin-agent/subagent": "workspace:*",
-    "@qilin-agent/subagent-in-process-driver": "workspace:*",
     "@qilin-agent/subagent-spawn-in-process": "workspace:*",
     "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/session-projection": "workspace:*"
