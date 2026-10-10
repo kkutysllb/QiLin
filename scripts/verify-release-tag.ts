@@ -1,12 +1,14 @@
 /**
- * Enforce the repository's release rule: a push that updates `main` ships a
- * version — the pushed commit carries an annotated `v*` tag whose GitHub
- * Release carries written notes. Registered as a lefthook `pre-push` job, it
- * reads the pushed refs from stdin like git's own hook and falls back to
- * comparing `main` with `origin/main` when no ref lines arrive (lefthook does
- * not forward them), which also means a tag-only push must come after its
- * release exists — bootstrap the very first one with `QILIN_RELEASE_SKIP=<reason>`.
- * That variable is the deliberate one-shot bypass for an unreachable GitHub.
+ * Verify the release half of a push that updates `main`. Releases are on
+ * demand: a push ships no release by itself. A release happens when the pushed
+ * commit carries an annotated `v*` tag, and that tag must then name the root
+ * manifest's version while its GitHub Release carries written notes. Registered
+ * as a lefthook `pre-push` job, it reads the pushed refs from stdin like git's
+ * own hook and falls back to comparing `main` with `origin/main` when no ref
+ * lines arrive (lefthook does not forward them), which also means a tag-only
+ * push must come after its release exists — bootstrap the very first one with
+ * `QILIN_RELEASE_SKIP=<reason>`. That variable is the deliberate one-shot
+ * bypass for an unreachable GitHub.
  * @module verify-release-tag
  */
 
@@ -50,10 +52,13 @@ export function releaseTagsAt(tags: readonly string[]): string[] {
   return tags.filter(tag => RELEASE_TAG.test(tag))
 }
 
-/** What blocks shipping `sha`, given the tags at it and each tag's release body. */
+/**
+ * The verdict for `sha`: either it ships the release `tag` names, or it ships
+ * none (`tag` undefined), or the release it names is not shippable.
+ */
 export type ReleaseReadiness =
-  | { readonly ok: true; readonly tag: string }
-  | { readonly ok: false; readonly problem: 'tag' | 'release' | 'notes' | 'version'; readonly message: string }
+  | { readonly ok: true; readonly tag: string | undefined }
+  | { readonly ok: false; readonly problem: 'release' | 'notes' | 'version'; readonly message: string }
 
 /**
  * The version a release tag names, prerelease included.
@@ -79,8 +84,9 @@ export function versionProblem(tag: string, declared: string | undefined): strin
 }
 
 /**
- * Decide whether `sha` may ship: some `v*` tag at it must carry a release with
- * notes, and the commit's declared version must be the tag's.
+ * Decide whether `sha` may ship: a `v*` tag at it must carry a release with
+ * notes and the commit's declared version must be the tag's. A commit with no
+ * release tag ships no release, which nothing here blocks.
  * @param sha - Commit to ship.
  * @param tags - Tags at that commit.
  * @param releaseBodyOf - Release body reader.
@@ -94,13 +100,7 @@ export function evaluateReleaseReadiness(
   declaredVersion?: string,
 ): ReleaseReadiness {
   const candidates = releaseTagsAt(tags)
-  if (candidates.length === 0) {
-    return {
-      ok: false,
-      problem: 'tag',
-      message: `no v* tag points at ${sha}; cut one first: git tag -a vX.Y.Z[-prerelease] ${sha} -m "QiLin vX.Y.Z — <summary>"`,
-    }
-  }
+  if (candidates.length === 0) return { ok: true, tag: undefined }
   for (const tag of candidates) {
     const body = releaseBodyOf(tag)
     if (body === undefined) continue
@@ -118,7 +118,7 @@ export function evaluateReleaseReadiness(
   return {
     ok: false,
     problem: 'release',
-    message: `no GitHub release exists for ${candidates.join(', ')}; publish one: gh release create <tag> --title "QiLin <tag> · <title>" --notes-file <notes.md>`,
+    message: `tag ${candidates.join(', ')} at ${sha} has no GitHub release; publish it: gh release create <tag> --title "QiLin <tag> · <title>" --notes-file <notes.md>`,
   }
 }
 
@@ -196,7 +196,9 @@ async function main(): Promise<void> {
   }
   const result = evaluateReleaseReadiness(sha, tagsAt(sha), releaseBodyOf, declaredVersionAt(sha))
   if (result.ok) {
-    console.log(`verify-release-tag: main ships ${result.tag}`)
+    console.log(result.tag === undefined
+      ? `verify-release-tag: no release tag at ${sha}; releases are on demand`
+      : `verify-release-tag: main ships ${result.tag}`)
     return
   }
   console.error(`verify-release-tag: ${result.message}`)

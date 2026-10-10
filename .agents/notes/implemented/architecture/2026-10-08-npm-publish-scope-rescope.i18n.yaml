@@ -1,0 +1,22 @@
+# Bilingual-pair consistency record for 2026-10-08-npm-publish-scope-rescope.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-10-08-npm-publish-scope-rescope.md
+/agent-note-npm-publish-scope-rescope:
+  en: 9b92fb9b5e50a56e
+  zh: 3bcbb631ba79facf
+/agent-note-npm-publish-scope-rescope/problem:
+  en: 341202d2dee36dea
+  zh: 2dd488f9eca672eb
+/agent-note-npm-publish-scope-rescope/decision:
+  en: c7228e85ecbe8d06
+  zh: 75add8faa783f880
+/agent-note-npm-publish-scope-rescope/consequences:
+  en: c299f9fee91a63d3
+  zh: 179919aed48c5f5c
+/agent-note-npm-publish-scope-rescope/verification:
+  en: 7b9d09ce7aa55967
+  zh: 0f26b958d545f8e5
+/agent-note-npm-publish-scope-rescope/alternatives-considered:
+  en: 25f0fde668fc7ca4
+  zh: 60bb7c2c517e6623

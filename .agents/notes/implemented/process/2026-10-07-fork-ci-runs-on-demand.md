@@ -18,7 +18,7 @@ The CI, build, and release workflows are disabled at the GitHub level (`gh workf
 - Any of them still runs on demand: `gh workflow enable "<name>"`, then `gh workflow run "<name>"`. A workflow is re-enabled per name, so a change that needs platform evidence re-enables exactly the lane that provides it.
 - Repository automation that is not CI stays enabled: issue lifecycle, issue policy, weighted approval, and the manually dispatched documentation deploy.
 - Verification evidence is local: `pnpm run test:gui` for the client and host packages, `QILIN_SNAPSHOT=replay pnpm run test:web` for assembled browser output, `pnpm run typecheck`, `pnpm run lint`, `pnpm run duplication`, `pnpm run test:docs`, and the narrow selection the [qilin-pre-push-checks skill](../../../skills/qilin-pre-push-checks/SKILL.md) prescribes for the outgoing diff.
-- The release rule is unchanged and still enforced locally by the `pre-push` hook ([verify-release-tag.ts](../../../../scripts/verify-release-tag.ts)): a push that updates `main` must carry an annotated `v*` tag whose GitHub Release holds written notes, and the manifests must name the tag's version.
+- The release rule is locally enforced by the `pre-push` hook ([verify-release-tag.ts](../../../../scripts/verify-release-tag.ts)) on the release a push declares: a pushed `main` commit carrying an annotated `v*` tag must have a GitHub Release with written notes, and the manifests must name that tag's version. A push without such a tag ships no release and passes.
 
 ## Alternatives considered
 

@@ -18,7 +18,7 @@ CI、构建与发布工作流改在 GitHub 层禁用（`gh workflow disable`）�
 - 它们仍可按需运行：`gh workflow enable "<name>"` 之后再 `gh workflow run "<name>"`。启用粒度是单个工作流，因此需要平台证据的改动只启用提供该证据的那条车道。
 - 非 CI 的仓库自动化保持启用：issue lifecycle、issue policy、weighted approval，以及手动派发的文档部署。
 - 验证证据转为本机：客户端与宿主包用 `pnpm run test:gui`，组装后的浏览器输出用 `QILIN_SNAPSHOT=replay pnpm run test:web`，另有 `pnpm run typecheck`、`pnpm run lint`、`pnpm run duplication`、`pnpm run test:docs`，以及 [qilin-pre-push-checks skill](../../../skills/qilin-pre-push-checks/SKILL.md) 针对出站 diff 给出的窄集选择。
-- 发布规则不变，仍由 `pre-push` 钩子（[verify-release-tag.ts](../../../../scripts/verify-release-tag.ts)）在本机强制：更新 `main` 的推送必须带一个附注 `v*` tag，其 GitHub Release 要有成文说明，且 manifests 的版本要与 tag 一致。
+- 发布规则由 `pre-push` 钩子（[verify-release-tag.ts](../../../../scripts/verify-release-tag.ts)）按推送自己声明的发布在本机强制：被推送到 `main` 的提交带附注 `v*` tag 时，该 tag 必须有 GitHub Release 且带成文说明，manifests 的版本必须与 tag 一致；没有这类 tag 的推送不发版，直接通过。
 
 ## Alternatives considered
 

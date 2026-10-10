@@ -64,12 +64,10 @@ describe('tagVersion', () => {
 describe('evaluateReleaseReadiness', () => {
   const sha = 'a'.repeat(40)
 
-  it('fails with the tag remedy when no v* tag points at the commit', () => {
-    const result = evaluateReleaseReadiness(sha, [], () => undefined)
-    expect(result.ok).toBe(false)
-    if (result.ok) return
-    expect(result.problem).toBe('tag')
-    expect(result.message).toContain('git tag -a vX.Y.Z[-prerelease] ' + sha)
+  it('ships nothing when no release tag points at the commit', () => {
+    expect(evaluateReleaseReadiness(sha, [], () => undefined)).toEqual({ ok: true, tag: undefined })
+    expect(evaluateReleaseReadiness(sha, ['nightly', 'dsh-v0.1.5-rc.2'], () => undefined))
+      .toEqual({ ok: true, tag: undefined })
   })
 
   it('fails with the publish remedy when the tag has no release', () => {

@@ -1,0 +1,22 @@
+# Bilingual-pair consistency record for 2026-10-10-releases-on-demand.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-10-10-releases-on-demand.md
+/agent-note-releases-are-on-demand-not-every-main-push:
+  en: 516dd5665c689efe
+  zh: d13fdffaf1da1b11
+/agent-note-releases-are-on-demand-not-every-main-push/problem:
+  en: 116f0a92bdbc1e97
+  zh: 45eb0bfadce2cad3
+/agent-note-releases-are-on-demand-not-every-main-push/decision:
+  en: 46329b4b3df7cc3d
+  zh: 05c186dd63e65150
+/agent-note-releases-are-on-demand-not-every-main-push/alternatives-considered:
+  en: 67d0f38bd85a8f45
+  zh: 8d9c03164dcecbe5
+/agent-note-releases-are-on-demand-not-every-main-push/consequences:
+  en: c659de42b599b9e3
+  zh: 823e0bdf88fca9db
+/agent-note-releases-are-on-demand-not-every-main-push/related:
+  en: 2307ba911d8fce6d
+  zh: 4950c6e944cc9ba3
