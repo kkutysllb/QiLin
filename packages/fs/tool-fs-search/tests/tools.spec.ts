@@ -1162,7 +1162,7 @@ describe('presentation', () => {
     expect(view).toEqual({ card: 'search', shape: 'paths', paths: ['a.ts', 'b.ts'], truncated: true, total: 3 })
   })
 
-  it('nested Code dispatch computes no meta, so presentResult falls back to the generic card', async () => {
+  it('projects presentation meta for a nested Code dispatch too', async () => {
     const { ctx, subprocess } = await setup()
     subprocess.handler = () => runResult(`${matchLine('a.ts', 1, 'one')}\n`)
     const result = await call(ctx, 'grep', { pattern: 'o' }, {
@@ -1170,8 +1170,10 @@ describe('presentation', () => {
       parent: Symbol('run_code') as ToolExecutionToken,
     })
     if (result.isError) throw new Error('expected grep success')
-    expect(result.meta).toBeUndefined()
-    expect(presentGrepResult({ pattern: 'o' }, result)).toBeUndefined()
+    // `presentationMeta` projects for native and nested calls alike, so the
+    // typed card still replaces the generic one inside a Code result.
+    expect(result.meta).toMatchObject({ shape: 'matches' })
+    expect(presentGrepResult({ pattern: 'o' }, result)).toBeDefined()
   })
 
   it('presentResult returns undefined for a failed result and for the other tool’s meta shape', () => {
