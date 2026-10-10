@@ -394,12 +394,13 @@ export function unrelatedRead(): void {
     }
   })
 
-  it('preserves successful fix output channels', async () => {
+  it('applies staged fixes and keeps both output channels silent', async () => {
     const suffix = randomUUID()
     const path = join(repositoryRoot, 'scripts', `staged-lint-probe-${suffix}.ts`)
+    const source = 'var value = 1\nexport { value }\n'
 
     try {
-      await writeFile(path, '// oxlint-disable-next-line no-console\nexport const value = 1\n')
+      await writeFile(path, source)
       const result = runRepositoryOxlint([
         '--config',
         '.oxlintrc.staged.json',
@@ -411,8 +412,10 @@ export function unrelatedRead(): void {
 
       expect(result.error).toBeUndefined()
       expect(result.status, normalizedOutput(result)).toBe(0)
-      expect(result.stdout).toContain('Unused oxlint-disable directive')
+      expect(result.stdout).toBe('')
       expect(result.stderr).toBe('')
+      // The staged profile fixes through the file, not through the report.
+      expect(await readFile(path, 'utf8')).toBe('const value = 1\nexport { value }\n')
     } finally {
       await rm(path, { force: true })
     }
