@@ -60,6 +60,7 @@ class StubProvider implements SubagentProvider {
     this.lastRequest = request
     return {
       id: SessionId(`child:${this.name}:${request.parent.id}`),
+      localAgent: undefined,
       result: Promise.resolve(this.outcome),
       async dispose() {},
     }
@@ -354,6 +355,7 @@ describe('SubagentRuntime', () => {
       inheritsParentContext: false,
       start: () => Promise.resolve({
         id: childId,
+        localAgent: undefined,
         result: result.promise,
         dispose,
       }),

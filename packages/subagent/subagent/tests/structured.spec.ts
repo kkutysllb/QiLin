@@ -442,6 +442,7 @@ describe('in-process structured output', () => {
       inheritsParentContext: false,
       start: () => Promise.resolve({
         id: SessionId('delegated-answer'),
+        localAgent: undefined,
         result: delegated.promise,
         dispose: () => { delegated.resolve({ output: [], stopReason: 'aborted' }); return Promise.resolve() },
       }),
