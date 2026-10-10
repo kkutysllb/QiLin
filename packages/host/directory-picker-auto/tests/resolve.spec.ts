@@ -21,8 +21,14 @@ describe('resolveDirectoryPickerBackend', () => {
     expect(resolveDirectoryPickerBackend({ ...attended, platform: 'win32' })).toBe('native')
   })
 
-  it('resolves browse for an all-interfaces bind regardless of other signals', () => {
-    expect(resolveDirectoryPickerBackend({ ...attended, bindHost: '0.0.0.0' })).toBe('browse')
+  it('resolves browse for a non-loopback bind regardless of other signals', () => {
+    expect(resolveDirectoryPickerBackend({ ...attended, bindHost: '10.0.0.7' })).toBe('browse')
+  })
+
+  it('classifies every loopback spelling as this machine', () => {
+    expect(resolveDirectoryPickerBackend({ ...attended, bindHost: '127.0.0.2' })).toBe('native')
+    expect(resolveDirectoryPickerBackend({ ...attended, bindHost: '::1' })).toBe('native')
+    expect(resolveDirectoryPickerBackend({ ...attended, bindHost: '::ffff:127.0.0.1' })).toBe('native')
   })
 
   it('resolves browse under an SSH launch', () => {

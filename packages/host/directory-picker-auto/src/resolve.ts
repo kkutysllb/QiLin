@@ -6,7 +6,7 @@
  * @module @qilin-agent/host-directory-picker-auto/resolve
  */
 
-import type { Config as HttpServerConfig } from '@qilin-agent/host-webserver'
+import { isLoopbackHost, type Config as HttpServerConfig } from '@qilin-agent/host-webserver'
 
 /** Concrete interaction backend the resolver chooses between. */
 export type DirectoryPickerBackendKind = 'native' | 'browse'
@@ -18,7 +18,7 @@ export type DirectoryPickerEnv = Readonly<
 
 /** Host facts the backend choice is a pure function of, sampled once at boot. */
 export interface DirectoryPickerHostFacts {
-  /** Effective webserver bind host (the schema's closed loopback/all-interfaces union). */
+  /** Effective webserver bind host: one concrete interface literal the webserver accepted. */
   bindHost: HttpServerConfig['host']
   /** Host process platform. */
   platform: NodeJS.Platform
@@ -36,7 +36,7 @@ const present = (value: string | undefined): boolean => value !== undefined && v
 /**
  * Resolve which backend serves this boot. `native` requires every signal that
  * the operator can see the host display and the native backend can serve it:
- * a loopback-only bind (an all-interfaces bind admits remote browsers no OS
+ * a loopback bind (any other bind admits remote browsers no OS
  * chooser can reach), no SSH launch (under SSH port-forwarding the chooser
  * would open on the unattended server), and a servable display session —
  * assumed on darwin/win32, requiring `DISPLAY`/`WAYLAND_DISPLAY` plus a
@@ -47,7 +47,7 @@ const present = (value: string | undefined): boolean => value !== undefined && v
  * @returns the backend kind to mount.
  */
 export function resolveDirectoryPickerBackend(facts: DirectoryPickerHostFacts): DirectoryPickerBackendKind {
-  if (facts.bindHost !== '127.0.0.1') return 'browse'
+  if (!isLoopbackHost(facts.bindHost)) return 'browse'
   if (facts.ssh) return 'browse'
   if (facts.platform === 'darwin' || facts.platform === 'win32') return 'native'
   if (facts.platform !== 'linux' || !facts.linuxChooser) return 'browse'

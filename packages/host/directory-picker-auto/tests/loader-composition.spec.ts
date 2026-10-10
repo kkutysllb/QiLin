@@ -92,7 +92,7 @@ afterEach(async () => {
 
 /** Write a two-row cordis.yml (webserver + chooser), then boot it through the real Loader. */
 async function loadComposition(
-  bindHost: '127.0.0.1' | '0.0.0.0',
+  bindHost: string,
   options: { failSurface?: boolean; launchEnvironment?: LaunchEnvironmentSnapshot } = {},
 ): Promise<{ ctx: Context; configPath: string }> {
   root = await mkdtemp(join(tmpdir(), 'qilin-directory-picker-auto-'))
@@ -247,14 +247,14 @@ describe('real Loader composition', () => {
     expect(picker.capability().kind).toBe('browse')
   })
 
-  it('mounts the browse backend for an all-interfaces bind even on an attended host', { timeout: 60_000 }, async () => {
+  it('mounts the native backend for an IPv6 loopback bind on an attended host', { timeout: 60_000 }, async () => {
     stubAttendedHost()
-    const { ctx } = await loadComposition('0.0.0.0')
+    const { ctx } = await loadComposition('::1')
 
-    expect(entryNames(ctx)).toContain(BROWSE)
-    expect(entryNames(ctx)).toContain(BROWSE_SURFACE)
-    expect(entryNames(ctx)).not.toContain(NATIVE)
-    expect(entryNames(ctx)).not.toContain(NATIVE_SURFACE)
+    expect(entryNames(ctx)).toContain(NATIVE)
+    expect(entryNames(ctx)).toContain(NATIVE_SURFACE)
+    expect(entryNames(ctx)).not.toContain(BROWSE)
+    expect(entryNames(ctx)).not.toContain(BROWSE_SURFACE)
   })
 
   it('unmounts the backend when the surface entry fails to load', { timeout: 60_000 }, async () => {
