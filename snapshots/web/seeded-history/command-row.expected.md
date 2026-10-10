@@ -18,7 +18,6 @@
 - button "Branch into a new conversation"
 - text: {{clock}}
 - button "compact Compacted 5 history items (~{{tokens}} tokens)"
-- button "Context injection AGENTS.md"
 - text: permission preset read-only
 - textbox "Message or run a task, / commands, @ files or sessions"
 - button "Add files or run commands"
