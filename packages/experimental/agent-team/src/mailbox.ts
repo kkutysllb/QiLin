@@ -27,7 +27,6 @@ import type {
 export class TeamMailbox {
   private readonly dispatchTails = new Map<SessionId, Promise<void>>()
   private readonly inFlightMessages = new Set<TeamMessageId>()
-  private readonly inFlightDispatches = new Set<Promise<unknown>>()
 
   /**
    * @param ctx - Team service context with Agent, Session, persistence, and subagent services.
@@ -56,7 +55,7 @@ export class TeamMailbox {
       ...request,
       signal: AbortSignal.any([request.signal, this.lifecycle.signal]),
     })
-    return await this.trackDispatch(operation)
+    return await this.lifecycle.track(operation)
   }
 
   /**
@@ -73,7 +72,7 @@ export class TeamMailbox {
     }).catch((error: unknown) => {
       this.ctx.logger.warn(`Team message "${source.messageId}" acknowledgement failed: ${errorMessage(error)}`)
     })
-    void this.trackDispatch(acknowledgement)
+    void this.lifecycle.track(acknowledgement)
   }
 
   /**
@@ -93,14 +92,6 @@ export class TeamMailbox {
       signal.throwIfAborted()
       await this.tryDispatch(membership.root, message, signal)
     }
-  }
-
-  /**
-   * Return admitted dispatch and acknowledgement operations captured for disposal.
-   * @returns detached snapshot ordered only by Set insertion.
-   */
-  pendingDispatches(): readonly Promise<unknown>[] {
-    return [...this.inFlightDispatches]
   }
 
   /** Queue and dispatch one mailbox item admitted before the disposal cutoff. */
@@ -145,7 +136,7 @@ export class TeamMailbox {
     if (this.lifecycle.disposed) return Promise.resolve(false)
     if (this.inFlightMessages.has(message.id)) return Promise.resolve(false)
     this.inFlightMessages.add(message.id)
-    const operation = this.trackDispatch(
+    const operation = this.lifecycle.track(
       this.tryDispatchAdmitted(
         root,
         message,
@@ -156,17 +147,6 @@ export class TeamMailbox {
       this.inFlightMessages.delete(message.id)
     }
     void operation.then(forget, forget)
-    return operation
-  }
-
-  /** Track one dispatch transaction through delivery admission or contained failure. */
-  private trackDispatch<T>(operation: Promise<T>): Promise<T> {
-    this.inFlightDispatches.add(operation)
-    void operation.then(() => {
-      this.inFlightDispatches.delete(operation)
-    }, () => {
-      this.inFlightDispatches.delete(operation)
-    })
     return operation
   }
 

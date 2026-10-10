@@ -86,8 +86,8 @@ function content(text: string) {
 }
 
 interface TeamServiceInternals {
+  readonly lifecycle: TeamRuntimeLifecycle
   readonly roster: {
-    readonly inFlightCreations: Set<Promise<unknown>>
     checkpointInitialPrompt(childId: SessionId, messageId: string, signal: AbortSignal): Promise<void>
     reconcileProvisioning(root: Agent, signal: AbortSignal): Promise<void>
     liveChildrenByRoot(): Map<Agent, SessionId[]>
@@ -1479,7 +1479,7 @@ describe('Team mailbox and waiting', () => {
     const cleanupFailure = new Error('creation cleanup failed')
     const rejected = Promise.reject(cleanupFailure)
     void rejected.catch(() => undefined)
-    internal.roster.inFlightCreations.add(rejected)
+    void internal.lifecycle.track(rejected)
 
     await expect(internal.disposeRuntime()).rejects.toMatchObject({ errors: [cleanupFailure] })
   })
@@ -1661,7 +1661,7 @@ describe('Team mailbox and waiting', () => {
   it('bounds disposal while an admitted creation ignores cancellation', async () => {
     const { ctx, lead } = await setup([], { disposalTimeoutMs: 25 })
     const internal = teamInternals(ctx)
-    internal.roster.inFlightCreations.add(new Promise(() => {}))
+    void internal.lifecycle.track(new Promise(() => {}))
 
     await expect(internal.disposeRuntime()).rejects.toBeInstanceOf(AggregateError)
     await expect(ctx.agentTeams.spawnTeammate(lead, {

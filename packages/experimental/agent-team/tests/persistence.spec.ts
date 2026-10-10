@@ -14,7 +14,7 @@ import SubagentService, { snapshotSubagentDescriptor } from '@qilin-agent/subage
 import * as SubagentSpawn from '@qilin-agent/subagent-spawn-in-process'
 import { MockAdapter, textResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
 import TeamService, { TeamId, TeamMessageId } from '../src/index.ts'
-import type { TeamMailbox } from '../src/mailbox.ts'
+import type { TeamRuntimeLifecycle } from '../src/lifecycle.ts'
 import { teamProjectionDefinition } from '../src/projection.ts'
 import type { TeamMemberSnapshot, TeamMessageSnapshot, TeamTaskSnapshot } from '../src/index.ts'
 import { TestSessionQuery } from './test-session-query.ts'
@@ -54,8 +54,8 @@ async function storedEvents(ctx: Context, id: SessionId): Promise<readonly Sessi
 
 /** Await mailbox acknowledgements through their flush and dispatch completion. */
 async function settleMailbox(ctx: Context): Promise<void> {
-  const { mailbox } = ctx.agentTeams as unknown as { readonly mailbox: TeamMailbox }
-  await Promise.all(mailbox.pendingDispatches())
+  const { lifecycle } = ctx.agentTeams as unknown as { readonly lifecycle: TeamRuntimeLifecycle }
+  await Promise.all(lifecycle.pending())
 }
 
 async function disposeContext(ctx: Context): Promise<void> {
@@ -390,7 +390,7 @@ for (const backend of backends) {
       await first.dispose()
 
       const second = await stack(backend, storageRoot, [])
-      const { mailbox } = second.ctx.agentTeams as unknown as { readonly mailbox: TeamMailbox }
+      const { lifecycle } = second.ctx.agentTeams as unknown as { readonly lifecycle: TeamRuntimeLifecycle }
       const flush = second.ctx.sessions.flush.bind(second.ctx.sessions)
       const checkpointEntered = Promise.withResolvers<undefined>()
       const releaseCheckpoint = Promise.withResolvers<undefined>()
@@ -410,7 +410,7 @@ for (const backend of backends) {
         })
         await checkpointEntered.promise
         expect(durable(rootHandle.agent).pendingMessages).toEqual([])
-        expect(mailbox.pendingDispatches().length).toBeGreaterThan(0)
+        expect(lifecycle.pending().length).toBeGreaterThan(0)
         let settled = false
         const settlement = settleMailbox(second.ctx).then(() => { settled = true })
         await Promise.resolve()

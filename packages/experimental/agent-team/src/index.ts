@@ -292,8 +292,7 @@ export class TeamService extends TypertRemoteService {
     this.activity.close()
 
     const failures: unknown[] = []
-    await this.lifecycle.settle(this.roster.pendingCreations(), failures)
-    await this.lifecycle.settle(this.mailbox.pendingDispatches(), failures)
+    await this.lifecycle.settle(this.lifecycle.pending(), failures)
     for (const [root, childIds] of this.roster.liveChildrenByRoot()) {
       try {
         await this.roster.stopTeammates(root, childIds)
