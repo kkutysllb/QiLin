@@ -170,13 +170,16 @@
 
     # Plain route-registration carrier; host and port come from the app's
     # webStartup provider, with these deployment fallbacks. The dist is served by
-    # the web-runtime row below through the fallback seat.
+    # the web-runtime row below through the fallback seat. This row rejects
+    # wildcard binds and, when the invocation supplies a certificate and key,
+    # listens over HTTPS.
     - id: webserver
       name: '@qilin-agent/host-webserver'
       inject: [webStartup]
       config:
         host: !!js ctx.webStartup.host ?? '127.0.0.1'
         port: !!js ctx.webStartup.port ?? 3080
+        tls: !!js ctx.webStartup.tls
         compression: gzip
         compressionLevel: 1
         compressionThresholdBytes: 1024

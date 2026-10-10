@@ -6,6 +6,8 @@
  * config), mounts the `frontend-static` fallback owner over it, registers the
  * harness-source and web-surface prompt sections, the bash-visible web runtime
  * variable, the process-token URL line, and the default-browser handoff. The
+ * published loopback and LAN URLs follow the active listener's scheme, so an
+ * HTTPS listener is never advertised as plain HTTP. The
  * model and shell retain the clean URL. App command-line values arrive through
  * the `webStartup` service expressions in the bundle patch.
  * @module @qilin-agent/web-app
@@ -164,11 +166,12 @@ function webSurfacePrompt(webUrl: string): string {
     + 'Do not start a replacement server unless the user asks; if one is needed, use a managed background job and verify its exact URL.'
 }
 
-/** Resolve the canonical loopback URL from the active Web server. */
+/** Resolve the canonical loopback URL, in the active listener's scheme, from the active Web server. */
 function localWebUrl(ctx: Context): string {
-  const port = ctx.get('webServer')?.port
-  if (port === undefined) throw new Error('web-app: webServer service missing while resolving Web runtime')
-  return `http://${LOOPBACK_HOST}:${String(port)}`
+  const webServer = ctx.get('webServer')
+  const port = webServer?.port
+  if (webServer === undefined || port === undefined) throw new Error('web-app: webServer service missing while resolving Web runtime')
+  return `${webServer.protocol}//${LOOPBACK_HOST}:${String(port)}`
 }
 
 /**
@@ -287,7 +290,7 @@ export function apply(ctx: Context, config: Config): void {
         const port = connectionCtx.webServer.port
         const lanUrl = lanCandidate === undefined
           ? undefined
-          : connectionCtx.connection.authenticatedUrl(`http://${lanCandidate}:${String(port)}`)
+          : connectionCtx.connection.authenticatedUrl(`${connectionCtx.webServer.protocol}//${lanCandidate}:${String(port)}`)
         ANNOUNCED_ROOTS.add(connectionCtx.root)
         if (config.printUrl) {
           console.log(`${config.label}: ${authenticatedUrl}${lanUrl === undefined ? '' : ` (LAN: ${lanUrl})`}`)
