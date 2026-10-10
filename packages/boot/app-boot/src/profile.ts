@@ -300,6 +300,7 @@ export const OPTIONAL_BUNDLES: readonly string[] = [
   '@qilin-agent/experimental-ralph-bundle',
   '@qilin-agent/experimental-terminal-bundle',
   '@qilin-agent/experimental-badge-skill-bundle',
+  '@qilin-agent/experimental-cot-translation-bundle',
 ]
 
 const PROFILE_PATCH_TEMPLATE = `# Your patch layer for this qilin profile, applied after every bundle layer:

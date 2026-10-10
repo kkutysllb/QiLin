@@ -222,6 +222,9 @@ importers:
       '@qilin-agent/experimental-badge-skill-bundle':
         specifier: workspace:*
         version: link:../../packages/experimental/badge-skill-bundle
+      '@qilin-agent/experimental-cot-translation-bundle':
+        specifier: workspace:*
+        version: link:../../packages/experimental/cot-translation-bundle
       '@qilin-agent/experimental-inspector-profile':
         specifier: workspace:*
         version: link:../../packages/experimental/inspector-profile
@@ -7664,6 +7667,88 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
 
+  packages/experimental/client-ui-cot-translation:
+    dependencies:
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+    devDependencies:
+      '@qilin-agent/agent-loop-testkit':
+        specifier: workspace:*
+        version: link:../../test-support/agent-loop-testkit
+      '@qilin-agent/api-remotes':
+        specifier: workspace:*
+        version: link:../../api/remotes
+      '@qilin-agent/api-session-controller':
+        specifier: workspace:*
+        version: link:../../api/session-controller
+      '@qilin-agent/client-locale':
+        specifier: workspace:*
+        version: link:../../client/locale
+      '@qilin-agent/client-store':
+        specifier: workspace:*
+        version: link:../../client/store
+      '@qilin-agent/client-test-runtime':
+        specifier: workspace:*
+        version: link:../../test-support/client-runtime
+      '@qilin-agent/client-ui-chat':
+        specifier: workspace:*
+        version: link:../../client/ui-chat
+      '@qilin-agent/client-ui-plugin-manager':
+        specifier: workspace:*
+        version: link:../../client/ui-plugin-manager
+      '@qilin-agent/client-ui-primitives':
+        specifier: workspace:*
+        version: link:../../client/ui-primitives
+      '@qilin-agent/client-ui-renderer':
+        specifier: workspace:*
+        version: link:../../client/ui-renderer
+      '@qilin-agent/client-ui-settings':
+        specifier: workspace:*
+        version: link:../../client/ui-settings
+      '@qilin-agent/client-ui-slots':
+        specifier: workspace:*
+        version: link:../../client/ui-slots
+      '@qilin-agent/experimental-translator':
+        specifier: workspace:*
+        version: link:../translator
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/session-persistence-jsonl':
+        specifier: workspace:*
+        version: link:../../session/session-persistence-jsonl
+      '@qilin-agent/session-query':
+        specifier: workspace:*
+        version: link:../../session-query/session-query
+      '@qilin-agent/settings':
+        specifier: workspace:*
+        version: link:../../settings/settings
+      '@qilin-agent/typert-protocol':
+        specifier: workspace:*
+        version: link:../../typert/protocol
+      '@qilin-agent/typert-registry':
+        specifier: workspace:*
+        version: link:../../typert/registry
+      '@testing-library/react':
+        specifier: ^16.3.3
+        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/react':
+        specifier: ~18.3.1
+        version: 18.3.31
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
+
   packages/experimental/client-ui-voice-input:
     devDependencies:
       '@qilin-agent/api-gateway':
@@ -7833,6 +7918,25 @@ importers:
       '@qilin-agent/tools':
         specifier: workspace:*
         version: link:../../core/tools
+
+  packages/experimental/cot-translation-bundle:
+    dependencies:
+      '@qilin-agent/experimental-client-ui-cot-translation':
+        specifier: workspace:*
+        version: link:../client-ui-cot-translation
+      '@qilin-agent/experimental-translator':
+        specifier: workspace:*
+        version: link:../translator
+    devDependencies:
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/kylin-plugin-include':
+        specifier: workspace:~
+        version: link:../../../vendor/include
+      js-yaml:
+        specifier: ^4.2.0
+        version: 4.3.1
 
   packages/experimental/hook-protocol:
     devDependencies:
@@ -17870,6 +17974,21 @@ packages:
       '@types/react-dom':
         optional: true
 
+  '@testing-library/react@16.3.3':
+    resolution: {integrity: sha512-Uo193NgQbPMz6lrrhtRQQFcMC6Re/ELLFbbuVL30WDlZxlpZf9/lMHTAVxPRLw1q1iu9OJmR1c2BLiENRstdBg==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@testing-library/dom': ^10.0.0
+      '@types/react': ^18.0.0 || ^19.0.0
+      '@types/react-dom': ^18.0.0 || ^19.0.0
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
   '@trycua/cua-driver-darwin-arm64@0.28.0':
     resolution: {integrity: sha512-T6xvOlCph5uropetrH6tNTvg5ipN9FUzV1n28gNJ1LYoNT3fsqnQUpCRMavlAui/zYkyMqCMaBUqBcfZLA+SnA==}
     cpu: [arm64]
@@ -24464,6 +24583,16 @@ snapshots:
       pretty-format: 27.5.1
 
   '@testing-library/react@16.3.2(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@babel/runtime': 7.29.7
+      '@testing-library/dom': 10.4.2
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 18.3.31
+      '@types/react-dom': 18.3.7(@types/react@18.3.31)
+
+  '@testing-library/react@16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.29.7
       '@testing-library/dom': 10.4.2

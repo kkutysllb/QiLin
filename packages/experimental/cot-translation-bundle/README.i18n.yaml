@@ -1,0 +1,37 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/experimental/cot-translation-bundle/README.md
+/:
+  en: 48432c317d712e6d
+  zh: 74d79e7df5bc9036
+/qilin-agent-experimental-cot-translation-bundle:
+  en: 3378d4918bba5c41
+  zh: cb0fbcd3020c6774
+/qilin-agent-experimental-cot-translation-bundle/summary:
+  en: b42d79a3fe61d3b2
+  zh: a65aef3e75acf942
+/qilin-agent-experimental-cot-translation-bundle/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: ce40cab8e7534137
+/qilin-agent-experimental-cot-translation-bundle/use-this-package:
+  en: df85052fa9b2a3e2
+  zh: 055117b9c30257af
+/qilin-agent-experimental-cot-translation-bundle/understand-the-implementation:
+  en: df56a846235d004d
+  zh: d7e0a54f6f6985f5
+/qilin-agent-experimental-cot-translation-bundle/further-exploration:
+  en: 2aa8c0ac19961d98
+  zh: 32c04ef80c5ae39c
+/qilin-agent-experimental-cot-translation-bundle/model-experience:
+  en: 3abb215d69a83fa6
+  zh: 5000ed802a0db760
+/qilin-agent-experimental-cot-translation-bundle/model-experience/kv-cache-effect:
+  en: 5166d17e971ebe00
+  zh: 8ed01428b946aadc
+/qilin-agent-experimental-cot-translation-bundle/known-limitations-and-deferred-work:
+  en: caafc57396d85a41
+  zh: 9c56f15ff1812139
+/qilin-agent-experimental-cot-translation-bundle/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 8ec3e73528ddb1a6
