@@ -5,63 +5,63 @@
 /:
   en: 6fd77b7a27000bf1
   zh: 4a9606aa75285111
-/qilin-client-test-runtime:
-  en: a4e8fc75cb5ebab8
-  zh: 85b391e9115fad68
-/qilin-client-test-runtime/summary:
+/qilin-agent-client-test-runtime:
+  en: 98930800a1b3f9df
+  zh: 40284d89485f924e
+/qilin-agent-client-test-runtime/summary:
   en: 7f54f8cd8f6bce97
   zh: 90527ba60f855dc2
-/qilin-client-test-runtime/table-of-contents:
+/qilin-agent-client-test-runtime/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-test-runtime/use-this-package:
+/qilin-agent-client-test-runtime/use-this-package:
   en: 12afbb217bc06678
   zh: c07f001ed8bb3300
-/qilin-client-test-runtime/use-this-package/setting-up-a-feature-spec:
+/qilin-agent-client-test-runtime/use-this-package/setting-up-a-feature-spec:
   en: 5e8a2e337ed9e83b
   zh: 5f4ccfd1566e6ddf
-/qilin-client-test-runtime/use-this-package/local-dom-snapshots:
+/qilin-agent-client-test-runtime/use-this-package/local-dom-snapshots:
   en: 1abbbed6cc4cf57b
   zh: ab3975178b589653
-/qilin-client-test-runtime/use-this-package/scripting-remote-answers-and-failures:
+/qilin-agent-client-test-runtime/use-this-package/scripting-remote-answers-and-failures:
   en: 577272f1d63f9003
   zh: a246b21b78f3ec70
-/qilin-client-test-runtime/use-this-package/whole-client-tier:
+/qilin-agent-client-test-runtime/use-this-package/whole-client-tier:
   en: f089ab96a088895d
   zh: 31852d191de6604d
-/qilin-client-test-runtime/use-this-package/roster-and-startup-behavior:
-  en: 592480354ca92e8e
-  zh: ca8dc4f067dc6fe5
-/qilin-client-test-runtime/use-this-package/when-to-use-it:
+/qilin-agent-client-test-runtime/use-this-package/roster-and-startup-behavior:
+  en: bb3ec77a5fb158e7
+  zh: e2251ec69a305feb
+/qilin-agent-client-test-runtime/use-this-package/when-to-use-it:
   en: eb2f9bc90acb7a62
   zh: cb59a2134bc83106
-/qilin-client-test-runtime/use-this-package/what-can-go-wrong:
+/qilin-agent-client-test-runtime/use-this-package/what-can-go-wrong:
   en: c6bfe837a9221cf5
   zh: 8d8fadea54f9e295
-/qilin-client-test-runtime/understand-the-implementation:
+/qilin-agent-client-test-runtime/understand-the-implementation:
   en: 70d19a7761d06ac9
   zh: 2a3e648ee3dc51c1
-/qilin-client-test-runtime/understand-the-implementation/design:
+/qilin-agent-client-test-runtime/understand-the-implementation/design:
   en: d9d7e2f11d3dfbc9
   zh: bfddde279a836900
-/qilin-client-test-runtime/understand-the-implementation/source-map:
+/qilin-agent-client-test-runtime/understand-the-implementation/source-map:
   en: b77fd15bc12265db
   zh: 1a14b6999978b72a
-/qilin-client-test-runtime/understand-the-implementation/lifecycle:
+/qilin-agent-client-test-runtime/understand-the-implementation/lifecycle:
   en: b42779f364504719
   zh: a10bad7ea1161388
-/qilin-client-test-runtime/further-exploration:
+/qilin-agent-client-test-runtime/further-exploration:
   en: 0863107ec91fd40d
   zh: 8d2851a6aa3a5245
-/qilin-client-test-runtime/model-experience:
+/qilin-agent-client-test-runtime/model-experience:
   en: 53b590e95981d312
   zh: 326a89a5a4e15155
-/qilin-client-test-runtime/model-experience/kv-cache-effect:
+/qilin-agent-client-test-runtime/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: f57cc48a1b5cbfa9
-/qilin-client-test-runtime/known-limitations-and-deferred-work:
+/qilin-agent-client-test-runtime/known-limitations-and-deferred-work:
   en: da5c7983453b2515
   zh: 7f558354e84abff5
-/qilin-client-test-runtime/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-test-runtime/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

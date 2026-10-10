@@ -5,66 +5,66 @@
 /:
   en: 97d39db1617684ea
   zh: de11ba354583a044
-/qilin-client-modules:
-  en: 0dbb4a4cafd0c94e
-  zh: c7b1b1c91742d081
-/qilin-client-modules/summary:
+/qilin-agent-client-modules:
+  en: 432934e9a24e5d51
+  zh: 636bd7be284ffaff
+/qilin-agent-client-modules/summary:
   en: 64739f589ecea862
   zh: e005d196708dec87
-/qilin-client-modules/table-of-contents:
+/qilin-agent-client-modules/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-modules/use-this-package:
+/qilin-agent-client-modules/use-this-package:
   en: a54173eb5ce76d7d
   zh: 84bcd799a6fd4b8f
-/qilin-client-modules/use-this-package/declaring-a-client-plugin:
+/qilin-agent-client-modules/use-this-package/declaring-a-client-plugin:
   en: 1bb948313ad8fc7e
   zh: 1739550243e3d675
-/qilin-client-modules/use-this-package/what-the-browser-loads:
+/qilin-agent-client-modules/use-this-package/what-the-browser-loads:
   en: a89a648d052a8c24
   zh: 7a74d21bdc3646a6
-/qilin-client-modules/use-this-package/live-plugin-composition:
+/qilin-agent-client-modules/use-this-package/live-plugin-composition:
   en: 45740a56e931d094
   zh: b3362af77c804459
-/qilin-client-modules/use-this-package/sharing-modules:
+/qilin-agent-client-modules/use-this-package/sharing-modules:
   en: 92ede132e44fdadd
   zh: 0537e6b259d96c87
-/qilin-client-modules/use-this-package/build-requirements:
+/qilin-agent-client-modules/use-this-package/build-requirements:
   en: b6a4d3b901c89efe
   zh: 615b5f3eec41f281
-/qilin-client-modules/understand-the-implementation:
+/qilin-agent-client-modules/understand-the-implementation:
   en: 7ab11d2c2bdc6eaa
   zh: 54c3c9091cf59711
-/qilin-client-modules/understand-the-implementation/design-concept:
+/qilin-agent-client-modules/understand-the-implementation/design-concept:
   en: 0f404d06120a7154
   zh: 997b3de32cc12cc8
-/qilin-client-modules/understand-the-implementation/lazy-cjs-model:
+/qilin-agent-client-modules/understand-the-implementation/lazy-cjs-model:
   en: 6d16b74acb333e3b
   zh: fcb3a20cc8c39e4a
-/qilin-client-modules/understand-the-implementation/incremental-composition:
+/qilin-agent-client-modules/understand-the-implementation/incremental-composition:
   en: 27c2fb0bef4b1e62
   zh: a93e04e590d02f10
-/qilin-client-modules/understand-the-implementation/boot-manifest-injection:
+/qilin-agent-client-modules/understand-the-implementation/boot-manifest-injection:
   en: 253d9f265cd83ed0
   zh: 9d0f8df84d9d3ac9
-/qilin-client-modules/understand-the-implementation/entry-ownership:
+/qilin-agent-client-modules/understand-the-implementation/entry-ownership:
   en: ae59769034d692fa
   zh: f71914d6f39b033a
-/qilin-client-modules/understand-the-implementation/source-map:
+/qilin-agent-client-modules/understand-the-implementation/source-map:
   en: c78a1df6b9b8d175
   zh: 0e8caae856a9365e
-/qilin-client-modules/further-exploration:
+/qilin-agent-client-modules/further-exploration:
   en: 6982d791300f6c02
   zh: d2ad2ffef0ba252f
-/qilin-client-modules/model-experience:
+/qilin-agent-client-modules/model-experience:
   en: abb2fc0416e1482c
   zh: 0e8a913d424a0c28
-/qilin-client-modules/model-experience/kv-cache-effect:
+/qilin-agent-client-modules/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: de54f3467ef3b9be
-/qilin-client-modules/known-limitations-and-deferred-work:
+/qilin-agent-client-modules/known-limitations-and-deferred-work:
   en: b1393f209a425e8d
   zh: 134a067d9c28e9ba
-/qilin-client-modules/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-modules/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

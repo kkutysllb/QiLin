@@ -2,21 +2,21 @@
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write apps/cli/README.md
-/qilin-cli:
-  en: 30f6f6d09ef3f96b
-  zh: 9215ee1c45f8a0f6
-/qilin-cli/entry-modes:
-  en: 8f3f0fe760a8a5aa
-  zh: 1a5566f392aa3161
-/qilin-cli/app-arguments:
+/qilin-agent-cli:
+  en: 063f13813a8fa190
+  zh: 682d157e19163ff0
+/qilin-agent-cli/entry-modes:
+  en: 5cb4d17ee0b92e7d
+  zh: c32511e0eea1e04f
+/qilin-agent-cli/app-arguments:
   en: 979c1c9bedaf1b3e
   zh: a77b6d9db2cfc191
-/qilin-cli/profiles:
-  en: 2403793fc28a4574
-  zh: b7655fd1d77a8501
-/qilin-cli/optional-overlays:
+/qilin-agent-cli/profiles:
+  en: 7d717e3a016726f8
+  zh: 9ffeeb5933153c80
+/qilin-agent-cli/optional-overlays:
   en: 55972a91e0d1d24d
   zh: 920ae26285d8e1b6
-/qilin-cli/development:
-  en: e83101b27f5dd5a3
-  zh: 17d66dcf09613c3c
+/qilin-agent-cli/development:
+  en: fa8d7705c54df6f5
+  zh: 8fe3f713cfe31dbf

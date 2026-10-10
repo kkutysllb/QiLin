@@ -1,5 +1,5 @@
 import z from '@qilin-agent/schemastery'
-import { WebhookRuleId } from '@qilin-agent/webhook'
+import { WebhookRuleId } from '@qilin-agent/experimental-webhook'
 
 export const name = 'github-webhook-real-e2e-rule'
 export const inject = ['webhookRuntime']

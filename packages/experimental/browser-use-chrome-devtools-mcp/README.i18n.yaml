@@ -5,42 +5,42 @@
 /:
   en: 49dd7963da817a62
   zh: a1a62d762aacc55d
-/qilin-experimental-browser-use-chrome-devtools-mcp:
-  en: b8f664492cf79b4e
-  zh: cb0d3e571d5afb1c
-/qilin-experimental-browser-use-chrome-devtools-mcp/summary:
+/qilin-agent-experimental-browser-use-chrome-devtools-mcp:
+  en: bd752c67adc8db46
+  zh: b2c3cbebc952f7c3
+/qilin-agent-experimental-browser-use-chrome-devtools-mcp/summary:
   en: 2860fff1092fd887
   zh: da67195905183d63
-/qilin-experimental-browser-use-chrome-devtools-mcp/table-of-contents:
+/qilin-agent-experimental-browser-use-chrome-devtools-mcp/table-of-contents:
   en: d152484eb41ac6b4
   zh: ea2227f28624a0e6
-/qilin-experimental-browser-use-chrome-devtools-mcp/use-this-package:
-  en: 87160336f2ba72af
-  zh: 1f5c9f68840fb047
-/qilin-experimental-browser-use-chrome-devtools-mcp/understand-the-implementation:
+/qilin-agent-experimental-browser-use-chrome-devtools-mcp/use-this-package:
+  en: 8301e9b9da8b168e
+  zh: 0936ca6870644b9d
+/qilin-agent-experimental-browser-use-chrome-devtools-mcp/understand-the-implementation:
   en: 6343933b148946ab
   zh: fcf41aee59c8f723
-/qilin-experimental-browser-use-chrome-devtools-mcp/further-exploration:
+/qilin-agent-experimental-browser-use-chrome-devtools-mcp/further-exploration:
   en: b0f340f9c45f630e
   zh: 28907e2dc111ae1a
-/qilin-experimental-browser-use-chrome-devtools-mcp/model-experience:
+/qilin-agent-experimental-browser-use-chrome-devtools-mcp/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-experimental-browser-use-chrome-devtools-mcp/model-experience/browser-tools-and-screenshots:
+/qilin-agent-experimental-browser-use-chrome-devtools-mcp/model-experience/browser-tools-and-screenshots:
   en: 1adc972910db543b
   zh: 7a06e0d265f19499
-/qilin-experimental-browser-use-chrome-devtools-mcp/model-experience/browser-tools-and-screenshots/what-the-model-sees:
+/qilin-agent-experimental-browser-use-chrome-devtools-mcp/model-experience/browser-tools-and-screenshots/what-the-model-sees:
   en: 54df6ff19fe6f99b
   zh: 8749f57c37836a69
-/qilin-experimental-browser-use-chrome-devtools-mcp/model-experience/browser-tools-and-screenshots/token-effect:
+/qilin-agent-experimental-browser-use-chrome-devtools-mcp/model-experience/browser-tools-and-screenshots/token-effect:
   en: bc6d5d5db77d5fc3
   zh: bbbd79e4ae29675f
-/qilin-experimental-browser-use-chrome-devtools-mcp/model-experience/browser-tools-and-screenshots/kv-cache-effect:
+/qilin-agent-experimental-browser-use-chrome-devtools-mcp/model-experience/browser-tools-and-screenshots/kv-cache-effect:
   en: 86e83cc10f829b2b
   zh: c2e61c09531a5de2
-/qilin-experimental-browser-use-chrome-devtools-mcp/known-limitations-and-deferred-work:
+/qilin-agent-experimental-browser-use-chrome-devtools-mcp/known-limitations-and-deferred-work:
   en: f7e7134450b91ae0
   zh: 3ae5c9a7c36a73fa
-/qilin-experimental-browser-use-chrome-devtools-mcp/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-experimental-browser-use-chrome-devtools-mcp/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 8ec3e73528ddb1a6

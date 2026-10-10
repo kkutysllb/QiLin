@@ -5,33 +5,33 @@
 /:
   en: c3e6e5964cf9df7d
   zh: a3874301c5f7745f
-/qilin-office-to-pdf:
-  en: e9469d36dc069d40
-  zh: 02208ea8e0722f82
-/qilin-office-to-pdf/summary:
+/qilin-agent-office-to-pdf:
+  en: 6f4b1127331e8380
+  zh: 38724ac09a46f84e
+/qilin-agent-office-to-pdf/summary:
   en: 5df2262ee89a5601
   zh: c999e9e5574ee169
-/qilin-office-to-pdf/table-of-contents:
+/qilin-agent-office-to-pdf/table-of-contents:
   en: d152484eb41ac6b4
   zh: a134331a31395608
-/qilin-office-to-pdf/use-this-package:
-  en: 19061acce2fcc7c9
-  zh: 929917333ca97d25
-/qilin-office-to-pdf/understand-the-implementation:
+/qilin-agent-office-to-pdf/use-this-package:
+  en: 488cf90f548e1525
+  zh: 0f3b6366f6c71342
+/qilin-agent-office-to-pdf/understand-the-implementation:
   en: 7365ecf20a1ce0d9
   zh: 9f927b4a2e4cec8d
-/qilin-office-to-pdf/further-exploration:
+/qilin-agent-office-to-pdf/further-exploration:
   en: a6e88b286ae5a83e
   zh: 9fd297c8c5385d6f
-/qilin-office-to-pdf/model-experience:
+/qilin-agent-office-to-pdf/model-experience:
   en: b03ae5780f8495eb
   zh: 2a5428663141e3db
-/qilin-office-to-pdf/model-experience/kv-cache-effect:
+/qilin-agent-office-to-pdf/model-experience/kv-cache-effect:
   en: e77332dfb6691852
   zh: 2d7ce43f908b35ef
-/qilin-office-to-pdf/known-limitations-and-deferred-work:
+/qilin-agent-office-to-pdf/known-limitations-and-deferred-work:
   en: 6cd56e2c8255ffd9
   zh: 75891a4136f929e0
-/qilin-office-to-pdf/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-office-to-pdf/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 8ec3e73528ddb1a6

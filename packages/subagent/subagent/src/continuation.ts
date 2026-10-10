@@ -14,6 +14,8 @@
  */
 
 import { randomUUID } from 'node:crypto'
+import { isAbsolute, resolve } from 'node:path'
+import type {} from '@qilin-agent/working-directory'
 import type { Context } from '@qilin-agent/kylin'
 import type { Agent } from '@qilin-agent/agent'
 import { brandString } from '@qilin-agent/brand'
@@ -135,8 +137,12 @@ export class SubagentContinuationManager {
     // but the service is also callable outside a turn.
     const releaseHold = this.activations.holdOwnership(parent, childId)
     try {
+      const cwd = request.cwd !== undefined && isAbsolute(request.cwd)
+        ? request.cwd
+        : resolve(await this.ctx.workingDirectory.ensure(parent, spec.signal), request.cwd ?? '.')
       const prepared = await this.host.prepareContinuable(spec.provider, {
         sessionId: childId,
+        cwd,
         parent,
         signal: spec.signal,
       })
@@ -163,6 +169,7 @@ export class SubagentContinuationManager {
           provider: spec.provider,
           parent,
           create: {
+            cwd,
             seed,
             meta: childSessionMeta(parent, childDepth, prepared.seed !== undefined),
             inheritedEventCount,

@@ -5,66 +5,66 @@
 /:
   en: 54aae1d7dea09ab4
   zh: 699d0db95231a419
-/qilin-client-ui-plugin-manager:
-  en: bb80f2c7472d0a8b
-  zh: 87416a2ea32b10ea
-/qilin-client-ui-plugin-manager/summary:
+/qilin-agent-client-ui-plugin-manager:
+  en: 2f7034afe322cfa2
+  zh: 660a619b918e3e49
+/qilin-agent-client-ui-plugin-manager/summary:
   en: a1cd7addf29b7284
   zh: 09310ec52505b20c
-/qilin-client-ui-plugin-manager/table-of-contents:
+/qilin-agent-client-ui-plugin-manager/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-ui-plugin-manager/use-this-package:
+/qilin-agent-client-ui-plugin-manager/use-this-package:
   en: e4db5084e80cf697
   zh: 4b32fd1da0cc3db1
-/qilin-client-ui-plugin-manager/use-this-package/installing-a-bundle:
+/qilin-agent-client-ui-plugin-manager/use-this-package/installing-a-bundle:
   en: bab43bebac3fe4cd
   zh: 96eceb9ee789a4da
-/qilin-client-ui-plugin-manager/use-this-package/checking-for-updates:
+/qilin-agent-client-ui-plugin-manager/use-this-package/checking-for-updates:
   en: ceba8fdd250ecebd
   zh: 7d0f4e9ab33b67ff
-/qilin-client-ui-plugin-manager/use-this-package/browsing-the-plugin-catalog:
+/qilin-agent-client-ui-plugin-manager/use-this-package/browsing-the-plugin-catalog:
   en: 62f539bfb416bfb6
   zh: f0c8237c08a75efa
-/qilin-client-ui-plugin-manager/use-this-package/switching-a-bundle:
-  en: 279838622081072a
-  zh: 54e0f0ebdab900c6
-/qilin-client-ui-plugin-manager/use-this-package/choosing-where-a-bundle-presents:
+/qilin-agent-client-ui-plugin-manager/use-this-package/switching-a-bundle:
+  en: a9e507f396c7947d
+  zh: 62e7a87607572c63
+/qilin-agent-client-ui-plugin-manager/use-this-package/choosing-where-a-bundle-presents:
   en: 09c9c59e6e7c0869
   zh: c2ba528aa9b5516c
-/qilin-client-ui-plugin-manager/use-this-package/switching-one-row-of-a-bundle:
+/qilin-agent-client-ui-plugin-manager/use-this-package/switching-one-row-of-a-bundle:
   en: 7345e211e194ff2f
   zh: 18530372079ad57c
-/qilin-client-ui-plugin-manager/use-this-package/configuration-pages:
+/qilin-agent-client-ui-plugin-manager/use-this-package/configuration-pages:
   en: 95871052d2bf58b6
   zh: e714d529c19e8fac
-/qilin-client-ui-plugin-manager/understand-the-implementation:
+/qilin-agent-client-ui-plugin-manager/understand-the-implementation:
   en: 8ca48e1365f18adf
   zh: 91eadd683d2d8b5b
-/qilin-client-ui-plugin-manager/understand-the-implementation/registration:
+/qilin-agent-client-ui-plugin-manager/understand-the-implementation/registration:
   en: b52cb5e3f14849d9
   zh: 2d38f8a0e36fa871
-/qilin-client-ui-plugin-manager/understand-the-implementation/the-store:
+/qilin-agent-client-ui-plugin-manager/understand-the-implementation/the-store:
   en: 2879e07b9d04eea4
   zh: 3174ca681c42ac6a
-/qilin-client-ui-plugin-manager/understand-the-implementation/the-audience-gate:
+/qilin-agent-client-ui-plugin-manager/understand-the-implementation/the-audience-gate:
   en: 61de883115038c08
   zh: 488949e6945e5455
-/qilin-client-ui-plugin-manager/understand-the-implementation/configuration-slots:
+/qilin-agent-client-ui-plugin-manager/understand-the-implementation/configuration-slots:
   en: e63fbf2c954feee1
   zh: 7b82cf5c32c69f86
-/qilin-client-ui-plugin-manager/further-exploration:
+/qilin-agent-client-ui-plugin-manager/further-exploration:
   en: 5c4ff276d7403fe6
   zh: 0bea301704097664
-/qilin-client-ui-plugin-manager/model-experience:
+/qilin-agent-client-ui-plugin-manager/model-experience:
   en: 8dcc6c6fbfb567d2
   zh: 43690ae350f1d6a7
-/qilin-client-ui-plugin-manager/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-plugin-manager/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: 2064958b0754647e
-/qilin-client-ui-plugin-manager/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-plugin-manager/known-limitations-and-deferred-work:
   en: 6a1631ae5fc2b11a
   zh: f3caeea551e8f737
-/qilin-client-ui-plugin-manager/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-plugin-manager/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

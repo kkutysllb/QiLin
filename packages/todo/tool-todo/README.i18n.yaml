@@ -5,84 +5,84 @@
 /:
   en: 5d14fe558ca0a570
   zh: b7c9a49b84d2d6ee
-/qilin-tool-todo:
-  en: 96e2436d6f7240ae
-  zh: 97b45b50cd8358e3
-/qilin-tool-todo/summary:
+/qilin-agent-tool-todo:
+  en: 946feb5db5a11d36
+  zh: b84b1e9f6831e990
+/qilin-agent-tool-todo/summary:
   en: 92b7141db333b73d
   zh: e71156fb397bdcb1
-/qilin-tool-todo/table-of-contents:
+/qilin-agent-tool-todo/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-tool-todo/use-this-package:
+/qilin-agent-tool-todo/use-this-package:
   en: d10c650faab8695d
   zh: 6018b5a53501d88b
-/qilin-tool-todo/use-this-package/when-to-choose-it:
+/qilin-agent-tool-todo/use-this-package/when-to-choose-it:
   en: c964ee10289fcd21
   zh: 4c1e68220906eb06
-/qilin-tool-todo/use-this-package/minimal-configuration:
-  en: 48796c7f34c665f7
-  zh: 7ec06ea21cc9215d
-/qilin-tool-todo/use-this-package/what-each-call-does:
+/qilin-agent-tool-todo/use-this-package/minimal-configuration:
+  en: bcb21fd79d25efe6
+  zh: d50b5f38de278ccc
+/qilin-agent-tool-todo/use-this-package/what-each-call-does:
   en: 415a6775984f539d
   zh: 04e6f16e7c81b8ba
-/qilin-tool-todo/use-this-package/single-owner:
+/qilin-agent-tool-todo/use-this-package/single-owner:
   en: f051cbd97dab2436
   zh: 18976a8affed8cab
-/qilin-tool-todo/understand-the-implementation:
+/qilin-agent-tool-todo/understand-the-implementation:
   en: 8d94a7381bca3fa9
   zh: f4bd2866fff6fa8d
-/qilin-tool-todo/understand-the-implementation/design-philosophy:
+/qilin-agent-tool-todo/understand-the-implementation/design-philosophy:
   en: 2b33eea8c2983af5
   zh: d15749d2b8be1458
-/qilin-tool-todo/understand-the-implementation/source-map:
+/qilin-agent-tool-todo/understand-the-implementation/source-map:
   en: 51328ad8c7fcbfd0
   zh: 2614ec42b61ff3ef
-/qilin-tool-todo/understand-the-implementation/export-shape:
+/qilin-agent-tool-todo/understand-the-implementation/export-shape:
   en: d824168c34a8a445
   zh: e3f2675be1220089
-/qilin-tool-todo/understand-the-implementation/session-projection:
-  en: 491df8186d075f12
-  zh: f1ce31ca8bd5e6ea
-/qilin-tool-todo/understand-the-implementation/call-mechanics:
+/qilin-agent-tool-todo/understand-the-implementation/session-projection:
+  en: 73fa9e3a0aaa3300
+  zh: 3fe41734e99bfc45
+/qilin-agent-tool-todo/understand-the-implementation/call-mechanics:
   en: d55f6a32b05ed686
   zh: c815f930a2acebda
-/qilin-tool-todo/further-exploration:
-  en: eae97fa09e771ff5
-  zh: ac115f0b53cde53a
-/qilin-tool-todo/model-experience:
+/qilin-agent-tool-todo/further-exploration:
+  en: 5128429dc2df267f
+  zh: 0f424f912a6076a4
+/qilin-agent-tool-todo/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-tool-todo/model-experience/tool-schema:
+/qilin-agent-tool-todo/model-experience/tool-schema:
   en: e4c7376d4f29dbd5
   zh: 6b7a9eaf69c9ea53
-/qilin-tool-todo/model-experience/tool-schema/what-the-model-sees:
-  en: bff2f2d9b1c4f8a7
-  zh: 5808618d5cb7ebd5
-/qilin-tool-todo/model-experience/tool-schema/token-effect:
+/qilin-agent-tool-todo/model-experience/tool-schema/what-the-model-sees:
+  en: 75edacbc608c1f8b
+  zh: 53b43004995a9a2d
+/qilin-agent-tool-todo/model-experience/tool-schema/token-effect:
   en: a0a8f5ec3db0f500
   zh: eac37a524c6e777e
-/qilin-tool-todo/model-experience/tool-schema/kv-cache-effect:
+/qilin-agent-tool-todo/model-experience/tool-schema/kv-cache-effect:
   en: b385b04c94496e5b
   zh: 3a361ac90ef5f037
-/qilin-tool-todo/model-experience/tool-call-history-and-result:
+/qilin-agent-tool-todo/model-experience/tool-call-history-and-result:
   en: 9717b983b6a857e3
   zh: 611a2dadf7c0c706
-/qilin-tool-todo/model-experience/tool-call-history-and-result/what-the-model-sees:
+/qilin-agent-tool-todo/model-experience/tool-call-history-and-result/what-the-model-sees:
   en: 05644654d1bce8c6
   zh: ea2a42470fbb2ee1
-/qilin-tool-todo/model-experience/tool-call-history-and-result/token-effect:
+/qilin-agent-tool-todo/model-experience/tool-call-history-and-result/token-effect:
   en: 7763a0e875faf53d
   zh: fe33c3973215dc53
-/qilin-tool-todo/model-experience/tool-call-history-and-result/kv-cache-effect:
+/qilin-agent-tool-todo/model-experience/tool-call-history-and-result/kv-cache-effect:
   en: f5d5f97a153f7c70
   zh: a5411047e008a0c1
-/qilin-tool-todo/known-limitations-and-deferred-work:
+/qilin-agent-tool-todo/known-limitations-and-deferred-work:
   en: 71e2aed21b2545c3
   zh: 775300a3618a861a
-/qilin-tool-todo/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-tool-todo/known-limitations-and-deferred-work/dev-note:
   en: ac1d08360a93382b
   zh: 703a65fbcc38edc7
-/qilin-tool-todo/known-limitations-and-deferred-work/dev-note/future-cross-agent-and-shared-lists:
+/qilin-agent-tool-todo/known-limitations-and-deferred-work/dev-note/future-cross-agent-and-shared-lists:
   en: 071b9c5be71f799f
   zh: dee15fe922a3ab95

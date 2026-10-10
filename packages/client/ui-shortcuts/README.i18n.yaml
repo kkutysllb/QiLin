@@ -5,33 +5,33 @@
 /:
   en: 425afaf83c04db08
   zh: d9e6db1541ba0911
-/qilin-client-ui-shortcuts:
-  en: 854a54c8e3491b55
-  zh: 36fb56b23988fe4f
-/qilin-client-ui-shortcuts/summary:
+/qilin-agent-client-ui-shortcuts:
+  en: 230793d9ab3347c1
+  zh: 8532d7810fbadcb4
+/qilin-agent-client-ui-shortcuts/summary:
   en: 17b5fa1a23fa2756
   zh: ec6223b8d2a090f0
-/qilin-client-ui-shortcuts/table-of-contents:
+/qilin-agent-client-ui-shortcuts/table-of-contents:
   en: d152484eb41ac6b4
   zh: 0cd57b7b8d8c9b59
-/qilin-client-ui-shortcuts/use-this-package:
+/qilin-agent-client-ui-shortcuts/use-this-package:
   en: e0cee33b3c686989
   zh: 0f1fb5266c101d9f
-/qilin-client-ui-shortcuts/understand-the-implementation:
+/qilin-agent-client-ui-shortcuts/understand-the-implementation:
   en: f56f2610e7258825
   zh: 249d7cdd55c57166
-/qilin-client-ui-shortcuts/further-exploration:
+/qilin-agent-client-ui-shortcuts/further-exploration:
   en: d39dc0f732bcdaa4
   zh: 1334d5aaf59e787c
-/qilin-client-ui-shortcuts/model-experience:
+/qilin-agent-client-ui-shortcuts/model-experience:
   en: 3120df665299c634
   zh: e2dc75ed76d271bc
-/qilin-client-ui-shortcuts/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-shortcuts/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: a0e9f8d52b4b62ee
-/qilin-client-ui-shortcuts/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-shortcuts/known-limitations-and-deferred-work:
   en: 6453cd72a8d1fb3f
   zh: 454aad67452563c6
-/qilin-client-ui-shortcuts/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-shortcuts/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: e88aeb617ffb74ea

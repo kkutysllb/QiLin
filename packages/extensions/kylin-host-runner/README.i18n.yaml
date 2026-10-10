@@ -5,66 +5,66 @@
 /:
   en: 3de716c1fb132608
   zh: 30dbce3949ce9f0c
-/qilin-kylin-host-runner:
-  en: 2ea0888e4228e68d
-  zh: 53db72567ab651ad
-/qilin-kylin-host-runner/summary:
+/qilin-agent-kylin-host-runner:
+  en: a7b95246fda81178
+  zh: 71b11cd4bdd8be48
+/qilin-agent-kylin-host-runner/summary:
   en: db709f4d4f1f49ac
   zh: 006317c8ac79e257
-/qilin-kylin-host-runner/table-of-contents:
+/qilin-agent-kylin-host-runner/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-kylin-host-runner/use-this-package:
+/qilin-agent-kylin-host-runner/use-this-package:
   en: bdaba8036acf80c9
   zh: 2dd8f972c3023a8a
-/qilin-kylin-host-runner/use-this-package/minimal-configuration:
-  en: 07140d1c3c5643ab
-  zh: 3a1cfd7dda976c6d
-/qilin-kylin-host-runner/use-this-package/client-inspection:
+/qilin-agent-kylin-host-runner/use-this-package/minimal-configuration:
+  en: 44e9dd3103c14698
+  zh: 9f92bf445e6983a6
+/qilin-agent-kylin-host-runner/use-this-package/client-inspection:
   en: b4a2fe9e7aa9dee7
   zh: 56f55558809970da
-/qilin-kylin-host-runner/use-this-package/what-a-run-does:
+/qilin-agent-kylin-host-runner/use-this-package/what-a-run-does:
   en: a3c86c081974a710
   zh: 180e1b7824c070d4
-/qilin-kylin-host-runner/use-this-package/what-happens-to-definitions:
+/qilin-agent-kylin-host-runner/use-this-package/what-happens-to-definitions:
   en: d1a8777f171d22bb
   zh: 7f6aa4c2680557b1
-/qilin-kylin-host-runner/use-this-package/trust-stance:
+/qilin-agent-kylin-host-runner/use-this-package/trust-stance:
   en: 3c83e56d1c7a026c
   zh: f127c65922a51b92
-/qilin-kylin-host-runner/understand-the-implementation:
+/qilin-agent-kylin-host-runner/understand-the-implementation:
   en: b0a536c0d00cbdb8
   zh: 08e5d813aa6a612a
-/qilin-kylin-host-runner/understand-the-implementation/design-philosophy:
+/qilin-agent-kylin-host-runner/understand-the-implementation/design-philosophy:
   en: 2193b1c446b388fc
   zh: f8c01188d5ca2a3b
-/qilin-kylin-host-runner/understand-the-implementation/source-map:
+/qilin-agent-kylin-host-runner/understand-the-implementation/source-map:
   en: f567eacc1072b96c
   zh: 8747f8453fff9553
-/qilin-kylin-host-runner/understand-the-implementation/how-a-run-flows:
-  en: 0dc7542abbfc613b
-  zh: 48ae64fd474adabf
-/qilin-kylin-host-runner/further-exploration:
-  en: d7aef34e107e9dda
-  zh: 063bb361dc05bc07
-/qilin-kylin-host-runner/model-experience:
+/qilin-agent-kylin-host-runner/understand-the-implementation/how-a-run-flows:
+  en: 1c08316367cb60b4
+  zh: c95e3daa37d22d7d
+/qilin-agent-kylin-host-runner/further-exploration:
+  en: d94eb314d2221bee
+  zh: df852b9b5e3a0a70
+/qilin-agent-kylin-host-runner/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-kylin-host-runner/model-experience/run-outcomes-refusals-and-diagnostics-relayed-to-the-owning-session:
+/qilin-agent-kylin-host-runner/model-experience/run-outcomes-refusals-and-diagnostics-relayed-to-the-owning-session:
   en: f53130bb645f50df
   zh: 603361c566527789
-/qilin-kylin-host-runner/model-experience/run-outcomes-refusals-and-diagnostics-relayed-to-the-owning-session/what-the-model-sees:
+/qilin-agent-kylin-host-runner/model-experience/run-outcomes-refusals-and-diagnostics-relayed-to-the-owning-session/what-the-model-sees:
   en: 743dbef78fa3a8ad
   zh: 2aa4e404e908cf22
-/qilin-kylin-host-runner/model-experience/run-outcomes-refusals-and-diagnostics-relayed-to-the-owning-session/token-effect:
+/qilin-agent-kylin-host-runner/model-experience/run-outcomes-refusals-and-diagnostics-relayed-to-the-owning-session/token-effect:
   en: c7ef63dd8179a97e
   zh: e66545088d00956a
-/qilin-kylin-host-runner/model-experience/run-outcomes-refusals-and-diagnostics-relayed-to-the-owning-session/kv-cache-effect:
+/qilin-agent-kylin-host-runner/model-experience/run-outcomes-refusals-and-diagnostics-relayed-to-the-owning-session/kv-cache-effect:
   en: bbc4338c3035757a
   zh: f51f4848786d5606
-/qilin-kylin-host-runner/known-limitations-and-deferred-work:
+/qilin-agent-kylin-host-runner/known-limitations-and-deferred-work:
   en: 1f10688ae249a077
   zh: c1a86dd36c92e05e
-/qilin-kylin-host-runner/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-kylin-host-runner/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

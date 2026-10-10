@@ -28,6 +28,7 @@ import * as SubagentFork from '@qilin-agent/subagent-fork-in-process'
 import { MockAdapter, textResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
 import { TestSessionQuery } from './test-session-query.ts'
 import { seedStoredSession } from './persistence-helpers.ts'
+import { mountWorkingDirectoryFixture } from './working-directory-fixture.ts'
 
 type Script = ConstructorParameters<typeof MockAdapter>[0]
 
@@ -70,6 +71,7 @@ async function setup(
     projectionCacheDisposers.push(() => cache.dispose())
   }
   await ctx.plugin(TestSessionQuery)
+  await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(SubagentRuntime)
   await ctx.plugin(SubagentSpawn, { providerName: 'spawn' })
   await ctx.plugin(SubagentFork, { providerName: 'fork' })
@@ -288,6 +290,7 @@ describe('SubagentRuntime.listChildren', () => {
     await ctx.plugin(SessionStore)
     await ctx.plugin(SessionProjectionRegistry)
     await ctx.plugin(TestSessionQuery)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     const ancestor = ctx.sessions.create(SessionId('catalog-ancestor'))
     ancestor.append('turn/start', { turn: 1 })
@@ -317,6 +320,7 @@ describe('SubagentRuntime.listChildren', () => {
     await ctx.plugin(SessionStore)
     await ctx.plugin(SessionProjectionRegistry)
     await ctx.plugin(TestSessionQuery)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     const parent = ctx.sessions.create(SessionId('chunk-parent'))
     for (let index = 0; index < 1_001; index += 1) {
@@ -348,6 +352,7 @@ describe('SubagentRuntime.listChildren', () => {
   it('fails loud when the query service is unavailable', async () => {
     const withoutProjection = new Context()
     await withoutProjection.plugin(SessionStore)
+    await mountWorkingDirectoryFixture(withoutProjection)
     await withoutProjection.plugin(SubagentRuntime)
     const parent = withoutProjection.sessions.create(SessionId('parent'))
     await expect(withoutProjection.subagents.listChildren(parent.id)).rejects.toMatchObject({
@@ -562,6 +567,7 @@ describe('SubagentRuntime.listDescendants', () => {
   it('fails loud when descendant enumeration lacks the Session store or query service', async () => {
     const withoutStore = new Context()
     await withoutStore.plugin(SessionProjectionRegistry)
+    await mountWorkingDirectoryFixture(withoutStore)
     await withoutStore.plugin(SubagentRuntime)
     await expect(withoutStore.subagents.listDescendants(SessionId('no-store-parent'))).rejects.toMatchObject({
       code: 'SUBAGENT_CONTROL_SESSION_STORE_UNAVAILABLE',
@@ -570,6 +576,7 @@ describe('SubagentRuntime.listDescendants', () => {
     const withoutQuery = new Context()
     await withoutQuery.plugin(SessionStore)
     await withoutQuery.plugin(SessionProjectionRegistry)
+    await mountWorkingDirectoryFixture(withoutQuery)
     await withoutQuery.plugin(SubagentRuntime)
     await expect(withoutQuery.subagents.listDescendants(SessionId('no-query-parent'))).rejects.toMatchObject({
       code: 'SUBAGENT_CONTROL_QUERY_UNAVAILABLE',
@@ -768,6 +775,7 @@ describe('SubagentRuntime.listDescendants', () => {
   it('fails loud when the projection registry is not mounted', async () => {
     const ctx = new Context()
     await ctx.plugin(SessionStore)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     await expect(ctx.subagents.listDescendants(SessionId('no-projections-root'))).rejects.toThrow(
       expect.objectContaining({ code: 'SUBAGENT_CONTROL_PROJECTIONS_UNAVAILABLE' }) as Error,

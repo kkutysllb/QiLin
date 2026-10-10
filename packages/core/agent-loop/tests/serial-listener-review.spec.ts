@@ -18,6 +18,7 @@ import Selection from '@qilin-agent/tool-subagent/model-selection-settings'
 import type { Agent } from '@qilin-agent/agent'
 import { createUserMessage } from '@qilin-agent/llm'
 import type { ContextFormed } from '@qilin-agent/llm'
+import { mountWorkingDirectoryFixture } from '../../../subagent/subagent/tests/working-directory-fixture.ts'
 
 declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
@@ -104,6 +105,7 @@ describe('serial creation listener integrations', () => {
     const errors: string[] = []
     ctx.logger.error = ((error: unknown) => { errors.push(String(error)) }) as typeof ctx.logger.error
     await ctx.plugin(Selection)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     await ctx.plugin(SubagentSpawn, { providerName: 'spawn' })
     const preset = createScope(ctx, { preset: 'review' })

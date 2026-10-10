@@ -114,6 +114,7 @@ terminal model 使用浏览器安全入口 `@qilin-agent/spill-policy/notice` �
 这些限制定义分派深度与视图归属；它们是当前包约束。
 
 - **Host 不把 `run_code` 暴露为 PTC mode 程序 binding**：生产事件只产生一层分发；递归的运行时/UI 约定支持嵌套。
+- **历史嵌套相对位置**：持久化了展示元数据的嵌套 dispatch 使用其记录的目标；缺少该元数据的旧记录回落到调用自身参数，相对目标保持原样。
 - **第一方工具视图集中在本包**：它们可以通过 keyed slot 独立迁移到各自所属的业务包。
 - **工具文案复用 `ui-conversation` locale namespace**：工具标题、行 chrome 与无 Kylin 的 primitive label 使用该字典；展示转换器模型保留 locale key 或数据，而不是已渲染文案。
 

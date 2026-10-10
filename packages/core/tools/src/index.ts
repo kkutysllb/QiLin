@@ -19,6 +19,10 @@ import type {} from '@qilin-agent/sandbox-policy'
 // Type-only: makes `ctx.get('approval')` resolve to the ApprovalService
 // augmentation. The seam stays optional at runtime — see `serviceAsk`.
 import type {} from '@qilin-agent/user-approval'
+// Type-only: makes `ctx.get('workingDirectory')` in `requirePtcTransport`
+// resolve to the WorkingDirectoryService augmentation. The service stays
+// optional for Agent-less registries.
+import type {} from '@qilin-agent/working-directory'
 import type { ToolCallView, ToolResultView } from './presentation.ts'
 import { assertSupportedJsonSchema, validateJsonSchemaValue } from './json-schema.ts'
 import type { JsonSchemaNode } from './json-schema.ts'
@@ -215,7 +219,7 @@ export interface ToolOutputDefinition {
   readonly schema: JsonSchemaNode
   /** Pure projection from validated arguments and value to Native/model content. */
   render(args: unknown, value: JsonValue): ContentBlock[]
-  /** Pure replayable presentation projection, computed only for top-level calls. */
+  /** Pure replayable presentation projection for native and nested calls. */
   presentationMeta?(args: unknown, value: JsonValue): JsonValue
 }
 
@@ -935,6 +939,14 @@ export class ToolRuntime extends Service {
    */
   private requirePtcTransport(): ToolDefinition {
     this.ptcTransport ??= createRunCodeTool(this, {
+      resolveWorkingDirectory: async (exec) => {
+        // Only Agent-owned PTC requires directory state; native registries
+        // and unowned programs can run without this service.
+        if (exec.agent === undefined) return undefined
+        const directories = this.ctx.get('workingDirectory')
+        if (directories === undefined) throw new Error('qilin-tools: run_code with an Agent requires workingDirectory')
+        return directories.ensure(exec.agent, exec.signal)
+      },
       requireRuntime: () => this.requirePtcRuntime(this.defaultMode),
       peekApprover: () => this.ctx.get('approval'),
       resolveSandboxPolicy: (exec) => {
@@ -1826,7 +1838,7 @@ export class ToolRuntime extends Service {
     }
     const content = snapshotProjection(tool.name, 'render', rendered)
     let meta: JsonValue | undefined
-    if (exec.parent === undefined && tool.output.presentationMeta !== undefined) {
+    if (tool.output.presentationMeta !== undefined) {
       let projected: JsonValue
       try {
         projected = tool.output.presentationMeta(exec.arguments, value)

@@ -5,51 +5,51 @@
 /:
   en: 5beac554c13460fd
   zh: 54b7b2e34a797628
-/qilin-client-ui-slots:
-  en: e0f16ecfac017064
-  zh: 28bdea1e84476351
-/qilin-client-ui-slots/summary:
+/qilin-agent-client-ui-slots:
+  en: 54424b7979721f41
+  zh: 3f084b16be3e9f18
+/qilin-agent-client-ui-slots/summary:
   en: 974552cacd652bd5
   zh: 2c51e79b2dc3ffcb
-/qilin-client-ui-slots/table-of-contents:
+/qilin-agent-client-ui-slots/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-ui-slots/use-this-package:
+/qilin-agent-client-ui-slots/use-this-package:
   en: 05691d44a0c6c48f
   zh: 434033d5761297f3
-/qilin-client-ui-slots/use-this-package/reusable-component-factories:
+/qilin-agent-client-ui-slots/use-this-package/reusable-component-factories:
   en: 301de67bf2779ae6
   zh: 6e9d405ee1063d53
-/qilin-client-ui-slots/use-this-package/the-five-framework-props-shares:
+/qilin-agent-client-ui-slots/use-this-package/the-five-framework-props-shares:
   en: 45e2933a5e084956
   zh: 938deedaf489f892
-/qilin-client-ui-slots/use-this-package/store-seats:
+/qilin-agent-client-ui-slots/use-this-package/store-seats:
   en: 0d1c2948112841ec
   zh: fc5a998cea485024
-/qilin-client-ui-slots/use-this-package/declaration-discipline:
+/qilin-agent-client-ui-slots/use-this-package/declaration-discipline:
   en: 8a41014931ffccd5
   zh: 615f93335a682b01
-/qilin-client-ui-slots/understand-the-implementation:
+/qilin-agent-client-ui-slots/understand-the-implementation:
   en: 983e6c0e71105f65
   zh: 75af8d36dd8223fd
-/qilin-client-ui-slots/understand-the-implementation/registration-and-routing:
+/qilin-agent-client-ui-slots/understand-the-implementation/registration-and-routing:
   en: 0638aaadacadb6f1
   zh: cb6324ef5c9e1ade
-/qilin-client-ui-slots/understand-the-implementation/the-renderer-contract:
+/qilin-agent-client-ui-slots/understand-the-implementation/the-renderer-contract:
   en: 2b6058e98fb1efe7
   zh: f32e37c8381809b9
-/qilin-client-ui-slots/further-exploration:
+/qilin-agent-client-ui-slots/further-exploration:
   en: 5f9dfd481b3adb72
   zh: c39a3b01252192a4
-/qilin-client-ui-slots/model-experience:
+/qilin-agent-client-ui-slots/model-experience:
   en: 3120df665299c634
   zh: 67bb5e1fe59dae19
-/qilin-client-ui-slots/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-slots/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: de54f3467ef3b9be
-/qilin-client-ui-slots/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-slots/known-limitations-and-deferred-work:
   en: 093b1c5076ddfd6d
   zh: 3069c423115492fe
-/qilin-client-ui-slots/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-slots/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

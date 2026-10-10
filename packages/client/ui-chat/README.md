@@ -84,7 +84,7 @@ Non-human input claimed from the next-turn Inbox appears as an independent trigg
 <a id="tool-call-nodes"></a>
 ## Tool call nodes
 
-The `tool-call` Chat Node owns one call's preparing, dispatched, and result stages under a single callId, so a call that the model names before its arguments are complete appears once and keeps its identity when `tool/call` arrives. Live tool deltas share reasoning's frame-batched publication; durable calls and results publish immediately. Repeated named deltas retain the Tool node and its data reference when the projected call, anchor, location, and visibility are unchanged. Historical windows never expand a settled Assistant message back into live deltas, so replay presents start → result directly.
+The `tool-call` Chat Node owns one call's preparing, dispatched, and result stages under a single callId, so a call that the model names before its arguments are complete appears once and keeps its identity when `tool/call` arrives. Live tool deltas share reasoning's frame-batched publication; durable calls and results publish immediately. Native and nested results retain event presentation metadata, so historical file and command labels use the operation's location. Repeated named deltas retain the Tool node and its data reference when the projected call, anchor, location, and visibility are unchanged. Historical windows never expand a settled Assistant message back into live deltas, so replay presents start → result directly.
 
 -----
 

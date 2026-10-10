@@ -153,9 +153,11 @@ describe('the shipped preset root', () => {
     }
   })
 
-  it('disables the ralph tool in every shipped preset that carries it', async () => {
+  it('keeps the ralph tool out of the shipped preset root', async () => {
+    // The ralph capability moved to an experimental package: the shipped presets
+    // declare no row for it, so enabling it takes an explicit installation.
     for (const id of ['cordis', 'ptc', 'standard']) {
-      expect(findEntry(await shippedEntries(id), 'tool-ralph')?.disabled, id).toBe(true)
+      expect(findEntry(await shippedEntries(id), 'tool-ralph'), id).toBeUndefined()
     }
   })
 })

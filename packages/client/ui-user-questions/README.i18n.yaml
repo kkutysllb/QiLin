@@ -5,48 +5,48 @@
 /:
   en: 13e42622514cbe43
   zh: 0220a98a1eac72f4
-/qilin-client-ui-user-questions:
-  en: be4a03eeb9e18e85
-  zh: 34deda5d4cb2034d
-/qilin-client-ui-user-questions/summary:
+/qilin-agent-client-ui-user-questions:
+  en: f90a3dfdb991f7e1
+  zh: e8e569720b5c4dfe
+/qilin-agent-client-ui-user-questions/summary:
   en: 7e81c6a53759ff37
   zh: b83f666c4ef4cbd3
-/qilin-client-ui-user-questions/table-of-contents:
+/qilin-agent-client-ui-user-questions/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-ui-user-questions/use-this-package:
+/qilin-agent-client-ui-user-questions/use-this-package:
   en: 4aa048dcb7282f12
   zh: d2731da0870aa6a0
-/qilin-client-ui-user-questions/use-this-package/answering:
+/qilin-agent-client-ui-user-questions/use-this-package/answering:
   en: 8b6f37bfb11a2c3a
   zh: 59d8951211f9b21b
-/qilin-client-ui-user-questions/use-this-package/the-plan-review-card:
+/qilin-agent-client-ui-user-questions/use-this-package/the-plan-review-card:
   en: 956f8d409e63d6ef
   zh: a50fcd2f30c473c7
-/qilin-client-ui-user-questions/use-this-package/failure-and-recovery:
+/qilin-agent-client-ui-user-questions/use-this-package/failure-and-recovery:
   en: da530ef485c07417
   zh: b07525cfcd5034f0
-/qilin-client-ui-user-questions/understand-the-implementation:
+/qilin-agent-client-ui-user-questions/understand-the-implementation:
   en: 77e1b2585acdf67b
   zh: d433ec185c6b8f57
-/qilin-client-ui-user-questions/understand-the-implementation/intent-surface-election:
+/qilin-agent-client-ui-user-questions/understand-the-implementation/intent-surface-election:
   en: 7f3e0e2460317462
   zh: cb6b9410410e2f29
-/qilin-client-ui-user-questions/understand-the-implementation/copy-and-locale:
+/qilin-agent-client-ui-user-questions/understand-the-implementation/copy-and-locale:
   en: a1c3107133be67e1
   zh: 7360dcc78fdc9de1
-/qilin-client-ui-user-questions/further-exploration:
+/qilin-agent-client-ui-user-questions/further-exploration:
   en: 386261a510da12be
   zh: e980853275da8aad
-/qilin-client-ui-user-questions/model-experience:
+/qilin-agent-client-ui-user-questions/model-experience:
   en: 2c410f527afb6e88
   zh: d5e5a751d044170a
-/qilin-client-ui-user-questions/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-user-questions/model-experience/kv-cache-effect:
   en: fa1c388ea39d02b0
   zh: 70152186ca395643
-/qilin-client-ui-user-questions/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-user-questions/known-limitations-and-deferred-work:
   en: beb6dc6d1496e799
   zh: d92150a88a797c21
-/qilin-client-ui-user-questions/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-user-questions/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

@@ -5,60 +5,60 @@
 /:
   en: a4e18d5b27337d71
   zh: 2220eba5dfcdb1f3
-/qilin-permission-presets:
-  en: 6192344853094cef
-  zh: d243cd94f44c6893
-/qilin-permission-presets/summary:
+/qilin-agent-permission-presets:
+  en: 8c63016e68761f9f
+  zh: 9b93354829e9e6e2
+/qilin-agent-permission-presets/summary:
   en: 75a5c477313feb23
   zh: 9e036411e14edf1b
-/qilin-permission-presets/table-of-contents:
+/qilin-agent-permission-presets/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-permission-presets/use-this-package:
+/qilin-agent-permission-presets/use-this-package:
   en: 0b93409c92e2a769
   zh: 4b4e10636760bb15
-/qilin-permission-presets/use-this-package/configuring-presets:
-  en: a614fcd9e0bde09f
-  zh: 1ada39965509e9d9
-/qilin-permission-presets/use-this-package/switching-presets:
+/qilin-agent-permission-presets/use-this-package/configuring-presets:
+  en: 8ed60bb05ac74e1f
+  zh: 5ec59048e4197857
+/qilin-agent-permission-presets/use-this-package/switching-presets:
   en: ede3169d799a7578
   zh: f86663f08513e334
-/qilin-permission-presets/use-this-package/what-users-see:
+/qilin-agent-permission-presets/use-this-package/what-users-see:
   en: 628a5bdd956e206c
   zh: c1cf0c8c3ca951f3
-/qilin-permission-presets/use-this-package/session-defaults:
+/qilin-agent-permission-presets/use-this-package/session-defaults:
   en: 88218998b169a203
   zh: 7a3646ff0ca28549
-/qilin-permission-presets/understand-the-implementation:
+/qilin-agent-permission-presets/understand-the-implementation:
   en: f5c37bc882b3f0d1
   zh: 8203bea78976aefc
-/qilin-permission-presets/understand-the-implementation/source-map:
+/qilin-agent-permission-presets/understand-the-implementation/source-map:
   en: 172f5c8af5705ada
   zh: b424834e38adb25d
-/qilin-permission-presets/understand-the-implementation/write-path:
+/qilin-agent-permission-presets/understand-the-implementation/write-path:
   en: 7849925fc5f1596d
   zh: 4472b72ff42052eb
-/qilin-permission-presets/understand-the-implementation/read-side-and-custom:
+/qilin-agent-permission-presets/understand-the-implementation/read-side-and-custom:
   en: c9ca792038f44654
   zh: 9301177fd946d341
-/qilin-permission-presets/understand-the-implementation/session-pinning-and-blank-reuse:
+/qilin-agent-permission-presets/understand-the-implementation/session-pinning-and-blank-reuse:
   en: 893cea88bce22903
   zh: 2431e19ced670511
-/qilin-permission-presets/understand-the-implementation/catalog-projection-and-optional-command:
+/qilin-agent-permission-presets/understand-the-implementation/catalog-projection-and-optional-command:
   en: 2e79bec74274b054
   zh: 256526ab1b4b55e9
-/qilin-permission-presets/further-exploration:
+/qilin-agent-permission-presets/further-exploration:
   en: fff05ec201fad835
   zh: c883207acc30a7fc
-/qilin-permission-presets/model-experience:
+/qilin-agent-permission-presets/model-experience:
   en: ab4d09e8779f70fb
   zh: 654653a19a311795
-/qilin-permission-presets/model-experience/kv-cache-effect:
+/qilin-agent-permission-presets/model-experience/kv-cache-effect:
   en: 40294c1c31b74824
   zh: ef3368fe16abff21
-/qilin-permission-presets/known-limitations-and-deferred-work:
+/qilin-agent-permission-presets/known-limitations-and-deferred-work:
   en: d11ad0878ee6d21d
   zh: 33c00322a017d5aa
-/qilin-permission-presets/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-permission-presets/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

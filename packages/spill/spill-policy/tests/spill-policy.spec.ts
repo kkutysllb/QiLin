@@ -11,6 +11,7 @@
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
 import Loader from '@qilin-agent/kylin-plugin-loader'
+import { provideWorkingDirectoryFixture } from '@qilin-agent/agent-loop-testkit'
 import { createUserMessage, ToolCallId } from '@qilin-agent/llm'
 import { estimateContent } from '@qilin-agent/token-meter/estimate'
 import type { ContentBlock } from '@qilin-agent/llm'
@@ -39,6 +40,7 @@ declare module '@qilin-agent/llm' {
 async function mountRuntime(ctx: Context, config: NodeRuntimeConfig = {}): Promise<void> {
   onTestFinished(async () => { await ctx.fiber.dispose() })
   if (!ctx.get('sessions')) await ctx.plugin(SessionStore)
+  provideWorkingDirectoryFixture(ctx)
   if (!ctx.get('fs')) await ctx.plugin(FileSystem)
   if (!ctx.get('subprocess')) await ctx.plugin(Subprocess)
   if (!ctx.get('sandbox')) await ctx.plugin(Sandbox, {})

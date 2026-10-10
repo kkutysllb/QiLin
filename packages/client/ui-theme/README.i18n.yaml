@@ -3,53 +3,53 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-theme/README.md
 /:
-  en: 7e1b0417708aa83d
-  zh: 126104f69a914b09
-/qilin-client-ui-theme:
-  en: 99e2d412a79c4d73
-  zh: 1b909203e47d3158
-/qilin-client-ui-theme/summary:
-  en: 5f45d79d7ede8094
-  zh: bac6c1768ed3cb52
-/qilin-client-ui-theme/table-of-contents:
+  en: 18d10eea2587ecea
+  zh: 8c99f34b34a14770
+/qilin-agent-client-ui-theme:
+  en: ab0a967b786d021a
+  zh: 70b6e02e2dbb7898
+/qilin-agent-client-ui-theme/summary:
+  en: d68f0b52d2444553
+  zh: 5ff4fd22114b8ba0
+/qilin-agent-client-ui-theme/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-ui-theme/use-this-package:
-  en: 6dd7714ab1534d32
-  zh: 4d4c331f780c2181
-/qilin-client-ui-theme/use-this-package/typography:
+/qilin-agent-client-ui-theme/use-this-package:
+  en: 5d1ec38a4bc6cac5
+  zh: 9ac70dce67027d62
+/qilin-agent-client-ui-theme/use-this-package/typography:
   en: 9c8769f8d5f577ed
   zh: 38c1a3bb2c59b339
-/qilin-client-ui-theme/use-this-package/registering-a-theme:
+/qilin-agent-client-ui-theme/use-this-package/registering-a-theme:
   en: 2cd32ccaba33b3e9
   zh: 53ea78d19929ea02
-/qilin-client-ui-theme/use-this-package/pre-plugin-palette:
+/qilin-agent-client-ui-theme/use-this-package/pre-plugin-palette:
   en: b52e06f7361f25c9
   zh: 646a91ae6d7560db
-/qilin-client-ui-theme/understand-the-implementation:
+/qilin-agent-client-ui-theme/understand-the-implementation:
   en: 460f4de94a496f39
   zh: a36858899ecb4603
-/qilin-client-ui-theme/understand-the-implementation/stylesheets:
-  en: 3c8c5bc924a7eb98
-  zh: f84db24be2d39b28
-/qilin-client-ui-theme/understand-the-implementation/scrollbar-rebinding:
+/qilin-agent-client-ui-theme/understand-the-implementation/stylesheets:
+  en: 11aa52511f22aba7
+  zh: 99abdb26e3596578
+/qilin-agent-client-ui-theme/understand-the-implementation/scrollbar-rebinding:
   en: 998f0fa103ee6ea5
   zh: 13cae6dc8abd62e6
-/qilin-client-ui-theme/understand-the-implementation/preference-persistence:
+/qilin-agent-client-ui-theme/understand-the-implementation/preference-persistence:
   en: f9e859d360a94bf1
   zh: f42721a507576338
-/qilin-client-ui-theme/further-exploration:
+/qilin-agent-client-ui-theme/further-exploration:
   en: fdd4b91eeaf53ac7
   zh: 715b9706ea7a2717
-/qilin-client-ui-theme/model-experience:
+/qilin-agent-client-ui-theme/model-experience:
   en: 3120df665299c634
   zh: 1d9f365d091d0d2a
-/qilin-client-ui-theme/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-theme/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: de54f3467ef3b9be
-/qilin-client-ui-theme/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-theme/known-limitations-and-deferred-work:
   en: 0d328dbced31a041
   zh: 2951de356ba6bb82
-/qilin-client-ui-theme/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-theme/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

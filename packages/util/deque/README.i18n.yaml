@@ -5,42 +5,42 @@
 /:
   en: d0d9e1665b0ea874
   zh: 6a8366be71b5d6d9
-/qilin-deque:
-  en: 076a40f92e3a6387
-  zh: 155c27368c8a3425
-/qilin-deque/summary:
+/qilin-agent-deque:
+  en: 2129f2d3c9f492ff
+  zh: 50e0fbdca940c19b
+/qilin-agent-deque/summary:
   en: 6dad2130ba8dce5b
   zh: 9ee33bb5bae55b7f
-/qilin-deque/table-of-contents:
+/qilin-agent-deque/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-deque/use-this-package:
+/qilin-agent-deque/use-this-package:
   en: bbff250eba0f1b89
   zh: 0a618f05cc88ee2b
-/qilin-deque/use-this-package/when-to-use-it:
+/qilin-agent-deque/use-this-package/when-to-use-it:
   en: e9c6c998f8d0542a
   zh: edc2133eaf273054
-/qilin-deque/use-this-package/entry-point:
+/qilin-agent-deque/use-this-package/entry-point:
   en: 3e3fca15c9656d45
   zh: 43e70c7381fc21f9
-/qilin-deque/understand-the-implementation:
+/qilin-agent-deque/understand-the-implementation:
   en: 1439df275cf4305f
   zh: 09fb7ae6048c065c
-/qilin-deque/understand-the-implementation/source-map:
+/qilin-agent-deque/understand-the-implementation/source-map:
   en: 6444d79a894f4251
   zh: e13d851b2f691f6c
-/qilin-deque/further-exploration:
+/qilin-agent-deque/further-exploration:
   en: 7c12115c0311343c
   zh: d6c2df10c2c1e407
-/qilin-deque/model-experience:
+/qilin-agent-deque/model-experience:
   en: 8347ed3429dab61e
   zh: c634a286fa463342
-/qilin-deque/model-experience/kv-cache-effect:
+/qilin-agent-deque/model-experience/kv-cache-effect:
   en: e7ba08477bf22c4e
   zh: f365439c69beb722
-/qilin-deque/known-limitations-and-deferred-work:
+/qilin-agent-deque/known-limitations-and-deferred-work:
   en: ade2165d7c740ba7
   zh: 05296ebd057e9beb
-/qilin-deque/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-deque/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

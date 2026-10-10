@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import { provideWorkingDirectoryFixture } from '@qilin-agent/agent-loop-testkit'
 import { Context } from '@qilin-agent/kylin'
 import { createUserMessage, ToolCallId } from '@qilin-agent/llm'
 import SystemPrompt from '@qilin-agent/system-prompt'
@@ -946,6 +947,7 @@ describe('exit_plan_mode', () => {
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime, { mode: 'ptc' })
     await ctx.plugin(ExitRuntime)
+    provideWorkingDirectoryFixture(ctx)
     await mountProjectionSeam(ctx)
     await ctx.plugin(PlanModeController, PLAN_CONFIG)
     await ctx.plugin(AgentRegistry)

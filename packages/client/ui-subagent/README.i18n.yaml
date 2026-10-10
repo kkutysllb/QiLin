@@ -5,60 +5,60 @@
 /:
   en: 67e2b5feabe78d35
   zh: e8c601916bda6e07
-/qilin-client-ui-subagent:
-  en: 01e15c9bfc2c25c5
-  zh: b464b87b858a476e
-/qilin-client-ui-subagent/summary:
+/qilin-agent-client-ui-subagent:
+  en: 3887daac0c7e00f6
+  zh: 6a14f6dc8bc85983
+/qilin-agent-client-ui-subagent/summary:
   en: 50f267d55833a683
   zh: 89d6b827576baa8b
-/qilin-client-ui-subagent/table-of-contents:
+/qilin-agent-client-ui-subagent/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-ui-subagent/use-this-package:
+/qilin-agent-client-ui-subagent/use-this-package:
   en: 436f225edd4aa88a
   zh: 9afc2df3d2d4bddb
-/qilin-client-ui-subagent/use-this-package/browsing-the-tree:
+/qilin-agent-client-ui-subagent/use-this-package/browsing-the-tree:
   en: f2b7594eb9cd21ef
   zh: 0179331fbb5fabde
-/qilin-client-ui-subagent/use-this-package/continuing-a-conversation:
+/qilin-agent-client-ui-subagent/use-this-package/continuing-a-conversation:
   en: 876e7152c8b9c4a6
   zh: f89f5e2a812e8451
-/qilin-client-ui-subagent/use-this-package/the-reference-source:
+/qilin-agent-client-ui-subagent/use-this-package/the-reference-source:
   en: 6a5f91b7dfcefafe
   zh: 2d11441952cfea53
-/qilin-client-ui-subagent/understand-the-implementation:
+/qilin-agent-client-ui-subagent/understand-the-implementation:
   en: 960398c71dbeb17c
   zh: e9280da273ef273e
-/qilin-client-ui-subagent/understand-the-implementation/catalog-derivation:
+/qilin-agent-client-ui-subagent/understand-the-implementation/catalog-derivation:
   en: 36a4661e42b56cd8
   zh: bbd5d7e180b13bbd
-/qilin-client-ui-subagent/understand-the-implementation/duration-and-tokens:
+/qilin-agent-client-ui-subagent/understand-the-implementation/duration-and-tokens:
   en: 2bb75ca6f8e20877
   zh: 0c3a746e4ee3aee2
-/qilin-client-ui-subagent/understand-the-implementation/composer-election:
+/qilin-agent-client-ui-subagent/understand-the-implementation/composer-election:
   en: d78980222a595824
   zh: a612b389e5d6bd63
-/qilin-client-ui-subagent/further-exploration:
+/qilin-agent-client-ui-subagent/further-exploration:
   en: 9b13a724ba7d0954
   zh: 65209b8347715680
-/qilin-client-ui-subagent/model-experience:
+/qilin-agent-client-ui-subagent/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-client-ui-subagent/model-experience/subagent-label-text-in-the-user-prompt:
+/qilin-agent-client-ui-subagent/model-experience/subagent-label-text-in-the-user-prompt:
   en: 7207881f1c032278
   zh: 911d6e8b319da21a
-/qilin-client-ui-subagent/model-experience/subagent-label-text-in-the-user-prompt/what-the-model-sees:
+/qilin-agent-client-ui-subagent/model-experience/subagent-label-text-in-the-user-prompt/what-the-model-sees:
   en: 5688696ee061a0e1
   zh: 7199ef8cb8697960
-/qilin-client-ui-subagent/model-experience/subagent-label-text-in-the-user-prompt/token-effect:
+/qilin-agent-client-ui-subagent/model-experience/subagent-label-text-in-the-user-prompt/token-effect:
   en: bf3c483598710d54
   zh: 32742fbb880db1b2
-/qilin-client-ui-subagent/model-experience/subagent-label-text-in-the-user-prompt/kv-cache-effect:
+/qilin-agent-client-ui-subagent/model-experience/subagent-label-text-in-the-user-prompt/kv-cache-effect:
   en: de2762a99572475f
   zh: 9b41107ad14ebf8a
-/qilin-client-ui-subagent/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-subagent/known-limitations-and-deferred-work:
   en: bc97468f56e09997
   zh: 36c5b1c504722447
-/qilin-client-ui-subagent/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-subagent/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

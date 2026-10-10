@@ -5,57 +5,57 @@
 /:
   en: 4b8ba0a939fdf9d4
   zh: 8b8ddab7cef0f022
-/qilin-web-search-exa:
-  en: 6f23405a924a94b6
-  zh: 0b8bf4f238329dfb
-/qilin-web-search-exa/summary:
+/qilin-agent-web-search-exa:
+  en: dfca48667540707e
+  zh: 95729897ba1f03c4
+/qilin-agent-web-search-exa/summary:
   en: b25788016dddf1f2
   zh: 7d6a6eea69af04ae
-/qilin-web-search-exa/table-of-contents:
+/qilin-agent-web-search-exa/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-web-search-exa/use-this-package:
+/qilin-agent-web-search-exa/use-this-package:
   en: 44ecd69ae3a9e8d3
   zh: b5f26aa1580f90fc
-/qilin-web-search-exa/use-this-package/when-to-choose-it:
+/qilin-agent-web-search-exa/use-this-package/when-to-choose-it:
   en: d33f61122c271792
   zh: e097094e69b3f425
-/qilin-web-search-exa/use-this-package/minimal-configuration:
-  en: b718c10b7d7ac87d
-  zh: f2881b6156e718d7
-/qilin-web-search-exa/use-this-package/what-a-search-returns:
+/qilin-agent-web-search-exa/use-this-package/minimal-configuration:
+  en: 0e6a9d0f86590bc8
+  zh: 2d75a559fc0bf61d
+/qilin-agent-web-search-exa/use-this-package/what-a-search-returns:
   en: 72c9eb8a1563bfd6
   zh: 26f7069376a74090
-/qilin-web-search-exa/use-this-package/failures-and-recovery:
+/qilin-agent-web-search-exa/use-this-package/failures-and-recovery:
   en: 5740595fa2cebf20
   zh: 7316e46e09d8ad9f
-/qilin-web-search-exa/understand-the-implementation:
+/qilin-agent-web-search-exa/understand-the-implementation:
   en: 9842c69ad3636bb3
   zh: 3cdc3f816cbdd0cb
-/qilin-web-search-exa/understand-the-implementation/design-philosophy:
+/qilin-agent-web-search-exa/understand-the-implementation/design-philosophy:
   en: 341f17a367eca5b0
   zh: ca3a4e4b4956892d
-/qilin-web-search-exa/understand-the-implementation/source-map:
+/qilin-agent-web-search-exa/understand-the-implementation/source-map:
   en: ca70cbf87a47c506
   zh: bb440072bbd6a478
-/qilin-web-search-exa/understand-the-implementation/request-and-mapping-flow:
+/qilin-agent-web-search-exa/understand-the-implementation/request-and-mapping-flow:
   en: 1fe92c2ad0408273
   zh: cc8c573e0accc8dc
-/qilin-web-search-exa/further-exploration:
-  en: 70fb47833bb66ba6
-  zh: 504ff98589234548
-/qilin-web-search-exa/model-experience:
+/qilin-agent-web-search-exa/further-exploration:
+  en: aafa9e4d403660de
+  zh: ea5808e7f58b79ba
+/qilin-agent-web-search-exa/model-experience:
   en: 5695f59772eda4ea
   zh: cf281e684aa0cfcd
-/qilin-web-search-exa/model-experience/kv-cache-effect:
+/qilin-agent-web-search-exa/model-experience/kv-cache-effect:
   en: 40294c1c31b74824
   zh: d75d48f485447a74
-/qilin-web-search-exa/known-limitations-and-deferred-work:
+/qilin-agent-web-search-exa/known-limitations-and-deferred-work:
   en: 7850c2bc731a25e9
   zh: 5b284ab5dce907ee
-/qilin-web-search-exa/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-web-search-exa/known-limitations-and-deferred-work/dev-note:
   en: 7f775cc79dbce94b
   zh: 12b8f68f9e7c48ca
-/qilin-web-search-exa/known-limitations-and-deferred-work/dev-note/future-wider-exa-control-surface:
+/qilin-agent-web-search-exa/known-limitations-and-deferred-work/dev-note/future-wider-exa-control-surface:
   en: 7a6c72d34be40225
   zh: b525946646a9f856

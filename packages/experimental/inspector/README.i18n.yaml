@@ -5,45 +5,45 @@
 /:
   en: b5b7ccdfa1cc2907
   zh: d575593a7efa37fd
-/qilin-experimental-inspector:
-  en: c5bcf5fd40c3065b
-  zh: 1ee033d94678b817
-/qilin-experimental-inspector/summary:
+/qilin-agent-experimental-inspector:
+  en: 0fa8085d1db200f3
+  zh: 21bd948a5cd93a65
+/qilin-agent-experimental-inspector/summary:
   en: 3a853a0fb1d832b1
   zh: 01c102226704642c
-/qilin-experimental-inspector/table-of-contents:
+/qilin-agent-experimental-inspector/table-of-contents:
   en: 331f844c32631a82
   zh: a9bc365f7d61d9ed
-/qilin-experimental-inspector/use-this-package:
+/qilin-agent-experimental-inspector/use-this-package:
   en: 426fcb436dd12d08
   zh: 1eb502409031216e
-/qilin-experimental-inspector/runtime-layout:
+/qilin-agent-experimental-inspector/runtime-layout:
   en: 30dad7b7fe3b3465
   zh: 2bda395981802f59
-/qilin-experimental-inspector/configuration:
-  en: 85fd5a4feb23e41e
-  zh: 7cc8df2d1a8d7940
-/qilin-experimental-inspector/observation-api:
+/qilin-agent-experimental-inspector/configuration:
+  en: d5ab9deee11b7f39
+  zh: 4d32812209784a82
+/qilin-agent-experimental-inspector/observation-api:
   en: d32f994e6c9d0c4a
   zh: ac2f35f5799aeae0
-/qilin-experimental-inspector/cordis-tree-inspection:
+/qilin-agent-experimental-inspector/cordis-tree-inspection:
   en: d2a470558b97acbd
   zh: 2a7d0ce6951b7b52
-/qilin-experimental-inspector/host-fetch-capture:
+/qilin-agent-experimental-inspector/host-fetch-capture:
   en: 187859f65acc45d7
   zh: 606e93905c8275e6
-/qilin-experimental-inspector/security:
+/qilin-agent-experimental-inspector/security:
   en: dc390db1bce00de1
   zh: c4257690ffcabebc
-/qilin-experimental-inspector/model-experience:
+/qilin-agent-experimental-inspector/model-experience:
   en: 6ac8fb2f45b3a97c
   zh: 9162ffb1a133e11b
-/qilin-experimental-inspector/model-experience/kv-cache-effect:
+/qilin-agent-experimental-inspector/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: 64715dc7e6d02f71
-/qilin-experimental-inspector/known-limitations-and-deferred-work:
+/qilin-agent-experimental-inspector/known-limitations-and-deferred-work:
   en: 74e9eb329f240bb7
   zh: 25612a9b993582c0
-/qilin-experimental-inspector/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-experimental-inspector/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

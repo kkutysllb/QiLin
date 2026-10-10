@@ -5,75 +5,75 @@
 /:
   en: 99acbd5c1e2a16ce
   zh: 31342508a4e1bf09
-/qilin-session-persistence:
-  en: 1d719c9c7d11ca70
-  zh: b0a828b200cf9bcd
-/qilin-session-persistence/summary:
+/qilin-agent-session-persistence:
+  en: bc86c98b5508c248
+  zh: cd099e4f85558a5f
+/qilin-agent-session-persistence/summary:
   en: 34c7ee5a75c547e2
   zh: 3e2e6dfd7819e6cc
-/qilin-session-persistence/table-of-contents:
+/qilin-agent-session-persistence/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-session-persistence/use-this-package:
+/qilin-agent-session-persistence/use-this-package:
   en: bd48e96d14122170
   zh: f8a06e7246b55a6f
-/qilin-session-persistence/use-this-package/choosing-a-backend:
+/qilin-agent-session-persistence/use-this-package/choosing-a-backend:
   en: 5ad706685920c2f8
   zh: ee5f922ae0a95852
-/qilin-session-persistence/use-this-package/what-the-service-provides:
+/qilin-agent-session-persistence/use-this-package/what-the-service-provides:
   en: c10b9c7d9bad305c
   zh: 0e9c391e9df37da6
-/qilin-session-persistence/use-this-package/ownership-and-visibility:
+/qilin-agent-session-persistence/use-this-package/ownership-and-visibility:
   en: 16d4abbb05a67360
   zh: fc91863169570795
-/qilin-session-persistence/use-this-package/the-live-write-path-and-shutdown-drain:
+/qilin-agent-session-persistence/use-this-package/the-live-write-path-and-shutdown-drain:
   en: 282c5bc8a391159f
   zh: 96682e345ef301f6
-/qilin-session-persistence/use-this-package/resuming-and-crash-recovery:
+/qilin-agent-session-persistence/use-this-package/resuming-and-crash-recovery:
   en: 08b09dce0bcf47c8
   zh: b6c5926d6e440a7b
-/qilin-session-persistence/use-this-package/failures-and-recovery:
+/qilin-agent-session-persistence/use-this-package/failures-and-recovery:
   en: 6d8beec038b1121a
   zh: 1f02952eb2a0b386
-/qilin-session-persistence/understand-the-implementation:
+/qilin-agent-session-persistence/understand-the-implementation:
   en: fc8325413af9c66e
   zh: accf0758248ae9be
-/qilin-session-persistence/understand-the-implementation/design-concept:
+/qilin-agent-session-persistence/understand-the-implementation/design-concept:
   en: 3d21cded1f7e74ff
   zh: 5f624aefebb1f63d
-/qilin-session-persistence/understand-the-implementation/the-invariants-every-backend-honors:
+/qilin-agent-session-persistence/understand-the-implementation/the-invariants-every-backend-honors:
   en: a3b5e0e6747f5ab4
   zh: fcbcc16c04e15edb
-/qilin-session-persistence/understand-the-implementation/source-map:
+/qilin-agent-session-persistence/understand-the-implementation/source-map:
   en: 206eaa18456c97ff
   zh: 40afc55b378ec11b
-/qilin-session-persistence/understand-the-implementation/the-write-path-at-a-glance:
+/qilin-agent-session-persistence/understand-the-implementation/the-write-path-at-a-glance:
   en: c920cf9262f4a563
   zh: 0f8e3ff17e39c861
-/qilin-session-persistence/understand-the-implementation/stored-record-validation:
+/qilin-agent-session-persistence/understand-the-implementation/stored-record-validation:
   en: 15c4ae1366d07659
   zh: d9d3fdea8484df9a
-/qilin-session-persistence/further-exploration:
+/qilin-agent-session-persistence/further-exploration:
   en: a0864feb3bb4b814
   zh: b1196e3f0100500f
-/qilin-session-persistence/model-experience:
+/qilin-agent-session-persistence/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-session-persistence/model-experience/resumed-conversation-history:
+/qilin-agent-session-persistence/model-experience/resumed-conversation-history:
   en: 062875aab7f3f138
   zh: c7285918227e6f5c
-/qilin-session-persistence/model-experience/resumed-conversation-history/what-the-model-sees:
+/qilin-agent-session-persistence/model-experience/resumed-conversation-history/what-the-model-sees:
   en: f697ddcf1a13c439
   zh: a3b5050484be4b9b
-/qilin-session-persistence/model-experience/resumed-conversation-history/token-effect:
+/qilin-agent-session-persistence/model-experience/resumed-conversation-history/token-effect:
   en: 375253768652244e
   zh: c5bf6c3dcf707ab2
-/qilin-session-persistence/model-experience/resumed-conversation-history/kv-cache-effect:
+/qilin-agent-session-persistence/model-experience/resumed-conversation-history/kv-cache-effect:
   en: 70a8139de5fd1cec
   zh: 66dfba4b93e63c55
-/qilin-session-persistence/known-limitations-and-deferred-work:
+/qilin-agent-session-persistence/known-limitations-and-deferred-work:
   en: 97296c31399996e4
   zh: 86a5c1e771415e99
-/qilin-session-persistence/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-session-persistence/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

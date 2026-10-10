@@ -14,6 +14,7 @@ import { TestSessionQuery } from './test-session-query.ts'
 import TeamService, { TeamError } from '../src/index.ts'
 import type { Agent } from '@qilin-agent/agent'
 import { teamWireError } from '../src/remote.ts'
+import { mountWorkingDirectoryFixture } from '../../../subagent/subagent/tests/working-directory-fixture.ts'
 
 const roots: string[] = []
 const contexts: Context[] = []
@@ -38,6 +39,7 @@ async function setup() {
   await ctx.plugin(JsonlSessionPersistence, { root: storageRoot })
   await ctx.plugin(TestSessionQuery)
   await ctx.plugin(AgentLoop, { agents: [] })
+  await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(SubagentService)
   await ctx.plugin(SubagentSpawn, { providerName: 'spawn' })
   await ctx.plugin(SubagentFork, { providerName: 'fork' })

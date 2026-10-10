@@ -26,14 +26,14 @@ kind: "package-library"
 
 Profile 加载、插件管理器的安装门与 bundle 清单、以及客户端测试运行时的 roster 通过 `bundlePatchOf` 同时读取 `qilin.bundle.patch` 与 `dsh.bundle.patch`。客户端模块图和浏览器加载器通过 `clientDeclarationOf` 与 `dshCompatModuleId` 处理预构建 DSH 工厂，使其可以保留原有的 `require()` 名称。
 
-精确的平台别名由 `DSH_PLATFORM_MODULE_ALIASES` 导出。未知的第三方名称保持不变；兼容层不会替换服务实现，也不会提供 Electron 专属 API。
+精确的平台别名由 `DSH_PLATFORM_MODULE_ALIASES` 导出，DSH CLI 应用别名由 `DSH_APPLICATION_MODULE_ALIASES` 导出。未知的第三方名称保持不变；兼容层不会替换服务实现，也不会提供 Electron 专属 API。
 
 -----
 
 <a id="understand-the-implementation"></a>
 ## 实现说明
 
-当两个键同时存在时，manifest 读取器优先使用 QiLin 声明。模块解析先应用精确别名，再把 `@deepseek-ai/dsh-<name>` 映射到 `@qilin-agent/<name>`；其中 `client-runtime` 映射到 QiLin 的 `client-modules`。浏览器 shell 提供静态平台别名，动态图边与工厂请求在各自的加载器中归一化。
+当两个键同时存在时，manifest 读取器优先使用 QiLin 声明。模块解析先应用精确别名，再把 `@deepseek-ai/dsh-<name>` 映射到 `@qilin-agent/<name>`，其中被改名的包头落到各自的 QiLin 包：`client-runtime` → `client-modules`、`tool-cordis` → `tool-kylin`、`ui-cordis` → `client-ui-kylin`、`cordis-host-runner` → `kylin-host-runner`、`cordis-client-runner` → `kylin-client-runner`、`agent-preset` → `agent-presets`、`subagent-dsh-sdk` → `subagent-qilin-sdk`。浏览器 shell 提供静态平台别名，动态图边与工厂请求在各自的加载器中归一化。
 
 -----
 

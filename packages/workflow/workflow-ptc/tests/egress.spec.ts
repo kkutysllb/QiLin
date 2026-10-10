@@ -4,11 +4,13 @@ import { installProxyFromEnvironment } from '@qilin-agent/http-proxy'
 import SubagentRuntime from '@qilin-agent/subagent'
 import PtcWorkflowEngine from '../src/index.ts'
 import { fakeParent, mountPtcRuntime } from './setup.ts'
+import { mountWorkingDirectoryFixture } from '../../../subagent/subagent/tests/working-directory-fixture.ts'
 
 describe('workflow program environment', () => {
   it('does not expose ambient credentials, proxy settings or host loader paths', async () => {
     const ctx = new Context()
     await mountPtcRuntime(ctx)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     ctx.subagents.registerProvider({
       name: 'stub',

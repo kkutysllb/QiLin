@@ -5,48 +5,48 @@
 /:
   en: 331746bc4b9a6b59
   zh: 8ee4e07c7a9cc3d0
-/qilin-client-ui-renderer:
-  en: f27a67d59b3de427
-  zh: d9c8ba73b3e0e487
-/qilin-client-ui-renderer/summary:
+/qilin-agent-client-ui-renderer:
+  en: 82bf17c537e13e50
+  zh: 0bc2e589b5b6f85f
+/qilin-agent-client-ui-renderer/summary:
   en: e3a71886743508a5
   zh: eac720e6f0d1f692
-/qilin-client-ui-renderer/table-of-contents:
+/qilin-agent-client-ui-renderer/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-ui-renderer/use-this-package:
+/qilin-agent-client-ui-renderer/use-this-package:
   en: cfdc1c33165c2ded
   zh: 3523c2e2b2776d0c
-/qilin-client-ui-renderer/use-this-package/what-mounting-does:
+/qilin-agent-client-ui-renderer/use-this-package/what-mounting-does:
   en: 1d5350799ce072d0
   zh: 942e543fdab51818
-/qilin-client-ui-renderer/use-this-package/for-business-plugins:
+/qilin-agent-client-ui-renderer/use-this-package/for-business-plugins:
   en: 15a2bfee2c0bd051
   zh: 0c5b336fc5afbbc6
-/qilin-client-ui-renderer/understand-the-implementation:
+/qilin-agent-client-ui-renderer/understand-the-implementation:
   en: 0de0a8ad857b93f6
   zh: 98a0fae2d6606a7d
-/qilin-client-ui-renderer/understand-the-implementation/activation-and-mount:
+/qilin-agent-client-ui-renderer/understand-the-implementation/activation-and-mount:
   en: 645ab8fe890db2fa
   zh: 6e3531c0db139d27
-/qilin-client-ui-renderer/understand-the-implementation/slot-bindings:
+/qilin-agent-client-ui-renderer/understand-the-implementation/slot-bindings:
   en: f1b69224dac58d66
   zh: 7c63efcf51b898a0
-/qilin-client-ui-renderer/understand-the-implementation/identity:
+/qilin-agent-client-ui-renderer/understand-the-implementation/identity:
   en: 6d0df0b6a13c3afc
   zh: 581aa594f81ae907
-/qilin-client-ui-renderer/further-exploration:
+/qilin-agent-client-ui-renderer/further-exploration:
   en: 3b34d5e71e1afde9
   zh: 8a9125a94c33508f
-/qilin-client-ui-renderer/model-experience:
+/qilin-agent-client-ui-renderer/model-experience:
   en: ca4e29db08d34e6d
   zh: de6ec680414b1d54
-/qilin-client-ui-renderer/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-renderer/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: de54f3467ef3b9be
-/qilin-client-ui-renderer/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-renderer/known-limitations-and-deferred-work:
   en: 5ebaf02736035a44
   zh: 3c04f28da7ec6c40
-/qilin-client-ui-renderer/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-renderer/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

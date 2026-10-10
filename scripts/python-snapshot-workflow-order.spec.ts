@@ -7,6 +7,7 @@ import { WorkflowRunId } from '@qilin-agent/workflow'
 import AgentLoop from '@qilin-agent/agent-loop'
 import { mountAgentLoopTestDependencies } from '@qilin-agent/agent-loop-testkit'
 import SubagentRuntime from '@qilin-agent/subagent'
+import { mountWorkingDirectoryFixture } from '../packages/subagent/subagent/tests/working-directory-fixture.ts'
 import * as spawn from '@qilin-agent/subagent-spawn-in-process'
 import { MockAdapter, textResponse } from '../packages/core/agent-loop/tests/mock-adapter.ts'
 import type {} from '@qilin-agent/tool-workflow'
@@ -59,6 +60,7 @@ describe('advanced Python snapshot workflow ordering', () => {
       name: 'workflow-order-driver-test',
       async apply(inner: Context) {
         await mountAgentLoopTestDependencies(inner)
+        await mountWorkingDirectoryFixture(inner)
         await inner.plugin(AgentLoop, { agents: [] })
         await inner.plugin(SubagentRuntime)
         await inner.plugin(spawn, { providerName: 'spawn' })

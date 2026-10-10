@@ -48,15 +48,15 @@ importers:
       '@qilin-agent/experimental-computer-use-cua-driver-native':
         specifier: workspace:*
         version: link:packages/experimental/computer-use-cua-driver-native
+      '@qilin-agent/experimental-tool-session-query':
+        specifier: workspace:*
+        version: link:packages/experimental/tool-session-query
       '@qilin-agent/llm-replay':
         specifier: workspace:*
         version: link:packages/test-support/llm-replay
       '@qilin-agent/skill-office':
         specifier: workspace:*
         version: link:packages/skill/skill-office
-      '@qilin-agent/tool-session-query':
-        specifier: workspace:*
-        version: link:packages/session-query/tool-session-query
       '@qilin-agent/web-fetch-http':
         specifier: workspace:*
         version: link:packages/web/web-fetch-http
@@ -240,12 +240,6 @@ importers:
       '@qilin-agent/home-paths':
         specifier: workspace:*
         version: link:../../packages/util/home-paths
-      '@qilin-agent/hooks-claude-code':
-        specifier: workspace:*
-        version: link:../../packages/hooks/hooks-claude-code
-      '@qilin-agent/hooks-codex':
-        specifier: workspace:*
-        version: link:../../packages/hooks/hooks-codex
       '@qilin-agent/http-proxy':
         specifier: workspace:*
         version: link:../../packages/util/http-proxy
@@ -366,9 +360,6 @@ importers:
       '@qilin-agent/tool-pwsh-persistent':
         specifier: workspace:*
         version: link:../../packages/shell/tool-pwsh-persistent
-      '@qilin-agent/tool-ralph':
-        specifier: workspace:*
-        version: link:../../packages/workflow/tool-ralph
       '@qilin-agent/tool-schedule':
         specifier: workspace:*
         version: link:../../packages/schedule/tool-schedule
@@ -399,12 +390,6 @@ importers:
       '@qilin-agent/web-brand':
         specifier: workspace:*
         version: link:../../packages/bundle/web-brand
-      '@qilin-agent/webhook':
-        specifier: workspace:*
-        version: link:../../packages/webhook/webhook
-      '@qilin-agent/webhook-github':
-        specifier: workspace:*
-        version: link:../../packages/webhook/webhook-github
       '@qilin-agent/workflow-ptc':
         specifier: workspace:*
         version: link:../../packages/workflow/workflow-ptc
@@ -448,12 +433,24 @@ importers:
       '@qilin-agent/experimental-agent-team':
         specifier: workspace:*
         version: link:../../packages/experimental/agent-team
+      '@qilin-agent/experimental-hooks-claude-code':
+        specifier: workspace:*
+        version: link:../../packages/experimental/hooks-claude-code
+      '@qilin-agent/experimental-hooks-codex':
+        specifier: workspace:*
+        version: link:../../packages/experimental/hooks-codex
       '@qilin-agent/experimental-ptc-runtime-python':
         specifier: workspace:*
         version: link:../../packages/experimental/ptc-runtime-python
       '@qilin-agent/experimental-tool-agent-team':
         specifier: workspace:*
         version: link:../../packages/experimental/tool-agent-team
+      '@qilin-agent/experimental-webhook':
+        specifier: workspace:*
+        version: link:../../packages/experimental/webhook
+      '@qilin-agent/experimental-webhook-github':
+        specifier: workspace:*
+        version: link:../../packages/experimental/webhook-github
       '@qilin-agent/fs-observation-policy':
         specifier: workspace:*
         version: link:../../packages/fs/fs-observation-policy
@@ -1827,9 +1824,6 @@ importers:
       '@qilin-agent/skill':
         specifier: workspace:*
         version: link:../../skill/skill
-      '@qilin-agent/skill-badge':
-        specifier: workspace:*
-        version: link:../../skill/skill-badge
       '@qilin-agent/skill-filesystem':
         specifier: workspace:*
         version: link:../../skill/skill-filesystem
@@ -1890,9 +1884,6 @@ importers:
       '@qilin-agent/tool-pwsh':
         specifier: workspace:*
         version: link:../../shell/tool-pwsh
-      '@qilin-agent/tool-ralph':
-        specifier: workspace:*
-        version: link:../../workflow/tool-ralph
       '@qilin-agent/tool-schedule':
         specifier: workspace:*
         version: link:../../schedule/tool-schedule
@@ -1914,6 +1905,9 @@ importers:
       '@qilin-agent/tool-workflow':
         specifier: workspace:*
         version: link:../../workflow/tool-workflow
+      '@qilin-agent/tool-working-directory':
+        specifier: workspace:*
+        version: link:../../session/tool-working-directory
       '@qilin-agent/tools':
         specifier: workspace:*
         version: link:../../core/tools
@@ -1941,6 +1935,9 @@ importers:
       '@qilin-agent/workflow-ptc':
         specifier: workspace:*
         version: link:../../workflow/workflow-ptc
+      '@qilin-agent/working-directory':
+        specifier: workspace:*
+        version: link:../../session/working-directory
     devDependencies:
       '@qilin-agent/kylin':
         specifier: workspace:~
@@ -5901,6 +5898,12 @@ importers:
       '@qilin-agent/client-ui-slots':
         specifier: workspace:*
         version: link:../ui-slots
+      '@qilin-agent/experimental-tool-session-query':
+        specifier: workspace:*
+        version: link:../../experimental/tool-session-query
+      '@qilin-agent/experimental-tool-terminal':
+        specifier: workspace:*
+        version: link:../../experimental/tool-terminal
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -5925,12 +5928,6 @@ importers:
       '@qilin-agent/tool-jobs':
         specifier: workspace:*
         version: link:../../jobs/tool-jobs
-      '@qilin-agent/tool-session-query':
-        specifier: workspace:*
-        version: link:../../session-query/tool-session-query
-      '@qilin-agent/tool-terminal':
-        specifier: workspace:*
-        version: link:../../terminal/tool-terminal
       '@qilin-agent/tools':
         specifier: workspace:*
         version: link:../../core/tools
@@ -6974,6 +6971,9 @@ importers:
       '@qilin-agent/user-approval':
         specifier: workspace:*
         version: link:../../interaction/user-approval
+      '@qilin-agent/working-directory':
+        specifier: workspace:*
+        version: link:../../session/working-directory
 
   packages/credentials/authorization:
     devDependencies:
@@ -7331,6 +7331,9 @@ importers:
       '@qilin-agent/user-approval':
         specifier: workspace:*
         version: link:../../interaction/user-approval
+      '@qilin-agent/working-directory':
+        specifier: workspace:*
+        version: link:../../session/working-directory
 
   packages/experimental/browser-use-chrome-devtools-mcp:
     dependencies:
@@ -7788,6 +7791,113 @@ importers:
         specifier: workspace:*
         version: link:../../core/tools
 
+  packages/experimental/hook-protocol:
+    devDependencies:
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/shell':
+        specifier: workspace:*
+        version: link:../../shell/shell
+
+  packages/experimental/hooks-claude-code:
+    dependencies:
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+    devDependencies:
+      '@qilin-agent/agent':
+        specifier: workspace:*
+        version: link:../../core/agent
+      '@qilin-agent/agent-loop':
+        specifier: workspace:*
+        version: link:../../core/agent-loop
+      '@qilin-agent/agent-loop-testkit':
+        specifier: workspace:*
+        version: link:../../test-support/agent-loop-testkit
+      '@qilin-agent/bash-local':
+        specifier: workspace:*
+        version: link:../../shell/bash-local
+      '@qilin-agent/experimental-hook-protocol':
+        specifier: workspace:*
+        version: link:../hook-protocol
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/llm':
+        specifier: workspace:*
+        version: link:../../llm/llm
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/session-persistence-jsonl':
+        specifier: workspace:*
+        version: link:../../session/session-persistence-jsonl
+      '@qilin-agent/session-projection':
+        specifier: workspace:*
+        version: link:../../session/session-projection
+      '@qilin-agent/shell':
+        specifier: workspace:*
+        version: link:../../shell/shell
+      '@qilin-agent/subagent':
+        specifier: workspace:*
+        version: link:../../subagent/subagent
+      '@qilin-agent/subprocess-local':
+        specifier: workspace:*
+        version: link:../../subprocess/subprocess-local
+      '@qilin-agent/tools':
+        specifier: workspace:*
+        version: link:../../core/tools
+
+  packages/experimental/hooks-codex:
+    dependencies:
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+    devDependencies:
+      '@qilin-agent/agent':
+        specifier: workspace:*
+        version: link:../../core/agent
+      '@qilin-agent/agent-loop':
+        specifier: workspace:*
+        version: link:../../core/agent-loop
+      '@qilin-agent/agent-loop-testkit':
+        specifier: workspace:*
+        version: link:../../test-support/agent-loop-testkit
+      '@qilin-agent/bash-local':
+        specifier: workspace:*
+        version: link:../../shell/bash-local
+      '@qilin-agent/experimental-hook-protocol':
+        specifier: workspace:*
+        version: link:../hook-protocol
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/llm':
+        specifier: workspace:*
+        version: link:../../llm/llm
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/session-persistence-jsonl':
+        specifier: workspace:*
+        version: link:../../session/session-persistence-jsonl
+      '@qilin-agent/session-projection':
+        specifier: workspace:*
+        version: link:../../session/session-projection
+      '@qilin-agent/shell':
+        specifier: workspace:*
+        version: link:../../shell/shell
+      '@qilin-agent/subprocess-local':
+        specifier: workspace:*
+        version: link:../../subprocess/subprocess-local
+      '@qilin-agent/tools':
+        specifier: workspace:*
+        version: link:../../core/tools
+
   packages/experimental/inspector:
     dependencies:
       '@qilin-agent/app-boot':
@@ -8005,6 +8115,43 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
 
+  packages/experimental/session-title-all-prompts-llm:
+    dependencies:
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+    devDependencies:
+      '@qilin-agent/agent-loop':
+        specifier: workspace:*
+        version: link:../../core/agent-loop
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/llm':
+        specifier: workspace:*
+        version: link:../../llm/llm
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/session-projection':
+        specifier: workspace:*
+        version: link:../../session/session-projection
+      '@qilin-agent/session-title':
+        specifier: workspace:*
+        version: link:../../session/session-title
+      '@qilin-agent/session-title-llm':
+        specifier: workspace:*
+        version: link:../../session/session-title-llm
+
+  packages/experimental/skill-badge:
+    devDependencies:
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/skill':
+        specifier: workspace:*
+        version: link:../../skill/skill
+
   packages/experimental/speech-to-text:
     dependencies:
       '@qilin-agent/brand':
@@ -8119,6 +8266,177 @@ importers:
         specifier: workspace:*
         version: link:../../core/tools
 
+  packages/experimental/tool-ralph:
+    dependencies:
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+    devDependencies:
+      '@qilin-agent/agent':
+        specifier: workspace:*
+        version: link:../../core/agent
+      '@qilin-agent/agent-loop':
+        specifier: workspace:*
+        version: link:../../core/agent-loop
+      '@qilin-agent/agent-loop-testkit':
+        specifier: workspace:*
+        version: link:../../test-support/agent-loop-testkit
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/kylin-plugin-loader':
+        specifier: workspace:~
+        version: link:../../../vendor/loader
+      '@qilin-agent/llm':
+        specifier: workspace:*
+        version: link:../../llm/llm
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/session-projection':
+        specifier: workspace:*
+        version: link:../../session/session-projection
+      '@qilin-agent/subagent':
+        specifier: workspace:*
+        version: link:../../subagent/subagent
+      '@qilin-agent/subagent-in-process-driver':
+        specifier: workspace:*
+        version: link:../../subagent/subagent-in-process-driver
+      '@qilin-agent/subagent-spawn-in-process':
+        specifier: workspace:*
+        version: link:../../subagent/subagent-spawn-in-process
+      '@qilin-agent/system-prompt':
+        specifier: workspace:*
+        version: link:../../core/system-prompt
+      '@qilin-agent/tools':
+        specifier: workspace:*
+        version: link:../../core/tools
+      '@qilin-agent/workflow':
+        specifier: workspace:*
+        version: link:../../workflow/workflow
+      '@qilin-agent/workflow-ptc':
+        specifier: workspace:*
+        version: link:../../workflow/workflow-ptc
+
+  packages/experimental/tool-session-query:
+    dependencies:
+      '@qilin-agent/brand':
+        specifier: workspace:*
+        version: link:../../util/brand
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+    devDependencies:
+      '@qilin-agent/agent':
+        specifier: workspace:*
+        version: link:../../core/agent
+      '@qilin-agent/agent-loop':
+        specifier: workspace:*
+        version: link:../../core/agent-loop
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/llm':
+        specifier: workspace:*
+        version: link:../../llm/llm
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/session-persistence':
+        specifier: workspace:*
+        version: link:../../session/session-persistence
+      '@qilin-agent/session-persistence-jsonl':
+        specifier: workspace:*
+        version: link:../../session/session-persistence-jsonl
+      '@qilin-agent/session-projection':
+        specifier: workspace:*
+        version: link:../../session/session-projection
+      '@qilin-agent/session-query':
+        specifier: workspace:*
+        version: link:../../session-query/session-query
+      '@qilin-agent/session-query-sqlite':
+        specifier: workspace:*
+        version: link:../../session-query/session-query-sqlite
+      '@qilin-agent/session-title':
+        specifier: workspace:*
+        version: link:../../session/session-title
+      '@qilin-agent/system-prompt':
+        specifier: workspace:*
+        version: link:../../core/system-prompt
+      '@qilin-agent/timeout':
+        specifier: workspace:*
+        version: link:../../util/timeout
+      '@qilin-agent/tool-call-timeout-policy':
+        specifier: workspace:*
+        version: link:../../guard/timeout-policy
+      '@qilin-agent/tools':
+        specifier: workspace:*
+        version: link:../../core/tools
+
+  packages/experimental/tool-terminal:
+    dependencies:
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+    devDependencies:
+      '@qilin-agent/agent':
+        specifier: workspace:*
+        version: link:../../core/agent
+      '@qilin-agent/agent-loop-testkit':
+        specifier: workspace:*
+        version: link:../../test-support/agent-loop-testkit
+      '@qilin-agent/jobs':
+        specifier: workspace:*
+        version: link:../../jobs/jobs
+      '@qilin-agent/jobs-local':
+        specifier: workspace:*
+        version: link:../../jobs/jobs-local
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/kylin-plugin-include':
+        specifier: workspace:~
+        version: link:../../../vendor/include
+      '@qilin-agent/kylin-plugin-loader':
+        specifier: workspace:~
+        version: link:../../../vendor/loader
+      '@qilin-agent/llm':
+        specifier: workspace:*
+        version: link:../../llm/llm
+      '@qilin-agent/output-retention':
+        specifier: workspace:*
+        version: link:../../util/output-retention
+      '@qilin-agent/sandbox':
+        specifier: workspace:*
+        version: link:../../sandbox/sandbox
+      '@qilin-agent/sandbox-policy':
+        specifier: workspace:*
+        version: link:../../sandbox/sandbox-policy
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/session-projection':
+        specifier: workspace:*
+        version: link:../../session/session-projection
+      '@qilin-agent/subprocess-local':
+        specifier: workspace:*
+        version: link:../../subprocess/subprocess-local
+      '@qilin-agent/system-prompt':
+        specifier: workspace:*
+        version: link:../../core/system-prompt
+      '@qilin-agent/terminal':
+        specifier: workspace:*
+        version: link:../../terminal/terminal
+      '@qilin-agent/terminal-bash':
+        specifier: workspace:*
+        version: link:../../terminal/terminal-bash
+      '@qilin-agent/tool-jobs':
+        specifier: workspace:*
+        version: link:../../jobs/tool-jobs
+      '@qilin-agent/tools':
+        specifier: workspace:*
+        version: link:../../core/tools
+
   packages/experimental/voice-input-bundle:
     dependencies:
       '@qilin-agent/experimental-api-speech-to-text':
@@ -8143,6 +8461,83 @@ importers:
       js-yaml:
         specifier: ^4.2.0
         version: 4.3.1
+
+  packages/experimental/webhook:
+    dependencies:
+      '@qilin-agent/brand':
+        specifier: workspace:*
+        version: link:../../util/brand
+      '@qilin-agent/util-values':
+        specifier: workspace:*
+        version: link:../../util/values
+    devDependencies:
+      '@qilin-agent/agent':
+        specifier: workspace:*
+        version: link:../../core/agent
+      '@qilin-agent/agent-default-model':
+        specifier: workspace:*
+        version: link:../../core/agent-default-model
+      '@qilin-agent/agent-presets':
+        specifier: workspace:*
+        version: link:../../preset/agent-presets
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/kylin-plugin-include':
+        specifier: workspace:~
+        version: link:../../../vendor/include
+      '@qilin-agent/kylin-plugin-loader':
+        specifier: workspace:~
+        version: link:../../../vendor/loader
+      '@qilin-agent/llm':
+        specifier: workspace:*
+        version: link:../../llm/llm
+      '@qilin-agent/permission-presets':
+        specifier: workspace:*
+        version: link:../../interaction/permission-presets
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/session-title':
+        specifier: workspace:*
+        version: link:../../session/session-title
+      '@qilin-agent/workspace':
+        specifier: workspace:*
+        version: link:../../workspace/workspace
+
+  packages/experimental/webhook-github:
+    dependencies:
+      '@octokit/webhooks':
+        specifier: ^14.2.0
+        version: 14.2.0
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+      '@qilin-agent/util-values':
+        specifier: workspace:*
+        version: link:../../util/values
+    devDependencies:
+      '@qilin-agent/credentials':
+        specifier: workspace:*
+        version: link:../../credentials/credentials
+      '@qilin-agent/experimental-webhook':
+        specifier: workspace:*
+        version: link:../webhook
+      '@qilin-agent/host-webserver':
+        specifier: workspace:*
+        version: link:../../host/webserver
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/kylin-plugin-include':
+        specifier: workspace:~
+        version: link:../../../vendor/include
+      '@qilin-agent/kylin-plugin-loader':
+        specifier: workspace:~
+        version: link:../../../vendor/loader
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
 
   packages/experimental/webworker-packer:
     dependencies:
@@ -8914,113 +9309,6 @@ importers:
       '@qilin-agent/timeout':
         specifier: workspace:*
         version: link:../../util/timeout
-      '@qilin-agent/tools':
-        specifier: workspace:*
-        version: link:../../core/tools
-
-  packages/hooks/hook-protocol:
-    devDependencies:
-      '@qilin-agent/kylin':
-        specifier: workspace:~
-        version: link:../../../vendor/cordis
-      '@qilin-agent/session':
-        specifier: workspace:*
-        version: link:../../core/session
-      '@qilin-agent/shell':
-        specifier: workspace:*
-        version: link:../../shell/shell
-
-  packages/hooks/hooks-claude-code:
-    dependencies:
-      '@qilin-agent/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
-    devDependencies:
-      '@qilin-agent/agent':
-        specifier: workspace:*
-        version: link:../../core/agent
-      '@qilin-agent/agent-loop':
-        specifier: workspace:*
-        version: link:../../core/agent-loop
-      '@qilin-agent/agent-loop-testkit':
-        specifier: workspace:*
-        version: link:../../test-support/agent-loop-testkit
-      '@qilin-agent/bash-local':
-        specifier: workspace:*
-        version: link:../../shell/bash-local
-      '@qilin-agent/hook-protocol':
-        specifier: workspace:*
-        version: link:../hook-protocol
-      '@qilin-agent/kylin':
-        specifier: workspace:~
-        version: link:../../../vendor/cordis
-      '@qilin-agent/llm':
-        specifier: workspace:*
-        version: link:../../llm/llm
-      '@qilin-agent/session':
-        specifier: workspace:*
-        version: link:../../core/session
-      '@qilin-agent/session-persistence-jsonl':
-        specifier: workspace:*
-        version: link:../../session/session-persistence-jsonl
-      '@qilin-agent/session-projection':
-        specifier: workspace:*
-        version: link:../../session/session-projection
-      '@qilin-agent/shell':
-        specifier: workspace:*
-        version: link:../../shell/shell
-      '@qilin-agent/subagent':
-        specifier: workspace:*
-        version: link:../../subagent/subagent
-      '@qilin-agent/subprocess-local':
-        specifier: workspace:*
-        version: link:../../subprocess/subprocess-local
-      '@qilin-agent/tools':
-        specifier: workspace:*
-        version: link:../../core/tools
-
-  packages/hooks/hooks-codex:
-    dependencies:
-      '@qilin-agent/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
-    devDependencies:
-      '@qilin-agent/agent':
-        specifier: workspace:*
-        version: link:../../core/agent
-      '@qilin-agent/agent-loop':
-        specifier: workspace:*
-        version: link:../../core/agent-loop
-      '@qilin-agent/agent-loop-testkit':
-        specifier: workspace:*
-        version: link:../../test-support/agent-loop-testkit
-      '@qilin-agent/bash-local':
-        specifier: workspace:*
-        version: link:../../shell/bash-local
-      '@qilin-agent/hook-protocol':
-        specifier: workspace:*
-        version: link:../hook-protocol
-      '@qilin-agent/kylin':
-        specifier: workspace:~
-        version: link:../../../vendor/cordis
-      '@qilin-agent/llm':
-        specifier: workspace:*
-        version: link:../../llm/llm
-      '@qilin-agent/session':
-        specifier: workspace:*
-        version: link:../../core/session
-      '@qilin-agent/session-persistence-jsonl':
-        specifier: workspace:*
-        version: link:../../session/session-persistence-jsonl
-      '@qilin-agent/session-projection':
-        specifier: workspace:*
-        version: link:../../session/session-projection
-      '@qilin-agent/shell':
-        specifier: workspace:*
-        version: link:../../shell/shell
-      '@qilin-agent/subprocess-local':
-        specifier: workspace:*
-        version: link:../../subprocess/subprocess-local
       '@qilin-agent/tools':
         specifier: workspace:*
         version: link:../../core/tools
@@ -10627,6 +10915,9 @@ importers:
       '@qilin-agent/subagent':
         specifier: workspace:*
         version: link:../../subagent/subagent
+      '@qilin-agent/working-directory':
+        specifier: workspace:*
+        version: link:../../session/working-directory
 
   packages/session-query/session-log-export:
     dependencies:
@@ -10762,61 +11053,6 @@ importers:
       '@qilin-agent/session-query':
         specifier: workspace:*
         version: link:../session-query
-
-  packages/session-query/tool-session-query:
-    dependencies:
-      '@qilin-agent/brand':
-        specifier: workspace:*
-        version: link:../../util/brand
-      '@qilin-agent/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
-    devDependencies:
-      '@qilin-agent/agent':
-        specifier: workspace:*
-        version: link:../../core/agent
-      '@qilin-agent/agent-loop':
-        specifier: workspace:*
-        version: link:../../core/agent-loop
-      '@qilin-agent/kylin':
-        specifier: workspace:~
-        version: link:../../../vendor/cordis
-      '@qilin-agent/llm':
-        specifier: workspace:*
-        version: link:../../llm/llm
-      '@qilin-agent/session':
-        specifier: workspace:*
-        version: link:../../core/session
-      '@qilin-agent/session-persistence':
-        specifier: workspace:*
-        version: link:../../session/session-persistence
-      '@qilin-agent/session-persistence-jsonl':
-        specifier: workspace:*
-        version: link:../../session/session-persistence-jsonl
-      '@qilin-agent/session-projection':
-        specifier: workspace:*
-        version: link:../../session/session-projection
-      '@qilin-agent/session-query':
-        specifier: workspace:*
-        version: link:../session-query
-      '@qilin-agent/session-query-sqlite':
-        specifier: workspace:*
-        version: link:../session-query-sqlite
-      '@qilin-agent/session-title':
-        specifier: workspace:*
-        version: link:../../session/session-title
-      '@qilin-agent/system-prompt':
-        specifier: workspace:*
-        version: link:../../core/system-prompt
-      '@qilin-agent/timeout':
-        specifier: workspace:*
-        version: link:../../util/timeout
-      '@qilin-agent/tool-call-timeout-policy':
-        specifier: workspace:*
-        version: link:../../guard/timeout-policy
-      '@qilin-agent/tools':
-        specifier: workspace:*
-        version: link:../../core/tools
 
   packages/session/session-checkpoint-policy:
     devDependencies:
@@ -11255,34 +11491,6 @@ importers:
         specifier: workspace:*
         version: link:../session-projection
 
-  packages/session/session-title-all-prompts-llm:
-    dependencies:
-      '@qilin-agent/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
-    devDependencies:
-      '@qilin-agent/agent-loop':
-        specifier: workspace:*
-        version: link:../../core/agent-loop
-      '@qilin-agent/kylin':
-        specifier: workspace:~
-        version: link:../../../vendor/cordis
-      '@qilin-agent/llm':
-        specifier: workspace:*
-        version: link:../../llm/llm
-      '@qilin-agent/session':
-        specifier: workspace:*
-        version: link:../../core/session
-      '@qilin-agent/session-projection':
-        specifier: workspace:*
-        version: link:../session-projection
-      '@qilin-agent/session-title':
-        specifier: workspace:*
-        version: link:../session-title
-      '@qilin-agent/session-title-llm':
-        specifier: workspace:*
-        version: link:../session-title-llm
-
   packages/session/session-title-first-prompt-llm:
     dependencies:
       '@qilin-agent/schemastery':
@@ -11372,6 +11580,61 @@ importers:
       '@qilin-agent/session-projection':
         specifier: workspace:*
         version: link:../session-projection
+
+  packages/session/tool-working-directory:
+    devDependencies:
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/tools':
+        specifier: workspace:*
+        version: link:../../core/tools
+      '@qilin-agent/working-directory':
+        specifier: workspace:*
+        version: link:../working-directory
+
+  packages/session/working-directory:
+    dependencies:
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+    devDependencies:
+      '@qilin-agent/agent':
+        specifier: workspace:*
+        version: link:../../core/agent
+      '@qilin-agent/agent-loop-testkit':
+        specifier: workspace:*
+        version: link:../../test-support/agent-loop-testkit
+      '@qilin-agent/fs':
+        specifier: workspace:*
+        version: link:../../fs/fs
+      '@qilin-agent/fs-local':
+        specifier: workspace:*
+        version: link:../../fs/fs-local
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/llm':
+        specifier: workspace:*
+        version: link:../../llm/llm
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/session-projection':
+        specifier: workspace:*
+        version: link:../session-projection
+      '@qilin-agent/system-prompt':
+        specifier: workspace:*
+        version: link:../../core/system-prompt
+      '@qilin-agent/tool-working-directory':
+        specifier: workspace:*
+        version: link:../tool-working-directory
+      '@qilin-agent/tools':
+        specifier: workspace:*
+        version: link:../../core/tools
 
   packages/settings/settings:
     dependencies:
@@ -11833,15 +12096,6 @@ importers:
         specifier: workspace:*
         version: link:../../core/scope
 
-  packages/skill/skill-badge:
-    devDependencies:
-      '@qilin-agent/kylin':
-        specifier: workspace:~
-        version: link:../../../vendor/cordis
-      '@qilin-agent/skill':
-        specifier: workspace:*
-        version: link:../skill
-
   packages/skill/skill-filesystem:
     dependencies:
       '@qilin-agent/schemastery':
@@ -11925,6 +12179,9 @@ importers:
       '@qilin-agent/tools':
         specifier: workspace:*
         version: link:../../core/tools
+      '@qilin-agent/working-directory':
+        specifier: workspace:*
+        version: link:../../session/working-directory
 
   packages/skill/tool-workspace-dependencies:
     dependencies:
@@ -12347,6 +12604,9 @@ importers:
       '@qilin-agent/util-time':
         specifier: workspace:*
         version: link:../../util/time
+      '@qilin-agent/working-directory':
+        specifier: workspace:*
+        version: link:../../session/working-directory
 
   packages/subagent/subagent-acp:
     dependencies:
@@ -12643,6 +12903,9 @@ importers:
       '@qilin-agent/user-approval':
         specifier: workspace:*
         version: link:../../interaction/user-approval
+      '@qilin-agent/working-directory':
+        specifier: workspace:*
+        version: link:../../session/working-directory
 
   packages/subagent/subagent-qilin-sdk:
     dependencies:
@@ -13030,70 +13293,6 @@ importers:
         specifier: workspace:*
         version: link:../terminal
 
-  packages/terminal/tool-terminal:
-    dependencies:
-      '@qilin-agent/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
-    devDependencies:
-      '@qilin-agent/agent':
-        specifier: workspace:*
-        version: link:../../core/agent
-      '@qilin-agent/agent-loop-testkit':
-        specifier: workspace:*
-        version: link:../../test-support/agent-loop-testkit
-      '@qilin-agent/jobs':
-        specifier: workspace:*
-        version: link:../../jobs/jobs
-      '@qilin-agent/jobs-local':
-        specifier: workspace:*
-        version: link:../../jobs/jobs-local
-      '@qilin-agent/kylin':
-        specifier: workspace:~
-        version: link:../../../vendor/cordis
-      '@qilin-agent/kylin-plugin-include':
-        specifier: workspace:~
-        version: link:../../../vendor/include
-      '@qilin-agent/kylin-plugin-loader':
-        specifier: workspace:~
-        version: link:../../../vendor/loader
-      '@qilin-agent/llm':
-        specifier: workspace:*
-        version: link:../../llm/llm
-      '@qilin-agent/output-retention':
-        specifier: workspace:*
-        version: link:../../util/output-retention
-      '@qilin-agent/sandbox':
-        specifier: workspace:*
-        version: link:../../sandbox/sandbox
-      '@qilin-agent/sandbox-policy':
-        specifier: workspace:*
-        version: link:../../sandbox/sandbox-policy
-      '@qilin-agent/session':
-        specifier: workspace:*
-        version: link:../../core/session
-      '@qilin-agent/session-projection':
-        specifier: workspace:*
-        version: link:../../session/session-projection
-      '@qilin-agent/subprocess-local':
-        specifier: workspace:*
-        version: link:../../subprocess/subprocess-local
-      '@qilin-agent/system-prompt':
-        specifier: workspace:*
-        version: link:../../core/system-prompt
-      '@qilin-agent/terminal':
-        specifier: workspace:*
-        version: link:../terminal
-      '@qilin-agent/terminal-bash':
-        specifier: workspace:*
-        version: link:../terminal-bash
-      '@qilin-agent/tool-jobs':
-        specifier: workspace:*
-        version: link:../../jobs/tool-jobs
-      '@qilin-agent/tools':
-        specifier: workspace:*
-        version: link:../../core/tools
-
   packages/test-support/agent-loop-testkit:
     devDependencies:
       '@qilin-agent/agent':
@@ -13102,6 +13301,9 @@ importers:
       '@qilin-agent/agent-loop':
         specifier: workspace:*
         version: link:../../core/agent-loop
+      '@qilin-agent/fs-local':
+        specifier: workspace:*
+        version: link:../../fs/fs-local
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -13120,6 +13322,9 @@ importers:
       '@qilin-agent/tools':
         specifier: workspace:*
         version: link:../../core/tools
+      '@qilin-agent/working-directory':
+        specifier: workspace:*
+        version: link:../../session/working-directory
 
   packages/test-support/client-runtime:
     dependencies:
@@ -13921,135 +14126,6 @@ importers:
         specifier: workspace:*
         version: link:../web
 
-  packages/webhook/webhook:
-    dependencies:
-      '@qilin-agent/brand':
-        specifier: workspace:*
-        version: link:../../util/brand
-      '@qilin-agent/util-values':
-        specifier: workspace:*
-        version: link:../../util/values
-    devDependencies:
-      '@qilin-agent/agent':
-        specifier: workspace:*
-        version: link:../../core/agent
-      '@qilin-agent/agent-default-model':
-        specifier: workspace:*
-        version: link:../../core/agent-default-model
-      '@qilin-agent/agent-presets':
-        specifier: workspace:*
-        version: link:../../preset/agent-presets
-      '@qilin-agent/kylin':
-        specifier: workspace:~
-        version: link:../../../vendor/cordis
-      '@qilin-agent/kylin-plugin-include':
-        specifier: workspace:~
-        version: link:../../../vendor/include
-      '@qilin-agent/kylin-plugin-loader':
-        specifier: workspace:~
-        version: link:../../../vendor/loader
-      '@qilin-agent/llm':
-        specifier: workspace:*
-        version: link:../../llm/llm
-      '@qilin-agent/permission-presets':
-        specifier: workspace:*
-        version: link:../../interaction/permission-presets
-      '@qilin-agent/session':
-        specifier: workspace:*
-        version: link:../../core/session
-      '@qilin-agent/session-title':
-        specifier: workspace:*
-        version: link:../../session/session-title
-      '@qilin-agent/workspace':
-        specifier: workspace:*
-        version: link:../../workspace/workspace
-
-  packages/webhook/webhook-github:
-    dependencies:
-      '@octokit/webhooks':
-        specifier: ^14.2.0
-        version: 14.2.0
-      '@qilin-agent/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
-      '@qilin-agent/util-values':
-        specifier: workspace:*
-        version: link:../../util/values
-    devDependencies:
-      '@qilin-agent/credentials':
-        specifier: workspace:*
-        version: link:../../credentials/credentials
-      '@qilin-agent/host-webserver':
-        specifier: workspace:*
-        version: link:../../host/webserver
-      '@qilin-agent/kylin':
-        specifier: workspace:~
-        version: link:../../../vendor/cordis
-      '@qilin-agent/kylin-plugin-include':
-        specifier: workspace:~
-        version: link:../../../vendor/include
-      '@qilin-agent/kylin-plugin-loader':
-        specifier: workspace:~
-        version: link:../../../vendor/loader
-      '@qilin-agent/session':
-        specifier: workspace:*
-        version: link:../../core/session
-      '@qilin-agent/webhook':
-        specifier: workspace:*
-        version: link:../webhook
-
-  packages/workflow/tool-ralph:
-    dependencies:
-      '@qilin-agent/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
-    devDependencies:
-      '@qilin-agent/agent':
-        specifier: workspace:*
-        version: link:../../core/agent
-      '@qilin-agent/agent-loop':
-        specifier: workspace:*
-        version: link:../../core/agent-loop
-      '@qilin-agent/agent-loop-testkit':
-        specifier: workspace:*
-        version: link:../../test-support/agent-loop-testkit
-      '@qilin-agent/kylin':
-        specifier: workspace:~
-        version: link:../../../vendor/cordis
-      '@qilin-agent/kylin-plugin-loader':
-        specifier: workspace:~
-        version: link:../../../vendor/loader
-      '@qilin-agent/llm':
-        specifier: workspace:*
-        version: link:../../llm/llm
-      '@qilin-agent/session':
-        specifier: workspace:*
-        version: link:../../core/session
-      '@qilin-agent/session-projection':
-        specifier: workspace:*
-        version: link:../../session/session-projection
-      '@qilin-agent/subagent':
-        specifier: workspace:*
-        version: link:../../subagent/subagent
-      '@qilin-agent/subagent-in-process-driver':
-        specifier: workspace:*
-        version: link:../../subagent/subagent-in-process-driver
-      '@qilin-agent/subagent-spawn-in-process':
-        specifier: workspace:*
-        version: link:../../subagent/subagent-spawn-in-process
-      '@qilin-agent/system-prompt':
-        specifier: workspace:*
-        version: link:../../core/system-prompt
-      '@qilin-agent/tools':
-        specifier: workspace:*
-        version: link:../../core/tools
-      '@qilin-agent/workflow':
-        specifier: workspace:*
-        version: link:../workflow
-      '@qilin-agent/workflow-ptc':
-        specifier: workspace:*
-        version: link:../workflow-ptc
-
   packages/workflow/tool-workflow:
     dependencies:
       '@qilin-agent/schemastery':
@@ -14328,15 +14404,6 @@ importers:
       '@qilin-agent/home-paths':
         specifier: workspace:^
         version: link:../../packages/util/home-paths
-      '@qilin-agent/hook-protocol':
-        specifier: workspace:^
-        version: link:../../packages/hooks/hook-protocol
-      '@qilin-agent/hooks-claude-code':
-        specifier: workspace:^
-        version: link:../../packages/hooks/hooks-claude-code
-      '@qilin-agent/hooks-codex':
-        specifier: workspace:^
-        version: link:../../packages/hooks/hooks-codex
       '@qilin-agent/host-plugin-inventory':
         specifier: workspace:^
         version: link:../../packages/host/plugin-inventory
@@ -14577,9 +14644,6 @@ importers:
       '@qilin-agent/tool-pwsh-persistent':
         specifier: workspace:^
         version: link:../../packages/shell/tool-pwsh-persistent
-      '@qilin-agent/tool-ralph':
-        specifier: workspace:^
-        version: link:../../packages/workflow/tool-ralph
       '@qilin-agent/tool-schedule':
         specifier: workspace:^
         version: link:../../packages/schedule/tool-schedule
@@ -14652,6 +14716,9 @@ importers:
       '@qilin-agent/workflow-ptc':
         specifier: workspace:^
         version: link:../../packages/workflow/workflow-ptc
+      '@qilin-agent/working-directory':
+        specifier: workspace:^
+        version: link:../../packages/session/working-directory
       '@qilin-agent/workspace':
         specifier: workspace:^
         version: link:../../packages/workspace/workspace

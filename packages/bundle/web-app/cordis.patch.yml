@@ -15,7 +15,6 @@
 
 - id: system-prompt
   config:
-    personaSuffix: Your working directory is {{cwd}}.
     personaPrefix: >-
       You are a coding agent powered by the {{model}} model.
 
@@ -561,12 +560,6 @@
   disabled: true
 
 - id: tool-workflow
-  disabled: true
-
-# `base` ships this row disabled; the preset-plane gate reads declared row ids
-# without regard to `disabled`, so this row must stay to keep `tool-ralph` off
-# the host plane and out of collision with every preset's row.
-- id: tool-ralph
   disabled: true
 
 - id: agent-instructions

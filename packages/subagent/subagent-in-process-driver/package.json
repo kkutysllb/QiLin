@@ -36,7 +36,8 @@
     "@qilin-agent/session": "workspace:*",
     "@qilin-agent/subagent": "workspace:*",
     "@qilin-agent/system-prompt": "workspace:*",
-    "@qilin-agent/tools": "workspace:*"
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/working-directory": "workspace:*"
   },
   "devDependencies": {
     "@qilin-agent/kylin": "workspace:~",
@@ -55,7 +56,8 @@
     "@qilin-agent/system-prompt": "workspace:*",
     "@qilin-agent/tool-fs": "workspace:*",
     "@qilin-agent/tools": "workspace:*",
-    "@qilin-agent/user-approval": "workspace:*"
+    "@qilin-agent/user-approval": "workspace:*",
+    "@qilin-agent/working-directory": "workspace:*"
   },
   "dependencies": {
     "@qilin-agent/brand": "workspace:*"

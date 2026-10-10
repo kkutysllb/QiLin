@@ -7,6 +7,7 @@
  * child's own request — rather than the join that produces it.
  */
 
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 import { afterEach, describe, expect, it } from 'vitest'
 import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -39,6 +40,7 @@ async function setupPresetHost(): Promise<{ ctx: Context; adapter: MockAdapter; 
   await ctx.plugin(Loader)
   ctx.loader.builtins.include = Include
   await mountAgentLoopTestDependencies(ctx)
+  await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(AgentLoop, { agents: [] })
   await ctx.plugin(AgentPresets, { default: 'coding', roots: ROOTS, includeShippedRoot: false, includeUserRoot: false })
   const adapter = new MockAdapter([textResponse('parent idle'), textResponse('child done')])
@@ -58,6 +60,7 @@ function spawnRequest(parent: Agent) {
     prompt: [{ type: 'text' as const, text: 'child task' }],
     parent,
     signal: new AbortController().signal,
+    cwd: parent.session.header.cwd ?? process.cwd(),
     descriptor: snapshotSubagentDescriptor({
       mode: 'one-shot' as const,
       provider: 'spawn',

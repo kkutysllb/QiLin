@@ -39,6 +39,7 @@
     "@qilin-agent/permission-presets": "workspace:*",
     "@qilin-agent/session": "workspace:*",
     "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/working-directory": "workspace:*",
     "@qilin-agent/kylin": "workspace:~"
   },
   "dependencies": {
@@ -73,6 +74,7 @@
     "@qilin-agent/tool-subagent": "workspace:*",
     "@qilin-agent/tools": "workspace:*",
     "@qilin-agent/user-approval": "workspace:*",
+    "@qilin-agent/working-directory": "workspace:*",
     "@qilin-agent/kylin": "workspace:~"
   },
   "publishConfig": {

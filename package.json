@@ -199,7 +199,7 @@
     "@qilin-agent/experimental-computer-use-cua-driver-mcp": "workspace:*",
     "@qilin-agent/experimental-computer-use-cua-driver-native": "workspace:*",
     "@qilin-agent/llm-replay": "workspace:*",
-    "@qilin-agent/tool-session-query": "workspace:*",
+    "@qilin-agent/experimental-tool-session-query": "workspace:*",
     "@qilin-agent/web-fetch-http": "workspace:*",
     "@stylistic/eslint-plugin": "^5.10.0",
     "@testing-library/dom": "^10.4.1",

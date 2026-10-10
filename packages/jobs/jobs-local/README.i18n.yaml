@@ -5,63 +5,63 @@
 /:
   en: 0abe764a4bc3e3db
   zh: 280ff3a1c1a8bc5c
-/qilin-jobs-local:
-  en: 03ab80a1cfb3106a
-  zh: 275f6f07bc2cbb5a
-/qilin-jobs-local/summary:
+/qilin-agent-jobs-local:
+  en: e4afd84dec82b0f9
+  zh: ddc35d1ed836d4e3
+/qilin-agent-jobs-local/summary:
   en: 550c287158d7f50a
   zh: 55212b28f5227572
-/qilin-jobs-local/table-of-contents:
+/qilin-agent-jobs-local/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-jobs-local/use-this-package:
+/qilin-agent-jobs-local/use-this-package:
   en: 0c4e997ba1e9a83e
   zh: a2be3a4959ccf126
-/qilin-jobs-local/use-this-package/when-to-choose-it:
+/qilin-agent-jobs-local/use-this-package/when-to-choose-it:
   en: 17479310883edc0a
   zh: f1cea41c704dabe2
-/qilin-jobs-local/use-this-package/minimal-configuration:
-  en: e41e43d5b8ecf999
-  zh: 127b870d04e3789e
-/qilin-jobs-local/use-this-package/what-each-owner-gets:
+/qilin-agent-jobs-local/use-this-package/minimal-configuration:
+  en: 597ecaaf60cc35b5
+  zh: 733ec04af336a42f
+/qilin-agent-jobs-local/use-this-package/what-each-owner-gets:
   en: 9ab66aa770694092
   zh: 38de930bcfbc132c
-/qilin-jobs-local/use-this-package/lifecycle:
+/qilin-agent-jobs-local/use-this-package/lifecycle:
   en: 91dd372f742dcdb8
   zh: 58eeee0254d33cd1
-/qilin-jobs-local/use-this-package/what-can-go-wrong:
+/qilin-agent-jobs-local/use-this-package/what-can-go-wrong:
   en: 7054740c79c80b30
   zh: 4c040ad82c264eb4
-/qilin-jobs-local/understand-the-implementation:
+/qilin-agent-jobs-local/understand-the-implementation:
   en: f782557ca8da3138
   zh: e8f0082b9692cacc
-/qilin-jobs-local/understand-the-implementation/design-philosophy:
+/qilin-agent-jobs-local/understand-the-implementation/design-philosophy:
   en: a4fc19532d8098b3
   zh: f0317ff85210fd92
-/qilin-jobs-local/understand-the-implementation/source-map:
+/qilin-agent-jobs-local/understand-the-implementation/source-map:
   en: 6b4a2310e339cd3f
   zh: 59c3fd768f2f4679
-/qilin-jobs-local/understand-the-implementation/scope-layers:
+/qilin-agent-jobs-local/understand-the-implementation/scope-layers:
   en: b4bb30d93380a3d2
   zh: 77b32c2b7dda7c16
-/qilin-jobs-local/understand-the-implementation/admission-and-settlement:
+/qilin-agent-jobs-local/understand-the-implementation/admission-and-settlement:
   en: 11577d1b1ccbc858
   zh: 904c1e059eb8e252
-/qilin-jobs-local/understand-the-implementation/teardown:
+/qilin-agent-jobs-local/understand-the-implementation/teardown:
   en: cfd5588935a2b045
   zh: 996d71d88d570006
-/qilin-jobs-local/further-exploration:
+/qilin-agent-jobs-local/further-exploration:
   en: 703a5841b66a137e
   zh: 7be8d0d896c25001
-/qilin-jobs-local/model-experience:
+/qilin-agent-jobs-local/model-experience:
   en: 1c155493329d840c
   zh: edea91f03f4e0d7b
-/qilin-jobs-local/model-experience/kv-cache-effect:
+/qilin-agent-jobs-local/model-experience/kv-cache-effect:
   en: e290ccc9b3c92c08
   zh: d75d48f485447a74
-/qilin-jobs-local/known-limitations-and-deferred-work:
+/qilin-agent-jobs-local/known-limitations-and-deferred-work:
   en: 5284107cbd22e3dd
   zh: 9aa0048908c94e25
-/qilin-jobs-local/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-jobs-local/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

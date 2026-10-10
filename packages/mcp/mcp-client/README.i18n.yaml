@@ -5,93 +5,93 @@
 /:
   en: 6440e0efb151c0fa
   zh: d767308eb95b9d3f
-/qilin-mcp-client:
-  en: ee48f60fd7bb2c12
-  zh: 2f76e3fa1ff82278
-/qilin-mcp-client/summary:
+/qilin-agent-mcp-client:
+  en: c732e9083e926b2f
+  zh: 263101da084f02c6
+/qilin-agent-mcp-client/summary:
   en: d808a56c390a58d4
   zh: 015b7a4bfdc8750d
-/qilin-mcp-client/table-of-contents:
+/qilin-agent-mcp-client/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-mcp-client/use-this-package:
+/qilin-agent-mcp-client/use-this-package:
   en: d05391a8325db7e5
   zh: 57c9d735a9fd0d02
-/qilin-mcp-client/use-this-package/minimal-configuration:
-  en: 41e226c8d0580305
-  zh: 0d19bf29eac2498f
-/qilin-mcp-client/use-this-package/tool-naming-and-coexistence:
+/qilin-agent-mcp-client/use-this-package/minimal-configuration:
+  en: 39b04f3575532b9e
+  zh: 3606f69c3fe002ab
+/qilin-agent-mcp-client/use-this-package/tool-naming-and-coexistence:
   en: 75ae9745d5b04796
   zh: 8ae5b8ca6e73296e
-/qilin-mcp-client/use-this-package/calling-tools-and-reading-results:
+/qilin-agent-mcp-client/use-this-package/calling-tools-and-reading-results:
   en: cad16c6102b0e316
   zh: 03841eea6ead54cd
-/qilin-mcp-client/use-this-package/startup-updates-and-reconnection:
+/qilin-agent-mcp-client/use-this-package/startup-updates-and-reconnection:
   en: d7b393106cf6b8fc
   zh: a95bdc34e914b0da
-/qilin-mcp-client/understand-the-implementation:
+/qilin-agent-mcp-client/understand-the-implementation:
   en: d33ddd080880b3f5
   zh: 64328f5239c26752
-/qilin-mcp-client/understand-the-implementation/design-philosophy:
+/qilin-agent-mcp-client/understand-the-implementation/design-philosophy:
   en: dc5647187103cb24
   zh: 0602112369690c32
-/qilin-mcp-client/understand-the-implementation/source-map:
+/qilin-agent-mcp-client/understand-the-implementation/source-map:
   en: f134d7502d573290
   zh: 5dd8ad502f8db776
-/qilin-mcp-client/understand-the-implementation/lifecycle-and-sync:
+/qilin-agent-mcp-client/understand-the-implementation/lifecycle-and-sync:
   en: ae9029b48b2a2e4e
   zh: 048f08361b799667
-/qilin-mcp-client/understand-the-implementation/tool-execution-internals:
+/qilin-agent-mcp-client/understand-the-implementation/tool-execution-internals:
   en: b4333df1bd3f027c
   zh: 6bb4be691452c27a
-/qilin-mcp-client/understand-the-implementation/environment-scrubbing-stdio:
+/qilin-agent-mcp-client/understand-the-implementation/environment-scrubbing-stdio:
   en: 3656bef1e19f4192
   zh: e1dc2fbb97eddb62
-/qilin-mcp-client/further-exploration:
-  en: ef1b84a8564a528c
-  zh: efc8509b4dbe508c
-/qilin-mcp-client/model-experience:
+/qilin-agent-mcp-client/further-exploration:
+  en: 0fadb7c5df41572f
+  zh: 46400762d351848f
+/qilin-agent-mcp-client/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-mcp-client/model-experience/discovered-mcp-tools:
+/qilin-agent-mcp-client/model-experience/discovered-mcp-tools:
   en: 9f6397197d9a607d
   zh: 79cf93aaf2e25a39
-/qilin-mcp-client/model-experience/discovered-mcp-tools/what-the-model-sees:
+/qilin-agent-mcp-client/model-experience/discovered-mcp-tools/what-the-model-sees:
   en: 866a129e71634e0e
   zh: b27e4b22a07c2f26
-/qilin-mcp-client/model-experience/discovered-mcp-tools/token-effect:
+/qilin-agent-mcp-client/model-experience/discovered-mcp-tools/token-effect:
   en: e075054d1539d827
   zh: 9e537475e78eb53c
-/qilin-mcp-client/model-experience/discovered-mcp-tools/kv-cache-effect:
+/qilin-agent-mcp-client/model-experience/discovered-mcp-tools/kv-cache-effect:
   en: dae97512f6d61027
   zh: 5e6103fab15ab42d
-/qilin-mcp-client/model-experience/tool-call-history-and-results:
+/qilin-agent-mcp-client/model-experience/tool-call-history-and-results:
   en: a8503137ad03720c
   zh: 611a2dadf7c0c706
-/qilin-mcp-client/model-experience/tool-call-history-and-results/what-the-model-sees:
+/qilin-agent-mcp-client/model-experience/tool-call-history-and-results/what-the-model-sees:
   en: 5b3a7fe5bf11e73b
   zh: e015c2468962fcf3
-/qilin-mcp-client/model-experience/tool-call-history-and-results/token-effect:
+/qilin-agent-mcp-client/model-experience/tool-call-history-and-results/token-effect:
   en: cc030374eca00e1c
   zh: d4b19b9db621b367
-/qilin-mcp-client/model-experience/tool-call-history-and-results/kv-cache-effect:
+/qilin-agent-mcp-client/model-experience/tool-call-history-and-results/kv-cache-effect:
   en: f5d5f97a153f7c70
   zh: 31911b4f3506d6c8
-/qilin-mcp-client/model-experience/server-instructions:
+/qilin-agent-mcp-client/model-experience/server-instructions:
   en: a3cb7c5760a8c141
   zh: ec9fc8d4f00a5eb6
-/qilin-mcp-client/model-experience/server-instructions/what-the-model-sees:
+/qilin-agent-mcp-client/model-experience/server-instructions/what-the-model-sees:
   en: d3e9d53702f9c494
   zh: 62bd2b185abbd38c
-/qilin-mcp-client/model-experience/server-instructions/token-effect:
+/qilin-agent-mcp-client/model-experience/server-instructions/token-effect:
   en: 082214331ebf38d7
   zh: 2251c4f8e4d2e05c
-/qilin-mcp-client/model-experience/server-instructions/kv-cache-effect:
+/qilin-agent-mcp-client/model-experience/server-instructions/kv-cache-effect:
   en: 189198f7ace2a991
   zh: 00948145a803d614
-/qilin-mcp-client/known-limitations-and-deferred-work:
+/qilin-agent-mcp-client/known-limitations-and-deferred-work:
   en: 96c2a3ed415117e2
   zh: 23151b28dedd31fb
-/qilin-mcp-client/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-mcp-client/known-limitations-and-deferred-work/dev-note:
   en: f3dc24d564dc91e9
   zh: bebfa83aa4754c5d

@@ -5,51 +5,51 @@
 /:
   en: 65283627208ef4c9
   zh: aa3f833ec24bb65a
-/qilin-plugin-manager:
-  en: 4c61f205a3f12678
-  zh: 7c4d8d0b6fd8ade9
-/qilin-plugin-manager/summary:
+/qilin-agent-plugin-manager:
+  en: 8c5242f04fd8a9aa
+  zh: 96e9a950953622ec
+/qilin-agent-plugin-manager/summary:
   en: d6afcaa1594efcdb
   zh: 459cb6ac0dcb2d46
-/qilin-plugin-manager/table-of-contents:
+/qilin-agent-plugin-manager/table-of-contents:
   en: 87679c51aa3693f5
   zh: 11684a48a5806afb
-/qilin-plugin-manager/use-this-package:
+/qilin-agent-plugin-manager/use-this-package:
   en: bcd49461dd64b771
   zh: d5f070b6834b29f3
-/qilin-plugin-manager/use-this-package/version-compatibility-and-exemptions:
+/qilin-agent-plugin-manager/use-this-package/version-compatibility-and-exemptions:
   en: cb5b84daa9fe515d
   zh: 74887d5f4c95bd22
-/qilin-plugin-manager/use-this-package/configuration:
+/qilin-agent-plugin-manager/use-this-package/configuration:
   en: 9b96d80bac0f8987
   zh: 86bc8bbcce3c0420
-/qilin-plugin-manager/understand-the-implementation:
+/qilin-agent-plugin-manager/understand-the-implementation:
   en: 69cdaefde2e40c84
   zh: bed477c781d5db75
-/qilin-plugin-manager/further-exploration:
+/qilin-agent-plugin-manager/further-exploration:
   en: fa0b4837e6d7faf8
   zh: e3c3dd037336098d
-/qilin-plugin-manager/model-experience:
+/qilin-agent-plugin-manager/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-plugin-manager/model-experience/management-tool:
+/qilin-agent-plugin-manager/model-experience/management-tool:
   en: 1815ec6ce56c80d4
   zh: 2d7ac75d3b25eb6b
-/qilin-plugin-manager/model-experience/management-tool/what-the-model-sees:
-  en: d494b40586275f52
-  zh: bdc5875e18109996
-/qilin-plugin-manager/model-experience/management-tool/token-effect:
+/qilin-agent-plugin-manager/model-experience/management-tool/what-the-model-sees:
+  en: 57fa758032dc32c2
+  zh: 6ddd1927bbab5bf6
+/qilin-agent-plugin-manager/model-experience/management-tool/token-effect:
   en: bc70208bd361dbcd
   zh: bb651d6066066c6c
-/qilin-plugin-manager/model-experience/management-tool/kv-cache-effect:
+/qilin-agent-plugin-manager/model-experience/management-tool/kv-cache-effect:
   en: c29f60be7f3edc1a
   zh: d9b9388b96ef95cc
-/qilin-plugin-manager/known-limitations-and-deferred-work:
+/qilin-agent-plugin-manager/known-limitations-and-deferred-work:
   en: f1d84496b5816f60
   zh: cc930faed146764e
-/qilin-plugin-manager/known-limitations-and-deferred-work/failure-behavior:
+/qilin-agent-plugin-manager/known-limitations-and-deferred-work/failure-behavior:
   en: b0830652a655a5ea
   zh: 0f3748773d911e90
-/qilin-plugin-manager/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-plugin-manager/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

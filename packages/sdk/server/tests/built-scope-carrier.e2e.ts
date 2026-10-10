@@ -22,6 +22,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { mountWorkingDirectoryFixture } from '../../../subagent/subagent/tests/working-directory-fixture.ts'
 
 const load = (path) => import(pathToFileURL(resolve(path)).href);
 const [
@@ -45,8 +46,9 @@ const [
 const storageRoot = await mkdtemp(join(tmpdir(), "jsonrpc-built-scope-"));
 const ctx = new Context();
 try {
-  await mountAgentLoopTestDependencies(ctx);
+  await mountAgentLoopTestDependencies(ctx, { workingDirectory: true });
   await ctx.plugin(AgentLoop, { agents: [] });
+  await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(SubagentRuntime);
   await ctx.plugin(JsonlSessionPersistence, { root: storageRoot });
   await new Promise((ready) => setTimeout(ready, 50));

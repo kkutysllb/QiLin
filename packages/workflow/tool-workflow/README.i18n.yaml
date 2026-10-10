@@ -5,93 +5,93 @@
 /:
   en: de1de2c83432e095
   zh: facea56204dc9c76
-/qilin-tool-workflow:
-  en: c7ce84548e2da12f
-  zh: 3d6714caefde34d3
-/qilin-tool-workflow/summary:
+/qilin-agent-tool-workflow:
+  en: 73f00b70b4f695a0
+  zh: 4b7221d7236a58cd
+/qilin-agent-tool-workflow/summary:
   en: 89fc33a25b8f93a9
   zh: f9cc49ecbcfc34d1
-/qilin-tool-workflow/table-of-contents:
+/qilin-agent-tool-workflow/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-tool-workflow/use-this-package:
+/qilin-agent-tool-workflow/use-this-package:
   en: a0a9d655187f285d
   zh: 230b4556fff9f08b
-/qilin-tool-workflow/use-this-package/calling-the-tool:
+/qilin-agent-tool-workflow/use-this-package/calling-the-tool:
   en: 5bf8c52d96084a3a
   zh: 1e62ef7c4ef9d470
-/qilin-tool-workflow/use-this-package/what-to-expect-during-a-run:
+/qilin-agent-tool-workflow/use-this-package/what-to-expect-during-a-run:
   en: 19ec4f830edb8e1a
   zh: 8579ae5274aca6de
-/qilin-tool-workflow/use-this-package/config:
-  en: 710dc62ba3f8c626
-  zh: 117bade4ab4287d3
-/qilin-tool-workflow/understand-the-implementation:
+/qilin-agent-tool-workflow/use-this-package/config:
+  en: 8bf1586383e61dbd
+  zh: 08bae22319f55738
+/qilin-agent-tool-workflow/understand-the-implementation:
   en: 18684e6da513cdb5
   zh: bd4cdcabfe4722ec
-/qilin-tool-workflow/understand-the-implementation/design-concept:
+/qilin-agent-tool-workflow/understand-the-implementation/design-concept:
   en: 6d09119d1393c254
   zh: a7cc03daa59650ec
-/qilin-tool-workflow/understand-the-implementation/run-lifecycle:
+/qilin-agent-tool-workflow/understand-the-implementation/run-lifecycle:
   en: 16157543e72d3450
   zh: 86b031142d23ef3e
-/qilin-tool-workflow/understand-the-implementation/durable-session-records:
+/qilin-agent-tool-workflow/understand-the-implementation/durable-session-records:
   en: 8e9b22c595da83e7
   zh: 8fdbe719c0523389
-/qilin-tool-workflow/understand-the-implementation/render-intent:
+/qilin-agent-tool-workflow/understand-the-implementation/render-intent:
   en: ba0385d77373ef3e
   zh: 01c5d49c59997d47
-/qilin-tool-workflow/understand-the-implementation/source-map:
+/qilin-agent-tool-workflow/understand-the-implementation/source-map:
   en: be0ac764b960ee29
   zh: 3ed0941dd14e8373
-/qilin-tool-workflow/further-exploration:
+/qilin-agent-tool-workflow/further-exploration:
   en: 420e734e87514a01
   zh: 6c538d59c9bf83c2
-/qilin-tool-workflow/model-experience:
+/qilin-agent-tool-workflow/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-tool-workflow/model-experience/system-prompt:
+/qilin-agent-tool-workflow/model-experience/system-prompt:
   en: cf78b9dd5596495f
   zh: bd44560f8c2435e8
-/qilin-tool-workflow/model-experience/system-prompt/what-the-model-sees:
+/qilin-agent-tool-workflow/model-experience/system-prompt/what-the-model-sees:
   en: 13411e342534174d
   zh: 0991c63ac26ada3f
-/qilin-tool-workflow/model-experience/system-prompt/what-the-model-sees/workflow-guidance:
+/qilin-agent-tool-workflow/model-experience/system-prompt/what-the-model-sees/workflow-guidance:
   en: 214b61fe5bdb1097
   zh: 2358fc753d21f12c
-/qilin-tool-workflow/model-experience/system-prompt/token-effect:
+/qilin-agent-tool-workflow/model-experience/system-prompt/token-effect:
   en: dab67480bfde6224
   zh: 85bbf18da3767aa7
-/qilin-tool-workflow/model-experience/system-prompt/kv-cache-effect:
+/qilin-agent-tool-workflow/model-experience/system-prompt/kv-cache-effect:
   en: 13e7c6007bf6b5dc
   zh: 1690c361c6f07ba4
-/qilin-tool-workflow/model-experience/tool-schema:
+/qilin-agent-tool-workflow/model-experience/tool-schema:
   en: e4c7376d4f29dbd5
   zh: 6b7a9eaf69c9ea53
-/qilin-tool-workflow/model-experience/tool-schema/what-the-model-sees:
-  en: 5f1659b2a870a2e9
-  zh: 4827170f4b0a9614
-/qilin-tool-workflow/model-experience/tool-schema/token-effect:
+/qilin-agent-tool-workflow/model-experience/tool-schema/what-the-model-sees:
+  en: f427c0a83e66efb3
+  zh: 1a25969e65b6cabb
+/qilin-agent-tool-workflow/model-experience/tool-schema/token-effect:
   en: 2038bdeb03f99195
   zh: 90959fa2708b910f
-/qilin-tool-workflow/model-experience/tool-schema/kv-cache-effect:
+/qilin-agent-tool-workflow/model-experience/tool-schema/kv-cache-effect:
   en: e01353abf883d9ba
   zh: 3c9e5d6bd7f4e831
-/qilin-tool-workflow/model-experience/tool-call-history-and-result:
+/qilin-agent-tool-workflow/model-experience/tool-call-history-and-result:
   en: 9717b983b6a857e3
   zh: 611a2dadf7c0c706
-/qilin-tool-workflow/model-experience/tool-call-history-and-result/what-the-model-sees:
+/qilin-agent-tool-workflow/model-experience/tool-call-history-and-result/what-the-model-sees:
   en: 248eac9069bf8003
   zh: e14e653759529778
-/qilin-tool-workflow/model-experience/tool-call-history-and-result/token-effect:
+/qilin-agent-tool-workflow/model-experience/tool-call-history-and-result/token-effect:
   en: 88cfc89c7dc19dbb
   zh: 75e674844f311937
-/qilin-tool-workflow/model-experience/tool-call-history-and-result/kv-cache-effect:
+/qilin-agent-tool-workflow/model-experience/tool-call-history-and-result/kv-cache-effect:
   en: f5d5f97a153f7c70
   zh: 3d6bc05b9eadfbc2
-/qilin-tool-workflow/known-limitations-and-deferred-work:
+/qilin-agent-tool-workflow/known-limitations-and-deferred-work:
   en: 68fdb049aa5d5b3e
   zh: 6ba572323b21b7ad
-/qilin-tool-workflow/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-tool-workflow/known-limitations-and-deferred-work/dev-note:
   en: e2446df8310f2d49
   zh: b7cef7734d518f29

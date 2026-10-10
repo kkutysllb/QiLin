@@ -6,6 +6,7 @@
  */
 
 export {
+  DSH_APPLICATION_MODULE_ALIASES,
   DSH_PLATFORM_MODULE_ALIASES,
   dshCompatModuleId,
 } from './aliases.ts'

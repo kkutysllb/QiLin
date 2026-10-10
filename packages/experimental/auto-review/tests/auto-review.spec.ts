@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { provideWorkingDirectoryFixture } from '@qilin-agent/agent-loop-testkit'
 import { Context } from '@qilin-agent/kylin'
 import type { Agent } from '@qilin-agent/agent'
 import type {} from '@qilin-agent/agent-instructions'
@@ -27,7 +28,6 @@ import SessionStore, {
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import SubagentRuntime, {
   NO_START_CAPABILITIES,
-  resolveChildCwd,
   snapshotSubagentDescriptor,
   type ResolvedSubagentStartRequest,
 } from '@qilin-agent/subagent'
@@ -43,6 +43,7 @@ import ToolRuntime, {
 } from '@qilin-agent/tools'
 import ApprovalService, { setApprovalPolicy, type ApprovalOutcome } from '@qilin-agent/user-approval'
 import * as AutoReview from '@qilin-agent/experimental-auto-review'
+import { mountWorkingDirectoryFixture } from '../../../subagent/subagent/tests/working-directory-fixture.ts'
 
 const EXPECTED_REVIEW_POLICY = `REVIEW_POLICY
 You are the final authorization reviewer for exactly one pending tool call. Your decision replaces human approval for this call. If you allow it, the call executes immediately with full host access and no later confirmation.
@@ -131,6 +132,7 @@ async function harness(
   permissionConfig: NonNullable<Parameters<typeof PermissionPresetService.Config>[0]> = { presets: PRESETS, defaultPreset: 'workspace-write' },
 ): Promise<{ ctx: Context; adapter: RecordingAdapter; auto: PluginFiber }> {
   const ctx = new Context()
+  provideWorkingDirectoryFixture(ctx)
   contexts.push(ctx)
   await ctx.plugin(LlmRuntime)
   await ctx.plugin(SessionStore)
@@ -1208,6 +1210,7 @@ describe('out-of-process delegation boundary', () => {
       scriptedDecision('deny', 'deny'),
       scriptedDecision('allow', 'allow'),
     ])
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     let providerRequest: ResolvedSubagentStartRequest | undefined
     ctx.subagents.registerProvider({
@@ -1291,11 +1294,7 @@ describe('out-of-process delegation boundary', () => {
     expect(timeline).toEqual(['review:deny', 'review:allow', 'provider:start'])
     expect(adapter.requests).toHaveLength(2)
     expect(providerRequest?.parent).toBe(agent)
-    expect(resolveChildCwd(
-      'remote-boundary',
-      undefined,
-      providerRequest?.parent.session.header.cwd,
-    )).toBe(process.cwd())
+    expect(providerRequest?.cwd).toBe(process.cwd())
     expect(providerRequest?.agentOptions).toBeUndefined()
     expect(providerRequest?.maxDepth).toBeUndefined()
     expect(providerRequest?.persona).toBeUndefined()
@@ -1534,6 +1533,7 @@ describe('cancellation and integration teardown', () => {
     })
     invalid.provide('approval', { config: { policy: 'ask' } })
     await invalid.plugin(PermissionPresetService, {})
+    provideWorkingDirectoryFixture(invalid)
     const auto = await invalid.plugin(AutoReview)
     expect(invalid.permissionPresets.names).toContain(AUTO_PRESET)
     await auto.dispose()
@@ -1693,22 +1693,30 @@ describe('logged-fact failures', () => {
       expectReviewFailure(result)
     }
 
-    const missingCwd = ctx.sessions.create(SessionId('missing-cwd'))
-    ctx.permissionPresets.set(missingCwd, AUTO_PRESET)
-    appendHeader(missingCwd, [{ name: 'probe', description: 'probe', parameters: { type: 'object' } }])
-    const missingCwdId = ToolCallId('missing-cwd-call')
-    appendAssistant(missingCwd, [{ type: 'tool-call', id: missingCwdId, name: 'probe', arguments: '{}' }])
-    appendNativeCall(missingCwd, missingCwdId, 'probe', '{}')
-    expectReviewFailure(await ctx.tools.execute({
-      signal: new AbortController().signal,
-      callId: missingCwdId,
-      name: 'probe',
-      arguments: {},
-      agent: agentFor(missingCwd),
-    }), 'auto-review: the session has no working directory')
-
     expect(probe.runs()).toBe(0)
     expect(adapter.requests).toHaveLength(0)
+  })
+
+  it('reviews a Session without a header directory using the deployment fallback', async () => {
+    const { ctx, adapter } = await harness([decisionChunks('{"risk":"low","decision":"allow"}')])
+    const probe = registerProbe(ctx)
+    const session = ctx.sessions.create(SessionId('missing-cwd'))
+    ctx.permissionPresets.set(session, AUTO_PRESET)
+    appendHeader(session, [{ name: 'probe', description: 'probe', parameters: { type: 'object' } }])
+    const callId = ToolCallId('missing-cwd-call')
+    appendAssistant(session, [{ type: 'tool-call', id: callId, name: 'probe', arguments: '{}' }])
+    appendNativeCall(session, callId, 'probe', '{}')
+    const result = await ctx.tools.execute({
+      signal: new AbortController().signal,
+      callId,
+      name: 'probe',
+      arguments: {},
+      agent: agentFor(session),
+    })
+    expect(result.isError).toBe(false)
+    expect(probe.runs()).toBe(1)
+    expect(adapter.requests).toHaveLength(1)
+    expect(requestSections(adapter.requests[0]!).ENVIRONMENT).toEqual({ cwd: process.cwd() })
   })
 
   it('fails closed for missing, ambiguous, or conflicting PTC facts', async () => {

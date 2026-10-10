@@ -5,51 +5,51 @@
 /:
   en: f7e65364dfe462b8
   zh: 20d2b8f84f10f681
-/qilin-sdk-protocol:
-  en: 5e732e30d692ee17
-  zh: 7c9e1ee4eab37dbb
-/qilin-sdk-protocol/summary:
+/qilin-agent-sdk-protocol:
+  en: d7f730424fb1d847
+  zh: 975c1c450aae7ff8
+/qilin-agent-sdk-protocol/summary:
   en: 3c925f80397f6de5
   zh: bde920424fcd3907
-/qilin-sdk-protocol/table-of-contents:
+/qilin-agent-sdk-protocol/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-sdk-protocol/use-this-package:
+/qilin-agent-sdk-protocol/use-this-package:
   en: c4ca91b51aab452a
   zh: 1c77b1deaeb34931
-/qilin-sdk-protocol/use-this-package/framing-and-transport:
+/qilin-agent-sdk-protocol/use-this-package/framing-and-transport:
   en: be53c71505c0d1b4
   zh: 6210dee577715539
-/qilin-sdk-protocol/use-this-package/the-sdk-methods:
-  en: 8cfc9efc99c7198d
-  zh: ac00d94406fc2388
-/qilin-sdk-protocol/use-this-package/payload-semantics:
+/qilin-agent-sdk-protocol/use-this-package/the-sdk-methods:
+  en: 934c525b888aae2d
+  zh: 7de76c7bb454f6ce
+/qilin-agent-sdk-protocol/use-this-package/payload-semantics:
   en: fa82ada64a1d3345
   zh: 76ad788db1ced3d2
-/qilin-sdk-protocol/understand-the-implementation:
+/qilin-agent-sdk-protocol/understand-the-implementation:
   en: a11b136d8296deda
   zh: 85081da5be53c9e1
-/qilin-sdk-protocol/understand-the-implementation/design-concept:
+/qilin-agent-sdk-protocol/understand-the-implementation/design-concept:
   en: bc4b8dfc36ed4565
   zh: 6a707eff1a4bbf2f
-/qilin-sdk-protocol/understand-the-implementation/source-map:
+/qilin-agent-sdk-protocol/understand-the-implementation/source-map:
   en: b62c1e92501ebc93
   zh: d1ac1a11653e97ed
-/qilin-sdk-protocol/understand-the-implementation/frame-dispatch:
+/qilin-agent-sdk-protocol/understand-the-implementation/frame-dispatch:
   en: eaf7d095810481c8
   zh: 92767f908500be5e
-/qilin-sdk-protocol/further-exploration:
+/qilin-agent-sdk-protocol/further-exploration:
   en: c29cd3b27e1d34a0
   zh: d148a0a8cbf00965
-/qilin-sdk-protocol/model-experience:
+/qilin-agent-sdk-protocol/model-experience:
   en: 1c3205c59385b059
   zh: 9198a341567beca0
-/qilin-sdk-protocol/model-experience/kv-cache-effect:
+/qilin-agent-sdk-protocol/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: 696d26adaf4eda6d
-/qilin-sdk-protocol/known-limitations-and-deferred-work:
+/qilin-agent-sdk-protocol/known-limitations-and-deferred-work:
   en: 8ca38c93694b3f6e
   zh: 2f3e29180d6fdd9d
-/qilin-sdk-protocol/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-sdk-protocol/known-limitations-and-deferred-work/dev-note:
   en: 951fa06249790ac1
   zh: da66e7f53df3ab00

@@ -5,42 +5,42 @@
 /:
   en: 0d369858959a42ab
   zh: aed78464c165f6bd
-/qilin-hmr:
-  en: 5f061dedc92d5310
-  zh: 8e1b2c04a9bb9eaf
-/qilin-hmr/summary:
+/qilin-agent-hmr:
+  en: 9eb86807cffd6912
+  zh: 7e0477df0d33f0ea
+/qilin-agent-hmr/summary:
   en: a20180062e3ed8fb
   zh: 94bbaa4bbdb5ac9b
-/qilin-hmr/table-of-contents:
+/qilin-agent-hmr/table-of-contents:
   en: 76368b6b1da79c80
   zh: 52384aee991ac542
-/qilin-hmr/use-this-package:
-  en: e03c906b0f01e795
-  zh: b4c32894e810bfe3
-/qilin-hmr/use-this-package/configuration:
+/qilin-agent-hmr/use-this-package:
+  en: 85c711e6f2d609dd
+  zh: cb447daef78daac5
+/qilin-agent-hmr/use-this-package/configuration:
   en: 45ee194ad781d603
   zh: b3d7fcd8ed73717c
-/qilin-hmr/understand-the-implementation:
+/qilin-agent-hmr/understand-the-implementation:
   en: 524438ffc0ee52b3
   zh: 29a23c2ea10a9a57
-/qilin-hmr/model-experience:
+/qilin-agent-hmr/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-hmr/model-experience/reloaded-plugins:
+/qilin-agent-hmr/model-experience/reloaded-plugins:
   en: 440394ecf06680e0
   zh: f1b515fca0a2db63
-/qilin-hmr/model-experience/reloaded-plugins/what-the-model-sees:
+/qilin-agent-hmr/model-experience/reloaded-plugins/what-the-model-sees:
   en: 9354fbd20bf1592d
   zh: 5a3b0cafba8455a8
-/qilin-hmr/model-experience/reloaded-plugins/token-effect:
+/qilin-agent-hmr/model-experience/reloaded-plugins/token-effect:
   en: 43453397533501ca
   zh: 207d34979ba8ccd0
-/qilin-hmr/model-experience/reloaded-plugins/kv-cache-effect:
+/qilin-agent-hmr/model-experience/reloaded-plugins/kv-cache-effect:
   en: 89e0624fafd701fb
   zh: 19d36a33c1d9af9d
-/qilin-hmr/known-limitations-and-deferred-work:
+/qilin-agent-hmr/known-limitations-and-deferred-work:
   en: a2eb51f78da9e07f
   zh: 5671b13c591f0856
-/qilin-hmr/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-hmr/known-limitations-and-deferred-work/dev-note:
   en: 7972e4b2005ec9a4
   zh: 754c49ec538c164c

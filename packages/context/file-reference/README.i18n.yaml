@@ -5,51 +5,51 @@
 /:
   en: 21c486a1839068f4
   zh: 0333ad7c4f984794
-/qilin-file-reference:
-  en: 644563c4a04951f0
-  zh: fe95ded43e88c572
-/qilin-file-reference/summary:
-  en: 91da67274c3d82f2
-  zh: c0700c66f1bc79f5
-/qilin-file-reference/table-of-contents:
+/qilin-agent-file-reference:
+  en: 8cd3475e25c0b651
+  zh: 9a8408e28c2dbfe9
+/qilin-agent-file-reference/summary:
+  en: bc23b53f40a42b1e
+  zh: 2d50515a322082df
+/qilin-agent-file-reference/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-file-reference/use-this-package:
+/qilin-agent-file-reference/use-this-package:
   en: e37b5d4bf0020063
   zh: 2eb37494ea43228f
-/qilin-file-reference/use-this-package/mention-grammar:
+/qilin-agent-file-reference/use-this-package/mention-grammar:
   en: 4d8b43dbcba483cc
   zh: 9bc6607be0655072
-/qilin-file-reference/use-this-package/getting-candidates:
+/qilin-agent-file-reference/use-this-package/getting-candidates:
   en: 4dc2d6289f532225
   zh: af06ce75299f23e5
-/qilin-file-reference/use-this-package/pairing-with-a-provider:
-  en: 23b8d5c7dd1246ac
-  zh: 308fba8ea362f2f6
-/qilin-file-reference/understand-the-implementation:
+/qilin-agent-file-reference/use-this-package/pairing-with-a-provider:
+  en: 07ef9e5bf9946203
+  zh: f7e6c326d0e3c6b4
+/qilin-agent-file-reference/understand-the-implementation:
   en: 92049fb7a6c345c3
   zh: 86efc4d17127f97f
-/qilin-file-reference/understand-the-implementation/design-concept:
+/qilin-agent-file-reference/understand-the-implementation/design-concept:
   en: 2f370b56d4ffac2b
   zh: 20fadc1a4d5288a0
-/qilin-file-reference/understand-the-implementation/source-map:
+/qilin-agent-file-reference/understand-the-implementation/source-map:
   en: 7ca26c752fab5c46
   zh: 961bc4283792155d
-/qilin-file-reference/understand-the-implementation/main-flow:
+/qilin-agent-file-reference/understand-the-implementation/main-flow:
   en: fd65f309c940de96
   zh: c1517e592d646d6c
-/qilin-file-reference/further-exploration:
-  en: 5dfecb2e2aa62351
-  zh: 850586293652df31
-/qilin-file-reference/model-experience:
+/qilin-agent-file-reference/further-exploration:
+  en: 3f1a4533c4b27c1f
+  zh: c402d5480bf5256d
+/qilin-agent-file-reference/model-experience:
   en: ab69d93c10a1572c
   zh: b63720b1e6182805
-/qilin-file-reference/model-experience/kv-cache-effect:
+/qilin-agent-file-reference/model-experience/kv-cache-effect:
   en: 0aba47b2a2828b78
   zh: 83a1af441dac3074
-/qilin-file-reference/known-limitations-and-deferred-work:
+/qilin-agent-file-reference/known-limitations-and-deferred-work:
   en: cc83a00bd7d4ccc9
   zh: 130ba16bb567db5a
-/qilin-file-reference/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-file-reference/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

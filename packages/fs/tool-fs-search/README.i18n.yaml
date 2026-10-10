@@ -5,114 +5,114 @@
 /:
   en: 117a1d8e2f2d3651
   zh: 8a27e703652d670c
-/qilin-tool-fs-search:
-  en: 73d5877fe98df50e
-  zh: 7e102b6418729c77
-/qilin-tool-fs-search/summary:
+/qilin-agent-tool-fs-search:
+  en: 2d557a8868d12705
+  zh: 6c5aba234adc4037
+/qilin-agent-tool-fs-search/summary:
   en: 7f8925a42556bca6
   zh: 887f6346ae9cb1df
-/qilin-tool-fs-search/table-of-contents:
+/qilin-agent-tool-fs-search/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-tool-fs-search/use-this-package:
+/qilin-agent-tool-fs-search/use-this-package:
   en: aebe9494cf6e8f3a
   zh: 8ae2ebd6be7c3484
-/qilin-tool-fs-search/use-this-package/minimal-composition:
+/qilin-agent-tool-fs-search/use-this-package/minimal-composition:
   en: a5a01d14e0bec814
   zh: 409298cfafd91b05
-/qilin-tool-fs-search/use-this-package/the-tools:
+/qilin-agent-tool-fs-search/use-this-package/the-tools:
   en: 9edb7655f8ed8bc6
   zh: 21eadd65c1f2f07c
-/qilin-tool-fs-search/use-this-package/configuration:
-  en: b2b90d9baefd55b0
-  zh: afbe4d9bf832fb7d
-/qilin-tool-fs-search/use-this-package/deployment-requirement:
+/qilin-agent-tool-fs-search/use-this-package/configuration:
+  en: be0a7f9672ae0378
+  zh: e35c30e47fc423fd
+/qilin-agent-tool-fs-search/use-this-package/deployment-requirement:
   en: 4aa9b74deef586bc
   zh: f855f815829d4e1e
-/qilin-tool-fs-search/use-this-package/failures-and-recovery:
+/qilin-agent-tool-fs-search/use-this-package/failures-and-recovery:
   en: d7a59e296308b2bd
   zh: 66243fcd932fe49a
-/qilin-tool-fs-search/understand-the-implementation:
+/qilin-agent-tool-fs-search/understand-the-implementation:
   en: 7546db09c46181e0
   zh: 3aae6dc6a773511c
-/qilin-tool-fs-search/understand-the-implementation/design-concept:
+/qilin-agent-tool-fs-search/understand-the-implementation/design-concept:
   en: 03bde21e022e845a
   zh: 9c9e8b9a9713dda5
-/qilin-tool-fs-search/understand-the-implementation/source-map:
+/qilin-agent-tool-fs-search/understand-the-implementation/source-map:
   en: 5a30f023dd86c345
   zh: 558b6e80c62648ba
-/qilin-tool-fs-search/understand-the-implementation/how-a-search-runs:
+/qilin-agent-tool-fs-search/understand-the-implementation/how-a-search-runs:
   en: 8443370c1f347d0c
   zh: 5f5c6fa8cdb97cba
-/qilin-tool-fs-search/understand-the-implementation/two-budgets-two-artifacts:
+/qilin-agent-tool-fs-search/understand-the-implementation/two-budgets-two-artifacts:
   en: b7e8c2191f8227dc
   zh: a064e2e03761bfd5
-/qilin-tool-fs-search/further-exploration:
-  en: fcfdd0844ef01e1d
-  zh: 98a51d76fc0b5024
-/qilin-tool-fs-search/model-experience:
+/qilin-agent-tool-fs-search/further-exploration:
+  en: 99cc899c83d65121
+  zh: a30ecf60c6590869
+/qilin-agent-tool-fs-search/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-tool-fs-search/model-experience/system-prompt:
+/qilin-agent-tool-fs-search/model-experience/system-prompt:
   en: cf78b9dd5596495f
   zh: bd44560f8c2435e8
-/qilin-tool-fs-search/model-experience/system-prompt/what-the-model-sees:
+/qilin-agent-tool-fs-search/model-experience/system-prompt/what-the-model-sees:
   en: 9ff140be02977133
   zh: 43035edcaab81c23
-/qilin-tool-fs-search/model-experience/system-prompt/what-the-model-sees/glob-guidance-with-sampleovercapglobresults-true:
+/qilin-agent-tool-fs-search/model-experience/system-prompt/what-the-model-sees/glob-guidance-with-sampleovercapglobresults-true:
   en: 06042a0fcd6dacc9
   zh: 6da14bb730677c0e
-/qilin-tool-fs-search/model-experience/system-prompt/what-the-model-sees/glob-guidance-with-sampleovercapglobresults-false:
+/qilin-agent-tool-fs-search/model-experience/system-prompt/what-the-model-sees/glob-guidance-with-sampleovercapglobresults-false:
   en: 05aa24220cadb079
   zh: 07b9030bec317b0e
-/qilin-tool-fs-search/model-experience/system-prompt/what-the-model-sees/grep-guidance:
+/qilin-agent-tool-fs-search/model-experience/system-prompt/what-the-model-sees/grep-guidance:
   en: 7ed8e5efe4deb2de
   zh: eb8419d4579aeab2
-/qilin-tool-fs-search/model-experience/system-prompt/token-effect:
+/qilin-agent-tool-fs-search/model-experience/system-prompt/token-effect:
   en: c10c8a3e9e470e62
   zh: c2a2404bfa4fd60a
-/qilin-tool-fs-search/model-experience/system-prompt/kv-cache-effect:
+/qilin-agent-tool-fs-search/model-experience/system-prompt/kv-cache-effect:
   en: db2f355d8209a537
   zh: bd91d8e33a7042f6
-/qilin-tool-fs-search/model-experience/tool-schemas:
+/qilin-agent-tool-fs-search/model-experience/tool-schemas:
   en: 3039bc5e7a796b21
   zh: 6b7a9eaf69c9ea53
-/qilin-tool-fs-search/model-experience/tool-schemas/what-the-model-sees:
-  en: 6d20124cfa72be24
-  zh: 3108c3afde1b7242
-/qilin-tool-fs-search/model-experience/tool-schemas/token-effect:
+/qilin-agent-tool-fs-search/model-experience/tool-schemas/what-the-model-sees:
+  en: 1f1356ffe8d2b2ec
+  zh: bcbe2a68f096d0f5
+/qilin-agent-tool-fs-search/model-experience/tool-schemas/token-effect:
   en: 023a80f81229887f
   zh: 5410d27cde4fb656
-/qilin-tool-fs-search/model-experience/tool-schemas/kv-cache-effect:
+/qilin-agent-tool-fs-search/model-experience/tool-schemas/kv-cache-effect:
   en: 4555717d7b481f52
   zh: 88d5f239ac01f197
-/qilin-tool-fs-search/model-experience/results-and-spill-notices:
+/qilin-agent-tool-fs-search/model-experience/results-and-spill-notices:
   en: e9d1330ebd642a0d
   zh: f9bc6dffb0afd878
-/qilin-tool-fs-search/model-experience/results-and-spill-notices/what-the-model-sees:
+/qilin-agent-tool-fs-search/model-experience/results-and-spill-notices/what-the-model-sees:
   en: 3a357b506d327e18
   zh: b2d97abd9af096d4
-/qilin-tool-fs-search/model-experience/results-and-spill-notices/token-effect:
+/qilin-agent-tool-fs-search/model-experience/results-and-spill-notices/token-effect:
   en: 033a5b99fec018a1
   zh: 79fc41e856cd9925
-/qilin-tool-fs-search/model-experience/results-and-spill-notices/kv-cache-effect:
+/qilin-agent-tool-fs-search/model-experience/results-and-spill-notices/kv-cache-effect:
   en: f5d5f97a153f7c70
   zh: 14660e568cd51bdc
-/qilin-tool-fs-search/model-experience/tool-errors:
+/qilin-agent-tool-fs-search/model-experience/tool-errors:
   en: 2d4f2c8605eccab3
   zh: 67f1f0218f73c6bf
-/qilin-tool-fs-search/model-experience/tool-errors/what-the-model-sees:
+/qilin-agent-tool-fs-search/model-experience/tool-errors/what-the-model-sees:
   en: 375c4554a70d93a4
   zh: 372a088c6ecf68ab
-/qilin-tool-fs-search/model-experience/tool-errors/token-effect:
+/qilin-agent-tool-fs-search/model-experience/tool-errors/token-effect:
   en: 681cadd5be7b8ac1
   zh: 1f0102977ea02785
-/qilin-tool-fs-search/model-experience/tool-errors/kv-cache-effect:
+/qilin-agent-tool-fs-search/model-experience/tool-errors/kv-cache-effect:
   en: f5d5f97a153f7c70
   zh: 14660e568cd51bdc
-/qilin-tool-fs-search/known-limitations-and-deferred-work:
+/qilin-agent-tool-fs-search/known-limitations-and-deferred-work:
   en: 4fca846226cb8ef2
   zh: fb797ec586cec7f4
-/qilin-tool-fs-search/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-tool-fs-search/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

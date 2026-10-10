@@ -78,7 +78,8 @@
     "@qilin-agent/user-approval": "workspace:*",
     "@qilin-agent/util-time": "workspace:*",
     "@qilin-agent/permission-presets": "workspace:*",
-    "@qilin-agent/settings": "workspace:*"
+    "@qilin-agent/settings": "workspace:*",
+    "@qilin-agent/working-directory": "workspace:*"
   },
   "peerDependenciesMeta": {
     "@qilin-agent/agent-presets": {
@@ -142,6 +143,7 @@
     "@qilin-agent/util-time": "workspace:*",
     "@qilin-agent/permission-presets": "workspace:*",
     "@qilin-agent/settings": "workspace:*",
-    "@qilin-agent/llm-deepseek-api-key": "workspace:*"
+    "@qilin-agent/llm-deepseek-api-key": "workspace:*",
+    "@qilin-agent/working-directory": "workspace:*"
   }
 }

@@ -28,6 +28,18 @@ export const DSH_PLATFORM_MODULE_ALIASES: Readonly<Record<string, string>> = {
   '@deepseek-ai/dsh-client-ui-dockkit': '@qilin-agent/client-ui-dockkit',
 }
 
+/**
+ * Exact aliases for DSH-era application package names, which no prefix rule
+ * reaches: the DSH CLI application (`@deepseek-ai/dsh`) is
+ * `@qilin-agent/cli` here. Applications stay out of
+ * {@link DSH_PLATFORM_MODULE_ALIASES} because the browser shell resolves every
+ * value of that table against its static seed table, which carries platform
+ * modules only.
+ */
+export const DSH_APPLICATION_MODULE_ALIASES: Readonly<Record<string, string>> = {
+  '@deepseek-ai/dsh': '@qilin-agent/cli',
+}
+
 /** The scoped prefix every renamed DSH engine package shares. */
 const DSH_PACKAGE_PREFIX = '@deepseek-ai/dsh-'
 
@@ -35,17 +47,37 @@ const DSH_PACKAGE_PREFIX = '@deepseek-ai/dsh-'
 const QILIN_SCOPE = '@qilin-agent/'
 
 /**
- * Package heads whose QiLin name is not the mechanical `dsh-` strip: the
- * DSH client module system (`dsh-client-runtime`) is QiLin's
- * `@qilin-agent/client-modules`.
+ * Package heads whose QiLin name is not the mechanical `dsh-` strip. The DSH
+ * client module system (`client-runtime`) is QiLin's `client-modules`; the
+ * Cordis runner and tool family, the agent preset, and the DSH-SDK subagent
+ * provider carry QiLin names without a `cordis` or `dsh` head.
  */
 const DSH_PACKAGE_RENAMES: Readonly<Record<string, string>> = {
   'client-runtime': 'client-modules',
+  'tool-cordis': 'tool-kylin',
+  'ui-cordis': 'client-ui-kylin',
+  'cordis-host-runner': 'kylin-host-runner',
+  'cordis-client-runner': 'kylin-client-runner',
+  'agent-preset': 'agent-presets',
+  'subagent-dsh-sdk': 'subagent-qilin-sdk',
+  // QiLin classifies these capability packages as experimental, so their
+  // published names carry the \`experimental-\` prefix the classification policy
+  // requires (upstream keeps the un-prefixed name inside its own group).
+  'hook-protocol': 'experimental-hook-protocol',
+  'hooks-claude-code': 'experimental-hooks-claude-code',
+  'hooks-codex': 'experimental-hooks-codex',
+  'webhook': 'experimental-webhook',
+  'webhook-github': 'experimental-webhook-github',
+  'tool-terminal': 'experimental-tool-terminal',
+  'tool-ralph': 'experimental-tool-ralph',
+  'tool-session-query': 'experimental-tool-session-query',
+  'skill-badge': 'experimental-skill-badge',
+  'session-title-all-prompts-llm': 'experimental-session-title-all-prompts-llm',
 }
 
 /**
  * Canonicalize one module specifier for QiLin's module graph: an exact
- * platform alias wins; a scoped `@deepseek-ai/dsh-<pkg>[/subpath]` name maps
+ * platform or application alias wins; a scoped `@deepseek-ai/dsh-<pkg>[/subpath]` name maps
  * onto `@qilin-agent/<pkg>[/subpath]` with the rename table applied to the package
  * head; every other specifier (including unrenamed `@deepseek-ai/*` names such
  * as `@qilin-agent/schemastery`, which QiLin keeps verbatim) passes through
@@ -54,7 +86,7 @@ const DSH_PACKAGE_RENAMES: Readonly<Record<string, string>> = {
  * @returns the QiLin-canonical specifier for graph and seed-table lookups.
  */
 export function dshCompatModuleId(specifier: string): string {
-  const exact = DSH_PLATFORM_MODULE_ALIASES[specifier]
+  const exact = DSH_PLATFORM_MODULE_ALIASES[specifier] ?? DSH_APPLICATION_MODULE_ALIASES[specifier]
   if (exact !== undefined) return exact
   if (!specifier.startsWith(DSH_PACKAGE_PREFIX)) return specifier
   const [head = '', ...subpath] = specifier.slice(DSH_PACKAGE_PREFIX.length).split('/')

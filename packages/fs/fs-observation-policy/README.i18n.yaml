@@ -5,66 +5,66 @@
 /:
   en: 2e7d205b959bad5b
   zh: 78111c063c98c309
-/qilin-fs-observation-policy:
-  en: e9d22014f68aef28
-  zh: d7b3aee7ae9479d4
-/qilin-fs-observation-policy/summary:
+/qilin-agent-fs-observation-policy:
+  en: 42adbe9a5b9ce48f
+  zh: 8dd994a9c79d5f1a
+/qilin-agent-fs-observation-policy/summary:
   en: 5c023a0469d9f6eb
   zh: 9cbf8ff95b1c10f0
-/qilin-fs-observation-policy/table-of-contents:
+/qilin-agent-fs-observation-policy/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-fs-observation-policy/use-this-package:
+/qilin-agent-fs-observation-policy/use-this-package:
   en: 14969f81d1ec8780
   zh: fdc261e3abdd2ec9
-/qilin-fs-observation-policy/use-this-package/minimal-composition:
+/qilin-agent-fs-observation-policy/use-this-package/minimal-composition:
   en: d85e3b814b43768e
   zh: 89d3672dbb2f6d30
-/qilin-fs-observation-policy/use-this-package/what-changes-for-the-model:
+/qilin-agent-fs-observation-policy/use-this-package/what-changes-for-the-model:
   en: 91686925a433794d
   zh: 9ac2a197203d6549
-/qilin-fs-observation-policy/use-this-package/failures-and-recovery:
+/qilin-agent-fs-observation-policy/use-this-package/failures-and-recovery:
   en: 1ecc7b68f7c7b3f0
   zh: f6a9800786ed30c0
-/qilin-fs-observation-policy/understand-the-implementation:
+/qilin-agent-fs-observation-policy/understand-the-implementation:
   en: 612e69f76edc8795
   zh: 55edab9956941616
-/qilin-fs-observation-policy/understand-the-implementation/design-concept:
+/qilin-agent-fs-observation-policy/understand-the-implementation/design-concept:
   en: a7f7b41968008111
   zh: 26ccda3d821224de
-/qilin-fs-observation-policy/understand-the-implementation/source-map:
+/qilin-agent-fs-observation-policy/understand-the-implementation/source-map:
   en: 6a55bd72a91664bf
   zh: fc22345acfd9d850
-/qilin-fs-observation-policy/understand-the-implementation/decision-flow:
+/qilin-agent-fs-observation-policy/understand-the-implementation/decision-flow:
   en: 79ddd675e3c27d62
   zh: b9b74b63aad5b42d
-/qilin-fs-observation-policy/understand-the-implementation/single-slot-first-wins:
+/qilin-agent-fs-observation-policy/understand-the-implementation/single-slot-first-wins:
   en: 226bb7885eb147b8
   zh: 0b68d59ddc55fb07
-/qilin-fs-observation-policy/understand-the-implementation/lifecycle:
+/qilin-agent-fs-observation-policy/understand-the-implementation/lifecycle:
   en: 02a1e3e7707706fb
   zh: eff587af0445d032
-/qilin-fs-observation-policy/further-exploration:
+/qilin-agent-fs-observation-policy/further-exploration:
   en: 4817e6a3aa2be505
   zh: 2b6c29dbe1d3702c
-/qilin-fs-observation-policy/model-experience:
+/qilin-agent-fs-observation-policy/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-fs-observation-policy/model-experience/filesystem-tool-outcome:
+/qilin-agent-fs-observation-policy/model-experience/filesystem-tool-outcome:
   en: ee1f02dc1bb69955
   zh: 9ba9205a9b15d132
-/qilin-fs-observation-policy/model-experience/filesystem-tool-outcome/what-the-model-sees:
+/qilin-agent-fs-observation-policy/model-experience/filesystem-tool-outcome/what-the-model-sees:
   en: 78cd01f32d30cd79
   zh: 1964add6617d04d5
-/qilin-fs-observation-policy/model-experience/filesystem-tool-outcome/token-effect:
+/qilin-agent-fs-observation-policy/model-experience/filesystem-tool-outcome/token-effect:
   en: 425ccc7dafa6218d
   zh: d2c1a29955a60e3d
-/qilin-fs-observation-policy/model-experience/filesystem-tool-outcome/kv-cache-effect:
+/qilin-agent-fs-observation-policy/model-experience/filesystem-tool-outcome/kv-cache-effect:
   en: 2fbf2175168e8244
   zh: 3d6bc05b9eadfbc2
-/qilin-fs-observation-policy/known-limitations-and-deferred-work:
+/qilin-agent-fs-observation-policy/known-limitations-and-deferred-work:
   en: 128086e121bd17e6
   zh: fec8bb7d34fa97e2
-/qilin-fs-observation-policy/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-fs-observation-policy/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

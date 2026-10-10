@@ -867,6 +867,73 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/experimental-computer-use-cua-driver-mcp -->
 
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-hooks-claude-code -->
+<a id="qilin-agentexperimental-hooks-claude-code"></a>
+
+## `@qilin-agent/experimental-hooks-claude-code`
+
+- `inject`: `shell` · `sessionProjections`
+- `source`: [`packages/experimental/hooks-claude-code/src/index.ts:51`](../packages/experimental/hooks-claude-code/src/index.ts)
+
+```ts config-catalog
+/** Plugin config: where the CC hook config lives + substitution roots. */
+export interface Config {
+  /**
+   * Path to a `hooks.json` or a settings file whose `hooks` key holds the config.
+   * Process-level: read once at load, a relative path resolves against the process
+   * launch cwd, so one config applies to the whole process.
+   * TODO(per-session-hook-config): per-session discovery of a project-local
+   * `hooks.json` from each `session/new.cwd`.
+   */
+  configPath: string
+  /**
+   * Replaces `${CLAUDE_PLUGIN_ROOT}` in command strings (the plugin's root dir).
+   */
+  pluginRoot?: string
+  /**
+   * Replaces `${CLAUDE_PROJECT_DIR}` in command strings AND is exported as the
+   * `CLAUDE_PROJECT_DIR` env var for hook processes. When omitted, the env var
+   * defaults per-run to the agent's session workspace (`session.header.cwd`, the
+   * same dir the hook runs in) — Claude Code always exports this var, and common
+   * unmodified hooks reference `$CLAUDE_PROJECT_DIR` for project-relative paths.
+   */
+  projectDir?: string
+  /** Default per-hook timeout in ms when a hook sets none (CC default: 600000). */
+  defaultTimeoutMs?: number
+  /** Character cap for the `hook/result` event's persisted stderr summary. */
+  stderrSummaryMaxChars?: number
+}
+```
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-hooks-claude-code -->
+
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-hooks-codex -->
+<a id="qilin-agentexperimental-hooks-codex"></a>
+
+## `@qilin-agent/experimental-hooks-codex`
+
+- `inject`: `shell` · `sessionProjections`
+- `source`: [`packages/experimental/hooks-codex/src/index.ts:50`](../packages/experimental/hooks-codex/src/index.ts)
+
+```ts config-catalog
+/** Plugin config: where the Codex hooks.json lives + the model name for payloads. */
+export interface Config {
+  /**
+   * Path to a Codex `hooks.json`. Process-level: read once at load, a relative
+   * path resolves against the process launch cwd.
+   * TODO(per-session-hook-config): per-session project-local discovery from each
+   * `session/new.cwd`.
+   */
+  configPath: string
+  /** The model name stamped on every payload (Codex includes `model` on each event). */
+  model?: string
+  /** Default per-hook timeout in ms when a hook sets none (Codex default: 600000). */
+  defaultTimeoutMs?: number
+  /** Character cap for the `hook/result` event's persisted stderr summary. */
+  stderrSummaryMaxChars?: number
+}
+```
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-hooks-codex -->
+
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-inspector -->
 <a id="qilin-agentexperimental-inspector"></a>
 
@@ -1004,6 +1071,21 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/experimental-ptc-runtime-python -->
 
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-session-title-all-prompts-llm -->
+<a id="qilin-agentexperimental-session-title-all-prompts-llm"></a>
+
+## `@qilin-agent/experimental-session-title-all-prompts-llm`
+
+- `inject`: `sessionTitle` · `llm` · `sessions`
+- `refs`: [`SessionTitleLlmConfig`](../packages/session/session-title-llm/src/index.ts)
+- `source`: [`packages/experimental/session-title-all-prompts-llm/src/index.ts:15`](../packages/experimental/session-title-all-prompts-llm/src/index.ts)
+
+```ts config-catalog
+/** Required LLM policy; this plugin adds no defaults. */
+export type Config = SessionTitleLlmConfig
+```
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-session-title-all-prompts-llm -->
+
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-speech-to-text -->
 <a id="qilin-agentexperimental-speech-to-text"></a>
 
@@ -1100,6 +1182,90 @@ export interface Config {
 }
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/experimental-tool-agent-team -->
+
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-tool-ralph -->
+<a id="qilin-agentexperimental-tool-ralph"></a>
+
+## `@qilin-agent/experimental-tool-ralph`
+
+- `inject`: `tools` · `workflowEngine` · `subagents` · `systemPrompt`
+- `source`: [`packages/experimental/tool-ralph/src/index.ts:21`](../packages/experimental/tool-ralph/src/index.ts)
+
+```ts config-catalog
+/** Deployment policy for the fixed Ralph workflow. */
+export interface Config {
+  /** Fresh structured-output provider used for every round (default `spawn`). */
+  subagentProvider?: string
+  /** Default and deployment ceiling for one call's round count (default 256). */
+  maxRounds?: number
+  /** Maximum serialized characters in one structured handoff (default 16384). */
+  maxHandoffChars?: number
+  /** Maximum characters in a successful parent-facing terminal text (default 16384). */
+  maxResultChars?: number
+}
+```
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-tool-ralph -->
+
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-tool-session-query -->
+<a id="qilin-agentexperimental-tool-session-query"></a>
+
+## `@qilin-agent/experimental-tool-session-query`
+
+- `inject`: `tools` · `systemPrompt` · `sessionQuery` · `sessionProjections`
+- `source`: [`packages/experimental/tool-session-query/src/index.ts:28`](../packages/experimental/tool-session-query/src/index.ts)
+
+```ts config-catalog
+/** Deployment-owned search count and timeout bounds. */
+export interface Config {
+  /** Maximum authorized hits returned by one search call. Defaults to 100. */
+  maxSearchResults?: number
+  /** Cooperative full-text search deadline in milliseconds. Defaults to 30000. */
+  searchTimeoutMs?: number
+}
+```
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-tool-session-query -->
+
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-tool-terminal -->
+<a id="qilin-agentexperimental-tool-terminal"></a>
+
+## `@qilin-agent/experimental-tool-terminal`
+
+- `inject`: `terminals` · `tools` · `systemPrompt`
+- `source`: [`packages/experimental/tool-terminal/src/index.ts:36`](../packages/experimental/tool-terminal/src/index.ts)
+
+```ts config-catalog
+/** Model-facing terminal tool configuration. */
+export interface Config {
+  /** Expose `run_in_background` and accept background sends (default true). */
+  enableRunInBackground?: boolean
+  /** Maximum UTF-8 bytes in one complete terminal or task-output result. */
+  maxResultBytes?: number
+}
+```
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-tool-terminal -->
+
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-webhook-github -->
+<a id="qilin-agentexperimental-webhook-github"></a>
+
+## `@qilin-agent/experimental-webhook-github`
+
+- `inject`: `webServer` · `webhookRuntime` · `credentials`
+- `source`: [`packages/experimental/webhook-github/src/index.ts:17`](../packages/experimental/webhook-github/src/index.ts)
+
+```ts config-catalog
+/** Required GitHub ingress configuration. */
+export interface Config {
+  /** Adapter instance name carried to rules. */
+  readonly source: string
+  /** Exact absolute route path. */
+  readonly path: string
+  /** Credential reference containing the shared webhook secret. */
+  readonly secretEnv: string
+  /** Positive raw body ceiling in bytes. */
+  readonly maxBodyBytes: number
+}
+```
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-webhook-github -->
 
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/file-reference-local -->
 <a id="qilin-agentfile-reference-local"></a>
@@ -1223,73 +1389,6 @@ export interface HmrConfig extends ChokidarOptions {
 }
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/hmr -->
-
-<!-- BEGIN GENERATED config-catalog:@qilin-agent/hooks-claude-code -->
-<a id="qilin-agenthooks-claude-code"></a>
-
-## `@qilin-agent/hooks-claude-code`
-
-- `inject`: `shell` · `sessionProjections`
-- `source`: [`packages/hooks/hooks-claude-code/src/index.ts:51`](../packages/hooks/hooks-claude-code/src/index.ts)
-
-```ts config-catalog
-/** Plugin config: where the CC hook config lives + substitution roots. */
-export interface Config {
-  /**
-   * Path to a `hooks.json` or a settings file whose `hooks` key holds the config.
-   * Process-level: read once at load, a relative path resolves against the process
-   * launch cwd, so one config applies to the whole process.
-   * TODO(per-session-hook-config): per-session discovery of a project-local
-   * `hooks.json` from each `session/new.cwd`.
-   */
-  configPath: string
-  /**
-   * Replaces `${CLAUDE_PLUGIN_ROOT}` in command strings (the plugin's root dir).
-   */
-  pluginRoot?: string
-  /**
-   * Replaces `${CLAUDE_PROJECT_DIR}` in command strings AND is exported as the
-   * `CLAUDE_PROJECT_DIR` env var for hook processes. When omitted, the env var
-   * defaults per-run to the agent's session workspace (`session.header.cwd`, the
-   * same dir the hook runs in) — Claude Code always exports this var, and common
-   * unmodified hooks reference `$CLAUDE_PROJECT_DIR` for project-relative paths.
-   */
-  projectDir?: string
-  /** Default per-hook timeout in ms when a hook sets none (CC default: 600000). */
-  defaultTimeoutMs?: number
-  /** Character cap for the `hook/result` event's persisted stderr summary. */
-  stderrSummaryMaxChars?: number
-}
-```
-<!-- END GENERATED config-catalog:@qilin-agent/hooks-claude-code -->
-
-<!-- BEGIN GENERATED config-catalog:@qilin-agent/hooks-codex -->
-<a id="qilin-agenthooks-codex"></a>
-
-## `@qilin-agent/hooks-codex`
-
-- `inject`: `shell` · `sessionProjections`
-- `source`: [`packages/hooks/hooks-codex/src/index.ts:50`](../packages/hooks/hooks-codex/src/index.ts)
-
-```ts config-catalog
-/** Plugin config: where the Codex hooks.json lives + the model name for payloads. */
-export interface Config {
-  /**
-   * Path to a Codex `hooks.json`. Process-level: read once at load, a relative
-   * path resolves against the process launch cwd.
-   * TODO(per-session-hook-config): per-session project-local discovery from each
-   * `session/new.cwd`.
-   */
-  configPath: string
-  /** The model name stamped on every payload (Codex includes `model` on each event). */
-  model?: string
-  /** Default per-hook timeout in ms when a hook sets none (Codex default: 600000). */
-  defaultTimeoutMs?: number
-  /** Character cap for the `hook/result` event's persisted stderr summary. */
-  stderrSummaryMaxChars?: number
-}
-```
-<!-- END GENERATED config-catalog:@qilin-agent/hooks-codex -->
 
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/host-directory-picker-browse -->
 <a id="qilin-agenthost-directory-picker-browse"></a>
@@ -2699,21 +2798,6 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/session-title -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin-agent/session-title-all-prompts-llm -->
-<a id="qilin-agentsession-title-all-prompts-llm"></a>
-
-## `@qilin-agent/session-title-all-prompts-llm`
-
-- `inject`: `sessionTitle` · `llm` · `sessions`
-- `refs`: [`SessionTitleLlmConfig`](../packages/session/session-title-llm/src/index.ts)
-- `source`: [`packages/session/session-title-all-prompts-llm/src/index.ts:15`](../packages/session/session-title-all-prompts-llm/src/index.ts)
-
-```ts config-catalog
-/** Required LLM policy; this plugin adds no defaults. */
-export type Config = SessionTitleLlmConfig
-```
-<!-- END GENERATED config-catalog:@qilin-agent/session-title-all-prompts-llm -->
-
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/session-title-first-prompt-llm -->
 <a id="qilin-agentsession-title-first-prompt-llm"></a>
 
@@ -3269,7 +3353,7 @@ export interface Config {
 
 ## `@qilin-agent/system-prompt`
 
-- `source`: [`packages/core/system-prompt/src/index.ts:248`](../packages/core/system-prompt/src/index.ts)
+- `source`: [`packages/core/system-prompt/src/index.ts:249`](../packages/core/system-prompt/src/index.ts)
 
 ```ts config-catalog
 /** Plugin config: the deployment-authored fragment of the system prompt (see {@link Config.personaPrefix} for its contract). */
@@ -3658,48 +3742,6 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/tool-pwsh-persistent -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-ralph -->
-<a id="qilin-agenttool-ralph"></a>
-
-## `@qilin-agent/tool-ralph`
-
-- `inject`: `tools` · `workflowEngine` · `subagents` · `systemPrompt`
-- `source`: [`packages/workflow/tool-ralph/src/index.ts:21`](../packages/workflow/tool-ralph/src/index.ts)
-
-```ts config-catalog
-/** Deployment policy for the fixed Ralph workflow. */
-export interface Config {
-  /** Fresh structured-output provider used for every round (default `spawn`). */
-  subagentProvider?: string
-  /** Default and deployment ceiling for one call's round count (default 256). */
-  maxRounds?: number
-  /** Maximum serialized characters in one structured handoff (default 16384). */
-  maxHandoffChars?: number
-  /** Maximum characters in a successful parent-facing terminal text (default 16384). */
-  maxResultChars?: number
-}
-```
-<!-- END GENERATED config-catalog:@qilin-agent/tool-ralph -->
-
-<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-session-query -->
-<a id="qilin-agenttool-session-query"></a>
-
-## `@qilin-agent/tool-session-query`
-
-- `inject`: `tools` · `systemPrompt` · `sessionQuery` · `sessionProjections`
-- `source`: [`packages/session-query/tool-session-query/src/index.ts:28`](../packages/session-query/tool-session-query/src/index.ts)
-
-```ts config-catalog
-/** Deployment-owned search count and timeout bounds. */
-export interface Config {
-  /** Maximum authorized hits returned by one search call. Defaults to 100. */
-  maxSearchResults?: number
-  /** Cooperative full-text search deadline in milliseconds. Defaults to 30000. */
-  searchTimeoutMs?: number
-}
-```
-<!-- END GENERATED config-catalog:@qilin-agent/tool-session-query -->
-
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-skill -->
 <a id="qilin-agenttool-skill"></a>
 
@@ -3806,25 +3848,6 @@ export interface Config {
 }
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/tool-subagent -->
-
-<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-terminal -->
-<a id="qilin-agenttool-terminal"></a>
-
-## `@qilin-agent/tool-terminal`
-
-- `inject`: `terminals` · `tools` · `systemPrompt`
-- `source`: [`packages/terminal/tool-terminal/src/index.ts:36`](../packages/terminal/tool-terminal/src/index.ts)
-
-```ts config-catalog
-/** Model-facing terminal tool configuration. */
-export interface Config {
-  /** Expose `run_in_background` and accept background sends (default true). */
-  enableRunInBackground?: boolean
-  /** Maximum UTF-8 bytes in one complete terminal or task-output result. */
-  maxResultBytes?: number
-}
-```
-<!-- END GENERATED config-catalog:@qilin-agent/tool-terminal -->
 
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-todo -->
 <a id="qilin-agenttool-todo"></a>
@@ -4172,29 +4195,6 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/web-search-perplexity -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin-agent/webhook-github -->
-<a id="qilin-agentwebhook-github"></a>
-
-## `@qilin-agent/webhook-github`
-
-- `inject`: `webServer` · `webhookRuntime` · `credentials`
-- `source`: [`packages/webhook/webhook-github/src/index.ts:17`](../packages/webhook/webhook-github/src/index.ts)
-
-```ts config-catalog
-/** Required GitHub ingress configuration. */
-export interface Config {
-  /** Adapter instance name carried to rules. */
-  readonly source: string
-  /** Exact absolute route path. */
-  readonly path: string
-  /** Credential reference containing the shared webhook secret. */
-  readonly secretEnv: string
-  /** Positive raw body ceiling in bytes. */
-  readonly maxBodyBytes: number
-}
-```
-<!-- END GENERATED config-catalog:@qilin-agent/webhook-github -->
-
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/workflow-ptc -->
 <a id="qilin-agentworkflow-ptc"></a>
 
@@ -4219,6 +4219,23 @@ export interface Config {
 }
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/workflow-ptc -->
+
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/working-directory -->
+<a id="qilin-agentworking-directory"></a>
+
+## `@qilin-agent/working-directory`
+
+- `inject`: `fs` · `sessionProjections` · `systemPrompt`
+- `source`: [`packages/session/working-directory/src/index.ts:53`](../packages/session/working-directory/src/index.ts)
+
+```ts config-catalog
+/** Deployment default for Sessions without an original project directory. */
+export interface Config {
+  /** Absolute execution-world fallback directory; omitted values use the launch directory. */
+  defaultDirectory?: string
+}
+```
+<!-- END GENERATED config-catalog:@qilin-agent/working-directory -->
 
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/workspace-changes -->
 <a id="qilin-agentworkspace-changes"></a>
@@ -4332,6 +4349,8 @@ export interface Config {
 | `@qilin-agent/experimental-client-ui-voice-input` | — | [`packages/experimental/client-ui-voice-input/src/index.ts`](../packages/experimental/client-ui-voice-input/src/index.ts) |
 | `@qilin-agent/experimental-computer-use-cua-driver-native` | `computerUse` · `tools` · `systemPrompt` | [`packages/experimental/computer-use-cua-driver-native/src/index.ts`](../packages/experimental/computer-use-cua-driver-native/src/index.ts) |
 | `@qilin-agent/experimental-session-inspector` | — | [`packages/experimental/session-inspector/src/index.ts`](../packages/experimental/session-inspector/src/index.ts) |
+| `@qilin-agent/experimental-skill-badge` | `skills` | [`packages/experimental/skill-badge/src/index.ts`](../packages/experimental/skill-badge/src/index.ts) |
+| `@qilin-agent/experimental-webhook` | `agents` · `agentDefaultModel` · `agentPresets` · `permissionPresets` · `sessionTitle` · `workspaceRegistry` | [`packages/experimental/webhook/src/index.ts`](../packages/experimental/webhook/src/index.ts) |
 | `@qilin-agent/fs-observation-policy` | — | [`packages/fs/fs-observation-policy/src/index.ts`](../packages/fs/fs-observation-policy/src/index.ts) |
 | `@qilin-agent/fs-ssh` | `ssh` · `sandboxPolicy` | [`packages/ssh/fs-ssh/src/index.ts`](../packages/ssh/fs-ssh/src/index.ts) |
 | `@qilin-agent/goal-round-driver` | `agents` · `goals` · `sessions` | [`packages/goal/goal-round-driver/src/index.ts`](../packages/goal/goal-round-driver/src/index.ts) |
@@ -4350,7 +4369,6 @@ export interface Config {
 | `@qilin-agent/session-projection` | — | [`packages/session/session-projection/src/index.ts`](../packages/session/session-projection/src/index.ts) |
 | `@qilin-agent/session-stats` | `sessionProjections` | [`packages/session/session-stats/src/index.ts`](../packages/session/session-stats/src/index.ts) |
 | `@qilin-agent/session-turn-outline` | `sessionProjections` | [`packages/session/session-turn-outline/src/index.ts`](../packages/session/session-turn-outline/src/index.ts) |
-| `@qilin-agent/skill-badge` | `skills` | [`packages/skill/skill-badge/src/index.ts`](../packages/skill/skill-badge/src/index.ts) |
 | `@qilin-agent/storage` | — | [`packages/storage/storage/src/index.ts`](../packages/storage/storage/src/index.ts) |
 | `@qilin-agent/subprocess-local` | — | [`packages/subprocess/subprocess-local/src/index.ts`](../packages/subprocess/subprocess-local/src/index.ts) |
 | `@qilin-agent/subprocess-ssh` | `ssh` | [`packages/ssh/subprocess-ssh/src/index.ts`](../packages/ssh/subprocess-ssh/src/index.ts) |
@@ -4359,8 +4377,8 @@ export interface Config {
 | `@qilin-agent/tool-kylin` | `tools` · `systemPrompt` · `cordisInspect` | [`packages/extensions/tool-kylin/src/index.ts`](../packages/extensions/tool-kylin/src/index.ts) |
 | `@qilin-agent/tool-schedule` | `tools` | [`packages/schedule/tool-schedule/src/index.ts`](../packages/schedule/tool-schedule/src/index.ts) |
 | `@qilin-agent/tool-subagent-control` | `tools` · `subagents` | [`packages/subagent/tool-subagent-control/src/index.ts`](../packages/subagent/tool-subagent-control/src/index.ts) |
+| `@qilin-agent/tool-working-directory` | `tools` · `workingDirectory` | [`packages/session/tool-working-directory/src/index.ts`](../packages/session/tool-working-directory/src/index.ts) |
 | `@qilin-agent/user-questions` | — | [`packages/interaction/user-questions/src/index.ts`](../packages/interaction/user-questions/src/index.ts) |
-| `@qilin-agent/webhook` | `agents` · `agentDefaultModel` · `agentPresets` · `permissionPresets` · `sessionTitle` · `workspaceRegistry` | [`packages/webhook/webhook/src/index.ts`](../packages/webhook/webhook/src/index.ts) |
 | `@qilin-agent/workspace` | `storageDomain` · `sessionPersistence` | [`packages/workspace/workspace/src/index.ts`](../packages/workspace/workspace/src/index.ts) |
 <!-- END GENERATED config-catalog:no-config -->
 
@@ -4414,13 +4432,13 @@ export interface Config {
 | `@qilin-agent/dsh-compat` | — | [`packages/util/dsh-compat/src/index.ts`](../packages/util/dsh-compat/src/index.ts) |
 | `@qilin-agent/experimental-agent-team-profile` | — | [`packages/experimental/agent-team-profile/src/index.ts`](../packages/experimental/agent-team-profile/src/index.ts) |
 | `@qilin-agent/experimental-browser-use-runtime` | — | [`packages/experimental/browser-use-runtime/src/index.ts`](../packages/experimental/browser-use-runtime/src/index.ts) |
+| `@qilin-agent/experimental-hook-protocol` | — | [`packages/experimental/hook-protocol/src/index.ts`](../packages/experimental/hook-protocol/src/index.ts) |
 | `@qilin-agent/experimental-inspector-profile` | — | [`packages/experimental/inspector-profile/src/index.ts`](../packages/experimental/inspector-profile/src/index.ts) |
 | `@qilin-agent/experimental-schedule-bundle` | — | [`packages/experimental/schedule-bundle/src/index.ts`](../packages/experimental/schedule-bundle/src/index.ts) |
 | `@qilin-agent/experimental-voice-input-bundle` | — | [`packages/experimental/voice-input-bundle/src/index.ts`](../packages/experimental/voice-input-bundle/src/index.ts) |
 | `@qilin-agent/experimental-webworker-packer` | — | [`packages/experimental/webworker-packer/src/index.ts`](../packages/experimental/webworker-packer/src/index.ts) |
 | `@qilin-agent/experimental-webworker-runtime` | — | [`packages/experimental/webworker-runtime/src/index.ts`](../packages/experimental/webworker-runtime/src/index.ts) |
 | `@qilin-agent/home-paths` | — | [`packages/util/home-paths/src/index.ts`](../packages/util/home-paths/src/index.ts) |
-| `@qilin-agent/hook-protocol` | — | [`packages/hooks/hook-protocol/src/index.ts`](../packages/hooks/hook-protocol/src/index.ts) |
 | `@qilin-agent/http-proxy` | — | [`packages/util/http-proxy/src/index.ts`](../packages/util/http-proxy/src/index.ts) |
 | `@qilin-agent/launch-environment` | — | [`packages/util/launch-environment/src/index.ts`](../packages/util/launch-environment/src/index.ts) |
 | `@qilin-agent/lazy-require` | — | [`packages/util/lazy-require/src/index.ts`](../packages/util/lazy-require/src/index.ts) |

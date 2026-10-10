@@ -5,27 +5,27 @@
 /:
   en: 9a7ee334bf98bb3d
   zh: 0a78ada4049c27fe
-/qilin-experimental-webworker-runtime:
-  en: facbd07a0bfca0bb
-  zh: 25768b572c14639b
-/qilin-experimental-webworker-runtime/summary:
+/qilin-agent-experimental-webworker-runtime:
+  en: 7ad2b9b63699b1a3
+  zh: 06ae443ee9787e15
+/qilin-agent-experimental-webworker-runtime/summary:
   en: 5cc9c312316f0c67
   zh: 8ca2e5254fc8f1ea
-/qilin-experimental-webworker-runtime/table-of-contents:
+/qilin-agent-experimental-webworker-runtime/table-of-contents:
   en: 4e53164159b5ce41
   zh: 89582dc0294d0776
-/qilin-experimental-webworker-runtime/use-this-package:
+/qilin-agent-experimental-webworker-runtime/use-this-package:
   en: 2db183bb32fa213a
   zh: 4129e0491396ffb3
-/qilin-experimental-webworker-runtime/model-experience:
+/qilin-agent-experimental-webworker-runtime/model-experience:
   en: 61fce9b4c7dc96e6
   zh: dc2d931063a38327
-/qilin-experimental-webworker-runtime/model-experience/kv-cache-effect:
+/qilin-agent-experimental-webworker-runtime/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: 64715dc7e6d02f71
-/qilin-experimental-webworker-runtime/known-limitations-and-deferred-work:
-  en: e4b346d7599973f4
-  zh: de2a03ec0c812432
-/qilin-experimental-webworker-runtime/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-experimental-webworker-runtime/known-limitations-and-deferred-work:
+  en: a6d587234f51f380
+  zh: b30b74514c7fbacf
+/qilin-agent-experimental-webworker-runtime/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: e88aeb617ffb74ea

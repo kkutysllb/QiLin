@@ -514,6 +514,7 @@ declare module '@qilin-agent/llm' {
      * Sidechat boundary context injected ahead of a thread's first prompt.
      * The source kind is the structural boundary marker: transcript readers
      * render it as one collapsible inheritance row, never as a user bubble.
+     * @persistenceAttribution
      */
     'sidechat-boundary': { kind: 'sidechat-boundary' }
   }

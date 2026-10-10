@@ -5,54 +5,54 @@
 /:
   en: 3fa30a143acc79d7
   zh: 0c6fe79fba20f26f
-/qilin-typert-loader:
-  en: f3689c4d058cd6e7
-  zh: 6354fb3c1ac4e515
-/qilin-typert-loader/summary:
+/qilin-agent-typert-loader:
+  en: d88ab802037fafcd
+  zh: a037bd06cf2c5a5c
+/qilin-agent-typert-loader/summary:
   en: bd74ee903f4197ed
   zh: 3eaad3f028e98e39
-/qilin-typert-loader/table-of-contents:
+/qilin-agent-typert-loader/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-typert-loader/use-this-package:
+/qilin-agent-typert-loader/use-this-package:
   en: f70c4560cb9cfe92
   zh: f337444c62d90b79
-/qilin-typert-loader/use-this-package/minimal-configuration:
-  en: fc7087f0d08fbe78
-  zh: 9bfe2f6ceb557c8b
-/qilin-typert-loader/use-this-package/what-gets-registered:
+/qilin-agent-typert-loader/use-this-package/minimal-configuration:
+  en: 4c2fc08169d1690a
+  zh: ac32041a1d242b67
+/qilin-agent-typert-loader/use-this-package/what-gets-registered:
   en: 01318fcba39e9b0f
   zh: c5f6528a91b335ac
-/qilin-typert-loader/use-this-package/observable-behavior-and-failures:
+/qilin-agent-typert-loader/use-this-package/observable-behavior-and-failures:
   en: 01494e9fbd469ec8
   zh: 3025d870c0f36e2b
-/qilin-typert-loader/understand-the-implementation:
+/qilin-agent-typert-loader/understand-the-implementation:
   en: 519c0242ef4d9e21
   zh: a72967feb0ea1b41
-/qilin-typert-loader/understand-the-implementation/design-concept:
+/qilin-agent-typert-loader/understand-the-implementation/design-concept:
   en: 44e329037b95ddab
   zh: 2baa45bfe74c8363
-/qilin-typert-loader/understand-the-implementation/manifest-validation:
+/qilin-agent-typert-loader/understand-the-implementation/manifest-validation:
   en: eb246aef15ea0532
   zh: 7a4a7bcc788b3ba3
-/qilin-typert-loader/understand-the-implementation/caching-and-ownership:
+/qilin-agent-typert-loader/understand-the-implementation/caching-and-ownership:
   en: 38e781e052fdf44e
   zh: d8f6b4d119bf9856
-/qilin-typert-loader/understand-the-implementation/source-map:
+/qilin-agent-typert-loader/understand-the-implementation/source-map:
   en: 92aa195f1408a900
   zh: 1841e39a53de7873
-/qilin-typert-loader/further-exploration:
-  en: 1c8d1c8070afca23
-  zh: ad1cac5f005cdf22
-/qilin-typert-loader/model-experience:
+/qilin-agent-typert-loader/further-exploration:
+  en: c33e47d010137681
+  zh: 94e27a465d00a038
+/qilin-agent-typert-loader/model-experience:
   en: d3555a846d0b19a6
   zh: eb4815fbd81a3561
-/qilin-typert-loader/model-experience/kv-cache-effect:
+/qilin-agent-typert-loader/model-experience/kv-cache-effect:
   en: f8a0ad3d0fc0eb32
   zh: 7649a694b279f5f3
-/qilin-typert-loader/known-limitations-and-deferred-work:
+/qilin-agent-typert-loader/known-limitations-and-deferred-work:
   en: a7e281826b58b218
   zh: b4347c965151a1a9
-/qilin-typert-loader/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-typert-loader/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

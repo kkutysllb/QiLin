@@ -5,63 +5,63 @@
 /:
   en: a92228dd36f58c28
   zh: d2bcff3de67211c9
-/qilin-client-ui-workspace:
-  en: 649eb19c7446a5de
-  zh: 16a13840d40f98a8
-/qilin-client-ui-workspace/summary:
+/qilin-agent-client-ui-workspace:
+  en: 7c92dee86395fa5e
+  zh: eb914b3268d653ac
+/qilin-agent-client-ui-workspace/summary:
   en: 1fb6e04bffdf985e
   zh: 5068ce8d141f377e
-/qilin-client-ui-workspace/table-of-contents:
+/qilin-agent-client-ui-workspace/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-ui-workspace/use-this-package:
+/qilin-agent-client-ui-workspace/use-this-package:
   en: d2973905f9fc3331
   zh: 5d557bd5c8eb783a
-/qilin-client-ui-workspace/use-this-package/reordering-and-view-options:
+/qilin-agent-client-ui-workspace/use-this-package/reordering-and-view-options:
   en: 6cea302320f00839
   zh: d695994ec569a43e
-/qilin-client-ui-workspace/use-this-package/workspace-hierarchy:
+/qilin-agent-client-ui-workspace/use-this-package/workspace-hierarchy:
   en: 5e049b90c55eddb3
   zh: e06dc8d0d25c013f
-/qilin-client-ui-workspace/use-this-package/search:
+/qilin-agent-client-ui-workspace/use-this-package/search:
   en: faf570bcad825439
   zh: a65300b0b40a8550
-/qilin-client-ui-workspace/use-this-package/managing-sessions:
+/qilin-agent-client-ui-workspace/use-this-package/managing-sessions:
   en: 7a50621fbde08357
   zh: 735a575e236e3860
-/qilin-client-ui-workspace/use-this-package/pending-interactions:
+/qilin-agent-client-ui-workspace/use-this-package/pending-interactions:
   en: efcede0546e167c5
   zh: 74afe770abb49016
-/qilin-client-ui-workspace/use-this-package/active-schedule-markers:
+/qilin-agent-client-ui-workspace/use-this-package/active-schedule-markers:
   en: 2b0cda3b7b38ce39
   zh: e33243b642a6164a
-/qilin-client-ui-workspace/understand-the-implementation:
+/qilin-agent-client-ui-workspace/understand-the-implementation:
   en: f08ceb1f5612a6ac
   zh: a75b56cc094b5c45
-/qilin-client-ui-workspace/understand-the-implementation/the-directory-flow-hole:
+/qilin-agent-client-ui-workspace/understand-the-implementation/the-directory-flow-hole:
   en: 978415ec6b2e0cc0
   zh: 0d5c705ff34fb1da
-/qilin-client-ui-workspace/understand-the-implementation/the-hero-run-mode-chip:
+/qilin-agent-client-ui-workspace/understand-the-implementation/the-hero-run-mode-chip:
   en: 745e917ae00da6ab
   zh: 32c745f9078829b8
-/qilin-client-ui-workspace/understand-the-implementation/view-state:
-  en: 56fe3660074f39d9
-  zh: 614afe3de2be9283
-/qilin-client-ui-workspace/understand-the-implementation/hover-cards:
+/qilin-agent-client-ui-workspace/understand-the-implementation/view-state:
+  en: dc93d10e80153f62
+  zh: 5caa3399dbf84f62
+/qilin-agent-client-ui-workspace/understand-the-implementation/hover-cards:
   en: f236cadca4c98088
   zh: 8b36850c1d5f73d2
-/qilin-client-ui-workspace/further-exploration:
+/qilin-agent-client-ui-workspace/further-exploration:
   en: cf79dbc3c0a50622
   zh: e86fbbd598a7fe77
-/qilin-client-ui-workspace/model-experience:
+/qilin-agent-client-ui-workspace/model-experience:
   en: 3120df665299c634
   zh: 1d9f365d091d0d2a
-/qilin-client-ui-workspace/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-workspace/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: de54f3467ef3b9be
-/qilin-client-ui-workspace/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-workspace/known-limitations-and-deferred-work:
   en: ead58471d372f64f
   zh: 3af32ed381b76179
-/qilin-client-ui-workspace/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-workspace/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

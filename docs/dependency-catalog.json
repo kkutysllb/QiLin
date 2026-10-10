@@ -2803,6 +2803,90 @@
       ]
     },
     {
+      "name": "@qilin-agent/experimental-hook-protocol",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/experimental-hook-protocol",
+          "direct": false,
+          "optional": false,
+          "peer": true
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/experimental-hooks-claude-code",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/experimental-hooks-claude-code",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/experimental-hooks-codex",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/experimental-hooks-codex",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/experimental-skill-badge",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/experimental-skill-badge",
+          "direct": false,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/experimental-tool-ralph",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/experimental-tool-ralph",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/experimental-webhook",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/experimental-webhook",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
+      "name": "@qilin-agent/experimental-webhook-github",
+      "version": "3.0.0",
+      "installations": [
+        {
+          "location": "node_modules/@qilin-agent/experimental-webhook-github",
+          "direct": true,
+          "optional": false,
+          "peer": false
+        }
+      ]
+    },
+    {
       "name": "@qilin-agent/file-reference",
       "version": "3.0.0",
       "installations": [
@@ -2916,42 +3000,6 @@
       "installations": [
         {
           "location": "node_modules/@qilin-agent/home-paths",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin-agent/hook-protocol",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin-agent/hook-protocol",
-          "direct": false,
-          "optional": false,
-          "peer": true
-        }
-      ]
-    },
-    {
-      "name": "@qilin-agent/hooks-claude-code",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin-agent/hooks-claude-code",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin-agent/hooks-codex",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin-agent/hooks-codex",
           "direct": true,
           "optional": false,
           "peer": false
@@ -3859,18 +3907,6 @@
       ]
     },
     {
-      "name": "@qilin-agent/skill-badge",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin-agent/skill-badge",
-          "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
       "name": "@qilin-agent/skill-filesystem",
       "version": "3.0.0",
       "installations": [
@@ -4255,18 +4291,6 @@
       ]
     },
     {
-      "name": "@qilin-agent/tool-ralph",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin-agent/tool-ralph",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
       "name": "@qilin-agent/tool-skill",
       "version": "3.0.0",
       "installations": [
@@ -4525,30 +4549,6 @@
         {
           "location": "node_modules/@qilin-agent/web-search-deepseek",
           "direct": false,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin-agent/webhook",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin-agent/webhook",
-          "direct": true,
-          "optional": false,
-          "peer": false
-        }
-      ]
-    },
-    {
-      "name": "@qilin-agent/webhook-github",
-      "version": "3.0.0",
-      "installations": [
-        {
-          "location": "node_modules/@qilin-agent/webhook-github",
-          "direct": true,
           "optional": false,
           "peer": false
         }

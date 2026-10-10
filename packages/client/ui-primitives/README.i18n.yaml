@@ -5,57 +5,57 @@
 /:
   en: b6701ad9280c43fb
   zh: bc1ed7854daac92e
-/qilin-client-ui-primitives:
-  en: caf20e08acd7dd2d
-  zh: a7a39f64482c32c0
-/qilin-client-ui-primitives/summary:
-  en: 74ba153bb28603a7
-  zh: f8b36ccf7e7ef2f8
-/qilin-client-ui-primitives/table-of-contents:
+/qilin-agent-client-ui-primitives:
+  en: 77c8b257195e8d1c
+  zh: e14d896c8f1374c2
+/qilin-agent-client-ui-primitives/summary:
+  en: cb45feeda688bec7
+  zh: bf5480fcaafc640e
+/qilin-agent-client-ui-primitives/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-ui-primitives/use-this-package:
-  en: 9f8ec1ebc498b846
-  zh: 530b7a8eea6225a0
-/qilin-client-ui-primitives/use-this-package/component-catalog:
+/qilin-agent-client-ui-primitives/use-this-package:
+  en: ca3db95551971b07
+  zh: 083ba0e187ce544a
+/qilin-agent-client-ui-primitives/use-this-package/component-catalog:
   en: 1d9aa7cce776f16d
   zh: 457ec4cab4fcca77
-/qilin-client-ui-primitives/use-this-package/controls-and-icons:
+/qilin-agent-client-ui-primitives/use-this-package/controls-and-icons:
   en: 219d402939f9c314
   zh: 3460e90d2e1c46df
-/qilin-client-ui-primitives/use-this-package/rendering-agent-output:
+/qilin-agent-client-ui-primitives/use-this-package/rendering-agent-output:
   en: 7aac8d4af442ee84
   zh: 484000023a699d59
-/qilin-client-ui-primitives/use-this-package/localizing-copy:
+/qilin-agent-client-ui-primitives/use-this-package/localizing-copy:
   en: 4aef65dea11de083
   zh: abc22cd7c65cdf38
-/qilin-client-ui-primitives/understand-the-implementation:
-  en: af4de4fc13d9f533
-  zh: 2927f1bd7d057ff9
-/qilin-client-ui-primitives/understand-the-implementation/source-map:
+/qilin-agent-client-ui-primitives/understand-the-implementation:
+  en: ff71d06c5d21ac81
+  zh: f5739d0e28e73552
+/qilin-agent-client-ui-primitives/understand-the-implementation/source-map:
   en: 7402d419c8f10f9a
   zh: 551111cd47d929f1
-/qilin-client-ui-primitives/understand-the-implementation/input-modality:
+/qilin-agent-client-ui-primitives/understand-the-implementation/input-modality:
   en: 44dfc06332ca3b5b
   zh: 94df10cde37c18e6
-/qilin-client-ui-primitives/understand-the-implementation/streaming-markdown:
+/qilin-agent-client-ui-primitives/understand-the-implementation/streaming-markdown:
   en: 8bbfa14c27f3bfd7
   zh: 88f7548ac3a114e1
-/qilin-client-ui-primitives/understand-the-implementation/geometry-and-overflow:
+/qilin-agent-client-ui-primitives/understand-the-implementation/geometry-and-overflow:
   en: 9b34b50a635532bc
   zh: 8ea629e1ce951979
-/qilin-client-ui-primitives/further-exploration:
-  en: 684db5291d944d66
-  zh: 22a4538704d13d37
-/qilin-client-ui-primitives/model-experience:
+/qilin-agent-client-ui-primitives/further-exploration:
+  en: 1ef5e5fdbe3d2436
+  zh: af5cb7ace2ab6e64
+/qilin-agent-client-ui-primitives/model-experience:
   en: 3120df665299c634
   zh: 1d9f365d091d0d2a
-/qilin-client-ui-primitives/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-primitives/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: de54f3467ef3b9be
-/qilin-client-ui-primitives/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-primitives/known-limitations-and-deferred-work:
   en: 9fc810886181885e
   zh: 3d001c4bf816a62d
-/qilin-client-ui-primitives/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-primitives/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

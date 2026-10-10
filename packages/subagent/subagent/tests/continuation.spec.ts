@@ -35,6 +35,7 @@ import {
   continuationManager,
   dropContinuationActivation,
 } from './continuation-internals.ts'
+import { mountWorkingDirectoryFixture } from './working-directory-fixture.ts'
 
 /** Writable settings isolated to one test Context. */
 class MemorySettings extends SettingsProvider {
@@ -125,6 +126,7 @@ async function setupWith(
   await ctx.plugin(AgentLoop, { agents: [] })
   if (options.schedule) await mountScheduleForOwnership(ctx)
   if (options.sessionQuery !== false) await ctx.plugin(TestSessionQuery)
+  await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(SubagentRuntime, options.maxActiveSubagents === undefined ? {} : { maxActiveSubagents: options.maxActiveSubagents })
   await ctx.plugin(SubagentSpawn, { providerName: 'spawn' })
   await ctx.plugin(SubagentFork, { providerName: 'fork' })
@@ -285,6 +287,7 @@ describe('continuable activation capacity', () => {
   it.each([0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1])('rejects invalid configured capacity %s', async (maxActiveSubagents) => {
     const ctx = new Context()
     try {
+      await mountWorkingDirectoryFixture(ctx)
       await expect(ctx.plugin(SubagentRuntime, { maxActiveSubagents })).rejects.toThrow()
     } finally {
       await ctx.fiber.dispose()
@@ -295,6 +298,7 @@ describe('continuable activation capacity', () => {
     const ctx = new Context()
     try {
       await ctx.plugin(MemorySettings)
+      await mountWorkingDirectoryFixture(ctx)
       const fiber = await ctx.plugin(SubagentRuntime, { maxDepth: 4 })
       expect(ctx.subagents.resolveMaxDepth()).toBe(4)
       await ctx.settings.update('subagent', { maxDepth: 0 })
@@ -862,6 +866,7 @@ describe('SubagentRuntime.startContinuable', () => {
     cleanups.push(async () => { await freshPersistence.dispose() })
     await fresh.plugin(AgentLoop, { agents: [] })
     await fresh.plugin(TestSessionQuery)
+    await mountWorkingDirectoryFixture(fresh)
     await fresh.plugin(SubagentRuntime)
     await fresh.plugin(SubagentSpawn, { providerName: 'spawn' })
     // The disposed lifecycle drained the parent's log durably, so the fresh
@@ -3595,6 +3600,7 @@ describe('continuable errors', () => {
       rmSync(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 })
     })
     await ctx.plugin(AgentLoop, { agents: [] })
+    await mountWorkingDirectoryFixture(ctx)
     const serviceFiber = await ctx.plugin(SubagentRuntime)
     await ctx.plugin(SubagentSpawn, { providerName: 'spawn' })
     ctx.llm.registerAdapter(['mock'], adapter)

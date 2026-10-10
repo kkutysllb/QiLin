@@ -5,57 +5,57 @@
 /:
   en: 3fe330c4d51197ec
   zh: 5874f3bcd419dbbc
-/qilin-typert-generator:
-  en: 18e026db46a38088
-  zh: 44cc40684fa498e5
-/qilin-typert-generator/summary:
+/qilin-agent-typert-generator:
+  en: 79a74a269efb1d7d
+  zh: d7a6f32f76b050ab
+/qilin-agent-typert-generator/summary:
   en: b16a89a1048928ce
   zh: cbc383826f304b42
-/qilin-typert-generator/table-of-contents:
+/qilin-agent-typert-generator/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-typert-generator/use-this-package:
+/qilin-agent-typert-generator/use-this-package:
   en: 949dec3bb987644a
   zh: 0ed333a6067465dc
-/qilin-typert-generator/use-this-package/publishing-typert-artifacts-from-a-package:
+/qilin-agent-typert-generator/use-this-package/publishing-typert-artifacts-from-a-package:
   en: 3651b74007c2dcb8
   zh: b47b4ec28f3f7781
-/qilin-typert-generator/use-this-package/analyzing-a-workspace-statically:
+/qilin-agent-typert-generator/use-this-package/analyzing-a-workspace-statically:
   en: 88f4e7fc9d4c7701
   zh: cecd35ff4f35bfd2
-/qilin-typert-generator/use-this-package/running-generation-inside-a-tsdown-build:
+/qilin-agent-typert-generator/use-this-package/running-generation-inside-a-tsdown-build:
   en: cc3f7d23739380f6
   zh: 864d15088f581271
-/qilin-typert-generator/understand-the-implementation:
+/qilin-agent-typert-generator/understand-the-implementation:
   en: b90762df7a978580
   zh: 123ab225a2b5df2a
-/qilin-typert-generator/understand-the-implementation/design-concept:
+/qilin-agent-typert-generator/understand-the-implementation/design-concept:
   en: 0a515742229bf442
   zh: dfd2c5eddd943af9
-/qilin-typert-generator/understand-the-implementation/source-map:
+/qilin-agent-typert-generator/understand-the-implementation/source-map:
   en: b3330e37723290f4
   zh: 2d7e90a6d5ef419d
-/qilin-typert-generator/understand-the-implementation/analysis-and-faces:
+/qilin-agent-typert-generator/understand-the-implementation/analysis-and-faces:
   en: 67d1e18294bc476e
   zh: b74288de921f989c
-/qilin-typert-generator/understand-the-implementation/emission-and-publication-contract:
+/qilin-agent-typert-generator/understand-the-implementation/emission-and-publication-contract:
   en: 178fef3c5655955e
   zh: cf90c9c052c3768e
-/qilin-typert-generator/understand-the-implementation/catalog-projection:
+/qilin-agent-typert-generator/understand-the-implementation/catalog-projection:
   en: 07a5e0705e9839e0
   zh: 837cc9a562faa7ce
-/qilin-typert-generator/further-exploration:
+/qilin-agent-typert-generator/further-exploration:
   en: b19242f4a5e1b11d
   zh: 2da46d7315fb1145
-/qilin-typert-generator/model-experience:
+/qilin-agent-typert-generator/model-experience:
   en: e6641e8b5e5f42ca
   zh: 2fdc0d3fde7e9216
-/qilin-typert-generator/model-experience/kv-cache-effect:
+/qilin-agent-typert-generator/model-experience/kv-cache-effect:
   en: 09310605f7d136d4
   zh: 3535ec7eba83b90f
-/qilin-typert-generator/known-limitations-and-deferred-work:
+/qilin-agent-typert-generator/known-limitations-and-deferred-work:
   en: f3b1002133fe8736
   zh: e8d5fecd10db5e3a
-/qilin-typert-generator/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-typert-generator/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

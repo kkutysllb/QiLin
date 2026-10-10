@@ -4,7 +4,7 @@
 #   pnpm run verify-translation-pairing --write docs/subsystems/feedback.md
 /message-feedback:
   en: 6b45eee4a6ef913f
-  zh: d76090ee2dd39362
+  zh: befd8cd5ef3d7024
 /message-feedback/public-types:
   en: 514e3a869e355a86
   zh: 4b6f416f8ff3847f
@@ -22,7 +22,7 @@
   zh: e4ae3fc9c3e4c2b3
 /message-feedback/web-surface:
   en: 6f60352749185e55
-  zh: d97421db706fab3f
+  zh: 5cf95104cfff4599
 /message-feedback/boundaries-and-limitations:
   en: 6e258de40224234e
   zh: 05a7e181d357d038

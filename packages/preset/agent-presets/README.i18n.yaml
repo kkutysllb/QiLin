@@ -5,75 +5,75 @@
 /:
   en: ddff94f53c05b2ae
   zh: 93c9ff7268804227
-/qilin-agent-presets:
-  en: d941a69a86d30e6b
-  zh: cd6acd21d4930570
-/qilin-agent-presets/summary:
+/qilin-agent-agent-presets:
+  en: c6102b6305957ec1
+  zh: 56c5d16abd23982a
+/qilin-agent-agent-presets/summary:
   en: 01693a44ee06646e
   zh: 67e75dc86d238839
-/qilin-agent-presets/table-of-contents:
+/qilin-agent-agent-presets/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-agent-presets/use-this-package:
+/qilin-agent-agent-presets/use-this-package:
   en: 53612191b2d126a6
   zh: 2372d5f6f4428e53
-/qilin-agent-presets/use-this-package/what-a-preset-gives-a-session:
+/qilin-agent-agent-presets/use-this-package/what-a-preset-gives-a-session:
   en: 03a44b0f5b5c2b75
   zh: 00dce526a8a7a833
-/qilin-agent-presets/use-this-package/minimal-configuration:
-  en: 819fe038e3853017
-  zh: 472e3c3e6761f308
-/qilin-agent-presets/use-this-package/showing-the-picker-and-choosing-its-default:
+/qilin-agent-agent-presets/use-this-package/minimal-configuration:
+  en: 0afbee01eba24842
+  zh: 187cd0d05caa273c
+/qilin-agent-agent-presets/use-this-package/showing-the-picker-and-choosing-its-default:
   en: 2789cd4b55b8552b
   zh: da1351d0d6bf78a2
-/qilin-agent-presets/use-this-package/authoring-presets:
+/qilin-agent-agent-presets/use-this-package/authoring-presets:
   en: e01f33aa69b2e60c
   zh: fe8b0749585df712
-/qilin-agent-presets/use-this-package/switching-a-session-s-preset:
+/qilin-agent-agent-presets/use-this-package/switching-a-session-s-preset:
   en: a3c4fbc796fbee45
   zh: b1101b2bb0eafadc
-/qilin-agent-presets/use-this-package/failures-and-recovery:
+/qilin-agent-agent-presets/use-this-package/failures-and-recovery:
   en: 237e46243135362a
   zh: 00de534052d523bd
-/qilin-agent-presets/understand-the-implementation:
+/qilin-agent-agent-presets/understand-the-implementation:
   en: e9ae03623021bfea
   zh: d22396dcfa4bb259
-/qilin-agent-presets/understand-the-implementation/design-philosophy:
+/qilin-agent-agent-presets/understand-the-implementation/design-philosophy:
   en: 9b84bd0d339da84f
   zh: f6ca89765e5dd820
-/qilin-agent-presets/understand-the-implementation/source-map:
+/qilin-agent-agent-presets/understand-the-implementation/source-map:
   en: 2871c1d67f4c3d0c
   zh: a81636e64ac58b14
-/qilin-agent-presets/understand-the-implementation/the-standing-mount:
+/qilin-agent-agent-presets/understand-the-implementation/the-standing-mount:
   en: 4ea78c648e25f2d1
   zh: 8e98dadf0c22947a
-/qilin-agent-presets/understand-the-implementation/the-composition-inventory:
+/qilin-agent-agent-presets/understand-the-implementation/the-composition-inventory:
   en: 81ecdc159be79e3f
   zh: 3bedecd462c59e74
-/qilin-agent-presets/understand-the-implementation/the-mount-audit:
+/qilin-agent-agent-presets/understand-the-implementation/the-mount-audit:
   en: 1796a3f41e655a52
   zh: 0f034ece50ede13d
-/qilin-agent-presets/understand-the-implementation/authoring-mechanics:
+/qilin-agent-agent-presets/understand-the-implementation/authoring-mechanics:
   en: 3dab206660d7b899
   zh: 426be1c3366b0fd5
-/qilin-agent-presets/understand-the-implementation/the-session-record:
+/qilin-agent-agent-presets/understand-the-implementation/the-session-record:
   en: 03d6fbcaedf309ff
   zh: 824a08b222ca70ab
-/qilin-agent-presets/further-exploration:
-  en: 7080e0814bb4d6a5
-  zh: 20d6bb870a3c53c9
-/qilin-agent-presets/model-experience:
+/qilin-agent-agent-presets/further-exploration:
+  en: b0154c296f75ab0c
+  zh: a2fae2921ea05a7d
+/qilin-agent-agent-presets/model-experience:
   en: 07ca03c481bc35f3
   zh: e64e2305ac5f8d54
-/qilin-agent-presets/model-experience/kv-cache-effect:
+/qilin-agent-agent-presets/model-experience/kv-cache-effect:
   en: adc2966aced4becb
   zh: d7ffab4d81696106
-/qilin-agent-presets/known-limitations-and-deferred-work:
+/qilin-agent-agent-presets/known-limitations-and-deferred-work:
   en: be594930447d572f
   zh: ac67e6b5bac6eed1
-/qilin-agent-presets/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-agent-presets/known-limitations-and-deferred-work/dev-note:
   en: d2f0d68fe29fb750
   zh: 323d21ee73a9e3f6
-/qilin-agent-presets/known-limitations-and-deferred-work/dev-note/future-reclaiming-superseded-generations:
+/qilin-agent-agent-presets/known-limitations-and-deferred-work/dev-note/future-reclaiming-superseded-generations:
   en: 9cb522ee004bd695
   zh: ad108949b1a0885f

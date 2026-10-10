@@ -5,75 +5,75 @@
 /:
   en: abf71058974a6f37
   zh: 45c76c1d645a0e67
-/qilin-sandbox-policy:
-  en: 983c2e8c93e8513a
-  zh: 4c1e0b559820f60c
-/qilin-sandbox-policy/summary:
+/qilin-agent-sandbox-policy:
+  en: c3276ab8714893b5
+  zh: d51b2c972362408f
+/qilin-agent-sandbox-policy/summary:
   en: 62e1a0a017d6bc07
   zh: 1d9f86eb54f51b8e
-/qilin-sandbox-policy/table-of-contents:
+/qilin-agent-sandbox-policy/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-sandbox-policy/use-this-package:
+/qilin-agent-sandbox-policy/use-this-package:
   en: a75f214ba848bbd1
   zh: 8ad35e2513b53bd1
-/qilin-sandbox-policy/use-this-package/when-to-choose-it:
+/qilin-agent-sandbox-policy/use-this-package/when-to-choose-it:
   en: 6704447e52ec295b
   zh: 9ed812d9e29d5533
-/qilin-sandbox-policy/use-this-package/minimal-configuration:
-  en: 855079a846f9316b
-  zh: 6ff918f505f09f73
-/qilin-sandbox-policy/use-this-package/switching-a-session-s-mode:
+/qilin-agent-sandbox-policy/use-this-package/minimal-configuration:
+  en: efc8bc5e343f1840
+  zh: 9e71350c129a2a42
+/qilin-agent-sandbox-policy/use-this-package/switching-a-session-s-mode:
   en: 957d72691e470e5c
   zh: c22a3a750af0e4a3
-/qilin-sandbox-policy/use-this-package/failures-and-recovery:
+/qilin-agent-sandbox-policy/use-this-package/failures-and-recovery:
   en: 9cef5f64a050f468
   zh: 5dc42c148b2c902d
-/qilin-sandbox-policy/understand-the-implementation:
+/qilin-agent-sandbox-policy/understand-the-implementation:
   en: 2d560aa6681fcfb8
   zh: e1c6361a6fa40c63
-/qilin-sandbox-policy/understand-the-implementation/resolution-precedence:
+/qilin-agent-sandbox-policy/understand-the-implementation/resolution-precedence:
   en: f1f38b10c23947d2
   zh: 7a591e743d6793f5
-/qilin-sandbox-policy/understand-the-implementation/the-per-session-store:
+/qilin-agent-sandbox-policy/understand-the-implementation/the-per-session-store:
   en: d13dabff02f2acfd
   zh: f593888b4ffddf36
-/qilin-sandbox-policy/understand-the-implementation/model-visible-text:
+/qilin-agent-sandbox-policy/understand-the-implementation/model-visible-text:
   en: 38f9f9bf72d461b2
   zh: ac0aa6889e14aea0
-/qilin-sandbox-policy/understand-the-implementation/source-map:
+/qilin-agent-sandbox-policy/understand-the-implementation/source-map:
   en: cc7dd675c9915f7d
   zh: d719c4f9de39873a
-/qilin-sandbox-policy/further-exploration:
+/qilin-agent-sandbox-policy/further-exploration:
   en: e00314ec4e49f003
   zh: 0285b8448cdf6bf1
-/qilin-sandbox-policy/model-experience:
+/qilin-agent-sandbox-policy/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-sandbox-policy/model-experience/current-file-sandbox-policy:
+/qilin-agent-sandbox-policy/model-experience/current-file-sandbox-policy:
   en: 593b59dbbb02bc8c
   zh: 38fa746346e9bc06
-/qilin-sandbox-policy/model-experience/current-file-sandbox-policy/what-the-model-sees:
+/qilin-agent-sandbox-policy/model-experience/current-file-sandbox-policy/what-the-model-sees:
   en: 37d30c86d074bb17
   zh: 428399379be74def
-/qilin-sandbox-policy/model-experience/current-file-sandbox-policy/what-the-model-sees/read-only:
+/qilin-agent-sandbox-policy/model-experience/current-file-sandbox-policy/what-the-model-sees/read-only:
   en: 36f15579c9444eb9
   zh: 289f3c4ce040bfe9
-/qilin-sandbox-policy/model-experience/current-file-sandbox-policy/what-the-model-sees/workspace-write:
+/qilin-agent-sandbox-policy/model-experience/current-file-sandbox-policy/what-the-model-sees/workspace-write:
   en: 269d494ad304638d
   zh: a879c1d7cc03e6ac
-/qilin-sandbox-policy/model-experience/current-file-sandbox-policy/what-the-model-sees/danger-full-access:
+/qilin-agent-sandbox-policy/model-experience/current-file-sandbox-policy/what-the-model-sees/danger-full-access:
   en: 4e28324a011422a1
   zh: bf31ffce30f06a09
-/qilin-sandbox-policy/model-experience/current-file-sandbox-policy/token-effect:
+/qilin-agent-sandbox-policy/model-experience/current-file-sandbox-policy/token-effect:
   en: e3387fb6eeba1239
   zh: 06a47393057d3e9b
-/qilin-sandbox-policy/model-experience/current-file-sandbox-policy/kv-cache-effect:
+/qilin-agent-sandbox-policy/model-experience/current-file-sandbox-policy/kv-cache-effect:
   en: a16a657e0e5145fb
   zh: 4b19263a728990dc
-/qilin-sandbox-policy/known-limitations-and-deferred-work:
+/qilin-agent-sandbox-policy/known-limitations-and-deferred-work:
   en: af363d6626eaa9b8
   zh: 93f8d5f9519db0ae
-/qilin-sandbox-policy/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-sandbox-policy/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

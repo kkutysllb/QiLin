@@ -5,36 +5,36 @@
 /:
   en: 5957127de1a96013
   zh: f97118cd18ecad06
-/qilin-client-ui-sidebar-git:
-  en: ec8983f64584efad
-  zh: a1a6d05f26a59c9e
-/qilin-client-ui-sidebar-git/summary:
-  en: a91a4f15591d74a9
-  zh: 9abcb664a85e13e6
-/qilin-client-ui-sidebar-git/table-of-contents:
+/qilin-agent-client-ui-sidebar-git:
+  en: f2d0a5ef71e08cdb
+  zh: ca33ae5dba33af16
+/qilin-agent-client-ui-sidebar-git/summary:
+  en: f1b800c5d46755dd
+  zh: f423c06b94a75920
+/qilin-agent-client-ui-sidebar-git/table-of-contents:
   en: f56de033dbc40261
   zh: 69de300ba9728299
-/qilin-client-ui-sidebar-git/what-it-registers:
-  en: d8c03d7a29c62178
-  zh: 5b3c7ca729f221e1
-/qilin-client-ui-sidebar-git/the-panel:
+/qilin-agent-client-ui-sidebar-git/what-it-registers:
+  en: fda65285821db6af
+  zh: df8ab17dd5e7637c
+/qilin-agent-client-ui-sidebar-git/the-panel:
   en: bee3e8f6b8b75837
   zh: 1a11f440bfccd196
-/qilin-client-ui-sidebar-git/the-history-section:
+/qilin-agent-client-ui-sidebar-git/the-history-section:
   en: 0f500429f3811470
   zh: 57bf4bc1d20affc1
-/qilin-client-ui-sidebar-git/the-github-section:
+/qilin-agent-client-ui-sidebar-git/the-github-section:
   en: adc28d13fdab7c69
   zh: afaa5b1005902a64
-/qilin-client-ui-sidebar-git/model-experience:
+/qilin-agent-client-ui-sidebar-git/model-experience:
   en: c2ae5c7056945550
   zh: fc19e26ebcc9faf1
-/qilin-client-ui-sidebar-git/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-sidebar-git/model-experience/kv-cache-effect:
   en: fa34f7b8d2ce8db1
   zh: c0918f0967a322e8
-/qilin-client-ui-sidebar-git/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-sidebar-git/known-limitations-and-deferred-work:
   en: 28e1b9b8f7cdb133
   zh: 737e7322cc293357
-/qilin-client-ui-sidebar-git/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-sidebar-git/known-limitations-and-deferred-work/dev-note:
   en: 521db4271ce19684
   zh: 0bd6759121748f00

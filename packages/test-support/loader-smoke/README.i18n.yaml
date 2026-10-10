@@ -5,54 +5,54 @@
 /:
   en: 00a7ac59f751e4d0
   zh: 35334966b956621d
-/qilin-loader-smoke:
-  en: d27815c183e50838
-  zh: 5470cddaca548bb3
-/qilin-loader-smoke/summary:
+/qilin-agent-loader-smoke:
+  en: 5abf2b102f4b4070
+  zh: 15336831f0a263cf
+/qilin-agent-loader-smoke/summary:
   en: 48feeb53897b61a0
   zh: 459ff79f4d96e424
-/qilin-loader-smoke/table-of-contents:
+/qilin-agent-loader-smoke/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-loader-smoke/use-this-package:
+/qilin-agent-loader-smoke/use-this-package:
   en: 682780f6cbeb85cb
   zh: 07a2458db985471a
-/qilin-loader-smoke/use-this-package/booting-an-application-fixture:
+/qilin-agent-loader-smoke/use-this-package/booting-an-application-fixture:
   en: e4945196355b50a2
   zh: fcf25e08ec8c0184
-/qilin-loader-smoke/use-this-package/testing-a-shipped-profile:
+/qilin-agent-loader-smoke/use-this-package/testing-a-shipped-profile:
   en: f094478156e18f47
   zh: 57242aa4b1abc793
-/qilin-loader-smoke/use-this-package/driving-a-fixture-turn:
+/qilin-agent-loader-smoke/use-this-package/driving-a-fixture-turn:
   en: c99402b3d2219738
   zh: cbff00f4bfb7d625
-/qilin-loader-smoke/use-this-package/source-or-built-mode:
+/qilin-agent-loader-smoke/use-this-package/source-or-built-mode:
   en: a8589cefca2870f0
   zh: ac750a4aaf9e7a3e
-/qilin-loader-smoke/use-this-package/what-can-go-wrong:
+/qilin-agent-loader-smoke/use-this-package/what-can-go-wrong:
   en: a39314fde432eed5
   zh: 520dcd035d7dcb5d
-/qilin-loader-smoke/understand-the-implementation:
+/qilin-agent-loader-smoke/understand-the-implementation:
   en: 3ffb8df759bf5071
   zh: a93d3dd6472d9782
-/qilin-loader-smoke/understand-the-implementation/design:
+/qilin-agent-loader-smoke/understand-the-implementation/design:
   en: f2038316c71f3f2a
   zh: 056c8886214bce90
-/qilin-loader-smoke/understand-the-implementation/source-map:
+/qilin-agent-loader-smoke/understand-the-implementation/source-map:
   en: 1dd2e4e1cd1fad2d
   zh: 4783ddacfbcf2cd5
-/qilin-loader-smoke/further-exploration:
+/qilin-agent-loader-smoke/further-exploration:
   en: f82c08461a305840
   zh: 8fdaa9691ee1e00e
-/qilin-loader-smoke/model-experience:
+/qilin-agent-loader-smoke/model-experience:
   en: 27696a3c4d31d171
   zh: 48b6df074e0b0911
-/qilin-loader-smoke/model-experience/kv-cache-effect:
+/qilin-agent-loader-smoke/model-experience/kv-cache-effect:
   en: c204a02c386ca3a0
   zh: ce9b24304f9644aa
-/qilin-loader-smoke/known-limitations-and-deferred-work:
+/qilin-agent-loader-smoke/known-limitations-and-deferred-work:
   en: a3e0e21178bb00cc
   zh: f3dc6139370330f6
-/qilin-loader-smoke/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-loader-smoke/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

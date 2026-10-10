@@ -5,60 +5,60 @@
 /:
   en: 118428acb1b2d2e4
   zh: e5ca5ae92e8a7e4b
-/qilin-timeout:
-  en: 7f5628534a0b92c2
-  zh: e184e98a4105c43e
-/qilin-timeout/summary:
+/qilin-agent-timeout:
+  en: e350e35958e27947
+  zh: a631fd317fff5c60
+/qilin-agent-timeout/summary:
   en: 8315a3214762ba42
   zh: 275ff65f52028a19
-/qilin-timeout/table-of-contents:
+/qilin-agent-timeout/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-timeout/use-this-package:
+/qilin-agent-timeout/use-this-package:
   en: f000e79268bb4b39
   zh: 82c40259b95776be
-/qilin-timeout/use-this-package/clamping-a-timeout-hint:
+/qilin-agent-timeout/use-this-package/clamping-a-timeout-hint:
   en: f8c517a0c27ebeec
   zh: 0b6eed0130330349
-/qilin-timeout/use-this-package/running-work-under-a-deadline:
+/qilin-agent-timeout/use-this-package/running-work-under-a-deadline:
   en: 5cfa732a396484a6
   zh: d114cd5ea1ddeb3f
-/qilin-timeout/use-this-package/classifying-the-outcome:
+/qilin-agent-timeout/use-this-package/classifying-the-outcome:
   en: 0c1e99daa88e0ea0
   zh: fc92bc0add2e9a49
-/qilin-timeout/use-this-package/streaming-with-an-idle-watchdog:
+/qilin-agent-timeout/use-this-package/streaming-with-an-idle-watchdog:
   en: f464a16371ff00d1
   zh: 3c62c560c9dbc804
-/qilin-timeout/use-this-package/what-does-not-get-a-timeout:
+/qilin-agent-timeout/use-this-package/what-does-not-get-a-timeout:
   en: 73e04894d01ddb23
   zh: 4830e47cc55143ff
-/qilin-timeout/understand-the-implementation:
+/qilin-agent-timeout/understand-the-implementation:
   en: 6c052aa1171a2e3b
   zh: 2a37575eb6059cc9
-/qilin-timeout/understand-the-implementation/source-map:
+/qilin-agent-timeout/understand-the-implementation/source-map:
   en: b21d7b48571ebfba
   zh: e31188863ece408d
-/qilin-timeout/understand-the-implementation/how-a-deadline-fuses-sources:
+/qilin-agent-timeout/understand-the-implementation/how-a-deadline-fuses-sources:
   en: 940080c53d1d0dac
   zh: b86e7f51434a3f2c
-/qilin-timeout/understand-the-implementation/the-no-timeout-sentinel:
+/qilin-agent-timeout/understand-the-implementation/the-no-timeout-sentinel:
   en: ceea0b46e6b8e15f
   zh: de87dccf08764061
-/qilin-timeout/understand-the-implementation/why-an-idle-watchdog-rearms:
+/qilin-agent-timeout/understand-the-implementation/why-an-idle-watchdog-rearms:
   en: 7200cfa587c53a9c
   zh: 09d6b67dc1a31c5e
-/qilin-timeout/further-exploration:
+/qilin-agent-timeout/further-exploration:
   en: d1d5a0c0d5434697
   zh: cf27ba703e0e850b
-/qilin-timeout/model-experience:
+/qilin-agent-timeout/model-experience:
   en: 5c35c77e4625b8ac
   zh: 8142da11ba1a6d11
-/qilin-timeout/model-experience/kv-cache-effect:
+/qilin-agent-timeout/model-experience/kv-cache-effect:
   en: 04cc18d90bf9382d
   zh: 2c8b75063c46c620
-/qilin-timeout/known-limitations-and-deferred-work:
+/qilin-agent-timeout/known-limitations-and-deferred-work:
   en: cff4b9d3cfc23a97
   zh: 9eb52fbe4c8a6c30
-/qilin-timeout/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-timeout/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

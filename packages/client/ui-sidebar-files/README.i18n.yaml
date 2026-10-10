@@ -5,33 +5,33 @@
 /:
   en: 9d1a6fd0e15334af
   zh: 039c887fbe62563d
-/qilin-client-ui-sidebar-files:
-  en: 47e4cb744b59e8e4
-  zh: 24ccd74a0f7b2cbd
-/qilin-client-ui-sidebar-files/summary:
+/qilin-agent-client-ui-sidebar-files:
+  en: 6d5bba3b98a43bb9
+  zh: 8e8bf7ec214d7000
+/qilin-agent-client-ui-sidebar-files/summary:
   en: 646be55dab8b8d64
   zh: 324cab934fd2dc2a
-/qilin-client-ui-sidebar-files/table-of-contents:
+/qilin-agent-client-ui-sidebar-files/table-of-contents:
   en: 20d740a79f7fcd5d
   zh: fb6ce45e71bdbfdc
-/qilin-client-ui-sidebar-files/what-it-registers:
-  en: 994eef43307eb787
-  zh: f2cc6874fd3f353a
-/qilin-client-ui-sidebar-files/the-tree:
-  en: a30161b17bad815b
-  zh: 43bdaf633f536e38
-/qilin-client-ui-sidebar-files/the-editor:
-  en: 1a55165f6b1a7b14
-  zh: 6bb5aacbb096199c
-/qilin-client-ui-sidebar-files/model-experience:
+/qilin-agent-client-ui-sidebar-files/what-it-registers:
+  en: 17086bd6d2fcca95
+  zh: a67338ebfdd401f0
+/qilin-agent-client-ui-sidebar-files/the-tree:
+  en: c1c59c3049b9f2d4
+  zh: 93c3709a7565bb4d
+/qilin-agent-client-ui-sidebar-files/the-editor:
+  en: 54f764f5ef9c461a
+  zh: 88e0e76b22b4463f
+/qilin-agent-client-ui-sidebar-files/model-experience:
   en: 337ea3bcf76f4839
   zh: 141cfc1bbb74fe28
-/qilin-client-ui-sidebar-files/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-sidebar-files/model-experience/kv-cache-effect:
   en: bb56e6824621946b
   zh: 21d28194e27cdde3
-/qilin-client-ui-sidebar-files/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-sidebar-files/known-limitations-and-deferred-work:
   en: abfa57c3de3a5048
   zh: 7f090d26061985e6
-/qilin-client-ui-sidebar-files/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-sidebar-files/known-limitations-and-deferred-work/dev-note:
   en: e56c9cd5faac2459
   zh: 22ae86f6dd9ff4c0

@@ -58,6 +58,10 @@ flowchart LR
   cfg --> plugin_qilin_base_attachment_local
   plugin_qilin_base_session_query_sqlite["session-query-sqlite<br/>@qilin-agent/session-query-sqlite"]
   cfg --> plugin_qilin_base_session_query_sqlite
+  plugin_qilin_base_working_directory["working-directory<br/>@qilin-agent/working-directory"]
+  cfg --> plugin_qilin_base_working_directory
+  plugin_qilin_base_tool_working_directory["tool-working-directory<br/>@qilin-agent/tool-working-directory"]
+  cfg --> plugin_qilin_base_tool_working_directory
   plugin_qilin_base_session_projection["session-projection<br/>@qilin-agent/session-projection"]
   cfg --> plugin_qilin_base_session_projection
   plugin_qilin_base_storage["storage<br/>@qilin-agent/storage"]
@@ -108,8 +112,6 @@ flowchart LR
   cfg --> plugin_qilin_base_skill
   plugin_qilin_base_skill_filesystem["skill-filesystem<br/>@qilin-agent/skill-filesystem"]
   cfg --> plugin_qilin_base_skill_filesystem
-  plugin_qilin_base_skill_badge["skill-badge<br/>@qilin-agent/skill-badge"]
-  cfg --> plugin_qilin_base_skill_badge
   plugin_qilin_base_tool_skill["tool-skill<br/>@qilin-agent/tool-skill"]
   cfg --> plugin_qilin_base_tool_skill
   plugin_qilin_base_commands["commands<br/>@qilin-agent/commands"]
@@ -166,8 +168,6 @@ flowchart LR
   cfg --> plugin_qilin_base_tool_todo
   plugin_qilin_base_tool_goal["tool-goal<br/>@qilin-agent/tool-goal"]
   cfg --> plugin_qilin_base_tool_goal
-  plugin_qilin_base_tool_ralph["tool-ralph<br/>@qilin-agent/tool-ralph"]
-  cfg --> plugin_qilin_base_tool_ralph
   plugin_qilin_base_repeat_tool_reminder["repeat-tool-reminder<br/>@qilin-agent/repeat-tool-reminder"]
   cfg --> plugin_qilin_base_repeat_tool_reminder
   plugin_qilin_base_web["web<br/>@qilin-agent/web"]
@@ -219,6 +219,8 @@ flowchart LR
 | `session-persistence-jsonl` | `@qilin-agent/session-persistence-jsonl` |
 | `attachment-local` | `@qilin-agent/attachment-local` |
 | `session-query-sqlite` | `@qilin-agent/session-query-sqlite` |
+| `working-directory` | `@qilin-agent/working-directory` |
+| `tool-working-directory` | `@qilin-agent/tool-working-directory` |
 | `session-projection` | `@qilin-agent/session-projection` |
 | `storage` | `@qilin-agent/storage` |
 | `storage-json` | `@qilin-agent/storage-json` |
@@ -244,7 +246,6 @@ flowchart LR
 | `agent-instructions` | `@qilin-agent/agent-instructions` |
 | `skill` | `@qilin-agent/skill` |
 | `skill-filesystem` | `@qilin-agent/skill-filesystem` |
-| `skill-badge` | `@qilin-agent/skill-badge` |
 | `tool-skill` | `@qilin-agent/tool-skill` |
 | `commands` | `@qilin-agent/commands` |
 | `command-feedback` | `@qilin-agent/command-feedback` |
@@ -273,7 +274,6 @@ flowchart LR
 | `image-offload` | `@qilin-agent/compaction-image-offload` |
 | `tool-todo` | `@qilin-agent/tool-todo` |
 | `tool-goal` | `@qilin-agent/tool-goal` |
-| `tool-ralph` | `@qilin-agent/tool-ralph` |
 | `repeat-tool-reminder` | `@qilin-agent/repeat-tool-reminder` |
 | `web` | `@qilin-agent/web` |
 | `web-search-deepseek` | `@qilin-agent/web-search-deepseek` |

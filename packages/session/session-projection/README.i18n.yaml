@@ -5,54 +5,54 @@
 /:
   en: 85229e402add27cf
   zh: 66473d34393c44db
-/qilin-session-projection:
-  en: a15ec1e979bd29b7
-  zh: 926ca59324e21fee
-/qilin-session-projection/summary:
+/qilin-agent-session-projection:
+  en: ddc6501449093fcc
+  zh: f4a9cf15b1ab40d2
+/qilin-agent-session-projection/summary:
   en: 6a551683a454e074
   zh: 67cf75bc676c3d3c
-/qilin-session-projection/table-of-contents:
+/qilin-agent-session-projection/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-session-projection/use-this-package:
+/qilin-agent-session-projection/use-this-package:
   en: b5b21529bff8092b
   zh: b2bcd77db68672bd
-/qilin-session-projection/use-this-package/when-to-choose-it:
+/qilin-agent-session-projection/use-this-package/when-to-choose-it:
   en: 90b7c26cb45be52a
   zh: 386e294ec09607c1
-/qilin-session-projection/use-this-package/define-a-projection-unit:
+/qilin-agent-session-projection/use-this-package/define-a-projection-unit:
   en: 09758d1475fad86e
   zh: 473637cb34aebe72
-/qilin-session-projection/use-this-package/register-and-read:
+/qilin-agent-session-projection/use-this-package/register-and-read:
   en: 1ee07a6c1958def3
   zh: 1c20493328ac4dbe
-/qilin-session-projection/use-this-package/persisted-checkpoints:
+/qilin-agent-session-projection/use-this-package/persisted-checkpoints:
   en: bf5349012ae6dd0c
   zh: b1b941935b1cc773
-/qilin-session-projection/understand-the-implementation:
+/qilin-agent-session-projection/understand-the-implementation:
   en: 3397f58d6f49bfda
   zh: efb85d382e25574d
-/qilin-session-projection/understand-the-implementation/design-concept:
+/qilin-agent-session-projection/understand-the-implementation/design-concept:
   en: 8afa0fdb49898f6d
   zh: 6b2da34455963935
-/qilin-session-projection/understand-the-implementation/source-map:
+/qilin-agent-session-projection/understand-the-implementation/source-map:
   en: b0263d26c5a65d7a
   zh: 2e58d3181dde901c
-/qilin-session-projection/understand-the-implementation/drive-and-checkpoint-flow:
+/qilin-agent-session-projection/understand-the-implementation/drive-and-checkpoint-flow:
   en: 00136880bb586403
   zh: bd35f645111c068c
-/qilin-session-projection/further-exploration:
+/qilin-agent-session-projection/further-exploration:
   en: f712858f4221e4ad
   zh: 3f215a2a018502be
-/qilin-session-projection/model-experience:
+/qilin-agent-session-projection/model-experience:
   en: a24045627fb43695
   zh: a8465196c3948796
-/qilin-session-projection/model-experience/kv-cache-effect:
+/qilin-agent-session-projection/model-experience/kv-cache-effect:
   en: 8a592dae9bc946ab
   zh: eca939995bb5f8e0
-/qilin-session-projection/known-limitations-and-deferred-work:
+/qilin-agent-session-projection/known-limitations-and-deferred-work:
   en: 3dad1fbb8061fac8
   zh: bd5cc28816085953
-/qilin-session-projection/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-session-projection/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

@@ -18,6 +18,7 @@ import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import type { SubprocessHandle } from '@qilin-agent/subprocess'
 import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
 import * as claudeCode from '../src/index.ts'
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 
 const execFileAsync = promisify(execFile)
 const OFFICIAL_DEEPSEEK_MESSAGES_BASE_URL = 'https://api.deepseek.com/anthropic'
@@ -106,6 +107,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)(
       const ctx = new Context()
       contexts.push(ctx)
       await ctx.plugin(SessionProjectionRegistry)
+      await mountWorkingDirectoryFixture(ctx)
       await ctx.plugin(SubagentRuntime)
       await ctx.plugin(LocalSubprocessRuntime)
       const handles: SubprocessHandle[] = []

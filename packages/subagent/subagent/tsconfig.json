@@ -79,6 +79,9 @@
     },
     {
       "path": "../../llm/llm-deepseek-api-key"
+    },
+    {
+      "path": "../../session/working-directory"
     }
   ]
 }

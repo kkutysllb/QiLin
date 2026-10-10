@@ -18,6 +18,7 @@ import * as toolWorkflow from '../src/index.ts'
 import { Session, SessionId } from '@qilin-agent/session'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import '../src/types.ts'
+import { mountWorkingDirectoryFixture } from '../../../subagent/subagent/tests/working-directory-fixture.ts'
 
 const testToolSignal = new AbortController().signal
 
@@ -427,6 +428,7 @@ describe('qilin-tool-workflow', () => {
       await ctx.plugin(SystemPrompt)
       await ctx.plugin(ToolRuntime)
       await ctx.plugin(SessionProjectionRegistry)
+      await mountWorkingDirectoryFixture(ctx)
       await ctx.plugin(SubagentRuntime)
       ctx.subagents.registerProvider({
         name: 'spawn',

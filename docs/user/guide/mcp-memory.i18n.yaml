@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/user/guide/mcp-memory.md
 /connect-a-third-party-memory-mcp-server:
-  en: ac269f4874d5569d
-  zh: 7c55622e5e40673a
+  en: 91a7b5570b40c3cb
+  zh: cf0a59fcac95e0bc
 /connect-a-third-party-memory-mcp-server/what-qilin-does:
   en: 1ffd707f879c4881
   zh: c5c10003e56a1637

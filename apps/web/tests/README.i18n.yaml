@@ -11,6 +11,6 @@
 /apps-web-browser-e2e/these-are-host-face-tests:
   en: 8c406d423c8e2137
   zh: a66a144fd146f56c
-/apps-web-browser-e2e/do-not-import-qilin-client-here:
-  en: e54f6799e114f1bf
-  zh: d68681506c64946f
+/apps-web-browser-e2e/do-not-import-qilin-agent-client-here:
+  en: 51dc8ab0a950cf71
+  zh: 0cd20613a2f31e1c

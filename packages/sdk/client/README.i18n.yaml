@@ -5,51 +5,51 @@
 /:
   en: 3569bd04353e236f
   zh: 3775cf221a0d95b3
-/qilin-sdk-client:
-  en: 83676e76e4d1f143
-  zh: 48ef45ce8969e2f7
-/qilin-sdk-client/summary:
-  en: ff9ac121b4d984b1
-  zh: 63d2178ac5b71256
-/qilin-sdk-client/table-of-contents:
+/qilin-agent-sdk-client:
+  en: 2518c7e7142a83a6
+  zh: 545d4928b779b606
+/qilin-agent-sdk-client/summary:
+  en: 296fd5fa9e2d56ca
+  zh: 89f81af039e90708
+/qilin-agent-sdk-client/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-sdk-client/use-this-package:
-  en: 3c21c7ec64d17346
-  zh: c6ba1b632b8a4d72
-/qilin-sdk-client/use-this-package/running-agent-turns-with-deepseekharness:
+/qilin-agent-sdk-client/use-this-package:
+  en: 316b142489dd050f
+  zh: 2b37ae57b2a52b5e
+/qilin-agent-sdk-client/use-this-package/running-agent-turns-with-deepseekharness:
   en: 01c58dddd7e62de2
   zh: 6dbd46e244f3f135
-/qilin-sdk-client/use-this-package/lower-level-control-with-harnessclient:
+/qilin-agent-sdk-client/use-this-package/lower-level-control-with-harnessclient:
   en: eb8d1958801816b6
   zh: 1a6087e2dd1a9347
-/qilin-sdk-client/understand-the-implementation:
+/qilin-agent-sdk-client/understand-the-implementation:
   en: 8773f50c51da85f0
   zh: 4649ebc69357deb0
-/qilin-sdk-client/understand-the-implementation/design-concept:
+/qilin-agent-sdk-client/understand-the-implementation/design-concept:
   en: 109a9c832204693c
   zh: 6af985fe4abe57e2
-/qilin-sdk-client/understand-the-implementation/source-map:
+/qilin-agent-sdk-client/understand-the-implementation/source-map:
   en: a3c7978a80f5aba3
   zh: fdc4dfdafd2eccfa
-/qilin-sdk-client/understand-the-implementation/owned-activity-flow:
+/qilin-agent-sdk-client/understand-the-implementation/owned-activity-flow:
   en: 94a42babac5f1c7d
   zh: df9e42ed02f7d002
-/qilin-sdk-client/understand-the-implementation/errors-and-teardown:
+/qilin-agent-sdk-client/understand-the-implementation/errors-and-teardown:
   en: 165364de2cee0a9f
   zh: c4dc37b44e1e621e
-/qilin-sdk-client/further-exploration:
+/qilin-agent-sdk-client/further-exploration:
   en: f6384d7642f7ec43
   zh: dd147c57bfe422a2
-/qilin-sdk-client/model-experience:
+/qilin-agent-sdk-client/model-experience:
   en: e82a55513d3cd30e
   zh: ecd8c0875ff2fb87
-/qilin-sdk-client/model-experience/kv-cache-effect:
+/qilin-agent-sdk-client/model-experience/kv-cache-effect:
   en: 7abe0be104a791e7
   zh: 445311f78b1069ca
-/qilin-sdk-client/known-limitations-and-deferred-work:
-  en: 50679660f0fe46c6
-  zh: ce0c75fc565c7213
-/qilin-sdk-client/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-sdk-client/known-limitations-and-deferred-work:
+  en: 7b24f3cd40fd7971
+  zh: bdb0f7c37f1658da
+/qilin-agent-sdk-client/known-limitations-and-deferred-work/dev-note:
   en: 6177a56f053936a4
   zh: 0f4b20228c2d15da

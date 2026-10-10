@@ -5,54 +5,54 @@
 /:
   en: a94eb1470c498a2c
   zh: cdd5faa0a8fcb562
-/qilin-fs:
-  en: 0302981d61c4750b
-  zh: af1118338ade3a7e
-/qilin-fs/summary:
+/qilin-agent-fs:
+  en: 36ec08f75c970d6b
+  zh: 1cad13ef88ce2063
+/qilin-agent-fs/summary:
   en: d86cd3418ce07313
   zh: e8a6d9e3e530e5ad
-/qilin-fs/table-of-contents:
+/qilin-agent-fs/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-fs/use-this-package:
+/qilin-agent-fs/use-this-package:
   en: c935aeef50118bbc
   zh: 218ca6a49545668f
-/qilin-fs/use-this-package/choosing-and-mounting-a-backend:
+/qilin-agent-fs/use-this-package/choosing-and-mounting-a-backend:
   en: 6644d749bb66bd8d
   zh: 929dcc5cd4ee70ea
-/qilin-fs/use-this-package/what-the-service-lets-you-do:
+/qilin-agent-fs/use-this-package/what-the-service-lets-you-do:
   en: 7362a6df4c2f9b60
   zh: f1120bcaada1037d
-/qilin-fs/understand-the-implementation:
+/qilin-agent-fs/understand-the-implementation:
   en: 7e13d669ecc96d59
   zh: b5fe7ae65812d926
-/qilin-fs/understand-the-implementation/design-philosophy:
+/qilin-agent-fs/understand-the-implementation/design-philosophy:
   en: c4dcad50dc90db2c
   zh: 54775c7bcdc24d86
-/qilin-fs/understand-the-implementation/source-map:
+/qilin-agent-fs/understand-the-implementation/source-map:
   en: 038de0a4127c1ff5
   zh: 192947b527c3f258
-/qilin-fs/understand-the-implementation/how-a-call-flows:
+/qilin-agent-fs/understand-the-implementation/how-a-call-flows:
   en: 9272eec1c2b30667
   zh: 1e5c82060097fd1e
-/qilin-fs/understand-the-implementation/the-fs-policy-events:
+/qilin-agent-fs/understand-the-implementation/the-fs-policy-events:
   en: 64bb44beb5e68508
   zh: 306dafa5e3fe39af
-/qilin-fs/understand-the-implementation/invariants:
+/qilin-agent-fs/understand-the-implementation/invariants:
   en: 15b98bc9800b6eae
   zh: 434d9dd05fa1a332
-/qilin-fs/further-exploration:
+/qilin-agent-fs/further-exploration:
   en: bc28a173da8fd4db
   zh: 9e981417d86b72a5
-/qilin-fs/model-experience:
+/qilin-agent-fs/model-experience:
   en: cd1c5414ab00174f
   zh: 6c7ce64b9e618f93
-/qilin-fs/model-experience/kv-cache-effect:
+/qilin-agent-fs/model-experience/kv-cache-effect:
   en: 40294c1c31b74824
   zh: 0857e9b4dd363e0a
-/qilin-fs/known-limitations-and-deferred-work:
+/qilin-agent-fs/known-limitations-and-deferred-work:
   en: be13bf5e7c376d92
   zh: ff95ba8f51eb4dcc
-/qilin-fs/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-fs/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

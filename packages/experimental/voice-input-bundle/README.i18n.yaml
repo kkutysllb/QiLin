@@ -5,33 +5,33 @@
 /:
   en: a610a36da32c92ad
   zh: 19434bfe1701828d
-/qilin-experimental-voice-input-bundle:
-  en: 54161388876df15f
-  zh: ffac27e6ae2a1141
-/qilin-experimental-voice-input-bundle/summary:
+/qilin-agent-experimental-voice-input-bundle:
+  en: 81e929fc5635887f
+  zh: a268e1b8af0bcc7e
+/qilin-agent-experimental-voice-input-bundle/summary:
   en: e84cf8d1493e2a08
   zh: f0549f75a5234388
-/qilin-experimental-voice-input-bundle/table-of-contents:
+/qilin-agent-experimental-voice-input-bundle/table-of-contents:
   en: d152484eb41ac6b4
   zh: 364c80ee00a374ff
-/qilin-experimental-voice-input-bundle/use-this-package:
+/qilin-agent-experimental-voice-input-bundle/use-this-package:
   en: 9151bf11e64b4f1c
   zh: 7c9638c16ac6a0db
-/qilin-experimental-voice-input-bundle/understand-the-implementation:
+/qilin-agent-experimental-voice-input-bundle/understand-the-implementation:
   en: e9a2b3e3d985de00
   zh: a4e1c8050b4d8143
-/qilin-experimental-voice-input-bundle/further-exploration:
+/qilin-agent-experimental-voice-input-bundle/further-exploration:
   en: f28e8965407ec7b0
   zh: 5e5e0fd8e8737a09
-/qilin-experimental-voice-input-bundle/model-experience:
+/qilin-agent-experimental-voice-input-bundle/model-experience:
   en: 3c5a85f8b7129ce8
   zh: d5f491ca88d9a810
-/qilin-experimental-voice-input-bundle/model-experience/kv-cache-effect:
+/qilin-agent-experimental-voice-input-bundle/model-experience/kv-cache-effect:
   en: b5ec79db2e1d0dbc
   zh: e5aff567ae5ee6fc
-/qilin-experimental-voice-input-bundle/known-limitations-and-deferred-work:
+/qilin-agent-experimental-voice-input-bundle/known-limitations-and-deferred-work:
   en: fe24eb95804db121
   zh: 02e031e22658742f
-/qilin-experimental-voice-input-bundle/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-experimental-voice-input-bundle/known-limitations-and-deferred-work/dev-note:
   en: 0225ba087c5266f3
   zh: 4e706f1b2b984e63

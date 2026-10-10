@@ -22,7 +22,7 @@ describe('Python runtime executable assets', () => {
 
     expect(result.status).toBe(0)
     expect(result.stdout).toContain('node_modules/@qilin-agent/web-frontend/dist/**/*')
-    expect(result.stdout).toContain('node_modules/@qilin-agent/skill-badge/assets/**/*')
+    expect(result.stdout).toContain('node_modules/@qilin-agent/experimental-skill-badge/assets/**/*')
     expect(result.stdout).not.toContain('node_modules/**/*.py')
   })
 })

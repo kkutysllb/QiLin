@@ -12,6 +12,7 @@ import {
   installSessionReadTestServices,
   testSessionPersistence,
 } from './test-remote.ts'
+import { mountWorkingDirectoryFixture } from '../../../subagent/subagent/tests/working-directory-fixture.ts'
 
 const defaults = {
   defaultModelSelection: () => ({ provider: 'fixture', model: 'fixture-model' }),
@@ -51,6 +52,7 @@ async function bench() {
     ),
   }) as never)
   installSessionReadTestServices(ctx)
+  await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(SubagentRuntime)
   const controller = createSessionTestController(ctx, defaults)
   return { ctx, controller }

@@ -27,7 +27,7 @@ workflow 组让 agent（智能体）可以运行编排脚本，将工作委派�
 | [`workflow`](workflow/README.zh.md) | 运行由模型编写的、扇出 subagent 的编排脚本 | `ctx.workflowEngine` |
 | [`workflow-ptc`](workflow-ptc/README.zh.md) | 通过共享的沙箱化 PTC Node 进程运行时执行工作流脚本 | 注册到 `ctx.workflowEngine` |
 | [`tool-workflow`](tool-workflow/README.zh.md) | 把 `workflow` 工具交给模型，用于脚本化多 agent 编排 | 注册到 `ctx.tools` |
-| [`tool-ralph`](tool-ralph/README.zh.md) | 把 `ralph` 工具交给模型，用于全新 agent 迭代循环 | 注册到 `ctx.tools` |
+| [`tool-ralph`]](../experimental/tool-ralph/README.zh.md) | 把 `ralph` 工具交给模型，用于全新 agent 迭代循环 | 注册到 `ctx.tools` |
 
 -----
 
@@ -36,7 +36,7 @@ workflow 组让 agent（智能体）可以运行编排脚本，将工作委派�
 
 - [工作流子系统](../../docs/subsystems/workflow.zh.md)——seam 的类型、启动请求与 `workflow/*` 事件。
 - [生成的工具目录](../../docs/tool-catalog.zh.md#qilin-agenttool-workflow)——模型接收的 `workflow` 工具 schema。
-- [生成的工具目录](../../docs/tool-catalog.zh.md#qilin-agenttool-ralph)——模型接收的 `ralph` 工具 schema。
+- [生成的工具目录](../../docs/tool-catalog.zh.md#qilin-agentexperimental-tool-ralph)——模型接收的 `ralph` 工具 schema。
 - [生成的配置目录](../../docs/config-catalog.zh.md#qilin-agentworkflow-ptc)——每个受支持的引擎配置字段。
 - [动态工作流 Agent Note](../../.agents/notes/implemented/feature/2026-07-05-dynamic-workflows.zh.md)——seam 设计及其决策。
 - [Harness 层目标式执行 Agent Note](../../.agents/notes/implemented/feature/2026-07-16-harness-level-loop.zh.md)——固定全新 agent 循环的设计与暂缓事项。

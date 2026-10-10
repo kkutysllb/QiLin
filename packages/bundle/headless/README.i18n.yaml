@@ -5,60 +5,60 @@
 /:
   en: 10d70174ea448570
   zh: 7bb99a77c60fb5ab
-/qilin-headless:
-  en: 53e81143411deda6
-  zh: e80ed64b23b3e5c7
-/qilin-headless/summary:
+/qilin-agent-headless:
+  en: 8bf74cf4f195f5ce
+  zh: 81cf2294f2998c3a
+/qilin-agent-headless/summary:
   en: 1401e4155d5a73e0
   zh: decb7e0412eb3f8e
-/qilin-headless/table-of-contents:
+/qilin-agent-headless/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-headless/use-this-package:
+/qilin-agent-headless/use-this-package:
   en: 4447012f4c84100d
   zh: faf579ae9f04c096
-/qilin-headless/use-this-package/running-a-one-shot-task:
-  en: b84ab694081da3b5
-  zh: 404d1e1c8f543bee
-/qilin-headless/use-this-package/choosing-the-session-identity:
+/qilin-agent-headless/use-this-package/running-a-one-shot-task:
+  en: f25f5f5294afb465
+  zh: 26b99b2dac284fa5
+/qilin-agent-headless/use-this-package/choosing-the-session-identity:
   en: dbaa2fac63910a4c
   zh: 4fd5c17815ca444b
-/qilin-headless/use-this-package/machine-readable-output:
+/qilin-agent-headless/use-this-package/machine-readable-output:
   en: bbdbc0fc835d2833
   zh: 89b81d2921bddec4
-/qilin-headless/use-this-package/when-to-use-it:
+/qilin-agent-headless/use-this-package/when-to-use-it:
   en: e921a2f3a60ca915
   zh: d1b4a80c2f54159c
-/qilin-headless/use-this-package/help-and-task-errors:
+/qilin-agent-headless/use-this-package/help-and-task-errors:
   en: 6ec24ce43bc14d1c
   zh: b4147e42ee608d46
-/qilin-headless/understand-the-implementation:
+/qilin-agent-headless/understand-the-implementation:
   en: be1b73a6d0ee3902
   zh: bdba099685d68b27
-/qilin-headless/understand-the-implementation/run-flow:
+/qilin-agent-headless/understand-the-implementation/run-flow:
   en: 9aa4036bef328294
   zh: ece8c86ce7bcd902
-/qilin-headless/understand-the-implementation/patch-surface-over-base:
+/qilin-agent-headless/understand-the-implementation/patch-surface-over-base:
   en: 04014f675c51a40e
   zh: a5efb8e4b50fe69e
-/qilin-headless/understand-the-implementation/exit-mapping:
+/qilin-agent-headless/understand-the-implementation/exit-mapping:
   en: 51c97e923c3fd276
   zh: 3a7dab0052723a0a
-/qilin-headless/understand-the-implementation/source-map:
+/qilin-agent-headless/understand-the-implementation/source-map:
   en: 538fb89cdfeb9da4
   zh: 0c5a84a818ce97a3
-/qilin-headless/further-exploration:
-  en: c5f836dfd56833e6
-  zh: 7b1e7577e50dae42
-/qilin-headless/model-experience:
+/qilin-agent-headless/further-exploration:
+  en: d68dbc4353ad4478
+  zh: 17bd0061d5d94f9e
+/qilin-agent-headless/model-experience:
   en: c5a0991833f64dd7
   zh: 46f9feb255778f11
-/qilin-headless/model-experience/kv-cache-effect:
+/qilin-agent-headless/model-experience/kv-cache-effect:
   en: 0b0f74b412c7c6d8
   zh: 6e8f918d0c4bf342
-/qilin-headless/known-limitations-and-deferred-work:
+/qilin-agent-headless/known-limitations-and-deferred-work:
   en: 412e9a6180bc6025
   zh: f1bd05a536c504ee
-/qilin-headless/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-headless/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

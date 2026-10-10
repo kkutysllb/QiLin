@@ -4,6 +4,7 @@
  * `approval/policy: never`.
  */
 
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { mkdtemp, readFile, realpath, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -41,6 +42,7 @@ async function setupWalled(script: Script): Promise<{ ctx: Context; parent: Agen
   const ctx = new Context()
   contexts.push(ctx)
   await mountAgentLoopTestDependencies(ctx)
+  await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(SandboxPolicyService, { mode: 'workspace-write', workspaceRoot: workspace })
   await ctx.plugin(SandboxedFileSystem, { cwd: workspace })
   await ctx.plugin(ToolFs)
@@ -61,6 +63,7 @@ function spawnRequest(parent: Agent) {
     prompt: [{ type: 'text' as const, text: 'child task' }],
     parent,
     signal: new AbortController().signal,
+    cwd: parent.session.header.cwd ?? process.cwd(),
     descriptor: snapshotSubagentDescriptor({
       mode: 'one-shot',
       provider: 'spawn',

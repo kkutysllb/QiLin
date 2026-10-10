@@ -5,69 +5,69 @@
 /:
   en: 04735af7a998f2ae
   zh: ab6bf3d0f098877a
-/qilin-subprocess:
-  en: 117dba58b4839693
-  zh: a5b7f43804e06d72
-/qilin-subprocess/summary:
+/qilin-agent-subprocess:
+  en: 6ab08fb7aa6e9736
+  zh: fd7b901fe1374a75
+/qilin-agent-subprocess/summary:
   en: 87c6ecd841999072
   zh: 8e0d4601d15c0b08
-/qilin-subprocess/table-of-contents:
+/qilin-agent-subprocess/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-subprocess/use-this-package:
+/qilin-agent-subprocess/use-this-package:
   en: a43391b5840a4c58
   zh: a0a9c3fa577d92c0
-/qilin-subprocess/use-this-package/mounting-the-service:
+/qilin-agent-subprocess/use-this-package/mounting-the-service:
   en: 82be7c63ab95994f
   zh: 8810e7c489b444df
-/qilin-subprocess/use-this-package/starting-a-managed-process:
+/qilin-agent-subprocess/use-this-package/starting-a-managed-process:
   en: 891cb74d5d35095c
   zh: 296cb1890116fb05
-/qilin-subprocess/use-this-package/choosing-how-output-is-delivered:
+/qilin-agent-subprocess/use-this-package/choosing-how-output-is-delivered:
   en: c02fe7246326c164
   zh: 1d31096e31e1feee
-/qilin-subprocess/use-this-package/using-a-control-pipe:
-  en: da103ddf2a37672a
-  zh: fb27b79b333b3648
-/qilin-subprocess/use-this-package/managing-process-lifetime:
+/qilin-agent-subprocess/use-this-package/using-a-control-pipe:
+  en: 6a246be51761434a
+  zh: c82c245484ebc810
+/qilin-agent-subprocess/use-this-package/managing-process-lifetime:
   en: 83d662d278184411
   zh: 2c4e7fbe76823fa8
-/qilin-subprocess/use-this-package/running-a-terminal-session:
+/qilin-agent-subprocess/use-this-package/running-a-terminal-session:
   en: e3631497344c2ebd
   zh: c4ebc7b08f0a316e
-/qilin-subprocess/use-this-package/environment-every-child-starts-from:
+/qilin-agent-subprocess/use-this-package/environment-every-child-starts-from:
   en: 9a653a40ff7f91a4
   zh: 11521e762b848df1
-/qilin-subprocess/use-this-package/what-can-go-wrong:
+/qilin-agent-subprocess/use-this-package/what-can-go-wrong:
   en: 51f2f43087a1ed18
   zh: 6d2ebb099b707df3
-/qilin-subprocess/understand-the-implementation:
+/qilin-agent-subprocess/understand-the-implementation:
   en: 25cd344c959cfd9e
   zh: 045880776ab82d1e
-/qilin-subprocess/understand-the-implementation/design-concept:
+/qilin-agent-subprocess/understand-the-implementation/design-concept:
   en: 88202ec45795ea88
   zh: ce25ca53dfe367b9
-/qilin-subprocess/understand-the-implementation/source-map:
+/qilin-agent-subprocess/understand-the-implementation/source-map:
   en: 0c0a492befb161e1
   zh: dc22dd87990a7fac
-/qilin-subprocess/understand-the-implementation/data-model-and-flow:
+/qilin-agent-subprocess/understand-the-implementation/data-model-and-flow:
   en: 9998dc0a990fbcf1
   zh: ba179617f60cb9bc
-/qilin-subprocess/understand-the-implementation/lifecycle-and-invariants:
+/qilin-agent-subprocess/understand-the-implementation/lifecycle-and-invariants:
   en: a132325eea7cadb4
   zh: 434cbbc61ff9cd0e
-/qilin-subprocess/further-exploration:
+/qilin-agent-subprocess/further-exploration:
   en: cbc95f1e4d71fb55
   zh: 6d759e6c514aeba8
-/qilin-subprocess/model-experience:
+/qilin-agent-subprocess/model-experience:
   en: 36d8f1820f81de29
   zh: da18a4123bdd28b7
-/qilin-subprocess/model-experience/kv-cache-effect:
+/qilin-agent-subprocess/model-experience/kv-cache-effect:
   en: e290ccc9b3c92c08
   zh: d75d48f485447a74
-/qilin-subprocess/known-limitations-and-deferred-work:
+/qilin-agent-subprocess/known-limitations-and-deferred-work:
   en: 0b1c46aec1ba628d
   zh: cf2a0db9d0682155
-/qilin-subprocess/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-subprocess/known-limitations-and-deferred-work/dev-note:
   en: 56709c22873429b5
   zh: c0e86c62982a3e29

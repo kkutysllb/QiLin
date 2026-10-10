@@ -10,6 +10,7 @@ import SubagentRuntime, { snapshotSubagentDescriptor } from '@qilin-agent/subage
 import { defineContentToolFixture } from '@qilin-agent/tools'
 import { maxTokensResponse, MockAdapter, textResponse, toolCallResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
 import { startInProcessRun } from '../src/index.ts'
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 
 declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
@@ -22,6 +23,7 @@ type Script = ConstructorParameters<typeof MockAdapter>[0]
 async function setup(script: Script, parentOptions: Partial<AgentOptions> = {}) {
   const ctx = new Context()
   await mountAgentLoopTestDependencies(ctx)
+  await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(AgentLoop, { agents: [] })
   await ctx.plugin(SubagentRuntime)
   const adapter = new MockAdapter(script)
@@ -36,6 +38,7 @@ function request(parent: Agent, signal = new AbortController().signal) {
     prompt: [{ type: 'text' as const, text: 'child task' }],
     parent,
     signal,
+    cwd: parent.session.header.cwd ?? process.cwd(),
     descriptor: snapshotSubagentDescriptor({
       mode: 'one-shot',
       provider: 'test',

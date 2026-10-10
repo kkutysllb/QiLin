@@ -5,45 +5,45 @@
 /:
   en: 54f212d3be3f6932
   zh: 85ddc5c1cf17ea42
-/qilin-client-ui-workflow-run:
-  en: bb0dbcc827651f8d
-  zh: 9869a03f2efaad31
-/qilin-client-ui-workflow-run/summary:
+/qilin-agent-client-ui-workflow-run:
+  en: 9174948edc7afe4a
+  zh: 30c6ee3d964235f8
+/qilin-agent-client-ui-workflow-run/summary:
   en: b0df044dfbb0cf26
   zh: 204ac3c52a7f6545
-/qilin-client-ui-workflow-run/table-of-contents:
+/qilin-agent-client-ui-workflow-run/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-ui-workflow-run/use-this-package:
+/qilin-agent-client-ui-workflow-run/use-this-package:
   en: 88735b016142feba
   zh: 83195a90df8fdd13
-/qilin-client-ui-workflow-run/use-this-package/navigating-the-node:
+/qilin-agent-client-ui-workflow-run/use-this-package/navigating-the-node:
   en: fea7fb6b1f4fbdc8
   zh: 3bed9c04ed338fc4
-/qilin-client-ui-workflow-run/use-this-package/state-and-completion:
+/qilin-agent-client-ui-workflow-run/use-this-package/state-and-completion:
   en: 03784e501ae8f70a
   zh: 90b32daccf577780
-/qilin-client-ui-workflow-run/understand-the-implementation:
+/qilin-agent-client-ui-workflow-run/understand-the-implementation:
   en: d41b996f3fb6727b
   zh: 6b40fdf1db894fff
-/qilin-client-ui-workflow-run/understand-the-implementation/disclosure-choices:
+/qilin-agent-client-ui-workflow-run/understand-the-implementation/disclosure-choices:
   en: adf86d983c51865e
   zh: 014a4644d55be111
-/qilin-client-ui-workflow-run/understand-the-implementation/composition:
+/qilin-agent-client-ui-workflow-run/understand-the-implementation/composition:
   en: 1ffc3349909eab79
   zh: 5e10b9c79fd7f9c9
-/qilin-client-ui-workflow-run/further-exploration:
+/qilin-agent-client-ui-workflow-run/further-exploration:
   en: a2989ba93b564953
   zh: a4a657759149f693
-/qilin-client-ui-workflow-run/model-experience:
+/qilin-agent-client-ui-workflow-run/model-experience:
   en: 62a75f801964a0bb
   zh: a247663753a52ae9
-/qilin-client-ui-workflow-run/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-workflow-run/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: de54f3467ef3b9be
-/qilin-client-ui-workflow-run/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-workflow-run/known-limitations-and-deferred-work:
   en: 2fa86e62ed647088
   zh: b3b0bcb1f6fa718f
-/qilin-client-ui-workflow-run/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-workflow-run/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

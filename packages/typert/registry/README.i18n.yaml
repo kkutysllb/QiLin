@@ -5,57 +5,57 @@
 /:
   en: c7c547de25c95016
   zh: 983f6b8444a4bd1a
-/qilin-typert-registry:
-  en: 1ebcb9ac1ad9ad12
-  zh: 4cecb962b478f23c
-/qilin-typert-registry/summary:
+/qilin-agent-typert-registry:
+  en: cbc1e593a26368df
+  zh: 25fcf26b89c0393a
+/qilin-agent-typert-registry/summary:
   en: 6289a2c55d3f1d30
   zh: 41d2da82abf46639
-/qilin-typert-registry/table-of-contents:
+/qilin-agent-typert-registry/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-typert-registry/use-this-package:
+/qilin-agent-typert-registry/use-this-package:
   en: d885ccd8f13315f1
   zh: cea7c258f5f57e2d
-/qilin-typert-registry/use-this-package/minimal-setup:
+/qilin-agent-typert-registry/use-this-package/minimal-setup:
   en: 1ec4b304a024bb3c
   zh: f17e796c26faabab
-/qilin-typert-registry/use-this-package/querying-schemas-and-reflection:
+/qilin-agent-typert-registry/use-this-package/querying-schemas-and-reflection:
   en: bc75ee0cfdd77fee
   zh: f0fc5bfffe0cc063
-/qilin-typert-registry/use-this-package/registering-a-contribution:
+/qilin-agent-typert-registry/use-this-package/registering-a-contribution:
   en: 7f23a9e223dd4f5c
   zh: d50f568f5166f1c2
-/qilin-typert-registry/use-this-package/lookup-and-context-providers:
+/qilin-agent-typert-registry/use-this-package/lookup-and-context-providers:
   en: bc9ea8f035ec1199
   zh: d25f1dc16cfc8654
-/qilin-typert-registry/understand-the-implementation:
+/qilin-agent-typert-registry/understand-the-implementation:
   en: 1a78dfbae50a8b0d
   zh: dc10b4b3f3d832ed
-/qilin-typert-registry/understand-the-implementation/design-concept:
+/qilin-agent-typert-registry/understand-the-implementation/design-concept:
   en: 33084d991657c561
   zh: 89aadc9377485ee4
-/qilin-typert-registry/understand-the-implementation/sub-registries:
+/qilin-agent-typert-registry/understand-the-implementation/sub-registries:
   en: cc0deb5e1ae93fd6
   zh: 4bb6c88213262afe
-/qilin-typert-registry/understand-the-implementation/identity-and-validation:
+/qilin-agent-typert-registry/understand-the-implementation/identity-and-validation:
   en: 4764fc33a7e16e60
   zh: 1ddf03cbe16197da
-/qilin-typert-registry/understand-the-implementation/source-map:
+/qilin-agent-typert-registry/understand-the-implementation/source-map:
   en: 0cb84ac1dd0131da
   zh: 155ea8fbe0957664
-/qilin-typert-registry/further-exploration:
+/qilin-agent-typert-registry/further-exploration:
   en: c512247bac7ed9ef
   zh: 4291caf0d61128c4
-/qilin-typert-registry/model-experience:
+/qilin-agent-typert-registry/model-experience:
   en: c2fafdfead674c9d
   zh: d6c506ac82390512
-/qilin-typert-registry/model-experience/kv-cache-effect:
+/qilin-agent-typert-registry/model-experience/kv-cache-effect:
   en: b3c95d3ac849684a
   zh: 6eb941bb28aa6aea
-/qilin-typert-registry/known-limitations-and-deferred-work:
+/qilin-agent-typert-registry/known-limitations-and-deferred-work:
   en: f3e6c1b0ee101919
   zh: 3fb5366a014aade7
-/qilin-typert-registry/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-typert-registry/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

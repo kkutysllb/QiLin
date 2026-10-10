@@ -5,78 +5,78 @@
 /:
   en: 07748986630e8da3
   zh: 4ff004a12b883fdf
-/qilin-spill-policy:
-  en: 61d1ac7e600e5efa
-  zh: bb4046a9e1314925
-/qilin-spill-policy/summary:
+/qilin-agent-spill-policy:
+  en: f45354ed7aae8f65
+  zh: 789f81e0dae10d3b
+/qilin-agent-spill-policy/summary:
   en: 225c013f0f230c37
   zh: 30634801496c205f
-/qilin-spill-policy/table-of-contents:
+/qilin-agent-spill-policy/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-spill-policy/use-this-package:
+/qilin-agent-spill-policy/use-this-package:
   en: 52e3b36ee5b98e7f
   zh: 98380821aa7cde9d
-/qilin-spill-policy/use-this-package/minimal-configuration:
-  en: a74d544e931be874
-  zh: 07f04f33ea337eff
-/qilin-spill-policy/use-this-package/what-the-model-sees:
+/qilin-agent-spill-policy/use-this-package/minimal-configuration:
+  en: a2f048234f392753
+  zh: 0de450f943a08566
+/qilin-agent-spill-policy/use-this-package/what-the-model-sees:
   en: 7cb5bba705975712
   zh: 26adbdee1252d2bb
-/qilin-spill-policy/use-this-package/which-results-are-affected:
+/qilin-agent-spill-policy/use-this-package/which-results-are-affected:
   en: c419117e6b5f84f8
   zh: 1a43afb623346603
-/qilin-spill-policy/use-this-package/best-effort-failure-behavior:
+/qilin-agent-spill-policy/use-this-package/best-effort-failure-behavior:
   en: b4d94d99a8a9e52f
   zh: d5cec6295cbf5ef6
-/qilin-spill-policy/use-this-package/the-durable-log-copy:
+/qilin-agent-spill-policy/use-this-package/the-durable-log-copy:
   en: b72e6e88ada5a957
   zh: 5c6167651618738a
-/qilin-spill-policy/understand-the-implementation:
+/qilin-agent-spill-policy/understand-the-implementation:
   en: bb7cedc768113c0e
   zh: ca05828dfe63b233
-/qilin-spill-policy/understand-the-implementation/design-philosophy:
+/qilin-agent-spill-policy/understand-the-implementation/design-philosophy:
   en: a8e0d6d0651401c0
   zh: 0e159fc19caf9300
-/qilin-spill-policy/understand-the-implementation/the-two-arms:
+/qilin-agent-spill-policy/understand-the-implementation/the-two-arms:
   en: a9233181feb1afb4
   zh: e54f1498a0dea843
-/qilin-spill-policy/understand-the-implementation/shared-notice-ownership:
+/qilin-agent-spill-policy/understand-the-implementation/shared-notice-ownership:
   en: 916aa902ea376c42
   zh: 51fbf25c1f1560d7
-/qilin-spill-policy/understand-the-implementation/source-map:
+/qilin-agent-spill-policy/understand-the-implementation/source-map:
   en: 355ca3b01de5233e
   zh: 19a7c28a57171573
-/qilin-spill-policy/understand-the-implementation/failure-modes:
+/qilin-agent-spill-policy/understand-the-implementation/failure-modes:
   en: 5640d59fdf0e064f
   zh: 7f92c52a1bdf5bff
-/qilin-spill-policy/further-exploration:
+/qilin-agent-spill-policy/further-exploration:
   en: bb9bed04dffa6edb
   zh: 47d75d133cb0c505
-/qilin-spill-policy/model-experience:
+/qilin-agent-spill-policy/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-spill-policy/model-experience/oversized-text-and-image-results:
+/qilin-agent-spill-policy/model-experience/oversized-text-and-image-results:
   en: 99c96010474af9cf
   zh: 9a25fa709f21a494
-/qilin-spill-policy/model-experience/oversized-text-and-image-results/what-the-model-sees:
+/qilin-agent-spill-policy/model-experience/oversized-text-and-image-results/what-the-model-sees:
   en: a701c098db84aff5
   zh: 2b04abc792def1a2
-/qilin-spill-policy/model-experience/oversized-text-and-image-results/token-effect:
+/qilin-agent-spill-policy/model-experience/oversized-text-and-image-results/token-effect:
   en: 02ec4218006ecb65
   zh: 62f1d481ebf0c665
-/qilin-spill-policy/model-experience/oversized-text-and-image-results/kv-cache-effect:
+/qilin-agent-spill-policy/model-experience/oversized-text-and-image-results/kv-cache-effect:
   en: f5d5f97a153f7c70
   zh: bee82b41983a66a0
-/qilin-spill-policy/known-limitations-and-deferred-work:
+/qilin-agent-spill-policy/known-limitations-and-deferred-work:
   en: bd38d2abae4cb4e6
   zh: 29acb530988ee2bd
-/qilin-spill-policy/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-spill-policy/known-limitations-and-deferred-work/dev-note:
   en: a63e51f03bdb279f
   zh: 191a48d3bfc4a792
-/qilin-spill-policy/known-limitations-and-deferred-work/dev-note/future-per-tool-configuration:
+/qilin-agent-spill-policy/known-limitations-and-deferred-work/dev-note/future-per-tool-configuration:
   en: 7e6c4300e87f3f07
   zh: 7b97be5218905ecc
-/qilin-spill-policy/known-limitations-and-deferred-work/dev-note/future-earlier-spill:
+/qilin-agent-spill-policy/known-limitations-and-deferred-work/dev-note/future-earlier-spill:
   en: dbb9f9fe93996893
   zh: d9d3c1a46ea67595

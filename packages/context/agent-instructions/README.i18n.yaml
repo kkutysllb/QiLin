@@ -5,96 +5,96 @@
 /:
   en: 3e005f834284c249
   zh: d51d06d0ea2c30ca
-/qilin-agent-instructions:
-  en: 946ab4fa6e1ccee7
-  zh: ee9ce14d63b8a63a
-/qilin-agent-instructions/summary:
+/qilin-agent-agent-instructions:
+  en: 1d9d581539c28cce
+  zh: 94703448a34dfe73
+/qilin-agent-agent-instructions/summary:
   en: c4ff752f6a7d6b43
   zh: a2c1cf973084d9d6
-/qilin-agent-instructions/table-of-contents:
+/qilin-agent-agent-instructions/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-agent-instructions/use-this-package:
+/qilin-agent-agent-instructions/use-this-package:
   en: 54b7bcedd6f3d597
   zh: 4652dab61d62bdca
-/qilin-agent-instructions/use-this-package/what-the-agent-gets:
+/qilin-agent-agent-instructions/use-this-package/what-the-agent-gets:
   en: 80dd72b5f3e073e3
   zh: 2d3c4909dd26f7ff
-/qilin-agent-instructions/use-this-package/configuration:
-  en: 18f21551ece588c2
-  zh: 975708a0650cadd2
-/qilin-agent-instructions/use-this-package/observing-the-budget:
+/qilin-agent-agent-instructions/use-this-package/configuration:
+  en: ad9a37fd7a3cc576
+  zh: 11a5ec17bebc0e72
+/qilin-agent-agent-instructions/use-this-package/observing-the-budget:
   en: 9797082b1e69b72c
   zh: d26c00b1b90fe4ea
-/qilin-agent-instructions/understand-the-implementation:
+/qilin-agent-agent-instructions/understand-the-implementation:
   en: 724df7ff6d1d9fea
   zh: 91fb1013eb9178ec
-/qilin-agent-instructions/understand-the-implementation/design-concept:
+/qilin-agent-agent-instructions/understand-the-implementation/design-concept:
   en: 4708b51bf8fe86f7
   zh: 869fc4b1f78383ee
-/qilin-agent-instructions/understand-the-implementation/source-map:
+/qilin-agent-agent-instructions/understand-the-implementation/source-map:
   en: bbb499f8498f454c
   zh: b6517adffd0ccb80
-/qilin-agent-instructions/understand-the-implementation/main-flow:
+/qilin-agent-agent-instructions/understand-the-implementation/main-flow:
   en: d881b9055f823929
   zh: 87b25f0bf8e204e9
-/qilin-agent-instructions/understand-the-implementation/invariants:
+/qilin-agent-agent-instructions/understand-the-implementation/invariants:
   en: 7f6e9b5356da91fd
   zh: 7b99f255d23d982e
-/qilin-agent-instructions/further-exploration:
-  en: e0c3dea38552d2f1
-  zh: 326135f23ba8cbce
-/qilin-agent-instructions/model-experience:
+/qilin-agent-agent-instructions/further-exploration:
+  en: f82782f2ccca6933
+  zh: 76158dbbfa3bce1c
+/qilin-agent-agent-instructions/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-agent-instructions/model-experience/baseline-context:
+/qilin-agent-agent-instructions/model-experience/baseline-context:
   en: 41690f63ce8a7e6a
   zh: 6cff922d5afef38f
-/qilin-agent-instructions/model-experience/baseline-context/what-the-model-sees:
+/qilin-agent-agent-instructions/model-experience/baseline-context/what-the-model-sees:
   en: 41ad1efcf640edf2
   zh: 3d06e265788fc2b7
-/qilin-agent-instructions/model-experience/baseline-context/what-the-model-sees/baseline-instruction-template:
+/qilin-agent-agent-instructions/model-experience/baseline-context/what-the-model-sees/baseline-instruction-template:
   en: 0ced1c177da6d120
   zh: 6c61efb987e227fe
-/qilin-agent-instructions/model-experience/baseline-context/token-effect:
+/qilin-agent-agent-instructions/model-experience/baseline-context/token-effect:
   en: e7c0cc34065a1113
   zh: a973ba9fac7a918d
-/qilin-agent-instructions/model-experience/baseline-context/kv-cache-effect:
+/qilin-agent-agent-instructions/model-experience/baseline-context/kv-cache-effect:
   en: c611902b9f369d86
   zh: d7da1dbe6c1ac7f1
-/qilin-agent-instructions/model-experience/newly-discovered-scope-context:
+/qilin-agent-agent-instructions/model-experience/newly-discovered-scope-context:
   en: bbf8f11dbb279b78
   zh: eb537ade3fa1e573
-/qilin-agent-instructions/model-experience/newly-discovered-scope-context/what-the-model-sees:
+/qilin-agent-agent-instructions/model-experience/newly-discovered-scope-context/what-the-model-sees:
   en: 99226255009f8432
   zh: 3b1661ca1a98ae4a
-/qilin-agent-instructions/model-experience/newly-discovered-scope-context/what-the-model-sees/additional-instruction-template:
+/qilin-agent-agent-instructions/model-experience/newly-discovered-scope-context/what-the-model-sees/additional-instruction-template:
   en: 50655306b787c8c6
   zh: bcdc631a35f9de91
-/qilin-agent-instructions/model-experience/newly-discovered-scope-context/token-effect:
+/qilin-agent-agent-instructions/model-experience/newly-discovered-scope-context/token-effect:
   en: 793319101bb39edf
   zh: f05af12ab9574a4d
-/qilin-agent-instructions/model-experience/newly-discovered-scope-context/kv-cache-effect:
+/qilin-agent-agent-instructions/model-experience/newly-discovered-scope-context/kv-cache-effect:
   en: 2fbf2175168e8244
   zh: f681f89596f500f5
-/qilin-agent-instructions/model-experience/changed-or-removed-instruction-context:
+/qilin-agent-agent-instructions/model-experience/changed-or-removed-instruction-context:
   en: b668990682ea0069
   zh: 6468918ca6b31a45
-/qilin-agent-instructions/model-experience/changed-or-removed-instruction-context/what-the-model-sees:
+/qilin-agent-agent-instructions/model-experience/changed-or-removed-instruction-context/what-the-model-sees:
   en: 16afe8870b4de832
   zh: f0cdf8ea51ec148a
-/qilin-agent-instructions/model-experience/changed-or-removed-instruction-context/what-the-model-sees/removal-notice:
+/qilin-agent-agent-instructions/model-experience/changed-or-removed-instruction-context/what-the-model-sees/removal-notice:
   en: c78113708e7d7665
   zh: b10dcce1569febae
-/qilin-agent-instructions/model-experience/changed-or-removed-instruction-context/token-effect:
+/qilin-agent-agent-instructions/model-experience/changed-or-removed-instruction-context/token-effect:
   en: 436f2fb373e7822d
   zh: 0a3173b4398530bd
-/qilin-agent-instructions/model-experience/changed-or-removed-instruction-context/kv-cache-effect:
+/qilin-agent-agent-instructions/model-experience/changed-or-removed-instruction-context/kv-cache-effect:
   en: 2fbf2175168e8244
   zh: f681f89596f500f5
-/qilin-agent-instructions/known-limitations-and-deferred-work:
+/qilin-agent-agent-instructions/known-limitations-and-deferred-work:
   en: 0a1a4433756a6000
   zh: c487357a6134ab2b
-/qilin-agent-instructions/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-agent-instructions/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

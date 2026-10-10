@@ -43,7 +43,8 @@
     "@qilin-agent/scope": "workspace:*",
     "@qilin-agent/sdk-protocol": "workspace:*",
     "@qilin-agent/session": "workspace:*",
-    "@qilin-agent/subagent": "workspace:*"
+    "@qilin-agent/subagent": "workspace:*",
+    "@qilin-agent/working-directory": "workspace:*"
   },
   "devDependencies": {
     "@qilin-agent/kylin": "workspace:~",
@@ -59,6 +60,7 @@
     "@qilin-agent/session": "workspace:*",
     "@qilin-agent/session-persistence-jsonl": "workspace:*",
     "@qilin-agent/session-projection": "workspace:*",
-    "@qilin-agent/subagent": "workspace:*"
+    "@qilin-agent/subagent": "workspace:*",
+    "@qilin-agent/working-directory": "workspace:*"
   }
 }

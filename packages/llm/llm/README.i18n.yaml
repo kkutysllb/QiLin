@@ -5,60 +5,60 @@
 /:
   en: 860509fb08c860f4
   zh: b2c4448e8afc1f12
-/qilin-llm:
-  en: 00910150bf3285c4
-  zh: 37d4d419b2454984
-/qilin-llm/summary:
-  en: 001b5d6dbf487912
-  zh: d93167367af0bda9
-/qilin-llm/table-of-contents:
+/qilin-agent-llm:
+  en: 12d5ea87c6795974
+  zh: 4307da46e5ffced3
+/qilin-agent-llm/summary:
+  en: 5caf47ed561cb01e
+  zh: d3f49546c3c17397
+/qilin-agent-llm/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-llm/use-this-package:
+/qilin-agent-llm/use-this-package:
   en: 33738e61ce410ac0
   zh: 363760460f4d4bed
-/qilin-llm/use-this-package/when-to-choose-it:
+/qilin-agent-llm/use-this-package/when-to-choose-it:
   en: 0403e67f55898820
   zh: 1eacd064ea9740a1
-/qilin-llm/use-this-package/minimal-composition:
+/qilin-agent-llm/use-this-package/minimal-composition:
   en: 7550d716b90fcb09
   zh: 77891a44ee623c7a
-/qilin-llm/use-this-package/what-you-can-do:
+/qilin-agent-llm/use-this-package/what-you-can-do:
   en: b45d7a414141734e
   zh: a641c8ea3827cee6
-/qilin-llm/use-this-package/failures-and-recovery:
+/qilin-agent-llm/use-this-package/failures-and-recovery:
   en: 4db9ebfa25dbadfd
   zh: b2aebbd3215d50fc
-/qilin-llm/understand-the-implementation:
+/qilin-agent-llm/understand-the-implementation:
   en: 9630d7e26193a512
   zh: 94222c2a487c4b8c
-/qilin-llm/understand-the-implementation/design-philosophy:
+/qilin-agent-llm/understand-the-implementation/design-philosophy:
   en: 12d0444c18a397c7
   zh: 9d4a5468b4bb7fcd
-/qilin-llm/understand-the-implementation/source-map:
+/qilin-agent-llm/understand-the-implementation/source-map:
   en: ae1618577f4e8364
   zh: a6e8ab1563c08dfb
-/qilin-llm/understand-the-implementation/main-flow:
+/qilin-agent-llm/understand-the-implementation/main-flow:
   en: b6a378ff4b7caf20
   zh: 1453cd5e7f774575
-/qilin-llm/understand-the-implementation/invariants:
+/qilin-agent-llm/understand-the-implementation/invariants:
   en: 0163a050239248e5
   zh: 885c95bedcbe2ff4
-/qilin-llm/further-exploration:
+/qilin-agent-llm/further-exploration:
   en: e3f1f9cc4c5e35f2
   zh: 89e86aa41cd1fe66
-/qilin-llm/model-experience:
+/qilin-agent-llm/model-experience:
   en: fa5677003ad6bc0a
   zh: ba33cfc860d9c37c
-/qilin-llm/model-experience/kv-cache-effect:
+/qilin-agent-llm/model-experience/kv-cache-effect:
   en: a81634136baef72f
   zh: b92dda883986b0e1
-/qilin-llm/known-limitations-and-deferred-work:
-  en: 8605bc10f1ad362f
-  zh: 3ca7e933071a513c
-/qilin-llm/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-llm/known-limitations-and-deferred-work:
+  en: 9ec5931b0f49513e
+  zh: cee5d45a83808f11
+/qilin-agent-llm/known-limitations-and-deferred-work/dev-note:
   en: ecbc333b88e14d88
   zh: 77c725d92efd8646
-/qilin-llm/known-limitations-and-deferred-work/dev-note/open-items:
+/qilin-agent-llm/known-limitations-and-deferred-work/dev-note/open-items:
   en: 3b64f4204c964ec8
   zh: 27c2029a2f18a8b2

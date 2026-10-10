@@ -26,14 +26,14 @@ This package keeps the DSH plugin ecosystem usable in QiLin. It selects a bundle
 
 Profile loading, the plugin manager's install gate and bundle inventory, and the client test runtime's roster use `bundlePatchOf` for `qilin.bundle.patch` and `dsh.bundle.patch`. The client module graph and browser loader use `clientDeclarationOf` and `dshCompatModuleId` so prebuilt DSH factories can keep their original `require()` names.
 
-The exact platform aliases are exported as `DSH_PLATFORM_MODULE_ALIASES`. Unknown third-party names pass through unchanged; the compatibility layer does not replace service implementations or provide Electron-only APIs.
+The exact platform aliases are exported as `DSH_PLATFORM_MODULE_ALIASES` and the DSH CLI application alias as `DSH_APPLICATION_MODULE_ALIASES`. Unknown third-party names pass through unchanged; the compatibility layer does not replace service implementations or provide Electron-only APIs.
 
 -----
 
 <a id="understand-the-implementation"></a>
 ## Understand the implementation
 
-The manifest reader gives a QiLin declaration precedence when both keys exist. The module resolver applies explicit aliases first, then maps `@deepseek-ai/dsh-<name>` to `@qilin-agent/<name>`; `client-runtime` maps to QiLin’s `client-modules` package. The browser shell seeds static platform aliases, while dynamic graph edges and factory requests are canonicalized at their owning loaders.
+The manifest reader gives a QiLin declaration precedence when both keys exist. The module resolver applies explicit aliases first, then maps `@deepseek-ai/dsh-<name>` to `@qilin-agent/<name>`, with renamed heads landing on their QiLin package: `client-runtime` → `client-modules`, `tool-cordis` → `tool-kylin`, `ui-cordis` → `client-ui-kylin`, `cordis-host-runner` → `kylin-host-runner`, `cordis-client-runner` → `kylin-client-runner`, `agent-preset` → `agent-presets`, `subagent-dsh-sdk` → `subagent-qilin-sdk`. The browser shell seeds static platform aliases, while dynamic graph edges and factory requests are canonicalized at their owning loaders.
 
 -----
 

@@ -5,33 +5,33 @@
 /:
   en: f40b34f771caa863
   zh: f61d7ce73e0720e2
-/qilin-browser-use:
-  en: 3faed0ad44a63838
-  zh: 1647a85ef39b0ab2
-/qilin-browser-use/summary:
+/qilin-agent-browser-use:
+  en: 2dcb17eebf41b518
+  zh: 6d0c67731e3899e4
+/qilin-agent-browser-use/summary:
   en: 3e2c0d4aad911b93
   zh: 3e3903754a46de8e
-/qilin-browser-use/table-of-contents:
+/qilin-agent-browser-use/table-of-contents:
   en: d152484eb41ac6b4
   zh: f14f34fce35a8d90
-/qilin-browser-use/use-this-package:
-  en: b981e34a09985257
-  zh: c482fb97bc096e1a
-/qilin-browser-use/understand-the-implementation:
+/qilin-agent-browser-use/use-this-package:
+  en: 02764e59e929b1a1
+  zh: 91a08dcdc5ae6dce
+/qilin-agent-browser-use/understand-the-implementation:
   en: c4d9ec0df22a30ea
   zh: 06057e2a56cebbb9
-/qilin-browser-use/further-exploration:
+/qilin-agent-browser-use/further-exploration:
   en: c32c24ca938f2a97
   zh: fb577661f82fcac7
-/qilin-browser-use/model-experience:
+/qilin-agent-browser-use/model-experience:
   en: 8780c250dfaefaaa
   zh: f1fd94f7531b60a1
-/qilin-browser-use/model-experience/kv-cache-effect:
+/qilin-agent-browser-use/model-experience/kv-cache-effect:
   en: 0cc866a67a19d08b
   zh: c6a46b147b042cff
-/qilin-browser-use/known-limitations-and-deferred-work:
+/qilin-agent-browser-use/known-limitations-and-deferred-work:
   en: 43952e97817e9e32
   zh: a5e494860a71fc71
-/qilin-browser-use/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-browser-use/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 8ec3e73528ddb1a6

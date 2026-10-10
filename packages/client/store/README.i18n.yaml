@@ -5,24 +5,24 @@
 /:
   en: f9e6c1b15e80658f
   zh: 9127e32b7e5351d0
-/qilin-client-store:
-  en: bd491b4708870999
-  zh: 680ef9cc65979578
-/qilin-client-store/summary:
-  en: 835d845ae39b8dd1
-  zh: 864a338994ea0f6a
-/qilin-client-store/table-of-contents:
+/qilin-agent-client-store:
+  en: d1d19fc5e2b649c9
+  zh: 7d7e576d33fd8618
+/qilin-agent-client-store/summary:
+  en: c46ccfb2caa9770b
+  zh: 5dafbde3259ed855
+/qilin-agent-client-store/table-of-contents:
   en: b4683d2a53256fda
   zh: 4e65ff63dc8c48fe
-/qilin-client-store/model-experience:
+/qilin-agent-client-store/model-experience:
   en: 444c8fcde6e159d8
   zh: dc855e149c636bb4
-/qilin-client-store/model-experience/kv-cache-effect:
+/qilin-agent-client-store/model-experience/kv-cache-effect:
   en: ed7581186c5b5a33
   zh: a0efffb2631c1eec
-/qilin-client-store/known-limitations-and-deferred-work:
+/qilin-agent-client-store/known-limitations-and-deferred-work:
   en: 3190cd5b744025fe
   zh: f559c3316b6a7da4
-/qilin-client-store/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-store/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: e88aeb617ffb74ea

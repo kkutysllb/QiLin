@@ -5,75 +5,75 @@
 /:
   en: d510765ec1bebc28
   zh: 35efb9f71f05f326
-/qilin-subagent-spawn-in-process:
-  en: 2be56cde0ecc8599
-  zh: 143c8e42cb2e8e42
-/qilin-subagent-spawn-in-process/summary:
+/qilin-agent-subagent-spawn-in-process:
+  en: 5a828c4312858f58
+  zh: 4dc2ae9cd19d3a23
+/qilin-agent-subagent-spawn-in-process/summary:
   en: 77354bfb7bbb447c
   zh: 250fde8a163145ac
-/qilin-subagent-spawn-in-process/table-of-contents:
+/qilin-agent-subagent-spawn-in-process/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-subagent-spawn-in-process/use-this-package:
+/qilin-agent-subagent-spawn-in-process/use-this-package:
   en: 8a75ad01cfe60938
   zh: b63a8302502d289a
-/qilin-subagent-spawn-in-process/use-this-package/when-to-choose-it:
+/qilin-agent-subagent-spawn-in-process/use-this-package/when-to-choose-it:
   en: 5f14443940e59bb5
   zh: 3e8610aec21c55e8
-/qilin-subagent-spawn-in-process/use-this-package/minimal-configuration:
-  en: 47275ac3ef383518
-  zh: fae5495b7c86194a
-/qilin-subagent-spawn-in-process/use-this-package/what-a-delegation-does:
+/qilin-agent-subagent-spawn-in-process/use-this-package/minimal-configuration:
+  en: 299cbcc3152ca1d6
+  zh: 4c93ea17c1502ffc
+/qilin-agent-subagent-spawn-in-process/use-this-package/what-a-delegation-does:
   en: 9f4e6f31ad4d86d1
   zh: 4ad77e0b80c6efcc
-/qilin-subagent-spawn-in-process/understand-the-implementation:
+/qilin-agent-subagent-spawn-in-process/understand-the-implementation:
   en: 9e00b9dc2f9cf38c
   zh: 60ce00ce6c3b5564
-/qilin-subagent-spawn-in-process/understand-the-implementation/design-concept:
+/qilin-agent-subagent-spawn-in-process/understand-the-implementation/design-concept:
   en: 695d892574059848
   zh: b3acbd068cd48ffb
-/qilin-subagent-spawn-in-process/understand-the-implementation/source-map:
+/qilin-agent-subagent-spawn-in-process/understand-the-implementation/source-map:
   en: f23771c3d213ffb1
   zh: c0b16b102dc26345
-/qilin-subagent-spawn-in-process/understand-the-implementation/run-flow:
+/qilin-agent-subagent-spawn-in-process/understand-the-implementation/run-flow:
   en: 7b55a5649bc38155
   zh: 51fe220c84ca759a
-/qilin-subagent-spawn-in-process/understand-the-implementation/ownership-and-scope:
+/qilin-agent-subagent-spawn-in-process/understand-the-implementation/ownership-and-scope:
   en: 8af949dc29cb4a5c
   zh: f4e4f9f9f4a4b7c9
-/qilin-subagent-spawn-in-process/further-exploration:
-  en: 023e2a87c9472ff5
-  zh: da2a0d50eec1a8f6
-/qilin-subagent-spawn-in-process/model-experience:
+/qilin-agent-subagent-spawn-in-process/further-exploration:
+  en: 4ed37f4352d19e8c
+  zh: 446cc0afa507536d
+/qilin-agent-subagent-spawn-in-process/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-subagent-spawn-in-process/model-experience/child-agent-request:
+/qilin-agent-subagent-spawn-in-process/model-experience/child-agent-request:
   en: 05e6180f1498fdf9
   zh: 2b05d2b97bfa67da
-/qilin-subagent-spawn-in-process/model-experience/child-agent-request/what-the-model-sees:
+/qilin-agent-subagent-spawn-in-process/model-experience/child-agent-request/what-the-model-sees:
   en: 2035bdd8640e5a8a
   zh: 5afa645d7dbe31a5
-/qilin-subagent-spawn-in-process/model-experience/child-agent-request/token-effect:
+/qilin-agent-subagent-spawn-in-process/model-experience/child-agent-request/token-effect:
   en: e74d21e38e4a53a9
   zh: 6a5e3ef5fe0f4f14
-/qilin-subagent-spawn-in-process/model-experience/child-agent-request/kv-cache-effect:
+/qilin-agent-subagent-spawn-in-process/model-experience/child-agent-request/kv-cache-effect:
   en: 78d800b26fb3b0af
   zh: 313169b62c29af1d
-/qilin-subagent-spawn-in-process/model-experience/parent-tool-result-indirectly:
+/qilin-agent-subagent-spawn-in-process/model-experience/parent-tool-result-indirectly:
   en: 75d061c2151624a7
   zh: 71e58e020b60ff90
-/qilin-subagent-spawn-in-process/model-experience/parent-tool-result-indirectly/what-the-model-sees:
+/qilin-agent-subagent-spawn-in-process/model-experience/parent-tool-result-indirectly/what-the-model-sees:
   en: e13dd20fc123c970
   zh: 031673267b742df6
-/qilin-subagent-spawn-in-process/model-experience/parent-tool-result-indirectly/token-effect:
+/qilin-agent-subagent-spawn-in-process/model-experience/parent-tool-result-indirectly/token-effect:
   en: ff8045aa0f466c2a
   zh: e38fc5c6af2ce076
-/qilin-subagent-spawn-in-process/model-experience/parent-tool-result-indirectly/kv-cache-effect:
+/qilin-agent-subagent-spawn-in-process/model-experience/parent-tool-result-indirectly/kv-cache-effect:
   en: f5d5f97a153f7c70
   zh: 3d6bc05b9eadfbc2
-/qilin-subagent-spawn-in-process/known-limitations-and-deferred-work:
+/qilin-agent-subagent-spawn-in-process/known-limitations-and-deferred-work:
   en: 68720f2a663a4aad
   zh: a472436c5cc2b801
-/qilin-subagent-spawn-in-process/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-subagent-spawn-in-process/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

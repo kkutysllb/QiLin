@@ -5,57 +5,57 @@
 /:
   en: 80e8e69cb5216e23
   zh: cd84f0762bc67487
-/qilin-llm-replay:
-  en: c3a55facd50f3f57
-  zh: f6bd265494aad16b
-/qilin-llm-replay/summary:
+/qilin-agent-llm-replay:
+  en: 4f4559697908cfeb
+  zh: 0595f0d3eea7b110
+/qilin-agent-llm-replay/summary:
   en: fffc7ba06921cc10
   zh: 87e1525e52f7e3c1
-/qilin-llm-replay/table-of-contents:
+/qilin-agent-llm-replay/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-llm-replay/use-this-package:
+/qilin-agent-llm-replay/use-this-package:
   en: e2116be9c7a5c18f
   zh: dc89da423decf4aa
-/qilin-llm-replay/use-this-package/mounting-it:
-  en: c1d00d8e58ca9794
-  zh: c513c0d513024dd7
-/qilin-llm-replay/use-this-package/how-the-fixture-works:
+/qilin-agent-llm-replay/use-this-package/mounting-it:
+  en: e0fb58a6728fe498
+  zh: 7085ffde8a3791a6
+/qilin-agent-llm-replay/use-this-package/how-the-fixture-works:
   en: d7dd048cd69e723d
   zh: 9f5dfa5186549cd0
-/qilin-llm-replay/use-this-package/nested-agents:
+/qilin-agent-llm-replay/use-this-package/nested-agents:
   en: 7745c49d10a63b0e
   zh: 937b954c664f1973
-/qilin-llm-replay/use-this-package/failure-modes-and-overrides:
+/qilin-agent-llm-replay/use-this-package/failure-modes-and-overrides:
   en: 319e95521a4a06fe
   zh: 884c8299028df8a3
-/qilin-llm-replay/use-this-package/what-can-go-wrong:
+/qilin-agent-llm-replay/use-this-package/what-can-go-wrong:
   en: 7c5370fc79efded3
   zh: 1dd6336a47287146
-/qilin-llm-replay/understand-the-implementation:
+/qilin-agent-llm-replay/understand-the-implementation:
   en: 1d2dbd8b50da6f22
   zh: ab738914c74212ff
-/qilin-llm-replay/understand-the-implementation/design:
+/qilin-agent-llm-replay/understand-the-implementation/design:
   en: dfd1dd70ea389c66
   zh: 3c0f2e0ee601e3f5
-/qilin-llm-replay/understand-the-implementation/source-map:
+/qilin-agent-llm-replay/understand-the-implementation/source-map:
   en: 0542116615161c60
   zh: 66fe2603b04760b6
-/qilin-llm-replay/understand-the-implementation/binding-and-stream-flow:
+/qilin-agent-llm-replay/understand-the-implementation/binding-and-stream-flow:
   en: 484c98a2679b218f
   zh: 8d3266a0f3deac87
-/qilin-llm-replay/further-exploration:
+/qilin-agent-llm-replay/further-exploration:
   en: a5af7bdeb1fd0b1c
   zh: 4b6e715da31902b1
-/qilin-llm-replay/model-experience:
+/qilin-agent-llm-replay/model-experience:
   en: ad4fe7025029da90
   zh: 1cced10c67323c37
-/qilin-llm-replay/model-experience/kv-cache-effect:
+/qilin-agent-llm-replay/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: f57cc48a1b5cbfa9
-/qilin-llm-replay/known-limitations-and-deferred-work:
+/qilin-agent-llm-replay/known-limitations-and-deferred-work:
   en: 003f1d9c1ec49eed
   zh: 116bcde9030e4cb4
-/qilin-llm-replay/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-llm-replay/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

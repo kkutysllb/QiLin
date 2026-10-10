@@ -5,27 +5,27 @@
 /:
   en: 6e9bd51222d0dc75
   zh: e0d8fcb968e24d8c
-/qilin-client-ui-theme-brand:
-  en: f2f70faeba42aaf1
-  zh: 1e2a0cb78aa1d261
-/qilin-client-ui-theme-brand/summary:
+/qilin-agent-client-ui-theme-brand:
+  en: 90f7429d1b7e9c64
+  zh: f775963209c0196c
+/qilin-agent-client-ui-theme-brand/summary:
   en: eb3a4cf2b15b5ad5
   zh: 6d773ac60447620c
-/qilin-client-ui-theme-brand/table-of-contents:
+/qilin-agent-client-ui-theme-brand/table-of-contents:
   en: 4e53164159b5ce41
   zh: 024420bdbdd3e0ac
-/qilin-client-ui-theme-brand/use-this-package:
-  en: c2af5a84d31b6e79
-  zh: 842ee12706f09677
-/qilin-client-ui-theme-brand/dev-note:
+/qilin-agent-client-ui-theme-brand/use-this-package:
+  en: 41d9601022505b38
+  zh: 01c5d9f24888a51d
+/qilin-agent-client-ui-theme-brand/dev-note:
   en: f3c698886ef928a7
   zh: eaac63c14c20b932
-/qilin-client-ui-theme-brand/model-experience:
+/qilin-agent-client-ui-theme-brand/model-experience:
   en: 387945fb175a89ea
   zh: f4ba5dcf2b061ba9
-/qilin-client-ui-theme-brand/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-theme-brand/model-experience/kv-cache-effect:
   en: d47c23dd182c8c5a
   zh: db61ce21c1c13a37
-/qilin-client-ui-theme-brand/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-theme-brand/known-limitations-and-deferred-work:
   en: 1150cee32a1c48b8
   zh: 4c96c5b1e497637d

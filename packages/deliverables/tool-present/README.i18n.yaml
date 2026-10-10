@@ -5,42 +5,42 @@
 /:
   en: 77fa72665646fedb
   zh: 2d360098a76804c8
-/qilin-tool-present:
-  en: 55aff2c2ecc561a4
-  zh: 9b78ed405e41c865
-/qilin-tool-present/summary:
+/qilin-agent-tool-present:
+  en: d2464628a464224a
+  zh: 32cea03b37e35737
+/qilin-agent-tool-present/summary:
   en: 79708e6e895b94d0
   zh: c98dc1ac9316eb50
-/qilin-tool-present/table-of-contents:
+/qilin-agent-tool-present/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-tool-present/use-this-package:
+/qilin-agent-tool-present/use-this-package:
   en: a1279e54e9c7ac72
   zh: 874623b704f9a52a
-/qilin-tool-present/understand-the-implementation:
+/qilin-agent-tool-present/understand-the-implementation:
   en: 3ae69eb991942c18
   zh: 6824644dc0cee1ae
-/qilin-tool-present/further-exploration:
+/qilin-agent-tool-present/further-exploration:
   en: d8cf44f8eee5c740
   zh: 1ebd2f1200960566
-/qilin-tool-present/model-experience:
+/qilin-agent-tool-present/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-tool-present/model-experience/present:
+/qilin-agent-tool-present/model-experience/present:
   en: 695c689adf61838a
   zh: 695c689adf61838a
-/qilin-tool-present/model-experience/present/what-the-model-sees:
+/qilin-agent-tool-present/model-experience/present/what-the-model-sees:
   en: 59af998be63f51e1
   zh: 5b89824ace8bd534
-/qilin-tool-present/model-experience/present/token-effect:
+/qilin-agent-tool-present/model-experience/present/token-effect:
   en: fbe1ca0b530500a0
   zh: e198e106b85714b6
-/qilin-tool-present/model-experience/present/kv-cache-effect:
+/qilin-agent-tool-present/model-experience/present/kv-cache-effect:
   en: c5e95beba09dce3c
   zh: 50f71fac2592f652
-/qilin-tool-present/known-limitations-and-deferred-work:
+/qilin-agent-tool-present/known-limitations-and-deferred-work:
   en: 918d8b8f09063e68
   zh: 48591e5324a462c4
-/qilin-tool-present/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-tool-present/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

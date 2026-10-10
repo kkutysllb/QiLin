@@ -5,63 +5,63 @@
 /:
   en: 500c10f9dd15705e
   zh: 7ea6af22f2e7aef2
-/qilin-mcp-servers:
-  en: 5344a4bcd2cb2daf
-  zh: 96c6f0645a04e455
-/qilin-mcp-servers/summary:
+/qilin-agent-mcp-servers:
+  en: 72dc4bf7c04f259d
+  zh: 5b5ddcd83cdd4386
+/qilin-agent-mcp-servers/summary:
   en: 94fd739f7cdb0c3f
   zh: 30e56e3d0b995936
-/qilin-mcp-servers/table-of-contents:
+/qilin-agent-mcp-servers/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-mcp-servers/use-this-package:
+/qilin-agent-mcp-servers/use-this-package:
   en: 54aec62a0238d587
   zh: 957aa94199799f5b
-/qilin-mcp-servers/use-this-package/what-a-snapshot-contains:
+/qilin-agent-mcp-servers/use-this-package/what-a-snapshot-contains:
   en: 5149b04240caa402
   zh: 850987076950f02d
-/qilin-mcp-servers/use-this-package/when-the-file-cannot-be-addressed:
+/qilin-agent-mcp-servers/use-this-package/when-the-file-cannot-be-addressed:
   en: 6865b612881fcb53
   zh: 22effebd55c8eeaa
-/qilin-mcp-servers/use-this-package/what-a-save-preserves:
+/qilin-agent-mcp-servers/use-this-package/what-a-save-preserves:
   en: c16c98d557e17a45
   zh: 78bbf58657a431f1
-/qilin-mcp-servers/understand-the-implementation:
+/qilin-agent-mcp-servers/understand-the-implementation:
   en: ee4615a04fa6503d
   zh: ee2c5fb2204a43cf
-/qilin-mcp-servers/understand-the-implementation/where-the-entries-live:
-  en: 19192e3b9da2c76f
-  zh: 7a0f87318aa8ab7f
-/qilin-mcp-servers/understand-the-implementation/why-the-home-layer:
+/qilin-agent-mcp-servers/understand-the-implementation/where-the-entries-live:
+  en: e6fee06fad834a62
+  zh: 30bc50260a00a897
+/qilin-agent-mcp-servers/understand-the-implementation/why-the-home-layer:
   en: d5672231303b3e6c
   zh: 8bda84a37d081efb
-/qilin-mcp-servers/understand-the-implementation/writes:
+/qilin-agent-mcp-servers/understand-the-implementation/writes:
   en: cfea5e8dc4679268
   zh: a7d178b94c7a93e0
-/qilin-mcp-servers/understand-the-implementation/the-service-is-remote-only:
-  en: 88ba8e66f9f930a4
-  zh: 3d7dbeaa2c2d401a
-/qilin-mcp-servers/further-exploration:
-  en: 3e48fd1ca47e5cc4
-  zh: 4c2f72bb84609b07
-/qilin-mcp-servers/model-experience:
+/qilin-agent-mcp-servers/understand-the-implementation/the-service-is-remote-only:
+  en: 7e627cdb18b27b88
+  zh: 090141e7dd626694
+/qilin-agent-mcp-servers/further-exploration:
+  en: 31ab3b0a6801a6b6
+  zh: 29194bbbb14409b1
+/qilin-agent-mcp-servers/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-mcp-servers/model-experience/mcp-tools-the-managed-servers-register:
+/qilin-agent-mcp-servers/model-experience/mcp-tools-the-managed-servers-register:
   en: 158faf841a19cdad
   zh: 9d9f5ae62b6b826f
-/qilin-mcp-servers/model-experience/mcp-tools-the-managed-servers-register/what-the-model-sees:
-  en: 0b69f69518c9cfe8
-  zh: 91d128f67d6dc01d
-/qilin-mcp-servers/model-experience/mcp-tools-the-managed-servers-register/token-effect:
+/qilin-agent-mcp-servers/model-experience/mcp-tools-the-managed-servers-register/what-the-model-sees:
+  en: 9968d37ffb853d18
+  zh: 2c57204131da9467
+/qilin-agent-mcp-servers/model-experience/mcp-tools-the-managed-servers-register/token-effect:
   en: 8047b595ebd237fb
   zh: 66926d11a64c68b0
-/qilin-mcp-servers/model-experience/mcp-tools-the-managed-servers-register/kv-cache-effect:
+/qilin-agent-mcp-servers/model-experience/mcp-tools-the-managed-servers-register/kv-cache-effect:
   en: a94187bcd3768063
   zh: 2753d79ebee88a68
-/qilin-mcp-servers/known-limitations-and-deferred-work:
+/qilin-agent-mcp-servers/known-limitations-and-deferred-work:
   en: 53caec8ab125ba3b
   zh: c23259726a0fb55e
-/qilin-mcp-servers/known-limitations-and-deferred-work/dev-note:
-  en: c62108760a7ded27
-  zh: 4fd7f134bd5fadcb
+/qilin-agent-mcp-servers/known-limitations-and-deferred-work/dev-note:
+  en: ecbee7ffcf70b8b0
+  zh: 8bdbb80fcc8e0d38

@@ -5,60 +5,60 @@
 /:
   en: ab82ac4bcc012854
   zh: 3e2a2326e66f4bc3
-/qilin-skill:
-  en: 9f6dc2eaa9865c1b
-  zh: 4eb33a1b26fe1163
-/qilin-skill/summary:
+/qilin-agent-skill:
+  en: e88f5bd920a26a20
+  zh: e2e8169846991133
+/qilin-agent-skill/summary:
   en: 2ea8bf1730183cc7
   zh: 44165af9a3ce8945
-/qilin-skill/table-of-contents:
+/qilin-agent-skill/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-skill/use-this-package:
+/qilin-agent-skill/use-this-package:
   en: cb13ae81a3e0ae68
   zh: e709d66f4b6b4dd5
-/qilin-skill/use-this-package/when-to-choose-it:
+/qilin-agent-skill/use-this-package/when-to-choose-it:
   en: 61593d690cba9999
   zh: bc3e58bfe8462c37
-/qilin-skill/use-this-package/mount-and-configure:
-  en: 9e1ef4a4a09c1156
-  zh: d0809f7e2b466c6e
-/qilin-skill/use-this-package/what-the-registry-gives-you:
+/qilin-agent-skill/use-this-package/mount-and-configure:
+  en: dd8eca4d98bec3f1
+  zh: ab38d2d2e6c5623a
+/qilin-agent-skill/use-this-package/what-the-registry-gives-you:
   en: 0cb7936c76a84e45
   zh: a1fb8572481af54c
-/qilin-skill/use-this-package/observable-success-and-failures:
+/qilin-agent-skill/use-this-package/observable-success-and-failures:
   en: b7331b6a9c0d5bb2
   zh: 3ea0785c3a8c7330
-/qilin-skill/understand-the-implementation:
+/qilin-agent-skill/understand-the-implementation:
   en: 89be1dad151abb04
   zh: 9a1915c4d55bb9d2
-/qilin-skill/understand-the-implementation/design-concept:
+/qilin-agent-skill/understand-the-implementation/design-concept:
   en: c0fb1850f00f24b1
   zh: 226883ab5635435d
-/qilin-skill/understand-the-implementation/source-map:
+/qilin-agent-skill/understand-the-implementation/source-map:
   en: c7f6f2ecb227c68b
   zh: b2e924975aec9692
-/qilin-skill/understand-the-implementation/catalog-collection:
+/qilin-agent-skill/understand-the-implementation/catalog-collection:
   en: 58a9b57dc504b69f
   zh: 8fe8011247bc3f2b
-/qilin-skill/understand-the-implementation/loading-and-staleness:
+/qilin-agent-skill/understand-the-implementation/loading-and-staleness:
   en: e855d39692737103
   zh: 396aa887a78989ec
-/qilin-skill/understand-the-implementation/invalidation:
+/qilin-agent-skill/understand-the-implementation/invalidation:
   en: d73258316127f5b5
   zh: ddc6690f88922782
-/qilin-skill/further-exploration:
-  en: 21efdaaaa2ea948b
-  zh: 93d4661af48a38d3
-/qilin-skill/model-experience:
+/qilin-agent-skill/further-exploration:
+  en: de45086f41dd371d
+  zh: 00fe9c686f5eac44
+/qilin-agent-skill/model-experience:
   en: 70acac828ba81ceb
   zh: 73fd91d5c1628e77
-/qilin-skill/model-experience/kv-cache-effect:
+/qilin-agent-skill/model-experience/kv-cache-effect:
   en: 628a45ff9f6b0e74
   zh: fda70b0eed2df1d7
-/qilin-skill/known-limitations-and-deferred-work:
+/qilin-agent-skill/known-limitations-and-deferred-work:
   en: c5456e001203fd7a
   zh: 3cc6fa50700eec13
-/qilin-skill/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-skill/known-limitations-and-deferred-work/dev-note:
   en: 259ce6914314397d
   zh: d500b1f988a83999

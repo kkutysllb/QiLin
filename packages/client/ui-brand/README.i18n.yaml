@@ -5,27 +5,27 @@
 /:
   en: 0849adcc1b77677c
   zh: 330bdb3cd1a3dda4
-/qilin-client-ui-brand:
-  en: 0c492b637b501f20
-  zh: 2f6e9ae0b13a7ed9
-/qilin-client-ui-brand/summary:
+/qilin-agent-client-ui-brand:
+  en: 3bbc99c223e49c43
+  zh: 7a8af4db92f101f7
+/qilin-agent-client-ui-brand/summary:
   en: 95377ff450c656ff
   zh: a9908aa55d89e35f
-/qilin-client-ui-brand/table-of-contents:
+/qilin-agent-client-ui-brand/table-of-contents:
   en: 4e53164159b5ce41
   zh: 024420bdbdd3e0ac
-/qilin-client-ui-brand/use-this-package:
-  en: 3b7f1d17d38c15cd
-  zh: 6deb684c144a3276
-/qilin-client-ui-brand/dev-note:
+/qilin-agent-client-ui-brand/use-this-package:
+  en: 6f4d483895bfadef
+  zh: 6d63376599a90894
+/qilin-agent-client-ui-brand/dev-note:
   en: f3c698886ef928a7
   zh: eaac63c14c20b932
-/qilin-client-ui-brand/model-experience:
+/qilin-agent-client-ui-brand/model-experience:
   en: 4d7eb90e99c59ab9
   zh: da60e592bccf5a3c
-/qilin-client-ui-brand/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-brand/model-experience/kv-cache-effect:
   en: 8cef18f4fc036de1
   zh: fa4d629e49531593
-/qilin-client-ui-brand/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-brand/known-limitations-and-deferred-work:
   en: b9339c6577080908
   zh: a4ba753a1f9bd502

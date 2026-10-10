@@ -6,6 +6,7 @@
  * regression that `read` keeps its text-only contract.
  */
 
+import { provideWorkingDirectoryFixture } from '@qilin-agent/agent-loop-testkit'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -105,6 +106,7 @@ interface SetupOptions {
 
 async function setup(options: SetupOptions = {}) {
   const ctx = new Context()
+  provideWorkingDirectoryFixture(ctx)
   await ctx.plugin(SystemPrompt)
   await ctx.plugin(ToolRuntime, { mode: options.toolMode ?? 'native' })
   if (options.toolMode === 'ptc' || options.toolMode === 'both') {

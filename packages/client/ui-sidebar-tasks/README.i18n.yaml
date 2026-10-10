@@ -5,36 +5,36 @@
 /:
   en: fa8df2be1a2abb55
   zh: 645982177f34ed56
-/qilin-client-ui-sidebar-tasks:
-  en: 959e00b7c5e1f306
-  zh: 5f18ced69448fc80
-/qilin-client-ui-sidebar-tasks/summary:
+/qilin-agent-client-ui-sidebar-tasks:
+  en: ddc75afc1f09c154
+  zh: 1f7471744e2040af
+/qilin-agent-client-ui-sidebar-tasks/summary:
   en: 5c11f1be552069fc
   zh: 0130685e0d40f647
-/qilin-client-ui-sidebar-tasks/table-of-contents:
+/qilin-agent-client-ui-sidebar-tasks/table-of-contents:
   en: 141356e3f3160484
   zh: 356e83d7b100f3d4
-/qilin-client-ui-sidebar-tasks/what-it-registers:
-  en: 5ccc2d6432242521
-  zh: 8f01824dcfdc05f0
-/qilin-client-ui-sidebar-tasks/the-two-sections:
+/qilin-agent-client-ui-sidebar-tasks/what-it-registers:
+  en: eb1b6682267a8237
+  zh: 9a1380a307df5924
+/qilin-agent-client-ui-sidebar-tasks/the-two-sections:
   en: 39ef0b5fed55cfa3
   zh: 0b441bf7d6152951
-/qilin-client-ui-sidebar-tasks/the-graph-form:
+/qilin-agent-client-ui-sidebar-tasks/the-graph-form:
   en: 4ec2916d34654437
   zh: 66a656ca97d91687
-/qilin-client-ui-sidebar-tasks/the-chip-badge:
+/qilin-agent-client-ui-sidebar-tasks/the-chip-badge:
   en: 0274f26ca136cbd7
   zh: 91920d0e208382d1
-/qilin-client-ui-sidebar-tasks/model-experience:
+/qilin-agent-client-ui-sidebar-tasks/model-experience:
   en: 2b74e414d5340310
   zh: bb5fc0f0859f73ba
-/qilin-client-ui-sidebar-tasks/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-sidebar-tasks/model-experience/kv-cache-effect:
   en: aa7bf62b7a2515e2
   zh: 16f9bbe19901ab33
-/qilin-client-ui-sidebar-tasks/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-sidebar-tasks/known-limitations-and-deferred-work:
   en: dcdd21c1e8cb54d6
   zh: 213b0ecf61355b7c
-/qilin-client-ui-sidebar-tasks/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-sidebar-tasks/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 1f09535637464bbe

@@ -191,12 +191,21 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/experimental-client-ui-voice-input` | no | Record speech and insert editable text into the conversation draft |
 | `@qilin-agent/experimental-computer-use-cua-driver-mcp` | yes | Experimental computer use through an installed Cua Driver MCP executable |
 | `@qilin-agent/experimental-computer-use-cua-driver-native` | no | Experimental computer-use provider embedding the Cua Driver native npm SDK |
+| `@qilin-agent/experimental-hooks-claude-code` | yes | Bridge plugin: run a Claude Code hooks.json / settings hook config on the QiLin interception seams |
+| `@qilin-agent/experimental-hooks-codex` | yes | Bridge plugin: run a Codex hooks.json hook config on the QiLin interception seams |
 | `@qilin-agent/experimental-inspector` | yes | Experimental cross-realm CDP hub for Host debugging and Client Runtime inspection |
 | `@qilin-agent/experimental-ptc-runtime-python` | yes | CPython subprocess implementation of the QiLin PTC execution seam |
 | `@qilin-agent/experimental-session-inspector` | no | Experimental virtualized Session log and live Chat group/node inspectors |
+| `@qilin-agent/experimental-session-title-all-prompts-llm` | yes | All-user-messages LLM provider plugin for QiLin session titles |
+| `@qilin-agent/experimental-skill-badge` | no | Bundled qilin badge skill provider for QiLin |
 | `@qilin-agent/experimental-speech-to-text` | yes | Experimental speech recognition with independently selectable providers |
 | `@qilin-agent/experimental-speech-to-text-sensevoice` | yes | Local SenseVoice ONNX transcription with a managed sherpa-onnx process |
 | `@qilin-agent/experimental-tool-agent-team` | yes | Scoped model-facing Agent Teams tools over ctx.agentTeams |
+| `@qilin-agent/experimental-tool-ralph` | yes | Model-facing fresh-agent Ralph loop over the workflow and subagent seams |
+| `@qilin-agent/experimental-tool-session-query` | yes | Workspace-authorized model-facing session history search, trace, and event read tools |
+| `@qilin-agent/experimental-tool-terminal` | yes | Six model-facing persistent PTY tools with owner isolation and generic background-job integration |
+| `@qilin-agent/experimental-webhook` | no | Fire-and-forget webhook rule runtime that creates Workspace-backed QiLin Sessions |
+| `@qilin-agent/experimental-webhook-github` | yes | Signed GitHub HTTP webhook adapter for the QiLin webhook runtime |
 
 ## extensions
 
@@ -240,13 +249,6 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 |---|---|---|
 | `@qilin-agent/repeat-tool-reminder` | yes | Repeat-tool-call guard plugin: advisory reminders when an agent loops on identical tool calls |
 | `@qilin-agent/tool-call-timeout-policy` | no | Tool-call timeout policy: a tools/execute wrapper that arms a per-tool deadline on exec.signal and returns TOOL_TIMEOUT when it wins |
-
-## hooks
-
-| Package | Config | Description |
-|---|---|---|
-| `@qilin-agent/hooks-claude-code` | yes | Bridge plugin: run a Claude Code hooks.json / settings hook config on the QiLin interception seams |
-| `@qilin-agent/hooks-codex` | yes | Bridge plugin: run a Codex hooks.json hook config on the QiLin interception seams |
 
 ## host
 
@@ -364,7 +366,6 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/session-stats` | no | Whole-log conversation counts and wall times projection (sessionStats) for the QiLin |
 | `@qilin-agent/session-telemetry-otel` | yes | Feedback-authorized Session logs over byte-bounded OpenTelemetry HTTP requests |
 | `@qilin-agent/session-title` | yes | Log-backed session title service and provider registry for the QiLin |
-| `@qilin-agent/session-title-all-prompts-llm` | yes | All-user-messages LLM provider plugin for QiLin session titles |
 | `@qilin-agent/session-title-first-prompt-llm` | yes | First-message LLM provider plugin for QiLin session titles |
 | `@qilin-agent/session-turn-outline` | no | Whole-log turn outline projection (turnOutline) for the QiLin |
 
@@ -374,7 +375,6 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 |---|---|---|
 | `@qilin-agent/session-log-export` | yes | Web Session-log export command and shared download dialog |
 | `@qilin-agent/session-query-sqlite` | yes | Concrete ctx.sessionQuery backend with SQLite FTS5 search |
-| `@qilin-agent/tool-session-query` | yes | Workspace-authorized model-facing session history search, trace, and event read tools |
 
 ## settings
 
@@ -401,7 +401,6 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | Package | Config | Description |
 |---|---|---|
 | `@qilin-agent/skill` | yes | Agent skill provider registry for the QiLin |
-| `@qilin-agent/skill-badge` | no | Bundled qilin badge skill provider for QiLin |
 | `@qilin-agent/skill-filesystem` | yes | Local filesystem skill provider for the QiLin |
 | `@qilin-agent/skill-office` | yes | Bundled Word, PowerPoint, and Excel workflows and structural checks |
 | `@qilin-agent/tool-skill` | yes | Model-facing skill loading tool for the QiLin |
@@ -464,7 +463,6 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 |---|---|---|
 | `@qilin-agent/terminal` | no | Persistent PTY session seam for the QiLin — owner-scoped ids, backend registry, interactive sends, reads, signals, and awaited cleanup |
 | `@qilin-agent/terminal-bash` | yes | Persistent shell PTY backend over the QiLin subprocess terminal primitive |
-| `@qilin-agent/tool-terminal` | yes | Six model-facing persistent PTY tools with owner isolation and generic background-job integration |
 
 ## test-support
 
@@ -495,18 +493,10 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/web-search-exa` | yes | Exa-backed search provider for the QiLin web capability seam (ctx.web) |
 | `@qilin-agent/web-search-perplexity` | yes | Perplexity-backed search provider for the QiLin web capability seam (ctx.web) |
 
-## webhook
-
-| Package | Config | Description |
-|---|---|---|
-| `@qilin-agent/webhook` | no | Fire-and-forget webhook rule runtime that creates Workspace-backed QiLin Sessions |
-| `@qilin-agent/webhook-github` | yes | Signed GitHub HTTP webhook adapter for the QiLin webhook runtime |
-
 ## workflow
 
 | Package | Config | Description |
 |---|---|---|
-| `@qilin-agent/tool-ralph` | yes | Model-facing fresh-agent Ralph loop over the workflow and subagent seams |
 | `@qilin-agent/tool-workflow` | yes | Model-facing workflow tool: run a JavaScript orchestration script over ctx.workflowEngine |
 | `@qilin-agent/workflow-ptc` | yes | Workflow orchestration in the shared sandboxed Node PTC runtime |
 

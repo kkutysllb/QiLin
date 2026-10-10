@@ -13,6 +13,7 @@ import { SessionId } from '@qilin-agent/session'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 
 import { fakeParent, mountPtcRuntime } from './setup.ts'
+import { mountWorkingDirectoryFixture } from '../../../subagent/subagent/tests/working-directory-fixture.ts'
 
 /** Bound observations of process startup and host callbacks on shared CI runners. */
 function waitFor(assertion: () => void, timeout = 60_000): Promise<void> {
@@ -136,6 +137,7 @@ async function setup(options?: SetupOptions) {
   const ctx = new Context()
   await ctx.plugin(SessionProjectionRegistry)
   await mountPtcRuntime(ctx)
+  await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(SubagentRuntime)
   const provider = new StubProvider(
     'stub',
@@ -461,6 +463,7 @@ describe('qilin-workflow-ptc', { timeout: 120_000 }, () => {
       const ctx = new Context()
       await ctx.plugin(SessionProjectionRegistry)
       await mountPtcRuntime(ctx)
+      await mountWorkingDirectoryFixture(ctx)
       await ctx.plugin(SubagentRuntime)
       const provider: SubagentProvider = {
         name: 'rejecting',
@@ -522,6 +525,7 @@ describe('qilin-workflow-ptc', { timeout: 120_000 }, () => {
       const ctx = new Context()
       await ctx.plugin(SessionProjectionRegistry)
       await mountPtcRuntime(ctx)
+      await mountWorkingDirectoryFixture(ctx)
       await ctx.plugin(SubagentRuntime)
       const provider: SubagentProvider = {
         name: 'bad-dispose',
@@ -546,6 +550,7 @@ describe('qilin-workflow-ptc', { timeout: 120_000 }, () => {
       const ctx = new Context()
       await ctx.plugin(SessionProjectionRegistry)
       await mountPtcRuntime(ctx)
+      await mountWorkingDirectoryFixture(ctx)
       await ctx.plugin(SubagentRuntime)
       const provider: SubagentProvider = {
         name: 'coercion-trap-dispose',
@@ -763,6 +768,7 @@ describe('qilin-workflow-ptc', { timeout: 120_000 }, () => {
       const ctx = new Context()
       await ctx.plugin(SessionProjectionRegistry)
       await mountPtcRuntime(ctx)
+      await mountWorkingDirectoryFixture(ctx)
       await ctx.plugin(SubagentRuntime)
       const aborted: string[] = []
       const provider: SubagentProvider = {
@@ -883,6 +889,7 @@ describe('qilin-workflow-ptc', { timeout: 120_000 }, () => {
     it('waits for a late provider publication to release its file after cancellation', async () => {
       const ctx = new Context()
       const { root } = await mountPtcRuntime(ctx, 'read-only')
+      await mountWorkingDirectoryFixture(ctx)
       await ctx.plugin(SubagentRuntime)
       const requested = Promise.withResolvers<SubagentStartRequest>()
       const release = Promise.withResolvers<undefined>()
@@ -988,6 +995,7 @@ await new Promise(() => {})`))
       const ctx = new Context()
       await ctx.plugin(SessionProjectionRegistry)
       await mountPtcRuntime(ctx)
+      await mountWorkingDirectoryFixture(ctx)
       await ctx.plugin(SubagentRuntime)
       const fiber = await ctx.plugin(PtcWorkflowEngine, {})
       expect(ctx.get('workflowEngine')).toBeDefined()

@@ -51,6 +51,9 @@ const FIXTURE_SESSION_SEARCH_RESULT_LIMIT = 20
 
 declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
+    /** Injected context for the client fixture harness.
+     * @persistenceAttribution
+     */
     'fixture': { kind: 'fixture' } & ContextFormed
   }
 }

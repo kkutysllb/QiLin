@@ -5,33 +5,33 @@
 /:
   en: 5c5d7b5f1329ac1b
   zh: b68d332df957109f
-/qilin-computer-use:
-  en: 23324cda01130aaa
-  zh: eb4af6fdb1b8b18f
-/qilin-computer-use/summary:
+/qilin-agent-computer-use:
+  en: 14543ef792787418
+  zh: 927f9937ab31827c
+/qilin-agent-computer-use/summary:
   en: 4de047849e68701f
   zh: 90a32c0e279b4b05
-/qilin-computer-use/table-of-contents:
+/qilin-agent-computer-use/table-of-contents:
   en: d152484eb41ac6b4
   zh: 405b30feaf48c087
-/qilin-computer-use/use-this-package:
-  en: 87b5a01081c9546a
-  zh: 7e03b97666eb4a4f
-/qilin-computer-use/understand-the-implementation:
+/qilin-agent-computer-use/use-this-package:
+  en: 93522aa39490f128
+  zh: bc47cb0f44330230
+/qilin-agent-computer-use/understand-the-implementation:
   en: 181679887837591a
   zh: cc2e96766ce0aa63
-/qilin-computer-use/further-exploration:
+/qilin-agent-computer-use/further-exploration:
   en: ab3398b50572896c
   zh: 304fcd1cfe84e2bd
-/qilin-computer-use/model-experience:
+/qilin-agent-computer-use/model-experience:
   en: 8780c250dfaefaaa
   zh: 1c4b3598a131fb65
-/qilin-computer-use/model-experience/kv-cache-effect:
+/qilin-agent-computer-use/model-experience/kv-cache-effect:
   en: 0cc866a67a19d08b
   zh: e1c3bb5ee2fed596
-/qilin-computer-use/known-limitations-and-deferred-work:
+/qilin-agent-computer-use/known-limitations-and-deferred-work:
   en: 429eb57f3fe32665
   zh: 8bfdbc69c220e3cf
-/qilin-computer-use/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-computer-use/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 6c5f9788c6536776

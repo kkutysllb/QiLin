@@ -33,6 +33,7 @@
     "@qilin-agent/agent": "workspace:*",
     "@qilin-agent/llm": "workspace:*",
     "@qilin-agent/skill": "workspace:*",
+    "@qilin-agent/working-directory": "workspace:*",
     "@qilin-agent/tools": "workspace:*",
     "@qilin-agent/kylin": "workspace:~"
   },
@@ -46,6 +47,7 @@
     "@qilin-agent/scope": "workspace:*",
     "@qilin-agent/session": "workspace:*",
     "@qilin-agent/skill": "workspace:*",
+    "@qilin-agent/working-directory": "workspace:*",
     "@qilin-agent/skill-filesystem": "workspace:*",
     "@qilin-agent/tools": "workspace:*",
     "@qilin-agent/kylin": "workspace:~"

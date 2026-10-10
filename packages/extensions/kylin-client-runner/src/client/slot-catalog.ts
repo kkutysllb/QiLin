@@ -1950,13 +1950,10 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     registerOptions: [],
     ownerProps: [
       '/** Right column owner share: resolved normal geometry and opening eligibility. */\nexport interface RightbarOwnerProps {\n  /** Resolved normal panel width in px, not the saved preference; zero if it cannot fit. */\n  width: number\n  /** Current frame width in px. */\n  viewportWidth: number\n  /**\n   * Whether a normal right panel can retain 300px beside a 400px center.\n   * Before a narrow opening, includes the space from collapsing the left sidebar.\n   */\n  canShow: boolean\n}',
-      '/**\n * Typed selector hook over a snapshot source. Canonical shape for the whole\n * slot system (ui-renderer\'s engine hook is structurally identical; the\n * framework is the only party that ever constructs one).\n */\nexport type SnapshotSelectorHook<T> = <S>(sel: (s: T) => S, eq?: (a: S, b: S) => boolean) => S',
       '/** Identity of one open tab; distinct copies of one content share `contentId`, never `TabId`. */\nexport type TabId = Branded<\'TabId\'>',
-      '/** The persisted workbench state: active tag plus each tag\'s remembered new-task preset. */\nexport interface WorkbenchState {\n  /** The tag whose sessions the lists show and whose preset new tasks carry. */\n  readonly active: WorkbenchTag\n  /** New-task preset per tag; defaults are the D3 mapping (general→standard, coding→ptc). */\n  readonly presets: Readonly<Record<WorkbenchTag, string>>\n}',
     ],
     ownerPropsReferences: [
       'Branded',
-      'WorkbenchTag',
     ],
     standardProps: [
       'useResource: UseResource',
@@ -1984,7 +1981,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'shadows-shipped-ui',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'rightbar.session\', () => ctx.slots.register(\n      { name: \'rightbar.session\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-sidebar-right/src/client/contract/slots.ts:44',
+    source: 'packages/client/ui-sidebar-right/src/client/contract/slots.ts:43',
   },
   {
     key: 'root',
@@ -2867,7 +2864,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'sidebar.right.pane.tab\', () => ctx.slots.register(\n      { name: \'sidebar.right.pane.tab\', key: \'<one key the owner dispatches>\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-sidebar-right/src/client/contract/slots.ts:62',
+    source: 'packages/client/ui-sidebar-right/src/client/contract/slots.ts:59',
   },
   {
     key: 'sidebar.right.pane.tab.badge',
@@ -2911,7 +2908,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'sidebar.right.pane.tab.badge\', () => ctx.slots.register(\n      { name: \'sidebar.right.pane.tab.badge\', key: \'<one key the owner dispatches>\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-sidebar-right/src/client/contract/slots.ts:73',
+    source: 'packages/client/ui-sidebar-right/src/client/contract/slots.ts:70',
   },
   {
     key: 'sidebar.right.pane.tab.title',
@@ -2964,7 +2961,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'sidebar.right.pane.tab.title\', () => ctx.slots.register(\n      { name: \'sidebar.right.pane.tab.title\', key: \'<one key the owner dispatches>\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-sidebar-right/src/client/contract/slots.ts:87',
+    source: 'packages/client/ui-sidebar-right/src/client/contract/slots.ts:84',
   },
   {
     key: 'sidebar.right.tab.document',
@@ -3328,7 +3325,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     occupants: [],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'sidebar.right.tab.guide\', () => ctx.slots.register(\n      { name: \'sidebar.right.tab.guide\', select: owner => null },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-sidebar-right/src/client/contract/slots.ts:98',
+    source: 'packages/client/ui-sidebar-right/src/client/contract/slots.ts:95',
   },
   {
     key: 'sidebar.right.tab.guide.entry',
@@ -3374,7 +3371,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'sidebar.right.tab.guide.entry\', () => ctx.slots.register(\n      { name: \'sidebar.right.tab.guide.entry\', key: \'<one key the owner dispatches>\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-sidebar-right/src/client/contract/slots.ts:105',
+    source: 'packages/client/ui-sidebar-right/src/client/contract/slots.ts:102',
   },
   {
     key: 'sidebar.right.tab.menu.item',
@@ -3432,7 +3429,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     occupants: [],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'sidebar.right.tab.menu.item\', () => ctx.slots.register(\n      { name: \'sidebar.right.tab.menu.item\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-sidebar-right/src/client/contract/slots.ts:117',
+    source: 'packages/client/ui-sidebar-right/src/client/contract/slots.ts:114',
   },
   {
     key: 'sidebar.section.assignments',

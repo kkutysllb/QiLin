@@ -5,42 +5,42 @@
 /:
   en: 9c53a07c1a04a19a
   zh: 1fd4666fbc6c39a8
-/qilin-brand:
-  en: 217814424edbf529
-  zh: 535b21d3ea022318
-/qilin-brand/summary:
+/qilin-agent-brand:
+  en: ed14efbbe8b6cfcf
+  zh: 7ae20e3c6d72185f
+/qilin-agent-brand/summary:
   en: 57d5a106e98e6b9d
   zh: 664ed658a6c38e60
-/qilin-brand/table-of-contents:
+/qilin-agent-brand/table-of-contents:
   en: c992e0cd2e7042d6
   zh: 2e8cd826664632d1
-/qilin-brand/use-this-package:
+/qilin-agent-brand/use-this-package:
   en: abdf7a28d3af06f0
   zh: 8d68807326b03898
-/qilin-brand/use-this-package/branding-a-string:
+/qilin-agent-brand/use-this-package/branding-a-string:
   en: 49b137dc146f5c0a
   zh: 7fe82acb5ba633e8
-/qilin-brand/use-this-package/branding-a-number:
+/qilin-agent-brand/use-this-package/branding-a-number:
   en: fd9617ca2804f47b
   zh: cd3c0e6bda613509
-/qilin-brand/use-this-package/when-to-brand:
+/qilin-agent-brand/use-this-package/when-to-brand:
   en: 4224e7edc4200bfe
   zh: b1cec114c5ba4024
-/qilin-brand/understand-the-implementation:
+/qilin-agent-brand/understand-the-implementation:
   en: 98a62299f46d5050
   zh: 042d3c626e1fbe34
-/qilin-brand/understand-the-implementation/source-map:
+/qilin-agent-brand/understand-the-implementation/source-map:
   en: 5032eec37cf68046
   zh: 971402fa5c6c0e63
-/qilin-brand/understand-the-implementation/how-values-stay-portable:
+/qilin-agent-brand/understand-the-implementation/how-values-stay-portable:
   en: 6a126aa2e31591c0
   zh: c85e395cdb0bbb0e
-/qilin-brand/understand-the-implementation/why-it-stays-dependency-free:
+/qilin-agent-brand/understand-the-implementation/why-it-stays-dependency-free:
   en: 5bcb11c1ef6fa468
   zh: 9c389300baa819a8
-/qilin-brand/further-exploration:
+/qilin-agent-brand/further-exploration:
   en: ee41e38fb8fc21cb
   zh: 67a6a94d3cd29983
-/qilin-brand/dev-note:
+/qilin-agent-brand/dev-note:
   en: 5de1d6304e00c58f
   zh: 8d8225361cfa29e5

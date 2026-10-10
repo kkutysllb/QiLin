@@ -5,117 +5,117 @@
 /:
   en: 83e748b077469aac
   zh: f858d23ea8c1c6ba
-/qilin-tool-pwsh:
-  en: 7c96246d95d566d4
-  zh: 3753177f123b2ab4
-/qilin-tool-pwsh/summary:
+/qilin-agent-tool-pwsh:
+  en: cb28faf3359fa978
+  zh: c039e02721e16a83
+/qilin-agent-tool-pwsh/summary:
   en: c41ec1fbfa215c94
   zh: 314e5d3265be3d6d
-/qilin-tool-pwsh/table-of-contents:
+/qilin-agent-tool-pwsh/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-tool-pwsh/use-this-package:
+/qilin-agent-tool-pwsh/use-this-package:
   en: 1b4216447cd42de2
   zh: 76280937fc3e7b26
-/qilin-tool-pwsh/use-this-package/when-to-choose-it:
+/qilin-agent-tool-pwsh/use-this-package/when-to-choose-it:
   en: c9cfb8651fc9558f
   zh: 21ad622a9d50bd4e
-/qilin-tool-pwsh/use-this-package/minimal-configuration:
-  en: bd6629bd8397b329
-  zh: f1dc3bb067d951e4
-/qilin-tool-pwsh/use-this-package/running-a-command:
+/qilin-agent-tool-pwsh/use-this-package/minimal-configuration:
+  en: 0fd35c73163fed17
+  zh: 09647fd9256c8c72
+/qilin-agent-tool-pwsh/use-this-package/running-a-command:
   en: 02b18286e7ae41a8
   zh: 377624e32d370cce
-/qilin-tool-pwsh/use-this-package/windows-specific-sandbox-behavior:
+/qilin-agent-tool-pwsh/use-this-package/windows-specific-sandbox-behavior:
   en: a2d3592afd0c5678
   zh: dc9ef914149c3604
-/qilin-tool-pwsh/use-this-package/what-can-go-wrong:
-  en: 0db3e3f9fc823853
-  zh: 7196d080d76babee
-/qilin-tool-pwsh/understand-the-implementation:
+/qilin-agent-tool-pwsh/use-this-package/what-can-go-wrong:
+  en: 3e89bcf20db5ad53
+  zh: 236427781244f5e4
+/qilin-agent-tool-pwsh/understand-the-implementation:
   en: 8d94a7381bca3fa9
   zh: f4bd2866fff6fa8d
-/qilin-tool-pwsh/understand-the-implementation/design-philosophy:
+/qilin-agent-tool-pwsh/understand-the-implementation/design-philosophy:
   en: d03cc8af1c9c1315
   zh: 202bea78d0bcdea6
-/qilin-tool-pwsh/understand-the-implementation/source-map:
+/qilin-agent-tool-pwsh/understand-the-implementation/source-map:
   en: 02d3f9c1a49f9c31
   zh: 5a59a787a37bd9cb
-/qilin-tool-pwsh/understand-the-implementation/rendering-and-exit-markers:
+/qilin-agent-tool-pwsh/understand-the-implementation/rendering-and-exit-markers:
   en: 35818fa611875c4a
   zh: 7a0fc35fa0a72b78
-/qilin-tool-pwsh/further-exploration:
-  en: 24d79bef5d6e6648
-  zh: 518eb32cea322bc4
-/qilin-tool-pwsh/model-experience:
+/qilin-agent-tool-pwsh/further-exploration:
+  en: 6ad4bebca6822a06
+  zh: 3c9a12ea3059aa42
+/qilin-agent-tool-pwsh/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-tool-pwsh/model-experience/system-prompt:
+/qilin-agent-tool-pwsh/model-experience/system-prompt:
   en: cf78b9dd5596495f
   zh: bd44560f8c2435e8
-/qilin-tool-pwsh/model-experience/system-prompt/what-the-model-sees:
+/qilin-agent-tool-pwsh/model-experience/system-prompt/what-the-model-sees:
   en: ed8a75117d71cc5d
   zh: 7b9119a5246d096e
-/qilin-tool-pwsh/model-experience/system-prompt/what-the-model-sees/pwsh-guidance:
+/qilin-agent-tool-pwsh/model-experience/system-prompt/what-the-model-sees/pwsh-guidance:
   en: de907562b460fc1b
   zh: 2a398555cc929dd3
-/qilin-tool-pwsh/model-experience/system-prompt/token-effect:
+/qilin-agent-tool-pwsh/model-experience/system-prompt/token-effect:
   en: 4fea242a5deec6d2
   zh: 8dcbe863eb960a4d
-/qilin-tool-pwsh/model-experience/system-prompt/kv-cache-effect:
+/qilin-agent-tool-pwsh/model-experience/system-prompt/kv-cache-effect:
   en: 3959f5f66ff2f4be
   zh: 66636c0d90becdb1
-/qilin-tool-pwsh/model-experience/tool-schemas:
+/qilin-agent-tool-pwsh/model-experience/tool-schemas:
   en: 3039bc5e7a796b21
   zh: 6b7a9eaf69c9ea53
-/qilin-tool-pwsh/model-experience/tool-schemas/what-the-model-sees:
-  en: 0f994a8c1382cc63
-  zh: d1d18fcee5735073
-/qilin-tool-pwsh/model-experience/tool-schemas/token-effect:
+/qilin-agent-tool-pwsh/model-experience/tool-schemas/what-the-model-sees:
+  en: a5e4919fb08a7078
+  zh: 081669af6964bd5f
+/qilin-agent-tool-pwsh/model-experience/tool-schemas/token-effect:
   en: 97cce067584eadff
   zh: 54b1f5cd5899e7f3
-/qilin-tool-pwsh/model-experience/tool-schemas/kv-cache-effect:
+/qilin-agent-tool-pwsh/model-experience/tool-schemas/kv-cache-effect:
   en: a6768b4fdc27de21
   zh: 6d1d9b8357441af8
-/qilin-tool-pwsh/model-experience/foreground-result:
+/qilin-agent-tool-pwsh/model-experience/foreground-result:
   en: d83f1f25a3719c54
   zh: 445ca808e28dc936
-/qilin-tool-pwsh/model-experience/foreground-result/what-the-model-sees:
+/qilin-agent-tool-pwsh/model-experience/foreground-result/what-the-model-sees:
   en: 790fd2ecc7e1fd38
   zh: 76b3da098b1b5cf8
-/qilin-tool-pwsh/model-experience/foreground-result/token-effect:
+/qilin-agent-tool-pwsh/model-experience/foreground-result/token-effect:
   en: b2018adbda15b8a7
   zh: efa06f083800a36b
-/qilin-tool-pwsh/model-experience/foreground-result/kv-cache-effect:
+/qilin-agent-tool-pwsh/model-experience/foreground-result/kv-cache-effect:
   en: f5d5f97a153f7c70
   zh: 31911b4f3506d6c8
-/qilin-tool-pwsh/model-experience/background-result:
+/qilin-agent-tool-pwsh/model-experience/background-result:
   en: 3f23f9211197b0b9
   zh: 8cff3c78249b66ff
-/qilin-tool-pwsh/model-experience/background-result/what-the-model-sees:
+/qilin-agent-tool-pwsh/model-experience/background-result/what-the-model-sees:
   en: a471e423bb4fd271
   zh: 8949b37acf642e0c
-/qilin-tool-pwsh/model-experience/background-result/token-effect:
+/qilin-agent-tool-pwsh/model-experience/background-result/token-effect:
   en: 1480a7a9ec4e3a96
   zh: c7ec0cee960c8c99
-/qilin-tool-pwsh/model-experience/background-result/kv-cache-effect:
+/qilin-agent-tool-pwsh/model-experience/background-result/kv-cache-effect:
   en: f5d5f97a153f7c70
   zh: 31911b4f3506d6c8
-/qilin-tool-pwsh/model-experience/tool-errors:
+/qilin-agent-tool-pwsh/model-experience/tool-errors:
   en: 2d4f2c8605eccab3
   zh: 67f1f0218f73c6bf
-/qilin-tool-pwsh/model-experience/tool-errors/what-the-model-sees:
-  en: efc765cc65699edb
-  zh: 072fe15a1979148e
-/qilin-tool-pwsh/model-experience/tool-errors/token-effect:
+/qilin-agent-tool-pwsh/model-experience/tool-errors/what-the-model-sees:
+  en: 26560e556099f48c
+  zh: 02213c6694df34c8
+/qilin-agent-tool-pwsh/model-experience/tool-errors/token-effect:
   en: 243bad012dd99c7f
   zh: 5ee74905020bd49a
-/qilin-tool-pwsh/model-experience/tool-errors/kv-cache-effect:
+/qilin-agent-tool-pwsh/model-experience/tool-errors/kv-cache-effect:
   en: f5d5f97a153f7c70
   zh: 31911b4f3506d6c8
-/qilin-tool-pwsh/known-limitations-and-deferred-work:
-  en: 8414f06d98e2be52
-  zh: 64a484b891053be9
-/qilin-tool-pwsh/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-tool-pwsh/known-limitations-and-deferred-work:
+  en: 47b7fea54723c62b
+  zh: 71390fffc70614ae
+/qilin-agent-tool-pwsh/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

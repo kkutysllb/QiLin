@@ -25,6 +25,7 @@ import * as BashEnvPlugin from '@qilin-agent/shell-env'
 import { PwshLocalExecutor } from '@qilin-agent/pwsh-local'
 import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
 import LocalFileSystem from '@qilin-agent/fs-local'
+import WorkingDirectory from '@qilin-agent/working-directory'
 import { AttachmentStore } from '@qilin-agent/attachment'
 import type { ImageAttachmentLimits, ImageAttachmentRef, SaveImageAttachment, StoredImageAttachment } from '@qilin-agent/attachment'
 import UserQuestionService from '@qilin-agent/user-questions'
@@ -52,19 +53,20 @@ import * as ToolFs from '@qilin-agent/tool-fs'
 import * as ToolFsSearch from '@qilin-agent/tool-fs-search'
 import * as ToolStrReplaceEditor from '@qilin-agent/tool-str-replace-editor'
 import TerminalSessionService from '@qilin-agent/terminal'
-import * as ToolPty from '@qilin-agent/tool-terminal'
+import * as ToolPty from '@qilin-agent/experimental-tool-terminal'
 import * as ToolGoal from '@qilin-agent/tool-goal'
 import * as ToolSchedulePlugin from '@qilin-agent/tool-schedule'
 import Lsp from '@qilin-agent/lsp'
 import * as ToolLsp from '@qilin-agent/tool-lsp'
 import * as ToolSkill from '@qilin-agent/tool-skill'
-import * as ToolSessionQuery from '@qilin-agent/tool-session-query'
+import * as ToolSessionQuery from '@qilin-agent/experimental-tool-session-query'
 import * as ToolJobs from '@qilin-agent/tool-jobs'
 import BrowserUseRegistry from '@qilin-agent/browser-use'
 import * as StagehandBrowserTools from '@qilin-agent/experimental-browser-use-stagehand-native'
 import type TeamService from '@qilin-agent/experimental-agent-team'
 import * as ToolTeam from '@qilin-agent/experimental-tool-agent-team'
 import * as ToolTodo from '@qilin-agent/tool-todo'
+import * as ToolWorkingDirectory from '@qilin-agent/tool-working-directory'
 import type PluginManager from '@qilin-agent/plugin-manager'
 import * as PluginManagerTools from '@qilin-agent/plugin-manager/tools'
 import SandboxPolicy from '@qilin-agent/sandbox-policy'
@@ -74,7 +76,7 @@ import { registerListSubagentModels } from '../packages/subagent/tool-subagent/s
 import * as ToolWeb from '@qilin-agent/tool-web'
 import WorkflowEngine from '@qilin-agent/workflow'
 import type { WorkflowRun, WorkflowStartRequest } from '@qilin-agent/workflow'
-import * as ToolRalph from '@qilin-agent/tool-ralph'
+import * as ToolRalph from '@qilin-agent/experimental-tool-ralph'
 import * as ToolWorkflow from '@qilin-agent/tool-workflow'
 import * as ToolWorkspaceDependencies from '@qilin-agent/tool-workspace-dependencies'
 import { githubSlug } from './verify-md-links.ts'
@@ -156,7 +158,7 @@ async function mountCatalogChildScope(
 
 /**
  * Tool package plus its hand-maintained boot recipe. The caller mounts the
- * prompt and registry; each recipe supplies only package-specific seams and
+ * prompt, directory services, and registry; each recipe supplies only package-specific seams and
  * config, while `dir` participates in the completeness check.
  */
 export interface ToolPackage {
@@ -261,7 +263,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
     pkg: '@qilin-agent/tools',
     dir: 'tools',
     source: 'packages/core/tools/src/ptc.ts',
-    requires: ['ctx.tools', 'ctx.ptcRuntime (execution time)', 'ctx.systemPrompt'],
+    requires: ['ctx.workingDirectory (Agent executions)', 'ctx.tools', 'ctx.ptcRuntime (execution time)', 'ctx.systemPrompt'],
     writes: ['tool/call', 'one tool/ptc-dispatch-start + tool/ptc-dispatch pair per bridged sub-call', 'tool/result'],
     // The registry's OWN tool: run_code exists only under a non-native mode
     // (the registry registers it in its constructor; the PTC runtime is read
@@ -302,10 +304,9 @@ const TOOL_PACKAGES: ToolPackage[] = [
     pkg: '@qilin-agent/tool-present',
     dir: 'tool-present',
     source: 'packages/deliverables/tool-present/src/index.ts',
-    requires: ['ctx.tools', 'ctx.fs', 'ctx.sessionProjections'],
+    requires: ['ctx.workingDirectory', 'ctx.tools', 'ctx.fs', 'ctx.sessionProjections'],
     writes: ['tool/call', 'deliverables/presented after a successful final result', 'tool/result'],
     async mount(ctx) {
-      await ctx.plugin(LocalFileSystem)
       await ctx.plugin(ToolPresent)
     },
     note: 'Deliveries belong to the calling Session; Web ui-deliverables supplies source-file opening and cards.',
@@ -374,7 +375,6 @@ const TOOL_PACKAGES: ToolPackage[] = [
     requires: ['ctx.tools', 'ctx.fs'],
     writes: ['tool/call', 'fs/observed after view presence/absence, edit absence, or successful mutation', 'tool/result'],
     async mount(ctx) {
-      await ctx.plugin(LocalFileSystem)
       await ctx.plugin(ToolStrReplaceEditor)
     },
     note:
@@ -387,10 +387,8 @@ const TOOL_PACKAGES: ToolPackage[] = [
     requires: ['ctx.tools', 'ctx.fs', 'ctx.systemPrompt', 'ctx.attachments (image-tool registration)', 'ctx.llm + an image-capable route (image-tool execution)'],
     writes: ['tool/call', 'fs/write-intent or fs/edit-intent for mutations', 'fs/observed after read presence/absence or successful file operation', 'durable attachment (read_image)', 'tool/result'],
     async mount(ctx) {
-      // The tool needs `fs`; the bare provider is sufficient because policy
-      // changes behavior, not schema shape. The catalog seam marker opts into
-      // the attachments-conditional image schema without attachment I/O.
-      await ctx.plugin(LocalFileSystem)
+      // The catalog seam marker opts into the
+      // attachments-conditional image schema without attachment I/O.
       await ctx.plugin(CatalogAttachmentStore)
       await ctx.plugin(ToolFs)
     },
@@ -416,9 +414,9 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'glob and grep are unconditional discovery tools that spawn the packaged ripgrep binary (`@vscode/ripgrep`) through ctx.subprocess as ordinary foreground calls (never background jobs) — no host `rg` install and no shell layer. The catalog uses `sampleOverCapGlobResults: true`; deployments must choose that behavior explicitly. Capped results save the complete formatted list through the optional ctx.spillStore backend; returned locators are follow-up-readable/searchable when the backend exposes local paths in co-located deployments.',
   },
   {
-    pkg: '@qilin-agent/tool-terminal',
+    pkg: '@qilin-agent/experimental-tool-terminal',
     dir: 'tool-terminal',
-    source: 'packages/terminal/tool-terminal/src/index.ts',
+    source: 'packages/experimental/tool-terminal/src/index.ts',
     requires: ['ctx.tools', 'ctx.terminals', 'ctx.systemPrompt', 'ctx.jobs at call time for run_in_background'],
     writes: ['tool/call', 'tool/result'],
     async mount(ctx) {
@@ -483,9 +481,9 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'The lsp tool keeps provider selection and language-server subprocesses behind ctx.lsp, so its model-visible schema stays stable across providers. Requires a registered provider (e.g. `@qilin-agent/lsp-stdio`) at runtime; without one, a query returns the structured `LSP_UNAVAILABLE` error rather than changing the schema.',
   },
   {
-    pkg: '@qilin-agent/tool-ralph',
+    pkg: '@qilin-agent/experimental-tool-ralph',
     dir: 'tool-ralph',
-    source: 'packages/workflow/tool-ralph/src/index.ts',
+    source: 'packages/experimental/tool-ralph/src/index.ts',
     requires: ['ctx.tools', 'ctx.workflowEngine', 'ctx.subagents', 'ctx.systemPrompt', 'a calling Agent (exec.agent parents every fresh round)'],
     writes: ['tool/call', 'tool/result', 'workflow and child session events during execution'],
     async mount(ctx) {
@@ -501,7 +499,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
     pkg: '@qilin-agent/tool-skill',
     dir: 'tool-skill',
     source: 'packages/skill/tool-skill/src/index.ts',
-    requires: ['ctx.tools', 'ctx.agents', 'ctx.skills'],
+    requires: ['ctx.workingDirectory', 'ctx.tools', 'ctx.agents', 'ctx.skills'],
     writes: ['tool/call', 'tool/result', 'user/message replacement catalogs via agent.inject()'],
     async mount(ctx) {
       await ctx.plugin(AgentRegistry)
@@ -514,9 +512,9 @@ const TOOL_PACKAGES: ToolPackage[] = [
     },
   },
   {
-    pkg: '@qilin-agent/tool-session-query',
+    pkg: '@qilin-agent/experimental-tool-session-query',
     dir: 'tool-session-query',
-    source: 'packages/session-query/tool-session-query/src/index.ts',
+    source: 'packages/experimental/tool-session-query/src/index.ts',
     requires: ['ctx.tools', 'ctx.systemPrompt', 'ctx.sessionQuery', 'a calling Agent for workspace authority'],
     writes: ['tool/call', 'tool/result'],
     async mount(ctx) {
@@ -632,6 +630,17 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'todo_write is session-owned state; UIs render the latest todo/write event as a checklist. `allowParallelInProgress` is required with no default, so the catalog states its choice: `true`, whose description invites several `in_progress` items. A deployment choosing `false` receives the same tool with a description asking for exactly one active task.',
   },
   {
+    pkg: '@qilin-agent/tool-working-directory',
+    dir: 'tool-working-directory',
+    source: 'packages/session/tool-working-directory/src/index.ts',
+    requires: ['ctx.tools', 'ctx.workingDirectory'],
+    writes: ['tool/call', 'working-directory/change', 'user context for directory changes', 'tool/result'],
+    async mount(ctx) {
+      await ctx.plugin(ToolWorkingDirectory)
+    },
+    note: 'Reads or changes the calling Session directory. Existing shells and processes retain their own directories; origin metadata and permission roots stay fixed.',
+  },
+  {
     pkg: '@qilin-agent/tool-workflow',
     dir: 'tool-workflow',
     source: 'packages/workflow/tool-workflow/src/index.ts',
@@ -679,7 +688,6 @@ const TOOL_PACKAGES: ToolPackage[] = [
     requires: ['ctx.tools', 'ctx.fs'],
     writes: ['tool/call', 'one Remote sidebarOpens.watch request per open', 'tool/result'],
     async mount(ctx) {
-      await ctx.plugin(LocalFileSystem)
       await ctx.plugin(SidebarOpens)
     },
     note:
@@ -766,6 +774,8 @@ export async function collectToolCatalog(packages: ToolPackage[] = TOOL_PACKAGES
     try {
       await ctx.plugin(SessionProjectionRegistry)
       await ctx.plugin(SystemPrompt)
+      await ctx.plugin(LocalFileSystem)
+      await ctx.plugin(WorkingDirectory)
       await ctx.plugin(ToolRuntime, entry.toolsConfig ?? {})
       await entry.mount(ctx)
       const schemas = ctx.tools.schemas(entry.scope?.(ctx)).sort((a, b) => a.name.localeCompare(b.name))

@@ -9,6 +9,7 @@ import SubagentRuntime from '@qilin-agent/subagent'
 import * as Spawn from '@qilin-agent/subagent-spawn-in-process'
 import PtcWorkflowEngine from '../src/index.ts'
 import { mountPtcRuntime } from './setup.ts'
+import { mountWorkingDirectoryFixture } from '../../../subagent/subagent/tests/working-directory-fixture.ts'
 
 let ctx: Context | undefined
 
@@ -23,6 +24,7 @@ async function harness(): Promise<Context> {
   await mountPtcRuntime(built)
   await built.plugin(AgentLoop, { agents: [] })
   await built.plugin(LlmDeepSeek)
+  await mountWorkingDirectoryFixture(built)
   await built.plugin(SubagentRuntime)
   await built.plugin(Spawn, { providerName: 'spawn' })
   await built.plugin(PtcWorkflowEngine, { provider: 'spawn' })

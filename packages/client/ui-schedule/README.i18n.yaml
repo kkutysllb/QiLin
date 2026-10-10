@@ -5,36 +5,36 @@
 /:
   en: 265778d19fe0dd76
   zh: 78b0a191a4bd4e4e
-/qilin-client-ui-schedule:
-  en: 1ef18ce081d8d09c
-  zh: 7a47e53d9dc16d58
-/qilin-client-ui-schedule/summary:
+/qilin-agent-client-ui-schedule:
+  en: 3bf4d43b00f8c3c0
+  zh: 729ca7a2acbbef68
+/qilin-agent-client-ui-schedule/summary:
   en: 8dfc371c14bb4415
   zh: 9b3545c1a7468a7a
-/qilin-client-ui-schedule/table-of-contents:
+/qilin-agent-client-ui-schedule/table-of-contents:
   en: d152484eb41ac6b4
   zh: 405b30feaf48c087
-/qilin-client-ui-schedule/use-this-package:
+/qilin-agent-client-ui-schedule/use-this-package:
   en: 09c51c057855c389
   zh: fe5e02030f3b00fc
-/qilin-client-ui-schedule/use-this-package/time-zone-data-source:
+/qilin-agent-client-ui-schedule/use-this-package/time-zone-data-source:
   en: 6bd6882dbbbefcb0
   zh: 03aa15f1a65d13dc
-/qilin-client-ui-schedule/understand-the-implementation:
-  en: 1d68a431702bf4fc
-  zh: 13a7069ef63cc70b
-/qilin-client-ui-schedule/further-exploration:
+/qilin-agent-client-ui-schedule/understand-the-implementation:
+  en: 71d5dc4f1343e9d9
+  zh: cf6bd8746858fc75
+/qilin-agent-client-ui-schedule/further-exploration:
   en: 96dfd2724a7b30e2
   zh: a106d9ab0a3fbb9d
-/qilin-client-ui-schedule/model-experience:
+/qilin-agent-client-ui-schedule/model-experience:
   en: a8838aba5fd29fd8
   zh: b9f67d82c81dd030
-/qilin-client-ui-schedule/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-schedule/model-experience/kv-cache-effect:
   en: 4b81350950285d47
   zh: 6dc3d5cf7ca8a622
-/qilin-client-ui-schedule/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-schedule/known-limitations-and-deferred-work:
   en: 814ba1d4c6872848
   zh: a291ac2d2a55ab91
-/qilin-client-ui-schedule/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-schedule/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: a4b126f9a4eaca6f

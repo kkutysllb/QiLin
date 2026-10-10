@@ -5,33 +5,33 @@
 /:
   en: 8cffb2f57844db66
   zh: 20b158511886ac50
-/qilin-package-manifest:
-  en: 7deb96e6faf116cc
-  zh: bbac814796a60bd9
-/qilin-package-manifest/summary:
+/qilin-agent-package-manifest:
+  en: 93ae335bbcdc4643
+  zh: 834b62ac963d8fda
+/qilin-agent-package-manifest/summary:
   en: 11c2d869ff7a57d5
   zh: 6460dfd74b550431
-/qilin-package-manifest/table-of-contents:
+/qilin-agent-package-manifest/table-of-contents:
   en: d152484eb41ac6b4
   zh: 1db86285abf6c499
-/qilin-package-manifest/use-this-package:
+/qilin-agent-package-manifest/use-this-package:
   en: d43690593d62123d
   zh: 9969f7c83dc4aecb
-/qilin-package-manifest/understand-the-implementation:
+/qilin-agent-package-manifest/understand-the-implementation:
   en: 41ec449dee927f04
   zh: a60e0740a2a4034e
-/qilin-package-manifest/further-exploration:
+/qilin-agent-package-manifest/further-exploration:
   en: 56a77c4f61a7391b
   zh: 1372cfa0389d12c8
-/qilin-package-manifest/model-experience:
+/qilin-agent-package-manifest/model-experience:
   en: 0b5aaa4787068a57
   zh: bdb5dabe0b33ff9d
-/qilin-package-manifest/model-experience/kv-cache-effect:
+/qilin-agent-package-manifest/model-experience/kv-cache-effect:
   en: 2ed74a2a33958543
   zh: 7d63c3a3801bef13
-/qilin-package-manifest/known-limitations-and-deferred-work:
+/qilin-agent-package-manifest/known-limitations-and-deferred-work:
   en: f2e2f7b819e823ef
   zh: 142b576757481f4d
-/qilin-package-manifest/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-package-manifest/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

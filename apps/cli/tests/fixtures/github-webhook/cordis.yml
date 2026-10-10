@@ -3,7 +3,7 @@
 
 - insert:
     - id: webhook-runtime
-      name: '@qilin-agent/webhook'
+      name: '@qilin-agent/experimental-webhook'
 
     - id: github-webhook-real-e2e-rule
       name: './github-webhook-rule.mjs'
@@ -28,7 +28,7 @@
             port: !!js Number(process.env.QILIN_GITHUB_WEBHOOK_PORT)
 
         - id: github-webhook-real-e2e-adapter
-          name: '@qilin-agent/webhook-github'
+          name: '@qilin-agent/experimental-webhook-github'
           config:
             source: github-real-e2e
             path: /github

@@ -5,33 +5,33 @@
 /:
   en: e29affc07acbcf4f
   zh: 10e2da625e145a68
-/qilin-chunked-list:
-  en: 7ef85f65534e630c
-  zh: 458b6e8e7df04569
-/qilin-chunked-list/summary:
+/qilin-agent-chunked-list:
+  en: 6da84f58b198af36
+  zh: 27126b9790e65563
+/qilin-agent-chunked-list/summary:
   en: 1dc4c617c53f0d1d
   zh: fb43ca4ae271c80c
-/qilin-chunked-list/table-of-contents:
+/qilin-agent-chunked-list/table-of-contents:
   en: d152484eb41ac6b4
   zh: 75f067b4c4218355
-/qilin-chunked-list/use-this-package:
+/qilin-agent-chunked-list/use-this-package:
   en: 6808bfba89c5ffbf
   zh: f80761fdcd3db317
-/qilin-chunked-list/understand-the-implementation:
+/qilin-agent-chunked-list/understand-the-implementation:
   en: 7cd6e9d9367246f3
   zh: 127a64392a7dd976
-/qilin-chunked-list/further-exploration:
+/qilin-agent-chunked-list/further-exploration:
   en: 298be0b291e0fad7
   zh: 7cea84cd4bc52df8
-/qilin-chunked-list/model-experience:
+/qilin-agent-chunked-list/model-experience:
   en: bc7e4d8a0c8b8ebb
   zh: e11fe3bd45d4354a
-/qilin-chunked-list/model-experience/kv-cache-effect:
+/qilin-agent-chunked-list/model-experience/kv-cache-effect:
   en: e7ba08477bf22c4e
   zh: c38c528fe563bb51
-/qilin-chunked-list/known-limitations-and-deferred-work:
+/qilin-agent-chunked-list/known-limitations-and-deferred-work:
   en: fdc87d52574748eb
   zh: e1e7cbd86cd2bde0
-/qilin-chunked-list/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-chunked-list/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

@@ -5,60 +5,60 @@
 /:
   en: 4a173bf52227a3b6
   zh: 76bb85595252765c
-/qilin-shell:
-  en: 6bc974da92240b0a
-  zh: e1020974c2d797b0
-/qilin-shell/summary:
+/qilin-agent-shell:
+  en: a79348cc3bd1aa78
+  zh: 0001b2cc520a0a8d
+/qilin-agent-shell/summary:
   en: a335f91bf458e5cd
   zh: 508b4f6751f6cfa5
-/qilin-shell/table-of-contents:
+/qilin-agent-shell/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-shell/use-this-package:
+/qilin-agent-shell/use-this-package:
   en: 3cc9fe73359da5c6
   zh: 29a96d975a1276ca
-/qilin-shell/use-this-package/foreground-commands:
+/qilin-agent-shell/use-this-package/foreground-commands:
   en: 0c7fca6991bead93
   zh: 213683c64adade57
-/qilin-shell/use-this-package/background-processes:
+/qilin-agent-shell/use-this-package/background-processes:
   en: 1b01a8aef6b5fe73
   zh: bf1cdc87d5fd65ce
-/qilin-shell/use-this-package/requests-and-resolved-specs:
+/qilin-agent-shell/use-this-package/requests-and-resolved-specs:
   en: 211d38c4ae7d601c
   zh: e77be5e3a65d36b9
-/qilin-shell/use-this-package/choosing-and-composing-an-executor:
+/qilin-agent-shell/use-this-package/choosing-and-composing-an-executor:
   en: 63c2e98147015f19
   zh: da232a86e55e58f2
-/qilin-shell/use-this-package/the-shared-exit-status-contract:
+/qilin-agent-shell/use-this-package/the-shared-exit-status-contract:
   en: f4125282c1deab36
   zh: 46b8ee789ae68a9a
-/qilin-shell/understand-the-implementation:
+/qilin-agent-shell/understand-the-implementation:
   en: d2192b68c2faf92b
   zh: 7678a2fd356d8587
-/qilin-shell/understand-the-implementation/design-philosophy:
+/qilin-agent-shell/understand-the-implementation/design-philosophy:
   en: b697d4b9a82bcdac
   zh: 6674579c9b5afd66
-/qilin-shell/understand-the-implementation/source-map:
+/qilin-agent-shell/understand-the-implementation/source-map:
   en: 19dcb960f9b6dcd2
   zh: 675a1591ac04af68
-/qilin-shell/understand-the-implementation/settings-namespace:
+/qilin-agent-shell/understand-the-implementation/settings-namespace:
   en: a5b81ecee7fe9938
   zh: 25fcf060b48e14cf
-/qilin-shell/understand-the-implementation/background-lifecycle-and-ownership:
+/qilin-agent-shell/understand-the-implementation/background-lifecycle-and-ownership:
   en: 721264e9fdb9aede
   zh: 2db7ea629289341f
-/qilin-shell/further-exploration:
+/qilin-agent-shell/further-exploration:
   en: d0c6d0dfcdcfefff
   zh: 265affbdb6e6290b
-/qilin-shell/model-experience:
+/qilin-agent-shell/model-experience:
   en: 5d8b421111c4f195
   zh: 972596399a98d795
-/qilin-shell/model-experience/kv-cache-effect:
+/qilin-agent-shell/model-experience/kv-cache-effect:
   en: 40294c1c31b74824
   zh: 788a4799b1d65a8b
-/qilin-shell/known-limitations-and-deferred-work:
+/qilin-agent-shell/known-limitations-and-deferred-work:
   en: d5227503fc8076ed
   zh: daee20aa52fc9422
-/qilin-shell/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-shell/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3c8bbe93d71a3377

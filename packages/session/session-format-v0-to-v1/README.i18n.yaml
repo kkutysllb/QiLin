@@ -5,48 +5,48 @@
 /:
   en: 4ab6679a500310ef
   zh: 26b95b9400580d46
-/qilin-session-format-v0-to-v1:
-  en: 219c262195d1159a
-  zh: a9ca3b83f759861f
-/qilin-session-format-v0-to-v1/summary:
+/qilin-agent-session-format-v0-to-v1:
+  en: 25eabda8b810ff7c
+  zh: be2d00e3e918cb39
+/qilin-agent-session-format-v0-to-v1/summary:
   en: e67a9a547320a867
   zh: dc724ea9d6e0905e
-/qilin-session-format-v0-to-v1/table-of-contents:
+/qilin-agent-session-format-v0-to-v1/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-session-format-v0-to-v1/use-this-package:
+/qilin-agent-session-format-v0-to-v1/use-this-package:
   en: bbff250eba0f1b89
   zh: 0a618f05cc88ee2b
-/qilin-session-format-v0-to-v1/use-this-package/when-to-use-it:
+/qilin-agent-session-format-v0-to-v1/use-this-package/when-to-use-it:
   en: d59c6316ea5cc54d
   zh: a2fff3b1495d6470
-/qilin-session-format-v0-to-v1/use-this-package/entry-point:
+/qilin-agent-session-format-v0-to-v1/use-this-package/entry-point:
   en: 12e0858e80044921
   zh: 88b4e9709ce24d7d
-/qilin-session-format-v0-to-v1/understand-the-implementation:
+/qilin-agent-session-format-v0-to-v1/understand-the-implementation:
   en: c0cf5fae48838078
   zh: 958edf61dabcbaba
-/qilin-session-format-v0-to-v1/further-exploration:
+/qilin-agent-session-format-v0-to-v1/further-exploration:
   en: c879b213cc1efd8f
   zh: a741aa0e4e22e9c5
-/qilin-session-format-v0-to-v1/model-experience:
+/qilin-agent-session-format-v0-to-v1/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-session-format-v0-to-v1/model-experience/historical-restoration:
+/qilin-agent-session-format-v0-to-v1/model-experience/historical-restoration:
   en: e63dd8ef6de7cf7c
   zh: 4c3dde3b3052bb7a
-/qilin-session-format-v0-to-v1/model-experience/historical-restoration/what-the-model-sees:
+/qilin-agent-session-format-v0-to-v1/model-experience/historical-restoration/what-the-model-sees:
   en: 2ef5c5585de26729
   zh: 456d352f16553c64
-/qilin-session-format-v0-to-v1/model-experience/historical-restoration/token-effect:
+/qilin-agent-session-format-v0-to-v1/model-experience/historical-restoration/token-effect:
   en: f7d1eb359afe1932
   zh: 5fc82f0403c52d19
-/qilin-session-format-v0-to-v1/model-experience/historical-restoration/kv-cache-effect:
+/qilin-agent-session-format-v0-to-v1/model-experience/historical-restoration/kv-cache-effect:
   en: c78d21c5c83e5854
   zh: 95c8f1a6948b8b56
-/qilin-session-format-v0-to-v1/known-limitations-and-deferred-work:
+/qilin-agent-session-format-v0-to-v1/known-limitations-and-deferred-work:
   en: 8398f2f0e7c7a6b2
   zh: 73ec58c0ae513772
-/qilin-session-format-v0-to-v1/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-session-format-v0-to-v1/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

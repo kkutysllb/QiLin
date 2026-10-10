@@ -5,60 +5,60 @@
 /:
   en: 8d50f4a2be797fc0
   zh: 8ab038c7a5223b90
-/qilin-settings-file:
-  en: c94e54e60a3a44df
-  zh: 2f797a674cb969e9
-/qilin-settings-file/summary:
+/qilin-agent-settings-file:
+  en: 23c543221c7708d6
+  zh: e818a66fbdd929d4
+/qilin-agent-settings-file/summary:
   en: 10a0f3bfc0da1612
   zh: bd91655e0dd2a4bf
-/qilin-settings-file/table-of-contents:
+/qilin-agent-settings-file/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-settings-file/use-this-package:
+/qilin-agent-settings-file/use-this-package:
   en: 2ba91502ba1bd898
   zh: 851f0c48e4042855
-/qilin-settings-file/use-this-package/when-to-choose-it:
+/qilin-agent-settings-file/use-this-package/when-to-choose-it:
   en: 97c45a09e85252bb
   zh: f1d0ef6caccefd9a
-/qilin-settings-file/use-this-package/minimal-configuration:
-  en: 42f6769a80ba67a8
-  zh: 79a088143063f36a
-/qilin-settings-file/use-this-package/editing-the-document:
+/qilin-agent-settings-file/use-this-package/minimal-configuration:
+  en: 6de41e0f204d4d32
+  zh: 5ebcdf18b13ea2c4
+/qilin-agent-settings-file/use-this-package/editing-the-document:
   en: 424268692136cb8d
   zh: 11e18bd8a1b5769f
-/qilin-settings-file/use-this-package/writing-through-the-service:
+/qilin-agent-settings-file/use-this-package/writing-through-the-service:
   en: 9ce165203d5fb3e6
   zh: 827c5644a7db20d3
-/qilin-settings-file/use-this-package/failures-and-recovery:
+/qilin-agent-settings-file/use-this-package/failures-and-recovery:
   en: 52288da8bbe4487c
   zh: a6b271e73185d126
-/qilin-settings-file/understand-the-implementation:
+/qilin-agent-settings-file/understand-the-implementation:
   en: 538553a9a48e2f93
   zh: 451548c05c045c22
-/qilin-settings-file/understand-the-implementation/design-philosophy:
+/qilin-agent-settings-file/understand-the-implementation/design-philosophy:
   en: b7c324812ee315c6
   zh: 4cfa3a513458b239
-/qilin-settings-file/understand-the-implementation/source-map:
+/qilin-agent-settings-file/understand-the-implementation/source-map:
   en: 47dd8dbec513fe7b
   zh: 19b74654cb807f5f
-/qilin-settings-file/understand-the-implementation/document-lifecycle:
+/qilin-agent-settings-file/understand-the-implementation/document-lifecycle:
   en: 6350420c65ae9f08
   zh: 51751c143af9d1cf
-/qilin-settings-file/understand-the-implementation/render-paths:
+/qilin-agent-settings-file/understand-the-implementation/render-paths:
   en: c48c1878a68814ae
   zh: 47570c20da8a5205
-/qilin-settings-file/further-exploration:
-  en: 8d295bf479909134
-  zh: bd491645d061b1ec
-/qilin-settings-file/model-experience:
+/qilin-agent-settings-file/further-exploration:
+  en: fb8cfb4353cf27f8
+  zh: fe4372b5d2773ce2
+/qilin-agent-settings-file/model-experience:
   en: 6ff942f87d009dc5
   zh: f59d8c6248f0068c
-/qilin-settings-file/model-experience/kv-cache-effect:
+/qilin-agent-settings-file/model-experience/kv-cache-effect:
   en: 5eb7f0f7d44028f6
   zh: d78bec999ca361f4
-/qilin-settings-file/known-limitations-and-deferred-work:
+/qilin-agent-settings-file/known-limitations-and-deferred-work:
   en: c9873b80bd427fad
   zh: dec30e895b0cfc27
-/qilin-settings-file/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-settings-file/known-limitations-and-deferred-work/dev-note:
   en: 958617b2576f5bc9
   zh: f18c196f30ce01dd

@@ -23,6 +23,7 @@ import {
   startDeepSeekResponsesBridge,
   type DeepSeekResponsesBridge,
 } from './deepseek-responses-bridge.ts'
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 
 const execFileAsync = promisify(execFile)
 const codexPackageJson = createRequire(import.meta.url).resolve('@openai/codex/package.json')
@@ -98,6 +99,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)(
       const ctx = new Context()
       contexts.push(ctx)
       await ctx.plugin(SessionProjectionRegistry)
+      await mountWorkingDirectoryFixture(ctx)
       await ctx.plugin(SubagentRuntime)
       await ctx.plugin(LocalSubprocessRuntime)
       const handles: SubprocessHandle[] = []

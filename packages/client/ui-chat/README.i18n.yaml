@@ -5,51 +5,51 @@
 /:
   en: d88f75fc0178ba53
   zh: 52bc7ae9551ab1cf
-/qilin-client-ui-chat:
-  en: 506d97db5618d95c
-  zh: b369944a84588939
-/qilin-client-ui-chat/summary:
+/qilin-agent-client-ui-chat:
+  en: 55cb66320f8c0adc
+  zh: df25aa9bcf226129
+/qilin-agent-client-ui-chat/summary:
   en: 98d792dbc1b1975e
   zh: 96acf5c3a5165047
-/qilin-client-ui-chat/table-of-contents:
+/qilin-agent-client-ui-chat/table-of-contents:
   en: e7894dec53e4732d
   zh: cdf9d812077b1741
-/qilin-client-ui-chat/reference-previews:
+/qilin-agent-client-ui-chat/reference-previews:
   en: 66e17df4efe43eb8
   zh: 82d91d704004d8f2
-/qilin-client-ui-chat/system-prompt-row:
+/qilin-agent-client-ui-chat/system-prompt-row:
   en: 939728341ffbff11
   zh: 74ec4ec5ca1fbd60
-/qilin-client-ui-chat/turn-token-usage:
+/qilin-agent-client-ui-chat/turn-token-usage:
   en: a50c6802be7e4669
   zh: 31233a9bd23fd04b
-/qilin-client-ui-chat/completed-turn-footer:
+/qilin-agent-client-ui-chat/completed-turn-footer:
   en: bb3e55382117d78f
   zh: 75a2b59c1a5cf9ce
-/qilin-client-ui-chat/turn-process-folding:
-  en: 58053b729a151ddc
+/qilin-agent-client-ui-chat/turn-process-folding:
+  en: d9b30a78f214ae90
   zh: b33aef585fe6f756
-/qilin-client-ui-chat/grouped-rendering:
+/qilin-agent-client-ui-chat/grouped-rendering:
   en: 95840b34ca98d3ff
   zh: 32ba11293bd1b4e2
-/qilin-client-ui-chat/turn-triggers:
+/qilin-agent-client-ui-chat/turn-triggers:
   en: 4a2ec4ccc2f92b7c
   zh: ac3f1402d0875ec4
-/qilin-client-ui-chat/tool-call-nodes:
-  en: 8ea74e997efa882e
-  zh: 05be7975fe2ea14c
-/qilin-client-ui-chat/scroll-ownership:
+/qilin-agent-client-ui-chat/tool-call-nodes:
+  en: 9d5d8bcce2e0e3c4
+  zh: ae109a2b3a807b92
+/qilin-agent-client-ui-chat/scroll-ownership:
   en: 56685a8a28d433d7
   zh: e9b0ca321c84522a
-/qilin-client-ui-chat/model-experience:
+/qilin-agent-client-ui-chat/model-experience:
   en: c17b4dd43a61c569
   zh: f7414309810c3a08
-/qilin-client-ui-chat/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-chat/model-experience/kv-cache-effect:
   en: 15a7151ff9268f15
   zh: 6eae68c718be579b
-/qilin-client-ui-chat/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-chat/known-limitations-and-deferred-work:
   en: f7e9784960922fb7
   zh: 00df59b24fa66bf8
-/qilin-client-ui-chat/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-chat/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: e88aeb617ffb74ea

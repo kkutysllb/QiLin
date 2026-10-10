@@ -5,39 +5,39 @@
 /:
   en: 96e86d8f1f2fd2f1
   zh: 133353bfc33d5536
-/qilin-sidebar-opens:
-  en: 855159476df028bb
-  zh: ef1404ba11562782
-/qilin-sidebar-opens/summary:
-  en: a457d1f8a4ae4528
-  zh: 7ea75c6334027251
-/qilin-sidebar-opens/table-of-contents:
+/qilin-agent-sidebar-opens:
+  en: 97611fa28977717d
+  zh: 1017316dca27570e
+/qilin-agent-sidebar-opens/summary:
+  en: 96a42ba67afac8e4
+  zh: 243c7814e2a5bf9c
+/qilin-agent-sidebar-opens/table-of-contents:
   en: 368556c7719717f4
   zh: 28c8e90d2b051204
-/qilin-sidebar-opens/the-tool:
+/qilin-agent-sidebar-opens/the-tool:
   en: dca03510399b377d
   zh: 1a8f294023a8de74
-/qilin-sidebar-opens/delivery:
+/qilin-agent-sidebar-opens/delivery:
   en: ae476c467a05ca97
   zh: 35842db297712f12
-/qilin-sidebar-opens/model-experience:
+/qilin-agent-sidebar-opens/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-sidebar-opens/model-experience/sidebar-open:
+/qilin-agent-sidebar-opens/model-experience/sidebar-open:
   en: 5c385332963c706b
   zh: 5c385332963c706b
-/qilin-sidebar-opens/model-experience/sidebar-open/what-the-model-sees:
+/qilin-agent-sidebar-opens/model-experience/sidebar-open/what-the-model-sees:
   en: 4b72f8439fbadea0
   zh: ed9723a23ff7f0ab
-/qilin-sidebar-opens/model-experience/sidebar-open/token-effect:
+/qilin-agent-sidebar-opens/model-experience/sidebar-open/token-effect:
   en: 2f7bd9b9f7f01d36
   zh: 669d25591716baab
-/qilin-sidebar-opens/model-experience/sidebar-open/kv-cache-effect:
+/qilin-agent-sidebar-opens/model-experience/sidebar-open/kv-cache-effect:
   en: 5d72f926299aaba9
   zh: 684933cc36fe0ac6
-/qilin-sidebar-opens/known-limitations-and-deferred-work:
-  en: 736e2068cced26f1
-  zh: 8e7b49071f1d2e6b
-/qilin-sidebar-opens/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-sidebar-opens/known-limitations-and-deferred-work:
+  en: b703f660b903481d
+  zh: f453516d12a6f6bf
+/qilin-agent-sidebar-opens/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 4e706f1b2b984e63

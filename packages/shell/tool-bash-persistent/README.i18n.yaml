@@ -5,75 +5,75 @@
 /:
   en: 1516a333e77ca54a
   zh: 53ef80da9cefd884
-/qilin-tool-bash-persistent:
-  en: 0b2f94e7a94335b6
-  zh: 0b95644899dbcdd7
-/qilin-tool-bash-persistent/summary:
+/qilin-agent-tool-bash-persistent:
+  en: e21460943f69c9bc
+  zh: 6bc58f8ce91d597e
+/qilin-agent-tool-bash-persistent/summary:
   en: c34db740c58468e2
   zh: 712a34519dd66922
-/qilin-tool-bash-persistent/table-of-contents:
+/qilin-agent-tool-bash-persistent/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-tool-bash-persistent/use-this-package:
+/qilin-agent-tool-bash-persistent/use-this-package:
   en: ddec7cc1004498f8
   zh: cd0cba22e570d1e9
-/qilin-tool-bash-persistent/use-this-package/when-to-choose-it:
+/qilin-agent-tool-bash-persistent/use-this-package/when-to-choose-it:
   en: c44e27f03b5bf48c
   zh: a0bb453d130cf6ae
-/qilin-tool-bash-persistent/use-this-package/minimal-configuration:
-  en: 65386955f4a6a3a8
-  zh: 9fccd80dc540ab58
-/qilin-tool-bash-persistent/use-this-package/what-the-agent-can-rely-on:
+/qilin-agent-tool-bash-persistent/use-this-package/minimal-configuration:
+  en: 223c29ad6f7123c3
+  zh: 824af4a45b015b12
+/qilin-agent-tool-bash-persistent/use-this-package/what-the-agent-can-rely-on:
   en: b398f124ea7b77b0
   zh: 50855e601e6c1b88
-/qilin-tool-bash-persistent/use-this-package/what-can-go-wrong:
+/qilin-agent-tool-bash-persistent/use-this-package/what-can-go-wrong:
   en: d0d44ffa08f1a917
   zh: ece228da0c0089aa
-/qilin-tool-bash-persistent/understand-the-implementation:
+/qilin-agent-tool-bash-persistent/understand-the-implementation:
   en: 8d94a7381bca3fa9
   zh: f4bd2866fff6fa8d
-/qilin-tool-bash-persistent/understand-the-implementation/design-philosophy:
+/qilin-agent-tool-bash-persistent/understand-the-implementation/design-philosophy:
   en: 61c39f52982612e3
   zh: 92bc7e3c8d13a211
-/qilin-tool-bash-persistent/understand-the-implementation/source-map:
+/qilin-agent-tool-bash-persistent/understand-the-implementation/source-map:
   en: 857e036f41c913ac
   zh: e9f383f7ee384c59
-/qilin-tool-bash-persistent/understand-the-implementation/command-flow:
+/qilin-agent-tool-bash-persistent/understand-the-implementation/command-flow:
   en: 3b7bf7c20b266c31
   zh: 85a325ef65fa7ac7
-/qilin-tool-bash-persistent/further-exploration:
-  en: 2f6547ad7a0e569c
-  zh: 2f9b5f19b3ebcc18
-/qilin-tool-bash-persistent/model-experience:
+/qilin-agent-tool-bash-persistent/further-exploration:
+  en: 701372e60d42f566
+  zh: e713bb9b49a9d059
+/qilin-agent-tool-bash-persistent/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-tool-bash-persistent/model-experience/tool-schema:
+/qilin-agent-tool-bash-persistent/model-experience/tool-schema:
   en: e4c7376d4f29dbd5
   zh: 6b7a9eaf69c9ea53
-/qilin-tool-bash-persistent/model-experience/tool-schema/what-the-model-sees:
-  en: 17853846e6afc910
-  zh: 52805c18361c2650
-/qilin-tool-bash-persistent/model-experience/tool-schema/token-effect:
+/qilin-agent-tool-bash-persistent/model-experience/tool-schema/what-the-model-sees:
+  en: fc723bc23df2e998
+  zh: 6038e913376e6d69
+/qilin-agent-tool-bash-persistent/model-experience/tool-schema/token-effect:
   en: feee7dec91ae7329
   zh: b62338fa72ad3b87
-/qilin-tool-bash-persistent/model-experience/tool-schema/kv-cache-effect:
+/qilin-agent-tool-bash-persistent/model-experience/tool-schema/kv-cache-effect:
   en: 7d9323583a83cb95
   zh: cc5daa6bce8450f8
-/qilin-tool-bash-persistent/model-experience/tool-results:
+/qilin-agent-tool-bash-persistent/model-experience/tool-results:
   en: beaabb79f229692a
   zh: 8573891441963be4
-/qilin-tool-bash-persistent/model-experience/tool-results/what-the-model-sees:
+/qilin-agent-tool-bash-persistent/model-experience/tool-results/what-the-model-sees:
   en: 7c197e9bb86cc044
   zh: d8ffe918aab08250
-/qilin-tool-bash-persistent/model-experience/tool-results/token-effect:
+/qilin-agent-tool-bash-persistent/model-experience/tool-results/token-effect:
   en: 5dea04ce6a30ad48
   zh: c2434253dc517d3d
-/qilin-tool-bash-persistent/model-experience/tool-results/kv-cache-effect:
+/qilin-agent-tool-bash-persistent/model-experience/tool-results/kv-cache-effect:
   en: ba6a48888c3361e5
   zh: 3a8f648053555dc9
-/qilin-tool-bash-persistent/known-limitations-and-deferred-work:
+/qilin-agent-tool-bash-persistent/known-limitations-and-deferred-work:
   en: dc5a908f2b2da040
   zh: 3afceaabcf324771
-/qilin-tool-bash-persistent/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-tool-bash-persistent/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

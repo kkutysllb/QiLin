@@ -59,7 +59,7 @@ const ASSET_GLOBS = [
   // web-app builds this path dynamically, so pkg cannot discover the static frontend.
   'node_modules/@qilin-agent/web-frontend/dist/**/*',
   // skill-badge resolves both Markdown and image resources through import.meta.url.
-  'node_modules/@qilin-agent/skill-badge/assets/**/*',
+  'node_modules/@qilin-agent/experimental-skill-badge/assets/**/*',
 ]
 
 const PLATFORMS = ['linux', 'macos', 'win'] as const

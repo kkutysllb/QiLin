@@ -5,54 +5,54 @@
 /:
   en: 9234c0ebf9d4fbfb
   zh: 71c984a69ff3c07f
-/qilin-shell-env:
-  en: 444687db29036b98
-  zh: ed926bd0f0f9d607
-/qilin-shell-env/summary:
+/qilin-agent-shell-env:
+  en: e4a6db4a6dd485b9
+  zh: 7ed120bfe13f7ad1
+/qilin-agent-shell-env/summary:
   en: 143fc6c8b045a820
   zh: c16dcd1a556d7f67
-/qilin-shell-env/table-of-contents:
+/qilin-agent-shell-env/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-shell-env/use-this-package:
+/qilin-agent-shell-env/use-this-package:
   en: 1cf2eeeef02cbfe8
   zh: 7cf3a3ff065de536
-/qilin-shell-env/use-this-package/what-every-shell-call-receives:
+/qilin-agent-shell-env/use-this-package/what-every-shell-call-receives:
   en: 42d520ae0e1df23e
   zh: 04bf00b7e64b939e
-/qilin-shell-env/use-this-package/adding-your-own-environment-facts:
+/qilin-agent-shell-env/use-this-package/adding-your-own-environment-facts:
   en: 070dce29540d0aa9
   zh: 3fd18ca3162c04e9
-/qilin-shell-env/use-this-package/choosing-the-harness-home:
-  en: a88d7ac1a0062fb1
-  zh: ac557617ee7929c0
-/qilin-shell-env/use-this-package/what-can-go-wrong:
+/qilin-agent-shell-env/use-this-package/choosing-the-harness-home:
+  en: 538dcb409fc1896d
+  zh: a52ef5ef2b2d5db3
+/qilin-agent-shell-env/use-this-package/what-can-go-wrong:
   en: 935274cc151875fb
   zh: 96d7f4d989723272
-/qilin-shell-env/understand-the-implementation:
+/qilin-agent-shell-env/understand-the-implementation:
   en: f782557ca8da3138
   zh: e8f0082b9692cacc
-/qilin-shell-env/understand-the-implementation/design-philosophy:
+/qilin-agent-shell-env/understand-the-implementation/design-philosophy:
   en: bf700e23eb605922
   zh: f711504792f63615
-/qilin-shell-env/understand-the-implementation/source-map:
+/qilin-agent-shell-env/understand-the-implementation/source-map:
   en: 72eba3bfadcfa581
   zh: dcd83e02a1910f27
-/qilin-shell-env/understand-the-implementation/collection:
+/qilin-agent-shell-env/understand-the-implementation/collection:
   en: 4083b75620b316f2
   zh: b36dc615b9df9083
-/qilin-shell-env/further-exploration:
-  en: 0decc8851d087069
-  zh: 140fd43295e45b36
-/qilin-shell-env/model-experience:
+/qilin-agent-shell-env/further-exploration:
+  en: 06ebbdb7e79569b1
+  zh: 2c637093186049be
+/qilin-agent-shell-env/model-experience:
   en: a0890f82c96e6b6a
   zh: f73a67ae41e4a2a7
-/qilin-shell-env/model-experience/kv-cache-effect:
+/qilin-agent-shell-env/model-experience/kv-cache-effect:
   en: e95e649f0410fa75
   zh: b3d64877420b4c0d
-/qilin-shell-env/known-limitations-and-deferred-work:
+/qilin-agent-shell-env/known-limitations-and-deferred-work:
   en: e223071ce25b4231
   zh: f112c5932dfdb95c
-/qilin-shell-env/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-shell-env/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

@@ -5,33 +5,33 @@
 /:
   en: 22f9a7932dfa9329
   zh: c8cb8d78a0dba75d
-/qilin-experimental-speech-to-text:
-  en: 1ca91c8b33794327
-  zh: 13779727e4ea7ceb
-/qilin-experimental-speech-to-text/summary:
+/qilin-agent-experimental-speech-to-text:
+  en: 21f6a90eb165397d
+  zh: e215408969664bfe
+/qilin-agent-experimental-speech-to-text/summary:
   en: a70b8d594ad6240b
   zh: 19f25b113876504e
-/qilin-experimental-speech-to-text/table-of-contents:
+/qilin-agent-experimental-speech-to-text/table-of-contents:
   en: d152484eb41ac6b4
   zh: 364c80ee00a374ff
-/qilin-experimental-speech-to-text/use-this-package:
+/qilin-agent-experimental-speech-to-text/use-this-package:
   en: 5d043d854fcf24d1
   zh: 64c7111451f99c4e
-/qilin-experimental-speech-to-text/understand-the-implementation:
+/qilin-agent-experimental-speech-to-text/understand-the-implementation:
   en: 2b1648ac92551bc0
   zh: 41c5a2405711d7c2
-/qilin-experimental-speech-to-text/further-exploration:
+/qilin-agent-experimental-speech-to-text/further-exploration:
   en: f28e8965407ec7b0
   zh: 5e5e0fd8e8737a09
-/qilin-experimental-speech-to-text/model-experience:
+/qilin-agent-experimental-speech-to-text/model-experience:
   en: 3c5a85f8b7129ce8
   zh: d5f491ca88d9a810
-/qilin-experimental-speech-to-text/model-experience/kv-cache-effect:
+/qilin-agent-experimental-speech-to-text/model-experience/kv-cache-effect:
   en: b5ec79db2e1d0dbc
   zh: e5aff567ae5ee6fc
-/qilin-experimental-speech-to-text/known-limitations-and-deferred-work:
+/qilin-agent-experimental-speech-to-text/known-limitations-and-deferred-work:
   en: 947c3e506a569f5a
   zh: 432a35dfe77f498f
-/qilin-experimental-speech-to-text/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-experimental-speech-to-text/known-limitations-and-deferred-work/dev-note:
   en: 0225ba087c5266f3
   zh: 4e706f1b2b984e63

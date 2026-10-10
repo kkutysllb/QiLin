@@ -5,54 +5,54 @@
 /:
   en: ca8c195b9ae023a5
   zh: caa2d3f4443bda58
-/qilin-client-ui-settings:
-  en: 18328728f91ac899
-  zh: 5f5d5c9bc9cced76
-/qilin-client-ui-settings/summary:
+/qilin-agent-client-ui-settings:
+  en: 45f00e2ae4fb0d32
+  zh: 7fe23a30060f091d
+/qilin-agent-client-ui-settings/summary:
   en: 0404ff8b4ec867e0
   zh: 9c3f03dfd1306cc9
-/qilin-client-ui-settings/table-of-contents:
+/qilin-agent-client-ui-settings/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-ui-settings/use-this-package:
+/qilin-agent-client-ui-settings/use-this-package:
   en: 2417d8409aad6ca7
   zh: 449eee623a2f334b
-/qilin-client-ui-settings/use-this-package/configuration-forms:
+/qilin-agent-client-ui-settings/use-this-package/configuration-forms:
   en: e1203ea54e9e0e1d
   zh: b36d190d07efb198
-/qilin-client-ui-settings/use-this-package/following-served-namespaces:
+/qilin-agent-client-ui-settings/use-this-package/following-served-namespaces:
   en: 1e99f28889a84265
   zh: 62188a24d05b6a9f
-/qilin-client-ui-settings/use-this-package/filling-the-settings-slots:
+/qilin-agent-client-ui-settings/use-this-package/filling-the-settings-slots:
   en: 121facd9d5bd61d5
   zh: 33a1d0acba914867
-/qilin-client-ui-settings/use-this-package/observable-success-and-failures:
+/qilin-agent-client-ui-settings/use-this-package/observable-success-and-failures:
   en: 8fafe99af04f147f
   zh: 2c6c7190c9b9cfc9
-/qilin-client-ui-settings/understand-the-implementation:
+/qilin-agent-client-ui-settings/understand-the-implementation:
   en: 36deecb9bd4af281
   zh: 52f7cadd2efa2037
-/qilin-client-ui-settings/understand-the-implementation/the-describe-mirror:
+/qilin-agent-client-ui-settings/understand-the-implementation/the-describe-mirror:
   en: 439e8041078cc164
   zh: 30ba84afd0abfc69
-/qilin-client-ui-settings/understand-the-implementation/shared-entry-forms:
+/qilin-agent-client-ui-settings/understand-the-implementation/shared-entry-forms:
   en: ffd6c51916031c1d
   zh: 703566b0885fd19e
-/qilin-client-ui-settings/understand-the-implementation/schema-service:
+/qilin-agent-client-ui-settings/understand-the-implementation/schema-service:
   en: a9247e83278c5d40
   zh: 051d24681036639d
-/qilin-client-ui-settings/further-exploration:
+/qilin-agent-client-ui-settings/further-exploration:
   en: 2ce4e8d3a90e61ce
   zh: 9b5510de7f4b320d
-/qilin-client-ui-settings/model-experience:
+/qilin-agent-client-ui-settings/model-experience:
   en: 3120df665299c634
   zh: 1d9f365d091d0d2a
-/qilin-client-ui-settings/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-settings/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: de54f3467ef3b9be
-/qilin-client-ui-settings/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-settings/known-limitations-and-deferred-work:
   en: b692f6ebe4291c07
   zh: 85d896703dc94940
-/qilin-client-ui-settings/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-settings/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

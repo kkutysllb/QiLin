@@ -5,60 +5,60 @@
 /:
   en: 6fde8a2c01a13756
   zh: 63b06f1e5373a1f0
-/qilin-command-feedback:
-  en: 407c9a3b3cd37dcb
-  zh: 19eadfc2c226c1fc
-/qilin-command-feedback/summary:
+/qilin-agent-command-feedback:
+  en: ca683eaf1d62651c
+  zh: d030e74886ffa9bb
+/qilin-agent-command-feedback/summary:
   en: 0d031c88809d49e6
   zh: df5c2d8ab97f4625
-/qilin-command-feedback/table-of-contents:
+/qilin-agent-command-feedback/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-command-feedback/use-this-package:
+/qilin-agent-command-feedback/use-this-package:
   en: 52e7b9a812f84633
   zh: bb9b034c61542d35
-/qilin-command-feedback/use-this-package/the-feedback-command:
+/qilin-agent-command-feedback/use-this-package/the-feedback-command:
   en: 645ee72ee1af491d
   zh: 32b86c39307093e3
-/qilin-command-feedback/use-this-package/the-web-feedback-dialog:
+/qilin-agent-command-feedback/use-this-package/the-web-feedback-dialog:
   en: 21fae542942446d2
   zh: 34d83535891dabee
-/qilin-command-feedback/use-this-package/recording-feedback-from-your-own-ui:
+/qilin-agent-command-feedback/use-this-package/recording-feedback-from-your-own-ui:
   en: c6ee98ae5229d76f
   zh: e058dae4cb5dd254
-/qilin-command-feedback/understand-the-implementation:
+/qilin-agent-command-feedback/understand-the-implementation:
   en: 42b15ac6321706aa
   zh: 4ed0861911abaf5d
-/qilin-command-feedback/understand-the-implementation/design-concept:
+/qilin-agent-command-feedback/understand-the-implementation/design-concept:
   en: 8363f597c28788d2
   zh: 9dda2a864a01f4ce
-/qilin-command-feedback/understand-the-implementation/how-a-remark-is-recorded:
+/qilin-agent-command-feedback/understand-the-implementation/how-a-remark-is-recorded:
   en: 0c6ceecbb1f45224
   zh: 8138bb0fd3e68317
-/qilin-command-feedback/understand-the-implementation/source-map:
+/qilin-agent-command-feedback/understand-the-implementation/source-map:
   en: cb5f1c6c4dfd08b5
   zh: f5785924c0f42afc
-/qilin-command-feedback/further-exploration:
+/qilin-agent-command-feedback/further-exploration:
   en: 08868015d777dbb7
   zh: 05171915397f684a
-/qilin-command-feedback/model-experience:
+/qilin-agent-command-feedback/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-command-feedback/model-experience/human-feedback-capture:
+/qilin-agent-command-feedback/model-experience/human-feedback-capture:
   en: 987bab29bbe8ec43
   zh: 725efc45361172b5
-/qilin-command-feedback/model-experience/human-feedback-capture/what-the-model-sees:
+/qilin-agent-command-feedback/model-experience/human-feedback-capture/what-the-model-sees:
   en: 6ad8e2a4f961d2f4
   zh: b510d05a74d6df0c
-/qilin-command-feedback/model-experience/human-feedback-capture/token-effect:
+/qilin-agent-command-feedback/model-experience/human-feedback-capture/token-effect:
   en: 1fcbd4d84eff267f
   zh: 8da9902c44bf8dc4
-/qilin-command-feedback/model-experience/human-feedback-capture/kv-cache-effect:
+/qilin-agent-command-feedback/model-experience/human-feedback-capture/kv-cache-effect:
   en: c72e7dfee7b0957a
   zh: b122fce5efccfafa
-/qilin-command-feedback/known-limitations-and-deferred-work:
+/qilin-agent-command-feedback/known-limitations-and-deferred-work:
   en: b45e656a009e37b7
   zh: 4949bd712564ee54
-/qilin-command-feedback/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-command-feedback/known-limitations-and-deferred-work/dev-note:
   en: b4bf58d55f599bc2
   zh: fea7a6b69b0266e1

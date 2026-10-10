@@ -5,54 +5,54 @@
 /:
   en: 1a8099ab9b557ff7
   zh: 7054b2eab0e1fda8
-/qilin-lsp:
-  en: 60ee27a550ac0b83
-  zh: 2a9e5b922066b099
-/qilin-lsp/summary:
+/qilin-agent-lsp:
+  en: 27e41001bfad718f
+  zh: e0ea17869b4af072
+/qilin-agent-lsp/summary:
   en: cc16bc8146ecd5ab
   zh: 76d49c2bb3da6dec
-/qilin-lsp/table-of-contents:
+/qilin-agent-lsp/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-lsp/use-this-package:
+/qilin-agent-lsp/use-this-package:
   en: 39ddcc57203b5a43
   zh: ee46b6bb58434337
-/qilin-lsp/use-this-package/when-to-choose-it:
+/qilin-agent-lsp/use-this-package/when-to-choose-it:
   en: 104953d3732e7d81
   zh: 54acd5d4742bd728
-/qilin-lsp/use-this-package/composing-a-navigation-stack:
+/qilin-agent-lsp/use-this-package/composing-a-navigation-stack:
   en: 8a827f681ab76be5
   zh: 92f4aa6e5fe4cf9e
-/qilin-lsp/use-this-package/the-four-operations:
+/qilin-agent-lsp/use-this-package/the-four-operations:
   en: 201a9b2f8dfb13eb
   zh: c9041adde15602c1
-/qilin-lsp/use-this-package/failures-and-recovery:
+/qilin-agent-lsp/use-this-package/failures-and-recovery:
   en: eeeff6f68bba6807
   zh: a83372441c505bb6
-/qilin-lsp/understand-the-implementation:
+/qilin-agent-lsp/understand-the-implementation:
   en: 1e0acac55fc6c314
   zh: fe4ebe8a86dc480f
-/qilin-lsp/understand-the-implementation/design-philosophy:
+/qilin-agent-lsp/understand-the-implementation/design-philosophy:
   en: 9f87d6040261f55c
   zh: b8de847d3ac31d63
-/qilin-lsp/understand-the-implementation/source-map:
+/qilin-agent-lsp/understand-the-implementation/source-map:
   en: 052a99d148619000
   zh: 76624984e9bdbdd2
-/qilin-lsp/understand-the-implementation/registration-and-selection-lifecycle:
+/qilin-agent-lsp/understand-the-implementation/registration-and-selection-lifecycle:
   en: 549e97f436b1570c
   zh: df0436c58dd31175
-/qilin-lsp/further-exploration:
+/qilin-agent-lsp/further-exploration:
   en: 373f4d8aeb1d6223
   zh: 84b6736fa81331a0
-/qilin-lsp/model-experience:
+/qilin-agent-lsp/model-experience:
   en: 5b3bff9ec4cba2c5
   zh: 2d94ea7dc0b0e2f8
-/qilin-lsp/model-experience/kv-cache-effect:
+/qilin-agent-lsp/model-experience/kv-cache-effect:
   en: eed6c4712d96f524
   zh: df8e7803b8c92b30
-/qilin-lsp/known-limitations-and-deferred-work:
+/qilin-agent-lsp/known-limitations-and-deferred-work:
   en: e7ba99257e4da9e6
   zh: e384e82d4c707af1
-/qilin-lsp/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-lsp/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

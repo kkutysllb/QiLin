@@ -5,66 +5,66 @@
 /:
   en: 6569fcd132144a11
   zh: 2f632189747feb07
-/qilin-subprocess-local:
-  en: 0fcad864a2990241
-  zh: c9adf64040859808
-/qilin-subprocess-local/summary:
+/qilin-agent-subprocess-local:
+  en: 43f578d4dfed53ab
+  zh: 9e502614aa782b77
+/qilin-agent-subprocess-local/summary:
   en: b9a17aa12df49e99
   zh: 8a9956c5e2784088
-/qilin-subprocess-local/table-of-contents:
+/qilin-agent-subprocess-local/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-subprocess-local/use-this-package:
+/qilin-agent-subprocess-local/use-this-package:
   en: a26b360a0d1b847a
   zh: c0e1139451e51fc8
-/qilin-subprocess-local/use-this-package/mounting-the-provider:
+/qilin-agent-subprocess-local/use-this-package/mounting-the-provider:
   en: 7fe1c62a71f22310
   zh: 25fe64af82c42004
-/qilin-subprocess-local/use-this-package/resolving-executables:
+/qilin-agent-subprocess-local/use-this-package/resolving-executables:
   en: b770dddf2a9c3d1e
   zh: f5cb27e63a589a1b
-/qilin-subprocess-local/use-this-package/collecting-output:
+/qilin-agent-subprocess-local/use-this-package/collecting-output:
   en: 8dc283e0b25399c9
   zh: 9c129dce09e36c91
-/qilin-subprocess-local/use-this-package/control-transport:
+/qilin-agent-subprocess-local/use-this-package/control-transport:
   en: 09e36090754b4c22
   zh: 9810c68840a3b9fd
-/qilin-subprocess-local/use-this-package/running-terminal-sessions:
+/qilin-agent-subprocess-local/use-this-package/running-terminal-sessions:
   en: cc8e9b90f1d2e3de
   zh: f85fdcd1c783bbfc
-/qilin-subprocess-local/use-this-package/shutdown-behavior:
+/qilin-agent-subprocess-local/use-this-package/shutdown-behavior:
   en: cd0b8a5dc61335a5
   zh: ac5077a9ac277141
-/qilin-subprocess-local/use-this-package/what-can-go-wrong:
+/qilin-agent-subprocess-local/use-this-package/what-can-go-wrong:
   en: 1e1ce532b004c92b
   zh: ca7274b7a9207a5d
-/qilin-subprocess-local/understand-the-implementation:
+/qilin-agent-subprocess-local/understand-the-implementation:
   en: 531a48766c666ea0
   zh: b40df533a2fd7244
-/qilin-subprocess-local/understand-the-implementation/design-concept:
+/qilin-agent-subprocess-local/understand-the-implementation/design-concept:
   en: c1f9a5ee756547b9
   zh: d47d9f6175f5cbc9
-/qilin-subprocess-local/understand-the-implementation/source-map:
+/qilin-agent-subprocess-local/understand-the-implementation/source-map:
   en: 3d5fd99e4ad1f7af
   zh: 241490c1052f415c
-/qilin-subprocess-local/understand-the-implementation/main-flow:
+/qilin-agent-subprocess-local/understand-the-implementation/main-flow:
   en: 6b6e17fa0d1b39b7
   zh: 0b40691719ce658f
-/qilin-subprocess-local/understand-the-implementation/safety-invariants:
+/qilin-agent-subprocess-local/understand-the-implementation/safety-invariants:
   en: 8a1c2f5be5ac659c
   zh: 5c108bd23a7eee85
-/qilin-subprocess-local/further-exploration:
+/qilin-agent-subprocess-local/further-exploration:
   en: 28ce4263733a1d61
   zh: 8dc8ce53f9f6d2c4
-/qilin-subprocess-local/model-experience:
+/qilin-agent-subprocess-local/model-experience:
   en: a39b4c2a8755aff2
   zh: 1c13e5e0f7db3dab
-/qilin-subprocess-local/model-experience/kv-cache-effect:
+/qilin-agent-subprocess-local/model-experience/kv-cache-effect:
   en: e290ccc9b3c92c08
   zh: d75d48f485447a74
-/qilin-subprocess-local/known-limitations-and-deferred-work:
+/qilin-agent-subprocess-local/known-limitations-and-deferred-work:
   en: 8c32701df6418b62
   zh: 3d8da68737d2f500
-/qilin-subprocess-local/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-subprocess-local/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

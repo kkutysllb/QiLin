@@ -5,33 +5,33 @@
 /:
   en: 6a19f6d3fdfe0db2
   zh: a361afe6b8cd3010
-/qilin-api-terminal-controller:
-  en: ecf273321518cc91
-  zh: ae4cedde2684bb58
-/qilin-api-terminal-controller/summary:
+/qilin-agent-api-terminal-controller:
+  en: 0bd3a934ba010015
+  zh: 2b6870fea0b9cb05
+/qilin-agent-api-terminal-controller/summary:
   en: 8e645f037a71a0f6
   zh: 421d962126692dd7
-/qilin-api-terminal-controller/table-of-contents:
+/qilin-agent-api-terminal-controller/table-of-contents:
   en: d152484eb41ac6b4
   zh: 1fa9a72d1ee045cc
-/qilin-api-terminal-controller/use-this-package:
+/qilin-agent-api-terminal-controller/use-this-package:
   en: 0148cabb3a856226
   zh: 059a60413474a173
-/qilin-api-terminal-controller/understand-the-implementation:
+/qilin-agent-api-terminal-controller/understand-the-implementation:
   en: 64d9decff77487fb
   zh: 6a7f919d58c91909
-/qilin-api-terminal-controller/further-exploration:
+/qilin-agent-api-terminal-controller/further-exploration:
   en: 805deea648eab596
   zh: 58ed307acc722800
-/qilin-api-terminal-controller/model-experience:
+/qilin-agent-api-terminal-controller/model-experience:
   en: 2c52eec781441d2a
   zh: 35a7c88f180f74a1
-/qilin-api-terminal-controller/model-experience/kv-cache-effect:
+/qilin-agent-api-terminal-controller/model-experience/kv-cache-effect:
   en: 507d3b3b80596fdc
   zh: 4659007c4671afdc
-/qilin-api-terminal-controller/known-limitations-and-deferred-work:
+/qilin-agent-api-terminal-controller/known-limitations-and-deferred-work:
   en: 1fa296e2eaf5177c
   zh: 3e04d07f9103f300
-/qilin-api-terminal-controller/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-api-terminal-controller/known-limitations-and-deferred-work/dev-note:
   en: f57d5fcd5b2e8a44
   zh: 291eaa205a6f75ec

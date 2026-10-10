@@ -5,36 +5,36 @@
 /:
   en: 8148fef9eb6f852e
   zh: f4419bed153c9760
-/qilin-sdk-app:
-  en: 410ad2297f7230a9
-  zh: ab80a615679e177c
-/qilin-sdk-app/summary:
+/qilin-agent-sdk-app:
+  en: 21e5c2ee9a2fc8ac
+  zh: d1b3cc5e1599185a
+/qilin-agent-sdk-app/summary:
   en: bd96f7b2c75c9e9b
   zh: 218e1786b08e04ff
-/qilin-sdk-app/table-of-contents:
+/qilin-agent-sdk-app/table-of-contents:
   en: 4e53164159b5ce41
   zh: 89582dc0294d0776
-/qilin-sdk-app/use-this-package:
+/qilin-agent-sdk-app/use-this-package:
   en: df96f13dcdc7d319
   zh: c6872a2779cc4249
-/qilin-sdk-app/model-experience:
+/qilin-agent-sdk-app/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-sdk-app/model-experience/sdk-coding-agent-persona:
+/qilin-agent-sdk-app/model-experience/sdk-coding-agent-persona:
   en: af149b1e7ed0a5fc
   zh: fe483822d03deddb
-/qilin-sdk-app/model-experience/sdk-coding-agent-persona/what-the-model-sees:
+/qilin-agent-sdk-app/model-experience/sdk-coding-agent-persona/what-the-model-sees:
   en: 895f2c7fc9357d23
   zh: d2e6455f4adcf7d3
-/qilin-sdk-app/model-experience/sdk-coding-agent-persona/token-effect:
+/qilin-agent-sdk-app/model-experience/sdk-coding-agent-persona/token-effect:
   en: 371d28831239e0a8
   zh: 57595359ff30a259
-/qilin-sdk-app/model-experience/sdk-coding-agent-persona/kv-cache-effect:
+/qilin-agent-sdk-app/model-experience/sdk-coding-agent-persona/kv-cache-effect:
   en: 5b0e33295fb90e19
   zh: 4d48ca75bb677202
-/qilin-sdk-app/known-limitations-and-deferred-work:
+/qilin-agent-sdk-app/known-limitations-and-deferred-work:
   en: d9444164efacb481
   zh: 811162a1cd8b95db
-/qilin-sdk-app/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-sdk-app/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: e88aeb617ffb74ea

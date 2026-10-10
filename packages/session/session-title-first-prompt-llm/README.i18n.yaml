@@ -5,60 +5,60 @@
 /:
   en: 9debfac1371e2e75
   zh: 48d13d8bde854157
-/qilin-session-title-first-prompt-llm:
-  en: 5b2808d0cec6e275
-  zh: a63da01a59519677
-/qilin-session-title-first-prompt-llm/summary:
+/qilin-agent-session-title-first-prompt-llm:
+  en: 3e7c173a3a071383
+  zh: e8976717baee0882
+/qilin-agent-session-title-first-prompt-llm/summary:
   en: 4f7cecc5d3ad21be
   zh: 9f1cba8b8a0964cb
-/qilin-session-title-first-prompt-llm/table-of-contents:
+/qilin-agent-session-title-first-prompt-llm/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-session-title-first-prompt-llm/use-this-package:
+/qilin-agent-session-title-first-prompt-llm/use-this-package:
   en: 1f8ff40bc275e146
   zh: c7ec4ea3d3f7d1d2
-/qilin-session-title-first-prompt-llm/use-this-package/when-titles-are-generated:
+/qilin-agent-session-title-first-prompt-llm/use-this-package/when-titles-are-generated:
   en: 3215179477572a94
   zh: 54bf9a139aeafa44
-/qilin-session-title-first-prompt-llm/use-this-package/configuration:
-  en: 2c746a4367db71be
-  zh: b384e58e36c40758
-/qilin-session-title-first-prompt-llm/use-this-package/failures-and-recovery:
+/qilin-agent-session-title-first-prompt-llm/use-this-package/configuration:
+  en: a1f6d029ac7f5567
+  zh: 2544a4762f055e8a
+/qilin-agent-session-title-first-prompt-llm/use-this-package/failures-and-recovery:
   en: 9e5b1bd0b388b87d
   zh: 7b1d07e48d4267ca
-/qilin-session-title-first-prompt-llm/understand-the-implementation:
+/qilin-agent-session-title-first-prompt-llm/understand-the-implementation:
   en: 506933ffa7745b7d
   zh: a9bb6f06a32b7c18
-/qilin-session-title-first-prompt-llm/understand-the-implementation/design-concept:
+/qilin-agent-session-title-first-prompt-llm/understand-the-implementation/design-concept:
   en: f354e38f00b457c6
   zh: 19b5d38bb6d5e520
-/qilin-session-title-first-prompt-llm/understand-the-implementation/source-map:
+/qilin-agent-session-title-first-prompt-llm/understand-the-implementation/source-map:
   en: 71705f6436e44daf
   zh: 5796361346fd86ca
-/qilin-session-title-first-prompt-llm/understand-the-implementation/scheduling:
+/qilin-agent-session-title-first-prompt-llm/understand-the-implementation/scheduling:
   en: a79488f550380f5e
   zh: 0ca8a457084c0fca
-/qilin-session-title-first-prompt-llm/further-exploration:
-  en: 7825b0f5c4063407
-  zh: 51c5ed66d1066a94
-/qilin-session-title-first-prompt-llm/model-experience:
+/qilin-agent-session-title-first-prompt-llm/further-exploration:
+  en: d77e26b18dbe224f
+  zh: d5d3cd522139f8fb
+/qilin-agent-session-title-first-prompt-llm/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-session-title-first-prompt-llm/model-experience/first-message-title-request:
+/qilin-agent-session-title-first-prompt-llm/model-experience/first-message-title-request:
   en: b216200be66e9ec4
   zh: 6805c5bfb9c55091
-/qilin-session-title-first-prompt-llm/model-experience/first-message-title-request/what-the-model-sees:
+/qilin-agent-session-title-first-prompt-llm/model-experience/first-message-title-request/what-the-model-sees:
   en: c465d920d61d8564
   zh: 4b8843f5dac13dd8
-/qilin-session-title-first-prompt-llm/model-experience/first-message-title-request/token-effect:
+/qilin-agent-session-title-first-prompt-llm/model-experience/first-message-title-request/token-effect:
   en: eba887955bf3f8af
   zh: 61fdea0346e06428
-/qilin-session-title-first-prompt-llm/model-experience/first-message-title-request/kv-cache-effect:
+/qilin-agent-session-title-first-prompt-llm/model-experience/first-message-title-request/kv-cache-effect:
   en: 22c407527c295def
   zh: c7e35aa298fe6b5f
-/qilin-session-title-first-prompt-llm/known-limitations-and-deferred-work:
+/qilin-agent-session-title-first-prompt-llm/known-limitations-and-deferred-work:
   en: 7df1fa6515924136
   zh: 39535dca0c9fe9ab
-/qilin-session-title-first-prompt-llm/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-session-title-first-prompt-llm/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

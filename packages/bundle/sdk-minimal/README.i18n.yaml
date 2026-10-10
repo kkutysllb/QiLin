@@ -5,45 +5,45 @@
 /:
   en: ae5bdac5add26503
   zh: 93cd37d41c05fc9c
-/qilin-sdk-minimal:
-  en: 0862f13ba287497e
-  zh: f75e028857f7ef56
-/qilin-sdk-minimal/summary:
+/qilin-agent-sdk-minimal:
+  en: 981f63056421cbc4
+  zh: 02bab870cd4c4c4f
+/qilin-agent-sdk-minimal/summary:
   en: 1bd3abec463eb574
   zh: 8c314df925d7d077
-/qilin-sdk-minimal/table-of-contents:
+/qilin-agent-sdk-minimal/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-sdk-minimal/use-this-package:
+/qilin-agent-sdk-minimal/use-this-package:
   en: 4812e6933c4644c1
   zh: 622660b08d522558
-/qilin-sdk-minimal/understand-the-implementation:
+/qilin-agent-sdk-minimal/understand-the-implementation:
   en: 39497164b317f6de
   zh: 436dc8c8ea11e2d2
-/qilin-sdk-minimal/understand-the-implementation/source-map:
+/qilin-agent-sdk-minimal/understand-the-implementation/source-map:
   en: 3784c554e96ab004
   zh: 0a05d4fe1e26b3b1
-/qilin-sdk-minimal/further-exploration:
+/qilin-agent-sdk-minimal/further-exploration:
   en: 129d4391c4b8bc7f
   zh: 7cd7e921fd3cb0c4
-/qilin-sdk-minimal/model-experience:
+/qilin-agent-sdk-minimal/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-sdk-minimal/model-experience/minimal-coding-agent-composition:
+/qilin-agent-sdk-minimal/model-experience/minimal-coding-agent-composition:
   en: bd87e16b0c6e0506
   zh: c8ee5e3b4578754e
-/qilin-sdk-minimal/model-experience/minimal-coding-agent-composition/what-the-model-sees:
+/qilin-agent-sdk-minimal/model-experience/minimal-coding-agent-composition/what-the-model-sees:
   en: 35942c4229523952
   zh: aafbf10057b5efb2
-/qilin-sdk-minimal/model-experience/minimal-coding-agent-composition/token-effect:
+/qilin-agent-sdk-minimal/model-experience/minimal-coding-agent-composition/token-effect:
   en: 65613fb41fcc3151
   zh: fc20a732aca8282c
-/qilin-sdk-minimal/model-experience/minimal-coding-agent-composition/kv-cache-effect:
+/qilin-agent-sdk-minimal/model-experience/minimal-coding-agent-composition/kv-cache-effect:
   en: 904ae09b5fdb87c1
   zh: de6fcaaa12bd9733
-/qilin-sdk-minimal/known-limitations-and-deferred-work:
+/qilin-agent-sdk-minimal/known-limitations-and-deferred-work:
   en: b30fe041e58923a0
   zh: a081da02535d7fae
-/qilin-sdk-minimal/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-sdk-minimal/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: e88aeb617ffb74ea

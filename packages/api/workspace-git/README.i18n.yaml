@@ -5,57 +5,57 @@
 /:
   en: 4ac608e9339564c8
   zh: 7e344bc238ee17af
-/qilin-api-workspace-git:
-  en: 4cd317bb22f81f80
-  zh: 73fcb7c6992a1cad
-/qilin-api-workspace-git/summary:
+/qilin-agent-api-workspace-git:
+  en: e7d731658958a630
+  zh: 934b62e49227d5ca
+/qilin-agent-api-workspace-git/summary:
   en: db0a88b6e5c61917
   zh: 4012887f170ea26a
-/qilin-api-workspace-git/table-of-contents:
+/qilin-agent-api-workspace-git/table-of-contents:
   en: d152484eb41ac6b4
   zh: 9f0336825ccdaacd
-/qilin-api-workspace-git/use-this-package:
-  en: e5abd71dc920b73f
-  zh: 7b90f9781ef1a4db
-/qilin-api-workspace-git/use-this-package/fixed-argv-no-shell:
-  en: 894b0a7dff7b827c
-  zh: b4bb7bfa3a42cae2
-/qilin-api-workspace-git/use-this-package/the-gh-pull-request-face:
+/qilin-agent-api-workspace-git/use-this-package:
+  en: 86d66b9ec6b13df0
+  zh: 4c9fc95df6b66f73
+/qilin-agent-api-workspace-git/use-this-package/fixed-argv-no-shell:
+  en: 35a0ffb866d03c1b
+  zh: f65d4b90852cb20d
+/qilin-agent-api-workspace-git/use-this-package/the-gh-pull-request-face:
   en: efb24e35ab7a5a8f
   zh: 1431965b9a38164a
-/qilin-api-workspace-git/use-this-package/status-classification:
+/qilin-agent-api-workspace-git/use-this-package/status-classification:
   en: 10126129702cefe9
   zh: a7d6d9db87771c1c
-/qilin-api-workspace-git/use-this-package/history:
+/qilin-agent-api-workspace-git/use-this-package/history:
   en: 7295215003e4383e
   zh: 4c9e6d5cb50e6558
-/qilin-api-workspace-git/use-this-package/configuration:
-  en: ec50d2a6cb4a3a54
-  zh: 4ffc499f9430fbf1
-/qilin-api-workspace-git/use-this-package/failures:
+/qilin-agent-api-workspace-git/use-this-package/configuration:
+  en: 4534c2107285aba1
+  zh: d3a2affc5148d8e0
+/qilin-agent-api-workspace-git/use-this-package/failures:
   en: 80a9e711e4766f96
   zh: 7263d236de3f696f
-/qilin-api-workspace-git/understand-the-implementation:
+/qilin-agent-api-workspace-git/understand-the-implementation:
   en: 42b15ac6321706aa
   zh: c5500056b41ce570
-/qilin-api-workspace-git/understand-the-implementation/design-concept:
-  en: 05ee1adeb3b0519d
-  zh: c527ebf9b6f70d75
-/qilin-api-workspace-git/understand-the-implementation/source-map:
+/qilin-agent-api-workspace-git/understand-the-implementation/design-concept:
+  en: 175f951ae78d1415
+  zh: e7432ae1a118221a
+/qilin-agent-api-workspace-git/understand-the-implementation/source-map:
   en: c6c4a32b0f35a4d4
   zh: 49f6e7bfea416728
-/qilin-api-workspace-git/further-exploration:
+/qilin-agent-api-workspace-git/further-exploration:
   en: 39865f72a1a277d8
   zh: 6055153edf0d7124
-/qilin-api-workspace-git/model-experience:
+/qilin-agent-api-workspace-git/model-experience:
   en: 37b4264c8301323f
   zh: c04a254f80fe939b
-/qilin-api-workspace-git/model-experience/kv-cache-effect:
+/qilin-agent-api-workspace-git/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: cb72d2c8350f9b4e
-/qilin-api-workspace-git/known-limitations-and-deferred-work:
+/qilin-agent-api-workspace-git/known-limitations-and-deferred-work:
   en: 5539cc9ce46fe366
   zh: 8a6192d7c41bee81
-/qilin-api-workspace-git/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-api-workspace-git/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

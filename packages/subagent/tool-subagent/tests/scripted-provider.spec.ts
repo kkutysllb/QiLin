@@ -5,6 +5,7 @@ import SubagentRuntime, { type SubagentStartRequest } from '@qilin-agent/subagen
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import { SessionId } from '@qilin-agent/session'
 import * as scripted from './scripted-provider.ts'
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 
 /** A minimal parent; the scripted provider only reads its id. */
 function fakeParent(id = 'parent-1'): Agent {
@@ -23,6 +24,7 @@ function baseRequest(over: Partial<SubagentStartRequest> = {}): SubagentStartReq
 async function mount(config: Partial<scripted.Config> = {}): Promise<Context> {
   const ctx = new Context()
   await ctx.plugin(SessionProjectionRegistry)
+  await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(SubagentRuntime)
   await scripted.mountScriptedProvider(ctx, { name: 'mock', ...config })
   return ctx
@@ -81,17 +83,18 @@ describe('scripted subagent provider fixture', () => {
     const alreadyAborted = new AbortController()
     alreadyAborted.abort()
     await expect(ctx.subagents.start('mock', baseRequest({ signal: alreadyAborted.signal })))
-      .rejects.toThrow('scripted subagent start aborted before publication')
+      .rejects.toThrow('This operation was aborted')
 
     const handoff = new AbortController()
     const pending = ctx.subagents.start('mock', baseRequest({ signal: handoff.signal }))
     handoff.abort()
-    await expect(pending).rejects.toThrow('scripted subagent start aborted before publication')
+    await expect(pending).rejects.toThrow('This operation was aborted')
   })
 
   it('unregisters with its owning fixture fiber', async () => {
     const ctx = new Context()
     await ctx.plugin(SessionProjectionRegistry)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     const fiber = await scripted.mountScriptedProvider(ctx, { name: 'mock' })
     expect(ctx.subagents.list()).toEqual(['mock'])

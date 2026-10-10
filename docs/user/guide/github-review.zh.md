@@ -26,7 +26,7 @@ printf '%s\n' "$QILIN_GITHUB_WEBHOOK_SECRET"
 
 ```sh
 export QILIN_GITHUB_REVIEW_WORKSPACE=/path/to/deepseek-harness
-pnpm qilin web --patch apps/cli/config/examples/github-review/cordis.yml
+pnpm qilin web --patch packages/experimental/webhook-github/examples/github-review/cordis.yml
 ```
 
 安装版 QILIN 通过绝对路径使用同一 overlay：

@@ -5,39 +5,39 @@
 /:
   en: bef3c4170b3887a8
   zh: eb1b5ac2e6e04f5f
-/qilin-client-ui-permission-presets:
-  en: 0ff670d604868767
-  zh: 8d1a2551524d3586
-/qilin-client-ui-permission-presets/summary:
+/qilin-agent-client-ui-permission-presets:
+  en: 95fe6bbac7fc8c64
+  zh: ca10f6fbcaa233e4
+/qilin-agent-client-ui-permission-presets/summary:
   en: 2591adc4721c0564
   zh: 311292f58621adb6
-/qilin-client-ui-permission-presets/table-of-contents:
+/qilin-agent-client-ui-permission-presets/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-ui-permission-presets/use-this-package:
+/qilin-agent-client-ui-permission-presets/use-this-package:
   en: 91606bff7da02253
   zh: ef68e813d64c89be
-/qilin-client-ui-permission-presets/use-this-package/the-picker:
+/qilin-agent-client-ui-permission-presets/use-this-package/the-picker:
   en: d851eab85fe002bd
   zh: 0fdf6eeb1cbd609b
-/qilin-client-ui-permission-presets/use-this-package/the-settings-row:
+/qilin-agent-client-ui-permission-presets/use-this-package/the-settings-row:
   en: 5067f6aa12496225
   zh: cfa6796684f97535
-/qilin-client-ui-permission-presets/understand-the-implementation:
+/qilin-agent-client-ui-permission-presets/understand-the-implementation:
   en: 4089d5bebf3e8bf0
   zh: bc5c3652b0612784
-/qilin-client-ui-permission-presets/further-exploration:
+/qilin-agent-client-ui-permission-presets/further-exploration:
   en: ab801026a7f4d11d
   zh: e97648c649c9d921
-/qilin-client-ui-permission-presets/model-experience:
+/qilin-agent-client-ui-permission-presets/model-experience:
   en: 114f37b90a58cffa
   zh: dc99a48a72c975e6
-/qilin-client-ui-permission-presets/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-permission-presets/model-experience/kv-cache-effect:
   en: f25206808c8d84c5
   zh: 4fcbc876952d240d
-/qilin-client-ui-permission-presets/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-permission-presets/known-limitations-and-deferred-work:
   en: 08cdc0ad196d12c1
   zh: 1b65f5d30e219197
-/qilin-client-ui-permission-presets/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-permission-presets/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

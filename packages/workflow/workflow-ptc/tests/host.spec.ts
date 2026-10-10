@@ -9,6 +9,7 @@ import type { SubagentResult } from '@qilin-agent/subagent'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import PtcWorkflowEngine from '../src/index.ts'
 import { fakeParent } from './setup.ts'
+import { mountWorkingDirectoryFixture } from '../../../subagent/subagent/tests/working-directory-fixture.ts'
 
 const completed: PtcRunResult = { logs: [], value: { value: null, stopReason: 'completed', agentsStarted: 0 } }
 type HostBindings = Record<string, PtcBindingFunction>
@@ -31,6 +32,7 @@ async function setup(execute?: (bindings: HostBindings, spec: PtcRunSpec) => Pro
   await ctx.plugin(SessionStore)
   await ctx.plugin(SessionProjections)
   await ctx.plugin(SandboxPolicy, { mode: 'read-only' })
+  await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(SubagentRuntime)
   ctx.subagents.registerProvider({
     name: 'stub',

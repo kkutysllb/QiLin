@@ -5,45 +5,45 @@
 /:
   en: 6bd544ce4e92a4e1
   zh: cb05ca5ce08f4bd4
-/qilin-launch-environment:
-  en: 7a2028c99fd5dc61
-  zh: 9805362ff20e70b0
-/qilin-launch-environment/summary:
-  en: c3a5e85022531826
-  zh: 3bc4e5b4648035cd
-/qilin-launch-environment/table-of-contents:
+/qilin-agent-launch-environment:
+  en: f968b22b08bf6bb8
+  zh: 40993ee394f34e98
+/qilin-agent-launch-environment/summary:
+  en: 9a2a75ef7279a591
+  zh: 40d98e1da051bd47
+/qilin-agent-launch-environment/table-of-contents:
   en: 80b31a934611cb4a
   zh: 05f3f7f9cb2fd881
-/qilin-launch-environment/use-this-package:
+/qilin-agent-launch-environment/use-this-package:
   en: c9df1b8cf300ab4f
   zh: 6f80e2e72fc5b1d4
-/qilin-launch-environment/use-this-package/resolving-a-value:
+/qilin-agent-launch-environment/use-this-package/resolving-a-value:
   en: 5aed2d5fa0b116c0
   zh: 9ad018c5cb09791d
-/qilin-launch-environment/use-this-package/how-layers-rank:
+/qilin-agent-launch-environment/use-this-package/how-layers-rank:
   en: 04669413cd5b27d3
   zh: 2666ed7e9ee842af
-/qilin-launch-environment/use-this-package/when-no-launcher-booted-the-tree:
+/qilin-agent-launch-environment/use-this-package/when-no-launcher-booted-the-tree:
   en: 3c368938c6960588
   zh: c704bee90390f259
-/qilin-launch-environment/understand-the-implementation:
+/qilin-agent-launch-environment/understand-the-implementation:
   en: c2cdb9ea66c61cc5
   zh: 5ccf1802da65483d
-/qilin-launch-environment/understand-the-implementation/source-map:
+/qilin-agent-launch-environment/understand-the-implementation/source-map:
   en: c693fdeed31fab31
   zh: 5d25a3c90cfa8f80
-/qilin-launch-environment/understand-the-implementation/how-the-snapshot-stays-frozen:
+/qilin-agent-launch-environment/understand-the-implementation/how-the-snapshot-stays-frozen:
   en: f933fc349e258d27
   zh: 717166c9a80a4821
-/qilin-launch-environment/understand-the-implementation/what-omission-means:
+/qilin-agent-launch-environment/understand-the-implementation/what-omission-means:
   en: 03782c3e48792227
   zh: c83116ba53b3ab12
-/qilin-launch-environment/further-exploration:
+/qilin-agent-launch-environment/further-exploration:
   en: b168ce7dbfb5b13d
   zh: e15a3281caaaeac9
-/qilin-launch-environment/known-limitations-and-deferred-work:
+/qilin-agent-launch-environment/known-limitations-and-deferred-work:
   en: 9490959bcf482147
   zh: dfbdea8088c26a09
-/qilin-launch-environment/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-launch-environment/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

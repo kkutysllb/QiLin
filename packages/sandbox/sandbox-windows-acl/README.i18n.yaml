@@ -5,63 +5,63 @@
 /:
   en: 14d3fdd57b94c86f
   zh: abcd3b4f9dd908fa
-/qilin-sandbox-windows-acl:
-  en: a42b4ee850611fa4
-  zh: 3e0f65bafda9ea59
-/qilin-sandbox-windows-acl/summary:
+/qilin-agent-sandbox-windows-acl:
+  en: 0e1ca590f77af542
+  zh: 862dc969e85585ef
+/qilin-agent-sandbox-windows-acl/summary:
   en: a453167a5d62dddd
   zh: c810f3cd92630c0d
-/qilin-sandbox-windows-acl/table-of-contents:
+/qilin-agent-sandbox-windows-acl/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-sandbox-windows-acl/use-this-package:
+/qilin-agent-sandbox-windows-acl/use-this-package:
   en: 58b220faa66b2f05
   zh: dda42e4197d80bfe
-/qilin-sandbox-windows-acl/use-this-package/when-to-choose-it:
+/qilin-agent-sandbox-windows-acl/use-this-package/when-to-choose-it:
   en: 510d0b1ef7db159d
   zh: dc2cf25b3db14c63
-/qilin-sandbox-windows-acl/use-this-package/direct-api:
+/qilin-agent-sandbox-windows-acl/use-this-package/direct-api:
   en: 16596607bbccc2a3
   zh: 30bc370a5281bf0d
-/qilin-sandbox-windows-acl/use-this-package/what-confinement-gives-you:
+/qilin-agent-sandbox-windows-acl/use-this-package/what-confinement-gives-you:
   en: 289e65bddf20dd79
   zh: 7ff72ed64c4b4d1c
-/qilin-sandbox-windows-acl/use-this-package/failures-and-recovery:
+/qilin-agent-sandbox-windows-acl/use-this-package/failures-and-recovery:
   en: e816d515aa0f533b
   zh: e962a6cd6b8b3322
-/qilin-sandbox-windows-acl/understand-the-implementation:
+/qilin-agent-sandbox-windows-acl/understand-the-implementation:
   en: c2cde86c85c2c619
   zh: a29a114e591f9d3f
-/qilin-sandbox-windows-acl/understand-the-implementation/mechanism:
+/qilin-agent-sandbox-windows-acl/understand-the-implementation/mechanism:
   en: e5c8b2bbcaeee2f1
   zh: c7998806cc2815ea
-/qilin-sandbox-windows-acl/understand-the-implementation/modes-and-token-lists:
+/qilin-agent-sandbox-windows-acl/understand-the-implementation/modes-and-token-lists:
   en: 9c8d9af84f9abd99
   zh: 1c82b355aa5f210f
-/qilin-sandbox-windows-acl/understand-the-implementation/the-confinement-runner:
+/qilin-agent-sandbox-windows-acl/understand-the-implementation/the-confinement-runner:
   en: db3a158ef14b512e
   zh: bd3448edda151926
-/qilin-sandbox-windows-acl/understand-the-implementation/verified-boundaries:
+/qilin-agent-sandbox-windows-acl/understand-the-implementation/verified-boundaries:
   en: 0ec1481d1453c415
   zh: a3cfea206a14cc3b
-/qilin-sandbox-windows-acl/understand-the-implementation/header-verification-and-source-map:
-  en: 3569a4d1074bf9c3
-  zh: 6b3e19d8a920ef69
-/qilin-sandbox-windows-acl/further-exploration:
+/qilin-agent-sandbox-windows-acl/understand-the-implementation/header-verification-and-source-map:
+  en: 5390ef510a5631c4
+  zh: 22d8d0cbf1bb09ad
+/qilin-agent-sandbox-windows-acl/further-exploration:
   en: 16fa0a234961b35f
   zh: 33a483696aef6619
-/qilin-sandbox-windows-acl/model-experience:
+/qilin-agent-sandbox-windows-acl/model-experience:
   en: 6c5f606820942b03
   zh: bfc898fb00117f04
-/qilin-sandbox-windows-acl/model-experience/kv-cache-effect:
+/qilin-agent-sandbox-windows-acl/model-experience/kv-cache-effect:
   en: 817eb1b7de13872e
   zh: 06fe175e41e7459b
-/qilin-sandbox-windows-acl/known-limitations-and-deferred-work:
+/qilin-agent-sandbox-windows-acl/known-limitations-and-deferred-work:
   en: 38f7b41185253f08
   zh: e07ffc408da0bcd8
-/qilin-sandbox-windows-acl/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-sandbox-windows-acl/known-limitations-and-deferred-work/dev-note:
   en: cc273320f6a1beaf
   zh: 5c57a312ddc50651
-/qilin-sandbox-windows-acl/known-limitations-and-deferred-work/dev-note/future-warnings-and-cleanup-surfaces:
+/qilin-agent-sandbox-windows-acl/known-limitations-and-deferred-work/dev-note/future-warnings-and-cleanup-surfaces:
   en: 8872c7b4c8ce1cc7
   zh: c7fb4eefa013c7b0

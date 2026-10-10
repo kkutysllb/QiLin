@@ -20,6 +20,7 @@ import SubagentRuntime, {
 } from '@qilin-agent/subagent'
 import { Session, SessionId, type SessionEvent } from '@qilin-agent/session'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import { mountWorkingDirectoryFixture } from './working-directory-fixture.ts'
 
 function fakeParent(id = 'parent-1'): Agent {
   return { id: SessionId(id) } as unknown as Agent
@@ -68,6 +69,7 @@ async function service(): Promise<{ ctx: Context; subagents: SubagentRuntime }> 
   // The registry is a required injection of SubagentRuntime (its projection
   // units register in the constructor).
   await ctx.plugin(SessionProjectionRegistry)
+  await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(SubagentRuntime)
   return { ctx, subagents: ctx.subagents }
 }
@@ -76,6 +78,7 @@ describe('SubagentRuntime', () => {
   it('releases its catalog projection binding with the service fiber', async () => {
     const ctx = new Context()
     await ctx.plugin(SessionProjectionRegistry)
+    await mountWorkingDirectoryFixture(ctx)
     const fiber = await ctx.plugin(SubagentRuntime)
     const parent = Session.create(SessionId('catalog-parent'))
     parent.append('subagent/catalog', {
@@ -137,6 +140,7 @@ describe('SubagentRuntime', () => {
 
     expect(provider.lastRequest).toEqual({
       ...request,
+      cwd: process.cwd(),
       descriptor: {
         version: SUBAGENT_DESCRIPTOR_VERSION,
         mode: 'one-shot',

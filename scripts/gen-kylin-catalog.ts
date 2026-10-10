@@ -65,6 +65,7 @@ export const SERVICE_PAGE: Record<string, string> = {
   attachments: 'attachment.md',
   shell: 'shell.md',
   shellEnv: 'shell.md',
+  workingDirectory: 'working-directory.md',
   clientModules: 'client-modules.md',
   ptcRuntime: 'ptc-runtime.md',
   browserUse: 'browser-use.md',

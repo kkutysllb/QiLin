@@ -25,7 +25,7 @@ English | [中文](README.zh.md)
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount `@qilin-agent/terminal` whenever a composition needs terminal sessions whose state survives across tool calls. The service alone does nothing useful: pair it with a backend such as `@qilin-agent/terminal-bash` and a tool package such as `@qilin-agent/tool-terminal`, and load all three in one composition.
+Mount `@qilin-agent/terminal` whenever a composition needs terminal sessions whose state survives across tool calls. The service alone does nothing useful: pair it with a backend such as `@qilin-agent/terminal-bash` and a tool package such as `@qilin-agent/experimental-tool-terminal`, and load all three in one composition.
 
 ### When to choose it
 
@@ -38,7 +38,7 @@ Load the session service together with a backend and a tool package:
 ```yaml
 - name: '@qilin-agent/terminal'
 - name: '@qilin-agent/terminal-bash'
-- name: '@qilin-agent/tool-terminal'
+- name: '@qilin-agent/experimental-tool-terminal'
 ```
 
 A backend provides one stable type — the shipped shell backend provides `shell` — and the tools open sessions by that type. The shell backend additionally requires the sandbox, sandbox-policy, and subprocess providers; see its [README](../terminal-bash/README.md) for the full composition.
@@ -102,7 +102,7 @@ Read these pages when the package-level contract is not enough. They move from t
 - [Terminal subsystem reference](../../../docs/subsystems/terminal.md) — shared types, backend and session contracts, and the generated `ctx.terminals` surface.
 - [terminal/ package map](../README.md) — the three-package family and how it composes.
 - [terminal-bash backend](../terminal-bash/README.md) — the shipped shell backend that provides the `shell` type.
-- [tool-terminal tools](../tool-terminal/README.md) — the six model-facing tools that operate sessions.
+- [tool-terminal tools](../../experimental/tool-terminal/README.md) — the six model-facing tools that operate sessions.
 - [Persistent PTY Agent Note](../../../.agents/notes/implemented/feature/2026-07-16-persistent-pty-sessions.md) — design rationale, alternatives, and deferred boundaries.
 
 -----
@@ -114,7 +114,7 @@ Read these pages when the package-level contract is not enough. They move from t
 
 #### What the model sees
 
-Nothing directly. This package registers no prompt or tool; `@qilin-agent/tool-terminal` owns visible schemas and result text.
+Nothing directly. This package registers no prompt or tool; `@qilin-agent/experimental-tool-terminal` owns visible schemas and result text.
 
 #### Token effect
 
@@ -122,7 +122,7 @@ None directly. Live session state stays process-local until a consumer returns a
 
 #### KV Cache effect
 
-No direct invalidation; `@qilin-agent/tool-terminal` owns request-prefix changes.
+No direct invalidation; `@qilin-agent/experimental-tool-terminal` owns request-prefix changes.
 
 ## Known Limitations and Deferred Work
 

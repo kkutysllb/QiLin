@@ -10,6 +10,7 @@ import * as LlmDeepSeek from '@qilin-agent/llm-deepseek-api-key'
 import SubagentRuntime from '@qilin-agent/subagent'
 import * as Spawn from '../src/index.ts'
 import * as ToolSubagent from '@qilin-agent/tool-subagent'
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 
 /**
  * Shared harness for the spawn-backend e2e: the full real stack (DeepSeek
@@ -33,6 +34,7 @@ export async function spawnHarness(workdir: string): Promise<Context> {
   await ctx.plugin(BashEnvPlugin)
   await ctx.plugin(LocalBashExecutor, { cwd: workdir, timeoutMs: 30_000 })
   await ctx.plugin(ToolBash)
+  await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(SubagentRuntime)
   await ctx.plugin(Spawn, { providerName: 'spawn' })
   // The model-facing subagent tool, bound to the spawn backend.

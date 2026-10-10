@@ -5,30 +5,30 @@
 /:
   en: aa49ff99ef11a495
   zh: f84909651e2f37a7
-/qilin-experimental-inspector-profile:
-  en: f95860f1b6fcc2b7
-  zh: d898eec8b5d2d9f1
-/qilin-experimental-inspector-profile/summary:
+/qilin-agent-experimental-inspector-profile:
+  en: e3245d3ddba75eb6
+  zh: 70c2980b9d0d607c
+/qilin-agent-experimental-inspector-profile/summary:
   en: 959f9bb18e5e99ad
   zh: f0b00539b5ab40fd
-/qilin-experimental-inspector-profile/table-of-contents:
+/qilin-agent-experimental-inspector-profile/table-of-contents:
   en: 76368b6b1da79c80
   zh: 52384aee991ac542
-/qilin-experimental-inspector-profile/use-this-package:
-  en: d5926ddbf028e84e
-  zh: e5a81307200d5a26
-/qilin-experimental-inspector-profile/understand-the-implementation:
+/qilin-agent-experimental-inspector-profile/use-this-package:
+  en: b2a884f3c1cc395f
+  zh: c5b69a8b0252d6c8
+/qilin-agent-experimental-inspector-profile/understand-the-implementation:
   en: d15bca082e54cee6
   zh: 3d34154bbd62a200
-/qilin-experimental-inspector-profile/model-experience:
+/qilin-agent-experimental-inspector-profile/model-experience:
   en: 315bc90149039d2d
   zh: 047edcb035f61b74
-/qilin-experimental-inspector-profile/model-experience/kv-cache-effect:
+/qilin-agent-experimental-inspector-profile/model-experience/kv-cache-effect:
   en: 5204b2605806c13d
   zh: b6a76f5152f7f503
-/qilin-experimental-inspector-profile/known-limitations-and-deferred-work:
+/qilin-agent-experimental-inspector-profile/known-limitations-and-deferred-work:
   en: 4777a9ec1f406e1d
   zh: 4b316bf0d985909f
-/qilin-experimental-inspector-profile/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-experimental-inspector-profile/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 8ec3e73528ddb1a6

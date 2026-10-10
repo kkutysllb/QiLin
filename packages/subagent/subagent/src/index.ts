@@ -30,6 +30,8 @@
  */
 import { Context } from '@qilin-agent/kylin'
 import z from '@qilin-agent/schemastery'
+import { isAbsolute, resolve } from 'node:path'
+import type {} from '@qilin-agent/working-directory'
 import type {} from '@qilin-agent/settings'
 import type {} from '@qilin-agent/attachment'
 import { scopeTarget } from '@qilin-agent/scope'
@@ -201,6 +203,7 @@ export class SubagentRuntime extends TypertRemoteService {
     maxDepth: z.number().step(1).min(0).max(Number.MAX_SAFE_INTEGER).default(1),
     maxActiveSubagents: z.number().step(1).min(1).max(Number.MAX_SAFE_INTEGER).default(8),
   })
+  static inject = ['workingDirectory']
   private settingsSource: () => Config
   private providers = new Map<string, SubagentProvider>()
   private continuations: SubagentContinuationManager | undefined
@@ -572,7 +575,8 @@ export class SubagentRuntime extends TypertRemoteService {
       provider: name,
       ...request.label !== undefined ? { label: request.label } : {},
     })
-    const resolved: ResolvedSubagentStartRequest = { ...request, descriptor }
+    const cwd = await this.resolveDirectory(request, request.signal)
+    const resolved: ResolvedSubagentStartRequest = { ...request, cwd, descriptor }
     const run = await provider.start(resolved)
     const child = run.localAgent?.session
     if (child !== undefined) {
@@ -599,6 +603,15 @@ export class SubagentRuntime extends TypertRemoteService {
    * presence on the provider IS the capability, so a provider without it is
    * rejected before the manager reserves any child resources.
    */
+  /** Capture the explicit or inherited directory while the parent still owns startup. */
+  private async resolveDirectory(request: Pick<SubagentStartRequest, 'parent' | 'cwd'>, signal: AbortSignal): Promise<string> {
+    const cwd = request.cwd !== undefined && isAbsolute(request.cwd)
+      ? request.cwd
+      : resolve(await this.ctx.workingDirectory.ensure(request.parent, signal), request.cwd ?? '.')
+    signal.throwIfAborted()
+    return cwd
+  }
+
   private async prepareContinuable(
     name: string,
     request: ContinuableCreateRequest,

@@ -48,7 +48,8 @@
     "@qilin-agent/system-prompt": "workspace:*",
     "@qilin-agent/user-approval": "workspace:*",
     "@qilin-agent/sandbox": "workspace:*",
-    "@qilin-agent/sandbox-policy": "workspace:*"
+    "@qilin-agent/sandbox-policy": "workspace:*",
+    "@qilin-agent/working-directory": "workspace:*"
   },
   "dependencies": {
     "@qilin-agent/brand": "workspace:*",
@@ -66,6 +67,7 @@
     "@qilin-agent/system-prompt": "workspace:*",
     "@qilin-agent/user-approval": "workspace:*",
     "@qilin-agent/sandbox": "workspace:*",
-    "@qilin-agent/sandbox-policy": "workspace:*"
+    "@qilin-agent/sandbox-policy": "workspace:*",
+    "@qilin-agent/working-directory": "workspace:*"
   }
 }

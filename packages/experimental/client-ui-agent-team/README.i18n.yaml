@@ -5,42 +5,42 @@
 /:
   en: 13392ac86fb64ae3
   zh: 99361a9562ec4441
-/qilin-experimental-client-ui-agent-team:
-  en: a6a6b0cc2bc5be7a
-  zh: a361f60e5b9bdffd
-/qilin-experimental-client-ui-agent-team/summary:
+/qilin-agent-experimental-client-ui-agent-team:
+  en: b867fcd449fd49fd
+  zh: 035b0a90f169a7b1
+/qilin-agent-experimental-client-ui-agent-team/summary:
   en: 67f8650d6c862ff3
   zh: 6a3d58866e9483a5
-/qilin-experimental-client-ui-agent-team/table-of-contents:
+/qilin-agent-experimental-client-ui-agent-team/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-experimental-client-ui-agent-team/use-this-package:
+/qilin-agent-experimental-client-ui-agent-team/use-this-package:
   en: 308231d9c1fff3b5
   zh: 79beba63357127bb
-/qilin-experimental-client-ui-agent-team/use-this-package/inspect-and-navigate-the-roster:
+/qilin-agent-experimental-client-ui-agent-team/use-this-package/inspect-and-navigate-the-roster:
   en: 62778e911a4ee9e9
   zh: dff1dbbc3d5e4af6
-/qilin-experimental-client-ui-agent-team/use-this-package/inspect-the-task-board:
+/qilin-agent-experimental-client-ui-agent-team/use-this-package/inspect-the-task-board:
   en: d1156074d801be53
   zh: 0b75da44eefbf406
-/qilin-experimental-client-ui-agent-team/use-this-package/edit-tasks-from-the-browser:
+/qilin-agent-experimental-client-ui-agent-team/use-this-package/edit-tasks-from-the-browser:
   en: 9a8d5dfd48fdd8e4
   zh: a230d33942b8e6a2
-/qilin-experimental-client-ui-agent-team/understand-the-implementation:
+/qilin-agent-experimental-client-ui-agent-team/understand-the-implementation:
   en: 66e09c350db5f083
   zh: 6b52ed92d76ae542
-/qilin-experimental-client-ui-agent-team/further-exploration:
+/qilin-agent-experimental-client-ui-agent-team/further-exploration:
   en: db8878a3ec1100ba
   zh: 2eb7cb7253d9864c
-/qilin-experimental-client-ui-agent-team/model-experience:
+/qilin-agent-experimental-client-ui-agent-team/model-experience:
   en: 47ebeba07d72759d
   zh: 8fe8133f6dd845a9
-/qilin-experimental-client-ui-agent-team/model-experience/kv-cache-effect:
+/qilin-agent-experimental-client-ui-agent-team/model-experience/kv-cache-effect:
   en: b51b320f5e4dacfc
   zh: 6695947c3f9fed28
-/qilin-experimental-client-ui-agent-team/known-limitations-and-deferred-work:
+/qilin-agent-experimental-client-ui-agent-team/known-limitations-and-deferred-work:
   en: 40dd61294e1e9916
   zh: ec6cf49efc675e2c
-/qilin-experimental-client-ui-agent-team/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-experimental-client-ui-agent-team/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

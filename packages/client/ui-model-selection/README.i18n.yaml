@@ -5,42 +5,42 @@
 /:
   en: f39813648aeef5a0
   zh: eea25094e8bfc031
-/qilin-client-ui-model-selection:
-  en: 27929ebe371fdf5d
-  zh: 69dc35f27a97ddb1
-/qilin-client-ui-model-selection/summary:
+/qilin-agent-client-ui-model-selection:
+  en: 2ad6da2010200994
+  zh: 5bf1cbbdb40fa1ff
+/qilin-agent-client-ui-model-selection/summary:
   en: 1b8dd668cd222dbb
   zh: ea2a5e75ee38491b
-/qilin-client-ui-model-selection/table-of-contents:
+/qilin-agent-client-ui-model-selection/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-ui-model-selection/use-this-package:
+/qilin-agent-client-ui-model-selection/use-this-package:
   en: c4a5ff1a6c7a40cd
   zh: 4bb82c895f449844
-/qilin-client-ui-model-selection/use-this-package/model-and-effort:
+/qilin-agent-client-ui-model-selection/use-this-package/model-and-effort:
   en: 22710e4cbba080af
   zh: e7870b79bf0c1f83
-/qilin-client-ui-model-selection/use-this-package/unroutable-sessions:
+/qilin-agent-client-ui-model-selection/use-this-package/unroutable-sessions:
   en: a148c0932195441d
   zh: f7e0cc8a4152f5ea
-/qilin-client-ui-model-selection/use-this-package/selection-failures:
+/qilin-agent-client-ui-model-selection/use-this-package/selection-failures:
   en: 261bbf42296243af
   zh: 72779fb7b8fbc473
-/qilin-client-ui-model-selection/understand-the-implementation:
+/qilin-agent-client-ui-model-selection/understand-the-implementation:
   en: 425b6b14c475d402
   zh: 1d6b13abd17aee74
-/qilin-client-ui-model-selection/further-exploration:
+/qilin-agent-client-ui-model-selection/further-exploration:
   en: 9adb5c1a51498e85
   zh: 9187be29d7f01e96
-/qilin-client-ui-model-selection/model-experience:
+/qilin-agent-client-ui-model-selection/model-experience:
   en: 782f79ed910f426a
   zh: 54a2e3e32a747544
-/qilin-client-ui-model-selection/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-model-selection/model-experience/kv-cache-effect:
   en: 68e54c00412a40d1
   zh: 0ac96f57fd194d96
-/qilin-client-ui-model-selection/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-model-selection/known-limitations-and-deferred-work:
   en: 75b37954ceacd92a
   zh: a49d0361486e35c4
-/qilin-client-ui-model-selection/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-model-selection/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

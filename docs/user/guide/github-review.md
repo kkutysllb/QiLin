@@ -26,7 +26,7 @@ From a development checkout:
 
 ```sh
 export QILIN_GITHUB_REVIEW_WORKSPACE=/path/to/deepseek-harness
-pnpm qilin web --patch apps/cli/config/examples/github-review/cordis.yml
+pnpm qilin web --patch packages/experimental/webhook-github/examples/github-review/cordis.yml
 ```
 
 An installed QILIN uses the same overlay through an absolute path:

@@ -188,7 +188,7 @@ const packageFileExtras: Readonly<Record<string, readonly string[]>> = {
   // sandbox-local resolves it through the package's ./runner export. tsdown
   // also shares its generated FFI code through a hashed runtime chunk.
   '@qilin-agent/sandbox-windows-acl': ['lib/runner.js', 'lib/types-*.js', 'assets'],
-  '@qilin-agent/skill-badge': ['assets'],
+  '@qilin-agent/experimental-skill-badge': ['assets'],
   '@qilin-agent/skill-office': ['assets'],
   '@qilin-agent/subprocess': ['lib/control.js'],
   // SSH launches a private helper and shares wire definitions and TLS setup

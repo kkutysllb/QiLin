@@ -5,39 +5,39 @@
 /:
   en: cc4e875ac37d9354
   zh: e121819cde2ce76c
-/qilin-skill-office:
-  en: 7d924de994c6b6a0
-  zh: dc4160eb5da74bf9
-/qilin-skill-office/summary:
+/qilin-agent-skill-office:
+  en: 0a0b09c97352091f
+  zh: 969a8a230c782bc7
+/qilin-agent-skill-office/summary:
   en: 4fe3cb4544ce7d9d
   zh: 2749b1d0ffa468a1
-/qilin-skill-office/table-of-contents:
+/qilin-agent-skill-office/table-of-contents:
   en: d152484eb41ac6b4
   zh: 43ad67236ccda19a
-/qilin-skill-office/use-this-package:
+/qilin-agent-skill-office/use-this-package:
   en: 2dfbf75b9124fa5a
   zh: ee0fde3d8f3a9749
-/qilin-skill-office/use-this-package/minimal-configuration:
+/qilin-agent-skill-office/use-this-package/minimal-configuration:
   en: 088f223318dff9d7
   zh: ce944bf61fb1f821
-/qilin-skill-office/use-this-package/structural-checks:
+/qilin-agent-skill-office/use-this-package/structural-checks:
   en: 1bb872d63bdd78b7
   zh: 355dee19bdfb3798
-/qilin-skill-office/understand-the-implementation:
+/qilin-agent-skill-office/understand-the-implementation:
   en: 9c45ee3de51adb4d
   zh: 0f24d44dfa58df25
-/qilin-skill-office/further-exploration:
+/qilin-agent-skill-office/further-exploration:
   en: 2513ad645cb466c2
   zh: 1d8858fa681f0571
-/qilin-skill-office/model-experience:
+/qilin-agent-skill-office/model-experience:
   en: d7eec9c83f757d11
   zh: ac536651b4e4cac7
-/qilin-skill-office/model-experience/kv-cache-effect:
+/qilin-agent-skill-office/model-experience/kv-cache-effect:
   en: c77beb1c0d28f221
   zh: 99643101d2b915b9
-/qilin-skill-office/known-limitations-and-deferred-work:
+/qilin-agent-skill-office/known-limitations-and-deferred-work:
   en: 22d0a8196c2c48c3
   zh: ef2e38a0a91476a8
-/qilin-skill-office/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-skill-office/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

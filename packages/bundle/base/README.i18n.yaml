@@ -5,54 +5,54 @@
 /:
   en: 9287daaf4ca81ac3
   zh: b91402a7e13adb98
-/qilin-base:
-  en: f1248f2a147590d3
-  zh: 45cf386dffbdd068
-/qilin-base/summary:
+/qilin-agent-base:
+  en: 8aa4c8b3cdd68e2f
+  zh: 64721e1823a58fe2
+/qilin-agent-base/summary:
   en: 654e632a4443a17f
   zh: d0a1310c89a00ef2
-/qilin-base/table-of-contents:
+/qilin-agent-base/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-base/use-this-package:
+/qilin-agent-base/use-this-package:
   en: 064dc51cda83341e
   zh: 968ea2882bf2aa1a
-/qilin-base/use-this-package/a-minimal-custom-profile:
-  en: 1372d66f5c853fbb
-  zh: 0d6835f20370011f
-/qilin-base/use-this-package/what-you-get:
+/qilin-agent-base/use-this-package/a-minimal-custom-profile:
+  en: bec32d1f98649fff
+  zh: ebf7ddf083b4722d
+/qilin-agent-base/use-this-package/what-you-get:
   en: d0a31cf2a4b3c85a
   zh: f7ef5358f854db3f
-/qilin-base/use-this-package/shell-tools-per-platform:
+/qilin-agent-base/use-this-package/shell-tools-per-platform:
   en: 2dce12f82d6ee955
   zh: d4599eb899a3cd88
-/qilin-base/use-this-package/changing-the-defaults:
+/qilin-agent-base/use-this-package/changing-the-defaults:
   en: 96a55abd5f7007dd
   zh: d94f020708c38a17
-/qilin-base/understand-the-implementation:
+/qilin-agent-base/understand-the-implementation:
   en: 094cfca8e26a0042
   zh: de435e3e38420c01
-/qilin-base/understand-the-implementation/composition-mechanics:
+/qilin-agent-base/understand-the-implementation/composition-mechanics:
   en: fd37bc66e39ac5e7
   zh: 1a039afb8bf2d517
-/qilin-base/understand-the-implementation/platform-gating:
-  en: f8f55ee5092e17ed
-  zh: 02d82b43a871d02a
-/qilin-base/understand-the-implementation/source-map:
+/qilin-agent-base/understand-the-implementation/platform-gating:
+  en: 516aeda10340e25a
+  zh: de1e4b7604764959
+/qilin-agent-base/understand-the-implementation/source-map:
   en: a8efda71d444155e
   zh: c8221593709fbb99
-/qilin-base/further-exploration:
+/qilin-agent-base/further-exploration:
   en: 42df9b1749f17c7a
   zh: 063be5205d8f5b94
-/qilin-base/model-experience:
+/qilin-agent-base/model-experience:
   en: f6c4d2609b5f4bb6
   zh: 869a9565a133fb01
-/qilin-base/model-experience/kv-cache-effect:
+/qilin-agent-base/model-experience/kv-cache-effect:
   en: e6e907c99df7cd0a
   zh: f19f2f84a5f95177
-/qilin-base/known-limitations-and-deferred-work:
-  en: b10a276d7d7d7e41
-  zh: e49305f24f239b0d
-/qilin-base/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-base/known-limitations-and-deferred-work:
+  en: 19016af8b37d3958
+  zh: da4d3266365f3870
+/qilin-agent-base/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

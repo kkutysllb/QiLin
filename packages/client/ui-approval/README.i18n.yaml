@@ -5,24 +5,24 @@
 /:
   en: a16f3a25592b9a2d
   zh: 6be5e99282ce23d9
-/qilin-client-ui-approval:
-  en: 0ac6bc9269959e2f
-  zh: 556b595de66d9f16
-/qilin-client-ui-approval/summary:
+/qilin-agent-client-ui-approval:
+  en: 602a418241ca2403
+  zh: 145eb4cad4329ccc
+/qilin-agent-client-ui-approval/summary:
   en: 8d6c7c6e63f849f6
   zh: d89fa273e30b99d3
-/qilin-client-ui-approval/table-of-contents:
+/qilin-agent-client-ui-approval/table-of-contents:
   en: b4683d2a53256fda
   zh: 4e65ff63dc8c48fe
-/qilin-client-ui-approval/model-experience:
+/qilin-agent-client-ui-approval/model-experience:
   en: 8161dce49e9f899c
   zh: a17401e1e78ba6be
-/qilin-client-ui-approval/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-approval/model-experience/kv-cache-effect:
   en: adf7112e0691b89e
   zh: 14eeddcff985119f
-/qilin-client-ui-approval/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-approval/known-limitations-and-deferred-work:
   en: 158f435625e41ca9
   zh: 9d58169aaf6c7ed7
-/qilin-client-ui-approval/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-approval/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: e88aeb617ffb74ea

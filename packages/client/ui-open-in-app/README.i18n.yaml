@@ -5,36 +5,36 @@
 /:
   en: 160f41efa6b435fc
   zh: ce2601d0ea86d704
-/qilin-client-ui-open-in-app:
-  en: 01342d9e3cff259c
-  zh: add99efa09d53c4d
-/qilin-client-ui-open-in-app/summary:
+/qilin-agent-client-ui-open-in-app:
+  en: a84981c3f6b235a5
+  zh: 94216eb974c51080
+/qilin-agent-client-ui-open-in-app/summary:
   en: 67095b5780d26096
   zh: 32ee4ad0f5406b5c
-/qilin-client-ui-open-in-app/table-of-contents:
+/qilin-agent-client-ui-open-in-app/table-of-contents:
   en: d152484eb41ac6b4
   zh: 725b47765ee8f30b
-/qilin-client-ui-open-in-app/use-this-package:
+/qilin-agent-client-ui-open-in-app/use-this-package:
   en: 86ca0b751f71620b
   zh: 9a539146d9104c8d
-/qilin-client-ui-open-in-app/use-this-package/what-to-expect:
+/qilin-agent-client-ui-open-in-app/use-this-package/what-to-expect:
   en: 4b80d2ed864d403d
   zh: 8e29a1e136c56dd9
-/qilin-client-ui-open-in-app/understand-the-implementation:
-  en: 355dae6b7b680250
-  zh: e289039b4722ce08
-/qilin-client-ui-open-in-app/further-exploration:
+/qilin-agent-client-ui-open-in-app/understand-the-implementation:
+  en: 66451cb9675e2ce6
+  zh: 213fda45d8889831
+/qilin-agent-client-ui-open-in-app/further-exploration:
   en: b0f07edf5d8b5ec4
   zh: 3dcde47e9afb770e
-/qilin-client-ui-open-in-app/model-experience:
+/qilin-agent-client-ui-open-in-app/model-experience:
   en: 5f9e6e0fb0438628
   zh: fc9a81185ea6cb14
-/qilin-client-ui-open-in-app/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-open-in-app/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: c2241315dc0c89c9
-/qilin-client-ui-open-in-app/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-open-in-app/known-limitations-and-deferred-work:
   en: ef161cb71d26d4e0
   zh: 5f1ac075313c2636
-/qilin-client-ui-open-in-app/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-open-in-app/known-limitations-and-deferred-work/dev-note:
   en: 724343fd4679927c
   zh: a43377ea3ca4f1a4

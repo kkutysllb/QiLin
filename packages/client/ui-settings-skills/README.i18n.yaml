@@ -5,42 +5,42 @@
 /:
   en: bf548e2409e2e5c3
   zh: e91b33791236a638
-/qilin-client-ui-settings-skills:
-  en: ad730ac405179b0f
-  zh: d5af44f3d1b326ae
-/qilin-client-ui-settings-skills/summary:
+/qilin-agent-client-ui-settings-skills:
+  en: c4728d92acf0e528
+  zh: 286a4687ff002553
+/qilin-agent-client-ui-settings-skills/summary:
   en: a6894f64b7fc8e3f
   zh: a0be414cb4d3ed06
-/qilin-client-ui-settings-skills/table-of-contents:
+/qilin-agent-client-ui-settings-skills/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-ui-settings-skills/use-this-package:
+/qilin-agent-client-ui-settings-skills/use-this-package:
   en: eb5829f68e11b216
   zh: 613261a14bfafe9f
-/qilin-client-ui-settings-skills/use-this-package/groups:
+/qilin-agent-client-ui-settings-skills/use-this-package/groups:
   en: 06d9e83f4b352953
   zh: ac14f8682e841ff9
-/qilin-client-ui-settings-skills/use-this-package/rows:
+/qilin-agent-client-ui-settings-skills/use-this-package/rows:
   en: 768fe0de8cba8f8e
   zh: d3bf52ab5d4613ce
-/qilin-client-ui-settings-skills/use-this-package/before-a-session-exists:
+/qilin-agent-client-ui-settings-skills/use-this-package/before-a-session-exists:
   en: b74f43209f398099
   zh: dcb914520ee002a4
-/qilin-client-ui-settings-skills/understand-the-implementation:
+/qilin-agent-client-ui-settings-skills/understand-the-implementation:
   en: 95bca96505612c07
   zh: 503497ed0a501891
-/qilin-client-ui-settings-skills/further-exploration:
+/qilin-agent-client-ui-settings-skills/further-exploration:
   en: 1e0c3088c2293949
   zh: 5b2f4aa8215660dd
-/qilin-client-ui-settings-skills/model-experience:
+/qilin-agent-client-ui-settings-skills/model-experience:
   en: fa35f037e2a7a7d6
   zh: af42ac89ca91c28c
-/qilin-client-ui-settings-skills/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-settings-skills/model-experience/kv-cache-effect:
   en: 51d75309ddd54647
   zh: e9c9ff3dba046d71
-/qilin-client-ui-settings-skills/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-settings-skills/known-limitations-and-deferred-work:
   en: 3aa958b9c2e5c11b
   zh: d374284099b210c5
-/qilin-client-ui-settings-skills/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-settings-skills/known-limitations-and-deferred-work/dev-note:
   en: 0c1a86bef42ba25a
   zh: 32a9b048725047aa

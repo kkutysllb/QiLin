@@ -1,0 +1,46 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/session/working-directory/README.md
+/:
+  en: 06d920cc3955e86b
+  zh: 1bc4afef77054e66
+/qilin-agent-working-directory:
+  en: 62e2be090bdb40b8
+  zh: 61fc03fdaad53ba9
+/qilin-agent-working-directory/summary:
+  en: 594fc1c3e0a4e9e3
+  zh: c84b91ff6fa06972
+/qilin-agent-working-directory/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 9f0336825ccdaacd
+/qilin-agent-working-directory/use-this-package:
+  en: c7ca8dd85f3346de
+  zh: 4a0a9fe72921fa34
+/qilin-agent-working-directory/understand-the-implementation:
+  en: 975818cfd8c8350d
+  zh: 257fab27b8ca363a
+/qilin-agent-working-directory/further-exploration:
+  en: 7889612b1e9c9549
+  zh: 65b74a3d8471ade7
+/qilin-agent-working-directory/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-agent-working-directory/model-experience/working-directory-context:
+  en: 6fcebaf8006123ef
+  zh: 950162891001da33
+/qilin-agent-working-directory/model-experience/working-directory-context/what-the-model-sees:
+  en: 18abdab0eee29f6a
+  zh: e0e392d6fff38a6a
+/qilin-agent-working-directory/model-experience/working-directory-context/token-effect:
+  en: a02a00deaddbccea
+  zh: 5cb96e31c6dd2d14
+/qilin-agent-working-directory/model-experience/working-directory-context/kv-cache-effect:
+  en: f5a095acef81df3b
+  zh: fdd47f253769ad8f
+/qilin-agent-working-directory/known-limitations-and-deferred-work:
+  en: bd51f0d87df5f9c9
+  zh: 9ef187758e47c003
+/qilin-agent-working-directory/known-limitations-and-deferred-work/dev-note:
+  en: 0a1253c6f7b5e8b9
+  zh: 9f56528562c7c914

@@ -5,30 +5,30 @@
 /:
   en: e64f5d01c95cea56
   zh: 9761d65e30145b9c
-/qilin-host-preview-media:
-  en: e65470c637ecb5e4
-  zh: db57c6508415526f
-/qilin-host-preview-media/summary:
+/qilin-agent-host-preview-media:
+  en: 8ace912cba11f94e
+  zh: 2f9224b912515ba1
+/qilin-agent-host-preview-media/summary:
   en: 404789ef764fe78e
   zh: e10a8d8e40b33759
-/qilin-host-preview-media/table-of-contents:
+/qilin-agent-host-preview-media/table-of-contents:
   en: 35483a1f97ac9ea3
   zh: 2b4d4af0605f0475
-/qilin-host-preview-media/use-this-package:
+/qilin-agent-host-preview-media/use-this-package:
   en: 979f3aa7497c6c57
   zh: 6dcf16bd29c5dd98
-/qilin-host-preview-media/use-this-package/what-to-expect:
+/qilin-agent-host-preview-media/use-this-package/what-to-expect:
   en: cc5101057995ecaa
   zh: b9fcfd8eb9c921c4
-/qilin-host-preview-media/model-experience:
+/qilin-agent-host-preview-media/model-experience:
   en: 942a0174b133bcfe
   zh: b6dca2d453309eb1
-/qilin-host-preview-media/model-experience/kv-cache-effect:
+/qilin-agent-host-preview-media/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: ac87fc083e6f2eb0
-/qilin-host-preview-media/known-limitations-and-deferred-work:
+/qilin-agent-host-preview-media/known-limitations-and-deferred-work:
   en: e501ac1171311128
   zh: 2ed1b3666cc8af6d
-/qilin-host-preview-media/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-host-preview-media/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

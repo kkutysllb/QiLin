@@ -5,33 +5,33 @@
 /:
   en: 1c32778606f3027a
   zh: db7994fdb50333c8
-/qilin-api-remotes:
-  en: 33d737ba7497cfdf
-  zh: 652c880a9a734109
-/qilin-api-remotes/summary:
+/qilin-agent-api-remotes:
+  en: bc907cc459034bd1
+  zh: c3fba12f94e5e20c
+/qilin-agent-api-remotes/summary:
   en: 3c54c157bb823fd0
   zh: 0db6778e94ae671c
-/qilin-api-remotes/table-of-contents:
+/qilin-agent-api-remotes/table-of-contents:
   en: a7a78c6d1aeebeb3
   zh: 4bb69f32d8b05ba3
-/qilin-api-remotes/use-this-package:
-  en: 99afdc0574937614
-  zh: d20c3fc8b6b4b741
-/qilin-api-remotes/forwarded-host-events:
+/qilin-agent-api-remotes/use-this-package:
+  en: 065225929e266606
+  zh: 15df9d96f52e1946
+/qilin-agent-api-remotes/forwarded-host-events:
   en: 53413d4729c9bc72
   zh: a8fb799b8984a520
-/qilin-api-remotes/build-boundary:
-  en: 9bd2a245e5f82cd4
-  zh: 9990f0f443e83b16
-/qilin-api-remotes/model-experience:
+/qilin-agent-api-remotes/build-boundary:
+  en: 2610b64f58bf836e
+  zh: d05cb881f694d7e5
+/qilin-agent-api-remotes/model-experience:
   en: 6a60ae036c71e76f
   zh: bf5e86a5ac5b4be4
-/qilin-api-remotes/model-experience/kv-cache-effect:
+/qilin-agent-api-remotes/model-experience/kv-cache-effect:
   en: 6b51b98ce6368599
   zh: 3d7a63126352741d
-/qilin-api-remotes/known-limitations-and-deferred-work:
+/qilin-agent-api-remotes/known-limitations-and-deferred-work:
   en: 00a837c9e7b5a800
   zh: 1b86e789327b7798
-/qilin-api-remotes/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-api-remotes/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: e88aeb617ffb74ea

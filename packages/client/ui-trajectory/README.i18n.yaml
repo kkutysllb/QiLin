@@ -5,51 +5,51 @@
 /:
   en: 9e8cf8f505740df9
   zh: ce5eda3f87570baf
-/qilin-client-ui-trajectory:
-  en: fb20e7b922f0f731
-  zh: 987ca19ee4d52646
-/qilin-client-ui-trajectory/summary:
+/qilin-agent-client-ui-trajectory:
+  en: 81250b716b1c11d9
+  zh: 5cc8452664d26739
+/qilin-agent-client-ui-trajectory/summary:
   en: 44c94ae942ec0e48
   zh: 228a55690253f89f
-/qilin-client-ui-trajectory/table-of-contents:
+/qilin-agent-client-ui-trajectory/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-ui-trajectory/use-this-package:
+/qilin-agent-client-ui-trajectory/use-this-package:
   en: d8bfe28896432de7
   zh: 27c883954a31f68f
-/qilin-client-ui-trajectory/use-this-package/inspecting-records:
+/qilin-agent-client-ui-trajectory/use-this-package/inspecting-records:
   en: f739d398277793f6
   zh: 1b8b4c7d9df17f1f
-/qilin-client-ui-trajectory/use-this-package/the-timing-overview:
+/qilin-agent-client-ui-trajectory/use-this-package/the-timing-overview:
   en: ed6608646aa6f081
   zh: 00755f8b4da6018e
-/qilin-client-ui-trajectory/use-this-package/the-graph-view:
+/qilin-agent-client-ui-trajectory/use-this-package/the-graph-view:
   en: eb406a5bbe187f0c
   zh: 60261fefa130800c
-/qilin-client-ui-trajectory/understand-the-implementation:
-  en: 25d6535322df684f
-  zh: d60d3bd4201e65ce
-/qilin-client-ui-trajectory/understand-the-implementation/the-graph-projection:
+/qilin-agent-client-ui-trajectory/understand-the-implementation:
+  en: 9f2ca8fa5fa608f1
+  zh: 893c0c6d9be59b3c
+/qilin-agent-client-ui-trajectory/understand-the-implementation/the-graph-projection:
   en: 06806617ca60efd4
   zh: 5596f32b758ee42f
-/qilin-client-ui-trajectory/understand-the-implementation/virtual-rows:
+/qilin-agent-client-ui-trajectory/understand-the-implementation/virtual-rows:
   en: c85e342bc7eee4e6
   zh: 3120813991ee7b4c
-/qilin-client-ui-trajectory/understand-the-implementation/layout:
+/qilin-agent-client-ui-trajectory/understand-the-implementation/layout:
   en: d7128b491c4f7d83
   zh: 2b5153f5f8ffc0a5
-/qilin-client-ui-trajectory/further-exploration:
+/qilin-agent-client-ui-trajectory/further-exploration:
   en: 988b0137733592a2
   zh: 676c63da1da83fe9
-/qilin-client-ui-trajectory/model-experience:
+/qilin-agent-client-ui-trajectory/model-experience:
   en: 3120df665299c634
   zh: 1d9f365d091d0d2a
-/qilin-client-ui-trajectory/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-trajectory/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: de54f3467ef3b9be
-/qilin-client-ui-trajectory/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-trajectory/known-limitations-and-deferred-work:
   en: 8db16dd7764e28b3
   zh: 1a8ad2cbd3bd9ae1
-/qilin-client-ui-trajectory/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-trajectory/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

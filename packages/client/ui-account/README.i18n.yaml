@@ -5,30 +5,30 @@
 /:
   en: 745f3bb029ae3a78
   zh: ae8a5ee520f28f85
-/qilin-client-ui-account:
-  en: 93901c4e362c4049
-  zh: 114de46090370af5
-/qilin-client-ui-account/summary:
+/qilin-agent-client-ui-account:
+  en: 612cafd6a0630fe0
+  zh: f4fbc88c6a82302e
+/qilin-agent-client-ui-account/summary:
   en: 81b63e89f5fd5f7e
   zh: ae4fb02e11fd191e
-/qilin-client-ui-account/table-of-contents:
+/qilin-agent-client-ui-account/table-of-contents:
   en: 76368b6b1da79c80
   zh: 52384aee991ac542
-/qilin-client-ui-account/use-this-package:
+/qilin-agent-client-ui-account/use-this-package:
   en: af042f14e4c37707
   zh: fcea82ad20718480
-/qilin-client-ui-account/understand-the-implementation:
+/qilin-agent-client-ui-account/understand-the-implementation:
   en: 660a673252b8b067
   zh: 5ee8c0f9e9516c21
-/qilin-client-ui-account/model-experience:
+/qilin-agent-client-ui-account/model-experience:
   en: 21ae98ac31e1c62a
   zh: b7e2842cbcec0851
-/qilin-client-ui-account/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-account/model-experience/kv-cache-effect:
   en: 2a2706075f9729cd
   zh: 91f306246e59762c
-/qilin-client-ui-account/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-account/known-limitations-and-deferred-work:
   en: 3c5eb8128c5f064b
   zh: da5bebdc9da2b5d5
-/qilin-client-ui-account/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-account/known-limitations-and-deferred-work/dev-note:
   en: ec656e8eba292940
   zh: 52d3225942ce28e7

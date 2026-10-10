@@ -12,6 +12,7 @@ import { MockAdapter, textResponse, toolCallResponse } from '../../../core/agent
 import type { StreamChunk } from '@qilin-agent/llm'
 import * as fork from '../src/index.ts'
 import { STRUCTURED_OUTPUT_TOOL } from '@qilin-agent/subagent-in-process-driver'
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 
 type Script = ConstructorParameters<typeof MockAdapter>[0]
 
@@ -33,6 +34,7 @@ async function setup(script: Script) {
   const ctx = new Context()
   await mountAgentLoopTestDependencies(ctx)
   await ctx.plugin(AgentLoop, { agents: [] })
+  await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(SubagentRuntime)
   await ctx.plugin(fork, { providerName: 'fork' })
   ctx.llm.registerAdapter(['mock'], new MockAdapter(script))
@@ -198,6 +200,7 @@ describe('qilin-subagent-fork-in-process', () => {
   it('unregisters the provider when its fiber is disposed (HMR safety)', async () => {
     const ctx = new Context()
     await ctx.plugin(SessionProjectionRegistry)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     await ctx.plugin(AgentRegistry)
     const fiber = await ctx.plugin(fork, { providerName: 'fork' })
@@ -215,6 +218,7 @@ describe('qilin-subagent-fork-in-process', () => {
     // child starts fresh rather than carrying an empty seed.
     const fresh = await provider.prepareContinuable!({
       sessionId: SessionId('continuable-fresh'),
+      cwd: process.cwd(),
       parent,
       signal,
     })
@@ -225,6 +229,7 @@ describe('qilin-subagent-fork-in-process', () => {
     await parent.whenIdle()
     const seeded = await provider.prepareContinuable!({
       sessionId: SessionId('continuable-seeded'),
+      cwd: process.cwd(),
       parent,
       signal,
     })

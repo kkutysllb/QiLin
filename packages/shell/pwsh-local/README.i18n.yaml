@@ -5,60 +5,60 @@
 /:
   en: 07482fe1f03de5e9
   zh: 8ec16b9f9ac73b38
-/qilin-pwsh-local:
-  en: 0a107af9ab61a80e
-  zh: a29bb31292c8fd17
-/qilin-pwsh-local/summary:
+/qilin-agent-pwsh-local:
+  en: e84c335e2c720e60
+  zh: 6293f3ea4edc3c60
+/qilin-agent-pwsh-local/summary:
   en: e581422e4540e1f9
   zh: c08081e0c8053ea0
-/qilin-pwsh-local/table-of-contents:
+/qilin-agent-pwsh-local/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-pwsh-local/use-this-package:
+/qilin-agent-pwsh-local/use-this-package:
   en: f53013bc78e9367f
   zh: cc15b499f6a95080
-/qilin-pwsh-local/use-this-package/when-to-choose-it:
+/qilin-agent-pwsh-local/use-this-package/when-to-choose-it:
   en: efa4ebd13c2dfaab
   zh: 2f03d1d2f8520a1d
-/qilin-pwsh-local/use-this-package/minimal-configuration:
-  en: a9dccc33c65bcff2
-  zh: 06cc7a5116964c3d
-/qilin-pwsh-local/use-this-package/running-commands:
+/qilin-agent-pwsh-local/use-this-package/minimal-configuration:
+  en: 93ddd81fa5baba77
+  zh: 40dacd2336c3de57
+/qilin-agent-pwsh-local/use-this-package/running-commands:
   en: c3d3e1b7f6dd4c08
   zh: a59ba8af342f1622
-/qilin-pwsh-local/use-this-package/background-processes:
+/qilin-agent-pwsh-local/use-this-package/background-processes:
   en: 89d45582454b7673
   zh: a76a26ff7b2e17e8
-/qilin-pwsh-local/use-this-package/adjusting-budgets-at-runtime:
+/qilin-agent-pwsh-local/use-this-package/adjusting-budgets-at-runtime:
   en: f72a6a1173baf110
   zh: 0b6b5af6cda7666f
-/qilin-pwsh-local/understand-the-implementation:
+/qilin-agent-pwsh-local/understand-the-implementation:
   en: 05e2abe4a25886fd
   zh: 3f7f1326dc3c1d3f
-/qilin-pwsh-local/understand-the-implementation/design-concept:
+/qilin-agent-pwsh-local/understand-the-implementation/design-concept:
   en: d065be99a0cea908
   zh: 50eee843e3b6860c
-/qilin-pwsh-local/understand-the-implementation/source-map:
+/qilin-agent-pwsh-local/understand-the-implementation/source-map:
   en: aa160f9ec57ff627
   zh: 048d3292dddf1d8b
-/qilin-pwsh-local/understand-the-implementation/main-flow:
+/qilin-agent-pwsh-local/understand-the-implementation/main-flow:
   en: 1cb78cfddb484576
   zh: 94e16b60c9cd458b
-/qilin-pwsh-local/understand-the-implementation/invariants-and-ownership:
+/qilin-agent-pwsh-local/understand-the-implementation/invariants-and-ownership:
   en: 43d095df54bee69c
   zh: ff17f8901d463c58
-/qilin-pwsh-local/further-exploration:
+/qilin-agent-pwsh-local/further-exploration:
   en: 31ba043e843263bb
   zh: 6e75c071ed8deb2c
-/qilin-pwsh-local/model-experience:
+/qilin-agent-pwsh-local/model-experience:
   en: 6a3aa7b37034f714
   zh: 2ba4892f510a457f
-/qilin-pwsh-local/model-experience/kv-cache-effect:
+/qilin-agent-pwsh-local/model-experience/kv-cache-effect:
   en: 40294c1c31b74824
   zh: 788a4799b1d65a8b
-/qilin-pwsh-local/known-limitations-and-deferred-work:
+/qilin-agent-pwsh-local/known-limitations-and-deferred-work:
   en: 09461e2cde33185c
   zh: 0425312bfdd430d5
-/qilin-pwsh-local/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-pwsh-local/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

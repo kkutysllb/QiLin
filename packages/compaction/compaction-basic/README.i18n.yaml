@@ -5,96 +5,96 @@
 /:
   en: 4c3172f95eb524e1
   zh: dd92ec1300ad9cbe
-/qilin-compaction-basic:
-  en: 649f9ac20b37e0a3
-  zh: 16347250942e8136
-/qilin-compaction-basic/summary:
+/qilin-agent-compaction-basic:
+  en: 73ffe0cb0c961de0
+  zh: b83a58bbccb39b0c
+/qilin-agent-compaction-basic/summary:
   en: 31202d573182cc31
   zh: e0a0c96f67a9c1ba
-/qilin-compaction-basic/table-of-contents:
+/qilin-agent-compaction-basic/table-of-contents:
   en: d152484eb41ac6b4
   zh: bda879a892f240f0
-/qilin-compaction-basic/use-this-package:
+/qilin-agent-compaction-basic/use-this-package:
   en: 5cb0572c014f1d52
   zh: 8f1056b988d3401e
-/qilin-compaction-basic/use-this-package/what-you-get:
+/qilin-agent-compaction-basic/use-this-package/what-you-get:
   en: eb8e340061f72b98
   zh: 327a51037b2d1adf
-/qilin-compaction-basic/use-this-package/smallest-working-composition:
+/qilin-agent-compaction-basic/use-this-package/smallest-working-composition:
   en: 4cb73d7a57908948
   zh: 7ba2ddc4c76e4957
-/qilin-compaction-basic/use-this-package/tuning-when-condensation-starts:
-  en: 99fa693b3f4365ac
-  zh: 4d906ed0b61e69d3
-/qilin-compaction-basic/use-this-package/what-happens-when-condensation-runs:
+/qilin-agent-compaction-basic/use-this-package/tuning-when-condensation-starts:
+  en: 153c5b487d67cf5e
+  zh: e89ac1f9efd0bded
+/qilin-agent-compaction-basic/use-this-package/what-happens-when-condensation-runs:
   en: c872a8ef069596f0
   zh: b3a48e309ae830d4
-/qilin-compaction-basic/use-this-package/on-demand-condensation-with-compact:
+/qilin-agent-compaction-basic/use-this-package/on-demand-condensation-with-compact:
   en: 3036035900fd3db2
   zh: 933f4c9781cf41ed
-/qilin-compaction-basic/use-this-package/trimming-oversized-tool-outputs:
+/qilin-agent-compaction-basic/use-this-package/trimming-oversized-tool-outputs:
   en: 611f653bf71d3b71
   zh: 46faefc8b0311e53
-/qilin-compaction-basic/understand-the-implementation:
+/qilin-agent-compaction-basic/understand-the-implementation:
   en: deb655b3b1860576
   zh: 79f56e41a9dfe01f
-/qilin-compaction-basic/understand-the-implementation/design-philosophy:
+/qilin-agent-compaction-basic/understand-the-implementation/design-philosophy:
   en: 54945a18965f12a8
   zh: fecd5d4fc2f2e6d6
-/qilin-compaction-basic/understand-the-implementation/automatic-triggers-and-overflow-recovery:
+/qilin-agent-compaction-basic/understand-the-implementation/automatic-triggers-and-overflow-recovery:
   en: f1ae703a8797ea06
   zh: 80494e5253530939
-/qilin-compaction-basic/understand-the-implementation/summarization-mechanics:
+/qilin-agent-compaction-basic/understand-the-implementation/summarization-mechanics:
   en: a4f34a759ea7f20e
   zh: 46c598dd3eef5a5d
-/qilin-compaction-basic/understand-the-implementation/the-region-transaction:
+/qilin-agent-compaction-basic/understand-the-implementation/the-region-transaction:
   en: f4330f6bff22d400
   zh: 46e16c51bb66a0f7
-/qilin-compaction-basic/understand-the-implementation/config-resolution:
+/qilin-agent-compaction-basic/understand-the-implementation/config-resolution:
   en: 6146fbaeb21279a5
   zh: 2badeee4532a168c
-/qilin-compaction-basic/understand-the-implementation/source-map:
+/qilin-agent-compaction-basic/understand-the-implementation/source-map:
   en: 3f1d7a55b790e623
   zh: 39e878c0785a885c
-/qilin-compaction-basic/further-exploration:
-  en: 0849534614947773
-  zh: 2ded5fe8bed54e78
-/qilin-compaction-basic/model-experience:
+/qilin-agent-compaction-basic/further-exploration:
+  en: 1a4bdd6adad54b29
+  zh: 0b68978b4bbb27e6
+/qilin-agent-compaction-basic/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-compaction-basic/model-experience/conversation-history:
+/qilin-agent-compaction-basic/model-experience/conversation-history:
   en: 2e1148dd0f39a281
   zh: cd68c9fff63534af
-/qilin-compaction-basic/model-experience/conversation-history/what-the-model-sees:
+/qilin-agent-compaction-basic/model-experience/conversation-history/what-the-model-sees:
   en: 8d4325e6659bc314
   zh: f80e69305b39f4a3
-/qilin-compaction-basic/model-experience/conversation-history/what-the-model-sees/conversation-checkpoint-preamble:
+/qilin-agent-compaction-basic/model-experience/conversation-history/what-the-model-sees/conversation-checkpoint-preamble:
   en: 129d1eaba2519330
   zh: 3ec517bdc6cb5ae3
-/qilin-compaction-basic/model-experience/conversation-history/token-effect:
+/qilin-agent-compaction-basic/model-experience/conversation-history/token-effect:
   en: 872515a75b5a9726
   zh: c0045e1972bbac4e
-/qilin-compaction-basic/model-experience/conversation-history/kv-cache-effect:
+/qilin-agent-compaction-basic/model-experience/conversation-history/kv-cache-effect:
   en: a22b43f321843aee
   zh: a5960da1bef34441
-/qilin-compaction-basic/model-experience/auxiliary-summarizer-request:
+/qilin-agent-compaction-basic/model-experience/auxiliary-summarizer-request:
   en: 7169bd02a7a6c396
   zh: 7c62e3d4a97c73f7
-/qilin-compaction-basic/model-experience/auxiliary-summarizer-request/what-the-model-sees:
+/qilin-agent-compaction-basic/model-experience/auxiliary-summarizer-request/what-the-model-sees:
   en: b7afcf1cc1c85c40
   zh: a112c5b3984c31dc
-/qilin-compaction-basic/model-experience/auxiliary-summarizer-request/what-the-model-sees/compaction-instruction-final-user-message:
+/qilin-agent-compaction-basic/model-experience/auxiliary-summarizer-request/what-the-model-sees/compaction-instruction-final-user-message:
   en: 39a362ee4890dbdb
   zh: 3b98699120b1548e
-/qilin-compaction-basic/model-experience/auxiliary-summarizer-request/token-effect:
+/qilin-agent-compaction-basic/model-experience/auxiliary-summarizer-request/token-effect:
   en: 5e0679cb7cb4291a
   zh: c9df8ebc526b05d9
-/qilin-compaction-basic/model-experience/auxiliary-summarizer-request/kv-cache-effect:
+/qilin-agent-compaction-basic/model-experience/auxiliary-summarizer-request/kv-cache-effect:
   en: d31d3e3d46542c91
   zh: 5a42f873993e0c79
-/qilin-compaction-basic/known-limitations-and-deferred-work:
+/qilin-agent-compaction-basic/known-limitations-and-deferred-work:
   en: 8f459fa26e079883
   zh: 4acdcefa71ebb409
-/qilin-compaction-basic/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-compaction-basic/known-limitations-and-deferred-work/dev-note:
   en: 1fec7b90c3b68c49
   zh: ad9ae54a598846d0

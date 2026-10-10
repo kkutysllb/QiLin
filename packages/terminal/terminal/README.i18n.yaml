@@ -5,75 +5,75 @@
 /:
   en: 3d90ab1819787962
   zh: d5279e899341168a
-/qilin-terminal:
-  en: 184ff2c73f1345be
-  zh: 96660824347c0a10
-/qilin-terminal/summary:
+/qilin-agent-terminal:
+  en: d18786b2ac40b514
+  zh: 544b6ffd8e5434da
+/qilin-agent-terminal/summary:
   en: 81b6680b9bf28f3f
   zh: 77b70db7afbb172d
-/qilin-terminal/table-of-contents:
+/qilin-agent-terminal/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-terminal/use-this-package:
-  en: d96f2580747532ef
-  zh: 7f8489b48c6d5761
-/qilin-terminal/use-this-package/when-to-choose-it:
+/qilin-agent-terminal/use-this-package:
+  en: 149eb46b499f5fd0
+  zh: 736632109fb62e9d
+/qilin-agent-terminal/use-this-package/when-to-choose-it:
   en: c4244a1757ca3584
   zh: b6fb10e30146b347
-/qilin-terminal/use-this-package/composition:
+/qilin-agent-terminal/use-this-package/composition:
   en: e29c8d35575de1a9
   zh: 065bc0a0836f946d
-/qilin-terminal/use-this-package/what-sessions-give-you:
+/qilin-agent-terminal/use-this-package/what-sessions-give-you:
   en: 6527302f4ad84cbb
   zh: 8edc988f1d0a3cee
-/qilin-terminal/use-this-package/ownership-and-isolation:
+/qilin-agent-terminal/use-this-package/ownership-and-isolation:
   en: 47820d85ea37cb36
   zh: 857686d08af67fcb
-/qilin-terminal/use-this-package/observable-outcomes-and-failures:
+/qilin-agent-terminal/use-this-package/observable-outcomes-and-failures:
   en: 4fcedb18b5e8d5f2
   zh: d72bb1a45e45cfff
-/qilin-terminal/understand-the-implementation:
+/qilin-agent-terminal/understand-the-implementation:
   en: 0d0669b98b14a3dd
   zh: 57416c205270e4e1
-/qilin-terminal/understand-the-implementation/design-concept:
+/qilin-agent-terminal/understand-the-implementation/design-concept:
   en: 6bae42fb7275816f
   zh: 5f75e1b26074108c
-/qilin-terminal/understand-the-implementation/source-map:
+/qilin-agent-terminal/understand-the-implementation/source-map:
   en: 48dab6fe2f770ced
   zh: 9bbfd23bcc5ac2b3
-/qilin-terminal/understand-the-implementation/data-model-and-lifecycle:
+/qilin-agent-terminal/understand-the-implementation/data-model-and-lifecycle:
   en: a2adfa2708882e19
   zh: 002f257fd8c4addb
-/qilin-terminal/understand-the-implementation/ownership-and-cleanup-rules:
+/qilin-agent-terminal/understand-the-implementation/ownership-and-cleanup-rules:
   en: 7af36e58919e41d5
   zh: 4fe7b4db1099bcbf
-/qilin-terminal/understand-the-implementation/send-reservation:
+/qilin-agent-terminal/understand-the-implementation/send-reservation:
   en: 5815723cd0c6089c
   zh: 0c612ffa4b8c466c
-/qilin-terminal/further-exploration:
-  en: 0a6d41fc316012af
-  zh: e88c2b37189d46bb
-/qilin-terminal/model-experience:
+/qilin-agent-terminal/further-exploration:
+  en: 8afe02fb17d3715e
+  zh: 7c788f8eab82ffde
+/qilin-agent-terminal/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-terminal/model-experience/indirect-consumer:
+/qilin-agent-terminal/model-experience/indirect-consumer:
   en: a601a3c4f5b848cd
   zh: ec617f79f706aaa1
-/qilin-terminal/model-experience/indirect-consumer/what-the-model-sees:
-  en: 063f0367cd2b8cda
-  zh: d786911999389f23
-/qilin-terminal/model-experience/indirect-consumer/token-effect:
+/qilin-agent-terminal/model-experience/indirect-consumer/what-the-model-sees:
+  en: a396cc09b25738d4
+  zh: 939fa19aa00ba519
+/qilin-agent-terminal/model-experience/indirect-consumer/token-effect:
   en: 477da21b0a5be3a6
   zh: 3ae1d37fe671ef96
-/qilin-terminal/model-experience/indirect-consumer/kv-cache-effect:
-  en: bd9a154a64e9fe80
-  zh: 392dde53d6b345fc
-/qilin-terminal/known-limitations-and-deferred-work:
+/qilin-agent-terminal/model-experience/indirect-consumer/kv-cache-effect:
+  en: f9f4bb1c91a64942
+  zh: cffdc08e501d942f
+/qilin-agent-terminal/known-limitations-and-deferred-work:
   en: a133ebc47a4df34f
   zh: 9bb949487ee566d5
-/qilin-terminal/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-terminal/known-limitations-and-deferred-work/dev-note:
   en: 112f870e68bd1ff3
   zh: 693f37bbd32497a0
-/qilin-terminal/known-limitations-and-deferred-work/dev-note/undecided-directions:
+/qilin-agent-terminal/known-limitations-and-deferred-work/dev-note/undecided-directions:
   en: 3c5203a9c40a38ef
   zh: a7660ca08bd0d279

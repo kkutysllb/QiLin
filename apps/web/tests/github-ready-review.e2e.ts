@@ -9,7 +9,7 @@ import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed, onTestFinished, vi } from 'vitest'
 import type { GenerateOptions, StreamChunk } from '@qilin-agent/llm'
 import { LlmAdapter } from '@qilin-agent/llm'
-import type {} from '@qilin-agent/webhook'
+import type {} from '@qilin-agent/experimental-webhook'
 import {
   captureExpandedTurnProcessAria,
   captureStableAria,
@@ -22,7 +22,7 @@ import {
 import { saveFailureShot } from './support.ts'
 
 const MODE = webSnapshotMode()
-const OVERLAY = fileURLToPath(new URL('../../cli/config/examples/github-review/cordis.yml', import.meta.url))
+const OVERLAY = fileURLToPath(new URL('../../../packages/experimental/webhook-github/examples/github-review/cordis.yml', import.meta.url))
 const EXPECTED = fileURLToPath(new URL('./expected/github-ready-review/conversation.expected.md', import.meta.url))
 const EXPANDED_EXPECTED = fileURLToPath(
   new URL('./expected/github-ready-review/conversation-expanded.expected.md', import.meta.url),

@@ -5,48 +5,48 @@
 /:
   en: fbd3cf9953271b10
   zh: 6efe4d036544d0d2
-/qilin-host-open-in-app:
-  en: ded1e8fb7dfa4f6b
-  zh: 1d50bf4bbb64ec29
-/qilin-host-open-in-app/summary:
+/qilin-agent-host-open-in-app:
+  en: 1e759165795935ed
+  zh: b839b9152af23b21
+/qilin-agent-host-open-in-app/summary:
   en: 92845b2dfaf4c29f
   zh: 1908b20c3e048b4e
-/qilin-host-open-in-app/table-of-contents:
+/qilin-agent-host-open-in-app/table-of-contents:
   en: d152484eb41ac6b4
   zh: 725b47765ee8f30b
-/qilin-host-open-in-app/use-this-package:
+/qilin-agent-host-open-in-app/use-this-package:
   en: 401c2849e5b134df
   zh: e4ea300ab7a1545c
-/qilin-host-open-in-app/use-this-package/when-to-choose-it:
+/qilin-agent-host-open-in-app/use-this-package/when-to-choose-it:
   en: de7fee2f609200b4
   zh: 823bfe6402dd498f
-/qilin-host-open-in-app/use-this-package/minimal-configuration:
-  en: 77fd00492420301e
-  zh: 7d3c75aa8a01396d
-/qilin-host-open-in-app/use-this-package/the-catalog-and-how-it-resolves:
+/qilin-agent-host-open-in-app/use-this-package/minimal-configuration:
+  en: aea46e91777e13b1
+  zh: 9342e4bbbfa90141
+/qilin-agent-host-open-in-app/use-this-package/the-catalog-and-how-it-resolves:
   en: 7a63acc1bc55aa6f
   zh: bbe541dbe88b2ba6
-/qilin-host-open-in-app/use-this-package/what-to-expect:
+/qilin-agent-host-open-in-app/use-this-package/what-to-expect:
   en: 558f3d7fd8cb28bc
   zh: d1022611965fb5a4
-/qilin-host-open-in-app/use-this-package/the-shared-subpath:
+/qilin-agent-host-open-in-app/use-this-package/the-shared-subpath:
   en: 558e741770080c93
   zh: 80482d355dc89cae
-/qilin-host-open-in-app/understand-the-implementation:
-  en: e38e5097bb8ea032
-  zh: 2bcb39ed6e1458cf
-/qilin-host-open-in-app/further-exploration:
+/qilin-agent-host-open-in-app/understand-the-implementation:
+  en: c8be6c9a7e53efed
+  zh: cebc0ae1c89542ea
+/qilin-agent-host-open-in-app/further-exploration:
   en: 8d1c75e70aafc888
   zh: 98fb6f2bfef2495f
-/qilin-host-open-in-app/model-experience:
+/qilin-agent-host-open-in-app/model-experience:
   en: f4b8dd6b4e986564
   zh: 814a768a38e52c03
-/qilin-host-open-in-app/model-experience/kv-cache-effect:
+/qilin-agent-host-open-in-app/model-experience/kv-cache-effect:
   en: 47f982e326fe77fd
   zh: c2241315dc0c89c9
-/qilin-host-open-in-app/known-limitations-and-deferred-work:
+/qilin-agent-host-open-in-app/known-limitations-and-deferred-work:
   en: 6e1cf559c4ce0d56
   zh: f78c5548bb3d6236
-/qilin-host-open-in-app/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-host-open-in-app/known-limitations-and-deferred-work/dev-note:
   en: a2626a8f3794a15b
   zh: 710451c839b8f150

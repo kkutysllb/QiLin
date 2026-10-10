@@ -37,6 +37,8 @@
     "@qilin-agent/session-projection": "workspace:*",
     "@qilin-agent/system-prompt": "workspace:*",
     "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/working-directory": "workspace:*",
+    "@qilin-agent/fs-local": "workspace:*",
     "@qilin-agent/kylin": "workspace:~"
   },
   "dependencies": {},
@@ -48,6 +50,8 @@
     "@qilin-agent/session-projection": "workspace:*",
     "@qilin-agent/system-prompt": "workspace:*",
     "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/working-directory": "workspace:*",
+    "@qilin-agent/fs-local": "workspace:*",
     "@qilin-agent/kylin": "workspace:~"
   }
 }

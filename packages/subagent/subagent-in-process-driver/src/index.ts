@@ -13,6 +13,7 @@
 
 import { randomUUID } from 'node:crypto'
 import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/working-directory'
 import { brandString } from '@qilin-agent/brand'
 import { foldConsumedWork } from '@qilin-agent/agent'
 import type { Agent, AgentHandle } from '@qilin-agent/agent'
@@ -119,8 +120,11 @@ export async function startInProcessRun(
   const inherited = captureDelegatedPolicyOverrides(parent)
 
   let structured: StructuredAttachment | undefined
-  const setup = (childCtx: Context, child: Agent): void => {
+  const setup = async (childCtx: Context, child: Agent): Promise<void> => {
     appendDelegatedPolicyOverrides(child.session, inherited)
+    const workingDirectory = childCtx.get('workingDirectory')
+    if (workingDirectory === undefined) throw new Error('in-process subagents require the working-directory service')
+    await workingDirectory.set(child, request.cwd, request.signal)
     applyChildComposition(childCtx, parent, {
       persona: request.persona,
       toolFilter: request.toolFilter,

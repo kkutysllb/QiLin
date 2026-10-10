@@ -5,6 +5,7 @@ import type { SessionEvent, TurnEndReason } from '@qilin-agent/session'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import SubagentRuntime from '../src/index.ts'
 import { subagentTimingProjectionDefinition, type TimingState } from '../src/projection.ts'
+import { mountWorkingDirectoryFixture } from './working-directory-fixture.ts'
 
 function event(
   type: SessionEvent['type'],
@@ -31,6 +32,7 @@ describe('subagent timing projection', () => {
     const ctx = new Context()
     await ctx.plugin(SessionStore)
     await ctx.plugin(SessionProjectionRegistry)
+    await mountWorkingDirectoryFixture(ctx)
     const serviceFiber = await ctx.plugin(SubagentRuntime)
 
     const before = ctx.sessionProjections.snapshot(ctx.sessions.create()).values

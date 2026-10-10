@@ -142,6 +142,14 @@
     # Shared projection registry: subagent catalog identity (mode/label) folds
     # through its registered units, so the `list_agents` surface below fails
     # loud without it; web layers reuse this same mount for list rows.
+    # Working-directory owner and its model tool: the Session's effective
+    # directory for directory-based operations and durable changes.
+    - id: working-directory
+      name: '@qilin-agent/working-directory'
+
+    - id: tool-working-directory
+      name: '@qilin-agent/tool-working-directory'
+
     - id: session-projection
       name: '@qilin-agent/session-projection'
 
@@ -289,10 +297,6 @@
     - id: skill-filesystem
       name: '@qilin-agent/skill-filesystem'
 
-    - id: skill-badge
-      name: '@qilin-agent/skill-badge'
-      disabled: true
-
     - id: tool-skill
       name: '@qilin-agent/tool-skill'
 
@@ -428,20 +432,6 @@
     # domain, driver, and `/goal` command are above.
     - id: tool-goal
       name: '@qilin-agent/tool-goal'
-
-    # Fresh-agent Ralph iteration over a build-time-fixed script. Off by
-    # default: the tool description restricts `ralph` to runs the human
-    # explicitly asked for, and completion is a worker self-report, not an
-    # independent evaluation. An overlay row restores it for a base-backed
-    # profile (`$QILIN_HOME/cordis.patch.yml`, or a `--patch <file>`):
-    #   - id: tool-ralph
-    #     disabled: false
-    - id: tool-ralph
-      name: '@qilin-agent/tool-ralph'
-      disabled: true
-      config:
-        subagentProvider: spawn
-        maxRounds: 64
 
     # Consecutive-repeat reminders on the tool chain.
     - id: repeat-tool-reminder

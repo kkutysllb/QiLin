@@ -5,48 +5,48 @@
 /:
   en: 1670ed782a12908d
   zh: 120007354cbbdb36
-/qilin-client-ui-settings-plugins:
-  en: 1472d65a3e255835
-  zh: 2db0ab0a4f7ef5ec
-/qilin-client-ui-settings-plugins/summary:
+/qilin-agent-client-ui-settings-plugins:
+  en: 422cd671737b096e
+  zh: 9e9ef6a35b138742
+/qilin-agent-client-ui-settings-plugins/summary:
   en: 7a676f7430c92e22
   zh: 2ff6a911f94d4de4
-/qilin-client-ui-settings-plugins/table-of-contents:
+/qilin-agent-client-ui-settings-plugins/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-ui-settings-plugins/use-this-package:
+/qilin-agent-client-ui-settings-plugins/use-this-package:
   en: 2c3441975a279ff8
   zh: b0587417f7bc0141
-/qilin-client-ui-settings-plugins/use-this-package/what-appears-here:
+/qilin-agent-client-ui-settings-plugins/use-this-package/what-appears-here:
   en: 3bd795b9a5b033dd
   zh: 95f3a6bac59864ba
-/qilin-client-ui-settings-plugins/use-this-package/editing-and-saving:
+/qilin-agent-client-ui-settings-plugins/use-this-package/editing-and-saving:
   en: 3e8d3dbd9deb704a
   zh: 62f8ec8379ea4212
-/qilin-client-ui-settings-plugins/use-this-package/secret-role-fields:
+/qilin-agent-client-ui-settings-plugins/use-this-package/secret-role-fields:
   en: aae49587945e1b84
   zh: 514b265ef099a9f1
-/qilin-client-ui-settings-plugins/understand-the-implementation:
+/qilin-agent-client-ui-settings-plugins/understand-the-implementation:
   en: a7d99a0006373ba9
   zh: fd9560e1499fd274
-/qilin-client-ui-settings-plugins/understand-the-implementation/the-registration-rule:
+/qilin-agent-client-ui-settings-plugins/understand-the-implementation/the-registration-rule:
   en: 13f4ba9841c81484
   zh: 870b18bd4c3c3b27
-/qilin-client-ui-settings-plugins/understand-the-implementation/the-write-path:
+/qilin-agent-client-ui-settings-plugins/understand-the-implementation/the-write-path:
   en: 8e21487b8251d057
   zh: 9679617bac069cd3
-/qilin-client-ui-settings-plugins/further-exploration:
+/qilin-agent-client-ui-settings-plugins/further-exploration:
   en: dd6103dffd4af94a
   zh: dd7e1dbffaf1aa5a
-/qilin-client-ui-settings-plugins/model-experience:
+/qilin-agent-client-ui-settings-plugins/model-experience:
   en: 6b7c6f82ab6c8435
   zh: 3328550d96a6368b
-/qilin-client-ui-settings-plugins/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-settings-plugins/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: de54f3467ef3b9be
-/qilin-client-ui-settings-plugins/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-settings-plugins/known-limitations-and-deferred-work:
   en: fdadcbd489719e38
   zh: b7d8258224006047
-/qilin-client-ui-settings-plugins/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-settings-plugins/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

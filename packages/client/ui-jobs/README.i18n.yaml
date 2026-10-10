@@ -5,36 +5,36 @@
 /:
   en: 5c00e054d1e02700
   zh: 678f43f0276422f8
-/qilin-client-ui-jobs:
-  en: a0116b43189cb96c
-  zh: cae51d35bf4c13db
-/qilin-client-ui-jobs/summary:
+/qilin-agent-client-ui-jobs:
+  en: dd3fc08db8d1c34b
+  zh: 89c7e9a5f88ebfc5
+/qilin-agent-client-ui-jobs/summary:
   en: fac5c2092b57d9df
   zh: ac05650a6f9dc77a
-/qilin-client-ui-jobs/table-of-contents:
+/qilin-agent-client-ui-jobs/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-ui-jobs/use-this-package:
+/qilin-agent-client-ui-jobs/use-this-package:
   en: 32646e32b47172e7
   zh: 83e8fff6de2e8b05
-/qilin-client-ui-jobs/use-this-package/dismissal-and-limits:
+/qilin-agent-client-ui-jobs/use-this-package/dismissal-and-limits:
   en: 63efd5a2b0986bfb
   zh: ecfc938bdd5c83c6
-/qilin-client-ui-jobs/understand-the-implementation:
+/qilin-agent-client-ui-jobs/understand-the-implementation:
   en: cee083b101337f44
   zh: 38e5c4a8278d339b
-/qilin-client-ui-jobs/further-exploration:
+/qilin-agent-client-ui-jobs/further-exploration:
   en: c58e82a3ce217c32
   zh: d6bd297d31bc3c4e
-/qilin-client-ui-jobs/model-experience:
+/qilin-agent-client-ui-jobs/model-experience:
   en: f9ec590439742792
   zh: 5914634c4b1c0912
-/qilin-client-ui-jobs/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-jobs/model-experience/kv-cache-effect:
   en: 47f982e326fe77fd
   zh: c2241315dc0c89c9
-/qilin-client-ui-jobs/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-jobs/known-limitations-and-deferred-work:
   en: 82b0b7f1c1dcde46
   zh: 03344ce9b638799f
-/qilin-client-ui-jobs/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-jobs/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

@@ -5,36 +5,36 @@
 /:
   en: 82256ca1562a0ab4
   zh: 7fee6086dc9c5e52
-/qilin-client-ui-dockkit:
-  en: 6aad3b4c9f0e3194
-  zh: e99c642cc51ede67
-/qilin-client-ui-dockkit/summary:
+/qilin-agent-client-ui-dockkit:
+  en: 44e048e06ffd0660
+  zh: 20d5a1a2929afd36
+/qilin-agent-client-ui-dockkit/summary:
   en: 3ee4584a73215ef4
   zh: 051170a6d0993fa5
-/qilin-client-ui-dockkit/table-of-contents:
+/qilin-agent-client-ui-dockkit/table-of-contents:
   en: 42038fdc402b9c2a
   zh: 99890f8f908624ce
-/qilin-client-ui-dockkit/the-two-layers:
+/qilin-agent-client-ui-dockkit/the-two-layers:
   en: d4129a1f338605e2
   zh: d1adcb4f10a0754f
-/qilin-client-ui-dockkit/embedding-it:
+/qilin-agent-client-ui-dockkit/embedding-it:
   en: 6bde4a472ccfc725
   zh: 1acf223bc6eb8c14
-/qilin-client-ui-dockkit/interaction-rules-worth-keeping:
-  en: 8e702640a8aa29fa
-  zh: 103b3a1403493f38
-/qilin-client-ui-dockkit/build-shape:
+/qilin-agent-client-ui-dockkit/interaction-rules-worth-keeping:
+  en: fc1fca516039f61a
+  zh: 4a952c123dad6eef
+/qilin-agent-client-ui-dockkit/build-shape:
   en: 21216ba5798d7f5f
   zh: ac505fdcd5c114d4
-/qilin-client-ui-dockkit/model-experience:
+/qilin-agent-client-ui-dockkit/model-experience:
   en: cdebb91645623401
   zh: fe262db316714fa8
-/qilin-client-ui-dockkit/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-dockkit/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: f57cc48a1b5cbfa9
-/qilin-client-ui-dockkit/known-limitations-and-deferred-work:
-  en: 4323810ca5a87e6c
-  zh: 3a24af2ea4467ab7
-/qilin-client-ui-dockkit/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-dockkit/known-limitations-and-deferred-work:
+  en: 7b2de7c7ca2b6f9a
+  zh: 22a9b443fd097c9f
+/qilin-agent-client-ui-dockkit/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: e88aeb617ffb74ea

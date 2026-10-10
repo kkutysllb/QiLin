@@ -5,48 +5,48 @@
 /:
   en: 47f2816e2d2cecb9
   zh: e051427327761450
-/qilin-scope:
-  en: 3a5f3801cc0ab51c
-  zh: 496e3703f07c9d4d
-/qilin-scope/summary:
+/qilin-agent-scope:
+  en: 9cedbfd824595222
+  zh: 69860343054baf27
+/qilin-agent-scope/summary:
   en: b015eed63ced1c50
   zh: 20b4e7ee0756e067
-/qilin-scope/table-of-contents:
+/qilin-agent-scope/table-of-contents:
   en: 80b31a934611cb4a
   zh: 05f3f7f9cb2fd881
-/qilin-scope/use-this-package:
+/qilin-agent-scope/use-this-package:
   en: 4224109b38236976
   zh: d52130f31ddb5b53
-/qilin-scope/use-this-package/mint-a-scope:
+/qilin-agent-scope/use-this-package/mint-a-scope:
   en: 90cc5e09424f955f
   zh: cf7e22baa7b85618
-/qilin-scope/use-this-package/route-scoped-events:
+/qilin-agent-scope/use-this-package/route-scoped-events:
   en: 7439a6c862956a63
   zh: bfeda5194bb8cdc9
-/qilin-scope/use-this-package/build-a-scoped-registry-layer:
+/qilin-agent-scope/use-this-package/build-a-scoped-registry-layer:
   en: 187aa0e904782395
   zh: 14fa36d3716eaff2
-/qilin-scope/understand-the-implementation:
+/qilin-agent-scope/understand-the-implementation:
   en: ce7e776e9d516bdb
   zh: 59d2751743db7795
-/qilin-scope/understand-the-implementation/design-concept:
+/qilin-agent-scope/understand-the-implementation/design-concept:
   en: 1d19d421fa6f3546
   zh: ed6679cfc9166f14
-/qilin-scope/understand-the-implementation/source-map:
+/qilin-agent-scope/understand-the-implementation/source-map:
   en: 8b77dc65ca28e6da
   zh: 4f84f0b525d54c1c
-/qilin-scope/understand-the-implementation/the-parent-chain:
+/qilin-agent-scope/understand-the-implementation/the-parent-chain:
   en: f0c433a9b0091de4
   zh: 21cecb4194aff7d0
-/qilin-scope/understand-the-implementation/event-filtering:
+/qilin-agent-scope/understand-the-implementation/event-filtering:
   en: 9ec9b8d491c7dfe7
   zh: da82e63bac268535
-/qilin-scope/further-exploration:
+/qilin-agent-scope/further-exploration:
   en: 5a1bc10bc406aa80
   zh: c85833a0022a3624
-/qilin-scope/known-limitations-and-deferred-work:
+/qilin-agent-scope/known-limitations-and-deferred-work:
   en: f64f16b10791d8f1
   zh: 5a032c9080239161
-/qilin-scope/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-scope/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

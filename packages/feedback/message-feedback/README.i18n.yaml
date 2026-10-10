@@ -5,51 +5,51 @@
 /:
   en: f3648275facc4888
   zh: 110c0e8aedf63e4e
-/qilin-message-feedback:
-  en: 1c1a92a6dc58c699
-  zh: 89ca352fff085cf4
-/qilin-message-feedback/summary:
+/qilin-agent-message-feedback:
+  en: 7e61c9e1fc7f2433
+  zh: 7a581f2fc743a0e4
+/qilin-agent-message-feedback/summary:
   en: 07fec1cc63536ffb
   zh: 530c8f20786c7af6
-/qilin-message-feedback/table-of-contents:
+/qilin-agent-message-feedback/table-of-contents:
   en: 122f0d41696980b1
   zh: 528864635b577290
-/qilin-message-feedback/use-this-package:
+/qilin-agent-message-feedback/use-this-package:
   en: 4d5e4b3921ec3f83
   zh: 1c497faa6b37e216
-/qilin-message-feedback/use-this-package/configuration:
+/qilin-agent-message-feedback/use-this-package/configuration:
   en: 41683dabcc537738
   zh: a5adb1d7ca6b0cb8
-/qilin-message-feedback/use-this-package/reading-and-changing-feedback:
+/qilin-agent-message-feedback/use-this-package/reading-and-changing-feedback:
   en: fed12d93b538866d
   zh: 4b45e81d9e5a8260
-/qilin-message-feedback/understand-the-implementation:
+/qilin-agent-message-feedback/understand-the-implementation:
   en: ee4615a04fa6503d
   zh: ee2c5fb2204a43cf
-/qilin-message-feedback/understand-the-implementation/canonical-log-and-durability:
+/qilin-agent-message-feedback/understand-the-implementation/canonical-log-and-durability:
   en: 73ddbcf524f213a1
   zh: 050f1a72c7f56fd6
-/qilin-message-feedback/understand-the-implementation/source-map:
+/qilin-agent-message-feedback/understand-the-implementation/source-map:
   en: ee2b9d8d35b46aaf
   zh: cb96f37c6cb0672c
-/qilin-message-feedback/model-experience:
+/qilin-agent-message-feedback/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-message-feedback/model-experience/message-feedback:
+/qilin-agent-message-feedback/model-experience/message-feedback:
   en: 73eacb58a40342f6
   zh: 1ee3049173128f61
-/qilin-message-feedback/model-experience/message-feedback/what-the-model-sees:
+/qilin-agent-message-feedback/model-experience/message-feedback/what-the-model-sees:
   en: 3928187c2f20ec0f
   zh: fd5273ee1a885bde
-/qilin-message-feedback/model-experience/message-feedback/token-effect:
+/qilin-agent-message-feedback/model-experience/message-feedback/token-effect:
   en: 5ff6c3ac5017b3ef
   zh: 4ccd5af39b37dd1c
-/qilin-message-feedback/model-experience/message-feedback/kv-cache-effect:
+/qilin-agent-message-feedback/model-experience/message-feedback/kv-cache-effect:
   en: 2bdd13dcb4078358
   zh: 591328cf1a061fca
-/qilin-message-feedback/known-limitations-and-deferred-work:
+/qilin-agent-message-feedback/known-limitations-and-deferred-work:
   en: 1da56481d4b3b11e
   zh: a59d986f959b63bf
-/qilin-message-feedback/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-message-feedback/known-limitations-and-deferred-work/dev-note:
   en: 3c3ce6ed67282e05
   zh: 213816553e3581b4

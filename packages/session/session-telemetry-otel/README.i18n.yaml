@@ -5,57 +5,57 @@
 /:
   en: 356614b4af1ad375
   zh: f76a068b5f056574
-/qilin-session-telemetry-otel:
-  en: 2062daf21edc35da
-  zh: cf2303b3d3ab63c1
-/qilin-session-telemetry-otel/summary:
+/qilin-agent-session-telemetry-otel:
+  en: 1b2b74fcd5816c20
+  zh: 48bf365ddf0ea526
+/qilin-agent-session-telemetry-otel/summary:
   en: ecb394b3a3d41976
   zh: dd4e4b5dd6d4e99a
-/qilin-session-telemetry-otel/table-of-contents:
+/qilin-agent-session-telemetry-otel/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-session-telemetry-otel/use-this-package:
+/qilin-agent-session-telemetry-otel/use-this-package:
   en: 9b82f2819ddaa3f4
   zh: b6ad90b11e7e0ef7
-/qilin-session-telemetry-otel/use-this-package/modes:
+/qilin-agent-session-telemetry-otel/use-this-package/modes:
   en: 5b5400d227614168
   zh: 838ebefb70347007
-/qilin-session-telemetry-otel/use-this-package/minimal-configuration:
+/qilin-agent-session-telemetry-otel/use-this-package/minimal-configuration:
   en: 11845fd50dc0a494
   zh: ee990bfca3621bd3
-/qilin-session-telemetry-otel/use-this-package/what-leaves-the-machine:
+/qilin-agent-session-telemetry-otel/use-this-package/what-leaves-the-machine:
   en: 98d08623b0821f33
   zh: d72f0554c10b72cf
-/qilin-session-telemetry-otel/use-this-package/failures-and-shutdown:
+/qilin-agent-session-telemetry-otel/use-this-package/failures-and-shutdown:
   en: a66831cb9de57e04
   zh: 3ada28bb868e0932
-/qilin-session-telemetry-otel/understand-the-implementation:
+/qilin-agent-session-telemetry-otel/understand-the-implementation:
   en: ee672a6a6f0fa02d
   zh: c3bab8e6b60e768c
-/qilin-session-telemetry-otel/understand-the-implementation/design-concept:
+/qilin-agent-session-telemetry-otel/understand-the-implementation/design-concept:
   en: 34f8a88224a1f6cf
   zh: 40839dabaea39602
-/qilin-session-telemetry-otel/understand-the-implementation/source-map:
+/qilin-agent-session-telemetry-otel/understand-the-implementation/source-map:
   en: 0b99d2e5c27213cd
   zh: 3cbdaa7f6a45d81a
-/qilin-session-telemetry-otel/understand-the-implementation/capture-wiring:
+/qilin-agent-session-telemetry-otel/understand-the-implementation/capture-wiring:
   en: 5c85eb0992eb5b2b
   zh: a19cdd5814c0e2b9
-/qilin-session-telemetry-otel/understand-the-implementation/field-mapping:
+/qilin-agent-session-telemetry-otel/understand-the-implementation/field-mapping:
   en: a42e9e081fb93bee
   zh: b8e817c2455278b9
-/qilin-session-telemetry-otel/further-exploration:
-  en: 908b1edeaa7ea84e
-  zh: d557281ada407b07
-/qilin-session-telemetry-otel/model-experience:
+/qilin-agent-session-telemetry-otel/further-exploration:
+  en: b0c0160382858a7c
+  zh: 0499a77e152282d3
+/qilin-agent-session-telemetry-otel/model-experience:
   en: a5a1c890ddacd9a9
   zh: 019c0d113e141853
-/qilin-session-telemetry-otel/model-experience/kv-cache-effect:
+/qilin-agent-session-telemetry-otel/model-experience/kv-cache-effect:
   en: 7593cf5d0d2cedd6
   zh: f57cc48a1b5cbfa9
-/qilin-session-telemetry-otel/known-limitations-and-deferred-work:
+/qilin-agent-session-telemetry-otel/known-limitations-and-deferred-work:
   en: e43087aea7af4c9e
   zh: f8b529e2012b4c63
-/qilin-session-telemetry-otel/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-session-telemetry-otel/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

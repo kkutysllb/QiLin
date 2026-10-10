@@ -15,7 +15,7 @@ import AgentRegistry, { agentEvents, type Agent, type PreStepDecision } from '@q
 import SkillRegistry from '@qilin-agent/skill'
 import * as SkillFileSystem from '@qilin-agent/skill-filesystem'
 import * as toolSkill from '@qilin-agent/tool-skill'
-import { unsupportedInbox } from '@qilin-agent/agent-loop-testkit'
+import { provideWorkingDirectoryFixture, unsupportedInbox } from '@qilin-agent/agent-loop-testkit'
 
 declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
@@ -53,6 +53,7 @@ async function writeSkill(root: string, name: string, description: string, body:
 
 async function setup(home: string, config: toolSkill.Config = {}): Promise<Context> {
   const ctx = new Context()
+  provideWorkingDirectoryFixture(ctx, home)
   await ctx.plugin(SystemPrompt)
   await ctx.plugin(ToolRuntime)
   await ctx.plugin(AgentRegistry)
@@ -188,6 +189,7 @@ async function mintAgentScope(ctx: Context, subject: string | Agent): Promise<{ 
 describe('qilin-tool-skill', () => {
   it('registers the skill tool schema and removes it on dispose', async () => {
     const ctx = new Context()
+    provideWorkingDirectoryFixture(ctx)
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
     await ctx.plugin(AgentRegistry)
@@ -789,6 +791,7 @@ describe('qilin-tool-skill', () => {
   it('validates the catalog description cap', async () => {
     const home = await tempDir('tool-invalid-catalog-cap')
     const ctx = new Context()
+    provideWorkingDirectoryFixture(ctx, home)
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
     await ctx.plugin(AgentRegistry)

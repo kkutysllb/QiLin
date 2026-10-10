@@ -5,72 +5,72 @@
 /:
   en: 979eef009b590686
   zh: 0e06cbd1ef18bd0f
-/qilin-api-workspace-files:
-  en: e379b4ac3f1aedb4
-  zh: d0a84d8bafee31e0
-/qilin-api-workspace-files/summary:
+/qilin-agent-api-workspace-files:
+  en: 08dc3154807c87bc
+  zh: db28d67f4406014f
+/qilin-agent-api-workspace-files/summary:
   en: e21b57ad2e2f9235
   zh: 0799d20dcd6af5a5
-/qilin-api-workspace-files/table-of-contents:
+/qilin-agent-api-workspace-files/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-api-workspace-files/use-this-package:
+/qilin-agent-api-workspace-files/use-this-package:
   en: e110878bbb2a5344
   zh: 0132f61d6a8799c0
-/qilin-api-workspace-files/use-this-package/addressing-and-paths:
+/qilin-agent-api-workspace-files/use-this-package/addressing-and-paths:
   en: 4acea97554b3628e
   zh: 54117f88df48afad
-/qilin-api-workspace-files/use-this-package/pages:
+/qilin-agent-api-workspace-files/use-this-package/pages:
   en: 9cd68b8be3390c80
   zh: 26049ce447f00452
-/qilin-api-workspace-files/use-this-package/byte-windows:
+/qilin-agent-api-workspace-files/use-this-package/byte-windows:
   en: e7ec8873dc078977
   zh: 35ae2cd6aaa8f94e
-/qilin-api-workspace-files/use-this-package/file-read-and-directory-checks:
+/qilin-agent-api-workspace-files/use-this-package/file-read-and-directory-checks:
   en: bce8d53f39422ed5
   zh: 8d59789e2ce3f2cc
-/qilin-api-workspace-files/use-this-package/text-saves:
+/qilin-agent-api-workspace-files/use-this-package/text-saves:
   en: 004829dfcaa7f1b7
   zh: 73cd73ec783385b3
-/qilin-api-workspace-files/use-this-package/entry-mutations:
+/qilin-agent-api-workspace-files/use-this-package/entry-mutations:
   en: 22f3aa6d7f2a95c7
   zh: 6f6850c856eb7aa7
-/qilin-api-workspace-files/use-this-package/the-change-feed:
+/qilin-agent-api-workspace-files/use-this-package/the-change-feed:
   en: ec601195206adcd3
   zh: 8745093e8bddb1dc
-/qilin-api-workspace-files/use-this-package/filename-search:
+/qilin-agent-api-workspace-files/use-this-package/filename-search:
   en: 13b001ce308694c7
   zh: fd2596e595e2f1cd
-/qilin-api-workspace-files/use-this-package/configuration:
-  en: d8abad8a79b6b7fe
-  zh: ff8517788cca2567
-/qilin-api-workspace-files/use-this-package/failures:
+/qilin-agent-api-workspace-files/use-this-package/configuration:
+  en: 70aeb476f08eaba3
+  zh: 58bf110f9b4ae7d8
+/qilin-agent-api-workspace-files/use-this-package/failures:
   en: aea3b8926c8d0b68
   zh: d80fbb58e3b09bd5
-/qilin-api-workspace-files/use-this-package/client-file-resources:
+/qilin-agent-api-workspace-files/use-this-package/client-file-resources:
   en: 682dc4f2c5713d56
   zh: 0f7845c7d519e95b
-/qilin-api-workspace-files/understand-the-implementation:
+/qilin-agent-api-workspace-files/understand-the-implementation:
   en: 42b15ac6321706aa
   zh: ce1d25bffb6948cd
-/qilin-api-workspace-files/understand-the-implementation/design-concept:
+/qilin-agent-api-workspace-files/understand-the-implementation/design-concept:
   en: 82638fa4a3ad6437
   zh: 3bce1687a223a1d8
-/qilin-api-workspace-files/understand-the-implementation/source-map:
+/qilin-agent-api-workspace-files/understand-the-implementation/source-map:
   en: de2bbf3bb2c6bfa2
   zh: eca10f7fefaa4237
-/qilin-api-workspace-files/further-exploration:
+/qilin-agent-api-workspace-files/further-exploration:
   en: 421908edb3f05f30
   zh: 06bf22f3ce2b75ff
-/qilin-api-workspace-files/model-experience:
+/qilin-agent-api-workspace-files/model-experience:
   en: 37b4264c8301323f
   zh: 74ea89b3383ff7da
-/qilin-api-workspace-files/model-experience/kv-cache-effect:
+/qilin-agent-api-workspace-files/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: 03126f3b1aac5859
-/qilin-api-workspace-files/known-limitations-and-deferred-work:
+/qilin-agent-api-workspace-files/known-limitations-and-deferred-work:
   en: 8b35acbace899a31
   zh: 9c23b8f4c4095b7f
-/qilin-api-workspace-files/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-api-workspace-files/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: e88aeb617ffb74ea

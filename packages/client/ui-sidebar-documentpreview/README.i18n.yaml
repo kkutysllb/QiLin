@@ -5,42 +5,42 @@
 /:
   en: 61723a1508d644a3
   zh: 634fa3444e04ceed
-/qilin-client-ui-sidebar-documentpreview:
-  en: 7f134a73ec57776f
-  zh: d03deead0ebff702
-/qilin-client-ui-sidebar-documentpreview/summary:
+/qilin-agent-client-ui-sidebar-documentpreview:
+  en: 00d3b5e7dc51623a
+  zh: 36068a59e373166a
+/qilin-agent-client-ui-sidebar-documentpreview/summary:
   en: 696aafd0c39c6469
   zh: b29ae74fa99ff2f2
-/qilin-client-ui-sidebar-documentpreview/table-of-contents:
+/qilin-agent-client-ui-sidebar-documentpreview/table-of-contents:
   en: 0dd8c3a22e28aacf
   zh: c27c11bf4b5cceba
-/qilin-client-ui-sidebar-documentpreview/what-it-registers:
-  en: 02c62e2de00b7930
-  zh: 125d00ad592b12a5
-/qilin-client-ui-sidebar-documentpreview/addresses:
+/qilin-agent-client-ui-sidebar-documentpreview/what-it-registers:
+  en: ec53db16190e0953
+  zh: a6aab2117fab9f12
+/qilin-agent-client-ui-sidebar-documentpreview/addresses:
   en: 3b4b340123bf608e
   zh: ef5d2422a2483eff
-/qilin-client-ui-sidebar-documentpreview/how-it-reads:
+/qilin-agent-client-ui-sidebar-documentpreview/how-it-reads:
   en: cf48bf827db7a9b1
   zh: b492d2f91835961e
-/qilin-client-ui-sidebar-documentpreview/excel-preview:
+/qilin-agent-client-ui-sidebar-documentpreview/excel-preview:
   en: 9588eca681e6d323
   zh: 4f990e58ed5272d7
-/qilin-client-ui-sidebar-documentpreview/office-preview:
-  en: 7bb5e350243dbb28
-  zh: 6b3eeb88684033b2
-/qilin-client-ui-sidebar-documentpreview/navigation:
+/qilin-agent-client-ui-sidebar-documentpreview/office-preview:
+  en: 3ef3045432b4f93e
+  zh: 533a91496b0f1f91
+/qilin-agent-client-ui-sidebar-documentpreview/navigation:
   en: 5cd81a7b3cdc83bd
   zh: 4cdd1b7ede497925
-/qilin-client-ui-sidebar-documentpreview/model-experience:
+/qilin-agent-client-ui-sidebar-documentpreview/model-experience:
   en: 95f576877100b1b2
   zh: 7c9164ec6865d709
-/qilin-client-ui-sidebar-documentpreview/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-sidebar-documentpreview/model-experience/kv-cache-effect:
   en: 1affa1bb1b923da5
   zh: 88a0d4200068ab57
-/qilin-client-ui-sidebar-documentpreview/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-sidebar-documentpreview/known-limitations-and-deferred-work:
   en: d3854fdfa2c08763
   zh: c18198585d4dc0cd
-/qilin-client-ui-sidebar-documentpreview/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-sidebar-documentpreview/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: e88aeb617ffb74ea

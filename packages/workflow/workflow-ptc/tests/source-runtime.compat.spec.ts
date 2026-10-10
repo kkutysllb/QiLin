@@ -7,10 +7,12 @@ import SubagentRuntime from '@qilin-agent/subagent'
 import type { SandboxMode } from '@qilin-agent/sandbox'
 import PtcWorkflowEngine from '../src/index.ts'
 import { fakeParent, mountPtcRuntime } from './setup.ts'
+import { mountWorkingDirectoryFixture } from '../../../subagent/subagent/tests/working-directory-fixture.ts'
 
 async function setup(mode: SandboxMode) {
   const ctx = new Context()
   const files = await mountPtcRuntime(ctx, mode)
+  await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(SubagentRuntime)
   ctx.subagents.registerProvider({
     name: 'spawn',

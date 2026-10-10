@@ -256,13 +256,13 @@ describe('imageCardModel', () => {
     expect(imageCardModel(running())).toBeNull()
     expect(imageCardModel(settled({ isError: true }))).toBeNull()
     // A nested call (a read_image dispatched from inside run_code) settles as a
-    // ToolResultNode too and renders the card; it persists no presentationMeta,
-    // so the label falls back to the call's file_path argument.
+    // ToolResultNode too and renders the card. A historical nested record with
+    // no presentationMeta falls back to the call's file_path argument.
     const nested = imageCardModel(settled({ parentCallId: 'parent', meta: undefined }))
     expect(nested).not.toBeNull()
     expect(nested?.label).toBe('shots/card.png')
     expect(nested?.images).toHaveLength(1)
-    // Persisted meta still wins over the argument when a nested call has one.
+    // A nested call's persisted metadata wins over the argument.
     const withMeta = imageCardModel(settled({ parentCallId: 'parent', meta: { path: 'shots/persisted.png' } }))
     expect(withMeta?.label).toBe('shots/persisted.png')
   })

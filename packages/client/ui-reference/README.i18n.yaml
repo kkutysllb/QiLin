@@ -5,45 +5,45 @@
 /:
   en: 891fa9f998222b74
   zh: 5eed64a6df09c534
-/qilin-client-ui-reference:
-  en: ca103c231ae55c46
-  zh: 49521fe0b8b5f1d1
-/qilin-client-ui-reference/summary:
+/qilin-agent-client-ui-reference:
+  en: b30aa38ae2ff6228
+  zh: 1d0efc7d5da0ee08
+/qilin-agent-client-ui-reference/summary:
   en: b99e8765f2ead4d0
   zh: 4e45668504acc043
-/qilin-client-ui-reference/table-of-contents:
+/qilin-agent-client-ui-reference/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-ui-reference/use-this-package:
+/qilin-agent-client-ui-reference/use-this-package:
   en: 779a9a534eaad38b
   zh: 3dd159a2c35702d6
-/qilin-client-ui-reference/use-this-package/what-a-pick-inserts:
+/qilin-agent-client-ui-reference/use-this-package/what-a-pick-inserts:
   en: a06b0309e76b743b
   zh: 9b6e62b78093e8d2
-/qilin-client-ui-reference/use-this-package/failure-behavior:
+/qilin-agent-client-ui-reference/use-this-package/failure-behavior:
   en: 228ee6f4b81d96a7
   zh: e1c960c3f5b25317
-/qilin-client-ui-reference/understand-the-implementation:
+/qilin-agent-client-ui-reference/understand-the-implementation:
   en: dbfe93987c800112
   zh: 200d477cc8cd8a1a
-/qilin-client-ui-reference/understand-the-implementation/candidate-flow:
+/qilin-agent-client-ui-reference/understand-the-implementation/candidate-flow:
   en: ee3a3b095cecc67b
   zh: 6b47c3f0f50cd423
-/qilin-client-ui-reference/understand-the-implementation/serialization:
+/qilin-agent-client-ui-reference/understand-the-implementation/serialization:
   en: b9029bd93e628331
   zh: a8635f62b1db85ba
-/qilin-client-ui-reference/further-exploration:
+/qilin-agent-client-ui-reference/further-exploration:
   en: f6080f05ebc9cd5d
   zh: b340184ea23122f4
-/qilin-client-ui-reference/model-experience:
+/qilin-agent-client-ui-reference/model-experience:
   en: f7fa58a80d82d63a
   zh: 8235157cbbbd18cf
-/qilin-client-ui-reference/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-reference/model-experience/kv-cache-effect:
   en: ff23f8026f7c6050
   zh: 6b0841800076bcd2
-/qilin-client-ui-reference/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-reference/known-limitations-and-deferred-work:
   en: e79991a25b11e342
   zh: 15064e8374c8e63d
-/qilin-client-ui-reference/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-reference/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

@@ -5,30 +5,30 @@
 /:
   en: 29e399ec8c59fbd2
   zh: 0077a5cea2646f31
-/qilin-client-ui-sidebar-plans:
-  en: 3edd3f8846d76cff
-  zh: 748370e9ad14c033
-/qilin-client-ui-sidebar-plans/summary:
+/qilin-agent-client-ui-sidebar-plans:
+  en: 84428082222332c9
+  zh: 5a29eaf9a061f5e9
+/qilin-agent-client-ui-sidebar-plans/summary:
   en: 2d7a2167c37b3368
   zh: 8b8bd6ff986cbbb7
-/qilin-client-ui-sidebar-plans/table-of-contents:
+/qilin-agent-client-ui-sidebar-plans/table-of-contents:
   en: e55f13c476e426c1
   zh: 5a4d2a44c2197d8b
-/qilin-client-ui-sidebar-plans/what-it-registers:
-  en: a166e455a4f08509
-  zh: 4354108d4658222b
-/qilin-client-ui-sidebar-plans/the-plan-list:
+/qilin-agent-client-ui-sidebar-plans/what-it-registers:
+  en: b552ed59c87a14d0
+  zh: 8a1c7c1766a77434
+/qilin-agent-client-ui-sidebar-plans/the-plan-list:
   en: 9e49ec4c2386f42d
   zh: fa57d28d22a9699d
-/qilin-client-ui-sidebar-plans/model-experience:
+/qilin-agent-client-ui-sidebar-plans/model-experience:
   en: f3d22b6014339f99
   zh: caaff278db33a124
-/qilin-client-ui-sidebar-plans/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-sidebar-plans/model-experience/kv-cache-effect:
   en: a3ac5b34bc1d3088
   zh: 82d0bf4c62f76bcf
-/qilin-client-ui-sidebar-plans/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-sidebar-plans/known-limitations-and-deferred-work:
   en: bb82180fc7e4d50f
   zh: 87c1d56974f8e60f
-/qilin-client-ui-sidebar-plans/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-sidebar-plans/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: cdd2a143b725accd

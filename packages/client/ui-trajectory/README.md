@@ -55,7 +55,7 @@ The Trajectory graph page opens from the guide box's `trajectory-graph` entry an
 
 The view is a pure projection: Trajectory-owned Definitions assemble business records from the shared Session window — including durable cancellation-finalized prefixes, chunk-only interruption fallbacks, and interrupted Tool records — so Trajectory neither reads nor changes the Chat conversation snapshot. Its steering classifier retains only next-step Inbox IDs through persistent splice state and shares each current claimed batch across later Contexts.
 
-Tool records begin at durable tool/call events and use complete arguments. Chat's transient preparing stage does not create Trajectory tool rows or alter historical tool timing.
+Tool records begin at durable tool/call events and use complete arguments. Trajectory retains each native and nested Tool result's event presentation metadata, so historical file and command locations come from the operation itself. Chat's transient preparing stage does not create Trajectory tool rows or alter historical tool timing.
 
 A complete appended prompt without a loaded request header appears as a standalone system row; only its known text is available, with no inferred request options or tool catalog. Prepending its request history replaces that standalone presentation without duplicating the prompt. In-history system prompt changes compare against the most recent request state, including earlier prompt updates without a new request header. Each request retains the prompt and change that applied at its own position. Surface replacements, including compaction, restore the last nonempty surviving system prompt even without a new system event; an unloaded prompt remains unavailable until its page arrives.
 

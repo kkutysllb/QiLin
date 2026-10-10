@@ -17,6 +17,7 @@ import {
   STRUCTURED_OUTPUT_INSTRUCTION,
   STRUCTURED_OUTPUT_TOOL,
 } from '../src/structured.ts'
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 
 const testToolSignal = new AbortController().signal
 
@@ -48,6 +49,7 @@ async function setup(script: Script, options: SetupOptions = {}) {
   await mountAgentLoopTestDependencies(ctx, {
     tools: { mode: options.toolMode ?? 'native' },
   })
+  await mountWorkingDirectoryFixture(ctx)
   if (options.toolMode === 'ptc' || options.toolMode === 'both') {
     ctx.provide('ptcRuntime', {
       language: 'typescript',
@@ -57,6 +59,7 @@ async function setup(script: Script, options: SetupOptions = {}) {
     } as never)
   }
   await ctx.plugin(AgentLoop, { agents: [] })
+  await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(SubagentRuntime)
   const disposeProvider = ctx.subagents.registerProvider({
     name: 'spawn',

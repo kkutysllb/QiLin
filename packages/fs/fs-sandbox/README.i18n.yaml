@@ -5,63 +5,63 @@
 /:
   en: 4061a46ba3cf0fbd
   zh: c374141974bfe4bb
-/qilin-fs-sandbox:
-  en: d6588e1136177238
-  zh: d8e63aaaadc417b7
-/qilin-fs-sandbox/summary:
+/qilin-agent-fs-sandbox:
+  en: 79a86f60a9fad7e6
+  zh: 72a3ae45401dcb9d
+/qilin-agent-fs-sandbox/summary:
   en: 78a7dfa9ef927735
   zh: 840da37f887910f9
-/qilin-fs-sandbox/table-of-contents:
+/qilin-agent-fs-sandbox/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-fs-sandbox/use-this-package:
+/qilin-agent-fs-sandbox/use-this-package:
   en: d110ad8fadca0a03
   zh: 24c652ed0941ad1d
-/qilin-fs-sandbox/use-this-package/minimal-composition:
-  en: 09c23fabc169c007
-  zh: 0a5b9be40ee8e543
-/qilin-fs-sandbox/use-this-package/how-the-fence-behaves:
+/qilin-agent-fs-sandbox/use-this-package/minimal-composition:
+  en: d0d416d37f7f0a55
+  zh: 132afb749c42f2e2
+/qilin-agent-fs-sandbox/use-this-package/how-the-fence-behaves:
   en: c2512b944c66357d
   zh: 20c8ac7f1e991acc
-/qilin-fs-sandbox/use-this-package/observable-success-and-failures:
+/qilin-agent-fs-sandbox/use-this-package/observable-success-and-failures:
   en: 947550342021d6fa
   zh: 2792dc54e315ae02
-/qilin-fs-sandbox/understand-the-implementation:
+/qilin-agent-fs-sandbox/understand-the-implementation:
   en: 1c359075f33df1ed
   zh: 1306d6c28b5dd1f5
-/qilin-fs-sandbox/understand-the-implementation/design-concept:
+/qilin-agent-fs-sandbox/understand-the-implementation/design-concept:
   en: ef26d25e866ae9c0
   zh: 8206760b2e2c5feb
-/qilin-fs-sandbox/understand-the-implementation/source-map:
+/qilin-agent-fs-sandbox/understand-the-implementation/source-map:
   en: b4cd756436692f74
   zh: fb87798b7ecef63f
-/qilin-fs-sandbox/understand-the-implementation/how-a-mutation-is-fenced:
+/qilin-agent-fs-sandbox/understand-the-implementation/how-a-mutation-is-fenced:
   en: d76b451ff680d3e2
   zh: bc924fcb9c0ce5b9
-/qilin-fs-sandbox/understand-the-implementation/threat-model:
+/qilin-agent-fs-sandbox/understand-the-implementation/threat-model:
   en: 051808b6e28313a5
   zh: a06a46f26c552678
-/qilin-fs-sandbox/further-exploration:
+/qilin-agent-fs-sandbox/further-exploration:
   en: 48a56392ec9735f7
   zh: df4b20f38ade7a21
-/qilin-fs-sandbox/model-experience:
+/qilin-agent-fs-sandbox/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-fs-sandbox/model-experience/filesystem-policy-and-refusals:
+/qilin-agent-fs-sandbox/model-experience/filesystem-policy-and-refusals:
   en: 36178638b7ce9cf8
   zh: 929c8292023f3541
-/qilin-fs-sandbox/model-experience/filesystem-policy-and-refusals/what-the-model-sees:
+/qilin-agent-fs-sandbox/model-experience/filesystem-policy-and-refusals/what-the-model-sees:
   en: 1bf90d295e9a286f
   zh: 7e7f1c4462a62fed
-/qilin-fs-sandbox/model-experience/filesystem-policy-and-refusals/token-effect:
+/qilin-agent-fs-sandbox/model-experience/filesystem-policy-and-refusals/token-effect:
   en: fd86bc3fc7106117
   zh: 1b9eb71e5aba714b
-/qilin-fs-sandbox/model-experience/filesystem-policy-and-refusals/kv-cache-effect:
+/qilin-agent-fs-sandbox/model-experience/filesystem-policy-and-refusals/kv-cache-effect:
   en: a4ca227f2f83edec
   zh: 5bb3c452b412566d
-/qilin-fs-sandbox/known-limitations-and-deferred-work:
+/qilin-agent-fs-sandbox/known-limitations-and-deferred-work:
   en: c0ba1642a5e62459
   zh: 10a27abcd6f27888
-/qilin-fs-sandbox/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-fs-sandbox/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

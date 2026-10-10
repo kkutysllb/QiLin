@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-当组合需要状态跨工具调用存活的终端会话时，挂载 `@qilin-agent/terminal`。单独的服务本身没有用处：请与 `@qilin-agent/terminal-bash` 之类的后端、`@qilin-agent/tool-terminal` 之类的工具包配对，并在同一个组合中一起加载。
+当组合需要状态跨工具调用存活的终端会话时，挂载 `@qilin-agent/terminal`。单独的服务本身没有用处：请与 `@qilin-agent/terminal-bash` 之类的后端、`@qilin-agent/experimental-tool-terminal` 之类的工具包配对，并在同一个组合中一起加载。
 
 ### 何时选择
 
@@ -38,7 +38,7 @@ kind: "package-reference"
 ```yaml
 - name: '@qilin-agent/terminal'
 - name: '@qilin-agent/terminal-bash'
-- name: '@qilin-agent/tool-terminal'
+- name: '@qilin-agent/experimental-tool-terminal'
 ```
 
 后端提供一个稳定类型——随附的 shell 后端提供 `shell`——工具按该类型打开会话。shell 后端还额外要求沙箱、沙箱策略与子进程提供方；完整组合见其 [README](../terminal-bash/README.zh.md)。
@@ -102,7 +102,7 @@ kind: "package-reference"
 - [终端子系统参考](../../../docs/subsystems/terminal.zh.md)——共享类型、后端与会话约定，以及生成的 `ctx.terminals` 接口面。
 - [terminal/ 包映射](../README.zh.md)——三包家族及其组合方式。
 - [terminal-bash 后端](../terminal-bash/README.zh.md)——提供 `shell` 类型的随附 shell 后端。
-- [tool-terminal 工具](../tool-terminal/README.zh.md)——操作会话的 6 个面向模型工具。
+- [tool-terminal 工具](../../experimental/tool-terminal/README.zh.md)——操作会话的 6 个面向模型工具。
 - [持久 PTY Agent Note](../../../.agents/notes/implemented/feature/2026-07-16-persistent-pty-sessions.zh.md)——设计理由、备选方案与暂缓边界。
 
 -----
@@ -114,7 +114,7 @@ kind: "package-reference"
 
 #### 模型看到什么
 
-没有直接可见内容。此包不注册提示词或工具；可见 schema 与结果文本由 `@qilin-agent/tool-terminal` 负责。
+没有直接可见内容。此包不注册提示词或工具；可见 schema 与结果文本由 `@qilin-agent/experimental-tool-terminal` 负责。
 
 #### Token 影响
 
@@ -122,7 +122,7 @@ kind: "package-reference"
 
 #### KV Cache 影响
 
-不会直接失效；请求前缀变更由 `@qilin-agent/tool-terminal` 负责。
+不会直接失效；请求前缀变更由 `@qilin-agent/experimental-tool-terminal` 负责。
 
 ## 已知限制与延期工作
 

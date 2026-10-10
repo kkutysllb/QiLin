@@ -5,120 +5,120 @@
 /:
   en: aa0f6a31440050d2
   zh: 388fc575115b9a4f
-/qilin-tool-bash:
-  en: f075e00996faa834
-  zh: ee5e9ae1db735c26
-/qilin-tool-bash/summary:
+/qilin-agent-tool-bash:
+  en: 2291445e50eea913
+  zh: 3142b0399a07728f
+/qilin-agent-tool-bash/summary:
   en: 94e3146300f0b645
   zh: c09da815f2d195ff
-/qilin-tool-bash/table-of-contents:
+/qilin-agent-tool-bash/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-tool-bash/use-this-package:
+/qilin-agent-tool-bash/use-this-package:
   en: 327ddafbecd4f9aa
   zh: 03b4b4e9f77c612e
-/qilin-tool-bash/use-this-package/minimal-configuration:
-  en: 2451d8ac3578851c
-  zh: 0cd6c527c0584f74
-/qilin-tool-bash/use-this-package/running-a-command:
+/qilin-agent-tool-bash/use-this-package/minimal-configuration:
+  en: ab9e2e4cd2ba41d2
+  zh: 8e4f721851f04da7
+/qilin-agent-tool-bash/use-this-package/running-a-command:
   en: 1710624931aa2aa7
   zh: ef4fa86fd05a1cc8
-/qilin-tool-bash/use-this-package/running-long-commands-in-the-background:
+/qilin-agent-tool-bash/use-this-package/running-long-commands-in-the-background:
   en: 044a1c140a540e9e
   zh: 15847ace7a26e423
-/qilin-tool-bash/use-this-package/sandboxed-execution-and-escalation:
+/qilin-agent-tool-bash/use-this-package/sandboxed-execution-and-escalation:
   en: 41547acfb669fffa
   zh: 8e5cb03122fd2208
-/qilin-tool-bash/use-this-package/what-can-go-wrong:
-  en: 4fea63d1f28e5258
-  zh: 022329028fdb6246
-/qilin-tool-bash/understand-the-implementation:
+/qilin-agent-tool-bash/use-this-package/what-can-go-wrong:
+  en: 3be271c67ea00b3c
+  zh: 5dfb28f502fd58d2
+/qilin-agent-tool-bash/understand-the-implementation:
   en: 8d94a7381bca3fa9
   zh: f4bd2866fff6fa8d
-/qilin-tool-bash/understand-the-implementation/design-philosophy:
+/qilin-agent-tool-bash/understand-the-implementation/design-philosophy:
   en: 58e6e79c849bc88a
   zh: 8becf99005e80fdc
-/qilin-tool-bash/understand-the-implementation/source-map:
+/qilin-agent-tool-bash/understand-the-implementation/source-map:
   en: 4beec97b402f6f13
   zh: ad43d3fa9393fe6d
-/qilin-tool-bash/understand-the-implementation/request-resolution:
+/qilin-agent-tool-bash/understand-the-implementation/request-resolution:
   en: b03c1d84aa4b5cd4
   zh: 111eba387b7082ae
-/qilin-tool-bash/understand-the-implementation/rendering-story:
+/qilin-agent-tool-bash/understand-the-implementation/rendering-story:
   en: 06a6730c33317a37
   zh: c65d8056b87bff7f
-/qilin-tool-bash/further-exploration:
-  en: 1406d5604147c972
-  zh: 767291d892a4f0f0
-/qilin-tool-bash/model-experience:
+/qilin-agent-tool-bash/further-exploration:
+  en: 4f1a792f86527947
+  zh: d644abf81f832769
+/qilin-agent-tool-bash/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-tool-bash/model-experience/system-prompt:
+/qilin-agent-tool-bash/model-experience/system-prompt:
   en: cf78b9dd5596495f
   zh: bd44560f8c2435e8
-/qilin-tool-bash/model-experience/system-prompt/what-the-model-sees:
+/qilin-agent-tool-bash/model-experience/system-prompt/what-the-model-sees:
   en: f8173d0103e0c6b6
   zh: ed8b92539ee74156
-/qilin-tool-bash/model-experience/system-prompt/what-the-model-sees/bash-guidance:
+/qilin-agent-tool-bash/model-experience/system-prompt/what-the-model-sees/bash-guidance:
   en: 2d65d6ca9b82df1d
   zh: 016a14eee33eba62
-/qilin-tool-bash/model-experience/system-prompt/token-effect:
+/qilin-agent-tool-bash/model-experience/system-prompt/token-effect:
   en: a38d59e3e6d8a1c9
   zh: 96d60abecd38307b
-/qilin-tool-bash/model-experience/system-prompt/kv-cache-effect:
+/qilin-agent-tool-bash/model-experience/system-prompt/kv-cache-effect:
   en: 06f29b209347522f
   zh: 4dd39a5a3b738c59
-/qilin-tool-bash/model-experience/tool-schemas:
+/qilin-agent-tool-bash/model-experience/tool-schemas:
   en: 3039bc5e7a796b21
   zh: 6b7a9eaf69c9ea53
-/qilin-tool-bash/model-experience/tool-schemas/what-the-model-sees:
-  en: b87fa41c0278a863
-  zh: 7034c2643a4a43a8
-/qilin-tool-bash/model-experience/tool-schemas/token-effect:
+/qilin-agent-tool-bash/model-experience/tool-schemas/what-the-model-sees:
+  en: 2b856fd6338f0768
+  zh: c14977f3a42496d4
+/qilin-agent-tool-bash/model-experience/tool-schemas/token-effect:
   en: cdbd4262314e6856
   zh: e8c12c0cf5492386
-/qilin-tool-bash/model-experience/tool-schemas/kv-cache-effect:
+/qilin-agent-tool-bash/model-experience/tool-schemas/kv-cache-effect:
   en: 8b821a8b34948af9
   zh: 858244c080bfc5cb
-/qilin-tool-bash/model-experience/foreground-result:
+/qilin-agent-tool-bash/model-experience/foreground-result:
   en: d83f1f25a3719c54
   zh: 445ca808e28dc936
-/qilin-tool-bash/model-experience/foreground-result/what-the-model-sees:
+/qilin-agent-tool-bash/model-experience/foreground-result/what-the-model-sees:
   en: 7ac3f02695f50790
   zh: 9604715001284cb2
-/qilin-tool-bash/model-experience/foreground-result/token-effect:
+/qilin-agent-tool-bash/model-experience/foreground-result/token-effect:
   en: b2018adbda15b8a7
   zh: 79521073a45c7f80
-/qilin-tool-bash/model-experience/foreground-result/kv-cache-effect:
+/qilin-agent-tool-bash/model-experience/foreground-result/kv-cache-effect:
   en: f5d5f97a153f7c70
   zh: 31911b4f3506d6c8
-/qilin-tool-bash/model-experience/background-job-context-and-results:
+/qilin-agent-tool-bash/model-experience/background-job-context-and-results:
   en: 38ce70c1818a5694
   zh: ed3ad10f12ed1b8e
-/qilin-tool-bash/model-experience/background-job-context-and-results/what-the-model-sees:
+/qilin-agent-tool-bash/model-experience/background-job-context-and-results/what-the-model-sees:
   en: 061312160f4535d5
   zh: 7c1f21123a54fdf1
-/qilin-tool-bash/model-experience/background-job-context-and-results/token-effect:
+/qilin-agent-tool-bash/model-experience/background-job-context-and-results/token-effect:
   en: 3a0d2d43640158d6
   zh: 45ae711aedaa1d41
-/qilin-tool-bash/model-experience/background-job-context-and-results/kv-cache-effect:
+/qilin-agent-tool-bash/model-experience/background-job-context-and-results/kv-cache-effect:
   en: f5d5f97a153f7c70
   zh: 31911b4f3506d6c8
-/qilin-tool-bash/model-experience/tool-errors:
+/qilin-agent-tool-bash/model-experience/tool-errors:
   en: 2d4f2c8605eccab3
   zh: 67f1f0218f73c6bf
-/qilin-tool-bash/model-experience/tool-errors/what-the-model-sees:
-  en: 10a05d1b0a0577bf
-  zh: 52eae6e01d182482
-/qilin-tool-bash/model-experience/tool-errors/token-effect:
+/qilin-agent-tool-bash/model-experience/tool-errors/what-the-model-sees:
+  en: d995b49b847ba99c
+  zh: c2436671a90982ce
+/qilin-agent-tool-bash/model-experience/tool-errors/token-effect:
   en: a3a78ef476ec5e56
   zh: dd2c8ad0f69e8ff1
-/qilin-tool-bash/model-experience/tool-errors/kv-cache-effect:
+/qilin-agent-tool-bash/model-experience/tool-errors/kv-cache-effect:
   en: f5d5f97a153f7c70
   zh: 31911b4f3506d6c8
-/qilin-tool-bash/known-limitations-and-deferred-work:
+/qilin-agent-tool-bash/known-limitations-and-deferred-work:
   en: 47107834aeb46e2a
   zh: 8deb92a17883a9d4
-/qilin-tool-bash/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-tool-bash/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

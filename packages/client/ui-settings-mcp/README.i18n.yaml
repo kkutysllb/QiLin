@@ -5,42 +5,42 @@
 /:
   en: 0b5850d01be805fc
   zh: 9c82426a055cb122
-/qilin-client-ui-settings-mcp:
-  en: 1da98dbdd9e63d00
-  zh: cb3fdd7501f8d92d
-/qilin-client-ui-settings-mcp/summary:
+/qilin-agent-client-ui-settings-mcp:
+  en: 7718225d80016527
+  zh: cb68fdb96637ebc0
+/qilin-agent-client-ui-settings-mcp/summary:
   en: 1b3a49207c082132
   zh: a2a510a9c89629dc
-/qilin-client-ui-settings-mcp/table-of-contents:
+/qilin-agent-client-ui-settings-mcp/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-ui-settings-mcp/use-this-package:
+/qilin-agent-client-ui-settings-mcp/use-this-package:
   en: 73b86c399317f108
   zh: 3e6fc5c6622851fc
-/qilin-client-ui-settings-mcp/use-this-package/configured-servers:
+/qilin-agent-client-ui-settings-mcp/use-this-package/configured-servers:
   en: 8655728675244581
   zh: 86999b0883721aba
-/qilin-client-ui-settings-mcp/use-this-package/recommended-servers:
+/qilin-agent-client-ui-settings-mcp/use-this-package/recommended-servers:
   en: b05e341dae2a014d
   zh: 25df7672e8b8db80
-/qilin-client-ui-settings-mcp/use-this-package/refusals:
+/qilin-agent-client-ui-settings-mcp/use-this-package/refusals:
   en: ca56db83fb01e75f
   zh: 817c290913ef8a63
-/qilin-client-ui-settings-mcp/understand-the-implementation:
+/qilin-agent-client-ui-settings-mcp/understand-the-implementation:
   en: 5fd0aa8e7ae562c7
   zh: 3b003dac8a003b80
-/qilin-client-ui-settings-mcp/further-exploration:
-  en: a035c2545ce1040d
-  zh: 3f56f4eeb1466599
-/qilin-client-ui-settings-mcp/model-experience:
+/qilin-agent-client-ui-settings-mcp/further-exploration:
+  en: 63304d4d5ff542c2
+  zh: b426e45c4a6c928a
+/qilin-agent-client-ui-settings-mcp/model-experience:
   en: df6db7dd4f472f25
   zh: 816196313e81bbc4
-/qilin-client-ui-settings-mcp/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-settings-mcp/model-experience/kv-cache-effect:
   en: 367f49a7a6b3feeb
   zh: 0252d6aa928896d7
-/qilin-client-ui-settings-mcp/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-settings-mcp/known-limitations-and-deferred-work:
   en: e1fd638e7fa60c96
   zh: 8d0449ee5778e311
-/qilin-client-ui-settings-mcp/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-settings-mcp/known-limitations-and-deferred-work/dev-note:
   en: b72b1b4d64707e25
   zh: e6cb93d859cb9f03

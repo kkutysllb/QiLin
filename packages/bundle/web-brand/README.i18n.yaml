@@ -5,36 +5,36 @@
 /:
   en: fa07442eca9dd607
   zh: fc37be17f13f0cae
-/qilin-web-brand:
-  en: 576a821ff49e3757
-  zh: a96600d70a5020d2
-/qilin-web-brand/summary:
+/qilin-agent-web-brand:
+  en: b753b9c53d819e9d
+  zh: dad4edb160c17318
+/qilin-agent-web-brand/summary:
   en: 17b8ecdd353f2782
   zh: 62202cb0674872db
-/qilin-web-brand/table-of-contents:
+/qilin-agent-web-brand/table-of-contents:
   en: 4e53164159b5ce41
   zh: 024420bdbdd3e0ac
-/qilin-web-brand/use-this-package:
+/qilin-agent-web-brand/use-this-package:
   en: 9c6f99490787aead
   zh: 846c15facca5b91f
-/qilin-web-brand/dev-note:
+/qilin-agent-web-brand/dev-note:
   en: f3c698886ef928a7
   zh: eaac63c14c20b932
-/qilin-web-brand/model-experience:
+/qilin-agent-web-brand/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-web-brand/model-experience/product-identity:
+/qilin-agent-web-brand/model-experience/product-identity:
   en: 3488e65a0f897971
   zh: a514515b2e477f89
-/qilin-web-brand/model-experience/product-identity/what-the-model-sees:
+/qilin-agent-web-brand/model-experience/product-identity/what-the-model-sees:
   en: 0090508d5c3ec94a
   zh: d232513385ce2027
-/qilin-web-brand/model-experience/product-identity/token-effect:
+/qilin-agent-web-brand/model-experience/product-identity/token-effect:
   en: 157538d686197193
   zh: 91bf79cee4ced156
-/qilin-web-brand/model-experience/product-identity/kv-cache-effect:
+/qilin-agent-web-brand/model-experience/product-identity/kv-cache-effect:
   en: d4d47d6bddb0cfd8
   zh: 09451f111664b516
-/qilin-web-brand/known-limitations-and-deferred-work:
+/qilin-agent-web-brand/known-limitations-and-deferred-work:
   en: a97b29eb1fd19c0f
   zh: e8b42a2f937a5544

@@ -9,6 +9,7 @@ import { STRUCTURED_OUTPUT_TOOL } from '@qilin-agent/subagent-in-process-driver'
 import { MockAdapter, textResponse, toolCallResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
 import PtcWorkflowEngine from '../src/index.ts'
 import { mountPtcRuntime } from './setup.ts'
+import { mountWorkingDirectoryFixture } from '../../../subagent/subagent/tests/working-directory-fixture.ts'
 
 type Script = ConstructorParameters<typeof MockAdapter>[0]
 
@@ -18,6 +19,7 @@ async function setup(script: Script) {
   await mountAgentLoopTestDependencies(ctx)
   await mountPtcRuntime(ctx)
   await ctx.plugin(AgentLoop, { agents: [] })
+  await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(SubagentRuntime)
   await ctx.plugin(spawn, { providerName: 'spawn' })
   await ctx.plugin(PtcWorkflowEngine, {})

@@ -5,33 +5,33 @@
 /:
   en: 961e566f4c0c9b31
   zh: 368dabdd8c4d53ec
-/qilin-workspace-changes:
-  en: d1a6ec4e66f011b6
-  zh: 40f39736ec3985c3
-/qilin-workspace-changes/summary:
+/qilin-agent-workspace-changes:
+  en: a719da044b50fb86
+  zh: 90e5ffd65a76a170
+/qilin-agent-workspace-changes/summary:
   en: 61639e7f0185b4d9
   zh: 7c559b2863f073f9
-/qilin-workspace-changes/table-of-contents:
+/qilin-agent-workspace-changes/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-workspace-changes/use-this-package:
+/qilin-agent-workspace-changes/use-this-package:
   en: d6364de942d83439
   zh: b958129205655ba9
-/qilin-workspace-changes/understand-the-implementation:
+/qilin-agent-workspace-changes/understand-the-implementation:
   en: efb5cc9657ce290d
   zh: b659836fb1fba36a
-/qilin-workspace-changes/further-exploration:
+/qilin-agent-workspace-changes/further-exploration:
   en: 78688253d21a64d9
   zh: d699e44d01a4f4e4
-/qilin-workspace-changes/model-experience:
+/qilin-agent-workspace-changes/model-experience:
   en: aa413c0bfaa815a8
   zh: eea730976cf916e6
-/qilin-workspace-changes/model-experience/kv-cache-effect:
+/qilin-agent-workspace-changes/model-experience/kv-cache-effect:
   en: e7ba08477bf22c4e
   zh: f365439c69beb722
-/qilin-workspace-changes/known-limitations-and-deferred-work:
+/qilin-agent-workspace-changes/known-limitations-and-deferred-work:
   en: c7091685e5065a40
   zh: 1e9b85962ea04187
-/qilin-workspace-changes/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-workspace-changes/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

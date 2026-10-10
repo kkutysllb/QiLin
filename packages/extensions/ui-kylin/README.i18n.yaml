@@ -5,51 +5,51 @@
 /:
   en: 64e59d5fa5c7e820
   zh: 52b08a80582a7399
-/qilin-client-ui-kylin:
-  en: 2e6a6aa32a4bdb02
-  zh: ba73381c2ba21f1d
-/qilin-client-ui-kylin/summary:
-  en: 314837b404d49c43
-  zh: 686fb31e31f5bf28
-/qilin-client-ui-kylin/table-of-contents:
+/qilin-agent-client-ui-kylin:
+  en: a97e06fa0e68bb7b
+  zh: 856c6a350a3cdf8b
+/qilin-agent-client-ui-kylin/summary:
+  en: 0bf26a4064d63fb0
+  zh: 6e1e1d37e427fb6d
+/qilin-agent-client-ui-kylin/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-ui-kylin/use-this-package:
+/qilin-agent-client-ui-kylin/use-this-package:
   en: b2f4dd7bdcfa5fea
   zh: 23e48220e532f98a
-/qilin-client-ui-kylin/use-this-package/what-the-panel-shows:
+/qilin-agent-client-ui-kylin/use-this-package/what-the-panel-shows:
   en: ba6b30addb75d9e3
   zh: 77a658804b7476dc
-/qilin-client-ui-kylin/use-this-package/what-the-tool-cards-show:
+/qilin-agent-client-ui-kylin/use-this-package/what-the-tool-cards-show:
   en: 9facad523f1d48f3
   zh: ba2b5f86c7199109
-/qilin-client-ui-kylin/use-this-package/boundaries-to-plan-around:
+/qilin-agent-client-ui-kylin/use-this-package/boundaries-to-plan-around:
   en: c76ace6595f805d6
   zh: 53ee7e51823f367c
-/qilin-client-ui-kylin/understand-the-implementation:
+/qilin-agent-client-ui-kylin/understand-the-implementation:
   en: e4e1b788078bcd0d
   zh: 93d0cb3132fd2157
-/qilin-client-ui-kylin/understand-the-implementation/design-philosophy:
+/qilin-agent-client-ui-kylin/understand-the-implementation/design-philosophy:
   en: b27840fda9efefc6
   zh: 53ed0401355290eb
-/qilin-client-ui-kylin/understand-the-implementation/source-map:
+/qilin-agent-client-ui-kylin/understand-the-implementation/source-map:
   en: 09c2b97a405e1b8b
   zh: c634ec6d86469acf
-/qilin-client-ui-kylin/understand-the-implementation/how-the-panel-stays-current:
+/qilin-agent-client-ui-kylin/understand-the-implementation/how-the-panel-stays-current:
   en: cbcc34aa282d8739
   zh: ad054d71184037e3
-/qilin-client-ui-kylin/further-exploration:
+/qilin-agent-client-ui-kylin/further-exploration:
   en: 2529fd6e21e2dfd2
   zh: 945d7ed812f86379
-/qilin-client-ui-kylin/model-experience:
+/qilin-agent-client-ui-kylin/model-experience:
   en: c9dce228e7b0710c
   zh: edf38276ad463198
-/qilin-client-ui-kylin/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-kylin/model-experience/kv-cache-effect:
   en: ec4562df89d18e78
   zh: 30084e7fb8dee95d
-/qilin-client-ui-kylin/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-kylin/known-limitations-and-deferred-work:
   en: 2c6442056e3ebf09
   zh: e044816c5b1de5f0
-/qilin-client-ui-kylin/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-kylin/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

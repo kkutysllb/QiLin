@@ -5,57 +5,57 @@
 /:
   en: f70a1e0bb1e0d56d
   zh: 927e75bc75573410
-/qilin-bash-local:
-  en: fbc9d1f81dbf04a9
-  zh: 7609370d3abe2080
-/qilin-bash-local/summary:
+/qilin-agent-bash-local:
+  en: 8e08ed3fcd8b7822
+  zh: 638e43add75d44fe
+/qilin-agent-bash-local/summary:
   en: 64c5f4c550f0cc5b
   zh: 572c2bb31d192969
-/qilin-bash-local/table-of-contents:
+/qilin-agent-bash-local/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-bash-local/use-this-package:
+/qilin-agent-bash-local/use-this-package:
   en: 95ae7843275778ca
   zh: 43b5069075a99625
-/qilin-bash-local/use-this-package/minimal-configuration:
-  en: 2a626560f38e38f7
-  zh: d6e09c67f3e6059b
-/qilin-bash-local/use-this-package/running-commands:
+/qilin-agent-bash-local/use-this-package/minimal-configuration:
+  en: c1c44702a0b35746
+  zh: 4e1e0ab6940e4beb
+/qilin-agent-bash-local/use-this-package/running-commands:
   en: 4250045e0d0c2fd6
   zh: 9df3c6fb6e1835cd
-/qilin-bash-local/use-this-package/background-processes:
+/qilin-agent-bash-local/use-this-package/background-processes:
   en: 89d45582454b7673
   zh: 79b8aa45f136041d
-/qilin-bash-local/use-this-package/adjusting-budgets-at-runtime:
+/qilin-agent-bash-local/use-this-package/adjusting-budgets-at-runtime:
   en: a46ba56b308aa84b
   zh: 212e2054a74e4c6c
-/qilin-bash-local/understand-the-implementation:
+/qilin-agent-bash-local/understand-the-implementation:
   en: 05e2abe4a25886fd
   zh: 3f7f1326dc3c1d3f
-/qilin-bash-local/understand-the-implementation/design-concept:
+/qilin-agent-bash-local/understand-the-implementation/design-concept:
   en: ec84e5746de85fe0
   zh: 1c353325eeae87c6
-/qilin-bash-local/understand-the-implementation/source-map:
+/qilin-agent-bash-local/understand-the-implementation/source-map:
   en: 762bafaf8fb721c2
   zh: cd5dd95212f7c270
-/qilin-bash-local/understand-the-implementation/main-flow:
+/qilin-agent-bash-local/understand-the-implementation/main-flow:
   en: 9ab33c6a61bf9b07
   zh: 751878f39641d1b8
-/qilin-bash-local/understand-the-implementation/invariants-and-ownership:
+/qilin-agent-bash-local/understand-the-implementation/invariants-and-ownership:
   en: 4399cc0681866c62
   zh: 1fe3eeea91f9b8f4
-/qilin-bash-local/further-exploration:
+/qilin-agent-bash-local/further-exploration:
   en: 201f7143501a3d4f
   zh: e11e64a4e940a048
-/qilin-bash-local/model-experience:
+/qilin-agent-bash-local/model-experience:
   en: 9ef815d04edf3985
   zh: ad026e1222eb8f51
-/qilin-bash-local/model-experience/kv-cache-effect:
+/qilin-agent-bash-local/model-experience/kv-cache-effect:
   en: 40294c1c31b74824
   zh: 788a4799b1d65a8b
-/qilin-bash-local/known-limitations-and-deferred-work:
+/qilin-agent-bash-local/known-limitations-and-deferred-work:
   en: 44cb5f51b0cf5b27
   zh: a1b09e1c275e4bae
-/qilin-bash-local/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-bash-local/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

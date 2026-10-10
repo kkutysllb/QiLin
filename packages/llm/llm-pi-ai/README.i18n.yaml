@@ -5,90 +5,90 @@
 /:
   en: 8a6ec0a589e6fd18
   zh: e85fc352c9cba373
-/qilin-llm-pi-ai:
-  en: 190ee29c93afd020
-  zh: 0a38411d3ea869db
-/qilin-llm-pi-ai/summary:
-  en: 7aa2b3119cb44d90
-  zh: 5efdac5e9488e4f9
-/qilin-llm-pi-ai/table-of-contents:
+/qilin-agent-llm-pi-ai:
+  en: 62e6cbc3ef1052c6
+  zh: 0d2ebfd900c73b1e
+/qilin-agent-llm-pi-ai/summary:
+  en: a8c48c562ff401f0
+  zh: cbb0586be56dca6f
+/qilin-agent-llm-pi-ai/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-llm-pi-ai/use-this-package:
+/qilin-agent-llm-pi-ai/use-this-package:
   en: 228942941f8a1fe1
   zh: aeaba64bcec7f1c2
-/qilin-llm-pi-ai/use-this-package/when-to-choose-it:
+/qilin-agent-llm-pi-ai/use-this-package/when-to-choose-it:
   en: 91a4ef09155c6ca4
   zh: 461ee9960492f1f1
-/qilin-llm-pi-ai/use-this-package/configure-provider-routes:
-  en: 13ae7b6ecac58704
-  zh: b05f2faba4bd30fa
-/qilin-llm-pi-ai/use-this-package/sign-in-to-a-provider:
+/qilin-agent-llm-pi-ai/use-this-package/configure-provider-routes:
+  en: 4199c008a77bd1b0
+  zh: efff729332e71726
+/qilin-agent-llm-pi-ai/use-this-package/sign-in-to-a-provider:
   en: c36f66438638ae08
   zh: 066a2fc4cb97c86f
-/qilin-llm-pi-ai/use-this-package/resolve-the-model-catalog:
+/qilin-agent-llm-pi-ai/use-this-package/resolve-the-model-catalog:
   en: 376f83206858b601
   zh: 38bb6993609c96a6
-/qilin-llm-pi-ai/use-this-package/run-with-reasoning-and-wire-compatibility:
+/qilin-agent-llm-pi-ai/use-this-package/run-with-reasoning-and-wire-compatibility:
   en: 86b456496b54854e
   zh: ff77ca11d39ba8d2
-/qilin-llm-pi-ai/use-this-package/change-configuration-at-runtime:
+/qilin-agent-llm-pi-ai/use-this-package/change-configuration-at-runtime:
   en: eace85119d8be15e
   zh: 12635b70c0ab540a
-/qilin-llm-pi-ai/use-this-package/discover-models-from-endpoints:
+/qilin-agent-llm-pi-ai/use-this-package/discover-models-from-endpoints:
   en: 38a0c61db6b80fbc
   zh: 053bdad1016c670a
-/qilin-llm-pi-ai/use-this-package/failures-and-recovery:
+/qilin-agent-llm-pi-ai/use-this-package/failures-and-recovery:
   en: 3c24c46dff9b6e99
   zh: 13c0ec8cf9884018
-/qilin-llm-pi-ai/understand-the-implementation:
+/qilin-agent-llm-pi-ai/understand-the-implementation:
   en: 1598ac8a8bb9b6bf
   zh: fdd089c5ae7722cd
-/qilin-llm-pi-ai/understand-the-implementation/design-philosophy:
+/qilin-agent-llm-pi-ai/understand-the-implementation/design-philosophy:
   en: 280416de410744bb
   zh: 64cbfc0902e3f436
-/qilin-llm-pi-ai/understand-the-implementation/source-map:
+/qilin-agent-llm-pi-ai/understand-the-implementation/source-map:
   en: 3fd91d7a75e6515f
   zh: 11ef350cf0a962b7
-/qilin-llm-pi-ai/understand-the-implementation/registration-and-directory:
+/qilin-agent-llm-pi-ai/understand-the-implementation/registration-and-directory:
   en: 848157b053b52d50
   zh: fd305d4bd3dfa452
-/qilin-llm-pi-ai/understand-the-implementation/replay-and-vocabulary:
+/qilin-agent-llm-pi-ai/understand-the-implementation/replay-and-vocabulary:
   en: 743aa0ecd1368e9b
   zh: e0799e4d50aecf1a
-/qilin-llm-pi-ai/further-exploration:
-  en: 16ae20ab3f3defa4
-  zh: bb29862c991d711b
-/qilin-llm-pi-ai/model-experience:
+/qilin-agent-llm-pi-ai/further-exploration:
+  en: c5043ad30d42587e
+  zh: 186108620e92bfcd
+/qilin-agent-llm-pi-ai/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-llm-pi-ai/model-experience/provider-request-through-pi-ai:
+/qilin-agent-llm-pi-ai/model-experience/provider-request-through-pi-ai:
   en: e7348db3f7115960
   zh: 5fd5fb09d7d09982
-/qilin-llm-pi-ai/model-experience/provider-request-through-pi-ai/what-the-model-sees:
+/qilin-agent-llm-pi-ai/model-experience/provider-request-through-pi-ai/what-the-model-sees:
   en: 31d2ea4034c5064c
   zh: c1cd18c5f1ec7432
-/qilin-llm-pi-ai/model-experience/provider-request-through-pi-ai/token-effect:
+/qilin-agent-llm-pi-ai/model-experience/provider-request-through-pi-ai/token-effect:
   en: 820221e8ae37aa61
   zh: 7e6ff4db10067fc0
-/qilin-llm-pi-ai/model-experience/provider-request-through-pi-ai/kv-cache-effect:
+/qilin-agent-llm-pi-ai/model-experience/provider-request-through-pi-ai/kv-cache-effect:
   en: 8c1f842a95ab46fb
   zh: d6dd124c82f1d96b
-/qilin-llm-pi-ai/model-experience/provider-response:
+/qilin-agent-llm-pi-ai/model-experience/provider-response:
   en: 802d7ff60a1d03ff
   zh: c41c56e28f3e8680
-/qilin-llm-pi-ai/model-experience/provider-response/what-the-model-sees:
+/qilin-agent-llm-pi-ai/model-experience/provider-response/what-the-model-sees:
   en: 9b7d6b95ec2c4351
   zh: 356ac01aef9e8bed
-/qilin-llm-pi-ai/model-experience/provider-response/token-effect:
+/qilin-agent-llm-pi-ai/model-experience/provider-response/token-effect:
   en: f002b21d0f4c3df0
   zh: 388c8ed4676ed1af
-/qilin-llm-pi-ai/model-experience/provider-response/kv-cache-effect:
+/qilin-agent-llm-pi-ai/model-experience/provider-response/kv-cache-effect:
   en: b6bd570c0159ba08
   zh: 7d2d91eea6a8d830
-/qilin-llm-pi-ai/known-limitations-and-deferred-work:
+/qilin-agent-llm-pi-ai/known-limitations-and-deferred-work:
   en: 5148eb78d9ef97f0
   zh: 705dc6fbfd5f4ba0
-/qilin-llm-pi-ai/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-llm-pi-ai/known-limitations-and-deferred-work/dev-note:
   en: 3678dd0f6642c2a5
   zh: 75cbdd064cc64282

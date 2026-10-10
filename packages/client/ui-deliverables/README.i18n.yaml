@@ -5,54 +5,54 @@
 /:
   en: 91a4da87e2e078ed
   zh: 8d489c6cdf208c4d
-/qilin-client-ui-deliverables:
-  en: d9e6d3ea4b5cbbac
-  zh: 25b1fd8af2a4968c
-/qilin-client-ui-deliverables/summary:
+/qilin-agent-client-ui-deliverables:
+  en: 526218e958a05884
+  zh: 1db97342024d5de2
+/qilin-agent-client-ui-deliverables/summary:
   en: a17b97d16803f911
   zh: ad80cf4bcb5a8018
-/qilin-client-ui-deliverables/table-of-contents:
+/qilin-agent-client-ui-deliverables/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-ui-deliverables/use-this-package:
+/qilin-agent-client-ui-deliverables/use-this-package:
   en: bec3addae05b0c63
   zh: 82ca127bb0db9db6
-/qilin-client-ui-deliverables/use-this-package/explicit-deliveries:
+/qilin-agent-client-ui-deliverables/use-this-package/explicit-deliveries:
   en: 6f99703dbe5bd915
   zh: 474a5887e41a61e6
-/qilin-client-ui-deliverables/use-this-package/the-changed-files-card:
+/qilin-agent-client-ui-deliverables/use-this-package/the-changed-files-card:
   en: 264e3d8c2c3308a0
   zh: 268655df9cc8ceb9
-/qilin-client-ui-deliverables/use-this-package/the-review-tab:
+/qilin-agent-client-ui-deliverables/use-this-package/the-review-tab:
   en: 3841abce6e33c564
   zh: 31175cf69c33b0c9
-/qilin-client-ui-deliverables/use-this-package/inline-code-links:
+/qilin-agent-client-ui-deliverables/use-this-package/inline-code-links:
   en: e36ccef8bf908ea4
   zh: 30e11327a55e5dfa
-/qilin-client-ui-deliverables/understand-the-implementation:
+/qilin-agent-client-ui-deliverables/understand-the-implementation:
   en: 5e81e43b907c01ee
   zh: d61a3c369ffad8d1
-/qilin-client-ui-deliverables/further-exploration:
+/qilin-agent-client-ui-deliverables/further-exploration:
   en: 7fbb38158f458cd4
   zh: e6bec53bc5f4fb58
-/qilin-client-ui-deliverables/model-experience:
+/qilin-agent-client-ui-deliverables/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-client-ui-deliverables/model-experience/clickable-file-reference-guidance:
+/qilin-agent-client-ui-deliverables/model-experience/clickable-file-reference-guidance:
   en: eb244aa21a4e5210
   zh: e3450addfa19cea5
-/qilin-client-ui-deliverables/model-experience/clickable-file-reference-guidance/what-the-model-sees:
+/qilin-agent-client-ui-deliverables/model-experience/clickable-file-reference-guidance/what-the-model-sees:
   en: b191a86a061cbb07
   zh: 1e080b8fedb3a4f8
-/qilin-client-ui-deliverables/model-experience/clickable-file-reference-guidance/token-effect:
+/qilin-agent-client-ui-deliverables/model-experience/clickable-file-reference-guidance/token-effect:
   en: b6c79433affb56a6
   zh: a084318c814aa03c
-/qilin-client-ui-deliverables/model-experience/clickable-file-reference-guidance/kv-cache-effect:
+/qilin-agent-client-ui-deliverables/model-experience/clickable-file-reference-guidance/kv-cache-effect:
   en: 52626a05acc8b320
   zh: 6a8e62b0d47d5297
-/qilin-client-ui-deliverables/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-deliverables/known-limitations-and-deferred-work:
   en: 7cf1624dbf46ec53
   zh: 4cf51dd265f1965f
-/qilin-client-ui-deliverables/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-deliverables/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

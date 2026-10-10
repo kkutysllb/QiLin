@@ -32,6 +32,7 @@ import {
   testToolSignal,
   text,
 } from './harness.ts'
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 
 /** Create a package-test context with the tool's required projection seam. */
 async function projectedContext(): Promise<Context> {
@@ -94,6 +95,7 @@ describe('qilin-tool-subagent', () => {
     const schema = ctx.tools.schemas().find(s => s.name === 'subagent')
     const props = (schema!.parameters as { properties?: Record<string, unknown> }).properties ?? {}
     expect(Object.keys(props).sort()).toEqual([
+      'cwd',
       'description',
       'prompt',
     ])
@@ -197,6 +199,7 @@ describe('qilin-tool-subagent', () => {
     const ctx = await projectedContext()
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     await mock.mountScriptedProvider(ctx, { name: 'spawn', reply: 'from spawn' })
     await mock.mountScriptedProvider(ctx, { name: 'acp', reply: 'from acp' })
@@ -218,6 +221,7 @@ describe('qilin-tool-subagent', () => {
     const ctx = await projectedContext()
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     ctx.subagents.registerProvider({
       name: 'weird',
@@ -307,6 +311,7 @@ describe('qilin-tool-subagent', () => {
     const ctx = await projectedContext()
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     ctx.subagents.registerProvider({
       name: 'bare',
@@ -342,6 +347,7 @@ describe('qilin-tool-subagent', () => {
     const ctx = await projectedContext()
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     // Tool first: no provider yet — the tool must be absent, not broken.
     // Direct apply (schema bypass): also covers the waiting-note's default
@@ -359,6 +365,7 @@ describe('qilin-tool-subagent', () => {
     const ctx = await projectedContext()
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     tool.apply(ctx, {
       provider: 'later-continuable',
@@ -375,6 +382,7 @@ describe('qilin-tool-subagent', () => {
     const ctx = await projectedContext()
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     const backend = await mock.mountScriptedProvider(ctx, { name: 'mock' }) // fresh conversation (descriptor: false)
     await ctx.plugin(tool, { provider: 'mock' })
@@ -394,6 +402,7 @@ describe('qilin-tool-subagent', () => {
     const ctx = await projectedContext()
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
 
     // Arm 1: a mounted tool and its prompt section die with the plugin fiber;
@@ -430,6 +439,7 @@ describe('qilin-tool-subagent', () => {
     const ctx = await projectedContext()
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     await mock.mountScriptedProvider(ctx, { name: 'mock' })
     await ctx.plugin(tool, { provider: 'mock' })
@@ -470,6 +480,7 @@ describe('qilin-tool-subagent', () => {
     const ctx = await projectedContext()
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     ctx.subagents.registerProvider({
       name: 'spy',
@@ -493,6 +504,7 @@ describe('qilin-tool-subagent', () => {
     const ctx = await projectedContext()
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     ctx.subagents.registerProvider({
       name: 'spy',
@@ -517,6 +529,7 @@ describe('qilin-tool-subagent', () => {
     const ctx = await projectedContext()
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     ctx.subagents.registerProvider({
       name: 'spy',
@@ -545,6 +558,7 @@ describe('qilin-tool-subagent', () => {
     const ctx = await projectedContext()
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     ctx.subagents.registerProvider({
       name: 'spy',
@@ -569,15 +583,18 @@ describe('qilin-tool-subagent', () => {
 
   it('passes the tool abort signal as the provider cancellation channel', async () => {
     const cancelled = vi.fn()
+    const started = vi.fn()
     const ctx = await projectedContext()
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     ctx.subagents.registerProvider({
       name: 'spy',
       capabilities: { agentOptions: false, outputSchema: false, depthLimit: false, toolFilter: false, persona: false },
       inheritsParentContext: false,
       start: async (request) => {
+        started()
         if (request.signal.aborted) throw new Error('start aborted')
         let resolveResult: (r: { output: never[]; stopReason: 'aborted' }) => void
         const result = new Promise<{ output: never[]; stopReason: 'aborted' }>((res) => { resolveResult = res })
@@ -597,9 +614,8 @@ describe('qilin-tool-subagent', () => {
 
     const controller = new AbortController()
     const pending = callSubagent(ctx, { description: 'd', prompt: 'p' }, { signal: controller.signal })
-    // Let provider.start install its listener before aborting.
-    await Promise.resolve()
-    await Promise.resolve()
+    // Wait for provider.start to install its listener before aborting.
+    await vi.waitFor(() => { expect(started).toHaveBeenCalled() })
     controller.abort()
     const result = await pending
     expect(cancelled).toHaveBeenCalledTimes(1)
@@ -611,6 +627,7 @@ describe('qilin-tool-subagent', () => {
     const ctx = await projectedContext()
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     ctx.subagents.registerProvider({
       name: 'spy',
@@ -675,6 +692,7 @@ describe('qilin-tool-subagent', () => {
     const ctx = await projectedContext()
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     ctx.subagents.registerProvider({
       name: 'capture2',
@@ -732,6 +750,7 @@ describe('qilin-tool-subagent', () => {
     const ctx = await projectedContext()
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     ctx.subagents.registerProvider({
       name: 'capture3',
@@ -762,6 +781,7 @@ describe('qilin-tool-subagent', () => {
     const ctx = await projectedContext()
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     ctx.subagents.registerProvider({
       name: 'capture4',
@@ -787,6 +807,7 @@ describe('qilin-tool-subagent', () => {
     const ctx = await projectedContext()
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     ctx.subagents.registerProvider({
       name: 'p',
@@ -1188,6 +1209,7 @@ describe('qilin-tool-subagent continuable background mode', () => {
     roots.push(root)
     await ctx.plugin(JsonlSessionPersistence, { root })
     await ctx.plugin(AgentLoop, { agents: [] })
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     await ctx.plugin(SubagentSpawn, { providerName: 'spawn' })
     await ctx.plugin(LocalJobRegistry)
@@ -1394,6 +1416,7 @@ describe('depth budget configuration', () => {
     const ctx = await projectedContext()
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     ctx.subagents.registerProvider({
       name: 'capture',
@@ -1432,6 +1455,7 @@ describe('depth budget configuration', () => {
     const ctx = await projectedContext()
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     ctx.subagents.registerProvider({
       name: 'no-depth',
@@ -1448,6 +1472,7 @@ describe('depth budget configuration', () => {
     const ctx = await projectedContext()
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(ToolRuntime)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     ctx.subagents.registerProvider({
       name: 'external',

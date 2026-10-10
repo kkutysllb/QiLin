@@ -5,54 +5,54 @@
 /:
   en: 40ce7ea7cd628127
   zh: f4f1983ead36c8a4
-/qilin-host-webserver:
-  en: 522018e8f0414299
-  zh: 0f952f894c9d1e31
-/qilin-host-webserver/summary:
+/qilin-agent-host-webserver:
+  en: 0bad9c2f20952f34
+  zh: ef2965c6117fbbbc
+/qilin-agent-host-webserver/summary:
   en: c8fc0d2e47eacec8
   zh: 2e42efe1d2d89f35
-/qilin-host-webserver/table-of-contents:
+/qilin-agent-host-webserver/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-host-webserver/use-this-package:
+/qilin-agent-host-webserver/use-this-package:
   en: 0246258969a54c27
   zh: ba67f4df89d049de
-/qilin-host-webserver/use-this-package/minimal-configuration:
+/qilin-agent-host-webserver/use-this-package/minimal-configuration:
   en: 992eeb0d25dca6a8
   zh: 9d6a14c15004822d
-/qilin-host-webserver/use-this-package/registering-routes:
+/qilin-agent-host-webserver/use-this-package/registering-routes:
   en: 296ffba200f0dc93
   zh: 5d78d6b5f48634c9
-/qilin-host-webserver/use-this-package/the-fallback-seat:
+/qilin-agent-host-webserver/use-this-package/the-fallback-seat:
   en: cf5799c43008675b
   zh: 292ea32515eeeeff
-/qilin-host-webserver/use-this-package/behavior-under-failure:
+/qilin-agent-host-webserver/use-this-package/behavior-under-failure:
   en: 7ef1f5bedb859676
   zh: b146ebf7ca3c0bfb
-/qilin-host-webserver/understand-the-implementation:
+/qilin-agent-host-webserver/understand-the-implementation:
   en: 42b15ac6321706aa
   zh: 4ed0861911abaf5d
-/qilin-host-webserver/understand-the-implementation/design-concept:
+/qilin-agent-host-webserver/understand-the-implementation/design-concept:
   en: 17a6400b735c1f9a
   zh: ccb586b963005232
-/qilin-host-webserver/understand-the-implementation/matching-and-lifecycle:
+/qilin-agent-host-webserver/understand-the-implementation/matching-and-lifecycle:
   en: 70dc6875e07497dd
   zh: a1d041236e361f84
-/qilin-host-webserver/understand-the-implementation/source-map:
+/qilin-agent-host-webserver/understand-the-implementation/source-map:
   en: ce33753861660637
   zh: 09ecb20f47f59e55
-/qilin-host-webserver/further-exploration:
-  en: fb66f414ff191e84
-  zh: 3cee3498a21bcf16
-/qilin-host-webserver/model-experience:
+/qilin-agent-host-webserver/further-exploration:
+  en: 6617bd87108df455
+  zh: 048f6ef36f8bd045
+/qilin-agent-host-webserver/model-experience:
   en: 38887e1f9117e7e5
   zh: 6a6e1a002fac4624
-/qilin-host-webserver/model-experience/kv-cache-effect:
+/qilin-agent-host-webserver/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: de54f3467ef3b9be
-/qilin-host-webserver/known-limitations-and-deferred-work:
+/qilin-agent-host-webserver/known-limitations-and-deferred-work:
   en: 23f8f8c802c242cf
   zh: 006d1a3d6291e192
-/qilin-host-webserver/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-host-webserver/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

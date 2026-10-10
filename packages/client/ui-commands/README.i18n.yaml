@@ -5,42 +5,42 @@
 /:
   en: e85ec1ccd1b80d98
   zh: 1272b2ae6abeabdc
-/qilin-client-ui-commands:
-  en: cc55d5f5ec4e612e
-  zh: 96eb2fbdb023c00a
-/qilin-client-ui-commands/summary:
+/qilin-agent-client-ui-commands:
+  en: 90a7a4591df799e6
+  zh: 770dc574290fb06f
+/qilin-agent-client-ui-commands/summary:
   en: 770b1f492ac735e7
   zh: 5602493729149219
-/qilin-client-ui-commands/table-of-contents:
+/qilin-agent-client-ui-commands/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-ui-commands/use-this-package:
+/qilin-agent-client-ui-commands/use-this-package:
   en: 01adce72791579fa
   zh: 70eb55a1529038e7
-/qilin-client-ui-commands/use-this-package/kinds-and-decorations:
+/qilin-agent-client-ui-commands/use-this-package/kinds-and-decorations:
   en: 86841942f6989fbb
   zh: 901557d3a5d0528e
-/qilin-client-ui-commands/use-this-package/built-in-row-faces:
+/qilin-agent-client-ui-commands/use-this-package/built-in-row-faces:
   en: e96156be95ea87e3
   zh: f5350db26483ec9f
-/qilin-client-ui-commands/use-this-package/attachment-carrying-submissions:
+/qilin-agent-client-ui-commands/use-this-package/attachment-carrying-submissions:
   en: 4feecdbec0c3f39e
   zh: 618944ecade8a3a2
-/qilin-client-ui-commands/understand-the-implementation:
+/qilin-agent-client-ui-commands/understand-the-implementation:
   en: a0e2ce357c0cdc73
   zh: 481898ce1f4b89e4
-/qilin-client-ui-commands/further-exploration:
+/qilin-agent-client-ui-commands/further-exploration:
   en: b459068abadd88a2
   zh: 93d07fc5f6a5d7d9
-/qilin-client-ui-commands/model-experience:
+/qilin-agent-client-ui-commands/model-experience:
   en: 3ec197644f2fe6ce
   zh: a06a6fe8909b064f
-/qilin-client-ui-commands/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-commands/model-experience/kv-cache-effect:
   en: 08efc268737977ca
   zh: 7772a59064ea4039
-/qilin-client-ui-commands/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-commands/known-limitations-and-deferred-work:
   en: cfce26d6a603cb7d
   zh: 8332a8d1ad44abcf
-/qilin-client-ui-commands/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-commands/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

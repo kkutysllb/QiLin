@@ -5,39 +5,39 @@
 /:
   en: dd1d437b386e4216
   zh: 4b59a2d565d99a0c
-/qilin-client-ui-goal:
-  en: fba0d173abe2ed7a
-  zh: 8421745d6407ebe4
-/qilin-client-ui-goal/summary:
+/qilin-agent-client-ui-goal:
+  en: a5227cf455740947
+  zh: fefc97b90ae15c3f
+/qilin-agent-client-ui-goal/summary:
   en: 615de8980e1b06c3
   zh: 7fc3284c2bb00f20
-/qilin-client-ui-goal/table-of-contents:
+/qilin-agent-client-ui-goal/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-ui-goal/use-this-package:
+/qilin-agent-client-ui-goal/use-this-package:
   en: 2725409692b11cdc
   zh: d171d8d98a2bdadf
-/qilin-client-ui-goal/use-this-package/the-command-input-bubble:
+/qilin-agent-client-ui-goal/use-this-package/the-command-input-bubble:
   en: 05c5db0eb58dffef
   zh: 54e7bea0b810b1b8
-/qilin-client-ui-goal/use-this-package/failures:
+/qilin-agent-client-ui-goal/use-this-package/failures:
   en: 097bbdd748dc17e5
   zh: 867d341d046ba609
-/qilin-client-ui-goal/understand-the-implementation:
+/qilin-agent-client-ui-goal/understand-the-implementation:
   en: 09408d24babd3948
   zh: ddb9240cfc83b4c7
-/qilin-client-ui-goal/further-exploration:
+/qilin-agent-client-ui-goal/further-exploration:
   en: b09bffb4377f30a8
   zh: 537dca8704f118c5
-/qilin-client-ui-goal/model-experience:
+/qilin-agent-client-ui-goal/model-experience:
   en: 53ca3b1f16b1ef44
   zh: 39254d4076e3723d
-/qilin-client-ui-goal/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-goal/model-experience/kv-cache-effect:
   en: 68c9a2a057acb6cf
   zh: baba87876e432666
-/qilin-client-ui-goal/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-goal/known-limitations-and-deferred-work:
   en: bbb97ea1b94eae0f
   zh: 8e6b0e0516746dcf
-/qilin-client-ui-goal/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-goal/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

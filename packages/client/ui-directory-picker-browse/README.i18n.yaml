@@ -5,36 +5,36 @@
 /:
   en: 5f823b578f5be33d
   zh: 5e12bb5290b0286b
-/qilin-client-ui-directory-picker-browse:
-  en: 1bfa88edc874364a
-  zh: eaa661804163883f
-/qilin-client-ui-directory-picker-browse/summary:
+/qilin-agent-client-ui-directory-picker-browse:
+  en: e541477b725966dd
+  zh: 4b24f0369a3203cb
+/qilin-agent-client-ui-directory-picker-browse/summary:
   en: ac25e193545eb43d
   zh: 073285b06a9f4831
-/qilin-client-ui-directory-picker-browse/table-of-contents:
+/qilin-agent-client-ui-directory-picker-browse/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-client-ui-directory-picker-browse/use-this-package:
+/qilin-agent-client-ui-directory-picker-browse/use-this-package:
   en: 7913c7557ea02dbb
   zh: 30c445131231da7a
-/qilin-client-ui-directory-picker-browse/use-this-package/navigating-and-creating:
+/qilin-agent-client-ui-directory-picker-browse/use-this-package/navigating-and-creating:
   en: 18e10884b02f288f
   zh: 06debd0a4a88bdac
-/qilin-client-ui-directory-picker-browse/understand-the-implementation:
+/qilin-agent-client-ui-directory-picker-browse/understand-the-implementation:
   en: fb217b7d152731db
   zh: 9ee3c0a9f15a5a29
-/qilin-client-ui-directory-picker-browse/further-exploration:
+/qilin-agent-client-ui-directory-picker-browse/further-exploration:
   en: 6d1d13afaaa77d29
   zh: fbf276c3e7dbef0a
-/qilin-client-ui-directory-picker-browse/model-experience:
+/qilin-agent-client-ui-directory-picker-browse/model-experience:
   en: 3bcc2b54b66f366e
   zh: 489716ece3a4ef2a
-/qilin-client-ui-directory-picker-browse/model-experience/kv-cache-effect:
+/qilin-agent-client-ui-directory-picker-browse/model-experience/kv-cache-effect:
   en: ca75c51c89c2c9b0
   zh: f57cc48a1b5cbfa9
-/qilin-client-ui-directory-picker-browse/known-limitations-and-deferred-work:
+/qilin-agent-client-ui-directory-picker-browse/known-limitations-and-deferred-work:
   en: 20e381071e1644e2
   zh: 9260bcb09a52dd8c
-/qilin-client-ui-directory-picker-browse/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-client-ui-directory-picker-browse/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

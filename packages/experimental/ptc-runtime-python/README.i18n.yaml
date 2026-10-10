@@ -5,57 +5,57 @@
 /:
   en: a435eb6f5d0337ea
   zh: da7ed348b4b75eec
-/qilin-experimental-ptc-runtime-python:
-  en: 2efa707fc4fd1e5c
-  zh: 6920a158f333fcff
-/qilin-experimental-ptc-runtime-python/summary:
+/qilin-agent-experimental-ptc-runtime-python:
+  en: 4a26a7f42919b920
+  zh: 9420912c1b86f688
+/qilin-agent-experimental-ptc-runtime-python/summary:
   en: a7dc02100b3d90ba
   zh: 5f80610b0bf84d84
-/qilin-experimental-ptc-runtime-python/table-of-contents:
+/qilin-agent-experimental-ptc-runtime-python/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-experimental-ptc-runtime-python/use-this-package:
+/qilin-agent-experimental-ptc-runtime-python/use-this-package:
   en: d34f9fa20b6125b0
   zh: 9c383ff6c46becd6
-/qilin-experimental-ptc-runtime-python/use-this-package/what-you-get:
+/qilin-agent-experimental-ptc-runtime-python/use-this-package/what-you-get:
   en: ca7b9cc958069c7f
   zh: 8a4ac72d02ad76eb
-/qilin-experimental-ptc-runtime-python/use-this-package/the-wire:
+/qilin-agent-experimental-ptc-runtime-python/use-this-package/the-wire:
   en: e690628dc6197c3b
   zh: 2b9cdad8b41dcde5
-/qilin-experimental-ptc-runtime-python/use-this-package/what-can-go-wrong:
+/qilin-agent-experimental-ptc-runtime-python/use-this-package/what-can-go-wrong:
   en: d43927c607a9855f
   zh: e1dd1643bebfd647
-/qilin-experimental-ptc-runtime-python/understand-the-implementation:
+/qilin-agent-experimental-ptc-runtime-python/understand-the-implementation:
   en: 7824816505e2b844
   zh: 3603d1c332c2ed5d
-/qilin-experimental-ptc-runtime-python/understand-the-implementation/design-concept:
+/qilin-agent-experimental-ptc-runtime-python/understand-the-implementation/design-concept:
   en: 9339b0800d70be48
   zh: 71a9a3d3eea86050
-/qilin-experimental-ptc-runtime-python/understand-the-implementation/wire-contract:
+/qilin-agent-experimental-ptc-runtime-python/understand-the-implementation/wire-contract:
   en: 586d320cd7ef9974
   zh: ccf4e4f9fb230eb8
-/qilin-experimental-ptc-runtime-python/understand-the-implementation/lossless-json-crossing:
+/qilin-agent-experimental-ptc-runtime-python/understand-the-implementation/lossless-json-crossing:
   en: 6252e86fa10e9dd0
   zh: 9b95b033ea0b5463
-/qilin-experimental-ptc-runtime-python/understand-the-implementation/mirror-alignment:
+/qilin-agent-experimental-ptc-runtime-python/understand-the-implementation/mirror-alignment:
   en: 167a08a71870f227
   zh: 43f671b45104849f
-/qilin-experimental-ptc-runtime-python/understand-the-implementation/source-map:
+/qilin-agent-experimental-ptc-runtime-python/understand-the-implementation/source-map:
   en: 4f322d79bbf578f6
   zh: 7f7f9187f49af439
-/qilin-experimental-ptc-runtime-python/further-exploration:
+/qilin-agent-experimental-ptc-runtime-python/further-exploration:
   en: cfbc420dac53f94d
   zh: 624c32410281ffbd
-/qilin-experimental-ptc-runtime-python/model-experience:
+/qilin-agent-experimental-ptc-runtime-python/model-experience:
   en: ff25dfde207ca818
   zh: 2987fdb26e7128cc
-/qilin-experimental-ptc-runtime-python/model-experience/kv-cache-effect:
+/qilin-agent-experimental-ptc-runtime-python/model-experience/kv-cache-effect:
   en: 40294c1c31b74824
   zh: d805c6bd7270505e
-/qilin-experimental-ptc-runtime-python/known-limitations-and-deferred-work:
+/qilin-agent-experimental-ptc-runtime-python/known-limitations-and-deferred-work:
   en: 73608c2e20844c84
   zh: 4cb03be7ebb02b24
-/qilin-experimental-ptc-runtime-python/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-experimental-ptc-runtime-python/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

@@ -5,63 +5,63 @@
 /:
   en: 3f9127c3981e9453
   zh: b4fcc1468319b9b2
-/qilin-experimental-browser-use-stagehand-native:
-  en: f1b181d14bcd2307
-  zh: e7f927d1bccf0a7b
-/qilin-experimental-browser-use-stagehand-native/summary:
+/qilin-agent-experimental-browser-use-stagehand-native:
+  en: 9c49ce982767772b
+  zh: 48a1242368864846
+/qilin-agent-experimental-browser-use-stagehand-native/summary:
   en: 05c2fd0d2d2856a0
   zh: fd90ef7fce885498
-/qilin-experimental-browser-use-stagehand-native/table-of-contents:
+/qilin-agent-experimental-browser-use-stagehand-native/table-of-contents:
   en: d152484eb41ac6b4
   zh: a949126695843224
-/qilin-experimental-browser-use-stagehand-native/use-this-package:
+/qilin-agent-experimental-browser-use-stagehand-native/use-this-package:
   en: de47f71ab56fd0ed
   zh: fdc58f273a7dba3d
-/qilin-experimental-browser-use-stagehand-native/use-this-package/minimal-configuration:
+/qilin-agent-experimental-browser-use-stagehand-native/use-this-package/minimal-configuration:
   en: 1554d55fd5be9735
   zh: d39e7dd0b8ff1b7d
-/qilin-experimental-browser-use-stagehand-native/use-this-package/verification:
+/qilin-agent-experimental-browser-use-stagehand-native/use-this-package/verification:
   en: 7dff8bdb6666c1eb
   zh: fb3ab7b792d97915
-/qilin-experimental-browser-use-stagehand-native/understand-the-implementation:
+/qilin-agent-experimental-browser-use-stagehand-native/understand-the-implementation:
   en: 258e712daec832cf
   zh: 0d4fc0e397ce606d
-/qilin-experimental-browser-use-stagehand-native/further-exploration:
+/qilin-agent-experimental-browser-use-stagehand-native/further-exploration:
   en: a8ad7d0037807dc6
   zh: fac18202816b5c4f
-/qilin-experimental-browser-use-stagehand-native/model-experience:
+/qilin-agent-experimental-browser-use-stagehand-native/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-experimental-browser-use-stagehand-native/model-experience/browser-guidance:
+/qilin-agent-experimental-browser-use-stagehand-native/model-experience/browser-guidance:
   en: db27706a7478c425
   zh: d36d746cf60e56c4
-/qilin-experimental-browser-use-stagehand-native/model-experience/browser-guidance/what-the-model-sees:
+/qilin-agent-experimental-browser-use-stagehand-native/model-experience/browser-guidance/what-the-model-sees:
   en: c76eeb849a7dcc9d
   zh: 466f6573ee758f66
-/qilin-experimental-browser-use-stagehand-native/model-experience/browser-guidance/what-the-model-sees/browser-guidance-text:
+/qilin-agent-experimental-browser-use-stagehand-native/model-experience/browser-guidance/what-the-model-sees/browser-guidance-text:
   en: d618f1a8fcd2f9b4
   zh: a2c8620646573b9f
-/qilin-experimental-browser-use-stagehand-native/model-experience/browser-guidance/token-effect:
+/qilin-agent-experimental-browser-use-stagehand-native/model-experience/browser-guidance/token-effect:
   en: 54fb52d906a0ed1d
   zh: 0c92cb1daf790ce9
-/qilin-experimental-browser-use-stagehand-native/model-experience/browser-guidance/kv-cache-effect:
+/qilin-agent-experimental-browser-use-stagehand-native/model-experience/browser-guidance/kv-cache-effect:
   en: 8b85590b83e40fc0
   zh: 9061599a76700e66
-/qilin-experimental-browser-use-stagehand-native/model-experience/native-browser-tools-and-results:
+/qilin-agent-experimental-browser-use-stagehand-native/model-experience/native-browser-tools-and-results:
   en: 0295a32030d24cd0
   zh: 65ef3d8920d811c2
-/qilin-experimental-browser-use-stagehand-native/model-experience/native-browser-tools-and-results/what-the-model-sees:
-  en: dca6171d4ef566e6
-  zh: 8fe47fc66eefc30a
-/qilin-experimental-browser-use-stagehand-native/model-experience/native-browser-tools-and-results/token-effect:
+/qilin-agent-experimental-browser-use-stagehand-native/model-experience/native-browser-tools-and-results/what-the-model-sees:
+  en: bffac5e04a4419f7
+  zh: 68b33d1e0f6895fc
+/qilin-agent-experimental-browser-use-stagehand-native/model-experience/native-browser-tools-and-results/token-effect:
   en: a5b12a61e06afbe8
   zh: b6cc8c4d451118ca
-/qilin-experimental-browser-use-stagehand-native/model-experience/native-browser-tools-and-results/kv-cache-effect:
+/qilin-agent-experimental-browser-use-stagehand-native/model-experience/native-browser-tools-and-results/kv-cache-effect:
   en: 2bd36c8da753a1e5
   zh: 172e2151f7c7b0cd
-/qilin-experimental-browser-use-stagehand-native/known-limitations-and-deferred-work:
+/qilin-agent-experimental-browser-use-stagehand-native/known-limitations-and-deferred-work:
   en: 7b75837da3466bae
   zh: 1f5e429147eec6f1
-/qilin-experimental-browser-use-stagehand-native/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-experimental-browser-use-stagehand-native/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: e88aeb617ffb74ea

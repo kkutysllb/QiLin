@@ -12,7 +12,7 @@ import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import SubagentRuntime from '@qilin-agent/subagent'
+import SubagentRuntime, { snapshotSubagentDescriptor } from '@qilin-agent/subagent'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import type { Agent, AgentOptions } from '@qilin-agent/agent'
 import {
@@ -35,6 +35,7 @@ import {
   internals as runInternals,
   type SdkRunSpec,
 } from '../src/run.ts'
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 
 const fakeRuntime = fileURLToPath(new URL('../../../sdk/client/tests/fake-runtime.ts', import.meta.url))
 const existingPatch = fileURLToPath(new URL(
@@ -85,6 +86,7 @@ function request(text = 'p', signal = new AbortController().signal, agentOptions
 async function setup(fakeEnv: Record<string, string> = {}, config: Partial<sdk.Config> = {}) {
   const ctx = new Context()
   await ctx.plugin(SessionProjectionRegistry)
+  await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(SubagentRuntime)
   // The Config type models the post-validation shape, so the default registry
   // name is stated here; the Loader-composition fixture omits providerName and
@@ -684,18 +686,40 @@ describe('qilin-subagent-qilin-sdk provider', () => {
     }
   })
 
-  it('rejects a pre-aborted request through the registered provider before cwd resolution', async () => {
+  it('rejects a pre-aborted provider request before resolving the parent directory', async () => {
     const ctx = await setup()
     const controller = new AbortController()
     controller.abort()
-    const parent = { id: 'parent', session: { header: {} } } as unknown as Agent
-    await expect(ctx.subagents.start('qilin-sdk', {
-      label: 'p',
-      prompt: [{ type: 'text' as const, text: 'p' }],
-      parent,
-      signal: controller.signal,
-    })).rejects.toThrow('subagent request was aborted before the SDK child started')
+    const provider = ctx.subagents.getProvider('qilin-sdk')!
+    expect(() => provider.start({
+      ...request('p', controller.signal),
+      cwd: process.cwd(),
+      descriptor: snapshotSubagentDescriptor({ mode: 'one-shot', provider: 'qilin-sdk', label: 'cancelled startup' }),
+    })).toThrow('subagent request was aborted before the SDK child started')
+    expect(createdHarnessOptions).toEqual([])
     await ctx.fiber.dispose()
+  })
+
+  it('rejects a child directory removed after resolution without starting a runtime', async () => {
+    const cwd = mkdtempSync(join(tmpdir(), 'subagent-qilin-sdk-removed-cwd-'))
+    const ctx = await setup()
+    const warn = vi.spyOn(ctx.logger, 'warn').mockImplementation(() => {})
+    try {
+      const resolved = {
+        ...request(),
+        cwd,
+        descriptor: snapshotSubagentDescriptor({ mode: 'one-shot', provider: 'qilin-sdk', label: 'removed directory' }),
+      }
+      rmSync(cwd, { recursive: true })
+      expect(() => ctx.subagents.getProvider('qilin-sdk')!.start(resolved))
+        .toThrow(expectedFailure('stage: initialize; category: configuration'))
+      expect(createdHarnessOptions).toEqual([])
+      expect(warn).toHaveBeenCalledWith('subagent-qilin-sdk "qilin-sdk": child start failed: %o', expect.any(Error))
+    } finally {
+      warn.mockRestore()
+      await ctx.fiber.dispose()
+      rmSync(cwd, { recursive: true, force: true })
+    }
   })
 
   it('rejects after reaping when the child dies before the handshake', async () => {
@@ -812,6 +836,7 @@ describe('qilin-subagent-qilin-sdk provider', () => {
   it('registers under the configured provider name and unregisters on fiber dispose (HMR safety)', async () => {
     const ctx = new Context()
     await ctx.plugin(SessionProjectionRegistry)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     const fiber = await ctx.plugin(sdk, {
       providerName: 'sdk-hmr',
@@ -839,6 +864,7 @@ describe('qilin-subagent-qilin-sdk provider', () => {
   it('rejects non-positive timing bounds at load', async () => {
     const ctx = new Context()
     await ctx.plugin(SessionProjectionRegistry)
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     const base = { providerName: 'sdk', profile: 'sdk', patches: [], qilinHome: process.cwd(), provider: 'p', model: 'm', env: {} }
     await expect(ctx.plugin(sdk, { ...base, shutdownTimeoutMs: 0 })).rejects.toThrow('shutdownTimeoutMs must be a positive finite number')
@@ -849,6 +875,7 @@ describe('qilin-subagent-qilin-sdk provider', () => {
 
   it('requires an explicit absolute Harness home for nested qilin runtimes', async () => {
     const ctx = new Context()
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     await expect(ctx.plugin(sdk, {
       providerName: 'sdk',
@@ -868,6 +895,7 @@ describe('qilin-subagent-qilin-sdk provider', () => {
     { field: 'patches[0]', override: { patches: ['./missing-child-patch.yml'] } },
   ])('rejects an invalid $field at load', async ({ field, override }) => {
     const ctx = new Context()
+    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     await expect(ctx.plugin(sdk, {
       providerName: 'sdk',
@@ -887,6 +915,7 @@ describe('qilin-subagent-qilin-sdk provider', () => {
     async (maxTokens) => {
       const ctx = new Context()
       await ctx.plugin(SessionProjectionRegistry)
+      await mountWorkingDirectoryFixture(ctx)
       await ctx.plugin(SubagentRuntime)
       await expect(ctx.plugin(sdk, {
         providerName: 'sdk',
@@ -907,6 +936,7 @@ describe('qilin-subagent-qilin-sdk provider', () => {
     async (maxTokens) => {
       const ctx = new Context()
       await ctx.plugin(SessionProjectionRegistry)
+      await mountWorkingDirectoryFixture(ctx)
       await ctx.plugin(SubagentRuntime)
       expect(() => { sdk.apply(ctx, {
         providerName: 'sdk',
@@ -925,31 +955,15 @@ describe('qilin-subagent-qilin-sdk provider', () => {
     },
   )
 
-  it('rejects an empty config cwd at load', async () => {
-    const ctx = new Context()
-    await ctx.plugin(SessionProjectionRegistry)
-    await ctx.plugin(SubagentRuntime)
-    await expect(ctx.plugin(sdk, {
-      providerName: 'sdk',
-      profile: 'sdk',
-      patches: [],
-      qilinHome: process.cwd(),
-      cwd: '',
-      provider: 'p',
-      model: 'm',
-      env: {},
-    })).rejects.toThrow('config cwd must not be empty')
-    await ctx.fiber.dispose()
-  })
-
-  it('uses a validated config cwd override instead of the parent session cwd', async () => {
+  it('uses an explicit child directory while preserving the parent origin', async () => {
     const tmp = mkdtempSync(join(tmpdir(), 'subagent-qilin-sdk-cwd-'))
     try {
-      const ctx = await setup({ FAKE_ECHO_CWD: '1', FAKE_TEXT: 'done' }, { cwd: tmp })
-      const run = await ctx.subagents.start('qilin-sdk', request())
+      const ctx = await setup({ FAKE_ECHO_CWD: '1', FAKE_TEXT: 'done' })
+      const run = await ctx.subagents.start('qilin-sdk', { ...request(), cwd: tmp })
       const result = await run.result
       const { realpathSync } = await import('node:fs')
       expect(text(result.output)).toContain(`cwd=${realpathSync(tmp)}`)
+      expect(createdHarnessOptions.at(-1)?.cwd).toBe(process.cwd())
       await run.dispose()
       await ctx.fiber.dispose()
     } finally {
@@ -957,15 +971,14 @@ describe('qilin-subagent-qilin-sdk provider', () => {
     }
   })
 
-  it('fails loud when neither config cwd nor parent session cwd exists', async () => {
+  it('uses the runtime directory when the parent has no origin', async () => {
     const ctx = await setup()
     const parent = { id: 'parent', session: { header: {} } } as unknown as Agent
-    await expect(ctx.subagents.start('qilin-sdk', {
+    const run = await ctx.subagents.start('qilin-sdk', {
       label: 'p', prompt: [{ type: 'text' as const, text: 'p' }], parent, signal: new AbortController().signal,
-    }))
-      .rejects.toThrow(
-        `subagent-qilin-sdk: ${expectedFailure('stage: initialize; category: configuration')}`,
-      )
+    })
+    expect((await run.result).stopReason).toBe('completed')
+    await run.dispose()
     await ctx.fiber.dispose()
   })
 

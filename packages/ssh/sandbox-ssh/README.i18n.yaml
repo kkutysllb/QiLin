@@ -5,33 +5,33 @@
 /:
   en: 222090dbd09cc030
   zh: 24e479b8ff87e6d4
-/qilin-sandbox-ssh:
-  en: 19d2178aa5639a39
-  zh: 3141835d9e7797ab
-/qilin-sandbox-ssh/summary:
+/qilin-agent-sandbox-ssh:
+  en: 6adac182118d2ed6
+  zh: c5b6db5be8555de9
+/qilin-agent-sandbox-ssh/summary:
   en: 4994bcc58c2db115
   zh: 9f75f277bd210f15
-/qilin-sandbox-ssh/table-of-contents:
+/qilin-agent-sandbox-ssh/table-of-contents:
   en: d152484eb41ac6b4
   zh: 725b47765ee8f30b
-/qilin-sandbox-ssh/use-this-package:
+/qilin-agent-sandbox-ssh/use-this-package:
   en: 4a1773f46037d8fe
   zh: 5a9ae4f641e9a054
-/qilin-sandbox-ssh/understand-the-implementation:
+/qilin-agent-sandbox-ssh/understand-the-implementation:
   en: b4c1c32707dc9f7e
   zh: 33a0b69e312aa80d
-/qilin-sandbox-ssh/further-exploration:
+/qilin-agent-sandbox-ssh/further-exploration:
   en: c4360afbf8585a09
   zh: 207f499ddfb331b8
-/qilin-sandbox-ssh/model-experience:
+/qilin-agent-sandbox-ssh/model-experience:
   en: 586c0afcf6a3097d
   zh: 4723c59f600a3b04
-/qilin-sandbox-ssh/model-experience/kv-cache-effect:
+/qilin-agent-sandbox-ssh/model-experience/kv-cache-effect:
   en: 21f304c66e5ba98b
   zh: 18185d5b164f8216
-/qilin-sandbox-ssh/known-limitations-and-deferred-work:
+/qilin-agent-sandbox-ssh/known-limitations-and-deferred-work:
   en: 916d7c0e971765bb
   zh: 56d347094c07bc5d
-/qilin-sandbox-ssh/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-sandbox-ssh/known-limitations-and-deferred-work/dev-note:
   en: f57d5fcd5b2e8a44
   zh: 65fa139ad2f2b331

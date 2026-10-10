@@ -5,72 +5,72 @@
 /:
   en: fd744e4beac0ee66
   zh: 27288856740f5dbf
-/qilin-tool-ask-user:
-  en: ebc5ef51f6f8f9fb
-  zh: fc0d76e83cbc056c
-/qilin-tool-ask-user/summary:
+/qilin-agent-tool-ask-user:
+  en: a11fb3b8b82faa5c
+  zh: dac91e479f678f66
+/qilin-agent-tool-ask-user/summary:
   en: 45bb29d463d1e8d2
   zh: a462610ab6e8e61b
-/qilin-tool-ask-user/table-of-contents:
+/qilin-agent-tool-ask-user/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-tool-ask-user/use-this-package:
+/qilin-agent-tool-ask-user/use-this-package:
   en: ed8ec46772509d66
   zh: b06aad135f7a4fa3
-/qilin-tool-ask-user/use-this-package/when-to-call-the-tool:
+/qilin-agent-tool-ask-user/use-this-package/when-to-call-the-tool:
   en: 5a142d88def1a4fd
   zh: 2ae5573abf23d76a
-/qilin-tool-ask-user/use-this-package/what-the-model-gets-back:
+/qilin-agent-tool-ask-user/use-this-package/what-the-model-gets-back:
   en: d0047cb9dda88606
   zh: d3432561db23f65a
-/qilin-tool-ask-user/use-this-package/when-the-call-fails:
+/qilin-agent-tool-ask-user/use-this-package/when-the-call-fails:
   en: dd379ed6282761b6
   zh: fa7da19a52091403
-/qilin-tool-ask-user/understand-the-implementation:
+/qilin-agent-tool-ask-user/understand-the-implementation:
   en: e9b9d46be0b45ca2
   zh: c02403486473cd80
-/qilin-tool-ask-user/understand-the-implementation/source-map:
+/qilin-agent-tool-ask-user/understand-the-implementation/source-map:
   en: 4533d1e8efbd438f
   zh: 69a265056b455b96
-/qilin-tool-ask-user/understand-the-implementation/consumer-role:
+/qilin-agent-tool-ask-user/understand-the-implementation/consumer-role:
   en: 30c2b751e1b04fe4
   zh: 862c1087ad9c8f66
-/qilin-tool-ask-user/understand-the-implementation/result-rendering:
+/qilin-agent-tool-ask-user/understand-the-implementation/result-rendering:
   en: 686176b2703dfa08
   zh: 4ea4dab0da7f79f9
-/qilin-tool-ask-user/further-exploration:
-  en: efbe254b9d4e0187
-  zh: ef516ca754cdd66a
-/qilin-tool-ask-user/model-experience:
+/qilin-agent-tool-ask-user/further-exploration:
+  en: 1bfef98f70694d16
+  zh: 77f0d493c56c0d0e
+/qilin-agent-tool-ask-user/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-tool-ask-user/model-experience/tool-schema:
+/qilin-agent-tool-ask-user/model-experience/tool-schema:
   en: e4c7376d4f29dbd5
   zh: 6b7a9eaf69c9ea53
-/qilin-tool-ask-user/model-experience/tool-schema/what-the-model-sees:
-  en: 4aca80567536d6b9
-  zh: 449630280ba405f5
-/qilin-tool-ask-user/model-experience/tool-schema/token-effect:
+/qilin-agent-tool-ask-user/model-experience/tool-schema/what-the-model-sees:
+  en: cec230e2fcc87c40
+  zh: 4766d0efb3804f66
+/qilin-agent-tool-ask-user/model-experience/tool-schema/token-effect:
   en: 97cce067584eadff
   zh: c376cab39ea9df68
-/qilin-tool-ask-user/model-experience/tool-schema/kv-cache-effect:
+/qilin-agent-tool-ask-user/model-experience/tool-schema/kv-cache-effect:
   en: b385b04c94496e5b
   zh: 6bd8f2bc39e6f8c0
-/qilin-tool-ask-user/model-experience/tool-call-history-and-result:
+/qilin-agent-tool-ask-user/model-experience/tool-call-history-and-result:
   en: 9717b983b6a857e3
   zh: 611a2dadf7c0c706
-/qilin-tool-ask-user/model-experience/tool-call-history-and-result/what-the-model-sees:
+/qilin-agent-tool-ask-user/model-experience/tool-call-history-and-result/what-the-model-sees:
   en: d5ba86e2dbdb5b4b
   zh: f5a2d6de0d985eed
-/qilin-tool-ask-user/model-experience/tool-call-history-and-result/token-effect:
+/qilin-agent-tool-ask-user/model-experience/tool-call-history-and-result/token-effect:
   en: 3092d4afd4ba8678
   zh: cb7a7bbefdbc3a1e
-/qilin-tool-ask-user/model-experience/tool-call-history-and-result/kv-cache-effect:
+/qilin-agent-tool-ask-user/model-experience/tool-call-history-and-result/kv-cache-effect:
   en: f5d5f97a153f7c70
   zh: 4db81881ebdcfcc4
-/qilin-tool-ask-user/known-limitations-and-deferred-work:
+/qilin-agent-tool-ask-user/known-limitations-and-deferred-work:
   en: a0f0f15f51d5affb
   zh: 41f11351e852968c
-/qilin-tool-ask-user/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-tool-ask-user/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

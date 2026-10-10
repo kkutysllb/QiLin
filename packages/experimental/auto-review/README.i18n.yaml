@@ -5,60 +5,60 @@
 /:
   en: 4f245200f5345e3c
   zh: 221e9996e8ce2963
-/qilin-experimental-auto-review:
-  en: 096b5782cd80f499
-  zh: db975f2f888f73e6
-/qilin-experimental-auto-review/summary:
+/qilin-agent-experimental-auto-review:
+  en: 4758786eea2f3235
+  zh: 68af4a3b785a40d1
+/qilin-agent-experimental-auto-review/summary:
   en: 462dc82ed2bf73fa
   zh: 752fc512b284ce3a
-/qilin-experimental-auto-review/table-of-contents:
+/qilin-agent-experimental-auto-review/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-experimental-auto-review/use-this-package:
-  en: bbff250eba0f1b89
-  zh: 0a618f05cc88ee2b
-/qilin-experimental-auto-review/use-this-package/install-into-a-profile:
+/qilin-agent-experimental-auto-review/use-this-package:
+  en: 8f9e85817f05aa4d
+  zh: f60136fb39abcf29
+/qilin-agent-experimental-auto-review/use-this-package/install-into-a-profile:
   en: 2b00909b8a598b95
   zh: 53f3d4ea2c24facf
-/qilin-experimental-auto-review/use-this-package/what-you-get:
+/qilin-agent-experimental-auto-review/use-this-package/what-you-get:
   en: d16ffda0261598d2
   zh: 036753fb1e0f7f1b
-/qilin-experimental-auto-review/understand-the-implementation:
+/qilin-agent-experimental-auto-review/understand-the-implementation:
   en: 247d944710609cf4
   zh: 288747f1688fac99
-/qilin-experimental-auto-review/further-exploration:
+/qilin-agent-experimental-auto-review/further-exploration:
   en: 632da083e0544a63
   zh: 5b26f33a2ec1dbef
-/qilin-experimental-auto-review/model-experience:
+/qilin-agent-experimental-auto-review/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-experimental-auto-review/model-experience/per-call-reviewer:
+/qilin-agent-experimental-auto-review/model-experience/per-call-reviewer:
   en: 7ec217b1012cd8fa
   zh: 6188796b4990f2ef
-/qilin-experimental-auto-review/model-experience/per-call-reviewer/what-the-model-sees:
+/qilin-agent-experimental-auto-review/model-experience/per-call-reviewer/what-the-model-sees:
   en: b3e50d879db13221
   zh: 81f9c8f2793bea0d
-/qilin-experimental-auto-review/model-experience/per-call-reviewer/token-effect:
+/qilin-agent-experimental-auto-review/model-experience/per-call-reviewer/token-effect:
   en: 9c3e575c061d53fe
   zh: 2952dd9a75943159
-/qilin-experimental-auto-review/model-experience/per-call-reviewer/kv-cache-effect:
+/qilin-agent-experimental-auto-review/model-experience/per-call-reviewer/kv-cache-effect:
   en: 67b73d97f22f3c75
   zh: 4dd263e571043cf4
-/qilin-experimental-auto-review/model-experience/tool-denial:
+/qilin-agent-experimental-auto-review/model-experience/tool-denial:
   en: f9b4d7b686f14fc5
   zh: a2fac9a8eaf5e2a3
-/qilin-experimental-auto-review/model-experience/tool-denial/what-the-model-sees:
+/qilin-agent-experimental-auto-review/model-experience/tool-denial/what-the-model-sees:
   en: a0b93e8eebc1b497
   zh: e4a74a70a065b0e7
-/qilin-experimental-auto-review/model-experience/tool-denial/token-effect:
+/qilin-agent-experimental-auto-review/model-experience/tool-denial/token-effect:
   en: 679cb3d82e97022f
   zh: 2bd88e7a3d2f2418
-/qilin-experimental-auto-review/model-experience/tool-denial/kv-cache-effect:
+/qilin-agent-experimental-auto-review/model-experience/tool-denial/kv-cache-effect:
   en: 8da1089dee147f94
   zh: 87361347bfd10c6c
-/qilin-experimental-auto-review/known-limitations-and-deferred-work:
+/qilin-agent-experimental-auto-review/known-limitations-and-deferred-work:
   en: 3cb6e76d79ab3a38
   zh: f2b7d40d9b5631dd
-/qilin-experimental-auto-review/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-experimental-auto-review/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

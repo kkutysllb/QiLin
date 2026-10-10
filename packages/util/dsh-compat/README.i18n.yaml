@@ -5,30 +5,30 @@
 /:
   en: 31f4d375f2c45aef
   zh: 9beef4241a4e4953
-/qilin-dsh-compat:
-  en: da01746b6aa01ff3
-  zh: d4f949eaed1392ea
-/qilin-dsh-compat/summary:
+/qilin-agent-dsh-compat:
+  en: d9c93221040cbdd1
+  zh: dd0b43d6e172f9fa
+/qilin-agent-dsh-compat/summary:
   en: 38552b541bcab51a
   zh: b18b352279f6adda
-/qilin-dsh-compat/table-of-contents:
+/qilin-agent-dsh-compat/table-of-contents:
   en: 76368b6b1da79c80
   zh: b4a2a0e132e8ddf8
-/qilin-dsh-compat/use-this-package:
-  en: d0ad8090a9dbf715
-  zh: 90dcbcf230062cab
-/qilin-dsh-compat/understand-the-implementation:
-  en: e9f1d745306596fd
-  zh: c547396e19b6eaa8
-/qilin-dsh-compat/model-experience:
+/qilin-agent-dsh-compat/use-this-package:
+  en: 5b39a3886f762bb5
+  zh: 79907bd12094a6ce
+/qilin-agent-dsh-compat/understand-the-implementation:
+  en: d68592a80cda03af
+  zh: 80169f5e2d9d6019
+/qilin-agent-dsh-compat/model-experience:
   en: 0c1978665c0886b0
   zh: d0159681b5568bdb
-/qilin-dsh-compat/model-experience/kv-cache-effect:
+/qilin-agent-dsh-compat/model-experience/kv-cache-effect:
   en: 5df5e153f56aec41
   zh: 7f70d29d8d80cb58
-/qilin-dsh-compat/known-limitations-and-deferred-work:
+/qilin-agent-dsh-compat/known-limitations-and-deferred-work:
   en: ff21fa030cc8c41b
   zh: b4246c9cff73db62
-/qilin-dsh-compat/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-dsh-compat/known-limitations-and-deferred-work/dev-note:
   en: 6500ff89363ef9e9
   zh: 2699e3038d5414cf

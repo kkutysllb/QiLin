@@ -5,63 +5,63 @@
 /:
   en: 13e35995215511c8
   zh: d9cc3eb0d9f3e464
-/qilin-app-boot:
-  en: 4bb91dfddd972297
-  zh: aa46e1e91875549d
-/qilin-app-boot/summary:
+/qilin-agent-app-boot:
+  en: 35ac349d9ca08201
+  zh: 8f6d2881431e6f58
+/qilin-agent-app-boot/summary:
   en: 76cc0f02e107aca9
   zh: d38221575b7ec79d
-/qilin-app-boot/table-of-contents:
+/qilin-agent-app-boot/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-app-boot/use-this-package:
+/qilin-agent-app-boot/use-this-package:
   en: f6fa378225009c8f
   zh: 324c0e4640bb1358
-/qilin-app-boot/use-this-package/when-to-use-it:
+/qilin-agent-app-boot/use-this-package/when-to-use-it:
   en: e5c4ac0c43e0d737
   zh: 258aca0b73f31888
-/qilin-app-boot/use-this-package/starting-the-app:
+/qilin-agent-app-boot/use-this-package/starting-the-app:
   en: 5a79dcf866327d8b
   zh: 3ec290ee6e60942c
-/qilin-app-boot/use-this-package/profiles:
-  en: e533640caa745df4
-  zh: 697c7c175dbaea8d
-/qilin-app-boot/use-this-package/previewing-the-effective-configuration:
+/qilin-agent-app-boot/use-this-package/profiles:
+  en: 9dd16f8c1920810f
+  zh: 24ec1986d1f27de4
+/qilin-agent-app-boot/use-this-package/previewing-the-effective-configuration:
   en: 646a0ccdd7881ad1
   zh: e3696acb1573dd7b
-/qilin-app-boot/use-this-package/projecting-declared-config-schemas:
-  en: 2e4978454b59c301
-  zh: 550136d16cd3f43b
-/qilin-app-boot/use-this-package/startup-and-reload-failures:
+/qilin-agent-app-boot/use-this-package/projecting-declared-config-schemas:
+  en: d50fa7c133b3a1d0
+  zh: 8e75303b2ead8003
+/qilin-agent-app-boot/use-this-package/startup-and-reload-failures:
   en: b23f61fdc2a8eb2a
   zh: e656db2cc8f3d57f
-/qilin-app-boot/use-this-package/telling-the-agent-where-the-harness-lives:
+/qilin-agent-app-boot/use-this-package/telling-the-agent-where-the-harness-lives:
   en: 6ab7e6d3af50c568
   zh: 048f5042cf289d61
-/qilin-app-boot/understand-the-implementation:
+/qilin-agent-app-boot/understand-the-implementation:
   en: f4a2695cb4c8a570
   zh: 89837235d2f376cf
-/qilin-app-boot/understand-the-implementation/design-notes:
-  en: 47b8d7e99aa02431
-  zh: 0a9f1309a9e43a16
-/qilin-app-boot/understand-the-implementation/helper-behavior:
+/qilin-agent-app-boot/understand-the-implementation/design-notes:
+  en: cd25d396291d504c
+  zh: fa380acb66a14119
+/qilin-agent-app-boot/understand-the-implementation/helper-behavior:
   en: 10a84bd686010973
   zh: 6c0c8ff30c5b4026
-/qilin-app-boot/further-exploration:
+/qilin-agent-app-boot/further-exploration:
   en: 200b354558ef5729
   zh: 312729508bd95666
-/qilin-app-boot/model-experience:
+/qilin-agent-app-boot/model-experience:
   en: 769777f1cb1a9408
   zh: f02b2834179df50d
-/qilin-app-boot/model-experience/kv-cache-effect:
+/qilin-agent-app-boot/model-experience/kv-cache-effect:
   en: c4d49630b68ae896
   zh: 6f450ec6ba39bb81
-/qilin-app-boot/known-limitations-and-deferred-work:
+/qilin-agent-app-boot/known-limitations-and-deferred-work:
   en: b99e2be144dec59d
   zh: dd53b84a00625b62
-/qilin-app-boot/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-app-boot/known-limitations-and-deferred-work/dev-note:
   en: d2f0d68fe29fb750
   zh: 323d21ee73a9e3f6
-/qilin-app-boot/known-limitations-and-deferred-work/dev-note/open-config-dump-stability:
+/qilin-agent-app-boot/known-limitations-and-deferred-work/dev-note/open-config-dump-stability:
   en: bf3dd64e5981b86f
   zh: 27148e3cb56df07c

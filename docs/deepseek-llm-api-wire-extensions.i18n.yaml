@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/deepseek-llm-api-wire-extensions.md
 /official-deepseek-llm-api-wire-extensions:
-  en: 6dae6f815607949b
-  zh: dd99b7430415b285
+  en: f2f2d537eb17e78a
+  zh: da18e9c74803d7d7
 /official-deepseek-llm-api-wire-extensions/wire-namespaces-and-versioning:
   en: 129f9766e6e45001
   zh: 79ea4eac9f84def7
@@ -15,11 +15,11 @@
   en: 8c05b525a3f1358e
   zh: 4c5bccf12f000038
 /official-deepseek-llm-api-wire-extensions/qilin-plugin-packages:
-  en: 065c40ceb69bda2e
-  zh: 9a29d56294cbd988
+  en: 8acd5ad3018c7110
+  zh: 506c2120209da937
 /official-deepseek-llm-api-wire-extensions/qilin-session-log:
-  en: d4262fe19a785032
-  zh: f3be7596106b0a55
+  en: 9f74b559cc68b8c1
+  zh: 477aa187b7ee121d
 /official-deepseek-llm-api-wire-extensions/qilin-session-log/wire-session-header:
   en: 94d7ce47bcc4a4fd
   zh: ece5427b27f62e59

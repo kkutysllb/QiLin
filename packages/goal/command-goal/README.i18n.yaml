@@ -5,60 +5,60 @@
 /:
   en: 47b9efbd26fb01af
   zh: a9d083654a3e2cab
-/qilin-command-goal:
-  en: c8224a41a66299bf
-  zh: d4389dee289a4582
-/qilin-command-goal/summary:
+/qilin-agent-command-goal:
+  en: 53b9664c3d2e37a2
+  zh: 8a2c38c519e26ea4
+/qilin-agent-command-goal/summary:
   en: 4cb522b038b42639
   zh: 888dd9445f9f638e
-/qilin-command-goal/table-of-contents:
+/qilin-agent-command-goal/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
-/qilin-command-goal/use-this-package:
+/qilin-agent-command-goal/use-this-package:
   en: b2953a00a63656f5
   zh: c714fbc7dde922ee
-/qilin-command-goal/use-this-package/command-reference:
+/qilin-agent-command-goal/use-this-package/command-reference:
   en: 98ca4ad981960f99
   zh: 22d6ecbadbb3a7e1
-/qilin-command-goal/use-this-package/input-grammar:
+/qilin-agent-command-goal/use-this-package/input-grammar:
   en: 38a273cb14017e13
   zh: d4b7b501bcd9589b
-/qilin-command-goal/use-this-package/attachments:
+/qilin-agent-command-goal/use-this-package/attachments:
   en: e61cd7437ed4aa73
   zh: 552c36c3b8d16007
-/qilin-command-goal/use-this-package/compose-it:
+/qilin-agent-command-goal/use-this-package/compose-it:
   en: 58fea1b5723df856
   zh: 14efc4b506b82764
-/qilin-command-goal/understand-the-implementation:
+/qilin-agent-command-goal/understand-the-implementation:
   en: 7fba8a13f8452dc1
   zh: bbaba056cda78ec9
-/qilin-command-goal/understand-the-implementation/design:
+/qilin-agent-command-goal/understand-the-implementation/design:
   en: ab637815b21bf065
   zh: 56eb4ae2ad368994
-/qilin-command-goal/understand-the-implementation/source-map:
+/qilin-agent-command-goal/understand-the-implementation/source-map:
   en: a34756578cce7cc4
   zh: 61079561a2bf742d
-/qilin-command-goal/further-exploration:
+/qilin-agent-command-goal/further-exploration:
   en: bb1d79089da0b211
   zh: 5dab7eeabf70f830
-/qilin-command-goal/model-experience:
+/qilin-agent-command-goal/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-command-goal/model-experience/human-goal-control:
+/qilin-agent-command-goal/model-experience/human-goal-control:
   en: b542d90272a9b64e
   zh: 9f8bfb4ca7784428
-/qilin-command-goal/model-experience/human-goal-control/what-the-model-sees:
+/qilin-agent-command-goal/model-experience/human-goal-control/what-the-model-sees:
   en: a4c7a3d502c58794
   zh: a47ab70d7aa4f0a4
-/qilin-command-goal/model-experience/human-goal-control/token-effect:
+/qilin-agent-command-goal/model-experience/human-goal-control/token-effect:
   en: 1c48e9c98cee51b0
   zh: 63b2f981bdaf6ca4
-/qilin-command-goal/model-experience/human-goal-control/kv-cache-effect:
+/qilin-agent-command-goal/model-experience/human-goal-control/kv-cache-effect:
   en: 15426cc075dc65d7
   zh: 496e488693a2bacb
-/qilin-command-goal/known-limitations-and-deferred-work:
+/qilin-agent-command-goal/known-limitations-and-deferred-work:
   en: df596a8934dba006
   zh: 45b8a32fc0433fe0
-/qilin-command-goal/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-command-goal/known-limitations-and-deferred-work/dev-note:
   en: c7a829d5a6e780fd
   zh: 041dc046a223a711

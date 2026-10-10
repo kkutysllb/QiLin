@@ -5,51 +5,51 @@
 /:
   en: 9402e76135b1a640
   zh: 13645ec9b9fe38de
-/qilin-experimental-computer-use-cua-driver-mcp:
-  en: baeacca0273a5796
-  zh: 41b530f98c18c87e
-/qilin-experimental-computer-use-cua-driver-mcp/summary:
+/qilin-agent-experimental-computer-use-cua-driver-mcp:
+  en: a3b1a9296a809827
+  zh: a871321438050d21
+/qilin-agent-experimental-computer-use-cua-driver-mcp/summary:
   en: 44777c18cdaf3b1a
   zh: c9074f5857539122
-/qilin-experimental-computer-use-cua-driver-mcp/table-of-contents:
+/qilin-agent-experimental-computer-use-cua-driver-mcp/table-of-contents:
   en: d152484eb41ac6b4
   zh: 725b47765ee8f30b
-/qilin-experimental-computer-use-cua-driver-mcp/use-this-package:
+/qilin-agent-experimental-computer-use-cua-driver-mcp/use-this-package:
   en: ac2be37bdebc2c0f
   zh: f535fdd4efb97cc4
-/qilin-experimental-computer-use-cua-driver-mcp/use-this-package/minimal-configuration:
-  en: c9c3cfa74e0d13c2
-  zh: 54e03c9899bf7612
-/qilin-experimental-computer-use-cua-driver-mcp/use-this-package/activation-and-ownership:
+/qilin-agent-experimental-computer-use-cua-driver-mcp/use-this-package/minimal-configuration:
+  en: d827d6e4f2285b26
+  zh: bf1bc1073d98621b
+/qilin-agent-experimental-computer-use-cua-driver-mcp/use-this-package/activation-and-ownership:
   en: 641f4a036217ba4b
   zh: df2899498ee67c35
-/qilin-experimental-computer-use-cua-driver-mcp/understand-the-implementation:
+/qilin-agent-experimental-computer-use-cua-driver-mcp/understand-the-implementation:
   en: 13e164882813f89e
   zh: dd8abaad16d1e76a
-/qilin-experimental-computer-use-cua-driver-mcp/understand-the-implementation/verify-an-installed-driver:
+/qilin-agent-experimental-computer-use-cua-driver-mcp/understand-the-implementation/verify-an-installed-driver:
   en: 7ab0b2113d73f5cf
   zh: 31dd579bd8b8f0f6
-/qilin-experimental-computer-use-cua-driver-mcp/further-exploration:
+/qilin-agent-experimental-computer-use-cua-driver-mcp/further-exploration:
   en: 0a5ba606b145659c
   zh: 176367a5c2d58d96
-/qilin-experimental-computer-use-cua-driver-mcp/model-experience:
+/qilin-agent-experimental-computer-use-cua-driver-mcp/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-experimental-computer-use-cua-driver-mcp/model-experience/cua-driver-tools-and-screenshots:
+/qilin-agent-experimental-computer-use-cua-driver-mcp/model-experience/cua-driver-tools-and-screenshots:
   en: 9d221bfceb3efcf9
   zh: 3ee738cd4d24157e
-/qilin-experimental-computer-use-cua-driver-mcp/model-experience/cua-driver-tools-and-screenshots/what-the-model-sees:
+/qilin-agent-experimental-computer-use-cua-driver-mcp/model-experience/cua-driver-tools-and-screenshots/what-the-model-sees:
   en: 721e7cd3fba61ad4
   zh: da2b6d63450101dc
-/qilin-experimental-computer-use-cua-driver-mcp/model-experience/cua-driver-tools-and-screenshots/token-effect:
+/qilin-agent-experimental-computer-use-cua-driver-mcp/model-experience/cua-driver-tools-and-screenshots/token-effect:
   en: fd697825fdf78c9b
   zh: 973cf9a0caaaa558
-/qilin-experimental-computer-use-cua-driver-mcp/model-experience/cua-driver-tools-and-screenshots/kv-cache-effect:
+/qilin-agent-experimental-computer-use-cua-driver-mcp/model-experience/cua-driver-tools-and-screenshots/kv-cache-effect:
   en: 7064d248c94a5c4c
   zh: 18abcf5142c078c7
-/qilin-experimental-computer-use-cua-driver-mcp/known-limitations-and-deferred-work:
+/qilin-agent-experimental-computer-use-cua-driver-mcp/known-limitations-and-deferred-work:
   en: e87ba6e9e6444ba3
   zh: 2a8466cb5864a127
-/qilin-experimental-computer-use-cua-driver-mcp/known-limitations-and-deferred-work/dev-note:
+/qilin-agent-experimental-computer-use-cua-driver-mcp/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 8ec3e73528ddb1a6

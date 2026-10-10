@@ -13,6 +13,7 @@ import { admitEncodedImages, type EncodedImageAttachment, type ImageAttachmentRe
 import { createUserMessage, ReasoningEffortId, type ContentBlock, type LlmRuntime } from '@qilin-agent/llm'
 import { carrierKeyOf, type Scoped } from '@qilin-agent/scope'
 import type { SessionId } from '@qilin-agent/session'
+import type {} from '@qilin-agent/working-directory'
 import type SubagentRuntime from '@qilin-agent/subagent'
 import type { SubagentRunEndInfo } from '@qilin-agent/subagent'
 import * as LlmDeepSeek from '@qilin-agent/llm-deepseek-api-key'
@@ -23,6 +24,9 @@ import type {
   SessionEventNotification,
   SessionPromptParams,
   SessionPromptResult,
+  SessionWorkingDirectoryParams,
+  SessionWorkingDirectorySetParams,
+  SessionWorkingDirectoryResult,
   SdkEncodedImageBlock,
   SubagentFinishedNotification,
   SubagentStartedNotification,
@@ -194,6 +198,33 @@ export class HarnessSdkJsonRpcServer {
     return { messageId: message.id }
   }
 
+  /**
+   * Read a Session's effective directory, recovering a missing directory to its origin.
+   * @param params - target Session; an unknown id creates it.
+   * @returns the absolute effective directory.
+   */
+  async getWorkingDirectory(params: SessionWorkingDirectoryParams): Promise<SessionWorkingDirectoryResult> {
+    const agent = await this.workingDirectoryAgent(params.sessionId)
+    return { cwd: await this.ctx.workingDirectory.ensure(agent) }
+  }
+
+  /**
+   * Change a Session's directory and queue its model-visible transition.
+   * @param params - target Session and absolute or current-directory-relative path.
+   * @returns the validated absolute directory; origin and permissions are unchanged.
+   */
+  async setWorkingDirectory(params: SessionWorkingDirectorySetParams): Promise<SessionWorkingDirectoryResult> {
+    const agent = await this.workingDirectoryAgent(params.sessionId)
+    return { cwd: await this.ctx.workingDirectory.set(agent, params.path) }
+  }
+
+  private async workingDirectoryAgent(sessionId: string): Promise<Agent> {
+    if (!this.initialized) throw new Error('SDK server is not initialized')
+    const rec = await this.getOrCreateSession(sessionId)
+    this.assertLiveAgent(rec, sessionId)
+    return rec.handle.agent
+  }
+
   private assertLiveAgent(rec: SessionRecord, sessionId: string): void {
     if (this.ctx.agents.get(rec.handle.agent.id) !== rec.handle.agent) {
       throw new Error(`session agent was disposed outside the server: ${sessionId}`)
@@ -251,6 +282,17 @@ export class HarnessSdkJsonRpcServer {
         return this.initialize(params as unknown as InitializeParams)
       case 'session/prompt':
         return this.prompt(params as unknown as SessionPromptParams)
+      case 'session/working-directory/get':
+      case 'session/working-directory/set': {
+        if (typeof params?.sessionId !== 'string' || params.sessionId.length === 0) {
+          throw new TypeError('working-directory requests require a non-empty sessionId')
+        }
+        if (method === 'session/working-directory/get') {
+          return this.getWorkingDirectory({ sessionId: params.sessionId })
+        }
+        if (typeof params.path !== 'string') throw new TypeError('working-directory set requires a path string')
+        return this.setWorkingDirectory({ sessionId: params.sessionId, path: params.path })
+      }
       case 'shutdown':
         return this.shutdown()
       default:
