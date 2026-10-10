@@ -190,7 +190,7 @@ for (const backend of backends) {
         first.ctx.sessions.flush(activeRoot.session),
         first.ctx.sessions.flush(failedRoot.session),
       ])
-      await first.ctx.subagents.startContinuable({
+      await first.ctx.subagents.startActivation({
         childId,
         provider: 'spawn',
         label: 'recoverable recovery',
@@ -199,6 +199,7 @@ for (const backend of backends) {
           parent: activeRoot,
         },
         signal: SIGNAL,
+        delivery: 'parent',
       })
       await vi.waitFor(() => { expect(first.ctx.agents.get(childId)).toBeUndefined() }, { timeout: 5_000 })
       expect((await storedEvents(first.ctx, childId))

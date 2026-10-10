@@ -441,7 +441,7 @@ export class AcpSession {
       }
       const subagents = this.ctx.get('subagents') as ContinuableDrain | undefined
       try {
-        await subagents?.drainContinuableDescendants([this.agent])
+        await subagents?.drainDescendants([this.agent])
       } catch (error: unknown) {
         this.ctx.logger.warn(`acp: continuable subagent teardown failed: ${errorChain(error)}`)
         failures.push(new Error('continuable subagent teardown failed', { cause: error }))
