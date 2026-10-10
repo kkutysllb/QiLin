@@ -35,7 +35,7 @@ describe('web e2e: requested SVG is explicitly delivered', () => {
       replayOverride = join(replayRoot, 'replay.override.json')
       const script = deriveReplayScript(parseSessionLog(await readFile(FIXTURE, 'utf8')))
       // Recorded absolute paths must follow each isolated Session's working directory.
-      const cwdToken = '{{fromRequest:Your working directory is ([^\\n]+)\\.}}'
+      const cwdToken = '{{fromRequest:Current working directory: "([^"\\n]+)"\\.}}'
       await writeFile(replayOverride, JSON.stringify(script).replaceAll('{{cwd}}', JSON.stringify(cwdToken).slice(1, -1)))
     }
     scaffold = await launchWebScaffold({
