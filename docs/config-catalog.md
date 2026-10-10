@@ -124,7 +124,7 @@ export interface Config {
 
 - `inject`: `agents` · `sessions` · `llm` · `tools` · `systemPrompt` · `sessionProjections`
 - `refs`: [`AgentOptions`](subsystems/core.md) · [`SessionId`](subsystems/core.md) · `Volatile` (`@qilin-agent/cosmokit`)
-- `source`: [`packages/core/agent-loop/src/index.ts:311`](../packages/core/agent-loop/src/index.ts)
+- `source`: [`packages/core/agent-loop/src/index.ts:322`](../packages/core/agent-loop/src/index.ts)
 
 ```ts config-catalog
 /** Agent-loop plugin configuration. */
@@ -841,6 +841,34 @@ export interface StagehandModelConfig {
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/experimental-browser-use-stagehand-native -->
 
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-client-ui-cot-translation -->
+<a id="qilin-agentexperimental-client-ui-cot-translation"></a>
+
+## `@qilin-agent/experimental-client-ui-cot-translation`
+
+- `inject`: `translator` · `typert` · `sessionController`
+- `refs`: [`TranslationProvider`](subsystems/translation.md) · `Volatile` (`@qilin-agent/kylin`)
+- `source`: [`packages/experimental/client-ui-cot-translation/src/index.ts:14`](../packages/experimental/client-ui-cot-translation/src/index.ts)
+
+```ts config-catalog
+/** Live preferences presented on the bundle's Plugins page. */
+export interface Config {
+  /** Explicit translation provider, defaulting to Bing. */
+  provider: Volatile<CotTranslationPreferences['provider']>
+  /** Target language code; auto follows the browser UI locale. */
+  targetLanguage: Volatile<string>
+}
+
+/** Translation choices; auto targets the active browser UI language. */
+export interface CotTranslationPreferences {
+  /** Explicit provider selection; requests never fall back to another provider. */
+  provider: TranslationProvider
+  /** BCP 47 language code, or auto to follow the UI language. */
+  targetLanguage: string
+}
+```
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-client-ui-cot-translation -->
+
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-computer-use-cua-driver-mcp -->
 <a id="qilin-agentexperimental-computer-use-cua-driver-mcp"></a>
 
@@ -1140,6 +1168,8 @@ export interface Config {
   minSpeechSeconds: number
   /** Silence separating two speech segments. */
   minSilenceSeconds: number
+  /** Recording audio restored ahead of the first VAD segment, which cold start reports late; zero disables it. */
+  vadOnsetPaddingSeconds: number
   /** Maximum decoded WAV bytes accepted by the private worker. */
   maxAudioBytes: number
   /** Deadline for runtime preparation and cold model loading. */
@@ -2341,7 +2371,7 @@ export interface PlanModeConfig {
 ## `@qilin-agent/plugin-manager`
 
 - `inject`: `loader` · `profileContext`
-- `source`: [`packages/boot/plugin-manager/src/index.ts:44`](../packages/boot/plugin-manager/src/index.ts)
+- `source`: [`packages/boot/plugin-manager/src/index.ts:46`](../packages/boot/plugin-manager/src/index.ts)
 
 ```ts config-catalog
 /** The pnpm executable and the limits for package diagnostics and registry lookups. */
@@ -4530,6 +4560,7 @@ Imported as libraries by other packages; a `cordis.yml` cannot load them.
 | `@qilin-agent/experimental-agent-team-profile` | — | [`packages/experimental/agent-team-profile/src/index.ts`](../packages/experimental/agent-team-profile/src/index.ts) |
 | `@qilin-agent/experimental-badge-skill-bundle` | — | [`packages/experimental/badge-skill-bundle/src/index.ts`](../packages/experimental/badge-skill-bundle/src/index.ts) |
 | `@qilin-agent/experimental-browser-use-runtime` | — | [`packages/experimental/browser-use-runtime/src/index.ts`](../packages/experimental/browser-use-runtime/src/index.ts) |
+| `@qilin-agent/experimental-cot-translation-bundle` | — | [`packages/experimental/cot-translation-bundle/src/index.ts`](../packages/experimental/cot-translation-bundle/src/index.ts) |
 | `@qilin-agent/experimental-hook-protocol` | — | [`packages/experimental/hook-protocol/src/index.ts`](../packages/experimental/hook-protocol/src/index.ts) |
 | `@qilin-agent/experimental-inspector-profile` | — | [`packages/experimental/inspector-profile/src/index.ts`](../packages/experimental/inspector-profile/src/index.ts) |
 | `@qilin-agent/experimental-ralph-bundle` | — | [`packages/experimental/ralph-bundle/src/index.ts`](../packages/experimental/ralph-bundle/src/index.ts) |
