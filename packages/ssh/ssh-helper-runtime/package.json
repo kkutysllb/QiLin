@@ -22,7 +22,11 @@
     "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin-agent/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/app-boot": "workspace:*",
+    "@qilin-agent/fs-ssh": "workspace:*",
+    "@qilin-agent/subprocess-ssh": "workspace:*",
+    "@qilin-agent/sandbox-ssh": "workspace:*"
   },
   "dependencies": {
     "@qilin-agent/kylin": "workspace:*",

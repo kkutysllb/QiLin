@@ -147,6 +147,9 @@ importers:
       spdx-expression-parse:
         specifier: ^5.0.0
         version: 5.0.0
+      tar:
+        specifier: ^7.5.22
+        version: 7.5.22
       tsdown:
         specifier: ^0.22.2
         version: 0.22.2(oxc-resolver@11.20.0)(publint@0.3.21)(tsx@4.22.4)(typescript@6.0.3)
@@ -165,6 +168,9 @@ importers:
       vitest:
         specifier: ^4.1.8
         version: 4.1.8(@opentelemetry/api@1.9.1)(@types/node@22.20.0)(@vitest/coverage-v8@4.1.8)(happy-dom@20.11.6)(jsdom@29.1.1(@noble/hashes@2.3.0))(vite@8.0.16(@types/node@22.20.0)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
 
   apps/cli:
     dependencies:
@@ -12533,6 +12539,19 @@ importers:
       '@qilin-agent/win32-process':
         specifier: workspace:*
         version: link:../../subprocess/win32-process
+    devDependencies:
+      '@qilin-agent/app-boot':
+        specifier: workspace:*
+        version: link:../../boot/app-boot
+      '@qilin-agent/fs-ssh':
+        specifier: workspace:*
+        version: link:../fs-ssh
+      '@qilin-agent/sandbox-ssh':
+        specifier: workspace:*
+        version: link:../sandbox-ssh
+      '@qilin-agent/subprocess-ssh':
+        specifier: workspace:*
+        version: link:../subprocess-ssh
 
   packages/ssh/subprocess-ssh:
     dependencies:
