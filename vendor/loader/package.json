@@ -34,7 +34,7 @@
   "license": "MIT",
   "peerDependencies": {
     "@qilin-agent/kylin": "workspace:~",
-    "node-addon-require-builtin": "^0.1.6"
+    "node-addon-require-builtin": "^0.1.9"
   },
   "peerDependenciesMeta": {
     "node-addon-require-builtin": {

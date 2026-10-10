@@ -109,7 +109,7 @@
     "@qilin-agent/workflow-ptc": "workspace:*",
     "commander": "^15.0.0",
     "js-yaml": "^4.2.0",
-    "node-addon-require-builtin": "^0.1.6"
+    "node-addon-require-builtin": "^0.1.9"
   },
   "devDependencies": {
     "@qilin-agent/experimental-hooks-claude-code": "workspace:*",
