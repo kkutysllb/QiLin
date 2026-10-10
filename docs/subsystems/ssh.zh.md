@@ -35,18 +35,14 @@ headless 通过已挂载的文件系统提供方记录和检查 Session cwd。�
 interface Config {
   /** OpenSSH host alias, including its existing user, key and known-host configuration. */
   host: string
-  /** Absolute remote Node executable. */
-  node: string
+  /** Explicit script or self-contained executable invocation. */
+  launch: HelperLaunch
   /** Absolute path to the installed, bundled helper entry. */
   helper: string
   /** SHA-256 of that bundled helper; mismatches refuse the connection. */
   helperHash: string
   /** Absolute remote default workspace. */
   workspace: string
-  /** Optional preinstalled built PTC entry, paired with its expected digest. */
-  bootstrapPath?: string
-  /** SHA-256 of bootstrapPath; both fields must be supplied together. */
-  bootstrapHash?: string
   /** Connection and administrative-request deadline, at most 2,147,483,647 milliseconds. */
   requestTimeoutMs?: number
   /** Maximum JSON payload bytes per helper request or response. */
@@ -67,10 +63,8 @@ declare class SshConnection extends Service {
   constructor(ctx: Context, config: Config);
   /** Hold plugin readiness until the remote identity and helper digest are verified. */
   async [Service.init](): Promise<void>;
-  /** Verified remote Node executable for the paired PTC runtime. */
-  get nodeExecutable(): string;
-  /** Verified preinstalled PTC entry; unconfigured runtimes fail before program execution. */
-  get bootstrapPath(): string;
+  /** Verified remote PTC launch configuration; script deployments require a verified bootstrap. */
+  get ptcLaunch(): { kind: 'embedded'; executable: string } | { kind: 'node-script'; executable: string; bootstrapPath: string };
   /**
      * Send a helper operation; cancellation never replays an ambiguous mutation.
      * @param method - the private helper operation.
