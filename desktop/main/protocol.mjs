@@ -13,7 +13,7 @@
  *
  * 流式响应（Gateway WS mux /api/remote.mux）不走协议：client 的
  * streamBaseUrl 指向宿主 loopback origin，壳用 onBeforeSendHeaders 对
- * ws://127.0.0.1/* 改写 Origin 并附认证 cookie。
+ * ws:// 与 wss:// 的 127.0.0.1/* 改写 Origin 并附认证 cookie。
  *
  * @module main/protocol
  */
@@ -101,14 +101,14 @@ export function attachAppProtocol({ distRoot, state }) {
 }
 
 /**
- * 对 ws://127.0.0.1/* 改写 Origin / 附会话 cookie（流式 mux 的认证载体）。
+ * 对 ws:// 与 wss:// 的 127.0.0.1/* 改写 Origin / 附会话 cookie（流式 mux 的认证载体）。
  * 门控：浏览器给 WS 握手自动带发起页 Origin——只有 Origin 已是
  * qilin-app://app（壳自有页面发起）才改写，防止本机其它进程/页面
  * 借道蹭走托管 cookie。
  */
 export function attachWsRelay({ state }) {
   session.defaultSession.webRequest.onBeforeSendHeaders(
-    { urls: ['ws://127.0.0.1/*'] },
+    { urls: ['ws://127.0.0.1/*', 'wss://127.0.0.1/*'] },
     (details, callback) => {
       const headers = { ...details.requestHeaders }
       const originHeader = Object.keys(headers).find((key) => key.toLowerCase() === 'origin')

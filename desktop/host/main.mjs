@@ -159,7 +159,7 @@ try {
     profile: 'qilin',
     patchFiles: [],
     // 壳记忆的稳定端口（cookie authority 绑定 host:port）；0 = 随机
-    args: ['--no-open', '--port', String(hostPort)],
+    args: ['--no-open', '--host', '127.0.0.1', '--port', String(hostPort)],
   })
   shutdown = profile.shutdown
   const ctx = profile.ctx
@@ -171,7 +171,7 @@ try {
   await webServer.whenListened()
   const connection = ctx.get('connection')
   if (connection === undefined) throw new Error('connection service missing after boot')
-  const url = connection.authenticatedUrl(`http://127.0.0.1:${webServer.port}`)
+  const url = connection.authenticatedUrl(`${webServer.protocol}//127.0.0.1:${webServer.port}`)
   const injections = webServer.collectIndexInjections()
   send({ type: 'ready', url, injections })
 

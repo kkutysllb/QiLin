@@ -17,11 +17,11 @@
  *   （apps/cli/src/profile-boot.ts:254）；INSTALL_ANCHOR 自锚
  *   apps/cli/package.json。
  * - 产品面：PROFILE_TEMPLATES['qilin'] = base + web-app + web-brand
- *   （packages/boot/app-boot/src/profile.ts:246）。`--no-open`/`--port`
+ *   （packages/boot/app-boot/src/profile.ts:246）。`--no-open`/`--host`/`--port`
  *   由 web-app bundle 的 webStartup 服务从 cmdlineArgs 解析
  *   （packages/bundle/web-app/src/startup.ts）。
  * - 就绪：webServer.whenListened() 后 `connection.authenticatedUrl(
- *   http://127.0.0.1:<port>)`（token URL，首访 302 兑换 HMAC 签名
+ *   监听协议 + 127.0.0.1:<port>)`（token URL，首访 302 兑换 HMAC 签名
  *   cookie——cookie 名绑定 authority，packages/client/connection/src/
  *   browser-auth.ts）；`webServer.collectIndexInjections()` 收插件
  *   index 注入表（packages/host/webserver/src/index.ts）。
