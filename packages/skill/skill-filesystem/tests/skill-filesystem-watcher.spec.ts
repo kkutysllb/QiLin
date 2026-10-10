@@ -8,7 +8,7 @@ import { Context } from '@qilin-agent/kylin'
 import SkillRegistry from '@qilin-agent/skill'
 
 interface FakeWatcherControl {
-  emitter: EventEmitter
+  emitter: EventEmitter & { close(): Promise<void> }
   closeCalls: number
   options: Record<string, unknown>
   path: string
@@ -448,5 +448,36 @@ describe('skill-filesystem watcher failures', () => {
     await expect(discovery).rejects.toThrow('opening failed during disposal')
     await disposal
     disposeProvider()
+  })
+
+  it('contains a watcher error emitted after close removed its listeners', async () => {
+    const home = await tempDir('skill-watch-close-error')
+    const root = join(home, '.qilin/skills')
+    await writeSkill(root, 'closing-skill')
+    const ctx = new Context()
+    await ctx.plugin(SkillRegistry)
+    const fiber = await ctx.plugin(SkillFileSystem, {
+      qilinHome: join(home, '.qilin'),
+      agentsHome: join(home, '.agents'),
+      watch: true,
+      watchPollIntervalMs: 10,
+    })
+    expect(await ctx.skills.list()).toHaveLength(1)
+    const control = watcherHarness.watchers[0]
+    if (control === undefined) throw new Error('expected an open root watcher')
+    // The real close() drops every listener while a scheduled write-settle poll
+    // survives it: that straggler stats a file teardown is deleting, which
+    // Windows reports as EPERM, and the emitter rethrows it with no listener.
+    control.emitter.close = async () => {
+      control.closeCalls += 1
+      control.emitter.removeAllListeners()
+    }
+    await fiber.dispose()
+    expect(control.emitter.listenerCount('error')).toBe(1)
+
+    expect(() => control.emitter.emit('error', Object.assign(
+      new Error("EPERM: operation not permitted, stat 'C:\\Temp\\qilin\\.credentials.yaml'"),
+      { code: 'EPERM', syscall: 'stat' },
+    ))).not.toThrow()
   })
 })
