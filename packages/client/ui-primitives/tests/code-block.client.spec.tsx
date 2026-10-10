@@ -4,7 +4,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import type { ComponentProps } from 'react'
 import { CodeBlock as LocalizedCodeBlock } from '../src/markdown/CodeBlock.tsx'
-import { highlightToHtml, subscribeGrammarLoaded } from '../src/markdown/highlight.ts'
+import {
+  StreamingHighlightSession, highlightLines, highlightToHtml, subscribeGrammarLoaded,
+} from '../src/markdown/highlight.ts'
 import { markdownLabels } from './labels.client.ts'
 
 function CodeBlock(props: Omit<ComponentProps<typeof LocalizedCodeBlock>, 'copyLabel' | 'copiedLabel'>) {
@@ -31,6 +33,26 @@ describe('highlightToHtml', () => {
   it('returns undefined for unknown or absent languages', () => {
     expect(highlightToHtml('x', 'cobol')).toBeUndefined()
     expect(highlightToHtml('x', undefined)).toBeUndefined()
+  })
+
+  it('leaves a line of 1,000 or more units as one uncolored run while its neighbors still highlight', () => {
+    const literal = (length: number): string => `const t = "${'a'.repeat(length - 12)}"`
+    const plain = literal(1000)
+    const code = ['const before = 1', literal(999), plain, 'const after = 2'].join('\n')
+    const lines = highlightLines(code, 'javascript')
+    expect(lines?.map(line => line.length > 1)).toEqual([true, true, false, true])
+    expect(lines?.[2]).toEqual([{ text: plain, style: { color: '' } }])
+    expect(new StreamingHighlightSession().update(code, 'javascript')?.[2]).toEqual([{ text: plain, style: { color: '' } }])
+    expect(highlightToHtml(code, 'javascript')).toContain(`<span class="line"><span>${plain}</span></span>`)
+  })
+
+  it('colors lines after a skipped line identically when streamed and settled', () => {
+    const code = ['/*', `${'a'.repeat(1000)} */`, 'const after = 2'].join('\n')
+    const session = new StreamingHighlightSession()
+    session.update(code.slice(0, code.indexOf('const')), 'javascript')
+    const streamed = session.update(code, 'javascript')
+    expect(streamed?.map(line => line.map(span => span.style.color)))
+      .toEqual(highlightLines(code, 'javascript')?.map(line => line.map(span => span.style.color)))
   })
 
   // Every read-tool language hint whose grammar loads lazily (the boot set —
