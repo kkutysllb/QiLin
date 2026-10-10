@@ -9,8 +9,8 @@
   en: 353e27151b0b7352
   zh: 3faad8d06aa1c606
 /session-persistence-event-catalog/persistence-type-fingerprints:
-  en: 9817266e5c4f1cf2
-  zh: 2301a627c3ec6048
+  en: 0a7a112b9dc58d44
+  zh: a2df7eaa424f5744
 /session-persistence-event-catalog/event-envelope:
   en: 7ebb1a2e0dd1f916
   zh: 8946f415dda5c1b8
@@ -198,8 +198,8 @@
   en: 9630752e97ddbfbc
   zh: 9630752e97ddbfbc
 /session-persistence-event-catalog/events/subagent/subagent-catalog-log-only:
-  en: b0d8c66ca02aea4d
-  zh: 74adeca7962a61ed
+  en: e6ce4b5a98ff2f52
+  zh: 9a8e112754679aef
 /session-persistence-event-catalog/events/subagent/subagent-descriptor-log-only:
   en: f5d53639dc5afdfc
   zh: 8c553e7397d08832
@@ -459,8 +459,11 @@
   en: 43092ec034392cde
   zh: 43092ec034392cde
 /session-persistence-event-catalog/resolved-persistence-types/every:
-  en: 1e52f71ff8343f11
-  zh: 1e52f71ff8343f11
+  en: e0cee6663cae8aef
+  zh: e0cee6663cae8aef
+/session-persistence-event-catalog/resolved-persistence-types/external:
+  en: fbce1df9220ad74c
+  zh: fbce1df9220ad74c
 /session-persistence-event-catalog/resolved-persistence-types/failed:
   en: 3897accd96158998
   zh: 3897accd96158998
@@ -933,8 +936,8 @@
   en: 7bd27e4d867cc476
   zh: 83d9b1892f4a6b6e
 /session-persistence-event-catalog/resolved-persistence-types/agentmessagesource:
-  en: 6e39b452b99c78d5
-  zh: ec5757804cba369c
+  en: b3bbb756674add97
+  zh: ac14c76cfb364db2
 /session-persistence-event-catalog/resolved-persistence-types/approvaloutcome:
   en: 2d28096542a35c32
   zh: bd0dc5c358d85714
@@ -1179,17 +1182,17 @@
   en: 378c47582ac49d69
   zh: a661cd48d8f88b86
 /session-persistence-event-catalog/resolved-persistence-types/streamchunk:
-  en: 4d34917c18915b77
-  zh: 8640b7704169c3ea
+  en: 1ce8ff40ece60f84
+  zh: e727f2cd11a6d2fc
 /session-persistence-event-catalog/resolved-persistence-types/subagentcatalogevent:
-  en: 78644dbd650537fb
-  zh: 6a59d1b099a4a183
+  en: 187c7e96cbfbf815
+  zh: 62d02f76b12f0467
 /session-persistence-event-catalog/resolved-persistence-types/subagentdescriptordata:
   en: 9c73fff04f366160
   zh: 53f6e94e1a8f2809
 /session-persistence-event-catalog/resolved-persistence-types/subagentsettledmessagesource:
-  en: 376ab72379aa749c
-  zh: a053b1aeb0fee120
+  en: 754c8de890bd47ca
+  zh: 350800be6150e249
 /session-persistence-event-catalog/resolved-persistence-types/surfaceop:
   en: 58386a55ac700cde
   zh: 7fa98c84909ae0f3
@@ -1380,15 +1383,18 @@
   en: d4783df0a609be5a
   zh: 3be65789adc9985f
 /session-persistence-event-catalog/resolved-persistence-types/childcreatedat-childid-label-mode~2:
-  en: 92a96dd72446cab5
-  zh: 34d1ff15818cd045
+  en: 0fa64966c6daa515
+  zh: 92724162261924fd
 /session-persistence-event-catalog/resolved-persistence-types/childcreatedat-childid-label-mode~3:
+  en: 89c739dc92b7fd4a
+  zh: 8baa905e5ec451ab
+/session-persistence-event-catalog/resolved-persistence-types/childcreatedat-childid-label-mode~4:
   en: 706670f13582df09
   zh: 663233139d47bed8
-/session-persistence-event-catalog/resolved-persistence-types/childcreatedat-childid-label-mode~4:
+/session-persistence-event-catalog/resolved-persistence-types/childcreatedat-childid-label-mode~5:
   en: 484d15e2dedc3442
   zh: c9eb5a151c931910
-/session-persistence-event-catalog/resolved-persistence-types/childcreatedat-childid-label-mode~5:
+/session-persistence-event-catalog/resolved-persistence-types/childcreatedat-childid-label-mode~6:
   en: ff53d0c38c4de335
   zh: 81e1f87ec488324b
 /session-persistence-event-catalog/resolved-persistence-types/code-name-reason:
@@ -2019,11 +2025,11 @@
   en: c87dbaf8dedcdfae
   zh: fe8722817576c583
 /session-persistence-event-catalog/resolved-persistence-types/type-step-start:
-  en: e51484c656671f7d
-  zh: c6c11fe699ca019a
+  en: ae153600523eb49e
+  zh: ce564441cac14be7
 /session-persistence-event-catalog/resolved-persistence-types/type-subagent-catalog:
-  en: 9edf51d0fa56d4e1
-  zh: 10afb66c0b28b012
+  en: c43fff0d9cb216c6
+  zh: 2005e233dfc3b514
 /session-persistence-event-catalog/resolved-persistence-types/type-subagent-descriptor:
   en: 85d69b0be9f514cf
   zh: 6a16c631cef35ec2

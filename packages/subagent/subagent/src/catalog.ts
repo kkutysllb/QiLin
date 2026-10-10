@@ -24,7 +24,7 @@ type KnownCatalogMode =
   | { readonly mode: 'one-shot'; readonly label?: string }
   | { readonly mode: 'continuable'; readonly label: string }
 
-/** Parent catalog v0 records known modes; v1 also retains children with unknown mode. */
+/** Parent catalog v0 records known modes, v1 adds unknown children, and v2 records external executions. */
 export type SubagentCatalogEvent =
   & {
     readonly childId: SessionId
@@ -32,6 +32,7 @@ export type SubagentCatalogEvent =
   } & (
     | ({ readonly version: 0 } & KnownCatalogMode)
     | ({ readonly version: 1 } & (KnownCatalogMode | { readonly mode: 'unknown'; readonly label?: string }))
+    | { readonly version: 2; readonly mode: 'external'; readonly label?: string }
   )
 
 declare module '@qilin-agent/session/types' {
@@ -66,8 +67,10 @@ const continuableCatalogSchema = z.object({
   label: z.string(),
 }).strict()
 const unknownCatalogSchema = oneShotCatalogSchema.extend({ version: z.literal(1), mode: z.literal('unknown') })
+const externalCatalogSchema = oneShotCatalogSchema.extend({ version: z.literal(2), mode: z.literal('external') })
 const eventDataSchema = z.union([
   oneShotCatalogSchema,
+  externalCatalogSchema,
   continuableCatalogSchema,
   unknownCatalogSchema,
 ]) as z.ZodType<SubagentCatalogEvent>
@@ -75,6 +78,10 @@ const viewSchema = z.array(z.union([
   oneShotCatalogSchema.omit({ version: true, childId: true, childCreatedAt: true }).extend({
     id: sessionIdSchema,
     createdAt: oneShotCatalogSchema.shape.childCreatedAt,
+  }),
+  externalCatalogSchema.omit({ version: true, childId: true, childCreatedAt: true }).extend({
+    id: sessionIdSchema,
+    createdAt: externalCatalogSchema.shape.childCreatedAt,
   }),
   continuableCatalogSchema.omit({ version: true, childId: true, childCreatedAt: true }).extend({
     id: sessionIdSchema,
@@ -130,7 +137,7 @@ export const subagentCatalogProjectionDefinition = {
     if (event.type !== 'subagent/catalog' || event.seq < state.inheritedEventCount) return state
     return { ...state, head: appendChunkedList(state.head, eventDataSchema.parse(event.data)) }
   },
-  stateVersion: 3,
+  stateVersion: 4,
   wire: { viewSchema, view: subagentCatalogEntries },
 } satisfies ProjectionDefinition<'subagentCatalog', SubagentCatalogState>
 
@@ -162,4 +169,23 @@ export function establishCatalogChild(
       mode: descriptor.mode,
       label: descriptor.label,
     })
+}
+
+/** Catalog payload version emitted by external execution creation. */
+const EXTERNAL_SUBAGENT_CATALOG_VERSION = 2
+
+/**
+ * Record an external execution without a local child Session.
+ * @param parent - durable direct parent receiving the discovery fact.
+ * @param childId - identity returned by the external provider.
+ * @param label - display label assigned by the caller.
+ */
+export function establishExternalCatalogChild(parent: Session, childId: SessionId, label: string): void {
+  parent.append('subagent/catalog', {
+    version: EXTERNAL_SUBAGENT_CATALOG_VERSION,
+    childId,
+    childCreatedAt: Date.now(),
+    mode: 'external',
+    label,
+  })
 }

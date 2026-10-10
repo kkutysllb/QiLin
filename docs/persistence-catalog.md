@@ -59,7 +59,7 @@ The [format references](persistence-changes/historical-formats/README.md) cover 
 | `event:session/title-llm-request` | event | `f2c80c5726975ce263227fe63277825dfba9a90a989704e613759861aee10d1c` | [`{ type: "session/title-llm-request" }`](#persistence-type-sha256-f2c80c5726975ce263227fe63277825dfba9a90a989704e613759861aee10d1c) |
 | `event:step/end` | event | `a62407fa5502cb1dd5771adc6ffd5f1695b464af15cbbc3fda98a4f18a173238` | [`{ type: "step/end" }`](#persistence-type-sha256-a62407fa5502cb1dd5771adc6ffd5f1695b464af15cbbc3fda98a4f18a173238) |
 | `event:step/start` | event | `75703eb560decf0ac1ac21e23c7e81a47f7563e12e55943e8207c5967d84925e` | [`{ type: "step/start" }`](#persistence-type-sha256-75703eb560decf0ac1ac21e23c7e81a47f7563e12e55943e8207c5967d84925e) |
-| `event:subagent/catalog` | event | `a3524f96e2aa0a424a200b5e60003abdcc4d8ec1d05522366837de35baf0c67a` | [`{ type: "subagent/catalog" }`](#persistence-type-sha256-a3524f96e2aa0a424a200b5e60003abdcc4d8ec1d05522366837de35baf0c67a) |
+| `event:subagent/catalog` | event | `979bda52f82c57aed40934394184e1aecaba0dd1fb6ca5cfe9b348b215d02187` | [`{ type: "subagent/catalog" }`](#persistence-type-sha256-979bda52f82c57aed40934394184e1aecaba0dd1fb6ca5cfe9b348b215d02187) |
 | `event:subagent/descriptor` | event | `9fd8dd45e9ec36d43bb36703b46fc83e26646bc44d8b8cec9fc5946419a1b2c0` | [`{ type: "subagent/descriptor" }`](#persistence-type-sha256-9fd8dd45e9ec36d43bb36703b46fc83e26646bc44d8b8cec9fc5946419a1b2c0) |
 | `event:subagent/model-selection-policy` | event | `b0d9df74c8f5b743e7aefff6905d8ed6184a09b291db13350c30114f7c39ddcf` | [`{ type: "subagent/model-selection-policy" }`](#persistence-type-sha256-b0d9df74c8f5b743e7aefff6905d8ed6184a09b291db13350c30114f7c39ddcf) |
 | `event:system/message` | event | `23efb2a10dc8eca78577f2a053b13428b1939e147d6041ea27e4634ac5e6bf6f` | [`{ type: "system/message" }`](#persistence-type-sha256-23efb2a10dc8eca78577f2a053b13428b1939e147d6041ea27e4634ac5e6bf6f) |
@@ -903,7 +903,7 @@ Source: [`packages/core/session/src/types.ts:299`](../packages/core/session/src/
 'subagent/catalog': SubagentCatalogEvent
 ```
 
-Source: [`packages/subagent/subagent/src/catalog.ts:43`](../packages/subagent/subagent/src/catalog.ts)
+Source: [`packages/subagent/subagent/src/catalog.ts:44`](../packages/subagent/subagent/src/catalog.ts)
 
 <a id="subagentdescriptor--log-only"></a>
 
@@ -1735,6 +1735,14 @@ SHA-256: `e9f7adb2639c1d5f27141efe582d4f85dfff3f60d0e50f4e62dc1ae7da6a6f3f`
 SHA-256: `30bc2c25e26d0a10bd3d74ab591a9ff97f3036ee900aec1d4a56c5106f02fed3`
 
 `"every"`
+
+<a id="persistence-type-sha256-a83ece9e54683230f4fb83230e0c7220ac78b9285e6e6b94a5b53de561e4a1a6"></a>
+
+### `"external"`
+
+SHA-256: `a83ece9e54683230f4fb83230e0c7220ac78b9285e6e6b94a5b53de561e4a1a6`
+
+`"external"`
 
 <a id="persistence-type-sha256-3017ce52ed42bc768b689c52c464e841dcfa26ad5845b8aadf46fc1d24631035"></a>
 
@@ -3031,7 +3039,7 @@ Sources: [`packages/context/agent-instructions/src/state.ts:37`](../packages/con
 
 SHA-256: `8bd193babfc2d462fa9da989adb3250aae887d4e7fb2bf8b57a84601bc2b18c8`
 
-Sources: [`packages/subagent/subagent/src/continuation-messages.ts:15`](../packages/subagent/subagent/src/continuation-messages.ts)
+Sources: [`packages/subagent/subagent/src/continuation-messages.ts:14`](../packages/subagent/subagent/src/continuation-messages.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -4636,7 +4644,7 @@ One of:
 - [`{ type: "finish" }`](#persistence-type-sha256-823eb66fb0f3c0aca80ed525ef6bc20772e443cb067b9f8db49786c8a579bbfa)
 - [`{ type: "usage" }`](#persistence-type-sha256-e25bdbb40a55047b4f3ee371dbada327c1a6c20326efa5bb1bffb48cf9887816)
 
-<a id="persistence-type-sha256-b64b027baf9dabc5b2ac207b991ba2d204478bd8eb971509102f2b74b14672f8"></a>
+<a id="persistence-type-sha256-ab0b2e7ed18ad2d29d3f3d3cd71b241818c6bcd7e92546d4807f2d600eeaa081"></a>
 
 <a id="persistence-type-packagessubagentsubagentsrccatalogtssubagentcatalogevent"></a>
 
@@ -4644,17 +4652,18 @@ One of:
 
 ### `SubagentCatalogEvent`
 
-SHA-256: `b64b027baf9dabc5b2ac207b991ba2d204478bd8eb971509102f2b74b14672f8`
+SHA-256: `ab0b2e7ed18ad2d29d3f3d3cd71b241818c6bcd7e92546d4807f2d600eeaa081`
 
 Sources: [`packages/subagent/subagent/src/catalog.ts:28`](../packages/subagent/subagent/src/catalog.ts)
 
 One of:
 
-- [`{ childCreatedAt, childId, label, mode, … }`](#persistence-type-sha256-98fecf17febfba5fb07e2051e0a572800c19c975c53201189e1c27081aa78429)
 - [`{ childCreatedAt, childId, label, mode, … }`](#persistence-type-sha256-f707d97572c9d66e99a6867b2ee301aeb5e8941a576739036a80a6c1a079c82c)
+- [`{ childCreatedAt, childId, label?, mode, … }`](#persistence-type-sha256-0e2ce771178c2e5a6e3c5b22e26bfdd6dc798ceeda79cf61961f4108928541e1)
 - [`{ childCreatedAt, childId, label?, mode, … }`](#persistence-type-sha256-656c2416230eb929b5632c16303b5707be12a5cd8ea2f1f34d2b85424a2f571c)
 - [`{ childCreatedAt, childId, label?, mode, … }`](#persistence-type-sha256-d8dcd0debd46d11dc1f8b35e80cbccd32ac777573069b8048e4baf42396cfe5f)
 - [`{ childCreatedAt, childId, label?, mode, … }`](#persistence-type-sha256-fc4ea0a7b95430859264211c05ae64c59297b310cf9e14b0ff4a9c65858897d4)
+- [`{ childCreatedAt, childId, label, mode, … }`](#persistence-type-sha256-98fecf17febfba5fb07e2051e0a572800c19c975c53201189e1c27081aa78429)
 
 <a id="persistence-type-sha256-37d13687cfd00b3bdca839640d6f562a92ea3cbd82196eaa6e4fbf79193acace"></a>
 
@@ -4683,7 +4692,7 @@ One of:
 
 SHA-256: `576d791082e3f6877355bb7cbdbaa934731bb8149beef10c0ff5f79a96e776a2`
 
-Sources: [`packages/subagent/subagent/src/continuation-messages.ts:30`](../packages/subagent/subagent/src/continuation-messages.ts)
+Sources: [`packages/subagent/subagent/src/continuation-messages.ts:29`](../packages/subagent/subagent/src/continuation-messages.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -5717,6 +5726,20 @@ SHA-256: `f707d97572c9d66e99a6867b2ee301aeb5e8941a576739036a80a6c1a079c82c`
 | `label` | required | `string` |
 | `mode` | required | `"continuable"` |
 | `version` | required | `1` |
+
+<a id="persistence-type-sha256-0e2ce771178c2e5a6e3c5b22e26bfdd6dc798ceeda79cf61961f4108928541e1"></a>
+
+### `{ childCreatedAt, childId, label?, mode, … }`
+
+SHA-256: `0e2ce771178c2e5a6e3c5b22e26bfdd6dc798ceeda79cf61961f4108928541e1`
+
+| Property | Presence | Type |
+|---|---|---|
+| `childCreatedAt` | required | `number` |
+| `childId` | required | `string` |
+| `label` | optional | `string` |
+| `mode` | required | `"external"` |
+| `version` | required | `2` |
 
 <a id="persistence-type-sha256-656c2416230eb929b5632c16303b5707be12a5cd8ea2f1f34d2b85424a2f571c"></a>
 
@@ -8483,17 +8506,17 @@ SHA-256: `75703eb560decf0ac1ac21e23c7e81a47f7563e12e55943e8207c5967d84925e`
 | `time` | required | `number` |
 | `type` | required | `"step/start"` |
 
-<a id="persistence-type-sha256-a3524f96e2aa0a424a200b5e60003abdcc4d8ec1d05522366837de35baf0c67a"></a>
+<a id="persistence-type-sha256-979bda52f82c57aed40934394184e1aecaba0dd1fb6ca5cfe9b348b215d02187"></a>
 
 <a id="persistence-type-eventsubagentcatalog"></a>
 
 ### `{ type: "subagent/catalog" }`
 
-SHA-256: `a3524f96e2aa0a424a200b5e60003abdcc4d8ec1d05522366837de35baf0c67a`
+SHA-256: `979bda52f82c57aed40934394184e1aecaba0dd1fb6ca5cfe9b348b215d02187`
 
 | Property | Presence | Type |
 |---|---|---|
-| `data` | required | [`SubagentCatalogEvent`](#persistence-type-sha256-b64b027baf9dabc5b2ac207b991ba2d204478bd8eb971509102f2b74b14672f8) |
+| `data` | required | [`SubagentCatalogEvent`](#persistence-type-sha256-ab0b2e7ed18ad2d29d3f3d3cd71b241818c6bcd7e92546d4807f2d600eeaa081) |
 | `ignorable` | optional | `true` |
 | `seq` | required | `number` |
 | `time` | required | `number` |

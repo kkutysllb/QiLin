@@ -15451,7 +15451,7 @@
       "kind": "event",
       "event": "subagent/catalog",
       "surface": false,
-      "digest": "a3524f96e2aa0a424a200b5e60003abdcc4d8ec1d05522366837de35baf0c67a",
+      "digest": "979bda52f82c57aed40934394184e1aecaba0dd1fb6ca5cfe9b348b215d02187",
       "schema": {
         "root": 0,
         "nodes": [
@@ -15465,7 +15465,7 @@
               },
               {
                 "name": "ignorable",
-                "type": 14,
+                "type": 17,
                 "optional": true
               },
               {
@@ -15480,7 +15480,7 @@
               },
               {
                 "name": "type",
-                "type": 15,
+                "type": 18,
                 "optional": false
               }
             ],
@@ -15492,8 +15492,9 @@
               2,
               7,
               9,
-              11,
-              12
+              12,
+              14,
+              15
             ]
           },
           {
@@ -15603,6 +15604,45 @@
               },
               {
                 "name": "version",
+                "type": 11,
+                "optional": false
+              }
+            ],
+            "indices": []
+          },
+          {
+            "kind": "literal",
+            "value": "external"
+          },
+          {
+            "kind": "literal",
+            "value": 2
+          },
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "childCreatedAt",
+                "type": 3,
+                "optional": false
+              },
+              {
+                "name": "childId",
+                "type": 4,
+                "optional": false
+              },
+              {
+                "name": "label",
+                "type": 4,
+                "optional": true
+              },
+              {
+                "name": "mode",
+                "type": 13,
+                "optional": false
+              },
+              {
+                "name": "version",
                 "type": 6,
                 "optional": false
               }
@@ -15633,7 +15673,7 @@
               },
               {
                 "name": "mode",
-                "type": 10,
+                "type": 13,
                 "optional": false
               },
               {
@@ -15664,7 +15704,7 @@
               },
               {
                 "name": "mode",
-                "type": 13,
+                "type": 16,
                 "optional": false
               },
               {
@@ -22802,6 +22842,11 @@
       ]
     },
     {
+      "digest": "0e2ce771178c2e5a6e3c5b22e26bfdd6dc798ceeda79cf61961f4108928541e1",
+      "names": [],
+      "sources": []
+    },
+    {
       "digest": "0e48cb7ee1a7ae33d94480337b7747c0b1cf676c621735dc79c1a51123240835",
       "names": [
         "packages/schedule/schedule/src/types.ts#ScheduleDeleteChange"
@@ -23905,7 +23950,7 @@
         "packages/subagent/subagent/src/continuation-messages.ts#SubagentSettledMessageSource"
       ],
       "sources": [
-        "packages/subagent/subagent/src/continuation-messages.ts:30"
+        "packages/subagent/subagent/src/continuation-messages.ts:29"
       ]
     },
     {
@@ -24660,7 +24705,7 @@
         "packages/subagent/subagent/src/continuation-messages.ts#AgentMessageSource"
       ],
       "sources": [
-        "packages/subagent/subagent/src/continuation-messages.ts:15"
+        "packages/subagent/subagent/src/continuation-messages.ts:14"
       ]
     },
     {
@@ -24806,6 +24851,11 @@
     },
     {
       "digest": "96d9b6206b4a8c915d949dd8c5a0ad34fee0260f2a65e97964c41292d75f45aa",
+      "names": [],
+      "sources": []
+    },
+    {
+      "digest": "979bda52f82c57aed40934394184e1aecaba0dd1fb6ca5cfe9b348b215d02187",
       "names": [],
       "sources": []
     },
@@ -25007,11 +25057,6 @@
       ]
     },
     {
-      "digest": "a3524f96e2aa0a424a200b5e60003abdcc4d8ec1d05522366837de35baf0c67a",
-      "names": [],
-      "sources": []
-    },
-    {
       "digest": "a36fcb09e29a69783260c94084c6d9d38053c5c704fdd09ad481e71aff402b24",
       "names": [],
       "sources": []
@@ -25082,6 +25127,11 @@
       ]
     },
     {
+      "digest": "a83ece9e54683230f4fb83230e0c7220ac78b9285e6e6b94a5b53de561e4a1a6",
+      "names": [],
+      "sources": []
+    },
+    {
       "digest": "a994cea6c3a7ee4230479cc21b906d15991cccca69af6a43e90bff547836812e",
       "names": [],
       "sources": []
@@ -25106,6 +25156,15 @@
       "names": [],
       "sources": [
         "packages/compaction/compaction/src/types.ts:82"
+      ]
+    },
+    {
+      "digest": "ab0b2e7ed18ad2d29d3f3d3cd71b241818c6bcd7e92546d4807f2d600eeaa081",
+      "names": [
+        "packages/subagent/subagent/src/catalog.ts#SubagentCatalogEvent"
+      ],
+      "sources": [
+        "packages/subagent/subagent/src/catalog.ts:28"
       ]
     },
     {
@@ -25278,15 +25337,6 @@
       "digest": "b5a104e0b8c61ff30aa2454a0d0ebb1eeeb3f62437388a570d7f2feb3527c995",
       "names": [],
       "sources": []
-    },
-    {
-      "digest": "b64b027baf9dabc5b2ac207b991ba2d204478bd8eb971509102f2b74b14672f8",
-      "names": [
-        "packages/subagent/subagent/src/catalog.ts#SubagentCatalogEvent"
-      ],
-      "sources": [
-        "packages/subagent/subagent/src/catalog.ts:28"
-      ]
     },
     {
       "digest": "b66aaa473f539e857cc406ada6435e9faa368c95a109b5f37d724c6597d6ee82",
