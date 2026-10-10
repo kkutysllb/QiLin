@@ -130,7 +130,7 @@ While a reply streams, `MarkdownText` parses incrementally: all but the trailing
 
 ### Geometry and overflow
 
-The output cards share one geometry model: `white-space: pre` with horizontal scrolling so column-aligned content keeps its alignment, and a head-plus-tail slice behind an expand button past `maxLines` (default 16) so a long body never stretches the card. `TerminalBlock` parses ANSI into React spans with a per-line column buffer for cursor movement, honoring erase-in-line, tab stops, and character width.
+The output cards share one geometry model: `white-space: pre` with horizontal scrolling so column-aligned content keeps its alignment, and a head-plus-tail slice behind an expand button past `maxLines` (default 16) so a long body never stretches the card. `TerminalBlock` uses `CommandText` to keep each authored command line selectable and horizontally scrollable; the prompt and status stay fixed. Only horizontally overflowing text enters the Tab order as a named group, using the owner's localized `commandLine(line)` label. `TerminalBlock` parses ANSI into React spans with a per-line column buffer for cursor movement, honoring erase-in-line, tab stops, and character width.
 
 </details>
 

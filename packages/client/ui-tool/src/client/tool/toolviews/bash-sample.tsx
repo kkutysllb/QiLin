@@ -7,6 +7,7 @@ import {
 import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import type { ToolCallViewProps } from '../../contract/slots.ts'
 import {
+  isBackgroundShellCall,
   isSettledPersistentShellCall,
   isSpilledShellCall,
   localizeTerminalCardModel,
@@ -64,10 +65,12 @@ export function BashRow({ toolName, block, sessionId, useSessions, inspect, useD
   // The injected disclosure state is the row's whole open state; an enclosing
   // Turn's collapse resets it.
   const { expanded, toggle: toggleExpand } = useDisclosure()
-  // Failures, persistent-shell results, and spill previews use a generic body;
-  // background acknowledgements and malformed calls remain collapsed.
+  const background = isBackgroundShellCall(block)
+  // Background launches expose their acknowledgement without assigning the
+  // job an exit status. Failures, persistent results, and spill previews also
+  // keep the generic input/output presentation.
   const genericBody = terminal === null
-    && (model.state === 'error' || isSettledPersistentShellCall(block) || isSpilledShellCall(block))
+    && (model.state === 'error' || isSettledPersistentShellCall(block) || isSpilledShellCall(block) || background)
     && (model.bodyRaw !== null || model.output !== null)
   const expandable = terminal !== null || genericBody
   const open = expanded && expandable
@@ -140,7 +143,7 @@ export function BashRow({ toolName, block, sessionId, useSessions, inspect, useD
                 {body !== null && (
                   <div className={css.ioSection}>
                     <span className={css.ioLabel}>{t('row.input')}</span>
-                    <span className={css.ioText}>{body}</span>
+                    <span className={clsx(css.ioText, background && css.commandInput)} tabIndex={background ? 0 : undefined}>{body}</span>
                   </div>
                 )}
                 {body !== null && model.output !== null && (

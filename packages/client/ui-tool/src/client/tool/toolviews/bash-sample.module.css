@@ -216,6 +216,18 @@
 
 /* Solid hover fill: the pill floats over terminal output, so a translucent
    hover token would let the text underneath bleed through. */
+.commandInput {
+  white-space: pre;
+  overflow-x: auto;
+  user-select: text;
+  cursor: text;
+}
+
+.commandInput:focus-visible {
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
+  outline-offset: -2px;
+}
+
 .inspectButton:hover {
   background: var(--qilin-alias-interactive-bg-hover-solid);
   color: var(--qilin-alias-label-primary);
