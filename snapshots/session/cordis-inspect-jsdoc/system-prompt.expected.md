@@ -338,6 +338,7 @@ interface ToolOutputMap {
     activation: "armed" | "disarmed";
   };
   edit: {
+    /** Canonical absolute path in the filesystem execution world. */
     path: string;
     before: string;
     after: string;
@@ -558,6 +559,7 @@ interface ToolOutputMap {
     cwd: string;
   };
   write: {
+    /** Canonical absolute path in the filesystem execution world. */
     path: string;
     operation: "create" | "update";
     before: string | null;
