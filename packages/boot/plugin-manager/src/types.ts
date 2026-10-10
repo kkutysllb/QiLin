@@ -47,6 +47,12 @@ export interface BundleRowInfo {
 /** One installed or installation-provided bundle. */
 export interface BundleInfo {
   name: string
+  /** Shipped optional bundle or on-demand catalog entry, independent of installation and selection. */
+  official: boolean
+  /** Readable package location; on-demand catalog entries exclude undeclared transitive copies, and declared files may be missing. */
+  availability: 'installation' | 'profile' | 'missing'
+  /** Exact released QiLin version, or a same-checkout development link, offered for an on-demand catalog entry. */
+  installTarget?: { spec: string; version: string }
   version?: string
   /** Local display text with available translations or literal fallbacks, or a metadata diagnostic. */
   meta?: PluginLocalizedMeta

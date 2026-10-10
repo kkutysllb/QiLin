@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { officialClientBuildEnvironment, writeClientBuildRecord } from '../client-build-environment.ts'
+import { ON_DEMAND_BUNDLES } from '../../packages/boot/app-boot/src/official-bundles.ts'
 import { releaseFamily, type ReleaseMember } from './families.ts'
 import { compareVersions, nextVendorVersion, planShared, reachesPayload } from './bump.ts'
 
@@ -260,6 +261,22 @@ describe('release families', () => {
       '@qilin-agent/consumer',
       '@qilin-agent/zebra',
     ])
+  })
+
+  it('publishes on-demand catalog members before the CLI without adding installed dependencies', () => {
+    const qilin = releaseFamily('qilin')
+    const cli = member('apps/cli', '@qilin-agent/cli')
+    const providers = ON_DEMAND_BUNDLES.map(name => member(`packages/subagent/${name}`, name))
+    const plan = qilin.publishOrder([cli, ...providers])
+
+    expect(plan.order.map(entry => entry.name)).toEqual([...ON_DEMAND_BUNDLES, cli.name])
+    expect(cli.manifest).toEqual({})
+    expect(plan.droppedPeerEdges).toEqual([])
+  })
+
+  it('rejects an advertised on-demand provider missing from the public release family', () => {
+    expect(() => releaseFamily('qilin').publishOrder([member('apps/cli', '@qilin-agent/cli')]))
+      .toThrow('Official catalog prerequisite')
   })
 
   it('reports a runtime dependency cycle instead of emitting an arbitrary order', () => {

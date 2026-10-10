@@ -23,6 +23,8 @@ const BUNDLE: BundleInfo = {
   name: 'qilin-better-sidebar',
   version: '0.16.0',
   description: 'A sidebar.',
+  official: false,
+  availability: 'profile',
   enabled: false,
   installed: true,
   optional: false,
@@ -528,7 +530,7 @@ describe('packageView', () => {
     })
     // A row the inventory no longer lists, a protected row, and a bundle the Host cannot read.
     const protectedBundle: BundleInfo = {
-      name: '@qilin-agent/base', enabled: true, installed: false, optional: false, audience: 'both', updatable: false, removable: false,
+      name: '@qilin-agent/base', official: false, availability: 'missing', enabled: true, installed: false, optional: false, audience: 'both', updatable: false, removable: false,
       readOnlyReason: 'management-required',
       error: { code: 'operation-error', diagnostic: 'broken' },
       rows: [{ rowId: 'core', moduleName: '@qilin-agent/base', entryId: 'include:core' as PluginEntryId }, { rowId: 'gone', moduleName: 'x', entryId: 'include:gone' as PluginEntryId }],
@@ -548,7 +550,7 @@ describe('packageView', () => {
 
 describe('sortPackages', () => {
   it('orders packages by the short name a person reads, not by the Host order or enablement', async () => {
-    const plain = { enabled: true, installed: true, optional: false, audience: 'both' as const, updatable: true, removable: true, rows: [], overrides: [] }
+    const plain = { official: false, availability: 'profile' as const, enabled: true, installed: true, optional: false, audience: 'both' as const, updatable: true, removable: true, rows: [], overrides: [] }
     const zeta: BundleInfo = { ...plain, name: 'qilin-zeta' }
     const alpha: BundleInfo = { ...plain, name: '@acme/qilin-alpha', enabled: false }
     const views = [zeta, BUNDLE, alpha].map(bundle => packageView(bundle, PLUGINS))

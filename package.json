@@ -144,6 +144,8 @@
     "verify-client-catalog": "tsx scripts/gen-client-catalog.ts --check",
     "verify-export-jsdoc": "tsx scripts/verify-export-jsdoc.ts",
     "gen-tool-catalog": "tsx scripts/gen-tool-catalog.ts",
+    "gen-official-bundle-catalog": "tsx scripts/gen-official-bundle-catalog.ts",
+    "verify-official-bundle-catalog": "tsx scripts/gen-official-bundle-catalog.ts --check",
     "gen-workflow-guest": "tsx scripts/gen-workflow-guest.ts",
     "verify-workflow-guest": "tsx scripts/gen-workflow-guest.ts --check",
     "verify-tool-catalog": "tsx scripts/gen-tool-catalog.ts --check",

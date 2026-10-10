@@ -15,6 +15,7 @@ import {
   officialClientBuildEnvironment,
   readClientBuildRecord,
 } from '../client-build-environment.ts'
+import { ON_DEMAND_BUNDLES } from '../../packages/boot/app-boot/src/official-bundles.ts'
 import { validateTarballPayload } from '../publication-payload.ts'
 
 /**
@@ -285,8 +286,22 @@ export abstract class ReleaseFamily {
         if (dependency !== undefined && dependency.name !== member.name) edges.push(dependency)
       }
     }
+    if (sections.includes('dependencies')) {
+      for (const name of this.publicationPrerequisites(member)) {
+        const prerequisite = byName.get(name)
+        if (prerequisite === undefined) throw new Error(`${member.name}: Official catalog prerequisite ${name} is missing from the public release family`)
+        if (!edges.some(edge => edge.name === name)) edges.push(prerequisite)
+      }
+    }
     return edges.sort((left, right) => left.name.localeCompare(right.name))
   }
+
+  /**
+   * Packages that must already be published before this member can advertise them.
+   * @param _member - Member being published.
+   * @returns Release prerequisites that do not become installed dependencies.
+   */
+  protected publicationPrerequisites(_member: ReleaseMember): readonly string[] { return [] }
 
   /**
    * Assert this family's version baseline holds across its members.
@@ -342,6 +357,11 @@ class QilinFamily extends ReleaseFamily {
     'apps/*/package.json',
   ] as const
   readonly tagPrefix = 'v'
+
+  /** Publish every advertised on-demand package before the installation that offers it. */
+  protected override publicationPrerequisites(member: ReleaseMember): readonly string[] {
+    return member.name === '@qilin-agent/cli' ? ON_DEMAND_BUNDLES : []
+  }
 
   /** Require current artifacts from a complete official client build. */
   override verifyBuildArtifacts(root: string): void {

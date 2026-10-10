@@ -81,7 +81,8 @@ export {
   type ProfileResolutionMode,
   type ProfileTemplate,
 } from './profile.ts'
-export { readPluginMeta } from './package-meta.ts'
+export { readPluginMeta, resolvePluginResource } from './package-meta.ts'
+export { ON_DEMAND_BUNDLES, OFFICIAL_ON_DEMAND_CATALOG, type OfficialBundleCatalogEntry } from './official-bundles.ts'
 export { generateConfigSchema, type ConfigSchemaDump, type NativeConfigSchema } from './config-schema/index.ts'
 export { createConfigProjector, LOADER_EXPRESSION_SCHEMA, type ConfigProjection } from './config-schema/projector.ts'
 export { isNativeConfigSchema } from './config-schema/native.ts'

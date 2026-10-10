@@ -14,10 +14,12 @@ import { pluginEntryId, readPluginInventory } from '@qilin-agent/host-plugin-inv
 import {
   readPluginMeta, readProfileManifest, resolveBundleDir, loadOverlayPatches, composeEntries, reconcileProfilePatches,
   readProfilePatches, OPTIONAL_BUNDLES, PROFILE_TEMPLATES, profileLayerUpdatable,
+  OFFICIAL_ON_DEMAND_CATALOG, getQilinRuntimeVersion,
   evaluatePluginCompatibility, readProfileCompatibility, readProfileVersionExemptions, setProfileVersionExemption,
   PROFILE_COMPATIBILITY_FILENAME,
 } from '@qilin-agent/app-boot'
 import { bundlePatchOf } from '@qilin-agent/dsh-compat'
+import { officialBundleInstallTarget } from './official-install-target.ts'
 import type {} from '@qilin-agent/hmr'
 import type { ProfileContext, ProfileManifest } from '@qilin-agent/app-boot'
 import {
@@ -293,25 +295,47 @@ export class PluginManager extends TypertRemoteService {
     const recorded = manifest.dependencies ?? {}
     const dependencies = Object.keys(manifest.dependencies ?? {})
     const installation = JSON.parse(readFileSync(this.profile.installAnchor, 'utf8')) as InstallationManifest
-    const names = [...new Set([...selected, ...dependencies, ...Object.keys(installation.dependencies ?? {})])]
+    const catalog = new Map(OFFICIAL_ON_DEMAND_CATALOG.map(entry => [entry.packageName, entry]))
+    const names = [...new Set([...selected, ...dependencies, ...Object.keys(installation.dependencies ?? {}), ...catalog.keys()])]
     // The shipped template names the layers an installation owns; a profile
     // switches one off through its rows, never by dropping the layer.
     const builtIn = [...PROFILE_TEMPLATES[this.profile.name]?.bundles ?? []]
     const bundles: BundleInfo[] = []
+    const runtimeVersion = getQilinRuntimeVersion()
     for (const name of names) {
       const installed = dependencies.includes(name)
       const optional = OPTIONAL_BUNDLES.includes(name)
       const updatable = profileLayerUpdatable(name, builtIn)
-      const removable = installed && !Object.hasOwn(installation.dependencies ?? {}, name)
+      const shipped = Object.hasOwn(installation.dependencies ?? {}, name)
+      const removable = installed && !shipped
+      const offered = catalog.get(name)
+      const official = optional || offered !== undefined
+      let target: Pick<BundleInfo, 'installTarget'> = {}
+      let targetError: ManagementError | undefined
+      if (offered !== undefined) {
+        try { target = { installTarget: officialBundleInstallTarget(name, this.profile.installAnchor, runtimeVersion) } }
+        catch (error) { targetError = managementError(error) }
+      }
+      const catalogMeta = offered === undefined ? {} : { meta: offered.meta }
       // Bundle resolution reads the installation first, so a profile dependency the installation manifest also
       // names, like one it forbids removing, is not the loaded copy.
       const sourceOf = (packageName?: string): { source?: string } =>
         removable ? { source: dependencySpec(name, recorded[name] as string, this.profile.dir, packageName) } : {}
       const enabled = selected.includes(name)
+      if (offered !== undefined && !installed && !shipped) {
+        // A catalog entry the installation does not carry is discoverable offline: pnpm has not read it yet,
+        // so only the entry's own metadata and target are known.
+        bundles.push({ name, official: true, availability: 'missing', ...catalogMeta, ...target, enabled, installed, optional,
+          updatable, removable: enabled, audience: audienceOf(name), rows: [], overrides: [],
+          ...targetError === undefined ? (enabled ? { error: { code: 'not-bundle' } } : {}) : { error: targetError } })
+        continue
+      }
+      let availability: BundleInfo['availability'] = 'missing'
       try {
         const info = bundleManifest(name, this.profile.dir, this.profile.installAnchor)
+        availability = shipped ? 'installation' : 'profile'
         if (info === undefined) {
-          if (enabled) bundles.push({ name, ...sourceOf(), enabled, installed, optional, updatable, removable, audience: audienceOf(name), error: { code: 'not-bundle' }, rows: [], overrides: [] })
+          if (enabled || offered !== undefined) bundles.push({ name, official, availability, ...catalogMeta, ...target, ...sourceOf(), enabled, installed, optional, updatable, removable, audience: audienceOf(name), error: targetError ?? { code: 'not-bundle' }, rows: [], overrides: [] })
           continue
         }
         const readOnlyReason = this.layerLock(name, builtIn)
@@ -321,19 +345,21 @@ export class PluginManager extends TypertRemoteService {
         }
         // Localized display text reads through the package's own exported locale files; a metadata
         // diagnostic rides along while the bundle stays fully manageable.
-        const meta = readPluginMeta(info.name ?? name, pathToFileURL(join(this.profile.dir, 'package.json')).href)
-        bundles.push({ name, ...(info.version === undefined ? {} : { version: info.version }),
+        const meta = offered?.meta ?? readPluginMeta(info.name ?? name, pathToFileURL(join(this.profile.dir, 'package.json')).href)
+        bundles.push({ name, official, availability, ...target, ...(info.version === undefined ? {} : { version: info.version }),
           ...meta === undefined ? {} : { meta },
           ...(info.description === undefined || info.description === '' ? {} : { description: info.description }),
           ...sourceOf(info.name),
           enabled, installed, optional, updatable, removable: removable && readOnlyReason === undefined,
           audience: audienceOf(name),
           ...(readOnlyReason === undefined ? {} : { readOnlyReason }),
-          ...this.declaredRows(name, info) })
+          ...this.declaredRows(name, info),
+          ...(targetError === undefined ? {} : { error: targetError }) })
       } catch (error) {
-        if (enabled || installed) {
-          bundles.push({ name, ...sourceOf(), enabled, installed, optional, updatable, removable,
-            audience: audienceOf(name), error: managementError(error), rows: [], overrides: [] })
+        if (enabled || installed || optional || offered !== undefined) {
+          bundles.push({ name, official, availability, ...catalogMeta, ...target, ...sourceOf(),
+            enabled, installed, optional, updatable, removable,
+            audience: audienceOf(name), error: targetError ?? managementError(error), rows: [], overrides: [] })
         }
       }
     }

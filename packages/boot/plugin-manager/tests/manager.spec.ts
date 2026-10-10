@@ -83,14 +83,17 @@ it('lists bundle versions and current-profile plugin targets', async () => {
   const plugins = await manager.listPlugins()
   expect(plugins.find(row => row.entryId === 'include:managed')).toMatchObject({ patchId: 'managed', enabled: true })
   expect(plugins.find(row => row.entryId === 'include:manager')?.readOnlyReason).toBe('management-required')
-  expect(await manager.listBundles()).toEqual([
+  // Offline Official catalog entries carry an install target; this list is the profile's own layers.
+  expect((await manager.listBundles()).filter(bundle => bundle.installTarget === undefined)).toEqual([
     {
       name: 'core', version: '1.0.0', meta: { title: 'core' }, enabled: true, installed: false, optional: false,
+      official: false, availability: 'profile',
       audience: 'both', updatable: true, removable: false, readOnlyReason: 'management-required',
       rows: [{ rowId: 'manager', moduleName: 'cordis:manager', entryId: 'include:manager' }], overrides: [],
     },
     {
       name: 'extra', version: '1.0.0', meta: { title: 'extra' }, enabled: true, installed: true, optional: false,
+      official: false, availability: 'profile',
       audience: 'both', updatable: true, removable: true, source: 'extra@1.0.0',
       rows: [{ rowId: 'managed', moduleName: pathToFileURL(join(dir, 'node_modules', 'extra', 'plugin.mjs')).href, entryId: 'include:managed' }], overrides: [],
     },
@@ -177,6 +180,7 @@ it('describes a bundle by its manifest and patch: one-liner, rows without a live
   expect((await manager.listBundles()).find(row => row.name === 'described')).toEqual({
     name: 'described', version: '2.0.0', meta: { title: 'described', description: 'Describes itself.' },
     description: 'Describes itself.', source: 'described@2.0.0', enabled: false, installed: true, optional: false,
+    official: false, availability: 'profile',
     audience: 'both', updatable: true, removable: true,
     rows: [{ rowId: 'described-row', moduleName }], overrides: ['managed'],
   })
@@ -527,10 +531,11 @@ it('reports a selected plain dependency as a problem, omits an unselected one, a
   writeFileSync(join(dir, 'node_modules', 'core', 'package.json'), '{"name":"core","qilin":{"bundle":{"patch":"./cordis.patch.yml"}}}')
   expect((await manager.listBundles())[0]?.version).toBeUndefined()
   writeFileSync(join(dir, 'package.json'), '{}')
-  expect(await manager.listBundles()).toEqual([])
+  // Only the offline catalog entries remain once the profile declares nothing.
+  expect((await manager.listBundles()).filter(row => row.installTarget === undefined)).toEqual([])
   expect(await manager.setBundleEnabled('unknown', false)).toMatchObject({ application: 'failed' })
   writeFileSync(profile.installAnchor, '{"dependencies":{"missing-builtin":"1"}}')
-  expect(await manager.listBundles()).toEqual([])
+  expect((await manager.listBundles()).filter(row => row.installTarget === undefined)).toEqual([])
 })
 
 it('refuses management bundle disablement and permits repeated bundle selections', async () => {
@@ -958,6 +963,7 @@ it('offers the launcher\'s optional bundles switched off and never removable', a
   expect((await manager.listBundles()).find(row => row.name === offered)).toEqual({
     name: offered, version: '3.0.0', meta: { title: offered, description: 'Package one-liner.' },
     description: 'Package one-liner.',
+    official: true, availability: 'installation',
     audience: 'both', enabled: false, installed: false, optional: true, updatable: true, removable: false,
     rows: [{ rowId: 'offered-row', moduleName: pathToFileURL(join(supplied, 'plugin.mjs')).href }], overrides: [],
   })
@@ -1045,6 +1051,9 @@ it('compares every manageable layer with its registry latest tag and tolerates a
       { name: 'extra', currentVersion: '1.0.0', latestVersion: null },
       { name: 'retired', currentVersion: null, latestVersion: null },
       { name: 'offline', currentVersion: '1.0.0', latestVersion: null },
+      // The offline Official catalog entries have no installed version to compare.
+      { name: '@qilin-agent/subagent-claude-code', currentVersion: null, latestVersion: null },
+      { name: '@qilin-agent/subagent-codex', currentVersion: null, latestVersion: null },
     ],
   })
   expect(fetch.mock.calls.map(call => String(call[0]))).toEqual([
@@ -1052,6 +1061,8 @@ it('compares every manageable layer with its registry latest tag and tolerates a
     'https://registry.npmjs.org/-/package/extra/dist-tags',
     'https://registry.npmjs.org/-/package/retired/dist-tags',
     'https://registry.npmjs.org/-/package/offline/dist-tags',
+    'https://registry.npmjs.org/-/package/%40qilin-agent%2Fsubagent-claude-code/dist-tags',
+    'https://registry.npmjs.org/-/package/%40qilin-agent%2Fsubagent-codex/dist-tags',
   ])
 })
 
