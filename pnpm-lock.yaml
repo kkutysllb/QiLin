@@ -9527,6 +9527,9 @@ importers:
       compression:
         specifier: ^1.8.1
         version: 1.8.2(supports-color@9.4.0)
+      ipaddr.js:
+        specifier: ^2.5.0
+        version: 2.5.0
       negotiator:
         specifier: ^1.0.0
         version: 1.1.0
@@ -9540,6 +9543,9 @@ importers:
       '@types/negotiator':
         specifier: ^0.6.5
         version: 0.6.5
+      selfsigned:
+        specifier: ^4.0.1
+        version: 4.0.1
 
   packages/identity/accounts-local:
     dependencies:
@@ -20369,6 +20375,10 @@ packages:
     resolution: {integrity: sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
+  node-forge@1.4.0:
+    resolution: {integrity: sha512-LarFH0+6VfriEhqMMcLX2F7SwSXeWwnEAJEsYm5QKWchiVYVvJyV9v7UDvUv+w5HO23ZpQTXDv/GxdDdMyOuoQ==}
+    engines: {node: '>= 6.13.0'}
+
   node-int64@0.4.0:
     resolution: {integrity: sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==}
 
@@ -20907,6 +20917,10 @@ packages:
 
   secure-compare@3.0.1:
     resolution: {integrity: sha512-AckIIV90rPDcBcglUwXPF3kg0P0qmPsPXAj6BBEENQE1p5yA1xfmDJzfi1Tappj37Pv2mVbKpL3Z1T+Nn7k1Qw==}
+
+  selfsigned@4.0.1:
+    resolution: {integrity: sha512-QVGzJryYPB7ctpYxoK4DDvH4kFf23wtBl0s6km/wN+JCWLqjutdyWaiXHwSg3B3ftDOFfu0B7FWRVNH0xNn6rw==}
+    engines: {node: '>=10'}
 
   semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
@@ -27318,6 +27332,8 @@ snapshots:
       fetch-blob: 3.2.0
       formdata-polyfill: 4.0.10
 
+  node-forge@1.4.0: {}
+
   node-int64@0.4.0: {}
 
   node-pty@1.2.0-beta.15(patch_hash=94e34c8fdd4fe4df852d2e5fc4d794e64db0b9548aebcf8fbaa2d9a8ebe886fd):
@@ -27909,6 +27925,10 @@ snapshots:
   search-insights@2.17.3: {}
 
   secure-compare@3.0.1: {}
+
+  selfsigned@4.0.1:
+    dependencies:
+      node-forge: 1.4.0
 
   semver@6.3.1: {}
 

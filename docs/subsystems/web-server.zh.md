@@ -29,12 +29,28 @@ interface WebRoute {
 ## 配置
 
 ```ts type-equiv
-/** Web server listen and response-compression config. */
+/** Web server listen, TLS, and response-compression config. */
 interface Config {
-  /** Listen host; the two supported values are loopback and all-interfaces. */
-  host: '127.0.0.1' | '0.0.0.0'
+  /**
+   * Listen address: a concrete IPv4 or IPv6 literal of one local interface.
+   * A loopback literal (any address in 127/8, `::1`, or a mapped form of
+   * either) keeps the server on this machine; any other literal serves the
+   * network that address belongs to, over plain HTTP unless `tls` is set. The
+   * unspecified address — IPv4 any, IPv6 any, and the IPv4-mapped forms of
+   * IPv4 any — is rejected at load: it would expose the port on every
+   * interface at once.
+   */
+  host: string
   /** Listen port; zero requests an OS-assigned port. */
   port: number
+  /**
+   * Serve HTTPS with this certificate and key instead of plain HTTP. Both files
+   * are read once, before the listener binds: an unreadable or empty file,
+   * invalid PEM, or a key that does not match the certificate rejects
+   * initialization rather than falling back to HTTP. Omitted listens over
+   * plain HTTP.
+   */
+  tls?: TlsConfig
   /** Response compression for socket-backed HTTP requests. @default 'none' */
   compression?: 'none' | 'gzip'
   /** Gzip DEFLATE level from 0 through 9. @default 1 */
@@ -55,11 +71,25 @@ interface Config {
 }
 ```
 
-`host` 只接受 `127.0.0.1`（默认姿态）和 `0.0.0.0`（刻意的网络暴露）。载体本身不拥有 TLS、认证或 Origin 策略，因此绑定到非回环地址会暴露服务器，除非组合层提供这些控制。`compression` 默认为 `none`；随附的 Web 组合选择 gzip level 1、1024 字节阈值和 `listenOn: settle`，因此端口要等整棵树 settle、每个路由所有者注册完毕后才打开。随附的 `qilin web` 命令选择 loopback 并拒绝 `--host 0.0.0.0`；其 Connection 插件为每个 Host API route 与 stream 提供 Host/Origin 校验和浏览器会话认证。其他组合自行拥有绑定与路由认证策略。dist 位置、index 路径与公开文档都是认领席位的前端插件的组装事实。
+```ts type-equiv
+/**
+ * TLS material for the HTTPS listener: one certificate chain file and the
+ * private key file it pairs with. Both hold PEM text and both resolve against
+ * the process working directory.
+ */
+interface TlsConfig {
+  /** Certificate chain file, leaf certificate first, PEM, no passphrase. */
+  certFile: string
+  /** Private key file for the chain's leaf certificate; unencrypted PEM. */
+  keyFile: string
+}
+```
+
+`host` 是一个具体接口字面量。回环字面量——`127/8` 内的任意地址、`::1`，或二者的映射形式——让服务器留在本机；其他任何字面量都会服务该地址所属的网络。未指定地址在装载期即被拒绝，因此「暴露所有接口」必须显式写出具体地址，而不是用通配符默认值。`tls` 给出 HTTPS 的证书链与私钥；省略时监听明文 HTTP。载体本身不拥有认证或 Origin 策略，因此绑定到非回环地址会暴露服务器，除非组合层提供这些控制。`compression` 默认为 `none`；随附的 Web 组合选择 gzip level 1、1024 字节阈值和 `listenOn: settle`，因此端口要等整棵树 settle、每个路由所有者注册完毕后才打开。随附的 `qilin web` 命令选择 loopback，通配地址由载体自身拒绝；其 Connection 插件为每个 Host API route 与 stream 提供 Host/Origin 校验和浏览器会话认证。其他组合自行拥有绑定与路由认证策略。dist 位置、index 路径与公开文档都是认领席位的前端插件的组装事实。
 
 ## 服务
 
-`WebServer`（`ctx.webServer`）在激活时立即监听；监听失败（EADDRINUSE 等）会使初始化被拒绝，启动进程会报告失败的 fiber。`register(route)` 添加一条具名路由并返回其 disposer；重复的 `(kind, path)` 抛出异常，因为路由模式是组合层约定，冲突即配置错误。Gzip 在服务器内部包装符合条件且基于 socket 的响应，因此 route handler 继续直接持有 `ServerResponse`，服务也不新增响应写出 API。已有内容编码、`Cache-Control: no-transform`、范围响应、SSE、ZIP 与打包后的 `.gz` Worker 镜像均保持 identity 响应。`collectIndexInjections()` 经一次 `webserver/index-inject` emit 收集结构化 `IndexInjection` 行，`renderIndex(html)` 把它们渲染进成功的根路径和配置 index 响应，随后再按注册顺序应用原始的 `tapIndex(transform)` 逃生口转换；[qilin-client-modules](../../packages/client/modules) 以启动 manifest（元数据清单）行回应该事件。`port` 读取监听端口，包括 `config.port` 为 0 时操作系统分配的端口。
+`WebServer`（`ctx.webServer`）在激活时立即监听；监听失败（EADDRINUSE 等）会使初始化被拒绝，启动进程会报告失败的 fiber。`tls` 这一对文件在监听器绑定前读取一次，因此不可读、为空、非法或不匹配都会以同样方式拒绝初始化，而不会回落到 HTTP。`register(route)` 添加一条具名路由并返回其 disposer；重复的 `(kind, path)` 抛出异常，因为路由模式是组合层约定，冲突即配置错误。Gzip 在服务器内部包装符合条件且基于 socket 的响应，因此 route handler 继续直接持有 `ServerResponse`，服务也不新增响应写出 API。已有内容编码、`Cache-Control: no-transform`、范围响应、SSE、ZIP 与打包后的 `.gz` Worker 镜像均保持 identity 响应。`collectIndexInjections()` 经一次 `webserver/index-inject` emit 收集结构化 `IndexInjection` 行，`renderIndex(html)` 把它们渲染进成功的根路径和配置 index 响应，随后再按注册顺序应用原始的 `tapIndex(transform)` 逃生口转换；[qilin-client-modules](../../packages/client/modules) 以启动 manifest（元数据清单）行回应该事件。`port` 读取监听端口，包括 `config.port` 为 0 时操作系统分配的端口。
 
 处理过程中抛出异常的请求（畸形的 % 转义撞上 `decodeURIComponent`、客户端在请求体中途断开）会记录为警告并应答 400（响应头已发出时则销毁 socket），绝不导致进程退出。dispose（资源释放）把 `close()` 与 `closeAllConnections()` 配对使用，因为处理器可能像 SSE（Server-Sent Events）那样保持响应打开，而这类连接永远不会自行结束；没有强制关闭，拆卸就会挂起。该包从不打印输出：URL 行归 shell 所有。逐包运维细节（含开发模式的 bundle 监视流水线）留在 [README](../../packages/host/webserver/README.zh.md) 中。
 
