@@ -53,14 +53,16 @@
     "@qilin-agent/client-test-runtime": "workspace:*",
     "@qilin-agent/client-ui-conversation": "workspace:*",
     "@qilin-agent/client-ui-primitives": "workspace:*",
-    "@qilin-agent/client-ui-slots": "workspace:*",
-    "@types/react": "~18.3.1",
-    "@qilin-agent/kylin": "workspace:~",
-    "react": "^18.2.0",
     "@qilin-agent/client-ui-renderer": "workspace:*",
     "@qilin-agent/client-ui-session": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
     "@qilin-agent/jobs": "workspace:*",
-    "@qilin-agent/session": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/session": "workspace:*",
+    "@types/react": "~18.3.1",
+    "@types/react-dom": "~18.3.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "files": [
     "lib/index.js",
