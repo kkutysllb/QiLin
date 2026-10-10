@@ -56,7 +56,7 @@ export class TranscriptViewPolicy {
     if (section === undefined) return
     const saved = section.transcriptView
     const mode = saved === LEGACY_TRANSCRIPT_VIEW_MODE || saved === LEGACY_EXPANDED_TRANSCRIPT_VIEW_MODE
-      ? 'detailed' : saved ?? this.defaultMode
+      ? 'detailed' : saved
     if (this.mode.getSnapshot() !== mode) this.mode.set(mode)
   }
 }

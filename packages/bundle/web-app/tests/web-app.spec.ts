@@ -178,7 +178,7 @@ describe('web-app runtime glue', () => {
     // rather than letting every URL consumer fail later.
     const zoned = new Context()
     zoned.provide('webServer', fakeHttpServer('fe80::1%lo').server)
-    expect(() => apply(zoned, new Config({ label: 'qilin web', openBrowser: false, printUrl: false, surfaceContext: false })))
+    expect(() => { apply(zoned, new Config({ label: 'qilin web', openBrowser: false, printUrl: false, surfaceContext: false })) })
       .toThrow(/carries an interface zone id/u)
     await zoned.fiber.dispose()
   })
