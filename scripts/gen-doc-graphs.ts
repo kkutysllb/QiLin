@@ -157,6 +157,15 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'One Session projection owns the effective execution directory. The filesystem validates changes; user context reports them while original metadata and write grants stay fixed.',
   },
   {
+    key: 'worktrees',
+    pkg: 'experimental-worktree',
+    title: 'Git worktree creation',
+    mode: 'seam',
+    implementations: ['experimental-worktree'],
+    consumers: ['experimental-tool-worktree'],
+    note: 'Explicit experimental creation from a pinned local commit. Existing write permissions govern checkout and shared Git metadata; the working-directory service owns the resulting Session directory.',
+  },
+  {
     key: 'mcpResources',
     pkg: 'mcp-resources',
     title: 'Scoped MCP resource access',

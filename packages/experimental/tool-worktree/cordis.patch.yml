@@ -1,0 +1,5 @@
+- insert:
+    - id: worktree
+      name: '@qilin-agent/experimental-worktree'
+    - id: tool-worktree
+      name: '@qilin-agent/experimental-tool-worktree'

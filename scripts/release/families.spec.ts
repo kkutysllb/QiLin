@@ -76,11 +76,13 @@ describe('release families', () => {
       '@qilin-agent/experimental-tool-ralph',
       '@qilin-agent/experimental-tool-session-query',
       '@qilin-agent/experimental-tool-terminal',
+      '@qilin-agent/experimental-tool-worktree',
       '@qilin-agent/experimental-voice-input-bundle',
       '@qilin-agent/experimental-webhook-github',
       '@qilin-agent/experimental-webhook',
       '@qilin-agent/experimental-webworker-packer',
       '@qilin-agent/experimental-webworker-runtime',
+      '@qilin-agent/experimental-worktree',
     ])
   })
 

@@ -301,6 +301,8 @@
       "@qilin-agent/experimental-tool-ralph": ["./packages/experimental/tool-ralph/src"],
       "@qilin-agent/experimental-tool-session-query": ["./packages/experimental/tool-session-query/src"],
       "@qilin-agent/experimental-tool-terminal": ["./packages/experimental/tool-terminal/src"],
+      "@qilin-agent/experimental-worktree": ["./packages/experimental/worktree/src"],
+      "@qilin-agent/experimental-tool-worktree": ["./packages/experimental/tool-worktree/src"],
       "@qilin-agent/experimental-webhook": ["./packages/experimental/webhook/src"],
       "@qilin-agent/experimental-webhook-github": ["./packages/experimental/webhook-github/src"],
       "@qilin-agent/experimental-webworker-runtime": ["./packages/experimental/webworker-runtime/src"],

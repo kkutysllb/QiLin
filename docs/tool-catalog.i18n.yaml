@@ -9,8 +9,8 @@
   en: dd81e27c4521158a
   zh: 01417e2b5c61928a
 /tool-schema-catalog/tool-package-map:
-  en: 6c9b715537225859
-  zh: fc11b2028f6c3368
+  en: bea26d4b683620e8
+  zh: 68c248225d233b6a
 /tool-schema-catalog/qilin-agent-plugin-manager:
   en: 45c8b03d92db06ad
   zh: 45c8b03d92db06ad
@@ -294,8 +294,14 @@
   en: c46813f3db09f3b0
   zh: c46813f3db09f3b0
 /tool-schema-catalog/qilin-agent-tool-working-directory/working-directory:
-  en: 9c172dbe6519d7cb
-  zh: 0f0fb36314824fe0
+  en: 98ef5843aa4a679f
+  zh: 5e5f4390623b0b68
+/tool-schema-catalog/qilin-agent-experimental-tool-worktree:
+  en: fd82a5eb874c73d0
+  zh: fd82a5eb874c73d0
+/tool-schema-catalog/qilin-agent-experimental-tool-worktree/create-worktree:
+  en: e4b919698295cf42
+  zh: 2bf48872de46fedd
 /tool-schema-catalog/qilin-agent-tool-workflow:
   en: 906222c95f62f5c4
   zh: 906222c95f62f5c4

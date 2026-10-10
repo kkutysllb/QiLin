@@ -225,6 +225,9 @@ importers:
       '@qilin-agent/experimental-schedule-bundle':
         specifier: workspace:*
         version: link:../../packages/experimental/schedule-bundle
+      '@qilin-agent/experimental-tool-worktree':
+        specifier: workspace:*
+        version: link:../../packages/experimental/tool-worktree
       '@qilin-agent/experimental-voice-input-bundle':
         specifier: workspace:*
         version: link:../../packages/experimental/voice-input-bundle
@@ -8443,6 +8446,58 @@ importers:
         specifier: workspace:*
         version: link:../../core/tools
 
+  packages/experimental/tool-worktree:
+    dependencies:
+      '@qilin-agent/experimental-worktree':
+        specifier: workspace:*
+        version: link:../worktree
+    devDependencies:
+      '@qilin-agent/agent':
+        specifier: workspace:*
+        version: link:../../core/agent
+      '@qilin-agent/agent-loop':
+        specifier: workspace:*
+        version: link:../../core/agent-loop
+      '@qilin-agent/fs-local':
+        specifier: workspace:*
+        version: link:../../fs/fs-local
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/kylin-plugin-include':
+        specifier: workspace:~
+        version: link:../../../vendor/include
+      '@qilin-agent/kylin-plugin-loader':
+        specifier: workspace:~
+        version: link:../../../vendor/loader
+      '@qilin-agent/llm':
+        specifier: workspace:*
+        version: link:../../llm/llm
+      '@qilin-agent/sandbox-local':
+        specifier: workspace:*
+        version: link:../../sandbox/sandbox-local
+      '@qilin-agent/sandbox-policy':
+        specifier: workspace:*
+        version: link:../../sandbox/sandbox-policy
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/session-projection':
+        specifier: workspace:*
+        version: link:../../session/session-projection
+      '@qilin-agent/subprocess-local':
+        specifier: workspace:*
+        version: link:../../subprocess/subprocess-local
+      '@qilin-agent/system-prompt':
+        specifier: workspace:*
+        version: link:../../core/system-prompt
+      '@qilin-agent/tools':
+        specifier: workspace:*
+        version: link:../../core/tools
+      '@qilin-agent/working-directory':
+        specifier: workspace:*
+        version: link:../../session/working-directory
+
   packages/experimental/voice-input-bundle:
     dependencies:
       '@qilin-agent/experimental-api-speech-to-text':
@@ -8660,6 +8715,58 @@ importers:
       chokidar:
         specifier: ^5.0.0
         version: 5.0.0
+
+  packages/experimental/worktree:
+    dependencies:
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+      '@qilin-agent/timeout':
+        specifier: workspace:*
+        version: link:../../util/timeout
+    devDependencies:
+      '@qilin-agent/agent':
+        specifier: workspace:*
+        version: link:../../core/agent
+      '@qilin-agent/agent-loop-testkit':
+        specifier: workspace:*
+        version: link:../../test-support/agent-loop-testkit
+      '@qilin-agent/fs':
+        specifier: workspace:*
+        version: link:../../fs/fs
+      '@qilin-agent/fs-local':
+        specifier: workspace:*
+        version: link:../../fs/fs-local
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/sandbox':
+        specifier: workspace:*
+        version: link:../../sandbox/sandbox
+      '@qilin-agent/sandbox-local':
+        specifier: workspace:*
+        version: link:../../sandbox/sandbox-local
+      '@qilin-agent/sandbox-policy':
+        specifier: workspace:*
+        version: link:../../sandbox/sandbox-policy
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/session-projection':
+        specifier: workspace:*
+        version: link:../../session/session-projection
+      '@qilin-agent/subprocess':
+        specifier: workspace:*
+        version: link:../../subprocess/subprocess
+      '@qilin-agent/subprocess-local':
+        specifier: workspace:*
+        version: link:../../subprocess/subprocess-local
+      '@qilin-agent/system-prompt':
+        specifier: workspace:*
+        version: link:../../core/system-prompt
+      '@qilin-agent/working-directory':
+        specifier: workspace:*
+        version: link:../../session/working-directory
 
   packages/extensions/kylin-client-runner:
     devDependencies:

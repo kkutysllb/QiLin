@@ -294,6 +294,7 @@ export const OPTIONAL_BUNDLES: readonly string[] = [
   '@qilin-agent/experimental-auto-review',
   '@qilin-agent/experimental-schedule-bundle',
   '@qilin-agent/experimental-inspector-profile',
+  '@qilin-agent/experimental-tool-worktree',
 ]
 
 const PROFILE_PATCH_TEMPLATE = `# Your patch layer for this qilin profile, applied after every bundle layer:

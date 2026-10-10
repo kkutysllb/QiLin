@@ -815,7 +815,7 @@ describe('persistence changes current-tree commands', () => {
       '/** Stored event payloads. */', 'export interface SessionEventMap {', '/** Saved value. */',
       "'example/value': { value: string }", '}', '/** Surface event names. */', "export type SurfaceEventType = 'example/value'",
       '/** Persisted event names. */', 'export type SessionEventType = keyof SessionEventMap',
-      '/** Surface placement. */', "export type SurfaceOp = 'append'", '/** Persisted event. */',
+      '/** Surface placement. */', "export type SurfaceOp = 'append'", '/** Plugin record ownership. */', 'export interface PluginRecordMap {}', '/** Persisted event. */',
       'export type SessionEvent<K extends keyof SessionEventMap = keyof SessionEventMap> =',
       '  { [P in K]: { type: P; seq: number; data: SessionEventMap[P]; surfaceOp: SurfaceOp } }[K]', '',
     ].join('\n')

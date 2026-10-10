@@ -204,8 +204,10 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/experimental-tool-ralph` | yes | Model-facing fresh-agent Ralph loop over the workflow and subagent seams |
 | `@qilin-agent/experimental-tool-session-query` | yes | Workspace-authorized model-facing session history search, trace, and event read tools |
 | `@qilin-agent/experimental-tool-terminal` | yes | Six model-facing persistent PTY tools with owner isolation and generic background-job integration |
+| `@qilin-agent/experimental-tool-worktree` | no | Model tool that creates and enters a new Git worktree |
 | `@qilin-agent/experimental-webhook` | no | Fire-and-forget webhook rule runtime that creates Workspace-backed QiLin Sessions |
 | `@qilin-agent/experimental-webhook-github` | yes | Signed GitHub HTTP webhook adapter for the QiLin webhook runtime |
+| `@qilin-agent/experimental-worktree` | yes | Git worktree creation that enters the new checkout through the Session working directory |
 
 ## extensions
 
@@ -368,6 +370,8 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/session-title` | yes | Log-backed session title service and provider registry for the QiLin |
 | `@qilin-agent/session-title-first-prompt-llm` | yes | First-message LLM provider plugin for QiLin session titles |
 | `@qilin-agent/session-turn-outline` | no | Whole-log turn outline projection (turnOutline) for the QiLin |
+| `@qilin-agent/tool-working-directory` | no | Read and change the active Session working directory |
+| `@qilin-agent/working-directory` | yes | Session working directories with durable changes and model context |
 
 ## session-query
 

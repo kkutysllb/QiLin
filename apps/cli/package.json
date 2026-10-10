@@ -49,6 +49,7 @@
     "@qilin-agent/experimental-auto-review": "workspace:*",
     "@qilin-agent/experimental-inspector-profile": "workspace:*",
     "@qilin-agent/experimental-schedule-bundle": "workspace:*",
+    "@qilin-agent/experimental-tool-worktree": "workspace:*",
     "@qilin-agent/experimental-voice-input-bundle": "workspace:*",
     "@qilin-agent/fs-local": "workspace:*",
     "@qilin-agent/goal": "workspace:*",

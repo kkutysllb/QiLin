@@ -327,6 +327,8 @@
     { "path": "./packages/credentials/credentials-local" },
     { "path": "./packages/credentials/authorization" },
     { "path": "./packages/experimental/tool-session-query" },
+    { "path": "./packages/experimental/worktree" },
+    { "path": "./packages/experimental/tool-worktree" },
     { "path": "./packages/storage/storage" },
     { "path": "./packages/storage/storage-json" },
     { "path": "./packages/storage/storage-sqlite" },

@@ -2331,6 +2331,16 @@
       "doc": "docs/subsystems/schedule.md",
       "symbol": "ScheduleUpdateResult",
       "source": "packages/schedule/schedule/src/types.ts"
+    },
+    {
+      "doc": "docs/subsystems/worktrees.md",
+      "symbol": "CreateWorktreeRequest",
+      "source": "packages/experimental/worktree/src/types.ts"
+    },
+    {
+      "doc": "docs/subsystems/worktrees.md",
+      "symbol": "CreatedWorktree",
+      "source": "packages/experimental/worktree/src/types.ts"
     }
   ]
 }

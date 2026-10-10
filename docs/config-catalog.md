@@ -1265,6 +1265,35 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/experimental-webhook-github -->
 
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-worktree -->
+<a id="qilin-agentexperimental-worktree"></a>
+
+## `@qilin-agent/experimental-worktree`
+
+- `inject`: `workingDirectory` · `fs` · `subprocess` · `sandbox` · `sandboxPolicy`
+- `source`: [`packages/experimental/worktree/src/index.ts:19`](../packages/experimental/worktree/src/index.ts)
+
+```ts config-catalog
+/** Worktree location, generated names, executables, and subprocess resource limits. */
+export interface Config {
+  /** Relative checkout pool inside the source repository. */
+  directory?: string
+  /** Prefix for automatically generated branch and checkout names. */
+  namePrefix?: string
+  /** Git 2.45 or newer executable name or absolute execution-world path. */
+  gitCommand?: string
+  /** Node executable used for sandboxed directory allocation. */
+  nodeCommand?: string
+  /** Deadline in milliseconds for one command. */
+  timeoutMs?: number
+  /** Subprocess termination grace in milliseconds. */
+  graceMs?: number
+  /** Maximum captured bytes per subprocess output stream. */
+  maxOutputBytes?: number
+}
+```
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-worktree -->
+
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/file-reference-local -->
 <a id="qilin-agentfile-reference-local"></a>
 
@@ -4378,6 +4407,7 @@ These load from a `cordis.yml` entry with no `config:` block; they declare no co
 | `@qilin-agent/experimental-computer-use-cua-driver-native` | `computerUse` · `tools` · `systemPrompt` | [`packages/experimental/computer-use-cua-driver-native/src/index.ts`](../packages/experimental/computer-use-cua-driver-native/src/index.ts) |
 | `@qilin-agent/experimental-session-inspector` | — | [`packages/experimental/session-inspector/src/index.ts`](../packages/experimental/session-inspector/src/index.ts) |
 | `@qilin-agent/experimental-skill-badge` | `skills` | [`packages/experimental/skill-badge/src/index.ts`](../packages/experimental/skill-badge/src/index.ts) |
+| `@qilin-agent/experimental-tool-worktree` | `tools` · `worktrees` | [`packages/experimental/tool-worktree/src/index.ts`](../packages/experimental/tool-worktree/src/index.ts) |
 | `@qilin-agent/experimental-webhook` | `agents` · `agentDefaultModel` · `agentPresets` · `permissionPresets` · `sessionTitle` · `workspaceRegistry` | [`packages/experimental/webhook/src/index.ts`](../packages/experimental/webhook/src/index.ts) |
 | `@qilin-agent/fs-observation-policy` | — | [`packages/fs/fs-observation-policy/src/index.ts`](../packages/fs/fs-observation-policy/src/index.ts) |
 | `@qilin-agent/fs-ssh` | `ssh` · `sandboxPolicy` | [`packages/ssh/fs-ssh/src/index.ts`](../packages/ssh/fs-ssh/src/index.ts) |

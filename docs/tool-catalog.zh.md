@@ -47,6 +47,7 @@
 | `@qilin-agent/experimental-tool-agent-team` | `interrupt_agent`、`list_agents`、`send_message`、`spawn_teammate`、`team_task_create`、`team_task_get`、`team_task_list`、`team_task_update`、`wait_agent` | `ctx.tools`、`ctx.systemPrompt`、`ctx.agentTeams`、`an exact live Team member Agent` | `tool/call`、`team/member`、`team/message/queued`、`team/message/delivered`、`team/task`、`tool/result` | - | 这 9 个工具限定于隐式 Team Lead 与持久 teammate 作用域。随产品发布的 qilin-base bundle 默认禁用该包；文档中的 Agent Teams profile patch 会启用它，并禁用旧 continuable child 的同名控制工具。 |
 | `@qilin-agent/tool-todo` | `todo_write` | `ctx.tools`、`owning Agent session` | `tool/call`、`todo/write`、`tool/result` | - | todo_write 是会话所有的状态；UI 将最新的 todo/write 事件渲染为检查清单。`allowParallelInProgress` 是没有默认值的必填项，因此本目录明确选择 `true`，对应描述允许同时存在多个 `in_progress` 项。选择 `false` 的部署会获得同一工具，但描述会要求只能有 1 个活动任务。 |
 | `@qilin-agent/tool-working-directory` | `working_directory` | `ctx.tools`、`ctx.workingDirectory` | `tool/call`、`working-directory/change`、`user context for directory changes`、`tool/result` | - | 读取或切换发起调用的 Session 目录。已存在的 shell 与进程保留各自的目录；来源元数据与权限根保持不变。 |
+| `@qilin-agent/experimental-tool-worktree` | `create_worktree` | `ctx.tools`、`ctx.worktrees`、`a calling Agent (exec.agent selects the source repository)` | `tool/call`、`working-directory/change on success`、`tool/result` | - | 在发起调用的 Session 文件策略下创建并进入新的 Git 分支与检出目录；离开后检出目录与分支会保留。 |
 | `@qilin-agent/tool-workflow` | `workflow` | `ctx.tools`、`ctx.workflowEngine`、`ctx.systemPrompt`、`a calling Agent (exec.agent parents the script children)` | `tool/call`、`tool/result` | - | - |
 | `@qilin-agent/tool-workspace-dependencies` | `load_workspace_dependencies` | `ctx.tools` | `tool/call`、`tool/result` | - | - |
 | `@qilin-agent/tool-web` | `web_fetch`、`web_search` | `ctx.tools`、`ctx.web`、`ctx.systemPrompt` | `tool/call`、`tool/result` | - | web_search 和 web_fetch 将提供方选择置于 ctx.web 之后，使模型可见 schema 在更换后端时保持稳定。 |
@@ -2588,6 +2589,34 @@ todo_write 是会话所有的状态；UI 将最新的 todo/write 事件渲染为
 来源：[`packages/session/tool-working-directory/src/index.ts`](../packages/session/tool-working-directory/src/index.ts)
 
 读取或切换发起调用的 Session 目录。已存在的 shell 与进程保留各自的目录；来源元数据与权限根保持不变。
+
+<a id="qilin-agentexperimental-tool-worktree"></a>
+
+## `@qilin-agent/experimental-tool-worktree`
+
+### `create_worktree`
+
+从本地提交、分支或标签创建新的 Git 分支与工作树，并将会话的工作目录切换到该工作树。默认使用 HEAD 与自动生成的名称。未提交的文件留在源检出目录中。已存在的名称会失败。使用带 cd 的 working_directory 离开；检出目录与分支会保留。
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "New branch name, also used as the checkout directory. Omit to generate a unique name."
+    },
+    "from": {
+      "type": "string",
+      "description": "Local commit, branch, or tag to start from. Defaults to HEAD; no fetch is performed."
+    }
+  }
+}
+```
+
+来源：[`packages/experimental/tool-worktree/src/index.ts`](../packages/experimental/tool-worktree/src/index.ts)
+
+在发起调用的 Session 文件策略下创建并进入新的 Git 分支与检出目录；离开后检出目录与分支会保留。
 
 <a id="qilintool-workflow"></a>
 

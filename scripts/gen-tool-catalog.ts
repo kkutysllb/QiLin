@@ -67,6 +67,7 @@ import type TeamService from '@qilin-agent/experimental-agent-team'
 import * as ToolTeam from '@qilin-agent/experimental-tool-agent-team'
 import * as ToolTodo from '@qilin-agent/tool-todo'
 import * as ToolWorkingDirectory from '@qilin-agent/tool-working-directory'
+import * as ToolWorktree from '@qilin-agent/experimental-tool-worktree'
 import type PluginManager from '@qilin-agent/plugin-manager'
 import * as PluginManagerTools from '@qilin-agent/plugin-manager/tools'
 import SandboxPolicy from '@qilin-agent/sandbox-policy'
@@ -639,6 +640,21 @@ const TOOL_PACKAGES: ToolPackage[] = [
       await ctx.plugin(ToolWorkingDirectory)
     },
     note: 'Reads or changes the calling Session directory. Existing shells and processes retain their own directories; origin metadata and permission roots stay fixed.',
+  },
+  {
+    pkg: '@qilin-agent/experimental-tool-worktree',
+    dir: 'tool-worktree',
+    source: 'packages/experimental/tool-worktree/src/index.ts',
+    requires: ['ctx.tools', 'ctx.worktrees', 'a calling Agent (exec.agent selects the source repository)'],
+    writes: ['tool/call', 'working-directory/change on success', 'tool/result'],
+    async mount(ctx) {
+      // Schema harvest never creates a checkout; the runtime seam refuses.
+      ctx.provide('worktrees', {
+        create: () => Promise.reject(new Error('gen-tool-catalog: worktree creation is unreachable during schema harvest')),
+      } as never)
+      await ctx.plugin(ToolWorktree)
+    },
+    note: 'Creates and enters a new Git branch and checkout under the calling Session file policy; the checkout and branch are retained after leaving.',
   },
   {
     pkg: '@qilin-agent/tool-workflow',

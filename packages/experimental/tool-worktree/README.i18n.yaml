@@ -1,0 +1,46 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/experimental/tool-worktree/README.md
+/:
+  en: 7c7c8316f315eee0
+  zh: dfd3abcef256029e
+/qilin-agent-experimental-tool-worktree:
+  en: 95bb9750d46223a2
+  zh: 1f5a67ad9edc068b
+/qilin-agent-experimental-tool-worktree/summary:
+  en: 9d0592987b0c88e0
+  zh: 28daa85ec66606b5
+/qilin-agent-experimental-tool-worktree/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 2f8a621b991260a1
+/qilin-agent-experimental-tool-worktree/use-this-package:
+  en: 01d78fdbaed44562
+  zh: b16d4faebf8bb127
+/qilin-agent-experimental-tool-worktree/understand-the-implementation:
+  en: c03f875211ab69a8
+  zh: 8f49b82f90a60223
+/qilin-agent-experimental-tool-worktree/further-exploration:
+  en: 47495a42c40bdc10
+  zh: 9c8d7f99a2e754ef
+/qilin-agent-experimental-tool-worktree/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-agent-experimental-tool-worktree/model-experience/creation-tool:
+  en: 4062fcaa4794bed7
+  zh: b56d35fc675fc430
+/qilin-agent-experimental-tool-worktree/model-experience/creation-tool/what-the-model-sees:
+  en: bd5da2b0b7cfb83d
+  zh: 652a4f0c160c81fd
+/qilin-agent-experimental-tool-worktree/model-experience/creation-tool/token-effect:
+  en: 6c3f73ba01233a36
+  zh: d64d87a425db4fbd
+/qilin-agent-experimental-tool-worktree/model-experience/creation-tool/kv-cache-effect:
+  en: 365f8ccedfa61bbb
+  zh: aa328044ba2528b8
+/qilin-agent-experimental-tool-worktree/known-limitations-and-deferred-work:
+  en: 4f5c0eec7f1a4028
+  zh: 628d2d481d39ffc3
+/qilin-agent-experimental-tool-worktree/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98
