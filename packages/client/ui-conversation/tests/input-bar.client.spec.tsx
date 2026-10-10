@@ -339,6 +339,56 @@ describe('composer placeholder visibility', () => {
 })
 
 describe('image draft rail', () => {
+  const CONTINUABLE_CHILD = {
+    address: { parentSessionId: 'parent' as SessionId, childSessionId: SID, mode: 'continuable' as const },
+    parentAvailable: true,
+  }
+
+  it.each([false, true])('accepts pasted and dropped images for a continuable child (running=%s)', async (running) => {
+    const addFiles = vi.fn(() => null)
+    const { textarea, shell, slotCalls } = bench({ subagent: CONTINUABLE_CHILD, running, addFiles })
+    const image = new File([Uint8Array.of(1, 2, 3)], 'pixel.png', { type: 'image/png' })
+    fireEvent.paste(textarea, {
+      clipboardData: {
+        items: [{ kind: 'file', type: image.type, getAsFile: () => image }],
+        getData: () => '一起发送的文字',
+      },
+    })
+    expect(addFiles).toHaveBeenCalledWith([image])
+    await vi.waitFor(() => { expect(shell.snapshot.draft).toBe('一起发送的文字') })
+    expect(attachmentOwner(slotCalls).canAcceptDrop).toBe(true)
+    act(() => { attachmentOwner(slotCalls).onAddFiles([image]) })
+    expect(addFiles).toHaveBeenCalledTimes(2)
+    // This fix restores paste/drop independently of the menu's picker policy.
+    expect(shell.canPickFiles()).toBe(false)
+  })
+
+  it.each([
+    ['a generic file', new File(['text'], 'notes.txt', { type: 'text/plain' })],
+    ['an unsupported image', new File(['<svg/>'], 'drawing.svg', { type: 'image/svg+xml' })],
+  ])('refuses the entire child attachment batch containing %s', (_name, unsupported) => {
+    const addFiles = vi.fn(() => null)
+    const { slotCalls, view, shell } = bench({ subagent: CONTINUABLE_CHILD, addFiles, draft: '保留草稿' })
+    const image = new File([Uint8Array.of(1)], 'pixel.png', { type: 'image/png' })
+    act(() => { attachmentOwner(slotCalls).onAddFiles([image, unsupported]) })
+    expect(addFiles).not.toHaveBeenCalled()
+    expect(view.getByRole('alert').textContent).toContain('仅支持 PNG、JPG、WebP、GIF 格式的图片')
+    expect(shell.snapshot.draft).toBe('保留草稿')
+  })
+
+  it.each([
+    ['an offline parent', { ...CONTINUABLE_CHILD, parentAvailable: false }],
+    ['a one-shot child', { ...CONTINUABLE_CHILD, address: { ...CONTINUABLE_CHILD.address, mode: 'one-shot' as const } }],
+  ])('keeps attachment intake closed for %s', (_name, subagent) => {
+    const addFiles = vi.fn(() => null)
+    const { slotCalls } = bench({ subagent, addFiles })
+    expect(attachmentOwner(slotCalls).canAcceptDrop).toBe(false)
+    act(() => {
+      attachmentOwner(slotCalls).onAddFiles([new File([Uint8Array.of(1)], 'pixel.png', { type: 'image/png' })])
+    })
+    expect(addFiles).not.toHaveBeenCalled()
+  })
+
   it('collects clipboard files while preserving text from a mixed paste', async () => {
     const addFiles = vi.fn(() => null)
     const { textarea, shell } = bench({ addFiles })
@@ -355,6 +405,23 @@ describe('image draft rail', () => {
     expect(addFiles).toHaveBeenCalledWith([image])
     // The paste lands inside the PASTE_COMMAND update; its commit is a microtask away.
     await vi.waitFor(() => { expect(shell.snapshot.draft).toBe('同时粘贴的文字') })
+  })
+
+  it('pre-checks projected image limits for a continuable child too', () => {
+    const addFiles = vi.fn(() => null)
+    const limits = {
+      maxImageBytes: 1024 * 1024,
+      maxImagesPerMessage: 1,
+      maxMessageImageBytes: 2 * 1024 * 1024,
+      maxImagePixels: 40_000_000,
+      maxImageDimension: 2000,
+      mediaTypes: ['image/png'] as const,
+    }
+    const { slotCalls, view } = bench({ subagent: CONTINUABLE_CHILD, addFiles, imageLimits: limits })
+    const png = (name: string) => new File([new ArrayBuffer(8)], name, { type: 'image/png' })
+    act(() => { attachmentOwner(slotCalls).onAddFiles([png('a.png'), png('b.png')]) })
+    expect(view.getByRole('alert').textContent).toContain('一条消息最多添加 1 张图片')
+    expect(addFiles).not.toHaveBeenCalled()
   })
 
   it('pre-checks projected limits at intake: whole-batch refusal with product copy, none added', () => {
@@ -976,7 +1043,9 @@ describe('running and lock semantics', () => {
     expect(interruptButton).not.toBeNull()
     expect(textarea.getAttribute('aria-disabled')).not.toBe('true')
     expect(view.container.querySelector<HTMLInputElement>('input[type="file"]')?.disabled).toBe(true)
-    expect(attachmentOwner(slotCalls).canAcceptDrop).toBe(false)
+    // Image paste and drop stay open for a continuable child even while the
+    // picker action is refused.
+    expect(attachmentOwner(slotCalls).canAcceptDrop).toBe(true)
     const click = vi.spyOn(HTMLInputElement.prototype, 'click')
     onTestFinished(() => { click.mockRestore() })
     expect(shell.canPickFiles()).toBe(false)
