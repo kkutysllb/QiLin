@@ -2,7 +2,11 @@
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "extends": ["./.oxlintrc.json"],
   "options": {
-    "typeAware": false
+    // This lane omits type information, so a directive that suppresses a
+    // type-aware rule produces no diagnostic to observe and reads as unused.
+    // The full-config lane owns directive freshness.
+    "typeAware": false,
+    "reportUnusedDisableDirectives": "off"
   },
   "ignorePatterns": [
     "**/lib/**",
