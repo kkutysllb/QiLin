@@ -25,14 +25,6 @@ vi.mock('node:child_process', async importOriginal => ({
   spawn: vi.fn(),
 }))
 
-vi.mock('node:os', async importOriginal => ({
-  ...await importOriginal<typeof import('node:os')>(),
-  networkInterfaces: () => ({
-    lo0: [{ family: 'IPv4', internal: true, address: '127.0.0.1' }],
-    en0: [{ family: 'IPv4', internal: false, address: '192.168.1.5' }],
-  }),
-}))
-
 let dist: string | undefined
 
 beforeEach(() => {
@@ -71,7 +63,7 @@ function stageDist(): string {
 }
 
 /** A fake webServer capturing the fallback seat and index taps. */
-function fakeHttpServer(host: '127.0.0.1' | '0.0.0.0' = '127.0.0.1'): { server: WebServer; seat: () => unknown } {
+function fakeHttpServer(host: string = '127.0.0.1'): { server: WebServer; seat: () => unknown } {
   let fallback: unknown
   const server = {
     host,
@@ -116,7 +108,7 @@ interface BashContribution {
 }
 
 describe('web-app runtime glue', () => {
-  it('mounts dist serving, prompt section, bash variables, and publishes the URL with the LAN snapshot', async () => {
+  it('mounts dist serving, prompt section, bash variables, and publishes the normalized loopback URL', async () => {
     stageDist()
     const ctx = new Context()
     // Editor markers and a project .env SSH value do not establish a remote launch.
@@ -124,7 +116,8 @@ describe('web-app runtime glue', () => {
       { source: 'process', values: { VSCODE_IPC_HOOK_CLI: '/tmp/local-vscode-ipc' } },
       { source: 'project-env', path: '/work/.env', values: { SSH_CONNECTION: 'stale-project-value' } },
     ]))
-    const { server, seat } = fakeHttpServer('0.0.0.0')
+    // A mapped loopback spelling in the bind address still advertises canonical loopback.
+    const { server, seat } = fakeHttpServer('::ffff:7f00:1')
     ctx.provide('webServer', server)
     provideConnection(ctx)
     const contributions: BashContribution[] = []
@@ -139,21 +132,17 @@ describe('web-app runtime glue', () => {
     const log = vi.spyOn(console, 'log').mockImplementation((message) => { lifecycle.push(String(message)) })
     const openBrowser = vi.fn(async (url: string) => { lifecycle.push(`open:${url}`) })
     internals.openBrowser = openBrowser
-    apply(ctx, new Config({ label: 'qilin web', openBrowser: true, printUrl: true, surfaceContext: true, trustedHosts: ['lab.internal'] }))
+    apply(ctx, new Config({ label: 'qilin web', openBrowser: true, printUrl: true, surfaceContext: true }))
     await ctx.plugin(SystemPrompt, { personaPrefix: '' })
     // Settle the injected registrations.
     await new Promise(resolve => setTimeout(resolve, 0))
 
     expect(seat()).toBeDefined() // frontend-static claimed the fallback
-    expect(ctx.get('webRuntime')).toEqual({
-      lanAddresses: ['192.168.1.5'],
-      trustedHosts: ['192.168.1.5', 'lab.internal'],
-    })
-    expect(log).toHaveBeenCalledWith('qilin web: http://127.0.0.1:4567/?token=test-token (LAN: http://192.168.1.5:4567/?token=test-token)')
+    expect(log).toHaveBeenCalledWith('qilin web: http://127.0.0.1:4567/?token=test-token')
     expect(log).toHaveBeenCalledWith('qilin web: opening the default browser; pass --no-open to disable')
     expect(openBrowser).toHaveBeenCalledWith('http://127.0.0.1:4567/?token=test-token')
     expect(lifecycle).toEqual([
-      'qilin web: http://127.0.0.1:4567/?token=test-token (LAN: http://192.168.1.5:4567/?token=test-token)',
+      'qilin web: http://127.0.0.1:4567/?token=test-token',
       'qilin web: opening the default browser; pass --no-open to disable',
       'open:http://127.0.0.1:4567/?token=test-token',
     ])
@@ -169,6 +158,31 @@ describe('web-app runtime glue', () => {
     await ctx.fiber.dispose()
   })
 
+  it('publishes the address a concrete listener serves, and refuses a non-loopback zone at load', async () => {
+    stageDist()
+    const ctx = new Context()
+    ctx.provide(QILIN_LAUNCH_ENVIRONMENT_KEY, createLaunchEnvironmentSnapshot([]))
+    const { server } = fakeHttpServer('10.1.2.3')
+    ctx.provide('webServer', server)
+    provideConnection(ctx)
+    ctx.provide('shellEnv', { register: () => () => {} } as never)
+    provideLoader(ctx)
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    internals.openBrowser = vi.fn(async () => {})
+    apply(ctx, new Config({ label: 'qilin web', openBrowser: false, printUrl: true, surfaceContext: false }))
+    await new Promise(resolve => setTimeout(resolve, 0))
+    // The bind address is what browsers reach, so it is what the line advertises.
+    expect(log).toHaveBeenCalledWith('qilin web: http://10.1.2.3:4567/?token=test-token')
+    await ctx.fiber.dispose()
+    // A zone id selects a local interface no URL can name: the load refuses it
+    // rather than letting every URL consumer fail later.
+    const zoned = new Context()
+    zoned.provide('webServer', fakeHttpServer('fe80::1%lo').server)
+    expect(() => apply(zoned, new Config({ label: 'qilin web', openBrowser: false, printUrl: false, surfaceContext: false })))
+      .toThrow(/carries an interface zone id/u)
+    await zoned.fiber.dispose()
+  })
+
   it('publishes no readiness side effect when printing and browser opening are disabled', async () => {
     stageDist()
     const ctx = new Context()
@@ -177,7 +191,7 @@ describe('web-app runtime glue', () => {
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
     const openBrowser = vi.fn(async () => {})
     internals.openBrowser = openBrowser
-    apply(ctx, new Config({ label: 'qilin web', openBrowser: false, printUrl: false, surfaceContext: true, trustedHosts: [] }))
+    apply(ctx, new Config({ label: 'qilin web', openBrowser: false, printUrl: false, surfaceContext: true }))
     await ctx.plugin(SystemPrompt, { personaPrefix: '' })
     await new Promise(resolve => setTimeout(resolve, 0))
     expect(log).not.toHaveBeenCalled()
@@ -200,7 +214,7 @@ describe('web-app runtime glue', () => {
         return () => {}
       },
     } as never)
-    apply(ctx, new Config({ label: 'qilin web', openBrowser: false, printUrl: false, surfaceContext: false, trustedHosts: [] }))
+    apply(ctx, new Config({ label: 'qilin web', openBrowser: false, printUrl: false, surfaceContext: false }))
     await ctx.plugin(SystemPrompt, { personaPrefix: '' })
     await new Promise(resolve => setTimeout(resolve, 0))
     const assembly = await ctx.systemPrompt.assemble()
@@ -216,7 +230,7 @@ describe('web-app runtime glue', () => {
     ctx.provide('webServer', fakeHttpServer().server)
     provideConnection(ctx)
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    apply(ctx, new Config({ label: 'qilin web', openBrowser: false, printUrl: true, surfaceContext: true, trustedHosts: [] }))
+    apply(ctx, new Config({ label: 'qilin web', openBrowser: false, printUrl: true, surfaceContext: true }))
     await new Promise(resolve => setTimeout(resolve, 0))
     expect(log).toHaveBeenCalledWith('qilin web: http://127.0.0.1:4567/?token=test-token')
     await ctx.fiber.dispose()
@@ -228,7 +242,7 @@ describe('web-app runtime glue', () => {
     ctx.provide('webServer', fakeHttpServer().server)
     provideConnection(ctx)
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    apply(ctx, new Config({ label: 'qilin', openBrowser: false, printUrl: true, surfaceContext: true, trustedHosts: [] }))
+    apply(ctx, new Config({ label: 'qilin', openBrowser: false, printUrl: true, surfaceContext: true }))
     await new Promise(resolve => setTimeout(resolve, 0))
     expect(log).toHaveBeenCalledWith('qilin: http://127.0.0.1:4567/?token=test-token')
     await ctx.fiber.dispose()
@@ -241,7 +255,7 @@ describe('web-app runtime glue', () => {
     const first = ctx.plugin((connectionCtx: Context) => { provideConnection(connectionCtx) })
     await first
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    apply(ctx, new Config({ label: 'qilin web', openBrowser: false, printUrl: true, surfaceContext: true, trustedHosts: [] }))
+    apply(ctx, new Config({ label: 'qilin web', openBrowser: false, printUrl: true, surfaceContext: true }))
     await new Promise(resolve => setTimeout(resolve, 0))
     expect(log).toHaveBeenCalledTimes(1)
 
@@ -264,7 +278,7 @@ describe('web-app runtime glue', () => {
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
     const openBrowser = vi.fn(async () => {})
     internals.openBrowser = openBrowser
-    apply(ctx, new Config({ label: 'qilin web', openBrowser: true, printUrl: true, surfaceContext: false, trustedHosts: [] }))
+    apply(ctx, new Config({ label: 'qilin web', openBrowser: true, printUrl: true, surfaceContext: false }))
     await new Promise(resolve => setTimeout(resolve, 0))
     expect(log).toHaveBeenCalledWith('qilin web: http://127.0.0.1:4567/?token=test-token')
     expect(openBrowser).not.toHaveBeenCalled()
@@ -284,7 +298,7 @@ describe('web-app runtime glue', () => {
     const settlement = new Promise<void>((resolve) => { release = resolve })
     provideLoader(settled, () => settlement)
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    apply(settled, new Config({ label: 'qilin web', openBrowser: true, printUrl: true, surfaceContext: true, trustedHosts: [] }))
+    apply(settled, new Config({ label: 'qilin web', openBrowser: true, printUrl: true, surfaceContext: true }))
     await new Promise(resolve => setTimeout(resolve, 0))
     expect(log).not.toHaveBeenCalled()
     expect(openBrowser).not.toHaveBeenCalled()
@@ -302,7 +316,7 @@ describe('web-app runtime glue', () => {
     failed.provide('webServer', fakeHttpServer().server)
     provideConnection(failed)
     provideLoader(failed, async () => { throw new Error('boot failed') })
-    apply(failed, new Config({ label: 'qilin web', openBrowser: true, printUrl: true, surfaceContext: true, trustedHosts: [] }))
+    apply(failed, new Config({ label: 'qilin web', openBrowser: true, printUrl: true, surfaceContext: true }))
     await new Promise(resolve => setTimeout(resolve, 0))
     expect(log).not.toHaveBeenCalled()
     expect(openBrowser).not.toHaveBeenCalled()
@@ -321,7 +335,7 @@ describe('web-app runtime glue', () => {
     let releaseTorn: () => void
     const tornSettlement = new Promise<void>((resolve) => { releaseTorn = resolve })
     provideLoader(torn, () => tornSettlement)
-    apply(torn, new Config({ label: 'qilin web', openBrowser: true, printUrl: true, surfaceContext: true, trustedHosts: [] }))
+    apply(torn, new Config({ label: 'qilin web', openBrowser: true, printUrl: true, surfaceContext: true }))
     await new Promise(resolve => setTimeout(resolve, 0))
     await child.dispose() // the webServer service goes away
     releaseTorn!()
@@ -352,7 +366,7 @@ describe('web-app runtime glue', () => {
     const openBrowser = vi.fn(async () => {})
     internals.openBrowser = openBrowser
     const audit = vi.spyOn(AppBoot, 'auditStartupEntries')
-    apply(ctx, new Config({ label: 'qilin web', openBrowser: true, printUrl: true, surfaceContext: false, trustedHosts: [] }))
+    apply(ctx, new Config({ label: 'qilin web', openBrowser: true, printUrl: true, surfaceContext: false }))
     await vi.waitFor(() => { expect(audit).toHaveBeenCalledOnce() })
     await Promise.allSettled(audit.mock.results.map(result => result.value as Promise<void>))
     if (announces) {
@@ -373,7 +387,7 @@ describe('web-app runtime glue', () => {
     Object.defineProperty(server, 'port', { get: () => undefined })
     ctx.provide('webServer', server)
     provideConnection(ctx)
-    apply(ctx, new Config({ label: 'qilin web', openBrowser: false, printUrl: false, surfaceContext: true, trustedHosts: [] }))
+    apply(ctx, new Config({ label: 'qilin web', openBrowser: false, printUrl: false, surfaceContext: true }))
     await ctx.plugin(SystemPrompt, { personaPrefix: '' })
     await new Promise(resolve => setTimeout(resolve, 0))
     await expect(ctx.systemPrompt.assemble()).rejects.toThrow('webServer service missing')
@@ -399,7 +413,7 @@ describe('web-app runtime glue', () => {
     internals.openBrowser = vi.fn(async () => { throw failure })
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
     const diagnostic = vi.spyOn(console, 'error').mockImplementation(() => {})
-    apply(ctx, new Config({ label: 'qilin web', openBrowser: true, printUrl: false, surfaceContext: false, trustedHosts: [] }))
+    apply(ctx, new Config({ label: 'qilin web', openBrowser: true, printUrl: false, surfaceContext: false }))
     await new Promise(resolve => setTimeout(resolve, 0))
     expect(log).toHaveBeenCalledWith('qilin web: opening the default browser; pass --no-open to disable')
     expect(diagnostic).toHaveBeenCalledWith(

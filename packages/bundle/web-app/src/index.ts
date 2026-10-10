@@ -6,8 +6,9 @@
  * config), mounts the `frontend-static` fallback owner over it, registers the
  * harness-source and web-surface prompt sections, the bash-visible web runtime
  * variable, the process-token URL line, and the default-browser handoff. The
- * published loopback and LAN URLs follow the active listener's scheme, so an
- * HTTPS listener is never advertised as plain HTTP. The
+ * published URL is the listener's own bind address under the active scheme, so
+ * an HTTPS listener is never advertised as plain HTTP and a concrete bind is
+ * reachable as printed. The
  * model and shell retain the clean URL. App command-line values arrive through
  * the `webStartup` service expressions in the bundle patch.
  * @module @qilin-agent/web-app
@@ -15,8 +16,8 @@
 
 import { spawn, type ChildProcess } from 'node:child_process'
 import { createRequire } from 'node:module'
+import { isIP } from 'node:net'
 import { dirname, join } from 'node:path'
-import { networkInterfaces } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import type { Context } from '@qilin-agent/kylin'
 import z from '@qilin-agent/schemastery'
@@ -27,6 +28,7 @@ import type { StaticDocument } from '@qilin-agent/host-frontend-static'
 import { launchedThroughSsh, launchEnvironmentOf } from '@qilin-agent/launch-environment'
 import { scrubbedParentEnv } from '@qilin-agent/subprocess'
 import type {} from '@qilin-agent/kylin-plugin-loader'
+import { isLoopbackHost, normalizeBindAddress } from '@qilin-agent/host-webserver'
 import type {} from '@qilin-agent/host-webserver'
 import type {} from '@qilin-agent/shell-env'
 
@@ -36,9 +38,6 @@ export const name = 'web-app'
 /** This qilin installation's root, from either this package's source or built entry. */
 const SOURCE_ROOT = fileURLToPath(new URL('../../../..', import.meta.url))
 const ANNOUNCED_ROOTS = new WeakSet<Context>()
-
-/** Runtime service that releases Web rows after bind-dependent values resolve. */
-const WEB_RUNTIME_SERVICE = 'webRuntime'
 
 /** Services required before the web runtime can mount. */
 export const inject = ['webServer']
@@ -58,8 +57,6 @@ export interface Config {
    * orientation text would be false.
    */
   surfaceContext: boolean
-  /** Explicit `--trusted-host` authorities from this invocation. */
-  trustedHosts: string[]
 }
 
 export const Config: z<Config> = z.object({
@@ -67,16 +64,7 @@ export const Config: z<Config> = z.object({
   openBrowser: z.boolean().default(true),
   printUrl: z.boolean().default(true),
   surfaceContext: z.boolean().default(true),
-  trustedHosts: z.array(String).default([]),
 })
-
-/** Bind-dependent Web values shared by the trust fence and URL display. */
-export interface WebRuntimeValues {
-  /** LAN IPv4 literals sampled once when the server binds all interfaces. */
-  lanAddresses: string[]
-  /** LAN literals followed by explicit invocation authorities. */
-  trustedHosts: string[]
-}
 
 /** Environment variable naming the canonical local URL of this Web GUI. */
 const QILIN_WEB_URL = 'QILIN_WEB_URL' as const
@@ -95,12 +83,6 @@ const PUBLIC_DOCUMENTS: readonly StaticDocument[] = [
   { path: '/login', file: 'auth.html' },
   { path: '/setup', file: 'auth.html' },
 ]
-
-// Display-only mirror of the webserver schema's loopback host: the address the
-// local URL always prints. Not a source of truth — the schema is.
-const LOOPBACK_HOST = '127.0.0.1'
-/** The webserver schema's all-interfaces bind literal. */
-const ALL_INTERFACES_HOST = '0.0.0.0'
 
 const BROWSER_OPENER_MODULE = import.meta.resolve('open')
 
@@ -134,22 +116,25 @@ try {
 `
 
 /**
- * Resolve one LAN-trust snapshot from the active server bind.
- *
- * Derived entries are port-less IP literals: DNS rebinding needs an
- * attacker-controlled name, while an IP-literal Host is safe on any port and
- * an OS-assigned port is unknowable before bind.
- * @param bindHost - the active webserver bind host.
- * @param extra - explicit `--trusted-host` values, in argument order.
- * @returns the LAN display addresses and invocation-derived fence authorities.
+ * Bind address in a URL. Loopback addresses use their canonical address text,
+ * so browsers treat them as local, trustworthy origins: a genuinely mapped
+ * literal such as `::ffff:127.0.0.1` reads as `127.0.0.1`, and a dotted-quad
+ * tail reads as the address it names, so `::0.0.0.1` reads as `::1` rather
+ * than as `0.0.0.1`. Interface zone IDs cannot appear in a URL; only a
+ * redundant loopback zone can be dropped.
+ * @param host - webserver bind address.
+ * @returns the zone-free URL host.
+ * @throws when a non-loopback zone id leaves no address a URL can name.
  */
-export function resolveLanTrust(bindHost: string, extra: readonly string[]): WebRuntimeValues {
-  const lanAddresses = bindHost === ALL_INTERFACES_HOST
-    ? Object.values(networkInterfaces()).flat()
-      .filter((iface): iface is NonNullable<typeof iface> => iface !== undefined && iface.family === 'IPv4' && !iface.internal)
-      .map(iface => iface.address)
-    : []
-  return { lanAddresses, trustedHosts: [...lanAddresses, ...extra] }
+function advertisedBindHost(host: string): string {
+  const zoneAt = host.indexOf('%')
+  const bare = zoneAt === -1 ? host : host.slice(0, zoneAt)
+  if (isLoopbackHost(bare)) return normalizeBindAddress(bare)
+  if (zoneAt === -1) return host
+  throw new Error(
+    `web-app: bind address ${JSON.stringify(host)} carries an interface zone id, which no URL can express;`
+    + ' bind the zone-free address browsers reach it through',
+  )
 }
 
 /** Model-visible orientation and acceptance boundary for sessions created through `qilin web`. */
@@ -166,12 +151,13 @@ function webSurfacePrompt(webUrl: string): string {
     + 'Do not start a replacement server unless the user asks; if one is needed, use a managed background job and verify its exact URL.'
 }
 
-/** Resolve the canonical loopback URL, in the active listener's scheme, from the active Web server. */
+/** Resolve the canonical URL, in the active listener's scheme, from the active Web server. */
 function localWebUrl(ctx: Context): string {
   const webServer = ctx.get('webServer')
   const port = webServer?.port
   if (webServer === undefined || port === undefined) throw new Error('web-app: webServer service missing while resolving Web runtime')
-  return `${webServer.protocol}//${LOOPBACK_HOST}:${String(port)}`
+  const host = advertisedBindHost(webServer.host)
+  return `${webServer.protocol}//${isIP(host) === 6 ? `[${host}]` : host}:${String(port)}`
 }
 
 /**
@@ -245,12 +231,11 @@ export const internals: {
  * @param config - validated {@link Config}.
  */
 export function apply(ctx: Context, config: Config): void {
-  const runtime = resolveLanTrust(ctx.webServer.host, config.trustedHosts)
-  // The loopback URL belongs to this host. Under SSH, the operator reaches it
+  // Fail the load, not every consumer, when the bind address has no URL form.
+  advertisedBindHost(ctx.webServer.host)
+  // The printed URL belongs to this host. Under SSH, the operator reaches it
   // through a local forwarding address that this process cannot derive.
   const handoffBrowser = config.openBrowser && !launchedThroughSsh(launchEnvironmentOf(ctx))
-  // Release dependent rows only after bind-dependent trust has been sampled once.
-  ctx.provide(WEB_RUNTIME_SERVICE, runtime)
   ctx.plugin(FrontendStatic, {
     distIndex: internals.resolveDistIndex(),
     documents: [...PUBLIC_DOCUMENTS],
@@ -285,15 +270,9 @@ export function apply(ctx: Context, config: Config): void {
         if (ANNOUNCED_ROOTS.has(connectionCtx.root)) return
         const webUrl = localWebUrl(connectionCtx)
         const authenticatedUrl = connectionCtx.connection.authenticatedUrl(webUrl)
-        // Reuse the exact LAN snapshot provided to the /api trust fence.
-        const lanCandidate = runtime.lanAddresses[0]
-        const port = connectionCtx.webServer.port
-        const lanUrl = lanCandidate === undefined
-          ? undefined
-          : connectionCtx.connection.authenticatedUrl(`${connectionCtx.webServer.protocol}//${lanCandidate}:${String(port)}`)
         ANNOUNCED_ROOTS.add(connectionCtx.root)
         if (config.printUrl) {
-          console.log(`${config.label}: ${authenticatedUrl}${lanUrl === undefined ? '' : ` (LAN: ${lanUrl})`}`)
+          console.log(`${config.label}: ${authenticatedUrl}`)
         }
         if (handoffBrowser) {
           console.log(`${config.label}: opening the default browser; pass --no-open to disable`)

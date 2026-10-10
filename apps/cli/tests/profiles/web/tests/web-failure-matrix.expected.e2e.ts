@@ -408,7 +408,7 @@ export function apply(ctx, config) {
       // Entry-level injection requirements are captured when the fiber is created.
       writeFileSync(f.patch, f.render('matrix-optional') + `- id: ${id}\n  disabled: true\n`)
       await app.wait(() => app.state(id) === FiberState.DISPOSED)
-      const inject = id === 'connection' ? ['webRuntime', 'matrixMissingWebDependency'] : ['matrixMissingWebDependency']
+      const inject = id === 'connection' ? ['webStartup', 'matrixMissingWebDependency'] : ['matrixMissingWebDependency']
       const pending = f.render('matrix-optional', undefined, 2) + `- id: ${id}\n  inject: ${JSON.stringify(inject)}\n`
       writeFileSync(f.patch, pending)
       await app.wait(() => app.state(id) === FiberState.PENDING && app.events().includes('witness apply 2\n'))

@@ -7,8 +7,8 @@
 #
 # The web-startup plugin injects `cmdlineArgs` and provides `webStartup` as an
 # ordinary Cordis service. Rows configured from flags inject that service, so
-# Loader resolves their expressions only after it exists. The web runtime then
-# provides bind-dependent `webRuntime` values to the trust fence.
+# Loader resolves their expressions only after it exists; Connection reads the
+# declared trust authorities from it directly.
 # `qilin --profile web --help` provides neither service, so no server binds.
 
 # ── surface-specific values the base deliberately omits ─────────────────────
@@ -195,8 +195,8 @@
     # section and the bash runtime variable, prints the URL line, and opens the
     # canonical local URL after the full Loader tree settles and the required-
     # entry audit passes. The
-    # webStartup provider supplies invocation-only values; after the server binds, this row samples
-    # LAN trust once and provides `webRuntime`. A complete agent-preset persona
+    # webStartup provider supplies invocation-only values; this row reads them and
+    # publishes no service of its own. A complete agent-preset persona
     # suppresses the prompt section for that agent while retaining the host-owned
     # shell variable.
     - id: web-runtime
@@ -206,7 +206,6 @@
         openBrowser: !!js ctx.webStartup.openBrowser
         printUrl: true
         surfaceContext: true
-        trustedHosts: !!js ctx.webStartup.trustedHosts
 
     # The client-plugin reload chain, always mounted: it is idle until a
     # rebuild watcher (pnpm run dev:web) actually rewrites client bundles. It
@@ -228,12 +227,13 @@
     # webserver under /api; browser half is the fetch/SSE client.
     - id: connection
       name: '@qilin-agent/client-connection'
-      inject: [webRuntime]
+      inject: [webStartup]
       config:
-        # LAN literals derived from the active bind plus --trusted-host extras.
-        # A deployment adding authorities keeps this expression and concatenates
-        # its literals, for example: ['app.internal', ...ctx.webRuntime.trustedHosts].
-        trustedHosts: !!js ctx.webRuntime.trustedHosts
+        # --trusted-host extras for this invocation. The fence accepts them plus
+        # loopback and the listener's own bind address. A deployment adding
+        # authorities keeps this expression and concatenates its literals, for
+        # example: ['app.internal', ...ctx.webStartup.trustedHosts].
+        trustedHosts: !!js ctx.webStartup.trustedHosts
 
     # Raw Blob and ReadableStream uploads run independently of Connection's
     # RPC and generation service.

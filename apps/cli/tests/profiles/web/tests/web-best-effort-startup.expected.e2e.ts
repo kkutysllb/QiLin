@@ -296,7 +296,7 @@ describe.skipIf(!builtArtifactsExist)('qilin Web profile best-effort startup', (
       expect(result.stderr).toContain('Failed plugins (1):')
       expect(result.stderr).toContain('  webserver (required)\n    Package: @qilin-agent/host-webserver')
       expect(result.stderr).toContain('Plugins waiting for services (')
-      expect(result.stderr).toMatch(/connection \(required\) +webRuntime/u)
+      expect(result.stderr).toMatch(/connection \(required\) +webStartup/u)
       expect(result.stderr).toContain('at Server.setupListenHandle')
       const summary = result.stderr.split(/\n\n(?:Full diagnostics:|qilin: warning:)/u)[0]!
       expect(summary.match(/EADDRINUSE/gu)).toHaveLength(1)

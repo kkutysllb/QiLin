@@ -130,7 +130,8 @@ export class HostConnectionService extends Service implements HostConnectionHand
    * cookie minted by the launch-token exchange.
    */
   requestRejection(request: ConnectionTrustRequest): ConnectionRequestRejection {
-    if (!isTrustedApiRequest(request, this.trustedHosts)) return 403
+    const carrier = this.ctx.get('webServer')
+    if (!isTrustedApiRequest(request, this.trustedHosts, carrier?.host, carrier?.protocol ?? 'http:')) return 403
     const authority = this.sessionAuthority
     if (authority === undefined) return this.browserAuth.isAuthenticated(request) ? undefined : 401
     if (authority.isPublicApiRequest(request)) return undefined

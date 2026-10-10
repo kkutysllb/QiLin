@@ -58,9 +58,9 @@ The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agen
 
 The patch mounts `@qilin-agent/accounts-local` as the `accounts` row with `enabled: true`, `registration: open`, and `sessionMaxAgeDays: 30`, so a browser needs an account session for the console and for every `/api` request outside the authentication surface. The shipped loopback bind holds one user, which is why registration stays open; a deployment that binds beyond loopback sets `registration: closed` on that row, because anyone who can reach the port could otherwise create an account with full harness access. The glue plugin serves three public documents before any session exists — the product landing page at `/` and the sign-in or first-run document at `/login` and `/setup` — while the application document itself is the configured index at the transport's entry path. `enabled: false` on the row restores the launch-token handoff.
 
-### LAN access and trusted hosts
+### Listener addresses and trusted hosts
 
-By default the GUI accepts connections from this machine only. A deployment that binds all network interfaces also allows browsers from the LAN, and the printed URL then includes a LAN address; `--trusted-host` adds extra hosts in either case. Host and Origin checks control reachability, while the account session authenticates every Host API method and WebSocket stream; the launch token only cleans the printed URL into the entry redirect. The LAN addresses are sampled once at startup, so a network change later is not picked up — restart the GUI to re-advertise.
+By default the GUI binds loopback and accepts connections from this machine only. A deployment that passes a concrete non-loopback `--host` serves browsers that can reach that address, and the printed URL names it; `--trusted-host` adds a hostname authority the deployment answers to. Host and Origin checks control reachability, while the account session authenticates every Host API method and WebSocket stream; the launch token only cleans the printed URL into the entry redirect.
 
 ### Running over SSH
 
@@ -88,20 +88,19 @@ A patch replaces the targeted row's whole `config`, so each web row restates eve
 
 The URL line and browser handoff are readiness signals: supervisors RPC as soon as they observe the line, and a browser requests the page as soon as it opens, so both run only after the Loader tree settles, the required-startup audit passes, and Connection authentication is available — or immediately in a hand-built tree without a Loader. Client combo JavaScript and source maps remain unmaterialized at this point. Optional plugin failures do not suppress readiness; a required startup failure or a tree disposed mid-boot announces nothing.
 
-### LAN trust sampling
+### Listener URL and trust authorities
 
-`resolveLanTrust` samples the network once at boot: a loopback bind (`127.0.0.1`) derives no LAN addresses, while an all-interfaces bind adds every non-internal IPv4 literal. The derived literals plus the explicit `--trusted-host` authorities form the `/api` browser-trust fence, and the printed LAN URL always matches that fence.
+The printed and published URL names the listener's own bind address under the active scheme, so a concrete bind is reachable exactly as printed and a mapped loopback spelling still advertises canonical loopback. A bind address carrying a non-loopback interface zone id has no URL form and fails the load. The `/api` browser-trust fence accepts loopback, that same bind address literal, and the explicit `--trusted-host` authorities.
 
 ### Source map
 
 | File | Role |
 |---|---|
-| [`src/index.ts`](src/index.ts) | The `web-app` glue plugin: dist resolution, the public document table, LAN trust sampling, prompt sections, bash variable, URL line, browser handoff |
+| [`src/index.ts`](src/index.ts) | The `web-app` glue plugin: dist resolution, the public document table, listener URL derivation, prompt sections, bash variable, URL line, browser handoff |
 | [`src/startup.ts`](src/startup.ts) | The `web-startup` provider: `--host`, `--port`, `--trusted-host`, `--no-open`, `--help` |
 | [`cordis.patch.yml`](cordis.patch.yml) | The web patch: restated base values, web host rows (the accounts row included), browser roster, agent plane behind presets |
 | [`tests/web-app.spec.ts`](tests/web-app.spec.ts) | Dist resolution, fallback seat, prompt sections, readiness |
 | [`tests/startup.spec.ts`](tests/startup.spec.ts) | Command-line parsing over a real Loader tree |
-| [`tests/trusted-hosts.spec.ts`](tests/trusted-hosts.spec.ts) | LAN-trust sampling |
 | [`tests/browser-open.spec.ts`](tests/browser-open.spec.ts) | Default-browser handoff after the page is reachable |
 
 </details>
@@ -146,11 +145,11 @@ Source and Web sections follow first-party reusable instructions. Different chec
 These limits tell you what to expect in unusual setups — a source checkout, SSH sessions, or strict networks. They are current package constraints, not a general browser comparison or a task backlog.
 
 - **The frontend must be built** — a source checkout needs `pnpm run build` first; startup stops with a build hint when the dist is missing, and there is no source-serving fallback.
-- **LAN addresses are sampled once at startup** — interface changes after boot are not re-advertised; the printed LAN URL always matches what was sampled.
+- **A non-loopback `--host` widens who can reach the port** — the fence admits that address literal for browsers, so restrict the port to a trusted network or set `registration: closed` on the accounts row.
 - **Only the handoff start is observable** — the GUI reports that the browser was asked to open, not that it actually opened; a later browser exit is never reported, and the printed URL is your manual fallback.
 - **SSH sessions keep the URL but skip the browser handoff** — the printed URL names the remote host's loopback endpoint; the SSH client or editor must expose and open the local forwarded address.
 - **`BROWSER` overrides only come from the environment** — a discovered `.env` cannot set `BROWSER`; only an inherited value can choose the executable for the automatic handoff.
-- **Binding all network interfaces is not supported** — `--host 0.0.0.0` is rejected at startup for safety; use the default loopback host.
+- **Binding all network interfaces is not supported** — every wildcard spelling (`0.0.0.0`, `::`, `::0.0.0.0`) is rejected at load for safety; bind a concrete address or keep the default loopback host.
 - **The launch token no longer opens the console by itself** — with the shipped accounts row the browser lands on the first-run or sign-in document and needs an account session; `enabled: false` on that row restores the token-only handoff.
 
 <a id="dev-note"></a>

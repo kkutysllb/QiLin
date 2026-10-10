@@ -58,9 +58,9 @@ qilin --profile web --no-open --port 8080
 
 该 patch 把 `@qilin-agent/accounts-local` 作为 `accounts` 行挂载，带 `enabled: true`、`registration: open` 与 `sessionMaxAgeDays: 30`，因此浏览器访问控制台以及鉴权面之外的每个 `/api` 请求都需要账户会话。随发行版交付的 loopback 绑定只承载一个用户，这正是注册保持开放的原因；绑定到 loopback 之外的部署要在该行设 `registration: closed`，否则任何能访问该端口的人都可以创建一个拥有完整 harness 访问权限的账户。胶水插件在任何会话存在之前送出三份公开文档——`/` 上的产品落地页，以及 `/login` 与 `/setup` 上的登录或首次运行文档——而应用文档本身是传输层入口路径上配置的 index。把该行设为 `enabled: false` 可恢复启动 token 交接。
 
-### LAN 访问与可信主机
+### 监听地址与可信主机
 
-默认情况下 GUI 只接受本机的连接。绑定所有网络接口的部署也会允许 LAN 内的浏览器访问，此时打印的 URL 会附带一个 LAN 地址；`--trusted-host` 在两种情况下都能添加额外主机。Host 与 Origin 检查控制可达性，而账户会话认证每个 Host API 方法与 WebSocket 流；启动 token 只负责把打印出的 URL 整理成入口重定向。LAN 地址只在启动时采样一次，因此之后的网络变化不会被感知——重启 GUI 以重新公告。
+默认情况下 GUI 绑定 loopback、只接受本机的连接。传入具体非 loopback 的 `--host` 的部署会服务能访问该地址的浏览器，打印的 URL 也使用该地址；`--trusted-host` 添加部署对外应答的主机名权威标识。Host 与 Origin 检查控制可达性，而账户会话认证每个 Host API 方法与 WebSocket 流；启动 token 只负责把打印出的 URL 整理成入口重定向。
 
 ### 通过 SSH 运行
 
@@ -88,20 +88,19 @@ patch 会替换目标行的整个 `config`，因此每个 Web 行都重述自己
 
 URL 行与浏览器交接都是就绪信号：监督方一观察到该行就发起 RPC，浏览器一打开就请求页面，因此两者只在 Loader 配置树结算、通过 required 启动检查且 Connection 认证可用后运行——在没有 Loader 的手工构建树中则立即运行。此时 client combo JavaScript 和 source map 仍未物化。可选插件失败不会阻止就绪宣告；required 启动失败或启动中途被释放的树不会宣告任何内容。
 
-### LAN 信任采样
+### 监听地址 URL 与信任权威
 
-`resolveLanTrust` 在启动时只采样一次网络：loopback 绑定（`127.0.0.1`）不派生任何 LAN 地址，绑定所有网卡则会加入每个非 internal IPv4 字面量。派生字面量加上显式的 `--trusted-host` 权威标识组成 `/api` 浏览器信任栅栏，打印的 LAN URL 始终与该栅栏一致。
+打印与发布的 URL 使用监听器自身的绑定地址与当前协议，因此具体绑定地址可直接按打印结果访问，映射式 loopback 写法仍广告规范 loopback。携带非 loopback 接口 zone id 的绑定地址没有 URL 形式，会在装载期失败。`/api` 浏览器信任栅栏接受 loopback、同一个绑定地址字面量以及显式的 `--trusted-host` 权威标识。
 
 ### 源码地图
 
 | 文件 | 职责 |
 |---|---|
-| [`src/index.ts`](src/index.ts) | `web-app` 粘合插件：dist 解析、LAN 信任采样、提示词段落、bash 变量、URL 行、浏览器交接 |
+| [`src/index.ts`](src/index.ts) | `web-app` 粘合插件：dist 解析、监听地址 URL 派生、提示词段落、bash 变量、URL 行、浏览器交接 |
 | [`src/startup.ts`](src/startup.ts) | `web-startup` 提供方：`--host`、`--port`、`--trusted-host`、`--no-open`、`--help` |
 | [`cordis.patch.yml`](cordis.patch.yml) | Web patch：重述的基础值、Web 宿主行、浏览器名录、由 preset 承载的 agent 层 |
 | [`tests/web-app.spec.ts`](tests/web-app.spec.ts) | dist 解析、回退席位、提示词段落、就绪宣告 |
 | [`tests/startup.spec.ts`](tests/startup.spec.ts) | 在真实 Loader 树上的命令行解析 |
-| [`tests/trusted-hosts.spec.ts`](tests/trusted-hosts.spec.ts) | LAN 信任采样 |
 | [`tests/browser-open.spec.ts`](tests/browser-open.spec.ts) | 页面可达后的默认浏览器交接 |
 
 </details>
@@ -146,11 +145,11 @@ URL 行与浏览器交接都是就绪信号：监督方一观察到该行就发�
 这些限制告诉你在不常见的环境下会遇到什么——源码 checkout、SSH 会话或严格网络。它们是当前包约束，不是通用的浏览器对比或任务积压。
 
 - **前端必须已构建**——源码 checkout 需要先运行 `pnpm run build`；dist 缺失时启动会以构建提示停止，且没有从源码直接服务的回退路径。
-- **LAN 地址只在启动时采样一次**——启动后的网卡变化不会重新公告；打印的 LAN URL 始终与采样结果一致。
+- **非 loopback 的 `--host` 会放宽端口可达面**——栅栏对该地址字面量为浏览器放行，因此请把端口限制在可信网络内，或在 accounts 行设 `registration: closed`。
 - **只能观察到交接的启动**——GUI 只报告浏览器被请求打开，而不是它确实打开了；之后的浏览器退出永远不会上报，打印的 URL 是你的手动回退路径。
 - **SSH 会话保留 URL 但跳过浏览器交接**——打印的 URL 指向远端宿主机 loopback 端点；SSH 客户端或编辑器必须暴露并打开本地转发地址。
 - **`BROWSER` 覆盖只能来自环境**——被发现的 `.env` 不能设置 `BROWSER`；只有继承值能为自动交接选择可执行文件。
-- **不支持绑定所有网络接口**——出于安全考虑，`--host 0.0.0.0` 会在启动时被拒绝；请使用默认 loopback 主机。
+- **不支持绑定所有网络接口**——各种通配写法（`0.0.0.0`、`::`、`::0.0.0.0`）都会在装载期被拒绝；请绑定具体地址或保留默认 loopback 主机。
 - **启动 token 不再自行打开控制台**——在随发行版交付的 accounts 行下，浏览器会落到首次运行或登录文档，并需要账户会话；把该行设为 `enabled: false` 可恢复仅凭 token 的交接。
 
 <a id="dev-note"></a>

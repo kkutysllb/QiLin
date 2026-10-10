@@ -247,15 +247,6 @@ function createGzipMiddleware(config: ResolvedConfig): NodeMiddleware {
 }
 
 /**
- * The browser HTTP carrier service. `listenOn` (see {@link Config}) decides
- * when the socket binds; `activate` binds during init, `settle` defers the
- * bind past Loader settlement. Route registration order does not affect
- * requests because configured named routes must be distinct, and the fallback
- * handler answers anything not yet claimed during startup with 404 until its
- * owner registers. A bind failure before init resolves rejects
- * initialization, and the boot process reports the failed fiber.
- */
-/**
  * Read one TLS material file for activation. The error names the config field
  * and the resolved path; empty content is rejected here because node:tls
  * silently accepts it, which would bind a listener that can never complete a
@@ -277,6 +268,15 @@ async function readTlsFile(field: 'certFile' | 'keyFile', path: string): Promise
   return content
 }
 
+/**
+ * The browser HTTP carrier service. `listenOn` (see {@link Config}) decides
+ * when the socket binds; `activate` binds during init, `settle` defers the
+ * bind past Loader settlement. Route registration order does not affect
+ * requests because configured named routes must be distinct, and the fallback
+ * handler answers anything not yet claimed during startup with 404 until its
+ * owner registers. A bind failure before init resolves rejects
+ * initialization, and the boot process reports the failed fiber.
+ */
 export class WebServer extends Service {
   static Config: z<Config> = z.object({
     host: z.transform(z.string(), (value) => {

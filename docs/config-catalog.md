@@ -4097,7 +4097,7 @@ export interface WebRuntimeConfig {
 ## `@qilin-agent/web-app`
 
 - `inject`: `webServer`
-- `source`: [`packages/bundle/web-app/src/index.ts:47`](../packages/bundle/web-app/src/index.ts)
+- `source`: [`packages/bundle/web-app/src/index.ts:46`](../packages/bundle/web-app/src/index.ts)
 
 ```ts config-catalog
 /** Plugin config: composed deployment settings plus per-invocation command-line values. */
@@ -4115,8 +4115,6 @@ export interface Config {
    * orientation text would be false.
    */
   surfaceContext: boolean
-  /** Explicit `--trusted-host` authorities from this invocation. */
-  trustedHosts: string[]
 }
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/web-app -->

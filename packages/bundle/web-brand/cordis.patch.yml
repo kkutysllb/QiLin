@@ -23,7 +23,6 @@
     openBrowser: !!js ctx.webStartup.openBrowser
     printUrl: true
     surfaceContext: true
-    trustedHosts: !!js ctx.webStartup.trustedHosts
 
 # ── the QiLin browser roster ────────────────────────────────────────────────
 

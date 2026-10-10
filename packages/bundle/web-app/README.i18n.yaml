@@ -26,9 +26,9 @@
 /qilin-agent-web-app/use-this-package/accounts-and-the-entry-documents:
   en: 2ae4d101c7664323
   zh: f7220bccb92bb91c
-/qilin-agent-web-app/use-this-package/lan-access-and-trusted-hosts:
-  en: 05f91e2b5971c17a
-  zh: f39e72bc6693bf6a
+/qilin-agent-web-app/use-this-package/listener-addresses-and-trusted-hosts:
+  en: 36cd9eed41165e35
+  zh: b1517ed7976c7c78
 /qilin-agent-web-app/use-this-package/running-over-ssh:
   en: 4b0b24b50bcc18ae
   zh: 6ad377393b6c7a8c
@@ -44,12 +44,12 @@
 /qilin-agent-web-app/understand-the-implementation/readiness:
   en: 973128fd346869df
   zh: 54e6792f9f82a192
-/qilin-agent-web-app/understand-the-implementation/lan-trust-sampling:
-  en: b5ed8ff0056ca9da
-  zh: fdc1fa4f14cb00b3
+/qilin-agent-web-app/understand-the-implementation/listener-url-and-trust-authorities:
+  en: cb543eaada1ffa2d
+  zh: 2960fdbe2fca7d6f
 /qilin-agent-web-app/understand-the-implementation/source-map:
-  en: ec159ab41ed436f7
-  zh: aaa3e2d237e8233c
+  en: ddcf341a0f4010e9
+  zh: b16ec27c399ce1ad
 /qilin-agent-web-app/further-exploration:
   en: 0d6623d78c1f9c00
   zh: 0922fbefd53763f7
@@ -69,8 +69,8 @@
   en: da0f568d6d661c5e
   zh: 606919b7d37c95bf
 /qilin-agent-web-app/known-limitations-and-deferred-work:
-  en: 208a1642eac1191c
-  zh: 04d769f050478e7f
+  en: 9d2fd1398e47cc1e
+  zh: 9a07c46f116af029
 /qilin-agent-web-app/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98
