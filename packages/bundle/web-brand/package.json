@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/web-brand",
   "description": "The QiLin browser-surface bundle: QiLin product identity layered over the qilin web surface",
-  "version": "3.1.3",
+  "version": "3.1.4-rc.1",
   "publishConfig": {
     "access": "public"
   },

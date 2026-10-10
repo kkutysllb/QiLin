@@ -42,9 +42,12 @@ export function mainPushSha(refs: readonly PushRef[]): string | undefined {
   return main.sha
 }
 
+/** A release tag: `v` plus a dotted version, optionally prerelease (`v3.1.4-rc.1`). */
+const RELEASE_TAG = /^v\d+(?:\.\d+)*(?:-[0-9A-Za-z.-]+)?$/u
+
 /** Every `v*` version tag in the list (`git tag --points-at` already resolved the commit). */
 export function releaseTagsAt(tags: readonly string[]): string[] {
-  return tags.filter(tag => /^v\d+(?:\.\d+)*$/u.test(tag))
+  return tags.filter(tag => RELEASE_TAG.test(tag))
 }
 
 /** What blocks shipping `sha`, given the tags at it and each tag's release body. */
@@ -53,12 +56,12 @@ export type ReleaseReadiness =
   | { readonly ok: false; readonly problem: 'tag' | 'release' | 'notes' | 'version'; readonly message: string }
 
 /**
- * The version a `vX.Y.Z` tag names.
+ * The version a release tag names, prerelease included.
  * @param tag - Release tag.
  * @returns The version, or undefined when the tag names none.
  */
 export function tagVersion(tag: string): string | undefined {
-  return /^v(\d+(?:\.\d+)*)$/u.exec(tag)?.[1]
+  return RELEASE_TAG.test(tag) ? tag.slice(1) : undefined
 }
 
 /**
@@ -95,7 +98,7 @@ export function evaluateReleaseReadiness(
     return {
       ok: false,
       problem: 'tag',
-      message: `no v* tag points at ${sha}; cut one first: git tag -a vX.Y.Z ${sha} -m "QiLin vX.Y.Z — <summary>"`,
+      message: `no v* tag points at ${sha}; cut one first: git tag -a vX.Y.Z[-prerelease] ${sha} -m "QiLin vX.Y.Z — <summary>"`,
     }
   }
   for (const tag of candidates) {

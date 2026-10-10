@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/client-ui-settings-mcp",
   "description": "MCP servers page in Web Settings: patch-layer CRUD over the mcpServers Remote",
-  "version": "3.1.3",
+  "version": "3.1.4-rc.1",
   "publishConfig": {
     "access": "public"
   },

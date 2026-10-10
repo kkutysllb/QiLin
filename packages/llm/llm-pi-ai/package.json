@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/llm-pi-ai",
   "description": "pi-ai-backed DeepSeek adapter for the QiLin LLM seam (design-verification twin of qilin-llm-deepseek)",
-  "version": "3.1.3",
+  "version": "3.1.4-rc.1",
   "publishConfig": {
     "access": "public"
   },

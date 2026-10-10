@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/sandbox",
   "description": "Abstract process-sandbox seam (ctx.sandbox) for the QiLin: same-world confinement vocabulary and the SandboxProvider contract",
-  "version": "3.1.3",
+  "version": "3.1.4-rc.1",
   "publishConfig": {
     "access": "public"
   },
