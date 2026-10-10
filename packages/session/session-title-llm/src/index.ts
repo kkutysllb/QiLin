@@ -14,9 +14,10 @@ declare module '@qilin-agent/llm' {
   }
 }
 
-import type { FinishReason, GenerateOptions, Message } from '@qilin-agent/llm'
+import type { ContentBlock, FinishReason, GenerateOptions, Message } from '@qilin-agent/llm'
+import { ReasoningEffortId } from '@qilin-agent/llm'
 import { deadline, MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
-import { deepFreeze } from '@qilin-agent/util-values'
+import { assertNever, deepFreeze } from '@qilin-agent/util-values'
 import type { SessionSeq } from '@qilin-agent/session'
 import {
   normalizeSessionTitle,
@@ -152,6 +153,39 @@ export type SessionTitleLlmMessageSelector = (
 ) => readonly SessionTitleUserMessage[]
 
 /**
+ * Provider-prepared model input, source-message attribution, and the
+ * provider-owned reasoning selector.
+ */
+export interface SessionTitleLlmPreparedRequest {
+  /** Exact system prompt supplied by the provider. */
+  readonly system: string
+  /** Exact user message text supplied by the provider, including any framing. */
+  readonly input: string
+  /** Exact human `user/message` seqs represented by `input`, in log order. */
+  readonly messageSeqs: readonly SessionSeq[]
+  /**
+   * Provider-owned reasoning selection, applied before route preparation.
+   * The provider reads the route it captured in the request; resolved model
+   * metadata is not part of this contract.
+   * @returns a supported effort id, or `undefined` to use the route's normal default.
+   */
+  readonly selectReasoningEffort: () => ReasoningEffortId | undefined
+}
+
+/** Terminal finish kinds forwarded to a provider for its own interpretation. */
+export type SessionTitleLlmFinish = Extract<FinishReason, { kind: 'stop' | 'tool-calls' | 'max-tokens' }>
+
+/** Assembled auxiliary model response for one provider to interpret. */
+export interface SessionTitleLlmResponse {
+  /** Assembled content blocks in stream order; the provider rejects unwanted block types. */
+  readonly blocks: readonly ContentBlock[]
+  /** Terminal finish reason forwarded without title-output interpretation. */
+  readonly finish: SessionTitleLlmFinish
+  /** Exact auxiliary model route that produced the response. */
+  readonly model: SessionTitleModelIdentity
+}
+
+/**
  * Register one model-backed provider through the shared configuration and call policy.
  * @param ctx - context exposing the title and LLM services.
  * @param config - untrusted required deployment policy.
@@ -206,24 +240,97 @@ function frameMessages(messages: readonly SessionTitleUserMessage[]): string {
   return `Generate the session title from this JSON array of human messages:\n${JSON.stringify(messages)}`
 }
 
-/** Translate terminal finish reasons into an auxiliary-call failure. */
-function finishError(finish: FinishReason): Error | undefined {
+/**
+ * Classify one terminal finish reason. Operational failures throw; every other
+ * terminal kind is returned for the provider to accept or reject.
+ * @param finish - terminal finish reason from the assembled stream.
+ * @returns the provider-facing finish reason.
+ * @throws {Error} on a provider or caller abort, or an impossible finish variant.
+ */
+export function terminalFinish(finish: FinishReason): SessionTitleLlmFinish {
   switch (finish.kind) {
     case 'stop':
-      return undefined
+    case 'tool-calls':
+    case 'max-tokens':
+      return finish
     case 'error':
     case 'aborted': {
       const error = new Error(finish.failure.message) as Error & { code?: string }
       error.code = finish.failure.code
-      return error
+      throw error
     }
-    case 'max-tokens':
-      return new Error('session-title-llm: title output reached maxOutputTokens')
-    case 'tool-calls':
-      return new Error('session-title-llm: title model unexpectedly requested a tool')
-    default:
-      return new Error(`session-title-llm: unsupported finish reason "${String((finish as { kind?: unknown }).kind)}"`)
+    /* v8 ignore next -- closed FinishReason union exhaustiveness guard */
+    default: return assertNever(finish, 'FinishReason')
   }
+}
+
+/**
+ * Execute one prepared auxiliary title request.
+ *
+ * The provider owns the system prompt, user input, reasoning selection, and
+ * output interpretation. This function owns route preparation, the final input
+ * byte limit, the output-token cap, the end-to-end deadline, cancellation, the
+ * exact `session/title-llm-request` record, and stream assembly.
+ * @param ctx - context exposing the registered LLM service.
+ * @param config - validated execution controls.
+ * @param request - service-owned session, route, message snapshot, current title, and cancellation.
+ * @param titleProvider - registered title-provider identity recorded with the request.
+ * @param prepared - provider system prompt, input, source-message seqs, and reasoning selector.
+ * @returns assembled response blocks, terminal finish, and the exact route used.
+ * @throws {Error} when input bounds, route preparation, the deadline, cancellation, or an operational finish failure occurs.
+ */
+export async function executeSessionTitleLlm(
+  ctx: Context,
+  config: ResolvedSessionTitleLlmConfig,
+  request: SessionTitleProviderRequest,
+  titleProvider: SessionTitleProviderId,
+  prepared: SessionTitleLlmPreparedRequest,
+): Promise<SessionTitleLlmResponse> {
+  request.signal.throwIfAborted()
+  if (prepared.messageSeqs.length === 0) {
+    throw new Error('session-title-llm: at least one source message is required')
+  }
+  const inputBytes = Buffer.byteLength(prepared.input, 'utf8')
+  if (inputBytes > config.maxInputBytes) {
+    throw new Error(`session-title-llm: input is ${inputBytes} bytes, exceeding maxInputBytes ${config.maxInputBytes}`)
+  }
+  const route = resolveRoute(config, request)
+  const messages: Message[] = [createUserMessage({
+    content: [{ type: 'text', text: prepared.input }],
+    source: { kind: 'qilin-session-title-llm' },
+  })]
+  using callDeadline = deadline(request.signal, config.timeoutMs, SESSION_TITLE_TIMEOUT_CODE)
+  const maxTokens = config.maxOutputTokens
+  const effort = prepared.selectReasoningEffort()
+  const call = await ctx.llm.prepareCall({
+    ...route, maxTokens, ...effort === undefined ? {} : { reasoningEffort: effort },
+  }, callDeadline.signal)
+  const options: GenerateOptions = deepFreeze({
+    ...call.config,
+    messages,
+    system: prepared.system,
+    sessionId: request.session.id,
+    purpose: 'session-title',
+    signal: callDeadline.signal,
+  })
+  request.session.append('session/title-llm-request', {
+    titleProvider,
+    messageSeqs: [...prepared.messageSeqs],
+    route,
+    system: prepared.system,
+    messages,
+    maxTokens,
+    ...call.config.reasoningEffort === undefined ? {} : { reasoningEffort: call.config.reasoningEffort },
+  })
+  callDeadline.signal.throwIfAborted()
+  const assembler = new BlockAssembler()
+  for await (const chunk of call.stream(options)) {
+    callDeadline.signal.throwIfAborted()
+    assembler.push(chunk)
+  }
+  callDeadline.signal.throwIfAborted()
+  const finish = terminalFinish(assembler.finish)
+  return { blocks: assembler.blocks(), finish, model: route }
 }
 
 /**
@@ -242,50 +349,21 @@ export async function generateSessionTitleWithLlm(
   selectedMessages: readonly SessionTitleUserMessage[],
   titleProvider: SessionTitleProviderId,
 ): Promise<SessionTitleProviderResult> {
+  const messageSeqs = selectedMessages.map(message => message.seq)
   request.signal.throwIfAborted()
-  if (selectedMessages.length === 0) {
+  if (messageSeqs.length === 0) {
     throw new Error('session-title-llm: at least one source message is required')
   }
-  const framedInput = frameMessages(selectedMessages)
-  const inputBytes = Buffer.byteLength(framedInput, 'utf8')
-  if (inputBytes > config.maxInputBytes) {
-    throw new Error(`session-title-llm: input is ${inputBytes} bytes, exceeding maxInputBytes ${config.maxInputBytes}`)
-  }
-  const route = resolveRoute(config, request)
-  const messages: Message[] = [createUserMessage({
-    content: [{ type: 'text', text: framedInput }],
-    source: { kind: 'qilin-session-title-llm' },
-  })]
-  const system = systemPrompt(config)
-  using callDeadline = deadline(request.signal, config.timeoutMs, SESSION_TITLE_TIMEOUT_CODE)
-  const options: GenerateOptions = deepFreeze({
-    provider: route.provider,
-    model: route.model,
-    messages,
-    system,
-    maxTokens: config.maxOutputTokens,
-    sessionId: request.session.id,
-    purpose: 'session-title',
-    signal: callDeadline.signal,
+  const { blocks, finish, model } = await executeSessionTitleLlm(ctx, config, request, titleProvider, {
+    system: systemPrompt(config),
+    input: frameMessages(selectedMessages),
+    messageSeqs,
+    selectReasoningEffort: () => undefined,
   })
-  request.session.append('session/title-llm-request', {
-    titleProvider,
-    messageSeqs: selectedMessages.map(message => message.seq),
-    route,
-    system,
-    messages,
-    maxTokens: config.maxOutputTokens,
-  })
-  callDeadline.signal.throwIfAborted()
-  const assembler = new BlockAssembler()
-  for await (const chunk of ctx.llm.stream(options)) {
-    callDeadline.signal.throwIfAborted()
-    assembler.push(chunk)
-  }
-  callDeadline.signal.throwIfAborted()
-  const terminalError = finishError(assembler.finish)
-  if (terminalError !== undefined) throw terminalError
-  const blocks = assembler.blocks()
+  // The shared framing accepts only a plain title; a provider that wants other
+  // terminal kinds interprets them itself instead of calling this helper.
+  if (finish.kind === 'max-tokens') throw new Error('session-title-llm: title output reached maxOutputTokens')
+  if (finish.kind === 'tool-calls') throw new Error('session-title-llm: title model unexpectedly requested a tool')
   if (blocks.some(block => block.type === 'tool-call')) {
     throw new Error('session-title-llm: title output must contain text only')
   }
@@ -295,9 +373,5 @@ export async function generateSessionTitleWithLlm(
     .join(' ')
   const title = normalizeSessionTitle(text, Number.MAX_SAFE_INTEGER)
   if (title.length === 0) throw new Error('session-title-llm: title model produced no text')
-  return {
-    title,
-    messageSeqs: selectedMessages.map(message => message.seq),
-    model: route,
-  }
+  return { title, messageSeqs, model }
 }

@@ -170,6 +170,14 @@ describe('SessionTitleService Provider lifecycle', () => {
     await ctx.sessionTitle.refresh(session)
     expect(requests).toHaveLength(2)
     expect(requests[1]?.messages.map(message => message.seq)).toEqual([first.seq, second.seq])
+    // Every invocation sees the title accepted so far — the deterministic
+    // fallback first, then the provider's own — so the provider can decide
+    // whether to keep or replace it.
+    expect(requests[0]?.currentTitle).toMatchObject({ title: 'Explain asynchronous tit', source: { kind: 'fallback' } })
+    expect(requests[1]?.currentTitle).toMatchObject({
+      title: 'A model-generated title',
+      source: { kind: 'provider', provider: SessionTitleProviderId('first-model') },
+    })
   })
 
   it('preserves provider input order across bounded title-input chunks', async () => {

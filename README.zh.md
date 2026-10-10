@@ -10,6 +10,10 @@ QiLin（`qilin`）是一个开源的 agent harness（智能体框架）。agent 
 
 文档：[用户指南](docs/user/index.zh.md)、[开发指南](docs/development.zh.md)与[架构文档](docs/architecture.zh.md)。
 
+## 产品理念
+
+QiLin 是遵循 [NMO 产品理念](docs/nmo.zh.md) 的产品线的锚：**Native** 让 agent、会话、领域与插件的事实由自己的运行时持有；**Minimal** 让用户操作收敛到任务允许的最少步骤，打断只发生在真实决策点；**Open** 让生态经公开契约进入。QiLin 上的产品在开发前逐一写明如何遵循三条；设计争议以三条仲裁。
+
 ## 开发者预览
 
 QiLin 处于 _开发者预览_ 阶段，正在快速迭代。**未来将出现破坏兼容性的变更。**

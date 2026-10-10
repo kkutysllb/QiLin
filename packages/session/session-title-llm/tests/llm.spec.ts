@@ -1,12 +1,13 @@
 import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
-import LlmRuntime, { createUserMessage, ToolCallId, isAgentLoopRequest, LlmAdapter  } from '@qilin-agent/llm'
+import LlmRuntime, { createUserMessage, ToolCallId, isAgentLoopRequest, LlmAdapter, ReasoningEffortId } from '@qilin-agent/llm'
 import type { FinishReason, GenerateOptions, StreamChunk } from '@qilin-agent/llm'
 import SessionStore, { SessionId } from '@qilin-agent/session'
 import { SessionTitleProviderId } from '@qilin-agent/session-title'
 import type { SessionTitleProviderRequest } from '@qilin-agent/session-title'
 import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 import {
+  executeSessionTitleLlm,
   generateSessionTitleWithLlm,
   resolveSessionTitleLlmConfig,
   SESSION_TITLE_TIMEOUT_CODE,
@@ -267,7 +268,7 @@ describe('generateSessionTitleWithLlm', () => {
   it.each([
     [{ kind: 'max-tokens' }, /reached maxOutputTokens/],
     [{ kind: 'tool-calls' }, /unexpectedly requested a tool/],
-    [{ kind: 'future-finish' } as never, /unsupported finish reason "future-finish"/],
+    [{ kind: 'future-finish' } as never, /unreachable variant in FinishReason/],
   ] satisfies Array<[FinishReason, RegExp]>)('rejects the terminal finish reason %s', async (reason, error) => {
     const { ctx } = await withScript([{ type: 'finish', reason }])
     const providerRequest = request(ctx)
@@ -361,5 +362,63 @@ describe('generateSessionTitleWithLlm', () => {
     } finally {
       vi.useRealTimers()
     }
+  })
+})
+
+describe('executeSessionTitleLlm', () => {
+  it('owns route preparation, the request record, and stream assembly for a prepared request', async () => {
+    const { ctx, adapter } = await withScript(SCRIPT)
+    const providerRequest = request(ctx)
+    const response = await executeSessionTitleLlm(ctx, resolveSessionTitleLlmConfig(CONFIG), providerRequest, TITLE_PROVIDER, {
+      system: 'Provider system prompt.',
+      input: 'Provider input.',
+      messageSeqs: [providerRequest.messages[0]!.seq],
+      selectReasoningEffort: () => undefined,
+    })
+
+    expect(response.finish).toEqual({ kind: 'stop' })
+    expect(response.model).toEqual({ provider: 'current-route', model: 'current-model' })
+    expect(response.blocks).toEqual([{ type: 'text', text: '  五个字标题  ' }])
+    expect(adapter.requests[0]).toMatchObject({
+      system: 'Provider system prompt.',
+      messages: [{ role: 'user', content: [{ type: 'text', text: 'Provider input.' }] }],
+      maxTokens: CONFIG.maxOutputTokens,
+    })
+    expect(providerRequest.session.snapshotEvents().at(-1)).toMatchObject({
+      type: 'session/title-llm-request',
+      data: {
+        titleProvider: TITLE_PROVIDER,
+        messageSeqs: [providerRequest.messages[0]!.seq],
+        system: 'Provider system prompt.',
+        maxTokens: CONFIG.maxOutputTokens,
+      },
+    })
+  })
+
+  it('applies the provider reasoning selection during route preparation', async () => {
+    const { ctx, adapter } = await withScript(SCRIPT)
+    const providerRequest = request(ctx)
+
+    // The selection reaches prepareCall; a route that does not offer the
+    // effort refuses it before dispatch instead of streaming it anyway.
+    await expect(executeSessionTitleLlm(ctx, resolveSessionTitleLlmConfig(CONFIG), providerRequest, TITLE_PROVIDER, {
+      system: 'Provider system prompt.',
+      input: 'Provider input.',
+      messageSeqs: [providerRequest.messages[0]!.seq],
+      selectReasoningEffort: () => ReasoningEffortId('unsupported-effort'),
+    })).rejects.toMatchObject({ code: 'UNSUPPORTED_REASONING_EFFORT' })
+    expect(adapter.requests).toEqual([])
+  })
+
+  it('refuses a prepared request without one source message', async () => {
+    const { ctx } = await withScript(SCRIPT)
+    const providerRequest = request(ctx)
+
+    await expect(executeSessionTitleLlm(ctx, resolveSessionTitleLlmConfig(CONFIG), providerRequest, TITLE_PROVIDER, {
+      system: 'Provider system prompt.',
+      input: 'Provider input.',
+      messageSeqs: [],
+      selectReasoningEffort: () => undefined,
+    })).rejects.toThrow('at least one source message is required')
   })
 })

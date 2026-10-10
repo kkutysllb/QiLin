@@ -10,6 +10,10 @@ It is built on an **everything-is-a-plugin** architecture and powered by [Cordis
 
 Documentation: [user guides](docs/user/index.md), [development](docs/development.md), and [architecture](docs/architecture.md).
 
+## Product philosophy
+
+QiLin anchors a product line governed by the [NMO philosophy](docs/nmo.md): **Native** keeps agent, session, domain, and plugin facts in our own runtime; **Minimal** keeps user operation at the fewest steps the task allows, with interruptions gated to real decisions; **Open** keeps the ecosystem enterable through public contracts. Products on QiLin state how they follow all three before they build; design disputes are settled by them.
+
 ## Developer preview
 
 QiLin is in _developer preview_ and iterating rapidly. **THERE WILL BE COMPATIBILITY-BREAKING CHANGES.**
