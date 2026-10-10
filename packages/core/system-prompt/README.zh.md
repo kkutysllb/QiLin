@@ -67,11 +67,13 @@ ctx.systemPrompt.section({
 
 ### 贡献提示词变量
 
-变量在段文本中以 `{{name}}` 引用，并在每次组装时解析；带作用域变量会为该 agent 遮蔽同名全局变量。循环提供 `model` 与 `cwd`；任何插件都可以注册自己拥有的事实。
+变量从段或上下文文本中以 `{{name}}` 引用，每次组装时解析；带作用域的变量会为该 agent 遮蔽同名全局变量。循环提供 `provider` 和 `model`；插件可注册自己拥有的事实。工作目录服务通过不执行插值的用户上下文提供目录文本。
 
 ```text
-ctx.systemPrompt.variable('cwd', ({ agent }) => agent?.session.header.cwd)
+ctx.systemPrompt.variable('response_language', () => 'English')
 ```
+
+自定义 persona 模板不得依赖内置 `{{cwd}}` 变量：循环不注册它，因此无法解析的引用会在任何模型请求之前使提示词组装失败。请从 home、profile 或单次调用的 `personaSuffix` 设置以及 preset 的 `suffix` 字段中移除 `Your working directory is {{cwd}}.` 语句，保留无关文本。后缀没有其他内容时，可省略或清空该字段。[工作目录服务](../../session/working-directory/README.zh.md) 提供必需的当前目录上下文。
 
 ### 贡献工具 schema
 

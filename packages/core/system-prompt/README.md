@@ -67,11 +67,13 @@ Set `interpolate: false` on a section to preserve its text literally, including 
 
 ### Contribute a prompt variable
 
-Variables are referenced from section text as `{{name}}` and resolved at each assembly; scoped variables shadow a same-named global for that agent. The loop supplies `model` and `cwd`; any plugin can register the facts it owns.
+Variables are referenced from section or context text as `{{name}}` and resolved at each assembly; scoped variables shadow a same-named global for that agent. The loop supplies `provider` and `model`; plugins can register the facts they own. The working-directory service supplies directory text as literal user context.
 
 ```text
-ctx.systemPrompt.variable('cwd', ({ agent }) => agent?.session.header.cwd)
+ctx.systemPrompt.variable('response_language', () => 'English')
 ```
+
+Custom persona templates must not depend on a built-in `{{cwd}}` variable: the loop does not register it, so unresolved references fail prompt assembly before any model request. Remove the `Your working directory is {{cwd}}.` clause from home, profile, or invocation `personaSuffix` settings and preset `suffix` fields, preserving unrelated text. Omit or clear an otherwise empty suffix. The [working-directory service](../../session/working-directory/README.md) supplies the required current-directory context.
 
 ### Contribute tool schemas
 
