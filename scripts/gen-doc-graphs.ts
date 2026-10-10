@@ -173,6 +173,14 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'Resolves Google or Bing requests and retains shared experimental records through the active Session writer.',
   },
   {
+    key: 'cotTranslation',
+    pkg: 'experimental-client-ui-cot-translation',
+    title: 'Browser chain-of-thought translation',
+    mode: 'seam',
+    consumers: ['experimental-cot-translation-bundle'],
+    note: 'The Host controller owns provider selection and per-Session translation records; the Client half renders them in the reasoning body slot and the wire contract stays Remote-owned.',
+  },
+  {
     key: 'mcpResources',
     pkg: 'mcp-resources',
     title: 'Scoped MCP resource access',
