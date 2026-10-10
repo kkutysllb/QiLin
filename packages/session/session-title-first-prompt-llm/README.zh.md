@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-`dsh-session-title-first-prompt-llm` 作为可选的 `ctx.sessionTitle` 提供方，通过 `ctx.llm` 总结第一条符合条件的用户消息。它注册 `first-prompt` 节奏，只在全新非 fork 会话首次创建回退时自动运行，并把结果归因于该消息的确切 seq。自动失败会保留回退，之后只能通过 `ctx.sessionTitle.refresh()` 重试。它拥有自己的提示词、框入与输出解释，并把路由解析、预算、请求记录、取消与流装配委托给 `dsh-session-title-llm` 的共享执行模块，因此两种节奏可以各自措辞与解析标题而不共享该策略。自动行为与配置优先；实现是该模块之上的一次注册。
+`qilin-session-title-first-prompt-llm` 作为可选的 `ctx.sessionTitle` 提供方，通过 `ctx.llm` 总结第一条符合条件的用户消息。它注册 `first-prompt` 节奏，只在全新非 fork 会话首次创建回退时自动运行，并把结果归因于该消息的确切 seq。自动失败会保留回退，之后只能通过 `ctx.sessionTitle.refresh()` 重试。它拥有自己的提示词、框入与输出解释，并把路由解析、预算、日志、取消与流装配委托给 `qilin-session-title-llm`。自动行为与配置优先；实现是该模块之上的一次注册。
 
 ## 目录
 

@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`qilin-session-title-first-prompt-llm` summarizes the first eligible human message through `ctx.llm` as an optional `ctx.sessionTitle` provider. It registers the `first-prompt` cadence, runs automatically only when a fresh non-fork session first creates its fallback, and attributes the result to that message's exact seq. An automatic failure retains the fallback and is retried only through `ctx.sessionTitle.refresh()`. It owns its own prompt, framing, and output interpretation, and delegates route resolution, budgets, request logging, cancellation, and stream assembly to the shared execution module in `qilin-session-title-llm`, so two cadences can word and parse titles differently without sharing that policy. Automatic behavior and configuration come first; the implementation is a registration over that module.
+`qilin-session-title-first-prompt-llm` summarizes the first eligible human message through `ctx.llm` as an optional `ctx.sessionTitle` provider. It registers the `first-prompt` cadence, runs automatically only when a fresh non-fork session first creates its fallback, and attributes the result to that message's exact seq. An automatic failure retains the fallback and is retried only through `ctx.sessionTitle.refresh()`. It owns its own prompt, framing, and output interpretation, and delegates route resolution, budgets, logging, cancellation, and stream assembly to `qilin-session-title-llm`. Automatic behavior and configuration come first; the implementation is a registration over that module.
 
 ## Table of Contents
 
