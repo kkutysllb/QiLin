@@ -123,3 +123,99 @@ describe('all-messages LLM title provider', () => {
     expect(options.system).toContain('return it exactly unchanged')
   })
 })
+
+describe('all-messages provider output and failure handling', () => {
+  const TITLE_SCRIPT: StreamChunk[] = [
+    { type: 'text-delta', index: 0, text: 'All messages model title' },
+    { type: 'finish', reason: { kind: 'stop' } },
+  ]
+
+  class ScriptedAdapter extends LlmAdapter {
+    readonly requests: GenerateOptions[] = []
+
+    constructor(private readonly script: readonly StreamChunk[] = TITLE_SCRIPT) { super() }
+
+    override async * stream(options: GenerateOptions): AsyncIterable<StreamChunk> {
+      this.requests.push(options)
+      yield * this.script
+    }
+  }
+
+  /** Mount the title service and this provider over one scripted adapter. */
+  async function harness(script: readonly StreamChunk[] = TITLE_SCRIPT): Promise<{ ctx: Context; adapter: ScriptedAdapter }> {
+    const ctx = new Context()
+    await ctx.plugin(LlmRuntime)
+    await ctx.plugin(SessionStore)
+    await ctx.plugin(SessionProjectionRegistry)
+    ctx.sessionProjections.register(turnBoundaryProjectionDefinition)
+    await ctx.plugin(SessionTitleService, TITLE_CONFIG)
+    const adapter = new ScriptedAdapter(script)
+    ctx.llm.registerAdapter(['current-route'], adapter)
+    await ctx.plugin(providerPlugin, LLM_CONFIG)
+    return { ctx, adapter }
+  }
+
+  function titled(session: Session): void {
+    session.append('turn/start', { turn: 1 })
+    session.append('user/message', createUserMessage({
+      content: [{ type: 'text', text: 'name this session' }], source: { kind: 'user' },
+    }), { surfaceOp: 'append' })
+    session.append('request/header', {
+      header: { config: { provider: 'current-route', model: 'current-model' } }, reason: 'initial',
+    })
+  }
+
+  it.each([
+    [['**Continuing Previous', ' Session**\n\nThe only message is "continue".'], 'Continuing Previous Session'],
+    [['\n  *Greeting*  \n'], 'Greeting'],
+    [['**a** and **b**\nnote'], '**a** and **b**'],
+    [['Use **bold** for emphasis'], 'Use **bold** for emphasis'],
+    [['Fix *args* handling'], 'Fix *args* handling'],
+    [['*args'], '*args'],
+    [['****'], '****'],
+  ])('takes the title from the first non-empty output line %j', async (deltas, title) => {
+    const { ctx } = await harness([
+      { type: 'block-start', index: 0, blockType: 'text' },
+      ...deltas.map((text): StreamChunk => ({ type: 'text-delta', index: 0, text })),
+      { type: 'finish', reason: { kind: 'stop' } },
+    ])
+    const session = ctx.sessions.create(SessionId('all-parse'))
+    titled(session)
+
+    await ctx.sessionTitle.refresh(session)
+
+    expect(ctx.sessionTitle.get(session)?.title).toBe(title)
+  })
+
+  it('rejects tool-calls and max-tokens termination even when the blocks carry text', async () => {
+    const toolCalls = await harness([
+      { type: 'block-start', index: 0, blockType: 'text' },
+      { type: 'text-delta', index: 0, text: 'Title from text' },
+      { type: 'finish', reason: { kind: 'tool-calls' } },
+    ])
+    const toolCallsSession = toolCalls.ctx.sessions.create(SessionId('all-tool-calls-finish'))
+    titled(toolCallsSession)
+    await expect(toolCalls.ctx.sessionTitle.refresh(toolCallsSession)).rejects.toThrow(/output must contain text only/)
+
+    const maxTokens = await harness([
+      { type: 'block-start', index: 0, blockType: 'text' },
+      { type: 'text-delta', index: 0, text: 'Partial title' },
+      { type: 'finish', reason: { kind: 'max-tokens' } },
+    ])
+    const maxTokensSession = maxTokens.ctx.sessions.create(SessionId('all-max-tokens-finish'))
+    titled(maxTokensSession)
+    await expect(maxTokens.ctx.sessionTitle.refresh(maxTokensSession)).rejects.toThrow(/reached maxOutputTokens/)
+  })
+
+  it('rejects a successful response with no text', async () => {
+    const { ctx } = await harness([
+      { type: 'block-start', index: 0, blockType: 'reasoning' },
+      { type: 'reasoning-delta', index: 0, text: 'no final title' },
+      { type: 'finish', reason: { kind: 'stop' } },
+    ])
+    const session = ctx.sessions.create(SessionId('all-reasoning'))
+    titled(session)
+
+    await expect(ctx.sessionTitle.refresh(session)).rejects.toThrow(/produced no text/)
+  })
+})

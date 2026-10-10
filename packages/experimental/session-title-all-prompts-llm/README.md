@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`qilin-session-title-all-prompts-llm` summarizes every eligible human message through `ctx.llm` as an optional `ctx.sessionTitle` provider. It registers the `all-prompts` cadence and starts a new revision after each new human prompt, using seeded history and child-session prompts. A newer revision aborts and supersedes older work, and even a provider that ignores cancellation cannot commit stale output. It uses the complete required shared LLM configuration from `qilin-session-title-llm`, so route, prompt, budget, and cancellation behavior cannot drift. Automatic behavior and configuration come first; the implementation is a thin registration over the shared policy.
+`qilin-session-title-all-prompts-llm` summarizes every eligible human message through `ctx.llm` as an optional `ctx.sessionTitle` provider. It registers the `all-prompts` cadence and starts a new revision after each new human prompt, using seeded history and child-session prompts. A newer revision aborts and supersedes older work, and even a provider that ignores cancellation cannot commit stale output. It owns its own prompt, current-title framing, and output interpretation, and delegates route resolution, budgets, request logging, cancellation, and stream assembly to the shared execution module in `qilin-session-title-llm`, so two cadences can word and parse titles differently without sharing that policy. Automatic behavior and configuration come first; the implementation is a registration over that module.
 
 ## Table of Contents
 
@@ -51,7 +51,7 @@ This section explains the plugin's shape; the observable behavior is fully cover
 
 ### Design concept
 
-A thin provider plugin: it registers the `all-prompts` cadence with an identity selector over all eligible messages, and delegates everything else to the [shared LLM policy](../../session/session-title-llm/README.md).
+A provider plugin: it registers the `all-prompts` cadence over all eligible messages, owns the prompt and title parsing, and delegates execution to the [shared execution module](../../session/session-title-llm/README.md).
 
 ### Source map
 

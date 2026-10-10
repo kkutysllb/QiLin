@@ -1105,11 +1105,16 @@ export interface Config {
 
 - `inject`: `sessionTitle` · `llm` · `sessions`
 - `refs`: [`SessionTitleLlmConfig`](../packages/session/session-title-llm/src/index.ts)
-- `source`: [`packages/experimental/session-title-all-prompts-llm/src/index.ts:15`](../packages/experimental/session-title-all-prompts-llm/src/index.ts)
+- `source`: [`packages/experimental/session-title-all-prompts-llm/src/index.ts:27`](../packages/experimental/session-title-all-prompts-llm/src/index.ts)
 
 ```ts config-catalog
-/** Required LLM policy; this plugin adds no defaults. */
-export type Config = SessionTitleLlmConfig
+/** Required execution controls plus this provider's title-length targets; no defaults. */
+export interface Config extends SessionTitleLlmConfig {
+  /** Target word count for non-CJK titles. */
+  readonly targetWords: number
+  /** Target character count for Chinese, Japanese, or Korean titles. */
+  readonly targetCjkCharacters: number
+}
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/experimental-session-title-all-prompts-llm -->
 
