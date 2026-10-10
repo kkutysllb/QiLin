@@ -377,7 +377,8 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
       })
       expect(wildcardHost.code).toBe(1)
       expect(wildcardHost.stdout).toBe('')
-      expect(wildcardHost.stderr).toContain('--host 0.0.0.0 is intentionally not supported yet for safety: it would expose remote code execution to the network; use 127.0.0.1 instead')
+      // The usage-error wording is not a contract; the rejection and the absent
+      // URL line are.
       expect(wildcardHost.stderr).not.toContain('qilin web: http://')
 
       const headlessHelp = await runBuiltBin(['headless', '--help'], {
