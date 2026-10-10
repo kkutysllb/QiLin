@@ -49,9 +49,9 @@ describe('gen-tool-catalog collectToolCatalog', () => {
     }
     const directory = catalog.find(entry => entry.pkg === '@qilin-agent/tool-working-directory')
     expect(directory?.sources.working_directory).toBe('packages/session/tool-working-directory/src/index.ts')
-    const parameters = directory?.schemas[0]?.parameters as unknown as JsonSchema
-    expect(parameters.properties?.cd?.type).toBe('string')
-    expect(parameters.required ?? []).not.toContain('cd')
+    expect(directory?.schemas[0]?.parameters).toMatchObject({ properties: { cd: { type: 'string' } } })
+    const required = (directory?.schemas[0]?.parameters as { required?: readonly string[] }).required ?? []
+    expect(required).not.toContain('cd')
   })
 
   it('resolves a runtime-spread enum to its literal members (the payoff over AST)', async () => {

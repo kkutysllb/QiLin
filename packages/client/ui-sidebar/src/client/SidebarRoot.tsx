@@ -194,7 +194,7 @@ export function SidebarRoot({
   const [foldedSections, setFoldedSections] = useState<ReadonlySet<string>>(() => {
     try {
       const raw = localStorage.getItem('qilin.sidebar.folded-sections.v1')
-      const list = raw === null ? [] : JSON.parse(raw) as unknown
+      const list: unknown = raw === null ? [] : JSON.parse(raw)
       return new Set(Array.isArray(list) ? list.filter((row): row is string => typeof row === 'string') : [])
     } catch { return new Set<string>() }
   })
