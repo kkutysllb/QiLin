@@ -28,19 +28,19 @@ baseline: false
 changes:
   - root: "event:agent/inbox/spliced"
     previous: "2026-09-16-session-format-v4"
-    after: "6178f1edcb23f361f2a6cb2c859b1c2187220d5695ece4a3400e0d92845a7178"
+    after: "0111c9b63e2bb61dc671d27e01ffa5286a6bb37ced1c7b9e6b982ce2b9ef807a"
     decision: same-version
   - root: "event:developer/message"
     previous: "2026-09-16-session-format-v4"
-    after: "186159f5f6f67a0b8cd095b8fe55bef42d4f25ca1a1c248f859867af2ece0467"
+    after: "a66da8a304b342cfb814eb4aecd0157d757877a970ef91569b79b38f3c9d8239"
     decision: same-version
   - root: "event:session/title-llm-request"
     previous: "2026-09-16-session-format-v4"
-    after: "ae84c5e493f94acc63cfb70389073ba616ed7ae7aa4fadde048bdcc64d49bb46"
+    after: "505820ef2cbe21dbceb79433b59a9101dd14ce909696925574562bf9fa1366aa"
     decision: same-version
   - root: "event:user/message"
     previous: "2026-09-16-session-format-v4"
-    after: "b83ed1b1cfffbd7bd5cca06ea72e44be57beb68b39e5a96660ce42a9e21aa411"
+    after: "334aaaef7feedf98e781f00f880f24c7bcc980b4ef0e5fa344127a0772d47eae"
     decision: same-version
 ```
 

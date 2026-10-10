@@ -28,7 +28,7 @@ baseline: false
 changes:
   - root: "event:subagent/catalog"
     previous: "2026-09-11-initial"
-    after: "3abae7324356f155cb42450c00b806d134ec93bd6439d2063b8d724162d58604"
+    after: "a3524f96e2aa0a424a200b5e60003abdcc4d8ec1d05522366837de35baf0c67a"
     decision: same-version
 ```
 

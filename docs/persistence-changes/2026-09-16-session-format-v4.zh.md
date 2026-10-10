@@ -28,59 +28,59 @@ baseline: false
 changes:
   - root: "SessionHeader"
     previous: "2026-09-11-initial"
-    after: "1a3440e3577382704d42a6263aa463504eb74c566734a55e9503a63efcd02445"
+    after: "d720be5aedaf6d8b499d467d6e03f98b0dfcdc4f0da95373985e290f9cb3e136"
     decision: version-bump
   - root: "event:agent/inbox/spliced"
     previous: "2026-09-14-image-offload"
-    after: "1506a9b8224986c83015ae99d2cb5ede705538c58c063d6a48ef6d761a31ba6c"
+    after: "6d7bb8945b1e5f8620a0f28d8a69d6cd247660c2ae6d206a8e5170f72dae0f20"
     decision: version-bump
   - root: "event:assistant/attempt"
     previous: "2026-09-14-image-offload"
-    after: "15d5dfdd822aa35e115afd74a8982825a493880457774e6850bc1520b50875e4"
+    after: "3391199b615a3894a26212960f4a90350bcbdb2c0e504b2dc96548e1aa166466"
     decision: version-bump
   - root: "event:assistant/message"
     previous: "2026-09-14-image-offload"
-    after: "1033093edd0db80ff410e00830b523405e00bb0c7684948e531ff65095799625"
+    after: "525c28020c0927822a4739bdc5c45db2e29e1f5b7610667f5548b989e0c67b51"
     decision: version-bump
   - root: "event:compaction/summary"
     previous: "2026-09-14-image-offload"
-    after: "e2f9a41e0989f54ed8cee80f8db2bcf9d60a5c810dc9d45b83fa050b9dce7602"
+    after: "e9a96852fab5c19342b80eaad9206540bfc0b9de9199ab9e3a2306e0cb671f0a"
     decision: version-bump
   - root: "event:developer/message"
     previous: null
-    after: "eef4ef54dc7a133d47448a4ee822e45a351314923ef5f66db34c8b24e4b32d80"
+    after: "92117940b84e5e29e4e4d8dd58f6dc191853a43d59f3e4337a5dd4a49f0cc460"
     decision: version-bump
   - root: "event:request/header"
     previous: "2026-09-11-initial"
-    after: "4208123b50df5006b181481ab45fcf1cde807b88d3fd4d340090bc2e202fac41"
+    after: "e00a308b34eb536c318879aaddfa38f27c434995735ab1c58eab784ea4b5bd36"
     decision: version-bump
   - root: "event:session/title-llm-request"
     previous: "2026-09-14-image-offload"
-    after: "fa8f7d3ebf08a76c7f7a8b0781873c4d819b964da5dbb52cd3cdfa5da34f452d"
+    after: "5f5dbdcc172f780f31d7017fd78bc7f96b2882abcae62e0fd6ea9f507f2b48f1"
     decision: version-bump
   - root: "event:system/message"
     previous: "2026-09-14-image-offload"
-    after: "69081694be231d56fd9580ba14645fd5e35373202605d5c5c841a9435b5fa3b1"
+    after: "23efb2a10dc8eca78577f2a053b13428b1939e147d6041ea27e4634ac5e6bf6f"
     decision: version-bump
   - root: "event:team/message/queued"
     previous: "2026-09-14-image-offload"
-    after: "21fb6a90d5068f6a0003b7ab316ed2f56342477146a65c00db0f13c4d8df667d"
+    after: "24e955ab9d60476bfe12e020778b49a98d55d92239699f65b2b7db6901f6d891"
     decision: version-bump
   - root: "event:tool/ptc-dispatch"
     previous: "2026-09-14-image-offload"
-    after: "100f6dca1468538239522cde3533e5bd721d0f1a7b50bea8b0eb533ea6c96163"
+    after: "ab8968660be6347aede1bf83706e921cd836a16a77e8b1627672044cd76e7239"
     decision: version-bump
   - root: "event:tool/result"
     previous: "2026-09-14-image-offload"
-    after: "7c9f44e90a0058f4cc532ae20dad0c10afa6eba22e70a6c79fc79490bad64397"
+    after: "83abeec3277753cb702296a3497f61047eb17dcb20e5c809cafc473d2279720e"
     decision: version-bump
   - root: "event:turn/end"
     previous: "2026-09-14-image-offload"
-    after: "0f8512903d94f57a4748fa1a2092e64342856796684e6b8343db685b192745ce"
+    after: "4e75896cec18fef7578ee36658dc6f53b58eb455c298fbd2cc531f87ca13d484"
     decision: version-bump
   - root: "event:user/message"
     previous: "2026-09-14-image-offload"
-    after: "3f72db3d87a0c5c43e68be467b4cca728eaf5adc1d5d2b6975ff42bfbd961761"
+    after: "c3476ce746996e6fb7a281fe5920a4df3298a8a597fff19490fbd43641f1b870"
     decision: version-bump
 ```
 
