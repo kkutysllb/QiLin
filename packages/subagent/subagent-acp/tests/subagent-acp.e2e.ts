@@ -1,3 +1,5 @@
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
+import { startExternalActivation } from '../../subagent/tests/external-activation-helpers.ts'
 import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -10,33 +12,33 @@ import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
 import { resolveExampleLaunch } from '@qilin-agent/loader-smoke'
 import * as acp from '../src/index.ts'
-import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 
 /**
- * With-key cross-process boundary proof: the backend spawns the real qilin ACP profile, speaks ACP over
+ * With-key cross-process boundary proof: the backend spawns the real dsh ACP profile, speaks ACP over
  * stdio, and returns its real model answer. This is the out-of-process counterpart to in-process
  * spawn coverage and self-skips without `DEEPSEEK_API_KEY`.
  */
 
-// The real ACP profile: qilin plus the example's live DeepSeek patch.
+// The real ACP profile: dsh plus the example's live DeepSeek patch.
 const binScript = fileURLToPath(new URL('../../../../apps/cli/src/bin.ts', import.meta.url))
 const exampleConfig = fileURLToPath(new URL('../../../../snapshots/acp/escalation-approved/cordis.yml', import.meta.url))
+const transportPatch = fileURLToPath(new URL('./fixtures/acp-transport.patch.yml', import.meta.url))
 const repoTsconfig = fileURLToPath(new URL('../../../../tsconfig.json', import.meta.url))
 
-// How to launch the child ACP profile (src via tsx / lib via plain node, per QILIN_EXAMPLE_MODE).
+// How to launch the child ACP profile (src via tsx / lib via plain node, per DSH_EXAMPLE_MODE).
 // The subprocess seam scrubs ambient creds while spec.env merges after it, so the model key is
 // forwarded explicitly; TSX_TSCONFIG_PATH is added by the resolver in src mode only.
-function resolveChildLaunch(qilinHome: string) {
+function resolveChildLaunch(dshHome: string) {
   return resolveExampleLaunch({
     srcBin: binScript,
     sourceImport: 'tsx/esm',
-    configArgs: ['--profile', 'acp', '--patch', exampleConfig],
+    configArgs: ['--profile', 'acp', '--patch', exampleConfig, '--patch', transportPatch],
     tsconfigPath: repoTsconfig,
     env: {
       ...process.env.DEEPSEEK_API_KEY !== undefined ? { DEEPSEEK_API_KEY: process.env.DEEPSEEK_API_KEY } : {},
       ...process.env.DEEPSEEK_BASE_URL !== undefined ? { DEEPSEEK_BASE_URL: process.env.DEEPSEEK_BASE_URL } : {},
-      QILIN_HOME: qilinHome,
-      QILIN_PERMISSION_MODE: 'danger-full-access',
+      DSH_HOME: dshHome,
+      DSH_PERMISSION_MODE: 'danger-full-access',
     },
   })
 }
@@ -56,8 +58,8 @@ afterEach(async () => {
 
 describe.skipIf(!process.env.DEEPSEEK_API_KEY)('ACP backend with-key e2e (drive our own acp-agent)', () => {
   it('drives the real acp-agent example process to answer a prompt', async () => {
-    workdir = await mkdtemp(join(tmpdir(), 'qilin-subagent-acp-e2e-'))
-    const childLaunch = resolveChildLaunch(join(workdir, '.qilin-child'))
+    workdir = await mkdtemp(join(tmpdir(), 'dsh-subagent-acp-e2e-'))
+    const childLaunch = resolveChildLaunch(join(workdir, '.dsh-child'))
     ctx = new Context()
     await ctx.plugin(SessionProjectionRegistry)
     await mountWorkingDirectoryFixture(ctx)
@@ -71,7 +73,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('ACP backend with-key e2e (drive 
       env: childLaunch.env as Record<string, string>,
     })
 
-    const run = await ctx.subagents.start('acp', {
+    const run = await startExternalActivation(ctx, 'acp', {
       cwd: workdir,
       prompt: [{ type: 'text', text: 'Reply with exactly the word PONG and nothing else. Do not use any tools.' }],
       parent: fakeParent,
@@ -89,8 +91,8 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('ACP backend with-key e2e (drive 
   }, 180_000)
 
   it('drives the child to do real file work via its own bash tool', async () => {
-    workdir = await mkdtemp(join(tmpdir(), 'qilin-subagent-acp-e2e-'))
-    const childLaunch = resolveChildLaunch(join(workdir, '.qilin-child'))
+    workdir = await mkdtemp(join(tmpdir(), 'dsh-subagent-acp-e2e-'))
+    const childLaunch = resolveChildLaunch(join(workdir, '.dsh-child'))
     ctx = new Context()
     await ctx.plugin(SessionProjectionRegistry)
     await mountWorkingDirectoryFixture(ctx)
@@ -105,7 +107,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('ACP backend with-key e2e (drive 
       env: childLaunch.env as Record<string, string>,
     })
 
-    const run = await ctx.subagents.start('acp', {
+    const run = await startExternalActivation(ctx, 'acp', {
       cwd: workdir,
       prompt: [{ type: 'text', text:
         'Use the bash tool to write the text ACP_CHILD_WAS_HERE into a file named proof.txt '

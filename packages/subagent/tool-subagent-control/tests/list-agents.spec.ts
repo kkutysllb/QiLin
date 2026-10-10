@@ -1,3 +1,4 @@
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -17,7 +18,6 @@ import { MockAdapter, textResponse } from '../../../core/agent-loop/tests/mock-a
 import * as tool from '../src/list-agents.ts'
 import { parkParent } from './park-parent.ts'
 import { TestSessionQuery } from './test-session-query.ts'
-import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 
 /** One scripted response that may wait on a caller-released gate before streaming. */
 interface GatedEntry {
@@ -60,7 +60,7 @@ async function setupWith(adapter: MockAdapter | GatedAdapter) {
   const ctx = new Context()
   contexts.add(ctx)
   await mountAgentLoopTestDependencies(ctx)
-  const root = mkdtempSync(join(tmpdir(), 'qilin-tool-list-agents-'))
+  const root = mkdtempSync(join(tmpdir(), 'dsh-tool-list-agents-'))
   roots.push(root)
   await ctx.plugin(JsonlSessionPersistence, { root })
   await ctx.plugin(TestSessionQuery)
@@ -107,22 +107,52 @@ async function waitNoActivation(ctx: Context, childId: SessionId): Promise<void>
   }, { timeout: 5_000 })
 }
 
-describe('qilin-tool-subagent-control/list-agents', () => {
+describe('dsh-tool-subagent-control/list-agents', () => {
+  it('lists a settled caller-delivery local child in both scopes', async () => {
+    const { ctx, parent } = await setup([textResponse('private result')])
+    const started = await ctx.subagents.startActivation({
+      delivery: 'caller', provider: 'spawn', label: 'workflow child',
+      request: { prompt: [{ type: 'text', text: 'child task' }], parent },
+      signal: testToolSignal,
+    })
+    await started.result
+    await started.dispose()
+
+    for (const scope of ['children', 'descendants']) {
+      const result = await callTool(ctx, 'list_agents', { scope }, parent)
+      expect(result.isError).toBe(false)
+      expect(text(result)).toBe(scope === 'children'
+        ? `${started.childId} [inactive] — workflow child`
+        : `${started.childId} [inactive] parent=${parent.id} depth=1 — workflow child`)
+    }
+  })
+
+  it('omits external leaves from direct and recursive listings without diagnostics', async () => {
+    const { ctx, parent } = await setup([])
+    parent.session.append('subagent/catalog', {
+      version: 2, childId: SessionId('external-child'), childCreatedAt: 1,
+      mode: 'external', label: 'external child',
+    })
+    for (const scope of ['children', 'descendants']) {
+      const result = await callTool(ctx, 'list_agents', { scope }, parent)
+      expect(result.isError).toBe(false)
+      expect(text(result)).toBe('(no subagents)')
+    }
+  })
+
   it('registers list_agents once, globally, with only the optional scope parameter', async () => {
     const { ctx } = await setup([])
     const schemas = ctx.tools.schemas().filter(schema => schema.name === 'list_agents')
     expect(schemas).toHaveLength(1)
     const parameters = schemas[0]!.parameters as {
-      properties?: Record<string, { enum?: string[] }>
+      properties?: Record<string, { enum?: string[]; description?: string }>
       required?: string[]
     }
     expect(Object.keys(parameters.properties ?? {})).toEqual(['scope'])
     expect(parameters.properties?.scope?.enum).toEqual(['children', 'descendants'])
     expect(parameters.required ?? []).toEqual([])
-    expect(schemas[0]!.description).toContain('send_message')
-    expect(schemas[0]!.description).toContain('steers a running child at its nearest step boundary')
-    expect(schemas[0]!.description).not.toContain('send_message` starts a new turn')
-    expect(schemas[0]!.description).toContain('interrupt_agent')
+    expect(parameters.properties?.scope?.description).toContain('accept send_message in any status')
+    expect(parameters.properties?.scope?.description).toContain('accept only interrupt_agent')
   })
 
   it('renders the empty result as (no subagents)', async () => {
@@ -135,7 +165,7 @@ describe('qilin-tool-subagent-control/list-agents', () => {
 
   it('renders direct children in array order with registry statuses', async () => {
     const { ctx, parent } = await setup([textResponse('done')])
-    const started = await ctx.subagents.startContinuable({
+    const started = await ctx.subagents.startActivation({ delivery: 'parent',
       provider: 'spawn',
       label: 'real child',
       request: { prompt: [{ type: 'text', text: 'child task' }], parent },
@@ -199,17 +229,13 @@ describe('qilin-tool-subagent-control/list-agents', () => {
     expect(listChildren).toHaveBeenCalledWith(parent.id, signal)
   })
 
-  it('lists a real settled continuable child and omits a real one-shot sibling', async () => {
-    const { ctx, parent } = await setup([textResponse('once'), textResponse('done')])
-    const oneShot = await ctx.subagents.start('spawn', {
-      label: 'finished once',
-      prompt: [{ type: 'text', text: 'one-shot task' }],
-      parent,
-      signal: new AbortController().signal,
+  it('lists a real settled continuable child and omits a historical one-shot sibling', async () => {
+    const { ctx, parent } = await setup([textResponse('done')])
+    parent.session.append('subagent/catalog', {
+      version: 1, childId: SessionId('historical-one-shot'), childCreatedAt: 1,
+      mode: 'one-shot', label: 'finished once',
     })
-    await oneShot.result
-    await oneShot.dispose()
-    const started = await ctx.subagents.startContinuable({
+    const started = await ctx.subagents.startActivation({ delivery: 'parent',
       provider: 'spawn',
       label: 'summarize the doc',
       request: { prompt: [{ type: 'text', text: 'child task' }], parent },
@@ -226,8 +252,8 @@ describe('qilin-tool-subagent-control/list-agents', () => {
     const schema = ctx.tools.schemas().find(candidate => candidate.name === 'list_agents')
     // Completion reaches the parent through its notice; listing is discovery,
     // so its inactive status must not send the model looking for a result.
-    expect(schema?.description).toContain('you are told when one finishes')
-    expect(schema?.description).toContain('inactive does not describe task completion, success, failure,')
+    expect(schema?.description).toContain('You will be notified when a subagent finishes')
+    expect(schema?.description).toContain('inactive means it is not currently working')
     // The enum is the closed vocabulary the model renders, so pin it rather than
     // scanning prose that legitimately reads "not to poll for completion".
     const variants = ctx.tools.get('list_agents')?.output.schema.items?.oneOf ?? []
@@ -270,7 +296,7 @@ describe('qilin-tool-subagent-control/list-agents', () => {
       { chunks: textResponse('grandchild'), gate: releaseGrandchild.promise },
     ])
     const { ctx, parent } = await setupWith(adapter)
-    const started = await ctx.subagents.startContinuable({
+    const started = await ctx.subagents.startActivation({ delivery: 'parent',
       provider: 'spawn',
       label: 'waiting branch',
       request: { prompt: [{ type: 'text', text: 'branch work' }], parent },
@@ -278,7 +304,7 @@ describe('qilin-tool-subagent-control/list-agents', () => {
     })
     await vi.waitFor(() => { expect(adapter.requests).toHaveLength(1) })
     const child = ctx.agents.get(started.childId)!
-    const grandchild = await ctx.subagents.startContinuable({
+    const grandchild = await ctx.subagents.startActivation({ delivery: 'parent',
       provider: 'spawn',
       label: 'nested leaf',
       request: { prompt: [{ type: 'text', text: 'leaf work' }], parent: child },

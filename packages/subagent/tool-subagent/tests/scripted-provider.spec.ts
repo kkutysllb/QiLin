@@ -1,19 +1,20 @@
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 import { describe, expect, it } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
 import { type Agent } from '@qilin-agent/agent'
-import SubagentRuntime, { type SubagentStartRequest } from '@qilin-agent/subagent'
+import SubagentRuntime, { type ResolvedSubagentStartRequest } from '@qilin-agent/subagent'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import { SessionId } from '@qilin-agent/session'
 import * as scripted from './scripted-provider.ts'
-import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 
 /** A minimal parent; the scripted provider only reads its id. */
 function fakeParent(id = 'parent-1'): Agent {
   return { id: SessionId(id) } as unknown as Agent
 }
 
-function baseRequest(over: Partial<SubagentStartRequest> = {}): SubagentStartRequest {
+function baseRequest(over: Partial<ResolvedSubagentStartRequest> = {}): ResolvedSubagentStartRequest {
   return {
+    cwd: process.cwd(),
     prompt: [{ type: 'text', text: 'task' }],
     parent: fakeParent(),
     signal: new AbortController().signal,
@@ -35,7 +36,7 @@ describe('scripted subagent provider fixture', () => {
     const ctx = await mount({ reply: 'hello from fixture' })
     expect(ctx.subagents.list()).toEqual(['mock'])
 
-    const run = await ctx.subagents.start('mock', baseRequest())
+    const run = await ctx.subagents.getProvider('mock')!.start!(baseRequest())
     await expect(run.result).resolves.toEqual({
       output: [{ type: 'text', text: 'hello from fixture' }],
       structured: undefined,
@@ -52,28 +53,28 @@ describe('scripted subagent provider fixture', () => {
   it('returns configured and default structured results', async () => {
     const configured = await mount({ reply: 'r', structured: { answer: 42 } })
     const schema = { type: 'object' as const, properties: { answer: { type: 'number' as const } } }
-    const configuredRun = await configured.subagents.start('mock', baseRequest({ outputSchema: schema }))
+    const configuredRun = await configured.subagents.getProvider('mock')!.start!(baseRequest({ outputSchema: schema }))
     await expect(configuredRun.result).resolves.toMatchObject({ structured: { answer: 42 } })
 
     const fallback = await mount({ reply: 'fallback reply' })
-    const fallbackRun = await fallback.subagents.start('mock', baseRequest({ outputSchema: schema }))
+    const fallbackRun = await fallback.subagents.getProvider('mock')!.start!(baseRequest({ outputSchema: schema }))
     await expect(fallbackRun.result).resolves.toMatchObject({ structured: { reply: 'fallback reply' } })
   })
 
   it('omits structured output when no schema is requested', async () => {
     const ctx = await mount({ capabilities: { outputSchema: false } })
-    const run = await ctx.subagents.start('mock', baseRequest())
+    const run = await ctx.subagents.getProvider('mock')!.start!(baseRequest())
     expect(await run.result).not.toHaveProperty('structured')
   })
 
   it('honors configured and cancellation stop reasons', async () => {
     const refused = await mount({ stopReason: 'refusal' })
-    const refusedRun = await refused.subagents.start('mock', baseRequest())
+    const refusedRun = await refused.subagents.getProvider('mock')!.start!(baseRequest())
     await expect(refusedRun.result).resolves.toMatchObject({ stopReason: 'refusal' })
 
-    const cancelled = await mount()
+    const cancelled = await mount({ onStart: () => new Promise<void>(() => {}) })
     const controller = new AbortController()
-    const cancelledRun = await cancelled.subagents.start('mock', baseRequest({ signal: controller.signal }))
+    const cancelledRun = await cancelled.subagents.getProvider('mock')!.start!(baseRequest({ signal: controller.signal }))
     controller.abort()
     await expect(cancelledRun.result).resolves.toMatchObject({ stopReason: 'aborted' })
   })
@@ -82,13 +83,13 @@ describe('scripted subagent provider fixture', () => {
     const ctx = await mount()
     const alreadyAborted = new AbortController()
     alreadyAborted.abort()
-    await expect(ctx.subagents.start('mock', baseRequest({ signal: alreadyAborted.signal })))
-      .rejects.toThrow('This operation was aborted')
+    await expect(ctx.subagents.getProvider('mock')!.start!(baseRequest({ signal: alreadyAborted.signal })))
+      .rejects.toThrow('scripted subagent start aborted before publication')
 
     const handoff = new AbortController()
-    const pending = ctx.subagents.start('mock', baseRequest({ signal: handoff.signal }))
+    const pending = ctx.subagents.getProvider('mock')!.start!(baseRequest({ signal: handoff.signal }))
     handoff.abort()
-    await expect(pending).rejects.toThrow('This operation was aborted')
+    await expect(pending).rejects.toThrow('scripted subagent start aborted before publication')
   })
 
   it('unregisters with its owning fixture fiber', async () => {
