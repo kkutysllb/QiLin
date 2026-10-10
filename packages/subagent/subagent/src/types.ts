@@ -14,7 +14,6 @@ import type { Branded } from '@qilin-agent/brand'
 import type { ContentBlock, MessageId } from '@qilin-agent/llm'
 import type { SessionEvent, SessionId } from '@qilin-agent/session'
 import type { ObjectJsonSchema, ToolRestriction } from '@qilin-agent/tools'
-import type { SubagentDescriptorData } from './descriptor.ts'
 
 /** Identifies one accepted subagent run across its lifecycle event pair. */
 export type SubagentRunId = Branded<'SubagentRunId'>
@@ -253,8 +252,6 @@ export interface SubagentStartRequest {
 export interface ResolvedSubagentStartRequest extends SubagentStartRequest {
   /** Absolute directory selected once before provider startup. */
   readonly cwd: string
-  /** Detached descriptor a session-backed provider persists in the child log. */
-  readonly descriptor: SubagentDescriptorData
 }
 
 /**

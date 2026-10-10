@@ -78,12 +78,16 @@ describe('advanced Python snapshot workflow ordering', () => {
     await assembly
     ctx.llm.registerAdapter(['mock'], adapter)
     const parent = await ctx.agentLoop.create(SessionId(config.parentSessionId), { provider: 'mock', model: 'mock' })
-    const run = await ctx.subagents.start('spawn', {
-      parent, prompt: [{ type: 'text', text: config.prompt }], signal: new AbortController().signal,
+    const run = await ctx.subagents.startActivation({
+      provider: 'spawn',
+      label: 'workflow child',
+      delivery: 'caller',
+      signal: new AbortController().signal,
+      request: { parent, prompt: [{ type: 'text', text: config.prompt }] },
     })
     cleanups.push(() => run.dispose())
     const child = await entered.promise
-    expect(child.id).toBe(run.id)
+    expect(child.id).toBe(run.childId)
     expect(adapter.requests).toHaveLength(0)
     expect(child.session.snapshotEvents().some(event => event.type === 'subagent/descriptor')).toBe(false)
     parent.session.append('tool-workflow/agent-start', {

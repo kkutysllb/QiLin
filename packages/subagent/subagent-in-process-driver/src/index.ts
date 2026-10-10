@@ -32,7 +32,6 @@ import {
 } from '@qilin-agent/subagent'
 import type {
   ResolvedSubagentStartRequest,
-  SubagentDescriptorData,
   SubagentResult,
   SubagentRun,
   SubagentStopReason,
@@ -78,19 +77,6 @@ function prePublicationAbort(): Error {
   return new Error('subagent request was aborted before child publication')
 }
 
-/** Append one one-shot descriptor inside the child's initial turn before its first request. */
-function attachDescriptorAppend(childCtx: Context, descriptor: SubagentDescriptorData): void {
-  let appended = false
-  childCtx.on('agent/pre-step', async ({ agent }, next) => {
-    const decision = await next()
-    if (!appended && decision.kind === 'enter') {
-      appended = true
-      agent.session.append('subagent/descriptor', descriptor)
-    }
-    return decision
-  })
-}
-
 /**
  * Establish and drive one in-process one-shot child. Fulfillment means the agent
  * is already published in the registry and transfers its turn, cancellation,
@@ -132,7 +118,7 @@ export async function startInProcessRun(
     if (request.outputSchema !== undefined) {
       structured = attachStructuredRuntime(childCtx, request.outputSchema)
     }
-    attachDescriptorAppend(childCtx, request.descriptor)
+    // The activation manager appends the child descriptor itself.
   }
 
   const handle = await parent.ctx.agents.create({
