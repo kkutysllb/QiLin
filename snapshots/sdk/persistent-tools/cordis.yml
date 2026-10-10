@@ -109,7 +109,7 @@
   disabled: true
 
 - id: tool-ralph
-  name: '@qilin-agent/tool-ralph'
+  name: '@qilin-agent/experimental-tool-ralph'
   disabled: true
 
 - id: tool-web

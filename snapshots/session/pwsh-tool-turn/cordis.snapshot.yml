@@ -45,7 +45,7 @@
 - id: system-prompt
   name: '@qilin-agent/system-prompt'
   config:
-    personaPrefix: You are a concise snapshot agent working in {{cwd}}.
+    personaPrefix: You are a concise snapshot agent.
 
 - id: goal
   name: '@qilin-agent/goal'

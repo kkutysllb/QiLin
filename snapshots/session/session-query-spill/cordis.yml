@@ -16,7 +16,7 @@
 # nested filesystem overlay supplies private spill storage and its byte limit.
 - insert:
     - id: tool-session-query
-      name: '@qilin-agent/tool-session-query'
+      name: '@qilin-agent/experimental-tool-session-query'
 
 - id: timeout-policy
   name: '@qilin-agent/tool-call-timeout-policy'

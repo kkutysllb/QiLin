@@ -17,6 +17,23 @@
       }
     },
     {
+      "name": "sidebar_open",
+      "description": "Open one file or one http(s) page in the Sidebar the user is viewing this Session in. Use it when the user asked to see something: a file you produced, a file worth reading beside the conversation, or a page you found. Pass exactly one of `path` (a file that already exists) or `url`. The file opens in the document preview and the page in the built-in browser; both appear beside the conversation rather than leaving the application.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Path of an existing regular file, relative to the Session working directory or absolute."
+          },
+          "url": {
+            "type": "string",
+            "description": "An http:// or https:// page to open in the built-in browser."
+          }
+        }
+      }
+    },
+    {
       "name": "str_replace_editor",
       "description": "Custom editing tool for viewing, creating and editing files\n* State is persistent across command calls and discussions with the user\n* If `path` is a file, `view` displays the result of applying `cat -n`. If `path` is a directory, `view` lists non-hidden files and directories up to 2 levels deep\n* The `create` command cannot be used if the specified `path` already exists as a file\n* If a `command` generates a long output, it will be truncated and marked with `<response clipped>`\n* A null placeholder for a parameter unused by the selected command is treated as omitted. Required parameters still need values; omit `str_replace.new_str` rather than setting it to null when deleting a match\n\nNotes for using the `str_replace` command:\n* The `old_str` parameter should match EXACTLY one or more consecutive lines from the original file. Be mindful of whitespaces!\n* If the `old_str` parameter is not unique in the file, the replacement will not be performed. Make sure to include enough context in `old_str` to make it unique\n* The `new_str` parameter should contain the edited lines that should replace the `old_str`",
       "parameters": {
@@ -99,6 +116,19 @@
           "command",
           "path"
         ]
+      }
+    },
+    {
+      "name": "working_directory",
+      "description": "Read the current working directory, or change it with cd. Relative paths use the current directory. Existing shells and running processes keep their own directories.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "cd": {
+            "type": "string",
+            "description": "Existing directory to enter. Omit to read the current directory."
+          }
+        }
       }
     }
   ],

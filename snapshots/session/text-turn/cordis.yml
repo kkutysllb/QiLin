@@ -37,7 +37,7 @@
   name: '@qilin-agent/system-prompt'
   config:
     personaPrefix: |
-      You are a coding assistant powered by the {{model}} model. Your working directory is {{cwd}}. Your bash tool runs under a file sandbox — a `[sandbox: file access denied …]` result is policy, not a command bug.
+      You are a coding assistant powered by the {{model}} model. Your bash tool runs under a file sandbox — a `[sandbox: file access denied …]` result is policy, not a command bug.
 
       Verify your work by running the code or tests. Keep answers brief and factual.
 
@@ -70,12 +70,12 @@
 
 - insert:
     - id: hooks-claude-code
-      name: '@qilin-agent/hooks-claude-code'
+      name: '@qilin-agent/experimental-hooks-claude-code'
       config:
         configPath: ./hooks.json
 
     - id: hooks-codex
-      name: '@qilin-agent/hooks-codex'
+      name: '@qilin-agent/experimental-hooks-codex'
       config:
         configPath: ./codex-hooks.json
 

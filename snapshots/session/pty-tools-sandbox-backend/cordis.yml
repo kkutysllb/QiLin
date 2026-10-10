@@ -13,4 +13,4 @@
         timeoutMs: 2000
         disposeGraceMs: 500
     - id: tool-terminal
-      name: '@qilin-agent/tool-terminal'
+      name: '@qilin-agent/experimental-tool-terminal'

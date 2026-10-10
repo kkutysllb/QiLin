@@ -8,7 +8,7 @@
     - id: pty-snapshot-backend
       name: './pty-snapshot-backend.mjs'
     - id: tool-terminal
-      name: '@qilin-agent/tool-terminal'
+      name: '@qilin-agent/experimental-tool-terminal'
       config:
         maxResultBytes: 64
     - id: llm-replay

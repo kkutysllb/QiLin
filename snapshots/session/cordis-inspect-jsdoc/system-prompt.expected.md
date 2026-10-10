@@ -1,6 +1,6 @@
 You are an AI agent powered by QiLin.
 
-You are a coding assistant powered by the deepseek-v4-flash model. Your working directory is {{cwd}}.
+You are a coding assistant powered by the deepseek-v4-flash model.
 
 Verify your work by running the code or tests. Keep answers brief and factual.
 
@@ -176,6 +176,13 @@ interface ToolArgsMap {
     /** The message to deliver to the agent. */
     message: string;
   } & Record<string, JsonValue>;
+  /** Open one file or one http(s) page in the Sidebar the user is viewing this Session in. Use it when the user asked to see something: a file you produced, a file worth reading beside the conversation, or a page you found. Pass exactly one of `path` (a file that already exists) or `url`. The file opens in the document preview and the page in the built-in browser; both appear beside the conversation rather than leaving the application. */
+  sidebar_open: {
+    /** Path of an existing regular file, relative to the Session working directory or absolute. */
+    path?: string;
+    /** An http:// or https:// page to open in the built-in browser. */
+    url?: string;
+  } & Record<string, JsonValue>;
   /** Load the full instructions for an available skill. Call this with the exact skill name from the session skill catalog before acting on a task that names or clearly matches that skill. */
   skill: {
     /** The exact skill name from the available skills list. */
@@ -183,6 +190,8 @@ interface ToolArgsMap {
   } & Record<string, JsonValue>;
   /** Delegate a self-contained task to a subagent (a separate agent that works in its own context) to offload focused, independent work — research, a scoped implementation, an analysis — so it does not consume this conversation's context. The subagent returns its result, not its intermediate steps. Give it a complete, standalone prompt: it does not see this conversation. This tool runs in the background by default, immediately returns a durable subagent id, and keeps the child conversation available for later turns. When that run settles, the runtime sends the parent a notice containing its outcome and any final assistant message; `send_message` steers the child's nearest step while it is running and starts or resumes a turn while it is inactive. Set `run_in_background: false` only when your next action depends on receiving the result. */
   subagent: {
+    /** Initial child working directory. Relative paths use your current directory; omitted inherits it. Later directory changes in either agent are independent. */
+    cwd?: string;
     /** A short (3-5 word) description of the delegated task, for display. */
     description: string;
     /** The complete, self-contained task for the subagent. It does not share this conversation's context, so include everything it needs. */
@@ -192,6 +201,8 @@ interface ToolArgsMap {
   } & Record<string, JsonValue>;
   /** Delegate a task to a subagent that inherits this conversation: a child agent seeded with all completed turns so far (it does not see the current in-flight turn). Use this when the subtask builds on this conversation's context — a follow-up analysis, a review, a continuation — without consuming this conversation's context for the work itself. You receive its result, not its intermediate steps. This call waits for the subagent and returns its result. */
   subagent_fork: {
+    /** Initial child working directory. Relative paths use your current directory; omitted inherits it. Later directory changes in either agent are independent. */
+    cwd?: string;
     /** A short (3-5 word) description of the delegated task, for display. */
     description: string;
     /** The task for the subagent. It already sees this conversation's completed turns, so build on them freely and state only what is new. */
@@ -260,6 +271,11 @@ interface ToolArgsMap {
     args?: Record<string, JsonValue>;
     /** Run as a background job: return a job id immediately instead of waiting; the return value arrives with the completion notice. */
     run_in_background?: boolean;
+  } & Record<string, JsonValue>;
+  /** Read the current working directory, or change it with cd. Relative paths use the current directory. Existing shells and running processes keep their own directories. */
+  working_directory: {
+    /** Existing directory to enter. Omit to read the current directory. */
+    cd?: string;
   } & Record<string, JsonValue>;
   /** Create or fully replace a UTF-8 text file. */
   write: {
@@ -434,6 +450,12 @@ interface ToolOutputMap {
   send_message: {
     messageId: string;
   };
+  sidebar_open: {
+    kind: "file" | "url";
+    target: string;
+    title: string;
+    delivered: boolean;
+  };
   skill: {
     name: string;
     provider: string;
@@ -530,6 +552,10 @@ interface ToolOutputMap {
     runId: string;
     agentsStarted: number;
     result: JsonValue;
+  };
+  working_directory: {
+    /** Current absolute working directory. */
+    cwd: string;
   };
   write: {
     path: string;
