@@ -95,6 +95,12 @@ export const turnBoundaryProjectionDefinition = {
   },
 } satisfies ProjectionDefinition<'turnBoundary', TurnBoundaryProjection>
 
+/** Re-throw one collected failure as itself, or several as one `AggregateError`. */
+function throwCollectedFailures(failures: readonly unknown[], message: string): void {
+  if (failures.length === 1) throw failures[0]
+  if (failures.length > 1) throw new AggregateError(failures, message)
+}
+
 /** Factory-level ownership: live agent teardowns plus config startup work. */
 class FactoryOwnership {
   private accepting = true
@@ -141,10 +147,15 @@ class FactoryOwnership {
     this.accepting = false
     this.teardown.abort(new Error('agent loop is not active'))
     this.inactive.resolve()
-    await Promise.all([
+    const settlements = await Promise.allSettled([
       ...[...this.liveAgents].map(dispose => dispose()),
       ...this.startupTasks,
     ])
+    const failures: unknown[] = []
+    for (const result of settlements) {
+      if (result.status === 'rejected') failures.push(result.reason)
+    }
+    throwCollectedFailures(failures, 'agent loop disposal failed')
   }
 }
 
@@ -561,10 +572,12 @@ export class AgentLoop extends Service implements AgentFactory {
     let publication: ReturnType<typeof Promise.withResolvers<void>> | undefined
     const machineReady = Promise.withResolvers<void>()
     // Reverse teardown, memoized so every racing owner awaits one quiescence:
-    // stop the machine, drain and close the session's write path, leave the
-    // registries, unwind the scope, release bookkeeping.
-    const dispose = (ownerTriggered = false): Promise<void> => (disposing ??= (async () => {
-      abort.abort(new Error(`agent "${id}" lifecycle disposed`))
+    // stop the machine, unwind the scope, drain and close the session's write
+    // path, leave the registries, release bookkeeping.
+    const teardown = (ownerTriggered = false): Promise<void> => (disposing ??= (async () => {
+      abort.abort(new Error(this.ownership.isActive()
+        ? `agent "${id}" lifecycle disposed`
+        : 'agent loop is not active'))
       callerSignal?.removeEventListener('abort', onCallerAbort)
       this.ownership.signal.removeEventListener('abort', onFactoryTeardown)
       // Teardown failures are collected, never swallowed: registry, scope,
@@ -583,8 +596,12 @@ export class AgentLoop extends Service implements AgentFactory {
         if (machine !== undefined) {
           machine.cancel({ kind: 'disposed' })
           await machine.whenIdle()
-          await machine.scope.dispose()
         }
+      } catch (error: unknown) {
+        failures.push(error)
+      }
+      try {
+        await machine?.scope.dispose()
       } catch (error: unknown) {
         failures.push(error)
       }
@@ -604,13 +621,17 @@ export class AgentLoop extends Service implements AgentFactory {
         untrack()
         if (!ownerTriggered) await unfollowOwner()
       }
-      if (failures.length === 1) throw failures[0]
-      if (failures.length > 1) {
-        throw new AggregateError(failures, `agent "${id}" disposal failed`)
-      }
+      throwCollectedFailures(failures, `agent "${id}" disposal failed`)
     })())
-    const untrack = this.ownership.track(dispose)
     let unfollowOwner: () => Promise<void> | void
+    const dispose = async (): Promise<void> => {
+      try {
+        await teardown()
+      } finally {
+        await unfollowOwner()
+      }
+    }
+    const untrack = this.ownership.track(dispose)
     try {
       unfollowOwner = ownerCtx.effect(function* () {
         machine = new ReactLoopAgent(loopCtx, id, options, session)
@@ -621,7 +642,7 @@ export class AgentLoop extends Service implements AgentFactory {
           // unregistering this already-running owner effect from inside itself.
           if (disposing !== undefined) return
           abort.abort(new Error(`agent "${id}" setup aborted: owner disposed during setup`))
-          return dispose(true)
+          return teardown(true)
         }
       }, `agentLoop.lifecycle(${id})`)
       /* v8 ignore start -- ctx.effect throws only on an inactive fiber, which assertActive() above already rejected */
