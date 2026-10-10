@@ -319,6 +319,40 @@ describe('continuable activation capacity', () => {
     }
   })
 
+  it('establishes an activation whose result settles and whose disposal closes one epoch', async () => {
+    const release = Promise.withResolvers<undefined>()
+    const adapter = new GatedAdapter([{ chunks: textResponse('activation output'), gate: release.promise }])
+    const { ctx, parent } = await setupWith(adapter)
+    parkParent(ctx, parent)
+    try {
+      const activation = await ctx.subagents.startActivation({ ...startSpec(parent), delivery: 'parent' })
+      expect(activation.messageId).toBeDefined()
+      expect(ctx.agents.get(activation.childId)).toBeDefined()
+      release.resolve(undefined)
+      await expect(activation.result).resolves.toMatchObject({
+        output: [{ type: 'text', text: 'activation output' }],
+        stopReason: 'completed',
+      })
+      await activation.dispose()
+      await waitNoActivation(ctx, activation.childId)
+    } finally {
+      release.resolve(undefined)
+      await ctx.fiber.dispose()
+    }
+  })
+
+  it('rejects caller-only delivery before any child exists', async () => {
+    const adapter = new GatedAdapter([])
+    const { ctx, parent } = await setupWith(adapter)
+    parkParent(ctx, parent)
+    try {
+      await expect(ctx.subagents.startActivation({ ...startSpec(parent), delivery: 'caller' }))
+        .rejects.toMatchObject({ code: 'UNSUPPORTED_ACTIVATION_DELIVERY' })
+    } finally {
+      await ctx.fiber.dispose()
+    }
+  })
+
   it('applies capacity edits to an existing root without stopping resident children', async () => {
     const release = Promise.withResolvers<undefined>()
     const adapter = new GatedAdapter(Array.from({ length: 4 }, () => ({ chunks: textResponse('done'), gate: release.promise })))

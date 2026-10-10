@@ -152,7 +152,7 @@ Agent 收件箱是唯一队列。每条 Agent 消息都使用 `Agent.steer()`：
 
 权限来自确切在线 sender。parent 到 child 的投递要求目标的 `SessionHeader.parentSession` 指向 sender；child 到 parent 的投递要求 sender 的驻留 Activation 指向目标。sibling、相隔多于一条边的 ancestor、self-target、陈旧 Agent 对象与一次性 child 都会被拒绝。每条已接受消息都以 `Agent <sender-id> sent a message:` 作为前缀，并记录 `AgentMessageSource`；来源信息记录 sender，但不授予权限。
 
-对于 `startContinuable()`、`sendMessage()` 与浏览器 prompt 投递，调用方 signal 仅在收件箱接受之前掌管查找、物化与准入。此后管理器独立掌管该 Activation：之后的调用方取消既不会取消已接受的轮次，也不会 dispose 子 agent。公开 subagent 服务不暴露由调用方选择的 Agent 消息调度；浏览器人类 Queue 与 Steer 仍是内部适配器选择。
+`SubagentRuntime.startActivation()` 是同一建造步骤在「每个可 steer 子级都会采用的名字」下的形态：它接受 `SubagentActivationSpec`，返回 `{ childId, messageId, result, dispose }`，并在该 epoch 结算时兑现结果，因此保留句柄的调用方既能等待最终输出，也能只 dispose 这个 epoch。它只接受 `delivery: 'parent'`；`'caller'` 投递（即建立一个由调用方消费结算、却不通知其持久父级的子级）不受支持，并以 `UNSUPPORTED_ACTIVATION_DELIVERY` 拒绝。对于 `startContinuable()`、`sendMessage()` 与浏览器 prompt 投递，调用方 signal 仅在收件箱接受之前掌管查找、物化与准入。此后管理器独立掌管该 Activation：之后的调用方取消既不会取消已接受的轮次，也不会 dispose 子 agent。公开 subagent 服务不暴露由调用方选择的 Agent 消息调度；浏览器人类 Queue 与 Steer 仍是内部适配器选择。
 
 在线 queue occurrence 变更属于 Session 域。只有在线 subagent-owned Agent 的当前 projection identity 为 continuable，且其 descriptor 序号位于该 child 自身的非 seed suffix 时，`session.updateQueue` 才会接纳普通 Edit、Remove 与 QueueDock Steer。Identity projection 以 last-wins 方式折叠 descriptor，因此 child descriptor 会覆盖 fork lineage 保留的 descriptor；own-suffix 序号检查会阻止仅来自 seed 的祖先 identity 授权变更。One-shot、缺失、未知、损坏或冷 child 会被拒绝，queue 变更绝不会冷恢复 child。这些变更以目标 Session id 作为人类权限，包括待处理 `nextStep` steering 或注入 context。Steer 要求 queued `MessageId`，且 command 开始时 Agent 必须报告 running；准入后发生取消时，会使用 Agent 已接受的唤醒 `nextTurn` fallback。Edit 会在同一个 `MessageId` 下改写内容，且 Edit 与 Steer 都会同步完成 Inbox 变更，因此 settlement 只会观察最终状态。`agent/inbox/claimed` 与 `agent/inbox/discarded` 都会唤醒 watcher 重新读取是否仍有待处理 occurrence；这样，直接 Agent 投递可以恢复停放工作，而移除最后一个停放 occurrence 可使 idle child 结算。[人类 inbox 控制 Agent Note](../../.agents/notes/implemented/feature/2026-08-27-continuable-subagent-human-inbox-control.zh.md)拥有这些语义。
 
@@ -520,6 +520,14 @@ resolveMaxDepth(configured?: number | 'provider-managed'): number | undefined
  * @throws when continuation services are unavailable or materialization fails.
  */
 async startContinuable(spec: ContinuableStartSpec): Promise<ContinuableStart>
+
+/**
+ * Establish one continuable child and return the Activation that owns it.
+ * @param spec - provider, delegation request, caller cancellation, and delivery.
+ * @returns the child identity, terminal result, and this epoch's disposal.
+ * @throws when continuation services are unavailable or delivery is unsupported.
+ */
+async startActivation(spec: SubagentActivationSpec): Promise<SubagentActivation>
 
 /**
  * Steer one model-authored message to the sender's direct parent or direct

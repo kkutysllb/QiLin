@@ -103,6 +103,12 @@ export interface Activation {
   announced: boolean
   /** Renewed whenever a settlement watcher must re-check residency state. */
   poke: PromiseWithResolvers<void>
+  /**
+   * Terminal facts of this epoch, resolved once at disposal. Activation
+   * callers await this instead of subscribing to the lifecycle observer, whose
+   * push interface serves the parent delivery path.
+   */
+  readonly settlement: PromiseWithResolvers<ActivationTerminal>
 }
 
 /** Inputs shared by fresh and resumed Activation materialization. */
@@ -667,6 +673,7 @@ export class ContinuableActivationRegistry {
       observer,
       announced: false,
       poke: Promise.withResolvers<void>(),
+      settlement: Promise.withResolvers<ActivationTerminal>(),
     }
     this.resident.set(childId, activation)
     try {
@@ -866,7 +873,9 @@ export class ContinuableActivationRegistry {
     }
     this.resident.delete(childId)
     activation.releaseSlot()
-    this.notifySettlement(activation, activation.observer.terminal(failure))
+    const terminal = activation.observer.terminal(failure)
+    activation.settlement.resolve(terminal)
+    this.notifySettlement(activation, terminal)
     this.releaseOwnership(childId)
     activation.observer.settle(failure)
     if (failure !== undefined) throw failure

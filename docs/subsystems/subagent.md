@@ -152,7 +152,7 @@ The Agent inbox is the only queue. Every Agent message uses `Agent.steer()`: an 
 
 Authority comes from the exact live sender. Parent-to-child delivery requires the target's `SessionHeader.parentSession` to name the sender; child-to-parent delivery requires the sender's resident Activation to name the target. Siblings, ancestors beyond one edge, self-targets, stale Agent objects, and one-shot children are rejected. Each accepted message is framed as `Agent <sender-id> sent a message:` and records `AgentMessageSource`; the source records the sender but grants no authority.
 
-For `startContinuable()`, `sendMessage()`, and browser prompt delivery, the caller signal owns lookup, materialization, and admission only until inbox acceptance. Afterwards the manager owns the Activation independently: later caller cancellation neither cancels the accepted turn nor disposes the child. The public subagent service exposes no caller-selected Agent-message scheduling; browser human Queue and Steer remain internal adapter choices.
+`SubagentRuntime.startActivation()` is the same establishment step under the name every steerable child takes: it accepts a `SubagentActivationSpec`, returns `{ childId, messageId, result, dispose }`, and resolves the result once the epoch settles, so a caller that keeps the handle can await the final output and dispose exactly this epoch. It accepts `delivery: 'parent'` only; `'caller'` delivery — establishing a child whose settlement the caller consumes without notifying its durable parent — is not supported and rejects with `UNSUPPORTED_ACTIVATION_DELIVERY`. Afterwards the manager owns the Activation independently: later caller cancellation neither cancels the accepted turn nor disposes the child. The public subagent service exposes no caller-selected Agent-message scheduling; browser human Queue and Steer remain internal adapter choices.
 
 Live queue occurrence mutation remains in the Session domain. `session.updateQueue` admits ordinary Edit, Remove, and QueueDock Steer for a live subagent-owned Agent only when its current projected identity is continuable and its descriptor sequence is in that child's own non-seed suffix. The identity projection folds descriptors last-wins so a child descriptor supersedes descriptors retained from fork lineage; the own-suffix sequence check prevents a seed-only ancestor identity from authorizing mutation. One-shot, missing, unknown, corrupt, or cold children remain rejected, and queue mutation never cold-resumes a child. The target Session id is the human authority for these mutations, including pending `nextStep` steering or injected context. Steer requires a queued `MessageId` and an Agent that reports running when the command begins; cancellation after admission uses the Agent's accepted waking `nextTurn` fallback. Edit rewrites content under the same `MessageId`, and both Edit and Steer complete their Inbox work synchronously, so settlement observes only the final state. `agent/inbox/claimed` and `agent/inbox/discarded` wake the watcher to re-read whether any pending occurrence remains; this lets direct Agent delivery resume parked work and lets removing the last parked occurrence settle an idle child. The [human inbox-control Agent Note](../../.agents/notes/implemented/feature/2026-08-27-continuable-subagent-human-inbox-control.md) owns these semantics.
 
@@ -516,6 +516,14 @@ resolveMaxDepth(configured?: number | 'provider-managed'): number | undefined
  * @throws when continuation services are unavailable or materialization fails.
  */
 async startContinuable(spec: ContinuableStartSpec): Promise<ContinuableStart>
+
+/**
+ * Establish one continuable child and return the Activation that owns it.
+ * @param spec - provider, delegation request, caller cancellation, and delivery.
+ * @returns the child identity, terminal result, and this epoch's disposal.
+ * @throws when continuation services are unavailable or delivery is unsupported.
+ */
+async startActivation(spec: SubagentActivationSpec): Promise<SubagentActivation>
 
 /**
  * Steer one model-authored message to the sender's direct parent or direct

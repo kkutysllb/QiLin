@@ -50,6 +50,8 @@ import type {
   ContinuableCreateSpec,
   ContinuableStart,
   ContinuableStartSpec,
+  SubagentActivation,
+  SubagentActivationSpec,
   SubagentInterruptAuthority,
   SubagentSendMessageOptions,
 } from './types.ts'
@@ -195,6 +197,46 @@ export class SubagentContinuationManager {
     } catch (error: unknown) {
       releaseHold()
       throw error
+    }
+  }
+
+  /**
+   * Start one continuable child as an Activation: the caller keeps the child's
+   * identity, awaits its terminal result, and disposes this exact epoch.
+   * @param spec - provider, delegation request, caller cancellation, and delivery.
+   * @returns the durable child id, accepted prompt id, result, and disposal.
+   * @throws when the caller asks for caller-only delivery, which the durable
+   *   parent notice does not support yet.
+   */
+  async startActivation(spec: SubagentActivationSpec): Promise<SubagentActivation> {
+    if (spec.delivery === 'caller') {
+      throw new SubagentError(
+        'subagent activation delivery "caller" is unsupported: a continuable child always notifies its durable direct parent',
+        'UNSUPPORTED_ACTIVATION_DELIVERY',
+      )
+    }
+    const started = await this.startContinuable({
+      provider: spec.provider,
+      label: spec.label,
+      ...spec.childId !== undefined ? { childId: spec.childId } : {},
+      request: spec.request,
+      signal: spec.signal,
+    })
+    const activation = this.activations.get(started.childId)
+    if (activation === undefined) {
+      throw new SubagentError(
+        `subagent activation "${started.childId}" is not resident after its initial prompt was accepted`,
+        'ACTIVATION_NOT_RESIDENT',
+      )
+    }
+    return {
+      childId: started.childId,
+      messageId: started.messageId,
+      result: activation.settlement.promise.then(terminal => ({
+        output: terminal.output ?? [],
+        stopReason: terminal.stopReason,
+      })),
+      dispose: () => this.activations.dispose(activation),
     }
   }
 

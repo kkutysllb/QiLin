@@ -57,6 +57,8 @@ import type {
   ContinuableStart,
   ContinuableStartSpec,
   ResolvedSubagentStartRequest,
+  SubagentActivation,
+  SubagentActivationSpec,
   SubagentCapabilities,
   SubagentInterruptAuthority,
   SubagentProvider,
@@ -90,6 +92,8 @@ export type {
   ContinuableCreateSpec,
   ContinuableStart,
   ContinuableStartSpec,
+  SubagentActivation,
+  SubagentActivationSpec,
   ResolvedSubagentStartRequest,
   SubagentCapabilities,
   SubagentInterruptAuthority,
@@ -269,6 +273,16 @@ export class SubagentRuntime extends TypertRemoteService {
    */
   async startContinuable(spec: ContinuableStartSpec): Promise<ContinuableStart> {
     return this.requireContinuations().startContinuable(spec)
+  }
+
+  /**
+   * Establish one continuable child and return the Activation that owns it.
+   * @param spec - provider, delegation request, caller cancellation, and delivery.
+   * @returns the child identity, terminal result, and this epoch's disposal.
+   * @throws when continuation services are unavailable or delivery is unsupported.
+   */
+  async startActivation(spec: SubagentActivationSpec): Promise<SubagentActivation> {
+    return this.requireContinuations().startActivation(spec)
   }
 
   /**

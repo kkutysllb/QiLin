@@ -4,7 +4,7 @@
  * wording. Foreground calls always dispose the run after collection.
  * Background policy is selected by this plugin's configuration: one-shot
  * calls own a plain Task, while continuable calls use
- * `ctx.subagents.startContinuable()`.
+ * `ctx.subagents.startActivation()`.
  * @module @qilin-agent/tool-subagent
  */
 
@@ -533,13 +533,14 @@ export function apply(ctx: Context, config: Config, session?: Session): void {
             if (continuable) {
               // Resolves at inbox acceptance: the child owns its own turns from
               // there, so this call neither waits for nor collects a result.
-              const started = await runtimeCtx.subagents.startContinuable({
+              const activation = await runtimeCtx.subagents.startActivation({
                 provider: config.provider,
                 label: args.description,
                 request,
                 signal: exec.signal,
+                delivery: 'parent',
               })
-              return { kind: 'continuable' as const, subagentId: started.childId }
+              return { kind: 'continuable' as const, subagentId: activation.childId }
             }
             const jobs = runtimeCtx.get('jobs')
             if (jobs === undefined) {

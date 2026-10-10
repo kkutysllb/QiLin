@@ -142,6 +142,51 @@ export interface SubagentCapabilities {
  * and resolves the durable descriptor before dispatching to
  * {@link SubagentProvider.start}.
  */
+/**
+ * One continuable child the caller starts and keeps an executable handle for.
+ * A caller that only needs the child's final result uses {@link SubagentRun}
+ * through `start`; an activation is the shape every steerable child takes.
+ */
+export interface SubagentActivationSpec {
+  /** Registered provider whose continuable-creation capability establishes the child. */
+  readonly provider: string
+  /** Short delegation label persisted as the child's creation label. */
+  readonly label: string
+  /** Optional caller-reserved child identity; omission lets the manager allocate one. */
+  readonly childId?: SessionId
+  /**
+   * The delegation request. Continuable children take no `outputSchema`, so
+   * the request omits it along with the label and signal this spec carries.
+   */
+  readonly request: Omit<SubagentStartRequest, 'label' | 'signal' | 'outputSchema'>
+  /** Caller cancellation, owning the operation only until inbox acceptance. */
+  readonly signal: AbortSignal
+  /**
+   * Where this child's settlement goes. Only `parent` is accepted today: a
+   * continuable child always notifies its durable direct parent, and a caller
+   * that wants the result without that notice must not use an activation yet.
+   */
+  readonly delivery: 'parent' | 'caller'
+}
+
+/** One started activation: its identity, its terminal result, and its disposal. */
+export interface SubagentActivation {
+  /** Durable child session id, stable across activations. */
+  readonly childId: SessionId
+  /** Accepted initial prompt's inbox message id. */
+  readonly messageId?: MessageId
+  /**
+   * The epoch's result once teardown settles and the parent notice is sent.
+   * A continuable epoch reports its final assistant output and stop reason and
+   * never carries a structured value, because continuable children take no
+   * output schema.
+   */
+  readonly result: Promise<SubagentResult>
+  /** Stop and release this exact activation and its owned descendants. */
+  dispose(): Promise<void>
+}
+
+/** Request accepted by the one-shot delegation entry point `start`. */
 export interface SubagentStartRequest {
   /** Initial child directory; relative paths resolve against the parent's current directory. Omitted inherits that directory at start. */
   readonly cwd?: string
