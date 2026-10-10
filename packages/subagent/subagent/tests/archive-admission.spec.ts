@@ -1,3 +1,4 @@
+import { mountWorkingDirectoryFixture } from './working-directory-fixture.ts'
 import { describe, expect, it, vi } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
 import AgentRegistry from '@qilin-agent/agent'
@@ -9,7 +10,6 @@ import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import type { SessionActivity } from '@qilin-agent/workspace'
 import SubagentRuntime, { SUBAGENT_DESCRIPTOR_VERSION } from '../src/index.ts'
 import { TestSessionQuery } from './test-session-query.ts'
-import { mountWorkingDirectoryFixture } from './working-directory-fixture.ts'
 
 type CancelCall = [AgentCancelCause, CancelOptions | undefined]
 

@@ -1,11 +1,12 @@
+import { mountWorkingDirectoryFixture } from './working-directory-fixture.ts'
 import { describe, expect, it } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
 import SessionStore from '@qilin-agent/session'
 import type { SessionEvent, TurnEndReason } from '@qilin-agent/session'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import SubagentRuntime from '../src/index.ts'
-import { subagentTimingProjectionDefinition, type TimingState } from '../src/projection.ts'
-import { mountWorkingDirectoryFixture } from './working-directory-fixture.ts'
+import { SUBAGENT_DESCRIPTOR_VERSION } from '../src/descriptor.ts'
+import { subagentIdentityProjectionDefinition, subagentTimingProjectionDefinition, type TimingState } from '../src/projection.ts'
 
 function event(
   type: SessionEvent['type'],
@@ -28,6 +29,15 @@ function fold(events: SessionEvent[]) {
 }
 
 describe('subagent timing projection', () => {
+  it('preserves historical one-shot identity without inventing a label', () => {
+    const descriptor = {
+      ...event('subagent/descriptor', 1, 110),
+      data: { version: SUBAGENT_DESCRIPTOR_VERSION, mode: 'one-shot', provider: 'spawn' },
+    } as SessionEvent
+    const state = subagentIdentityProjectionDefinition.apply(subagentIdentityProjectionDefinition.init(), descriptor)
+    expect(subagentIdentityProjectionDefinition.wire.view(state)).toEqual({ mode: 'one-shot', seq: 1 })
+  })
+
   it('registers with the optional session projection registry', async () => {
     const ctx = new Context()
     await ctx.plugin(SessionStore)

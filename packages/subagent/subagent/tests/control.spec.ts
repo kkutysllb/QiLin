@@ -1,3 +1,4 @@
+import { mountWorkingDirectoryFixture } from './working-directory-fixture.ts'
 // The browser-facing prompt and interrupt controls and their stable failure
 // codes. Session Controller owns catalog observation and transport.
 
@@ -11,7 +12,6 @@ import SubagentRuntime, {
   type SubagentPromptRequestId,
 } from '@qilin-agent/subagent'
 import { deliverSubagentPrompt, type HostPromptDeliverer } from '@qilin-agent/subagent/internal'
-import { mountWorkingDirectoryFixture } from './working-directory-fixture.ts'
 
 const PARENT = SessionId('parent')
 const CHILD = SessionId('child')

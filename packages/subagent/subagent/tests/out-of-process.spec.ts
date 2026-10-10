@@ -1,6 +1,6 @@
 /**
  * Unit coverage for the seam's out-of-process provider vocabulary: cwd
- * validation against the real filesystem, and the settlement/handle helpers
+ * resolution against the real filesystem, and the settlement/handle helpers
  * under their never-reject and idempotence contracts.
  */
 
@@ -44,7 +44,7 @@ describe('child cwd resolution', () => {
   it('accepts an absolute enterable directory and rejects relative or missing paths', () => {
     expect(assertUsableCwd('p', 'config cwd', tmpdir())).toBe(tmpdir())
     expect(() => assertUsableCwd('p', 'config cwd', 'relative/path')).toThrow('must be an absolute path')
-    expect(() => assertUsableCwd('p', 'config cwd', join(tmpdir(), 'qilin-no-such-dir-xyz'))).toThrow('not an accessible directory')
+    expect(() => assertUsableCwd('p', 'config cwd', join(tmpdir(), 'dsh-no-such-dir-xyz'))).toThrow('not an accessible directory')
   })
 
   it('rejects an existing path that is a file, not a directory', () => {
@@ -71,6 +71,9 @@ describe('child cwd resolution', () => {
       rmSync(tmp, { recursive: true, force: true })
     }
   })
+
+
+
 
 })
 
@@ -155,7 +158,6 @@ describe('subprocessRunHandle', () => {
       requestCancel,
       teardown,
     })
-    expect(run.localAgent).toBeUndefined()
     expect(String(run.id)).toBe('run-1')
     const disposal = run.dispose()
     expect(run.dispose()).toBe(disposal)
