@@ -82,6 +82,7 @@ describe('release families', () => {
       '@qilin-agent/experimental-tool-session-query',
       '@qilin-agent/experimental-tool-terminal',
       '@qilin-agent/experimental-tool-worktree',
+      '@qilin-agent/experimental-translator',
       '@qilin-agent/experimental-voice-input-bundle',
       '@qilin-agent/experimental-webhook-github',
       '@qilin-agent/experimental-webhook',

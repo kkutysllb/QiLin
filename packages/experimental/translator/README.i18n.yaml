@@ -1,0 +1,49 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/experimental/translator/README.md
+/:
+  en: f55d62d235c3a1f3
+  zh: 62063508c0ba87ad
+/qilin-agent-experimental-translator:
+  en: 9ecc4759496a419e
+  zh: ff4c0071db2622f3
+/qilin-agent-experimental-translator/summary:
+  en: dbfd4283d49cc598
+  zh: 1717743620294ec6
+/qilin-agent-experimental-translator/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 91dd6a6ee0635d20
+/qilin-agent-experimental-translator/use-this-package:
+  en: 825d246f37a03b79
+  zh: ff7ec2691b5a9440
+/qilin-agent-experimental-translator/understand-the-implementation:
+  en: 8fa99924e5a2993e
+  zh: 269b0e9546109251
+/qilin-agent-experimental-translator/further-exploration:
+  en: 1bc25b1e452aa0ea
+  zh: e7349f0c2c02a704
+/qilin-agent-experimental-translator/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-agent-experimental-translator/model-experience/auxiliary-flash-translation-system-prompt:
+  en: 75b37930051f9b46
+  zh: e79f28804416b939
+/qilin-agent-experimental-translator/model-experience/auxiliary-flash-translation-system-prompt/what-the-model-sees:
+  en: 8e7fa23dc157c1ea
+  zh: 3d483952fed2b2cd
+/qilin-agent-experimental-translator/model-experience/auxiliary-flash-translation-system-prompt/what-the-model-sees/fixed-translation-instruction:
+  en: cd064594a1c325af
+  zh: 736f9213f65c0b78
+/qilin-agent-experimental-translator/model-experience/auxiliary-flash-translation-system-prompt/token-effect:
+  en: 5d7b4e99ba5c776e
+  zh: 7e14e2679ec6aff3
+/qilin-agent-experimental-translator/model-experience/auxiliary-flash-translation-system-prompt/kv-cache-effect:
+  en: e6120b67c2543395
+  zh: af321d4edf9212fe
+/qilin-agent-experimental-translator/known-limitations-and-deferred-work:
+  en: 2c00a5295af60b8f
+  zh: b235aa5343c72a71
+/qilin-agent-experimental-translator/known-limitations-and-deferred-work/dev-note:
+  en: 96686375e99911bc
+  zh: b2514a4d8fd2bdeb

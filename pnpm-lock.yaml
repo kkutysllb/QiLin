@@ -8605,6 +8605,61 @@ importers:
         specifier: workspace:*
         version: link:../../session/working-directory
 
+  packages/experimental/translator:
+    dependencies:
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+    devDependencies:
+      '@qilin-agent/app-boot':
+        specifier: workspace:*
+        version: link:../../boot/app-boot
+      '@qilin-agent/credentials':
+        specifier: workspace:*
+        version: link:../../credentials/credentials
+      '@qilin-agent/deepseek-llm-api-extensions':
+        specifier: workspace:*
+        version: link:../../llm/deepseek-llm-api-extensions
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/kylin-plugin-loader':
+        specifier: workspace:~
+        version: link:../../../vendor/loader
+      '@qilin-agent/launch-environment':
+        specifier: workspace:*
+        version: link:../../util/launch-environment
+      '@qilin-agent/llm':
+        specifier: workspace:*
+        version: link:../../llm/llm
+      '@qilin-agent/llm-deepseek':
+        specifier: workspace:*
+        version: link:../../llm/llm-deepseek
+      '@qilin-agent/llm-deepseek-api-key':
+        specifier: workspace:*
+        version: link:../../llm/llm-deepseek-api-key
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/session-log-deepseek':
+        specifier: workspace:*
+        version: link:../../session/session-log-deepseek
+      '@qilin-agent/session-persistence':
+        specifier: workspace:*
+        version: link:../../session/session-persistence
+      '@qilin-agent/session-persistence-jsonl':
+        specifier: workspace:*
+        version: link:../../session/session-persistence-jsonl
+      '@qilin-agent/session-query-sqlite':
+        specifier: workspace:*
+        version: link:../../session-query/session-query-sqlite
+      '@qilin-agent/timeout':
+        specifier: workspace:*
+        version: link:../../util/timeout
+      '@qilin-agent/util-values':
+        specifier: workspace:*
+        version: link:../../util/values
+
   packages/experimental/voice-input-bundle:
     dependencies:
       '@qilin-agent/experimental-api-speech-to-text':

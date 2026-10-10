@@ -19,6 +19,7 @@ One page per subsystem of the QiLin: what it is, the data structures it moves, a
 | [commands.md](commands.md) | the human-command registry service: definitions, adapter discovery, direct invocation, results, and parsing views |
 | [session.md](session.md) | the full `SessionEventMap` variant catalog, `TurnEndReason`, `deriveMessages()`, execution enclosure, and standalone events |
 | [working-directory.md](working-directory.md) | Session execution directories, durable changes, recovery, and user context |
+| [translation.md](translation.md) | anonymous and paid text translation: request/result types, failure taxonomy, and durable Session reuse |
 | [worktrees.md](worktrees.md) | retained Git worktree creation: request and result types, checkout allocation and filter handling, and the entered Session directory |
 | [persistence.md](persistence.md) | the durability seam: `SessionPersistence`, the JSONL provider, `session/flush`, crash recovery, `SessionHeader` |
 | [settings.md](settings.md) | the user-settings seam: `SettingsNamespace` registration, layered resolution (defaults → composition `base` → user document), owner scopes, hot commits |

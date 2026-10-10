@@ -299,6 +299,7 @@
       "@qilin-agent/experimental-session-title-all-prompts-llm": ["./packages/experimental/session-title-all-prompts-llm/src"],
       "@qilin-agent/experimental-skill-badge": ["./packages/experimental/skill-badge/src"],
       "@qilin-agent/experimental-tool-ralph": ["./packages/experimental/tool-ralph/src"],
+      "@qilin-agent/experimental-translator": ["./packages/experimental/translator/src"],
       "@qilin-agent/experimental-session-search": ["./packages/experimental/session-search/src"],
       "@qilin-agent/experimental-session-titles-bundle": ["./packages/experimental/session-titles-bundle/src"],
       "@qilin-agent/experimental-ralph-bundle": ["./packages/experimental/ralph-bundle/src"],

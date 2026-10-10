@@ -166,6 +166,13 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'Explicit experimental creation from a pinned local commit. Existing write permissions govern checkout and shared Git metadata; the working-directory service owns the resulting Session directory.',
   },
   {
+    key: 'translator',
+    pkg: 'experimental-translator',
+    title: 'Anonymous text translation',
+    mode: 'core',
+    note: 'Resolves Google or Bing requests and retains shared experimental records through the active Session writer.',
+  },
+  {
     key: 'mcpResources',
     pkg: 'mcp-resources',
     title: 'Scoped MCP resource access',

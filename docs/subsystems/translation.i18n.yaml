@@ -1,0 +1,16 @@
+# Bilingual-pair consistency record for translation.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/subsystems/translation.md
+/text-translation:
+  en: 65daecf25b49a130
+  zh: 8fc3837c6525e90c
+/text-translation/requests-and-results:
+  en: 4bdee4fde4f4f414
+  zh: fa711fe3cc4e868f
+/text-translation/failures-and-data-handling:
+  en: cf92a1920650888c
+  zh: 3e8d3aa244cc8d46
+/text-translation/persistent-translations:
+  en: cded8fe31e676fad
+  zh: 1f28612ad9605a33

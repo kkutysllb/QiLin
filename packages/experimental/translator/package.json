@@ -1,0 +1,69 @@
+{
+  "name": "@qilin-agent/experimental-translator",
+  "description": "Machine translation with reusable Session results",
+  "version": "3.1.4-rc.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
+    "directory": "packages/experimental/translator"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./src/*": "./src/*",
+    "./types": {
+      "types": "./lib/types/types.d.ts",
+      "default": "./lib/types/types.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@qilin-agent/schemastery": "workspace:~"
+  },
+  "peerDependencies": {
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/credentials": "workspace:*",
+    "@qilin-agent/launch-environment": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-persistence": "workspace:*",
+    "@qilin-agent/timeout": "workspace:*",
+    "@qilin-agent/util-values": "workspace:*",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~"
+  },
+  "devDependencies": {
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/app-boot": "workspace:*",
+    "@qilin-agent/credentials": "workspace:*",
+    "@qilin-agent/deepseek-llm-api-extensions": "workspace:*",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/launch-environment": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/llm-deepseek": "workspace:*",
+    "@qilin-agent/llm-deepseek-api-key": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-log-deepseek": "workspace:*",
+    "@qilin-agent/session-persistence": "workspace:*",
+    "@qilin-agent/session-persistence-jsonl": "workspace:*",
+    "@qilin-agent/session-query-sqlite": "workspace:*",
+    "@qilin-agent/timeout": "workspace:*",
+    "@qilin-agent/util-values": "workspace:*"
+  }
+}
