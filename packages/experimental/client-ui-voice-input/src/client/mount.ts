@@ -13,6 +13,7 @@ import type {} from '@qilin-agent/client-ui-plugin-manager/client'
 import { observeReadiness } from './readiness.ts'
 import { VoicePreparation } from './PreparationCard.tsx'
 import { VoiceSetupPrompt } from './VoiceSetupPrompt.tsx'
+import { createMicrophoneDeviceStore } from './microphone-device.ts'
 
 export const inject = ['remote', 'slots', 'locale', 'pluginNavigation']
 
@@ -20,13 +21,15 @@ function registerUi(ctx: Context): void {
   ctx.effect(() => ctx.locale.register(NS, { zh, en }))
   const recordings = new Set<Recording>()
   const readiness = observeReadiness(ctx)
+  const microphone = createMicrophoneDeviceStore()
   ctx.effect(() => readiness.dispose)
   ctx.effect(() => async () => { await Promise.all([...recordings].map(recording => recording.dispose())) })
   const actions: VoiceInputInjected = {
     openSettings: () => { ctx.pluginNavigation.openBundle('@qilin-agent/experimental-voice-input-bundle') },
-    hooks: { speechReadiness: readiness.state },
+    hooks: { speechReadiness: readiness.state, microphoneDevice: microphone },
+    selectMicrophone: (device) => { microphone.set(device) },
     createRecording: () => {
-      const recording = new Recording(() => { recordings.delete(recording) })
+      const recording = new Recording(() => { recordings.delete(recording) }, microphone.getSnapshot().id)
       recordings.add(recording)
       return recording
     },
