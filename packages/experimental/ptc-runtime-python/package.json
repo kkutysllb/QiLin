@@ -30,13 +30,20 @@
     "@qilin-agent/ptc-runtime": "workspace:*",
     "@qilin-agent/timeout": "workspace:*",
     "@qilin-agent/kylin": "workspace:~",
-    "@qilin-agent/util-values": "workspace:*"
+    "@qilin-agent/util-values": "workspace:*",
+    "@qilin-agent/sandbox": "workspace:*",
+    "@qilin-agent/sandbox-policy": "workspace:*"
   },
   "devDependencies": {
     "@qilin-agent/ptc-runtime": "workspace:*",
     "@qilin-agent/timeout": "workspace:*",
     "@qilin-agent/kylin": "workspace:~",
-    "@qilin-agent/util-values": "workspace:*"
+    "@qilin-agent/util-values": "workspace:*",
+    "@qilin-agent/sandbox": "workspace:*",
+    "@qilin-agent/sandbox-policy": "workspace:*",
+    "@qilin-agent/sandbox-local": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/session": "workspace:*"
   },
   "dependencies": {
     "@qilin-agent/schemastery": "workspace:~"

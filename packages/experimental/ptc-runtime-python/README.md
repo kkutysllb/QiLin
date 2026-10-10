@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-This experimental package lets explicit compositions run model-generated Python in a fresh CPython 3.10+ subprocess for each request. Programs can use top-level `await` and `return`, call configured bindings, and write normal stdout/stderr while receiving explicit completion or failure results. Resource budgets and process-group teardown contain runaway work, but the subprocess is not a security boundary: direct Python operations have no filesystem sandbox, no state persists across runs, and no shipped profile enables this runtime.
+This experimental package lets explicit compositions run model-generated Python in a fresh CPython 3.10+ subprocess for each request. Programs can use top-level `await` and `return`, call configured bindings, and write normal stdout/stderr while receiving explicit completion or failure results. Resource budgets and process-group teardown contain runaway work, and every program runs under the shared file-effect sandbox the deployment composes: direct Python operations follow the resolved policy, a required confinement that cannot be established fails the run as `sandbox-unavailable`, and no state persists across runs. No shipped profile enables this runtime.
 
 ## Table of Contents
 
@@ -27,7 +27,7 @@ This experimental package lets explicit compositions run model-generated Python 
 
 Choose this published experimental package only in an explicit composition. Register `PythonPtcRuntime` beside `qilin-tools`; `run(resolve(request))` executes each program in a fresh CPython 3.10+ subprocess, resolving with `result.value` on success and `result.error` on failure (the orthogonal `PtcRunFailure.kind` taxonomy classifies parse failures, thrown exceptions, invalid completions, output overflows, budget expiry, aborts, and substrate death). It rejects only for seam misuse — a malformed binding namespace, or a call after disposal. Configuration is rejected at load: a non-Unix platform; an explicit `pythonBin` that is not an executable regular file or a bare name that does not resolve on `PATH`; a non-CPython, pre-3.10, or probe-failing interpreter; a non-positive or non-integer budget; a `maxLogBytes` below the truncation-marker floor (64); a timer value `setTimeout` would clamp; a budget larger than the effective fd-3 frame cap (lowered when the host heap cannot safely parse a near-cap frame); or an `addressSpaceMb`/output-budget pair whose worst-case peak would breach `RLIMIT_AS`.
 
-`resolve(request)` accepts an absolute `cwd` and uses the provider's configured `maxWallMs` deadline (600,000 ms by default). Explicit `timeoutMs` overrides and sandbox policies are unsupported and reject before execution. This provider does not advertise `sandboxMode` or return confinement facts.
+`resolve(request)` accepts an absolute `cwd` and uses the provider's configured `maxWallMs` deadline (600,000 ms by default). An explicit `sandboxPolicy` is trusted authority for that call; without one the provider resolves the deployment's policy, and `resolve(request).sandboxPolicy` is always present. Explicit `timeoutMs` overrides are unsupported and reject before execution. The provider advertises `sandboxMode` and returns `result.sandbox` with the policy's mode, whether the program's own failure text matched a backend denial signature, and the selected backend's enforcement completeness.
 
 ### What you get
 

@@ -1,9 +1,9 @@
 import { EventEmitter } from 'node:events'
+import { createRuntimeContext } from './setup.ts'
 import { existsSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { PassThrough } from 'node:stream'
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'
-import { Context } from '@qilin-agent/kylin'
 
 /**
  * Mocked subprocess pipes control synchronous write failures and backpressure
@@ -143,7 +143,7 @@ describe('PythonPtcRuntime — controlled subprocess pipes', () => {
       return false
     }
     spawnMock.mockImplementation(() => { spawned.resolve(undefined); return child })
-    const ctx = new Context()
+    const ctx = await createRuntimeContext()
     const fiber = await ctx.plugin(PythonPtcRuntime)
     const runtime = ctx.ptcRuntime as InstanceType<typeof PythonPtcRuntime>
     const run = runtime.run(runtime.resolve({
@@ -187,7 +187,7 @@ describe('PythonPtcRuntime — controlled subprocess pipes', () => {
   })
 
   it('force-kills a version probe that exceeds its load-time deadline', async () => {
-    const ctx = new Context()
+    const ctx = await createRuntimeContext()
     const fiber = await ctx.plugin(PythonPtcRuntime)
 
     expect(execFileSyncMock).toHaveBeenCalledWith(
@@ -206,7 +206,7 @@ describe('PythonPtcRuntime — controlled subprocess pipes', () => {
     // executor and REJECTED run() instead of resolving the worker-exit the catch
     // constructs. This test would see that rejection; the fix makes it resolve.
     spawnMock.mockImplementation(() => fakeChildWithThrowingFd3())
-    const ctx = new Context()
+    const ctx = await createRuntimeContext()
     const fiber = await ctx.plugin(PythonPtcRuntime)
     const runtime = ctx.ptcRuntime as InstanceType<typeof PythonPtcRuntime>
 
@@ -236,7 +236,7 @@ describe('PythonPtcRuntime — controlled subprocess pipes', () => {
       stagedBootstrap = args[args.length - 1]
       throw Object.assign(new Error('EMFILE: too many open files'), { code: 'EMFILE' })
     })
-    const ctx = new Context()
+    const ctx = await createRuntimeContext()
     const fiber = await ctx.plugin(PythonPtcRuntime)
     const runtime = ctx.ptcRuntime as InstanceType<typeof PythonPtcRuntime>
 
@@ -254,7 +254,7 @@ describe('PythonPtcRuntime — controlled subprocess pipes', () => {
     // the boot frame but rejects the run write must settle the run as a
     // worker-exit rather than reject run() or leave it hanging.
     spawnMock.mockImplementation(() => fakeChildWithAckThenThrowingFd3())
-    const ctx = new Context()
+    const ctx = await createRuntimeContext()
     const fiber = await ctx.plugin(PythonPtcRuntime)
     const runtime = ctx.ptcRuntime as InstanceType<typeof PythonPtcRuntime>
 
@@ -271,7 +271,7 @@ describe('PythonPtcRuntime — controlled subprocess pipes', () => {
     // `error` event, not a synchronous throw. The run must settle as a
     // worker-exit from that event.
     spawnMock.mockImplementation(() => fakeChildWithAsyncSpawnError())
-    const ctx = new Context()
+    const ctx = await createRuntimeContext()
     const fiber = await ctx.plugin(PythonPtcRuntime)
     const runtime = ctx.ptcRuntime as InstanceType<typeof PythonPtcRuntime>
 
@@ -298,7 +298,7 @@ describe('PythonPtcRuntime — controlled subprocess pipes', () => {
       proto = fake.proto
       return fake.child
     })
-    const ctx = new Context()
+    const ctx = await createRuntimeContext()
     const fiber = await ctx.plugin(PythonPtcRuntime, { maxWallMs: 3000 })
     const runtime = ctx.ptcRuntime as InstanceType<typeof PythonPtcRuntime>
 

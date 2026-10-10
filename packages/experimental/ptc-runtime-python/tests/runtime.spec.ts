@@ -1,10 +1,12 @@
 import { execFileSync } from 'node:child_process'
+import { createRuntimeContext } from './setup.ts'
 import { existsSync, mkdtempSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { mkdtemp, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { basename, dirname, join, relative, resolve } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { Context } from '@qilin-agent/kylin'
+import { SandboxUnavailableError } from '@qilin-agent/sandbox'
+import type { ConfinedArgv } from '@qilin-agent/sandbox'
 import { PythonPtcRuntime, hostFrameParseCeiling, readProcessStart, resolvePythonBin } from '../src/index.ts'
 import { logTruncationMarker } from '../src/protocol.ts'
 import type { Config } from '../src/index.ts'
@@ -65,7 +67,7 @@ vi.mock('node:fs', async (importOriginal) => {
  * runtime so budgets can be tuned per case.
  */
 async function setup(config: Config = {}) {
-  const ctx = new Context()
+  const ctx = await createRuntimeContext()
   const fiber = await ctx.plugin(PythonPtcRuntime, config)
   const runtime = ctx.ptcRuntime as PythonPtcRuntime
   return { ctx, fiber, runtime }
@@ -101,6 +103,8 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
   it('registers the seam descriptors', async () => {
     const { runtime } = await setup()
     expect(runtime.language).toBe('python')
+    expect(runtime.executionInstructions)
+      .toBe('Each call runs in a fresh Python process. Relative paths use the supplied working directory; only TMPDIR is set in the environment. Direct filesystem access follows this execution\'s sandbox policy.')
     expect(runtime.isolation).toBe('process')
   })
 
@@ -108,19 +112,21 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
     const { runtime, fiber } = await setup({ maxWallMs: 30_000 })
     try {
       const request = { program: 'return 1', bindings: [] }
-      expect(runtime.sandboxMode).toBeUndefined()
-      expect(runtime.resolve(request)).toEqual({ ...request, cwd: process.cwd(), timeoutMs: 30_000 })
+      expect(runtime.sandboxMode).toBe('danger-full-access')
+      expect(runtime.resolve(request)).toEqual({
+        ...request, cwd: process.cwd(), timeoutMs: 30_000,
+        sandboxPolicy: { mode: 'danger-full-access', workspaceRoot: process.cwd() },
+      })
       const cwd = await makeTempDir('qilin-py-resolved-cwd-')
       const spec = runtime.resolve({ ...request, cwd })
       expect(spec.cwd).toBe(cwd)
       expect(() => runtime.resolve({ ...request, cwd: 'relative' })).toThrow('cwd must be absolute')
       expect(() => runtime.resolve({ ...request, timeoutMs: 1 })).toThrow('per-call timeout is unsupported')
       expect(() => runtime.resolve({ ...request, timeoutMs: null })).toThrow('per-call timeout is unsupported')
-      const sandboxPolicy = { mode: 'danger-full-access' as const, workspaceRoot: cwd }
-      expect(() => runtime.resolve({ ...request, sandboxPolicy })).toThrow('sandbox policy is unsupported')
-      await expect(runtime.run({ ...spec, sandboxPolicy })).rejects.toThrow('unsupported execution policy or timeout')
-      await expect(runtime.run({ ...spec, timeoutMs: 1 })).rejects.toThrow('unsupported execution policy or timeout')
-      await expect(runtime.run({ ...spec, timeoutMs: null })).rejects.toThrow('unsupported execution policy or timeout')
+      const sandboxPolicy = { mode: 'workspace-write' as const, workspaceRoot: cwd }
+      expect(runtime.resolve({ ...request, cwd, sandboxPolicy }).sandboxPolicy).toEqual(sandboxPolicy)
+      await expect(runtime.run({ ...spec, timeoutMs: 1 })).rejects.toThrow('run requires a resolved sandbox policy')
+      await expect(runtime.run({ ...spec, timeoutMs: null })).rejects.toThrow('run requires a resolved sandbox policy')
       const result = await runtime.run(runtime.resolve({ ...request, cwd, program: 'import os\nreturn os.getcwd()' }))
       expect(result.error).toBeUndefined()
       expect(result.value).toBe(realpathSync(cwd))
@@ -128,7 +134,7 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
   })
 
   it('rejects non-positive config as seam misuse', async () => {
-    const ctx = new Context()
+    const ctx = await createRuntimeContext()
     await expect(ctx.plugin(PythonPtcRuntime, { cpuSeconds: 0 }))
       .rejects.toThrow(/cpuSeconds must be a positive number/)
     await expect(ctx.plugin(PythonPtcRuntime, { maxWallMs: -1 }))
@@ -136,7 +142,7 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
   })
 
   it('rejects a non-integer cpuSeconds at load (setrlimit needs an int)', async () => {
-    const ctx = new Context()
+    const ctx = await createRuntimeContext()
     await expect(ctx.plugin(PythonPtcRuntime, { cpuSeconds: 1.5 }))
       .rejects.toThrow(/cpuSeconds must be a positive integer, got 1.5/)
   })
@@ -145,10 +151,10 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
     // maxLogBytes/maxValueBytes cross to the child, which reads them through
     // int(...): a float would floor there while the host meters the fraction, so
     // the two sides would enforce different public config. Reject at load.
-    const ctxLog = new Context()
+    const ctxLog = await createRuntimeContext()
     await expect(ctxLog.plugin(PythonPtcRuntime, { maxLogBytes: 3.5 }))
       .rejects.toThrow(/maxLogBytes must be a positive integer/)
-    const ctxValue = new Context()
+    const ctxValue = await createRuntimeContext()
     await expect(ctxValue.plugin(PythonPtcRuntime, { maxValueBytes: 1024.5 }))
       .rejects.toThrow(/maxValueBytes must be a positive integer/)
   })
@@ -161,7 +167,7 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
     // far past the safe range, so `setrlimit` receives a different number than was
     // configured. Both used to end every run in a bootstrap exception instead of
     // failing at load, where a self-contained configuration error belongs.
-    const ctx = new Context()
+    const ctx = await createRuntimeContext()
     await expect(ctx.plugin(PythonPtcRuntime, { addressSpaceMb: 1e308 }))
       .rejects.toThrow(/addressSpaceMb must be at most \d+ .*exact integer/)
     await expect(ctx.plugin(PythonPtcRuntime, { cpuSeconds: 1e100 }))
@@ -187,7 +193,7 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
     // worker-exit), so a budget above it would admit a config whose honest
     // child frames the host then rejects.
     const admissible = 64 * 1024 * 1024 - 64
-    const ctx = new Context()
+    const ctx = await createRuntimeContext()
     await expect(ctx.plugin(PythonPtcRuntime, { maxLogBytes: admissible + 1 }))
       .rejects.toThrow(/maxLogBytes must not exceed 67108800/)
     await expect(ctx.plugin(PythonPtcRuntime, { maxValueBytes: admissible + 1 }))
@@ -210,8 +216,14 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
     // would admit it (50 MiB * 12 = 600 MiB < 1 GiB - 64 MiB).
     const script = [
       "import { Context } from '@qilin-agent/kylin'",
+      "import Sandbox from '@qilin-agent/sandbox-local'",
+      "import SandboxPolicy from '@qilin-agent/sandbox-policy'",
+      "import SessionProjections from '@qilin-agent/session-projection'",
       "import { PythonPtcRuntime } from './packages/experimental/ptc-runtime-python/src/index.ts'",
       'const ctx = new Context()',
+      'await ctx.plugin(Sandbox, {})',
+      'await ctx.plugin(SessionProjections)',
+      "await ctx.plugin(SandboxPolicy, { mode: 'danger-full-access' })",
       'try {',
       '  await ctx.plugin(PythonPtcRuntime, { maxValueBytes: 50 * 1024 * 1024, addressSpaceMb: 1024 })',
       "  console.log('LOADED')",
@@ -267,7 +279,7 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
     // path, ERR_INVALID_ARG_TYPE for the NUL — so run() would REJECT instead of
     // resolving the worker-exit the seam promises for a child that cannot
     // start. Both are self-contained configuration errors, so they fail here.
-    const ctx = new Context()
+    const ctx = await createRuntimeContext()
     await expect(ctx.plugin(PythonPtcRuntime, { pythonBin: '' }))
       .rejects.toThrow(/pythonBin must be a non-empty path without NUL bytes/)
     await expect(ctx.plugin(PythonPtcRuntime, { pythonBin: 'py\u0000thon3' }))
@@ -289,19 +301,19 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
     const directory = nodePath.join(dir, 'is-a-directory')
     mkdirSync(directory)
     try {
-      const missing = new Context()
+      const missing = await createRuntimeContext()
       await expect(missing.plugin(PythonPtcRuntime, { pythonBin: nodePath.join(dir, 'missing') }))
         .rejects.toThrow(/is not an executable regular file/)
-      const noX = new Context()
+      const noX = await createRuntimeContext()
       await expect(noX.plugin(PythonPtcRuntime, { pythonBin: notExecutable }))
         .rejects.toThrow(/is not an executable regular file/)
-      const isDir = new Context()
+      const isDir = await createRuntimeContext()
       await expect(isDir.plugin(PythonPtcRuntime, { pythonBin: directory }))
         .rejects.toThrow(/is not an executable regular file/)
       // A relative explicit path fails the same way, resolved against the host
       // CWD: `dir` is absolute, so a slash-containing relative form of it is
       // the dirname prefix plus the file, which does not exist as such.
-      const rel = new Context()
+      const rel = await createRuntimeContext()
       await expect(rel.plugin(PythonPtcRuntime, { pythonBin: './definitely-not-there-python' }))
         .rejects.toThrow(/is not an executable regular file/)
     } finally {
@@ -311,7 +323,7 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
   })
 
   it('rejects a non-CPython, outdated, or probe-failing interpreter at load', async () => {
-    const nonPython = new Context()
+    const nonPython = await createRuntimeContext()
     await expect(nonPython.plugin(PythonPtcRuntime, { pythonBin: '/bin/echo' }))
       .rejects.toThrow(/did not report a CPython version/)
 
@@ -328,19 +340,19 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
     await writeFile(failed, '#!/bin/sh\nexit 7\n', { mode: 0o755 })
     try {
       expect(resolvePythonBin(relative(process.cwd(), old))).toBe(old)
-      const obsolete = new Context()
+      const obsolete = await createRuntimeContext()
       await expect(obsolete.plugin(PythonPtcRuntime, { pythonBin: oldMajor }))
         .rejects.toThrow(/must be CPython 3\.10 or newer, got cpython 2\.99\.0/)
-      const outdated = new Context()
+      const outdated = await createRuntimeContext()
       await expect(outdated.plugin(PythonPtcRuntime, { pythonBin: old }))
         .rejects.toThrow(/must be CPython 3\.10 or newer, got cpython 3\.9\.6/)
-      const forwardCompatible = new Context()
+      const forwardCompatible = await createRuntimeContext()
       const fiber = await forwardCompatible.plugin(PythonPtcRuntime, { pythonBin: future })
       await fiber.dispose()
-      const alternative = new Context()
+      const alternative = await createRuntimeContext()
       await expect(alternative.plugin(PythonPtcRuntime, { pythonBin: pypy }))
         .rejects.toThrow(/must be CPython, got pypy/)
-      const probeFailure = new Context()
+      const probeFailure = await createRuntimeContext()
       await expect(probeFailure.plugin(PythonPtcRuntime, { pythonBin: failed }))
         .rejects.toThrow(/failed the CPython version probe/)
     } finally {
@@ -519,7 +531,7 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
     // 1 ms for anything larger, inverting the knob's meaning: a huge maxWallMs
     // would time every run out at once, and a huge graceMs would SIGKILL one
     // millisecond after SIGTERM. Both must fail at load instead.
-    const ctx = new Context()
+    const ctx = await createRuntimeContext()
     await expect(ctx.plugin(PythonPtcRuntime, { maxWallMs: 2_147_483_648 }))
       .rejects.toThrow(/maxWallMs must not exceed 2147483647/)
     // graceMs is bounded by the close deadline's added margin, not by the raw
@@ -539,7 +551,7 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
     const original = process.platform
     Object.defineProperty(process, 'platform', { value: 'win32', configurable: true })
     try {
-      const ctx = new Context()
+      const ctx = await createRuntimeContext()
       await expect(ctx.plugin(PythonPtcRuntime, {})).rejects.toThrow(/requires a Unix platform/)
     } finally {
       Object.defineProperty(process, 'platform', { value: original, configurable: true })
@@ -1485,10 +1497,10 @@ describe('PythonPtcRuntime — programs and bindings', () => {
     // (~16 MiB admissible), so a 50 MB cap is far over; the default caps against
     // 512 MiB are not. Both budgets are gated symmetrically — the value case sets
     // a default-fitting maxLogBytes so the maxValueBytes check is what fires.
-    const ctxLog = new Context()
+    const ctxLog = await createRuntimeContext()
     await expect(ctxLog.plugin(PythonPtcRuntime, { maxLogBytes: 50_000_000, addressSpaceMb: 256 }))
       .rejects.toThrow(/maxLogBytes times the 12x worst-case Unicode expansion must fit/)
-    const ctxValue = new Context()
+    const ctxValue = await createRuntimeContext()
     await expect(ctxValue.plugin(PythonPtcRuntime, { maxValueBytes: 50_000_000, addressSpaceMb: 256 }))
       .rejects.toThrow(/maxValueBytes times the 12x worst-case Unicode expansion must fit/)
     // Discriminates 12 from 8: a 48 MiB maxLogBytes against a 512 MiB address
@@ -1498,21 +1510,21 @@ describe('PythonPtcRuntime — programs and bindings', () => {
     // string, the line slice, and the encode copy live at once. The settlement
     // flush is no longer the binding case: `flush_line` drops the pending chunks
     // before its push, so it holds two copies, not three.
-    const ctxTwelve = new Context()
+    const ctxTwelve = await createRuntimeContext()
     await expect(ctxTwelve.plugin(PythonPtcRuntime, { maxLogBytes: 48 * 1024 * 1024, addressSpaceMb: 512 }))
       .rejects.toThrow(/maxLogBytes times the 12x worst-case Unicode expansion must fit/)
     // An addressSpaceMb at or below the interpreter baseline leaves nothing
     // budgetable, so no budget value can pass. It is rejected on its own terms:
     // the budget loop would otherwise report "a limit of -1" (or -2796203 at
     // 32 MiB) while naming maxLogBytes, sending the operator to the wrong knob.
-    const ctxBaseline = new Context()
+    const ctxBaseline = await createRuntimeContext()
     await expect(ctxBaseline.plugin(PythonPtcRuntime, { addressSpaceMb: 64 }))
       .rejects.toThrow(/addressSpaceMb must exceed the 67108864-byte interpreter baseline/)
-    const ctxBelow = new Context()
+    const ctxBelow = await createRuntimeContext()
     await expect(ctxBelow.plugin(PythonPtcRuntime, { addressSpaceMb: 32 }))
       .rejects.toThrow(/addressSpaceMb must exceed the 67108864-byte interpreter baseline/)
     // The default caps against the default 512 MiB address space load.
-    const ok = new Context()
+    const ok = await createRuntimeContext()
     const fiber = await ok.plugin(PythonPtcRuntime, { maxLogBytes: 65536, maxValueBytes: 32768, addressSpaceMb: 512 })
     await fiber.dispose()
   })
@@ -2750,7 +2762,7 @@ describe('PythonPtcRuntime — programs and bindings', () => {
     // empty or NUL pythonBin) rather than silently falling to execvp's
     // platform default PATH and starting a system interpreter the caller never
     // asked for.
-    const ctx = new Context()
+    const ctx = await createRuntimeContext()
     await expect(ctx.plugin(PythonPtcRuntime, { pythonBin: 'definitely-no-such-python-xyz' }))
       .rejects.toThrow(/does not resolve on PATH/)
   })
@@ -5953,4 +5965,54 @@ describe('PythonPtcRuntime — hostile peer', () => {
     expect(result.error?.message).toContain('protocol frame exceeded')
   }, 120_000)
 
+})
+
+describe('PythonPtcRuntime — file confinement', () => {
+  /** One confined argv carrying the denial dialect and fatal-runner rule the runtime reads. */
+  const confinement = (argv: string[]): ConfinedArgv => ({
+    argv, enforcement: 'partial', denialSignatures: ['EACCES'], runnerFailureRules: [{ fatalSignatures: ['sandbox-fatal:'] }],
+  })
+
+  it('fails a required unavailable sandbox instead of running the program unconfined', async () => {
+    const ctx = await createRuntimeContext({ mode: 'read-only' })
+    const runtime = await ctx.plugin(PythonPtcRuntime).then(() => ctx.ptcRuntime as PythonPtcRuntime)
+    vi.spyOn(ctx.sandbox, 'confine').mockRejectedValue(new SandboxUnavailableError('read-only'))
+    const result = await runtime.run(runtime.resolve({ program: 'return 1', bindings: [] }))
+    expect(result.error?.kind).toBe('sandbox-unavailable')
+    expect(result.sandbox).toEqual({ mode: 'read-only', denied: false })
+  })
+
+  it('reports the backend enforcement beside a successful program', async () => {
+    const ctx = await createRuntimeContext({ mode: 'read-only' })
+    const runtime = await ctx.plugin(PythonPtcRuntime).then(() => ctx.ptcRuntime as PythonPtcRuntime)
+    vi.spyOn(ctx.sandbox, 'confine').mockImplementation(async argv => confinement([...argv]))
+    const result = await runtime.run(runtime.resolve({ program: 'return 42', bindings: [] }))
+    expect(result.error).toBeUndefined()
+    expect(result.value).toBe(42)
+    expect(result.sandbox).toEqual({ mode: 'read-only', denied: false, enforcement: 'partial' })
+  })
+
+  it.each([['EACCES: blocked by the profile', true], ['EPERM: unrelated dialect', false]] as const)(
+    'matches only the selected denial dialect for %s',
+    async (message, denied) => {
+      const ctx = await createRuntimeContext({ mode: 'read-only' })
+      const runtime = await ctx.plugin(PythonPtcRuntime).then(() => ctx.ptcRuntime as PythonPtcRuntime)
+      vi.spyOn(ctx.sandbox, 'confine').mockImplementation(async argv => confinement([...argv]))
+      const result = await runtime.run(runtime.resolve({ program: `raise RuntimeError(${JSON.stringify(message)})`, bindings: [] }))
+      expect(result.error?.kind).toBe('exception')
+      expect(result.sandbox).toEqual({ mode: 'read-only', denied, enforcement: 'partial' })
+    })
+
+  it('writes inside the workspace under a real workspace-write policy', async () => {
+    const workspaceRoot = await makeTempDir('qilin-py-confined-')
+    const ctx = await createRuntimeContext({ mode: 'workspace-write', workspaceRoot })
+    const runtime = await ctx.plugin(PythonPtcRuntime).then(() => ctx.ptcRuntime as PythonPtcRuntime)
+    const result = await runtime.run(runtime.resolve({
+      bindings: [], cwd: workspaceRoot,
+      program: ['import os', "path = os.path.join(os.getcwd(), 'confined.txt')", "open(path, 'w').write('ok')", 'return open(path).read()'].join('\n'),
+    }))
+    expect(result.error).toBeUndefined()
+    expect(result.value).toBe('ok')
+    expect(result.sandbox?.mode).toBe('workspace-write')
+  }, 120_000)
 })

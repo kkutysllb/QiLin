@@ -20,8 +20,11 @@ import type { Duplex } from 'node:stream'
 import { Context } from '@qilin-agent/kylin'
 import z from '@qilin-agent/schemastery'
 import { PtcRuntime, DUNDER_MEMBER, PORTABLE_RESERVED_WORDS, RESERVED_BINDING_GLOBALS, RESERVED_ERROR_MEMBERS } from '@qilin-agent/ptc-runtime'
-import type { PtcBindingErrorClass, PtcBindingFunction, PtcJsonValue, PtcRunFailure, PtcRunRequest, PtcRunResult, PtcRunSpec } from '@qilin-agent/ptc-runtime'
+import type { PtcBindingErrorClass, PtcBindingFunction, PtcJsonValue, PtcRunFailure, PtcRunRequest, PtcRunResult, PtcRunSandbox, PtcRunSpec } from '@qilin-agent/ptc-runtime'
 import { snapshotJsonValue } from '@qilin-agent/util-values'
+import { isRunnerSpawnFailure } from '@qilin-agent/sandbox'
+import type { ConfinedArgv, SandboxExecutionPolicy, SandboxMode } from '@qilin-agent/sandbox'
+import type {} from '@qilin-agent/sandbox-policy'
 import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 import type { BootMessage, ChildToHost, ReplyMessage } from './protocol.ts'
 import { checkDoneValue, encodeJsonPlain, hasUnsafeIntegerToken, logTruncationMarker, validateChildFrame } from './protocol.ts'
@@ -812,8 +815,18 @@ export class PythonPtcRuntime extends PtcRuntime {
     pythonBin: z.string().default('python3'),
   })
 
+  static inject = ['sandbox', 'sandboxPolicy']
+
   readonly language = 'python'
   readonly isolation = 'process'
+
+  /** Default file-effect mode this deployment confines programs under. */
+  override get sandboxMode(): SandboxMode { return this.ctx.sandboxPolicy.defaultMode }
+
+  /** Model-facing execution note naming the policy that governs direct file effects. */
+  override get executionInstructions(): string {
+    return 'Each call runs in a fresh Python process. Relative paths use the supplied working directory; only TMPDIR is set in the environment. Direct filesystem access follows this execution\'s sandbox policy.'
+  }
 
   private readonly config: ResolvedConfig
   private readonly pythonBin: string
@@ -1029,26 +1042,29 @@ export class PythonPtcRuntime extends PtcRuntime {
   }
 
   /**
-   * Resolve directory and the experimental provider's configured wall deadline.
-   * @param request - Program inputs; explicit sandbox or timeout overrides are unsupported.
+   * Resolve directory, file-effect policy, and the configured wall deadline.
+   * @param request - Program inputs; an explicit policy is trusted authority, a per-call timeout is unsupported.
    * @returns Complete inputs for the provider's run method.
    * @throws When a requested override is unsupported or cwd is relative.
    */
   resolve(request: PtcRunRequest): PtcRunSpec {
-    if (request.sandboxPolicy !== undefined) throw new Error('qilin-ptc-runtime-python: sandbox policy is unsupported')
     if (request.timeoutMs !== undefined) throw new Error('qilin-ptc-runtime-python: per-call timeout is unsupported')
-    const cwd = request.cwd ?? process.cwd()
+    const sandboxPolicy = request.sandboxPolicy ?? this.ctx.sandboxPolicy.resolve()
+    const cwd = request.cwd ?? sandboxPolicy.workspaceRoot
     if (!isAbsolute(cwd)) throw new Error('qilin-ptc-runtime-python: cwd must be absolute')
-    return { ...request, cwd, timeoutMs: this.config.maxWallMs }
+    return { ...request, cwd, timeoutMs: this.config.maxWallMs, sandboxPolicy }
   }
 
   /**
-   * Execute a resolved Python program; this experimental provider has no file confinement.
-   * @param request - Resolved cwd, provider deadline, program and bindings.
-   * @returns Captured output and the program outcome.
+   * Execute a resolved Python program under its file-effect policy.
+   * @param request - Resolved cwd, sandbox policy, provider deadline, program and bindings.
+   * @returns Captured output, the program outcome, and file-confinement facts.
    */
   async run(request: PtcRunSpec): Promise<PtcRunResult> {
-    if (request.sandboxPolicy !== undefined || request.timeoutMs !== this.config.maxWallMs) throw new Error('qilin-ptc-runtime-python: unsupported execution policy or timeout')
+    if (request.sandboxPolicy === undefined || request.timeoutMs !== this.config.maxWallMs) {
+      throw new Error('qilin-ptc-runtime-python: run requires a resolved sandbox policy and the configured wall deadline')
+    }
+    const policy = request.sandboxPolicy
     if (this.disposed) throw new Error('qilin-ptc-runtime-python: run() after disposal')
     const bindings = this.validateBindings(request)
     if (request.signal?.aborted) {
@@ -1068,7 +1084,7 @@ export class PythonPtcRuntime extends PtcRuntime {
       // resolves as `worker-exit` rather than throwing out of `run()`.
       return { logs: [], error: { kind: 'worker-exit', message: `failed to stage the python bootstrap: ${messageOf(error)}` } }
     }
-    return await this.execute(request, bindings, bootstrapPath)
+    return await this.execute(request, policy, bindings, bootstrapPath)
   }
   /* jscpd:ignore-end */
 
@@ -1166,8 +1182,9 @@ export class PythonPtcRuntime extends PtcRuntime {
   }
 
   /** Spawn the child for one validated run and drive it to settlement. */
-  private execute(
+  private async execute(
     request: PtcRunSpec,
+    policy: SandboxExecutionPolicy,
     bindings: Map<string, ValidatedNamespace>,
     bootstrapPath: string,
   ): Promise<PtcRunResult> {
@@ -1184,6 +1201,30 @@ export class PythonPtcRuntime extends PtcRuntime {
     // `worker-exit` — the same class as the async ENOENT `error` event below.
     let child: ChildProcessWithoutNullStreams
     let proto: Duplex | null
+    const sandbox: PtcRunSandbox = { mode: policy.mode, denied: false }
+    // Confinement wraps the interpreter argv; a `danger-full-access` policy
+    // needs no wrapper, and any failure to establish required confinement
+    // resolves as `sandbox-unavailable` instead of running unconfined.
+    const launch = [this.pythonBin, '-u', '-I', bootstrapPath]
+    let confined: ConfinedArgv | undefined
+    if (policy.mode !== 'danger-full-access') {
+      try {
+        confined = await this.ctx.sandbox.confine(launch, { ...policy, mode: policy.mode }, request.signal)
+        sandbox.enforcement = confined.enforcement
+      } catch (error: unknown) {
+        try {
+          rmSync(bootstrapDir, { recursive: true, force: true })
+        } catch {
+          // Same swallow as settle()'s removal: `force` already absorbs a
+          // missing directory, so only a filesystem-level refusal reaches here.
+        }
+        return {
+          logs: [],
+          error: { kind: 'sandbox-unavailable', message: `python sandbox unavailable: ${messageOf(error)}` },
+          sandbox: { ...sandbox },
+        }
+      }
+    }
     try {
       // `-u` keeps the interpreter's own stdout/stderr UNBUFFERED: a program
       // that writes through `sys.__stdout__`/`sys.__stderr__` (or C-stdio
@@ -1193,7 +1234,8 @@ export class PythonPtcRuntime extends PtcRuntime {
       // right after the done frame, before any finalization-time flush could
       // run. The `_LogStream` replacement of `sys.stdout`/`sys.stderr` is
       // unaffected (it is a Python object, not the C-level stdio buffer).
-      child = spawn(this.pythonBin, ['-u', '-I', bootstrapPath], {
+      const argv = confined?.argv ?? launch
+      child = spawn(argv[0] as string, argv.slice(1), {
         cwd: request.cwd,
         // Preserve only the platform temp directory. macOS system Python emits a
         // startup warning when TMPDIR is absent; ambient credentials, PATH, HOME,
@@ -1227,7 +1269,13 @@ export class PythonPtcRuntime extends PtcRuntime {
         // directory, so only a filesystem-level refusal reaches here, and the
         // staging copy holds nothing but two checked-in scripts.
       }
-      return Promise.resolve({ logs: [], error: { kind: 'worker-exit' as const, message: `python spawn error: ${messageOf(error)}` } })
+      return Promise.resolve({
+        logs: [],
+        error: isRunnerSpawnFailure(error, confined?.argv[0], request.cwd)
+          ? { kind: 'sandbox-unavailable' as const, message: `python sandbox runner could not start: ${messageOf(error)}` }
+          : { kind: 'worker-exit' as const, message: `python spawn error: ${messageOf(error)}` },
+        sandbox: { ...sandbox },
+      })
     }
 
     return new Promise<PtcRunResult>((resolve) => {
@@ -2213,7 +2261,11 @@ export class PythonPtcRuntime extends PtcRuntime {
           // a removal failure here is the one case the "gone by settlement"
           // contract degrades on.
         }
-        resolve({ ...result, logs })
+        if (confined !== undefined && result.error !== undefined) {
+          const message = result.error.message.toLowerCase()
+          sandbox.denied = confined.denialSignatures.some(signature => message.includes(signature.toLowerCase()))
+        }
+        resolve({ ...result, logs, sandbox: { ...sandbox } })
         // Mark the fiber quiescent for THIS run: drop it from `live` and resolve
         // `finished` (what teardown awaits). Deferred until the process group is
         // actually empty — dropping from `live` before then would let a

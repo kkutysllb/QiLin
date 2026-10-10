@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-这个实验包可让显式组合在每次请求时都用全新的 CPython 3.10+ 子进程运行模型生成的 Python。程序可以使用顶层 `await` 和 `return`、调用已配置的 binding、正常写入 stdout/stderr，并获得明确的完成或失败结果。资源预算和进程组拆卸会约束失控的工作，但子进程不是安全边界：直接 Python 操作没有文件系统沙箱，运行之间不保留状态，且没有已发布 profile 启用此 runtime。
+这个实验包可让显式组合在每次请求时都用全新的 CPython 3.10+ 子进程运行模型生成的 Python。程序可以使用顶层 `await` 和 `return`、调用已配置的 binding、正常写入 stdout/stderr，并获得明确的完成或失败结果。资源预算和进程组拆卸会约束失控的工作，且每个程序都在部署所组合的共享文件效果沙箱下运行：直接 Python 操作遵循解析出的策略，无法建立所要求的约束时该次运行以 `sandbox-unavailable` 失败，运行之间不保留状态。没有已发布 profile 启用此 runtime。
 
 ## 目录
 
@@ -27,7 +27,7 @@ kind: "package-reference"
 
 仅在显式组合中选择这个已发布的实验包。将 `PythonPtcRuntime` 与 `qilin-tools` 一起注册后，`run(resolve(request))` 会在全新的 CPython 3.10+ 子进程中执行每个程序；成功时以 `result.value` resolve，失败时以 `result.error` resolve（正交的 `PtcRunFailure.kind` 分类涵盖解析失败、抛出异常、无效完成值、输出溢出、预算到期、中止与执行基底终止）。仅有 seam 误用会 reject——binding 命名空间不合法，或在 dispose 后调用。配置在加载期拒绝：非 Unix 平台；不是可执行普通文件的显式 `pythonBin`，或无法在 `PATH` 上解析的裸名；非 CPython、低于 3.10 或探测失败的解释器；非正或非整数预算；低于截断标记下限（64）的 `maxLogBytes`；会被 `setTimeout` 截断的定时器值；超过有效 fd-3 帧上限的预算（宿主堆无法安全解析接近上限的帧时，该上限会降低）；或最坏峰值会突破 `RLIMIT_AS` 的 `addressSpaceMb`／输出预算组合。
 
-`resolve(request)` 接受绝对 `cwd`，并使用提供方配置的 `maxWallMs` 截止时间（默认 600,000 ms）。显式 `timeoutMs` 覆盖与沙箱策略不受支持，会在执行前拒绝。本提供方不声明 `sandboxMode`，也不返回约束事实。
+`resolve(request)` 接受绝对 `cwd`，并使用提供方配置的 `maxWallMs` 截止时间（默认 600,000 ms）。显式 `sandboxPolicy` 是当次调用的可信授权；未提供时由提供方解析部署策略，`resolve(request).sandboxPolicy` 始终存在。显式 `timeoutMs` 覆盖不受支持，会在执行前拒绝。本提供方声明 `sandboxMode`，并在 `result.sandbox` 返回策略的 mode、程序自身失败文本是否命中后端拒绝特征，以及所选后端的约束完整度。
 
 ### 你得到什么
 

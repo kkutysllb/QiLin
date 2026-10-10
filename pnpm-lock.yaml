@@ -8176,6 +8176,21 @@ importers:
       '@qilin-agent/ptc-runtime':
         specifier: workspace:*
         version: link:../../ptc-runtime/ptc-runtime
+      '@qilin-agent/sandbox':
+        specifier: workspace:*
+        version: link:../../sandbox/sandbox
+      '@qilin-agent/sandbox-local':
+        specifier: workspace:*
+        version: link:../../sandbox/sandbox-local
+      '@qilin-agent/sandbox-policy':
+        specifier: workspace:*
+        version: link:../../sandbox/sandbox-policy
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/session-projection':
+        specifier: workspace:*
+        version: link:../../session/session-projection
       '@qilin-agent/timeout':
         specifier: workspace:*
         version: link:../../util/timeout
