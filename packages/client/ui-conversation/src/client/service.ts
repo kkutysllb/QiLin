@@ -594,7 +594,11 @@ function imageMediaType(value: string): ImageMediaType {
   }
 }
 
-/** Whether a browser-declared MIME selects the image draft path (all other files upload verbatim). */
+/**
+ * Whether a browser-declared MIME selects the image draft path.
+ * @param value - browser-declared MIME string from the picked file.
+ * @returns true when the platform supports previewing and uploading it as an image.
+ */
 export function isImageMediaType(value: string): boolean {
   return value === 'image/png' || value === 'image/jpeg' || value === 'image/webp' || value === 'image/gif'
 }

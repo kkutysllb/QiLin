@@ -33,7 +33,7 @@ One frame in the Session Controller control stream:
 `SessionJob` is browser-safe and owned beside the other Session Remote contracts in [`packages/api/session-controller/src/types.ts`](../../../../packages/api/session-controller/src/types.ts):
 
 ```ts
-import type { JobId } from '@qilin/jobs/brand'
+import type { JobId } from '@qilin-agent/jobs/brand'
 
 export interface SessionJob {
   id: JobId

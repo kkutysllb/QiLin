@@ -79,6 +79,11 @@ export function pathFromMeta(meta: unknown): string | undefined {
   return typeof path === 'string' && path.length > 0 ? path : undefined
 }
 
+/**
+ * Read persisted file diffs from one tool result's metadata.
+ * @param meta - untrusted persisted result metadata.
+ * @returns the recorded diffs, or undefined when the metadata carries none.
+ */
 export function diffsFromMeta(meta: unknown): FileDiff[] | undefined {
   if (typeof meta !== 'object' || meta === null || Array.isArray(meta)) return undefined
   const diffs = (meta as Record<string, unknown>).diffs

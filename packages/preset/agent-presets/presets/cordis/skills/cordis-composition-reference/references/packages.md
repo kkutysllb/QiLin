@@ -188,6 +188,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/experimental-browser-use-playwright-mcp` | yes | Experimental per-Session Chromium browser tools through @playwright/mcp |
 | `@qilin-agent/experimental-browser-use-stagehand-native` | yes | Experimental Stagehand browser tools with separately configured native models |
 | `@qilin-agent/experimental-client-ui-agent-team` | no | Web Agent Teams roster, task board, and teammate navigation |
+| `@qilin-agent/experimental-client-ui-cot-translation` | yes | Optional machine translation of expanded reasoning, preserving original Session text |
 | `@qilin-agent/experimental-client-ui-voice-input` | no | Record speech and insert editable text into the conversation draft |
 | `@qilin-agent/experimental-computer-use-cua-driver-mcp` | yes | Experimental computer use through an installed Cua Driver MCP executable |
 | `@qilin-agent/experimental-computer-use-cua-driver-native` | no | Experimental computer-use provider embedding the Cua Driver native npm SDK |

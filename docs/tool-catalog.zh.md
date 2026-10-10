@@ -53,7 +53,7 @@
 | `@qilin-agent/tool-web` | `web_fetch`、`web_search` | `ctx.tools`、`ctx.web`、`ctx.systemPrompt` | `tool/call`、`tool/result` | - | web_search 和 web_fetch 将提供方选择置于 ctx.web 之后，使模型可见 schema 在更换后端时保持稳定。 |
 | `@qilin-agent/sidebar-opens` | `sidebar_open` | `ctx.tools`、`ctx.fs` | `tool/call`、`one Remote sidebarOpens.watch request per open`、`tool/result` | - | 宿主包工具：请求以 Remote 流而非会话事件的形式发往浏览器半边（`@qilin-agent/client-ui-agent-opens`），因此模型请求查看的内容留在日志中，而任何页面加载都不会重放旧的打开请求。每个会话的待处理队列由 `maxQueued` 配置限定（默认 16）；已被视图消费的请求绝不重放。 |
 
-<a id="qilinplugin-manager"></a>
+<a id="qilin-agentplugin-manager"></a>
 
 ## `@qilin-agent/plugin-manager`
 
@@ -119,7 +119,7 @@
 
 来源： [`packages/boot/plugin-manager/src/tools.ts`](../packages/boot/plugin-manager/src/tools.ts)
 
-<a id="qilinmcp-resources"></a>
+<a id="qilin-agentmcp-resources"></a>
 
 ## `@qilin-agent/mcp-resources`
 
@@ -199,7 +199,7 @@
 
 来源： [`packages/mcp/mcp-resources/src/tools.ts`](../packages/mcp/mcp-resources/src/tools.ts)
 
-<a id="qilinexperimental-browser-use-stagehand-native"></a>
+<a id="qilin-agentexperimental-browser-use-stagehand-native"></a>
 
 ## `@qilin-agent/experimental-browser-use-stagehand-native`
 
@@ -446,7 +446,7 @@
 
 来源：[`packages/experimental/browser-use-stagehand-native/src/index.ts`](../packages/experimental/browser-use-stagehand-native/src/index.ts)
 
-<a id="qilintool-ask-user"></a>
+<a id="qilin-agenttool-ask-user"></a>
 
 ## `@qilin-agent/tool-ask-user`
 
@@ -520,7 +520,7 @@
 
 ask_user_question 会暂停工具调用，直到当前 UI 提供方返回人类答案。
 
-<a id="qilintools"></a>
+<a id="qilin-agenttools"></a>
 
 ## `@qilin-agent/tools`
 
@@ -568,7 +568,7 @@ ask_user_question 会暂停工具调用，直到当前 UI 提供方返回人类�
 
 在 `mode: ptc`／`mode: both` 下，它由工具注册表所有，作为可过滤能力层之外的保留传输机制（参见 PTC mode Agent Note）。在 `ptc` 下，它是注册表对协议格式的唯一贡献；其他可见能力在使用已加载运行时语言生成的 SDK 章节中声明。程序通过 binding 调用这些能力，调用按照原生并发约定调度：启动顺序和策略遵循提交顺序，并发安全的函数体最多重叠执行 `maxParallelSubCalls` 个。调用会重新进入完整且受守卫保护的工具流水线，并将每个嵌套执行关联到此外层结果。
 
-<a id="qilinplan-mode"></a>
+<a id="qilin-agentplan-mode"></a>
 
 ## `@qilin-agent/plan-mode`
 
@@ -595,7 +595,7 @@ ask_user_question 会暂停工具调用，直到当前 UI 提供方返回人类�
 
 规划未激活时，exit_plan_mode 仍保留在面向模型的 schema 中，这样状态转换不会在规划策略变更之外额外造成工具目录变动。其执行路径会拒绝规划模式之外的调用；在规划模式下，它通过用户交互 seam 提交计划（批准／根据反馈继续规划），批准后会在步骤边界记录规划模式已停用。
 
-<a id="qilintool-bash"></a>
+<a id="qilin-agenttool-bash"></a>
 
 ## `@qilin-agent/tool-bash`
 
@@ -639,7 +639,7 @@ ask_user_question 会暂停工具调用，直到当前 UI 提供方返回人类�
 
 bash 工具是 bash 执行器 seam 面向模型的消费方。使用 `run_in_background` 的运行会注册到通用 `ctx.jobs` 运行时，并通过 `job_*` 工具（来自 `@qilin-agent/tool-jobs`）收集／停止；禁用 `enableRunInBackground` 配置（默认为 true）后，该参数会被完全移除。
 
-<a id="qilintool-present"></a>
+<a id="qilin-agenttool-present"></a>
 
 ## `@qilin-agent/tool-present`
 
@@ -682,7 +682,7 @@ bash 工具是 bash 执行器 seam 面向模型的消费方。使用 `run_in_bac
 
 交付归调用方 Session 所有；Web ui-deliverables 提供源文件打开与卡片。
 
-<a id="qilintool-pwsh"></a>
+<a id="qilin-agenttool-pwsh"></a>
 
 ## `@qilin-agent/tool-pwsh`
 
@@ -726,7 +726,7 @@ bash 工具是 bash 执行器 seam 面向模型的消费方。使用 `run_in_bac
 
 pwsh 工具是 Windows 组合中 bash 执行器 seam 的 PowerShell 方言消费方（由 `@qilin-agent/pwsh-local` 等 PowerShell 执行器为 `ctx.shell` 提供后端）；除沙箱接口外，它逐项对应 bash 工具调用。使用 `run_in_background` 的运行会注册到通用 `ctx.jobs` 运行时，并通过 `job_*` 工具收集／停止；托管的 `QILIN_*` 环境来自 `@qilin-agent/shell-env`。每次调用都在新进程中运行，不使用持久 PTY 会话。路径采用原生 `C:\...` 形式，变量采用 `$env:NAME`。
 
-<a id="qilintool-kylin"></a>
+<a id="qilin-agenttool-kylin"></a>
 
 ## `@qilin-agent/tool-kylin`
 
@@ -783,7 +783,7 @@ pwsh 工具是 Windows 组合中 bash 执行器 seam 的 PowerShell 方言消费
 
 创造模式提供两个只读运行时检查工具。Kylin host runner 提供检查注册表；Client 查询需要已连接页面。持久化变更编写为组合包，再通过 plugin_manager 安装。
 
-<a id="qilintool-bash-persistent"></a>
+<a id="qilin-agenttool-bash-persistent"></a>
 
 ## `@qilin-agent/tool-bash-persistent`
 
@@ -810,7 +810,7 @@ pwsh 工具是 Windows 组合中 bash 执行器 seam 的 PowerShell 方言消费
 
 一个按所有者隔离的持久 bash 工具；部署组合提供 PTY 后端，并可覆盖面向模型的环境描述。
 
-<a id="qilintool-pwsh-persistent"></a>
+<a id="qilin-agenttool-pwsh-persistent"></a>
 
 ## `@qilin-agent/tool-pwsh-persistent`
 
@@ -837,7 +837,7 @@ pwsh 工具是 Windows 组合中 bash 执行器 seam 的 PowerShell 方言消费
 
 一个按所有者隔离的持久 pwsh 工具，持久 bash 工具的 Windows 对应物；部署组合提供 pwsh 方言的 PTY 后端，并可覆盖面向模型的环境描述。
 
-<a id="qilintool-str-replace-editor"></a>
+<a id="qilin-agenttool-str-replace-editor"></a>
 
 ## `@qilin-agent/tool-str-replace-editor`
 
@@ -945,7 +945,7 @@ pwsh 工具是 Windows 组合中 bash 执行器 seam 的 PowerShell 方言消费
 
 基于文件系统 seam 的独立查看／创建／唯一字面量替换／按行插入工具；可与任何 shell 或终端接口组合。
 
-<a id="qilintool-fs"></a>
+<a id="qilin-agenttool-fs"></a>
 
 ## `@qilin-agent/tool-fs`
 
@@ -1062,7 +1062,7 @@ pwsh 工具是 Windows 组合中 bash 执行器 seam 的 PowerShell 方言消费
 
 先读后写／编辑策略由 `@qilin-agent/fs-observation-policy` 添加；它是一个 `fs/*` 事件门禁插件，不会改变 schema。加载这些工具的部署按预期也应加载该插件。没有 `ctx.attachments` 时图片工具不会注册；其 schema 与路由无关，执行时除非确切路由的模型声明图片输入，否则拒绝。
 
-<a id="qilintool-fs-search"></a>
+<a id="qilin-agenttool-fs-search"></a>
 
 ## `@qilin-agent/tool-fs-search`
 
@@ -1122,7 +1122,7 @@ pwsh 工具是 Windows 组合中 bash 执行器 seam 的 PowerShell 方言消费
 
 glob 和 grep 是无条件可用的发现工具，通过 ctx.subprocess spawn 随包提供的 ripgrep 二进制文件（`@vscode/ripgrep`），并作为普通前台调用运行，绝不作为后台任务；无需在宿主机安装 `rg`，也不经过 shell 层。本目录使用 `sampleOverCapGlobResults: true`；部署必须显式选择该行为。结果超过上限时，会通过可选的 ctx.spillStore 后端保存完整的格式化列表；在共置部署中，如果后端公开本地路径，返回的定位信息可供后续读取／搜索。
 
-<a id="qilintool-terminal"></a>
+<a id="qilin-agentexperimental-tool-terminal"></a>
 
 ## `@qilin-agent/experimental-tool-terminal`
 
@@ -1287,7 +1287,7 @@ glob 和 grep 是无条件可用的发现工具，通过 ctx.subprocess spawn �
 
 这 6 个终端工具需要选择启用，用于补充一次性 bash／文件系统工具。`terminal_send(run_in_background: true)` 会注册到 `ctx.jobs`；schema 不包含 TUI、具名按键序列、BEL、调整尺寸、自动启动和跨 agent 共享。
 
-<a id="qilintool-goal"></a>
+<a id="qilin-agenttool-goal"></a>
 
 ## `@qilin-agent/tool-goal`
 
@@ -1381,7 +1381,7 @@ glob 和 grep 是无条件可用的发现工具，通过 ctx.subprocess spawn �
 
 create、edit、pause 和 resume 要求直接来自人类的根权限；complete 和 blocked 也接受确切的当前 Goal Round。blocked 的默认下限是 3 个获准的 Round。
 
-<a id="qilintool-schedule"></a>
+<a id="qilin-agenttool-schedule"></a>
 
 ## `@qilin-agent/tool-schedule`
 
@@ -1676,7 +1676,7 @@ Source: [`packages/schedule/tool-schedule/src/index.ts`](../packages/schedule/to
 
 <a id="qilintool-lsp"></a>
 
-<a id="qilintool-lsp"></a>
+<a id="qilin-agenttool-lsp"></a>
 
 ## `@qilin-agent/tool-lsp`
 
@@ -1724,7 +1724,7 @@ Source: [`packages/schedule/tool-schedule/src/index.ts`](../packages/schedule/to
 
 lsp 工具将提供方选择和语言服务器子进程置于 ctx.lsp 之后，因此其模型可见 schema 在更换提供方时保持稳定。运行时要求已注册提供方，例如 `@qilin-agent/lsp-stdio`；如果没有提供方，查询会返回结构化 `LSP_UNAVAILABLE` 错误，而不会改变 schema。
 
-<a id="qilintool-ralph"></a>
+<a id="qilin-agentexperimental-tool-ralph"></a>
 
 ## `@qilin-agent/experimental-tool-ralph`
 
@@ -1755,7 +1755,7 @@ lsp 工具将提供方选择和语言服务器子进程置于 ctx.lsp 之后，�
 
 固定的前台工作流会在每个 Round 启动一个全新的结构化子级；模型只能选择不可变目标和可选的 Round 上限。
 
-<a id="qilintool-skill"></a>
+<a id="qilin-agenttool-skill"></a>
 
 ## `@qilin-agent/tool-skill`
 
@@ -1780,7 +1780,7 @@ lsp 工具将提供方选择和语言服务器子进程置于 ctx.lsp 之后，�
 
 来源：[`packages/skill/tool-skill/src/index.ts`](../packages/skill/tool-skill/src/index.ts)
 
-<a id="qilintool-session-query"></a>
+<a id="qilin-agentexperimental-tool-session-query"></a>
 
 ## `@qilin-agent/experimental-tool-session-query`
 
@@ -2015,7 +2015,7 @@ lsp 工具将提供方选择和语言服务器子进程置于 ctx.lsp 之后，�
 
 这 5 个只读工具会隐藏提供方游标，并根据不可变的调用 agent 会话为每个结果授权。该包需要选择启用；需要强制截止时间或限制行内输出的组合还会挂载通用超时或 spill 策略。
 
-<a id="qilintool-subagent"></a>
+<a id="qilin-agenttool-subagent"></a>
 
 ## `@qilin-agent/tool-subagent`
 
@@ -2077,7 +2077,7 @@ lsp 工具将提供方选择和语言服务器子进程置于 ctx.lsp 之后，�
 
 注册的委派工具名称取决于加载时 `toolName` 配置（默认为 `subagent`）；上述默认 schema 关闭模型选择，而发现 schema 则展示为已启用 Session 中可用的固定配套工具。Web preset 会在每个新顶层 Session 创建时读取插件页偏好，并为其子 Session 保留该决定；`subagent_fork` 始终使用固定路由。每个实例通过 `modelSelectionSettings`、`backgroundMode` 与 `enableRunInBackground` 独立控制是否读取模型选择设置及其后台行为。
 
-<a id="qilintool-subagent-control"></a>
+<a id="qilin-agenttool-subagent-control"></a>
 
 ## `@qilin-agent/tool-subagent-control`
 
@@ -2152,7 +2152,7 @@ lsp 工具将提供方选择和语言服务器子进程置于 ctx.lsp 之后，�
 
 这些是控制可继续后台 subagent 的全局命名工具：绑定提供方的 `tool-subagent` 实例注册不同的委派工具；本包注册一次 `send_message` 和 `interrupt_agent`，另由 `list_agents` 通过单独加载的 `/list-agents` 插件提供，其目录行使用 sessionProjections 和实时 Agent 注册表。
 
-<a id="qilintool-jobs"></a>
+<a id="qilin-agenttool-jobs"></a>
 
 ## `@qilin-agent/tool-jobs`
 
@@ -2225,7 +2225,7 @@ lsp 工具将提供方选择和语言服务器子进程置于 ctx.lsp 之后，�
 
 与任务种类无关的后台任务控制器：后台 bash 命令、PTY 发送和 subagent 都通过相同的 3 个工具读取、列出和终止。加载该插件会挂接控制器，从而启用生产方的 `ctx.jobs.start()`。
 
-<a id="qilinexperimental-tool-agent-team"></a>
+<a id="qilin-agentexperimental-tool-agent-team"></a>
 
 ## `@qilin-agent/experimental-tool-agent-team`
 
@@ -2516,7 +2516,7 @@ lsp 工具将提供方选择和语言服务器子进程置于 ctx.lsp 之后，�
 这 10 个工具限定于隐式 Team Lead 与持久 teammate 作用域。随产品发布的 qilin-base bundle 默认禁用该包；文档中的 Agent Teams profile patch 会启用它，并禁用旧 continuable child 的同名控制工具。
 
 
-<a id="qilintool-todo"></a>
+<a id="qilin-agenttool-todo"></a>
 
 ## `@qilin-agent/tool-todo`
 
@@ -2618,7 +2618,7 @@ todo_write 是会话所有的状态；UI 将最新的 todo/write 事件渲染为
 
 在发起调用的 Session 文件策略下创建并进入新的 Git 分支与检出目录；离开后检出目录与分支会保留。
 
-<a id="qilintool-workflow"></a>
+<a id="qilin-agenttool-workflow"></a>
 
 ## `@qilin-agent/tool-workflow`
 
@@ -2718,7 +2718,7 @@ todo_write 是会话所有的状态；UI 将最新的 todo/write 事件渲染为
 
 来源：[`packages/workflow/tool-workflow/src/index.ts`](../packages/workflow/tool-workflow/src/index.ts)
 
-<a id="qilintool-workspace-dependencies"></a>
+<a id="qilin-agenttool-workspace-dependencies"></a>
 
 ## `@qilin-agent/tool-workspace-dependencies`
 
@@ -2735,7 +2735,7 @@ todo_write 是会话所有的状态；UI 将最新的 todo/write 事件渲染为
 
 来源：[`packages/skill/tool-workspace-dependencies/src/index.ts`](../packages/skill/tool-workspace-dependencies/src/index.ts)
 
-<a id="qilintool-web"></a>
+<a id="qilin-agenttool-web"></a>
 
 ## `@qilin-agent/tool-web`
 
@@ -2786,7 +2786,7 @@ todo_write 是会话所有的状态；UI 将最新的 todo/write 事件渲染为
 
 web_search 和 web_fetch 将提供方选择置于 ctx.web 之后，使模型可见 schema 在更换后端时保持稳定。
 
-<a id="qilinsidebar-opens"></a>
+<a id="qilin-agentsidebar-opens"></a>
 
 ## `@qilin-agent/sidebar-opens`
 
