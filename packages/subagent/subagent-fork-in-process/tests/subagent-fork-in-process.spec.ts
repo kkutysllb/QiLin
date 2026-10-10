@@ -1,3 +1,5 @@
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
+import { mountLocalActivations, startTestActivation as start } from '../../subagent/tests/local-activation.ts'
 import { createUserMessage } from '@qilin-agent/llm'
 import { describe, expect, it } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
@@ -6,33 +8,26 @@ import AgentRegistry from '@qilin-agent/agent'
 import { SessionId } from '@qilin-agent/session'
 import AgentLoop from '@qilin-agent/agent-loop'
 import { mountAgentLoopTestDependencies } from '@qilin-agent/agent-loop-testkit'
-import SubagentRuntime, { type SubagentStartRequest } from '@qilin-agent/subagent'
+import SubagentRuntime from '@qilin-agent/subagent'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import { MockAdapter, textResponse, toolCallResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
 import type { StreamChunk } from '@qilin-agent/llm'
 import * as fork from '../src/index.ts'
-import { STRUCTURED_OUTPUT_TOOL } from '@qilin-agent/subagent-in-process-driver'
-import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
+import { STRUCTURED_OUTPUT_TOOL } from '@qilin-agent/subagent'
 
 type Script = ConstructorParameters<typeof MockAdapter>[0]
-
-function start(ctx: Context, provider: string, request: Omit<SubagentStartRequest, 'signal'> & { signal?: AbortSignal }) {
-  return ctx.subagents.start(provider, { signal: request.signal ?? new AbortController().signal, ...request })
-}
 
 /** A bare `stop` finish that streams no content → the turn ends `completed`
  * with NO `assistant/message` of its own. */
 const emptyStop: StreamChunk[] = [{ type: 'finish', reason: { kind: 'stop' } }]
 
 /**
- * Drives the REAL fork backend with a real loop + scripted mock MODEL + the
- * real invariant service and package companions. The session contribution replays a seeded child log on
- * `session/created`, so a malformed (unbalanced) fork seed makes these tests
- * THROW — that is the regression guard for the completed-turn-prefix boundary.
+ * Drives the REAL fork backend with a real loop + scripted mock MODEL.
  */
 async function setup(script: Script) {
   const ctx = new Context()
   await mountAgentLoopTestDependencies(ctx)
+  await mountLocalActivations(ctx)
   await ctx.plugin(AgentLoop, { agents: [] })
   await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(SubagentRuntime)
@@ -46,7 +41,7 @@ function text(blocks: readonly { type: string; text?: string }[]): string {
   return blocks.filter(b => b.type === 'text').map(b => b.text).join('')
 }
 
-describe('qilin-subagent-fork-in-process', () => {
+describe('dsh-subagent-fork-in-process', () => {
   it('emits subagent/start only after the seeded child is published', async () => {
     const { ctx, parent } = await setup([textResponse('child answer')])
     let childAtStart: ReturnType<typeof ctx.agents.get>
@@ -72,7 +67,7 @@ describe('qilin-subagent-fork-in-process', () => {
     const result = await run.result
     expect(result.stopReason).toBe('completed')
     expect(text(result.output)).toBe('fresh child')
-    const child = ctx.agents.get(run.id)!
+    const child = run.localAgent
     // Only the child's own turn — no seeded parent turns.
     expect(child.session.snapshotEvents().filter(e => e.type === 'turn/end')).toHaveLength(1)
     expect(child.session.header.isSeeded).toBe(false)
@@ -90,7 +85,7 @@ describe('qilin-subagent-fork-in-process', () => {
 
     const run = await start(ctx, 'fork', { prompt: [{ type: 'text', text: 'child q' }], parent })
     await run.result
-    const child = ctx.agents.get(run.id)!
+    const child = run.localAgent
     expect(child.session.header.isSeeded).toBe(true)
     expect(child.session.inheritedEventCount).toBe(parentPrefixLen)
     expect(child.session.snapshotEvents().slice(0, parentPrefixLen).at(-1)?.type).toBe('turn/end')
@@ -109,7 +104,7 @@ describe('qilin-subagent-fork-in-process', () => {
     expect(result.stopReason).toBe('completed')
     expect(text(result.output)).toBe('child answer')
 
-    const child = ctx.agents.get(run.id)!
+    const child = run.localAgent
     // The child's log STARTS with the parent's prefix (seeded), then its own turn.
     expect(child.session.snapshotEvents().length).toBeGreaterThan(parentPrefixLen)
     // The seeded prefix carried the parent's user message.
@@ -124,10 +119,10 @@ describe('qilin-subagent-fork-in-process', () => {
     await run.dispose()
   })
 
-  it('produces an invariant-CLEAN seed: forking mid-turn excludes the open turn', async () => {
+  it('produces a balanced seed: forking mid-turn excludes the open turn', async () => {
     // Drive the parent so it has one completed turn, then start a SECOND turn that is still
     // open (a hanging model call), and fork while it's in flight. The seed must stop after the
-    // balanced first turn; including the open turn would fail invariant replay during start.
+    // balanced first turn.
     const { ctx, parent } = await setup([textResponse('done'), 'hang', textResponse('child')])
     parent.followup(createUserMessage({ content: [{ type: 'text', text: 'q1' }], source: { kind: 'user' } }))
     await parent.whenIdle()
@@ -141,7 +136,7 @@ describe('qilin-subagent-fork-in-process', () => {
     expect(result.stopReason).toBe('completed')
     expect(text(result.output)).toBe('child')
 
-    const child = ctx.agents.get(run.id)!
+    const child = run.localAgent
     // The child's seed has exactly the ONE completed parent turn (the open one excluded).
     const seedTurnEnds = child.session.snapshotEvents().filter(e => e.type === 'turn/end')
     // 1 from the seeded parent turn + 1 from the child's own completed turn.
@@ -217,8 +212,8 @@ describe('qilin-subagent-fork-in-process', () => {
     // Before any completed parent turn there is nothing to inherit, so the
     // child starts fresh rather than carrying an empty seed.
     const fresh = await provider.prepareContinuable!({
-      sessionId: SessionId('continuable-fresh'),
       cwd: process.cwd(),
+      sessionId: SessionId('continuable-fresh'),
       parent,
       signal,
     })
@@ -228,8 +223,8 @@ describe('qilin-subagent-fork-in-process', () => {
     parent.followup(createUserMessage({ content: [{ type: 'text', text: 'hello' }], source: { kind: 'user' } }))
     await parent.whenIdle()
     const seeded = await provider.prepareContinuable!({
-      sessionId: SessionId('continuable-seeded'),
       cwd: process.cwd(),
+      sessionId: SessionId('continuable-seeded'),
       parent,
       signal,
     })

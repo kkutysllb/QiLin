@@ -1,3 +1,5 @@
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
+import { mountLocalActivations, startTestActivation as start } from '../../subagent/tests/local-activation.ts'
 import { createUserMessage, type GenerateOptions } from '@qilin-agent/llm'
 import { describe, expect, it } from 'vitest'
 import { Context, symbols, type EffectMeta } from '@qilin-agent/kylin'
@@ -6,20 +8,18 @@ import AgentRegistry, { type Agent } from '@qilin-agent/agent'
 import { SessionId } from '@qilin-agent/session'
 import AgentLoop from '@qilin-agent/agent-loop'
 import { mountAgentLoopTestDependencies } from '@qilin-agent/agent-loop-testkit'
-import SubagentRuntime, { type SubagentStartRequest } from '@qilin-agent/subagent'
+import SubagentRuntime from '@qilin-agent/subagent'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import { MockAdapter, maxTokensResponse, textResponse, toolCallResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
 import * as spawn from '../src/index.ts'
-import { STRUCTURED_OUTPUT_TOOL } from '@qilin-agent/subagent-in-process-driver'
+import { STRUCTURED_OUTPUT_TOOL } from '@qilin-agent/subagent'
 import { defineContentToolFixture } from '@qilin-agent/tools'
-import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 
 type Script = ConstructorParameters<typeof MockAdapter>[0]
 
 /**
  * Drives the REAL spawn backend end-to-end: a real agent loop + a scripted mock
- * MODEL (the only mocked boundary) + the real SubagentRuntime + the real
- * invariant service plus package companions (so a malformed child session log would fail the test).
+ * MODEL (the only mocked boundary) + the real SubagentRuntime.
  * The parent is a real config agent; the spawn provider creates a real child
  * agent on the same context and we assert its output.
  */
@@ -27,6 +27,7 @@ async function setup(script: Script) {
   const ctx = new Context()
   const adapter = new MockAdapter(script)
   await mountAgentLoopTestDependencies(ctx)
+  await mountLocalActivations(ctx)
   await ctx.plugin(AgentLoop, { agents: [] })
   await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(SubagentRuntime)
@@ -40,9 +41,7 @@ function text(blocks: readonly { type: string; text?: string }[]): string {
   return blocks.filter(b => b.type === 'text').map(b => b.text).join('')
 }
 
-function start(ctx: Context, provider: string, request: Omit<SubagentStartRequest, 'signal'> & { signal?: AbortSignal }) {
-  return ctx.subagents.start(provider, { signal: request.signal ?? new AbortController().signal, ...request })
-}
+
 
 /** Invoke the child lifecycle effect while its parent-owned setup is still unpublished. */
 function disposeChildLifecycle(parent: Agent): void {
@@ -63,7 +62,7 @@ function systemPromptOf(request: GenerateOptions): string {
   return head.content.flatMap(block => block.type === 'text' ? [block.text] : []).join('')
 }
 
-describe('qilin-subagent-spawn-in-process', () => {
+describe('dsh-subagent-spawn-in-process', () => {
   it('runs a fresh child to completion and returns its final assistant output', async () => {
     // One model call for the child: a plain text answer.
     const { ctx, parent } = await setup([textResponse('child answer')])
@@ -97,7 +96,7 @@ describe('qilin-subagent-spawn-in-process', () => {
     const { ctx, parent } = await setup([textResponse('hi')])
     const run = await start(ctx, 'spawn', { prompt: [{ type: 'text', text: 'p' }], parent })
     await run.result
-    const child = ctx.agents.get(run.id)!
+    const child = run.localAgent
     expect(child.session.header.id).not.toBe(parent.session.header.id)
     expect(child.session.header.parentSession).toBe(parent.session.header.id)
     await run.dispose()
@@ -113,21 +112,20 @@ describe('qilin-subagent-spawn-in-process', () => {
 
     const run = await start(ctx, 'spawn', { prompt: [{ type: 'text', text: 'child prompt' }], parent })
     await run.result
-    const child = ctx.agents.get(run.id)!
+    const child = run.localAgent
     // The child's first user/message is its OWN prompt, not the parent's history.
     const firstUser = child.session.snapshotEvents().find(e => e.type === 'user/message')
     expect(firstUser).toBeDefined()
     await run.dispose()
   })
 
-  it('disposes the child to quiescence (agent removed from the registry)', async () => {
+  it('releases the child before delivering its result', async () => {
     const { ctx, parent } = await setup([textResponse('x')])
     const run = await start(ctx, 'spawn', { prompt: [{ type: 'text', text: 'p' }], parent })
-    await run.result
     expect(ctx.agents.get(run.id)).toBeDefined()
-    await run.dispose()
-    // After dispose, the child is unregistered (the AgentHandle teardown ran).
+    await run.result
     expect(ctx.agents.get(run.id)).toBeUndefined()
+    await run.dispose()
   })
 
   it('stamps child depth = parent depth + 1 (via the merged AgentOptions field)', async () => {
@@ -135,7 +133,7 @@ describe('qilin-subagent-spawn-in-process', () => {
     expect(parent.options.subagentDepth).toBeUndefined()
     const run = await start(ctx, 'spawn', { prompt: [{ type: 'text', text: 'p' }], parent })
     await run.result
-    const child = ctx.agents.get(run.id)!
+    const child = run.localAgent
     expect(child.options.subagentDepth).toBe(1)
     await run.dispose()
   })
@@ -173,7 +171,7 @@ describe('qilin-subagent-spawn-in-process', () => {
     controller.abort()
     const { ctx, parent } = await setup([])
     await expect(start(ctx, 'spawn', { prompt: [{ type: 'text', text: 'p' }], parent, signal: controller.signal }))
-      .rejects.toThrow('This operation was aborted')
+      .rejects.toBe(controller.signal.reason)
   })
 
   it('same-tick cancellation rejects start and prevents child publication', async () => {
@@ -198,15 +196,13 @@ describe('qilin-subagent-spawn-in-process', () => {
     expect(published).toEqual([])
   })
 
-  it('cancelling a running child settles the run as aborted (the abort bridge + cancel())', async () => {
+  it('disposing a running child settles the activation as aborted', async () => {
     // 'hang' makes the child's model stream one chunk then wait until aborted.
     const controller = new AbortController()
     const { ctx, parent } = await setup(['hang'])
     const run = await start(ctx, 'spawn', { prompt: [{ type: 'text', text: 'p' }], parent, signal: controller.signal })
-    // Let the child's turn start, then abort via the request signal (the
-    // backend bridges it to child.cancel()).
     await new Promise(r => setTimeout(r, 30))
-    controller.abort()
+    await run.dispose()
     const result = await run.result
     expect(result.stopReason).toBe('aborted')
     await run.dispose()
@@ -221,13 +217,9 @@ describe('qilin-subagent-spawn-in-process', () => {
     expect(result.stopReason).toBe('aborted')
   })
 
-  it('a one-shot run exposes neither steer nor resume; continuable creation is a provider capability', async () => {
+  it('the provider supplies fresh local preparation for managed activations', async () => {
     const { ctx, parent } = await setup([textResponse('x')])
     const run = await start(ctx, 'spawn', { prompt: [{ type: 'text', text: 'p' }], parent })
-    // A run is one disposable foreground activation: it has no steering and no
-    // cold resume. Continuable conversations never become a run — the
-    // continuation manager drives them through the provider's
-    // `prepareContinuable` capability instead.
     expect('steer' in run).toBe(false)
     expect('resume' in run).toBe(false)
     await run.result
@@ -236,8 +228,8 @@ describe('qilin-subagent-spawn-in-process', () => {
     const provider = ctx.subagents.getProvider('spawn')!
     expect(typeof provider.prepareContinuable).toBe('function')
     const spec = await provider.prepareContinuable!({
-      sessionId: SessionId('continuable-child'),
       cwd: process.cwd(),
+      sessionId: SessionId('continuable-child'),
       parent,
       signal: new AbortController().signal,
     })
@@ -255,7 +247,7 @@ describe('qilin-subagent-spawn-in-process', () => {
     })
     const run = await start(ctx, 'spawn', { prompt: [{ type: 'text', text: 'p' }], parent: parentHandle.agent })
     await run.result
-    const child = ctx.agents.get(run.id)!
+    const child = run.localAgent
     expect(child.session.header.cwd).toBe('/tmp/parent-workspace')
     await run.dispose()
     await parentHandle.dispose()
@@ -326,6 +318,7 @@ describe('qilin-subagent-spawn-in-process', () => {
     const ctx = new Context()
     const adapter = new MockAdapter(['hang'])
     await mountAgentLoopTestDependencies(ctx)
+    await mountLocalActivations(ctx)
     await ctx.plugin(AgentLoop, { agents: [] })
     await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
@@ -345,7 +338,7 @@ describe('qilin-subagent-spawn-in-process', () => {
     await fiber.dispose()
     expect(ctx.subagents.getProvider('spawn')).toBeUndefined()
     expect(ctx.agents.get(run.id)).toBeDefined()
-    controller.abort('test complete')
+    await run.dispose()
     const result = await run.result
     expect(result.stopReason).toBe('aborted')
     expect(ctx.tools.get(STRUCTURED_OUTPUT_TOOL)).toBeUndefined()
@@ -430,7 +423,7 @@ describe('qilin-subagent-spawn-in-process', () => {
       const childRequest = adapter.requests[0]!
       expect((childRequest.tools ?? []).map(t => t.name)).not.toContain('forbidden_tool')
       // …and the attempted call executed as UNKNOWN_TOOL (visible in the log).
-      const child = ctx.agents.get(run.id)!
+      const child = run.localAgent
       const toolResult = child.session.snapshotEvents().find(e => e.type === 'tool/result')!
       expect(JSON.stringify(toolResult.data)).toContain('unknown tool')
       await run.dispose()
@@ -464,7 +457,7 @@ describe('qilin-subagent-spawn-in-process', () => {
     await expect(start(ctx, 'spawn', {
       prompt: [{ type: 'text', text: 'do X' }],
       parent: parentHandle.agent,
-    })).rejects.toThrow(/inactive context/)
+    })).rejects.toThrow(/exact live parent agent/)
     expect(ctx.agents.list().length).toBe(before)
     expect(ctx.sessions.list()).toHaveLength(sessionsBefore)
     expect(published).toEqual([])
@@ -493,7 +486,7 @@ describe('qilin-subagent-spawn-in-process', () => {
     // The factory has entered its awaited unpublished setup transaction. The
     // parent context owns that transaction, so disposal wins without an
     // observer ever seeing the child.
-    await expect(starting).rejects.toThrow(/owner disposed during setup|inactive context/)
+    await expect(starting).rejects.toThrow(/owner disposed during setup|inactive context|child lifecycle effect not found/)
     await parentHandle.dispose()
 
     expect(published).toEqual([])

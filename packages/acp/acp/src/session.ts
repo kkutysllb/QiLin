@@ -22,7 +22,7 @@ import { assistantUpdates, toolCallUpdate, toolResultUpdate } from './updates.ts
 /** The continuable-subagent teardown used without depending on the subagent package. */
 interface ContinuableDrain {
   /** Dispose continuable descendants below exact host-owned parents child-first. */
-  drainContinuableDescendants(parents: readonly Agent[]): Promise<void>
+  drainDescendants(parents: readonly Agent[]): Promise<void>
 }
 
 /** Inputs shared by fresh and resumed ACP session construction. */

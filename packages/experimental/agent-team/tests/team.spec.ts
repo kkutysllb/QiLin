@@ -393,6 +393,8 @@ describe('Team identity and provisioning', () => {
     vi.spyOn(first.ctx.subagents, 'startActivation').mockImplementationOnce(async spec => ({
       childId: spec.childId!,
       messageId: createUserMessage({ content: content('accepted'), source: { kind: 'user' } }).id,
+      result: Promise.resolve({ output: [], stopReason: 'completed' as const }),
+      dispose: () => Promise.resolve(),
     }))
     const inactive = await spawn(first.ctx, first.lead, 'instant-worker')
     expect(inactive.member).toMatchObject({ status: 'inactive', diagnostics: [] })
@@ -408,6 +410,8 @@ describe('Team identity and provisioning', () => {
       return {
         childId: spec.childId!,
         messageId: createUserMessage({ content: content('accepted'), source: { kind: 'user' } }).id,
+        result: Promise.resolve({ output: [], stopReason: 'completed' as const }),
+        dispose: () => Promise.resolve(),
       }
     })
     const spawning = spawn(second.ctx, second.lead, 'instant-conflict')
