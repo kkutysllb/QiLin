@@ -9,7 +9,7 @@ import type { ContentBlock, MessageId, MessageSource } from '@qilin-agent/llm'
 import type { SessionId } from '@qilin-agent/session'
 import type { ToolDefinition } from '@qilin-agent/tools'
 import type SubagentRuntime from './index.ts'
-import type { SubagentDelivery } from './inbox.ts'
+import type { SubagentDelivery } from './control-types.ts'
 
 /** Process-stable identity carried only by the standard adjacent-Agent messaging tool. */
 export const adjacentAgentSendMessageTool = Symbol.for('qilin.subagent.adjacentAgentSendMessageTool')

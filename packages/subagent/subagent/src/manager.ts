@@ -56,9 +56,16 @@ type ChildDeliveryOptions =
   }
   | { readonly delivery: 'queue'; readonly source: MessageSource; readonly signal: AbortSignal }
 
+/**
+ * Start request for an external backend: the caller names the provider and the
+ * delegation, and no local child descriptor exists because the child Session
+ * belongs to that backend.
+ */
+type ExternalStartRequest = Omit<ResolvedSubagentStartRequest, 'descriptor'>
+
 /** Package-private hooks supplied by the owning service. */
 interface SubagentHost {
-  startExternal(name: string, request: ResolvedSubagentStartRequest): Promise<SubagentRun>
+  startExternal(name: string, request: ExternalStartRequest): Promise<SubagentRun>
   /** Resolve one provider's detached continuable-creation contribution. */
   prepareContinuable(name: string, request: ContinuableCreateRequest): Promise<ContinuableCreateSpec>
   /** Build the lifecycle observer for one Activation residency epoch. */
