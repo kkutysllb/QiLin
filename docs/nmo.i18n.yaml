@@ -1,0 +1,22 @@
+# Bilingual-pair consistency record for nmo.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/nmo.md
+/nmo-product-philosophy:
+  en: 2eca1ca34b31a889
+  zh: 86f74b52401bba85
+/nmo-product-philosophy/the-three-principles:
+  en: 5f6ffbacc4df0358
+  zh: 7d36115f0dec389a
+/nmo-product-philosophy/native:
+  en: 86bea78a53fedb26
+  zh: a506e6d0ff589014
+/nmo-product-philosophy/minimal:
+  en: 26a0b72a7e8a6249
+  zh: eccfa0c1627dfd2a
+/nmo-product-philosophy/open:
+  en: 45155a1b02893ad7
+  zh: 8fd55821ec7fce36
+/nmo-product-philosophy/use-and-revision:
+  en: f752e0e5cc221544
+  zh: d7d6e0d429495f23

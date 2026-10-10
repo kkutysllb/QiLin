@@ -34,6 +34,7 @@ function step(): AssistantBlock[] {
 function seatText(groupPart: string | undefined): string {
   const view = render(
     <AssistantMarkdown
+      renderSlot={() => null}
       groupPart={groupPart}
       blocks={step()}
       streaming={false}

@@ -1,13 +1,16 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup, fireEvent, render } from '@testing-library/react'
+import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
 import type { TranscriptViewMode } from '../src/chat-settings.ts'
 import { derivePresentationPolicy, type CollapseTiming } from '../src/client/presentation-policy.ts'
 import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 import { zh } from '../src/client/locale.ts'
+import { MarkdownText } from '@qilin-agent/client-ui-primitives'
 import { AssistantMarkdown, type AssistantMarkdownProps } from '../src/client/chat/AssistantMarkdown.tsx'
+import { markdownLabels } from '../src/client/markdown-labels.ts'
 import { useSearchableHidden } from '../src/client/chat/searchable-hidden.ts'
 
 afterEach(() => {
@@ -16,6 +19,14 @@ afterEach(() => {
 
 const t = makeTranslate(zh, commonZh)
 const renderMessageImages: AssistantMarkdownProps['renderMessageImages'] = () => null
+// This suite exercises the disclosure, so its Body slot renders the shipped
+// content the default adapter would show.
+// The framework hands a slot implementation its own generic signature; this
+// suite implements the one declared Body slot, so it narrows to that member.
+const renderReasoningBody = (
+  (_name: string, props: { text: string; running: boolean }) =>
+    <MarkdownText text={props.text} streaming={props.running} labels={markdownLabels(t)} variant="compact" />
+) as unknown as PropsRenderSlots<'conversation.chat.reasoning.body'>['renderSlot']
 
 describe('ReasoningRow', () => {
   it.each([
@@ -24,18 +35,21 @@ describe('ReasoningRow', () => {
   ])('starts collapsed and preserves manual expansion when $kind arrives', (nextBlock) => {
     const reasoning = { kind: 'reasoning' as const, text: 'Inspect the session\nCheck persistence' }
     const view = render(
-      <AssistantMarkdown t={t} blocks={[reasoning]} streaming
+      <AssistantMarkdown
+        renderSlot={renderReasoningBody} t={t} blocks={[reasoning]} streaming
         renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden} />,
     )
     expect(view.getByRole('button').getAttribute('aria-expanded')).toBe('false')
     fireEvent.click(view.getByText('思考'))
     view.rerender(
-      <AssistantMarkdown t={t} blocks={[reasoning, nextBlock]} streaming
+      <AssistantMarkdown
+        renderSlot={renderReasoningBody} t={t} blocks={[reasoning, nextBlock]} streaming
         renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden} />,
     )
     expect(view.getByRole('button').getAttribute('aria-expanded')).toBe('true')
     view.rerender(
-      <AssistantMarkdown t={t} blocks={[reasoning, nextBlock]} streaming={false}
+      <AssistantMarkdown
+        renderSlot={renderReasoningBody} t={t} blocks={[reasoning, nextBlock]} streaming={false}
         renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden} />,
     )
     expect(view.getByRole('button').getAttribute('aria-expanded')).toBe('true')
@@ -47,6 +61,7 @@ describe('ReasoningRow', () => {
   it('follows the latest streaming line, then restores the settled first line', () => {
     const view = render(
       <AssistantMarkdown
+        renderSlot={renderReasoningBody}
         t={t}
         blocks={[{ kind: 'reasoning', text: 'Inspect the session\nNewest reasoning tokens' }]}
         streaming
@@ -60,6 +75,7 @@ describe('ReasoningRow', () => {
 
     view.rerender(
       <AssistantMarkdown
+        renderSlot={renderReasoningBody}
         t={t}
         blocks={[{ kind: 'reasoning', text: 'Inspect the session\nNewest reasoning tokens keep arriving' }]}
         streaming
@@ -71,6 +87,7 @@ describe('ReasoningRow', () => {
 
     view.rerender(
       <AssistantMarkdown
+        renderSlot={renderReasoningBody}
         t={t}
         blocks={[{ kind: 'reasoning', text: 'Inspect the session\nNewest reasoning tokens keep arriving\n' }]}
         streaming={false}
@@ -86,6 +103,7 @@ describe('ReasoningRow', () => {
   it('expands from either Think or the reasoning summary', () => {
     const view = render(
       <AssistantMarkdown
+        renderSlot={renderReasoningBody}
         t={t}
         blocks={[{ kind: 'reasoning', text: 'Inspect the session\nCheck persistence' }]}
         streaming={false}
@@ -116,6 +134,7 @@ describe('ReasoningRow', () => {
   ])('strips double-asterisk markers from the $label summary and renders body emphasis', ({ text, streaming }) => {
     const view = render(
       <AssistantMarkdown
+        renderSlot={renderReasoningBody}
         t={t}
         blocks={[{ kind: 'reasoning', text }]}
         streaming={streaming}
@@ -136,6 +155,7 @@ describe('ReasoningRow', () => {
       .join('\n\n') + '\n\nReasoning body.'
     const view = render(
       <AssistantMarkdown
+        renderSlot={renderReasoningBody}
         t={t}
         blocks={[{ kind: 'reasoning', text }]}
         streaming={false}
@@ -161,6 +181,7 @@ describe('ReasoningRow', () => {
     const first = '## Investigation\n\n**Check persistence**\n\n'
     const view = render(
       <AssistantMarkdown
+        renderSlot={renderReasoningBody}
         t={t}
         blocks={[{ kind: 'reasoning', text: first }]}
         streaming
@@ -173,6 +194,7 @@ describe('ReasoningRow', () => {
     const text = first + Array.from({ length: 8 }, (_, index) => `Paragraph ${index}.`).join('\n\n')
     view.rerender(
       <AssistantMarkdown
+        renderSlot={renderReasoningBody}
         t={t}
         blocks={[{ kind: 'reasoning', text }]}
         streaming
@@ -187,6 +209,7 @@ describe('ReasoningRow', () => {
   it('expanded Think drops the inline summary and renders prose without an IN card', () => {
     const view = render(
       <AssistantMarkdown
+        renderSlot={renderReasoningBody}
         t={t}
         blocks={[{ kind: 'reasoning', text: 'Inspect the session\nCheck persistence' }]}
         streaming={false}
@@ -203,6 +226,7 @@ describe('ReasoningRow', () => {
   it('anchors the sticky-header selector: only an open Think row nests the disclosure row under data-expanded and data-open', () => {
     const view = render(
       <AssistantMarkdown
+        renderSlot={renderReasoningBody}
         t={t}
         blocks={[
           { kind: 'reasoning', text: 'Inspect the session\nCheck persistence' },
@@ -226,6 +250,7 @@ describe('ReasoningRow', () => {
 describe('ReasoningRow settled preview by work-details mode', () => {
   const rendering = (mode: TranscriptViewMode) => render(
     <AssistantMarkdown
+      renderSlot={renderReasoningBody}
       t={t}
       blocks={[{ kind: 'reasoning', text: 'Inspect the session\nCheck persistence' }]}
       streaming={false}
@@ -258,6 +283,7 @@ describe('ReasoningRow settled preview by work-details mode', () => {
   it('a streaming tail always previews, even in compact', () => {
     const view = render(
       <AssistantMarkdown
+        renderSlot={renderReasoningBody}
         t={t}
         blocks={[{ kind: 'reasoning', text: 'Inspect the session\nNewest tokens' }]}
         streaming

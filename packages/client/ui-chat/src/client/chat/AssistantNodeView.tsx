@@ -1,14 +1,15 @@
 import { memo, useCallback, useMemo } from 'react'
-import type { InjectFace } from '@qilin-agent/client-ui-slots'
+import type { InjectFace, PropsRenderSlots } from '@qilin-agent/client-ui-slots'
 import type { ChatNodeViewProps, PresentationInjected, TurnTailOwnerProps } from '../contract/slots.ts'
 import { AssistantMarkdown } from './AssistantMarkdown.tsx'
 
 type AssistantNodeViewProps = ChatNodeViewProps<'assistant-step'> & InjectFace<PresentationInjected>
+  & PropsRenderSlots<'conversation.chat.reasoning.body'>
 
 /** Streaming, settled, and interrupted Assistant states share one keyed renderer instance. */
 export const AssistantNodeView = memo(function AssistantNodeView({
   node, groupPart, useGroupAction, useTurnData, turnProcess, openFile, renderMessageImages, fileMentions,
-  usePresentation, t,
+  usePresentation, renderSlot, t,
 }: AssistantNodeViewProps) {
   const data = node.data
   const turn = node.location.kind === 'turn' || node.location.kind === 'step'
@@ -40,6 +41,7 @@ export const AssistantNodeView = memo(function AssistantNodeView({
       reasoningHidden={reasoningHidden}
       useGroupAction={useGroupAction}
       usePresentation={usePresentation}
+      renderSlot={renderSlot}
       revealProcess={revealProcess}
       mentions={mentions}
       t={t}

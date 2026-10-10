@@ -1047,6 +1047,7 @@ describe('small branch tails', () => {
   it('AssistantMarkdown single-line reasoning summary skips the newline cut', () => {
     const view = render(
       <AssistantMarkdown
+        renderSlot={() => null}
         t={t}
         blocks={[{ kind: 'reasoning', text: 'one-liner' }]}
         streaming={false}

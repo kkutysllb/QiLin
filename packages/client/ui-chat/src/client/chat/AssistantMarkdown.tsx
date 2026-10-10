@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { fileMediaUrl } from '@qilin-agent/util-workspace-path'
 import { JsonBlock, MarkdownText } from '@qilin-agent/client-ui-primitives'
 import type { MarkdownFileMentions, MarkdownPathImages } from '@qilin-agent/client-ui-primitives'
+import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
 import type { ChatNodeOwnerProps, ChatViewSlotProps, UseGroupAction, UsePresentation } from '../contract/slots.ts'
 import type { AssistantBlock } from '../contract/snapshot.ts'
 import { markdownLabels } from '../markdown-labels.ts'
@@ -56,6 +57,8 @@ export interface AssistantMarkdownProps {
    * compositions previews every settled reasoning summary (the Standard mode).
    */
   usePresentation?: UsePresentation | undefined
+  /** Expanded-reasoning Body Slot renderer declared by this node's owner. */
+  renderSlot: PropsRenderSlots<'conversation.chat.reasoning.body'>['renderSlot']
   /** The owning view's locale seat, passed down as a plain prop. */
   t: ChatViewSlotProps['t']
 }
@@ -63,7 +66,7 @@ export interface AssistantMarkdownProps {
 /** Reasoning block as the Think variant summary row (figma 39:28304). */
 export const AssistantMarkdown = memo(function AssistantMarkdown({
   groupPart, blocks, streaming, interrupted, renderMessageImages,
-  reasoningHidden = false, revealProcess, mentions, usePresentation, useGroupAction, t,
+  reasoningHidden = false, revealProcess, mentions, usePresentation, useGroupAction, renderSlot, t,
 }: AssistantMarkdownProps) {
   // Stable per locale revision (t identity changes on switch): a fresh object
   // per render would rebuild MarkdownText's component table every chunk.
@@ -114,6 +117,7 @@ export const AssistantMarkdown = memo(function AssistantMarkdown({
               text={block.text}
               running={streaming && i === last}
               usePresentation={usePresentation}
+              renderSlot={renderSlot}
               t={t}
             />
           </ProcessReasoning>,

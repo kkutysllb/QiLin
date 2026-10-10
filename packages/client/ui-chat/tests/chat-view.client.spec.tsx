@@ -310,7 +310,7 @@ function HarnessChatNode({ standard, owner, hookContext, usePerformanceUsage, to
     case 'context':
       return <ContextMessageNodeView {...nodeProps} node={owner.node} />
     case 'assistant-step':
-      return <AssistantNodeView {...nodeProps} node={owner.node} />
+      return <AssistantNodeView {...nodeProps} node={owner.node} renderSlot={() => null} />
     case 'command':
       return <CommandNodeView {...nodeProps} node={owner.node} renderSlot={renderCommandSlot} />
     case 'manual-compaction':

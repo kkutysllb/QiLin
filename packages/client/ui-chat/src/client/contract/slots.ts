@@ -14,7 +14,7 @@ import type {
   SlotHookFactory, SnapshotSelectorHook,
 } from '@qilin-agent/client-ui-slots'
 import type { ObservableSnapshot } from '@qilin-agent/client-store'
-import type { MarkdownFileMentions } from '@qilin-agent/client-ui-primitives'
+import type { MarkdownFileMentions, MarkdownLabels } from '@qilin-agent/client-ui-primitives'
 import type {} from '@qilin-agent/client-ui-layout/client'
 import type { createChatStore } from '../stores.ts'
 import type { ChatPresentationPolicy } from '../presentation-policy.ts'
@@ -196,6 +196,20 @@ export interface PerformanceUsageInjected {
 export type ChatNodeViewProps<Kind extends ChatNodeKind = ChatNodeKind> =
   PropsRuntime<'conversation.chat.node', Kind> & PropsLocale<'chat'>
 
+/** Original model-provided reasoning offered to the expanded Body Slot. */
+export interface ReasoningBodyOwnerProps {
+  /** Complete or streaming reasoning text. */
+  readonly text: string
+  /** Whether the reasoning tail is still streaming. */
+  readonly running: boolean
+}
+
+/** Session-independent original or derived display input to the Content Factory. */
+export interface ReasoningContentInput extends ReasoningBodyOwnerProps {
+  /** Localized Markdown controls, used unchanged when supplied; omission uses Chat's defaults. */
+  readonly labels?: MarkdownLabels
+}
+
 /** Command-row owner share. */
 export interface CommandRowOwnerProps {
   node: CommandNode
@@ -298,6 +312,15 @@ declare module '@qilin-agent/client-ui-slots' {
     chat: import('../locale.ts').ChatKey
   }
 
+  interface SlotFactoryMap {
+    /** Session-independent reasoning Markdown with Chat labels and compact typography. */
+    'conversation.chat.reasoning.content': {
+      scope: 'root'
+      props: ReasoningContentInput
+      locale: 'chat'
+    }
+  }
+
   interface SlotMap {
     /** Ordered Chat rows and local echoes with viewport-bound visibility hooks. */
     'conversation.chat.flow': {
@@ -326,6 +349,12 @@ declare module '@qilin-agent/client-ui-slots' {
      * registration replaces the shipped gallery; without one, images are omitted.
      */
     'conversation.message.images': { kind: 'single'; scope: 'session'; owner: MessageImagesOwnerProps }
+    /**
+     * Expanded reasoning body with the unchanged model text. The official entry
+     * has priority 100 and calls the reasoning Content Factory; smaller priority
+     * values replace it. Contributions must preserve access to the original text.
+     */
+    'conversation.chat.reasoning.body': { kind: 'single'; scope: 'session'; owner: ReasoningBodyOwnerProps }
     /**
      * Command row keyed by the command name. The component receives the folded
      * command lifecycle and linked compaction when present. Reusing a key

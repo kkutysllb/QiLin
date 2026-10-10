@@ -1,8 +1,8 @@
 /** Assistant reasoning disclosure, independent of Tool-call presentation. */
-import { useMemo, useState } from 'react'
-import { DisclosureRow, IconThinkOutline14, MarkdownText } from '@qilin-agent/client-ui-primitives'
+import { useState } from 'react'
+import { DisclosureRow, IconThinkOutline14 } from '@qilin-agent/client-ui-primitives'
+import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
 import type { ChatViewSlotProps, UsePresentation } from '../contract/slots.ts'
-import { markdownLabels } from '../markdown-labels.ts'
 import a11yCss from './accessibility.module.css'
 import css from './ReasoningRow.module.css'
 
@@ -26,17 +26,18 @@ function latestLine(text: string): string {
  * @param props.text - complete or streaming reasoning text.
  * @param props.running - whether this block is the streaming tail.
  * @param props.usePresentation - live display-policy selector for this reasoning row.
- * @param props.t - conversation locale seat for status and Markdown actions.
+ * @param props.renderSlot - the declared expanded-body slot every reasoning body renders through.
+ * @param props.t - conversation locale seat for status and row copy.
  * @returns the reasoning disclosure.
  */
-export function ReasoningRow({ text, running, usePresentation, t }: {
+export function ReasoningRow({ text, running, usePresentation, renderSlot, t }: {
   text: string
   running: boolean
   usePresentation?: UsePresentation | undefined
+  renderSlot: PropsRenderSlots<'conversation.chat.reasoning.body'>['renderSlot']
   t: ChatViewSlotProps['t']
 }) {
   const [expanded, setExpanded] = useState(false)
-  const labels = useMemo(() => markdownLabels(t), [t])
   const summary = (running ? latestLine(text) : firstLine(text)).replaceAll('**', '')
   const preview = usePresentation === undefined
     ? summary !== ''
@@ -73,7 +74,7 @@ export function ReasoningRow({ text, running, usePresentation, t }: {
         )}
       >
         <div className={css.thinkBody}>
-          <MarkdownText text={text} streaming={running} labels={labels} variant="compact" />
+          {renderSlot('conversation.chat.reasoning.body', { text, running })}
         </div>
       </DisclosureRow>
     </div>
