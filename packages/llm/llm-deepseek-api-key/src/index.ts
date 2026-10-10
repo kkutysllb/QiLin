@@ -1,4 +1,4 @@
-/** API-key authentication and discovery for the official DeepSeek route. */
+/** API-key authentication and credential-gated discovery for the official DeepSeek route. */
 import type { Context } from '@qilin-agent/kylin'
 import type z from '@qilin-agent/schemastery'
 import { assertUsableApiKey, LlmError } from '@qilin-agent/llm'
@@ -53,9 +53,14 @@ export function apply(ctx: Context, config: Config): void {
   const refresh = registerDeepSeekProvider(ctx, PROVIDER, {
     options, providerName: 'DeepSeek',
     resolveAuth: async connection => ({ headers: { 'x-api-key': await resolveApiKey(connection) } }),
-    discoverModels: (provider) => {
+    discoverModels: async (provider) => {
       const connection = options()
-      return Promise.resolve(connection.models.map(model => catalogModelInfo(provider, model)))
+      try { await resolveApiKey(connection) }
+      catch (error) {
+        if (error instanceof LlmError && error.code === 'MISSING_CREDENTIAL') return []
+        throw error
+      }
+      return connection.models.map(model => catalogModelInfo(provider, model))
     },
   })
   // The section schema validates plain yml values, so the section's base layer
