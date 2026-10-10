@@ -488,21 +488,21 @@ def test_snapshot_generation_names_select_highest_role_without_double_counting(
     }
 
 
-def test_snapshot_comparison_accepts_v3_output_against_v2_without_rewriting(tmp_path: Path) -> None:
-    predecessor = '{"type":"session","version":2}\n'
-    successor = '{"type":"session","version":3}\n'
-    old_path = tmp_path / "session.v2.jsonl"
+def test_snapshot_comparison_accepts_v4_output_against_v3_without_rewriting(tmp_path: Path) -> None:
+    predecessor = '{"type":"session","version":3}\n'
+    successor = '{"type":"session","version":4}\n'
+    old_path = tmp_path / "session.v3.jsonl"
     old_path.write_text(predecessor, encoding="utf-8")
-    files = {"session.v3.jsonl": successor}
+    files = {"session.v4.jsonl": successor}
 
-    SMOKE["compare_snapshot_files"](files, False, tmp_path, ("session.v2.jsonl",))
+    SMOKE["compare_snapshot_files"](files, False, tmp_path, ("session.v3.jsonl",))
     assert old_path.read_text(encoding="utf-8") == predecessor
-    assert not (tmp_path / "session.v3.jsonl").exists()
+    assert not (tmp_path / "session.v4.jsonl").exists()
 
-    SMOKE["compare_snapshot_files"](files, True, tmp_path, ("session.v2.jsonl",))
+    SMOKE["compare_snapshot_files"](files, True, tmp_path, ("session.v3.jsonl",))
     assert old_path.read_text(encoding="utf-8") == predecessor
-    assert (tmp_path / "session.v3.jsonl").read_text(encoding="utf-8") == successor
-    assert SMOKE["selected_snapshot_session_files"](tmp_path) == {0: tmp_path / "session.v3.jsonl"}
+    assert (tmp_path / "session.v4.jsonl").read_text(encoding="utf-8") == successor
+    assert SMOKE["selected_snapshot_session_files"](tmp_path) == {0: tmp_path / "session.v4.jsonl"}
 
 
 @pytest.mark.parametrize("filenames", [
@@ -519,29 +519,29 @@ def test_snapshot_builder_checks_role_order_and_count_across_generations(
 
 
 def test_snapshot_generation_comparison_rejects_changed_payload(tmp_path: Path) -> None:
-    (tmp_path / "session.v2.jsonl").write_text(
-        '{"type":"session","version":2,"id":"expected"}\n', encoding="utf-8",
+    (tmp_path / "session.v3.jsonl").write_text(
+        '{"type":"session","version":3,"id":"expected"}\n', encoding="utf-8",
     )
     with pytest.raises(AssertionError, match="executable snapshot mismatch"):
         SMOKE["compare_snapshot_files"](
-            {"session.v3.jsonl": '{"type":"session","version":3,"id":"changed"}\n'},
-            False, tmp_path, ("session.v2.jsonl",),
+            {"session.v4.jsonl": '{"type":"session","version":4,"id":"changed"}\n'},
+            False, tmp_path, ("session.v3.jsonl",),
         )
 
 
-@pytest.mark.parametrize("version", [2, 4])
+@pytest.mark.parametrize("version", [2, 3])
 @pytest.mark.parametrize("update", [False, True])
 def test_snapshot_comparison_rejects_noncurrent_writer(
     tmp_path: Path, version: int, update: bool,
 ) -> None:
-    golden = '{"type":"session","version":2}\n'
-    (tmp_path / "session.v2.jsonl").write_text(golden, encoding="utf-8")
+    golden = '{"type":"session","version":3}\n'
+    (tmp_path / "session.v3.jsonl").write_text(golden, encoding="utf-8")
     content = json.dumps({"type": "session", "version": version}) + "\n"
-    with pytest.raises(AssertionError, match="expected current Session format v3"):
+    with pytest.raises(AssertionError, match="expected current Session format v4"):
         SMOKE["compare_snapshot_files"](
-            {f"session.v{version}.jsonl": content}, update, tmp_path, ("session.v2.jsonl",),
+            {f"session.v{version}.jsonl": content}, update, tmp_path, ("session.v3.jsonl",),
         )
-    assert (tmp_path / "session.v2.jsonl").read_text(encoding="utf-8") == golden
+    assert (tmp_path / "session.v3.jsonl").read_text(encoding="utf-8") == golden
     assert not (tmp_path / "session.v4.jsonl").exists()
 
 
@@ -549,10 +549,10 @@ def test_snapshot_comparison_rejects_noncurrent_writer(
 def test_persisted_session_requires_current_writer(version: int) -> None:
     content = json.dumps({"type": "session", "version": version}) + "\n"
     path = Path(f"session.v{version}.jsonl")
-    if version == 3:
+    if version == 4:
         assert SMOKE["assert_persisted_session_version"](path, content) == version
     else:
-        with pytest.raises(AssertionError, match="expected current Session format v3"):
+        with pytest.raises(AssertionError, match="expected current Session format v4"):
             SMOKE["assert_persisted_session_version"](path, content)
 
 
