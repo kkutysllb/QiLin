@@ -42,10 +42,10 @@ import { en, zh } from './locales.ts'
 
 export type { PluginsSettingsSectionInjected, PluginsSettingsSectionProps } from './PluginsSettingsSection.tsx'
 export type { PluginConfigFormProps } from './PluginConfigForm.tsx'
-export type { FieldProps } from './fields.tsx'
+export type { SettingsFieldProps } from '@qilin-agent/client-ui-primitives'
 export type {
-  CardActions, CardFieldSpec, CardFieldState, CardSecretSpec, CardShell,
-} from './card-form.ts'
+  SettingsFormActions, SettingsFieldSpec, SettingsFieldState, SettingsSecretSpec, SettingsFormShell,
+} from '@qilin-agent/client-ui-primitives'
 export type { AgentLoopCardFace, AgentLoopCardState } from './agent-loop-card-controller.ts'
 export type { BashCardFace, BashCardState } from './bash-card-controller.ts'
 export type { WebSearchCardFace, WebSearchCardState } from './web-search-card-controller.ts'

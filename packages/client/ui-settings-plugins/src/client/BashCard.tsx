@@ -2,7 +2,7 @@
 
 import type {} from '@qilin-agent/client-ui-plugin-manager/client'
 import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
-import { ValueField } from './fields.tsx'
+import { SettingsValueField } from '@qilin-agent/client-ui-primitives'
 import { PluginConfigForm } from './PluginConfigForm.tsx'
 import type { BashCardFace } from './bash-card-controller.ts'
 
@@ -29,7 +29,7 @@ export function BashCard(props: BashCardProps) {
       onSave={props.save}
       onDiscard={props.discard}
     >
-      <ValueField
+      <SettingsValueField
         id="plugin-config-bash-timeout"
         label={t('bashTimeoutMs')}
         hint={t('bashTimeoutMsHint')}
@@ -42,7 +42,7 @@ export function BashCard(props: BashCardProps) {
         onEdit={(text) => { props.edit('timeoutMs', text) }}
         onReset={() => { props.resetField('timeoutMs') }}
       />
-      <ValueField
+      <SettingsValueField
         id="plugin-config-bash-output"
         label={t('bashMaxOutputBytes')}
         hint={t('bashMaxOutputBytesHint')}

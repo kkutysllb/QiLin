@@ -19,7 +19,7 @@ import type { WebSearchCardProps } from '../src/client/WebSearchCard.tsx'
 import type { AgentLoopCardState } from '../src/client/agent-loop-card-controller.ts'
 import type { BashCardState } from '../src/client/bash-card-controller.ts'
 import type { GitCardState } from '../src/client/git-card-controller.ts'
-import type { CardFieldState, CardShell } from '../src/client/card-form.ts'
+import type { SettingsFieldState, SettingsFormShell } from '@qilin-agent/client-ui-primitives'
 import type { WebSearchCardState } from '../src/client/web-search-card-controller.ts'
 import type { SubagentModelSelectionCardState } from '../src/client/subagent-model-selection-card-controller.ts'
 import { en } from '../src/client/locales.ts'
@@ -29,7 +29,7 @@ afterEach(cleanup)
 
 const t = makeTranslate(en)
 
-const settled: CardShell = {
+const settled: SettingsFormShell = {
   available: true,
   writable: true,
   dirty: false,
@@ -38,7 +38,7 @@ const settled: CardShell = {
   failed: false,
 }
 
-function field(text: string, rest: Partial<CardFieldState> = {}): CardFieldState {
+function field(text: string, rest: Partial<SettingsFieldState> = {}): SettingsFieldState {
   return { text, overridden: false, invalid: false, ...rest }
 }
 

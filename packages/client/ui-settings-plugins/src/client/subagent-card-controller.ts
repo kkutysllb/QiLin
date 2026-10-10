@@ -1,6 +1,6 @@
 /** Shared presentation and actions for the two Host-owned Subagent settings sections. */
 
-import type { CardShell } from './card-form.ts'
+import type { SettingsFormShell } from '@qilin-agent/client-ui-primitives'
 import type { SubagentLimitsCardFace, SubagentLimitsCardState } from './subagent-limits-card-controller.ts'
 import type {
   SubagentModelSelectionCardFace, SubagentModelSelectionCardState,
@@ -29,7 +29,7 @@ export interface SubagentCardFace {
 export function subagentCardShell(
   limits: SubagentLimitsCardState,
   models: SubagentModelSelectionCardState,
-): CardShell {
+): SettingsFormShell {
   const sections = [limits, models].filter(section => section.available)
   return {
     available: sections.length > 0,

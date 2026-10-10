@@ -2,7 +2,7 @@
 
 import type {} from '@qilin-agent/client-ui-plugin-manager/client'
 import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
-import { ValueField } from './fields.tsx'
+import { SettingsValueField } from '@qilin-agent/client-ui-primitives'
 import { PluginConfigForm } from './PluginConfigForm.tsx'
 import type { AgentLoopCardFace } from './agent-loop-card-controller.ts'
 
@@ -28,7 +28,7 @@ export function AgentLoopCard(props: AgentLoopCardProps) {
       onSave={props.save}
       onDiscard={props.discard}
     >
-      <ValueField
+      <SettingsValueField
         id="plugin-config-agent-loop-parallel"
         label={t('agentLoopMaxParallel')}
         hint={t('agentLoopMaxParallelHint')}

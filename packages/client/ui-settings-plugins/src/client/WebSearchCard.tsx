@@ -6,7 +6,7 @@
 
 import type {} from '@qilin-agent/client-ui-plugin-manager/client'
 import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
-import { SecretField, ValueField } from './fields.tsx'
+import { SettingsSecretField, SettingsValueField } from '@qilin-agent/client-ui-primitives'
 import { PluginConfigForm } from './PluginConfigForm.tsx'
 import type { WebSearchCardFace } from './web-search-card-controller.ts'
 
@@ -33,7 +33,7 @@ export function WebSearchCard(props: WebSearchCardProps) {
       onSave={props.save}
       onDiscard={props.discard}
     >
-      <SecretField
+      <SettingsSecretField
         id="plugin-config-web-search-key"
         label={t('webSearchApiKey')}
         hint={t('webSearchApiKeyHint')}
@@ -47,7 +47,7 @@ export function WebSearchCard(props: WebSearchCardProps) {
         stateLabel={state.apiKeyConfigured ? t('webSearchApiKeySet') : t('webSearchApiKeyUnset')}
         onEdit={(text) => { props.edit('apiKey', text) }}
       />
-      <ValueField
+      <SettingsValueField
         id="plugin-config-web-search-endpoint"
         label={t('webSearchBaseUrl')}
         hint={t('webSearchBaseUrlHint')}
@@ -59,7 +59,7 @@ export function WebSearchCard(props: WebSearchCardProps) {
         onEdit={(text) => { props.edit('baseURL', text) }}
         onReset={() => { props.resetField('baseURL') }}
       />
-      <ValueField
+      <SettingsValueField
         id="plugin-config-web-search-max-uses"
         label={t('webSearchMaxUses')}
         hint={t('webSearchMaxUsesHint')}

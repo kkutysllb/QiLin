@@ -15,9 +15,9 @@ import type {} from '@qilin-agent/api-remotes/client'
 import type { SnapshotStore } from '@qilin-agent/client-store'
 import type { ConfigForm, ConfigFormSnapshot } from '@qilin-agent/client-ui-settings/client'
 import {
-  CardForm, numberField, textField,
-  type CardActions, type CardFieldState, type CardShell,
-} from './card-form.ts'
+  SettingsFormModel, settingsNumberField, settingsTextField,
+  type SettingsFormActions, type SettingsFieldState, type SettingsFormShell,
+} from '@qilin-agent/client-ui-primitives'
 
 /**
  * Namespace of the DeepSeek search provider. Spelled here rather than
@@ -52,13 +52,13 @@ interface CredentialState {
 }
 
 /** What the web-search card renders. */
-export interface WebSearchCardState extends CardShell {
+export interface WebSearchCardState extends SettingsFormShell {
   /** Provider endpoint. */
-  baseURL: CardFieldState
+  baseURL: SettingsFieldState
   /** Searches allowed per request. */
-  maxUses: CardFieldState
+  maxUses: SettingsFieldState
   /** The staged credential, which starts blank on every load. */
-  apiKey: CardFieldState
+  apiKey: SettingsFieldState
   /** Whether the Host reports a credential configured for the referenced key. */
   apiKeyConfigured: boolean
   /** Whether the credentials domain accepts a write for it; false disables the control. */
@@ -66,7 +66,7 @@ export interface WebSearchCardState extends CardShell {
 }
 
 /** The registration-side face the web-search card's slot entry injects. */
-export interface WebSearchCardFace extends CardActions {
+export interface WebSearchCardFace extends SettingsFormActions {
   hooks: {
     /** Card snapshot bound by the renderer as useWebSearchCard. */
     webSearchCard: SnapshotStore<WebSearchCardState>
@@ -75,7 +75,7 @@ export interface WebSearchCardFace extends CardActions {
 
 /** Bridges the `web-search-deepseek` scope and the credentials domain onto the card. */
 export class WebSearchCardController {
-  private readonly form: CardForm<WebSearchSettings>
+  private readonly form: SettingsFormModel<WebSearchSettings>
   private readonly store: SnapshotStore<WebSearchCardState>
   private credential: CredentialState = { ref: '', configured: false, writable: true }
 
@@ -88,9 +88,9 @@ export class WebSearchCardController {
     private readonly scope: ConfigForm<WebSearchSettings>,
     private readonly ctx: ClientContext,
   ) {
-    this.form = new CardForm(
+    this.form = new SettingsFormModel(
       scope,
-      [textField('baseURL'), numberField('maxUses')],
+      [settingsTextField('baseURL'), settingsNumberField('maxUses')],
       [{ field: API_KEY_FIELD, write: text => this.writeKey(text) }],
     )
     this.store = this.form.bind(() => this.projection())

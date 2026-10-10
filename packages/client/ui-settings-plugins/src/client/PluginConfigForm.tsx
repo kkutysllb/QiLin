@@ -11,7 +11,7 @@
  */
 
 import { useEffect, useRef, type ReactNode } from 'react'
-import type { CardShell } from './card-form.ts'
+import type { SettingsFormShell } from '@qilin-agent/client-ui-primitives'
 import type { PluginsSettingsLocaleKey } from './locales.ts'
 import css from './PluginConfigForm.module.css'
 
@@ -20,7 +20,7 @@ export interface PluginConfigFormProps {
   /** Locale reader for this package's copy. */
   t: (key: PluginsSettingsLocaleKey) => string
   /** The form state: availability, writability, and what a save would do. */
-  state: CardShell
+  state: SettingsFormShell
   /** Write every staged edit. */
   onSave: () => void
   /** Drop every staged edit; the form calls it when it leaves the page. */

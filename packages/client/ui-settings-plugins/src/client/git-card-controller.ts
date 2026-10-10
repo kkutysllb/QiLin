@@ -2,7 +2,7 @@
 
 import type { SnapshotStore } from '@qilin-agent/client-store'
 import type { ConfigForm } from '@qilin-agent/client-ui-settings/client'
-import { CardForm, numberField, textField, type CardActions, type CardFieldState, type CardShell } from './card-form.ts'
+import { SettingsFormModel, settingsNumberField, settingsTextField, type SettingsFormActions, type SettingsFieldState, type SettingsFormShell } from '@qilin-agent/client-ui-primitives'
 
 /**
  * Namespace of the workspace Git service. Spelled here rather than imported:
@@ -32,27 +32,27 @@ export interface GitSettings {
 }
 
 /** What the Git card renders. */
-export interface GitCardState extends CardShell {
+export interface GitCardState extends SettingsFormShell {
   /** Git executable path. */
-  gitBin: CardFieldState
+  gitBin: SettingsFieldState
   /** gh executable path. */
-  ghBin: CardFieldState
+  ghBin: SettingsFieldState
   /** Content or mutation command timeout. */
-  timeoutMs: CardFieldState
+  timeoutMs: SettingsFieldState
   /** Repository-discovery command timeout. */
-  discoveryTimeoutMs: CardFieldState
+  discoveryTimeoutMs: SettingsFieldState
   /** gh command timeout. */
-  ghTimeoutMs: CardFieldState
+  ghTimeoutMs: SettingsFieldState
   /** Diff answer cap. */
-  maxDiffBytes: CardFieldState
+  maxDiffBytes: SettingsFieldState
   /** stderr answer cap. */
-  maxStderrChars: CardFieldState
+  maxStderrChars: SettingsFieldState
   /** List entry cap. */
-  maxListEntries: CardFieldState
+  maxListEntries: SettingsFieldState
 }
 
 /** The registration-side face the Git card's slot entry injects. */
-export interface GitCardFace extends CardActions {
+export interface GitCardFace extends SettingsFormActions {
   hooks: {
     /** Card snapshot bound by the renderer as useGitCard. */
     gitCard: SnapshotStore<GitCardState>
@@ -61,15 +61,15 @@ export interface GitCardFace extends CardActions {
 
 /** Bridges the `workspace-git` scope onto the Git card's staged form. */
 export class GitCardController {
-  private readonly form: CardForm<GitSettings>
+  private readonly form: SettingsFormModel<GitSettings>
   private readonly store: SnapshotStore<GitCardState>
 
   /** @param scope - the bound settings scope for the `workspace-git` namespace. */
   constructor(scope: ConfigForm<GitSettings>) {
-    this.form = new CardForm(scope, [
-      textField('gitBin'), textField('ghBin'),
-      numberField('timeoutMs'), numberField('discoveryTimeoutMs'), numberField('ghTimeoutMs'),
-      numberField('maxDiffBytes'), numberField('maxStderrChars'), numberField('maxListEntries'),
+    this.form = new SettingsFormModel(scope, [
+      settingsTextField('gitBin'), settingsTextField('ghBin'),
+      settingsNumberField('timeoutMs'), settingsNumberField('discoveryTimeoutMs'), settingsNumberField('ghTimeoutMs'),
+      settingsNumberField('maxDiffBytes'), settingsNumberField('maxStderrChars'), settingsNumberField('maxListEntries'),
     ])
     this.store = this.form.bind(() => this.projection())
   }

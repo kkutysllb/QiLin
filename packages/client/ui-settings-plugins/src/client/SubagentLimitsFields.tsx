@@ -1,7 +1,7 @@
 /** Delegation-limit fields inside the shared Subagent settings card. */
 
 import type { PropsLocale } from '@qilin-agent/client-ui-slots'
-import { ValueField } from './fields.tsx'
+import { SettingsValueField } from '@qilin-agent/client-ui-primitives'
 import type { SubagentLimitsCardFace, SubagentLimitsCardState } from './subagent-limits-card-controller.ts'
 import css from './SubagentLimitsFields.module.css'
 
@@ -21,7 +21,7 @@ export function SubagentLimitsFields(props: SubagentLimitsFieldsProps) {
     <>
       <div className={css.limits}>
         <div className={css.limit}>
-          <ValueField id="plugin-config-subagent-depth" label={t('subagentMaxDepth')}
+          <SettingsValueField id="plugin-config-subagent-depth" label={t('subagentMaxDepth')}
             help={{ label: t('subagentDepthHelpLabel'), content: (
               <>
                 <p>{t('subagentDepthHelp')}</p>
@@ -45,7 +45,7 @@ export function SubagentLimitsFields(props: SubagentLimitsFieldsProps) {
             onEdit={(text) => { props.edit('maxDepth', text) }} onReset={() => { props.resetField('maxDepth') }} />
         </div>
         <div className={css.limit}>
-          <ValueField id="plugin-config-subagent-capacity" label={t('subagentMaxActive')}
+          <SettingsValueField id="plugin-config-subagent-capacity" label={t('subagentMaxActive')}
             help={{ label: t('subagentCapacityHelpLabel'), content: <p>{t('subagentCapacityHelp')}</p> }} overriddenLabel={t('overridden')}
             resetLabel={t('reset')} invalidLabel={t('subagentCapacityInvalid')}
             numeric disabled={!state.writable || state.saving} {...state.maxActiveSubagents}

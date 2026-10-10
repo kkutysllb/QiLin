@@ -6,7 +6,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { SettingsPathOpView } from '@qilin-agent/api-remotes/client'
 import { RemoteError, stubConfigForm, type StubConfigForm } from '@qilin-agent/client-test-runtime'
-import { CardForm, numberField, textField } from '../src/client/card-form.ts'
+import { SettingsFormModel, settingsNumberField, settingsTextField } from '@qilin-agent/client-ui-primitives'
 import { SubagentLimitsCardController, type SubagentLimitsSettings } from '../src/client/subagent-limits-card-controller.ts'
 import { subagentCardFace, subagentCardShell } from '../src/client/subagent-card-controller.ts'
 import { AgentLoopCardController, type AgentLoopSettings } from '../src/client/agent-loop-card-controller.ts'
@@ -27,12 +27,16 @@ function acceptWrites<T>(host: StubConfigForm<T>): void {
   })
   host.mutate.mockImplementation((ops: readonly SettingsPathOpView[]) => {
     const value = { ...section() }
-    const user = { ...layer() }
+    let user = { ...layer() }
+    const base = host.scope.getSnapshot().base as Record<string, unknown> | undefined
     for (const op of ops) {
       const field = op.path[0]!
       if (op.op === 'set') {
         value[field] = op.value
         user[field] = op.value
+      } else {
+        user = Object.fromEntries(Object.entries(user).filter(([key]) => key !== field))
+        value[field] = base?.[field]
       }
     }
     host.publish({ value: value as T, user })
@@ -86,10 +90,10 @@ function deferred<T>() {
   return { promise, resolve, reject }
 }
 
-describe('CardForm', () => {
+describe('SettingsFormModel', () => {
   function form() {
     const host = stubConfigForm<Record<string, unknown>>()
-    const subject = new CardForm(host.scope, [numberField('timeoutMs'), textField('baseURL')])
+    const subject = new SettingsFormModel(host.scope, [settingsNumberField('timeoutMs'), settingsTextField('baseURL')])
     host.publish({
       status: 'ready',
       writable: true,
@@ -124,11 +128,11 @@ describe('CardForm', () => {
 
     expect(subject.field('timeoutMs')).toEqual({ text: '9000', overridden: true, invalid: false })
     expect(subject.shell().dirty).toBe(true)
-    expect(host.set).not.toHaveBeenCalled()
+    expect(host.mutate).not.toHaveBeenCalled()
 
     await subject.save()
 
-    expect(host.set.mock.calls).toEqual([['timeoutMs', 9_000]])
+    expect(host.mutate.mock.calls.map(([ops]) => ops)).toEqual([[{ op: 'set', path: ['timeoutMs'], value: 9_000 }]])
     expect(subject.shell()).toMatchObject({ dirty: false, failed: false, saving: false })
   })
 
@@ -141,7 +145,7 @@ describe('CardForm', () => {
     expect(subject.shell().dirty).toBe(false)
     await subject.save()
 
-    expect(host.set).not.toHaveBeenCalled()
+    expect(host.mutate).not.toHaveBeenCalled()
   })
 
   it('refuses to save while a draft is not a value the field accepts', async () => {
@@ -154,7 +158,7 @@ describe('CardForm', () => {
 
     await subject.save()
 
-    expect(host.set).not.toHaveBeenCalled()
+    expect(host.mutate).not.toHaveBeenCalled()
     expect(subject.field('timeoutMs').text).toBe('soon')
   })
 
@@ -167,11 +171,11 @@ describe('CardForm', () => {
 
     // The badge previews the save: the field will no longer be overridden.
     expect(subject.field('timeoutMs')).toEqual({ text: '60000', overridden: false, invalid: false })
-    expect(host.unset).not.toHaveBeenCalled()
+    expect(host.mutate).not.toHaveBeenCalled()
 
     await subject.save()
 
-    expect(host.unset.mock.calls).toEqual([['timeoutMs']])
+    expect(host.mutate.mock.calls.map(([ops]) => ops)).toEqual([[{ op: 'unset', path: ['timeoutMs'] }]])
     expect(subject.shell()).toMatchObject({ dirty: false, failed: false })
   })
 
@@ -183,7 +187,7 @@ describe('CardForm', () => {
     expect(subject.shell().dirty).toBe(false)
     await subject.save()
 
-    expect(host.unset).not.toHaveBeenCalled()
+    expect(host.mutate).not.toHaveBeenCalled()
   })
 
   it('clears a number field by emptying it', async () => {
@@ -196,7 +200,7 @@ describe('CardForm', () => {
     expect(subject.field('timeoutMs')).toEqual({ text: '', overridden: false, invalid: false })
     await subject.save()
 
-    expect(host.unset.mock.calls).toEqual([['timeoutMs']])
+    expect(host.mutate.mock.calls.map(([ops]) => ops)).toEqual([[{ op: 'unset', path: ['timeoutMs'] }]])
   })
 
   it('clears a text field by emptying it', async () => {
@@ -207,7 +211,7 @@ describe('CardForm', () => {
     subject.actions().edit('baseURL', '   ')
     await subject.save()
 
-    expect(host.unset.mock.calls).toEqual([['baseURL']])
+    expect(host.mutate.mock.calls.map(([ops]) => ops)).toEqual([[{ op: 'unset', path: ['baseURL'] }]])
   })
 
   it('writes the trimmed text of a text field', async () => {
@@ -217,35 +221,38 @@ describe('CardForm', () => {
     subject.actions().edit('baseURL', '  https://other.test  ')
     await subject.save()
 
-    expect(host.set.mock.calls).toEqual([['baseURL', 'https://other.test']])
+    expect(host.mutate.mock.calls.map(([ops]) => ops)).toEqual([[{ op: 'set', path: ['baseURL'], value: 'https://other.test' }]])
   })
 
   it('keeps the drafts a save did not land, and reports the failure', async () => {
     const { host, subject } = form()
+    host.mutate.mockImplementationOnce(() => Promise.resolve(false))
 
     subject.actions().edit('timeoutMs', '9000')
     await subject.save()
 
-    // The stub Host accepted the call without storing it, exactly as a
-    // validator that refuses the value does.
-    expect(host.set).toHaveBeenCalledWith('timeoutMs', 9_000)
+    // The stub Host refused the mutation, exactly as a validator that rejects
+    // the value does.
+    expect(host.mutate.mock.calls.map(([ops]) => ops)).toEqual([[{ op: 'set', path: ['timeoutMs'], value: 9_000 }]])
     expect(subject.shell()).toMatchObject({ dirty: true, failed: true, saving: false })
     expect(subject.field('timeoutMs').text).toBe('9000')
   })
 
   it('reports a reset the Host did not apply as a failure', async () => {
     const { host, subject } = form()
+    host.mutate.mockImplementationOnce(() => Promise.resolve(false))
     host.publish({ user: { timeoutMs: 9_000 } })
 
     subject.actions().resetField('timeoutMs')
     await subject.save()
 
-    expect(host.unset).toHaveBeenCalledWith('timeoutMs')
+    expect(host.mutate.mock.calls.map(([ops]) => ops)).toEqual([[{ op: 'unset', path: ['timeoutMs'] }]])
     expect(subject.shell().failed).toBe(true)
   })
 
   it('clears the failure as soon as the user edits again', async () => {
-    const { subject } = form()
+    const { host, subject } = form()
+    host.mutate.mockImplementationOnce(() => Promise.resolve(false))
 
     subject.actions().edit('timeoutMs', '9000')
     await subject.save()
@@ -271,7 +278,7 @@ describe('CardForm', () => {
     expect(subject.shell()).toEqual(before)
 
     await subject.save()
-    expect(host.set).not.toHaveBeenCalled()
+    expect(host.mutate).not.toHaveBeenCalled()
   })
 
   it('refuses a second save while one is in flight', async () => {
@@ -284,7 +291,7 @@ describe('CardForm', () => {
     const second = subject.save()
     await Promise.all([first, second])
 
-    expect(host.set).toHaveBeenCalledTimes(1)
+    expect(host.mutate).toHaveBeenCalledTimes(1)
   })
 
   it('publishes a projection whenever the scope or a draft changes', () => {
@@ -307,7 +314,7 @@ describe('CardForm', () => {
 
   it('renders an absent section value as an empty draft', () => {
     const host = stubConfigForm<Record<string, unknown>>()
-    const subject = new CardForm(host.scope, [numberField('timeoutMs'), textField('baseURL')])
+    const subject = new SettingsFormModel(host.scope, [settingsNumberField('timeoutMs'), settingsTextField('baseURL')])
 
     host.publish({ status: 'ready', writable: true, value: {}, base: {}, user: undefined })
 
@@ -318,7 +325,7 @@ describe('CardForm', () => {
 
   it('stays unavailable while the namespace is not served', () => {
     const host = stubConfigForm<Record<string, unknown>>()
-    const subject = new CardForm(host.scope, [numberField('timeoutMs')])
+    const subject = new SettingsFormModel(host.scope, [settingsNumberField('timeoutMs')])
 
     host.publish({ status: 'unavailable' })
 
@@ -353,9 +360,9 @@ describe('BashCardController', () => {
     expect(face.hooks.bashCard.getSnapshot().dirty).toBe(true)
 
     face.save()
-    await vi.waitFor(() => { expect(host.set).toHaveBeenCalledTimes(2) })
+    await vi.waitFor(() => { expect(host.mutate).toHaveBeenCalledTimes(1) })
 
-    expect(host.set.mock.calls).toEqual([['timeoutMs', 9_000], ['maxOutputBytes', 1_024]])
+    expect(host.mutate.mock.calls.map(([ops]) => ops)).toEqual([[{ op: 'set', path: ['timeoutMs'], value: 9_000 }, { op: 'set', path: ['maxOutputBytes'], value: 1_024 }]])
     expect(face.hooks.bashCard.getSnapshot().dirty).toBe(false)
   })
 
@@ -376,7 +383,7 @@ describe('BashCardController', () => {
     expect(face.hooks.bashCard.getSnapshot().timeoutMs.text).toBe('60000')
 
     face.save()
-    await vi.waitFor(() => { expect(host.unset).toHaveBeenCalledWith('timeoutMs') })
+    await vi.waitFor(() => { expect(host.mutate.mock.calls.map(([ops]) => ops)).toEqual([[{ op: 'unset', path: ['timeoutMs'] }]]) })
 
     expect(face.hooks.bashCard.getSnapshot()).toMatchObject({
       dirty: false,
@@ -394,7 +401,7 @@ describe('BashCardController', () => {
     face.discard()
 
     expect(face.hooks.bashCard.getSnapshot().timeoutMs.text).toBe('5000')
-    expect(host.set).not.toHaveBeenCalled()
+    expect(host.mutate).not.toHaveBeenCalled()
   })
 })
 
@@ -414,7 +421,7 @@ describe('AgentLoopCardController', () => {
 
     face.edit('maxParallelToolCalls', '4')
     face.save()
-    await vi.waitFor(() => { expect(host.set).toHaveBeenCalledWith('maxParallelToolCalls', 4) })
+    await vi.waitFor(() => { expect(host.mutate.mock.calls.map(([ops]) => ops)).toEqual([[{ op: 'set', path: ['maxParallelToolCalls'], value: 4 }]]) })
 
     expect(face.hooks.agentLoopCard.getSnapshot()).toMatchObject({
       dirty: false,
@@ -889,7 +896,7 @@ describe('WebSearchCardController', () => {
     await vi.waitFor(() => { expect(credentials.set).toHaveBeenCalled() })
 
     expect(credentials.set).toHaveBeenCalledWith('DEEPSEEK_API_KEY', 'ds-secret')
-    expect(host.set).not.toHaveBeenCalled()
+    expect(host.mutate).not.toHaveBeenCalled()
     await vi.waitFor(() => {
       expect(face.hooks.webSearchCard.getSnapshot()).toMatchObject({ dirty: false, apiKeyConfigured: true })
     })
@@ -1012,9 +1019,9 @@ describe('WebSearchCardController', () => {
     face.edit('baseURL', 'https://other.test')
     face.edit('maxUses', '3')
     face.save()
-    await vi.waitFor(() => { expect(host.set).toHaveBeenCalledTimes(2) })
+    await vi.waitFor(() => { expect(host.mutate).toHaveBeenCalledTimes(1) })
 
-    expect(host.set.mock.calls).toEqual([['baseURL', 'https://other.test'], ['maxUses', 3]])
+    expect(host.mutate.mock.calls.map(([ops]) => ops)).toEqual([[{ op: 'set', path: ['baseURL'], value: 'https://other.test' }, { op: 'set', path: ['maxUses'], value: 3 }]])
     expect(credentials.set).not.toHaveBeenCalled()
   })
 })
@@ -1035,7 +1042,7 @@ describe('SubagentLimitsCardController', () => {
     face.edit('maxActiveSubagents', '0')
     expect(state().invalid).toBe(true)
     face.edit('maxActiveSubagents', '12')
-    expect(host.set).not.toHaveBeenCalled()
+    expect(host.mutate).not.toHaveBeenCalled()
     face.save()
     await vi.waitFor(() => { expect(state().saving).toBe(false) })
     expect(host.scope.getSnapshot().value).toEqual({ maxDepth: 0, maxActiveSubagents: 12 })
@@ -1079,7 +1086,7 @@ describe('shared Subagent card actions', () => {
     face.toggleEnabled()
     face.save()
     await vi.waitFor(() => { expect(state()).toMatchObject({ saving: false, dirty: false, failed: false }) })
-    expect(limits.set).toHaveBeenCalledWith('maxDepth', 2)
+    expect(limits.mutate.mock.calls.map(([ops]) => ops)).toEqual([[{ op: 'set', path: ['maxDepth'], value: 2 }]])
     expect(models.mutate).toHaveBeenCalledWith([
       { op: 'set', path: ['enabled'], value: true },
       { op: 'set', path: ['allowedModels'], value: [{ provider: 'alpha', model: 'fast' }] },
@@ -1099,7 +1106,7 @@ describe('shared Subagent card actions', () => {
   it('retains the pending draft when discard is requested before both writes finish', async () => {
     const { limits, face, state } = card()
     const pending = deferred<undefined>()
-    const set = vi.spyOn(limits.scope, 'set').mockImplementationOnce(async () => {
+    const mutate = vi.spyOn(limits.scope, 'mutate').mockImplementationOnce(async () => {
       await pending.promise
       limits.publish({ value: { maxDepth: 2, maxActiveSubagents: 8 }, user: { maxDepth: 2 } })
       return false
@@ -1112,14 +1119,16 @@ describe('shared Subagent card actions', () => {
         expect(face.hooks.subagentModelSelectionCard.getSnapshot()).toMatchObject({ saving: false, dirty: false })
       })
       expect(state().saving).toBe(true)
-      expect(set).toHaveBeenCalledWith('maxDepth', 2)
+      expect(mutate.mock.calls[0]?.[0]).toEqual([{ op: 'set', path: ['maxDepth'], value: 2 }])
       face.discard()
       expect(face.hooks.subagentLimitsCard.getSnapshot()).toMatchObject({ dirty: true, maxDepth: { text: '2' } })
     } finally {
       pending.resolve(undefined)
       await vi.waitFor(() => { expect(state().saving).toBe(false) })
     }
-    expect(state()).toMatchObject({ dirty: false, failed: false })
+    // The refused mutation settles after the discard, so the card reports the
+    // failure with no drafts left.
+    expect(state()).toMatchObject({ dirty: false, failed: true })
     expect(limits.scope.getSnapshot().value?.maxDepth).toBe(2)
   })
 
@@ -1128,7 +1137,7 @@ describe('shared Subagent card actions', () => {
     face.editLimit('maxDepth', '1.5')
     face.toggleEnabled()
     face.save()
-    expect(limits.set).not.toHaveBeenCalled()
+    expect(limits.mutate).not.toHaveBeenCalled()
     expect(models.mutate).not.toHaveBeenCalled()
     face.discard()
     expect(state()).toMatchObject({ dirty: false, invalid: false })
@@ -1147,7 +1156,7 @@ describe('shared Subagent card actions', () => {
     expect(face.hooks.subagentModelSelectionCard.getSnapshot()).toMatchObject({ enabled: true, dirty: true })
     face.save()
     await vi.waitFor(() => { expect(state()).toMatchObject({ saving: false, dirty: false, failed: false }) })
-    expect(limits.set).toHaveBeenCalledOnce()
+    expect(limits.mutate).toHaveBeenCalledOnce()
     expect(models.mutate).toHaveBeenCalledTimes(2)
   })
 })

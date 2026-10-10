@@ -2,7 +2,7 @@
 
 import type { SnapshotStore } from '@qilin-agent/client-store'
 import type { ConfigForm } from '@qilin-agent/client-ui-settings/client'
-import { CardForm, numberField, type CardActions, type CardFieldSpec, type CardFieldState, type CardShell } from './card-form.ts'
+import { SettingsFormModel, settingsNumberField, type SettingsFormActions, type SettingsFieldSpec, type SettingsFieldState, type SettingsFormShell } from '@qilin-agent/client-ui-primitives'
 
 /** Host-owned delegation defaults and live capacity. */
 export interface SubagentLimitsSettings {
@@ -11,20 +11,20 @@ export interface SubagentLimitsSettings {
 }
 
 /** Effective values and drafts presented by the limits card. */
-export interface SubagentLimitsCardState extends CardShell {
-  maxDepth: CardFieldState
-  maxActiveSubagents: CardFieldState
+export interface SubagentLimitsCardState extends SettingsFormShell {
+  maxDepth: SettingsFieldState
+  maxActiveSubagents: SettingsFieldState
 }
 
 /** Actions and observable state bound by the slot renderer. */
-export interface SubagentLimitsCardFace extends CardActions {
+export interface SubagentLimitsCardFace extends SettingsFormActions {
   hooks: {
     subagentLimitsCard: SnapshotStore<SubagentLimitsCardState>
   }
 }
 
-function limitField(field: keyof SubagentLimitsSettings, minimum: number): CardFieldSpec {
-  const numeric = numberField(field)
+function limitField(field: keyof SubagentLimitsSettings, minimum: number): SettingsFieldSpec {
+  const numeric = settingsNumberField(field)
   return {
     ...numeric,
     parse: (text) => {
@@ -38,12 +38,12 @@ function limitField(field: keyof SubagentLimitsSettings, minimum: number): CardF
 
 /** Bind two independently resettable limits to one staged settings form. */
 export class SubagentLimitsCardController {
-  private readonly form: CardForm<SubagentLimitsSettings>
+  private readonly form: SettingsFormModel<SubagentLimitsSettings>
   private readonly store: SnapshotStore<SubagentLimitsCardState>
 
   /** @param scope - The Host's `subagent` settings section. */
   constructor(scope: ConfigForm<SubagentLimitsSettings>) {
-    this.form = new CardForm(scope, [limitField('maxDepth', 0), limitField('maxActiveSubagents', 1)])
+    this.form = new SettingsFormModel(scope, [limitField('maxDepth', 0), limitField('maxActiveSubagents', 1)])
     this.store = this.form.bind(() => ({
       ...this.form.shell(),
       maxDepth: this.form.field('maxDepth'),

@@ -4,7 +4,7 @@ import type { Context as ClientContext } from '@qilin-agent/kylin'
 import type { ModelProviderGroup } from '@qilin-agent/api-remotes/client'
 import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
 import type { ConfigForm } from '@qilin-agent/client-ui-settings/client'
-import type { CardShell } from './card-form.ts'
+import type { SettingsFormShell } from '@qilin-agent/client-ui-primitives'
 
 /** Namespace of the Host-owned subagent model-selection preference. */
 export const SUBAGENT_MODEL_SELECTION_NS = 'subagent-model-selection'
@@ -38,7 +38,7 @@ export interface SubagentModelCandidate extends AllowedSubagentModel {
 }
 
 /** State rendered by the staged allowlist card. */
-export interface SubagentModelSelectionCardState extends CardShell {
+export interface SubagentModelSelectionCardState extends SettingsFormShell {
   /** Whether the draft enables model-facing child route selection. */
   enabled: boolean
   /** Live catalog joined with stored routes. */

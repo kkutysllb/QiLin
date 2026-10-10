@@ -2,7 +2,7 @@
 
 import type { SnapshotStore } from '@qilin-agent/client-store'
 import type { ConfigForm } from '@qilin-agent/client-ui-settings/client'
-import { CardForm, numberField, type CardActions, type CardFieldState, type CardShell } from './card-form.ts'
+import { SettingsFormModel, settingsNumberField, type SettingsFormActions, type SettingsFieldState, type SettingsFormShell } from '@qilin-agent/client-ui-primitives'
 
 /**
  * Namespace of the agent loop's user-owned settings. Spelled here rather than
@@ -20,13 +20,13 @@ export interface AgentLoopSettings {
 }
 
 /** What the agent-loop card renders. */
-export interface AgentLoopCardState extends CardShell {
+export interface AgentLoopCardState extends SettingsFormShell {
   /** Parallel tool-call cap. */
-  maxParallelToolCalls: CardFieldState
+  maxParallelToolCalls: SettingsFieldState
 }
 
 /** The registration-side face the agent-loop card's slot entry injects. */
-export interface AgentLoopCardFace extends CardActions {
+export interface AgentLoopCardFace extends SettingsFormActions {
   hooks: {
     /** Card snapshot bound by the renderer as useAgentLoopCard. */
     agentLoopCard: SnapshotStore<AgentLoopCardState>
@@ -35,12 +35,12 @@ export interface AgentLoopCardFace extends CardActions {
 
 /** Bridges the `agent-loop` scope onto the card's staged form. */
 export class AgentLoopCardController {
-  private readonly form: CardForm<AgentLoopSettings>
+  private readonly form: SettingsFormModel<AgentLoopSettings>
   private readonly store: SnapshotStore<AgentLoopCardState>
 
   /** @param scope - the bound settings scope for the `agent-loop` namespace. */
   constructor(scope: ConfigForm<AgentLoopSettings>) {
-    this.form = new CardForm(scope, [numberField('maxParallelToolCalls')])
+    this.form = new SettingsFormModel(scope, [settingsNumberField('maxParallelToolCalls')])
     this.store = this.form.bind(() => this.projection())
   }
 
