@@ -15,6 +15,7 @@ import type { PluginManagerState } from './manager-store.ts'
  * Whether one bundle's UI presents on the active workbench.
  * @param audience - the bundle's recorded audience.
  * @param active - the workbench tag in view.
+ * @returns whether the bundle's UI presents on the active workbench.
  */
 export function audienceAdmits(audience: PluginAudience, active: WorkbenchTag): boolean {
   return audience === 'both' || audience === active
