@@ -86,6 +86,9 @@ export type SubagentAddress =
   )
 
 /** One human message addressed to a continuable direct child. */
+/** How one accepted message reaches its target's inbox. */
+export type SubagentDelivery = SubagentPromptRequest['delivery']
+
 export interface SubagentPromptRequest {
   /** Identity persisted on the accepted message, minted before the call. */
   readonly requestId: SubagentPromptRequestId

@@ -887,7 +887,10 @@ export class ContinuableActivationRegistry {
     try {
       const parent = this.ctx.agents.get(activation.parentSession)
       if (parent === undefined) return
-      const message = createSettlementMessage(activation.childId, terminal)
+      const message = createSettlementMessage(activation.childId, {
+        output: terminal.output ?? [],
+        stopReason: terminal.stopReason,
+      }, true)
       if (this.closingTeardownFor(parent) !== undefined) {
         parent.inject(message)
         return

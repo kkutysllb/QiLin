@@ -6,11 +6,12 @@
 
 import type { Agent } from '@qilin-agent/agent'
 import type { UserMessage } from '@qilin-agent/session'
-import type { SubagentPromptRequest } from './control-types.ts'
 import { SubagentError } from './error.ts'
 
 /** One Agent inbox destination, as the wire request selects it. */
-export type SubagentDelivery = SubagentPromptRequest['delivery']
+import type { SubagentDelivery } from './control-types.ts'
+
+export type { SubagentDelivery } from './control-types.ts'
 
 /** Delegate Queue and Steer to one live Agent until its Activation starts closing. */
 export class SubagentInbox {

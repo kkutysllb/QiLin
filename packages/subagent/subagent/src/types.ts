@@ -44,7 +44,7 @@ export interface ContinuableStartSpec {
    * The delegation request. The manager reserves the stable child id, resolves
    * the durable descriptor, and composes the child itself.
    */
-  readonly request: Omit<SubagentStartRequest, 'label' | 'signal' | 'outputSchema'>
+  readonly request: Omit<SubagentStartRequest, 'label' | 'signal'>
   /** Caller cancellation, owning the operation only until inbox acceptance. */
   readonly signal: AbortSignal
 }
@@ -158,7 +158,7 @@ export interface SubagentActivationSpec {
    * The delegation request. Continuable children take no `outputSchema`, so
    * the request omits it along with the label and signal this spec carries.
    */
-  readonly request: Omit<SubagentStartRequest, 'label' | 'signal' | 'outputSchema'>
+  readonly request: Omit<SubagentStartRequest, 'label' | 'signal'>
   /** Caller cancellation, owning the operation only until inbox acceptance. */
   readonly signal: AbortSignal
   /**

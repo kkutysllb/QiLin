@@ -234,7 +234,7 @@ export function createActivationObserver(
  * @returns its terminal stop reason; `completed` only for an epoch that both
  *   closed cleanly and had nothing left to run.
  */
-function epochStopReason(events: readonly SessionEvent[]): SubagentResult['stopReason'] {
+export function epochStopReason(events: readonly SessionEvent[]): SubagentResult['stopReason'] {
   const { end, droppedUnrun } = foldConsumedWork(events)
   switch (end?.data.reason.kind) {
     case 'max-tokens':
