@@ -55,8 +55,11 @@ export class TranscriptViewPolicy {
     const section = this.host.getSnapshot().value
     if (section === undefined) return
     const saved = section.transcriptView
+    // A durable section written before this field existed carries no value even
+    // though the current section type requires one.
     const mode = saved === LEGACY_TRANSCRIPT_VIEW_MODE || saved === LEGACY_EXPANDED_TRANSCRIPT_VIEW_MODE
-      ? 'detailed' : saved
+      // oxlint-disable-next-line typescript/no-unnecessary-condition -- durable Host section may predate the field
+      ? 'detailed' : saved ?? this.defaultMode
     if (this.mode.getSnapshot() !== mode) this.mode.set(mode)
   }
 }
