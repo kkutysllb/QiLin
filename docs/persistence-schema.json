@@ -22562,7 +22562,7 @@
       "digest": "0040cfc00431af2403f13ce6249c0359646d15d9e40b3d50b4843c641dd11ced",
       "names": [],
       "sources": [
-        "packages/experimental/agent-team/src/types.ts:230"
+        "packages/experimental/agent-team/src/types.ts:229"
       ]
     },
     {
@@ -24023,7 +24023,7 @@
       "digest": "6358dc41ca0490a18939f4f4d4c163659d3b743b1f655fba14d6bf25ec494de0",
       "names": [],
       "sources": [
-        "packages/experimental/agent-team/src/types.ts:232"
+        "packages/experimental/agent-team/src/types.ts:231"
       ]
     },
     {
@@ -25567,7 +25567,7 @@
       "digest": "c6b994133e98a3c633001e95dffbc0847da85ff4261659560b0bdb28500b2fdb",
       "names": [],
       "sources": [
-        "packages/experimental/agent-team/src/types.ts:234"
+        "packages/experimental/agent-team/src/types.ts:233"
       ]
     },
     {
@@ -25665,7 +25665,7 @@
       "digest": "d0175524814e681ffdd8235e04dd8a9e0ffd59508be1b65bcf582a6e9e1b283f",
       "names": [],
       "sources": [
-        "packages/experimental/agent-team/src/types.ts:236"
+        "packages/experimental/agent-team/src/types.ts:235"
       ]
     },
     {

@@ -9,7 +9,7 @@
   en: 4402b42eb6f211c1
   zh: 8ac92563ac79d88a
 /qilin-agent-experimental-agent-team/summary:
-  en: df6615ff72b6b0c9
+  en: 7f4c8d59460250a3
   zh: b36865b387182091
 /qilin-agent-experimental-agent-team/table-of-contents:
   en: d152484eb41ac6b4
@@ -27,44 +27,44 @@
   en: 93bba70f00d8015a
   zh: b66c4c2b1a91facf
 /qilin-agent-experimental-agent-team/use-this-package/messages-between-teammates:
-  en: 23ce8b1642fc9b04
-  zh: 3d3bcade010758c4
+  en: 14ae48980c5e7fd0
+  zh: dc40cb0c15789d14
 /qilin-agent-experimental-agent-team/use-this-package/shared-task-board:
   en: 73682f0d2001b517
   zh: 3744d82eb3b7fcb9
 /qilin-agent-experimental-agent-team/use-this-package/waiting-and-interruption:
-  en: f8e38ccf6295b375
-  zh: 44f008e23613c0af
+  en: 42c6d6e7175a930f
+  zh: eb077879ea52bd97
 /qilin-agent-experimental-agent-team/use-this-package/what-success-and-failure-look-like:
-  en: 0d523eb8ffe0a928
-  zh: 270b2502db285ed8
+  en: a14116e6ef3b90fc
+  zh: 9b1984cfcb4501d6
 /qilin-agent-experimental-agent-team/understand-the-implementation:
   en: 6a18034f1ccc247a
   zh: e08b0eb0ccb41ea8
 /qilin-agent-experimental-agent-team/understand-the-implementation/design-philosophy:
-  en: 62cc9e1343ad5fb1
-  zh: df16544571a02a80
+  en: 5ed15e91ee5575cb
+  zh: e34618a49056b439
 /qilin-agent-experimental-agent-team/understand-the-implementation/source-map:
-  en: 2725a2dfd9d000a8
-  zh: aacf8a8a4569b0af
+  en: b4617379acb1800c
+  zh: d0b2846a7117cdbd
 /qilin-agent-experimental-agent-team/understand-the-implementation/team-identity-and-roster:
   en: 85f97723e45e43de
   zh: def66721e21339cc
-/qilin-agent-experimental-agent-team/understand-the-implementation/durable-mailbox:
-  en: 26041ce90cc48a35
-  zh: 677d85f22969f941
+/qilin-agent-experimental-agent-team/understand-the-implementation/direct-steering:
+  en: bc66f052a2290fe1
+  zh: 2deb7e0847349f3c
 /qilin-agent-experimental-agent-team/understand-the-implementation/shared-task-board:
   en: 2dc37ba97a8a7178
   zh: 96bd24033030e19d
 /qilin-agent-experimental-agent-team/understand-the-implementation/waiting-and-interruption:
-  en: 3becd36b407aac95
-  zh: c9e4895ee59696bb
+  en: 94e09c51cec44b0c
+  zh: dbbead1b8de96a3a
 /qilin-agent-experimental-agent-team/understand-the-implementation/durability-model:
-  en: 6415c909ff8f475d
-  zh: fc2cd39d3f5a656d
+  en: 40cdf38b158a6a99
+  zh: 78b6a0a9cf9dda25
 /qilin-agent-experimental-agent-team/understand-the-implementation/disposal:
-  en: 3ae69e3b7905cffe
-  zh: 0fb159101f6d646b
+  en: 47588f975c83fe96
+  zh: fd25c61a7dcc9b01
 /qilin-agent-experimental-agent-team/further-exploration:
   en: 7bf1185e46e3afc7
   zh: 99ffb9a0e8997b2f

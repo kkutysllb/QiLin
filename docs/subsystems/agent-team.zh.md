@@ -162,10 +162,10 @@ listMembers(agent: Agent): TeamMemberView[]
 async spawnTeammate(caller: Agent, request: SpawnTeammateRequest): Promise<SpawnTeammateResult>
 
 /**
- * Queue one durable peer message, then attempt immediate delivery.
+ * Steer one peer message into the target inbox or reject the attempt.
  * @param caller - exact live sending Team member.
- * @param request - target name, content, and pre-queue cancellation.
- * @returns durable message identity and immediate-delivery observation.
+ * @param request - target name, content, and cancellation before acceptance.
+ * @returns accepted inbox identity; acceptance follows normal Agent persistence and does not await model processing.
  */
 async sendMessage(caller: Agent, request: SendTeamMessageRequest): Promise<SendTeamMessageResult>
 

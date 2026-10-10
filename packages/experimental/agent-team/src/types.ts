@@ -182,10 +182,9 @@ export interface SendTeamMessageRequest {
   readonly signal: AbortSignal
 }
 
-/** Result after a peer message enters the durable mailbox. */
+/** Result after a peer message enters the target inbox. */
 export interface SendTeamMessageResult {
   readonly messageId: TeamMessageId
-  readonly status: 'accepted' | 'queued'
 }
 
 /** Input for creating one shared task. */
@@ -230,9 +229,9 @@ declare module '@qilin-agent/session/types' {
     'team/member': { version: 2; teamId: TeamId; member: TeamMemberSnapshot }
     /** Whole shared-task value, stored only in the Team Lead Session. */
     'team/task': { version: 2; teamId: TeamId; task: TeamTaskSnapshot }
-    /** Durable mailbox enqueue, stored before delivery is attempted. */
+    /** Historical mailbox enqueue; new sends use the target Agent inbox. */
     'team/message/queued': { version: 2; teamId: TeamId; message: TeamMessageSnapshot }
-    /** Durable acknowledgement that the target Session recorded the message. */
+    /** Historical acknowledgement that the target Session recorded a queued message. */
     'team/message/delivered': {
       version: 2
       teamId: TeamId

@@ -414,10 +414,10 @@ describe('qilin-tool-team', () => {
     expect(text(roster)).toBe(JSON.stringify(JSON.parse(text(roster))))
     const peer = await execute(ctx, child, 'send_message', { target: 'lead', message: 'progress report' })
     expect(peer.isError).toBe(false)
-    expect(JSON.parse(text(peer))).toMatchObject({ status: 'accepted' })
+    expect(Object.keys(JSON.parse(text(peer)) as Record<string, unknown>)).toEqual(['messageId'])
     const followup = await execute(ctx, child, 'send_message', { target: 'lead', message: 'review the report' })
     expect(followup.isError).toBe(false)
-    expect(JSON.parse(text(followup))).toMatchObject({ status: 'accepted' })
+    expect(Object.keys(JSON.parse(text(followup)) as Record<string, unknown>)).toEqual(['messageId'])
     await lead.whenIdle()
 
     const created = await execute(ctx, lead, 'team_task_create', {
