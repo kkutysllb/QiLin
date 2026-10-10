@@ -1,0 +1,37 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/experimental/terminal-bundle/README.md
+/:
+  en: a7cd372176f1d476
+  zh: 07276ed339e7bc02
+/qilin-agent-experimental-terminal-bundle:
+  en: 61f46931722990e4
+  zh: 0c6aea7200bbd643
+/qilin-agent-experimental-terminal-bundle/summary:
+  en: 161ff8d60aa7623e
+  zh: 90ea4ac87b96f20a
+/qilin-agent-experimental-terminal-bundle/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 988e839059414d27
+/qilin-agent-experimental-terminal-bundle/use-this-package:
+  en: 924d2c0de1f247a7
+  zh: 7d77aef5ceb3f097
+/qilin-agent-experimental-terminal-bundle/understand-the-implementation:
+  en: c05b1123a13b8277
+  zh: ece2105cc3882d04
+/qilin-agent-experimental-terminal-bundle/further-exploration:
+  en: dc6ad846015b1a46
+  zh: 38915e8ebcd20fdf
+/qilin-agent-experimental-terminal-bundle/model-experience:
+  en: 54e32579d815f965
+  zh: 30739a2e7c355988
+/qilin-agent-experimental-terminal-bundle/model-experience/kv-cache-effect:
+  en: 25f20eda0e696067
+  zh: 378c4a15a5704ba0
+/qilin-agent-experimental-terminal-bundle/known-limitations-and-deferred-work:
+  en: 733d0915ef050bf3
+  zh: 5a063b82230c73a4
+/qilin-agent-experimental-terminal-bundle/known-limitations-and-deferred-work/dev-note:
+  en: 279d01435256cd2a
+  zh: 83780964e5de2f54

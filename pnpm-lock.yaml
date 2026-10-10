@@ -219,12 +219,27 @@ importers:
       '@qilin-agent/experimental-auto-review':
         specifier: workspace:*
         version: link:../../packages/experimental/auto-review
+      '@qilin-agent/experimental-badge-skill-bundle':
+        specifier: workspace:*
+        version: link:../../packages/experimental/badge-skill-bundle
       '@qilin-agent/experimental-inspector-profile':
         specifier: workspace:*
         version: link:../../packages/experimental/inspector-profile
+      '@qilin-agent/experimental-ralph-bundle':
+        specifier: workspace:*
+        version: link:../../packages/experimental/ralph-bundle
       '@qilin-agent/experimental-schedule-bundle':
         specifier: workspace:*
         version: link:../../packages/experimental/schedule-bundle
+      '@qilin-agent/experimental-session-search':
+        specifier: workspace:*
+        version: link:../../packages/experimental/session-search
+      '@qilin-agent/experimental-session-titles-bundle':
+        specifier: workspace:*
+        version: link:../../packages/experimental/session-titles-bundle
+      '@qilin-agent/experimental-terminal-bundle':
+        specifier: workspace:*
+        version: link:../../packages/experimental/terminal-bundle
       '@qilin-agent/experimental-tool-worktree':
         specifier: workspace:*
         version: link:../../packages/experimental/tool-worktree
@@ -7344,6 +7359,22 @@ importers:
         specifier: workspace:*
         version: link:../../session/working-directory
 
+  packages/experimental/badge-skill-bundle:
+    dependencies:
+      '@qilin-agent/experimental-skill-badge':
+        specifier: workspace:*
+        version: link:../skill-badge
+    devDependencies:
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/kylin-plugin-include':
+        specifier: workspace:~
+        version: link:../../../vendor/include
+      js-yaml:
+        specifier: ^4.2.0
+        version: 4.3.1
+
   packages/experimental/browser-use-chrome-devtools-mcp:
     dependencies:
       '@qilin-agent/experimental-browser-use-runtime':
@@ -8039,6 +8070,25 @@ importers:
         specifier: workspace:*
         version: link:../../util/values
 
+  packages/experimental/ralph-bundle:
+    dependencies:
+      '@qilin-agent/experimental-tool-ralph':
+        specifier: workspace:*
+        version: link:../tool-ralph
+      '@qilin-agent/workflow-ptc':
+        specifier: workspace:*
+        version: link:../../workflow/workflow-ptc
+    devDependencies:
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/kylin-plugin-include':
+        specifier: workspace:~
+        version: link:../../../vendor/include
+      js-yaml:
+        specifier: ^4.2.0
+        version: 4.3.1
+
   packages/experimental/schedule-bundle:
     dependencies:
       '@qilin-agent/client-ui-schedule':
@@ -8124,6 +8174,25 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
 
+  packages/experimental/session-search:
+    dependencies:
+      '@qilin-agent/experimental-tool-session-query':
+        specifier: workspace:*
+        version: link:../tool-session-query
+      '@qilin-agent/session-query-sqlite':
+        specifier: workspace:*
+        version: link:../../session-query/session-query-sqlite
+    devDependencies:
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/kylin-plugin-include':
+        specifier: workspace:~
+        version: link:../../../vendor/include
+      js-yaml:
+        specifier: ^4.2.0
+        version: 4.3.1
+
   packages/experimental/session-title-all-prompts-llm:
     dependencies:
       '@qilin-agent/schemastery':
@@ -8151,6 +8220,22 @@ importers:
       '@qilin-agent/session-title-llm':
         specifier: workspace:*
         version: link:../../session/session-title-llm
+
+  packages/experimental/session-titles-bundle:
+    dependencies:
+      '@qilin-agent/experimental-session-title-all-prompts-llm':
+        specifier: workspace:*
+        version: link:../session-title-all-prompts-llm
+    devDependencies:
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/kylin-plugin-include':
+        specifier: workspace:~
+        version: link:../../../vendor/include
+      js-yaml:
+        specifier: ^4.2.0
+        version: 4.3.1
 
   packages/experimental/skill-badge:
     devDependencies:
@@ -8213,6 +8298,28 @@ importers:
       tsx:
         specifier: ^4.22.4
         version: 4.22.4
+
+  packages/experimental/terminal-bundle:
+    dependencies:
+      '@qilin-agent/experimental-tool-terminal':
+        specifier: workspace:*
+        version: link:../tool-terminal
+      '@qilin-agent/terminal':
+        specifier: workspace:*
+        version: link:../../terminal/terminal
+      '@qilin-agent/terminal-bash':
+        specifier: workspace:*
+        version: link:../../terminal/terminal-bash
+    devDependencies:
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/kylin-plugin-include':
+        specifier: workspace:~
+        version: link:../../../vendor/include
+      js-yaml:
+        specifier: ^4.2.0
+        version: 4.3.1
 
   packages/experimental/tool-agent-team:
     dependencies:

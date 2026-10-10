@@ -1,0 +1,37 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/experimental/ralph-bundle/README.md
+/:
+  en: 471abb0843949bd8
+  zh: 57662fb79022166e
+/qilin-agent-experimental-ralph-bundle:
+  en: 4f38fa373acfdd5b
+  zh: 7f5a7e4edb6868d1
+/qilin-agent-experimental-ralph-bundle/summary:
+  en: 2d0d6090157ea5ec
+  zh: 55c9669c4bf44cb9
+/qilin-agent-experimental-ralph-bundle/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 988e839059414d27
+/qilin-agent-experimental-ralph-bundle/use-this-package:
+  en: bb91c59b7a474054
+  zh: 2ae97c4106a71c74
+/qilin-agent-experimental-ralph-bundle/understand-the-implementation:
+  en: ea69e45921864f24
+  zh: 8b79a18bae279e6b
+/qilin-agent-experimental-ralph-bundle/further-exploration:
+  en: 3804fbf64a9ed3cd
+  zh: 2043c7efa8b07dc3
+/qilin-agent-experimental-ralph-bundle/model-experience:
+  en: dfbc854936aa7bf7
+  zh: 15598315973f453a
+/qilin-agent-experimental-ralph-bundle/model-experience/kv-cache-effect:
+  en: 25f20eda0e696067
+  zh: 378c4a15a5704ba0
+/qilin-agent-experimental-ralph-bundle/known-limitations-and-deferred-work:
+  en: 39918e19422a80c1
+  zh: 71346d112bdea43f
+/qilin-agent-experimental-ralph-bundle/known-limitations-and-deferred-work/dev-note:
+  en: 279d01435256cd2a
+  zh: 83780964e5de2f54

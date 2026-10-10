@@ -1,0 +1,37 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/experimental/session-search/README.md
+/:
+  en: ac0fb71830f58337
+  zh: 0ece950cf48261a1
+/qilin-agent-experimental-session-search:
+  en: f34c0e9c5e84a2b9
+  zh: be60de50f8676c25
+/qilin-agent-experimental-session-search/summary:
+  en: 3461520fc9a6b225
+  zh: aeedca620262e8ae
+/qilin-agent-experimental-session-search/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 988e839059414d27
+/qilin-agent-experimental-session-search/use-this-package:
+  en: 29e4de34bed1ed2e
+  zh: 539638a62c0a99c3
+/qilin-agent-experimental-session-search/understand-the-implementation:
+  en: 999a00da91761df8
+  zh: f0df8e07f5b907b3
+/qilin-agent-experimental-session-search/further-exploration:
+  en: 1874a118f2514f09
+  zh: e621298d5410314e
+/qilin-agent-experimental-session-search/model-experience:
+  en: ddf3990fdd857f41
+  zh: 3a5aa18efb09b97e
+/qilin-agent-experimental-session-search/model-experience/kv-cache-effect:
+  en: 25f20eda0e696067
+  zh: 378c4a15a5704ba0
+/qilin-agent-experimental-session-search/known-limitations-and-deferred-work:
+  en: 5ba4aae8ef1f62d2
+  zh: a7599243880f7482
+/qilin-agent-experimental-session-search/known-limitations-and-deferred-work/dev-note:
+  en: 279d01435256cd2a
+  zh: 83780964e5de2f54

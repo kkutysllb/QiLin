@@ -295,6 +295,11 @@ export const OPTIONAL_BUNDLES: readonly string[] = [
   '@qilin-agent/experimental-schedule-bundle',
   '@qilin-agent/experimental-inspector-profile',
   '@qilin-agent/experimental-tool-worktree',
+  '@qilin-agent/experimental-session-search',
+  '@qilin-agent/experimental-session-titles-bundle',
+  '@qilin-agent/experimental-ralph-bundle',
+  '@qilin-agent/experimental-terminal-bundle',
+  '@qilin-agent/experimental-badge-skill-bundle',
 ]
 
 const PROFILE_PATCH_TEMPLATE = `# Your patch layer for this qilin profile, applied after every bundle layer:
