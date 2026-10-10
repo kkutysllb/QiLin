@@ -4,6 +4,11 @@ import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { credentialKey, credentialRef } from '@qilin-agent/credentials'
+
+declare module '@qilin-agent/atomic-write' {
+  /** Test-only gate hook that this spec's module mock installs. */
+  export function __setGate(next: Promise<void>): void
+}
 import { LocalCredentialProvider } from '../src/index.ts'
 
 // The atomic write is the gated asynchronous hold point inside a queued
@@ -23,7 +28,7 @@ vi.mock('@qilin-agent/atomic-write', async (importOriginal) => {
 })
 
 async function setGate(next: Promise<void>): Promise<void> {
-  const mocked = await import('@qilin-agent/atomic-write') as unknown as { __setGate: (next: Promise<void>) => void }
+  const mocked = await import('@qilin-agent/atomic-write')
   mocked.__setGate(next)
 }
 

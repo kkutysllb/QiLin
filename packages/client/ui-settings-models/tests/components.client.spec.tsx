@@ -244,7 +244,8 @@ type RenderSlotCall = [name: string, owner: Record<string, unknown>, opts?: { en
 
 /** Child-slot dispatch stub: records every seat occurrence, renders nothing. */
 function stubRenderSlot() {
-  return vi.fn((..._call: RenderSlotCall) => null)
+  const dispatch = vi.fn((..._call: RenderSlotCall) => null)
+  return dispatch as typeof dispatch & ModelsSectionProps['renderSlot']
 }
 
 /** The provider-card seat dispatches a stub recorded, as (route id, configured, keyConfigured, entryKey). */
@@ -274,7 +275,7 @@ async function mountFace(scripted: ReturnType<typeof scriptedFace>) {
     operations: operationsWith(face),
     schema: settingsSchema,
     t,
-    renderSlot: renderSlot as unknown as ModelsSectionProps['renderSlot'],
+    renderSlot,
   }
   const view = render(<ModelsSection {...injected} />)
   return { view, ctx, face, update, mutate, set, unset, controller, mirror, renderSlot }
@@ -320,7 +321,7 @@ describe('ModelsSection', () => {
       operations={operationsWith(scripted.face)}
       schema={settingsSchema}
       t={t}
-      renderSlot={renderSlot as unknown as ModelsSectionProps['renderSlot']}
+      renderSlot={renderSlot}
     />)
     // The first paint has no current snapshot: the section holds its chrome and
     // mounts no editor, so a draft cannot be built from stale directory data.
