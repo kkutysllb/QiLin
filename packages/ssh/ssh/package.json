@@ -58,7 +58,8 @@
     "@qilin-agent/sandbox-local": "workspace:*",
     "@qilin-agent/sandbox-policy": "workspace:*",
     "@qilin-agent/session-projection": "workspace:*",
-    "@qilin-agent/brand": "workspace:*"
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/util-values": "workspace:*"
   },
   "dependencies": {
     "@qilin-agent/schemastery": "workspace:~",
@@ -81,6 +82,7 @@
     "@qilin-agent/sandbox-ssh": "workspace:*",
     "@qilin-agent/lsp": "workspace:*",
     "@qilin-agent/lsp-stdio": "workspace:*",
-    "@qilin-agent/brand": "workspace:*"
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/util-values": "workspace:*"
   }
 }
