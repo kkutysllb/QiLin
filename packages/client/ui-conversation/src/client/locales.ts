@@ -183,6 +183,7 @@ export const zh = {
   'terminal.done': '已完成',
   'terminal.noOutput': '无输出',
   'terminal.collapseAria': '收起输出',
+  'terminal.commandLine': '命令第 {n} 行',
   'terminal.expandAria': '展开其余 {n} 行输出',
   'terminal.expandRest': '… 其余 {n} 行',
   'terminal.sendInput': '（发送输入）',
@@ -569,6 +570,7 @@ export const en = {
   'terminal.done': 'Done',
   'terminal.noOutput': 'No output',
   'terminal.collapseAria': 'Collapse output',
+  'terminal.commandLine': 'Command line {n}',
   'terminal.expandAria': 'Expand the remaining {n} output lines',
   'terminal.expandRest': '… {n} more lines',
   // The Host terminal_send presenter has no locale seat; keep its fallbacks

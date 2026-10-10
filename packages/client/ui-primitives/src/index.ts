@@ -2,6 +2,8 @@
  * Cordis-free React primitives styled only through `--qilin-*` tokens.
  */
 
+export { CommandText } from './CommandText.tsx'
+export type { CommandTextProps } from './CommandText.tsx'
 export { StateDot } from './StateDot.tsx'
 export type { StateDotState } from './StateDot.tsx'
 export { DisclosureRow } from './DisclosureRow.tsx'

@@ -139,6 +139,7 @@ function terminalLabels(t: TranslateNS<typeof NS>): TerminalBlockLabels {
     copy: t('terminal.copy'),
     copied: t('terminal.copied'),
     noOutput: t('terminal.noOutput'),
+    commandLine: line => t('terminal.commandLine', { n: line }),
     collapseAria: t('terminal.collapseAria'),
     collapse: t('terminal.collapse'),
     // The panel never caps lines (it scrolls), so the fold controls that

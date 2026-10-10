@@ -628,6 +628,7 @@ function terminalLabels(t: Translate): TerminalBlockLabels {
     copy: t('terminalCopy'),
     copied: t('terminalCopied'),
     noOutput: t('terminalNoOutput'),
+    commandLine: line => t('terminalCommandLine', { n: String(line) }),
     collapseAria: t('terminalCollapseAria'),
     collapse: t('terminalCollapse'),
     expandAria: hidden => t('terminalExpandAria', { n: String(hidden) }),

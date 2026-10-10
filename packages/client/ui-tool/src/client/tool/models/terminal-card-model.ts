@@ -25,6 +25,7 @@ export function terminalBlockLabels(t: TranslateNS<'conversation'>): TerminalBlo
     copy: t('copy'),
     copied: t('copied'),
     noOutput: t('terminal.noOutput'),
+    commandLine: line => t('terminal.commandLine', { n: line }),
     collapseAria: t('terminal.collapseAria'),
     collapse: t('collapse'),
     expandAria: hidden => t('terminal.expandAria', { n: hidden }),

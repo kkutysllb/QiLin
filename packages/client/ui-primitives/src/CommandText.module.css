@@ -1,0 +1,12 @@
+.text {
+  display: block;
+  min-width: 0;
+  overflow-x: auto;
+  white-space: var(--qilin-command-whitespace, pre);
+  overflow-wrap: anywhere;
+}
+
+.text:focus-visible {
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
+  outline-offset: -2px;
+}

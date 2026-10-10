@@ -5,6 +5,7 @@ import { headTailCap } from './head-tail-cap.ts'
 import { useCopyFeedback } from './use-copy-feedback.ts'
 import { Pill } from './Pill.tsx'
 import { StateDot, type StateDotState } from './StateDot.tsx'
+import { CommandText } from './CommandText.tsx'
 import css from './TerminalBlock.module.css'
 
 /** Output lines shown before the height cap collapses the middle. */
@@ -27,6 +28,8 @@ export interface TerminalBlockLabels {
   failed: string
   /** Run-state text for a clean settle. */
   done: string
+  /** Accessible name of one command line's scrollport, numbered from 1. */
+  commandLine: (index: number) => string
   /** Copy-button idle label. */
   copy: string
   /** Copy-button label during the post-copy confirmation window. */
@@ -230,7 +233,7 @@ export function TerminalBlock({
               <span className={css.cwd}>
                 {index > 0 || cwd === undefined ? '$' : promptLabel(cwd, home)}
               </span>
-              <span className={css.command}>{line}</span>
+              <CommandText className={css.command} text={line} label={copy.commandLine(index + 1)} />
             </div>
           ))}
         </div>

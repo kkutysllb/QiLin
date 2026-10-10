@@ -42,6 +42,7 @@ export const zh = {
   'terminal.noOutput': '（无输出）',
   'terminal.collapse': '收起',
   'terminal.collapseAria': '收起输出',
+  'terminal.commandLine': '命令第 {n} 行',
   'terminal.expand': '展开其余 {n} 行',
   'terminal.expandAria': '展开被折叠的 {n} 行输出',
 } as const
@@ -85,6 +86,7 @@ export const en: Record<JobKey, string> = {
   'terminal.noOutput': '(no output)',
   'terminal.collapse': 'Collapse',
   'terminal.collapseAria': 'Collapse output',
+  'terminal.commandLine': 'Command line {n}',
   'terminal.expand': 'Show {n} more lines',
   'terminal.expandAria': 'Expand {n} collapsed output lines',
 }
