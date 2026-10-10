@@ -21,7 +21,7 @@
 - id: tools
   name: '@qilin-agent/tools'
   config:
-    mode: both
+    mode: ptc
 
 - id: system-prompt
   name: '@qilin-agent/system-prompt'

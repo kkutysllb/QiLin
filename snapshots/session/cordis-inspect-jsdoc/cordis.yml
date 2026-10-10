@@ -20,7 +20,7 @@
 - id: tools
   name: '@qilin-agent/tools'
   config:
-    mode: both
+    mode: native
 
 - id: system-prompt
   name: '@qilin-agent/system-prompt'

@@ -50,7 +50,7 @@ async function setup(script: Script, options: SetupOptions = {}) {
     tools: { mode: options.toolMode ?? 'native' },
   })
   await mountWorkingDirectoryFixture(ctx)
-  if (options.toolMode === 'ptc' || options.toolMode === 'both') {
+  if (options.toolMode === 'ptc') {
     ctx.provide('ptcRuntime', {
       language: 'typescript',
       isolation: 'test',

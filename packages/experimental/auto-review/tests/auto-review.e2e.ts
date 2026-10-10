@@ -130,7 +130,7 @@ async function* observe(
 
 async function mount(ctx: Context, workspace: string, qilinHome: string): Promise<void> {
   await mountAgentLoopTestDependencies(ctx, {
-    systemPrompt: {}, tools: { mode: 'both' },
+    systemPrompt: {}, tools: { mode: 'ptc' },
   })
   // No reasoning or output-budget override: use each shipped model's defaults.
   await ctx.plugin(LlmDeepSeek, { retryPolicy: { mode: 'normal', maxRetries: 0 } })

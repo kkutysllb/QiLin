@@ -532,7 +532,7 @@ describe('the soft layer', () => {
     expectPlanPtcSdkBindings(sdk)
   })
 
-  it('keeps native wire schemas and the SDK in step under mode both', async () => {
+  it('keeps the PTC wire schema and the SDK in step under mode ptc', async () => {
     class FakeRuntime extends PtcRuntime {
       resolve(request: import('@qilin-agent/ptc-runtime').PtcRunRequest): import('@qilin-agent/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
@@ -542,16 +542,17 @@ describe('the soft layer', () => {
     }
     const ctx = new Context()
     await ctx.plugin(SystemPrompt)
-    await ctx.plugin(ToolRuntime, { mode: 'both' })
+    await ctx.plugin(ToolRuntime, { mode: 'ptc' })
     await ctx.plugin(FakeRuntime)
     await mountProjectionSeam(ctx)
     await ctx.plugin(PlanModeController, PLAN_CONFIG)
     registerNamedTools(ctx, ['read', 'write'])
     const agent = await agentWithSession(ctx, 'agent-1', { active: true })
     const assembly = await assembleFor(ctx, agent)
-    // The stable registry contribution reaches both model interfaces: the exit tool
-    // is present on the wire AND in the SDK alongside the untouched toolset.
-    expect(assembly.tools.map(tool => tool.name).sort()).toEqual(['exit_plan_mode', 'read', 'run_code', 'write'])
+    // The stable registry contribution reaches both model interfaces: the exit
+    // tool stays in the SDK alongside the untouched toolset, while the wire
+    // carries only the PTC transport.
+    expect(assembly.tools.map(tool => tool.name).sort()).toEqual(['run_code'])
     const sdk = assembly.sections.find(section => section.name === 'tools:sdk')?.text ?? ''
     expectPlanPtcSdkBindings(sdk)
   })
