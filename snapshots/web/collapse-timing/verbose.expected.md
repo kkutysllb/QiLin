@@ -1,0 +1,35 @@
+- button "System prompt"
+- text: "Use the read tool twice in one assistant message: read a.txt and b.txt. Then reply with the single word DONE and stop. {{clock}}"
+- button "Copy"
+- button "Edit this message and resend"
+- status: Completed
+- button "Completed in {{duration}}" [disabled] [expanded]
+- button "Think The user wants me to read a.txt and b.txt, then reply with \"DONE\". Let me do both reads in parallel."
+- button "Read a.txt":
+  - text: Read
+  - button "a.txt"
+- button "Read b.txt":
+  - text: Read
+  - button "b.txt"
+- button "Think Both files have been read. a.txt contains \"alpha\" and b.txt contains \"beta\". I'll now reply with DONE as instructed."
+- paragraph: DONE
+- button "Copy"
+- button "Good response"
+- button "Bad response"
+- button "Branch into a new conversation"
+- text: {{clock}}
+- button "System prompt"
+- text: "Use the read tool twice in one assistant message: read a.txt and b.txt. Then reply with the single word DONE and stop. {{clock}}"
+- button "Copy"
+- button "Edit this message and resend"
+- status: Completed
+- button "Completed in {{duration}}" [disabled] [expanded]
+- button "Context injection runtime-context"
+- button "Tools updated 28 added"
+- button "Think Both files have been read. a.txt contains \"alpha\" and b.txt contains \"beta\". I'll now reply with DONE as instructed."
+- paragraph: DONE
+- button "Copy"
+- button "Good response"
+- button "Bad response"
+- button "Branch into a new conversation"
+- text: {{clock}}
