@@ -204,6 +204,10 @@ export function ModelsSection(props: ModelsSectionProps): ReactNode {
 function Loaded({ injected, renderSlot }: { injected: ModelsSectionFace; renderSlot: ModelsRenderSlot }): ReactNode {
   const { controller, operations, schema, t } = injected
   const state = injected.useSnapshot(snapshot => snapshot)
+  /** A new or failed surface waits for a current snapshot; background refreshes preserve its drafts. */
+  const [hasReadySnapshot, setHasReadySnapshot] = useState(state.status === 'ready')
+  if (state.status === 'ready' && !hasReadySnapshot) setHasReadySnapshot(true)
+  if (state.status === 'error' && hasReadySnapshot) setHasReadySnapshot(false)
   const [editing, setEditing] = useState<EditorTarget | undefined>(undefined)
   const [adding, setAdding] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<EditorTarget | undefined>(undefined)
@@ -271,6 +275,15 @@ function Loaded({ injected, renderSlot }: { injected: ModelsSectionFace; renderS
         <button type="button" className={styles['secondaryButton']} onClick={() => { void controller.load() }}>
           {t('retry')}
         </button>
+      </div>
+    )
+  }
+
+  if (!hasReadySnapshot && state.status !== 'ready') {
+    return (
+      <div className={styles['section']}>
+        <h2 className={styles['title']}>{t('title')}</h2>
+        <p className={styles['intro']}>{t('intro')}</p>
       </div>
     )
   }
@@ -390,7 +403,9 @@ function Loaded({ injected, renderSlot }: { injected: ModelsSectionFace; renderS
                     type="button"
                     className={styles['secondaryButton']}
                     aria-label={providerCopy(t('editProvider'), target)}
+                    disabled={!open && state.status !== 'ready'}
                     onClick={() => {
+                      if (!open && controller.store.getSnapshot().status !== 'ready') return
                       setSavedTarget(undefined)
                       // One card at a time: leaving `declaring` set would show
                       // the create card beside this editor, and closing either
@@ -408,8 +423,9 @@ function Loaded({ injected, renderSlot }: { injected: ModelsSectionFace; renderS
                         type="button"
                         className={styles['dangerButton']}
                         aria-label={providerCopy(t('removeProvider'), target)}
-                        disabled={!state.writable}
+                        disabled={!state.writable || state.status !== 'ready'}
                         onClick={() => {
+                          if (controller.store.getSnapshot().status !== 'ready') return
                           setSavedTarget(undefined)
                           setDeleteFailure(undefined)
                           setDeleteTarget(target)
@@ -514,8 +530,9 @@ function Loaded({ injected, renderSlot }: { injected: ModelsSectionFace; renderS
                   <button
                     type="button"
                     className={styles['addButton']}
-                    disabled={addable.length === 0 || !state.writable}
+                    disabled={addable.length === 0 || !state.writable || state.status !== 'ready'}
                     onClick={() => {
+                      if (controller.store.getSnapshot().status !== 'ready') return
                       const first = addable[0]
                       /* v8 ignore next -- the button is disabled while nothing is addable */
                       if (first === undefined) return
@@ -533,8 +550,10 @@ function Loaded({ injected, renderSlot }: { injected: ModelsSectionFace; renderS
                   <button
                     type="button"
                     className={styles['addButton']}
-                    disabled={protocols.length === 0 || !state.writable}
+                    disabled={protocols.length === 0 || !state.writable || state.status !== 'ready'}
                     onClick={() => {
+                      /* v8 ignore next -- the button is disabled unless the schema names protocols; this covers a same-tick click */
+                      if (controller.store.getSnapshot().status !== 'ready') return
                       setSavedTarget(undefined)
                       setAdding(false)
                       setEditing(undefined)

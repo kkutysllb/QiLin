@@ -170,7 +170,9 @@ function scriptedFace(overrides: {
   const unset = overrides.unset ?? vi.fn(() => Promise.resolve(remoteOk(undefined)))
   const face = {
     llm: {
-      listProviders: vi.fn(() => Promise.resolve(remoteOk([
+      // Typed as the Remote answer rather than the success branch alone: a
+      // case that scripts a refusal replaces this mock.
+      listProviders: vi.fn((): ReturnType<PageContext['remote']['llm']['listProviders']> => Promise.resolve(remoteOk([
         { id: 'deepseek-official', name: 'DeepSeek' },
         { id: 'openai', name: 'openai' },
       ]))),
@@ -307,6 +309,87 @@ async function mountDeepSeekCard(overrides: Parameters<typeof scriptedFace>[0] =
 }
 
 describe('ModelsSection', () => {
+  it('withholds editors until the first current snapshot arrives', async () => {
+    const scripted = scriptedFace()
+    const ctx = ctxWith(scripted.face)
+    const controller = new ModelsSettingsStore(ctx, settingsSchema, new SettingsDescribeMirror(ctx))
+    const renderSlot = stubRenderSlot()
+    render(<ModelsSection
+      controller={controller}
+      useSnapshot={bindSnapshotSelector(controller.store)}
+      operations={operationsWith(scripted.face)}
+      schema={settingsSchema}
+      t={t}
+      renderSlot={renderSlot as unknown as ModelsSectionProps['renderSlot']}
+    />)
+    // The first paint has no current snapshot: the section holds its chrome and
+    // mounts no editor, so a draft cannot be built from stale directory data.
+    expect(screen.getByRole('heading', { name: en.title })).toBeTruthy()
+    expect(screen.queryByText(en.add)).toBeNull()
+    expect(screen.queryByText(en.edit)).toBeNull()
+    await act(async () => { await controller.load() })
+    await waitFor(() => { expect(screen.getByText(en.add)).toBeTruthy() })
+  })
+
+  it('gates provider actions while a background refresh is in flight', async () => {
+    const { face, controller } = await mountSection()
+    const add = screen.getByText<HTMLButtonElement>(en.add)
+    expect(add.disabled).toBe(false)
+    const gate = Promise.withResolvers<Extract<Awaited<ReturnType<typeof face.llm.listProviders>>, { ok: true }>>()
+    face.llm.listProviders.mockImplementationOnce(() => gate.promise)
+    let pending!: Promise<void>
+    await act(async () => { pending = controller.load() })
+    expect(controller.store.getSnapshot().status).toBe('loading')
+    // A stale row is not a base for edits, removals, or additions.
+    expect(screen.getByRole<HTMLButtonElement>('button', { name: en.add }).disabled).toBe(true)
+    expect(screen.getByRole<HTMLButtonElement>('button', { name: deepSeekCopy(en.editProvider) }).disabled).toBe(true)
+    expect(screen.getByRole('button', { name: openaiCopy(en.removeProvider) })).toHaveProperty('disabled', true)
+    await act(async () => {
+      gate.resolve(remoteOk([{ id: 'deepseek-official', name: 'DeepSeek' }, { id: 'openai', name: 'openai' }]))
+      await pending
+    })
+    expect(screen.getByRole<HTMLButtonElement>('button', { name: en.add }).disabled).toBe(false)
+  })
+
+  it('refuses an action that races the refresh in the same tick', async () => {
+    const { controller } = await mountSection()
+    const add = screen.getByText<HTMLButtonElement>(en.add)
+    const customAdd = screen.getByRole('button', { name: en.customAdd })
+    const edit = screen.getByRole('button', { name: openaiCopy(en.editProvider) })
+    const remove = screen.getByRole('button', { name: openaiCopy(en.removeProvider) })
+    act(() => {
+      // The status moves to loading with no paint in between, so the click still
+      // reaches the buttons the previous commit left enabled.
+      controller.store.update((state) => { state.status = 'loading' })
+      fireEvent.click(customAdd)
+      fireEvent.click(add)
+      fireEvent.click(edit)
+      fireEvent.click(remove)
+    })
+    expect(screen.queryByLabelText(en.provider)).toBeNull()
+    expect(screen.queryByRole('dialog')).toBeNull()
+    // The editor stayed closed, so no draft was built from the stale row.
+    expect(screen.queryByLabelText(en.keyInput)).toBeNull()
+  })
+
+  it('waits for a current snapshot after a failed load before remounting editors', async () => {
+    const { face, controller } = await mountFirstRun()
+    face.llm.listProviders.mockImplementationOnce(() => Promise.resolve(remoteFail('directory unavailable', 'gateway/internal')))
+    await act(async () => { await controller.load() })
+    expect(screen.getByText(`${en.loadFailed}: directory unavailable`)).toBeTruthy()
+    const gate = Promise.withResolvers<Extract<Awaited<ReturnType<typeof face.llm.listProviders>>, { ok: true }>>()
+    face.llm.listProviders.mockImplementationOnce(() => gate.promise)
+    fireEvent.click(screen.getByRole('button', { name: en.retry }))
+    // Retrying drops the stale-snapshot acceptance: the setup card stays down
+    // until the directory answers again.
+    await waitFor(() => { expect(screen.queryByLabelText(en.keyInput)).toBeNull() })
+    expect(screen.getByRole('heading', { name: en.title })).toBeTruthy()
+    await act(async () => {
+      gate.resolve(remoteOk([{ id: 'deepseek-official', name: 'DeepSeek' }, { id: 'openai', name: 'openai' }]))
+    })
+    await waitFor(() => { expect(screen.getByLabelText(en.keyInput)).toBeTruthy() })
+  })
+
   it('hides both add actions when their settings namespaces are absent', async () => {
     const scripted = scriptedFace()
     scripted.face.settings.describe.mockResolvedValue(remoteOk({ writable: true, hasDocument: false, namespaces: [] }))
@@ -1383,7 +1466,7 @@ describe('ModelsSection', () => {
 
   it('renders the load failure with a retry control', async () => {
     const face = scriptedFace()
-    face.face.llm.listProviders = vi.fn(() => Promise.resolve(remoteFail('directory down', 'gateway/internal'))) as never
+    face.face.llm.listProviders = vi.fn(() => Promise.resolve(remoteFail('directory down', 'gateway/internal')))
     const controller = new ModelsSettingsStore(
       ctxWith(face.face), settingsSchema, new SettingsDescribeMirror(ctxWith(face.face)))
     await controller.load()
