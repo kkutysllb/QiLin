@@ -29,9 +29,12 @@
 /qilin-agent-system-prompt/use-this-package/contribute-tool-schemas:
   en: 009ef267dac2f270
   zh: e79c24bff5cd836f
+/qilin-agent-system-prompt/use-this-package/contribute-dynamic-context:
+  en: 4365bc4a5d228bb2
+  zh: 1e23544beca040e0
 /qilin-agent-system-prompt/use-this-package/suppress-runtime-context:
-  en: 61e2c1a3f18b48dd
-  zh: 29ecab2639f60103
+  en: 9104a137c8fef881
+  zh: 44edd0a101210473
 /qilin-agent-system-prompt/understand-the-implementation:
   en: ce7e776e9d516bdb
   zh: 59d2751743db7795

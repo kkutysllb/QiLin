@@ -77,9 +77,13 @@ ctx.systemPrompt.variable('cwd', ({ agent }) => agent?.session.header.cwd)
 
 工具 schema 提供方在每次组装时求值，并贡献模型可见的 `ToolSchema` 集合；`ToolRuntime` 会自动注册自身，因此大多数工具在此无需手动接线。提供方返回限制后的可见集合，外加 `toolOrder` 使用的限制前名称全集。
 
+### 贡献动态上下文
+
+`context()` 把一条运行时事实注册为 `PromptContext`。`interpolate: false` 保留其字面文本，`required: true` 使其在可选运行时上下文被关闭或抑制时仍然保留。assembly 按 `order` 升序解析已注册贡献；`refreshContext()` 在请求准入时重新解析它们，因此装配之后才变化的事实（目录变更、权限变更）能在同一次请求内到达模型，而无需重新装配 section、tool 或 variable。
+
 ### 抑制运行时上下文
 
-`suppressRuntimeContext()` 移除调用作用域的所有动态运行时上下文贡献，但不禁用拥有底层事实的服务；多个抑制器独立组合，当不再存在抑制器时该 effect 会恢复上下文。
+`suppressRuntimeContext()` 移除调用作用域的**可选**动态运行时上下文贡献，但不禁用拥有底层事实的服务；`required: true` 的贡献会保留。多个抑制器独立组合，当不再存在抑制器时该 effect 会恢复上下文。
 
 -----
 

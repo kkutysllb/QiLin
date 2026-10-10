@@ -77,9 +77,13 @@ ctx.systemPrompt.variable('cwd', ({ agent }) => agent?.session.header.cwd)
 
 Tool-schema providers are evaluated per assembly and contribute the model-visible `ToolSchema` set; `ToolRuntime` registers itself automatically, so most tools need no manual wiring here. A provider returns the post-restriction visible set plus the pre-restriction name universe used by `toolOrder`.
 
+### Contribute dynamic context
+
+`context()` registers a runtime fact as a `PromptContext`. `interpolate: false` keeps its text literal, and `required: true` keeps it when optional runtime context is disabled or suppressed. The assembly resolves registered contributions in ascending `order`; `refreshContext()` re-resolves them at request admission, so a fact that moved after assembly (a directory change, a permission change) reaches the same request without reassembling sections, tools, or variables.
+
 ### Suppress runtime context
 
-`suppressRuntimeContext()` removes every dynamic runtime-context contribution for the calling scope without disabling the services that own the underlying facts; multiple suppressors compose and the effect restores context when none remains.
+`suppressRuntimeContext()` removes every optional dynamic runtime-context contribution for the calling scope without disabling the services that own the underlying facts; `required: true` contributions remain. Multiple suppressors compose and the effect restores context when none remains.
 
 -----
 

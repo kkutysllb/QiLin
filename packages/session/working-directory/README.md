@@ -56,7 +56,7 @@ The Session projection owns the effective directory and exposes it in Session ob
 
 #### What the model sees
 
-The current value is `Current working directory: <JSON-quoted absolute path>.` Each committed change, including automatic recovery, attempts to queue a user-context notice through the ordinary Agent inbox. Cancellation or disposal may discard unadmitted notices; the durable directory remains available to the next request.
+The current value is `Current working directory: <JSON-quoted absolute path>.` The contribution is registered as required and literal: it survives disabled or suppressed optional runtime context, its text is never interpolated as prompt variables, and `refreshContext()` re-resolves it at request admission so a change made after assembly still reaches the same request. Each committed change, including automatic recovery, attempts to queue a user-context notice through the ordinary Agent inbox. Cancellation or disposal may discard unadmitted notices; the durable directory remains available to the next request.
 
 #### Token effect
 

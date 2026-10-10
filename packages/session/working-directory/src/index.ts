@@ -90,6 +90,8 @@ export class WorkingDirectoryService extends Service {
     ctx.systemPrompt.context({
       name: 'working-directory:current',
       order: ctx.systemPrompt.getContextOrder('WORKING_DIRECTORY'),
+      required: true,
+      interpolate: false,
       text: context => context.agent === undefined ? '' : this.contextText(context.agent.session),
     })
     ctx.on('system-prompt/assemble', async (_assembly, context, next) => {
@@ -99,8 +101,11 @@ export class WorkingDirectoryService extends Service {
       this.lifecycle.signal.throwIfAborted()
       const text = this.contextText(context.agent.session)
       const contribution = assembly.contexts.find(entry => entry.name === 'working-directory:current')
-      if (contribution === undefined) assembly.contexts.unshift({ name: 'working-directory:current', text })
-      else contribution.text = text
+      if (contribution === undefined) assembly.contexts.unshift({ name: 'working-directory:current', text, interpolate: false })
+      else {
+        contribution.text = text
+        contribution.interpolate = false
+      }
       return assembly
     }, { prepend: true })
     ctx.effect(() => async () => {
@@ -123,6 +128,7 @@ export class WorkingDirectoryService extends Service {
    * @param agent - live or unpublished Agent owning the Session.
    * @param signal - cancellation for filesystem inspection.
    * @returns the existing directory; recovery is committed before fulfillment.
+   * A notice failure is warned without reverting the committed state.
    * @throws when the original project is also unavailable.
    */
   ensure(agent: Agent, signal?: AbortSignal): Promise<string> {
@@ -151,6 +157,7 @@ export class WorkingDirectoryService extends Service {
    * @param path - absolute path or a path relative to its current directory.
    * @param signal - cancellation before the durable change.
    * @returns the canonical absolute directory, committed before fulfillment.
+   * A notice failure is warned; the next request still receives the committed directory.
    * @throws when the requested path is not an existing directory.
    */
   set(agent: Agent, path: string, signal?: AbortSignal): Promise<string> {
