@@ -34,7 +34,6 @@ export class TeamMailbox {
    * @param journal - authoritative Lead-log transaction owner.
    * @param roster - Team membership and member-name resolver.
    * @param lifecycle - shared Team runtime admission cutoff.
-   * @param maxPendingMessagesPerMember - per-target queued-minus-delivered limit.
    * @param maxMessageBytes - maximum complete sender-framed delivery size.
    */
   constructor(
@@ -42,7 +41,6 @@ export class TeamMailbox {
     private readonly journal: TeamJournal,
     private readonly roster: TeamRoster,
     private readonly lifecycle: TeamRuntimeLifecycle,
-    private readonly maxPendingMessagesPerMember: number,
     private readonly maxMessageBytes: number,
   ) {}
 
@@ -119,14 +117,6 @@ export class TeamMailbox {
       const state = this.journal.state(root)
       const target = resolveActiveMember(root, state, request.target)
       if (target.id === caller.id) throw new TeamError('a Team member cannot message itself', 'TEAM_SELF_MESSAGE')
-      const pendingForTarget = state.messages.filter(candidate =>
-        candidate.targetId === target.id && !state.delivered.includes(candidate.id)).length
-      if (pendingForTarget >= this.maxPendingMessagesPerMember) {
-        throw new TeamError(
-          `teammate "${target.name}" has ${pendingForTarget} pending messages`,
-          'TEAM_MAILBOX_FULL',
-        )
-      }
       const queued: TeamMessageSnapshot = {
         id: TeamMessageId(`team-message-${randomUUID()}`),
         senderId: caller.id,

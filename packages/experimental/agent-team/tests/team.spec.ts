@@ -159,7 +159,6 @@ describe('Team identity and provisioning', () => {
     const fields = [
       'maxMembers',
       'maxTasks',
-      'maxPendingMessagesPerMember',
       'maxMessageBytes',
       'disposalTimeoutMs',
     ] as const
@@ -906,7 +905,7 @@ describe('Team mailbox and waiting', () => {
   })
 
   it('acknowledges steered messages persisted by a busy Lead before model claim', async () => {
-    const { ctx, lead, teamFiber } = await setup(['hang', 'hang'], { maxPendingMessagesPerMember: 1 })
+    const { ctx, lead, teamFiber } = await setup(['hang', 'hang'])
     const started = await spawn(ctx, lead, 'lead-reporter')
     const reporter = await waitRunning(ctx, started.member.id)
     lead.followup(createUserMessage({ content: content('keep the Lead busy'), source: { kind: 'user' } }))
@@ -945,7 +944,7 @@ describe('Team mailbox and waiting', () => {
       && event.data.inserted.some(message => message.source.kind === 'team-message'
         && messageIds.has(message.source.messageId))).length
     await teamFiber.dispose()
-    await ctx.plugin(TeamService, { maxPendingMessagesPerMember: 1 })
+    await ctx.plugin(TeamService)
     await vi.waitFor(() => { expect(durable(lead).pendingMessages).toEqual([]) })
     expect(lead.session.snapshotEvents().filter(event => event.type === 'agent/inbox/spliced'
       && event.data.inserted.some(message => message.source.kind === 'team-message'
@@ -1042,7 +1041,7 @@ describe('Team mailbox and waiting', () => {
   })
 
   it('acknowledges steered messages accepted by a busy target inbox', async () => {
-    const { ctx, lead } = await setup(['hang'], { maxPendingMessagesPerMember: 1 })
+    const { ctx, lead } = await setup(['hang'])
     const started = await spawn(ctx, lead, 'busy-target')
     const target = await waitRunning(ctx, started.member.id)
     const flush = ctx.sessions.flush.bind(ctx.sessions)
@@ -1304,11 +1303,8 @@ describe('Team mailbox and waiting', () => {
     await waitNoAgent(ctx, alpha.id)
   })
 
-  it('enforces message byte and pending-count limits without encouraging retry after enqueue', async () => {
-    const { ctx, lead } = await setup([textResponse('idle')], {
-      maxMessageBytes: 256,
-      maxPendingMessagesPerMember: 1,
-    })
+  it('enforces the message byte limit without encouraging retry after enqueue', async () => {
+    const { ctx, lead } = await setup([textResponse('idle')], { maxMessageBytes: 256 })
     const target = await spawn(ctx, lead, 'target')
     await waitNoAgent(ctx, target.member.id)
     await expect(ctx.agentTeams.sendMessage(lead, {
@@ -1319,9 +1315,10 @@ describe('Team mailbox and waiting', () => {
       target: 'target', content: content('one'), signal: SIGNAL,
     })
     expect(queued.status).toBe('queued')
-    await expect(ctx.agentTeams.sendMessage(lead, {
+    // A later message is admitted again once the transient read failure clears.
+    expect((await ctx.agentTeams.sendMessage(lead, {
       target: 'target', content: content('two'), signal: SIGNAL,
-    })).rejects.toMatchObject({ code: 'TEAM_MAILBOX_FULL' })
+    })).status).toBe('accepted')
     await expect(ctx.agentTeams.sendMessage(lead, {
       target: 'lead', content: content('self'), signal: SIGNAL,
     })).rejects.toMatchObject({ code: 'TEAM_SELF_MESSAGE' })

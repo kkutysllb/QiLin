@@ -50,7 +50,6 @@ kind: "package-reference"
 |---|---|---|
 | `maxMembers` | `16` | 一支团队最多可创建的 teammate 数，包括失败的 |
 | `maxTasks` | `256` | 任务板上最多的活动任务数 |
-| `maxPendingMessagesPerMember` | `64` | 单个成员最多可排队的消息数 |
 | `maxMessageBytes` | `65,536` | 单条发送消息的最大尺寸 |
 | `disposalTimeoutMs` | `5,000` | 关闭清理允许的时间 |
 
