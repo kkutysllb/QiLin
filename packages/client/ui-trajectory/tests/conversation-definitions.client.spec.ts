@@ -362,9 +362,12 @@ describe('Trajectory conversation Definitions', () => {
       blocks: [{ kind: 'text', text: 'done' }],
       timing: { firstTokenTime: 3_000 },
     })
+    // A retried request keeps its last failed attempt visible after recovery.
     expect(finalizedPacked.requests).toMatchObject([{
       purpose: 'assistant',
       retry: 1,
+      error: 'temporary failure',
+      errorCode: 'TRANSPORT',
     }])
 
     const windowed = assembler(finalizedInputs.slice(2), true)
