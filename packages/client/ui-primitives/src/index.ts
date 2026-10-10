@@ -2,6 +2,15 @@
  * Cordis-free React primitives styled only through `--qilin-*` tokens.
  */
 
+export { SettingsForm } from './settings-form/SettingsForm.tsx'
+export type { SettingsFormLabels, SettingsFormProps } from './settings-form/SettingsForm.tsx'
+export { SettingsSecretField, SettingsValueField } from './settings-form/fields.tsx'
+export type { SettingsFieldProps } from './settings-form/fields.tsx'
+export { SettingsFormModel, settingsNumberField, settingsTextField } from './settings-form/form-model.ts'
+export type {
+  SettingsFieldSpec, SettingsFieldState, SettingsFieldWrite, SettingsFormActions, SettingsFormPathOp, SettingsFormScope,
+  SettingsFormScopeSnapshot, SettingsFormShell, SettingsSecretSpec,
+} from './settings-form/form-model.ts'
 export { CommandText } from './CommandText.tsx'
 export type { CommandTextProps } from './CommandText.tsx'
 export { StateDot } from './StateDot.tsx'

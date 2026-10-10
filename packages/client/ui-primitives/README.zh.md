@@ -48,6 +48,7 @@ kind: "package-library"
 | `StateDot` | 状态标记：`done`、`warning`、`ongoing`、`error` 或 `idle`。它是 `aria-hidden` 的，名称由渲染点提供。 |
 | `ConnectionIndicator` | 行内连接恢复控件，覆盖断线、重试与已恢复三种状态。 |
 | `DisclosureRow` | 24px 紧凑折叠行，标题与内容左右排列。 |
+| `CommandText` | 一行命令文本：仅在横向溢出时才获得 Tab 停靠、group 角色与可访问名。 |
 | `Modal` | 页面遮罩之上的居中对话框。 |
 | `RiskConfirmation` | 以显式复选框把关的敏感操作确认。 |
 | `OnboardingSurface` | 首次运行的引导舞台，期间保持应用根节点 inert。 |
@@ -58,6 +59,7 @@ kind: "package-library"
 | `JsonTree`、`JsonBlock` | 只读 JSON 查看。 |
 | `MarkdownText`、`MarkdownDelegateProvider`、`CodeBlock` | 不可信 GFM 与 TeX 数学、owner 委托的 HTTP(S) 导航，以及高亮代码。`CodeBlock` 可通过 `lineNumbers` 开启行号；复制的源码不含行号栏，`contentRef` 则向需要把稳定源码包装节点用作滚动区的 owner 提供该节点。调用方提供自己的语言与复制工具栏时，设置 `showHeader={false}`。 |
 | `TerminalBlock`、`ReadBlock`、`DiffBlock`、`SearchBlock`、`WebBlock` | 与各类工具结果意图对应的 agent 输出卡片。 |
+| `SettingsForm`、`SettingsValueField`、`SettingsSecretField` | 基于 `SettingsFormModel` 的分阶段配置表单：字段如实报告读者输入，保存是草稿变成文档变更的唯一入口。 |
 | `icons/*`、`QilinSeal`、`ReferenceIcon`、`LinkIcon` | 字形与品牌标识。`LinkIcon` 用于 14px 的可点击链接分类及已知站点标记。 |
 | `FileTypeIcon`、`classifyFileType`、`fileExtension` | 按类别着色的 28px 文件或文件夹图形，以及它背后共享的不区分大小写文件名映射。代码与配置文件使用细分的全彩技术图形；链接前置图形使用 `LinkIcon`，图片内容使用图片预览。 |
 
@@ -109,6 +111,8 @@ kind: "package-library"
 | [`src/index.ts`](src/index.ts) | 原子组件公开导出 |
 | [`src/markdown/`](src/markdown/) | Markdown 与数学公式流水线：micromark 解析、KaTeX 排版、增量流式渲染器、`CodeBlock`/`JsonBlock` |
 | [`src/TerminalBlock.tsx`](src/TerminalBlock.tsx) | ANSI 转义解析（`anser`）与终端卡片渲染 |
+| [`src/CommandText.tsx`](src/CommandText.tsx) | 单行命令的横向滚动区，以及仅在溢出时出现的可访问名 |
+| [`src/settings-form/`](src/settings-form/) | 分阶段配置表单、其字段控件，以及背后的草稿/写入模型 |
 | [`src/ReadBlock.tsx`](src/ReadBlock.tsx) / [`src/DiffBlock.tsx`](src/DiffBlock.tsx) | 读取与差异卡片 |
 | [`src/SearchBlock.tsx`](src/SearchBlock.tsx) / [`src/WebBlock.tsx`](src/WebBlock.tsx) | 搜索与网页检索卡片 |
 | [`src/icons/`](src/icons/) | `ic_ds_*` 字形组件与品牌标记 |

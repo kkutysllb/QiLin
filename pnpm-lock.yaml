@@ -4153,6 +4153,9 @@ importers:
 
   packages/client/ui-primitives:
     devDependencies:
+      '@qilin-agent/client-store':
+        specifier: workspace:*
+        version: link:../store
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis

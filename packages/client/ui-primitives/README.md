@@ -48,6 +48,7 @@ Check this table before writing a control in a feature package. A plugin cannot 
 | `StateDot` | Status mark: `done`, `warning`, `ongoing`, `error`, or `idle`. `aria-hidden`, so the render site owns the name. |
 | `ConnectionIndicator` | Inline connection-recovery control across outage, retry, and recovered states. |
 | `DisclosureRow` | 24px compact disclosure that lays title and content side by side. |
+| `CommandText` | One command line, gaining a Tab stop, a group role, and its accessible name only while it overflows horizontally. |
 | `Modal` | Centered dialog over a page mask. |
 | `RiskConfirmation` | Sensitive action gated behind an explicit checkbox. |
 | `OnboardingSurface` | First-run stage that holds the application root inert. |
@@ -58,6 +59,7 @@ Check this table before writing a control in a feature package. A plugin cannot 
 | `JsonTree`, `JsonBlock` | Read-only JSON inspection. |
 | `MarkdownText`, `MarkdownDelegateProvider`, `CodeBlock` | Untrusted GFM with TeX math, Mermaid diagrams, owner-delegated HTTP(S) navigation, and highlighted code. `CodeBlock` accepts opt-in `lineNumbers`; copied source excludes the gutter, and `contentRef` exposes its stable source wrapper to an owner that uses it as a scrollport. Set `showHeader={false}` when the owner supplies its own language and copy toolbar. |
 | `TerminalBlock`, `ReadBlock`, `DiffBlock`, `SearchBlock`, `WebBlock` | The agent-output card matching each tool-result intent. |
+| `SettingsForm`, `SettingsValueField`, `SettingsSecretField` | Staged configuration form over `SettingsFormModel`: fields report what the reader typed, and its save is the single point where a draft becomes a document mutation. |
 | `icons/*`, `QilinSeal`, `ReferenceIcon`, `LinkIcon` | Glyphs and brand marks. Use `LinkIcon` for 14px clickable-link categories and known-site marks. |
 | `FileTypeIcon`, `classifyFileType`, `fileExtension` | A category-colored 28px file or folder glyph and the shared case-insensitive filename mapping behind it. Code and configuration files use detailed full-color technology glyphs; use `LinkIcon` for link-leading glyphs and image previews for image content. |
 
@@ -109,6 +111,8 @@ The package enforces one separation: presentational React atoms with zero Kylin 
 | [`src/index.ts`](src/index.ts) | Public atom exports |
 | [`src/markdown/`](src/markdown/) | Markdown and math pipeline: micromark parsing, KaTeX typesetting, incremental streaming renderer, `CodeBlock`/`JsonBlock` |
 | [`src/TerminalBlock.tsx`](src/TerminalBlock.tsx) | ANSI escape parsing (`anser`) and terminal card rendering |
+| [`src/CommandText.tsx`](src/CommandText.tsx) | One command line's horizontal scrollport and its overflow-only accessible name |
+| [`src/settings-form/`](src/settings-form/) | Staged configuration form, its field controls, and the draft/write model behind them |
 | [`src/ReadBlock.tsx`](src/ReadBlock.tsx) / [`src/DiffBlock.tsx`](src/DiffBlock.tsx) | Read and diff cards |
 | [`src/SearchBlock.tsx`](src/SearchBlock.tsx) / [`src/WebBlock.tsx`](src/WebBlock.tsx) | Search and web-retrieval cards |
 | [`src/icons/`](src/icons/) | `ic_ds_*` glyph components and brand marks |
