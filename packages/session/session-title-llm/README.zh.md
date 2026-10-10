@@ -29,9 +29,9 @@ kind: "package-library"
 
 ### 注册提供方
 
-提供方插件调用 `registerSessionTitleLlmProvider(ctx, config, id, automatic, selectMessages)`；辅助函数验证共享配置、在 `ctx.sessionTitle` 上注册提供方，并让每次生成都经过共享策略。两个随附插件以各自的 `first-prompt` 与 `all-prompts` 节奏和消息选择器注册；服务上的第二次注册会立即抛出。
+提供方插件自己在 `ctx.sessionTitle` 上注册，并拥有自己的提示词、框入、标题长度目标、推理选择与输出解释；本模块只验证并拥有共享执行策略——路由解析、预算、请求记录、取消与流装配——经 `executeSessionTitleLlm(ctx, config, request, id, prepared)` 执行。两个随附插件各自注册 `first-prompt` 与 `all-prompts` 节奏；服务上的第二次注册会立即抛出。
 
-对 `all-prompts`，辅助函数还会在标题由提供方生成时一并提供当前标题（包括从 first-prompt 提供方继承来的标题）；回落标题与用户提供的标题不进入该输入。标题作为数据与消息一起被框入，并附带「足够准确的标题保持原样」的稳定性指令。`first-prompt` 节奏只使用自己选中的消息。
+`request.currentTitle` 携带最近一次被接受的标题（包括其事件可能晚于最后一条合格消息的回落标题），由提供方决定是否以其为锚点。随附的 `all-prompts` 提供方只以「来源为提供方」的标题为锚（含从 first-prompt 提供方继承的标题），把它作为数据与消息一起框入，并附带「足够准确的标题保持原样」的稳定性指令；回落标题与用户标题永不作为锚点。`first-prompt` 节奏只使用自己的第一条消息。
 
 ### 路由与失败约定
 
@@ -45,9 +45,7 @@ kind: "package-library"
 
 | 键 | 默认值 | 含义 |
 |---|---|---|
-| `targetWords` | 必填 | 非 CJK 标题的目标词数 |
-| `targetCjkCharacters` | 必填 | 中文、日文或韩文标题的目标字符数 |
-| `maxInputBytes` | 必填 | 最终 JSON 封装用户提示词的 UTF-8 字节上限 |
+| `maxInputBytes` | 必填 | 提供方准备的用户输入的 UTF-8 字节上限 |
 | `maxOutputTokens` | 必填 | 辅助生成的 token 上限 |
 | `timeoutMs` | 必填 | 运行时定时器限制内的端到端时限 |
 | `provider`, `model` | 可选 | 显式路由；二者同时提供或同时省略 |

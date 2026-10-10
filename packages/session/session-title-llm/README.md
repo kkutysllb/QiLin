@@ -29,9 +29,9 @@ As a deployment, configure this policy through the [first-prompt](../session-tit
 
 ### Registering a provider
 
-A provider plugin calls `registerSessionTitleLlmProvider(ctx, config, id, automatic, selectMessages)`; the helper validates the shared config, registers the provider on `ctx.sessionTitle`, and runs every generation through the shared policy. The two shipped plugins register the `first-prompt` and `all-prompts` cadences with their message selectors, and a second registration on the service throws.
+A provider plugin registers itself on `ctx.sessionTitle` and owns its prompt, framing, title-length targets, reasoning choice, and output interpretation; this module validates and owns only the shared execution policy — route preparation, budgets, the request record, cancellation, and stream assembly — through `executeSessionTitleLlm(ctx, config, request, id, prepared)`. The two shipped plugins register the `first-prompt` and `all-prompts` cadences themselves, and a second registration on the service throws.
 
-For `all-prompts`, the helper also supplies the current title when a provider generated it, including a title inherited from the first-prompt provider. It excludes fallback and user-supplied titles from this input, frames the title as data alongside the messages, and adds the stability instructions that keep an adequate title unchanged. The first-prompt cadence uses only its selected messages.
+`request.currentTitle` carries the latest accepted title, including a fallback whose event may follow the last eligible message; a provider decides whether to anchor on it. The shipped `all-prompts` provider anchors only on a provider-generated title, including one inherited from the first-prompt provider, frames it as data alongside the messages, and adds the stability instructions that keep an adequate title unchanged; fallback and user-supplied titles never anchor it. The first-prompt cadence uses only its first selected message.
 
 ### Route and failure contract
 
@@ -45,9 +45,7 @@ Every field is required except the paired route override; there are no library d
 
 | Key | Default | Meaning |
 |---|---|---|
-| `targetWords` | required | Target word count for non-CJK titles |
-| `targetCjkCharacters` | required | Target character count for Chinese, Japanese, or Korean titles |
-| `maxInputBytes` | required | UTF-8 byte ceiling for the final JSON-framed user prompt |
+| `maxInputBytes` | required | UTF-8 byte ceiling for the provider-prepared user input |
 | `maxOutputTokens` | required | Auxiliary generation token cap |
 | `timeoutMs` | required | End-to-end deadline within the runtime timer limit |
 | `provider`, `model` | optional | Explicit route; both or neither |

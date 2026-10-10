@@ -43,7 +43,34 @@ export const Config: z<Config> = z.object({
 })
 
 /** Validated immutable provider policy. */
-type ResolvedConfig = ResolvedSessionTitleLlmConfig
+
+/** Validated immutable provider policy: the shared execution controls plus this provider's targets. */
+interface ResolvedConfig extends ResolvedSessionTitleLlmConfig {
+  readonly targetWords: number
+  readonly targetCjkCharacters: number
+}
+
+/** Validate one positive title-length target. */
+function assertTarget(name: 'targetWords' | 'targetCjkCharacters', value: number): number {
+  if (!Number.isInteger(value) || value <= 0) {
+    throw new Error(`session-title-all-prompts-llm: ${name} must be a positive integer`)
+  }
+  return value
+}
+
+/**
+ * Validate the shared execution controls and this provider's title-length targets.
+ * @param config - untrusted plugin configuration.
+ * @returns immutable provider policy.
+ */
+function resolveConfig(config: Config): ResolvedConfig {
+  const { targetWords, targetCjkCharacters, ...execution } = config
+  return {
+    ...resolveSessionTitleLlmConfig(execution),
+    targetWords: assertTarget('targetWords', targetWords),
+    targetCjkCharacters: assertTarget('targetCjkCharacters', targetCjkCharacters),
+  }
+}
 
 /**
  * This provider keeps the route's normal default reasoning effort: the
@@ -128,7 +155,7 @@ function titleFromResponse(response: SessionTitleLlmResponse): string {
  * @param config - required route, target, byte, token, and timeout policy.
  */
 export function apply(ctx: Context, config: Config): void {
-  const resolved = resolveSessionTitleLlmConfig(config)
+  const resolved = resolveConfig(config)
   const titleProvider = SessionTitleProviderId(name)
   ctx.sessionTitle.register({
     id: titleProvider,

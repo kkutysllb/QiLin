@@ -19,16 +19,10 @@ import { ReasoningEffortId } from '@qilin-agent/llm'
 import { deadline, MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 import { assertNever, deepFreeze } from '@qilin-agent/util-values'
 import type { SessionSeq } from '@qilin-agent/session'
-import {
-  normalizeSessionTitle,
-  SessionTitleProviderId,
-} from '@qilin-agent/session-title'
+import { SessionTitleProviderId } from '@qilin-agent/session-title'
 import type {
-  SessionTitleAutomaticMode,
   SessionTitleModelIdentity,
   SessionTitleProviderRequest,
-  SessionTitleProviderResult,
-  SessionTitleUserMessage,
 } from '@qilin-agent/session-title'
 
 /** Exact model-visible request recorded before one auxiliary title dispatch. */
@@ -59,11 +53,7 @@ export const SESSION_TITLE_TIMEOUT_CODE = 'SESSION_TITLE_TIMEOUT'
 
 /** Required deployment policy for one model-backed title plugin. */
 export interface SessionTitleLlmConfig {
-  /** Target word count for non-CJK titles. */
-  readonly targetWords: number
-  /** Target character count for Chinese, Japanese, or Korean titles. */
-  readonly targetCjkCharacters: number
-  /** Maximum UTF-8 bytes in the final JSON-framed user prompt. */
+  /** Maximum UTF-8 bytes in the provider-prepared user input. */
   readonly maxInputBytes: number
   /** Auxiliary generation output-token cap. */
   readonly maxOutputTokens: number
@@ -80,8 +70,6 @@ export interface ResolvedSessionTitleLlmConfig extends SessionTitleLlmConfig {}
 
 /** Shared Loader field schemas with no library defaults. */
 export const SessionTitleLlmConfigFields = {
-  targetWords: z.number().step(1).min(1).required(),
-  targetCjkCharacters: z.number().step(1).min(1).required(),
   maxInputBytes: z.number().step(1).min(1).required(),
   maxOutputTokens: z.number().step(1).min(1).required(),
   timeoutMs: z.number().step(1).min(1).max(MAX_TIMER_DELAY_MS).required(),
@@ -94,8 +82,6 @@ export const SessionTitleLlmConfigSchema: z<SessionTitleLlmConfig> = z.object(Se
 
 /** Complete configuration key set for direct construction validation. */
 const CONFIG_KEYS: ReadonlySet<string> = new Set([
-  'targetWords',
-  'targetCjkCharacters',
   'maxInputBytes',
   'maxOutputTokens',
   'timeoutMs',
@@ -126,8 +112,6 @@ export function resolveSessionTitleLlmConfig(
   for (const key of Object.keys(value)) {
     if (!CONFIG_KEYS.has(key)) throw new Error(`session-title-llm: unknown config key "${key}"`)
   }
-  assertPositiveInteger('targetWords', value.targetWords)
-  assertPositiveInteger('targetCjkCharacters', value.targetCjkCharacters)
   assertPositiveInteger('maxInputBytes', value.maxInputBytes)
   assertPositiveInteger('maxOutputTokens', value.maxOutputTokens)
   assertPositiveInteger('timeoutMs', value.timeoutMs)
@@ -146,11 +130,6 @@ export function resolveSessionTitleLlmConfig(
   }
   return deepFreeze({ ...value })
 }
-
-/** Select the provider-owned message subset from one fixed service revision. */
-export type SessionTitleLlmMessageSelector = (
-  messages: readonly SessionTitleUserMessage[],
-) => readonly SessionTitleUserMessage[]
 
 /**
  * Provider-prepared model input, source-message attribution, and the
@@ -185,42 +164,6 @@ export interface SessionTitleLlmResponse {
   readonly model: SessionTitleModelIdentity
 }
 
-/**
- * Register one model-backed provider through the shared configuration and call policy.
- * @param ctx - context exposing the title and LLM services.
- * @param config - untrusted required deployment policy.
- * @param id - stable plugin id recorded with generated titles.
- * @param automatic - provider-owned automatic generation cadence.
- * @param selectMessages - exact source-message selection for one revision.
- */
-export function registerSessionTitleLlmProvider(
-  ctx: Context,
-  config: SessionTitleLlmConfig,
-  id: string,
-  automatic: SessionTitleAutomaticMode,
-  selectMessages: SessionTitleLlmMessageSelector,
-): void {
-  const resolved = resolveSessionTitleLlmConfig(config)
-  const titleProvider = SessionTitleProviderId(id)
-  ctx.sessionTitle.register({
-    id: titleProvider,
-    automatic,
-    async generate(request) {
-      // Only the all-prompts cadence may preserve an existing title: a provider
-      // title inherited from the first-prompt provider still counts as current.
-      const current = automatic === 'all-prompts' ? ctx.sessionTitle.get(request.session) : undefined
-      return generateSessionTitleWithLlm(
-        ctx,
-        resolved,
-        request,
-        selectMessages(request.messages),
-        titleProvider,
-        current?.source.kind === 'provider' ? current.title : undefined,
-      )
-    },
-  })
-}
-
 /** Resolve the explicit pair or the exact route captured from `request/header`. */
 function resolveRoute(
   config: ResolvedSessionTitleLlmConfig,
@@ -233,30 +176,6 @@ function resolveRoute(
     throw new Error('session-title-llm: no logged request route is available; configure provider and model together')
   }
   return request.route
-}
-
-/** Stable language-aware system instruction shared by both provider plugins. */
-function systemPrompt(config: ResolvedSessionTitleLlmConfig, hasCurrentTitle: boolean): string {
-  return [
-    'Create a concise title for an AI coding-assistant session from the supplied human messages.',
-    'Return only the title on one line, **in plain text of natural language**, with no quotes, prefix, explanation, Markdown, XML, or terminal control codes. No code is allowed.',
-    'Use the language of the messages.',
-    `Aim for about ${config.targetWords} words in non-CJK languages or ${config.targetCjkCharacters} CJK characters.`,
-    ...hasCurrentTitle ? [
-      'An existing title is supplied as currentTitle. If it still accurately describes the main topic or task, return it exactly unchanged.',
-      'Follow-up questions, additional details within the same topic, acknowledgements such as "thanks", and requests to continue do not by themselves justify a title change.',
-      'Do not reword, polish, shorten, or replace synonyms in an adequate title. Keeping its exact wording takes priority over the target length.',
-      'Change the title only when the messages materially change or expand the main topic or task so that the existing title is no longer accurate.',
-    ] : [],
-  ].join('\n')
-}
-
-/** Frame exact messages as JSON so user text cannot break structural delimiters. */
-function frameMessages(messages: readonly SessionTitleUserMessage[], currentTitle?: string): string {
-  if (currentTitle !== undefined) {
-    return `Update the session title from this JSON object:\n${JSON.stringify({ currentTitle, messages })}`
-  }
-  return `Generate the session title from this JSON array of human messages:\n${JSON.stringify(messages)}`
 }
 
 /**
@@ -350,49 +269,4 @@ export async function executeSessionTitleLlm(
   callDeadline.signal.throwIfAborted()
   const finish = terminalFinish(assembler.finish)
   return { blocks: assembler.blocks(), finish, model: route }
-}
-
-/**
- * Generate one title through the shared auxiliary LLM call.
- * @param ctx - context exposing the registered LLM service.
- * @param config - validated model-provider policy.
- * @param request - service-owned session, route, message snapshot, and cancellation.
- * @param selectedMessages - exact provider-selected subset to frame and attribute.
- * @param titleProvider - registered title-provider identity recorded with the request.
- * @param currentTitle - existing model-generated title to preserve while it still describes the main topic.
- * @returns normalized non-empty title, exact source seqs, and used model route.
- */
-export async function generateSessionTitleWithLlm(
-  ctx: Context,
-  config: ResolvedSessionTitleLlmConfig,
-  request: SessionTitleProviderRequest,
-  selectedMessages: readonly SessionTitleUserMessage[],
-  titleProvider: SessionTitleProviderId,
-  currentTitle?: string,
-): Promise<SessionTitleProviderResult> {
-  const messageSeqs = selectedMessages.map(message => message.seq)
-  request.signal.throwIfAborted()
-  if (messageSeqs.length === 0) {
-    throw new Error('session-title-llm: at least one source message is required')
-  }
-  const { blocks, finish, model } = await executeSessionTitleLlm(ctx, config, request, titleProvider, {
-    system: systemPrompt(config, currentTitle !== undefined),
-    input: frameMessages(selectedMessages, currentTitle),
-    messageSeqs,
-    selectReasoningEffort: () => undefined,
-  })
-  // The shared framing accepts only a plain title; a provider that wants other
-  // terminal kinds interprets them itself instead of calling this helper.
-  if (finish.kind === 'max-tokens') throw new Error('session-title-llm: title output reached maxOutputTokens')
-  if (finish.kind === 'tool-calls') throw new Error('session-title-llm: title model unexpectedly requested a tool')
-  if (blocks.some(block => block.type === 'tool-call')) {
-    throw new Error('session-title-llm: title output must contain text only')
-  }
-  const text = blocks
-    .filter((block): block is Extract<(typeof blocks)[number], { type: 'text' }> => block.type === 'text')
-    .map(block => block.text)
-    .join(' ')
-  const title = normalizeSessionTitle(text, Number.MAX_SAFE_INTEGER)
-  if (title.length === 0) throw new Error('session-title-llm: title model produced no text')
-  return { title, messageSeqs, model }
 }

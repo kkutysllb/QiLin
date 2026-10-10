@@ -42,6 +42,34 @@ export const Config: z<Config> = z.object({
   model: SessionTitleLlmConfigFields.model,
 })
 
+/** Validated immutable provider policy: the shared execution controls plus this provider's targets. */
+interface ResolvedConfig extends ResolvedSessionTitleLlmConfig {
+  readonly targetWords: number
+  readonly targetCjkCharacters: number
+}
+
+/** Validate one positive title-length target. */
+function assertTarget(name: 'targetWords' | 'targetCjkCharacters', value: number): number {
+  if (!Number.isInteger(value) || value <= 0) {
+    throw new Error(`session-title-first-prompt-llm: ${name} must be a positive integer`)
+  }
+  return value
+}
+
+/**
+ * Validate the shared execution controls and this provider's title-length targets.
+ * @param config - untrusted plugin configuration.
+ * @returns immutable provider policy.
+ */
+function resolveConfig(config: Config): ResolvedConfig {
+  const { targetWords, targetCjkCharacters, ...execution } = config
+  return {
+    ...resolveSessionTitleLlmConfig(execution),
+    targetWords: assertTarget('targetWords', targetWords),
+    targetCjkCharacters: assertTarget('targetCjkCharacters', targetCjkCharacters),
+  }
+}
+
 /**
  * This provider keeps the route's normal default reasoning effort: the
  * prepared-request seam exposes no resolved model metadata to a provider.
@@ -51,7 +79,7 @@ const selectReasoningEffort = (): undefined => undefined
 
 /* jscpd:ignore-start -- independent provider strategies share only the execution module, not prompt or parsing policy. */
 /** Language-aware system instruction for a title derived from one message. */
-function systemPrompt(config: ResolvedSessionTitleLlmConfig): string {
+function systemPrompt(config: ResolvedConfig): string {
   return [
     'Create a concise title for an AI coding-assistant session from the supplied human messages.',
     'Return only the title on one line, **in plain text of natural language**, with no quotes, prefix, explanation, Markdown, XML, or terminal control codes. No code is allowed.',
@@ -116,7 +144,7 @@ function titleFromResponse(response: SessionTitleLlmResponse): string {
  * @param config - required route, target, byte, token, and timeout policy.
  */
 export function apply(ctx: Context, config: Config): void {
-  const resolved = resolveSessionTitleLlmConfig(config)
+  const resolved = resolveConfig(config)
   const titleProvider = SessionTitleProviderId(name)
   ctx.sessionTitle.register({
     id: titleProvider,
