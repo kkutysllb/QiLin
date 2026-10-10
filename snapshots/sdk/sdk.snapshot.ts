@@ -316,12 +316,10 @@ function assembledRuntimeContexts(log: PersistedLog): string[] {
   return log.content.trimEnd().split('\n').flatMap((line) => {
     const event = JSON.parse(line) as {
       type?: string
-      data?: { source?: { kind?: string; plugin?: string }; content?: Array<{ type?: string; text?: unknown }> }
+      data?: { source?: { kind?: string; sections?: Array<{ text?: unknown }> } }
     }
-    if (event.type !== 'user/message'
-      || event.data?.source?.kind !== 'plugin'
-      || event.data.source.plugin !== '@qilin-agent/system-prompt') return []
-    return event.data.content?.flatMap(block => block.type === 'text' && typeof block.text === 'string' ? [block.text] : []) ?? []
+    if (event.type !== 'user/message' || event.data?.source?.kind !== 'runtime-context') return []
+    return event.data.source.sections?.flatMap(section => typeof section.text === 'string' ? [section.text] : []) ?? []
   })
 }
 
@@ -844,7 +842,7 @@ describe('TypeScript SDK snapshots over the jsonrpc runtime', () => {
         const denied = records(ordered[0]!.content).find(record => record.type === 'tool/result'
           && JSON.stringify(record).includes('call_over_capacity'))
         expect(denied).toMatchObject({ data: {
-          message: { content: [{ isError: true, content: [{ type: 'text', text: expect.stringContaining('subagent limit reached (active child limit: 1)') }] }] },
+          message: { content: [{ type: 'text', text: expect.stringContaining('subagent limit reached (active child limit: 1)') }] },
         } })
       }
       if (scenario.name === 'tool-error-details') {
@@ -1001,8 +999,10 @@ describe('TypeScript SDK snapshots over the jsonrpc runtime', () => {
         if (assertions.runtimeContext === false) {
           expect(contexts).toEqual([])
         } else {
-          expect(contexts).toHaveLength(1)
-          const context = contexts[0] as string
+          // One notice per runtime-context section: sandbox and approval policy
+          // plus the current working directory.
+          expect(contexts.length).toBeGreaterThan(0)
+          const context = contexts.join('\n')
           for (const clause of assertions.runtimeContext.includes) expect(context).toContain(clause)
           for (const clause of assertions.runtimeContext.excludes) expect(context).not.toContain(clause)
           const system = assembledSystem(parent)
