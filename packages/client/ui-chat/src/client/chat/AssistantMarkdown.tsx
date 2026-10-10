@@ -3,11 +3,10 @@ import type { ReactNode } from 'react'
 import { fileMediaUrl } from '@qilin-agent/util-workspace-path'
 import { JsonBlock, MarkdownText } from '@qilin-agent/client-ui-primitives'
 import type { MarkdownFileMentions, MarkdownPathImages } from '@qilin-agent/client-ui-primitives'
-import type { ChatNodeOwnerProps, ChatViewSlotProps, UsePresentation } from '../contract/slots.ts'
+import type { ChatNodeOwnerProps, ChatViewSlotProps, UseGroupAction, UsePresentation } from '../contract/slots.ts'
 import type { AssistantBlock } from '../contract/snapshot.ts'
 import { markdownLabels } from '../markdown-labels.ts'
 import { ReasoningRow } from './ReasoningRow.tsx'
-import { useSearchableHidden } from './searchable-hidden.ts'
 import css from './AssistantMarkdown.module.css'
 
 /**
@@ -46,6 +45,8 @@ export interface AssistantMarkdownProps {
   renderMessageImages: ChatNodeOwnerProps['renderMessageImages']
   /** Hide reasoning that belongs to the Turn-level process disclosure. */
   reasoningHidden?: boolean | undefined
+  /** Process hiding bound by the node slot to its current viewport. */
+  useGroupAction: UseGroupAction
   /** Reveal the owning Turn-level process disclosure. */
   revealProcess?: (() => void) | undefined
   /** Resolved prose file mentions for this Assistant's closing turn. */
@@ -62,7 +63,7 @@ export interface AssistantMarkdownProps {
 /** Reasoning block as the Think variant summary row (figma 39:28304). */
 export const AssistantMarkdown = memo(function AssistantMarkdown({
   groupPart, blocks, streaming, interrupted, renderMessageImages,
-  reasoningHidden = false, revealProcess, mentions, usePresentation, t,
+  reasoningHidden = false, revealProcess, mentions, usePresentation, useGroupAction, t,
 }: AssistantMarkdownProps) {
   // Stable per locale revision (t identity changes on switch): a fresh object
   // per render would rebuild MarkdownText's component table every chunk.
@@ -107,6 +108,7 @@ export const AssistantMarkdown = memo(function AssistantMarkdown({
             key={i}
             hidden={reasoningHidden}
             reveal={revealProcess}
+            useGroupAction={useGroupAction}
           >
             <ReasoningRow
               text={block.text}
@@ -165,12 +167,13 @@ export const AssistantMarkdown = memo(function AssistantMarkdown({
   )
 })
 
-function ProcessReasoning({ hidden, reveal, children }: {
+function ProcessReasoning({ hidden, reveal, useGroupAction, children }: {
   hidden: boolean
   reveal?: (() => void) | undefined
+  useGroupAction: UseGroupAction
   children: ReactNode
 }) {
-  const ref = useSearchableHidden(hidden, reveal ?? NOOP)
+  const ref = useGroupAction(hidden, reveal ?? NOOP)
   return <div ref={ref} data-turn-process-inline={hidden || undefined}>{children}</div>
 }
 

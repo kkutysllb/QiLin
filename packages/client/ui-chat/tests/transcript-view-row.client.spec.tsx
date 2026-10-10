@@ -9,6 +9,7 @@ import { createSnapshotStore } from '@qilin-agent/client-store'
 import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
 import { TranscriptViewRow, type TranscriptViewRowProps } from '../src/client/settings/TranscriptViewRow.tsx'
 import type { TranscriptViewMode } from '../src/chat-settings.ts'
+import type { CollapseTiming } from '../src/client/presentation-policy.ts'
 import { en, zh } from '../src/client/locale.ts'
 
 afterEach(cleanup)
@@ -35,6 +36,8 @@ const useResource = (() => ({ status: 'none' as const, value: undefined, failure
 function mount(mode: TranscriptViewMode = 'compact', dictionary: typeof en | typeof zh = en) {
   const source = createSnapshotStore(mode)
   const setTranscriptView = vi.fn((next: TranscriptViewMode) => { source.set(next) })
+  const collapseTiming = createSnapshotStore<CollapseTiming>('completion')
+  const setCollapseTiming = vi.fn((next: CollapseTiming) => { collapseTiming.set(next) })
   const props: TranscriptViewRowProps = {
     usePanelInfo: selector => selector({ activePanelId: null }),
     useSessions: emptySessions(),
@@ -44,6 +47,8 @@ function mount(mode: TranscriptViewMode = 'compact', dictionary: typeof en | typ
     useResource,
     useTranscriptView: bindSnapshotSelector(source),
     setTranscriptView,
+    useCollapseTiming: bindSnapshotSelector(collapseTiming),
+    setCollapseTiming,
     t: makeTranslate(dictionary),
   }
   render(<TranscriptViewRow {...props} />)

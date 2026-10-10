@@ -8,6 +8,7 @@ import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 import { AssistantMarkdown, type AssistantMarkdownProps } from '../src/client/chat/AssistantMarkdown.tsx'
 import { ActivityPill, UsagePill, type StatPillProps } from '../src/client/chat/StatsPills.tsx'
 import { zh } from '../src/client/locale.ts'
+import { useSearchableHidden } from '../src/client/chat/searchable-hidden.ts'
 import { chatSnapshotFixture } from './chat-snapshot-fixture.client.ts'
 
 const t: AssistantMarkdownProps['t'] = makeTranslate(zh, commonZh)
@@ -26,7 +27,7 @@ describe('render branch tails', () => {
         t={t}
         blocks={[{ kind: 'reasoning', text: 'done thinking' }, { kind: 'text', text: 'answer' }]}
         streaming
-        renderMessageImages={renderMessageImages}
+        renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
       />,
     )
     // reasoning at index 0 with a later block: running is false → ok state.
@@ -68,7 +69,7 @@ describe('render branch tails', () => {
         t={t}
         blocks={[{ kind: 'reasoning', text: 'still thinking' }]}
         streaming
-        renderMessageImages={renderMessageImages}
+        renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
       />,
     )
     expect(view.container.querySelector('[data-state="running"]')).not.toBeNull()

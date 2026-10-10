@@ -3,7 +3,7 @@
 /** Driven fixture for the process-group seat: one group, its members, and the live policy. */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
-import type { ComponentProps } from 'react'
+import { useEffect, useRef, type ComponentProps } from 'react'
 import { SessionSeq } from '@qilin-agent/session/types'
 import type {
   ConversationGroupData, GroupKey, GroupSnapshot, NodeKey, NodeReference, TurnLocation,
@@ -117,6 +117,21 @@ function makeSeat(options: SeatOptions = {}) {
   const chat = createChatStore().create()
   const props: SeatProps = {
     groupKey,
+    useGroupHeaderAction: () => {},
+    // The motion hook owns the `hidden` attribute; the seat owns the boolean it
+    // passes, so this stands in for the flow's hook at the same call sites.
+    useGroupAction: (hidden: boolean) => {
+      const ref = useRef<HTMLDivElement | null>(null)
+      useEffect(() => {
+        const element = ref.current
+        if (element === null) return
+        if (hidden) element.setAttribute('hidden', '')
+        else element.removeAttribute('hidden')
+      }, [hidden])
+      return ref
+    },
+    useChatNodeBottom: keyedHook<boolean>(() => createSnapshotStore(false)),
+    deferCollapse: false,
     useChatGroup: keyedHook<GroupSnapshotValue>(() => groupStore),
     nodeStore,
     useChatNode: keyedHook<ChatConversationViewNode | undefined>(key => nodeStore.source(key)),

@@ -4,10 +4,11 @@ import { cleanup, fireEvent, render } from '@testing-library/react'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
 import type { TranscriptViewMode } from '../src/chat-settings.ts'
-import { derivePresentationPolicy } from '../src/client/presentation-policy.ts'
+import { derivePresentationPolicy, type CollapseTiming } from '../src/client/presentation-policy.ts'
 import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 import { zh } from '../src/client/locale.ts'
 import { AssistantMarkdown, type AssistantMarkdownProps } from '../src/client/chat/AssistantMarkdown.tsx'
+import { useSearchableHidden } from '../src/client/chat/searchable-hidden.ts'
 
 afterEach(() => {
   cleanup()
@@ -23,16 +24,19 @@ describe('ReasoningRow', () => {
   ])('starts collapsed and preserves manual expansion when $kind arrives', (nextBlock) => {
     const reasoning = { kind: 'reasoning' as const, text: 'Inspect the session\nCheck persistence' }
     const view = render(
-      <AssistantMarkdown t={t} blocks={[reasoning]} streaming renderMessageImages={renderMessageImages} />,
+      <AssistantMarkdown t={t} blocks={[reasoning]} streaming
+        renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden} />,
     )
     expect(view.getByRole('button').getAttribute('aria-expanded')).toBe('false')
     fireEvent.click(view.getByText('思考'))
     view.rerender(
-      <AssistantMarkdown t={t} blocks={[reasoning, nextBlock]} streaming renderMessageImages={renderMessageImages} />,
+      <AssistantMarkdown t={t} blocks={[reasoning, nextBlock]} streaming
+        renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden} />,
     )
     expect(view.getByRole('button').getAttribute('aria-expanded')).toBe('true')
     view.rerender(
-      <AssistantMarkdown t={t} blocks={[reasoning, nextBlock]} streaming={false} renderMessageImages={renderMessageImages} />,
+      <AssistantMarkdown t={t} blocks={[reasoning, nextBlock]} streaming={false}
+        renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden} />,
     )
     expect(view.getByRole('button').getAttribute('aria-expanded')).toBe('true')
     expect(view.getByText(/Check persistence/)).toBeTruthy()
@@ -46,7 +50,7 @@ describe('ReasoningRow', () => {
         t={t}
         blocks={[{ kind: 'reasoning', text: 'Inspect the session\nNewest reasoning tokens' }]}
         streaming
-        renderMessageImages={renderMessageImages}
+        renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
       />,
     )
     expect(view.getByText('运行中')).toBeTruthy()
@@ -59,7 +63,7 @@ describe('ReasoningRow', () => {
         t={t}
         blocks={[{ kind: 'reasoning', text: 'Inspect the session\nNewest reasoning tokens keep arriving' }]}
         streaming
-        renderMessageImages={renderMessageImages}
+        renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
       />,
     )
     expect(view.getByText('Newest reasoning tokens keep arriving').parentElement
@@ -70,7 +74,7 @@ describe('ReasoningRow', () => {
         t={t}
         blocks={[{ kind: 'reasoning', text: 'Inspect the session\nNewest reasoning tokens keep arriving\n' }]}
         streaming={false}
-        renderMessageImages={renderMessageImages}
+        renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
       />,
     )
     const settledSummary = view.getByText('Inspect the session')
@@ -85,7 +89,7 @@ describe('ReasoningRow', () => {
         t={t}
         blocks={[{ kind: 'reasoning', text: 'Inspect the session\nCheck persistence' }]}
         streaming={false}
-        renderMessageImages={renderMessageImages}
+        renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
       />,
     )
     const row = view.getByRole('button')
@@ -115,7 +119,7 @@ describe('ReasoningRow', () => {
         t={t}
         blocks={[{ kind: 'reasoning', text }]}
         streaming={streaming}
-        renderMessageImages={renderMessageImages}
+        renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
       />,
     )
 
@@ -135,7 +139,7 @@ describe('ReasoningRow', () => {
         t={t}
         blocks={[{ kind: 'reasoning', text }]}
         streaming={false}
-        renderMessageImages={renderMessageImages}
+        renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
       />,
     )
     const summary = view.getByText('# Section 1')
@@ -160,7 +164,7 @@ describe('ReasoningRow', () => {
         t={t}
         blocks={[{ kind: 'reasoning', text: first }]}
         streaming
-        renderMessageImages={renderMessageImages}
+        renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
       />,
     )
     fireEvent.click(view.getByText('思考'))
@@ -172,7 +176,7 @@ describe('ReasoningRow', () => {
         t={t}
         blocks={[{ kind: 'reasoning', text }]}
         streaming
-        renderMessageImages={renderMessageImages}
+        renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
       />,
     )
     expect(view.getByRole('heading', { name: 'Investigation' })).toBe(heading)
@@ -186,7 +190,7 @@ describe('ReasoningRow', () => {
         t={t}
         blocks={[{ kind: 'reasoning', text: 'Inspect the session\nCheck persistence' }]}
         streaming={false}
-        renderMessageImages={renderMessageImages}
+        renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
       />,
     )
     fireEvent.click(view.getByText('思考'))
@@ -205,7 +209,7 @@ describe('ReasoningRow', () => {
           { kind: 'text', text: 'Answer' },
         ]}
         streaming={false}
-        renderMessageImages={renderMessageImages}
+        renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
       />,
     )
     // Collapsed: no `data-open`, so the sticky rule's gate never matches.
@@ -225,8 +229,10 @@ describe('ReasoningRow settled preview by work-details mode', () => {
       t={t}
       blocks={[{ kind: 'reasoning', text: 'Inspect the session\nCheck persistence' }]}
       streaming={false}
-      renderMessageImages={renderMessageImages}
-      usePresentation={bindSnapshotSelector(derivePresentationPolicy(createSnapshotStore(mode)))}
+      renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
+      usePresentation={bindSnapshotSelector(derivePresentationPolicy(
+        createSnapshotStore(mode), createSnapshotStore<CollapseTiming>('completion'),
+      ))}
     />,
   )
 
@@ -255,8 +261,10 @@ describe('ReasoningRow settled preview by work-details mode', () => {
         t={t}
         blocks={[{ kind: 'reasoning', text: 'Inspect the session\nNewest tokens' }]}
         streaming
-        renderMessageImages={renderMessageImages}
-        usePresentation={bindSnapshotSelector(derivePresentationPolicy(createSnapshotStore('compact')))}
+        renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
+        usePresentation={bindSnapshotSelector(derivePresentationPolicy(
+          createSnapshotStore('compact'), createSnapshotStore<CollapseTiming>('completion'),
+        ))}
       />,
     )
     expect(view.getByText('Newest tokens')).toBeTruthy()

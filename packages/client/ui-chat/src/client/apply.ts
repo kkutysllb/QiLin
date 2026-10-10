@@ -23,13 +23,15 @@ import type {} from '@qilin-agent/client-ui-session/client'
 import type {} from '@qilin-agent/client-ui-settings/client'
 import type {} from '@qilin-agent/client-ui-workspace/client'
 import type {
-  ChatNodeInjected, ChatScrollPosition, ChatViewInjected,
-  TurnTailOwnerProps,
+  ChatFlowDataInjected, ChatFlowInjected, ChatNodeInjected, ChatScrollPosition, ChatViewInjected,
+  TurnTailOwnerProps, UseGroupAction,
 } from './contract/slots.ts'
 import type { ChatSnapshot } from './contract/snapshot.ts'
 import { EMPTY_CHAT_SNAPSHOT } from './contract/snapshot.ts'
 import { ApprovalCommand } from './chat/ApprovalCommand.tsx'
+import { ChatFlow } from './chat/ChatFlow.tsx'
 import { ChatView } from './chat/ChatView.tsx'
+import { useFlowHidden, useMotionHidden } from './chat/flow-motion.ts'
 import { registerChatNodeRenderers } from './chat/register-node-renderers.ts'
 import { ActivityPill, UsagePill } from './chat/StatsPills.tsx'
 import { registerConversationNodes } from './conversation-nodes/register.ts'
@@ -45,12 +47,28 @@ import { CHAT_SETTINGS_NAMESPACE, DEFAULT_LINK_OPENING, type ChatSettings, type 
 import { useTurnDataValue } from './chat/use-turn-data.ts'
 import { bindDisclosure } from './chat/use-disclosure.ts'
 
-const CHAT_NODE_INJECT: ChatNodeInjected = {
+/** Bind group and header visibility to the viewport of one flow render. */
+export const CHAT_FLOW_INJECT: ChatFlowInjected = {
+  hooks: {
+    groupAction: (_standard, { motion }) => function useGroupAction(hidden, reveal) {
+      return useFlowHidden(hidden, reveal, motion)
+    },
+    groupHeaderAction: (_standard, { motion }) => function useGroupHeaderAction(ref, hidden) {
+      useMotionHidden(ref, hidden, motion)
+    },
+  },
+}
+
+const useStandaloneGroupAction: UseGroupAction = (hidden, reveal) => useFlowHidden(hidden, reveal, undefined)
+
+/** Bind node-local sources and forward the flow's existing visibility hook. */
+export const CHAT_NODE_INJECT: ChatNodeInjected = {
   hooks: {
     turnData: (_standard, { turnData }) => function useTurnData(key) {
       return useTurnDataValue(turnData, key)
     },
     disclosure: (_standard, { disclosureReset }) => bindDisclosure(disclosureReset),
+    groupAction: (_standard, { useGroupAction }) => useGroupAction ?? useStandaloneGroupAction,
   },
 }
 
@@ -90,7 +108,7 @@ export function apply(ctx: Context): void {
   const chatScrollPositions = new Map<SessionId, ChatScrollPosition>()
   const chatSettings = ctx.configForms.get<ChatSettings>(CHAT_SETTINGS_NAMESPACE)
   const transcriptView = new TranscriptViewPolicy(chatSettings)
-  const presentation = derivePresentationPolicy(transcriptView.mode)
+  const presentation = derivePresentationPolicy(transcriptView.mode, transcriptView.collapseTiming)
   const performancePolicy = new PerformanceUsagePolicy(chatSettings)
   ctx.effect(() => () => { transcriptView.dispose(); performancePolicy.dispose() })
   const performanceUsage = performancePolicy.mode
@@ -141,10 +159,38 @@ export function apply(ctx: Context): void {
     order: 12,
     locale: NS,
     inject: (): TranscriptViewRowInjected => ({
-      hooks: { transcriptView: transcriptView.mode },
+      hooks: { transcriptView: transcriptView.mode, collapseTiming: transcriptView.collapseTiming },
       setTranscriptView: (mode) => { transcriptView.setMode(mode) },
+      setCollapseTiming: (timing) => { transcriptView.setCollapseTiming(timing) },
     }),
   }, TranscriptViewRow))
+
+  const nodeSources = (binding: SessionBinding): ChatFlowDataInjected => {
+    const chat = chatSource(binding)
+    const conversation = ctx.uiConversation.binding(binding)
+    return {
+      hooks: { presentation },
+      keyedHooks: {
+        chatNode: key => chat.getSnapshot().nodes.source(key),
+        chatNodeBottom: key => chat.getSnapshot().nodes.bottomSource(key),
+        chatNodeProcess: key => chat.getSnapshot().nodes.processSource(key),
+        chatGroup: key => conversation.snapshot.getSnapshot().views.grouped('chat')?.groupSource(key as GroupKey),
+      },
+    }
+  }
+
+  ctx.slots.inject('conversation.chat.flow', () => ctx.slots.register({
+    name: 'conversation.chat.flow', locale: NS, store: chatStore,
+    children: {
+      'conversation.chat.node': { kind: 'keyed', scope: 'session', inject: CHAT_NODE_INJECT },
+      'conversation.message.images': { kind: 'single', scope: 'session' },
+    },
+    inject: (sessionId: SessionId): ChatFlowDataInjected => {
+      const binding = ctx.sessions.binding(sessionId)
+      if (binding === undefined) throw new Error(`ui-chat: unknown session "${sessionId}"`)
+      return nodeSources(binding)
+    },
+  }, ChatFlow))
 
   ctx.slots.inject('conversation.view', () => {
     const disposeView = ctx.slots.register({
@@ -154,24 +200,15 @@ export function apply(ctx: Context): void {
       label: () => t('view.chat'),
       locale: NS,
       children: {
-        'conversation.chat.node': { kind: 'keyed', scope: 'session', inject: CHAT_NODE_INJECT },
-        'conversation.message.images': { kind: 'single', scope: 'session' },
+        'conversation.chat.flow': { kind: 'single', scope: 'session', inject: CHAT_FLOW_INJECT },
       },
       store: chatStore,
       inject: (sessionId: SessionId): ChatViewInjected => {
         const binding = ctx.sessions.binding(sessionId)
         if (binding === undefined) throw new Error(`ui-chat: unknown session "${sessionId}"`)
         const session = binding.session
-        const chat = chatSource(binding)
-        const conversation = ctx.uiConversation.binding(binding)
         return {
-          hooks: { presentation },
-          keyedHooks: {
-            chatNode: key => chat.getSnapshot().nodes.source(key),
-            chatNodeProcess: key => chat.getSnapshot().nodes.processSource(key),
-            chatGroup: key => conversation.snapshot.getSnapshot()
-              .views.grouped('chat')?.groupSource(key as GroupKey),
-          },
+          ...nodeSources(binding),
           fileMentions: (owner: TurnTailOwnerProps) => ctx.get('chatFileMentions')?.forClosing(owner, sessionId),
           // A tool card's inspect action opens the Sidebar's ledger tab,
           // addressed to that call through the navigation parameters.

@@ -19,6 +19,7 @@ import {
 import { AssistantMarkdown, type AssistantMarkdownProps } from '../src/client/chat/AssistantMarkdown.tsx'
 import { ActivityPill, UsagePill, type StatPillProps } from '../src/client/chat/StatsPills.tsx'
 import { zh } from '../src/client/locale.ts'
+import { useSearchableHidden } from '../src/client/chat/searchable-hidden.ts'
 import { chatSnapshotFixture } from './chat-snapshot-fixture.client.ts'
 
 afterEach(() => {
@@ -1049,7 +1050,7 @@ describe('small branch tails', () => {
         t={t}
         blocks={[{ kind: 'reasoning', text: 'one-liner' }]}
         streaming={false}
-        renderMessageImages={renderMessageImages}
+        renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
       />,
     )
     expect(view.getByText('one-liner')).toBeTruthy()

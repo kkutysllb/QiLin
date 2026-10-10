@@ -32,11 +32,11 @@ export type { TranscriptViewRowInjected, TranscriptViewRowProps } from './settin
 export type { TranscriptViewMode } from '../chat-settings.ts'
 export type { ChatPresentationPolicy } from './presentation-policy.ts'
 export type {
-  AssistantActionOwnerProps, ChatFileMentions, ChatNodeHookContext, ChatNodeInjected,
-  ChatNodeOwnerProps, ChatNodeViewProps, ChatScrollPosition, ChatStore, ChatViewInjected,
-  ChatViewSlotProps, CommandRowOwnerProps, CommandRowProps, MessageImagesProps, OpenFileOptions,
-  PerformanceUsageInjected, PresentationInjected, TurnProcessOwnerProps, TurnTailOwnerProps,
-  UseChat, UseChatNodeTurnData, UseDisclosure, UsePresentation,
+  AssistantActionOwnerProps, ChatFileMentions, ChatNodeHookContext, ChatNodeInjected, ChatNodeOwnerProps,
+  ChatNodeViewProps, ChatScrollPosition, ChatStore, ChatViewInjected, ChatViewSlotProps,
+  ChatFlowDataInjected, ChatFlowHookContext, ChatFlowInjected, ChatFlowOwnerProps, ChatFlowSlotProps, UseGroupHeaderAction,
+  CommandRowOwnerProps, CommandRowProps, MessageImagesProps, OpenFileOptions, PerformanceUsageInjected, PresentationInjected,
+  TurnProcessOwnerProps, TurnTailOwnerProps, UseChat, UseChatNodeTurnData, UseDisclosure, UsePresentation, UseGroupAction,
 } from './contract/slots.ts'
 export type {
   ProcessActivity, ProcessActivitySummary, ProcessGroupData,

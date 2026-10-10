@@ -13,9 +13,11 @@ import type {
   InjectFace, KeyedSnapshotSelectorHook, PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore,
   SlotHookFactory, SnapshotSelectorHook,
 } from '@qilin-agent/client-ui-slots'
+import type { ObservableSnapshot } from '@qilin-agent/client-store'
 import type { MarkdownFileMentions } from '@qilin-agent/client-ui-primitives'
 import type {} from '@qilin-agent/client-ui-layout/client'
 import type { createChatStore } from '../stores.ts'
+import type { ChatPresentationPolicy } from '../presentation-policy.ts'
 import type { FlowMotionRows } from '../chat/flow-motion.ts'
 import type { ToolCallId } from './store.ts'
 import type { ChatConversationViewNode, ChatNode, ChatNodeKind } from './chat-nodes.ts'
@@ -23,8 +25,6 @@ import type {
   ChatNodeProcessSource, ChatNodeSource, ChatSnapshot, ChatTurnProcessPresentation,
 } from './snapshot.ts'
 import type { TurnProcessSpec } from './turn-process.ts'
-import type { ObservableSnapshot } from '@qilin-agent/client-store'
-import type { ChatPresentationPolicy } from '../presentation-policy.ts'
 import type { PerformanceUsageMode } from '../../chat-settings.ts'
 
 /** Selector hook over the current Conversation binding's Chat target. */
@@ -137,6 +137,7 @@ export interface ChatNodeInjected {
   hooks: {
     turnData: SlotHookFactory<'conversation.chat.node', UseChatNodeTurnData>
     disclosure: SlotHookFactory<'conversation.chat.node', UseDisclosure>
+    groupAction: SlotHookFactory<'conversation.chat.node', UseGroupAction>
   }
 }
 
@@ -223,6 +224,8 @@ export interface ChatViewInjected {
   keyedHooks: {
     /** Resolve the stable source for one Chat Node key. */
     chatNode: (key: string) => ChatNodeSource
+    /** Observe assembler-owned bottom membership for one Node. */
+    chatNodeBottom: (key: string) => ObservableSnapshot<boolean>
     /** Resolve the stable Turn-process source for one Chat Node key. */
     chatNodeProcess: (key: string) => ChatNodeProcessSource
     /** Resolve one optional group without subscribing the root View to its data. */
@@ -258,7 +261,7 @@ export type ChatFlowDataInjected = Pick<ChatViewInjected, 'hooks' | 'keyedHooks'
 
 /** Ordered rows and reconciled local echoes rendered inside one Chat viewport. */
 export interface ChatFlowOwnerProps extends Pick<ChatNodeOwnerProps,
-  'cwd' | 'openSkill' | 'openFile' | 'inspectCall' | 'forkAt' | 'loadImage' | 'fileMentions'> {
+  'cwd' | 'openSkill' | 'openFile' | 'inspectCall' | 'forkAt' | 'editUserMessage' | 'loadImage' | 'fileMentions'> {
   readonly entries: readonly RenderEntry[]
   readonly pendingInputs: readonly (PendingSubmission | InboxState['next-step'][number])[]
   readonly lastInputTurn: number | undefined
@@ -276,7 +279,7 @@ export type ChatFlowSlotProps =
 /** Full Chat view props. */
 export type ChatViewSlotProps =
   PropsRuntime<'conversation.view'>
-  & PropsRenderSlots<'conversation.chat.node' | 'conversation.message.images'>
+  & PropsRenderSlots<'conversation.chat.flow'>
   & PropsStore<ChatStore>
   & InjectFace<ChatViewInjected>
   & PropsLocale<'chat'>

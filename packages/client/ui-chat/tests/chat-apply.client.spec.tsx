@@ -221,7 +221,7 @@ describe('Chat apply wiring', () => {
     const useChat = vi.fn(() => { throw new Error('Turn data must not read the Chat snapshot') })
     const useTurnData = spec.inject.hooks.turnData(
       { useChat } as unknown as Parameters<typeof spec.inject.hooks.turnData>[0],
-      { turnData: data, disclosureReset: createSnapshotStore(0) },
+      { turnData: data, disclosureReset: createSnapshotStore(0), useGroupAction: () => ({ current: null }) },
     )
     const Probe = ({ useData }: { useData: UseChatNodeTurnData }) => (
       <output>{useData('metric') ?? 'missing'}</output>
@@ -239,7 +239,7 @@ describe('Chat apply wiring', () => {
 
     view.rerender(<Probe useData={spec.inject.hooks.turnData(
       { useChat } as unknown as Parameters<typeof spec.inject.hooks.turnData>[0],
-      { turnData: undefined, disclosureReset: createSnapshotStore(0) },
+      { turnData: undefined, disclosureReset: createSnapshotStore(0), useGroupAction: () => ({ current: null }) },
     )} />)
     expect(view.getByText('missing')).toBeTruthy()
     expect(useChat).not.toHaveBeenCalled()

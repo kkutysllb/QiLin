@@ -8,6 +8,7 @@ import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 import type { RenderMessageImages } from '@qilin-agent/client-ui-conversation/client'
 import { AssistantMarkdown } from '../src/client/chat/AssistantMarkdown.tsx'
 import { zh } from '../src/client/locale.ts'
+import { useSearchableHidden } from '../src/client/chat/searchable-hidden.ts'
 
 afterEach(cleanup)
 
@@ -48,6 +49,7 @@ describe('assistant image slot handoff', () => {
         blocks={[{ kind: 'image', attachment }]}
         streaming={false}
         renderMessageImages={imageRenderer(calls)}
+        useGroupAction={useSearchableHidden}
       />,
     )
     expect(view.getByTestId('message-images').getAttribute('data-align')).toBe('start')
@@ -68,6 +70,7 @@ describe('assistant image slot handoff', () => {
         ]}
         streaming={false}
         renderMessageImages={imageRenderer(calls)}
+        useGroupAction={useSearchableHidden}
       />,
     )
     const galleries = view.getAllByTestId('message-images')
@@ -88,6 +91,7 @@ describe('assistant image slot handoff', () => {
         ]}
         streaming={false}
         renderMessageImages={imageRenderer(calls)}
+        useGroupAction={useSearchableHidden}
       />,
     )
     const image = view.getByTestId('message-images')

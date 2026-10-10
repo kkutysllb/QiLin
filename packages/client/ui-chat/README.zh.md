@@ -73,6 +73,11 @@ Assistant 回复结算后，已完成轮次的页脚只保留用量入口：轮�
 
 独立输入之间的连续推理、工具与 Assistant 行会组成活动分组，由 Chat 的一个分组定义拥有。分组座位只订阅自己的成员数组，每个成员继续使用原有的键控 Node 来源与 renderer。`groupPart` 选择 renderer 自有的部分，每个部分拥有独立的 DOM 锚点。系统提示词、上下文注入与命令行仍是独立行，并会结束前面的分组：上游的「基础设施行过滤」未移植，因此分组会把这些类型留在所有过程分组之外。展示档位只改变分组的可见性，不改变成员的父级。[业务规则参考](src/client/conversation-nodes/README.zh.md)负责分段、展示档位标题与活动摘要的完整定义。
 
+工作步骤展示下方的设置行提供[独立的收起时机设置](src/client/conversation-nodes/README.zh.md#collapse-timing)。
+
+Chat Builder 按节点发布 `bottomSource`：节点可见且属于已加载时间线的最后一轮时为 true，而不只是列表最后一行。底部轮次推进时，只有旧、新底部轮次的节点收到位置变化通知。Group 读取其首个成员的位置。待发送消息去重与收起判断仍由 Chat 视图处理，不进入 Builder。
+
+
 -----
 
 <a id="turn-triggers"></a>
@@ -92,7 +97,12 @@ Assistant 回复结算后，已完成轮次的页脚只保留用量入口：轮�
 <a id="scroll-ownership"></a>
 ## 滚动归属
 
-Chat 会在历史前插与 renderer 重新挂载时恢复语义锚点。`ChatViewport` 持有滚动容器的 DOM 操作、把每次投递归属到读者或程序化写入的账本，以及所有落位写入。没有读者移动的贴底投递会立即更新跟随归属，避免后续布局变化使其底部位置失效；读者移动即使位于跟随阈值内，也保持待处理直到采样周期或 `scrollend`，防止布局增长抵消小幅滚动操作。读者跟随底部时，transcript 关闭原生滚动锚定（`data-chat-following-tail`），`ResizeObserver` 追随新的底部，并且无需读取行几何就选中最后一个已加载轮次。读者离开底部后，布局变化会把其采样行重新对齐，再由阅读线几何选择活跃轮次；分页保留一个语义行及其分组内层滚动容器，并优先补偿内层滚动区间。滚轮、触摸、指针、按键与页内查找意图会释放该保留，轨道自身的滚动不会传到 transcript。轮次导航预览位于 Markdown 代码块粘性头栏上方，而导航外框始终处于 composer 上方的 transcript 区域内。职责拆分：`use-chat-viewport` 负责几何与落位，`use-chat-reading` 负责跟随意图、读者采样与活跃轮次，`use-chat-navigation` 负责轮次跳转与前插锚定，`use-chat-scroll` 在每次提交后协调三者；`ChatView` 只渲染它们发布的结果。
+采用完成时收起时，Chat 会在历史前插与 renderer 重新挂载时恢复语义锚点。`ChatViewport` 持有滚动容器的 DOM 操作、把每次投递归属到读者或程序化写入的账本，以及所有落位写入。没有读者移动的贴底投递会立即更新跟随归属，避免后续布局变化使其底部位置失效；读者移动即使位于跟随阈值内，也保持待处理直到采样周期或 `scrollend`，防止布局增长抵消小幅滚动操作。读者跟随底部时，transcript 关闭原生滚动锚定（`data-chat-following-tail`），`ResizeObserver` 追随新的底部，并且无需读取行几何就选中最后一个已加载轮次。读者离开底部后，布局变化会把其采样行重新对齐，再由阅读线几何选择活跃轮次；分页保留一个语义行及其分组内层滚动容器，并优先补偿内层滚动区间。滚轮、触摸、指针、按键与页内查找意图会释放该保留，轨道自身的滚动不会传到 transcript。轮次导航预览位于 Markdown 代码块粘性头栏上方，而导航外框始终处于 composer 上方的 transcript 区域内。职责拆分：`use-chat-viewport` 负责几何与落位，`use-chat-reading` 负责跟随意图、读者采样与活跃轮次，`use-chat-navigation` 负责轮次跳转与前插锚定，`use-chat-scroll` 在每次提交后协调三者；`ChatView` 只渲染它们发布的结果。
+
+延后折叠实验在过程行淡出并收起期间暂停自动跟尾和浏览器滚动锚定。底部空间保留可滚动范围，最终正文与新输入一起向上移动。过程行收起后，以原生平滑滚动揭示尚未露出的输入，不保证固定续滚速度。读者手势取消等待中和进行中的跟随动画；卸载 Chat 时取消其等待回调和行过渡。启用减少动态效果偏好时，可见性和定位立即变化。
+
+折叠协调状态由各自的 viewport 持有，空间预留和空闲回调不会广播到其他 Chat 视图。ChatView 通过本次渲染的 `hookContext`，向 `conversation.chat.flow` 交接一次动画能力。Flow 绑定组内容与组头的行为 hook，负责节点和图片渲染，并共享既有 Chat store 与 Session 节点来源。布局节点和行内思考接收绑定后的 hook，不接收动画控制器，也不改变内容的父级。通用的可搜索隐藏在绘制前生效，并负责焦点保护及 beforematch；pending 输入对账仍留在 ChatView。
+
 
 -----
 

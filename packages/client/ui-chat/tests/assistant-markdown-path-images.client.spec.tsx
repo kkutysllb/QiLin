@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { AssistantMarkdown, localPathMediaUrl } from '../src/client/chat/AssistantMarkdown.tsx'
 import type { ChatNodeOwnerProps, ChatViewSlotProps } from '../src/client/contract/slots.ts'
 import type { AssistantBlock } from '../src/client/contract/snapshot.ts'
+import { useSearchableHidden } from '../src/client/chat/searchable-hidden.ts'
 
 afterEach(cleanup)
 
@@ -48,7 +49,7 @@ describe('AssistantMarkdown local-path images', () => {
       <AssistantMarkdown
         blocks={[textBlock('See ![diagram](/tmp/graph.png) for the layout.')]}
         streaming={false}
-        renderMessageImages={renderMessageImages}
+        renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
         t={t}
       />,
     )
@@ -64,7 +65,7 @@ describe('AssistantMarkdown local-path images', () => {
       <AssistantMarkdown
         blocks={[textBlock('See ![diagram](relative.png).')]}
         streaming={false}
-        renderMessageImages={renderMessageImages}
+        renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
         t={t}
       />,
     )

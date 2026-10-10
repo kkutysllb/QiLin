@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import { bindSnapshotSelector } from '@qilin-agent/client-test-runtime'
 import type { TranscriptViewMode } from '../src/chat-settings.ts'
-import { derivePresentationPolicy, presentationPolicyFor } from '../src/client/presentation-policy.ts'
+import { derivePresentationPolicy, presentationPolicyFor, type CollapseTiming } from '../src/client/presentation-policy.ts'
 
 afterEach(cleanup)
 
@@ -16,13 +16,14 @@ describe('Chat presentation policy', () => {
     ['verbose', false, 'none', true, false],
   ] as const)('maps %s to stable presentation capabilities', (mode, foldCompletedTurns, stepGrouping, settledReasoningPreview, liveProcessDetail) => {
     const policy = presentationPolicyFor(mode)
-    expect(policy).toEqual({ mode, foldCompletedTurns, stepGrouping, settledReasoningPreview, liveProcessDetail })
+    expect(policy).toEqual({ mode, foldCompletedTurns, stepGrouping, settledReasoningPreview, liveProcessDetail, collapseTiming: 'completion' })
     expect(presentationPolicyFor(mode)).toBe(policy)
   })
 
   it('forwards mode notifications and removes the subscription on disposal', () => {
     const mode = createSnapshotStore<TranscriptViewMode>('compact')
-    const policy = derivePresentationPolicy(mode)
+    const timing = createSnapshotStore<CollapseTiming>('completion')
+    const policy = derivePresentationPolicy(mode, timing)
     const listener = vi.fn()
     const dispose = policy.subscribe(listener)
     expect(policy.getSnapshot()).toBe(presentationPolicyFor('compact'))
@@ -36,7 +37,9 @@ describe('Chat presentation policy', () => {
 
   it('renders only consumers whose selected field changes', () => {
     const mode = createSnapshotStore<TranscriptViewMode>('compact')
-    const usePresentation = bindSnapshotSelector(derivePresentationPolicy(mode))
+    const usePresentation = bindSnapshotSelector(
+      derivePresentationPolicy(mode, createSnapshotStore<CollapseTiming>('completion')),
+    )
     const foldRender = vi.fn()
     const previewRender = vi.fn()
     function Fold() {

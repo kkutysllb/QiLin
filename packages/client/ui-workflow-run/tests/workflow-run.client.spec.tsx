@@ -312,6 +312,7 @@ function panelProps(data: WorkflowRunChatData, sessions = listState(), openSessi
   return {
     node: node(data),
     useDisclosure: () => ({ expanded: false, setExpanded: () => {}, toggle: () => {} }),
+    useGroupAction: () => { throw new Error('unused') },
     sessionId: PARENT_ID,
     useSessions: selector => selector(sessions),
     usePanelInfo, useResource,

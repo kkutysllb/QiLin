@@ -14,6 +14,7 @@ import { zh } from '../src/client/locale.ts'
 import { AssistantMarkdown } from '../src/client/chat/AssistantMarkdown.tsx'
 import type { ChatNodeOwnerProps, ChatViewSlotProps } from '../src/client/contract/slots.ts'
 import type { AssistantBlock } from '../src/client/contract/snapshot.ts'
+import { useSearchableHidden } from '../src/client/chat/searchable-hidden.ts'
 
 afterEach(cleanup)
 
@@ -36,7 +37,7 @@ function seatText(groupPart: string | undefined): string {
       groupPart={groupPart}
       blocks={step()}
       streaming={false}
-      renderMessageImages={renderMessageImages}
+      renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
       t={t}
     />,
   )

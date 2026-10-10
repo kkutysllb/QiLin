@@ -74,8 +74,8 @@ class MutableChatNodeStore implements ChatNodeStore {
   private readonly processSources = new Map<string, MutableChatSource<ChatTurnProcessPresentation | undefined>>()
   private readonly bottomSources = new Map<string, MutableChatSource<boolean>>()
   private bottomTurn: number | undefined
-  private readonly dirtyBottomKeys = new Set<string>()
   private readonly dirtyKeys = new Set<string>()
+  private readonly dirtyBottomKeys = new Set<string>()
   private readonly dirtyProcessKeys = new Set<string>()
   private valuesCache: readonly ChatConversationViewNode[] = EMPTY_LIST
   private valuesDirty = false
