@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-`dsh-session-title-first-prompt-llm` 作为可选的 `ctx.sessionTitle` 提供方，通过 `ctx.llm` 总结第一条符合条件的用户消息。它注册 `first-prompt` 节奏，只在全新非 fork 会话首次创建回退时自动运行，并把结果归因于该消息的确切 seq。自动失败会保留回退，之后只能通过 `ctx.sessionTitle.refresh()` 重试。它使用 `dsh-session-title-llm` 的完整必填共享 LLM 配置，因此路由、提示词、预算与取消行为不会漂移。自动行为与配置优先；实现仅在共享策略之上进行轻量注册。
+`dsh-session-title-first-prompt-llm` 作为可选的 `ctx.sessionTitle` 提供方，通过 `ctx.llm` 总结第一条符合条件的用户消息。它注册 `first-prompt` 节奏，只在全新非 fork 会话首次创建回退时自动运行，并把结果归因于该消息的确切 seq。自动失败会保留回退，之后只能通过 `ctx.sessionTitle.refresh()` 重试。它拥有自己的提示词、框入与输出解释，并把路由解析、预算、请求记录、取消与流装配委托给 `dsh-session-title-llm` 的共享执行模块，因此两种节奏可以各自措辞与解析标题而不共享该策略。自动行为与配置优先；实现是该模块之上的一次注册。
 
 ## 目录
 
@@ -51,7 +51,7 @@ kind: "package-reference"
 
 ### 设计理念
 
-一个薄提供方插件：它注册 `first-prompt` 节奏，用选择器取第一条符合条件消息，其余全部委托给[共享 LLM 策略](../session-title-llm/README.zh.md)。
+提供方插件：它注册 `first-prompt` 节奏，取第一条符合条件消息，自己措辞与解析标题，并把执行委托给[共享执行模块](../session-title-llm/README.zh.md)。
 
 ### 源码地图
 
