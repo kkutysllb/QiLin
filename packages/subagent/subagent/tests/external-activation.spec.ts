@@ -39,7 +39,7 @@ function execution() {
   const cleanup = Promise.withResolvers<undefined>()
   const cleaning = Promise.withResolvers<undefined>()
   const dispose = vi.fn(() => { cleaning.resolve(undefined); return cleanup.promise })
-  const run: SubagentRun = { id: SessionId('external-task'), result: result.promise, dispose }
+  const run: SubagentRun = { id: SessionId('external-task'), localAgent: undefined, result: result.promise, dispose }
   return { result, cleanup, cleaning, dispose, run }
 }
 
@@ -202,7 +202,7 @@ describe('external subagent activations', () => {
     const result = Promise.withResolvers<SubagentResult>()
     const dispose = vi.fn(async () => { result.resolve({ output: [], stopReason: 'aborted' }) })
     const fixture = await setup(async () => ({
-      id: SessionId('dispose-settled'), result: result.promise, dispose,
+      id: SessionId('dispose-settled'), localAgent: undefined, result: result.promise, dispose,
     }))
     const activation = await fixture.start()
     await activation.dispose()

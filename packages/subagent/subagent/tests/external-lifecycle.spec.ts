@@ -33,7 +33,7 @@ async function setup(start: (request: SubagentStartRequest) => Promise<SubagentR
 }
 
 function run(id: string, result: Promise<SubagentResult>, dispose = () => Promise.resolve()): SubagentRun {
-  return { id: SessionId(id), result, dispose }
+  return { id: SessionId(id), localAgent: undefined, result, dispose }
 }
 
 describe('external activation ownership', () => {

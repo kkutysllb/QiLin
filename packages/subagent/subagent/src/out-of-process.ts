@@ -182,6 +182,7 @@ export async function settleRunResult(parts: RunResultSettlement): Promise<Subag
 export interface SubprocessRunHandleParts {
   /** The parent-scoped run id. */
   id: SubagentRun['id']
+  localAgent: undefined
   /** The flattened, never-rejecting result (the seam contract). */
   result: Promise<SubagentResult>
   /** The request's cancellation signal (the listener is removed on dispose). */

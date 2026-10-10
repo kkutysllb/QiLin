@@ -3632,6 +3632,7 @@ describe('continuable errors', () => {
           await releaseStartup.promise
           return {
             id: SessionId('pending-descendant'),
+            localAgent: undefined,
             result: Promise.resolve({ output: [], stopReason: 'completed' }),
             dispose: async () => { cleaning.resolve(undefined); await releaseCleanup.promise },
           }
