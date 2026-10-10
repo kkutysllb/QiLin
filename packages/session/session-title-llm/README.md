@@ -31,6 +31,8 @@ As a deployment, configure this policy through the [first-prompt](../session-tit
 
 A provider plugin calls `registerSessionTitleLlmProvider(ctx, config, id, automatic, selectMessages)`; the helper validates the shared config, registers the provider on `ctx.sessionTitle`, and runs every generation through the shared policy. The two shipped plugins register the `first-prompt` and `all-prompts` cadences with their message selectors, and a second registration on the service throws.
 
+For `all-prompts`, the helper also supplies the current title when a provider generated it, including a title inherited from the first-prompt provider. It excludes fallback and user-supplied titles from this input, frames the title as data alongside the messages, and adds the stability instructions that keep an adequate title unchanged. The first-prompt cadence uses only its selected messages.
+
 ### Route and failure contract
 
 `provider` and `model` overrides are optional but must be supplied together as non-empty strings. Without that pair, the helper uses the exact provider/model route captured from the current session's logged `request/header`, so an explicit refresh before any route exists needs overrides. The helper measures the final JSON-framed user prompt against `maxInputBytes` before logging or dispatch instead of truncating it, and rechecks timeout and caller cancellation while consuming the stream and after it completes, so a late successful result cannot be accepted even if an interceptor or adapter ignores abort. Malformed or empty output, tool calls, and non-stop finish reasons reject; the session-title service decides whether that rejection is an automatic warning or an explicit caller failure.
