@@ -148,7 +148,7 @@ describe('registryKey and offeredRegistries', () => {
 describe('registry recovery', () => {
   const base: InstallState = {
     open: true, spec: 'github:acme/x', phase: 'failed', registries: { registry: null, fallbackRegistries: [MIRROR], resolved: OFFICIAL },
-    registry: { kind: 'offered', registry: null }, registryOpen: false, registryError: false, audience: 'both', attempts: null,
+    registry: { kind: 'offered', registry: null }, registryOpen: false, registryError: false, attempts: null,
     inputError: null, runs: [], detailsOpen: false, installed: null, installedVersion: null, restartRequired: false,
     approvedBuilds: [], enabling: false,
     subject: { spec: 'github:acme/x', status: 'accepted', kind: 'git', bundle: null, registry: null, host: 'github.com' },
@@ -236,29 +236,6 @@ describe('PluginManagerController registry choice', () => {
     answer = { registry: null, fallbackRegistries: [], resolved: OFFICIAL }
     face.openInstall()
     await vi.waitFor(() => { expect(state().install.registry).toEqual({ kind: 'custom', url: MIRROR }) })
-  })
-
-  it('shows each bundle\'s recorded audience, and the dialog choice rides the install and edits through the Host', async () => {
-    const coded: BundleInfo = { ...BUNDLE, name: 'qilin-coded', audience: 'coding' }
-    const { plugins, controller, face, state } = bench({ listBundles: vi.fn(() => Promise.resolve(ok([BUNDLE, coded]))) })
-    await controller.load()
-    expect(state().packages.map(pkg => pkg.audience)).toEqual(['both', 'coding'])
-    // The spec screen starts at both; a choice made after the spec left the editable phase is dropped.
-    expect(state().install.audience).toBe('both')
-    face.openInstall()
-    face.chooseAudience('coding')
-    expect(state().install.audience).toBe('coding')
-    face.editInstallSpec('qilin-x')
-    face.runInstall()
-    expect(state().install.phase).toBe('checking')
-    face.chooseAudience('general')
-    expect(state().install.audience).toBe('coding')
-    await vi.waitFor(() => { expect(plugins.installBundle).toHaveBeenCalledOnce() })
-    const requestId = state().install.requestId as PluginInstallRequestId
-    expect(plugins.installBundle).toHaveBeenCalledWith('qilin-x', { enabled: false, requestId, registry: null, audience: 'coding' })
-    // The detail page's control edits a bundle's audience through the Host.
-    face.setAudience('qilin-coded', 'general')
-    await vi.waitFor(() => { expect(plugins.setAudience).toHaveBeenCalledWith('qilin-coded', 'general') })
   })
 
   it('leaves a refused registry read alone, and a dialog closed during the read', async () => {
@@ -522,7 +499,7 @@ describe('packageView', () => {
   it('joins a bundle with the entries its rows run as', () => {
     expect(packageView(BUNDLE, PLUGINS)).toEqual({
       name: 'qilin-better-sidebar', version: '0.16.0', description: 'A sidebar.',
-      installed: true, optional: false, audience: 'both', updatable: true, enabled: false,
+      installed: true, optional: false, updatable: true, enabled: false,
       rows: [
         { rowId: 'sidebar', moduleName: 'qilin-better-sidebar', entryId: ROW_ENTRY, enabled: true, phase: 'active' },
         { rowId: 'theme', moduleName: 'qilin-better-sidebar/theme', enabled: false, phase: null },
@@ -537,7 +514,7 @@ describe('packageView', () => {
       overrides: [],
     }
     expect(packageView(protectedBundle, PLUGINS)).toEqual({
-      name: '@qilin-agent/base', installed: false, optional: false, audience: 'both', updatable: false, enabled: true,
+      name: '@qilin-agent/base', installed: false, optional: false, updatable: false, enabled: true,
       readOnlyReason: 'management-required',
       error: { code: 'operation-error', diagnostic: 'broken' },
       rows: [
@@ -730,7 +707,7 @@ describe('PluginManagerController', () => {
     const requestId = await started()
     expect(state().install.subject).toEqual({ spec: 'qilin-new', ...INSPECTED })
     expect(plugins.installBundle).toHaveBeenCalledTimes(1)
-    expect(plugins.installBundle).toHaveBeenCalledWith('qilin-new', { enabled: false, requestId, registry: null, audience: 'both' })
+    expect(plugins.installBundle).toHaveBeenCalledWith('qilin-new', { enabled: false, requestId, registry: null })
     // The Host's acknowledgement makes the run stoppable; a chunk of another request is not this run's.
     controller.installProgress({ requestId, phase: 'installing' })
     expect(state().install.phase).toBe('running')
@@ -1045,7 +1022,7 @@ describe('PluginManagerController', () => {
     face.approveBuildsAndRetry()
     const second = await started()
     expect(second).not.toBe(first)
-    expect(plugins.installBundle).toHaveBeenLastCalledWith('x', { enabled: false, requestId: second, approvedBuilds: ['native'], registry: null, audience: 'both' })
+    expect(plugins.installBundle).toHaveBeenLastCalledWith('x', { enabled: false, requestId: second, approvedBuilds: ['native'], registry: null })
     expect(state().install).toMatchObject({ subject: { spec: 'x', name: 'qilin-better-sidebar' }, failure: null })
     gates[1]!.resolve(ok({ ...APPLIED, bundle: 'qilin-better-sidebar', approvedBuilds: ['native'] }))
     await vi.waitFor(() => { expect(state().install.phase).toBe('done') })

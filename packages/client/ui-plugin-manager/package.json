@@ -67,7 +67,6 @@
     "@qilin-agent/client-ui-settings-general": "workspace:*",
     "@qilin-agent/client-ui-sidebar": "workspace:*",
     "@qilin-agent/client-ui-slots": "workspace:*",
-    "@qilin-agent/client-ui-workbench": "workspace:*",
     "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/package-manifest": "workspace:*",
     "@qilin-agent/plugin-manager": "workspace:*",

@@ -6,7 +6,6 @@ import { LocaleRuntime } from '@qilin-agent/client-locale/client'
 import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
 import { resolveSlotLabel } from '@qilin-agent/client-ui-slots'
 import { TestRemote, usePinnedBrowserLanguages } from '@qilin-agent/client-test-runtime'
-import { createSnapshotStore } from '@qilin-agent/client-store'
 import { apply, inject, NS, PANEL_ID, TAB_ID } from '../src/client/index.ts'
 import { PluginManagerPage } from '../src/client/PluginManagerPage.tsx'
 import { PluginsPanelIcon } from '../src/client/PluginsPanelIcon.tsx'
@@ -26,10 +25,6 @@ async function bench() {
     }
   }
   new LocaleHolder(ctx)
-  // The workbench tag the audience presentation gate reads.
-  ctx.provide('workbench', {
-    state: createSnapshotStore({ active: 'general', presets: { general: 'standard', coding: 'ptc' } }),
-  })
   // The shared configuration forms the page hands a contributed page; nothing is served here.
   ctx.provide('configForms', {
     describe: () => ({ getSnapshot: () => ({ view: undefined }), subscribe: () => () => {} }),
@@ -100,11 +95,10 @@ describe('ui-plugin-manager browser plugin', () => {
   it('declares only the services the page, its Remote methods, and the shared configuration forms use', () => {
     expect(inject).toEqual([
       'slots', 'locale', 'remote', 'remote.pluginManager', 'remote.pluginInventory', 'remote.pluginRegistryProbe', 'configForms',
-      'workbench',
     ])
   })
 
-  it('registers the management tab, arms the boot read for the audience gate, and follows Host changes', async () => {
+  it('registers the management tab, arms the boot read, and follows Host changes', async () => {
     const b = await bench()
     declare(b.slots)
     const fiber = b.ctx.plugin({ inject: [...inject], apply })
@@ -122,7 +116,7 @@ describe('ui-plugin-manager browser plugin', () => {
     expect(b.slots.spec('plugins.row.config')).toMatchObject({ kind: 'keyed', scope: 'root' })
     const face = (entry.inject as unknown as () => PluginManagerFace)()
     expect(face.hooks.configLedger.getSnapshot()).toEqual({ items: [], bundles: new Set(), rows: new Set() })
-    // The boot read arms the audience gate before the page is ever opened.
+    // The boot read arms the page's package list before the page is ever opened.
     await vi.waitFor(() => { expect(face.hooks.pluginManager.getSnapshot().status).toBe('ready') })
     expect(b.list).toHaveBeenCalledTimes(1)
     // A Host change and a reconnect each read again.
