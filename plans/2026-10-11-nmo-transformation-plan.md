@@ -245,6 +245,23 @@
 
 **验证**：本车道 6/7；oxlint 0；`verify-cordis-config` 435 文件、`verify-runtime-closure` 1 预设 + 156 包闭合、`verify-md-links` 2179 文件。
 
+### S3 双工作台与 audience 归一删除（已落地）
+
+**三笔提交**：受众门与受众选择器（`ui-plugin-manager` 的 admission 与其 spec、页内两处 fieldset、store 的 audience 字段与两个 Host 写入口、7×2 条文案、CSS 块；包与 bundle 侧记录保留 = C6=a）；工作台标签与前端预设面（整包 `ui-workbench`、`sidebar.workbench` 席位、标签状态机与过滤、每标签预设记忆、hero run-mode 芯片及其 slots 类型；5 个 manifest、tsconfig 聚合、rescope 映射、生成目录全部重生成）；车道与文案跟随。
+
+**本片清掉的两处死面（NMO 最小面：无消费者的缝不留）**：
+
+| 死面 | 事实 |
+|---|---|
+| 渲染器呈现门 | `SlotAdmissionGate` / `SlotRendererHost.admissionRevision` / `SlotRegistry.installAdmission()` 与 `admission()` / outlet 的修订订阅 / `ui-settings-general` 与 `ui-sidebar` 两处快照 store 订阅 / `SlotCore.entriesOfSlot` 的 `admit` 谓词——**唯一安装方就是受众门**，删门后全链无调用者，`entriesOf`/`entriesOfSlot` 回归纯账本读；4 个 spec 假宿主与 3 例门用例同退，Kylin 客户端 API 目录重生成 |
+| 双工作台文案 | 预设两处 overlay、禁用行理由、`settings-plugin-inventory` 两处、`settings-chrome`、`agent-preset-selection` 车首注；`ui-agent-opens` 双语文案里「编码工作台标签激活时…」一段（标签与编码内容体均已不存在） |
+
+**本片暴露并修掉的自身缺陷（如实登记）**：删 `ui-workbench` 时同时删了 `apps/web/tests/support.ts` 的 `seedWorkbench`/`switchWorkbenchTab`，但 **5 条车道仍在 import** ⇒ 自那笔提交起 `tsc -b tsconfig.host.json` 一直是红的，本轮才发现（S3b 只跑了 client 面类型检查，属流程漏洞）。修法：去掉种子（单预部署下 seed 是空操作——任何新任务都已组合出厂预设）与相关注释，`coding-file-open` 按当前产品真相改断言（交付文件落在侧栏自己的面板 `[data-sidebar-right-panel]`，不再是编码内容体的 `[data-qilin-panel]`）；两面 typecheck 复绿。
+
+**浏览器车道现状（本机）**：`coding-file-open` **绿**；`present` / `ptc-escalation` / `ptc-round` 红在**本机录制夹具陈旧**——`snapshots/web/**/session.v4.jsonl` 是 **gitignored 的本地录制**，其内容早于升级期加入的 `working-directory:current` 运行上下文段（同目录 `changed-files-turn`/`present-svg`/`seeded-history` 三份已在早前用真 key 重录并含该段），且当前 `ptc` 组合会挂三个创作技能而录制里没有 skill-catalog 段。**修法只能是 `QILIN_SNAPSHOT=record`（真实 key + 真实模型调用）重录**，属需单独授权的动作；与本次车道改写无关（种子在单预部署下是空操作）。
+
+**验证（实跑）**：`ui-slots`+`ui-renderer`+`ui-sidebar`+`ui-settings-general`+`ui-plugin-manager` **419/419**；宽口径 GUI 车道 **1801 通过 / 1 红**（红为既有 `pdf-license-bundle` 的 `npm pack` 环境超时）；`tsc -b` **两面 exit 0**；oxlint 0；`verify-client-packages` 67 包、`verify-package-dependencies` 78 包、`verify-type-equiv` 466 块、`verify-md-links`、pairing（两对已重录）全绿。
+
 ### S2 存量会话 v4→v5 代次重写（C2=b，已落地）
 
 **新代次包** `packages/session/session-format-v4-to-v5`（`src/{index,migration,codec,validation}.ts` + 19 例 spec + 双语 README 对）：折叠点恰两处——`header.agentPreset` 与每条 `agent-preset/selected.data.agentPreset`，`standard`/`cordis`/`minimal` → `ptc`；自定义标识、非字符串载荷与其它字段逐字节通过（选择事件对象原样输出，不复制、不修复）。种子切点取最后一个 `data.inherited === true` 的 `session/end-seed` 自身索引，缺标记直接拒绝；非种子源 `headerInheritedEventCount: 0`。物理面复用已发布 V2 行封装 + V4 行准入（V5 只加词汇）。`resolve()` **不加兜底**（不做别名 fold，保持 fail-loud）。投递水位仍按代次：`sessionFormatVersion: 4` 的 delivery-accepted 在 V5 下不再生效。
@@ -263,4 +280,4 @@
 
 ## 10. 下一步
 
-~~S2 存量会话 v4→v5 代次重写（C2=b）~~ **已落地（见上）** → S3 双工作台与 audience 归一删除（含 ui-workspace 重复芯片与其车道同退）→ S4 前端零预设面清账。schedule-after/schedule-panel 复活与 child-orchestration 重设计为可并行登记片，不阻塞主线。
+~~S2 存量会话 v4→v5 代次重写（C2=b）~~ · ~~S3 双工作台与 audience 归一删除~~ **均已落地（见上）** → **S4 前端零预设面清账**：AgentPresetChip 与 slots.ts 契约下架、display.ts 内建键收敛、locales 三预设文案并一、guide/描述句、apps/web 种子与 shipped-composition 断言对齐、`QILIN_TOOLS_MODE` 缝处置（T9），并补常备 grep 门「退役预设 id 零回流」。浏览器车道重录（`present`/`ptc-escalation`/`ptc-round` 的本地 v4 录制）需 `QILIN_SNAPSHOT=record` 与真实 key，单独授权后执行。schedule-after/schedule-panel 复活与 child-orchestration 重设计为可并行登记片，不阻塞主线。
