@@ -69,6 +69,43 @@ export function resolveLoaderArguments(execArgv: readonly string[]): string[] {
   return resolved
 }
 
+/** Interface a tenant runtime binds when the deployment names none. */
+const DEFAULT_TENANT_HOST = '127.0.0.1'
+
+/** What one tenant runtime's child process is launched with. */
+export interface TenantLaunch {
+  /** Profile the child boots. */
+  readonly profile: string
+  /** Interface the child binds. */
+  readonly host: string
+  /** Overlay files the child composes with, as absolute paths. */
+  readonly patches: readonly string[]
+  /** Arguments the served application receives, in argv order. */
+  readonly appArguments: readonly string[]
+}
+
+/**
+ * One tenant runtime's arguments, after the Node executable.
+ *
+ * The launcher stops reading its own flags at the first token it does not own,
+ * and `--host` belongs to the served application: everything from there on
+ * reaches that application. An overlay belongs to the launcher, so it travels
+ * before it, and the deployment's own application arguments follow `--no-open`
+ * so a runtime never opens a browser of its own.
+ * @param launch - the profile, interface, overlays, and application arguments.
+ * @returns argv for one child process.
+ */
+export function tenantChildArguments(launch: TenantLaunch): string[] {
+  return [
+    '--profile', launch.profile,
+    ...launch.patches.flatMap(path => ['--patch', path]),
+    '--host', launch.host,
+    '--port', '0',
+    '--no-open',
+    ...launch.appArguments,
+  ]
+}
+
 /** Deadline for one tenant runtime to exit after SIGTERM, before SIGKILL. */
 const STOP_DEADLINE_MS = 15_000
 
@@ -112,6 +149,14 @@ export interface TenantRuntimeOptions {
   readonly registration?: 'open' | 'closed'
   /** Profile each runtime boots. */
   readonly profile: string
+  /**
+   * Overlay files each runtime's composition applies, as absolute paths: the
+   * child starts in its own tenant directory, where an operator's relative path
+   * names nothing.
+   */
+  readonly patches: readonly string[]
+  /** Arguments the served application receives, in argv order. */
+  readonly appArguments: readonly string[]
   /** Node entry of the qilin CLI the hub re-executes. */
   readonly binPath: string
   /**
@@ -162,11 +207,20 @@ export interface TenantRuntimeStatus {
   readonly retryAt: number | undefined
 }
 
-/** The patch document one tenant's harness home carries. */
+/**
+ * Character set an account identity may use as a tenant directory name. The
+ * document each layer carries is built from it, so it never needs quoting.
+ */
 const IDENTITY_PATTERN = /^[A-Za-z0-9._-]+$/u
+
+/** Identities a path would read as a directory rather than a name. */
+const PATH_ONLY_IDENTITIES = new Set(['.', '..'])
 
 /** Environment variable naming the deployment home to a tenant runtime. */
 export const DEPLOYMENT_HOME_VARIABLE = 'QILIN_DEPLOYMENT_HOME'
+
+/** Addresses that only the machine itself reaches. */
+export const LOOPBACK_HOSTS: readonly string[] = ['127.0.0.1', '::1', 'localhost']
 
 /**
  * Marks the process as one account's runtime rather than the entry that serves
@@ -175,18 +229,6 @@ export const DEPLOYMENT_HOME_VARIABLE = 'QILIN_DEPLOYMENT_HOME'
  */
 export const TENANT_VARIABLE = 'QILIN_TENANT'
 
-/**
- * Build one tenant's harness-home layer: the account roster it reads and the
- * single account it admits.
- *
- * The roster stays in the deployment home so one command manages every account,
- * while the tenant's own home holds everything else. The deployment home
- * arrives through the environment rather than as a literal, so a path with
- * quotes or a trailing backslash cannot change the document's meaning.
- * @param accountId - account identity this tenant serves.
- * @returns the layer document as YAML.
- * @throws Error when the identity cannot be written as one plain YAML scalar.
- */
 /**
  * Layer of the runtime a deployment uses before it has any account.
  *
@@ -212,8 +254,20 @@ export function bootstrapPatchYaml(registration: 'open' | 'closed' = 'open'): st
 /** Directory name of the runtime a deployment without accounts uses. */
 export const BOOTSTRAP_DIRECTORY = '.bootstrap'
 
+/**
+ * Build one tenant's harness-home layer: the account roster it reads and the
+ * single account it admits.
+ *
+ * The roster stays in the deployment home so one command manages every account,
+ * while the tenant's own home holds everything else. The deployment home
+ * arrives through the environment rather than as a literal, so a path with
+ * quotes or a trailing backslash cannot change the document's meaning.
+ * @param accountId - account identity this tenant serves.
+ * @returns the layer document as YAML.
+ * @throws Error when the identity is not usable as one tenant directory name.
+ */
 export function tenantPatchYaml(accountId: string): string {
-  if (!IDENTITY_PATTERN.test(accountId)) {
+  if (!IDENTITY_PATTERN.test(accountId) || PATH_ONLY_IDENTITIES.has(accountId)) {
     throw new Error(`qilin tenants: ${accountId} is not usable as a tenant directory name`)
   }
   return [
@@ -256,14 +310,16 @@ export class TenantRuntime {
   constructor(private readonly options: TenantRuntimeOptions) {}
 
   /**
-   * Where the hub sends this runtime's traffic: its origin, and the entry path
-   * carrying the launch token the first request exchanges.
-   * @returns the target, or undefined when the runtime is not serving yet.
+   * Where the hub sends this runtime's traffic.
+   *
+   * The runtime's own URL carries a launch token, which the hub never spends:
+   * every request keeps the path the browser asked for, so the application's
+   * account gate answers it. Only the origin is a target.
+   * @returns the runtime's origin, or undefined when it is not serving yet.
    */
-  proxyTarget(): { readonly origin: string; readonly entry: string } | undefined {
+  proxyTarget(): string | undefined {
     if (this.launchUrl === undefined) return undefined
-    const url = new URL(this.launchUrl)
-    return { origin: url.origin, entry: `${url.pathname}${url.search}` }
+    return new URL(this.launchUrl).origin
   }
 
   /** Absolute path of this tenant's harness-home layer. */
@@ -366,10 +422,12 @@ export class TenantRuntime {
     const child = spawn(process.execPath, [
       ...resolveLoaderArguments(this.options.execArgv),
       this.options.binPath,
-      '--profile', this.options.profile,
-      '--host', this.options.host ?? '127.0.0.1',
-      '--port', '0',
-      '--no-open',
+      ...tenantChildArguments({
+        profile: this.options.profile,
+        host: this.options.host ?? DEFAULT_TENANT_HOST,
+        patches: this.options.patches,
+        appArguments: this.options.appArguments,
+      }),
     ], {
       cwd: this.tenantDir,
       // The tenant's harness home is the isolation: every root the runtime
@@ -385,17 +443,26 @@ export class TenantRuntime {
       stdio: ['ignore', 'pipe', 'pipe'],
     })
     const ready = Promise.withResolvers<string>()
-    const append = (chunk: Buffer | string): void => {
-      this.output = `${this.output}${String(chunk)}`.slice(-OUTPUT_LIMIT)
-      const found = READY_URL.exec(this.output)?.[1]
-      if (found !== undefined) ready.resolve(found)
-    }
-    child.stdout.setEncoding('utf8').on('data', append)
-    // Only standard error is forwarded: the standard output line carries the
-    // launch token, and a supervisor's log is not where a capability belongs.
+    // Readiness is matched on complete lines of standard output alone. Standard
+    // error is the runtime's diagnostics, and folding both streams into one
+    // buffer lets an interleaved write land inside the line that carries the
+    // URL, which would hold the start open until its deadline.
+    let banner = ''
+    child.stdout.setEncoding('utf8').on('data', (chunk: string) => {
+      banner += chunk
+      const lines = banner.split('\n')
+      banner = lines.pop() ?? ''
+      for (const line of lines) {
+        const found = READY_URL.exec(line)?.[1]
+        if (found !== undefined) ready.resolve(found)
+      }
+    })
+    // Only standard error is retained and forwarded: the standard output line
+    // carries the launch token, and a supervisor's log is not where a capability
+    // belongs.
     let pending = ''
     child.stderr.setEncoding('utf8').on('data', (chunk: string) => {
-      append(chunk)
+      this.output = `${this.output}${chunk}`.slice(-OUTPUT_LIMIT)
       pending += chunk
       const lines = pending.split('\n')
       pending = lines.pop() ?? ''

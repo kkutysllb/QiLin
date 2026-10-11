@@ -36,21 +36,13 @@ const HOP_BY_HOP = new Set([
   'upgrade',
 ])
 
-/** One tenant runtime the hub may send traffic to. */
-export interface TenantTarget {
-  /** Origin the runtime serves, such as `http://127.0.0.1:41234`. */
-  readonly origin: string
-  /** Path and query the entry handoff requests, launch token included. */
-  readonly entry: string
-}
-
 /** One request the hub forwards. */
 export interface ProxyRequestOptions {
-  /** Runtime the request belongs to. */
-  readonly target: TenantTarget
+  /** Origin the runtime serves, such as `http://127.0.0.1:41234`. */
+  readonly origin: string
   /** Request method, verbatim. */
   readonly method: string
-  /** Path and query to request upstream; the launch token is added by the caller. */
+  /** Path and query to request upstream, exactly the path the browser asked for. */
   readonly path: string
   /** Browser headers, verbatim. */
   readonly headers: IncomingHttpHeaders
@@ -128,7 +120,7 @@ export function forwardedHeaders(headers: IncomingHttpHeaders, tenantAuthority: 
  * @throws Error when the runtime is unreachable or refuses the connection.
  */
 export async function proxyRequest(options: ProxyRequestOptions): Promise<ProxyAnswer> {
-  const origin = new URL(options.target.origin)
+  const origin = new URL(options.origin)
   if (!hubAcceptsOrigin(options.headers, options.hubAuthority)) {
     return {
       status: 403,
@@ -182,17 +174,17 @@ export function relayAnswer(answer: ProxyAnswer, response: ServerResponse): void
  * @param request - the browser's upgrade request.
  * @param socket - the browser's socket.
  * @param head - bytes already read from the browser.
- * @param target - runtime the socket belongs to.
+ * @param target - origin of the runtime the socket belongs to.
  * @param headers - already-forwarded headers, with the tenant's authority set.
  */
 export function relayUpgrade(
   request: IncomingMessage,
   socket: Duplex,
   head: Buffer,
-  target: TenantTarget,
+  target: string,
   headers: IncomingHttpHeaders,
 ): void {
-  const origin = new URL(target.origin)
+  const origin = new URL(target)
   const upstream = connect({ host: origin.hostname, port: Number(origin.port) })
   const lines = [`${request.method ?? 'GET'} ${request.url ?? '/'} HTTP/1.1`]
   // The forwarded set drops connection-scoped entries, and a runtime reads a

@@ -33,7 +33,7 @@ The shipped apps own these command lines:
 
 | Profile | Arguments |
 |---|---|
-| `web` | `--host`, `--port`, repeatable `--trusted-host`, `--no-open` |
+| `web` | the deployment entry's own flags ([Web profile](#web-profile)); every other argument reaches the web app |
 | `headless` | the task text, as the positional argument |
 | `sdk` | no options; stdio carries the JSON-RPC protocol |
 | `sdk-minimal` | no options; stdio carries the same JSON-RPC protocol |
@@ -75,7 +75,7 @@ Git-hosted plugins that ship sources build during install through their `prepare
 
 ## Web profile
 
-`qilin web` uses the profile shorthand. Launcher flags are parsed first; the remaining flags belong to the web app, whose ordinary bundle provider parses them. `--host` and `--port` override the composed values of the rows that carry them, repeatable `--trusted-host` contributes invocation authorities through `ctx.webStartup.trustedHosts` (a deployment expression concatenates its own authorities), and `--no-open` disables the default-browser handoff for this invocation. The client-plugin HMR receiver is always mounted and stays idle until a separate `pnpm run dev:web` watcher rebuilds client bundles.
+`qilin web` uses the profile shorthand. Launcher flags are parsed first; the entry then reads the flags it owns and hands every other argument to each account runtime's command line, where the web app's ordinary bundle provider parses it. The entry owns `--host`, `--port`, repeatable `--patch` (the overlay every runtime composes with), `--tls-cert`/`--tls-key`, `--no-open`, and the tenancy flags `--tenant-profile`, `--tenant-host`, `--per-account-ports`, `--idle-ms`, `--max-tenants`, `--restart-backoff-ms`, and `--registration`; `qilin web --help` prints that list. An argument the entry does not own, such as a repeatable `--trusted-host`, passes through and contributes invocation authorities to every runtime through `ctx.webStartup.trustedHosts`; a deployment expression concatenates its own authorities. The client-plugin HMR receiver is always mounted and stays idle until a separate `pnpm run dev:web` watcher rebuilds client bundles.
 
 ```sh
 qilin web
@@ -85,7 +85,7 @@ qilin web --dump-config
 qilin web --help
 ```
 
-The production Web runner needs built package and frontend artifacts (`pnpm run build`). It serves `http://127.0.0.1:3080` by default and, for a local launch, opens that canonical host URL only after the complete Loader tree settles. A non-empty inherited `SSH_CONNECTION` or `SSH_TTY` suppresses the browser handoff because the SSH client or editor owns the local forwarded address; the host URL is still printed. The CLI intentionally does not support `--host 0.0.0.0` and exits with a usage error. Immediately before a local handoff it prints `qilin web: opening the default browser; pass --no-open to disable`; if the operating-system handoff fails, a diagnostic on stderr states the reason, leaves the server running, and names the URL for manual use. `--trusted-host` adds named authorities accepted by the `/api` browser-trust fence.
+The production deployment needs built package and frontend artifacts (`pnpm run build`). It serves `http://127.0.0.1:8790` by default, terminates TLS itself when the invocation supplies `--tls-cert` with `--tls-key`, and opens that canonical host URL once the entry listens. A non-empty inherited `SSH_CONNECTION` or `SSH_TTY` is not consulted by the entry: it opens the address unless `--no-open` is present, and a failed operating-system handoff writes the reason to stderr while the deployment keeps serving. The entry refuses a wildcard `--host` with a usage error, because its address is the only address a browser reaches, and refuses `--tls-cert` together with `--per-account-ports`, because the per-account origins it hands out are plain HTTP. Each account runtime is started with `--no-open`, so only the entry opens a browser. `--trusted-host` adds named authorities accepted by the `/api` browser-trust fence.
 
 Process shutdown gives the plugin tree up to five seconds to dispose. The first `SIGINT`/`SIGTERM` starts that graceful drain — `SIGTERM` is a supervisor's ordinary stop request and exits 0 on every surface, `SIGINT` reports 130; a second signal forces immediate exit. If one-shot normal completion is already stuck in disposal, the first `Ctrl+C` is the escalation and exits immediately instead of being swallowed.
 

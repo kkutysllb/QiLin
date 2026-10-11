@@ -31,11 +31,26 @@
  * @module @qilin-agent/cli/tenants
  */
 
-import { createServer, type IncomingMessage, type ServerResponse } from 'node:http'
+import { readFileSync } from 'node:fs'
+import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http'
+import { createServer as createHttpsServer } from 'node:https'
 import { accountsFilePath, AccountStore } from '@qilin-agent/accounts-local'
 import { resolveQilinHome } from '@qilin-agent/home-paths'
-import { BOOTSTRAP_DIRECTORY, TenantRuntime, type TenantRuntimeStatus } from './tenant-runtime.ts'
+import {
+  BOOTSTRAP_DIRECTORY,
+  LOOPBACK_HOSTS,
+  TenantRuntime,
+  type TenantRuntimeStatus,
+} from './tenant-runtime.ts'
 import { forwardedHeaders, hubAcceptsOrigin, proxyRequest, relayAnswer, relayUpgrade } from './tenant-proxy.ts'
+
+/** Certificate and key the public address terminates TLS with. */
+export interface DeploymentTlsFiles {
+  /** PEM certificate chain file. */
+  readonly certFile: string
+  /** Unencrypted PEM private key file. */
+  readonly keyFile: string
+}
 
 /** What `qilin tenants serve` was asked to do. */
 export interface TenantsServeOptions {
@@ -66,9 +81,23 @@ export interface TenantsServeOptions {
   readonly singleOrigin: boolean
   /**
    * Whether the deployment lets the product create accounts beyond the
-   * roster's first. Closed admits only the accounts the roster holds.
+   * roster's first. Closed admits only the accounts the roster holds, so the
+   * operator creates them with `qilin tenants add`.
    */
-  readonly registration?: 'open' | 'closed'
+  readonly registration: 'open' | 'closed'
+  /**
+   * Overlay files each runtime composes with, as absolute paths: a child starts
+   * in its own tenant directory, whatever directory the operator launched from.
+   */
+  readonly patches: readonly string[]
+  /** Arguments the served application receives, in argv order. */
+  readonly appArguments: readonly string[]
+  /**
+   * TLS the public address terminates with. Account runtimes stay on loopback
+   * and speak plain HTTP behind it, which is why this is only served when every
+   * account is reached through this address.
+   */
+  readonly tls?: DeploymentTlsFiles | undefined
   /**
    * Interface every tenant runtime binds. It defaults to loopback, which is the
    * only reachable interface when {@link singleOrigin} is set: the hub's
@@ -124,6 +153,35 @@ function cookieValue(header: string | undefined, name: string): string | undefin
   return undefined
 }
 
+/**
+ * One path segment read as an account name.
+ * @param segment - the raw path segment.
+ * @returns the decoded segment, or undefined when it is not valid percent-encoding.
+ */
+function decodeIdentifier(segment: string): string | undefined {
+  try {
+    return decodeURIComponent(segment)
+  } catch {
+    // Not UTF-8 percent-encoding, so it names no account this roster could hold.
+    return undefined
+  }
+}
+
+/**
+ * One PEM file the deployment address serves with.
+ * @param path - the file the invocation named.
+ * @param flag - the flag that named it, for the refusal.
+ * @returns the file's bytes.
+ * @throws Error when the file cannot be read.
+ */
+function readPem(path: string, flag: string): Buffer {
+  try {
+    return readFileSync(path)
+  } catch (error) {
+    throw new Error(`qilin tenants: ${flag} ${path} is not readable: ${String(error)}`)
+  }
+}
+
 /** One answered request. */
 function respond(response: ServerResponse, status: number, contentType: string, body: string): void {
   response.writeHead(status, {
@@ -165,6 +223,8 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       execArgv: process.execArgv,
       host: options.tenantHost ?? undefined,
       restartBackoffMilliseconds: options.restartBackoffMilliseconds,
+      patches: options.patches,
+      appArguments: options.appArguments,
       log: (line) => { process.stderr.write(`qilin tenants: [${accountId}] ${line}\n`) },
     })
     runtimes.set(accountId, created)
@@ -184,12 +244,14 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       accountId: BOOTSTRAP_ACCOUNT,
       directoryName: BOOTSTRAP_DIRECTORY,
       bootstrap: true,
-      registration: options.registration ?? 'open',
+      registration: options.registration,
       profile: options.profile,
       binPath,
       execArgv: process.execArgv,
       host: options.tenantHost ?? undefined,
       restartBackoffMilliseconds: options.restartBackoffMilliseconds,
+      patches: options.patches,
+      appArguments: options.appArguments,
       log: (line) => { process.stderr.write(`qilin tenants: [first-run] ${line}\n`) },
     })
     runtimes.set(BOOTSTRAP_ACCOUNT, created)
@@ -256,11 +318,12 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
 
   /**
    * Resolve the runtime one browser is driving, starting it when it is not serving.
+   * @param store - the roster this request read.
    * @param accountId - the account the browser's routing cookie names.
    * @returns the runtime, or undefined when the roster no longer holds that account.
    */
-  const routedRuntime = async (accountId: string): Promise<TenantRuntime | undefined> => {
-    if ((await roster()).byId(accountId) === undefined) return undefined
+  const routedRuntime = async (store: AccountStore, accountId: string): Promise<TenantRuntime | undefined> => {
+    if (store.byId(accountId) === undefined) return undefined
     const runtime = runtimeFor(accountId)
     await serialize(async () => {
       await makeRoom(runtime)
@@ -284,13 +347,13 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
     path: string,
     extraCookies: readonly string[],
   ): Promise<void> => {
-    const target = runtime.proxyTarget()
-    if (target === undefined) throw new Error('the runtime is not serving')
+    const origin = runtime.proxyTarget()
+    if (origin === undefined) throw new Error('the runtime is not serving')
     // Every proxied request is traffic the hub can see, which is what makes
     // reclamation in this mode measure use rather than a handoff.
     runtime.lastUsedAt = Date.now()
     const answered = await proxyRequest({
-      target,
+      origin,
       method: request.method ?? 'GET',
       path,
       headers: request.headers,
@@ -345,13 +408,19 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       const separator = rest.indexOf('/')
       return separator === -1 ? `/${url.search}` : `${rest.slice(separator)}${url.search}`
     }
-    if ((await roster()).all().length === 0) {
+    // One roster read per request: the account this request names, the account
+    // its routing cookie names, and the emptiness above are one view of the
+    // file rather than several.
+    const store = await roster()
+    if (store.all().length === 0) {
       await serveFirstRun(request, response, productPath())
       return
     }
     // The hub's own routes answer reads. A proxied path carries whatever method
     // the browser used, because its API calls and its uploads pass through.
-    const hubOwnRoute = url.pathname === '/healthz' || url.pathname === '/status' || url.pathname === '/'
+    // `/healthz` and `/status` returned above, so the bare address is the only
+    // route left that this process answers rather than forwards.
+    const hubOwnRoute = url.pathname === '/'
     if (request.method !== 'GET' && !(options.singleOrigin && !hubOwnRoute)) {
       respond(response, 405, 'text/plain; charset=utf-8', 'qilin tenants: the hub answers reads only\n')
       return
@@ -359,8 +428,12 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
     if (url.pathname.startsWith('/t/')) {
       const rest = url.pathname.slice('/t/'.length)
       const separator = rest.indexOf('/')
-      const username = decodeURIComponent(separator === -1 ? rest : rest.slice(0, separator))
-      const account = (await roster()).byIdentifier(username)
+      const username = decodeIdentifier(separator === -1 ? rest : rest.slice(0, separator))
+      if (username === undefined) {
+        respond(response, 400, 'text/plain; charset=utf-8', 'qilin tenants: that account path is not valid UTF-8\n')
+        return
+      }
+      const account = store.byIdentifier(username)
       if (account === undefined) {
         // A name this roster does not hold yet is the application's business,
         // not this deployment's: the first-run runtime hosts the product's own
@@ -406,7 +479,7 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       // gate sends a signed-out browser to the runtime's own root, which is
       // the same path the form lives on, so the cookie is the whole difference.
       if (accountId !== undefined) {
-        const runtime = await routedRuntime(accountId)
+        const runtime = await routedRuntime(store, accountId)
         if (runtime !== undefined) {
           try {
             // Signing out ends the runtime's own session; the routing cookie is
@@ -429,7 +502,7 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       }
     }
     if (url.pathname === '/') {
-      const accounts = (await roster()).all()
+      const accounts = store.all()
       // The deployment draws no interface of its own: the application inside an
       // account's runtime owns the landing page, the sign-in form, first-run
       // initialization, and registration. The bare address therefore hands the
@@ -456,13 +529,23 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
     await serveFirstRun(request, response, productPath())
   }
 
-  const server = createServer((request, response) => {
+  const onRequest = (request: IncomingMessage, response: ServerResponse): void => {
     void handle(request, response).catch((error: unknown) => {
       process.stderr.write(`qilin tenants: request failed: ${String(error)}\n`)
       if (!response.headersSent) respond(response, 500, 'text/plain; charset=utf-8', 'qilin tenants: request failed\n')
       else response.end()
     })
-  })
+  }
+  // A key pair terminates TLS here, in front of the account runtimes: they stay
+  // on loopback and the deployment's address is the only address a browser
+  // reaches, so this hop is where a deployment's certificate belongs. A file it
+  // cannot read stops the deployment instead of serving plaintext.
+  const server: Server = options.tls === undefined
+    ? createServer(onRequest)
+    : createHttpsServer({
+      cert: readPem(options.tls.certFile, '--tls-cert'),
+      key: readPem(options.tls.keyFile, '--tls-key'),
+    }, onRequest)
 
   if (options.singleOrigin) {
     // The mux upgrade is an absolute path on the page origin, so only the
@@ -474,14 +557,14 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
           return
         }
         const accountId = cookieValue(request.headers.cookie, TENANT_COOKIE)
-        const runtime = accountId === undefined ? undefined : await routedRuntime(accountId)
+        const runtime = accountId === undefined ? undefined : await routedRuntime(await roster(), accountId)
         const target = runtime?.proxyTarget()
         if (runtime === undefined || target === undefined) {
           socket.destroy()
           return
         }
         runtime.lastUsedAt = Date.now()
-        relayUpgrade(request, socket, head, target, forwardedHeaders(request.headers, new URL(target.origin).host))
+        relayUpgrade(request, socket, head, target, forwardedHeaders(request.headers, new URL(target).host))
       })().catch((error: unknown) => {
         process.stderr.write(`qilin tenants: the upgrade to ${request.url ?? ''} failed: ${String(error)}\n`)
         socket.destroy()
@@ -496,9 +579,19 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
     listening.resolve(typeof address === 'object' && address !== null ? address.port : options.port)
   })
   const port = await listening.promise
+  // The printed address is the one this machine can open; an interface other
+  // hosts reach is stated as the fact it is instead of being reported as
+  // loopback.
   const printableHost = options.host === '0.0.0.0' || options.host === '::' ? '127.0.0.1' : options.host
-  const address = `http://${printableHost}:${String(port)}/`
-  process.stdout.write(`qilin tenants: http://${printableHost}:${String(port)}/\n`)
+  const scheme = options.tls === undefined ? 'http' : 'https'
+  const address = `${scheme}://${printableHost}:${String(port)}/`
+  process.stdout.write(`qilin tenants: ${address}\n`)
+  if (!LOOPBACK_HOSTS.includes(options.host)) {
+    process.stderr.write(`qilin tenants: this address is reachable at ${options.host}:${String(port)}; every account runtime stays on loopback\n`)
+  }
+  if ((await roster()).isEmpty && options.registration !== 'open') {
+    process.stderr.write('qilin tenants: no account exists yet and this deployment does not accept new ones; create the first with `qilin tenants add <name>`\n')
+  }
 
   // One sweep reclaims every runtime whose last use is older than the idle
   // window: the child exits, its tenant's data stays on disk under the shared

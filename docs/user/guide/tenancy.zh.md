@@ -22,7 +22,7 @@ qilin tenants remove alice [--purge-data]               # retire; keep Sessions 
 qilin --port 8790
 ```
 
-入口会打印自己的 URL（默认 loopback 与 8790 端口），在请求指名某个账户时启动它的运行时，并回收没人使用的运行时。入口自己不作画：落地页、登录表单与注册都归每个运行时内部的应用所有。`--idle-ms` 设定这个空闲窗口，`0` 表示让每个运行时都保持存活。`--max-tenants` 通过回收最久未使用的那个来限定同时存活的运行时数量。`--restart-backoff-ms` 设定启动失败的运行时第一次重试前的等待；每次连续失败该等待翻倍，而 `/status` 会报告失败次数与最早的重试时间。`--registration open|closed` 默认为 open，决定产品自己的表单能否创建名册之外的账户。
+入口会打印自己的 URL（默认 loopback 与 8790 端口），在请求指名某个账户时启动它的运行时，并回收没人使用的运行时。入口自己不作画：落地页、登录表单与注册都归每个运行时内部的应用所有。`--idle-ms` 设定这个空闲窗口，`0` 表示让每个运行时都保持存活。`--max-tenants` 通过回收最久未使用的那个来限定同时存活的运行时数量。`--restart-backoff-ms` 设定启动失败的运行时第一次重试前的等待；每次连续失败该等待翻倍，而 `/status` 会报告失败次数与最早的重试时间。`--registration open|closed` 决定产品自己的表单能否创建账户：loopback 地址上默认为 open，其他地址上默认为 closed，因此别的机器能到达的地址只在运维明说时才创建账户（用 `qilin tenants add`）。
 
 ## 在这个地址登录
 

@@ -62,7 +62,7 @@ describe('tenant proxy hop', () => {
       : { status: 200, headers: {}, body: 'whole' })
 
     const answer = await proxyRequest({
-      target: { origin: runtime.origin, entry: '/entry' },
+      origin: runtime.origin,
       method: 'GET',
       path: '/media/clip.mp4',
       headers: { host: 'hub.invalid:8790', range: 'bytes=0-9' },
@@ -80,7 +80,7 @@ describe('tenant proxy hop', () => {
     const runtime = await stubRuntime(() => ({ status: 200, headers: {}, body: 'ok' }))
 
     await proxyRequest({
-      target: { origin: runtime.origin, entry: '/entry' },
+      origin: runtime.origin,
       method: 'POST',
       path: '/api/session/list',
       headers: {
@@ -111,10 +111,10 @@ describe('tenant proxy hop', () => {
 
   it('refuses a foreign or cross-site label before the runtime sees anything', async () => {
     const runtime = await stubRuntime(() => ({ status: 200, headers: {}, body: 'ok' }))
-    const target = { origin: runtime.origin, entry: '/entry' }
+    const target = runtime.origin
 
     const foreign = await proxyRequest({
-      target,
+      origin: target,
       method: 'POST',
       path: '/api/x',
       headers: { host: 'hub.invalid:8790', origin: 'http://evil.invalid' },
@@ -123,7 +123,7 @@ describe('tenant proxy hop', () => {
     expect(foreign.status).toBe(403)
     expect(await bodyOf(foreign.stream)).toMatch(/not this hub/u)
     const crossSite = await proxyRequest({
-      target,
+      origin: target,
       method: 'GET',
       path: '/api/x',
       headers: { host: 'hub.invalid:8790', 'sec-fetch-site': 'cross-site' },
@@ -147,7 +147,7 @@ describe('tenant proxy hop', () => {
     }))
 
     const answer = await proxyRequest({
-      target: { origin: runtime.origin, entry: '/entry' },
+      origin: runtime.origin,
       method: 'GET',
       path: '/workspace',
       headers: { host: 'hub.invalid:8790' },
@@ -164,7 +164,7 @@ describe('tenant proxy hop', () => {
 
   it('fails the forward when the runtime is not listening', async () => {
     await expect(proxyRequest({
-      target: { origin: 'http://127.0.0.1:1', entry: '/entry' },
+      origin: 'http://127.0.0.1:1',
       method: 'GET',
       path: '/',
       headers: { host: 'hub.invalid:8790' },
@@ -221,7 +221,7 @@ describe('tenant proxy hop', () => {
         { method: 'GET', url: '/api/remote.mux', headers: {} } as IncomingMessage,
         socket,
         Buffer.alloc(0),
-        { origin: `http://127.0.0.1:${String(runtimePort)}`, entry: '/entry' },
+        `http://127.0.0.1:${String(runtimePort)}`,
         { host: `127.0.0.1:${String(runtimePort)}`, 'sec-websocket-key': 'abc' },
       )
     })

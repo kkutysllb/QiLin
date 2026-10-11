@@ -48,7 +48,19 @@ export async function runCli(): Promise<void> {
       // here, so it keeps serving one account directly.
       const { ENTRY_PROFILES, isWebEntry, runWebEntry } = await import('./web-entry.ts')
       if (ENTRY_PROFILES.includes(invocation.profile) && isWebEntry()) {
-        process.exitCode = await runWebEntry(invocation.args, invocation.profile)
+        try {
+          process.exitCode = await runWebEntry({
+            args: invocation.args,
+            profile: invocation.profile,
+            patches: invocation.patches,
+            fromDefaultProfile: invocation.fromDefaultProfile,
+          })
+        } catch (error) {
+          // A flag the deployment cannot honour stops the process with the
+          // reason, exactly as the served application's own usage errors do.
+          process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`)
+          process.exit(1)
+        }
         break
       }
       const { runProfile } = await import('./profile-boot.ts')
