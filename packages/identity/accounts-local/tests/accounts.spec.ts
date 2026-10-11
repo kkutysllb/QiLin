@@ -338,4 +338,45 @@ describe('account store', () => {
     await expect(store.add({ username: 'first' }, 'password-1')).rejects.toThrow(/another writer holds/u)
     expect(store.all()).toEqual([])
   })
+
+  it('marks one account as the deployment administrator and refuses a second seat', async () => {
+    const base = await home()
+    const path = join(base, 'auth', 'accounts.json')
+    const store = await AccountStore.open(path)
+    const admin = await store.add({ username: 'root' }, 'password-1', { admin: true })
+    expect(admin.admin).toBe(true)
+    // An ordinary account carries no seat at all, not a false one.
+    const member = await store.add({ username: 'member' }, 'password-1')
+    expect(member.admin).toBeUndefined()
+    await expect(store.add({ username: 'other' }, 'password-1', { admin: true }))
+      .rejects.toMatchObject({ kind: 'admin' })
+    // The seat survives a reopen, and the refusal left the set as it was.
+    const reopened = await AccountStore.open(path)
+    expect(reopened.all().map(account => [account.username, account.admin === true]))
+      .toEqual([['root', true], ['member', false]])
+  })
+
+  it('lets exactly one of two administrator requests through', async () => {
+    const base = await home()
+    const path = join(base, 'auth', 'accounts.json')
+    const store = await AccountStore.open(path)
+    // The seat is decided against the set the write lands on, so the two
+    // submissions cannot both find the deployment without an administrator.
+    const settled = await Promise.allSettled([
+      store.add({ username: 'one' }, 'password-1', { admin: true }),
+      store.add({ username: 'two' }, 'password-1', { admin: true }),
+    ])
+    expect(settled.filter(result => result.status === 'fulfilled')).toHaveLength(1)
+    const refused = settled.filter(result => result.status === 'rejected')
+    expect(refused[0]?.reason).toMatchObject({ kind: 'admin' })
+    expect((await AccountStore.open(path)).all().filter(account => account.admin === true)).toHaveLength(1)
+  })
+
+  it('refuses a stored administrator flag that is not true', async () => {
+    const base = await home()
+    await mkdir(join(base, 'auth'), { recursive: true })
+    const path = join(base, 'auth', 'accounts.json')
+    await writeFile(path, JSON.stringify({ version: 2, accounts: [{ ...record(), admin: 'yes' }] }))
+    await expect(AccountStore.open(path)).rejects.toThrow(/malformed account record/u)
+  })
 })

@@ -167,11 +167,16 @@ describe('parseQilinArgs', () => {
     expect(parse(['tenants', 'accounts'])).toEqual({ mode: 'tenants', request: { command: 'accounts' } })
     expect(parse(['tenants', 'add', 'Alice', '--email', 'alice@example.com', '--password-stdin'])).toEqual({
       mode: 'tenants',
-      request: { command: 'add', username: 'Alice', email: 'alice@example.com', password: { kind: 'stdin' } },
+      request: { command: 'add', username: 'Alice', email: 'alice@example.com', admin: false, password: { kind: 'stdin' } },
     })
     expect(parse(['tenants', 'add', 'alice'])).toEqual({
       mode: 'tenants',
-      request: { command: 'add', username: 'alice', email: undefined, password: { kind: 'prompt' } },
+      request: { command: 'add', username: 'alice', email: undefined, admin: false, password: { kind: 'prompt' } },
+    })
+    // The administrator seat is asked for explicitly and defaults to off.
+    expect(parse(['tenants', 'add', 'root', '--admin', '--password-stdin'])).toEqual({
+      mode: 'tenants',
+      request: { command: 'add', username: 'root', email: undefined, admin: true, password: { kind: 'stdin' } },
     })
     expect(parse(['tenants', 'passwd', 'alice'])).toEqual({
       mode: 'tenants',

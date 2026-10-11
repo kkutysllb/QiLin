@@ -80,6 +80,20 @@ describe('tenants roster', () => {
     expect(unpiped.err).toMatch(/not a terminal/u)
   })
 
+  it('creates the deployment administrator once and refuses a second seat', async () => {
+    const base = await home()
+    const created = await addAccount(base, { username: 'root', password: 'root-password', admin: true })
+    expect(created.admin).toBe(true)
+    // The seat is durable: a fresh read of the shared roster carries it.
+    expect((await AccountStore.open(accountsFilePath(base))).byUsername('root')?.admin).toBe(true)
+
+    // A second request for the seat is refused where the write lands, and it
+    // leaves the roster exactly as it was.
+    await expect(addAccount(base, { username: 'other', password: 'other-password', admin: true }))
+      .rejects.toThrow(/already has an administrator/u)
+    expect((await AccountStore.open(accountsFilePath(base))).all()).toHaveLength(1)
+  })
+
   it('refuses a name, address, or password the account surface would not accept', async () => {
     const base = await home()
     await expect(addAccount(base, { username: 'a', password: 'long-enough' })).rejects.toThrow(/not an acceptable username/u)

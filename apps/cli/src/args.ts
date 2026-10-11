@@ -237,14 +237,16 @@ export function parseQilinArgs(argv: readonly string[], version: string): QilinI
       .description('create one account in this Harness home')
       .argument('<username>', 'login name: 3-32 characters of a-z, 0-9, _, ., or -, starting with a letter or digit')
       .option('--email <address>', 'address stored with the account')
+      .option('--admin', "make this the deployment's administrator: the one account that reads every account's usage ledger")
       .option('--password-stdin', 'read the password from standard input instead of prompting')
-      .action((username: string, options: { email?: string; passwordStdin?: boolean }) => {
+      .action((username: string, options: { email?: string; admin?: boolean; passwordStdin?: boolean }) => {
         resolved = {
           mode: 'tenants',
           request: {
             command: 'add',
             username,
             email: options.email,
+            admin: options.admin === true,
             password: options.passwordStdin === true ? { kind: 'stdin' } : { kind: 'prompt' },
           },
         }

@@ -50,6 +50,8 @@ export interface AddAccountRequest {
   readonly email?: string | undefined
   /** Plaintext password, validated against the shared minimum length. */
   readonly password: string
+  /** Create this deployment's administrator, which may already have one. */
+  readonly admin?: boolean | undefined
 }
 
 /** Where a mutation reads the password it applies. */
@@ -60,7 +62,7 @@ export type PasswordSource =
 /** One roster subcommand of `qilin tenants`. */
 export type RosterRequest =
   | { readonly command: 'accounts' }
-  | { readonly command: 'add'; readonly username: string; readonly email: string | undefined; readonly password: PasswordSource }
+  | { readonly command: 'add'; readonly username: string; readonly email: string | undefined; readonly admin: boolean; readonly password: PasswordSource }
   | { readonly command: 'passwd'; readonly username: string; readonly password: PasswordSource }
   | { readonly command: 'remove'; readonly username: string; readonly purgeData: boolean }
 
@@ -99,9 +101,10 @@ export async function rosterEntries(home: string): Promise<RosterEntry[]> {
 /**
  * Create one account in the shared roster.
  * @param home - absolute shared Harness home.
- * @param request - the login name, address, and password to store.
+ * @param request - the login name, address, password, and administrator seat.
  * @returns the created account.
- * @throws Error when the name or address is refused or already taken.
+ * @throws Error when the name or address is refused or already taken, or when
+ * the deployment already has an administrator.
  */
 export async function addAccount(home: string, request: AddAccountRequest): Promise<AccountRecord> {
   const username = normalizeUsername(request.username)
@@ -119,7 +122,7 @@ export async function addAccount(home: string, request: AddAccountRequest): Prom
     if (!isValidEmail(email)) throw new Error(`qilin tenants: '${request.email}' is not an acceptable email address`)
     if (store.byEmail(email) !== undefined) throw new Error(`qilin tenants: the address ${email} already belongs to an account`)
   }
-  return await store.add({ username, email }, request.password)
+  return await store.add({ username, email }, request.password, { admin: request.admin === true })
 }
 
 /**
@@ -283,9 +286,12 @@ export async function runTenantsRoster(request: RosterRequest): Promise<number> 
       }
       case 'add': {
         const password = await readPassword(request.password, request.username)
-        const account = await addAccount(home, { username: request.username, email: request.email, password })
+        const account = await addAccount(home, { username: request.username, email: request.email, password, admin: request.admin })
         const directory = await ensureTenantDirectory(home, account.id)
         process.stdout.write(`qilin tenants: created ${account.username} (${account.id}); its tenant directory is ${directory}\n`)
+        if (account.admin === true) {
+          process.stdout.write(`qilin tenants: ${account.username} is this deployment's administrator and reads every account's usage ledger\n`)
+        }
         return 0
       }
       case 'passwd': {

@@ -32,6 +32,12 @@ export interface AccountRecord {
   readonly createdAt: number
   /** Credential generation: a session carrying another value no longer verifies. */
   readonly tokenVersion: number
+  /**
+   * Present only on the deployment's one administrator: the account whose
+   * runtime the hub hands the whole deployment's usage ledger to. Absent on
+   * every other account, and a deployment refuses a second one.
+   */
+  readonly admin?: true
 }
 
 /** On-disk document shape. */
@@ -48,6 +54,15 @@ export interface NewAccount {
   readonly email?: string | null
 }
 
+/** What the caller asking for a new account may also decide. */
+export interface NewAccountOptions {
+  /**
+   * Create the deployment's administrator. A deployment holds one, so a second
+   * request is refused where the write happens.
+   */
+  readonly admin?: boolean
+}
+
 /**
  * A change the account file's current contents refuse.
  *
@@ -61,7 +76,7 @@ export class AccountConflictError extends Error {
    * @param message - the refusal, naming the account or address involved.
    */
   constructor(
-    readonly kind: 'username' | 'email' | 'initialized',
+    readonly kind: 'username' | 'email' | 'initialized' | 'admin',
     message: string,
   ) {
     super(message)
@@ -126,7 +141,16 @@ function parseAccount(value: unknown, path: string, version: number): AccountRec
     if (email !== null && email !== undefined && (typeof email !== 'string' || email === '')) {
       throw malformed(path)
     }
-    return { ...common, username, email: typeof email === 'string' ? email : null }
+    // The flag is additive: a file written before it existed has no key, and a
+    // file that spells it as anything but true is not one this build wrote.
+    const { admin } = value
+    if (admin !== undefined && admin !== true) throw malformed(path)
+    return {
+      ...common,
+      username,
+      email: typeof email === 'string' ? email : null,
+      ...(admin === true ? { admin: true as const } : {}),
+    }
   }
   const { email } = value
   if (typeof email !== 'string' || email === '') throw malformed(path)
@@ -171,9 +195,10 @@ async function readAccounts(path: string): Promise<readonly AccountRecord[]> {
  * One account record, ready to append.
  * @param identity - normalized username and optional normalized email.
  * @param password - plaintext password, already validated by the caller.
+ * @param options - whether this account is the deployment's administrator.
  * @returns the record this build stores.
  */
-async function createRecord(identity: NewAccount, password: string): Promise<AccountRecord> {
+async function createRecord(identity: NewAccount, password: string, options?: NewAccountOptions): Promise<AccountRecord> {
   return {
     id: randomUUID(),
     username: identity.username,
@@ -181,6 +206,7 @@ async function createRecord(identity: NewAccount, password: string): Promise<Acc
     password: await hashPassword(password),
     createdAt: Date.now(),
     tokenVersion: 1,
+    ...(options?.admin === true ? { admin: true as const } : {}),
   }
 }
 
@@ -273,11 +299,13 @@ export class AccountStore {
    * earlier read is not what the file holds by the time the write happens.
    * @param identity - normalized username and optional normalized email.
    * @param password - plaintext password, already validated by the caller.
+   * @param options - whether this account is the deployment's administrator.
    * @returns the created account.
-   * @throws {@link AccountConflictError} when the name or address is taken.
+   * @throws {@link AccountConflictError} when the name, the address, or the
+   * administrator seat is taken.
    */
-  async add(identity: NewAccount, password: string): Promise<AccountRecord> {
-    const created = await createRecord(identity, password)
+  async add(identity: NewAccount, password: string, options?: NewAccountOptions): Promise<AccountRecord> {
+    const created = await createRecord(identity, password, options)
     return await this.mutate((accounts) => {
       const taken = accounts.find(account => account.username === created.username)
       if (taken !== undefined) {
@@ -285,6 +313,11 @@ export class AccountStore {
       }
       if (created.email !== null && accounts.some(account => account.email === created.email)) {
         throw new AccountConflictError('email', `accounts-local: the address ${created.email} already belongs to an account`)
+      }
+      // The seat is decided against the set the write lands on, so two
+      // simultaneous administrator requests produce one administrator.
+      if (created.admin === true && accounts.some(account => account.admin === true)) {
+        throw new AccountConflictError('admin', 'accounts-local: this deployment already has an administrator')
       }
       return { accounts: [...accounts, created], result: created }
     })
@@ -301,8 +334,8 @@ export class AccountStore {
    * @returns the created account.
    * @throws {@link AccountConflictError} when an account already exists.
    */
-  async initialize(identity: NewAccount, password: string): Promise<AccountRecord> {
-    const created = await createRecord(identity, password)
+  async initialize(identity: NewAccount, password: string, options?: NewAccountOptions): Promise<AccountRecord> {
+    const created = await createRecord(identity, password, options)
     return await this.mutate((accounts) => {
       if (accounts.length > 0) {
         throw new AccountConflictError('initialized', 'accounts-local: an account already exists')
