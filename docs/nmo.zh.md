@@ -61,7 +61,7 @@ QiLin 是这些产品的引擎基座，因此本节记录引擎侧对账；逐�
 
 **Native。** Session 日志是每个模型可见事实的唯一记录，格式代次与迁移路径都在本仓（`packages/session/`）；`verify-persistence-formats`、`verify-persistence-catalog` 与 `verify-persistence-changes` 守住这些引用。
 
-**Minimal。** 唯一出厂预设运行每个会话，客户端不提供预设选择器，部署默认预设与进程级工具呈现兜底都是它，因此未配置的部署与它出货的组合行为一致。录制车道显示全新工作区在零配置步骤下到达可用编辑器（`composer-placeholder`、`startup-auto-selection`）；把这两个数字钉住的计数脚本仍待落地。默认权限预设（`workspace-write`）同样无需用户选择。
+**Minimal。** 唯一出厂预设运行每个会话，客户端不提供预设选择器，部署默认预设与进程级工具呈现兜底都是它，因此未配置的部署与它出货的组合行为一致。`apps/web/tests/first-run-metric.e2e.ts` 在隔离的全新 home 上量到：首屏无对话框、未打开任何配置面、编辑器可用前只有 1 个阻断决策（连接工作区）；连同发消息本身共 2 步，对照目标 2。同一路径的文案由 `composer-placeholder` 与 `startup-auto-selection` 覆盖。默认权限预设（`workspace-write`）同样无需用户选择。
 
 **Open。** 插件经公开契约从仓外接入而不改产品代码；移除官方插件后会话照常运行（`apps/web/tests/third-party-plugin.e2e.ts`、`apps/web/tests/shipped-composition.e2e.ts`）。
 
