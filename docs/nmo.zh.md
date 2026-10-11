@@ -55,3 +55,14 @@ Agent、会话、领域与插件的生命周期及运行时事实由产品自己
 ## 使用与修订
 
 新产品立项时写一节 NMO 对账：如何遵循每条原则、在哪里有意让步。让步显式登记——谁让步、为什么、何时收回。本页修订升版本号并记录缘由。
+## QiLin 对账
+
+QiLin 是这些产品的引擎基座，因此本节记录引擎侧对账；逐项账目、证据与打断点清单在[改造计划](../plans/2026-10-11-nmo-transformation-plan.md)。
+
+**Native。** Session 日志是每个模型可见事实的唯一记录，格式代次与迁移路径都在本仓（`packages/session/`）；`verify-persistence-formats`、`verify-persistence-catalog` 与 `verify-persistence-changes` 守住这些引用。
+
+**Minimal。** 唯一出厂预设运行每个会话，客户端不提供预设选择器，部署默认预设与进程级工具呈现兜底都是它，因此未配置的部署与它出货的组合行为一致。录制车道显示全新工作区在零配置步骤下到达可用编辑器（`composer-placeholder`、`startup-auto-selection`）；把这两个数字钉住的计数脚本仍待落地。默认权限预设（`workspace-write`）同样无需用户选择。
+
+**Open。** 插件经公开契约从仓外接入而不改产品代码；移除官方插件后会话照常运行（`apps/web/tests/third-party-plugin.e2e.ts`、`apps/web/tests/shipped-composition.e2e.ts`）。
+
+**登记让步。** 按会话选择工具呈现仍是上游工作，登记在 `QILIN_TOOLS_MODE` 缝上；`shipped-composition` 的 child 编排一例与 `steering` 车道登记为既有红。

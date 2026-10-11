@@ -301,3 +301,20 @@
 **验证**：三包单测 377/377 · 新门 9/9 · `tsc -b` client/host 两面 0 · oxlint 0 · `verify-cordis-config` 436 · 两 bundle 测试 125/125 · `verify-preset-copy`、`verify-md-links` 2183、`verify-client-ui-i18n` 1017、`verify-doc-budgets` 8、`verify-runtime-closure`（1 预设 + 157 包）、`verify-client-packages` 67、`verify-package-dependencies` 78、`rescope-vendor --check` 8470 · 浏览器车道 `agent-preset-authoring` 7/7、`agent-preset-selection` 5/5（replay 复验）。
 
 **登记**：`steering.e2e.ts` 3 红是**既有红**——A/B 实测（暂存到 HEAD + 重打包客户端 + 重建前端 dist）失败集合完全相同，与本片无关。S6 剩余（首启度量脚本、打断点审计表、docs/nmo 对账附录）见 §10。
+## 12. 打断点审计（S6）
+
+判据：每个打断点必须能回答「用户在这里决策了什么」；答不出的是缺陷。
+
+| 打断点 | 触发 | 用户决定什么 | 判定 |
+|---|---|---|---|
+| `ask_user_question`（`packages/interaction/tool-ask-user`） | 模型缺一项只有用户掌握的事实 | 提供该事实（系统无默认值可推断） | 通过 |
+| 越界动作审批（`packages/interaction/user-approval` + `permission-presets`，默认 `workspace-write`） | 操作超出当前沙箱与审批预设 | 是否授权这一次越界（安全决策） | 通过 |
+| 计划审批（`packages/client/ui-user-questions` 的 PlanReviewPanel） | 模型提交执行计划 | 是否照该计划执行 | 通过 |
+| 插件安装审批（`apps/web/tests/plugin-install-approve.e2e.ts`） | 从官方目录安装插件 | 是否把该插件装入本机 | 通过 |
+| 路径/域名访问确认（`apps/web/tests/access-confirmation.e2e.ts`） | 会话请求工作区外路径或外部域 | 是否授予该具体访问 | 通过 |
+| 工作区选择（目录选择器） | 首启或新建会话 | 本次会话的工作目录（M 的第 1 步） | 通过 |
+| 凭据授权（OAuth/设备码） | 用户主动发起登录 | 是否把该账号授权给本机（用户发起，非打断） | 通过 |
+
+结论：**7/7 可判定，无需整改的项**。本轮删除的「预设/模式选择」不在这张表内——它不属于用户决策点，而是系统可推断的选择（NMO 反例判据），这也正是 S1–S4 把它从用户面移除的依据。
+
+**S6 剩余**：首启度量脚本（首屏配置项数 0、到首个可发送会话 ≤2 步）尚未落地，登记为下一轮的第一件事。

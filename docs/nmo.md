@@ -55,3 +55,14 @@ Acceptance: a new third-party capability lands without changing product code or 
 ## use-and-revision
 
 A new product opens with an NMO accounting section: how it follows each principle and where it consciously yields. A yield is registered explicitly — who yielded, why, and when it is reclaimed. A revision of this page bumps the version and records the reason.
+## qiLin accounting
+
+QiLin is the engine these products build on, so this section records the engine-side accounting; [the transformation plan](../plans/2026-10-11-nmo-transformation-plan.md) carries the per-item ledger, its evidence, and the interruption inventory.
+
+**native.** The Session log is the single record of every model-visible fact, and the format generations with their migration paths live in this repository (`packages/session/`); `verify-persistence-formats`, `verify-persistence-catalog`, and `verify-persistence-changes` hold those references.
+
+**minimal.** One shipped preset runs every session, the client offers no preset picker, and the deployment default preset plus the process-wide tool-presentation fallback are that preset, so an unset deployment behaves like the composition it ships. Recorded lanes show a fresh workspace reaching a usable composer with no configuration step (`composer-placeholder`, `startup-auto-selection`); the counting script that holds those numbers is still pending. The shipped permission default (`workspace-write`) asks for no choice either.
+
+**open.** A plugin installs from outside the tree through public contracts without product changes, and removing an official plugin leaves sessions running (`apps/web/tests/third-party-plugin.e2e.ts`, `apps/web/tests/shipped-composition.e2e.ts`).
+
+**registered yields.** Choosing tool presentation per session is still upstream work, registered on the `QILIN_TOOLS_MODE` seam; one `shipped-composition` child-orchestration case and the `steering` lane stay registered as pre-existing reds.
