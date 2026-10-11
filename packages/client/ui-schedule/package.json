@@ -61,6 +61,7 @@
     "@qilin-agent/api-workspace-controller": "workspace:*",
     "@qilin-agent/client-connection": "workspace:*",
     "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*",
     "@qilin-agent/client-test-runtime": "workspace:*",
     "@qilin-agent/client-ui-conversation": "workspace:*",
     "@qilin-agent/client-ui-layout": "workspace:*",
