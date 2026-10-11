@@ -28,13 +28,11 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { APP_BOOT_ENTRY, PROFILE_BOOT_ENTRY } from '../main/qilin-contract.mjs'
 
-// Web Scheduler API 兼容层（对齐上游 apps/cli/src/bin.ts 同款）：`scheduler
-// .yield()` 只有 Chromium 129+ / Node 25+ 提供，Electron 内置 Node 没有。
-// 引擎的 session 列表与 session-persistence-jsonl 的协作式让路路径一旦数据
-// 量越过 work slice（listWorkSliceMs 默认 16ms；~/.qilin/sessions 全库 151
-// 条记录冷启动必超）就以 `gateway/internal: scheduler is not defined` 炸掉
-// 整个 RPC，侧栏历史会话随之清空。按「让出主循环一次后继续」的语义用
-// setImmediate 补齐；宿主自带 scheduler 时不覆盖。
+// 宿主侧的 Web Scheduler API 兜底，与 apps/cli/src/scheduler-yield.ts 同一
+// 决定：Electron 内置的 Node 没有 scheduler 全局，而进程里已加载的代码
+// （移植进来的模块、第三方插件）可能直接读它，读不到会以 ReferenceError
+// 炸掉整个 RPC。宿主自带 scheduler 时不覆盖。
+// 理由与取舍：.agents/notes/implemented/architecture/2026-10-07-web-scheduler-yield-host-shim.md
 if (globalThis.scheduler === undefined) {
   Object.defineProperty(globalThis, 'scheduler', {
     value: {

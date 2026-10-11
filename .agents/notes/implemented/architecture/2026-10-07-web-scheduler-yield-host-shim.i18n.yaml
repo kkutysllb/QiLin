@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for 2026-10-07-web-scheduler-yield-host-shim.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-10-07-web-scheduler-yield-host-shim.md
+/agent-note-web-scheduler-api-shim-at-the-host-entry-points:
+  en: 7c6d824a20eaf503
+  zh: 9cdf1be66d7d7c86
+/agent-note-web-scheduler-api-shim-at-the-host-entry-points/problem:
+  en: a0e9f87aba6c70a8
+  zh: 63db27f234e59d45
+/agent-note-web-scheduler-api-shim-at-the-host-entry-points/decision:
+  en: fde630fcca1912e8
+  zh: 763d43d26662ecb7
+/agent-note-web-scheduler-api-shim-at-the-host-entry-points/alternatives-considered:
+  en: 73f051f08f233333
+  zh: 2bb3eee9f3fcf2f1
+/agent-note-web-scheduler-api-shim-at-the-host-entry-points/consequences:
+  en: f63ff79a29384ffe
+  zh: 75d3db289b5eddc3
