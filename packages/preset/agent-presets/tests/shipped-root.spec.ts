@@ -9,7 +9,7 @@
  * suite: the derived writable root is resolved in the constructor.
  */
 
-import { mkdtemp, readFile, rm } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -47,7 +47,7 @@ async function roster(config: Partial<Config> = {}): Promise<Context> {
   ctx.loader.builtins.include = Include
   await ctx.plugin(SessionProjectionRegistry)
   await ctx.plugin(AgentPresets, {
-    default: 'standard',
+    default: 'ptc',
     roots: [],
     includeShippedRoot: true,
     includeUserRoot: true,
@@ -89,7 +89,7 @@ describe('the shipped preset root', () => {
     const ctx = await roster({ includeUserRoot: false })
 
     const listed = await ctx.agentPresets.list()
-    expect(listed.map(preset => preset.id).sort()).toEqual(['cordis', 'ptc', 'standard'])
+    expect(listed.map(preset => preset.id).sort()).toEqual(['ptc'])
     expect(listed.every(preset => preset.trust === 'system')).toBe(true)
     // Not `broken === undefined`: health asks whether each row's package is
     // installed above the base, and the shipped rows name packages the
@@ -109,11 +109,16 @@ describe('the shipped preset root', () => {
       expect.stringContaining('.agent-presets'),
     ])
     expect(ctx.agentPresets.roots[0]).toEqual({ path: SHIPPED_PRESET_ROOT, trust: 'system' })
-    // Prepended, so a configured directory claiming a shipped id is shadowed:
-    // the fixture root also carries `standard`, and the roster serves the
-    // shipped one.
-    const standard = (await ctx.agentPresets.list()).find(preset => preset.id === 'standard')
-    expect(standard?.path.startsWith(SHIPPED_PRESET_ROOT)).toBe(true)
+  })
+
+  it('wins a duplicate id a configured root claims', async () => {
+    const claiming = join(home, 'claiming-root', 'ptc')
+    await mkdir(claiming, { recursive: true })
+    await writeFile(join(claiming, 'agent.cordis.yml'), '[]\n')
+    const ctx = await roster({ roots: [{ path: join(home, 'claiming-root'), trust: 'user' }] })
+
+    const ptc = (await ctx.agentPresets.list()).find(preset => preset.id === 'ptc')
+    expect(ptc?.path.startsWith(SHIPPED_PRESET_ROOT)).toBe(true)
   })
 
   it('mounts a roster without the shipped set when includeShippedRoot is false', async () => {
@@ -129,7 +134,7 @@ describe('the shipped preset root', () => {
   })
 
   it('enables web_fetch in each tool-bearing Web app preset', async () => {
-    for (const id of ['cordis', 'ptc', 'standard']) {
+    for (const id of ['ptc']) {
       const entries = await shippedEntries(id)
       const toolWeb: unknown = entries.find((entry: unknown) =>
         typeof entry === 'object' && entry !== null && 'id' in entry && entry.id === 'tool-web')
@@ -141,22 +146,24 @@ describe('the shipped preset root', () => {
     }
   })
 
-  it('omits the general workflow tool and its unused engine only from PTC', async () => {
-    const ptc = await shippedEntries('ptc')
-    expect(findEntry(ptc, 'tool-workflow')?.disabled).toBe(true)
-    expect(findEntry(ptc, 'workflow-ptc')?.disabled).toBe(true)
+  it('omits the general workflow tool and its unused engine', async () => {
+    const entries = await shippedEntries('ptc')
+    expect(findEntry(entries, 'tool-workflow')?.disabled).toBe(true)
+    expect(findEntry(entries, 'workflow-ptc')?.disabled).toBe(true)
+  })
 
-    for (const id of ['standard', 'cordis']) {
-      const entries = await shippedEntries(id)
-      expect(findEntry(entries, 'tool-workflow')?.disabled, id).not.toBe(true)
-      expect(findEntry(entries, 'workflow-ptc')?.disabled, id).not.toBe(true)
-    }
+  it('carries the runtime-authoring rows the merged preset owns', async () => {
+    const entries = await shippedEntries('ptc')
+    expect(findEntry(entries, 'tool-kylin')).toBeDefined()
+    expect(findEntry(entries, 'tool-plugin-manager')?.disabled).not.toBe(true)
+    const skillRoot = findEntry(entries, 'skill-filesystem')
+    expect(skillRoot?.config).toMatchObject({ customSkillDirs: [expect.anything()] })
   })
 
   it('keeps the ralph tool out of the shipped preset root', async () => {
     // The ralph capability moved to an experimental package: the shipped presets
     // declare no row for it, so enabling it takes an explicit installation.
-    for (const id of ['cordis', 'ptc', 'standard']) {
+    for (const id of ['ptc']) {
       expect(findEntry(await shippedEntries(id), 'tool-ralph'), id).toBeUndefined()
     }
   })

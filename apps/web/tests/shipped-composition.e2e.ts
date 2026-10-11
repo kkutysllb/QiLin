@@ -1122,7 +1122,7 @@ it('withdraws Auto on shipped Loader unload and does not restore migrated live s
   await writeFile(join(presetRoot, 'persistent-shell', 'agent.cordis.yml'), SHELL_FIXTURE_COMPOSITION)
   scaffold = await launchWebScaffold({
     ...AUTO_REVIEW_FIXTURE,
-    agentPresets: { roots: [{ path: presetRoot, trust: 'user' }], default: 'standard' },
+    agentPresets: { roots: [{ path: presetRoot, trust: 'user' }], default: 'ptc' },
   })
   const ctx = scaffold.ctx
   const autoEntry = [...ctx.loader.entries()].find(entry => entry.options.id === 'auto-review')

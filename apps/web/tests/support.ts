@@ -65,7 +65,7 @@ export async function seedWorkbench(page: Page, active: 'general' | 'coding'): P
   // an unawaited addInitScript races the navigation and silently drops the seed.
   await page.addInitScript((tag) => {
     localStorage.setItem('qilin.workbench.v1',
-      JSON.stringify({ active: tag, presets: { general: 'standard', coding: 'ptc' } }))
+      JSON.stringify({ active: tag, presets: { general: 'ptc', coding: 'ptc' } }))
   }, active)
 }
 

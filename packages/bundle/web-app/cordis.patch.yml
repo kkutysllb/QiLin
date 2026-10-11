@@ -585,4 +585,4 @@
     - id: agent-presets
       name: '@qilin-agent/agent-presets'
       config:
-        default: standard
+        default: ptc

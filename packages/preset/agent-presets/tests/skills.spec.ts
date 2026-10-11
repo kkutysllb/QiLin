@@ -14,11 +14,11 @@ import { renderSkillContent } from '@qilin-agent/skill'
 import * as yaml from 'js-yaml'
 import { describe, expect, it } from 'vitest'
 
-const skills = fileURLToPath(new URL('../presets/cordis/skills/', import.meta.url))
+const skills = fileURLToPath(new URL('../presets/ptc/skills/', import.meta.url))
 const names = readdirSync(skills)
 
 /**
- * `packages/preset/agent-presets/presets/cordis/agent.cordis.yml` prunes a tool result only above
+ * `packages/preset/agent-presets/presets/ptc/agent.cordis.yml` prunes a tool result only above
  * `thresholdChars: 8192` code points; a skill result below it reaches the model intact.
  */
 const PRUNER_THRESHOLD_CHARS = 8192

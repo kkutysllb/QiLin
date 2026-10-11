@@ -27,7 +27,7 @@ Use `qilin-agent-presets` to give each session the tools, prompt sections, and s
 
 Mount this package in a composition that should give each agent session its own tools, prompt sections, and skills from a preset file. Every session names a preset — explicitly or through the configured default — and is composed from it; without the package, sessions fall back to whatever the host composition mounts.
 
-The shipped Web `standard`, `ptc`, and `cordis` presets include [explicit file delivery](../../client/ui-deliverables/README.md#explicit-deliveries).
+The shipped Web `ptc` preset includes [explicit file delivery](../../client/ui-deliverables/README.md#explicit-deliveries).
 
 ### What a preset gives a session
 
@@ -42,7 +42,7 @@ The plugin needs a `default` preset id and scans `roots` for presets:
 ```yaml
 - name: '@qilin-agent/agent-presets'
   config:
-    default: standard
+    default: ptc
     roots:
       - path: ~/company-presets
         trust: system
@@ -66,7 +66,7 @@ The required `default` config sets the deployment default. When a settings provi
 ```yaml
 agent-presets:
   modeSelectionEnabled: true
-  default: standard
+  default: ptc
 ```
 
 A client shows or hides selection by writing only `modeSelectionEnabled`; the [Web GUI settings switch](../../client/ui-agent-preset/README.md) does exactly that. The deployment default governs while selection is hidden; re-enabling it restores the saved user `default`, or keeps the deployment default when none has been saved. While mode selection stays enabled, choosing a default writes a user override for sessions created later. Because the Host owns the policy, it applies to every subsequently created session whose caller omits a preset, including Web, CLI, SDK, and headless callers; an explicitly named preset and every existing session remain unchanged.
@@ -176,7 +176,7 @@ These limits define when the roster is a poor fit or needs special operational c
 - **A superseded generation is never reclaimed** — sessions already joined keep the generation they run on, and the roster holds no join count that could tell when the last one left, so the whole subtree stays mounted until the process ends. The cost is per generation rather than per session, but it is not free: `qilin-skill-filesystem` watches its roots by default, so each edit-then-create cycle adds a live watcher set.
 - **A copy is never mounted to validate** — it is byte-identical to its source, so a source broken on disk yields a copy exactly as broken as the source; discovery's health check marks both rows on the next roster read rather than deferring the failure to a session start.
 - **Health asks what is installed, not what would import** — discovery proves the composition parses in the loader dialect, holds named rows, and that each row it can prove will start names a package present above the harness base or a file that exists; it never imports one, so a package whose own entry file is missing, a plugin that throws on apply, and one waiting forever for a service all still fail at the first session. `disabled` is the one entry field the Loader interpolates, so a row carrying an expression there is left unchecked rather than judged from the file.
-- **A copy is a snapshot that drifts** — upgrading the deployment does not update copies of shipped presets, and there is no patch semantics at this layer to express "standard plus one change"; the shipped set itself accepts the same cost — `cordis` and `code` each duplicate `standard`'s full assembly and then edit it — so the whole assembly stays readable in one file.
+- **A copy is a snapshot that drifts** — upgrading the deployment does not update copies of shipped presets, and there is no patch semantics at this layer to express "the shipped preset plus one change"; that is also why the deployment ships one composition rather than one per capability tier.
 - **Root scans are not watched** — every read hits the filesystem instead, which keeps the roster fresh but puts one `readdir` per root on each `list()`.
 
 <a id="dev-note"></a>

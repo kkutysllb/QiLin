@@ -9,7 +9,7 @@ import { resolve } from 'node:path'
 import { collectConfigCatalog, type CatalogEntry } from './gen-config-catalog.ts'
 
 const root = resolve(import.meta.dirname, '..')
-const OUT = 'packages/preset/agent-presets/presets/cordis/skills/cordis-composition-reference/references/packages.md'
+const OUT = 'packages/preset/agent-presets/presets/ptc/skills/cordis-composition-reference/references/packages.md'
 
 interface Row {
   pkg: string

@@ -1,9 +1,11 @@
 /**
  * Workbench vocabulary and the preset-to-tag visibility fold (dual-workbench
  * design, plans/2026-10-05-dual-workbench-web-design.md D2): the tags are a
- * filter over sessions, not a composition change — `general` shows the
- * standard and creator presets, `coding` shows the coding and creator
- * presets, and a preset the fold does not know shows under both so a custom
+ * filter over sessions, not a composition change.
+ *
+ * The deployment ships one preset, so both tags name it and the fold admits
+ * every session under either tag; the mapping stays in place while the tag
+ * surfaces do. A preset the fold does not know shows under both, so a custom
  * preset can never make its sessions disappear from every list.
  */
 
@@ -17,14 +19,14 @@ export const WORKBENCH_TAGS: readonly WorkbenchTag[] = ['general', 'coding']
 export interface WorkbenchState {
   /** The tag whose sessions the lists show and whose preset new tasks carry. */
   readonly active: WorkbenchTag
-  /** New-task preset per tag; defaults are the D3 mapping (general→standard, coding→ptc). */
+  /** New-task preset per tag; both default to the deployment's one shipped preset. */
   readonly presets: Readonly<Record<WorkbenchTag, string>>
 }
 
-/** Factory-fresh state: the general tag with each tag's D3 default preset. */
+/** Factory-fresh state: the general tag with the shipped preset. */
 export const WORKBENCH_DEFAULT_STATE: WorkbenchState = {
   active: 'general',
-  presets: { general: 'standard', coding: 'ptc' },
+  presets: { general: 'ptc', coding: 'ptc' },
 }
 
 /** localStorage key for the per-browser workbench selection. */
@@ -35,8 +37,19 @@ export const WORKBENCH_STORAGE_KEY = 'qilin.workbench.v1'
  * or a future shipped one — is visible under both tags.
  */
 export const WORKBENCH_TAG_PRESETS: Readonly<Record<WorkbenchTag, readonly string[]>> = {
-  general: ['standard', 'cordis'],
-  coding: ['ptc', 'cordis'],
+  general: ['ptc'],
+  coding: ['ptc'],
+}
+
+/**
+ * Shipped preset ids a stored document may still name after the deployment
+ * merged them into `ptc`. Storage outlives a release, so a remembered new-task
+ * preset that no longer exists resets to the shipped default exactly as an
+ * unknown tag does; this map retires with the tag machinery itself.
+ */
+const RETIRED_TAG_PRESETS: Readonly<Record<string, string>> = {
+  standard: 'ptc',
+  cordis: 'ptc',
 }
 
 /** Every preset id the D2 mapping names; anything else is a custom preset. */
@@ -63,6 +76,8 @@ export function workbenchShows(preset: string | null | undefined, tag: Workbench
  * Validate one rehydrated workbench state. Storage is a durable boundary, so
  * a document shaped by an older or broken build resets to the defaults
  * instead of leaking an unknown tag into the switcher.
+ * A remembered new-task preset the deployment no longer ships also resets to
+ * the default, because the id it names would fail to compose.
  * @param value - the parsed localStorage document.
  * @returns a complete state; unknown shapes collapse to {@link WORKBENCH_DEFAULT_STATE}.
  */
@@ -77,5 +92,9 @@ export function rehydrateWorkbenchState(value: unknown): WorkbenchState {
     || typeof presets.general !== 'string' || typeof presets.coding !== 'string') {
     return { active: candidate.active, presets: WORKBENCH_DEFAULT_STATE.presets }
   }
-  return { active: candidate.active, presets: { general: presets.general, coding: presets.coding } }
+  const remembered = (id: string): string => RETIRED_TAG_PRESETS[id] ?? id
+  return {
+    active: candidate.active,
+    presets: { general: remembered(presets.general), coding: remembered(presets.coding) },
+  }
 }

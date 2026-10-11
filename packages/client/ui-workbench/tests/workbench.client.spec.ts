@@ -19,31 +19,31 @@ beforeEach(() => { localStorage.clear() })
 afterEach(() => { localStorage.clear() })
 
 describe('the workbench state owner', () => {
-  it('starts on the general tag with the D3 per-tag presets', async () => {
+  it('starts on the general tag carrying the one shipped preset', async () => {
     const workbench = await booted()
     expect(workbench.state.getSnapshot()).toEqual({
       active: 'general',
-      presets: { general: 'standard', coding: 'ptc' },
+      presets: { general: 'ptc', coding: 'ptc' },
     })
-    expect(workbench.presetFor('general')).toBe('standard')
+    expect(workbench.presetFor('general')).toBe('ptc')
     expect(workbench.presetFor('coding')).toBe('ptc')
   })
 
   it('names each tag’s shipped menu vocabulary in menu order', async () => {
     const workbench = await booted()
-    expect(workbench.tagChoices('general')).toEqual(['standard', 'cordis'])
-    expect(workbench.tagChoices('coding')).toEqual(['ptc', 'cordis'])
+    expect(workbench.tagChoices('general')).toEqual(['ptc'])
+    expect(workbench.tagChoices('coding')).toEqual(['ptc'])
   })
 
   it('keeps a switched tag and a remembered preset across a fresh boot', async () => {
     const first = await booted()
     first.setActive('coding')
-    first.setPresetFor('coding', 'cordis')
+    first.setPresetFor('coding', 'mine')
 
     const second = await booted()
     expect(second.state.getSnapshot()).toEqual({
       active: 'coding',
-      presets: { general: 'standard', coding: 'cordis' },
+      presets: { general: 'ptc', coding: 'mine' },
     })
   })
 
@@ -52,7 +52,7 @@ describe('the workbench state owner', () => {
     const workbench = await booted()
     expect(workbench.state.getSnapshot()).toEqual({
       active: 'general',
-      presets: { general: 'standard', coding: 'ptc' },
+      presets: { general: 'ptc', coding: 'ptc' },
     })
   })
 
@@ -61,20 +61,29 @@ describe('the workbench state owner', () => {
     const workbench = await booted()
     expect(workbench.state.getSnapshot()).toEqual({
       active: 'coding',
-      presets: { general: 'standard', coding: 'ptc' },
+      presets: { general: 'ptc', coding: 'ptc' },
+    })
+  })
+
+  it('resets a remembered preset the deployment no longer ships', async () => {
+    localStorage.setItem(WORKBENCH_STORAGE_KEY, JSON.stringify({
+      active: 'coding',
+      presets: { general: 'standard', coding: 'cordis' },
+    }))
+    const workbench = await booted()
+    expect(workbench.state.getSnapshot()).toEqual({
+      active: 'coding',
+      presets: { general: 'ptc', coding: 'ptc' },
     })
   })
 
   it('folds preset visibility per tag, showing unknowns everywhere', async () => {
     const workbench = await booted()
-    expect(workbench.shows('standard', 'general')).toBe(true)
-    expect(workbench.shows('standard', 'coding')).toBe(false)
     expect(workbench.shows('ptc', 'coding')).toBe(true)
-    expect(workbench.shows('ptc', 'general')).toBe(false)
-    // cordis is the creator preset: both tags show it.
-    expect(workbench.shows('cordis', 'general')).toBe(true)
-    expect(workbench.shows('cordis', 'coding')).toBe(true)
-    // Unknown shipped-or-custom presets never strand their sessions.
+    expect(workbench.shows('ptc', 'general')).toBe(true)
+    // A merged-away or custom preset is unknown to the fold, so it hides nothing.
+    expect(workbench.shows('standard', 'general')).toBe(true)
+    expect(workbench.shows('standard', 'coding')).toBe(true)
     expect(workbench.shows('my-agent', 'general')).toBe(true)
     expect(workbench.shows('my-agent', 'coding')).toBe(true)
     // An unlanded projection hides nothing.
@@ -84,10 +93,10 @@ describe('the workbench state owner', () => {
   it('rehydrates through the standalone fold for partial documents', () => {
     expect(rehydrateWorkbenchState(undefined)).toEqual({
       active: 'general',
-      presets: { general: 'standard', coding: 'ptc' },
+      presets: { general: 'ptc', coding: 'ptc' },
     })
-    expect(rehydrateWorkbenchState({ active: 'coding', presets: { general: 'standard' } }))
-      .toEqual({ active: 'coding', presets: { general: 'standard', coding: 'ptc' } })
+    expect(rehydrateWorkbenchState({ active: 'coding', presets: { general: 'mine' } }))
+      .toEqual({ active: 'coding', presets: { general: 'ptc', coding: 'ptc' } })
   })
 
   it('ignores a redundant switch', async () => {

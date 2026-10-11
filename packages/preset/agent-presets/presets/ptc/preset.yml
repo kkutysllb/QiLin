@@ -1,3 +1,2 @@
-name: 编码模式
-description: 功能完整的编码 Agent，但默认不提供 workflow 工具；其他工具经生成的 SDK 呈现，让模型用一个 TypeScript 程序组合多步操作。
-order: 2
+description: 功能完整的编码 Agent：工具经生成的 SDK 调用（PTC），并具备运行时自省、持久化插件管理与组合创作能力。
+order: 1

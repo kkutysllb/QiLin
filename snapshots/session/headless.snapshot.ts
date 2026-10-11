@@ -60,7 +60,7 @@ const qilinBin = join(repoRoot, 'apps/cli/src/bin.ts')
 const tsconfigPath = join(repoRoot, 'tsconfig.json')
 const editingCordisSkill = join(
   repoRoot,
-  'packages/preset/agent-presets/presets/cordis/skills/editing-cordis-compositions/SKILL.md',
+  'packages/preset/agent-presets/presets/ptc/skills/editing-cordis-compositions/SKILL.md',
 )
 
 type SnapshotMode = 'replay' | 'record' | 'refresh'

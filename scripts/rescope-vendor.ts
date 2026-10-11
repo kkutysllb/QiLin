@@ -106,10 +106,10 @@ const GENERIC_SKIPS: readonly GenericSkip[] = [
   // data (the shared creator preset), not a package specifier.
   { file: 'packages/client/ui-workspace/tests/workspaces-service.client.spec.ts', upstream: ['cordis'] },
   { file: 'packages/client/ui-workspace/tests/agent-preset-chip.client.spec.tsx', upstream: ['cordis'] },
-  // The preset's own composition: its header comment and its system prompt name
-  // the preset a model mounts, so the scoped name would send the model after an
-  // id no roster reports.
-  { file: 'packages/preset/agent-presets/presets/cordis/agent.cordis.yml', upstream: ['cordis'] },
+  // The preset's own composition: its header comment and its system prompt
+  // describe the Cordis dialect (`cordis.yml` rows, the `cordis_inspect_*`
+  // tools, the `cordis-plugin-development` skill), none of which is a package.
+  { file: 'packages/preset/agent-presets/presets/ptc/agent.cordis.yml', upstream: ['cordis'] },
   // The preset-roster loop names the `cordis` preset id, not a package.
   { file: 'apps/cli/tests/windows-shell.spec.ts', upstream: ['cordis'] },
   // DSH-era specifiers the compatibility layer recognizes and rewrites itself.
@@ -188,8 +188,8 @@ const POSTCONDITIONS: readonly PostCondition[] = [
   // The preset ids in this table are product data, not package names.
   { file: 'packages/client/ui-agent-preset/tests/locales.client.spec.ts', text: '[\'cordis\', \'presetCordisName\'', count: 1 },
   // The preset id the shipped composition documents to its own model.
-  { file: 'packages/preset/agent-presets/presets/cordis/agent.cordis.yml', text: 'The `cordis` agent preset', count: 2 },
-  { file: 'packages/preset/agent-presets/presets/cordis/agent.cordis.yml', text: 'corrupting the `cordis` preset', count: 1 },
+  { file: 'packages/preset/agent-presets/presets/ptc/agent.cordis.yml', text: 'The `ptc` agent preset', count: 1 },
+  { file: 'packages/preset/agent-presets/presets/ptc/agent.cordis.yml', text: 'NEVER edit or delete the shipped preset install', count: 1 },
 ]
 
 /**

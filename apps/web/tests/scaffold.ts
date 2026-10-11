@@ -582,7 +582,7 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
     {
       id: 'agent-presets',
       config: {
-        default: 'standard',
+        default: 'ptc',
         includeUserRoot: false,
       },
     },

@@ -9,8 +9,8 @@
 import { Service, type Context } from '@qilin-agent/kylin'
 import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
 import {
-  rehydrateWorkbenchState, workbenchShows, WORKBENCH_STORAGE_KEY, WORKBENCH_TAG_PRESETS,
-  type WorkbenchState, type WorkbenchTag,
+  rehydrateWorkbenchState, WORKBENCH_DEFAULT_STATE, workbenchShows, WORKBENCH_STORAGE_KEY,
+  WORKBENCH_TAG_PRESETS, type WorkbenchState, type WorkbenchTag,
 } from './workbench.ts'
 
 export {
@@ -78,7 +78,7 @@ class WorkbenchServiceImpl extends Service implements Workbench {
   constructor(ctx: Context) {
     super(ctx, 'workbench')
     this.state = createSnapshotStore<WorkbenchState>(
-      { active: 'general', presets: { general: 'standard', coding: 'ptc' } },
+      WORKBENCH_DEFAULT_STATE,
       { persist: { name: WORKBENCH_STORAGE_KEY } },
     )
     // attachPersistence applies the stored document synchronously during the
