@@ -1,16 +1,16 @@
+import { provideWorkingDirectoryFixture } from '@qilin-agent/agent-loop-testkit'
 import { describe, expect, it, vi } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
 import { installProxyFromEnvironment } from '@qilin-agent/http-proxy'
 import SubagentRuntime from '@qilin-agent/subagent'
 import PtcWorkflowEngine from '../src/index.ts'
 import { fakeParent, mountPtcRuntime } from './setup.ts'
-import { mountWorkingDirectoryFixture } from '../../../subagent/subagent/tests/working-directory-fixture.ts'
 
 describe('workflow program environment', () => {
   it('does not expose ambient credentials, proxy settings or host loader paths', async () => {
     const ctx = new Context()
     await mountPtcRuntime(ctx)
-    await mountWorkingDirectoryFixture(ctx)
+    provideWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     ctx.subagents.registerProvider({
       name: 'stub',
@@ -29,7 +29,7 @@ describe('workflow program environment', () => {
       const run = ctx.workflowEngine.start({
         script: "return { ...globalThis.constructor.constructor('return process')().env }",
         meta: { name: 'environment', description: 'program environment' },
-        parent: fakeParent(ctx),
+        parent: await fakeParent(ctx),
       })
       try {
         const result = await run.result

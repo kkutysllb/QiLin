@@ -1,10 +1,13 @@
+import { externalTestParent } from '../../../subagent/subagent/tests/external-activation-helpers.ts'
 import { mkdtemp, mkdir, rm } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 import type { Context } from '@qilin-agent/kylin'
 import type { Agent } from '@qilin-agent/agent'
+import AgentRegistry from '@qilin-agent/agent'
 import SessionStore from '@qilin-agent/session'
 import SessionProjections from '@qilin-agent/session-projection'
+import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
 import FileSystem from '@qilin-agent/fs-local'
 import Subprocess from '@qilin-agent/subprocess-local'
 import Sandbox from '@qilin-agent/sandbox-local'
@@ -16,7 +19,7 @@ import { onTestFinished } from 'vitest'
 
 /** Mount real Node execution services with a private working directory and awaited cleanup. */
 export async function mountPtcRuntime(ctx: Context, mode: SandboxMode = 'danger-full-access') {
-  const root = await mkdtemp(join(homedir(), '.qilin-workflow-test-'))
+  const root = await mkdtemp(join(homedir(), '.dsh-workflow-test-'))
   onTestFinished(async () => {
     await ctx.fiber.dispose()
     await rm(root, { recursive: true, force: true })
@@ -24,6 +27,7 @@ export async function mountPtcRuntime(ctx: Context, mode: SandboxMode = 'danger-
   const cwd = join(root, 'workspace')
   await mkdir(cwd)
   await mountWorkflowRuntime(ctx, { cwd, mode, runtimeConfig: { graceMs: 50 } })
+  await ctx.plugin(JsonlSessionPersistence, { root: join(root, 'sessions') })
   return { root, cwd }
 }
 
@@ -33,6 +37,7 @@ export async function mountWorkflowRuntime(
   options: { cwd?: string; mode?: SandboxMode; runtimeConfig?: NodeRuntimeConfig } = {},
 ): Promise<NodePtcRuntime> {
   if (!ctx.get('sessions')) await ctx.plugin(SessionStore)
+  if (!ctx.get('agents')) await ctx.plugin(AgentRegistry)
   if (!ctx.get('sessionProjections')) await ctx.plugin(SessionProjections)
   if (!ctx.get('fs')) await ctx.plugin(FileSystem)
   if (!ctx.get('subprocess')) await ctx.plugin(Subprocess)
@@ -46,7 +51,6 @@ export async function mountWorkflowRuntime(
 }
 
 /** Give a stub subagent provider a parent with a real Session and immutable cwd. */
-export function fakeParent(ctx: Context): Agent {
-  const session = ctx.sessions.create(undefined, { meta: { cwd: ctx.sandboxPolicy.workspaceRoot } })
-  return { id: session.id, session, options: {} } as unknown as Agent
+export async function fakeParent(ctx: Context): Promise<Agent> {
+  return externalTestParent(ctx, ctx.sandboxPolicy.workspaceRoot)
 }

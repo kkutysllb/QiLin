@@ -1,3 +1,4 @@
+import { provideWorkingDirectoryFixture } from '@qilin-agent/agent-loop-testkit'
 /** The Node compatibility matrix runs this complete source-entry smoke. */
 import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -7,12 +8,11 @@ import SubagentRuntime from '@qilin-agent/subagent'
 import type { SandboxMode } from '@qilin-agent/sandbox'
 import PtcWorkflowEngine from '../src/index.ts'
 import { fakeParent, mountPtcRuntime } from './setup.ts'
-import { mountWorkingDirectoryFixture } from '../../../subagent/subagent/tests/working-directory-fixture.ts'
 
 async function setup(mode: SandboxMode) {
   const ctx = new Context()
   const files = await mountPtcRuntime(ctx, mode)
-  await mountWorkingDirectoryFixture(ctx)
+  provideWorkingDirectoryFixture(ctx)
   await ctx.plugin(SubagentRuntime)
   ctx.subagents.registerProvider({
     name: 'spawn',
@@ -21,7 +21,7 @@ async function setup(mode: SandboxMode) {
     start: () => Promise.reject(new Error('source runtime smoke must not start a child')),
   })
   await ctx.plugin(PtcWorkflowEngine, {})
-  return { ctx, parent: fakeParent(ctx), ...files }
+  return { ctx, parent: await fakeParent(ctx), ...files }
 }
 
 it('runs the default workflow config through the source PTC runtime', async () => {
