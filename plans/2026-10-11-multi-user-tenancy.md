@@ -521,3 +521,40 @@ hub 仍然**不做访问判定**：路由 cookie 只是选择器，伪造它只�
 
 1. **拆拒绝语义**：在 `reconcileProfilePatches` 里引入「致命」判据（例如只有启动必需行 + bootstrap include 算致命），并把 `manager` 的 `removeBundle` 为何被牵连先查清（很可能与它传入的 `requiredIds`＝启用目标有关，而那是 caller 语义，不该触发回滚）；随后按新契约更新 hmr 里 `webserver` 那条参数化用例。
 2. **不动 reload，改测试**：接受「被拒 generation 保持生效」的现状，把 `web-failure-matrix` 两条断言改成它实际能表达的语义（拒绝被报告、运行时保持存活），并在 §11.6 记明「恢复需人工修好配置后再触发一次」。
+
+## 16. reload 回滚：本轮实测与结论（2026-10-11，第 13 轮）
+
+用户裁定「拆拒绝语义」。按此实现了一版，**在单元车道全绿、在真实 Web 车道上留下了 11 处失败，且失败的性质不是断言过期，所以我整版回退**（工作树回到 `b7ef849ed3`）。账目如下。
+
+### 16.1 实现了什么
+
+`reconcileProfilePatches` 的第四个参数从裸 `requiredIds: readonly string[]` 改为 `options: { requiredIds?, rollbackOnRejection? }`——原先那个位置参数同时承担「compose 的目标行」和「调用方的必需行」两种语义，正是它在早先实验中让 `removeBundle` 被牵连。语义按调用方拆开：
+
+| 调用方 | 语义 | 理由 |
+|---|---|---|
+`plugin-manager.reload()`（安装/移除/启用/停用 bundle） | 保持 best effort：拒绝只上报，generation 落地 | 这是**刻意的组合变更**：移除必须真的移除（早先全量回滚实验里它变成 `failed` 并撤销，等于插件卸不掉） |
+`hmr` 的配置监听（`cordis.patch.yml` 变更） | `rollbackOnRejection: true` | 这是**编辑中的配置**：被拒的 generation 留在树上，正是让「随后的修正」拿一份已经失败的组合去评审的原因 |
+
+「致命」判据试了两版：(a) 静态必需行集合 `requiredStartupEntryIds`（`agent-loop`/`webserver`/`modules`/`connection`/`headless-runner`/`acp`/`sdk-jsonrpc-server`）+ bootstrap include；(b) 「上一代**在服务**的行这一代变成未激活」+ bootstrap include。两版的判定结果在同一组测试上一致。
+
+### 16.2 实测
+
+| 车道 | 结果 |
+|---|---|
+`packages/boot/{app-boot,hmr,plugin-manager}` | **38 文件 / 930 例全绿**——改动在单元层是安全的，`plugin-manager` 的移除/启用用例全部不受影响（证明「按调用方拆」这一步是对的） |
+`apps/cli/.../web-failure-matrix.expected.e2e.ts` | **11 红**（改动前 2 红）：`required native HMR {import,module evaluation,schema,config expression,disabled expression,sync apply,async apply,dependency} keeps siblings and recovers` 8 条，加 `native HMR reports a required Web server bind failure…` |
+
+关键证据（`required native HMR sync apply` 单跑）：事件序列为 `witness apply 0 / witness dispose 0 / witness apply 1 / witness dispose 1 / witness apply 0`——**回滚本身成功了**（坏的 generation 被撤销、上一代被重新拉起），但**随后的修正从未落地**（没有 `witness apply 2`）。也就是说：把回滚放进 `reconcileProfilePatches` 之后，HMR 监听的 generation/去重记账（`lastInputs`）与「回滚又写了一次 `entry.update`」这件事对不上，后续文件变更不再产生新 generation。
+
+`native HMR reports a required Web server bind failure…` 的两条断言按预期反向：回滚后运行时**没有**丢掉服务器，所以 `witness dispose 1` 会出现、`serverUrl` 仍存在。这条是**契约变更**（用户要的正是它），但必须连同上面 8 条一起、按新契约重写，而不是只改这一条。
+
+### 16.3 为什么不硬收
+
+两版判据都改变 8 条既有断言的契约（它们现在明确规定：HMR 期间一行失败时**兄弟行保留、失败 generation 保留、修正后恢复**）。把它们改成「坏 generation 被回滚」是**改产品契约**，不是修断言——可以改，但必须连同下面两件事一起做，否则就是把测试掰弯去迁就实现：
+
+1. **先有回滚路径的单元级验证台**：现在只有真实 Web 进程能观察回滚，反馈周期 1–3 分钟/次，且被 `lastInputs` 去重掩盖。需要先用现成的 `boot()` + `reconcileProfilePatches` 夹具把「回滚 → 修正 → 落地」这条链钉在毫秒级，再动 e2e。
+2. **明确新契约的措辞**：`某一行在新 generation 里无法激活` 时，究竟回滚整份编辑，还是只回滚该行？8 条断言里的 `required` 指的是**行 id 属于静态必需集合**，与「浏览器此刻是否还能被服务」并不等价（`acp` 在 web profile 里被插入失败时，应用一直正常服务）。
+
+### 16.4 结论
+
+用户选的「拆拒绝语义」在**调用方维度**是成功的（manager 保持 best effort，930/930 为证）；在**同一调用方内部区分致命/非致命**这一步，卡在回滚与 HMR 记账的相互作用上，需要先补单元级验证台再落。代码面无遗留改动。
