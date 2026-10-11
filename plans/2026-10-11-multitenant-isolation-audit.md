@@ -125,3 +125,13 @@ npx vitest run apps/cli/tests/tenant-environment.spec.ts
 - **现在**：注册模式只报部署策略（运行时 `registrationOpen = registration === 'open'`），名册内容不影响它；首启运行时因此**不再被名册变动替换**，那段替换逻辑随之删除（调用方只传常量、分支不可达——不留死代码）。
 - **边界**：非环回地址的默认策略仍是 `closed`（要把自己的部署挂上公网，得显式 `--registration open`），这条守卫没动。
 - **判据**：tenant-entry 6 例——open 且名册非空 → 仍 `open`（注册入口在）、closed 且名册为空 → 仍 `closed`（本就用 CLI 建号）、全程不出现 `stop:first-run`；租户与账户面 15 文件 **114 例**全过。
+
+## 11. 第 16 轮：注册入口不出现的真因（部署自己的门）
+
+- **症状**：8790 端口的部署里，登录页底部**没有「注册账号」**；用户按上一轮的说法重启后依旧没有。
+- **真因（两层，第一层是设计缺口）**：登录/首启文档与它们背后的账户面（/api/auth/*）此前会被路由到**浏览器已选中的那个账户的运行时**；而租户的层里写死 registration: closed（且这是硬约束），于是它报 registrationOpen: false，页面据此隐藏注册入口。**这与「bob 登录提示密码不对」是同一条根因**：在别人的运行时里，你不是一个被准入的账户。
+- **第一版修法（错，被真进程探针当场打回）**：给 tenantPatchYaml 加了 registration 形参，把部署策略写进租户层。探针立刻显示租户运行时**整条没激活**：accounts-local 报 admittedAccounts requires registration: closed——账户插件明确拒绝「收窄准入 + 开放注册」的组合（理由写在源码里：名单外的人永远进不来，开放注册等于发出用不了的账户）。已整体回退。
+- **正确修法**：登录与首启文档、以及账户面（/api/auth/*）是**部署自己的门**，一律交给承载部署策略的**首启运行时**应答；门的每次应答都**丢掉路由 cookie**（在门前的浏览器正在重新选账户），之后它拿到的会话会把 cookie 重新设上。其余路径照旧分派给该账户自己的运行时。
+- **判据**：tenant-entry.spec.ts 新增一例——带着 alice 的路由 cookie 请求 /login，由首启运行时应答且**不启动 alice 的运行时**，应答里带清 cookie 的 Set-Cookie；同一 cookie 请求 /workspace 仍由 alice 的运行时应答。tenant-runtime.spec.ts 把那条例外用例改为**记录这条硬约束**。租户面与账户面回归 **143 例全过**。
+- **真进程探针（本轮新增纪律：改路由必须真起一次服务）**：真 home + 真运行时，带 alice 路由 cookie 的 /api/auth/status 从上一版的 unauthorized 变为 registrationOpen: true；/login 得 200 且开关元素在场、应答清 cookie；alice 的层仍是 closed；日志里 did not activate 计数为 **0**。
+- **教训**：上一轮验的是「hub 传了什么」，而决定页面行为的是「**运行时层里写了什么** + 谁应答这个请求」——每层都要验；路由类改动**必须真起一次服务**，夹具里的假运行时看不到层激活失败。用户指南的登录段落同批改准。
