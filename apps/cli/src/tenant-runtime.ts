@@ -153,6 +153,8 @@ export interface TenantRuntimeOptions {
    * TLS, so its account surface marks every session cookie `Secure`.
    */
   readonly sessionCookieSecure?: boolean
+  /** Endpoint this runtime reports its account's token spend to, and its token. */
+  readonly usage?: { readonly url: string; readonly token: string } | undefined
   /** Profile each runtime boots. */
   readonly profile: string
   /**
@@ -252,6 +254,17 @@ export const AGENTS_HOME_VARIABLE = 'QILIN_AGENTS_HOME'
  */
 export const ACCOUNT_VARIABLE = 'QILIN_ACCOUNT_ID'
 
+/** Environment variable naming the deployment's usage endpoint, when it has one. */
+export const USAGE_URL_VARIABLE = 'QILIN_USAGE_URL'
+
+/**
+ * Environment variable carrying the token that endpoint accepts.
+ *
+ * It identifies the runtime that presents it, so the hub books the report to the
+ * account that token was minted for rather than to whatever the body claims.
+ */
+export const USAGE_TOKEN_VARIABLE = 'QILIN_USAGE_TOKEN'
+
 /**
  * The environment one tenant runtime starts with.
  *
@@ -276,6 +289,8 @@ export const ACCOUNT_VARIABLE = 'QILIN_ACCOUNT_ID'
  * @param base - the environment the hub itself runs with.
  * @param accountId - the account this runtime serves, or undefined for the
  * first-run runtime that serves no account yet.
+ * @param usage - endpoint the runtime reports its account's token spend to, and
+ * the token that endpoint accepts; absent when the deployment keeps no ledger.
  * @returns the environment mapping for the child process.
  */
 export function tenantChildEnvironment(
@@ -283,6 +298,7 @@ export function tenantChildEnvironment(
   deploymentHome: string,
   base: NodeJS.ProcessEnv = process.env,
   accountId?: string,
+  usage?: { readonly url: string; readonly token: string },
 ): NodeJS.ProcessEnv {
   const inherited: NodeJS.ProcessEnv = {}
   for (const [name, value] of Object.entries(base)) {
@@ -296,6 +312,7 @@ export function tenantChildEnvironment(
     [TENANT_VARIABLE]: '1',
     [DEPLOYMENT_HOME_VARIABLE]: deploymentHome,
     [AGENTS_HOME_VARIABLE]: join(tenantDir, 'agents'),
+    ...usage === undefined ? {} : { [USAGE_URL_VARIABLE]: usage.url, [USAGE_TOKEN_VARIABLE]: usage.token },
   }
 }
 
@@ -545,6 +562,7 @@ export class TenantRuntime implements TenantHandle {
           process.env,
           // The first-run runtime serves no account yet, so its documents name none.
           this.options.bootstrap === true ? undefined : this.options.accountId,
+          this.options.bootstrap === true ? undefined : this.options.usage,
         ),
         ...this.options.binPath.endsWith('.ts') ? { TSX_TSCONFIG_PATH: SOURCE_TSCONFIG_PATH } : {},
       },

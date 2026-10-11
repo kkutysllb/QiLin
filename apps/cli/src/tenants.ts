@@ -31,6 +31,7 @@
  * @module @qilin-agent/cli/tenants
  */
 
+import { randomBytes, timingSafeEqual } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http'
 import { createServer as createHttpsServer } from 'node:https'
@@ -38,6 +39,7 @@ import { accountsFilePath, AccountStore } from '@qilin-agent/accounts-local'
 import { resolveQilinHome } from '@qilin-agent/home-paths'
 import {
   BOOTSTRAP_DIRECTORY,
+  isTenantIdentity,
   LOOPBACK_HOSTS,
   TenantRuntime,
   type TenantHandle,
@@ -45,6 +47,7 @@ import {
   type TenantRuntimeStatus,
 } from './tenant-runtime.ts'
 import { forwardedHeaders, hubAcceptsOrigin, proxyRequest, relayAnswer, relayUpgrade } from './tenant-proxy.ts'
+import { appendUsage, isUsageReport } from './usage-ledger.ts'
 
 /** Certificate and key the public address terminates TLS with. */
 export interface DeploymentTlsFiles {
@@ -134,6 +137,9 @@ export interface TenantsServeOptions {
 
 /** Routing cookie the hub sets so later requests, whatever their path, name their tenant. */
 const TENANT_COOKIE = 'qilin_tenant'
+
+/** Largest usage report the ledger accepts; one report is a few dozen bytes. */
+const MAX_USAGE_BODY_BYTES = 4 * 1024
 
 /** Store key of the runtime a deployment with no accounts uses. */
 const BOOTSTRAP_ACCOUNT = 'first-run'
@@ -299,13 +305,20 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
   const startRuntime = options.createRuntime
     ?? ((runtimeOptions: TenantRuntimeOptions): TenantHandle => new TenantRuntime(runtimeOptions))
   const runtimes = new Map<string, TenantHandle>()
+  // One token per account runtime, mapping to the account it serves: the hub
+  // books a report to the token's account, never to what a body claims.
+  const usageTokens = new Map<string, string>()
+  let usageUrl = ''
   /** Runtimes holding a child, whether or not it has printed its URL yet. */
   const active = (): TenantHandle[] => [...runtimes.values()]
     .filter(runtime => runtime.status().state === 'running' || runtime.status().state === 'starting')
   const runtimeFor = (accountId: string): TenantHandle => {
     const existing = runtimes.get(accountId)
     if (existing !== undefined) return existing
+    const usageToken = randomBytes(32).toString('hex')
+    usageTokens.set(usageToken, accountId)
     const created = startRuntime({
+      usage: { url: usageUrl, token: usageToken },
       home,
       accountId,
       profile: options.profile,
@@ -457,6 +470,65 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       process.stderr.write(`qilin tenants: the first-run runtime did not start: ${String(error)}\n`)
       respond(response, 503, 'text/plain; charset=utf-8', 'qilin tenants: this deployment could not start its first-run runtime\n')
     }
+  }
+
+  const bearerToken = (header: string | undefined): string | undefined => {
+    if (header === undefined) return undefined
+    const separator = header.indexOf(' ')
+    if (separator === -1) return undefined
+    if (header.slice(0, separator).toLowerCase() !== 'bearer') return undefined
+    const value = header.slice(separator + 1).trim()
+    return value === '' ? undefined : value
+  }
+
+  /** The account one presented token was minted for, compared without leaking its prefix. */
+  const accountForToken = (presented: string): string | undefined => {
+    const candidate = Buffer.from(presented, 'utf8')
+    for (const [token, accountId] of usageTokens) {
+      const known = Buffer.from(token, 'utf8')
+      if (known.length === candidate.length && timingSafeEqual(known, candidate)) return accountId
+    }
+    return undefined
+  }
+
+  /** Read one report body, bounded, or undefined when it is oversized or not JSON. */
+  const readReportBody = async (request: IncomingMessage): Promise<unknown> => {
+    const chunks: Buffer[] = []
+    let size = 0
+    for await (const chunk of request) {
+      const buffer = chunk as Buffer
+      size += buffer.length
+      if (size > MAX_USAGE_BODY_BYTES) return undefined
+      chunks.push(buffer)
+    }
+    try {
+      return JSON.parse(Buffer.concat(chunks).toString('utf8')) as unknown
+    } catch (error) {
+      if (error instanceof SyntaxError) return undefined
+      throw error
+    }
+  }
+
+  /** Answer one runtime's usage report: only a token this hub minted is accepted. */
+  const handleUsage = async (request: IncomingMessage, response: ServerResponse): Promise<void> => {
+    if (request.method !== 'POST') {
+      respond(response, 405, 'text/plain; charset=utf-8', 'qilin tenants: the ledger takes reports, not reads\n')
+      return
+    }
+    const presented = bearerToken(request.headers.authorization)
+    const accountId = presented === undefined ? undefined : accountForToken(presented)
+    if (accountId === undefined || !isTenantIdentity(accountId)) {
+      json(response, 401, { error: 'unauthorized' })
+      return
+    }
+    const body = await readReportBody(request)
+    if (!isUsageReport(body)) {
+      json(response, 400, { error: 'invalid-body' })
+      return
+    }
+    await appendUsage(home, accountId, body)
+    response.writeHead(204)
+    response.end()
   }
 
   const handle = async (request: IncomingMessage, response: ServerResponse): Promise<void> => {
@@ -650,6 +722,25 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
     listening.resolve(typeof address === 'object' && address !== null ? address.port : options.port)
   })
   const port = await listening.promise
+  // The ledger listens on loopback only, and speaks plain HTTP even when the
+  // public address terminates TLS: a child cannot verify a certificate for an
+  // address it reaches over the loopback interface, and the reports never leave
+  // the machine.
+  const usageServer = createServer((request, response) => {
+    void handleUsage(request, response).catch((error: unknown) => {
+      process.stderr.write(`qilin tenants: the usage report failed: ${String(error)}\n`)
+      if (response.headersSent) response.end()
+      else json(response, 500, { error: 'ledger-failed' })
+    })
+  })
+  const usagePort = await new Promise<number>((resolve, reject) => {
+    usageServer.once('error', reject)
+    usageServer.listen(0, '127.0.0.1', () => {
+      const bound = usageServer.address()
+      resolve(typeof bound === 'object' && bound !== null ? bound.port : 0)
+    })
+  })
+  usageUrl = `http://127.0.0.1:${String(usagePort)}/usage`
   // The printed address is the one this machine can open; an interface other
   // hosts reach is stated as the fact it is instead of being reported as
   // loopback.
@@ -684,7 +775,10 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
     void (async () => {
       if (idle !== undefined) clearInterval(idle)
       server.closeAllConnections()
+      usageServer.closeAllConnections()
       await new Promise<void>((resolve) => { server.close(() => { resolve() }) })
+      await new Promise<void>((resolve) => { usageServer.close(() => { resolve() }) })
+      usageTokens.clear()
       await Promise.all([...runtimes.values()].map(async (runtime) => { await runtime.stop() }))
       stopping.resolve(0)
     })()
