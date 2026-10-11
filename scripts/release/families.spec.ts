@@ -6,7 +6,7 @@ import { dirname, join, resolve } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { officialClientBuildEnvironment, writeClientBuildRecord } from '../client-build-environment.ts'
 import { ON_DEMAND_BUNDLES } from '../../packages/boot/app-boot/src/official-bundles.ts'
-import { releaseFamily, type ReleaseMember } from './families.ts'
+import { QilinFamily, releaseFamily, type ReleaseMember } from './families.ts'
 import { compareVersions, nextVendorVersion, planShared, reachesPayload } from './bump.ts'
 
 /**
@@ -266,19 +266,28 @@ describe('release families', () => {
   })
 
   it('publishes on-demand catalog members before the CLI without adding installed dependencies', () => {
-    const qilin = releaseFamily('qilin')
+    // The shipping advertisement list is empty, so coverage supplies one: the
+    // ordering rule must hold whenever a release advertises a provider.
+    const qilin = new QilinFamily(['@qilin-agent/advertised-provider'])
     const cli = member('apps/cli', '@qilin-agent/cli')
-    const providers = ON_DEMAND_BUNDLES.map(name => member(`packages/subagent/${name}`, name))
-    const plan = qilin.publishOrder([cli, ...providers])
+    const provider = member('packages/subagent/advertised-provider', '@qilin-agent/advertised-provider')
+    const plan = qilin.publishOrder([cli, provider])
 
-    expect(plan.order.map(entry => entry.name)).toEqual([...ON_DEMAND_BUNDLES, cli.name])
+    expect(plan.order.map(entry => entry.name)).toEqual(['@qilin-agent/advertised-provider', cli.name])
     expect(cli.manifest).toEqual({})
     expect(plan.droppedPeerEdges).toEqual([])
   })
 
   it('rejects an advertised on-demand provider missing from the public release family', () => {
-    expect(() => releaseFamily('qilin').publishOrder([member('apps/cli', '@qilin-agent/cli')]))
+    expect(() => new QilinFamily(['@qilin-agent/absent-provider'])
+      .publishOrder([member('apps/cli', '@qilin-agent/cli')]))
       .toThrow('Official catalog prerequisite')
+  })
+
+  it('ships no advertised on-demand provider', () => {
+    expect(ON_DEMAND_BUNDLES).toEqual([])
+    expect(releaseFamily('qilin').publishOrder([member('apps/cli', '@qilin-agent/cli')]).order.map(entry => entry.name))
+      .toEqual(['@qilin-agent/cli'])
   })
 
   it('reports a runtime dependency cycle instead of emitting an arbitrary order', () => {

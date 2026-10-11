@@ -15,7 +15,7 @@ Each package entry labels its data with three identifiers: `inject` lists the se
 ## `@qilin-agent/accounts-local`
 
 - `inject`: `connection` · `credentials`
-- `source`: [`packages/identity/accounts-local/src/index.ts:49`](../packages/identity/accounts-local/src/index.ts)
+- `source`: [`packages/identity/accounts-local/src/index.ts:56`](../packages/identity/accounts-local/src/index.ts)
 
 ```ts config-catalog
 /** Plugin config: the account surface's deployment choices. */
@@ -3339,76 +3339,6 @@ export interface Config {
 export type PermissionPolicy = 'allow' | 'reject'
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/subagent-acp -->
-
-<!-- BEGIN GENERATED config-catalog:@qilin-agent/subagent-claude-code -->
-<a id="qilin-agentsubagent-claude-code"></a>
-
-## `@qilin-agent/subagent-claude-code`
-
-- `inject`: `subagents` · `subprocess`
-- `source`: [`packages/subagent/subagent-claude-code/src/index.ts:38`](../packages/subagent/subagent-claude-code/src/index.ts)
-
-```ts config-catalog
-/** Deployment-owned model, permission, environment, and process-release settings. */
-export interface Config {
-  /** Provider name on `ctx.subagents` (default `claude-code`). */
-  providerName?: string
-  /** Native Claude model fixed for this instance; omitted to inherit Claude settings. */
-  model?: string
-  /**
-   * Explicit environment entries layered over the subprocess seam's
-   * credential-scrubbed parent environment.
-   */
-  env?: Record<string, string>
-  /**
-   * Native non-interactive mode fixed for this Provider instance. Defaults to
-   * `dontAsk`; `acceptEdits` accepts edits, `auto` uses the native classifier,
-   * `plan` returns a plan without approving execution, and
-   * `bypassPermissions` explicitly skips permission checks.
-   */
-  permissionMode?: ClaudeCodePermissionMode
-  /** Grace in milliseconds between Claude Code managed-range termination tiers. */
-  disposeGraceMs?: number
-}
-
-/** Profile-selectable non-interactive Claude Code permission mode. */
-export type ClaudeCodePermissionMode = typeof CLAUDE_CODE_PERMISSION_MODES[number]
-```
-<!-- END GENERATED config-catalog:@qilin-agent/subagent-claude-code -->
-
-<!-- BEGIN GENERATED config-catalog:@qilin-agent/subagent-codex -->
-<a id="qilin-agentsubagent-codex"></a>
-
-## `@qilin-agent/subagent-codex`
-
-- `inject`: `subagents` · `subprocess`
-- `source`: [`packages/subagent/subagent-codex/src/index.ts:36`](../packages/subagent/subagent-codex/src/index.ts)
-
-```ts config-catalog
-/** Deployment-owned model, permission, environment, and process-release settings. */
-export interface Config {
-  /** Provider name on `ctx.subagents` (default `codex`). */
-  providerName?: string
-  /** Native Codex model fixed for this instance; omitted to inherit Codex settings. */
-  model?: string
-  /**
-   * Explicit environment entries layered over the subprocess seam's
-   * credential-scrubbed parent environment.
-   */
-  env?: Record<string, string>
-  /** Native non-interactive permission mode fixed for this Provider instance. */
-  permissionMode?: CodexPermissionMode
-  /** Grace in milliseconds between app-server managed-range termination tiers. */
-  disposeGraceMs?: number
-}
-
-/** Profile-selectable non-interactive Codex permission mode. */
-export type CodexPermissionMode =
-  | 'never'
-  | 'approve-for-me'
-  | 'dangerously-bypass-approvals-and-sandbox'
-```
-<!-- END GENERATED config-catalog:@qilin-agent/subagent-codex -->
 
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/subagent-fork-in-process -->
 <a id="qilin-agentsubagent-fork-in-process"></a>

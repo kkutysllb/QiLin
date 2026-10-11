@@ -350,7 +350,7 @@ export abstract class ReleaseFamily {
 }
 
 /** Release packages and apps: one shared version across the whole family. */
-class QilinFamily extends ReleaseFamily {
+export class QilinFamily extends ReleaseFamily {
   readonly id = 'qilin'
   readonly patterns = [
     'packages/*/*/package.json',
@@ -358,9 +358,17 @@ class QilinFamily extends ReleaseFamily {
   ] as const
   readonly tagPrefix = 'v'
 
+  /**
+   * @param advertised - On-demand packages the installation offers; the shipping
+   *   list by default, and an explicit list in coverage for the ordering rule.
+   */
+  constructor(private readonly advertised: readonly string[] = ON_DEMAND_BUNDLES) {
+    super()
+  }
+
   /** Publish every advertised on-demand package before the installation that offers it. */
   protected override publicationPrerequisites(member: ReleaseMember): readonly string[] {
-    return member.name === '@qilin-agent/cli' ? ON_DEMAND_BUNDLES : []
+    return member.name === '@qilin-agent/cli' ? this.advertised : []
   }
 
   /** Require current artifacts from a complete official client build. */

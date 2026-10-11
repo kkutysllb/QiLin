@@ -4,6 +4,8 @@ Status: implemented
 
 English | [中文](2026-08-04-claude-code-and-codex-subagent-backends.zh.md)
 
+> Both backends described here were removed from the product; [the removal Agent Note](2026-10-11-remove-native-product-subagent-backends.md) owns the current state and why.
+
 ## Problem
 
 The named [`ctx.subagents`](2026-06-21-subagent-capability-seam.md) registry lets a parent agent delegate work without knowing how the child runs, but the harness needs first-party routes to the real Codex and Claude Code products. Each route must hand the product one self-contained task, let it work in the parent Session's workspace, return a final answer or an explicit failure or cancellation, and leave no managed product process behind.

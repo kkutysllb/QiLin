@@ -1051,9 +1051,6 @@ it('compares every manageable layer with its registry latest tag and tolerates a
       { name: 'extra', currentVersion: '1.0.0', latestVersion: null },
       { name: 'retired', currentVersion: null, latestVersion: null },
       { name: 'offline', currentVersion: '1.0.0', latestVersion: null },
-      // The offline Official catalog entries have no installed version to compare.
-      { name: '@qilin-agent/subagent-claude-code', currentVersion: null, latestVersion: null },
-      { name: '@qilin-agent/subagent-codex', currentVersion: null, latestVersion: null },
     ],
   })
   expect(fetch.mock.calls.map(call => String(call[0]))).toEqual([
@@ -1061,8 +1058,6 @@ it('compares every manageable layer with its registry latest tag and tolerates a
     'https://registry.npmjs.org/-/package/extra/dist-tags',
     'https://registry.npmjs.org/-/package/retired/dist-tags',
     'https://registry.npmjs.org/-/package/offline/dist-tags',
-    'https://registry.npmjs.org/-/package/%40qilin-agent%2Fsubagent-claude-code/dist-tags',
-    'https://registry.npmjs.org/-/package/%40qilin-agent%2Fsubagent-codex/dist-tags',
   ])
 })
 

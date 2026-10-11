@@ -62,10 +62,6 @@ Check the edited YAML and referenced local files with file tools. Ask the user t
 
 A preset whose composition is missing, unparsable, or names a module that cannot be resolved is listed on the roster with its reason and cannot compose a session; fix the file or delete the preset, then retry. Sessions already running on the previous composition keep the generation they started with, so validate changed behavior in a new session. Installing a bundle executes plugin code in the Host process, so it needs Full access or approval.
 
-## Native product subagents
-
-Codex and Claude Code providers are independent optional Profile Bundles, and a preset separately grants one Agent its ordinary delegation tool. Install only the products a Profile needs and restart it so its Host registers those providers. Read `references/native-product-subagents.md` for the install commands, the disabled row templates, and the rules for named instances.
-
 ## What not to move into a preset
 
 `agent-loop` registers the one agent factory and throws on a second. The registries own the per-session layering and cannot themselves be per-session. Session persistence must stay host-side or the session list fragments. The sandbox, approval, and permission rows are a deliberate boundary: a preset is exactly as privileged as the plugins it names, so letting one relax its own confinement would defeat the confinement.

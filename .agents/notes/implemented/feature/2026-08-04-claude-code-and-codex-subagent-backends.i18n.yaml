@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-08-04-claude-code-and-codex-subagent-backends.md
 /agent-note-claude-code-and-codex-subagent-backends:
-  en: 53f4bfc06914ea0a
-  zh: e674cff8c8fa8d68
+  en: 2ef2034b36d271bc
+  zh: daf8a3bb2799b37b
 /agent-note-claude-code-and-codex-subagent-backends/problem:
   en: 1f20a2eeb2f1d0e9
   zh: 566e8727b17ff59c

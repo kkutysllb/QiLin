@@ -22,7 +22,7 @@ const INSTALLATION = '@qilin-agent/cli'
  * @returns Offline entries in admission order, with metadata from the owning packages.
  */
 export function generateOfficialBundleCatalog(root: string, names: readonly string[] = ON_DEMAND_BUNDLES): OfficialBundleCatalogEntry[] {
-  if (names.length === 0 || new Set(names).size !== names.length) throw new Error('Official on-demand catalog must contain distinct package names')
+  if (new Set(names).size !== names.length) throw new Error('Official on-demand catalog must contain distinct package names')
   const manifests = new Map<string, { path: string; private: boolean; bundle: boolean; runtime: string[] }>()
   for (const path of globSync(['packages/*/*/package.json', 'apps/*/package.json', 'vendor/*/package.json'], { cwd: root }).map(path => path.replaceAll('\\', '/')).sort()) {
     const manifest = JSON.parse(readFileSync(resolve(root, path), 'utf8')) as {
@@ -85,7 +85,7 @@ export function renderOfficialBundleCatalog(entries: readonly OfficialBundleCata
   return '/** Generated offline Official bundle metadata. Run pnpm gen-official-bundle-catalog; do not edit. */\n\n'
     + "import type { OfficialBundleCatalogEntry } from './official-bundles.ts'\n\n"
     + '/** Official on-demand entries, independent of installed packages and registry availability. */\n'
-    + 'export const OFFICIAL_ON_DEMAND_CATALOG: readonly OfficialBundleCatalogEntry[] = [\n'
+    + `export const OFFICIAL_ON_DEMAND_CATALOG: readonly OfficialBundleCatalogEntry[] = ${entries.length === 0 ? '[]' : '[\n'}`
     + entries.map(entry => '  {\n'
       + `    packageName: ${quote(entry.packageName)},\n`
       + '    meta: {\n'
@@ -93,7 +93,7 @@ export function renderOfficialBundleCatalog(entries: readonly OfficialBundleCata
       + `      description: ${localized(entry.meta.description)},\n`
       + `      icon: ${quote(entry.meta.icon)},\n`
       + '    },\n  },\n').join('')
-    + ']\n'
+    + (entries.length === 0 ? '\n' : ']\n')
 }
 
 const printer = ts.createPrinter()

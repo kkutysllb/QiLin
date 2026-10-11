@@ -244,28 +244,6 @@
         toolName: subagent_fork
         backgroundMode: continuable
 
-    # Production qilin does not install these optional providers. Install the
-    # matching Bundle in this Profile and restart the Host, then copy this
-    # preset and remove `disabled` from the matching tool row. Host availability
-    # alone grants no tool.
-    - id: tool-subagent-codex
-      name: '@qilin-agent/tool-subagent'
-      disabled: true
-      config:
-        provider: codex
-        toolName: subagent_codex
-        backgroundMode: one-shot
-        maxDepth: provider-managed
-
-    - id: tool-subagent-claude-code
-      name: '@qilin-agent/tool-subagent'
-      disabled: true
-      config:
-        provider: claude-code
-        toolName: subagent_claude_code
-        backgroundMode: one-shot
-        maxDepth: provider-managed
-
     - id: workflow-ptc
       name: '@qilin-agent/workflow-ptc'
       # No consumer here: `tool-workflow` is off in PTC mode and `tool-ralph`

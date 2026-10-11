@@ -500,8 +500,6 @@
       "@qilin-agent/storage-sqlite": ["./packages/storage/storage-sqlite/src"],
       "@qilin-agent/subagent": ["./packages/subagent/subagent/src"],
       "@qilin-agent/subagent-acp": ["./packages/subagent/subagent-acp/src"],
-      "@qilin-agent/subagent-claude-code": ["./packages/subagent/subagent-claude-code/src"],
-      "@qilin-agent/subagent-codex": ["./packages/subagent/subagent-codex/src"],
       "@qilin-agent/subagent-fork-in-process": ["./packages/subagent/subagent-fork-in-process/src"],
       "@qilin-agent/subagent-qilin-sdk": ["./packages/subagent/subagent-qilin-sdk/src"],
       "@qilin-agent/subagent-spawn-in-process": ["./packages/subagent/subagent-spawn-in-process/src"],

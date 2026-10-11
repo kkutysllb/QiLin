@@ -442,8 +442,6 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 |---|---|---|
 | `@qilin-agent/subagent` | yes | Abstract subagent seam (ctx.subagents): named-provider registry for delegating to child agents |
 | `@qilin-agent/subagent-acp` | yes | Out-of-process ACP subagent backend: drives a child agent in a spawned subprocess over the Agent Client Protocol |
-| `@qilin-agent/subagent-claude-code` | yes | One-shot Claude Code subagent provider over the official Agent SDK |
-| `@qilin-agent/subagent-codex` | yes | One-shot Codex subagent provider over the official app-server protocol |
 | `@qilin-agent/subagent-fork-in-process` | yes | In-process fork subagent backend: runs a child agent seeded with a prefix of the parent's log |
 | `@qilin-agent/subagent-qilin-sdk` | yes | Out-of-process SDK subagent backend: drives a child QiLin runtime subprocess over stdio JSON-RPC through the TypeScript SDK client |
 | `@qilin-agent/subagent-spawn-in-process` | yes | In-process spawn subagent backend: runs a fresh child agent on ctx.agents |

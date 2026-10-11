@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/subagent.md
 /subagent:
-  en: 2e37a2a15f331ac9
-  zh: 5f31e93bc1edf36c
+  en: e5dc4410f871e6b8
+  zh: 4bbcdafe16dfe200
 /subagent/two-kinds-of-capability-discovered-two-ways:
   en: 7be7cbc224948ed1
   zh: 6da4f61394ed900e
 /subagent/the-one-shot-start-request:
-  en: e9aa06e3f5d2c63d
-  zh: b5dc4508d4419495
+  en: 019e920c65c908ae
+  zh: 60afde8a700d5e94
 /subagent/continuable-children-and-activations:
   en: 0bf47ba41ee54716
   zh: 247e7b3889b69456
