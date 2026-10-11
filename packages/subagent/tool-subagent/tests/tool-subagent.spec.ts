@@ -112,7 +112,7 @@ describe('qilin-tool-subagent', () => {
       inject: () => {},
       options: {},
       session: Session.create(parentId),
-    } as unknown as Agent
+    } as Partial<Agent> as Agent
 
     const forced = await callSubagent(ctx, { description: 'd', prompt: 'p', run_in_background: true }, { agent: parent })
     expect(forced.isError).toBe(true)
@@ -831,7 +831,7 @@ describe('qilin-tool-subagent background mode', () => {
       inject,
       options: {},
       session: Session.create(id),
-    } as unknown as Agent
+    } as Partial<Agent> as Agent
     await ctx.agents.register(agent)
     return agent
   }
@@ -1375,7 +1375,7 @@ describe('background preflight failure (no orphaned child, by construction)', ()
       inject: () => {},
       options: {},
       session: Session.create(id),
-    } as unknown as Agent
+    } as Partial<Agent> as Agent
     await ctx.agents.register(parent)
 
     let starts = 0

@@ -23,7 +23,7 @@ import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import { mountWorkingDirectoryFixture } from './working-directory-fixture.ts'
 
 function fakeParent(id = 'parent-1'): Agent {
-  return { id: SessionId(id) } as unknown as Agent
+  return { id: SessionId(id) } as Partial<Agent> as Agent
 }
 
 const ALL_CAPS: SubagentCapabilities = { agentOptions: true, outputSchema: true, depthLimit: true, toolFilter: true, persona: true }

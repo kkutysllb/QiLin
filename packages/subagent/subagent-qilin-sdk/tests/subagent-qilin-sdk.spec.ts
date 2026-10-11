@@ -70,7 +70,7 @@ afterEach(() => {
 })
 
 /** A parent Agent stub. The SDK backend reads exactly one thing off it: the session header's cwd (the workspace its child inherits). */
-const fakeParent = { id: 'parent', session: { header: { cwd: process.cwd() } } } as unknown as Agent
+const fakeParent = { id: 'parent', session: { header: { cwd: process.cwd() } } } as Partial<Agent> as Agent
 
 function request(text = 'p', signal = new AbortController().signal, agentOptions?: AgentOptions) {
   return {
@@ -973,7 +973,9 @@ describe('qilin-subagent-qilin-sdk provider', () => {
 
   it('uses the runtime directory when the parent has no origin', async () => {
     const ctx = await setup()
-    const parent = { id: 'parent', session: { header: {} } } as unknown as Agent
+    // A delegation-ownership stub: the runtime reads only these two fields
+    // before resolving the parent directory.
+    const parent = { id: 'parent', session: { header: {} } } as Partial<Agent> as Agent
     const run = await ctx.subagents.start('qilin-sdk', {
       label: 'p', prompt: [{ type: 'text' as const, text: 'p' }], parent, signal: new AbortController().signal,
     })

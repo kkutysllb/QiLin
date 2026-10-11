@@ -80,7 +80,7 @@ vi.mock('@anthropic-ai/claude-agent-sdk', async importOriginal => ({
 const fakeParent = {
   id: 'parent',
   session: { header: { cwd: process.cwd() } },
-} as unknown as Agent
+} as Partial<Agent> as Agent
 
 function request(
   prompt: ContentBlock[] = [{ type: 'text', text: 'do the task' }],
@@ -636,7 +636,7 @@ describe('task admission and package contracts', () => {
     const invalidCwdParent = {
       id: 'parent-with-invalid-cwd',
       session: { header: { cwd: 'relative/SECRET_TOKEN' } },
-    } as unknown as Agent
+    } as Partial<Agent> as Agent
     const invalidCwd = ctx.subagents.start('claude-diagnostic', {
       ...request(),
       parent: invalidCwdParent,

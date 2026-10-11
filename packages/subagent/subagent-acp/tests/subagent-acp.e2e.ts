@@ -42,7 +42,7 @@ function resolveChildLaunch(qilinHome: string) {
 }
 
 /** The ACP backend ignores the parent, but the seam requires one. */
-const fakeParent = { id: 'parent', session: { header: {} } } as unknown as Agent
+const fakeParent = { id: 'parent', session: { header: {} } } as Partial<Agent> as Agent
 
 let ctx: Context | undefined
 let workdir: string | undefined

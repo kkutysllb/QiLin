@@ -78,7 +78,7 @@ const CODEX_PLATFORM_PACKAGES = [
 const fakeParent = {
   id: 'parent',
   session: { header: { cwd: process.cwd() } },
-} as unknown as Agent
+} as Partial<Agent> as Agent
 
 function request(
   prompt: ContentBlock[] = [{ type: 'text', text: 'do the task' }],
@@ -2122,7 +2122,7 @@ describe('run lifecycle and quiescence', () => {
     const invalidCwdParent = {
       id: 'parent-with-invalid-cwd',
       session: { header: { cwd: 'relative/SECRET_TOKEN' } },
-    } as unknown as Agent
+    } as Partial<Agent> as Agent
     const invalidCwdError: unknown = await ctx.subagents.start('codex-diagnostic', {
       prompt: [{ type: 'text', text: 'task' }],
       parent: invalidCwdParent,

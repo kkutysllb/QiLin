@@ -30,7 +30,7 @@ import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-direc
 const mockServer = fileURLToPath(new URL('./mock-acp-server.ts', import.meta.url))
 
 /** A parent Agent stub. The ACP backend reads exactly one thing off it: the session header's cwd (the workspace its child inherits). */
-const fakeParent = { id: 'parent', session: { header: { cwd: process.cwd() } } } as unknown as Agent
+const fakeParent = { id: 'parent', session: { header: { cwd: process.cwd() } } } as Partial<Agent> as Agent
 
 function request(text = 'p', signal = new AbortController().signal) {
   return { prompt: [{ type: 'text' as const, text }], parent: fakeParent, signal }
@@ -244,7 +244,7 @@ describe('child env layering (through the subprocess seam)', () => {
     // config.env; the seam's scrub drops only the AMBIENT namesakes, so the
     // explicit entry merges after it and the child must see the value.
     const ctx = await setup({ MOCK_ECHO_ENV: 'QILIN_ACP_TEST_FACT', QILIN_ACP_TEST_FACT: 'managed' })
-    const parent = { id: 'parent', session: { header: { cwd: process.cwd() } } } as unknown as Agent
+    const parent = { id: 'parent', session: { header: { cwd: process.cwd() } } } as Partial<Agent> as Agent
     const run = await ctx.subagents.start('acp', {
       label: 'p', prompt: [{ type: 'text' as const, text: 'p' }], parent, signal: new AbortController().signal,
     })
@@ -459,7 +459,9 @@ describe('disposeAcpChild (the backend-owned teardown ladder over seam verbs)', 
 describe('cwd resolution', () => {
   it('uses the runtime directory when the parent has no origin', async () => {
     const ctx = await setup({ MOCK_ECHO_CWD: '1' })
-    const parent = { id: 'parent', session: { header: {} } } as unknown as Agent
+    // A delegation-ownership stub: the runtime reads only these two fields
+    // before resolving the parent directory.
+    const parent = { id: 'parent', session: { header: {} } } as Partial<Agent> as Agent
     const run = await ctx.subagents.start('acp', { ...request('p'), parent })
     const result = await run.result
     await run.dispose()

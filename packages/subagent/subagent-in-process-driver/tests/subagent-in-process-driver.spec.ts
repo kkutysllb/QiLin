@@ -134,7 +134,7 @@ describe('startInProcessRun', () => {
           },
         },
       },
-    } as unknown as Agent
+    } as Partial<Agent> as Agent
 
     const run = await startInProcessRun(request(parentWithFailedDisposal), {})
     expect(ctx.agents.get(run.id)).toBeDefined()
@@ -309,11 +309,11 @@ describe('startInProcessRun', () => {
     await expect(startInProcessRun({ ...request(parent), maxDepth: 0 }, {}))
       .rejects.toMatchObject({ name: 'SubagentDepthError' })
     for (const value of [Number.NaN, 1.5, -1, -0, Number.MAX_SAFE_INTEGER + 1]) {
-      const malformed = { options: { subagentDepth: value }, session: { header: {} } } as unknown as Agent
+      const malformed = { options: { subagentDepth: value }, session: { header: {} } } as Partial<Agent> as Agent
       await expect(startInProcessRun(request(malformed), {}))
         .rejects.toThrow('agent subagentDepth must be a non-negative safe integer')
     }
-    const maxParent = { options: { subagentDepth: Number.MAX_SAFE_INTEGER }, session: { header: {} } } as unknown as Agent
+    const maxParent = { options: { subagentDepth: Number.MAX_SAFE_INTEGER }, session: { header: {} } } as Partial<Agent> as Agent
     await expect(startInProcessRun(request(maxParent), {})).rejects.toBeInstanceOf(RangeError)
   })
 
@@ -402,7 +402,7 @@ describe('startInProcessRun', () => {
           },
         },
       },
-    } as unknown as Agent
+    } as Partial<Agent> as Agent
     const run = await startInProcessRun(request(parentWithAbortAtHandoff, controller.signal), {})
     expect(ctx.agents.get(run.id)).toBeDefined()
     await expect(run.result).resolves.toEqual({ output: [], stopReason: 'aborted' })

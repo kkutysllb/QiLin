@@ -35,7 +35,7 @@ function parentWithRoute(
   },
 ): Agent {
   const id = SessionId('parent-with-route')
-  return { id, options, session: Session.create(id) } as unknown as Agent
+  return { id, options, session: Session.create(id) } as Partial<Agent> as Agent
 }
 
 describe('qilin-tool-subagent model selection', () => {
