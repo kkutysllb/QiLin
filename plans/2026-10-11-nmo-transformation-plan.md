@@ -223,11 +223,28 @@
 
 | 面 | 状态 |
 |---|---|
-| `shipped-composition.e2e.ts` | **5 红（1 例本片引起 + 4 例升级期既有）**。本片 1 例：`lets a preset producer reach the background-job registry` 挂默认预设后直接调 `bash`，而默认已是 PTC 组合（只允许 `run_code` 直调）——待按 PTC 口径改写。既有 4 例：部署全局层工具断言的 `working_directory`、Auto/subagent 工具名与请求形状漂移（`UNKNOWN_TOOL subagent_one_shot`、请求数 3 vs 2、Auto 回滚时序） |
+| `shipped-composition.e2e.ts` | ~~5 红~~ → **第三批收口 6/7，见下** |
 | `preset-migration.snapshot.ts` | 断言含 `['ptc','standard','ptc']`，是 S2 的迁移面本体，随 v4→v5 代次重写一并处置 |
-| `schedule-after.e2e.ts` | 两处 `seedSession(..., 'standard')` 待改 `ptc`（同族小改，随下一批） |
+| `schedule-after.e2e.ts` | ~~种子待改~~ 种子已改 `ptc`；**第三批探明为升级期孤儿车道，见下** |
 | `settings-chrome.e2e.ts` | 无需改：命中的 `standard` 是 `ui-chat transcriptView` 取值，与预设无关 |
+
+### S1 遗留收口 —— shipped-composition 6/7 与 schedule 车道探明（第三批）
+
+**`shipped-composition.e2e.ts`：5 红 → 1 红（6/7 绿）**，四例按「PTC 直调门拦在一切之前」同根改写：
+
+| 例 | 改法 |
+|---|---|
+| assembles…defaults | 两层陈旧：全局层断言补 `working_directory`（与 `sidebar_open` 并列的部署级成员）；`EXPECTED_TOOLS` 名册本身从升级期就 stale（`pwsh` 被 Web 部署 patch 禁用、`workflow` 面已退役、新增 `run_code`/`working_directory`/`cordis_inspect_list`/`cordis_inspect_query`）——此前从未执行到该断言（全局层断言先红） |
+| background-job registry | producer 三次直调（`bash`/`job_list`/`job_output`）全部改经 `run_code` 嵌套派发；断言从 bash 的渲染文本改为 run_code 输出（`jobId`/`id [kind]`/`.text`），registry 归属不变 |
+| Auto request 3→2 | 脚本化 producer 改发 `run_code`（程序内嵌套 `tools.bash` 删除并 catch 拒绝消息）——auto-review **刻意放行外层 transport、仍拦截嵌套调用**（[auto-review/src/index.ts:4](../packages/experimental/auto-review/src/index.ts) 注释与 pending-PTC 校验在先），故三请求编排、review 名 `bash`、拒绝文案、脱敏断言全部保留；主面 roster 断言收紧为恰 `[run_code]` |
+| rollback sentinel | 直调 `write` 改经 `run_code` 嵌套；集成回滚后无拦截器，sentinel 照写 |
+
+**登记不修：`reviews one-shot, continuable, and cold-resumed in-process child calls`（rc.1 上即红，升级期孤儿）**。三层根因：① 升级退役 `backgroundMode`（[tool-subagent Config](../packages/subagent/tool-subagent/src/index.ts) 已无此字段，车道 overlay 仍在插）；② 升级把子代理面重定义为单一 activation 语义（one-shot/continuable 双绑定前提失效）；③ 本片默认预设 ptc 的直调门连 **parent 与 child 的全部脚本化直调**一起拒（`subagent_one_shot`、child 的 `read`/`bash`）。改写它 = 按 activation 时代重设计整条编排（嵌套调用的会话事件投影、child 脚本相位、cold-resume 编排），属独立小片，不属预设切片。
+
+**`schedule-after.e2e.ts`：种子两处已改 `ptc`；车道本体为升级期孤儿（探针实测，非本片引起，上一批「同族小改」的定性有误）**。证据：无 setup 的 agent 只见 `sidebar_open`/`working_directory`（无自动挂预设）；`schedule_create` 直调 = `UNKNOWN_TOOL`；`storageDomain.get('schedule')` 为 undefined。根因：schedule 服务只随**实验性 `schedule-bundle`** 安装（其 patch 自述「shipped Web composition carries none of these rows」），车道的 `id: schedule` overlay 只是覆写、装不出不存在的行；`tool-schedule` 只随预设行挂载（realm 限定），从未入 base/web patch。两个 describe（conversational reminders、active catalog）同根。**复活配方**（独立小片）：车道 scaffold 装配 schedule-bundle 行 + 车内直调工具调用按 PTC 口径改经 `run_code`；`schedule-panel` 同族未验。
+
+**验证**：本车道 6/7；oxlint 0；`verify-cordis-config` 435 文件、`verify-runtime-closure` 1 预设 + 156 包闭合、`verify-md-links` 2179 文件。
 
 ## 10. 下一步
 
-下一批：`shipped-composition` 的 PTC 直调改写 + `schedule-after` 种子改 `ptc` + `preset-migration.snapshot` 并入 S2 → **S2 存量会话 v4→v5 代次重写（C2=b）** → S3 双工作台与 audience 归一删除（含 ui-workspace 重复芯片与其车道同退）→ S4 前端零预设面清账。
+**S2 存量会话 v4→v5 代次重写（C2=b）**（`preset-migration.snapshot` 并入其验证面）→ S3 双工作台与 audience 归一删除（含 ui-workspace 重复芯片与其车道同退）→ S4 前端零预设面清账。schedule-after/schedule-panel 复活与 child-orchestration 重设计为可并行登记片，不阻塞主线。
