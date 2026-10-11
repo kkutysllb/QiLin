@@ -39,7 +39,7 @@ describe('one tenant runtime child', () => {
   })
 
   it('refuses an identity a path would read as a directory rather than a name', () => {
-    for (const identity of ['..', '.', 'a/b', 'a b', '']) {
+    for (const identity of ['..', '.', '.bootstrap', '.usage', 'a/b', 'a b', '']) {
       expect(() => tenantPatchYaml(identity)).toThrow(/not usable as a tenant directory name/u)
     }
   })

@@ -221,11 +221,16 @@ export interface TenantRuntimeStatus {
  */
 const IDENTITY_PATTERN = /^[A-Za-z0-9._-]+$/u
 
-/** Identities a path would read as a directory rather than a name. */
-const PATH_ONLY_IDENTITIES = new Set(['.', '..'])
+/** Prefix the deployment reserves for directories of its own under `tenants/`. */
+const RESERVED_IDENTITY_PREFIX = '.'
 
 /**
  * Whether an account identity may name one tenant directory.
+ *
+ * A leading dot is reserved: the deployment keeps its own directories beside the
+ * tenants (`tenants/.usage` holds the token ledger, `tenants/.bootstrap` the
+ * first-run runtime), so an identity that read as one would take over the
+ * deployment's own bookkeeping instead of a home of its own.
  *
  * The account file is a shared document, so its ids reach path construction in
  * more than one process; an id that is a path segment or names a directory would
@@ -234,7 +239,7 @@ const PATH_ONLY_IDENTITIES = new Set(['.', '..'])
  * @returns true when the identity is one plain directory name.
  */
 export function isTenantIdentity(accountId: string): boolean {
-  return IDENTITY_PATTERN.test(accountId) && !PATH_ONLY_IDENTITIES.has(accountId)
+  return IDENTITY_PATTERN.test(accountId) && !accountId.startsWith(RESERVED_IDENTITY_PREFIX)
 }
 
 /** Environment variable naming the deployment home to a tenant runtime. */
@@ -355,6 +360,19 @@ export function bootstrapPatchYaml(registration: 'open' | 'closed' = 'open', sec
 export const BOOTSTRAP_DIRECTORY = '.bootstrap'
 
 /**
+ * One tenant's harness home under the deployment home.
+ *
+ * The name is one path segment — an account identity, or the first-run
+ * directory — so a tenant home is always a sibling of every other one.
+ * @param home - deployment home.
+ * @param name - account identity or first-run directory name.
+ * @returns the tenant's harness home.
+ */
+export function tenantDirectory(home: string, name: string): string {
+  return join(home, 'tenants', name)
+}
+
+/**
  * Build one tenant's harness-home layer: the account roster it reads and the
  * single account it admits.
  *
@@ -457,7 +475,7 @@ export class TenantRuntime implements TenantHandle {
    * and the deployment home holds only the roster and these directories.
    */
   get tenantDir(): string {
-    return join(this.options.home, 'tenants', this.options.directoryName ?? this.options.accountId)
+    return tenantDirectory(this.options.home, this.options.directoryName ?? this.options.accountId)
   }
 
   /** What the hub's status read reports about this tenant. */
