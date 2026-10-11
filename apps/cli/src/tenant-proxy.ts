@@ -17,7 +17,6 @@
  */
 
 import { request as httpRequest, type IncomingHttpHeaders, type IncomingMessage, type ServerResponse } from 'node:http'
-import type { Socket } from 'node:net'
 import { connect } from 'node:net'
 import { Readable, type Duplex } from 'node:stream'
 
@@ -207,6 +206,3 @@ export function relayUpgrade(
   socket.on('error', closeBoth)
   socket.on('close', () => { upstream.destroy() })
 }
-
-/** A socket the hub accepted for an upgrade it will never answer itself. */
-export type UpgradeSocket = Socket

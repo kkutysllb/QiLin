@@ -59,9 +59,11 @@ export interface QilinProfileManifest {
   /** Ordered bundle layer list, using installed package names. */
   bundles?: string[]
   /**
-   * Which workbench surface presents each bundle's UI, keyed by package name;
-   * a name the record omits reads as `both`. Presentation-only: the engine
-   * composition keeps every bundle regardless of the value.
+   * Presentation choice recorded for a bundle's UI, keyed by package name; a
+   * name the record omits reads as `both`. Only a release that still offered
+   * the choice wrote one: app-boot reads an entry as the profile's own claim on
+   * a layer the shipped template no longer supplies, and the engine composition
+   * keeps every bundle regardless of the value.
    */
   audiences?: Record<string, QilinProfileAudience>
 }
