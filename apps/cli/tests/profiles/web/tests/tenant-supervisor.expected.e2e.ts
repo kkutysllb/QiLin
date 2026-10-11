@@ -825,7 +825,7 @@ it('initializes a deployment that has no accounts yet through the product own fo
     //    application answers. Answering a deployment error here would put this
     //    process between a browser and the application.
     const retired = await fetch(base, {
-      headers: { cookie: `qilin_tenant=${'11111111-1111-1111-1111-111111111111'}` },
+      headers: { cookie: 'qilin_tenant=11111111-1111-1111-1111-111111111111' },
       redirect: 'manual',
     })
     expect(retired.status).toBe(302)

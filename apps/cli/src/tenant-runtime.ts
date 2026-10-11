@@ -341,7 +341,29 @@ export function tenantPatchYaml(accountId: string, secureCookies = false): strin
 }
 
 /** One tenant's Web runtime, started on demand and reclaimed when idle. */
-export class TenantRuntime {
+/**
+ * What a deployment supervisor needs from one account's runtime: the handoff
+ * clock, the lifecycle facts its status read reports, starting and stopping it,
+ * and the origin to forward a browser request to.
+ *
+ * {@link TenantRuntime} is the process-spawning implementation. A caller that
+ * owns the process boundary — a deployment embedding the supervisor, or a test
+ * driving the routing, the cap, and the handoffs — supplies its own.
+ */
+export interface TenantHandle {
+  /** Epoch milliseconds of the last browser handoff; idle reclamation measures it. */
+  lastUsedAt: number
+  /** Lifecycle and diagnostic facts the status read reports. */
+  status(): TenantRuntimeStatus
+  /** Start this runtime if it is not serving, resolving once it answers its URL. */
+  ensure(): Promise<string>
+  /** Stop it and wait until it is gone. */
+  stop(): Promise<void>
+  /** Origin to forward one browser request to, when it is serving. */
+  proxyTarget(): string | undefined
+}
+
+export class TenantRuntime implements TenantHandle {
   private child: ChildProcess | undefined
   private exited: Promise<void> | undefined
   private launchUrl: string | undefined

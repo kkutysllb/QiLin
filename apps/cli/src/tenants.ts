@@ -40,6 +40,8 @@ import {
   BOOTSTRAP_DIRECTORY,
   LOOPBACK_HOSTS,
   TenantRuntime,
+  type TenantHandle,
+  type TenantRuntimeOptions,
   type TenantRuntimeStatus,
 } from './tenant-runtime.ts'
 import { forwardedHeaders, hubAcceptsOrigin, proxyRequest, relayAnswer, relayUpgrade } from './tenant-proxy.ts'
@@ -111,6 +113,23 @@ export interface TenantsServeOptions {
    * that owns the deployment's user-facing behavior can act on it.
    */
   readonly onListening?: ((url: string) => void) | undefined
+  /**
+   * Deployment home holding the roster and every tenant directory. Defaults to
+   * {@link resolveQilinHome}, which is the home the process was started with.
+   */
+  readonly home?: string | undefined
+  /**
+   * How one account's runtime is created. Defaults to {@link TenantRuntime},
+   * which spawns a child process; a caller that owns the process boundary
+   * supplies its own implementation of {@link TenantHandle}.
+   */
+  readonly createRuntime?: ((options: TenantRuntimeOptions) => TenantHandle) | undefined
+  /**
+   * Aborting this ends the deployment the way a termination signal does: the
+   * hub stops accepting, every runtime stops, and the returned promise resolves
+   * with 0.
+   */
+  readonly signal?: AbortSignal | undefined
 }
 
 /** Routing cookie the hub sets so later requests, whatever their path, name their tenant. */
@@ -239,14 +258,14 @@ export function addressNotices(host: string, tenantHost: string | undefined, por
  * @returns the runtime to stop, if any.
  */
 export function reclaimFor(
-  live: readonly TenantRuntime[],
-  target: TenantRuntime,
+  live: readonly TenantHandle[],
+  target: TenantHandle,
   maxTenants: number,
-): TenantRuntime | undefined {
+): TenantHandle | undefined {
   if (maxTenants <= 0) return undefined
   const others = live.filter(runtime => runtime !== target)
   if (others.length < maxTenants) return undefined
-  let oldest: TenantRuntime | undefined
+  let oldest: TenantHandle | undefined
   for (const runtime of others) {
     if (runtime.status().state !== 'running') continue
     if (oldest === undefined || runtime.lastUsedAt <= oldest.lastUsedAt) oldest = runtime
@@ -272,19 +291,21 @@ export function createHandoffQueue(): <T>(work: () => Promise<T>) => Promise<T> 
 }
 
 export async function runTenantsServe(options: TenantsServeOptions): Promise<number> {
-  const home = resolveQilinHome()
+  const home = options.home ?? resolveQilinHome()
   const binPath = process.argv[1]
   if (binPath === undefined) {
     throw new Error('qilin tenants: the CLI entry path is unknown, so no tenant runtime can be started')
   }
-  const runtimes = new Map<string, TenantRuntime>()
+  const startRuntime = options.createRuntime
+    ?? ((runtimeOptions: TenantRuntimeOptions): TenantHandle => new TenantRuntime(runtimeOptions))
+  const runtimes = new Map<string, TenantHandle>()
   /** Runtimes holding a child, whether or not it has printed its URL yet. */
-  const active = (): TenantRuntime[] => [...runtimes.values()]
+  const active = (): TenantHandle[] => [...runtimes.values()]
     .filter(runtime => runtime.status().state === 'running' || runtime.status().state === 'starting')
-  const runtimeFor = (accountId: string): TenantRuntime => {
+  const runtimeFor = (accountId: string): TenantHandle => {
     const existing = runtimes.get(accountId)
     if (existing !== undefined) return existing
-    const created = new TenantRuntime({
+    const created = startRuntime({
       home,
       accountId,
       profile: options.profile,
@@ -306,10 +327,10 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
    * first-run form can create the first one.
    * @returns the first-run runtime.
    */
-  const bootstrapRuntime = (): TenantRuntime => {
+  const bootstrapRuntime = (): TenantHandle => {
     const existing = runtimes.get(BOOTSTRAP_ACCOUNT)
     if (existing !== undefined) return existing
-    const created = new TenantRuntime({
+    const created = startRuntime({
       home,
       accountId: BOOTSTRAP_ACCOUNT,
       directoryName: BOOTSTRAP_DIRECTORY,
@@ -334,7 +355,7 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
    * ones. Every tenant's Sessions stay on disk, so reclaiming costs one boot.
    * @param target - the runtime about to start, which is never reclaimed.
    */
-  const makeRoom = async (target: TenantRuntime): Promise<void> => {
+  const makeRoom = async (target: TenantHandle): Promise<void> => {
     for (;;) {
       const oldest = reclaimFor(active(), target, options.maxTenants)
       if (oldest === undefined) return
@@ -372,7 +393,7 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
    * @param accountId - the account the browser's routing cookie names.
    * @returns the runtime, or undefined when the roster no longer holds that account.
    */
-  const routedRuntime = async (store: AccountStore, accountId: string): Promise<TenantRuntime | undefined> => {
+  const routedRuntime = async (store: AccountStore, accountId: string): Promise<TenantHandle | undefined> => {
     if (store.byId(accountId) === undefined) return undefined
     const runtime = runtimeFor(accountId)
     await serialize(async () => {
@@ -393,7 +414,7 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
   const forward = async (
     request: IncomingMessage,
     response: ServerResponse,
-    runtime: TenantRuntime,
+    runtime: TenantHandle,
     path: string,
     extraCookies: readonly string[],
   ): Promise<void> => {
@@ -670,5 +691,9 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
   }
   process.once('SIGINT', shutdown)
   process.once('SIGTERM', shutdown)
+  if (options.signal !== undefined) {
+    if (options.signal.aborted) shutdown()
+    else options.signal.addEventListener('abort', shutdown, { once: true })
+  }
   return await stopping.promise
 }

@@ -1,21 +1,20 @@
 /** Handoff reclaim and serialization: which runtime stops, and who may start when. */
 
 import { describe, expect, it } from 'vitest'
-import type { TenantRuntime } from '../src/tenant-runtime.ts'
-import type { TenantRuntimeState } from '../src/tenant-runtime.ts'
+import type { TenantHandle, TenantRuntimeState } from '../src/tenant-runtime.ts'
 import { createHandoffQueue, reclaimFor } from '../src/tenants.ts'
 
 /** The accounts one reclaim decided to stop, in order. */
 const stopped: string[] = []
 
 /** One runtime stand-in carrying the state and last use the decision reads. */
-function runtime(accountId: string, state: TenantRuntimeState, lastUsedAt: number): TenantRuntime {
+function runtime(accountId: string, state: TenantRuntimeState, lastUsedAt: number): TenantHandle {
   let current = state
   return {
     lastUsedAt,
     status: () => ({ accountId, state: current }),
     stop: async () => { stopped.push(accountId); current = 'stopped' },
-  } as unknown as TenantRuntime
+  } as unknown as TenantHandle
 }
 
 describe('handoff reclaim', () => {
