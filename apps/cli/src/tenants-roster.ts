@@ -10,10 +10,11 @@
  */
 
 import { mkdir, rm, stat } from 'node:fs/promises'
-import { join, resolve } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 import { createInterface } from 'node:readline/promises'
 import { Writable } from 'node:stream'
 import { resolveQilinHome } from '@qilin-agent/home-paths'
+import { isTenantIdentity } from './tenant-runtime.ts'
 import {
   AccountStore,
   accountsFilePath,
@@ -164,11 +165,12 @@ export async function removeAccount(home: string, username: string, purgeData: b
   const account = store.byUsername(normalizeUsername(username))
   if (account === undefined) throw new Error(`qilin tenants: no account is named ${normalizeUsername(username)}`)
   const directory = tenantDirectory(home, account.id)
-  // Only the directory this home derives from the account identity may be
-  // removed, whatever the account file claims its id is.
-  const expected = resolve(join(home, 'tenants', account.id))
-  if (purgeData && resolve(directory) !== expected) {
-    throw new Error(`qilin tenants: refusing to remove ${directory}, which is not this account's tenant directory`)
+  // Only a directory this home derives from one plain account identity may be
+  // removed: the account file is a shared document, and an id that is a path
+  // segment of its own would otherwise delete outside this deployment's tenants.
+  const resolved = resolve(directory)
+  if (purgeData && (!isTenantIdentity(account.id) || dirname(resolved) !== resolve(join(home, 'tenants')))) {
+    throw new Error(`qilin tenants: refusing to remove ${resolved}, which is not this account's tenant directory`)
   }
   const removed = await store.remove(account.id)
   if (!purgeData || !await exists(directory)) return { account: removed, purgedDirectory: undefined }

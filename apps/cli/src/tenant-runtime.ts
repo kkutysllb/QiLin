@@ -216,6 +216,19 @@ const IDENTITY_PATTERN = /^[A-Za-z0-9._-]+$/u
 /** Identities a path would read as a directory rather than a name. */
 const PATH_ONLY_IDENTITIES = new Set(['.', '..'])
 
+/**
+ * Whether an account identity may name one tenant directory.
+ *
+ * The account file is a shared document, so its ids reach path construction in
+ * more than one process; an id that is a path segment or names a directory would
+ * place a tenant's home somewhere other than under the deployment's own tenants.
+ * @param accountId - the identity stored in the roster.
+ * @returns true when the identity is one plain directory name.
+ */
+export function isTenantIdentity(accountId: string): boolean {
+  return IDENTITY_PATTERN.test(accountId) && !PATH_ONLY_IDENTITIES.has(accountId)
+}
+
 /** Environment variable naming the deployment home to a tenant runtime. */
 export const DEPLOYMENT_HOME_VARIABLE = 'QILIN_DEPLOYMENT_HOME'
 
@@ -267,7 +280,7 @@ export const BOOTSTRAP_DIRECTORY = '.bootstrap'
  * @throws Error when the identity is not usable as one tenant directory name.
  */
 export function tenantPatchYaml(accountId: string): string {
-  if (!IDENTITY_PATTERN.test(accountId) || PATH_ONLY_IDENTITIES.has(accountId)) {
+  if (!isTenantIdentity(accountId)) {
     throw new Error(`qilin tenants: ${accountId} is not usable as a tenant directory name`)
   }
   return [

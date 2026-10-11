@@ -132,6 +132,22 @@ describe('tenants roster', () => {
     expect(await exists(directory)).toBe(false)
   })
 
+  it('refuses to purge a directory that is not the account tenant directory', async () => {
+    const base = await home()
+    const store = await AccountStore.open(accountsFilePath(base))
+    const created = await store.add({ username: 'alice' }, 'alice-password')
+    // The roster is a shared document another writer can edit, so an identity
+    // that is a path segment of its own must not name the directory this
+    // deployment deletes.
+    await store.update(created.id, account => ({ ...account, id: '../outside' }))
+    const reachable = join(base, 'outside', 'sessions')
+    await mkdir(reachable, { recursive: true })
+
+    await expect(removeAccount(base, 'alice', true)).rejects.toThrow(/which is not this account's tenant directory/u)
+    expect(await exists(reachable)).toBe(true)
+    expect((await AccountStore.open(accountsFilePath(base))).all()).toHaveLength(1)
+  })
+
   it('reports which accounts already have a tenant directory', async () => {
     const base = await home()
     const alice = await addAccount(base, { username: 'alice', password: 'alice-password' })
