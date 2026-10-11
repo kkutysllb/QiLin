@@ -87,3 +87,13 @@ npx vitest run apps/cli/tests/tenant-environment.spec.ts
 - 上限与并发：新增 [tenant-handoff.spec.ts](../../apps/cli/tests/tenant-handoff.spec.ts) 用真 hub + 真 HTTP 驱动两个账户同时交接。**发现并登记**：`--max-tenants 1` 下两个账户同时交接时，回收可能把另一个请求正在用的运行时停掉，于是那一侧收到 **503**——这是上限语义的正确后果（默认 `0` 不受影响），需要在部署文档里说清，别当成故障。
 - 该 spec 是「交接队列是否真的互斥」的第一条**端到端**判据：把队列改成立即执行，回收日志变空、用例变红；恢复后 5/5 通过。
 - 环境面：`TenantHandle` / `createRuntime` / `home` / `signal` 四个缝让 supervisor 可被嵌入与停止，测试不再需要改 `process.env` 或发信号给自己。
+
+## 8. 本轮增量（第 12 轮）：租户名与部署自有目录
+
+**发现（本轮实跑暴露）**：租户名由 `isTenantIdentity` 判定，原规则只拒绝 `.` 与 `..`，**允许前导点**；而 `tenants/` 同时住着部署自己的目录——`tenants/.usage`（token 账本）与 `tenants/.bootstrap`（首启运行时）。账户文件是**多进程共享文档**，其中的 id 会走到路径构造；一个由名册（手工编辑或迁移）带进来的 `.usage` 身份，会让某个运行时把**部署的账本目录**当成自己的 harness home，并在里面写下该租户的层。
+
+**修法**：身份规则保留前导点（`RESERVED_IDENTITY_PREFIX = '.'`），即部署在 `tenants/` 下为自己保留的名字空间；`.usage`、`.bootstrap`、`.`、`..` 都不可作为租户名。产品自身的注册校验（`USERNAME_PATTERN = /^[a-z0-9][a-z0-9_.-]{2,31}$/`）本就不产生前导点，所以这是**收紧共享文档的信任面**，不改变正常注册路径；该提交以 `!` 标注这次收窄。
+
+**用例**：[tenant-isolation.spec.ts](../apps/cli/tests/tenant-isolation.spec.ts) 5 例——每账户一个目录且互为兄弟、一个租户层只准入自己那一个账户（三账户交叉断言，含「不含其它账户名」）、agent 根在租户 home 内、经真 hub 每账户各自一个目录、首启运行时的目录是部署保留名。既有的身份用例补上 `.bootstrap`/`.usage`。**负向对照实跑**：去掉前导点规则 → 2 例变红。
+
+**顺带的落点收敛**：目录派生从类里提为 `tenantDirectory(home, name)`，「租户住在哪里」只有一个落点，也让它可被断言。
