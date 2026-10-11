@@ -19,6 +19,10 @@
 | C9 | `refactor(client): drop fixtures the removed workbench tag left behind` |
 | C10 | `refactor: drop an unreferenced socket alias and describe the audience record as legacy` |
 | C11 | `feat(accounts-local): mark session cookies Secure when the public address terminates TLS` |
+| C12 | `fix(scripts): scan only Git-known paths in the bilingual pairing gate` |
+| C13 | `docs(i18n): pair the desktop README and refresh the Chinese tool catalog` |
+| C14 | `test(scripts): register the released V4 restore package as a library` |
+| C15 | `test(identity): cover concurrent first-run, registration, and sign-in` |
 
 ## P0 安全与正确性
 
@@ -50,9 +54,9 @@
 | 14 | §3.5 `bin.ts` 的 `scheduler` 补丁理由移入 Agent Note | **已落地** C7 | 兜底抽成 `apps/cli/src/scheduler-yield.ts`（`installSchedulerYield()`，JSDoc 只写契约并链到 Agent Note），入口在顶部调用、注释只剩一句契约；`desktop/package/app/host/main.mjs` 的同一决定也改为一句契约并链同一篇 Note。新增 [Agent Note](../../.agents/notes/implemented/architecture/2026-10-07-web-scheduler-yield-host-shim.md)（中英 + 记录）说明为什么这个全局兜底留着。**新发现**：三处调用点（`api-session-controller` 冷列表、`session-persistence-jsonl` 分片让路）现在都从 `node:timers/promises` 导入 `scheduler`（Node 17.3 起提供，`@types/node` 注释为证），所以仓内已无消费者；兜底保留的理由是进程级失效防护（移植模块与第三方插件可能裸读该全局），Node 24.18 实测无该全局、Electron 44 内置 Node 24。新增 `apps/cli/tests/scheduler-yield.spec.ts` 3 例（越过微任务让路、宿主自带不被覆盖、重复安装为空操作） |
 | 15 | §4.6 登录限流 / §4.7 cookie `Secure` 条件 | **部分落地** C11 | `Secure`：`SessionCookies` 增加第三个参数，`accounts-local` 增加 `sessionCookieSecure`（默认 false，进入 config catalog 与双语 README），hub 自己终止 TLS 时给每个运行时写进租户层（`tenantPatchYaml`/`bootstrapPatchYaml` 第二个参数，`tenants.ts` 由 `options.tls !== undefined` 推导）——不能靠运行时自己的 socket 判断：它说的是 loopback 上的明文 HTTP。用例：`session.spec.ts`（带/不带 `Secure`）、`tenant-runtime.spec.ts`（两种层文档）、`auth-surface.spec.ts`（真组合下 setup 与 logout 都带 `Secure`，14/14）。**未做**：登录限流/退避——需要产品口径（阈值、窗口、是否锁定账户），留待裁定 |
 | 16 | §4.7 非 loopback 绑定告警 + 文档分开写 hub 与租户地址 | **部分落地** C2 | 入口在非 loopback 绑定上打印可达性事实；文档已说明租户运行时只绑 loopback |
-| 17 | §7 五条并发/共享写用例 | **部分落地** C1 | 名册并发写已有用例（同一进程并发、两个写者各持旧快照、锁等待、过热锁过期、等待超时、空壳锁路径）；登录与首跳并发、上限回收竞态、坏 profile 串行阻塞、首启与真实租户并存仍缺；「两个浏览器同时 setup」的第二个应得 409 仍无用例 |
+| 17 | §7 五条并发/共享写用例 | **部分落地** C1 + C15 | 名册并发写：C1 的单元用例（同一进程并发、两个写者各持旧快照、锁等待、过热锁过期、等待超时、空壳锁路径）。真组合 HTTP 车道：C15 新增三例——两个首启 setup 并发只产生一个账户（另一个得 409 `already-initialized`，其用户名无法登录，赢家的会话可用）、两个注册并发都存活、两个账户同时登录各自带自己的会话过门禁。负向对照实跑：把 `initialize()` 临界区里的空名册判定改成恒假，该用例变红（1 failed），恢复后 17/17。**仍缺**：`makeRoom`/`--max-tenants` 的回收竞态、坏 profile 下的串行阻塞、>2 账户与回收抖动——三者都要 supervisor 装配测试台或真进程车道，本轮未建 |
 | 18 | §5.8 schedule 能力是否进入出厂部署 | 待决策 | 影响判据 2 的可验证性 |
-| 19 | §3.7 夹具与注释残留 + §2.4 文档口径 | **已落地** C9 + C10 | 四处 `ctx.provide('workbench', …)`（`ui-schedule`、`ui-sidebar-right` 的 apply 与 seat、`ui-sidebar-documentpreview`）与它们「dual-workbench D5」注释删除；`WorkspaceBrowser` 的 `id="workbench-list-panel"` 删除（全仓零消费者）；`SidebarRight.module.css` 的注释改为描述 dockkit 自身；`UpgradeSocket` 与其 `node:net` 类型导入删除；`manager-store.client.spec.ts` 的 `setAudience` 假实现随 C8 消失。**已由在途提交修好、本轮复核确认**：`tenant-runtime.ts` 的 `IDENTITY_PATTERN` 注释文字与 `bootstrapPatchYaml`/`tenantPatchYaml` 的 JSDoc 归属、`tenants.ts` 的 `hubOwnRoute` 恒假析取。**登记未动**：`packages/client/connection/src/client/fixture.ts` 零 importer（是否作为离线开发面保留需人工确认）；`snapshots/session/skill-load/**` 内嵌 NMO 前技能正文（需真实 key 重录） |
+| 19 | §3.7 夹具与注释残留 + §2.4 文档口径 | **已落地** C9 + C10 | 四处 `ctx.provide('workbench', …)`（`ui-schedule`、`ui-sidebar-right` 的 apply 与 seat、`ui-sidebar-documentpreview`）与它们「dual-workbench D5」注释删除；`WorkspaceBrowser` 的 `id="workbench-list-panel"` 删除（全仓零消费者）；`SidebarRight.module.css` 的注释改为描述 dockkit 自身；`UpgradeSocket` 与其 `node:net` 类型导入删除；`manager-store.client.spec.ts` 的 `setAudience` 假实现随 C8 消失。**已由在途提交修好、本轮复核确认**：`tenant-runtime.ts` 的 `IDENTITY_PATTERN` 注释文字与 `bootstrapPatchYaml`/`tenantPatchYaml` 的 JSDoc 归属、`tenants.ts` 的 `hubOwnRoute` 恒假析取。**登记未动**：`packages/client/connection/src/client/fixture.ts` 零 importer（是否作为离线开发面保留需人工确认）；`snapshots/session/skill-load/**` 内嵌 NMO 前技能正文（需真实 key 重录）。**文档口径（C12–C14）**：配对门禁只扫 git 已知路径；`desktop/README.md` 补齐英文源、中文挪到 `README.zh.md`（两侧带切换器与逐字节一致的代码块）；`docs/tool-catalog.zh.md` 的四个 subagent section 按当前英文重写；`session-format-v4-to-v5` 补进已审计库登记表——至此全仓配对门禁 1097 对全绿 |
 
 ## 本轮新增发现（复核清单之外）
 
@@ -64,8 +68,11 @@
 | `--from-default-profile` 在部署入口毫无效果（shipped profile 必被拒绝） | **已落地** C2：入口明确拒绝并说明原因 |
 | webhook 真实车道的夹具与断言请求已退役的 `minimal` 预设 | **已落地** C5（§2.5）：该车道需真实 key 且 `QILIN_GITHUB_*`，属潜伏断裂，不在任何常规门禁里显形 |
 | 宿主 Web Scheduler API 兜底的实际消费者已不存在（三处调用点都改为 `node:timers/promises` 导入） | **已登记并留证** C7：兜底按「进程级失效防护」保留，理由与移除条件写进 Agent Note；仓内不再有裸读全局的代码 |
-| 文档门禁把 gitignore 的构建残留也当作维护文件扫描 | **登记未动**：`desktop/staging/qilin-src/**` 的 `.i18n.yaml`（`desktop/.gitignore` 第 16 行 `/staging/`，`git ls-files` 为 0）让 `verify-translation-pairing` 常红；`docs/tool-catalog.i18n.yaml` 随 subagent 后端删除而陈旧。修法：配对门禁按 git 跟踪集过滤（只扫描 git 会跟踪的文件），再重录 catalog 的四个 section |
-| `packages/session/session-format-v4-to-v5/README.md` 的 `kind` 不是 `package-reference` | **登记未动**：`scripts/doc-standard.spec.ts` 常红一条，与本轮改动面无关 |
+| 文档门禁把 gitignore 的构建残留也当作维护文件扫描 | **已落地** C12：语料改为「git 知道的路径」（索引 + 未被忽略的未跟踪文件），git 读不出的树保留全部发现，避免语料被收窄为空；`scripts/translation-pairing.spec.ts` 新增夹具证明被忽略的残留不在结果里、未跟踪但未忽略的文件在。这一条此前让门禁常红 36 行 |
+| `docs/tool-catalog.zh.md` 的四个 subagent section 落后于英文（仍描述已删除的 `run_in_background` 与旧的中断/列举/发消息语义） | **已落地** C13：按当前英文重写这四节的中文并重录记录；`gen-tool-catalog` 只写英文源，中文对照由人工维护 |
+| `desktop/README.md` 以英文源名承载纯中文内容，是配对语料内唯一没有对照的 README | **已落地** C13：英文成为源，中文挪到 `desktop/README.zh.md`，两侧带切换器与逐字节一致的代码块，配对记录已录 |
+| `plans/2026-10-11-multi-user-tenancy.md` 在维护文件里写了 13 处裸提交号，`verify-repository-references` exit 1 | **登记未动**：那是另一写入者的计划文档，「提交号 → 改动」对照表是它的账目主体；修法与台账同款（改用提交主题），但那是仍在写的文档，留给其所有者或下一轮 |
+| `packages/session/session-format-v4-to-v5/README.md` 被判 `kind` 不合规 | **已落地** C14：该包与其同族迁移包一样是库，只是没进 `scripts/doc-standard.spec.ts` 的已审计库登记表；补登记后 `doc-standard.spec.ts` 22/22 |
 | `apps/cli/tests/profiles/web/tests/tenant-supervisor.expected.e2e.ts:828` 有既有 lint 报错（模板串多余） | **登记未动**：本轮未触碰该文件 |
 | 登录限流缺失、被拒 reload 的回滚契约、历史会话认领形态、schedule 是否出厂 | **待决策**（见 §11/§13/§18 与上表） |
 
@@ -73,3 +80,4 @@
 
 - 真进程 e2e 租户车道（`tenant-supervisor` / `tenant-isolation`）本轮未跑：需要构建产物与真实引擎。
 - C11 的 hub→运行时接线（`options.tls !== undefined` → 租户层的 `sessionCookieSecure: true`）只有两层单元证据（层文档文本、cookie 属性）与真组合下的 cookie 断言，没有一条用例从「带 `--tls-cert` 的 hub」走到「运行时签发的 cookie 带 `Secure`」；该补丁没有单元级的 supervisor 装配测试台。
+- §7 剩下的三条并发面（`makeRoom`/`--max-tenants` 回收竞态、坏 profile 串行阻塞、>2 账户）复核时就没有测试台，本轮仍未建：它们需要 supervisor 级别的装配测试（或真进程租户车道），不是身份面能覆盖的。
