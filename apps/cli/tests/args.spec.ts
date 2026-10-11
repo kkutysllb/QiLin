@@ -146,17 +146,65 @@ describe('parseQilinArgs', () => {
   })
 
   it('routes the tenant hub and refuses options it cannot serve', () => {
-    expect(parse(['tenants', 'serve'])).toEqual({
+    const hub = (overrides: Record<string, unknown> = {}) => ({
       mode: 'tenants',
-      options: { host: '127.0.0.1', port: 8790, profile: 'web', idleMilliseconds: 1_800_000 },
+      request: {
+        command: 'serve',
+        options: {
+          host: '127.0.0.1',
+          port: 8790,
+          profile: 'web',
+          idleMilliseconds: 1_800_000,
+          maxTenants: 0,
+          restartBackoffMilliseconds: 1000,
+          singleOrigin: false,
+          ...overrides,
+        },
+      },
     })
-    expect(parse(['tenants', 'serve', '--host', '127.0.0.1', '--port', '0', '--profile', 'rescue', '--idle-ms', '600000']))
-      .toEqual({
-        mode: 'tenants',
-        options: { host: '127.0.0.1', port: 0, profile: 'rescue', idleMilliseconds: 600_000 },
-      })
+    expect(parse(['tenants', 'serve'])).toEqual(hub())
+    expect(parse([
+      'tenants', 'serve', '--host', '0.0.0.0', '--port', '0', '--profile', 'rescue',
+      '--idle-ms', '600000', '--max-tenants', '4', '--restart-backoff-ms', '250', '--single-origin',
+    ])).toEqual(hub({
+      host: '0.0.0.0',
+      port: 0,
+      profile: 'rescue',
+      idleMilliseconds: 600_000,
+      maxTenants: 4,
+      restartBackoffMilliseconds: 250,
+      singleOrigin: true,
+    }))
+    // 0 is the documented way to keep every runtime alive: no window reclaims one.
+    expect(parse(['tenants', 'serve', '--idle-ms', '0'])).toEqual(hub({ idleMilliseconds: 0 }))
     expect(exitCode(['tenants', 'serve', '--port', 'eight'])).toBe(1)
-    expect(exitCode(['tenants', 'serve', '--idle-ms', '50'])).toBe(1)
+    expect(exitCode(['tenants', 'serve', '--idle-ms', '-1'])).toBe(1)
+    expect(exitCode(['tenants'])).toBe(1)
+  })
+
+  it('routes the tenant roster subcommands', () => {
+    expect(parse(['tenants', 'accounts'])).toEqual({ mode: 'tenants', request: { command: 'accounts' } })
+    expect(parse(['tenants', 'add', 'Alice', '--email', 'alice@example.com', '--password-stdin'])).toEqual({
+      mode: 'tenants',
+      request: { command: 'add', username: 'Alice', email: 'alice@example.com', password: { kind: 'stdin' } },
+    })
+    expect(parse(['tenants', 'add', 'alice'])).toEqual({
+      mode: 'tenants',
+      request: { command: 'add', username: 'alice', email: undefined, password: { kind: 'prompt' } },
+    })
+    expect(parse(['tenants', 'passwd', 'alice'])).toEqual({
+      mode: 'tenants',
+      request: { command: 'passwd', username: 'alice', password: { kind: 'prompt' } },
+    })
+    expect(parse(['tenants', 'remove', 'alice', '--purge-data'])).toEqual({
+      mode: 'tenants',
+      request: { command: 'remove', username: 'alice', purgeData: true },
+    })
+    expect(parse(['tenants', 'remove', 'alice'])).toEqual({
+      mode: 'tenants',
+      request: { command: 'remove', username: 'alice', purgeData: false },
+    })
+    expect(exitCode(['tenants', 'remove'])).toBe(1)
   })
 
   it('routes profile and web config dumps', () => {

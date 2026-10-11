@@ -258,7 +258,7 @@ export function parseQilinArgs(argv: readonly string[], version: string): QilinI
       .option('--host <address>', 'interface the hub binds', '127.0.0.1')
       .option('--port <port>', 'port the hub binds; 0 picks a free one', wholeNumber('--port', 0), 8790)
       .option('--profile <name>', 'profile each tenant runtime boots', 'web')
-      .option('--idle-ms <milliseconds>', 'idle window before a tenant runtime is reclaimed', wholeNumber('--idle-ms', 100), 1_800_000)
+      .option('--idle-ms <milliseconds>', 'idle window before a tenant runtime is reclaimed; 0 keeps every one', wholeNumber('--idle-ms', 0), 1_800_000)
       .option('--max-tenants <count>', 'most tenant runtimes to keep running at once; 0 keeps every one, and starting another reclaims the least recently used', wholeNumber('--max-tenants', 0), 0)
       .option('--restart-backoff-ms <milliseconds>', 'first wait before retrying a tenant runtime that failed to start; it doubles per consecutive failure', wholeNumber('--restart-backoff-ms', 100), 1000)
       .option('--single-origin', 'serve every tenant through the hub origin, routing each request by a cookie, instead of redirecting to the runtime port; reclamation then counts proxied traffic')

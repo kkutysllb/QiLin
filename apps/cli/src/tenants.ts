@@ -309,10 +309,6 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       json(response, 200, await status())
       return
     }
-    if (url.pathname === '/') {
-      respond(response, 200, 'text/html; charset=utf-8', directoryPage((await roster()).all()))
-      return
-    }
     if (url.pathname.startsWith('/t/')) {
       const rest = url.pathname.slice('/t/'.length)
       const separator = rest.indexOf('/')
@@ -351,28 +347,35 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
     }
     if (options.singleOrigin) {
       const accountId = cookieValue(request.headers.cookie, TENANT_COOKIE)
-      if (accountId === undefined) {
-        respond(response, 404, 'text/plain; charset=utf-8', 'qilin tenants: no tenant is selected for this browser\n')
+      // A browser that has not chosen a tenant reaches this point, and the
+      // directory below answers it. That ordering is what keeps the runtime's
+      // own root reachable: the account gate redirects a signed-out browser to
+      // the runtime's landing page at '/', which is the same path the hub's
+      // directory lives on.
+      if (accountId !== undefined) {
+        try {
+          const runtime = await routedRuntime(accountId)
+          if (runtime === undefined) {
+            // The roster no longer holds that account: drop the cookie so the
+            // browser goes back to the directory instead of retrying forever.
+            response.writeHead(404, {
+              'cache-control': 'no-store',
+              'content-type': 'text/plain; charset=utf-8',
+              'set-cookie': clearedRoutingCookie(),
+            })
+            response.end('qilin tenants: the selected tenant no longer exists\n')
+            return
+          }
+          await forward(request, response, runtime, `${url.pathname}${url.search}`, [])
+        } catch (error) {
+          process.stderr.write(`qilin tenants: no runtime served ${url.pathname}: ${String(error)}\n`)
+          respond(response, 503, 'text/plain; charset=utf-8', 'qilin tenants: that tenant is not serving\n')
+        }
         return
       }
-      try {
-        const runtime = await routedRuntime(accountId)
-        if (runtime === undefined) {
-          // The roster no longer holds that account: drop the cookie so the
-          // browser goes back to the directory instead of retrying forever.
-          response.writeHead(404, {
-            'cache-control': 'no-store',
-            'content-type': 'text/plain; charset=utf-8',
-            'set-cookie': clearedRoutingCookie(),
-          })
-          response.end('qilin tenants: the selected tenant no longer exists\n')
-          return
-        }
-        await forward(request, response, runtime, `${url.pathname}${url.search}`, [])
-      } catch (error) {
-        process.stderr.write(`qilin tenants: no runtime served ${url.pathname}: ${String(error)}\n`)
-        respond(response, 503, 'text/plain; charset=utf-8', 'qilin tenants: that tenant is not serving\n')
-      }
+    }
+    if (url.pathname === '/') {
+      respond(response, 200, 'text/html; charset=utf-8', directoryPage((await roster()).all()))
       return
     }
     respond(response, 404, 'text/plain; charset=utf-8', 'qilin tenants: unknown path\n')
@@ -421,10 +424,12 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
   const printableHost = options.host === '0.0.0.0' || options.host === '::' ? '127.0.0.1' : options.host
   process.stdout.write(`qilin tenants: http://${printableHost}:${String(port)}/\n`)
 
-  // One sweep reclaims every runtime whose last handoff is older than the idle
-  // window: the child exits, its tenant's data stays on disk under the shared home.
+  // One sweep reclaims every runtime whose last use is older than the idle
+  // window: the child exits, its tenant's data stays on disk under the shared
+  // home. A window of 0 keeps every runtime, so no sweep is installed at all —
+  // an interval would otherwise reclaim each one on its first tick.
   const sweep = Math.max(250, Math.min(Math.floor(options.idleMilliseconds / 4), 30_000))
-  const idle = setInterval(() => {
+  const idle = options.idleMilliseconds <= 0 ? undefined : setInterval(() => {
     const now = Date.now()
     for (const runtime of runtimes.values()) {
       if (runtime.status().state !== 'running') continue
@@ -437,7 +442,7 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
   const stopping = Promise.withResolvers<number>()
   const shutdown = (): void => {
     void (async () => {
-      clearInterval(idle)
+      if (idle !== undefined) clearInterval(idle)
       server.closeAllConnections()
       await new Promise<void>((resolve) => { server.close(() => { resolve() }) })
       await Promise.all([...runtimes.values()].map(async (runtime) => { await runtime.stop() }))

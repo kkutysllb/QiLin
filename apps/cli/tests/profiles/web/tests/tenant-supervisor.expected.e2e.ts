@@ -72,6 +72,8 @@ interface HubOptions {
   readonly restartBackoffMs?: number
   /** Serve every tenant through the hub origin instead of redirecting to the runtime port. */
   readonly singleOrigin?: boolean
+  /** Idle window; 0 keeps every runtime. */
+  readonly idleMs?: number
 }
 
 /** Start the hub over one shared home and wait for its URL. */
@@ -80,7 +82,7 @@ async function startHub(root: string, home: string, options: HubOptions = {}): P
     srcBin: join(repoRoot, 'apps/cli/src/bin.ts'),
     mode: 'lib',
     configArgs: [
-      'tenants', 'serve', '--port', '0', '--idle-ms', String(IDLE_MILLISECONDS),
+      'tenants', 'serve', '--port', '0', '--idle-ms', String(options.idleMs ?? IDLE_MILLISECONDS),
       ...(options.profile === undefined ? [] : ['--profile', options.profile]),
       ...(options.maxTenants === undefined ? [] : ['--max-tenants', String(options.maxTenants)]),
       ...(options.restartBackoffMs === undefined ? [] : ['--restart-backoff-ms', String(options.restartBackoffMs)]),
@@ -359,12 +361,23 @@ it('serves one browser through the hub origin by routing cookie', { timeout: 240
     const jar = setCookies.map(cookie => cookie.split(';', 1)[0]).join('; ')
     expect(jar).toMatch(/qilin_tenant=/u)
 
-    // 2. The document is reached at the hub root: /workspace is an absolute
-    //    path that only the routing cookie can attribute to a tenant.
-    const document = await fetch(`${base}workspace`, { headers: { cookie: jar } })
-    expect(document.status).toBe(200)
-    expect(document.headers.get('content-type') ?? '').toContain('text/html')
-    expect(await document.text()).toContain('<html')
+    // 2. The device cookie alone reaches the account gate, not the application:
+    //    the hop forwards the gate's own redirect, so a browser is sent to the
+    //    sign-in surface exactly as it would be at the runtime's own origin.
+    const gated = await fetch(`${base}workspace`, { headers: { cookie: jar }, redirect: 'manual' })
+    expect(gated.status).toBe(302)
+    expect(gated.headers.get('location')).toBe('/?next=%2Fworkspace')
+
+    // That redirect names the runtime's own root, and the hub's directory lives
+    // on the same path: a browser that already chose a tenant must reach the
+    // runtime's landing page there, and a browser that has not must reach the
+    // directory. Selection is the whole difference.
+    const landing = await fetch(base, { headers: { cookie: jar } })
+    expect(landing.status).toBe(200)
+    expect(await landing.text()).not.toContain('qilin tenants')
+    const directory = await fetch(base)
+    expect(directory.status).toBe(200)
+    expect(await directory.text()).toContain('qilin tenants')
 
     // 3. The API crosses the same hop with any method, and the tenant's
     //    same-origin fence still decides one hop out: an Origin naming the hub
@@ -389,7 +402,34 @@ it('serves one browser through the hub origin by routing cookie', { timeout: 240
     expect(refused.status).toBe(403)
     expect(await refused.text()).toMatch(/not this hub/u)
 
-    // 4. A Remote request and the mux upgrade cross the hop too: the upgrade
+    // 4. Signed in, the application document arrives at the hub root: /workspace
+    //    is an absolute path that only the routing cookie can attribute.
+    const document = await fetch(`${base}workspace`, { headers: { cookie: authenticated }, redirect: 'manual' })
+    expect(document.status).toBe(200)
+    expect(document.headers.get('content-type') ?? '').toContain('text/html')
+    const html = await document.text()
+    expect(html).toContain('<html')
+    expect(html).not.toContain('next=%2Fworkspace')
+
+    // The shell's own script and style references are absolute paths too, so
+    // the page a browser loads would stall at the first one if the routing
+    // cookie did not cover them. The attribute values are HTML-escaped.
+    const assets = [
+      ...[...html.matchAll(/<script[^>]+src="([^"]+)"/gu)].map(match => match[1] as string),
+      ...[...html.matchAll(/<link[^>]+href="([^"]+)"/gu)].map(match => match[1] as string),
+    ].map(asset => asset.replaceAll('&amp;', '&'))
+    expect(assets.length).toBeGreaterThan(0)
+    // The shell references them relative to the document, exactly as a browser
+    // resolves them against the page URL.
+    const documentUrl = `${hubOrigin}/workspace`
+    for (const asset of new Set(assets).values()) {
+      const served = await fetch(new URL(asset, documentUrl), { headers: { cookie: authenticated } })
+      expect(served.status, asset).toBe(200)
+      // Not the hub's own page: the runtime answered the asset itself.
+      expect(served.headers.get('content-type') ?? '', asset).not.toContain('text/html')
+    }
+
+    // 5. A Remote request and the mux upgrade cross the hop too: the upgrade
     //    is an absolute path, and its ready item proves the frame pipe.
     const listing = await tenantRemoteResult<{ items: { sessionId: string }[] }>(hubOrigin, authenticated, 'through-hub', 'session/list', { _request: {} })
     expect(listing.ok).toBe(true)
@@ -405,7 +445,7 @@ it('serves one browser through the hub origin by routing cookie', { timeout: 240
     const events = await openForwardedEvents(proxied)
     await events.close()
 
-    // 5. Reclamation counts proxied traffic rather than a handoff: requests
+    // 6. Reclamation counts proxied traffic rather than a handoff: requests
     //    spread across the idle window keep the runtime alive...
     const until = Date.now() + IDLE_MILLISECONDS + 3000
     while (Date.now() < until) {
@@ -420,6 +460,31 @@ it('serves one browser through the hub origin by routing cookie', { timeout: 240
       async () => (await hubStatus(base)).map(tenant => tenant.state),
       { timeout: 30_000, interval: 250 },
     ).toEqual(['stopped'])
+  } catch (error) {
+    const evidence = hub === undefined ? '' : `\n${hub.output().slice(-4000)}`
+    throw new Error(`${error instanceof Error ? error.message : String(error)}${evidence}`, { cause: error })
+  } finally {
+    if (hub !== undefined) await stopHub(hub)
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
+it('keeps every runtime when the idle window is 0', { timeout: 240_000 }, async () => {
+  const root = await mkdtemp(join(tmpdir(), 'qilin-tenant-no-idle-'))
+  const home = join(root, 'home')
+  await mkdir(home, { recursive: true })
+  const store = await AccountStore.open(accountsFilePath(home))
+  await store.add({ username: 'alice' }, ALICE_PASSWORD)
+
+  let hub: RunningHub | undefined
+  try {
+    hub = await startHub(root, home, { singleOrigin: true, idleMs: 0 })
+    await handoff(hub.base, 'alice')
+    // A sweep interval sized from 0 would reclaim each runtime on its first
+    // tick; the window of 0 means no sweep at all.
+    await new Promise(resolve => setTimeout(resolve, 2500))
+    const state = (await hubStatus(hub.base)).find(tenant => tenant.username === 'alice')?.state
+    expect(state).toBe('running')
   } catch (error) {
     const evidence = hub === undefined ? '' : `\n${hub.output().slice(-4000)}`
     throw new Error(`${error instanceof Error ? error.message : String(error)}${evidence}`, { cause: error })
