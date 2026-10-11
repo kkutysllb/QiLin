@@ -9,7 +9,7 @@
  */
 
 import type { ConnectionFetchRoute, ConnectionTrustRequest } from '@qilin-agent/client-connection'
-import type { AccountRecord, AccountStore } from './accounts.ts'
+import { AccountConflictError, type AccountRecord, type AccountStore } from './accounts.ts'
 import { isRecord } from './json.ts'
 import { hashPassword, verifyPassword } from './password.ts'
 import { AUTH_API_PREFIX } from './paths.ts'
@@ -212,6 +212,29 @@ async function acceptedSignUp(
 }
 
 /**
+ * Add one account, answering the refusal the account file's own uniqueness rules
+ * owe when the file holds the name or the address by the time the write lands.
+ * @param store - the account set to change.
+ * @param submitted - the accepted sign-up form.
+ * @returns the created account, or the refusal a collision answered.
+ */
+async function addAccount(
+  store: AccountStore,
+  submitted: SubmittedSignUp,
+): Promise<{ readonly account: AccountRecord } | { readonly refusal: Response }> {
+  try {
+    return { account: await store.add(submitted, submitted.password) }
+  } catch (error) {
+    if (!(error instanceof AccountConflictError)) throw error
+    return {
+      refusal: error.kind === 'email'
+        ? failure(409, 'email-taken', 'That email address already has an account.')
+        : failure(409, 'username-taken', 'That username already has an account.'),
+    }
+  }
+}
+
+/**
  * Build the authentication endpoints.
  * @param deps - the account set, session cookies, and the request's account lookup.
  * @returns one route per endpoint, in documentation order.
@@ -241,10 +264,23 @@ export function createAuthRoutes(deps: AuthRouteDeps): ConnectionFetchRoute[] {
       if (!deps.store.isEmpty) {
         return failure(409, 'already-initialized', 'An account already exists; sign in instead.')
       }
+      // A deployment that does not accept new accounts does not let its form
+      // create the first one either: the operator creates it where the decision
+      // is deliberate, with `qilin tenants add`.
+      if (deps.registration !== 'open') {
+        return failure(403, 'registration-closed', 'This deployment does not accept new accounts.')
+      }
       const signUp = await acceptedSignUp(request)
       if (!signUp.ok) return signUp.response
-      const account = await deps.store.add(signUp.value.submitted, signUp.value.submitted.password)
-      return json(200, { user: accountView(account) }, deps.sessions.issue(signUp.value.authority, account, Date.now()))
+      try {
+        const account = await deps.store.initialize(signUp.value.submitted, signUp.value.submitted.password)
+        return json(200, { user: accountView(account) }, deps.sessions.issue(signUp.value.authority, account, Date.now()))
+      } catch (error) {
+        // Whether the home was still empty is decided where the write happens,
+        // so two simultaneous submissions produce one account and this refusal.
+        if (!(error instanceof AccountConflictError)) throw error
+        return failure(409, 'already-initialized', 'An account already exists; sign in instead.')
+      }
     },
   }
 
@@ -265,8 +301,9 @@ export function createAuthRoutes(deps: AuthRouteDeps): ConnectionFetchRoute[] {
       if (submitted.email !== null && deps.store.byEmail(submitted.email) !== undefined) {
         return failure(409, 'email-taken', 'That email address already has an account.')
       }
-      const account = await deps.store.add(submitted, submitted.password)
-      return json(200, { user: accountView(account) }, deps.sessions.issue(signUp.value.authority, account, Date.now()))
+      const added = await addAccount(deps.store, submitted)
+      if ('refusal' in added) return added.refusal
+      return json(200, { user: accountView(added.account) }, deps.sessions.issue(signUp.value.authority, added.account, Date.now()))
     },
   }
 

@@ -1,14 +1,19 @@
 /**
  * The durable account file of one harness home: account records, their scrypt
- * hashes, and the credential generation that retires issued sessions. Every
- * mutation replaces the file atomically and publishes in memory only after the
- * successor bytes are in place, so a failed write leaves the running server on
- * the previous account set.
+ * hashes, and the credential generation that retires issued sessions.
+ *
+ * One file is the deployment's only shared writable document, so every mutation
+ * runs as a critical section: it holds {@link AccountStore}'s lock, re-reads the
+ * file the lock protects, applies the change to what it finds, and replaces the
+ * file atomically. Two runtimes changing credentials, or a command and a runtime,
+ * therefore compose instead of writing back a snapshot that lost the other's
+ * work. A failed write leaves the running server on the previous account set.
  * @module @qilin-agent/accounts-local/src/accounts
  */
 
 import { randomUUID } from 'node:crypto'
-import { readFile } from 'node:fs/promises'
+import { mkdir, open, readFile, rm, stat } from 'node:fs/promises'
+import { dirname } from 'node:path'
 import { writeFileAtomic } from '@qilin-agent/atomic-write'
 import { isRecord } from './json.ts'
 import { hashPassword } from './password.ts'
@@ -35,6 +40,35 @@ interface AccountsDocument {
   readonly accounts: readonly AccountRecord[]
 }
 
+/** The account identity a sign-up form supplies. */
+export interface NewAccount {
+  /** Normalized username. */
+  readonly username: string
+  /** Normalized address, or null when the form left it blank. */
+  readonly email?: string | null
+}
+
+/**
+ * A change the account file's current contents refuse.
+ *
+ * The two uniqueness rules and first-run initialization are decided inside the
+ * critical section, so a caller that raced another writer gets this refusal
+ * instead of a silently overwritten account set.
+ */
+export class AccountConflictError extends Error {
+  /**
+   * @param kind - which rule refused the change.
+   * @param message - the refusal, naming the account or address involved.
+   */
+  constructor(
+    readonly kind: 'username' | 'email' | 'initialized',
+    message: string,
+  ) {
+    super(message)
+    this.name = 'AccountConflictError'
+  }
+}
+
 /** Format version this build writes. */
 const FILE_VERSION = 2
 /**
@@ -44,6 +78,21 @@ const FILE_VERSION = 2
 const LEGACY_FILE_VERSION = 1
 const FILE_MODE = 0o600
 const DIRECTORY_MODE = 0o700
+
+/** How long a mutation waits for a lock another writer holds before reporting it. */
+const LOCK_TIMEOUT_MS = 5_000
+
+/**
+ * Age at which an unremoved lock is residue rather than a holder.
+ *
+ * It is longer than {@link LOCK_TIMEOUT_MS} on purpose: a waiter that gave up
+ * first has to leave the lock to whoever holds it, and only a lock nobody is
+ * waiting behind any more is one a writer died holding.
+ */
+const LOCK_STALE_MS = 30_000
+
+/** How often a waiting mutation retries the lock. */
+const LOCK_RETRY_MS = 25
 
 /** One malformed-record refusal, naming the file. */
 function malformed(path: string): Error {
@@ -104,6 +153,45 @@ function parseDocument(text: string, path: string): AccountRecord[] {
   return decoded.accounts.map(entry => parseAccount(entry, path, version))
 }
 
+/**
+ * Read one home's account file.
+ * @param path - absolute account file path.
+ * @returns the stored accounts, or none when the file does not exist yet.
+ * @throws Error when an existing file is unreadable or malformed.
+ */
+async function readAccounts(path: string): Promise<readonly AccountRecord[]> {
+  const text = await readFile(path, 'utf8').catch((error: unknown) => {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return undefined
+    throw error
+  })
+  return text === undefined ? [] : parseDocument(text, path)
+}
+
+/**
+ * One account record, ready to append.
+ * @param identity - normalized username and optional normalized email.
+ * @param password - plaintext password, already validated by the caller.
+ * @returns the record this build stores.
+ */
+async function createRecord(identity: NewAccount, password: string): Promise<AccountRecord> {
+  return {
+    id: randomUUID(),
+    username: identity.username,
+    email: identity.email ?? null,
+    password: await hashPassword(password),
+    createdAt: Date.now(),
+    tokenVersion: 1,
+  }
+}
+
+/** One change to the account set, with what the caller gets back. */
+interface RosterChange<T> {
+  /** The successor account set. */
+  readonly accounts: readonly AccountRecord[]
+  /** What the caller receives once the successor is durable. */
+  readonly result: T
+}
+
 /** The account set of one harness home, with durable mutations. */
 export class AccountStore {
   private accounts: readonly AccountRecord[]
@@ -123,11 +211,7 @@ export class AccountStore {
    * @throws Error when an existing file is unreadable or malformed.
    */
   static async open(path: string): Promise<AccountStore> {
-    const text = await readFile(path, 'utf8').catch((error: unknown) => {
-      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return undefined
-      throw error
-    })
-    return new AccountStore(path, text === undefined ? [] : parseDocument(text, path))
+    return new AccountStore(path, await readAccounts(path))
   }
 
   /**
@@ -183,21 +267,48 @@ export class AccountStore {
 
   /**
    * Create one account.
+   *
+   * The name and the address are unique across the file the change lands in:
+   * both rules are decided inside the critical section, because a caller's own
+   * earlier read is not what the file holds by the time the write happens.
    * @param identity - normalized username and optional normalized email.
    * @param password - plaintext password, already validated by the caller.
    * @returns the created account.
+   * @throws {@link AccountConflictError} when the name or address is taken.
    */
-  async add(identity: { username: string; email?: string | null }, password: string): Promise<AccountRecord> {
-    const created: AccountRecord = {
-      id: randomUUID(),
-      username: identity.username,
-      email: identity.email ?? null,
-      password: await hashPassword(password),
-      createdAt: Date.now(),
-      tokenVersion: 1,
-    }
-    await this.commit([...this.accounts, created])
-    return created
+  async add(identity: NewAccount, password: string): Promise<AccountRecord> {
+    const created = await createRecord(identity, password)
+    return await this.mutate((accounts) => {
+      const taken = accounts.find(account => account.username === created.username)
+      if (taken !== undefined) {
+        throw new AccountConflictError('username', `accounts-local: the account ${created.username} already exists`)
+      }
+      if (created.email !== null && accounts.some(account => account.email === created.email)) {
+        throw new AccountConflictError('email', `accounts-local: the address ${created.email} already belongs to an account`)
+      }
+      return { accounts: [...accounts, created], result: created }
+    })
+  }
+
+  /**
+   * Create the first account of an empty home.
+   *
+   * Whether the home is still empty is decided where the write happens, so two
+   * simultaneous first-run submissions produce one account and one refusal
+   * rather than two accounts.
+   * @param identity - normalized username and optional normalized email.
+   * @param password - plaintext password, already validated by the caller.
+   * @returns the created account.
+   * @throws {@link AccountConflictError} when an account already exists.
+   */
+  async initialize(identity: NewAccount, password: string): Promise<AccountRecord> {
+    const created = await createRecord(identity, password)
+    return await this.mutate((accounts) => {
+      if (accounts.length > 0) {
+        throw new AccountConflictError('initialized', 'accounts-local: an account already exists')
+      }
+      return { accounts: [created], result: created }
+    })
   }
 
   /**
@@ -208,11 +319,15 @@ export class AccountStore {
    * @throws Error when the account no longer exists.
    */
   async update(id: string, change: (account: AccountRecord) => AccountRecord): Promise<AccountRecord> {
-    const current = this.byId(id)
-    if (current === undefined) throw new Error(`accounts-local: no account ${id} to update`)
-    const changed = change(current)
-    await this.commit(this.accounts.map(account => account.id === id ? changed : account))
-    return changed
+    return await this.mutate((accounts) => {
+      const current = accounts.find(account => account.id === id)
+      if (current === undefined) throw new Error(`accounts-local: no account ${id} to update`)
+      const changed = change(current)
+      return {
+        accounts: accounts.map(account => account.id === id ? changed : account),
+        result: changed,
+      }
+    })
   }
 
   /**
@@ -237,19 +352,69 @@ export class AccountStore {
    * @throws Error when the account no longer exists.
    */
   async remove(id: string): Promise<AccountRecord> {
-    const current = this.byId(id)
-    if (current === undefined) throw new Error(`accounts-local: no account ${id} to remove`)
-    await this.commit(this.accounts.filter(account => account.id !== id))
-    return current
+    return await this.mutate((accounts) => {
+      const current = accounts.find(account => account.id === id)
+      if (current === undefined) throw new Error(`accounts-local: no account ${id} to remove`)
+      return { accounts: accounts.filter(account => account.id !== id), result: current }
+    })
   }
 
-  /** Write the successor set, then publish it. */
-  private async commit(accounts: readonly AccountRecord[]): Promise<void> {
-    const document: AccountsDocument = { version: FILE_VERSION, accounts }
-    await writeFileAtomic(this.path, `${JSON.stringify(document, null, 2)}\n`, {
-      mode: FILE_MODE,
-      dirMode: DIRECTORY_MODE,
-    })
-    this.accounts = accounts
+  /**
+   * Apply one change to the file's current contents, under this file's lock, and
+   * publish it only once the successor bytes are in place.
+   * @param change - the successor set, computed from what the file holds now.
+   * @returns what the change returned.
+   * @throws Error when another writer holds the lock past its deadline.
+   */
+  private async mutate<T>(change: (accounts: readonly AccountRecord[]) => RosterChange<T>): Promise<T> {
+    const release = await this.acquire()
+    try {
+      const current = await readAccounts(this.path)
+      const next = change(current)
+      const document: AccountsDocument = { version: FILE_VERSION, accounts: next.accounts }
+      await writeFileAtomic(this.path, `${JSON.stringify(document, null, 2)}\n`, {
+        mode: FILE_MODE,
+        dirMode: DIRECTORY_MODE,
+      })
+      this.accounts = next.accounts
+      return next.result
+    } finally {
+      await release()
+    }
+  }
+
+  /**
+   * Hold this account file's lock for one mutation.
+   *
+   * The lock is a sibling file created exclusively, so every process that writes
+   * this home's roster — the runtime that answers a browser and the command an
+   * operator runs — takes the same critical section. A holder that dies without
+   * removing it leaves a lock older than {@link LOCK_STALE_MS}, which the next
+   * waiter treats as residue instead of waiting out its own deadline.
+   * @returns the release to call when the mutation finishes.
+   * @throws Error when the lock stays held past the deadline.
+   */
+  private async acquire(): Promise<() => Promise<void>> {
+    const lockPath = `${this.path}.lock`
+    await mkdir(dirname(this.path), { recursive: true, mode: DIRECTORY_MODE })
+    const deadline = Date.now() + LOCK_TIMEOUT_MS
+    for (;;) {
+      try {
+        const handle = await open(lockPath, 'wx', FILE_MODE)
+        await handle.close()
+        return async () => { await rm(lockPath, { force: true }) }
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error
+      }
+      const held = await stat(lockPath).catch(() => undefined)
+      if (held !== undefined && Date.now() - held.mtimeMs > LOCK_STALE_MS) {
+        await rm(lockPath, { force: true })
+        continue
+      }
+      if (Date.now() >= deadline) {
+        throw new Error(`accounts-local: another writer holds ${lockPath}; retry the change`)
+      }
+      await new Promise((resolve) => { setTimeout(resolve, LOCK_RETRY_MS) })
+    }
   }
 }

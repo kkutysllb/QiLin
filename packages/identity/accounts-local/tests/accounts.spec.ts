@@ -1,10 +1,10 @@
 /** The durable account file: parsing, mutation, and the state a failed write leaves behind. */
 
-import { chmod, mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
+import { chmod, mkdir, mkdtemp, readFile, rm, stat, symlink, utimes, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { AccountStore, type AccountRecord } from '../src/accounts.ts'
+import { AccountConflictError, AccountStore, type AccountRecord } from '../src/accounts.ts'
 import { verifyPassword } from '../src/password.ts'
 
 let root: string | undefined
@@ -222,5 +222,120 @@ describe('account store', () => {
     } finally {
       await chmod(directory, 0o700)
     }
+  })
+
+  it('composes a change with what another writer stored first', async () => {
+    const base = await home()
+    const path = join(base, 'auth', 'accounts.json')
+    // Two writers, each holding the snapshot that predates the other's change:
+    // the account file is the one document a deployment shares.
+    const alice = await AccountStore.open(path)
+    const bob = await AccountStore.open(path)
+    await alice.add({ username: 'alice' }, 'password-1')
+    const created = await bob.add({ username: 'bob' }, 'password-2')
+    const document = JSON.parse(await readFile(path, 'utf8')) as { accounts: readonly AccountRecord[] }
+    expect(document.accounts.map(account => account.username)).toEqual(['alice', 'bob'])
+    // The writer that read last sees both, because it read under the lock
+    // rather than writing back the snapshot it opened with.
+    expect(bob.all().map(account => account.id)).toContain(created.id)
+    expect(bob.all()).toHaveLength(2)
+  })
+
+  it('serializes two changes that start at the same time', async () => {
+    const base = await home()
+    const path = join(base, 'auth', 'accounts.json')
+    const store = await AccountStore.open(path)
+    const [alice, bob] = await Promise.all([
+      store.add({ username: 'alice' }, 'password-1'),
+      store.add({ username: 'bob' }, 'password-2'),
+    ])
+    const document = JSON.parse(await readFile(path, 'utf8')) as { accounts: readonly AccountRecord[] }
+    expect(document.accounts.map(account => account.username).sort()).toEqual(['alice', 'bob'])
+    expect(store.all().map(account => account.username).sort()).toEqual(['alice', 'bob'])
+    expect(alice.id).not.toBe(bob.id)
+  })
+
+  it('decides the name and address rules over the file the write lands in', async () => {
+    const base = await home()
+    const path = join(base, 'auth', 'accounts.json')
+    const first = await AccountStore.open(path)
+    const second = await AccountStore.open(path)
+    await first.add({ username: 'first', email: 'first@example.com' }, 'password-1')
+    const taken = await second.add({ username: 'first' }, 'password-2').then(() => undefined, (error: unknown) => error)
+    expect(taken).toBeInstanceOf(AccountConflictError)
+    expect((taken as AccountConflictError).kind).toBe('username')
+    const addressed = await second.add({ username: 'other', email: 'first@example.com' }, 'password-3')
+      .then(() => undefined, (error: unknown) => error)
+    expect(addressed).toBeInstanceOf(AccountConflictError)
+    expect((addressed as AccountConflictError).kind).toBe('email')
+    // Neither refused change reached the file, so it still holds one account.
+    expect((await AccountStore.open(path)).all()).toHaveLength(1)
+  })
+
+  it('creates the first account only while the file is still empty', async () => {
+    const base = await home()
+    const path = join(base, 'auth', 'accounts.json')
+    const store = await AccountStore.open(path)
+    const first = await store.initialize({ username: 'first' }, 'password-1')
+    expect(store.all()).toEqual([first])
+    const late = await store.initialize({ username: 'second' }, 'password-2').then(() => undefined, (error: unknown) => error)
+    expect(late).toBeInstanceOf(AccountConflictError)
+    expect((late as AccountConflictError).kind).toBe('initialized')
+    expect(store.all()).toEqual([first])
+  })
+
+  it('treats a lock no waiter holds any more as residue and takes it', async () => {
+    const base = await home()
+    const path = join(base, 'auth', 'accounts.json')
+    await mkdir(join(base, 'auth'), { recursive: true })
+    const lock = `${path}.lock`
+    await writeFile(lock, '')
+    const past = new Date(Date.now() - 60_000)
+    await utimes(lock, past, past)
+    const store = await AccountStore.open(path)
+    const created = await store.add({ username: 'first' }, 'password-1')
+    expect(store.byId(created.id)).toEqual(created)
+    // The lock the dead writer left is gone with the change it guarded.
+    await expect(stat(lock)).rejects.toThrow(/ENOENT/u)
+  })
+
+  it('waits for a lock another writer holds and then finishes the change', async () => {
+    const base = await home()
+    const path = join(base, 'auth', 'accounts.json')
+    await mkdir(join(base, 'auth'), { recursive: true })
+    const lock = `${path}.lock`
+    await writeFile(lock, '')
+    const store = await AccountStore.open(path)
+    const pending = store.add({ username: 'first' }, 'password-1')
+    await new Promise((resolve) => { setTimeout(resolve, 100) })
+    await rm(lock)
+    const created = await pending
+    expect(store.byId(created.id)).toEqual(created)
+  })
+
+  it('reads a lock path that leads nowhere as no lock at all', async () => {
+    const base = await home()
+    const path = join(base, 'auth', 'accounts.json')
+    await mkdir(join(base, 'auth'), { recursive: true })
+    // The path is taken but names nothing: a holder removed it between the
+    // failed attempt and the read, or something else made the path a link.
+    await symlink(join(base, 'gone'), `${path}.lock`)
+    const store = await AccountStore.open(path)
+    const pending = store.add({ username: 'first' }, 'password-1')
+    await new Promise((resolve) => { setTimeout(resolve, 100) })
+    await rm(`${path}.lock`)
+    const created = await pending
+    expect(store.byId(created.id)).toEqual(created)
+  })
+
+  it('refuses a change while another writer holds the lock past the deadline', { timeout: 20_000 }, async () => {
+    const base = await home()
+    const path = join(base, 'auth', 'accounts.json')
+    await mkdir(join(base, 'auth'), { recursive: true })
+    const lock = `${path}.lock`
+    await writeFile(lock, '')
+    const store = await AccountStore.open(path)
+    await expect(store.add({ username: 'first' }, 'password-1')).rejects.toThrow(/another writer holds/u)
+    expect(store.all()).toEqual([])
   })
 })

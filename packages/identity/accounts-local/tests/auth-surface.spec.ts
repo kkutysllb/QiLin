@@ -7,7 +7,7 @@
  * and the state a failed boot or a disposed row leaves behind.
  */
 
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { chmod, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -31,6 +31,7 @@ const EMAIL = 'first@example.com'
 interface Booted {
   readonly ctx: Context
   readonly base: string
+  readonly home: string
   readonly credentialsPath: string
   /** Issue one request against the booted server. */
   (path: string, init?: RequestInit): Promise<Response>
@@ -139,7 +140,7 @@ async function boot(options: {
   const base = `http://127.0.0.1:${String(port)}`
   return Object.assign(
     (path: string, init: RequestInit = {}): Promise<Response> => fetch(new URL(path, base), init),
-    { ctx, base, credentialsPath },
+    { ctx, base, home, credentialsPath },
   )
 }
 
@@ -312,6 +313,61 @@ describe('real account surface', () => {
     expect(refused.status).toBe(403)
     expect(await refused.json()).toMatchObject({ error: { code: 'registration-closed' } })
     expect(await (await closed('/api/auth/status')).json()).toMatchObject({ registrationOpen: false, needsSetup: true })
+    // A deployment that does not accept new accounts does not let its first-run
+    // form create the first one either: the operator creates it where the
+    // decision is deliberate.
+    const closedSetup = await closed('/api/auth/setup', post(undefined, { username: 'second', email: 'second@example.com', password: PASSWORD }))
+    expect(closedSetup.status).toBe(403)
+    expect(await closedSetup.json()).toMatchObject({ error: { code: 'registration-closed' } })
+  })
+
+  it('lets a failure that is not a collision through', { timeout: 60_000 }, async () => {
+    const server = await boot()
+    const directory = join(server.home, 'auth')
+    await mkdir(directory, { recursive: true })
+    await chmod(directory, 0o500)
+    try {
+      // The account file cannot be written, which is not a uniqueness refusal:
+      // it reaches the surface as the failure it is, never as a taken name.
+      const registered = await server('/api/auth/register', post(undefined, { username: 'second', email: 'second@example.com', password: PASSWORD }))
+      const setup = await server('/api/auth/setup', post(undefined, { username: 'second', email: 'second@example.com', password: PASSWORD }))
+      for (const answer of [registered, setup]) {
+        expect(answer.status).toBeGreaterThanOrEqual(400)
+        expect(answer.status).not.toBe(409)
+      }
+      // Nothing was stored, so the home is still the empty one it booted as.
+      await expect(readFile(join(directory, 'accounts.json'), 'utf8')).rejects.toThrow(/ENOENT/u)
+    } finally {
+      await chmod(directory, 0o700)
+    }
+  })
+
+  it('answers a name or address another writer stored first', { timeout: 60_000 }, async () => {
+    const server = await boot()
+    // The account file changes after this runtime read it, which is what an
+    // operator's command or another runtime does to a deployment's one shared
+    // document. The form's own earlier read cannot see it, so the refusal has
+    // to come from the write.
+    const store = await AccountStore.open(join(server.home, 'auth', 'accounts.json'))
+    await store.add({ username: 'second', email: 'second@example.com' }, PASSWORD)
+
+    const byName = await server('/api/auth/register', post(undefined, { username: 'second', password: PASSWORD }))
+    expect(byName.status).toBe(409)
+    expect(await byName.json()).toMatchObject({ error: { code: 'username-taken' } })
+
+    const byAddress = await server('/api/auth/register', post(undefined, { username: 'other', email: 'second@example.com', password: PASSWORD }))
+    expect(byAddress.status).toBe(409)
+    expect(await byAddress.json()).toMatchObject({ error: { code: 'email-taken' } })
+
+    // First-run initialization is the same rule: the read that says the home is
+    // empty is stale, and the write is what decides.
+    const lateSetup = await server('/api/auth/setup', post(undefined, { username: 'third', email: 'third@example.com', password: PASSWORD }))
+    expect(lateSetup.status).toBe(409)
+    expect(await lateSetup.json()).toMatchObject({ error: { code: 'already-initialized' } })
+
+    // The other account is the only one the file holds.
+    const held = await AccountStore.open(join(server.home, 'auth', 'accounts.json'))
+    expect(held.all().map(account => account.username)).toEqual(['second'])
   })
 
   it('refuses every credential the endpoints cannot accept', { timeout: 60_000 }, async () => {
