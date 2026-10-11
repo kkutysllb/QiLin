@@ -65,7 +65,39 @@ describe('usage ledger endpoint', () => {
     expect((await post(alice.url, JSON.stringify({ ...report, inputTokens: 999 }), 'Bearer not-a-token')).status).toBe(401)
     expect((await post(alice.url, JSON.stringify({ sessionId: '' }), `Bearer ${alice.token}`)).status).toBe(400)
     expect((await post(alice.url, 'not json', `Bearer ${alice.token}`)).status).toBe(400)
-    expect((await fetch(alice.url)).status).toBe(405)
+    expect((await fetch(alice.url)).status).toBe(401)
+    expect((await fetch(alice.url, { method: 'PUT' })).status).toBe(405)
     expect((await readUsageTotals(deployment.home))[aliceId]).toMatchObject({ inputTokens: 120 })
+  })
+
+  it('answers an account its own totals, and never another account\'s', { timeout: 60_000 }, async () => {
+    const deployment = await startDeployment({ usernames: ['alice', 'bob', 'carol'], maxTenants: 0 })
+    running.push(deployment)
+    for (const username of ['alice', 'bob', 'carol']) await handoff(deployment, username)
+    const aliceId = deployment.accounts.get('alice') ?? ''
+    const alice = usageOf(deployment, 'alice')
+    const bob = usageOf(deployment, 'bob')
+    const carol = usageOf(deployment, 'carol')
+
+    /** Read the ledger with one runtime's token. */
+    const read = (usage: { url: string; token: string }): Promise<Response> =>
+      fetch(usage.url, { headers: { authorization: `Bearer ${usage.token}` } })
+
+    await post(alice.url, JSON.stringify(report), `Bearer ${alice.token}`)
+    await post(bob.url, JSON.stringify({ ...report, inputTokens: 7, outputTokens: 2 }), `Bearer ${bob.token}`)
+
+    expect(await (await read(alice)).json()).toEqual({
+      accountId: aliceId,
+      total: { sessions: 1, inputTokens: 120, outputTokens: 30, at: report.at },
+    })
+    // Bob's token reads Bob, whatever Alice's ledger holds.
+    expect(await (await read(bob)).json()).toMatchObject({ total: { inputTokens: 7, outputTokens: 2 } })
+    // An account that never reported reads zeroes rather than an error.
+    expect(await (await read(carol)).json()).toMatchObject({
+      total: { sessions: 0, inputTokens: 0, outputTokens: 0, at: 0 },
+    })
+    // Only a minted token reads anything at all.
+    expect((await fetch(alice.url, { headers: { authorization: 'Bearer not-a-token' } })).status).toBe(401)
+    expect((await fetch(alice.url)).status).toBe(401)
   })
 })

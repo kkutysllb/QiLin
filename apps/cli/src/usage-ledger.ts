@@ -101,6 +101,17 @@ export async function readUsageTotals(home: string): Promise<Record<string, Usag
 }
 
 /**
+ * Total one account's ledger, which is what that account's own runtime reads.
+ * @param home - deployment home.
+ * @param accountId - the account whose ledger to total.
+ * @returns its total, or zeroes when it has not reported yet.
+ */
+export async function readUsageTotal(home: string, accountId: string): Promise<UsageTotal> {
+  const totals = await readUsageTotals(home)
+  return totals[accountId] ?? { sessions: 0, inputTokens: 0, outputTokens: 0, at: 0 }
+}
+
+/**
  * Read one ledger line as a report.
  * @param line - one line of an account's ledger.
  * @returns the report, or undefined when the line is empty, torn, or not a report.

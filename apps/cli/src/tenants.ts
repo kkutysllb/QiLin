@@ -47,7 +47,7 @@ import {
   type TenantRuntimeStatus,
 } from './tenant-runtime.ts'
 import { forwardedHeaders, hubAcceptsOrigin, proxyRequest, relayAnswer, relayUpgrade } from './tenant-proxy.ts'
-import { appendUsage, isUsageReport } from './usage-ledger.ts'
+import { appendUsage, isUsageReport, readUsageTotal } from './usage-ledger.ts'
 
 /** Certificate and key the public address terminates TLS with. */
 export interface DeploymentTlsFiles {
@@ -509,16 +509,24 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
     }
   }
 
-  /** Answer one runtime's usage report: only a token this hub minted is accepted. */
+  /**
+   * Answer one runtime over the ledger channel: a report books spend, and a read
+   * answers what that same token's account spent. Only a token this hub minted
+   * is accepted, so neither verb can name another account.
+   */
   const handleUsage = async (request: IncomingMessage, response: ServerResponse): Promise<void> => {
-    if (request.method !== 'POST') {
-      respond(response, 405, 'text/plain; charset=utf-8', 'qilin tenants: the ledger takes reports, not reads\n')
+    if (request.method !== 'POST' && request.method !== 'GET') {
+      respond(response, 405, 'text/plain; charset=utf-8', 'qilin tenants: the ledger reports and reads\n')
       return
     }
     const presented = bearerToken(request.headers.authorization)
     const accountId = presented === undefined ? undefined : accountForToken(presented)
     if (accountId === undefined || !isTenantIdentity(accountId)) {
       json(response, 401, { error: 'unauthorized' })
+      return
+    }
+    if (request.method === 'GET') {
+      json(response, 200, { accountId, total: await readUsageTotal(home, accountId) })
       return
     }
     const body = await readReportBody(request)
