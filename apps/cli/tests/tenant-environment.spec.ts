@@ -6,6 +6,8 @@ import {
   AGENTS_HOME_VARIABLE,
   DEPLOYMENT_HOME_VARIABLE,
   TENANT_VARIABLE,
+  USAGE_TOKEN_VARIABLE,
+  USAGE_URL_VARIABLE,
   tenantChildEnvironment,
 } from '../src/tenant-runtime.ts'
 
@@ -20,6 +22,20 @@ describe('tenant child environment', () => {
     expect(env[TENANT_VARIABLE]).toBe('1')
     // The deployment home reaches the roster layer, and nothing else of it.
     expect(env[DEPLOYMENT_HOME_VARIABLE]).toBe(DEPLOYMENT_HOME)
+  })
+
+  it('hands the runtime its ledger endpoint and token, and nothing when there is no ledger', () => {
+    const env = tenantChildEnvironment(TENANT_DIR, DEPLOYMENT_HOME, {}, 'account-1', {
+      url: 'http://127.0.0.1:3100/usage',
+      token: 'token-1',
+    })
+    expect(env[USAGE_URL_VARIABLE]).toBe('http://127.0.0.1:3100/usage')
+    expect(env[USAGE_TOKEN_VARIABLE]).toBe('token-1')
+    // A deployment that keeps no ledger names neither: the supervisor hands the
+    // first-run runtime no endpoint at all, since it serves no account yet.
+    const plain = tenantChildEnvironment(TENANT_DIR, DEPLOYMENT_HOME, {}, 'account-1')
+    expect(plain[USAGE_URL_VARIABLE]).toBeUndefined()
+    expect(plain[USAGE_TOKEN_VARIABLE]).toBeUndefined()
   })
 
   it('overrides an agent-config root the hub inherited', () => {
