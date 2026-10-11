@@ -556,6 +556,9 @@ importers:
       '@qilin-agent/subagent-spawn-in-process':
         specifier: workspace:*
         version: link:../../packages/subagent/subagent-spawn-in-process
+      '@qilin-agent/subprocess':
+        specifier: workspace:*
+        version: link:../../packages/subprocess/subprocess
       '@qilin-agent/subprocess-local':
         specifier: workspace:*
         version: link:../../packages/subprocess/subprocess-local
@@ -577,6 +580,9 @@ importers:
       execa:
         specifier: ^10.0.0
         version: 10.0.0
+      selfsigned:
+        specifier: ^4.0.1
+        version: 4.0.1
       ws:
         specifier: 8.21.0
         version: 8.21.0
@@ -1947,6 +1953,9 @@ importers:
       '@qilin-agent/typert-registry':
         specifier: workspace:*
         version: link:../../typert/registry
+      '@qilin-agent/usage-report':
+        specifier: workspace:*
+        version: link:../../session/usage-report
       '@qilin-agent/user-approval':
         specifier: workspace:*
         version: link:../../interaction/user-approval
@@ -2332,6 +2341,9 @@ importers:
       '@qilin-agent/client-ui-trajectory':
         specifier: workspace:*
         version: link:../../client/ui-trajectory
+      '@qilin-agent/client-ui-usage':
+        specifier: workspace:*
+        version: link:../../client/ui-usage
       '@qilin-agent/client-ui-user-questions':
         specifier: workspace:*
         version: link:../../client/ui-user-questions
@@ -4333,6 +4345,9 @@ importers:
       '@qilin-agent/client-locale':
         specifier: workspace:*
         version: link:../locale
+      '@qilin-agent/client-store':
+        specifier: workspace:*
+        version: link:../store
       '@qilin-agent/client-test-runtime':
         specifier: workspace:*
         version: link:../../test-support/client-runtime
@@ -6054,6 +6069,45 @@ importers:
       react-dom:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
+
+  packages/client/ui-usage:
+    devDependencies:
+      '@qilin-agent/client-locale':
+        specifier: workspace:*
+        version: link:../locale
+      '@qilin-agent/client-store':
+        specifier: workspace:*
+        version: link:../store
+      '@qilin-agent/client-test-runtime':
+        specifier: workspace:*
+        version: link:../../test-support/client-runtime
+      '@qilin-agent/client-ui-layout':
+        specifier: workspace:*
+        version: link:../ui-layout
+      '@qilin-agent/client-ui-primitives':
+        specifier: workspace:*
+        version: link:../ui-primitives
+      '@qilin-agent/client-ui-renderer':
+        specifier: workspace:*
+        version: link:../ui-renderer
+      '@qilin-agent/client-ui-settings':
+        specifier: workspace:*
+        version: link:../ui-settings
+      '@qilin-agent/client-ui-slots':
+        specifier: workspace:*
+        version: link:../ui-slots
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@types/react':
+        specifier: ~18.3.1
+        version: 18.3.31
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
 
   packages/client/ui-user-questions:
     devDependencies:
@@ -11993,6 +12047,22 @@ importers:
       '@qilin-agent/working-directory':
         specifier: workspace:*
         version: link:../working-directory
+
+  packages/session/usage-report:
+    dependencies:
+      '@qilin-agent/token-meter':
+        specifier: workspace:*
+        version: link:../../llm/token-meter
+    devDependencies:
+      '@qilin-agent/client-connection':
+        specifier: workspace:*
+        version: link:../../client/connection
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
 
   packages/session/working-directory:
     dependencies:
