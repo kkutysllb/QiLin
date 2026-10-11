@@ -21,6 +21,13 @@ const STOP_DEADLINE_MS = 15_000
 /** Retained child output; enough for the failing lines and no more. */
 const OUTPUT_LIMIT = 64_000
 
+/**
+ * Ceiling the retry wait reaches. A tenant runtime that cannot start is broken
+ * in a way a browser reload does not fix, so the wait grows up to this bound
+ * instead of retrying on every visit.
+ */
+const BACKOFF_CEILING_MS = 300_000
+
 /** Lifecycle state of one tenant runtime, as the hub's status read reports it. */
 export type TenantRuntimeState = 'stopped' | 'starting' | 'running' | 'failed'
 
@@ -36,6 +43,11 @@ export interface TenantRuntimeOptions {
   readonly binPath: string
   /** Node options the hub itself started with, so the child runs the same way. */
   readonly execArgv: readonly string[]
+  /**
+   * First wait before retrying a runtime that failed to start. It doubles per
+   * consecutive failure, up to {@link BACKOFF_CEILING_MS}.
+   */
+  readonly restartBackoffMilliseconds: number
   /**
    * Where one line of this runtime's own diagnostics goes.
    * @param line - one line the runtime wrote to its standard error.
@@ -57,6 +69,10 @@ export interface TenantRuntimeStatus {
   readonly starts: number
   /** Why the last start failed, when it did. */
   readonly detail: string
+  /** Consecutive failed starts since the last one that reached its URL. */
+  readonly consecutiveFailures: number
+  /** Epoch milliseconds before which a start is refused, after failures. */
+  readonly retryAt: number | undefined
 }
 
 /** The overlay document that scopes one tenant's deployment roots. */
@@ -109,6 +125,9 @@ export class TenantRuntime {
   private detail = ''
   private output = ''
   private starting: Promise<string> | undefined
+  private consecutiveFailures = 0
+  private retryAt: number | undefined
+  private intentional = false
 
   /** Epoch milliseconds of the last browser handoff; idle reclamation measures it. */
   lastUsedAt = 0
@@ -140,6 +159,8 @@ export class TenantRuntime {
       origin: this.launchUrl === undefined ? undefined : new URL(this.launchUrl).origin,
       starts: this.starts,
       detail: this.detail,
+      consecutiveFailures: this.consecutiveFailures,
+      retryAt: this.retryAt,
     }
   }
 
@@ -151,6 +172,10 @@ export class TenantRuntime {
   async ensure(): Promise<string> {
     this.lastUsedAt = Date.now()
     if (this.state === 'running' && this.launchUrl !== undefined) return this.launchUrl
+    const retryAt = this.retryAt
+    if (this.consecutiveFailures > 0 && retryAt !== undefined && Date.now() < retryAt) {
+      throw new Error(`qilin tenants: the runtime for ${this.options.accountId} failed ${String(this.consecutiveFailures)} time(s) and is not retried before ${new Date(retryAt).toISOString()}: ${this.detail}`)
+    }
     this.starting ??= this.start()
     try {
       return await this.starting
@@ -159,14 +184,34 @@ export class TenantRuntime {
     }
   }
 
+  /**
+   * Count one failed start or one crash of a runtime that had been serving, and
+   * schedule the earliest time the next attempt may run.
+   * @param reason - what to report as the current detail.
+   */
+  private recordFailure(reason: string): void {
+    this.detail = reason
+    this.consecutiveFailures += 1
+    const wait = Math.min(
+      this.options.restartBackoffMilliseconds * 2 ** (this.consecutiveFailures - 1),
+      BACKOFF_CEILING_MS,
+    )
+    this.retryAt = Date.now() + wait
+  }
+
   /** Ask this tenant's runtime to exit, holding it to the shutdown deadline. */
   async stop(): Promise<void> {
     const child = this.child
     const exited = this.exited
     if (child === undefined || exited === undefined) {
-      this.state = 'stopped'
+      // A failed runtime stays failed until a start succeeds, so its detail and
+      // retry time survive the stop that follows the failure.
+      if (this.state !== 'failed') this.state = 'stopped'
       return
     }
+    // A requested stop is not a crash, so it neither records a failure nor
+    // delays the next start.
+    this.intentional = true
     child.kill('SIGTERM')
     const killed = setTimeout(() => { child.kill('SIGKILL') }, STOP_DEADLINE_MS)
     try {
@@ -221,12 +266,15 @@ export class TenantRuntime {
     child.once('error', (error: Error) => {
       this.output = `${this.output}\nspawn failed: ${String(error)}`.slice(-OUTPUT_LIMIT)
     })
-    child.once('close', () => {
+    child.once('close', (code) => {
       if (this.child !== child) return
+      const crashed = this.launchUrl !== undefined && !this.intentional
       this.child = undefined
       this.launchUrl = undefined
       this.exited = undefined
-      this.state = 'stopped'
+      this.intentional = false
+      this.state = crashed ? 'failed' : 'stopped'
+      if (crashed) this.recordFailure(`the runtime for ${this.options.accountId} exited with code ${String(code)} after it was ready`)
       ready.reject(new Error(`qilin tenants: the runtime for ${this.options.accountId} exited before its URL`))
       exited.resolve()
     })
@@ -240,10 +288,13 @@ export class TenantRuntime {
       const url = await ready.promise
       this.launchUrl = url
       this.state = 'running'
+      this.consecutiveFailures = 0
+      this.retryAt = undefined
+      this.detail = ''
       return url
     } catch (error) {
       this.state = 'failed'
-      this.detail = error instanceof Error ? error.message : String(error)
+      this.recordFailure(error instanceof Error ? error.message : String(error))
       await this.stop()
       throw error
     } finally {

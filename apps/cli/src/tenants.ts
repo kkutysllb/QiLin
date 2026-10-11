@@ -14,6 +14,12 @@
  * origin keeps talking to that origin directly, which the hub cannot observe, so
  * a deployment that leaves long-lived tabs open raises `--idle-ms` or disables
  * reclamation with 0.
+ *
+ * `--max-tenants` bounds how many runtimes live at once: a handoff that would
+ * exceed the bound reclaims the least recently used one, and every tenant's
+ * Sessions stay on disk. A runtime that fails to start is not retried on every
+ * visit: the hub doubles a wait per consecutive failure, and `/status` reports
+ * the count and the earliest retry.
  * @module @qilin-agent/cli/tenants
  */
 
@@ -32,6 +38,16 @@ export interface TenantsServeOptions {
   readonly profile: string
   /** Idle window after which a tenant runtime is reclaimed. */
   readonly idleMilliseconds: number
+  /**
+   * Most tenant runtimes the hub keeps alive at once. 0 keeps every one;
+   * starting a runtime past a positive count reclaims the least recently used.
+   */
+  readonly maxTenants: number
+  /**
+   * First wait before retrying a runtime that failed to start; one runtime
+   * doubles it per consecutive failure. {@link TenantRuntime} owns the ceiling.
+   */
+  readonly restartBackoffMilliseconds: number
 }
 
 /** One answered request. */
@@ -97,6 +113,9 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
     throw new Error('qilin tenants: the CLI entry path is unknown, so no tenant runtime can be started')
   }
   const runtimes = new Map<string, TenantRuntime>()
+  /** Runtimes holding a child, whether or not it has printed its URL yet. */
+  const active = (): TenantRuntime[] => [...runtimes.values()]
+    .filter(runtime => runtime.status().state === 'running' || runtime.status().state === 'starting')
   const runtimeFor = (accountId: string): TenantRuntime => {
     const existing = runtimes.get(accountId)
     if (existing !== undefined) return existing
@@ -106,16 +125,61 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       profile: options.profile,
       binPath,
       execArgv: process.execArgv,
+      restartBackoffMilliseconds: options.restartBackoffMilliseconds,
       log: (line) => { process.stderr.write(`qilin tenants: [${accountId}] ${line}\n`) },
     })
     runtimes.set(accountId, created)
     return created
   }
+
+  /**
+   * Bring the live runtimes under the cap by reclaiming the least recently used
+   * ones. Every tenant's Sessions stay on disk, so reclaiming costs one boot.
+   * @param target - the runtime about to start, which is never reclaimed.
+   */
+  const makeRoom = async (target: TenantRuntime): Promise<void> => {
+    if (options.maxTenants <= 0) return
+    for (;;) {
+      const others = active().filter(runtime => runtime !== target)
+      if (others.length < options.maxTenants) return
+      const oldest = others
+        .filter(runtime => runtime.status().state === 'running')
+        .reduce<TenantRuntime | undefined>(
+          (least, candidate) => least === undefined || candidate.lastUsedAt <= least.lastUsedAt ? candidate : least,
+          undefined,
+        )
+      // A runtime that is still starting has no last use to compare, so it is
+      // left alone: the next handoff reclaims it once it is running.
+      if (oldest === undefined) return
+      process.stderr.write(`qilin tenants: ${String(options.maxTenants)} runtime(s) are already alive; reclaiming ${oldest.status().accountId} to start ${target.status().accountId}\n`)
+      await oldest.stop()
+    }
+  }
+
+  /** Tail of the serialized handoff queue; one start runs at a time. */
+  let handoffQueue: Promise<void> = Promise.resolve()
+
+  /**
+   * Serialize handoffs, so two of them cannot both pass the cap and start.
+   * @param work - one handoff's start.
+   * @returns what the work returned.
+   */
+  const serialize = <T>(work: () => Promise<T>): Promise<T> => {
+    const next = handoffQueue.then(work, work)
+    handoffQueue = next.then(() => undefined, () => undefined)
+    return next
+  }
   const roster = async (): Promise<AccountStore> => await AccountStore.open(accountsFilePath(home))
 
-  const status = async (): Promise<{ tenants: (TenantRuntimeStatus & { username: string | null })[] }> => {
+  const status = async (): Promise<{
+    maxTenants: number
+    alive: number
+    tenants: (TenantRuntimeStatus & { username: string | null })[]
+  }> => {
     const store = await roster()
     return {
+      maxTenants: options.maxTenants,
+      alive: active().length,
       tenants: [...runtimes.values()].map((runtime) => {
         const reported = runtime.status()
         return { ...reported, username: store.byId(reported.accountId)?.username ?? null }
@@ -149,7 +213,11 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
         return
       }
       try {
-        const launchUrl = await runtimeFor(account.id).ensure()
+        const launchUrl = await serialize(async () => {
+          const runtime = runtimeFor(account.id)
+          await makeRoom(runtime)
+          return await runtime.ensure()
+        })
         response.writeHead(303, {
           'cache-control': 'no-store',
           'location': launchUrl,

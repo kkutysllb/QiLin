@@ -63,8 +63,13 @@ export async function runCli(): Promise<void> {
       break
     }
     case 'tenants': {
-      const { runTenantsServe } = await import('./tenants.ts')
-      process.exitCode = await runTenantsServe(invocation.options)
+      if (invocation.request.command === 'serve') {
+        const { runTenantsServe } = await import('./tenants.ts')
+        process.exitCode = await runTenantsServe(invocation.request.options)
+      } else {
+        const { runTenantsRoster } = await import('./tenants-roster.ts')
+        process.exitCode = await runTenantsRoster(invocation.request)
+      }
       break
     }
     case 'dump-config': {

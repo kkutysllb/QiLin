@@ -16,11 +16,17 @@
 | `qilin --profile sdk-minimal` | 以独立极简 agent（智能体）配置树为 SDK 客户端提供服务。 |
 | `qilin web` | 启动 Web profile。 |
 | `qilin tenants serve` | 在本 harness home 上为每个账户各服务一个隔离的 Web 运行时，并打印 hub 的 URL。 |
+| `qilin tenants accounts` | 列出本 harness home 的账户，以及每个账户拥有的租户目录。 |
+| `qilin tenants add <用户名>` | 创建一个账户，交互式输入密码，或读取 `--password-stdin`。 |
+| `qilin tenants passwd <用户名>` | 替换某个账户的密码，并使其已签发的会话失效。 |
+| `qilin tenants remove <用户名>` | 注销某个账户，默认保留其租户目录，除非给出 `--purge-data`。 |
 | `qilin plugin --profile <name> <pnpm args>` | 通过在 profile 目录中转发给 pnpm 来管理该 profile 的插件。 |
 | `qilin plugin list` | 按激活顺序列出某个 profile 的 bundle 层；省略 `--profile` 时使用产品 profile。 |
 | `qilin plugin doctor <包名\|目录>` | 报告某个插件包的 DSH 时代兼容性，不安装也不运行任何东西。 |
 
-`qilin tenants serve` 在共享的 harness home 上绑定一个 HTTP hub。hub 列出 `$QILIN_HOME/auth/accounts.json` 中的账户，按需为每个账户启动一个 Web 运行时，并把 `/t/<用户名>` 重定向到该账户的运行时。每个运行时共享 home 的插件、模型设置与凭据，而它自己的部署覆盖层把 Session、任务、工作区与附件移到 `$QILIN_HOME/tenants/<账户 id>/` 下；运行时只接纳自己的账户，因此登录发生在运行时。`--idle-ms` 会回收在该时长内没有发生跳转的运行时，`0` 表示不回收。
+`qilin tenants serve` 在共享的 harness home 上绑定一个 HTTP hub。hub 列出 `$QILIN_HOME/auth/accounts.json` 中的账户，按需为每个账户启动一个 Web 运行时，并把 `/t/<用户名>` 重定向到该账户的运行时。每个运行时共享 home 的插件、模型设置与凭据，而它自己的部署覆盖层把 Session、任务、工作区与附件移到 `$QILIN_HOME/tenants/<账户 id>/` 下；运行时只接纳自己的账户，因此登录发生在运行时。`--idle-ms` 会回收在该时长内没有发生跳转的运行时，`0` 表示不回收；`--max-tenants` 限定同时存活多少个运行时，超出该上限时回收最久未使用的那个；`--restart-backoff-ms` 设定启动失败的运行时第一次重试前的等待时长，每次连续失败翻倍。
+
+roster 子命令维护该共享文件中的账户。租户运行时只接纳自己服务的那个账户且关闭注册，因此它自己的 Web 界面无法创建第二个账户：`add` 是部署扩充账户的方式，`passwd` 为一个账户重新设置密码并使其已签发的会话失效，`remove` 注销一个账户，默认把它的 Session 留在磁盘上，除非给出 `--purge-data`。为已注销账户启动的运行时会明确失败，因为它的覆盖层接纳的是一个文件里已不存在的账户。
 
 运行命令时所在的目录将作为默认 workspace 根目录。`web`、`headless`、`sdk`、`sdk-minimal` 和 `acp` profile 在首次使用时会从随附模板自动初始化。使用 `--from-default-profile` 可以基于这些模板之一，在尚未使用的非内置名称处创建其他 profile；通过 `qilin plugin` 则可以初始化一个以 base 为基础的 profile。`desktop` 名称保留给 Electron 持有的 profile，因此 CLI（命令行界面）会拒绝针对它的启动、配置 dump 和插件管理请求。包操作成功后命令会协调 profile 的 bundle 列表；若 profile 的已安装依赖中出现上游 DSH 时代的引擎包，命令会拒绝：诊断会指明每个冲突包、它映射到的 QiLin 包，以及清除它的 `remove` 命令，命令以退出码 1 结束且不改变 bundle 列表。
 

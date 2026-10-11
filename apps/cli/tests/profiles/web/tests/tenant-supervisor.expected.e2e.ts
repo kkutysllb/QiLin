@@ -49,14 +49,39 @@ interface TenantStatus {
   readonly username: string | null
   readonly state: string
   readonly origin?: string
+  readonly starts: number
+  readonly consecutiveFailures: number
+  readonly retryAt?: number
+}
+
+/** The hub's whole status document. */
+interface HubStatus {
+  readonly maxTenants: number
+  readonly alive: number
+  readonly tenants: TenantStatus[]
+}
+
+/** What one hub start takes beyond the shared home. */
+interface HubOptions {
+  /** Profile each tenant runtime boots; a name no profile holds fails every start. */
+  readonly profile?: string
+  /** Most tenant runtimes the hub keeps alive at once. */
+  readonly maxTenants?: number
+  /** First wait before retrying a runtime that failed to start. */
+  readonly restartBackoffMs?: number
 }
 
 /** Start the hub over one shared home and wait for its URL. */
-async function startHub(root: string, home: string): Promise<RunningHub> {
+async function startHub(root: string, home: string, options: HubOptions = {}): Promise<RunningHub> {
   const launch = resolveExampleLaunch({
     srcBin: join(repoRoot, 'apps/cli/src/bin.ts'),
     mode: 'lib',
-    configArgs: ['tenants', 'serve', '--port', '0', '--idle-ms', String(IDLE_MILLISECONDS)],
+    configArgs: [
+      'tenants', 'serve', '--port', '0', '--idle-ms', String(IDLE_MILLISECONDS),
+      ...(options.profile === undefined ? [] : ['--profile', options.profile]),
+      ...(options.maxTenants === undefined ? [] : ['--max-tenants', String(options.maxTenants)]),
+      ...(options.restartBackoffMs === undefined ? [] : ['--restart-backoff-ms', String(options.restartBackoffMs)]),
+    ],
     env: {
       NODE_OPTIONS: undefined,
       NODE_PATH: undefined,
@@ -106,9 +131,14 @@ async function stopHub(hub: RunningHub): Promise<number | null> {
 
 /** The hub's status read. */
 async function hubStatus(base: string): Promise<TenantStatus[]> {
+  return (await hubStatusDocument(base)).tenants
+}
+
+/** The hub's whole status read, cap and live count included. */
+async function hubStatusDocument(base: string): Promise<HubStatus> {
   const response = await fetch(`${base}status`)
   if (response.status !== 200) throw new Error(`the hub's status read answered ${String(response.status)}`)
-  return (await response.json() as { tenants: TenantStatus[] }).tenants
+  return await response.json() as HubStatus
 }
 
 /** Follow one account's handoff and return the URL the hub sent the browser to. */
@@ -235,6 +265,67 @@ it('serves one isolated runtime per account and reclaims an idle one', { timeout
       // no runtime behind either.
       if (lastOrigin !== '') await expect.poll(async () => await reachable(lastOrigin), { timeout: 10_000, interval: 250 }).toBe(false)
     }
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
+it('bounds how many runtimes live at once and backs off a runtime that cannot start', { timeout: 240_000 }, async () => {
+  const root = await mkdtemp(join(tmpdir(), 'qilin-tenant-cap-'))
+  const home = join(root, 'home')
+  await mkdir(home, { recursive: true })
+  const store = await AccountStore.open(accountsFilePath(home))
+  await store.add({ username: 'alice' }, ALICE_PASSWORD)
+  await store.add({ username: 'bob' }, BOB_PASSWORD)
+
+  let hub: RunningHub | undefined
+  let lastOrigin = ''
+  try {
+    // 1. The cap is reported before anything runs, and the hub keeps one runtime.
+    const boundedHub = await startHub(root, home, { maxTenants: 1, restartBackoffMs: 60_000 })
+    hub = boundedHub
+    const base = boundedHub.base
+    expect(await hubStatusDocument(base)).toMatchObject({ maxTenants: 1, alive: 0 })
+
+    // 2. Starting a second runtime past the cap reclaims the least recently used one.
+    const aliceOrigin = new URL(await handoff(base, 'alice')).origin
+    const bobOrigin = new URL(await handoff(base, 'bob')).origin
+    lastOrigin = bobOrigin
+    expect(aliceOrigin).not.toBe(bobOrigin)
+    expect(boundedHub.output()).toMatch(/reclaiming/u)
+    const capped = await hubStatusDocument(base)
+    expect(capped.alive).toBe(1)
+    expect(capped.tenants.map(tenant => [tenant.username, tenant.state])).toEqual([['alice', 'stopped'], ['bob', 'running']])
+
+    // 3. Handing alice back reclaims bob, so the bound holds whichever way it moves.
+    const aliceAgain = new URL(await handoff(base, 'alice')).origin
+    lastOrigin = aliceAgain
+    expect(aliceAgain).not.toBe(aliceOrigin)
+    expect((await hubStatusDocument(base)).alive).toBe(1)
+    expect(await stopHub(boundedHub)).toBe(0)
+    hub = undefined
+
+    // 4. A runtime that cannot start is not retried on every visit: the hub
+    //    reports the failure, and a handoff inside the wait spawns nothing.
+    const failing = await startHub(root, home, { profile: 'no-such-tenant-profile', restartBackoffMs: 60_000 })
+    hub = failing
+    const refused = await fetch(`${failing.base}t/alice`, { redirect: 'manual' })
+    expect(refused.status).toBe(503)
+    const failed = (await hubStatusDocument(failing.base)).tenants
+    expect(failed.map(tenant => [tenant.username, tenant.state, tenant.starts, tenant.consecutiveFailures]))
+      .toEqual([['alice', 'failed', 1, 1]])
+    expect(failed[0]?.retryAt ?? 0).toBeGreaterThan(Date.now())
+
+    const again = await fetch(`${failing.base}t/alice`, { redirect: 'manual' })
+    expect(again.status).toBe(503)
+    expect((await hubStatusDocument(failing.base)).tenants.map(tenant => tenant.starts)).toEqual([1])
+    expect(await stopHub(failing)).toBe(0)
+    hub = undefined
+  } catch (error) {
+    const evidence = hub === undefined ? '' : `\n${hub.output().slice(-4000)}`
+    throw new Error(`${error instanceof Error ? error.message : String(error)}${evidence}`, { cause: error })
+  } finally {
+    if (hub !== undefined) await stopHub(hub)
+    if (lastOrigin !== '') await expect.poll(async () => await reachable(lastOrigin), { timeout: 10_000, interval: 250 }).toBe(false)
     await rm(root, { recursive: true, force: true })
   }
 })

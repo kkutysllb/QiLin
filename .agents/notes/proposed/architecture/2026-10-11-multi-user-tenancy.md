@@ -31,7 +31,7 @@ Model settings and credentials (`settings-file`, `credentials-local`), installed
 
 ### The supervisor
 
-The supervisor keeps the directory and starts, reaps, and redirects tenant runtimes; it neither authenticates nor proxies. The decision is made in the operation that acts on it: every child keeps the account gate over its own origin, restricted to the accounts admitted to that tenant, so a local process that learns a tenant's port still has to sign in instead of reading that tenant's data. The supervisor needs no new engine RPC: the Web application already declares its startup URL line a supervisor contract — "supervisors RPC as soon as they observe the line" — and the starter already accepts `--profile` and `--patch` overlays, with `--patch` applied after the bundle layers and the machine-level user layer. The desktop shell performs the spawning half of the same shape (spawn a child, consume its `ready{url, injections}` message); its reverse proxy stays an available precedent for the single-origin phase.
+The supervisor keeps the directory and starts, reaps, and redirects tenant runtimes; it neither authenticates nor proxies. The decision is made in the operation that acts on it: every child keeps the account gate over its own origin, restricted to the accounts admitted to that tenant, so a local process that learns a tenant's port still has to sign in instead of reading that tenant's data. The supervisor needs no new engine RPC: the Web application already declares its startup URL line a supervisor contract — "supervisors RPC as soon as they observe the line" — and the starter already accepts `--profile` and `--patch` overlays, with `--patch` applied after the bundle layers and the machine-level user layer. The desktop shell performs the spawning half of the same shape (spawn a child, consume its `ready{url, injections}` message); its reverse proxy stays an available precedent for the single-origin phase. The supervisor also bounds itself: `--max-tenants` reclaims the least recently used runtime before starting one past the bound, a runtime that fails to start is retried on a doubling wait rather than on every visit, and the roster commands (`qilin tenants accounts`, `add`, `passwd`, `remove`) are the operator surface over the shared account file, because a tenant runtime admits one account and closes registration.
 
 ### Source changes this requires
 
@@ -57,6 +57,8 @@ None. Two candidates were resolved against the code rather than implemented. The
 6. Requesting another tenant's Session id returns a not-found or refusal from that tenant's runtime, never that Session.
 7. Two runtimes triggering a plugin install concurrently do not corrupt the shared profile.
 8. A reaped idle tenant can be started again and finds its data intact.
+9. A deployment cap keeps the bound: handing to a second account past `--max-tenants` reclaims the least recently used runtime, and the reclaimed account still finds its Sessions when it is handed to again.
+10. A tenant whose profile cannot boot reports a failed runtime with a retry time, and a handoff inside that wait starts no second process.
 
 ## Risks
 

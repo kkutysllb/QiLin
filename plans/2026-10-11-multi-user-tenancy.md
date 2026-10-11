@@ -297,7 +297,7 @@ P1 已落成常备测试：[tenant-isolation.expected.e2e.ts](../apps/cli/tests/
 
 ### 11.4 已知让步（P2 版）
 
-1. 租户 id = 账号 id，1:1 且无注册表，因此没有"两个账户共用一个租户"或改名这一层运维面；`qilin tenants` 目前只有 `serve`。
+1. 租户 id = 账号 id，1:1 且无注册表，因此没有"两个账户共用一个租户"或改名这一层；账户侧的开户/改密/注销运维面见 §11.8。
 2. 空闲窗口按**最后一次跳转**计：浏览器到达租户 origin 后直接与它通信，hub 看不到这份流量，所以长时间开着标签页的部署要把 `--idle-ms` 调大或设为 0。P3 的单源反代才能按真实流量判定。
 3. 账户由共享 home 的普通 Web 表面创建（hub 不提供开户），租户覆盖层把 `registration` 关掉，因此某个运行时不能顺手造号。
 4. §4.5 的四条让步仍然成立：同一 OS 用户、共享模型 key、插件共享写、成本随租户数线性增长。
@@ -305,7 +305,7 @@ P1 已落成常备测试：[tenant-isolation.expected.e2e.ts](../apps/cli/tests/
 ### 11.5 仍未做
 
 - A1 / A2 经代码复核判定**不需要改**，依据见 §11.7。
-- 租户运行时的日志等级与轮转、并发上限、崩溃退避重启未做（当前只有按需拉起与空闲回收）。
+- 租户运行时的日志等级与轮转未做。
 - P3（单源反代 + WS + 媒体流）未开。
 
 ### 11.6 两条过期 expected 车道的修复（同轮收口）
@@ -341,3 +341,36 @@ P1 已落成常备测试：[tenant-isolation.expected.e2e.ts](../apps/cli/tests/
 |---|---|---|
 | A1 `llm-deepseek` 上传索引补 Config | 索引记录的键是 `scope = sha256(baseURL + credentials)`（[upload-index.ts](../packages/llm/llm-deepseek/src/upload-index.ts#L45-L52)），即**按 provider 凭据分命名空间**；本部署按 §4.5 共享同一把 key | 共享一份索引是正确行为——同一凭据下同一个附件不该重复上传，而按租户拆路径只会重复上传、不增加隔离。不做 |
 | A2 `RemoteHostFacts.home` 可注入 | 唯一消费者是引用补全的路径缩短（[ui-reference](../packages/client/ui-reference/src/client/index.ts#L62)），其值是**文件所在机器**的 home | 每台机器一个 home，与租户无关；租户身份由账号面回答（一个运行时只服务一个账号，客户端从 `/api/auth/status` 即知）。不做 |
+
+### 11.8 P2 运维面：账户生命周期、并发上限、崩溃退避（同轮收口）
+
+P2 的缺口是「没有运维面」：租户运行时只接纳它服务的那个账户且 `registration: closed`，所以**它的 Web 界面本身无法创建第二个账户**；而 `--idle-ms` 之外没有任何资源边界。本轮补齐三件。
+
+**一、账户生命周期（建户 / 改户 / 停户）**——新增 [tenants-roster.ts](../apps/cli/src/tenants-roster.ts)，四条子命令：
+
+| 命令 | 行为 | 落点 |
+|---|---|---|
+| `qilin tenants accounts` | 列出账户与各自拥有的租户目录（存在与否） | `rosterEntries()` |
+| `qilin tenants add <用户名> [--email] [--password-stdin]` | 建户：规范化并校验名字/邮箱/密码长度，拒重复名字与重复邮箱，建出租户目录 | `addAccount()` + `ensureTenantDirectory()` |
+| `qilin tenants passwd <用户名> [--password-stdin]` | 改户：换密码并递增 `tokenVersion`（已签发会话立即失效） | `AccountStore.setPassword()`（新增） |
+| `qilin tenants remove <用户名> [--purge-data]` | 停户：从名册移除；默认**保留**租户目录，`--purge-data` 才删 | `AccountStore.remove()`（新增） |
+
+密码默认在终端**不回显**地提示两次（提示写 stderr，readline 的 echo 写进丢弃流），`--password-stdin` 供无人值守使用；**不接受 `--password <值>`**，那会把密码留在进程表里。
+
+`remove` 的语义按「文件即真相」设计：名册移除后，hub 的 `/t/<用户名>` 立刻 404，而**已经在跑的**运行时按 §11.4 的姿态继续服务到被回收或重启；重启时它会在装载期**明确失败**（`admittedAccounts` 列了一个文件里不存在的 id），而不是静默服务一个已注销账户。`--purge-data` 只删由本 home 从账户 id 推导出的那个目录（前缀与 resolve 双重校验），不信任账户文件里的任何路径。
+
+**二、并发上限**：`--max-tenants <count>`（默认 0 = 不设限）。超过上限时回收**最久未被跳转**的运行时再启动新的（每个租户的 Session 都在磁盘上，回收代价是一次启动），日志逐条打印 reclaiming。跳转本身经一条串行队列（`serialize()`），所以两个并发跳转不会同时通过上限判定。`/status` 增加 `maxTenants` 与 `alive`（运行中 + 启动中）两个字段。
+
+**三、崩溃退避**：`TenantRuntime` 记录连续失败数并在失败后拒绝早于 `retryAt` 的重试（`--restart-backoff-ms` 为基数、每次连续失败翻倍、上限 300 s，见 [tenant-runtime.ts](../apps/cli/src/tenant-runtime.ts)）。三类失败都计数：启动期退出、URL 截止期超时、**就绪之后崩溃退出**（`stop()` 主动停止标记为 intentional，不计为崩溃）；一次成功启动把计数与 `retryAt` 归零。失败态在 `stop()` 之后**不被降级**为 `stopped`，因此 `/status` 里 detail 与重试时间一直可见。
+
+**验收（真进程，`tenant-supervisor.expected.e2e.ts` 第二个场景）**：
+
+| # | 断言 | 结果 |
+|---|---|---|
+| 1 | `--max-tenants 1` 在 `/status` 报告 `maxTenants: 1`、`alive: 0` | ✅ |
+| 2 | 再跳转一个账户 → hub 日志出现 reclaiming，`alive` 仍为 1，前一个变为 `stopped` 而后一个 `running` | ✅ |
+| 3 | 反方向再跳转一次 → 上限依然成立（回收新的那个） | ✅ |
+| 4 | `--profile no-such-tenant-profile --restart-backoff-ms 60000`：首次跳转 503，`/status` 报 `failed / starts=1 / consecutiveFailures=1` 且有未来的 `retryAt` | ✅ |
+| 5 | 退避窗口内第二次跳转仍 503，且 `starts` 保持 1（**没有真的再拉起一个进程**） | ✅ |
+
+另有 [tenants-roster.spec.ts](../apps/cli/tests/tenants-roster.spec.ts) 7 例（规范化与四类拒绝、改密递增代数、保留/清除目录、名册列表与退出码）与 [accounts.spec.ts](../packages/identity/accounts-local/tests/accounts.spec.ts) 新增 2 例（`setPassword` / `remove` 的持久化与兄弟记录不受影响）。真 CLI 手测：`add → passwd → accounts → remove → accounts` 五步输出与磁盘布局均符合预期。

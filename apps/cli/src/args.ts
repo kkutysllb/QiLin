@@ -17,6 +17,7 @@
 
 import { Command, CommanderError, InvalidArgumentError } from 'commander'
 import type { TenantsServeOptions } from './tenants.ts'
+import type { RosterRequest } from './tenants-roster.ts'
 
 /** Boot a named profile and hand it the invocation's inner arguments. */
 interface ProfileInvocation {
@@ -49,11 +50,14 @@ interface PluginInvocation {
   args: string[]
 }
 
-/** Serve one isolated Web runtime per account over this Harness home. */
+/** What one `qilin tenants` invocation asks for. */
+type TenantsRequest = { readonly command: 'serve'; readonly options: TenantsServeOptions } | RosterRequest
+
+/** Serve one isolated Web runtime per account, or manage this home's roster. */
 interface TenantsInvocation {
   mode: 'tenants'
-  /** Validated `qilin tenants serve` options. */
-  options: TenantsServeOptions
+  /** The validated subcommand and the options it takes. */
+  request: TenantsRequest
 }
 
 /** The resolved `qilin` invocation. Help, version, and errors exit inside {@link parseQilinArgs}. */
@@ -125,6 +129,12 @@ Examples:
   qilin tenants serve                         one isolated Web runtime per account over this home
   qilin tenants serve --port 0 --idle-ms 600000
                                               pick a free port and reclaim idle runtimes sooner
+  qilin tenants serve --max-tenants 4         keep at most four runtimes, reclaiming the least recently used
+  qilin tenants accounts                      list this home's accounts and their tenant directories
+  qilin tenants add alice                     create an account, prompting for its password
+  echo "$PASSWORD" | qilin tenants passwd alice --password-stdin
+                                              replace a password and retire its sessions
+  qilin tenants remove alice                  retire an account, keeping its Sessions on disk
 `
 
 /**
@@ -227,7 +237,10 @@ export function parseQilinArgs(argv: readonly string[], version: string): QilinI
   }
 
   if (first === 'tenants') {
-    const tenants = program.command('tenants').description('serve one isolated Web runtime per account over this Harness home: Sessions and tasks stay per account, plugins and model settings stay shared')
+    const tenants = program.command('tenants').description('serve one isolated Web runtime per account over this Harness home: Sessions and tasks stay per account, plugins and model settings stay shared; the roster subcommands maintain the accounts every runtime here shares')
+    tenants.action(() => {
+      program.error('error: tenants needs a subcommand (serve, accounts, add, passwd, remove)')
+    })
     tenants
       .command('serve')
       .description('start the hub and print its URL')
@@ -235,15 +248,69 @@ export function parseQilinArgs(argv: readonly string[], version: string): QilinI
       .option('--port <port>', 'port the hub binds; 0 picks a free one', wholeNumber('--port', 0), 8790)
       .option('--profile <name>', 'profile each tenant runtime boots', 'web')
       .option('--idle-ms <milliseconds>', 'idle window before a tenant runtime is reclaimed', wholeNumber('--idle-ms', 100), 1_800_000)
-      .action((options: { host: string; port: number; profile: string; idleMs: number }) => {
+      .option('--max-tenants <count>', 'most tenant runtimes to keep running at once; 0 keeps every one, and starting another reclaims the least recently used', wholeNumber('--max-tenants', 0), 0)
+      .option('--restart-backoff-ms <milliseconds>', 'first wait before retrying a tenant runtime that failed to start; it doubles per consecutive failure', wholeNumber('--restart-backoff-ms', 100), 1000)
+      .action((options: { host: string; port: number; profile: string; idleMs: number; maxTenants: number; restartBackoffMs: number }) => {
         resolved = {
           mode: 'tenants',
-          options: {
-            host: options.host,
-            port: options.port,
-            profile: options.profile,
-            idleMilliseconds: options.idleMs,
+          request: {
+            command: 'serve',
+            options: {
+              host: options.host,
+              port: options.port,
+              profile: options.profile,
+              idleMilliseconds: options.idleMs,
+              maxTenants: options.maxTenants,
+              restartBackoffMilliseconds: options.restartBackoffMs,
+            },
           },
+        }
+      })
+    tenants
+      .command('accounts')
+      .description('list the accounts of this Harness home and the tenant directory each owns')
+      .action(() => { resolved = { mode: 'tenants', request: { command: 'accounts' } } })
+    tenants
+      .command('add')
+      .description('create one account in this Harness home')
+      .argument('<username>', 'login name: 3-32 characters of a-z, 0-9, _, ., or -, starting with a letter or digit')
+      .option('--email <address>', 'address stored with the account')
+      .option('--password-stdin', 'read the password from standard input instead of prompting')
+      .action((username: string, options: { email?: string; passwordStdin?: boolean }) => {
+        resolved = {
+          mode: 'tenants',
+          request: {
+            command: 'add',
+            username,
+            email: options.email,
+            password: options.passwordStdin === true ? { kind: 'stdin' } : { kind: 'prompt' },
+          },
+        }
+      })
+    tenants
+      .command('passwd')
+      .description("replace one account's password, retiring the sessions it issued")
+      .argument('<username>', 'login name of the account to re-key')
+      .option('--password-stdin', 'read the password from standard input instead of prompting')
+      .action((username: string, options: { passwordStdin?: boolean }) => {
+        resolved = {
+          mode: 'tenants',
+          request: {
+            command: 'passwd',
+            username,
+            password: options.passwordStdin === true ? { kind: 'stdin' } : { kind: 'prompt' },
+          },
+        }
+      })
+    tenants
+      .command('remove')
+      .description('retire one account from this Harness home')
+      .argument('<username>', 'login name of the account to retire')
+      .option('--purge-data', "also remove the account's tenant directory, Sessions included")
+      .action((username: string, options: { purgeData?: boolean }) => {
+        resolved = {
+          mode: 'tenants',
+          request: { command: 'remove', username, purgeData: options.purgeData === true },
         }
       })
   }
