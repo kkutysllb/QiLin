@@ -8,6 +8,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { request as httpRequest } from 'node:http'
 import type { IncomingHttpHeaders } from 'node:http'
 import { resolveExampleLaunch } from '@qilin-agent/loader-smoke'
+import { startupUrl } from '../../../startup-url.ts'
 import ts from 'typescript'
 import { expect } from 'vitest'
 import type { TestContext } from 'vitest'
@@ -15,6 +16,14 @@ import { PROCESS_SHUTDOWN_TIMEOUT_MS } from '../../../../src/process-shutdown.ts
 import type { RuntimeRoster } from './runtime-roster.ts'
 
 const repoRoot = fileURLToPath(new URL('../../../../../../', import.meta.url))
+
+/**
+ * The launch token alone reaches the application document when the account gate
+ * is off, so these lanes — which exercise the served application rather than
+ * sign-in — take the deployment escape the shipped accounts row documents. A
+ * patch replaces the row's whole `config`, so every key it owns is restated.
+ */
+const ACCOUNTS_DISABLED = { id: 'accounts', config: { enabled: false, registration: 'open', sessionMaxAgeDays: 30 } }
 
 /** Live process whose IPC observer reports independently collected runtime state. */
 interface DefaultWeb {
@@ -56,7 +65,7 @@ export async function withDefaultWeb(
       id: 'runtime-roster-observer',
       name: pathToFileURL(join(root, 'fixtures/runtime-roster-observer.js')).href,
       config: { negativeControl: pathToFileURL(join(repoRoot, 'packages/experimental/client-ui-agent-team/lib/index.js')).href },
-    }] }]) + '\n')
+    }] }, ACCOUNTS_DISABLED]) + '\n')
     const launch = resolveExampleLaunch({
       srcBin: join(repoRoot, 'apps/cli/src/bin.ts'),
       mode: 'lib',
@@ -152,9 +161,9 @@ export async function withDefaultWeb(
       await expect.poll(() => {
         test.signal.throwIfAborted()
         if (exited) throw new Error(`Web exited before readiness\n${stdout}\n${stderr}`)
-        return /qilin web: (http:\/\/[^\s]+)/u.exec(stdout)?.[1]
+        return startupUrl(stdout)
       }, { timeout: test.task.timeout }).toBeDefined()
-      const url = /qilin web: (http:\/\/[^\s]+)/u.exec(stdout)![1]!
+      const url = startupUrl(stdout)!
       await inspect({ root, url, request })
     } finally {
       const result = await close()

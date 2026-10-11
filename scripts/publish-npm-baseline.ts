@@ -32,7 +32,7 @@ const RELEASE_MANIFEST_NAME = 'manifest.json'
 const RELEASE_ENTRY_PACKAGE = '@qilin-agent/cli'
 const LATEST_DIST_TAG = 'latest'
 const POSIX_WEB_PROBE = String.raw`
-import errno, os, pty, select, signal, sys, time
+import errno, os, pty, re, select, signal, sys, time
 node, bin_path, cwd, timeout_seconds = sys.argv[1:]
 pid, fd = pty.fork()
 if pid == 0:
@@ -57,7 +57,7 @@ while time.monotonic() < deadline:
             output.extend(chunk)
 
     snapshot = bytes(output)
-    if not termination_sent and b"qilin web: http://127.0.0.1:" in snapshot:
+    if not termination_sent and re.search(rb"^[^\r\n]*?: http://127\.0\.0\.1:", snapshot, re.M):
         ready_seen = True
         os.kill(pid, signal.SIGTERM)
         termination_sent = True

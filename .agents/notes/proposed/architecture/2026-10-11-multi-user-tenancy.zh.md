@@ -31,11 +31,11 @@ Status: proposed
 
 ### 守护进程
 
-守护进程用既有的账号文件与 cookie 语义认证，然后启动、回收并反代各租户运行时。它不需要新的引擎 RPC：Web 应用已经把启动 URL 行声明为守护进程契约——「supervisors RPC as soon as they observe the line」——启动器也已接受 `--profile` 与 `--patch` 覆盖层，其中 `--patch` 在 bundle 层与机器级用户层之后应用。桌面壳已经在做同一形态（拉起子进程、消费其 `ready{url, injections}` 消息、用永不进入渲染进程的 cookie 反代到 loopback），因此反代与 WebSocket 代码有可照抄的先例。
+守护进程管目录，并启动、回收与跳转各租户运行时；它既不认证也不反代。判定落在做决定的操作里：每个子进程在自己的 origin 上保留账号门，且只接纳归属于该租户的账号，因此本机进程即使知道了某个租户的端口，也仍要登录，而不是直接读到该租户的数据。守护进程不需要新的引擎 RPC：Web 应用已经把启动 URL 行声明为守护进程契约——「supervisors RPC as soon as they observe the line」——启动器也已接受 `--profile` 与 `--patch` 覆盖层，其中 `--patch` 在 bundle 层与机器级用户层之后应用。桌面壳在做同一形态里「拉起」的那一半（拉起子进程、消费其 `ready{url, injections}` 消息）；它的反代留给单源阶段作先例。
 
 ### 本方案需要的源码改动
 
-只有两处，都很小；其余部分全在新的守护进程里。DeepSeek 上传索引的路径默认写在构造器里、没有 Config 字段，因此两个运行时会共享同一份上传 id 映射。`RemoteHostFacts.home` 硬编码为 `homedir()`，因此租户浏览器无法分辨自己登录的是哪个账号。
+没有。两处理论上的候选是拿代码核掉的，不是实现的。DeepSeek 上传索引的每条记录以 `sha256(baseURL + credentials)` 为键，命名空间就是 provider 凭据——本部署按设计共享同一把——按租户拆路径只会把同一个附件重复上传一遍。`RemoteHostFacts.home` 的唯一用途是把引用路径缩短到「文件所在的那台机器」，而所有租户都在同一台机器上；租户身份由账号面回答，且一个运行时只服务一个账号。因此本方案最初假定的引擎改动为零：这个功能就是守护进程、它的账号接纳名单与覆盖层生成器。
 
 ## Alternatives considered
 

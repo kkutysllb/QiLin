@@ -24,7 +24,8 @@ if (process.env.QILIN_BROWSER_OPEN_TEST_EXIT_ON_READY === '1') {
   const originalLog = console.log
   console.log = (...args) => {
     originalLog(...args)
-    if (typeof args[0] === 'string' && args[0].startsWith('qilin web: ')) {
+    // The startup URL line carries a patchable product label.
+    if (typeof args[0] === 'string' && /^[^\n]*?: https?:\/\//u.test(args[0])) {
       setTimeout(() => process.exit(0), 250)
     }
   }

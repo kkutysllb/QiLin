@@ -7,7 +7,9 @@ import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { execa } from 'execa'
 import { describe, expect, it } from 'vitest'
+import { WEB_ENTRY_PATH } from '@qilin-agent/client-connection'
 import { FiberState } from '@qilin-agent/kylin'
+import { startupUrl } from '../../../startup-url.ts'
 
 const repoRoot = fileURLToPath(new URL('../../../../../../', import.meta.url))
 const bin = join(repoRoot, 'apps/cli/lib/bin.js')
@@ -35,10 +37,21 @@ function fixture() {
   const stop = join(root, 'stop')
   const patch = join(home, 'cordis.patch.yml')
   const watcher = join(root, 'watcher.patch.yml')
+  const accounts = join(root, 'accounts.patch.yml')
   // Native delivery remains real; completed writes bypass Chokidar's 50 ms change suppression.
   writeFileSync(watcher, JSON.stringify([{ id: 'hmr', disabled: false, config: {
     root: [], awaitWriteFinish: { stabilityThreshold: 100, pollInterval: 20 },
   } }]) + '\n')
+  // These lanes assert the failure policy through the served application, so the
+  // launch token carries them past a gate they are not testing.
+  writeFileSync(accounts, [
+    '- id: accounts',
+    '  config:',
+    '    enabled: false',
+    '    registration: open',
+    '    sessionMaxAgeDays: 30',
+    '',
+  ].join('\n'))
   writeFileSync(events, '')
   writeFileSync(diagnostics, '')
   writeFileSync(states, '{}')
@@ -59,7 +72,9 @@ function fixture() {
     '  }, 20)',
     '  ctx.effect(() => () => { clearInterval(timer) })',
     '  ctx.inject(["webServer", "connection"], scope => {',
-    '    writeFileSync(config.url, scope.connection.authenticatedUrl(`http://127.0.0.1:${scope.webServer.port}`))',
+    '    const port = scope.webServer.port',
+    '    if (typeof port !== "number") return',
+    '    writeFileSync(config.url, scope.connection.authenticatedUrl(`http://127.0.0.1:${port}`))',
     '    scope.effect(() => () => { rmSync(config.url, { force: true }) })',
     '  })',
     '}',
@@ -104,11 +119,14 @@ function fixture() {
     return text + '\n'
   }
   writeFileSync(patch, JSON.stringify([{ insert: [observer, witness(0)] }]) + '\n')
-  return { root, home, events, diagnostics, serverUrl, states, observer, stop, patch, watcher, render, url, config, witness, target }
+  return {
+    root, home, events, diagnostics, serverUrl, states, observer, stop, patch, watcher, accounts,
+    render, url, config, witness, target,
+  }
 }
 
 function start(f: ReturnType<typeof fixture>, extra: string[] = []) {
-  const child = execa(process.execPath, [bin, '--profile', 'web', '--patch', f.watcher, ...extra, '--no-open', '--port', '0'], {
+  const child = execa(process.execPath, [bin, '--profile', 'web', '--patch', f.watcher, '--patch', f.accounts, ...extra, '--no-open', '--port', '0'], {
     cwd: f.root,
     env: { ...process.env, QILIN_HOME: f.home, QILIN_AGENTS_HOME: join(f.root, '.agents'), QILIN_TELEMETRY_DISABLED: '1', DEEPSEEK_API_KEY: 'keyless-matrix-no-call', NODE_NO_WARNINGS: '1' },
     input: '', reject: false, timeout: 110_000, killSignal: 'SIGKILL',
@@ -128,13 +146,13 @@ function start(f: ReturnType<typeof fixture>, extra: string[] = []) {
     } catch (cause) { throw new Error(`Web condition failed\n${stdout}\n${stderr}\n${readFileSync(f.diagnostics, 'utf8')}\n${readFileSync(f.events, 'utf8')}`, { cause }) }
   }
   async function serves(currentServer = false) {
-    await wait(() => /qilin web: http:\/\//u.test(stdout))
-    const url = currentServer ? readFileSync(f.serverUrl, 'utf8') : /qilin web: (http:\/\/[^\s]+)/u.exec(stdout)?.[1]
+    await wait(() => startupUrl(stdout) !== undefined)
+    const url = currentServer ? readFileSync(f.serverUrl, 'utf8') : startupUrl(stdout)
     if (!url) throw new Error('Missing Web URL')
     const auth = await fetch(url, { redirect: 'manual', signal: AbortSignal.timeout(10_000) })
     const cookie = auth.headers.get('set-cookie')?.split(';', 1)[0]
     if (!cookie) throw new Error('Missing Web authentication cookie')
-    const response = await fetch(new URL('/', url), { headers: { cookie }, signal: AbortSignal.timeout(10_000) })
+    const response = await fetch(new URL(WEB_ENTRY_PATH, url), { headers: { cookie }, signal: AbortSignal.timeout(10_000) })
     expect(response.status).toBe(200)
     const html = await response.text()
     expect(html).toContain('__QILIN_BOOT__')
@@ -177,7 +195,7 @@ describe.skipIf(!built)('Web process failure matrix', () => {
         if (required) {
           const result = await app.child
           exit(result, 1)
-          expect(result.stdout).not.toContain('qilin web: http://')
+          expect(startupUrl(result.stdout)).toBeUndefined()
           expect(result.stderr).toContain('startup failed:')
           expect(app.events()).toBe('witness apply 1\nwitness dispose 1\n')
         } else {
@@ -239,7 +257,7 @@ describe.skipIf(!built)('Web process failure matrix', () => {
       const result = await app.child
       exit(result, 1)
       expect(result.stderr).toContain(diagnostic)
-      expect(result.stdout).not.toContain('qilin web: http://')
+      expect(startupUrl(result.stdout)).toBeUndefined()
       expect(app.events()).toBe('')
     } finally { exit(await app.close(), 1) }
   })

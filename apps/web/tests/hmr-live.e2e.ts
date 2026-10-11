@@ -135,7 +135,7 @@ it('hot-reloads a real client-plugin source edit without refreshing the page', a
         QILIN_HOME: join(world, '.qilin'),
       },
     ))
-    const baseUrl = await waitForOutput(host, /qilin web: (http:\/\/[^\s]+)/, 'built qilin web')
+    const baseUrl = await waitForOutput(host, /^[^\n]*?: (http:\/\/\S+)/mu, 'built qilin web')
     browser = await chromium.launch()
     const page = await browser.newPage()
     const pageErrors: string[] = []

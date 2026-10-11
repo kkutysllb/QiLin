@@ -258,7 +258,7 @@ P1 已落成常备测试：[tenant-isolation.expected.e2e.ts](../apps/cli/tests/
 | 就绪行匹配写死 `qilin web: ` | 产品行文被 [web-brand 的 web-runtime 行](../packages/bundle/web-brand/cordis.patch.yml#L21) 改成 `label: qilin`；实跑输出 `qilin: http://127.0.0.1:<port>/workspace?token=…` | `withDefaultWeb` 的就绪轮询永远等不到，`schedule-timing` / `web-default-isolation` 等以 120 s 超时失败 |
 | 把 schedule 当随附能力 | shipped Web 组合无 schedule 行；`fixtures/schedule.patch.yml` 的 `- id: schedule` 指向不存在的行 | `schedule-timing.expected.e2e.ts` 的 `/api/schedule/catalog` 得到 404 |
 
-新测试不依赖这两处（自带按输出匹配就绪 URL，并显式挂上 schedule bundle），所以它们不影响 P1 的结论；修不修是另一件事。
+新测试不依赖这两处（自带按输出匹配就绪 URL，并显式挂上 schedule bundle），所以它们不影响 P1 的结论。两条已在同轮收掉，见 §11.6。
 
 ## 11. P2 执行记录（2026-10-11）
 
@@ -304,6 +304,40 @@ P1 已落成常备测试：[tenant-isolation.expected.e2e.ts](../apps/cli/tests/
 
 ### 11.5 仍未做
 
-- A1（`llm-deepseek` 上传索引补 Config）与 A2（`RemoteHostFacts.home` 可注入）未做。
+- A1 / A2 经代码复核判定**不需要改**，依据见 §11.7。
 - 租户运行时的日志等级与轮转、并发上限、崩溃退避重启未做（当前只有按需拉起与空闲回收）。
 - P3（单源反代 + WS + 媒体流）未开。
+
+### 11.6 两条过期 expected 车道的修复（同轮收口）
+
+§10.5 记录的两处在同一轮收掉，并把它们所在的 8 个车道（67 例）从 44 红跑到 **62 通过 / 5 红**：
+
+| 修复 | 落点 |
+|---|---|
+| 就绪行按 URL 而非产品名匹配 | 新增 [startup-url.ts](../apps/cli/tests/startup-url.ts)：产品行是 `<label>: <url>`，而 label 是 `web-runtime.label` 这一可被部署替换的配置行。`default-web-process`、`web-failure-matrix`、`web-best-effort-startup`、`creator-plugin-manager`、`web-browser-open`、`web-auth`、`built-bin`、`lazy-search-startup`、`github-webhook-real`、`apps/web/tests/{support,hmr-live,smoke-real}` 与 `scripts/publish-npm-baseline.ts` 全部改用它或同一形态的表达式 |
+| schedule 是可选组合而非随附能力 | `schedule-timing` 显式挂 [schedule-bundle](../packages/experimental/schedule-bundle/cordis.patch.yml)；`web-default-isolation` 改为断言 shipped 组合**不含** `time-context` / `schedule` / `ui-schedule` 三行；旧 fixture `fixtures/schedule.patch.yml` 删除 |
+
+收口过程中又露出三处**同一类**的过期断言（产品演进而车道没跟上），一并改正：
+
+| 过期断言 | 现产品 | 依据 |
+|---|---|---|
+| 用令牌换来 cookie 后直接取应用文档 | shipped Web 组合默认开账户门，令牌只到登录面 | [hmr-live.e2e.ts](../apps/web/tests/hmr-live.e2e.ts) 的既有先例；未测账户门的车道按 accounts 行自述的部署逃生口挂 `enabled: false` |
+| 应用文档取 `/` | 站点根是落地页，应用文档在 `WEB_ENTRY_PATH`（`/workspace`） | 同目录 `web-default-isolation` 的既有写法 |
+| `session/create` 返回 `agentPreset: 'standard'`、fixture 挂 `'cordis'` 预设、sidebar-browser 行「resolved but disabled」 | shipped 预设只有 `ptc`（[web-app 行](../packages/bundle/web-app/cordis.patch.yml#L579)）；`ui-sidebar-browser` 行无 `disabled` | 实跑输出与 bundle 行 |
+
+**仍未绿 5 例**，都不是就绪行或 schedule，而是产品行为演进，需要裁定而不是重录：
+
+| 车道 | 现象 | 待裁定 |
+|---|---|---|
+| `creator-plugin-manager` ×1 | fixture 读 `ctx.tools.execute(...).value`，现为 undefined | `plugin_manager` 工具的结果契约 |
+| `web-best-effort-startup` ×2 | 启动诊断报告里不再有 `module: '@qilin-agent/client-connection'` | `connection` 的 `inject` 已改为 `webStartup`（B3.4 c），失败绑定不再牵动它；该行断言应换成哪一项 |
+| `web-failure-matrix` ×2 | 一次 reload 里 `webserver` 行绑不上时整次 reload 被拒，同 patch 的 `witness` 行不生效 | reload 的部分生效语义 |
+
+另注：`test:expected` 整车道同期还有约 25 例既有红（headless / acp / qilin-badge / session-format-guard），与本次改动无关。
+
+### 11.7 A1 / A2 的结论：都不需要改（带代码依据）
+
+| 提案 | 依据 | 结论 |
+|---|---|---|
+| A1 `llm-deepseek` 上传索引补 Config | 索引记录的键是 `scope = sha256(baseURL + credentials)`（[upload-index.ts](../packages/llm/llm-deepseek/src/upload-index.ts#L45-L52)），即**按 provider 凭据分命名空间**；本部署按 §4.5 共享同一把 key | 共享一份索引是正确行为——同一凭据下同一个附件不该重复上传，而按租户拆路径只会重复上传、不增加隔离。不做 |
+| A2 `RemoteHostFacts.home` 可注入 | 唯一消费者是引用补全的路径缩短（[ui-reference](../packages/client/ui-reference/src/client/index.ts#L62)），其值是**文件所在机器**的 home | 每台机器一个 home，与租户无关；租户身份由账号面回答（一个运行时只服务一个账号，客户端从 `/api/auth/status` 即知）。不做 |

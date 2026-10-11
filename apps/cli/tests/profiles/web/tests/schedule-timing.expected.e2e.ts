@@ -9,7 +9,10 @@ import { expect, it } from 'vitest'
 import { WEB_ENTRY_PATH } from '@qilin-agent/client-connection'
 import { withDefaultWeb, webGet, webRequest } from './default-web-process.ts'
 
-const patches = [fileURLToPath(new URL('./fixtures/schedule.patch.yml', import.meta.url))]
+const repoRoot = fileURLToPath(new URL('../../../../../../', import.meta.url))
+// The shipped Web composition carries no Schedule rows: durable tasks are a
+// deployment decision, so the lane mounts the same opt-in bundle a deployment does.
+const patches = [join(repoRoot, 'packages/experimental/schedule-bundle/cordis.patch.yml')]
 
 const id = 'retained-remote-task' as DailyScheduleRecord['id']
 const sessionId = 'unloaded-owner' as ScheduleCatalogEntry['sessionId']
@@ -116,7 +119,7 @@ it('creates and idempotently adopts the explicit Session id bound to seeded task
   await withDefaultWeb(test, async ({ root, url }) => {
     const rpc = await connect(url, test.signal)
     const create = { request: { sessionId, cwd: root } }
-    const expectedCreate = { ok: true, value: { sessionId, agentPreset: 'standard' } }
+    const expectedCreate = { ok: true, value: { sessionId, agentPreset: 'ptc' } }
     expect(await rpc('session/create', create)).toEqual(expectedCreate)
     expect(await rpc('session/create', create)).toEqual(expectedCreate)
     expect(await rpc('schedule/list', { request: { sessionId } })).toEqual(expectedList)

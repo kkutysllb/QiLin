@@ -17,6 +17,7 @@ import { entryListSchema } from '@qilin-agent/kylin-plugin-include'
 import { execa } from 'execa'
 import * as yaml from 'js-yaml'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { startupUrl } from './startup-url.ts'
 
 /** Published-entry acceptance for argument errors, profile lifecycle, and boot-free config dumps. */
 const repoRoot = fileURLToPath(new URL('../../../', import.meta.url))
@@ -369,7 +370,7 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
       expect(web.stderr).toBe('')
       expect(web.stdout).toContain('Usage: qilin --profile web')
       expect(web.stdout).toContain('--port <port>')
-      expect(web.stdout).not.toContain('qilin web: http://')
+      expect(startupUrl(web.stdout)).toBeUndefined()
 
       const wildcardHost = await runBuiltBin(['web', '--host', '0.0.0.0'], {
         QILIN_HOME: home,
@@ -379,7 +380,7 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
       expect(wildcardHost.stdout).toBe('')
       // The usage-error wording is not a contract; the rejection and the absent
       // URL line are.
-      expect(wildcardHost.stderr).not.toContain('qilin web: http://')
+      expect(startupUrl(wildcardHost.stderr)).toBeUndefined()
 
       const headlessHelp = await runBuiltBin(['headless', '--help'], {
         QILIN_HOME: home,
@@ -785,7 +786,7 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
         NODE_OPTIONS: `--import=${webReadyExitHook}`,
       })
       expect(result.code, result.stderr).toBe(0)
-      expect(result.stdout).toMatch(/^qilin web: http:\/\/127\.0\.0\.1:\d+\/\?token=[A-Za-z0-9_-]+$/u)
+      expect(startupUrl(result.stdout)).toMatch(/^http:\/\/127\.0\.0\.1:\d+\/workspace\?token=[A-Za-z0-9_-]+$/u)
       expect(result.stderr).toContain('llm-pi-ai')
     } finally {
       rmSync(home, { recursive: true, force: true })

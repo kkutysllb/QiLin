@@ -27,7 +27,7 @@ import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
 import WebSocket from 'ws'
-import { REPO_ROOT, connectFreshWorkspace, newEnglishPage, probeFreePort, requireDist, saveFailureShot } from './support.ts'
+import { REPO_ROOT, connectFreshWorkspace, newEnglishPage, probeFreePort, requireDist, saveFailureShot, startupUrl } from './support.ts'
 
 const WEB_SURFACE_PROMPT = fileURLToPath(new URL('./expected/web-runtime-context/web-surface-prompt.expected.md', import.meta.url))
 const authenticatedCookies = new Map<string, Promise<{ origin: string; cookie: string }>>()
@@ -92,10 +92,10 @@ function waitForReadyLine(child: ChildProcess): Promise<string> {
     const timer = setTimeout(() => { reject(new Error(`qilin web not ready in 90s; output:\n${out}`)) }, 90_000)
     const onData = (chunk: Buffer): void => {
       out += chunk.toString()
-      const match = /qilin web: (http:\/\/[^\s]+)/.exec(out)
-      if (match?.[1] !== undefined) {
+      const url = startupUrl(out)
+      if (url !== undefined) {
         clearTimeout(timer)
-        resolveReady(match[1])
+        resolveReady(url)
       }
     }
     child.stdout?.on('data', onData)

@@ -13,6 +13,7 @@ import { setTimeout as delay } from 'node:timers/promises'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import WebSocket from 'ws'
+import { startupUrl } from './startup-url.ts'
 
 const REPO_ROOT = fileURLToPath(new URL('../../..', import.meta.url))
 const BUILT_BIN = join(REPO_ROOT, 'apps/cli/lib/bin.js')
@@ -93,11 +94,11 @@ function observeProcess(child: ChildProcess): ProcessObservation {
   timer.unref()
   const append = (chunk: Buffer | string): void => {
     output = `${output}${String(chunk)}`.slice(-100_000)
-    const match = /qilin web: (http:\/\/[^\s]+)/u.exec(output)
-    if (settled || match?.[1] === undefined) return
+    const url = startupUrl(output)
+    if (settled || url === undefined) return
     settled = true
     clearTimeout(timer)
-    resolveReady(match[1].replace('0.0.0.0', '127.0.0.1'))
+    resolveReady(url.replace('0.0.0.0', '127.0.0.1'))
   }
   child.stdout?.on('data', append)
   child.stderr?.on('data', append)

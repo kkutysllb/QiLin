@@ -11,6 +11,17 @@ export const DIST_INDEX = fileURLToPath(new URL('../dist/index.html', import.met
 
 export const REPO_ROOT = fileURLToPath(new URL('../../..', import.meta.url))
 
+/**
+ * The startup URL line a profile app prints once it serves: `<label>: <url>`.
+ * The label is a patchable row (`web-runtime.label`), so a product or
+ * deployment layer replaces it; harnesses match the line by its URL.
+ * @param output - combined stdout and stderr captured from the booted process.
+ * @returns the served URL, or undefined while the app has not announced readiness.
+ */
+export function startupUrl(output: string): string | undefined {
+  return /^[^\n]*?: (https?:\/\/\S+)/mu.exec(output)?.[1]
+}
+
 const installationRequire = createRequire(join(REPO_ROOT, 'apps/cli/package.json'))
 
 /**

@@ -17,6 +17,7 @@ import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import yaml from 'js-yaml'
 import { describe, expect, it } from 'vitest'
+import { startupUrl } from './startup-url.ts'
 
 const repoRoot = fileURLToPath(new URL('../../../', import.meta.url))
 const builtBin = join(repoRoot, 'apps/cli/lib/bin.js')
@@ -74,7 +75,7 @@ function runBuiltWeb(cwd: string): Promise<{ stdout: string; stderr: string; cod
     child.stderr.setEncoding('utf8')
     child.stdout.on('data', (chunk: string) => {
       stdout += chunk
-      if (!settled && /qilin web: http:\/\/127\.0\.0\.1:\d+/u.test(stdout)) {
+      if (!settled && startupUrl(stdout) !== undefined) {
         settled = true
         child.kill('SIGTERM')
       }
@@ -118,7 +119,7 @@ describe.skipIf(!requireBuiltArtifacts)('built CLI lazy-search startup', () => {
     const cwd = await mkdtemp(join(tmpdir(), 'qilin-cli-lazy-search-'))
     try {
       const result = await runBuiltWeb(cwd)
-      expect(result.stdout).toMatch(/qilin web: http:\/\/127\.0\.0\.1:\d+/u)
+      expect(startupUrl(result.stdout)).toBeDefined()
       expect(result.code).toBe(0)
       expect(result.stderr).not.toMatch(/ExperimentalWarning: SQLite/u)
     } finally {

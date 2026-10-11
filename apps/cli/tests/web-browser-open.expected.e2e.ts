@@ -6,12 +6,15 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execa } from 'execa'
 import { afterEach, describe, expect, it } from 'vitest'
+import { startupUrl } from './startup-url.ts'
 
 const repoRoot = fileURLToPath(new URL('../../../', import.meta.url))
 const builtBin = join(repoRoot, 'apps/cli/lib/bin.js')
 const frontendIndex = join(repoRoot, 'apps/web/dist/index.html')
 const openerHook = new URL('./fixtures/web-browser-open/register.mjs', import.meta.url).href
-const openingMessage = 'qilin web: opening the default browser; pass --no-open to disable'
+// The URL line and the handoff notice both carry the patchable product label
+// (`web-runtime.label`), so neither is asserted by name.
+const handoffNotice = 'opening the default browser; pass --no-open to disable'
 const tempRoots: string[] = []
 const builtArtifactsExist = existsSync(builtBin) && existsSync(frontendIndex)
 
@@ -63,9 +66,9 @@ describe.skipIf(!builtArtifactsExist)('qilin web browser-open assembled snapshot
       killSignal: 'SIGKILL',
       reject: false,
     })
-    const readyUrl = /qilin web: (http:\/\/[^\s]+)/u.exec(result.stdout)?.[1]
+    const readyUrl = startupUrl(result.stdout)
     const openLine = result.stdout.split('\n').find(line => line.startsWith('qilin browser-open: '))
-    const opening = result.stdout.includes(openingMessage)
+    const opening = result.stdout.includes(handoffNotice)
     if (readyUrl === undefined || openLine === undefined || !opening) {
       throw new Error(`qilin web browser-open evidence missing\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`)
     }
@@ -123,7 +126,7 @@ describe.skipIf(!builtArtifactsExist)('qilin web browser-open assembled snapshot
       killSignal: 'SIGKILL',
       reject: false,
     })
-    const readyUrl = /qilin web: (http:\/\/[^\s]+)/u.exec(result.stdout)?.[1]
+    const readyUrl = startupUrl(result.stdout)
     const diagnostic = result.stderr.split(/\r?\n/u)
       .find(line => line.startsWith('web-app: could not open the default browser because '))
 
@@ -131,11 +134,11 @@ describe.skipIf(!builtArtifactsExist)('qilin web browser-open assembled snapshot
       diagnostic,
       exitCode: result.exitCode,
       opened: result.stdout.includes('qilin browser-open: '),
-      opening: result.stdout.includes(openingMessage),
+      opening: result.stdout.includes(handoffNotice),
       readyUrl: readyUrl === undefined ? undefined : normalizeLocalUrl(readyUrl),
     }).toMatchInlineSnapshot(`
       {
-        "diagnostic": "web-app: could not open the default browser because fixture desktop unavailable; use the qilin web URL printed at startup",
+        "diagnostic": "web-app: could not open the default browser because fixture desktop unavailable; use the qilin URL printed at startup",
         "exitCode": 0,
         "opened": false,
         "opening": true,
@@ -171,11 +174,11 @@ describe.skipIf(!builtArtifactsExist)('qilin web browser-open assembled snapshot
       killSignal: 'SIGKILL',
       reject: false,
     })
-    const readyUrl = /qilin web: (http:\/\/[^\s]+)/u.exec(result.stdout)?.[1]
+    const readyUrl = startupUrl(result.stdout)
 
     expect({
       exitCode: result.exitCode,
-      opening: result.stdout.includes(openingMessage),
+      opening: result.stdout.includes(handoffNotice),
       readyUrl: readyUrl === undefined ? undefined : normalizeLocalUrl(readyUrl),
       opened: result.stdout.includes('qilin browser-open: '),
       stderr: result.stderr,
@@ -224,9 +227,9 @@ describe.skipIf(!builtArtifactsExist)('qilin web browser-open assembled snapshot
     expect({
       diagnostic,
       exitCode: result.exitCode,
-      opening: result.stdout.includes(openingMessage),
+      opening: result.stdout.includes(handoffNotice),
       opened: result.stdout.includes('qilin browser-open: '),
-      ready: result.stdout.includes('qilin web: '),
+      ready: startupUrl(result.stdout) !== undefined,
     }).toMatchInlineSnapshot(`
       {
         "diagnostic": "qilin: {{root}}/.env sets "BROWSER", which only the launching environment may set (it decides how this process starts, where its code and instructions load from, or how it reaches the network); export BROWSER instead of putting it in a .env file",

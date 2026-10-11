@@ -35,7 +35,7 @@ export default async function open(url) {
   const setup = await fetch(new URL('/api/auth/setup', url), {
     method: 'POST',
     headers: { 'content-type': 'application/json', cookie: setCookie.split(';', 1)[0] },
-    body: JSON.stringify({ email: 'browser-open@example.com', password: 'browser-open-1' }),
+    body: JSON.stringify({ username: 'browser-open', email: 'browser-open@example.com', password: 'browser-open-1' }),
   })
   const session = setup.headers.get('set-cookie')
   if (!setup.ok || session === null) {

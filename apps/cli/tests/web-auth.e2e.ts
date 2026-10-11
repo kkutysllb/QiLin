@@ -12,6 +12,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { describe, expect, it } from 'vitest'
+import { startupUrl } from './startup-url.ts'
 
 const REPO_ROOT = fileURLToPath(new URL('../../..', import.meta.url))
 const QILIN_SOURCE_BIN = join(REPO_ROOT, 'apps/cli/src/bin.ts')
@@ -91,11 +92,11 @@ async function startWeb(root: string, qilinHome: string, port: number): Promise<
     }, 90_000)
     const append = (chunk: Buffer | string): void => {
       output = `${output}${String(chunk)}`.slice(-100_000)
-      const match = /qilin web: (http:\/\/[^\s]+)/u.exec(output)
-      if (settled || match?.[1] === undefined) return
+      const url = startupUrl(output)
+      if (settled || url === undefined) return
       settled = true
       clearTimeout(timer)
-      resolve(match[1])
+      resolve(url)
     }
     child.stdout?.on('data', append)
     child.stderr?.on('data', append)

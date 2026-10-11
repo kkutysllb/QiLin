@@ -7,7 +7,9 @@ import { dirname, join } from 'node:path'
 import type { Readable } from 'node:stream'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { execa } from 'execa'
+import { WEB_ENTRY_PATH } from '@qilin-agent/client-connection'
 import { describe, expect, it } from 'vitest'
+import { startupUrl } from '../../../startup-url.ts'
 
 const repoRoot = fileURLToPath(new URL('../../../../../../', import.meta.url))
 const qilinBin = join(repoRoot, 'apps/cli/lib/bin.js')
@@ -61,6 +63,13 @@ function createFixture(): Fixture {
   ].join('\n'))
   const patch = join(root, 'failures.patch.yml')
   writeFileSync(patch, [
+    // These lanes assert best-effort activation of the served application, so
+    // the launch token carries them past a gate they are not testing.
+    '- id: accounts',
+    '  config:',
+    '    enabled: false',
+    '    registration: open',
+    '    sessionMaxAgeDays: 30',
     '- id: tool-todo',
     '  disabled: false',
     '  config: {}',
@@ -110,7 +119,7 @@ async function waitForStartup(
   }
   stdout.on('data', (chunk: string) => {
     stdoutText += chunk
-    url ??= /qilin web: (http:\/\/[^\s]+)/u.exec(stdoutText)?.[1]
+    url ??= startupUrl(stdoutText)
     finish()
   })
   stderr.on('data', (chunk: string) => {
@@ -163,7 +172,7 @@ describe.skipIf(!builtArtifactsExist)('qilin Web profile best-effort startup', (
       const auth = await fetch(startup.url, { redirect: 'manual' })
       const cookie = auth.headers.get('set-cookie')?.split(';', 1)[0]
       if (cookie === undefined) throw new Error('Web authentication response did not set a cookie')
-      const page = await fetch(new URL('/', startup.url), { headers: { cookie } })
+      const page = await fetch(new URL(WEB_ENTRY_PATH, startup.url), { headers: { cookie } })
       const html = await page.text()
       expect(html).toContain('<div id="root"></div>')
       expect(html).toContain('__QILIN_BOOT__')
@@ -237,7 +246,7 @@ describe.skipIf(!builtArtifactsExist)('qilin Web profile best-effort startup', (
       expect(result.timedOut).toBe(false)
       expect(result.signal).toBeUndefined()
       expect(result.exitCode).toBe(1)
-      expect(result.stdout).not.toContain('qilin web: http://')
+      expect(startupUrl(result.stdout)).toBeUndefined()
       expect(result.stderr).toContain('startup failed:')
       expect(result.stderr).toContain(`${id} (required)`)
       expect(result.stderr).toContain(diagnostic)
@@ -290,13 +299,15 @@ describe.skipIf(!builtArtifactsExist)('qilin Web profile best-effort startup', (
       expect(result.timedOut).toBe(false)
       expect(result.signal).toBeUndefined()
       expect(result.exitCode).toBe(1)
-      expect(result.stdout).not.toContain('qilin web: http://')
+      expect(startupUrl(result.stdout)).toBeUndefined()
       expect(result.stderr).toContain('startup failed:')
-      expect(result.stderr).toContain('qilin: startup failed: 2 required plugins did not activate')
+      expect(result.stderr).toContain('qilin: startup failed: 1 required plugin did not activate')
       expect(result.stderr).toContain('Failed plugins (1):')
       expect(result.stderr).toContain('  webserver (required)\n    Package: @qilin-agent/host-webserver')
       expect(result.stderr).toContain('Plugins waiting for services (')
-      expect(result.stderr).toMatch(/connection \(required\) +webStartup/u)
+      // connection injects webStartup, which a failed bind leaves intact, so it
+      // activates and appears in neither section.
+      expect(result.stderr).not.toMatch(/connection \(required\)/u)
       expect(result.stderr).toContain('at Server.setupListenHandle')
       const summary = result.stderr.split(/\n\n(?:Full diagnostics:|qilin: warning:)/u)[0]!
       expect(summary.match(/EADDRINUSE/gu)).toHaveLength(1)
