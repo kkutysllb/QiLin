@@ -1,3 +1,5 @@
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
+import { startExternalActivation } from '../../subagent/tests/external-activation-helpers.ts'
 import { execFile } from 'node:child_process'
 import {
   existsSync,
@@ -35,7 +37,6 @@ import {
   type MessagesBehavior,
   type MessagesFixture,
 } from './messages-fixture.ts'
-import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 
 const observedSdkMessages = vi.hoisted((): SDKMessage[] => [])
 const sdkTestOverrides = vi.hoisted((): { maxTurns?: number } => ({}))
@@ -94,8 +95,8 @@ const claudeBin = join(
   platformRoot,
   process.platform === 'win32' ? 'claude.exe' : 'claude',
 )
-const settingsModel = 'qilin-settings-inheritance-marker'
-const fakeKey = 'qilin-fake-anthropic-key'
+const settingsModel = 'dsh-settings-inheritance-marker'
+const fakeKey = 'dsh-fake-anthropic-key'
 
 const roots: string[] = []
 const fixtures: MessagesFixture[] = []
@@ -146,7 +147,7 @@ async function realInstanceFixture(
   behavior: MessagesBehavior,
   nativeAllow: readonly string[] = [],
 ): Promise<RealInstanceFixture> {
-  const root = mkdtempSync(join(tmpdir(), 'qilin-claude-code-real-'))
+  const root = mkdtempSync(join(tmpdir(), 'dsh-claude-code-real-'))
   roots.push(root)
   const workspace = join(root, 'workspace')
   const claudeConfig = join(root, 'claude-config')
@@ -281,7 +282,7 @@ function startRequest(
   prompt: string,
   signal = new AbortController().signal,
 ) {
-  return harness.ctx.subagents.start('claude-code', {
+  return startExternalActivation(harness.ctx, 'claude-code', {
     prompt: [{ type: 'text', text: prompt }],
     parent: harness.parent,
     signal,
@@ -350,7 +351,7 @@ describe('real Claude Agent SDK 0.3.263 and its distributed Claude Code 2.1.263 
   })
 
   it('maps a real SDK max-turns result to safe query-run facts', async () => {
-    const root = mkdtempSync(join(tmpdir(), 'qilin-claude-code-max-turns-'))
+    const root = mkdtempSync(join(tmpdir(), 'dsh-claude-code-max-turns-'))
     roots.push(root)
     const target = join(root, 'max-turns.txt')
     sdkTestOverrides.maxTurns = 1
@@ -414,12 +415,12 @@ describe('real Claude Agent SDK 0.3.263 and its distributed Claude Code 2.1.263 
     const safeController = new AbortController()
 
     const [safeRun, bypassRun] = await Promise.all([
-      ctx.subagents.start('claude-safe', {
+      startExternalActivation(ctx, 'claude-safe', {
         prompt: [{ type: 'text', text: 'Hold the safe instance.' }],
         parent: safeParent,
         signal: safeController.signal,
       }),
-      ctx.subagents.start('claude-bypass', {
+      startExternalActivation(ctx, 'claude-bypass', {
         prompt: [{ type: 'text', text: 'Complete the bypass instance.' }],
         parent: bypassParent,
         signal: new AbortController().signal,
@@ -428,7 +429,7 @@ describe('real Claude Agent SDK 0.3.263 and its distributed Claude Code 2.1.263 
     await safeInstance.fixture.requestStarted
     await safeFiber.dispose()
     expect(ctx.subagents.list()).toEqual(['claude-bypass'])
-    await expect(ctx.subagents.start('claude-safe', {
+    await expect(startExternalActivation(ctx, 'claude-safe', {
       prompt: [{ type: 'text', text: 'This start must fail.' }],
       parent: safeParent,
       signal: new AbortController().signal,
@@ -438,7 +439,7 @@ describe('real Claude Agent SDK 0.3.263 and its distributed Claude Code 2.1.263 
       output: [{ type: 'text', text: 'NAMED_BYPASS_RESULT' }],
       stopReason: 'completed',
     })
-    safeController.abort(new Error('cancel only the published safe run'))
+    void safeRun.dispose()
     await expect(safeRun.result).resolves.toEqual({
       output: [],
       stopReason: 'aborted',
@@ -478,7 +479,7 @@ describe('real Claude Agent SDK 0.3.263 and its distributed Claude Code 2.1.263 
   })
 
   it('overrides interactive settings, denies a write, and returns a safe diagnostic', async () => {
-    const root = mkdtempSync(join(tmpdir(), 'qilin-claude-code-denied-target-'))
+    const root = mkdtempSync(join(tmpdir(), 'dsh-claude-code-denied-target-'))
     roots.push(root)
     const target = join(root, 'denied.txt')
     const { harness } = await realHarness({
@@ -513,7 +514,7 @@ describe('real Claude Agent SDK 0.3.263 and its distributed Claude Code 2.1.263 
   })
 
   it('runs an explicitly selected bypass write in the isolated workspace', async () => {
-    const root = mkdtempSync(join(tmpdir(), 'qilin-claude-code-bypass-target-'))
+    const root = mkdtempSync(join(tmpdir(), 'dsh-claude-code-bypass-target-'))
     roots.push(root)
     const target = join(root, 'bypass.txt')
     const { harness } = await realHarness({
@@ -563,7 +564,7 @@ describe('real Claude Agent SDK 0.3.263 and its distributed Claude Code 2.1.263 
       controller.signal,
     )
     await fixture.requestStarted
-    controller.abort(new Error('real product cancellation'))
+    void run.dispose()
     await expect(run.result).resolves.toEqual({
       output: [],
       stopReason: 'aborted',

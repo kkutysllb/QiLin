@@ -1,3 +1,6 @@
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
+import { randomUUID } from 'node:crypto'
+import { startExternalActivation, externalTestParent } from '../../subagent/tests/external-activation-helpers.ts'
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { PassThrough } from 'node:stream'
@@ -50,7 +53,6 @@ import {
   textTask,
   type ClaudeCodeRunSpec,
 } from '../src/run.ts'
-import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 
 type QueryFactory = (params: {
   prompt: string
@@ -80,7 +82,7 @@ vi.mock('@anthropic-ai/claude-agent-sdk', async importOriginal => ({
 const fakeParent = {
   id: 'parent',
   session: { header: { cwd: process.cwd() } },
-} as Partial<Agent> as Agent
+} as unknown as Agent
 
 function request(
   prompt: ContentBlock[] = [{ type: 'text', text: 'do the task' }],
@@ -341,7 +343,7 @@ afterEach(() => {
 })
 
 describe('task admission and package contracts', () => {
-  it('ships one independently installable provider-only Bundle patch', () => {
+  it('ships the provider with a global delegation tool', () => {
     const root = fileURLToPath(new URL('..', import.meta.url))
     const manifest = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')) as {
       dependencies?: Record<string, string>
@@ -356,7 +358,7 @@ describe('task admission and package contracts', () => {
     )
     expect(manifest.dependencies).toHaveProperty(
       '@modelcontextprotocol/sdk',
-      '^1.29.0',
+      '^1.31.0',
     )
     expect(manifest.dependencies).toHaveProperty('zod', '^4.4.3')
     expect(manifest.dependencies).not.toHaveProperty('@qilin-agent/subagent-codex')
@@ -391,14 +393,13 @@ describe('task admission and package contracts', () => {
     }
 
     const parsed = yaml.load(readFileSync(resolve(root, manifest.qilin!.bundle!.patch!), 'utf8'))
-    const rows = Array.isArray(parsed)
-      ? (parsed as Array<{ insert?: Array<{ id?: string; name?: string }> }>).flatMap(entry => entry.insert ?? [])
-      : []
-    expect(rows).toEqual([{
-      id: 'subagent-claude-code',
-      name: '@qilin-agent/subagent-claude-code',
-    }])
-    expect(JSON.stringify(rows)).not.toContain('tool-subagent')
+    expect(parsed).toEqual([{ insert: [
+      { id: 'subagent-claude-code', name: '@qilin-agent/subagent-claude-code' },
+      { id: 'tool-subagent-claude-code', name: '@qilin-agent/tool-subagent', config: {
+        provider: 'claude-code', toolName: 'subagent_claude_code', maxDepth: 'provider-managed',
+      } },
+    ] }])
+    expect(manifest.dependencies).toHaveProperty('@qilin-agent/tool-subagent', 'workspace:*')
   })
 
   it('preserves text sequences and rejects empty, blank, and non-text tasks', () => {
@@ -411,6 +412,29 @@ describe('task admission and package contracts', () => {
       .toThrow('only text blocks')
     expect(() => textTask([{ type: 'text', text: ' \n ' }]))
       .toThrow('must not be empty')
+  })
+
+  it.each([false, true])('rejects a missing parent directory before spawning (cancelled: %s)', async (cancelled) => {
+    const ctx = new Context()
+    try {
+      await ctx.plugin(SessionProjectionRegistry)
+      await mountWorkingDirectoryFixture(ctx)
+      await ctx.plugin(SubagentRuntime)
+      await ctx.plugin(LocalSubprocessRuntime)
+      await ctx.plugin(claudeCode, {})
+      const spawn = vi.spyOn(ctx.subprocess, 'spawn')
+      const controller = new AbortController()
+      if (cancelled) controller.abort()
+      const provider = ctx.subagents.getProvider('claude-code')!
+      await expect(Promise.resolve().then(async () => provider.start!({
+        ...request(undefined, controller.signal),
+        parent: await externalTestParent(ctx),
+        cwd: resolve('missing-parent-' + randomUUID()),
+      }))).rejects.toThrow(cancelled
+        ? 'request was aborted before SDK startup'
+        : 'stage: query-start; category: unknown')
+      expect(spawn).not.toHaveBeenCalled()
+    } finally { await ctx.fiber.dispose() }
   })
 
   it('registers the default descriptor, validates config, and unregisters on HMR', async () => {
@@ -457,7 +481,7 @@ describe('task admission and package contracts', () => {
     const spawnSpecs: SubprocessSpawnSpec[] = []
     vi.spyOn(ctx.subprocess, 'spawn').mockImplementation((spec) => {
       spawnSpecs.push(spec)
-      return spec.env?.QILIN_CLAUDE_INSTANCE === 'safe'
+      return spec.env?.DSH_CLAUDE_INSTANCE === 'safe'
         ? safeChild.handle
         : bypassChild.handle
     })
@@ -485,14 +509,14 @@ describe('task admission and package contracts', () => {
     const safeFiber = await ctx.plugin(claudeCode, {
       providerName: 'claude-safe',
       model: 'claude-safe-model',
-      env: { QILIN_CLAUDE_INSTANCE: 'safe' },
+      env: { DSH_CLAUDE_INSTANCE: 'safe' },
       permissionMode: 'dontAsk',
       disposeGraceMs: 11,
     })
     const bypassFiber = await ctx.plugin(claudeCode, {
       providerName: 'claude-bypass',
       model: 'claude-bypass-model',
-      env: { QILIN_CLAUDE_INSTANCE: 'bypass' },
+      env: { DSH_CLAUDE_INSTANCE: 'bypass' },
       permissionMode: 'bypassPermissions',
       disposeGraceMs: 29,
     })
@@ -501,26 +525,26 @@ describe('task admission and package contracts', () => {
 
     const safeController = new AbortController()
     const [safeRun, bypassRun] = await Promise.all([
-      ctx.subagents.start('claude-safe', request(undefined, safeController.signal)),
-      ctx.subagents.start('claude-bypass', request()),
+      startExternalActivation(ctx, 'claude-safe', request(undefined, safeController.signal)),
+      startExternalActivation(ctx, 'claude-bypass', request()),
     ])
     await safeFiber.dispose()
     expect(ctx.subagents.list()).toEqual(['claude-bypass'])
     expect(removed).toEqual(['claude-safe'])
-    await expect(ctx.subagents.start('claude-safe', request()))
+    await expect(startExternalActivation(ctx, 'claude-safe', request()))
       .rejects.toMatchObject({ code: 'NO_PROVIDER' })
 
     await expect(bypassRun.result).resolves.toEqual({
       output: [{ type: 'text', text: 'bypass answer' }],
       stopReason: 'completed',
     })
-    safeController.abort(new Error('stop only the safe instance'))
+    void safeRun.dispose()
     await expect(safeRun.result).resolves.toEqual({
       output: [],
       stopReason: 'aborted',
     })
     expect(queryOptions.map(options => ({
-      instance: options.env?.QILIN_CLAUDE_INSTANCE,
+      instance: options.env?.DSH_CLAUDE_INSTANCE,
       model: options.model,
       permissionMode: options.permissionMode,
     }))).toEqual([
@@ -528,7 +552,7 @@ describe('task admission and package contracts', () => {
       { instance: 'bypass', model: 'claude-bypass-model', permissionMode: 'bypassPermissions' },
     ])
     expect(spawnSpecs.map(spec => ({
-      instance: spec.env?.QILIN_CLAUDE_INSTANCE,
+      instance: spec.env?.DSH_CLAUDE_INSTANCE,
       graceMs: spec.graceMs,
     }))).toEqual([
       { instance: 'safe', graceMs: 11 },
@@ -600,7 +624,7 @@ describe('task admission and package contracts', () => {
     })
     claudeCode.apply(ctx, { env: {}, disposeGraceMs: 3_000 })
     expect(ctx.subagents.getProvider('claude-code')).toBeDefined()
-    const run = await ctx.subagents.start('claude-code', request())
+    const run = await startExternalActivation(ctx, 'claude-code', request())
     await expect(run.result).resolves.toEqual({
       output: [{ type: 'text', text: 'native model answer' }],
       stopReason: 'completed',
@@ -626,39 +650,12 @@ describe('task admission and package contracts', () => {
       model: 'claude-diagnostic-model',
       env: {
         ANTHROPIC_API_KEY: 'provider-fake-key',
-        CLAUDE_CONFIG_DIR: '/private/tmp/qilin-claude-code-unit-config',
-        HOME: '/private/tmp/qilin-claude-code-unit-home',
+        CLAUDE_CONFIG_DIR: '/private/tmp/dsh-claude-code-unit-config',
+        HOME: '/private/tmp/dsh-claude-code-unit-home',
       },
       permissionMode: 'auto',
       disposeGraceMs: 29,
     })
-
-    const invalidCwdParent = {
-      id: 'parent-with-invalid-cwd',
-      session: { header: { cwd: 'relative/SECRET_TOKEN' } },
-    } as Partial<Agent> as Agent
-    const invalidCwd = ctx.subagents.start('claude-diagnostic', {
-      ...request(),
-      parent: invalidCwdParent,
-    })
-    await expect(invalidCwd)
-      .rejects.toThrow(expectedFailureDiagnostic('query-start', 'unknown'))
-    await expect(invalidCwd).rejects.not.toThrow('relative/SECRET_TOKEN')
-    expect(warn).toHaveBeenCalledWith(
-      'subagent-claude-code "claude-diagnostic": child start failed: %o',
-      expect.any(Error),
-    )
-    expect(errorCause(warn.mock.calls[0]?.[1] as unknown)?.message)
-      .toContain('relative/SECRET_TOKEN')
-
-    const invalidCwdAbort = new AbortController()
-    invalidCwdAbort.abort(new Error('cancel invalid cwd startup'))
-    await expect(ctx.subagents.start('claude-diagnostic', {
-      ...request(undefined, invalidCwdAbort.signal),
-      parent: invalidCwdParent,
-    })).rejects.toThrow('cancel invalid cwd startup')
-    expect(queryMock).not.toHaveBeenCalled()
-    warn.mockClear()
 
     vi.stubEnv('PATH', '/host/bin')
     queryMock.mockImplementationOnce(() => {
@@ -666,7 +663,7 @@ describe('task admission and package contracts', () => {
         'Native CLI binary for fixture-platform not found. Reinstall @anthropic-ai/claude-agent-sdk without --omit=optional, or set options.pathToClaudeCodeExecutable.',
       )
     })
-    const missingPayload = ctx.subagents.start('claude-diagnostic', request())
+    const missingPayload = startExternalActivation(ctx, 'claude-diagnostic', request())
     await expect(missingPayload)
       .rejects.toThrow(expectedFailureDiagnostic('query-start', 'unknown'))
     await expect(missingPayload).rejects.not.toThrow('Native CLI binary')
@@ -680,7 +677,7 @@ describe('task admission and package contracts', () => {
       .toContain('Native CLI binary for fixture-platform not found')
     expect(resolveExecutable).not.toHaveBeenCalled()
 
-    const run = await ctx.subagents.start('claude-diagnostic', request())
+    const run = await startExternalActivation(ctx, 'claude-diagnostic', request())
     child.settle({ exitCode: 9, signal: null })
     child.stdout.end()
     await expect(run.result).resolves.toEqual({

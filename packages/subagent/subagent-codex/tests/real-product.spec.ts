@@ -1,3 +1,5 @@
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
+import { startExternalActivation } from '../../subagent/tests/external-activation-helpers.ts'
 import { execFile } from 'node:child_process'
 import {
   cpSync,
@@ -31,7 +33,6 @@ import {
   type ResponsesFixture,
 } from './responses-fixture.ts'
 import { cleanupRealProduct } from './real-product-cleanup.ts'
-import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 
 const execFileAsync = promisify(execFile)
 const packageRoot = resolve(fileURLToPath(new URL('..', import.meta.url)))
@@ -70,7 +71,7 @@ type ResponsesScript = readonly ResponsesBehavior[] | ((workspace: string) => re
 async function realInstanceFixture(
   script: ResponsesScript,
 ): Promise<RealInstanceFixture> {
-  const root = mkdtempSync(join(tmpdir(), 'qilin-codex-real-'))
+  const root = mkdtempSync(join(tmpdir(), 'dsh-codex-real-'))
   roots.push(root)
   const workspace = join(root, 'workspace')
   const codexHome = join(root, 'codex-home')
@@ -98,7 +99,7 @@ async function realInstanceFixture(
     '',
   ].join('\n'))
   const env = {
-    OPENAI_API_KEY: 'qilin-fake-openai-key',
+    OPENAI_API_KEY: 'dsh-fake-openai-key',
     CODEX_HOME: codexHome,
     HOME: root,
     XDG_CONFIG_HOME: join(root, 'xdg'),
@@ -222,7 +223,7 @@ describe('real @openai/codex 0.153.4 product', () => {
       env: { ...process.env, ...harness.env },
     })
     expect(version.stdout.trim()).toBe('codex-cli 0.153.4')
-    const schemaRoot = mkdtempSync(join(tmpdir(), 'qilin-codex-schema-'))
+    const schemaRoot = mkdtempSync(join(tmpdir(), 'dsh-codex-schema-'))
     roots.push(schemaRoot)
     await execFileAsync(process.execPath, [
       codexEntry,
@@ -244,7 +245,7 @@ describe('real @openai/codex 0.153.4 product', () => {
     })
     expect(schema.definitions.ThreadStartParams.required).toBeUndefined()
 
-    const run = await harness.ctx.subagents.start('codex', {
+    const run = await startExternalActivation(harness.ctx, 'codex', {
       prompt: [{ type: 'text', text: task }],
       parent: harness.parent,
       signal: new AbortController().signal,
@@ -266,14 +267,14 @@ describe('real @openai/codex 0.153.4 product', () => {
     const recorded = fixture.requests[0]!
     expect(recorded.method).toBe('POST')
     expect(recorded.path).toBe('/v1/responses')
-    expect(recorded.headers.authorization).toBe('Bearer qilin-fake-openai-key')
+    expect(recorded.headers.authorization).toBe('Bearer dsh-fake-openai-key')
     expect(recorded.body.model).toBe('fixture-model')
     expect(responseInputTexts(recorded.body)).toContain(task)
     await expectQuiescent(harness.handles)
   }, 60_000)
 
   it('fails a missing platform payload without falling back to a host codex', async () => {
-    const root = mkdtempSync(join(tmpdir(), 'qilin-codex-missing-payload-'))
+    const root = mkdtempSync(join(tmpdir(), 'dsh-codex-missing-payload-'))
     roots.push(root)
     const isolatedPackage = join(root, 'node_modules', '@openai', 'codex')
     mkdirSync(dirname(isolatedPackage), { recursive: true })
@@ -322,12 +323,12 @@ describe('real @openai/codex 0.153.4 product', () => {
     const safeController = new AbortController()
 
     const [safeRun, bypassRun] = await Promise.all([
-      ctx.subagents.start('codex-safe', {
+      startExternalActivation(ctx, 'codex-safe', {
         prompt: [{ type: 'text', text: 'Hold the safe instance.' }],
         parent: safeParent,
         signal: safeController.signal,
       }),
-      ctx.subagents.start('codex-bypass', {
+      startExternalActivation(ctx, 'codex-bypass', {
         prompt: [{ type: 'text', text: 'Complete the bypass instance.' }],
         parent: bypassParent,
         signal: new AbortController().signal,
@@ -336,7 +337,7 @@ describe('real @openai/codex 0.153.4 product', () => {
     await safeInstance.fixture.requestStarted
     await safeFiber.dispose()
     expect(ctx.subagents.list()).toEqual(['codex-bypass'])
-    await expect(ctx.subagents.start('codex-safe', {
+    await expect(startExternalActivation(ctx, 'codex-safe', {
       prompt: [{ type: 'text', text: 'This start must fail.' }],
       parent: safeParent,
       signal: new AbortController().signal,
@@ -346,7 +347,7 @@ describe('real @openai/codex 0.153.4 product', () => {
       output: [{ type: 'text', text: 'NAMED_CODEX_BYPASS_RESULT' }],
       stopReason: 'completed',
     })
-    safeController.abort(new Error('cancel only the published safe run'))
+    void safeRun.dispose()
     await expect(safeRun.result).resolves.toEqual({
       output: [],
       stopReason: 'aborted',
@@ -401,7 +402,7 @@ describe('real @openai/codex 0.153.4 product', () => {
       },
     ])
     const sideEffect = join(harness.workspace, 'approval-side-effect')
-    const run = await harness.ctx.subagents.start('codex', {
+    const run = await startExternalActivation(harness.ctx, 'codex', {
       prompt: [{ type: 'text', text: 'Attempt the fixture command.' }],
       parent: harness.parent,
       signal: new AbortController().signal,
@@ -425,7 +426,7 @@ describe('real @openai/codex 0.153.4 product', () => {
       tool.type === 'function' && tool.name === call.name
     )))).toBe(true)
     expect(fixture.requests.every(requestEntry =>
-      requestEntry.headers.authorization === 'Bearer qilin-fake-openai-key',
+      requestEntry.headers.authorization === 'Bearer dsh-fake-openai-key',
     )).toBe(true)
     await expectQuiescent(harness.handles)
   }, 60_000)
@@ -437,7 +438,7 @@ describe('real @openai/codex 0.153.4 product', () => {
         status: 503,
         message: 'SECRET_TOKEN in /private/secret.txt',
       }])
-      const run = await harness.ctx.subagents.start('codex', {
+      const run = await startExternalActivation(harness.ctx, 'codex', {
         prompt: [{ type: 'text', text: 'Exercise the service failure path.' }],
         parent: harness.parent,
         signal: new AbortController().signal,
@@ -454,7 +455,7 @@ describe('real @openai/codex 0.153.4 product', () => {
     }
     {
       const { harness, fixture } = await realHarness([{ kind: 'hold' }])
-      const run = await harness.ctx.subagents.start('codex', {
+      const run = await startExternalActivation(harness.ctx, 'codex', {
         prompt: [{ type: 'text', text: 'Exercise the process failure path.' }],
         parent: harness.parent,
         signal: new AbortController().signal,
@@ -500,7 +501,7 @@ describe('real @openai/codex 0.153.4 product', () => {
       ]
     }, 'dangerously-bypass-approvals-and-sandbox')
     const target = join(harness.workspace, sideEffect)
-    const run = await harness.ctx.subagents.start('codex', {
+    const run = await startExternalActivation(harness.ctx, 'codex', {
       prompt: [{ type: 'text', text: 'Create the fixture side effect.' }],
       parent: harness.parent,
       signal: new AbortController().signal,
@@ -518,13 +519,13 @@ describe('real @openai/codex 0.153.4 product', () => {
   it('settles cancellation locally and leaves the real app-server tree quiescent', async () => {
     const { harness, fixture } = await realHarness([{ kind: 'hold' }])
     const controller = new AbortController()
-    const run = await harness.ctx.subagents.start('codex', {
+    const run = await startExternalActivation(harness.ctx, 'codex', {
       prompt: [{ type: 'text', text: 'Wait for cancellation.' }],
       parent: harness.parent,
       signal: controller.signal,
     })
     await fixture.requestStarted
-    controller.abort(new Error('real product cancellation'))
+    void run.dispose()
     await expect(run.result).resolves.toMatchObject({ stopReason: 'aborted' })
     await run.dispose()
     await expectQuiescent(harness.handles)

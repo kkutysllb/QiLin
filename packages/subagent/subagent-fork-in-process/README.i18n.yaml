@@ -9,14 +9,14 @@
   en: 7cf0e37620e22522
   zh: b443e50dc2b48be2
 /qilin-agent-subagent-fork-in-process/summary:
-  en: d468db909aafeebc
-  zh: 50fa713dd0badd38
+  en: 97309f84ffe50ba9
+  zh: ce4121b0823b7c7f
 /qilin-agent-subagent-fork-in-process/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
 /qilin-agent-subagent-fork-in-process/use-this-package:
-  en: 38d0ff28f7e1ad67
-  zh: b50d60db2eac4eb7
+  en: 71affc798c840594
+  zh: 258a2932c3c04841
 /qilin-agent-subagent-fork-in-process/use-this-package/when-to-choose-it:
   en: 05090df7cc302c6a
   zh: bd988019ba062e0a
@@ -27,26 +27,26 @@
   en: 2991e26cbb054981
   zh: 283ec9733299ce57
 /qilin-agent-subagent-fork-in-process/use-this-package/what-a-fork-delegation-does:
-  en: 221626f65c2faf04
-  zh: dfa8200b5349340f
+  en: 461063deda821a1b
+  zh: 18d2d41d64884f22
 /qilin-agent-subagent-fork-in-process/understand-the-implementation:
   en: 6a0fe4b9cc780aaa
   zh: 50cd69ceb8296827
 /qilin-agent-subagent-fork-in-process/understand-the-implementation/design-concept:
-  en: 3917de9c152828e0
-  zh: 4c48bb580510ef0e
+  en: 49c8725fee5330ed
+  zh: 9050680f2011820a
 /qilin-agent-subagent-fork-in-process/understand-the-implementation/source-map:
   en: f1f45255fd9f71c1
   zh: 9a3f016b8fe9754a
 /qilin-agent-subagent-fork-in-process/understand-the-implementation/run-flow:
-  en: 59b82d0f46c21967
-  zh: aacc5455eaabc8f7
+  en: ef063b5c5542e129
+  zh: ba564c6b92453b44
 /qilin-agent-subagent-fork-in-process/understand-the-implementation/lifecycle-binding:
-  en: 063a978ac667b0fe
-  zh: d67d93e6e51b2a93
+  en: 8dad0155ed1b32d2
+  zh: f4d82d5ede03c4d7
 /qilin-agent-subagent-fork-in-process/further-exploration:
-  en: abf71eb88d386f45
-  zh: 8790441e9dabcb0f
+  en: c2982ca1d8a57a07
+  zh: 9054738d81c989bd
 /qilin-agent-subagent-fork-in-process/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
@@ -66,8 +66,8 @@
   en: 75d061c2151624a7
   zh: 71e58e020b60ff90
 /qilin-agent-subagent-fork-in-process/model-experience/parent-tool-result-indirectly/what-the-model-sees:
-  en: 88d59f48e6ae3ba7
-  zh: c8e78fee60e738f3
+  en: 54d10ba4da6cdece
+  zh: bb9cb4d685098483
 /qilin-agent-subagent-fork-in-process/model-experience/parent-tool-result-indirectly/token-effect:
   en: 8c81bab3c5d6a38a
   zh: 44c798432a4bfdfb
@@ -75,8 +75,8 @@
   en: f5d5f97a153f7c70
   zh: 3d6bc05b9eadfbc2
 /qilin-agent-subagent-fork-in-process/known-limitations-and-deferred-work:
-  en: ee9603cfadf23565
-  zh: 075f41e8ee83b93a
+  en: 7bdc464ac3108d28
+  zh: 6d94cdd487ab24a5
 /qilin-agent-subagent-fork-in-process/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

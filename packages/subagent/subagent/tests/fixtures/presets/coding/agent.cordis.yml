@@ -1,0 +1,4 @@
+# Agent-plane composition for the delegated-child schedule test: the child
+# mounts the real schedule tool registered as a loader builtin.
+- id: tool-schedule
+  name: cordis:tool-schedule

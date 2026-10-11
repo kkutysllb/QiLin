@@ -527,7 +527,7 @@ export type SessionAddress =
     readonly kind: 'subagent'
     readonly parentSessionId: SessionId
     readonly childSessionId: SessionId
-    readonly mode: 'one-shot' | 'continuable' | 'unknown'
+    readonly mode: 'one-shot' | 'continuable' | 'unknown' | 'external'
   }
 
 /** One non-activating Session projection read. */

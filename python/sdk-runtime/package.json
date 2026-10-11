@@ -98,7 +98,6 @@
     "@qilin-agent/subagent": "workspace:^",
     "@qilin-agent/subagent-acp": "workspace:^",
     "@qilin-agent/subagent-fork-in-process": "workspace:^",
-    "@qilin-agent/subagent-in-process-driver": "workspace:^",
     "@qilin-agent/subagent-spawn-in-process": "workspace:^",
     "@qilin-agent/subprocess": "workspace:^",
     "@qilin-agent/subprocess-local": "workspace:^",

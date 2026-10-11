@@ -570,6 +570,7 @@ export async function startClaudeCodeRun(
 
   return subprocessRunHandle({
     id: brandString<SessionId>(randomUUID()),
+    localAgent: undefined,
     result,
     signal: request.signal,
     onAbort,

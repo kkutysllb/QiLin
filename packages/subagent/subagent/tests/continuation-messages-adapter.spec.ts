@@ -1,3 +1,4 @@
+import { mountWorkingDirectoryFixture } from './working-directory-fixture.ts'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -14,10 +15,9 @@ import * as SubagentSpawn from '@qilin-agent/subagent-spawn-in-process'
 import { end, MODEL, server, sse, start } from '../../../llm/llm-deepseek/tests/helpers.ts'
 import SubagentRuntime, { type SubagentRunEndInfo } from '../src/index.ts'
 import { loadStoredSession } from './persistence-helpers.ts'
-import { mountWorkingDirectoryFixture } from './working-directory-fixture.ts'
 
 it('continues the parent through default Messages after a reasoning-bearing continuable child settles', async () => {
-  const root = mkdtempSync(join(tmpdir(), 'qilin-settlement-messages-'))
+  const root = mkdtempSync(join(tmpdir(), 'dsh-settlement-messages-'))
   const ctx = new Context()
   let http: Awaited<ReturnType<typeof server>> | undefined
   try {
@@ -42,7 +42,7 @@ it('continues the parent through default Messages after a reasoning-bearing cont
       resolveUserId: () => '00000000-0000-4000-8000-000000000001' as AnonymousUserId,
       prepareExtensions: () => Promise.resolve({ fields: {}, accept: () => Promise.resolve() }),
     })
-    await mountAgentLoopTestDependencies(ctx)
+    await mountAgentLoopTestDependencies(ctx, { workingDirectory: true })
     await ctx.plugin(JsonlSessionPersistence, { root })
     await ctx.plugin(AgentLoop, { agents: [] })
     await mountWorkingDirectoryFixture(ctx)
@@ -57,7 +57,8 @@ it('continues the parent through default Messages after a reasoning-bearing cont
       settled.resolve(undefined)
     })
 
-    const started = await ctx.subagents.startContinuable({
+    const started = await ctx.subagents.startActivation({
+      delivery: 'parent',
       provider: 'spawn',
       label: 'child task',
       request: { parent, prompt: [{ type: 'text', text: 'child task' }] },
@@ -77,12 +78,21 @@ it('continues the parent through default Messages after a reasoning-bearing cont
     expect(requests).toHaveLength(2)
     expect(requests.map(request => request.path)).toEqual(['/anthropic/v1/messages', '/anthropic/v1/messages'])
     const notice = parent.session.deriveMessages().find(message => message.source.kind === 'subagent-settled')
-    expect(notice?.content).toEqual([
+    const closingContent = [
       { type: 'text', text: `Background subagent ${started.childId} finished and will do no further work unless you send it more.` },
       { type: 'text', text: 'Its closing message:' },
       { type: 'text', text: 'child answer' },
-    ])
-    expect(requests[1]?.body).toMatchObject({ messages: [{ role: 'user', content: notice?.content }] })
+    ]
+    expect(notice?.content).toEqual(closingContent)
+    const noticeWithContext = [
+      ...closingContent,
+      {
+        type: 'text',
+        text: 'Current runtime context. This snapshot supersedes earlier runtime-context snapshots.\n\n'
+          + `Current working directory: ${JSON.stringify(process.cwd())}.`,
+      },
+    ]
+    expect(requests[1]?.body).toMatchObject({ messages: [{ role: 'user', content: noticeWithContext }] })
 
     parent.followup(createUserMessage({ source: { kind: 'user' }, content: [{ type: 'text', text: 'continue' }] }))
     await parent.whenIdle()
@@ -90,7 +100,7 @@ it('continues the parent through default Messages after a reasoning-bearing cont
       .toMatchObject([{ data: { reason: { kind: 'completed' } } }, { data: { reason: { kind: 'completed' } } }])
     expect(requests).toHaveLength(3)
     expect(requests[2]?.body).toMatchObject({ messages: [
-      { role: 'user', content: notice?.content },
+      { role: 'user', content: noticeWithContext },
       { role: 'assistant', content: [{ type: 'text', text: 'parent answer' }] },
       { role: 'user', content: [{ type: 'text', text: 'continue' }] },
     ] })

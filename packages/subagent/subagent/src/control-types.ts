@@ -44,6 +44,12 @@ export type SubagentCatalogRow =
       /** Durable creation label from the owning catalog or child descriptor. */
       readonly label: string
     }
+    | {
+      /** An execution owned by an external backend, with no local child Session. */
+      readonly mode: 'external'
+      /** Optional durable creation label from the owning catalog. */
+      readonly label?: string
+    }
   )
 
 /**
@@ -73,7 +79,11 @@ export type SubagentListEntry =
     readonly reason: 'corrupt' | 'unsupported' | 'unavailable'
   }
 
-/** Durable parent/child browsing address; unknown mode is resolved when child history is read. */
+/**
+ * Durable parent/child browsing address; unknown mode is resolved when child
+ * history is read. An external execution has no local child Session, so its
+ * address names the provider-owned execution rather than a browsable log.
+ */
 export type SubagentAddress =
   & {
     readonly parentSessionId: SessionId
@@ -83,7 +93,12 @@ export type SubagentAddress =
     | { readonly mode: 'one-shot' }
     | { readonly mode: 'continuable' }
     | { readonly mode: 'unknown' }
+    | { readonly mode: 'external' }
   )
+
+/** One human message addressed to a continuable direct child. */
+/** How one accepted message reaches its target's inbox. */
+export type SubagentDelivery = SubagentPromptRequest['delivery']
 
 /** One human message addressed to a continuable direct child. */
 export interface SubagentPromptRequest {

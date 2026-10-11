@@ -596,11 +596,12 @@ describe('qilin-tool-team', () => {
     toolTeam.apply(ctx, {})
     expect((await assembly(ctx, lead)).tools.map(schema => schema.name).filter(name => TOOL_NAMES.includes(name)).sort())
       .toEqual(TOOL_NAMES)
-    const ordinary = await ctx.subagents.startContinuable({
+    const ordinary = await ctx.subagents.startActivation({
       provider: 'spawn',
       label: 'ordinary child',
       request: { prompt: [{ type: 'text', text: 'finish' }], parent: lead },
       signal: SIGNAL,
+      delivery: 'parent',
     })
     await vi.waitFor(() => { expect(ctx.agents.get(ordinary.childId)).toBeUndefined() }, { timeout: 5_000 })
   })

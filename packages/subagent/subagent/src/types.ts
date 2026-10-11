@@ -14,7 +14,6 @@ import type { Branded } from '@qilin-agent/brand'
 import type { ContentBlock, MessageId } from '@qilin-agent/llm'
 import type { SessionEvent, SessionId } from '@qilin-agent/session'
 import type { ObjectJsonSchema, ToolRestriction } from '@qilin-agent/tools'
-import type { SubagentDescriptorData } from './descriptor.ts'
 
 /** Identifies one accepted subagent run across its lifecycle event pair. */
 export type SubagentRunId = Branded<'SubagentRunId'>
@@ -44,7 +43,7 @@ export interface ContinuableStartSpec {
    * The delegation request. The manager reserves the stable child id, resolves
    * the durable descriptor, and composes the child itself.
    */
-  readonly request: Omit<SubagentStartRequest, 'label' | 'signal' | 'outputSchema'>
+  readonly request: Omit<SubagentStartRequest, 'label' | 'signal'>
   /** Caller cancellation, owning the operation only until inbox acceptance. */
   readonly signal: AbortSignal
 }
@@ -158,7 +157,7 @@ export interface SubagentActivationSpec {
    * The delegation request. Continuable children take no `outputSchema`, so
    * the request omits it along with the label and signal this spec carries.
    */
-  readonly request: Omit<SubagentStartRequest, 'label' | 'signal' | 'outputSchema'>
+  readonly request: Omit<SubagentStartRequest, 'label' | 'signal'>
   /** Caller cancellation, owning the operation only until inbox acceptance. */
   readonly signal: AbortSignal
   /**
@@ -253,8 +252,6 @@ export interface SubagentStartRequest {
 export interface ResolvedSubagentStartRequest extends SubagentStartRequest {
   /** Absolute directory selected once before provider startup. */
   readonly cwd: string
-  /** Detached descriptor a session-backed provider persists in the child log. */
-  readonly descriptor: SubagentDescriptorData
 }
 
 /**
@@ -420,7 +417,7 @@ export interface SubagentProvider {
    * the returned run. Distinct starts may overlap; cancellation, failure,
    * result settlement, and disposal remain independent for each run.
    */
-  start(request: ResolvedSubagentStartRequest): Promise<SubagentRun>
+  start?(request: ResolvedSubagentStartRequest): Promise<SubagentRun>
   /**
    * OPTIONAL (continuable-creation capability): contribute the detached
    * creation inputs that distinguish this provider's continuable children —

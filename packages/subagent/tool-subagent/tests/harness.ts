@@ -1,26 +1,30 @@
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
+import { afterEach } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
-import LlmRuntime, { ToolCallId } from '@qilin-agent/llm'
-import SystemPrompt from '@qilin-agent/system-prompt'
-import ToolRuntime from '@qilin-agent/tools'
+import { ToolCallId } from '@qilin-agent/llm'
 import type { Agent, AgentOptions } from '@qilin-agent/agent'
 import AgentLoop from '@qilin-agent/agent-loop'
 import { mountAgentLoopTestDependencies } from '@qilin-agent/agent-loop-testkit'
 import SubagentRuntime from '@qilin-agent/subagent'
-import { Session, SessionId } from '@qilin-agent/session'
-import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import { SessionId } from '@qilin-agent/session'
 import * as mock from './scripted-provider.ts'
 import * as tool from '../src/index.ts'
 import SubagentModelSelectionConfig from '../src/model-selection-settings.ts'
-import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
+
+const contexts = new Set<Context>()
+afterEach(async () => {
+  for (const ctx of contexts) await ctx.fiber.dispose()
+  contexts.clear()
+})
+
+/** Register a test context for awaited teardown. */
+export function ownContext(ctx: Context): Context {
+  contexts.add(ctx)
+  return ctx
+}
 
 /** Shared non-aborted tool signal for package-local integration tests. */
 export const testToolSignal = new AbortController().signal
-
-/** Build the minimal parent Agent owned by the package-local scripted provider. */
-export function fakeAgent(id = 'parent-1'): Agent {
-  const sessionId = SessionId(id)
-  return { id: sessionId, options: {}, session: Session.create(sessionId) } as Partial<Agent> as Agent
-}
 
 /** Mount the real tool and service stack around one scripted subagent provider. */
 const setupAgents = new WeakMap<Context, Agent>()
@@ -43,7 +47,7 @@ const TEST_ALLOWED_MODELS = [
 ])
 
 export async function setup(toolConfig: SetupConfig, mockConfig: Partial<mock.Config> = {}): Promise<Context> {
-  const ctx = new Context()
+  const ctx = ownContext(new Context())
   const { withModelSelection, parentAgentOptions, ...config } = toolConfig
   if (withModelSelection === true) {
     await ctx.plugin(SubagentModelSelectionConfig, {
@@ -69,15 +73,15 @@ export async function setup(toolConfig: SetupConfig, mockConfig: Partial<mock.Co
     setupAgents.set(ctx, handle.agent)
     return ctx
   }
-  await ctx.plugin(LlmRuntime)
-  await ctx.plugin(SystemPrompt)
-  await ctx.plugin(ToolRuntime)
+  await mountAgentLoopTestDependencies(ctx)
+  await ctx.plugin(AgentLoop, { agents: [] })
   await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(SubagentRuntime)
-  await ctx.plugin(SessionProjectionRegistry)
   const provider = await mock.mountScriptedProvider(ctx, { name: 'mock', ...mockConfig })
   setupProviders.set(ctx, provider)
   await ctx.plugin(tool, config)
+  const handle = await ctx.agents.create({ sessionId: SessionId(`tool-setup-${++setupAgentCounter}`) })
+  setupAgents.set(ctx, handle.agent)
   return ctx
 }
 
@@ -99,7 +103,7 @@ export function modelSelectionSetupAgent(ctx: Context): Agent {
 let callCounter = 0
 
 /** Execute the registered subagent tool through the real ToolRuntime pipeline. */
-export function callSubagent(
+export async function callSubagent(
   ctx: Context,
   args: unknown,
   over: { agent?: Agent | undefined; signal?: AbortSignal } = {},
@@ -107,7 +111,8 @@ export function callSubagent(
   // Distinguish "no override" (use a default agent) from an explicit
   // `{ agent: undefined }` (test the no-agent path). Under
   // exactOptionalPropertyTypes the key is omitted rather than set to undefined.
-  const agent = 'agent' in over ? over.agent : setupAgents.get(ctx) ?? fakeAgent()
+  const agent = 'agent' in over ? over.agent : setupAgents.get(ctx)
+    ?? (await ctx.agents.create({ sessionId: SessionId(`tool-call-parent-${++setupAgentCounter}`) })).agent
   return ctx.tools.execute({
     signal: testToolSignal,
     callId: ToolCallId(`call-${++callCounter}`),

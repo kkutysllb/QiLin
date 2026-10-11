@@ -1234,7 +1234,6 @@ describe('out-of-process delegation boundary', () => {
     await ctx.plugin(ToolSubagent, {
       provider: 'remote-boundary',
       toolName: 'delegate_remote',
-      enableRunInBackground: false,
       maxDepth: 'provider-managed',
     })
 

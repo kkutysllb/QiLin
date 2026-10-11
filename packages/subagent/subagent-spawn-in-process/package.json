@@ -31,7 +31,6 @@
   "license": "MIT",
   "peerDependencies": {
     "@qilin-agent/subagent": "workspace:*",
-    "@qilin-agent/subagent-in-process-driver": "workspace:*",
     "@qilin-agent/kylin": "workspace:~"
   },
   "dependencies": {
@@ -49,7 +48,6 @@
     "@qilin-agent/llm-deepseek-api-key": "workspace:*",
     "@qilin-agent/session": "workspace:*",
     "@qilin-agent/subagent": "workspace:*",
-    "@qilin-agent/subagent-in-process-driver": "workspace:*",
     "@qilin-agent/tool-bash": "workspace:*",
     "@qilin-agent/tool-subagent": "workspace:*",
     "@qilin-agent/kylin": "workspace:~",

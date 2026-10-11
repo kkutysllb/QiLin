@@ -1,3 +1,4 @@
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 import { describe, expect, it, vi } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
 import LlmRuntime, {
@@ -18,7 +19,6 @@ import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import * as tool from '../src/index.ts'
 import { registerListSubagentModels } from '../src/list-models.ts'
 import { testToolSignal, text } from './harness.ts'
-import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 
 class CatalogAdapter extends LlmAdapter {
   constructor(private readonly empty = false) {

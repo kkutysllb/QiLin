@@ -1,3 +1,5 @@
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
+import { startExternalActivation } from '../../subagent/tests/external-activation-helpers.ts'
 import { execFile } from 'node:child_process'
 import { randomUUID } from 'node:crypto'
 import {
@@ -12,13 +14,12 @@ import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { Context } from '@qilin-agent/kylin'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { Agent } from '@qilin-agent/agent'
+import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@qilin-agent/agent-loop-testkit'
 import SubagentRuntime from '@qilin-agent/subagent'
-import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import { SessionId } from '@qilin-agent/session'
 import type { SubprocessHandle } from '@qilin-agent/subprocess'
 import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
 import * as claudeCode from '../src/index.ts'
-import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 
 const execFileAsync = promisify(execFile)
 const OFFICIAL_DEEPSEEK_MESSAGES_BASE_URL = 'https://api.deepseek.com/anthropic'
@@ -63,7 +64,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)(
     it('returns one unique nonce through the production provider and real SDK/CLI', async () => {
       const apiKey = process.env.DEEPSEEK_API_KEY
       if (apiKey === undefined) throw new Error('e2e ran without DEEPSEEK_API_KEY')
-      const root = mkdtempSync(join(tmpdir(), 'qilin-claude-deepseek-e2e-'))
+      const root = mkdtempSync(join(tmpdir(), 'dsh-claude-deepseek-e2e-'))
       roots.push(root)
       const workspace = join(root, 'workspace')
       const claudeConfig = join(root, 'claude-config')
@@ -106,7 +107,8 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)(
       }
       const ctx = new Context()
       contexts.push(ctx)
-      await ctx.plugin(SessionProjectionRegistry)
+      await mountAgentLoopTestDependencies(ctx, { workingDirectory: true })
+      const harness = await mountAgentLoopTestHarness(ctx)
       await mountWorkingDirectoryFixture(ctx)
       await ctx.plugin(SubagentRuntime)
       await ctx.plugin(LocalSubprocessRuntime)
@@ -127,12 +129,9 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)(
       })
       expect(version.stdout.trim()).toBe('2.1.263 (Claude Code)')
 
-      const nonce = `QILIN_CLAUDE_DEEPSEEK_${randomUUID()}`
-      const parent = {
-        id: 'deepseek-e2e-parent',
-        session: { header: { cwd: workspace } },
-      } as Partial<Agent> as Agent
-      const run = await ctx.subagents.start('claude-code', {
+      const nonce = `DSH_CLAUDE_DEEPSEEK_${randomUUID()}`
+      const parent = await harness.create(SessionId('deepseek-e2e-parent'), {}, { cwd: workspace })
+      const run = await startExternalActivation(ctx, 'claude-code', {
         prompt: [{
           type: 'text',
           text: `Reply with exactly ${nonce} and nothing else. Do not use tools.`,

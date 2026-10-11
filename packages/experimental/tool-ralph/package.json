@@ -49,7 +49,6 @@
     "@qilin-agent/llm": "workspace:*",
     "@qilin-agent/session": "workspace:*",
     "@qilin-agent/subagent": "workspace:*",
-    "@qilin-agent/subagent-in-process-driver": "workspace:*",
     "@qilin-agent/subagent-spawn-in-process": "workspace:*",
     "@qilin-agent/system-prompt": "workspace:*",
     "@qilin-agent/tools": "workspace:*",

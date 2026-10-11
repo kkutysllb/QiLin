@@ -144,11 +144,12 @@ describe.skipIf(MODE === 'record')('web e2e: composer interrupt for a running co
     if (root === undefined) throw new Error('fresh workspace did not publish its parent Agent')
     parent = root
     // The child's first model call claims the primary override and holds.
-    const started = await scaffold.ctx.subagents.startContinuable({
+    const started = await scaffold.ctx.subagents.startActivation({
       provider: 'spawn',
       label: LABEL,
       signal: new AbortController().signal,
       request: { prompt: [{ type: 'text', text: INITIAL }], parent },
+      delivery: 'parent',
     })
     childId = started.childId
     await waitFor(() => existsSync(readyFile), 'the held child turn to open')

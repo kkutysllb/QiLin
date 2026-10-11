@@ -22,7 +22,7 @@ import { assistantUpdates, toolCallUpdate, toolResultUpdate } from './updates.ts
 /** The continuable-subagent teardown used without depending on the subagent package. */
 interface ContinuableDrain {
   /** Dispose continuable descendants below exact host-owned parents child-first. */
-  drainContinuableDescendants(parents: readonly Agent[]): Promise<void>
+  drainDescendants(parents: readonly Agent[]): Promise<void>
 }
 
 /** Inputs shared by fresh and resumed ACP session construction. */
@@ -441,7 +441,7 @@ export class AcpSession {
       }
       const subagents = this.ctx.get('subagents') as ContinuableDrain | undefined
       try {
-        await subagents?.drainContinuableDescendants([this.agent])
+        await subagents?.drainDescendants([this.agent])
       } catch (error: unknown) {
         this.ctx.logger.warn(`acp: continuable subagent teardown failed: ${errorChain(error)}`)
         failures.push(new Error('continuable subagent teardown failed', { cause: error }))

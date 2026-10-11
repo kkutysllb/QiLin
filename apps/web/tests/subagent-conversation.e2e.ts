@@ -138,7 +138,7 @@ describe('web e2e: persisted subagent conversation and human continuation', () =
     await parentInput.press('Enter')
     expect(await parentSettled).toBe(parent.id)
 
-    const started = await scaffold.ctx.subagents.startContinuable({
+    const started = await scaffold.ctx.subagents.startActivation({
       provider: 'spawn',
       label: LABEL,
       signal: new AbortController().signal,
@@ -146,6 +146,7 @@ describe('web e2e: persisted subagent conversation and human continuation', () =
         prompt: [{ type: 'text', text: INITIAL_PROMPT }],
         parent,
       },
+      delivery: 'parent',
     })
     childId = started.childId
     await waitForAgentToSettle(scaffold, childId)

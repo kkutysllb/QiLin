@@ -8543,9 +8543,6 @@ importers:
       '@qilin-agent/subagent':
         specifier: workspace:*
         version: link:../../subagent/subagent
-      '@qilin-agent/subagent-in-process-driver':
-        specifier: workspace:*
-        version: link:../../subagent/subagent-in-process-driver
       '@qilin-agent/subagent-spawn-in-process':
         specifier: workspace:*
         version: link:../../subagent/subagent-spawn-in-process
@@ -10448,7 +10445,7 @@ importers:
     dependencies:
       '@earendil-works/pi-ai':
         specifier: ^0.87.1
-        version: 0.87.1(patch_hash=8d2124ebfa4da1573a898b30af860bcfee51f99296d4c13f380e031f0d09f185)(@modelcontextprotocol/sdk@1.29.0(zod@4.4.3))(supports-color@9.4.0)(ws@8.21.0)(zod@4.4.3)
+        version: 0.87.1(patch_hash=8d2124ebfa4da1573a898b30af860bcfee51f99296d4c13f380e031f0d09f185)(@modelcontextprotocol/sdk@1.32.1(zod@4.4.3))(supports-color@9.4.0)(ws@8.21.0)(zod@4.4.3)
       '@qilin-agent/brand':
         specifier: workspace:*
         version: link:../../util/brand
@@ -13191,19 +13188,22 @@ importers:
     dependencies:
       '@anthropic-ai/claude-agent-sdk':
         specifier: 0.3.263
-        version: 0.3.263(@anthropic-ai/sdk@0.93.0(zod@4.4.3))(@modelcontextprotocol/sdk@1.29.0(zod@4.4.3))(zod@4.4.3)
+        version: 0.3.263(@anthropic-ai/sdk@0.93.0(zod@4.4.3))(@modelcontextprotocol/sdk@1.32.1(zod@4.4.3))(zod@4.4.3)
       '@anthropic-ai/sdk':
         specifier: 0.93.0
         version: 0.93.0(zod@4.4.3)
       '@modelcontextprotocol/sdk':
-        specifier: ^1.29.0
-        version: 1.29.0(zod@4.4.3)
+        specifier: ^1.31.0
+        version: 1.32.1(zod@4.4.3)
       '@qilin-agent/brand':
         specifier: workspace:*
         version: link:../../util/brand
       '@qilin-agent/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin-agent/tool-subagent':
+        specifier: workspace:*
+        version: link:../tool-subagent
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -13253,9 +13253,6 @@ importers:
       '@qilin-agent/tool-jobs':
         specifier: workspace:*
         version: link:../../jobs/tool-jobs
-      '@qilin-agent/tool-subagent':
-        specifier: workspace:*
-        version: link:../tool-subagent
       '@qilin-agent/tools':
         specifier: workspace:*
         version: link:../../core/tools
@@ -13274,6 +13271,9 @@ importers:
       '@qilin-agent/sdk-protocol':
         specifier: workspace:*
         version: link:../../sdk/protocol
+      '@qilin-agent/tool-subagent':
+        specifier: workspace:*
+        version: link:../tool-subagent
     devDependencies:
       '@qilin-agent/agent':
         specifier: workspace:*
@@ -13320,9 +13320,6 @@ importers:
       '@qilin-agent/tool-jobs':
         specifier: workspace:*
         version: link:../../jobs/tool-jobs
-      '@qilin-agent/tool-subagent':
-        specifier: workspace:*
-        version: link:../tool-subagent
       '@qilin-agent/tools':
         specifier: workspace:*
         version: link:../../core/tools
@@ -13360,73 +13357,9 @@ importers:
       '@qilin-agent/subagent':
         specifier: workspace:*
         version: link:../subagent
-      '@qilin-agent/subagent-in-process-driver':
-        specifier: workspace:*
-        version: link:../subagent-in-process-driver
       '@qilin-agent/subagent-spawn-in-process':
         specifier: workspace:*
         version: link:../subagent-spawn-in-process
-
-  packages/subagent/subagent-in-process-driver:
-    dependencies:
-      '@qilin-agent/brand':
-        specifier: workspace:*
-        version: link:../../util/brand
-    devDependencies:
-      '@qilin-agent/agent':
-        specifier: workspace:*
-        version: link:../../core/agent
-      '@qilin-agent/agent-loop':
-        specifier: workspace:*
-        version: link:../../core/agent-loop
-      '@qilin-agent/agent-loop-testkit':
-        specifier: workspace:*
-        version: link:../../test-support/agent-loop-testkit
-      '@qilin-agent/agent-presets':
-        specifier: workspace:*
-        version: link:../../preset/agent-presets
-      '@qilin-agent/fs-sandbox':
-        specifier: workspace:*
-        version: link:../../fs/fs-sandbox
-      '@qilin-agent/kylin':
-        specifier: workspace:~
-        version: link:../../../vendor/cordis
-      '@qilin-agent/kylin-plugin-include':
-        specifier: workspace:~
-        version: link:../../../vendor/include
-      '@qilin-agent/kylin-plugin-loader':
-        specifier: workspace:~
-        version: link:../../../vendor/loader
-      '@qilin-agent/llm':
-        specifier: workspace:*
-        version: link:../../llm/llm
-      '@qilin-agent/sandbox-policy':
-        specifier: workspace:*
-        version: link:../../sandbox/sandbox-policy
-      '@qilin-agent/session':
-        specifier: workspace:*
-        version: link:../../core/session
-      '@qilin-agent/session-projection':
-        specifier: workspace:*
-        version: link:../../session/session-projection
-      '@qilin-agent/subagent':
-        specifier: workspace:*
-        version: link:../subagent
-      '@qilin-agent/system-prompt':
-        specifier: workspace:*
-        version: link:../../core/system-prompt
-      '@qilin-agent/tool-fs':
-        specifier: workspace:*
-        version: link:../../fs/tool-fs
-      '@qilin-agent/tools':
-        specifier: workspace:*
-        version: link:../../core/tools
-      '@qilin-agent/user-approval':
-        specifier: workspace:*
-        version: link:../../interaction/user-approval
-      '@qilin-agent/working-directory':
-        specifier: workspace:*
-        version: link:../../session/working-directory
 
   packages/subagent/subagent-qilin-sdk:
     dependencies:
@@ -13537,9 +13470,6 @@ importers:
       '@qilin-agent/subagent':
         specifier: workspace:*
         version: link:../subagent
-      '@qilin-agent/subagent-in-process-driver':
-        specifier: workspace:*
-        version: link:../subagent-in-process-driver
       '@qilin-agent/subprocess-local':
         specifier: workspace:*
         version: link:../../subprocess/subprocess-local
@@ -15102,9 +15032,6 @@ importers:
       '@qilin-agent/subagent-fork-in-process':
         specifier: workspace:^
         version: link:../../packages/subagent/subagent-fork-in-process
-      '@qilin-agent/subagent-in-process-driver':
-        specifier: workspace:^
-        version: link:../../packages/subagent/subagent-in-process-driver
       '@qilin-agent/subagent-spawn-in-process':
         specifier: workspace:^
         version: link:../../packages/subagent/subagent-spawn-in-process
@@ -16968,6 +16895,16 @@ packages:
 
   '@modelcontextprotocol/sdk@1.29.0':
     resolution: {integrity: sha512-zo37mZA9hJWpULgkRpowewez1y6ML5GsXJPY8FI0tBBCd77HEvza4jDqRKOXgHNn867PVGCyTdzqpz0izu5ZjQ==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@cfworker/json-schema': ^4.1.1
+      zod: ^3.25 || ^4.0
+    peerDependenciesMeta:
+      '@cfworker/json-schema':
+        optional: true
+
+  '@modelcontextprotocol/sdk@1.32.1':
+    resolution: {integrity: sha512-2DdE+SJDtzLEEWzY1ZjY7Q+VcPhcV1KisD3zI4u0XZyktsjHum1mwbMI+JaulUBi2OZk+KJAi2uPXzxichPkdw==}
     engines: {node: '>=18'}
     peerDependencies:
       '@cfworker/json-schema': ^4.1.1
@@ -22404,10 +22341,10 @@ snapshots:
   '@anthropic-ai/claude-agent-sdk-win32-x64@0.3.263':
     optional: true
 
-  '@anthropic-ai/claude-agent-sdk@0.3.263(@anthropic-ai/sdk@0.93.0(zod@4.4.3))(@modelcontextprotocol/sdk@1.29.0(zod@4.4.3))(zod@4.4.3)':
+  '@anthropic-ai/claude-agent-sdk@0.3.263(@anthropic-ai/sdk@0.93.0(zod@4.4.3))(@modelcontextprotocol/sdk@1.32.1(zod@4.4.3))(zod@4.4.3)':
     dependencies:
       '@anthropic-ai/sdk': 0.93.0(zod@4.4.3)
-      '@modelcontextprotocol/sdk': 1.29.0(zod@4.4.3)
+      '@modelcontextprotocol/sdk': 1.32.1(zod@4.4.3)
       zod: 4.4.3
     optionalDependencies:
       '@anthropic-ai/claude-agent-sdk-darwin-arm64': 0.3.263
@@ -23029,12 +22966,12 @@ snapshots:
     transitivePeerDependencies:
       - '@algolia/client-search'
 
-  '@earendil-works/pi-ai@0.87.1(patch_hash=8d2124ebfa4da1573a898b30af860bcfee51f99296d4c13f380e031f0d09f185)(@modelcontextprotocol/sdk@1.29.0(zod@4.4.3))(supports-color@9.4.0)(ws@8.21.0)(zod@4.4.3)':
+  '@earendil-works/pi-ai@0.87.1(patch_hash=8d2124ebfa4da1573a898b30af860bcfee51f99296d4c13f380e031f0d09f185)(@modelcontextprotocol/sdk@1.32.1(zod@4.4.3))(supports-color@9.4.0)(ws@8.21.0)(zod@4.4.3)':
     dependencies:
       '@anthropic-ai/sdk': 0.124.0(zod@4.4.3)
       '@aws-sdk/client-bedrock-runtime': 3.1127.0
       '@earendil-works/pi-telemetry': 0.87.1
-      '@google/genai': 2.21.0(@modelcontextprotocol/sdk@1.29.0(zod@4.4.3))(supports-color@9.4.0)
+      '@google/genai': 2.21.0(@modelcontextprotocol/sdk@1.32.1(zod@4.4.3))(supports-color@9.4.0)
       '@smithy/node-http-handler': 4.12.1
       http-proxy-agent: 9.1.0(supports-color@9.4.0)
       https-proxy-agent: 9.1.0(supports-color@9.4.0)
@@ -23396,14 +23333,14 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       regenerator-runtime: 0.14.1
 
-  '@google/genai@2.21.0(@modelcontextprotocol/sdk@1.29.0(zod@4.4.3))(supports-color@9.4.0)':
+  '@google/genai@2.21.0(@modelcontextprotocol/sdk@1.32.1(zod@4.4.3))(supports-color@9.4.0)':
     dependencies:
       google-auth-library: 10.7.0(supports-color@9.4.0)
       p-retry: 4.6.2
       protobufjs: 7.6.4
       ws: 8.21.0
     optionalDependencies:
-      '@modelcontextprotocol/sdk': 1.29.0(zod@4.4.3)
+      '@modelcontextprotocol/sdk': 1.32.1(zod@4.4.3)
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -23857,6 +23794,28 @@ snapshots:
       hono: 4.12.29
 
   '@modelcontextprotocol/sdk@1.29.0(zod@4.4.3)':
+    dependencies:
+      '@hono/node-server': 1.19.14(hono@4.12.29)
+      ajv: 8.20.0
+      ajv-formats: 3.0.1(ajv@8.20.0)
+      content-type: 1.0.5
+      cors: 2.8.6
+      cross-spawn: 7.0.6
+      eventsource: 3.0.7
+      eventsource-parser: 3.1.0
+      express: 5.2.1
+      express-rate-limit: 8.5.2(express@5.2.1)
+      hono: 4.12.29
+      jose: 6.2.3
+      json-schema-typed: 8.0.2
+      pkce-challenge: 5.0.1
+      raw-body: 3.0.2
+      zod: 4.4.3
+      zod-to-json-schema: 3.25.2(zod@4.4.3)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@modelcontextprotocol/sdk@1.32.1(zod@4.4.3)':
     dependencies:
       '@hono/node-server': 1.19.14(hono@4.12.29)
       ajv: 8.20.0

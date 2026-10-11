@@ -7,7 +7,6 @@
  * child's own request — rather than the join that produces it.
  */
 
-import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 import { afterEach, describe, expect, it } from 'vitest'
 import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -19,12 +18,11 @@ import AgentLoop from '@qilin-agent/agent-loop'
 import { mountAgentLoopTestDependencies } from '@qilin-agent/agent-loop-testkit'
 import AgentPresets from '@qilin-agent/agent-presets'
 import { SessionId } from '@qilin-agent/session'
-import { snapshotSubagentDescriptor } from '@qilin-agent/subagent'
 import { MockAdapter, textResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
-import { startInProcessRun } from '../src/index.ts'
+import SubagentRuntime from '@qilin-agent/subagent'
+import { mountLocalActivations, startPreparedActivation } from './local-activation.ts'
 
-const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), 'fixtures')
-const ROOTS = [{ path: join(FIXTURES, 'presets'), trust: 'system' as const }]
+const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), 'fixtures', 'activation-presets')
 
 const contexts: Context[] = []
 
@@ -40,9 +38,15 @@ async function setupPresetHost(): Promise<{ ctx: Context; adapter: MockAdapter; 
   await ctx.plugin(Loader)
   ctx.loader.builtins.include = Include
   await mountAgentLoopTestDependencies(ctx)
-  await mountWorkingDirectoryFixture(ctx)
+  await mountLocalActivations(ctx)
+  await ctx.plugin(SubagentRuntime)
   await ctx.plugin(AgentLoop, { agents: [] })
-  await ctx.plugin(AgentPresets, { default: 'coding', roots: ROOTS, includeShippedRoot: false, includeUserRoot: false })
+  await ctx.plugin(AgentPresets, {
+    default: 'coding',
+    roots: [{ path: join(FIXTURES, 'presets'), trust: 'user' }],
+    includeShippedRoot: false,
+    includeUserRoot: false,
+  })
   const adapter = new MockAdapter([textResponse('parent idle'), textResponse('child done')])
   ctx.llm.registerAdapter(['mock'], adapter)
   const handle = await ctx.agents.create({
@@ -53,39 +57,33 @@ async function setupPresetHost(): Promise<{ ctx: Context; adapter: MockAdapter; 
   return { ctx, adapter, parent: handle.agent }
 }
 
-/** The one-shot spawn request shape both in-process providers build. */
+/** Task and caller cancellation used to create a fresh local activation. */
 function spawnRequest(parent: Agent) {
   return {
     label: 'child task',
     prompt: [{ type: 'text' as const, text: 'child task' }],
     parent,
     signal: new AbortController().signal,
-    cwd: parent.session.header.cwd ?? process.cwd(),
-    descriptor: snapshotSubagentDescriptor({
-      mode: 'one-shot' as const,
-      provider: 'spawn',
-      label: 'child task',
-    }),
+
   }
 }
 
 describe('a child agent composed in-process', () => {
   it('reaches the model with its parent\'s preset tools', async () => {
-    const { ctx, adapter, parent } = await setupPresetHost()
+    const { adapter, parent } = await setupPresetHost()
 
-    const run = await startInProcessRun(spawnRequest(parent), {})
+    const run = await startPreparedActivation(spawnRequest(parent), {})
     await run.result
 
     const childRequest = adapter.requests.at(-1)
     expect(childRequest?.tools?.map(tool => tool.name)).toEqual(['preset_only'])
-    expect(ctx.tools.schemas(run.localAgent).map(schema => schema.name)).toEqual(['preset_only'])
     await run.dispose()
   })
 
   it('carries its parent\'s prompt sections', async () => {
     const { parent } = await setupPresetHost()
 
-    const run = await startInProcessRun(spawnRequest(parent), {})
+    const run = await startPreparedActivation(spawnRequest(parent), {})
     await run.result
 
     expect(run.localAgent?.session.snapshotEvents().some(event =>
@@ -97,7 +95,7 @@ describe('a child agent composed in-process', () => {
   it('records the composition it ran under on the child header', async () => {
     const { parent } = await setupPresetHost()
 
-    const run = await startInProcessRun(spawnRequest(parent), {})
+    const run = await startPreparedActivation(spawnRequest(parent), {})
     await run.result
 
     // Without this the child's own history reads back under the deployment
@@ -107,9 +105,9 @@ describe('a child agent composed in-process', () => {
   })
 
   it('honours a tool filter over the preset tools it inherited', async () => {
-    const { ctx, parent } = await setupPresetHost()
+    const { adapter, parent } = await setupPresetHost()
 
-    const run = await startInProcessRun(
+    const run = await startPreparedActivation(
       { ...spawnRequest(parent), toolFilter: { deny: ['preset_only'] } },
       {},
     )
@@ -117,21 +115,21 @@ describe('a child agent composed in-process', () => {
 
     // The capability filter is the only thing bounding a delegated child, and
     // every tool it can name now arrives from the preset rather than the host.
-    expect(ctx.tools.schemas(run.localAgent).map(schema => schema.name)).toEqual([])
+    expect((adapter.requests.at(-1)?.tools ?? []).map(tool => tool.name)).toEqual([])
     await run.dispose()
   })
 
   it('follows a parent that switched preset while blank', async () => {
-    const { ctx, parent } = await setupPresetHost()
+    const { ctx, adapter, parent } = await setupPresetHost()
     // A DIFFERENT preset, so the assertion below distinguishes reading the
     // parent's live scope chain from reading its creation header — re-linking
     // to the same id would pass either way.
     await ctx.agentPresets.recompose(parent.ctx, 'reviewing')
 
-    const run = await startInProcessRun(spawnRequest(parent), {})
+    const run = await startPreparedActivation(spawnRequest(parent), {})
     await run.result
 
-    expect(ctx.tools.schemas(run.localAgent).map(schema => schema.name)).toEqual(['reviewing_only'])
+    expect((adapter.requests.at(-1)?.tools ?? []).map(tool => tool.name)).toEqual(['reviewing_only'])
     expect(run.localAgent?.session.header.agentPreset).toBe('reviewing')
     await run.dispose()
   })

@@ -29,7 +29,7 @@ Use goal tools for one long-running completion objective in the current session.
 
 Use the workflow tool ONLY when the user explicitly asks for a workflow or for large multi-agent orchestration: you write a JavaScript script (the tool description documents the exact format) that fans work out across many subagents with phases and structured results. For one or two delegations, prefer plain subagent calls.
 
-Use subagent in the background by default. Start independent delegations together in one assistant message and continue useful work while they run. Set `run_in_background: false` only when your next action depends on that subagent's result. When a background run settles, the runtime sends you a notice containing its outcome and any final assistant message.
+Start independent delegations with `subagent` or `subagent_fork` together in one assistant message and continue useful work while they run.
 
 ## Writing code for run_code
 
@@ -112,9 +112,9 @@ interface ToolArgsMap {
     /** One glob filter for which files to search (e.g. "*.ts", "*.{js,jsx}"). Not a list; negation is not supported. */
     include?: string;
   } & Record<string, JsonValue>;
-  /** Request cancellation of a background agent's current turn by its agent id. The target may be your direct child or a deeper agent created under you. Only the current turn stops: messages already queued for the agent stay parked until a later send_message, agents it started keep running, and the agent itself stays available for follow-ups. This call returns as soon as the stop request is accepted, so the target may keep running briefly; interrupting an agent that already finished is an accepted no-op. */
+  /** Ask a subagent to stop its current work. This call returns without waiting for it to stop. You can continue a local direct child's conversation later with send_message. External executions stop permanently and cannot receive follow-ups. Subagents it started will keep running. */
   interrupt_agent: {
-    /** The agent id of the running agent to interrupt. */
+    /** The id of an agent created under you: your direct child or a deeper descendant. */
     agent_id: string;
   } & Record<string, JsonValue>;
   /** Request cancellation of a running background job. */
@@ -135,9 +135,9 @@ interface ToolArgsMap {
     /** Max wait in milliseconds with wait: true. Defaults to and is capped by configuration. */
     timeout_ms?: number;
   } & Record<string, JsonValue>;
-  /** List your continuable background subagents by durable id and label. Use it to recall which ones you started, not to poll for completion — you are told when one finishes. Status comes from the live registry: running means the agent is working right now; inactive means no turn is executing, whether the child is loaded or must be resumed. inactive does not describe task completion, success, failure, or waiting for other agents. A `send_message` steers a running child at its nearest step boundary or starts or resumes a turn for an inactive child, and a direct child remains a `send_message` candidate in every status. The snapshot is not a delivery promise — `send_message` performs the authoritative check and may still fail. Children that could not be read are reported as diagnostics only in `descendants` scope. Scope `descendants` walks the whole tree below you in stable pre-order, annotating each entry with its durable direct-parent session id and depth. You may use `send_message` only for depth-1 entries; deeper entries are candidates for `interrupt_agent` only. */
+  /** List subagents you started, with their ids, labels, and status. running means it is working; inactive means it is not currently working. You will be notified when a subagent finishes; there is no need to keep checking its status. Use send_message to continue the conversation. */
   list_agents: {
-    /** children (default) lists direct children only; descendants walks the complete tree below you. */
+    /** children (default) lists direct children, which accept send_message in any status. descendants lists the whole tree below you with each entry's parent session id and depth; entries deeper than 1 accept only interrupt_agent. */
     scope?: "children" | "descendants";
   } & Record<string, JsonValue>;
   /** Read a UTF-8 text file and return line-numbered content. */
@@ -154,7 +154,7 @@ interface ToolArgsMap {
     /** Path to the image file, resolved by the filesystem backend. */
     file_path: string;
   } & Record<string, JsonValue>;
-  /** Send a message to a direct continuable child by its agent id. If you are a resident continuable child, you may also target your direct parent. If the target is still working, the message steers its nearest step; if it is inactive, the message starts or resumes a turn. This call returns no answer from the agent — only confirmation that the message was delivered. A failure means the message was NOT delivered. */
+  /** Send a message to an agent. A working agent receives it at its next step; an idle agent starts a new turn with it. Returns delivery confirmation, not the agent's answer. */
   send_message: {
     /** The agent id of your direct continuable child, or your direct parent when you are a resident continuable child. */
     agent_id: string;
@@ -173,7 +173,7 @@ interface ToolArgsMap {
     /** The exact skill name from the available skills list. */
     name: string;
   } & Record<string, JsonValue>;
-  /** Delegate a self-contained task to a subagent (a separate agent that works in its own context) to offload focused, independent work — research, a scoped implementation, an analysis — so it does not consume this conversation's context. The subagent returns its result, not its intermediate steps. Give it a complete, standalone prompt: it does not see this conversation. This tool runs in the background by default, immediately returns a durable subagent id, and keeps the child conversation available for later turns. When that run settles, the runtime sends the parent a notice containing its outcome and any final assistant message; `send_message` steers the child's nearest step while it is running and starts or resumes a turn while it is inactive. Set `run_in_background: false` only when your next action depends on receiving the result. */
+  /** Delegate a self-contained task to a subagent (a separate agent that works in its own context) to offload focused, independent work — research, a scoped implementation, an analysis — so it does not consume this conversation's context. The subagent returns its result, not its intermediate steps. This tool starts an independently managed subagent and immediately returns its id. The runtime notifies you when it finishes. The child reports results with `send_message`; use `send_message` to steer it while running or continue its conversation after it finishes. */
   subagent: {
     /** Initial child working directory. Relative paths use your current directory; omitted inherits it. Later directory changes in either agent are independent. */
     cwd?: string;
@@ -181,10 +181,8 @@ interface ToolArgsMap {
     description: string;
     /** The complete, self-contained task for the subagent. It does not share this conversation's context, so include everything it needs. */
     prompt: string;
-    /** Whether to run in the background and return a durable subagent id immediately. Defaults to true. Set false to wait for the result when your next action depends on it. */
-    run_in_background?: boolean;
   } & Record<string, JsonValue>;
-  /** Delegate a task to a subagent that inherits this conversation: a child agent seeded with all completed turns so far (it does not see the current in-flight turn). Use this when the subtask builds on this conversation's context — a follow-up analysis, a review, a continuation — without consuming this conversation's context for the work itself. You receive its result, not its intermediate steps. This call waits for the subagent and returns its result. */
+  /** Delegate a task to a subagent that inherits this conversation: a child agent seeded with all completed turns so far (it does not see the current in-flight turn). Use this when the subtask builds on this conversation's context — a follow-up analysis, a review, a continuation — without consuming this conversation's context for the work itself. You receive its result, not its intermediate steps. This tool starts an independently managed subagent and immediately returns its id. The runtime notifies you when it finishes. The child reports results with `send_message`; use `send_message` to steer it while running or continue its conversation after it finishes. */
   subagent_fork: {
     /** Initial child working directory. Relative paths use your current directory; omitted inherits it. Later directory changes in either agent are independent. */
     cwd?: string;
@@ -460,26 +458,12 @@ interface ToolOutputMap {
     content: string;
   };
   subagent: {
-    kind: "background";
-    jobId: string;
-  } | {
-    kind: "continuable";
+    kind: "activation";
     subagentId: string;
-  } | {
-    kind: "foreground";
-    runId: string;
-    output: JsonValue[];
   };
   subagent_fork: {
-    kind: "background";
-    jobId: string;
-  } | {
-    kind: "continuable";
+    kind: "activation";
     subagentId: string;
-  } | {
-    kind: "foreground";
-    runId: string;
-    output: JsonValue[];
   };
   template_echo: string;
   todo_write: {

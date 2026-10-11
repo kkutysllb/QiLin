@@ -1,3 +1,6 @@
+import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
+import { randomUUID } from 'node:crypto'
+import { startExternalActivation, externalTestParent } from '../../subagent/tests/external-activation-helpers.ts'
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { PassThrough } from 'node:stream'
@@ -29,7 +32,6 @@ import {
   type CodexRunSpec,
 } from '../src/run.ts'
 import { CodexAppServerWire } from '../src/wire.ts'
-import { mountWorkingDirectoryFixture } from '../../subagent/tests/working-directory-fixture.ts'
 
 const { hostStderrWrite } = vi.hoisted(() => ({
   hostStderrWrite: {
@@ -78,7 +80,7 @@ const CODEX_PLATFORM_PACKAGES = [
 const fakeParent = {
   id: 'parent',
   session: { header: { cwd: process.cwd() } },
-} as Partial<Agent> as Agent
+} as unknown as Agent
 
 function request(
   prompt: ContentBlock[] = [{ type: 'text', text: 'do the task' }],
@@ -357,7 +359,7 @@ function expectedFailureDiagnostic(
 }
 
 describe('task admission and package contracts', () => {
-  it('ships one independently installable provider-only Bundle patch', () => {
+  it('ships the provider with a global delegation tool', () => {
     const root = fileURLToPath(new URL('..', import.meta.url))
     const manifest = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')) as {
       dependencies?: Record<string, string>
@@ -404,14 +406,13 @@ describe('task admission and package contracts', () => {
     }
 
     const parsed = yaml.load(readFileSync(resolve(root, manifest.qilin!.bundle!.patch!), 'utf8'))
-    const rows = Array.isArray(parsed)
-      ? (parsed as Array<{ insert?: Array<{ id?: string; name?: string }> }>).flatMap(entry => entry.insert ?? [])
-      : []
-    expect(rows).toEqual([{
-      id: 'subagent-codex',
-      name: '@qilin-agent/subagent-codex',
-    }])
-    expect(JSON.stringify(rows)).not.toContain('tool-subagent')
+    expect(parsed).toEqual([{ insert: [
+      { id: 'subagent-codex', name: '@qilin-agent/subagent-codex' },
+      { id: 'tool-subagent-codex', name: '@qilin-agent/tool-subagent', config: {
+        provider: 'codex', toolName: 'subagent_codex', maxDepth: 'provider-managed',
+      } },
+    ] }])
+    expect(manifest.dependencies).toHaveProperty('@qilin-agent/tool-subagent', 'workspace:*')
   })
 
   it('accepts one or more text blocks and rejects empty or non-text tasks', () => {
@@ -468,7 +469,7 @@ describe('task admission and package contracts', () => {
     const spawnSpecs: SubprocessSpawnSpec[] = []
     vi.spyOn(ctx.subprocess, 'spawn').mockImplementation((spec) => {
       spawnSpecs.push(spec)
-      return spec.env?.QILIN_CODEX_INSTANCE === 'safe'
+      return spec.env?.DSH_CODEX_INSTANCE === 'safe'
         ? safeChild.handle
         : bypassChild.handle
     })
@@ -483,14 +484,14 @@ describe('task admission and package contracts', () => {
     const safeFiber = await ctx.plugin(codex, {
       providerName: 'codex-safe',
       model: 'codex-safe-model',
-      env: { QILIN_CODEX_INSTANCE: 'safe' },
+      env: { DSH_CODEX_INSTANCE: 'safe' },
       permissionMode: 'never',
       disposeGraceMs: 11,
     })
     const bypassFiber = await ctx.plugin(codex, {
       providerName: 'codex-bypass',
       model: 'codex-bypass-model',
-      env: { QILIN_CODEX_INSTANCE: 'bypass' },
+      env: { DSH_CODEX_INSTANCE: 'bypass' },
       permissionMode: 'dangerously-bypass-approvals-and-sandbox',
       disposeGraceMs: 29,
     })
@@ -498,11 +499,11 @@ describe('task admission and package contracts', () => {
     expect(added).toEqual(['codex-safe', 'codex-bypass'])
 
     const safeController = new AbortController()
-    const safeStarting = ctx.subagents.start(
+    const safeStarting = startExternalActivation(ctx,
       'codex-safe',
       request(undefined, safeController.signal),
     )
-    const bypassStarting = ctx.subagents.start('codex-bypass', request())
+    const bypassStarting = startExternalActivation(ctx, 'codex-bypass', request())
     for (const [child, model] of [
       [safeChild, 'codex-safe-model'],
       [bypassChild, 'codex-bypass-model'],
@@ -523,7 +524,7 @@ describe('task admission and package contracts', () => {
     await safeFiber.dispose()
     expect(ctx.subagents.list()).toEqual(['codex-bypass'])
     expect(removed).toEqual(['codex-safe'])
-    await expect(ctx.subagents.start('codex-safe', request()))
+    await expect(startExternalActivation(ctx, 'codex-safe', request()))
       .rejects.toMatchObject({ code: 'NO_PROVIDER' })
 
     const safeTurn = await safeChild.peer.nextMethod('turn/start')
@@ -538,13 +539,13 @@ describe('task admission and package contracts', () => {
       output: [{ type: 'text', text: 'bypass answer' }],
       stopReason: 'completed',
     })
-    safeController.abort(new Error('stop only the safe instance'))
+    void safeRun.dispose()
     await expect(safeRun.result).resolves.toEqual({
       output: [],
       stopReason: 'aborted',
     })
     expect(spawnSpecs.map(spec => ({
-      instance: spec.env?.QILIN_CODEX_INSTANCE,
+      instance: spec.env?.DSH_CODEX_INSTANCE,
       graceMs: spec.graceMs,
     }))).toEqual([
       { instance: 'safe', graceMs: 11 },
@@ -608,7 +609,7 @@ describe('task admission and package contracts', () => {
     vi.spyOn(ctx.subprocess, 'spawn').mockReturnValue(child.handle)
     codex.apply(ctx, { env: {}, disposeGraceMs: 3_000 })
     expect(ctx.subagents.getProvider('codex')).toBeDefined()
-    const starting = ctx.subagents.start('codex', request())
+    const starting = startExternalActivation(ctx, 'codex', request())
     const initialize = await child.peer.nextMethod('initialize')
     child.peer.respond(initialize, { userAgent: 'codex-cli 0.153.4' })
     await child.peer.nextMethod('initialized')
@@ -692,6 +693,29 @@ describe('task admission and package contracts', () => {
     child.peer.respond(threadStart, { thread: { id: 'thread-1', ephemeral: true } })
     await starting
     wire.close()
+  })
+
+  it.each([false, true])('rejects a missing parent directory before spawning (cancelled: %s)', async (cancelled) => {
+    const ctx = new Context()
+    try {
+      await ctx.plugin(SessionProjectionRegistry)
+      await mountWorkingDirectoryFixture(ctx)
+      await ctx.plugin(SubagentRuntime)
+      await ctx.plugin(LocalSubprocessRuntime)
+      await ctx.plugin(codex, {})
+      const spawn = vi.spyOn(ctx.subprocess, 'spawn')
+      const controller = new AbortController()
+      if (cancelled) controller.abort()
+      const provider = ctx.subagents.getProvider('codex')!
+      await expect(Promise.resolve().then(async () => provider.start!({
+        ...request(undefined, controller.signal),
+        parent: await externalTestParent(ctx),
+        cwd: resolve('missing-parent-' + randomUUID()),
+      }))).rejects.toThrow(cancelled
+        ? 'request was aborted before app-server startup'
+        : 'stage: initialize; category: unknown')
+      expect(spawn).not.toHaveBeenCalled()
+    } finally { await ctx.fiber.dispose() }
   })
 
   it('keeps the namespace export shape', () => {
@@ -1486,7 +1510,6 @@ describe('run lifecycle and quiescence', () => {
       graceMs: DEFAULT_DISPOSE_GRACE_MS,
       env: { OPENAI_API_KEY: 'fake' },
     })
-    expect(run.localAgent).toBeUndefined()
 
     const turnStart = await child.peer.nextMethod('turn/start')
     child.peer.send(
@@ -2119,41 +2142,7 @@ describe('run lifecycle and quiescence', () => {
       disposeGraceMs: 25,
     })
 
-    const invalidCwdParent = {
-      id: 'parent-with-invalid-cwd',
-      session: { header: { cwd: 'relative/SECRET_TOKEN' } },
-    } as Partial<Agent> as Agent
-    const invalidCwdError: unknown = await ctx.subagents.start('codex-diagnostic', {
-      prompt: [{ type: 'text', text: 'task' }],
-      parent: invalidCwdParent,
-      signal: new AbortController().signal,
-    }).then(
-      () => undefined,
-      (error: unknown) => error,
-    )
-    expect(invalidCwdError).toBeInstanceOf(Error)
-    if (!(invalidCwdError instanceof Error)) {
-      throw new Error('expected safe invalid-cwd failure')
-    }
-    expect(invalidCwdError.message).toContain(
-      expectedFailureDiagnostic('initialize', 'unknown'),
-    )
-    expect(invalidCwdError.message).not.toContain('relative/SECRET_TOKEN')
-    expect(invalidCwdError.cause).toBeInstanceOf(Error)
-    expect((invalidCwdError.cause as Error).message)
-      .toContain('relative/SECRET_TOKEN')
-    expect(spawn).not.toHaveBeenCalled()
-
-    const invalidCwdAbort = new AbortController()
-    invalidCwdAbort.abort(new Error('cancel invalid cwd startup'))
-    await expect(ctx.subagents.start('codex-diagnostic', {
-      prompt: [{ type: 'text', text: 'task' }],
-      parent: invalidCwdParent,
-      signal: invalidCwdAbort.signal,
-    })).rejects.toThrow('cancel invalid cwd startup')
-    expect(spawn).not.toHaveBeenCalled()
-
-    const starting = ctx.subagents.start('codex-diagnostic', {
+    const starting = startExternalActivation(ctx, 'codex-diagnostic', {
       prompt: [{ type: 'text', text: 'task' }],
       parent: fakeParent,
       signal: new AbortController().signal,

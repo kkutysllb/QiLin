@@ -7,7 +7,7 @@ import type { Agent } from '@qilin-agent/agent'
 import type { MessageId } from '@qilin-agent/llm'
 import type { SessionId } from '@qilin-agent/session'
 import { foldSubagentDescriptor } from '@qilin-agent/subagent'
-import type { ContinuableStart } from '@qilin-agent/subagent'
+import type { SubagentActivation } from '@qilin-agent/subagent'
 import { errorMessage, TeamError } from './error.ts'
 import type { TeamJournal } from './journal.ts'
 import type { TeamRuntimeLifecycle } from './lifecycle.ts'
@@ -224,7 +224,7 @@ export class TeamRoster {
    * @param childIds - selected roster child ids.
    */
   async stopTeammates(root: Agent, childIds: readonly SessionId[]): Promise<void> {
-    await this.lifecycle.withTimeout(this.ctx.subagents.drainContinuableChildren(root, childIds))
+    await this.lifecycle.withTimeout(this.ctx.subagents.drainChildren(root, childIds))
   }
 
   /** Perform one creation admitted before the Team runtime disposal cutoff. */
@@ -262,9 +262,9 @@ export class TeamRoster {
       await this.journal.appendAndFlush(root, 'team/member', { version: 2, teamId: TeamId(root.id), member })
     })
 
-    let started: ContinuableStart
+    let started: SubagentActivation
     try {
-      started = await this.ctx.subagents.startContinuable({
+      started = await this.ctx.subagents.startActivation({
         childId,
         provider: request.provider,
         label: description,
@@ -273,7 +273,11 @@ export class TeamRoster {
           parent: root,
         },
         signal,
+        delivery: 'parent',
       })
+      if (started.messageId === undefined) {
+        throw new TeamError('the spawned teammate accepted no initial prompt', 'TEAM_PROMPT_NOT_ACCEPTED')
+      }
       await this.checkpointInitialPrompt(childId, started.messageId, signal)
     } catch (error: unknown) {
       const failed: TeamMemberSnapshot = {

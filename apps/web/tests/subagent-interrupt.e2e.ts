@@ -108,11 +108,12 @@ describe.skipIf(MODE === 'record')('web e2e: subagents/interruptByParent over th
     const parent = scaffold.ctx.agents.get(parentId)
     if (parent === undefined) throw new Error('created parent session did not publish a live Agent')
 
-    const started = await scaffold.ctx.subagents.startContinuable({
+    const started = await scaffold.ctx.subagents.startActivation({
       provider: 'spawn',
       label: 'event-sourcing researcher',
       signal: new AbortController().signal,
       request: { prompt: [{ type: 'text', text: INITIAL }], parent },
+      delivery: 'parent',
     })
     childId = started.childId
     // The hang entry writes readyFile after its prefix chunks, immediately
