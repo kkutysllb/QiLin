@@ -2,6 +2,7 @@
 
 import { describe, expect, it } from 'vitest'
 import {
+  ACCOUNT_VARIABLE,
   AGENTS_HOME_VARIABLE,
   DEPLOYMENT_HOME_VARIABLE,
   TENANT_VARIABLE,
@@ -54,6 +55,12 @@ describe('tenant child environment', () => {
     const env = tenantChildEnvironment(TENANT_DIR, DEPLOYMENT_HOME, { QILIN_TOOLS_MODE: 'all', DEEPSEEK_BASE_URL: 'https://gateway.internal' })
     expect(env.QILIN_TOOLS_MODE).toBe('all')
     expect(env.DEEPSEEK_BASE_URL).toBe('https://gateway.internal')
+  })
+
+  it('names the account the runtime serves, and nothing for the first-run runtime', () => {
+    expect(tenantChildEnvironment(TENANT_DIR, DEPLOYMENT_HOME, {}, 'account-1')[ACCOUNT_VARIABLE]).toBe('account-1')
+    // The first-run runtime serves no account yet, so its documents name none.
+    expect(tenantChildEnvironment(TENANT_DIR, DEPLOYMENT_HOME, {})[ACCOUNT_VARIABLE]).toBeUndefined()
   })
 
   it('carries no credential-shaped name at all when it inherits the hub', () => {

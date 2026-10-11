@@ -98,22 +98,46 @@ export interface StaticDistPlan {
   indexPaths: ReadonlySet<string>
   /** Request pathname to dist file name for the public documents. */
   documents: ReadonlyMap<string, string>
+  /** Account the deployment serves this document for, when it names one. */
+  accountId?: string | undefined
   /** Authenticates an index response before its bytes are read; answers the browser when it refuses. */
   authorizeIndex: () => boolean
   /** Renders the index.html body for one authorized index request. */
   renderIndex: () => Promise<string>
 }
 
+/** Attribute the served document carries to name the account it belongs to. */
+const ACCOUNT_META = 'qilin-account'
+
 /**
- * Anchor every relative URL in one served page at the site root. The dist is
- * built with a relative base so the same files mount under any static
- * directory; the served form answers deep paths, where relative asset URLs
- * would otherwise resolve under the request directory.
- * @param html - the raw page body.
- * @returns the body with a `<base href="/">` inserted after its opening head tag.
+ * Environment variable the deployment's tenant runtime sets to the account it
+ * serves (`QILIN_ACCOUNT_ID`; see `@qilin-agent/cli`'s tenant runtime).
  */
-export function withSiteBase(html: string): string {
-  return html.replace(/<head(?:\s[^>]*)?>/i, open => `${open}<base href="/">`)
+const ACCOUNT_VARIABLE = 'QILIN_ACCOUNT_ID'
+
+/** Escape one value for an HTML attribute. */
+function attribute(value: string): string {
+  return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
+}
+
+/**
+ * Anchor every relative URL in one served page at the site root, and name the
+ * account the page belongs to. The dist is built with a relative base so the
+ * same files mount under any static directory; the served form answers deep
+ * paths, where relative asset URLs would otherwise resolve under the request
+ * directory. One deployment address can serve several accounts, so the document
+ * says which one it is: the client keeps its local storage inside that account's
+ * space, and a document that names none (a single-account or first-run
+ * deployment) leaves the client on the plain names.
+ * @param html - the raw page body.
+ * @param accountId - the account this document belongs to, when the deployment names one.
+ * @returns the body with its head markup inserted after the opening head tag.
+ */
+export function withSiteBase(html: string, accountId?: string): string {
+  const identity = accountId === undefined || accountId === ''
+    ? ''
+    : `<meta name="${ACCOUNT_META}" content="${attribute(accountId)}">`
+  return html.replace(/<head(?:\s[^>]*)?>/i, open => `${open}<base href="/">${identity}`)
 }
 
 /**
@@ -139,7 +163,7 @@ export async function serveStatic(
   try {
     const document = plan.documents.get(pathname)
     if (document !== undefined) {
-      body = withSiteBase(await readFile(resolve(plan.distRoot, document), 'utf8'))
+      body = withSiteBase(await readFile(resolve(plan.distRoot, document), 'utf8'), plan.accountId)
       type = HTML_MIME
     } else if (plan.indexPaths.has(pathname)) {
       if (!plan.authorizeIndex()) return
@@ -204,8 +228,11 @@ export function apply(ctx: Context, config: Config): void {
     }
     documents.set(document.path, document.file)
   }
+  // The deployment's tenant runtime names the account it serves; a plain
+  // single-account deployment names none.
+  const accountId = process.env[ACCOUNT_VARIABLE]
   const renderIndex = async (): Promise<string> =>
-    withSiteBase(ctx.webServer.renderIndex(await readFile(config.distIndex, 'utf8')))
+    withSiteBase(ctx.webServer.renderIndex(await readFile(config.distIndex, 'utf8')), accountId)
   ctx.effect(() => ctx.webServer.registerFallback(async (req, res) => {
     // Non-GET/HEAD without a matching named route is 405 (fallback-only
     // semantics: named routes own their method handling).
@@ -220,6 +247,7 @@ export function apply(ctx: Context, config: Config): void {
       distRoot,
       indexPaths,
       documents,
+      ...accountId === undefined ? {} : { accountId },
       authorizeIndex: () => ctx.connection.authorizeIndex(req, res),
       renderIndex,
     })

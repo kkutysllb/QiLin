@@ -18,6 +18,7 @@ import * as Connection from '@qilin-agent/client-connection'
 import LocalCredentials from '@qilin-agent/credentials-local'
 import HttpServer from '@qilin-agent/host-webserver'
 import * as FrontendStatic from '../src/index.ts'
+import { withSiteBase } from '../src/index.ts'
 
 let root: string | undefined
 let context: Context | undefined
@@ -92,6 +93,28 @@ async function request(port: number, path: string, init?: RequestInit): Promise<
     body: await response.text(),
   }
 }
+
+describe('served document identity', () => {
+  const PAGE = '<html><head><title>t</title></head><body>x</body></html>'
+
+  it('names the account and still anchors relative URLs', () => {
+    const served = withSiteBase(PAGE, 'account-1')
+    expect(served).toContain('<base href="/">')
+    expect(served).toContain('<meta name="qilin-account" content="account-1">')
+  })
+
+  it('names no account when the deployment serves one of its own', () => {
+    expect(withSiteBase(PAGE)).not.toContain('qilin-account')
+  })
+
+  it('escapes the account id into the attribute', () => {
+    expect(withSiteBase(PAGE, 'a"><script>')).toContain('content="a&quot;&gt;&lt;script&gt;"')
+  })
+
+  it('leaves a body with no head alone', () => {
+    expect(withSiteBase('<p>fragment</p>', 'account-1')).toBe('<p>fragment</p>')
+  })
+})
 
 describe('real Loader composition', () => {
   it('serves explicit index entries and files while preserving HTTP error semantics', { timeout: 60_000 }, async () => {

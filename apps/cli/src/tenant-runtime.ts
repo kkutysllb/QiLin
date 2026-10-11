@@ -242,6 +242,17 @@ export const DEPLOYMENT_HOME_VARIABLE = 'QILIN_DEPLOYMENT_HOME'
 export const AGENTS_HOME_VARIABLE = 'QILIN_AGENTS_HOME'
 
 /**
+ * Environment variable naming the account one tenant runtime serves.
+ *
+ * The served document carries it back to the browser, and the client keeps its
+ * own local storage inside that account's space: one origin can serve several
+ * accounts behind this deployment, so a storage name that does not carry an
+ * account would be shared by all of them. Absent for the first-run runtime,
+ * which serves no account yet.
+ */
+export const ACCOUNT_VARIABLE = 'QILIN_ACCOUNT_ID'
+
+/**
  * The environment one tenant runtime starts with.
  *
  * The tenant's harness home is the isolation: every root the runtime resolves
@@ -260,13 +271,18 @@ export const AGENTS_HOME_VARIABLE = 'QILIN_AGENTS_HOME'
  * own `QILIN_*` policy, still crosses.
  * @param tenantDir - the tenant's own harness home.
  * @param deploymentHome - the shared deployment home holding the account roster.
+ * The account this runtime serves is named too, so the document it hands the
+ * browser can say whose storage the page may use.
  * @param base - the environment the hub itself runs with.
+ * @param accountId - the account this runtime serves, or undefined for the
+ * first-run runtime that serves no account yet.
  * @returns the environment mapping for the child process.
  */
 export function tenantChildEnvironment(
   tenantDir: string,
   deploymentHome: string,
   base: NodeJS.ProcessEnv = process.env,
+  accountId?: string,
 ): NodeJS.ProcessEnv {
   const inherited: NodeJS.ProcessEnv = {}
   for (const [name, value] of Object.entries(base)) {
@@ -276,6 +292,7 @@ export function tenantChildEnvironment(
   return {
     ...inherited,
     QILIN_HOME: tenantDir,
+    ...accountId === undefined ? {} : { [ACCOUNT_VARIABLE]: accountId },
     [TENANT_VARIABLE]: '1',
     [DEPLOYMENT_HOME_VARIABLE]: deploymentHome,
     [AGENTS_HOME_VARIABLE]: join(tenantDir, 'agents'),
@@ -522,7 +539,13 @@ export class TenantRuntime implements TenantHandle {
     ], {
       cwd: this.tenantDir,
       env: {
-        ...tenantChildEnvironment(this.tenantDir, this.options.home),
+        ...tenantChildEnvironment(
+          this.tenantDir,
+          this.options.home,
+          process.env,
+          // The first-run runtime serves no account yet, so its documents name none.
+          this.options.bootstrap === true ? undefined : this.options.accountId,
+        ),
         ...this.options.binPath.endsWith('.ts') ? { TSX_TSCONFIG_PATH: SOURCE_TSCONFIG_PATH } : {},
       },
       stdio: ['ignore', 'pipe', 'pipe'],
