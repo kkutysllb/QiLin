@@ -30,7 +30,7 @@ The entry prints its URL (loopback and port 8790 by default), starts an account'
 
 A name the roster does not hold yet, and a routing cookie naming an account it no longer holds, both reach that same first-run runtime: the browser has arrived without an account, and the application decides what happens next — its registration form when the deployment accepts accounts, its own refusal when it does not.
 
-One browser drives one account at a time; `/healthz` and `/status` stay the entry's own reads, and reclamation counts proxied traffic. Runtimes bind loopback only, so the address a browser needs is the entry's alone.
+One browser drives one account at a time; `/healthz` and `/status` stay the entry's own reads, and reclamation counts proxied traffic. Runtimes bind loopback unless `--tenant-host` names another interface, so by default the address a browser needs is the entry's alone. Naming a reachable interface exposes every account runtime on it directly — plain HTTP, each with its own cookie jar, with no entry in between — and that interface then needs the protection the entry address has.
 
 ## Read the roster and retire an account
 

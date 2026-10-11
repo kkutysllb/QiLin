@@ -87,7 +87,7 @@ qilin web --dump-config
 qilin web --help
 ```
 
-生产部署需要已构建的包和前端产物（`pnpm run build`）。默认服务地址是 `http://127.0.0.1:8790`；当调用同时给出 `--tls-cert` 与 `--tls-key` 时，由入口自己终止 TLS；入口开始监听后即用默认浏览器打开该规范宿主机 URL。入口不读继承的 `SSH_CONNECTION`/`SSH_TTY`：只要没有 `--no-open` 就打开地址，操作系统交接失败时把原因写入 stderr，部署继续服务。入口会以用法错误拒绝通配 `--host`，因为入口地址是浏览器唯一能到达的地址；也会拒绝 `--tls-cert` 与 `--per-account-ports` 同时出现，因为它按账户分发出去的 origin 是明文 HTTP。每个账户运行时都以 `--no-open` 启动，因此只有入口会打开浏览器。`--trusted-host` 可添加 `/api` 浏览器信任围栏接受的具名 authority。
+生产部署需要已构建的包和前端产物（`pnpm run build`）。默认服务地址是 `http://127.0.0.1:8790`；当调用同时给出 `--tls-cert` 与 `--tls-key` 时，由入口自己终止 TLS；入口开始监听后即用默认浏览器打开该规范宿主机 URL。入口不读继承的 `SSH_CONNECTION`/`SSH_TTY`：只要没有 `--no-open` 就打开地址，操作系统交接失败时把原因写入 stderr，部署继续服务。入口会以用法错误拒绝通配 `--host`，因为默认情况下入口地址就是浏览器能到达的地址；也会拒绝 `--tls-cert` 与 `--per-account-ports` 同时出现，因为它按账户分发出去的 origin 是明文 HTTP。`--tenant-host` 指定每个账户运行时绑定的接口：默认只绑 loopback，也就是唯一可达的接口；一旦指定一个可达接口，这些运行时就被浏览器直接暴露——明文 HTTP、各自独立的 cookie 罐、中间没有入口——因此那个接口需要与入口地址同等的保护。每个账户运行时都以 `--no-open` 启动，因此只有入口会打开浏览器。`--trusted-host` 可添加 `/api` 浏览器信任围栏接受的具名 authority。
 
 进程关闭时，插件树最多有 5 秒完成 dispose。首次收到 `SIGINT` 或 `SIGTERM` 时会开始优雅排空：`SIGTERM` 是监督进程发出的常规停止请求，在所有运行模式下都以 0 退出；`SIGINT` 则报告 130。第二次收到信号时会立即强制退出。如果一次性运行在正常结束时已经卡在 dispose 阶段，第一次按下 `Ctrl+C` 就会直接升级为强制退出，而不会被忽略。
 
