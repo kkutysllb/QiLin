@@ -430,6 +430,7 @@ export async function startCodexRun(
 
   return subprocessRunHandle({
     id: brandString<SessionId>(randomUUID()),
+    localAgent: undefined,
     result,
     signal: request.signal,
     onAbort,

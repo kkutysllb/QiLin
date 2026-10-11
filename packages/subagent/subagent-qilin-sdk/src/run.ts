@@ -356,6 +356,7 @@ export async function startSdkRun(request: SubagentStartRequest, spec: SdkRunSpe
   // then the bounded shutdown request + dispose ladder tears the child down.
   return subprocessRunHandle({
     id,
+    localAgent: undefined,
     result,
     signal: request.signal,
     onAbort,

@@ -596,6 +596,7 @@ export async function startAcpRun(request: SubagentStartRequest, spec: AcpRunSpe
 
   return subprocessRunHandle({
     id,
+    localAgent: undefined,
     result,
     signal: request.signal,
     onAbort,
