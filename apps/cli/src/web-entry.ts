@@ -20,6 +20,7 @@
  * @module @qilin-agent/cli/web-entry
  */
 
+import { spawn } from 'node:child_process'
 import { TENANT_VARIABLE } from './tenant-runtime.ts'
 import { runTenantsServe } from './tenants.ts'
 
@@ -64,6 +65,25 @@ export function isWebEntry(): boolean {
   return process.env[TENANT_VARIABLE] === undefined
 }
 
+/**
+ * Hand the deployment's address to the operating system's default browser.
+ *
+ * The launcher is the platform's own, the same call the Web application makes
+ * for its runtime; it is repeated here because this process is the deployment
+ * rather than a runtime, and the CLI does not depend on that bundle.
+ * @param url - the address to open.
+ * @returns nothing once the launcher is started.
+ */
+function openAddress(url: string): void {
+  const [command, ...args]: [string, ...string[]] = process.platform === 'darwin'
+    ? ['open', url]
+    : process.platform === 'win32'
+      ? ['cmd', '/c', 'start', '', url]
+      : ['xdg-open', url]
+  const child = spawn(command, args, { stdio: 'ignore', detached: true })
+  child.unref()
+}
+
 /** One flag read out of the profile's own arguments. */
 function argument(args: readonly string[], name: string): string | undefined {
   const inline = args.find(value => value.startsWith(`${name}=`))
@@ -92,5 +112,18 @@ export async function runWebEntry(args: readonly string[], servedProfile: string
     restartBackoffMilliseconds: wholeNumber(args, '--restart-backoff-ms', DEFAULT_RESTART_BACKOFF_MILLISECONDS, 0),
     // Every tenant is reached through the address the browser already has.
     singleOrigin: true,
+    // The deployment opens the address it serves, exactly as a single runtime
+    // opens the address it serves; --no-open is the operator declining it.
+    ...args.includes('--no-open')
+      ? {}
+      : {
+        onListening: (url: string) => {
+          try {
+            openAddress(url)
+          } catch (error: unknown) {
+            process.stderr.write(`qilin web: could not open ${url}: ${String(error)}\n`)
+          }
+        },
+      },
   })
 }

@@ -246,15 +246,13 @@ it('serves one isolated runtime per account and reclaims an idle one', { timeout
     // Held in a const so the polls below keep the narrowed origin.
     const base = hub.base
 
-    // 1. The deployment draws no interface of its own. The address names the
-    //    account-addressed form instead of inventing a page, a form, or a list
-    //    of the accounts it serves.
+    // 1. The deployment draws no interface of its own. The bare address hands
+    //    the browser to an account's runtime, which serves the application's
+    //    own landing page, sign-in document, and registration.
     const index = await fetch(base, { redirect: 'manual' })
-    expect(index.status).toBe(404)
-    const notice = await index.text()
-    expect(notice).toContain('/t/<account>')
-    expect(notice).not.toContain('type="password"')
-    expect(notice).not.toContain('alice')
+    expect(index.status).toBe(302)
+    expect(index.headers.get('location')).toBe('/t/alice/')
+    expect(await index.text()).toBe('')
 
     // A wrong password is refused by the application behind the address, which
     // mints no session for it and reveals neither which accounts exist nor
@@ -450,8 +448,8 @@ it('serves one browser through the hub origin by routing cookie', { timeout: 240
     expect(landing.status).toBe(200)
     expect(await landing.text()).not.toContain('type="password"')
     const signin = await fetch(base, { redirect: 'manual' })
-    expect(signin.status).toBe(404)
-    expect(await signin.text()).toContain('/t/<account>')
+    expect(signin.status).toBe(302)
+    expect(signin.headers.get('location')).toBe('/t/alice/')
     // The application's own sign-in document is what the account path serves.
     const signInDocument = await fetch(`${base}t/alice/login`, { redirect: 'manual' })
     expect(signInDocument.status).toBe(200)

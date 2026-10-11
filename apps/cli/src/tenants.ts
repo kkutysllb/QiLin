@@ -64,6 +64,11 @@ export interface TenantsServeOptions {
    * counts real traffic rather than a handoff.
    */
   readonly singleOrigin: boolean
+  /**
+   * Called once the address is serving, with the address itself, so the caller
+   * that owns the deployment's user-facing behavior can act on it.
+   */
+  readonly onListening?: ((url: string) => void) | undefined
 }
 
 /** Routing cookie the hub sets so later requests, whatever their path, name their tenant. */
@@ -332,12 +337,23 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       }
     }
     if (url.pathname === '/') {
+      const accounts = (await roster()).all()
       // The deployment draws no interface of its own: the application inside an
       // account's runtime owns the landing page, the sign-in form, and
-      // registration. A browser that has chosen no account is told where an
-      // account lives rather than shown a page this process invented.
-      respond(response, 404, 'text/plain; charset=utf-8',
-        'qilin tenants: this deployment serves one account per path; open /t/<account>\n')
+      // registration. The bare address therefore hands the browser to an
+      // account's runtime. The first roster entry is the deterministic account
+      // to start from, and every other account is reachable at its own path.
+      const first = accounts[0]
+      if (first === undefined) {
+        respond(response, 200, 'text/plain; charset=utf-8', 'qilin tenants: this deployment has no accounts yet\n')
+        return
+      }
+      response.writeHead(302, {
+        'cache-control': 'no-store',
+        'location': `/t/${encodeURIComponent(first.username)}/`,
+        'referrer-policy': 'no-referrer',
+      })
+      response.end()
       return
     }
     respond(response, 404, 'text/plain; charset=utf-8', 'qilin tenants: unknown path\n')
@@ -384,12 +400,15 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
   })
   const port = await listening.promise
   const printableHost = options.host === '0.0.0.0' || options.host === '::' ? '127.0.0.1' : options.host
+  const address = `http://${printableHost}:${String(port)}/`
   process.stdout.write(`qilin tenants: http://${printableHost}:${String(port)}/\n`)
 
   // One sweep reclaims every runtime whose last use is older than the idle
   // window: the child exits, its tenant's data stays on disk under the shared
   // home. A window of 0 keeps every runtime, so no sweep is installed at all —
   // an interval would otherwise reclaim each one on its first tick.
+  options.onListening?.(address)
+
   const sweep = Math.max(250, Math.min(Math.floor(options.idleMilliseconds / 4), 30_000))
   const idle = options.idleMilliseconds <= 0 ? undefined : setInterval(() => {
     const now = Date.now()
