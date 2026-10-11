@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-把本插件与 [`qilin-client-connection`](../../client/connection/README.zh.md) 及一个 dist 服务器组合在一起，Web 表层就会在交出应用之前要求账户。它注入 `connection` 与 `credentials` 服务。
+把本插件与 [`qilin-client-connection`](../../client/connection/README.zh.md) 及一个 dist 服务器组合在一起，Web 表层就会在交出应用之前要求账户。它注入 `connection` 服务。
 
 ### 最小配置
 
@@ -87,7 +87,7 @@ kind: "package-reference"
 
 ### 设计理念
 
-本包是一个函数插件。`apply` 打开解析后 harness home 的账户文件，通过 `ctx.credentials` 以 `accounts-local/session-secret` 为键加载或创建该部署的会话签名密钥，构建 cookie 所有者，在 `ctx.connection.fetch` 上注册六个路由，并在门禁启用时把会话 authority 安置到 `ctx.connection.session`——该席位只接受一个所有者，第二次安置会让安装方插件加载失败。它不提供任何 Kylin 服务：没有别的东西读取账户，组合通过端点与门禁到达这个表层。
+本包是一个函数插件。`apply` 打开解析后 harness home 的账户文件，在该账户文件旁加载或创建该部署的会话签名密钥（`auth/session-secret.json`，以 0600 建在 0700 目录内），构建 cookie 所有者，在 `ctx.connection.fetch` 上注册六个路由，并在门禁启用时把会话 authority 安置到 `ctx.connection.session`——该席位只接受一个所有者，第二次安置会让安装方插件加载失败。它不提供任何 Kylin 服务：没有别的东西读取账户，组合通过端点与门禁到达这个表层。
 
 ### 账户文件
 
@@ -126,7 +126,6 @@ kind: "package-reference"
 - [qilin-client-connection](../../client/connection/README.zh.md)——会话席位、入口路径与 `/api` 请求策略。
 - [frontend-static](../../host/frontend-static/README.zh.md)——提供应用文档与公开文档的 dist 服务器。
 - [qilin-web-app](../../bundle/web-app/README.zh.md)——挂载本行并声明其文档表的随附组合。
-- [qilin-credentials](../../credentials/credentials/README.zh.md)——持有会话签名密钥的提供方。
 - [qilin-home-paths](../../util/home-paths/README.zh.md)——`$QILIN_HOME` 与 `~/.qilin` 的解析。
 - [本地账户决策](../../../.agents/notes/implemented/feature/2026-09-12-qilin-local-accounts-and-landing.zh.md)——为什么门禁在服务端，以及为什么注册默认开放。
 - [生成配置目录](../../../docs/config-catalog.zh.md#qilin-agentaccounts-local)——每个受支持配置字段及其源声明。
@@ -155,7 +154,7 @@ kind: "package-reference"
 - **登录限流按 authority 与标识符，而不是按部署**——同一键在 `loginAttemptWindowSeconds` 内失败达到 `loginMaxAttempts` 次后，它要等到窗口结束。轮换标识符的攻击者遇不到共享限制，因为本部署不保留按 authority 汇总的计数。
 - **没有账户删除或密码找回**——没有任何端点会删除账户或找回遗忘的密码；操作者需要编辑或删除 `$QILIN_HOME/auth/accounts.json`，删除该文件会让部署回到首次运行状态。
 - **会话 cookie 是 bearer 凭据**——它是 `HttpOnly; SameSite=Strict`，仅在设置 `sessionCookieSecure` 时带 `Secure`；在公网地址上终止 TLS 的部署需要它，而浏览器以明文 HTTP 到达的部署也只能以明文回传。
-- **会话密钥丢失或被替换会终结所有会话**——凭据记录 `accounts-local/session-secret` 是唯一的签名密钥；替换它会作废所有已签发的 cookie，而账户本身保留。
+- **会话密钥丢失或被替换会终结所有会话**——名册旁的 `auth/session-secret.json` 是唯一的签名密钥，且该部署的每个运行时都读这同一份文档，因此一个运行时签发的会话会被下一个接受；替换它会作废所有已签发的 cookie，而账户本身保留。
 - **账户文件只能向前迁移**——版本 1 的文档会被读成「用户名即其所存地址」的账户，但来自更新构建的文档会让插件加载失败，且在下次变更之前不会有任何东西改写版本 1 的文件。看起来像地址的迁移后用户名，必须由运营者手工修改才能换成合法用户名。
 
 <a id="dev-note"></a>

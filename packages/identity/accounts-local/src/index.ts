@@ -13,17 +13,13 @@
  * @module @qilin-agent/accounts-local
  */
 
-import { randomBytes } from 'node:crypto'
 import { join } from 'node:path'
 import type { Context } from '@qilin-agent/kylin'
 import z from '@qilin-agent/schemastery'
 import type { ConnectionTrustRequest } from '@qilin-agent/client-connection'
-import { credentialKey } from '@qilin-agent/credentials'
-import type { CredentialProvider, CredentialRecord } from '@qilin-agent/credentials'
 import { resolveQilinHome } from '@qilin-agent/home-paths'
-import { AccountStore, type AccountRecord } from './accounts.ts'
+import { AccountStore, loadSessionSecret, type AccountRecord } from './accounts.ts'
 import { createSessionAuthority } from './gate.ts'
-import { isRecord } from './json.ts'
 import { createAuthRoutes } from './routes.ts'
 import { SessionCookies } from './session.ts'
 import { LoginThrottle } from './throttle.ts'
@@ -44,14 +40,8 @@ export { verifyPassword } from './password.ts'
 export const name = 'accounts-local'
 
 /** Services required before the account surface can mount. */
-export const inject = ['connection', 'credentials']
+export const inject = ['connection']
 
-/** Browser-session signing secret held by the credential provider. */
-const SESSION_SECRET_KEY = credentialKey('accounts-local', 'session-secret')
-
-/** Stored secret payload version. */
-const SECRET_VERSION = 1
-const SECRET_BYTES = 32
 const DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 
 /** Plugin config: the account surface's deployment choices. */
@@ -124,38 +114,6 @@ export function accountsFilePath(qilinHome: string): string {
 }
 
 /**
- * Load this deployment's session signing secret, creating it on first run.
- * @param credentials - the harness credential provider.
- * @returns the HMAC key every session cookie is signed with.
- * @throws Error when the stored record is not a secret this package wrote.
- */
-async function loadSessionSecret(credentials: CredentialProvider): Promise<Buffer> {
-  const record: CredentialRecord | undefined = await credentials.modifyRecord(
-    SESSION_SECRET_KEY,
-    (current) => {
-      if (current !== undefined) return Promise.resolve(undefined)
-      return Promise.resolve({
-        kind: 'grant',
-        payload: { version: SECRET_VERSION, secret: randomBytes(SECRET_BYTES).toString('base64url') },
-      })
-    },
-  )
-  if (record === undefined) throw new Error('accounts-local: session secret was not stored')
-  if (record.kind !== 'grant' || !isRecord(record.payload)
-    || record.payload.version !== SECRET_VERSION || typeof record.payload.secret !== 'string') {
-    throw new Error('accounts-local: stored session secret has an unsupported format')
-  }
-  const secret = Buffer.from(record.payload.secret, 'base64url')
-  // The canonical re-encoding is the length check's companion: base64url decodes
-  // several spellings of one byte string, and only the spelling this package
-  // wrote may pass.
-  if (secret.byteLength !== SECRET_BYTES || secret.toString('base64url') !== record.payload.secret) {
-    throw new Error('accounts-local: stored session secret is not a canonical 32-byte base64url key')
-  }
-  return secret
-}
-
-/**
  * Read the account identities one deployment admits.
  *
  * The value crosses the configuration boundary, where a bare YAML key parses as
@@ -214,11 +172,12 @@ export async function apply(ctx: Context, config: Config): Promise<void> {
   const enabled = config.enabled ?? true
   const registration = config.registration ?? 'open'
   const sessionMaxAgeDays = config.sessionMaxAgeDays ?? 7
-  const path = accountsFilePath(resolveQilinHome(config.qilinHome))
+  const home = resolveQilinHome(config.qilinHome)
+  const path = accountsFilePath(home)
   const store = await AccountStore.open(path)
   const admitted = admitAccounts(config, registration, store, path)
   const sessions = new SessionCookies(
-    await loadSessionSecret(ctx.credentials),
+    await loadSessionSecret(home),
     sessionMaxAgeDays * DAY_MILLISECONDS,
     config.sessionCookieSecure ?? false,
   )

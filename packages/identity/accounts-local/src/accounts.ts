@@ -11,9 +11,9 @@
  * @module @qilin-agent/accounts-local/src/accounts
  */
 
-import { randomUUID } from 'node:crypto'
-import { mkdir, open, readFile, rm, stat } from 'node:fs/promises'
-import { dirname } from 'node:path'
+import { randomBytes, randomUUID } from 'node:crypto'
+import { mkdir, open, readFile, rm, stat, writeFile } from 'node:fs/promises'
+import { dirname, join } from 'node:path'
 import { writeFileAtomic } from '@qilin-agent/atomic-write'
 import { isRecord } from './json.ts'
 import { hashPassword } from './password.ts'
@@ -451,4 +451,91 @@ export class AccountStore {
       await new Promise((resolve) => { setTimeout(resolve, LOCK_RETRY_MS) })
     }
   }
+}
+
+/** Basename of the deployment's session-signing secret, beside its roster. */
+const SESSION_SECRET_FILENAME = 'session-secret.json'
+
+/** Bytes of that secret. */
+const SECRET_BYTES = 32
+
+/** Version tag of the secret document. */
+const SECRET_VERSION = 1
+
+/**
+ * Absolute path of the deployment's session-signing secret.
+ * @param qilinHome - the deployment's harness home.
+ * @returns the secret document's path.
+ */
+export function sessionSecretPath(qilinHome: string): string {
+  return join(qilinHome, 'auth', SESSION_SECRET_FILENAME)
+}
+
+/**
+ * Read the deployment's session-signing secret, creating it on first run.
+ *
+ * The secret belongs to the deployment rather than to one runtime: every runtime
+ * of a deployment answers the same browser origin, so a session one runtime
+ * issues has to be a session the next one accepts. It therefore lives beside the
+ * roster — the deployment's other shared document — and not in one runtime's
+ * credentials, which each harness home holds separately.
+ * @param qilinHome - the deployment's harness home.
+ * @returns the HMAC key every session cookie of this deployment is signed with.
+ * @throws Error when the document exists and is not a secret this package wrote.
+ */
+export async function loadSessionSecret(qilinHome: string): Promise<Buffer> {
+  const path = sessionSecretPath(qilinHome)
+  const stored = await readSessionSecret(path)
+  if (stored !== undefined) return stored
+  const fresh = randomBytes(SECRET_BYTES).toString('base64url')
+  await mkdir(dirname(path), { recursive: true, mode: DIRECTORY_MODE })
+  try {
+    // Exclusive creation: two runtimes starting together settle on whichever one
+    // wrote first, instead of each replacing the other's key.
+    await writeFile(path, `${JSON.stringify({ version: SECRET_VERSION, secret: fresh })}\n`, { mode: FILE_MODE, flag: 'wx' })
+    return Buffer.from(fresh, 'base64url')
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error
+    const raced = await readSessionSecret(path)
+    if (raced === undefined) throw new Error('accounts-local: stored session secret disappeared while it was created')
+    return raced
+  }
+}
+
+/**
+ * Read one secret document, or undefined when it does not exist yet.
+ * @param path - the secret document's path.
+ * @returns the key it holds.
+ * @throws Error when the document is not a secret this package wrote.
+ */
+async function readSessionSecret(path: string): Promise<Buffer | undefined> {
+  let source: string
+  try {
+    source = await readFile(path, 'utf8')
+  } catch (error) {
+    // No secret yet is the first run's ordinary state.
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return undefined
+    throw error
+  }
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(source)
+  } catch {
+    throw new Error('accounts-local: stored session secret is not a document this package wrote')
+  }
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+    throw new Error('accounts-local: stored session secret is not a document this package wrote')
+  }
+  const fields = parsed as Record<string, unknown>
+  if (fields.version !== SECRET_VERSION || typeof fields.secret !== 'string') {
+    throw new Error('accounts-local: stored session secret has an unsupported format')
+  }
+  const secret = Buffer.from(fields.secret, 'base64url')
+  // The canonical re-encoding is the length check's companion: base64url decodes
+  // several spellings of one byte string, and only the spelling this package
+  // wrote may pass.
+  if (secret.byteLength !== SECRET_BYTES || secret.toString('base64url') !== fields.secret) {
+    throw new Error('accounts-local: stored session secret is not a canonical 32-byte base64url key')
+  }
+  return secret
 }

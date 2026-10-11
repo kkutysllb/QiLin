@@ -24,7 +24,6 @@ import LocalCredentials from '@qilin-agent/credentials-local'
 import HttpServer from '@qilin-agent/host-webserver'
 import * as FrontendStatic from '@qilin-agent/host-frontend-static'
 
-const SESSION_SECRET_KEY = 'accounts-local/session-secret'
 const PASSWORD = 'password-1'
 const EMAIL = 'first@example.com'
 
@@ -32,7 +31,7 @@ interface Booted {
   readonly ctx: Context
   readonly base: string
   readonly home: string
-  readonly credentialsPath: string
+  readonly secretPath: string
   /** Issue one request against the booted server. */
   (path: string, init?: RequestInit): Promise<Response>
 }
@@ -50,8 +49,6 @@ async function boot(options: {
   enabled?: boolean
   registration?: 'open' | 'closed'
   secret?: string
-  /** Raw record lines for the session-secret entry, when a test seeds a broken one. */
-  record?: readonly string[]
   /** Whether the deployment's public address terminates TLS, so cookies carry `Secure`. */
   secureCookies?: boolean
   /** Failed sign-ins one identifier may accumulate before it is made to wait. */
@@ -75,11 +72,12 @@ async function boot(options: {
   await writeFile(join(dist, 'landing.html'), '<head></head><body>landing</body>')
   await writeFile(join(dist, 'auth.html'), '<head></head><body>sign in</body>')
   const credentialsPath = join(root, '.credentials.yaml')
-  if (options.secret !== undefined || options.record !== undefined) {
-    const record = options.record
-      ?? ['kind: grant', 'payload:', '  version: 1', `  secret: ${options.secret as string}`]
-    const document = ['version: 1', 'records:', `  ${SESSION_SECRET_KEY}:`, ...record.map(line => `    ${line}`)]
-    await writeFile(credentialsPath, `${document.join('\n')}\n`, { mode: 0o600 })
+  // The deployment's session secret lives beside its roster, so a test that
+  // seeds one writes the document this package reads.
+  const secretPath = join(home, 'auth', 'session-secret.json')
+  if (options.secret !== undefined) {
+    await mkdir(join(home, 'auth'), { recursive: true, mode: 0o700 })
+    await writeFile(secretPath, `${JSON.stringify({ version: 1, secret: options.secret })}\n`, { mode: 0o600 })
   }
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, [
@@ -149,7 +147,7 @@ async function boot(options: {
   const base = `http://127.0.0.1:${String(port)}`
   return Object.assign(
     (path: string, init: RequestInit = {}): Promise<Response> => fetch(new URL(path, base), init),
-    { ctx, base, home, credentialsPath },
+    { ctx, base, home, secretPath },
   )
 }
 
@@ -196,11 +194,11 @@ function post(cookie: string | undefined, body: unknown): RequestInit {
   }
 }
 
-/** The signing secret this composition stored, read back from the credential file. */
+/** The signing secret this composition stored, read back from its document. */
 async function storedSecret(path: string): Promise<string> {
-  const match = /^\s+secret:\s*(\S+)$/mu.exec(await readFile(path, 'utf8'))
-  if (match === null || match[1] === undefined) throw new Error('expected a stored session secret')
-  return match[1]
+  const document = JSON.parse(await readFile(path, 'utf8')) as { secret?: string }
+  if (document.secret === undefined) throw new Error('expected a stored session secret')
+  return document.secret
 }
 
 describe('real account surface', () => {
@@ -527,7 +525,7 @@ describe('real account surface', () => {
     const valid = Buffer.alloc(32, 5).toString('base64url')
     const reusable = await boot({ secret: valid })
     expect(inactive(reusable.ctx)).toEqual([])
-    expect(await storedSecret(reusable.credentialsPath)).toBe(valid)
+    expect(await storedSecret(reusable.secretPath)).toBe(valid)
     const created = await reusable('/api/auth/setup', post(undefined, { username: 'first', email: EMAIL, password: PASSWORD }))
     expect(created.status).toBe(200)
 
@@ -538,30 +536,24 @@ describe('real account surface', () => {
       await expect(boot({ secret }), secret).rejects.toThrow(/stored session secret/u)
     }
 
-    const records: readonly (readonly [string, readonly string[]])[] = [
-      ['another record kind', ['kind: api-key', 'key: not-a-cookie-secret']],
-      ['a payload that is not a mapping', ['kind: grant', 'payload: hello']],
-      ['an unsupported payload version', ['kind: grant', 'payload:', '  version: 99', `  secret: ${valid}`]],
-      ['a payload secret that is not a string', ['kind: grant', 'payload:', '  version: 1', '  secret: 42']],
-    ]
-    for (const [name, record] of records) {
-      await expect(boot({ record }), name).rejects.toThrow(/stored session secret/u)
-    }
   })
 
-  it('fails loud when the credential provider stores no session secret', async () => {
-    const ctx = new Context()
+  it('refuses to mount when the deployment holds an unusable session secret', async () => {
     const home = await mkdtemp(join(tmpdir(), 'qilin-accounts-nosecret-'))
     roots.push(home)
-    ctx.provide('credentials', { modifyRecord: () => Promise.resolve(undefined) } as never)
-    await expect(Accounts.apply(ctx, { qilinHome: home })).rejects.toThrow(/was not stored/u)
+    await mkdir(join(home, 'auth'), { recursive: true })
+    await writeFile(join(home, 'auth', 'session-secret.json'), '{"version":1,"secret":"not-a-key"}', { mode: 0o600 })
+    const ctx = new Context()
+    // No connection stub: the secret is read before the surface mounts, so the
+    // refusal has to arrive without one.
+    await expect(Accounts.apply(ctx, { qilinHome: home })).rejects.toThrow(/stored session secret/u)
   })
 
   it('refuses a session whose account no longer exists', { timeout: 60_000 }, async () => {
     const server = await boot()
     const setup = await server('/api/auth/setup', post(undefined, { username: 'first', email: EMAIL, password: PASSWORD }))
     expect(setup.status).toBe(200)
-    const secret = Buffer.from(await storedSecret(server.credentialsPath), 'base64url')
+    const secret = Buffer.from(await storedSecret(server.secretPath), 'base64url')
     const forged = new SessionCookies(secret, 24 * 60 * 60 * 1000).issue(
       new URL(server.base).host,
       { id: 'ghost', username: 'ghost', email: 'ghost@example.com', password: 'x', createdAt: 0, tokenVersion: 1 },
@@ -601,7 +593,7 @@ describe('real account surface', () => {
     expect(await refused.json()).toMatchObject({ error: { code: 'invalid-credentials' } })
 
     // A session that already names the foreign account stops naming one here.
-    const secret = Buffer.from(await storedSecret(server.credentialsPath), 'base64url')
+    const secret = Buffer.from(await storedSecret(server.secretPath), 'base64url')
     const foreign = new SessionCookies(secret, 24 * 60 * 60 * 1000).issue(
       new URL(server.base).host,
       { id: foreignId, username: 'foreign', email: null, password: 'x', createdAt: 0, tokenVersion: 1 },

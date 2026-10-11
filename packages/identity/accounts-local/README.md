@@ -25,7 +25,7 @@ Mount this package in a Web deployment to require a sign-in before a browser rea
 <a id="use-this-package"></a>
 ## Use this package
 
-Compose this plugin beside [`qilin-client-connection`](../../client/connection/README.md) and a dist server, and the Web surface asks for an account before it hands out the application. It injects the `connection` and `credentials` services.
+Compose this plugin beside [`qilin-client-connection`](../../client/connection/README.md) and a dist server, and the Web surface asks for an account before it hands out the application. It injects the `connection` service.
 
 ### Minimal configuration
 
@@ -87,7 +87,7 @@ This section explains what the plugin owns and points at the files that realize 
 
 ### Design concept
 
-The package is one function plugin. `apply` opens the account file of the resolved harness home, loads or creates the deployment's session-signing secret through `ctx.credentials` under the key `accounts-local/session-secret`, builds the cookie owner, registers the six routes on `ctx.connection.fetch`, and — while the gate is enabled — installs the session authority on `ctx.connection.session`, whose seat accepts one owner and fails the installer's load on a second. It provides no Kylin service: nothing else reads an account, and the composition reaches this surface through the endpoints and the gate.
+The package is one function plugin. `apply` opens the account file of the resolved harness home, loads or creates the deployment's session-signing secret beside that account file (`auth/session-secret.json`, created 0600 inside a 0700 directory), builds the cookie owner, registers the six routes on `ctx.connection.fetch`, and — while the gate is enabled — installs the session authority on `ctx.connection.session`, whose seat accepts one owner and fails the installer's load on a second. It provides no Kylin service: nothing else reads an account, and the composition reaches this surface through the endpoints and the gate.
 
 ### The account file
 
@@ -126,7 +126,6 @@ Read these when the package-level contract is not enough: the transport that own
 - [qilin-client-connection](../../client/connection/README.md) — the session seat, the entry path, and the `/api` request policy.
 - [frontend-static](../../host/frontend-static/README.md) — the dist server that serves the application document and the public documents.
 - [qilin-web-app](../../bundle/web-app/README.md) — the shipped composition that mounts this row and states its document table.
-- [qilin-credentials](../../credentials/credentials/README.md) — the provider holding the session-signing secret.
 - [qilin-home-paths](../../util/home-paths/README.md) — `$QILIN_HOME` and `~/.qilin` resolution.
 - [Local accounts decision](../../../.agents/notes/implemented/feature/2026-09-12-qilin-local-accounts-and-landing.md) — why the gate is server-side and why registration defaults to open.
 - [Generated configuration catalog](../../../docs/config-catalog.md#qilin-agentaccounts-local) — every accepted config field and its source declaration.
@@ -155,7 +154,7 @@ These limits describe what an account does and does not protect. They are curren
 - **Sign-in is throttled per authority and identifier, not per deployment** — `loginMaxAttempts` failures inside `loginAttemptWindowSeconds` make that key wait for the rest of the window. An attacker rotating identifiers meets no shared limit, because the deployment keeps no per-authority total.
 - **No account removal or password reset** — no endpoint deletes an account or recovers a forgotten password; an operator edits or deletes `$QILIN_HOME/auth/accounts.json`, and deleting it returns the deployment to the first-run state.
 - **The session cookie is a bearer credential** — it is `HttpOnly; SameSite=Strict` and carries `Secure` only when `sessionCookieSecure` is set, which a deployment that terminates TLS at its public address needs; a deployment the browser reaches over plaintext HTTP returns it over plaintext.
-- **Losing or replacing the session secret ends every session** — the credential record `accounts-local/session-secret` is the only signing key; replacing it invalidates every issued cookie while the accounts survive.
+- **Losing or replacing the session secret ends every session** — `auth/session-secret.json` beside the roster is the only signing key, and every runtime of the deployment reads that one document, so a session one runtime issues is accepted by the next; replacing it invalidates every issued cookie while the accounts survive.
 - **The account file migrates forward only** — a version 1 document is read as accounts whose username is their stored address, but a document from a newer build fails the plugin load, and nothing rewrites a version 1 file until the next mutation. A migrated name that looks like an address cannot be replaced by a valid username without an operator edit.
 
 <a id="dev-note"></a>
