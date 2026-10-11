@@ -108,6 +108,13 @@ export interface TenantRuntimeOptions {
    */
   readonly execArgv: readonly string[]
   /**
+   * Interface this runtime binds. It defaults to loopback, which is what a
+   * single-address deployment wants: the hub's address is the only reachable
+   * one. A deployment that gives every account an origin of its own names the
+   * interface a browser reaches instead.
+   */
+  readonly host?: string | undefined
+  /**
    * First wait before retrying a runtime that failed to start. It doubles per
    * consecutive failure, up to {@link BACKOFF_CEILING_MS}.
    */
@@ -319,7 +326,7 @@ export class TenantRuntime {
       ...resolveLoaderArguments(this.options.execArgv),
       this.options.binPath,
       '--profile', this.options.profile,
-      '--host', '127.0.0.1',
+      '--host', this.options.host ?? '127.0.0.1',
       '--port', '0',
       '--no-open',
     ], {

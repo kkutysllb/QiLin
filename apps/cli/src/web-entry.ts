@@ -110,8 +110,11 @@ export async function runWebEntry(args: readonly string[], servedProfile: string
     idleMilliseconds: wholeNumber(args, '--idle-ms', DEFAULT_IDLE_MILLISECONDS, 0),
     maxTenants: wholeNumber(args, '--max-tenants', 0, 0),
     restartBackoffMilliseconds: wholeNumber(args, '--restart-backoff-ms', DEFAULT_RESTART_BACKOFF_MILLISECONDS, 0),
-    // Every tenant is reached through the address the browser already has.
-    singleOrigin: true,
+    // The default deployment has one address: every tenant is reached through
+    // it. A deployment that gives each account its own origin says so, and a
+    // browser can then hold one session per account.
+    singleOrigin: !args.includes('--per-account-ports'),
+    tenantHost: argument(args, '--tenant-host'),
     // The deployment opens the address it serves, exactly as a single runtime
     // opens the address it serves; --no-open is the operator declining it.
     ...args.includes('--no-open')

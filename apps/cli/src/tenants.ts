@@ -65,6 +65,14 @@ export interface TenantsServeOptions {
    */
   readonly singleOrigin: boolean
   /**
+   * Interface every tenant runtime binds. It defaults to loopback, which is the
+   * only reachable interface when {@link singleOrigin} is set: the hub's
+   * address is the deployment's only address. A deployment that gives every
+   * account an origin of its own names the interface a browser reaches, and
+   * each account's cookies then live in their own jar.
+   */
+  readonly tenantHost?: string | undefined
+  /**
    * Called once the address is serving, with the address itself, so the caller
    * that owns the deployment's user-facing behavior can act on it.
    */
@@ -147,6 +155,7 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       profile: options.profile,
       binPath,
       execArgv: process.execArgv,
+      host: options.tenantHost ?? undefined,
       restartBackoffMilliseconds: options.restartBackoffMilliseconds,
       log: (line) => { process.stderr.write(`qilin tenants: [${accountId}] ${line}\n`) },
     })
@@ -289,7 +298,7 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       }
       try {
         const runtime = runtimeFor(account.id)
-        await serialize(async () => {
+        const launchUrl = await serialize(async () => {
           await makeRoom(runtime)
           return await runtime.ensure()
         })
@@ -298,6 +307,18 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
         // credentials, and this deployment authenticates every visitor through
         // the application's own account gate.
         const deeper = separator === -1 ? '/' : url.pathname.slice('/t/'.length + username.length)
+        if (!options.singleOrigin) {
+          // Every account keeps an origin of its own, so its cookies live in
+          // their own jar: one browser authenticates as two accounts at once,
+          // and no routing cookie is involved.
+          response.writeHead(303, {
+            'cache-control': 'no-store',
+            'location': `${new URL(launchUrl).origin}${deeper}${url.search}`,
+            'referrer-policy': 'no-referrer',
+          })
+          response.end()
+          return
+        }
         await forward(request, response, runtime, `${deeper}${url.search}`, [routingCookie(account.id)])
       } catch (error) {
         process.stderr.write(`qilin tenants: the runtime for ${account.username} did not start: ${String(error)}\n`)

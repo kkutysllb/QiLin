@@ -72,6 +72,11 @@ interface HubOptions {
   readonly maxTenants?: number
   /** First wait before retrying a runtime that failed to start. */
   readonly restartBackoffMs?: number
+  /**
+   * Give every account an origin of its own instead of serving them all through
+   * the deployment's address, so one browser can hold two accounts at once.
+   */
+  readonly perAccountPorts?: boolean
   /** Serve every tenant through the hub origin instead of redirecting to the runtime port. */
   /** Idle window; 0 keeps every runtime. */
   readonly idleMs?: number
@@ -91,6 +96,7 @@ async function startHub(root: string, home: string, options: HubOptions = {}): P
       ...(options.profile === undefined ? [] : ['--tenant-profile', options.profile]),
       ...(options.maxTenants === undefined ? [] : ['--max-tenants', String(options.maxTenants)]),
       ...(options.restartBackoffMs === undefined ? [] : ['--restart-backoff-ms', String(options.restartBackoffMs)]),
+      ...(options.perAccountPorts === true ? ['--per-account-ports'] : []),
     ],
     env: {
       NODE_OPTIONS: undefined,
@@ -681,6 +687,57 @@ it('keeps every runtime when the idle window is 0', { timeout: 240_000 }, async 
     await new Promise(resolve => setTimeout(resolve, 2500))
     const state = (await hubStatus(hub.base)).find(tenant => tenant.username === 'alice')?.state
     expect(state).toBe('running')
+  } catch (error) {
+    const evidence = hub === undefined ? '' : `\n${hub.output().slice(-4000)}`
+    throw new Error(`${error instanceof Error ? error.message : String(error)}${evidence}`, { cause: error })
+  } finally {
+    if (hub !== undefined) await stopHub(hub)
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
+it('gives every account its own origin so one browser can hold two accounts', { timeout: 240_000 }, async () => {
+  const root = await mkdtemp(join(tmpdir(), 'qilin-tenant-origins-'))
+  const home = join(root, 'home')
+  await mkdir(home, { recursive: true })
+  const store = await AccountStore.open(accountsFilePath(home))
+  await store.add({ username: 'alice' }, ALICE_PASSWORD)
+  await store.add({ username: 'bob' }, BOB_PASSWORD)
+
+  let hub: RunningHub | undefined
+  try {
+    hub = await startHub(root, home, { perAccountPorts: true })
+    const base = hub.base
+
+    // The deployment's own address is an index, not an application: it hands
+    // the browser to an account, and that account lives on an origin of its
+    // own, so its cookies cannot be shared with any other account.
+    const index = await fetch(base, { redirect: 'manual' })
+    expect(index.status).toBe(302)
+    expect(index.headers.get('location')).toBe('/t/alice/')
+    const aliceHandoff = await fetch(`${base}t/alice/`, { redirect: 'manual' })
+    expect(aliceHandoff.status).toBe(303)
+    const bobHandoff = await fetch(`${base}t/bob/`, { redirect: 'manual' })
+    expect(bobHandoff.status).toBe(303)
+    const aliceOrigin = new URL(aliceHandoff.headers.get('location') as string).origin
+    const bobOrigin = new URL(bobHandoff.headers.get('location') as string).origin
+    expect(aliceOrigin).not.toBe(bobOrigin)
+    expect(aliceOrigin).not.toBe(new URL(base).origin)
+    // No launch token rides the redirect: the account's own gate asks for
+    // credentials, which is what makes the two origins independent sessions.
+    expect(aliceHandoff.headers.get('location')).not.toContain('token=')
+
+    // Two browsers, one account each: the sessions do not cross, which is the
+    // whole point of giving every account an origin.
+    const aliceCookie = await login(aliceOrigin, 'alice', ALICE_PASSWORD)
+    const bobCookie = await login(bobOrigin, 'bob', BOB_PASSWORD)
+    const aliceWork = join(root, 'origins-alice')
+    await mkdir(aliceWork, { recursive: true })
+    const aliceSession = await remote<{ sessionId: string }>(aliceOrigin, aliceCookie, 'session/create', { request: { cwd: aliceWork } })
+    const aliceList = await remote<{ items: { sessionId: string }[] }>(aliceOrigin, aliceCookie, 'session/list', { _request: {} })
+    const bobList = await remote<{ items: { sessionId: string }[] }>(bobOrigin, bobCookie, 'session/list', { _request: {} })
+    expect(aliceList.items.map(item => item.sessionId)).toContain(aliceSession.sessionId)
+    expect(bobList.items.map(item => item.sessionId)).not.toContain(aliceSession.sessionId)
   } catch (error) {
     const evidence = hub === undefined ? '' : `\n${hub.output().slice(-4000)}`
     throw new Error(`${error instanceof Error ? error.message : String(error)}${evidence}`, { cause: error })
