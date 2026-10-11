@@ -98,11 +98,6 @@ async function baseContext(
     provider.provide('remote.schedule', (remote.schedule ?? {}) as never)
   } }).await()
   ctx.provide('uiWorkspace', { openSession: vi.fn(), startSession: vi.fn() } as never)
-  // `openTaskDetail` reads the dual-workbench tag (D5); 'general' keeps the
-  // shipped right-sidebar tab as the navigation destination in every scenario.
-  ctx.provide('workbench', {
-    state: createSnapshotStore({ active: 'general', presets: { general: 'standard', coding: 'ptc' } }),
-  } as never)
   ctx.provide('sidebarRightTabs', { register: sidebar.register } as never)
   ctx.provide('sidebarRight', { openTab: sidebar.openTab, tabsIn: sidebar.tabsIn } as never)
   const id = 'cold-original' as SessionId

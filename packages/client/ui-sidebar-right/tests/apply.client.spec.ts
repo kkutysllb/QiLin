@@ -80,9 +80,6 @@ async function boot(shortcuts: Partial<Shortcuts> = {}) {
   ctx.provide('resources', resources as never)
   ctx.provide('sessions', { retain: vi.fn(() => ({ ready: Promise.resolve(), release: vi.fn() })) } as never)
   ctx.provide('uiSession', { adapter: { current } } as never)
-  // The registration's inject reads the dual-workbench tag source (D5); the
-  // seat branch reads 'general' in these scenarios.
-  ctx.provide('workbench', { state: createSnapshotStore({ active: 'general', presets: { general: 'standard', coding: 'ptc' } }) } as never)
   const fiber = ctx.plugin({ inject: [...inject], apply })
   await fiber.await()
   const seat = (name: string): Recorded => {

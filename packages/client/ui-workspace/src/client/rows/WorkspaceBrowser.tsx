@@ -1318,7 +1318,7 @@ export function WorkspaceBrowser({
 
       {/* Always-mounted seat keeps the region's flex slot while the list
           itself is wide-only. */}
-      <div id="workbench-list-panel" className={css.listArea}>
+      <div className={css.listArea}>
         {wide && (normalizedQuery !== ''
           ? (
             <SearchResults

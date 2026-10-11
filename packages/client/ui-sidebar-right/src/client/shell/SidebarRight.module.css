@@ -43,9 +43,8 @@
 
 /* Only docked Grid items slide. Their common ancestor remains untransformed,
    unclipped and without a stacking context, so fixed floating children escape.
-   The coding body's seat (dual-workbench D5) rides the same rules: it is the
-   panel's content while the coding tag is active, so collapse must hide it
-   exactly like the docked layout it replaces. */
+   The dockkit host, empty seat and divider are the docked body's own elements,
+   so collapse hides them exactly like the docked layout they replace. */
 .panel :global([data-dockkit-host='dock']),
 .panel :global([data-dockkit-empty]),
 .panel :global([data-dockkit-divider]) {
