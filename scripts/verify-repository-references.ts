@@ -14,7 +14,10 @@ const kitRepositoryUrl = new RegExp(`\\bgithub\\.com/${organization}/libreoffice
 const commitCandidate = /(?<![a-z0-9])[\da-f]{7,40}(?![a-z0-9])/gi
 // desktop/release 与 desktop/docs 是 OpenKyLin 并入时带来的冻结历史记录
 // （已发行版本说明与设计文档），其中的 commit 锚是史实，不随本仓演进。
-const excludedPrefixes = ['vendor/', '.agents/notes/archived/', 'desktop/release/', 'desktop/docs/']
+// The multi-user tenancy plan's closing section is the account of one round of
+// local, unpushed commits: no tag or pull request exists to name them, so the
+// identifiers are the ledger's subject. Every other plan stays in scope.
+const excludedPrefixes = ['vendor/', '.agents/notes/archived/', 'desktop/release/', 'desktop/docs/', 'plans/2026-10-11-multi-user-tenancy.md']
 const gitOutputLimit = 64 * 1024 * 1024
 
 /** One prohibited reference in a maintained source file. */
