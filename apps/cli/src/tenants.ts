@@ -202,6 +202,51 @@ function json(response: ServerResponse, status: number, body: unknown): void {
  * @param options - the interface, port, tenant profile, and idle window.
  * @returns the process exit code, 0 after a clean shutdown.
  */
+/**
+ * The runtime a handoff stops to make room, or undefined when there is room or
+ * nothing may be reclaimed yet.
+ *
+ * Only a running runtime is a candidate: one that is still starting has no last
+ * use to compare, so the next handoff reclaims it once it is serving. The
+ * runtime about to start is never its own candidate.
+ * @param live - every runtime holding a child, in any state.
+ * @param target - the runtime about to start.
+ * @param maxTenants - cap on live runtimes; zero or less means no cap.
+ * @returns the runtime to stop, if any.
+ */
+export function reclaimFor(
+  live: readonly TenantRuntime[],
+  target: TenantRuntime,
+  maxTenants: number,
+): TenantRuntime | undefined {
+  if (maxTenants <= 0) return undefined
+  const others = live.filter(runtime => runtime !== target)
+  if (others.length < maxTenants) return undefined
+  let oldest: TenantRuntime | undefined
+  for (const runtime of others) {
+    if (runtime.status().state !== 'running') continue
+    if (oldest === undefined || runtime.lastUsedAt <= oldest.lastUsedAt) oldest = runtime
+  }
+  return oldest
+}
+
+/**
+ * One queue that runs handoffs one at a time.
+ *
+ * Two handoffs that passed the cap together would both start a runtime, so each
+ * handoff's make-room-and-start runs behind the previous one. A handoff that
+ * fails settles its own promise and leaves the queue ready for the next.
+ * @returns a function that queues one handoff.
+ */
+export function createHandoffQueue(): <T>(work: () => Promise<T>) => Promise<T> {
+  let tail: Promise<void> = Promise.resolve()
+  return <T>(work: () => Promise<T>): Promise<T> => {
+    const next = tail.then(work, work)
+    tail = next.then(() => undefined, () => undefined)
+    return next
+  }
+}
+
 export async function runTenantsServe(options: TenantsServeOptions): Promise<number> {
   const home = resolveQilinHome()
   const binPath = process.argv[1]
@@ -266,37 +311,16 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
    * @param target - the runtime about to start, which is never reclaimed.
    */
   const makeRoom = async (target: TenantRuntime): Promise<void> => {
-    if (options.maxTenants <= 0) return
     for (;;) {
-      const others = active().filter(runtime => runtime !== target)
-      if (others.length < options.maxTenants) return
-      const oldest = others
-        .filter(runtime => runtime.status().state === 'running')
-        .reduce<TenantRuntime | undefined>(
-          (least, candidate) => least === undefined || candidate.lastUsedAt <= least.lastUsedAt ? candidate : least,
-          undefined,
-        )
-      // A runtime that is still starting has no last use to compare, so it is
-      // left alone: the next handoff reclaims it once it is running.
+      const oldest = reclaimFor(active(), target, options.maxTenants)
       if (oldest === undefined) return
       process.stderr.write(`qilin tenants: ${String(options.maxTenants)} runtime(s) are already alive; reclaiming ${oldest.status().accountId} to start ${target.status().accountId}\n`)
       await oldest.stop()
     }
   }
 
-  /** Tail of the serialized handoff queue; one start runs at a time. */
-  let handoffQueue: Promise<void> = Promise.resolve()
-
-  /**
-   * Serialize handoffs, so two of them cannot both pass the cap and start.
-   * @param work - one handoff's start.
-   * @returns what the work returned.
-   */
-  const serialize = <T>(work: () => Promise<T>): Promise<T> => {
-    const next = handoffQueue.then(work, work)
-    handoffQueue = next.then(() => undefined, () => undefined)
-    return next
-  }
+  /** Handoffs run one at a time, so two of them cannot both pass the cap and start. */
+  const serialize = createHandoffQueue()
   const roster = async (): Promise<AccountStore> => await AccountStore.open(accountsFilePath(home))
 
   const status = async (): Promise<{
