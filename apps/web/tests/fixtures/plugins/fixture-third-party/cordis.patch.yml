@@ -1,0 +1,4 @@
+# Web e2e fixture bundle: one row for the out-of-tree tool plugin.
+- insert:
+    - id: fixture-third-party
+      name: '@fixture/third-party'

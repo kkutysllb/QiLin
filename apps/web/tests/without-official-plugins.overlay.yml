@@ -1,0 +1,13 @@
+# Open-gate scenario: a deployment that drops official plugins outright.
+# One client row and one host row, neither of which any agent preset depends on
+# — the session chain must run without them. The shipped Web surface already
+# removes the base's host `tool-web` row the same way (that model-facing tool is
+# composed per agent preset instead), so `tool-web` is asserted in place rather
+# than overridden here.
+- id: ui-trajectory
+  name: '@qilin-agent/client-ui-trajectory'
+  disabled: true
+
+- id: mcp-resources
+  name: '@qilin-agent/mcp-resources'
+  disabled: true

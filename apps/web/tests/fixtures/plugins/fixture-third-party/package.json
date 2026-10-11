@@ -1,0 +1,13 @@
+{
+  "name": "@fixture/third-party",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Web e2e fixture: an out-of-tree bundle that contributes one tool through public contracts only.",
+  "type": "module",
+  "main": "index.js",
+  "qilin": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

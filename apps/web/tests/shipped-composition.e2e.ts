@@ -33,6 +33,7 @@ const FILE_REFERENCE_PROMPT = fileURLToPath(new URL(
 const BASE_PATCH_PATH = join(REPO_ROOT, 'packages/bundle/base/cordis.patch.yml')
 const HEADLESS_PATCH_PATH = join(REPO_ROOT, 'packages/bundle/headless/cordis.patch.yml')
 const AUTO_CHILD_OVERLAY_PATH = join(REPO_ROOT, 'apps/web/tests/auto-review-child.overlay.yml')
+const WITHOUT_OFFICIAL_PLUGINS_OVERLAY = join(REPO_ROOT, 'apps/web/tests/without-official-plugins.overlay.yml')
 const AUTO_PROVIDER = 'shipped-auto-review-test'
 const AUTO_MODEL = 'same-route'
 const AUTO_CALL_ID = ToolCallId('shipped-auto-review-denied-delete')
@@ -1203,4 +1204,35 @@ it('withdraws Auto on shipped Loader unload and does not restore migrated live s
   }
   expect(terminals?.hasOwnerActivity(handle.agent)).toBe(false)
   await rm(presetRoot, { recursive: true, force: true })
+}, 120_000)
+
+it('keeps the session chain alive with official plugins removed', async () => {
+  scaffold = await launchWebScaffold({
+    deepSeekMissingCredential: true,
+    extraOverlayPath: WITHOUT_OFFICIAL_PLUGINS_OVERLAY,
+  })
+  const ctx = scaffold.ctx
+  // Shipped deployment-layer removal: this surface turns the base's host
+  // `tool-web` row off and composes the model-facing web tools per agent
+  // preset instead, so the capability survives its official provider's removal.
+  expect([...ctx.loader.entries()].find(entry => entry.options.id === 'tool-web')?.options.disabled).toBe(true)
+  // The overlay itself removes one client row and one host row outright.
+  expect(ctx.clientModules.graph().entries.some(row => row.id === '@qilin-agent/client-ui-trajectory')).toBe(false)
+  expect([...ctx.loader.entries()].find(entry => entry.options.id === 'mcp-resources')?.options.disabled).toBe(true)
+
+  // Core chain: the shipped session-create RPC still answers, the session is
+  // published, and the preset composed for it carries the tools the removals
+  // did not own.
+  const created = await remote<{ sessionId: string }>(scaffold, 'session/create', {
+    request: { cwd: scaffold.workspaceCwd },
+  })
+  const sessionId = SessionId(created.sessionId)
+  const agent = ctx.agents.get(sessionId)
+  if (agent === undefined) throw new Error('session/create did not publish the session')
+  const names = ctx.tools.schemas(agent).map(schema => schema.name)
+  expect(names).toContain(RUN_CODE_NAME)
+  expect(names.filter(name => name === 'web_search' || name === 'web_fetch')).toHaveLength(2)
+  // The session the RPC published carries the composed preset in its own
+  // header, so the chain that accepted the request is the one that runs it.
+  expect(ctx.sessions.get(sessionId)?.header.agentPreset).toBe('ptc')
 }, 120_000)
