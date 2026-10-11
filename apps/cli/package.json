@@ -161,6 +161,7 @@
     "@qilin-agent/subagent": "workspace:*",
     "@qilin-agent/subagent-fork-in-process": "workspace:*",
     "@qilin-agent/subagent-spawn-in-process": "workspace:*",
+    "@qilin-agent/subprocess": "workspace:*",
     "@qilin-agent/subprocess-local": "workspace:*",
     "@qilin-agent/system-prompt": "workspace:*",
     "@qilin-agent/tools": "workspace:*",

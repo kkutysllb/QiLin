@@ -16,6 +16,7 @@ import { createRequire } from 'node:module'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { SENSITIVE_ENV_PATTERN } from '@qilin-agent/subprocess'
 
 /** Any startup line whose label is followed by the served URL. */
 const READY_URL = /(?:^|\n)[A-Za-z][\w -]*: (https?:\/\/\S+)/u
@@ -249,6 +250,14 @@ export const AGENTS_HOME_VARIABLE = 'QILIN_AGENTS_HOME'
  * the hub inherited), and user skills and agent documents belong to one account.
  * The deployment home arrives by name so the roster layer can read the shared
  * account file; nothing else of the deployment's is exposed.
+ *
+ * Credential-shaped names do not cross either: a key the hub was launched with
+ * authenticates the hub, and handing it to every account would bill one
+ * account's requests to whoever started the deployment. A tenant reaches a
+ * provider through its own credential record, or through an entry the
+ * deployment layers for that tenant on purpose. The rule is the harness's one
+ * credential heuristic; every other inherited name, including the deployment's
+ * own `QILIN_*` policy, still crosses.
  * @param tenantDir - the tenant's own harness home.
  * @param deploymentHome - the shared deployment home holding the account roster.
  * @param base - the environment the hub itself runs with.
@@ -259,8 +268,13 @@ export function tenantChildEnvironment(
   deploymentHome: string,
   base: NodeJS.ProcessEnv = process.env,
 ): NodeJS.ProcessEnv {
+  const inherited: NodeJS.ProcessEnv = {}
+  for (const [name, value] of Object.entries(base)) {
+    if (value === undefined || SENSITIVE_ENV_PATTERN.test(name)) continue
+    inherited[name] = value
+  }
   return {
-    ...base,
+    ...inherited,
     QILIN_HOME: tenantDir,
     [TENANT_VARIABLE]: '1',
     [DEPLOYMENT_HOME_VARIABLE]: deploymentHome,

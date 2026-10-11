@@ -29,9 +29,37 @@ describe('tenant child environment', () => {
     expect(env[AGENTS_HOME_VARIABLE]).toBe(`${TENANT_DIR}/agents`)
   })
 
-  it('keeps the rest of the hub environment', () => {
-    const env = tenantChildEnvironment(TENANT_DIR, DEPLOYMENT_HOME, { PATH: '/usr/bin', DEEPSEEK_API_KEY: 'key' })
+  it('drops every credential-shaped name the hub was launched with', () => {
+    // A key the hub carries authenticates the hub. Handing it to each account
+    // would bill one account's requests to whoever started the deployment, so a
+    // tenant reaches a provider through its own credential record instead.
+    const env = tenantChildEnvironment(TENANT_DIR, DEPLOYMENT_HOME, {
+      PATH: '/usr/bin',
+      DEEPSEEK_API_KEY: 'key',
+      OPENAI_API_KEY: 'key',
+      ANTHROPIC_API_KEY: 'key',
+      DB_PASSWORD: 'pw',
+      CI_SECRET: 's',
+      GH_TOKEN: 't',
+    })
     expect(env.PATH).toBe('/usr/bin')
-    expect(env.DEEPSEEK_API_KEY).toBe('key')
+    for (const name of ['DEEPSEEK_API_KEY', 'OPENAI_API_KEY', 'ANTHROPIC_API_KEY', 'DB_PASSWORD', 'CI_SECRET', 'GH_TOKEN']) {
+      expect(env[name]).toBeUndefined()
+    }
+  })
+
+  it('keeps the deployment policy the hub was launched with', () => {
+    // Isolation is about one account not reaching another's data; the
+    // deployment's own policy variables are not another account's data.
+    const env = tenantChildEnvironment(TENANT_DIR, DEPLOYMENT_HOME, { QILIN_TOOLS_MODE: 'all', DEEPSEEK_BASE_URL: 'https://gateway.internal' })
+    expect(env.QILIN_TOOLS_MODE).toBe('all')
+    expect(env.DEEPSEEK_BASE_URL).toBe('https://gateway.internal')
+  })
+
+  it('carries no credential-shaped name at all when it inherits the hub', () => {
+    const env = tenantChildEnvironment(TENANT_DIR, DEPLOYMENT_HOME)
+    // The invariant holds whatever the developer's own environment holds.
+    for (const name of Object.keys(env)) expect(/KEY|PASSWORD|SECRET|TOKEN/i.test(name)).toBe(false)
+    expect(env.QILIN_HOME).toBe(TENANT_DIR)
   })
 })
