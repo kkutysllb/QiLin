@@ -237,6 +237,37 @@ export function isTenantIdentity(accountId: string): boolean {
 /** Environment variable naming the deployment home to a tenant runtime. */
 export const DEPLOYMENT_HOME_VARIABLE = 'QILIN_DEPLOYMENT_HOME'
 
+/** Environment variable naming the agent-config root (user skills and agent documents). */
+export const AGENTS_HOME_VARIABLE = 'QILIN_AGENTS_HOME'
+
+/**
+ * The environment one tenant runtime starts with.
+ *
+ * The tenant's harness home is the isolation: every root the runtime resolves
+ * comes from `QILIN_HOME`. The agent-config root is the exception that has to be
+ * named explicitly, because it defaults to the shared `~/.agents` (or whatever
+ * the hub inherited), and user skills and agent documents belong to one account.
+ * The deployment home arrives by name so the roster layer can read the shared
+ * account file; nothing else of the deployment's is exposed.
+ * @param tenantDir - the tenant's own harness home.
+ * @param deploymentHome - the shared deployment home holding the account roster.
+ * @param base - the environment the hub itself runs with.
+ * @returns the environment mapping for the child process.
+ */
+export function tenantChildEnvironment(
+  tenantDir: string,
+  deploymentHome: string,
+  base: NodeJS.ProcessEnv = process.env,
+): NodeJS.ProcessEnv {
+  return {
+    ...base,
+    QILIN_HOME: tenantDir,
+    [TENANT_VARIABLE]: '1',
+    [DEPLOYMENT_HOME_VARIABLE]: deploymentHome,
+    [AGENTS_HOME_VARIABLE]: join(tenantDir, 'agents'),
+  }
+}
+
 /** Addresses that only the machine itself reaches. */
 export const LOOPBACK_HOSTS: readonly string[] = ['127.0.0.1', '::1', 'localhost']
 
@@ -454,15 +485,9 @@ export class TenantRuntime {
       }),
     ], {
       cwd: this.tenantDir,
-      // The tenant's harness home is the isolation: every root the runtime
-      // resolves comes from QILIN_HOME, so plugins and model settings are this
-      // account's own. The deployment home reaches the roster layer by name.
       env: {
-        ...process.env,
+        ...tenantChildEnvironment(this.tenantDir, this.options.home),
         ...this.options.binPath.endsWith('.ts') ? { TSX_TSCONFIG_PATH: SOURCE_TSCONFIG_PATH } : {},
-        QILIN_HOME: this.tenantDir,
-        [TENANT_VARIABLE]: '1',
-        [DEPLOYMENT_HOME_VARIABLE]: this.options.home,
       },
       stdio: ['ignore', 'pipe', 'pipe'],
     })
