@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url'
 import { expect, it } from 'vitest'
 import { AccountStore, accountsFilePath } from '@qilin-agent/accounts-local'
 import { resolveExampleLaunch } from '@qilin-agent/loader-smoke'
-import { sessionIdsUnder, tenantRemoteResult } from './tenant-web-process.ts'
+import { openForwardedEvents, sessionIdsUnder, tenantRemoteResult, type TenantHost } from './tenant-web-process.ts'
 
 const repoRoot = fileURLToPath(new URL('../../../../../../', import.meta.url))
 
@@ -56,6 +56,7 @@ interface TenantStatus {
 
 /** The hub's whole status document. */
 interface HubStatus {
+  readonly mode: 'handoff' | 'single-origin'
   readonly maxTenants: number
   readonly alive: number
   readonly tenants: TenantStatus[]
@@ -69,6 +70,8 @@ interface HubOptions {
   readonly maxTenants?: number
   /** First wait before retrying a runtime that failed to start. */
   readonly restartBackoffMs?: number
+  /** Serve every tenant through the hub origin instead of redirecting to the runtime port. */
+  readonly singleOrigin?: boolean
 }
 
 /** Start the hub over one shared home and wait for its URL. */
@@ -81,6 +84,7 @@ async function startHub(root: string, home: string, options: HubOptions = {}): P
       ...(options.profile === undefined ? [] : ['--profile', options.profile]),
       ...(options.maxTenants === undefined ? [] : ['--max-tenants', String(options.maxTenants)]),
       ...(options.restartBackoffMs === undefined ? [] : ['--restart-backoff-ms', String(options.restartBackoffMs)]),
+      ...(options.singleOrigin === true ? ['--single-origin'] : []),
     ],
     env: {
       NODE_OPTIONS: undefined,
@@ -326,6 +330,101 @@ it('bounds how many runtimes live at once and backs off a runtime that cannot st
   } finally {
     if (hub !== undefined) await stopHub(hub)
     if (lastOrigin !== '') await expect.poll(async () => await reachable(lastOrigin), { timeout: 10_000, interval: 250 }).toBe(false)
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
+it('serves one browser through the hub origin by routing cookie', { timeout: 240_000 }, async () => {
+  const root = await mkdtemp(join(tmpdir(), 'qilin-tenant-single-origin-'))
+  const home = join(root, 'home')
+  await mkdir(home, { recursive: true })
+  const store = await AccountStore.open(accountsFilePath(home))
+  const alice = await store.add({ username: 'alice' }, ALICE_PASSWORD)
+
+  let hub: RunningHub | undefined
+  try {
+    hub = await startHub(root, home, { singleOrigin: true })
+    const base = hub.base
+    const hubOrigin = new URL(base).origin
+    expect((await hubStatusDocument(base)).mode).toBe('single-origin')
+
+    // 1. The handoff never leaves the hub origin: the runtime's own token
+    //    exchange is proxied, and the hub adds the routing cookie that names
+    //    the tenant for every later request.
+    const handoffResponse = await fetch(`${base}t/alice`, { redirect: 'manual' })
+    expect(handoffResponse.status).toBe(303)
+    expect(handoffResponse.headers.get('location')).toBe('/workspace')
+    const setCookies = handoffResponse.headers.getSetCookie()
+    expect(setCookies.some(cookie => cookie.startsWith(`qilin_tenant=${alice.id}`))).toBe(true)
+    const jar = setCookies.map(cookie => cookie.split(';', 1)[0]).join('; ')
+    expect(jar).toMatch(/qilin_tenant=/u)
+
+    // 2. The document is reached at the hub root: /workspace is an absolute
+    //    path that only the routing cookie can attribute to a tenant.
+    const document = await fetch(`${base}workspace`, { headers: { cookie: jar } })
+    expect(document.status).toBe(200)
+    expect(document.headers.get('content-type') ?? '').toContain('text/html')
+    expect(await document.text()).toContain('<html')
+
+    // 3. The API crosses the same hop with any method, and the tenant's
+    //    same-origin fence still decides one hop out: an Origin naming the hub
+    //    is rewritten to the runtime and accepted, while an Origin naming
+    //    another site is refused before any runtime sees the request.
+    const accepted = await fetch(`${base}api/auth/login`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', origin: hubOrigin, cookie: jar },
+      body: JSON.stringify({ identifier: 'alice', password: ALICE_PASSWORD }),
+    })
+    expect(accepted.status).toBe(200)
+    // The account session cookie the runtime set crossed the hop too, so one
+    // browser keeps one jar for the tenant it is signed in to.
+    const accountCookies = accepted.headers.getSetCookie().map(cookie => cookie.split(';', 1)[0])
+    expect(accountCookies.length).toBeGreaterThan(0)
+    const authenticated = [jar, ...accountCookies].join('; ')
+    const refused = await fetch(`${base}api/auth/login`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', origin: 'http://evil.invalid', cookie: jar },
+      body: JSON.stringify({ identifier: 'alice', password: ALICE_PASSWORD }),
+    })
+    expect(refused.status).toBe(403)
+    expect(await refused.text()).toMatch(/not this hub/u)
+
+    // 4. A Remote request and the mux upgrade cross the hop too: the upgrade
+    //    is an absolute path, and its ready item proves the frame pipe.
+    const listing = await tenantRemoteResult<{ items: { sessionId: string }[] }>(hubOrigin, authenticated, 'through-hub', 'session/list', { _request: {} })
+    expect(listing.ok).toBe(true)
+    const proxied: TenantHost = {
+      tenant: 'alice-through-hub',
+      cwd: root,
+      url: base,
+      origin: hubOrigin,
+      cookie: authenticated,
+      rpc: async () => { throw new Error('the upgrade assertion does not use rpc') },
+      rpcResult: async () => { throw new Error('the upgrade assertion does not use rpcResult') },
+    }
+    const events = await openForwardedEvents(proxied)
+    await events.close()
+
+    // 5. Reclamation counts proxied traffic rather than a handoff: requests
+    //    spread across the idle window keep the runtime alive...
+    const until = Date.now() + IDLE_MILLISECONDS + 3000
+    while (Date.now() < until) {
+      const status = await fetch(`${base}api/auth/status`, { headers: { cookie: authenticated } })
+      expect(status.status).toBe(200)
+      await new Promise(resolve => setTimeout(resolve, 1200))
+    }
+    expect((await hubStatus(base)).find(tenant => tenant.username === 'alice')?.state).toBe('running')
+
+    // ... and stop counting the moment the browser does.
+    await expect.poll(
+      async () => (await hubStatus(base)).map(tenant => tenant.state),
+      { timeout: 30_000, interval: 250 },
+    ).toEqual(['stopped'])
+  } catch (error) {
+    const evidence = hub === undefined ? '' : `\n${hub.output().slice(-4000)}`
+    throw new Error(`${error instanceof Error ? error.message : String(error)}${evidence}`, { cause: error })
+  } finally {
+    if (hub !== undefined) await stopHub(hub)
     await rm(root, { recursive: true, force: true })
   }
 })

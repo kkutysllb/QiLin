@@ -13,7 +13,15 @@
  * Idle reclamation counts from the last handoff. A browser that reached a tenant
  * origin keeps talking to that origin directly, which the hub cannot observe, so
  * a deployment that leaves long-lived tabs open raises `--idle-ms` or disables
- * reclamation with 0.
+ * reclamation with 0; `--single-origin` moves that same traffic through the hub
+ * instead, and reclamation then counts proxied requests.
+ *
+ * With `--single-origin` the hub serves one origin and routes by a routing
+ * cookie it sets at the handoff: `/api`, the mux upgrade, and media requests are
+ * absolute paths on the page origin, so only cookie routing can attribute them
+ * to a tenant. The cookie selects a runtime, it does not authorize: the runtime
+ * still answers with its own account gate, so a forged cookie reaches a
+ * runtime that does not recognize the caller.
  *
  * `--max-tenants` bounds how many runtimes live at once: a handoff that would
  * exceed the bound reclaims the least recently used one, and every tenant's
@@ -27,6 +35,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from 'node:ht
 import { accountsFilePath, AccountStore } from '@qilin-agent/accounts-local'
 import { resolveQilinHome } from '@qilin-agent/home-paths'
 import { TenantRuntime, type TenantRuntimeStatus } from './tenant-runtime.ts'
+import { forwardedHeaders, hubAcceptsOrigin, proxyRequest, relayAnswer, relayUpgrade } from './tenant-proxy.ts'
 
 /** What `qilin tenants serve` was asked to do. */
 export interface TenantsServeOptions {
@@ -48,6 +57,50 @@ export interface TenantsServeOptions {
    * doubles it per consecutive failure. {@link TenantRuntime} owns the ceiling.
    */
   readonly restartBackoffMilliseconds: number
+  /**
+   * Serve every tenant through the hub's own origin instead of redirecting to a
+   * runtime's port: the hub routes each request to the tenant its routing
+   * cookie names, so one browser drives one tenant at a time, and reclamation
+   * counts real traffic rather than a handoff.
+   */
+  readonly singleOrigin: boolean
+}
+
+/** Routing cookie the hub sets so later requests, whatever their path, name their tenant. */
+const TENANT_COOKIE = 'qilin_tenant'
+
+/**
+ * The routing cookie one handoff sets.
+ *
+ * It selects a runtime; it authorizes nothing. The runtime still answers with
+ * its own account gate, so the value is an account identity and not a secret,
+ * and `HttpOnly` keeps it out of page scripts that have no use for it.
+ * @param accountId - account identity the browser should reach from now on.
+ * @returns one `Set-Cookie` value.
+ */
+function routingCookie(accountId: string): string {
+  return `${TENANT_COOKIE}=${accountId}; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000`
+}
+
+/** The routing cookie's removal, for a browser whose tenant no longer exists. */
+function clearedRoutingCookie(): string {
+  return `${TENANT_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`
+}
+
+/**
+ * One cookie value from a request, decoded no further than substitution.
+ * @param header - the browser's `Cookie` header.
+ * @param name - cookie name to read.
+ * @returns the value, or undefined when the browser did not send it.
+ */
+function cookieValue(header: string | undefined, name: string): string | undefined {
+  if (header === undefined) return undefined
+  for (const part of header.split(';')) {
+    const separator = part.indexOf('=')
+    if (separator === -1) continue
+    if (part.slice(0, separator).trim() === name) return part.slice(separator + 1).trim()
+  }
+  return undefined
 }
 
 /** One answered request. */
@@ -172,12 +225,14 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
   const roster = async (): Promise<AccountStore> => await AccountStore.open(accountsFilePath(home))
 
   const status = async (): Promise<{
+    mode: 'handoff' | 'single-origin'
     maxTenants: number
     alive: number
     tenants: (TenantRuntimeStatus & { username: string | null })[]
   }> => {
     const store = await roster()
     return {
+      mode: options.singleOrigin ? 'single-origin' : 'handoff',
       maxTenants: options.maxTenants,
       alive: active().length,
       tenants: [...runtimes.values()].map((runtime) => {
@@ -187,9 +242,62 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
     }
   }
 
+
+  /**
+   * Resolve the runtime one browser is driving, starting it when it is not serving.
+   * @param accountId - the account the browser's routing cookie names.
+   * @returns the runtime, or undefined when the roster no longer holds that account.
+   */
+  const routedRuntime = async (accountId: string): Promise<TenantRuntime | undefined> => {
+    if ((await roster()).byId(accountId) === undefined) return undefined
+    const runtime = runtimeFor(accountId)
+    await serialize(async () => {
+      await makeRoom(runtime)
+      await runtime.ensure()
+    })
+    return runtime
+  }
+
+  /**
+   * Forward one browser request to a runtime and relay its answer.
+   * @param request - the browser's request.
+   * @param response - the browser's response.
+   * @param runtime - the runtime the request belongs to.
+   * @param path - path and query to request upstream.
+   * @param extraCookies - cookies to add to the answer.
+   */
+  const forward = async (
+    request: IncomingMessage,
+    response: ServerResponse,
+    runtime: TenantRuntime,
+    path: string,
+    extraCookies: readonly string[],
+  ): Promise<void> => {
+    const target = runtime.proxyTarget()
+    if (target === undefined) throw new Error('the runtime is not serving')
+    // Every proxied request is traffic the hub can see, which is what makes
+    // reclamation in this mode measure use rather than a handoff.
+    runtime.lastUsedAt = Date.now()
+    const answered = await proxyRequest({
+      target,
+      method: request.method ?? 'GET',
+      path,
+      headers: request.headers,
+      hubAuthority: request.headers.host ?? '',
+      body: request,
+    })
+    const upstreamCookies = answered.headers['set-cookie'] === undefined
+      ? []
+      : Array.isArray(answered.headers['set-cookie']) ? answered.headers['set-cookie'] : [answered.headers['set-cookie']]
+    relayAnswer({ ...answered, headers: { ...answered.headers, 'set-cookie': [...upstreamCookies, ...extraCookies] } }, response)
+  }
+
   const handle = async (request: IncomingMessage, response: ServerResponse): Promise<void> => {
     const url = new URL(request.url ?? '/', 'http://qilin.invalid')
-    if (request.method !== 'GET') {
+    // The hub's own routes answer reads. A proxied path carries whatever method
+    // the browser used, because its API calls and its uploads pass through.
+    const hubOwnRoute = url.pathname === '/healthz' || url.pathname === '/status' || url.pathname === '/'
+    if (request.method !== 'GET' && !(options.singleOrigin && !hubOwnRoute)) {
       respond(response, 405, 'text/plain; charset=utf-8', 'qilin tenants: the hub answers reads only\n')
       return
     }
@@ -206,18 +314,29 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       return
     }
     if (url.pathname.startsWith('/t/')) {
-      const username = decodeURIComponent(url.pathname.slice('/t/'.length))
+      const rest = url.pathname.slice('/t/'.length)
+      const separator = rest.indexOf('/')
+      const username = decodeURIComponent(separator === -1 ? rest : rest.slice(0, separator))
       const account = (await roster()).byUsername(username)
       if (account === undefined) {
         respond(response, 404, 'text/plain; charset=utf-8', 'qilin tenants: no such account\n')
         return
       }
       try {
+        const runtime = runtimeFor(account.id)
         const launchUrl = await serialize(async () => {
-          const runtime = runtimeFor(account.id)
           await makeRoom(runtime)
           return await runtime.ensure()
         })
+        if (options.singleOrigin) {
+          // The bare handoff is the runtime's own launch URL, launch token and
+          // all; any deeper path is that path with the prefix removed.
+          const entry = new URL(launchUrl)
+          const deeper = url.pathname.slice('/t/'.length + username.length)
+          const path = separator === -1 ? `${entry.pathname}${entry.search}` : `${deeper}${url.search}`
+          await forward(request, response, runtime, path, [routingCookie(account.id)])
+          return
+        }
         response.writeHead(303, {
           'cache-control': 'no-store',
           'location': launchUrl,
@@ -227,6 +346,32 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       } catch (error) {
         process.stderr.write(`qilin tenants: the runtime for ${account.username} did not start: ${String(error)}\n`)
         respond(response, 503, 'text/plain; charset=utf-8', `qilin tenants: the runtime for ${account.username} did not start\n`)
+      }
+      return
+    }
+    if (options.singleOrigin) {
+      const accountId = cookieValue(request.headers.cookie, TENANT_COOKIE)
+      if (accountId === undefined) {
+        respond(response, 404, 'text/plain; charset=utf-8', 'qilin tenants: no tenant is selected for this browser\n')
+        return
+      }
+      try {
+        const runtime = await routedRuntime(accountId)
+        if (runtime === undefined) {
+          // The roster no longer holds that account: drop the cookie so the
+          // browser goes back to the directory instead of retrying forever.
+          response.writeHead(404, {
+            'cache-control': 'no-store',
+            'content-type': 'text/plain; charset=utf-8',
+            'set-cookie': clearedRoutingCookie(),
+          })
+          response.end('qilin tenants: the selected tenant no longer exists\n')
+          return
+        }
+        await forward(request, response, runtime, `${url.pathname}${url.search}`, [])
+      } catch (error) {
+        process.stderr.write(`qilin tenants: no runtime served ${url.pathname}: ${String(error)}\n`)
+        respond(response, 503, 'text/plain; charset=utf-8', 'qilin tenants: that tenant is not serving\n')
       }
       return
     }
@@ -240,6 +385,31 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       else response.end()
     })
   })
+
+  if (options.singleOrigin) {
+    // The mux upgrade is an absolute path on the page origin, so only the
+    // routing cookie can name its tenant. The socket is piped, never framed.
+    server.on('upgrade', (request, socket, head) => {
+      void (async () => {
+        if (!hubAcceptsOrigin(request.headers, request.headers.host ?? '')) {
+          socket.destroy()
+          return
+        }
+        const accountId = cookieValue(request.headers.cookie, TENANT_COOKIE)
+        const runtime = accountId === undefined ? undefined : await routedRuntime(accountId)
+        const target = runtime?.proxyTarget()
+        if (runtime === undefined || target === undefined) {
+          socket.destroy()
+          return
+        }
+        runtime.lastUsedAt = Date.now()
+        relayUpgrade(request, socket, head, target, forwardedHeaders(request.headers, new URL(target.origin).host))
+      })().catch((error: unknown) => {
+        process.stderr.write(`qilin tenants: the upgrade to ${request.url ?? ''} failed: ${String(error)}\n`)
+        socket.destroy()
+      })
+    })
+  }
 
   const listening = Promise.withResolvers<number>()
   server.on('error', (error: Error) => { listening.reject(error) })

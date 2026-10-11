@@ -63,6 +63,17 @@ interface TenantsInvocation {
 /** The resolved `qilin` invocation. Help, version, and errors exit inside {@link parseQilinArgs}. */
 export type QilinInvocation = ProfileInvocation | DumpConfigInvocation | PluginInvocation | TenantsInvocation
 
+/** `qilin tenants serve` flags, as commander collected them. */
+interface TenantsServeFlags {
+  host: string
+  port: number
+  profile: string
+  idleMs: number
+  maxTenants: number
+  restartBackoffMs: number
+  singleOrigin?: boolean
+}
+
 /** Launcher flags for profile boot and configuration dumps. */
 interface BootOptions {
   patch?: string[]
@@ -250,7 +261,8 @@ export function parseQilinArgs(argv: readonly string[], version: string): QilinI
       .option('--idle-ms <milliseconds>', 'idle window before a tenant runtime is reclaimed', wholeNumber('--idle-ms', 100), 1_800_000)
       .option('--max-tenants <count>', 'most tenant runtimes to keep running at once; 0 keeps every one, and starting another reclaims the least recently used', wholeNumber('--max-tenants', 0), 0)
       .option('--restart-backoff-ms <milliseconds>', 'first wait before retrying a tenant runtime that failed to start; it doubles per consecutive failure', wholeNumber('--restart-backoff-ms', 100), 1000)
-      .action((options: { host: string; port: number; profile: string; idleMs: number; maxTenants: number; restartBackoffMs: number }) => {
+      .option('--single-origin', 'serve every tenant through the hub origin, routing each request by a cookie, instead of redirecting to the runtime port; reclamation then counts proxied traffic')
+      .action((options: TenantsServeFlags) => {
         resolved = {
           mode: 'tenants',
           request: {
@@ -262,6 +274,7 @@ export function parseQilinArgs(argv: readonly string[], version: string): QilinI
               idleMilliseconds: options.idleMs,
               maxTenants: options.maxTenants,
               restartBackoffMilliseconds: options.restartBackoffMs,
+              singleOrigin: options.singleOrigin === true,
             },
           },
         }

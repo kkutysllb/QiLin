@@ -133,12 +133,12 @@ V1 不反代：hub 只跳转，浏览器此后直接与租户运行时通信。�
 
 ### 4.4 鉴权：两个变体
 
-| | V1 每租户独立端口 | V2 单源反代（目标形态） |
+| | V1 每租户独立端口（默认） | V2 单源反代（`--single-origin`，已交付） |
 |---|---|---|
-| 做法 | 守护进程把浏览器 302 到 `127.0.0.1:<tenantPort>` | 浏览器只见守护进程一个 origin；转发时附引擎 cookie、剥离浏览器侧 cookie；WS 升级逐跳透传 |
-| 隔离依据 | 每个运行时的 `accounts-local` 只接纳自己的账号（`admittedAccounts`），cookie 名绑定 `host:port` 天然不互通 | 引擎端口不出 loopback，租户不可直达 |
-| 代价 | 每个租户要单独登录一次 | 需要自己维护反代与 WS |
-| 适合 | 内网原型、开发 | 生产 |
+| 做法 | 守护进程把浏览器 303 到 `127.0.0.1:<tenantPort>` | 浏览器只见 hub 一个 origin；hub 按路由 cookie 归属租户，把 `Host`/`Origin` 改写成运行时自己的 authority 后转发 |
+| 隔离依据 | 每个运行时的 `accounts-local` 只接纳自己的账号（`admittedAccounts`），cookie 名绑定 `host:port` 天然不互通 | 同左：运行时仍只接纳本租户账号；hub 只转发字节，不做访问判定 |
+| 代价 | 每个租户要单独登录一次 | 一个浏览器同时只活跃一个租户（路由 cookie 是浏览器级）；hub 需维护反代与 WS 管道 |
+| 适合 | 一个浏览器要同时开多个租户、内网原型 | 生产单租户入口、需按真实流量回收 |
 
 ### 4.5 已知让步（必须写清楚）
 
@@ -188,7 +188,7 @@ V1 不反代：hub 只跳转，浏览器此后直接与租户运行时通信。�
 | P0 | 本计划 + 决策记录落仓；同步修订 accounts-local 的边界表述 | 文档就位，边界口径唯一 |
 | P1 | 一个 home + 两份租户覆盖层 + 两个运行时（已落成常备测试） | ✅ 第 1–6 条判据逐条通过，见 §10 |
 | P2 | 守护进程 V1：`qilin tenants serve`（账号→租户、按需拉起、就绪解析、303 到租户端口、空闲回收），边界由各运行时的 `admittedAccounts` 承担 | ✅ 见 §11 |
-| P3 | 守护进程 V2（单源反代 + WS + 媒体流，收掉租户端口暴露面） | 真浏览器走查 + 录 GIF（GUI 可见变更的仓库要求） |
+| P3 | 守护进程 V2（单源反代 + WS + 媒体流，按真实流量回收） | ✅ 见 §12；真浏览器走查与录 GIF 仍待办 |
 | P4 | 可选：按用户计量/配额；再评估是否需要 B | 计量数据可从请求侧归集 |
 
 ## 9. 开放决策
@@ -275,7 +275,7 @@ P1 已落成常备测试：[tenant-isolation.expected.e2e.ts](../apps/cli/tests/
 
 ### 11.2 与 §4.1 的偏差（如实登记）
 
-§4.1 写的是「hub 认证、反代、把 cookie 附到转发请求上」。P2 实际把边界放在**各租户运行时内部**：hub 不认证、不反代，只做目录与 303；登录由运行时的账号门完成，`admittedAccounts` 保证它只接纳本租户的账户。
+§4.1 写的是「hub 认证、反代、把 cookie 附到转发请求上」。P2 实际把边界放在**各租户运行时内部**：hub 不认证（P3 的单源模式让它还要转发字节，但同样不做访问判定）；登录由运行时的账号门完成，`admittedAccounts` 保证它只接纳本租户的账户。
 
 理由是判定要落在做出决定的操作里：把接纳写进 `accounts-local` 的登录路由与 `currentAccount`，本地进程即使知道端口也必须过账号门；若改成 hub 自建 cookie + 租户关掉门禁，隔离就退化成"知道端口即可读全部数据"。§4.4 的 V1 口径（每租户独立端口、各自登录一次）因此保持不变。
 
@@ -298,7 +298,7 @@ P1 已落成常备测试：[tenant-isolation.expected.e2e.ts](../apps/cli/tests/
 ### 11.4 已知让步（P2 版）
 
 1. 租户 id = 账号 id，1:1 且无注册表，因此没有"两个账户共用一个租户"或改名这一层；账户侧的开户/改密/注销运维面见 §11.8。
-2. 空闲窗口按**最后一次跳转**计：浏览器到达租户 origin 后直接与它通信，hub 看不到这份流量，所以长时间开着标签页的部署要把 `--idle-ms` 调大或设为 0。P3 的单源反代才能按真实流量判定。
+2. 空闲窗口按**最后一次跳转**计：浏览器到达租户 origin 后直接与它通信，hub 看不到这份流量，所以长时间开着标签页的部署要把 `--idle-ms` 调大或设为 0。`--single-origin` 已按真实流量判定（§12）。
 3. 账户由共享 home 的普通 Web 表面创建（hub 不提供开户），租户覆盖层把 `registration` 关掉，因此某个运行时不能顺手造号。
 4. §4.5 的四条让步仍然成立：同一 OS 用户、共享模型 key、插件共享写、成本随租户数线性增长。
 
@@ -374,3 +374,53 @@ P2 的缺口是「没有运维面」：租户运行时只接纳它服务的那�
 | 5 | 退避窗口内第二次跳转仍 503，且 `starts` 保持 1（**没有真的再拉起一个进程**） | ✅ |
 
 另有 [tenants-roster.spec.ts](../apps/cli/tests/tenants-roster.spec.ts) 7 例（规范化与四类拒绝、改密递增代数、保留/清除目录、名册列表与退出码）与 [accounts.spec.ts](../packages/identity/accounts-local/tests/accounts.spec.ts) 新增 2 例（`setPassword` / `remove` 的持久化与兄弟记录不受影响）。真 CLI 手测：`add → passwd → accounts → remove → accounts` 五步输出与磁盘布局均符合预期。
+
+## 12. P3 执行记录：单源反代（2026-10-11）
+
+### 12.1 为什么必须是 cookie 路由，而不是路径前缀
+
+先读了传输面才定的形态，三条实测事实决定了设计（都不是推测）：
+
+| 事实 | 依据 | 后果 |
+|---|---|---|
+| 启动令牌交换只发生在 `GET <入口路径>?token=…` 上，换来的设备 cookie 载荷里带 **authority** | [browser-auth.ts:297-310](../packages/client/connection/src/browser-auth.ts#L297-L310) | 运行时必须看见**它自己的** authority，所以 hop 要把 `Host` 改写成租户的 `host:port` |
+| `/api` 是绝对路径前缀，mux 升级是绝对路径 `/api/remote.mux` | [api-path.ts](../packages/client/connection/src/api-path.ts)、[webserver/src/index.ts:390](../packages/host/webserver/src/index.ts#L390)、e2e harness 的 WS 用法 | **路径前缀反代不成立**：前缀之外的绝对路径无法归属租户，只有 cookie 能 |
+| `/api` 的围栏要求 `Origin` 与 `Host` 同 authority（存在 Origin 时） | [api-request-trust.ts:137-155](../packages/client/connection/src/api-request-trust.ts#L137-L155) | hop 必须重写 `Origin`；重写前由 hub 自己先判「Origin 是否指向本 hub」，否则等于替恶意页面开口 |
+
+因此 `--single-origin` 的形态是：**hub 一个 origin + 跳转时种下的路由 cookie**（`qilin_tenant=<accountId>`，`Path=/; HttpOnly; SameSite=Lax`）。`/t/<用户名>` 是入口（转发运行时的启动 URL，含令牌，并附加路由 cookie），此后**任意路径**（`/workspace`、`/api/*`、`/api/remote.mux`、媒体流）都按该 cookie 路由。
+
+hub 仍然**不做访问判定**：路由 cookie 只是选择器，伪造它只会到达一个不认可调用者的运行时（账号门照旧）。
+
+### 12.2 交付形态
+
+| 件 | 内容 |
+|---|---|
+| [tenant-proxy.ts](../apps/cli/src/tenant-proxy.ts) | hop 原语：`hubAcceptsOrigin`（Origin/`sec-fetch-site` 围栏，在转发的操作里执行）、`forwardedHeaders`（丢连接级头、改写 `Host`/`Origin`）、`proxyRequest`（流式转发，任何方法）、`relayAnswer`（原样回写状态/头/体）、`relayUpgrade`（TCP 直管道，不拆帧，并补回被丢掉的 `connection: Upgrade`/`upgrade: websocket`） |
+| [tenants.ts](../apps/cli/src/tenants.ts) | 路由 cookie 的种/清、按 cookie 解析运行时（必要时拉起）、`/t/<用户>/…` 深层路径去前缀转发、`server.on('upgrade')` 管道、`/status` 增 `mode` |
+| [tenant-runtime.ts](../apps/cli/src/tenant-runtime.ts) | `proxyTarget()`：origin + 入口路径（含令牌），令牌只留在 hub 内，从不出现在浏览器 URL 里 |
+| 空闲回收 | 单源模式下每个被代理的请求与升级都会 touch `lastUsedAt`，因此回收口径变成**真实流量** |
+
+### 12.3 验收（全部实跑）
+
+**[tenant-proxy.spec.ts](../apps/cli/tests/tenant-proxy.spec.ts)（7 例，对桩上游）**：Range 转发 + 206 + `content-range` 与体原样；`Host`/`Origin` 改写、连接级头（`connection`/`proxy-authorization`/`transfer-encoding`）不跨；外来 Origin 与 `sec-fetch-site: cross-site` 在**上游看到请求之前**被 403（桩记录 0 次请求）；`Location`/双 `Set-Cookie` 原样；上游未监听时转发失败；`relayAnswer` 流式回写且不回传连接级头；升级管道双向连通且上游看到请求行与头。
+
+**[tenant-supervisor.expected.e2e.ts](../apps/cli/tests/profiles/web/tests/tenant-supervisor.expected.e2e.ts) 第三个场景（真引擎 + 真进程）**：
+
+| # | 断言 | 实测 |
+|---|---|---|
+| 1 | `/status` 报 `mode: single-origin`；跳转停在 hub origin：303 且 `Location: /workspace`，并带上 `qilin_tenant=<alice id>` | ✅ |
+| 2 | **绝对路径** `/workspace` 仅凭路由 cookie 就取到应用文档（200 `text/html`、含 `<html`） | ✅ |
+| 3 | `POST /api/auth/login` 带 `Origin: <hub>` 穿过 hub 得到 200，且运行时种的账号会话 cookie 一并回到浏览器 | ✅ |
+| 4 | 同一 POST 换成 `Origin: http://evil.invalid` → **403**，且体是 hub 自己的拒绝文案 | ✅ |
+| 5 | Remote（`session/list`，POST `/api/...`）穿过 hub 成功 | ✅ |
+| 6 | **mux 升级**穿过 hub：`$events` 流拿到 `ready` 帧（证明帧管道，不是 101 假象） | ✅ |
+| 7 | **按真实流量回收**：窗口（4 s）内每 1.2 s 一次请求使运行时保持 `running`，请求停止后被回收为 `stopped` | ✅ |
+
+媒体流的 Range 转发由 12.3 的单元用例覆盖（对桩上游断言 206 与 `content-range`），**没有**对真实 `preview-media` 路由端到端跑一次 Range——那是 12.4 的待办，登记在这。
+
+### 12.4 已知让步（P3 版）
+
+1. **一个浏览器同时只服务一个租户**：路由 cookie 是浏览器级的。默认跳转模式仍可同时开多个租户（各自端口、各自 cookie 名），需要多租户并排时用它。
+2. **租户端口仍可达**：单源模式只是给浏览器一条不暴露端口的路径，不关闭运行时自己的监听（它们只绑 127.0.0.1，且仍要过账号门）。真要收掉监听面，得让运行时只绑 hub 可用的通道，那是独立一件事。
+3. **Cookie 名仍是 authority 绑定的**：因为 `Host` 被改写成租户 authority，浏览器里同一个 host 下会并存多个租户的 cookie（名字不同，天然不互相验证）。这是刻意的，不是缺陷。
+4. **真浏览器走查与录 GIF 未做**：仓库要求「产品用户可见的 GUI 行为变更必须录 GIF」，本轮只到进程级 e2e 与单元断言，GIF 与真浏览器走查登记为待办。

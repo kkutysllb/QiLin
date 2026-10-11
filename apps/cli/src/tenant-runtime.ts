@@ -140,6 +140,17 @@ export class TenantRuntime {
    */
   constructor(private readonly options: TenantRuntimeOptions) {}
 
+  /**
+   * Where the hub sends this runtime's traffic: its origin, and the entry path
+   * carrying the launch token the first request exchanges.
+   * @returns the target, or undefined when the runtime is not serving yet.
+   */
+  proxyTarget(): { readonly origin: string; readonly entry: string } | undefined {
+    if (this.launchUrl === undefined) return undefined
+    const url = new URL(this.launchUrl)
+    return { origin: url.origin, entry: `${url.pathname}${url.search}` }
+  }
+
   /** Absolute path of this tenant's deployment overlay. */
   get overlayPath(): string {
     return join(this.tenantDir, 'cordis.patch.yml')
