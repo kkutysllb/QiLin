@@ -107,6 +107,29 @@ describe('deployment entry', () => {
     expect(deployment.log).not.toContain('stop:first-run')
   })
 
+  it('answers a chosen browser at the deployment\u2019s own doors, and drops its choice there', { timeout: 60_000 }, async () => {
+    const deployment = await startDeployment({ usernames: ['alice'], maxTenants: 0, registration: 'open' })
+    running.push(deployment)
+    const aliceId = deployment.accounts.get('alice') ?? ''
+
+    // The sign-in document belongs to the deployment, so it is answered by the
+    // runtime that carries the deployment's policy — the first-run runtime — even
+    // though this browser has already chosen an account: a tenant runtime narrows
+    // admission to one account, and the accounts plugin requires that narrowing to
+    // keep registration closed, so it could neither offer registration nor sign a
+    // browser in as anybody else.
+    const door = await page(`${deployment.base}login`, routingCookie(aliceId))
+    expect(await door.text()).toBe('served first-run')
+    expect(deployment.options.has(aliceId)).toBe(false)
+    // Choosing again is what a browser at a door is doing, so the stale choice goes.
+    expect(door.headers.get('set-cookie') ?? '').toContain('qilin_tenant=;')
+
+    // Everything that is the account's own still reaches that account's runtime.
+    const workbench = await page(`${deployment.base}workspace`, routingCookie(aliceId))
+    expect(await workbench.text()).toBe(`served ${aliceId}`)
+    expect(deployment.options.has(aliceId)).toBe(true)
+  })
+
   it('releases the routing cookie when the browser signs out', { timeout: 60_000 }, async () => {
     const deployment = await startDeployment({ usernames: ['alice', 'bob'], maxTenants: 0 })
     running.push(deployment)

@@ -194,6 +194,23 @@ function clearedRoutingCookie(): string {
   return `${TENANT_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`
 }
 
+/** Documents the deployment itself answers, whatever account a browser chose. */
+const DEPLOYMENT_DOORS = new Set(['/login', '/setup'])
+
+/**
+ * Whether a path belongs to the deployment's own doors: the sign-in and setup
+ * documents, and the account surface they call.
+ *
+ * These are where a browser picks, or creates, the account it works as, so they
+ * are answered by the runtime that carries the deployment's registration policy
+ * rather than by whichever account's runtime this browser happens to hold.
+ * @param pathname - the request path.
+ * @returns true for the sign-in surface.
+ */
+function deploymentDoor(pathname: string): boolean {
+  return DEPLOYMENT_DOORS.has(pathname) || pathname.startsWith('/api/auth/')
+}
+
 /**
  * One cookie value from a request, decoded no further than substitution.
  * @param header - the browser's `Cookie` header.
@@ -375,12 +392,10 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
    * The registration mode is the deployment's own policy, not a consequence of
    * holding an account: a deployment that accepts new accounts keeps accepting
    * them once the first one exists, and only an operator asking for `closed`
-   * turns that off. A runtime started under a different mode is replaced rather
-   * than left answering with it, because a running runtime cannot change its own.
-   * @param registration - whether this deployment accepts new accounts.
+   * turns that off.
    * @returns the first-run runtime.
    */
-  const bootstrapRuntime = async (): Promise<TenantHandle> => {
+  const bootstrapRuntime = (): TenantHandle => {
     const existing = runtimes.get(BOOTSTRAP_ACCOUNT)
     if (existing !== undefined) return existing
     const created = startRuntime({
@@ -500,7 +515,7 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
    * @returns the first-run runtime, running.
    */
   const runningFirstRun = async (): Promise<TenantHandle> => {
-    const runtime = await bootstrapRuntime()
+    const runtime = bootstrapRuntime()
     await serialize(async () => {
       await makeRoom(runtime)
       await runtime.ensure()
@@ -515,11 +530,17 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
    * @param request - the browser's request.
    * @param response - the browser's answer.
    * @param path - request path, preserved so the application sees its own route.
+   * @param extraCookies - cookies this deployment appends to the answer.
    */
-  const serveFirstRun = async (request: IncomingMessage, response: ServerResponse, path: string): Promise<void> => {
+  const serveFirstRun = async (
+    request: IncomingMessage,
+    response: ServerResponse,
+    path: string,
+    extraCookies: readonly string[] = [],
+  ): Promise<void> => {
     try {
       const runtime = await runningFirstRun()
-      await forward(request, response, runtime, path, [])
+      await forward(request, response, runtime, path, extraCookies)
     } catch (error) {
       process.stderr.write(`qilin tenants: the first-run runtime did not start: ${String(error)}\n`)
       respond(response, 503, 'text/plain; charset=utf-8', 'qilin tenants: this deployment could not start its first-run runtime\n')
@@ -742,6 +763,19 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
     }
     if (options.singleOrigin) {
       const accountId = cookieValue(request.headers.cookie, TENANT_COOKIE)
+      // The deployment's own doors — the sign-in and setup documents and the
+      // account surface behind them — belong to the runtime that carries the
+      // deployment's registration policy, never to a tenant's: a tenant layer
+      // narrows admission to one account, and the accounts plugin requires that
+      // narrowing to keep registration closed, so that runtime can neither offer
+      // registration nor sign a browser in as anybody but its own account. Every
+      // door answer also drops the routing cookie, because a browser at a door is
+      // choosing its account again: whatever it chose before is not the choice it
+      // is making now, and the session it ends up with sets the cookie again.
+      if (deploymentDoor(url.pathname)) {
+        await serveFirstRun(request, response, productPath(), [clearedRoutingCookie()])
+        return
+      }
       // A browser that has chosen no account reaches the sign-in form below,
       // while one that has reaches the runtime that serves it. The account
       // gate sends a signed-out browser to the runtime's own root, which is
@@ -750,10 +784,7 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
         const runtime = await routedRuntime(store, accountId)
         if (runtime !== undefined) {
           try {
-            // Signing out ends the runtime's own session; the routing cookie is
-            // this deployment's, so it is cleared on the same answer.
-            const extra = url.pathname === '/api/auth/logout' ? [clearedRoutingCookie()] : []
-            await forward(request, response, runtime, `${url.pathname}${url.search}`, extra)
+            await forward(request, response, runtime, `${url.pathname}${url.search}`, [])
           } catch (error) {
             process.stderr.write(`qilin tenants: no runtime served ${url.pathname}: ${String(error)}\n`)
             respond(response, 503, 'text/plain; charset=utf-8', 'qilin tenants: that tenant is not serving\n')

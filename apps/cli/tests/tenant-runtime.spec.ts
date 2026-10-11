@@ -31,6 +31,17 @@ describe('one tenant runtime child', () => {
     expect(document).not.toContain('sessionCookieSecure')
   })
 
+  it('keeps its layer closed, which is what admitting one account requires', () => {
+    // The accounts plugin refuses one-account admission with registration open:
+    // an account the list does not name could never use that deployment
+    // (accounts-local `admitAccounts`). So the layer that narrows admission must
+    // stay closed, and the deployment's own policy is served at its own doors
+    // instead — see the deployment entry specs.
+    const document = tenantPatchYaml('alice')
+    expect(document).toContain("      - 'alice'")
+    expect(document).toContain('registration: closed')
+  })
+
   it('marks account cookies Secure only for a deployment that terminates TLS', () => {
     expect(tenantPatchYaml('alice', true)).toContain('sessionCookieSecure: true')
     expect(bootstrapPatchYaml('open', true)).toContain('sessionCookieSecure: true')
