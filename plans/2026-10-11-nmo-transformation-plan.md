@@ -206,16 +206,28 @@
 | composes the intersection of installed Bundles and enabled preset rows | 子代理工具 schema 现为 `cwd`/`description`/`prompt`，不再是 `run_in_background` |
 | applies a product-row edit only to later sessions on the preset | `subagent-codex/cordis.patch.yml` 自身 insert 了一行**启用**的 `tool-subagent-codex`，与「装 Bundle 不等于授予工具」的断言冲突 |
 
-### S1 遗留 —— 浏览器车道（下一批）
+### S1 遗留收口 —— 浏览器车道（2026-10-11 续，第二批）
 
-| 面 | 实测状态 |
+**先修掉一个阻断一切 profile-less 组合的真缺陷**：合并后的 `ptc` 启用 `tool-plugin-manager`（C7=a），而该工具背后的 `pluginManager` 服务只在**有 profile 的组合**里存在（base bundle 的 `plugin-manager` 行同为 `!!js "!ctx.get('profileContext')"`）。没有 profile 时该服务永不到达 → 行永远 pending → **该组合下每个会话都无法组合**：`agent-preset/invalid: preset "ptc" failed to mount: 1 row(s) did not activate: tool-plugin-manager ... waiting for pluginManager`。实测波及与预设无关的车道（`startup-auto-selection`、`composer-placeholder` 均在「连上工作区后编辑器不解锁」这一步红）。修法：预设行补同一条判据 `disabled: !!js "!ctx.get('profileContext')"`（[agent.cordis.yml](../packages/preset/agent-presets/presets/ptc/agent.cordis.yml)）。验证：profile-less 组合的 `session/create` 恢复 `ok` 并组合出 `agentPreset: "ptc"` 的空白会话（探针实测）；profile-backed 的 CLI 车道 `composes the full agent from ptc` 仍断言 `plugin_manager` 在目录里（1/1 绿）；`verify-cordis-config` 435 文件、`verify-runtime-closure` 1 预设 + 156 包闭合。
+
+| 车道 | 结果 |
 |---|---|
-| `agent-preset-selection.e2e.ts` | 车道本机可跑（Playwright 正常，单车道约 150s）；当前探针 **2/9 绿**：`default: 'standard'`、`livePreset` 三档位期望、标签重绑与三份金样 |
-| `agent-preset-authoring.e2e.ts` | 同因：`default: 'standard'`、读取已删除的 `shipped/standard/agent.cordis.yml`、四份金样、创造模式落地 id（现为 `ptc`） |
-| `settings-chrome` / `preset-migration.snapshot` / `schedule-after` | 预设显示名断言与 `agentPreset: 'standard'` 种子 |
+| `startup-auto-selection.e2e.ts` | **2/2 绿**（无改动；此前的红即上述缺陷） |
+| `composer-placeholder.e2e.ts`（对照，与预设无关） | **1/1 绿** |
+| `agent-preset-authoring.e2e.ts` | **7/7 绿**：`default: 'ptc'`；查看/删除/复制改名 `编码模式`；读 `presets/ptc` 组合；复制件描述按 `ptc/preset.yml` 现值；创造模式落地 id `ptc`。金样重录 3 份（section/created/damaged；copy-dialog 未变） |
+| `agent-preset-selection.e2e.ts` | **5/5 绿**（改写口径见下） |
 
-浏览器车道重写需**先重建前端 dist**（本轮改了 `ui-agent-preset` 与 `connection` 的客户端源码），再按单预设事实重推期望并重录 `expected/*.md`。
+**selection 车道改写口径**：hero 的 run-mode 芯片是 **ui-workspace 的重复实现**（[AgentPresetChip.tsx](../packages/client/ui-workspace/src/client/AgentPresetChip.tsx)，即 D-A4/S4 的下架对象）——它用 `preset.name ?? id` 取名（不本地化，与 `agent-presets/display` 那套分叉），且 `options.length < 2` 时整块不渲染（注释原文：a selector over one entry is noise）。S1 去掉 `ptc/preset.yml` 显示名后它显示裸 id `ptc`；单预部署下它根本不渲染。车道据此断言：hero **没有** run-mode 按钮、settings 区仍以本地化名 `Coding mode` 报出 roster 与默认、可用性开关 off/on、header 标签。删掉的三例（staging pick、refusal banner、slash catalog 跟随组合）前提都是「多档位切换」，切换对象已不存在；标签重绑一例随 S3 退场（fold 由 `ui-workbench` 单测覆盖）。金样：hero 重录，`menu.expected.md` 删除。
+
+**本批未收口（如实登记）**：
+
+| 面 | 状态 |
+|---|---|
+| `shipped-composition.e2e.ts` | **5 红（1 例本片引起 + 4 例升级期既有）**。本片 1 例：`lets a preset producer reach the background-job registry` 挂默认预设后直接调 `bash`，而默认已是 PTC 组合（只允许 `run_code` 直调）——待按 PTC 口径改写。既有 4 例：部署全局层工具断言的 `working_directory`、Auto/subagent 工具名与请求形状漂移（`UNKNOWN_TOOL subagent_one_shot`、请求数 3 vs 2、Auto 回滚时序） |
+| `preset-migration.snapshot.ts` | 断言含 `['ptc','standard','ptc']`，是 S2 的迁移面本体，随 v4→v5 代次重写一并处置 |
+| `schedule-after.e2e.ts` | 两处 `seedSession(..., 'standard')` 待改 `ptc`（同族小改，随下一批） |
+| `settings-chrome.e2e.ts` | 无需改：命中的 `standard` 是 `ui-chat transcriptView` 取值，与预设无关 |
 
 ## 10. 下一步
 
-浏览器车道重写 + 金样重录（重建前端 dist）→ S2 存量会话 v4→v5 代次重写（C2=b）→ S3 双工作台与 audience 归一删除。
+下一批：`shipped-composition` 的 PTC 直调改写 + `schedule-after` 种子改 `ptc` + `preset-migration.snapshot` 并入 S2 → **S2 存量会话 v4→v5 代次重写（C2=b）** → S3 双工作台与 audience 归一删除（含 ui-workspace 重复芯片与其车道同退）→ S4 前端零预设面清账。
