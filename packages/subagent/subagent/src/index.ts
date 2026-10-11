@@ -154,6 +154,7 @@ declare module '@qilin-agent/kylin' {
      * `subagent/end`.
      * @param info - the provider and published child identity.
      * @mode emit
+     * @qilinScopeScan unsupported
      */
     'subagent/start'(this: Scoped<SubagentRuntime>, info: SubagentRunInfo): void
     /**
@@ -162,6 +163,7 @@ declare module '@qilin-agent/kylin' {
      * same scoped audience.
      * @param info - the run identity and terminal outcome.
      * @mode emit
+     * @qilinScopeScan unsupported
      */
     'subagent/end'(this: Scoped<SubagentRuntime>, info: SubagentRunEndInfo): void
   }

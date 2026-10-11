@@ -3276,15 +3276,16 @@ export type JournalMode = 'wal' | 'delete' | 'truncate' | 'persist'
 ## `@qilin-agent/subagent`
 
 - `inject`: `workingDirectory`
-- `source`: [`packages/subagent/subagent/src/index.ts:193`](../packages/subagent/subagent/src/index.ts)
+- `refs`: `Volatile` (`@qilin-agent/kylin`)
+- `source`: [`packages/subagent/subagent/src/index.ts:186`](../packages/subagent/subagent/src/index.ts)
 
 ```ts config-catalog
 /** Host configuration for continuable subagent capacity. */
 export interface Config {
   /** Maximum live children sharing uninterrupted continuable parent links; defaults to 8. */
-  maxActiveSubagents?: number
+  maxActiveSubagents: Volatile<number>
   /** Default delegation depth for tools without an explicit limit; defaults to 1. */
-  maxDepth?: number
+  maxDepth: Volatile<number>
 }
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/subagent -->
@@ -3411,7 +3412,7 @@ export type CodexPermissionMode =
 ## `@qilin-agent/subagent-fork-in-process`
 
 - `inject`: `subagents`
-- `source`: [`packages/subagent/subagent-fork-in-process/src/index.ts:31`](../packages/subagent/subagent-fork-in-process/src/index.ts)
+- `source`: [`packages/subagent/subagent-fork-in-process/src/index.ts:29`](../packages/subagent/subagent-fork-in-process/src/index.ts)
 
 ```ts config-catalog
 /** Config: the registry name to register the provider under. */
@@ -3476,7 +3477,7 @@ export interface Config {
 ## `@qilin-agent/subagent-spawn-in-process`
 
 - `inject`: `subagents`
-- `source`: [`packages/subagent/subagent-spawn-in-process/src/index.ts:25`](../packages/subagent/subagent-spawn-in-process/src/index.ts)
+- `source`: [`packages/subagent/subagent-spawn-in-process/src/index.ts:23`](../packages/subagent/subagent-spawn-in-process/src/index.ts)
 
 ```ts config-catalog
 /** Config: the registry name to register the provider under. */
@@ -3941,18 +3942,6 @@ export interface Config {
    * Session and inherit that decision in its child Sessions.
    */
   modelSelectionSettings?: boolean
-  /**
-   * Expose `run_in_background` (default true). Disabled instances omit the
-   * parameter and reject forced background calls.
-   */
-  enableRunInBackground?: boolean
-  /**
-   * Background execution policy (default `one-shot`). `one-shot` defaults calls
-   * to foreground; `continuable` defaults them to background, requires a provider
-   * with the `prepareContinuable` capability, and returns the durable child id.
-   * Follow-up adapters remain independently optional.
-   */
-  backgroundMode?: 'one-shot' | 'continuable'
   /**
    * Agent options applied to every child; omitted fields use child-loop defaults.
    */
@@ -4608,7 +4597,6 @@ export interface Config {
 | `@qilin-agent/session-telemetry` | — | [`packages/session/session-telemetry/src/index.ts`](../packages/session/session-telemetry/src/index.ts) |
 | `@qilin-agent/session-title-llm` | — | [`packages/session/session-title-llm/src/index.ts`](../packages/session/session-title-llm/src/index.ts) |
 | `@qilin-agent/ssh-helper-runtime` | — | [`packages/ssh/ssh-helper-runtime/src/index.ts`](../packages/ssh/ssh-helper-runtime/src/index.ts) |
-| `@qilin-agent/subagent-in-process-driver` | — | [`packages/subagent/subagent-in-process-driver/src/index.ts`](../packages/subagent/subagent-in-process-driver/src/index.ts) |
 | `@qilin-agent/timeout` | — | [`packages/util/timeout/src/index.ts`](../packages/util/timeout/src/index.ts) |
 | `@qilin-agent/typert-generator` | — | [`packages/typert/generator/src/index.ts`](../packages/typert/generator/src/index.ts) |
 | `@qilin-agent/typert-protocol` | — | [`packages/typert/protocol/src/index.ts`](../packages/typert/protocol/src/index.ts) |

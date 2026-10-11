@@ -2035,7 +2035,7 @@ Source: [`packages/subagent/tool-subagent/src/list-models.ts`](../packages/subag
 
 ### `subagent`
 
-Delegate a self-contained task to a subagent (a separate agent that works in its own context) to offload focused, independent work — research, a scoped implementation, an analysis — so it does not consume this conversation's context. The subagent returns its result, not its intermediate steps. Give it a complete, standalone prompt: it does not see this conversation. This call waits for the result by default. Set `run_in_background: true` to return a job id; collect with `job_output` and stop with `job_kill`.
+Delegate a self-contained task to a subagent (a separate agent that works in its own context) to offload focused, independent work — research, a scoped implementation, an analysis — so it does not consume this conversation's context. The subagent returns its result, not its intermediate steps. This tool starts an independently managed subagent and immediately returns its id. The runtime notifies you when it finishes. The child reports results with `send_message`; use `send_message` to steer it while running or continue its conversation after it finishes.
 
 ```json
 {
@@ -2052,10 +2052,6 @@ Delegate a self-contained task to a subagent (a separate agent that works in its
     "prompt": {
       "type": "string",
       "description": "The complete, self-contained task for the subagent. It does not share this conversation's context, so include everything it needs."
-    },
-    "run_in_background": {
-      "type": "boolean",
-      "description": "Whether to run as a background job and return its id. Defaults to false; collect with job_output or stop with job_kill."
     }
   },
   "required": [
@@ -2075,7 +2071,7 @@ The registered delegation name is the load-time `toolName` config (default `suba
 
 ### `interrupt_agent`
 
-Request cancellation of a background agent's current turn by its agent id. The target may be your direct child or a deeper agent created under you. Only the current turn stops: messages already queued for the agent stay parked until a later send_message, agents it started keep running, and the agent itself stays available for follow-ups. This call returns as soon as the stop request is accepted, so the target may keep running briefly; interrupting an agent that already finished is an accepted no-op.
+Ask a subagent to stop its current work. This call returns without waiting for it to stop. You can continue a local direct child's conversation later with send_message. External executions stop permanently and cannot receive follow-ups. Subagents it started will keep running.
 
 ```json
 {
@@ -2083,7 +2079,7 @@ Request cancellation of a background agent's current turn by its agent id. The t
   "properties": {
     "agent_id": {
       "type": "string",
-      "description": "The agent id of the running agent to interrupt."
+      "description": "The id of an agent created under you: your direct child or a deeper descendant."
     }
   },
   "required": [
@@ -2096,7 +2092,7 @@ Source: [`packages/subagent/tool-subagent-control/src/index.ts`](../packages/sub
 
 ### `list_agents`
 
-List your continuable background subagents by durable id and label. Use it to recall which ones you started, not to poll for completion — you are told when one finishes. Status comes from the live registry: running means the agent is working right now; inactive means no turn is executing, whether the child is loaded or must be resumed. inactive does not describe task completion, success, failure, or waiting for other agents. A `send_message` steers a running child at its nearest step boundary or starts or resumes a turn for an inactive child, and a direct child remains a `send_message` candidate in every status. The snapshot is not a delivery promise — `send_message` performs the authoritative check and may still fail. Children that could not be read are reported as diagnostics only in `descendants` scope. Scope `descendants` walks the whole tree below you in stable pre-order, annotating each entry with its durable direct-parent session id and depth. You may use `send_message` only for depth-1 entries; deeper entries are candidates for `interrupt_agent` only.
+List subagents you started, with their ids, labels, and status. running means it is working; inactive means it is not currently working. You will be notified when a subagent finishes; there is no need to keep checking its status. Use send_message to continue the conversation.
 
 ```json
 {
@@ -2104,7 +2100,7 @@ List your continuable background subagents by durable id and label. Use it to re
   "properties": {
     "scope": {
       "type": "string",
-      "description": "children (default) lists direct children only; descendants walks the complete tree below you.",
+      "description": "children (default) lists direct children, which accept send_message in any status. descendants lists the whole tree below you with each entry's parent session id and depth; entries deeper than 1 accept only interrupt_agent.",
       "enum": [
         "children",
         "descendants"
@@ -2118,7 +2114,7 @@ Source: [`packages/subagent/tool-subagent-control/src/list-agents.ts`](../packag
 
 ### `send_message`
 
-Send a message to a direct continuable child by its agent id. If you are a resident continuable child, you may also target your direct parent. If the target is still working, the message steers its nearest step; if it is inactive, the message starts or resumes a turn. This call returns no answer from the agent — only confirmation that the message was delivered. A failure means the message was NOT delivered.
+Send a message to an agent. A working agent receives it at its next step; an idle agent starts a new turn with it. Returns delivery confirmation, not the agent's answer.
 
 ```json
 {
