@@ -342,6 +342,9 @@ it('serves one browser through the hub origin by routing cookie', { timeout: 240
   await mkdir(home, { recursive: true })
   const store = await AccountStore.open(accountsFilePath(home))
   const alice = await store.add({ username: 'alice' }, ALICE_PASSWORD)
+  // A second account exists in the shared file, so a routing cookie that names
+  // it can be pointed at the first account's credentials.
+  const bob = await store.add({ username: 'bob' }, BOB_PASSWORD)
 
   let hub: RunningHub | undefined
   try {
@@ -464,7 +467,22 @@ it('serves one browser through the hub origin by routing cookie', { timeout: 240
     const events = await openForwardedEvents(proxied)
     await events.close()
 
-    // 7. Reclamation counts proxied traffic rather than a handoff: requests
+    // 7. The routing cookie selects a tenant and authorizes nothing. Pointing
+    //    the signed-in jar at the other account's runtime reaches that
+    //    runtime's own gate, which does not recognize a session it never minted.
+    const confused = await fetch(`${hubOrigin}/api/session/list`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        origin: hubOrigin,
+        cookie: `qilin_tenant=${bob.id}; ${accountCookies.join('; ')}`,
+      },
+      body: JSON.stringify({ type: 'client-request', rpcId: 'confused', method: 'session/list', payload: { args: { _request: {} } } }),
+      redirect: 'manual',
+    })
+    expect(confused.status).toBe(401)
+
+    // 8. Reclamation counts proxied traffic rather than a handoff: requests
     //    spread across the idle window keep the runtime alive...
     const until = Date.now() + IDLE_MILLISECONDS + 3000
     while (Date.now() < until) {
@@ -474,11 +492,12 @@ it('serves one browser through the hub origin by routing cookie', { timeout: 240
     }
     expect((await hubStatus(base)).find(tenant => tenant.username === 'alice')?.state).toBe('running')
 
-    // ... and stop counting the moment the browser does.
+    // ... and stop counting the moment the browser does, for every runtime the
+    // scenario touched: alice's and the one the confused selector started.
     await expect.poll(
-      async () => (await hubStatus(base)).map(tenant => tenant.state),
+      async () => (await hubStatus(base)).map(tenant => [tenant.username, tenant.state]),
       { timeout: 30_000, interval: 250 },
-    ).toEqual(['stopped'])
+    ).toEqual([['alice', 'stopped'], ['bob', 'stopped']])
   } catch (error) {
     const evidence = hub === undefined ? '' : `\n${hub.output().slice(-4000)}`
     throw new Error(`${error instanceof Error ? error.message : String(error)}${evidence}`, { cause: error })

@@ -417,7 +417,8 @@ hub 仍然**不做访问判定**：路由 cookie 只是选择器，伪造它只�
 | 7 | **按真实流量回收**：窗口（4 s）内每 1.2 s 一次请求使运行时保持 `running`，请求停止后被回收为 `stopped` | ✅ |
 | 8 | 登录后应用文档里脚本/样式/清单的 **相对路径按文档 URL 解析后**穿过 hub 全部 200，且都不是 hub 自己的 HTML | ✅ |
 | 9 | **同一个 `/` 按选择分流**：带路由 cookie 得到运行时的落地页（不含 `qilin tenants`），不带 cookie 得到 hub 目录 | ✅ |
-| 10 | **真实媒体路由的 Range 分流**：`GET /sidebar/media?sessionId=…&path=…` 带 `Range: bytes=5-14` 穿过 hub 得到 **206 + `content-range: bytes 5-14/40` + `accept-ranges: bytes` + 恰好那 10 个字节**；不带 Range 的同一条 URL 得到 200 与全部 40 字节 | ✅ |
+| 10 | **路由 cookie 只是选择器**：把已登录的 alice cookie 配上命名 bob 的 `qilin_tenant` 去请求 `/api/session/list`，得到 bob 运行时自己账号门的 **401**（它不认自己没有签发的会话） | ✅ |
+| 11 | **真实媒体路由的 Range 分流**：`GET /sidebar/media?sessionId=…&path=…` 带 `Range: bytes=5-14` 穿过 hub 得到 **206 + `content-range: bytes 5-14/40` + `accept-ranges: bytes` + 恰好那 10 个字节**；不带 Range 的同一条 URL 得到 200 与全部 40 字节 | ✅ |
 
 媒体流的 Range 现在有一条**真实路由**的端到端断言（上面第 10 条），单元用例（对桩上游）仍保留，两条各自证明一层。
 
