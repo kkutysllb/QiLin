@@ -109,7 +109,7 @@ function text(blocks: readonly { type: string; text?: string }[]): string {
 }
 
 function expectedFailure(fields: string): string {
-  return `Subagent failure (provider: DSH SDK; ${fields})`
+  return `Subagent failure (provider: QILIN SDK; ${fields})`
 }
 
 /**
@@ -154,7 +154,7 @@ describe('sdkChildOutcome', () => {
   })
 })
 
-describe('dsh-subagent-dsh-sdk provider', () => {
+describe('dsh-subagent-qilin-sdk provider', () => {
   it('constructs the production dsh-backed harness lazily', async () => {
     const harness = defaultCreateHarness({})
     expect(harness).toBeInstanceOf((await import('@qilin-agent/sdk-client')).DeepSeekHarness)
@@ -197,7 +197,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
   })
 
   it('initializes the child with the configured provider/model/maxTokens and the parent cwd', async () => {
-    const tmp = mkdtempSync(join(tmpdir(), 'subagent-dsh-sdk-init-'))
+    const tmp = mkdtempSync(join(tmpdir(), 'subagent-qilin-sdk-init-'))
     const recordFile = join(tmp, 'init.jsonl')
     try {
       const ctx = await setup({ FAKE_RECORD_INIT: recordFile }, { maxTokens: 4096 })
@@ -219,7 +219,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
   })
 
   it('preserves instance defaults around a partial request override', async () => {
-    const tmp = mkdtempSync(join(tmpdir(), 'subagent-dsh-sdk-partial-route-'))
+    const tmp = mkdtempSync(join(tmpdir(), 'subagent-qilin-sdk-partial-route-'))
     const recordFile = join(tmp, 'init.jsonl')
     try {
       const ctx = await setup({ FAKE_RECORD_INIT: recordFile }, { maxTokens: 4096 })
@@ -243,7 +243,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
   })
 
   it('isolates complete per-run route overrides on concurrent children', async () => {
-    const tmp = mkdtempSync(join(tmpdir(), 'subagent-dsh-sdk-routes-'))
+    const tmp = mkdtempSync(join(tmpdir(), 'subagent-qilin-sdk-routes-'))
     const recordFile = join(tmp, 'init.jsonl')
     try {
       const ctx = await setup({ FAKE_RECORD_INIT: recordFile }, { maxTokens: 4096 })
@@ -403,8 +403,8 @@ describe('dsh-subagent-dsh-sdk provider', () => {
       const error = await startExternalActivation(ctx, 'dsh-sdk', request()).catch((cause: unknown) => cause)
       expect(error).toBeInstanceOf(AggregateError)
       expect((error as Error).message).toBe(
-        `subagent-dsh-sdk: ${expectedFailure('stage: initialize; category: protocol')}; `
-        + `subagent-dsh-sdk: ${expectedFailure('stage: shutdown; category: unknown')}`,
+        `subagent-qilin-sdk: ${expectedFailure('stage: initialize; category: protocol')}; `
+        + `subagent-qilin-sdk: ${expectedFailure('stage: shutdown; category: unknown')}`,
       )
       expect((error as Error).message).not.toContain(rawCleanup)
       await ctx.fiber.dispose()
@@ -439,7 +439,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
       expect(error).toBeInstanceOf(AggregateError)
       expect((error as AggregateError).errors).toHaveLength(1)
       expect((error as Error).message).toBe(
-        `subagent-dsh-sdk: ${expectedFailure('stage: shutdown; category: unknown')}`,
+        `subagent-qilin-sdk: ${expectedFailure('stage: shutdown; category: unknown')}`,
       )
       expect((error as Error).message).not.toContain(rawCleanup)
     } finally {
@@ -467,7 +467,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
       })
       controller.abort()
       await expect(pending).rejects.toThrow(
-        `subagent-dsh-sdk: ${expectedFailure('stage: initialize; category: protocol')}`,
+        `subagent-qilin-sdk: ${expectedFailure('stage: initialize; category: protocol')}`,
       )
       expect(close).not.toHaveBeenCalled()
     } finally {
@@ -531,7 +531,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
     // handshake window): the fake touches READY, we abort, then GO lets the
     // handshake complete — so the post-race `flags.cancelled` recheck must
     // reject even though the handshake itself succeeded.
-    const tmp = mkdtempSync(join(tmpdir(), 'subagent-dsh-sdk-midcancel-'))
+    const tmp = mkdtempSync(join(tmpdir(), 'subagent-qilin-sdk-midcancel-'))
     const ready = join(tmp, 'ready')
     const go = join(tmp, 'go')
     const createHarness = runInternals.createHarness.bind(runInternals)
@@ -660,7 +660,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
   })
 
   it('rejects WITHOUT spawning when the signal is already aborted', async () => {
-    const tmp = mkdtempSync(join(tmpdir(), 'subagent-dsh-sdk-preabort-'))
+    const tmp = mkdtempSync(join(tmpdir(), 'subagent-qilin-sdk-preabort-'))
     const sentinel = join(tmp, 'spawned')
     try {
       const controller = new AbortController()
@@ -703,7 +703,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
   })
 
   it('rejects a child directory removed after resolution without starting a runtime', async () => {
-    const cwd = mkdtempSync(join(tmpdir(), 'subagent-dsh-sdk-removed-cwd-'))
+    const cwd = mkdtempSync(join(tmpdir(), 'subagent-qilin-sdk-removed-cwd-'))
     const ctx = await setup()
     const warn = vi.spyOn(ctx.logger, 'warn').mockImplementation(() => {})
     try {
@@ -716,7 +716,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
       expect(() => ctx.subagents.getProvider('dsh-sdk')!.start!(resolved))
         .toThrow(expectedFailure('stage: initialize; category: configuration'))
       expect(createdHarnessOptions).toEqual([])
-      expect(warn).toHaveBeenCalledWith('subagent-dsh-sdk "dsh-sdk": child start failed: %o', expect.any(Error))
+      expect(warn).toHaveBeenCalledWith('subagent-qilin-sdk "dsh-sdk": child start failed: %o', expect.any(Error))
     } finally {
       warn.mockRestore()
       await ctx.fiber.dispose()
@@ -732,7 +732,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
       (error: unknown) => error,
     )
     expect(String(failure)).toBe(
-      `SdkRunFailure: subagent-dsh-sdk: ${expectedFailure('stage: initialize; category: transport')}`,
+      `SdkRunFailure: subagent-qilin-sdk: ${expectedFailure('stage: initialize; category: transport')}`,
     )
     expect(String(failure)).not.toContain(rawStderr)
     await ctx.fiber.dispose()
@@ -744,7 +744,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
   ] as const)('rejects an initialize failure with safe %s facts', async (env, category) => {
     const ctx = await setup({ ...env })
     await expect(startExternalActivation(ctx, 'dsh-sdk', request())).rejects.toThrow(
-      `subagent-dsh-sdk: ${expectedFailure(`stage: initialize; category: ${category}`)}`,
+      `subagent-qilin-sdk: ${expectedFailure(`stage: initialize; category: ${category}`)}`,
     )
     await ctx.fiber.dispose()
   })
@@ -807,7 +807,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
       diagnostic: expectedFailure('stage: session-run; category: protocol'),
     })
     expect(warnings).toHaveLength(1)
-    expect(warnings[0]).toContain('subagent-dsh-sdk "dsh-sdk": child run failed (error)')
+    expect(warnings[0]).toContain('subagent-qilin-sdk "dsh-sdk": child run failed (error)')
     await run.dispose()
     await ctx.fiber.dispose()
   })
@@ -826,7 +826,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
       const error = await run.dispose().catch((cause: unknown) => cause)
       expect(error).toBeInstanceOf(Error)
       expect((error as Error).message).toBe(
-        `subagent "${run.childId}" activation handle disposal failed: subagent-dsh-sdk: ${expectedFailure('stage: shutdown; category: unknown')}`,
+        `subagent "${run.childId}" activation handle disposal failed: subagent-qilin-sdk: ${expectedFailure('stage: shutdown; category: unknown')}`,
       )
       expect((error as Error).message).not.toContain(rawCleanup)
     } finally {
@@ -958,7 +958,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
   )
 
   it('uses an explicit child directory while preserving the parent origin', async () => {
-    const tmp = mkdtempSync(join(tmpdir(), 'subagent-dsh-sdk-cwd-'))
+    const tmp = mkdtempSync(join(tmpdir(), 'subagent-qilin-sdk-cwd-'))
     try {
       const ctx = await setup({ FAKE_ECHO_CWD: '1', FAKE_TEXT: 'done' })
       const run = await startExternalActivation(ctx, 'dsh-sdk', { ...request(), cwd: tmp })
@@ -983,7 +983,7 @@ describe('dsh-subagent-dsh-sdk provider', () => {
   })
 
   it('keeps named plugin exports with no default export (loader shape)', () => {
-    expect(sdk.name).toBe('subagent-dsh-sdk')
+    expect(sdk.name).toBe('subagent-qilin-sdk')
     expect(sdk.inject).toEqual(['subagents'])
     expect(typeof sdk.apply).toBe('function')
     expect(typeof sdk.Config).toBe('function')
