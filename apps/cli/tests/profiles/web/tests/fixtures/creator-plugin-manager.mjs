@@ -30,8 +30,14 @@ export function apply(ctx, config) {
     try {
       const first = await make(`${phase}-first`)
       const before = names(first)
-      const manage = args => ctx.tools.execute({ name: 'plugin_manager', arguments: args, agent: first,
-        callId: `${phase}-manage`, signal: new AbortController().signal })
+      // Only run_code is callable directly in this mode, so a program dispatches
+      // every registry tool; the runtime resolves a ToolExecutionResult whose
+      // failure arm carries content and no value.
+      const dispatch = (name, args) => ctx.tools.execute({ name: 'run_code', arguments: {
+        description: `call ${name}`,
+        code: `return await tools.${name}(${JSON.stringify(args)})`,
+      }, agent: first, callId: `${phase}-${name}`, signal: new AbortController().signal })
+      const manage = args => dispatch('plugin_manager', args)
       ctx.permissionPresets.set(first.session, 'workspace-write')
       first.session.append('turn/start', { turn: 1 })
       activeSession = first.session
@@ -39,18 +45,17 @@ export function apply(ctx, config) {
       const afterDenied = names(first)
       const bundlesAfterDenied = await ctx.pluginManager.listBundles()
       answer = 'allowed-once'
-      // execute() resolves the tool's own lossless-JSON value, so the answer is
-      // the object the assertion compares and needs no string round trip.
+      // run_code's value is { logs, result }; result is the managed tool's own
+      // value, which these tools publish as JSON text.
       const result = phase === 'initial'
-        ? await manage({ action: 'install_bundle', target: config.bundle })
+        ? JSON.parse((await manage({ action: 'install_bundle', target: config.bundle })).value.result)
         : await ctx.pluginManager.listBundles()
       const second = await make(`${phase}-second`)
       const after = names(first)
       const other = names(second)
-      const ping = await ctx.tools.execute({ name: 'mcp__demo__ping', arguments: {}, agent: first,
-        callId: `${phase}-ping`, signal: new AbortController().signal })
+      const ping = (await dispatch('mcp__demo__ping', {})).value.result
       const removed = phase === 'restart'
-        ? await manage({ action: 'remove_bundle', target: '@test/creator-mcp' }) : undefined
+        ? JSON.parse((await manage({ action: 'remove_bundle', target: '@test/creator-mcp' })).value.result) : undefined
       return { approvals, permission: ctx.permissionPresets.current(first.session), before, denied, afterDenied, bundlesAfterDenied, result, after, other, ping, removed, remaining: names(first) }
     } finally {
       disposeApproval()
