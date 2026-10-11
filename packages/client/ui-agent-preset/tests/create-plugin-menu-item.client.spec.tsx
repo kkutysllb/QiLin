@@ -15,7 +15,7 @@ function view(roster: Partial<AgentPresetSettingsState> = {}) {
   const agentPresets = createSnapshotStore<AgentPresetSettingsState>({
     status: 'ready',
     error: null,
-    options: [{ id: 'standard', trust: 'system' }, { id: 'cordis', trust: 'system' }],
+    options: [{ id: 'standard', trust: 'system' }, { id: 'ptc', trust: 'system' }],
     ...roster,
   })
   const calls: string[] = []

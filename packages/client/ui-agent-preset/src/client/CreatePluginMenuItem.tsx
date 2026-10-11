@@ -6,6 +6,7 @@ import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-
 import type {} from '@qilin-agent/client-ui-plugin-manager/client'
 import { IconAgentPresetOutline16, MenuItemButton } from '@qilin-agent/client-ui-primitives'
 import type { AgentPresetSettingsState } from './settings-store.ts'
+import { SHIPPED_PRESET_ID } from './shipped-preset.ts'
 import css from './CreatePluginMenuItem.module.css'
 
 /** Roster and navigation supplied by the preset plugin. */
@@ -30,7 +31,7 @@ export function CreatePluginMenuItem({
   t, useAgentPresets, load, onDismiss, startCreatorDraft,
 }: CreatePluginMenuItemProps) {
   const roster = useAgentPresets(state => state)
-  const enabled = roster.status === 'ready' && roster.options.some(option => option.id === 'cordis')
+  const enabled = roster.status === 'ready' && roster.options.some(option => option.id === SHIPPED_PRESET_ID)
   useEffect(() => { void load() }, [load])
 
   let description = t('createPluginDescription')

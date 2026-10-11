@@ -39,6 +39,7 @@ import type { AgentPresetSectionInjected } from './AgentPresetSection.tsx'
 import { AgentPresetSeatController, type AgentPresetStage } from './seat-store.ts'
 import { AgentPresetSectionController } from './section-store.ts'
 import { en, zh, type AgentPresetSettingsKey } from './locales.ts'
+import { SHIPPED_PRESET_ID } from './shipped-preset.ts'
 import { AGENT_PRESET_SETTINGS_NS, AgentPresetSettingsController } from './settings-store.ts'
 
 declare module '@qilin-agent/client-ui-slots' {
@@ -160,7 +161,7 @@ export function apply(ctx: ClientContext): void {
     const startCreatorDraft = (): void => {
       if (!section.store.getSnapshot().showPicker) return
       const seat = mainBlankSeat(scope) ?? unboundSeat
-      seat.stage('cordis', true)
+      seat.stage(SHIPPED_PRESET_ID, true)
       scope.uiWorkspace.startSession()
       void seat.apply()
     }

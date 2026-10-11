@@ -723,7 +723,7 @@ describe('ui-agent-preset apply', () => {
     // workspace start produces is what the stage lands on — and exactly one
     // new-session flow began.
     expect(section.startCreatorDraft).toBeDefined()
-    expect(seat.hooks.agentPresetSeat.getSnapshot().current).toBe('cordis')
+    expect(seat.hooks.agentPresetSeat.getSnapshot().current).toBe('ptc')
     expect(uiWorkspace.starts).toHaveLength(1)
 
     // A cross-screen stage carries the introduce cue; the chip acknowledges
@@ -759,8 +759,8 @@ describe('ui-agent-preset apply', () => {
     await section.load()
     section.startCreatorDraft?.()
 
-    await vi.waitFor(() => { expect(calls).toContain('select:cordis') })
-    expect(seat.hooks.agentPresetSeat.getSnapshot().current).toBe('cordis')
+    await vi.waitFor(() => { expect(calls).toContain('select:ptc') })
+    expect(seat.hooks.agentPresetSeat.getSnapshot().current).toBe('ptc')
     expect(uiWorkspace.starts).toHaveLength(1)
     conversation()
   })
@@ -793,17 +793,17 @@ describe('ui-agent-preset apply', () => {
     sessions.notify()
     const boundSeat = injectSeat(SessionId('s1'))
     await boundSeat.load()
-    await vi.waitFor(() => { expect(calls).toContain('select:cordis') })
+    await vi.waitFor(() => { expect(calls).toContain('select:ptc') })
 
     // The chip mounts with the flow's session, so its roster load can land
     // AFTER the stage was consumed; the session's own composition is what
     // the display must keep — not the deployment default.
     state.byId['s1'] = {
-      id: 's1', blank: true, projectionValues: { agentPreset: 'cordis' },
+      id: 's1', blank: true, projectionValues: { agentPreset: 'ptc' },
     }
     await boundSeat.load()
 
-    expect(boundSeat.hooks.agentPresetSeat.getSnapshot().current).toBe('cordis')
+    expect(boundSeat.hooks.agentPresetSeat.getSnapshot().current).toBe('ptc')
     conversation()
   })
 

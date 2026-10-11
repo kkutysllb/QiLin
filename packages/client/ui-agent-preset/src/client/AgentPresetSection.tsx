@@ -19,6 +19,7 @@ import {
 import type { SnapshotStore } from '@qilin-agent/client-store'
 import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import { draftBlocker, type AgentPresetSectionState } from './section-store.ts'
+import { SHIPPED_PRESET_ID } from './shipped-preset.ts'
 import { presetDisplayText, type AgentPresetSettingsKey } from './locales.ts'
 import css from './AgentPresetSection.module.css'
 
@@ -212,7 +213,7 @@ export function AgentPresetSection(props: AgentPresetSectionProps): ReactNode {
      Offered only where that preset is actually on the roster and a
      session can be landed; without a writable root the draft could
      never be discovered, so the reason rides the disabled button. */
-  const creatorButton = props.startCreatorDraft !== undefined && state.rows.some(row => row.id === 'cordis')
+  const creatorButton = props.startCreatorDraft !== undefined && state.rows.some(row => row.id === SHIPPED_PRESET_ID)
     ? (
       <button
         type="button"

@@ -116,7 +116,7 @@ describe('the preset list', () => {
       error: 'settings write disconnected',
       rows: [
         ...READY.rows,
-        { id: 'cordis', trust: 'system', isDefault: false, name: '创造模式' },
+        { id: 'ptc', trust: 'system', isDefault: false, name: '创造模式' },
       ],
     })
 
@@ -294,7 +294,7 @@ describe('the preset list', () => {
 
   it('starts a creator-mode draft session and leaves settings', () => {
     const actions = renderSection({
-      rows: [...READY.rows, { id: 'cordis', trust: 'system', isDefault: false, name: '创造模式' }],
+      rows: [...READY.rows, { id: 'ptc', trust: 'system', isDefault: false, name: '创造模式' }],
     })
 
     fireEvent.click(screen.getByRole('button', { name: en.creatorDraft }))
@@ -309,7 +309,7 @@ describe('the preset list', () => {
     renderSection({
       rows: [
         { id: 'standard', trust: 'system', isDefault: true, name: '标准模式' },
-        { id: 'cordis', trust: 'system', isDefault: false, name: '创造模式' },
+        { id: 'ptc', trust: 'system', isDefault: false, name: '创造模式' },
       ],
     })
 
@@ -325,14 +325,14 @@ describe('the preset list', () => {
     cleanup()
 
     renderSection({
-      rows: [...READY.rows, { id: 'cordis', trust: 'system', isDefault: false, name: '创造模式' }],
+      rows: [...READY.rows, { id: 'ptc', trust: 'system', isDefault: false, name: '创造模式' }],
     }, { creator: false })
     expect(screen.queryByRole('button', { name: en.creatorDraft })).toBeNull()
     cleanup()
 
     const actions = renderSection({
       authorable: false,
-      rows: [...READY.rows, { id: 'cordis', trust: 'system', isDefault: false, name: '创造模式' }],
+      rows: [...READY.rows, { id: 'ptc', trust: 'system', isDefault: false, name: '创造模式' }],
     })
     const disabled = screen.getByRole('button', { name: en.creatorDraft })
     expect(disabled).toHaveProperty('disabled', true)

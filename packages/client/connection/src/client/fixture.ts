@@ -1991,11 +1991,10 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
    * roster a GUI journey sees after writing is the text it wrote.
    */
   const fixturePresets = new Map<string, { trust: 'system' | 'user'; content: string }>([
-    ['standard', { trust: 'system', content: "- id: tool-bash\n  name: '@qilin-agent/tool-bash'\n" }],
-    ['minimal', { trust: 'system', content: "- id: tool-web-search\n  name: '@qilin-agent/tool-web-search'\n" }],
+    ['ptc', { trust: 'system', content: "- id: tool-bash\n  name: '@qilin-agent/tool-bash'\n" }],
     ['my-agent', { trust: 'user', content: "- id: tool-read\n  name: '@qilin-agent/tool-read'\n" }],
   ])
-  let fixtureDefaultPreset = 'standard'
+  let fixtureDefaultPreset = 'ptc'
   const nextTurn = new Map<SessionId, number>([[sid('fx-alpha'), 75]])
   let nextSession = 1
   // Workspace entities mirroring the host registry: the fixture sessions all
