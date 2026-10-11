@@ -836,7 +836,7 @@ describe('query options and result mapping', () => {
   it('builds the fixed unattended options over the scrubbed environment', async () => {
     vi.stubEnv('HOST_VISIBLE', 'visible')
     vi.stubEnv('HOST_SECRET_TOKEN', 'must-not-leak')
-    vi.stubEnv('DSH_INTERNAL', 'must-not-leak')
+    vi.stubEnv('QILIN_INTERNAL', 'must-not-leak')
     const child = fakeChild()
     const spawn = vi.fn(() => child.handle)
     const captured: SubprocessHandle[] = []
@@ -878,7 +878,7 @@ describe('query options and result mapping', () => {
       ANTHROPIC_API_KEY: 'explicit-fake-key',
     })
     expect(options.env).not.toHaveProperty('HOST_SECRET_TOKEN')
-    expect(options.env).not.toHaveProperty('DSH_INTERNAL')
+    expect(options.env).not.toHaveProperty('QILIN_INTERNAL')
     expect(options).not.toHaveProperty('settingSources')
 
     const callbackSignal = new AbortController().signal
