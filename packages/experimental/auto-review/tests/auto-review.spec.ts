@@ -1,3 +1,4 @@
+import { externalTestParent } from '../../../subagent/subagent/tests/external-activation-helpers.ts'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { provideWorkingDirectoryFixture } from '@qilin-agent/agent-loop-testkit'
 import { Context } from '@qilin-agent/kylin'
@@ -28,8 +29,8 @@ import SessionStore, {
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import SubagentRuntime, {
   NO_START_CAPABILITIES,
-  snapshotSubagentDescriptor,
-  type ResolvedSubagentStartRequest,
+  SUBAGENT_DESCRIPTOR_VERSION,
+  type SubagentStartRequest,
 } from '@qilin-agent/subagent'
 import type {} from '@qilin-agent/shell'
 import SystemPrompt from '@qilin-agent/system-prompt'
@@ -43,7 +44,6 @@ import ToolRuntime, {
 } from '@qilin-agent/tools'
 import ApprovalService, { setApprovalPolicy, type ApprovalOutcome } from '@qilin-agent/user-approval'
 import * as AutoReview from '@qilin-agent/experimental-auto-review'
-import { mountWorkingDirectoryFixture } from '../../../subagent/subagent/tests/working-directory-fixture.ts'
 
 const EXPECTED_REVIEW_POLICY = `REVIEW_POLICY
 You are the final authorization reviewer for exactly one pending tool call. Your decision replaces human approval for this call. If you allow it, the call executes immediately with full host access and no later confirmation.
@@ -550,10 +550,11 @@ describe('native review request', () => {
     setApprovalPolicy(session, 'never')
     const agent = agentFor(session)
     appendHeader(session, [{ name: 'probe', description: 'probe', parameters: { type: 'object' } }])
-    session.append('subagent/descriptor', snapshotSubagentDescriptor({
+    session.append('subagent/descriptor', {
+      version: SUBAGENT_DESCRIPTOR_VERSION,
       mode: 'one-shot',
       provider: 'in-process',
-    }))
+    })
     appendUser(session, 'Delete target as the delegated child task.', { kind: 'user' })
     appendUser(session, 'A later unattributed user-role fact.', { kind: 'user' })
     appendUser(session, 'Do not delete target.', {
@@ -1210,9 +1211,8 @@ describe('out-of-process delegation boundary', () => {
       scriptedDecision('deny', 'deny'),
       scriptedDecision('allow', 'allow'),
     ])
-    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
-    let providerRequest: ResolvedSubagentStartRequest | undefined
+    let providerRequest: SubagentStartRequest | undefined
     ctx.subagents.registerProvider({
       name: 'remote-boundary',
       capabilities: NO_START_CAPABILITIES,
@@ -1237,7 +1237,9 @@ describe('out-of-process delegation boundary', () => {
       maxDepth: 'provider-managed',
     })
 
-    const { session, agent } = autoSession(ctx, 'remote-delegation', process.cwd())
+    const agent = await externalTestParent(ctx, process.cwd())
+    const session = agent.session
+    ctx.permissionPresets.set(session, AUTO_PRESET)
     setApprovalPolicy(session, 'never')
     const schema = ctx.tools.schemas(agent).find(item => item.name === 'delegate_remote')
     if (schema === undefined) throw new Error('remote delegation tool schema is missing')
@@ -1518,6 +1520,7 @@ describe('cancellation and integration teardown', () => {
 
   it('publishes Auto without validating the preset table at load', async () => {
     const invalid = new Context()
+    provideWorkingDirectoryFixture(invalid)
     contexts.push(invalid)
     await invalid.plugin(LlmRuntime)
     await invalid.plugin(SessionStore)
@@ -1532,7 +1535,6 @@ describe('cancellation and integration teardown', () => {
     })
     invalid.provide('approval', { config: { policy: 'ask' } })
     await invalid.plugin(PermissionPresetService, {})
-    provideWorkingDirectoryFixture(invalid)
     const auto = await invalid.plugin(AutoReview)
     expect(invalid.permissionPresets.names).toContain(AUTO_PRESET)
     await auto.dispose()
