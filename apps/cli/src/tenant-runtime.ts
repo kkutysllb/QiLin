@@ -94,6 +94,16 @@ export interface TenantRuntimeOptions {
   readonly home: string
   /** Account identity this runtime serves, which also names its tenant directory. */
   readonly accountId: string
+  /**
+   * Directory this runtime's harness home lives in, when it is not the account
+   * identity: a deployment with no accounts yet has no identity to name one.
+   */
+  readonly directoryName?: string
+  /**
+   * Whether this runtime exists so a deployment with no accounts can be
+   * initialized, which selects the first-run layer it boots with.
+   */
+  readonly bootstrap?: boolean
   /** Profile each runtime boots. */
   readonly profile: string
   /** Node entry of the qilin CLI the hub re-executes. */
@@ -171,6 +181,30 @@ export const TENANT_VARIABLE = 'QILIN_TENANT'
  * @returns the layer document as YAML.
  * @throws Error when the identity cannot be written as one plain YAML scalar.
  */
+/**
+ * Layer of the runtime a deployment uses before it has any account.
+ *
+ * That runtime reads and writes the same roster, and admits whoever the roster
+ * holds: the product's own first-run form creates the first account, and the
+ * hub then serves it from a runtime of its own.
+ * @returns the layer document as YAML.
+ */
+export function bootstrapPatchYaml(): string {
+  return [
+    '# First-run layer for a deployment with no accounts yet.',
+    '# This runtime admits whoever the roster holds, so the product can create',
+    '# the first account; the hub then routes to that account own runtime.',
+    '- id: accounts',
+    '  config:',
+    `    qilinHome: !!js process.env.${DEPLOYMENT_HOME_VARIABLE}`,
+    '    registration: closed',
+    '',
+  ].join('\n')
+}
+
+/** Directory name of the runtime a deployment without accounts uses. */
+export const BOOTSTRAP_DIRECTORY = '.bootstrap'
+
 export function tenantPatchYaml(accountId: string): string {
   if (!IDENTITY_PATTERN.test(accountId)) {
     throw new Error(`qilin tenants: ${accountId} is not usable as a tenant directory name`)
@@ -235,7 +269,7 @@ export class TenantRuntime {
    * and the deployment home holds only the roster and these directories.
    */
   get tenantDir(): string {
-    return join(this.options.home, 'tenants', this.options.accountId)
+    return join(this.options.home, 'tenants', this.options.directoryName ?? this.options.accountId)
   }
 
   /** What the hub's status read reports about this tenant. */
@@ -404,7 +438,7 @@ export class TenantRuntime {
 
   /** Write this tenant's home layer when the file does not already hold it. */
   private async writePatch(): Promise<void> {
-    const document = tenantPatchYaml(this.options.accountId)
+    const document = this.options.bootstrap === true ? bootstrapPatchYaml() : tenantPatchYaml(this.options.accountId)
     const current = await readFile(this.patchPath, 'utf8').catch(() => undefined)
     if (current === document) return
     await writeFile(this.patchPath, document)

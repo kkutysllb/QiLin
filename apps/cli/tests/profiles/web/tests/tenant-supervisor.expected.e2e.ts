@@ -10,13 +10,14 @@
  * credentials is refused.
  */
 import { spawn, type ChildProcess } from 'node:child_process'
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { expect, it } from 'vitest'
 import { AccountStore, accountsFilePath } from '@qilin-agent/accounts-local'
 import { resolveExampleLaunch } from '@qilin-agent/loader-smoke'
+import { BOOTSTRAP_DIRECTORY } from '../../../../src/tenant-runtime.ts'
 import { openForwardedEvents, sessionIdsUnder, tenantRemoteResult, type TenantHost } from './tenant-web-process.ts'
 
 const repoRoot = fileURLToPath(new URL('../../../../../../', import.meta.url))
@@ -33,6 +34,8 @@ const IDLE_MILLISECONDS = 4000
 
 const ALICE_PASSWORD = 'alice-password'
 const BOB_PASSWORD = 'bob-password'
+const FIRST_RUN = 'first-run-account'
+const FIRST_RUN_PASSWORD = 'first-run-password'
 
 /** One running hub. */
 interface RunningHub {
@@ -738,6 +741,62 @@ it('gives every account its own origin so one browser can hold two accounts', { 
     const bobList = await remote<{ items: { sessionId: string }[] }>(bobOrigin, bobCookie, 'session/list', { _request: {} })
     expect(aliceList.items.map(item => item.sessionId)).toContain(aliceSession.sessionId)
     expect(bobList.items.map(item => item.sessionId)).not.toContain(aliceSession.sessionId)
+  } catch (error) {
+    const evidence = hub === undefined ? '' : `\n${hub.output().slice(-4000)}`
+    throw new Error(`${error instanceof Error ? error.message : String(error)}${evidence}`, { cause: error })
+  } finally {
+    if (hub !== undefined) await stopHub(hub)
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
+it('initializes a deployment that has no accounts yet through the product own form', { timeout: 240_000 }, async () => {
+  const root = await mkdtemp(join(tmpdir(), 'qilin-tenant-first-run-'))
+  const home = join(root, 'home')
+  await mkdir(home, { recursive: true })
+
+  let hub: RunningHub | undefined
+  try {
+    hub = await startHub(root, home)
+    const base = hub.base
+
+    // 1. The bare address serves the application, not a message from the
+    //    deployment: the product's own page is what a fresh install shows.
+    const front = await fetch(base)
+    expect(front.status).toBe(200)
+    const firstRun = await front.text()
+    expect(firstRun).toContain('<html')
+    expect(firstRun).not.toContain('qilin tenants')
+
+    // 2. The product's own status read reaches the first-run runtime and asks
+    //    for initialization.
+    const status = await fetch(`${base}api/auth/status`)
+    expect(status.status).toBe(200)
+    expect(await status.json()).toMatchObject({ enabled: true, needsSetup: true, authenticated: false })
+
+    // 3. The product's own form creates the first account, writing the shared
+    //    roster the deployment reads.
+    const created = await fetch(`${base}api/auth/setup`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ username: FIRST_RUN, password: FIRST_RUN_PASSWORD }),
+    })
+    expect(created.status).toBe(200)
+    expect(await created.json()).toMatchObject({ user: { username: FIRST_RUN } })
+    const roster = await AccountStore.open(accountsFilePath(home))
+    expect(roster.byUsername(FIRST_RUN)?.username).toBe(FIRST_RUN)
+
+    // 4. From then on the deployment routes to that account's own runtime, and
+    //    the first-run runtime is one directory beside it rather than a stray
+    //    copy of the deployment's state.
+    const routed = await fetch(base, { redirect: 'manual' })
+    expect(routed.status).toBe(302)
+    expect(routed.headers.get('location')).toBe(`/t/${FIRST_RUN}/`)
+    const served = await fetch(`${base}t/${FIRST_RUN}/`)
+    expect(served.status).toBe(200)
+    expect(await served.text()).toContain('<html')
+    expect(await readdir(join(home, 'tenants'))).toEqual(expect.arrayContaining([BOOTSTRAP_DIRECTORY]))
+    expect(await readdir(home)).toEqual(['auth', 'tenants'])
   } catch (error) {
     const evidence = hub === undefined ? '' : `\n${hub.output().slice(-4000)}`
     throw new Error(`${error instanceof Error ? error.message : String(error)}${evidence}`, { cause: error })

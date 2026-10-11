@@ -34,7 +34,7 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http'
 import { accountsFilePath, AccountStore } from '@qilin-agent/accounts-local'
 import { resolveQilinHome } from '@qilin-agent/home-paths'
-import { TenantRuntime, type TenantRuntimeStatus } from './tenant-runtime.ts'
+import { BOOTSTRAP_DIRECTORY, TenantRuntime, type TenantRuntimeStatus } from './tenant-runtime.ts'
 import { forwardedHeaders, hubAcceptsOrigin, proxyRequest, relayAnswer, relayUpgrade } from './tenant-proxy.ts'
 
 /** What `qilin tenants serve` was asked to do. */
@@ -81,6 +81,9 @@ export interface TenantsServeOptions {
 
 /** Routing cookie the hub sets so later requests, whatever their path, name their tenant. */
 const TENANT_COOKIE = 'qilin_tenant'
+
+/** Store key of the runtime a deployment with no accounts uses. */
+const BOOTSTRAP_ACCOUNT = 'first-run'
 
 /**
  * The routing cookie one handoff sets.
@@ -160,6 +163,30 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       log: (line) => { process.stderr.write(`qilin tenants: [${accountId}] ${line}\n`) },
     })
     runtimes.set(accountId, created)
+    return created
+  }
+
+  /**
+   * The runtime a deployment with no accounts uses, so the product's own
+   * first-run form can create the first one.
+   * @returns the first-run runtime.
+   */
+  const bootstrapRuntime = (): TenantRuntime => {
+    const existing = runtimes.get(BOOTSTRAP_ACCOUNT)
+    if (existing !== undefined) return existing
+    const created = new TenantRuntime({
+      home,
+      accountId: BOOTSTRAP_ACCOUNT,
+      directoryName: BOOTSTRAP_DIRECTORY,
+      bootstrap: true,
+      profile: options.profile,
+      binPath,
+      execArgv: process.execArgv,
+      host: options.tenantHost ?? undefined,
+      restartBackoffMilliseconds: options.restartBackoffMilliseconds,
+      log: (line) => { process.stderr.write(`qilin tenants: [first-run] ${line}\n`) },
+    })
+    runtimes.set(BOOTSTRAP_ACCOUNT, created)
     return created
   }
 
@@ -270,21 +297,51 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
     relayAnswer({ ...answered, headers: { ...answered.headers, 'set-cookie': [...upstreamCookies, ...extraCookies] } }, response)
   }
 
+  /**
+   * Hand a request to the runtime a deployment without accounts uses, so the
+   * product's own first-run form creates the first account instead of the
+   * deployment describing what an operator should type.
+   * @param request - the browser's request.
+   * @param response - the browser's answer.
+   * @param path - request path, preserved so the application sees its own route.
+   */
+  const serveFirstRun = async (request: IncomingMessage, response: ServerResponse, path: string): Promise<void> => {
+    try {
+      const runtime = bootstrapRuntime()
+      await serialize(async () => {
+        await makeRoom(runtime)
+        await runtime.ensure()
+      })
+      await forward(request, response, runtime, path, [])
+    } catch (error) {
+      process.stderr.write(`qilin tenants: the first-run runtime did not start: ${String(error)}\n`)
+      respond(response, 503, 'text/plain; charset=utf-8', 'qilin tenants: this deployment could not start its first-run runtime\n')
+    }
+  }
+
   const handle = async (request: IncomingMessage, response: ServerResponse): Promise<void> => {
     const url = new URL(request.url ?? '/', 'http://qilin.invalid')
-    // The hub's own routes answer reads. A proxied path carries whatever method
-    // the browser used, because its API calls and its uploads pass through.
-    const hubOwnRoute = url.pathname === '/healthz' || url.pathname === '/status' || url.pathname === '/'
-    if (request.method !== 'GET' && !(options.singleOrigin && !hubOwnRoute)) {
-      respond(response, 405, 'text/plain; charset=utf-8', 'qilin tenants: the hub answers reads only\n')
-      return
-    }
     if (url.pathname === '/healthz') {
       json(response, 200, { ok: true })
       return
     }
     if (url.pathname === '/status') {
       json(response, 200, await status())
+      return
+    }
+    // A deployment with no accounts hands every path to its first-run runtime:
+    // the product's own form creates the first account, so the deployment never
+    // answers a browser with instructions of its own. The account paths below
+    // only exist once a roster does.
+    if ((await roster()).all().length === 0) {
+      await serveFirstRun(request, response, `${url.pathname}${url.search}`)
+      return
+    }
+    // The hub's own routes answer reads. A proxied path carries whatever method
+    // the browser used, because its API calls and its uploads pass through.
+    const hubOwnRoute = url.pathname === '/healthz' || url.pathname === '/status' || url.pathname === '/'
+    if (request.method !== 'GET' && !(options.singleOrigin && !hubOwnRoute)) {
+      respond(response, 405, 'text/plain; charset=utf-8', 'qilin tenants: the hub answers reads only\n')
       return
     }
     if (url.pathname.startsWith('/t/')) {
@@ -360,13 +417,14 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
     if (url.pathname === '/') {
       const accounts = (await roster()).all()
       // The deployment draws no interface of its own: the application inside an
-      // account's runtime owns the landing page, the sign-in form, and
-      // registration. The bare address therefore hands the browser to an
-      // account's runtime. The first roster entry is the deterministic account
-      // to start from, and every other account is reachable at its own path.
+      // account's runtime owns the landing page, the sign-in form, first-run
+      // initialization, and registration. The bare address therefore hands the
+      // browser to an runtime. The first roster entry is the deterministic
+      // account to start from, and every other account is reachable at its own
+      // path.
       const first = accounts[0]
       if (first === undefined) {
-        respond(response, 200, 'text/plain; charset=utf-8', 'qilin tenants: this deployment has no accounts yet\n')
+        await serveFirstRun(request, response, url.pathname)
         return
       }
       response.writeHead(302, {
