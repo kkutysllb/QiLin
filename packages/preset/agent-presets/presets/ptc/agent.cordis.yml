@@ -314,5 +314,12 @@
 # Persistent, profile-wide code installation. TRUST: an install runs in the Host
 # process outside the workspace sandbox, so every call needs Full access or a
 # single-call approval; granting one call does not change the session mode.
+#
+# The service behind this tool exists only where a PROFILE does: the base bundle
+# mounts `plugin-manager` under the same condition. This preset ships to every
+# composition, so the row repeats it — without a profile the service never
+# arrives, the row waits forever, and every session on this preset fails to
+# compose instead of running without one tool.
 - id: tool-plugin-manager
   name: '@qilin-agent/plugin-manager/tools'
+  disabled: !!js "!ctx.get('profileContext')"
