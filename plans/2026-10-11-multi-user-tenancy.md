@@ -431,6 +431,8 @@ hub 仍然**不做访问判定**：路由 cookie 只是选择器，伪造它只�
 
 第 2 条同时解释了为什么单源模式的浏览器走查必须做：进程级 e2e 用的是 4 s 窗口，这条路径在它之下永远不会被触发。
 
+**录制**（按仓库 `record-browser-gif` 技能）：真实引擎（`qilin tenants serve --single-origin --idle-ms 0`，共享 home 下一个账户）、真实无头 Chromium（仓库自带的 Playwright 依赖）、单一 storyboard（跳转 → 落地页 → 登录 → 应用外壳）、1440×900 与录制尺寸一致，12.52 s 源片 → 1.5× → 1000×626 / 1.3 MB。产物在 `.playwright-mcp/tenant-single-origin/`（`demo.gif`、`demo.webm`、`final.png`）。**未跑模型轮次**（演示的是登录与外壳渲染，不是一次对话）；录制时服务该片的提交是 `0b966fd8ff`。
+
 ### 12.4 已知让步（P3 版）
 
 1. **一个浏览器同时只服务一个租户**：路由 cookie 是浏览器级的。默认跳转模式仍可同时开多个租户（各自端口、各自 cookie 名），需要多租户并排时用它。
