@@ -151,3 +151,32 @@ npx vitest run apps/cli/tests/tenant-environment.spec.ts
 **判据**：`session.spec.ts` 新增「转发权威优先、坏值退回 Host」（Headers 与普通对象两种形态都断言）；`tenant-proxy.spec.ts` 新增「并排携带、浏览器伪造被覆盖、没有 hub 时不留痕」。**两条负向对照实跑**：hub 不转发 → 该用例红；运行时忽略转发 → 该用例红。租户与账户面回归 **118 例全过**。
 
 **真进程探针（本次纪律的第二次执行）**：全新 home + `--registration open` 起真实部署，curl 走完整链——注册出的会话听众 = **部署权威 `127.0.0.1:8795`**；`/workspace` 一次 303 设路由 cookie；再请求 `/workspace` **200**（由新账户自己的运行时应答），不再循环。修复前同一探针实测为循环。
+
+## 17. 本轮增量（第 38 轮）：mux 升级握手的一跳
+
+**症状**：浏览器登入 workspace 后永远停在「重新连接中」，控制台反复报
+`WebSocket connection to 'ws://127.0.0.1:8790/api/remote.mux' failed` 与 `connection lost, retry #N`。
+
+**真进程探针（决定性）**：全新 home、真部署、curl 走完登录 → 浏览器形态导航 → 原始 WebSocket 握手：
+
+| 探测 | 修复前 | 修复后 |
+|---|---|---|
+| `GET /workspace`（带会话、无路由 cookie，`Accept: text/html`） | 303 + `qilin_tenant` | 同（这跳本来就对） |
+| 带路由 cookie 的 `/api/remote.mux` 升级 | **401 unauthorized** | **101 Switching Protocols** |
+
+**根因**：hub 的**升级转发**只传了两个实参给 `forwardedHeaders(headers, tenantAuthority, deploymentAuthority)`——
+`relayUpgrade(request, socket, head, target, forwardedHeaders(request.headers, new URL(target).host))`。
+第三个实参正是第 37 轮引入的「浏览器用的部署权威」：运行时按它给会话命名（`qilin-session-<hash(权威)>`）。
+少了它，运行时按**自己那个随机端口**算 cookie 名，于是浏览器手里那份会话它根本不认 → 401。
+HTTP 那两条转发路径都传了第三个实参，所以只有升级这一跳坏——表现成「页面登录正常、唯独 mux 连不上」。
+
+**修法（两层）**：
+1. 升级转发补上部署权威（`request.headers.host`），与请求转发同一规则；
+2. 把 `deploymentAuthority` 从**可选**改成**必填**——这一跳永远知道它，缺了就编译不过。
+
+**证据（实跑）**：
+- **负向对照**：把第三个实参删掉 → `apps/cli/src/tenants.ts(870,53): error TS2554: Expected 3 arguments, but got 2`（缺陷从此不可能静默复现）；
+- 真进程探针：401 → **101**；
+- 租户面 **35 例全过**（入口、代理、TLS、隔离、用量、名册），`tsc -b apps/cli` 0。
+
+**一处走过的弯路（如实登记）**：我先想在部署夹具的「运行时替身」里加一个真升级口，用 socket 级用例钉住这一跳。它测得出问题，但**收尾挂死**——升级后的 socket 活得比请求久，服务端 `close()` 因此不返回（正是第 8 轮 webserver 那条「升级/TLS socket 必须自己跟踪」的同一类坑）。我给它补了 socket 跟踪仍未在预算内收敛，于是**撤回夹具改动**，改由「真进程探针 + 类型必填」两条承担判据：前者证明这一跳现在通，后者保证以后不会再漏。
