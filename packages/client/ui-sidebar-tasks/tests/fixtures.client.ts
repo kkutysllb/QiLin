@@ -63,7 +63,7 @@ export function projection(
 
 /** Options one child fixture accepts. */
 export interface ChildOptions {
-  readonly mode?: 'one-shot' | 'continuable'
+  readonly mode?: 'one-shot' | 'continuable' | 'external'
   readonly label?: string | undefined
   readonly activity?: 'running' | 'inactive'
   readonly hasChildren?: boolean

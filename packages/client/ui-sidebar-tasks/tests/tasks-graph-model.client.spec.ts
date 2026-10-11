@@ -20,7 +20,7 @@ const ROOT = sid('s-root')
 const labelOf = (entry: { readonly id: SessionId; readonly label?: string | undefined }, summary: GraphSummaryEntry | undefined): string =>
   entry.label ?? summary?.displayTitle ?? entry.id
 /** One secondary labeler matching the page's: the continuation-mode word. */
-const secondaryOf = (entry: { readonly mode: 'one-shot' | 'continuable' }): string =>
+const secondaryOf = (entry: { readonly mode: 'one-shot' | 'continuable' | 'external' }): string =>
   entry.mode === 'one-shot' ? '一次性' : '持续'
 
 /**
