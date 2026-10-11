@@ -56,6 +56,14 @@ html[data-ql-theme='light'] {
 
 html {
   background: var(--ql-bg);
+  /* The document scrolls when the viewport is shorter than the page; the bar
+     stays unpainted so nothing sits beside the centred column. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
 }
 
 body {
