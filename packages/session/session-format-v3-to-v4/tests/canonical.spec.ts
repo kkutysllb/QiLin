@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
+import { SESSION_FORMAT_VERSION } from '@qilin-agent/session'
 import { createSessionFormatCatalogWithChildren, sessionFormatCatalog } from '@qilin-agent/session-format-catalog'
 import { SessionFormatEventCollector } from '@qilin-agent/session-format'
 import type { SessionFormatArtifact, SessionFormatEvent } from '@qilin-agent/session-format'
 import { releasedV4SessionFormatCodec, restoreReleasedV4Artifact } from '../src/index.ts'
+import { restoreReleasedV5Artifact } from '@qilin-agent/session-format-v4-to-v5'
 
 const header = { type: 'session', version: 2, id: 'canonical-v4', createdAt: 1, isSeeded: true, parentSession: 'parent', delegationDepth: 0 }
 function source() {
@@ -41,7 +43,7 @@ function reopen(artifact: SessionFormatArtifact) {
 describe('canonical V4 integration', () => {
   it('composes seeded systems, source ownership, PTC, canonical replacements and native round-trip', () => {
     const target = migrated()
-    expect(target.header.version).toBe(4)
+    expect(target.header.version).toBe(SESSION_FORMAT_VERSION)
     expect(target.inheritedEventCount).toBe(13)
     const systems = target.events.filter(event => event.type === 'system/message')
     expect(systems).toHaveLength(3)
@@ -51,7 +53,7 @@ describe('canonical V4 integration', () => {
     expect(users[1]).toMatchObject({ surfaceOp: { op: 'replace', startSeq: 5, endSeq: 5 }, sourceEventSeqs: [5], data: { source: { kind: 'ptc-mode' } } })
     expect(target.events.find(event => event.type === 'tool/ptc-dispatch')?.data).toMatchObject({ arguments: { kind: 'plugin', plugin: 'tools-ptc' } })
     const before = JSON.stringify(target)
-    expect(restoreReleasedV4Artifact(target, new Set(target.events.map(event => event.type)))).toBe(target)
+    expect(restoreReleasedV5Artifact(target, new Set(target.events.map(event => event.type)))).toBe(target)
     expect(reopen(target)).toEqual(target)
     expect(JSON.stringify(target)).toBe(before)
   })

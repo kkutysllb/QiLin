@@ -21,7 +21,7 @@
 
 | 根类型 | 类别 | SHA-256 | 已解析类型 |
 |---|---|---|---|
-| `SessionHeader` | header | `d720be5aedaf6d8b499d467d6e03f98b0dfcdc4f0da95373985e290f9cb3e136` | [`SessionHeader`](#persistence-type-sha256-d720be5aedaf6d8b499d467d6e03f98b0dfcdc4f0da95373985e290f9cb3e136) |
+| `SessionHeader` | header | `bb80ce8b5ddb821676b3f2dce0f6abd94d4770595cdb35b407b45caecc24eeff` | [`SessionHeader`](#persistence-type-sha256-bb80ce8b5ddb821676b3f2dce0f6abd94d4770595cdb35b407b45caecc24eeff) |
 | `JsonlHeaderLine` | header | `44330f7e3cda60fa8c4343730044a31e83605d29b256835b60aadf4c1bda66e3` | [`HeaderLine`](#persistence-type-sha256-44330f7e3cda60fa8c4343730044a31e83605d29b256835b60aadf4c1bda66e3) |
 | `SessionEventEnvelope` | envelope | `6bd1fd7d981e2438db01a76dd08fd21f6fe1062cc435b54f9c12a5044def9dba` | [`union (3 variants)`](#persistence-type-sha256-6bd1fd7d981e2438db01a76dd08fd21f6fe1062cc435b54f9c12a5044def9dba) |
 | `event:agent-preset/selected` | event | `c9abeb1be878617b6c35dc0403ad78c6f946d5681e65258b2309c739a9a929c2` | [`{ type: "agent-preset/selected" }`](#persistence-type-sha256-c9abeb1be878617b6c35dc0403ad78c6f946d5681e65258b2309c739a9a929c2) |
@@ -2976,13 +2976,13 @@ SHA-256: `8608f66f4f346a01567d95482e3208ac748fb9f5eed6795a69908617af81f9d4`
 
 `2`
 
-<a id="persistence-type-sha256-b76417b057635c556244fcac4b9a83da5851df1a621e911f9321182a3c640215"></a>
+<a id="persistence-type-sha256-6f0af99e830291214f7ebcdee59c0f054a8738d108c3981a8fe5930b74bd5e5f"></a>
 
-### `4`
+### `5`
 
-SHA-256: `b76417b057635c556244fcac4b9a83da5851df1a621e911f9321182a3c640215`
+SHA-256: `6f0af99e830291214f7ebcdee59c0f054a8738d108c3981a8fe5930b74bd5e5f`
 
-`4`
+`5`
 
 <a id="persistence-type-sha256-e70f9485efd1afe768f2ebf9e578293a65f27a0f74dea61ddd7fa7456e4e94a6"></a>
 
@@ -4458,7 +4458,7 @@ SHA-256: `0e48cb7ee1a7ae33d94480337b7747c0b1cf676c621735dc79c1a51123240835`
 | `operation` | 必需 | `"delete"` |
 | `version` | 必需 | `1` |
 
-<a id="persistence-type-sha256-d720be5aedaf6d8b499d467d6e03f98b0dfcdc4f0da95373985e290f9cb3e136"></a>
+<a id="persistence-type-sha256-bb80ce8b5ddb821676b3f2dce0f6abd94d4770595cdb35b407b45caecc24eeff"></a>
 
 <a id="persistence-type-packagescoresessionsrctypestssessionheader"></a>
 
@@ -4466,7 +4466,7 @@ SHA-256: `0e48cb7ee1a7ae33d94480337b7747c0b1cf676c621735dc79c1a51123240835`
 
 ### `SessionHeader`
 
-SHA-256: `d720be5aedaf6d8b499d467d6e03f98b0dfcdc4f0da95373985e290f9cb3e136`
+SHA-256: `bb80ce8b5ddb821676b3f2dce0f6abd94d4770595cdb35b407b45caecc24eeff`
 
 来源：[`packages/core/session/src/types.ts:94`](../packages/core/session/src/types.ts)
 
@@ -4480,7 +4480,7 @@ SHA-256: `d720be5aedaf6d8b499d467d6e03f98b0dfcdc4f0da95373985e290f9cb3e136`
 | `isSeeded` | 必需 | `boolean` |
 | `origin` | 可选 | `"subagent"` |
 | `parentSession` | 可选 | `string` |
-| `version` | 必需 | `4` |
+| `version` | 必需 | `5` |
 
 <a id="persistence-type-sha256-6116fb04799f9188c4ba6b2468ccb411174be0317e6bee94deedefca65d45eb4"></a>
 

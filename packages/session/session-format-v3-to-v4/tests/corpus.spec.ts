@@ -1,4 +1,5 @@
 import { readFileSync, readdirSync } from 'node:fs'
+import { SESSION_FORMAT_VERSION } from '@qilin-agent/session'
 import { join, resolve } from 'node:path'
 import { expect, it } from 'vitest'
 import { createSessionFormatCatalogWithChildren, historicalSessionFormatCatalog } from '@qilin-agent/session-format-catalog'
@@ -79,7 +80,7 @@ it('refuses recorded parent/child clock conflicts and migrates consistent copies
         }
         expect(migrate(parent.artifact, aligned), parent.path).toEqual({
           ...parent.artifact,
-          header: { ...parent.artifact.header, version: 4 },
+          header: { ...parent.artifact.header, version: SESSION_FORMAT_VERSION },
           events: parent.artifact.events.map(migrateEvent),
         })
       }

@@ -48,7 +48,7 @@ describe.skipIf(webSnapshotMode() === 'record')('historical preset restoration t
       expect(resolved.agent.session.header.agentPreset).toBe('ptc')
       expect(resolved.agent.session.snapshotEvents()
         .filter(event => event.type === 'agent-preset/selected')
-        .map(event => event.data.agentPreset)).toEqual(withSelections ? ['ptc', 'standard', 'ptc'] : [])
+        .map(event => event.data.agentPreset)).toEqual(withSelections ? ['ptc', 'ptc', 'ptc'] : [])
 
       const publishedBytes = await readFile(successor)
       const published = Buffer.concat(scanZstdFrames(publishedBytes).frames
@@ -56,7 +56,7 @@ describe.skipIf(webSnapshotMode() === 'record')('historical preset restoration t
       const expected = [
         { ...header, version: SESSION_FORMAT_VERSION, agentPreset: 'ptc' },
         ...rows.map(row => row['type'] === 'agent-preset/selected'
-          && (row['data'] as { agentPreset: string }).agentPreset === 'code'
+          && ['code', 'standard'].includes((row['data'] as { agentPreset: string }).agentPreset)
           ? { ...row, data: { agentPreset: 'ptc' } }
           : row),
         // Agent activation closes its restored prefix with a fresh seed marker.

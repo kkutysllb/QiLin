@@ -3,6 +3,9 @@ scenario: cancel
 profile: acp
 composition: acp-default
 recording: authored
+sessionFormat:
+  version: 4
+  coverage: [adjacent-migration]
 header:
   class: acp-default
 replay:

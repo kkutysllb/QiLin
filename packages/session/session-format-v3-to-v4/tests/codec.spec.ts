@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { SESSION_FORMAT_VERSION } from '@qilin-agent/session'
 import { SessionFormatEventCollector } from '@qilin-agent/session-format'
 import type { SessionFormatEvent, SessionFormatJsonObject } from '@qilin-agent/session-format'
 import { sessionFormatCatalog } from '@qilin-agent/session-format-catalog'
@@ -91,9 +92,11 @@ describe('V4 framing and restoration', () => {
       expect(() => restore([fact, { ...marker, data: { ...data, sessionFormatVersion } }])).toThrow('sessionFormatVersion')
     }
     expect(() => restore([fact, { ...marker, data: null }])).toThrow('data must be an object')
-    const reader = sessionFormatCatalog.createRestore({ type: 'session', ...header }, { recovery: 'strict', validation: 'current' })
+    const active = delivery(SESSION_FORMAT_VERSION)
+    const activeData = active.data as SessionFormatJsonObject
+    const reader = sessionFormatCatalog.createRestore({ type: 'session', ...header, version: SESSION_FORMAT_VERSION }, { recovery: 'strict', validation: 'current' })
     reader.decodeRow(fact)
-    reader.decodeRow({ ...marker, data: { ...data, throughSeq: 1 } })
+    reader.decodeRow({ ...active, data: { ...activeData, throughSeq: 1 } })
     expect(() => reader.finish()).toThrow('throughSeq')
   })
 

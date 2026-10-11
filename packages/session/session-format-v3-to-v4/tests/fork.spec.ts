@@ -3,11 +3,12 @@ import { Context } from '@qilin-agent/kylin'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import TokenMeter from '@qilin-agent/token-meter'
 import ToolResultPruner from '@qilin-agent/compaction-tool-result-pruner'
-import { SessionFormatEventCollector, type SessionFormatEvent, type SessionFormatArtifact, type SessionFormatJsonObject } from '@qilin-agent/session-format'
-import { Session, SessionId, SessionLogOffset, SessionSeq } from '@qilin-agent/session'
+import { type SessionFormatEvent, type SessionFormatArtifact, type SessionFormatJsonObject } from '@qilin-agent/session-format'
+import { sessionFormatCatalog } from '@qilin-agent/session-format-catalog'
+import { Session, SessionId, SessionLogOffset, SessionSeq , SESSION_FORMAT_VERSION } from '@qilin-agent/session'
 import { buildForkSeed } from '@qilin-agent/session/fork'
 import { createMessage, ToolCallId } from '@qilin-agent/llm'
-import { releasedV4SessionFormatCodec as codec, assertV4RowAdmission, restoreReleasedV4Artifact } from '../src/index.ts'
+import { assertV4RowAdmission } from '../src/index.ts'
 import { assertV4ForkResult } from '../src/fork-result.ts'
 
 type MutableResult = {
@@ -29,7 +30,7 @@ function fork() {
   }, { surfaceOp: 'append' })
   const seed = buildForkSeed(source.snapshotEvents(), SessionSeq(2))
   return Session.create(SessionId('fork-child'), seed, {
-    version: 4, id: SessionId('fork-child'), createdAt: 1, delegationDepth: 0, isSeeded: true, parentSession: source.id,
+    version: SESSION_FORMAT_VERSION, id: SessionId('fork-child'), createdAt: 1, delegationDepth: 0, isSeeded: true, parentSession: source.id,
   }, SessionLogOffset(3))
 }
 
@@ -40,7 +41,13 @@ function artifact(session = fork()): SessionFormatArtifact {
 }
 
 function restore(events: readonly SessionFormatEvent[]) {
-  return restoreReleasedV4Artifact({ ...artifact(), events }, new Set(events.map(event => event.type)))
+  const source = { ...artifact(), events }
+  const reader = sessionFormatCatalog.createRestore(
+    sessionFormatCatalog.encodeCurrentHeader(source.header, source.inheritedEventCount),
+    { recovery: 'strict', validation: 'current' },
+  )
+  for (const event of events) reader.decodeRow(sessionFormatCatalog.encodeCurrentEvent(event))
+  return reader.finish()
 }
 
 describe('V4 fork results', () => {
@@ -61,25 +68,25 @@ describe('V4 fork results', () => {
     const child = fork()
     const original = artifact(child).events
     const before = JSON.stringify(original)
-    const physical = codec.encodeHeader(artifact(child).header, child.inheritedEventCount)
-    const decoder = codec.createDecoder(physical, 'strict')
-    const output = new SessionFormatEventCollector()
+    const reader = sessionFormatCatalog.createRestore(
+      sessionFormatCatalog.encodeCurrentHeader(artifact(child).header, child.inheritedEventCount),
+      { recovery: 'strict', validation: 'current' },
+    )
     for (const event of original) {
-      const row = codec.encodeEvent(event)
+      const row = sessionFormatCatalog.encodeCurrentEvent(event)
       expect(() => { assertV4RowAdmission(row) }).not.toThrow()
-      decoder.decodeRow(row, output)
+      reader.decodeRow(row)
     }
-    expect(decoder.finish(output)).toBe(3)
-    expect(output.values).toEqual(original)
-    expect(restore(output.values).events).toBe(output.values)
+    expect(reader.finish()).toEqual({ ...artifact(child), events: original, inheritedEventCount: child.inheritedEventCount })
+    expect(restore(original).events).toEqual(original)
     expect(JSON.stringify(original)).toBe(before)
     const result = child.snapshotEvents().find(event => event.type === 'tool/result')!
     expect(result.data.message.id).toBe(`forked-tool-result-read-one-${result.seq}`)
     expect(JSON.stringify(result)).toContain('The parent session may have executed it after the fork point.')
     const nested = Session.create(SessionId('fork-grandchild'), buildForkSeed(child.snapshotEvents(), result.seq), {
-      version: 4, id: SessionId('fork-grandchild'), createdAt: 1, delegationDepth: 0, isSeeded: true, parentSession: child.id,
+      version: SESSION_FORMAT_VERSION, id: SessionId('fork-grandchild'), createdAt: 1, delegationDepth: 0, isSeeded: true, parentSession: child.id,
     }, SessionLogOffset(result.seq + 1))
-    expect(restoreReleasedV4Artifact(artifact(nested), new Set(original.map(event => event.type)))).toBeDefined()
+    expect(restore(artifact(nested).events)).toBeDefined()
   })
 
   it('round trips a pruned fork result while preserving its original message identity', async () => {
@@ -101,12 +108,13 @@ describe('V4 fork results', () => {
       expect(replacement.data).toMatchObject({ message: { id: original.data.message.id } })
       expect(replacement.sourceEventSeqs).toEqual([original.seq])
       expect(JSON.stringify(replacement)).toContain('pruned')
-      const decoder = codec.createDecoder(codec.encodeHeader(artifact(child).header, child.inheritedEventCount), 'strict')
-      const output = new SessionFormatEventCollector()
-      for (const event of events) decoder.decodeRow(codec.encodeEvent(event), output)
-      expect(decoder.finish(output)).toBe(child.inheritedEventCount)
-      expect(output.values).toEqual(events)
-      expect(restore(output.values).events).toEqual(events)
+      const reader = sessionFormatCatalog.createRestore(
+        sessionFormatCatalog.encodeCurrentHeader(artifact(child).header, child.inheritedEventCount),
+        { recovery: 'strict', validation: 'current' },
+      )
+      for (const event of events) reader.decodeRow(sessionFormatCatalog.encodeCurrentEvent(event))
+      expect(reader.finish()).toEqual({ ...artifact(child), events, inheritedEventCount: child.inheritedEventCount })
+      expect(restore(events).events).toEqual(events)
       const data = replacement.data as SessionFormatJsonObject
       const message = data['message'] as SessionFormatJsonObject
       const invalid = [

@@ -6,7 +6,7 @@
  * one still refuses a corrupt generation.
  */
 import { Context } from '@qilin-agent/kylin'
-import { SessionId } from '@qilin-agent/session'
+import { SESSION_FORMAT_VERSION, SessionId } from '@qilin-agent/session'
 import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
@@ -70,13 +70,13 @@ describe('full-generation verification placement', () => {
 
     const writer = await ctx.sessionPersistence.open(id, 'write')
     try {
-      expect(writer.header.version).toBe(4)
+      expect(writer.header.version).toBe(SESSION_FORMAT_VERSION)
       expect((await writer.read()).events).toHaveLength(4)
     } finally {
       await writer.close()
     }
     expect((await readdir(dirname(f.path))).filter(name => name !== 'session.lock').sort())
-      .toEqual(['session.v3.jsonl', 'session.v4.jsonl'])
+      .toEqual(['session.v3.jsonl', `session.v${String(SESSION_FORMAT_VERSION)}.jsonl`])
   })
 
   it('refuses a corrupt staged generation on the inline path', async () => {
@@ -84,7 +84,7 @@ describe('full-generation verification placement', () => {
     const ctx = await mount(f.root, 'inline')
     const prepared = await ctx.sessionPersistence.open(id, 'read')
     await prepared.close()
-    const successor = generationLogPath(f.root, undefined, id, 4, 'none')
+    const successor = generationLogPath(f.root, undefined, id, SESSION_FORMAT_VERSION, 'none')
     // Between the prepared read and the write open, a competing current
     // generation appears whose bytes cannot decode: publish must verify it and
     // refuse rather than adopt it.

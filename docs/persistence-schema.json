@@ -4,7 +4,7 @@
     {
       "key": "SessionHeader",
       "kind": "header",
-      "digest": "d720be5aedaf6d8b499d467d6e03f98b0dfcdc4f0da95373985e290f9cb3e136",
+      "digest": "bb80ce8b5ddb821676b3f2dce0f6abd94d4770595cdb35b407b45caecc24eeff",
       "schema": {
         "root": 0,
         "nodes": [
@@ -77,7 +77,7 @@
           },
           {
             "kind": "literal",
-            "value": 4
+            "value": 5
           }
         ]
       }
@@ -24270,6 +24270,11 @@
       "sources": []
     },
     {
+      "digest": "6f0af99e830291214f7ebcdee59c0f054a8738d108c3981a8fe5930b74bd5e5f",
+      "names": [],
+      "sources": []
+    },
+    {
       "digest": "6f6f7da57f85fe6e8aa0197175f14c7ac780fbae1b0c2a26d1d23d077531fb6f",
       "names": [
         "packages/llm/llm/src/message.ts#SystemPromptMessageSource"
@@ -25359,11 +25364,6 @@
       "sources": []
     },
     {
-      "digest": "b76417b057635c556244fcac4b9a83da5851df1a621e911f9321182a3c640215",
-      "names": [],
-      "sources": []
-    },
-    {
       "digest": "b78c70520e4205ab634325a09f7958cc0357c1b0973b16dedf7b416ec01b1126",
       "names": [],
       "sources": []
@@ -25438,6 +25438,15 @@
       "names": [],
       "sources": [
         "packages/core/session/src/types.ts:206"
+      ]
+    },
+    {
+      "digest": "bb80ce8b5ddb821676b3f2dce0f6abd94d4770595cdb35b407b45caecc24eeff",
+      "names": [
+        "packages/core/session/src/types.ts#SessionHeader"
+      ],
+      "sources": [
+        "packages/core/session/src/types.ts:94"
       ]
     },
     {
@@ -25791,15 +25800,6 @@
       "digest": "d60ec76438fe6bd812564d1d149f761d0e75313955225356eeac3602189c0a8b",
       "names": [],
       "sources": []
-    },
-    {
-      "digest": "d720be5aedaf6d8b499d467d6e03f98b0dfcdc4f0da95373985e290f9cb3e136",
-      "names": [
-        "packages/core/session/src/types.ts#SessionHeader"
-      ],
-      "sources": [
-        "packages/core/session/src/types.ts:94"
-      ]
     },
     {
       "digest": "d79b7e955a255d2099bbbbd01f4a4a3c611aa616272571cbae493abb970c70ac",

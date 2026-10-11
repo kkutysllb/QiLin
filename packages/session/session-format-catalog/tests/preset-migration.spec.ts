@@ -26,7 +26,7 @@ describe('catalog preset migration', () => {
     expect(artifact.inheritedEventCount).toBe(2)
     expect(artifact.events.map(event => event.seq)).toEqual([0, 1, 2, 3, 4, 5])
     expect(artifact.events.filter(event => event.type === 'agent-preset/selected').map(event => event.data))
-      .toEqual(['ptc', 'standard', 'ptc', 'minimal', 'ptc'].map(agentPreset => ({ agentPreset })))
+      .toEqual(['ptc', 'ptc', 'ptc', 'ptc', 'ptc'].map(agentPreset => ({ agentPreset })))
     expect(artifact.events[2]).toMatchObject({ type: 'session/end-seed', data: { inherited: true } })
     expect(JSON.stringify({ header, source })).toBe(before)
   })
