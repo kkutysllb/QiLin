@@ -118,111 +118,6 @@ function json(response: ServerResponse, status: number, body: unknown): void {
   respond(response, status, 'application/json; charset=utf-8', `${JSON.stringify(body)}\n`)
 }
 
-/** Escape one value for the hub's own HTML. */
-function escapeHtml(value: string): string {
-  const replacements: Readonly<Record<string, string>> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }
-  return value.replace(/[&<>"']/gu, character => replacements[character] ?? character)
-}
-
-/**
- * The deployment's sign-in page: the entrance a public address shows.
- *
- * The entry authenticates against the roster, so a visitor never has to know
- * an account's runtime path or port. The session cookie the browser keeps is
- * the runtime's own; this page only decides which runtime the browser reaches.
- * @param error - message to show when a previous attempt failed.
- * @returns the document.
- */
-function signinPage(error?: string): string {
-  const notice = error === undefined ? '' : `    <p role="alert">${escapeHtml(error)}</p>\n`
-  return [
-    '<!doctype html>',
-    '<html lang="en">',
-    '  <head>',
-    '    <meta charset="utf-8">',
-    '    <meta name="viewport" content="width=device-width, initial-scale=1">',
-    '    <title>Sign in</title>',
-    '    <style>body{font:15px/1.5 system-ui,sans-serif;margin:0;display:grid;place-items:center;min-height:100vh;background:#faf7f2;color:#2a2a2a}main{width:min(22rem,90vw)}h1{font-size:1.25rem;margin:0 0 1rem}label{display:block;margin:.75rem 0 .25rem;font-size:.85rem;color:#666}input{width:100%;padding:.5rem .6rem;border:1px solid #d8d2c8;border-radius:.4rem;font:inherit;background:#fff}button{margin-top:1.25rem;width:100%;padding:.55rem;border:0;border-radius:.4rem;background:#2a2a2a;color:#fff;font:inherit;cursor:pointer}p[role=alert]{color:#b3261e;font-size:.85rem}</style>',
-    '  </head>',
-    '  <body>',
-    '    <main>',
-    '      <h1>Sign in</h1>',
-    notice,
-    '      <form method="post" action="/signin">',
-    '        <label for="identifier">Username or email</label>',
-    '        <input id="identifier" name="identifier" autocomplete="username" autofocus required>',
-    '        <label for="password">Password</label>',
-    '        <input id="password" name="password" type="password" autocomplete="current-password" required>',
-    '        <button type="submit">Sign in</button>',
-    '      </form>',
-    '    </main>',
-    '  </body>',
-    '</html>',
-    '',
-  ].join('\n')
-}
-
-/** One form value from an urlencoded sign-in body. */
-function formValue(body: string, name: string): string {
-  for (const pair of body.split('&')) {
-    const separator = pair.indexOf('=')
-    if (separator === -1) continue
-    if (decodeURIComponent(pair.slice(0, separator).replace(/\+/gu, ' ')) === name) {
-      return decodeURIComponent(pair.slice(separator + 1).replace(/\+/gu, ' '))
-    }
-  }
-  return ''
-}
-
-/** A sign-in body, bounded so a public address cannot buffer an unbounded request. */
-const SIGNIN_BODY_LIMIT = 4096
-
-/**
- * Read one sign-in submission.
- * @param request - the browser's request.
- * @returns the decoded body, or undefined when it exceeds the limit.
- */
-async function readSigninBody(request: IncomingMessage): Promise<string | undefined> {
-  const chunks: Buffer[] = []
-  let length = 0
-  for await (const chunk of request) {
-    const buffer = Buffer.from(chunk as Buffer)
-    length += buffer.length
-    if (length > SIGNIN_BODY_LIMIT) return undefined
-    chunks.push(buffer)
-  }
-  return Buffer.concat(chunks).toString('utf8')
-}
-/**
- * The hub's directory page: one link per account, and the first-run state when
- * the shared home has no accounts yet.
- * @param accounts - the shared home's accounts.
- * @returns the document.
- */
-function directoryPage(accounts: readonly { readonly username: string }[]): string {
-  const rows = accounts
-    .map(account => `      <li><a href="/t/${encodeURIComponent(account.username)}">${escapeHtml(account.username)}</a></li>`)
-    .join('\n')
-  const body = accounts.length === 0
-    ? '      <p>This Harness home has no accounts yet. Create one through the ordinary Web surface, then reload this page.</p>'
-    : `    <ul>\n${rows}\n    </ul>`
-  return [
-    '<!doctype html>',
-    '<html lang="en">',
-    '  <head>',
-    '    <meta charset="utf-8">',
-    '    <title>qilin tenants</title>',
-    '  </head>',
-    '  <body>',
-    '    <h1>qilin tenants</h1>',
-    '    <p>Each account below opens its own runtime. Sessions, tasks, and workspaces stay with the account; plugins and model settings are shared.</p>',
-    body,
-    '  </body>',
-    '</html>',
-    '',
-  ].join('\n')
-}
-
 /**
  * Serve the hub until it is asked to stop.
  * @param options - the interface, port, tenant profile, and idle window.
@@ -361,66 +256,11 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
     relayAnswer({ ...answered, headers: { ...answered.headers, 'set-cookie': [...upstreamCookies, ...extraCookies] } }, response)
   }
 
-  /**
-   * Sign one visitor in at the deployment's address.
-   *
-   * The runtime that will serve the account authenticates the credentials, so
-   * the roster's password hashes are checked in exactly one place and this
-   * process never needs the account's own session. What the entry adds is the
-   * routing cookie that every later request is dispatched by.
-   * @param response - the browser's answer.
-   * @param identifier - the submitted username or email address.
-   * @param password - the submitted password.
-   */
-  const signIn = async (response: ServerResponse, identifier: string, password: string): Promise<void> => {
-    const account = (await roster()).byIdentifier(identifier)
-    if (account === undefined || password === '') {
-      respond(response, 200, 'text/html; charset=utf-8', signinPage('That account and password do not match.'))
-      return
-    }
-    try {
-      const runtime = runtimeFor(account.id)
-      const launchUrl = await serialize(async () => {
-        await makeRoom(runtime)
-        return await runtime.ensure()
-      })
-      const answered = await fetch(new URL('/api/auth/login', new URL(launchUrl).origin), {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ identifier, password }),
-      })
-      if (answered.status !== 200) {
-        respond(response, 200, 'text/html; charset=utf-8', signinPage('That account and password do not match.'))
-        return
-      }
-      const session = answered.headers.getSetCookie()
-      response.writeHead(303, {
-        'cache-control': 'no-store',
-        'location': '/',
-        'referrer-policy': 'no-referrer',
-        'set-cookie': [...session, routingCookie(account.id)],
-      })
-      response.end()
-    } catch (error) {
-      process.stderr.write(`qilin tenants: the runtime for ${account.username} did not start: ${String(error)}\n`)
-      respond(response, 503, 'text/plain; charset=utf-8', 'qilin tenants: that account is not serving\n')
-    }
-  }
-
   const handle = async (request: IncomingMessage, response: ServerResponse): Promise<void> => {
     const url = new URL(request.url ?? '/', 'http://qilin.invalid')
     // The hub's own routes answer reads. A proxied path carries whatever method
     // the browser used, because its API calls and its uploads pass through.
     const hubOwnRoute = url.pathname === '/healthz' || url.pathname === '/status' || url.pathname === '/'
-    if (request.method === 'POST' && url.pathname === '/signin') {
-      const body = await readSigninBody(request)
-      if (body === undefined) {
-        respond(response, 413, 'text/plain; charset=utf-8', 'qilin tenants: the sign-in body is too large\n')
-        return
-      }
-      await signIn(response, formValue(body, 'identifier').trim(), formValue(body, 'password'))
-      return
-    }
     if (request.method !== 'GET' && !(options.singleOrigin && !hubOwnRoute)) {
       respond(response, 405, 'text/plain; charset=utf-8', 'qilin tenants: the hub answers reads only\n')
       return
@@ -431,6 +271,33 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
     }
     if (url.pathname === '/status') {
       json(response, 200, await status())
+      return
+    }
+    if (url.pathname.startsWith('/t/')) {
+      const rest = url.pathname.slice('/t/'.length)
+      const separator = rest.indexOf('/')
+      const username = decodeURIComponent(separator === -1 ? rest : rest.slice(0, separator))
+      const account = (await roster()).byIdentifier(username)
+      if (account === undefined) {
+        respond(response, 404, 'text/plain; charset=utf-8', 'qilin tenants: no such account\n')
+        return
+      }
+      try {
+        const runtime = runtimeFor(account.id)
+        await serialize(async () => {
+          await makeRoom(runtime)
+          return await runtime.ensure()
+        })
+        // The browser is forwarded to the path it asked for, never to the
+        // runtime's launch URL: a launch token hands out a session without
+        // credentials, and this deployment authenticates every visitor through
+        // the application's own account gate.
+        const deeper = separator === -1 ? '/' : url.pathname.slice('/t/'.length + username.length)
+        await forward(request, response, runtime, `${deeper}${url.search}`, [routingCookie(account.id)])
+      } catch (error) {
+        process.stderr.write(`qilin tenants: the runtime for ${account.username} did not start: ${String(error)}\n`)
+        respond(response, 503, 'text/plain; charset=utf-8', `qilin tenants: the runtime for ${account.username} did not start\n`)
+      }
       return
     }
     if (options.singleOrigin) {
@@ -465,10 +332,12 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       }
     }
     if (url.pathname === '/') {
-      const accounts = (await roster()).all()
-      // A deployment with no accounts yet states that; a deployment with
-      // accounts asks who is arriving instead of listing them.
-      respond(response, 200, 'text/html; charset=utf-8', accounts.length === 0 ? directoryPage(accounts) : signinPage())
+      // The deployment draws no interface of its own: the application inside an
+      // account's runtime owns the landing page, the sign-in form, and
+      // registration. A browser that has chosen no account is told where an
+      // account lives rather than shown a page this process invented.
+      respond(response, 404, 'text/plain; charset=utf-8',
+        'qilin tenants: this deployment serves one account per path; open /t/<account>\n')
       return
     }
     respond(response, 404, 'text/plain; charset=utf-8', 'qilin tenants: unknown path\n')

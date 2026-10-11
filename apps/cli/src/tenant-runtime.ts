@@ -12,14 +12,62 @@
  */
 
 import { spawn, type ChildProcess } from 'node:child_process'
+import { createRequire } from 'node:module'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 /** Any startup line whose label is followed by the served URL. */
 const READY_URL = /(?:^|\n)[A-Za-z][\w -]*: (https?:\/\/\S+)/u
 
+/** Resolution base for a loader named by a bare specifier. */
+const require = createRequire(import.meta.url)
+
+/**
+ * Workspace path map a source-mode child resolves against.
+ *
+ * A source launch's entry imports workspace packages by name. The child runs in
+ * its own tenant directory, where the loader would otherwise fall back to built
+ * `lib` output; this is the same map the repository's own subprocess runner
+ * gives a `.ts` entry (see `@qilin-agent/subprocess-local`).
+ */
+const SOURCE_TSCONFIG_PATH = fileURLToPath(new URL('../../../tsconfig.base.json', import.meta.url))
+
 /** Deadline for one tenant runtime to print its URL. */
 const START_DEADLINE_MS = 120_000
+
+/** Node options whose value names a module the child must load. */
+const LOADER_FLAGS = new Set(['--import', '--loader', '--experimental-loader', '-r', '--require'])
+
+/**
+ * Resolve every bare module name in the hub's own Node options to an absolute
+ * path.
+ *
+ * The child starts in its own tenant directory, so a bare specifier such as the
+ * `tsx/esm` a source launch passes to `--import` resolves against the wrong
+ * tree and the child dies before it prints anything. Resolving here keeps the
+ * child on the hub's own loader regardless of where it runs.
+ * @param execArgv - the hub's `process.execArgv`.
+ * @returns the same options with loader values made absolute.
+ */
+export function resolveLoaderArguments(execArgv: readonly string[]): string[] {
+  const resolved: string[] = []
+  for (const [index, argument] of execArgv.entries()) {
+    const previous = execArgv[index - 1]
+    if (previous !== undefined && LOADER_FLAGS.has(previous) && !argument.startsWith('.') && !argument.startsWith('/')) {
+      try {
+        resolved.push(pathToFileURL(require.resolve(argument)).href)
+        continue
+      } catch (error: unknown) {
+        // Not resolvable as a file: --import also accepts a builtin or a bare
+        // specifier the child may resolve itself, so the argument passes through.
+        if (!(error instanceof Error)) throw error
+      }
+    }
+    resolved.push(argument)
+  }
+  return resolved
+}
 
 /** Deadline for one tenant runtime to exit after SIGTERM, before SIGKILL. */
 const STOP_DEADLINE_MS = 15_000
@@ -50,7 +98,14 @@ export interface TenantRuntimeOptions {
   readonly profile: string
   /** Node entry of the qilin CLI the hub re-executes. */
   readonly binPath: string
-  /** Node options the hub itself started with, so the child runs the same way. */
+  /**
+   * Node options the hub itself started with, so the child runs the same way.
+   *
+   * A source launch reaches the CLI through a loader named by a bare specifier
+   * (`--import tsx/esm`). The child starts in its own tenant directory, where
+   * that name does not resolve, so the hub resolves every bare loader name to an
+   * absolute path before spawning. See {@link resolveLoaderArguments}.
+   */
   readonly execArgv: readonly string[]
   /**
    * First wait before retrying a runtime that failed to start. It doubles per
@@ -257,8 +312,12 @@ export class TenantRuntime {
     this.launchUrl = undefined
     this.starts += 1
 
-    const child = spawn(this.options.binPath, [
-      ...this.options.execArgv,
+    // The entry runs under this process's own Node, exactly as the launcher
+    // started it: spawning the entry itself works only when it is an executable
+    // file, and a source launch's entry is a TypeScript module.
+    const child = spawn(process.execPath, [
+      ...resolveLoaderArguments(this.options.execArgv),
+      this.options.binPath,
       '--profile', this.options.profile,
       '--host', '127.0.0.1',
       '--port', '0',
@@ -270,6 +329,7 @@ export class TenantRuntime {
       // account's own. The deployment home reaches the roster layer by name.
       env: {
         ...process.env,
+        ...this.options.binPath.endsWith('.ts') ? { TSX_TSCONFIG_PATH: SOURCE_TSCONFIG_PATH } : {},
         QILIN_HOME: this.tenantDir,
         [TENANT_VARIABLE]: '1',
         [DEPLOYMENT_HOME_VARIABLE]: this.options.home,
@@ -308,7 +368,7 @@ export class TenantRuntime {
       this.intentional = false
       this.state = crashed ? 'failed' : 'stopped'
       if (crashed) this.recordFailure(`the runtime for ${this.options.accountId} exited with code ${String(code)} after it was ready`)
-      ready.reject(new Error(`qilin tenants: the runtime for ${this.options.accountId} exited before its URL`))
+      ready.reject(new Error(`qilin tenants: the runtime for ${this.options.accountId} exited before its URL\n${this.output.slice(-2000)}`))
       exited.resolve()
     })
     this.child = child

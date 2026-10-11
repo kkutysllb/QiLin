@@ -152,25 +152,47 @@ async function hubStatusDocument(base: string): Promise<HubStatus> {
 }
 
 /**
- * Sign one account in at the deployment's address, the way a browser does.
+ * Enter one account's runtime through the deployment address.
+ *
+ * The address draws no page of its own: it forwards to the application inside
+ * that account, whose own landing page and sign-in form a visitor then uses.
  * @param base - the deployment's origin, with a trailing slash.
- * @param identifier - username or email address to submit.
- * @param password - password to submit.
+ * @param username - the account whose path to open.
  * @returns the cookies the deployment set, routing cookie included.
  */
-async function signInAtAddress(base: string, identifier: string, password: string): Promise<string> {
-  const response = await fetch(`${base}signin`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ identifier, password }).toString(),
-    redirect: 'manual',
-  })
-  expect(response.status, `sign-in for ${identifier}`).toBe(303)
+async function enterAccount(base: string, username: string): Promise<string> {
+  const response = await fetch(`${base}t/${username}`, { redirect: 'manual' })
+  expect(response.status, `entry for ${username}`).toBe(200)
   const cookies = response.headers.getSetCookie().map(value => value.split(';', 1)[0])
-  if (!cookies.join('; ').includes('qilin_tenant')) throw new Error(`the sign-in for ${identifier} set no routing cookie`)
+  if (!cookies.join('; ').includes('qilin_tenant')) throw new Error(`entering ${username} set no routing cookie`)
   return cookies.join('; ')
 }
 
+/**
+ * Sign one account in through the deployment address, with the application's
+ * own endpoint.
+ * @param base - the deployment's origin, with a trailing slash.
+ * @param cookie - the cookies that entered the account's path.
+ * @param identifier - username or email address to submit.
+ * @param password - password to submit.
+ * @returns the entering cookies plus the session cookie the answer set.
+ */
+async function signInThroughAddress(base: string, cookie: string, identifier: string, password: string): Promise<string> {
+  const response = await fetch(`${base}api/auth/login`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', origin: new URL(base).origin, cookie },
+    body: JSON.stringify({ identifier, password }),
+  })
+  expect(response.status, `sign-in for ${identifier}`).toBe(200)
+  const session = response.headers.getSetCookie().map(value => value.split(';', 1)[0])
+  if (session.length === 0) throw new Error(`the sign-in for ${identifier} set no session cookie`)
+  return [cookie, ...session].join('; ')
+}
+
+/** Enter and sign in the way a browser does, in one call. */
+async function signedInBrowser(base: string, username: string, password: string): Promise<string> {
+  return await signInThroughAddress(base, await enterAccount(base, username), username, password)
+}
 /**
  * The runtime origin the deployment reports for one account.
  * @param base - the deployment's origin, with a trailing slash.
@@ -224,30 +246,32 @@ it('serves one isolated runtime per account and reclaims an idle one', { timeout
     // Held in a const so the polls below keep the narrowed origin.
     const base = hub.base
 
-    // 1. The address asks who is arriving: the form, never a list of accounts.
-    const index = await fetch(base)
-    expect(index.status).toBe(200)
-    const form = await index.text()
-    expect(form).toContain('type="password"')
-    expect(form).not.toContain('alice')
-    expect(form).not.toContain('bob')
+    // 1. The deployment draws no interface of its own. The address names the
+    //    account-addressed form instead of inventing a page, a form, or a list
+    //    of the accounts it serves.
+    const index = await fetch(base, { redirect: 'manual' })
+    expect(index.status).toBe(404)
+    const notice = await index.text()
+    expect(notice).toContain('/t/<account>')
+    expect(notice).not.toContain('type="password"')
+    expect(notice).not.toContain('alice')
 
-    // A wrong password answers with the form again and sets no cookie at all:
-    // the deployment reveals neither which accounts exist nor which was close.
-    const refused = await fetch(`${base}signin`, {
+    // A wrong password is refused by the application behind the address, which
+    // mints no session for it and reveals neither which accounts exist nor
+    // which one was close.
+    const refusedEntry = await enterAccount(base, 'alice')
+    const refused = await fetch(`${base}api/auth/login`, {
       method: 'POST',
-      headers: { 'content-type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ identifier: 'alice', password: 'not-her-password' }).toString(),
-      redirect: 'manual',
+      headers: { 'content-type': 'application/json', origin: new URL(base).origin, cookie: refusedEntry },
+      body: JSON.stringify({ identifier: 'alice', password: 'not-her-password' }),
     })
-    expect(refused.status).toBe(200)
-    expect(await refused.text()).toContain('type="password"')
-    expect(refused.headers.getSetCookie()).toEqual([])
+    expect(refused.status).toBe(401)
+    expect(refused.headers.getSetCookie().some(cookie => cookie.startsWith('qilin-session-'))).toBe(false)
 
     // 2. Each account signs in at that one address and lands on a runtime of its
     // own, under the shared home.
-    const aliceBrowser = await signInAtAddress(base, 'alice', ALICE_PASSWORD)
-    const bobBrowser = await signInAtAddress(base, 'bob', BOB_PASSWORD)
+    const aliceBrowser = await signedInBrowser(base, 'alice', ALICE_PASSWORD)
+    const bobBrowser = await signedInBrowser(base, 'bob', BOB_PASSWORD)
     expect(aliceBrowser).not.toBe(bobBrowser)
     const aliceOrigin = await runtimeOrigin(base, 'alice')
     const bobOrigin = await runtimeOrigin(base, 'bob')
@@ -290,7 +314,7 @@ it('serves one isolated runtime per account and reclaims an idle one', { timeout
       async () => (await hubStatus(base)).map(tenant => tenant.state),
       { timeout: 30_000, interval: 250 },
     ).toEqual(['stopped', 'stopped'])
-    await signInAtAddress(base, 'alice', ALICE_PASSWORD)
+    await signedInBrowser(base, 'alice', ALICE_PASSWORD)
     const againOrigin = await runtimeOrigin(base, 'alice')
     expect(againOrigin).not.toBe(aliceOrigin)
     const againCookie = await login(againOrigin, 'alice', ALICE_PASSWORD)
@@ -335,9 +359,9 @@ it('bounds how many runtimes live at once and backs off a runtime that cannot st
     expect(await hubStatusDocument(base)).toMatchObject({ maxTenants: 1, alive: 0 })
 
     // 2. Signing a second account in past the cap reclaims the least recently used one.
-    await signInAtAddress(base, 'alice', ALICE_PASSWORD)
+    await signedInBrowser(base, 'alice', ALICE_PASSWORD)
     const aliceOrigin = await runtimeOrigin(base, 'alice')
-    await signInAtAddress(base, 'bob', BOB_PASSWORD)
+    await signedInBrowser(base, 'bob', BOB_PASSWORD)
     const bobOrigin = await runtimeOrigin(base, 'bob')
     lastOrigin = bobOrigin
     expect(aliceOrigin).not.toBe(bobOrigin)
@@ -347,7 +371,7 @@ it('bounds how many runtimes live at once and backs off a runtime that cannot st
     expect(capped.tenants.map(tenant => [tenant.username, tenant.state])).toEqual([['alice', 'stopped'], ['bob', 'running']])
 
     // 3. Signing alice in again reclaims bob, so the bound holds whichever way it moves.
-    await signInAtAddress(base, 'alice', ALICE_PASSWORD)
+    await signedInBrowser(base, 'alice', ALICE_PASSWORD)
     const aliceAgain = await runtimeOrigin(base, 'alice')
     lastOrigin = aliceAgain
     expect(aliceAgain).not.toBe(aliceOrigin)
@@ -359,24 +383,14 @@ it('bounds how many runtimes live at once and backs off a runtime that cannot st
     //    reports the failure, and a handoff inside the wait spawns nothing.
     const failing = await startHub(root, home, { profile: 'no-such-tenant-profile', restartBackoffMs: 60_000 })
     hub = failing
-    const refused = await fetch(`${failing.base}signin`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ identifier: 'alice', password: ALICE_PASSWORD }).toString(),
-      redirect: 'manual',
-    })
+    const refused = await fetch(`${failing.base}t/alice`, { redirect: 'manual' })
     expect(refused.status).toBe(503)
     const failed = (await hubStatusDocument(failing.base)).tenants
     expect(failed.map(tenant => [tenant.username, tenant.state, tenant.starts, tenant.consecutiveFailures]))
       .toEqual([['alice', 'failed', 1, 1]])
     expect(failed[0]?.retryAt ?? 0).toBeGreaterThan(Date.now())
 
-    const again = await fetch(`${failing.base}signin`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ identifier: 'alice', password: ALICE_PASSWORD }).toString(),
-      redirect: 'manual',
-    })
+    const again = await fetch(`${failing.base}t/alice`, { redirect: 'manual' })
     expect(again.status).toBe(503)
     expect((await hubStatusDocument(failing.base)).tenants.map(tenant => tenant.starts)).toEqual([1])
     expect(await stopHub(failing)).toBe(0)
@@ -411,14 +425,9 @@ it('serves one browser through the hub origin by routing cookie', { timeout: 240
     // 1. Signing in never leaves the hub origin: the account's own runtime
     //    checks the credentials through the hop, and the hub adds the routing
     //    cookie that names that account for every later request.
-    const handoffResponse = await fetch(`${base}signin`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ identifier: 'alice', password: ALICE_PASSWORD }).toString(),
-      redirect: 'manual',
-    })
-    expect(handoffResponse.status).toBe(303)
-    expect(handoffResponse.headers.get('location')).toBe('/')
+    const handoffResponse = await fetch(`${base}t/alice`, { redirect: 'manual' })
+    expect(handoffResponse.status).toBe(200)
+    expect(handoffResponse.headers.get('location')).toBeNull()
     const setCookies = handoffResponse.headers.getSetCookie()
     expect(setCookies.some(cookie => cookie.startsWith(`qilin_tenant=${alice.id}`))).toBe(true)
     const jar = setCookies
@@ -434,30 +443,28 @@ it('serves one browser through the hub origin by routing cookie', { timeout: 240
     expect(gated.status).toBe(302)
     expect(gated.headers.get('location')).toBe('/?next=%2Fworkspace')
 
-    // That redirect names the runtime's own root, and the deployment's sign-in
-    // page lives on the same path: a browser that already chose an account must
-    // reach the runtime's landing page there, and a browser that has not must
-    // reach the sign-in form, never a list of the deployment's accounts.
+    // That redirect names the runtime's own root, and the application's landing
+    // page lives there: a browser that already entered an account reaches the
+    // application, and one that has not is told where an account lives.
     const landing = await fetch(base, { headers: { cookie: jar } })
     expect(landing.status).toBe(200)
     expect(await landing.text()).not.toContain('type="password"')
-    const signin = await fetch(base)
-    expect(signin.status).toBe(200)
-    const form = await signin.text()
-    expect(form).toContain('type="password"')
-    expect(form).not.toContain('/t/alice')
+    const signin = await fetch(base, { redirect: 'manual' })
+    expect(signin.status).toBe(404)
+    expect(await signin.text()).toContain('/t/<account>')
+    // The application's own sign-in document is what the account path serves.
+    const signInDocument = await fetch(`${base}t/alice/login`, { redirect: 'manual' })
+    expect(signInDocument.status).toBe(200)
+    expect(await signInDocument.text()).toContain('type="password"')
 
-    // A wrong password is refused at the address itself and hands out no
-    // routing cookie: the form comes back instead of an account.
-    const refusedPassword = await fetch(`${base}signin`, {
+    // A wrong password is refused by the application, which mints no session.
+    const refusedPassword = await fetch(`${base}api/auth/login`, {
       method: 'POST',
-      headers: { 'content-type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ identifier: 'alice', password: 'wrong-password' }).toString(),
-      redirect: 'manual',
+      headers: { 'content-type': 'application/json', origin: hubOrigin, cookie: jar },
+      body: JSON.stringify({ identifier: 'alice', password: 'wrong-password' }),
     })
-    expect(refusedPassword.status).toBe(200)
-    expect(await refusedPassword.text()).toContain('type="password"')
-    expect(refusedPassword.headers.getSetCookie().some(cookie => cookie.startsWith('qilin_tenant='))).toBe(false)
+    expect(refusedPassword.status).toBe(401)
+    expect(refusedPassword.headers.getSetCookie().some(cookie => cookie.startsWith('qilin-session-'))).toBe(false)
 
     // 3. The API crosses the same hop with any method, and the tenant's
     //    same-origin fence still decides one hop out: an Origin naming the hub
@@ -578,7 +585,7 @@ it('serves one browser through the hub origin by routing cookie', { timeout: 240
 
     // 9. Signing out ends the runtime's own session and clears this deployment's
     //    routing cookie on the same answer, so the browser is back at the form.
-    const bobBrowser = await signInAtAddress(base, 'bob', BOB_PASSWORD)
+    const bobBrowser = await signedInBrowser(base, 'bob', BOB_PASSWORD)
     const logout = await fetch(`${base}api/auth/logout`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', origin: hubOrigin, cookie: bobBrowser },
@@ -612,8 +619,8 @@ it('runs two accounts at once through the product profile', { timeout: 240_000 }
     const base = hub.base
     // Requests address the origin without the trailing slash the page URL carries.
     const hubOrigin = new URL(base).origin
-    const linbid = await signInAtAddress(base, 'linbid', ALICE_PASSWORD)
-    const kkutys = await signInAtAddress(base, 'kkutys', BOB_PASSWORD)
+    const linbid = await signedInBrowser(base, 'linbid', ALICE_PASSWORD)
+    const kkutys = await signedInBrowser(base, 'kkutys', BOB_PASSWORD)
 
     // Both runtimes are alive at the same time; neither replaced the other.
     const status = await hubStatus(base)
@@ -670,7 +677,7 @@ it('keeps every runtime when the idle window is 0', { timeout: 240_000 }, async 
   let hub: RunningHub | undefined
   try {
     hub = await startHub(root, home, { idleMs: 0 })
-    await signInAtAddress(hub.base, 'alice', ALICE_PASSWORD)
+    await signedInBrowser(hub.base, 'alice', ALICE_PASSWORD)
     // A sweep interval sized from 0 would reclaim each runtime on its first
     // tick; the window of 0 means no sweep at all.
     await new Promise(resolve => setTimeout(resolve, 2500))
