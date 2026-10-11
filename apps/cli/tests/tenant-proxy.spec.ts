@@ -7,9 +7,9 @@
  * instead of inferring it from the product's behavior.
  */
 
-import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http'
+import { createServer, type IncomingMessage, type Server } from 'node:http'
 import { createServer as createTcpServer, connect, type AddressInfo, type Socket } from 'node:net'
-import { PassThrough, Readable } from 'node:stream'
+import { Readable } from 'node:stream'
 import { afterEach, describe, expect, it } from 'vitest'
 import { forwardedHeaders, hubAcceptsOrigin, proxyRequest, relayAnswer, relayUpgrade } from '../src/tenant-proxy.ts'
 
@@ -173,30 +173,26 @@ describe('tenant proxy hop', () => {
   })
 
   it('streams one relayed answer into the browser response', async () => {
-    const written: { status?: number; headers?: Record<string, unknown> } = {}
-    const sink = new PassThrough()
-    const response = Object.assign(sink, {
-      writeHead: (status: number, headers: Record<string, unknown>) => {
-        written.status = status
-        written.headers = headers
-        return sink
-      },
-    }) as unknown as ServerResponse
+    // A real response is the point: the relay writes a status, headers, and a
+    // streamed body through the same path a proxied answer takes.
+    const server = createServer((_request, response) => {
+      relayAnswer({
+        status: 206,
+        headers: { 'content-range': 'bytes 0-9/100', connection: 'close', 'transfer-encoding': 'chunked' },
+        stream: Readable.from(['0123', '456789']),
+      }, response)
+    })
+    upstream = server
+    const port = await new Promise<number>((resolve) => {
+      server.listen(0, '127.0.0.1', () => { resolve((server.address() as AddressInfo).port) })
+    })
 
-    relayAnswer({
-      status: 206,
-      headers: { 'content-range': 'bytes 0-9/100', connection: 'close', 'transfer-encoding': 'chunked' },
-      stream: Readable.from(['0123', '456789']),
-    }, response)
-
-    const chunks: Buffer[] = []
-    for await (const chunk of sink) chunks.push(Buffer.from(chunk as Buffer))
-    expect(Buffer.concat(chunks).toString('utf8')).toBe('0123456789')
-    expect(written.status).toBe(206)
-    expect(written.headers?.['content-range']).toBe('bytes 0-9/100')
-    // Connection-scoped promises do not cross back to the browser.
-    expect(written.headers?.connection).toBeUndefined()
-    expect(written.headers?.['transfer-encoding']).toBeUndefined()
+    const answered = await fetch(`http://127.0.0.1:${String(port)}/`)
+    expect(answered.status).toBe(206)
+    expect(answered.headers.get('content-range')).toBe('bytes 0-9/100')
+    // Connection-scoped entries do not cross back to the browser.
+    expect(answered.headers.get('connection')).not.toBe('close')
+    expect(await answered.text()).toBe('0123456789')
   })
 
   it('pipes an upgraded socket to the runtime and back', async () => {
