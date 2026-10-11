@@ -11,6 +11,7 @@ import { createServer, type IncomingMessage, type Server } from 'node:http'
 import { createServer as createTcpServer, connect, type AddressInfo, type Socket } from 'node:net'
 import { Readable } from 'node:stream'
 import { afterEach, describe, expect, it } from 'vitest'
+import { DEPLOYMENT_AUTHORITY_HEADER } from '@qilin-agent/accounts-local'
 import { forwardedHeaders, hubAcceptsOrigin, proxyRequest, relayAnswer, relayUpgrade } from '../src/tenant-proxy.ts'
 
 let upstream: Server | undefined
@@ -160,6 +161,18 @@ describe('tenant proxy hop', () => {
     expect(forwardedHeaders({ host: 'x', origin: 'http://x' }, 'y:1')).toEqual({ host: 'y:1', origin: 'http://y:1' })
     // A client that attached no Origin keeps its unlabelled request unlabelled.
     expect(forwardedHeaders({ host: 'x' }, 'y:1')).toEqual({ host: 'y:1' })
+    // The browser's authority travels beside the tenant's: the fences check the
+    // one, the runtime's sessions are named for the other. A client that tries
+    // to name it itself is dropped, and a direct request names none.
+    expect(forwardedHeaders({ host: 'x' }, 'y:1', 'hub.test:8790')).toEqual({
+      host: 'y:1',
+      [DEPLOYMENT_AUTHORITY_HEADER]: 'hub.test:8790',
+    })
+    expect(forwardedHeaders({ host: 'x', [DEPLOYMENT_AUTHORITY_HEADER]: 'evil.test' }, 'y:1', 'hub.test:8790')).toEqual({
+      host: 'y:1',
+      [DEPLOYMENT_AUTHORITY_HEADER]: 'hub.test:8790',
+    })
+    expect(forwardedHeaders({ host: 'x', [DEPLOYMENT_AUTHORITY_HEADER]: 'evil.test' }, 'y:1')).toEqual({ host: 'y:1' })
   })
 
   it('fails the forward when the runtime is not listening', async () => {

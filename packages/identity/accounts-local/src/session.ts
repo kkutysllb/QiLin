@@ -34,6 +34,18 @@ const SIGNATURE_VERSION = 's1'
 const SIGNATURE_SEGMENTS = 3
 const BASE64URL_PATTERN = /^[A-Za-z0-9_-]+$/u
 
+/**
+ * Header one hop in front of a runtime names the deployment's own authority in.
+ *
+ * A runtime reached through a deployment's single address is asked for a
+ * *tenant* authority by its transport fences, while the sessions it mints belong
+ * to the address the browser used. Naming them for the forwarded authority is
+ * what keeps one cookie valid at every runtime of the deployment, so a browser
+ * that signed in at the deployment's door reaches its own account's runtime
+ * without signing in again.
+ */
+export const DEPLOYMENT_AUTHORITY_HEADER = 'x-qilin-deployment-authority'
+
 /** Read one request header, whichever request representation supplied it. */
 function header(headers: ConnectionTrustRequest['headers'], name: string): string | undefined {
   if (headers instanceof Headers) return headers.get(name) ?? undefined
@@ -56,7 +68,10 @@ interface SessionLookup {
  * @returns both facts, or undefined when the request names no usable authority.
  */
 function lookupSession(headers: ConnectionTrustRequest['headers']): SessionLookup | undefined {
-  const host = header(headers, 'host')
+  // A forwarded authority wins when a hop in front named one: that is the
+  // address the browser used, and the one its cookie is named for. Without one,
+  // the Host header is the authority this server can have been reached by.
+  const host = header(headers, DEPLOYMENT_AUTHORITY_HEADER) ?? header(headers, 'host')
   if (host === undefined) return undefined
   try {
     return { authority: new URL(`http://${host}`).host, cookie: header(headers, 'cookie') }

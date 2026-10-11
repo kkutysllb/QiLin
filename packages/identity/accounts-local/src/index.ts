@@ -25,6 +25,7 @@ import { SessionCookies } from './session.ts'
 import { LoginThrottle } from './throttle.ts'
 
 export { AUTH_API_PREFIX, LOGIN_PATH, SETUP_PATH } from './paths.ts'
+export { DEPLOYMENT_AUTHORITY_HEADER } from './session.ts'
 export { AccountStore } from './accounts.ts'
 export type { AccountRecord } from './accounts.ts'
 export {

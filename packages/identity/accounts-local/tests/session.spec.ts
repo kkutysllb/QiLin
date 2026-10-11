@@ -3,7 +3,7 @@
 import { createHmac } from 'node:crypto'
 import { describe, expect, it } from 'vitest'
 import type { AccountRecord } from '../src/accounts.ts'
-import { requestAuthority, SessionCookies } from '../src/session.ts'
+import { DEPLOYMENT_AUTHORITY_HEADER, requestAuthority, SessionCookies } from '../src/session.ts'
 
 const SECRET = Buffer.alloc(32, 7)
 const MAX_AGE = 24 * 60 * 60 * 1000
@@ -155,5 +155,20 @@ describe('session cookies', () => {
     expect(requestAuthority({ host: '[' })).toBeUndefined()
     expect(requestAuthority({})).toBeUndefined()
     expect(requestAuthority(new Headers({ host: '127.0.0.1:3090' }))).toBe('127.0.0.1:3090')
+    // A hop in front named the address the browser used, while the transport
+    // fences below it name the runtime the request reached: the session belongs
+    // to the browser's, so one cookie stays valid at every runtime behind that
+    // address.
+    expect(requestAuthority({
+      host: '127.0.0.1:41234',
+      [DEPLOYMENT_AUTHORITY_HEADER]: 'example.test:8790',
+    })).toBe('example.test:8790')
+    expect(requestAuthority(new Headers({
+      host: '127.0.0.1:41234',
+      [DEPLOYMENT_AUTHORITY_HEADER]: 'example.test:8790',
+    }))).toBe('example.test:8790')
+    // A forwarded authority a URL parser refuses falls through to the Host one
+    // rather than naming a session no cookie of ours can carry.
+    expect(requestAuthority({ host: '127.0.0.1:41234', [DEPLOYMENT_AUTHORITY_HEADER]: '[' })).toBeUndefined()
   })
 })

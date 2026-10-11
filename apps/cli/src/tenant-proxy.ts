@@ -16,6 +16,7 @@
  * @module @qilin-agent/cli/tenant-proxy
  */
 
+import { DEPLOYMENT_AUTHORITY_HEADER } from '@qilin-agent/accounts-local'
 import { request as httpRequest, type IncomingHttpHeaders, type IncomingMessage, type ServerResponse } from 'node:http'
 import { connect } from 'node:net'
 import { Readable, type Duplex } from 'node:stream'
@@ -94,17 +95,30 @@ export function hubAcceptsOrigin(headers: IncomingHttpHeaders, hubAuthority: str
  * @param tenantAuthority - the runtime's own `host:port`.
  * @returns the forwarded header set.
  */
-export function forwardedHeaders(headers: IncomingHttpHeaders, tenantAuthority: string): IncomingHttpHeaders {
+export function forwardedHeaders(
+  headers: IncomingHttpHeaders,
+  tenantAuthority: string,
+  deploymentAuthority?: string,
+): IncomingHttpHeaders {
   const forwarded: IncomingHttpHeaders = {}
   for (const [name, value] of Object.entries(headers)) {
     const lower = name.toLowerCase()
-    if (HOP_BY_HOP.has(lower) || lower === 'host' || lower === 'origin') continue
+    // The deployment authority is never taken from the browser: this hop is the
+    // only one that can name it.
+    if (HOP_BY_HOP.has(lower) || lower === 'host' || lower === 'origin' || lower === DEPLOYMENT_AUTHORITY_HEADER) continue
     forwarded[name] = value
   }
   forwarded.host = tenantAuthority
   // Rewritten only when it was present, so a non-browser client keeps its
   // unlabelled request unlabelled.
   if (headers.origin !== undefined) forwarded.origin = `http://${tenantAuthority}`
+  // The transport fences above check the tenant's authority; the sessions the
+  // runtime mints are named for the deployment's, which is the address the
+  // browser actually used. A direct request (no hub hop, no deployment
+  // authority) keeps the tenant authority as its own.
+  if (deploymentAuthority !== undefined && deploymentAuthority !== '') {
+    forwarded[DEPLOYMENT_AUTHORITY_HEADER] = deploymentAuthority
+  }
   return forwarded
 }
 
@@ -134,7 +148,7 @@ export async function proxyRequest(options: ProxyRequestOptions): Promise<ProxyA
     port: origin.port,
     method: options.method,
     path: options.path,
-    headers: forwardedHeaders(options.headers, origin.host),
+    headers: forwardedHeaders(options.headers, origin.host, options.hubAuthority),
   })
   upstream.on('response', (response: IncomingMessage) => {
     answered.resolve({
