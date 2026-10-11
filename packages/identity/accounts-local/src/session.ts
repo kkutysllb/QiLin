@@ -138,11 +138,20 @@ export class SessionCookies {
   /**
    * @param secret - HMAC key every session of this deployment is signed with.
    * @param maxAgeMilliseconds - absolute session lifetime in milliseconds.
+   * @param secure - whether the browser reaches this deployment over TLS, so
+   * every cookie it sets must carry `Secure`. A deployment whose public address
+   * terminates TLS sets this even though the runtime behind it speaks HTTP.
    */
   constructor(
     private readonly secret: Buffer,
     private readonly maxAgeMilliseconds: number,
+    private readonly secure = false,
   ) {}
+
+  /** Attributes every cookie this deployment sets carries. */
+  private attributes(): string {
+    return this.secure ? '; HttpOnly; SameSite=Strict; Secure' : '; HttpOnly; SameSite=Strict'
+  }
 
   /**
    * Mint the Set-Cookie value that grants one account a session.
@@ -165,7 +174,7 @@ export class SessionCookies {
     const value = `${SIGNATURE_VERSION}.${body}.${signature(this.secret, body).toString('base64url')}`
     const maxAgeSeconds = Math.floor(this.maxAgeMilliseconds / 1000)
     return `${cookieName(authority)}=${value}; Max-Age=${String(maxAgeSeconds)}; Path=/; `
-      + `Expires=${new Date(expiresAt).toUTCString()}; HttpOnly; SameSite=Strict`
+      + `Expires=${new Date(expiresAt).toUTCString()}${this.attributes()}`
   }
 
   /**
@@ -174,7 +183,7 @@ export class SessionCookies {
    * @returns the complete Set-Cookie header value.
    */
   clear(authority: string): string {
-    return `${cookieName(authority)}=; Max-Age=0; Path=/; Expires=${new Date(0).toUTCString()}; HttpOnly; SameSite=Strict`
+    return `${cookieName(authority)}=; Max-Age=0; Path=/; Expires=${new Date(0).toUTCString()}${this.attributes()}`
   }
 
   /**

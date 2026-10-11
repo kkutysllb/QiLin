@@ -28,6 +28,14 @@ describe('one tenant runtime child', () => {
     expect(document).toContain('admittedAccounts:')
     expect(document).toContain("      - 'alice'")
     expect(document).toContain('registration: closed')
+    expect(document).not.toContain('sessionCookieSecure')
+  })
+
+  it('marks account cookies Secure only for a deployment that terminates TLS', () => {
+    expect(tenantPatchYaml('alice', true)).toContain('sessionCookieSecure: true')
+    expect(bootstrapPatchYaml('open', true)).toContain('sessionCookieSecure: true')
+    expect(tenantPatchYaml('alice')).not.toContain('sessionCookieSecure')
+    expect(bootstrapPatchYaml('open')).not.toContain('sessionCookieSecure')
   })
 
   it('refuses an identity a path would read as a directory rather than a name', () => {

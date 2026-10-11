@@ -80,6 +80,16 @@ describe('session cookies', () => {
     expect(cookies.clear(AUTHORITY)).toContain('Max-Age=0')
   })
 
+  it('marks cookies Secure when the browser reaches the deployment over TLS', () => {
+    const secure = new SessionCookies(SECRET, MAX_AGE, true)
+    expect(secure.issue(AUTHORITY, ACCOUNT, Date.now())).toContain('; Secure')
+    expect(secure.clear(AUTHORITY)).toContain('; Secure')
+    // A deployment the browser reaches over plain HTTP keeps the attribute off,
+    // without which the browser would never return the cookie at all.
+    expect(cookies.issue(AUTHORITY, ACCOUNT, Date.now())).not.toContain('Secure')
+    expect(cookies.clear(AUTHORITY)).not.toContain('Secure')
+  })
+
   it('reads back the session it issued', () => {
     const setCookie = cookies.issue(AUTHORITY, ACCOUNT, Date.now())
     const value = setCookie.split(';', 1)[0]!.split('=', 2)[1]!

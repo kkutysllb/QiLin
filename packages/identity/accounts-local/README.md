@@ -40,6 +40,7 @@ Compose this plugin beside [`qilin-client-connection`](../../client/connection/R
 | `enabled` | `true` | Require an account session for the gated index paths and every non-public `/api` request |
 | `registration` | `'open'` | Whether an anonymous visitor may create an additional account |
 | `sessionMaxAgeDays` | `7` | Absolute browser-session lifetime in days |
+| `sessionCookieSecure` | `false` | Mark the session cookie `Secure`; a deployment whose public address terminates TLS sets it |
 | `qilinHome` | `$QILIN_HOME`, then `~/.qilin` | Harness home holding `auth/accounts.json` |
 | `admittedAccounts` | every account in the file | Account identities this deployment admits; sign-in and every issued session are refused for an account the list does not name |
 
@@ -92,7 +93,7 @@ The package is one function plugin. `apply` opens the account file of the resolv
 
 ### Passwords and sessions
 
-A stored hash is self-describing (`scrypt$N$r$p$salt$key`) with per-account salt, cost 2^15, block size 8, parallelism 1, and a 32-byte key; verification re-derives under the stored parameters and compares in constant time. A session cookie is HMAC-SHA256 signed, named after the request authority it was issued for, and carries that authority, the account id, the credential generation, and an absolute issue/expiry interval no longer than `sessionMaxAgeDays`. It is host-only, `Path=/`, `HttpOnly`, and `SameSite=Strict`. A password or address change bumps the account's credential generation, so every cookie minted before it stops naming an account even though its signature still verifies.
+A stored hash is self-describing (`scrypt$N$r$p$salt$key`) with per-account salt, cost 2^15, block size 8, parallelism 1, and a 32-byte key; verification re-derives under the stored parameters and compares in constant time. A session cookie is HMAC-SHA256 signed, named after the request authority it was issued for, and carries that authority, the account id, the credential generation, and an absolute issue/expiry interval no longer than `sessionMaxAgeDays`. It is host-only, `Path=/`, `HttpOnly`, and `SameSite=Strict`, and carries `Secure` when `sessionCookieSecure` is set — which a deployment that terminates TLS at its public address needs, since the runtime behind that address speaks HTTP. A password or address change bumps the account's credential generation, so every cookie minted before it stops naming an account even though its signature still verifies.
 
 ### Source map
 

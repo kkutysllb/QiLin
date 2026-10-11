@@ -40,6 +40,7 @@ kind: "package-reference"
 | `enabled` | `true` | 要求受门禁的 index 路径与每个非公开 `/api` 请求都携带账户会话 |
 | `registration` | `'open'` | 匿名访问者是否可以创建额外账户 |
 | `sessionMaxAgeDays` | `7` | 浏览器会话的绝对有效期，单位为天 |
+| `sessionCookieSecure` | `false` | 给会话 cookie 加 `Secure`；在公网地址上终止 TLS 的部署需要打开它 |
 | `qilinHome` | `$QILIN_HOME`，其次 `~/.qilin` | 存放 `auth/accounts.json` 的 harness home |
 | `admittedAccounts` | 文件中的每个账户 | 本部署接纳的账户标识；未列名的账户既不能登录，其已签发的会话也不再有效 |
 
@@ -92,7 +93,7 @@ kind: "package-reference"
 
 ### 密码与会话
 
-存储的哈希是自描述字符串（`scrypt$N$r$p$salt$key`），带逐账户 salt、代价 2^15、块大小 8、并行度 1 与 32 字节密钥；校验按存储的参数重新派生并以恒定时间比较。会话 cookie 是 HMAC-SHA256 签名，按其签发时的请求 authority 命名，并携带该 authority、账户 id、凭据代数，以及不超过 `sessionMaxAgeDays` 的绝对签发与过期区间。它是 host-only、`Path=/`、`HttpOnly`、`SameSite=Strict`。密码或邮箱变更会递增账户的凭据代数，因此此前签发的所有 cookie 即使签名仍能验证，也不再指向任何账户。
+存储的哈希是自描述字符串（`scrypt$N$r$p$salt$key`），带逐账户 salt、代价 2^15、块大小 8、并行度 1 与 32 字节密钥；校验按存储的参数重新派生并以恒定时间比较。会话 cookie 是 HMAC-SHA256 签名，按其签发时的请求 authority 命名，并携带该 authority、账户 id、凭据代数，以及不超过 `sessionMaxAgeDays` 的绝对签发与过期区间。它是 host-only、`Path=/`、`HttpOnly`、`SameSite=Strict`，并在设置 `sessionCookieSecure` 时带 `Secure`——在公网地址上终止 TLS 的部署需要它，因为该地址背后的运行时说的是 HTTP。密码或邮箱变更会递增账户的凭据代数，因此此前签发的所有 cookie 即使签名仍能验证，也不再指向任何账户。
 
 ### 源码地图
 

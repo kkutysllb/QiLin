@@ -71,6 +71,13 @@ export interface Config {
   registration?: 'open' | 'closed'
   /** Absolute browser-session lifetime in days. @default 7 */
   sessionMaxAgeDays?: number
+  /**
+   * Mark the session cookie `Secure`, so a browser returns it only over TLS.
+   * A deployment whose public address terminates TLS sets this, even though the
+   * runtime behind that address speaks HTTP.
+   * @default false
+   */
+  sessionCookieSecure?: boolean
   /** Explicit harness home; omitted follows `QILIN_HOME`, then `~/.qilin`. */
   qilinHome?: string
   /**
@@ -85,6 +92,7 @@ export const Config: z<Config> = z.object({
   enabled: z.boolean().default(true),
   registration: z.union([z.const('open'), z.const('closed')]).default('open'),
   sessionMaxAgeDays: z.natural().min(1).default(7),
+  sessionCookieSecure: z.boolean().default(false),
   qilinHome: z.string(),
   // The union keeps the key absent when the deployment names no accounts: an
   // empty list is a deployment that admits nobody, which fails loud in apply().
@@ -197,6 +205,7 @@ export async function apply(ctx: Context, config: Config): Promise<void> {
   const sessions = new SessionCookies(
     await loadSessionSecret(ctx.credentials),
     sessionMaxAgeDays * DAY_MILLISECONDS,
+    config.sessionCookieSecure ?? false,
   )
   const currentAccount = (request: ConnectionTrustRequest): AccountRecord | undefined => {
     const payload = sessions.read(request)

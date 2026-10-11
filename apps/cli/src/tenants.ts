@@ -225,6 +225,7 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       restartBackoffMilliseconds: options.restartBackoffMilliseconds,
       patches: options.patches,
       appArguments: options.appArguments,
+      sessionCookieSecure: options.tls !== undefined,
       log: (line) => { process.stderr.write(`qilin tenants: [${accountId}] ${line}\n`) },
     })
     runtimes.set(accountId, created)
@@ -252,6 +253,7 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       restartBackoffMilliseconds: options.restartBackoffMilliseconds,
       patches: options.patches,
       appArguments: options.appArguments,
+      sessionCookieSecure: options.tls !== undefined,
       log: (line) => { process.stderr.write(`qilin tenants: [first-run] ${line}\n`) },
     })
     runtimes.set(BOOTSTRAP_ACCOUNT, created)

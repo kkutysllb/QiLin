@@ -52,6 +52,8 @@ async function boot(options: {
   secret?: string
   /** Raw record lines for the session-secret entry, when a test seeds a broken one. */
   record?: readonly string[]
+  /** Whether the deployment's public address terminates TLS, so cookies carry `Secure`. */
+  secureCookies?: boolean
   /**
    * Fills the shared home's account file before the plugin applies.
    * @returns the account identities this deployment admits, or undefined to admit every account.
@@ -100,6 +102,7 @@ async function boot(options: {
     `    enabled: ${options.enabled === false ? 'false' : 'true'}`,
     `    registration: ${options.registration ?? (admitted === undefined ? 'open' : 'closed')}`,
     `    qilinHome: '${home}'`,
+    ...options.secureCookies === true ? ['    sessionCookieSecure: true'] : [],
     ...admitted === undefined ? [] : admitted.length === 0
       // An empty list is written as the empty sequence it is; a bare key would
       // be YAML null, which is not a list at all.
@@ -226,6 +229,15 @@ describe('real account surface', () => {
     expect((await server('/api/auth/status')).status).toBe(200)
     expect((await server('/api/anything')).status).toBe(401)
     expect((await server('/api/anything', { headers: { cookie: 'other=1' } })).status).toBe(401)
+  })
+
+  it('marks the session cookie Secure when the deployment terminates TLS', { timeout: 60_000 }, async () => {
+    const server = await boot({ secureCookies: true })
+    const setup = await server('/api/auth/setup', post(undefined, { username: 'first', email: EMAIL, password: PASSWORD }))
+    expect(setup.status).toBe(200)
+    expect(setup.headers.get('set-cookie')).toContain('; Secure')
+    const logout = await server('/api/auth/logout', post(cookieOf(setup), {}))
+    expect(logout.headers.get('set-cookie')).toContain('; Secure')
   })
 
   it('initializes the first account, signs in, and retires the session a credential change replaces', { timeout: 60_000 }, async () => {

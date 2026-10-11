@@ -147,6 +147,11 @@ export interface TenantRuntimeOptions {
    * not admits only the accounts its roster already holds.
    */
   readonly registration?: 'open' | 'closed'
+  /**
+   * Whether the browser reaches this runtime through an address that terminates
+   * TLS, so its account surface marks every session cookie `Secure`.
+   */
+  readonly sessionCookieSecure?: boolean
   /** Profile each runtime boots. */
   readonly profile: string
   /**
@@ -248,9 +253,11 @@ export const TENANT_VARIABLE = 'QILIN_TENANT'
  * That runtime reads and writes the same roster, and admits whoever the roster
  * holds: the product's own first-run form creates the first account, and the
  * hub then serves it from a runtime of its own.
+ * @param secureCookies - whether the browser reaches this deployment over
+ * TLS, so its account surface marks session cookies `Secure`.
  * @returns the layer document as YAML.
  */
-export function bootstrapPatchYaml(registration: 'open' | 'closed' = 'open'): string {
+export function bootstrapPatchYaml(registration: 'open' | 'closed' = 'open', secureCookies = false): string {
   return [
     '# First-run layer for a deployment with no accounts yet.',
     '# This runtime admits whoever the roster holds, so the product can create',
@@ -260,6 +267,7 @@ export function bootstrapPatchYaml(registration: 'open' | 'closed' = 'open'): st
     '  config:',
     `    qilinHome: !!js process.env.${DEPLOYMENT_HOME_VARIABLE}`,
     `    registration: ${registration}`,
+    ...secureCookies ? ['    sessionCookieSecure: true'] : [],
     '',
   ].join('\n')
 }
@@ -276,10 +284,12 @@ export const BOOTSTRAP_DIRECTORY = '.bootstrap'
  * arrives through the environment rather than as a literal, so a path with
  * quotes or a trailing backslash cannot change the document's meaning.
  * @param accountId - account identity this tenant serves.
+ * @param secureCookies - whether the browser reaches this deployment over
+ * TLS, so its account surface marks session cookies `Secure`.
  * @returns the layer document as YAML.
  * @throws Error when the identity is not usable as one tenant directory name.
  */
-export function tenantPatchYaml(accountId: string): string {
+export function tenantPatchYaml(accountId: string, secureCookies = false): string {
   if (!isTenantIdentity(accountId)) {
     throw new Error(`qilin tenants: ${accountId} is not usable as a tenant directory name`)
   }
@@ -294,6 +304,7 @@ export function tenantPatchYaml(accountId: string): string {
     '    admittedAccounts:',
     `      - '${accountId}'`,
     '    registration: closed',
+    ...secureCookies ? ['    sessionCookieSecure: true'] : [],
     '',
   ].join('\n')
 }
@@ -525,7 +536,10 @@ export class TenantRuntime {
 
   /** Write this tenant's home layer when the file does not already hold it. */
   private async writePatch(): Promise<void> {
-    const document = this.options.bootstrap === true ? bootstrapPatchYaml(this.options.registration ?? 'open') : tenantPatchYaml(this.options.accountId)
+    const secureCookies = this.options.sessionCookieSecure === true
+    const document = this.options.bootstrap === true
+      ? bootstrapPatchYaml(this.options.registration ?? 'open', secureCookies)
+      : tenantPatchYaml(this.options.accountId, secureCookies)
     const current = await readFile(this.patchPath, 'utf8').catch(() => undefined)
     if (current === document) return
     await writeFile(this.patchPath, document)
