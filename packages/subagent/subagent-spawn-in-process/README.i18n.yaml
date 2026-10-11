@@ -9,14 +9,14 @@
   en: 5a828c4312858f58
   zh: 4dc2ae9cd19d3a23
 /qilin-agent-subagent-spawn-in-process/summary:
-  en: 77354bfb7bbb447c
-  zh: 250fde8a163145ac
+  en: 84d0a0acfc4251fe
+  zh: 8480ddf68e377522
 /qilin-agent-subagent-spawn-in-process/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
 /qilin-agent-subagent-spawn-in-process/use-this-package:
-  en: 8a75ad01cfe60938
-  zh: b63a8302502d289a
+  en: ca895c3af2ec6371
+  zh: 51dbe9e2fa79de30
 /qilin-agent-subagent-spawn-in-process/use-this-package/when-to-choose-it:
   en: 5f14443940e59bb5
   zh: 3e8610aec21c55e8
@@ -24,26 +24,26 @@
   en: 299cbcc3152ca1d6
   zh: 4c93ea17c1502ffc
 /qilin-agent-subagent-spawn-in-process/use-this-package/what-a-delegation-does:
-  en: 9f4e6f31ad4d86d1
-  zh: 4ad77e0b80c6efcc
+  en: eabf1d0e66fde8fa
+  zh: d6de66797060bac5
 /qilin-agent-subagent-spawn-in-process/understand-the-implementation:
-  en: 9e00b9dc2f9cf38c
-  zh: 60ce00ce6c3b5564
+  en: 7f34637751939818
+  zh: 2937553168e1aee5
 /qilin-agent-subagent-spawn-in-process/understand-the-implementation/design-concept:
-  en: 695d892574059848
-  zh: b3acbd068cd48ffb
+  en: 67b871bbb7dcc803
+  zh: 79a8fec9117ef52a
 /qilin-agent-subagent-spawn-in-process/understand-the-implementation/source-map:
-  en: f23771c3d213ffb1
-  zh: c0b16b102dc26345
+  en: b7c55a4bff3ae1f0
+  zh: 9d0f514f433250c6
 /qilin-agent-subagent-spawn-in-process/understand-the-implementation/run-flow:
-  en: 7b55a5649bc38155
-  zh: 51fe220c84ca759a
+  en: 5f07f1044bf7c370
+  zh: d31a485a3e333500
 /qilin-agent-subagent-spawn-in-process/understand-the-implementation/ownership-and-scope:
   en: 8af949dc29cb4a5c
   zh: f4e4f9f9f4a4b7c9
 /qilin-agent-subagent-spawn-in-process/further-exploration:
-  en: 4ed37f4352d19e8c
-  zh: 446cc0afa507536d
+  en: b275879e2b78c151
+  zh: d2fdcafcc8e99469
 /qilin-agent-subagent-spawn-in-process/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
@@ -63,8 +63,8 @@
   en: 75d061c2151624a7
   zh: 71e58e020b60ff90
 /qilin-agent-subagent-spawn-in-process/model-experience/parent-tool-result-indirectly/what-the-model-sees:
-  en: e13dd20fc123c970
-  zh: 031673267b742df6
+  en: caf11edef2516b8c
+  zh: 25bcb16cceaad06d
 /qilin-agent-subagent-spawn-in-process/model-experience/parent-tool-result-indirectly/token-effect:
   en: ff8045aa0f466c2a
   zh: e38fc5c6af2ce076

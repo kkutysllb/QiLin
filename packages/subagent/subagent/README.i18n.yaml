@@ -9,8 +9,8 @@
   en: bd0a563f3543a559
   zh: e9f8b1acbceff04b
 /qilin-agent-subagent/summary:
-  en: 0727cbe62b87bf9b
-  zh: 2dd4b2bbb9b758a6
+  en: 6c90e012a583b27f
+  zh: 2ec29c0e91fdef60
 /qilin-agent-subagent/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
@@ -18,44 +18,44 @@
   en: 924b8c15f9529028
   zh: 9fb0c399b5a79e3e
 /qilin-agent-subagent/use-this-package/enabling-delegation:
-  en: f66e74a5fa4e49b6
-  zh: 8c3a793cc29fcc1b
+  en: 388ae5427c869173
+  zh: aff830f4986cf1b3
 /qilin-agent-subagent/use-this-package/delegation-settings:
   en: 86c982223fab1a3a
-  zh: d2136069185736e7
-/qilin-agent-subagent/use-this-package/continuable-capacity:
-  en: 95264bdc31d67b21
-  zh: ed9faaa3470c4f10
-/qilin-agent-subagent/use-this-package/one-shot-and-continuable-children:
-  en: 10d0a7e0513bf04b
-  zh: 0cf2c2d81e85d7a9
+  zh: 3d220d8ed84eab9a
+/qilin-agent-subagent/use-this-package/activation-capacity:
+  en: 7c9548b9d02efe1f
+  zh: e23bd30b4c9cdabd
+/qilin-agent-subagent/use-this-package/local-and-external-children:
+  en: 013644290e74493e
+  zh: 05014c3c3773edeb
 /qilin-agent-subagent/use-this-package/messaging-interrupting-and-discovering:
-  en: 476b0ba025e4c637
-  zh: 6a5c12cb2c24d9b8
+  en: 050177fbbaade432
+  zh: 99f2b9f98088314d
 /qilin-agent-subagent/use-this-package/failure-and-recovery:
-  en: 782aaaf8639c211c
-  zh: e2a873eece366e74
+  en: 245fb0d5c3df5ccf
+  zh: e69eed9e5070ce25
 /qilin-agent-subagent/understand-the-implementation:
   en: 74d91b364b23f88d
   zh: 19cc558105efe8df
 /qilin-agent-subagent/understand-the-implementation/design-concept:
-  en: 26c4eb7592b77d14
-  zh: c166fb6ee1a1c7d8
+  en: ed526b6f34a3d6bf
+  zh: 47a90717b89d4c79
 /qilin-agent-subagent/understand-the-implementation/source-map:
-  en: c0b2d28ee334080b
-  zh: 9da2ed559d162014
-/qilin-agent-subagent/understand-the-implementation/one-shot-flow:
-  en: 9fdaacdce65d7136
-  zh: 18cc6e1597f2cdac
-/qilin-agent-subagent/understand-the-implementation/continuable-flow:
-  en: 137dec3cd5e5ffd7
-  zh: 80103f2011151b22
+  en: 410b6215e3a29221
+  zh: d17d6ea102fe8f87
+/qilin-agent-subagent/understand-the-implementation/provider-preparation-and-structured-output:
+  en: f78c5e931f3a3676
+  zh: 3c63f637dbaa8101
+/qilin-agent-subagent/understand-the-implementation/activation-settlement:
+  en: 2ce43d94b6f7025b
+  zh: 970f35558aa1fab5
 /qilin-agent-subagent/understand-the-implementation/ownership-and-invariants:
-  en: 3c5ab592516e8a03
-  zh: a1c1a76059acd9c8
+  en: c13617d673de63b2
+  zh: 01ba6d181b8aec12
 /qilin-agent-subagent/further-exploration:
-  en: 1e48ace7703d294f
-  zh: f91297794942f4fb
+  en: 2abdeabb0532ec6b
+  zh: 871702e4fe8cc59d
 /qilin-agent-subagent/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
@@ -63,11 +63,11 @@
   en: f7cec22ba9d3fb4f
   zh: 67b1d40f9b136f71
 /qilin-agent-subagent/model-experience/settlement-notice/what-the-model-sees:
-  en: 44ba290ef9896de9
-  zh: 21d207c31228c0ce
+  en: b61ce5a34e154028
+  zh: 861b809745f47672
 /qilin-agent-subagent/model-experience/settlement-notice/token-effect:
-  en: 45dc428c61f606f5
-  zh: 7e9a2587e98c8ca6
+  en: f98ad834e8ce8950
+  zh: cf509805dd934094
 /qilin-agent-subagent/model-experience/settlement-notice/kv-cache-effect:
   en: d6b1d618083da79b
   zh: 9a28942b7d53c382
@@ -87,8 +87,8 @@
   en: 59e848fca82a46fb
   zh: fcd6a8a2bb58609f
 /qilin-agent-subagent/known-limitations-and-deferred-work:
-  en: 85ea3879268a15ff
-  zh: 74247acfde100705
+  en: b663a2e94185901c
+  zh: 8d2937aa203bda59
 /qilin-agent-subagent/known-limitations-and-deferred-work/dev-note:
   en: 25cc0909348666bb
   zh: 95517f12de100049

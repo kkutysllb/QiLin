@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/subagent.md
 /subagent:
-  en: 08a1a121c94fef54
-  zh: 977f7ef36ca2ae0d
+  en: 2e37a2a15f331ac9
+  zh: 5f31e93bc1edf36c
 /subagent/two-kinds-of-capability-discovered-two-ways:
   en: 7be7cbc224948ed1
   zh: 6da4f61394ed900e
