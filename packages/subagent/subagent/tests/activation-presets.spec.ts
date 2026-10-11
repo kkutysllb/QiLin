@@ -16,7 +16,7 @@ import Include from '@qilin-agent/kylin-plugin-include'
 import type { Agent } from '@qilin-agent/agent'
 import AgentLoop from '@qilin-agent/agent-loop'
 import { mountAgentLoopTestDependencies } from '@qilin-agent/agent-loop-testkit'
-import AgentPresets from '@qilin-agent/agent-preset-registry'
+import * as AgentPresets from '@qilin-agent/agent-presets'
 import { SessionId } from '@qilin-agent/session'
 import { MockAdapter, textResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
 import SubagentRuntime from '@qilin-agent/subagent'
@@ -41,10 +41,11 @@ async function setupPresetHost(): Promise<{ ctx: Context; adapter: MockAdapter; 
   await mountLocalActivations(ctx)
   await ctx.plugin(SubagentRuntime)
   await ctx.plugin(AgentLoop, { agents: [] })
-  await ctx.plugin(AgentPresets, { default: 'coding' })
-  for (const [id, tool] of [['coding', 'preset_only'], ['reviewing', 'reviewing_only']] as const) {
-    await ctx.agentPresets.register({ id, plugins: [{ name: pathToFileURL(join(FIXTURES, 'plugins/preset-tool.js')).href, config: { tool } }] })
-  }
+  await ctx.plugin(AgentPresets, {
+    default: 'coding',
+    roots: [{ path: join(FIXTURES, 'presets'), trust: 'project' }],
+    includeShippedRoot: false,
+  })
   const adapter = new MockAdapter([textResponse('parent idle'), textResponse('child done')])
   ctx.llm.registerAdapter(['mock'], adapter)
   const handle = await ctx.agents.create({

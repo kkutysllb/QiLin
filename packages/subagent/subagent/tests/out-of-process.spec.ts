@@ -152,6 +152,7 @@ describe('subprocessRunHandle', () => {
     const teardown = vi.fn(() => Promise.resolve())
     const run = subprocessRunHandle({
       id: SessionId('run-1'),
+      localAgent: undefined,
       result: Promise.resolve({ output: [], stopReason: 'completed' }),
       signal: controller.signal,
       onAbort,

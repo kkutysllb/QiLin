@@ -293,7 +293,7 @@ describe('SubagentRuntime', () => {
     const starting = start(subagents, 'deferred', baseRequest({ parent }))
     await Promise.resolve()
     expect(events).toEqual([])
-    ready.resolve({ id: SessionId('child'), result: result.promise, async dispose() {} })
+    ready.resolve({ id: SessionId('child'), localAgent: undefined, result: result.promise, async dispose() {} })
     const run = await starting
     expect(events).toEqual(['start'])
     result.resolve({ output: [{ type: 'text', text: 'answer' }], stopReason: 'completed' })
@@ -409,7 +409,7 @@ describe('SubagentRuntime', () => {
       capabilities: NO_CAPS,
       inheritsParentContext: false,
       async start() {
-        return { id: SessionId('infra-child'), result: failure.promise, async dispose() {} }
+        return { id: SessionId('infra-child'), localAgent: undefined, result: failure.promise, async dispose() {} }
       },
     })
     const failedRun = await start(subagents, 'infra', baseRequest())

@@ -2684,7 +2684,7 @@ describe('continuable review regressions', () => {
     // a handle, so residency must survive until that turn claims the message.
     const steered = createUserMessage({
       content: message('Cordis Host handler failed'),
-      source: { kind: 'cordis-host-runner' },
+      source: { kind: 'plugin', plugin: 'cordis-host-runner' },
     })
     child.steer(steered)
     ctx.subagents.interrupt(started.childId, { kind: 'user', parentSessionId: parent.id })
