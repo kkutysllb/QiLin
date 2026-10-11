@@ -32,7 +32,7 @@ The 2.0.x product generation had all three: a landing page at the site root, a s
 
 **Require the launch token and an account session.** Both credentials are authority-bound cookies minted by the same server, and the account session is strictly stronger: requiring the token too would make a bookmarked `/workspace` fail until the launcher printed a fresh URL.
 
-**Per-user tenancy.** Accounts would then need per-user harness homes, session roots, credentials, and files. This change keeps one home and states in the package README that accounts are an access gate, not a boundary.
+**Per-user tenancy.** Accounts would then need per-user harness homes, session roots, credentials, and files. This change keeps one home and states in the package README that accounts are an access gate, not a boundary. [The multi-user tenancy proposal](../../proposed/architecture/2026-10-11-multi-user-tenancy.md) takes that alternative up for a deployment that keeps one home for shared plugins and settings while giving each tenant its own session and storage roots.
 
 **Server-side locale negotiation for the two static pages.** They carry Chinese copy, matching the 2.0.x pages they reproduce; the client locale system starts at the session, and these documents are served before one exists.
 

@@ -1,0 +1,73 @@
+# Agent Note: 多用户租户边界
+
+Status: proposed
+
+[English](2026-10-11-multi-user-tenancy.md) | 中文
+
+## Problem
+
+账号面发布时是一个门禁，不是边界：它自己的模块文档写明账号「gate access to one harness home」，且「a second account reaches the same Sessions, credentials, and files as the first」；包 README 也告诉运维，分开的人需要分开的 `QILIN_HOME` 与端口。现在产品要的恰好相反一半、相同一半：**会话与任务按用户隔离，而插件、模型设置与凭据在同一部署内共享。** 当前请求路径里没有任何地方携带「谁在请求」。Host/Origin 栅栏与鉴权只决定请求能否通过，通过之后一律以唯一的 operator Peer 准入（`admit()` 返回 `{ peer: this.operator }`），因此业务服务在原理上就分辨不出两个账号。
+
+## Proposal
+
+把**一个引擎运行时作为租户单位**，并让部署级共享根继续共享——办法是保持 `QILIN_HOME` 共享。一个新的守护进程拥有「账号 → 租户」映射，并为每个租户运行一个引擎子进程。每个子进程拿到共享的 harness 主目录，于是 `profiles/`、`settings.yaml`、`.credentials.yaml`、MCP 行、技能、预设与主目录级 `cordis.patch.yml` 对所有人都是同一份；再叠加一份生成的 `--patch` 覆盖层，只搬动按租户拆分的根。完整证据盘点、覆盖层样例与阶段划分在[多租户改造计划](../../../../plans/2026-10-11-multi-user-tenancy.md)。
+
+### 决定隔离的根
+
+四个已校验的 Config 字段覆盖了不可共享的全部状态，因为每一个可隔离的存储都已经经由单一入口解析：
+
+| 根 | 今天的默认值 | 按租户 |
+|---|---|---|
+| `session-persistence-jsonl.root` | `qilinHomePath('sessions')` | 该租户的会话目录 |
+| `storage-json.root` | `qilinHomePath('storages')` | 该租户的存储根——一个字段承载 `workspace`、`schedule`、`session_projcache` 三个域 |
+| `session-query-sqlite.path` | `:memory:` 且 `openAt: never` | 该租户的派生索引 |
+| `attachment-local.qilinHome` | harness 主目录 | 该租户的附件根 |
+
+真正让这件事可行的正是唯一的 `storage-json` 根：工作区状态（连其中的 archived 与 pinned 会话 id 列表）、主机级 Schedule 任务、投影缓存都经 `ctx.storageDomain` 打开，因此一行就搬走了三个域。
+
+### 保持共享的部分
+
+模型设置与凭据（`settings-file`、`credentials-local`）、已装插件及其 profile、插件管理器、MCP 行、技能、预设，以及机器级用户补丁层。这不是新机制：单 Harness 主目录解析器已经为整个产品拥有这一事实，而共享正是今天这些根各自的行为。
+
+### 守护进程
+
+守护进程用既有的账号文件与 cookie 语义认证，然后启动、回收并反代各租户运行时。它不需要新的引擎 RPC：Web 应用已经把启动 URL 行声明为守护进程契约——「supervisors RPC as soon as they observe the line」——启动器也已接受 `--profile` 与 `--patch` 覆盖层，其中 `--patch` 在 bundle 层与机器级用户层之后应用。桌面壳已经在做同一形态（拉起子进程、消费其 `ready{url, injections}` 消息、用永不进入渲染进程的 cookie 反代到 loopback），因此反代与 WebSocket 代码有可照抄的先例。
+
+### 本方案需要的源码改动
+
+只有两处，都很小；其余部分全在新的守护进程里。DeepSeek 上传索引的路径默认写在构造器里、没有 Config 字段，因此两个运行时会共享同一份上传 id 映射。`RemoteHostFacts.home` 硬编码为 `homedir()`，因此租户浏览器无法分辨自己登录的是哪个账号。
+
+## Alternatives considered
+
+**单进程租户平面。** 给每个账号一个 Peer，从 peer 上下文解析服务，并把会话、存储、查询、投影、jobs、workspace、Schedule、附件与终端服务挂在按租户的 `ctx.isolate` 标签下，只在根上留下共享服务。这才是让「一个引擎、多租户」成立的架构，此处是在一期拒绝而非原则上拒绝：它需要按请求的服务平面、把 Typert lookups 与 host contexts 移入各租户平面、按 peer 裁剪事件转发、全局唯一的会话 id（store 的 `session-<n>` 计数器会跨平面撞号），并要求每个后台执行者——Schedule 触发器、webhook、goal 轮次、子代理——显式携带租户。每一处漏掉都是静默的跨租户泄漏，因此这份成本换来同样的隔离，但改动面大得多。
+
+**在会话头加 `owner` 字段，并在每个端点做归属校验。** 这要动不可变存储元数据字段，进而动会话格式版本与其发布期迁移规则，然后要求在每一个可达入口加校验：二十多个 Remote 端点，外加 Schedule、webhook 与子代理路径。三者之中它换来最弱的隔离（同进程、同缓存、同事件转发），却付出最大的改动面。
+
+**保留账号作为门禁，要求每人各用一份 harness 主目录、由运维手工配置。** 这正是账号 Agent Note 记录的当前部署规则。它有隔离，但丢掉了需求里共享的那一半——每个人都要重装同一批插件、重配同一批模型——并且把「账号到主目录」的映射留在运维口耳相传里，而不是产品面。
+
+**每个租户一个 OS 用户或容器。** 不拒绝，只是排序在后。它才是让租户之间互不信任的那一层，并且叠加在按租户运行时之上。本方案不做它，它定义的边界是协作，不是互不信任。
+
+## Acceptance criteria
+
+1. 同一部署上的两个租户：彼此的会话都不出现在对方的列表或搜索里。
+2. 一个租户创建的 Schedule 任务既不出现在另一个租户的任务面，也不被对方的运行时扫描。
+3. 工作区列表与 archived/pinned 会话状态恰好只属于一个租户。
+4. 第二个租户无需重新配置即可使用第一个租户装好的插件与同一份模型设置。
+5. 一个租户的客户端不会收到另一个租户产生的 `api-session/*` 或 `schedule/changed` 事件。
+6. 请求另一个租户的会话 id 时，从该租户运行时得到 not-found 或拒绝，绝不返回那个会话。
+7. 两个运行时并发触发插件安装不会损坏共享 profile。
+8. 被回收的空闲租户可以再次启动，并找到完整的数据。
+
+## Risks
+
+**文件系统不是边界。** 所有租户都以同一个 OS 用户运行，因此 agent 的 shell 与文件工具可以读取其他租户的目录和共享的凭据文档。本方案让租户成为同一台机器上的协作方；必须抵御恶意租户的部署需要上面提到的按租户 OS 隔离，那不在本方案范围内。
+
+**隔离依赖生成的覆盖层，而漏掉一行会静默失败。** 忘掉一行就共享一个根，且不报错。因此按租户的补丁必须在启动时断言（各租户解析出的根互不相同），并由判据 1 的验收脚本覆盖。
+
+**共享模型凭据意味着共享开销。** 一把 provider key 服务所有租户，而今天没有任何东西按账号归集用量；遥测通道携带的是匿名安装 id。按租户的配额或计费是另一条缝，此处刻意不提。
+
+**共享插件 profile 变成共享写目标。** 多个运行时同时安装插件需要单写者规则，或加锁加变更广播。
+
+**成本随租户数线性增长。** 每个租户是一个带独立内存与端口的 Node 运行时；空闲回收与并发上限是守护进程的一部分，不是优化项。
+
+**一次升级同时影响全部租户。** 这通常是目的所在，但它使升级手册成为部署级动作。
