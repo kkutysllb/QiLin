@@ -30,11 +30,12 @@
 
 - id: tools
   config:
-    # TEMPORARY workaround: QILIN_TOOLS_MODE (native|ptc|both) opts a whole qilin
-    # process into PTC mode while per-session tool-presentation selection is being
-    # designed; unset keeps the schema default (native). Remove the env seam
-    # once the web UI owns the choice per session.
-    mode: !!js process.env.QILIN_TOOLS_MODE
+    # QILIN_TOOLS_MODE (native|ptc) overrides the process-wide fallback for
+    # scopes that carry no tool-presentation choice of their own. It defaults to
+    # the shipped preset's PTC presentation so an unset environment behaves like
+    # the composition this bundle ships. The seam stays TEMPORARY upstream: a
+    # per-session choice retires it.
+    mode: !!js process.env.QILIN_TOOLS_MODE ?? 'ptc'
 
 # ── web-only host rows, the transport layer, and the browser roster ─────────
 
