@@ -108,7 +108,6 @@
     "@qilin-agent/client-ui-tool": "workspace:*",
     "@qilin-agent/client-ui-trajectory": "workspace:*",
     "@qilin-agent/client-ui-user-questions": "workspace:*",
-    "@qilin-agent/client-ui-workbench": "workspace:*",
     "@qilin-agent/client-ui-workflow-run": "workspace:*",
     "@qilin-agent/client-ui-workspace": "workspace:*",
     "@qilin-agent/cmdline": "workspace:*",

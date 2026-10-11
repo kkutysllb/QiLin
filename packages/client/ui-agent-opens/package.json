@@ -57,7 +57,6 @@
     "@qilin-agent/client-test-runtime": "workspace:*",
     "@qilin-agent/client-ui-renderer": "workspace:*",
     "@qilin-agent/client-ui-session": "workspace:*",
-    "@qilin-agent/client-ui-workbench": "workspace:*",
     "@qilin-agent/client-ui-sidebar-browser": "workspace:*",
     "@qilin-agent/client-ui-sidebar-right": "workspace:*",
     "@qilin-agent/client-ui-slots": "workspace:*",

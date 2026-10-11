@@ -31,7 +31,6 @@
         "@qilin-agent/client-ui-sidebar",
         "@qilin-agent/client-ui-sidebar-right",
         "@qilin-agent/client-ui-tool",
-        "@qilin-agent/client-ui-workbench",
         "@qilin-agent/client-ui-workspace"
       ],
       "platform": "web"
@@ -72,7 +71,6 @@
     "@qilin-agent/client-ui-sidebar-right": "workspace:*",
     "@qilin-agent/client-ui-slots": "workspace:*",
     "@qilin-agent/client-ui-tool": "workspace:*",
-    "@qilin-agent/client-ui-workbench": "workspace:*",
     "@qilin-agent/client-ui-workspace": "workspace:*",
     "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/schedule": "workspace:*",

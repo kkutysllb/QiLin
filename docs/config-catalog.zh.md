@@ -4327,7 +4327,7 @@ export interface Config {
 ## `@qilin-agent/workflow-ptc`
 
 - `inject`: `subagents` · `ptcRuntime` · `sandboxPolicy` · `workingDirectory`
-- `source`: [`packages/workflow/workflow-ptc/src/index.ts:32`](../packages/workflow/workflow-ptc/src/index.ts)
+- `source`: [`packages/workflow/workflow-ptc/src/index.ts:33`](../packages/workflow/workflow-ptc/src/index.ts)
 
 ```ts config-catalog
 /** Plugin config (all optional — `static Config` supplies the defaults). */
@@ -4460,7 +4460,6 @@ export interface Config {
 | `@qilin-agent/client-ui-tool` | — | [`packages/client/ui-tool/src/index.ts`](../packages/client/ui-tool/src/index.ts) |
 | `@qilin-agent/client-ui-trajectory` | — | [`packages/client/ui-trajectory/src/index.ts`](../packages/client/ui-trajectory/src/index.ts) |
 | `@qilin-agent/client-ui-user-questions` | — | [`packages/client/ui-user-questions/src/index.ts`](../packages/client/ui-user-questions/src/index.ts) |
-| `@qilin-agent/client-ui-workbench` | — | [`packages/client/ui-workbench/src/index.ts`](../packages/client/ui-workbench/src/index.ts) |
 | `@qilin-agent/client-ui-workflow-run` | — | [`packages/client/ui-workflow-run/src/index.ts`](../packages/client/ui-workflow-run/src/index.ts) |
 | `@qilin-agent/client-ui-workspace` | — | [`packages/client/ui-workspace/src/index.ts`](../packages/client/ui-workspace/src/index.ts) |
 | `@qilin-agent/command-compact` | `commands` · `compaction` | [`packages/compaction/command-compact/src/index.ts`](../packages/compaction/command-compact/src/index.ts) |
@@ -4593,6 +4592,7 @@ export interface Config {
 | `@qilin-agent/session-format-v1-to-v2` | — | [`packages/session/session-format-v1-to-v2/src/index.ts`](../packages/session/session-format-v1-to-v2/src/index.ts) |
 | `@qilin-agent/session-format-v2-to-v3` | — | [`packages/session/session-format-v2-to-v3/src/index.ts`](../packages/session/session-format-v2-to-v3/src/index.ts) |
 | `@qilin-agent/session-format-v3-to-v4` | — | [`packages/session/session-format-v3-to-v4/src/index.ts`](../packages/session/session-format-v3-to-v4/src/index.ts) |
+| `@qilin-agent/session-format-v4-to-v5` | — | [`packages/session/session-format-v4-to-v5/src/index.ts`](../packages/session/session-format-v4-to-v5/src/index.ts) |
 | `@qilin-agent/session-snapshot` | — | [`packages/test-support/session-snapshot/src/index.ts`](../packages/test-support/session-snapshot/src/index.ts) |
 | `@qilin-agent/session-telemetry` | — | [`packages/session/session-telemetry/src/index.ts`](../packages/session/session-telemetry/src/index.ts) |
 | `@qilin-agent/session-title-llm` | — | [`packages/session/session-title-llm/src/index.ts`](../packages/session/session-title-llm/src/index.ts) |

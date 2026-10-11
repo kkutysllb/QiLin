@@ -95,17 +95,14 @@ const GENERIC_SKIPS: readonly GenericSkip[] = [
   // The creator menu enables itself by matching the roster's `cordis` preset id.
   { file: 'packages/client/ui-agent-preset/src/client/CreatePluginMenuItem.tsx', upstream: ['cordis'] },
   { file: 'packages/client/ui-agent-preset/tests/create-plugin-menu-item.client.spec.tsx', upstream: ['cordis'] },
-  // Workbench tag choices and per-tag preset selections carry preset ids.
-  { file: 'packages/client/ui-workbench/src/client/workbench.ts', upstream: ['cordis'] },
-  { file: 'packages/client/ui-workbench/tests/workbench.client.spec.ts', upstream: ['cordis'] },
   { file: 'apps/cli/tests/web-agent-presets.e2e.ts', upstream: ['cordis'] },
   { file: 'apps/cli/tests/profiles/web/tests/fixtures/creator-plugin-manager.mjs', upstream: ['cordis'] },
   { file: 'apps/web/tests/agent-preset-authoring.e2e.ts', upstream: ['cordis'] },
   { file: 'packages/preset/agent-presets/tests/session.spec.ts', upstream: ['cordis'] },
-  // The workspace browsing tests name the `cordis` preset id as session fixture
-  // data (the shared creator preset), not a package specifier.
-  { file: 'packages/client/ui-workspace/tests/workspaces-service.client.spec.ts', upstream: ['cordis'] },
-  { file: 'packages/client/ui-workspace/tests/agent-preset-chip.client.spec.tsx', upstream: ['cordis'] },
+  // The V4-to-V5 fold names the retired shipped preset ids as migration input,
+  // not package specifiers.
+  { file: 'packages/session/session-format-v4-to-v5/src/migration.ts', upstream: ['cordis'] },
+  { file: 'packages/session/session-format-v4-to-v5/tests/migration.spec.ts', upstream: ['cordis'] },
   // The preset's own composition: its header comment and its system prompt
   // describe the Cordis dialect (`cordis.yml` rows, the `cordis_inspect_*`
   // tools, the `cordis-plugin-development` skill), none of which is a package.

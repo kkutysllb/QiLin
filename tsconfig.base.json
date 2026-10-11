@@ -265,8 +265,6 @@
       "@qilin-agent/client-ui-plan": ["./packages/client/ui-plan/src"],
       "@qilin-agent/client-ui-user-questions": ["./packages/client/ui-user-questions/src"],
       "@qilin-agent/client-ui-trajectory": ["./packages/client/ui-trajectory/src"],
-      "@qilin-agent/client-ui-workbench": ["./packages/client/ui-workbench/src"],
-      "@qilin-agent/client-ui-workbench/client": ["./packages/client/ui-workbench/src/client"],
       "@qilin-agent/client-ui-workspace": ["./packages/client/ui-workspace/src"],
       "@qilin-agent/client-ui-theme": ["./packages/client/ui-theme/src"],
       "@qilin-agent/client-ui-settings": ["./packages/client/ui-settings/src"],

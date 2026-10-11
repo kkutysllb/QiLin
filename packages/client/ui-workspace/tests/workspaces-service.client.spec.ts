@@ -13,9 +13,6 @@ import type { RemoteResult } from '@qilin-agent/api-remotes/client'
 import { SessionId } from '@qilin-agent/session/types'
 import { LayoutController } from '@qilin-agent/client-ui-layout/client'
 import type { MainPanelId } from '@qilin-agent/client-ui-layout/client'
-import type { Workbench } from '@qilin-agent/client-ui-workbench/client'
-import { workbenchShows, WORKBENCH_DEFAULT_STATE, WORKBENCH_TAG_PRESETS } from '@qilin-agent/client-ui-workbench/client'
-import { createSnapshotStore } from '@qilin-agent/client-store'
 import { DirectoryBrowseError, UiWorkspaceService } from '../src/client/navigation.ts'
 import { createWorkspaceViewStore, FLAT_SESSION_ORDER_KEY } from '../src/client/stores.ts'
 
@@ -271,7 +268,6 @@ interface BenchOptions {
   readonly workspaces?: WorkspaceSnapshot
   readonly sessions?: SessionListState
   readonly configureSessions?: (sessions: FakeSessions) => void
-  readonly workbench?: Partial<typeof WORKBENCH_DEFAULT_STATE>
 }
 
 function bench(options: BenchOptions = {}) {
@@ -290,43 +286,14 @@ function bench(options: BenchOptions = {}) {
   const sessions = new FakeSessions(options.sessions ?? sessionState([], 'pending'))
   options.configureSessions?.(sessions)
   const views = createWorkspaceViewStore().create()
-  const workbench = fakeWorkbench(options.workbench)
-  const agentPresets = {
-    select: vi.fn<(id: SessionId, preset: string) => Promise<RemoteResult<string>>>(
-      async () => ({ ok: true, value: 'ptc' }),
-    ),
-  }
   const uiWorkspace = new UiWorkspaceService(
     ctx,
     directoryPicker.remote,
-    agentPresets,
-    workbench,
     workspaces,
     sessions,
     views.actions,
   )
-  return {
-    ctx, directoryPicker, sessions, uiWorkspace, workspaces, layout, selectPanel, store: views,
-    workbench, agentPresets,
-  }
-}
-
-/**
- * A hand-rolled workbench owner: the real service is the same state machine
- * without services, so the fake mirrors it over one snapshot store.
- */
-function fakeWorkbench(state?: Partial<typeof WORKBENCH_DEFAULT_STATE>): Workbench {
-  const store = createSnapshotStore({ ...WORKBENCH_DEFAULT_STATE, ...state })
-  return {
-    state: store,
-    setActive: (tag) => { store.set({ ...store.getSnapshot(), active: tag }) },
-    presetFor: tag => store.getSnapshot().presets[tag],
-    setPresetFor: (tag, presetId) => {
-      store.set({ ...store.getSnapshot(), presets: { ...store.getSnapshot().presets, [tag]: presetId } })
-    },
-    tagChoices: tag => WORKBENCH_TAG_PRESETS[tag],
-    shows: workbenchShows,
-  }
+  return { ctx, directoryPicker, sessions, uiWorkspace, workspaces, layout, selectPanel, store: views }
 }
 
 describe('UiWorkspaceService', () => {
@@ -467,112 +434,25 @@ describe('UiWorkspaceService', () => {
     expect(b.sessions.retain).not.toHaveBeenCalled()
   })
 
-  it('creates new sessions with the active tag preset (D3)', async () => {
-    const b = bench({
-      workbench: { active: 'coding' },
-      workspaces: workspaceState([workspace('b', [])]),
-    })
+  it('creates a new session without naming a preset', async () => {
+    const b = bench({ workspaces: workspaceState([workspace('b', [])]) })
     await expect(b.uiWorkspace.connectWorkspace(wid('b'))).resolves.toBe(sid('created-b'))
-    expect(b.sessions.create).toHaveBeenCalledWith({ workspaceId: wid('b'), agentPreset: 'ptc' })
-    expect(b.agentPresets.select).not.toHaveBeenCalled()
+    // One shipped preset: a new task leaves the composition to the Host's
+    // roster default instead of naming one from a selection surface.
+    expect(b.sessions.create).toHaveBeenCalledWith({ workspaceId: wid('b') })
   })
 
-  it('reuses a blank the active tag shows without rebinding it', async () => {
+  it('reuses the workspace\'s own unarchived blank session', async () => {
     const b = bench({
-      workbench: { active: 'coding' },
       // Sessions stay pending so the boot reconcile cannot run its own
       // connect: this test drives the reuse path explicitly.
       sessions: sessionState([
-        summary('blank-ptc', { blank: true, cwd: '/w/a', projectionValues: { agentPreset: 'ptc' } }),
-      ], 'pending'),
-      workspaces: workspaceState([workspace('a', [sid('blank-ptc')])]),
-    })
-    await expect(b.uiWorkspace.connectWorkspace(wid('a'))).resolves.toBe(sid('blank-ptc'))
-    // One shipped preset: both tags show it, so a reused blank keeps the
-    // composition it was created with.
-    expect(b.agentPresets.select).not.toHaveBeenCalled()
-  })
-
-  it('rebinds a reused blank whose preset the fold hides', async () => {
-    const b = bench({
-      workbench: { active: 'coding' },
-      sessions: sessionState([
-        summary('blank-hidden', { blank: true, cwd: '/w/a', projectionValues: { agentPreset: 'hidden' } }),
-      ], 'pending'),
-      workspaces: workspaceState([workspace('a', [sid('blank-hidden')])]),
-    })
-    // The shipped roster admits every preset under both tags; the override
-    // keeps the rebind the machinery still performs for a fold that hides.
-    vi.spyOn(b.workbench, 'shows').mockReturnValue(false)
-    await expect(b.uiWorkspace.connectWorkspace(wid('a'))).resolves.toBe(sid('blank-hidden'))
-    expect(b.agentPresets.select).toHaveBeenCalledOnce()
-    expect(b.agentPresets.select).toHaveBeenCalledWith(sid('blank-hidden'), 'ptc')
-  })
-
-  it('rebinds only blank sessions after a tag switch; a non-blank session keeps its preset', async () => {
-    const b = bench({
-      workbench: { active: 'coding' },
-      // Sessions stay pending so the boot reconcile cannot run its own
-      // connect: this test drives the switch rebind explicitly.
-      sessions: sessionState([
-        summary('started', { cwd: '/w/a', projectionValues: { agentPreset: 'hidden' } }),
-        summary('blank-hidden', { blank: true, cwd: '/w/a', projectionValues: { agentPreset: 'hidden' } }),
-      ], 'pending'),
-      workspaces: workspaceState([workspace('a', [sid('started'), sid('blank-hidden')])]),
-    })
-    vi.spyOn(b.workbench, 'shows').mockReturnValue(false)
-    b.uiWorkspace.openSession(sid('started'))
-    await vi.waitFor(() => { expect(b.uiWorkspace.selection.getSnapshot().sessionId).toBe(sid('started')) })
-    b.uiWorkspace.rebindBlanksAfterTagSwitch()
-    expect(b.agentPresets.select).toHaveBeenCalledOnce()
-    expect(b.agentPresets.select).toHaveBeenCalledWith(sid('blank-hidden'), 'ptc')
-  })
-
-  it('leaves every blank alone after a tag switch under the one shipped preset', async () => {
-    const b = bench({
-      workbench: { active: 'coding' },
-      sessions: sessionState([
-        summary('blank-ptc', { blank: true, cwd: '/w/a', projectionValues: { agentPreset: 'ptc' } }),
-      ], 'pending'),
-      workspaces: workspaceState([workspace('a', [sid('blank-ptc')])]),
-    })
-    b.uiWorkspace.rebindBlanksAfterTagSwitch()
-    expect(b.agentPresets.select).not.toHaveBeenCalled()
-  })
-
-  it('skips the tag-switch rebind entirely without a current Workspace', async () => {
-    const b = bench({ workbench: { active: 'coding' } })
-    b.uiWorkspace.rebindBlanksAfterTagSwitch()
-    expect(b.agentPresets.select).not.toHaveBeenCalled()
-  })
-
-  it('adopts an explicit preset pick on the current blank session', async () => {
-    const b = bench({
-      workbench: { active: 'general' },
-      sessions: sessionState([
-        summary('blank', { blank: true, cwd: '/w/a', projectionValues: { agentPreset: 'standard' } }),
+        summary('blank', { blank: true, cwd: '/w/a', projectionValues: { agentPreset: 'ptc' } }),
       ], 'pending'),
       workspaces: workspaceState([workspace('a', [sid('blank')])]),
     })
-    b.uiWorkspace.openSession(sid('blank'))
-    await vi.waitFor(() => { expect(b.uiWorkspace.selection.getSnapshot().sessionId).toBe(sid('blank')) })
-    b.uiWorkspace.adoptBlankSessionPreset('cordis')
-    expect(b.agentPresets.select).toHaveBeenCalledOnce()
-    expect(b.agentPresets.select).toHaveBeenCalledWith(sid('blank'), 'cordis')
-  })
-
-  it('ignores an explicit preset pick on a started or absent session', async () => {
-    const started = summary('started', { cwd: '/w/a', projectionValues: { agentPreset: 'standard' } })
-    const b = bench({
-      workbench: { active: 'general' },
-      sessions: sessionState([started], 'pending'),
-      workspaces: workspaceState([workspace('a', [started.id])]),
-    })
-    b.uiWorkspace.adoptBlankSessionPreset('cordis')
-    b.uiWorkspace.openSession(sid('started'))
-    await vi.waitFor(() => { expect(b.uiWorkspace.selection.getSnapshot().sessionId).toBe(sid('started')) })
-    b.uiWorkspace.adoptBlankSessionPreset('cordis')
-    expect(b.agentPresets.select).not.toHaveBeenCalled()
+    await expect(b.uiWorkspace.connectWorkspace(wid('a'))).resolves.toBe(sid('blank'))
+    expect(b.sessions.create).not.toHaveBeenCalled()
   })
 
   it('uses only an explicit Workspace or the recent-Workspace policy for new Sessions', async () => {
@@ -623,7 +503,7 @@ describe('UiWorkspaceService', () => {
     })
     missingMember.uiWorkspace.startSession()
     await vi.waitFor(() => {
-      expect(missingMember.sessions.create).toHaveBeenCalledWith({ workspaceId: wid('newer'), agentPreset: 'ptc' })
+      expect(missingMember.sessions.create).toHaveBeenCalledWith({ workspaceId: wid('newer') })
     })
   })
 

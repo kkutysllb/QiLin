@@ -19,7 +19,6 @@ import { SessionSeq, type SessionId } from '@qilin-agent/session/types'
 import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
 import { RemoteError, SlotTestRuntime, usePinnedBrowserLanguages } from '@qilin-agent/client-test-runtime'
 import { LocaleRuntime } from '@qilin-agent/client-locale/client'
-import { apply as workbenchApply } from '@qilin-agent/client-ui-workbench/client'
 import { apply, inject } from '@qilin-agent/client-ui-workspace/client'
 
 // The service reads its initial locale from the browser; these specs assert
@@ -46,7 +45,6 @@ async function createRuntime(): Promise<SlotTestRuntime> {
     list: vi.fn(async () => ({ ok: true as const, value: { presets: [], authorable: false, modeSelectionEnabled: false } })),
   }
   runtime.remote.provideNamespaces({ directoryPicker, agentPresets })
-  await runtime.mount({ inject: [], apply: workbenchApply })
   const locale = new LocaleRuntime(runtime.ctx)
   runtime.ctx.provide('locale', locale)
   runtime.slots.installLocale(locale)

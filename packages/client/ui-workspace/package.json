@@ -41,8 +41,7 @@
         "@qilin-agent/client-ui-layout",
         "@qilin-agent/client-ui-renderer",
         "@qilin-agent/client-ui-session",
-        "@qilin-agent/client-ui-sidebar",
-        "@qilin-agent/client-ui-workbench"
+        "@qilin-agent/client-ui-sidebar"
       ],
       "platform": "web"
     }
@@ -71,7 +70,6 @@
     "@qilin-agent/client-ui-session": "workspace:*",
     "@qilin-agent/client-ui-sidebar": "workspace:*",
     "@qilin-agent/client-ui-slots": "workspace:*",
-    "@qilin-agent/client-ui-workbench": "workspace:*",
     "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/schedule": "workspace:*",
     "@qilin-agent/session": "workspace:*",

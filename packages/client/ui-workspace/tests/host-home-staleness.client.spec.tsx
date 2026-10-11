@@ -12,7 +12,6 @@ import type { WorkspaceId } from '@qilin-agent/api-workspace-controller/client'
 import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
 import { SlotTestRuntime, usePinnedBrowserLanguages } from '@qilin-agent/client-test-runtime'
 import { LocaleRuntime } from '@qilin-agent/client-locale/client'
-import { apply as workbenchApply } from '@qilin-agent/client-ui-workbench/client'
 import { apply, inject } from '@qilin-agent/client-ui-workspace/client'
 
 usePinnedBrowserLanguages('zh-CN')
@@ -53,8 +52,6 @@ async function bench() {
     { 'sidebar.workspaces': { kind: 'single', scope: 'root' } } as never,
     SidebarFrame as never,
   )
-  // The workbench owner backs the browsing region's tag hook and D3 preset reads.
-  await runtime.mount({ inject: [], apply: workbenchApply })
   await runtime.mount({ inject: [...inject], apply })
   return { runtime, remote }
 }

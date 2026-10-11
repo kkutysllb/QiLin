@@ -688,7 +688,6 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     declaredBy: 'factory \'conversation.content\' (client-ui-conversation), so it exists while that definition is registered',
     occupants: [
       'client-ui-agent-preset AgentPresetSeat',
-      'client-ui-workspace AgentPresetChip',
     ],
     replaceRisk: 'shadows-shipped-ui',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'conversation.hero.agentPreset\', () => ctx.slots.register(\n      { name: \'conversation.hero.agentPreset\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
@@ -788,7 +787,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'shadows-shipped-ui',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'conversation.hero.workspace.directoryFlow\', () => ctx.slots.register(\n      { name: \'conversation.hero.workspace.directoryFlow\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-workspace/src/client/contract/slots.ts:71',
+    source: 'packages/client/ui-workspace/src/client/contract/slots.ts:69',
   },
   {
     key: 'conversation.input.activity',
@@ -2689,7 +2688,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'shadows-shipped-ui',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'sidebar.account\', () => ctx.slots.register(\n      { name: \'sidebar.account\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-sidebar/src/client/contract/slots.ts:71',
+    source: 'packages/client/ui-sidebar/src/client/contract/slots.ts:65',
   },
   {
     key: 'sidebar.brand.mark',
@@ -2836,7 +2835,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'sidebar.footer.action\', () => ctx.slots.register(\n      { name: \'sidebar.footer.action\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-sidebar/src/client/contract/slots.ts:77',
+    source: 'packages/client/ui-sidebar/src/client/contract/slots.ts:71',
   },
   {
     key: 'sidebar.panellist',
@@ -3563,7 +3562,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'sidebar.section.assignments\', () => ctx.slots.register(\n      { name: \'sidebar.section.assignments\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-sidebar/src/client/contract/slots.ts:50',
+    source: 'packages/client/ui-sidebar/src/client/contract/slots.ts:44',
   },
   {
     key: 'sidebar.session.row.hover',
@@ -3615,7 +3614,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'sidebar.session.row.hover\', () => ctx.slots.register(\n      { name: \'sidebar.session.row.hover\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-workspace/src/client/contract/slots.ts:88',
+    source: 'packages/client/ui-workspace/src/client/contract/slots.ts:86',
   },
   {
     key: 'sidebar.session.row.leading',
@@ -3667,7 +3666,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'sidebar.session.row.leading\', () => ctx.slots.register(\n      { name: \'sidebar.session.row.leading\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-workspace/src/client/contract/slots.ts:83',
+    source: 'packages/client/ui-workspace/src/client/contract/slots.ts:81',
   },
   {
     key: 'sidebar.settings',
@@ -3698,7 +3697,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'shadows-shipped-ui',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'sidebar.settings\', () => ctx.slots.register(\n      { name: \'sidebar.settings\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-sidebar/src/client/contract/slots.ts:65',
+    source: 'packages/client/ui-sidebar/src/client/contract/slots.ts:59',
   },
   {
     key: 'sidebar.toggle.badge',
@@ -3726,37 +3725,6 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'sidebar.toggle.badge\', () => ctx.slots.register(\n      { name: \'sidebar.toggle.badge\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
     source: 'packages/client/ui-sidebar/src/client/contract/slots.ts:19',
-  },
-  {
-    key: 'sidebar.workbench',
-    kind: 'single',
-    scope: 'root',
-    summary: 'The dual-workbench switch between the brand row and New Session.',
-    doc: 'The dual-workbench switch between the brand row and New Session.\nDeclared by this package\'s `sidebar` entry; ui-workspace registers the\nswitch. The shell supplies only the column state.',
-    registerOptions: [],
-    ownerProps: [
-      '/**\n * Owner share of the workbench-switch seat: the column display state the\n * occupant renders against (wide row vs 56px rail).\n */\nexport interface SidebarWorkbenchOwnerProps {\n  /** Whether the sidebar renders wide content (false = 56px rail). */\n  wide: boolean\n}',
-    ],
-    ownerPropsReferences: [],
-    standardProps: [
-      'useResource: UseResource',
-      'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
-      'usePanelInfo: UsePanelInfo',
-      'useSessions: UseSessions',
-      'useSessionStatus: UseSessionStatus',
-      'useSessionRetainInfo: UseSessionRetainInfo',
-      'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
-    ],
-    keyDomain: '',
-    hookContext: '',
-    slotInject: '',
-    declaredBy: 'an entry in \'sidebar\' (client-ui-sidebar), so it exists while that entry is mounted',
-    occupants: [
-      'client-ui-workspace WorkbenchSwitchSeat',
-    ],
-    replaceRisk: 'shadows-shipped-ui',
-    example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'sidebar.workbench\', () => ctx.slots.register(\n      { name: \'sidebar.workbench\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-sidebar/src/client/contract/slots.ts:41',
   },
   {
     key: 'sidebar.workspaces',
@@ -3787,7 +3755,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'shadows-shipped-ui',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'sidebar.workspaces\', () => ctx.slots.register(\n      { name: \'sidebar.workspaces\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-sidebar/src/client/contract/slots.ts:57',
+    source: 'packages/client/ui-sidebar/src/client/contract/slots.ts:51',
   },
   {
     key: 'sidebar.workspaces.directoryFlow',
@@ -3819,7 +3787,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'shadows-shipped-ui',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'sidebar.workspaces.directoryFlow\', () => ctx.slots.register(\n      { name: \'sidebar.workspaces.directoryFlow\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-workspace/src/client/contract/slots.ts:73',
+    source: 'packages/client/ui-workspace/src/client/contract/slots.ts:71',
   },
   {
     key: 'tool.call.images',

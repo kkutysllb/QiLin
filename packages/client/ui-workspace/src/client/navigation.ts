@@ -1,7 +1,7 @@
 /** Workspace archive and directory UI capability. */
 
 import { Service, type Context } from '@qilin-agent/kylin'
-import type { ClientRemote, DirectoryListing, RemoteFailure, RemoteResult } from '@qilin-agent/api-remotes/client'
+import type { ClientRemote, DirectoryListing, RemoteFailure } from '@qilin-agent/api-remotes/client'
 import type {
   ISessions,
   SessionReference,
@@ -14,8 +14,6 @@ import type {
   IWorkspaces, WorkspaceId, WorkspaceView,
 } from '@qilin-agent/api-workspace-controller/client'
 import type { SessionId } from '@qilin-agent/session/types'
-// Type-only: the workbench state owner this navigation coordinates with (D3).
-import type { Workbench } from '@qilin-agent/client-ui-workbench/client'
 import type {} from '@qilin-agent/client-ui-layout/client'
 import { pinOrderAccounts, pinOrderSource } from './pin-order.ts'
 import type { WorkspaceViewStoreActions } from './stores.ts'
@@ -64,13 +62,6 @@ export interface UiWorkspace {
    * @param workspaceId - explicit target; absent inherits the current or most recent Workspace.
    */
   startSession(workspaceId?: WorkspaceId): void
-  /**
-   * Switch the current blank Session to an explicitly picked new-task preset
-   * (the hero chip's per-tag choice; the next new task already names it at
-   * create). A started or absent Session keeps its composition.
-   * @param presetId - the picked preset id.
-   */
-  adoptBlankSessionPreset(presetId: string): void
   /**
    * Archive a Session and clear it when it is the current selection.
    * @param sessionId - Session to archive.
@@ -129,22 +120,6 @@ export class DirectoryBrowseError extends Error {
   }
 }
 
-/**
- * The preset-switch caller the browsing region consumes: the one Remote method
- * the blank-session tag rebind needs, stated structurally so consumers pass the
- * live namespace or a test double without a cast.
- */
-export interface AgentPresetSwitcher {
-  /**
-   * Switch one blank session's agent composition to a preset.
-   * @param id - the blank session to recompose.
-   * @param agentPreset - the preset id to compose from.
-   * @returns the recorded preset id, or a failure (`agent-preset/locked` once
-   * the session has started).
-   */
-  select(id: SessionId, agentPreset: string): Promise<RemoteResult<string>>
-}
-
 /** Implements Workspace archive and directory UI operations. */
 class UiWorkspaceService extends Service implements UiWorkspace {
   private readonly connecting = new Map<WorkspaceId, Promise<SessionId>>()
@@ -162,10 +137,6 @@ class UiWorkspaceService extends Service implements UiWorkspace {
   /**
    * @param ctx - Client root Context.
    * @param directoryPicker - the directory-picking Remote namespace.
-   * @param agentPresets - the preset-switch caller, for the blank-session
-   * tag rebind (D3: a blank session may switch presets; a started one may not).
-   * @param workbench - the tag state owner, supplying each new task's preset
-   * and the visibility fold the reuse rule checks.
    * @param workspaces - pure Workspace Controller.
    * @param sessions - pure Session Controller.
    * @param view - the browser's viewing-store write set, which owns saved Session order.
@@ -173,8 +144,6 @@ class UiWorkspaceService extends Service implements UiWorkspace {
   constructor(
     ctx: Context,
     private readonly directoryPicker: ClientRemote['directoryPicker'],
-    private readonly agentPresets: AgentPresetSwitcher,
-    private readonly workbench: Workbench,
     private readonly workspaces: IWorkspaces,
     private readonly sessions: ISessions,
     private readonly view: Pick<WorkspaceViewStoreActions, 'pinSessionOrder'>,
@@ -208,66 +177,16 @@ class UiWorkspaceService extends Service implements UiWorkspace {
       if (summary !== undefined && summary.blank && summary.cwd === workspace.path
         && workspace.sessionIds.includes(summary.id)
         && !archived.includes(summary.id)) {
-        this.rebindBlankToActiveTag(id)
         return summary.id
       }
     }
 
-    // D3: the new task names its preset explicitly instead of leaving the
-    // Host to resolve the roster default, so the workbench tag the task was
-    // started under decides what the session composes from.
-    const attempt = this.sessions.create({
-      workspaceId,
-      agentPreset: this.workbench.presetFor(this.workbench.state.getSnapshot().active),
-    })
+    // The deployment ships one preset; a new task takes the Host's roster
+    // default rather than naming one from a removed selection surface.
+    const attempt = this.sessions.create({ workspaceId })
       .finally(() => { this.connecting.delete(workspaceId) })
     this.connecting.set(workspaceId, attempt)
     return attempt
-  }
-
-  /**
-   * Rebind every blank session of the current Workspace to the now-active
-   * tag's preset. Blank sessions carried over from the other tag would
-   * otherwise sit hidden in this tag's filtered list; a non-blank session
-   * stays exactly as it is (the Host refuses non-blank switches anyway).
-   */
-  rebindBlanksAfterTagSwitch(): void {
-    const current = this.mainReference?.sessionId
-    const workspace = current === undefined
-      ? undefined
-      : this.workspaces.list.getSnapshot().items.find(item => item.sessionIds.includes(current))
-    if (workspace === undefined) return
-    for (const id of workspace.sessionIds) {
-      const summary = this.sessions.list.getSnapshot().byId[id]
-      if (summary?.blank === true) this.rebindBlankToActiveTag(id)
-    }
-  }
-
-  /**
-   * Switch one blank session to the active tag's preset when the preset it
-   * was created under does not show under this tag. Fire-and-forget: the
-   * session stays usable either way, and a `locked` verdict means it engaged
-   * mid-rebind, so its own preset stands.
-   * @param id - the blank session to align.
-   */
-  private rebindBlankToActiveTag(id: SessionId): void {
-    const summary = this.sessions.list.getSnapshot().byId[id]
-    if (summary === undefined) return
-    const tag = this.workbench.state.getSnapshot().active
-    if (this.workbench.shows(summary.projectionValues?.agentPreset, tag)) return
-    this.agentPresets.select(id, this.workbench.presetFor(tag)).catch((reason: unknown) => {
-      console.warn(`blank session ${id} kept its own preset:`, reason)
-    })
-  }
-
-  adoptBlankSessionPreset(presetId: string): void {
-    const current = this.mainReference?.sessionId
-    if (current === undefined) return
-    const summary = this.sessions.list.getSnapshot().byId[current]
-    if (summary?.blank !== true) return
-    this.agentPresets.select(current, presetId).catch((reason: unknown) => {
-      console.warn(`blank session ${current} kept its own preset:`, reason)
-    })
   }
 
   openSession(target: SessionTarget): void {

@@ -2332,9 +2332,6 @@ importers:
       '@qilin-agent/client-ui-user-questions':
         specifier: workspace:*
         version: link:../../client/ui-user-questions
-      '@qilin-agent/client-ui-workbench':
-        specifier: workspace:*
-        version: link:../../client/ui-workbench
       '@qilin-agent/client-ui-workflow-run':
         specifier: workspace:*
         version: link:../../client/ui-workflow-run
@@ -2820,9 +2817,6 @@ importers:
       '@qilin-agent/client-ui-slots':
         specifier: workspace:*
         version: link:../ui-slots
-      '@qilin-agent/client-ui-workbench':
-        specifier: workspace:*
-        version: link:../ui-workbench
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -4129,9 +4123,6 @@ importers:
       '@qilin-agent/client-ui-slots':
         specifier: workspace:*
         version: link:../ui-slots
-      '@qilin-agent/client-ui-workbench':
-        specifier: workspace:*
-        version: link:../ui-workbench
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -4369,9 +4360,6 @@ importers:
       '@qilin-agent/client-ui-tool':
         specifier: workspace:*
         version: link:../ui-tool
-      '@qilin-agent/client-ui-workbench':
-        specifier: workspace:*
-        version: link:../ui-workbench
       '@qilin-agent/client-ui-workspace':
         specifier: workspace:*
         version: link:../ui-workspace
@@ -5419,9 +5407,6 @@ importers:
       '@qilin-agent/client-ui-slots':
         specifier: workspace:*
         version: link:../ui-slots
-      '@qilin-agent/client-ui-workbench':
-        specifier: workspace:*
-        version: link:../ui-workbench
       '@qilin-agent/client-ui-workspace':
         specifier: workspace:*
         version: link:../ui-workspace
@@ -6142,15 +6127,6 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1
 
-  packages/client/ui-workbench:
-    devDependencies:
-      '@qilin-agent/client-store':
-        specifier: workspace:*
-        version: link:../store
-      '@qilin-agent/kylin':
-        specifier: workspace:~
-        version: link:../../../vendor/cordis
-
   packages/client/ui-workflow-run:
     devDependencies:
       '@qilin-agent/api-session-controller':
@@ -6252,9 +6228,6 @@ importers:
       '@qilin-agent/client-ui-slots':
         specifier: workspace:*
         version: link:../ui-slots
-      '@qilin-agent/client-ui-workbench':
-        specifier: workspace:*
-        version: link:../ui-workbench
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis

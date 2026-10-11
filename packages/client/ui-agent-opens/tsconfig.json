@@ -13,7 +13,6 @@
     { "path": "../ui-session" },
     { "path": "../ui-sidebar-browser" },
     { "path": "../ui-sidebar-right" },
-    { "path": "../ui-workbench" },
     { "path": "../../host/sidebar-opens" },
     { "path": "../../util/workspace-path" }
   ]
