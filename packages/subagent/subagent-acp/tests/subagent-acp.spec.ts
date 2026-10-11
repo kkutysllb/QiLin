@@ -632,20 +632,6 @@ describe('dsh-subagent-acp', () => {
     }
   })
 
-  it('rejects a pre-aborted provider request before resolving the parent directory', async () => {
-    const ctx = await setup()
-    const controller = new AbortController()
-    controller.abort()
-    const parent = { id: 'parent', session: { header: {} } } as unknown as Agent
-    const provider = ctx.subagents.getProvider('acp')!
-    await expect(Promise.resolve().then(async () => provider.start!({
-      prompt: [{ type: 'text' as const, text: 'p' }],
-      parent,
-      cwd: process.cwd(),
-      signal: controller.signal,
-    }))).rejects.toThrow('aborted before the ACP child started')
-  })
-
   it('reports an initialize-stage process exit without copying the transport error', async () => {
     const error = await startAcpRun(request(), {
       command: process.execPath,

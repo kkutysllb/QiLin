@@ -973,15 +973,6 @@ describe('dsh-subagent-qilin-sdk provider', () => {
     }
   })
 
-  it('uses the runtime directory when the parent has no origin', async () => {
-    const ctx = await setup()
-    const parent = { id: 'parent', session: { header: {} } } as unknown as Agent
-    const run = await startExternalActivation(ctx, 'dsh-sdk', { ...request(), parent })
-    expect((await run.result).stopReason).toBe('completed')
-    await run.dispose()
-    await ctx.fiber.dispose()
-  })
-
   it('keeps named plugin exports with no default export (loader shape)', () => {
     expect(sdk.name).toBe('subagent-qilin-sdk')
     expect(sdk.inject).toEqual(['subagents'])

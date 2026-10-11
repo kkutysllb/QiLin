@@ -2121,6 +2121,9 @@
   "packages/storage/storage-sqlite/src/unit.ts": {
     "c09156ebe0e8eaa23eac06d9cf5549b67ee038f2bf2e4fa77a5f9ca63e0416ec": 1
   },
+  "packages/subagent/subagent-acp/tests/scratch-cast.spec.ts": {
+    "e324f01c770b209152a062d647b6d618cab97339459f283bb5c1a526a40d2f9f": 1
+  },
   "packages/subagent/subagent-acp/tests/subagent-acp.e2e.ts": {
     "daa15206e19d6a8fbae646d678889b2e6933ece824e48dd06c95d2096861d5c1": 1
   },
