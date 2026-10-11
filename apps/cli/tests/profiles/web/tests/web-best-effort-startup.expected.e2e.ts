@@ -306,7 +306,8 @@ describe.skipIf(!builtArtifactsExist)('qilin Web profile best-effort startup', (
       expect(result.stderr).toContain('  webserver (required)\n    Package: @qilin-agent/host-webserver')
       expect(result.stderr).toContain('Plugins waiting for services (')
       // connection injects webStartup, which a failed bind leaves intact, so it
-      // activates and appears in neither section.
+      // activates and appears in neither section; the entry that fails is the
+      // HTTP server itself, and the saved report names that module.
       expect(result.stderr).not.toMatch(/connection \(required\)/u)
       expect(result.stderr).toContain('at Server.setupListenHandle')
       const summary = result.stderr.split(/\n\n(?:Full diagnostics:|qilin: warning:)/u)[0]!
@@ -330,7 +331,7 @@ describe.skipIf(!builtArtifactsExist)('qilin Web profile best-effort startup', (
       expect(report).toContain('configurationPath:')
       expect(report).toContain("code: 'EADDRINUSE'")
       expect(report).toContain(`port: ${String(address.port)}`)
-      expect(report).toContain("module: '@qilin-agent/client-connection'")
+      expect(report).toContain("module: '@qilin-agent/host-webserver'")
       expect(report).toContain('at auditStartupEntries')
     } finally {
       await new Promise<void>((resolve, reject) => {

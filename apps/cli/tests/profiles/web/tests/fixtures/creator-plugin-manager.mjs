@@ -39,8 +39,10 @@ export function apply(ctx, config) {
       const afterDenied = names(first)
       const bundlesAfterDenied = await ctx.pluginManager.listBundles()
       answer = 'allowed-once'
+      // execute() resolves the tool's own lossless-JSON value, so the answer is
+      // the object the assertion compares and needs no string round trip.
       const result = phase === 'initial'
-        ? JSON.parse((await manage({ action: 'install_bundle', target: config.bundle })).value)
+        ? await manage({ action: 'install_bundle', target: config.bundle })
         : await ctx.pluginManager.listBundles()
       const second = await make(`${phase}-second`)
       const after = names(first)
@@ -48,7 +50,7 @@ export function apply(ctx, config) {
       const ping = await ctx.tools.execute({ name: 'mcp__demo__ping', arguments: {}, agent: first,
         callId: `${phase}-ping`, signal: new AbortController().signal })
       const removed = phase === 'restart'
-        ? JSON.parse((await manage({ action: 'remove_bundle', target: '@test/creator-mcp' })).value) : undefined
+        ? await manage({ action: 'remove_bundle', target: '@test/creator-mcp' }) : undefined
       return { approvals, permission: ctx.permissionPresets.current(first.session), before, denied, afterDenied, bundlesAfterDenied, result, after, other, ping, removed, remaining: names(first) }
     } finally {
       disposeApproval()

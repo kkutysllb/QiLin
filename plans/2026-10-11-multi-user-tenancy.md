@@ -325,14 +325,15 @@ P1 已落成常备测试：[tenant-isolation.expected.e2e.ts](../apps/cli/tests/
 | 应用文档取 `/` | 站点根是落地页，应用文档在 `WEB_ENTRY_PATH`（`/workspace`） | 同目录 `web-default-isolation` 的既有写法 |
 | `session/create` 返回 `agentPreset: 'standard'`、fixture 挂 `'cordis'` 预设、sidebar-browser 行「resolved but disabled」 | shipped 预设只有 `ptc`（[web-app 行](../packages/bundle/web-app/cordis.patch.yml#L579)）；`ui-sidebar-browser` 行无 `disabled` | 实跑输出与 bundle 行 |
 
-**仍未绿 5 例**，都不是就绪行或 schedule，而是产品行为演进，需要裁定而不是重录：
+**剩余三例的处置（2026-10-11 实跑复验）**：
 
-| 车道 | 现象 | 待裁定 |
+| 车道 | 现象（实跑） | 处置 |
 |---|---|---|
-| `creator-plugin-manager` ×1 | fixture 读 `ctx.tools.execute(...).value`，现为 undefined | `plugin_manager` 工具的结果契约 |
-| `web-best-effort-startup` ×2 | 启动诊断报告里不再有 `module: '@qilin-agent/client-connection'` | `connection` 的 `inject` 已改为 `webStartup`（B3.4 c），失败绑定不再牵动它；该行断言应换成哪一项 |
-| `web-failure-matrix` ×2 | 一次 reload 里 `webserver` 行绑不上时整次 reload 被拒，同 patch 的 `witness` 行不生效 | reload 的部分生效语义 |
+| `web-best-effort-startup` ×2 | 保存的诊断报告不再出现 `module: '@qilin-agent/client-connection'`——`connection` 的 `inject` 已改为 `webStartup`，绑定失败不再牵动它，真正失败的是 HTTP 服务器本身 | **已修**：断言改为报告必须点名实际失败的模块 `module: '@qilin-agent/host-webserver'`（与同一用例第 306 行的摘要断言一致），该车道 **8/8 全绿** |
+| `creator-plugin-manager` ×1 | 两层漂移：① fixture 读 `ctx.tools.execute(...).value`，而 `execute` 现在**直接返回**工具自身的 lossless-JSON 值；② 改正后暴露更深的一层——直接调用 `plugin_manager` 被拒：`unknown tool "plugin_manager": only run_code is callable directly — call plugin_manager from inside a run_code program instead` | ①**已修**（fixture 不再做字符串往返）；②**未修**：要保住这条用例的被测行为，fixture 必须改为经 `run_code` 程序驱动 `plugin_manager`，并据现契约重新推导「未获批准」的断言（当前断的是拒绝文案包含「the user refused...」）。这是一次真实的 fixture 重写，不在一轮内草率收口 |
+| `web-failure-matrix` ×2 | 机制已定位在 [app-boot/src/index.ts:310-317](../../packages/boot/app-boot/src/index.ts#L310-L317)：`reconcileProfilePatches` **先** `entry.update(...)` 应用新补丁，**再**判「是否引入了新的未激活项」，若引入则抛出。于是这次 reload 在报文层是失败的、在树上却已经生效；随后修好配置的那次 reload 里 `client-hmr` 仍 pending 在 `clientModules`（另一条用例是 `modules` pending 在 fixture 自己删掉的依赖），恢复不到「服务中」状态 | **未修，也不改测试**：把期望改成「恢复不了」等于把未裁定的产品契约写进断言。需要先决定：被拒的 reload 是否应**回滚**上一份补丁（否则 pending 的依赖链会让应用卡死）。归属上与本工作无关（两个包都未被本工作触碰） |
 
+另注：`test:expected` 整车道同期还有约 25 例既有红（headless / acp / qilin-badge / session-format-guard），与本次改动无关。
 另注：`test:expected` 整车道同期还有约 25 例既有红（headless / acp / qilin-badge / session-format-guard），与本次改动无关。
 
 ### 11.7 A1 / A2 的结论：都不需要改（带代码依据）
