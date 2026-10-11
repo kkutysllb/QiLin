@@ -12,7 +12,7 @@
 
 import { existsSync, globSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { basename, join, resolve, sep } from 'node:path'
-import { gitIndexPaths, readGitIndexBlob } from './translation-pairing-git.ts'
+import { gitIndexPaths, gitKnownPaths, readGitIndexBlob } from './translation-pairing-git.ts'
 import {
   computeTranslationPairingRecord,
   parseTranslationPairingRecord,
@@ -102,6 +102,21 @@ const recordContext = { repoRoot: root, isTranslationPairSource, repositoryFileE
 // Enumerate the scope once: the whole corpus, or exactly the named pairs'
 // three files (a named pair whose files are absent is caught by the same
 // completeness rules that cover discovered remnants).
+// The corpus is what Git knows: a gitignored build residue directory (a staged
+// runtime tree, a vendored source dump) is not maintained documentation. A tree
+// Git cannot read keeps every discovered file, so the filter never narrows the
+// corpus to nothing.
+const knownPaths = ((): Set<string> => {
+  try {
+    return gitKnownPaths(root)
+  } catch (error) {
+    console.error(`verify-translation-pairing: git could not list paths (${error instanceof Error ? error.message : String(error)}); scanning every discovered file`)
+    return new Set<string>()
+  }
+})()
+/** Whether Git tracks this path or would add it (everything when Git answered nothing). */
+const isMaintained = (file: string): boolean => knownPaths.size === 0 || knownPaths.has(file)
+
 const files = new Set<string>()
 if (request.scope === 'pairs') {
   for (const anchor of request.anchors) {
@@ -118,7 +133,7 @@ if (request.scope === 'pairs') {
   for (const pattern of SCOPE_PATTERNS) {
     for (const match of globSync(pattern, { cwd: root, exclude: TRANSLATION_SCOPE_GLOB_EXCLUDES })) {
       const normalized = match.split(sep).join('/')
-      if (isTranslationScopeFile(normalized)) files.add(normalized)
+      if (isTranslationScopeFile(normalized) && isMaintained(normalized)) files.add(normalized)
     }
   }
 }

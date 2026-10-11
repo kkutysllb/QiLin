@@ -22,6 +22,26 @@ function runGit(root: string, args: string[], operation: string): Buffer {
   return result.stdout
 }
 
+/**
+ * Every repository-relative path Git tracks or would add: the index plus
+ * untracked files no ignore rule excludes.
+ *
+ * A build residue directory inside a non-hidden parent (a vendored source dump,
+ * a staged runtime) is gitignored and therefore not maintained documentation;
+ * the bilingual corpus is the files this reports.
+ *
+ * @param root - Repository root used as Git's working directory.
+ * @returns The Git-known paths, repository-relative.
+ */
+export function gitKnownPaths(root: string): Set<string> {
+  const paths = new Set<string>()
+  const entries = runGit(root, ['ls-files', '--cached', '--others', '--exclude-standard', '-z'], 'listing Git-known paths')
+    .toString('utf8')
+    .split('\0')
+  for (const entry of entries) if (entry) paths.add(entry)
+  return paths
+}
+
 /** Every stage-zero path currently present in the Git index. */
 export function gitIndexPaths(root: string): Set<string> {
   const paths = new Set<string>()

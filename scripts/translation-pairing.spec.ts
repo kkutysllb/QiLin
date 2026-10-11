@@ -5,7 +5,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { gitIndexPaths, readGitIndexBlob } from './translation-pairing-git.ts'
+import { gitIndexPaths, gitKnownPaths, readGitIndexBlob } from './translation-pairing-git.ts'
 import {
   computeTranslationPairingRecord,
   parseTranslationPairingRecord,
@@ -92,6 +92,27 @@ describe('translation pairing index reads', () => {
         'docs/reference.md',
         'docs/reference.zh.md',
       ]))
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('translation pairing Git-known paths', () => {
+  it('keeps tracked and untracked files while dropping a gitignored residue dump', () => {
+    const root = mkdtempSync(join(tmpdir(), 'qilin-pairing-known-'))
+    try {
+      execFileSync('git', ['-C', root, 'init', '-q'])
+      writeFileSync(join(root, '.gitignore'), 'staging/\n')
+      mkdirSync(join(root, 'staging'), { recursive: true })
+      writeFileSync(join(root, 'staging', 'README.md'), '# residue\n')
+      writeFileSync(join(root, 'tracked-readme.md'), '# tracked\n')
+      writeFileSync(join(root, 'untracked-note.md'), '# fresh\n')
+      execFileSync('git', ['-C', root, 'add', 'tracked-readme.md'])
+      const paths = gitKnownPaths(root)
+      expect(paths.has('tracked-readme.md')).toBe(true)
+      expect(paths.has('untracked-note.md')).toBe(true)
+      expect(paths.has('staging/README.md')).toBe(false)
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
