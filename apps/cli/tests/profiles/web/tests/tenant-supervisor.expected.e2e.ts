@@ -36,6 +36,8 @@ const ALICE_PASSWORD = 'alice-password'
 const BOB_PASSWORD = 'bob-password'
 const FIRST_RUN = 'first-run-account'
 const FIRST_RUN_PASSWORD = 'first-run-password'
+const SECOND_USER = 'second-account'
+const SECOND_USER_PASSWORD = 'second-account-password'
 
 /** One running hub. */
 interface RunningHub {
@@ -95,6 +97,9 @@ async function startHub(root: string, home: string, options: HubOptions = {}): P
     // the whole lane runs the single-origin routing it always did.
     configArgs: [
       ...(options.entry === 'qilin' ? ['--profile', 'qilin'] : ['web']),
+      // A harness never asks the deployment to open a browser: every hub this
+      // lane starts would otherwise put a window on the machine running it.
+      '--no-open',
       '--port', '0', '--idle-ms', String(options.idleMs ?? IDLE_MILLISECONDS),
       ...(options.profile === undefined ? [] : ['--tenant-profile', options.profile]),
       ...(options.maxTenants === undefined ? [] : ['--max-tenants', String(options.maxTenants)]),
@@ -797,6 +802,35 @@ it('initializes a deployment that has no accounts yet through the product own fo
     expect(await served.text()).toContain('<html')
     expect(await readdir(join(home, 'tenants'))).toEqual(expect.arrayContaining([BOOTSTRAP_DIRECTORY]))
     expect(await readdir(home)).toEqual(['auth', 'tenants'])
+
+    // 5. A deployment that accepts accounts lets the product create the next
+    //    one: the name is unknown to the roster, so the application answers that
+    //    path, and the register call it serves adds the account.
+    const arriving = await fetch(`${base}t/${SECOND_USER}/`)
+    expect(arriving.status).toBe(200)
+    expect(await arriving.text()).toContain('<html')
+    const registered = await fetch(`${base}api/auth/register`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ username: SECOND_USER, password: SECOND_USER_PASSWORD }),
+    })
+    expect(registered.status).toBe(200)
+    expect(await registered.json()).toMatchObject({ user: { username: SECOND_USER } })
+    const secondPath = await fetch(`${base}t/${SECOND_USER}/`)
+    expect(secondPath.status).toBe(200)
+    expect(await secondPath.text()).toContain('<html')
+
+    // 6. A browser that still carries an account this roster does not hold is a
+    //    new arrival, not an error: the routing cookie is dropped and the
+    //    application answers. Answering a deployment error here would put this
+    //    process between a browser and the application.
+    const retired = await fetch(base, {
+      headers: { cookie: `qilin_tenant=${'11111111-1111-1111-1111-111111111111'}` },
+      redirect: 'manual',
+    })
+    expect(retired.status).toBe(302)
+    expect(retired.headers.get('location')).toBe(`/t/${FIRST_RUN}/`)
+    expect(retired.headers.getSetCookie().some(cookie => cookie.startsWith('qilin_tenant=;'))).toBe(true)
   } catch (error) {
     const evidence = hub === undefined ? '' : `\n${hub.output().slice(-4000)}`
     throw new Error(`${error instanceof Error ? error.message : String(error)}${evidence}`, { cause: error })

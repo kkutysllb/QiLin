@@ -93,6 +93,20 @@ function argument(args: readonly string[], name: string): string | undefined {
 }
 
 /**
+ * Read the deployment's registration policy.
+ * @param args - the profile's inner arguments.
+ * @returns the policy the first-run runtime applies.
+ * @throws Error when the flag names a policy this deployment does not have.
+ */
+function registrationPolicy(args: readonly string[]): 'open' | 'closed' {
+  const policy = argument(args, '--registration') ?? 'open'
+  if (policy !== 'open' && policy !== 'closed') {
+    throw new Error(`qilin web: --registration is open or closed, received ${JSON.stringify(policy)}`)
+  }
+  return policy
+}
+
+/**
  * Serve the deployment: the public address, and one runtime per account.
  * @param args - the profile's inner arguments, which carry the app's own flags.
  * @returns the process exit code.
@@ -115,6 +129,10 @@ export async function runWebEntry(args: readonly string[], servedProfile: string
     // browser can then hold one session per account.
     singleOrigin: !args.includes('--per-account-ports'),
     tenantHost: argument(args, '--tenant-host'),
+    // Who may arrive: the product's form creates accounts when the deployment
+    // accepts them, and admits only the roster's own when it does not. The
+    // product's own default is open, so that is the deployment's default too.
+    registration: registrationPolicy(args),
     // The deployment opens the address it serves, exactly as a single runtime
     // opens the address it serves; --no-open is the operator declining it.
     ...args.includes('--no-open')

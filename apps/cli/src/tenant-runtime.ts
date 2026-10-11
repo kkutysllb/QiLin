@@ -104,6 +104,12 @@ export interface TenantRuntimeOptions {
    * initialized, which selects the first-run layer it boots with.
    */
   readonly bootstrap?: boolean
+  /**
+   * Registration policy the first-run runtime applies: a deployment that
+   * accepts new accounts lets the product create them there, one that does
+   * not admits only the accounts its roster already holds.
+   */
+  readonly registration?: 'open' | 'closed'
   /** Profile each runtime boots. */
   readonly profile: string
   /** Node entry of the qilin CLI the hub re-executes. */
@@ -189,15 +195,16 @@ export const TENANT_VARIABLE = 'QILIN_TENANT'
  * hub then serves it from a runtime of its own.
  * @returns the layer document as YAML.
  */
-export function bootstrapPatchYaml(): string {
+export function bootstrapPatchYaml(registration: 'open' | 'closed' = 'open'): string {
   return [
     '# First-run layer for a deployment with no accounts yet.',
     '# This runtime admits whoever the roster holds, so the product can create',
-    '# the first account; the hub then routes to that account own runtime.',
+    '# the first account and, when the deployment accepts new accounts, the ones',
+    '# after it; the hub then routes each of them to a runtime of its own.',
     '- id: accounts',
     '  config:',
     `    qilinHome: !!js process.env.${DEPLOYMENT_HOME_VARIABLE}`,
-    '    registration: closed',
+    `    registration: ${registration}`,
     '',
   ].join('\n')
 }
@@ -438,7 +445,7 @@ export class TenantRuntime {
 
   /** Write this tenant's home layer when the file does not already hold it. */
   private async writePatch(): Promise<void> {
-    const document = this.options.bootstrap === true ? bootstrapPatchYaml() : tenantPatchYaml(this.options.accountId)
+    const document = this.options.bootstrap === true ? bootstrapPatchYaml(this.options.registration ?? 'open') : tenantPatchYaml(this.options.accountId)
     const current = await readFile(this.patchPath, 'utf8').catch(() => undefined)
     if (current === document) return
     await writeFile(this.patchPath, document)

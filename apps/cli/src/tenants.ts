@@ -65,6 +65,11 @@ export interface TenantsServeOptions {
    */
   readonly singleOrigin: boolean
   /**
+   * Whether the deployment lets the product create accounts beyond the
+   * roster's first. Closed admits only the accounts the roster holds.
+   */
+  readonly registration?: 'open' | 'closed'
+  /**
    * Interface every tenant runtime binds. It defaults to loopback, which is the
    * only reachable interface when {@link singleOrigin} is set: the hub's
    * address is the deployment's only address. A deployment that gives every
@@ -179,6 +184,7 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       accountId: BOOTSTRAP_ACCOUNT,
       directoryName: BOOTSTRAP_DIRECTORY,
       bootstrap: true,
+      registration: options.registration ?? 'open',
       profile: options.profile,
       binPath,
       execArgv: process.execArgv,
@@ -333,8 +339,14 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
     // the product's own form creates the first account, so the deployment never
     // answers a browser with instructions of its own. The account paths below
     // only exist once a roster does.
+    const productPath = (): string => {
+      if (!url.pathname.startsWith('/t/')) return `${url.pathname}${url.search}`
+      const rest = url.pathname.slice('/t/'.length)
+      const separator = rest.indexOf('/')
+      return separator === -1 ? `/${url.search}` : `${rest.slice(separator)}${url.search}`
+    }
     if ((await roster()).all().length === 0) {
-      await serveFirstRun(request, response, `${url.pathname}${url.search}`)
+      await serveFirstRun(request, response, productPath())
       return
     }
     // The hub's own routes answer reads. A proxied path carries whatever method
@@ -350,7 +362,11 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       const username = decodeURIComponent(separator === -1 ? rest : rest.slice(0, separator))
       const account = (await roster()).byIdentifier(username)
       if (account === undefined) {
-        respond(response, 404, 'text/plain; charset=utf-8', 'qilin tenants: no such account\n')
+        // A name this roster does not hold yet is the application's business,
+        // not this deployment's: the first-run runtime hosts the product's own
+        // registration, and its answer (an account, or its own refusal) is what
+        // the browser sees.
+        await serveFirstRun(request, response, productPath())
         return
       }
       try {
@@ -390,28 +406,26 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       // gate sends a signed-out browser to the runtime's own root, which is
       // the same path the form lives on, so the cookie is the whole difference.
       if (accountId !== undefined) {
-        try {
-          const runtime = await routedRuntime(accountId)
-          if (runtime === undefined) {
-            // The roster no longer holds that account: drop the cookie so the
-            // browser goes back to the directory instead of retrying forever.
-            response.writeHead(404, {
-              'cache-control': 'no-store',
-              'content-type': 'text/plain; charset=utf-8',
-              'set-cookie': clearedRoutingCookie(),
-            })
-            response.end('qilin tenants: the selected tenant no longer exists\n')
-            return
+        const runtime = await routedRuntime(accountId)
+        if (runtime !== undefined) {
+          try {
+            // Signing out ends the runtime's own session; the routing cookie is
+            // this deployment's, so it is cleared on the same answer.
+            const extra = url.pathname === '/api/auth/logout' ? [clearedRoutingCookie()] : []
+            await forward(request, response, runtime, `${url.pathname}${url.search}`, extra)
+          } catch (error) {
+            process.stderr.write(`qilin tenants: no runtime served ${url.pathname}: ${String(error)}\n`)
+            respond(response, 503, 'text/plain; charset=utf-8', 'qilin tenants: that tenant is not serving\n')
           }
-          // Signing out ends the runtime's own session; the routing cookie is
-          // this deployment's, so it is cleared on the same answer.
-          const extra = url.pathname === '/api/auth/logout' ? [clearedRoutingCookie()] : []
-          await forward(request, response, runtime, `${url.pathname}${url.search}`, extra)
-        } catch (error) {
-          process.stderr.write(`qilin tenants: no runtime served ${url.pathname}: ${String(error)}\n`)
-          respond(response, 503, 'text/plain; charset=utf-8', 'qilin tenants: that tenant is not serving\n')
+          return
         }
-        return
+        // The cookie names an account this roster does not hold: a retired
+        // account, or one from a home that was replaced. It is a stale
+        // selector, not a request for a tenant, so the browser continues as a
+        // new arrival with the cookie dropped. Answering an error here would
+        // put this deployment between a browser and the application it is
+        // trying to reach.
+        response.setHeader('set-cookie', clearedRoutingCookie())
       }
     }
     if (url.pathname === '/') {
@@ -435,7 +449,11 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       response.end()
       return
     }
-    respond(response, 404, 'text/plain; charset=utf-8', 'qilin tenants: unknown path\n')
+    // Nothing left belongs to the deployment: a request that named no account
+    // is the application's, whether it is a page, an asset, or the register
+    // call a browser makes before any account exists. The first-run runtime
+    // answers it, so a deployment never speaks for the product.
+    await serveFirstRun(request, response, productPath())
   }
 
   const server = createServer((request, response) => {
