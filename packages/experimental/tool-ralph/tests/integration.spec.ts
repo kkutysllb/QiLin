@@ -10,23 +10,24 @@ import { createUserMessage, ToolCallId  } from '@qilin-agent/llm'
 import { SessionId } from '@qilin-agent/session'
 import SubagentRuntime from '@qilin-agent/subagent'
 import { STRUCTURED_OUTPUT_TOOL } from '@qilin-agent/subagent'
+import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
 import * as spawn from '@qilin-agent/subagent-spawn-in-process'
 import PtcWorkflowEngine from '@qilin-agent/workflow-ptc'
 import { MockAdapter, maxTokensResponse, textResponse, toolCallResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
 import * as toolRalph from '../src/index.ts'
 import { mountWorkflowRuntime } from '../../../workflow/workflow-ptc/tests/setup.ts'
-import { mountWorkingDirectoryFixture } from '../../../subagent/subagent/tests/working-directory-fixture.ts'
 
 type MockScript = ConstructorParameters<typeof MockAdapter>[0]
 const testToolSignal = new AbortController().signal
 
 async function mountExecution(ctx: Context): Promise<string> {
-  const cwd = await mkdtemp(join(tmpdir(), 'qilin-ralph-'))
+  const cwd = await mkdtemp(join(tmpdir(), 'dsh-ralph-'))
   onTestFinished(async () => {
     await ctx.fiber.dispose()
     await rm(cwd, { recursive: true, force: true })
   })
   await mountWorkflowRuntime(ctx, { cwd })
+  await ctx.plugin(JsonlSessionPersistence, { root: join(cwd, '.sessions') })
   return cwd
 }
 
@@ -34,10 +35,9 @@ async function mountExecution(ctx: Context): Promise<string> {
 async function mountRalph(script: MockScript, config: toolRalph.Config) {
   const ctx = new Context()
   const adapter = new MockAdapter(script)
-  await mountAgentLoopTestDependencies(ctx)
+  await mountAgentLoopTestDependencies(ctx, { workingDirectory: true })
   const cwd = await mountExecution(ctx)
   await ctx.plugin(AgentLoop, { agents: [] })
-  await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(SubagentRuntime)
   await ctx.plugin(spawn, { providerName: 'spawn' })
   await ctx.plugin(PtcWorkflowEngine, {})
@@ -51,7 +51,7 @@ async function mountRalph(script: MockScript, config: toolRalph.Config) {
   return { ctx, adapter, parentHandle, parent: parentHandle.agent }
 }
 
-describe('qilin-tool-ralph over the real spawn and sandboxed PTC stack', () => {
+describe('dsh-tool-ralph over the real spawn and sandboxed PTC stack', () => {
   it('uses distinct empty-seed children, shared cwd, and only the prior bounded handoff', { timeout: 90_000 }, async () => {
     const firstReport = {
       status: 'continue',
@@ -73,10 +73,9 @@ describe('qilin-tool-ralph over the real spawn and sandboxed PTC stack', () => {
       toolCallResponse('round-1', STRUCTURED_OUTPUT_TOOL, firstReport),
       toolCallResponse('round-2', STRUCTURED_OUTPUT_TOOL, finalReport),
     ])
-    await mountAgentLoopTestDependencies(ctx)
+    await mountAgentLoopTestDependencies(ctx, { workingDirectory: true })
     const cwd = await mountExecution(ctx)
     await ctx.plugin(AgentLoop, { agents: [] })
-    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentRuntime)
     await ctx.plugin(spawn, { providerName: 'spawn' })
     await ctx.plugin(PtcWorkflowEngine, {})
@@ -95,8 +94,8 @@ describe('qilin-tool-ralph over the real spawn and sandboxed PTC stack', () => {
     const children: Agent[] = []
     const phases: string[] = []
     ctx.on('workflow/phase', (_run, title) => { phases.push(title) })
-    ctx.on('workflow/agent-start', (_run, child) => {
-      const agent = ctx.agents.get(child.childId)
+    ctx.on('subagent/start', (child) => {
+      const agent = ctx.agents.get(child.id)
       expect(agent).toBeDefined()
       children.push(agent!)
     })
@@ -277,15 +276,21 @@ describe('qilin-tool-ralph over the real spawn and sandboxed PTC stack', () => {
       agent: parent,
       signal: controller.signal,
     })
-    await childStarted
-
-    controller.abort()
-    const result = await pending
-
-    expect(result.isError).toBe(true)
-    expect((result.content[0] as { text: string }).text).toContain('Ralph workflow was cancelled')
-    expect(outcomes).toEqual(['cancelled'])
-    expect(ctx.agents.get(children[0]!.id)).toBeUndefined()
-    await parentHandle.dispose()
+    try {
+      await Promise.race([
+        childStarted,
+        pending.then((result) => { throw new Error(`Ralph settled before its child started: ${JSON.stringify(result.content)}`) }),
+      ])
+      controller.abort()
+      const result = await pending
+      expect(result.isError).toBe(true)
+      expect((result.content[0] as { text: string }).text).toContain('Ralph workflow was cancelled')
+      expect(outcomes).toEqual(['cancelled'])
+      expect(ctx.agents.get(children[0]!.id)).toBeUndefined()
+    } finally {
+      controller.abort()
+      await pending
+      await parentHandle.dispose()
+    }
   })
 })
