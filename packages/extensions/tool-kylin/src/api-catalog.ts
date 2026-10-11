@@ -1677,12 +1677,6 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         returns: 'Persisted and runtime outcomes.',
       },
       {
-        signature: '@Remote setAudience(name: string, audience: PluginAudience): Promise<ChangeResult>',
-        description: 'Set which workbench surfaces present one bundle\'s UI. Presentation-only: the profile composition keeps the bundle, so no reload follows and only the changed event drives clients to re-filter.',
-        parameters: [{ name: 'name', description: 'Bundle package name.' }, { name: 'audience', description: 'The surfaces to present on.' }],
-        returns: 'Persisted outcomes; `changed` false names an already-equal record.',
-      },
-      {
         signature: '@Remote installBundle(spec: string, options?: InstallBundleOptions): Promise<ChangeResult>',
         description: 'Install a package using the same pnpm implementation as qilin plugin. GitHub repositories get a connection check bounded by githubConnectionTimeoutMs before pnpm starts; only network failures or timeouts stop installation, while pnpm owns authentication and transport fallback. A run that fails, is cancelled, or adds a package without a bundle patch restores `package.json` and `pnpm-lock.yaml` as they were; downloaded files can stay.',
         parameters: [{ name: 'spec', description: 'One package spec, including local paths relative to the invocation directory.' }, { name: 'options', description: 'Whether to activate the installed bundle (defaults to true), the request id a cancellation names, the pending build scripts to allow for this profile before pnpm runs, and the registry asked first.' }],
@@ -4972,7 +4966,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'BundleInfo',
-    declaration: 'export interface BundleInfo {\n    name: string;\n    official: boolean;\n    availability: \'installation\' | \'profile\' | \'missing\';\n    installTarget?: {\n        spec: string;\n        version: string;\n    };\n    version?: string;\n    meta?: PluginLocalizedMeta;\n    description?: string;\n    enabled: boolean;\n    installed: boolean;\n    source?: string;\n    optional: boolean;\n    updatable: boolean;\n    removable: boolean;\n    audience: PluginAudience;\n    readOnlyReason?: ReadOnlyReason;\n    error?: ManagementError;\n    rows: BundleRowInfo[];\n    overrides: string[];\n}',
+    declaration: 'export interface BundleInfo {\n    name: string;\n    official: boolean;\n    availability: \'installation\' | \'profile\' | \'missing\';\n    installTarget?: {\n        spec: string;\n        version: string;\n    };\n    version?: string;\n    meta?: PluginLocalizedMeta;\n    description?: string;\n    enabled: boolean;\n    installed: boolean;\n    source?: string;\n    optional: boolean;\n    updatable: boolean;\n    removable: boolean;\n    readOnlyReason?: ReadOnlyReason;\n    error?: ManagementError;\n    rows: BundleRowInfo[];\n    overrides: string[];\n}',
   },
   {
     name: 'BundleRowInfo',
@@ -5696,7 +5690,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'InstallBundleOptions',
-    declaration: 'export interface InstallBundleOptions {\n    enabled?: boolean;\n    audience?: PluginAudience;\n    requestId?: PluginInstallRequestId;\n    approvedBuilds?: string[];\n    registry?: Registry;\n}',
+    declaration: 'export interface InstallBundleOptions {\n    enabled?: boolean;\n    requestId?: PluginInstallRequestId;\n    approvedBuilds?: string[];\n    registry?: Registry;\n}',
   },
   {
     name: 'InstallSpecKind',
@@ -6223,10 +6217,6 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface PermissionCatalog {\n    options: PresetOption[];\n    defaultOptions: PresetOption[];\n    defaultPreset: string;\n}',
   },
   {
-    name: 'PluginAudience',
-    declaration: 'export type PluginAudience = QilinProfileAudience;',
-  },
-  {
     name: 'PluginChange',
     declaration: 'export interface PluginChange {\n    readonly reason: \'plugin\' | \'bundle\' | \'install\' | \'remove\';\n}',
   },
@@ -6445,10 +6435,6 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'QilinEnvironmentKey',
     declaration: 'export type QilinEnvironmentKey = `${typeof QILIN_ENV_PREFIX}${string}`;',
-  },
-  {
-    name: 'QilinProfileAudience',
-    declaration: 'export type QilinProfileAudience = \'general\' | \'coding\' | \'both\';',
   },
   {
     name: 'QueueAction',

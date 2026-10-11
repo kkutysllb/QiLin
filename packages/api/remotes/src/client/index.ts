@@ -34,7 +34,7 @@ export type { ClientRemote } from '@qilin-agent/api-gateway/client'
 export type {
   BundleInfo, BundleRowInfo, ChangeResult, CommunityPluginEntry, CommunityPluginSnapshot, IncompatiblePlugin,
   InstallBundleOptions, InstallSpecKind,
-  ManagementError, PackageResult, PluginAudience, PluginChange, PluginEntryId, PluginInfo, PluginInspectProblem,
+  ManagementError, PackageResult, PluginChange, PluginEntryId, PluginInfo, PluginInspectProblem,
   PluginInstallCancellation,
   PluginInstallFailureKind, PluginInstallLogChunk, PluginInstallProgress, PluginInstallRequestId, PluginRegistries, PluginSpecInspection,
   PluginUpdateEntry, PluginUpdateSnapshot, ReadOnlyReason, Registry,

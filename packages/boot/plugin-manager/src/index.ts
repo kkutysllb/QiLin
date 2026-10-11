@@ -35,7 +35,7 @@ import { approveBuilds, readPendingBuilds } from './build-approval.ts'
 import type {
   ReadOnlyReason,
   BundleInfo, BundleRowInfo, ChangeResult, CommunityPluginEntry, CommunityPluginSnapshot, InspectOptions, InstallBundleOptions,
-  ManagementError, PackageResult, PluginAudience, PluginChange, PluginEntryId, PluginInfo, PluginInspectProblem, PluginInstallCancellation,
+  ManagementError, PackageResult, PluginChange, PluginEntryId, PluginInfo, PluginInspectProblem, PluginInstallCancellation,
   PluginInstallProgress, PluginInstallRequestId, PluginRegistries, PluginSpecInspection, PluginUpdateEntry, PluginUpdateSnapshot, Registry,
 } from './types.ts'
 export type * from './types.ts'
@@ -289,8 +289,6 @@ export class PluginManager extends TypertRemoteService {
   listBundles(): Promise<BundleInfo[]> {
     const manifest = readProfileManifest('qilin', this.profile.dir)
     const exemptions = readProfileVersionExemptions(this.profile.dir)
-    const audiences = manifest.qilin?.profile?.audiences ?? {}
-    const audienceOf = (name: string): PluginAudience => audiences[name] ?? 'both'
     const selected = manifest.qilin?.profile?.bundles ?? []
     const recorded = manifest.dependencies ?? {}
     const dependencies = Object.keys(manifest.dependencies ?? {})
@@ -326,7 +324,7 @@ export class PluginManager extends TypertRemoteService {
         // A catalog entry the installation does not carry is discoverable offline: pnpm has not read it yet,
         // so only the entry's own metadata and target are known.
         bundles.push({ name, official: true, availability: 'missing', ...catalogMeta, ...target, enabled, installed, optional,
-          updatable, removable: enabled, audience: audienceOf(name), rows: [], overrides: [],
+          updatable, removable: enabled, rows: [], overrides: [],
           ...targetError === undefined ? (enabled ? { error: { code: 'not-bundle' } } : {}) : { error: targetError } })
         continue
       }
@@ -335,7 +333,7 @@ export class PluginManager extends TypertRemoteService {
         const info = bundleManifest(name, this.profile.dir, this.profile.installAnchor)
         availability = shipped ? 'installation' : 'profile'
         if (info === undefined) {
-          if (enabled || offered !== undefined) bundles.push({ name, official, availability, ...catalogMeta, ...target, ...sourceOf(), enabled, installed, optional, updatable, removable, audience: audienceOf(name), error: targetError ?? { code: 'not-bundle' }, rows: [], overrides: [] })
+          if (enabled || offered !== undefined) bundles.push({ name, official, availability, ...catalogMeta, ...target, ...sourceOf(), enabled, installed, optional, updatable, removable, error: targetError ?? { code: 'not-bundle' }, rows: [], overrides: [] })
           continue
         }
         const readOnlyReason = this.layerLock(name, builtIn)
@@ -351,7 +349,6 @@ export class PluginManager extends TypertRemoteService {
           ...(info.description === undefined || info.description === '' ? {} : { description: info.description }),
           ...sourceOf(info.name),
           enabled, installed, optional, updatable, removable: removable && readOnlyReason === undefined,
-          audience: audienceOf(name),
           ...(readOnlyReason === undefined ? {} : { readOnlyReason }),
           ...this.declaredRows(name, info),
           ...(targetError === undefined ? {} : { error: targetError }) })
@@ -359,7 +356,7 @@ export class PluginManager extends TypertRemoteService {
         if (enabled || installed || optional || offered !== undefined) {
           bundles.push({ name, official, availability, ...catalogMeta, ...target, ...sourceOf(),
             enabled, installed, optional, updatable, removable,
-            audience: audienceOf(name), error: targetError ?? managementError(error), rows: [], overrides: [] })
+            error: targetError ?? managementError(error), rows: [], overrides: [] })
         }
       }
     }
@@ -537,27 +534,6 @@ export class PluginManager extends TypertRemoteService {
   }
 
   /**
-   * Set which workbench surfaces present one bundle's UI. Presentation-only:
-   * the profile composition keeps the bundle, so no reload follows and only
-   * the changed event drives clients to re-filter.
-   * @param name Bundle package name.
-   * @param audience The surfaces to present on.
-   * @returns Persisted outcomes; `changed` false names an already-equal record.
-   */
-  @Remote
-  setAudience(name: string, audience: PluginAudience): Promise<ChangeResult> {
-    return this.change(() => this.configure(async () => {
-      const manifest = readProfileManifest('qilin', this.profile.dir)
-      const selected = manifest.qilin?.profile?.bundles ?? []
-      const installed = Object.keys(manifest.dependencies ?? {})
-      if (!selected.includes(name) && !installed.includes(name)) throw new ManagementFailure('unknown-plugin')
-      const builtIn = [...PROFILE_TEMPLATES[this.profile.name]?.bundles ?? []]
-      if (this.layerLock(name, builtIn) !== undefined) throw new ManagementFailure('shipped-layer')
-      await this.writeAudience(name, audience)
-    }), { stage: 'enable', target: name, enabled: true }, 'bundle')
-  }
-
-  /**
    * Install a package using the same pnpm implementation as qilin plugin. GitHub
    * repositories get a connection check bounded by githubConnectionTimeoutMs before pnpm starts;
    * only network failures or timeouts stop installation, while pnpm owns authentication and transport fallback.
@@ -670,8 +646,7 @@ export class PluginManager extends TypertRemoteService {
       result.target = name
       result.stage = 'enable'
       return this.configure(async () => {
-        // The audience rides along even for a disabled install, so the later enable keeps the choice.
-        await this.selectBundle(name, options?.enabled !== false, options?.audience)
+        await this.selectBundle(name, options?.enabled !== false)
         if (Object.hasOwn(before, name)) return 'restart-required'
         await this.refreshPackages()
         if (options?.enabled !== false) result.warnings = await this.reload()
@@ -725,7 +700,6 @@ export class PluginManager extends TypertRemoteService {
       })
       result.packageResult = await this.runPnpm(['remove', name])
       if (result.packageResult.exitCode !== 0) throw new Error(result.packageResult.output)
-      await this.writeAudience(name, undefined)
       await this.configure(() => this.refreshPackages())
     }, { stage: 'remove', target: name }, 'remove')
   }
@@ -817,7 +791,7 @@ export class PluginManager extends TypertRemoteService {
     }
   }
 
-  private async selectBundle(name: string, enabled: boolean, audience?: PluginAudience): Promise<void> {
+  private async selectBundle(name: string, enabled: boolean): Promise<void> {
     const manifest = readProfileManifest('qilin', this.profile.dir)
     const previous = manifest.qilin?.profile?.bundles ?? []
     if (enabled || !previous.includes(name)) {
@@ -835,30 +809,8 @@ export class PluginManager extends TypertRemoteService {
       if (this.protectsManager(name)) throw new ManagementFailure('management-required')
     }
     const bundles = enabled ? [...previous, ...previous.includes(name) ? [] : [name]] : previous.filter(item => item !== name)
-    // Only an explicit choice records an audience; a selection without one keeps any
-    // existing record, and a bundle named by no record presents on both surfaces.
-    const audiences = { ...manifest.qilin?.profile?.audiences }
-    if (audience !== undefined) audiences[name] = audience
-    const bundlesChanged = JSON.stringify(previous) !== JSON.stringify(bundles)
-    if (!bundlesChanged && JSON.stringify(manifest.qilin?.profile?.audiences ?? {}) === JSON.stringify(audiences)) return
-    manifest.qilin = { ...manifest.qilin, profile: { ...manifest.qilin?.profile, bundles, audiences } }
-    await saveManifest(this.profile.dir, manifest)
-  }
-
-  /**
-   * Persist one bundle's audience record, or drop it with `undefined`. A name
-   * whose record already matches saves nothing.
-   * @param name Bundle package name.
-   * @param audience The surfaces to record, or `undefined` to remove the record (reads as `both`).
-   */
-  private async writeAudience(name: string, audience: PluginAudience | undefined): Promise<void> {
-    const manifest = readProfileManifest('qilin', this.profile.dir)
-    const source = manifest.qilin?.profile?.audiences ?? {}
-    const audiences = audience === undefined
-      ? Object.fromEntries(Object.entries(source).filter(([key]) => key !== name))
-      : { ...source, [name]: audience }
-    if (JSON.stringify(source) === JSON.stringify(audiences)) return
-    manifest.qilin = { ...manifest.qilin, profile: { ...manifest.qilin?.profile, audiences } }
+    if (JSON.stringify(previous) === JSON.stringify(bundles)) return
+    manifest.qilin = { ...manifest.qilin, profile: { ...manifest.qilin?.profile, bundles } }
     await saveManifest(this.profile.dir, manifest)
   }
 

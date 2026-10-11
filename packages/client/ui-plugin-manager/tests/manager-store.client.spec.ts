@@ -28,7 +28,6 @@ const BUNDLE: BundleInfo = {
   enabled: false,
   installed: true,
   optional: false,
-  audience: 'both',
   updatable: true,
   removable: true,
   rows: [{ rowId: 'sidebar', moduleName: 'qilin-better-sidebar', entryId: ROW_ENTRY }, { rowId: 'theme', moduleName: 'qilin-better-sidebar/theme' }],
@@ -95,7 +94,6 @@ function bench(overrides: Partial<Record<string, ReturnType<typeof vi.fn>>> = {}
     cancelInstall: vi.fn(() => Promise.resolve(ok({ status: 'cancelled' }))),
     removeBundle: vi.fn(() => Promise.resolve(ok(APPLIED))),
     setBundleEnabled: vi.fn(() => Promise.resolve(ok(APPLIED))),
-    setAudience: vi.fn(() => Promise.resolve(ok(APPLIED))),
     setPluginEnabled: vi.fn(() => Promise.resolve(ok(APPLIED))),
     checkUpdates: vi.fn(() => Promise.resolve(ok({ entries: [] }))),
     catalog: vi.fn(() => Promise.resolve(ok({ entries: [], page: 1, hasMore: false }))),
@@ -507,7 +505,7 @@ describe('packageView', () => {
     })
     // A row the inventory no longer lists, a protected row, and a bundle the Host cannot read.
     const protectedBundle: BundleInfo = {
-      name: '@qilin-agent/base', official: false, availability: 'missing', enabled: true, installed: false, optional: false, audience: 'both', updatable: false, removable: false,
+      name: '@qilin-agent/base', official: false, availability: 'missing', enabled: true, installed: false, optional: false, updatable: false, removable: false,
       readOnlyReason: 'management-required',
       error: { code: 'operation-error', diagnostic: 'broken' },
       rows: [{ rowId: 'core', moduleName: '@qilin-agent/base', entryId: 'include:core' as PluginEntryId }, { rowId: 'gone', moduleName: 'x', entryId: 'include:gone' as PluginEntryId }],
@@ -527,7 +525,7 @@ describe('packageView', () => {
 
 describe('sortPackages', () => {
   it('orders packages by the short name a person reads, not by the Host order or enablement', async () => {
-    const plain = { official: false, availability: 'profile' as const, enabled: true, installed: true, optional: false, audience: 'both' as const, updatable: true, removable: true, rows: [], overrides: [] }
+    const plain = { official: false, availability: 'profile' as const, enabled: true, installed: true, optional: false, updatable: true, removable: true, rows: [], overrides: [] }
     const zeta: BundleInfo = { ...plain, name: 'qilin-zeta' }
     const alpha: BundleInfo = { ...plain, name: '@acme/qilin-alpha', enabled: false }
     const views = [zeta, BUNDLE, alpha].map(bundle => packageView(bundle, PLUGINS))

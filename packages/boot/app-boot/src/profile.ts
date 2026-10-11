@@ -271,8 +271,9 @@ const INSTALLATION_OWNED_PROFILE_TUPLES: Record<string, readonly string[]> = {
   // Normalization now retires it: a profile their owner never edited drops it
   // on the next load, and one carrying a custom list loses the entry while
   // keeping its own additions. A profile that owns the package — the plugin
-  // channel recorded it in `dependencies`, or an `audiences` entry names it —
-  // keeps the layer as a profile-owned one.
+  // channel recorded it in `dependencies`, or a release that still offered the
+  // presentation choice recorded an `audiences` entry naming it — keeps the
+  // layer as a profile-owned one.
   web: ['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', 'dsh-animations'],
   qilin: ['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', 'dsh-animations'],
 }
@@ -999,8 +1000,9 @@ function sameBundles(left: readonly string[], right: readonly string[]): boolean
  * A name a past release shipped as a built-in layer but the current one
  * retires is dropped the same way — unless the profile owns a copy the plugin
  * channel installed (a `dependencies` entry) or records a presentation choice
- * for (an `audiences` entry), either of which says the owner, not the old
- * seed, placed the layer.
+ * for (an `audiences` entry, which only a release that still offered that
+ * choice writes), either of which says the owner, not the old seed, placed the
+ * layer.
  */
 function normalizeShippedProfile(name: string, dir: string, manifest: ProfileManifest): ProfileManifest {
   const template = PROFILE_TEMPLATES[name]
