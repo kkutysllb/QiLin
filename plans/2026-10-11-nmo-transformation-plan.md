@@ -289,6 +289,15 @@
 **如实登记的边界**：① 本片的「摘除」是**组合层关闭行**（插件不再激活、其注册项消失），不是从 profile 依赖里卸载包——卸载走 plugin-manager 的既有路径，本片未重复覆盖；② `tool-web` 的官方宿主行在本仓**早已**在部署层关闭、由预设层提供模型可见工具，本片把这一事实变成断言，没有新增移除；③ `present` / `ptc-escalation` / `ptc-round` 的重录与 S5 无关，仍在待授权项。
 ## 10. 下一步
 
-**更正（核实于本片）**：本节的进展记录里曾出现「S4 三笔提交已落地」的说法——经 `git cat-file` 与 `git log` 核实，`8c68bd8e34` / `33cdd2c1ad` / `93a060e0a2` **三笔均不存在**，HEAD 仍是 S3 收口的 `23d9524d44`，S4 **从未开始**。下面那句 S4 描述是**待办范围**，不是已完成事实。
+**更正（核实于本片）**：本节的进展记录里曾出现「S4 三笔提交已落地」的说法——经 `git cat-file` 与 `git log` 核实，那三笔提交**均不存在**，HEAD 当时是 S3 的收口提交，S4 **从未开始**。下面那句 S4 描述是**待办范围**，不是已完成事实。
 
 ~~S2 存量会话 v4→v5 代次重写（C2=b）~~ · ~~S3 双工作台与 audience 归一删除~~ **均已落地（见上）** → **S4 前端零预设面清账**：AgentPresetChip 与 slots.ts 契约下架、display.ts 内建键收敛、locales 三预设文案并一、guide/描述句、apps/web 种子与 shipped-composition 断言对齐、`QILIN_TOOLS_MODE` 缝处置（T9），并补常备 grep 门「退役预设 id 零回流」。浏览器车道重录（`present`/`ptc-escalation`/`ptc-round` 的本地 v4 录制）需 `QILIN_SNAPSHOT=record` 与真实 key，单独授权后执行。schedule-after/schedule-panel 复活与 child-orchestration 重设计为可并行登记片，不阻塞主线。
+## 11. S4 与 T9 收口（2026-10-11 续）
+
+**S4 已落地**：内建键收敛为唯一出厂预设——`display.ts` 的 `BuiltInPresetCopyKey` 只剩 `presetPtcName`/`presetPtcDescription`，映射表只剩 `ptc`；两处客户端字典（`ui-agent-preset`、`ui-settings-plugin-inventory`）各删两套退役文案，中英同步；文案面按单预设施事（引导句、创造入口、模式开关说明），不再把标准/编码/创造当三个并列模式；车道断言与三份金样按新文案重录。**新增常备门 `verify-preset-copy`**（挂 `doc-quick`）：出厂预设目录、display 映射与两处字典必须逐项一致，退役 id 的文案键或映射零残留；门自带 9 例规格（含漂移负例）。`apps/web/tsconfig.json` 补回第三方插件车道的 host 面排除（S5 引入时漏项，客户端面因此红）。
+
+**T9 已收口**：两处部署 patch 的 `tools.mode` 由「未设即 schema 默认 native」改为 `process.env.QILIN_TOOLS_MODE ?? 'ptc'`——不设环境变量时的行为与出厂预设的 PTC 呈现一致，缝降级为覆盖开关；patch 注释与两份 bundle README 双语同步，并登记上游 per-session 选择落地后退役该缝。
+
+**验证**：三包单测 377/377 · 新门 9/9 · `tsc -b` client/host 两面 0 · oxlint 0 · `verify-cordis-config` 436 · 两 bundle 测试 125/125 · `verify-preset-copy`、`verify-md-links` 2183、`verify-client-ui-i18n` 1017、`verify-doc-budgets` 8、`verify-runtime-closure`（1 预设 + 157 包）、`verify-client-packages` 67、`verify-package-dependencies` 78、`rescope-vendor --check` 8470 · 浏览器车道 `agent-preset-authoring` 7/7、`agent-preset-selection` 5/5（replay 复验）。
+
+**登记**：`steering.e2e.ts` 3 红是**既有红**——A/B 实测（暂存到 HEAD + 重打包客户端 + 重建前端 dist）失败集合完全相同，与本片无关。S6 剩余（首启度量脚本、打断点审计表、docs/nmo 对账附录）见 §10。
