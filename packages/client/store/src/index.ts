@@ -58,6 +58,47 @@ export function notifySubscribers<Args extends readonly unknown[]>(
 }
 
 /**
+ * Name of the meta element a served document carries when it belongs to one
+ * account. The tenant runtime writes it (packages/host/frontend-static/src/index.ts
+ * owns the other side of this literal).
+ */
+const ACCOUNT_META = 'qilin-account'
+
+/**
+ * The account the served document belongs to, when it names one.
+ *
+ * One web entry can serve several accounts, routed by cookie, so the browser's
+ * per-origin storage is shared between them. The runtime that serves the
+ * document therefore names its account in the head, and account-owned state is
+ * stored under a name carrying it.
+ * @returns the account id, or undefined on a document that names none.
+ */
+export function servedAccountId(): string | undefined {
+  if (typeof document === 'undefined') return undefined
+  const content = document.querySelector(`meta[name="${ACCOUNT_META}"]`)?.getAttribute('content')
+  return content === null || content === '' ? undefined : content ?? undefined
+}
+
+/**
+ * The browser-storage name one account-owned key lives under.
+ *
+ * A document that names an account stores the key under that account's name;
+ * without one the name is returned unchanged, so a single-account deployment and
+ * every test keep the names they always had. Device preferences — theme,
+ * language, keybindings — deliberately bypass this: they describe the machine
+ * and the person at it, not the account.
+ *
+ * The scope prefixes the name, so a key that carries a suffix already — a
+ * Session-scoped layout, say — keeps the suffix where its readers look for it.
+ * @param name - the key's own name, or a prefix when scanning for one.
+ * @returns the name to read and write in browser storage.
+ */
+export function accountScopedName(name: string): string {
+  const account = servedAccountId()
+  return account === undefined ? name : `${account}#${name}`
+}
+
+/**
  * Shallow equality for selector slices (zustand/shallow semantics; travels
  * with the engine so hook consumers need no zustand dependency).
  * @param a - left value.
@@ -148,6 +189,7 @@ function attachPersistence<T>(api: StoreApi<T>, name: string): void {
   // persistence silently disables — same contract as a storage failure, minus
   // the per-store console noise a ReferenceError would produce.
   if (typeof localStorage === 'undefined') return
+  name = accountScopedName(name)
   try {
     const raw = localStorage.getItem(name)
     if (raw !== null) {
@@ -238,7 +280,7 @@ export function defineStore<T, A extends ActionsDecl<T>>(
         clearPersisted: () => {
           if (persistKey === undefined || typeof localStorage === 'undefined') return
           try {
-            localStorage.removeItem(persistKey)
+            localStorage.removeItem(accountScopedName(persistKey))
           } catch {
             // Storage failures (private mode, quota teardown races) only skip
             // cleanup — the same non-fatal contract as attachPersistence.

@@ -26,7 +26,11 @@ import type { InjectFace, PropsRenderSlots, PropsRuntime } from '@qilin-agent/cl
 import type {
   SidebarPanelMetadata, SidebarRootComponentProps, SidebarRootInjected, SidebarSectionOwnerProps,
 } from './contract/slots.ts'
+import { accountScopedName } from '@qilin-agent/client-store'
 import css from './SidebarRoot.module.css'
+
+/** Folded sections of the panel list, scoped to the account the document names. */
+const FOLDED_SECTIONS_KEY = 'qilin.sidebar.folded-sections.v1'
 
 /** Wide-content unmount delay; matches the 150ms wide-content fade-out. */
 const COLLAPSE_SETTLE_MS = 150
@@ -193,7 +197,7 @@ export function SidebarRoot({
   // sections.v1）。rail 态表头本来就只剩一条竖线，不参与折叠。
   const [foldedSections, setFoldedSections] = useState<ReadonlySet<string>>(() => {
     try {
-      const raw = localStorage.getItem('qilin.sidebar.folded-sections.v1')
+      const raw = localStorage.getItem(accountScopedName(FOLDED_SECTIONS_KEY))
       const list: unknown = raw === null ? [] : JSON.parse(raw)
       return new Set(Array.isArray(list) ? list.filter((row): row is string => typeof row === 'string') : [])
     } catch { return new Set<string>() }
@@ -203,7 +207,7 @@ export function SidebarRoot({
       const next = new Set(previous)
       if (next.has(section)) next.delete(section)
       else next.add(section)
-      try { localStorage.setItem('qilin.sidebar.folded-sections.v1', JSON.stringify([...next])) } catch { /* 私有模式等：仅记忆失败 */ }
+      try { localStorage.setItem(accountScopedName(FOLDED_SECTIONS_KEY), JSON.stringify([...next])) } catch { /* 私有模式等：仅记忆失败 */ }
       return next
     })
   }

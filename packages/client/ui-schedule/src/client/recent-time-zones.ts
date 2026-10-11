@@ -1,4 +1,5 @@
 /** Browser-local recently selected IANA time zones. */
+import { accountScopedName } from '@qilin-agent/client-store'
 
 const STORAGE_KEY = 'qilin.schedule.recent-time-zones.v1'
 const LIMIT = 5
@@ -16,7 +17,7 @@ function defaults(system: string): readonly string[] {
 export function loadRecentTimeZones(system: string): readonly string[] {
   if (typeof localStorage === 'undefined') return defaults(system)
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
+    const raw = localStorage.getItem(accountScopedName(STORAGE_KEY))
     if (raw === null) return defaults(system)
     const parsed: unknown = JSON.parse(raw)
     if (!Array.isArray(parsed)) return defaults(system)
@@ -37,7 +38,7 @@ export function rememberTimeZone(recent: readonly string[], zone: string): reado
   const next = [zone, ...recent.filter(value => value !== zone)].slice(0, LIMIT)
   if (typeof localStorage !== 'undefined') {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+      localStorage.setItem(accountScopedName(STORAGE_KEY), JSON.stringify(next))
     } catch {
       // A private or full browser store must not block editing the rule.
     }

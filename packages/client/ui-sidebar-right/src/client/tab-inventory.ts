@@ -1,5 +1,5 @@
 /** Metadata inventory of saved and adopted layouts without mounting their content. */
-import { createSnapshotStore, type ObservableSnapshot } from '@qilin-agent/client-store'
+import { accountScopedName, createSnapshotStore, type ObservableSnapshot } from '@qilin-agent/client-store'
 import type { SessionId } from '@qilin-agent/session/types'
 import type { TabId, TabRecord } from '@qilin-agent/client-ui-dockkit'
 import { readSidebarLayout, sidebarPersistence } from './persistence.ts'
@@ -24,9 +24,12 @@ export class SidebarTabInventory {
     try {
       if (typeof localStorage === 'undefined') return
       const keys = Array.from({ length: localStorage.length }, (_, index) => localStorage.key(index))
+      // The account scope prefixes the key, so the Session id stays where the
+      // suffix-based readers of a layout expect it.
+      const prefix = accountScopedName(`${sidebarPersistence}.`)
       for (const key of keys) {
-        if (key === null || !key.startsWith(`${sidebarPersistence}.`)) continue
-        const sessionId = key.slice(sidebarPersistence.length + 1) as SessionId
+        if (key === null || !key.startsWith(prefix)) continue
+        const sessionId = key.slice(prefix.length) as SessionId
         const saved = readSidebarLayout(sessionId)
         if (saved !== undefined) this.sessions.set(sessionId, Object.values(saved.layout.tabs).map(tab => ({
           sessionId, tabId: tab.id, kind: tab.kind, contentId: tab.contentId,

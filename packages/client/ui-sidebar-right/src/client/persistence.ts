@@ -1,7 +1,11 @@
 /** Validated current-layout snapshots; undo history belongs to the live window. */
 import { z } from 'zod'
+import { accountScopedName } from '@qilin-agent/client-store'
 import { EMPTY_HISTORY, type LayoutState } from '@qilin-agent/client-ui-dockkit'
 import type { SurfaceState } from './stores.ts'
+
+/** Storage key one Session's layout lives under, in the account that owns it. */
+const layoutKey = (sessionId: string): string => accountScopedName(`${sidebarPersistence}.${sessionId}`)
 
 /** Persistence namespace shared by scoped stores and startup discovery. */
 export const sidebarPersistence = 'dsh.sidebar-right.v1'
@@ -63,7 +67,7 @@ function validateReferences(value: z.infer<typeof surface>): void {
 export function readSidebarLayout(sessionId: string): SurfaceState | undefined {
   if (typeof localStorage === 'undefined') return undefined
   let raw: string | null
-  try { raw = localStorage.getItem(`${sidebarPersistence}.${sessionId}`) }
+  try { raw = localStorage.getItem(layoutKey(sessionId)) }
   catch (_storageUnavailable) { return undefined }
   if (raw === null) return undefined
   try {
@@ -86,7 +90,7 @@ export function readSidebarLayout(sessionId: string): SurfaceState | undefined {
 export function writeSidebarLayout(sessionId: string, surface: SurfaceState): void {
   if (typeof localStorage === 'undefined') return
   const saved = { bySession: { [sessionId]: { layout: surface.layout, minted: surface.minted } } }
-  try { localStorage.setItem(`${sidebarPersistence}.${sessionId}`, JSON.stringify(saved)) }
+  try { localStorage.setItem(layoutKey(sessionId), JSON.stringify(saved)) }
   catch (error) { console.error('Sidebar layout persistence failed:', error) }
 }
 
@@ -96,6 +100,6 @@ export function writeSidebarLayout(sessionId: string, surface: SurfaceState): vo
  */
 export function clearSidebarLayout(sessionId: string): void {
   if (typeof localStorage === 'undefined') return
-  try { localStorage.removeItem(`${sidebarPersistence}.${sessionId}`) }
+  try { localStorage.removeItem(layoutKey(sessionId)) }
   catch (_storageUnavailable) { /* The invalid layout is still excluded from this window. */ }
 }

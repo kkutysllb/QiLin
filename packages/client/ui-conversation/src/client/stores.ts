@@ -1,5 +1,5 @@
 /** Per-session Conversation store shared by the shell body and header. */
-import { defineStore, type EngineStoreHandle } from '@qilin-agent/client-store'
+import { accountScopedName, defineStore, type EngineStoreHandle } from '@qilin-agent/client-store'
 import type { SessionId } from '@qilin-agent/session/types'
 import type { ConversationStoreState } from './contract/views.ts'
 
@@ -41,7 +41,9 @@ export function createConversationStore(): EngineStoreHandle<ConversationStoreSt
 export function readConversationViewPreference(sessionId: SessionId): string | null {
   if (typeof localStorage === 'undefined') return null
   try {
-    const raw = localStorage.getItem(`${CONVERSATION_STORE_KEY}.${sessionId}`)
+    // The store engine writes this key with the Session suffix and the account
+    // scope in front; this pre-materialization read composes the same name.
+    const raw = localStorage.getItem(accountScopedName(`${CONVERSATION_STORE_KEY}.${sessionId}`))
     if (raw === null) return null
     const stored: unknown = JSON.parse(raw)
     if (typeof stored !== 'object' || stored === null || !('view' in stored)) return null
