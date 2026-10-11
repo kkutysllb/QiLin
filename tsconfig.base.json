@@ -233,6 +233,7 @@
       "@qilin-agent/client-shortcuts/protocol": ["./packages/client/shortcuts/src/protocol.ts"],
       "@qilin-agent/client-shortcuts": ["./packages/client/shortcuts/src"],
       "@qilin-agent/client-ui-shortcuts": ["./packages/client/ui-shortcuts/src"],
+      "@qilin-agent/client-ui-usage": ["./packages/client/ui-usage/src"],
       "@qilin-agent/client-ui-layout": ["./packages/client/ui-layout/src"],
       "@qilin-agent/client-ui-sidebar": ["./packages/client/ui-sidebar/src"],
       "@qilin-agent/client-ui-brand-official": ["./packages/client/ui-brand-official/src"],

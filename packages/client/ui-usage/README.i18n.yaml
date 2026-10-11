@@ -1,0 +1,37 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/client/ui-usage/README.md
+/:
+  en: cd39454ce914041d
+  zh: a0d485737f99c17b
+/qilin-agent-client-ui-usage:
+  en: cdc33a09599e489b
+  zh: 2acc60cf6fdbdada
+/qilin-agent-client-ui-usage/summary:
+  en: 92aabb575be0adb5
+  zh: 54ff20ca5d41ad4d
+/qilin-agent-client-ui-usage/table-of-contents:
+  en: 9ef876754311ed9e
+  zh: f192f0880dceb717
+/qilin-agent-client-ui-usage/use-this-page:
+  en: e00d5761e6def9a9
+  zh: 4d87bdaf8298152c
+/qilin-agent-client-ui-usage/understand-the-implementation:
+  en: 714fc29bb2906705
+  zh: 2b9b6db76137358e
+/qilin-agent-client-ui-usage/further-exploration:
+  en: 40054a3c65e28684
+  zh: 237154e1c28810f8
+/qilin-agent-client-ui-usage/model-experience:
+  en: 858dd23111a6657c
+  zh: 2cd19dcd2b8b3875
+/qilin-agent-client-ui-usage/model-experience/kv-cache-effect:
+  en: 5033978e4a6981be
+  zh: 4f15327f95c173a6
+/qilin-agent-client-ui-usage/known-limitations-and-deferred-work:
+  en: 90e57e983c836d58
+  zh: 819cfd851cb6f42b
+/qilin-agent-client-ui-usage/known-limitations-and-deferred-work/dev-note:
+  en: 1cfccee090069017
+  zh: afb65ab9cf131a4e

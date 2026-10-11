@@ -262,6 +262,9 @@
     - id: ui-layout
       name: '@qilin-agent/client-ui-layout'
 
+    - id: ui-usage
+      name: '@qilin-agent/client-ui-usage'
+
     - id: ui-renderer
       name: '@qilin-agent/client-ui-renderer'
 

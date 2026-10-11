@@ -96,6 +96,7 @@
     "@qilin-agent/client-ui-settings-skills": "workspace:*",
     "@qilin-agent/client-ui-settings-unarchive-sessions": "workspace:*",
     "@qilin-agent/client-ui-shortcuts": "workspace:*",
+    "@qilin-agent/client-ui-usage": "workspace:*",
     "@qilin-agent/client-ui-sidebar": "workspace:*",
     "@qilin-agent/client-ui-sidebar-browser": "workspace:*",
     "@qilin-agent/client-ui-sidebar-documentpreview": "workspace:*",
