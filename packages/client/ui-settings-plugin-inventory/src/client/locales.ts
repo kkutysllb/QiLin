@@ -43,9 +43,9 @@ export const zh = {
   unloading: '卸载中',
   // Display copy for the three shipped presets. This tab renders the roster
   // while the ui-agent-preset plugin may be absent (the shipped Web
-  // composition disables it since the dual-workbench design), so the copy is
-  // owned here instead of read through that plugin's namespace; the id→key
-  // mapping stays in `@qilin-agent/agent-presets/display`.
+  // composition disables it), so the copy is owned here instead of read
+  // through that plugin's namespace; the id→key mapping stays in
+  // `@qilin-agent/agent-presets/display`.
   presetStandardName: '标准模式',
   presetStandardDescription: '功能完整的编码 Agent，支持文件编辑、Shell、文件与网页检索、Skills、计划、目标、子代理和工作流。',
   presetPtcName: '编码模式',

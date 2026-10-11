@@ -13,7 +13,7 @@ import {
   compareOrRefreshGolden, fixtureUserPrompts, launchWebScaffold, recordFixture,
   watchConsole, webSnapshotMode, type WebScaffold,
 } from './scaffold.ts'
-import { connectFreshWorkspace, expandTurnProcesses, newEnglishPage, seedWorkbench } from './support.ts'
+import { connectFreshWorkspace, expandTurnProcesses, newEnglishPage } from './support.ts'
 
 const DIR = fileURLToPath(new URL('../../../snapshots/web/present', import.meta.url))
 const FIXTURE = join(DIR, 'session.v3.jsonl')
@@ -63,7 +63,6 @@ fs.appendFileSync(${JSON.stringify(openLog)}, JSON.stringify({ path, action, con
     page = await newEnglishPage(browser)
     // The replayed transcript drives run_code: boot on the coding tag so the
     // browser-created session names the ptc preset (D3).
-    await seedWorkbench(page, 'coding')
     tripwire = watchConsole(page)
     page.on('download', (download) => { downloads.push(download.suggestedFilename()) })
     await page.goto(scaffold.authenticatedUrl, { waitUntil: 'load' })

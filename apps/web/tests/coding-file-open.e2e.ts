@@ -1,6 +1,6 @@
 /**
- * Delivered files opened from the chat reach the user in the coding
- * workbench's right column.
+ * Delivered files opened from the chat reach the user in the right
+ * column's editor panel.
  *
  * The delivery cards come from `snapshots/web/present`'s recorded turn, opened
  * as history through `seedSession` (no model call): its `report.txt` delivery
@@ -15,12 +15,12 @@ import { fileURLToPath } from 'node:url'
 import { chromium, type Browser, type Locator, type Page } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
 import { launchWebScaffold, seedSession, watchConsole, type WebScaffold } from './scaffold.ts'
-import { newEnglishPage, saveFailureShot, seedWorkbench } from './support.ts'
+import { newEnglishPage, saveFailureShot } from './support.ts'
 
 /** The delivery-card scenario this case reads: its presented files and its closing turn. */
 const SNAPSHOT_DIR = fileURLToPath(new URL('../../../snapshots/web/present', import.meta.url))
 
-describe('web e2e: coding workbench file open', () => {
+describe('web e2e: delivered file open in the right column', () => {
   let scaffold: WebScaffold
   let browser: Browser
   let page: Page
@@ -40,7 +40,6 @@ describe('web e2e: coding workbench file open', () => {
     browser = await chromium.launch()
     page = await newEnglishPage(browser)
     tripwire = watchConsole(page)
-    await seedWorkbench(page, 'coding')
     await page.goto(scaffold.authenticatedUrl, { waitUntil: 'load' })
     await page.locator('[role="treeitem"]').first().click()
     await page.locator('[role="treeitem"]').nth(1).click()
@@ -63,15 +62,15 @@ describe('web e2e: coding workbench file open', () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-coding-file-open'))
     const frame = page.locator('[style*="grid-template-columns"]').first()
     const column = page.locator('[data-rightbar-col]')
-    // The coding workbench's column is an overlay that starts collapsed, so
-    // the opens below are the only thing that can put a file in sight.
+    // The right column is an overlay that starts collapsed, so the opens
+    // below are the only thing that can put a file in sight.
     await collapseColumn(frame)
     await page.locator('[data-presented-files-row]')
       .getByRole('button', { name: 'Open report.md in sidebar', exact: true }).click()
     await expect.poll(() => frame.getAttribute('data-rightbar-collapsed'), { timeout: 10_000 }).toBe(null)
-    // The document lands in the coding panel's own editor tab, not in a
-    // native page: this body renders the column while the coding tag is on.
-    const panel = column.locator('[data-qilin-panel]')
+    // The document lands in the sidebar's own panel: the right column's tab
+    // body claims the text address, not a page inside a coding content body.
+    const panel = column.locator('[data-sidebar-right-panel]')
     await expect.poll(() => panel.innerText(), { timeout: 15_000 }).toContain('DELIVERED_DOC')
     await expect.poll(() => panel.innerText()).toContain('report.md')
     // A code file (no preview kind) takes the same route from the same card.
@@ -79,7 +78,7 @@ describe('web e2e: coding workbench file open', () => {
     await page.locator('[data-presented-files-row]')
       .getByRole('button', { name: 'Open 说明.txt in sidebar', exact: true }).click()
     await expect.poll(() => frame.getAttribute('data-rightbar-collapsed'), { timeout: 10_000 }).toBe(null)
-    await expect.poll(() => panel.innerText(), { timeout: 15_000 }).toContain('DELIVERED_NOTE')
+    await expect.poll(() => column.locator('[data-sidebar-right-panel]').innerText(), { timeout: 15_000 }).toContain('DELIVERED_NOTE')
     expect(tripwire.pageErrors).toEqual([])
   })
 })

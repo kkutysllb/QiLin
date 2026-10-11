@@ -41,8 +41,8 @@ export function apply(ctx: ClientContext): void {
   // Resolved per call over this plugin's own dictionaries, so a language
   // switch re-resolves shipped names; user-authored metadata passes through.
   // The tab cannot read ui-agent-preset's namespace: the shipped Web
-  // composition disables that plugin (dual-workbench design, D4), and a
-  // namespace its owner never registered resolves to raw keys.
+  // composition disables that plugin, and a namespace its owner never
+  // registered resolves to raw keys.
   const presetName: PluginInventorySettingsTabInjected['presetName'] = preset =>
     presetDisplayText(preset, t).name
   const injected = (): PluginInventorySettingsTabInjected => ({

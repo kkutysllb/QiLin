@@ -1,6 +1,6 @@
 // Web e2e scenario: agent-preset surfaces under a single shipped composition.
 // The lane overlay re-enables `ui-agent-preset`, which the shipped Web
-// composition has disabled since the dual-workbench design (D4).
+// composition disables for its single-preset surface.
 //
 // The deployment ships ONE preset, and the shipped surfaces follow from that:
 // ui-workspace composes no preset surface into the hero at all, so the only

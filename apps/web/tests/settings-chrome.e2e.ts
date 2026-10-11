@@ -730,8 +730,7 @@ describe('web e2e: settings modal and General preferences', () => {
       await frPage.keyboard.press('Escape')
       const dialog = await openSettings(frPage, { menu: 'Settings', dialog: 'Settings' })
       // A locale-owned nav label proves the dictionaries resolved to en. The
-      // Models entry is one of the always-shipped preset surfaces the
-      // dual-workbench design left enabled.
+      // Models entry is one of the always-shipped preset surfaces.
       await dialog.getByRole('button', { name: 'Models' }).waitFor({ timeout: 10_000 })
       // The markup already ships `en`, so this alone cannot prove the sync ran
       // — the zh scenario above is the discriminating half. Asserted here too
