@@ -93,10 +93,12 @@ async function settleSubagent(
     },
   })
   try {
-    const run = await ctx.subagents.start(info.provider, {
-      parent,
-      prompt: [],
+    const run = await ctx.subagents.startActivation({
+      provider: info.provider,
+      label: 'child',
+      delivery: 'caller',
       signal: new AbortController().signal,
+      request: { parent, prompt: [] },
     })
     await beforeSettle?.()
     if (info.lastAssistantMessage === undefined) {
@@ -649,15 +651,19 @@ describe('HarnessSdkJsonRpcServer', () => {
         },
       })
 
-      const firstRun = await ctx.subagents.start('reused', {
-        parent: oldParent.agent,
-        prompt: [],
+      const firstRun = await ctx.subagents.startActivation({
+        provider: 'reused',
+        label: 'child',
+        delivery: 'caller',
         signal: new AbortController().signal,
+        request: { parent: oldParent.agent, prompt: [] },
       })
-      const sameLifetimeRun = await ctx.subagents.start('reused', {
-        parent: oldParent.agent,
-        prompt: [],
+      const sameLifetimeRun = await ctx.subagents.startActivation({
+        provider: 'reused',
+        label: 'child',
+        delivery: 'caller',
         signal: new AbortController().signal,
+        request: { parent: oldParent.agent, prompt: [] },
       })
       sameLifetime.resolve({ output: [{ type: 'text', text: 'same lifetime' }], stopReason: 'completed' })
       await sameLifetimeRun.result
@@ -674,10 +680,12 @@ describe('HarnessSdkJsonRpcServer', () => {
         parentAgent: newParent.agent,
       })
       currentLocalAgent = newChild.agent
-      const secondRun = await ctx.subagents.start('reused', {
-        parent: newParent.agent,
-        prompt: [],
+      const secondRun = await ctx.subagents.startActivation({
+        provider: 'reused',
+        label: 'child',
+        delivery: 'caller',
         signal: new AbortController().signal,
+        request: { parent: newParent.agent, prompt: [] },
       })
 
       replacement.resolve({ output: [{ type: 'text', text: 'new lifetime' }], stopReason: 'completed' })
@@ -745,10 +753,12 @@ describe('HarnessSdkJsonRpcServer', () => {
           dispose: () => Promise.resolve(),
         }),
       })
-      const localRun = await ctx.subagents.start('reused-provider', {
-        parent: parent.agent,
-        prompt: [],
+      const localRun = await ctx.subagents.startActivation({
+        provider: 'reused-provider',
+        label: 'child',
+        delivery: 'caller',
         signal: new AbortController().signal,
+        request: { parent: parent.agent, prompt: [] },
       })
       unregisterLocal()
 
@@ -763,10 +773,12 @@ describe('HarnessSdkJsonRpcServer', () => {
           dispose: () => Promise.resolve(),
         }),
       })
-      const remoteRun = await ctx.subagents.start('reused-provider', {
-        parent: parent.agent,
-        prompt: [],
+      const remoteRun = await ctx.subagents.startActivation({
+        provider: 'reused-provider',
+        label: 'child',
+        delivery: 'caller',
         signal: new AbortController().signal,
+        request: { parent: parent.agent, prompt: [] },
       })
 
       remoteResult.resolve({ output: [{ type: 'text', text: 'remote' }], stopReason: 'completed' })
@@ -847,10 +859,12 @@ describe('HarnessSdkJsonRpcServer', () => {
       })
       // Start before the server subscribes. The terminal payload still carries
       // this run's exact local child without reconstructing it from ids.
-      const missedStartRun = await ctx.subagents.start('fork', {
-        parent: parentHandle.agent,
-        prompt: [],
+      const missedStartRun = await ctx.subagents.startActivation({
+        provider: 'fork',
+        label: 'child',
+        delivery: 'caller',
         signal: new AbortController().signal,
+        request: { parent: parentHandle.agent, prompt: [] },
       })
       const transport = new FakeTransport()
       const server = new HarnessSdkJsonRpcServer(ctx, transport, { maxTokensAsSuccess: true })

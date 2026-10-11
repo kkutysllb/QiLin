@@ -43,8 +43,9 @@ async function setupPresetHost(): Promise<{ ctx: Context; adapter: MockAdapter; 
   await ctx.plugin(AgentLoop, { agents: [] })
   await ctx.plugin(AgentPresets, {
     default: 'coding',
-    roots: [{ path: join(FIXTURES, 'presets'), trust: 'project' }],
+    roots: [{ path: join(FIXTURES, 'presets'), trust: 'user' }],
     includeShippedRoot: false,
+    includeUserRoot: false,
   })
   const adapter = new MockAdapter([textResponse('parent idle'), textResponse('child done')])
   ctx.llm.registerAdapter(['mock'], adapter)

@@ -71,8 +71,9 @@ async function setupScheduleHost(): Promise<{ ctx: Context; parent: Agent; dispa
   await ctx.plugin(Spawn, { providerName: 'spawn' })
   await ctx.plugin(AgentPresets, {
     default: 'coding',
-    roots: [{ path: join(FIXTURES, 'presets'), trust: 'project' }],
+    roots: [{ path: join(FIXTURES, 'presets'), trust: 'user' }],
     includeShippedRoot: false,
+    includeUserRoot: false,
   })
   ctx.loader.builtins['tool-schedule'] = ToolSchedule
   ctx.llm.registerAdapter(['mock'], new MockAdapter([
