@@ -90,9 +90,6 @@ export function apply(ctx: ClientContext): void {
   ctx.effect(() => ctx.slots.subscribe('sidebar.section.assignments', syncPanels), 'ui-sidebar: section assignments')
   ctx.effect(() => ctx.locale.subscribe(syncPanels), 'ui-sidebar: panel labels')
   ctx.effect(() => watchDarwinDesktop(syncPanels), 'ui-sidebar: darwin mark')
-  // The panel list is a presentation projection: an admission install (this
-  // effect may run before the gate's own) or admitted-set move re-derives it.
-  ctx.effect(() => ctx.slots.admission().subscribe(syncPanels), 'ui-sidebar: admission revisions')
 
   const injectProps = (): SidebarRootInjected => ({
     // The shell's New Session button rides the Workspace UI's shared action

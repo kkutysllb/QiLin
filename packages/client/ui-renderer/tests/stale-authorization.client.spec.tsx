@@ -66,7 +66,6 @@ function makeHost() {
     isFactoryLive: () => false,
     root: bindingSource,
     scopeRevision: { getSnapshot: () => 0, subscribe: () => () => {} },
-    admissionRevision: { getSnapshot: () => 0, subscribe: () => () => {} },
     scope: () => sessionAdapter,
   }
   return {

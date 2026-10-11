@@ -115,10 +115,8 @@ export function apply(ctx: ClientContext): void {
   // key includes the locale revision and subscribers ride both sources.
   let rowsVersion = -1
   let rowsRevision = -1
-  let rowsAdmission = -1
   let rows: readonly SettingsSectionRow[] = []
   let onboardingVersion = -1
-  let onboardingAdmission = -1
   let onboardingSteps: readonly SettingsOnboardingStep[] = []
   // The open channel other surfaces call: the shell occupant registers its own
   // reveal action here while it is mounted, and an unclaimed channel is a no-op.
@@ -138,11 +136,9 @@ export function apply(ctx: ClientContext): void {
         getSnapshot: () => {
           const version = ctx.slots.getVersion('settings.section')
           const revision = ctx.locale.getSnapshot().revision
-          const admission = ctx.slots.admission().getSnapshot()
-          if (version !== rowsVersion || revision !== rowsRevision || admission !== rowsAdmission) {
+          if (version !== rowsVersion || revision !== rowsRevision) {
             rowsVersion = version
             rowsRevision = revision
-            rowsAdmission = admission
             // Winner cells, not the raw ledger: a section whose cell a lower-priority
             // entry shadowed renders nothing, so the nav must not list it either.
             rows = ctx.slots.entriesOfSlot('settings.section')
@@ -159,21 +155,17 @@ export function apply(ctx: ClientContext): void {
         subscribe: (listener) => {
           const offLedger = ctx.slots.subscribe('settings.section', listener)
           const offLocale = ctx.locale.subscribe(listener)
-          const offAdmission = ctx.slots.admission().subscribe(listener)
           return () => {
             offLedger()
             offLocale()
-            offAdmission()
           }
         },
       },
       onboardingSteps: {
         getSnapshot: () => {
           const version = ctx.slots.getVersion('settings.onboarding')
-          const admission = ctx.slots.admission().getSnapshot()
-          if (version !== onboardingVersion || admission !== onboardingAdmission) {
+          if (version !== onboardingVersion) {
             onboardingVersion = version
-            onboardingAdmission = admission
             // Same winner-cell projection as the section nav rows above.
             onboardingSteps = ctx.slots.entriesOfSlot('settings.onboarding')
               .map(e => ({
@@ -187,10 +179,8 @@ export function apply(ctx: ClientContext): void {
         },
         subscribe: (listener) => {
           const offLedger = ctx.slots.subscribe('settings.onboarding', listener)
-          const offAdmission = ctx.slots.admission().subscribe(listener)
           return () => {
             offLedger()
-            offAdmission()
           }
         },
       },

@@ -5,9 +5,7 @@
  * needs a live application: the 'slots/changed' event bridge, register and
  * declaration injection through the caller's ctx.effect (fiber unload
  * collects both), the renderer installation contract (install()/renderSlot('root') +
- * the SlotRendererHost face), the presentation gate the host face applies to
- * its render-entry reads (installAdmission; inspection surfaces stay
- * unfiltered), and the store INSTANCE axis — handle x scope
+ * the SlotRendererHost face), and the store INSTANCE axis — handle x scope
  * key -> create/cache, dropped with the last holding entry, and in-memory
  * session instances released without clearing persisted state on scope death.
  */
@@ -20,7 +18,7 @@ import { Service } from '@qilin-agent/kylin'
 import type { Context } from '@qilin-agent/kylin'
 import { SlotCore, StaleAuthorizationError, standardHookPropName } from '@qilin-agent/client-ui-slots'
 import type {
-  HostObservable, LiveCompositionNode, LocaleFace, OwnerOf, RegisterFactory, SlotAdmissionGate, SlotEntryDef, SlotMap,
+  HostObservable, LiveCompositionNode, LocaleFace, OwnerOf, RegisterFactory, SlotEntryDef, SlotMap,
   SlotRenderer, SlotRendererHost,
   RootStandardSourceContribution, ScopedStandardSourceBinding, SlotScope, SlotScopeAdapter, SlotSpec,
   StandardSourceBinding, StoredEntry, StoreDecl, StoreFactory, StoredFactory,
@@ -59,12 +57,6 @@ type EngineStoreHandle = Exclude<StoreDecl, StoreFactory>
 
 /** Canonical engine instance derived from the handle's create contract. */
 type EngineStoreInstance = ReturnType<EngineStoreHandle['create']>
-
-/** Constant admission revision while no gate is installed (stable module-level source). */
-const NO_ADMISSION_REVISION: HostObservable<number> = {
-  getSnapshot: () => 0,
-  subscribe: () => () => {},
-}
 
 /** Store axis record: one per live handle, dropped when the last holding entry unloads. */
 interface StoreAxisRecord {
@@ -137,9 +129,6 @@ export class SlotRegistry extends Service {
   private readonly _storeScopeOwners = new Map<string, Context>()
   private _renderer: SlotRenderer | undefined
   private _locale: LocaleFace | undefined
-  private _admission: SlotAdmissionGate | undefined
-  private readonly _admissionListeners = new Set<() => void>()
-  private _admissionRevision = 0
   private _host: SlotRendererHost | undefined
   private readonly _rootContributions: RootStandardSourceContribution[] = []
   private readonly _rootListeners = new Set<() => void>()
@@ -318,37 +307,6 @@ export class SlotRegistry extends Service {
   }
 
   /**
-   * Install the presentation gate shaping the host face's render-entry reads
-   * ({@link SlotAdmissionGate}; same boot-once discipline as
-   * {@link SlotRegistry.installLocale}). Without a gate every registered
-   * entry presents. Inspection surfaces (`entries`, `snapshot`) stay
-   * unfiltered regardless.
-   * @param gate - the registrant classifier and its revision source.
-   */
-  installAdmission(gate: SlotAdmissionGate): void {
-    if (this._admission !== undefined) throw new Error('admission gate already installed (installAdmission() is boot-once)')
-    this.ctx.effect(() => {
-      this._admission = gate
-      // Bridge the gate's own revision (audience flips, workbench switches)
-      // into the registry currency, and publish the install itself: snapshot
-      // consumers that read before this effect ran hold an unfiltered view.
-      const offGate = gate.revision.subscribe(() => { this.bumpAdmission() })
-      this.bumpAdmission()
-      return () => {
-        if (this._admission === gate) this._admission = undefined
-        offGate()
-        this.bumpAdmission()
-      }
-    }, 'slots.installAdmission()')
-  }
-
-  /** Bump the admission currency and wake every snapshot-store subscriber. */
-  private bumpAdmission(): void {
-    this._admissionRevision += 1
-    for (const listener of [...this._admissionListeners]) listener()
-  }
-
-  /**
    * Contribute domain-owned root data. Hook names must be globally unique;
    * registration and disposal republish one atomic root binding.
    * @param contribution - bare sources and stable props.
@@ -450,35 +408,15 @@ export class SlotRegistry extends Service {
 
   /**
    * Shadowing winners per cell for a key: the first live (non-abdicated)
-   * entry of each cell in priority order — what outlets render, filtered by
-   * the installed admission gate exactly like the renderer's reads; chain
-   * keys pass through unchanged (election consumes every entry). The raw
+   * entry of each cell in priority order — what outlets render; chain keys
+   * pass through unchanged (election consumes every entry). The raw
    * {@link SlotRegistry.entries} view stays the inspection surface. Fresh
    * array per call, not a uSES getSnapshot source.
    * @param key - SlotMap key.
    * @returns the winning entry per occupied cell.
    */
   entriesOfSlot(key: keyof SlotMap & string): readonly StoredEntry[] {
-    return this._core.entriesOfSlot(key, this.admissionPredicate())
-  }
-
-  /**
-   * Observable admission currency for consumers outside the React renderer:
-   * snapshot stores that project presentation views (settings nav, the
-   * sidebar panel list) re-derive on it. It bumps when the gate installs,
-   * leaves, or its own revision moves — an audience flip or workbench switch
-   * — so a subscriber never holds a stale admitted set. The raw inspection
-   * views need no subscription.
-   * @returns a getSnapshot/subscribe pair over the monotonically rising revision.
-   */
-  admission(): HostObservable<number> {
-    return {
-      getSnapshot: () => this._admissionRevision,
-      subscribe: (listener) => {
-        this._admissionListeners.add(listener)
-        return () => { this._admissionListeners.delete(listener) }
-      },
-    }
+    return this._core.entriesOfSlot(key)
   }
 
   /**
@@ -606,8 +544,8 @@ export class SlotRegistry extends Service {
     this._host = {
       subscribe: (key, fn) => this._core.subscribe(key, fn),
       getVersion: key => this._core.getVersion(key),
-      entriesOf: key => this.admittedEntries(this._core.entries(key)),
-      entriesOfSlot: key => this._core.entriesOfSlot(key, this.admissionPredicate()),
+      entriesOf: key => this._core.entries(key),
+      entriesOfSlot: key => this._core.entriesOfSlot(key),
       reportEntryError: (key, entry, error, info) => { this._core.reportEntryError(key, entry, error, info) },
       reportFactoryError: (name, registration, error) => { this._core.reportFactoryError(name, registration, error) },
       specOf: key => this._core.specDynamic(key),
@@ -626,23 +564,10 @@ export class SlotRegistry extends Service {
       isFactoryLive: definition => this._core.isFactoryLive(definition),
       root: this._rootSource,
       scopeRevision: this._scopeRevisionSource,
-      get admissionRevision() { return service._admission?.revision ?? NO_ADMISSION_REVISION },
       scope: scope => service._scopes.get(scope === 'session-maybe' ? 'session' : scope),
       get locale() { return service._locale },
     }
     return this._host
-  }
-
-  /** The admitted view of one entry list: the gate's filter, or the list itself. */
-  private admittedEntries(entries: readonly StoredEntry[]): readonly StoredEntry[] {
-    const admit = this.admissionPredicate()
-    return admit === undefined ? entries : entries.filter(admit)
-  }
-
-  /** The gate's registrant classifier, or undefined while no gate is installed. */
-  private admissionPredicate(): ((entry: StoredEntry) => boolean) | undefined {
-    const gate = this._admission
-    return gate === undefined ? undefined : entry => gate.admit(entry.registrant)
   }
 
   /** Validate and atomically publish the current root contribution roster. */

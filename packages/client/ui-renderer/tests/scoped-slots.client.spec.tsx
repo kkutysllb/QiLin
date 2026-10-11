@@ -124,12 +124,6 @@ function makeHost() {
   }
   const scopeRevision = observable(0)
   let activeScopeAdapter = sessionAdapter
-  // Admission gate fake: denied registrants vanish from the render reads.
-  const denied = new Set<string>()
-  const admissionRevision = observable(0)
-  const admittedEntries = (list: readonly StoredEntry[]): readonly StoredEntry[] =>
-    denied.size === 0 ? list : list.filter(entry => entry.registrant === undefined || !denied.has(entry.registrant))
-
   const bump = (key: string) => {
     versions.set(key, (versions.get(key) ?? 0) + 1)
     for (const fn of [...(subs.get(key) ?? [])]) fn()
@@ -142,9 +136,9 @@ function makeHost() {
       return () => { set.delete(fn) }
     },
     getVersion: key => versions.get(key) ?? 0,
-    entriesOf: key => admittedEntries(entries.get(key) ?? []),
+    entriesOf: key => entries.get(key) ?? [],
     entriesOfSlot: (key) => {
-      const all = admittedEntries(entries.get(key) ?? [])
+      const all = entries.get(key) ?? []
       const kind = specs.get(key)?.kind
       if (kind === 'chain') return all
       // Mirror the ledger projection: first live (non-abdicated) entry per
@@ -194,7 +188,6 @@ function makeHost() {
     isFactoryLive: () => false,
     root,
     scopeRevision,
-    admissionRevision,
     scope: () => activeScopeAdapter,
   }
   return {
@@ -251,10 +244,6 @@ function makeHost() {
     replaceScope: (adapter: SlotScopeAdapter) => {
       activeScopeAdapter = adapter
       scopeRevision.set(scopeRevision.getSnapshot() + 1)
-    },
-    deny: (registrant: string) => {
-      denied.add(registrant)
-      admissionRevision.set(admissionRevision.getSnapshot() + 1)
     },
   }
 }
@@ -345,22 +334,6 @@ describe('child outlets and the renderSlot binding', () => {
     act(() => { dispose = h.add('k.single', { component: () => <b>SB</b> }) })
     expect(view.container.textContent).toBe('SB')
     act(() => { dispose() })
-    expect(view.container.textContent).toBe('none')
-  })
-
-  it('admission: denying the shadowing head falls the cell back live, and the last denial reaches the owner fallback', () => {
-    const h = makeHost()
-    h.declare('k.single', SINGLE_ROOT)
-    const { view } = mountRoot(h, { 'k.single': SINGLE_ROOT },
-      renderSlot => renderSlot('k.single', {}, { fallback: <i>none</i> }))
-    act(() => {
-      h.add('k.single', { component: () => <b>kept</b>, registrant: 'kept-plugin' })
-      h.add('k.single', { component: () => <b>head</b>, registrant: 'head-plugin', options: { priority: -1 } })
-    })
-    expect(view.container.textContent).toBe('head')
-    act(() => { h.deny('head-plugin') })
-    expect(view.container.textContent).toBe('kept')
-    act(() => { h.deny('kept-plugin') })
     expect(view.container.textContent).toBe('none')
   })
 

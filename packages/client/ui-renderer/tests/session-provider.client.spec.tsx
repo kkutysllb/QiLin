@@ -84,7 +84,7 @@ function makeHost(body: SessionBody, options: { installRenderArea?: boolean; opt
     factoryOf: () => undefined,
     isFactoryLive: () => false,
     root, scopeRevision: observable(0),
-    admissionRevision: { getSnapshot: () => 0, subscribe: () => () => {} }, scope: () => sessionAdapter,
+    scope: () => sessionAdapter,
   }
   return {
     host, bindingSource,
