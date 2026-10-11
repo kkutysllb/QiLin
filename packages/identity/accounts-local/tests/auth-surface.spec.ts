@@ -628,4 +628,56 @@ describe('real account surface', () => {
       },
     })).rejects.toThrow(/requires registration: closed/u)
   })
+
+  it('creates one account when two first-run setups arrive together', { timeout: 60_000 }, async () => {
+    const server = await boot()
+    const [first, second] = await Promise.all([
+      server('/api/auth/setup', post(undefined, { username: 'first', email: EMAIL, password: PASSWORD })),
+      server('/api/auth/setup', post(undefined, { username: 'second', email: 'second@example.com', password: PASSWORD })),
+    ])
+    // The empty-roster decision happens where the write does, so exactly one
+    // submission creates the account and the other meets the same rule.
+    expect([first.status, second.status].sort()).toEqual([200, 409])
+    const refused = first.status === 200 ? second : first
+    expect(await refused.json()).toMatchObject({ error: { code: 'already-initialized' } })
+    const winner = first.status === 200 ? first : second
+    expect(await (await server('/api/auth/status', { headers: { cookie: cookieOf(winner) } })).json())
+      .toMatchObject({ authenticated: true, needsSetup: false })
+    // The loser's username never reached the roster, so it is no account.
+    const loser = first.status === 200 ? 'second' : 'first'
+    expect((await server('/api/auth/login', post(undefined, { identifier: loser, password: PASSWORD }))).status).toBe(401)
+  })
+
+  it('keeps every account when two registrations arrive together', { timeout: 60_000 }, async () => {
+    const server = await boot({ registration: 'open' })
+    await server('/api/auth/setup', post(undefined, { username: 'first', email: EMAIL, password: PASSWORD }))
+    const [second, third] = await Promise.all([
+      server('/api/auth/register', post(undefined, { username: 'second', password: PASSWORD })),
+      server('/api/auth/register', post(undefined, { username: 'third', password: PASSWORD })),
+    ])
+    expect([second.status, third.status]).toEqual([200, 200])
+    // Neither write overwrote the other: every account is in the roster the
+    // requests after them read.
+    for (const name of ['first', 'second', 'third']) {
+      expect((await server('/api/auth/login', post(undefined, { identifier: name, password: PASSWORD }))).status).toBe(200)
+    }
+  })
+
+  it('serves two accounts signing in at the same time', { timeout: 60_000 }, async () => {
+    const server = await boot({ registration: 'open' })
+    await server('/api/auth/setup', post(undefined, { username: 'first', email: EMAIL, password: PASSWORD }))
+    await server('/api/auth/register', post(undefined, { username: 'second', password: PASSWORD }))
+    const [first, second] = await Promise.all([
+      server('/api/auth/login', post(undefined, { identifier: 'first', password: PASSWORD })),
+      server('/api/auth/login', post(undefined, { identifier: 'second', password: PASSWORD })),
+    ])
+    expect([first.status, second.status]).toEqual([200, 200])
+    // Each session names the account that signed in, and both reach the gate.
+    for (const [response, name] of [[first, 'first'], [second, 'second']] as const) {
+      const cookie = cookieOf(response)
+      expect(await (await server('/api/auth/status', { headers: { cookie } })).json())
+        .toMatchObject({ authenticated: true, user: { username: name } })
+      expect((await server('/workspace', { headers: { cookie } })).status).toBe(200)
+    }
+  })
 })
