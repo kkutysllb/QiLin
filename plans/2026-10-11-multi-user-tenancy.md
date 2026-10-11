@@ -441,3 +441,21 @@ hub 仍然**不做访问判定**：路由 cookie 只是选择器，伪造它只�
 2. **租户端口仍可达**：单源模式只是给浏览器一条不暴露端口的路径，不关闭运行时自己的监听（它们只绑 127.0.0.1，且仍要过账号门）。真要收掉监听面，得让运行时只绑 hub 可用的通道，那是独立一件事。
 3. **Cookie 名仍是 authority 绑定的**：因为 `Host` 被改写成租户 authority，浏览器里同一个 host 下会并存多个租户的 cookie（名字不同，天然不互相验证）。这是刻意的，不是缺陷。
 4. **GIF 的适用范围**：真浏览器走查已在 12.3 完成（附截图）；按仓库 `record-browser-gif` 技能录制的 GIF 只演示这条部署路径，用真实引擎与真实浏览器，但**不跑模型轮次**（录制的是登录与外壳渲染）。
+
+## 13. 验收矩阵（2026-10-11 收口）
+
+目标五项逐项的落点、证据与状态。每条证据都在本机实跑过，命令与数字见对应小节。
+
+| # | 目标项 | 落点 | 证据 | 状态 |
+|---|---|---|---|---|
+| 1 | 收掉两条过期 expected 车道 | `startup-url.ts`（按 URL 而非产品名匹配就绪行）＋ 显式挂载 `schedule-bundle`；`web-default-isolation` 改为断言 shipped 组合不含 schedule 三行 | 8 个车道（67 例）从 **44 红 → 62 通过 / 5 红**；§11.6 记下 3 处需裁定的过期断言 | 已完成，余 5 例见 §11.6 |
+| 2 | A1/A2 引擎侧最小改动 | 无代码改动；结论与代码依据见 §11.7 与 Agent Note 的 `## Engine changes` | 上传索引按 `sha256(baseURL + credentials)` 分命名空间；`RemoteHostFacts.home` 是「文件所在机器」的属性 | **待裁决**（我主张不改） |
+| 3 | tenants 运维面 | `tenants-roster.ts`（accounts/add/passwd/remove）、`AccountStore.setPassword/remove`、`--max-tenants`、`--restart-backoff-ms` | e2e 场景 2 的 5 条断言＋`tenants-roster.spec` 7 例＋`accounts.spec` 新增 2 例；真 CLI 五步手测 | 已完成 |
+| 4 | P3 单源反代与真实流量回收 | `tenant-proxy.ts`（hop 原语）、`tenants.ts`（cookie 路由、upgrade 管道）、`tenant-runtime.ts`（`proxyTarget`） | e2e 场景 3 的 11 条断言＋7 例桩上游 spec＋真浏览器走查（0 错误 / 0 异常 / 0 个 4xx-5xx，25 个 `[data-slot]`）＋GIF | 已完成 |
+| 5 | 门禁、文档与验收齐备 | 本计划、`implemented/architecture/2026-10-11-multi-user-tenancy`（三件套）、`apps/cli/README`（双语）、`docs/user/guide/tenancy`（双语，已发布到文档站） | §14 门禁对账 | 文档齐备；「全部绿」受既有红限制，见 §14 |
+
+## 14. 门禁对账（2026-10-11 收口）
+
+**本工作触及的门禁（全绿，均为 2026-10-11 实跑）**：`tsc -b tsconfig.host.json` exit 0；`apps/cli/tests` ＋ `packages/identity/accounts-local/tests` 182 passed / 4 skipped；`tenant-supervisor.expected.e2e.ts` 4/4；`tenant-isolation.expected.e2e.ts` 1/1；`oxlint` 0/0；`verify-export-jsdoc`；`verify-package-dependencies`（78 包）；`verify-type-equiv`（466 块）；`verify-agent-note-format`（497 篇）与 `verify-agent-note-classification`（497 篇）；`verify-doc-budgets`（8 篇）；`verify-md-links`（2187 文件）；`verify-translation-pairing`（本工作改动的配对逐对一致）；文档站构建（`npx tsx website/build.ts`，14.9 s，新页与原始 Markdown 孪生页均产出）。
+
+**不属本次改动面、未修的既有红（逐条留证）**：`constraints` 报 `packages/client/ui-workbench` 缺 package.json（本地未跟踪残留目录）；`rescope-vendor:check` 命中 `scripts/verify-preset-copy.ts`（该文件相对 HEAD 未改动）；`verify-no-unknown-casts` 命中 5 个文件（`apps/web` 与 session-format 测试，均相对 HEAD 未改动）；`verify-translation-pairing` 语料级噪声集中在被忽略的 `desktop/staging/**` 与 `docs/tool-catalog.i18n.yaml`；全量单测车道 280 例红分布在 12 个文件，**没有一个**在我改动的两个包（`apps/cli`、`packages/identity/accounts-local`）内，可直接看到失败点的两例也与我无关（`scripts/doc-standard.spec.ts` 红在 `packages/session/session-format-v4-to-v5/README.md` 的 kind 期望，`scripts/persistence-developer.spec.ts` 红在 `encodeCurrent requires Session format v5`）。我没有为这 280 例建立改动前基线，归属判断依据是「交集为空 ＋ 失败点与改动面无交集」，不是逐例复现。
