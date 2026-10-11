@@ -182,7 +182,7 @@ kind: "plan"
 | 阶段 | 内容 | 完成判据 |
 |---|---|---|
 | P0 | 本计划 + 决策记录落仓；同步修订 accounts-local 的边界表述 | 文档就位，边界口径唯一 |
-| P1 | 手工验证：一个 home + 两份租户覆盖层、两个端口起两个运行时 | 第 1–6 条判据在两租户上逐条通过 |
+| P1 | 一个 home + 两份租户覆盖层 + 两个运行时（已落成常备测试） | ✅ 第 1–6 条判据逐条通过，见 §10 |
 | P2 | 守护进程 V1（账号→租户、按需拉起、就绪解析、302 到租户端口、空闲回收） | 真机两账号各自登录、各自会话列表、互不可见；崩溃自动重启 |
 | P3 | 守护进程 V2（单源反代 + WS + 媒体流，收掉租户端口暴露面） | 真浏览器走查 + 录 GIF（GUI 可见变更的仓库要求） |
 | P4 | 可选：按用户计量/配额；再评估是否需要 B | 计量数据可从请求侧归集 |
@@ -195,3 +195,63 @@ kind: "plan"
 | D2 | 鉴权 V1 还是 V2 | V1 起步、V2 作为产品形态 |
 | D3 | 租户之间是协作还是互不信任 | 协作。同 OS 用户下这是技术事实，不是选择；对抗性隔离要另加一层 |
 | D4 | 是否需要按用户配额/计费 | 一期不做，留 P4 |
+
+## 10. P1 执行记录（2026-10-11）
+
+P1 已落成常备测试：[tenant-isolation.expected.e2e.ts](../apps/cli/tests/profiles/web/tests/tenant-isolation.expected.e2e.ts)，共用的多运行时 harness 在 [tenant-web-process.ts](../apps/cli/tests/profiles/web/tests/tenant-web-process.ts)。它跑**构建产物的真进程**（`node apps/cli/lib/bin.js --profile web`）：两个租户各一个运行时、一个共享 `QILIN_HOME`、各自一份 `--patch` 覆盖层，全程约 2 秒，无模型调用。
+
+### 10.1 覆盖层实测（P2 守护进程按这份生成即可）
+
+```yaml
+# <tenantDir>/<tenant>.patch.yml
+# 每条表达式在装载期按共享 QILIN_HOME 求值。
+- id: session-persistence-jsonl
+  config:
+    root: !!js qilinHomePath('tenants', '<tenant>', 'sessions')
+- id: storage-json
+  config:
+    root: !!js qilinHomePath('tenants', '<tenant>', 'storages')
+- id: session-query-sqlite
+  config:
+    path: !!js qilinHomePath('tenants', '<tenant>', 'session-query.sqlite')
+    openAt: never
+- id: attachment-local
+  config:
+    qilinHome: !!js qilinHomePath('tenants', '<tenant>')
+```
+
+部署级选择（账号门、要不要任务）落在共享 home 的机器层 `$QILIN_HOME/cordis.patch.yml`，两个租户自动继承；租户覆盖层只写上面四条根。
+
+### 10.2 六条判据的实测与判据强度
+
+| 判据 | 断言 | 强度 |
+|---|---|---|
+| 1 会话不互见 | 两个运行时**各建一个会话之后**互查列表（A 不含 B 的、B 不含 A 的），再加两侧磁盘会话根各归其主 | 强 |
+| 2 任务不互见 | 只给 A 预置一条 schedule 记录：A 的 `schedule/catalog` 读到它，B 读到空数组 | 强 |
+| 3 工作区不互见 | A 建工作区后：B 删除它失败、A 删除成功；两侧 `workspace.json` 只出现各自的工作区路径 | 中 |
+| 4 配置与插件共享 | A 写 `ui-theme.fontSize`，B 未配置即读到 16；两个租户目录下不存在 settings/credentials/profiles | 强 |
+| 5 事件不串 | 两条 `$events` 流各自 ready（增量投递已激活）后，B 收到自己的 `api-session/added`、从未收到 A 的 | 弱：进程分离本身即保证，价值在于守住"退回单进程方案"（§5 B5） |
+| 6 越权拒绝 | B 用 A 的会话 id 调 `session/rename` 被拒，A 用同一 id 改名成功 | 弱：同 5 |
+
+判据 5/6 在"一个运行时一个租户"下是进程边界的结果，不是覆盖层的功劳；它们真正的用处是在 §5 的单进程方案里当回归门。
+
+### 10.3 负对照：这份测试确实会失败
+
+把每租户覆盖层从命令行撤掉、让两个运行时落到同一个默认根后重跑：**测试在判据 1 的线上列表断言处失败**（B 的列表里出现了 A 的会话），磁盘断言也独立抓到（会话落在共享根，而不是 `tenants/<租户>/sessions`）。即它验证的是覆盖层本身，不是 harness 自带的分隔。
+
+### 10.4 实测确认的三件事（P2 的前提）
+
+1. `--patch` 覆盖层确实压在 bundle 层之后：四条根逐条生效（会话目录、storages、query 索引、附件根），未列出的行保持共享。
+2. 换一个 `storage-json` 根确实同时搬走 schedule、workspace、投影缓存三个域——租户的 `storages/` 下同时出现预置的 `schedule.json` 与运行时新建的 `workspace.json`。
+3. **任务面不是随附能力**：shipped Web 组合没有 schedule 行（`/api/schedule/catalog` 实测 404，bundle/preset 里也没有该行），任务来自可选 bundle [schedule-bundle](../packages/experimental/schedule-bundle/cordis.patch.yml)。所以"任务隔离"的前提是部署先决定要不要任务（两个租户挂同一份 bundle），隔离只决定"谁的任务"。
+
+### 10.5 本次发现的两处既有红（与 P1 无关，未修）
+
+`apps/cli/tests/profiles/web/tests/` 下的既有 expected 测试对不上当前产品：
+
+| 现象 | 证据 | 影响 |
+|---|---|---|
+| 就绪行匹配写死 `qilin web: ` | 产品行文被 [web-brand 的 web-runtime 行](../packages/bundle/web-brand/cordis.patch.yml#L21) 改成 `label: qilin`；实跑输出 `qilin: http://127.0.0.1:<port>/workspace?token=…` | `withDefaultWeb` 的就绪轮询永远等不到，`schedule-timing` / `web-default-isolation` 等以 120 s 超时失败 |
+| 把 schedule 当随附能力 | shipped Web 组合无 schedule 行；`fixtures/schedule.patch.yml` 的 `- id: schedule` 指向不存在的行 | `schedule-timing.expected.e2e.ts` 的 `/api/schedule/catalog` 得到 404 |
+
+新测试不依赖这两处（自带按输出匹配就绪 URL，并显式挂上 schedule bundle），所以它们不影响 P1 的结论；修不修是另一件事。
