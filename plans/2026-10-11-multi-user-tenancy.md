@@ -449,7 +449,7 @@ hub 仍然**不做访问判定**：路由 cookie 只是选择器，伪造它只�
 | # | 目标项 | 落点 | 证据 | 状态 |
 |---|---|---|---|---|
 | 1 | 收掉两条过期 expected 车道 | `startup-url.ts`（按 URL 而非产品名匹配就绪行）＋ 显式挂载 `schedule-bundle`；`web-default-isolation` 改为断言 shipped 组合不含 schedule 三行 | 8 个车道（67 例）从 **44 红 → 62 通过 / 5 红**；§11.6 逐条复验后已收掉 3 例（`web-best-effort-startup` ×2、`creator-plugin-manager` ×1），只剩 `web-failure-matrix` 2 例待产品契约裁定 | 已完成 |
-| 2 | A1/A2 引擎侧最小改动 | 无代码改动；结论与代码依据见 §11.7 与 Agent Note 的 `## Engine changes` | 上传索引按 `sha256(baseURL + credentials)` 分命名空间；`RemoteHostFacts.home` 是「文件所在机器」的属性 | **待裁决**（我主张不改） |
+| 2 | A1/A2 引擎侧最小改动 | 无代码改动；结论与代码依据见 §11.7 与 Agent Note 的 `## Engine changes` | 上传索引按 `sha256(baseURL + credentials)` 分命名空间；`RemoteHostFacts.home` 是「文件所在机器」的属性 | **已裁决（2026-10-11 用户拍板：按判定）**：不加这两个 Config 字段，理由见 §11.7 |
 | 3 | tenants 运维面 | `tenants-roster.ts`（accounts/add/passwd/remove）、`AccountStore.setPassword/remove`、`--max-tenants`、`--restart-backoff-ms` | e2e 场景 2 的 5 条断言＋`tenants-roster.spec` 7 例＋`accounts.spec` 新增 2 例；真 CLI 五步手测 | 已完成 |
 | 4 | P3 单源反代与真实流量回收 | `tenant-proxy.ts`（hop 原语）、`tenants.ts`（cookie 路由、upgrade 管道）、`tenant-runtime.ts`（`proxyTarget`） | e2e 场景 3 的 11 条断言＋7 例桩上游 spec＋真浏览器走查（0 错误 / 0 异常 / 0 个 4xx-5xx，25 个 `[data-slot]`）＋GIF | 已完成 |
 | 5 | 门禁、文档与验收齐备 | 本计划、`implemented/architecture/2026-10-11-multi-user-tenancy`（三件套）、`apps/cli/README`（双语）、`docs/user/guide/tenancy`（双语，已发布到文档站） | §14 门禁对账 | 文档齐备；「全部绿」受既有红限制，见 §14 |
@@ -501,5 +501,23 @@ hub 仍然**不做访问判定**：路由 cookie 只是选择器，伪造它只�
 
 | # | 事项 | 现状 | 说一句话即可执行 |
 |---|---|---|---|
-| 1 | A1/A2 引擎侧 Config | 无代码改动；代码依据见 §11.7 与 Agent Note 的 `## Engine changes`：上传索引的命名空间就是 provider 凭据（共享同一把 key 时按租户拆路径只会重复上传），`RemoteHostFacts.home` 是「文件所在机器」的属性（所有租户同机） | 「加」→ `llm-deepseek` 上传索引补 `path` Config、`RemoteHostFacts.home` 改为可注入，并重跑 `gen-config-catalog` 与双语 README；「按判定」→ 在 §13 记为已裁决 |
-| 2 | 被拒的 reload 是否回滚 | `reconcileProfilePatches` 先应用补丁再判「是否引入新的未激活项」，因此被拒的 reload 在树上已生效；`web-failure-matrix` 的 2 条恢复断言因此红 | 「回滚」→ 在 `packages/boot/app-boot` 让拒绝路径恢复上一份 `patches` 并补测试（跨包改动，先出方案）；「按现状」→ 把两条断言改成现契约并记明取舍 |
+| 1 | A1/A2 引擎侧 Config | 无代码改动；代码依据见 §11.7 与 Agent Note 的 `## Engine changes`：上传索引的命名空间就是 provider 凭据（共享同一把 key 时按租户拆路径只会重复上传），`RemoteHostFacts.home` 是「文件所在机器」的属性（所有租户同机） | 用户已拍板「按判定」：不加。此行的结论（引擎改动为零）保留为决策记录 |
+| 2 | 被拒的 reload 是否回滚 | `reconcileProfilePatches` 先应用补丁再判「是否引入新的未激活项」，因此被拒的 reload 在树上已生效；`web-failure-matrix` 的 2 条恢复断言因此红 | 用户已拍板「回滚」，但**尚未落地**：两种实现都在 `packages/boot/{app-boot,hmr,plugin-manager}` 的既有测试上留下无法解释的副作用，见 §15.4 |
+
+### 15.4 reload 回滚：两次实现尝试与实测副作用（2026-10-11）
+
+用户拍板「回滚」。我实现了两版，跑同一组门（`packages/boot/{app-boot,hmr,plugin-manager}` 的 930 例），两版都在**既有测试**上留下副作用，因此**均已回退**，工作树回到干净状态。
+
+**基线（改动前）**：38 文件 / **930 pass / 0 fail**。
+
+| 实现 | 规则 | 结果 | 无法接受的副作用 |
+|---|---|---|---|
+| V1 全量回滚 | 任何被拒的 generation 都恢复上一份 `patches` | **7 红** | ① `manager`：`removeBundle` 由 `applied` 变 `failed`（移除 bundle 会被拒并撤销）；② `manager`：启用 bundle 后其行不再有 live entry；③ `profile.spec`：一次与故障无关的编辑不再落地 |
+| V2 仅启动必需行回滚 | 只在 `webserver`/`modules`/`connection` 等 `requiredStartupEntryIds` 破时恢复 | **3 红**（1 红是我预期的契约变更：hmr 里 `webserver` 那条的最佳努力语义改变；另 1 红仍是 `manager` 的 `removeBundle` → `failed`） | 移除 bundle 的流程仍被牵连，而这次被拒的原因我**没有查到**，不能凭猜改产品 |
+
+**难点（写清楚，不是找借口）**：`reconcileProfilePatches` 目前是「**最佳努力**」语义——被拒的 generation **照样生效**，只是把拒绝报出去。仓库里有多条测试在**依赖**这个语义：移除 bundle、启用 bundle、与故障无关的 profile 编辑。真正需要回滚的只是「**启动必需行被打破后无法恢复**」这一种（`web-failure-matrix` 那两条断言的场景）。要把两者分开，需要把「拒绝」拆成两类（可继续服务的最佳努力拒绝 vs 必须回到上一版可用组合的致命拒绝），并明确谁算致命——这是产品契约决定，不是实现细节。
+
+**两条可选路径（等你选）**：
+
+1. **拆拒绝语义**：在 `reconcileProfilePatches` 里引入「致命」判据（例如只有启动必需行 + bootstrap include 算致命），并把 `manager` 的 `removeBundle` 为何被牵连先查清（很可能与它传入的 `requiredIds`＝启用目标有关，而那是 caller 语义，不该触发回滚）；随后按新契约更新 hmr 里 `webserver` 那条参数化用例。
+2. **不动 reload，改测试**：接受「被拒 generation 保持生效」的现状，把 `web-failure-matrix` 两条断言改成它实际能表达的语义（拒绝被报告、运行时保持存活），并在 §11.6 记明「恢复需人工修好配置后再触发一次」。
