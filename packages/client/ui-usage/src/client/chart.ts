@@ -66,7 +66,11 @@ export interface UsageSummary {
   readonly cacheHitRate: number
 }
 
-/** The local calendar day of one report time. */
+/**
+ * The local calendar day of one report time.
+ * @param at - report time in epoch milliseconds.
+ * @returns the local day as `YYYY-MM-DD`.
+ */
 export function localDay(at: number): string {
   const date = new Date(at)
   return `${String(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
@@ -182,7 +186,11 @@ export function toggleSeries(hidden: readonly UsageSeries[], series: UsageSeries
   return USAGE_SERIES.filter(entry => next.includes(entry))
 }
 
-/** Short token count a card, a tick, or a table cell shows. */
+/**
+ * Short token count a card, a tick, or a table cell shows.
+ * @param value - tokens to shorten.
+ * @returns the shortened count, without a unit suffix.
+ */
 export function formatTokens(value: number): string {
   if (value < 1_000) return String(value)
   if (value < 1_000_000) return `${(value / 1_000).toFixed(1)}k`
