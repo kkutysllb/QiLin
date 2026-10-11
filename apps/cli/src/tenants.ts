@@ -151,6 +151,21 @@ const MAX_USAGE_BODY_BYTES = 4 * 1024
  */
 const USAGE_RECORDS_CAP = 5_000
 
+/**
+ * Whether every runtime of this deployment must mark its session cookies
+ * `Secure`.
+ *
+ * The browser reaches the deployment through the hub, so a deployment that
+ * terminates TLS itself is the one case where the client's own connection is
+ * encrypted; a runtime behind a plain-HTTP hub cannot know otherwise, and it
+ * never guesses.
+ * @param options - the deployment's own TLS material, when it terminates TLS.
+ * @returns true only when this deployment terminates TLS.
+ */
+export function secureSessionCookies(options: { readonly tls?: DeploymentTlsFiles | undefined }): boolean {
+  return options.tls !== undefined
+}
+
 /** Store key of the runtime a deployment with no accounts uses. */
 const BOOTSTRAP_ACCOUNT = 'first-run'
 
@@ -338,7 +353,7 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       restartBackoffMilliseconds: options.restartBackoffMilliseconds,
       patches: options.patches,
       appArguments: options.appArguments,
-      sessionCookieSecure: options.tls !== undefined,
+      sessionCookieSecure: secureSessionCookies(options),
       log: (line) => { process.stderr.write(`qilin tenants: [${accountId}] ${line}\n`) },
     })
     runtimes.set(accountId, created)
@@ -366,7 +381,7 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       restartBackoffMilliseconds: options.restartBackoffMilliseconds,
       patches: options.patches,
       appArguments: options.appArguments,
-      sessionCookieSecure: options.tls !== undefined,
+      sessionCookieSecure: secureSessionCookies(options),
       log: (line) => { process.stderr.write(`qilin tenants: [first-run] ${line}\n`) },
     })
     runtimes.set(BOOTSTRAP_ACCOUNT, created)

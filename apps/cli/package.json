@@ -120,10 +120,6 @@
     "node-addon-require-builtin": "^0.1.9"
   },
   "devDependencies": {
-    "@qilin-agent/experimental-hooks-claude-code": "workspace:*",
-    "@qilin-agent/experimental-hooks-codex": "workspace:*",
-    "@qilin-agent/experimental-webhook": "workspace:*",
-    "@qilin-agent/experimental-webhook-github": "workspace:*",
     "@agentclientprotocol/sdk": "1.4.0",
     "@qilin-agent/acp": "workspace:*",
     "@qilin-agent/agent": "workspace:*",
@@ -134,8 +130,12 @@
     "@qilin-agent/credentials-local": "workspace:*",
     "@qilin-agent/deepseek-llm-api-extensions": "workspace:*",
     "@qilin-agent/experimental-agent-team": "workspace:*",
+    "@qilin-agent/experimental-hooks-claude-code": "workspace:*",
+    "@qilin-agent/experimental-hooks-codex": "workspace:*",
     "@qilin-agent/experimental-ptc-runtime-python": "workspace:*",
     "@qilin-agent/experimental-tool-agent-team": "workspace:*",
+    "@qilin-agent/experimental-webhook": "workspace:*",
+    "@qilin-agent/experimental-webhook-github": "workspace:*",
     "@qilin-agent/fs-observation-policy": "workspace:*",
     "@qilin-agent/fs-sandbox": "workspace:*",
     "@qilin-agent/host-frontend-static": "workspace:*",
@@ -155,9 +155,9 @@
     "@qilin-agent/session-log-deepseek": "workspace:*",
     "@qilin-agent/session-persistence-jsonl": "workspace:*",
     "@qilin-agent/session-query": "workspace:*",
-    "@qilin-agent/shell-env": "workspace:*",
     "@qilin-agent/settings": "workspace:*",
     "@qilin-agent/settings-file": "workspace:*",
+    "@qilin-agent/shell-env": "workspace:*",
     "@qilin-agent/subagent": "workspace:*",
     "@qilin-agent/subagent-fork-in-process": "workspace:*",
     "@qilin-agent/subagent-spawn-in-process": "workspace:*",
@@ -169,6 +169,7 @@
     "@types/js-yaml": "^4.0.9",
     "@types/ws": "8.18.1",
     "execa": "^10.0.0",
+    "selfsigned": "^4.0.1",
     "ws": "8.21.0"
   },
   "exports": {

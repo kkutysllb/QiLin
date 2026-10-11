@@ -34,6 +34,8 @@ export interface DeploymentOptions {
   readonly maxTenants: number
   /** Idle window; 0 keeps every runtime and installs no sweep. */
   readonly idleMilliseconds?: number
+  /** TLS material the hub terminates its public address with, as the two deployment flags do. */
+  readonly tls?: { readonly certFile: string; readonly keyFile: string }
 }
 
 /**
@@ -120,6 +122,7 @@ export async function startDeployment(options: DeploymentOptions): Promise<Start
     restartBackoffMilliseconds: 60_000,
     singleOrigin: true,
     registration: 'closed',
+    ...options.tls === undefined ? {} : { tls: options.tls },
     patches: [],
     appArguments: [],
     signal: controller.signal,
