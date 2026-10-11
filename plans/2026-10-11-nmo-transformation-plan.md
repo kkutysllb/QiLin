@@ -278,6 +278,17 @@
 
 **登记不修（SDK 快照面 6 项，独立小片）**：`serial-created`（`SDK snapshot session has no request model`——该 curated 场景的主 fixture 无请求记录，`SDK_ASSERTIONS.route` 未声明）、`subagent-activation-limit`（120s 超时）、`subagent-fork-in-process` / `subagent-spawn-in-process`（`subagent.finished` 未观测到）、`subagent-qilin-sdk-dynamic-route`（日志数 1 ≠ 2）、`tool-error-details`（**S1 相关**：场景同时演练 native 直调与 PTC 两条呈现臂，合并后 `tool-presentation` 只剩 ptc，`denied-native` 臂在到达 `tools/pre-execute` 之前即 `UNKNOWN_TOOL`——升级已删除 `both` 档，native 臂不可能复原；修法=按 PTC 单臂重写脚本 + 重推期望）。修复只能靠 `QILIN_SNAPSHOT=record`（真实 key 与真实模型调用）或逐场景改写，已在升级计划 §6.70 登记为既有基线，需另行授权。
 
+### S5 Open 门禁（第一批已落地：第三方接入 + 官方摘除）
+
+**S5-A 第三方零核心改动接入**：新增 [third-party-plugin.e2e.ts](../apps/web/tests/third-party-plugin.e2e.ts) 与夹具 `apps/web/tests/fixtures/plugins/fixture-third-party/`（`package.json` + `cordis.patch.yml` + `index.js`）。夹具只用公开契约——`name` / `inject = ['tools']` / `apply(ctx)`，以及 `ctx.tools.register({ name, description, parameters, output: { schema, render }, execute })`——并在**托管 profile** 上按 `qilin plugin add` 的落点安装并启用（`profile: { packages: [{ dir, enabled: true }] }`：写进 manifest 依赖、链接进 profile `node_modules`、列入启用 bundles）。三条断言：工具进入**进程级**名册（发现）、进入该会话 agent 的**模型可见**名册、并经产品自己的 `run_code` 传输**执行**并返回 `THIRD_PARTY_OK`。夹具位于 `apps/web/tests/fixtures/`，`packages/**` 无一处命名它——这就是 Open 的可测口径。
+
+**S5-B 官方插件可摘除、核心链路存活**：新增 [without-official-plugins.overlay.yml](../apps/web/tests/without-official-plugins.overlay.yml)（`ui-trajectory` 客户端行 + `mcp-resources` 宿主行整行关闭），并在 [shipped-composition.e2e.ts](../apps/web/tests/shipped-composition.e2e.ts) 增一例：① 出厂部署本就关掉 base 的宿主 `tool-web` 行（客户端模块图里没有 `client-ui-trajectory`、Loader 里两行 `options.disabled === true`）；② 出厂 `session/create` RPC 仍应答并把会话发布出来；③ 该会话的 agent 名册仍含 `run_code`，且 `web_search` / `web_fetch` **两个都在**——即 `tool-web` 的摘除由预设平面补齐，能力不随官方行消失；④ 会话头的 `agentPreset` 为 `ptc`，接受请求的组合就是运行它的组合。
+
+**验证（实跑）**：两条车道各自绿（`third-party-plugin` 1/1；`shipped-composition` 该例 1/1，其余 7 例按 `-t` 跳过）；新车道已登记进 [tsconfig.host.json](../tsconfig.host.json) 的 host 面 include 表；`oxlint` 0；`tsc -b tsconfig.host.json` exit 0。
+
+**如实登记的边界**：① 本片的「摘除」是**组合层关闭行**（插件不再激活、其注册项消失），不是从 profile 依赖里卸载包——卸载走 plugin-manager 的既有路径，本片未重复覆盖；② `tool-web` 的官方宿主行在本仓**早已**在部署层关闭、由预设层提供模型可见工具，本片把这一事实变成断言，没有新增移除；③ `present` / `ptc-escalation` / `ptc-round` 的重录与 S5 无关，仍在待授权项。
 ## 10. 下一步
+
+**更正（核实于本片）**：本节的进展记录里曾出现「S4 三笔提交已落地」的说法——经 `git cat-file` 与 `git log` 核实，`8c68bd8e34` / `33cdd2c1ad` / `93a060e0a2` **三笔均不存在**，HEAD 仍是 S3 收口的 `23d9524d44`，S4 **从未开始**。下面那句 S4 描述是**待办范围**，不是已完成事实。
 
 ~~S2 存量会话 v4→v5 代次重写（C2=b）~~ · ~~S3 双工作台与 audience 归一删除~~ **均已落地（见上）** → **S4 前端零预设面清账**：AgentPresetChip 与 slots.ts 契约下架、display.ts 内建键收敛、locales 三预设文案并一、guide/描述句、apps/web 种子与 shipped-composition 断言对齐、`QILIN_TOOLS_MODE` 缝处置（T9），并补常备 grep 门「退役预设 id 零回流」。浏览器车道重录（`present`/`ptc-escalation`/`ptc-round` 的本地 v4 录制）需 `QILIN_SNAPSHOT=record` 与真实 key，单独授权后执行。schedule-after/schedule-panel 复活与 child-orchestration 重设计为可并行登记片，不阻塞主线。
