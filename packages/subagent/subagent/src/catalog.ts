@@ -17,14 +17,14 @@ import type {
 import type { ProjectionDefinition } from '@qilin-agent/session-projection'
 import type { SubagentCatalogEntry } from './projection-types.ts'
 
-/** Catalog payload version emitted by live child creation. */
+/** Catalog payload version emitted by local child creation. */
 export const SUBAGENT_CATALOG_VERSION = 0
 
 type KnownCatalogMode =
   | { readonly mode: 'one-shot'; readonly label?: string }
   | { readonly mode: 'continuable'; readonly label: string }
 
-/** Parent catalog v0 records known modes, v1 adds unknown children, and v2 records external executions. */
+/** Parent catalog v0 records local modes, v1 adds unknown children, and v2 records external executions. */
 export type SubagentCatalogEvent =
   & {
     readonly childId: SessionId
@@ -66,8 +66,8 @@ const continuableCatalogSchema = z.object({
   mode: z.literal('continuable'),
   label: z.string(),
 }).strict()
-const unknownCatalogSchema = oneShotCatalogSchema.extend({ version: z.literal(1), mode: z.literal('unknown') })
 const externalCatalogSchema = oneShotCatalogSchema.extend({ version: z.literal(2), mode: z.literal('external') })
+const unknownCatalogSchema = oneShotCatalogSchema.extend({ version: z.literal(1), mode: z.literal('unknown') })
 const eventDataSchema = z.union([
   oneShotCatalogSchema,
   externalCatalogSchema,
@@ -111,19 +111,8 @@ declare module '@qilin-agent/session-projection/types' {
 function subagentCatalogEntries(state: SubagentCatalogState): SubagentCatalogEntry[] {
   const entries: SubagentCatalogEntry[] = []
   for (const data of iterateChunkedList(state.head)) {
-    entries.push(data.mode !== 'continuable'
-      ? {
-        id: data.childId,
-        createdAt: data.childCreatedAt,
-        mode: data.mode,
-        ...data.label === undefined ? {} : { label: data.label },
-      }
-      : {
-        id: data.childId,
-        createdAt: data.childCreatedAt,
-        mode: data.mode,
-        label: data.label,
-      })
+    const { version: _version, childId, childCreatedAt, ...descriptor } = data
+    entries.push({ id: childId, createdAt: childCreatedAt, ...descriptor })
   }
   return entries
 }
@@ -137,7 +126,7 @@ export const subagentCatalogProjectionDefinition = {
     if (event.type !== 'subagent/catalog' || event.seq < state.inheritedEventCount) return state
     return { ...state, head: appendChunkedList(state.head, eventDataSchema.parse(event.data)) }
   },
-  stateVersion: 4,
+  stateVersion: 6,
   wire: { viewSchema, view: subagentCatalogEntries },
 } satisfies ProjectionDefinition<'subagentCatalog', SubagentCatalogState>
 
@@ -150,25 +139,15 @@ export const subagentCatalogProjectionDefinition = {
 export function establishCatalogChild(
   parent: Session,
   child: SessionHeader,
-  descriptor:
-    | { readonly mode: 'one-shot'; readonly label?: string }
-    | { readonly mode: 'continuable'; readonly label: string },
+  descriptor: { readonly mode: 'continuable'; readonly label: string },
 ): void {
-  parent.append('subagent/catalog', descriptor.mode === 'one-shot'
-    ? {
-      version: SUBAGENT_CATALOG_VERSION,
-      childId: child.id,
-      childCreatedAt: child.createdAt,
-      mode: descriptor.mode,
-      ...descriptor.label === undefined ? {} : { label: descriptor.label },
-    }
-    : {
-      version: SUBAGENT_CATALOG_VERSION,
-      childId: child.id,
-      childCreatedAt: child.createdAt,
-      mode: descriptor.mode,
-      label: descriptor.label,
-    })
+  parent.append('subagent/catalog', {
+    version: SUBAGENT_CATALOG_VERSION,
+    childId: child.id,
+    childCreatedAt: child.createdAt,
+    mode: descriptor.mode,
+    label: descriptor.label,
+  })
 }
 
 /** Catalog payload version emitted by external execution creation. */
