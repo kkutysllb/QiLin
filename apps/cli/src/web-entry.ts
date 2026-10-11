@@ -1,25 +1,30 @@
 /**
- * The Web profile's entry: one public address, one supervisor, and one runtime
- * per account.
+ * The deployment entry: one public address, one supervisor, and one runtime per
+ * account.
  *
- * `qilin web` is the deployment. This process binds the address a browser
- * reaches, serves the account directory and each account's runtime through it,
- * and starts one child runtime per account on demand. A child boots the same
- * profile with {@link TENANT_VARIABLE} set, so the application is what a tenant
- * process runs and the supervisor is what the deployment runs.
+ * Every profile that serves a browser address is a deployment: `qilin web` and
+ * the product surface `qilin` both come here. This process binds the address a
+ * browser reaches, serves the sign-in form, and starts one child runtime per
+ * account on demand. A child boots the same profile with
+ * {@link TENANT_VARIABLE} set, so the application is what a runtime process runs
+ * and the supervisor is what the deployment runs.
  *
  * Runtimes stay on loopback: the public address is the supervisor's. That is
- * why this entry serves every tenant through its own origin rather than
+ * why this entry serves every account through its own origin rather than
  * redirecting a browser to a runtime port — a redirect target a client cannot
  * reach is not a deployment.
+ *
+ * The desktop shell boots the product profile in-process through
+ * `profile-boot`, so it never reaches this module and keeps serving one
+ * account directly.
  * @module @qilin-agent/cli/web-entry
  */
 
 import { TENANT_VARIABLE } from './tenant-runtime.ts'
 import { runTenantsServe } from './tenants.ts'
 
-/** The profile whose boot is the deployment entry. */
-export const WEB_ENTRY_PROFILE = 'web'
+/** The profiles whose boot is a deployment of the product surface. */
+export const ENTRY_PROFILES: readonly string[] = ['qilin', 'web']
 
 /** Idle window a deployment gets before it sets one. */
 const DEFAULT_IDLE_MILLISECONDS = 1_800_000
@@ -73,7 +78,7 @@ function argument(args: readonly string[], name: string): string | undefined {
  * @returns the process exit code.
  * @throws Error when a flag the invocation names is not a usable value.
  */
-export async function runWebEntry(args: readonly string[]): Promise<number> {
+export async function runWebEntry(args: readonly string[], servedProfile: string): Promise<number> {
   const host = argument(args, '--host') ?? DEFAULT_HOST
   const port = wholeNumber(args, '--port', DEFAULT_PORT, 0)
   return await runTenantsServe({
@@ -81,7 +86,7 @@ export async function runWebEntry(args: readonly string[]): Promise<number> {
     port,
     // A deployment serves a named profile's app per account; the entry's own
     // reads and the sign-in form do not change with it.
-    profile: argument(args, '--tenant-profile') ?? WEB_ENTRY_PROFILE,
+    profile: argument(args, '--tenant-profile') ?? servedProfile,
     idleMilliseconds: wholeNumber(args, '--idle-ms', DEFAULT_IDLE_MILLISECONDS, 0),
     maxTenants: wholeNumber(args, '--max-tenants', 0, 0),
     restartBackoffMilliseconds: wholeNumber(args, '--restart-backoff-ms', DEFAULT_RESTART_BACKOFF_MILLISECONDS, 0),

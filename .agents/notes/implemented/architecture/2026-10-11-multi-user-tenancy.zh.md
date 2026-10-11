@@ -10,7 +10,7 @@ Status: implemented
 
 ## Decision
 
-把**一个引擎运行时作为租户单位**，并让账户的 harness home 成为隔离的单位：每个运行时以 `QILIN_HOME` 指向 `$QILIN_HOME/tenants/<账户 id>/` 运行，因此每个按 home 解析的根——`profiles/`、`settings.yaml`、`.credentials.yaml`、MCP 行、技能、预设、会话、任务、工作区与附件——都归该账户，而账户名册留在部署 home 里。一个新的守护进程——`qilin web` 入口——拥有「账号 → 租户」映射，并为每个账户运行一个引擎子进程，同时为它生成一份指名共享名册、只接纳该账户的 home 层。完整的证据清单与阶段划分见[多租户计划](../../../../plans/2026-10-11-multi-user-tenancy.md)；交付面是 `apps/cli/src/web-entry.ts`（部署入口）、`tenants.ts`（入口自有读取、登录表单与路由跳变）、`tenant-runtime.ts`（一个子进程与它的 home）、`tenants-roster.ts`（账户生命周期命令）与 `tenant-proxy.ts`（转发），其中 `accounts-local` 的 `admittedAccounts` 是每个运行时执行的接纳名单。
+把**一个引擎运行时作为租户单位**，并让账户的 harness home 成为隔离的单位：每个运行时以 `QILIN_HOME` 指向 `$QILIN_HOME/tenants/<账户 id>/` 运行，因此每个按 home 解析的根——`profiles/`、`settings.yaml`、`.credentials.yaml`、MCP 行、技能、预设、会话、任务、工作区与附件——都归该账户，而账户名册留在部署 home 里。一个新的守护进程——会服务浏览器的 profile（`qilin` 或 `qilin web`）所启动的入口——拥有「账号 → 租户」映射，并为每个账户运行一个引擎子进程，同时为它生成一份指名共享名册、只接纳该账户的 home 层。完整的证据清单与阶段划分见[多租户计划](../../../../plans/2026-10-11-multi-user-tenancy.md)；交付面是 `apps/cli/src/web-entry.ts`（部署入口）、`tenants.ts`（入口自有读取、登录表单与路由跳变）、`tenant-runtime.ts`（一个子进程与它的 home）、`tenants-roster.ts`（账户生命周期命令）与 `tenant-proxy.ts`（转发），其中 `accounts-local` 的 `admittedAccounts` 是每个运行时执行的接纳名单。
 
 ### 决定隔离的根
 
@@ -31,7 +31,7 @@ Status: implemented
 
 ### 守护进程
 
-整套部署就是一条命令 `qilin web`：入口在自己的地址上显示登录表单，按需为每个账户启动一个运行时，并转发字节。它不做访问判定。一次登录提交由被指名账户自己的运行时校验——入口把凭据转发到那里，中继它签发的会话 cookie，并加上分派后续每个请求的路由 cookie——因为应用文档、它的 `/api` 通道、它的 mux 升级与它的媒体请求都是页面 origin 上的绝对路径，只有 cookie 能把它们归属到某个账户。转发是传输工作：入口重写携带 authority 的头（把租户写进 `Host`，并在先校验浏览器 `Origin` 指向本入口之后把它一并重写）、原样转发 `Range`、`Set-Cookie` 与分段答案，并按字节管道转接 mux 套接字而不拆帧。判定落在做决定的操作里：每个子进程在自己的 origin 上保留账号门，且只接纳归属于该租户的账号，因此伪造的路由 cookie 只会到达一个不认可调用者的运行时。运行时只绑 loopback，因此浏览器需要的地址只有入口那一个，而同一个浏览器一次只服务一个账户。入口不需要新的引擎 RPC：Web 应用已经把启动 URL 行声明为守护进程契约——「supervisors RPC as soon as they observe the line」——启动器也已接受 `--profile` 与 `--patch` 覆盖层，其中 `--patch` 在 bundle 层与租户 home 层之后应用。桌面壳在做同一形态里「拉起」的那一半（拉起子进程、消费其 `ready{url, injections}` 消息）；它的反代正是本入口所交付路由的先例。入口也给自己定界：`--max-tenants` 在越过上限时先回收最久未使用的运行时，启动失败的运行时按倍增的等待重试而不是每次访问都重试，而名册命令（`qilin tenants accounts`、`add`、`passwd`、`remove`）是共享账户文件之上的运维面——因为一个运行时只接纳一个账户并关闭注册。
+整套部署就是一条命令——会服务浏览器的 profile 本身，`qilin` 或 `qilin web`：入口在自己的地址上显示登录表单，按需为每个账户启动一个运行时，并转发字节。它不做访问判定。一次登录提交由被指名账户自己的运行时校验——入口把凭据转发到那里，中继它签发的会话 cookie，并加上分派后续每个请求的路由 cookie——因为应用文档、它的 `/api` 通道、它的 mux 升级与它的媒体请求都是页面 origin 上的绝对路径，只有 cookie 能把它们归属到某个账户。转发是传输工作：入口重写携带 authority 的头（把租户写进 `Host`，并在先校验浏览器 `Origin` 指向本入口之后把它一并重写）、原样转发 `Range`、`Set-Cookie` 与分段答案，并按字节管道转接 mux 套接字而不拆帧。判定落在做决定的操作里：每个子进程在自己的 origin 上保留账号门，且只接纳归属于该租户的账号，因此伪造的路由 cookie 只会到达一个不认可调用者的运行时。运行时只绑 loopback，因此浏览器需要的地址只有入口那一个，而同一个浏览器一次只服务一个账户。入口不需要新的引擎 RPC：Web 应用已经把启动 URL 行声明为守护进程契约——「supervisors RPC as soon as they observe the line」——启动器也已接受 `--profile` 与 `--patch` 覆盖层，其中 `--patch` 在 bundle 层与租户 home 层之后应用。桌面壳在做同一形态里「拉起」的那一半（拉起子进程、消费其 `ready{url, injections}` 消息）；它的反代正是本入口所交付路由的先例。入口也给自己定界：`--max-tenants` 在越过上限时先回收最久未使用的运行时，启动失败的运行时按倍增的等待重试而不是每次访问都重试，而名册命令（`qilin tenants accounts`、`add`、`passwd`、`remove`）是共享账户文件之上的运维面——因为一个运行时只接纳一个账户并关闭注册。
 
 ### 引擎改动
 

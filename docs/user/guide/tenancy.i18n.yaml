@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/user/guide/tenancy.md
 /run-one-deployment-for-several-people:
-  en: 046fd26279ada01f
-  zh: 27c71828b455f9f8
+  en: f0af81eb81b06f69
+  zh: b4a9cd8a6355626f
 /run-one-deployment-for-several-people/create-the-accounts:
   en: d0a94fb99104fb94
   zh: db5b4599dcd044a9

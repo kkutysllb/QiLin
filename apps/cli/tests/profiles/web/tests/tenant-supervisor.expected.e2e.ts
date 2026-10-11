@@ -64,6 +64,8 @@ interface HubStatus {
 
 /** What one hub start takes beyond the shared home. */
 interface HubOptions {
+  /** The deployment entry to invoke: the Web profile, or the product profile. */
+  readonly entry?: 'web' | 'qilin'
   /** Profile each tenant runtime boots; a name no profile holds fails every start. */
   readonly profile?: string
   /** Most tenant runtimes the hub keeps alive at once. */
@@ -84,7 +86,8 @@ async function startHub(root: string, home: string, options: HubOptions = {}): P
     // account. A per-account-ports mode is not part of the product surface, so
     // the whole lane runs the single-origin routing it always did.
     configArgs: [
-      'web', '--port', '0', '--idle-ms', String(options.idleMs ?? IDLE_MILLISECONDS),
+      ...(options.entry === 'qilin' ? ['--profile', 'qilin'] : ['web']),
+      '--port', '0', '--idle-ms', String(options.idleMs ?? IDLE_MILLISECONDS),
       ...(options.profile === undefined ? [] : ['--tenant-profile', options.profile]),
       ...(options.maxTenants === undefined ? [] : ['--max-tenants', String(options.maxTenants)]),
       ...(options.restartBackoffMs === undefined ? [] : ['--restart-backoff-ms', String(options.restartBackoffMs)]),
@@ -584,6 +587,70 @@ it('serves one browser through the hub origin by routing cookie', { timeout: 240
     })
     expect(logout.status).toBeLessThan(400)
     expect(logout.headers.getSetCookie().some(cookie => cookie.startsWith('qilin_tenant=;'))).toBe(true)
+  } catch (error) {
+    const evidence = hub === undefined ? '' : `\n${hub.output().slice(-4000)}`
+    throw new Error(`${error instanceof Error ? error.message : String(error)}${evidence}`, { cause: error })
+  } finally {
+    if (hub !== undefined) await stopHub(hub)
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
+it('runs two accounts at once through the product profile', { timeout: 240_000 }, async () => {
+  const root = await mkdtemp(join(tmpdir(), 'qilin-tenant-concurrent-'))
+  const home = join(root, 'home')
+  await mkdir(home, { recursive: true })
+  const store = await AccountStore.open(accountsFilePath(home))
+  await store.add({ username: 'linbid' }, ALICE_PASSWORD)
+  await store.add({ username: 'kkutys' }, BOB_PASSWORD)
+
+  let hub: RunningHub | undefined
+  try {
+    // The product profile is a deployment too: the user's own entry, not a
+    // second command.
+    hub = await startHub(root, home, { entry: 'qilin' })
+    const base = hub.base
+    // Requests address the origin without the trailing slash the page URL carries.
+    const hubOrigin = new URL(base).origin
+    const linbid = await signInAtAddress(base, 'linbid', ALICE_PASSWORD)
+    const kkutys = await signInAtAddress(base, 'kkutys', BOB_PASSWORD)
+
+    // Both runtimes are alive at the same time; neither replaced the other.
+    const status = await hubStatus(base)
+    expect(status.map(tenant => [tenant.username, tenant.state]))
+      .toEqual([['linbid', 'running'], ['kkutys', 'running']])
+
+    const work = async (name: string): Promise<string> => {
+      const dir = join(root, `${name}-work`)
+      await mkdir(dir, { recursive: true })
+      return dir
+    }
+    const [linbidCwd, kkutysCwd] = await Promise.all([work('linbid'), work('kkutys')])
+    const created = await Promise.all([
+      remote<{ sessionId: string }>(hubOrigin, linbid, 'session/create', { request: { cwd: linbidCwd } }),
+      remote<{ sessionId: string }>(hubOrigin, kkutys, 'session/create', { request: { cwd: kkutysCwd } }),
+    ])
+    // Interleaved reads, driven at the same time: each account sees its own
+    // Session and never the other's.
+    const reads = await Promise.all(Array.from({ length: 3 }, () => [
+      remote<{ items: { sessionId: string }[] }>(hubOrigin, linbid, 'session/list', { _request: {} }),
+      remote<{ items: { sessionId: string }[] }>(hubOrigin, kkutys, 'session/list', { _request: {} }),
+    ]).flat())
+    for (const [index, read] of reads.entries()) {
+      const mine = read.items.map(item => item.sessionId)
+      const owner = index % 2 === 0 ? created[0] : created[1]
+      const foreign = index % 2 === 0 ? created[1] : created[0]
+      expect(mine).toContain(owner.sessionId)
+      expect(mine).not.toContain(foreign.sessionId)
+    }
+    // A model setting one of them writes stays in that account's own home.
+    await remote(hubOrigin, linbid, 'settings/update', { ns: 'ui-theme', patch: { fontSize: 16 }, expectedRevision: 0 })
+    const describe = async (cookie: string): Promise<number | undefined> => {
+      const answer = await remote<{ namespaces: { ns: string; value: { fontSize?: number } }[] }>(hubOrigin, cookie, 'settings/describe', {})
+      return answer.namespaces.find(entry => entry.ns === 'ui-theme')?.value.fontSize
+    }
+    expect(await describe(linbid)).toBe(16)
+    expect(await describe(kkutys)).not.toBe(16)
   } catch (error) {
     const evidence = hub === undefined ? '' : `\n${hub.output().slice(-4000)}`
     throw new Error(`${error instanceof Error ? error.message : String(error)}${evidence}`, { cause: error })

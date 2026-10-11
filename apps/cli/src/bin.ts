@@ -41,12 +41,14 @@ export async function runCli(): Promise<void> {
 
   switch (invocation.mode) {
     case 'profile': {
-      // The Web profile is the deployment entry: one public address, one
-      // supervisor, one runtime per account. A process the supervisor started
-      // carries the tenant marker and boots the application itself.
-      const { isWebEntry, runWebEntry, WEB_ENTRY_PROFILE } = await import('./web-entry.ts')
-      if (invocation.profile === WEB_ENTRY_PROFILE && isWebEntry()) {
-        process.exitCode = await runWebEntry(invocation.args)
+      // A profile that serves a browser address is a deployment: one public
+      // address, one supervisor, one runtime per account. A process the
+      // supervisor started carries the tenant marker and boots the application
+      // itself, and the desktop shell boots through profile-boot instead of
+      // here, so it keeps serving one account directly.
+      const { ENTRY_PROFILES, isWebEntry, runWebEntry } = await import('./web-entry.ts')
+      if (ENTRY_PROFILES.includes(invocation.profile) && isWebEntry()) {
+        process.exitCode = await runWebEntry(invocation.args, invocation.profile)
         break
       }
       const { runProfile } = await import('./profile-boot.ts')

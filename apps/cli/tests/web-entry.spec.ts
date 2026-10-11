@@ -3,12 +3,12 @@
  * and a value it cannot honour stops the process instead of quietly defaulting.
  */
 import { describe, expect, it } from 'vitest'
-import { isWebEntry, runWebEntry, WEB_ENTRY_PROFILE } from '../src/web-entry.ts'
+import { ENTRY_PROFILES, isWebEntry, runWebEntry } from '../src/web-entry.ts'
 import { TENANT_VARIABLE } from '../src/tenant-runtime.ts'
 
 describe('the Web deployment entry', () => {
-  it('serves the Web profile to every account', () => {
-    expect(WEB_ENTRY_PROFILE).toBe('web')
+  it('is the entry of every profile that serves a browser address', () => {
+    expect(ENTRY_PROFILES).toEqual(['qilin', 'web'])
   })
 
   it('treats a marked process as one account runtime rather than the entry', () => {
@@ -25,9 +25,9 @@ describe('the Web deployment entry', () => {
   })
 
   it('refuses a flag value it cannot honour', async () => {
-    await expect(runWebEntry(['--port', 'eight'])).rejects.toThrow(/--port needs a whole number/u)
-    await expect(runWebEntry(['--idle-ms', '-1'])).rejects.toThrow(/--idle-ms needs a whole number/u)
-    await expect(runWebEntry(['--max-tenants', 'two'])).rejects.toThrow(/--max-tenants needs a whole number/u)
-    await expect(runWebEntry(['--restart-backoff-ms', 'soon'])).rejects.toThrow(/--restart-backoff-ms needs a whole number/u)
+    await expect(runWebEntry(['--port', 'eight'], 'qilin')).rejects.toThrow(/--port needs a whole number/u)
+    await expect(runWebEntry(['--idle-ms', '-1'], 'qilin')).rejects.toThrow(/--idle-ms needs a whole number/u)
+    await expect(runWebEntry(['--max-tenants', 'two'], 'qilin')).rejects.toThrow(/--max-tenants needs a whole number/u)
+    await expect(runWebEntry(['--restart-backoff-ms', 'soon'], 'qilin')).rejects.toThrow(/--restart-backoff-ms needs a whole number/u)
   })
 })

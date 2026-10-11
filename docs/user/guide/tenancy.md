@@ -2,7 +2,7 @@
 
 English | [中文](tenancy.zh.md)
 
-`qilin web` serves one deployment at one address: visitors sign in there, and each account gets its own engine runtime under `$QILIN_HOME/tenants/<account id>/` — its own sessions, tasks, workspaces, attachments, plugins, model settings, credentials, skills, and presets. Only the account roster is shared. Every runtime keeps the account gate and admits only the account it serves.
+The browser-serving profiles — `qilin` and `qilin web` — serve one deployment at one address: visitors sign in there, and each account gets its own engine runtime under `$QILIN_HOME/tenants/<account id>/` — its own sessions, tasks, workspaces, attachments, plugins, model settings, credentials, skills, and presets. Only the account roster is shared. Every runtime keeps the account gate and admits only the account it serves.
 
 ## Create the accounts
 
@@ -19,7 +19,7 @@ qilin tenants remove alice [--purge-data]               # retire; keep Sessions 
 ## Start the deployment
 
 ```sh
-qilin web --port 8790
+qilin --port 8790
 ```
 
 The entry prints its URL (loopback and port 8790 by default), shows the sign-in form there, starts an account's runtime when that account signs in, and reclaims runtimes nobody is using. `--idle-ms` sets that window, and `0` keeps every runtime alive. `--max-tenants` bounds how many runtimes live at once by reclaiming the least recently used one. `--restart-backoff-ms` sets the first wait before a runtime that failed to start is retried; the wait doubles per consecutive failure, and `/status` reports the failure count and the earliest retry.
