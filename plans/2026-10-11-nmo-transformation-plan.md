@@ -183,14 +183,39 @@
 | 门 | `verify-translation-pairing`（两文件）· `verify-runtime-closure`（**1 agent presets** + 156 包闭合）· `verify-cordis-config`（435 文件）· `verify-md-links`（2179 文件）· `verify-repository-references` · `rescope-vendor --check`（8464 文件）· `gen-plugin-packages --check` · `tsc -b` 两面 全绿 |
 | `doc-quick` | 18 通过 / 2 红，均为**既有红**：`translation pairing`（`desktop/staging` 镜像 + `docs/tool-catalog.i18n.yaml` + python SDK 示例，均非本片文件）、`verify-repository-references`——后者本片一度被新计划文件里的裸 commit hash 触发，已按门规改写为 tag/描述 |
 
-### S1 遗留（下一批，同属本片验收面）
+### S1 遗留收口 —— CLI 车道与产品硬编码（2026-10-11 续，提交 `5ccc5d93a3`）
 
-| 面 | 状态与理由 |
+**`apps/cli/tests/web-agent-presets.e2e.ts`：25 红 → 3 红（29/32 绿）**，改写口径：
+
+| 改写点 | 事实依据 |
 |---|---|
-| `apps/cli/tests/web-agent-presets.e2e.ts` | 13 例以 `standard`/`cordis` 为被测对象（"composes the full agent from standard" 等），须按 PTC 呈现重推期望；该车道在 HEAD **已红**（roster 断言仍要求已删除的 `minimal`），非本片引入 |
-| `apps/web/tests/agent-preset-{authoring,selection}.e2e.ts` + `expected/*.md` 金样 | 以"三预设 roster + 模式选择面"为前提，按 §4-S3「无标签、无预设选择面」重写，随 S3 一并重录 |
-| `shipped-composition` / `schedule-*` 车道的预设默认 | S1 已把 `default` 与出厂记忆改为 `ptc`；其余断言随 S3 |
+| 组合来源 | 出厂 `ptc` + 车道自建 lean 组合（`lane-lean`，只挂 `tool-bash`/`tool-pwsh`），取代已不存在的 `standard`/`minimal`/`cordis` 三档位；`minimal` 的内容断言（RL prompt、bash 描述）随预设删除，机制断言（宿主/预设服务归属、复制删除、默认设置、fork 继承）保留 |
+| roster | system-trust 子集 == `['ptc']`，default `ptc` |
+| 目录断言 | 补上合并后新增的三行：`run_code`（PTC 呈现注册）与部署级 `sidebar_open`/`working_directory`（全局层唯二成员，任何组合的会话都带） |
+| skill 载入 | 直接 `execute('skill')` 现被 PTC 守卫拒绝并指向 `run_code`，断言据此改写；`skill-badge` 行已改为 opt-in bundle，车道自行 insert；出厂 `skills/` 路径 cordis→ptc |
+
+**合并引入的产品缺陷（已修）**：创造模式在客户端三处硬编码已退役的 `cordis` —— [index.ts:163](../packages/client/ui-agent-preset/src/client/index.ts) stage、[CreatePluginMenuItem.tsx:33](../packages/client/ui-agent-preset/src/client/CreatePluginMenuItem.tsx) 与 [AgentPresetSection.tsx:215](../packages/client/ui-agent-preset/src/client/AgentPresetSection.tsx) 的按钮门；单预设下该字符串永不命中，「用「创造模式」创作自定义预设」会静默消失。三处改为新内部常量 `SHIPPED_PRESET_ID`；[connection fixture](../packages/client/connection/src/client/fixture.ts) 的 roster 同步为单预设。
+
+**验证**：CLI 车道 29/32；`ui-agent-preset`/`connection`/`ui-workbench`/`ui-workspace` **535/535**；`tsc -b tsconfig.client.json` 0；oxlint 0。
+
+**三例既有红（升级期引入，非本片；读码确认根因）**：
+
+| 例 | 根因 |
+|---|---|
+| applies the default-off subagent model allowlist only to new sessions | `settings namespace "subagent-model-selection-settings" is not registered`：web-app patch 已 insert 该行，但始终没有注册该 namespace |
+| composes the intersection of installed Bundles and enabled preset rows | 子代理工具 schema 现为 `cwd`/`description`/`prompt`，不再是 `run_in_background` |
+| applies a product-row edit only to later sessions on the preset | `subagent-codex/cordis.patch.yml` 自身 insert 了一行**启用**的 `tool-subagent-codex`，与「装 Bundle 不等于授予工具」的断言冲突 |
+
+### S1 遗留 —— 浏览器车道（下一批）
+
+| 面 | 实测状态 |
+|---|---|
+| `agent-preset-selection.e2e.ts` | 车道本机可跑（Playwright 正常，单车道约 150s）；当前探针 **2/9 绿**：`default: 'standard'`、`livePreset` 三档位期望、标签重绑与三份金样 |
+| `agent-preset-authoring.e2e.ts` | 同因：`default: 'standard'`、读取已删除的 `shipped/standard/agent.cordis.yml`、四份金样、创造模式落地 id（现为 `ptc`） |
+| `settings-chrome` / `preset-migration.snapshot` / `schedule-after` | 预设显示名断言与 `agentPreset: 'standard'` 种子 |
+
+浏览器车道重写需**先重建前端 dist**（本轮改了 `ui-agent-preset` 与 `connection` 的客户端源码），再按单预设事实重推期望并重录 `expected/*.md`。
 
 ## 10. 下一步
 
-S1 遗留三面收口 → S2 存量会话 v4→v5 代次重写（C2=b）→ S3 双工作台与 audience 归一删除。
+浏览器车道重写 + 金样重录（重建前端 dist）→ S2 存量会话 v4→v5 代次重写（C2=b）→ S3 双工作台与 audience 归一删除。
