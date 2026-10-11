@@ -33,7 +33,7 @@ npx vitest run --config vitest.expected.config.ts -t "keeps sessions, tasks, wor
 
 | # | 面 | 事实 | 性质 |
 |---|---|---|---|
-| 1 | **单源模式下的浏览器存储** | 客户端把偏好写进 localStorage：`ql-theme`、`qilin.locale`、`qilin.conversation.busyEnter`、`qilin.sidebar-right.v1.*`、`qilin.open-in-app.choice` 等；localStorage 按 **origin** 隔离，而单源模式正是把两个账户放在**同一个 origin** 上。仓库自己的测试注释也承认这层隔离来自「fresh origin」 | **缺陷**：同一浏览器里 A 的主题/语言/侧栏布局会串到 B。修法要选：按账户 id 给键加前缀（含旧键迁移）／多账户同浏览器只走按账户端口 |
+| 1 | **单源模式下的浏览器存储** | 见第 6 节的键级清单：**全局键**（`ql-theme`、`qilin.keybindings.v1`、`qilin.sidebar.folded-sections.v1`、`qilin.schedule.recent-time-zones.v1`、`qilin.trajectory.*`、`client/store` 的 persist 键）在同一 origin 上跨账户共用；**按会话键**（`qilin.conversation.<sessionId>`、`qilin.sidebar-right.v1.<sessionId>`、task-tab 绑定）因会话 id 唯一而天然隔离 | **缺陷（偏好级，不含凭据/会话）**：同一浏览器里 A 的主题/快捷键/折叠分区/时区记忆会串到 B。修法见第 6 节两个选项 |
 | 2 | **继承的环境凭据与 `~/...` 环境凭据** | `tenantChildEnvironment` 继承 hub 的 `process.env`，所以 `DEEPSEEK_API_KEY` 一类的键对每个租户都一样；pi-ai 的 `fileExists` 把 `~/...` 解析到操作系统家目录，读的是环境的凭据文件 | **政策**：部署给所有人一把钥匙是合理默认，也可能是你要禁掉的。要禁就得在子进程环境里剥掉 provider 键、并决定 `~/...` 还读不读 |
 | 3 | **按账户的 token 汇总 / 配额** | 每个会话的用量有投影，但**不存在按账户的汇总或上限**；也没有跨会话的用量账本 | **新增能力**：要「各自消耗」的账目或额度，需要新服务 + 存储 + 页面 |
 
@@ -55,3 +55,29 @@ npx vitest run apps/cli/tests/tenant-environment.spec.ts
 - 一个浏览器在单源模式下同时只驱动一个租户（路由 cookie 是浏览器级的），第 3 节第 1 条正是这个口径下的后果。
 - 所有运行时同属一个 OS 用户：A 的 agent 用 shell 仍能读到 B 的 home。真隔离需要独立系统用户或容器，不在本审计范围。
 - 第 3 节的第 2、3 条我没有擅自实现：它们改的是「部署给不给共享凭据」与「要不要做额度」这类产品口径。
+
+## 6. 浏览器存储：键级清单与两个修法（待你选）
+
+单源模式把两个账户放在同一个 origin，而 localStorage 按 origin 隔离，所以只有**不依赖会话 id 的键**才会串账户。按源码逐个键分类：
+
+| 键 | 归属 | 同 origin 下是否串账户 |
+|---|---|---|
+| `qilin.conversation.<sessionId>`、`qilin.sidebar-right.v1.<sessionId>`、`qilin.schedule.task-tab.<sessionId>` | 会话 | 否——会话 id 每租户唯一 |
+| `ql-theme`、`qilin.locale` | 设备偏好 | 是 |
+| `qilin.keybindings.v1` | 设备偏好 | 是 |
+| `qilin.sidebar.folded-sections.v1` | 账户界面状态 | 是 |
+| `qilin.schedule.recent-time-zones.v1` | 账户界面状态 | 是 |
+| `qilin.trajectory.duration`、`client/store` 的 persist 名 | 账户界面状态 | 是 |
+
+**选项 A（推荐）——按账户 id 给键加前缀。** 账户 id 需要在客户端**早于任何读取**可知：hub 已经按账户下发 `qilin_tenant` 路由 cookie，但它是 `HttpOnly`（有意如此）。两条取法：
+  - A1：hub 额外下发一个**可被脚本读取**的同名值（非 HttpOnly）。该值就是账户 id，页面本来也能通过 `/api/auth/status` 拿到，因此不新增暴露面；但它确实把「路由选择器」变成脚本可读，需要你点这个头。
+  - A2：租户运行时在它服务的文档里注入账户 id（`<meta>` 或 `window` 全局），客户端同步读取。改动面在 host 侧，不动 cookie 语义。
+  取到 id 后：加前缀的键与旧键**不迁移**（迁移会把 A 的偏好送给 B，正是要修的病）；单次登录前的落地页仍用无前缀键，登录后的应用用带前缀键。
+
+**选项 B——单源模式只服务一个账户的浏览器。** 即承认「同一浏览器多账户」需要按账户端口（`--per-account-ports`），把偏好串账户记为已知让步。改动量 0，但不满足「同一个 web 入口」的要求。
+
+## 7. 本轮增量（第 6 轮）
+
+- 上限与并发：新增 [tenant-handoff.spec.ts](../../apps/cli/tests/tenant-handoff.spec.ts) 用真 hub + 真 HTTP 驱动两个账户同时交接。**发现并登记**：`--max-tenants 1` 下两个账户同时交接时，回收可能把另一个请求正在用的运行时停掉，于是那一侧收到 **503**——这是上限语义的正确后果（默认 `0` 不受影响），需要在部署文档里说清，别当成故障。
+- 该 spec 是「交接队列是否真的互斥」的第一条**端到端**判据：把队列改成立即执行，回收日志变空、用例变红；恢复后 5/5 通过。
+- 环境面：`TenantHandle` / `createRuntime` / `home` / `signal` 四个缝让 supervisor 可被嵌入与停止，测试不再需要改 `process.env` 或发信号给自己。
