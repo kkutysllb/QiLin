@@ -417,8 +417,9 @@ hub 仍然**不做访问判定**：路由 cookie 只是选择器，伪造它只�
 | 7 | **按真实流量回收**：窗口（4 s）内每 1.2 s 一次请求使运行时保持 `running`，请求停止后被回收为 `stopped` | ✅ |
 | 8 | 登录后应用文档里脚本/样式/清单的 **相对路径按文档 URL 解析后**穿过 hub 全部 200，且都不是 hub 自己的 HTML | ✅ |
 | 9 | **同一个 `/` 按选择分流**：带路由 cookie 得到运行时的落地页（不含 `qilin tenants`），不带 cookie 得到 hub 目录 | ✅ |
+| 10 | **真实媒体路由的 Range 分流**：`GET /sidebar/media?sessionId=…&path=…` 带 `Range: bytes=5-14` 穿过 hub 得到 **206 + `content-range: bytes 5-14/40` + `accept-ranges: bytes` + 恰好那 10 个字节**；不带 Range 的同一条 URL 得到 200 与全部 40 字节 | ✅ |
 
-媒体流的 Range 转发由上面的单元用例覆盖（对桩上游断言 206 与 `content-range`），**没有**对真实 `preview-media` 路由端到端跑一次 Range——登记在 12.4。
+媒体流的 Range 现在有一条**真实路由**的端到端断言（上面第 10 条），单元用例（对桩上游）仍保留，两条各自证明一层。
 
 **真浏览器走查（Playwright 无头 Chromium，同一 hub、同一树）**：`/t/alice` → 运行时落地页（标题 `QiLin`）→ 点「进入控制台」→ `/login?next=%2Fworkspace` → 登录 → `/workspace` 渲染出**应用外壳（25 个 `[data-slot]` 节点；页面显示 `3.1.4-rc.2`、New Session、Workspaces、账户 `alice`）**，并且**控制台 0 错误、页面 0 异常、0 个 4xx/5xx 响应**——文档、全部脚本/样式资源、登录 API 与页面内请求都走通了同一条 hop。
 

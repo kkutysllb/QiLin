@@ -10,7 +10,7 @@
  * credentials is refused.
  */
 import { spawn, type ChildProcess } from 'node:child_process'
-import { mkdir, mkdtemp, rm } from 'node:fs/promises'
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -429,7 +429,26 @@ it('serves one browser through the hub origin by routing cookie', { timeout: 240
       expect(served.headers.get('content-type') ?? '', asset).not.toContain('text/html')
     }
 
-    // 5. A Remote request and the mux upgrade cross the hop too: the upgrade
+    // 5. A ranged media read crosses the hop with its window and headers
+    //    intact: /sidebar/media is the host route the video preview seeks
+    //    through, so 206 and Content-Range are what a viewer depends on.
+    const mediaDir = join(root, 'alice-media')
+    await mkdir(mediaDir, { recursive: true })
+    const clip = join(mediaDir, 'clip.mp4')
+    const clipBytes = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcd'
+    await writeFile(clip, clipBytes)
+    const mediaSession = await remote<{ sessionId: string }>(hubOrigin, authenticated, 'session/create', { request: { cwd: mediaDir } })
+    const mediaUrl = `${hubOrigin}/sidebar/media?sessionId=${mediaSession.sessionId}&path=${encodeURIComponent(clip)}`
+    const ranged = await fetch(mediaUrl, { headers: { cookie: authenticated, range: 'bytes=5-14' } })
+    expect(ranged.status).toBe(206)
+    expect(ranged.headers.get('content-range')).toBe('bytes 5-14/40')
+    expect(ranged.headers.get('accept-ranges')).toBe('bytes')
+    expect(await ranged.text()).toBe('FGHIJKLMNO')
+    const whole = await fetch(mediaUrl, { headers: { cookie: authenticated } })
+    expect(whole.status).toBe(200)
+    expect(await whole.text()).toBe(clipBytes)
+
+    // 6. A Remote request and the mux upgrade cross the hop too: the upgrade
     //    is an absolute path, and its ready item proves the frame pipe.
     const listing = await tenantRemoteResult<{ items: { sessionId: string }[] }>(hubOrigin, authenticated, 'through-hub', 'session/list', { _request: {} })
     expect(listing.ok).toBe(true)
@@ -445,7 +464,7 @@ it('serves one browser through the hub origin by routing cookie', { timeout: 240
     const events = await openForwardedEvents(proxied)
     await events.close()
 
-    // 6. Reclamation counts proxied traffic rather than a handoff: requests
+    // 7. Reclamation counts proxied traffic rather than a handoff: requests
     //    spread across the idle window keep the runtime alive...
     const until = Date.now() + IDLE_MILLISECONDS + 3000
     while (Date.now() < until) {
