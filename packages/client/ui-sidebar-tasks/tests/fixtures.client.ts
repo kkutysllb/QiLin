@@ -53,7 +53,12 @@ export function projection(
             ? { id: entry.id, createdAt: 1, mode: 'one-shot' }
             : { id: entry.id, createdAt: 1, mode: 'one-shot', label: entry.label }]
         }
-        return [{ id: entry.id, createdAt: 1, mode: 'continuable', label: entry.label }]
+        if (entry.mode === 'external') {
+          return [entry.label === undefined
+            ? { id: entry.id, createdAt: 1, mode: 'external' }
+            : { id: entry.id, createdAt: 1, mode: 'external', label: entry.label }]
+        }
+        return [{ id: entry.id, createdAt: 1, mode: 'continuable', label: entry.label ?? entry.id }]
       }),
     },
     state,
