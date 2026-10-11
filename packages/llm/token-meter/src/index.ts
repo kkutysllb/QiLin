@@ -38,6 +38,9 @@ import type { MeterSurfaceNode } from './surface-fold.ts'
 import { priceSurface } from './route-pricing.ts'
 
 export type * from './types.ts'
+// The exact per-Turn fold, for consumers that account for a Turn outside the
+// browser transcript; a deployment's usage reporter is the current one.
+export { deriveTurnTokenUsage } from './turn-usage.ts'
 // Module-edge re-export: forces the emitted index.d.ts to import the
 // projection-unit modules, so their SessionProjectionStateMap augmentations load
 // in aggregate programs that only import the package root.

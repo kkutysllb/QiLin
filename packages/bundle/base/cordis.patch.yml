@@ -334,6 +334,13 @@
     - id: token-meter
       name: '@qilin-agent/token-meter'
 
+    # Reports each settled Turn's usage to the deployment that started this
+    # runtime. A runtime the supervisor started carries the endpoint and its
+    # credential in the environment; one started by hand carries neither and the
+    # row then does nothing.
+    - id: usage-report
+      name: '@qilin-agent/usage-report'
+
     - id: compaction-basic
       name: '@qilin-agent/compaction-basic'
 

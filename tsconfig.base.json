@@ -535,6 +535,7 @@
       "@qilin-agent/tool-working-directory": ["./packages/session/tool-working-directory/src"],
       "@qilin-agent/tool-workspace-dependencies": ["./packages/skill/tool-workspace-dependencies/src"],
       "@qilin-agent/tools": ["./packages/core/tools/src"],
+      "@qilin-agent/usage-report": ["./packages/session/usage-report/src"],
       "@qilin-agent/user-approval": ["./packages/interaction/user-approval/src"],
       "@qilin-agent/user-questions": ["./packages/interaction/user-questions/src"],
       "@qilin-agent/web": ["./packages/web/web/src"],

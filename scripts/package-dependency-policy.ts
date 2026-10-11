@@ -61,6 +61,9 @@ const SAFE_HOST_DEPENDENCY_EXPORTS = {
   '@qilin-agent/dsh-compat': ['clientDeclarationOf', 'dshCompatModuleId'],
   '@qilin-agent/deque': ['Deque'],
   '@qilin-agent/llm': ['callConfigEquals', 'createUserMessage'],
+  // A pure fold over the caller's own event list with no module-level state, so
+  // two installed copies produce interchangeable values.
+  '@qilin-agent/token-meter': ['deriveTurnTokenUsage'],
   '@qilin-agent/session-format': ['sessionFormatLogFilename'],
   // A validating brand over a number (`SessionLogOffset(v)`), no runtime identity —
   // the FsVersion precedent.

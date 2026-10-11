@@ -98,6 +98,7 @@
     "@qilin-agent/jobs-local": "workspace:*",
     "@qilin-agent/tool-call-timeout-policy": "workspace:*",
     "@qilin-agent/token-meter": "workspace:*",
+    "@qilin-agent/usage-report": "workspace:*",
     "@qilin-agent/tool-bash": "workspace:*",
     "@qilin-agent/tool-present": "workspace:*",
     "@qilin-agent/tool-fs": "workspace:*",
