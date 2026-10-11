@@ -107,3 +107,10 @@ npx vitest run apps/cli/tests/tenant-environment.spec.ts
 - **一处落点收敛**：这个决定原先在两处内联重复，现在收敛为 `secureSessionCookies(options)` 一个函数、两处调用。
 - **负向对照实跑**：把该函数写死为 `false` → 前两例变红、第三例仍绿，说明判据绑在规则上而不是绑在「服务起来了」上。
 - 部署夹具因此获得 `tls` 选项；自签材料由 apps/cli 测试夹具生成，`selfsigned` 只进 apps/cli 的 devDependencies。
+
+## 10. 本轮增量（第 14 轮）：裸地址的账户入口
+
+- **发现（用户验证时撞到）**：多账户部署下，退出登录后浏览器**没有**任何办法换到另一个账户。hub 在 `/api/auth/logout` 的应答上确实清掉了路由 cookie（`clearedRoutingCookie()`），但随后裸地址**总是** 302 到名册第一项（`accounts[0]`），而那台运行时按设计只准入它自己那一个账户（`admittedAccounts` + `registration: closed`），于是第二个账户的凭据在它那里被判为 `invalid-credentials`（`routes.ts`）——用户看到「密码不对」，**凭据没错，是地址错了**。
+- **修法**：裸地址在名册**多于一个**账户时改为应答一个**账户列表**（只有用户名与各自入口路径，不含邮箱），单账户保持原来的 302；浏览器带路由 cookie 时照旧直连该账户的运行时。
+- **判据**：[tenant-entry.spec.ts](../apps/cli/tests/tenant-entry.spec.ts) 5 例——多账户列全两个入口、退出登录清掉路由 cookie（`Max-Age=0`）、单账户仍是 302、已选账户不再列他人、无名册交给首启运行时。**负向对照实跑**：关掉列表分支 → 多账户那条变红。
+- **仍是边界（未变）**：路由 cookie 是**浏览器级**的，所以同一个浏览器同时只驱动一个账户；要并行登录两个账户请用 `--per-account-ports`（每账户各自 origin 与 cookie jar），或开一个隐私窗口。
