@@ -147,11 +147,17 @@ describe('usage ledger endpoint', () => {
     const read = (query = ''): Promise<Response> =>
       fetch(`${alice.url}${query}`, { headers: { authorization: `Bearer ${alice.token}` } })
 
+    /** The records one read answers with. */
+    const records = async (query = ''): Promise<unknown> => {
+      const body = await (await read(query)).json() as { records: unknown }
+      return body.records
+    }
+
     // No window carries every Turn, oldest first.
-    expect((await (await read()).json()).records).toEqual([early, late])
+    expect(await records()).toEqual([early, late])
     // A window carries only the Turns that reported inside it.
-    expect((await (await read('?from=5000')).json()).records).toEqual([late])
-    expect((await (await read('?from=5000&to=8000')).json()).records).toEqual([])
+    expect(await records('?from=5000')).toEqual([late])
+    expect(await records('?from=5000&to=8000')).toEqual([])
     // A bound that is not an epoch millisecond, and inverted bounds, are refused
     // rather than silently read as "everything".
     for (const query of ['?from=abc', '?to=-1', '?from=9000&to=1000']) {
