@@ -864,7 +864,10 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
           return
         }
         runtime.lastUsedAt = Date.now()
-        relayUpgrade(request, socket, head, target, forwardedHeaders(request.headers, new URL(target).host))
+        // The same third argument the request hop passes: a runtime names the
+        // sessions it mints for the deployment's authority, so an upgrade that
+        // omits it authenticates against a cookie no browser holds.
+        relayUpgrade(request, socket, head, target, forwardedHeaders(request.headers, new URL(target).host, request.headers.host ?? ''))
       })().catch((error: unknown) => {
         process.stderr.write(`qilin tenants: the upgrade to ${request.url ?? ''} failed: ${String(error)}\n`)
         socket.destroy()

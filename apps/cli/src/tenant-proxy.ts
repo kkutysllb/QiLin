@@ -93,12 +93,17 @@ export function hubAcceptsOrigin(headers: IncomingHttpHeaders, hubAuthority: str
  * entries, with the authority-bearing ones rewritten to the tenant.
  * @param headers - browser headers, verbatim.
  * @param tenantAuthority - the runtime's own `host:port`.
+ * @param deploymentAuthority - authority the browser used to reach the hub, and
+ * therefore the one the runtime names its sessions for; empty when the request
+ * reached a runtime directly, which then keeps its own authority as the name.
+ * Required rather than optional because every hop of this deployment knows it,
+ * and an upgrade that forgot it authenticates against a cookie no browser holds.
  * @returns the forwarded header set.
  */
 export function forwardedHeaders(
   headers: IncomingHttpHeaders,
   tenantAuthority: string,
-  deploymentAuthority?: string,
+  deploymentAuthority: string,
 ): IncomingHttpHeaders {
   const forwarded: IncomingHttpHeaders = {}
   for (const [name, value] of Object.entries(headers)) {
@@ -116,7 +121,7 @@ export function forwardedHeaders(
   // runtime mints are named for the deployment's, which is the address the
   // browser actually used. A direct request (no hub hop, no deployment
   // authority) keeps the tenant authority as its own.
-  if (deploymentAuthority !== undefined && deploymentAuthority !== '') {
+  if (deploymentAuthority !== '') {
     forwarded[DEPLOYMENT_AUTHORITY_HEADER] = deploymentAuthority
   }
   return forwarded

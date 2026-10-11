@@ -158,9 +158,9 @@ describe('tenant proxy hop', () => {
     expect(answer.status).toBe(303)
     expect(answer.headers.location).toBe('/workspace')
     expect(answer.headers['set-cookie']).toEqual(['session=a; Path=/; HttpOnly', 'other=b'])
-    expect(forwardedHeaders({ host: 'x', origin: 'http://x' }, 'y:1')).toEqual({ host: 'y:1', origin: 'http://y:1' })
+    expect(forwardedHeaders({ host: 'x', origin: 'http://x' }, 'y:1', '')).toEqual({ host: 'y:1', origin: 'http://y:1' })
     // A client that attached no Origin keeps its unlabelled request unlabelled.
-    expect(forwardedHeaders({ host: 'x' }, 'y:1')).toEqual({ host: 'y:1' })
+    expect(forwardedHeaders({ host: 'x' }, 'y:1', '')).toEqual({ host: 'y:1' })
     // The browser's authority travels beside the tenant's: the fences check the
     // one, the runtime's sessions are named for the other. A client that tries
     // to name it itself is dropped, and a direct request names none.
