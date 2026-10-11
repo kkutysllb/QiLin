@@ -15,9 +15,12 @@ The `qilin` command is the sole supported Node application launcher: profiles ar
 | `qilin --profile sdk` | Serve SDK clients over JSON-RPC stdio until shutdown or disconnect. |
 | `qilin --profile sdk-minimal` | Serve SDK clients with the standalone minimal agent tree. |
 | `qilin web` | Boot the Web profile. |
+| `qilin tenants serve` | Serve one isolated Web runtime per account over this Harness home, and print the hub's URL. |
 | `qilin plugin --profile <name> <pnpm args>` | Manage a profile's plugins by forwarding to pnpm in the profile directory. |
 | `qilin plugin list` | List a profile's bundle layers in activation order; omit `--profile` for the product profile. |
 | `qilin plugin doctor <package\|directory>` | Report one plugin package's DSH-era compatibility without installing or running anything. |
+
+`qilin tenants serve` binds one HTTP hub over the shared Harness home. The hub lists the accounts of `$QILIN_HOME/auth/accounts.json`, starts one Web runtime per account on demand, and redirects `/t/<username>` to that account's runtime. Every runtime shares the home's plugins, model settings, and credentials, while its own deployment overlay moves Sessions, tasks, workspaces, and attachments under `$QILIN_HOME/tenants/<account id>/`; the runtime admits only its own account, so the sign-in happens there. `--idle-ms` reclaims a runtime that has had no handoff for that long, and `0` disables reclamation.
 
 The invoking directory is the default workspace root. The `web`, `headless`, `sdk`, `sdk-minimal`, and `acp` profiles auto-initialize on first use from shipped templates. Create another profile at an unused, non-shipped name with `--from-default-profile`, or initialize a base-backed profile through `qilin plugin`. The `desktop` name is reserved for the Electron-owned profile, so the CLI rejects boot, config-dump, and plugin-management requests for it. After a successful package operation the command reconciles the profile's bundle list, and it refuses a profile whose installed dependencies include an upstream DSH-era engine package: the diagnostic names each colliding package, the QiLin package it maps onto, and the `remove` command that clears it, and the command exits 1 without changing the bundle list.
 

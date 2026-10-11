@@ -15,7 +15,7 @@
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { expect, it } from 'vitest'
-import { openForwardedEvents, withTenantWeb, type ForwardedEvent, type TenantWorld } from './tenant-web-process.ts'
+import { openForwardedEvents, sessionIdsUnder, withTenantWeb, type ForwardedEvent, type TenantWorld } from './tenant-web-process.ts'
 
 const ALICE = 'alice'
 const BOB = 'bob'
@@ -49,22 +49,6 @@ async function seedTenantTask(world: TenantWorld, tenant: string): Promise<void>
 /** Read one tenant's storage document, or an empty string when it has none. */
 async function readTenantStorage(world: TenantWorld, tenant: string, file: string): Promise<string> {
   return await readFile(join(world.tenantDir(tenant), 'storages', file), 'utf8').catch(() => '')
-}
-
-/** Session identities present anywhere under one tenant's Session root. */
-async function sessionIdsUnder(root: string): Promise<string[]> {
-  const found: string[] = []
-  const walk = async (dir: string, depth: number): Promise<void> => {
-    if (depth > 3) return
-    for (const entry of await readdir(dir, { withFileTypes: true }).catch(() => [])) {
-      const path = join(dir, entry.name)
-      if (!entry.isDirectory()) continue
-      if (entry.name.startsWith('session-')) found.push(entry.name)
-      else await walk(path, depth + 1)
-    }
-  }
-  await walk(root, 0)
-  return found
 }
 
 /** Whether one forwarded `api-session/added` frame carries a Session identity. */

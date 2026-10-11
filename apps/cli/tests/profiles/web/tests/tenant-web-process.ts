@@ -7,7 +7,7 @@
  * matched by the printed URL rather than by any product name.
  */
 import { spawn, type ChildProcess } from 'node:child_process'
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -180,6 +180,54 @@ export function sharedDeploymentLayerYaml(): string {
   ].join('\n')
 }
 
+/**
+ * Send one named-argument Remote request to a runtime over its loopback port.
+ * @param origin - the runtime's origin.
+ * @param cookie - session cookie authenticating the request.
+ * @param rpcId - caller-chosen request id, echoed by the answer.
+ * @param method - endpoint name, such as `session/list`.
+ * @param args - the endpoint's named arguments.
+ * @returns the result the runtime answered.
+ * @throws Error when the request is refused at the transport level.
+ */
+export async function tenantRemoteResult<T>(
+  origin: string,
+  cookie: string,
+  rpcId: string,
+  method: string,
+  args: Record<string, unknown>,
+): Promise<TenantRemoteResult<T>> {
+  const response = await fetch(`${origin}/api/${method}`, {
+    method: 'POST',
+    headers: { cookie, 'content-type': 'application/json' },
+    body: JSON.stringify({ type: 'client-request', rpcId, method, payload: { args } }),
+  })
+  if (!response.ok) throw new Error(`${method} answered HTTP ${String(response.status)}: ${await response.text()}`)
+  const envelope = await response.json() as { result?: TenantRemoteResult<T> }
+  if (envelope.result === undefined) throw new Error(`${method} answered no result`)
+  return envelope.result
+}
+
+/**
+ * Session identities present anywhere under one Session root.
+ * @param root - the tenant's Session root.
+ * @returns every `session-<id>` directory name found beneath it.
+ */
+export async function sessionIdsUnder(root: string): Promise<string[]> {
+  const found: string[] = []
+  const walk = async (dir: string, depth: number): Promise<void> => {
+    if (depth > 3) return
+    for (const entry of await readdir(dir, { withFileTypes: true }).catch(() => [])) {
+      const path = join(dir, entry.name)
+      if (!entry.isDirectory()) continue
+      if (entry.name.startsWith('session-')) found.push(entry.name)
+      else await walk(path, depth + 1)
+    }
+  }
+  await walk(root, 0)
+  return found
+}
+
 /** Spawn one tenant runtime and resolve once it serves its token URL. */
 async function startTenant(world: TenantWorld, tenant: string): Promise<TenantRuntime> {
   const cwd = join(world.root, `${tenant}-work`)
@@ -248,17 +296,8 @@ async function startTenant(world: TenantWorld, tenant: string): Promise<TenantRu
   }
   const origin = new URL(url).origin
 
-  const rpcResult = async <T>(method: string, args: Record<string, unknown> = {}): Promise<TenantRemoteResult<T>> => {
-    const response = await fetch(`${origin}/api/${method}`, {
-      method: 'POST',
-      headers: { cookie, 'content-type': 'application/json' },
-      body: JSON.stringify({ type: 'client-request', rpcId: `tenant-${tenant}-${method}`, method, payload: { args } }),
-    })
-    if (!response.ok) throw new Error(`${tenant}: ${method} answered HTTP ${String(response.status)}: ${await response.text()}`)
-    const envelope = await response.json() as { result?: TenantRemoteResult<T> }
-    if (envelope.result === undefined) throw new Error(`${tenant}: ${method} answered no result`)
-    return envelope.result
-  }
+  const rpcResult = async <T>(method: string, args: Record<string, unknown> = {}): Promise<TenantRemoteResult<T>> =>
+    await tenantRemoteResult<T>(origin, cookie, `tenant-${tenant}-${method}`, method, args)
 
   const host: TenantHost = {
     tenant,

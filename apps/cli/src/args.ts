@@ -16,6 +16,7 @@
  */
 
 import { Command, CommanderError, InvalidArgumentError } from 'commander'
+import type { TenantsServeOptions } from './tenants.ts'
 
 /** Boot a named profile and hand it the invocation's inner arguments. */
 interface ProfileInvocation {
@@ -48,8 +49,15 @@ interface PluginInvocation {
   args: string[]
 }
 
+/** Serve one isolated Web runtime per account over this Harness home. */
+interface TenantsInvocation {
+  mode: 'tenants'
+  /** Validated `qilin tenants serve` options. */
+  options: TenantsServeOptions
+}
+
 /** The resolved `qilin` invocation. Help, version, and errors exit inside {@link parseQilinArgs}. */
-export type QilinInvocation = ProfileInvocation | DumpConfigInvocation | PluginInvocation
+export type QilinInvocation = ProfileInvocation | DumpConfigInvocation | PluginInvocation | TenantsInvocation
 
 /** Launcher flags for profile boot and configuration dumps. */
 interface BootOptions {
@@ -64,6 +72,16 @@ interface BootOptions {
  * variadic — a variadic `--patch` would swallow the inner arguments.
  */
 const collect = (value: string, previous: string[] = []): string[] => [...previous, value]
+
+/** Parse one whole-number option, refusing anything below its floor. */
+function wholeNumber(name: string, minimum: number): (value: string) => number {
+  return (value: string): number => {
+    if (!/^[0-9]+$/u.test(value)) throw new InvalidArgumentError(`${name} needs a whole number`)
+    const parsed = Number(value)
+    if (parsed < minimum) throw new InvalidArgumentError(`${name} needs at least ${String(minimum)}`)
+    return parsed
+  }
+}
 
 function selectProfile(value: string, previous?: string): string {
   if (previous !== undefined) throw new InvalidArgumentError('select a profile only once')
@@ -104,6 +122,9 @@ Examples:
                                               allow one rejected plugin/runtime pair
   qilin plugin revoke-version <pkg@ver> --qilin-version <exact>
                                               withdraw one exemption
+  qilin tenants serve                         one isolated Web runtime per account over this home
+  qilin tenants serve --port 0 --idle-ms 600000
+                                              pick a free port and reclaim idle runtimes sooner
 `
 
 /**
@@ -154,7 +175,7 @@ export function parseQilinArgs(argv: readonly string[], version: string): QilinI
   program
     .name('qilin')
     .version(version, '-V, --version', 'output the version number')
-    .usage('[--profile] <name> [options] [app-args...]\n       qilin plugin --profile <name> <pnpm-args...>')
+    .usage('[--profile] <name> [options] [app-args...]\n       qilin plugin --profile <name> <pnpm-args...>\n       qilin tenants serve [options]')
     .description('qilin: boot the QiLin product surface, or any profile — an ordered stack of plugin-bundle patch layers under your own overrides.')
     .addHelpText('after', HELP_EXAMPLES)
     .exitOverride()
@@ -205,8 +226,30 @@ export function parseQilinArgs(argv: readonly string[], version: string): QilinI
       })
   }
 
+  if (first === 'tenants') {
+    const tenants = program.command('tenants').description('serve one isolated Web runtime per account over this Harness home: Sessions and tasks stay per account, plugins and model settings stay shared')
+    tenants
+      .command('serve')
+      .description('start the hub and print its URL')
+      .option('--host <address>', 'interface the hub binds', '127.0.0.1')
+      .option('--port <port>', 'port the hub binds; 0 picks a free one', wholeNumber('--port', 0), 8790)
+      .option('--profile <name>', 'profile each tenant runtime boots', 'web')
+      .option('--idle-ms <milliseconds>', 'idle window before a tenant runtime is reclaimed', wholeNumber('--idle-ms', 100), 1_800_000)
+      .action((options: { host: string; port: number; profile: string; idleMs: number }) => {
+        resolved = {
+          mode: 'tenants',
+          options: {
+            host: options.host,
+            port: options.port,
+            profile: options.profile,
+            idleMilliseconds: options.idleMs,
+          },
+        }
+      })
+  }
+
   try {
-    const expanded = first !== undefined && !first.startsWith('-') && first !== 'plugin'
+    const expanded = first !== undefined && !first.startsWith('-') && first !== 'plugin' && first !== 'tenants'
       ? ['--profile', ...argv]
       : argv
     program.parse(expanded, { from: 'user' })

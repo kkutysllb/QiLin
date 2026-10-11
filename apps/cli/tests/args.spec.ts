@@ -145,6 +145,20 @@ describe('parseQilinArgs', () => {
       .toEqual({ mode: 'plugin', profile: 'qilin', args: ['doctor', 'dsh-super-ppts'] })
   })
 
+  it('routes the tenant hub and refuses options it cannot serve', () => {
+    expect(parse(['tenants', 'serve'])).toEqual({
+      mode: 'tenants',
+      options: { host: '127.0.0.1', port: 8790, profile: 'web', idleMilliseconds: 1_800_000 },
+    })
+    expect(parse(['tenants', 'serve', '--host', '127.0.0.1', '--port', '0', '--profile', 'rescue', '--idle-ms', '600000']))
+      .toEqual({
+        mode: 'tenants',
+        options: { host: '127.0.0.1', port: 0, profile: 'rescue', idleMilliseconds: 600_000 },
+      })
+    expect(exitCode(['tenants', 'serve', '--port', 'eight'])).toBe(1)
+    expect(exitCode(['tenants', 'serve', '--idle-ms', '50'])).toBe(1)
+  })
+
   it('routes profile and web config dumps', () => {
     expect(parse(['--profile', 'web', '--dump-config']))
       .toEqual({ mode: 'dump-config', profile: 'web', defaultOnly: false, patches: [] })

@@ -73,15 +73,18 @@ kind: "plan"
 ### 4.1 拓扑
 
 ```
-浏览器 ── HTTP/WS ──► 租户守护进程（新增，唯一公开源）
-                     ├─ 认证：复用账号文件、口令哈希与 cookie 语义
-                     ├─ 账号 → 租户映射（在 harness home 之外，如 $QILIN_TENANTS/registry.json）
-                     ├─ 按需拉起：qilin --profile web --host 127.0.0.1 --port 0 --no-open
-                     │                --patch <tenantDir>/cordis.patch.yml
+浏览器 ── HTTP ──► qilin tenants serve（新增，hub）
+                     ├─ 目录页：列出共享账号文件里的账户，逐个给 /t/<用户名>
+                     ├─ 账号 → 租户：租户 id = 账号 id，目录 $QILIN_HOME/tenants/<账号 id>/
+                     ├─ 按需拉起：<当前 qilin 入口> --profile web --host 127.0.0.1 --port 0 --no-open
+                     │                              --patch <tenantDir>/cordis.patch.yml
                      │            QILIN_HOME=<共享 home>     ← 插件/模型配置共享
-                     ├─ 解析就绪行取该租户的已认证 URL，附到转发请求上
-                     └─ 反代 /api、文档、WS（/api/remote.mux）、媒体路由
+                     ├─ 解析就绪行取该租户带令牌的 URL，303 把浏览器送过去
+                     ├─ 空闲回收：超过 --idle-ms 没有跳转就停掉该运行时（数据留在磁盘）
+                     └─ 不认证：登录发生在各租户运行时（见 §4.4 与 §11.2）
 ```
+
+V1 不反代：hub 只跳转，浏览器此后直接与租户运行时通信。反代、单源、WS 与媒体路由属 P3；上表 §4.1 的「认证/反代」是 P3 的形态，P2 把它落在各运行时里（理由与代价见 §11.2、§11.4）。
 
 这不是新发明：桌面包已经把同一套做完了——spawn 引擎子进程 → 收 `ready{url, injections}` 消息（[host-process.mjs:261-276](../desktop/main/host-process.mjs#L261-L276)）→ 用只存在于主进程的认证 cookie 反代到宿主 loopback。而且引擎**主动把这条就绪信号定义成语义接口**：
 
@@ -124,15 +127,16 @@ kind: "plan"
 | A3 | 守护进程本体（账号→租户、拉起/回收、就绪解析、反代、审计） | 中 | 反代与 WS 逐跳透传可参照桌面 `protocol.mjs` |
 | A4 | 租户注册表与生命周期（空闲回收、退避重启、端口池、并发上限） | 中 | 桌面 `host-process.mjs` 的重启/watchdog 是现成范式 |
 | A5 | 运维面（`tenants` 子命令：建户/停户/改户/重置口令） | 小 | 今天删账与改密要手改 accounts.json（README.md:147） |
+| A6 | `accounts-local` 增 `admittedAccounts`：一份部署只接纳列名账户，登录与已签发会话双向拒绝；空名单、未知 id、未关注册一律装载失败 | 小 | P2 已实现，见 §11.3 |
 
-注意 A2 与 A1 是**唯一两处**与租户相关的引擎改动；其余都在新增的守护进程里。
+注意 A1、A2、A6 是**全部**与租户相关的引擎改动；其余都在新增的 hub 里。
 
 ### 4.4 鉴权：两个变体
 
 | | V1 每租户独立端口 | V2 单源反代（目标形态） |
 |---|---|---|
 | 做法 | 守护进程把浏览器 302 到 `127.0.0.1:<tenantPort>` | 浏览器只见守护进程一个 origin；转发时附引擎 cookie、剥离浏览器侧 cookie；WS 升级逐跳透传 |
-| 隔离依据 | cookie 名绑定 `host:port`，天然不互通 | 引擎端口不出 loopback，租户不可直达 |
+| 隔离依据 | 每个运行时的 `accounts-local` 只接纳自己的账号（`admittedAccounts`），cookie 名绑定 `host:port` 天然不互通 | 引擎端口不出 loopback，租户不可直达 |
 | 代价 | 每个租户要单独登录一次 | 需要自己维护反代与 WS |
 | 适合 | 内网原型、开发 | 生产 |
 
@@ -183,7 +187,7 @@ kind: "plan"
 |---|---|---|
 | P0 | 本计划 + 决策记录落仓；同步修订 accounts-local 的边界表述 | 文档就位，边界口径唯一 |
 | P1 | 一个 home + 两份租户覆盖层 + 两个运行时（已落成常备测试） | ✅ 第 1–6 条判据逐条通过，见 §10 |
-| P2 | 守护进程 V1（账号→租户、按需拉起、就绪解析、302 到租户端口、空闲回收） | 真机两账号各自登录、各自会话列表、互不可见；崩溃自动重启 |
+| P2 | 守护进程 V1：`qilin tenants serve`（账号→租户、按需拉起、就绪解析、303 到租户端口、空闲回收），边界由各运行时的 `admittedAccounts` 承担 | ✅ 见 §11 |
 | P3 | 守护进程 V2（单源反代 + WS + 媒体流，收掉租户端口暴露面） | 真浏览器走查 + 录 GIF（GUI 可见变更的仓库要求） |
 | P4 | 可选：按用户计量/配额；再评估是否需要 B | 计量数据可从请求侧归集 |
 
@@ -255,3 +259,51 @@ P1 已落成常备测试：[tenant-isolation.expected.e2e.ts](../apps/cli/tests/
 | 把 schedule 当随附能力 | shipped Web 组合无 schedule 行；`fixtures/schedule.patch.yml` 的 `- id: schedule` 指向不存在的行 | `schedule-timing.expected.e2e.ts` 的 `/api/schedule/catalog` 得到 404 |
 
 新测试不依赖这两处（自带按输出匹配就绪 URL，并显式挂上 schedule bundle），所以它们不影响 P1 的结论；修不修是另一件事。
+
+## 11. P2 执行记录（2026-10-11）
+
+`qilin tenants serve` 已落地，常备验收在 [tenant-supervisor.expected.e2e.ts](../apps/cli/tests/profiles/web/tests/tenant-supervisor.expected.e2e.ts)（真进程，约 6–8 秒，无模型调用）。
+
+### 11.1 交付形态
+
+| 件 | 内容 |
+|---|---|
+| [`apps/cli/src/tenants.ts`](../apps/cli/src/tenants.ts) | hub：目录页、`/t/<用户名>` 303、`/status`、`/healthz`、空闲回收、SIGTERM 收口 |
+| [`apps/cli/src/tenant-runtime.ts`](../apps/cli/src/tenant-runtime.ts) | 每租户运行时：覆盖层生成、按需 spawn、就绪解析、SIGTERM→SIGKILL 收口、stderr 转发 |
+| [`apps/cli/src/args.ts`](../apps/cli/src/args.ts) | `qilin tenants serve [--host --port --profile --idle-ms]` |
+| [`accounts-local`](../packages/identity/accounts-local/README.md#the-admission-list) | `admittedAccounts` 接纳名单；包文档与 JSDoc 的边界表述同步改写 |
+
+### 11.2 与 §4.1 的偏差（如实登记）
+
+§4.1 写的是「hub 认证、反代、把 cookie 附到转发请求上」。P2 实际把边界放在**各租户运行时内部**：hub 不认证、不反代，只做目录与 303；登录由运行时的账号门完成，`admittedAccounts` 保证它只接纳本租户的账户。
+
+理由是判定要落在做出决定的操作里：把接纳写进 `accounts-local` 的登录路由与 `currentAccount`，本地进程即使知道端口也必须过账号门；若改成 hub 自建 cookie + 租户关掉门禁，隔离就退化成"知道端口即可读全部数据"。§4.4 的 V1 口径（每租户独立端口、各自登录一次）因此保持不变。
+
+### 11.3 验收（真进程，七个断言）
+
+| # | 断言 | 实测 |
+|---|---|---|
+| 1 | 目录列出共享账号文件里的每个账户 | ✅ |
+| 2 | 两个账户各得一个运行时，origin 互不相同，也都不是 hub | ✅ |
+| 3 | **边界**：共享文件里同时有 alice 与 bob，alice 的运行时接纳 alice；用 bob 的口令登录得到 401 `invalid-credentials` | ✅ |
+| 4 | 会话各归其主：alice 的会话不在 bob 的列表里，且只落在 `tenants/<alice id>/sessions` | ✅ |
+| 5 | `/status` 报告 origin，且从不出带令牌的 URL | ✅ |
+| 6 | 空闲回收后再次跳转得到新运行时，**alice 的会话仍在**（判据 8） | ✅ |
+| 7 | hub 收到 SIGTERM 退出码 0，其租户运行时随之不再监听 | ✅ |
+
+**负对照**：把租户覆盖层的 `admittedAccounts` 去掉（保留 `enabled: true` 与 `registration: closed`），测试在判据 3 上失败（`expected 200 to be 401`）——它证明的是接纳名单本身，不是 hub 的跳转。
+
+包内的 `accounts-local` 用例覆盖另外三个方向：非列名账户的登录被拒、已签发的非列名会话不再命名账户（`/?next=` 重定向）、以及三种装载失败（空名单、未知 id、未关注册）。
+
+### 11.4 已知让步（P2 版）
+
+1. 租户 id = 账号 id，1:1 且无注册表，因此没有"两个账户共用一个租户"或改名这一层运维面；`qilin tenants` 目前只有 `serve`。
+2. 空闲窗口按**最后一次跳转**计：浏览器到达租户 origin 后直接与它通信，hub 看不到这份流量，所以长时间开着标签页的部署要把 `--idle-ms` 调大或设为 0。P3 的单源反代才能按真实流量判定。
+3. 账户由共享 home 的普通 Web 表面创建（hub 不提供开户），租户覆盖层把 `registration` 关掉，因此某个运行时不能顺手造号。
+4. §4.5 的四条让步仍然成立：同一 OS 用户、共享模型 key、插件共享写、成本随租户数线性增长。
+
+### 11.5 仍未做
+
+- A1（`llm-deepseek` 上传索引补 Config）与 A2（`RemoteHostFacts.home` 可注入）未做。
+- 租户运行时的日志等级与轮转、并发上限、崩溃退避重启未做（当前只有按需拉起与空闲回收）。
+- P3（单源反代 + WS + 媒体流）未开。

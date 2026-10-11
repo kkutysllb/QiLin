@@ -32,6 +32,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@qilin-agent/accounts-local": "workspace:*",
     "@qilin-agent/acp-app": "workspace:*",
     "@qilin-agent/agent-instructions": "workspace:*",
     "@qilin-agent/agent-tool-presentation": "workspace:*",
