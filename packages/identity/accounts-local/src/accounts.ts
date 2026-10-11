@@ -215,6 +215,34 @@ export class AccountStore {
     return changed
   }
 
+  /**
+   * Replace one account's password and retire every session issued under the
+   * previous one, so a changed password ends the sessions it replaced.
+   * @param id - identity of the account to change.
+   * @param password - plaintext password, already validated by the caller.
+   * @returns the stored successor.
+   * @throws Error when the account no longer exists.
+   */
+  async setPassword(id: string, password: string): Promise<AccountRecord> {
+    const encoded = await hashPassword(password)
+    return await this.update(id, account => ({ ...account, password: encoded, tokenVersion: account.tokenVersion + 1 }))
+  }
+
+  /**
+   * Remove one account from the roster. Sessions it issued stop naming an
+   * account, and a deployment that admits it by name fails loud at load rather
+   * than serving an account the file no longer holds.
+   * @param id - identity of the account to remove.
+   * @returns the removed account.
+   * @throws Error when the account no longer exists.
+   */
+  async remove(id: string): Promise<AccountRecord> {
+    const current = this.byId(id)
+    if (current === undefined) throw new Error(`accounts-local: no account ${id} to remove`)
+    await this.commit(this.accounts.filter(account => account.id !== id))
+    return current
+  }
+
   /** Write the successor set, then publish it. */
   private async commit(accounts: readonly AccountRecord[]): Promise<void> {
     const document: AccountsDocument = { version: FILE_VERSION, accounts }

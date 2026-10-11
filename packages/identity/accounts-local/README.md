@@ -88,7 +88,7 @@ The package is one function plugin. `apply` opens the account file of the resolv
 
 ### The account file
 
-`$QILIN_HOME/auth/accounts.json` is a versioned document holding one record per account: an opaque id, the normalized address, the encoded scrypt hash, the creation time, and a credential generation. Every mutation writes the complete successor through `@qilin-agent/atomic-write` with mode 0600, then publishes it in memory, so a failed write leaves the running server on the previous account set. An absent file is the empty account set — the state the first sign-up initializes — while a file this build did not write fails the load instead of being migrated.
+`$QILIN_HOME/auth/accounts.json` is a versioned document holding one record per account: an opaque id, the normalized address, the encoded scrypt hash, the creation time, and a credential generation. Every mutation writes the complete successor through `@qilin-agent/atomic-write` with mode 0600, then publishes it in memory, so a failed write leaves the running server on the previous account set. An absent file is the empty account set — the state the first sign-up initializes — while a file this build did not write fails the load instead of being migrated. The store creates accounts, replaces them, re-keys one with `setPassword`, and removes one; `qilin tenants add`, `passwd`, and `remove` are the operator commands over that set, and removing an account whose tenant overlay still names it makes that runtime fail its load rather than serve an account the file no longer holds.
 
 ### Passwords and sessions
 

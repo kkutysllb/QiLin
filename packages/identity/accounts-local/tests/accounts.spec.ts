@@ -143,6 +143,40 @@ describe('account store', () => {
     await expect(store.update('missing', current => current)).rejects.toThrow(/no account missing/u)
   })
 
+  it('replaces one password and retires the sessions the previous one issued', async () => {
+    const base = await home()
+    const path = join(base, 'auth', 'accounts.json')
+    const store = await AccountStore.open(path)
+    const created = await store.add({ username: 'first' }, 'password-1')
+
+    const changed = await store.setPassword(created.id, 'password-2')
+    expect(changed.id).toBe(created.id)
+    expect(changed.tokenVersion).toBe(created.tokenVersion + 1)
+    expect(await verifyPassword('password-1', changed.password)).toBe(false)
+    expect(await verifyPassword('password-2', changed.password)).toBe(true)
+
+    const reopened = await AccountStore.open(path)
+    expect(reopened.byId(created.id)).toEqual(changed)
+    await expect(store.setPassword('missing', 'password-3')).rejects.toThrow(/no account missing/u)
+  })
+
+  it('removes one account and leaves its siblings in place', async () => {
+    const base = await home()
+    const path = join(base, 'auth', 'accounts.json')
+    const store = await AccountStore.open(path)
+    const first = await store.add({ username: 'first' }, 'password-1')
+    const second = await store.add({ username: 'second' }, 'password-2')
+
+    const removed = await store.remove(first.id)
+    expect(removed).toEqual(first)
+    expect(store.all()).toEqual([second])
+    expect(store.byUsername('first')).toBeUndefined()
+
+    const reopened = await AccountStore.open(path)
+    expect(reopened.all()).toEqual([second])
+    await expect(store.remove(first.id)).rejects.toThrow(/no account/u)
+  })
+
   it('refuses a file this build did not write', async () => {
     const base = await home()
     const path = join(base, 'accounts.json')

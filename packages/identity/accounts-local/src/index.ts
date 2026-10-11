@@ -30,6 +30,13 @@ import { SessionCookies } from './session.ts'
 export { AUTH_API_PREFIX, LOGIN_PATH, SETUP_PATH } from './paths.ts'
 export { AccountStore } from './accounts.ts'
 export type { AccountRecord } from './accounts.ts'
+export {
+  isValidEmail,
+  isValidUsername,
+  MIN_PASSWORD_LENGTH,
+  normalizeEmail,
+  normalizeUsername,
+} from './validation.ts'
 
 /** Stable Cordis plugin name. */
 export const name = 'accounts-local'
