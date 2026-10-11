@@ -27,7 +27,7 @@ import { fileAddressFor } from '@qilin-agent/util-workspace-path'
 import type { SessionId } from '@qilin-agent/session/types'
 
 /** Required browser services: the Remote carrier, the Sidebar's tabs, and the viewed Session. */
-export const inject = ['remote', 'sidebarRight', 'sidebarRightTabs', 'sessions', 'uiSession']
+export const inject = ['remote', 'remote.sidebarOpens', 'sidebarRight', 'sidebarRightTabs', 'sessions', 'uiSession']
 
 /**
  * Client plugin body: follow the viewed Session's open requests and dispatch them.
@@ -51,10 +51,10 @@ export function apply(ctx: Context): void {
             openRequested(ctx, sessionId, request)
           }
         } catch (error) {
-          // A carrier failure ends the watch; the next Session switch asks again.
-          // Logged rather than swallowed: an unmounted Remote namespace fails here,
-          // and a silent end leaves every `sidebar_open` queued with no viewer.
-          console.error('[ui-agent-opens] sidebarOpens.watch ended', error)
+          // A Session switch aborts the watch on purpose, so only a carrier
+          // failure is worth reporting: an unmounted Remote namespace fails
+          // here, and a silent end leaves every `sidebar_open` with no viewer.
+          if (!controller.signal.aborted) console.error('[ui-agent-opens] sidebarOpens.watch ended', error)
         }
       })()
     }

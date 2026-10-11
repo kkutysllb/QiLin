@@ -3,10 +3,11 @@
 // composition has disabled since the dual-workbench design (D4).
 //
 // The deployment ships ONE preset, and the shipped surfaces follow from that:
-// the hero's run-mode chip renders nothing (ui-workspace hides a selector that
-// would offer fewer than two choices), the settings section still reports the
-// roster with the shipped preset as the new-task default, and the session
-// header still names the composition a resumed session runs.
+// ui-workspace composes no preset surface into the hero at all, so the only
+// occupant of that cell is the re-enabled `ui-agent-preset` seat the overlay
+// mounts; the settings section still reports the roster with the shipped
+// preset as the new-task default, and the session header still names the
+// composition a resumed session runs.
 //
 // Zero model calls: no replay fixture mounts, so a stray stream fails loud.
 import { fileURLToPath } from 'node:url'
