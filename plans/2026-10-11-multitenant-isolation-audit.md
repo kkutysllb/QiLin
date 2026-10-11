@@ -29,13 +29,13 @@ npx vitest run --config vitest.expected.config.ts -t "keeps sessions, tasks, wor
 
 **验证**：`apps/cli/tests/tenant-environment.spec.ts` 3 例（根都在租户目录内、覆盖 hub 继承来的共享根、其余环境照旧继承）；**负向对照**：删掉那一行 → 2 例变红，恢复 → 3/3。回归：`tenant-supervisor.expected.e2e.ts` **7/7** 通过。
 
-## 3. 还没收口的三处（按性质排序）
+## 3. 三处断点的现状（原「还没收口的三处」，逐项回填）
 
-| # | 面 | 事实 | 性质 |
+| # | 面 | 现状 | 证据 |
 |---|---|---|---|
-| 1 | **单源模式下的浏览器存储** | 见第 6 节的键级清单：**全局键**（`ql-theme`、`qilin.keybindings.v1`、`qilin.sidebar.folded-sections.v1`、`qilin.schedule.recent-time-zones.v1`、`qilin.trajectory.*`、`client/store` 的 persist 键）在同一 origin 上跨账户共用；**按会话键**（`qilin.conversation.<sessionId>`、`qilin.sidebar-right.v1.<sessionId>`、task-tab 绑定）因会话 id 唯一而天然隔离 | **缺陷（偏好级，不含凭据/会话）**：同一浏览器里 A 的主题/快捷键/折叠分区/时区记忆会串到 B。修法见第 6 节两个选项 |
-| 2 | **继承的环境凭据与 `~/...` 环境凭据** | `tenantChildEnvironment` 继承 hub 的 `process.env`，所以 `DEEPSEEK_API_KEY` 一类的键对每个租户都一样；pi-ai 的 `fileExists` 把 `~/...` 解析到操作系统家目录，读的是环境的凭据文件 | **政策**：部署给所有人一把钥匙是合理默认，也可能是你要禁掉的。要禁就得在子进程环境里剥掉 provider 键、并决定 `~/...` 还读不读 |
-| 3 | **按账户的 token 汇总 / 配额** | 每个会话的用量有投影，但**不存在按账户的汇总或上限**；也没有跨会话的用量账本 | **新增能力**：要「各自消耗」的账目或额度，需要新服务 + 存储 + 页面 |
+| 1 | **单源模式下的浏览器存储** | **已收口**（机制 A2）：租户运行时在它服务的文档里注入账户 id，账户界面状态按账户前缀；主题/语言/快捷键按决定 B 留作设备偏好 | 第 6 节；宿主 8 例 + 客户端 5 例 |
+| 2 | **继承的环境凭据 与 `~/...` 环境凭据** | **环境一半已收口**：`tenantChildEnvironment` 按 `SENSITIVE_ENV_PATTERN` 剥掉继承来的 provider 键。`~/...` 一半**是边界而非缺陷**：所有租户同属一个 OS 用户，`~/` 指的是部署操作者自己的凭据文件，要禁只能上独立系统用户或容器（第 5 节） | tenant-environment.spec.ts |
+| 3 | **按账户的 token 汇总 / 配额** | **账目已收口**（额度未做，按「只记不拦」）：逐轮、带缓存桶、按账户归属的账本；令牌绑定账户的 hub 端点；运行时的读路由；两个页面（本账户 / 管理员部署范围） | usage-ledger / tenant-usage / usage-report / ui-usage 四套用例 |
 
 ## 4. 复现命令
 
@@ -97,3 +97,11 @@ npx vitest run apps/cli/tests/tenant-environment.spec.ts
 **用例**：[tenant-isolation.spec.ts](../apps/cli/tests/tenant-isolation.spec.ts) 5 例——每账户一个目录且互为兄弟、一个租户层只准入自己那一个账户（三账户交叉断言，含「不含其它账户名」）、agent 根在租户 home 内、经真 hub 每账户各自一个目录、首启运行时的目录是部署保留名。既有的身份用例补上 `.bootstrap`/`.usage`。**负向对照实跑**：去掉前导点规则 → 2 例变红。
 
 **顺带的落点收敛**：目录派生从类里提为 `tenantDirectory(home, name)`，「租户住在哪里」只有一个落点，也让它可被断言。
+
+## 9. 本轮增量（第 13 轮）：部署自己的 TLS 与 Secure cookie
+
+- **此前只有一半判据**：「运行时在 `sessionCookieSecure: true` 时给会话 cookie 加 `Secure`」有用例（accounts-local 两套），但**部署自己终止 TLS 是否真的走到那个开关**没有判据。
+- **新增判据**：[tenant-tls.spec.ts](../apps/cli/tests/tenant-tls.spec.ts) 3 例——(1) 部署以自签证书起 TLS，信任该证书的客户端完成握手、`/healthz` 得 200、按路由 cookie 的账户交接在 TLS 上可用，且 hub 创建的每个运行时都拿到 `sessionCookieSecure: true`；(2) 首启运行时同样拿到；(3) 明文部署是 `http://` 且每个运行时拿到 `false`（标志存在且为假，运行时不需猜测）。
+- **一处落点收敛**：这个决定原先在两处内联重复，现在收敛为 `secureSessionCookies(options)` 一个函数、两处调用。
+- **负向对照实跑**：把该函数写死为 `false` → 前两例变红、第三例仍绿，说明判据绑在规则上而不是绑在「服务起来了」上。
+- 部署夹具因此获得 `tls` 选项；自签材料由 apps/cli 测试夹具生成，`selfsigned` 只进 apps/cli 的 devDependencies。
