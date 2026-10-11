@@ -1,0 +1,28 @@
+# Bilingual-pair consistency record for tenancy.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/user/guide/tenancy.md
+/run-one-deployment-for-several-people:
+  en: 3d2e8fe74b7fdb19
+  zh: 2df0be6a4bb37574
+/run-one-deployment-for-several-people/create-the-accounts:
+  en: 12b655337be8aad7
+  zh: c308c47b7c1d4d1f
+/run-one-deployment-for-several-people/start-the-hub:
+  en: b2ce9a5072aef8b1
+  zh: 060f9ecb5777122c
+/run-one-deployment-for-several-people/hand-a-browser-to-an-account:
+  en: 9afc8a7901f72c15
+  zh: 137c629794a03a14
+/run-one-deployment-for-several-people/read-the-roster-and-retire-an-account:
+  en: 37f52cd77fc72581
+  zh: 07b151f1808c2ddc
+/run-one-deployment-for-several-people/what-is-shared-and-what-is-not:
+  en: c24344a8d28f3c66
+  zh: ede72a4cfb6b37e1
+/run-one-deployment-for-several-people/before-you-deploy:
+  en: ab791ea3091c2078
+  zh: 2578a89b06bc86e1
+/run-one-deployment-for-several-people/further-reading:
+  en: 480761bce12b88e3
+  zh: 7b035681e00c3472
