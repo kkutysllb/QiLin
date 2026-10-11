@@ -7,6 +7,7 @@ import {
   localDay,
   summarize,
   toggleSeries,
+  usageByAccount,
   usageByDay,
   usageChart,
   USAGE_SERIES,
@@ -49,6 +50,18 @@ describe('usage chart data', () => {
       inputTokens: 100, outputTokens: 20, cacheReadTokens: 300, cacheWriteTokens: 40,
       totalTokens: 460, cacheHitRate: 0.75,
     })
+  })
+
+  it('groups a deployment-wide read by account, most expensive first', () => {
+    const accounts = usageByAccount([
+      { ...record(0, 100, 10), accountId: 'account-a' },
+      { ...record(0, 10, 1), accountId: 'account-b' },
+      { ...record(0, 5, 5), accountId: 'account-a' },
+    ])
+    expect(accounts.map(entry => entry.accountId)).toEqual(['account-a', 'account-b'])
+    expect(accounts[0]).toMatchObject({ inputTokens: 105, outputTokens: 15, totalTokens: 120 })
+    // A record the read carried no tag for still belongs somewhere.
+    expect(usageByAccount([record(0, 1, 1)]).map(entry => entry.accountId)).toEqual(['\u2014'])
   })
 
   it('folds one series without losing the others, and reports them in draw order', () => {

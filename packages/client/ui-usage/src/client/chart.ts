@@ -2,6 +2,8 @@
 
 /** One Turn as the deployment's ledger reports it. */
 export interface UsageRecord {
+  /** Account the Turn belongs to; present only in a deployment-wide read. */
+  readonly accountId?: string
   /** Session the Turn belongs to. */
   readonly sessionId: string
   /** Turn number inside that session. */
@@ -145,6 +147,28 @@ export function summarize(records: readonly UsageRecord[]): UsageSummary {
     totalTokens: inputTokens + outputTokens + cacheReadTokens + cacheWriteTokens,
     cacheHitRate: cacheHitRate(cacheReadTokens, inputTokens),
   }
+}
+
+/** One account's usage inside the records a read carried. */
+export interface UsageAccount extends UsageSummary {
+  /** Account the records belong to, or the placeholder a tagless record groups under. */
+  readonly accountId: string
+}
+
+/**
+ * Group records by the account they belong to, most expensive first.
+ * @param records - records a deployment-wide read carried.
+ * @returns one entry per account, with the buckets and rate of its records.
+ */
+export function usageByAccount(records: readonly UsageRecord[]): UsageAccount[] {
+  const byAccount = new Map<string, UsageRecord[]>()
+  for (const record of records) {
+    const accountId = record.accountId ?? '\u2014'
+    byAccount.set(accountId, [...byAccount.get(accountId) ?? [], record])
+  }
+  return [...byAccount.entries()]
+    .map(([accountId, accountRecords]) => ({ accountId, ...summarize(accountRecords) }))
+    .sort((left, right) => right.totalTokens - left.totalTokens)
 }
 
 /**

@@ -105,6 +105,30 @@ describe('usage settings section', () => {
     expect(screen.queryByText(new RegExp(`${en['metric.hitRate']} 75%`, 'u'))).toBeNull()
   })
 
+  it('shows the administrator every account and the deployment total', async () => {
+    answerWith({
+      scope: 'deployment',
+      totals: {
+        'account-one-xxxx': { sessions: 1, turns: 3, inputTokens: 100, outputTokens: 10, cacheReadTokens: 40, cacheWriteTokens: 0, cacheHitRate: 0.29 },
+        'account-two-yyyy': { sessions: 1, turns: 2, inputTokens: 900, outputTokens: 90, cacheReadTokens: 300, cacheWriteTokens: 0, cacheHitRate: 0.25 },
+      },
+      total: { sessions: 2, turns: 5, inputTokens: 1000, outputTokens: 100, cacheReadTokens: 340, cacheWriteTokens: 0, cacheHitRate: 0.25 },
+      records: [
+        { ...record(100, 10, 40), accountId: 'account-one-xxxx' },
+        { ...record(900, 90, 300), accountId: 'account-two-yyyy' },
+      ],
+      truncated: false,
+    })
+    render(<UsageSection {...props()} />)
+
+    // The administrator reads the deployment, and the table breaks it per account.
+    expect(await screen.findByText(en['scope.deployment'])).toBeTruthy()
+    expect(screen.getByRole('columnheader', { name: en['table.account'] })).toBeTruthy()
+    expect(screen.getByTitle('account-one-xxxx')).toBeTruthy()
+    expect(screen.getByTitle('account-two-yyyy')).toBeTruthy()
+    expect(screen.getByText(en['metric.turns']).parentElement?.textContent).toContain('2')
+  })
+
   it('says the deployment could not be reached instead of showing zeroes', async () => {
     answerWith({ error: 'nope' }, false)
     render(<UsageSection {...props()} />)

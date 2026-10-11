@@ -34,6 +34,8 @@ Open Settings and choose **Usage**. The page needs no configuration; it reads `G
 | Legend | One entry per bar series plus the area; selecting an entry folds that series out of the chart |
 | Table | This month by session: input, output, cache reads, hit rate, and total |
 
+An administrator's page reads the deployment instead of one account: the same chart summed over every account, and the table breaking the month down by account rather than by session.
+
 The chart is keyboard-reachable: each bar takes focus, left and right move between days, and Escape dismisses the read-back. An unreachable deployment says so rather than drawing an empty month, and a ledger that held more Turns than one answer carries says the newest are shown.
 
 <a id="understand-the-implementation"></a>
@@ -61,7 +63,7 @@ No request is altered; the page only reports the cache traffic the provider alre
 
 - **The month is the browser's month.** Days bucket by the browser's local calendar, so a reader who travels sees the month their own clock describes rather than the deployment's.
 - **One answer is bounded.** The read carries the newest records a response bound allows; a month that reported more shows its newest days and says so.
-- **Only an administrator sees other accounts.** This page always reads the signed-in account; the deployment-wide view is not built yet.
+- **Only an administrator sees other accounts.** Everyone else's page reads its own account alone, because the deployment's read is scoped by the credential the runtime reports under; an ordinary account cannot ask for another's usage.
 
 <a id="dev-note"></a>
 ### Dev Note

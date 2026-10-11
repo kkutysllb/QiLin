@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import type { PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import css from './UsageSection.module.css'
 import {
-  cacheHitRate, formatTokens, summarize, toggleSeries, usageByDay, usageChart, USAGE_SERIES,
-  type UsageRecord, type UsageSeries,
+  cacheHitRate, formatTokens, summarize, toggleSeries, usageByAccount, usageByDay, usageChart, USAGE_SERIES,
+  type UsageRecord, type UsageSeries, type UsageSummary,
 } from './chart.ts'
 
 /** This account's all-time total, as the deployment's read reports it. */
@@ -21,7 +21,10 @@ interface UsageTotal {
 
 /** One answer from the deployment's read. */
 interface UsageAnswer {
+  /** Present, and equal to `deployment`, when the reader is the deployment administrator. */
+  readonly scope?: string
   readonly accountId?: string
+  readonly totals?: Record<string, UsageTotal>
   readonly total?: UsageTotal
   readonly records?: readonly UsageRecord[]
   readonly truncated?: boolean
@@ -94,12 +97,14 @@ export function UsageSection({ t }: UsageSectionComponentProps) {
     ? 0
     : all.inputTokens + all.outputTokens + all.cacheReadTokens + all.cacheWriteTokens
 
-  /** Sessions this month, most expensive first. */
-  const bySession = new Map<string, UsageRecord[]>()
-  for (const record of records) bySession.set(record.sessionId, [...bySession.get(record.sessionId) ?? [], record])
-  const sessions = [...bySession.entries()]
-    .map(([sessionId, sessionRecords]) => ({ sessionId, ...summarize(sessionRecords) }))
-    .sort((left, right) => right.totalTokens - left.totalTokens)
+  /** The administrator reads the deployment; everyone else reads their own account. */
+  const deployment = answer.scope === 'deployment'
+
+  /** Rows the table breaks the month into: one per account, or one per session. */
+  const rows: UsageRow[] = deployment
+    ? usageByAccount(records).map(entry => ({ key: entry.accountId, ...entry }))
+    : sessionRows(records)
+  const accounts = Object.keys(answer.totals ?? {}).length
 
   const label: Record<UsageSeries, string> = {
     inputTokens: t('metric.input'),
@@ -112,7 +117,9 @@ export function UsageSection({ t }: UsageSectionComponentProps) {
     <div className={css.page}>
       <header>
         <h2 className={css.title}>{t('title')}</h2>
-        <p className={css.subtitle}>{t('subtitle', { account: answer.accountId ?? '—' })}</p>
+        <p className={css.subtitle}>
+          {deployment ? t('scope.deployment') : t('subtitle', { account: answer.accountId ?? '—' })}
+        </p>
       </header>
 
       <div className={css.cards}>
@@ -122,7 +129,9 @@ export function UsageSection({ t }: UsageSectionComponentProps) {
         <Card
           label={t('metric.turns')}
           value={String(all?.turns ?? 0)}
-          note={`${t('metric.sessions')} ${String(all?.sessions ?? 0)}`}
+          note={deployment
+            ? `${t('table.account')} ${String(accounts)}`
+            : `${t('metric.sessions')} ${String(all?.sessions ?? 0)}`}
         />
       </div>
 
@@ -215,12 +224,12 @@ export function UsageSection({ t }: UsageSectionComponentProps) {
         </div>
       </section>
 
-      {sessions.length === 0 ? null : (
+      {rows.length === 0 ? null : (
         <div className={css.tableWrap}>
           <table className={css.table}>
             <thead>
               <tr>
-                <th>{t('table.session')}</th>
+                <th>{deployment ? t('table.account') : t('table.session')}</th>
                 <th>{t('table.input')}</th>
                 <th>{t('table.output')}</th>
                 <th>{t('table.cacheRead')}</th>
@@ -229,14 +238,14 @@ export function UsageSection({ t }: UsageSectionComponentProps) {
               </tr>
             </thead>
             <tbody>
-              {sessions.map(session => (
-                <tr key={session.sessionId}>
-                  <td title={session.sessionId}>{session.sessionId.slice(0, 8)}</td>
-                  <td>{formatTokens(session.inputTokens)}</td>
-                  <td>{formatTokens(session.outputTokens)}</td>
-                  <td>{formatTokens(session.cacheReadTokens)}</td>
-                  <td>{rate(session.cacheHitRate)}</td>
-                  <td>{formatTokens(session.totalTokens)}</td>
+              {rows.map(row => (
+                <tr key={row.key}>
+                  <td title={row.key}>{row.key.slice(0, 8)}</td>
+                  <td>{formatTokens(row.inputTokens)}</td>
+                  <td>{formatTokens(row.outputTokens)}</td>
+                  <td>{formatTokens(row.cacheReadTokens)}</td>
+                  <td>{rate(row.cacheHitRate)}</td>
+                  <td>{formatTokens(row.totalTokens)}</td>
                 </tr>
               ))}
             </tbody>
@@ -245,6 +254,20 @@ export function UsageSection({ t }: UsageSectionComponentProps) {
       )}
     </div>
   )
+}
+
+/** One row of the per-session table: a key to name it and the buckets it spent. */
+interface UsageRow extends UsageSummary {
+  readonly key: string
+}
+
+/** One session's usage this month, most expensive first. */
+function sessionRows(records: readonly UsageRecord[]): UsageRow[] {
+  const bySession = new Map<string, UsageRecord[]>()
+  for (const record of records) bySession.set(record.sessionId, [...bySession.get(record.sessionId) ?? [], record])
+  return [...bySession.entries()]
+    .map(([key, sessionRecords]) => ({ key, ...summarize(sessionRecords) }))
+    .sort((left, right) => right.totalTokens - left.totalTokens)
 }
 
 /** One metric card. */
