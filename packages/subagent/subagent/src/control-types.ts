@@ -44,6 +44,12 @@ export type SubagentCatalogRow =
       /** Durable creation label from the owning catalog or child descriptor. */
       readonly label: string
     }
+    | {
+      /** An execution owned by an external backend, with no local child Session. */
+      readonly mode: 'external'
+      /** Optional durable creation label from the owning catalog. */
+      readonly label?: string
+    }
   )
 
 /**
