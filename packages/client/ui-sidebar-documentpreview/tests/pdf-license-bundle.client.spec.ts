@@ -42,20 +42,28 @@ function runPnpm(args: string[], cwd: string, timeout: number): string {
     : run(entrypoint, args, cwd, timeout)
 }
 
+// Spawn budgets: `pnpm pack` runs a full pnpm lifecycle and trails whatever the
+// rest of the suite loads, so it gets its own headroom instead of the vitest
+// default; extraction is fast but stays bounded. Hung spawns fail at their own
+// budget with a spawn error, and the outer clock only guards the in-process work.
+const PACK_TIMEOUT_MS = 20_000
+const EXTRACT_TIMEOUT_MS = 10_000
+const TEST_TIMEOUT_MS = 30_000
+
 describe('published document preview licenses', () => {
-  it.skipIf(!existsSync(bundlePath))('keeps bundled licenses in the packed lazy chunks', ({ task }) => {
+  it.skipIf(!existsSync(bundlePath))('keeps bundled licenses in the packed lazy chunks', { timeout: TEST_TIMEOUT_MS }, () => {
     expect(existsSync(pdfChunkPath)).toBe(true)
     const output = mkdtempSync(join(tmpdir(), 'qilin-document-preview-pack-'))
     try {
       const packed = JSON.parse(runPnpm([
         'pack', '--json', '--pack-destination', output,
-      ], packageRoot, task.timeout)) as { filename: string; files: { path: string }[] }
+      ], packageRoot, PACK_TIMEOUT_MS)) as { filename: string; files: { path: string }[] }
       expect(packed.files.map(file => file.path)).toContain('lib/client.js')
       expect(packed.files.map(file => file.path)).toContain('lib/client.pdf.js')
       expect(packed.files.some(file => file.path.endsWith('pdfjs-NOTICES.txt'))).toBe(false)
 
-      const client = run('tar', ['-xOf', resolve(packageRoot, packed.filename), 'package/lib/client.js'], packageRoot, task.timeout)
-      const pdf = run('tar', ['-xOf', resolve(packageRoot, packed.filename), 'package/lib/client.pdf.js'], packageRoot, task.timeout)
+      const client = run('tar', ['-xOf', resolve(packageRoot, packed.filename), 'package/lib/client.js'], packageRoot, EXTRACT_TIMEOUT_MS)
+      const pdf = run('tar', ['-xOf', resolve(packageRoot, packed.filename), 'package/lib/client.pdf.js'], packageRoot, EXTRACT_TIMEOUT_MS)
       expect([...client.matchAll(/require\.async\("(\.\/client[^"/]*\.js)"\)/gu)].map(match => match[1]))
         .toEqual(['./client.pdf.js', './client.excel.js'])
       expect(client).not.toMatch(/\brequire\("\.\/client[^"/]*\.js"\)/u)
@@ -64,7 +72,7 @@ describe('published document preview licenses', () => {
       expect(client).not.toContain('//! Bundled PDF.js license notices')
       expect(client).not.toContain('/pdfjs-dist/')
       expect(pdf).toContain('//! Bundled PDF.js license notices')
-      const excel = run('tar', ['-xOf', resolve(packageRoot, packed.filename), 'package/lib/client.excel.js'], packageRoot, task.timeout)
+      const excel = run('tar', ['-xOf', resolve(packageRoot, packed.filename), 'package/lib/client.excel.js'], packageRoot, EXTRACT_TIMEOUT_MS)
       expect(excel).not.toMatch(/\brequire\("\.\/client[^"/]*\.js"\)/u)
       expect(client).not.toContain('FortuneSheet')
       expect(excel).toContain('//! Bundled spreadsheet license notices')
