@@ -182,8 +182,8 @@ const POSTCONDITIONS: readonly PostCondition[] = [
   // The vendored README owns this required entry; reject its deletion or duplication.
   { file: 'vendor/README.md', text: '17. **`@qilin-agent` rescope**', count: 1 },
   { file: 'pnpm-workspace.yaml', text: 'kylin@4.0.0-rc.7', count: 0 },
-  // The preset ids in this table are product data, not package names.
-  { file: 'packages/client/ui-agent-preset/tests/locales.client.spec.ts', text: '[\'cordis\', \'presetCordisName\'', count: 1 },
+  // The shipped preset id in this map is product data, not a package name.
+  { file: 'packages/preset/agent-presets/src/display.ts', text: "ptc: { name: 'presetPtcName', description: 'presetPtcDescription' }", count: 1 },
   // The preset id the shipped composition documents to its own model.
   { file: 'packages/preset/agent-presets/presets/ptc/agent.cordis.yml', text: 'The `ptc` agent preset', count: 1 },
   { file: 'packages/preset/agent-presets/presets/ptc/agent.cordis.yml', text: 'NEVER edit or delete the shipped preset install', count: 1 },

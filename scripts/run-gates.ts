@@ -757,6 +757,7 @@ function docSyncLeafGates(options: {
     pnpmScript('config-catalog', 'verify-config-catalog', { label: 'config catalog' }),
     pnpmScript('plugin-packages', 'verify-plugin-packages', { label: 'skill plugin package list' }),
     pnpmScript('dependency-catalog', 'verify-dependency-catalog', { label: 'npm dependency catalog', quick: true }),
+    pnpmScript('preset-copy', 'verify-preset-copy', { label: 'shipped preset copy', quick: true }),
     pnpmScript('persistence-catalog', 'verify-persistence-catalog', { label: 'persistence catalog' }),
     pnpmScript('plugin-record-callers', 'verify-plugin-record-callers', { label: 'plugin record callers' }),
     pnpmScript('persistence-changes', 'verify-persistence-changes', { label: 'persistence type history' }),

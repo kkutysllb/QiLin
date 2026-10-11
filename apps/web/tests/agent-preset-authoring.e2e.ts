@@ -86,7 +86,7 @@ describe('web e2e: agent-preset authoring is a host-side copy', () => {
     // The intro states the copy path directly, and the shipped rows offer
     // view/copy but never delete or a location — their
     // install is overwritten by upgrades and is not the user's to manage.
-    expect(snapshot).toContain('或用「创造模式」让 Agent 帮你创建')
+    expect(snapshot).toContain('或让 Agent 帮你创建')
     expect(snapshot).not.toContain('新建预设')
     expect(snapshot).toContain('查看: 编码模式')
     expect(snapshot).not.toContain('删除: 编码模式')
@@ -173,7 +173,7 @@ describe('web e2e: agent-preset authoring is a host-side copy', () => {
     // The custom group outlives its only member: the heading stays with the
     // creator entry so the place to author a preset never disappears.
     expect(await dialog.getByRole('heading', { name: '自定义' }).count()).toBe(1)
-    expect(await dialog.getByRole('button', { name: '用「创造模式」创作自定义预设' }).count()).toBe(1)
+    expect(await dialog.getByRole('button', { name: '让 Agent 起草自定义预设' }).count()).toBe(1)
     expect(await dialog.getByText('编码模式').count()).toBeGreaterThan(0)
   }, 60_000)
 
@@ -244,7 +244,7 @@ describe('web e2e: agent-preset authoring is a host-side copy', () => {
     await connectFreshWorkspaceZh(page, scaffold.workspaceCwd)
     const dialog = await openSettings(page)
     await dialog.getByRole('button', { name: 'Agent 预设' }).click()
-    await dialog.getByRole('button', { name: '用「创造模式」创作自定义预设' }).click()
+    await dialog.getByRole('button', { name: '让 Agent 起草自定义预设' }).click()
 
     // Leaving settings is part of the gesture: the flow lands on the
     // new-session screen with the self-referential preset staged, and the

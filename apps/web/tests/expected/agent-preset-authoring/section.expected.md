@@ -14,9 +14,9 @@
   - button "打开配置文件"
   - button "关闭"
   - heading "Agent 预设" [level=2]
-  - paragraph: 预设即一个会话的 Agent 所运行的插件组装 —— 它的工具、提示词与能力。复制一份既有预设改成自己的，或用「创造模式」让 Agent 帮你创建。
+  - paragraph: 预设即一个会话的 Agent 所运行的插件组装 —— 它的工具、提示词与能力。复制一份既有预设改成自己的，或让 Agent 帮你创建。
   - text: 允许切换agent模式 beta
-  - paragraph: 开启后，新任务可选择标准、编码、创造及自定义模式；关闭后统一使用默认模式（默认为标准模式，可自定义）。仅影响新任务。
+  - paragraph: 开启后，新任务可在可选模式中选择；关闭后统一使用默认模式（可自定义）。仅影响新任务。
   - switch "允许切换agent模式" [checked]
   - heading "内置" [level=3]
   - list:
@@ -27,4 +27,4 @@
       - 'button "查看: 编码模式"': 查看
       - 'button "复制: 编码模式"': 复制
   - heading "自定义" [level=3]
-  - button "用「创造模式」创作自定义预设"
+  - button "让 Agent 起草自定义预设"

@@ -147,7 +147,8 @@
     "tests/complex-history.perf.ts",
     "tests/pwsh-terminal.e2e.ts",
     "tests/workflow-run.e2e.ts",
-    "tests/accounts-auth.e2e.ts"
+    "tests/accounts-auth.e2e.ts",
+    "tests/third-party-plugin.e2e.ts"
   ],
   "references": [
     { "path": "../../packages/experimental/auto-review" },

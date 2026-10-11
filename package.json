@@ -129,6 +129,7 @@
     "verify-typert-face-dependencies": "tsx scripts/verify-typert-face-dependencies.ts",
     "verify-no-unknown-casts": "tsx scripts/verify-no-unknown-casts.ts",
     "verify-cordis-config": "tsx scripts/verify-cordis-config.ts",
+    "verify-preset-copy": "tsx scripts/verify-preset-copy.ts",
     "rescope-vendor": "tsx scripts/rescope-vendor.ts",
     "rescope-vendor:check": "tsx scripts/rescope-vendor.ts --check",
     "verify-client-domain-graph": "tsx scripts/verify-client-domain-graph.ts",

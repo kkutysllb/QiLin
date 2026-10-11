@@ -83,7 +83,7 @@ describe('ui-settings-plugin-inventory browser plugin', () => {
     // Shipped preset names resolve over this plugin's own dictionaries — the
     // tab renders while ui-agent-preset may be absent; user-authored metadata
     // stays untranslated.
-    expect(injected.presetName({ id: 'standard', trust: 'system', isDefault: true, rows: [] })).toBe('标准模式')
+    expect(injected.presetName({ id: 'ptc', trust: 'system', isDefault: true, rows: [] })).toBe('编码模式')
     expect(injected.presetName({ id: 'ptc', trust: 'system', isDefault: false, rows: [] })).toBe('编码模式')
     expect(injected.presetName({ id: 'mine', trust: 'user', name: '我自己的', isDefault: false, rows: [] })).toBe('我自己的')
     await b.ctx.fiber.dispose()

@@ -1,4 +1,4 @@
-/** Web-localized copy for the three shipped presets and file copy for every other row. */
+/** Web-localized copy for the shipped preset and file copy for every other row. */
 
 import { describe, expect, it } from 'vitest'
 import { en, presetDisplayText, zh } from '../src/client/locales.ts'
@@ -6,23 +6,20 @@ import { en, presetDisplayText, zh } from '../src/client/locales.ts'
 const translate = (bundle: typeof en) => (key: keyof typeof en): string => bundle[key]
 
 describe('preset display copy', () => {
-  it.each([
-    ['standard', 'presetStandardName', 'presetStandardDescription'],
-    ['ptc', 'presetPtcName', 'presetPtcDescription'],
-    ['cordis', 'presetCordisName', 'presetCordisDescription'],
-  ] as const)('localizes the shipped %s preset in English and Chinese', (id, nameKey, descriptionKey) => {
-    const preset = { id, trust: 'system' as const, name: 'file name', description: 'file description' }
+  it('localizes the shipped preset in English and Chinese', () => {
+    const preset = { id: 'ptc', trust: 'system' as const, name: 'file name', description: 'file description' }
 
     expect(presetDisplayText(preset, translate(en)))
-      .toEqual({ name: en[nameKey], description: en[descriptionKey] })
+      .toEqual({ name: en.presetPtcName, description: en.presetPtcDescription })
     expect(presetDisplayText(preset, translate(zh)))
-      .toEqual({ name: zh[nameKey], description: zh[descriptionKey] })
+      .toEqual({ name: zh.presetPtcName, description: zh.presetPtcDescription })
   })
 
   it('keeps file metadata for user and unknown system presets', () => {
     const fileCopy = { name: '我的标准', description: '团队自己的 preset。' }
 
-    expect(presetDisplayText({ id: 'standard', trust: 'user', ...fileCopy }, translate(en)))
+    // User trust wins over the built-in mapping for the same id.
+    expect(presetDisplayText({ id: 'ptc', trust: 'user', ...fileCopy }, translate(en)))
       .toEqual(fileCopy)
     expect(presetDisplayText({ id: 'deployment-extra', trust: 'system', ...fileCopy }, translate(en)))
       .toEqual(fileCopy)
