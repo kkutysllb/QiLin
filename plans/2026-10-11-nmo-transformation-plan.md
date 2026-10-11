@@ -183,7 +183,7 @@
 | 门 | `verify-translation-pairing`（两文件）· `verify-runtime-closure`（**1 agent presets** + 156 包闭合）· `verify-cordis-config`（435 文件）· `verify-md-links`（2179 文件）· `verify-repository-references` · `rescope-vendor --check`（8464 文件）· `gen-plugin-packages --check` · `tsc -b` 两面 全绿 |
 | `doc-quick` | 18 通过 / 2 红，均为**既有红**：`translation pairing`（`desktop/staging` 镜像 + `docs/tool-catalog.i18n.yaml` + python SDK 示例，均非本片文件）、`verify-repository-references`——后者本片一度被新计划文件里的裸 commit hash 触发，已按门规改写为 tag/描述 |
 
-### S1 遗留收口 —— CLI 车道与产品硬编码（2026-10-11 续，提交 `5ccc5d93a3`）
+### S1 遗留收口 —— CLI 车道与产品硬编码（2026-10-11 续）
 
 **`apps/cli/tests/web-agent-presets.e2e.ts`：25 红 → 3 红（29/32 绿）**，改写口径：
 
@@ -245,6 +245,22 @@
 
 **验证**：本车道 6/7；oxlint 0；`verify-cordis-config` 435 文件、`verify-runtime-closure` 1 预设 + 156 包闭合、`verify-md-links` 2179 文件。
 
+### S2 存量会话 v4→v5 代次重写（C2=b，已落地）
+
+**新代次包** `packages/session/session-format-v4-to-v5`（`src/{index,migration,codec,validation}.ts` + 19 例 spec + 双语 README 对）：折叠点恰两处——`header.agentPreset` 与每条 `agent-preset/selected.data.agentPreset`，`standard`/`cordis`/`minimal` → `ptc`；自定义标识、非字符串载荷与其它字段逐字节通过（选择事件对象原样输出，不复制、不修复）。种子切点取最后一个 `data.inherited === true` 的 `session/end-seed` 自身索引，缺标记直接拒绝；非种子源 `headerInheritedEventCount: 0`。物理面复用已发布 V2 行封装 + V4 行准入（V5 只加词汇）。`resolve()` **不加兜底**（不做别名 fold，保持 fail-loud）。投递水位仍按代次：`sessionFormatVersion: 4` 的 delivery-accepted 在 V5 下不再生效。
+
+**引擎与文档**：`SESSION_FORMAT_VERSION` 4→5（[types.ts:89](../packages/core/session/src/types.ts)）；catalog 增依赖/引用并重生成（v0→v5 五边链路）；persistence 目录与 schema 重生成；新增变更记录 `docs/persistence-changes/2026-10-11-session-format-v5.*` 与归档 `historical-formats/v4.*`（63 根 / 606 类型）。
+
+**夹具面**：`snapshots/sdk` 八个场景再生当前代次 fixture（`session.v5.jsonl`）与金样；`apps/web/tests/preset-migration.snapshot.ts` 期望由 `['ptc','standard','ptc']` 改为 `['ptc','ptc','ptc']`（v5 边把 `standard` 折成 `ptc`）。
+
+**本片修的一处门禁漂移**：`scripts/session-snapshot-corpus-policy.spec.ts` 在写入器升到 5 后仍按 v4 时代构造夹具（`adjacent = [1, 2]`），4 例红——已改为按 `SESSION_FORMAT_VERSION` 推导受保留边（`[1, 2, ...4..当前-1]`）与基线多数（`retainedRoleCount + 1`），**16/16 绿**。
+
+**验证（实跑）**：`session-format-v4-to-v5` + catalog **54/54**；`session-format` + `core/session` **1801/1801**；`session-persistence-jsonl` **749/749**；`tsc -b`（边 + 目录 + 持久化）exit 0；oxlint 0；`verify-persistence-changes`（63 根 / 11 条历史）、`verify-persistence-catalog`、`verify-persistence-formats`（v0–v5 六份完整参考）、`verify-runtime-closure`（1 预设 + 157 包）、README 三门（summaries / limitations / model-experience）与 pairing 全绿。
+
+**本片修掉的两项 SDK 快照红**（writer 代次直接后果）：场景的**最新 session fixture 兼作 writer oracle**（`retained ? writer.expected.jsonl : 最新 session.*.jsonl`），代次升到 5 后 `text-turn` 与 `subagent-qilin-sdk-diagnostic` 的比对必然在 `sessionFormatVersion` 上不符。按仓库机制 `QILIN_SNAPSHOT=refresh` 再生：新增两份 `session.v5.jsonl`、`text-turn` 金样 1 行（版本戳），`subagent-qilin-sdk-diagnostic` 金样 25/20 行——后者除版本戳外还记录了当前运行时的 activation 期事件流（+2 `subagent/catalog`、+2 `agent/inbox/spliced`、+1 `user/message`，seq 重锚），**这一处需要复核**：它把升级期的激活语义变化一并钉进金样。SDK 车道 8 红 → **6 红**。
+
+**登记不修（SDK 快照面 6 项，独立小片）**：`serial-created`（`SDK snapshot session has no request model`——该 curated 场景的主 fixture 无请求记录，`SDK_ASSERTIONS.route` 未声明）、`subagent-activation-limit`（120s 超时）、`subagent-fork-in-process` / `subagent-spawn-in-process`（`subagent.finished` 未观测到）、`subagent-qilin-sdk-dynamic-route`（日志数 1 ≠ 2）、`tool-error-details`（**S1 相关**：场景同时演练 native 直调与 PTC 两条呈现臂，合并后 `tool-presentation` 只剩 ptc，`denied-native` 臂在到达 `tools/pre-execute` 之前即 `UNKNOWN_TOOL`——升级已删除 `both` 档，native 臂不可能复原；修法=按 PTC 单臂重写脚本 + 重推期望）。修复只能靠 `QILIN_SNAPSHOT=record`（真实 key 与真实模型调用）或逐场景改写，已在升级计划 §6.70 登记为既有基线，需另行授权。
+
 ## 10. 下一步
 
-**S2 存量会话 v4→v5 代次重写（C2=b）**（`preset-migration.snapshot` 并入其验证面）→ S3 双工作台与 audience 归一删除（含 ui-workspace 重复芯片与其车道同退）→ S4 前端零预设面清账。schedule-after/schedule-panel 复活与 child-orchestration 重设计为可并行登记片，不阻塞主线。
+~~S2 存量会话 v4→v5 代次重写（C2=b）~~ **已落地（见上）** → S3 双工作台与 audience 归一删除（含 ui-workspace 重复芯片与其车道同退）→ S4 前端零预设面清账。schedule-after/schedule-panel 复活与 child-orchestration 重设计为可并行登记片，不阻塞主线。
