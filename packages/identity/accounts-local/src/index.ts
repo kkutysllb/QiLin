@@ -37,6 +37,7 @@ export {
   normalizeEmail,
   normalizeUsername,
 } from './validation.ts'
+export { verifyPassword } from './password.ts'
 
 /** Stable Cordis plugin name. */
 export const name = 'accounts-local'

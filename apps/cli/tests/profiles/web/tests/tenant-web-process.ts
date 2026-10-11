@@ -1,9 +1,11 @@
 /**
  * Owner-local harness for the multi-tenant topology the tenancy plan verifies:
- * several built Web runtimes over ONE shared Harness home, each tenant's
- * deployment-scoped roots moved by its own `--patch` overlay.
+ * several built Web runtimes under one deployment home, each with its own
+ * Harness home, so plugins, model settings, credentials, sessions, and
+ * storages resolve inside that tenant and nowhere else.
  *
- * The product label on the startup URL line is a patchable row, so readiness is
+ * Only the account roster is shared; the tenant's home layer names it. The
+ * product label on the startup URL line is a patchable row, so readiness is
  * matched by the printed URL rather than by any product name.
  */
 import { spawn, type ChildProcess } from 'node:child_process'
@@ -15,6 +17,7 @@ import WebSocket from 'ws'
 import { expect, type TestContext } from 'vitest'
 import { resolveExampleLaunch } from '@qilin-agent/loader-smoke'
 import { PROCESS_SHUTDOWN_TIMEOUT_MS } from '../../../../src/process-shutdown.ts'
+import { TENANT_VARIABLE } from '../../../../src/tenant-runtime.ts'
 
 const repoRoot = fileURLToPath(new URL('../../../../../../', import.meta.url))
 
@@ -86,16 +89,16 @@ export interface ForwardedEvents {
   close(): Promise<void>
 }
 
-/** The shared world the tenant runtimes are spawned into. */
+/** The deployment world the tenant runtimes are spawned into. */
 export interface TenantWorld {
   /** Temporary directory owning this world; removed when the test finishes. */
   readonly root: string
-  /** The one Harness home every tenant shares. */
+  /** Deployment home: the account roster, and one directory per tenant. */
   readonly home: string
-  /** Per-tenant data directory under {@link home}. */
+  /** The tenant's own Harness home, which is also its directory. */
   tenantDir(tenant: string): string
-  /** The per-tenant overlay file path. */
-  overlayPath(tenant: string): string
+  /** The layer file inside that tenant's harness home. */
+  patchPath(tenant: string): string
 }
 
 /** Options for {@link withTenantWeb}. */
@@ -103,16 +106,16 @@ export interface TenantWebOptions {
   /** Tenant names, in spawn order. */
   readonly tenants: readonly string[]
   /**
-   * Runs after the shared home and the per-tenant overlays exist and before any
-   * runtime starts, so a scenario can seed tenant-scoped durable state.
-   * @param world - the prepared shared world.
+   * Runs after the deployment home and the per-tenant harness homes exist and
+   * before any runtime starts, so a scenario can seed tenant-scoped durable state.
+   * @param world - the prepared deployment world.
    */
   readonly prepare?: (world: TenantWorld) => Promise<void>
 }
 
 /** A booted multi-tenant world. */
 export interface TenantWeb {
-  /** The shared world. */
+  /** The deployment world. */
   readonly world: TenantWorld
   /**
    * Look up one running tenant runtime.
@@ -132,54 +135,27 @@ interface TenantRuntime {
 }
 
 /**
- * The per-tenant deployment overlay: the deployment-scoped roots the tenancy
- * plan moves, named by their shipped row ids. Every row it does not name keeps
- * the shared home, which is what shares plugins, model settings, and
- * credentials across tenants.
- * @param tenant - tenant whose roots the overlay names.
- * @returns the overlay document as YAML.
- */
-export function tenantOverlayYaml(tenant: string): string {
-  return [
-    `# Per-tenant deployment roots for ${tenant}.`,
-    '# Each expression is evaluated against the shared Harness home.',
-    '- id: session-persistence-jsonl',
-    '  config:',
-    `    root: !!js qilinHomePath('tenants', '${tenant}', 'sessions')`,
-    '- id: storage-json',
-    '  config:',
-    `    root: !!js qilinHomePath('tenants', '${tenant}', 'storages')`,
-    '- id: session-query-sqlite',
-    '  config:',
-    `    path: !!js qilinHomePath('tenants', '${tenant}', 'session-query.sqlite')`,
-    '    openAt: never',
-    '- id: attachment-local',
-    '  config:',
-    `    qilinHome: !!js qilinHomePath('tenants', '${tenant}')`,
-    '',
-  ].join('\n')
-}
-
-/**
- * The deployment layer every tenant inherits: the machine-level user layer at
- * the root of the shared home.
+ * The layer inside one tenant's harness home: the deployment roster it reads,
+ * and nothing about plugins or model settings, which belong to this home.
  *
  * This stage verifies the data plane. The account gate and the account-to-tenant
- * mapping belong to a later stage, and the shipped gate answers a launch-token
- * device cookie with a session refusal on every non-auth `/api` route, so this
- * world turns it off the way the sibling built-process lanes do.
- * @returns the shared user-layer document as YAML.
+ * mapping belong to the supervisor lane, and the shipped gate answers a
+ * launch-token device cookie with a session refusal on every non-auth `/api`
+ * route, so this world turns it off the way the sibling built-process lanes do.
+ * @param tenant - tenant whose harness home carries the layer.
+ * @returns the layer document as YAML.
  */
-export function sharedDeploymentLayerYaml(): string {
+export function tenantPatchYaml(tenant: string): string {
   return [
-    '# Deployment decisions every tenant inherits from one document.',
+    `# Tenant harness home for ${tenant}.`,
+    '# The roster stays in the deployment home; this home is the tenant.',
     '- id: accounts',
     '  config:',
+    '    qilinHome: !!js process.env.QILIN_DEPLOYMENT_HOME',
     '    enabled: false',
     '',
   ].join('\n')
 }
-
 /**
  * Send one named-argument Remote request to a runtime over its loopback port.
  * @param origin - the runtime's origin.
@@ -238,15 +214,18 @@ async function startTenant(world: TenantWorld, tenant: string): Promise<TenantRu
     configArgs: [
       '--profile', 'web',
       '--patch', SCHEDULE_BUNDLE_PATCH,
-      '--patch', world.overlayPath(tenant),
       '--host', '127.0.0.1', '--port', '0', '--no-open',
     ],
     env: {
       NODE_OPTIONS: undefined,
       NODE_PATH: undefined,
       TSX_TSCONFIG_PATH: undefined,
-      QILIN_HOME: world.home,
-      QILIN_AGENTS_HOME: join(world.root, '.agents'),
+      // The tenant's own harness home is the isolation; the deployment home
+      // reaches its roster layer by name.
+      QILIN_HOME: world.tenantDir(tenant),
+      [TENANT_VARIABLE]: '1',
+      QILIN_DEPLOYMENT_HOME: world.home,
+      QILIN_AGENTS_HOME: join(world.tenantDir(tenant), 'agents'),
       QILIN_TELEMETRY_DISABLED: '1',
       DEEPSEEK_API_KEY: 'keyless-tenant-isolation-no-call',
       NODE_NO_WARNINGS: '1',
@@ -446,15 +425,15 @@ export async function withTenantWeb(
   test.onTestFinished(() => rm(root, { recursive: true, force: true }))
   const home = join(root, 'home')
   await mkdir(home, { recursive: true })
-  await writeFile(join(home, 'cordis.patch.yml'), sharedDeploymentLayerYaml())
   const world: TenantWorld = {
     root,
     home,
     tenantDir: (tenant: string) => join(home, 'tenants', tenant),
-    overlayPath: (tenant: string) => join(root, `${tenant}.patch.yml`),
+    patchPath: (tenant: string) => join(home, 'tenants', tenant, 'cordis.patch.yml'),
   }
   for (const tenant of options.tenants) {
-    await writeFile(world.overlayPath(tenant), tenantOverlayYaml(tenant))
+    await mkdir(world.tenantDir(tenant), { recursive: true })
+    await writeFile(world.patchPath(tenant), tenantPatchYaml(tenant))
   }
   await options.prepare?.(world)
 

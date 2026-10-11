@@ -1,7 +1,13 @@
 /**
- * One tenant's Web runtime: the deployment overlay that moves its
- * deployment-scoped roots under the shared Harness home, the child process that
- * serves it, and the launch-token URL a browser follows into it.
+ * One tenant's Web runtime: its own Harness home under the deployment home, the
+ * child process that serves it, and the launch-token URL a browser follows into
+ * it.
+ *
+ * A tenant is a deployment of its own. The child runs with `QILIN_HOME` set to
+ * this tenant's directory, so plugins, model settings, credentials, sessions,
+ * storages, attachments, skills, and presets all resolve inside it and nowhere
+ * else. The only shared file is the deployment's account roster, which the
+ * tenant's home layer points at while admitting exactly its own account.
  * @module @qilin-agent/cli/tenant-runtime
  */
 
@@ -33,7 +39,10 @@ export type TenantRuntimeState = 'stopped' | 'starting' | 'running' | 'failed'
 
 /** What one tenant runtime needs from the hub. */
 export interface TenantRuntimeOptions {
-  /** Shared Harness home every tenant runtime runs under. */
+  /**
+   * Deployment home: it holds the account roster and one directory per tenant,
+   * and every tenant runtime's own harness home lives under it.
+   */
   readonly home: string
   /** Account identity this runtime serves, which also names its tenant directory. */
   readonly accountId: string
@@ -75,40 +84,43 @@ export interface TenantRuntimeStatus {
   readonly retryAt: number | undefined
 }
 
-/** The overlay document that scopes one tenant's deployment roots. */
+/** The patch document one tenant's harness home carries. */
 const IDENTITY_PATTERN = /^[A-Za-z0-9._-]+$/u
 
+/** Environment variable naming the deployment home to a tenant runtime. */
+export const DEPLOYMENT_HOME_VARIABLE = 'QILIN_DEPLOYMENT_HOME'
+
 /**
- * Build one tenant's deployment overlay: the deployment-scoped roots the
- * tenancy plan moves, plus the account list this runtime admits.
+ * Marks the process as one account's runtime rather than the entry that serves
+ * the public address. The supervisor sets it for every child it starts; a
+ * deployment that starts a single-account runtime directly sets it too.
+ */
+export const TENANT_VARIABLE = 'QILIN_TENANT'
+
+/**
+ * Build one tenant's harness-home layer: the account roster it reads and the
+ * single account it admits.
+ *
+ * The roster stays in the deployment home so one command manages every account,
+ * while the tenant's own home holds everything else. The deployment home
+ * arrives through the environment rather than as a literal, so a path with
+ * quotes or a trailing backslash cannot change the document's meaning.
  * @param accountId - account identity this tenant serves.
- * @returns the overlay document as YAML.
+ * @returns the layer document as YAML.
  * @throws Error when the identity cannot be written as one plain YAML scalar.
  */
-export function tenantOverlayYaml(accountId: string): string {
+export function tenantPatchYaml(accountId: string): string {
   if (!IDENTITY_PATTERN.test(accountId)) {
     throw new Error(`qilin tenants: ${accountId} is not usable as a tenant directory name`)
   }
   return [
-    `# Tenant deployment layer for account ${accountId}.`,
-    '# Every expression is evaluated against the shared Harness home, so this',
-    '# file moves the deployment-scoped roots and nothing else: plugins, model',
-    '# settings, credentials, and the account file stay shared.',
-    '- id: session-persistence-jsonl',
-    '  config:',
-    `    root: !!js qilinHomePath('tenants', '${accountId}', 'sessions')`,
-    '- id: storage-json',
-    '  config:',
-    `    root: !!js qilinHomePath('tenants', '${accountId}', 'storages')`,
-    '- id: session-query-sqlite',
-    '  config:',
-    `    path: !!js qilinHomePath('tenants', '${accountId}', 'session-query.sqlite')`,
-    '    openAt: never',
-    '- id: attachment-local',
-    '  config:',
-    `    qilinHome: !!js qilinHomePath('tenants', '${accountId}')`,
+    `# Tenant harness-home layer for account ${accountId}.`,
+    '# This runtime admits exactly that account and reads the deployment roster;',
+    '# its plugins, model settings, credentials, sessions, and storages live in',
+    '# this tenant home.',
     '- id: accounts',
     '  config:',
+    `    qilinHome: !!js process.env.${DEPLOYMENT_HOME_VARIABLE}`,
     '    admittedAccounts:',
     `      - '${accountId}'`,
     '    registration: closed',
@@ -151,13 +163,16 @@ export class TenantRuntime {
     return { origin: url.origin, entry: `${url.pathname}${url.search}` }
   }
 
-  /** Absolute path of this tenant's deployment overlay. */
-  get overlayPath(): string {
+  /** Absolute path of this tenant's harness-home layer. */
+  get patchPath(): string {
     return join(this.tenantDir, 'cordis.patch.yml')
   }
 
-  /** This tenant's directory under the shared home. */
-  private get tenantDir(): string {
+  /**
+   * This tenant's harness home: everything the runtime owns lives under it,
+   * and the deployment home holds only the roster and these directories.
+   */
+  get tenantDir(): string {
     return join(this.options.home, 'tenants', this.options.accountId)
   }
 
@@ -235,7 +250,7 @@ export class TenantRuntime {
   /** Start one child, wait for its URL, and keep its handles. */
   private async start(): Promise<string> {
     await mkdir(this.tenantDir, { recursive: true })
-    await this.writeOverlay()
+    await this.writePatch()
     this.state = 'starting'
     this.detail = ''
     this.output = ''
@@ -245,13 +260,20 @@ export class TenantRuntime {
     const child = spawn(this.options.binPath, [
       ...this.options.execArgv,
       '--profile', this.options.profile,
-      '--patch', this.overlayPath,
       '--host', '127.0.0.1',
       '--port', '0',
       '--no-open',
     ], {
       cwd: this.tenantDir,
-      env: process.env,
+      // The tenant's harness home is the isolation: every root the runtime
+      // resolves comes from QILIN_HOME, so plugins and model settings are this
+      // account's own. The deployment home reaches the roster layer by name.
+      env: {
+        ...process.env,
+        QILIN_HOME: this.tenantDir,
+        [TENANT_VARIABLE]: '1',
+        [DEPLOYMENT_HOME_VARIABLE]: this.options.home,
+      },
       stdio: ['ignore', 'pipe', 'pipe'],
     })
     const ready = Promise.withResolvers<string>()
@@ -313,11 +335,11 @@ export class TenantRuntime {
     }
   }
 
-  /** Write this tenant's overlay when the file does not already hold it. */
-  private async writeOverlay(): Promise<void> {
-    const document = tenantOverlayYaml(this.options.accountId)
-    const current = await readFile(this.overlayPath, 'utf8').catch(() => undefined)
+  /** Write this tenant's home layer when the file does not already hold it. */
+  private async writePatch(): Promise<void> {
+    const document = tenantPatchYaml(this.options.accountId)
+    const current = await readFile(this.patchPath, 'utf8').catch(() => undefined)
     if (current === document) return
-    await writeFile(this.overlayPath, document)
+    await writeFile(this.patchPath, document)
   }
 }

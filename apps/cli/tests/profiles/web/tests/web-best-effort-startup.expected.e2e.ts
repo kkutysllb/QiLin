@@ -10,6 +10,7 @@ import { execa } from 'execa'
 import { WEB_ENTRY_PATH } from '@qilin-agent/client-connection'
 import { describe, expect, it } from 'vitest'
 import { startupUrl } from '../../../startup-url.ts'
+import { TENANT_VARIABLE } from '../../../../src/tenant-runtime.ts'
 
 const repoRoot = fileURLToPath(new URL('../../../../../../', import.meta.url))
 const qilinBin = join(repoRoot, 'apps/cli/lib/bin.js')
@@ -156,6 +157,7 @@ describe.skipIf(!builtArtifactsExist)('qilin Web profile best-effort startup', (
         DEEPSEEK_API_KEY: 'keyless-web-best-effort-no-call',
         QILIN_AGENTS_HOME: join(fixture.root, '.agents'),
         QILIN_HOME: fixture.home,
+        [TENANT_VARIABLE]: '1',
         QILIN_TELEMETRY_DISABLED: '1',
         NODE_NO_WARNINGS: '1',
       },
@@ -235,6 +237,7 @@ describe.skipIf(!builtArtifactsExist)('qilin Web profile best-effort startup', (
           DEEPSEEK_API_KEY: 'keyless-web-required-no-call',
           QILIN_AGENTS_HOME: join(fixture.root, '.agents'),
           QILIN_HOME: fixture.home,
+          [TENANT_VARIABLE]: '1',
           QILIN_TELEMETRY_DISABLED: '1',
           NODE_NO_WARNINGS: '1',
         },
@@ -288,6 +291,7 @@ describe.skipIf(!builtArtifactsExist)('qilin Web profile best-effort startup', (
           DEEPSEEK_API_KEY: 'keyless-web-required-bind-no-call',
           QILIN_AGENTS_HOME: join(root, '.agents'),
           QILIN_HOME: home,
+          [TENANT_VARIABLE]: '1',
           QILIN_TELEMETRY_DISABLED: '1',
           NODE_NO_WARNINGS: '1',
         },
@@ -372,6 +376,7 @@ describe.skipIf(!builtArtifactsExist)('qilin Web profile best-effort startup', (
           DEEPSEEK_API_KEY: 'keyless-web-detached-no-call',
           QILIN_AGENTS_HOME: join(fixture.root, '.agents'),
           QILIN_HOME: fixture.home,
+          [TENANT_VARIABLE]: '1',
           QILIN_TELEMETRY_DISABLED: '1',
           NODE_NO_WARNINGS: '1',
         },

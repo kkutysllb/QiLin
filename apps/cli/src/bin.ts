@@ -41,6 +41,14 @@ export async function runCli(): Promise<void> {
 
   switch (invocation.mode) {
     case 'profile': {
+      // The Web profile is the deployment entry: one public address, one
+      // supervisor, one runtime per account. A process the supervisor started
+      // carries the tenant marker and boots the application itself.
+      const { isWebEntry, runWebEntry, WEB_ENTRY_PROFILE } = await import('./web-entry.ts')
+      if (invocation.profile === WEB_ENTRY_PROFILE && isWebEntry()) {
+        process.exitCode = await runWebEntry(invocation.args)
+        break
+      }
       const { runProfile } = await import('./profile-boot.ts')
       try {
         await runProfile({
@@ -63,13 +71,8 @@ export async function runCli(): Promise<void> {
       break
     }
     case 'tenants': {
-      if (invocation.request.command === 'serve') {
-        const { runTenantsServe } = await import('./tenants.ts')
-        process.exitCode = await runTenantsServe(invocation.request.options)
-      } else {
-        const { runTenantsRoster } = await import('./tenants-roster.ts')
-        process.exitCode = await runTenantsRoster(invocation.request)
-      }
+      const { runTenantsRoster } = await import('./tenants-roster.ts')
+      process.exitCode = await runTenantsRoster(invocation.request)
       break
     }
     case 'dump-config': {

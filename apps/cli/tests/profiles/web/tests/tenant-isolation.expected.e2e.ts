@@ -1,12 +1,13 @@
 /**
- * Multi-tenant stage P1 (plans/2026-10-11-multi-user-tenancy.md §7–8): one
- * shared Harness home, one built Web runtime per tenant, and per-tenant
- * deployment roots supplied by each tenant's own `--patch` overlay.
+ * Multi-tenant isolation (plans/2026-10-11-multi-user-tenancy.md §12): one
+ * deployment home, one built Web runtime per account, and **one harness home
+ * per account** — sessions, tasks, workspaces, attachments, plugins, model
+ * settings, and credentials all resolve inside that account.
  *
- * The six observed criteria are the plan's acceptance list: Sessions, tasks,
- * and workspaces stay with their tenant; the deployment layers that carry
- * plugins and model settings stay shared; forwarded events do not cross; and a
- * foreign Session identity is refused by the executor rather than answered.
+ * The criteria are the acceptance list: every one of those surfaces stays with
+ * its tenant, the deployment home holds only the account roster and the tenant
+ * directories, forwarded events do not cross, and a foreign Session identity is
+ * refused by the executor rather than answered.
  *
  * Every criterion is two-sided on purpose. A tenant-scoped assertion alone
  * passes when a root never moved by reading nothing; the paired assertion that
@@ -59,7 +60,7 @@ function addedSession(event: ForwardedEvent, sessionId: string): boolean {
     && (payload as { sessionId?: unknown }).sessionId === sessionId
 }
 
-it('keeps Sessions, tasks, and workspaces with their tenant while sharing the deployment layers', async (test) => {
+it('keeps sessions, tasks, workspaces, plugins, and model settings with their tenant', async (test) => {
   await withTenantWeb(test, {
     tenants: [ALICE, BOB],
     prepare: async (world) => { await seedTenantTask(world, ALICE) },
@@ -109,23 +110,39 @@ it('keeps Sessions, tasks, and workspaces with their tenant while sharing the de
     expect(await readTenantStorage(world, BOB, 'workspace.json')).not.toContain(aliceProjects)
     expect(await alice.rpc('workspace/delete', { request: { workspaceId: aliceWorkspace.workspace.workspaceId } })).toBeDefined()
 
-    // 4. Deployment configuration is shared: one settings document serves both
-    // tenants, and a value written through one runtime reaches the other without
-    // that tenant configuring anything.
+    // 4. Model settings are per account: a value written through one runtime
+    // stays in that runtime's own harness home, and the other account is
+    // unaffected — it configures its own.
     const before = await alice.rpc<{ hasDocument: boolean }>('settings/describe', {})
     expect(before.hasDocument).toBe(true)
     await alice.rpc('settings/update', { ns: 'ui-theme', patch: { fontSize: 16 }, expectedRevision: 0 })
     await expect.poll(
-      async () => (await bob.rpc<{ namespaces: { ns: string; value: { fontSize?: number } }[] }>('settings/describe', {}))
+      async () => (await alice.rpc<{ namespaces: { ns: string; value: { fontSize?: number } }[] }>('settings/describe', {}))
         .namespaces.find(entry => entry.ns === 'ui-theme')?.value.fontSize,
       { timeout: 10_000 },
     ).toBe(16)
-    for (const tenant of [ALICE, BOB]) {
-      const entries = await readdir(world.tenantDir(tenant))
-      expect(entries.filter(entry => /settings|credentials|profiles/u.test(entry))).toEqual([])
-    }
+    const bobSettings = await bob.rpc<{ namespaces: { ns: string; value: { fontSize?: number } }[] }>('settings/describe', {})
+    // The other account never carries the value the first one wrote. A default
+    // it reports on its own is its own document, not inheritance.
+    expect(bobSettings.namespaces.find(entry => entry.ns === 'ui-theme')?.value.fontSize).not.toBe(16)
+    expect(await readFile(join(world.tenantDir(ALICE), 'settings.yaml'), 'utf8')).toContain('fontSize')
+    expect(await readFile(join(world.tenantDir(BOB), 'settings.yaml'), 'utf8').catch(() => '')).not.toContain('fontSize')
 
-    // 5. Forwarded events do not cross: each tenant's stream delivers its own
+    // 5. Plugins are per account too: each runtime booted its own profile
+    // directory inside its own home, and the deployment home holds neither a
+    // profile nor a settings document — only the roster and the tenant homes.
+    for (const tenant of [ALICE, BOB]) {
+      expect(await readdir(world.tenantDir(tenant))).toContain('profiles')
+    }
+    // Only the account that configured something holds a settings document;
+    // the other home carries its own credentials and profile, not that value.
+    expect(await readdir(world.tenantDir(ALICE))).toContain('settings.yaml')
+    expect(await readdir(world.tenantDir(BOB))).not.toContain('settings.yaml')
+    const deploymentEntries = await readdir(world.home)
+    expect(deploymentEntries).not.toContain('profiles')
+    expect(deploymentEntries).not.toContain('settings.yaml')
+
+    // 6. Forwarded events do not cross: each tenant's stream delivers its own
     // Session additions, and neither delivers the other's.
     const aliceEvents = await openForwardedEvents(alice)
     const bobEvents = await openForwardedEvents(bob)
@@ -146,7 +163,7 @@ it('keeps Sessions, tasks, and workspaces with their tenant while sharing the de
       await bobEvents.close()
     }
 
-    // 6. A foreign Session identity is refused by the executor, and the same
+    // 7. A foreign Session identity is refused by the executor, and the same
     // request succeeds for the tenant that owns it.
     const stolen = await bob.rpcResult('session/rename', { request: { sessionId: aliceSession.sessionId, title: 'stolen by bob' } })
     expect(stolen.ok, JSON.stringify(stolen)).toBe(false)

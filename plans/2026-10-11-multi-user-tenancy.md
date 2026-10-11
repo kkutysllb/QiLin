@@ -558,3 +558,7 @@ hub 仍然**不做访问判定**：路由 cookie 只是选择器，伪造它只�
 ### 16.4 结论
 
 用户选的「拆拒绝语义」在**调用方维度**是成功的（manager 保持 best effort，930/930 为证）；在**同一调用方内部区分致命/非致命**这一步，卡在回滚与 HMR 记账的相互作用上，需要先补单元级验证台再落。代码面无遗留改动。
+
+## 17. 入口收拢为 `qilin web`（2026-10-12）
+
+部署面按操作者要求收成一条命令：`qilin web` 即整套部署——地址上先有登录表单（凭据由被指名账户自己的运行时校验，入口中继其会话 cookie 并加路由 cookie），再按账户在 `$QILIN_HOME/tenants/<id>/` 各起一个运行时（只绑 loopback），每个运行时的插件、模型设置、凭据、技能、预设、会话都在自己的 home 内解析；名册（`$QILIN_HOME/auth/accounts.json`）是唯一共享面。`qilin tenants serve` 作为第二入口命令被删除；名册子命令（`accounts`、`add`、`passwd`、`remove`）保留。本计划前文 §7–§15 描述的「共享插件/模型设置 + overlay 搬会话根」形态已被此形态取代，现行共享面清单见 Agent Note 的 `## What stays shared`。`web-failure-matrix` 的 2 条既有红（§16）与本改动无关，原样保留。

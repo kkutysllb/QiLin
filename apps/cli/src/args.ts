@@ -16,7 +16,6 @@
  */
 
 import { Command, CommanderError, InvalidArgumentError } from 'commander'
-import type { TenantsServeOptions } from './tenants.ts'
 import type { RosterRequest } from './tenants-roster.ts'
 
 /** Boot a named profile and hand it the invocation's inner arguments. */
@@ -51,7 +50,7 @@ interface PluginInvocation {
 }
 
 /** What one `qilin tenants` invocation asks for. */
-type TenantsRequest = { readonly command: 'serve'; readonly options: TenantsServeOptions } | RosterRequest
+type TenantsRequest = RosterRequest
 
 /** Serve one isolated Web runtime per account, or manage this home's roster. */
 interface TenantsInvocation {
@@ -63,16 +62,6 @@ interface TenantsInvocation {
 /** The resolved `qilin` invocation. Help, version, and errors exit inside {@link parseQilinArgs}. */
 export type QilinInvocation = ProfileInvocation | DumpConfigInvocation | PluginInvocation | TenantsInvocation
 
-/** `qilin tenants serve` flags, as commander collected them. */
-interface TenantsServeFlags {
-  host: string
-  port: number
-  profile: string
-  idleMs: number
-  maxTenants: number
-  restartBackoffMs: number
-  singleOrigin?: boolean
-}
 
 /** Launcher flags for profile boot and configuration dumps. */
 interface BootOptions {
@@ -87,16 +76,6 @@ interface BootOptions {
  * variadic — a variadic `--patch` would swallow the inner arguments.
  */
 const collect = (value: string, previous: string[] = []): string[] => [...previous, value]
-
-/** Parse one whole-number option, refusing anything below its floor. */
-function wholeNumber(name: string, minimum: number): (value: string) => number {
-  return (value: string): number => {
-    if (!/^[0-9]+$/u.test(value)) throw new InvalidArgumentError(`${name} needs a whole number`)
-    const parsed = Number(value)
-    if (parsed < minimum) throw new InvalidArgumentError(`${name} needs at least ${String(minimum)}`)
-    return parsed
-  }
-}
 
 function selectProfile(value: string, previous?: string): string {
   if (previous !== undefined) throw new InvalidArgumentError('select a profile only once')
@@ -137,10 +116,7 @@ Examples:
                                               allow one rejected plugin/runtime pair
   qilin plugin revoke-version <pkg@ver> --qilin-version <exact>
                                               withdraw one exemption
-  qilin tenants serve                         one isolated Web runtime per account over this home
-  qilin tenants serve --port 0 --idle-ms 600000
-                                              pick a free port and reclaim idle runtimes sooner
-  qilin tenants serve --max-tenants 4         keep at most four runtimes, reclaiming the least recently used
+  qilin web --port 0                          serve the deployment; each account gets its own runtime
   qilin tenants accounts                      list this home's accounts and their tenant directories
   qilin tenants add alice                     create an account, prompting for its password
   echo "$PASSWORD" | qilin tenants passwd alice --password-stdin
@@ -196,7 +172,7 @@ export function parseQilinArgs(argv: readonly string[], version: string): QilinI
   program
     .name('qilin')
     .version(version, '-V, --version', 'output the version number')
-    .usage('[--profile] <name> [options] [app-args...]\n       qilin plugin --profile <name> <pnpm-args...>\n       qilin tenants serve [options]')
+    .usage('[--profile] <name> [options] [app-args...]\n       qilin plugin --profile <name> <pnpm-args...>\n       qilin web [options]')
     .description('qilin: boot the QiLin product surface, or any profile — an ordered stack of plugin-bundle patch layers under your own overrides.')
     .addHelpText('after', HELP_EXAMPLES)
     .exitOverride()
@@ -248,37 +224,10 @@ export function parseQilinArgs(argv: readonly string[], version: string): QilinI
   }
 
   if (first === 'tenants') {
-    const tenants = program.command('tenants').description('serve one isolated Web runtime per account over this Harness home: Sessions and tasks stay per account, plugins and model settings stay shared; the roster subcommands maintain the accounts every runtime here shares')
+    const tenants = program.command('tenants').description('maintain the accounts every runtime under this Harness home shares; qilin web serves the deployment, one isolated runtime per account')
     tenants.action(() => {
-      program.error('error: tenants needs a subcommand (serve, accounts, add, passwd, remove)')
+      program.error('error: tenants needs a subcommand (accounts, add, passwd, remove)')
     })
-    tenants
-      .command('serve')
-      .description('start the hub and print its URL')
-      .option('--host <address>', 'interface the hub binds', '127.0.0.1')
-      .option('--port <port>', 'port the hub binds; 0 picks a free one', wholeNumber('--port', 0), 8790)
-      .option('--profile <name>', 'profile each tenant runtime boots', 'web')
-      .option('--idle-ms <milliseconds>', 'idle window before a tenant runtime is reclaimed; 0 keeps every one', wholeNumber('--idle-ms', 0), 1_800_000)
-      .option('--max-tenants <count>', 'most tenant runtimes to keep running at once; 0 keeps every one, and starting another reclaims the least recently used', wholeNumber('--max-tenants', 0), 0)
-      .option('--restart-backoff-ms <milliseconds>', 'first wait before retrying a tenant runtime that failed to start; it doubles per consecutive failure', wholeNumber('--restart-backoff-ms', 100), 1000)
-      .option('--single-origin', 'serve every tenant through the hub origin, routing each request by a cookie, instead of redirecting to the runtime port; reclamation then counts proxied traffic')
-      .action((options: TenantsServeFlags) => {
-        resolved = {
-          mode: 'tenants',
-          request: {
-            command: 'serve',
-            options: {
-              host: options.host,
-              port: options.port,
-              profile: options.profile,
-              idleMilliseconds: options.idleMs,
-              maxTenants: options.maxTenants,
-              restartBackoffMilliseconds: options.restartBackoffMs,
-              singleOrigin: options.singleOrigin === true,
-            },
-          },
-        }
-      })
     tenants
       .command('accounts')
       .description('list the accounts of this Harness home and the tenant directory each owns')

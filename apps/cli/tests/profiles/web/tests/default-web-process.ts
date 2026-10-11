@@ -14,6 +14,7 @@ import { expect } from 'vitest'
 import type { TestContext } from 'vitest'
 import { PROCESS_SHUTDOWN_TIMEOUT_MS } from '../../../../src/process-shutdown.ts'
 import type { RuntimeRoster } from './runtime-roster.ts'
+import { TENANT_VARIABLE } from '../../../../src/tenant-runtime.ts'
 
 const repoRoot = fileURLToPath(new URL('../../../../../../', import.meta.url))
 
@@ -78,6 +79,7 @@ export async function withDefaultWeb(
         NODE_PATH: undefined,
         TSX_TSCONFIG_PATH: undefined,
         QILIN_HOME: join(root, 'home'),
+        [TENANT_VARIABLE]: '1',
         QILIN_AGENTS_HOME: join(root, '.agents'),
         QILIN_TELEMETRY_DISABLED: '1',
         DEEPSEEK_API_KEY: 'keyless-default-web-no-call',

@@ -10,7 +10,7 @@ Status: implemented
 
 ## Decision
 
-把**一个引擎运行时作为租户单位**，并让部署级共享根继续共享——办法是保持 `QILIN_HOME` 共享。一个新的守护进程拥有「账号 → 租户」映射，并为每个租户运行一个引擎子进程。每个子进程拿到共享的 harness 主目录，于是 `profiles/`、`settings.yaml`、`.credentials.yaml`、MCP 行、技能、预设与主目录级 `cordis.patch.yml` 对所有人都是同一份；再叠加一份生成的 `--patch` 覆盖层，只搬动按租户拆分的根。完整证据盘点、覆盖层样例与阶段划分在[多租户改造计划](../../../../plans/2026-10-11-multi-user-tenancy.md)；已交付的落点是 `apps/cli/src/tenants.ts`（hub）、`tenant-runtime.ts`（单个子进程及其覆盖层）、`tenants-roster.ts`（账户生命周期命令）与 `tenant-proxy.ts`（单源 hop），而每个运行时实际执行的接纳名单是 `accounts-local` 的 `admittedAccounts`。
+把**一个引擎运行时作为租户单位**，并让账户的 harness home 成为隔离的单位：每个运行时以 `QILIN_HOME` 指向 `$QILIN_HOME/tenants/<账户 id>/` 运行，因此每个按 home 解析的根——`profiles/`、`settings.yaml`、`.credentials.yaml`、MCP 行、技能、预设、会话、任务、工作区与附件——都归该账户，而账户名册留在部署 home 里。一个新的守护进程——`qilin web` 入口——拥有「账号 → 租户」映射，并为每个账户运行一个引擎子进程，同时为它生成一份指名共享名册、只接纳该账户的 home 层。完整的证据清单与阶段划分见[多租户计划](../../../../plans/2026-10-11-multi-user-tenancy.md)；交付面是 `apps/cli/src/web-entry.ts`（部署入口）、`tenants.ts`（入口自有读取、登录表单与路由跳变）、`tenant-runtime.ts`（一个子进程与它的 home）、`tenants-roster.ts`（账户生命周期命令）与 `tenant-proxy.ts`（转发），其中 `accounts-local` 的 `admittedAccounts` 是每个运行时执行的接纳名单。
 
 ### 决定隔离的根
 
@@ -27,11 +27,11 @@ Status: implemented
 
 ### 保持共享的部分
 
-模型设置与凭据（`settings-file`、`credentials-local`）、已装插件及其 profile、插件管理器、MCP 行、技能、预设，以及机器级用户补丁层。这不是新机制：单 Harness 主目录解析器已经为整个产品拥有这一事实，而共享正是今天这些根各自的行为。
+账户名册（`$QILIN_HOME/auth/accounts.json`）是唯一共享的状态。其余每个根都在账户自己的 harness home（`$QILIN_HOME/tenants/<账户 id>/`）内解析——模型设置、凭据、已装插件及其 profile、插件管理器、MCP 行、技能、预设、会话、任务、工作区与附件——因此隔离就是 home 本身，而不是架在共享树上的一层覆盖。本笔记最初描述的部署级共享根，只在运行时按覆盖层搬动单个根的阶段存在；该阶段在入口交付前已被替换。
 
 ### 守护进程
 
-守护进程管目录，并启动、回收与跳转各租户运行时；它不做访问判定，而开启 `--single-origin` 时它还会转发字节。默认的跳转会把浏览器送到运行时自己的端口；单源模式则把浏览器留在 hub 上，由跳转时种下的 cookie 路由每个请求——因为应用文档、它的 `/api` 通道、它的 mux 升级与它的媒体请求都是页面 origin 上的绝对路径，只有 cookie 能把它们归属到某个租户。转发是传输工作：hub 重写携带 authority 的头（把租户写进 `Host`，并在先校验浏览器 `Origin` 指向本 hub 之后把它一并重写）、原样转发 `Range`、`Set-Cookie` 与分段答案，并按字节管道转接 mux 套接字而不拆帧。判定落在做决定的操作里：每个子进程在自己的 origin 上保留账号门，且只接纳归属于该租户的账号，因此本机进程即使知道了某个租户的端口，也仍要登录，而不是直接读到该租户的数据。守护进程不需要新的引擎 RPC：Web 应用已经把启动 URL 行声明为守护进程契约——「supervisors RPC as soon as they observe the line」——启动器也已接受 `--profile` 与 `--patch` 覆盖层，其中 `--patch` 在 bundle 层与机器级用户层之后应用。桌面壳在做同一形态里「拉起」的那一半（拉起子进程、消费其 `ready{url, injections}` 消息）；它的反代正是本方案现已交付的单源模式的先例。守护进程也给自己定界：`--max-tenants` 在越过上限时先回收最久未使用的运行时，启动失败的运行时按倍增的等待重试而不是每次访问都重试，而名册命令（`qilin tenants accounts`、`add`、`passwd`、`remove`）是共享账户文件之上的运维面——因为一个租户运行时只接纳一个账户并关闭注册。
+整套部署就是一条命令 `qilin web`：入口在自己的地址上显示登录表单，按需为每个账户启动一个运行时，并转发字节。它不做访问判定。一次登录提交由被指名账户自己的运行时校验——入口把凭据转发到那里，中继它签发的会话 cookie，并加上分派后续每个请求的路由 cookie——因为应用文档、它的 `/api` 通道、它的 mux 升级与它的媒体请求都是页面 origin 上的绝对路径，只有 cookie 能把它们归属到某个账户。转发是传输工作：入口重写携带 authority 的头（把租户写进 `Host`，并在先校验浏览器 `Origin` 指向本入口之后把它一并重写）、原样转发 `Range`、`Set-Cookie` 与分段答案，并按字节管道转接 mux 套接字而不拆帧。判定落在做决定的操作里：每个子进程在自己的 origin 上保留账号门，且只接纳归属于该租户的账号，因此伪造的路由 cookie 只会到达一个不认可调用者的运行时。运行时只绑 loopback，因此浏览器需要的地址只有入口那一个，而同一个浏览器一次只服务一个账户。入口不需要新的引擎 RPC：Web 应用已经把启动 URL 行声明为守护进程契约——「supervisors RPC as soon as they observe the line」——启动器也已接受 `--profile` 与 `--patch` 覆盖层，其中 `--patch` 在 bundle 层与租户 home 层之后应用。桌面壳在做同一形态里「拉起」的那一半（拉起子进程、消费其 `ready{url, injections}` 消息）；它的反代正是本入口所交付路由的先例。入口也给自己定界：`--max-tenants` 在越过上限时先回收最久未使用的运行时，启动失败的运行时按倍增的等待重试而不是每次访问都重试，而名册命令（`qilin tenants accounts`、`add`、`passwd`、`remove`）是共享账户文件之上的运维面——因为一个运行时只接纳一个账户并关闭注册。
 
 ### 引擎改动
 
@@ -53,7 +53,7 @@ Status: implemented
 
 [tenant-isolation.expected.e2e.ts](../../../../apps/cli/tests/profiles/web/tests/tenant-isolation.expected.e2e.ts) 跑一个共享 home、两份租户覆盖层与两个运行时：彼此的会话都不出现在对方的列表里，Schedule 任务跟着创建它的那个租户，工作区状态各自独立，共享的设置与插件对两者都生效，一个租户的客户端收不到另一个租户转发的事件，而命名另一个租户会话 id 的请求被拒绝。
 
-[tenant-supervisor.expected.e2e.ts](../../../../apps/cli/tests/profiles/web/tests/tenant-supervisor.expected.e2e.ts) 跑 hub：空闲运行时被回收、其数据在第二次跳转后仍在，`--max-tenants` 回收最久未使用的运行时，启动不了的运行时报告失败并给出重试时间、在该等待窗口内不会被重新拉起，空闲窗口为 0 时不回收任何运行时；而在单源模式下，网关重定向、带资源的已登录文档、外来 `Origin` 的拒绝、一次 Remote 调用、mux 升级、对真实媒体路由的一次分段读取、按流量的回收、以及根路径的分流都穿过 hub。
+[tenant-supervisor.expected.e2e.ts](../../../../apps/cli/tests/profiles/web/tests/tenant-supervisor.expected.e2e.ts) 跑整套部署：空闲运行时被回收、其数据在第二次登录后仍在，`--max-tenants` 回收最久未使用的运行时，无法启动的运行时会报告失败并给出重试时间、且在该等待内不会被重新拉起，零空闲窗口什么也不回收，并且——在同一地址上——登录表单与它对错误密码的拒绝、登录后的文档及其资源、外来 `Origin` 的拒绝、一次 Remote 调用、mux 升级、真实媒体路由的分段读取、按流量的回收与根选择全部穿过入口。
 
 [tenant-proxy.spec.ts](../../../../apps/cli/tests/tenant-proxy.spec.ts) 对桩上游覆盖这条 hop：Range 与分段答案、authority 改写与连接级头的剥离、在任何上游请求之前执行的 Origin 围栏、cookie 与重定向、以及升级后的管道。
 

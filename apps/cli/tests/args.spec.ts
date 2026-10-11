@@ -145,40 +145,21 @@ describe('parseQilinArgs', () => {
       .toEqual({ mode: 'plugin', profile: 'qilin', args: ['doctor', 'dsh-super-ppts'] })
   })
 
-  it('routes the tenant hub and refuses options it cannot serve', () => {
-    const hub = (overrides: Record<string, unknown> = {}) => ({
-      mode: 'tenants',
-      request: {
-        command: 'serve',
-        options: {
-          host: '127.0.0.1',
-          port: 8790,
-          profile: 'web',
-          idleMilliseconds: 1_800_000,
-          maxTenants: 0,
-          restartBackoffMilliseconds: 1000,
-          singleOrigin: false,
-          ...overrides,
-        },
-      },
-    })
-    expect(parse(['tenants', 'serve'])).toEqual(hub())
-    expect(parse([
-      'tenants', 'serve', '--host', '0.0.0.0', '--port', '0', '--profile', 'rescue',
-      '--idle-ms', '600000', '--max-tenants', '4', '--restart-backoff-ms', '250', '--single-origin',
-    ])).toEqual(hub({
-      host: '0.0.0.0',
-      port: 0,
-      profile: 'rescue',
-      idleMilliseconds: 600_000,
-      maxTenants: 4,
-      restartBackoffMilliseconds: 250,
-      singleOrigin: true,
-    }))
+  it('serves the deployment through the web entry and refuses a second way in', () => {
+    // The web profile is the deployment entry: it forwards the deployment's own
+    // flags to the entry, which reads them from the same inner arguments.
+    expect(parse(['web', '--port', '0', '--idle-ms', '600000', '--max-tenants', '4', '--restart-backoff-ms', '250']))
+      .toEqual({
+        mode: 'profile',
+        profile: 'web',
+        fromDefaultProfile: undefined,
+        patches: [],
+        args: ['--port', '0', '--idle-ms', '600000', '--max-tenants', '4', '--restart-backoff-ms', '250'],
+      })
     // 0 is the documented way to keep every runtime alive: no window reclaims one.
-    expect(parse(['tenants', 'serve', '--idle-ms', '0'])).toEqual(hub({ idleMilliseconds: 0 }))
-    expect(exitCode(['tenants', 'serve', '--port', 'eight'])).toBe(1)
-    expect(exitCode(['tenants', 'serve', '--idle-ms', '-1'])).toBe(1)
+    expect(parse(['web', '--idle-ms', '0'])).toMatchObject({ mode: 'profile', profile: 'web' })
+    // The hub is not a command of its own: one deployment, one entry.
+    expect(exitCode(['tenants', 'serve'])).toBe(1)
     expect(exitCode(['tenants'])).toBe(1)
   })
 

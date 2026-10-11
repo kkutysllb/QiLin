@@ -125,6 +125,75 @@ function escapeHtml(value: string): string {
 }
 
 /**
+ * The deployment's sign-in page: the entrance a public address shows.
+ *
+ * The entry authenticates against the roster, so a visitor never has to know
+ * an account's runtime path or port. The session cookie the browser keeps is
+ * the runtime's own; this page only decides which runtime the browser reaches.
+ * @param error - message to show when a previous attempt failed.
+ * @returns the document.
+ */
+function signinPage(error?: string): string {
+  const notice = error === undefined ? '' : `    <p role="alert">${escapeHtml(error)}</p>\n`
+  return [
+    '<!doctype html>',
+    '<html lang="en">',
+    '  <head>',
+    '    <meta charset="utf-8">',
+    '    <meta name="viewport" content="width=device-width, initial-scale=1">',
+    '    <title>Sign in</title>',
+    '    <style>body{font:15px/1.5 system-ui,sans-serif;margin:0;display:grid;place-items:center;min-height:100vh;background:#faf7f2;color:#2a2a2a}main{width:min(22rem,90vw)}h1{font-size:1.25rem;margin:0 0 1rem}label{display:block;margin:.75rem 0 .25rem;font-size:.85rem;color:#666}input{width:100%;padding:.5rem .6rem;border:1px solid #d8d2c8;border-radius:.4rem;font:inherit;background:#fff}button{margin-top:1.25rem;width:100%;padding:.55rem;border:0;border-radius:.4rem;background:#2a2a2a;color:#fff;font:inherit;cursor:pointer}p[role=alert]{color:#b3261e;font-size:.85rem}</style>',
+    '  </head>',
+    '  <body>',
+    '    <main>',
+    '      <h1>Sign in</h1>',
+    notice,
+    '      <form method="post" action="/signin">',
+    '        <label for="identifier">Username or email</label>',
+    '        <input id="identifier" name="identifier" autocomplete="username" autofocus required>',
+    '        <label for="password">Password</label>',
+    '        <input id="password" name="password" type="password" autocomplete="current-password" required>',
+    '        <button type="submit">Sign in</button>',
+    '      </form>',
+    '    </main>',
+    '  </body>',
+    '</html>',
+    '',
+  ].join('\n')
+}
+
+/** One form value from an urlencoded sign-in body. */
+function formValue(body: string, name: string): string {
+  for (const pair of body.split('&')) {
+    const separator = pair.indexOf('=')
+    if (separator === -1) continue
+    if (decodeURIComponent(pair.slice(0, separator).replace(/\+/gu, ' ')) === name) {
+      return decodeURIComponent(pair.slice(separator + 1).replace(/\+/gu, ' '))
+    }
+  }
+  return ''
+}
+
+/** A sign-in body, bounded so a public address cannot buffer an unbounded request. */
+const SIGNIN_BODY_LIMIT = 4096
+
+/**
+ * Read one sign-in submission.
+ * @param request - the browser's request.
+ * @returns the decoded body, or undefined when it exceeds the limit.
+ */
+async function readSigninBody(request: IncomingMessage): Promise<string | undefined> {
+  const chunks: Buffer[] = []
+  let length = 0
+  for await (const chunk of request) {
+    const buffer = Buffer.from(chunk as Buffer)
+    length += buffer.length
+    if (length > SIGNIN_BODY_LIMIT) return undefined
+    chunks.push(buffer)
+  }
+  return Buffer.concat(chunks).toString('utf8')
+}
+/**
  * The hub's directory page: one link per account, and the first-run state when
  * the shared home has no accounts yet.
  * @param accounts - the shared home's accounts.
@@ -292,11 +361,66 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
     relayAnswer({ ...answered, headers: { ...answered.headers, 'set-cookie': [...upstreamCookies, ...extraCookies] } }, response)
   }
 
+  /**
+   * Sign one visitor in at the deployment's address.
+   *
+   * The runtime that will serve the account authenticates the credentials, so
+   * the roster's password hashes are checked in exactly one place and this
+   * process never needs the account's own session. What the entry adds is the
+   * routing cookie that every later request is dispatched by.
+   * @param response - the browser's answer.
+   * @param identifier - the submitted username or email address.
+   * @param password - the submitted password.
+   */
+  const signIn = async (response: ServerResponse, identifier: string, password: string): Promise<void> => {
+    const account = (await roster()).byIdentifier(identifier)
+    if (account === undefined || password === '') {
+      respond(response, 200, 'text/html; charset=utf-8', signinPage('That account and password do not match.'))
+      return
+    }
+    try {
+      const runtime = runtimeFor(account.id)
+      const launchUrl = await serialize(async () => {
+        await makeRoom(runtime)
+        return await runtime.ensure()
+      })
+      const answered = await fetch(new URL('/api/auth/login', new URL(launchUrl).origin), {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ identifier, password }),
+      })
+      if (answered.status !== 200) {
+        respond(response, 200, 'text/html; charset=utf-8', signinPage('That account and password do not match.'))
+        return
+      }
+      const session = answered.headers.getSetCookie()
+      response.writeHead(303, {
+        'cache-control': 'no-store',
+        'location': '/',
+        'referrer-policy': 'no-referrer',
+        'set-cookie': [...session, routingCookie(account.id)],
+      })
+      response.end()
+    } catch (error) {
+      process.stderr.write(`qilin tenants: the runtime for ${account.username} did not start: ${String(error)}\n`)
+      respond(response, 503, 'text/plain; charset=utf-8', 'qilin tenants: that account is not serving\n')
+    }
+  }
+
   const handle = async (request: IncomingMessage, response: ServerResponse): Promise<void> => {
     const url = new URL(request.url ?? '/', 'http://qilin.invalid')
     // The hub's own routes answer reads. A proxied path carries whatever method
     // the browser used, because its API calls and its uploads pass through.
     const hubOwnRoute = url.pathname === '/healthz' || url.pathname === '/status' || url.pathname === '/'
+    if (request.method === 'POST' && url.pathname === '/signin') {
+      const body = await readSigninBody(request)
+      if (body === undefined) {
+        respond(response, 413, 'text/plain; charset=utf-8', 'qilin tenants: the sign-in body is too large\n')
+        return
+      }
+      await signIn(response, formValue(body, 'identifier').trim(), formValue(body, 'password'))
+      return
+    }
     if (request.method !== 'GET' && !(options.singleOrigin && !hubOwnRoute)) {
       respond(response, 405, 'text/plain; charset=utf-8', 'qilin tenants: the hub answers reads only\n')
       return
@@ -309,49 +433,12 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       json(response, 200, await status())
       return
     }
-    if (url.pathname.startsWith('/t/')) {
-      const rest = url.pathname.slice('/t/'.length)
-      const separator = rest.indexOf('/')
-      const username = decodeURIComponent(separator === -1 ? rest : rest.slice(0, separator))
-      const account = (await roster()).byUsername(username)
-      if (account === undefined) {
-        respond(response, 404, 'text/plain; charset=utf-8', 'qilin tenants: no such account\n')
-        return
-      }
-      try {
-        const runtime = runtimeFor(account.id)
-        const launchUrl = await serialize(async () => {
-          await makeRoom(runtime)
-          return await runtime.ensure()
-        })
-        if (options.singleOrigin) {
-          // The bare handoff is the runtime's own launch URL, launch token and
-          // all; any deeper path is that path with the prefix removed.
-          const entry = new URL(launchUrl)
-          const deeper = url.pathname.slice('/t/'.length + username.length)
-          const path = separator === -1 ? `${entry.pathname}${entry.search}` : `${deeper}${url.search}`
-          await forward(request, response, runtime, path, [routingCookie(account.id)])
-          return
-        }
-        response.writeHead(303, {
-          'cache-control': 'no-store',
-          'location': launchUrl,
-          'referrer-policy': 'no-referrer',
-        })
-        response.end()
-      } catch (error) {
-        process.stderr.write(`qilin tenants: the runtime for ${account.username} did not start: ${String(error)}\n`)
-        respond(response, 503, 'text/plain; charset=utf-8', `qilin tenants: the runtime for ${account.username} did not start\n`)
-      }
-      return
-    }
     if (options.singleOrigin) {
       const accountId = cookieValue(request.headers.cookie, TENANT_COOKIE)
-      // A browser that has not chosen a tenant reaches this point, and the
-      // directory below answers it. That ordering is what keeps the runtime's
-      // own root reachable: the account gate redirects a signed-out browser to
-      // the runtime's landing page at '/', which is the same path the hub's
-      // directory lives on.
+      // A browser that has chosen no account reaches the sign-in form below,
+      // while one that has reaches the runtime that serves it. The account
+      // gate sends a signed-out browser to the runtime's own root, which is
+      // the same path the form lives on, so the cookie is the whole difference.
       if (accountId !== undefined) {
         try {
           const runtime = await routedRuntime(accountId)
@@ -366,7 +453,10 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
             response.end('qilin tenants: the selected tenant no longer exists\n')
             return
           }
-          await forward(request, response, runtime, `${url.pathname}${url.search}`, [])
+          // Signing out ends the runtime's own session; the routing cookie is
+          // this deployment's, so it is cleared on the same answer.
+          const extra = url.pathname === '/api/auth/logout' ? [clearedRoutingCookie()] : []
+          await forward(request, response, runtime, `${url.pathname}${url.search}`, extra)
         } catch (error) {
           process.stderr.write(`qilin tenants: no runtime served ${url.pathname}: ${String(error)}\n`)
           respond(response, 503, 'text/plain; charset=utf-8', 'qilin tenants: that tenant is not serving\n')
@@ -375,7 +465,10 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       }
     }
     if (url.pathname === '/') {
-      respond(response, 200, 'text/html; charset=utf-8', directoryPage((await roster()).all()))
+      const accounts = (await roster()).all()
+      // A deployment with no accounts yet states that; a deployment with
+      // accounts asks who is arriving instead of listing them.
+      respond(response, 200, 'text/html; charset=utf-8', accounts.length === 0 ? directoryPage(accounts) : signinPage())
       return
     }
     respond(response, 404, 'text/plain; charset=utf-8', 'qilin tenants: unknown path\n')

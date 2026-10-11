@@ -10,6 +10,7 @@ import { describe, expect, it } from 'vitest'
 import { WEB_ENTRY_PATH } from '@qilin-agent/client-connection'
 import { FiberState } from '@qilin-agent/kylin'
 import { startupUrl } from '../../../startup-url.ts'
+import { TENANT_VARIABLE } from '../../../../src/tenant-runtime.ts'
 
 const repoRoot = fileURLToPath(new URL('../../../../../../', import.meta.url))
 const bin = join(repoRoot, 'apps/cli/lib/bin.js')
@@ -128,7 +129,7 @@ function fixture() {
 function start(f: ReturnType<typeof fixture>, extra: string[] = []) {
   const child = execa(process.execPath, [bin, '--profile', 'web', '--patch', f.watcher, '--patch', f.accounts, ...extra, '--no-open', '--port', '0'], {
     cwd: f.root,
-    env: { ...process.env, QILIN_HOME: f.home, QILIN_AGENTS_HOME: join(f.root, '.agents'), QILIN_TELEMETRY_DISABLED: '1', DEEPSEEK_API_KEY: 'keyless-matrix-no-call', NODE_NO_WARNINGS: '1' },
+    env: { ...process.env, [TENANT_VARIABLE]: '1', QILIN_HOME: f.home, QILIN_AGENTS_HOME: join(f.root, '.agents'), QILIN_TELEMETRY_DISABLED: '1', DEEPSEEK_API_KEY: 'keyless-matrix-no-call', NODE_NO_WARNINGS: '1' },
     input: '', reject: false, timeout: 110_000, killSignal: 'SIGKILL',
   })
   let stdout = ''

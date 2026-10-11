@@ -8,6 +8,7 @@ import { expect, it } from 'vitest'
 import { readProfileManifest } from '@qilin-agent/app-boot'
 import { startHttpMcpFixture } from '../../../../../../packages/mcp/mcp-client/tests/http-fixture.ts'
 import { startupUrl } from '../../../startup-url.ts'
+import { TENANT_VARIABLE } from '../../../../src/tenant-runtime.ts'
 
 interface Observation {
   approvals: string[]
@@ -47,7 +48,7 @@ it('configures MCP on a live profile, restores it on restart, and removes its to
   const start = async () => {
     const child = spawn(process.execPath, [join(repo, 'apps/cli/lib/bin.js'), '--profile', 'web', '--patch', patch,
       '--port', '0', '--no-open'], { cwd: join(root, 'workspace'),
-      env: { ...process.env, QILIN_HOME: join(root, 'home'), QILIN_AGENTS_HOME: join(root, 'agents'),
+      env: { ...process.env, [TENANT_VARIABLE]: '1', QILIN_HOME: join(root, 'home'), QILIN_AGENTS_HOME: join(root, 'agents'),
         QILIN_TELEMETRY_DISABLED: '1', DEEPSEEK_API_KEY: 'keyless-no-model-calls' },
       stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
     })
