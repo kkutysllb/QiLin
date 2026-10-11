@@ -6,7 +6,7 @@ The browser-serving profiles — `qilin` and `qilin web` — serve one deploymen
 
 ## Create the accounts
 
-The roster is `$QILIN_HOME/auth/accounts.json`, shared by the entry and every runtime. A runtime closes registration, so its own Web surface cannot create a second account; these commands are how a deployment grows, re-keys, and retires one.
+The roster is `$QILIN_HOME/auth/accounts.json`, shared by the entry and every runtime. A tenant runtime closes registration and admits only the account it serves; the first-run runtime carries the deployment's own policy instead, so a deployment that accepts new accounts also grows through the product's registration form. These commands create an account without a browser, re-key one, and retire one.
 
 ```sh
 qilin tenants accounts                                  # who is in this home
@@ -22,11 +22,13 @@ qilin tenants remove alice [--purge-data]               # retire; keep Sessions 
 qilin --port 8790
 ```
 
-The entry prints its URL (loopback and port 8790 by default), starts an account's runtime when a request names it, and reclaims runtimes nobody is using. It draws no interface of its own: the landing page, the sign-in form, and registration belong to the application inside each runtime. `--idle-ms` sets that window, and `0` keeps every runtime alive. `--max-tenants` bounds how many runtimes live at once by reclaiming the least recently used one. `--restart-backoff-ms` sets the first wait before a runtime that failed to start is retried; the wait doubles per consecutive failure, and `/status` reports the failure count and the earliest retry.
+The entry prints its URL (loopback and port 8790 by default), starts an account's runtime when a request names it, and reclaims runtimes nobody is using. It draws no interface of its own: the landing page, the sign-in form, and registration belong to the application inside each runtime. `--idle-ms` sets that window, and `0` keeps every runtime alive. `--max-tenants` bounds how many runtimes live at once by reclaiming the least recently used one. `--restart-backoff-ms` sets the first wait before a runtime that failed to start is retried; the wait doubles per consecutive failure, and `/status` reports the failure count and the earliest retry. `--registration open|closed`, open by default, decides whether the product's own form may create accounts beyond the roster's first.
 
 ## Sign in at the address
 
 `/` redirects to the first account's path once the roster has one, `/t/<account>/` serves that account's own runtime, and a deployment with no accounts yet hands every path to a first-run runtime whose layer creates the first account through the product's own form. The deployment never lists its accounts. A sign-in submission is verified by the named account's own runtime: its paths go there, the session cookie it issues comes back, and a routing cookie dispatches every later request — the application document, `/api`, the mux upgrade, and ranged media reads — to that runtime, with the runtime's own authority in place of the entry's so its session cookie stays bound to the runtime that minted it.
+
+A name the roster does not hold yet, and a routing cookie naming an account it no longer holds, both reach that same first-run runtime: the browser has arrived without an account, and the application decides what happens next — its registration form when the deployment accepts accounts, its own refusal when it does not.
 
 One browser drives one account at a time; `/healthz` and `/status` stay the entry's own reads, and reclamation counts proxied traffic. Runtimes bind loopback only, so the address a browser needs is the entry's alone.
 
