@@ -7,7 +7,7 @@ kind: "plan"
 
 - 日期：2026-10-11
 - 状态：**计划**，未改动产品代码
-- 决策记录：[多用户租户边界](../.agents/notes/proposed/architecture/2026-10-11-multi-user-tenancy.md)
+- 决策记录：[多用户租户边界](../.agents/notes/implemented/architecture/2026-10-11-multi-user-tenancy.md)（已实现）
 - 相关既有决策：[单 Harness 主目录解析器](../.agents/notes/implemented/architecture/2026-07-24-single-harness-home-resolver.md)、[本地账号与落地页](../.agents/notes/implemented/feature/2026-09-12-qilin-local-accounts-and-landing.md)、[预会话入口与用户名](../.agents/notes/implemented/feature/2026-09-16-pre-session-entry-and-usernames.md)
 
 ## 0. 需求
