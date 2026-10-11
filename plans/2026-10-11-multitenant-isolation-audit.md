@@ -12,7 +12,7 @@ npx vitest run --config vitest.expected.config.ts -t "keeps sessions, tasks, wor
 
 它逐条断言（双侧：本租户看得到、邻居看不到）：会话（`tenants/<id>/sessions` 与 `session/list`）、任务（schedule 存储域）、工作区、插件（各自 `tenants/<id>/profiles`）、模型设置（各自 `tenants/<id>/settings.yaml`）、转发事件不跨租户、外来会话身份被拒。部署根下只有名册与 `tenants/`。
 
-按源码逐一核过的其它根（都落在租户 home 内，故天然隔离）：`.credentials.yaml`、MCP 用户补丁、附件与缓存（`cache/`）、`session-query-sqlite`、agent 文档、上传索引、shell 环境；首启运行时用 `tenants/.bootstrap` 作自己的 home，不写共享根。**token 消耗**不存在共享账本：它是会话投影（`tokenUsage`），会随会话一起按租户隔离。
+按源码逐一核过的其它根（都落在租户 home 内，故天然隔离）：`.credentials.yaml`、MCP 用户补丁、附件与缓存（`cache/`）、`session-query-sqlite`、agent 文档、上传索引、shell 环境；首启运行时用 `tenants/.bootstrap` 作自己的 home，不写共享根。**token 消耗**现在有自己的账本（本轮新增）：每个运行时按**自己的令牌**把每个已结算 Turn 报给部署，账本按账户归属，记录带缓存桶（未命中输入/输出/缓存读写）。**唯一的跨账户读**是部署管理员席位读部署范围——只读数字，永远读不到别人的会话。
 
 ## 2. 本轮修掉的真实泄漏：用户技能 / agent 文档
 
@@ -27,7 +27,7 @@ npx vitest run --config vitest.expected.config.ts -t "keeps sessions, tasks, wor
 
 **修法**：把子进程环境抽成 `tenantChildEnvironment()`，像指定 QILIN_HOME 一样指定 `QILIN_AGENTS_HOME=<租户>/agents`；部署 home 仍只按名字交给名册层。
 
-**验证**：`apps/cli/tests/tenant-environment.spec.ts` 3 例（根都在租户目录内、覆盖 hub 继承来的共享根、其余环境照旧继承）；**负向对照**：删掉那一行 → 2 例变红，恢复 → 3/3。回归：`tenant-supervisor.expected.e2e.ts` **7/7** 通过。
+**验证**：`apps/cli/tests/tenant-environment.spec.ts` 7 例（根都在租户目录内、覆盖 hub 继承来的共享根、其余环境照旧继承）；**负向对照**：删掉那一行 → 2 例变红，恢复 → 全绿（该文件现有 7 例）。回归：`tenant-supervisor.expected.e2e.ts` **7/7** 通过。
 
 ## 3. 三处断点的现状（原「还没收口的三处」，逐项回填）
 
@@ -54,6 +54,8 @@ npx vitest run apps/cli/tests/tenant-environment.spec.ts
 
 - 一个浏览器在单源模式下同时只驱动一个租户（路由 cookie 是浏览器级的），第 3 节第 1 条正是这个口径下的后果。
 - 所有运行时同属一个 OS 用户：A 的 agent 用 shell 仍能读到 B 的 home。真隔离需要独立系统用户或容器，不在本审计范围。
+- **跨账户读的唯一例外**：部署管理员席位可以读**全部署的用量数字**（不是会话）。它在读取时按名册判定，席位随账户走；普通账户拿不到部署作用域。
+- `--max-tenants N`（N>0）下，被上限挤掉的那一侧并发交接可能收到 **503**——这是上限语义的正确后果，不是故障（第 7 节有实测记录）；默认 0 不受影响。
 - 第 3 节的第 2、3 条我没有擅自实现：它们改的是「部署给不给共享凭据」与「要不要做额度」这类产品口径。
 
 ## 6. 浏览器存储：键级清单与已选修法
