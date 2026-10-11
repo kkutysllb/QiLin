@@ -710,7 +710,7 @@ describe.skipIf(MODE === 'record')('web e2e: active Schedule catalog', () => {
     scaffold = await launchWebScaffold({
       extraOverlayPath: fileURLToPath(new URL('./fixtures/time-context-every-step.patch.yml', import.meta.url)),
     })
-    await seedSession(scaffold, fixture, CATALOG_SESSION_ID, 'standard')
+    await seedSession(scaffold, fixture, CATALOG_SESSION_ID, 'ptc')
     const records = foldScheduleEvents(fixture.trim().split('\n').slice(1).map(line => JSON.parse(line) as SessionEvent)).active
     const domain = scaffold.ctx.storageDomain.get('schedule')
     if (domain === undefined) throw new Error('Schedule domain was not opened')
@@ -755,7 +755,7 @@ describe.skipIf(MODE === 'record')('web e2e: active Schedule catalog', () => {
 
   it('manages cross-Session tasks from the sidebar without activating their Sessions', async () => {
     const otherSessionId = SessionId('schedule-manager-other-session')
-    await seedSession(scaffold, await readFile(CATALOG_FIXTURE, 'utf8'), otherSessionId, 'standard')
+    await seedSession(scaffold, await readFile(CATALOG_FIXTURE, 'utf8'), otherSessionId, 'ptc')
     const other = await scaffold.ctx.schedule.create(otherSessionId, {
       prompt: 'Inspect the second workspace deployment', title: 'Second workspace deployment', at: '2099-08-25T12:08:00.000Z',
     })

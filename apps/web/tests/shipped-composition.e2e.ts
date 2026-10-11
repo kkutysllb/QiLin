@@ -116,19 +116,33 @@ class ShippedAutoAdapter extends LlmAdapter {
       yield* textChunks(AUTO_FINAL_TEXT)
       return
     }
-    const args = JSON.stringify({ command: `rm -- '${this.targetPath.replaceAll("'", "'\\''")}'` })
+    // The preset's `ptc` mode denies model-direct calls to everything except
+    // `run_code`, so the scripted deletion rides the transport; auto-review
+    // still intercepts the nested `bash` call and deliberately skips this one.
+    const rmCommand = `rm -- '${this.targetPath.replaceAll("'", "'\\''")}'`
+    const args = JSON.stringify({
+      description: 'inspect the workspace and attempt the requested deletion',
+      code: [
+        'try {',
+        `  await tools.bash({ command: ${JSON.stringify(rmCommand)} })`,
+        "  return 'DELETED'",
+        '} catch (error) {',
+        '  return error instanceof Error ? error.message : String(error)',
+        '}',
+      ].join('\n'),
+    })
     yield { type: 'block-start', index: 0, blockType: 'tool-call' }
     yield {
       type: 'tool-call-delta',
       index: 0,
       id: AUTO_CALL_ID,
-      name: 'bash',
+      name: RUN_CODE_NAME,
       argumentsDelta: args,
     }
     yield {
       type: 'block-end',
       index: 0,
-      block: { type: 'tool-call', id: AUTO_CALL_ID, name: 'bash', arguments: args },
+      block: { type: 'tool-call', id: AUTO_CALL_ID, name: RUN_CODE_NAME, arguments: args },
     }
     yield { type: 'usage', usage: { inputTokens: 32, outputTokens: 12 } }
     yield { type: 'finish', reason: { kind: 'tool-calls' } }
@@ -472,13 +486,17 @@ function assertLeanChildRecord(agent: Agent, mode: 'one-shot' | 'continuable'): 
  * approval now confine its model-selected request target. The composition
  * Agent Note owns the rationale and its sources.
  *
- * Recorded on POSIX: the `schedule_*` rows gate off non-win32 and the `pwsh`
- * row registers on every host. `sidebar_open` is the one host-level row —
- * the base bundle registers it process-wide, outside every preset.
+ * Recorded on POSIX: the `schedule_*` rows gate off non-win32, the Web deploy
+ * patch disables `pwsh`, and the retired workflow surface is gone — none
+ * appear here. `run_code` is the one preset tool the `ptc` mode keeps
+ * model-facing. `sidebar_open` and `working_directory` are host-level rows —
+ * the base bundle registers them process-wide, outside every preset.
  */
 const EXPECTED_TOOLS = [
   'ask_user_question',
   'bash',
+  'cordis_inspect_list',
+  'cordis_inspect_query',
   'create_goal',
   'edit',
   'exit_plan_mode',
@@ -489,9 +507,9 @@ const EXPECTED_TOOLS = [
   'job_output',
   'list_agents',
   'present',
-  'pwsh',
   'read',
   'read_image',
+  'run_code',
   'send_message',
   'sidebar_open',
   'skill',
@@ -501,7 +519,7 @@ const EXPECTED_TOOLS = [
   'update_goal',
   'web_fetch',
   'web_search',
-  'workflow',
+  'working_directory',
   'write',
 ]
 
@@ -597,10 +615,10 @@ it('assembles the shipped Web transport, catalog, guidance, and defaults', async
   `)
   // The catalog belongs to an AGENT, not to the process: every model-facing row
   // now lives in a preset mounted under one session's scope, so a caller must
-  // name the agent to see anything. The one host-level exception is
-  // `sidebar_open`, which the base bundle registers process-wide so it reaches
-  // every preset's agent.
-  expect(ctx.tools.schemas().map(schema => schema.name)).toEqual(['sidebar_open'])
+  // name the agent to see anything. The host-level exceptions are
+  // `sidebar_open` and `working_directory`, which the base bundle registers
+  // process-wide so they reach every preset's agent.
+  expect(ctx.tools.schemas().map(schema => schema.name)).toEqual(['sidebar_open', 'working_directory'])
   const handle = await ctx.agents.create({
     sessionId: SessionId('shipped-composition'),
     setup: agentCtx => ctx.agentPresets.mount(agentCtx).then(() => undefined),
@@ -688,29 +706,38 @@ it('lets a preset producer reach the background-job registry', async () => {
     // `tool-bash` is a preset row and `tasks` is a host registry; the producer
     // resolves it with `ctx.get`, so a registry hidden behind a preset realm
     // fails here — with every task control still listed in the catalog above.
+    // The preset's `ptc` mode denies model-direct calls to every other tool,
+    // so the producer reaches each control through the `run_code` transport.
     const started = await ctx.tools.execute({
       signal,
       callId: ToolCallId('shipped-bash-background'),
-      name: 'bash',
+      name: RUN_CODE_NAME,
       arguments: {
-        command: 'printf SHIPPED_BACKGROUND_OK',
-        description: 'shipped background probe',
-        run_in_background: true,
+        description: 'start the shipped background probe',
+        code: [
+          'const job = await tools.bash({',
+          "  command: 'printf SHIPPED_BACKGROUND_OK',",
+          "  description: 'shipped background probe',",
+          '  run_in_background: true,',
+          '})',
+          'return job.jobId',
+        ].join('\n'),
       },
       agent: handle.agent,
     })
-    expect({ isError: started.isError, content: started.content }).toEqual({
-      isError: false,
-      content: [{ type: 'text', text: 'started background job bash-1' }],
-    })
+    expect(started.isError).toBe(false)
+    expect(started.content).toEqual([{ type: 'text', text: 'bash-1' }])
 
     // The controller reads what the producer started: same registry, one
     // owner. A per-preset registry would list nothing here even on success.
     const listed = await ctx.tools.execute({
       signal,
       callId: ToolCallId('shipped-task-list'),
-      name: 'job_list',
-      arguments: {},
+      name: RUN_CODE_NAME,
+      arguments: {
+        description: 'list background jobs',
+        code: 'return (await tools.job_list({})).map(job => `${job.id} [${job.kind}]`)',
+      },
       agent: handle.agent,
     })
     expect(listed.isError).toBe(false)
@@ -723,8 +750,11 @@ it('lets a preset producer reach the background-job registry', async () => {
     const collected = await ctx.tools.execute({
       signal,
       callId: ToolCallId('shipped-task-output'),
-      name: 'job_output',
-      arguments: { job_id: 'bash-1', wait: true },
+      name: RUN_CODE_NAME,
+      arguments: {
+        description: 'collect the background probe output',
+        code: "return (await tools.job_output({ job_id: 'bash-1', wait: true })).text",
+      },
       agent: handle.agent,
     })
     expect(collected.isError).toBe(false)
@@ -790,7 +820,7 @@ it('routes one browser-authored Auto request through the same model and asks the
     { provider: AUTO_PROVIDER, model: AUTO_MODEL },
   ])
   const [firstMain, reviewer, finalMain] = adapter.requests
-  expect(firstMain?.tools?.some(schema => schema.name === 'bash')).toBe(true)
+  expect(firstMain?.tools?.map(schema => schema.name)).toEqual([RUN_CODE_NAME])
   expect(reviewer?.system).toContain('You are the final authorization reviewer for exactly one pending tool call.')
   const reviewInput = reviewer?.messages.flatMap(message => message.content)
     .filter(block => block.type === 'text')
@@ -1046,11 +1076,20 @@ it('rolls back a failed shipped Auto initialization before publishing or interce
       // contribution performs no review, so success proves the failed shipped
       // integration left no pre-execute listener behind. It is not supported
       // Auto execution behavior.
+      // The preset's `ptc` mode denies a model-direct `write`, so the sentinel
+      // rides the `run_code` transport; with the shipped integration rolled
+      // back, nothing intercepts the nested call.
       const result = await ctx.tools.execute({
         signal: new AbortController().signal,
         callId: ToolCallId('shipped-auto-init-rollback-write'),
-        name: 'write',
-        arguments: { file_path: targetPath, content: 'INITIALIZATION_ROLLED_BACK\n' },
+        name: RUN_CODE_NAME,
+        arguments: {
+          description: 'write the rollback sentinel',
+          code: [
+            `await tools.write({ file_path: ${JSON.stringify(targetPath)}, content: 'INITIALIZATION_ROLLED_BACK\\n' })`,
+            "return 'INITIALIZATION_ROLLED_BACK'",
+          ].join('\n'),
+        },
         agent: handle.agent,
       })
       expect(result.isError).toBe(false)
