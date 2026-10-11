@@ -121,7 +121,7 @@ Real-API tests/demos read `DEEPSEEK_API_KEY`, optional `DEEPSEEK_BASE_URL`, and 
 
 ## Desktop shell and account boundaries
 
-The desktop shell lives here under `desktop/` (merged from OpenKyLin): it boots this working tree; releases ride `v*` tags via `desktop-release.yml`; adaptations are source, not patches. The `desktop` profile stays reserved — the CLI rejects `--profile desktop`; the shell boots `qilin` ([merge note](.agents/notes/implemented/architecture/2026-10-09-openkylin-desktop-merged-into-qilin.md)). Window-drag markers and the `qilinDesktop` / `__QILIN_SHORTCUTS_CONFIG__` globals stay. The account surface is the own ui-account `/api/auth` gate; the deepseek-account stack is never ported ([boundary note](.agents/notes/implemented/architecture/2026-09-25-desktop-and-account-alignment-boundaries.md)).
+The desktop shell lives here under `desktop/` (merged from OpenKyLin): it boots this working tree; the version tag publishes source and web, desktop only by `desktop-release.yml` dispatch; adaptations are source, not patches. The `desktop` profile stays reserved: the CLI rejects it, the shell boots `qilin` ([merge note](.agents/notes/implemented/architecture/2026-10-09-openkylin-desktop-merged-into-qilin.md)). Window-drag markers and the `qilinDesktop` / `__QILIN_SHORTCUTS_CONFIG__` globals stay. The account surface is ui-account's `/api/auth` gate; the deepseek-account stack is never ported ([boundary note](.agents/notes/implemented/architecture/2026-09-25-desktop-and-account-alignment-boundaries.md)).
 
 ## Conventions
 

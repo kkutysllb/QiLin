@@ -81,7 +81,7 @@ git -C "$REPO_ROOT" tag -a "$TAG" -m "QiLin Desktop $TAG"
 if [ "$NO_PUSH" = false ]; then
   log "推送 $TAG（atomic：main + tag）"
   git -C "$REPO_ROOT" push origin main "$TAG"
-  log "CI 已触发（release.yml）：gh run watch --exit-status 或到 Actions 页查看"
+  log "tag 已推送：源代码与网页版走发布链；桌面安装包改手动 dispatch — gh workflow run desktop-release.yml -f tag=$TAG"
 else
   log "本地 commit/tag 已就绪（--no-push：git push origin main $TAG 手动推）"
 fi

@@ -7,8 +7,9 @@
 
 桌面壳与引擎同仓同版：运行时闭包从本仓 HEAD 的 git worktree 构建
 （`scripts/build-runtime-bundle.sh`），版本单一事实源是麒麟仓根的
-`package.json`，发布随仓库 `v*` tag 走根上的 `desktop-release.yml` 工作流，
-产物进同一个 GitHub Release。原 OpenKyLin 独立仓的锁定副本、品牌补丁层与
+`package.json`，版本 tag 只发布源代码与网页版；桌面安装包由根上的
+`desktop-release.yml` 手动 dispatch 构建，产物进该 tag 的 GitHub Release。
+原 OpenKyLin 独立仓的锁定副本、品牌补丁层与
 parity 门已退役（见
 [合并笔记](../.agents/notes/implemented/architecture/2026-10-09-openkylin-desktop-merged-into-qilin.md)）。
 
@@ -77,7 +78,8 @@ home）、`ELECTRON_DISABLE_SANDBOX`（绕过外层沙箱对 Chromium OS sandbox
 ## 发布
 
 本地入口 `scripts/release.sh <version>`（门禁 → 打包 → 产物门 V1–V7 → tag →
-push）；CI 走根上 `.github/workflows/desktop-release.yml`（仅 `v*` tag 与手动
-dispatch 触发，单平台 mac-arm64）。签名公证凭据齐备时 fail-closed（缺一即拒），
+push）：推出去的 tag 走的是源代码与网页版发布，桌面安装包要在本机产出、或另跑
+dispatch 才会上传。CI 走根上 `.github/workflows/desktop-release.yml`（**仅手动
+dispatch**，单平台 mac-arm64）。签名公证凭据齐备时 fail-closed（缺一即拒），
 本地无凭据出未签名包。自动更新走 electron-updater（`latest-mac.yml` + blockmap
 增量，安装前先停引擎）。

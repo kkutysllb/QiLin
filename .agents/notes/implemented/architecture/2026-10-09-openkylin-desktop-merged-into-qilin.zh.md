@@ -12,7 +12,7 @@ Status: implemented
 
 OpenKyLin 仓库以 `desktop/` 并入本仓（git subtree，历史保留）。引擎依赖反转：壳从本仓自己的 HEAD 构建引擎——`desktop/scripts/build-runtime-bundle.sh` 检出 HEAD 的 `git worktree`，安装、跑 `build:qilin`、收生产闭包；`desktop/scripts/dev.mjs` 直接对活工作区跑壳。上游锁定机制——`fetch-upstream`、`verify-upstream`、锁文件、品牌补丁层、web/desktop parity 门——全部退役；原补丁成为 `packages/client` 与 `apps/web` 下的普通源码。
 
-发布流统一到本仓的 tag 线：一个 `v*` tag 同时驱动引擎发布链与 `desktop-release.yml`，后者构建、签名、过产物门（V1–V7），把桌面产物挂到同一个 GitHub Release；create-or-upload 收敛两个工作流的先后竞态。桌面版本即 workspace 版本；`desktop/package/package.json` 在打包期从根同步。
+发布流在源代码与网页版上统一到本仓的 tag 线：一个 `v*` tag 驱动引擎发布链与它的 GitHub Release；`desktop-release.yml` 只在手动 dispatch（带上已推送的 tag）时构建、签名、过产物门（V1–V7），把桌面产物挂到同一个 Release，create-or-upload 收敛两个工作流的先后竞态。桌面版本即 workspace 版本；`desktop/package/package.json` 在打包期从根同步。
 
 `desktop` profile 名继续保留：公开 CLI 仍拒绝 `--profile desktop`，壳启动的是 `qilin` profile，保留名在本仓没有可发行的消费者。
 

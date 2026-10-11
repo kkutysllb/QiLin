@@ -1,8 +1,8 @@
-# Desktop Release — 桌面端发版（tag 触发，mac-arm64）。
+# Desktop Release — 桌面端发版（手动 dispatch，mac-arm64）。
 #
-# desktop/ 并入麒麟仓后与引擎同版发布：同一个 v* tag 既走引擎发布链，也走
-# 本工作流出桌面安装包，产物汇入同一个 GitHub Release（create-or-upload 收敛
-# 两个工作流的发布竞态）。
+# 版本 tag 只走引擎／源代码与网页版发布链；桌面安装包不随 tag 自动构建，由本
+# 工作流手动 dispatch 指定一个已推送的 tag 才打包，产物汇入该 tag 的 GitHub
+# Release（create-or-upload 收敛与源代码发布的竞态）。
 #
 # 签名公证：凭据 job 级注入，缺一即拒（fail-closed，KStock 教训 F5——
 # electron-builder 缺凭据会静默出未签名包）。变量名必须是 MAC_CERTIFICATE*
@@ -13,9 +13,6 @@
 name: Release (desktop)
 
 on:
-  push:
-    tags:
-      - "v*"
   workflow_dispatch:
     inputs:
       tag:
