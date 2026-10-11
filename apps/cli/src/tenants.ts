@@ -36,7 +36,6 @@ import { readFileSync } from 'node:fs'
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http'
 import { createServer as createHttpsServer } from 'node:https'
 import { accountsFilePath, AccountStore } from '@qilin-agent/accounts-local'
-import type { AccountRecord } from '@qilin-agent/accounts-local'
 import { resolveQilinHome } from '@qilin-agent/home-paths'
 import {
   BOOTSTRAP_DIRECTORY,
@@ -167,6 +166,13 @@ export function secureSessionCookies(options: { readonly tls?: DeploymentTlsFile
   return options.tls !== undefined
 }
 
+/** The text one proxied answer carries. */
+async function answerText(stream: AsyncIterable<Uint8Array>): Promise<string> {
+  const chunks: Uint8Array[] = []
+  for await (const chunk of stream) chunks.push(chunk)
+  return Buffer.concat(chunks).toString('utf8')
+}
+
 /** Store key of the runtime a deployment with no accounts uses. */
 const BOOTSTRAP_ACCOUNT = 'first-run'
 
@@ -243,42 +249,6 @@ function respond(response: ServerResponse, status: number, contentType: string, 
   response.end(body)
 }
 
-/**
- * The list a deployment with several accounts answers its bare address with.
- *
- * It names no email address: reaching the bare address is not evidence of who
- * the visitor is, and usernames are what the roster already keys its paths by.
- * @param accounts - the roster, in the order it holds accounts.
- * @returns an HTML document listing each account's entry path.
- */
-function accountPicker(accounts: readonly AccountRecord[]): string {
-  const items = accounts
-    .map(account => `    <li><a href="/t/${encodeURIComponent(account.username)}/">${escapeHtml(account.username)}</a></li>`)
-    .join('\n')
-  return [
-    '<!doctype html>',
-    '<html lang="en">',
-    '<head>',
-    '  <meta charset="utf-8">',
-    '  <meta name="viewport" content="width=device-width, initial-scale=1">',
-    '  <title>Choose an account</title>',
-    '</head>',
-    '<body>',
-    '  <h1>Choose an account</h1>',
-    '  <p>This address serves every account of this deployment. Choose the one to sign in as.</p>',
-    '  <ul>',
-    items,
-    '  </ul>',
-    '</body>',
-    '</html>',
-    '',
-  ].join('\n')
-}
-
-/** Text as HTML: the roster is a file on disk, and a name in it is not markup. */
-function escapeHtml(value: string): string {
-  return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
-}
 
 /** One JSON answer. */
 function json(response: ServerResponse, status: number, body: unknown): void {
@@ -398,20 +368,33 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
     return created
   }
 
+  /** Registration mode the running first-run runtime was started with. */
+  let bootstrapRegistration: 'open' | 'closed' | undefined
+
   /**
-   * The runtime a deployment with no accounts uses, so the product's own
-   * first-run form can create the first one.
+   * The runtime a deployment serves the product's own surface from: the landing
+   * page, the sign-in form, registration, and first-run initialization.
+   *
+   * A deployment that holds an account refuses new ones, so the layer's
+   * registration mode follows the roster; a runtime started under the previous
+   * answer is replaced rather than left answering with it.
+   * @param registration - whether this deployment still accepts new accounts.
    * @returns the first-run runtime.
    */
-  const bootstrapRuntime = (): TenantHandle => {
+  const bootstrapRuntime = async (registration: 'open' | 'closed'): Promise<TenantHandle> => {
     const existing = runtimes.get(BOOTSTRAP_ACCOUNT)
-    if (existing !== undefined) return existing
+    if (existing !== undefined && bootstrapRegistration === registration) return existing
+    if (existing !== undefined) {
+      runtimes.delete(BOOTSTRAP_ACCOUNT)
+      await existing.stop()
+    }
+    bootstrapRegistration = registration
     const created = startRuntime({
       home,
       accountId: BOOTSTRAP_ACCOUNT,
       directoryName: BOOTSTRAP_DIRECTORY,
       bootstrap: true,
-      registration: options.registration,
+      registration,
       profile: options.profile,
       binPath,
       execArgv: process.execArgv,
@@ -514,6 +497,25 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
   }
 
   /**
+   * The runtime the product's own surface is served from, running.
+   *
+   * A roster that holds an account refuses new ones, so the registration mode
+   * follows the roster rather than the configured default alone: the product
+   * hides its register entry from the same answer whose call the runtime
+   * refuses.
+   * @returns the first-run runtime, running.
+   */
+  const runningFirstRun = async (): Promise<TenantHandle> => {
+    const registration = (await roster()).all().length === 0 ? options.registration : 'closed'
+    const runtime = await bootstrapRuntime(registration)
+    await serialize(async () => {
+      await makeRoom(runtime)
+      await runtime.ensure()
+    })
+    return runtime
+  }
+
+  /**
    * Hand a request to the runtime a deployment without accounts uses, so the
    * product's own first-run form creates the first account instead of the
    * deployment describing what an operator should type.
@@ -523,16 +525,45 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
    */
   const serveFirstRun = async (request: IncomingMessage, response: ServerResponse, path: string): Promise<void> => {
     try {
-      const runtime = bootstrapRuntime()
-      await serialize(async () => {
-        await makeRoom(runtime)
-        await runtime.ensure()
-      })
+      const runtime = await runningFirstRun()
       await forward(request, response, runtime, path, [])
     } catch (error) {
       process.stderr.write(`qilin tenants: the first-run runtime did not start: ${String(error)}\n`)
       respond(response, 503, 'text/plain; charset=utf-8', 'qilin tenants: this deployment could not start its first-run runtime\n')
     }
+  }
+
+  /**
+   * Which account the browser's session names, as the runtime that issued it
+   * reports it.
+   *
+   * The deployment never reads a session itself: the runtime owns that answer,
+   * and this asks it the same question the product's landing page asks.
+   * @param request - the browser's request, for the cookie that carries the session.
+   * @returns the account id, or undefined when no session names one.
+   */
+  const signedInAccountId = async (request: IncomingMessage): Promise<string | undefined> => {
+    // The runtime that issued the session is the one that can name it, so it is
+    // running before it is asked.
+    const origin = (await runningFirstRun()).proxyTarget()
+    if (origin === undefined) return undefined
+    const answered = await proxyRequest({
+      origin,
+      method: 'GET',
+      path: '/api/auth/status',
+      headers: { cookie: request.headers.cookie ?? '', host: request.headers.host ?? '' },
+      hubAuthority: request.headers.host ?? '',
+    })
+    if (answered.status !== 200) {
+      answered.stream.resume()
+      return undefined
+    }
+    const body: unknown = JSON.parse(await answerText(answered.stream))
+    if (typeof body !== 'object' || body === null) return undefined
+    const user = (body as { user?: unknown }).user
+    if (typeof user !== 'object' || user === null) return undefined
+    const id = (user as { id?: unknown }).id
+    return typeof id === 'string' ? id : undefined
   }
 
   const bearerToken = (header: string | undefined): string | undefined => {
@@ -745,35 +776,27 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
         response.setHeader('set-cookie', clearedRoutingCookie())
       }
     }
-    if (url.pathname === '/') {
-      const accounts = store.all()
-      // The deployment draws no interface of its own: the application inside an
-      // account's runtime owns the landing page, the sign-in form, first-run
-      // initialization, and registration. The bare address therefore hands the
-      // browser to an runtime. The first roster entry is the deterministic
-      // account to start from, and every other account is reachable at its own
-      // path.
-      const first = accounts[0]
-      if (first === undefined) {
-        await serveFirstRun(request, response, url.pathname)
-        return
+    // A browser that signed in at the product's own form carries that session
+    // and no routing cookie yet. This deployment routes by its own cookie, so it
+    // asks the runtime that issued the session which account it names, and hands
+    // the browser to that account's runtime: the landing page stays the
+    // deployment's front door, and the workbench is the account's own.
+    if (options.singleOrigin && request.method === 'GET' && request.headers.cookie !== undefined
+      && (request.headers.accept ?? '').includes('text/html')) {
+      const accountId = await signedInAccountId(request)
+      if (accountId !== undefined && store.byId(accountId) !== undefined) {
+        const runtime = await routedRuntime(store, accountId)
+        if (runtime?.proxyTarget() !== undefined) {
+          response.writeHead(303, {
+            'cache-control': 'no-store',
+            'location': `${url.pathname}${url.search}`,
+            'referrer-policy': 'no-referrer',
+            'set-cookie': routingCookie(accountId),
+          })
+          response.end()
+          return
+        }
       }
-      // One account leaves nothing to choose, so the bare address stays a
-      // redirect. Several mean a browser that has chosen none — a new arrival,
-      // or one that just signed out — must reach any of them, while the
-      // product's own form lives inside one account's runtime and that runtime
-      // admits only its own account; the list is the smallest surface for that.
-      if (accounts.length > 1) {
-        respond(response, 200, 'text/html; charset=utf-8', accountPicker(accounts))
-        return
-      }
-      response.writeHead(302, {
-        'cache-control': 'no-store',
-        'location': `/t/${encodeURIComponent(first.username)}/`,
-        'referrer-policy': 'no-referrer',
-      })
-      response.end()
-      return
     }
     // Nothing left belongs to the deployment: a request that named no account
     // is the application's, whether it is a page, an asset, or the register

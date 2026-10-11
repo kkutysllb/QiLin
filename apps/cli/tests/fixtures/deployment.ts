@@ -32,10 +32,18 @@ export interface DeploymentOptions {
   readonly admins?: readonly string[]
   /** Live runtimes the hub keeps at once; 0 keeps every one. */
   readonly maxTenants: number
+  /** Whether the deployment accepts new accounts, as the two flags decide it. */
+  readonly registration?: 'open' | 'closed'
   /** Idle window; 0 keeps every runtime and installs no sweep. */
   readonly idleMilliseconds?: number
   /** TLS material the hub terminates its public address with, as the two deployment flags do. */
   readonly tls?: { readonly certFile: string; readonly keyFile: string }
+  /**
+   * The account a runtime reports for one browser session, as its own account
+   * surface would; the deployment asks the runtime which account a session names
+   * before it routes that browser to the account's runtime.
+   */
+  readonly signedIn?: (cookie: string | undefined, accounts: ReadonlyMap<string, string>) => { readonly id: string } | undefined
 }
 
 /**
@@ -45,7 +53,11 @@ export interface DeploymentOptions {
  * @param log - shared start-and-stop log.
  * @returns the handle the hub drives.
  */
-export function recordingRuntime(options: TenantRuntimeOptions, log: string[]): TenantHandle {
+export function recordingRuntime(
+  options: TenantRuntimeOptions,
+  log: string[],
+  signedIn?: (cookie: string | undefined) => { readonly id: string } | undefined,
+): TenantHandle {
   let server: Server | undefined
   let origin: string | undefined
   let state: TenantRuntimeStatus['state'] = 'stopped'
@@ -67,7 +79,13 @@ export function recordingRuntime(options: TenantRuntimeOptions, log: string[]): 
         // the cap's enforcement observable to two handoffs that arrive together.
         await new Promise(resolve => setTimeout(resolve, 50))
         log.push(`start:${options.accountId}`)
-        const created = createServer((_request, response) => {
+        const created = createServer((request, response) => {
+          if (request.url === '/api/auth/status' && signedIn !== undefined) {
+            const account = signedIn(request.headers.cookie)
+            response.writeHead(200, { 'content-type': 'application/json' })
+            response.end(JSON.stringify({ authenticated: account !== undefined, user: account ?? null }))
+            return
+          }
           response.writeHead(200, { 'content-type': 'text/plain' })
           response.end(`served ${options.accountId}`)
         })
@@ -121,7 +139,7 @@ export async function startDeployment(options: DeploymentOptions): Promise<Start
     maxTenants: options.maxTenants,
     restartBackoffMilliseconds: 60_000,
     singleOrigin: true,
-    registration: 'closed',
+    registration: options.registration ?? 'closed',
     ...options.tls === undefined ? {} : { tls: options.tls },
     patches: [],
     appArguments: [],
@@ -129,7 +147,7 @@ export async function startDeployment(options: DeploymentOptions): Promise<Start
     onListening: (url) => { listening.resolve(url) },
     createRuntime: (runtimeOptions) => {
       runtimes.set(runtimeOptions.accountId, runtimeOptions)
-      return recordingRuntime(runtimeOptions, log)
+      return recordingRuntime(runtimeOptions, log, cookie => options.signedIn?.(cookie, accounts))
     },
   })
   const base = await listening.promise
