@@ -59,6 +59,8 @@ npx tsx scripts/gen-kylin-api.ts --check && npx tsx scripts/gen-kylin-catalog.ts
 
 已修：部署入口丢弃 `--patch`；`--help` 从不打印（launcher 的 `helpOption(false)` 让它落进应用参数）；应用 flag 与拼错的 flag 被静默吞掉（现在只消费入口自己的 flag，其余透传）；就绪判定把 stderr 混进同一缓冲（现在按 stdout 整行匹配，失败详情不再携带带启动令牌的 stdout）；`--from-default-profile` 在入口无效（现在明确拒绝并说明原因）。
 
+另修一处运维向的**假事实**：入口在非 loopback 绑定上打印的可达性一行，原文不管 `--tenant-host` 是什么都声称「运行时只绑 loopback」；现在由 `addressNotices()` 按两个接口决定，CLI reference 与部署指南也把「入口地址」与「被 `--tenant-host` 暴露的租户接口」分开写清（默认成立的那句话不再被当成永远成立）。
+
 待决策：**历史会话认领**。新布局把 `$QILIN_HOME/sessions` 换成 `tenants/<账户>/sessions`，既有单用户的历史会话在应用里不可见。需要你选形态（首个账户自动认领 / `qilin tenants claim <账户>` / 启动时提示），再落代码与迁移器。
 
 ## 5. 死代码与冗余
