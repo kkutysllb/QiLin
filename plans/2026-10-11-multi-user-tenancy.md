@@ -325,7 +325,7 @@ P1 已落成常备测试：[tenant-isolation.expected.e2e.ts](../apps/cli/tests/
 | 应用文档取 `/` | 站点根是落地页，应用文档在 `WEB_ENTRY_PATH`（`/workspace`） | 同目录 `web-default-isolation` 的既有写法 |
 | `session/create` 返回 `agentPreset: 'standard'`、fixture 挂 `'cordis'` 预设、sidebar-browser 行「resolved but disabled」 | shipped 预设只有 `ptc`（[web-app 行](../packages/bundle/web-app/cordis.patch.yml#L579)）；`ui-sidebar-browser` 行无 `disabled` | 实跑输出与 bundle 行 |
 
-**剩余三例的处置（2026-10-11 实跑复验）**：
+**剩余红项的处置（2026-10-11 实跑复验；截至第 11 轮只剩 `web-failure-matrix` 2 例）**：
 
 | 车道 | 现象（实跑） | 处置 |
 |---|---|---|
@@ -448,7 +448,7 @@ hub 仍然**不做访问判定**：路由 cookie 只是选择器，伪造它只�
 
 | # | 目标项 | 落点 | 证据 | 状态 |
 |---|---|---|---|---|
-| 1 | 收掉两条过期 expected 车道 | `startup-url.ts`（按 URL 而非产品名匹配就绪行）＋ 显式挂载 `schedule-bundle`；`web-default-isolation` 改为断言 shipped 组合不含 schedule 三行 | 8 个车道（67 例）从 **44 红 → 62 通过 / 5 红**；§11.6 记下 3 处需裁定的过期断言 | 已完成，余 5 例见 §11.6 |
+| 1 | 收掉两条过期 expected 车道 | `startup-url.ts`（按 URL 而非产品名匹配就绪行）＋ 显式挂载 `schedule-bundle`；`web-default-isolation` 改为断言 shipped 组合不含 schedule 三行 | 8 个车道（67 例）从 **44 红 → 62 通过 / 5 红**；§11.6 逐条复验后已收掉 3 例（`web-best-effort-startup` ×2、`creator-plugin-manager` ×1），只剩 `web-failure-matrix` 2 例待产品契约裁定 | 已完成 |
 | 2 | A1/A2 引擎侧最小改动 | 无代码改动；结论与代码依据见 §11.7 与 Agent Note 的 `## Engine changes` | 上传索引按 `sha256(baseURL + credentials)` 分命名空间；`RemoteHostFacts.home` 是「文件所在机器」的属性 | **待裁决**（我主张不改） |
 | 3 | tenants 运维面 | `tenants-roster.ts`（accounts/add/passwd/remove）、`AccountStore.setPassword/remove`、`--max-tenants`、`--restart-backoff-ms` | e2e 场景 2 的 5 条断言＋`tenants-roster.spec` 7 例＋`accounts.spec` 新增 2 例；真 CLI 五步手测 | 已完成 |
 | 4 | P3 单源反代与真实流量回收 | `tenant-proxy.ts`（hop 原语）、`tenants.ts`（cookie 路由、upgrade 管道）、`tenant-runtime.ts`（`proxyTarget`） | e2e 场景 3 的 11 条断言＋7 例桩上游 spec＋真浏览器走查（0 错误 / 0 异常 / 0 个 4xx-5xx，25 个 `[data-slot]`）＋GIF | 已完成 |
