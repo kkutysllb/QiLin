@@ -504,8 +504,8 @@ describe('qilin-workflow-ptc', { timeout: 120_000 }, () => {
         structured: () => { /* deliberately outside lossless JSON */ },
         stopReason: 'completed',
       } as unknown as SubagentResult
-      const start = vi.spyOn(ctx.subagents, 'start').mockResolvedValue({
-        id: SessionId('raw-invalid-child'),
+      const start = vi.spyOn(ctx.subagents, 'startActivation').mockResolvedValue({
+        childId: SessionId('raw-invalid-child'),
         localAgent: undefined,
         result: Promise.resolve(invalid),
         dispose: () => Promise.resolve(),

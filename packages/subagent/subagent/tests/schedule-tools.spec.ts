@@ -16,7 +16,7 @@ import Include from '@qilin-agent/kylin-plugin-include'
 import type { Agent } from '@qilin-agent/agent'
 import AgentLoop from '@qilin-agent/agent-loop'
 import { mountAgentLoopTestDependencies } from '@qilin-agent/agent-loop-testkit'
-import * as AgentPresets from '@qilin-agent/agent-presets'
+import AgentPresets from '@qilin-agent/agent-presets'
 import { SessionId } from '@qilin-agent/session'
 import type { SessionEvent } from '@qilin-agent/session'
 import JsonlSessionPersistence from '../../../session/session-persistence-jsonl/src/index.ts'
@@ -69,9 +69,12 @@ async function setupScheduleHost(): Promise<{ ctx: Context; parent: Agent; dispa
   await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(SubagentRuntime)
   await ctx.plugin(Spawn, { providerName: 'spawn' })
-  await ctx.plugin(AgentPresets, { default: 'coding' })
+  await ctx.plugin(AgentPresets, {
+    default: 'coding',
+    roots: [{ path: join(FIXTURES, 'presets'), trust: 'project' }],
+    includeShippedRoot: false,
+  })
   ctx.loader.builtins['tool-schedule'] = ToolSchedule
-  await ctx.agentPresets.register({ id: 'coding', plugins: [{ name: 'cordis:tool-schedule' }] })
   ctx.llm.registerAdapter(['mock'], new MockAdapter([
     toolCallResponse('schedule-call', 'schedule_create', { prompt: 'Check', title: 'Check', after_seconds: 60 }),
     textResponse('child done'),
