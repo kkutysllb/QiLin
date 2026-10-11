@@ -14,6 +14,7 @@ import { isRecord } from './json.ts'
 import { hashPassword, verifyPassword } from './password.ts'
 import { AUTH_API_PREFIX } from './paths.ts'
 import { requestAuthority, type SessionCookies } from './session.ts'
+import type { LoginThrottle } from './throttle.ts'
 import { isValidEmail, isValidUsername, MIN_PASSWORD_LENGTH, normalizeEmail, normalizeUsername } from './validation.ts'
 
 /** What the authentication endpoints read and write. */
@@ -30,6 +31,8 @@ export interface AuthRouteDeps {
   readonly registration: 'open' | 'closed'
   /** Account identities this deployment admits, or undefined when it admits every account. */
   readonly admitted: ReadonlySet<string> | undefined
+  /** Failures this deployment counts before a repeated sign-in attempt has to wait. */
+  readonly throttle: LoginThrottle
 }
 
 /** One accepted input. */
@@ -83,14 +86,25 @@ const JSON_HEADERS: Readonly<Record<string, string>> = {
  * @param cookie - Set-Cookie value when the answer establishes or clears a session.
  * @returns the response.
  */
-function failure(status: number, code: string, message: string): Response {
-  return json(status, { error: { code, message } })
+function failure(status: number, code: string, message: string, headers?: Readonly<Record<string, string>>): Response {
+  return json(status, { error: { code, message } }, undefined, headers)
+}
+
+/**
+ * The refusal a caller past the attempt limit receives; the wait travels in the
+ * body and in `Retry-After`, which a client may act on without parsing either.
+ * @param retryAfterSeconds - seconds until another attempt is checked.
+ * @returns the refusal.
+ */
+function tooManyAttempts(retryAfterSeconds: number): Response {
+  return failure(429, 'too-many-attempts', `Too many sign-in attempts. Try again in ${String(retryAfterSeconds)} seconds.`, { 'retry-after': String(retryAfterSeconds) })
 }
 
 /** One JSON answer with the shared headers. */
-function json(status: number, body: unknown, cookie?: string): Response {
+function json(status: number, body: unknown, cookie?: string, extra?: Readonly<Record<string, string>>): Response {
   const headers = new Headers(JSON_HEADERS)
   if (cookie !== undefined) headers.append('set-cookie', cookie)
+  for (const [name, value] of Object.entries(extra ?? {})) headers.set(name, value)
   return new Response(JSON.stringify(body), { status, headers })
 }
 
@@ -316,15 +330,24 @@ export function createAuthRoutes(deps: AuthRouteDeps): ConnectionFetchRoute[] {
       if (!admission.ok) return admission.response
       const submitted = readLogin(admission.value.body)
       if (!submitted.ok) return submitted.response
+      const authority = admission.value.authority
+      const key = `${authority}\n${submitted.value.identifier}`
+      const now = Date.now()
+      const wait = deps.throttle.retryAfter(key, now)
+      if (wait !== undefined) return tooManyAttempts(wait)
       const account = deps.store.byIdentifier(submitted.value.identifier)
       // A deployment that admits a fixed account list answers a foreign account
       // exactly as it answers a wrong password: the refusal is one fact, not two.
       if (account === undefined
         || (deps.admitted !== undefined && !deps.admitted.has(account.id))
         || !await verifyPassword(submitted.value.password, account.password)) {
+        // Every refused attempt counts, including one naming no account, so the
+        // limit answers known and unknown names alike.
+        deps.throttle.noteFailure(key, now)
         return failure(401, 'invalid-credentials', 'That username, email address, and password do not match an account.')
       }
-      return json(200, { user: accountView(account) }, deps.sessions.issue(admission.value.authority, account, Date.now()))
+      deps.throttle.noteSuccess(key)
+      return json(200, { user: accountView(account) }, deps.sessions.issue(authority, account, now))
     },
   }
 

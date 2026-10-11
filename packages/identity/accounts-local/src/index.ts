@@ -26,6 +26,7 @@ import { createSessionAuthority } from './gate.ts'
 import { isRecord } from './json.ts'
 import { createAuthRoutes } from './routes.ts'
 import { SessionCookies } from './session.ts'
+import { LoginThrottle } from './throttle.ts'
 
 export { AUTH_API_PREFIX, LOGIN_PATH, SETUP_PATH } from './paths.ts'
 export { AccountStore } from './accounts.ts'
@@ -72,6 +73,18 @@ export interface Config {
   /** Absolute browser-session lifetime in days. @default 7 */
   sessionMaxAgeDays?: number
   /**
+   * Failed sign-ins one authority may accumulate for the same identifier before
+   * further attempts are refused with `429` and `Retry-After`. One runtime
+   * serves one account, so this is that account's limit.
+   * @default 10
+   */
+  loginMaxAttempts?: number
+  /**
+   * Window in seconds that a failed sign-in counts toward that refusal, and the
+   * wait a refused caller is told to take. @default 900
+   */
+  loginAttemptWindowSeconds?: number
+  /**
    * Mark the session cookie `Secure`, so a browser returns it only over TLS.
    * A deployment whose public address terminates TLS sets this, even though the
    * runtime behind that address speaks HTTP.
@@ -93,6 +106,8 @@ export const Config: z<Config> = z.object({
   registration: z.union([z.const('open'), z.const('closed')]).default('open'),
   sessionMaxAgeDays: z.natural().min(1).default(7),
   sessionCookieSecure: z.boolean().default(false),
+  loginMaxAttempts: z.natural().min(1).default(10),
+  loginAttemptWindowSeconds: z.natural().min(1).default(900),
   qilinHome: z.string(),
   // The union keeps the key absent when the deployment names no accounts: an
   // empty list is a deployment that admits nobody, which fails loud in apply().
@@ -218,7 +233,11 @@ export async function apply(ctx: Context, config: Config): Promise<void> {
     // the same reason: the cookie is intact and says nothing this deployment serves.
     return admitted === undefined || admitted.has(account.id) ? account : undefined
   }
-  for (const route of createAuthRoutes({ store, sessions, currentAccount, enabled, registration, admitted })) {
+  const throttle = new LoginThrottle(
+    config.loginMaxAttempts ?? 10,
+    (config.loginAttemptWindowSeconds ?? 900) * 1000,
+  )
+  for (const route of createAuthRoutes({ store, sessions, currentAccount, enabled, registration, admitted, throttle })) {
     ctx.connection.fetch.register(route)
   }
   if (enabled) {

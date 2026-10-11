@@ -41,6 +41,8 @@ Compose this plugin beside [`qilin-client-connection`](../../client/connection/R
 | `registration` | `'open'` | Whether an anonymous visitor may create an additional account |
 | `sessionMaxAgeDays` | `7` | Absolute browser-session lifetime in days |
 | `sessionCookieSecure` | `false` | Mark the session cookie `Secure`; a deployment whose public address terminates TLS sets it |
+| `loginMaxAttempts` | `10` | Failed sign-ins one identifier may accumulate inside the window before further attempts wait |
+| `loginAttemptWindowSeconds` | `900` | Window those failures count for, and the wait a refused caller is told to take |
 | `qilinHome` | `$QILIN_HOME`, then `~/.qilin` | Harness home holding `auth/accounts.json` |
 | `admittedAccounts` | every account in the file | Account identities this deployment admits; sign-in and every issued session are refused for an account the list does not name |
 
@@ -48,7 +50,7 @@ The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agen
 
 ### The sign-in flow
 
-An anonymous browser that asks for a gated index path is redirected to the public landing page with `?next=<request path>`, never to a credential form. The landing page reads `GET /api/auth/status` and points its entry calls to action at the document this deployment can serve: the first-run document while the account file holds no account, otherwise the sign-in document, either way carrying the requested path. That document renders the form and posts the credentials; the successful answer already carries the session cookie, so the browser then navigates to the validated `next` destination or to the application entry path. Because the gate lives in the operation that serves the document, no client-side check can be bypassed by navigating directly, and signing out returns the browser to the landing page.
+An anonymous browser that asks for a gated index path is redirected to the public landing page with `?next=<request path>`, never to a credential form. The landing page reads `GET /api/auth/status` and points its entry calls to action at the document this deployment can serve: the first-run document while the account file holds no account, otherwise the sign-in document, either way carrying the requested path. That document renders the form and posts the credentials; the successful answer already carries the session cookie, so the browser then navigates to the validated `next` destination or to the application entry path. Because the gate lives in the operation that serves the document, no client-side check can be bypassed by navigating directly, and signing out returns the browser to the landing page. Repeated failures for one authority and identifier make further attempts wait: the count starts at the first failure, a window that has passed or a sign-in that succeeded clears it, and an identifier that names no account is counted the same way, so the limit is not a name oracle.
 
 ### The endpoints
 
@@ -59,7 +61,7 @@ Every endpoint answers JSON with `cache-control: no-store`, and every refusal is
 | `GET /api/auth/status` | 200 `{ enabled, needsSetup, registrationOpen, authenticated, user }`; `user` is `{ id, username, email, createdAt }` or `null`, with `email` null for an account that registered without one |
 | `POST /api/auth/setup` | 200 `{ user }` plus the session cookie; 409 `already-initialized` once an account exists |
 | `POST /api/auth/register` | 200 `{ user }` plus the session cookie; 403 `registration-closed`; 409 `username-taken` or `email-taken` |
-| `POST /api/auth/login` | 200 `{ user }` plus the session cookie; 401 `invalid-credentials` for an unknown identifier, a wrong password, or an account this deployment does not admit |
+| `POST /api/auth/login` | 200 `{ user }` plus the session cookie; 401 `invalid-credentials` for an unknown identifier, a wrong password, or an account this deployment does not admit; 429 `too-many-attempts` with `Retry-After` once the identifier reached `loginMaxAttempts` failures inside the window |
 | `POST /api/auth/logout` | 204 with this authority's cookie cleared |
 | `POST /api/auth/change-password` | 200 `{ user }` plus a fresh session cookie; 401 `unauthorized` without a session or `invalid-credentials` for a wrong current password; 409 `username-taken` or `email-taken` |
 
@@ -150,9 +152,9 @@ These limits describe what an account does and does not protect. They are curren
 - **The account set belongs to one harness home** — every account reaches the same Sessions, credentials, and files as the first one, so a second account is another key to the same harness rather than a separate tenant; separate people need separate `QILIN_HOME` values and ports. `admittedAccounts` narrows one deployment to a subset of that file, which separates runtimes rather than accounts.
 - **Admission separates runtimes, not machine users** — every runtime runs as the same operating-system user, so a shell or file tool inside one tenant reaches another tenant's directory and the shared credentials.
 - **Registration is open by default** — anyone who can reach the port while the account set has room can create an account with full harness access; a deployment that binds beyond loopback sets `registration: closed`. The shipped `qilin web` command binds loopback and rejects `--host 0.0.0.0`.
-- **Sign-in has no throttling or lockout** — the endpoints answer as fast as the scrypt comparison allows, and that cost is the only brake on repeated guesses.
+- **Sign-in is throttled per authority and identifier, not per deployment** — `loginMaxAttempts` failures inside `loginAttemptWindowSeconds` make that key wait for the rest of the window. An attacker rotating identifiers meets no shared limit, because the deployment keeps no per-authority total.
 - **No account removal or password reset** — no endpoint deletes an account or recovers a forgotten password; an operator edits or deletes `$QILIN_HOME/auth/accounts.json`, and deleting it returns the deployment to the first-run state.
-- **The session cookie is a bearer credential over plaintext HTTP** — like the transport's own cookie it carries no `Secure` attribute, because the shipped server serves loopback HTTP.
+- **The session cookie is a bearer credential** — it is `HttpOnly; SameSite=Strict` and carries `Secure` only when `sessionCookieSecure` is set, which a deployment that terminates TLS at its public address needs; a deployment the browser reaches over plaintext HTTP returns it over plaintext.
 - **Losing or replacing the session secret ends every session** — the credential record `accounts-local/session-secret` is the only signing key; replacing it invalidates every issued cookie while the accounts survive.
 - **The account file migrates forward only** — a version 1 document is read as accounts whose username is their stored address, but a document from a newer build fails the plugin load, and nothing rewrites a version 1 file until the next mutation. A migrated name that looks like an address cannot be replaced by a valid username without an operator edit.
 

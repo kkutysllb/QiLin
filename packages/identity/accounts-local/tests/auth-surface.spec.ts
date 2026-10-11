@@ -54,6 +54,10 @@ async function boot(options: {
   record?: readonly string[]
   /** Whether the deployment's public address terminates TLS, so cookies carry `Secure`. */
   secureCookies?: boolean
+  /** Failed sign-ins one identifier may accumulate before it is made to wait. */
+  loginMaxAttempts?: number
+  /** Window in seconds those failures count for. */
+  loginAttemptWindowSeconds?: number
   /**
    * Fills the shared home's account file before the plugin applies.
    * @returns the account identities this deployment admits, or undefined to admit every account.
@@ -103,6 +107,8 @@ async function boot(options: {
     `    registration: ${options.registration ?? (admitted === undefined ? 'open' : 'closed')}`,
     `    qilinHome: '${home}'`,
     ...options.secureCookies === true ? ['    sessionCookieSecure: true'] : [],
+    ...options.loginMaxAttempts === undefined ? [] : [`    loginMaxAttempts: ${String(options.loginMaxAttempts)}`],
+    ...options.loginAttemptWindowSeconds === undefined ? [] : [`    loginAttemptWindowSeconds: ${String(options.loginAttemptWindowSeconds)}`],
     ...admitted === undefined ? [] : admitted.length === 0
       // An empty list is written as the empty sequence it is; a bare key would
       // be YAML null, which is not a list at all.
@@ -627,6 +633,40 @@ describe('real account surface', () => {
         return [(await store.add({ username: 'first' }, PASSWORD)).id]
       },
     })).rejects.toThrow(/requires registration: closed/u)
+  })
+
+  it('makes a repeated sign-in wait once the attempt limit is reached', { timeout: 60_000 }, async () => {
+    const server = await boot({ loginMaxAttempts: 2, loginAttemptWindowSeconds: 60 })
+    await server('/api/auth/setup', post(undefined, { username: 'first', email: EMAIL, password: PASSWORD }))
+    const wrong = (): RequestInit => post(undefined, { identifier: 'first', password: 'wrong-password' })
+    expect((await server('/api/auth/login', wrong())).status).toBe(401)
+    expect((await server('/api/auth/login', wrong())).status).toBe(401)
+    const refused = await server('/api/auth/login', post(undefined, { identifier: 'first', password: PASSWORD }))
+    // The wait is one fact: the status, the code, and Retry-After all state it,
+    // so the correct password is refused for as long as the window has left.
+    expect(refused.status).toBe(429)
+    expect(Number(refused.headers.get('retry-after'))).toBeGreaterThan(0)
+    expect(await refused.json()).toMatchObject({ error: { code: 'too-many-attempts' } })
+    // Another identifier on the same authority is untouched.
+    expect((await server('/api/auth/login', post(undefined, { identifier: 'second', password: PASSWORD }))).status).toBe(401)
+  })
+
+  it('forgets a key once a sign-in succeeds', { timeout: 60_000 }, async () => {
+    const server = await boot({ loginMaxAttempts: 2, loginAttemptWindowSeconds: 60 })
+    await server('/api/auth/setup', post(undefined, { username: 'first', email: EMAIL, password: PASSWORD }))
+    expect((await server('/api/auth/login', post(undefined, { identifier: 'first', password: 'wrong-password' }))).status).toBe(401)
+    expect((await server('/api/auth/login', post(undefined, { identifier: 'first', password: PASSWORD }))).status).toBe(200)
+    // The success cleared the count, so one more mistake is an ordinary refusal.
+    expect((await server('/api/auth/login', post(undefined, { identifier: 'first', password: 'wrong-password' }))).status).toBe(401)
+  })
+
+  it('counts an identifier that names no account like any other', { timeout: 60_000 }, async () => {
+    const server = await boot({ loginMaxAttempts: 1, loginAttemptWindowSeconds: 60 })
+    await server('/api/auth/setup', post(undefined, { username: 'first', email: EMAIL, password: PASSWORD }))
+    const ghost = post(undefined, { identifier: 'ghost', password: PASSWORD })
+    expect((await server('/api/auth/login', ghost)).status).toBe(401)
+    // It reaches the same limit, so the limiter is not a name oracle.
+    expect((await server('/api/auth/login', ghost)).status).toBe(429)
   })
 
   it('creates one account when two first-run setups arrive together', { timeout: 60_000 }, async () => {

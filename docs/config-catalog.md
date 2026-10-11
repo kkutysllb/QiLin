@@ -15,7 +15,7 @@ Each package entry labels its data with three identifiers: `inject` lists the se
 ## `@qilin-agent/accounts-local`
 
 - `inject`: `connection` · `credentials`
-- `source`: [`packages/identity/accounts-local/src/index.ts:57`](../packages/identity/accounts-local/src/index.ts)
+- `source`: [`packages/identity/accounts-local/src/index.ts:58`](../packages/identity/accounts-local/src/index.ts)
 
 ```ts config-catalog
 /** Plugin config: the account surface's deployment choices. */
@@ -36,6 +36,18 @@ export interface Config {
   registration?: 'open' | 'closed'
   /** Absolute browser-session lifetime in days. @default 7 */
   sessionMaxAgeDays?: number
+  /**
+   * Failed sign-ins one authority may accumulate for the same identifier before
+   * further attempts are refused with `429` and `Retry-After`. One runtime
+   * serves one account, so this is that account's limit.
+   * @default 10
+   */
+  loginMaxAttempts?: number
+  /**
+   * Window in seconds that a failed sign-in counts toward that refusal, and the
+   * wait a refused caller is told to take. @default 900
+   */
+  loginAttemptWindowSeconds?: number
   /**
    * Mark the session cookie `Secure`, so a browser returns it only over TLS.
    * A deployment whose public address terminates TLS sets this, even though the
