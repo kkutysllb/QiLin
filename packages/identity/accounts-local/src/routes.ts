@@ -28,6 +28,8 @@ export interface AuthRouteDeps {
   readonly enabled: boolean
   /** Whether an anonymous visitor may create an additional account. */
   readonly registration: 'open' | 'closed'
+  /** Account identities this deployment admits, or undefined when it admits every account. */
+  readonly admitted: ReadonlySet<string> | undefined
 }
 
 /** One accepted input. */
@@ -278,7 +280,11 @@ export function createAuthRoutes(deps: AuthRouteDeps): ConnectionFetchRoute[] {
       const submitted = readLogin(admission.value.body)
       if (!submitted.ok) return submitted.response
       const account = deps.store.byIdentifier(submitted.value.identifier)
-      if (account === undefined || !await verifyPassword(submitted.value.password, account.password)) {
+      // A deployment that admits a fixed account list answers a foreign account
+      // exactly as it answers a wrong password: the refusal is one fact, not two.
+      if (account === undefined
+        || (deps.admitted !== undefined && !deps.admitted.has(account.id))
+        || !await verifyPassword(submitted.value.password, account.password)) {
         return failure(401, 'invalid-credentials', 'That username, email address, and password do not match an account.')
       }
       return json(200, { user: accountView(account) }, deps.sessions.issue(admission.value.authority, account, Date.now()))

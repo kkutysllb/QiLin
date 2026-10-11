@@ -16,6 +16,7 @@ import { Context, FiberState } from '@qilin-agent/kylin'
 import Loader from '@qilin-agent/kylin-plugin-loader'
 import Include from '@qilin-agent/kylin-plugin-include'
 import * as Accounts from '../src/index.ts'
+import { AccountStore } from '../src/accounts.ts'
 import { SessionCookies } from '../src/session.ts'
 import * as Connection from '@qilin-agent/client-connection'
 import type { ConnectionSessionAuthority } from '@qilin-agent/client-connection'
@@ -50,6 +51,11 @@ async function boot(options: {
   secret?: string
   /** Raw record lines for the session-secret entry, when a test seeds a broken one. */
   record?: readonly string[]
+  /**
+   * Fills the shared home's account file before the plugin applies.
+   * @returns the account identities this deployment admits, or undefined to admit every account.
+   */
+  seed?: (home: string) => Promise<readonly string[] | undefined>
 } = {}): Promise<Booted> {
   const root = await mkdtemp(join(tmpdir(), 'qilin-accounts-surface-'))
   roots.push(root)
@@ -57,6 +63,7 @@ async function boot(options: {
   const home = join(root, 'home')
   await mkdir(dist, { recursive: true })
   await mkdir(home, { recursive: true })
+  const admitted = await options.seed?.(home)
   await writeFile(join(dist, 'index.html'), '<head></head><body>shell</body>')
   await writeFile(join(dist, 'landing.html'), '<head></head><body>landing</body>')
   await writeFile(join(dist, 'auth.html'), '<head></head><body>sign in</body>')
@@ -90,8 +97,13 @@ async function boot(options: {
     "  name: '@qilin-agent/accounts-local'",
     '  config:',
     `    enabled: ${options.enabled === false ? 'false' : 'true'}`,
-    `    registration: ${options.registration ?? 'open'}`,
+    `    registration: ${options.registration ?? (admitted === undefined ? 'open' : 'closed')}`,
     `    qilinHome: '${home}'`,
+    ...admitted === undefined ? [] : admitted.length === 0
+      // An empty list is written as the empty sequence it is; a bare key would
+      // be YAML null, which is not a list at all.
+      ? ['    admittedAccounts: []']
+      : ['    admittedAccounts:', ...admitted.map(id => `      - '${id}'`)],
     '',
   ].join('\n'))
 
@@ -485,5 +497,67 @@ describe('real account surface', () => {
     const entry = await server('/workspace', { redirect: 'manual', headers: { cookie } })
     expect(entry.status).toBe(302)
     expect(entry.headers.get('location')).toBe('/?next=%2Fworkspace')
+  })
+
+  it('admits only the accounts one deployment names', { timeout: 60_000 }, async () => {
+    let admittedId = ''
+    let foreignId = ''
+    const server = await boot({
+      seed: async (home) => {
+        const store = await AccountStore.open(join(home, 'auth', 'accounts.json'))
+        admittedId = (await store.add({ username: 'admitted' }, PASSWORD)).id
+        foreignId = (await store.add({ username: 'foreign' }, PASSWORD)).id
+        return [admittedId]
+      },
+    })
+    expect(inactive(server.ctx)).toEqual([])
+
+    // The admitted account signs in and reaches the gated entry.
+    const login = await server('/api/auth/login', post(undefined, { identifier: 'admitted', password: PASSWORD }))
+    expect(login.status).toBe(200)
+    const session = cookieOf(login)
+    expect((await server('/workspace', { headers: { cookie: session } })).status).toBe(200)
+    expect(await (await server('/api/auth/status', { headers: { cookie: session } })).json())
+      .toMatchObject({ authenticated: true, registrationOpen: false, user: { id: admittedId, username: 'admitted' } })
+
+    // An account the file holds but this deployment does not admit cannot sign
+    // in, and receives the refusal a wrong password receives.
+    const refused = await server('/api/auth/login', post(undefined, { identifier: 'foreign', password: PASSWORD }))
+    expect(refused.status).toBe(401)
+    expect(await refused.json()).toMatchObject({ error: { code: 'invalid-credentials' } })
+
+    // A session that already names the foreign account stops naming one here.
+    const secret = Buffer.from(await storedSecret(server.credentialsPath), 'base64url')
+    const foreign = new SessionCookies(secret, 24 * 60 * 60 * 1000).issue(
+      new URL(server.base).host,
+      { id: foreignId, username: 'foreign', email: null, password: 'x', createdAt: 0, tokenVersion: 1 },
+      Date.now(),
+    ).split(';', 1)[0] as string
+    expect(await (await server('/api/auth/status', { headers: { cookie: foreign } })).json())
+      .toMatchObject({ authenticated: false, user: null })
+    expect((await server('/workspace', { redirect: 'manual', headers: { cookie: foreign } })).headers.get('location'))
+      .toBe('/?next=%2Fworkspace')
+  })
+
+  it('refuses an admission list this deployment cannot serve', { timeout: 60_000 }, async () => {
+    // A list naming no account.
+    await expect(boot({ seed: () => Promise.resolve([]) })).rejects.toThrow(/names no account/u)
+
+    // A list naming an account the shared file does not hold.
+    await expect(boot({
+      seed: async (home) => {
+        const store = await AccountStore.open(join(home, 'auth', 'accounts.json'))
+        return [(await store.add({ username: 'first' }, PASSWORD)).id, 'missing-account']
+      },
+    })).rejects.toThrow(/does not hold/u)
+
+    // A list that leaves registration open would hand a visitor an account with no way in.
+    await expect(boot({
+      registration: 'open',
+      seed: async (home) => {
+        const store = await AccountStore.open(join(home, 'auth', 'accounts.json'))
+        return [(await store.add({ username: 'first' }, PASSWORD)).id]
+      },
+    })).rejects.toThrow(/requires registration: closed/u)
   })
 })

@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-在 Web 部署中挂载本包，浏览器必须先登录才能到达 harness。首位访问者初始化管理员账户；此后每个浏览器都用用户名或该账户携带的邮箱地址登录。账户会话门禁只把应用文档与 `/api` 交给本部署签发的会话，没有会话的浏览器会被送到公开 landing 页。账户针对的是一个 harness home 的访问，因此第二个账户同样能到达相同的 Session、凭据与文件。注册默认开放，绑定了 loopback 之外的部署会关闭它。
+在 Web 部署中挂载本包，浏览器必须先登录才能到达 harness。首位访问者初始化管理员账户；此后每个浏览器都用用户名或该账户携带的邮箱地址登录。账户会话门禁只把应用文档与 `/api` 交给本部署签发的会话，没有会话的浏览器会被送到公开 landing 页。账户文件是本部署的名册，`admittedAccounts` 把一份部署收窄到它列名的账户，这正是共享该文件的多个运行时之间的分隔。
 
 ## 目录
 
@@ -41,6 +41,7 @@ kind: "package-reference"
 | `registration` | `'open'` | 匿名访问者是否可以创建额外账户 |
 | `sessionMaxAgeDays` | `7` | 浏览器会话的绝对有效期，单位为天 |
 | `qilinHome` | `$QILIN_HOME`，其次 `~/.qilin` | 存放 `auth/accounts.json` 的 harness home |
+| `admittedAccounts` | 文件中的每个账户 | 本部署接纳的账户标识；未列名的账户既不能登录，其已签发的会话也不再有效 |
 
 生成的[配置目录](../../../docs/config-catalog.zh.md#qilin-agentaccounts-local)是每个受支持字段及其 JSDoc 的穷尽式真源。
 
@@ -57,7 +58,7 @@ kind: "package-reference"
 | `GET /api/auth/status` | 200 `{ enabled, needsSetup, registrationOpen, authenticated, user }`；`user` 是 `{ id, username, email, createdAt }` 或 `null`，未填邮箱的账户其 `email` 为 null |
 | `POST /api/auth/setup` | 200 `{ user }` 加会话 cookie；已存在账户时 409 `already-initialized` |
 | `POST /api/auth/register` | 200 `{ user }` 加会话 cookie；403 `registration-closed`；409 `username-taken` 或 `email-taken` |
-| `POST /api/auth/login` | 200 `{ user }` 加会话 cookie；标识符未知或密码错误时 401 `invalid-credentials` |
+| `POST /api/auth/login` | 200 `{ user }` 加会话 cookie；标识符未知、密码错误或账户未被本部署接纳时 401 `invalid-credentials` |
 | `POST /api/auth/logout` | 204，并清除该 authority 的 cookie |
 | `POST /api/auth/change-password` | 200 `{ user }` 加新的会话 cookie；没有会话时 401 `unauthorized`，当前密码错误时 401 `invalid-credentials`；409 `username-taken` 或 `email-taken` |
 
@@ -70,6 +71,10 @@ kind: "package-reference"
 -----
 
 <a id="understand-the-implementation"></a>
+### 接纳名单
+
+`admittedAccounts` 列出本部署服务的账户。装载时会拒绝这样的名单：没有列出任何账户、列出了账户文件里没有的标识、或没有把 `registration` 关掉——未被列名的账户根本无法使用这份部署，所以开放注册只会把账户交给一个进不来的访问者。拒绝覆盖两个方向：`POST /api/auth/login` 对不属于本部署的账户给出与密码错误完全相同的应答；已经签发的会话也不再为未被接纳的账户命名账户，尽管其签名仍然有效。因此一份共享的账户文件可以服务多个运行时：`qilin tenants serve` 为每个账户组合一个运行时，各自只接纳自己。
+
 ## 理解实现
 
 <details>
@@ -141,7 +146,8 @@ kind: "package-reference"
 
 这些限制说明一个账户保护什么、不保护什么。它们是当前包约束，不是任务积压。
 
-- **账户集合属于单个 harness home**——每个账户都能到达与首个账户相同的 Session、凭据与文件，因此第二个账户只是同一套 harness 的另一把钥匙，而不是独立租户；不同的人需要各自的 `QILIN_HOME` 与端口。
+- **账户集合属于单个 harness home**——每个账户都能到达与首个账户相同的 Session、凭据与文件，因此第二个账户只是同一套 harness 的另一把钥匙，而不是独立租户；不同的人需要各自的 `QILIN_HOME` 与端口。`admittedAccounts` 把一份部署收窄到该文件的一个子集，它分隔的是运行时而不是账户。
+- **接纳分隔的是运行时，不是操作系统用户**——所有运行时都以同一个操作系统用户运行，因此某个租户内的 shell 或文件工具能读到另一个租户的目录与共享凭据。
 - **注册默认开放**——在账户集合仍有空位时，任何能到达该端口的人都可以创建拥有完整 harness 访问权限的账户；绑定到 loopback 之外的部署要设置 `registration: closed`。随附的 `qilin web` 命令绑定 loopback 并拒绝 `--host 0.0.0.0`。
 - **登录没有限流或锁定**——端点以 scrypt 比较所允许的最快速度应答，该代价是反复猜测的唯一刹车。
 - **没有账户删除或密码找回**——没有任何端点会删除账户或找回遗忘的密码；操作者需要编辑或删除 `$QILIN_HOME/auth/accounts.json`，删除该文件会让部署回到首次运行状态。

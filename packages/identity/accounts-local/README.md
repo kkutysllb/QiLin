@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Mount this package in a Web deployment to require a sign-in before a browser reaches the harness. The first visitor initializes the administrator account; afterwards every browser signs in with a username or the account's email address. The account-session gate serves the application document and answers `/api` only to a session this deployment minted, and sends a browser without one to the public landing page. Accounts gate one harness home, so a second account reaches the same Sessions, credentials, and files. Registration is open by default, and a deployment bound beyond loopback closes it.
+Mount this package in a Web deployment to require a sign-in before a browser reaches the harness. The first visitor initializes the administrator account; afterwards every browser signs in with a username or the account's email address. The account-session gate serves the application document and answers `/api` only to a session this deployment minted, and sends a browser without one to the public landing page. The account file is the deployment's roster, and `admittedAccounts` narrows one deployment to the accounts it names, which is what separates runtimes sharing that file.
 
 ## Table of Contents
 
@@ -41,6 +41,7 @@ Compose this plugin beside [`qilin-client-connection`](../../client/connection/R
 | `registration` | `'open'` | Whether an anonymous visitor may create an additional account |
 | `sessionMaxAgeDays` | `7` | Absolute browser-session lifetime in days |
 | `qilinHome` | `$QILIN_HOME`, then `~/.qilin` | Harness home holding `auth/accounts.json` |
+| `admittedAccounts` | every account in the file | Account identities this deployment admits; sign-in and every issued session are refused for an account the list does not name |
 
 The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agentaccounts-local) is the exhaustive source for every accepted field and its JSDoc.
 
@@ -57,7 +58,7 @@ Every endpoint answers JSON with `cache-control: no-store`, and every refusal is
 | `GET /api/auth/status` | 200 `{ enabled, needsSetup, registrationOpen, authenticated, user }`; `user` is `{ id, username, email, createdAt }` or `null`, with `email` null for an account that registered without one |
 | `POST /api/auth/setup` | 200 `{ user }` plus the session cookie; 409 `already-initialized` once an account exists |
 | `POST /api/auth/register` | 200 `{ user }` plus the session cookie; 403 `registration-closed`; 409 `username-taken` or `email-taken` |
-| `POST /api/auth/login` | 200 `{ user }` plus the session cookie; 401 `invalid-credentials` for an unknown identifier or a wrong password |
+| `POST /api/auth/login` | 200 `{ user }` plus the session cookie; 401 `invalid-credentials` for an unknown identifier, a wrong password, or an account this deployment does not admit |
 | `POST /api/auth/logout` | 204 with this authority's cookie cleared |
 | `POST /api/auth/change-password` | 200 `{ user }` plus a fresh session cookie; 401 `unauthorized` without a session or `invalid-credentials` for a wrong current password; 409 `username-taken` or `email-taken` |
 
@@ -70,6 +71,10 @@ The plugin installs one `ConnectionSessionAuthority` at `ctx.connection.session`
 -----
 
 <a id="understand-the-implementation"></a>
+### The admission list
+
+`admittedAccounts` names the accounts one deployment serves. The load refuses a list that names no account, names an identity the account file does not hold, or leaves `registration` open — an account the list does not name could never use this deployment, so open registration would hand a visitor an account with no way in. The refusal covers both directions: `POST /api/auth/login` answers a foreign account exactly as it answers a wrong password, and an already-issued session stops naming an account the deployment does not admit even though its signature still verifies. One shared account file therefore serves several runtimes: `qilin tenants serve` composes one runtime per account, each admitting only its own.
+
 ## Understand the implementation
 
 <details>
@@ -93,7 +98,7 @@ A stored hash is self-describing (`scrypt$N$r$p$salt$key`) with per-account salt
 
 | File | Role |
 |---|---|
-| [`src/index.ts`](src/index.ts) | `Config`, account-file and session-secret loading, route registration, gate installation |
+| [`src/index.ts`](src/index.ts) | `Config`, account-file and session-secret loading, the admission list, route registration, gate installation |
 | [`src/routes.ts`](src/routes.ts) | The six `/api/auth` endpoints, input validation, and the error envelope |
 | [`src/gate.ts`](src/gate.ts) | The authority's verdicts: index redirect, public API prefix, session verification |
 | [`src/accounts.ts`](src/accounts.ts) | Durable account file: parsing, atomic replacement, credential-generation updates |
@@ -141,7 +146,8 @@ None; this package neither assembles nor sends a provider request.
 
 These limits describe what an account does and does not protect. They are current package constraints, not a task backlog.
 
-- **The account set belongs to one harness home** — every account reaches the same Sessions, credentials, and files as the first one, so a second account is another key to the same harness rather than a separate tenant; separate people need separate `QILIN_HOME` values and ports.
+- **The account set belongs to one harness home** — every account reaches the same Sessions, credentials, and files as the first one, so a second account is another key to the same harness rather than a separate tenant; separate people need separate `QILIN_HOME` values and ports. `admittedAccounts` narrows one deployment to a subset of that file, which separates runtimes rather than accounts.
+- **Admission separates runtimes, not machine users** — every runtime runs as the same operating-system user, so a shell or file tool inside one tenant reaches another tenant's directory and the shared credentials.
 - **Registration is open by default** — anyone who can reach the port while the account set has room can create an account with full harness access; a deployment that binds beyond loopback sets `registration: closed`. The shipped `qilin web` command binds loopback and rejects `--host 0.0.0.0`.
 - **Sign-in has no throttling or lockout** — the endpoints answer as fast as the scrypt comparison allows, and that cost is the only brake on repeated guesses.
 - **No account removal or password reset** — no endpoint deletes an account or recovers a forgotten password; an operator edits or deletes `$QILIN_HOME/auth/accounts.json`, and deleting it returns the deployment to the first-run state.

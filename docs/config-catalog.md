@@ -15,7 +15,7 @@ Each package entry labels its data with three identifiers: `inject` lists the se
 ## `@qilin-agent/accounts-local`
 
 - `inject`: `connection` · `credentials`
-- `source`: [`packages/identity/accounts-local/src/index.ts:43`](../packages/identity/accounts-local/src/index.ts)
+- `source`: [`packages/identity/accounts-local/src/index.ts:49`](../packages/identity/accounts-local/src/index.ts)
 
 ```ts config-catalog
 /** Plugin config: the account surface's deployment choices. */
@@ -38,6 +38,12 @@ export interface Config {
   sessionMaxAgeDays?: number
   /** Explicit harness home; omitted follows `QILIN_HOME`, then `~/.qilin`. */
   qilinHome?: string
+  /**
+   * Account identities this deployment admits: sign-in and every already-issued
+   * session are refused for an account the list does not name.
+   * @default every account in the harness home's account file
+   */
+  admittedAccounts?: string[] | undefined
 }
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/accounts-local -->

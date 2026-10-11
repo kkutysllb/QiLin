@@ -9,8 +9,8 @@
   en: 9a2041a766a48e04
   zh: f7b72f23ec3af368
 /qilin-agent-accounts-local/summary:
-  en: 4c994060fbad30e0
-  zh: 5a63e7c1fc022106
+  en: ef6be0b8a74fd274
+  zh: 24c18cde77c8dd9f
 /qilin-agent-accounts-local/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
@@ -18,17 +18,20 @@
   en: fff7c098a074201d
   zh: 0563517298653584
 /qilin-agent-accounts-local/use-this-package/minimal-configuration:
-  en: 2751af93cc6cce60
-  zh: 85a8880fbe2e4818
+  en: 1fa7fec846f28f4e
+  zh: 13a13f0b8ea3446e
 /qilin-agent-accounts-local/use-this-package/the-sign-in-flow:
   en: 3cea7596e1982dab
   zh: a801903bd5fe1876
 /qilin-agent-accounts-local/use-this-package/the-endpoints:
-  en: 3bf043b29d54b5aa
-  zh: 5fd77435ed350ba5
+  en: b663bbee641235c1
+  zh: 7f3c283d118ee6c9
 /qilin-agent-accounts-local/use-this-package/the-account-session-gate:
   en: d4c3a9a055156116
   zh: d607c8394daf2a51
+/qilin-agent-accounts-local/use-this-package/the-admission-list:
+  en: 58076605c596debb
+  zh: b5eb29466b066a96
 /qilin-agent-accounts-local/understand-the-implementation:
   en: c32062a621a7118a
   zh: 80c8a079d4044db3
@@ -42,7 +45,7 @@
   en: c6370fa1e127ee8a
   zh: 9b64ac06d18ee7e3
 /qilin-agent-accounts-local/understand-the-implementation/source-map:
-  en: c1775cadada8008f
+  en: d9ab9cd589fcb93e
   zh: 196aedab34a7f7a7
 /qilin-agent-accounts-local/further-exploration:
   en: 68da4073a871179d
@@ -54,8 +57,8 @@
   en: ca75c51c89c2c9b0
   zh: de54f3467ef3b9be
 /qilin-agent-accounts-local/known-limitations-and-deferred-work:
-  en: ddac322d589910c8
-  zh: 7400704690fea695
+  en: b9335f89ca359b65
+  zh: 033fa30ccba54dd8
 /qilin-agent-accounts-local/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98
