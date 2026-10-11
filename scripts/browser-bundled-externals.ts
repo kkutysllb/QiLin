@@ -1,6 +1,6 @@
 /** Resolve direct third-party browser inputs through the shipping build configurations, without emitting files. */
 
-import { globSync, readFileSync, realpathSync } from 'node:fs'
+import { existsSync, globSync, readFileSync, realpathSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -13,6 +13,10 @@ interface Manifest {
   private?: boolean
   qilin?: { client?: unknown }
   exports?: Record<string, unknown>
+  dependencies?: Record<string, string>
+  devDependencies?: Record<string, string>
+  optionalDependencies?: Record<string, string>
+  peerDependencies?: Record<string, string>
 }
 
 interface ResolveContext {
@@ -117,7 +121,62 @@ interface ShellConfig {
   build: { rollupOptions?: { input?: string | string[] | Record<string, string> } }
 }
 
+/** Installed package directory owning a resolved entry file. */
+function packageDirectoryOf(entry: string): string {
+  let dir = dirname(entry)
+  for (let depth = 0; depth < 6; depth += 1) {
+    if (existsSync(resolve(dir, 'package.json'))) return dir
+    const parent = dirname(dir)
+    if (parent === dir) break
+    dir = parent
+  }
+  throw new Error(`browser notices: no package.json above ${entry}`)
+}
+
+/**
+ * ESM entry of an installed package.
+ *
+ * `createRequire().resolve()` answers with the entry a CommonJS `require` picks.
+ * A package shipping both builds publishes a wrapper there whose namespace
+ * carries only `default`, so its named API reads as missing; the manifest's own
+ * `import` condition names the build the package's CLI runs.
+ * @param entry - Resolved entry file of an installed package.
+ * @returns Absolute path of the entry an ESM import loads.
+ */
+export function esmEntryOf(entry: string): string {
+  if (!entry.endsWith('.cjs')) return entry
+  const dir = packageDirectoryOf(entry)
+  const manifest = JSON.parse(readFileSync(resolve(dir, 'package.json'), 'utf8')) as { exports?: unknown }
+  const root = manifest.exports !== null && typeof manifest.exports === 'object'
+    ? (manifest.exports as Record<string, unknown>)['.']
+    : undefined
+  const conditions = root !== null && typeof root === 'object' ? root as Record<string, string> : undefined
+  const target = typeof root === 'string' ? root : conditions?.import ?? conditions?.['module-sync']
+  if (target === undefined) throw new Error(`browser notices: ${dir} names no ESM entry for its CommonJS one`)
+  return resolve(dir, target)
+}
+
+/**
+ * Reject a Vite whose major differs from the app's own declaration.
+ *
+ * The walk bundles each shell through its installed Vite. A hoisted or stale
+ * tree can answer with another major, which would disclose from a bundler that
+ * shell does not ship; the mismatch is reported instead of walked.
+ * @param manifest - Shell manifest that declares the build dependency.
+ * @param version - Version reported by the imported Vite, when it reports one.
+ */
+export function assertDeclaredViteMajor(manifest: Manifest, version: string | undefined): void {
+  const declared = [manifest.dependencies, manifest.devDependencies, manifest.optionalDependencies, manifest.peerDependencies]
+    .map(section => section?.['vite'])
+    .find(range => range !== undefined)
+  const declaredMajor = declared === undefined ? undefined : /^\D*(\d+)/.exec(declared)?.[1]
+  const resolvedMajor = version === undefined ? undefined : /^(\d+)/.exec(version)?.[1]
+  if (declaredMajor === undefined || resolvedMajor === undefined || declaredMajor === resolvedMajor) return
+  throw new Error(`browser notices: ${manifest.name} declares vite ${declared} but the walk resolved ${version}`)
+}
+
 interface ViteApi {
+  version?: string
   resolveConfig(
     config: Record<string, unknown>, command: 'build', defaultMode: string, defaultNodeEnv: string,
   ): Promise<ShellConfig>
@@ -133,8 +192,9 @@ async function collectShell(
     const dir = dirname(resolve(root, path))
     const manifest = readManifest(resolve(dir, 'package.json'))
     if (manifest.private === true || manifest.exports?.['./dist/*'] === undefined) continue
-    const vitePath = createRequire(resolve(dir, 'package.json')).resolve('vite')
-    const vite = await import(pathToFileURL(vitePath).href) as ViteApi
+    const viteEntry = esmEntryOf(createRequire(resolve(dir, 'package.json')).resolve('vite'))
+    const vite = await import(pathToFileURL(viteEntry).href) as ViteApi
+    assertDeclaredViteMajor(manifest, vite.version)
     const config = await vite.resolveConfig({ root: dir, logLevel: 'error' }, 'build', 'production', 'production')
     const input = config.build.rollupOptions?.input
     const entries = typeof input === 'string' ? [input] : Object.values(input ?? {})

@@ -2,8 +2,11 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync,
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { browserBundledExternals, browserPackageOfFile, browserSourceAliases } from './browser-bundled-externals.ts'
+import {
+  assertDeclaredViteMajor, browserBundledExternals, browserPackageOfFile, browserSourceAliases, esmEntryOf,
+} from './browser-bundled-externals.ts'
 
 const filesystem = vi.hoisted(() => ({ preservedAlias: undefined as string | undefined }))
 vi.mock('node:fs', async (importOriginal) => {
@@ -170,5 +173,38 @@ describe('browser dependency discovery', () => {
     expect('@fixture/static'.replace(aliases[0]!.find, aliases[0]!.replacement))
       .toBe(join(root, 'packages/client/static/src/index.ts'))
     expect(aliases[0]!.find.test('@fixture/static-extra')).toBe(false)
+  })
+})
+
+describe('shell Vite entry', () => {
+  it('imports the manifest ESM entry for a CommonJS resolution of the same package', async () => {
+    const root = fixture()
+    write(root, 'node_modules/shell-vite/package.json', JSON.stringify({
+      name: 'shell-vite',
+      version: '6.4.3',
+      exports: { '.': { import: './dist/node/index.js', require: './index.cjs' } },
+    }))
+    write(root, 'node_modules/shell-vite/index.cjs', 'module.exports = { resolveConfig: () => "commonjs" }')
+    write(root, 'node_modules/shell-vite/dist/node/index.js', 'export const resolveConfig = () => "esm"')
+
+    const commonjs = createRequire(join(root, 'package.json')).resolve('shell-vite')
+    expect(commonjs.endsWith('index.cjs')).toBe(true)
+    expect(esmEntryOf(commonjs)).toBe(join(root, 'node_modules/shell-vite/dist/node/index.js'))
+
+    const entry = await import(pathToFileURL(esmEntryOf(commonjs)).href) as { resolveConfig?: () => string }
+    expect(entry.resolveConfig?.()).toBe('esm')
+  })
+
+  it('keeps an entry whose manifest already names ESM', () => {
+    expect(esmEntryOf('/repo/node_modules/pkg/dist/index.js')).toBe('/repo/node_modules/pkg/dist/index.js')
+  })
+
+  it('rejects a resolved Vite whose major differs from the shell declaration', () => {
+    const manifest = { name: '@fixture/web', devDependencies: { vite: '^6.0.0' } }
+    expect(() => { assertDeclaredViteMajor(manifest, '8.0.16') })
+      .toThrow('browser notices: @fixture/web declares vite ^6.0.0 but the walk resolved 8.0.16')
+    expect(() => { assertDeclaredViteMajor(manifest, '6.4.3') }).not.toThrow()
+    expect(() => { assertDeclaredViteMajor(manifest, undefined) }).not.toThrow()
+    expect(() => { assertDeclaredViteMajor({ name: '@fixture/web' }, '8.0.16') }).not.toThrow()
   })
 })
