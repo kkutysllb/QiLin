@@ -36,6 +36,7 @@ import { readFileSync } from 'node:fs'
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http'
 import { createServer as createHttpsServer } from 'node:https'
 import { accountsFilePath, AccountStore } from '@qilin-agent/accounts-local'
+import type { AccountRecord } from '@qilin-agent/accounts-local'
 import { resolveQilinHome } from '@qilin-agent/home-paths'
 import {
   BOOTSTRAP_DIRECTORY,
@@ -240,6 +241,43 @@ function respond(response: ServerResponse, status: number, contentType: string, 
     'content-length': Buffer.byteLength(body),
   })
   response.end(body)
+}
+
+/**
+ * The list a deployment with several accounts answers its bare address with.
+ *
+ * It names no email address: reaching the bare address is not evidence of who
+ * the visitor is, and usernames are what the roster already keys its paths by.
+ * @param accounts - the roster, in the order it holds accounts.
+ * @returns an HTML document listing each account's entry path.
+ */
+function accountPicker(accounts: readonly AccountRecord[]): string {
+  const items = accounts
+    .map(account => `    <li><a href="/t/${encodeURIComponent(account.username)}/">${escapeHtml(account.username)}</a></li>`)
+    .join('\n')
+  return [
+    '<!doctype html>',
+    '<html lang="en">',
+    '<head>',
+    '  <meta charset="utf-8">',
+    '  <meta name="viewport" content="width=device-width, initial-scale=1">',
+    '  <title>Choose an account</title>',
+    '</head>',
+    '<body>',
+    '  <h1>Choose an account</h1>',
+    '  <p>This address serves every account of this deployment. Choose the one to sign in as.</p>',
+    '  <ul>',
+    items,
+    '  </ul>',
+    '</body>',
+    '</html>',
+    '',
+  ].join('\n')
+}
+
+/** Text as HTML: the roster is a file on disk, and a name in it is not markup. */
+function escapeHtml(value: string): string {
+  return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
 }
 
 /** One JSON answer. */
@@ -718,6 +756,15 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       const first = accounts[0]
       if (first === undefined) {
         await serveFirstRun(request, response, url.pathname)
+        return
+      }
+      // One account leaves nothing to choose, so the bare address stays a
+      // redirect. Several mean a browser that has chosen none — a new arrival,
+      // or one that just signed out — must reach any of them, while the
+      // product's own form lives inside one account's runtime and that runtime
+      // admits only its own account; the list is the smallest surface for that.
+      if (accounts.length > 1) {
+        respond(response, 200, 'text/html; charset=utf-8', accountPicker(accounts))
         return
       }
       response.writeHead(302, {
