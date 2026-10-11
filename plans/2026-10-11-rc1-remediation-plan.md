@@ -23,6 +23,7 @@
 | C13 | `docs(i18n): pair the desktop README and refresh the Chinese tool catalog` |
 | C14 | `test(scripts): register the released V4 restore package as a library` |
 | C15 | `test(identity): cover concurrent first-run, registration, and sign-in` |
+| C16 | `feat(accounts-local): make a repeated sign-in wait after its failures` |
 
 ## P0 安全与正确性
 
@@ -52,7 +53,7 @@
 |---|---|---|---|
 | 13 | 被拒 reload 是否回滚 | 待决策 | 两版实现已在真实 Web 车道回退（计划 §16）；要先裁定契约措辞，再重写 `web-failure-matrix` 的 8 条断言 |
 | 14 | §3.5 `bin.ts` 的 `scheduler` 补丁理由移入 Agent Note | **已落地** C7 | 兜底抽成 `apps/cli/src/scheduler-yield.ts`（`installSchedulerYield()`，JSDoc 只写契约并链到 Agent Note），入口在顶部调用、注释只剩一句契约；`desktop/package/app/host/main.mjs` 的同一决定也改为一句契约并链同一篇 Note。新增 [Agent Note](../../.agents/notes/implemented/architecture/2026-10-07-web-scheduler-yield-host-shim.md)（中英 + 记录）说明为什么这个全局兜底留着。**新发现**：三处调用点（`api-session-controller` 冷列表、`session-persistence-jsonl` 分片让路）现在都从 `node:timers/promises` 导入 `scheduler`（Node 17.3 起提供，`@types/node` 注释为证），所以仓内已无消费者；兜底保留的理由是进程级失效防护（移植模块与第三方插件可能裸读该全局），Node 24.18 实测无该全局、Electron 44 内置 Node 24。新增 `apps/cli/tests/scheduler-yield.spec.ts` 3 例（越过微任务让路、宿主自带不被覆盖、重复安装为空操作） |
-| 15 | §4.6 登录限流 / §4.7 cookie `Secure` 条件 | **部分落地** C11 | `Secure`：`SessionCookies` 增加第三个参数，`accounts-local` 增加 `sessionCookieSecure`（默认 false，进入 config catalog 与双语 README），hub 自己终止 TLS 时给每个运行时写进租户层（`tenantPatchYaml`/`bootstrapPatchYaml` 第二个参数，`tenants.ts` 由 `options.tls !== undefined` 推导）——不能靠运行时自己的 socket 判断：它说的是 loopback 上的明文 HTTP。用例：`session.spec.ts`（带/不带 `Secure`）、`tenant-runtime.spec.ts`（两种层文档）、`auth-surface.spec.ts`（真组合下 setup 与 logout 都带 `Secure`，14/14）。**未做**：登录限流/退避——需要产品口径（阈值、窗口、是否锁定账户），留待裁定 |
+| 15 | §4.6 登录限流 / §4.7 cookie `Secure` 条件 | **已落地** C11 + C16 | `Secure`：`SessionCookies` 增加第三个参数，`accounts-local` 增加 `sessionCookieSecure`（默认 false，进入 config catalog 与双语 README），hub 自己终止 TLS 时给每个运行时写进租户层（`tenantPatchYaml`/`bootstrapPatchYaml` 第二个参数，`tenants.ts` 由 `options.tls !== undefined` 推导）——不能靠运行时自己的 socket 判断：它说的是 loopback 上的明文 HTTP。用例：`session.spec.ts`（带/不带 `Secure`）、`tenant-runtime.spec.ts`（两种层文档）、`auth-surface.spec.ts`（真组合下 setup 与 logout 都带 `Secure`，14/14）。C16 补上登录限流：新增 `LoginThrottle`（按 authority + 标识符计数，成功或窗口过期即清零），超过 `loginMaxAttempts`（默认 10）后登录回 429 `too-many-attempts` 并带 `Retry-After`，窗口由 `loginAttemptWindowSeconds`（默认 900）给出；不存在的标识符照同样方式计数（不是名字探测）；表有上界（4096 键，先回收过期再淘汰最旧）。用例：单元 7 例 + 真组合 3 例（达限后正确口令也被拒、成功后清零、无账户标识符同样达限），负向对照实跑（把达限判定改成恒假即变红），新模块覆盖率 100%。**登记的让步**：不限「轮换标识符」的横向喷射（按 authority 汇总的计数需要新配置项与产品口径），已写进 README 的 Known Limitations |
 | 16 | §4.7 非 loopback 绑定告警 + 文档分开写 hub 与租户地址 | **部分落地** C2 | 入口在非 loopback 绑定上打印可达性事实；文档已说明租户运行时只绑 loopback |
 | 17 | §7 五条并发/共享写用例 | **部分落地** C1 + C15 | 名册并发写：C1 的单元用例（同一进程并发、两个写者各持旧快照、锁等待、过热锁过期、等待超时、空壳锁路径）。真组合 HTTP 车道：C15 新增三例——两个首启 setup 并发只产生一个账户（另一个得 409 `already-initialized`，其用户名无法登录，赢家的会话可用）、两个注册并发都存活、两个账户同时登录各自带自己的会话过门禁。负向对照实跑：把 `initialize()` 临界区里的空名册判定改成恒假，该用例变红（1 failed），恢复后 17/17。**仍缺**：`makeRoom`/`--max-tenants` 的回收竞态、坏 profile 下的串行阻塞、>2 账户与回收抖动——三者都要 supervisor 装配测试台或真进程车道，本轮未建 |
 | 18 | §5.8 schedule 能力是否进入出厂部署 | 待决策 | 影响判据 2 的可验证性 |
