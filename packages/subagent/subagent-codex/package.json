@@ -50,6 +50,7 @@
   "dependencies": {
     "@qilin-agent/brand": "workspace:*",
     "@qilin-agent/sdk-protocol": "workspace:*",
+    "@qilin-agent/tool-subagent": "workspace:*",
     "@qilin-agent/schemastery": "workspace:~",
     "@openai/codex": "0.153.4"
   },
