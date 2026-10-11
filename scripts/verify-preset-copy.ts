@@ -22,6 +22,61 @@ const DISPLAY_ROW = /^ {2}([A-Za-z0-9-]+): \{ name: '([^']+)', description: '([^
 const DICTIONARY_KEY = /^ {2}([A-Za-z][A-Za-z0-9]*):/
 const DISPLAY_MODULE = 'packages/preset/agent-presets/src/display.ts'
 
+/**
+ * Files that state the shipped preset set outside the three sources above: CLI
+ * reference prose, the guides, a lane fixture, and the skill body the preset
+ * itself serves to a model. A retired id named as a preset here reaches a reader
+ * or a model as a current contract.
+ */
+const PRESET_CONTRACT_FILES: readonly string[] = [
+  'apps/cli/reference/README.md',
+  'apps/cli/reference/README.zh.md',
+  'apps/cli/tests/fixtures/github-webhook/cordis.yml',
+  'apps/cli/tests/github-webhook-real.e2e.ts',
+  'docs/user/guide/github-review.md',
+  'docs/user/guide/github-review.zh.md',
+  'packages/preset/agent-presets/presets/ptc/skills/editing-cordis-compositions/SKILL.md',
+]
+
+/** A line that talks about presets at all. */
+const NAMES_PRESETS = /\bpresets?\b|agentPreset/u
+
+/**
+ * A retired preset id that names a preset, on a line that talks about presets:
+ * next to the word, or as an `agentPreset` value. The id must not run into a
+ * longer name, so `cordis.patch.yml` and `cordis-composition-reference` are
+ * other things.
+ */
+const RETIRED_ID = String.raw`\b(?:standard|cordis|minimal)\b(?![-.\w])`
+/** How far apart a retired id and the word "preset" may stand on one line. */
+const RETIRED_PRESET_GAP = String.raw`[^\n]{0,20}`
+const RETIRED_PRESET_NAME = new RegExp([
+  `${RETIRED_ID}${RETIRED_PRESET_GAP}\\bpresets?\\b`,
+  `\\bpresets?\\b${RETIRED_PRESET_GAP}${RETIRED_ID}`,
+  String.raw`\bagentPreset: *['"]?(?:standard|cordis|minimal)\b`,
+].join('|'), 'u')
+
+/** Every retired preset id one line writes as code. */
+const RETIRED_CODE_IDS = /`(?:standard|cordis|minimal)`/gu
+
+/**
+ * Find retired preset ids one contract file still names as presets.
+ * @param path - repository-relative path, for the message.
+ * @param source - the file's text.
+ * @returns one message per offending line.
+ */
+export function checkPresetContractProse(path: string, source: string): string[] {
+  const failures: string[] = []
+  for (const [index, line] of source.split('\n').entries()) {
+    // A line that names the preset set lists it: two retired ids in one line is
+    // an enumeration, whatever the surrounding sentence does.
+    const enumerated = (line.match(RETIRED_CODE_IDS) ?? []).length > 1
+    if (!enumerated && (!NAMES_PRESETS.test(line) || !RETIRED_PRESET_NAME.test(line))) continue
+    failures.push(`${path}:${String(index + 1)} names a retired preset id where presets are documented; the deployment ships \`ptc\` alone`)
+  }
+  return failures
+}
+
 /** Every dictionary that renders shipped-preset copy. */
 const DICTIONARIES: readonly string[] = [
   'packages/client/ui-agent-preset/src/client/locales.ts',
@@ -146,11 +201,14 @@ const dictionaryKeys = Object.fromEntries(DICTIONARIES.map(file => [
   file,
   parseDictionaryKeys(readFileSync(resolve(root, file), 'utf8')),
 ]))
-const failures = checkPresetCopy({
-  shippedIds,
-  displayRows: parseDisplayRows(readFileSync(resolve(root, DISPLAY_MODULE), 'utf8')),
-  dictionaryKeys,
-})
+const failures = [
+  ...checkPresetCopy({
+    shippedIds,
+    displayRows: parseDisplayRows(readFileSync(resolve(root, DISPLAY_MODULE), 'utf8')),
+    dictionaryKeys,
+  }),
+  ...PRESET_CONTRACT_FILES.flatMap(file => checkPresetContractProse(file, readFileSync(resolve(root, file), 'utf8'))),
+]
 
 if (failures.length > 0) {
   console.error('verify-preset-copy: violations found:')

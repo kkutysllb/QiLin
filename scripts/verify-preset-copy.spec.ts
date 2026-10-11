@@ -1,7 +1,13 @@
 /** The shipped-preset copy gate admits agreement and rejects each drift form. */
 
 import { describe, expect, it } from 'vitest'
-import { checkPresetCopy, copyKeyPresetIds, parseDictionaryKeys, parseDisplayRows } from './verify-preset-copy.ts'
+import {
+  checkPresetContractProse,
+  checkPresetCopy,
+  copyKeyPresetIds,
+  parseDictionaryKeys,
+  parseDisplayRows,
+} from './verify-preset-copy.ts'
 
 const DISPLAY = [
   'const BUILT_IN_PRESET_KEYS = {',
@@ -38,6 +44,27 @@ describe('parsing', () => {
 
   it('maps copy keys back to preset ids', () => {
     expect(copyKeyPresetIds(['presetPtcName', 'presetPtcDescription', 'builtIn'])).toEqual(['ptc', 'ptc'])
+  })
+})
+
+describe('checkPresetContractProse', () => {
+  it('rejects a retired id named as a preset in prose', () => {
+    expect(checkPresetContractProse('docs/user/guide/x.md', 'The Session selects the `standard` agent preset.\n'))
+      .toEqual(['docs/user/guide/x.md:1 names a retired preset id where presets are documented; the deployment ships `ptc` alone'])
+  })
+
+  it('rejects a retired id used as the recorded preset of a lane fixture', () => {
+    expect(checkPresetContractProse('apps/cli/tests/fixtures/x/cordis.yml', '        agentPreset: minimal\n')).toHaveLength(1)
+    expect(checkPresetContractProse('lane.e2e.ts', "      projections: { values: { agentPreset: 'minimal' } },\n")).toHaveLength(1)
+  })
+
+  it('accepts the shipped preset, and a retired id that names something other than a preset', () => {
+    expect(checkPresetContractProse('x.md', [
+      'The Session selects the `ptc` agent preset.',
+      'The `cordis` loader reads `cordis.patch.yml` and never names a preset.',
+      'Standard input and standard output are unrelated.',
+      '',
+    ].join('\n'))).toEqual([])
   })
 })
 

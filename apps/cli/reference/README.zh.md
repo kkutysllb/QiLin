@@ -95,11 +95,11 @@ qilin web --help
 
 基于 base 的 profile 中，新会话默认使用 `workspace-write` 权限预设。Bash 和文件系统修改仅限于会话 workspace 与平台临时根目录；读取和网络访问不受限制，进程可见性则取决于所选沙箱后端——bwrap 在私有 PID 命名空间中运行命令并隐藏宿主进程，Landlock 与 Seatbelt 保持宿主进程可见性不变。`QILIN_PERMISSION_MODE` 更改进程后备值。General settings 中存储的权限影响后续 Web 会话，不改变已打开的会话。独立的 `sdk-minimal` 配置树则固定为 `danger-full-access`，且不挂载 approval 或权限 settings 服务。
 
-`QILIN_TOOLS_MODE` 为进程选择 `native`、`ptc` 或 `both`；其他值会导致启动失败。
+`QILIN_TOOLS_MODE` 为进程选择 `native` 或 `ptc`，默认 `ptc`；其他值会导致启动失败。
 
 ## 共享部署行为
 
-基础组合包挂载原生 DeepSeek 适配器、settings 与凭据提供方、稳定的 `web_search` 和 `web_fetch`、仅限公网的 HTTP fetch 提供方，默认开启的 DeepSeek 会话日志上传，以及面向所有用户的反馈门控 OTel 上传。提供方凭据依次从继承环境、`$QILIN_HOME/.credentials.yaml`、调用目录的 `.env` 和 `$QILIN_HOME/.env` 解析；受管文档从不物化进 `process.env`，而两个 `.env` 文件都是普通启动环境层。搜索使用 `DEEPSEEK_API_KEY` 并接受 `DEEPSEEK_SEARCH_BASE_URL`。已启用的抓取调用会在所有 sandbox 与审批模式下执行，无需逐次确认；提供方会在连接前拒绝非公开目的地址。Web app 会禁用 base 工具配置项，再通过 `cordis`、`ptc` 与 `standard` agent preset 暴露相同工具。
+基础组合包挂载原生 DeepSeek 适配器、settings 与凭据提供方、稳定的 `web_search` 和 `web_fetch`、仅限公网的 HTTP fetch 提供方，默认开启的 DeepSeek 会话日志上传，以及面向所有用户的反馈门控 OTel 上传。提供方凭据依次从继承环境、`$QILIN_HOME/.credentials.yaml`、调用目录的 `.env` 和 `$QILIN_HOME/.env` 解析；受管文档从不物化进 `process.env`，而两个 `.env` 文件都是普通启动环境层。搜索使用 `DEEPSEEK_API_KEY` 并接受 `DEEPSEEK_SEARCH_BASE_URL`。已启用的抓取调用会在所有 sandbox 与审批模式下执行，无需逐次确认；提供方会在连接前拒绝非公开目的地址。Web app 会禁用 base 工具配置项，再通过 `ptc` agent preset 暴露相同工具。
 
 反馈记录在会话日志中，不会启动模型工作。[DeepSeek 会话日志贡献器](../../../packages/session/session-log-deepseek/README.zh.md)默认随后续 DeepSeek 请求发送尚未确认接收的完整日志后缀，包括经已配置网关发送的请求；将其 `enabled` 配置设为 `false` 可关闭上传。[OTel 会话上传](../../../packages/session/session-telemetry-otel/README.zh.md)适用于所有用户和提供方，包括 `deepseek-official`，无需请求头。基础配置默认使用 `FEEDBACK_ONLY`：新的自身文本反馈、消息评分、编辑与撤回会释放截至该事件的完整规范日志前缀，包含存储的上下文；后续记录等待下一次显式反馈。继承的父级反馈不构成 fork 的授权。请求、恢复、挂载和 HMR 不触发捕获。SDK 批处理可完成已授权上传，无需进一步交互或模型工作。`QILIN_TELEMETRY_MODE=DISABLED` 禁止 OTel 投递；`FULL` 被拒绝，任何非空的 `QILIN_TELEMETRY_DISABLED` 都会禁用其配置行。`QILIN_TELEMETRY_OTLP_URL` 选择采集端。交接尽力而为，不代表采集端接受；不提供持久化 outbox 或重试保证。这些 OTel 设置不会开启或关闭 DeepSeek 贡献。两条路径都不改变模型输入，但导出可能包含消息文本、工具参数和结果，以及工作区路径。
 

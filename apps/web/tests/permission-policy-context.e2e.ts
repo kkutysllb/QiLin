@@ -1,5 +1,5 @@
 // Web acceptance for current sandbox-policy context. A real Chromium drives
-// the shipped /permission command through all three presets; record mode uses
+// the shipped /permission command through the shipped preset; record mode uses
 // the real provider, while replay keeps the same provider-authored behavior
 // keyless. Assertions read the exact durable header, runtime-context messages,
 // and tool calls, so assistant prose alone cannot satisfy the scenario.

@@ -67,7 +67,7 @@ Active:       yes
 
 规则只接受来源 `primary-github`、仓库 `deepseek-harness/deepseek-harness`、事件 `pull_request` 与动作 `ready_for_review`。它会把精确 head SHA 和选定 PR 字段传给评审提示词，把 JSON 标为不受信任的元数据，并禁止修改文件、分支、PR 或 GitHub 状态。
 
-Session 请求选择 `standard` agent preset 与 `read-only` permission preset。`workspacePath` 通过 `WorkspaceRegistry.create()` 规范化，因此第一次匹配交付会在 Workspace 不存在时创建它，后续交付会复用它。
+Session 请求选择 `ptc` agent preset 与 `read-only` permission preset。`workspacePath` 通过 `WorkspaceRegistry.create()` 规范化，因此第一次匹配交付会在 Workspace 不存在时创建它，后续交付会复用它。
 
 HTTP 响应刻意弱于 Agent 结果：`202` 表示签名与 JSON 已被接受，规则调用已在内存中调度。它不表示此规则已经匹配，也不表示已创建 Session。
 
