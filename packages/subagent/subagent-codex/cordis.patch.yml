@@ -3,3 +3,9 @@
 - insert:
     - id: subagent-codex
       name: '@qilin-agent/subagent-codex'
+    - id: tool-subagent-codex
+      name: '@qilin-agent/tool-subagent'
+      config:
+        provider: codex
+        toolName: subagent_codex
+        maxDepth: provider-managed

@@ -348,9 +348,9 @@ describe('task admission and package contracts', () => {
     const manifest = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')) as {
       dependencies?: Record<string, string>
       files?: string[]
-      dsh?: { bundle?: { patch?: string } }
+      qilin?: { bundle?: { patch?: string } }
     }
-    expect(manifest.dsh?.bundle?.patch).toBe('./cordis.patch.yml')
+    expect(manifest.qilin?.bundle?.patch).toBe('./cordis.patch.yml')
     expect(manifest.files).toContain('cordis.patch.yml')
     expect(manifest.dependencies).toHaveProperty(
       '@anthropic-ai/claude-agent-sdk',
@@ -392,7 +392,7 @@ describe('task admission and package contracts', () => {
       )
     }
 
-    const parsed = yaml.load(readFileSync(resolve(root, manifest.dsh!.bundle!.patch!), 'utf8'))
+    const parsed = yaml.load(readFileSync(resolve(root, manifest.qilin!.bundle!.patch!), 'utf8'))
     expect(parsed).toEqual([{ insert: [
       { id: 'subagent-claude-code', name: '@qilin-agent/subagent-claude-code' },
       { id: 'tool-subagent-claude-code', name: '@qilin-agent/tool-subagent', config: {
