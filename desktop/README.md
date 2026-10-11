@@ -1,85 +1,57 @@
-# QiLin Desktop（桌面端）
+# QiLin Desktop
 
-基于 QiLin 引擎的中文桌面智能工作台（macOS Apple Silicon 首发）。本目录是麒麟仓的
-桌面端子系统：引擎即本仓，桌面与 Web 端消费同一份构建产物，随麒麟仓统一发版。
+English | [中文](README.zh.md)
 
-## 仓库边界
+A Chinese desktop workbench built on the QiLin engine (shipping first on macOS Apple Silicon). This directory is the Kylin repository's desktop subsystem: the engine is this repository, the desktop and Web clients consume the same build artifacts, and both release with the Kylin repository.
 
-桌面壳与引擎同仓同版：运行时闭包从本仓 HEAD 的 git worktree 构建
-（`scripts/build-runtime-bundle.sh`），版本单一事实源是麒麟仓根的
-`package.json`，版本 tag 只发布源代码与网页版；桌面安装包由根上的
-`desktop-release.yml` 手动 dispatch 构建，产物进该 tag 的 GitHub Release。
-原 OpenKyLin 独立仓的锁定副本、品牌补丁层与
-parity 门已退役（见
-[合并笔记](../.agents/notes/implemented/architecture/2026-10-09-openkylin-desktop-merged-into-qilin.md)）。
+## Repository boundary
 
-## 常用命令
+The desktop shell and the engine share one repository and one version: the runtime closure builds from a git worktree of this repository's HEAD (`scripts/build-runtime-bundle.sh`), the single source of truth for the version is the Kylin repository root's `package.json`, and a version tag publishes the source and the Web build only. The desktop installer is built by a manual dispatch of the root `desktop-release.yml`, and its artifacts land in that tag's GitHub Release. The former standalone OpenKyLin repository's pinned copy, brand patch layer, and parity gate are retired (see the [merge note](../.agents/notes/implemented/architecture/2026-10-09-openkylin-desktop-merged-into-qilin.md)).
 
-在麒麟仓根：
+## Common commands
+
+At the Kylin repository root:
 
 ```sh
-pnpm run build:desktop          # 闭包封盘 + electron-builder 打包（dmg/zip arm64）
-pnpm run test:desktop           # 桌面端产品层测试（Node 原生 runner）
+pnpm run build:desktop          # seal the closure, then package with electron-builder (dmg/zip arm64)
+pnpm run test:desktop           # desktop product-layer tests (the Node native runner)
 ```
 
-在 desktop/ 内（`npm test` 等）：
+Inside `desktop/` (`npm test` and the rest):
 
 ```sh
-npm run dev                     # 启动桌面开发环境（本仓工作区 + 自备 Electron）
-npm run verify:branding         # 校验品牌清单与对比度
+npm run dev                     # start the desktop development environment (this workspace + its own Electron)
+npm run verify:branding         # validate the brand manifest and contrast
 npm run verify:sync -- <webDist> <desktopDist> [report.json]
 npm run verify:artifact -- <desktop-runtime.json> <artifactDir> [checksumsOut]
 npm run release:manifest -- <desktop-runtime.json> <sync> <checksums> [manifestOut]
 ```
 
-## 桌面架构
+## Desktop architecture
 
 ```
-QiLin Desktop（Electron 壳，desktop/，零 npm 依赖）
-  ├─ 中文品牌启动页（splash，本地资源；失败态有重试/复制诊断）
-  ├─ spawn 引擎宿主子进程（Electron-as-Node，程序化 boot 产品面 qilin profile）
-  ├─ qilin-app:// 私有协议承载 web client（认证反代 + cookie 罐 + 桌面 boot 门）
-  └─ shell 窗口加载该协议地址 —— 与浏览器访问 Web 端是同一份 Web Client 构建
+QiLin Desktop (the Electron shell, desktop/, zero npm dependencies)
+  ├─ Chinese brand splash page (local assets; the failure state retries and copies diagnostics)
+  ├─ spawns the engine host child process (Electron-as-Node, programmatic boot of the qilin product profile)
+  ├─ the qilin-app:// private protocol carries the Web client (authenticating reverse proxy + cookie jar + desktop boot gate)
+  └─ the shell window loads that protocol address — the same Web client build a browser reaches at the Web address
 ```
 
-引擎运行树来源：dev 态 `OPENKYLIN_QILIN_RUN`（dev 脚本传入本仓根）；打包态首启
-从 `Resources/runtime/qilin-runtime.tar.gz` 解压（sha256 校验，按 commit 目录落
-userData，换版自然重装）。上游契约（就绪行、flags、bin 路径、home）集中在
-`main/qilin-contract.mjs`。
+Runtime tree source: under development, `OPENKYLIN_QILIN_RUN` (the dev script passes this repository root); packaged, the first launch unpacks `Resources/runtime/qilin-runtime.tar.gz` (sha256-verified, unpacked into a commit-named directory under userData, so a version change reinstalls it naturally). The upstream contract (the readiness line, flags, bin path, home) is centralized in `main/qilin-contract.mjs`.
 
-安全边界：导航只允许停留在当前 `qilin-app://` origin，外链转系统浏览器，权限请
-求一律拒绝。进程纪律：宿主崩溃指数退避重启（上限 3 次），退出走 SIGTERM → 5s 宽
-限 → SIGKILL，另有 detached watchdog 兜底，不留孤儿进程。
+Security boundary: navigation may stay only on the current `qilin-app://` origin, external links go to the system browser, and every permission request is refused. Process discipline: a crashed host restarts with exponential backoff (3 attempts at most); exit walks SIGTERM → 5s grace → SIGKILL; a detached watchdog is the fallback, and no orphan process is left behind.
 
-## 开发环境
+## Development environment
 
-`npm run dev` 直接用本仓工作区：运行物（`apps/cli/lib/profile-boot.js` 与
-`apps/web/dist`）缺失时经本仓工具链补建（`pnpm install → build:qilin`，后者是绑
-定客户端公共环境的产品构建，版本徽章、commit 与构建 profile 随产物烘焙）；Electron
-自备（钉 44.0.0——原生加载器按精确指纹校验，装进 `.tmp/dev/electron-tool`，下载缺
-失时自动执行 electron install.js 补装）。
+`npm run dev` uses this repository's workspace directly: when the runtime artifacts (`apps/cli/lib/profile-boot.js` and `apps/web/dist`) are missing, it builds them through this repository's toolchain (`pnpm install → build:qilin`, the product build that binds the client build environment and bakes the version badge, commit, and build profile into the artifacts). Electron is not shared (pinned to 44.0.0 — the native loader verifies an exact fingerprint — and installed under `.tmp/dev/electron-tool`, with `electron install.js` running automatically when the download is missing).
 
-受限执行环境（CI 容器、嵌套沙箱）可用的逃生口，普通终端无需设置：
-`OPENKYLIN_USER_DATA`（重定向 Electron userData）、`QILIN_HOME`（重定向 harness
-home）、`ELECTRON_DISABLE_SANDBOX`（绕过外层沙箱对 Chromium OS sandbox 的干
-扰）、`OPENKYLIN_ELECTRON_NO_GPU=1`（无头/CPU-only runner 追加 `--disable-gpu`）、
-`OPENKYLIN_ELECTRON_ARGS`（追加任意 Electron 开关，空白分隔）、
-`OPENKYLIN_QILIN_RUN`（显式指定运行树）。
+Escape hatches for restricted execution environments (CI containers, nested sandboxes); an ordinary terminal sets none of them: `OPENKYLIN_USER_DATA` (redirect Electron userData), `QILIN_HOME` (redirect the harness home), `ELECTRON_DISABLE_SANDBOX` (bypass an outer sandbox's interference with the Chromium OS sandbox), `OPENKYLIN_ELECTRON_NO_GPU=1` (append `--disable-gpu` on a headless/CPU-only runner), `OPENKYLIN_ELECTRON_ARGS` (append arbitrary Electron switches, whitespace-separated), and `OPENKYLIN_QILIN_RUN` (name the runtime tree explicitly).
 
-## 设计规范
+## Design rules
 
-- 中国文化主题为共享 Web Client 注入（`branding/brand-manifest.json` +
-  `branding/theme/tokens.css`），Web 与 Desktop 同源；桌面壳层（启动页/错误恢
-  复/菜单）只做平台适配。印章配色与侧栏分区等桌面适配以源码落在
-  `packages/client` 与 `apps/web`，不是补丁。
-- accent token（朱砂/玉青/鎏金）仅作点缀、大文本或状态图形用途；正文文本一律
-  使用 ink/paper 对（对比度 ≥ 4.5，CI 强制）。
+- The Chinese cultural theme is injected into the shared Web client (`branding/brand-manifest.json` + `branding/theme/tokens.css`), identical for Web and Desktop; the desktop shell (splash, error recovery, menus) does platform adaptation only. Desktop adaptations such as the seal palette and the sidebar sections live as source in `packages/client` and `apps/web`, not as patches.
+- Accent tokens (cinnabar, jade, gilt) are for ornament, large text, or status graphics only; body text always uses an ink/paper pair (contrast ≥ 4.5, enforced in CI).
 
-## 发布
+## Release
 
-本地入口 `scripts/release.sh <version>`（门禁 → 打包 → 产物门 V1–V7 → tag →
-push）：推出去的 tag 走的是源代码与网页版发布，桌面安装包要在本机产出、或另跑
-dispatch 才会上传。CI 走根上 `.github/workflows/desktop-release.yml`（**仅手动
-dispatch**，单平台 mac-arm64）。签名公证凭据齐备时 fail-closed（缺一即拒），
-本地无凭据出未签名包。自动更新走 electron-updater（`latest-mac.yml` + blockmap
-增量，安装前先停引擎）。
+The local entry point is `scripts/release.sh <version>` (gates → packaging → artifact gates V1–V7 → tag → push): the pushed tag releases the source and the Web build, so a desktop installer is produced locally or uploaded by a separate dispatch. CI runs the root `.github/workflows/desktop-release.yml` (**manual dispatch only**, macOS arm64 single platform). With signing and notarization credentials present it fails closed (any missing credential refuses); locally it produces an unsigned package. Automatic updates go through electron-updater (`latest-mac.yml` plus blockmap increments; the engine stops before installation).

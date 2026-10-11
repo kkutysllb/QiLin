@@ -1,0 +1,25 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write desktop/README.md
+/qilin-desktop:
+  en: 0eed42f98be22d5f
+  zh: d2ad10de8fcbb259
+/qilin-desktop/repository-boundary:
+  en: 8012e8ff8ee20364
+  zh: 26cf20ff3424abfa
+/qilin-desktop/common-commands:
+  en: 0da29a74a833fdbd
+  zh: e279a601ea94aadd
+/qilin-desktop/desktop-architecture:
+  en: 4f7c9c4806432db1
+  zh: 229cae321948a5bb
+/qilin-desktop/development-environment:
+  en: 0c154f47629f0a88
+  zh: 97113d37897ee90c
+/qilin-desktop/design-rules:
+  en: 300ad0107f67b8b3
+  zh: bc484b05d03eb49f
+/qilin-desktop/release:
+  en: 51130e263f971889
+  zh: 934fe0bb1e300fbf

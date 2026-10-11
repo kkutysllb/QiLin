@@ -228,20 +228,20 @@
   en: c89084b31ffccbce
   zh: d7b3b7000f2d2be9
 /tool-schema-catalog/qilin-agent-tool-subagent/subagent:
-  en: e197f9c331df565e
-  zh: ed5330aef89709d1
+  en: f3e597613ceecd2b
+  zh: a61d2d116906a001
 /tool-schema-catalog/qilin-agent-tool-subagent-control:
   en: ebb7523dfa723b57
   zh: ebb7523dfa723b57
 /tool-schema-catalog/qilin-agent-tool-subagent-control/interrupt-agent:
-  en: 3eb5ac28342e354f
-  zh: 91ca5628d8e333f0
+  en: 9190a32df5e10ddd
+  zh: 6ceef33e63c58df3
 /tool-schema-catalog/qilin-agent-tool-subagent-control/list-agents:
-  en: e688153e9ba4a684
-  zh: e478528ed1737e6c
+  en: ae22e8543d123c39
+  zh: 86cc46549bf17350
 /tool-schema-catalog/qilin-agent-tool-subagent-control/send-message:
-  en: d17d23a46846ba23
-  zh: 29bdfee74b5d76c3
+  en: 3fd6b1d1ef2ec696
+  zh: 8ed347982bdde58d
 /tool-schema-catalog/qilin-agent-tool-jobs:
   en: 44784edf6f10dac2
   zh: 44784edf6f10dac2
