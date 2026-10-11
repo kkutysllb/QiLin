@@ -53,6 +53,10 @@ async function boot(options: { browserTab?: boolean } = {}) {
   const listeners = new Set<() => void>()
   const openTab = vi.fn()
   const openResource = vi.fn()
+  // The gateway mounts each Remote namespace as its own cordis service named
+  // `remote.<namespace>`; that literal name is what the inject declaration waits
+  // on, while the carrier face below serves the `ctx.remote.sidebarOpens` read.
+  ctx.provide('remote.sidebarOpens', { watch } as never)
   ctx.provide('remote', { sidebarOpens: { watch } } as never)
   ctx.provide('sidebarRight', { openTab, openResource } as never)
   ctx.provide('sidebarRightTabs', { get: (kind: string) => options.browserTab === false ? undefined : (kind === 'browser' ? {} : undefined) } as never)
