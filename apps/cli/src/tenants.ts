@@ -47,7 +47,7 @@ import {
   type TenantRuntimeStatus,
 } from './tenant-runtime.ts'
 import { forwardedHeaders, hubAcceptsOrigin, proxyRequest, relayAnswer, relayUpgrade } from './tenant-proxy.ts'
-import { appendUsage, isUsageReport, readUsageTotal } from './usage-ledger.ts'
+import { appendUsage, isUsageReport, readUsageTotal, readUsageTotals, sumUsageTotals } from './usage-ledger.ts'
 
 /** Certificate and key the public address terminates TLS with. */
 export interface DeploymentTlsFiles {
@@ -513,6 +513,10 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
    * Answer one runtime over the ledger channel: a report books spend, and a read
    * answers what that same token's account spent. Only a token this hub minted
    * is accepted, so neither verb can name another account.
+   *
+   * The account's own seat widens the read: the deployment's administrator reads
+   * every account's ledger, and the seat is read from the roster on each request
+   * so it follows the account it belongs to rather than the token's age.
    */
   const handleUsage = async (request: IncomingMessage, response: ServerResponse): Promise<void> => {
     if (request.method !== 'POST' && request.method !== 'GET') {
@@ -526,6 +530,11 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       return
     }
     if (request.method === 'GET') {
+      if ((await roster()).byId(accountId)?.admin === true) {
+        const totals = await readUsageTotals(home)
+        json(response, 200, { scope: 'deployment', totals, total: sumUsageTotals(totals) })
+        return
+      }
       json(response, 200, { accountId, total: await readUsageTotal(home, accountId) })
       return
     }

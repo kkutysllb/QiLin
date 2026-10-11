@@ -101,6 +101,28 @@ export async function readUsageTotals(home: string): Promise<Record<string, Usag
 }
 
 /**
+ * Sum every account's total into the deployment's own.
+ *
+ * The session count adds up rather than deduplicating, because one session
+ * belongs to one account: two accounts reporting a session each reported two.
+ * @param totals - totals keyed by account identity.
+ * @returns the summed total, zeroes when no account has reported.
+ */
+export function sumUsageTotals(totals: Readonly<Record<string, UsageTotal>>): UsageTotal {
+  let sessions = 0
+  let inputTokens = 0
+  let outputTokens = 0
+  let at = 0
+  for (const total of Object.values(totals)) {
+    sessions += total.sessions
+    inputTokens += total.inputTokens
+    outputTokens += total.outputTokens
+    at = Math.max(at, total.at)
+  }
+  return { sessions, inputTokens, outputTokens, at }
+}
+
+/**
  * Total one account's ledger, which is what that account's own runtime reads.
  * @param home - deployment home.
  * @param accountId - the account whose ledger to total.

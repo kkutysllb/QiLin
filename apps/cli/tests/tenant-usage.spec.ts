@@ -100,4 +100,29 @@ describe('usage ledger endpoint', () => {
     expect((await fetch(alice.url, { headers: { authorization: 'Bearer not-a-token' } })).status).toBe(401)
     expect((await fetch(alice.url)).status).toBe(401)
   })
+
+  it('lets the deployment administrator read every account, and no one else', { timeout: 60_000 }, async () => {
+    const deployment = await startDeployment({ usernames: ['root', 'alice'], admins: ['root'], maxTenants: 0 })
+    running.push(deployment)
+    for (const username of ['root', 'alice']) await handoff(deployment, username)
+    const root = usageOf(deployment, 'root')
+    const alice = usageOf(deployment, 'alice')
+    const aliceId = deployment.accounts.get('alice') ?? ''
+    await post(alice.url, JSON.stringify(report), `Bearer ${alice.token}`)
+
+    /** Read the ledger with one runtime's token. */
+    const read = (usage: { url: string; token: string }): Promise<Response> =>
+      fetch(usage.url, { headers: { authorization: `Bearer ${usage.token}` } })
+
+    // The seat reads the deployment: every account's total and their sum.
+    expect(await (await read(root)).json()).toEqual({
+      scope: 'deployment',
+      totals: { [aliceId]: { sessions: 1, inputTokens: 120, outputTokens: 30, at: report.at } },
+      total: { sessions: 1, inputTokens: 120, outputTokens: 30, at: report.at },
+    })
+    // A member reads itself, in the shape that says so.
+    const own = await (await read(alice)).json() as Record<string, unknown>
+    expect(own).toEqual({ accountId: aliceId, total: { sessions: 1, inputTokens: 120, outputTokens: 30, at: report.at } })
+    expect(own).not.toHaveProperty('totals')
+  })
 })

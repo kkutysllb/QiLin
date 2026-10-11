@@ -28,6 +28,8 @@ export interface StartedDeployment {
 export interface DeploymentOptions {
   /** Accounts the roster holds, in order. */
   readonly usernames: readonly string[]
+  /** Accounts created with the deployment's administrator seat. */
+  readonly admins?: readonly string[]
   /** Live runtimes the hub keeps at once; 0 keeps every one. */
   readonly maxTenants: number
   /** Idle window; 0 keeps every runtime and installs no sweep. */
@@ -99,7 +101,10 @@ export async function startDeployment(options: DeploymentOptions): Promise<Start
   const home = join(root, 'home')
   const store = await AccountStore.open(accountsFilePath(home))
   const accounts = new Map<string, string>()
-  for (const username of options.usernames) accounts.set(username, (await store.add({ username }, 'password-1')).id)
+  const admins = new Set(options.admins ?? [])
+  for (const username of options.usernames) {
+    accounts.set(username, (await store.add({ username }, 'password-1', { admin: admins.has(username) })).id)
+  }
 
   const log: string[] = []
   const runtimes = new Map<string, TenantRuntimeOptions>()

@@ -4,7 +4,7 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { appendUsage, isUsageReport, parseUsageReport, readUsageTotals, usageFilePath } from '../src/usage-ledger.ts'
+import { appendUsage, isUsageReport, parseUsageReport, readUsageTotals, sumUsageTotals, usageFilePath } from '../src/usage-ledger.ts'
 
 const roots: string[] = []
 
@@ -74,5 +74,13 @@ describe('usage ledger', () => {
       { sessionId: 'session-1' },
       [],
     ]) expect(isUsageReport(bad)).toBe(false)
+  })
+
+  it('sums every account into the deployment total, newest report time winning', () => {
+    expect(sumUsageTotals({})).toEqual({ sessions: 0, inputTokens: 0, outputTokens: 0, at: 0 })
+    expect(sumUsageTotals({
+      a: { sessions: 1, inputTokens: 120, outputTokens: 30, at: 1_000 },
+      b: { sessions: 2, inputTokens: 8, outputTokens: 4, at: 3_000 },
+    })).toEqual({ sessions: 3, inputTokens: 128, outputTokens: 34, at: 3_000 })
   })
 })
