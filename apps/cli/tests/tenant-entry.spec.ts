@@ -75,35 +75,36 @@ describe('deployment entry', () => {
     expect(answer.headers.get('set-cookie')).toBeNull()
   })
 
-  it('refuses new accounts once the roster holds one', { timeout: 60_000 }, async () => {
-    // Configured to accept new accounts, and still refusing them: the roster is
-    // what decides, not the flag.
+  it('follows the deployment\'s own registration policy, whatever the roster holds', { timeout: 60_000 }, async () => {
+    // The operator's flag decides both ways: a deployment that takes new
+    // accounts keeps taking them once one exists, and one that does not takes
+    // none even while the roster is empty.
     const occupied = await startDeployment({ usernames: ['alice'], maxTenants: 0, registration: 'open' })
     running.push(occupied)
     await page(occupied.base)
-    expect(occupied.options.get('first-run')?.registration).toBe('closed')
+    expect(occupied.options.get('first-run')?.registration).toBe('open')
 
-    const empty = await startDeployment({ usernames: [], maxTenants: 0, registration: 'open' })
-    running.push(empty)
-    await page(empty.base)
-    expect(empty.options.get('first-run')?.registration).toBe('open')
+    const closed = await startDeployment({ usernames: ['alice'], maxTenants: 0, registration: 'closed' })
+    running.push(closed)
+    await page(closed.base)
+    expect(closed.options.get('first-run')?.registration).toBe('closed')
   })
 
-  it('replaces the first-run runtime when the roster gains its first account', { timeout: 60_000 }, async () => {
+  it('keeps accepting new accounts after the first one exists', { timeout: 60_000 }, async () => {
     const deployment = await startDeployment({ usernames: [], maxTenants: 0, registration: 'open' })
     running.push(deployment)
     await page(deployment.base)
     expect(deployment.options.get('first-run')?.registration).toBe('open')
-    expect(deployment.log).not.toContain('stop:first-run')
 
     const store = await AccountStore.open(accountsFilePath(deployment.home))
     await store.add({ username: 'first' }, 'password-1')
 
-    // The product's form must stop offering registration on the very next page:
-    // the runtime that carries the old answer is replaced, not left answering.
+    // The account that just registered does not close the door behind it: an
+    // operator who accepts new accounts keeps their register entry, and the
+    // runtime answering the landing is not swapped out from under the browser.
     await page(deployment.base)
-    expect(deployment.options.get('first-run')?.registration).toBe('closed')
-    expect(deployment.log).toContain('stop:first-run')
+    expect(deployment.options.get('first-run')?.registration).toBe('open')
+    expect(deployment.log).not.toContain('stop:first-run')
   })
 
   it('releases the routing cookie when the browser signs out', { timeout: 60_000 }, async () => {

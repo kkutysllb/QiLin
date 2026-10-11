@@ -368,33 +368,27 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
     return created
   }
 
-  /** Registration mode the running first-run runtime was started with. */
-  let bootstrapRegistration: 'open' | 'closed' | undefined
-
   /**
    * The runtime a deployment serves the product's own surface from: the landing
    * page, the sign-in form, registration, and first-run initialization.
    *
-   * A deployment that holds an account refuses new ones, so the layer's
-   * registration mode follows the roster; a runtime started under the previous
-   * answer is replaced rather than left answering with it.
-   * @param registration - whether this deployment still accepts new accounts.
+   * The registration mode is the deployment's own policy, not a consequence of
+   * holding an account: a deployment that accepts new accounts keeps accepting
+   * them once the first one exists, and only an operator asking for `closed`
+   * turns that off. A runtime started under a different mode is replaced rather
+   * than left answering with it, because a running runtime cannot change its own.
+   * @param registration - whether this deployment accepts new accounts.
    * @returns the first-run runtime.
    */
-  const bootstrapRuntime = async (registration: 'open' | 'closed'): Promise<TenantHandle> => {
+  const bootstrapRuntime = async (): Promise<TenantHandle> => {
     const existing = runtimes.get(BOOTSTRAP_ACCOUNT)
-    if (existing !== undefined && bootstrapRegistration === registration) return existing
-    if (existing !== undefined) {
-      runtimes.delete(BOOTSTRAP_ACCOUNT)
-      await existing.stop()
-    }
-    bootstrapRegistration = registration
+    if (existing !== undefined) return existing
     const created = startRuntime({
       home,
       accountId: BOOTSTRAP_ACCOUNT,
       directoryName: BOOTSTRAP_DIRECTORY,
       bootstrap: true,
-      registration,
+      registration: options.registration,
       profile: options.profile,
       binPath,
       execArgv: process.execArgv,
@@ -499,15 +493,14 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
   /**
    * The runtime the product's own surface is served from, running.
    *
-   * A roster that holds an account refuses new ones, so the registration mode
-   * follows the roster rather than the configured default alone: the product
-   * hides its register entry from the same answer whose call the runtime
-   * refuses.
+   * The product hides or shows its register entry from the answer this runtime
+   * reports, and the runtime refuses the call it would hide: both follow the
+   * deployment's registration policy, so an operator who accepts new accounts
+   * sees the entry for every account the roster already holds.
    * @returns the first-run runtime, running.
    */
   const runningFirstRun = async (): Promise<TenantHandle> => {
-    const registration = (await roster()).all().length === 0 ? options.registration : 'closed'
-    const runtime = await bootstrapRuntime(registration)
+    const runtime = await bootstrapRuntime()
     await serialize(async () => {
       await makeRoom(runtime)
       await runtime.ensure()
