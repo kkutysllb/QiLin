@@ -47,7 +47,10 @@ import {
   type TenantRuntimeStatus,
 } from './tenant-runtime.ts'
 import { forwardedHeaders, hubAcceptsOrigin, proxyRequest, relayAnswer, relayUpgrade } from './tenant-proxy.ts'
-import { appendUsage, isUsageReport, readUsageTotal, readUsageTotals, sumUsageTotals } from './usage-ledger.ts'
+import {
+  appendUsage, capUsageRecords, isUsageReport, readUsageRecords, readUsageTotal, readUsageTotals, readUsageWindow, sumUsageTotals,
+  type UsageReport,
+} from './usage-ledger.ts'
 
 /** Certificate and key the public address terminates TLS with. */
 export interface DeploymentTlsFiles {
@@ -140,6 +143,13 @@ const TENANT_COOKIE = 'qilin_tenant'
 
 /** Largest usage report the ledger accepts; one report is a few dozen bytes. */
 const MAX_USAGE_BODY_BYTES = 4 * 1024
+
+/**
+ * Most ledger records one read answers with. A bound on the response rather than
+ * a deployment choice: a long-lived account reports one record per Turn, so the
+ * newest slice is what a chart shows and `truncated` says the rest was left out.
+ */
+const USAGE_RECORDS_CAP = 5_000
 
 /** Store key of the runtime a deployment with no accounts uses. */
 const BOOTSTRAP_ACCOUNT = 'first-run'
@@ -530,12 +540,33 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       return
     }
     if (request.method === 'GET') {
-      if ((await roster()).byId(accountId)?.admin === true) {
-        const totals = await readUsageTotals(home)
-        json(response, 200, { scope: 'deployment', totals, total: sumUsageTotals(totals) })
+      const window = readUsageWindow(new URL(request.url ?? '/', 'http://qilin.invalid').searchParams)
+      if (window === undefined) {
+        json(response, 400, { error: 'invalid-window' })
         return
       }
-      json(response, 200, { accountId, total: await readUsageTotal(home, accountId) })
+      const store = await roster()
+      if (store.byId(accountId)?.admin === true) {
+        // A deployment-wide read carries each account's own records, tagged, so
+        // one answer can be drawn per account or summed across them.
+        const tagged: { accountId: string; record: UsageReport }[] = []
+        for (const account of store.all()) {
+          for (const record of await readUsageRecords(home, account.id, window)) tagged.push({ accountId: account.id, record })
+        }
+        tagged.sort((left, right) => left.record.at - right.record.at)
+        const capped = capUsageRecords(tagged, USAGE_RECORDS_CAP)
+        const totals = await readUsageTotals(home)
+        json(response, 200, {
+          scope: 'deployment',
+          totals,
+          total: sumUsageTotals(totals),
+          records: capped.records.map(entry => ({ ...entry.record, accountId: entry.accountId })),
+          truncated: capped.truncated,
+        })
+        return
+      }
+      const capped = capUsageRecords(await readUsageRecords(home, accountId, window), USAGE_RECORDS_CAP)
+      json(response, 200, { accountId, total: await readUsageTotal(home, accountId), records: capped.records, truncated: capped.truncated })
       return
     }
     const body = await readReportBody(request)

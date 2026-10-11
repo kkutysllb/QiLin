@@ -131,6 +131,42 @@ export async function readUsageTotal(home: string, accountId: string, window?: U
 }
 
 /**
+ * The report-time window one read asks for.
+ * @param params - query parameters of the read.
+ * @returns the window, or undefined when a bound is not a whole non-negative
+ * number of epoch milliseconds or the bounds are inverted.
+ */
+export function readUsageWindow(params: URLSearchParams): UsageWindow | undefined {
+  const bound = (name: string): number | undefined | 'invalid' => {
+    const raw = params.get(name)
+    if (raw === null || raw === '') return undefined
+    const value = Number(raw)
+    return Number.isSafeInteger(value) && value >= 0 ? value : 'invalid'
+  }
+  const from = bound('from')
+  const to = bound('to')
+  if (from === 'invalid' || to === 'invalid') return undefined
+  if (from !== undefined && to !== undefined && to < from) return undefined
+  return { ...from === undefined ? {} : { from }, ...to === undefined ? {} : { to } }
+}
+
+/**
+ * The newest records one answer carries, and whether older ones were left out.
+ *
+ * Records are sorted by report time, so a chart drawn from the newest slice is
+ * missing its oldest days rather than scattered holes; the flag says so.
+ * @param records - records in report-time order.
+ * @param cap - most records one answer may carry.
+ * @returns the records to send and whether the cap dropped any.
+ */
+export function capUsageRecords<T>(records: readonly T[], cap: number): { records: T[]; truncated: boolean } {
+  if (cap <= 0) return { records: [], truncated: records.length > 0 }
+  return records.length <= cap
+    ? { records: [...records], truncated: false }
+    : { records: records.slice(records.length - cap), truncated: true }
+}
+
+/**
  * Sum one account's records into a total.
  * @param records - records already deduplicated per Turn.
  * @returns the total they add up to.

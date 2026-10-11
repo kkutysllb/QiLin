@@ -45,6 +45,10 @@ kind: "package-reference"
 
 报告在 Turn 结束时发送一次。端点拒绝或不可达只写入 warning 级日志然后丢弃；账本是报告而非义务，因此遥测故障既不会拖延一个 Turn，也不会让它失败。
 
+### 读回自己的用量
+
+提供 web 传输的运行时还会为它自己的账户应答 `GET /api/usage/me`：把查询串（例如上报时间窗口 `?from=<epoch ms>&to=<epoch ms>`）连同同一凭据转发给账本。应答里带该账户的 `total`、窗口内按上报时间排序的 `records`，以及当账本里的 Turn 超过单次应答容量时的 `truncated`。该路由与其它 `/api` 调用一样受账户门禁保护，且读取由凭据限定作用域——一个运行时只可能读到自己的账户。账本不可达时返回 `503` 与 `{ "error": { "code": "ledger-unavailable" } }`，而不是一个空合计。
+
 <a id="understand-the-implementation"></a>
 ## 理解实现
 

@@ -36,6 +36,7 @@
     "@qilin-agent/token-meter": "workspace:*"
   },
   "devDependencies": {
+    "@qilin-agent/client-connection": "workspace:*",
     "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/session": "workspace:*"
   }

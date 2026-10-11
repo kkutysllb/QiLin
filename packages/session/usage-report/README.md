@@ -45,6 +45,10 @@ The supervisor that starts a runtime writes both; a hand-started `qilin` carries
 
 A report is sent once, when the Turn ends. A refused or unreachable endpoint is written to the log at warning level and dropped; the ledger is a report rather than an obligation, so telemetry trouble never delays a Turn or fails it.
 
+### Reading it back
+
+A runtime that serves a web transport also answers `GET /api/usage/me` for its own account, forwarding the query string (such as a report-time window, `?from=<epoch ms>&to=<epoch ms>`) to the ledger with the same credential. The answer carries the account's `total`, the `records` inside the window in report-time order, and `truncated` when the ledger held more Turns than one answer carries. The account gate protects the route like any other `/api` call, and the read is scoped by the credential, so one runtime can only ever read its own account. A ledger the runtime cannot reach answers `503` with `{ "error": { "code": "ledger-unavailable" } }` rather than an empty total.
+
 <a id="understand-the-implementation"></a>
 ## Understand the implementation
 

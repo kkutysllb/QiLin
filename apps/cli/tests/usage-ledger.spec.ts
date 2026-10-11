@@ -6,11 +6,13 @@ import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import {
   appendUsage,
+  capUsageRecords,
   isUsageReport,
   parseUsageReport,
   readUsageRecords,
   readUsageTotal,
   readUsageTotals,
+  readUsageWindow,
   sumUsageTotals,
   usageFilePath,
 } from '../src/usage-ledger.ts'
@@ -144,5 +146,25 @@ describe('usage ledger', () => {
     await appendUsage(home, 'account-a', { ...report, turn: 1, at: 1_000 })
     expect((await readUsageRecords(home, 'account-a')).map(record => record.at)).toEqual([1_000, 2_000])
     expect(await readUsageRecords(home, 'account-missing')).toEqual([])
+  })
+
+  it('reads the window a query asks for, and refuses one it cannot', () => {
+    expect(readUsageWindow(new URLSearchParams())).toEqual({})
+    expect(readUsageWindow(new URLSearchParams('from=1000&to=2000'))).toEqual({ from: 1_000, to: 2_000 })
+    // An empty bound is absent rather than zero.
+    expect(readUsageWindow(new URLSearchParams('from=&to='))).toEqual({})
+    // A bound that is not a whole non-negative millisecond, and inverted bounds,
+    // are refused instead of being read as "everything".
+    for (const query of ['from=abc', 'from=-1', 'to=1.5', 'from=2000&to=1000']) {
+      expect(readUsageWindow(new URLSearchParams(query))).toBeUndefined()
+    }
+  })
+
+  it('sends the newest records a cap allows and says what it dropped', () => {
+    expect(capUsageRecords([1, 2, 3], 5)).toEqual({ records: [1, 2, 3], truncated: false })
+    expect(capUsageRecords([1, 2, 3], 3)).toEqual({ records: [1, 2, 3], truncated: false })
+    expect(capUsageRecords([1, 2, 3], 2)).toEqual({ records: [2, 3], truncated: true })
+    expect(capUsageRecords([1, 2, 3], 0)).toEqual({ records: [], truncated: true })
+    expect(capUsageRecords([], 0)).toEqual({ records: [], truncated: false })
   })
 })

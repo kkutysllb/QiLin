@@ -12,6 +12,9 @@
       "path": "../../../vendor/cordis"
     },
     {
+      "path": "../../client/connection/tsconfig.host.json"
+    },
+    {
       "path": "../../core/session"
     },
     {

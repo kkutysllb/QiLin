@@ -91,6 +91,8 @@ describe('usage ledger endpoint', () => {
     expect(await (await read(alice)).json()).toEqual({
       accountId: aliceId,
       total,
+      records: [report],
+      truncated: false,
     })
     // Bob's token reads Bob, whatever Alice's ledger holds.
     expect(await (await read(bob)).json()).toMatchObject({ total: { inputTokens: 7, outputTokens: 2 } })
@@ -121,10 +123,41 @@ describe('usage ledger endpoint', () => {
       scope: 'deployment',
       totals: { [aliceId]: total },
       total,
+      records: [{ ...report, accountId: aliceId }],
+      truncated: false,
     })
     // A member reads itself, in the shape that says so.
     const own = await (await read(alice)).json() as Record<string, unknown>
-    expect(own).toEqual({ accountId: aliceId, total })
+    expect(own).toEqual({ accountId: aliceId, total, records: [report], truncated: false })
     expect(own).not.toHaveProperty('totals')
+  })
+
+  it('carries the records a window asks for, and refuses a window it cannot read', { timeout: 60_000 }, async () => {
+    const deployment = await startDeployment({ usernames: ['alice'], maxTenants: 0 })
+    running.push(deployment)
+    await handoff(deployment, 'alice')
+    const alice = usageOf(deployment, 'alice')
+    const early = { sessionId: 'session-1', turn: 1, inputTokens: 10, outputTokens: 1, at: 1_000 }
+    const late = { sessionId: 'session-1', turn: 2, inputTokens: 20, outputTokens: 2, at: 9_000 }
+    for (const record of [early, late]) {
+      expect((await post(alice.url, JSON.stringify(record), `Bearer ${alice.token}`)).status).toBe(204)
+    }
+
+    /** Read the ledger with one runtime's token and query. */
+    const read = (query = ''): Promise<Response> =>
+      fetch(`${alice.url}${query}`, { headers: { authorization: `Bearer ${alice.token}` } })
+
+    // No window carries every Turn, oldest first.
+    expect((await (await read()).json()).records).toEqual([early, late])
+    // A window carries only the Turns that reported inside it.
+    expect((await (await read('?from=5000')).json()).records).toEqual([late])
+    expect((await (await read('?from=5000&to=8000')).json()).records).toEqual([])
+    // A bound that is not an epoch millisecond, and inverted bounds, are refused
+    // rather than silently read as "everything".
+    for (const query of ['?from=abc', '?to=-1', '?from=9000&to=1000']) {
+      const refused = await read(query)
+      expect(refused.status).toBe(400)
+      expect(await refused.json()).toEqual({ error: 'invalid-window' })
+    }
   })
 })
