@@ -10,7 +10,11 @@ afterEach(async () => {
   for (const deployment of running.splice(0)) await deployment.dispose()
 })
 
-const report = { sessionId: 'session-1', inputTokens: 120, outputTokens: 30, at: 1_700_000_000_000 }
+const report = { sessionId: 'session-1', turn: 1, inputTokens: 120, outputTokens: 30, at: 1_700_000_000_000 }
+const total = {
+  sessions: 1, turns: 1, inputTokens: 120, outputTokens: 30,
+  cacheReadTokens: 0, cacheWriteTokens: 0, cacheHitRate: 0, at: report.at,
+}
 
 /** Hand one browser request to an account, which creates its runtime and token. */
 async function handoff(deployment: StartedDeployment, username: string): Promise<void> {
@@ -50,9 +54,7 @@ describe('usage ledger endpoint', () => {
 
     expect((await post(alice.url, JSON.stringify(report), `Bearer ${alice.token}`)).status).toBe(204)
     // Alice's token books to Alice, whatever body it carries.
-    expect((await readUsageTotals(deployment.home))[aliceId]).toEqual({
-      sessions: 1, inputTokens: 120, outputTokens: 30, at: report.at,
-    })
+    expect((await readUsageTotals(deployment.home))[aliceId]).toEqual(total)
     expect((await readUsageTotals(deployment.home))[bobId]).toBeUndefined()
 
     // Bob reports on his own token, and lands in his own file.
@@ -88,13 +90,13 @@ describe('usage ledger endpoint', () => {
 
     expect(await (await read(alice)).json()).toEqual({
       accountId: aliceId,
-      total: { sessions: 1, inputTokens: 120, outputTokens: 30, at: report.at },
+      total,
     })
     // Bob's token reads Bob, whatever Alice's ledger holds.
     expect(await (await read(bob)).json()).toMatchObject({ total: { inputTokens: 7, outputTokens: 2 } })
     // An account that never reported reads zeroes rather than an error.
     expect(await (await read(carol)).json()).toMatchObject({
-      total: { sessions: 0, inputTokens: 0, outputTokens: 0, at: 0 },
+      total: { sessions: 0, turns: 0, inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0, cacheHitRate: 0, at: 0 },
     })
     // Only a minted token reads anything at all.
     expect((await fetch(alice.url, { headers: { authorization: 'Bearer not-a-token' } })).status).toBe(401)
@@ -117,12 +119,12 @@ describe('usage ledger endpoint', () => {
     // The seat reads the deployment: every account's total and their sum.
     expect(await (await read(root)).json()).toEqual({
       scope: 'deployment',
-      totals: { [aliceId]: { sessions: 1, inputTokens: 120, outputTokens: 30, at: report.at } },
-      total: { sessions: 1, inputTokens: 120, outputTokens: 30, at: report.at },
+      totals: { [aliceId]: total },
+      total,
     })
     // A member reads itself, in the shape that says so.
     const own = await (await read(alice)).json() as Record<string, unknown>
-    expect(own).toEqual({ accountId: aliceId, total: { sessions: 1, inputTokens: 120, outputTokens: 30, at: report.at } })
+    expect(own).toEqual({ accountId: aliceId, total })
     expect(own).not.toHaveProperty('totals')
   })
 })
