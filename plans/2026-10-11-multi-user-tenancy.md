@@ -466,3 +466,40 @@ hub 仍然**不做访问判定**：路由 cookie 只是选择器，伪造它只�
 - `verify-translation-pairing` 语料级噪声集中在被忽略的 `desktop/staging/**` 与 `docs/tool-catalog.i18n.yaml`。
 - 全量单测车道 280 例红分布在 12 个文件，**没有一个**在本工作改动的两个包（`apps/cli`、`packages/identity/accounts-local`）内；可直接看到失败点的两例也无关（`scripts/doc-standard.spec.ts` 红在 `packages/session/session-format-v4-to-v5/README.md` 的 kind 期望，`scripts/persistence-developer.spec.ts` 红在 `encodeCurrent requires Session format v5`）。我没有为这 280 例建立改动前基线，归属判断依据是「交集为空 ＋ 失败点与改动面无交集」，不是逐例复现。
 - 收口时发现并修掉的一处**自己造成的**违例：`apps/cli/tests/tenant-proxy.spec.ts` 用 `as unknown as ServerResponse` 伪造响应对象，命中 `verify-no-unknown-casts`；已改为驱动一个**真实** HTTP 响应（同一 `writeHead` ＋ pipe 路径），断言浏览器实际收到什么，而不是把违例记进既有红。
+
+## 15. 收官状态（2026-10-11，第 12 轮）
+
+### 15.1 已交付（本仓提交，均本地未推送）
+
+| 提交 | 内容 |
+|---|---|
+| `55fe444407` | 多租户边界提案与计划落仓（Agent Note 三件套 + 本计划） |
+| `3075a17b24` | P1：一个共享 home + 两份租户覆盖层 + 两个运行时的六条判据（常备测试） |
+| `15a17314f8` | `accounts-local` 的接纳名单（一份部署只接纳列名账户） |
+| `be637a866a` | P2：`qilin tenants serve`（账号→租户、按需拉起、就绪解析、303、空闲回收） |
+| `8d6cf0903f` | 两条过期 expected 车道收口（就绪行按 URL 匹配；schedule 显式挂载） |
+| `2b7746a01d` `f5eecd1695` | 运维面：`tenants accounts/add/passwd/remove`、`--max-tenants`、`--restart-backoff-ms` |
+| `dbe341c378` | P3：单源反代（路由 cookie、authority 改写、Origin 围栏、upgrade 管道、媒体 Range） |
+| `0b966fd8ff` | 浏览器走查抓到的两个缺陷：hub 目录遮蔽租户根、`--idle-ms 0` 反而不停回收 |
+| `bd56d1c06f` | 浏览器走查与 GIF 证据入册 |
+| `4a9c5bb668` | 真实媒体路由的分段读取穿过 hub（206 + `content-range`） |
+| `c4ecd64fc2` | Agent Note 从 proposed 转 implemented（按 implemented 骨架重写） |
+| `760cb25844` | 单源模式下 hub 自有的两条路径（`/healthz`、`/status`）写入 README |
+| `f267fd88c7` | 用户指南（双语）并发布到文档站 |
+| `c95210a566` | 路由 cookie 只是选择器：把甲账户的会话指向乙账户运行时得到 401 |
+| `d73ecb55b9` `9f11a1f7b0` | 计划 §13 验收矩阵、§14 门禁对账 |
+| `135d47bcaa` | 修掉自己造成的一处 `as unknown as` 违例（改为真实响应） |
+| `b60a47917b` | `web-best-effort-startup` 收口（断言点名实际失败的模块） |
+| `8cf1105eeb` | `creator-plugin-manager` 收口（fixture 经 `run_code` 分派） |
+| `241c8e34b2` | 计划状态同步 |
+
+### 15.2 本轮最终验证（2026-10-11，全部实跑）
+
+`tsc -b tsconfig.host.json` exit 0；`apps/cli/tests` ＋ `packages/identity/accounts-local/tests` **182 passed / 4 skipped**；`tenant-supervisor.expected.e2e.ts` **4/4**、`tenant-isolation.expected.e2e.ts` **1/1**；`oxlint` 0/0；`verify-agent-note-format` 497；`verify-md-links` 2187；`verify-doc-budgets` 8；本工作改动的 6 个双语对逐对一致；文档站构建（第 8 轮）14.9 s 通过。
+
+### 15.3 两项待裁定（各配一句可执行的补丁方案）
+
+| # | 事项 | 现状 | 说一句话即可执行 |
+|---|---|---|---|
+| 1 | A1/A2 引擎侧 Config | 无代码改动；代码依据见 §11.7 与 Agent Note 的 `## Engine changes`：上传索引的命名空间就是 provider 凭据（共享同一把 key 时按租户拆路径只会重复上传），`RemoteHostFacts.home` 是「文件所在机器」的属性（所有租户同机） | 「加」→ `llm-deepseek` 上传索引补 `path` Config、`RemoteHostFacts.home` 改为可注入，并重跑 `gen-config-catalog` 与双语 README；「按判定」→ 在 §13 记为已裁决 |
+| 2 | 被拒的 reload 是否回滚 | `reconcileProfilePatches` 先应用补丁再判「是否引入新的未激活项」，因此被拒的 reload 在树上已生效；`web-failure-matrix` 的 2 条恢复断言因此红 | 「回滚」→ 在 `packages/boot/app-boot` 让拒绝路径恢复上一份 `patches` 并补测试（跨包改动，先出方案）；「按现状」→ 把两条断言改成现契约并记明取舍 |
