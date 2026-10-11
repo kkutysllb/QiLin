@@ -52,7 +52,7 @@ describe('web e2e: agent-preset authoring is a host-side copy', () => {
       agentPresets: {
         // The shipped root is the plugin's own, prepended before this.
         roots: [{ path: userRoot, trust: 'user' }],
-        default: 'standard',
+        default: 'ptc',
       },
     })
     browser = await chromium.launch()
@@ -74,9 +74,9 @@ describe('web e2e: agent-preset authoring is a host-side copy', () => {
     const dialog = await openSettings(page)
     await dialog.getByRole('button', { name: 'Agent 预设' }).click()
     await dialog.getByRole('heading', { name: 'Agent 预设' }).waitFor({ timeout: 10_000 })
-    // The intro copy also names 标准模式. Wait for the roster's own action so
+    // The intro copy also names 编码模式. Wait for the roster's own action so
     // the snapshot cannot land between the section shell and its cards.
-    await dialog.getByRole('button', { name: '查看: 标准模式', exact: true }).waitFor({ timeout: 10_000 })
+    await dialog.getByRole('button', { name: '查看: 编码模式', exact: true }).waitFor({ timeout: 10_000 })
 
     const snapshot = await captureStableAria(page, '[role="dialog"]', scaffold.workspaceCwd)
 
@@ -88,8 +88,8 @@ describe('web e2e: agent-preset authoring is a host-side copy', () => {
     // install is overwritten by upgrades and is not the user's to manage.
     expect(snapshot).toContain('或用「创造模式」让 Agent 帮你创建')
     expect(snapshot).not.toContain('新建预设')
-    expect(snapshot).toContain('查看: 标准模式')
-    expect(snapshot).not.toContain('删除: 标准模式')
+    expect(snapshot).toContain('查看: 编码模式')
+    expect(snapshot).not.toContain('删除: 编码模式')
     expect(snapshot).not.toContain('打开目录')
     // The rest of this scenario exercises the existing default and Creator
     // actions with the beta picker enabled by default.
@@ -98,13 +98,13 @@ describe('web e2e: agent-preset authoring is a host-side copy', () => {
   it('views a shipped composition read-only instead of editing it', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-preset-authoring-view'))
     const dialog = settingsDialog()
-    await dialog.getByRole('button', { name: '查看: 标准模式' }).click()
-    const viewer = page.getByRole('dialog', { name: '查看 · 标准模式' })
+    await dialog.getByRole('button', { name: '查看: 编码模式' }).click()
+    const viewer = page.getByRole('dialog', { name: '查看 · 编码模式' })
     await viewer.waitFor({ timeout: 10_000 })
 
     // The real shipped composition, not a golden: the viewer shows whatever
     // the deployment ships, and this lane only asserts it is shown read-only.
-    const shipped = await readFile(join(SHIPPED_PRESETS, 'standard', 'agent.cordis.yml'), 'utf8')
+    const shipped = await readFile(join(SHIPPED_PRESETS, 'ptc', 'agent.cordis.yml'), 'utf8')
     expect(await viewer.locator('pre').textContent()).toBe(shipped)
     expect(await viewer.getByRole('textbox').count()).toBe(0)
     // The header X and the footer button share the 关闭 name; the footer one
@@ -155,7 +155,7 @@ describe('web e2e: agent-preset authoring is a host-side copy', () => {
     expect(composition).toBe(await readFile(join(SHIPPED_PRESETS, 'ptc', 'agent.cordis.yml'), 'utf8'))
     const metadata = await readFile(join(userRoot, 'my-agent', 'preset.yml'), 'utf8')
     expect(metadata).toContain('name: 我的模式')
-    expect(metadata).toContain('description: 功能完整的编码 Agent，但默认不提供 workflow 工具；其他工具经生成的 SDK 呈现，让模型用一个 TypeScript 程序组合多步操作。')
+    expect(metadata).toContain('description: 功能完整的编码 Agent：工具经生成的 SDK 调用（PTC），并具备运行时自省、持久化插件管理与组合创作能力。')
     expect(metadata).not.toContain('order:')
   }, 60_000)
 
@@ -174,7 +174,7 @@ describe('web e2e: agent-preset authoring is a host-side copy', () => {
     // creator entry so the place to author a preset never disappears.
     expect(await dialog.getByRole('heading', { name: '自定义' }).count()).toBe(1)
     expect(await dialog.getByRole('button', { name: '用「创造模式」创作自定义预设' }).count()).toBe(1)
-    expect(await dialog.getByText('标准模式').count()).toBeGreaterThan(0)
+    expect(await dialog.getByText('编码模式').count()).toBeGreaterThan(0)
   }, 60_000)
 
   it('marks damaged presets broken and clears a ghost through delete', async () => {
@@ -263,7 +263,7 @@ describe('web e2e: agent-preset authoring is a host-side copy', () => {
         result: { value?: { items: unknown[] } }
       }
       return JSON.stringify(body.result.value?.items ?? body.result)
-    }, { timeout: 15_000 }).toContain('"agentPreset":"cordis"')
+    }, { timeout: 15_000 }).toContain('"agentPreset":"ptc"')
   }, 60_000)
 
   it('drove every surface without a page error or a stream warning', () => {
