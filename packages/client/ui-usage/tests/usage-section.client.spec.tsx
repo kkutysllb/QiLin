@@ -19,8 +19,14 @@ function answerWith(body: unknown, ok = true): ReturnType<typeof vi.fn> {
   return read
 }
 
+const unused = (): never => { throw new Error('This isolated section does not consume framework hooks') }
+
 function props(): UsageSectionComponentProps {
-  return { close: vi.fn(), t: makeTranslate(en) } as UsageSectionComponentProps
+  return {
+    usePanelInfo: unused, useSessions: unused, useSessionStatus: unused,
+    useSessionRetainInfo: unused, useResource: unused, useWorkspaces: unused,
+    close: vi.fn(), t: makeTranslate(en),
+  } as UsageSectionComponentProps
 }
 
 /** A record reported a moment ago, so it lands in the current month and day. */

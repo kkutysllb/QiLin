@@ -172,7 +172,7 @@ describe('tenant proxy hop', () => {
       host: 'y:1',
       [DEPLOYMENT_AUTHORITY_HEADER]: 'hub.test:8790',
     })
-    expect(forwardedHeaders({ host: 'x', [DEPLOYMENT_AUTHORITY_HEADER]: 'evil.test' }, 'y:1')).toEqual({ host: 'y:1' })
+    expect(forwardedHeaders({ host: 'x', [DEPLOYMENT_AUTHORITY_HEADER]: 'evil.test' }, 'y:1', '')).toEqual({ host: 'y:1' })
   })
 
   it('fails the forward when the runtime is not listening', async () => {

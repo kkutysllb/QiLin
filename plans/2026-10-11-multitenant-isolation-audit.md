@@ -180,3 +180,18 @@ HTTP 那两条转发路径都传了第三个实参，所以只有升级这一跳
 - 租户面 **35 例全过**（入口、代理、TLS、隔离、用量、名册），`tsc -b apps/cli` 0。
 
 **一处走过的弯路（如实登记）**：我先想在部署夹具的「运行时替身」里加一个真升级口，用 socket 级用例钉住这一跳。它测得出问题，但**收尾挂死**——升级后的 socket 活得比请求久，服务端 `close()` 因此不返回（正是第 8 轮 webserver 那条「升级/TLS socket 必须自己跟踪」的同一类坑）。我给它补了 socket 跟踪仍未在预算内收敛，于是**撤回夹具改动**，改由「真进程探针 + 类型必填」两条承担判据：前者证明这一跳现在通，后者保证以后不会再漏。
+
+## 18. 本轮增量（第 39 轮）：构建红把前端钉死在旧产物上；--patch 从未生效；写路径仍会落进首启运行时
+
+**用户报的现象**：配置模型后输入框无法选择模型、会话标题不对且报错、工作区选了也选不中——「就这还敢发版」。
+
+**先说修掉的两处（真进程 + 真浏览器验证）**：
+
+| 缺陷 | 根因 | 修复与判据 |
+|---|---|---|
+| \`pnpm run build\` 全红，前端 bundle 停在 21:19 的旧产物 | 两处遗留测试类型错误：\`tenant-proxy.spec.ts\` 还有一个两参 \`forwardedHeaders\` 调用（第 38 轮把第三参改必填时漏改测试）；\`ui-usage\` 的 spec stub 缺 \`GlobalStandardProps\` 新成员 | 补齐两处调用/桩；构建恢复绿（419 个 client 产物重建）。运行时是 tsx 源码启动而浏览器吃的是 bundle，构建一红就是两端版本错配——模型选择/会话/工作区异常全发生在旧 bundle 上 |
+| \`qilin web --patch <overlay>\` 的 overlay 静默丢弃 | commander 的 passThroughOptions 把 --patch 留在透传 args 里，deploymentOptions 的 splitArguments 又只收进 values 而从不读取；帮助文本与 pin-browse-picker smoke 都宣传/依赖它 | splitArguments 增加 repeatable lists，deploymentOptions 返回 patches，runWebEntry 合并两层；web-entry.spec 补断言（原用例喂了 --patch 却从不断言）9/9 过。修复后运行时子进程 argv 携带 overlay，boot 图装配 client-ui-directory-picker-browse |
+
+**新复现、未修的高危缺陷（下一轮的主目标）**：single-origin 部署里，workspace/session 的写路径存在落进首启运行时的窗口。真进程探针（隔离 home、真部署、真浏览器）：路由 cookie 缺失期间（登录导航完成前/门清 cookie 后）的调用全部落到 .bootstrap——工作区与会话在 bootstrap 盘落盘；之后换成正确路由 cookie 的浏览器又会话出现 Failed to load history: session not found (session/not-found)、侧边栏与主面板各说各话。admin 租户目录 sessions/ 从未产生，workspace.json 始终为空。两个运行时数据分裂后，「会话标题不对」「工作区选不中」「报错」是同一根因的三个侧面。mux 转发本身路由正确（cookie=admin 时 hub 的连接全部指向 admin 端口，lsof 实证），所以缺口在无路由 cookie 请求的 fallback 归属与登录后路由 cookie 的重建时机，不在转发。
+
+**另一处如实登记**：tsx 源码启动下首个 POST /api/auth/login 观测到 10s 级延迟（冷启动），浏览器侧表现为提交后长时间无进展，用户重试即见错误文案。curl 同端点 0.05s，属冷启动而非验证成本；但这解释了「还报错」的一部分体感。

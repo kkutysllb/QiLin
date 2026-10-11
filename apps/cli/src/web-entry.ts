@@ -53,6 +53,9 @@ const DEFAULT_RESTART_BACKOFF_MILLISECONDS = 1000
  */
 const WILDCARD_HOSTS: readonly string[] = ['0.0.0.0', '::', '[::]', '*']
 
+/** Deployment flags that accumulate every occurrence instead of keeping the first. */
+const REPEATABLE_VALUE_FLAGS: readonly string[] = ['--patch']
+
 /** Deployment flags that carry a value. */
 const VALUE_FLAGS: readonly string[] = [
   '--host',
@@ -103,6 +106,8 @@ export interface DeploymentOptions {
   readonly tls: DeploymentTls | undefined
   /** Whether the invocation asked for help instead of serving. */
   readonly help: boolean
+  /** Overlay files the deployment arguments name, as absolute paths, in argv order. */
+  readonly patches: readonly string[]
   /** Arguments belonging to the served application, in argv order. */
   readonly appArguments: readonly string[]
 }
@@ -123,6 +128,8 @@ export interface WebEntryInvocation {
 interface SplitArguments {
   /** First value seen for each single-valued flag. */
   readonly values: ReadonlyMap<string, string>
+  /** Every value seen for each repeatable flag, in argv order. */
+  readonly lists: ReadonlyMap<string, readonly string[]>
   /** Flags present without a value. */
   readonly switches: ReadonlySet<string>
   /** Arguments no deployment flag claims. */
@@ -133,11 +140,12 @@ interface SplitArguments {
  * Split one invocation's arguments into the deployment's own flags and the
  * application's.
  * @param args - the arguments after the launcher's own flags.
- * @returns the deployment values, its switches, and the application's arguments.
+ * @returns the deployment values, its repeatable lists, its switches, and the application's arguments.
  * @throws Error when a deployment flag that carries a value names none.
  */
 function splitArguments(args: readonly string[]): SplitArguments {
   const values = new Map<string, string>()
+  const lists = new Map<string, string[]>()
   const switches = new Set<string>()
   const appArguments: string[] = []
   for (let index = 0; index < args.length; index += 1) {
@@ -156,12 +164,16 @@ function splitArguments(args: readonly string[]): SplitArguments {
       if (value === undefined || (inline === undefined && value.startsWith('--'))) {
         throw new Error(`qilin web: ${name} needs a value`)
       }
+      if (REPEATABLE_VALUE_FLAGS.includes(name)) {
+        lists.set(name, [...lists.get(name) ?? [], value])
+        continue
+      }
       if (!values.has(name)) values.set(name, value)
       continue
     }
     appArguments.push(token)
   }
-  return { values, switches, appArguments }
+  return { values, lists, switches, appArguments }
 }
 
 /**
@@ -227,7 +239,7 @@ function registrationPolicy(values: ReadonlyMap<string, string>, host: string): 
  * @throws Error when a named flag cannot be honoured.
  */
 export function deploymentOptions(args: readonly string[], servedProfile: string): DeploymentOptions {
-  const { values, switches, appArguments } = splitArguments(args)
+  const { values, lists, switches, appArguments } = splitArguments(args)
   const host = values.get('--host') ?? DEFAULT_HOST
   // Help answers for the deployment, so it is printed whatever else the
   // invocation names, and nothing else about it is read.
@@ -244,6 +256,7 @@ export function deploymentOptions(args: readonly string[], servedProfile: string
       registration: LOOPBACK_HOSTS.includes(host) ? 'open' : 'closed',
       tls: undefined,
       help: true,
+      patches: (lists.get('--patch') ?? []).map(path => resolve(path)),
       appArguments,
     }
   }
@@ -269,6 +282,7 @@ export function deploymentOptions(args: readonly string[], servedProfile: string
     registration: registrationPolicy(values, host),
     tls,
     help: false,
+    patches: (lists.get('--patch') ?? []).map(path => resolve(path)),
     appArguments,
   }
 }
@@ -372,7 +386,7 @@ export async function runWebEntry(invocation: WebEntryInvocation): Promise<numbe
     registration: options.registration,
     // The child starts in its own tenant directory, so an overlay path relative
     // to the operator's directory has to travel absolute.
-    patches: invocation.patches.map(path => resolve(path)),
+    patches: [...invocation.patches, ...options.patches].map(path => resolve(path)),
     appArguments: options.appArguments,
     ...options.tls === undefined ? {} : { tls: options.tls },
     // The deployment opens the address it serves, exactly as a single runtime

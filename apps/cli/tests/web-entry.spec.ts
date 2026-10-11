@@ -62,6 +62,10 @@ describe('the Web deployment entry', () => {
     expect(options.tenantProfile).toBe('web')
     expect(options.singleOrigin).toBe(true)
     expect(options.help).toBe(false)
+    // Every repeatable --patch the deployment arguments name reaches the
+    // runtimes, resolved, in argv order — one the launcher layer never
+    // collects, because it travels past the first unknown flag.
+    expect(options.patches).toEqual([`${process.cwd()}/one.yml`, `${process.cwd()}/two.yml`])
     // The deployment consumes its own flags; everything else is the
     // application's, including a flag this build does not know.
     expect(options.appArguments).toEqual(['--trusted-host', 'proxy.internal', '--future-app-flag'])
