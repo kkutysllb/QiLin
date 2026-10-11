@@ -203,6 +203,30 @@ function json(response: ServerResponse, status: number, body: unknown): void {
  * @returns the process exit code, 0 after a clean shutdown.
  */
 /**
+ * What the deployment's own address and its tenant interface mean for reaching
+ * them, as the lines a start prints.
+ *
+ * A hub on loopback is reachable from this machine only, and account runtimes
+ * bind loopback unless `--tenant-host` names another interface. Naming a
+ * reachable one exposes every runtime there directly — plain HTTP, no entry in
+ * between — which an operator has to know before treating the hub address as the
+ * only door.
+ * @param host - interface the entry bound.
+ * @param tenantHost - interface each account runtime binds, when the invocation named one.
+ * @param port - port the entry bound.
+ * @returns one line per fact the operator needs, in print order.
+ */
+export function addressNotices(host: string, tenantHost: string | undefined, port: number): string[] {
+  const runtimes = tenantHost === undefined || LOOPBACK_HOSTS.includes(tenantHost)
+    ? 'every account runtime stays on loopback'
+    : `each account runtime is reachable at ${tenantHost} over plain HTTP, with no entry in between`
+  if (!LOOPBACK_HOSTS.includes(host)) {
+    return [`qilin tenants: this address is reachable at ${host}:${String(port)}; ${runtimes}`]
+  }
+  return tenantHost === undefined || LOOPBACK_HOSTS.includes(tenantHost) ? [] : [`qilin tenants: ${runtimes}`]
+}
+
+/**
  * The runtime a handoff stops to make room, or undefined when there is room or
  * nothing may be reclaimed yet.
  *
@@ -612,9 +636,7 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
   const scheme = options.tls === undefined ? 'http' : 'https'
   const address = `${scheme}://${printableHost}:${String(port)}/`
   process.stdout.write(`qilin tenants: ${address}\n`)
-  if (!LOOPBACK_HOSTS.includes(options.host)) {
-    process.stderr.write(`qilin tenants: this address is reachable at ${options.host}:${String(port)}; every account runtime stays on loopback\n`)
-  }
+  for (const notice of addressNotices(options.host, options.tenantHost, port)) process.stderr.write(`${notice}\n`)
   if ((await roster()).isEmpty && options.registration !== 'open') {
     process.stderr.write('qilin tenants: no account exists yet and this deployment does not accept new ones; create the first with `qilin tenants add <name>`\n')
   }
