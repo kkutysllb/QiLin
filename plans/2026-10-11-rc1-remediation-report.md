@@ -29,6 +29,9 @@ npx vitest run packages/identity/accounts-local/tests
 # 部署入口与租户：flag 解析、TLS、--patch 传递、层文档、代理目标
 npx vitest run apps/cli/tests/tenant-runtime.spec.ts apps/cli/tests/tenant-proxy.spec.ts apps/cli/tests/web-entry.spec.ts apps/cli/tests/tenants-roster.spec.ts
 
+# 交接上限与序列化：回收选择与「一次只跑一个交接」（6 例）
+npx vitest run apps/cli/tests/tenant-reclaim.spec.ts
+
 # 文档与脚本门禁（21 项）
 pnpm run test:docs
 
@@ -81,7 +84,9 @@ npx tsx scripts/gen-kylin-api.ts --check && npx tsx scripts/gen-kylin-catalog.ts
 
 已覆盖：名册并发写（同进程并发、两个写者各持旧快照、锁等待、过热锁过期、等待超时、空壳锁路径）；真组合 HTTP 上两个首启 setup 并发只产生一个账户、两个注册并发都存活、两个账户同时登录各自过门禁——**首启竞态的用例带负向对照**（把临界区里的空名册判定改成恒假即变红）。
 
-未覆盖（都要先建 supervisor 级装配测试台或跑真进程车道）：`makeRoom`/`--max-tenants` 的回收竞态（两个同时到达的交接是否会各自放行、把正在启动的运行时当作可回收对象）、坏 profile 下的串行阻塞、>2 账户与回收抖动。
+交接上限与序列化：回收选择抽成纯函数 `reclaimFor()`（在册上限、目标自身永不回收、只回收 running 的、启动中的留给下一次交接），交接队列抽成 `createHandoffQueue()`（一次只跑一个交接、失败的交接不堵住后一个），各带一条负向对照（把启动中的运行时也当可回收 → 红；让交接立即执行 → 红）。这两个单元回答的正是复核的两个问题：两个同时到达的交接不会各自放行（互斥），启动中的运行时不会被当成回收对象（选择判据）；队列那条同时覆盖了「坏 profile 的失败交接不堵住后一个」。
+
+回收的**顺序**路径本来就由真进程车道 `tenant-supervisor.expected.e2e.ts` 覆盖（`--max-tenants 1` 下换账户即回收、再换回来再回收，并断言 stderr 的 reclaiming 行），该车道需要构建产物与真实引擎，本轮未跑。**仍未覆盖**：并发到达穿过 HTTP 面的端到端（两个浏览器同一瞬间交接）——决策单元与互斥都有测试，残余风险在 3 行接线。
 
 ## 9. 待你拍板（3 条）
 
