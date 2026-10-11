@@ -75,7 +75,7 @@ describe('tenants roster', () => {
     expect(store.byUsername('alice')).toEqual(created)
 
     // An unattended run with no piped password is refused rather than waiting.
-    const unpiped = await run(base, { command: 'add', username: 'bob', email: undefined, password: { kind: 'prompt' } })
+    const unpiped = await run(base, { command: 'add', username: 'bob', email: undefined, admin: false, password: { kind: 'prompt' } })
     expect(unpiped.code).toBe(1)
     expect(unpiped.err).toMatch(/not a terminal/u)
   })

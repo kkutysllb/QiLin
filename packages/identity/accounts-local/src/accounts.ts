@@ -331,6 +331,7 @@ export class AccountStore {
    * rather than two accounts.
    * @param identity - normalized username and optional normalized email.
    * @param password - plaintext password, already validated by the caller.
+   * @param options - fields beyond the identity, such as the deployment's administrator seat.
    * @returns the created account.
    * @throws {@link AccountConflictError} when an account already exists.
    */
