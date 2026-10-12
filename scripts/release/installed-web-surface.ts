@@ -18,7 +18,7 @@ import { createServer } from 'node:net'
 /** How long the installed server may take to answer its first request. */
 const READY_TIMEOUT_MS = 180_000
 
-/** How long the launcher may take to print its authenticated surface URL. */
+/** How long the launcher may take to print its front-door URL. */
 const PRINTED_URL_TIMEOUT_MS = 15_000
 
 /** Gap between readiness attempts. */
@@ -34,13 +34,13 @@ const SHUTDOWN_TIMEOUT_MS = 15_000
 const OUTPUT_LIMIT = 64 * 1024
 
 /**
- * The authenticated surface URL the launcher prints for the one-click user to click.
+ * The deployment front-door URL the launcher prints for the one-click user to open.
  *
- * The path is the connection's entry path (`/workspace` in the shipped
- * composition, the dist root in a bare one), so the probe reads it rather than
- * assuming `/`.
+ * The deployment serves its product landing at the bare origin; the workspace
+ * entry sits behind the account door, so the probe appends the entry path
+ * rather than reading one from the printed line.
  */
-const PRINTED_URL = /http:\/\/127\.0\.0\.1:(\d+)\/[^\s?]*\?token=[A-Za-z0-9._~-]+/
+const PRINTED_URL = /qilin tenants: (http:\/\/127\.0\.0\.1:(\d+)\/)(?=\s|$)/
 
 /** One HTTP probe result. */
 export interface HtmlProbe {
@@ -54,7 +54,7 @@ export interface HtmlProbe {
 export interface InstalledWebSurface {
   /** The public document URL that answered. */
   readonly landingUrl: string
-  /** The authenticated surface URL the launcher printed. */
+  /** The deployment front-door URL the launcher printed. */
   readonly appUrl: string
 }
 
@@ -70,7 +70,7 @@ export interface InstalledWebSurfaceOptions {
   readonly env: NodeJS.ProcessEnv
   /** How long the server may take to answer its first request. */
   readonly timeoutMs?: number
-  /** How long the launcher may take to print its authenticated URL. */
+  /** How long the launcher may take to print its front-door URL. */
   readonly printedUrlTimeoutMs?: number
 }
 
@@ -177,8 +177,9 @@ export async function waitForHtmlReadiness(options: ReadinessOptions): Promise<v
  *
  * Readiness is asserted twice: the public landing document at `/` proves the
  * frontend dist is installed and the static fallback serves it, and the
- * authenticated URL the launcher prints proves the composed application shell
- * is reachable through the token the one-click user would click.
+ * front-door URL the launcher prints proves the composed deployment booted and
+ * its workspace entry answers through the account door — a fresh install holds
+ * no session, so the door redirects to the landing and the probe follows it.
  * @param options - executable, arguments, working directory, and environment.
  * @returns a promise of the URLs that answered; it rejects when the child exits,
  * never answers, prints no URL, or does not shut down.
@@ -220,7 +221,7 @@ export async function verifyInstalledWebSurface(
       liveness,
     })
     const appUrl = await waitForPrintedUrl(capture, port, liveness, options.printedUrlTimeoutMs ?? PRINTED_URL_TIMEOUT_MS)
-    await waitForHtmlReadiness({ url: appUrl, timeoutMs: PRINTED_URL_TIMEOUT_MS, liveness })
+    await waitForHtmlReadiness({ url: `${appUrl}workspace`, timeoutMs: PRINTED_URL_TIMEOUT_MS, liveness })
     return { landingUrl, appUrl }
   } finally {
     await terminate(child, exited, liveness)
@@ -228,7 +229,7 @@ export async function verifyInstalledWebSurface(
 }
 
 /**
- * Wait for the launcher's authenticated surface URL line.
+ * Wait for the launcher's deployment front-door URL line.
  * @param capture - child output accumulated so far.
  * @param port - the port the child was told to bind.
  * @param liveness - describes the exit when the child is already gone.
@@ -246,10 +247,12 @@ async function waitForPrintedUrl(
   for (;;) {
     const match = PRINTED_URL.exec(capture.text)
     if (match !== null) {
-      if (Number(match[1]) !== port) {
-        throw new Error(`the launcher printed port ${match[1]} but was told to bind ${String(port)}`)
+      const [, url, printedPort] = match
+      if (url === undefined || printedPort === undefined) continue
+      if (Number(printedPort) !== port) {
+        throw new Error(`the launcher printed port ${printedPort} but was told to bind ${String(port)}`)
       }
-      return match[0]
+      return url
     }
     const died = liveness()
     if (died !== undefined) {
@@ -257,7 +260,7 @@ async function waitForPrintedUrl(
     }
     if (Date.now() >= deadline) {
       throw new Error(
-        `the installed server printed no authenticated URL within ${String(timeoutMs)}ms; `
+        `the installed server printed no deployment URL within ${String(timeoutMs)}ms; `
         + `output was:\n${capture.text.trim()}`,
       )
     }

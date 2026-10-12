@@ -53,7 +53,7 @@ function launcherFixture(source: string): string {
   return path
 }
 
-/** A fixture that serves HTML and prints the authenticated URL on the port it was given. */
+/** A fixture that serves HTML and prints the deployment front-door URL on the port it was given. */
 const SERVING_LAUNCHER = `
 const http = require('node:http')
 const port = Number(process.argv[process.argv.indexOf('--port') + 1])
@@ -62,7 +62,7 @@ const server = http.createServer((request, response) => {
   response.end('<!doctype html><title>qilin</title>')
 })
 server.listen(port, '127.0.0.1', () => {
-  console.log('qilin: http://127.0.0.1:' + port + '/workspace?token=fixture-token')
+  console.log('qilin tenants: http://127.0.0.1:' + port + '/')
 })
 process.on('SIGTERM', () => { server.close(() => { process.exit(0) }) })
 `
@@ -152,9 +152,37 @@ describe('installed Web surface probe', () => {
     })
 
     expect(surface.landingUrl).toMatch(/^http:\/\/127\.0\.0\.1:\d+\/$/)
-    expect(surface.appUrl).toMatch(/^http:\/\/127\.0\.0\.1:\d+\/workspace\?token=fixture-token$/)
+    expect(surface.appUrl).toMatch(/^http:\/\/127\.0\.0\.1:\d+\/$/)
     expect(surface.appUrl.startsWith(surface.landingUrl)).toBe(true)
     expect(existsSync(launcher)).toBe(true)
+  })
+
+  it('follows the account door redirect for the workspace entry', async () => {
+    const launcher = launcherFixture(`
+const http = require('node:http')
+const port = Number(process.argv[process.argv.indexOf('--port') + 1])
+const server = http.createServer((request, response) => {
+  if (request.url === '/workspace') {
+    response.writeHead(303, { location: '/' })
+    response.end()
+    return
+  }
+  response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' })
+  response.end('<!doctype html><title>qilin</title>')
+})
+server.listen(port, '127.0.0.1', () => {
+  console.log('qilin tenants: http://127.0.0.1:' + port + '/')
+})
+process.on('SIGTERM', () => { server.close(() => { process.exit(0) }) })
+`)
+    const surface = await verifyInstalledWebSurface({
+      command: process.execPath,
+      args: port => [launcher, '--no-open', '--port', String(port)],
+      cwd: tmpdir(),
+      env: process.env,
+      timeoutMs: 30_000,
+    })
+    expect(surface.appUrl).toMatch(/^http:\/\/127\.0\.0\.1:\d+\/$/)
   })
 
   it('rejects a fixture that exits before serving', async () => {
@@ -169,7 +197,7 @@ describe('installed Web surface probe', () => {
     })).rejects.toThrow(/exited before/)
   })
 
-  it('rejects a served fixture that prints no authenticated URL', async () => {
+  it('rejects a served fixture that prints no deployment URL', async () => {
     const launcher = launcherFixture(`
 const http = require('node:http')
 const port = Number(process.argv[process.argv.indexOf('--port') + 1])
@@ -186,7 +214,7 @@ server.listen(port, '127.0.0.1')
       env: process.env,
       timeoutMs: 30_000,
       printedUrlTimeoutMs: 500,
-    })).rejects.toThrow(/printed no authenticated URL within 500ms/)
+    })).rejects.toThrow(/printed no deployment URL within 500ms/)
   })
 
   it('rejects a fixture that prints a port other than the reserved one', async () => {
@@ -198,7 +226,7 @@ const server = http.createServer((request, response) => {
   response.end('<!doctype html><title>qilin</title>')
 })
 server.listen(port, '127.0.0.1', () => {
-  console.log('qilin: http://127.0.0.1:' + (port + 1) + '/?token=fixture-token')
+  console.log('qilin tenants: http://127.0.0.1:' + (port + 1) + '/')
 })
 process.on('SIGTERM', () => { server.close(() => { process.exit(0) }) })
 `)
