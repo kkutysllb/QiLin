@@ -19,7 +19,11 @@ import { Rolldown, type TsdownPlugin, type UserConfig } from 'tsdown'
 import { transform } from 'lightningcss'
 import { optionalStringArray } from './modules/src/client/manifest.ts'
 import { PLATFORM_MODULES, PRELOADED_CLIENT_EXTERNALS } from './web/src/platform.ts'
-import { clientBuildEnvironmentDefines } from '../../scripts/client-build-environment.ts'
+import {
+  clientBuildEnvironmentDefines,
+  clientBuildProcessEnvironment,
+  repositoryClientBuildEnvironment,
+} from '../../scripts/client-build-environment.ts'
 import { BundleInputIsolation, physicalBundleInput } from '../../scripts/bundle-input-isolation.ts'
 
 /**
@@ -81,6 +85,37 @@ const GENERATED_REMOTE = /^@qilin-agent\/[a-z0-9]+(?:-[a-z0-9]+)*\/remote$/
 const SKIP_WORKSPACE_BUILD: UserConfig = { entry: '' }
 
 const REPOSITORY_ROOT = fileURLToPath(new URL('../..', import.meta.url))
+
+/**
+ * Repository-sampled build environments, keyed by the version the caller
+ * supplied (undefined when it supplied none).
+ */
+const bundleEnvironments = new Map<string | undefined, NodeJS.ProcessEnv>()
+
+/**
+ * Public environment one client bundle inlines.
+ *
+ * The complete build and the dev-web watcher resolve `QILIN_CLIENT_*` before
+ * tsdown runs and pass the values down. A package-local build
+ * (`pnpm --filter <pkg> bundle` / `watch`) instead reaches tsdown directly, and
+ * an absent value inlines as `{}.QILIN_CLIENT_VERSION` — the artifact then
+ * reports no build identity at all, silently dropping the version its own UI
+ * shows. Sampling the repository identity for that caller keeps a partial
+ * rebuild's artifact consistent with the complete build's; a caller that
+ * supplies the values is passed through untouched.
+ *
+ * @returns the process environment with the public values resolved.
+ */
+function clientBundleEnvironment(): NodeJS.ProcessEnv {
+  const supplied = process.env.QILIN_CLIENT_VERSION
+  const cached = bundleEnvironments.get(supplied)
+  if (cached !== undefined) return cached
+  const resolved = supplied === undefined
+    ? clientBuildProcessEnvironment(process.env, repositoryClientBuildEnvironment(REPOSITORY_ROOT, process.env))
+    : process.env
+  bundleEnvironments.set(supplied, resolved)
+  return resolved
+}
 
 /** Rebase a physical lib-relative source onto a browser URL that mirrors the repository directories. */
 function browserSourcePath(source: string, sourcemapPath: string): string {
@@ -519,7 +554,7 @@ function clientConfig(id: string, entry: string, clientBanner?: (fileName: strin
     // key: zustand probes `import.meta.env ? import.meta.env.MODE : ...`, and
     // the truthiness probe would otherwise survive as an empty import.meta.
     define: {
-      ...clientBuildEnvironmentDefines(process.env),
+      ...clientBuildEnvironmentDefines(clientBundleEnvironment()),
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV ?? 'production'),
       'import.meta.env.MODE': JSON.stringify(process.env.NODE_ENV ?? 'production'),
       'import.meta.env': JSON.stringify({ MODE: process.env.NODE_ENV ?? 'production' }),
