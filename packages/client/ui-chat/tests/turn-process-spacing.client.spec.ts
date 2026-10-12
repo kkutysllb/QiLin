@@ -9,8 +9,8 @@ const read = (name: string): string =>
 describe('process-row spacing', () => {
   it('keeps the folded and expanded process lists on the widened rhythm', () => {
     const sheet = read('ChatGroupSeat.module.css')
-    expect(sheet).toMatch(/\.body\s*\{[^}]*--dsh-chat-flow-gap:\s*56px/s)
-    expect(sheet).toMatch(/\.expandedBody\s*\{[^}]*--dsh-chat-flow-gap:\s*56px/s)
-    expect(sheet).toMatch(/margin-top:\s*var\(--dsh-chat-flow-gap,\s*8px\)/)
+    expect(sheet).toMatch(/\.body\s*\{[^}]*--dsh-chat-flow-gap:\s*6px/s)
+    expect(sheet).toMatch(/\.expandedBody\s*\{[^}]*--dsh-chat-flow-gap:\s*16px/s)
+    expect(sheet).toMatch(/margin-top:\s*var\(--dsh-chat-flow-gap,\s*6px\)/)
   })
 })

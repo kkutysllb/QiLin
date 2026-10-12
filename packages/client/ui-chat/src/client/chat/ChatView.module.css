@@ -67,7 +67,7 @@
    hidden and empty Seats do not contribute spacing. */
 .column > :not([hidden]):not(.flowItem:empty)
   ~ :not([hidden]):not(.flowItem:empty) {
-  margin-top: var(--qilin-chat-flow-gap, 40px);
+  margin-top: var(--qilin-chat-flow-gap, 6px);
 }
 
 /* Settled-flow identity boundary. It is neutral until it becomes the natural
@@ -99,12 +99,22 @@
   }
 }
 
-/* The Turn header and its process rows share the ordinary rhythm. The folded
- * answer keeps its own tight override below. */
+/* Process rows sit 6px apart; an Assistant response is separated from its
+   neighbours by 12px, and the turn header keeps 16px from its input and
+   following content. The folded answer keeps its own tight override. */
+.flowItem[data-chat-group-part="response"] {
+  --qilin-chat-flow-gap: 12px;
+}
+
+.column > [data-chat-group-part="response"]:not([hidden]):not(:empty)
+  + :not([hidden]):not(.flowItem:empty):not(.running) {
+  --qilin-chat-flow-gap: 12px;
+}
+
 .flowItem[data-chat-flow-kind="turn-process"],
 .flowItem[data-turn-process-answer],
-.column > [data-chat-flow-kind="turn-process"] + :not([hidden]):not(.flowItem:is(:empty, :has(> [data-slot="conversation.chat.node"]:empty))):not(.running) {
-  --qilin-chat-flow-gap: 40px;
+.column > [data-chat-flow-kind="turn-process"] + :not([hidden]):not(.flowItem:empty):not(.running) {
+  --qilin-chat-flow-gap: 16px;
 
 }
 
@@ -237,11 +247,7 @@
   z-index: 8;
   height: 0;
   display: flex;
-  justify-content: flex-end;
-  padding-right: max(
-    calc(var(--qilin-composer-side-clearance) + 16px),
-    calc((100% - var(--qilin-chat-content-width)) / 2)
-  );
+  justify-content: center;
   pointer-events: none;
 }
 
