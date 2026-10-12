@@ -27,6 +27,14 @@
   margin-bottom: 8px;
 }
 
+/* Running state carries the upstream divider above the status line: a hairline
+   between the last content row and this row (upstream .runningDivider). */
+.root[data-turn-running] {
+  border-top: 0.5px solid color-mix(in srgb, var(--qilin-alias-border-l1) 75%, var(--qilin-alias-border-l2));
+  margin-top: 8px;
+  padding-top: 10px;
+}
+
 .chevron {
   flex: none;
   width: 14px;

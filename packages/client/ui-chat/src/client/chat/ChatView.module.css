@@ -62,24 +62,31 @@
   flex-direction: column;
 }
 
-/* `hidden="until-found"` retains a zero-height box so browser find can reveal
-   its subtree. Direct Chat Node Seats and auxiliary rows share one flow;
-   hidden and empty Seats do not contribute spacing. */
-.column > :not([hidden]):not(.flowItem:empty)
-  ~ :not([hidden]):not(.flowItem:empty) {
+/* The flow slot's display:contents anchor preserves layout but not selector ancestry.
+   `hidden="until-found"` retains a searchable zero-height box; hidden and empty
+   Seats do not contribute spacing. */
+:is(.column, :global([data-slot="conversation.chat.flow"])) > :not([hidden]):not(.flowItem:is(:empty, :has(> [data-slot="conversation.chat.node"]:empty)))
+  ~ :not([hidden]):not(.flowItem:is(:empty, :has(> [data-slot="conversation.chat.node"]:empty))),
+.column:has(> .older) > :global([data-slot="conversation.chat.flow"])
+  > :not([hidden]):not(.flowItem:is(:empty, :has(> [data-slot="conversation.chat.node"]:empty))) {
   margin-top: var(--qilin-chat-flow-gap, 6px);
+}
+
+/* Process rows sit 6px apart; an Assistant response is separated from its
+   neighbours by 12px. */
+.flowItem[data-chat-group-part="response"] {
+  --qilin-chat-flow-gap: 12px;
+}
+
+:is(.column, :global([data-slot="conversation.chat.flow"])) > [data-chat-group-part="response"]:not([hidden]):not(:empty)
+  + :not([hidden]):not(.flowItem:is(:empty, :has(> [data-slot="conversation.chat.node"]:empty))):not(.running) {
+  --qilin-chat-flow-gap: 12px;
 }
 
 /* Settled-flow identity boundary. It is neutral until it becomes the natural
    measurement/mount unit for a virtualizer without changing the column gap. */
 .flowItem {
   min-width: 0;
-}
-
-/* A closed process reads as one summary immediately followed by its answer.
-   Expanded process rows return to the ordinary 16px rhythm. */
-.flowItem[data-turn-process-answer] {
-  --qilin-chat-flow-gap: 8px;
 }
 
 /* Bottom room: sized by the viewport owner while rows above the reader close,
@@ -89,50 +96,40 @@
 }
 
 /* While a Turn folds, spacing changes share the closing rows' timing. */
-.column[data-chat-motion] > :not([data-chat-motion]) {
+.column[data-chat-motion] > :not([data-chat-motion]),
+.column[data-chat-motion] > :global([data-slot="conversation.chat.flow"]) > :not([data-chat-motion]) {
   transition: margin-top 160ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .column[data-chat-motion] > :not([data-chat-motion]) {
+  .column[data-chat-motion] > :not([data-chat-motion]),
+  .column[data-chat-motion] > :global([data-slot="conversation.chat.flow"]) > :not([data-chat-motion]) {
     transition: none;
   }
 }
 
-/* Process rows sit 6px apart; an Assistant response is separated from its
-   neighbours by 12px, and the turn header keeps 16px from its input and
-   following content. The folded answer keeps its own tight override. */
-.flowItem[data-chat-group-part="response"] {
-  --qilin-chat-flow-gap: 12px;
-}
-
-.column > [data-chat-group-part="response"]:not([hidden]):not(:empty)
-  + :not([hidden]):not(.flowItem:empty):not(.running) {
-  --qilin-chat-flow-gap: 12px;
-}
-
+/* The Turn header has 16px clearance from its input and following content. */
 .flowItem[data-chat-flow-kind="turn-process"],
 .flowItem[data-turn-process-answer],
-.column > [data-chat-flow-kind="turn-process"] + :not([hidden]):not(.flowItem:empty):not(.running) {
+:is(.column, :global([data-slot="conversation.chat.flow"])) > [data-chat-flow-kind="turn-process"] + :not([hidden]):not(.flowItem:is(:empty, :has(> [data-slot="conversation.chat.node"]:empty))):not(.running) {
   --qilin-chat-flow-gap: 16px;
-
 }
 
-/* Empty Seats retain ordered layout positions for Turn lookup without
-   contributing height or the sibling gap. */
-.flowItem:empty {
+/* Empty Seats, including retained empty slot anchors, preserve Turn lookup
+   without contributing height or the sibling gap. */
+.flowItem:is(:empty, :has(> [data-slot="conversation.chat.node"]:empty)) {
   height: 0;
 }
 
 .callRow {
-  border-radius: var(--qilin-radius-sm);
+  border-radius: var(--dsw-radius-sm);
 }
 
 /* Selection still sets data-selected for details linkage; no outline —
    tool rows match Think chrome (no selected ring). */
 
 .hint {
-  color: var(--qilin-alias-label-tertiary);
+  color: var(--dsw-alias-label-tertiary);
   font-size: var(--qilin-content-font-size-secondary, 13px);
   line-height: calc(18px + var(--qilin-content-font-delta-secondary, 0px));
 }
@@ -141,146 +138,11 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  --dsh-chat-flow-gap: 12px;
-  --qilin-alias-label-shimmer: var(--qilin-alias-label-running-shimmer);
-  color: var(--qilin-alias-label-running);
-  font-size: calc(var(--dsh-content-font-size, 14px) - 2px);
-  line-height: calc(22px + var(--dsh-content-font-delta, 0px));
-}
-
-/* The last visible row before the status must contain output, not an input.
-   Hidden and empty seats do not separate a user message from the status. */
-.column > :nth-last-child(2 of :not([hidden]):not(.flowItem:is(:empty, :has(> [data-slot="conversation.chat.node"]:empty)))):is(
-  .flowItem:not([data-chat-flow-kind="user"]):not([data-chat-flow-kind="steering"]):not([data-chat-flow-kind="turn-trigger"]),
-  [data-chat-group-key]
-) ~ .running > .runningDivider {
-  display: block;
-}
-
-.runningDivider {
-  display: none;
-  width: 100%;
-  height: 0.5px;
-  margin: 8px 0 10px;
-  background: color-mix(in srgb, var(--qilin-alias-border-l1) 75%, var(--qilin-alias-border-l2));
-  pointer-events: none;
-}
-
-.runningContent {
-  display: inline-flex;
-  align-items: center;
-  min-width: 0;
-  gap: 6px;
-}
-
-.runningText {
-  min-width: 0;
-  font-variant-numeric: tabular-nums;
-}
-
-.runningIcon {
-  display: inline-flex;
-  flex: none;
-  width: calc(14px + var(--dsh-content-font-delta, 0px));
-  height: calc(14px + var(--dsh-content-font-delta, 0px));
-}
-
-/* The seal breathes while the Turn runs; reduced motion holds it still. */
-.runningSeal {
-  animation: running-seal-breathe 2.4s ease-in-out infinite;
-}
-
-@keyframes running-seal-breathe {
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.55;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .runningSeal {
-    animation: none;
-  }
-}
-
-.openError {
-  color: var(--qilin-alias-state-error-primary);
-  font-size: var(--qilin-content-font-size-secondary, 13px);
-  line-height: calc(18px + var(--qilin-content-font-delta-secondary, 0px));
-}
-
-.older {
-  display: flex;
-  justify-content: center;
-}
-
-.older button {
-  border: none;
-  border-radius: var(--qilin-radius-sm);
-  padding: 4px 12px;
-  font-size: 12px;
-  color: var(--qilin-alias-label-secondary);
-  background: var(--qilin-alias-interactive-bg-hover-solid);
-  cursor: pointer;
-}
-
-.older button:disabled {
-  cursor: default;
-  opacity: 0.6;
-}
-
-/* Floating controls sit outside the clipped transcript. A standalone Chat
-   anchors them to its frame; the shared host supplies the sticky scrollport. */
-.toBottomSlot {
-  position: absolute;
-  right: 0;
-  bottom: 16px;
-  left: 0;
-  /* Above the sticky composer (z-index 7) so the control stays clickable and
-     visible over the input card. Exception: while an @/slash menu is open the
-     seat lifts to 9 (ui-conversation ConversationRoot) so the menu is never
-     covered by this control. */
-  z-index: 8;
-  height: 0;
-  display: flex;
-  justify-content: center;
-  pointer-events: none;
-}
-
-:global([data-conversation-scroll]) .toBottomSlot {
-  position: sticky;
-  /* Clears the sticky composer stack (docks + input card + stats): the live
-     height rides --qilin-composer-height (ConversationRoot's seat observer) so
-     the control follows a growing textarea; the fallback covers the first
-     paint before the observer fires. */
-  bottom: calc(var(--qilin-composer-height, 152px) + 16px);
-}
-
-.toBottom {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  margin-top: -34px;
-  padding: 0;
-  border: 0;
-  --qilin-elevation-stroke-color: var(--qilin-alias-border-l3);
-  border-radius: 100px;
-  corner-shape: round;
-  color: var(--qilin-alias-label-primary);
-  background: var(--qilin-alias-button-floating-fill);
-  box-shadow: var(--qilin-elevation-panel);
-  cursor: pointer;
-  pointer-events: auto;
-}
-
-.toBottom:hover {
-  background: var(--qilin-alias-button-floating-hover);
+  --qilin-chat-flow-gap: 12px;
+  --dsw-alias-label-shimmer: var(--dsw-alias-label-deep-diving-shimmer);
+  color: var(--dsw-alias-label-deep-diving);
+  font-size: calc(var(--qilin-content-font-size, 14px) - 2px);
+  line-height: calc(22px + var(--qilin-content-font-delta, 0px));
 }
 
 /* Host open-path refusal: same dialog family as the workspace folder error. */
