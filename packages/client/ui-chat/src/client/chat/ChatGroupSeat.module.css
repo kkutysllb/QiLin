@@ -72,7 +72,7 @@
 }
 
 .body {
-  --dsh-chat-flow-gap: 8px;
+  --dsh-chat-flow-gap: 56px;
   max-height: min(400px, 50vh);
   overflow-y: auto;
   overscroll-behavior-y: auto;
@@ -121,7 +121,7 @@
   margin-top: var(--dsh-chat-flow-gap, 8px);
 }
 .expandedBody {
-  --dsh-chat-flow-gap: 16px;
+  --dsh-chat-flow-gap: 56px;
   max-height: none;
   overflow: visible;
   scrollbar-gutter: auto;
