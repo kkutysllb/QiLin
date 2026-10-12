@@ -67,7 +67,7 @@
    hidden and empty Seats do not contribute spacing. */
 .column > :not([hidden]):not(.flowItem:empty)
   ~ :not([hidden]):not(.flowItem:empty) {
-  margin-top: var(--qilin-chat-flow-gap, 16px);
+  margin-top: var(--qilin-chat-flow-gap, 40px);
 }
 
 /* Settled-flow identity boundary. It is neutral until it becomes the natural
@@ -99,11 +99,12 @@
   }
 }
 
-/* The Turn header has 16px clearance from its input and following content. */
+/* The Turn header and its process rows share the ordinary rhythm. The folded
+ * answer keeps its own tight override below. */
 .flowItem[data-chat-flow-kind="turn-process"],
 .flowItem[data-turn-process-answer],
 .column > [data-chat-flow-kind="turn-process"] + :not([hidden]):not(.flowItem:is(:empty, :has(> [data-slot="conversation.chat.node"]:empty))):not(.running) {
-  --qilin-chat-flow-gap: 16px;
+  --qilin-chat-flow-gap: 40px;
 
 }
 
