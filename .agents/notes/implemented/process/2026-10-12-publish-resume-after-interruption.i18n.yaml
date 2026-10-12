@@ -1,0 +1,22 @@
+# Bilingual-pair consistency record for 2026-10-12-publish-resume-after-interruption.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-10-12-publish-resume-after-interruption.md
+/agent-note-a-publish-interrupted-mid-run-needs-a-resume-path-not-a-restart:
+  en: 759da22600d4b415
+  zh: 6154c60ced0b42c7
+/agent-note-a-publish-interrupted-mid-run-needs-a-resume-path-not-a-restart/problem:
+  en: 5030c5d24eed679d
+  zh: 5030c5d24eed679d
+/agent-note-a-publish-interrupted-mid-run-needs-a-resume-path-not-a-restart/decision:
+  en: e7efde0c218a98fb
+  zh: e7efde0c218a98fb
+/agent-note-a-publish-interrupted-mid-run-needs-a-resume-path-not-a-restart/alternatives-considered:
+  en: 57b9cf9be8bc9ae1
+  zh: 57b9cf9be8bc9ae1
+/agent-note-a-publish-interrupted-mid-run-needs-a-resume-path-not-a-restart/consequences:
+  en: 2a0ee2b2480c01ce
+  zh: 2a0ee2b2480c01ce
+/agent-note-a-publish-interrupted-mid-run-needs-a-resume-path-not-a-restart/related:
+  en: 7734e4d3440687cc
+  zh: 7734e4d3440687cc
