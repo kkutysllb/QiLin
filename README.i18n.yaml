@@ -14,21 +14,27 @@
 /qilin/architecture:
   en: f0fc3268091c5eb6
   zh: eff690646c41b3a8
+/qilin/architecture/two-deployment-forms:
+  en: ddcaa30baedc233b
+  zh: be63b9fb4b9b0f5b
 /qilin/capabilities:
   en: 4ef2e65d005e48c9
-  zh: 1f4dd79bb6b7d7ab
+  zh: 120b38092c68869f
 /qilin/run:
   en: 4e0248e4c6474fc6
   zh: eb2fb8d78c7d6bc0
-/qilin/run/run-from-source:
-  en: 55f241148a8f09b6
-  zh: e7130264751ce46d
+/qilin/run/run-the-desktop-app:
+  en: d4107a982a7be295
+  zh: 2395ae1e20d10ce8
+/qilin/run/run-the-web-deployment:
+  en: 361f96d21beee9c2
+  zh: 3e6032bdffc08cc7
 /qilin/contributing:
   en: 19551970962f6929
-  zh: 2fa74a4019bc862a
+  zh: 90a946cbae17fac2
 /qilin/development:
   en: c14d11a35bcc9209
-  zh: 6cb64f99a0456499
+  zh: 3f05262eb8544e1f
 /qilin/license:
   en: 926995344fc1c72b
-  zh: c92fab5abf85932f
+  zh: 16290dba8d74c465
