@@ -221,6 +221,7 @@
   border: 0;
   --qilin-elevation-stroke-color: var(--qilin-alias-border-l3);
   border-radius: 100px;
+  corner-shape: round;
   color: var(--qilin-alias-label-primary);
   background: var(--qilin-alias-button-floating-fill);
   box-shadow: var(--qilin-shadow-lv1);
