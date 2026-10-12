@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/repeat-tool-reminder",
   "description": "Repeat-tool-call guard plugin: advisory reminders when an agent loops on identical tool calls",
-  "version": "3.1.4",
+  "version": "3.1.5",
   "publishConfig": {
     "access": "public"
   },

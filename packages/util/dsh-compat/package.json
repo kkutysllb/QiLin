@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/dsh-compat",
   "description": "DSH-era plugin ecosystem compatibility: module-name aliases and manifest-key fallback readers",
-  "version": "3.1.4",
+  "version": "3.1.5",
   "publishConfig": {
     "access": "public"
   },

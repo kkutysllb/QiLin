@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/client-ui-model-selection",
   "description": "Model selection over the shared model catalog, Session projection, and session.selectModel",
-  "version": "3.1.4",
+  "version": "3.1.5",
   "publishConfig": {
     "access": "public"
   },
