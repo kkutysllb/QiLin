@@ -128,6 +128,8 @@ flowchart LR
   cfg --> plugin_qilin_base_plan_mode
   plugin_qilin_base_token_meter["token-meter<br/>@qilin-agent/token-meter"]
   cfg --> plugin_qilin_base_token_meter
+  plugin_qilin_base_usage_report["usage-report<br/>@qilin-agent/usage-report"]
+  cfg --> plugin_qilin_base_usage_report
   plugin_qilin_base_compaction_basic["compaction-basic<br/>@qilin-agent/compaction-basic"]
   cfg --> plugin_qilin_base_compaction_basic
   plugin_qilin_base_command_compact["command-compact<br/>@qilin-agent/command-compact"]
@@ -254,6 +256,7 @@ flowchart LR
 | `command-goal` | `@qilin-agent/command-goal` |
 | `plan-mode` | `@qilin-agent/plan-mode` |
 | `token-meter` | `@qilin-agent/token-meter` |
+| `usage-report` | `@qilin-agent/usage-report` |
 | `compaction-basic` | `@qilin-agent/compaction-basic` |
 | `command-compact` | `@qilin-agent/command-compact` |
 | `subagent` | `@qilin-agent/subagent` |

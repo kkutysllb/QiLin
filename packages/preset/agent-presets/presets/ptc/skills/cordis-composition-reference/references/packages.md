@@ -115,6 +115,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/client-ui-theme-brand` | no | QiLin brand color layer for the Web client theme: alias-token overrides stacked over the user's active palette |
 | `@qilin-agent/client-ui-tool` | no | Client Tool call-tree renderer and keyed per-tool presentation slot |
 | `@qilin-agent/client-ui-trajectory` | no | Trajectory event ledger with an interactive timing overview: pure-consumer plugin registering into the conversation ViewMap (no service) |
+| `@qilin-agent/client-ui-usage` | no | Per-account token usage in Settings: daily stacked bars, cache-hit-rate area, and per-session detail |
 | `@qilin-agent/client-ui-user-questions` | no | Web ask_user_question composer takeover and plan-review presentation UI |
 | `@qilin-agent/client-ui-workflow-run` | no | Durable workflow-run Conversation Node and nested member disclosure for qilin web |
 | `@qilin-agent/client-ui-workspace` | no | Workspace picker plugin: one WorkspacePicker registered into the sidebar and empty-state workspace slots |
@@ -193,9 +194,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/experimental-computer-use-cua-driver-native` | no | Experimental computer-use provider embedding the Cua Driver native npm SDK |
 | `@qilin-agent/experimental-hooks-claude-code` | yes | Bridge plugin: run a Claude Code hooks.json / settings hook config on the QiLin interception seams |
 | `@qilin-agent/experimental-hooks-codex` | yes | Bridge plugin: run a Codex hooks.json hook config on the QiLin interception seams |
-| `@qilin-agent/experimental-inspector` | yes | Experimental cross-realm CDP hub for Host debugging and Client Runtime inspection |
 | `@qilin-agent/experimental-ptc-runtime-python` | yes | CPython subprocess implementation of the QiLin PTC execution seam |
-| `@qilin-agent/experimental-session-inspector` | no | Experimental virtualized Session log and live Chat group/node inspectors |
 | `@qilin-agent/experimental-session-title-all-prompts-llm` | yes | All-user-messages LLM provider plugin for QiLin session titles |
 | `@qilin-agent/experimental-skill-badge` | no | Bundled qilin badge skill provider for QiLin |
 | `@qilin-agent/experimental-speech-to-text` | yes | Experimental speech recognition with independently selectable providers |
@@ -372,6 +371,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/session-title-first-prompt-llm` | yes | First-message LLM provider plugin for QiLin session titles |
 | `@qilin-agent/session-turn-outline` | no | Whole-log turn outline projection (turnOutline) for the QiLin |
 | `@qilin-agent/tool-working-directory` | no | Read and change the active Session working directory |
+| `@qilin-agent/usage-report` | no | Reports each settled Turn's token usage to the deployment that started the runtime |
 | `@qilin-agent/working-directory` | yes | Session working directories with durable changes and model context |
 
 ## session-query

@@ -172,10 +172,6 @@ const packageFileExtras: Readonly<Record<string, readonly string[]>> = {
   '@qilin-agent/experimental-speech-to-text-sensevoice': ['runtime/assets.json'],
   // The isolated Node bootstrap is a separately launched bundle.
   '@qilin-agent/ptc-runtime-node': ['lib/process.js'],
-  // The Host entry starts its sibling Worker by URL rather than a package export.
-  // The page-level client bundle and the vendored Chrome devtools frontend
-  // assets ship beside it.
-  '@qilin-agent/experimental-inspector': ['lib/worker.js', 'lib/client.*.js', 'lib/devtools/**', 'cordis.patch.yml'],
   // The shipped preset compositions travel inside the roster package.
   '@qilin-agent/agent-presets': ['presets'],
   // The Web Host mounts the default-off settings owner independently of each

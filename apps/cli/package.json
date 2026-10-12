@@ -50,7 +50,6 @@
     "@qilin-agent/experimental-auto-review": "workspace:*",
     "@qilin-agent/experimental-badge-skill-bundle": "workspace:*",
     "@qilin-agent/experimental-cot-translation-bundle": "workspace:*",
-    "@qilin-agent/experimental-inspector-profile": "workspace:*",
     "@qilin-agent/experimental-ralph-bundle": "workspace:*",
     "@qilin-agent/experimental-schedule-bundle": "workspace:*",
     "@qilin-agent/experimental-session-search": "workspace:*",

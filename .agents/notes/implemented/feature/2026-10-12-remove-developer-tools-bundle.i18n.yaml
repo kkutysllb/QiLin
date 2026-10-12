@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for 2026-10-12-remove-developer-tools-bundle.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-10-12-remove-developer-tools-bundle.md
+/agent-note-developer-tools-bundle-removed-from-the-product:
+  en: c318195d704aa0b4
+  zh: 5396d29256863fea
+/agent-note-developer-tools-bundle-removed-from-the-product/problem:
+  en: 121f7246a915216f
+  zh: aa6de207970dacb9
+/agent-note-developer-tools-bundle-removed-from-the-product/decision:
+  en: 0b49fc92d83be8fb
+  zh: 26d8a8f8a2a4ef90
+/agent-note-developer-tools-bundle-removed-from-the-product/alternatives-considered:
+  en: 7c56286dba3c9dde
+  zh: a5daa29c957a4dc2
+/agent-note-developer-tools-bundle-removed-from-the-product/consequences:
+  en: 2c929219e5e960ab
+  zh: d1cbe91bae9173db
