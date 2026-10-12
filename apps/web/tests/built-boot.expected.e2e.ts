@@ -61,11 +61,14 @@ it('boots the built plugin graph and renders a fixture session end to end', asyn
 
   // The sidebar renders from the boot graph: every inject layer activated.
   const tree = await screen.findByRole('tree', { name: 'Sessions' }, { timeout: 10_000 })
+  // The brand mark is the seal in both profiles; query the slot rather than the
+  // artwork's internal geometry, which redesigns change without notice here.
+  const brandMark = document.querySelector('[data-slot="sidebar.brand.mark"] svg')
   if (clientBuildValue('QILIN_CLIENT_BUILD_PROFILE') === 'official') {
-    expect(document.querySelector('svg[viewBox="26 0 156 24"]')).not.toBeNull()
+    expect(brandMark).not.toBeNull()
     expect(screen.queryByText('QiLin Local Build')).toBeNull()
   } else {
-    expect(document.querySelector('svg[viewBox="0 0 23.16 17.04"]')).not.toBeNull()
+    expect(brandMark).not.toBeNull()
     const version = clientBuildValue('QILIN_CLIENT_VERSION')
     if (version === undefined) throw new Error('default client build record must carry QILIN_CLIENT_VERSION')
     const commit = clientBuildValue('QILIN_CLIENT_COMMIT_HASH')

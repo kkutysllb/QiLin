@@ -56,5 +56,8 @@ export const remoteDefaultResponses: RemoteTable = {
       type: 'baseline',
       value: { items: [], archivedSessionIds: [], pinnedSessionIds: [] },
     }]),
+    // ui-agent-opens `apply` watches the viewed Session; open requests are a
+    // transient push with no replay, so the open-empty stream is the default.
+    'sidebarOpens/watch': openStream([]),
   },
 }
