@@ -480,6 +480,17 @@ html[data-ql-theme='light'] .site-header__rule {
   line-height: 1rem;
 }
 
+/* NMO 理念标签：金边金字，与产品能力标签区分开——这三条是产品宪法，不是功能清单。 */
+.hero__tag--nmo {
+  border-color: rgba(201, 162, 74, 0.45);
+  color: var(--ql-gold-300);
+}
+
+html[data-ql-theme='light'] .hero__tag--nmo {
+  border-color: rgba(143, 111, 46, 0.4);
+  color: var(--ql-gold-700);
+}
+
 /* Desktop window frame around every real product screenshot. */
 
 .showcase {
