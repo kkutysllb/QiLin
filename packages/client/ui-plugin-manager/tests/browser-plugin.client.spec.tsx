@@ -33,6 +33,8 @@ async function bench() {
       mutate: () => Promise.resolve(false),
     }),
   })
+  // The creator menu entry navigates through the workspace service; this fixture never clicks it.
+  ctx.provide('uiWorkspace', { startSession: vi.fn() } as never)
   const list = vi.fn(() => Promise.resolve({ ok: true as const, value: { entries: [], managementAvailable: true } }))
   const fastest = vi.fn(() => Promise.resolve({ ok: true as const, value: null }))
   const remote = new TestRemote(ctx, {
@@ -92,9 +94,9 @@ describe('ui-plugin-manager browser plugin', () => {
     expect(b.ctx.get('pluginNavigation')).toBeUndefined()
   })
 
-  it('declares only the services the page, its Remote methods, and the shared configuration forms use', () => {
+  it('declares only the services the page, its Remote methods, the shared configuration forms, and the creator entry use', () => {
     expect(inject).toEqual([
-      'slots', 'locale', 'remote', 'remote.pluginManager', 'remote.pluginInventory', 'remote.pluginRegistryProbe', 'configForms',
+      'slots', 'locale', 'remote', 'remote.pluginManager', 'remote.pluginInventory', 'remote.pluginRegistryProbe', 'configForms', 'uiWorkspace',
     ])
   })
 

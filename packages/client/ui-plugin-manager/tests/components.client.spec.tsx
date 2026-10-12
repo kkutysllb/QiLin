@@ -81,6 +81,7 @@ function renderTab(
     ensure: vi.fn(),
     refresh: vi.fn(),
     openInstall: vi.fn(),
+    startSession: vi.fn(),
     closeInstall: vi.fn(),
     editInstallSpec: vi.fn(),
     runInstall: vi.fn(),
@@ -401,7 +402,7 @@ describe('PluginManagerPage', () => {
     const bodies: SlotBodies = {
       'plugins.add.actions:': (_view, owner) => (
         <button type="button" role="menuitem" data-testid="contributed"
-          onClick={() => { owner.onDismiss?.() }}>让 Agent 创建插件</button>
+          onClick={() => { owner.onDismiss?.() }}>贡献的示例动作</button>
       ),
     }
     const { actions } = renderTab({ status: 'ready' }, {}, bodies)
@@ -414,6 +415,11 @@ describe('PluginManagerPage', () => {
     // The install row dismisses the menu before opening the dialog.
     fireEvent.click(screen.getByRole('menuitem', { name: new RegExp(en.installExisting) }))
     expect(actions.openInstall).toHaveBeenCalledTimes(2)
+    expect(screen.queryByRole('menu')).toBeNull()
+    // The first-party creator entry dismisses the menu and opens the blank session.
+    fireEvent.click(screen.getByRole('button', { name: en.chooseAddMethod }))
+    fireEvent.click(screen.getByRole('menuitem', { name: new RegExp(en.createWithAgent) }))
+    expect(actions.startSession).toHaveBeenCalledTimes(1)
     expect(screen.queryByRole('menu')).toBeNull()
     // A contributed row receives the same dismissal before its own action.
     fireEvent.click(screen.getByRole('button', { name: en.chooseAddMethod }))

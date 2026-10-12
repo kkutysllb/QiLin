@@ -22,6 +22,9 @@ import type {} from '@qilin-agent/client-ui-settings/client'
 import type {} from '@qilin-agent/client-ui-settings-general/client'
 // Type-only: the `sidebar.panellist` entry seat the sidebar row registers into.
 import type {} from '@qilin-agent/client-ui-sidebar/client'
+// Type-only: pulls the `uiWorkspace` Context merge; the add-plugin menu's
+// creator entry opens the conversation view's reusable blank session through it.
+import type {} from '@qilin-agent/client-ui-workspace/client'
 import type {} from '@qilin-agent/client-ui-renderer/client'
 // Type-only: the ctx.remote Context merge and the forwarded-event key face.
 import type {} from '@qilin-agent/api-remotes/client'
@@ -58,9 +61,9 @@ export const TAB_ID = 'manage'
 /** The id shared by the sidebar entry and the main panel it opens. */
 export const PANEL_ID = 'plugins' as MainPanelId
 
-/** Services required by the tab registration, the Remote methods, and the shared configuration forms. */
+/** Services required by the tab registration, the Remote methods, the shared forms, and the creator entry's navigation. */
 export const inject = [
-  'slots', 'locale', 'remote', 'remote.pluginManager', 'remote.pluginInventory', 'remote.pluginRegistryProbe', 'configForms',
+  'slots', 'locale', 'remote', 'remote.pluginManager', 'remote.pluginInventory', 'remote.pluginRegistryProbe', 'configForms', 'uiWorkspace',
 ]
 
 declare module '@qilin-agent/kylin' {
@@ -131,7 +134,10 @@ export function apply(ctx: ClientContext): void {
     'plugins.row.config': { kind: 'keyed', scope: 'root' },
   } as const
   const configLedger = configLedgerSource(ctx)
-  const face = controller.inject(configLedger, text => ctx.locale.resolveText(text))
+  // The creator entry sends nothing itself: the request is an ordinary
+  // message on the reusable blank session, so navigation is the whole feature.
+  const face = controller.inject(configLedger, text => ctx.locale.resolveText(text),
+    () => { ctx.uiWorkspace.startSession() })
   ctx.effect(() => {
     void controller.load()
     return () => {}

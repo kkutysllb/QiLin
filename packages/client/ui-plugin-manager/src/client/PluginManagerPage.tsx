@@ -13,7 +13,8 @@ import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import type { PluginInstallFailureKind, Registry } from '@qilin-agent/api-remotes/client'
 import type { ConfigPageForm } from './slot-contract.ts'
 import {
-  Button, IconCheckOutline16, IconChevronDownOutline14, IconChevronLeftOutline14, IconChevronRightOutline14, IconCloseOutline16,
+  Button, IconAgentPresetOutline16, IconCheckOutline16, IconChevronDownOutline14, IconChevronLeftOutline14,
+  IconChevronRightOutline14, IconCloseOutline16,
   IconCordisPluginOutline14, IconDownloadOutline16, IconPluginPinwheelOutline16, IconPlusOutline16, IconRefreshOutline16,
   IconRightUpOutline16, IconSearchOutline16, IconTrashOutline16,
   IconWarningOutline16, Input, Modal, StateDot, Switch, Tag, TerminalBlock, Toast,
@@ -56,13 +57,14 @@ type RowPhase = NonNullable<PackageRow['phase']>
  * A page-local anchored list because the contributed rows are rendered
  * elements (`plugins.add.actions`), not the data entries the shared Menu
  * primitive takes.
- * @param props - copy, the load gate, the install dialog opener, and the slot renderer.
+ * @param props - copy, the load gate, the install dialog opener, the blank-session starter, and the slot renderer.
  * @returns the split add-plugin control with its open menu.
  */
-function AddPluginMenu({ t, disabled, openInstall, renderSlot }: {
+function AddPluginMenu({ t, disabled, openInstall, startSession, renderSlot }: {
   readonly t: Translate
   readonly disabled: boolean
   readonly openInstall: () => void
+  readonly startSession: () => void
   readonly renderSlot: PropsRenderSlots<'plugins.add.actions'>['renderSlot']
 }): ReactNode {
   const [open, setOpen] = useState(false)
@@ -101,6 +103,18 @@ function AddPluginMenu({ t, disabled, openInstall, renderSlot }: {
             <span className={css.addMenuItem}>
               <span>{t('installExisting')}</span>
               <span className={css.addMenuDescription}>{t('installExistingDescription')}</span>
+            </span>
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            className={css.addMenuItemRow}
+            onClick={() => { onDismiss(); startSession() }}
+          >
+            <IconAgentPresetOutline16 size={14} />
+            <span className={css.addMenuItem}>
+              <span>{t('createWithAgent')}</span>
+              <span className={css.addMenuDescription}>{t('createWithAgentDescription')}</span>
             </span>
           </button>
           {renderSlot('plugins.add.actions', { onDismiss })}
@@ -1337,7 +1351,8 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
                   {refreshing ? <StateDot state="ongoing" /> : <IconRefreshOutline16 />}
                 </span>
               </button>
-              <AddPluginMenu t={t} disabled={!loaded} openInstall={props.openInstall} renderSlot={renderSlot} />
+              <AddPluginMenu t={t} disabled={!loaded} openInstall={props.openInstall}
+                startSession={props.startSession} renderSlot={renderSlot} />
             </div>
           </header>
         )

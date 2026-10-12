@@ -396,6 +396,8 @@ export interface PluginManagerFace {
    * disposer unregisters it. Backs the `pluginNavigation` channel.
    */
   registerOpen?: (handler: (packageName: string) => void) => () => void
+  /** Open the conversation view's reusable blank session for the add-plugin creator entry. */
+  startSession: () => void
   openInstall: () => void
   /** Close the dialog; a check in flight is dropped, a Host-owned run has to be cancelled first. */
   closeInstall: () => void
@@ -617,12 +619,15 @@ export class PluginManagerController {
    * Build the face the tab's slot registration injects.
    * @param configLedger - the projection of the plugins carrying configuration, bound beside the tab's own state.
    * @param resolveText - the locale seat's package-text resolver, for the bundle metadata the page shows.
+   * @param startSession - the workspace seat's blank-session starter, for the add-plugin menu's creator entry.
    * @returns the tab's snapshot sources and its actions.
    */
-  inject(configLedger: HostObservable<ConfigLedger>, resolveText: PluginManagerFace['resolveText']): PluginManagerFace {
+  inject(configLedger: HostObservable<ConfigLedger>, resolveText: PluginManagerFace['resolveText'],
+    startSession: PluginManagerFace['startSession']): PluginManagerFace {
     return {
       configForm: id => this.ctx.configForms.get(id),
       resolveText,
+      startSession,
       hooks: { configurations: this.ctx.configForms.describe(), pluginManager: this.store, configLedger },
       ensure: () => { if (this.getSnapshot().status === 'idle') void this.load() },
       refresh: () => { void this.refresh() },
