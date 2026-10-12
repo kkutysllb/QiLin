@@ -61,6 +61,33 @@ describe('deployment entry', () => {
     expect(await landed.text()).toBe('served ' + aliceId)
   })
 
+  it('routes a signed-in browser’s non-document requests to its own account’s runtime', { timeout: 60_000 }, async () => {
+    const deployment = await startDeployment({
+      usernames: ['alice', 'bob'],
+      maxTenants: 0,
+      signedIn: (cookie, accounts) => cookie === undefined ? undefined : { id: accounts.get('alice') ?? '' },
+    })
+    running.push(deployment)
+    const aliceId = deployment.accounts.get('alice') ?? ''
+
+    // The doors clear the routing cookie, and the composer keeps calling
+    // before any document navigation re-arms it: those calls must reach
+    // alice's runtime, never the first-run one, or the deployment writes its
+    // data into two runtimes at once and every history read splits.
+    const answer = await fetch(deployment.base + '/api/session/list', {
+      method: 'POST',
+      headers: { cookie: 'qilin-session-anything=1' },
+    })
+    expect(answer.status).toBe(200)
+    expect(await answer.text()).toBe('served ' + aliceId)
+    expect(String(answer.headers.get('set-cookie'))).toContain(routingCookie(aliceId))
+
+    // A browser the session does not name keeps the first-run answer.
+    const anonymous = await fetch(deployment.base + '/api/session/list', { method: 'POST' })
+    expect(anonymous.status).toBe(200)
+    expect(await anonymous.text()).toBe('served first-run')
+  })
+
   it('leaves a browser whose session names no account of this roster on the landing', { timeout: 60_000 }, async () => {
     const deployment = await startDeployment({
       usernames: ['alice'],

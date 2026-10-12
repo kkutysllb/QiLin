@@ -822,6 +822,24 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
         }
       }
     }
+    // The doors clear the routing cookie, and a browser they just cleared
+    // keeps sending work - the composer's API calls, assets, media - before
+    // any document navigation re-arms the cookie. Every such request names no
+    // account but belongs to one: dropping it into the first-run runtime
+    // would write the deployment's data into two runtimes at once. Route it
+    // by the session exactly as the document navigation above, in place; the
+    // answer carries the routing cookie, so later requests name the account
+    // themselves.
+    if (options.singleOrigin && request.headers.cookie !== undefined) {
+      const signedIn = await signedInAccountId(request)
+      if (signedIn !== undefined && store.byId(signedIn) !== undefined) {
+        const runtime = await routedRuntime(store, signedIn)
+        if (runtime?.proxyTarget() !== undefined) {
+          await forward(request, response, runtime, `${url.pathname}${url.search}`, [routingCookie(signedIn)])
+          return
+        }
+      }
+    }
     // Nothing left belongs to the deployment: a request that named no account
     // is the application's, whether it is a page, an asset, or the register
     // call a browser makes before any account exists. The first-run runtime
@@ -856,7 +874,14 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
           socket.destroy()
           return
         }
-        const accountId = cookieValue(request.headers.cookie, TENANT_COOKIE)
+        let accountId = cookieValue(request.headers.cookie, TENANT_COOKIE)
+        if (accountId === undefined && request.headers.cookie !== undefined) {
+          // The doors clear the routing cookie; the composer's next upgrade
+          // arrives before any document navigation re-arms it. Destroying the
+          // socket here would strand that browser in a reconnect loop, so the
+          // session names the account instead.
+          accountId = await signedInAccountId(request)
+        }
         const runtime = accountId === undefined ? undefined : await routedRuntime(await roster(), accountId)
         const target = runtime?.proxyTarget()
         if (runtime === undefined || target === undefined) {

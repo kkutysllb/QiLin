@@ -195,3 +195,19 @@ HTTP 那两条转发路径都传了第三个实参，所以只有升级这一跳
 **新复现、未修的高危缺陷（下一轮的主目标）**：single-origin 部署里，workspace/session 的写路径存在落进首启运行时的窗口。真进程探针（隔离 home、真部署、真浏览器）：路由 cookie 缺失期间（登录导航完成前/门清 cookie 后）的调用全部落到 .bootstrap——工作区与会话在 bootstrap 盘落盘；之后换成正确路由 cookie 的浏览器又会话出现 Failed to load history: session not found (session/not-found)、侧边栏与主面板各说各话。admin 租户目录 sessions/ 从未产生，workspace.json 始终为空。两个运行时数据分裂后，「会话标题不对」「工作区选不中」「报错」是同一根因的三个侧面。mux 转发本身路由正确（cookie=admin 时 hub 的连接全部指向 admin 端口，lsof 实证），所以缺口在无路由 cookie 请求的 fallback 归属与登录后路由 cookie 的重建时机，不在转发。
 
 **另一处如实登记**：tsx 源码启动下首个 POST /api/auth/login 观测到 10s 级延迟（冷启动），浏览器侧表现为提交后长时间无进展，用户重试即见错误文案。curl 同端点 0.05s，属冷启动而非验证成本；但这解释了「还报错」的一部分体感。
+
+## 19. 本轮增量（第 40 轮）：无路由 cookie 的请求按会话就地路由——数据分裂的根因修掉
+
+**用户重启后仍见** `历史加载失败: session "…" not found (session/not-found)`。真机盘面实证：会话与工作区全部写在 \`tenants/.bootstrap/sessions\`（含用户点名的 session-1c1a3ebc「个股分析」），五个账户目录的 sessions 为零、workspace.json 恒空——**数据没丢，但全在错误的运行时**。
+
+**根因（hub 路由）**：无路由 cookie 的请求里，只有 GET+text/html 按会话重建路由（303+设 cookie）；**其余——composer 的 POST、mux 升级、资源——全部 fallback 到首启运行时**。门每次应答都清路由 cookie，于是登录导航完成前的整段窗口里，浏览器的一切写都进了 bootstrap；带正确 cookie 的读又走真账户运行时，not-found 与标题错乱由此而来。
+
+**修复（tenants.ts 两处）**：
+1. HTTP 路由：无路由 cookie 但会话有效的浏览器，其余请求（API/资产/媒体）**按会话所属账户就地 forward**，应答附上路由 cookie——后续请求自行命名账户；
+2. mux 升级：cookie 缺失时按会话解析账户再转发（此前直接 destroy socket，正是用户日志里的 reconnect 风暴）。
+
+**判据**：
+- tenant-entry.spec 新增用例「无路由 cookie 的非文档请求按会话路由」：POST 应答 \`served <account>\` 且带路由 cookie，未登录浏览器仍得 first-run——**负向对照实跑**：恢复修复前代码该用例红（落 first-run），修复后 8/8 绿；
+- 真进程探针：仅会话、无路由 cookie 的 mux 升级握手 **401/destroy → 101**；
+- 真浏览器（多账户部署）：工作区/会话创建落在 **alice 租户目录** \`sessions/--…--/session-a0db…\`，不再出现于 .bootstrap；
+- 用户数据确认完好：session-1c1a3ebc（个股分析）等全部在 .bootstrap 盘，迁移待用户指认目标账户后进行。
