@@ -45,7 +45,7 @@ const useSessionStatus: FontSizeRowComponentProps['useSessionStatus'] = selector
 function mount(fontSize = 14) {
   // Real store instance — the sanctioned zero-machinery path for tests.
   const store = createTypographyRowStore().create()
-  store.actions.sync(fontSize, 0, 0)
+  store.actions.sync(fontSize, 0)
   const setFontSize = vi.fn()
   const props: FontSizeRowComponentProps = {
     useSessions: emptySessions(),

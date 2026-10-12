@@ -131,7 +131,6 @@ function bench(options: BenchOptions = {}) {
       getSnapshot: (): ThemeSnapshot => ({
         preference: options.preference ?? 'system',
         fontSize: 14,
-        leading: 0,
         active: { id: 'light', colorScheme: 'light', tokens: {} },
         themes: [],
         revision: 0,

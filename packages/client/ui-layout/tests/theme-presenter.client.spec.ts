@@ -11,12 +11,11 @@ function snapshot(
   colorScheme: 'light' | 'dark',
   tokens: Record<string, string> = {},
   fontSize = 14,
-  leading = 0,
   preference: ThemePreference = colorScheme,
 ): ThemeSnapshot {
   // The presenter must key off colorScheme, not the id — keep them distinct.
   const active = { id: `${colorScheme}-test`, colorScheme, tokens }
-  return { preference, fontSize, leading, active, themes: [active], revision: 1 }
+  return { preference, fontSize, active, themes: [active], revision: 1 }
 }
 
 function clearThemePresentation(): void {
@@ -87,16 +86,9 @@ describe('ThemePresenter', () => {
     expect(document.body.style.getPropertyValue('--qilin-content-font-size')).toBe('17px')
   })
 
-  it('publishes the content leading adjustment and follows changes', () => {
-    const presenter = new ThemePresenter()
-    presenter.apply(snapshot('light'))
-    presenter.apply(snapshot('light', {}, 14, -2))
-    presenter.apply(snapshot('light', {}, 14, 5))
-  })
-
   it('publishes the theme source: system stays system, fixed preferences publish the resolved scheme', () => {
     const presenter = new ThemePresenter()
-    presenter.apply(snapshot('dark', {}, 14, 0, 'system'))
+    presenter.apply(snapshot('dark', {}, 14, 'system'))
     expect(document.documentElement.getAttribute(THEME_SOURCE_ATTRIBUTE)).toBe('system')
     presenter.apply(snapshot('dark'))
     expect(document.documentElement.getAttribute(THEME_SOURCE_ATTRIBUTE)).toBe('dark')
@@ -107,7 +99,7 @@ describe('ThemePresenter', () => {
   it('dispose removes color-scheme, the attribute, the content axes, and every applied variable, sparing foreign inline styles', () => {
     document.body.style.setProperty('--foreign', 'kept')
     const presenter = new ThemePresenter()
-    presenter.apply(snapshot('dark', { '--qilin-alias-bg': '#111' }, 15, 2))
+    presenter.apply(snapshot('dark', { '--qilin-alias-bg': '#111' }, 15))
     const meta = themeColorMeta()
     presenter.dispose()
     expect(document.documentElement.style.colorScheme).toBe('')

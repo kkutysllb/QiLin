@@ -3,8 +3,7 @@
  * document — `html { color-scheme }` for native UA chrome (scrollbars, form
  * controls), `body[data-ds-dark-theme]` for the token palette, the active
  * theme's alias-token overrides as inline CSS variables on body, the content
- * font-size and leading axes (`--qilin-content-font-size`,
- * `--qilin-content-leading`), `html[data-ds-theme-source]` for native-chrome
+ * font-size axis (`--qilin-content-font-size`), `html[data-ds-theme-source]` for native-chrome
  * mirroring, and one presenter-owned `meta[name="theme-color"]` for surrounding
  * browser UI. Pure DOM writes, no
  * React involvement; the presenter only ever retracts what it wrote itself,
@@ -43,7 +42,7 @@ export class ThemePresenter {
   /**
    * Project a snapshot onto the document: set root `color-scheme` and the body
    * palette attribute from `active.colorScheme` (never the id — `system` is
-   * resolved upstream), publish the content font-size and leading axes, then
+   * resolved upstream), publish the content font-size axis, then
    * replace the previously applied token variables with `active.tokens`.
    * Browser theme-color metadata follows the computed body background after
    * those writes, so the rendered palette remains the color authority.
