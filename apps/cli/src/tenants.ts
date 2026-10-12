@@ -611,7 +611,8 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       chunks.push(buffer)
     }
     try {
-      return JSON.parse(Buffer.concat(chunks).toString('utf8')) as unknown
+      const parsed: unknown = JSON.parse(Buffer.concat(chunks).toString('utf8'))
+      return parsed
     } catch (error) {
       if (error instanceof SyntaxError) return undefined
       throw error
