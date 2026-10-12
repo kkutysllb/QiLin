@@ -81,7 +81,7 @@ export function recordingRuntime(
         log.push(`start:${options.accountId}`)
         const created = createServer((request, response) => {
           if (request.url === '/api/auth/status' && signedIn !== undefined) {
-            const account = signedIn(request.headers.cookie)
+            const account = signedIn(request.headers.cookie || undefined)
             response.writeHead(200, { 'content-type': 'application/json' })
             response.end(JSON.stringify({ authenticated: account !== undefined, user: account ?? null }))
             return

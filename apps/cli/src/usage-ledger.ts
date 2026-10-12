@@ -60,6 +60,9 @@ export interface UsageTotal {
 }
 
 /** Directory of the ledger inside one deployment home. */
+/** The browser-facing read the hub answers from its own ledger. */
+export const USAGE_BROWSER_READ_PATH = '/api/usage/me'
+
 export function usageDirectory(home: string): string {
   return join(home, 'tenants', '.usage')
 }

@@ -211,3 +211,23 @@ HTTP 那两条转发路径都传了第三个实参，所以只有升级这一跳
 - 真进程探针：仅会话、无路由 cookie 的 mux 升级握手 **401/destroy → 101**；
 - 真浏览器（多账户部署）：工作区/会话创建落在 **alice 租户目录** \`sessions/--…--/session-a0db…\`，不再出现于 .bootstrap；
 - 用户数据确认完好：session-1c1a3ebc（个股分析）等全部在 .bootstrap 盘，迁移待用户指认目标账户后进行。
+
+## 20. 本轮增量（第 40 轮续）：用量读搬回账本的主人——hub
+
+**用户报的现象**：设置 → 用量显示「无法联系部署，页面暂无内容可显示」。
+
+**读路径的三层拆解（真进程逐层探）**：浏览器 fetch \`/api/usage/me\` → （mux 网关）→ 运行时的 connection.fetch 注册项 → 运行时**再**带着 Bearer token 回 hub 的账本端点。三处任一失败，页面即显示「无法联系部署」：
+1. 上一节的窗口期里，请求落到首启运行时——它的账本里没有这个账户；
+2. 运行时上 \`/api/usage/me\` 的注册本身是时序性的：usage-report 声明 \`inject: []\`，apply 时 \`ctx.get('connection')\` 若早于 client-connection 就绪则为 undefined，注册被静默跳过——浏览器得到的就是 404（探针实测：修好的路由下登录后直读仍是 404）；
+3. 注册成功时，读取还要经历「浏览器→hub→运行时→hub」的绕圈，账本本来就是 hub 的文件。
+
+**修复（读路径收回账本的主人）**：
+- hub 新增浏览器面读路由：\`/api/usage/me\`（GET）在 singleOrigin 段直接应答——账户取路由 cookie，缺失时按会话解析；匿名/名册外一律 401（浏览器 API，不是门文档，不落首启运行时）；管理员席位的部署范围读、窗口参数、封顶与应答形状原样保留（抽为 \`answerUsageRead\`，账本通道与浏览器通道共用）；
+- usage-report 回归纯上报：删除读注册、\`readOwnUsage\` 与 \`USAGE_READ_PATH\`（常量移入 usage-ledger），模块文档同步；
+- 前端不变（同路径同应答形状）。
+
+**判据**：
+- tenant-usage.spec 新增浏览器面用例：会话命名账户、匿名 401（并修 fixture：空 cookie 头按无会话，与真门一致）；
+- usage-report.spec 删除两条读用例（读已不属于运行时）；
+- 真进程：登录后 \`/api/usage/me\` → **200**（\`{accountId, total, records: []}\`，空账本的正确应答，前端渲染零值图表而非「无法联系部署」）；匿名 → 401；
+- 上一节的路由修复保证窗口期的读也按会话命中 hub 的这条新路由。

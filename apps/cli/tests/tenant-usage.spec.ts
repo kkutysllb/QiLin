@@ -105,6 +105,33 @@ describe('usage ledger endpoint', () => {
     expect((await fetch(alice.url)).status).toBe(401)
   })
 
+  it('answers the browser’s own usage read from the hub’s ledger, naming the account', { timeout: 60_000 }, async () => {
+    const deployment = await startDeployment({
+      usernames: ['root', 'alice'],
+      admins: ['root'],
+      maxTenants: 0,
+      signedIn: (cookie, accounts) => cookie === undefined ? undefined : { id: accounts.get('root') ?? '' },
+    })
+    running.push(deployment)
+    const rootId = deployment.accounts.get('root') ?? ''
+
+    // The read is answered by the hub itself - the ledger is its file - so it
+    // needs neither a routing cookie nor a runtime: the session names the
+    // account, and the administrator's seat widens the answer to all of them.
+    const answer = await fetch(new URL('/api/usage/me?from=0', deployment.base), {
+      headers: { cookie: 'qilin-session-anything=1' },
+    })
+    console.log('DBG status:', answer.status, 'set-cookie:', answer.headers.get('set-cookie'), 'body:', (await answer.clone().text()).slice(0, 60))
+    expect(answer.status).toBe(200)
+    expect(await answer.json()).toMatchObject({ scope: 'deployment', truncated: false })
+
+    // An anonymous browser gets a refusal, not somebody else's numbers.
+    const anonymous = await fetch(new URL('/api/usage/me', deployment.base))
+    console.log('DBG anon:', anonymous.status, (await anonymous.text()).slice(0, 60))
+    expect(anonymous.status).toBe(401)
+    expect(rootId).not.toBe('')
+  })
+
   it('lets the deployment administrator read every account, and no one else', { timeout: 60_000 }, async () => {
     const deployment = await startDeployment({ usernames: ['root', 'alice'], admins: ['root'], maxTenants: 0 })
     running.push(deployment)

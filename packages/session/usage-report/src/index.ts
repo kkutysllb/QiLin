@@ -6,12 +6,12 @@
  * own and keeps one ledger of what each account spent. This plugin is the
  * runtime's half of that: it folds one Turn's durable attempts into exact usage
  * — the same derivation the transcript shows — and posts it to the endpoint the
- * supervisor named in this process's environment. A runtime started by hand
- * carries no such endpoint and this plugin then does nothing at all.
+ * supervisor named in this process's environment. The browser reads that ledger
+ * from the deployment itself, so a runtime started by hand carries no endpoint
+ * and this plugin then does nothing at all.
  * @module @qilin-agent/usage-report
  */
 
-import type {} from '@qilin-agent/client-connection'
 import type { Context } from '@qilin-agent/kylin'
 import type { SessionEvent } from '@qilin-agent/session'
 import { deriveTurnTokenUsage } from '@qilin-agent/token-meter'
@@ -27,9 +27,6 @@ export const name = 'usage-report'
 
 /** This plugin reads no service; it only follows the session event stream. */
 export const inject: readonly string[] = []
-
-/** Path the browser reads its own account's usage from. */
-export const USAGE_READ_PATH = '/api/usage/me'
 
 /** How long one report may take before it is abandoned. */
 const REPORT_TIMEOUT_MS = 5_000
@@ -52,18 +49,6 @@ export function apply(ctx: Context): void {
   const url = process.env[USAGE_URL_VARIABLE]
   const token = process.env[USAGE_TOKEN_VARIABLE]
   if (url === undefined || url === '' || token === undefined || token === '') return
-
-  // The browser's view of its own account, when this runtime serves a web
-  // transport. A runtime without one keeps reporting and serves no read.
-  const connection = ctx.get('connection')
-  if (connection !== undefined) {
-    connection.fetch.register({
-      path: USAGE_READ_PATH,
-      methods: ['GET'],
-      requestBody: 'buffered',
-      fetch: request => readOwnUsage(new URL(request.url).search, url, token),
-    })
-  }
 
   /** Durable events of the Turn each session is inside, from `turn/start` on. */
   const turns = new Map<string, SessionEvent[]>()
@@ -95,34 +80,6 @@ export function apply(ctx: Context): void {
       ...usage.cacheWriteTokens === undefined ? {} : { cacheWriteTokens: usage.cacheWriteTokens },
     })
   })
-}
-
-/**
- * Answer the browser with its own account's usage, read from the deployment
- * with the credential this runtime reports under.
- * @param query - query string the browser asked with, such as a report-time window.
- * @param url - endpoint the deployment named.
- * @param token - credential that endpoint accepts.
- * @returns the ledger's answer, or a refusal when the deployment cannot be reached.
- */
-async function readOwnUsage(query: string, url: string, token: string): Promise<Response> {
-  try {
-    const answered = await fetch(`${url}${query}`, {
-      headers: { authorization: `Bearer ${token}` },
-      signal: AbortSignal.timeout(REPORT_TIMEOUT_MS),
-    })
-    return new Response(await answered.text(), {
-      status: answered.status,
-      headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
-    })
-  } catch (error) {
-    // The page shows a refused read as a deployment that cannot be reached
-    // rather than as an account with no usage.
-    return new Response(JSON.stringify({ error: { code: 'ledger-unavailable', message: error instanceof Error ? error.message : String(error) } }), {
-      status: 503,
-      headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
-    })
-  }
 }
 
 /**

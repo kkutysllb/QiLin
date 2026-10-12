@@ -50,6 +50,7 @@ import { forwardedHeaders, hubAcceptsOrigin, proxyRequest, relayAnswer, relayUpg
 import {
   appendUsage, capUsageRecords, isUsageReport, readUsageRecords, readUsageTotal, readUsageTotals, readUsageWindow, sumUsageTotals,
   type UsageReport,
+  USAGE_BROWSER_READ_PATH,
 } from './usage-ledger.ts'
 
 /** Certificate and key the public address terminates TLS with. */
@@ -618,6 +619,49 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
   }
 
   /**
+   * Answer a usage read for one account: the administrator's seat widens the
+   * answer to every account's records, tagged; everyone else reads their own.
+   * Shared by the ledger channel (a runtime reporting under its token) and the
+   * browser's own read, which the hub answers directly from its ledger.
+   * @param response - the answer to write.
+   * @param accountId - the account the read belongs to.
+   * @param search - the read's query, carrying the window.
+   */
+  const answerUsageRead = async (
+    response: ServerResponse,
+    accountId: string,
+    search: URLSearchParams,
+  ): Promise<void> => {
+    const window = readUsageWindow(search)
+    if (window === undefined) {
+      json(response, 400, { error: 'invalid-window' })
+      return
+    }
+    const store = await roster()
+    if (store.byId(accountId)?.admin === true) {
+      // A deployment-wide read carries each account's own records, tagged, so
+      // one answer can be drawn per account or summed across them.
+      const tagged: { accountId: string; record: UsageReport }[] = []
+      for (const account of store.all()) {
+        for (const record of await readUsageRecords(home, account.id, window)) tagged.push({ accountId: account.id, record })
+      }
+      tagged.sort((left, right) => left.record.at - right.record.at)
+      const capped = capUsageRecords(tagged, USAGE_RECORDS_CAP)
+      const totals = await readUsageTotals(home)
+      json(response, 200, {
+        scope: 'deployment',
+        totals,
+        total: sumUsageTotals(totals),
+        records: capped.records.map(entry => ({ ...entry.record, accountId: entry.accountId })),
+        truncated: capped.truncated,
+      })
+      return
+    }
+    const capped = capUsageRecords(await readUsageRecords(home, accountId, window), USAGE_RECORDS_CAP)
+    json(response, 200, { accountId, total: await readUsageTotal(home, accountId), records: capped.records, truncated: capped.truncated })
+  }
+
+  /**
    * Answer one runtime over the ledger channel: a report books spend, and a read
    * answers what that same token's account spent. Only a token this hub minted
    * is accepted, so neither verb can name another account.
@@ -638,33 +682,7 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       return
     }
     if (request.method === 'GET') {
-      const window = readUsageWindow(new URL(request.url ?? '/', 'http://qilin.invalid').searchParams)
-      if (window === undefined) {
-        json(response, 400, { error: 'invalid-window' })
-        return
-      }
-      const store = await roster()
-      if (store.byId(accountId)?.admin === true) {
-        // A deployment-wide read carries each account's own records, tagged, so
-        // one answer can be drawn per account or summed across them.
-        const tagged: { accountId: string; record: UsageReport }[] = []
-        for (const account of store.all()) {
-          for (const record of await readUsageRecords(home, account.id, window)) tagged.push({ accountId: account.id, record })
-        }
-        tagged.sort((left, right) => left.record.at - right.record.at)
-        const capped = capUsageRecords(tagged, USAGE_RECORDS_CAP)
-        const totals = await readUsageTotals(home)
-        json(response, 200, {
-          scope: 'deployment',
-          totals,
-          total: sumUsageTotals(totals),
-          records: capped.records.map(entry => ({ ...entry.record, accountId: entry.accountId })),
-          truncated: capped.truncated,
-        })
-        return
-      }
-      const capped = capUsageRecords(await readUsageRecords(home, accountId, window), USAGE_RECORDS_CAP)
-      json(response, 200, { accountId, total: await readUsageTotal(home, accountId), records: capped.records, truncated: capped.truncated })
+      await answerUsageRead(response, accountId, new URL(request.url ?? '/', 'http://qilin.invalid').searchParams)
       return
     }
     const body = await readReportBody(request)
@@ -774,6 +792,20 @@ export async function runTenantsServe(options: TenantsServeOptions): Promise<num
       // is making now, and the session it ends up with sets the cookie again.
       if (deploymentDoor(url.pathname)) {
         await serveFirstRun(request, response, productPath(), [clearedRoutingCookie()])
+        return
+      }
+      // The usage read answers from this hub's own ledger for the browser's
+      // account: forwarding it to a runtime would have that runtime ask this
+      // hub back for the same bytes. The account comes from the routing
+      // cookie, or from the session when the doors just cleared the cookie.
+      if (url.pathname === USAGE_BROWSER_READ_PATH && request.method === 'GET') {
+        const accountId = cookieValue(request.headers.cookie, TENANT_COOKIE)
+          ?? await signedInAccountId(request)
+        if (accountId === undefined || store.byId(accountId) === undefined) {
+          json(response, 401, { error: 'unauthorized' })
+          return
+        }
+        await answerUsageRead(response, accountId, new URL(request.url ?? '/', 'http://qilin.invalid').searchParams)
         return
       }
       // A browser that has chosen no account reaches the sign-in form below,
