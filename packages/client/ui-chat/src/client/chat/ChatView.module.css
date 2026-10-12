@@ -149,3 +149,85 @@
 .modalAction {
   min-width: 72px;
 }
+
+/* === Restored from the upstream sheet (token-renamed): the running status
+   === row, its conditional divider, and the jump-to-bottom control. === */
+
+.running {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  --qilin-chat-flow-gap: 12px;
+  --qilin-alias-label-shimmer: var(--qilin-alias-label-deep-diving-shimmer);
+  color: var(--qilin-alias-label-deep-diving, var(--qilin-alias-label-tertiary));
+  font-size: calc(var(--qilin-content-font-size, 14px) - 2px);
+  line-height: calc(22px + var(--qilin-content-font-delta, 0px));
+}
+
+/* The last visible row before the status must contain output, not an input.
+   Hidden and empty seats do not separate a user message from the status. */
+:is(.column, :global([data-slot="conversation.chat.flow"])) > :nth-last-child(2 of :not([hidden]):not(.flowItem:is(:empty, :has(> [data-slot="conversation.chat.node"]:empty)))):is(
+  .flowItem:not([data-chat-flow-kind="user"]):not([data-chat-flow-kind="steering"]):not([data-chat-flow-kind="turn-trigger"]),
+  [data-chat-group-key]
+) ~ .running > .runningDivider {
+  display: block;
+}
+
+.runningDivider {
+  display: none;
+  width: 100%;
+  height: 0.5px;
+  margin: 8px 0 10px;
+  background: color-mix(in srgb, var(--qilin-alias-border-l1) 75%, var(--qilin-alias-border-l2));
+  pointer-events: none;
+}
+
+.runningContent {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  gap: 6px;
+}
+
+.toBottomSlot {
+  position: absolute;
+  right: 0;
+  bottom: 16px;
+  left: 0;
+  /* Above the sticky composer (z-index 7); the @/slash menu lifts its seat to
+     9 so this control never covers an open menu. Flex centers the button on
+     the composer's axis, per this fork's centered-anchor variant. */
+  z-index: 8;
+  height: 0;
+  display: flex;
+  justify-content: center;
+}
+
+:global([data-conversation-scroll]) .toBottomSlot {
+  position: sticky;
+  /* Clears the sticky composer stack: the live height rides
+     --qilin-composer-height (ConversationRoot's seat observer). */
+  bottom: calc(var(--qilin-composer-height, 152px) + 16px);
+}
+
+.toBottom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin-top: -34px;
+  padding: 0;
+  border: 0;
+  --qilin-elevation-stroke-color: var(--qilin-alias-border-l3);
+  border-radius: 100px;
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-alias-button-floating-fill);
+  box-shadow: var(--qilin-shadow-lv1);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.toBottom:hover {
+  background: var(--qilin-alias-button-floating-hover);
+}
