@@ -70,7 +70,7 @@ export function UsageSection({ t }: UsageSectionComponentProps) {
     const from = monthStart(new Date()).getTime()
     void (async () => {
       try {
-        const response = await fetch(`/api/usage/me?from=${String(from)}`, { signal: controller.signal })
+        const response = await fetch(`api/usage/me?from=${String(from)}`, { signal: controller.signal })
         if (!response.ok) throw new Error(`the usage read answered HTTP ${String(response.status)}`)
         setAnswer(await response.json() as UsageAnswer)
       } catch {
