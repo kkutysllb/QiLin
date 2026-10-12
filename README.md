@@ -26,6 +26,14 @@ Review the [safety notice](SAFETY.md) before running the project.
 
 Every connection in this map carries a flowing packet, and the palette follows your light or dark preference. Read it alongside the [architecture documentation](docs/architecture.md).
 
+### Two deployment forms
+
+The same harness ships in two shapes, and the difference is deliberate:
+
+**Web — multi-tenant.** `qilin web` serves one entry for many accounts. The supervisor (hub) keeps a roster of accounts and starts **one isolated runtime per account** on demand; sessions, workspaces, usage ledgers, plugins, and model settings live with their tenant. Browsers authenticate through the deployment's own doors (`/login`, `/setup`, `/api/auth`), are routed by a session-named cookie to their account's runtime, and can be handed to any account through `/t/<account>/`. Registration is a deployment policy (`--registration open|closed`, closed by default beyond loopback). One administrator seat reads a deployment-wide usage ledger. TLS terminates at the hub with `--tls-cert/--tls-key`, and `--per-account-ports` can give every account its own origin instead of one shared address.
+
+**Desktop — single-user.** The [desktop shell](desktop/README.md) wraps one local engine for one person: no roster, no account gate, no tenant routing — the whole harness runs locally against one data directory, with the same plugin tree, sessions, and tools as the web shape.
+
 ## Capabilities
 
 **Entry modes.** The [`qilin` CLI](apps/cli/README.md) boots every mode from the same plugin tree through named profiles:
@@ -45,9 +53,13 @@ Every connection in this map carries a flowing packet, and the palette follows y
 
 ## Run
 
-### Run from source
+### Run the desktop app
 
-To run from a repository checkout:
+The [desktop shell](desktop/README.md) starts the local engine and the workbench in one window. Data lives under one local directory; nothing is shared or routed.
+
+### Run the web deployment
+
+From a repository checkout:
 
 ```sh
 git clone https://github.com/kkutysllb/QiLin.git
@@ -57,7 +69,17 @@ pnpm run build
 pnpm qilin web
 ```
 
-`pnpm run build` prepares the repository artifacts. `pnpm qilin web` uses those built artifacts without rebuilding. The server starts at `http://127.0.0.1:3080` by default; pass `--no-open` to run it without opening a browser. See the [Web UI guide](docs/user/guide/index.md).
+`pnpm run build` prepares the repository artifacts. `pnpm qilin web` uses those built artifacts without rebuilding. The server starts at `http://127.0.0.1:8790` by default; pass `--no-open` to run it without opening a browser. See the [Web UI guide](docs/user/guide/index.md).
+
+The first browser visit creates the first account through the product's own setup form. To serve several people from one deployment, add accounts and (beyond loopback) registration closes automatically:
+
+```sh
+printf 'password
+' | npx qilin tenants add alice --password-stdin
+npx qilin web --port 8790 --no-open --max-tenants 0
+```
+
+Each account works in its own runtime with its own sessions, workspaces, usage ledger, and settings. The deployment's administrator (created with `tenants add <name> --admin`) reads a deployment-wide usage report; every other account reads only its own. See the [tenancy guide](docs/user/guide/tenancy.md) for registration policy, TLS, per-account origins, and the multi-account browser boundaries.
 
 ## Contributing
 
