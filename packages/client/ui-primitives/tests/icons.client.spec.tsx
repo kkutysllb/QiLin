@@ -17,10 +17,20 @@ const icons = Object.fromEntries(
 const iconNames = Object.keys(icons)
 
 describe('ic_ds_ icon set', () => {
-  it('exports the full icon set (46 deepsuite + 21 figma extracts + eighteen product glyphs outside those sets)', () => {
-    expect(iconNames.length).toBe(87)
+  it('exports the full icon set (46 deepsuite + 21 figma extracts + eighteen product glyphs outside those sets + fourteen upstream compat names)', () => {
+    expect(iconNames.length).toBe(101)
     // The composer menu's own glyphs, pinned by name.
     expect(iconNames).toEqual(expect.arrayContaining(['IconPlanOutline14', 'IconCompactOutline16', 'IconShieldOutline16']))
+  })
+
+  it('keeps the upstream-named compat surface importable for dsh plugins', () => {
+    expect(iconNames).toEqual(expect.arrayContaining([
+      'IconBranchOutlineRegular', 'IconCheckOutlineRegular', 'IconChecklistOutlineRegular',
+      'IconChevronDownOutlineMedium', 'IconChevronUpOutlineMedium', 'IconCloseOutlineRegular',
+      'IconCopyOutlineRegular', 'IconPlusOutlineRegular', 'IconSearchOutlineRegular',
+      'IconSendOutlineRegular', 'IconSettingsOutlineMedium', 'IconUserOutlineRegular',
+      'IconUsersOutlineRegular', 'IconWorkspaceTreeOutlineRegular',
+    ]))
   })
 
   it('the permission selector composes its marks over the shield contour exported here', () => {

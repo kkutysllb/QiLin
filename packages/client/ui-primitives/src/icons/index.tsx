@@ -1088,3 +1088,44 @@ export const IconPinFillRegular = ({ size = 16, className }: IconProps) => (
     <path d="M6.05285 9.47511C6.27284 9.16094 6.70586 9.08458 7.02003 9.30457C7.3342 9.52455 7.41055 9.95757 7.19057 10.2717L3.98587 14.4708L3.21223 13.9291L6.05285 9.47511Z" fill="currentColor" />
   </svg>
 )
+
+/**
+ * Upstream-named icon surface. Community plugins written against
+ * `@deepseek-ai/dsh-client-ui-primitives` import weight-suffixed names
+ * (`OutlineRegular`/`OutlineMedium`) that this set spells with size
+ * suffixes; each alias binds the same-name glyph in the nearest size. The
+ * two names with no drawn QiLin glyph (Users, WorkspaceTree) port the
+ * upstream artwork verbatim (dsh-context is the current consumer).
+ */
+const ICON_REGULAR_STROKE = 1
+
+export const IconUsersOutlineRegular = ({ size = 16, className }: IconProps) => (
+  <svg width={size} height={size} className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" strokeWidth={ICON_REGULAR_STROKE}>
+    <path d="M6 8.25C7.51878 8.25 8.75 7.01878 8.75 5.5C8.75 3.98122 7.51878 2.75 6 2.75C4.48122 2.75 3.25 3.98122 3.25 5.5C3.25 7.01878 4.48122 8.25 6 8.25Z" stroke="currentColor" />
+    <path d="M1 14.5C1 11.5 3.5 10.25 6 10.25C8.5 10.25 11 11.5 11 14.5" stroke="currentColor" />
+    <path d="M10.5 2.9C11.65 3.35 12.45 4.35 12.45 5.5C12.45 6.65 11.65 7.65 10.5 8.1" stroke="currentColor" />
+    <path d="M12.4 10.6C13.9 11.3 15 12.6 15 14.5" stroke="currentColor" />
+  </svg>
+)
+
+export const IconWorkspaceTreeOutlineRegular = ({ size = 16, className }: IconProps) => (
+  <svg width={size} height={size} className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={ICON_REGULAR_STROKE}>
+    <path d="M14 12.05c0 .8-.65 1.45-1.46 1.45H3.46C2.65 13.5 2 12.85 2 12.05v-8.1c0-.8.65-1.45 1.46-1.45h2.4c.49 0 .94.24 1.21.65l.5.73c.27.4.73.65 1.21.65h3.76c.8 0 1.46.65 1.46 1.45v6.02Z" />
+    <path d="M8.7 8.1v3M11.2 8.1v3" />
+  </svg>
+)
+
+export {
+  IconBranchOutline16 as IconBranchOutlineRegular,
+  IconCheckOutline16 as IconCheckOutlineRegular,
+  IconChecklistOutline14 as IconChecklistOutlineRegular,
+  IconChevronDownOutline14 as IconChevronDownOutlineMedium,
+  IconChevronUpOutline14 as IconChevronUpOutlineMedium,
+  IconCloseOutline16 as IconCloseOutlineRegular,
+  IconCopyOutline16 as IconCopyOutlineRegular,
+  IconPlusOutline16 as IconPlusOutlineRegular,
+  IconSearchOutline16 as IconSearchOutlineRegular,
+  IconSendOutline16 as IconSendOutlineRegular,
+  IconSettingsOutline14 as IconSettingsOutlineMedium,
+  IconUserOutline16 as IconUserOutlineRegular,
+}
