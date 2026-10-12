@@ -8,11 +8,10 @@ import { LocaleRuntime } from '@qilin-agent/client-locale/client'
 import { TestRemote } from '@qilin-agent/client-test-runtime'
 import { apply as settingsApply, inject as settingsInject } from '@qilin-agent/client-ui-settings/client'
 import { apply, inject, SETTINGS_NS } from '@qilin-agent/client-ui-theme/client'
-import type { AppearanceRowInjected, FontSizeRowInjected, LineSpacingRowInjected, ThemeRuntime } from '@qilin-agent/client-ui-theme/client'
+import type { AppearanceRowInjected, FontSizeRowInjected, ThemeRuntime } from '@qilin-agent/client-ui-theme/client'
 import { THEME_SETTINGS_NAMESPACE, ThemeSettingsSchema } from '../src/theme-settings.ts'
 import { AppearanceRow } from '../src/client/AppearanceRow.tsx'
 import { FontSizeRow } from '../src/client/FontSizeRow.tsx'
-import { LineSpacingRow } from '../src/client/LineSpacingRow.tsx'
 import type { createAppearanceRowStore, createTypographyRowStore } from '../src/client/settings-store.ts'
 
 // These specs assert the shipped Chinese copy. The lane has no jsdom `window`,
@@ -33,7 +32,7 @@ async function bench(isLoopback = true) {
   const locale = new LocaleRuntime(ctx)
   locale.setLocale('zh')
   ctx.provide('locale', locale)
-  const section: Record<string, unknown> = { preference: 'system', fontSize: 14, leading: 0 }
+  const section: Record<string, unknown> = { preference: 'system', fontSize: 14 }
   const namespace = () => ({
     ns: THEME_SETTINGS_NAMESPACE,
     schema: ThemeSettingsSchema.toJSON(),
@@ -75,7 +74,7 @@ function rowFaceOf(slots: SlotRegistry, component: unknown) {
   const handle = entry.store as ReturnType<typeof createTypographyRowStore>
   const instance = handle.create()
   const face = (entry.inject as unknown as (a: typeof instance.actions) => unknown)(instance.actions)
-  return { entry, instance, face: face as FontSizeRowInjected & LineSpacingRowInjected }
+  return { entry, instance, face: face as FontSizeRowInjected }
 }
 
 describe('ui-theme apply', () => {
@@ -89,19 +88,14 @@ describe('ui-theme apply', () => {
     await before.ctx.plugin({ inject: [...inject], apply }).await()
     expect(before.locale.bind(SETTINGS_NS)('appearance.title')).toBe('外观')
     expect(before.locale.bind(SETTINGS_NS)('fontSize.title')).toBe('字号大小')
-    expect(before.locale.bind(SETTINGS_NS)('leading.title')).toBe('行间距')
     before.locale.setLocale('en')
     expect(before.locale.bind(SETTINGS_NS)('fontSize.title')).toBe('Font size')
-    expect(before.locale.bind(SETTINGS_NS)('leading.title')).toBe('Line spacing')
     const appearanceEntry = before.slots.entries(SLOT).find(e => e.component === AppearanceRow)!
     expect(appearanceEntry.options).toMatchObject({ id: 'appearance', order: 10 })
     expect(appearanceEntry.locale).toBe(SETTINGS_NS)
     const fontEntry = before.slots.entries(SLOT).find(e => e.component === FontSizeRow)!
     expect(fontEntry.options).toMatchObject({ id: 'font-size', order: 11 })
     expect(fontEntry.locale).toBe(SETTINGS_NS)
-    const leadingEntry = before.slots.entries(SLOT).find(e => e.component === LineSpacingRow)!
-    expect(leadingEntry.options).toMatchObject({ id: 'line-spacing', order: 13 })
-    expect(leadingEntry.locale).toBe(SETTINGS_NS)
 
     const after = await bench()
     const fiber = after.ctx.plugin({ inject: [...inject], apply })
@@ -151,28 +145,6 @@ describe('ui-theme apply', () => {
     expect(theme.getTheme().fontSize).toBe(12)
     expect(instance.getSnapshot().fontSize).toBe(12)
     await vi.waitFor(() => { expect(b.mutate).toHaveBeenCalledTimes(2) })
-  })
-
-  it('mirrors the leading axis into the line-spacing row and persists its writes', async () => {
-    const b = await bench()
-    declareItems(b.slots)
-    await b.ctx.plugin({ inject: [...inject], apply }).await()
-    const theme = b.ctx.get('theme') as ThemeRuntime
-    theme.setLeading(2)
-
-    const { instance, face } = rowFaceOf(b.slots, LineSpacingRow)
-    expect(instance.getSnapshot().leading).toBe(2)
-
-    face.setLeading(4)
-    expect(theme.getTheme().leading).toBe(4)
-    expect(instance.getSnapshot().leading).toBe(4)
-    // The font-size row shares the snapshot, so its mirror moved too.
-    const fontRow = rowFaceOf(b.slots, FontSizeRow)
-    expect(fontRow.instance.getSnapshot().leading).toBe(4)
-    await vi.waitFor(() => {
-      const fields = b.mutate.mock.calls.map(call => (call[1] as { path: string[] }[])[0]!.path[0])
-      expect(fields).toEqual(['leading', 'leading'])
-    })
   })
 
   it('loads Host settings at boot, refreshes its namespace, and keeps remote browsers process-local', async () => {
@@ -240,7 +212,7 @@ describe('ui-theme apply', () => {
     const b = await bench()
     const host = declareItems(b.slots)
     await b.ctx.plugin({ inject: [...inject], apply }).await()
-    expect(b.slots.entries(SLOT)).toHaveLength(3)
+    expect(b.slots.entries(SLOT)).toHaveLength(2)
 
     // Collapse: the declarer dies, the cascade removes our entries while the
     // apply closure still holds its (now stale) disposers.
@@ -250,7 +222,6 @@ describe('ui-theme apply', () => {
     declareItems(b.slots)
     await Promise.resolve()
     expect(b.slots.entries(SLOT).some(e => e.component === FontSizeRow)).toBe(true)
-    expect(b.slots.entries(SLOT).some(e => e.component === LineSpacingRow)).toBe(true)
   })
 
   it('teardown removes the rows and the dictionary; teardown without a declaration is quiet', async () => {
@@ -258,7 +229,7 @@ describe('ui-theme apply', () => {
     declareItems(b.slots)
     const fiber = b.ctx.plugin({ inject: [...inject], apply })
     await fiber.await()
-    expect(b.slots.entries(SLOT)).toHaveLength(3)
+    expect(b.slots.entries(SLOT)).toHaveLength(2)
     await fiber.dispose()
     expect(b.slots.entries(SLOT)).toHaveLength(0)
     // Dictionary disposal: translation falls back to the bare key.

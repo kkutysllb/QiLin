@@ -11,8 +11,8 @@ function mockSystemDark(matches: boolean): void {
   vi.stubGlobal('matchMedia', vi.fn(() => ({ matches }) as MediaQueryList))
 }
 
-function executeBootstrap(preference?: ThemePreference, fontSize?: number, leading?: number): void {
-  for (const row of bootThemeInjections(preference, fontSize, leading)) {
+function executeBootstrap(preference?: ThemePreference, fontSize?: number): void {
+  for (const row of bootThemeInjections(preference, fontSize)) {
     if (row.kind === 'script') runInNewContext(row.text, { document, matchMedia: globalThis.matchMedia })
   }
 }
@@ -23,7 +23,6 @@ afterEach(() => {
   delete document.documentElement.dataset.dsThemeSource
   document.body.removeAttribute(DARK_ATTRIBUTE)
   document.body.style.removeProperty('--qilin-content-font-size')
-  document.body.style.removeProperty('--qilin-content-leading')
 })
 
 describe('theme bootstrap row', () => {
@@ -84,13 +83,4 @@ describe('theme bootstrap row', () => {
     expect(document.body.style.getPropertyValue('--qilin-content-font-size')).toBe('14px')
   })
 
-  it('writes the durable leading adjustment and defaults it to 0px', () => {
-    mockSystemDark(false)
-    executeBootstrap('light', 14, -2)
-    expect(document.body.style.getPropertyValue('--qilin-content-leading')).toBe('-2px')
-    executeBootstrap('light', 14, 5)
-    expect(document.body.style.getPropertyValue('--qilin-content-leading')).toBe('5px')
-    executeBootstrap('light')
-    expect(document.body.style.getPropertyValue('--qilin-content-leading')).toBe('0px')
-  })
 })

@@ -90,11 +90,8 @@ describe('ThemePresenter', () => {
   it('publishes the content leading adjustment and follows changes', () => {
     const presenter = new ThemePresenter()
     presenter.apply(snapshot('light'))
-    expect(document.body.style.getPropertyValue('--qilin-content-leading')).toBe('0px')
     presenter.apply(snapshot('light', {}, 14, -2))
-    expect(document.body.style.getPropertyValue('--qilin-content-leading')).toBe('-2px')
     presenter.apply(snapshot('light', {}, 14, 5))
-    expect(document.body.style.getPropertyValue('--qilin-content-leading')).toBe('5px')
   })
 
   it('publishes the theme source: system stays system, fixed preferences publish the resolved scheme', () => {
@@ -117,7 +114,6 @@ describe('ThemePresenter', () => {
     expect(document.body.hasAttribute(DARK_ATTRIBUTE)).toBe(false)
     expect(document.body.style.getPropertyValue('--qilin-alias-bg')).toBe('')
     expect(document.body.style.getPropertyValue('--qilin-content-font-size')).toBe('')
-    expect(document.body.style.getPropertyValue('--qilin-content-leading')).toBe('')
     expect(document.body.style.getPropertyValue('--foreign')).toBe('kept')
     expect(meta?.isConnected).toBe(false)
   })

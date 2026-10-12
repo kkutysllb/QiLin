@@ -4,7 +4,7 @@
  * writer; the rows read their fields via props.useStore.
  */
 import { defineStore, type EngineStoreHandle } from '@qilin-agent/client-store'
-import { DEFAULT_FONT_SIZE, DEFAULT_LEADING, DEFAULT_PREFERENCE, type ThemePreference } from '../theme-settings.ts'
+import { DEFAULT_FONT_SIZE, DEFAULT_PREFERENCE, type ThemePreference } from '../theme-settings.ts'
 
 /** Store state mirrored from the theme snapshot's appearance preference. */
 export interface AppearanceRowState {
@@ -40,15 +40,13 @@ export function createAppearanceRowStore(): EngineStoreHandle<AppearanceRowState
 export interface TypographyRowState {
   /** Persisted content font size in px. */
   fontSize: number
-  /** Persisted leading adjustment in px; 0 keeps the shipped line heights. */
-  leading: number
   /** Service revision; -1 until first sync so revision 0 lands as a change. */
   revision: number
 }
 
 /** Declared action shape giving the exported factory a stable return type. */
 type TypographyRowActions = {
-  sync: (draft: TypographyRowState, fontSize: number, leading: number, revision: number) => void
+  sync: (draft: TypographyRowState, fontSize: number, revision: number) => void
 }
 
 /**
@@ -57,12 +55,11 @@ type TypographyRowActions = {
  */
 export function createTypographyRowStore(): EngineStoreHandle<TypographyRowState, TypographyRowActions> {
   return defineStore({
-    init: (): TypographyRowState => ({ fontSize: DEFAULT_FONT_SIZE, leading: DEFAULT_LEADING, revision: -1 }),
+    init: (): TypographyRowState => ({ fontSize: DEFAULT_FONT_SIZE, revision: -1 }),
     actions: {
-      sync: (d, fontSize: number, leading: number, revision: number) => {
+      sync: (d, fontSize: number, revision: number) => {
         if (revision <= d.revision) return
         d.fontSize = fontSize
-        d.leading = leading
         d.revision = revision
       },
     },

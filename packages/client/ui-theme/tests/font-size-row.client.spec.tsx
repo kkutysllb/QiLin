@@ -80,7 +80,7 @@ describe('FontSizeRow', () => {
     expect(b.setFontSize).toHaveBeenCalledWith(15)
     // No store write yet: the display is unchanged.
     expect(screen.getByText('14')).toBeDefined()
-    act(() => { b.store.actions.sync(15, 0, 1) })
+    act(() => { b.store.actions.sync(15, 1) })
     expect(screen.getByText('15')).toBeDefined()
     fireEvent.click(arrow('减小字号'))
     expect(b.setFontSize).toHaveBeenCalledWith(14)

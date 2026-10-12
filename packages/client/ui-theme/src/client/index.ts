@@ -18,23 +18,20 @@ import type {} from '@qilin-agent/client-locale/client'
 import type {} from '@qilin-agent/client-ui-renderer/client'
 import type { FontSizeRowInjected } from './FontSizeRow.tsx'
 import { FontSizeRow } from './FontSizeRow.tsx'
-import type { LineSpacingRowInjected } from './LineSpacingRow.tsx'
-import { LineSpacingRow } from './LineSpacingRow.tsx'
 import type { AppearanceRowInjected } from './AppearanceRow.tsx'
 import { AppearanceRow } from './AppearanceRow.tsx'
 import { createTypographyRowStore, createAppearanceRowStore } from './settings-store.ts'
 import { installThemeStyles } from './styles.ts'
 import { en, zh, type ThemeKey } from './locales.ts'
 import {
-  DEFAULT_FONT_SIZE, DEFAULT_LEADING, DEFAULT_PREFERENCE,
+  DEFAULT_FONT_SIZE, DEFAULT_PREFERENCE,
   FONT_SIZE_FIELD, FONT_SIZE_MAX, FONT_SIZE_MIN,
-  isThemePreference, LEADING_FIELD, LEADING_MAX, LEADING_MIN,
+  isThemePreference,
   THEME_PREFERENCE_FIELD, THEME_SETTINGS_NAMESPACE,
   type ThemePreference, type ThemeSettings,
 } from '../theme-settings.ts'
 
 export type { FontSizeRowComponentProps, FontSizeRowInjected } from './FontSizeRow.tsx'
-export type { LineSpacingRowComponentProps, LineSpacingRowInjected } from './LineSpacingRow.tsx'
 export type { AppearanceRowComponentProps, AppearanceRowInjected } from './AppearanceRow.tsx'
 export type { AppearanceRowState, TypographyRowState } from './settings-store.ts'
 export type { ThemeKey } from './locales.ts'
@@ -87,8 +84,6 @@ export interface ThemeSnapshot {
   preference: ThemePreference
   /** Conversation content font size in px (integer within FONT_SIZE_MIN..FONT_SIZE_MAX). */
   fontSize: number
-  /** Leading added to every content line box, in px (integer within LEADING_MIN..LEADING_MAX). */
-  leading: number
   /**
    * The resolved active theme (`system` resolved via prefers-color-scheme)
    * with override layers folded into its tokens (seq order, later layers win
@@ -168,7 +163,6 @@ export class ThemeRuntime {
   private themes: ThemeDefinition[] = [...BUILTIN_THEMES]
   private preference: ThemePreference
   private fontSize: number = bootstrapFontSize()
-  private leading: number = bootstrapLeading()
   private revision = 0
   private snapshot: ThemeSnapshot
   private readonly media: MediaQueryList | undefined
@@ -262,32 +256,13 @@ export class ThemeRuntime {
     this.publish()
   }
 
-  /**
-   * Change the conversation content leading adjustment — the only leading
-   * write entry. Accepted values are written through the settings scope and
-   * emit `theme/change`.
-   * @param px - integer px within LEADING_MIN..LEADING_MAX; out-of-range or fractional values throw.
-   */
-  setLeading(px: number): void {
-    if (!Number.isInteger(px) || px < LEADING_MIN || px > LEADING_MAX) {
-      throw new Error(`leading ${px} is outside ${LEADING_MIN}..${LEADING_MAX}`)
-    }
-    if (this.leading === px) return
-    this.leading = px
-    void this.host.set(LEADING_FIELD, px)
-    this.publish()
-  }
-
   /** Adopt the scope's accepted durable preference without writing it back. */
   private adopt(): void {
     const section = this.host.getSnapshot().value
     if (section === undefined) return
-    if (this.preference === section.preference
-      && this.fontSize === section.fontSize
-      && this.leading === section.leading) return
+    if (this.preference === section.preference && this.fontSize === section.fontSize) return
     this.preference = section.preference
     this.fontSize = section.fontSize
-    this.leading = section.leading
     this.publish()
   }
 
@@ -355,7 +330,6 @@ export class ThemeRuntime {
     return Object.freeze({
       preference: this.preference,
       fontSize: this.fontSize,
-      leading: this.leading,
       active: this.composeActive(active),
       themes: Object.freeze([...this.themes]),
       revision: this.revision,
@@ -403,22 +377,6 @@ function bootstrapFontSize(): number {
     : DEFAULT_FONT_SIZE
 }
 
-/**
- * Read the leading adjustment the Host boot script wrote on `body` before any
- * plugin ran, so the initial snapshot matches first paint and ui-layout's
- * presenter does not flash the schema default while the settings read is in
- * flight. Non-browser runs and mounts without the boot script fall back to the
- * schema default; the durable settings adoption still lands afterwards.
- */
-function bootstrapLeading(): number {
-  /* v8 ignore next -- needs a documentless run (node e2e booting the client tree), not constructible under jsdom */
-  if (typeof document === 'undefined') return DEFAULT_LEADING
-  const raw = document.body.style.getPropertyValue('--qilin-content-leading')
-  const parsed = Number.parseInt(raw, 10)
-  return Number.isInteger(parsed) && parsed >= LEADING_MIN && parsed <= LEADING_MAX
-    ? parsed
-    : DEFAULT_LEADING
-}
 
 /**
  * Runtime shape check for one override layer (model-authored callers pass
@@ -484,12 +442,10 @@ export function apply(ctx: ClientContext): void {
   // own bound-actions face, so each keeps a slot rather than overwriting one.
   let appearanceBound: BoundActions<typeof appearanceStore> | undefined
   let fontSizeBound: BoundActions<typeof typographyStore> | undefined
-  let leadingBound: BoundActions<typeof typographyStore> | undefined
   const sync = (snapshot: ThemeSnapshot): void => {
-    const { preference, fontSize, leading, revision } = snapshot
+    const { preference, fontSize, revision } = snapshot
     appearanceBound?.sync(preference, revision)
-    fontSizeBound?.sync(fontSize, leading, revision)
-    leadingBound?.sync(fontSize, leading, revision)
+    fontSizeBound?.sync(fontSize, revision)
   }
   ctx.on('theme/change', sync)
 
@@ -525,19 +481,4 @@ export function apply(ctx: ClientContext): void {
     inject: fontSizeInjected,
   }, FontSizeRow))
 
-  const leadingInjected = (actions: BoundActions<typeof typographyStore>): LineSpacingRowInjected => {
-    leadingBound = actions
-    sync(theme.getTheme())
-    return {
-      setLeading: (px) => { theme.setLeading(px) },
-    }
-  }
-  ctx.slots.inject('settings.general.item', () => ctx.slots.register({
-    name: 'settings.general.item',
-    id: 'line-spacing',
-    order: 13,
-    store: typographyStore,
-    locale: SETTINGS_NS,
-    inject: leadingInjected,
-  }, LineSpacingRow))
 }

@@ -5,14 +5,13 @@ import type {} from '@qilin-agent/host-webserver'
 import type {} from '@qilin-agent/settings'
 import { bootThemeInjections } from './boot-theme.ts'
 import {
-  DEFAULT_FONT_SIZE, DEFAULT_LEADING, DEFAULT_PREFERENCE,
+  DEFAULT_FONT_SIZE, DEFAULT_PREFERENCE,
   THEME_SETTINGS_NAMESPACE, ThemeSettingsSchema, type ThemeSettings,
 } from './theme-settings.ts'
 
 export {
-  DEFAULT_FONT_SIZE, DEFAULT_LEADING, DEFAULT_PREFERENCE,
+  DEFAULT_FONT_SIZE, DEFAULT_PREFERENCE,
   FONT_SIZE_FIELD, FONT_SIZE_MAX, FONT_SIZE_MIN,
-  LEADING_FIELD, LEADING_MAX, LEADING_MIN,
   THEME_PREFERENCE_FIELD, THEME_PREFERENCES, THEME_SETTINGS_NAMESPACE,
   type ThemePreference, type ThemeSettings,
 } from './theme-settings.ts'
@@ -22,7 +21,7 @@ const THEME_NAMESPACE = THEME_SETTINGS_NAMESPACE
 /** Read the registered theme section or the schema defaults without a settings provider. */
 function readSection(ctx: Context): ThemeSettings {
   const fallback: ThemeSettings = {
-    preference: DEFAULT_PREFERENCE, fontSize: DEFAULT_FONT_SIZE, leading: DEFAULT_LEADING,
+    preference: DEFAULT_PREFERENCE, fontSize: DEFAULT_FONT_SIZE,
   }
   const settings = ctx.get('settings')
   if (settings === undefined) return fallback
@@ -43,6 +42,6 @@ export function apply(ctx: Context): void {
   })
   ctx.on('webserver/index-inject', (table) => {
     const section = readSection(ctx)
-    table.push(...bootThemeInjections(section.preference, section.fontSize, section.leading))
+    table.push(...bootThemeInjections(section.preference, section.fontSize))
   }, { prepend: true })
 }
