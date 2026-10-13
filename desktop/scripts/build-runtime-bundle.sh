@@ -112,7 +112,14 @@ if command -v cygpath >/dev/null 2>&1; then SRC_TAR="$(cygpath -u "$SRC")"; else
 # 归档名也不能带盘符冒号（第二处同类坑：-f 的 D:/... 同样被 MSYS tar 当成远程
 # 主机，报 Cannot connect to D:）。进 staging 目录用相对文件名写归档；
 # Node / shasum 侧继续用原生 BUNDLE 路径（它们认原生形态）。
-( cd "$STAGING" && tar -czf qilin-runtime.tar.gz -C "$SRC_TAR" \
+# Windows 归档必须**解引用**：hoisted 后整树仍有数千个 .bin 符号链接，bsdtar 在
+# Windows 上创建 symlink 需要特权，解包即刻失败。-h 把链接写成实体文件，目录语义
+# 不变；非 Windows 平台不传该开关，保持已验证的符号链接形态。
+TAR_DEREF=""
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*) TAR_DEREF="-h" ;;
+esac
+( cd "$STAGING" && tar -czf qilin-runtime.tar.gz $TAR_DEREF -C "$SRC_TAR" \
   --exclude='.git' \
   --exclude='.github' \
   --exclude='.agents' \
