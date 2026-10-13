@@ -96,7 +96,11 @@ BUNDLE="$STAGING/qilin-runtime.tar.gz"
 rm -f "$BUNDLE"
 # 排除模式按 bsdtar glob（* 跨目录段）：源码/测试/文档只清 apps|packages 域，
 # node_modules 内不做内容筛选（个别包 main 指 src，保守保留）
-tar -czf "$BUNDLE" -C "$SRC" \
+# tar 的 -C 用 POSIX 形态：MSYS 的 GNU tar 把「盘符+冒号」当**远程主机**
+# （现场：`tar (child): Cannot connect to D: resolve failed`），而 Node/ git 要的是
+# 原生形态（见上方 REPO_ROOT）。cygpath 只在 Windows/MSYS 存在，其余平台原样传。
+if command -v cygpath >/dev/null 2>&1; then SRC_TAR="$(cygpath -u "$SRC")"; else SRC_TAR="$SRC"; fi
+tar -czf "$BUNDLE" -C "$SRC_TAR" \
   --exclude='.git' \
   --exclude='.github' \
   --exclude='.agents' \
