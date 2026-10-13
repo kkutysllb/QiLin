@@ -120,7 +120,9 @@ if command -v cygpath >/dev/null 2>&1; then SRC_TAR="$(cygpath -u "$SRC")"; else
   --exclude='node_modules/.cache' \
   --exclude='*.tsbuildinfo' \
   . )
-SHA256="$(shasum -a 256 "$BUNDLE" | awk '{print $1}')"
+# shasum 在 Windows 的 Git Bash 里不存在（2026-10-13 CI 现场：command not found）。
+# 统一用 node crypto 流式计算——三平台都必有 node（本脚本前文已在用）。
+SHA256="$(node -e 'const c=require("crypto"),f=require("fs");const h=c.createHash("sha256");f.createReadStream(process.argv[1]).on("data",(d)=>h.update(d)).on("end",()=>process.stdout.write(h.digest("hex")))' "$BUNDLE")"
 git -C "$SRC" checkout -- package.json 2>/dev/null || true
 
 # 6) 封盘清单
