@@ -1,5 +1,5 @@
 ---
-description: "Shared resolution of the QiLin home and user-data paths for packages that need one consistent root, tilde expansion, and stable watch paths."
+description: "Shared resolution of the QiLin home and the shared agent configuration root, plus user-data paths, tilde expansion, and stable watch paths."
 kind: "package-library"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`@qilin-agent/home-paths` lets package authors resolve one QiLin data root and derive child paths from it. An explicit path wins over `$QILIN_HOME`, which wins over `~/.qilin`; blank environment values are ignored. Its public helpers can render the root without revealing an absolute machine path, expand only bare or current-user tilde forms, and canonicalize watch targets whose final components do not yet exist. Use it as a direct library dependency, not through `cordis.yml`.
+`@qilin-agent/home-paths` lets package authors resolve the QiLin data root and the shared agent configuration root their consumers read. An explicit path wins over the environment variable, which wins over the default under the operating-system home; blank environment values are ignored. Its public helpers can render a root without revealing an absolute machine path, expand only bare or current-user tilde forms, and canonicalize watch targets whose final components do not yet exist. Use it as a direct library dependency, not through `cordis.yml`.
 
 ## Table of Contents
 
@@ -40,9 +40,20 @@ An explicit configured path has the highest precedence, then `$QILIN_HOME`, then
 
 `qilinCachePath(...segments)` derives paths from the resolved home's `cache` directory. With no segments it returns the cache directory itself. Pass an initial options object, `qilinCachePath({ qilinHome: home }, ...segments)`, to use an explicit configured home with the same precedence and tilde expansion. It returns an absolute path without creating directories.
 
+### Resolving the shared agents root
+
+```ts
+import { resolveAgentsHome, agentsHomeDisplay } from '@qilin-agent/home-paths'
+
+const agents = resolveAgentsHome()   // configured path, else $QILIN_AGENTS_HOME, else ~/.agents
+agentsHomeDisplay(agents)            // ~/.agents, or $QILIN_AGENTS_HOME for any configured root
+```
+
+`resolveAgentsHome` applies the same precedence, blank-value handling, and tilde expansion as `resolveQilinHome`. The root is deliberately outside `$QILIN_HOME` because other agent tools share it; `agent-instructions` reads its user-global `AGENTS.md`, and `skill-filesystem` scans its `skills/` directory.
+
 ### Displaying a home
 
-For user-facing paths, render the root symbolically rather than as a machine path: the default home displays as `~/.qilin` and any configured home displays as `$QILIN_HOME`. The display form never leaks an absolute machine path.
+For user-facing paths, render a root symbolically rather than as a machine path: the default harness home displays as `~/.qilin`, any configured harness home as `$QILIN_HOME`, the default shared agents root as `~/.agents`, and any configured shared agents root as `$QILIN_AGENTS_HOME`. Neither display form leaks an absolute machine path.
 
 ### Expanding user paths
 
@@ -60,7 +71,7 @@ For user-facing paths, render the root symbolically rather than as a machine pat
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The package is built on one principle: all harness user data lives under one root, and every other helper derives from that decision.
+The package is built on one principle: harness user data lives under one root, and the shared agent configuration root stays separate because other agent tools read it too. `resolveRoot` and `rootDisplay` own the precedence and display rules for both roots, so neither can drift from the other.
 
 ### Source map
 
@@ -70,7 +81,7 @@ The package is built on one principle: all harness user data lives under one roo
 
 ### Resolution rules
 
-`resolveQilinHome` reads the explicit override, then `$QILIN_HOME`, then falls back to the operating-system home joined with `.qilin`. The chosen value is tilde-expanded and normalized to an absolute path; `qilinHomePath` joins child segments with Node's platform path rules. `qilinHomeDisplay` compares the resolved path against the default root and returns the symbolic label, so a configured home never leaks its absolute path.
+`resolveQilinHome` reads the explicit override, then `$QILIN_HOME`, then falls back to the operating-system home joined with `.qilin`. `resolveAgentsHome` reads the same three levels for `$QILIN_AGENTS_HOME` and `~/.agents`. The chosen value is tilde-expanded and normalized to an absolute path; `qilinHomePath` joins child segments with Node's platform path rules. `qilinHomeDisplay` and `agentsHomeDisplay` compare the resolved path against the default root and return the symbolic label, so a configured root never leaks its absolute path.
 
 ### Canonicalization mechanics
 

@@ -227,6 +227,13 @@ export interface Config {
   providers?: Record<string, PiAiProviderProfile>
 }
 
+/**
+ * Plain options accepted by the provider resolver. This repo keeps `providers`
+ * as an optional row field instead of the upstream settings-volatile face, so
+ * the alias is the configuration itself.
+ */
+export type Options = Config
+
 const thinkingBudgets = z.object({
   minimal: z.number(),
   low: z.number(),

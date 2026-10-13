@@ -2994,7 +2994,7 @@ SHA-256: `6f0af99e830291214f7ebcdee59c0f054a8738d108c3981a8fe5930b74bd5e5f`
 
 SHA-256: `e70f9485efd1afe768f2ebf9e578293a65f27a0f74dea61ddd7fa7456e4e94a6`
 
-来源：[`packages/context/agent-instructions/src/render.ts:48`](../packages/context/agent-instructions/src/render.ts)
+来源：[`packages/context/agent-instructions/src/render.ts:53`](../packages/context/agent-instructions/src/render.ts)
 
 | 属性 | 存在性 | 类型 |
 |---|---|---|
@@ -3021,7 +3021,7 @@ SHA-256: `48d88b7bf3a4cc86f88f30f7614ced299db50cb27980d54caa73b540add95692`
 
 SHA-256: `0d5227f4afb72f3b57954112b7be318c5384c49f04860ebf05b0af7b07d12741`
 
-来源：[`packages/context/agent-instructions/src/state.ts:37`](../packages/context/agent-instructions/src/state.ts)
+来源：[`packages/context/agent-instructions/src/state.ts:40`](../packages/context/agent-instructions/src/state.ts)
 
 | 属性 | 存在性 | 类型 |
 |---|---|---|

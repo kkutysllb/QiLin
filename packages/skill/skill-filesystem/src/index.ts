@@ -12,14 +12,13 @@
 import { access, lstat, readdir, readFile, realpath, stat } from 'node:fs/promises'
 import { unwatchFile, watchFile, type Stats } from 'node:fs'
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
-import { homedir } from 'node:os'
 import type { Context } from '@qilin-agent/kylin'
 import chokidar from 'chokidar'
 import z from '@qilin-agent/schemastery'
 import type Schema from '@qilin-agent/schemastery'
 import { parse as parseYaml } from 'yaml'
 import type { FileSystem, FsDirEntry, FsTarget } from '@qilin-agent/fs'
-import { canonicalizeWatchPath, resolveQilinHome } from '@qilin-agent/home-paths'
+import { canonicalizeWatchPath, resolveAgentsHome, resolveQilinHome } from '@qilin-agent/home-paths'
 import {
   BUNDLED_SKILL_RANK,
   isSkillName,
@@ -165,7 +164,7 @@ export class FileSystemSkillProvider implements SkillProvider {
     this.name = config.providerName ?? 'filesystem'
     this.includeDefaultRoots = config.includeDefaultRoots ?? true
     this.qilinHome = resolveQilinHome(config.qilinHome)
-    this.agentsHome = resolve(config.agentsHome ?? process.env.QILIN_AGENTS_HOME ?? join(homedir(), '.agents'))
+    this.agentsHome = resolveAgentsHome(config.agentsHome)
     this.customSkillDirs = (config.customSkillDirs ?? []).map(root => resolve(root))
     this.watchManager = new SkillWatchManager(ctx, control.invalidate, resolveWatchConfig(config))
     control.signal.addEventListener('abort', () => { void this.dispose() }, { once: true })

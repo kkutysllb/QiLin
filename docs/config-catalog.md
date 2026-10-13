@@ -120,8 +120,10 @@ export interface Config {
 ```ts config-catalog
 /** User-facing workspace instruction loader configuration. */
 export interface Config {
-  /** Harness home containing the fixed user-global `AGENTS.md`; defaults to `$QILIN_HOME` or `~/.qilin`. */
+  /** Harness home containing the first user-global `AGENTS.md`; defaults to `$QILIN_HOME` or `~/.qilin`. */
   qilinHome?: string
+  /** Shared agents root containing the second user-global `AGENTS.md`; defaults to `$QILIN_AGENTS_HOME` or `~/.agents`. */
+  agentsHome?: string
   /** Directory entries that identify the project root while walking upward from the session cwd. */
   projectRootMarkers?: string[]
   /** UTF-8 byte cap for one rendered baseline or dynamic batch; non-positive or non-finite disables loading. */
@@ -2988,7 +2990,7 @@ export interface Config {
 ## `@qilin-agent/skill-filesystem`
 
 - `inject`: `skills`
-- `source`: [`packages/skill/skill-filesystem/src/index.ts:49`](../packages/skill/skill-filesystem/src/index.ts)
+- `source`: [`packages/skill/skill-filesystem/src/index.ts:48`](../packages/skill/skill-filesystem/src/index.ts)
 
 ```ts config-catalog
 /** Local filesystem skill provider configuration. */

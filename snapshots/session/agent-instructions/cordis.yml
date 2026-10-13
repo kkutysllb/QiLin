@@ -1,5 +1,5 @@
-# Workspace-context snapshot patch: keep project-root and user-global
-# discovery inside the scenario's temporary cwd.
+# Workspace-context snapshot patch: keep project-root and both user-global
+# root discoveries inside the scenario's temporary cwd.
 - id: agent-default-model
   name: '@qilin-agent/agent-default-model'
   config:
@@ -17,6 +17,7 @@
   config:
     maxBytes: 65536
     qilinHome: !!js process.cwd() + '/.qilin'
+    agentsHome: !!js process.cwd() + '/.qilin-agents'
     projectRootMarkers:
       - .qilin-project
 

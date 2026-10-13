@@ -6,7 +6,7 @@
 
 import { relative } from 'node:path'
 import z from '@qilin-agent/schemastery'
-import { resolveQilinHome } from '@qilin-agent/home-paths'
+import { resolveAgentsHome, resolveQilinHome } from '@qilin-agent/home-paths'
 
 const DEFAULT_PROJECT_ROOT_MARKERS = ['.git'] as const
 const DEFAULT_INSTRUCTION_FILE_CANDIDATES = ['AGENTS.md', 'CLAUDE.md'] as const
@@ -16,8 +16,10 @@ const RESERVED_PATH_SEGMENTS = new Set(['', '.', '..'])
 
 /** User-facing workspace instruction loader configuration. */
 export interface Config {
-  /** Harness home containing the fixed user-global `AGENTS.md`; defaults to `$QILIN_HOME` or `~/.qilin`. */
+  /** Harness home containing the first user-global `AGENTS.md`; defaults to `$QILIN_HOME` or `~/.qilin`. */
   qilinHome?: string
+  /** Shared agents root containing the second user-global `AGENTS.md`; defaults to `$QILIN_AGENTS_HOME` or `~/.agents`. */
+  agentsHome?: string
   /** Directory entries that identify the project root while walking upward from the session cwd. */
   projectRootMarkers?: string[]
   /** UTF-8 byte cap for one rendered baseline or dynamic batch; non-positive or non-finite disables loading. */
@@ -38,6 +40,7 @@ export interface Config {
 
 export const Config: z<Config> = z.object({
   qilinHome: z.string(),
+  agentsHome: z.string(),
   projectRootMarkers: z.array(z.string()).default([...DEFAULT_PROJECT_ROOT_MARKERS]),
   maxBytes: z.number().required(),
   maxSourceBytes: z.number().step(1).min(1).default(DEFAULT_MAX_SOURCE_BYTES),
@@ -48,6 +51,7 @@ export const Config: z<Config> = z.object({
 /** Normalized instruction discovery configuration. */
 export interface ResolvedDiscoveryConfig {
   qilinHome: string
+  agentsHome: string
   projectRootMarkers: string[]
   instructionFileCandidates: string[]
   localInstructionFileCandidates: string[]
@@ -82,7 +86,7 @@ export function workspaceBaselineIdentity(
 }
 
 /**
- * Resolve defaults, the harness home, and valid same-directory candidates.
+ * Resolve defaults, both user-global homes, and valid same-directory candidates.
  * @param config - user-facing plugin configuration.
  * @returns normalized runtime configuration.
  */
@@ -96,14 +100,19 @@ export function resolveConfig(config: Config): ResolvedConfig {
 
 /**
  * Resolve the subset of configuration used before instruction content is rendered.
+ *
+ * Both user-global roots resolve independently: the harness home from
+ * `$QILIN_HOME` and the shared agents root from `$QILIN_AGENTS_HOME`, each
+ * with its explicit row override taking precedence.
  * @param config - optional discovery controls.
- * @returns normalized home, root markers, and instruction candidates.
+ * @returns normalized homes, root markers, and instruction candidates.
  */
 export function resolveDiscoveryConfig(
-  config: Pick<Config, 'qilinHome' | 'projectRootMarkers' | 'instructionFileCandidates' | 'localInstructionFileCandidates'>,
+  config: Pick<Config, 'qilinHome' | 'agentsHome' | 'projectRootMarkers' | 'instructionFileCandidates' | 'localInstructionFileCandidates'>,
 ): ResolvedDiscoveryConfig {
   return {
     qilinHome: resolveQilinHome(config.qilinHome),
+    agentsHome: resolveAgentsHome(config.agentsHome),
     projectRootMarkers: config.projectRootMarkers ?? [...DEFAULT_PROJECT_ROOT_MARKERS],
     instructionFileCandidates: resolveInstructionFileCandidates(
       config.instructionFileCandidates,

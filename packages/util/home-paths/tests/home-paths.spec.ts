@@ -3,14 +3,19 @@ import { homedir, tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
+  AGENTS_HOME_DIR_NAME,
+  DEFAULT_AGENTS_HOME_DISPLAY,
   DEFAULT_QILIN_HOME_DISPLAY,
   QILIN_HOME_DIR_NAME,
+  agentsHomeDisplay,
   canonicalizeWatchPath,
+  defaultAgentsHome,
   defaultQilinHome,
   qilinCachePath,
   qilinHomeDisplay,
   qilinHomePath,
   expandHomePath,
+  resolveAgentsHome,
   resolveQilinHome,
 } from '@qilin-agent/home-paths'
 
@@ -55,6 +60,30 @@ describe('qilin path helpers', () => {
   it('labels a resolved home by whether it is the default root', () => {
     expect(qilinHomeDisplay(resolve(defaultQilinHome()))).toBe('~/.qilin')
     expect(qilinHomeDisplay('/some/other/root')).toBe('$QILIN_HOME')
+  })
+
+  it('owns the shared default agents home directory name', () => {
+    expect(AGENTS_HOME_DIR_NAME).toBe('.agents')
+    expect(DEFAULT_AGENTS_HOME_DISPLAY).toBe('~/.agents')
+    expect(defaultAgentsHome()).toBe(join(homedir(), '.agents'))
+  })
+
+  it('resolves an explicit agents home before QILIN_AGENTS_HOME and the default', () => {
+    const envHome = join(homedir(), 'env-agents')
+
+    expect(resolveAgentsHome('/tmp/explicit-agents', { QILIN_AGENTS_HOME: '~/env-agents' })).toBe(resolve('/tmp/explicit-agents'))
+    expect(resolveAgentsHome(undefined, { QILIN_AGENTS_HOME: '~/env-agents' })).toBe(envHome)
+    expect(resolveAgentsHome(undefined, {})).toBe(defaultAgentsHome())
+  })
+
+  it('treats an empty or whitespace-only QILIN_AGENTS_HOME as unset', () => {
+    expect(resolveAgentsHome(undefined, { QILIN_AGENTS_HOME: '' })).toBe(defaultAgentsHome())
+    expect(resolveAgentsHome(undefined, { QILIN_AGENTS_HOME: '   ' })).toBe(defaultAgentsHome())
+  })
+
+  it('labels a resolved agents home by whether it is the default root', () => {
+    expect(agentsHomeDisplay(resolve(defaultAgentsHome()))).toBe('~/.agents')
+    expect(agentsHomeDisplay('/some/other/root')).toBe('$QILIN_AGENTS_HOME')
   })
 
   it.each([
