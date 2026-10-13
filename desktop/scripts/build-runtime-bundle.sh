@@ -105,6 +105,10 @@ BUNDLE="$STAGING/qilin-runtime.tar.gz"
 rm -f "$BUNDLE"
 # 排除模式按 bsdtar glob（* 跨目录段）：源码/测试/文档只清 apps|packages 域，
 # node_modules 内不做内容筛选（个别包 main 指 src，保守保留）
+# *.map / *.d.ts 对齐 dsh 封盘口径（materialize-peers 时代的既定动作）：二者是纯
+# 开发产物，运行时永不解析（lib/types/ 下的编译型 .js 不受影响，只有声明与
+# sourcemap 被排除）。2026-10-14 实测闭包 58,490 条里 .map 占 10,864、.d.ts 占
+# 9,547——合计 35%；解包条目数直接决定 Windows 首启/CI 的落盘耗时，必须对齐。
 # tar 的 -C 用 POSIX 形态：MSYS 的 GNU tar 把「盘符+冒号」当**远程主机**
 # （现场：`tar (child): Cannot connect to D: resolve failed`），而 Node/ git 要的是
 # 原生形态（见上方 REPO_ROOT）。cygpath 只在 Windows/MSYS 存在，其余平台原样传。
@@ -130,6 +134,8 @@ if command -v cygpath >/dev/null 2>&1; then SRC_TAR="$(cygpath -u "$SRC")"; else
   --exclude='*.md' \
   --exclude='node_modules/.cache' \
   --exclude='*.tsbuildinfo' \
+  --exclude='*.map' \
+  --exclude='*.d.ts' \
   . )
 # shasum 在 Windows 的 Git Bash 里不存在（2026-10-13 CI 现场：command not found）。
 # 统一用 node crypto 流式计算——三平台都必有 node（本脚本前文已在用）。
