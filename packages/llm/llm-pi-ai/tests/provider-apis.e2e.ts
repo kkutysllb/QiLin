@@ -25,18 +25,18 @@ interface ProviderCase {
   headers?: Record<string, string>
 }
 
-const openAIBaseURL = process.env.QILIN_PI_AI_OPENAI_BASE_URL
+const openAIBaseURL = process.env.DSH_PI_AI_OPENAI_BASE_URL
 const azureOpenAIKey = process.env.AZURE_OPENAI_API_KEY
 // Strictly ANTHROPIC_*: the DeepSeek endpoint does not serve the anthropic-messages
 // protocol, so falling back to DEEPSEEK_API_KEY turns the keyless skip into a 404.
 const anthropicApiKey = process.env.ANTHROPIC_API_KEY
-const anthropicBaseURL = process.env.QILIN_PI_AI_ANTHROPIC_BASE_URL
+const anthropicBaseURL = process.env.DSH_PI_AI_ANTHROPIC_BASE_URL
 
 const providerCases: ProviderCase[] = [
   {
     provider: 'openai',
     api: 'openai-responses',
-    model: process.env.QILIN_PI_AI_OPENAI_MODEL ?? 'gpt-5.5',
+    model: process.env.DSH_PI_AI_OPENAI_MODEL ?? 'gpt-5.5',
     ...azureOpenAIKey
       ? { apiKey: azureOpenAIKey, headers: { 'api-key': azureOpenAIKey, Authorization: '' } }
       : {},
@@ -45,7 +45,7 @@ const providerCases: ProviderCase[] = [
   {
     provider: 'anthropic',
     api: 'anthropic-messages',
-    model: process.env.QILIN_PI_AI_ANTHROPIC_MODEL ?? 'claude-opus-4-8',
+    model: process.env.DSH_PI_AI_ANTHROPIC_MODEL ?? 'claude-opus-4-8',
     ...anthropicApiKey === undefined ? {} : { apiKey: anthropicApiKey },
     ...anthropicBaseURL === undefined ? {} : { baseURL: anthropicBaseURL },
   },
@@ -121,7 +121,7 @@ afterEach(async () => {
 function ask(text: string): Message[] {
   return [createUserMessage({
     content: [{ type: 'text', text }],
-    source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-flash' },
+    source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
   })]
 }
 
@@ -249,7 +249,7 @@ for (const profile of providerCases) {
                 },
                 { type: 'image', attachment: ref },
               ],
-              source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-flash' },
+              source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
             })],
             maxTokens: 256,
           })

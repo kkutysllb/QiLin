@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import { Context, Service } from '@qilin-agent/kylin'
 import { AttachmentId, AttachmentStore, ImageVariantId } from '@qilin-agent/attachment'
 import type {
@@ -17,9 +17,10 @@ import { getBuiltinModels } from '@earendil-works/pi-ai/providers/all'
 import { DEFAULT_MAX_REQUEST_IMAGE_BYTES, resolveProfiles } from '../src/config.ts'
 import { memoryAuth } from './auth-double.ts'
 import { assemble } from './assemble.ts'
-import { closeMockServers, mockServer, textEvents } from './mock-server.ts'
+import { anthropicTextEvents, closeMockServers, mockServer, textEvents } from './mock-server.ts'
 
 afterEach(async () => {
+  vi.useRealTimers()
   vi.unstubAllEnvs()
   await closeMockServers()
 })
@@ -31,8 +32,8 @@ const IMAGE_REF: ImageAttachmentRef = {
   width: 1,
   height: 1,
 }
-const HOST_IMAGE_PATH = '/host/.qilin/attachments/objects/aa/object'
-const MODEL_IMAGE_PATH = '/model/.qilin/attachments/objects/aa/object'
+const HOST_IMAGE_PATH = '/host/.dsh/attachments/objects/aa/object'
+const MODEL_IMAGE_PATH = '/model/.dsh/attachments/objects/aa/object'
 
 class MappedFileSystem extends Service {
   constructor(ctx: Context) {
@@ -80,7 +81,7 @@ describe('PiAiAdapter provider routing', () => {
       model: 'deepseek-flash',
       messages: [createUserMessage({
         content: [{ type: 'text', text: 'hi' }],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-flash' },
+        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
       })],
     })
     expect(result.message.content).toEqual([{ type: 'text', text: 'hello' }])
@@ -148,8 +149,8 @@ describe('PiAiAdapter provider routing', () => {
       thinking: { type: 'enabled' },
       reasoning_effort: 'max',
     })
-    expect(server.requests[0]).not.toHaveProperty('qilin_session_log')
-    expect(server.requests[0]).not.toHaveProperty('qilin_plugin_packages')
+    expect(server.requests[0]).not.toHaveProperty('dsh_session_log')
+    expect(server.requests[0]).not.toHaveProperty('dsh_plugin_packages')
   })
 
   it('uses a dynamic request effort and reports unsupported efforts before network I/O', async () => {
@@ -319,7 +320,7 @@ describe('PiAiAdapter provider routing', () => {
       model: 'gpt-4.1',
       messages: [createUserMessage({
         content: [{ type: 'image', attachment: ref }],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-flash' },
+        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
       })],
     })
 
@@ -414,17 +415,24 @@ describe('PiAiAdapter provider routing', () => {
   })
 
   it('stops the SDK request when the adapter idle watchdog expires', async () => {
-    const server = await mockServer([{ events: textEvents, delayMs: 200 }])
+    const server = await mockServer([{ holdOpen: true }])
     const ctx = await harness(server.url, { streamIdleTimeoutMs: 20 })
+    const controller = new AbortController()
+    onTestFinished(async () => {
+      controller.abort()
+      await ctx.fiber.dispose()
+    })
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
 
-    const result = await assemble(ctx, { model: 'deepseek-flash', messages: [] })
+    const pending = assemble(ctx, { model: 'deepseek-flash', messages: [], signal: controller.signal })
+    await server.requestReceived
+    expect(server.closedResponses).toBe(0)
+    await vi.advanceTimersByTimeAsync(20)
+    vi.useRealTimers()
+
+    const result = await pending
     expect(result.finish).toMatchObject({ kind: 'error', failure: { code: 'TIMEOUT' } })
-    await Promise.race([
-      server.responseClosed,
-      new Promise<never>((_resolve, reject) => {
-        setTimeout(() => { reject(new Error('SDK request did not close after idle timeout')) }, 1_000)
-      }),
-    ])
+    await server.responseClosed
 
     expect(server.paths).toEqual(['/chat/completions'])
     expect(server.closedResponses).toBe(1)
@@ -780,6 +788,58 @@ describe('provider profile lifecycle', () => {
     expect(server.requests[0]).not.toHaveProperty('reasoning_effort')
   })
 
+  it('reports efforts in ascending order and dispatches the level a caller selects', async () => {
+    vi.stubEnv('PI_TEST_KEY', 'test-key')
+    const server = await mockServer([
+      { events: anthropicTextEvents },
+      { events: anthropicTextEvents },
+      { events: anthropicTextEvents },
+    ])
+    const ctx = new Context()
+    await ctx.plugin(LlmRuntime)
+    await ctx.plugin(LlmPiAi, {
+      providers: {
+        'adaptive-gateway': {
+          apiKeyEnv: 'PI_TEST_KEY',
+          api: 'anthropic-messages',
+          baseURL: server.url,
+          reasoning: 'max',
+          compat: { forceAdaptiveThinking: true },
+          models: [
+            // Declaring no `off` level means the model cannot stop reasoning.
+            { id: 'always-thinks', reasoningEfforts: { low: 'low', high: 'high', max: 'max' } },
+            { id: 'may-think', reasoningEfforts: { off: null, low: 'low', high: 'high', max: 'max' } },
+          ],
+        },
+      },
+    })
+    const request = (model: string, effort: string): Promise<unknown> => assemble(ctx, {
+      provider: 'adaptive-gateway',
+      model,
+      reasoningEffort: ReasoningEffortId(effort),
+      maxTokens: 64,
+      messages: [],
+    })
+
+    await expect(ctx.llm.resolveModelInfo('adaptive-gateway', 'always-thinks'))
+      .resolves.toMatchObject({ reasoning: { efforts: [{ id: 'low' }, { id: 'high' }, { id: 'max' }] } })
+    await expect(ctx.llm.resolveModelInfo('adaptive-gateway', 'may-think'))
+      .resolves.toMatchObject({ reasoning: { efforts: [{ id: 'off' }, { id: 'low' }, { id: 'high' }, { id: 'max' }] } })
+
+    await request('always-thinks', 'max')
+    await request('always-thinks', 'low')
+    await request('may-think', 'off')
+
+    expect(server.requests[0]).toMatchObject({ thinking: { type: 'adaptive' }, output_config: { effort: 'max' } })
+    expect(server.requests[1]).toMatchObject({
+      max_tokens: 64,
+      thinking: { type: 'adaptive' },
+      output_config: { effort: 'low' },
+    })
+    expect(server.requests[2]).toMatchObject({ max_tokens: 64, thinking: { type: 'disabled' } })
+    expect(server.requests[2]).not.toHaveProperty('output_config')
+  })
+
   it('accepts absent credentials for pi-ai ambient authentication', async () => {
     vi.stubEnv('DEEPSEEK_API_KEY', 'ambient-key')
     const server = await mockServer([{ events: textEvents }])
@@ -911,18 +971,21 @@ describe('provider profile lifecycle', () => {
 
     await expect(drain({
       provider: 'deepseek',
-      model: 'deepseek-flash',
+      model: 'deepseek-v4-pro',
       messages: [createUserMessage({
         content: [{ type: 'image', attachment: IMAGE_REF }],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-flash' },
+        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
       })],
-    })).rejects.toMatchObject({ code: 'UNSUPPORTED_CONTENT' })
+    })).rejects.toMatchObject({
+      code: 'UNSUPPORTED_CONTENT',
+      message: 'pi-ai model "deepseek-v4-pro" does not support image input',
+    })
     await expect(drain({
       provider: 'openai',
       model: 'gpt-4.1',
       messages: [createUserMessage({
         content: [{ type: 'image', attachment: IMAGE_REF }],
-        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-flash' },
+        source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
       })],
     })).rejects.toMatchObject({ code: 'UNSUPPORTED_CONTENT' })
     await expect(drain({

@@ -4,7 +4,6 @@ import LlmRuntime, { createToolResultMessage, createUserMessage, ToolCallId, Rea
 import type { Message, ToolSchema } from '@qilin-agent/llm'
 import * as LlmPiAi from '@qilin-agent/llm-pi-ai'
 import type { PiAiProviderProfile } from '@qilin-agent/llm-pi-ai'
-import { PUBLIC_BASE_URL as deepseekPublicBaseUrl } from '@qilin-agent/llm-deepseek'
 import * as LlmDeepSeek from '@qilin-agent/llm-deepseek-api-key'
 import { assemble, type AssembledResult } from './assemble.ts'
 
@@ -25,7 +24,6 @@ async function harness(_model: string, config: Partial<PiAiProviderProfile> = {}
     providers: {
       deepseek: {
         ...process.env.DEEPSEEK_API_KEY === undefined ? {} : { apiKey: process.env.DEEPSEEK_API_KEY },
-        baseURL: deepseekPublicBaseUrl,
         ...config,
       },
     },
@@ -40,7 +38,7 @@ afterEach(async () => {
 function ask(text: string): Message[] {
   return [createUserMessage({
     content: [{ type: 'text', text }],
-    source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-flash' },
+    source: { kind: 'model', provider: 'deepseek-official', model: 'deepseek-v4-flash' },
   })]
 }
 

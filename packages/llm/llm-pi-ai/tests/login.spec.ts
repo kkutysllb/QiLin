@@ -20,6 +20,7 @@ vi.mock('../src/models.ts', async importOriginal => ({
 }))
 
 const { credentialStoreFrom, authContextFrom, recordKeyFor } = await import('../src/auth.ts')
+const { catalogProvider } = await import('../src/catalog.ts')
 const { registerPiAiFlows } = await import('../src/login.ts')
 
 const CODEX = recordKeyFor('openai-codex')
@@ -27,7 +28,7 @@ const dirs: string[] = []
 
 /** A context with the record store, the seam, and every pi-ai login flow. */
 async function harness(): Promise<Context> {
-  const dir = await mkdtemp(join(tmpdir(), 'qilin-pi-login-'))
+  const dir = await mkdtemp(join(tmpdir(), 'dsh-pi-login-'))
   dirs.push(dir)
   const ctx = new Context()
   await ctx.plugin(LocalCredentialProvider, { path: join(dir, '.credentials.yaml'), watch: false })
@@ -95,6 +96,11 @@ describe('pi-ai login flows', () => {
     // A key-only provider still gets a flow, because pi-ai collects the key
     // through its own prompt rather than leaving it to the settings form.
     expect(offered.find(entry => entry.key === recordKeyFor('deepseek'))?.methods.map(one => one.id))
+      .toEqual(['api-key'])
+    // pi-ai ships Sign in with ChatGPT for `openai`, which needs an
+    // installation ID the harness does not supply; only the key login is offered.
+    expect(catalogProvider('openai')?.auth.oauth?.loginLabel).toBe('Sign in with ChatGPT')
+    expect(offered.find(entry => entry.key === recordKeyFor('openai'))?.methods.map(one => one.id))
       .toEqual(['api-key'])
   })
 
