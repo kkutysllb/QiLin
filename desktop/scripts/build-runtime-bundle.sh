@@ -17,8 +17,12 @@
 # 用法：bash scripts/build-runtime-bundle.sh
 set -euo pipefail
 cd "$(dirname "$0")/.."
-REPO_ROOT="$(pwd)"
-ENGINE_ROOT="$(cd "$REPO_ROOT/.." && pwd)"
+# Windows（Git Bash / MSYS）下 pwd 是 /d/a/... 形态，交给 Node 会被解析成多一层
+# 盘符的绝对路径（2026-10-13 CI 现场：Windows 封盘死在 readFileSync 读 package.json
+# 这一行）。pwd -W 取原生形态（D:/a/...，bash / git / node 三边都认）；该开关在
+# macOS/Linux 的 pwd 上不存在，直接回落到普通 pwd——两平台行为与改动前完全一致。
+REPO_ROOT="$(pwd -W 2>/dev/null || pwd)"
+ENGINE_ROOT="$(cd "$REPO_ROOT/.." && (pwd -W 2>/dev/null || pwd))"
 STAGING="$REPO_ROOT/staging"
 SRC="$STAGING/qilin-src"
 
