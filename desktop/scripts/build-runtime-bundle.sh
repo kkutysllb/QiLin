@@ -100,7 +100,10 @@ rm -f "$BUNDLE"
 # （现场：`tar (child): Cannot connect to D: resolve failed`），而 Node/ git 要的是
 # 原生形态（见上方 REPO_ROOT）。cygpath 只在 Windows/MSYS 存在，其余平台原样传。
 if command -v cygpath >/dev/null 2>&1; then SRC_TAR="$(cygpath -u "$SRC")"; else SRC_TAR="$SRC"; fi
-tar -czf "$BUNDLE" -C "$SRC_TAR" \
+# 归档名也不能带盘符冒号（第二处同类坑：-f 的 D:/... 同样被 MSYS tar 当成远程
+# 主机，报 Cannot connect to D:）。进 staging 目录用相对文件名写归档；
+# Node / shasum 侧继续用原生 BUNDLE 路径（它们认原生形态）。
+( cd "$STAGING" && tar -czf qilin-runtime.tar.gz -C "$SRC_TAR" \
   --exclude='.git' \
   --exclude='.github' \
   --exclude='.agents' \
@@ -116,7 +119,7 @@ tar -czf "$BUNDLE" -C "$SRC_TAR" \
   --exclude='*.md' \
   --exclude='node_modules/.cache' \
   --exclude='*.tsbuildinfo' \
-  .
+  . )
 SHA256="$(shasum -a 256 "$BUNDLE" | awk '{print $1}')"
 git -C "$SRC" checkout -- package.json 2>/dev/null || true
 
