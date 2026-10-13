@@ -6,6 +6,12 @@
  * plus the math extensions, so the arms differ only where TeX delimiters
  * begin a math construct (a `$$` block is a paragraph while streaming and a
  * math block once settled, by design).
+ *
+ * Both arms feed their source through {@link sanitizeModelMarkdown} first,
+ * a product-layer repair for model output that closes ** or backticks on
+ * a later line; the fix is in the parser pipeline (not at the message
+ * boundary) so plain-text extraction and the streaming parser see the same
+ * post-repair text the renderer paints.
  */
 
 import type { Root } from 'mdast'
@@ -18,6 +24,7 @@ import { math } from 'micromark-extension-math'
 import { cjkFriendlyStrong } from './cjkFriendlyStrong.ts'
 import { mathCompatibility } from './mathCompatibility.ts'
 import { windowsPathDestinations } from './windows-path-destinations.ts'
+import { sanitizeModelMarkdown } from './modelSanitize.ts'
 
 /** GFM strikethrough requires `~~`; a single `~` stays literal, as in ranges such as `10~20`. */
 const gfmOptions = { singleTilde: false }
@@ -29,10 +36,11 @@ const gfmOptions = { singleTilde: false }
  * @returns The mdast root.
  */
 export function parseGfm(text: string): Root {
-  return recoverLocalImages(fromMarkdown(text, {
+  const sanitized = sanitizeModelMarkdown(text)
+  return recoverLocalImages(fromMarkdown(sanitized, {
     extensions: [gfm(gfmOptions), cjkFriendlyStrong()],
     mdastExtensions: [gfmFromMarkdown(), windowsPathDestinations()],
-  }), text)
+  }), sanitized)
 }
 
 /**
@@ -42,11 +50,12 @@ export function parseGfm(text: string): Root {
  * @returns The mdast root.
  */
 export function parseGfmWithMath(text: string): Root {
-  return recoverLocalImages(fromMarkdown(text, {
+  const sanitized = sanitizeModelMarkdown(text)
+  return recoverLocalImages(fromMarkdown(sanitized, {
     // `mathCompatibility()` MUST stay last: micromark dispatches the extension
     // registered last first, and the dollar flow must own every `$$` fence so
     // the opening line's text stays math instead of upstream's fence meta.
     extensions: [gfm(gfmOptions), cjkFriendlyStrong(), math(), mathCompatibility()],
     mdastExtensions: [gfmFromMarkdown(), mathFromMarkdown(), windowsPathDestinations()],
-  }), text)
+  }), sanitized)
 }
