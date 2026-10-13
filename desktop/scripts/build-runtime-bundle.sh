@@ -78,6 +78,17 @@ case "$(uname -s)" in
 esac
 (cd "$SRC" && rm -rf node_modules && CI=true pnpm install --prod $PROD_LINKER)
 
+# 悬挂链接剪枝：--prod 只清**根** node_modules；全量安装期在各包自己的
+# node_modules 里留下的 per-package 依赖链接（react/@types/react/clsx 等 dev
+# 依赖），剪枝后目标已不存在——成为闭包里的**死链接**。mac/Linux 解包容忍
+# 悬挂链接（所以前几轮一路绿），Windows 的 tar 创建不了符号链接，逐条
+# 「Cannot create symlink … No such file or directory」整步红（2026-10-14 CI
+# 现场）。只删「解析不到」的链接，活链接（workspace 真实依赖）一律不动。
+find "$SRC" -type l | while IFS= read -r l; do
+  [ -e "$l" ] || rm -f -- "$l"
+done
+log "悬挂链接剪枝完成：闭包内不再有解析不到的符号链接"
+
 # 4) 闭包预签：公证服务会扫描包内嵌套归档（app → extraResources tar →
 #    node_modules），闭包里每个 Mach-O 都须带 Developer ID 签名 + 安全
 #    时间戳 + hardened runtime（v0.1.0 第五轮实踩：node-pty/sharp/esbuild/
