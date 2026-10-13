@@ -67,7 +67,16 @@ const m = JSON.parse(fs.readFileSync(p, "utf8"))
 if (m.scripts) delete m.scripts.postinstall
 fs.writeFileSync(p, JSON.stringify(m, null, 2) + "\n")
 ' "$SRC"
-(cd "$SRC" && rm -rf node_modules && CI=true pnpm install --prod)
+# Windows 闭包必须**无 symlink**：pnpm 默认的符号链接布局在 Windows 解包需要
+# SeCreateSymbolicLinkPrivilege（CI 与普通用户机器都没有）——运行时归档在用户
+# 首启解压时就会失败（2026-10-13 CI 现场：bsdtar 解包 6200+ symlink 直接失败）。
+# hoisted 布局是真实文件树，三平台语义一致；仅 Windows 换，mac/Linux 保持已验证
+# 的 symlink 形态不动。
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*) PROD_LINKER="--config.node-linker=hoisted" ;;
+  *) PROD_LINKER="" ;;
+esac
+(cd "$SRC" && rm -rf node_modules && CI=true pnpm install --prod $PROD_LINKER)
 
 # 4) 闭包预签：公证服务会扫描包内嵌套归档（app → extraResources tar →
 #    node_modules），闭包里每个 Mach-O 都须带 Developer ID 签名 + 安全
