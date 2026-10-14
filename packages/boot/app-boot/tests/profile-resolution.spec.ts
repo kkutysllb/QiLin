@@ -201,6 +201,19 @@ describe('profile resolution generation', { concurrent: false }, () => {
       .toEqual({ marker: 1 })
   })
 
+  it('aliases DSH-era package names onto the linked QiLin packages', async () => {
+    const f = fixture('@qilin-agent/session')
+    const generation = await generationOf(f)
+    expect(generation.entries.find(entry => entry.name === '@qilin-agent/session')).toMatchObject({
+      packageDir: f.installed,
+      scope: 'installation',
+    })
+    expect(generation.entries.find(entry => entry.name === '@deepseek-ai/dsh-session')).toMatchObject({
+      packageDir: f.installed,
+      declarer: f.installAnchor,
+      scope: 'installation',
+    })
+  })
   it('fails generation construction before writing when the profile manifest is malformed', async () => {
     const f = fixture()
     file(join(f.profile.dir, 'package.json'), '{')
@@ -876,7 +889,7 @@ describe('profile resolution generation', { concurrent: false }, () => {
     }]
     const generation = await generationOf(f)
     const entry = generation.entries.find(candidate => candidate.name === '@deepseek-ai/dsh-session')
-    expect(entry).toMatchObject({ packageDir: session, scope: 'profile' })
+    expect(entry).toMatchObject({ packageDir: session, scope: 'installation' })
 
     const registration = installProfileResolution(generation)
     registrations.push(registration)

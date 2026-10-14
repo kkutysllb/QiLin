@@ -34,7 +34,7 @@ import { withFileLock } from '@qilin-agent/atomic-write'
 import type { EntryOptions } from '@qilin-agent/kylin-plugin-loader'
 import { applyEntryPatches, type PatchOptions } from '@qilin-agent/kylin-plugin-include'
 import { resolveQilinHome } from '@qilin-agent/home-paths'
-import { bundlePatchOf, dshCompatModuleId } from '@qilin-agent/dsh-compat'
+import { bundlePatchOf, dshCompatAliasOf, dshCompatModuleId } from '@qilin-agent/dsh-compat'
 import { evaluatePluginCompatibility, pluginCompatibilityWarning } from './plugin-compatibility.ts'
 import { readProfileVersionExemptions } from './profile-compatibility.ts'
 import type { QilinManifest, QilinPackageManifest } from '@qilin-agent/package-manifest'
@@ -654,6 +654,17 @@ function resolveModuleFallbackEntries(
       }
       queue.push({ anchor: manifestPath, manifest })
     }
+  }
+  // DSH-era plugins require their peers under the pre-rescope names; every
+  // linked QiLin package also serves its DSH-era spelling so one installation
+  // backs both names (existing links keep their first-wins resolution).
+  for (const [name, packageDir] of [...links]) {
+    const alias = dshCompatAliasOf(name)
+    const declarer = declarers.get(name)
+    if (alias === undefined || declarer === undefined || links.has(alias)) continue
+    links.set(alias, packageDir)
+    declarers.set(alias, declarer)
+    versions.set(alias, versions.get(name))
   }
   const entries = !materialize
     ? []
