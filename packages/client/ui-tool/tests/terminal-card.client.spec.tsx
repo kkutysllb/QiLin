@@ -443,6 +443,14 @@ describe('BashRow terminal card', () => {
     expect(view.getByText('List files')).toBeTruthy()
   })
 
+  it('expands a completed command that carries Host-accepted blank escalation fields', () => {
+    const view = render(<BashRow {...rowProps(settled({
+      call: { name: 'bash', argsRaw: shellArgs({ sandbox_permissions: 'danger-full-access', justification: '' }) },
+    }))} />)
+    fireEvent.click(view.container.querySelector('[data-expandable]')!)
+    expect(view.getByText('a.ts  b.ts', RAW)).toBeTruthy()
+  })
+
   // The row's leading StateDot and the card's run-state dot describe the same
   // command, so a running row whose card claimed 'done' would be a contradiction
   // the reader sees on one line.
