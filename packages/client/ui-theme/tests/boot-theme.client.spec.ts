@@ -11,8 +11,12 @@ function mockSystemDark(matches: boolean): void {
   vi.stubGlobal('matchMedia', vi.fn(() => ({ matches }) as MediaQueryList))
 }
 
-function executeBootstrap(preference?: ThemePreference, fontSize?: number): void {
-  for (const row of bootThemeInjections(preference, fontSize)) {
+function executeBootstrap(
+  preference?: ThemePreference,
+  fontSizes?: { text: number; code: number; terminal: number },
+  fontFamilies?: { text: string; code: string; terminal: string },
+): void {
+  for (const row of bootThemeInjections(preference, fontSizes, fontFamilies)) {
     if (row.kind === 'script') runInNewContext(row.text, { document, matchMedia: globalThis.matchMedia })
   }
 }
@@ -77,10 +81,33 @@ describe('theme bootstrap row', () => {
 
   it('writes the durable content font size and defaults it to 14px', () => {
     mockSystemDark(false)
-    executeBootstrap('light', 22)
+    executeBootstrap('light', { text: 22, code: 11, terminal: 13 })
     expect(document.body.style.getPropertyValue('--qilin-content-font-size')).toBe('22px')
     executeBootstrap('light')
     expect(document.body.style.getPropertyValue('--qilin-content-font-size')).toBe('14px')
   })
+
+  it('writes user font lists on the body, skipping empty roles (the document boots once; live clearing belongs to the presenter)', () => {
+    mockSystemDark(false)
+    executeBootstrap('light', undefined, { text: '"Inter"', code: '"Iosevka"', terminal: '"Hack"' })
+    expect(document.body.style.getPropertyValue('--qilin-font-family-text')).toBe('"Inter"')
+    expect(document.body.style.getPropertyValue('--qilin-font-family-code')).toBe('"Iosevka"')
+    expect(document.body.style.getPropertyValue('--qilin-font-family-terminal')).toBe('"Hack"')
+    // A second boot with empty roles does not rewrite them; within a live
+    // document the presenter clears the variables on change instead.
+    executeBootstrap('light')
+    expect(document.body.style.getPropertyValue('--qilin-font-family-text')).toBe('"Inter"')
+  })
+
+  it('writes the code and terminal sizes and defaults them', () => {
+    mockSystemDark(false)
+    executeBootstrap('light', { text: 14, code: 13, terminal: 17 })
+    expect(document.body.style.getPropertyValue('--qilin-code-font-size')).toBe('13px')
+    expect(document.body.style.getPropertyValue('--qilin-terminal-font-size')).toBe('17px')
+    executeBootstrap('light')
+    expect(document.body.style.getPropertyValue('--qilin-code-font-size')).toBe('11px')
+    expect(document.body.style.getPropertyValue('--qilin-terminal-font-size')).toBe('13px')
+  })
+
 
 })

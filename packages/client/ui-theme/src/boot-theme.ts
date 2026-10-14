@@ -1,15 +1,15 @@
 /**
  * Theme bootstrap row for the browser's pre-plugin interval. Each index
- * render embeds the current durable built-in preference, content font size,
- * and content font size. Head CSS colors the document canvas before script
- * execution; the body script installs the palette selector and both content
- * axes that ui-layout's ThemePresenter adopts after the client plugin tree
- * activates.
+ * render embeds the current durable built-in preference, font sizes, and
+ * font-family lists. Head CSS colors the document canvas before script
+ * execution; the body script installs the palette selector and font variables
+ * that the client presenters adopt.
  */
 
 import type { IndexInjection } from '@qilin-agent/host-webserver'
 import {
-  DEFAULT_FONT_SIZE, DEFAULT_PREFERENCE, type ThemePreference,
+  DEFAULT_FONT_SIZES, DEFAULT_PREFERENCE, FONT_ROLES, FONT_SIZE_SPECS, fontFamilyVariable, normalizeFontFamily,
+  type FontFamilies, type FontSizes, type ThemePreference,
 } from './theme-settings.ts'
 
 const LIGHT_BACKGROUND = '#fff'
@@ -24,11 +24,14 @@ function bootThemeStyle(preference: ThemePreference): string {
   return `${light}@media(prefers-color-scheme:dark){${dark}}`
 }
 
-/** Build the body script that installs the palette selector, font size, and leading. */
-function bootThemeBodyScript(
-  preference: ThemePreference,
-  fontSize: number,
-): string {
+/** Build the body script that installs the palette selector and font variables. */
+function bootThemeBodyScript(preference: ThemePreference, fontSizes: FontSizes, fontFamilies: FontFamilies): string {
+  const sizes = FONT_ROLES.map(role =>
+    `\n  document.body.style.setProperty(${JSON.stringify(FONT_SIZE_SPECS[role].variable)}, ${JSON.stringify(`${fontSizes[role]}px`)})`).join('')
+  const families = FONT_ROLES.flatMap((kind) => {
+    const list = normalizeFontFamily(fontFamilies[kind])
+    return list === '' ? [] : [`\n  document.body.style.setProperty(${JSON.stringify(fontFamilyVariable(kind))}, ${JSON.stringify(list)})`]
+  }).join('')
   return `(() => {
   const preference = ${JSON.stringify(preference)}
   const systemDark = preference === 'system'
@@ -36,25 +39,26 @@ function bootThemeBodyScript(
     && matchMedia('(prefers-color-scheme: dark)').matches
   const dark = preference === 'dark' || systemDark
   document.documentElement.dataset.dsThemeSource = preference
-  document.body.toggleAttribute('data-ds-dark-theme', dark)
-  document.body.style.setProperty('--qilin-content-font-size', ${JSON.stringify(`${fontSize}px`)})
+  document.body.toggleAttribute('data-ds-dark-theme', dark)${sizes}${families}
 })()`
 }
 
 /**
  * Theme bootstrap rows: head CSS colors the document canvas before
- * first paint, then the body script installs the palette selector and the
- * content font size and leading before the shell mount and module script.
+ * first paint, then the body script installs the palette selector and font
+ * size and font families before the shell mount and module script.
  * @param preference - Current Host-backed built-in preference.
- * @param fontSize - Current Host-backed content font size in px.
- * @returns head style and body script rows in execution order.
+ * @param fontSizes - Current Host-backed font sizes in px by role.
+ * @param fontFamilies - Current Host-backed font lists; each is normalized before embedding.
+ * @returns head and body script rows in execution order.
  */
 export function bootThemeInjections(
   preference: ThemePreference = DEFAULT_PREFERENCE,
-  fontSize: number = DEFAULT_FONT_SIZE,
+  fontSizes: FontSizes = DEFAULT_FONT_SIZES,
+  fontFamilies: FontFamilies = { text: '', code: '', terminal: '' },
 ): IndexInjection[] {
   return [
     { kind: 'style', text: bootThemeStyle(preference) },
-    { kind: 'script', placement: 'body', text: bootThemeBodyScript(preference, fontSize) },
+    { kind: 'script', placement: 'body', text: bootThemeBodyScript(preference, fontSizes, fontFamilies) },
   ]
 }

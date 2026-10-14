@@ -10,10 +10,11 @@ import type { SessionId } from '@qilin-agent/session/types'
 import type { WebTerminalId, WebTerminalInfo } from '@qilin-agent/api-terminal-controller/types'
 import { SidebarRightTabRegistry } from '@qilin-agent/client-ui-sidebar-right/src/client/tab-registry.ts'
 import type { SidebarRightCloseHandler } from '@qilin-agent/client-ui-sidebar-right/client'
+import type { ThemeSettings } from '@qilin-agent/client-ui-theme/client'
 import type { SidebarRightOpenTab } from '@qilin-agent/client-ui-sidebar-right/client'
 import { apply, inject } from '../src/client/index.ts'
-import { TerminalFontRow, type TerminalFontRowInjected } from '../src/client/TerminalFontRow.tsx'
 import { apply as hostApply } from '../src/index.ts'
+import { resolveTerminalFont } from '../src/client/terminal-font.ts'
 import { TerminalGuide, type TerminalGuideInjected } from '../src/client/TerminalGuide.tsx'
 import { LazyTerminalBody } from '../src/client/LazyTerminalBody.tsx'
 import { TerminalTitle } from '../src/client/TerminalTitle.tsx'
@@ -21,7 +22,7 @@ import { TerminalRecovery, type TerminalRecoveryInjected } from '../src/client/T
 import { TerminalCleanup, type TerminalCleanupInjected } from '../src/client/TerminalCleanup.tsx'
 import type { TerminalBodyInjected } from '../src/client/face.ts'
 import { en, zh } from '../src/client/locales.ts'
-import { DEFAULT_TERMINAL_FONT_SIZE, TERMINAL_SETTINGS_NAMESPACE, TerminalSettingsSchema, type TerminalSettings } from '../src/terminal-settings.ts'
+import { DEFAULT_TERMINAL_FONT_SIZE, type TerminalSettings } from '../src/terminal-settings.ts'
 
 vi.mock('@xterm/xterm', () => ({ Terminal: vi.fn() }))
 const renderedTerminal = vi.hoisted(() => vi.fn(() => null))
@@ -70,24 +71,61 @@ async function mountPlugin(stored: TerminalSettings | null = { fontFamily: 'User
     bind: () => (key: string) => key,
     register: (name: string, values: unknown) => { dictionaries.set(name, values); return () => { dictionaries.delete(name) } },
   } as never)
-  const theme = { preference: 'light' as const, fontSize: 14, leading: 0, active: { id: 'light', colorScheme: 'light' as const, tokens: {} }, themes: [], revision: 0 }
-  ctx.provide('theme', { getTheme: () => theme } as never)
-  // The terminal section as the settings service serves it: one accepted
-  // value, observed, with a recording write queue.
+  let theme = {
+    preference: 'light' as const, fontSizes: { text: 14, code: 11, terminal: 13 },
+    fontFamilies: { text: '', code: '', terminal: '' }, leading: 0,
+    active: { id: 'light', colorScheme: 'light' as const, tokens: {} }, themes: [], revision: 0,
+  }
+  ctx.provide('theme', {
+    getTheme: () => theme,
+    setFontFamily: (role: 'text' | 'code' | 'terminal', value: string) => {
+      theme = { ...theme, fontFamilies: { ...theme.fontFamilies, [role]: value }, revision: theme.revision + 1 }
+      const previous = themeDoc.getSnapshot().value
+      if (previous !== undefined) themeDoc.set({ value: { ...previous, [`${role === 'text' ? 'text' : role}FontFamily`]: value } })
+      ctx.emit('theme/change', theme)
+    },
+    setFontSize: (role: 'text' | 'code' | 'terminal', px: number) => {
+      theme = { ...theme, fontSizes: { ...theme.fontSizes, [role]: px }, revision: theme.revision + 1 }
+      const previous = themeDoc.getSnapshot().value
+      const field = role === 'text' ? 'fontSize' : `${role}FontSize`
+      if (previous !== undefined) themeDoc.set({ value: { ...previous, [field]: px } })
+      ctx.emit('theme/change', theme)
+    },
+  } as never)
+  // The retired terminal section as the settings service serves it: one
+  // accepted value, observed, with a recording write queue (migration source).
   const settings = createSnapshotStore<{ value: TerminalSettings | undefined }>({ value: stored ?? undefined })
   const setField = vi.fn(async () => true)
+  // The theme section form: defaults, observed, writes recorded and folded in.
+  const themeDoc = createSnapshotStore<{ value: ThemeSettings | undefined }>({
+    value: {
+      preference: 'light', fontSize: 14, codeFontSize: 11, terminalFontSize: 13,
+      textFontFamily: '', codeFontFamily: '', terminalFontFamily: '',
+    },
+  })
+  const setThemeField = vi.fn(async (field: string, value: string | number) => {
+    const previous = themeDoc.getSnapshot().value
+    if (previous === undefined) return
+    themeDoc.set({ value: { ...previous, [field]: value } })
+  })
   const configForms = {
-    get: vi.fn(() => ({
-      getSnapshot: () => settings.getSnapshot(),
-      subscribe: (listener: () => void) => settings.subscribe(listener),
-      set: setField,
-    })),
+    get: vi.fn((namespace: string) => namespace === 'ui-theme'
+      ? {
+        getSnapshot: () => themeDoc.getSnapshot(),
+        subscribe: (listener: () => void) => themeDoc.subscribe(listener),
+        set: setThemeField,
+      }
+      : {
+        getSnapshot: () => settings.getSnapshot(),
+        subscribe: (listener: () => void) => settings.subscribe(listener),
+        set: setField,
+      }),
   }
   ctx.provide('configForms', configForms as never)
   const fiber = await ctx.plugin({ inject, apply })
   return {
     tabs, entries, dictionaries, terminals, model, occurrence, openTabIn, openTab, tabsIn, openTabs, theme,
-    settings, setField,
+    settings, setField, themeDoc, setThemeField,
     emitTheme() { ctx.emit('theme/change', theme) },
     get closeHandler() { return closeHandler },
     setParams(next: typeof params) { params = next },
@@ -95,12 +133,12 @@ async function mountPlugin(stored: TerminalSettings | null = { fontFamily: 'User
   }
 }
 
-it('registers the durable font section when a settings provider exists', () => {
+it('registers no settings section now that the terminal font role lives in the theme section', () => {
   const registered: [string, unknown][] = []
   const provider = { settings: { register: (name: string, schema: unknown) => { registered.push([name, schema]) } } }
   const ctx = { inject: (names: string[], run: (scoped: typeof provider) => void) => { expect(names).toEqual(['settings']); run(provider) } }
   hostApply(ctx as never)
-  expect(registered).toEqual([[TERMINAL_SETTINGS_NAMESPACE, TerminalSettingsSchema]])
+  expect(registered).toEqual([])
 })
 
 it('registers terminal views, recovery and cleanup, then releases every contribution on unload', async () => {
@@ -122,30 +160,24 @@ it('registers terminal views, recovery and cleanup, then releases every contribu
       ['sidebar.right.pane.tab.title', TerminalTitle, 'sidebarTerminal'],
       ['conversation.session.header.actions', TerminalRecovery, 'sidebarTerminal'],
       ['shell.overlay', TerminalCleanup, 'sidebarTerminal'],
-      ['settings.general.item', TerminalFontRow, 'sidebarTerminal'],
     ])
     const sessionId = 'session' as SessionId
-    const row = h.entries.at(-1)!.inject(sessionId) as TerminalFontRowInjected
-    expect(row.hooks.font.getSnapshot()).toEqual({ fontFamily: 'User Mono', fontSize: 15 })
     const body = h.entries.find(entry => entry.component === LazyTerminalBody)!.inject(sessionId) as TerminalBodyInjected
+    // Migration: the stored legacy choice moves into the theme section's
+    // terminal role (the role carried no family override) through the theme
+    // service, and the screen resolves the user stack ahead of the shared
+    // fallbacks.
+    expect(h.themeDoc.getSnapshot().value?.terminalFontFamily).toBe('User Mono')
+    expect(h.themeDoc.getSnapshot().value?.terminalFontSize).toBe(15)
+    expect(h.theme.fontFamilies.terminal).toBe('User Mono')
+    expect(h.theme.fontSizes.terminal).toBe(15)
     expect(body.hooks.font.getSnapshot().fontFamily.startsWith('User Mono, ')).toBe(true)
-    row.setFont({ fontSize: 20 })
-    expect(row.hooks.font.getSnapshot().fontSize).toBe(20)
-    expect(body.hooks.font.getSnapshot().fontSize).toBe(20)
-    expect(h.setField).toHaveBeenCalledWith('fontSize', 20)
+    // The legacy section stops being a source: later writes there are ignored.
     const seen = vi.fn()
     const unsubscribeFont = body.hooks.font.subscribe(seen)
-    const unsubscribeRow = row.hooks.font.subscribe(seen)
     h.settings.set({ value: { fontFamily: 'Accepted', fontSize: 22 } })
-    expect(row.hooks.font.getSnapshot()).toEqual({ fontFamily: 'Accepted', fontSize: 22 })
-    expect(seen).toHaveBeenCalledTimes(2)
+    expect(seen).not.toHaveBeenCalled()
     unsubscribeFont()
-    unsubscribeRow()
-    // A write that cannot be persisted still applies locally.
-    h.setField.mockRejectedValueOnce(new Error('offline'))
-    row.setFont({ fontSize: 9 })
-    await Promise.resolve()
-    expect(body.hooks.font.getSnapshot().fontSize).toBe(9)
     const launcher = h.entries[0]!.inject(sessionId) as TerminalGuideInjected
     const signal = new AbortController().signal
     await launcher.loadShells(signal)
@@ -307,20 +339,23 @@ it('opens a terminal link beside the terminal, and falls back to a browser tab w
   await h.dispose()
 })
 
-it('measures with the built-in font until the Host publishes a stored section', async () => {
+it('measures with the built-in font until the theme section carries a terminal choice', async () => {
   const h = await mountPlugin(null)
   try {
     const sessionId = 'session' as SessionId
-    const row = h.entries.at(-1)!.inject(sessionId) as TerminalFontRowInjected
     const body = h.entries.find(entry => entry.component === LazyTerminalBody)!.inject(sessionId) as TerminalBodyInjected
-    expect(row.hooks.font.getSnapshot()).toEqual({ fontFamily: '', fontSize: DEFAULT_TERMINAL_FONT_SIZE })
+    expect(body.hooks.font.getSnapshot()).toEqual(resolveTerminalFont('', DEFAULT_TERMINAL_FONT_SIZE))
     expect(body.hooks.font.getSnapshot().fontSize).toBe(DEFAULT_TERMINAL_FONT_SIZE)
-    // A later publish still carries nothing: the fallback stands.
+    // A theme publish that still carries no terminal family keeps the fallback.
     const seen = vi.fn()
     const unsubscribe = body.hooks.font.subscribe(seen)
-    h.settings.set({ value: undefined })
-    expect(seen).not.toHaveBeenCalled()
+    h.emitTheme()
+    expect(seen).toHaveBeenCalledOnce()
     expect(body.hooks.font.getSnapshot().fontSize).toBe(DEFAULT_TERMINAL_FONT_SIZE)
+    // The Host publishing a terminal choice moves the resolved font.
+    h.theme.fontSizes.terminal = 16
+    h.emitTheme()
+    expect(body.hooks.font.getSnapshot().fontSize).toBe(16)
     unsubscribe()
   } finally {
     await h.dispose()

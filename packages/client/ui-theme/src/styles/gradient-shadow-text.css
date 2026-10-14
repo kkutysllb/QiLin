@@ -156,26 +156,29 @@ body {
   --qilin-font-markdown-small-strong-italic-font-size: 12px;
   --qilin-font-markdown-small-strong-italic-font-style: italic;
 
-  --qilin-font-markdown-code: 12px/19px var(--ds-font-family-code);
+  /* 代码字号设置（--qilin-code-font-size，整数 px 10–16，默认 11）是代码块
+     字号；行内 code 与小号 tool 变体随同一增量移动。 */
+  --qilin-code-font-delta: calc(var(--qilin-code-font-size, 11px) - 11px);
+  --qilin-font-markdown-code: calc(12px + var(--qilin-code-font-delta)) / calc(19px + var(--qilin-code-font-delta)) var(--ds-font-family-code);
   --qilin-font-markdown-code-font-family: var(--ds-font-family-code);
   --qilin-font-markdown-code-font-weight: 400;
-  --qilin-font-markdown-code-line-height: 19px;
-  --qilin-font-markdown-code-font-size: 12px;
+  --qilin-font-markdown-code-line-height: calc(19px + var(--qilin-code-font-delta));
+  --qilin-font-markdown-code-font-size: calc(12px + var(--qilin-code-font-delta));
   --qilin-font-markdown-code-font-style: normal;
 
-  --qilin-font-markdown-code-block: 11px/19px var(--ds-font-family-code);
+  --qilin-font-markdown-code-block: var(--qilin-code-font-size, 11px) / calc(19px + var(--qilin-code-font-delta)) var(--ds-font-family-code);
   --qilin-font-markdown-code-block-font-family: var(--ds-font-family-code);
   --qilin-font-markdown-code-block-font-weight: 400;
-  --qilin-font-markdown-code-block-line-height: 19px;
-  --qilin-font-markdown-code-block-font-size: 11px;
+  --qilin-font-markdown-code-block-line-height: calc(19px + var(--qilin-code-font-delta));
+  --qilin-font-markdown-code-block-font-size: var(--qilin-code-font-size, 11px);
   --qilin-font-markdown-code-block-font-style: normal;
 
   /* 手工补充（非插件导出）：tool row 展开卡片内的小号 code 字体。 */
-  --qilin-font-markdown-code-block-small: 11px/16px var(--ds-font-family-code);
+  --qilin-font-markdown-code-block-small: var(--qilin-code-font-size, 11px) / calc(16px + var(--qilin-code-font-delta)) var(--ds-font-family-code);
   --qilin-font-markdown-code-block-small-font-family: var(--ds-font-family-code);
   --qilin-font-markdown-code-block-small-font-weight: 400;
-  --qilin-font-markdown-code-block-small-line-height: 16px;
-  --qilin-font-markdown-code-block-small-font-size: 11px;
+  --qilin-font-markdown-code-block-small-line-height: calc(16px + var(--qilin-code-font-delta));
+  --qilin-font-markdown-code-block-small-font-size: var(--qilin-code-font-size, 11px);
   --qilin-font-markdown-code-block-small-font-style: normal;
 
   --qilin-font-xl-24: 600 24px/32px var(--qilin-font-family);

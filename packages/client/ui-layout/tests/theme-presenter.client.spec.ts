@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import type { ThemePreference, ThemeSnapshot } from '@qilin-agent/client-ui-theme/client'
+import type { FontFamilies, ThemePreference, ThemeSnapshot } from '@qilin-agent/client-ui-theme/client'
+import { fontFamilyVariable } from '@qilin-agent/client-ui-theme/src/theme-settings.ts'
 import { DARK_ATTRIBUTE, THEME_SOURCE_ATTRIBUTE, ThemePresenter } from '@qilin-agent/client-ui-layout/src/client/theme-presenter.ts'
 
 const LIGHT_THEME_COLOR = 'rgb(255, 255, 255)'
@@ -12,10 +13,14 @@ function snapshot(
   tokens: Record<string, string> = {},
   fontSize = 14,
   preference: ThemePreference = colorScheme,
+  fontFamilies: FontFamilies = { text: '', code: '', terminal: '' },
 ): ThemeSnapshot {
   // The presenter must key off colorScheme, not the id — keep them distinct.
   const active = { id: `${colorScheme}-test`, colorScheme, tokens }
-  return { preference, fontSize, active, themes: [active], revision: 1 }
+  return {
+    preference, fontSizes: { text: fontSize, code: 11, terminal: 13 }, fontFamilies,
+    active, themes: [active], revision: 1,
+  }
 }
 
 function clearThemePresentation(): void {
@@ -82,8 +87,29 @@ describe('ThemePresenter', () => {
     const presenter = new ThemePresenter()
     presenter.apply(snapshot('light'))
     expect(document.body.style.getPropertyValue('--qilin-content-font-size')).toBe('14px')
+    expect(document.body.style.getPropertyValue('--qilin-code-font-size')).toBe('11px')
+    expect(document.body.style.getPropertyValue('--qilin-terminal-font-size')).toBe('13px')
     presenter.apply(snapshot('light', {}, 17))
     expect(document.body.style.getPropertyValue('--qilin-content-font-size')).toBe('17px')
+  })
+
+  it('publishes non-empty font lists and removes a list once it returns to the built-in stack', () => {
+    const presenter = new ThemePresenter()
+    presenter.apply(snapshot('light', {}, 14, 'light', { text: '"Inter"', code: '"Iosevka"', terminal: '"Hack"' }))
+    // The presenter writes the same variables the ui-theme boot script and token sheet use.
+    for (const [kind, list] of [['text', '"Inter"'], ['code', '"Iosevka"'], ['terminal', '"Hack"']] as const) {
+      expect(document.body.style.getPropertyValue(fontFamilyVariable(kind))).toBe(list)
+    }
+    presenter.apply(snapshot('light', {}, 14, 'light', { text: '"Inter"', code: '"Iosevka"', terminal: '' }))
+    expect(document.body.style.getPropertyValue('--qilin-font-family-text')).toBe('"Inter"')
+    expect(document.body.style.getPropertyValue('--qilin-font-family-code')).toBe('"Iosevka"')
+    expect(document.body.style.getPropertyValue('--qilin-font-family-terminal')).toBe('')
+    presenter.apply(snapshot('light', {}, 14, 'light', { text: '', code: '"Iosevka"', terminal: '"MesloLGS NF"' }))
+    expect(document.body.style.getPropertyValue('--qilin-font-family-text')).toBe('')
+    expect(document.body.style.getPropertyValue('--qilin-font-family-terminal')).toBe('"MesloLGS NF"')
+    presenter.dispose()
+    expect(document.body.style.getPropertyValue('--qilin-font-family-code')).toBe('')
+    expect(document.body.style.getPropertyValue('--qilin-font-family-terminal')).toBe('')
   })
 
   it('publishes the theme source: system stays system, fixed preferences publish the resolved scheme', () => {

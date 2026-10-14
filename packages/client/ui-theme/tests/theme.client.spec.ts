@@ -8,6 +8,16 @@ import type {
   ThemeTokenOverrides,
 } from '@qilin-agent/client-ui-theme/client'
 import { ThemeRuntime } from '@qilin-agent/client-ui-theme/client'
+import { FONT_SIZE_SPECS } from '../src/theme-settings.ts'
+
+/** A complete durable section: fixtures pass overrides, defaults fill the rest. */
+function fullSection(over: Partial<ThemeSettings>): ThemeSettings {
+  return {
+    preference: 'system', fontSize: 14, codeFontSize: 11, terminalFontSize: 13,
+    textFontFamily: '', codeFontFamily: '', terminalFontFamily: '',
+    ...over,
+  }
+}
 
 const make = (host = stubConfigForm<ThemeSettings>()): {
   ctx: Context
@@ -26,7 +36,7 @@ describe('ThemeRuntime', () => {
     const { theme } = make()
     const snapshot = theme.getTheme()
     expect(snapshot.preference).toBe('system')
-    expect(snapshot.fontSize).toBe(14)
+    expect(snapshot.fontSizes).toEqual({ text: 14, code: 11, terminal: 13 })
     // jsdom matchMedia is absent; system resolves to light.
     expect(snapshot.active.id).toBe('light')
     expect(snapshot.active.colorScheme).toBe('light')
@@ -38,38 +48,54 @@ describe('ThemeRuntime', () => {
     // runs; the first snapshot must match it so activation never flashes 14.
     document.body.style.setProperty('--qilin-content-font-size', '16px')
     try {
-      expect(make().theme.getTheme().fontSize).toBe(16)
+      expect(make().theme.getTheme().fontSizes).toEqual({ text: 16, code: 11, terminal: 13 })
       document.body.style.setProperty('--qilin-content-font-size', '99px')
-      expect(make().theme.getTheme().fontSize).toBe(14)
+      expect(make().theme.getTheme().fontSizes.text).toBe(14)
     } finally {
       document.body.style.removeProperty('--qilin-content-font-size')
     }
   })
 
-  it('setFontSize switches, writes through the scope, and republishes; same value is a no-op', () => {
+  it('setFontSize switches per role, writes through the scope, and republishes; same value is a no-op', () => {
     const { theme, events, host } = make()
-    theme.setFontSize(17)
-    expect(theme.getTheme().fontSize).toBe(17)
+    theme.setFontSize('text', 17)
+    theme.setFontSize('code', 12)
+    theme.setFontSize('terminal', 16)
+    expect(theme.getTheme().fontSizes).toEqual({ text: 17, code: 12, terminal: 16 })
     expect(host.set).toHaveBeenCalledWith('fontSize', 17)
-    expect(events).toHaveLength(1)
-    theme.setFontSize(17)
-    expect(events).toHaveLength(1)
-    expect(host.set).toHaveBeenCalledOnce()
+    expect(host.set).toHaveBeenCalledWith('codeFontSize', 12)
+    expect(host.set).toHaveBeenCalledWith('terminalFontSize', 16)
+    theme.setFontSize('text', 17)
+    expect(events).toHaveLength(3)
+    expect(host.set).toHaveBeenCalledTimes(3)
   })
 
-  it('rejects out-of-range and fractional font sizes', () => {
+  it('setFontFamily writes the role list through the scope and republishes', () => {
     const { theme, events, host } = make()
-    for (const px of [9, 23, 14.5, Number.NaN]) {
-      expect(() => { theme.setFontSize(px) }).toThrow('outside 10..22')
+    theme.setFontFamily('terminal', '"MesloLGS NF"')
+    expect(theme.getTheme().fontFamilies.terminal).toBe('"MesloLGS NF"')
+    expect(host.set).toHaveBeenCalledWith('terminalFontFamily', '"MesloLGS NF"')
+    theme.setFontFamily('terminal', '')
+    expect(theme.getTheme().fontFamilies.terminal).toBe('')
+    expect(host.set).toHaveBeenLastCalledWith('terminalFontFamily', '')
+    expect(events).toHaveLength(2)
+  })
+
+  it('rejects out-of-range and fractional font sizes per role range', () => {
+    const { theme, events, host } = make()
+    for (const pair of [['text', 9], ['text', 23], ['code', 9], ['code', 17], ['terminal', 9], ['terminal', 21]] as const) {
+      expect(() => { theme.setFontSize(pair[0], pair[1]) }).toThrow(new RegExp(`outside ${FONT_SIZE_SPECS[pair[0]].min}..${FONT_SIZE_SPECS[pair[0]].max}`))
     }
+    expect(() => { theme.setFontSize('text', 14.5) }).toThrow()
+    expect(() => { theme.setFontSize('text', Number.NaN) }).toThrow()
     expect(events).toHaveLength(0)
     expect(host.set).not.toHaveBeenCalled()
   })
 
   it('adopts a published Host font size without writing it back', () => {
     const { theme, events, host } = make()
-    host.publish({ status: 'ready', value: { preference: 'system', fontSize: 12 }, revision: 1, writable: true })
-    expect(theme.getTheme().fontSize).toBe(12)
+    host.publish({ status: 'ready', value: fullSection({ fontSize: 12 }), revision: 1, writable: true })
+    expect(theme.getTheme().fontSizes.text).toBe(12)
     expect(events).toHaveLength(1)
     expect(host.set).not.toHaveBeenCalled()
   })
@@ -92,17 +118,17 @@ describe('ThemeRuntime', () => {
 
   it('adopts a published Host section without writing it back', () => {
     const { theme, events, host } = make()
-    host.publish({ status: 'ready', value: { preference: 'dark', fontSize: 14 }, revision: 1, writable: true })
+    host.publish({ status: 'ready', value: fullSection({ preference: 'dark' }), revision: 1, writable: true })
     expect(theme.getTheme().preference).toBe('dark')
     expect(events).toHaveLength(1)
     expect(host.set).not.toHaveBeenCalled()
-    host.publish({ value: { preference: 'dark', fontSize: 14 }, revision: 2 })
+    host.publish({ value: fullSection({ preference: 'dark' }), revision: 2 })
     expect(events).toHaveLength(1)
   })
 
   it('adopts a section already standing at construction', () => {
     const host = stubConfigForm<ThemeSettings>()
-    host.publish({ status: 'ready', value: { preference: 'dark', fontSize: 14 }, revision: 1, writable: true })
+    host.publish({ status: 'ready', value: fullSection({ preference: 'dark' }), revision: 1, writable: true })
     const { theme } = make(host)
     expect(theme.getTheme().preference).toBe('dark')
   })

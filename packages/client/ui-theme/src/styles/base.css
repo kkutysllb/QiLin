@@ -4,10 +4,17 @@
  * font stack deliberately omits a bare `monospace` tail (Windows CJK falls
  * back to SimSun otherwise). */
 :root {
-  --qilin-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+  --qilin-font-family-text-default: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
     'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  --ds-font-family-code: 'SF Mono', 'JetBrains Mono', 'Fira Code', Consolas,
+  --qilin-font-family: var(--qilin-font-family-text-default);
+  --qilin-font-family-code-default: 'SF Mono', 'JetBrains Mono', 'Fira Code', Consolas,
     'Liberation Mono', Menlo, Courier, 'PingFang SC', 'Microsoft YaHei';
+  --ds-font-family-code: var(--qilin-font-family-code-default);
+  /* User font lists (--qilin-font-family-text/-code, written on body by the theme
+   * boot script and ThemePresenter) lead the built-in stacks. An unset list
+   * falls back to the built-in stack itself; the repeated families are inert. */
+  --qilin-font-family: var(--qilin-font-family-text, var(--qilin-font-family-text-default)), var(--qilin-font-family-text-default);
+  --ds-font-family-code: var(--qilin-font-family-code, var(--qilin-font-family-code-default)), var(--qilin-font-family-code-default);
   --ds-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --ds-transition-duration: 0.2s;
   --ds-transition-duration-fast: 0.1s;

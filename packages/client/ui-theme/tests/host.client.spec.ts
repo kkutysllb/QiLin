@@ -34,9 +34,15 @@ describe('ui-theme host', () => {
     const fiber = ctx.plugin({ apply })
     await fiber.await()
     const ns = THEME_SETTINGS_NAMESPACE
-    expect(ctx.settings.get(ns)).toEqual({ preference: DEFAULT_PREFERENCE, fontSize: 14 })
+    expect(ctx.settings.get(ns)).toEqual({
+      preference: DEFAULT_PREFERENCE, fontSize: 14, codeFontSize: 11, terminalFontSize: 13,
+      textFontFamily: '', codeFontFamily: '', terminalFontFamily: '',
+    })
     await ctx.settings.update(ns, { preference: 'dark', fontSize: 16 })
-    expect(ctx.settings.get(ns)).toEqual({ preference: 'dark', fontSize: 16 })
+    expect(ctx.settings.get(ns)).toEqual({
+      preference: 'dark', fontSize: 16, codeFontSize: 11, terminalFontSize: 13,
+      textFontFamily: '', codeFontFamily: '', terminalFontFamily: '',
+    })
     await expect(ctx.settings.update(ns, { preference: 'sepia' })).rejects.toThrow()
     await expect(ctx.settings.update(ns, { fontSize: 9 })).rejects.toThrow()
     await expect(ctx.settings.update(ns, { fontSize: 23 })).rejects.toThrow()

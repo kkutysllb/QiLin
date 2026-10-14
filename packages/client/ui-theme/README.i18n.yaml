@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-theme/README.md
 /:
-  en: 18d10eea2587ecea
-  zh: 8c99f34b34a14770
+  en: cb1e0973260fb688
+  zh: e57f8ac820511b5c
 /qilin-agent-client-ui-theme:
   en: ab0a967b786d021a
   zh: 70b6e02e2dbb7898
 /qilin-agent-client-ui-theme/summary:
-  en: d68f0b52d2444553
-  zh: 5ff4fd22114b8ba0
+  en: eacc3d51381e88c0
+  zh: 5ab28d2792ab2a34
 /qilin-agent-client-ui-theme/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
@@ -18,26 +18,29 @@
   en: 5d1ec38a4bc6cac5
   zh: 9ac70dce67027d62
 /qilin-agent-client-ui-theme/use-this-package/typography:
-  en: 9c8769f8d5f577ed
-  zh: 38c1a3bb2c59b339
+  en: 2d9a673d1ecd3046
+  zh: 8fc1217d92fb3417
+/qilin-agent-client-ui-theme/use-this-package/fonts:
+  en: b45d5b48ca799c3a
+  zh: 6fb895bec83c2662
 /qilin-agent-client-ui-theme/use-this-package/registering-a-theme:
   en: 2cd32ccaba33b3e9
   zh: 53ea78d19929ea02
 /qilin-agent-client-ui-theme/use-this-package/pre-plugin-palette:
-  en: b52e06f7361f25c9
-  zh: 646a91ae6d7560db
+  en: dd5d22d088bedd24
+  zh: ff3416fc9cbf8418
 /qilin-agent-client-ui-theme/understand-the-implementation:
-  en: 460f4de94a496f39
-  zh: a36858899ecb4603
+  en: 610bb7f255c9d091
+  zh: 480ebc9bf5c7a5d0
 /qilin-agent-client-ui-theme/understand-the-implementation/stylesheets:
-  en: 11aa52511f22aba7
-  zh: 99abdb26e3596578
+  en: 3e76ea6bc9e07666
+  zh: 4cff930270969b1c
 /qilin-agent-client-ui-theme/understand-the-implementation/scrollbar-rebinding:
   en: 998f0fa103ee6ea5
   zh: 13cae6dc8abd62e6
 /qilin-agent-client-ui-theme/understand-the-implementation/preference-persistence:
-  en: f9e859d360a94bf1
-  zh: f42721a507576338
+  en: 1cd126d438c69c57
+  zh: 718b2a1dfff27466
 /qilin-agent-client-ui-theme/further-exploration:
   en: fdd4b91eeaf53ac7
   zh: 715b9706ea7a2717

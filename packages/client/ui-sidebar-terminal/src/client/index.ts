@@ -9,22 +9,20 @@ import type {} from '@qilin-agent/client-ui-sidebar-browser/client'
 import type {} from '@qilin-agent/client-ui-renderer/client'
 import type {} from '@qilin-agent/client-locale/client'
 import type {} from '@qilin-agent/client-ui-session/client'
-import type {} from '@qilin-agent/client-ui-theme/client'
+import type { ThemeSnapshot } from '@qilin-agent/client-ui-theme/client'
 import type {} from '@qilin-agent/client-ui-settings/client'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import { TerminalGuideIcon } from './TerminalIcon.tsx'
 import { TerminalGuide, type TerminalGuideInjected } from './TerminalGuide.tsx'
 import { LazyTerminalBody } from './LazyTerminalBody.tsx'
 import { TerminalTitle } from './TerminalTitle.tsx'
-import { TerminalFontRow, type TerminalFontRowInjected } from './TerminalFontRow.tsx'
 import { TerminalRecovery, type TerminalRecoveryInjected } from './TerminalRecovery.tsx'
 import { TerminalCleanup, type TerminalCleanupInjected } from './TerminalCleanup.tsx'
 import type { TerminalBodyInjected, TerminalInjected } from './face.ts'
 import { en, zh } from './locales.ts'
 import { resolveTerminalFont } from './terminal-font.ts'
-import {
-  DEFAULT_TERMINAL_FONT_SIZE, TERMINAL_SETTINGS_NAMESPACE, type TerminalSettings,
-} from '../terminal-settings.ts'
+import { DEFAULT_TERMINAL_FONT_SIZE, TERMINAL_SETTINGS_NAMESPACE, type TerminalSettings } from '../terminal-settings.ts'
+
 
 /** Services needed by the terminal's sidebar seats and its settings row. */
 export const inject = ['slots', 'locale', 'sidebarRight', 'sidebarRightTabs', 'webTerminals', 'theme', 'configForms']
@@ -93,26 +91,39 @@ export function apply(ctx: Context): void {
   // typed. One store carries both, so a resolved snapshot keeps its identity
   // between changes (a source that minted a fresh stack per read would
   // re-render its subscribers forever).
-  const settings = ctx.configForms.get<TerminalSettings>(TERMINAL_SETTINGS_NAMESPACE)
-  const initial = settings.getSnapshot().value
-    ?? { fontFamily: '', fontSize: DEFAULT_TERMINAL_FONT_SIZE }
+  // The terminal role lives in the theme section (Settings → 通用, alongside
+  // the text and code roles); this plugin only resolves it for xterm.
+  // The terminal role lives in the theme service snapshot (Settings → 通用,
+  // alongside the text and code roles); this plugin only resolves it for xterm.
   const fonts = createSnapshotStore({
-    settings: initial,
-    resolved: resolveTerminalFont(initial.fontFamily, initial.fontSize),
+    settings: { fontFamily: '', fontSize: DEFAULT_TERMINAL_FONT_SIZE },
+    resolved: resolveTerminalFont('', DEFAULT_TERMINAL_FONT_SIZE),
   })
-  const adopt = (accepted: TerminalSettings): void => {
+  const adoptSnapshot = (snapshot: ThemeSnapshot): void => {
+    const accepted = {
+      fontFamily: snapshot.fontFamilies.terminal,
+      fontSize: snapshot.fontSizes.terminal,
+    }
     fonts.set({ settings: accepted, resolved: resolveTerminalFont(accepted.fontFamily, accepted.fontSize) })
   }
-  ctx.effect(() => settings.subscribe(() => {
-    const accepted = settings.getSnapshot().value
-    if (accepted !== undefined) adopt(accepted)
-  }), 'ui-sidebar-terminal.font')
+  // One-shot migration: the retired per-terminal namespace's choice moves into
+  // the theme section's terminal role when that role still carries no family
+  // override. The legacy namespace stops being read after this boot.
+  const legacy = ctx.configForms.get<TerminalSettings>(TERMINAL_SETTINGS_NAMESPACE).getSnapshot().value
+  const current = ctx.theme.getTheme()
+  if (legacy !== undefined
+    && (legacy.fontFamily !== '' || legacy.fontSize !== DEFAULT_TERMINAL_FONT_SIZE)
+    && current.fontFamilies.terminal === '') {
+    ctx.theme.setFontFamily('terminal', legacy.fontFamily)
+    ctx.theme.setFontSize('terminal', legacy.fontSize)
+  }
+  // The migration's writes emit before this plugin's listener registers, so
+  // adopt the (possibly updated) snapshot unconditionally instead of relying
+  // on the event round-trip.
+  adoptSnapshot(ctx.theme.getTheme())
+  ctx.effect(() => ctx.on('theme/change', () => { adoptSnapshot(ctx.theme.getTheme()) }), 'ui-sidebar-terminal.font')
   const font: TerminalBodyInjected['hooks']['font'] = {
     getSnapshot: () => fonts.getSnapshot().resolved,
-    subscribe: listener => fonts.subscribe(listener),
-  }
-  const fontSettings: TerminalFontRowInjected['hooks']['font'] = {
-    getSnapshot: () => fonts.getSnapshot().settings,
     subscribe: listener => fonts.subscribe(listener),
   }
   ctx.effect(() => ctx.slots.inject('sidebar.right.tab.guide.entry', () => ctx.slots.register({
@@ -130,6 +141,8 @@ export function apply(ctx: Context): void {
   ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab.title', () => ctx.slots.register(
     { name: 'sidebar.right.pane.tab.title', key: id, locale: namespace, inject }, TerminalTitle,
   )), 'ui-sidebar-terminal.title')
+  // The terminal-font settings row retired into the theme section's role rows
+  // (FontSettingsGroup); the font source above consumes that section instead.
   ctx.effect(() => ctx.slots.inject('conversation.session.header.actions', () => ctx.slots.register({
     name: 'conversation.session.header.actions', id, locale: namespace,
     inject: (sessionId): TerminalRecoveryInjected => ({
@@ -158,18 +171,6 @@ export function apply(ctx: Context): void {
       retryClose: (terminalId) => { ctx.webTerminals.retryClose(terminalId) },
     }),
   }, TerminalCleanup)), 'ui-sidebar-terminal.cleanup')
-  ctx.effect(() => ctx.slots.inject('settings.general.item', () => ctx.slots.register({
-    name: 'settings.general.item', id: 'terminal-font', order: 18, locale: namespace,
-    inject: (): TerminalFontRowInjected => ({
-      hooks: { font: fontSettings },
-      setFont: (patch) => {
-        adopt({ ...fonts.getSnapshot().settings, ...patch })
-        for (const [field, value] of Object.entries(patch)) {
-          void settings.set(field, value).catch((_error: unknown) => {
-            // The local choice stays usable when persistence is unavailable.
-          })
-        }
-      },
-    }),
-  }, TerminalFontRow)), 'ui-sidebar-terminal.font-row')
+  // The terminal-font settings row retired into the theme section's role rows
+  // (FontSettingsGroup); the font source above consumes that section instead.
 }
