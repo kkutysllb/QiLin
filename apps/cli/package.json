@@ -115,7 +115,7 @@
     "@qilin-agent/web-brand": "workspace:*",
     "@qilin-agent/workflow-ptc": "workspace:*",
     "commander": "^15.0.0",
-    "js-yaml": "^4.2.0",
+    "js-yaml": "^4.3.2",
     "node-addon-require-builtin": "^0.1.9"
   },
   "devDependencies": {

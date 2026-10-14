@@ -68,7 +68,7 @@
   },
   "dependencies": {
     "@qilin-agent/app-boot": "workspace:*",
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^4.3.2",
     "@qilin-agent/schemastery": "workspace:~",
     "zod": "^4.4.3"
   },

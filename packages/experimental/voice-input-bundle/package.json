@@ -47,7 +47,7 @@
   "devDependencies": {
     "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/kylin-plugin-include": "workspace:~",
-    "js-yaml": "^4.2.0"
+    "js-yaml": "^4.3.2"
   },
   "qilin": {
     "bundle": {

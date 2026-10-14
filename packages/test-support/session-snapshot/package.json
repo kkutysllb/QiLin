@@ -35,7 +35,7 @@
     "@qilin-agent/llm-replay": "workspace:*",
     "@qilin-agent/loader-smoke": "workspace:*",
     "@qilin-agent/session-format": "workspace:*",
-    "js-yaml": "^4.2.0",
+    "js-yaml": "^4.3.2",
     "vitest": "^4.1.8"
   },
   "peerDependencies": {

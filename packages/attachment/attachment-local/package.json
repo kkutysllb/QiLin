@@ -37,7 +37,7 @@
   "dependencies": {
     "@qilin-agent/lazy-require": "workspace:*",
     "@qilin-agent/schemastery": "workspace:~",
-    "sharp": "^0.35.3"
+    "sharp": "^0.35.5"
   },
   "devDependencies": {
     "@qilin-agent/attachment": "workspace:*",
