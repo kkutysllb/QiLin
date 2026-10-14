@@ -2,7 +2,7 @@ import { useMemo, type KeyboardEvent } from 'react'
 import type { Context } from '@qilin-agent/kylin'
 import clsx from 'clsx'
 import {
-  IconApiOutline14, IconChevronDownOutline14, IconInspectOutline12, StateDot, TerminalBlock, TextShimmer,
+  CommandText, IconApiOutline14, IconChevronDownOutline14, IconInspectOutline12, StateDot, TerminalBlock, TextShimmer,
 } from '@qilin-agent/client-ui-primitives'
 import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import type { ToolCallViewProps } from '../../contract/slots.ts'
@@ -143,7 +143,9 @@ export function BashRow({ toolName, block, sessionId, useSessions, inspect, useD
                 {body !== null && (
                   <div className={css.ioSection}>
                     <span className={css.ioLabel}>{t('row.input')}</span>
-                    <span className={clsx(css.ioText, background && css.commandInput)} tabIndex={background ? 0 : undefined}>{body}</span>
+                    {background
+                      ? <CommandText className={css.commandInput} text={body} label={t('row.commandArguments')} />
+                      : <span className={css.ioText}>{body}</span>}
                   </div>
                 )}
                 {body !== null && model.output !== null && (

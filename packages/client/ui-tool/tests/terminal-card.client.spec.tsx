@@ -519,9 +519,9 @@ describe('BashRow terminal card', () => {
     fireEvent.keyDown(row, { key: 'Enter' })
 
     expect(row.getAttribute('aria-expanded')).toBe('true')
-    expect(view.container.querySelector('[class*="_ioText_"]')?.textContent)
+    expect(view.container.querySelector('[data-command-text]')?.textContent)
       .toBe(JSON.stringify(args, null, 2))
-    expect(view.container.querySelector('[class*="_commandInput_"]')?.getAttribute('tabindex')).toBe('0')
+    expect(view.container.querySelector('[data-command-text]')?.hasAttribute('tabindex')).toBe(false)
     expect(view.queryByText(t('row.output'))).toBeNull()
     expect(view.container.querySelector('[data-terminal]')).toBeNull()
 
@@ -532,7 +532,7 @@ describe('BashRow terminal card', () => {
     }))} inspect={inspect} />)
 
     expect(row.getAttribute('aria-expanded')).toBe('true')
-    expect(view.container.querySelector('[class*="_ioText_"]')?.textContent)
+    expect(view.container.querySelector('[data-command-text]')?.textContent)
       .toBe(JSON.stringify(args, null, 2))
     expect(view.getByText(acknowledgement)).toBeTruthy()
     expect(view.container.querySelector('[data-terminal], [data-state="done"]')).toBeNull()
@@ -544,7 +544,7 @@ describe('BashRow terminal card', () => {
     expect(view.queryByText(acknowledgement)).toBeNull()
   })
 
-  it('keeps a background result without a valid command collapsed', () => {
+  it('keeps malformed shell arguments collapsed even when background execution is requested', () => {
     const view = render(<BashRow {...rowProps(settled({
       call: { name: 'bash', argsRaw: JSON.stringify({ description: 'Wait', run_in_background: true }) },
       content: [{ type: 'text', text: 'started background job job-1' }],
