@@ -530,6 +530,7 @@ function SourceSection({ pkg, t }: { readonly pkg: PackageView; readonly t: Tran
  */
 function PackageDetail({
   pkg, t, resolveText, busy, rowBusy, configured, configure, renderSlot,
+  loadRowConfig, saveRowConfig,
   onBack, onSetEnabled, onUninstall, onSetRowEnabled,
 }: {
   readonly pkg: PackageView
@@ -542,6 +543,8 @@ function PackageDetail({
   readonly configured: boolean
   readonly configure: RowConfigure
   readonly renderSlot: RenderConfig
+  readonly loadRowConfig: PluginManagerFace['loadRowConfig']
+  readonly saveRowConfig: PluginManagerFace['saveRowConfig']
   readonly onBack: () => void
   readonly onSetEnabled: (enabled: boolean) => void
   readonly onUninstall: () => void
@@ -549,6 +552,9 @@ function PackageDetail({
 }): ReactNode {
   const { title, description, beta } = packageText(pkg, t, resolveText)
   const status = packageStatus(pkg)
+  // The plugin's own schemastery Config, rendered straight on its page: a dsh
+  // bundle carries it on its one main row, so the form needs no row detour.
+  const configRow = pkg.rows.find(row => row.configurable === true)
   return (
     <div className={css.detail} data-plugin-detail={pkg.name}>
       <DetailTop
@@ -589,6 +595,17 @@ function PackageDetail({
       {pkg.error === undefined ? null : <p className={css.reason} role="status">{t('reasonLabel')}: {managementText(pkg.error, t)}</p>}
       {pkg.readOnlyReason === undefined ? null : <p className={css.reason} role="status">{managementText({ code: pkg.readOnlyReason }, t)}</p>}
       <div className={css.detailSections}>
+        {configRow === undefined ? null : (
+          <section className={css.detailSection} data-plugin-config>
+            <RowConfigForm
+              key={rowConfigKey(pkg.name, configRow.rowId)}
+              subject={rowConfigKey(pkg.name, configRow.rowId)}
+              t={t}
+              load={() => loadRowConfig(pkg.name, configRow.rowId)}
+              save={values => saveRowConfig(pkg.name, configRow.rowId, values)}
+            />
+          </section>
+        )}
         {configured
           ? (
             <section className={css.detailSection} data-plugin-config>
@@ -1424,6 +1441,8 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
             rowBusy={row => row.entryId !== undefined && state.busy.includes(rowKey(row.entryId))}
             configured={ledger.bundles.has(openPkg.name)}
             configure={configure(openPkg)}
+            loadRowConfig={props.loadRowConfig}
+            saveRowConfig={props.saveRowConfig}
             renderSlot={renderSlot}
             onBack={() => { setView({ kind: 'list' }) }}
             onSetEnabled={(enabled) => { props.setEnabled(openPkg.name, enabled) }}
