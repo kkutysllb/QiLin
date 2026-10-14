@@ -67,14 +67,20 @@ const m = JSON.parse(fs.readFileSync(p, "utf8"))
 if (m.scripts) delete m.scripts.postinstall
 fs.writeFileSync(p, JSON.stringify(m, null, 2) + "\n")
 ' "$SRC"
-# Windows 闭包必须**无 symlink**：pnpm 默认的符号链接布局在 Windows 解包需要
-# SeCreateSymbolicLinkPrivilege（CI 与普通用户机器都没有）——运行时归档在用户
-# 首启解压时就会失败（2026-10-13 CI 现场：bsdtar 解包 6200+ symlink 直接失败）。
-# hoisted 布局是真实文件树，三平台语义一致；仅 Windows 换，mac/Linux 保持已验证
-# 的 symlink 形态不动。（归档层面三平台统一由下方「链接物化」步清零——安装布局
-# 与归档布局是两回事，Windows 归档若带链接，CI 解包与用户首启都过不去。）
+# Windows 闭包必须**无 symlink**：Windows 解包/建链需要 SeCreateSymbolicLinkPrivilege
+# （CI 与普通用户机器都没有），带链接的归档在 CI 解包与用户首启解压时都会丢文件
+# （2026-10-13 现场：bsdtar 解包 6200+ symlink 直接失败）。
+# 布局选择（2026-10-14 第 10 轮本地实证，两条都验过）：
+#  · `--config.symlink=false` **不可用**：它不是「把链接换成拷贝」，而是**根本不建
+#    workspace 链接**——实测 apps/cli/node_modules 整个不存在、根 node_modules 的
+#    @qilin-agent/* 为 0 条 ⇒ 引擎 bin.js 首个 import 即
+#    ERR_MODULE_NOT_FOUND('@qilin-agent/app-boot')（第 9 轮 Windows 现场即此）。
+#  · `node-linker=hoisted`（默认，含 workspace 链接）+ 下方**零链接化**步：
+#    hoisted 把外部依赖摊成根 node_modules 真目录，链接图**平坦无环**（实测 921 条 /
+#    最深 8 层 / 仅 3 条嵌套），因此可以安全地「摊平到根 + 清链接」。
+# 仅 Windows 走 hoisted；mac/Linux 保持已验证的隔离布局（解包侧有链接特权）。
 case "$(uname -s)" in
-  MINGW*|MSYS*|CYGWIN*) PROD_LINKER="--config.node-linker=hoisted --config.symlink=false" ;;
+  MINGW*|MSYS*|CYGWIN*) PROD_LINKER="--config.node-linker=hoisted" ;;
   *) PROD_LINKER="" ;;
 esac
 (cd "$SRC" && rm -rf node_modules && CI=true pnpm install --prod $PROD_LINKER)
@@ -90,23 +96,42 @@ find "$SRC" -type l | while IFS= read -r l; do
 done
 log "悬挂链接剪枝完成：闭包内不再有解析不到的符号链接"
 
-# 链接物化：把闭包内**残留的活链接**替换为实体拷贝。仅靠 hoisted + symlink=false
-# 不够——它只收根 node_modules；pnpm 对 workspace 依赖（apps/cli/node_modules/
-# @qilin-agent/* → packages/*）与 .bin 垫片照建 symlink（2026-10-14 第 8 轮
-# Windows 现场：归档带链接、Windows 解包静默丢弃 → bin.js 启动即
-# ERR_MODULE_NOT_FOUND，而悬空断言零命中——因为一个链接都没建出来）。
-# 物化放在预签与 tar 之前：三平台归档从此**零符号链接**，Windows CI 解包与
-# 用户首启解压都不再依赖任何特权；目录级整树复制只发生在这一步、条数有限
-# （workspace 链接 + .bin 垫片，量级几百），不会重现当年 tar -h 的整树爆炸。
-LINKED=0
-while IFS= read -r -d '' l; do
-  t="$(readlink -f -- "$l")" || { log "物化跳过（readlink 失败）：$l"; continue; }
-  [ -e "$t" ] || continue
-  rm -f -- "$l"
-  if [ -d "$t" ]; then cp -RL -- "$t" "$l"; else cp -pL -- "$t" "$l"; fi
-  LINKED=$((LINKED+1))
-done < <(find "$SRC" -type l -print0)
-log "链接物化完成：$LINKED 条活链接 → 实体拷贝；闭包零符号链接"
+# 零链接化（**仅 Windows**）：hoisted 布局的链接图平坦无环，可安全摊平——
+#   ① 每个链接目标按「最后一个 node_modules/ 之后的包名」拷成根 node_modules 真目录；
+#   ② 文件链接（.bin 垫片等）就地实体化；③ 删除全部残余链接 ⇒ 归档零符号链接。
+# Node 解析语义保证：包内解析先查自身 node_modules（已空），逐级上溯到根即命中真目录。
+# 本地实测：921 条链接 → 0 条；根 @qilin-agent/app-boot 为真目录；真解析器
+# （import.meta.resolve）从 apps/cli 可解析 app-boot / home-paths / kylin-plugin-loader；
+# 体积 +7%（886M→951M）。
+# 反例留档（勿再试）：tar -h 与 cp -RL 都会在**隔离布局**的成环链接图上爆炸
+# （第 10 轮现场：cp 报 directory causes a cycle / File name too long / cannot copy
+# a directory into itself，macOS 封盘步 60 分钟超时）；cp -R（不解引用）会把相对
+# 链接拷成悬空（实测 919 条 → 1231 条悬空，体积 +270M）——拷贝语义跨目录失效。
+zero_link_windows() {
+  local src="$1" root="$1/node_modules" rel t n=0 f=0 d=0 left=0
+  mkdir -p "$root"
+  while IFS= read -r -d '' l; do
+    case "$l" in */node_modules/.bin/*) continue ;; esac
+    rel="${l##*node_modules/}"
+    [ "$rel" = "$l" ] && continue
+    case "$rel" in .*|*/node_modules/*) continue ;; esac
+    t="$(readlink -f -- "$l" 2>/dev/null || true)"
+    [ -n "$t" ] && [ -e "$t" ] || continue
+    [ -e "$root/$rel" ] && continue
+    mkdir -p "$(dirname "$root/$rel")"
+    if [ -d "$t" ]; then cp -R -- "$t" "$root/$rel"; else cp -pL -- "$t" "$root/$rel"; fi
+    n=$((n+1))
+  done < <(find "$src" -type l -print0)
+  while IFS= read -r -d '' l; do
+    t="$(readlink -f -- "$l" 2>/dev/null || true)"
+    if [ -n "$t" ] && [ -f "$t" ]; then rm -f -- "$l"; cp -pL -- "$t" "$l" 2>/dev/null || true; f=$((f+1)); fi
+  done < <(find "$src" -type l -print0)
+  while IFS= read -r -d '' l; do rm -f -- "$l" 2>/dev/null || rm -rf -- "$l" 2>/dev/null || true; d=$((d+1)); done < <(find "$src" -type l -print0)
+  left="$(find "$src" -type l | wc -l | tr -d ' ')"
+  log "零链接化：摊平 $n 条、文件链接实体化 $f 条、清除残余链接 $d 条 ⇒ 剩余 $left 条"
+  [ "$left" -eq 0 ] || die "零链接化失败：归档仍含 $left 条符号链接（Windows 解包会丢文件）"
+}
+case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) zero_link_windows "$SRC" ;; esac
 
 # 4) 闭包预签：公证服务会扫描包内嵌套归档（app → extraResources tar →
 #    node_modules），闭包里每个 Mach-O 都须带 Developer ID 签名 + 安全
@@ -152,9 +177,12 @@ if command -v cygpath >/dev/null 2>&1; then SRC_TAR="$(cygpath -u "$SRC")"; else
 # 归档名也不能带盘符冒号（第二处同类坑：-f 的 D:/... 同样被 MSYS tar 当成远程
 # 主机，报 Cannot connect to D:）。进 staging 目录用相对文件名写归档；
 # Node / shasum 侧继续用原生 BUNDLE 路径（它们认原生形态）。
-# （-h 解引用方案已弃：目录符号链接会被整树复制，tar 直接超时。闭包的无链接化
-# 由上方「悬挂链接剪枝 + 链接物化」两步完成——hoisted+symlink=false 只收根
-# node_modules，workspace/.bin 链接是第 8 轮现场证实的漏网之鱼，物化步兜底。）
+# （-h 解引用方案已弃：目录符号链接会被整树复制，tar 直接超时。2026-10-14 第 10
+# 轮用 cp -RL 物化步二次证伪并给出**机制**：pnpm 的 per-package node_modules
+# 链接图**成环**（现场：subagent-acp → … → kylin → … 回卷，cp 报
+# 「directory causes a cycle」/「File name too long」，Linux 报
+# 「cannot copy a directory into itself」）⇒ 解引用/整树拷贝类方案在此图上
+# 原理性不可行，别再试第三次。无链接化只能由安装布局保证。）
 ( cd "$STAGING" && tar -czf qilin-runtime.tar.gz -C "$SRC_TAR" \
   --exclude='.git' \
   --exclude='.github' \
