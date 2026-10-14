@@ -116,6 +116,12 @@ BUNDLE="$STAGING/qilin-runtime.tar.gz"
 rm -f "$BUNDLE"
 # 排除模式按 bsdtar glob（* 跨目录段）：源码/测试/文档只清 apps|packages 域，
 # node_modules 内不做内容筛选（个别包 main 指 src，保守保留）
+# **排除必须与链接剪枝同口径**：上方剪枝只删「worktree 内解析不到」的链接，
+# 而排除清单会在归档里制造新的悬空——.claude/skills → 被排除的 .agents/skills、
+# apps/cli/tests 夹具 → 被排除的 snapshots/（2026-10-14 Windows 现场：Git Bash
+# tar 无符号链接特权，逐条 Cannot create symlink 整步红；mac/Linux 解包容忍悬空
+# 所以一路绿）。.claude 与 apps/*/tests 两条排除就是把这两类链接整个清出归档；
+# 归档终局由宿主仓 verify 步的「解包后零悬空链接」断言把关。
 # *.map / *.d.ts 对齐 dsh 封盘口径（materialize-peers 时代的既定动作）：二者是纯
 # 开发产物，运行时永不解析（lib/types/ 下的编译型 .js 不受影响，只有声明与
 # sourcemap 被排除）。2026-10-14 实测闭包 58,490 条里 .map 占 10,864、.d.ts 占
@@ -133,11 +139,12 @@ if command -v cygpath >/dev/null 2>&1; then SRC_TAR="$(cygpath -u "$SRC")"; else
   --exclude='.git' \
   --exclude='.github' \
   --exclude='.agents' \
+  --exclude='.claude' \
   --exclude='desktop' \
   --exclude='snapshots' \
   --exclude='docs' \
   --exclude='apps/*/src' \
-  --exclude='apps/web/tests' \
+  --exclude='apps/*/tests' \
   --exclude='packages/*/src' \
   --exclude='packages/*/tests' \
   --exclude='packages/*/*/src' \
