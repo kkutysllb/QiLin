@@ -205,6 +205,8 @@ const packageFileExtras: Readonly<Record<string, readonly string[]>> = {
   // through a hashed chunk. The committed bin.js is the link target pnpm can
   // resolve at install time, before the build produces lib/bin.js.
   '@qilin-agent/experimental-webworker-packer': ['bin.js', 'lib/repository-*.js'],
+  // Startup and runtime share the advertised URL parser.
+  '@qilin-agent/web-app': ['lib/public-url-*.js'],
   // The headless entry and its startup row share the JSON projection code
   // through a hashed tsdown chunk; both import it by relative path.
   '@qilin-agent/headless': ['lib/json-stream-*.js'],

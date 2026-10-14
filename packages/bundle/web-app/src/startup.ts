@@ -1,6 +1,6 @@
 /**
  * The web app's command-line provider: it parses the `qilin --profile web` flag
- * family (`--host`, `--port`, `--trusted-host`, `--no-open`, TLS) and its `--help`
+ * family (`--host`, `--port`, `--public-url`, `--trusted-host`, `--no-open`, TLS) and its `--help`
  * text, then provides the immutable values as {@link WEB_STARTUP_SERVICE}.
  * Ordinary rows inject that service before reading it from lazy config.
  * @module @qilin-agent/web-app/startup
@@ -9,6 +9,7 @@
 import { Command } from 'commander'
 import type { Context } from '@qilin-agent/kylin'
 import { parseCmdline } from '@qilin-agent/cmdline'
+import { parsePublicUrl } from './public-url.ts'
 import { isWildcardHost, type TlsConfig } from '@qilin-agent/host-webserver'
 
 /** Stable Cordis plugin name. */
@@ -28,6 +29,11 @@ export interface WebStartupValues {
   host?: string
   /** `--port`, absent when the invocation did not name one. */
   port?: number
+  /**
+   * `--public-url`, absent when not specified: the advertised HTTP(S) root.
+   * See [public deployments](../README.md#public-deployments).
+   */
+  publicUrl?: string
   /** Explicit `--trusted-host` authorities, in argument order. */
   trustedHosts: string[]
   /** Server certificate chain and unencrypted private key supplied together. */
@@ -39,6 +45,7 @@ interface WebOptions {
   host?: string
   open: boolean
   port?: string
+  publicUrl?: string
   trustedHost?: string[]
   tlsCert?: string
   tlsKey?: string
@@ -56,6 +63,7 @@ function webCommand(): Command {
     .option('--host <host>', 'bind address: one concrete IPv4 or IPv6 literal of a local interface; wildcard addresses are rejected')
     .option('--no-open', 'do not open the Web UI in the default browser')
     .option('--port <port>', 'listen port; pass 0 to let the OS pick a free one')
+    .option('--public-url <url>', 'advertise this HTTP(S) root in the printed, opened, web-surface, and QILIN_WEB_URL forms; grants no trust')
     .option('--trusted-host <authority...>', 'extra authority the /api browser-trust fence accepts (host or host:port; repeatable)')
     .option('--tls-cert <file>', 'PEM server certificate chain; requires --tls-key')
     .option('--tls-key <file>', 'unencrypted PEM private key; requires --tls-cert')
@@ -64,6 +72,8 @@ Examples:
   qilin --profile web                          serve on the composed host and port
   qilin --profile web --no-open                serve without opening a browser
   qilin --profile web --port 8080              serve on another port
+  qilin --profile web --public-url https://app.example/ui/ --trusted-host app.example
+                                             advertise a prefix-stripping HTTPS proxy entry and admit its authority
   qilin --profile web --host 10.0.0.7          bind one local interface address
   qilin --profile web --tls-cert ./server-chain.pem --tls-key ./server-key.pem
                                              serve HTTPS with an existing certificate and key
@@ -87,6 +97,13 @@ export function apply(ctx: Context): void {
     if (options.port !== undefined && !/^\d+$/.test(options.port)) {
       program.error(`error: --port must be a number, got ${JSON.stringify(options.port)}`)
     }
+    if (options.publicUrl !== undefined) {
+      try {
+        parsePublicUrl(options.publicUrl, '--public-url')
+      } catch (error) {
+        program.error(`error: ${(error as Error).message}`)
+      }
+    }
     let tls: TlsConfig | undefined
     if (options.tlsCert !== undefined && options.tlsKey !== undefined) {
       tls = { certFile: options.tlsCert, keyFile: options.tlsKey }
@@ -97,6 +114,7 @@ export function apply(ctx: Context): void {
       openBrowser: options.open,
       ...options.host !== undefined && { host: options.host },
       ...options.port !== undefined && { port: Number(options.port) },
+      ...options.publicUrl !== undefined && { publicUrl: options.publicUrl },
       ...tls !== undefined && { tls },
       trustedHosts: options.trustedHost ?? [],
     } satisfies WebStartupValues)

@@ -9,7 +9,7 @@ kind: "package-bundle"
 
 ## 概述
 
-运行 `qilin --profile web`，打开提供聊天、模型与设置管理以及会话历史的交互式浏览器 GUI。它使用与其他 qilin 表层相同的模型访问、工具与安全默认值。启动时会打印带认证信息的 URL，通常还会在默认浏览器中打开；SSH 会话和 `--no-open` 会保留该 URL，供你手动打开。你可以更改端口并允许额外主机，但不能绑定所有网络接口。需要在浏览器中交互式工作时选择本包；一次性的命令行任务应使用 `qilin-headless`。
+运行 `qilin --profile web`，获得浏览器内的聊天、模型与设置管理以及会话历史，并与其他 qilin 表层共用同一套模型访问、工具与安全默认值。启动时会打印带 token 的 URL，通常还会在默认浏览器中打开；SSH 会话和 `--no-open` 需要手动打开。你可以更改端口并允许额外主机，但不能绑定所有网络接口。跨机访问支持在剥离前缀的代理之后公告一个公开的 HTTP(S) URL。一次性的命令行任务应使用 `qilin-headless`。
 
 ## 目录
 
@@ -42,7 +42,7 @@ qilin --profile web --no-open --port 8080
 
 ### 配置
 
-大多数用户不需要设置这些；命令行 flag 会提供给下面四个设置——`--host`、`--port` 与 `--trusted-host` 来自本次调用，`--no-open` 仅对本次调用关闭浏览器交接：
+`--host` 与 `--port` 配置监听器；`--public-url` 指定 GUI 在剥离前缀的代理之后对外公告的公开 HTTP(S) 根，`--trusted-host` 则添加更多被接受的 authority。两者都在[监听器 URL 与信任 authority](#listener-url-and-trust-authorities)中说明：
 
 | 字段 | 默认值 | 含义 |
 |---|---|---|
@@ -50,6 +50,7 @@ qilin --profile web --no-open --port 8080
 | `openBrowser` | `true` | 启动后用默认浏览器打开；SSH 启动会抑制它 |
 | `printUrl` | `true` | 打印启动 URL 行，并以 `label` 作前缀 |
 | `surfaceContext` | `true` | 给 agent 提供 GUI 定位上下文，并把 `QILIN_WEB_URL` 暴露给其 shell 命令 |
+| `publicUrl` | 未设置 | 对外公告的 HTTP(S) 应用根；否则公告监听器的 loopback URL |
 | `trustedHosts` | `[]` | 允许从网络访问 GUI 的额外主机 |
 
 生成的[配置目录](../../../docs/config-catalog.zh.md#qilin-agentweb-app)是每个受支持字段及其 JSDoc 的穷尽式真源。 随发行版交付的组合将 `schedule`、`ui-schedule` 与 `time-context` 一起启用：上游默认把这三行全部禁用，且产品内没有入口可以反转它——插件管理页按设计排除内置 profile 组合包。承载它们的 profile 就是恢复它们的层。
@@ -60,7 +61,7 @@ qilin --profile web --no-open --port 8080
 
 ### 监听地址与可信主机
 
-默认情况下 GUI 绑定 loopback、只接受本机的连接。传入具体非 loopback 的 `--host` 的部署会服务能访问该地址的浏览器，打印的 URL 也使用该地址；`--trusted-host` 添加部署对外应答的主机名权威标识。Host 与 Origin 检查控制可达性，而账户会话认证每个 Host API 方法与 WebSocket 流；启动 token 只负责把打印出的 URL 整理成入口重定向。
+默认情况下 GUI 绑定 loopback、只接受本机的连接。传入具体非 loopback 的 `--host` 的部署会服务能访问该地址的浏览器，打印的 URL 也使用该地址；`--trusted-host` 添加部署对外应答的主机名权威标识。公告的 `publicUrl` 配置或 `--public-url` flag 会把打印、打开、模型可见与 `QILIN_WEB_URL` 的根替换为所配置的 HTTP(S) 应用根——支持剥离路径前缀的反向代理——但对信任毫无贡献：Host 与 Origin 检查照旧控制可达性，公告的 URL 自身不添加任何 authority。公告是启动时读取一次的单一设置；更改需重启。Host 与 Origin 检查控制可达性，而账户会话认证每个 Host API 方法与 WebSocket 流；启动 token 只负责把打印出的 URL 整理成入口重定向。
 
 ### 通过 SSH 运行
 
@@ -127,7 +128,7 @@ URL 行与浏览器交接都是就绪信号：监督方一观察到该行就发�
 
 #### 模型看到什么
 
-当 `surfaceContext` 为 true 时，`harness:source` 段落标明磁盘上的 Harness 实现，但不会声称它就是工作目录；全局段落 `app:web-surface`（first-party 顺序 10100，位于可复用指令之后）则向模型说明 GUI：规范的本地 URL、「this page」指代什么、更新约定（重载接收端始终开启；无刷新重载还需要 `pnpm run dev:web` watcher），以及不要启动替代服务器的指令。`QILIN_WEB_URL` 还会连同描述出现在受管 bash 环境中，每次调用时从运行中的服务器解析。当它为 false 时，这两个段落和该变量都不会注册。
+当 `surfaceContext` 为 true 时，`harness:source` 段落标明磁盘上的 Harness 实现，但不会声称它就是工作目录；全局段落 `app:web-surface`（first-party 顺序 10100，位于可复用指令之后）则向模型说明 GUI：公告应用 URL（定义见上文「监听、信任与公开部署」）、「this page」指代什么、更新约定（重载接收端始终开启；无刷新重载还需要 `pnpm run dev:web` watcher），以及不要启动替代服务器的指令。`QILIN_WEB_URL` 还会连同描述出现在受管 bash 环境中，每次调用时从运行中的服务器解析。当它为 false 时，这两个段落和该变量都不会注册。
 
 #### Token 影响
 
@@ -135,7 +136,7 @@ URL 行与浏览器交接都是就绪信号：监督方一观察到该行就发�
 
 #### KV Cache 影响
 
-源码与 Web 段落位于第一方可复用指令之后。工具与配置一致时，不同 checkout 路径或本地端口不会改变前置前缀；不保证提供方复用缓存。
+源码与 Web 段落位于第一方可复用指令之后。工具与配置一致时，不同 checkout 路径或应用 URL 不会改变前置前缀；不保证提供方复用缓存。
 
 ## 已知限制与延期工作
 

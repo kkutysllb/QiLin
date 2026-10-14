@@ -4083,13 +4083,21 @@ export interface WebRuntimeConfig {
 ## `@qilin-agent/web-app`
 
 - `inject`: `webServer`
-- `source`: [`packages/bundle/web-app/src/index.ts:46`](../packages/bundle/web-app/src/index.ts)
+- `source`: [`packages/bundle/web-app/src/index.ts:49`](../packages/bundle/web-app/src/index.ts)
 
 ```ts config-catalog
 /** Plugin config: composed deployment settings plus per-invocation command-line values. */
 export interface Config {
   /** Permit default-browser handoff after the Loader tree settles; an SSH launch suppresses it. */
   openBrowser: boolean
+  /**
+   * Canonical HTTP(S) root to advertise in the printed and opened URL,
+   * `QILIN_WEB_URL`, and the web-surface orientation, e.g.
+   * `https://app.example/ui/`, normalized to end in `/`. Advertisement only;
+   * see [public deployments](../README.md#public-deployments). Absent or YAML
+   * `null` advertises the loopback URL.
+   */
+  publicUrl?: string
   /** Product label prefixed to the startup URL line, the browser handoff line, and the launch-failure hint. */
   label: string
   /** Print the URL line on activation; a non-interactive layer can turn it off. */

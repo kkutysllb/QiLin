@@ -5,9 +5,11 @@
  * the built frontend dist (workspace knowledge of this bundle, never user
  * config), mounts the `frontend-static` fallback owner over it, registers the
  * harness-source and web-surface prompt sections, the bash-visible web runtime
- * variable, the process-token URL line, and the default-browser handoff. The
- * published URL is the listener's own bind address under the active scheme, so
- * an HTTPS listener is never advertised as plain HTTP and a concrete bind is
+ * variable, the process-token URL line, and the default-browser handoff. An
+ * advertised `publicUrl` replaces the published root — the loopback URL
+ * otherwise. The published URL is the listener's own bind address under the
+ * active scheme, so an HTTPS listener is never advertised as plain HTTP and a
+ * concrete bind is
  * reachable as printed. The
  * model and shell retain the clean URL. App command-line values arrive through
  * the `webStartup` service expressions in the bundle patch.
@@ -27,6 +29,7 @@ import * as FrontendStatic from '@qilin-agent/host-frontend-static'
 import type { StaticDocument } from '@qilin-agent/host-frontend-static'
 import { launchedThroughSsh, launchEnvironmentOf } from '@qilin-agent/launch-environment'
 import { scrubbedParentEnv } from '@qilin-agent/subprocess'
+import { parsePublicUrl } from './public-url.ts'
 import type {} from '@qilin-agent/kylin-plugin-loader'
 import { isLoopbackHost, normalizeBindAddress } from '@qilin-agent/host-webserver'
 import type {} from '@qilin-agent/host-webserver'
@@ -46,6 +49,14 @@ export const inject = ['webServer']
 export interface Config {
   /** Permit default-browser handoff after the Loader tree settles; an SSH launch suppresses it. */
   openBrowser: boolean
+  /**
+   * Canonical HTTP(S) root to advertise in the printed and opened URL,
+   * `QILIN_WEB_URL`, and the web-surface orientation, e.g.
+   * `https://app.example/ui/`, normalized to end in `/`. Advertisement only;
+   * see [public deployments](../README.md#public-deployments). Absent or YAML
+   * `null` advertises the loopback URL.
+   */
+  publicUrl?: string
   /** Product label prefixed to the startup URL line, the browser handoff line, and the launch-failure hint. */
   label: string
   /** Print the URL line on activation; a non-interactive layer can turn it off. */
@@ -63,10 +74,11 @@ export const Config: z<Config> = z.object({
   label: z.string().default('qilin web'),
   openBrowser: z.boolean().default(true),
   printUrl: z.boolean().default(true),
+  publicUrl: z.transform(z.string(), value => parsePublicUrl(value).href),
   surfaceContext: z.boolean().default(true),
 })
 
-/** Environment variable naming the canonical local URL of this Web GUI. */
+/** Environment variable naming the advertised URL of this Web GUI. */
 const QILIN_WEB_URL = 'QILIN_WEB_URL' as const
 
 /**
@@ -160,6 +172,12 @@ function localWebUrl(ctx: Context): string {
   return `${webServer.protocol}//${isIP(host) === 6 ? `[${host}]` : host}:${String(port)}`
 }
 
+/** The advertised root: the configured public URL, or the listener's own local URL. */
+function appRootUrl(ctx: Context, publicUrl: string | undefined): string {
+  if (publicUrl !== undefined) return publicUrl
+  return localWebUrl(ctx)
+}
+
 /**
  * Dist location is workspace knowledge of this bundle: anchored on the
  * frontend package manifest, not configured. Existence is a request-time
@@ -233,6 +251,9 @@ export const internals: {
 export function apply(ctx: Context, config: Config): void {
   // Fail the load, not every consumer, when the bind address has no URL form.
   advertisedBindHost(ctx.webServer.host)
+  // The schema validates a present string; an explicit YAML `null` bypasses
+  // the string transform and reaches here, meaning unset.
+  const publicUrl = config.publicUrl ?? undefined
   // The printed URL belongs to this host. Under SSH, the operator reaches it
   // through a local forwarding address that this process cannot derive.
   const handoffBrowser = config.openBrowser && !launchedThroughSsh(launchEnvironmentOf(ctx))
@@ -246,16 +267,16 @@ export function apply(ctx: Context, config: Config): void {
       promptCtx.systemPrompt.section({
         name: 'app:web-surface',
         order: promptCtx.systemPrompt.getSectionOrder('WEB_SURFACE'),
-        text: () => webSurfacePrompt(localWebUrl(promptCtx)),
+        text: () => webSurfacePrompt(appRootUrl(promptCtx, publicUrl)),
       })
     })
     ctx.inject(['shellEnv'], (runtimeCtx) => {
       runtimeCtx.shellEnv.register({
         name: 'web-runtime',
         variables: {
-          [QILIN_WEB_URL]: { description: 'Canonical local URL of the QiLin Web GUI serving this session.' },
+          [QILIN_WEB_URL]: { description: 'Advertised URL of the QiLin Web GUI serving this session.' },
         },
-        resolve: () => ({ [QILIN_WEB_URL]: localWebUrl(runtimeCtx) }),
+        resolve: () => ({ [QILIN_WEB_URL]: appRootUrl(runtimeCtx, publicUrl) }),
       })
     })
   }
@@ -268,7 +289,7 @@ export function apply(ctx: Context, config: Config): void {
       // hand-built tree without a Loader is already the complete tree.
       const announceReady = (): void => {
         if (ANNOUNCED_ROOTS.has(connectionCtx.root)) return
-        const webUrl = localWebUrl(connectionCtx)
+        const webUrl = appRootUrl(connectionCtx, publicUrl)
         const authenticatedUrl = connectionCtx.connection.authenticatedUrl(webUrl)
         ANNOUNCED_ROOTS.add(connectionCtx.root)
         if (config.printUrl) {

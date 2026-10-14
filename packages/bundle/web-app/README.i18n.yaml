@@ -9,8 +9,8 @@
   en: 0f0eebaf93d811ea
   zh: f65e0532282fcfff
 /qilin-agent-web-app/summary:
-  en: e59ed929162674c7
-  zh: d003fe310e664ac3
+  en: 68ee615f0821ae58
+  zh: 3f4950d0b601e5cc
 /qilin-agent-web-app/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
@@ -21,14 +21,14 @@
   en: b8701afe8a30e1d3
   zh: f277191807580528
 /qilin-agent-web-app/use-this-package/configuration:
-  en: 6e80aaacc8d75f2e
-  zh: df2a0e452ad8d6bf
+  en: fe29027bacf05cad
+  zh: 84a7981aeab6a23f
 /qilin-agent-web-app/use-this-package/accounts-and-the-entry-documents:
   en: 2ae4d101c7664323
   zh: f7220bccb92bb91c
 /qilin-agent-web-app/use-this-package/listener-addresses-and-trusted-hosts:
   en: 36cd9eed41165e35
-  zh: b1517ed7976c7c78
+  zh: 12ab5e1d50949318
 /qilin-agent-web-app/use-this-package/running-over-ssh:
   en: 4b0b24b50bcc18ae
   zh: 6ad377393b6c7a8c
@@ -45,10 +45,10 @@
   en: 973128fd346869df
   zh: 54e6792f9f82a192
 /qilin-agent-web-app/understand-the-implementation/listener-url-and-trust-authorities:
-  en: cb543eaada1ffa2d
+  en: 90796a4bf61678c3
   zh: 2960fdbe2fca7d6f
 /qilin-agent-web-app/understand-the-implementation/source-map:
-  en: ddcf341a0f4010e9
+  en: 12707ba09431317d
   zh: b16ec27c399ce1ad
 /qilin-agent-web-app/further-exploration:
   en: 0d6623d78c1f9c00
@@ -60,14 +60,14 @@
   en: e6febc53efe0f51d
   zh: 9177816a8678d65d
 /qilin-agent-web-app/model-experience/harness-source-and-web-surface-context/what-the-model-sees:
-  en: 919bc3f0f62e777a
-  zh: 0ef6e05bcc69d1c8
+  en: 9ac9a7577eeed76d
+  zh: 7db06f3e4bb1de67
 /qilin-agent-web-app/model-experience/harness-source-and-web-surface-context/token-effect:
   en: 908fc84d6849a830
   zh: 56fe5e418bab60ba
 /qilin-agent-web-app/model-experience/harness-source-and-web-surface-context/kv-cache-effect:
-  en: da0f568d6d661c5e
-  zh: 606919b7d37c95bf
+  en: 1d7d87f54b20b563
+  zh: d150a51615d278e8
 /qilin-agent-web-app/known-limitations-and-deferred-work:
   en: 9d2fd1398e47cc1e
   zh: 9a07c46f116af029

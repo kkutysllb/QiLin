@@ -63,6 +63,7 @@ export const apply = ctx => globalThis.__webStartupApply(ctx)
     "    host: !!js ctx.webStartup.host ?? '127.0.0.1'",
     '    openBrowser: !!js ctx.webStartup.openBrowser',
     '    port: !!js ctx.webStartup.port ?? 3080',
+    '    publicUrl: !!js ctx.webStartup.publicUrl',
     '    trustedHosts: !!js ctx.webStartup.trustedHosts',
     '    tls: !!js ctx.webStartup.tls',
     '- id: provider',
@@ -129,6 +130,7 @@ describe('web command-line provider', () => {
     const { values, observed } = await bootProvider(['--help'])
     expect(observed.out).toContain('qilin --profile web')
     expect(observed.out).toContain('--no-open')
+    expect(observed.out).toContain('--public-url')
     expect(observed.out).toContain('--trusted-host')
     expect(values).toBeUndefined()
     expect(observed.readerConfig).toBeUndefined()
@@ -151,6 +153,36 @@ describe('web command-line provider', () => {
     expect(observed.exits).toEqual([1])
   })
 
+  it('publishes --public-url as advertisement only, leaving the fence to --trusted-host', async () => {
+    const { values, observed } = await bootProvider([
+      '--public-url', 'https://web.example/ui',
+      '--trusted-host', 'lab.internal',
+    ])
+    expect(values).toEqual({
+      openBrowser: true,
+      publicUrl: 'https://web.example/ui',
+      trustedHosts: ['lab.internal'],
+    })
+    expect(observed.readerConfig).toEqual({
+      host: '127.0.0.1',
+      openBrowser: true,
+      port: 3080,
+      publicUrl: 'https://web.example/ui',
+      trustedHosts: ['lab.internal'],
+    })
+    expect(observed.exits).toEqual([])
+  })
+
+  it('rejects a malformed --public-url before the consumer activates', async () => {
+    // The parser's own suite owns the exhaustive spellings; the provider only
+    // has to fail the invocation before any consumer activates.
+    const { values, observed } = await bootProvider(['--public-url', '/web/ui'])
+    expect(observed.out).toContain('error: --public-url must be an absolute http or https URL of the form http(s)://host[/prefix]')
+    expect(values).toBeUndefined()
+    expect(observed.readerConfig).toBeUndefined()
+    expect(observed.exits).toEqual([1])
+  })
+
   it('accepts one concrete interface literal', async () => {
     const { values, observed } = await bootProvider(['--host', '10.0.0.7'])
     expect(values).toEqual({ host: '10.0.0.7', openBrowser: true, trustedHosts: [] })
@@ -164,5 +196,25 @@ describe('web command-line provider', () => {
     expect(values).toBeUndefined()
     expect(observed.readerConfig).toBeUndefined()
     expect(observed.exits).toEqual([1])
+  })
+
+  it('rejects a --public-url that is not an absolute http or https root', async () => {
+    const { values, observed } = await bootProvider(['--public-url', 'ftp://app.example'])
+    expect(observed.out).toContain('--public-url must be an absolute http or https URL of the form http(s)://host[/prefix]')
+    expect(values).toBeUndefined()
+    expect(observed.exits).toEqual([1])
+  })
+
+  it('rejects credentials in --public-url before the consumer activates', async () => {
+    const { values, observed } = await bootProvider(['--public-url', 'https://user@app.example/ui'])
+    expect(observed.out).toContain('--public-url must not include credentials')
+    expect(values).toBeUndefined()
+    expect(observed.exits).toEqual([1])
+  })
+
+  it('publishes the named --public-url verbatim for the config to normalize', async () => {
+    const { values, observed } = await bootProvider(['--public-url', 'https://app.example/ui'])
+    expect(values).toEqual({ openBrowser: true, publicUrl: 'https://app.example/ui', trustedHosts: [] })
+    expect(observed.exits).toEqual([])
   })
 })

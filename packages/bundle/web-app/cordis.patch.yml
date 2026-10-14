@@ -9,7 +9,7 @@
 # ordinary Cordis service. Rows configured from flags inject that service, so
 # Loader resolves their expressions only after it exists; Connection reads the
 # declared trust authorities from it directly.
-# `qilin --profile web --help` provides neither service, so no server binds.
+# `qilin --profile web --help` provides no `webStartup`, so no server binds.
 
 # ── surface-specific values the base deliberately omits ─────────────────────
 
@@ -170,8 +170,10 @@
     # ── layer 2: transport/service ──────────────────────────────────────────────
 
     # Plain route-registration carrier; host and port come from the app's
-    # webStartup provider, with these deployment fallbacks. The dist is served by
-    # the web-runtime row below through the fallback seat. This row rejects
+    # webStartup provider, with these deployment fallbacks. The dist is served
+    # by the web-runtime row below through the fallback seat. Routing and
+    # browser-facing asset paths do not depend on the advertised URL, which the
+    # web-runtime row owns. This row rejects
     # wildcard binds and, when the invocation supplies a certificate and key,
     # listens over HTTPS.
     - id: webserver
@@ -194,9 +196,10 @@
     # assembly fact of qilin-web-app, never user config), mounts the
     # frontend-static fallback owner, registers the web-surface prompt
     # section and the bash runtime variable, prints the URL line, and opens the
-    # canonical local URL after the full Loader tree settles and the required-
-    # entry audit passes. The
-    # webStartup provider supplies invocation-only values; this row reads them and
+    # advertised URL after the full Loader tree settles and the required-
+    # entry audit passes. Invocation-only values come from the webStartup
+    # provider; the advertised application URL is this row's publicUrl (the
+    # loopback URL when unset). This row reads them and
     # publishes no service of its own. A complete agent-preset persona
     # suppresses the prompt section for that agent while retaining the host-owned
     # shell variable.
@@ -205,6 +208,7 @@
       inject: [webStartup]
       config:
         openBrowser: !!js ctx.webStartup.openBrowser
+        publicUrl: !!js ctx.webStartup.publicUrl
         printUrl: true
         surfaceContext: true
 
@@ -225,7 +229,9 @@
       name: '@qilin-agent/client-modules'
 
     # Owns both ends of the web transport: node half binds the gateway to the
-    # webserver under /api; browser half is the fetch/SSE client.
+    # webserver under /api; browser half is the fetch/SSE client. Every API
+    # request and upgrade passes the loopback plus trustedHosts policy; an
+    # advertised public URL contributes nothing to it.
     - id: connection
       name: '@qilin-agent/client-connection'
       inject: [webStartup]

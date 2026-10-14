@@ -77,6 +77,8 @@ Git-hosted plugins that ship sources build during install through their `prepare
 
 `qilin web` uses the profile shorthand. Launcher flags are parsed first; the entry then reads the flags it owns and hands every other argument to each account runtime's command line, where the web app's ordinary bundle provider parses it. The entry owns `--host`, `--port`, repeatable `--patch` (the overlay every runtime composes with), `--tls-cert`/`--tls-key`, `--no-open`, and the tenancy flags `--tenant-profile`, `--tenant-host`, `--per-account-ports`, `--idle-ms`, `--max-tenants`, `--restart-backoff-ms`, and `--registration`; `qilin web --help` prints that list. An argument the entry does not own, such as a repeatable `--trusted-host`, passes through and contributes invocation authorities to every runtime through `ctx.webStartup.trustedHosts`; a deployment expression concatenates its own authorities. The client-plugin HMR receiver is always mounted and stays idle until a separate `pnpm run dev:web` watcher rebuilds client bundles.
 
+`--public-url <url>` advertises one HTTP(S) application root — with an optional forwarding prefix — in place of the listener's loopback URL. It grants no trust, so the browser-visible authority still has to be named with `--trusted-host`; [Publish the Web UI behind a reverse proxy](../../../docs/user/guide/public-deployments.md) lists what the proxy in front must provide.
+
 ```sh
 qilin web
 qilin web --no-open

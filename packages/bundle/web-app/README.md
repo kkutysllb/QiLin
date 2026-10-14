@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Run `qilin --profile web` to open an interactive browser GUI with chat, model and settings management, and session history. It uses the same model access, tools, and safety defaults as other qilin surfaces. Startup prints an authenticated URL and normally opens it in the default browser; SSH sessions and `--no-open` leave the URL for manual opening. You can change the port and allow extra hosts, but cannot bind all network interfaces. Choose this package for interactive browser work; use `qilin-headless` for one-shot command-line tasks.
+Run `qilin --profile web` for browser chat, model and settings management, and session history, using the same model access, tools, and safety defaults as other qilin surfaces. Startup prints a tokenized URL and normally opens the default browser; SSH sessions and `--no-open` require manual opening. You can change the port and allow extra hosts, but cannot bind all network interfaces. Remote access supports an advertised public HTTP(S) URL behind a prefix-stripping proxy. For one-shot command-line tasks, use `qilin-headless`.
 
 ## Table of Contents
 
@@ -42,7 +42,7 @@ Saved model selections override the composition default. Both protocols share `d
 
 ### Configuration
 
-Most users never set these; the command-line flags feed the four settings below — `--host`, `--port`, and `--trusted-host` come from the invocation, and `--no-open` turns the browser handoff off for that invocation:
+`--host` and `--port` configure the listener; `--public-url` names the advertised public HTTP(S) root the GUI is reached at behind a prefix-stripping proxy, and `--trusted-host` adds further accepted authorities. All are described under [Listener URL and trust authorities](#listener-url-and-trust-authorities):
 
 | Field | Default | Meaning |
 |---|---|---|
@@ -50,6 +50,7 @@ Most users never set these; the command-line flags feed the four settings below 
 | `openBrowser` | `true` | Open the default browser after startup; SSH launches suppress it |
 | `printUrl` | `true` | Print the startup URL line, prefixed with `label` |
 | `surfaceContext` | `true` | Give the agent GUI-orientation context and expose `QILIN_WEB_URL` to its shell commands |
+| `publicUrl` | Unset | Advertised HTTP(S) application root; otherwise announce the listener's loopback URL |
 | `trustedHosts` | `[]` | Extra hosts allowed to reach the GUI from the network |
 
 The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agentweb-app) is the exhaustive source for every accepted field and its JSDoc. The shipped composition enables `schedule`, `ui-schedule`, and `time-context` together: the upstream default disables all three, and no in-product control reverses it, because the plugin manager excludes built-in profile bundles. The profile that ships them is the layer that restores them.
@@ -90,14 +91,14 @@ The URL line and browser handoff are readiness signals: supervisors RPC as soon 
 
 ### Listener URL and trust authorities
 
-The printed and published URL names the listener's own bind address under the active scheme, so a concrete bind is reachable exactly as printed and a mapped loopback spelling still advertises canonical loopback. A bind address carrying a non-loopback interface zone id has no URL form and fails the load. The `/api` browser-trust fence accepts loopback, that same bind address literal, and the explicit `--trusted-host` authorities.
+The printed and published URL names the listener's own bind address under the active scheme, so a concrete bind is reachable exactly as printed and a mapped loopback spelling still advertises canonical loopback. A bind address carrying a non-loopback interface zone id has no URL form and fails the load. An advertised `publicUrl` config or `--public-url` flag replaces the printed, opened, model-visible, and `QILIN_WEB_URL` root with the configured HTTP(S) application root — supporting reverse proxies that strip a path prefix — while contributing nothing to trust: the `/api` browser-trust fence accepts loopback, that same bind address literal, and the explicit `--trusted-host` authorities, and an advertised URL adds no authority of its own. The advertisement is one setting read once at startup; changing it needs a restart, and nothing obtains, renews, or watches certificates for it.
 
 ### Source map
 
 | File | Role |
 |---|---|
 | [`src/index.ts`](src/index.ts) | The `web-app` glue plugin: dist resolution, the public document table, listener URL derivation, prompt sections, bash variable, URL line, browser handoff |
-| [`src/startup.ts`](src/startup.ts) | The `web-startup` provider: `--host`, `--port`, `--trusted-host`, `--no-open`, `--help` |
+| [`src/startup.ts`](src/startup.ts) | The `web-startup` provider: `--host`, `--port`, `--public-url`, `--trusted-host`, `--no-open`, `--help` |
 | [`cordis.patch.yml`](cordis.patch.yml) | The web patch: restated base values, web host rows (the accounts row included), browser roster, agent plane behind presets |
 | [`tests/web-app.spec.ts`](tests/web-app.spec.ts) | Dist resolution, fallback seat, prompt sections, readiness |
 | [`tests/startup.spec.ts`](tests/startup.spec.ts) | Command-line parsing over a real Loader tree |
@@ -127,7 +128,7 @@ Read these pages when you want to go deeper into the shared core, the browser re
 
 #### What the model sees
 
-When `surfaceContext` is true, the `harness:source` section identifies the on-disk Harness implementation without claiming it is the working directory, and the `app:web-surface` global section (first-party order 10100, after reusable instructions) orients the model to the GUI: the canonical local URL, the "this page" referent, the update contract (the reload receiver is always on; no-refresh reloads additionally need the `pnpm run dev:web` watcher), and the instruction not to start replacement servers. `QILIN_WEB_URL` additionally appears in the managed bash environment with its description, resolved per invocation from the live server. When it is false, neither section nor the variable is registered.
+When `surfaceContext` is true, the `harness:source` section identifies the on-disk Harness implementation without claiming it is the working directory, and the `app:web-surface` global section (first-party order 10100, after reusable instructions) orients the model to the GUI: the advertised application URL (defined under Listening, trust, and public deployments above), the "this page" referent, the update contract (the reload receiver is always on; no-refresh reloads additionally need the `pnpm run dev:web` watcher), and the instruction not to start replacement servers. `QILIN_WEB_URL` additionally appears in the managed bash environment with its description, resolved per invocation from the live server. When it is false, neither section nor the variable is registered.
 
 #### Token effect
 
@@ -135,7 +136,7 @@ One source line and one prompt paragraph per session plus two managed-environmen
 
 #### KV Cache effect
 
-Source and Web sections follow first-party reusable instructions. Different checkout paths or local ports leave that preceding prefix unchanged when tools and configuration match; provider cache reuse is not guaranteed.
+Source and Web sections follow first-party reusable instructions. Different checkout paths or application URLs leave that preceding prefix unchanged when tools and configuration match; provider cache reuse is not guaranteed.
 
 ## Known Limitations and Deferred Work
 

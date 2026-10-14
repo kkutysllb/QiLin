@@ -139,6 +139,14 @@ const homeAndGuide = pairedPages([
     order: 3,
   },
   {
+    source: 'docs/user/guide/public-deployments.md',
+    route: 'guide/public-deployments.md',
+    label: { root: '公开部署', en: 'Public deployments' },
+    sidebar: { root: 'zh-guide', en: 'en-guide' },
+    section: { root: '入门', en: 'Guide' },
+    order: 4,
+  },
+  {
     source: 'docs/user/guide/tenancy.md',
     route: 'guide/tenancy.md',
     label: { root: '多人共用一套部署', en: 'Several people, one deployment' },

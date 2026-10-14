@@ -79,6 +79,8 @@ qilin --profile tui
 
 `qilin web` 使用 profile 简写。启动器先解析自身的 flag，随后入口只读自己拥有的 flag，其余参数一律交给每个账户运行时自己的命令行，由组合包中的普通提供方解析。入口拥有 `--host`、`--port`、可重复的 `--patch`（每个运行时都叠上的 overlay）、`--tls-cert`/`--tls-key`、`--no-open`，以及租户类 flag `--tenant-profile`、`--tenant-host`、`--per-account-ports`、`--idle-ms`、`--max-tenants`、`--restart-backoff-ms`、`--registration`；`qilin web --help` 会打印这份清单。不属于入口的参数（例如可重复的 `--trusted-host`）会透传到每个运行时，并通过 `ctx.webStartup.trustedHosts` 提供本次调用的 authority（部署表达式会拼接自己的 authority）。客户端插件 HMR（热模块替换）接收器始终挂载，在单独运行的 `pnpm run dev:web` watcher 重建客户端 bundle 之前保持空闲。
 
+`--public-url <url>` 公告唯一的 HTTP(S) 应用根——可带转发前缀——替代监听器的 loopback URL。它不授予信任，因此浏览器可见的 authority 仍需用 `--trusted-host` 点名；[在反向代理之后发布 Web UI](../../../docs/user/guide/public-deployments.zh.md)列出了前置代理必须提供的内容。
+
 ```sh
 qilin web
 qilin web --no-open
