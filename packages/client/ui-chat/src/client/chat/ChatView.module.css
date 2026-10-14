@@ -72,6 +72,26 @@
   margin-top: var(--qilin-chat-flow-gap, 6px);
 }
 
+.older {
+  display: flex;
+  justify-content: center;
+}
+
+.older button {
+  border: none;
+  border-radius: var(--qilin-radius-sm);
+  padding: 4px 12px;
+  font-size: 12px;
+  color: var(--qilin-alias-label-secondary);
+  background: var(--qilin-alias-interactive-bg-hover-solid);
+  cursor: pointer;
+}
+
+.older button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
 /* Process rows sit 6px apart; an Assistant response is separated from its
    neighbours by 12px. */
 .flowItem[data-chat-group-part="response"] {
@@ -158,8 +178,8 @@
   flex-direction: column;
   align-items: flex-start;
   --qilin-chat-flow-gap: 12px;
-  --qilin-alias-label-shimmer: var(--qilin-alias-label-deep-diving-shimmer);
-  color: var(--qilin-alias-label-deep-diving, var(--qilin-alias-label-tertiary));
+  --qilin-alias-label-shimmer: var(--qilin-alias-label-running-shimmer);
+  color: var(--qilin-alias-label-running, var(--qilin-alias-label-tertiary));
   font-size: calc(var(--qilin-content-font-size, 14px) - 2px);
   line-height: calc(22px + var(--qilin-content-font-delta, 0px));
 }
