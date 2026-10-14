@@ -62,6 +62,7 @@ Check this table before writing a control in a feature package. A plugin cannot 
 | `SettingsForm`, `SettingsValueField`, `SettingsSecretField` | Staged configuration form over `SettingsFormModel`: fields report what the reader typed, and its save is the single point where a draft becomes a document mutation. |
 | `icons/*`, `QilinSeal`, `ReferenceIcon`, `LinkIcon` | Glyphs and brand marks. Use `LinkIcon` for 14px clickable-link categories and known-site marks. |
 | `FileTypeIcon`, `classifyFileType`, `fileExtension` | A category-colored 28px file or folder glyph and the shared case-insensitive filename mapping behind it. Code and configuration files use detailed full-color technology glyphs; use `LinkIcon` for link-leading glyphs and image previews for image content. |
+| `InlineEditor` | Autofocused multi-line inline editor for short drafts such as queued messages and goals. It grows with its text and its width up to six lines, then scrolls; Enter saves, Shift+Enter breaks the line, Enter during IME composition does nothing, and Escape cancels. The caller supplies the localized `label` and rebinds the scrollbar on an elevated surface. |
 
 Four pairs are easy to confuse:
 

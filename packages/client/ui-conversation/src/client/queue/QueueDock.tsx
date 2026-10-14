@@ -5,7 +5,7 @@ import type { PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import type { SessionId } from '@qilin-agent/session/types'
 import {
   IconCheckOutline16, IconChevronDownOutline14, IconChevronUpOutline14, IconCloseOutline16,
-  FileTypeIcon, fileSizeText, IconEditOutline16, IconQueueOutline14, IconSendOutline14,
+  FileTypeIcon, fileSizeText, IconEditOutline16, InlineEditor, IconQueueOutline14, IconSendOutline14,
   IconTrashOutline16, projectUserText, Tooltip,
 } from '@qilin-agent/client-ui-primitives'
 import type { InboxState } from '@qilin-agent/agent/types'
@@ -195,22 +195,12 @@ export function QueueDock({ useSession, useProjection, updateQueue, notify, load
                 {rowCount === 1 && <span className={css.lead} aria-hidden><IconQueueOutline14 /></span>}
                 {editing?.id === row.id
                   ? (
-                    <input
-                      autoFocus
-                      className={css.editor}
-                      aria-label={t('queue.edit')}
+                    <InlineEditor
                       value={editing.text}
-                      onChange={(event) => { setEditing({ id: row.id, text: event.currentTarget.value }) }}
-                      onKeyDown={(event) => {
-                        if (event.key === 'Escape') {
-                          setEditing(null)
-                          return
-                        }
-                        if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
-                          event.preventDefault()
-                          void saveEdit()
-                        }
-                      }}
+                      label={t('queue.edit')}
+                      onChange={(text) => { setEditing({ id: row.id, text }) }}
+                      onSave={() => { void saveEdit() }}
+                      onCancel={() => { setEditing(null) }}
                     />
                   )
                   : (

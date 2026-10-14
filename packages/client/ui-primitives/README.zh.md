@@ -62,6 +62,7 @@ kind: "package-library"
 | `SettingsForm`、`SettingsValueField`、`SettingsSecretField` | 基于 `SettingsFormModel` 的分阶段配置表单：字段如实报告读者输入，保存是草稿变成文档变更的唯一入口。 |
 | `icons/*`、`QilinSeal`、`ReferenceIcon`、`LinkIcon` | 字形与品牌标识。`LinkIcon` 用于 14px 的可点击链接分类及已知站点标记。 |
 | `FileTypeIcon`、`classifyFileType`、`fileExtension` | 按类别着色的 28px 文件或文件夹图形，以及它背后共享的不区分大小写文件名映射。代码与配置文件使用细分的全彩技术图形；链接前置图形使用 `LinkIcon`，图片内容使用图片预览。 |
+| `InlineEditor` | 面向排队消息与目标等短草稿的自动聚焦多行行内编辑器。高度随文字增长、宽度自适应，到六行后滚动；Enter 保存，Shift+Enter 换行，IME 组合期间的 Enter 不生效，Escape 取消。调用方提供本地化的 `label`，并在抬升表面上重绑滚动条。 |
 
 有四组容易混淆：
 
