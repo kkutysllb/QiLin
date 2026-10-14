@@ -133,7 +133,9 @@ export class HostConnectionService extends Service implements HostConnectionHand
     const carrier = this.ctx.get('webServer')
     if (!isTrustedApiRequest(request, this.trustedHosts, carrier?.host, carrier?.protocol ?? 'http:')) return 403
     const authority = this.sessionAuthority
-    if (authority === undefined) return this.browserAuth.isAuthenticated(request) ? undefined : 401
+    if (authority === undefined) {
+      return this.browserAuth.isAuthenticated(request, carrier?.protocol === 'https:') ? undefined : 401
+    }
     if (authority.isPublicApiRequest(request)) return undefined
     return authority.verify(request) ? undefined : 401
   }
@@ -147,14 +149,16 @@ export class HostConnectionService extends Service implements HostConnectionHand
   /**
    * Authenticate an index request: the launch-token exchange first, then the
    * installed account-session authority, or the device cookie when no
-   * authority claims the seat.
+   * authority claims the seat. Native TLS listeners mint `Secure` device
+   * cookies; the installed gate owns its own cookie security.
    */
   authorizeIndex(request: ConnectionIndexRequest, response: ConnectionIndexResponse): boolean {
+    const secure = this.ctx.get('webServer')?.protocol === 'https:'
     const authority = this.sessionAuthority
-    if (authority === undefined) return this.browserAuth.authorizeIndex(request, response)
+    if (authority === undefined) return this.browserAuth.authorizeIndex(request, response, secure)
     // The exchange only cleans the printed URL into the entry redirect; an
     // absent or stale token leaves the decision to the account session.
-    if (this.browserAuth.exchangeToken(request, response)) return false
+    if (this.browserAuth.exchangeToken(request, response, secure)) return false
     return authority.authorizeIndex(request, response)
   }
 
@@ -200,7 +204,7 @@ export class HostConnectionService extends Service implements HostConnectionHand
    * the menu without any identity channel.
    */
   private deviceStatusAnswer(request: ConnectionTrustRequest): Response {
-    const identity = this.browserAuth.identity(request)
+    const identity = this.browserAuth.identity(request, this.ctx.get('webServer')?.protocol === 'https:')
     return Response.json({
       enabled: false,
       needsSetup: false,

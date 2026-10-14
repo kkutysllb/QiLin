@@ -38,9 +38,11 @@ kind: "package-reference"
 
 `ctx.connection.session` 是认证能力安置账户会话 authority 的席位。`install(authority)` 安置唯一的 `ConnectionSessionAuthority` 并返回释放该席位的 disposer；第二次安置会让安装方插件加载失败，因为两个会话 authority 无法组合。authority 拥有三项判定：`authorizeIndex` 拥有受门禁 index 请求的浏览器响应，`isPublicApiRequest` 标记属于认证表层本身、无需会话的请求，`verify` 校验请求的会话。authority 占据席位期间，`requestRejection` 对该 authority 未声明为公开的每个 `/api` 请求都要求 `verify` 通过；`authorizeIndex` 先执行启动令牌交换——把打印出的 URL 清理为入口重定向——再只为通过校验的会话提供受门禁 index。没有 authority 时，设备 cookie 仍是唯一的浏览器凭据，这正是禁用门禁的部署所保留的行为。
 
-cookie 签名密钥是 `ctx.credentials` 中由 `client-connection/browser-session` 拥有的 grant 记录。本地提供方把它持久化到 `$QILIN_HOME/.credentials.yaml`；`BrowserAuth` 在 Connection 激活期间加载或创建该记录，并把密钥留在内存中，因此请求认证同步执行。删除或替换该记录会在下一次 Connection 激活时生效。cookie 携带绝对签发与过期区间，`cookieMaxAgeDays` 默认设为 30 天，并在确定性名称与签名 payload 中同时绑定规范化 hostname 和 port。它是 host-only、`Path=/`、`HttpOnly`、`SameSite=Strict`；随附服务器使用 loopback HTTP，因此刻意不设置 `Secure`。
+cookie 签名密钥是 `ctx.credentials` 中由 `client-connection/browser-session` 拥有的 grant 记录。本地提供方把它持久化到 `$QILIN_HOME/.credentials.yaml`；`BrowserAuth` 在 Connection 激活期间加载或创建该记录，并把密钥留在内存中，因此请求认证同步执行。删除或替换该记录会在下一次 Connection 激活时生效。cookie 携带绝对签发与过期区间，`cookieMaxAgeDays` 默认设为 30 天，并在确定性名称与签名 payload 中同时绑定规范化 hostname 和 port。它是 host-only、`Path=/`、`HttpOnly`、`SameSite=Strict`，并且只在接收 index 请求的监听器以 TLS 服务时才带 `Secure`；由该监听器自身的协议决定，绝不由 `publicUrl` 公告或转发头决定。
 
-认证之前，每个请求仍经过 `src/api-request-trust.ts`。其 `Host` 必须是 loopback，或与 `trustedHosts` 条目匹配：带端口的 `host:port` 精确匹配，不带端口的条目匹配任意端口，两侧均经 WHATWG 归一化。若附带 `Origin`，它必须等于该 Host；`sec-fetch-site: cross-site` 一律拒绝。畸形配置 authority 会让插件加载失败。这些检查防御 DNS rebinding 与跨站浏览器请求，绝不建立身份。Host/Origin 校验失败返回 403；Host 可信但未认证的请求返回 401。`qilin web --host 0.0.0.0` 仍不受支持。决策记录：[浏览器请求信任](../../../.agents/notes/implemented/architecture/2026-07-28-api-browser-trust-boundary.zh.md)与[浏览器令牌认证](../../../.agents/notes/implemented/architecture/2026-08-24-browser-token-authentication.zh.md)。
+HTTPS cookie 的名称与签名 audience 都包含 `https:` scheme，因此 HTTP cookie 无法向 TLS 监听器认证，即便 hostname 和端口相同。默认端口按监听器的 scheme 归一化。既有 HTTP cookie audience 保持不变。
+
+认证之前，每个请求仍经过 `src/api-request-trust.ts`。其 `Host` 必须是 loopback、等于监听器自身的 bind IP 字面量（任意端口），或与 `trustedHosts` 条目匹配：带端口的 `host:port` 精确匹配，不带端口的条目匹配任意端口。Host 与配置条目按监听器的 scheme 做 WHATWG 默认端口归一化，而不是转发头或 `Origin`。若附带 HTTP(S) `Origin`，它必须指名同一 authority，Host 按该 Origin 的 scheme 解析以支持 HTTP 上游之前的 HTTPS 代理；`sec-fetch-site: cross-site` 一律拒绝。畸形配置 authority 会让插件加载失败。这些检查防御 DNS rebinding 与跨站浏览器请求，绝不建立身份。Host/Origin 校验失败返回 403；Host 可信但未认证的请求返回 401。`qilin web --host 0.0.0.0` 仍不受支持。决策记录：[浏览器请求信任](../../../.agents/notes/implemented/architecture/2026-07-28-api-browser-trust-boundary.zh.md)与[浏览器令牌认证](../../../.agents/notes/implemented/architecture/2026-08-24-browser-token-authentication.zh.md)。
 
 每个被接纳的请求都代表同一个 Peer——操作者。`ctx.connection.operator` 就是这个 `PeerScope`：其 `ctx` 是拥有连接期注册的 Kylin scope，随 Connection 一起释放。`ctx.connection.admit(request)` 执行信任与认证检查，以拒绝状态或操作者作答；`/api` 路由与 Gateway 的 WebSocket 升级都经它接纳，每个 RPC 处理器都收到本次调用的 Peer。`OperatorPeer` 对外导出，供没有 Connection 的组合（例如 Gateway 的进程内载体）以同一约定拥有一个操作者 scope。
 
@@ -72,7 +74,7 @@ API Gateway Client 把内部 `$events` logical stream 注册为唯一 generation
 <a id="known-limitations-and-deferred-work"></a>
 
 - **缓冲型 `/api` 路由会把每个请求体保留在内存里**：`maxRequestBodyBytes`（默认 300 MiB，按默认 200 MiB 图片总量上限经 base64 膨胀加信封余量得出）限制普通图片与 RPC 信封。显式启用的流式路由接收带背压的分块并绕过总量上限；路由实现负责持久化、取消与存储配额。
-- **浏览器 cookie 不带 `Secure`**：随附载体是 loopback HTTP；若部署经明文网络暴露同一 authority，bearer cookie 可能在传输中泄露。
+- **明文 HTTP 监听器会在传输中暴露 bearer cookie**：这类部署无法给浏览器 cookie 加 `Secure`，经网络服务同一 authority 可能泄露会话 cookie；在 Web 载体上配置 TLS（[`qilin-host-webserver`](../../host/webserver/README.zh.md)）即可让 cookie 带 `Secure` 并被限定在 TLS 内。
 - **设备 cookie 没有 logout 操作**：清除浏览器 cookie 会结束单个浏览器会话；删除 owner 凭据记录并重启 `qilin` 会撤销全部会话。
 
 
