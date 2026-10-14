@@ -59,19 +59,34 @@ describe('published document preview licenses', () => {
         'pack', '--json', '--pack-destination', output,
       ], packageRoot, PACK_TIMEOUT_MS)) as { filename: string; files: { path: string }[] }
       expect(packed.files.map(file => file.path)).toContain('lib/client.js')
+      expect(packed.files.map(file => file.path)).toContain('lib/client.frontmatter-fields.js')
       expect(packed.files.map(file => file.path)).toContain('lib/client.pdf.js')
       expect(packed.files.some(file => file.path.endsWith('pdfjs-NOTICES.txt'))).toBe(false)
 
       const client = run('tar', ['-xOf', resolve(packageRoot, packed.filename), 'package/lib/client.js'], packageRoot, EXTRACT_TIMEOUT_MS)
       const pdf = run('tar', ['-xOf', resolve(packageRoot, packed.filename), 'package/lib/client.pdf.js'], packageRoot, EXTRACT_TIMEOUT_MS)
       expect([...client.matchAll(/require\.async\("(\.\/client[^"/]*\.js)"\)/gu)].map(match => match[1]))
-        .toEqual(['./client.pdf.js', './client.excel.js'])
+        .toEqual(['./client.frontmatter-fields.js', './client.pdf.js', './client.excel.js'])
       expect(client).not.toMatch(/\brequire\("\.\/client[^"/]*\.js"\)/u)
       expect([...pdf.matchAll(/require\("(\.\/client[^"/]*\.js)"\)/gu)].map(match => match[1]))
         .toEqual([])
       expect(client).not.toContain('//! Bundled PDF.js license notices')
       expect(client).not.toContain('/pdfjs-dist/')
       expect(pdf).toContain('//! Bundled PDF.js license notices')
+      const frontmatter = run('tar', ['-xOf', resolve(packageRoot, packed.filename), 'package/lib/client.frontmatter-fields.js'], packageRoot, EXTRACT_TIMEOUT_MS)
+      expect(frontmatter).not.toMatch(/\brequire\("\.\/client[^"/]*\.js"\)/u)
+      let frontmatterInitialized = false
+      runInNewContext(frontmatter, { window: { __ModuleLoader__: { load: (registration: {
+        factory: (resolve: (specifier: string) => unknown) => { FrontmatterFields: unknown }
+      }) => {
+        const loaded = registration.factory((specifier) => {
+          if (specifier === 'react' || specifier === 'react/jsx-runtime') return require(specifier)
+          throw new Error('Unexpected browser dependency: ' + specifier)
+        })
+        expect(typeof loaded.FrontmatterFields).toBe('function')
+        frontmatterInitialized = true
+      } } } })
+      expect(frontmatterInitialized).toBe(true)
       const excel = run('tar', ['-xOf', resolve(packageRoot, packed.filename), 'package/lib/client.excel.js'], packageRoot, EXTRACT_TIMEOUT_MS)
       expect(excel).not.toMatch(/\brequire\("\.\/client[^"/]*\.js"\)/u)
       expect(client).not.toContain('FortuneSheet')

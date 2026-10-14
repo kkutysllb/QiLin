@@ -14,3 +14,27 @@
   overflow-x: auto;
   font-family: inherit;
 }
+
+/* Leading YAML frontmatter: a bordered metadata box above the body, never heading text. */
+.frontmatter {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border: 0.5px solid var(--qilin-alias-border-l2);
+  border-radius: var(--qilin-radius-md);
+  background: var(--qilin-alias-bg-layer-1);
+  font: var(--qilin-font-markdown-small);
+  color: var(--qilin-alias-label-primary);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* A document without frontmatter content leaves the box empty. */
+.frontmatter:empty {
+  display: none;
+}
+
+.frontmatterSource {
+  margin: 0;
+  font-family: var(--ds-font-family-code);
+  white-space: inherit;
+}
