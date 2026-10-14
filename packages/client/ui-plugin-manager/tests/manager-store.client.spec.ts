@@ -1449,3 +1449,28 @@ describe('updatable', () => {
     ])
   })
 })
+describe('row configuration', () => {
+  it('reads a row config schema through the Host answer', async () => {
+    const bundleRowConfig = vi.fn(() => Promise.resolve(ok({ schema: { uid: 1, refs: {} }, values: { a: 1 } })))
+    const { face } = bench({ bundleRowConfig })
+    await expect(face.loadRowConfig('pkg', 'row')).resolves.toEqual({ schema: { uid: 1, refs: {} }, values: { a: 1 } })
+    expect(bundleRowConfig).toHaveBeenCalledWith('pkg', 'row')
+  })
+
+  it('answers null for a stopped row and refuses other codes with their message', async () => {
+    const bundleRowConfig = vi.fn()
+      .mockReturnValueOnce(Promise.resolve(refused('row-not-running', 'stopped')))
+      .mockReturnValueOnce(Promise.resolve(refused('unknown-plugin', 'absent')))
+    const { face } = bench({ bundleRowConfig })
+    await expect(face.loadRowConfig('pkg', 'row')).resolves.toBeNull()
+    await expect(face.loadRowConfig('pkg', 'row')).rejects.toThrow('absent')
+  })
+
+  it('saves the complete map, reports the outcome, and rereads the Host', async () => {
+    const setBundleConfig = vi.fn(() => Promise.resolve(ok(APPLIED)))
+    const { face, state } = bench({ setBundleConfig })
+    await face.saveRowConfig('pkg', 'row', { a: 1 })
+    expect(setBundleConfig).toHaveBeenCalledWith('pkg', 'row', { a: 1 })
+    await vi.waitFor(() => expect(state()).toMatchObject({ status: 'ready', refreshStatus: 'idle' }))
+  })
+})

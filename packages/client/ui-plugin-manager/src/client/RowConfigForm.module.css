@@ -1,0 +1,132 @@
+/* Row configuration form: the schemastery controls a row page shows, and the save that writes the whole map. */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.status,
+.savedLine,
+.failedLine {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.status,
+.savedLine {
+  color: var(--qilin-alias-label-tertiary);
+}
+
+.failedLine {
+  color: var(--qilin-alias-label-error);
+}
+
+.object,
+.nested,
+.array {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.nested {
+  margin-inline-start: 16px;
+  padding-inline-start: 12px;
+  border-inline-start: 1px solid var(--qilin-alias-border-subtle, var(--qilin-alias-label-tertiary));
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.label {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--qilin-alias-label-secondary);
+}
+
+.input,
+.checkbox {
+  font: inherit;
+  font-size: 13px;
+  color: var(--qilin-alias-label-primary);
+}
+
+.input {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 420px;
+  border: 0.5px solid var(--qilin-alias-border-subtle, var(--qilin-alias-label-tertiary));
+  border-radius: 8px;
+  padding: 5px 10px;
+  background: var(--qilin-alias-bg-layer-3);
+}
+
+.arrayRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.arrayRow .input {
+  flex: 1;
+  max-width: none;
+}
+
+.mini {
+  appearance: none;
+  flex: none;
+  border: 0.5px solid var(--qilin-alias-border-subtle, var(--qilin-alias-label-tertiary));
+  border-radius: 8px;
+  padding: 4px 10px;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.5;
+  cursor: pointer;
+  background: transparent;
+  color: var(--qilin-alias-label-secondary);
+}
+
+.mini:focus-visible,
+.save:focus-visible {
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
+  outline-offset: 1px;
+}
+
+.saveRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.saveRow .savedLine,
+.saveRow .failedLine {
+  flex: 1;
+  min-width: 0;
+}
+
+.save {
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 5px 14px;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  cursor: pointer;
+  background: var(--qilin-alias-label-primary);
+  color: var(--qilin-alias-bg-layer-3);
+}
+
+.save:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

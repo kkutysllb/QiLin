@@ -72,6 +72,7 @@ const CODE_KEYS = {
   'stale-approval': 'reasonStaleApproval',
   'incompatible-version': 'reasonIncompatibleVersionUnnamed',
   'operation-error': 'reasonOperationError',
+  'row-not-running': 'rowConfigLoadFailed',
 } satisfies Record<ManagementError['code'], PluginManagerLocaleKey>
 
 /** The sentence a failed action opens with, by what was being done. */

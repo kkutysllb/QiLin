@@ -55,7 +55,7 @@ spec 旁的**安装源**控件显示这次安装首先询问的源，取自 Host
 
 ### 配置页
 
-自带配置的插件把配置渲染在本页，通过本页声明的三个 slot：`plugins.item`（list）用于官方插件，按其 `label` 列在官方分组里；`plugins.bundle.config`（以组合包的包名为键）用于组合包自己的配置，显示在组合包页面的描述与行之间；`plugins.row.config`（以 `<包名>#<行 id>` 为键）用于某一行的配置，这一行由此多出一个**配置**控件，打开该行自己的页面。页面通过 owner props 向每个条目索取两种视图：`view: 'summary'` 是标题下的一句话简介，`view: 'page'` 是带自己保存控件的表单；当 `page` 视图对应的 Host 条目由设置文档服务时，还会给出 `form`——页面从 `ctx.configForms` 取到的共享 `ConfigPageForm`（已接受的值加一个原子 mutate），自管控件的条目可以忽略它。只有保存才写入：页面负责画标题、图标与面包屑，条目的表单在离开页面时丢弃暂存的修改。安装随附的四个宿主平面配置页——shell 执行器、agent loop、子智能体模型选择、DeepSeek 搜索提供方——来自 [ui-settings-plugins](../ui-settings-plugins/README.zh.md)，在 Host 服务其命名空间期间注册。组合包的浏览器半侧用同样的方式注册：
+自带配置的插件把配置渲染在本页，通过本页声明的三个 slot：`plugins.item`（list）用于官方插件，按其 `label` 列在官方分组里；`plugins.bundle.config`（以组合包的包名为键）用于组合包自己的配置，显示在组合包页面的描述与行之间；`plugins.row.config`（以 `<包名>#<行 id>` 为键）用于某一行的配置，这一行由此多出一个**配置**控件，打开该行自己的页面。页面通过 owner props 向每个条目索取两种视图：`view: 'summary'` 是标题下的一句话简介，`view: 'page'` 是带自己保存控件的表单；当 `page` 视图对应的 Host 条目由设置文档服务时，还会给出 `form`——页面从 `ctx.configForms` 取到的共享 `ConfigPageForm`（已接受的值加一个原子 mutate），自管控件的条目可以忽略它。只有保存才写入：页面负责画标题、图标与面包屑，条目的表单在离开页面时丢弃暂存的修改。安装随附的四个宿主平面配置页——shell 执行器、agent loop、子智能体模型选择、DeepSeek 搜索提供方——来自 [ui-settings-plugins](../ui-settings-plugins/README.zh.md)，在 Host 服务其命名空间期间注册。组合包的浏览器半侧用同样的方式注册： 模块导出 schemastery `Config` 且已被 Loader 导入的行，即使没有 slot 贡献也会在自己的页面上得到内建表单：`RowConfigForm` 经 `pluginManager` Remote 读取序列化 schema 与该行的值，本地暂存编辑，保存完整映射；未运行的行什么都不显示，slot 贡献仍与其并列并保持优先。
 
 ```tsx ignore-check
 ctx.slots.inject('plugins.row.config', () => ctx.slots.register({

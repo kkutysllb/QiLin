@@ -23,6 +23,7 @@ import {
 } from '@qilin-agent/client-ui-primitives'
 import type { InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import { rowConfigKey, type OfficialItem } from './config-ledger.ts'
+import { RowConfigForm } from './RowConfigForm.tsx'
 import type { PluginManagerLocaleKey } from './locales.ts'
 import {
   asksMirror, githubRecoveryRegistry, isInstallPending, offeredRegistries, rowKey,
@@ -452,7 +453,7 @@ function ItemDetail({ item, t, onBack, renderSlot, form }: {
  * A row's configuration page: the crumb back to its bundle's page, the row id
  * over the module it names and the entry's one-liner, and the form the entry renders.
  */
-function RowDetail({ pkg, row, t, resolveText, onBack, renderSlot, form }: {
+function RowDetail({ pkg, row, t, resolveText, onBack, renderSlot, form, loadRowConfig, saveRowConfig }: {
   readonly pkg: PackageView
   readonly t: Translate
   readonly resolveText: PluginManagerFace['resolveText']
@@ -460,6 +461,8 @@ function RowDetail({ pkg, row, t, resolveText, onBack, renderSlot, form }: {
   readonly onBack: () => void
   readonly renderSlot: RenderConfig
   readonly form: ConfigPageForm | undefined
+  readonly loadRowConfig: PluginManagerFace['loadRowConfig']
+  readonly saveRowConfig: PluginManagerFace['saveRowConfig']
 }): ReactNode {
   const { title } = packageText(pkg, t, resolveText)
   const key = rowConfigKey(pkg.name, row.rowId)
@@ -475,6 +478,13 @@ function RowDetail({ pkg, row, t, resolveText, onBack, renderSlot, form }: {
       </div>
       <div className={css.detailSections} data-plugin-config>
         {renderSlot('plugins.row.config', { view: 'page', form }, { entryKey: key })}
+        <RowConfigForm
+          key={key}
+          subject={key}
+          t={t}
+          load={() => loadRowConfig(pkg.name, row.rowId)}
+          save={values => saveRowConfig(pkg.name, row.rowId, values)}
+        />
       </div>
     </div>
   )
@@ -1283,7 +1293,7 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
     if (row.entryId !== undefined) props.setRowEnabled(row.entryId, enabled)
   }
   const configure = (pkg: PackageView): RowConfigure => ({
-    has: row => ledger.rows.has(rowConfigKey(pkg.name, row.rowId)),
+    has: row => row.configurable === true || ledger.rows.has(rowConfigKey(pkg.name, row.rowId)),
     open: (row) => { setView({ kind: 'row', name: pkg.name, rowId: row.rowId }) },
   })
   const packageCard = (pkg: PackageView): ReactNode => (
@@ -1398,6 +1408,8 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
             resolveText={resolveText}
             renderSlot={renderSlot}
             form={formFor(rowConfigKey(openPkg.name, openRow.rowId))}
+            loadRowConfig={props.loadRowConfig}
+            saveRowConfig={props.saveRowConfig}
             onBack={() => { setView({ kind: 'package', name: openPkg.name }) }}
           />
         )

@@ -10,6 +10,7 @@ import { randomUUID } from '@qilin-agent/util-crypto'
 import type { Context as ClientContext } from '@qilin-agent/kylin'
 import type {
   BundleInfo,
+  BundleRowConfig,
   ChangeResult,
   CommunityPluginEntry,
   IncompatiblePlugin,
@@ -72,6 +73,8 @@ export interface PackageRow {
   readonly phase: PluginInfo['fiberPhase']
   /** Why the Host refuses to switch the row, when it does. */
   readonly readOnlyReason?: ReadOnlyReason
+  /** Whether the row module exports a schemastery Config the row page can render. */
+  readonly configurable?: boolean
 }
 
 /** One bundle as the page shows it: the Host's bundle joined with the entries its rows run as. */
@@ -436,6 +439,10 @@ export interface PluginManagerFace {
   cancelConfirm: () => void
   /** Switch one of a bundle's rows on or off in the profile's user layer. */
   setRowEnabled: (entryId: PluginEntryId, enabled: boolean) => void
+  /** Read one bundle row's configuration schema and values; null when the row's module is not imported, so no schema exists. */
+  loadRowConfig: (packageName: string, rowId: string) => Promise<BundleRowConfig | null>
+  /** Persist one bundle row's complete configuration and apply it, then re-read the Host's lists. */
+  saveRowConfig: (packageName: string, rowId: string, values: Record<string, unknown>) => Promise<void>
   dismissNotice: () => void
   /** Compare the installed layers with the registry and show the ones with a newer version. */
   checkUpdates: () => void
@@ -519,6 +526,7 @@ export function packageView(bundle: BundleInfo, plugins: readonly PluginInfo[]):
       phase: live?.fiberPhase ?? null,
       ...row.entryId === undefined ? {} : { entryId: row.entryId },
       ...live?.readOnlyReason === undefined ? {} : { readOnlyReason: live.readOnlyReason },
+      ...row.configurable === undefined ? {} : { configurable: row.configurable },
     }
   })
   return {
@@ -706,6 +714,19 @@ export class PluginManagerController {
         void this.run(rowKey(entryId), { packageName: entryId, action: enabled ? 'rowEnable' : 'rowDisable' }, async () => {
           this.applied(await this.ctx.remote.pluginManager.setPluginEnabled(entryId, enabled), entryId)
         })
+      },
+      loadRowConfig: async (packageName, rowId) => {
+        const answer = await this.ctx.remote.pluginManager.bundleRowConfig(packageName, rowId)
+        if (!answer.ok) {
+          const code = answer.error.code as ManagementError['code']
+          if (code === 'row-not-running') return null
+          throw new RemoteAnswerError(answer.error.message, code)
+        }
+        return answer.value
+      },
+      saveRowConfig: async (packageName, rowId, values) => {
+        this.applied(await this.ctx.remote.pluginManager.setBundleConfig(packageName, rowId, values as never), packageName)
+        this.refresh()
       },
       dismissNotice: () => { this.patch({ notice: null }) },
       checkUpdates: () => { void this.checkUpdates() },

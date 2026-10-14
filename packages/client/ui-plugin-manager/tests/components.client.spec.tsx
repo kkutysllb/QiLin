@@ -97,6 +97,8 @@ function renderTab(
     confirm: vi.fn(),
     cancelConfirm: vi.fn(),
     setRowEnabled: vi.fn(),
+    loadRowConfig: vi.fn(async () => null),
+    saveRowConfig: vi.fn(async () => {}),
     dismissNotice: vi.fn(),
     checkUpdates: vi.fn(),
     dismissUpdates: vi.fn(),
