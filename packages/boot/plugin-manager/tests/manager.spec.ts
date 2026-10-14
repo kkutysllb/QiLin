@@ -89,7 +89,7 @@ it('lists bundle versions and current-profile plugin targets', async () => {
       name: 'core', version: '1.0.0', meta: { title: 'core' }, enabled: true, installed: false, optional: false,
       official: false, availability: 'profile',
       updatable: true, removable: false, readOnlyReason: 'management-required',
-      rows: [{ rowId: 'manager', moduleName: 'cordis:manager', entryId: 'include:manager' }], overrides: [],
+      rows: [{ rowId: 'manager', moduleName: 'cordis:manager', entryId: 'include:manager', configurable: true }], overrides: [],
     },
     {
       name: 'extra', version: '1.0.0', meta: { title: 'extra' }, enabled: true, installed: true, optional: false,
@@ -231,6 +231,47 @@ it('turns a plugin off and on without duplicating patch overrides', async () => 
   expect(await manager.setPluginEnabled(id, false)).toMatchObject({ changed: false, application: 'applied' })
   expect(await manager.setPluginEnabled(id, true)).toMatchObject({ changed: true, application: 'applied' })
   expect(readFileSync(join(dir, 'cordis.patch.yml'), 'utf8').match(/id: managed/g)).toHaveLength(1)
+})
+it('reads a row config schema and persists a complete config override', async () => {
+  const { manager, dir } = await fixture()
+  const path = join(dir, 'node_modules', 'configured')
+  mkdirSync(path, { recursive: true })
+  writeFileSync(join(path, 'package.json'), JSON.stringify({
+    name: 'configured', version: '1.0.0', qilin: { bundle: { patch: './cordis.patch.yml' } },
+  }))
+  writeFileSync(join(path, 'cordis.patch.yml'), JSON.stringify([
+    { insert: [{ id: 'cfg-row', name: './plugin.mjs', config: { greeting: 'hi' } }] },
+  ]))
+  writeFileSync(join(path, 'plugin.mjs'), [
+    'export const Config = {',
+    '  "~standard": { validate: (config) => ({ value: config ?? {} }) },',
+    '  toJSON: () => ({ uid: 1, refs: { 1: { type: "string", meta: { default: "hi" } } } }),',
+    '}',
+    'export function apply(ctx, config) { ctx.provide("configProbe", config ?? {}) }',
+    '',
+  ].join('\n'))
+  const manifest = readProfileManifest('test', dir)
+  manifest.dependencies = { ...manifest.dependencies, configured: '1.0.0' }
+  writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+  await manager.setBundleEnabled('configured', true)
+  expect(await manager.bundleRowConfig('configured', 'cfg-row')).toEqual({
+    schema: { uid: 1, refs: { 1: { type: 'string', meta: { default: 'hi' } } } },
+    values: { greeting: 'hi' },
+  })
+  const result = await manager.setBundleConfig('configured', 'cfg-row', { greeting: 'bye', count: 2 })
+  expect(result).toMatchObject({ changed: true, application: 'applied', stage: 'configure' })
+  expect((await manager.bundleRowConfig('configured', 'cfg-row')).values).toEqual({ greeting: 'bye', count: 2 })
+  expect(readFileSync(join(dir, 'cordis.patch.yml'), 'utf8')).toContain('greeting: bye')
+  expect(() => manager.bundleRowConfig('configured', 'absent')).toThrow('unknown-plugin')
+  expect(() => manager.bundleRowConfig('extra', 'managed')).toThrow('row-not-running')
+  await manager.setBundleEnabled('configured', false)
+  expect(await manager.setBundleConfig('configured', 'cfg-row', {})).toMatchObject({ application: 'failed', error: { code: 'unaddressable' } })
+  expect(await manager.setBundleConfig('core', 'manager', {})).toMatchObject({ application: 'failed', error: { code: 'management-required' } })
+  await manager.setBundleEnabled('configured', true)
+  expect((await manager.bundleRowConfig('configured', 'cfg-row')).values).toEqual({ greeting: 'bye', count: 2 })
+  const cfgId = (await manager.listPlugins()).find(row => row.patchId === 'cfg-row')!.entryId
+  await manager.setPluginEnabled(cfgId, false)
+  expect((await manager.bundleRowConfig('configured', 'cfg-row')).values).toEqual({ greeting: 'bye', count: 2 })
 })
 
 it('retains installed dependencies when toggling a bundle and appends it when re-enabled', async () => {

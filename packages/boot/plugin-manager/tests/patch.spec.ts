@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { expect, it, onTestFinished } from 'vitest'
 import { applyEntryPatches } from '@qilin-agent/kylin-plugin-include'
 import { loadOptionalPatches } from '@qilin-agent/app-boot'
-import { writePluginEnabled } from '../src/patch.ts'
+import { writePluginConfig, writePluginEnabled } from '../src/patch.ts'
 
 async function fixture(text?: string): Promise<string> {
   const dir = await mkdtemp(join(tmpdir(), 'manager-patch-'))
@@ -81,4 +81,36 @@ it('updates the last matching named override and leaves mismatched names untouch
   expect(await readFile(file, 'utf8')).toBe(text)
   expect(await writePluginEnabled(file, 'tool', 'package', false)).toBe(true)
   expect(loadOptionalPatches('test', file)).toHaveLength(3)
+})
+it('replaces the last matching override config wholesale and preserves its syntax', async () => {
+  const file = await fixture('- id: tool\n  name: package\n  disabled: false # kept\n  config:\n    value: !!js process.platform\n')
+  expect(await writePluginConfig(file, 'tool', 'package', { value: 'literal', keep: true })).toBe(true)
+  const text = await readFile(file, 'utf8')
+  expect(text).toContain('# kept')
+  expect(loadOptionalPatches('test', file)).toEqual([
+    { id: 'tool', name: 'package', disabled: false, config: { value: 'literal', keep: true } },
+  ])
+  expect(await writePluginConfig(file, 'tool', 'package', { value: 'literal', keep: true })).toBe(false)
+  expect(await readFile(file, 'utf8')).toBe(text)
+})
+
+it('appends a config override after insertions for a row without one', async () => {
+  const file = await fixture('- insert:\n    - id: row\n      name: package\n')
+  await writePluginConfig(file, 'row', 'package', { on: true })
+  expect(loadOptionalPatches('test', file)).toEqual([
+    { insert: [{ id: 'row', name: 'package' }] }, { id: 'row', name: 'package', config: { on: true } },
+  ])
+})
+
+it.each(['- id: [broken', 'mapping: true\n'])('refuses malformed documents when writing configuration %s', async (text) => {
+  const file = await fixture(text)
+  await expect(writePluginConfig(file, 'tool', 'package', {})).rejects.toThrow()
+  expect(await readFile(file, 'utf8')).toBe(text)
+})
+it('writes config onto an override that has none yet', async () => {
+  const file = await fixture('- id: tool\n  name: package\n  disabled: false\n')
+  expect(await writePluginConfig(file, 'tool', 'package', { on: true })).toBe(true)
+  expect(loadOptionalPatches('test', file)).toEqual([
+    { id: 'tool', name: 'package', disabled: false, config: { on: true } },
+  ])
 })

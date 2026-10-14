@@ -32,7 +32,7 @@ import type { ClientRemote } from '@qilin-agent/api-gateway/client'
 
 export type { ClientRemote } from '@qilin-agent/api-gateway/client'
 export type {
-  BundleInfo, BundleRowInfo, ChangeResult, CommunityPluginEntry, CommunityPluginSnapshot, IncompatiblePlugin,
+  BundleInfo, BundleRowConfig, BundleRowInfo, ChangeResult, CommunityPluginEntry, CommunityPluginSnapshot, IncompatiblePlugin,
   InstallBundleOptions, InstallSpecKind,
   ManagementError, PackageResult, PluginChange, PluginEntryId, PluginInfo, PluginInspectProblem,
   PluginInstallCancellation,

@@ -6,10 +6,11 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { withFileLock, writeFileAtomic } from '@qilin-agent/atomic-write'
 import { Context } from '@qilin-agent/kylin'
-import type { EntryOptions } from '@qilin-agent/kylin-plugin-loader'
+import type { Entry, EntryOptions } from '@qilin-agent/kylin-plugin-loader'
 import type { PatchOptions } from '@qilin-agent/kylin-plugin-include'
 import z from '@qilin-agent/schemastery'
 import { TypertRemoteService, Remote } from '@qilin-agent/typert-protocol'
+import type { JsonValue } from '@qilin-agent/util-values'
 import { pluginEntryId, readPluginInventory } from '@qilin-agent/host-plugin-inventory'
 import {
   readPluginMeta, readProfileManifest, resolveBundleDir, loadOverlayPatches, composeEntries, reconcileProfilePatches,
@@ -28,13 +29,14 @@ import {
 import { classifyInstallFailure } from './install-failure.ts'
 import { InvalidInstallSpecError, dependencySpec, parseInstallSpec, type ParsedInstallSpec } from './install-spec.ts'
 import { checkGithubConnection } from './github-connection.ts'
-import { writePluginEnabled } from './patch.ts'
+import { writePluginConfig, writePluginEnabled } from './patch.ts'
 import { incompatiblePlugin, ManagementFailure } from './failure.ts'
 import { attributeFailure, NPMMIRROR_REGISTRY, normalizeRegistry, REGISTRY_URL, registryPlan } from './registry.ts'
 import { approveBuilds, readPendingBuilds } from './build-approval.ts'
 import type {
   ReadOnlyReason,
-  BundleInfo, BundleRowInfo, ChangeResult, CommunityPluginEntry, CommunityPluginSnapshot, InspectOptions, InstallBundleOptions,
+  BundleInfo, BundleRowConfig, BundleRowInfo, ChangeResult, CommunityPluginEntry, CommunityPluginSnapshot,
+  InspectOptions, InstallBundleOptions,
   ManagementError, PackageResult, PluginChange, PluginEntryId, PluginInfo, PluginInspectProblem, PluginInstallCancellation,
   PluginInstallProgress, PluginInstallRequestId, PluginRegistries, PluginSpecInspection, PluginUpdateEntry, PluginUpdateSnapshot, Registry,
 } from './types.ts'
@@ -522,6 +524,59 @@ export class PluginManager extends TypertRemoteService {
     }), { stage: 'enable', target: id, enabled }, 'plugin')
   }
 
+  /** Find the bundle row a patch declares and the live Loader entry it runs on.
+   * @param name Bundle package name.
+   * @param rowId The row id as the bundle patch declares it.
+   * @returns The declared row options with its live entry, or undefined when the bundle declares no such row.
+   */
+  private liveRow(name: string, rowId: string): { row: EntryOptions; entry: Entry | undefined } | undefined {
+    const row = this.bundleRows(name).find(item => item.id === rowId)
+    if (row === undefined) return undefined
+    // The Loader keeps one entry per row id; a resolved entry names the module it imports, not the patch literal.
+    const entry = [...this.ctx.loader.entries()].find(candidate => candidate.options.id === rowId)
+    return { row, entry }
+  }
+
+  /** Read one bundle row configuration schema and current values for the plugin page row form.
+   * @param name Bundle package name.
+   * @param rowId The row id as the bundle patch declares it.
+   * @returns The row module serialized schemastery Config and the values the row runs with.
+   * @throws {ManagementFailure} unknown-plugin when the bundle declares no such row, or row-not-running
+   * when the row module has not been imported: the schema ships with the module, so a stopped row has none.
+   */
+  @Remote
+  bundleRowConfig(name: string, rowId: string): BundleRowConfig {
+    const live = this.liveRow(name, rowId)
+    if (live === undefined) throw new ManagementFailure('unknown-plugin')
+    const schema: unknown = (this.ctx.loader.unwrapExports(live.entry?.moduleNamespace) as { Config?: unknown } | undefined)?.Config
+    if (typeof (schema as { toJSON?: unknown } | undefined)?.toJSON !== 'function') throw new ManagementFailure('row-not-running')
+    return {
+      schema: (schema as { toJSON(): JsonValue }).toJSON(),
+      values: (live.entry?.fiber?.config ?? live.row.config ?? {}) as JsonValue,
+    }
+  }
+
+  /** Persist one bundle row configuration override and apply it on live profiles.
+   * A patch override replaces the row declared config wholesale, so the caller sends the complete map.
+   * @param name Bundle package name.
+   * @param rowId The row id as the bundle patch declares it.
+   * @param config The complete configuration the row should run with.
+   * @returns Saved and runtime outcomes.
+   */
+  @Remote
+  setBundleConfig(name: string, rowId: string, config: JsonValue): Promise<ChangeResult> {
+    return this.change(result => this.configure(async () => {
+      const live = this.liveRow(name, rowId)
+      if (live === undefined) throw new ManagementFailure('unknown-plugin')
+      const entry = [...this.ctx.loader.entries()].find(candidate => candidate.options.id === rowId)
+      const target = entry === undefined ? undefined
+        : (await this.listPlugins()).find(item => item.entryId === entry.id)
+      if (target === undefined) throw new ManagementFailure('unaddressable')
+      if (target.readOnlyReason !== undefined) throw new ManagementFailure(target.readOnlyReason)
+      await writePluginConfig(this.profile.patchPath, target.patchId, target.moduleName, config as Record<string, unknown>)
+      result.warnings = await this.reload([target.patchId])
+    }), { stage: 'configure', target: name + '#' + rowId }, 'plugin')
+  }
   /** Select or remove a bundle layer while retaining installed dependencies.
    * @param name Bundle package name.
    * @param enabled Whether the bundle contributes its patch layer.
@@ -723,15 +778,26 @@ export class PluginManager extends TypertRemoteService {
     const patches: PatchOptions[] = loadOverlayPatches('qilin', join(dir, patch))
     // One entry per row id: the Loader keeps a single entry for an id, whichever layer declared it last.
     const live = new Map<string, PluginEntryId>()
+    const imports = new Map<string, Entry>()
     for (const entry of this.ctx.loader.entries()) {
       /* v8 ignore next -- the Loader gives every entry an id before it is listed */
-      if (typeof entry.options.id === 'string') live.set(entry.options.id, pluginEntryId(entry.id))
+      if (typeof entry.options.id === 'string') {
+        live.set(entry.options.id, pluginEntryId(entry.id))
+        imports.set(entry.options.id, entry)
+      }
     }
     const rows: BundleRowInfo[] = []
     for (const row of flatten(composeEntries([patches.filter(item => item.insert !== undefined)]))) {
       if (typeof row.id !== 'string' || typeof row.name !== 'string') continue
       const entryId = live.get(row.id)
-      rows.push({ rowId: row.id, moduleName: row.name, ...entryId === undefined ? {} : { entryId } })
+      const entry = imports.get(row.id)
+      const schema: unknown = (this.ctx.loader.unwrapExports(entry?.moduleNamespace) as { Config?: unknown } | undefined)?.Config
+      const configurable = typeof (schema as { toJSON?: unknown } | undefined)?.toJSON === 'function'
+      rows.push({
+        rowId: row.id, moduleName: row.name,
+        ...entryId === undefined ? {} : { entryId },
+        ...configurable ? { configurable: true } : {},
+      })
     }
     const declared = new Set(rows.map(row => row.rowId))
     const overrides = [...new Set(patches.flatMap(item =>

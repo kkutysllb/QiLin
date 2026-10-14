@@ -1,5 +1,6 @@
 /** Public plugin management records shared with clients. */
 import type { Branded } from '@qilin-agent/brand'
+import type { JsonValue } from '@qilin-agent/util-values'
 import type { PluginInventoryEntry } from '@qilin-agent/host-plugin-inventory/types'
 export type { PluginEntryId } from '@qilin-agent/host-plugin-inventory/types'
 import type { PluginEntryId } from '@qilin-agent/host-plugin-inventory/types'
@@ -19,7 +20,7 @@ export interface IncompatiblePlugin {
 
 /** Localizable management failure and optional external diagnostic. */
 export interface ManagementError {
-  code: ReadOnlyReason | 'unknown-plugin' | 'invalid-spec' | 'ambiguous-install' | 'not-bundle' | 'not-removable' | 'stop-profile' | 'bundle-in-use' | 'stale-approval' | 'incompatible-version' | 'operation-error'
+  code: ReadOnlyReason | 'unknown-plugin' | 'invalid-spec' | 'ambiguous-install' | 'not-bundle' | 'not-removable' | 'stop-profile' | 'bundle-in-use' | 'stale-approval' | 'incompatible-version' | 'operation-error' | 'row-not-running'
   diagnostic?: string
   /** Present with `incompatible-version`: the packages the running runtime version rejects. */
   incompatible?: IncompatiblePlugin[]
@@ -31,6 +32,14 @@ export type PluginInfo = PluginInventoryEntry & (
   | { patchId?: never; readOnlyReason: ReadOnlyReason }
 )
 
+/** One bundle row's configuration, read for the plugin page's row form. */
+export interface BundleRowConfig {
+  /** The row module's exported schemastery `Config`, in its structured JSON transport (`{ uid, refs }`). */
+  readonly schema: JsonValue
+  /** The values the row runs with: the live fiber config, or the patch-declared config when it has no fiber. */
+  readonly values: JsonValue
+}
+
 /** One row a bundle's patch declares, with its live entry while the bundle contributes it. */
 export interface BundleRowInfo {
   /** The row id as the patch declares it. */
@@ -39,6 +48,8 @@ export interface BundleRowInfo {
   moduleName: string
   /** The Loader entry carrying this row, when exactly one live entry has its id. */
   entryId?: PluginEntryId
+  /** Whether the row module exports a schemastery `Config` a form can render; only a row whose module has been imported can know. */
+  configurable?: boolean
 }
 
 /** One installed or installation-provided bundle. */
@@ -124,7 +135,7 @@ export interface ChangeResult {
   /** `cancelled` is an installation the caller stopped, its files restored. */
   application: 'applied' | 'restart-required' | 'overridden' | 'failed' | 'cancelled'
   /** Last attempted step; successful installation can proceed to enablement. */
-  stage: 'install' | 'enable' | 'remove'
+  stage: 'install' | 'enable' | 'remove' | 'configure'
   target: string
   enabled?: boolean
   error?: ManagementError
