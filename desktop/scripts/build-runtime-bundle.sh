@@ -118,15 +118,30 @@ zero_link_windows() {
     t="$(readlink -f -- "$l" 2>/dev/null || true)"
     [ -n "$t" ] && [ -e "$t" ] || continue
     [ -e "$root/$rel" ] && continue
-    mkdir -p "$(dirname "$root/$rel")"
-    if [ -d "$t" ]; then cp -R -- "$t" "$root/$rel"; else cp -pL -- "$t" "$root/$rel"; fi
+    mkdir -p "$root/$rel"
+    if [ -d "$t" ]; then
+      # 拷贝时**排除 node_modules**：目标包自带的 per-package node_modules 只装链接，
+      # 而 Windows 的 cp 遇到链接会直接失败（第 11 轮现场：cannot create symbolic
+      # link .../accounts-local/node_modules/...）。实测全树 node_modules 之外零链接
+      # ⇒ 排除后拷贝不可能再重建任何符号链接（这是构造性保证，不是概率）。
+      for entry in "$t"/* "$t"/.[!.]*; do
+        [ -e "$entry" ] || continue
+        base="${entry##*/}"
+        [ "$base" = "node_modules" ] && continue
+        cp -R -- "$entry" "$root/$rel/$base"
+      done
+    else
+      cp -pL -- "$t" "$root/$rel"
+    fi
     n=$((n+1))
   done < <(find "$src" -type l -print0)
   while IFS= read -r -d '' l; do
     t="$(readlink -f -- "$l" 2>/dev/null || true)"
     if [ -n "$t" ] && [ -f "$t" ]; then rm -f -- "$l"; cp -pL -- "$t" "$l" 2>/dev/null || true; f=$((f+1)); fi
   done < <(find "$src" -type l -print0)
-  while IFS= read -r -d '' l; do rm -f -- "$l" 2>/dev/null || rm -rf -- "$l" 2>/dev/null || true; d=$((d+1)); done < <(find "$src" -type l -print0)
+  # 删除链接只用 rm -f（= unlink，绝不递归）：MSYS 把 junction 视作链接，rm -rf 在
+  # 某些语义下会删进目标目录，那是灾难性的——宁可留下残余由下方断言拦下。
+  while IFS= read -r -d '' l; do rm -f -- "$l" 2>/dev/null || true; d=$((d+1)); done < <(find "$src" -type l -print0)
   left="$(find "$src" -type l | wc -l | tr -d ' ')"
   log "零链接化：摊平 $n 条、文件链接实体化 $f 条、清除残余链接 $d 条 ⇒ 剩余 $left 条"
   [ "$left" -eq 0 ] || die "零链接化失败：归档仍含 $left 条符号链接（Windows 解包会丢文件）"
