@@ -608,6 +608,26 @@ describe('loadProfile', () => {
     expect(readProfileManifest('t', custom)).toEqual(settled)
   })
 
+  it('drops a retired seeded layer through loadProfileDirectory for every loader', () => {
+    const anchor = stageInstallation({
+      '@qilin-agent/base': { patch: '[]\n' },
+      '@qilin-agent/web-app': { patch: '[]\n' },
+      'custom-bundle': { patch: '[]\n' },
+    })
+    // loadProfileDirectory takes no template name: application-owned loaders
+    // reach retirement through the profile directory's own name.
+    const home = tmp()
+    const dir = resolveProfileDir('web', home)
+    initProfile(dir, ['@qilin-agent/base', '@qilin-agent/web-app', 'dsh-animations', 'custom-bundle'])
+    writeProfileManifest(dir, { ...readProfileManifest('t', dir), dependencies: { 'custom-bundle': '^1.0.0' } })
+    const profile = loadProfileDirectory('t', dir, anchor)
+    expect(profile.layers.map(layer => layer.packageName)).toEqual(['@qilin-agent/base', '@qilin-agent/web-app', 'custom-bundle'])
+    expect(readProfileManifest('t', dir)).toMatchObject({
+      dependencies: { 'custom-bundle': '^1.0.0' },
+      qilin: { profile: { bundles: ['@qilin-agent/base', '@qilin-agent/web-app', 'custom-bundle'] } },
+    })
+  })
+
   it('keeps a retired layer the plugin channel gave the profile', () => {
     const anchor = stageInstallation({
       '@qilin-agent/base': { patch: '[]\n' },

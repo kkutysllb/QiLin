@@ -511,7 +511,7 @@ function SourceSection({ pkg, t }: { readonly pkg: PackageView; readonly t: Tran
 
 /**
  * One package's page: the crumb back to the list; its icon with its switch
- * and, for a package the profile installed, uninstall; its title beside its
+ * and, for a package the profile installed or a selection the Host can remove, uninstall; its title beside its
  * version tag, its beta tag, and its problem tag; the package name the title
  * stands for, which is what installs it elsewhere; its one-liner; the Host's
  * problem when it reports one; the configuration the bundle registered for
@@ -547,7 +547,7 @@ function PackageDetail({
         onBack={onBack}
         actions={(
           <div className={css.detailActions}>
-            {pkg.installed
+            {pkg.installed || pkg.removable
               ? (
                 <Button
                   variant="outline"

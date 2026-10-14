@@ -83,6 +83,8 @@ export interface PackageView {
   readonly description?: string
   /** Whether the profile's own dependencies hold the package; false for a bundle the installation supplies. */
   readonly installed: boolean
+  /** Whether the Host removes the bundle: a profile dependency, or a selection that neither the profile nor the installation holds. */
+  readonly removable: boolean
   /** Present for a profile dependency the installation does not also supply: the spec `pnpm add` accepts. */
   readonly source?: string
   /** Whether the installation ships the bundle for the person to switch on: official, off until selected, never removable. */
@@ -522,6 +524,7 @@ export function packageView(bundle: BundleInfo, plugins: readonly PluginInfo[]):
   return {
     name: bundle.name,
     installed: bundle.installed,
+    removable: bundle.removable,
     ...bundle.source === undefined ? {} : { source: bundle.source },
     optional: bundle.optional,
     updatable: bundle.updatable,

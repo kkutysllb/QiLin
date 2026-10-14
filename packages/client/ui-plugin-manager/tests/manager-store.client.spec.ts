@@ -497,7 +497,7 @@ describe('packageView', () => {
   it('joins a bundle with the entries its rows run as', () => {
     expect(packageView(BUNDLE, PLUGINS)).toEqual({
       name: 'qilin-better-sidebar', version: '0.16.0', description: 'A sidebar.',
-      installed: true, optional: false, updatable: true, enabled: false,
+      installed: true, optional: false, removable: true, updatable: true, enabled: false,
       rows: [
         { rowId: 'sidebar', moduleName: 'qilin-better-sidebar', entryId: ROW_ENTRY, enabled: true, phase: 'active' },
         { rowId: 'theme', moduleName: 'qilin-better-sidebar/theme', enabled: false, phase: null },
@@ -512,7 +512,7 @@ describe('packageView', () => {
       overrides: [],
     }
     expect(packageView(protectedBundle, PLUGINS)).toEqual({
-      name: '@qilin-agent/base', installed: false, optional: false, updatable: false, enabled: true,
+      name: '@qilin-agent/base', installed: false, optional: false, removable: false, updatable: false, enabled: true,
       readOnlyReason: 'management-required',
       error: { code: 'operation-error', diagnostic: 'broken' },
       rows: [

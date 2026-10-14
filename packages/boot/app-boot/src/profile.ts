@@ -1041,6 +1041,38 @@ function normalizeShippedProfile(name: string, dir: string, manifest: ProfileMan
 }
 
 /**
+ * Remove names an installation-owned tuple of this profile once seeded and the
+ * shipped template no longer carries, unless the profile owns the package (a
+ * `dependencies` entry) or records a presentation choice for it (an `audiences`
+ * entry). {@link loadProfileDirectory} applies this to every loader, not only
+ * {@link loadProfile}; the manifest is written only when a name was dropped.
+ */
+function dropRetiredProfileBundles(dir: string, manifest: ProfileManifest): ProfileManifest {
+  const installationOwned = INSTALLATION_OWNED_PROFILE_TUPLES[basename(dir)]
+  const template = PROFILE_TEMPLATES[basename(dir)]
+  const bundles = profileDeclarationOf(manifest)?.profile?.bundles
+  if (installationOwned === undefined || bundles === undefined) return manifest
+  const retired = installationOwned.filter(name => !template?.bundles.includes(name))
+  if (retired.length === 0) return manifest
+  const dependencies = new Set(Object.keys(manifest.dependencies ?? {}))
+  const audiences = manifest.qilin?.profile?.audiences ?? {}
+  const kept = bundles.filter(entry =>
+    !retired.includes(entry) || dependencies.has(entry) || Object.hasOwn(audiences, entry))
+  if (kept.length === bundles.length) return manifest
+  const normalized: ProfileManifest = {
+    ...manifest,
+    qilin: {
+      ...manifest.qilin,
+      profile: {
+        ...manifest.qilin?.profile,
+        bundles: kept,
+      },
+    },
+  }
+  writeProfileManifest(dir, normalized)
+  return normalized
+}
+/**
  * Resolve a package's root directory from one anchor without depending on the
  * package exporting `./package.json` (`require.resolve` would need that):
  * probe the require resolution paths for a directory holding the named
@@ -1287,7 +1319,7 @@ export function loadProfileDirectory(
   installAnchor: string,
   options: { userLayer?: boolean } = {},
 ): Profile {
-  const manifest = readProfileManifest(binName, dir)
+  const manifest = dropRetiredProfileBundles(dir, readProfileManifest(binName, dir))
   const bundles = profileDeclarationOf(manifest)?.profile?.bundles ?? []
   const exemptions = bundles.length === 0 ? {} : readProfileVersionExemptions(dir)
   const layers = bundles.map((packageName): ProfileLayer => {

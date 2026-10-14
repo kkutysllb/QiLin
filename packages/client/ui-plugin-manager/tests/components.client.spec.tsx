@@ -27,6 +27,7 @@ function pkg(overrides: Partial<PackageView> = {}): PackageView {
     version: '0.16.0',
     installed: true,
     optional: false,
+    removable: true,
     updatable: true,
     enabled: true,
     rows: [],
@@ -451,12 +452,12 @@ describe('PluginManagerPage', () => {
       packages: [
         pkg({ description: 'A sidebar.' }),
         pkg({ name: 'qilin-broken', enabled: false, error: { code: 'not-bundle' } }),
-        pkg({ name: '@qilin-agent/web-app', installed: false }),
+        pkg({ name: '@qilin-agent/web-app', installed: false, removable: false }),
         pkg({ name: 'qilin-protected', readOnlyReason: 'management-required' }),
         pkg({ name: '@acme/qilin-tool', enabled: false }),
         // Selected by the profile but not a bundle: a problem the person can switch off, in the profile's own group.
         pkg({ name: 'qilin-selected', installed: false, error: { code: 'not-bundle' } }),
-        pkg({ name: '@qilin-agent/experimental-agent-team-profile', installed: false, optional: true, enabled: false }),
+        pkg({ name: '@qilin-agent/experimental-agent-team-profile', installed: false, optional: true, removable: false, enabled: false }),
       ],
       busy: ['qilin-protected'],
     })
@@ -497,7 +498,7 @@ describe('PluginManagerPage', () => {
         ].map(name => pkg({ name })),
         pkg({ name: '@acme/qilin-base', readOnlyReason: 'management-required' }),
         pkg({ name: 'qilin-better-sidebar' }),
-        pkg({ name: '@qilin-agent/experimental-agent-team-profile', installed: false, optional: true }),
+        pkg({ name: '@qilin-agent/experimental-agent-team-profile', installed: false, optional: true, removable: false }),
       ],
     })
     expect(screen.getAllByRole('listitem').map(card => card.getAttribute('data-plugin-package'))).toEqual([
@@ -511,7 +512,7 @@ describe('PluginManagerPage', () => {
     // problem the Host reports; it is not profile-installed, optional, or updatable.
     renderTab({
       packages: [pkg({
-        name: '@qilin-agent/web-brand', installed: false, updatable: false,
+        name: '@qilin-agent/web-brand', installed: false, removable: false, updatable: false,
         error: { code: 'operation-error', diagnostic: 'Unreadable bundle' },
       })],
     })
@@ -521,7 +522,7 @@ describe('PluginManagerPage', () => {
 
   it('shows a card for a shipped layer the profile owns and locks its layer switch with the reason', () => {
     renderTab({
-      packages: [pkg({ name: 'dsh-animations', installed: false, optional: false, version: '1.2.3', readOnlyReason: 'shipped-layer' })],
+      packages: [pkg({ name: 'dsh-animations', installed: false, optional: false, removable: false, version: '1.2.3', readOnlyReason: 'shipped-layer' })],
     })
     // The layer is not profile-installed and not optional, so it reaches the list
     // only through `updatable`.
@@ -552,7 +553,7 @@ describe('PluginManagerPage', () => {
 
   it('opens an official bundle\'s page with its beta tag and no uninstall, and switches it on', () => {
     const { actions } = renderTab({
-      packages: [pkg({ name: '@qilin-agent/experimental-agent-team-profile', installed: false, optional: true, enabled: false })],
+      packages: [pkg({ name: '@qilin-agent/experimental-agent-team-profile', installed: false, optional: true, removable: false, enabled: false })],
     })
     fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', en.builtinAgentTeamTitle) }))
     const detail = document.querySelector('[data-plugin-detail]') as HTMLElement
@@ -601,9 +602,9 @@ describe('PluginManagerPage', () => {
   it('names where a bundle comes from, built in for one whose copy the installation supplies, and nothing for a missing one', () => {
     renderTab({ packages: [
       pkg({ source: 'github:someone/dsh-better-sidebar' }),
-      { name: 'qilin-official', installed: false, optional: true, enabled: false, updatable: false, rows: [] },
-      { name: 'qilin-shadowed', installed: true, optional: false, enabled: true, updatable: false, rows: [] },
-      { name: 'qilin-missing', installed: false, optional: false, enabled: true, updatable: false, error: { code: 'unknown-plugin' }, rows: [] },
+      { name: 'qilin-official', installed: false, optional: true, removable: false, enabled: false, updatable: false, rows: [] },
+      { name: 'qilin-shadowed', installed: true, optional: false, removable: false, enabled: true, updatable: false, rows: [] },
+      { name: 'qilin-missing', installed: false, optional: false, removable: true, enabled: true, updatable: false, error: { code: 'unknown-plugin' }, rows: [] },
     ] })
     const facts = (): string[] => [...document.querySelectorAll('[data-plugin-source] dt, [data-plugin-source] dd')].map(node => node.textContent)
     const back = (): void => { fireEvent.click(screen.getByRole('button', { name: en.backToList })) }
@@ -648,7 +649,7 @@ describe('PluginManagerPage', () => {
 
     it('lists an official plugin after the official bundles with its summary, and opens its page', () => {
       renderTab(
-        { packages: [pkg({ name: '@qilin-agent/experimental-agent-team-profile', installed: false, optional: true, enabled: false })] },
+        { packages: [pkg({ name: '@qilin-agent/experimental-agent-team-profile', installed: false, optional: true, removable: false, enabled: false })] },
         { items: [{ id: 'bash', label: 'Shell' }] },
         bodies,
       )

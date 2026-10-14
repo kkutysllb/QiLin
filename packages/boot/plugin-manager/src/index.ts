@@ -303,9 +303,14 @@ export class PluginManager extends TypertRemoteService {
     for (const name of names) {
       const installed = dependencies.includes(name)
       const optional = OPTIONAL_BUNDLES.includes(name)
+      const enabled = selected.includes(name)
       const updatable = profileLayerUpdatable(name, builtIn)
       const shipped = Object.hasOwn(installation.dependencies ?? {}, name)
-      const removable = installed && !shipped
+      // Bundle resolution reads the installation first, so a profile dependency the installation manifest also
+      // names, like one it forbids removing, is not the loaded copy.
+      const owned = installed && !shipped
+      // A selection neither the profile nor the installation holds, such as a retired bundle, is removed by deselecting it.
+      const removable = owned || (enabled && !installed && !shipped)
       const offered = catalog.get(name)
       const official = optional || offered !== undefined
       let target: Pick<BundleInfo, 'installTarget'> = {}
@@ -318,8 +323,7 @@ export class PluginManager extends TypertRemoteService {
       // Bundle resolution reads the installation first, so a profile dependency the installation manifest also
       // names, like one it forbids removing, is not the loaded copy.
       const sourceOf = (packageName?: string): { source?: string } =>
-        removable ? { source: dependencySpec(name, recorded[name] as string, this.profile.dir, packageName) } : {}
-      const enabled = selected.includes(name)
+        owned ? { source: dependencySpec(name, recorded[name] as string, this.profile.dir, packageName) } : {}
       if (offered !== undefined && !installed && !shipped) {
         // A catalog entry the installation does not carry is discoverable offline: pnpm has not read it yet,
         // so only the entry's own metadata and target are known.
@@ -673,17 +677,21 @@ export class PluginManager extends TypertRemoteService {
     return { status: 'cancelled' }
   }
 
-  /** Unload and remove a profile-owned bundle dependency through qilin plugin's pnpm path.
-   * @param name Installed dependency name.
+  /** Unload and remove a profile-owned bundle dependency through qilin plugin's pnpm path; a selected name no
+   * dependency holds is only deselected.
+   * @param name Installed dependency or selected bundle name.
    * @returns Removal diagnostics and the remaining profile state.
    */
   @Remote
   removeBundle(name: string): Promise<ChangeResult> {
     return this.change(async (result) => {
-      await this.configure(async () => {
+      const installed = await this.configure(async () => {
         const bundle = (await this.listBundles()).find(item => item.name === name)
         if (bundle === undefined || !bundle.removable) throw new ManagementFailure('not-removable')
-        if (this.ownerContext.get('hmr') === undefined && (this.profile.startedBundles.includes(name)
+        // An unreadable selection has no rows that could be running, so the
+        // running check would only re-resolve a package the inventory already failed.
+        if (this.ownerContext.get('hmr') === undefined && bundle.error === undefined
+          && (this.profile.startedBundles.includes(name)
           || this.bundleRows(name).some(row => [...this.ctx.loader.entries()]
             .some(entry => entry.options.id === row.id && entry.fiber !== undefined)))) {
           throw new ManagementFailure('stop-profile')
@@ -697,7 +705,9 @@ export class PluginManager extends TypertRemoteService {
           && contributions.some(row => row.id === entry.options.id && row.name === entry.options.name))) {
           throw new ManagementFailure('bundle-in-use')
         }
+        return bundle.installed
       })
+      if (!installed) return
       result.packageResult = await this.runPnpm(['remove', name])
       if (result.packageResult.exitCode !== 0) throw new Error(result.packageResult.output)
       await this.configure(() => this.refreshPackages())
@@ -806,7 +816,15 @@ export class PluginManager extends TypertRemoteService {
       }
     }
     if (!enabled && previous.includes(name)) {
-      if (this.protectsManager(name)) throw new ManagementFailure('management-required')
+      // A selected name no readable bundle backs cannot host the manager, so the
+      // protection check must not re-resolve a package the inventory already failed.
+      let readable = true
+      try {
+        readable = bundleManifest(name, this.profile.dir, this.profile.installAnchor) !== undefined
+      } catch {
+        readable = false
+      }
+      if (readable && this.protectsManager(name)) throw new ManagementFailure('management-required')
     }
     const bundles = enabled ? [...previous, ...previous.includes(name) ? [] : [name]] : previous.filter(item => item !== name)
     if (JSON.stringify(previous) === JSON.stringify(bundles)) return
