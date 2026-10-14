@@ -123,6 +123,24 @@ Manage profile files and apply their declared reload lifecycle.
  */
 @Remote setPluginEnabled(id: PluginEntryId, enabled: boolean): Promise<ChangeResult>
 
+/** Read one bundle row configuration schema and current values for the plugin page row form.
+ * @param name Bundle package name.
+ * @param rowId The row id as the bundle patch declares it.
+ * @returns The row module serialized schemastery Config and the values the row runs with.
+ * @throws {ManagementFailure} unknown-plugin when the bundle declares no such row, or row-not-running
+ * when the row module has not been imported: the schema ships with the module, so a stopped row has none.
+ */
+@Remote bundleRowConfig(name: string, rowId: string): BundleRowConfig
+
+/** Persist one bundle row configuration override and apply it on live profiles.
+ * A patch override replaces the row declared config wholesale, so the caller sends the complete map.
+ * @param name Bundle package name.
+ * @param rowId The row id as the bundle patch declares it.
+ * @param config The complete configuration the row should run with.
+ * @returns Saved and runtime outcomes.
+ */
+@Remote setBundleConfig(name: string, rowId: string, config: JsonValue): Promise<ChangeResult>
+
 /** Select or remove a bundle layer while retaining installed dependencies.
  * @param name Bundle package name.
  * @param enabled Whether the bundle contributes its patch layer.
@@ -150,8 +168,9 @@ Manage profile files and apply their declared reload lifecycle.
  */
 @Remote async cancelInstall(requestId: PluginInstallRequestId): Promise<PluginInstallCancellation>
 
-/** Unload and remove a profile-owned bundle dependency through qilin plugin's pnpm path.
- * @param name Installed dependency name.
+/** Unload and remove a profile-owned bundle dependency through qilin plugin's pnpm path; a selected name no
+ * dependency holds is only deselected.
+ * @param name Installed dependency or selected bundle name.
  * @returns Removal diagnostics and the remaining profile state.
  */
 @Remote removeBundle(name: string): Promise<ChangeResult>

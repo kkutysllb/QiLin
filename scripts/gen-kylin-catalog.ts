@@ -88,7 +88,7 @@ export const SERVICE_PAGE: Record<string, string> = {
   fs: 'filesystem.md',
   goals: 'goal.md',
   schedule: 'schedule.md',
-  inspector: 'extensions.md',
+
   webServer: 'web-server.md',
   llm: 'llm-streaming.md',
   lsp: 'lsp.md',
@@ -300,6 +300,7 @@ export const LINK_MAP: Readonly<Record<string, string>> = {
   Registry: 'boot.md',
   PluginEntryId: 'boot.md',
   BundleRowInfo: 'boot.md',
+  BundleRowConfig: 'boot.md',
   PluginInstallCancellation: 'boot.md',
   PluginInstallRequestId: 'boot.md',
   PluginSpecInspection: 'boot.md',
