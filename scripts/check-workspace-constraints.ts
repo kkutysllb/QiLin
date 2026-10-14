@@ -236,6 +236,10 @@ export function expectedQilinPackageFiles(manifest: PackageManifest): readonly s
   ]
   return [
     ...typeof manifest.icon === 'string' ? [manifest.icon.replace(/^\.\//u, '')] : [],
+    // Any `./…icon` export names an image the display reader may load, so
+    // publication carries it beside the manifest icon declaration.
+    ...Object.entries(manifest.exports ?? {}).filter(([key]) => /^\.\/(?:.+\/)?icon$/u.test(key))
+      .flatMap(([, target]) => exportTargetsOf(target)).filter(icon => icon.startsWith('./')).map(icon => icon.slice(2)),
     ...[...localeFiles].sort(),
     'lib/index.js',
     // Packages with an invariant export publish its runtime as a separate
@@ -290,6 +294,14 @@ function hasExportPair(
     && entry !== null
     && entry.types === types
     && entry.default === runtime
+}
+
+/** Every file path an export target names: strings, fallback lists, and conditional maps. */
+function exportTargetsOf(target: unknown): readonly string[] {
+  if (typeof target === 'string') return [target]
+  if (Array.isArray(target)) return target.flatMap(exportTargetsOf)
+  if (typeof target === 'object' && target !== null) return Object.values(target).flatMap(exportTargetsOf)
+  return []
 }
 
 /** Runtime target of an export entry: conditional `default`, or the bare-string shorthand. */

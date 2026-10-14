@@ -3,5 +3,18 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "qilin": { "bundle": { "patch": "./cordis.patch.yml" } }
+  "exports": {
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg"
+  ],
+  "qilin": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
 }

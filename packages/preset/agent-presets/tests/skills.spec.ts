@@ -6,7 +6,7 @@
 
 import { execFileSync } from 'node:child_process'
 import { readdirSync, readFileSync, statSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, matchesGlob } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { codePointLength } from '@qilin-agent/compaction-tool-result-pruner'
 import { entryListSchema } from '@qilin-agent/kylin-plugin-include'
@@ -79,6 +79,37 @@ describe('the shipped creator skills', () => {
         // A skill's resource base is provider-owned and may be a URL or an opaque
         // handle, so only the file tools are guaranteed to reach its resources.
         expect(text, file).not.toMatch(/`(cat|cp|ls) /)
+      }
+    }
+  })
+
+  it('ships discoverable, exported, packaged display resources with every plugin template', () => {
+    const templates = join(skills, 'cordis-plugin-development', 'templates')
+    for (const name of readdirSync(templates)) {
+      const dir = join(templates, name)
+      const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')) as {
+        exports: Record<string, string> & { './icon': string }
+        files: string[]
+        qilin: { bundle: { patch: string } }
+      }
+      expect(manifest).not.toHaveProperty('icon')
+      expect(manifest.exports['./locale/*.json']).toBe('./locale/*.json')
+      // The package-meta gate validates these resources through the real metadata reader.
+      expect(manifest.exports['./icon']).toBe('./icon.svg')
+      const locales = readdirSync(join(dir, 'locale')).map(file => `locale/${file}`)
+      expect(locales).toContain('locale/en.json')
+      for (const file of locales) {
+        const locale = JSON.parse(readFileSync(join(dir, file), 'utf8')) as { meta: { title: string; description: string } }
+        expect(locale.meta.title).toMatch(/\S/u)
+        expect(locale.meta.description).toMatch(/\S/u)
+      }
+      const resources = new Set([...Object.values(manifest.exports).filter(file => !file.includes('*')),
+        ...locales, manifest.qilin.bundle.patch])
+      for (const resource of resources) {
+        const file = resource.replace(/^\.\//u, '')
+        expect(body('cordis-plugin-development'), file).toContain(`\`templates/${name}/${file}\``)
+        expect(statSync(join(dir, file)).isFile(), file).toBe(true)
+        if (file !== 'package.json') expect(manifest.files.some(pattern => matchesGlob(file, pattern)), file).toBe(true)
       }
     }
   })

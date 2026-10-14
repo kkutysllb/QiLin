@@ -181,6 +181,12 @@ describe('package payload constraints', () => {
     ])
   })
 
+  it('includes manifest, root, and subpath exported icon targets', () => {
+    expect(expectedQilinPackageFiles({ icon: './legacy.svg', exports: { './icon': './fallback.svg', './search/icon': './search.svg' } })).toEqual([
+      'legacy.svg', 'fallback.svg', 'search.svg', 'lib/index.js', 'lib/types/**/*.d.ts',
+    ])
+  })
+
   it.each([
     { exports: { './locale/*.json': './locale/*.json' }, resources: ['locale/*.json'] },
     { exports: { './search/locale/*.json': './resources/search/*.json' }, resources: ['resources/search/*.json'] },
