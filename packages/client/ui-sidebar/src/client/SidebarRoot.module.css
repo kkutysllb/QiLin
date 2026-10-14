@@ -109,8 +109,7 @@
 :global([data-windows-titlebar]) .collapsed .newSession {
   width: 28px;
   height: 28px;
-  border-radius: 50%;
-  corner-shape: round;
+  border-radius: var(--qilin-radius-sm);
   color: var(--qilin-alias-label-secondary);
 }
 
