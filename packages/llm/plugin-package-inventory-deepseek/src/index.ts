@@ -155,6 +155,7 @@ async function collectActivePluginPackages(
   ctx: Context,
   resolver: PackageIdentityResolver,
   hostBaseUrl: string,
+  unreadable: Set<string>,
   sessionId?: string,
 ): Promise<DeepSeekPluginPackageIdentity[]> {
   const entries = activeEntries(ctx.loader)
@@ -176,7 +177,11 @@ async function collectActivePluginPackages(
     try {
       identity = resolver.resolve(activeEntry)
     } catch (error) {
-      ctx.logger.warn('plugin-package-inventory-deepseek: omitting unreadable package identity for %s: %o', activeEntry.entry.options.name, error)
+      const moduleName = activeEntry.entry.options.name
+      if (!unreadable.has(moduleName)) {
+        unreadable.add(moduleName)
+        ctx.logger.warn('plugin-package-inventory-deepseek: omitting unreadable package identity for %s: %o', moduleName, error)
+      }
       continue
     }
     if (identity === undefined) continue
@@ -196,11 +201,13 @@ export function apply(ctx: Context, config: Config): void {
   if (config.enabled === false) return
   const hostBaseUrl = ctx.baseUrl ?? import.meta.url
   const resolver = new PackageIdentityResolver(hostBaseUrl, ctx.get('pluginPackages'))
+  // Unreadable identities are re-resolved on every request; log each module once.
+  const unreadable = new Set<string>()
   ctx.deepseekLlmApiExtensions.register('qilin_plugin_packages', {
     prepare: async (request) => {
       const value: DeepSeekPluginPackageInventoryExtension = {
         version: 1,
-        packages: await collectActivePluginPackages(ctx, resolver, hostBaseUrl, request.sessionId),
+        packages: await collectActivePluginPackages(ctx, resolver, hostBaseUrl, unreadable, request.sessionId),
       }
       return { value }
     },
