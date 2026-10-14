@@ -206,11 +206,11 @@ describe('web-app runtime glue', () => {
     const openBrowser = vi.fn(async (url: string) => { lifecycle.push(`open:${url}`) })
     internals.openBrowser = openBrowser
     apply(ctx, new Config({
+      label: 'qilin web',
       openBrowser: true,
       printUrl: true,
       surfaceContext: true,
       publicUrl: 'https://proxy.example:8443/web',
-      trustedHosts: ['proxy.example:8443'],
     }))
     await ctx.plugin(SystemPrompt, { personaPrefix: '' })
     await vi.waitFor(() => { expect(openBrowser).toHaveBeenCalled() })
@@ -318,7 +318,7 @@ describe('web-app runtime glue', () => {
     ctx.provide('webServer', fakeHttpServer().server)
     provideConnection(ctx)
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    apply(ctx, new Config({ openBrowser: false, printUrl: true, surfaceContext: false, publicUrl: null as never, trustedHosts: [] }))
+    apply(ctx, new Config({ label: 'qilin web', openBrowser: false, printUrl: true, surfaceContext: false, publicUrl: null as never }))
     await vi.waitFor(() => { expect(log).toHaveBeenCalledWith('qilin web: http://127.0.0.1:4567/?token=test-token') })
   })
 

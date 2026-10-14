@@ -243,6 +243,7 @@ function standaloneProps(
   })
   const inputActions: InputActions = {
     captureInsertion: () => ({ start: 0, end: 0, draftRev: 0 }),
+    persistDraft: () => {},
     insertText: () => false,
     setDraft: () => {},
     addAttachments: () => false,
@@ -394,6 +395,7 @@ function mount(
   }))
   const inputActions: InputActions = {
     captureInsertion: () => ({ start: 0, end: 0, draftRev: 0 }),
+    persistDraft: vi.fn(),
     insertText: () => false,
     setDraft: vi.fn(),
     addAttachments: vi.fn(() => false),
