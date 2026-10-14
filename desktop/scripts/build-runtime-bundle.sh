@@ -120,15 +120,19 @@ zero_link_windows() {
     [ -e "$root/$rel" ] && continue
     mkdir -p "$root/$rel"
     if [ -d "$t" ]; then
-      # 拷贝时**排除 node_modules**：目标包自带的 per-package node_modules 只装链接，
-      # 而 Windows 的 cp 遇到链接会直接失败（第 11 轮现场：cannot create symbolic
-      # link .../accounts-local/node_modules/...）。实测全树 node_modules 之外零链接
-      # ⇒ 排除后拷贝不可能再重建任何符号链接（这是构造性保证，不是概率）。
+      # 拷贝两条铁律（第 11/12 轮两轮现场换来）：
+      # ① **排除 node_modules**：目标包自带的 per-package node_modules 只装链接；
+      # ② **必须 -L 解引用**：cp -R 会原样重建源里的符号链接，Windows 无建链特权
+      #    即失败——且链接可能在任意深度（第 12 轮现场：apps/cli/tests/profiles/
+      #    acp/cordis.yml 夹具链接，条目级排除救不了）。-L 拷出来的是**内容**，
+      #    Windows 上不存在建链动作。环风险已清点：全树唯一的目录链接
+      #    .claude/skills 不在任何包目录内（拷贝源只能是包目录），文件链接解引用
+      #    即内容；悬空链接已被上方剪枝清空 ⇒ -L 不会遇到 cannot stat。
       for entry in "$t"/* "$t"/.[!.]*; do
-        [ -e "$entry" ] || continue
+        [ -e "$entry" ] || [ -L "$entry" ] || continue
         base="${entry##*/}"
         [ "$base" = "node_modules" ] && continue
-        cp -R -- "$entry" "$root/$rel/$base"
+        cp -RL -- "$entry" "$root/$rel/$base"
       done
     else
       cp -pL -- "$t" "$root/$rel"
