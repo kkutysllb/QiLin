@@ -71,7 +71,8 @@ fs.writeFileSync(p, JSON.stringify(m, null, 2) + "\n")
 # SeCreateSymbolicLinkPrivilege（CI 与普通用户机器都没有）——运行时归档在用户
 # 首启解压时就会失败（2026-10-13 CI 现场：bsdtar 解包 6200+ symlink 直接失败）。
 # hoisted 布局是真实文件树，三平台语义一致；仅 Windows 换，mac/Linux 保持已验证
-# 的 symlink 形态不动。
+# 的 symlink 形态不动。（归档层面三平台统一由下方「链接物化」步清零——安装布局
+# 与归档布局是两回事，Windows 归档若带链接，CI 解包与用户首启都过不去。）
 case "$(uname -s)" in
   MINGW*|MSYS*|CYGWIN*) PROD_LINKER="--config.node-linker=hoisted --config.symlink=false" ;;
   *) PROD_LINKER="" ;;
@@ -88,6 +89,24 @@ find "$SRC" -type l | while IFS= read -r l; do
   [ -e "$l" ] || rm -f -- "$l"
 done
 log "悬挂链接剪枝完成：闭包内不再有解析不到的符号链接"
+
+# 链接物化：把闭包内**残留的活链接**替换为实体拷贝。仅靠 hoisted + symlink=false
+# 不够——它只收根 node_modules；pnpm 对 workspace 依赖（apps/cli/node_modules/
+# @qilin-agent/* → packages/*）与 .bin 垫片照建 symlink（2026-10-14 第 8 轮
+# Windows 现场：归档带链接、Windows 解包静默丢弃 → bin.js 启动即
+# ERR_MODULE_NOT_FOUND，而悬空断言零命中——因为一个链接都没建出来）。
+# 物化放在预签与 tar 之前：三平台归档从此**零符号链接**，Windows CI 解包与
+# 用户首启解压都不再依赖任何特权；目录级整树复制只发生在这一步、条数有限
+# （workspace 链接 + .bin 垫片，量级几百），不会重现当年 tar -h 的整树爆炸。
+LINKED=0
+while IFS= read -r -d '' l; do
+  t="$(readlink -f -- "$l")" || { log "物化跳过（readlink 失败）：$l"; continue; }
+  [ -e "$t" ] || continue
+  rm -f -- "$l"
+  if [ -d "$t" ]; then cp -RL -- "$t" "$l"; else cp -pL -- "$t" "$l"; fi
+  LINKED=$((LINKED+1))
+done < <(find "$SRC" -type l -print0)
+log "链接物化完成：$LINKED 条活链接 → 实体拷贝；闭包零符号链接"
 
 # 4) 闭包预签：公证服务会扫描包内嵌套归档（app → extraResources tar →
 #    node_modules），闭包里每个 Mach-O 都须带 Developer ID 签名 + 安全
@@ -134,7 +153,8 @@ if command -v cygpath >/dev/null 2>&1; then SRC_TAR="$(cygpath -u "$SRC")"; else
 # 主机，报 Cannot connect to D:）。进 staging 目录用相对文件名写归档；
 # Node / shasum 侧继续用原生 BUNDLE 路径（它们认原生形态）。
 # （-h 解引用方案已弃：目录符号链接会被整树复制，tar 直接超时。闭包的无链接化
-# 由上方 pnpm 的 hoisted + symlink=false 完成——bin/workspace 链接一律用拷贝。）
+# 由上方「悬挂链接剪枝 + 链接物化」两步完成——hoisted+symlink=false 只收根
+# node_modules，workspace/.bin 链接是第 8 轮现场证实的漏网之鱼，物化步兜底。）
 ( cd "$STAGING" && tar -czf qilin-runtime.tar.gz -C "$SRC_TAR" \
   --exclude='.git' \
   --exclude='.github' \
