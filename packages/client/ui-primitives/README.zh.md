@@ -45,7 +45,7 @@ kind: "package-library"
 | `Pill` | 可选中的胶囊按钮，用于视图切换与筛选器；接受 `active` 与 `onClick`。 |
 | `Tag` | 只读胶囊徽章；`tone` 选择八种配色之一。 |
 | `PathLabel` | 单行文件路径：目录弱化、文件名为主要信息、悬停时显示完整路径。放得下时左对齐；被裁剪时保留尾部并在左缘渐隐，路径或尺寸变化都会重新判定。 |
-| `StateDot` | 状态标记：`done`、`warning`、`ongoing`、`error` 或 `idle`。它是 `aria-hidden` 的，名称由渲染点提供。 |
+| `StateDot` | 状态标记：`done`、`warning`、`ongoing`、`error` 或 `idle`。`ongoing` loading 的动画在挂载时以及每次动画重启（如列表重排）时固定到文档时间零点，所以所有可见 loading 同相动画。它是 `aria-hidden` 的，名称由渲染点提供。 |
 | `ConnectionIndicator` | 行内连接恢复控件，覆盖断线、重试与已恢复三种状态。 |
 | `DisclosureRow` | 24px 紧凑折叠行，标题与内容左右排列。 |
 | `CommandText` | 一行命令文本：仅在横向溢出时才获得 Tab 停靠、group 角色与可访问名。 |
