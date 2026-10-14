@@ -92,7 +92,7 @@ const SEND_VALUE_SCHEMA = {
   type: 'object',
   additionalProperties: false,
   properties: {
-    messageId: { type: 'string', required: true },
+    sent: { type: 'boolean', required: true, const: true },
   },
 } as const
 
@@ -205,12 +205,13 @@ function install(agent: Agent, ctx: Context, config: Required<Config>): () => vo
         message: { type: 'string', required: true, description: 'Self-contained message for the target.' },
       },
       output: jsonOutput(SEND_VALUE_SCHEMA),
-      execute(args, exec) {
-        return ctx.agentTeams.sendMessage(callingAgent(exec.agent, 'send_message'), {
+      async execute(args, exec) {
+        await ctx.agentTeams.sendMessage(callingAgent(exec.agent, 'send_message'), {
           target: args.target,
           content: [{ type: 'text', text: args.message }],
           signal: exec.signal,
         })
+        return { sent: true }
       },
     })))
 
