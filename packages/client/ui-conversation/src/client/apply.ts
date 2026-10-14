@@ -324,7 +324,7 @@ export function apply(ctx: Context, config: Config = Config({})): void {
       selectWorkspace: workspaceId => workspaceNavigation.openWorkspace(workspaceId, (nextId) => {
         if (sessionId !== undefined && nextId !== sessionId) {
           const from = inputHub.shell(sessionId)
-          const draft = from.snapshot.draft
+          const draft = from.draftSnapshot
           const attachmentIds = from.snapshot.attachmentIds
           const next = inputHub.shell(nextId)
           if (attachmentIds.length === 0 || next.addAttachments(attachmentIds)) {
@@ -332,7 +332,7 @@ export function apply(ctx: Context, config: Config = Config({})): void {
               throw new Error(`ui-conversation: session "${nextId}" resolved no binding`)
             }
             concreteConversation(ctx).rebindDraftFiles(nextId, attachmentIds)
-            if (draft !== '') {
+            if (draft.text !== '') {
               next.setDraft(draft)
               from.setDraft('')
             }
@@ -353,7 +353,7 @@ export function apply(ctx: Context, config: Config = Config({})): void {
     store: conversationStore,
     inject: (sessionId: SessionId, actions: BoundActions<typeof conversationStore>): ConversationSessionInjected => ({
       hooks: { conversationViews },
-      bindDraftMirror: write => inputHub.shell(sessionId).bindMirror(write),
+      bindDraftPersistence: write => inputHub.shell(sessionId).bindDraftPersistence(write),
       openView: (view, focus) => {
         activateView(sessionId, view)
         actions.openView(view, focus)

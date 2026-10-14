@@ -204,6 +204,7 @@ function mount(
   const store = createConversationStore().create()
   store.actions.setDraft('ordinary draft')
   const { wiring, sink } = fakeWiring()
+  wiring.setDraft(store.store.getSnapshot().draft)
   const useInput = bindSnapshotSelector(wiring.state)
   const inputActions = wiring.actions
   const stop = vi.fn()
@@ -301,7 +302,7 @@ function mount(
           useStore={bindSnapshotSelector(store)}
           actions={store.actions}
           renderSlot={renderSlot as never}
-          bindDraftMirror={write => wiring.bindMirror(write)}
+          bindDraftPersistence={write => wiring.bindDraftPersistence(write)}
           openView={() => {}}
         />
       )
@@ -532,7 +533,7 @@ describe('ConversationRoot resident composer', () => {
     const box = b.view.getByRole('textbox')
     expect(b.wiring.snapshot.draft).toBe('ordinary draft')
     act(() => { b.wiring.setDraft('ordinary revised') })
-    expect(b.store.store.getSnapshot().draft).toBe('ordinary revised')
+    expect(b.store.store.getSnapshot().draft).toEqual({ text: 'ordinary revised', references: [] })
     fireEvent.keyDown(box, { key: 'Enter' })
     expect(b.sink).toHaveBeenCalledWith('ordinary revised', [], 'queue', expect.any(AbortSignal))
     expect((b.view.getByRole('button', { name: 'Child' }) as HTMLButtonElement).disabled).toBe(true)
@@ -619,7 +620,7 @@ describe('ConversationRoot resident composer', () => {
     const box = b.view.getByRole('textbox')
     expect(host?.contains(box)).toBe(true)
     act(() => { b.wiring.setDraft('draft in hero') })
-    expect(b.store.store.getSnapshot().draft).toBe('draft in hero')
+    expect(b.store.store.getSnapshot().draft).toEqual({ text: 'draft in hero', references: [] })
     // Picker: open through the chip; a pick switches to the other
     // workspace's blank session (draft carry is apply-layer wiring).
     fireEvent.click(b.view.getByRole('button', { name: '选择工作区' }))
@@ -692,7 +693,7 @@ describe('ConversationRoot resident composer', () => {
     const after = b.view.getByRole('textbox')
     expect(after).toBe(before)
     expect(b.wiring.snapshot.draft).toBe('kept across flip')
-    expect(b.store.store.getSnapshot().draft).toBe('kept across flip')
+    expect(b.store.store.getSnapshot().draft).toEqual({ text: 'kept across flip', references: [] })
     expect(b.view.container.querySelector('[data-conversation-scroll]')?.contains(after)).toBe(true)
     expect(b.view.queryByTestId('hero-headline')).toBeNull()
     expect(b.view.getByTestId('view-chat')).toBeTruthy()
