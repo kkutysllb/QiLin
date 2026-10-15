@@ -213,6 +213,8 @@
       "@qilin-agent/client-ui-sidebar-git": ["./packages/client/ui-sidebar-git/src"],
       "@qilin-agent/client-ui-sidebar-git/client": ["./packages/client/ui-sidebar-git/src/client"],
       "@qilin-agent/client-schema-form": ["./packages/client/schema-form/src/index.ts"],
+      "@qilin-agent/client-product-analytics": ["./packages/api/product-analytics/src/index.ts"],
+      "@qilin-agent/client-product-analytics/types": ["./packages/api/product-analytics/src/events.ts"],
       "@qilin-agent/client-store": ["./packages/client/store/src/index.ts"],
       "@qilin-agent/client-ui-renderer": ["./packages/client/ui-renderer/src"],
       "@qilin-agent/client-ui-renderer/client": ["./packages/client/ui-renderer/src/client"],

@@ -1007,6 +1007,27 @@ importers:
         specifier: workspace:*
         version: link:../../typert/registry
 
+  packages/api/product-analytics:
+    devDependencies:
+      '@qilin-agent/api-gateway':
+        specifier: workspace:*
+        version: link:../gateway
+      '@qilin-agent/app-boot':
+        specifier: workspace:*
+        version: link:../../boot/app-boot
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/kylin-plugin-loader':
+        specifier: workspace:~
+        version: link:../../../vendor/loader
+      '@qilin-agent/llm':
+        specifier: workspace:*
+        version: link:../../llm/llm
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+
   packages/api/remotes:
     dependencies:
       '@qilin-agent/deque':

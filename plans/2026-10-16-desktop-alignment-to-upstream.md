@@ -136,6 +136,6 @@ find /path/to/deepseek-harness -name package.json -path '*desktop-runtime*'   # 
 4. README 里的 ```ts 代码块会被 `doc-typecheck` 编译 ✗ → 跨包 import 的示例要么保证目标在文档工程内，要么不要写代码块 ✓。
 
 **C. 本轮的实际产物（都在仓外，可随时取回）**
-- `/tmp/desktop-parked-2026-10-16/desktop`：`apps/desktop` 主体 108 文件（已 rescope ✓；打包专用 devDeps 已按 P3 撤下 ✓；两处上游 `as unknown` 的基线指纹见 `3f8ff1002e` 之前的会话记录 ✓）。
+- `/tmp/desktop-parked-2026-10-16/desktop`：`apps/desktop` 主体 108 文件（已 rescope ✓；打包专用 devDeps 已按 P3 撤下 ✓；两处上游 `as unknown` 的基线指纹见 上一提交 之前的会话记录 ✓）。
 - `/tmp/desktop-parked-2026-10-16/product-analytics`：类型面包（已过 `verify-client-packages` ✓ 与自身 `tsc -b` ✓，README 已按骨架重写 ✓）。
 - 依据仍是上游仓（真相来源 ✓）+ 本文的 rescope 规则 ✓。

@@ -1,0 +1,48 @@
+{
+  "name": "@qilin-agent/client-product-analytics",
+  "description": "Desktop product event collection and authenticated Host reporting",
+  "version": "0.2.1-alpha.4",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+    "directory": "packages/client/product-analytics"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts"
+    },
+    "./types": {
+      "types": "./lib/types/events.d.ts"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "bundle": "tsdown",
+    "watch": "tsdown --watch"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin-agent/kylin": "workspace:~"
+  },
+  "devDependencies": {
+    "@qilin-agent/api-gateway": "workspace:*",
+    "@qilin-agent/app-boot": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*"
+  },
+  "dependencies": {},
+  "optionalDependencies": {},
+  "files": [
+    "lib/types/index.d.ts",
+    "lib/types/events.d.ts"
+  ]
+}

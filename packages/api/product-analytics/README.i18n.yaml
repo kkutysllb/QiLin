@@ -1,0 +1,31 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/api/product-analytics/README.md
+/:
+  en: 398f54a8df19322f
+  zh: 0304784692321677
+/qilin-agent-client-product-analytics:
+  en: 250636b2ae989acf
+  zh: f6fd7680f4fddf6b
+/qilin-agent-client-product-analytics/summary:
+  en: d0520f0a43fdff1b
+  zh: 8f6f9e01778533fe
+/qilin-agent-client-product-analytics/table-of-contents:
+  en: 4e53164159b5ce41
+  zh: adba5f78f4fe4801
+/qilin-agent-client-product-analytics/use-this-package:
+  en: 43b4c57162dc9f6a
+  zh: b87d9f39b133d9bd
+/qilin-agent-client-product-analytics/dev-note:
+  en: 3155a54154dfbdd4
+  zh: a80fb690600452fd
+/qilin-agent-client-product-analytics/model-experience:
+  en: 291751b16b8a37e7
+  zh: 291751b16b8a37e7
+/qilin-agent-client-product-analytics/model-experience/kv-cache-effect:
+  en: 1f5125831808e7a9
+  zh: 1f5125831808e7a9
+/qilin-agent-client-product-analytics/known-limitations-and-deferred-work:
+  en: b92863abb897800e
+  zh: efb1f20289d6953a

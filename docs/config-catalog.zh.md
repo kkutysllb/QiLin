@@ -4444,6 +4444,7 @@ export interface Config {
 | `@qilin-agent/base` | — | [`packages/bundle/base/src/index.ts`](../packages/bundle/base/src/index.ts) |
 | `@qilin-agent/brand` | — | [`packages/util/brand/src/index.ts`](../packages/util/brand/src/index.ts) |
 | `@qilin-agent/chunked-list` | — | [`packages/util/chunked-list/src/index.ts`](../packages/util/chunked-list/src/index.ts) |
+| `@qilin-agent/client-product-analytics` | — | [`packages/api/product-analytics/src/index.ts`](../packages/api/product-analytics/src/index.ts) |
 | `@qilin-agent/client-schema-form` | — | [`packages/client/schema-form/src/index.ts`](../packages/client/schema-form/src/index.ts) |
 | `@qilin-agent/client-store` | — | [`packages/client/store/src/index.ts`](../packages/client/store/src/index.ts) |
 | `@qilin-agent/client-test-runtime` | — | [`packages/test-support/client-runtime/src/index.ts`](../packages/test-support/client-runtime/src/index.ts) |

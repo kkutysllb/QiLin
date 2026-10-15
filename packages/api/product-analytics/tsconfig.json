@@ -1,0 +1,11 @@
+{
+  "references": [
+    {
+      "path": "./tsconfig.host.json"
+    }
+  ],
+  "include": [
+    "src"
+  ],
+  "files": []
+}
