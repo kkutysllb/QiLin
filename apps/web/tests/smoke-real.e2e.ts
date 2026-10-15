@@ -69,14 +69,18 @@ function authenticatedWeb(deploymentUrl: string): Promise<{ origin: string; cook
       body: JSON.stringify({ identifier: SMOKE_ACCOUNT.username, password: SMOKE_ACCOUNT.password }),
       redirect: 'manual',
     })
-    const setCookie = response.headers.get('set-cookie')
+    // The deployment forwards this login to the account runtime and adds its
+    // own routing cookie, so one answer carries both the session and the
+    // routing cookie; a single-origin deployment routes every absolute path
+    // (the page transport included) by that routing cookie.
+    const setCookies = response.headers.getSetCookie()
     if (!response.ok) {
       throw new Error('qilin web account sign-in answered HTTP ' + String(response.status))
     }
-    if (setCookie === null) {
+    if (setCookies.length === 0) {
       throw new Error('qilin web account sign-in carried no session cookie')
     }
-    return { origin: account.href, cookie: setCookie.split(';', 1)[0]! }
+    return { origin: account.href, cookie: setCookies.map(value => value.split(';', 1)[0]!).join('; ') }
   })()
   authenticatedCookies.set(deploymentUrl, exchange)
   return exchange
@@ -89,12 +93,10 @@ function authenticatedWeb(deploymentUrl: string): Promise<{ origin: string; cook
  * @param session - origin and cookie pair {@link authenticatedWeb} returned.
  */
 async function signInPage(page: Page, session: { origin: string; cookie: string }): Promise<void> {
-  const separator = session.cookie.indexOf('=')
-  await page.context().addCookies([{
-    url: session.origin,
-    name: session.cookie.slice(0, separator),
-    value: session.cookie.slice(separator + 1),
-  }])
+  await page.context().addCookies(session.cookie.split('; ').map((pair) => {
+    const separator = pair.indexOf('=')
+    return { url: session.origin, name: pair.slice(0, separator), value: pair.slice(separator + 1) }
+  }))
 }
 
 const comboMapUrl = (url: string): string => url.replace(/\/client\.js(?=,|&rev=)/g, '/client.js.map')
@@ -147,6 +149,7 @@ function prepareDeploymentHome(qilinHome: string): void {
     )
   }
 }
+
 
 
 function waitForReadyLine(child: ChildProcess): Promise<string> {
