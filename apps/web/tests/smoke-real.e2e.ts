@@ -128,7 +128,26 @@ function prepareDeploymentHome(qilinHome: string): void {
   if (added.status !== 0) {
     throw new Error('qilin tenants add answered ' + String(added.status) + ': ' + added.stdout + added.stderr)
   }
+  // The deployment strips credential-shaped environment names from the
+  // runtimes it starts, by design: the hub's key authenticates the hub, and
+  // handing it to an account would bill that account to whoever launched the
+  // deployment. The documented path is the account's own credential record, so
+  // this writes the key the run needs into the tenant's home before its runtime
+  // starts.
+  const tenantDirectory = /tenant directory is (.+)$/mu.exec(added.stdout)?.[1]?.trim()
+  if (tenantDirectory === undefined || tenantDirectory === '') {
+    throw new Error('qilin tenants add named no tenant directory: ' + added.stdout)
+  }
+  const key = process.env.DEEPSEEK_API_KEY
+  if (key !== undefined && key !== '') {
+    writeFileSync(
+      join(tenantDirectory, '.credentials.yaml'),
+      'version: 1\nrefs:\n  DEEPSEEK_API_KEY: ' + JSON.stringify(key) + '\n',
+      { mode: 0o600 },
+    )
+  }
 }
+
 
 function waitForReadyLine(child: ChildProcess): Promise<string> {
   return new Promise((resolveReady, reject) => {
