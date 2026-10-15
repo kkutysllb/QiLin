@@ -163,3 +163,30 @@ find /path/to/deepseek-harness -name package.json -path '*desktop-runtime*'   # 
 - **策略**（沿用既有边界 ✓）：账号/欢迎面在本仓由 `ui-account` 的 `/api/auth` 承担 ✓，桌面的 welcome 流程改为消费本仓账号缝或降级为直连工作区；不移植 `deepseek-account` 栈 ✓。
 
 **暂存位置**（可随时取回 ✓）：`/tmp/desktop-parked-2026-10-16/desktop-adapted`（= 已 rescope + 已修引用 + 已剔除账号栈的版本 ✓）。
+
+### P1 第六块：账号/欢迎面的适配方式与残留清单（2026-10-16 实测）
+
+上游桌面把 account / welcome / mandatory-update / browser-guests 四套面深度织进 main.ts（1300+ 行）：platformView 6 处、welcomeWindow 贯穿对话框选择（currentDialogWindow）、policy 状态与 IPC 注册各数十处。按既有边界（账号栈永不移植）这些面都要去掉或替换。
+
+**实测的适配代价与方式**
+
+- 把 platform-view.ts 换成"本仓侧同 API 替身"时，错误数 46 → 60：替身必须**按调用点**（open(owner, page, bounds)、PLATFORM_IPC 的载荷类型）写，而不是照上游签名写。
+- 结论：这四个面的替身/拆除应以**调用点**为规格逐个收敛（编译器驱动），估计 3–6 轮。
+
+**残留错误清单（按文件）**
+
+| 文件 | 错数 | 处置 |
+|---|---|---|
+| main.ts | 43 | 拆除四套面的接线（导入 + 调用点） |
+| preload-browser.ts | 6 | 随 browser-guests 面拆除 DesktopBrowser* 类型与隐式 any |
+| keyboard.ts | 2 | 同上（lease id） |
+| project-manager.ts | 2 | 待看（多半是隐式 any） |
+| host-process.ts | 2 | PlatformSession（账号类型）→ 随面拆除 |
+| preload-app.ts | 1 | 引用被删的 preload-mandatory-overlay → 拆 |
+| client-metadata.ts | 1 | 替身字段过窄，需补真实字段（version/channel） |
+| tsconfig.host.json / tsconfig.client.json | 各 1 | 引用路径 |
+
+**下一轮开工的两件事**
+
+1. client-metadata.ts 的类型补真实字段；
+2. host-process.ts 的 PlatformSession、ipc.ts/keyboard.ts/preload-browser.ts 的 DesktopBrowser* 一并拆除（不补类型）。
