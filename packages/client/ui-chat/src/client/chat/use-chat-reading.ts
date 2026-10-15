@@ -27,9 +27,9 @@ type PositionStore = ChatViewSlotProps['chatScroll']
 export class ChatReading {
   private sampleTimer: number | null = null
   private probeFrame: number | null = null
+  private sampled: ((sample: ReadingSample) => void) | null = null
   /** Settled reader row and offset, re-aligned when a layout change moves it. */
   private readerPosition: ChatScrollPosition | null = null
-  private sampled: ((sample: ReadingSample) => void) | null = null
 
   constructor(
     private readonly viewport: ChatViewport,
@@ -89,6 +89,30 @@ export class ChatReading {
     this.commit(landing, true, this.viewport.latestTurn)
   }
 
+  /**
+   * Follow the tail on the active fold's animation clock.
+   * @returns whether a fold batch owns the tail movement instead of a separate scroll animation.
+   */
+  followInputFold(): boolean {
+    this.cancelPending()
+    return this.viewport.followInputFold(this.follow)
+  }
+
+  /**
+   * Let fold batches read follow intent and commit their tail landings.
+   * @returns a disposer that disconnects this reading policy from the viewport.
+   */
+  bindFolds(): () => void {
+    return this.viewport.bindReader({
+      follow: this.follow,
+      landedAtTail: (landing) => {
+        this.cancelPending()
+        this.commit(landing, true, this.viewport.latestTurn)
+      },
+      pending: () => this.pending,
+    })
+  }
+
   /** Stop a native follow animation where it is; the next sampled position decides follow intent. */
   interruptFollow(): void {
     this.viewport.interruptFollow(this.follow)
@@ -137,7 +161,7 @@ export class ChatReading {
     // Native follow animation progress is not reader movement; scrollend settles it.
     if (this.follow.animating) return
     if ((!scroll.movedByReader && this.state.followingTail)
-      || (scroll.movedByReader && scroll.metrics.top >= scroll.metrics.floor)) {
+      || (scroll.movedByReader && Math.abs(scroll.metrics.top - scroll.metrics.floor) < 1)) {
       this.followTail()
       this.sampled?.({ position: null, movedByReader: scroll.movedByReader, followingTail: true })
       return
@@ -194,9 +218,9 @@ export class ChatReading {
   private commit(
     landing: ViewportLanding, followingTail: boolean, activeTurn: number | null, initialized = true,
   ): void {
+    this.readerPosition = followingTail ? null : landing.position
     if (followingTail) this.store.save(null)
     else if (landing.position !== null) this.store.save(landing.position)
-    this.readerPosition = followingTail ? null : landing.position
     this.publish({ initialized, followingTail, activeTurn })
   }
 
@@ -232,8 +256,8 @@ export class ChatReading {
     const followingTail = this.follow.sample(scroll.metrics, scroll.movedByReader)
     // Geometry alone cannot separate a reader scroll from the browser's layout
     // compensation during a reflow, so a moved transcript re-anchors only with
-    // reader input present; otherwise it is layout movement, and the reader's
-    // own row returns to the offset they left it on.
+    // reader input present; otherwise it is layout movement, and the reader's own
+    // row returns to the offset they left it on.
     const resized = this.viewport.consumeResize()
     const readerInput = this.viewport.consumeReaderIntent()
     const readerMoved = scroll.movedByReader && (readerInput || !resized)
@@ -274,6 +298,7 @@ export function useChatReading(
   const follow = useScrollFollow(state.followingTail, FOLLOW_THRESHOLD + 1)
   const [reading] = useState(() => new ChatReading(viewport, store, state, setState, follow))
   useLayoutEffect(() => { reading.setStore(store) }, [reading, store])
+  useLayoutEffect(() => reading.bindFolds(), [reading])
   useLayoutEffect(() => () => { reading.dispose() }, [reading])
   return { reading, state }
 }

@@ -1,0 +1,25 @@
+# Bilingual-pair consistency record for 2026-10-15-chat-fold-motion-and-reader-restore.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-10-15-chat-fold-motion-and-reader-restore.md
+/agent-note-one-fold-motion-with-the-fork-s-reader-restore-kept:
+  en: c2aee37e00054946
+  zh: 82f30b602222dc38
+/agent-note-one-fold-motion-with-the-fork-s-reader-restore-kept/problem:
+  en: e5292aa24db238a0
+  zh: 3919d6e0e568d536
+/agent-note-one-fold-motion-with-the-fork-s-reader-restore-kept/decision:
+  en: bb357f01ebc38ff8
+  zh: c1f5c2565d200f10
+/agent-note-one-fold-motion-with-the-fork-s-reader-restore-kept/alternatives-considered:
+  en: 2eae616c3cdea1ba
+  zh: 4f7705c9ed9b31a7
+/agent-note-one-fold-motion-with-the-fork-s-reader-restore-kept/consequences:
+  en: a1d55331dddf4c6f
+  zh: 0183519f09badc4c
+/agent-note-one-fold-motion-with-the-fork-s-reader-restore-kept/testing:
+  en: 5c21c4b98a345ca4
+  zh: c448802e7b2f57e1
+/agent-note-one-fold-motion-with-the-fork-s-reader-restore-kept/related:
+  en: 6fcee2c1879cb198
+  zh: 8bff8da8b5af2b77
