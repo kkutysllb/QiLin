@@ -524,6 +524,7 @@ describe('auditStartupEntries', () => {
     }
     disabled?: boolean
     options: { id: string; name: string }
+    parent?: { tree: { import(name: string): Promise<unknown> } }
   }
 
   const ctxWith = (entries: FakeEntry[]): Context => ({
@@ -559,7 +560,8 @@ describe('auditStartupEntries', () => {
     const warn = vi.fn()
     const original = new Error('todo apply failure')
     await auditStartupEntries(ctxWith([
-      { options: { id: 'missing-tool', name: './missing.mjs' } },
+      // Its module imports now, so an entry without a fiber reports the bare failed import.
+      { options: { id: 'missing-tool', name: './missing.mjs' }, parent: { tree: { import: () => Promise.resolve() } } },
       { fiber: fiber(3, original), options: { id: 'tool-todo', name: '@qilin-agent/tool-todo' } },
       {
         fiber: fiber(0, undefined, { ready: {}, missing: {} }, ['ready']),
@@ -803,7 +805,8 @@ describe('boot', () => {
     const error = failure as StartupError
     expect(error.entries).toEqual([{
       id: 'webserver', module: './missing.mjs', required: true, fiberState: undefined,
-      outcome: { kind: 'failed', error: 'failed to import' },
+      // The entry reports the error importing it raises now, not a bare failed-import marker.
+      outcome: { kind: 'failed', error: expect.any(Error) as unknown, phase: 'failed to import' },
     }])
     expect(error.startup?.configurationPath).toBe(config)
     expect(error.startup?.messages.some(message => message.args.some(arg => arg instanceof Error && arg.message.includes('missing.mjs')))).toBe(true)

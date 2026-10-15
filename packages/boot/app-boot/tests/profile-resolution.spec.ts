@@ -19,6 +19,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import {
   installProfileResolution,
   registerWorkerResolution,
+  ResolutionRestartRequired,
   type ProfileResolutionRegistration,
 } from '../src/profile-resolution/resolver.ts'
 import {
@@ -1483,21 +1484,34 @@ describe('profile resolution generation', { concurrent: false }, () => {
         ? { ...entry, packageDir: second, version: '2.0.0', declarer: join(second, 'package.json') }
         : entry),
     }
-    expect(() => { registration.replace(changed) }).toThrow(/requires a process restart/u)
-    expect(() => {
+    const error = thrownError(() => { registration.replace(changed) })
+    expect(error).toBeInstanceOf(ResolutionRestartRequired)
+    expect(error.message).toMatch(/replacing "resolution-lib" requires a process restart/u)
+    expect(thrownError(() => {
       registration.replace({
         ...first,
         entries: first.entries.map(entry => entry.name === 'resolution-lib'
           ? { ...entry, version: '9.0.0' }
           : entry),
       })
-    }).toThrow(/requires a process restart/u)
-    expect(() => {
+    })).toBeInstanceOf(ResolutionRestartRequired)
+    expect(thrownError(() => {
       registration.replace({ ...first, localPackageNames: ['resolution-lib'] })
-    }).toThrow(/requires a process restart/u)
-    expect(() => {
+    })).toBeInstanceOf(ResolutionRestartRequired)
+    expect(thrownError(() => {
       registration.replace({ ...first, entries: first.entries.filter(entry => entry.name !== 'resolution-lib') })
-    }).toThrow(/requires a process restart/u)
+    })).toBeInstanceOf(ResolutionRestartRequired)
+    // One message names every rejected change, so a caller reports one restart requirement for the whole generation.
+    const combined = thrownError(() => {
+      registration.replace({
+        ...first,
+        localPackageNames: ['resolution-lib'],
+        entries: first.entries.filter(entry => entry.name !== 'resolution-lib'),
+      })
+    })
+    expect(combined).toBeInstanceOf(ResolutionRestartRequired)
+    expect(combined.message.split('; ')).toHaveLength(2)
+    // A profile-scope change is a wiring fault of the caller, not a change a restart can adopt.
     expect(() => {
       registration.replace({ ...first, profilesDir: join(f.root, 'other-profiles') })
     }).toThrow(/cannot change its profile scope/u)
@@ -1521,6 +1535,35 @@ describe('profile resolution generation', { concurrent: false }, () => {
     expect(registration.packageDir(
       'resolution-lib', pathToFileURL(join(f.profile.dir, 'entry.mjs')).href,
     )).toBe(f.installed)
+  })
+
+  it('publishes a profile mapping whose version moved in place and refuses one that moved directory', async () => {
+    const f = fixture()
+    const second = join(f.root, 'second')
+    pkg(second, 'resolution-lib', 2)
+    const third = join(f.root, 'third')
+    pkg(third, 'resolution-lib', 3)
+    const first = await generationOf(f)
+    const registration = installProfileResolution(first)
+    registrations.push(registration)
+    const parent = pathToFileURL(join(f.profile.dir, 'entry.mjs')).href
+    const mapped = (packageDir: string, version: string, declarer: string): ProfileResolutionGeneration => ({
+      ...first,
+      entries: [...first.entries, {
+        name: 'profile-lib', packageDir, version, declarer, scope: 'profile',
+      }],
+    })
+    registration.replace(mapped(second, '2.0.0', join(second, 'package.json')))
+    expect(registration.packageDir('profile-lib', parent)).toBe(second)
+    // A package upgraded in place keeps its directory, so its version and declarer may move with the files below it.
+    registration.replace(mapped(second, '3.0.0', join(f.profile.dir, 'package.json')))
+    expect(registration.packageDir('profile-lib', parent)).toBe(second)
+    const error = thrownError(() => {
+      registration.replace(mapped(third, '3.0.0', join(third, 'package.json')))
+    })
+    expect(error).toBeInstanceOf(ResolutionRestartRequired)
+    // The rejected generation published nothing, so the accepted mapping still answers.
+    expect(registration.packageDir('profile-lib', parent)).toBe(second)
   })
 
   it('leaves non-package and out-of-scope metadata lookups to native resolution', async () => {

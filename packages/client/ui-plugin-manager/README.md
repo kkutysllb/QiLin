@@ -39,7 +39,7 @@ During installation, **Cancel install** asks the Host to stop the run and shows 
 
 ### Checking for updates
 
-The toolbar's check control asks the Host to compare every manageable layer — the installation's shipped bundles included — with its registry's latest version (`pluginManager.checkUpdates`) and reports each layer with a newer version as `current → latest`. **Update** upgrades that one through the Host's install path, which leaves the layer's place in the profile as it is; a change that waits for the next start says so in a toast. A layer the registry could not answer for offers nothing, and when no layer is behind the block says everything is up to date. The block closes with its own control; a check that fails reports the reason in the block and can be run again.
+The toolbar's check control asks the Host to compare every manageable layer — the installation's shipped bundles included — with its registry's latest version (`pluginManager.checkUpdates`) and reports each layer with a newer version as `current → latest`. **Update** removes the installed package and installs the offered version with the same selection through the Host's install path, leaving the layer's place in the profile as it is; a package that stays uninstalled after a failed installation is reported as such, and a change that waits for the next start says so in a toast that names why. A layer the registry could not answer for offers nothing, and when no layer is behind the block says everything is up to date. The block closes with its own control; a check that fails reports the reason in the block and can be run again.
 
 ### Browsing the plugin catalog
 

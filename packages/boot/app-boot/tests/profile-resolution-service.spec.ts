@@ -89,6 +89,8 @@ describe('profile package metadata service', () => {
     const ctx = new Context()
     contexts.push(ctx)
     await ctx.plugin(PluginPackages)
+    // Native lookup keeps no published generation: disk changes already move every answer.
+    expect(ctx.pluginPackages.resolution).toBeUndefined()
 
     const first = ctx.pluginPackages.packageOf('@scope/metadata/subpath', parentURL)
     expect(first).toMatchObject({ name: '@scope/metadata', version: undefined, dir: packageDir })
@@ -169,6 +171,7 @@ describe('profile package metadata service', () => {
     const ctx = new Context()
     contexts.push(ctx)
     await ctx.plugin(PluginPackages, { generation: initial, behavior: 'verify' })
+    expect(ctx.pluginPackages.resolution).toBe(initial)
     const initialWorkerData = getEnvironmentData(key) as {
       generation: ProfileResolutionGeneration
       behavior: string
@@ -190,6 +193,7 @@ describe('profile package metadata service', () => {
       }],
     }
     ctx.pluginPackages.replace(next)
+    expect(ctx.pluginPackages.resolution).toBe(next)
     expect(getEnvironmentData(key)).toEqual({
       generation: next,
       behavior: 'verify',
@@ -239,11 +243,16 @@ describe('profile package metadata service', () => {
     await stale.plugin(PluginPackages, { generation: withProfileEntry() })
     await expect(stale.pluginPackages.refresh()).rejects.toThrow(/cannot be recomputed/u)
 
+    const initial = withProfileEntry()
+    const recomputed = afterRemoval()
     const ctx = new Context()
     contexts.push(ctx)
-    await ctx.plugin(PluginPackages, { generation: withProfileEntry(), recompute: async () => afterRemoval() })
+    await ctx.plugin(PluginPackages, { generation: initial, recompute: async () => recomputed })
+    expect(ctx.pluginPackages.resolution).toBe(initial)
     expect(ctx.pluginPackages.packageOf('removed-lib', parentURL)).toMatchObject({ name: 'removed-lib', dir: removed })
     await ctx.pluginPackages.refresh()
+    // A refresh publishes the recomputed generation, so consumers compare loaded modules with the current mappings.
+    expect(ctx.pluginPackages.resolution).toBe(recomputed)
     expect(ctx.pluginPackages.packageOf('removed-lib', parentURL)).toBeUndefined()
     expect(ctx.pluginPackages.packageOf('metadata-lib', parentURL)).toMatchObject({ version: '1.0.0', dir: installed })
   })

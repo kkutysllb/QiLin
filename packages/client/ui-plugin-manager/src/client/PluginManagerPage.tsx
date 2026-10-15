@@ -30,7 +30,7 @@ import {
   type CatalogState, type ConfirmState, type InstallInputError, type InstallState, type InstallSubject, type PackageRow,
   type PackageView, type PluginManagerFace, type RegistryChoice, type UpdateState,
 } from './manager-store.ts'
-import { managementText, noticeText, packageText, registryText, type Translate } from './presentation.ts'
+import { managementText, noticeText, packageText, registryText, restartText, type Translate } from './presentation.ts'
 import type {} from './slot-contract.ts'
 import css from './PluginManagerPage.module.css'
 
@@ -1023,7 +1023,7 @@ function InstallDialog({
             ? <p className={css.result} role="status">{t('installDoneNothing')}</p>
             : null}
           {phase === 'done' && install.restartRequired
-            ? <p className={css.resultWarn} role="status">{t('installDoneRestart')}</p>
+            ? <p className={css.resultWarn} role="status">{restartText('installDoneRestart', install.restartReason, t)}</p>
             : null}
           {phase === 'done' && install.subject?.kind === 'registry' && install.subject.version !== undefined
             && install.installedVersion !== null && install.installedVersion !== install.subject.version

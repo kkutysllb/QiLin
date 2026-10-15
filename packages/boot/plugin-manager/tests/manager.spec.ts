@@ -8,7 +8,7 @@ import type { Context } from '@qilin-agent/kylin'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import {
   boot, composeEntries, getQilinRuntimeVersion, initProfile, readProfilePatches, readProfileManifest, reconcileProfilePatches,
-  OPTIONAL_BUNDLES, type ProfileContext,
+  OPTIONAL_BUNDLES, ResolutionRestartRequired, type ProfileContext,
 } from '@qilin-agent/app-boot'
 import PluginManager, { type Config, type PluginChange, type PluginInstallLogChunk, type PluginInstallProgress, type PluginInstallRequestId } from '../src/index.ts'
 import Hmr from '@qilin-agent/hmr'
@@ -23,6 +23,9 @@ import { parse, parseDocument } from 'yaml'
 const OFFICIAL = 'https://registry.npmjs.org/'
 /** The public mirror a shipped configuration falls back to. */
 const MIRROR = 'https://registry.npmmirror.com/'
+
+/** A package generation for stubs that only need a published table to exist. */
+const GENERATION = { profilesDir: '/profiles', profileDir: undefined, localPackageNames: [], entries: [] }
 
 async function fixture(
   reload: 'live' | 'startup' = 'live', overlay = false, prepare?: (ctx: Context) => void, config: Config = {},
@@ -338,7 +341,9 @@ it('installs only valid bundle declarations and honors installation without acti
 it('refreshes runtime package resolution after an install and keeps deselected startup bundles untouched', async () => {
   const refresh = vi.fn(async () => undefined)
   const { manager, dir, bundle } = await fixture('startup', false, (ctx) => {
-    ctx.provide('pluginPackages', { refresh } as unknown as Context['pluginPackages'])
+    ctx.provide('pluginPackages', {
+      packageOf: () => undefined, resolution: GENERATION, refresh,
+    } as unknown as Context['pluginPackages'])
   })
   const install = vi.spyOn(operations, 'runProfilePnpm').mockImplementation(async (_context, args) => {
     const name = String(args[1])
@@ -358,11 +363,15 @@ it('refreshes runtime package resolution after an install and keeps deselected s
 
 it('refreshes runtime package resolution when live reload deselects a started bundle', async () => {
   const refresh = vi.fn(async () => undefined)
-  const { manager } = await fixture('live', false, (ctx) => {
-    ctx.provide('pluginPackages', { refresh } as unknown as Context['pluginPackages'])
+  const { manager, dir } = await fixture('live', false, (ctx) => {
+    ctx.provide('pluginPackages', {
+      packageOf: () => undefined, resolution: GENERATION, refresh,
+    } as unknown as Context['pluginPackages'])
   })
   expect(await manager.setBundleEnabled('extra', false)).toMatchObject({ application: 'applied' })
-  expect(refresh).toHaveBeenCalledTimes(1)
+  expect(readProfileManifest('test', dir).qilin?.profile?.bundles ?? []).not.toContain('extra')
+  // The operation's own recomposition publishes the new generation; the manifest write it made may recompose again.
+  expect(refresh).toHaveBeenCalled()
 })
 
 it.each(['network', 'timeout'] as const)('stops a GitHub %s before pnpm and attributes it to the repository', async (kind) => {
@@ -650,13 +659,27 @@ it('restores the manifest when the package pnpm added declares no bundle', async
   expect((await manager.listBundles()).some(row => row.name === 'plain')).toBe(false)
 })
 
-it('never removes an existing dependency after installation validation fails', async () => {
+it('refuses to install over an installed package by name, version or local directory, without running pnpm', async () => {
   const { manager, dir } = await fixture()
-  writeFileSync(join(dir, 'node_modules', 'extra', 'package.json'), '{"name":"extra"}')
   const install = vi.spyOn(operations, 'runProfilePnpm').mockResolvedValue({ exitCode: 0, output: '', truncated: false, logPath: '/operation.log' })
   onTestFinished(() => { install.mockRestore() })
-  const result = await manager.installBundle('extra')
-  expect(result).toMatchObject({ application: 'failed', stage: 'install', error: { code: 'not-bundle' } })
+  for (const spec of ['extra', 'extra@2', join(dir, 'node_modules', 'extra')]) {
+    expect(await manager.installBundle(spec))
+      .toMatchObject({ application: 'failed', stage: 'install', changed: false, error: { code: 'already-installed' } })
+  }
+  // A tarball saved as a path relative to the profile is refused too, and a refused install writes no script approvals.
+  const manifest = readProfileManifest('test', dir)
+  writeFileSync(join(dir, 'package.json'), JSON.stringify({ ...manifest, dependencies: { extra: 'file:../extra-1.0.0.tgz' } }))
+  const workspace = join(dir, 'pnpm-workspace.yaml')
+  const settings = existsSync(workspace) ? readFileSync(workspace, 'utf8') : undefined
+  expect(await manager.installBundle(join(dir, '..', 'extra-1.0.0.tgz'), { approvedBuilds: ['native-provider'] }))
+    .toMatchObject({ application: 'failed', changed: false, error: { code: 'already-installed' } })
+  expect(existsSync(workspace) ? readFileSync(workspace, 'utf8') : undefined).toBe(settings)
+  writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+  // A local spec whose directory declares nothing is refused by pnpm's own answer, not by this check.
+  install.mockResolvedValue({ exitCode: 0, output: '', truncated: false, logPath: '/operation.log' })
+  expect(await manager.installBundle(join(dir, 'node_modules', 'absent')))
+    .toMatchObject({ application: 'failed', changed: false, error: { code: 'ambiguous-install' } })
   expect(install).toHaveBeenCalledOnce()
   expect(readProfileManifest('test', dir).dependencies).toEqual({ extra: '1.0.0' })
 })
@@ -708,12 +731,19 @@ it('returns unchanged failures as warnings while toggling and removing another b
   expect(remove).toHaveBeenCalledOnce()
 })
 
-it('reports repeated installs as requiring restart and ambiguous package changes as failures', async () => {
+it('recognizes a repeated installation without HMR that leaves the saved dependency as it was', async () => {
+  const { manager, dir } = await fixture('startup')
+  const install = vi.spyOn(operations, 'runProfilePnpm').mockResolvedValue({ exitCode: 0, output: '', truncated: false, logPath: join(dir, 'pnpm.log') })
+  onTestFinished(() => { install.mockRestore() })
+  // The profile already selected `extra`, so installing it disabled deselects it and changes the manifest.
+  expect(await manager.installBundle(join(dir, 'node_modules', 'extra'), { enabled: false }))
+    .toMatchObject({ application: 'restart-required', bundle: 'extra', enabled: false })
+})
+
+it('reports ambiguous package changes as failures', async () => {
   const { manager, dir } = await fixture()
   const install = vi.spyOn(operations, 'runProfilePnpm').mockResolvedValue({ exitCode: 0, output: '', truncated: false, logPath: join(dir, 'pnpm.log') })
   onTestFinished(() => { install.mockRestore() })
-  expect(await manager.installBundle('extra')).toMatchObject({ changed: false, application: 'restart-required' })
-  expect(await manager.installBundle('extra@1')).toMatchObject({ changed: false, application: 'restart-required' })
   expect(await manager.installBundle('extra-long@1')).toMatchObject({ changed: false, application: 'failed', error: { code: 'ambiguous-install' } })
   install.mockImplementationOnce(async () => {
     writeFileSync(join(dir, 'package.json'), '{}')
@@ -721,6 +751,77 @@ it('reports repeated installs as requiring restart and ambiguous package changes
   })
   expect(await manager.installBundle('unknown')).toMatchObject({ changed: false, application: 'failed', error: { code: 'ambiguous-install' } })
   expect(readProfileManifest('test', dir).dependencies).toEqual({ extra: '1.0.0' })
+})
+
+it('removes a package with the registry it was installed from', async () => {
+  const { manager, dir, bundle } = await fixture()
+  const corp = 'https://npm.corp.example/'
+  const pnpm = vi.spyOn(operations, 'runProfilePnpm').mockImplementation(async (_context, args) => {
+    const name = String(args[1])
+    const manifest = readProfileManifest('test', dir)
+    if (args[0] === 'add') {
+      bundle(name, [{ id: name, name: './plugin.mjs', config: { service: name } }])
+      manifest.dependencies = { ...manifest.dependencies, [name]: '1.0.0' }
+    } else {
+      delete manifest.dependencies?.[name]
+    }
+    writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+    return { exitCode: 0, output: '', truncated: false, logPath: join(dir, 'pnpm.log') }
+  })
+  onTestFinished(() => { pnpm.mockRestore() })
+  expect(await manager.installBundle('mirrored', { enabled: false, registry: corp })).toMatchObject({ application: 'applied' })
+  expect(await manager.removeBundle('mirrored')).toMatchObject({ application: 'applied' })
+  expect(pnpm.mock.calls.at(-1)?.[1]).toEqual(['remove', 'mirrored', `--config.registry=${corp}`])
+})
+
+it('removes a package with the configured registry when this process installed none', async () => {
+  const { manager, dir } = await fixture('live', false, undefined, { registry: OFFICIAL })
+  const pnpm = vi.spyOn(operations, 'runProfilePnpm').mockResolvedValue({ exitCode: 0, output: '', truncated: false, logPath: join(dir, 'pnpm.log') })
+  onTestFinished(() => { pnpm.mockRestore() })
+  expect(await manager.removeBundle('extra')).toMatchObject({ application: 'applied' })
+  expect(pnpm.mock.calls.at(-1)?.[1]).toEqual(['remove', 'extra', `--config.registry=${OFFICIAL}`])
+})
+
+it('reports an applied change as requiring restart when HMR published a restart reason', async () => {
+  const { manager } = await fixture('startup', false, (ctx) => {
+    ctx.provide('hmr', {
+      runExclusive: (operation: () => Promise<unknown>) => operation(),
+      reconcileProfile: async () => ({ warnings: [], pending: [{ url: 'file:///host.mjs', reason: 'host-module' }] }),
+    } as unknown as Context['hmr'])
+  })
+  expect(await manager.setBundleEnabled('extra', false))
+    .toMatchObject({ application: 'restart-required', restartReason: 'host-module' })
+})
+
+it('keeps the package table when the profile has no published generation or its publication waits for a restart', async () => {
+  const publish = vi.fn(async () => undefined)
+  const withoutGeneration = await fixture('startup', false, (ctx) => {
+    ctx.provide('pluginPackages', { packageOf: () => undefined, refresh: publish } as unknown as Context['pluginPackages'])
+  })
+  expect(await withoutGeneration.manager.setBundleEnabled('extra', true)).toMatchObject({ application: 'restart-required' })
+  expect(publish).not.toHaveBeenCalled()
+
+  // A publication the resolver rejects waits for the restart the result already reports.
+  const waiting = await fixture('startup', false, (ctx) => {
+    ctx.provide('pluginPackages', {
+      packageOf: () => undefined, resolution: GENERATION, refresh: async () => {
+        throw new ResolutionRestartRequired('installation mapping changed')
+      },
+    } as unknown as Context['pluginPackages'])
+  })
+  expect(await waiting.manager.setBundleEnabled('extra', true))
+    .toMatchObject({ application: 'restart-required' })
+
+  // Any other publication failure is the operation's failure, not a restart.
+  const broken = await fixture('startup', false, (ctx) => {
+    ctx.provide('pluginPackages', {
+      packageOf: () => undefined, resolution: GENERATION, refresh: async () => {
+        throw new Error('installation tree is unreadable')
+      },
+    } as unknown as Context['pluginPackages'])
+  })
+  expect(await broken.manager.setBundleEnabled('extra', true))
+    .toMatchObject({ application: 'failed', error: { code: 'operation-error' } })
 })
 
 it('streams pnpm output, reports the installation phases, and names the installed bundle', async () => {

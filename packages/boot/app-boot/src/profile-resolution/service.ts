@@ -62,6 +62,7 @@ function readPackage(dir: string, fallbackName: string): PluginPackage | undefin
 /** Package lookup shared by metadata consumers in one profile process. */
 export class PluginPackages extends Service {
   private packages = new Map<string, PluginPackage | undefined>()
+  private current: ProfileResolutionGeneration | undefined
   private readonly resolver: ProfileResolutionRegistration | undefined
   private readonly behavior: ProfileResolutionBehavior
   private readonly recompute: (() => Promise<ProfileResolutionGeneration>) | undefined
@@ -72,6 +73,7 @@ export class PluginPackages extends Service {
     this.behavior = config.behavior ?? 'enforce'
     this.recompute = config.recompute
     if (config.generation === undefined) return
+    this.current = config.generation
     const resolver = installProfileResolution(config.generation, this.behavior)
     this.disposeWorkerResolution = registerWorkerResolution(config.generation, this.behavior)
     this.resolver = resolver
@@ -81,14 +83,25 @@ export class PluginPackages extends Service {
     }, 'profile package resolution')
   }
 
+  /** The published package generation, or `undefined` when Node resolves packages alone. */
+  get resolution(): ProfileResolutionGeneration | undefined {
+    return this.current
+  }
+
   /**
-   * Publish a successor generation for this process and subsequently created Workers. Retained package mappings
-   * keep their directory and version; profile-scoped mappings may leave the table.
+   * Publish a successor generation for this process and subsequently created Workers. Profile-scoped mappings may
+   * leave the table; a retained profile mapping may change its version and declarer while its normalized directory and
+   * scope stay. Existing modules and Node caches stay intact, so a caller replaces the loaded modules of an upgrade
+   * in place separately.
    * @param generation - fully constructed successor generation.
+   * @throws when the profile scope changes; `ResolutionRestartRequired` when a retained mapping changes its
+   * normalized directory or scope, an installation mapping changes its metadata or leaves, or a new local name
+   * overrides an existing mapping. A caller that stops the replaced plugins first catches it to report a restart.
    */
   replace(generation: ProfileResolutionGeneration): void {
     if (this.resolver === undefined) throw new Error('plugin-packages: runtime resolution is not installed')
     this.resolver.replace(generation)
+    this.current = generation
     this.packages = new Map()
     this.disposeWorkerResolution?.()
     this.disposeWorkerResolution = registerWorkerResolution(generation, this.behavior)

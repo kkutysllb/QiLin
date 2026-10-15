@@ -85,6 +85,21 @@ interface CompiledGeneration {
   readonly cjsRoutes: ResolutionRoutes
 }
 
+/**
+ * A successor generation the running process cannot adopt, such as a mapping that moved to another directory; it waits
+ * for a restart. A caller that can stop the plugins a change replaces catches it, rather than treating the change as a
+ * wiring fault.
+ */
+export class ResolutionRestartRequired extends Error {
+  /**
+   * @param message - diagnostic naming the rejected changes.
+   */
+  constructor(message: string) {
+    super(message)
+    this.name = 'ResolutionRestartRequired'
+  }
+}
+
 /** Whether runtime resolution redirects requests or verifies the materialized backend. */
 export type ProfileResolutionBehavior = 'enforce' | 'verify'
 
@@ -98,10 +113,15 @@ export interface ProfileResolutionRegistration {
    */
   packageDir(specifier: string, parentURL: string): string | undefined
   /**
-   * Atomically publish a successor package table and fresh generation-owned caches. Retained package mappings
-   * keep their directory and version; profile-scoped mappings and local package names may leave the table.
+   * Atomically publish a successor package table and fresh generation-owned caches. Profile-scoped mappings and local
+   * package names may leave the table. A retained profile mapping may change its version and declarer while its
+   * normalized directory and scope stay, as an upgrade in place does. Existing modules and Node caches stay intact:
+   * callers remove a package only after its plugins stop, and replace the loaded modules of an upgrade in place
+   * separately.
    * @param generation - fully constructed successor generation.
-   * @throws when the profile scope, a retained package mapping, or a local override changes.
+   * @throws when the profile scope changes; {@link ResolutionRestartRequired} when a retained mapping changes its
+   * normalized directory or scope, an installation mapping changes its declarer, version, or scope or leaves, or a new
+   * local name overrides an existing mapping. Every rejected change is named in the message.
    */
   replace(generation: ProfileResolutionGeneration): void
   /** Restore the native resolver methods. Registrations dispose in reverse order. */
@@ -345,24 +365,34 @@ class ResolutionRouter {
       || generation.profileDir !== this.current.profileDir) {
       throw new Error('profile resolution: a generation cannot change its profile scope')
     }
+    const rejected: string[] = []
     for (const [name, current] of this.current.entries) {
       const next = entries.get(name)
       // A profile-scoped mapping may leave the table once its plugins have stopped.
       if (next === undefined && current.scope === 'profile') continue
+      if (next !== undefined && current.scope === 'profile' && next.scope === 'profile') {
+        // A bundle-only fallback keeps its normalized directory; a package upgraded in place keeps that directory too,
+        // so its recorded version and declarer may move without the process holding a module of the old files.
+        if (sameResolution(current.packageDir, next.packageDir)) continue
+        rejected.push(`profile resolution: replacing ${JSON.stringify(name)} requires a process restart`)
+        continue
+      }
       if (next === undefined
         || !sameResolution(current.packageDir, next.packageDir)
         || (current.scope === 'installation' && !sameResolution(current.declarer, next.declarer))
-        || current.version !== next.version
+        || (current.scope === 'installation' && current.version !== next.version)
         || current.scope !== next.scope) {
-        throw new Error(`profile resolution: replacing ${JSON.stringify(name)} requires a process restart`)
+        rejected.push(`profile resolution: replacing ${JSON.stringify(name)} requires a process restart`)
       }
     }
     const localPackageNames = new Set(generation.localPackageNames)
     for (const name of localPackageNames) {
       if (!this.current.localPackageNames.has(name) && this.current.entries.has(name)) {
-        throw new Error(`profile resolution: overriding ${JSON.stringify(name)} locally requires a process restart`)
+        rejected.push(`profile resolution: overriding ${JSON.stringify(name)} locally requires a process restart`)
       }
     }
+    // Rejection is atomic: a caller restores the rows it stopped and reports the restart the changes need.
+    if (rejected.length > 0) throw new ResolutionRestartRequired(rejected.join('; '))
     this.current = compileGeneration(generation)
   }
 

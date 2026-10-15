@@ -1250,6 +1250,36 @@ describe('PluginManagerController', () => {
     expect(state().updates.entries).toEqual([{ name: BUNDLE.name, currentVersion: '0.16.0', latestVersion: '0.17.0' }])
   })
 
+  it('installs over a package the Host cannot remove without HMR, and keeps the reason it names', async () => {
+    const { plugins, face, state, controller } = bench({
+      removeBundle: vi.fn().mockResolvedValue(ok({ ...failed({ code: 'stop-profile' }), stage: 'remove' })),
+      installBundle: vi.fn().mockResolvedValue(ok({ ...APPLIED, application: 'restart-required', restartReason: 'no-hmr' })),
+      checkUpdates: vi.fn().mockResolvedValue(ok({ entries: [{ name: BUNDLE.name, currentVersion: '0.16.0', latestVersion: '0.17.0' }] })),
+    })
+    await controller.load()
+    face.checkUpdates()
+    await vi.waitFor(() => { expect(state().updates.entries).toHaveLength(1) })
+    face.updatePackage(BUNDLE.name)
+    await vi.waitFor(() => { expect(state().busy).toEqual([]) })
+    // The removal a profile without HMR cannot do is left to the installation, which reports the restart and its reason.
+    expect(plugins.installBundle).toHaveBeenCalledExactlyOnceWith(`${BUNDLE.name}@latest`, { enabled: false })
+    expect(state().notice).toEqual({ kind: 'restart', packageName: BUNDLE.name, reason: 'no-hmr', seq: 1 })
+  })
+
+  it('carries the restart reason the Host names into the finished installation', async () => {
+    const { face, state, controller } = bench({
+      installBundle: vi.fn().mockResolvedValue(ok({
+        ...APPLIED, application: 'restart-required', bundle: 'qilin-a', restartReason: 'module-comparison',
+      })),
+    })
+    await controller.load()
+    face.openInstall()
+    face.editInstallSpec('qilin-a')
+    face.runInstall()
+    await vi.waitFor(() => { expect(state().install.phase).toBe('done') })
+    expect(state().install).toMatchObject({ restartRequired: true, restartReason: 'module-comparison' })
+  })
+
   it('searches the catalog, appends a later page, and keeps the words of a failed search', async () => {
     const gate = deferred<ReturnType<typeof ok<CommunityPluginSnapshot>>>()
     const { plugins, face, state, controller } = bench({

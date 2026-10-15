@@ -66,7 +66,10 @@ describe('packageText and shortName', () => {
 describe('noticeText and managementText', () => {
   it('words each outcome, including the refusal codes a failed action carries', () => {
     expect(noticeText({ kind: 'cancelled', seq: 1 }, t)).toBe(en.installCancelled)
-    expect(noticeText({ kind: 'restart', packageName: 'qilin-x', seq: 2 }, t)).toBe(en.restartNotice)
+    expect(noticeText({ kind: 'restart', packageName: 'qilin-x', reason: undefined, seq: 2 }, t))
+      .toBe(en.restartNotice.replace(' {reason}', ''))
+    expect(noticeText({ kind: 'restart', packageName: 'qilin-x', reason: 'package-moved', seq: 3 }, t))
+      .toBe(en.restartNotice.replace('{reason}', en.restartReasonPackageMoved))
     expect(noticeText({ kind: 'overridden', packageName: 'qilin-x', seq: 3 }, t)).toBe(t('overriddenNotice', { name: 'qilin-x' }))
     expect(noticeText({ kind: 'failed', action: 'update', reason: 'ERR', seq: 4 }, t)).toBe(t('failedUpdate', { reason: 'ERR' }))
     expect(managementText({ code: 'not-removable' }, t)).toBe(en.reasonNotRemovable)

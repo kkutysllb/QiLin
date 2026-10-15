@@ -37,7 +37,7 @@ export type {
   ManagementError, PackageResult, PluginChange, PluginEntryId, PluginInfo, PluginInspectProblem,
   PluginInstallCancellation,
   PluginInstallFailureKind, PluginInstallLogChunk, PluginInstallProgress, PluginInstallRequestId, PluginRegistries, PluginSpecInspection,
-  PluginUpdateEntry, PluginUpdateSnapshot, ReadOnlyReason, Registry,
+  PluginUpdateEntry, PluginUpdateSnapshot, ReadOnlyReason, Registry, RestartReason,
 } from '@qilin-agent/plugin-manager/types'
 export type {} from '@qilin-agent/plugin-manager/remote'
 export type {} from '@qilin-agent/client-ui-plugin-manager/remote'

@@ -60,9 +60,9 @@ New Workers inherit the latest published generation. Existing Workers keep the g
 
 ### Additive package changes
 
-A caller adding a package completes its pnpm transaction before constructing a successor generation. Replacement rejects any generation that changes the directory or version of a retained package. Plugin Manager publishes the successor before mounting the new Loader row. A mount failure may leave the package installed but inactive.
+A caller adding a package completes its pnpm transaction before constructing a successor generation. Replacement rejects any generation that changes the directory of a retained package. Plugin Manager publishes the successor before mounting the new Loader row. A mount failure may leave the package installed but inactive.
 
-Changing an existing runtime package mapping or removing an installation mapping requires process restart because Node's ESM Module Map, CommonJS cache, existing object references, and running Workers can retain the old module identity. Profile-scoped mappings and profile-local package names may be removed; the caller stops their plugins before deleting package files. Generation replacement does not claim to unload modules.
+Changing an existing runtime package mapping's normalized directory or scope, or removing an installation mapping, requires process restart because Node's ESM Module Map, CommonJS cache, existing object references, and running Workers can retain the old module identity. A retained profile mapping may change its version and declarer while its normalized directory and scope stay, as a package upgraded in place does. Profile-scoped mappings and profile-local package names may be removed; the caller stops their plugins before deleting package files. Generation replacement does not claim to unload modules.
 
 ### Disk migration
 

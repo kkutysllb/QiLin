@@ -46,6 +46,8 @@ kind: "package-reference"
 
 Chokidar 选项（包括轮询）保持原有含义。精确配置监听同时观察新增、删除及初始不存在的父目录。它们默认使用 `awaitWriteFinish: true`：编辑后等待 Chokidar 的 2 秒写入稳定窗口，避免其变化事件节流丢失通知。可通过 `awaitWriteFinish` 调整窗口；禁用它可能漏掉快速连续编辑。直接通过 Plugin Manager 发起的操作无需等待文件事件即可应用。
 
+由 HMR 的 profile 监听或插件管理器发起的一次 profile 重新组合，还会替换那些已加载文件在磁盘上发生变化、且文件位于 profile 目录或其 `node_modules` 链接目标之下的插件。因此，就地改变了文件的包——例如构建产物变化的链接包，或被另一处安装升级的依赖——会在下一次重新组合时生效，无需重启。`reconcileProfile()` 会报告它替换了什么、还有什么需要重启以及原因。替换加载失败时，前一版插件会停止，并带着加载错误被报告为 `failed`，而不是报告为需要重启（那会加载同一批文件）；此后每次重新组合都会再次导入它，因此一旦其文件或依赖被修正，它就会启动。
+
 -----
 
 <a id="understand-the-implementation"></a>
@@ -94,7 +96,7 @@ Loader entry 保留原始导入结果。HMR 为每个 entry 名称与配置树 b
 <a id="known-limitations-and-deferred-work"></a>
 
 - 模块替换需要 Node loader 内部接口。框架依赖变化调用宿主提供的 `loader.exit()` 钩子；HMR 本身不重启进程。
-- 通过插件管理器替换已安装包版本仍需要重启；`node_modules` 之下的 manifest 保留 Node 缓存的配置。浏览器 Client 模块图保留独立的浏览器侧加载机制。
+- 仅 `package.json` 的改动不会被发现，`node_modules` 之下 manifest 的监听通知仍被忽略。浏览器 Client 模块图保留独立的浏览器侧加载机制。
 - TSX loader 和普通应用自行创建的 Worker 不在包缓存刷新支持范围内。
 - CommonJS 请求必须能由 Node 默认 resolver 解析。同步 hook 可以像 Desktop 的 Office resolver 一样处理解析后的文件名；依赖原始请求名或引入虚拟请求的 hook 不受支持。内置模块保留 Node 原有的加载行为。
 - 后续工作：跨 HMR 销毁和替换保留包配置失效状态。恢复原生 reader 后，其旧配置缓存可能重新可见。

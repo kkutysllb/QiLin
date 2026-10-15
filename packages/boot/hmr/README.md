@@ -46,6 +46,8 @@ Existing configurations replace the module name `@qilin-agent/kylin-plugin-hmr` 
 
 Chokidar options, including polling, retain their existing meaning. Exact configuration watches also observe additions, removals and initially missing parent directories. They default to `awaitWriteFinish: true`: edits wait for Chokidar's 2-second write-stability window, avoiding its lossy change-event throttle. Configure `awaitWriteFinish` to adjust that window; disabling it can miss rapid consecutive edits. Direct Plugin Manager operations apply without waiting for file events.
 
+A profile recomposition, run by HMR's profile watches or by Plugin Manager, also replaces the plugins whose loaded files below the profile directory or below the targets of its `node_modules` links changed on disk. A package whose files changed in place, such as a linked package whose build output changed or a dependency another installation upgraded, therefore takes effect at the next recomposition without a restart. `reconcileProfile()` reports what it replaced, what still needs a restart, and why. A replacement that fails to load stops the previous plugin and is reported as `failed` with its load error instead of as a restart, which would load the same files; every later recomposition imports it again, so it starts once its files or dependencies are corrected.
+
 -----
 
 <a id="understand-the-implementation"></a>
@@ -94,7 +96,7 @@ Reloading a contributing plugin can change later request prefixes; HMR does not 
 <a id="known-limitations-and-deferred-work"></a>
 
 - Module replacement requires Node loader internals. Framework dependency changes call the host-provided `loader.exit()` hook; HMR itself does not restart the process.
-- Replacing installed package versions still requires a restart through Plugin Manager; manifests below `node_modules` keep Node's cached configuration. The browser Client module graph retains its separate browser-side loading mechanism.
+- A change confined to `package.json` is not detected, and watcher notifications for manifests below `node_modules` are still ignored. The browser Client module graph retains its separate browser-side loading mechanism.
 - TSX loaders and ordinary application-created Workers are outside the supported package-cache refresh scope.
 - CommonJS requests must be resolvable by Node's default resolver. Synchronous hooks may postprocess the resulting filenames, as Desktop's Office resolver does; hooks requiring the original request name or introducing virtual requests are unsupported. Builtins retain Node's original loading behavior.
 - Future work: retain package invalidation across HMR disposal and replacement. Restoring the native readers can expose their older cached configuration again.

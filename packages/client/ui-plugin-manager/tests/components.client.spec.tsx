@@ -963,14 +963,14 @@ describe('PluginManagerPage', () => {
     // A path without a description reads by its kind.
     expect(screen.getByText('qilin-x')).toBeTruthy()
     expect(screen.getByText(en.installSubjectPath)).toBeTruthy()
-    expect(screen.queryByText(en.installDoneRestart)).toBeNull()
+    expect(screen.queryByText(en.installDoneRestart.replace(' {reason}', ''))).toBeNull()
     // No way back to the spec from here; enabling is the one action.
     expect(screen.queryByRole('button', { name: en.installEditAria })).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: en.installEnableNow }))
     expect(actions.enableInstalled).toHaveBeenCalledTimes(1)
     set({ install: { ...IDLE_INSTALL, open: true, spec: '/plugins/qilin-x', phase: 'done', subject, installed: 'qilin-x', restartRequired: true, enabling: true } })
     expect(screen.getByRole('button', { name: en.installEnableNow })).toHaveProperty('disabled', true)
-    expect(screen.getByText(en.installDoneRestart)).toBeTruthy()
+    expect(screen.getByText(en.installDoneRestart.replace(' {reason}', ''))).toBeTruthy()
 
     // A run that named no bundle leaves only Done.
     set({ install: { ...IDLE_INSTALL, open: true, spec: 'qilin-x', phase: 'done', subject: { spec: 'qilin-x', status: 'accepted', kind: 'registry', name: 'qilin-x', bundle: true, registry: null } } })
@@ -1122,8 +1122,10 @@ describe('PluginManagerPage', () => {
   it('words every notice as a toast that dismisses itself', () => {
     vi.useFakeTimers()
     try {
-      const { actions, set } = renderTab({ notice: { kind: 'restart', packageName: 'x', seq: 1 } })
-      expect(screen.getByRole('alert').textContent).toContain(en.restartNotice)
+      const { actions, set } = renderTab({ notice: { kind: 'restart', packageName: 'x', reason: 'host-module', seq: 1 } })
+      // The toast names why the change waits.
+      expect(screen.getByRole('alert').textContent)
+        .toContain(en.restartNotice.replace('{reason}', en.restartReasonHostModule))
       set({ notice: { kind: 'overridden', packageName: 'pkg-1', seq: 2 } })
       expect(screen.getByRole('alert').textContent).toContain(en.overriddenNotice.replace('{name}', 'pkg-1'))
       set({ notice: { kind: 'cancelled', seq: 3 } })

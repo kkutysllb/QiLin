@@ -27,6 +27,7 @@ import type {
   PluginUpdateEntry,
   ReadOnlyReason,
   Registry,
+  RestartReason,
 } from '@qilin-agent/api-remotes/client'
 import { normalizeRegistry, NPMMIRROR_REGISTRY, OFFICIAL_NPM_REGISTRY, REGISTRY_URL } from '@qilin-agent/plugin-manager/registry'
 import type { LocalizedText, PluginLocalizedMeta } from '@qilin-agent/package-manifest'
@@ -41,7 +42,7 @@ export type FailedAction = 'enable' | 'disable' | 'uninstall' | 'rowEnable' | 'r
 
 /** What the last action left to say, shown as a toast; `seq` tells one showing from the next. */
 export type ManagerNotice =
-  | { readonly kind: 'restart'; readonly packageName: string; readonly seq: number }
+  | { readonly kind: 'restart'; readonly packageName: string; readonly reason: RestartReason | undefined; readonly seq: number }
   | { readonly kind: 'overridden'; readonly packageName: string; readonly seq: number }
   | { readonly kind: 'cancelled'; readonly seq: number }
   | { readonly kind: 'refresh-failed'; readonly seq: number }
@@ -216,6 +217,8 @@ export interface InstallState {
   readonly installedVersion: string | null
   /** Whether the finished run's bundle waits for the next start to load. */
   readonly restartRequired: boolean
+  /** Why it waits, when the Host says. */
+  readonly restartReason?: RestartReason
   /**
    * The run's failure, once one settled the dialog: the Host's refusal
    * `code` with its diagnostic as `reason`, or the transport's words alone;
@@ -998,6 +1001,7 @@ export class PluginManagerController {
         installed: result.value.bundle ?? null,
         installedVersion: result.value.version ?? null,
         restartRequired: result.value.application === 'restart-required',
+        ...result.value.restartReason === undefined ? {} : { restartReason: result.value.restartReason },
         approvedBuilds: result.value.approvedBuilds ?? [],
         ...asked,
       })
@@ -1102,12 +1106,17 @@ export class PluginManagerController {
   }
 
   /**
-   * Upgrade one layer through the Host's install path. The install never
-   * changes the layer's place in the profile: the composition is left as it is.
+   * Upgrade one layer through the Host's install path. An upgrade is a removal and an installation: the Host refuses
+   * to install over an installed package, and the removal stops its plugins while the package is still mapped. The
+   * install never changes the layer's place in the profile: the composition is left as it is.
    * @param packageName - the installed package to move to its registry latest version.
    */
   private async updatePackage(packageName: string): Promise<void> {
     await this.run(packageName, { packageName, action: 'update' }, async () => {
+      const removed = await this.ctx.remote.pluginManager.removeBundle(packageName)
+      // Without HMR a running bundle cannot be removed, so the installation over it waits for the restart it reports.
+      const stopped = removed.ok && removed.value.error?.code === 'stop-profile'
+      if (!stopped) this.applied(removed, packageName)
       this.applied(await this.ctx.remote.pluginManager.installBundle(`${packageName}@latest`, { enabled: false }), packageName)
       const { updates } = this.getSnapshot()
       this.patch({ updates: { ...updates, entries: updates.entries.filter(entry => entry.name !== packageName) } })
@@ -1191,7 +1200,7 @@ export class PluginManagerController {
         this.patch({ notice: { kind: 'cancelled', seq: ++this.noticeSeq } })
         return
       case 'restart-required':
-        this.patch({ notice: { kind: 'restart', packageName, seq: ++this.noticeSeq } })
+        this.patch({ notice: { kind: 'restart', packageName, reason: result.restartReason, seq: ++this.noticeSeq } })
         return
       case 'overridden':
         this.patch({ notice: { kind: 'overridden', packageName, seq: ++this.noticeSeq } })
