@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/session-checkpoint-policy",
   "description": "Semantic session durability checkpoints before model requests and tool side effects",
-  "version": "3.1.5",
+  "version": "3.1.6-rc.1",
   "publishConfig": {
     "access": "public"
   },

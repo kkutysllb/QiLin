@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/experimental-badge-skill-bundle",
   "description": "Offer the powered-by-qilin badge as a discoverable skill.",
-  "version": "3.1.5",
+  "version": "3.1.6-rc.1",
   "icon": "./icon.svg",
   "publishConfig": {
     "access": "public"
