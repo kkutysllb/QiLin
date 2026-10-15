@@ -139,3 +139,27 @@ find /path/to/deepseek-harness -name package.json -path '*desktop-runtime*'   # 
 - `/tmp/desktop-parked-2026-10-16/desktop`：`apps/desktop` 主体 108 文件（已 rescope ✓；打包专用 devDeps 已按 P3 撤下 ✓；两处上游 `as unknown` 的基线指纹见 上一提交 之前的会话记录 ✓）。
 - `/tmp/desktop-parked-2026-10-16/product-analytics`：类型面包（已过 `verify-client-packages` ✓ 与自身 `tsc -b` ✓，README 已按骨架重写 ✓）。
 - 依据仍是上游仓（真相来源 ✓）+ 本文的 rescope 规则 ✓。
+
+### P1 第五块：`apps/desktop` 实际编译与适配清单（2026-10-16，本轮实测）
+
+**错误收敛过程（每次都实测 ✓）**：恢复后首次 `tsc -b` ~300 错（几乎全是 project reference 路径 ✓）→ 修引用后 **33 错**（模块解析问题 100% 来自账号栈：`@qilin-agent/account`/`account/types` 10 处 + `api-gateway/stream-protocol` 1 处 ✓）→ 按边界剔除账号/欢迎栈后 **47 错**（16 个隐式 any + 9 个指向被删文件的 import + 8 个缺失导出 + 6 个 TS7016 + 4 个 TS2339 + 3 个 TS18048 ✓）。
+
+**已确认的真因与修法（下一轮直接用）**：
+
+| 现象 | 真因 | 修法 |
+|---|---|---|
+| `Cannot find module 'electron'` | 我在上一轮把 `electron` 当打包依赖撤了 ✗ | `electron: ^44.7.0` 必须作为 **devDependency** 存在（打包工具链如 `electron-winstaller` 才可继续推迟 ✓） |
+| `Cannot find module '@qilin-agent/client-ui-shortcuts'` | 上游名 `dsh-client-shortcuts` 映射错 | 本仓实名 **`@qilin-agent/client-shortcuts`**（其 `./protocol` 子路径存在 ✓） |
+| `@qilin-agent/client-ui-sidebar-browser/types` | 该包只有 `.` 与 `./client` | 改 import 为 **`/client`** |
+| `@qilin-agent/api-gateway/stream-protocol` | 该包只有 `.`/`./client`/`./types` | **只有 `account-backend.ts` 用它** ✓ → 随账号栈一起剔除，无需解析 |
+| `Referenced project … must have "composite": true` | 我引用的是包的 **solution** `tsconfig.json`（`files: []` ✗） | 一律引用 **`tsconfig.host.json`** 这类真实 project ✓ |
+| 源目录里冒出 `.js/.d.ts` | `tsc -b` 在被引用的 project 上按 desktop 的 emit 选项写回了 src ✗ | 清理并避免；后续给 desktop 的 face 加 `noEmit`/仅类型检查的用法 |
+
+**剩余待适配面（精确清单 ✓）**：
+
+- 需**移除**（账号/欢迎栈，边界排除 ✓）：`account-backend.ts`、`welcome-api.ts`、`welcome-backend.ts`、`welcome-window.ts`、`preload-welcome.ts`、`platform-view.ts`、`mandatory-update-policy.ts`（已删 ✓）。
+- 需**改写**（仍在引用被删模块 ✓）：`main.ts`（21 错）、`mandatory-update-window.ts`、`client/WelcomePage.tsx`（7 错）、`client/welcome.tsx`（4 错）。
+- 需**类型适配**：`RuntimeResources.dsh`（本仓该类型无 `dsh` 字段 ✗）、`preload-browser.ts`（6 错）、`browser-guests.ts`（3 错）、`project-manager.ts`（2 错）、`host-process.ts`（2 错）。
+- **策略**（沿用既有边界 ✓）：账号/欢迎面在本仓由 `ui-account` 的 `/api/auth` 承担 ✓，桌面的 welcome 流程改为消费本仓账号缝或降级为直连工作区；不移植 `deepseek-account` 栈 ✓。
+
+**暂存位置**（可随时取回 ✓）：`/tmp/desktop-parked-2026-10-16/desktop-adapted`（= 已 rescope + 已修引用 + 已剔除账号栈的版本 ✓）。
