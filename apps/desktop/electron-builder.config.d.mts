@@ -4,7 +4,7 @@ import type { AfterPackContext, BeforePackContext } from 'app-builder-lib'
 export interface DesktopElectronBuilderConfig {
   readonly appId: string
   readonly artifactName: string
-  readonly protocols: readonly [{ readonly name: 'DeepSeek Harness'; readonly schemes: readonly ['qilin'] }]
+  readonly protocols: readonly [{ readonly name: 'QiLin Desktop'; readonly schemes: readonly ['qilin'] }]
   readonly directories: {
     readonly output: string
   }
@@ -13,7 +13,7 @@ export interface DesktopElectronBuilderConfig {
     { readonly from: string, readonly to: 'qilin', readonly filter: readonly ['**/*'] },
     { readonly from: string, readonly to: 'qilin/node_modules', readonly filter: readonly ['**/*'] },
   ]
-  readonly extraMetadata: { readonly dshDesktopAppId: string }
+  readonly extraMetadata: { readonly qilinDesktopAppId: string }
   readonly asarUnpack: readonly string[]
   readonly extraResources: readonly [
     { readonly from: string, readonly to: 'runtime' },

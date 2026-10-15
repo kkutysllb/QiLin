@@ -39,7 +39,7 @@ export async function verifyInstalledUpdatePackageContent(manifest: string, vers
   const metadata = object(await archive.readJson('package.json'))
   const policy = resolveDesktopPolicyConfig(metadata.dshMandatoryUpdatePolicy)
   if (metadata.name !== `dsh-update-test-${run.id}` || metadata.version !== version
-    || metadata.dshDesktopAppId !== run.appId || metadata.main !== 'qualification-bootstrap.mjs'
+    || metadata.qilinDesktopAppId !== run.appId || metadata.main !== 'qualification-bootstrap.mjs'
     || metadata.type !== 'module' || policy?.authentication !== 'feishu-test') {
     throw new Error('installed update: packaged application identity, version, entry, or policy differs')
   }

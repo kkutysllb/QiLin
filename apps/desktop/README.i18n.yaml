@@ -5,75 +5,75 @@
 /:
   en: 0d36989eb614345d
   zh: a0a1a18c07621393
-/deepseek-harness-desktop:
-  en: ef389031327e5a7c
-  zh: 78e2b6c26e4c440b
-/deepseek-harness-desktop/summary:
+/qilin-desktop-desktop:
+  en: 517455eb4115e86d
+  zh: 6236824711070198
+/qilin-desktop-desktop/summary:
   en: 7bc8bf30de693222
   zh: e85993d8852b6cab
-/deepseek-harness-desktop/table-of-contents:
+/qilin-desktop-desktop/table-of-contents:
   en: 05fd227f99ee535a
   zh: 60d7d62bc0026973
-/deepseek-harness-desktop/application-overview:
-  en: e897c4ac2c19b114
-  zh: 5d19a67e0a0bf03b
-/deepseek-harness-desktop/terminal-command:
-  en: 9d18f60c4fb79a81
-  zh: 5eacece34764b743
-/deepseek-harness-desktop/closing-the-window-and-quitting:
-  en: 24387a07ae4eb8e7
-  zh: 0119352685cf273c
-/deepseek-harness-desktop/key-technical-decisions:
-  en: 0b9284fd8d7ec8f6
-  zh: b7307eb851797112
-/deepseek-harness-desktop/key-technical-decisions/bundled-workspace-dependencies:
-  en: b3fcf92432c9fb1e
-  zh: 8ef7269026a717c0
-/deepseek-harness-desktop/bundled-command-runtime:
-  en: 372297005b57a08b
-  zh: 074a635ac17e4362
-/deepseek-harness-desktop/installation-ownership:
-  en: d17be454bebbf99d
-  zh: 8cebe9957b26ae3a
-/deepseek-harness-desktop/installation-ownership/runtime-and-plugin-activation:
-  en: 49c545d92dd043d1
-  zh: 1eae50fa3ceeae22
-/deepseek-harness-desktop/installation-ownership/host-environment:
-  en: 98cf848762482d48
-  zh: 74f9100a39ec8c2f
-/deepseek-harness-desktop/develop:
-  en: 1d8bb65a3d5b4c87
-  zh: 51cea772352ebcef
-/deepseek-harness-desktop/develop/startup-onboarding:
-  en: a51346b8d880ddba
-  zh: 7913214c1c66063c
-/deepseek-harness-desktop/develop/welcome-window-appearance:
+/qilin-desktop-desktop/application-overview:
+  en: 5ec800129a3b52e1
+  zh: f168527405890d73
+/qilin-desktop-desktop/terminal-command:
+  en: 79dba206fff8643d
+  zh: 9abe8f7c756e86fd
+/qilin-desktop-desktop/closing-the-window-and-quitting:
+  en: 892e4df9961ec303
+  zh: 2298945feab91889
+/qilin-desktop-desktop/key-technical-decisions:
+  en: 2b75d72e6eb8da5b
+  zh: d1757564e99cdea1
+/qilin-desktop-desktop/key-technical-decisions/bundled-workspace-dependencies:
+  en: faca57c2abb28bf0
+  zh: f5067bab55c38de3
+/qilin-desktop-desktop/bundled-command-runtime:
+  en: 61d28fcca0e1b76d
+  zh: b6cece346c47a742
+/qilin-desktop-desktop/installation-ownership:
+  en: ca8d961f3abb1f91
+  zh: 9d81e04a276b9961
+/qilin-desktop-desktop/installation-ownership/runtime-and-plugin-activation:
+  en: 6e82e0d461ede0e3
+  zh: 6b079fab1642e041
+/qilin-desktop-desktop/installation-ownership/host-environment:
+  en: 003015713d291434
+  zh: 45c56d8f288cfda3
+/qilin-desktop-desktop/develop:
+  en: 35afaf14d3fce046
+  zh: 65deef15b2680f06
+/qilin-desktop-desktop/develop/startup-onboarding:
+  en: 9f6ce48b48bf6075
+  zh: 1828761b747881aa
+/qilin-desktop-desktop/develop/welcome-window-appearance:
   en: eca626dd5f8c58da
   zh: 3ec1f6dd62a6018a
-/deepseek-harness-desktop/package:
+/qilin-desktop-desktop/package:
   en: 8ac4754a3e813502
   zh: cd88676f4d6f77a5
-/deepseek-harness-desktop/windows-installer-interface:
-  en: ba762a7fbcd76d5c
-  zh: 4b153bc8ce43c447
-/deepseek-harness-desktop/updates:
-  en: a81090cf99e27a6a
-  zh: d8fb133d34c810a1
-/deepseek-harness-desktop/updates/local-desktop-settings:
-  en: 4f6060afcdb3b5b6
-  zh: 13cbc2c56bf0e618
-/deepseek-harness-desktop/updates/mandatory-update-policy:
-  en: 54596bef0706d305
-  zh: 48737302dcf3c939
-/deepseek-harness-desktop/updates/local-updater-qualification:
-  en: 88571427bede9d8e
-  zh: 355e655b3a8990d0
-/deepseek-harness-desktop/low-level-development-overrides:
-  en: 8264b135871e8978
-  zh: 0939aafb1b2961fc
-/deepseek-harness-desktop/known-limitations:
-  en: c63d4dc7a9104954
-  zh: a4c676e5b46a6ac0
-/deepseek-harness-desktop/dev-note:
+/qilin-desktop-desktop/windows-installer-interface:
+  en: 2c662a803f6efd13
+  zh: 2bde6f2f86c47f8d
+/qilin-desktop-desktop/updates:
+  en: fb8ca6d3dead13f6
+  zh: 5480311fa960c292
+/qilin-desktop-desktop/updates/local-desktop-settings:
+  en: 63592d7d3bbddcca
+  zh: 762bdcb5f176ba19
+/qilin-desktop-desktop/updates/mandatory-update-policy:
+  en: b8e1f8007a850cff
+  zh: a5323c4471831bdf
+/qilin-desktop-desktop/updates/local-updater-qualification:
+  en: 7234f242d9a8d40f
+  zh: dded1584b5034749
+/qilin-desktop-desktop/low-level-development-overrides:
+  en: 828c3577ff87a967
+  zh: 078d4e7dc1d823dd
+/qilin-desktop-desktop/known-limitations:
+  en: a6a1690cefdb9364
+  zh: a561a80ca1eb6dab
+/qilin-desktop-desktop/dev-note:
   en: 42fc286cb48490ba
   zh: 4758005fd7dcc756

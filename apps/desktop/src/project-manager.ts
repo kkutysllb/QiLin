@@ -27,7 +27,7 @@ import {
 } from '@qilin-agent/app-boot'
 
 const PROJECT_NAME = '@qilin-agent/desktop-runtime'
-const DSH_PACKAGE = '@qilin-agent/cli'
+const QILIN_PACKAGE = '@qilin-agent/cli'
 const CORE_BUILD_PACKAGE = '@qilin-agent/subprocess-local'
 const WEB_PROFILE = PROFILE_TEMPLATES.web as ProfileTemplate
 const WORKSPACE_SETTINGS = 'nodeLinker: hoisted\nautoInstallPeers: false\n'
@@ -160,7 +160,7 @@ export function createDevelopmentProjectMetadata(projectDir: string, release: De
     private: true,
     version: '0.0.0',
     dependencies: {
-      [DSH_PACKAGE]: release.version,
+      [QILIN_PACKAGE]: release.version,
       [DESKTOP_HOST_PACKAGE]: release.version,
     },
     qilin: { profile: { bundles: [...WEB_PROFILE.bundles] } },
