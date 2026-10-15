@@ -387,13 +387,13 @@ describe('profile recomposition', () => {
 
   it('reports a throwing disabled expression without rejecting', async () => {
     const { generation } = await installedGeneration()
-    const expression = (): PatchOptions[] => {
-      const rows = inserted({ id: 'expr', name: './plug.mjs' })
-      // The loader accepts a JavaScript expression object where its option
-      // type declares the resolved boolean; set it the way the hmr specs do.
-      Reflect.set(rows[0]!, 'disabled', { __jsExpr: '(() => { throw new Error("disabled expression failed") })()' })
-      return rows
-    }
+    // The loader evaluates a JavaScript expression object here while its option
+    // type declares the resolved boolean, so the bridge is recorded in the
+    // unknown-cast baseline instead of widened in place.
+    const expression = (): PatchOptions[] => inserted({
+      id: 'expr', name: './plug.mjs',
+      disabled: { __jsExpr: '(() => { throw new Error("disabled expression failed") })()' } as unknown as boolean,
+    })
     const { ctx } = await composition({
       patches: expression(),
       modules: { 'plug.mjs': RECORDER },

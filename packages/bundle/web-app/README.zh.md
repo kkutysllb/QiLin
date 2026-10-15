@@ -42,7 +42,7 @@ qilin --profile web --no-open --port 8080
 
 ### 配置
 
-`--host` 与 `--port` 配置监听器；`--public-url` 指定 GUI 在剥离前缀的代理之后对外公告的公开 HTTP(S) 根，`--trusted-host` 则添加更多被接受的 authority。两者都在[监听器 URL 与信任 authority](#监听地址-url-与信任权威)中说明：
+`--host` 与 `--port` 配置监听器；`--public-url` 指定 GUI 在剥离前缀的代理之后对外公告的公开 HTTP(S) 根，`--trusted-host` 则添加更多被接受的 authority。两者都在[监听器 URL 与信任 authority](#listener-url-and-trust-authorities)中说明：
 
 | 字段 | 默认值 | 含义 |
 |---|---|---|
@@ -88,6 +88,8 @@ patch 会替换目标行的整个 `config`，因此每个 Web 行都重述自己
 ### 就绪宣告
 
 URL 行与浏览器交接都是就绪信号：监督方一观察到该行就发起 RPC，浏览器一打开就请求页面，因此两者只在 Loader 配置树结算、通过 required 启动检查且 Connection 认证可用后运行——在没有 Loader 的手工构建树中则立即运行。此时 client combo JavaScript 和 source map 仍未物化。可选插件失败不会阻止就绪宣告；required 启动失败或启动中途被释放的树不会宣告任何内容。
+
+<a id="listener-url-and-trust-authorities"></a>
 
 ### 监听地址 URL 与信任权威
 

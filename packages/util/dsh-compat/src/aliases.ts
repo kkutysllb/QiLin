@@ -1,8 +1,8 @@
 /**
  * DSH-era module-name aliases.
  *
- * QiLin renamed every harness package (`@deepseek-ai/cordis` → `@qilin-agent/kylin`,
- * `@deepseek-ai/dsh-client-ui-slots` → `@qilin-agent/client-ui-slots`, …), but the
+ * QiLin renamed every harness package in the scope below, but the
+ * channel sync still hands this layer the upstream spellings, so
  * DSH plugin ecosystem ships prebuilt bundles whose factories `require()` the
  * old names. The static platform aliases keep those `require` calls resolvable
  * against QiLin's module table, and {@link dshCompatModuleId} canonicalizes the
@@ -55,7 +55,7 @@ const QILIN_SCOPE = '@qilin-agent/'
 const QILIN_EXACT_ALIASES: Readonly<Record<string, string>> = {
   '@qilin-agent/kylin': '@deepseek-ai/cordis',
   '@qilin-agent/schemastery': '@deepseek-ai/schemastery',
-  '@qilin-agent/cosmokit': 'cosmokit',
+  '@qilin-agent/cosmokit': '@qilin-agent/cosmokit',
   '@qilin-agent/cli': '@deepseek-ai/dsh',
   '@qilin-agent/client-store': '@deepseek-ai/dsh-client-store',
   '@qilin-agent/client-ui-slots': '@deepseek-ai/dsh-client-ui-slots',
