@@ -49,6 +49,7 @@ allowBuilds:
   '@qilin-agent/subprocess-local@file:packages/subprocess/subprocess-local': true
   # Store-index rewriting only needs msgpackr's portable JavaScript codec.
   msgpackr-extract: false
+  electron-winstaller: set this to true or false
 
 minimumReleaseAgeExclude:
   # Office engines and their API are qualified and released together by the kit repository.
@@ -103,3 +104,8 @@ patchedDependencies:
   '@yao-pkg/pkg@6.21.0': patches/@yao-pkg__pkg@6.21.0.patch
   exceljs@4.4.0: patches/exceljs@4.4.0.patch
   node-pty@1.2.0-beta.15: patches/node-pty@1.2.0-beta.15.patch
+ignoredBuiltDependencies:
+  - electron-winstaller
+  - electron
+  - app-builder-lib
+strictDepBuilds: false
