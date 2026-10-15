@@ -31,6 +31,12 @@
     "0161b6068831f99593a6c70a593efd569a85f1f3a2832ecfc57afdff3b88ce97": 1,
     "a2b9a35fdf6552ba148d15436c9b3f98ed5763a2b91a95f579b951fd6613e75c": 1
   },
+  "apps/desktop/src/main.ts": {
+    "e3362213edd415fbb267d8e6b94f1b3ae77e047b3a4609ccf9e08063fac7a7bd": 1
+  },
+  "apps/desktop/src/runtime-tree.ts": {
+    "bd54ced9c67761b49e3d039cb8eb6cbcb22f1e9e51b903a3b98ed8364863fac0": 1
+  },
   "apps/web/tests/assembled-boot.ts": {
     "203f87d9e4f18ce1f00bf575fe96f724975341cbb67b8c51ea45d4cbb8e60005": 1,
     "56cede35ce34488cdae4b19aec217c9c939377eb891fe68827fbd64cd019170c": 1

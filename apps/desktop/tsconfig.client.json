@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.base.client.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "lib/types"
+  },
+  "include": [
+    "src/client",
+    "src/welcome-api.ts",
+    "src/locale.ts",
+    "src/account-types.ts",
+    "src/browser-bridge-types.ts"
+  ],
+  "references": [
+    {
+      "path": "../../packages/client/ui-primitives"
+    },
+    {
+      "path": "./../../packages/api/product-analytics/tsconfig.host.json"
+    }
+  ]
+}
