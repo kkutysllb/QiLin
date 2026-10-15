@@ -253,6 +253,14 @@ export class PluginManager extends TypertRemoteService {
    * URLs against its default registry unless they belong to a named registry, so a later removal names it again.
    */
   private readonly installedFrom = new Map<string, Registry>()
+  /** Row module names already served as settings namespaces. */
+  private readonly servedConfigNamespaces = new Set<string>()
+  /** Row module names the settings namespace grammar refused; warned once, never retried. */
+  private readonly refusedConfigNamespaces = new Set<string>()
+  /** Last value returned to each namespace's row, by namespace, to skip unchanged echoes. */
+  private readonly configReturns = new Map<string, string>()
+  /** Tail of the namespace sync chain; loader events may fire back to back. */
+  private namespaceSync: Promise<void> = Promise.resolve()
 
   constructor(ctx: Context, config: Config) {
     super(ctx, 'pluginManager')
@@ -272,6 +280,12 @@ export class PluginManager extends TypertRemoteService {
       this.abort.abort()
       await Promise.allSettled([...this.packageOperations])
     }, 'plugin-manager: package cancellation')
+    ctx.effect(() => {
+      const sync = (): void => { this.syncRowConfigNamespaces() }
+      sync()
+      const offs = [ctx.on('loader/entry-init', sync), ctx.on('loader/config-update', sync)]
+      return () => { for (const off of offs) off() }
+    }, 'plugin-manager: plugin configuration namespaces')
   }
 
   /** Read exact plugin-version exemptions saved in this profile.
@@ -574,6 +588,91 @@ export class PluginManager extends TypertRemoteService {
     // The Loader keeps one entry per row id; a resolved entry names the module it imports, not the patch literal.
     const entry = [...this.ctx.loader.entries()].find(candidate => candidate.options.id === rowId)
     return { row, entry }
+  }
+
+  /**
+   * Serve every configurable row's exported `Config` as a settings namespace.
+   *
+   * A plugin that ships its own configuration UI in its client half registers
+   * that UI only while the Host serves a settings namespace named after the
+   * plugin (`ctx.configForms.whileServed`); nothing else publishes one, so
+   * without this a third-party plugin's own grouped form never appears. Each
+   * namespace resolves its row's `Config` over the configuration the row runs
+   * with, and a committed write returns to that row's patch through
+   * {@link setBundleConfig}, which keeps the patch the one store a restart reads
+   * back. The sync is idempotent per row, so loader events may call it freely.
+   */
+  private syncRowConfigNamespaces(): void {
+    this.namespaceSync = this.namespaceSync
+      .then(() => this.serveRowConfigNamespaces())
+      .catch((error: unknown) => {
+        this.ctx.logger.warn(`plugin-manager: serving plugin configuration namespaces failed: ${messageOf(error)}`)
+      })
+  }
+
+  private async serveRowConfigNamespaces(): Promise<void> {
+    const settings = this.ctx.get('settings')
+    if (settings === undefined) return
+    for (const bundle of await this.listBundles()) {
+      for (const row of bundle.rows) {
+        if (row.configurable !== true || this.servedConfigNamespaces.has(row.moduleName)
+          || this.refusedConfigNamespaces.has(row.moduleName)) continue
+        const live = this.liveRow(bundle.name, row.rowId)
+        const schema = (this.ctx.loader.unwrapExports(live?.entry?.moduleNamespace) as { Config?: unknown } | undefined)?.Config
+        /* v8 ignore next -- the row's configurable flag is this same test, answered on the same read */
+        if (typeof (schema as { toJSON?: unknown } | undefined)?.toJSON !== 'function') continue
+        const values = (live?.entry?.fiber?.config ?? live?.row.config ?? {}) as Record<string, unknown>
+        if (this.serveRowConfigNamespace(bundle.name, row, schema, values)) {
+          this.servedConfigNamespaces.add(row.moduleName)
+        }
+      }
+    }
+  }
+
+  /** Register one row's namespace, or record a name the settings grammar refuses.
+   * @param name - the bundle package name the row belongs to.
+   * @param row - the row whose module exports the schema.
+   * @param schema - the row module's exported schemastery `Config`.
+   * @param values - the configuration the row runs with, as the namespace base layer.
+   * @returns whether the namespace is now served.
+   */
+  private serveRowConfigNamespace(
+    name: string, row: BundleRowInfo, schema: unknown, values: Record<string, unknown>,
+  ): boolean {
+    const settings = this.ctx.get('settings')
+    if (settings === undefined) return false
+    try {
+      const scope = settings.register(row.moduleName, schema as z<Record<string, unknown>>, { base: values })
+      scope.watch(() => {
+        void this.returnRowConfig(row.moduleName, name, row.rowId, scope.get())
+      })
+      return true
+    } catch (error) {
+      // A name the settings grammar refuses (an npm scope, an underscore) keeps the row's generic form.
+      this.refusedConfigNamespaces.add(row.moduleName)
+      this.ctx.logger.debug(`plugin-manager: "${row.moduleName}" is not a settings namespace: ${messageOf(error)}`)
+      return false
+    }
+  }
+
+  /** Return one settings write to its row's patch configuration, skipping an unchanged echo.
+   * @param namespace - the settings namespace the write committed on.
+   * @param name - the bundle package name the row belongs to.
+   * @param rowId - the row id as the bundle patch declares it.
+   * @param values - the resolved configuration to write.
+   */
+  private async returnRowConfig(
+    namespace: string, name: string, rowId: string, values: Record<string, unknown>,
+  ): Promise<void> {
+    const encoded = JSON.stringify(values)
+    if (this.configReturns.get(namespace) === encoded) return
+    this.configReturns.set(namespace, encoded)
+    try {
+      await this.setBundleConfig(name, rowId, values as JsonValue)
+    } catch (error) {
+      this.configReturns.delete(namespace)
+      this.ctx.logger.warn(`plugin-manager: writing "${namespace}" back to its row failed: ${messageOf(error)}`)
+    }
   }
 
   /** Read one bundle row configuration schema and current values for the plugin page row form.

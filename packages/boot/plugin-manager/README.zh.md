@@ -64,6 +64,8 @@ CLI 提供 `qilin plugin --profile <profile> version-exemptions`、`allow-versio
 
 ### 配置
 
+模块导出 schemastery `Config` 的行会以该模块名注册为 settings 命名空间，并以该行实际运行的配置作为解析基础。自带配置界面的插件只在这样的命名空间存在时才注册它的界面，因此这一步决定了第三方插件能否在插件页显示它自己的分组表单，而不是通用行表单。提交的写入会经由 `setBundleConfig` 回写到该行的 patch 条目，patch 始终是重启后读取的唯一存储。
+
 | 字段 | 默认值 | 含义 |
 |---|---|---|
 | `pnpmCommand` | `pnpm` | pnpm 可执行文件名或路径，与 `qilin plugin` 命令一样通过 `PATH` 解析。 |

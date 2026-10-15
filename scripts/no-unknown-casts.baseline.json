@@ -773,9 +773,6 @@
   "packages/client/ui-settings-unarchive-sessions/tests/components.client.spec.tsx": {
     "1146777416bccb44175e64f81d984c795a00fe90a5cad84f88cbf51b35ca6940": 1
   },
-  "packages/client/ui-settings/src/client/schema.ts": {
-    "2994ddac72096564a65b1d11cfe50c5b5f21de0cca775ed7b758d031b9a4df99": 1
-  },
   "packages/client/ui-settings/tests/schema.client.spec.ts": {
     "0584be4cde4cd33049ef7c02e9d1562a30ec48ef2176f2f22b328b5be2903407": 1
   },

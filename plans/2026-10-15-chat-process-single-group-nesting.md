@@ -69,8 +69,6 @@ instead of DSH's single header with nested rows.
 
 ## Open questions
 
-- DSH's exact row rhythm and indent per level (screenshots show roughly one
-  indent step per level); pin the numbers from a DSH screenshot before tuning.
 - Whether a Turn header shows the duration for completed Turns (QiLin today) or
   the action summary (DSH's stopped example): needs a completed-Turn DSH
   screenshot.
@@ -93,6 +91,30 @@ foreign visible row inside the Turn's key run, never a Step boundary.
 Injections are members only in the form Chat renders: a `context` node without
 `tool-addition`/`tool-removal` blocks fails `isVisibleChatNode` and stays a root row.
 
+## Upstream rhythm reference (DSH, checked 2026-10-15)
+
+The DSH checkout on this machine (`deepseek-harness` at `571902028a`, 0.2.1-alpha.3,
+2026-10-14) matches `upstream/master` exactly (zero commits either way), so it is the
+current upstream state.
+
+DSH has **no per-level indent for process rows**. `ChatGroupSeat.module.css` declares
+only `padding: 0` for the header button and `padding-bottom: 8px` for the expanded
+header, in `upstream/master`, `origin/master`, and the `dsh-v0.2.1-alpha.3` tag alike;
+no ref contains a depth attribute or an indent property, and `docs/ui-radius.md` uses
+"indent" only for the sidebar tree's disclosure gutter. The group's only documented
+rhythm is vertical, in `packages/client/ui-chat/README.md`:
+
+> Tool and process rows sit 6px apart. An expanded group title has 8px before its
+> content, Assistant responses have 12px from adjacent process rows, and completed-Turn
+> duration/status controls have 16px around them.
+
+Those values are already mirrored verbatim (`097f6694b3`: flow 6, response 12, Turn
+header 16, folded body 6, expanded body 16, fold padding 8). The upstream commit
+`b09dd94827` proposed 8/16/8 and was reverted the same day (`7c8a44ac31`), so it is not
+a baseline. Member depth therefore has no upstream value to align to: the 24px step
+stays QiLin's own. A derived alternative (one step = the 16px leading box plus the 6px
+row gap = 22px, scaled by the content font delta) was considered and not taken.
+
 ## Implemented
 
 - **One group per closed Turn.** Members span `processStartSeq` to the answer boundary,
@@ -112,7 +134,8 @@ Injections are members only in the form Chat renders: a `context` node without
 - **Member depth** is derived in the Client from the member's `groupPart`
   (`response` → 1, everything else → 2) and published as `data-chat-depth`;
   `ChatGroupSeat.module.css` indents `24px × depth` and the flat 24px body indent is
-  gone. `NodeReference` in `contract/groups.ts` was not widened.
+  gone. `NodeReference` in `contract/groups.ts` was not widened. The 24px step is
+  QiLin's own value; upstream has no indent axis (see the rhythm reference above).
 - **Step 4 decided, not carried:** the Turn control row is the only affordance that
   reveals a folded Turn (`ChatGroupSeat` gates its reveal on the control's store entry)
   and the group root is hidden while folded, so the control is not a second visible

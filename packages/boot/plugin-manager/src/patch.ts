@@ -76,7 +76,7 @@ export async function writePluginConfig(filename: string, id: string, name: stri
   const target = findOverride(document, items, id, name)
   if (isMap(target)) {
     const index = items.indexOf(target)
-    const current = document.getIn([index, 'config']) as unknown
+    const current = document.getIn([index, 'config'])
     if (JSON.stringify(current ?? {}) === JSON.stringify(config)) return false
     document.setIn([index, 'config'], config)
   } else {

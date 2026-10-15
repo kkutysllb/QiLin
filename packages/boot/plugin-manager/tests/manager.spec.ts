@@ -1429,3 +1429,106 @@ it('installs from the next registry after one is unreachable, restoring the file
   expect(new Set(chunks.map(chunk => chunk.jobId)).size).toBe(2)
   expect(chunks.at(-1)).toMatchObject({ requestId, argv: ['pnpm', 'add', 'fallen', `--registry=${MIRROR}`], exitCode: 0 })
 })
+
+/** Write a bundle whose row module exports the schemastery Config a configuration surface reads. */
+function configurableBundle(dir: string): void {
+  const path = join(dir, 'node_modules', 'dsh-context')
+  mkdirSync(path, { recursive: true })
+  writeFileSync(join(path, 'package.json'), JSON.stringify({
+    name: 'dsh-context', version: '0.69.1', type: 'module', main: './index.mjs',
+    qilin: { bundle: { patch: './cordis.patch.yml' } },
+  }))
+  writeFileSync(join(path, 'cordis.patch.yml'), JSON.stringify([{ insert: [{ id: 'context-row', name: 'dsh-context', config: { maxRequestSteps: 1500 } }] }]))
+  writeFileSync(join(path, 'index.mjs'), 'const Config = (value) => value\nConfig.toJSON = () => ({ uid: "stub" })\nexport { Config }\nexport function apply() {}\n')
+  // A second configurable row with no declared configuration resolves to the schema's own defaults.
+  const bare = join(dir, 'node_modules', 'dsh-bare')
+  mkdirSync(bare, { recursive: true })
+  writeFileSync(join(bare, 'package.json'), JSON.stringify({
+    name: 'dsh-bare', version: '0.1.0', type: 'module', main: './index.mjs',
+    qilin: { bundle: { patch: './cordis.patch.yml' } },
+  }))
+  writeFileSync(join(bare, 'cordis.patch.yml'), JSON.stringify([{ insert: [{ id: 'bare-row', name: 'dsh-bare' }] }]))
+  writeFileSync(join(bare, 'index.mjs'), 'const Config = (value) => value || {}\nConfig.toJSON = () => ({ uid: "bare" })\nexport { Config }\nexport function apply() {}\n')
+  const manifest = readProfileManifest('test', dir)
+  manifest.qilin = { profile: { bundles: [...manifest.qilin?.profile?.bundles ?? [], 'dsh-context', 'dsh-bare'] } }
+  writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+}
+
+it('serves a configurable row as the settings namespace its own client UI waits for', async () => {
+  const registrations: { ns: string; base: unknown }[] = []
+  const watchers = new Map<string, () => void>()
+  let running = { maxRequestSteps: 7 }
+  const settings = {
+    register: (ns: string, _schema: unknown, options: { base?: unknown }) => {
+      registrations.push({ ns, base: options.base })
+      return { get: () => running, watch: (listener: () => void) => { watchers.set(ns, listener); return () => {} } }
+    },
+  }
+  const { ctx, manager } = await fixture('live', false, (bootCtx) => {
+    bootCtx.provide('settings', settings as never)
+  }, {}, undefined, configurableBundle)
+  // The Loader announces a settled entry table; the manager serves namespaces from that point on.
+  ctx.emit('loader/config-update')
+  await vi.waitFor(() => { expect(registrations.map(entry => entry.ns)).toContain('dsh-context') })
+  // The namespace opens on the configuration the row runs with, so its own form shows the running values.
+  expect(registrations.find(entry => entry.ns === 'dsh-context')?.base).toEqual({ maxRequestSteps: 1500 })
+  // A module name that is not a settings namespace keeps the row's generic form.
+  expect(registrations.every(entry => !entry.ns.startsWith('file:'))).toBe(true)
+  // A configurable row that declares none resolves to the schema defaults with no composition layer.
+  expect(registrations.find(entry => entry.ns === 'dsh-bare')?.base).toEqual({})
+  // A committed write returns to the row's patch configuration, which is what a restart reads back.
+  const saved = vi.spyOn(manager, 'setBundleConfig').mockResolvedValue({ changed: true } as never)
+  watchers.get('dsh-context')?.()
+  await vi.waitFor(() => { expect(saved).toHaveBeenCalledWith('dsh-context', 'context-row', running) })
+  // An unchanged echo is not written a second time.
+  watchers.get('dsh-context')?.()
+  await new Promise((resolve) => { setTimeout(resolve, 20) })
+  expect(saved).toHaveBeenCalledTimes(1)
+  // A write that fails is reported and does not stop the next change from being returned.
+  saved.mockRejectedValueOnce(new Error('patch is locked'))
+  running = { maxRequestSteps: 9 }
+  watchers.get('dsh-context')?.()
+  await vi.waitFor(() => { expect(saved).toHaveBeenCalledTimes(2) })
+})
+
+it('keeps a row whose namespace the settings provider refuses, and never retries it', async () => {
+  const attempts: string[] = []
+  const settings = {
+    register: (ns: string) => {
+      attempts.push(ns)
+      // The provider owns the namespace grammar; this one refuses a name the profile happens to run.
+      if (ns === 'cordis:manager') throw new TypeError('not a settings namespace')
+      return { get: () => ({}), watch: () => () => {} }
+    },
+  }
+  const { ctx } = await fixture('live', false, (bootCtx) => {
+    bootCtx.provide('settings', settings as never)
+  }, {}, undefined, configurableBundle)
+  ctx.emit('loader/config-update')
+  await vi.waitFor(() => { expect(attempts).toContain('dsh-context') })
+  const refused = attempts.filter(ns => ns !== 'dsh-context').length
+  expect(refused).toBeGreaterThan(0)
+  ctx.emit('loader/config-update')
+  await new Promise((resolve) => { setTimeout(resolve, 20) })
+  expect(attempts.filter(ns => ns !== 'dsh-context')).toHaveLength(refused)
+})
+
+it('leaves every row unserved when the profile mounts no settings provider', async () => {
+  const { ctx, manager } = await fixture('live', false, undefined, {}, undefined, configurableBundle)
+  ctx.emit('loader/config-update')
+  // Without a provider the event settles and the row keeps its generic form.
+  await new Promise((resolve) => { setTimeout(resolve, 20) })
+  expect((await manager.listBundles()).some(bundle => bundle.name === 'dsh-context')).toBe(true)
+})
+
+it('reports a namespace sync that fails without breaking the loader event', async () => {
+  const settings = { register: () => ({ get: () => ({}), watch: () => () => {} }) }
+  const { ctx, profile } = await fixture('live', false, (bootCtx) => {
+    bootCtx.provide('settings', settings as never)
+  }, {}, undefined, configurableBundle)
+  const warned = vi.spyOn(ctx.logger, 'warn')
+  // A profile the manager can no longer read is a sync failure, not a loader-event failure.
+  rmSync(profile.installAnchor)
+  ctx.emit('loader/config-update')
+  await vi.waitFor(() => { expect(warned).toHaveBeenCalledWith(expect.stringContaining('plugin configuration namespaces failed')) })
+})

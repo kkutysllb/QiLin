@@ -64,6 +64,8 @@ The CLI exposes `qilin plugin --profile <profile> version-exemptions`, `allow-ve
 
 ### Configuration
 
+A row whose module exports a schemastery `Config` is served as a settings namespace named after the module, resolving that schema over the configuration the row runs with. A plugin that ships its own configuration UI in its client half registers it only while such a namespace exists, so this is what makes a third-party plugin's own grouped form appear on its page instead of the generic row form. A committed write returns to the row's patch entry through `setBundleConfig`, so the patch stays the single store a restart reads back.
+
 | Field | Default | Meaning |
 |---|---|---|
 | `pnpmCommand` | `pnpm` | The pnpm executable name or path, resolved through `PATH` like the `qilin plugin` command. |
