@@ -49,3 +49,24 @@ sed -n '1,30p' apps/desktop-host/src/index.ts
 ls desktop; sed -n '1,20p' desktop/main/qilin-contract.mjs
 grep -n 'working-directory\|build-runtime-bundle\|verify-desktop-artifacts' .github/workflows/desktop-release.yml
 ```
+
+## 六、P0 结论（2026-10-16 实测）
+
+移植面的 **33 个上游 specifier** 已逐个核对到本仓包名：
+
+- **可直接映射（19 个）**：`dsh-agent→@qilin-agent/agent`、`dsh-app-boot→boot/app-boot`、`dsh-atomic-write`、`dsh-home-paths`、`dsh-jobs`、`dsh-schedule`、`dsh-skill`、`dsh-skill-office`、`dsh-subprocess-local`、`dsh-tool-workspace-dependencies`、`dsh-workspace`、`dsh-client-*(connection/ui-primitives/ui-theme/settings-general/sidebar-browser/shortcuts)`、`dsh-api-gateway`、`dsh-host-webserver`、`dsh-desktop`/`dsh-desktop-host`（正被移植自身）。
+- **改名映射**：`@deepseek-ai/dsh` → `@qilin-agent/cli`；`@deepseek-ai/cordis*` → `@qilin-agent/kylin`（vendor/cordis）+ `@qilin-agent/kylin-plugin-{loader,include}`（vendor/{loader,include}）；`@deepseek-ai/node-addon-system` → `@qilin-agent/node-addon-system-workspace`（native/system）。
+- **两个真实缺口**（P1 前必须定）：
+  1. `@deepseek-ai/dsh-client-product-analytics`：本仓无对应包。上游桌面 src 用它上报产品事件。决策：**移植该包**（保持工程面一致），或按本仓"不上报"惯例以空实现接入并在计划里记明差异。
+  2. `@deepseek-ai/libreoffice-kit`（+ `dsh-skill-office` 已存在）：desktop-host 的 `office-engine`/`office` 依赖它。决策：移植该 kit（体积/平台依赖需评估），或把 office 能力降级为"缺失即禁用"（本仓已有 `skill-office`，需确认其运行时装依赖）。
+- **按边界排除（不是缺口）**：`@deepseek-ai/dsh-deepseek-account` 属 `deepseek-account` 栈，**永不移植**（[边界说明](.agents/notes/implemented/architecture/2026-09-25-desktop-and-account-alignment-boundaries.md)）；上游桌面 src 的 account-backend 相关代码在移植时删除，账号面继续走 `ui-account` 的 `/api/auth`。
+- **`dsh-desktop-runtime`**：上游仓内**没有**该包（find 无结果、两包 package.json 未引用）→ 它是 `prepare:*` 管线**生成**的运行时包名，不是要移植的源码。本仓对应物即 P3 的引擎闭包准备步骤。
+- **`desktop` profile**：上游 `packages/bundle/*` 里**没有** desktop bundle，profile 由产品安装目录解析（`loadProfileDirectory('dsh', projectDir, installAnchor)`）；`profileContext.name === 'desktop'` 只用于 `base` 补丁里的 `desktopPlatform` 判断。故本仓需要**自带一个 desktop profile**（P1 建 `packages/bundle/desktop`，内容 = base + web-app + 桌面所需 extras），并解除 CLI 对 `--profile desktop` 的拒绝。
+- **平台专有**：`apps/desktop/config/{macos-packaging,windows-packaging}` 与 `scripts/` 里的 cos/notarytool/macos-*/windows-* 共约 20+ 文件属签名/公证/上传链，本机（darwin-arm64、无凭据）**只能静态移植**，运行验证留给 CI 或手工 dispatch。
+
+```sh
+# 复现 P0 的映射核对
+node -e '…遍历 packages/*/*/package.json 取 name，与上游 specifier 求交集…'   # 见本次会话记录
+ls vendor; ls apps/cli/package.json; ls native/system/package.json
+find /path/to/deepseek-harness -name package.json -path '*desktop-runtime*'   # 空
+```
