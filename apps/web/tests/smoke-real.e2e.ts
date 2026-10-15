@@ -95,7 +95,10 @@ function authenticatedWeb(deploymentUrl: string): Promise<{ origin: string; cook
 async function signInPage(page: Page, session: { origin: string; cookie: string }): Promise<void> {
   await page.context().addCookies(session.cookie.split('; ').map((pair) => {
     const separator = pair.indexOf('=')
-    return { url: session.origin, name: pair.slice(0, separator), value: pair.slice(separator + 1) }
+    // Origin-scoped: the served document lives under the account path, but its
+    // transport calls the origin root, and a cookie scoped to the account path
+    // would never travel with them (measured: every /api call answered 401).
+    return { url: new URL(session.origin).origin, name: pair.slice(0, separator), value: pair.slice(separator + 1) }
   }))
 }
 
