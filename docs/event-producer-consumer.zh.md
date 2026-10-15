@@ -50,14 +50,14 @@
 | `fs/write-intent` | `waterfall` | [`packages/fs/fs/src/index.ts:63`](../packages/fs/fs/src/index.ts) | [`tool-fs`](../packages/fs/tool-fs) (`waterfall`), [`tool-str-replace-editor`](../packages/fs/tool-str-replace-editor) (`waterfall`) | [`fs-observation-policy`](../packages/fs/fs-observation-policy) |
 | `goal/activation-changed` | `emit` | [`packages/goal/goal/src/types.ts:150`](../packages/goal/goal/src/types.ts) | [`goal`](../packages/goal/goal) (`emit`) | `remotes` |
 | `goal/changed` | `emit` | [`packages/goal/goal/src/domain.ts:114`](../packages/goal/goal/src/domain.ts) | [`goal`](../packages/goal/goal) (`emit`) | [`goal-round-driver`](../packages/goal/goal-round-driver) |
-| `hmr/change` | `emit` | [`packages/boot/hmr/src/index.ts:32`](../packages/boot/hmr/src/index.ts) | [`hmr`](../packages/boot/hmr) (`emit`) | - |
-| `hmr/reload` | `emit` | [`packages/boot/hmr/src/index.ts:37`](../packages/boot/hmr/src/index.ts) | [`hmr`](../packages/boot/hmr) (`emit`) | - |
+| `hmr/change` | `emit` | [`packages/boot/hmr/src/index.ts:35`](../packages/boot/hmr/src/index.ts) | [`hmr`](../packages/boot/hmr) (`emit`) | - |
+| `hmr/reload` | `emit` | [`packages/boot/hmr/src/index.ts:40`](../packages/boot/hmr/src/index.ts) | [`hmr`](../packages/boot/hmr) (`emit`) | - |
 | `llm/adapters-updated` | `emit` | [`packages/llm/llm/src/types.ts:23`](../packages/llm/llm/src/types.ts) | [`llm`](../packages/llm/llm) (`events.dispatch`) | [`acp`](../packages/acp/acp), `remotes` |
 | `llm/stream` | `waterfall` | [`packages/llm/llm/src/index.ts:75`](../packages/llm/llm/src/index.ts) | [`llm`](../packages/llm/llm) (`waterfall`) | [`llm-replay`](../packages/test-support/llm-replay), [`session-checkpoint-policy`](../packages/session/session-checkpoint-policy), [`session-title`](../packages/session/session-title) |
 | `permission-presets/catalog-changed` | `emit` | [`packages/interaction/permission-presets/src/types.ts:48`](../packages/interaction/permission-presets/src/types.ts) | [`permission-presets`](../packages/interaction/permission-presets) (`events.dispatch`) | `remotes` |
-| `plugin-manager/changed` | `emit` | [`packages/boot/plugin-manager/src/types.ts:296`](../packages/boot/plugin-manager/src/types.ts) | [`plugin-manager`](../packages/boot/plugin-manager) (`emit`) | `remotes` |
-| `plugin-manager/install-log` | `emit` | [`packages/boot/plugin-manager/src/types.ts:302`](../packages/boot/plugin-manager/src/types.ts) | [`plugin-manager`](../packages/boot/plugin-manager) (`emit`) | `remotes` |
-| `plugin-manager/install-state` | `emit` | [`packages/boot/plugin-manager/src/types.ts:309`](../packages/boot/plugin-manager/src/types.ts) | [`plugin-manager`](../packages/boot/plugin-manager) (`emit`) | `remotes` |
+| `plugin-manager/changed` | `emit` | [`packages/boot/plugin-manager/src/types.ts:318`](../packages/boot/plugin-manager/src/types.ts) | [`plugin-manager`](../packages/boot/plugin-manager) (`emit`) | `remotes` |
+| `plugin-manager/install-log` | `emit` | [`packages/boot/plugin-manager/src/types.ts:324`](../packages/boot/plugin-manager/src/types.ts) | [`plugin-manager`](../packages/boot/plugin-manager) (`emit`) | `remotes` |
+| `plugin-manager/install-state` | `emit` | [`packages/boot/plugin-manager/src/types.ts:331`](../packages/boot/plugin-manager/src/types.ts) | [`plugin-manager`](../packages/boot/plugin-manager) (`emit`) | `remotes` |
 | `schedule/changed` | `emit` | [`packages/schedule/schedule/src/types.ts:478`](../packages/schedule/schedule/src/types.ts) | [`schedule`](../packages/schedule/schedule) (`emit`) | `remotes` |
 | `session-telemetry/record` | `waterfall` | [`packages/session/session-telemetry/src/index.ts:44`](../packages/session/session-telemetry/src/index.ts) | [`session-telemetry`](../packages/session/session-telemetry) (`waterfall`) | - |
 | `session/created` | `emit` | [`packages/core/session/src/index.ts:55`](../packages/core/session/src/index.ts) | [`session`](../packages/core/session) (`events.dispatch`) | [`permission-presets`](../packages/interaction/permission-presets), [`schedule`](../packages/schedule/schedule), `server`, `session-controller`, [`session-projection`](../packages/session/session-projection), [`session-projection-cache`](../packages/session/session-projection-cache), [`session-telemetry`](../packages/session/session-telemetry) |
@@ -101,6 +101,8 @@
 | `internal/service` | - | `gateway` |
 | `internal/status` | - | [`agent`](../packages/core/agent), `translator`, [`web`](../packages/web/web) |
 | `internal/update` | - | [`app-boot`](../packages/boot/app-boot) |
+| `loader/config-update` | - | [`plugin-manager`](../packages/boot/plugin-manager) |
+| `loader/entry-init` | - | [`plugin-manager`](../packages/boot/plugin-manager) |
 | `loader/volatile-update` | - | [`llm-deepseek`](../packages/llm/llm-deepseek), `speech-to-text` |
 | `slots/changed` | `ui-renderer` (`emit`) | - |
 <!-- END GENERATED event-producer-consumer:undeclared -->
