@@ -616,10 +616,12 @@ it('assembles the shipped Web transport, catalog, guidance, and defaults', async
   `)
   // The catalog belongs to an AGENT, not to the process: every model-facing row
   // now lives in a preset mounted under one session's scope, so a caller must
-  // name the agent to see anything. The host-level exceptions are
-  // `sidebar_open` and `working_directory`, which the base bundle registers
-  // process-wide so they reach every preset's agent.
-  expect(ctx.tools.schemas().map(schema => schema.name)).toEqual(['sidebar_open', 'working_directory'])
+  // name the agent to see anything. The process-wide rows are `sidebar_open` and
+  // `working_directory`, which the base bundle registers so they reach every
+  // preset's agent, plus the `run_code` transport the `tools` row registers for
+  // its PTC mode (web-app bundle).
+  expect(ctx.tools.schemas().map(schema => schema.name).sort())
+    .toEqual(['run_code', 'sidebar_open', 'working_directory'])
   const handle = await ctx.agents.create({
     sessionId: SessionId('shipped-composition'),
     setup: agentCtx => ctx.agentPresets.mount(agentCtx).then(() => undefined),
