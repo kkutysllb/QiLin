@@ -27,3 +27,7 @@ OpenKyLin 仓库以 `desktop/` 并入本仓（git subtree，历史保留）。�
 ## Consequences
 
 `pnpm run build:desktop` 与 `pnpm run test:desktop` 是桌面入口；桌面 CI 跑根上的 `desktop-release.yml`。QiLin 源码变更在落地的同一提交内即桌面可见，桌面侧适配（印章品牌、标题栏让位、侧栏分区、hover 修复）以普通源码存在而非补丁。`desktop/README.md` 里独立仓时代的声明已替换为本仓流程。
+
+## 更新
+
+本文所述并入的壳已于 2026-10-16 被替换：删除 `desktop/`，改为移植上游桌面应用为 `apps/desktop` 与 `apps/desktop-host`，携带本仓包名、品牌资产，以及账号相关面的惰性接缝（[对齐计划](../../../../plans/2026-10-16-desktop-alignment-to-upstream.md)）。引擎依赖仍然按本文决定反向。

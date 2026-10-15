@@ -32,7 +32,7 @@ The same harness ships in two shapes, and the difference is deliberate:
 
 **Web — multi-tenant.** `qilin web` serves one entry for many accounts. The supervisor (hub) keeps a roster of accounts and starts **one isolated runtime per account** on demand; sessions, workspaces, usage ledgers, plugins, and model settings live with their tenant. Browsers authenticate through the deployment's own doors (`/login`, `/setup`, `/api/auth`), are routed by a session-named cookie to their account's runtime, and can be handed to any account through `/t/<account>/`. Registration is a deployment policy (`--registration open|closed`, closed by default beyond loopback). One administrator seat reads a deployment-wide usage ledger. TLS terminates at the hub with `--tls-cert/--tls-key`, and `--per-account-ports` can give every account its own origin instead of one shared address.
 
-**Desktop — single-user.** The [desktop shell](desktop/README.md) wraps one local engine for one person: no roster, no account gate, no tenant routing — the whole harness runs locally against one data directory, with the same plugin tree, sessions, and tools as the web shape.
+**Desktop — single-user.** The [desktop shell](apps/desktop/README.md) wraps one local engine for one person: no roster, no account gate, no tenant routing — the whole harness runs locally against one data directory, with the same plugin tree, sessions, and tools as the web shape.
 
 ## Capabilities
 
@@ -55,7 +55,7 @@ The same harness ships in two shapes, and the difference is deliberate:
 
 ### Run the desktop app
 
-The [desktop shell](desktop/README.md) starts the local engine and the workbench in one window. Data lives under one local directory; nothing is shared or routed.
+The [desktop shell](apps/desktop/README.md) starts the local engine and the workbench in one window. Data lives under one local directory; nothing is shared or routed.
 
 ### Run the web deployment
 

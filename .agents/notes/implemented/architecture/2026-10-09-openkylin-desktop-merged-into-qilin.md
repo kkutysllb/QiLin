@@ -27,3 +27,7 @@ This decision reverses the desktop-shell half of the [desktop and account bounda
 ## Consequences
 
 `pnpm run build:desktop` and `pnpm run test:desktop` are the desktop entries; desktop CI runs from `desktop-release.yml` at the repository root. QiLin source changes are desktop-visible in the commit that lands them, and the desktop adaptations (seal branding, titlebar inset, sidebar sections, hover fixes) live as ordinary source rather than patches. The former standalone-repository claims in `desktop/README.md` are replaced by the in-repo flow.
+
+## Update
+
+The merged shell this note describes was replaced on 2026-10-16: `desktop/` was deleted and the upstream desktop application was ported in its place as `apps/desktop` with `apps/desktop-host`, carrying this repository's package names, brand assets, and inert seams for the account-coupled surfaces ([alignment plan](../../../../plans/2026-10-16-desktop-alignment-to-upstream.md)). The engine dependency stays inverted exactly as decided here.
