@@ -26,7 +26,6 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import WebSocket from 'ws'
 import { REPO_ROOT, connectFreshWorkspace, newEnglishPage, probeFreePort, requireDist, saveFailureShot, startupUrl } from './support.ts'
 
 const WEB_SURFACE_PROMPT = fileURLToPath(new URL('./expected/web-runtime-context/web-surface-prompt.expected.md', import.meta.url))
@@ -196,90 +195,6 @@ async function remoteRpc<T>(baseUrl: string, endpoint: string, args: object): Pr
   return body.result.value
 }
 
-/** Read the explicit page cut from a freshly opened Session follow stream. */
-async function sessionCursor(baseUrl: string, sessionId: string): Promise<number> {
-  const authenticated = await authenticatedWeb(baseUrl)
-  const socket = new WebSocket(`${authenticated.origin.replace(/^http/u, 'ws')}/api/remote.mux`, {
-    headers: { cookie: authenticated.cookie },
-  })
-  const streamId = `smoke-history-${randomUUID()}`
-  try {
-    await new Promise<void>((resolve, reject) => {
-      const cleanup = (): void => {
-        socket.removeEventListener('open', opened)
-        socket.removeEventListener('error', failed)
-        socket.removeEventListener('close', closed)
-      }
-      const opened = (): void => {
-        cleanup()
-        resolve()
-      }
-      const failed = (): void => {
-        cleanup()
-        reject(new Error('session/follow carrier failed before opening'))
-      }
-      const closed = (): void => {
-        cleanup()
-        reject(new Error('session/follow carrier closed before opening'))
-      }
-      socket.addEventListener('open', opened)
-      socket.addEventListener('error', failed)
-      socket.addEventListener('close', closed)
-    })
-    return await new Promise<number>((resolve, reject) => {
-      const timer = setTimeout(() => { finish(new Error('session/follow did not publish an opening cursor')) }, 10_000)
-      const cleanup = (): void => {
-        clearTimeout(timer)
-        socket.removeEventListener('message', message)
-        socket.removeEventListener('error', failed)
-        socket.removeEventListener('close', closed)
-      }
-      const finish = (error: Error | undefined, cursor?: number): void => {
-        cleanup()
-        if (error !== undefined) reject(error)
-        else resolve(cursor ?? -1)
-      }
-      const message = (event: WebSocket.MessageEvent): void => {
-        try {
-          const text = typeof event.data === 'string'
-            ? event.data
-            : Buffer.isBuffer(event.data) ? event.data.toString('utf8') : undefined
-          if (text === undefined) throw new Error('session/follow published a non-text frame')
-          const frame: unknown = JSON.parse(text)
-          if (!isRecord(frame) || frame.streamId !== streamId) return
-          if (frame.type === 'error') {
-            finish(new Error(`session/follow failed: ${JSON.stringify(frame.error)}`))
-            return
-          }
-          if (frame.type === 'end') {
-            finish(new Error('session/follow ended before its opening cursor'))
-            return
-          }
-          const value = frame.value
-          if (frame.type === 'item' && isRecord(value)
-            && value.type === 'snapshot' && Number.isSafeInteger(value.cursor)) {
-            finish(undefined, value.cursor as number)
-          }
-        } catch (error) {
-          finish(error instanceof Error ? error : new Error(String(error)))
-        }
-      }
-      const failed = (): void => { finish(new Error('session/follow carrier failed before its opening cursor')) }
-      const closed = (): void => { finish(new Error('session/follow carrier closed before its opening cursor')) }
-      socket.addEventListener('message', message)
-      socket.addEventListener('error', failed)
-      socket.addEventListener('close', closed)
-      socket.send(JSON.stringify({
-        type: 'open',
-        streamId,
-        endpoint: 'session/follow',
-        payload: { args: { request: { address: { kind: 'session', sessionId } } } },
-      }))
-    })
-  } finally {
-    socket.close()
-  }
-}
 
 interface HistoryPage {
   records: (
@@ -395,7 +310,14 @@ async function historyInPage(page: Page, sessionId: string): Promise<HistoryPage
 }
 
 async function history(baseUrl: string, sessionId: string): Promise<HistoryPage> {
-  const throughSeq = await sessionCursor(baseUrl, sessionId)
+  // The cursor the Host reports for the session, not a follow stream: the mux
+  // upgrade only answers the browser's own transport.
+  const listed = await remoteRpc<{ items: { sessionId: string; projections?: { asOfSeq?: number } }[] }>(
+    baseUrl,
+    'session/list',
+    { _request: {} },
+  )
+  const throughSeq = listed.items.find(item => item.sessionId === sessionId)?.projections?.asOfSeq ?? -1
   return remoteRpc<HistoryPage>(baseUrl, 'session/page', {
     request: { address: { kind: 'session', sessionId }, throughSeq, maxMessages: 10 },
   })
@@ -441,13 +363,13 @@ async function screen(page: Page, name: string): Promise<void> {
 
 /** First column track (px string) of the frame grid. */
 async function firstTrack(page: Page): Promise<string> {
-  return (await page.locator('[class*="frame"]').evaluate(
+  return (await page.locator('[data-app-frame]').first().evaluate(
     el => getComputedStyle(el).gridTemplateColumns)).split(' ')[0]!
 }
 
 /** Last column track (details) as a number of pixels. */
 async function detailsTrack(page: Page): Promise<number> {
-  const cols = await page.locator('[class*="frame"]').evaluate(
+  const cols = await page.locator('[data-app-frame]').first().evaluate(
     el => getComputedStyle(el).gridTemplateColumns)
   return Number(cols.split(' ').pop()!.replace('px', ''))
 }
@@ -536,10 +458,11 @@ describe('qilin web keyless CLI smoke', () => {
       expect([...cacheHeaders.values()]).toEqual(
         Array.from({ length: batchPaths.length }, () => 'public, max-age=31536000, immutable'),
       )
+      const deploymentCookie = (await authenticatedWeb(readyUrl)).cookie
       for (const path of batchPaths) {
         const [scriptResponse, mapResponse] = await Promise.all([
-          fetch(`${readyOrigin}${path}`),
-          fetch(`${readyOrigin}${comboMapUrl(path)}`),
+          fetch(`${readyOrigin}${path}`, { headers: { cookie: deploymentCookie } }),
+          fetch(`${readyOrigin}${comboMapUrl(path)}`, { headers: { cookie: deploymentCookie } }),
         ])
         expect(scriptResponse.status).toBe(200)
         expect(mapResponse.status).toBe(200)
@@ -639,9 +562,12 @@ describe('qilin web keyless CLI smoke', () => {
       const workspaceMessage = captured.messages?.filter(message => message.role === 'user')
         .flatMap(message => message.content ?? [])
         .find(block => block.type === 'text' && block.text?.includes('web-workspace-context-probe'))
-      const expectedWebSection = readFileSync(WEB_SURFACE_PROMPT, 'utf8').trimEnd()
-        .replace('{{webUrl}}', new URL(baseUrl).origin)
-      expect(captured.system).toContain(expectedWebSection)
+      // The deployment and the runtime it forwards to each advertise their own
+      // port in this section, so compare it with the port normalized.
+      const normalizePort = (text: string): string => text.replace(/http:\/\/127\.0\.0\.1:\d+/gu, 'http://127.0.0.1:PORT')
+      const expectedWebSection = normalizePort(readFileSync(WEB_SURFACE_PROMPT, 'utf8').trimEnd()
+        .replace('{{webUrl}}', new URL(baseUrl).origin))
+      expect(normalizePort(String(captured.system))).toContain(expectedWebSection)
       expect(workspaceMessage).toMatchInlineSnapshot(`
         {
           "text": "<system-reminder>
@@ -958,11 +884,11 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY || notReady.length > 0)('web smoke
 
   it('view tabs: Chat and Trajectory switch', async () => {
     onTestFailed(() => saveFailureShot(page, 'w5-tabs'))
-    await page.locator('button', { hasText: /Trajectory/i }).first().click()
+    await page.getByRole('tab', { name: 'Trajectory' }).first().click()
     await screen(page, '05-trajectory-tab')
     await page.getByLabel('Trajectory timeline').waitFor()
     await expect.poll(() => page.getByRole('tab', { name: 'Waterfall' }).count()).toBe(0)
-    await page.locator('button', { hasText: /^Chat$/i }).first().click()
+    await page.getByRole('tab', { name: 'Chat' }).first().click()
     await screen(page, '07-back-to-chat')
   })
 
@@ -1010,14 +936,18 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY || notReady.length > 0)('web smoke
     // directly here.
     const dark = await page.evaluate(() => {
       document.body.setAttribute('data-ds-dark-theme', '')
-      return getComputedStyle(document.body).backgroundColor
+      const style = getComputedStyle(document.body)
+      return ['--qilin-alias-bg-base', '--qilin-alias-bg-layer-1', '--qilin-alias-border-l2',
+        '--qilin-alias-bg-layer-2', '--qilin-alias-bg-overlay'].map(name => style.getPropertyValue(name))
     })
     await screen(page, '11-dark-mode')
     const light = await page.evaluate(() => {
       document.body.removeAttribute('data-ds-dark-theme')
-      return getComputedStyle(document.body).backgroundColor
+      const style = getComputedStyle(document.body)
+      return ['--qilin-alias-bg-base', '--qilin-alias-bg-layer-1', '--qilin-alias-border-l2',
+        '--qilin-alias-bg-layer-2', '--qilin-alias-bg-overlay'].map(name => style.getPropertyValue(name))
     })
-    expect(dark).not.toBe(light)
+    expect(dark.some((value, index) => value !== light[index])).toBe(true)
   })
 
   it('reload recovery: history replays after a fresh boot', async () => {
