@@ -70,3 +70,18 @@ node -e '…遍历 packages/*/*/package.json 取 name，与上游 specifier 求�
 ls vendor; ls apps/cli/package.json; ls native/system/package.json
 find /path/to/deepseek-harness -name package.json -path '*desktop-runtime*'   # 空
 ```
+
+### P1 进度（2026-10-16，第一个 chunk：`apps/desktop-host`）
+
+已落地（**尚未接入工作区构建**，故不改变现有门禁）：
+
+- 从上游复制 15 个文件 → `apps/desktop-host/{src,tests,package.json,tsconfig.json,tsdown.config.ts}`，按 rescope 规则改写 10 个文件：`@deepseek-ai/dsh-*`→`@qilin-agent/*`、`@deepseek-ai/dsh`→`@qilin-agent/cli`、`@deepseek-ai/cordis*`→`@qilin-agent/kylin*`、标识列表 `'dsh'`→`'qilin'`、`DSH_DESKTOP_NODE_EXECUTABLE`→`QILIN_DESKTOP_NODE_EXECUTABLE`、安装锚 `@deepseek-ai/dsh`→`@qilin-agent/cli`。
+- **边界排除**：删除 `src/platform-session.ts` 与其 spec（`deepseek-account` 栈永不移植）；`index.ts` 去掉账号 publisher 与账号类型导入。
+- **office 缺口隔离**：`office.ts`/`office-engine.ts` 及两个 spec 暂不纳入（依赖 `@deepseek-ai/libreoffice-kit`，本仓暂无），`index.ts`/`cli.ts` 中的 office 装配与 engine 解析一并移除；待 office chunk 处理。
+- tsconfig 的 13 条 project reference 中 12 条在本仓**路径直接命中**（`vendor/cordis`、`packages/core/agent`、`jobs`、`schedule`、`workspace`、`util/home-paths`、`skill/tool-workspace-dependencies`、`../cli`、`packages/boot/app-boot`、`packages/client/connection`、`packages/host/webserver`），仅账号栈一条不存在并已删除。
+
+**本 chunk 暴露的必做前置（P1 下一块）**：
+
+1. **抽取 `profile-boot` 成包**：上游 `@deepseek-ai/dsh/profile-boot` 是独立包，本仓的 `runProfile` 还在 `apps/cli/src/profile-boot.ts`（app 内模块，跨包不可导入）。移植的宿主必须能 import 它 → 建 `packages/boot/profile-boot`（从 `apps/cli/src/profile-boot.ts` 抽出 `runProfile` 及其依赖），`apps/cli` 改为消费该包。这也是"工程面与 dsh 一致"的直接一环。
+2. **office 缺口决策**：移植 `libreoffice-kit`（含 `-darwin-arm64`/`-wasm` 平台包）或把 office 能力降级为可选（本仓已有 `skill/skill-office`，需确认其运行时装依赖路径）。
+3. **接入工作区**：`pnpm-workspace.yaml`（`apps/*` 是否已覆盖）、`tsconfig.host.json` 的面配置、`pnpm install` 链接、以及 `apps/desktop-host` 自己的 vitest 运行方式。
