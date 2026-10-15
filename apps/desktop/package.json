@@ -77,5 +77,6 @@
     "vite": "^6.4.3"
   },
   "peerDependencies": {},
-  "optionalDependencies": {}
+  "optionalDependencies": {},
+  "productName": "QiLin Desktop"
 }

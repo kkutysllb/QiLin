@@ -52,10 +52,10 @@ export interface DesktopLoginShellReadOptions {
 /**
  * Resolve login-shell read settings.
  * @param env - Desktop process environment.
- * @returns Validated per-candidate deadline; `DSH_DESKTOP_LOGIN_SHELL_TIMEOUT_MS` defaults to 10000.
+ * @returns Validated per-candidate deadline; `QILIN_DESKTOP_LOGIN_SHELL_TIMEOUT_MS` defaults to 10000.
  */
 export function resolveDesktopLoginShellConfig(env: NodeJS.ProcessEnv): DesktopLoginShellConfig {
-  return { timeoutMs: resolveDurationMs(env, 'DSH_DESKTOP_LOGIN_SHELL_TIMEOUT_MS', 10_000) }
+  return { timeoutMs: resolveDurationMs(env, 'QILIN_DESKTOP_LOGIN_SHELL_TIMEOUT_MS', 10_000) }
 }
 
 /**
