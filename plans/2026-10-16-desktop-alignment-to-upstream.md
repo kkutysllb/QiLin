@@ -190,3 +190,20 @@ find /path/to/deepseek-harness -name package.json -path '*desktop-runtime*'   # 
 
 1. client-metadata.ts 的类型补真实字段；
 2. host-process.ts 的 PlatformSession、ipc.ts/keyboard.ts/preload-browser.ts 的 DesktopBrowser* 一并拆除（不补类型）。
+
+### P1 第七块：替身必须携带真实类型层（2026-10-16 实测）
+
+本轮按"编译器点名"的方式补齐惰性替身，得到的关键规律：
+
+- 用**宽松签名**（constructor(...args: unknown[])、get state(): unknown）替换上游模块时，错误数会**先降后升**：46 → 32（拆掉账号面）→ 66（宽松替身）→ 59（补成员后）✗，因为 main.ts 依赖原始成员的**具体类型**（mandatoryPolicy.state 当对象用、accountBackend 当函数用、WelcomeAuthentication 的形状、PlatformBounds 的实参类型 ✓）。
+- 结论：替身必须**携带原始模块的类型层**（interface/type 逐字保留 ✓）而只把**实现**改为惰性 ✓；逐字照抄类型是可行的（原始文件就在暂存目录里 ✓），但其中若引用了账号包的类型，需要就地替换为本仓等价物 ✓。
+
+**当前的适配状态（未入库 ✓，临时位于 apps/desktop ✓ 并已另存 /tmp/desktop-parked-2026-10-16/desktop-seams）**：
+
+| 项 | 状态 |
+|---|---|
+| 项目引用 / 子路径 / 包名 / runtime 字段(resources.qilin, runtime.qilin) / 客户端元数据字段 / preload-browser 与账号面剔除 | 已修 ✓ |
+| 七个替身模块（platform-view、welcome-api、welcome-window、welcome-backend、mandatory-update-policy、mandatory-update-window、policy-test-auth、browser-guests） | 已建 ✓，但类型层需按原始文件照抄 ✗ |
+| 残留错误 | 59 条，全部在 main.ts 与替身的类型面 ✓（无模块解析问题 ✓） |
+
+**下一轮的做法**：从暂存目录取出原始模块 ✓，逐字保留其 interface/type 导出 ✓（账号类型就地替换 ✓），实现体换成惰性 ✓，然后按编译器收敛到 0 ✓ —— 之后再走新包着陆门禁清单入库 ✓。
