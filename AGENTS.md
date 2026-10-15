@@ -121,7 +121,7 @@ Real-API tests/demos read `DEEPSEEK_API_KEY`, optional `DEEPSEEK_BASE_URL`, and 
 
 ## Desktop shell and account boundaries
 
-The desktop application lives under `apps/desktop` with its Node host at `apps/desktop-host`: the upstream Electron shell carrying this repository's package names, its brand assets, and inert seams for account, welcome, update-policy, and browser-guest surfaces ([plan](plans/2026-10-16-desktop-alignment-to-upstream.md)). It builds this tree through the upstream packaging pipeline. The `desktop` profile stays reserved: the CLI rejects it, the host boots `qilin`. The account surface is ui-account's `/api/auth` gate; the deepseek-account stack is never ported ([boundary note](.agents/notes/implemented/architecture/2026-09-25-desktop-and-account-alignment-boundaries.md)).
+The desktop application lives under `apps/desktop` with its Node host at `apps/desktop-host`: the upstream Electron shell carrying this repository's package names, its brand assets, and inert seams for account, welcome, update-policy, and browser-guest surfaces ([plan](plans/2026-10-16-desktop-alignment-to-upstream.md)). It builds this tree through upstream packaging. The `desktop` profile stays reserved: the CLI rejects it, the host boots `qilin`. The account surface is ui-account's `/api/auth` gate; the deepseek-account stack is never ported ([boundary note](.agents/notes/implemented/architecture/2026-09-25-desktop-and-account-alignment-boundaries.md)).
 
 ## Conventions
 
