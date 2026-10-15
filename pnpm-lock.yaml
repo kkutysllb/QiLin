@@ -2706,6 +2706,15 @@ importers:
         specifier: workspace:*
         version: link:../../typert/protocol
 
+  packages/client/schema-form:
+    devDependencies:
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+
   packages/client/shortcuts:
     dependencies:
       '@qilin-agent/schemastery':
@@ -4108,6 +4117,9 @@ importers:
       '@qilin-agent/client-locale':
         specifier: workspace:*
         version: link:../locale
+      '@qilin-agent/client-schema-form':
+        specifier: workspace:*
+        version: link:../schema-form
       '@qilin-agent/client-store':
         specifier: workspace:*
         version: link:../store
@@ -4454,6 +4466,9 @@ importers:
       '@qilin-agent/api-remotes':
         specifier: workspace:*
         version: link:../../api/remotes
+      '@qilin-agent/client-schema-form':
+        specifier: workspace:*
+        version: link:../schema-form
       '@qilin-agent/client-store':
         specifier: workspace:*
         version: link:../store

@@ -26,6 +26,9 @@
       "path": "../locale"
     },
     {
+      "path": "../schema-form"
+    },
+    {
       "path": "../store"
     },
     {

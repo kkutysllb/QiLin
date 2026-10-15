@@ -59,6 +59,7 @@
   "devDependencies": {
     "@qilin-agent/api-remotes": "workspace:*",
     "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-schema-form": "workspace:*",
     "@qilin-agent/client-store": "workspace:*",
     "@qilin-agent/client-test-runtime": "workspace:*",
     "@qilin-agent/client-ui-layout": "workspace:*",

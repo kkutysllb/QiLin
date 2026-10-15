@@ -565,6 +565,18 @@ describe('PluginManagerPage', () => {
     expect(actions.setEnabled).toHaveBeenCalledExactlyOnceWith('@qilin-agent/experimental-agent-team-profile', true)
   })
 
+  it('leaves a bundle whose own configuration card is live to that card instead of repeating the row form', () => {
+    const bundle = pkg({ name: 'dsh-context', rows: [{ rowId: 'context-row', moduleName: 'dsh-context', enabled: true, phase: null, configurable: true }] })
+    const { } = renderTab({ packages: [bundle] }, { bundles: new Set(['dsh-context']) }, {
+      'plugins.bundle.config:dsh-context': () => <p>plugin-owned form</p>,
+    })
+    fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', 'dsh-context') }))
+    const detail = document.querySelector('[data-plugin-detail]') as HTMLElement
+    // The contributed card is the bundle's configuration surface; the generic row form would show the same fields twice.
+    expect(within(detail).getByText('plugin-owned form')).toBeTruthy()
+    expect(detail.querySelectorAll('[data-plugin-config]')).toHaveLength(1)
+  })
+
   it.each([
     ['agent-team-profile', 'builtinAgentTeamTitle', 'builtinAgentTeamDescription'],
     ['auto-review', 'builtinAutoReviewTitle', 'builtinAutoReviewDescription'],

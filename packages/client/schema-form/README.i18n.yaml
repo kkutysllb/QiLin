@@ -1,0 +1,28 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/client/schema-form/README.md
+/:
+  en: 29df4c8e1bc00a92
+  zh: 1f10d0b3ef6edddd
+/qilin-agent-client-schema-form:
+  en: b9f0043a06e0f834
+  zh: 503ec8030ec56db2
+/qilin-agent-client-schema-form/summary:
+  en: 4f9409a1d4c655ba
+  zh: 2ae30bee38ce2869
+/qilin-agent-client-schema-form/table-of-contents:
+  en: b4683d2a53256fda
+  zh: 4e65ff63dc8c48fe
+/qilin-agent-client-schema-form/model-experience:
+  en: bdb6bdc139b7f5a7
+  zh: feca992d9b340e0b
+/qilin-agent-client-schema-form/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: de54f3467ef3b9be
+/qilin-agent-client-schema-form/known-limitations-and-deferred-work:
+  en: 6ab3a1e79b9555a9
+  zh: 14695aac0fc46105
+/qilin-agent-client-schema-form/known-limitations-and-deferred-work/dev-note:
+  en: 08801a2906bf9717
+  zh: 363e3669de77dc34

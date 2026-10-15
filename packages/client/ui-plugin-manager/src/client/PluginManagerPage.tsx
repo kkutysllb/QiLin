@@ -595,7 +595,8 @@ function PackageDetail({
       {pkg.error === undefined ? null : <p className={css.reason} role="status">{t('reasonLabel')}: {managementText(pkg.error, t)}</p>}
       {pkg.readOnlyReason === undefined ? null : <p className={css.reason} role="status">{managementText({ code: pkg.readOnlyReason }, t)}</p>}
       <div className={css.detailSections}>
-        {configRow === undefined ? null : (
+        {/* A bundle whose own configuration card is live owns that surface; the generic row form would repeat it. */}
+        {configRow === undefined || configured ? null : (
           <section className={css.detailSection} data-plugin-config>
             <RowConfigForm
               key={rowConfigKey(pkg.name, configRow.rowId)}

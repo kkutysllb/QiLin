@@ -1,0 +1,25 @@
+# Bilingual-pair consistency record for 2026-10-14-client-schema-form-shared-model-layer.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-10-14-client-schema-form-shared-model-layer.md
+/agent-note-one-schema-draft-model-layer-for-configuration-editors:
+  en: c2a58a276f849c77
+  zh: 2e76606368c53fc3
+/agent-note-one-schema-draft-model-layer-for-configuration-editors/problem:
+  en: 53af036618dc6256
+  zh: 8571107f0d099ea0
+/agent-note-one-schema-draft-model-layer-for-configuration-editors/decision:
+  en: d51d6fbfeef585c2
+  zh: b190d561ec8958fb
+/agent-note-one-schema-draft-model-layer-for-configuration-editors/alternatives-considered:
+  en: 5ceacb59ec7b9112
+  zh: e815e55db2a93bb6
+/agent-note-one-schema-draft-model-layer-for-configuration-editors/consequences:
+  en: b2e9dc456b594554
+  zh: 5e4234a1ecbea227
+/agent-note-one-schema-draft-model-layer-for-configuration-editors/testing:
+  en: 38fe0676720bd4e6
+  zh: cbd4281e295d42e4
+/agent-note-one-schema-draft-model-layer-for-configuration-editors/related:
+  en: 065842c0883dc735
+  zh: b1412ec1959a1d01

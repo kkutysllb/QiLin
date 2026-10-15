@@ -55,6 +55,7 @@
     // from the cordis-free qilin-compaction/checkpoint leaf. Composite rootDir
     // rules make that path depend on this project reference.
     { "path": "./packages/compaction/compaction" },
+    { "path": "./packages/client/schema-form" },
     { "path": "./packages/client/store" },
     { "path": "./packages/client/ui-slots" },
     { "path": "./packages/client/ui-attachment" },

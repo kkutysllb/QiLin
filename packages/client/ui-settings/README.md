@@ -65,7 +65,7 @@ The plugin injects `remote` with its `settings` namespace, resolves Host persist
 
 ### Schema service
 
-`ctx.settingsSchema` performs synchronous schema rehydration, validation, and immutable path editing for settings plugins. A section that is not a plain object, fails its rehydrated schema, or carries a schema envelope this client cannot rehydrate publishes no value at all.
+`ctx.settingsSchema` performs synchronous schema rehydration, validation, and immutable path editing for settings plugins; it delegates to [`@qilin-agent/client-schema-form`](../schema-form/README.md), the shared model layer that shipped editors import directly. A section that is not a plain object, fails its rehydrated schema, or carries a schema envelope this client cannot rehydrate publishes no value at all.
 
 </details>
 

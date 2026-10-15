@@ -65,7 +65,7 @@ kind: "package-reference"
 
 ### Schema 服务
 
-`ctx.settingsSchema` 为设置插件执行同步 schema 重建、校验与不可变路径编辑。分区不是普通对象、未通过其重建后的 schema 校验、或携带本客户端无法重建的 schema 信封时，一律不发布任何值。
+`ctx.settingsSchema` 为设置插件执行同步 schema 重建、校验与不可变路径编辑；它委派给 [`@qilin-agent/client-schema-form`](../schema-form/README.zh.md)——随包发布的编辑器直接导入的共享模型层。分区不是普通对象、未通过其重建后的 schema 校验、或携带本客户端无法重建的 schema 信封时，一律不发布任何值。
 
 </details>
 
