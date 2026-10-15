@@ -15,7 +15,7 @@
 // send's session), geometry and theme after, reload recovery last. Tests run
 // sequentially in-file.
 import type { ChildProcess } from 'node:child_process'
-import { spawn } from 'node:child_process'
+import { spawn, spawnSync } from 'node:child_process'
 import { randomUUID } from 'node:crypto'
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:http'
@@ -46,23 +46,55 @@ function messagesResponse(text: string, complete = true): string {
   return events.map(event => `data: ${JSON.stringify(event)}\n\n`).join('')
 }
 
-/** Exchange a printed process token once for Node-side HTTP/WebSocket probes. */
-function authenticatedWeb(launchUrl: string): Promise<{ origin: string; cookie: string }> {
-  const existing = authenticatedCookies.get(launchUrl)
+/** The deployment account every smoke run signs in with; its length meets the server's policy. */
+const SMOKE_ACCOUNT = { username: 'smoke', password: 'qilin-smoke-account' } as const
+
+
+/**
+ * Sign that account in once for Node-side HTTP/WebSocket probes.
+ * @param deploymentUrl - the address the process printed.
+ * @returns the deployment origin and the account's session cookie.
+ */
+function authenticatedWeb(deploymentUrl: string): Promise<{ origin: string; cookie: string }> {
+  const existing = authenticatedCookies.get(deploymentUrl)
   if (existing !== undefined) return existing
   const exchange = (async () => {
-    const response = await fetch(launchUrl, { redirect: 'manual' })
+    const root = new URL(deploymentUrl)
+    // The account's own runtime mints the session: a login answered at the
+    // deployment root would carry a secret that runtime never signed with.
+    const account = new URL('/t/' + SMOKE_ACCOUNT.username, root)
+    const response = await fetch(new URL('/api/auth/login', account), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ identifier: SMOKE_ACCOUNT.username, password: SMOKE_ACCOUNT.password }),
+      redirect: 'manual',
+    })
     const setCookie = response.headers.get('set-cookie')
-    if (response.status !== 303 || setCookie === null) {
-      throw new Error(`qilin web authentication returned HTTP ${String(response.status)}`)
+    if (!response.ok) {
+      throw new Error('qilin web account sign-in answered HTTP ' + String(response.status))
     }
-    return {
-      origin: new URL(launchUrl).origin,
-      cookie: setCookie.split(';', 1)[0]!,
+    if (setCookie === null) {
+      throw new Error('qilin web account sign-in carried no session cookie')
     }
+    return { origin: account.href, cookie: setCookie.split(';', 1)[0]! }
   })()
-  authenticatedCookies.set(launchUrl, exchange)
+  authenticatedCookies.set(deploymentUrl, exchange)
   return exchange
+}
+
+/**
+ * Give one page the account's session cookie before it loads the application;
+ * without it the deployment answers with its sign-in screen.
+ * @param page - page about to load the application.
+ * @param session - origin and cookie pair {@link authenticatedWeb} returned.
+ */
+async function signInPage(page: Page, session: { origin: string; cookie: string }): Promise<void> {
+  const separator = session.cookie.indexOf('=')
+  await page.context().addCookies([{
+    url: session.origin,
+    name: session.cookie.slice(0, separator),
+    value: session.cookie.slice(separator + 1),
+  }])
 }
 
 const comboMapUrl = (url: string): string => url.replace(/\/client\.js(?=,|&rev=)/g, '/client.js.map')
@@ -76,14 +108,26 @@ const comboMapUrl = (url: string): string => url.replace(/\/client\.js(?=,|&rev=
  * move the scaffold lane and apps/cli/tests/web-auth.e2e.ts make.
  * @param qilinHome - the harness home the spawned CLI reads its patch layer from.
  */
-function disableAccountGate(qilinHome: string): void {
+function prepareDeploymentHome(qilinHome: string): void {
   mkdirSync(qilinHome, { recursive: true })
-  writeFileSync(join(qilinHome, 'cordis.patch.yml'), [
-    '- id: accounts',
-    '  config:',
-    '    enabled: false',
-    '',
-  ].join('\n'))
+  const tsxLoader = pathToFileURL(createRequire(join(REPO_ROOT, 'package.json')).resolve('tsx')).href
+  const added = spawnSync(process.execPath, [
+    '--import', tsxLoader, join(REPO_ROOT, 'apps/cli/src/bin.ts'),
+    'tenants', 'add', SMOKE_ACCOUNT.username, '--password-stdin',
+  ], {
+    cwd: REPO_ROOT,
+    input: SMOKE_ACCOUNT.password + '\n',
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      QILIN_HOME: qilinHome,
+      QILIN_AGENTS_HOME: join(qilinHome, '.agents'),
+      TSX_TSCONFIG_PATH: join(REPO_ROOT, 'tsconfig.json'),
+    },
+  })
+  if (added.status !== 0) {
+    throw new Error('qilin tenants add answered ' + String(added.status) + ': ' + added.stdout + added.stderr)
+  }
 }
 
 function waitForReadyLine(child: ChildProcess): Promise<string> {
@@ -332,7 +376,7 @@ describe('qilin web keyless CLI smoke', () => {
     requireDist()
     const sessionsDir = mkdtempSync(join(tmpdir(), 'qilin-web-keyless-'))
     const qilinHome = join(sessionsDir, '.qilin')
-    disableAccountGate(qilinHome)
+    prepareDeploymentHome(qilinHome)
     const tsxLoader = pathToFileURL(createRequire(join(REPO_ROOT, 'package.json')).resolve('tsx')).href
     const child = spawn(
       process.execPath,
@@ -354,11 +398,14 @@ describe('qilin web keyless CLI smoke', () => {
       const readyUrl = await waitForReadyLine(child)
       const ready = new URL(readyUrl)
       expect(ready.origin).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/u)
-      expect(ready.pathname).toBe('/workspace')
-      expect(ready.searchParams.get('token')).toMatch(/^[A-Za-z0-9_-]+$/u)
-      expect((await fetch(readyUrl, { redirect: 'manual' })).status).toBe(303)
+      // The printed address is the deployment's root, which answers a browser
+      // with the landing document; the account workbench is the runtime the
+      // deployment forwards /t/<username>/... to.
+      expect(ready.pathname).toBe('/')
+      expect((await fetch(readyUrl, { redirect: 'manual' })).status).toBe(200)
       browser = await chromium.launch({ headless: true })
       const page = await newEnglishPage(browser)
+      await signInPage(page, await authenticatedWeb(readyUrl))
       const pluginScripts: string[] = []
       const cacheHeaders = new Map<string, string | undefined>()
       // Chromium reports `preload as=script` as Script and reuses that same
@@ -377,10 +424,12 @@ describe('qilin web keyless CLI smoke', () => {
           cacheHeaders.set(resource, response.headers()['cache-control'])
         }
       })
-      await page.goto(readyUrl)
+      await page.goto(new URL('/t/' + SMOKE_ACCOUNT.username + '/workspace', readyUrl).href)
       await page.getByRole('button', { name: 'New session', exact: true }).first().waitFor({ timeout: 30_000 })
       const batchPaths = [...new Set(pluginScripts)].sort()
-      expect(batchPaths).toHaveLength(2)
+      // The shipped composition now batches three dynamic plugin groups; two of
+      // them are the exact pairs this pair of assertions names.
+      expect(batchPaths).toHaveLength(3)
       expect(batchPaths).toContainEqual(expect.stringMatching(
         /^\/plugins\/\?\?.+\/client\.js,.+\/client\.js&rev=[a-f\d]{12}$/,
       ))
@@ -427,7 +476,7 @@ describe('qilin web keyless CLI smoke', () => {
     requireDist()
     const workspace = mkdtempSync(join(tmpdir(), 'qilin-web-workspace-'))
     const qilinHome = join(workspace, '.qilin')
-    disableAccountGate(qilinHome)
+    prepareDeploymentHome(qilinHome)
     mkdirSync(join(workspace, '.git'))
     writeFileSync(join(workspace, 'AGENTS.md'), 'web-workspace-context-probe\n')
 
@@ -534,7 +583,7 @@ describe('qilin web keyless CLI smoke', () => {
     requireDist()
     const workspace = mkdtempSync(join(tmpdir(), 'qilin-web-retry-'))
     const qilinHome = join(workspace, '.qilin')
-    disableAccountGate(qilinHome)
+    prepareDeploymentHome(qilinHome)
     const promptMarker = 'WEB_RETRY_REQUEST'
     const recoveredMarker = 'WEB_RETRY_RECOVERED'
     let mainAttempts = 0
@@ -621,7 +670,7 @@ describe('qilin web keyless CLI smoke', () => {
     requireDist()
     const workspace = mkdtempSync(join(tmpdir(), 'qilin-web-ptc-'))
     const qilinHome = join(workspace, '.qilin')
-    disableAccountGate(qilinHome)
+    prepareDeploymentHome(qilinHome)
 
     interface PtcModeProviderRequest {
       system?: string
@@ -708,7 +757,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY || notReady.length > 0)('web smoke
     // the console with its sign-in document, so this scenario runs with it off
     // like the transport scenarios above.
     const qilinHome = join(sessionsDir, '.qilin')
-    disableAccountGate(qilinHome)
+    prepareDeploymentHome(qilinHome)
     const port = await probeFreePort()
     // tsx boot mirrors the runtime half of the root qilin script. Isolate
     // the host-level Harness and shared-agent homes inside the temp world; tsx
@@ -740,8 +789,9 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY || notReady.length > 0)('web smoke
     baseUrl = (await waitForReadyLine(child)).replace('0.0.0.0', '127.0.0.1')
     browser = await chromium.launch()
     page = await newEnglishPage(browser)
+    await signInPage(page, await authenticatedWeb(baseUrl))
     page.on('pageerror', e => pageErrors.push(String(e)))
-    await page.goto(baseUrl, { waitUntil: 'load' })
+    await page.goto(new URL('/t/' + SMOKE_ACCOUNT.username + '/workspace', baseUrl).href, { waitUntil: 'load' })
   }, 120_000)
 
   afterAll(async () => {
