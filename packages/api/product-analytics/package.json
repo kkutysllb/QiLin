@@ -1,21 +1,22 @@
 {
   "name": "@qilin-agent/client-product-analytics",
   "description": "Desktop product event collection and authenticated Host reporting",
-  "version": "0.2.1-alpha.4",
+  "version": "3.1.6-rc.1",
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
-    "directory": "packages/client/product-analytics"
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
+    "directory": "packages/api/product-analytics"
   },
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./lib/types/index.d.ts"
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
     },
     "./types": {
       "types": "./lib/types/events.d.ts"
@@ -42,7 +43,10 @@
   "dependencies": {},
   "optionalDependencies": {},
   "files": [
-    "lib/types/index.d.ts",
-    "lib/types/events.d.ts"
-  ]
+    "lib/index.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  }
 }

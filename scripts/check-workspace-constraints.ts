@@ -60,6 +60,8 @@ const experimentalPackageNamePrefix = '@qilin-agent/experimental-'
 const standardReleaseMemberDirectory = /^(?:packages\/(?!experimental\/)[^/]+\/[^/]+|apps\/[^/]+|vendor\/[^/]+)$/
 const localArtifactDirs = new Set(['node_modules'])
 const appPackageFiles: Readonly<Record<string, readonly string[]>> = {
+  '@qilin-agent/desktop': ['lib/index.js', 'lib/cli.js', 'lib/types'],
+  '@qilin-agent/desktop-host': ['lib/index.js', 'lib/cli.js', 'lib/types'],
   '@qilin-agent/cli': ['lib/*.js', 'lib/types/*.d.ts'],
   // Sourcemaps stay out by payload policy; the worker-preview surface
   // (dist/preview.html and dist/preview/) backs opt-in experimental

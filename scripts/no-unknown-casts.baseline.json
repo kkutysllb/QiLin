@@ -31,6 +31,15 @@
     "0161b6068831f99593a6c70a593efd569a85f1f3a2832ecfc57afdff3b88ce97": 1,
     "a2b9a35fdf6552ba148d15436c9b3f98ed5763a2b91a95f579b951fd6613e75c": 1
   },
+  "apps/desktop/scripts/installed-update-qualification.ts": {
+    "5a8270cf9b1e554ae0cff6eaf7086e44c22f61a08e5f91dc7e1397eccaa726a5": 2
+  },
+  "apps/desktop/scripts/macos-cache-policy.ts": {
+    "00e53c563f3bdaa56ac8a598ca2f46622277dd1f37af9c02a7c92abf475ddc3d": 1
+  },
+  "apps/desktop/scripts/macos-runtime.ts": {
+    "04bc8a44533574365dfedf563e2356458bcf95f990a00906938c977c1d683356": 1
+  },
   "apps/desktop/src/main.ts": {
     "e3362213edd415fbb267d8e6b94f1b3ae77e047b3a4609ccf9e08063fac7a7bd": 1
   },
