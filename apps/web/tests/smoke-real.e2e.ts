@@ -323,6 +323,77 @@ function hasAssistantMarker(page: HistoryPage, marker: string): boolean {
   })
 }
 
+/**
+ * Read one page of a session's log through the page's own transport, which
+ * already carries the deployment's cookies: the Node-side WebSocket client
+ * cannot open this deployment's mux upgrade, and the page's own can.
+ * @param page - page driving the workbench.
+ * @param sessionId - session whose log to read.
+ * @returns the history page the Host answers with.
+ */
+/**
+ * List the sessions the page's own client sees, through the page's transport.
+ * @param page - page driving the workbench.
+ * @returns the listed sessions, newest first as the Host answers.
+ */
+async function sessionListInPage(page: Page): Promise<{ items: { sessionId: string }[] }> {
+  return await page.evaluate(async () => {
+    const response = await fetch('/api/session/list', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        type: 'client-request',
+        rpcId: 'smoke-list-' + String(Date.now()),
+        method: 'session/list',
+        payload: { args: { _request: {} } },
+      }),
+    })
+    const body = await response.json() as { result?: { ok?: boolean; value?: unknown; error?: unknown } }
+    if (body.result?.ok !== true) {
+      throw new Error('session/list failed: ' + JSON.stringify(body.result?.error ?? body))
+    }
+    return body.result.value
+  }) as { items: { sessionId: string }[] }
+}
+
+/**
+ * Read one page of a session's log through the page's own transport, which
+ * already carries the deployment's cookies and the cursor the Host reports for
+ * that session: the Node-side WebSocket client cannot open this deployment's
+ * mux upgrade, and the page's transport already has.
+ * @param page - page driving the workbench.
+ * @param sessionId - session whose log to read.
+ * @returns the history page the Host answers with.
+ */
+async function historyInPage(page: Page, sessionId: string): Promise<HistoryPage> {
+  return await page.evaluate(async (id: string) => {
+    const call = async (method: string, args: object): Promise<unknown> => {
+      const response = await fetch('/api/' + method, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          type: 'client-request',
+          rpcId: 'smoke-' + method + '-' + String(Date.now()),
+          method,
+          payload: { args },
+        }),
+      })
+      const body = await response.json() as { result?: { ok?: boolean; value?: unknown; error?: unknown } }
+      if (body.result?.ok !== true) {
+        throw new Error(method + ' failed: ' + JSON.stringify(body.result?.error ?? body))
+      }
+      return body.result.value
+    }
+    const listed = await call('session/list', { _request: {} }) as {
+      items?: { sessionId?: string; projections?: { asOfSeq?: number } }[]
+    }
+    const cursor = listed.items?.find(item => item.sessionId === id)?.projections?.asOfSeq ?? -1
+    return await call('session/page', {
+      request: { address: { kind: 'session', sessionId: id }, throughSeq: cursor, maxMessages: 10 },
+    })
+  }, sessionId) as HistoryPage
+}
+
 async function history(baseUrl: string, sessionId: string): Promise<HistoryPage> {
   const throughSeq = await sessionCursor(baseUrl, sessionId)
   return remoteRpc<HistoryPage>(baseUrl, 'session/page', {
@@ -330,18 +401,18 @@ async function history(baseUrl: string, sessionId: string): Promise<HistoryPage>
   })
 }
 
-async function waitForProviderTitle(baseUrl: string, sessionId: string): Promise<string> {
+async function waitForProviderTitle(page: Page, sessionId: string): Promise<string> {
   let observed: string | undefined
   await expect.poll(async () => {
-    observed = providerTitle(await history(baseUrl, sessionId))
+    observed = providerTitle(await historyInPage(page, sessionId))
     return observed
   }, { timeout: 90_000 }).toEqual(expect.any(String))
   if (observed === undefined) throw new Error('provider-backed session title was not observed')
   return observed
 }
 
-async function waitForAssistantMarker(baseUrl: string, sessionId: string, marker: string): Promise<void> {
-  await expect.poll(async () => hasAssistantMarker(await history(baseUrl, sessionId), marker), {
+async function waitForAssistantMarker(page: Page, sessionId: string, marker: string): Promise<void> {
+  await expect.poll(async () => hasAssistantMarker(await historyInPage(page, sessionId), marker), {
     timeout: 120_000,
   }).toBe(true)
 }
@@ -861,21 +932,13 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY || notReady.length > 0)('web smoke
       productTitle,
       { timeout: 15_000 },
     )
-    await expect.poll(async () => (await remoteRpc<{ items: { sessionId: string }[] }>(
-      baseUrl,
-      'session/list',
-      { _request: {} },
-    )).items.length, {
+    await expect.poll(async () => (await sessionListInPage(page)).items.length, {
       timeout: 15_000,
     }).toBe(1)
-    const sessions = await remoteRpc<{ items: { sessionId: string }[] }>(
-      baseUrl,
-      'session/list',
-      { _request: {} },
-    )
-    const sessionId = sessions.items[0]?.sessionId
+    const listed = await sessionListInPage(page)
+    const sessionId = listed.items[0]?.sessionId
     if (sessionId === undefined) throw new Error('created Web session was not listed')
-    const durableTitle = await waitForProviderTitle(baseUrl, sessionId)
+    const durableTitle = await waitForProviderTitle(page, sessionId)
     await page.waitForFunction(
       ({ expected, product }) => document.title === `${expected} — ${product}`,
       { expected: durableTitle, product: productTitle },
@@ -888,7 +951,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY || notReady.length > 0)('web smoke
       sessionTree.getByText(durableTitle, { exact: true }).waitFor({ timeout: 10_000 }),
       page.getByRole('navigation').getByText(durableTitle, { exact: true }).waitFor({ timeout: 10_000 }),
     ])
-    await waitForAssistantMarker(baseUrl, sessionId, ROUND_DONE_MARKER)
+    await waitForAssistantMarker(page, sessionId, ROUND_DONE_MARKER)
     await page.locator('p').filter({ hasText: ROUND_DONE_MARKER }).waitFor({ timeout: 10_000 })
     await screen(page, '04-round-complete')
   }, 150_000)
