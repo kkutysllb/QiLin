@@ -530,6 +530,9 @@
   "packages/client/ui-chat/tests/conversation.client.spec.ts": {
     "299fcafb8671655372c99c1dbe14e2705536d569bf475ca09693f87b3b1182da": 1
   },
+  "packages/client/ui-chat/tests/process-groups.client.spec.ts": {
+    "05d999d83577603128494a583f62f8a2b2f4f22e7b76858a77dffd83b093fb30": 1
+  },
   "packages/client/ui-chat/tests/skill-name-projector.client.spec.ts": {
     "cc5bd784736472e7293f8b0e2d889b0cf1c156a218457571390871164e35b5d5": 1
   },

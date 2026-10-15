@@ -62,7 +62,7 @@ function injection(key: string, seq: number): ChatNode<'context'> {
       content: [{ type: 'tool-addition', toolName: 'search' }],
       source: null, producer: { role: 'skill' }, form: null,
     },
-  } as Partial<ChatNode<'context'>> as ChatNode<'context'>
+  } as unknown as ChatNode<'context'>
 }
 
 function separator(seq: number, inTurn: boolean): ChatNode<'user'> | ChatNode<'steering'> {
