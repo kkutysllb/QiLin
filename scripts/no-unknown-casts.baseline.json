@@ -322,9 +322,6 @@
     "1217ff7655ecbd7dabd037d9038345bca04c0ece54fe5f4e120d71371d8c1b1e": 1,
     "e16418d396e5aa0dc24e4e963fd984fcd0d6641c2286f101fff3a87a160a4805": 1
   },
-  "packages/boot/plugin-manager/tests/manager.spec.ts": {
-    "a0e4b0705cb368fe34803e05c049aa90f1eae359971a5fc72fcf46b2600dab21": 2
-  },
   "packages/boot/plugin-manager/tests/operations.spec.ts": {
     "3f67668a2a47b23d156327c25aec9838ccfb824ad8e28234cf3e3ed78b7ca84b": 1,
     "657d57900ec8cdcfa9a4b11544ef4799d3a60c43c49e20f7aea13d3522ddbbee": 2

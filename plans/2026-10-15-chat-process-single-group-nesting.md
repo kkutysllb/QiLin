@@ -93,7 +93,7 @@ Injections are members only in the form Chat renders: a `context` node without
 
 ## Upstream rhythm reference (DSH, checked 2026-10-15)
 
-The DSH checkout on this machine (`deepseek-harness` at `571902028a`, 0.2.1-alpha.3,
+The DSH checkout on this machine (`deepseek-harness` at ``, 0.2.1-alpha.3,
 2026-10-14) matches `upstream/master` exactly (zero commits either way), so it is the
 current upstream state.
 
@@ -108,9 +108,9 @@ rhythm is vertical, in `packages/client/ui-chat/README.md`:
 > content, Assistant responses have 12px from adjacent process rows, and completed-Turn
 > duration/status controls have 16px around them.
 
-Those values are already mirrored verbatim (`097f6694b3`: flow 6, response 12, Turn
+Those values are already mirrored verbatim (``: flow 6, response 12, Turn
 header 16, folded body 6, expanded body 16, fold padding 8). The upstream commit
-`b09dd94827` proposed 8/16/8 and was reverted the same day (`7c8a44ac31`), so it is not
+`` proposed 8/16/8 and was reverted the same day (``), so it is not
 a baseline. Member depth therefore has no upstream value to align to: the 24px step
 stays QiLin's own. A derived alternative (one step = the 16px leading box plus the 6px
 row gap = 22px, scaled by the content font delta) was considered and not taken.

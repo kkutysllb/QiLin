@@ -3730,7 +3730,7 @@ describe('single Turn process group', () => {
     const location = base.timeline.turns.get(1)!
     // Node Locations share this object with the timeline, so patching the end
     // reason in place reaches both readers.
-    ;(location.end!.data as unknown as { reason: unknown }).reason = { kind: 'aborted', reason: { kind: 'user' } }
+    Reflect.set(location.end!.data, 'reason', { kind: 'aborted', reason: { kind: 'user' } })
     const builder = new ChatSnapshotBuilder()
     const groups = new ConversationGroupStore<ProcessGroupData>()
     const state = new ProcessState()

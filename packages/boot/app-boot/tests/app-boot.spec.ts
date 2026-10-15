@@ -806,7 +806,7 @@ describe('boot', () => {
     expect(error.entries).toEqual([{
       id: 'webserver', module: './missing.mjs', required: true, fiberState: undefined,
       // The entry reports the error importing it raises now, not a bare failed-import marker.
-      outcome: { kind: 'failed', error: expect.any(Error) as unknown, phase: 'failed to import' },
+      outcome: { kind: 'failed', error: expect.any(Error), phase: 'failed to import' },
     }])
     expect(error.startup?.configurationPath).toBe(config)
     expect(error.startup?.messages.some(message => message.args.some(arg => arg instanceof Error && arg.message.includes('missing.mjs')))).toBe(true)

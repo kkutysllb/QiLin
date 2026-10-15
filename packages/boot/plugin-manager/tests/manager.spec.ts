@@ -343,7 +343,7 @@ it('refreshes runtime package resolution after an install and keeps deselected s
   const { manager, dir, bundle } = await fixture('startup', false, (ctx) => {
     ctx.provide('pluginPackages', {
       packageOf: () => undefined, resolution: GENERATION, refresh,
-    } as unknown as Context['pluginPackages'])
+    } as Partial<Context['pluginPackages']> as Context['pluginPackages'])
   })
   const install = vi.spyOn(operations, 'runProfilePnpm').mockImplementation(async (_context, args) => {
     const name = String(args[1])
@@ -366,7 +366,7 @@ it('refreshes runtime package resolution when live reload deselects a started bu
   const { manager, dir } = await fixture('live', false, (ctx) => {
     ctx.provide('pluginPackages', {
       packageOf: () => undefined, resolution: GENERATION, refresh,
-    } as unknown as Context['pluginPackages'])
+    } as Partial<Context['pluginPackages']> as Context['pluginPackages'])
   })
   expect(await manager.setBundleEnabled('extra', false)).toMatchObject({ application: 'applied' })
   expect(readProfileManifest('test', dir).qilin?.profile?.bundles ?? []).not.toContain('extra')
@@ -787,7 +787,7 @@ it('reports an applied change as requiring restart when HMR published a restart 
     ctx.provide('hmr', {
       runExclusive: (operation: () => Promise<unknown>) => operation(),
       reconcileProfile: async () => ({ warnings: [], pending: [{ url: 'file:///host.mjs', reason: 'host-module' }] }),
-    } as unknown as Context['hmr'])
+    } as Partial<Context['hmr']> as Context['hmr'])
   })
   expect(await manager.setBundleEnabled('extra', false))
     .toMatchObject({ application: 'restart-required', restartReason: 'host-module' })
@@ -796,7 +796,7 @@ it('reports an applied change as requiring restart when HMR published a restart 
 it('keeps the package table when the profile has no published generation or its publication waits for a restart', async () => {
   const publish = vi.fn(async () => undefined)
   const withoutGeneration = await fixture('startup', false, (ctx) => {
-    ctx.provide('pluginPackages', { packageOf: () => undefined, refresh: publish } as unknown as Context['pluginPackages'])
+    ctx.provide('pluginPackages', { packageOf: () => undefined, refresh: publish } as Partial<Context['pluginPackages']> as Context['pluginPackages'])
   })
   expect(await withoutGeneration.manager.setBundleEnabled('extra', true)).toMatchObject({ application: 'restart-required' })
   expect(publish).not.toHaveBeenCalled()
@@ -807,7 +807,7 @@ it('keeps the package table when the profile has no published generation or its 
       packageOf: () => undefined, resolution: GENERATION, refresh: async () => {
         throw new ResolutionRestartRequired('installation mapping changed')
       },
-    } as unknown as Context['pluginPackages'])
+    } as Partial<Context['pluginPackages']> as Context['pluginPackages'])
   })
   expect(await waiting.manager.setBundleEnabled('extra', true))
     .toMatchObject({ application: 'restart-required' })
@@ -818,7 +818,7 @@ it('keeps the package table when the profile has no published generation or its 
       packageOf: () => undefined, resolution: GENERATION, refresh: async () => {
         throw new Error('installation tree is unreadable')
       },
-    } as unknown as Context['pluginPackages'])
+    } as Partial<Context['pluginPackages']> as Context['pluginPackages'])
   })
   expect(await broken.manager.setBundleEnabled('extra', true))
     .toMatchObject({ application: 'failed', error: { code: 'operation-error' } })

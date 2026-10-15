@@ -389,7 +389,7 @@ describe('profile recomposition', () => {
     const { generation } = await installedGeneration()
     const expression = (): PatchOptions[] => inserted({
       id: 'expr', name: './plug.mjs',
-      disabled: { __jsExpr: '(() => { throw new Error("disabled expression failed") })()' } as unknown as boolean,
+      disabled: { __jsExpr: '(() => { throw new Error("disabled expression failed") })()' },
     })
     const { ctx } = await composition({
       patches: expression(),

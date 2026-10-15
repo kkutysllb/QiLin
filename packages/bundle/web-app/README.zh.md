@@ -42,7 +42,7 @@ qilin --profile web --no-open --port 8080
 
 ### 配置
 
-`--host` 与 `--port` 配置监听器；`--public-url` 指定 GUI 在剥离前缀的代理之后对外公告的公开 HTTP(S) 根，`--trusted-host` 则添加更多被接受的 authority。两者都在[监听器 URL 与信任 authority](#listener-url-and-trust-authorities)中说明：
+`--host` 与 `--port` 配置监听器；`--public-url` 指定 GUI 在剥离前缀的代理之后对外公告的公开 HTTP(S) 根，`--trusted-host` 则添加更多被接受的 authority。两者都在[监听器 URL 与信任 authority](#监听地址-url-与信任权威)中说明：
 
 | 字段 | 默认值 | 含义 |
 |---|---|---|

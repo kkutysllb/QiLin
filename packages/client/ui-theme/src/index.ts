@@ -18,7 +18,11 @@ export {
   type FontFamilies, type FontRole, type FontSizes, type ThemePreference, type ThemeSettings,
 } from './theme-settings.ts'
 
-/** Font-family lists read from a settings section, keyed by role. */
+/**
+ * Font-family lists read from a settings section, keyed by role.
+ * @param section - the theme settings section to read.
+ * @returns the frozen per-role font-family lists.
+ */
 export function sectionFontFamilies(section: ThemeSettings): FontFamilies {
   return Object.freeze({
     text: section[FONT_FAMILY_FIELDS.text],

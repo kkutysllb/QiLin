@@ -5559,10 +5559,6 @@ importers:
         version: 18.3.1(react@18.3.1)
 
   packages/client/ui-sidebar-terminal:
-    dependencies:
-      '@qilin-agent/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
     devDependencies:
       '@qilin-agent/api-remotes':
         specifier: workspace:*
@@ -5615,6 +5611,9 @@ importers:
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
       '@qilin-agent/session':
         specifier: workspace:*
         version: link:../../core/session

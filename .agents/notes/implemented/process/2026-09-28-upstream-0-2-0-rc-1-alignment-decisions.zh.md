@@ -23,7 +23,7 @@ Status: implemented
 - **D7**：预览版说明自拟文案（QiLin 版本串 + 自有反馈渠道）；机制（设置文档键 + 精确相等）照搬。
 - **D8**：本轮不采产品埋点；QiLin 代码不出现 `ctx.get('productAnalytics')?.track(...)` 调用，仅有埋点消费方的模块跳过而非留孤儿。
 - **D9**：不改设置保存路径；上游发布说明中 `boot/config-editor` 一条记为不适用。
-- **D10**：采 `agent-experience` 技能内容，落到 QiLin 自有预设技能层级 `packages/preset/agent-presets/presets/cordis/skills/`；执行归 B8 卫星批，随之推迟。
+- **D10**：采 `agent-experience` 技能内容，落到 QiLin 自有预设技能层级 `packages/preset/agent-presets/presets/ptc/skills/`；执行归 B8 卫星批，随之推迟。
 
 ## 落选方案
 
