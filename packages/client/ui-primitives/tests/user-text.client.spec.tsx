@@ -148,3 +148,67 @@ describe('projectUserText', () => {
     expect(host.textContent).toBe('纯文本，无引用')
   })
 })
+
+describe('projectUserText credentials', () => {
+  const key = 'sk-' + 'a'.repeat(19) + '1'
+  const maskedKey = 'sk-aaaaa' + '*'.repeat(15)
+  const projectSecret = (
+    text: string,
+    secretLabels?: { readonly reveal: string; readonly hide: string },
+    slashNames: readonly string[] = [],
+    sessionLabels: readonly string[] = [],
+  ) =>
+    render(
+      <div data-host>{projectUserText(text, sessionLabels, slashNames, 'skill', undefined, secretLabels)}</div>,
+    ).container.querySelector('[data-host]')!
+
+  it('masks a credential and offers no control without copy', () => {
+    const host = projectSecret('key ' + key + ' end')
+    expect(host.querySelector('[data-secret]')?.textContent).toBe(maskedKey)
+    expect(host.textContent).toBe('key ' + maskedKey + ' end')
+    expect(host.querySelector('button')).toBeNull()
+  })
+
+  it('reveals one credential when the consumer supplies control copy', () => {
+    const host = projectSecret(key, { reveal: 'Show secret', hide: 'Hide secret' })
+    const toggle = host.querySelector('button')!
+    expect(toggle.getAttribute('aria-label')).toBe('Show secret')
+    fireEvent.click(toggle)
+    expect(host.querySelector('[data-secret]')?.textContent).toBe(key)
+  })
+
+  it('keeps a slash chip and a credential on one line', () => {
+    const host = projectSecret('/qilin-acp-test ' + key, { reveal: 'Show secret', hide: 'Hide secret' }, ['qilin-acp-test'])
+    expect(host.querySelectorAll('div').length).toBe(0)
+    expect(host.querySelectorAll('[data-ref-chip]').length).toBe(1)
+    expect(host.querySelectorAll('[data-secret]').length).toBe(1)
+    expect(host.textContent).toBe('/qilin-acp-test ' + maskedKey)
+  })
+
+  it('masks a credential an @ mention would otherwise render raw', () => {
+    const host = projectSecret('@' + key)
+    expect(host.querySelectorAll('[data-ref-chip]').length).toBe(0)
+    expect(host.querySelector('[data-secret]')?.textContent).toBe(maskedKey)
+    expect(host.textContent).toBe('@' + maskedKey)
+  })
+
+  it('masks a credential a wire session form carries as its label', () => {
+    const host = projectSecret('@[' + key + '](qilin-session:abc)')
+    expect(host.querySelectorAll('[data-ref-chip]').length).toBe(0)
+    expect(host.querySelector('[data-secret]')?.textContent).toBe(maskedKey)
+    expect(host.textContent).toBe('@[' + maskedKey + '](qilin-session:abc)')
+  })
+
+  it('masks a credential a session label names', () => {
+    const host = projectSecret('@' + key, undefined, [], [key])
+    expect(host.querySelectorAll('[data-ref-chip]').length).toBe(0)
+    expect(host.querySelector('[data-secret]')?.textContent).toBe(maskedKey)
+  })
+
+  it('decorates a token that only follows a credential', () => {
+    const host = projectSecret(key + ' /qilin-acp-test', undefined, ['qilin-acp-test'])
+    expect(host.querySelectorAll('[data-ref-chip]').length).toBe(1)
+    expect(host.querySelectorAll('[data-secret]').length).toBe(1)
+    expect(host.textContent).toBe(maskedKey + ' /qilin-acp-test')
+  })
+})

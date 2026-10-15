@@ -55,7 +55,7 @@ export type {
   CodeFileType, FileType, FileTypeIconProps, FileTypeKind, FileTypeProjectContext,
 } from './FileTypeIcon.tsx'
 export { PathLabel } from './PathLabel.tsx'
-export { projectUserText, type UserTextReferences } from './user-text.tsx'
+export { projectUserText, type UserTextReferences, type UserTextSecretLabels } from './user-text.tsx'
 export { Tooltip } from './Tooltip.tsx'
 export type { TooltipSide } from './Tooltip.tsx'
 export { focusWithoutRing } from './focus.ts'

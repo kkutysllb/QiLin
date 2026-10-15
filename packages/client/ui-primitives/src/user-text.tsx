@@ -12,10 +12,15 @@
  * stray `/word` stays plain text. A `/name` token is whitespace-bounded like
  * the host skill gesture (`qilin-tool-skill`): it ends at whitespace or the
  * text end, so slash paths (`/nfs-hg/xxx`, `/plan.md`) and punctuation-glued
- * tokens (`/plan。`) stay plain even for a loaded name.
+ * tokens (`/plan。`) stay plain even for a loaded name. A recognized credential
+ * always draws masked, ahead of every reference decoration, and only the display
+ * changes: the logged text, the copied text, and the model input keep the original
+ * characters.
  */
 import type { ReactNode } from 'react'
 import clsx from 'clsx'
+import { SecretText } from './SecretText.tsx'
+import { scanSecrets } from './credential-scanner.ts'
 import { ReferenceIcon } from './ReferenceIcon.tsx'
 import css from './user-text.module.css'
 import markdownCss from './markdown/MarkdownText.module.css'
@@ -26,6 +31,7 @@ const SESSION_WIRE_RE = /@\[([^\]\n]+)\]\(qilin-session:[^)\s]+\)/gu
 /** Sentence punctuation a bare `@name` token may carry without being part of the reference. */
 const TRAILING_PUNCTUATION_RE = /[.,;:!?，。；：！？]+$/u
 
+/** One reference or slash-token decoration. */
 interface DecorationRange {
   readonly start: number
   readonly end: number
@@ -36,12 +42,32 @@ interface DecorationRange {
   readonly display?: string
 }
 
+/** One recognized credential: masked display without a reference chip. */
+interface SecretDecoration {
+  readonly start: number
+  readonly end: number
+  readonly kind: 'secret'
+  /** Display form of the original range; line breaks stay in place. */
+  readonly masked: string
+}
+
+/** One inline decoration over the text. */
+type Range = DecorationRange | SecretDecoration
+
 /** Optional navigation supplied by consumers that can preview references. */
 export interface UserTextReferences {
   /** Open a file path decoded from an `@` mention. */
   openFile: (path: string) => void
   /** Open the source of a skill loaded for this message. */
   openSkill: (name: string) => void
+}
+
+/** Accessible names of the control that reveals one masked credential. */
+export interface UserTextSecretLabels {
+  /** Name while the value stays masked. */
+  readonly reveal: string
+  /** Name while the value is shown. */
+  readonly hide: string
 }
 
 /**
@@ -53,6 +79,7 @@ export interface UserTextReferences {
  * (unsent queue rows pass none).
  * @param slashKind - the chip kind those tokens render as.
  * @param references - optional file and skill preview actions; session and command tokens stay labels.
+ * @param secretLabels - reveal-control copy for credentials; absent in text that stays masked.
  * @returns inline nodes covering the whole text.
  */
 export function projectUserText(
@@ -61,11 +88,21 @@ export function projectUserText(
   slashNames: readonly string[] = [],
   slashKind: 'skill' | 'command' = 'skill',
   references?: UserTextReferences,
+  secretLabels?: UserTextSecretLabels,
 ): ReactNode {
-  const ranges: DecorationRange[] = []
+  const secrets = scanSecrets(text)
+  const ranges: Range[] = secrets.map(secret => (
+    { start: secret.start, end: secret.end, kind: 'secret', masked: secret.masked }
+  ))
+  // A credential outranks the reference decoration it shares text with: an
+  // `@name` token whose name is itself a key must not render the key raw as a
+  // chip label, and a wire session form carries its label in the same place.
+  const maskedOver = (start: number, end: number): boolean =>
+    secrets.some(secret => start < secret.end && secret.start < end)
   SESSION_WIRE_RE.lastIndex = 0
   let wire: RegExpExecArray | null
   while ((wire = SESSION_WIRE_RE.exec(text)) !== null) {
+    if (maskedOver(wire.index, wire.index + wire[0].length)) continue
     ranges.push({
       start: wire.index,
       end: wire.index + wire[0].length,
@@ -78,7 +115,9 @@ export function projectUserText(
     const label = `@${rawLabel}`
     let start = text.indexOf(label)
     while (start >= 0) {
-      ranges.push({ start, end: start + label.length, label, kind: 'session' })
+      if (!maskedOver(start, start + label.length)) {
+        ranges.push({ start, end: start + label.length, label, kind: 'session' })
+      }
       start = text.indexOf(label, start + label.length)
     }
   }
@@ -94,9 +133,12 @@ export function projectUserText(
       : rawLabel.replace(TRAILING_PUNCTUATION_RE, '')
     if (label.length <= 1) continue
     if (label.startsWith('/') && !slashNames.includes(label.slice(1))) continue
+    if (maskedOver(tokenStart, tokenStart + label.length)) continue
     ranges.push({ start: tokenStart, end: tokenStart + label.length, label, kind: 'plain' })
   }
-  const rankOf = (range: DecorationRange): number => range.kind === 'session' ? 0 : 1
+  // A credential never starts where a reference token does, so a tie here is
+  // always a session label against a slash token.
+  const rankOf = (range: Range): number => range.kind === 'session' ? 0 : 1
   ranges.sort((a, b) => a.start - b.start || rankOf(a) - rankOf(b) || b.end - a.end)
   const parts: ReactNode[] = []
   let cursor = 0
@@ -105,8 +147,14 @@ export function projectUserText(
   }
   for (const range of ranges) {
     if (range.start < cursor) continue
-    const { start: tokenStart, end, label, kind } = range
+    const { start: tokenStart, end } = range
     if (tokenStart > cursor) pushPlain(cursor, tokenStart)
+    if (range.kind === 'secret') {
+      parts.push(<SecretText key={`sec${tokenStart}`} masked={range.masked} raw={text.slice(tokenStart, end)} labels={secretLabels} />)
+      cursor = end
+      continue
+    }
+    const { label, kind } = range
     const referenceKind = kind === 'session'
       ? 'session'
       : label.startsWith('@')

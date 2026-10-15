@@ -214,7 +214,10 @@ function UserStyleBubble({
           </div>
         )}
         {showBubble && <div className={css.bubble}>
-          {projectUserText(text, referenceLabels, skillNames, 'skill', references)}
+          {projectUserText(text, referenceLabels, skillNames, 'skill', references, {
+            reveal: t('secret.reveal'),
+            hide: t('secret.hide'),
+          })}
           {rest.map((block, i) => <JsonBlock key={i} label={t('message.extraBlock')} payload={block} truncatedLabel={truncated} />)}
         </div>}
         {referenceLabels.length > 0 && (
