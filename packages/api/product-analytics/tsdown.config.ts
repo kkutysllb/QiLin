@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsdown'
 
 export default defineConfig({
-  entry: ['lib/types/index.js', 'lib/types/events.js'],
+  entry: ['lib/types/index.js'],
   outDir: 'lib',
   format: ['esm'] as const,
   outputOptions: { codeSplitting: false },
