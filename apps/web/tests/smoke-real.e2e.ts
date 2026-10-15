@@ -26,9 +26,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
-import { REPO_ROOT, connectFreshWorkspace, newEnglishPage, probeFreePort, requireDist, saveFailureShot, startupUrl } from './support.ts'
+import { REPO_ROOT, connectFreshWorkspace, newEnglishPage, openTrajectoryTab, probeFreePort, requireDist, saveFailureShot, startupUrl } from './support.ts'
 
-const WEB_SURFACE_PROMPT = fileURLToPath(new URL('./expected/web-runtime-context/web-surface-prompt.expected.md', import.meta.url))
 const authenticatedCookies = new Map<string, Promise<{ origin: string; cookie: string }>>()
 
 /** Frame a complete text turn or an open block before a transport failure. */
@@ -374,6 +373,12 @@ async function detailsTrack(page: Page): Promise<number> {
   return Number(cols.split(' ').pop()!.replace('px', ''))
 }
 
+/** Whether this host can run the sandbox the shipped composition confines tools with. */
+function hostSandboxAvailable(): boolean {
+  if (process.platform !== 'darwin') return true
+  return spawnSync('/usr/bin/sandbox-exec', ['-p', '(version 1)(allow default)', '/usr/bin/true']).status === 0
+}
+
 // Readiness gate: `qilin web` serves every production manifest plugin; until every UI
 // plugin's client bundle exists and exports apply, the loader fail-louds and
 // the frame never appears.
@@ -562,12 +567,11 @@ describe('qilin web keyless CLI smoke', () => {
       const workspaceMessage = captured.messages?.filter(message => message.role === 'user')
         .flatMap(message => message.content ?? [])
         .find(block => block.type === 'text' && block.text?.includes('web-workspace-context-probe'))
-      // The deployment and the runtime it forwards to each advertise their own
-      // port in this section, so compare it with the port normalized.
-      const normalizePort = (text: string): string => text.replace(/http:\/\/127\.0\.0\.1:\d+/gu, 'http://127.0.0.1:PORT')
-      const expectedWebSection = normalizePort(readFileSync(WEB_SURFACE_PROMPT, 'utf8').trimEnd()
-        .replace('{{webUrl}}', new URL(baseUrl).origin))
-      expect(normalizePort(String(captured.system))).toContain(expectedWebSection)
+      // No web-surface assertion here: the shipped preset persona carries that
+      // text itself, and web-app's row documents that a complete persona
+      // suppresses the section for its agent while keeping the host-owned shell
+      // variable (packages/bundle/web-app/cordis.patch.yml); the bundle suite
+      // covers the section.
       expect(workspaceMessage).toMatchInlineSnapshot(`
         {
           "text": "<system-reminder>
@@ -581,14 +585,13 @@ describe('qilin web keyless CLI smoke', () => {
           "type": "text",
         }
       `)
-      expect(captured.tools?.map(tool => tool.name)
-        .filter(name => name === 'web_search' || name === 'web_fetch'))
-        .toMatchInlineSnapshot(`
-          [
-            "web_fetch",
-            "web_search",
-          ]
-        `)
+      // The shipped tools mode is PTC, so the wire surface is the run_code
+      // transport alone; web_search and web_fetch reach the model through it.
+      expect(captured.tools?.map(tool => tool.name)).toMatchInlineSnapshot(`
+        [
+          "run_code",
+        ]
+      `)
     } finally {
       const closed = child.exitCode === null
         ? new Promise<void>((resolveClose) => { child.once('close', () => { resolveClose() }) })
@@ -884,15 +887,20 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY || notReady.length > 0)('web smoke
 
   it('view tabs: Chat and Trajectory switch', async () => {
     onTestFailed(() => saveFailureShot(page, 'w5-tabs'))
-    await page.getByRole('tab', { name: 'Trajectory' }).first().click()
+    await openTrajectoryTab(page)
     await screen(page, '05-trajectory-tab')
-    await page.getByLabel('Trajectory timeline').waitFor()
-    await expect.poll(() => page.getByRole('tab', { name: 'Waterfall' }).count()).toBe(0)
-    await page.getByRole('tab', { name: 'Chat' }).first().click()
+    // The ledger is the Trajectory view this installation ships; the
+    // conversation keeps rendering beside it.
+    await page.locator('[data-trajectory-scroll]').waitFor({ timeout: 15_000 })
+    await page.getByText(ROUND_DONE_MARKER).first().waitFor({ timeout: 15_000 })
     await screen(page, '07-back-to-chat')
   })
 
-  it('bash differential rendering: tool row click leaves the default details column closed', async () => {
+  it('bash differential rendering: tool row click leaves the default details column closed', async (context) => {
+    // The shipped composition runs tools through the host sandbox; a host that
+    // refuses one (a nested sandbox-exec) can never render the bash card, so
+    // the case reports itself skipped instead of failing.
+    if (!hostSandboxAvailable()) context.skip()
     onTestFailed(() => saveFailureShot(page, 'w5-tool-details'))
     const input = page.locator('[data-composer-input]').first()
     await input.fill('请用 bash 工具运行命令 echo w5marker 然后告诉我结果')
@@ -931,23 +939,38 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY || notReady.length > 0)('web smoke
 
   it('dark mode: the body attribute cascades the token sheets', async () => {
     onTestFailed(() => saveFailureShot(page, 'w5-dark'))
-    // The body attribute is the documented cascade mechanism; the Settings
-    // gesture is owned by settings-chrome.e2e.ts — drive the attribute
-    // directly here.
-    const dark = await page.evaluate(() => {
-      document.body.setAttribute('data-ds-dark-theme', '')
-      const style = getComputedStyle(document.body)
-      return ['--qilin-alias-bg-base', '--qilin-alias-bg-layer-1', '--qilin-alias-border-l2',
-        '--qilin-alias-bg-layer-2', '--qilin-alias-bg-overlay'].map(name => style.getPropertyValue(name))
-    })
+    const readTheme = async (preference: 'dark' | 'light'): Promise<string[]> => {
+      // The documented gesture: the preference write reaches the Host, which
+      // publishes it back as the body attribute and the alias tokens.
+      await page.evaluate(async (value: string) => {
+        await fetch('/api/settings/mutate', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            type: 'client-request',
+            rpcId: 'smoke-theme-' + value,
+            method: 'settings/mutate',
+            payload: { args: { ns: 'ui-theme', ops: [{ op: 'set', path: ['preference'], value }] } },
+          }),
+        })
+      }, preference)
+      await expect.poll(
+        async () => await page.evaluate(() => document.body.hasAttribute('data-ds-dark-theme')),
+        { timeout: 5_000 },
+      ).toBe(preference === 'dark')
+      return await page.evaluate(() => {
+        const style = getComputedStyle(document.body)
+        return [
+          style.backgroundColor,
+          style.getPropertyValue('--qilin-boot-bg'),
+          style.getPropertyValue('--qilin-alias-bg-base'),
+        ]
+      })
+    }
+    const dark = await readTheme('dark')
     await screen(page, '11-dark-mode')
-    const light = await page.evaluate(() => {
-      document.body.removeAttribute('data-ds-dark-theme')
-      const style = getComputedStyle(document.body)
-      return ['--qilin-alias-bg-base', '--qilin-alias-bg-layer-1', '--qilin-alias-border-l2',
-        '--qilin-alias-bg-layer-2', '--qilin-alias-bg-overlay'].map(name => style.getPropertyValue(name))
-    })
-    expect(dark.some((value, index) => value !== light[index])).toBe(true)
+    const light = await readTheme('light')
+    expect(dark).not.toEqual(light)
   })
 
   it('reload recovery: history replays after a fresh boot', async () => {
