@@ -26,7 +26,7 @@
 
 ## 需要留意/待确认
 
-1. **桌面版本双源**：`generate-release-manifest.mjs` 用打包域版本（0.1.1），`generate-sbom.mjs` 用工作区根版本（3.1.6-rc.1）。并入说明声称"打包时由根同步"，但**本次未在会话内找到执行该同步的脚本**——建议核对 `desktop/scripts/build-desktop.sh` 与 `release:manifest` 链路，确认发布产物里的版本字段一致。
+1. **桌面版本双源——已查清**：桌面有自己的发布线（`desktop/package.json` = 0.1.1，配 `desktop/release/v0.1.0.md`、`v0.1.1.md`），而 `desktop/scripts/build-desktop.sh:54-57` 在打包时执行 `pkg.version = root.version`，把**工作区根版本**写进 `desktop/package/package.json`；`desktop/scripts/release.sh:11` 亦注明"版本单一事实源 = `package.json`（发版时同步写 `package/package.json`）"。因此仓内那个 0.1.1 是桌面线最后一次提交的痕迹，**实际产物版本 = 工作区版本**（本次为 3.1.6-rc.1），两者不冲突；`generate-sbom.mjs` 读根版本、`generate-release-manifest.mjs` 读打包域版本，二者在打包后一致。
 2. **桌面与 `v*` Release 的耦合**：QiLin 把桌面包挂到同一个 `v*` Release 且需手动派发；上游是独立发布流水线（含公证）。若未来为 3.1.6 正式版附桌面产物，需按 `desktop-release.yml` 手动 dispatch。
 3. **未做的事**：本次只做静态差异分析（结构、清单、入口、脚本、发布配置），**没有**实机运行任一侧安装包，也没有逐文件 diff 848 个上游文件。
 
