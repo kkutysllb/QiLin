@@ -11,17 +11,18 @@
     "lib/cli.js"
   ],
   "dependencies": {
-    "@qilin-agent/kylin": "workspace:~",
-    "@qilin-agent/cli": "workspace:*",
     "@qilin-agent/agent": "workspace:*",
     "@qilin-agent/app-boot": "workspace:*",
+    "@qilin-agent/cli": "workspace:*",
     "@qilin-agent/client-connection": "workspace:*",
-    "@qilin-agent/host-webserver": "workspace:*",
     "@qilin-agent/home-paths": "workspace:*",
+    "@qilin-agent/host-webserver": "workspace:*",
     "@qilin-agent/jobs": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/schedule": "workspace:*",
     "@qilin-agent/tool-workspace-dependencies": "workspace:*",
-    "@qilin-agent/workspace": "workspace:*"
+    "@qilin-agent/workspace": "workspace:*",
+    "koffi": "3.1.1"
   },
   "devDependencies": {
     "@qilin-agent/kylin-plugin-include": "workspace:~",

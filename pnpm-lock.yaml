@@ -584,6 +584,55 @@ importers:
         specifier: 8.21.0
         version: 8.21.0
 
+  apps/desktop-host:
+    dependencies:
+      '@qilin-agent/agent':
+        specifier: workspace:*
+        version: link:../../packages/core/agent
+      '@qilin-agent/app-boot':
+        specifier: workspace:*
+        version: link:../../packages/boot/app-boot
+      '@qilin-agent/cli':
+        specifier: workspace:*
+        version: link:../cli
+      '@qilin-agent/client-connection':
+        specifier: workspace:*
+        version: link:../../packages/client/connection
+      '@qilin-agent/home-paths':
+        specifier: workspace:*
+        version: link:../../packages/util/home-paths
+      '@qilin-agent/host-webserver':
+        specifier: workspace:*
+        version: link:../../packages/host/webserver
+      '@qilin-agent/jobs':
+        specifier: workspace:*
+        version: link:../../packages/jobs/jobs
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../vendor/cordis
+      '@qilin-agent/schedule':
+        specifier: workspace:*
+        version: link:../../packages/schedule/schedule
+      '@qilin-agent/tool-workspace-dependencies':
+        specifier: workspace:*
+        version: link:../../packages/skill/tool-workspace-dependencies
+      '@qilin-agent/workspace':
+        specifier: workspace:*
+        version: link:../../packages/workspace/workspace
+      koffi:
+        specifier: 3.1.1
+        version: 3.1.1
+    devDependencies:
+      '@qilin-agent/kylin-plugin-include':
+        specifier: workspace:~
+        version: link:../../vendor/include
+      '@qilin-agent/kylin-plugin-loader':
+        specifier: workspace:~
+        version: link:../../vendor/loader
+      '@qilin-agent/skill':
+        specifier: workspace:*
+        version: link:../../packages/skill/skill
+
   apps/web:
     devDependencies:
       '@qilin-agent/client-modules':

@@ -176,6 +176,10 @@
       "types": "./lib/types/profile-boot.d.ts",
       "default": "./lib/profile-boot.js"
     },
+    "./bin": {
+      "types": "./lib/types/bin.d.ts",
+      "default": "./lib/bin.js"
+    },
     "./lib/*": "./lib/*",
     "./package.json": "./package.json"
   }

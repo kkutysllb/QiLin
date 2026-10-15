@@ -85,3 +85,21 @@ find /path/to/deepseek-harness -name package.json -path '*desktop-runtime*'   # 
 1. **抽取 `profile-boot` 成包**：上游 `@deepseek-ai/dsh/profile-boot` 是独立包，本仓的 `runProfile` 还在 `apps/cli/src/profile-boot.ts`（app 内模块，跨包不可导入）。移植的宿主必须能 import 它 → 建 `packages/boot/profile-boot`（从 `apps/cli/src/profile-boot.ts` 抽出 `runProfile` 及其依赖），`apps/cli` 改为消费该包。这也是"工程面与 dsh 一致"的直接一环。
 2. **office 缺口决策**：移植 `libreoffice-kit`（含 `-darwin-arm64`/`-wasm` 平台包）或把 office 能力降级为可选（本仓已有 `skill/skill-office`，需确认其运行时装依赖路径）。
 3. **接入工作区**：`pnpm-workspace.yaml`（`apps/*` 是否已覆盖）、`tsconfig.host.json` 的面配置、`pnpm install` 链接、以及 `apps/desktop-host` 自己的 vitest 运行方式。
+
+### P1 第二块：把 `apps/desktop-host` 接进工作区（2026-10-16）
+
+**更正上一块的两条判断（实测推翻）**：
+
+- ~~需要抽取 `profile-boot` 成包~~ **不成立**：上游的 `@deepseek-ai/dsh/profile-boot` 是 **CLI 包的子路径导出**（`apps/cli/package.json` 的 `exports['./profile-boot']` → `lib/profile-boot.js` + `lib/types/profile-boot.d.ts`），本仓**已有同形导出**，`@qilin-agent/cli/profile-boot` 直接可用，无需重构。
+- 上游 `@deepseek-ai/dsh-desktop-runtime` 仍确认**不是源码包**（`prepare:*` 管线生成），本仓对应物是 P3 的运行时准备步骤。
+
+**本块改动**：
+
+- `tsconfig.host.json` 的 references 增加 `{ "path": "./apps/desktop-host" }`；`pnpm install`（需 `--no-frozen-lockfile`，锁文件随新包更新）链接工作区。
+- CLI 包新增**类型化子路径** `./bin`（`{ types: ./lib/types/bin.d.ts, default: ./lib/bin.js }`），移植的宿主据此 import `runCli`（上游走的是无类型的 `@deepseek-ai/dsh/lib/bin.js`）。
+- 实测通过：`npx tsc -b apps/desktop-host/tsconfig.json`（0 错误）、`tsdown` 打包 ✓、`vitest run apps/desktop-host/tests/quit-inspection.spec.ts` **9 passed** ✓、`verify-package-dependencies` ✓、`verify-export-jsdoc` ✓。
+
+**本仓与上游的两处能力差（记录为对齐待办，代码按"缺失即降级"处理）**：
+
+1. **`reportSkippedBundles`**：上游 `app-boot` 的 profile 带 `skippedBundles` 并在启动时把跳过的 bundle 打到 stderr；本仓的 `Profile` **没有该成员** → 宿主删掉这次上报（回归类型错误已消失）。待办：把 skipped-bundle 记录能力并入本仓 profile 装载。
+2. **`runCli` 的桌面参数**：上游 `runCli({ manageDesktopProfile: true, packageManager: {...} })` 让桌面用自带的 pnpm 管理 profile；本仓 `runCli()` **不接受参数** → `runDesktopCli()` 退化为直接调用入口（JSDoc 已注明该差异）。待办：决定是否把桌面包管理器选项并入 CLI。
