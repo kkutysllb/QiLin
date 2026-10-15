@@ -52,7 +52,9 @@ describe('usage settings section', () => {
 
     expect(await screen.findByRole('heading', { name: en.title })).toBeTruthy()
     expect(read).toHaveBeenCalledTimes(1)
-    expect(String(read.mock.calls[0]?.[0])).toContain('/api/usage/me?from=')
+    // Document-relative on purpose: a tenant deployment serves this route under
+    // its own base, so an origin-absolute path would read the root runtime's ledger.
+    expect(String(read.mock.calls[0]?.[0])).toMatch(/^api\/usage\/me\?from=\d+$/u)
     // The all-time card reads the ledger total; the month card sums the records.
     // Today and this month both come from the records; every time comes from the
     // ledger total, which is the only figure covering Turns outside the window.

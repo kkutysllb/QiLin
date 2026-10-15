@@ -54,6 +54,7 @@ Non-negotiables across the layers:
 - **rpcId is strictly bidirectional**: the initiator mints, the responder echoes, and minting stays in Connection ([Typert Gateway method calls](../../.agents/notes/implemented/architecture/2026-08-02-typert-remote-method-calls.md)).
 - **Notifier publication discipline**: `notifyNow` is only the direct echo of a user gesture; structural updates use microtask-batched `markDirty`, while visible streaming chunks use cumulative `markFrameDirty`. See `../api/session-controller/src/client/sessions/notifier.ts`.
 - **The web layer is pure presentation.** Nothing that is only "how to draw" enters the session log. Tool cards derive in the Client from raw call/result events and persisted result metadata; process-local control state uses its own snapshots and frames. Unknown or malformed tool data falls back to the generic form. A new *model-visible* input still requires a session event (repo-wide rule).
+- **An app-owned route the browser addresses is document-relative, and a pair no import can tie is declared.** A browser address whose declaring module a bundle cannot import — a deployment app's route, such as `apps/cli`'s `USAGE_BROWSER_READ_PATH` — is registered in `BROWSER_ROUTE_PAIRS` in [the route gate](../../scripts/verify-client-route-resolution.ts), so both ends keep naming the same route; a route both faces can import keeps the shared `*_PATH` + `*_ROUTE` declaration beside it ([rationale](../../.agents/notes/implemented/architecture/2026-09-14-web-document-relative-app-routes.md)).
 
 ## Dependency declaration
 

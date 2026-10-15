@@ -14,7 +14,7 @@ Status: implemented
 
 所服务的 HTTP 外壳拥有自己的文档 base。其 index 携带唯一的 `<base href="./">`，在原始 index 转换执行后拼接于起始 head 标签之后，因此它先于启动 manifest、每一行插件资源，以及任何转换插入的标记。该 base 冻结入口目录：`/mount/` 与 `/mount/index.html` 是受支持的入口，而文档 URL 之后移动（页面内 `pushState`）不会移动 base。系统不推断任何前缀，因此深层直接加载与重新加载不是入口；裸挂载仍需依赖代理自身的规范化补齐尾部斜杠。
 
-浏览器对这些路由的引用相对该文档——`api/x`、`plugins/x`——而服务端路由键保持绝对路径名：RPC channel 键 `/api`、`webServer` 注册路径，以及以 combo 路由 `/plugins/??...&rev=...` 为键的响应表。命名路由键的共享常量（`*_PATH`、`*_ENDPOINT`）在边界处被剥去前导斜杠（`KEY.slice(1)`）后浏览器代码才使用，浏览器形式以 `*_ROUTE` 与之并列。
+浏览器对这些路由的引用相对该文档——`api/x`、`plugins/x`——而服务端路由键保持绝对路径名：RPC channel 键 `/api`、`webServer` 注册路径，以及以 combo 路由 `/plugins/??...&rev=...` 为键的响应表。命名路由键的共享常量（`*_PATH`、`*_ENDPOINT`）在边界处被剥去前导斜杠（`KEY.slice(1)`）后浏览器代码才使用，浏览器形式以 `*_ROUTE` 与之并列。当声明模块无法被浏览器 bundle 触达时——`apps/cli` 的 `USAGE_BROWSER_READ_PATH` 由租户路由服务——没有可剥离的共享常量，门禁改为在 `BROWSER_ROUTE_PAIRS` 中以显式配对持有它的两端。
 
 宿主在每个生产者里只在一处组合浏览器引用。模块启动图 row 与批次描述符携带文档相对的 combo 引用；source-map trailer 只携带 combo 查询，因为脚本的 source-map 引用相对该脚本自身目录（`.../plugins/`）解析，而非相对文档。响应表仍以绝对路由为键，而请求在代理剥去前缀后到达的也正是该路由。
 

@@ -5,8 +5,8 @@ import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
-  browserFaceSources, findRouteResolutionViolations, routeKeyIndex,
-  type RouteGateFace, type RouteKeyIndex,
+  browserFaceSources, BROWSER_ROUTE_PAIRS, findRoutePairViolations, findRouteResolutionViolations,
+  routeKeyIndex, routePairViolations, type BrowserRoutePair, type RouteGateFace, type RouteKeyIndex,
 } from './verify-client-route-resolution.ts'
 
 function patterns(file: string, source: string, face?: RouteGateFace, index?: RouteKeyIndex): string[] {
@@ -299,5 +299,66 @@ describe('browser face discovery', () => {
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
+  })
+})
+
+describe('deployment route pairs', () => {
+  const pair: BrowserRoutePair = {
+    declaration: 'apps/cli/src/usage-ledger.ts',
+    key: 'USAGE_BROWSER_READ_PATH',
+    address: 'packages/client/ui-usage/src/client/UsageSection.tsx',
+  }
+  const declaration = "export const USAGE_BROWSER_READ_PATH = '/api/usage/me'"
+  const address = [
+    'export async function load(): Promise<void> {',
+    "  await fetch('api/usage/me?from=' + String(Date.now()))",
+    '}',
+  ].join('\n')
+
+  it('accepts an address carrying the declared pathname document-relative', () => {
+    expect(findRoutePairViolations(pair, declaration, address)).toEqual([])
+    // A leading `./` and a query are part of the address, not of the route.
+    expect(findRoutePairViolations(pair, declaration, "await fetch('./api/usage/me?from=1')")).toEqual([])
+    // The template form a browser address is usually built in reads the same route.
+    expect(findRoutePairViolations(pair, declaration, 'await fetch(`api/usage/me?from=${String(Date.now())}`)')).toEqual([])
+  })
+
+  it('rejects an address naming the route the declaration used to carry', () => {
+    const moved = "export const USAGE_BROWSER_READ_PATH = '/api/usage/account'"
+    const [violation] = findRoutePairViolations(pair, moved, address)
+    expect(violation?.rule).toBe('route-pair')
+    expect(violation?.file).toBe(pair.address)
+    expect(violation?.pattern).toBe('api/usage/account')
+  })
+
+  it('rejects an address that no longer carries the route', () => {
+    const [violation] = findRoutePairViolations(pair, declaration, 'export async function load(): Promise<void> {}')
+    expect(violation?.rule).toBe('route-pair')
+    expect(violation?.file).toBe(pair.address)
+    expect(violation?.pattern).toBe('api/usage/me')
+  })
+
+  it('rejects a route named outside a request target', () => {
+    const [violation] = findRoutePairViolations(pair, declaration, "const route = 'api/usage/me'")
+    expect(violation?.rule).toBe('route-pair')
+    expect(violation?.file).toBe(pair.address)
+  })
+
+  it('rejects a declaration that no longer carries an absolute app route', () => {
+    const [violation] = findRoutePairViolations(pair, "export const USAGE_BROWSER_READ_PATH = 'usage/me'", address)
+    expect(violation?.rule).toBe('route-pair')
+    expect(violation?.file).toBe(pair.declaration)
+    expect(violation?.pattern).toBe('usage/me')
+  })
+
+  it('rejects a declaration that no longer declares the key', () => {
+    const [violation] = findRoutePairViolations(pair, "export const OTHER = '/api/usage/me'", address)
+    expect(violation?.rule).toBe('route-pair')
+    expect(violation?.file).toBe(pair.declaration)
+    expect(violation?.pattern).toBe(pair.key)
+  })
+
+  it('holds every registered pair against the working tree', () => {
+    for (const registered of BROWSER_ROUTE_PAIRS) expect(routePairViolations(registered)).toEqual([])
   })
 })

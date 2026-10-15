@@ -18,6 +18,12 @@
  * the registration key into a template literal — the form a browser address is
  * built in — is refused as well, which the shared-key rule below requires.
  *
+ * A route the browser cannot derive from a shared key is held as a pair: the
+ * module declaring its absolute pathname and the browser source addressing it
+ * document-relative must name the same route. The pairs live in
+ * `BROWSER_ROUTE_PAIRS`, because no import can tie a browser bundle to a module
+ * that belongs to a deployment app.
+ *
  * The static producers of browser references are checked in the same pass: a
  * field the browser resolves against its document (`url`, `src`, `href`)
  * must not be stamped with a root-absolute app route. Internal route keys and
@@ -71,7 +77,7 @@ const REFERENCE_PRODUCERS = [
 ]
 
 /** Rule that produced a violation, for diagnostics and for the gate's own coverage. */
-export type RouteResolutionRule = 'request-target' | 'location-base' | 'host-route-key' | 'reference-producer'
+export type RouteResolutionRule = 'request-target' | 'location-base' | 'host-route-key' | 'reference-producer' | 'route-pair'
 
 /** What a scanned file is: browser face, or a static producer of browser references. */
 export type RouteGateFace = 'browser' | 'reference-producer'
@@ -81,6 +87,19 @@ const HINT: Record<RouteResolutionRule, string> = {
   'location-base': 'resolve the route against document.baseURI, not against a location read',
   'host-route-key': 'strip the leading slash before the browser uses this key (KEY.slice(1))',
   'reference-producer': 'emit the browser reference document-relative (plugins/x)',
+  'route-pair': 'keep the browser address and the declaring pathname naming the same route',
+}
+
+/** One violation located from a start offset in its parsed source. */
+function locatedViolation(
+  file: string,
+  source: ts.SourceFile,
+  start: number,
+  pattern: string,
+  rule: RouteResolutionRule,
+): RouteResolutionViolation {
+  const { character, line } = source.getLineAndCharacterOfPosition(start)
+  return { column: character + 1, file, line: line + 1, pattern, rule }
 }
 
 /** One app-owned route reached from a place that binds it to one mount. */
@@ -297,6 +316,112 @@ export function routeKeyIndex(sources: Iterable<readonly [string, string]>): Rou
   return { appRoutes, otherKeys }
 }
 
+/** One app route the browser addresses whose pathname a module it cannot import declares. */
+export interface BrowserRoutePair {
+  /** Repository-relative module declaring the absolute pathname. */
+  readonly declaration: string
+  /** Exported constant carrying that pathname. */
+  readonly key: string
+  /** Repository-relative browser source addressing the route. */
+  readonly address: string
+}
+
+/**
+ * Route pairs no import can tie together: the declaring module belongs to a
+ * deployment app, and a browser bundle cannot reach it. A browser address whose
+ * route another module declares adds its pair here, because nothing else keeps
+ * the two ends naming the same route.
+ */
+export const BROWSER_ROUTE_PAIRS: readonly BrowserRoutePair[] = [
+  {
+    declaration: 'apps/cli/src/usage-ledger.ts',
+    key: 'USAGE_BROWSER_READ_PATH',
+    address: 'packages/client/ui-usage/src/client/UsageSection.tsx',
+  },
+]
+
+/** The initializer one exported constant declares, or undefined when it declares none. */
+function declaredInitializer(source: ts.SourceFile, key: string): ts.StringLiteral | undefined {
+  let found: ts.StringLiteral | undefined
+  const visit = (node: ts.Node): void => {
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.name.text === key
+      && node.initializer !== undefined && ts.isStringLiteral(node.initializer)) {
+      found = node.initializer
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(source)
+  return found
+}
+
+/** The document-relative app route one literal fragment opens with, without its query or fragment. */
+function addressedRoute(text: string): string | undefined {
+  if (!RELATIVE_APP_ROUTE.test(text)) return undefined
+  return text.replace(/^(?:\.\/)+/u, '').split(/[?#]/u)[0]
+}
+
+/** Document-relative app routes one browser source addresses in request targets. */
+function addressedRoutes(source: ts.SourceFile): Set<string> {
+  const locals = localValues(source)
+  const routes = new Set<string>()
+  const visit = (node: ts.Node): void => {
+    const target = requestTargetOf(node)
+    if (target !== undefined) {
+      for (const value of expandValue(target, locals)) {
+        for (const fragment of literalFragments(value)) {
+          const route = addressedRoute(fragment.text)
+          if (route !== undefined) routes.add(route)
+        }
+      }
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(source)
+  return routes
+}
+
+/**
+ * Check one pair: the address must carry the declared pathname document-relative.
+ * @param pair - the declaring module, its route key, and the browser source addressing it.
+ * @param declarationSource - source of the declaring module.
+ * @param addressSource - source of the browser file addressing the route.
+ * @returns at most one violation: a declaration that carries no app route, or an address naming another route.
+ */
+export function findRoutePairViolations(
+  pair: BrowserRoutePair,
+  declarationSource: string,
+  addressSource: string,
+): RouteResolutionViolation[] {
+  const declaration = parseSource(pair.declaration, declarationSource)
+  const initializer = declaredInitializer(declaration, pair.key)
+  if (initializer === undefined) {
+    return [locatedViolation(pair.declaration, declaration, 0, pair.key, 'route-pair')]
+  }
+  if (!ROOT_ABSOLUTE_ROUTE.test(initializer.text)) {
+    return [locatedViolation(pair.declaration, declaration, initializer.getStart(declaration), initializer.text, 'route-pair')]
+  }
+  const route = initializer.text.slice(1)
+  const address = parseSource(pair.address, addressSource)
+  if (addressedRoutes(address).has(route)) return []
+  return [locatedViolation(pair.address, address, 0, route, 'route-pair')]
+}
+
+/**
+ * Read one pair's two files and check them; a file that vanished fails loud.
+ * @param pair - the declaring module, its route key, and the browser source addressing it.
+ * @returns the pair's violations, empty when both ends name the same route.
+ */
+export function routePairViolations(pair: BrowserRoutePair): RouteResolutionViolation[] {
+  const declaration = resolve(root, pair.declaration)
+  const address = resolve(root, pair.address)
+  for (const path of [declaration, address]) {
+    if (!existsSync(path)) {
+      throw new Error(`${GATE}: route pair ${pair.declaration} → ${pair.address} names a file that is gone; discovery is broken.`)
+    }
+  }
+  return findRoutePairViolations(pair, readFileSync(declaration, 'utf8'), readFileSync(address, 'utf8'))
+}
+
 /** Callee name of a call or construction, for constructors and `fetch`-shaped carriers. */
 function calleeName(expression: ts.Expression): string | undefined {
   if (ts.isIdentifier(expression)) return expression.text
@@ -383,8 +508,7 @@ export function findRouteResolutionViolations(
   const report = (node: ts.Node, rule: RouteResolutionRule): void => {
     const start = node.getStart(source)
     if (violations.has(start)) return
-    const { character, line } = source.getLineAndCharacterOfPosition(start)
-    violations.set(start, { column: character + 1, file, line: line + 1, pattern: node.getText(source), rule })
+    violations.set(start, locatedViolation(file, source, start, node.getText(source), rule))
   }
 
   const isRootAbsolute = (text: string): boolean => ROOT_ABSOLUTE_ROUTE.test(text) || ABSOLUTE_ROUTE.test(text)
@@ -517,9 +641,10 @@ function main(): void {
   const violations = [
     ...sources.flatMap(([file, sourceText]) => findRouteResolutionViolations(file, sourceText, 'browser', index)),
     ...REFERENCE_PRODUCERS.flatMap(file => scan(file, 'reference-producer')),
+    ...BROWSER_ROUTE_PAIRS.flatMap(routePairViolations),
   ]
   if (violations.length > 0) {
-    console.error(`${GATE}: ${violations.length} app-owned route(s) that are not document-relative:`)
+    console.error(`${GATE}: ${violations.length} browser route(s) that are not document-relative or not in step with their declaring pathname:`)
     for (const violation of violations) {
       console.error(
         `  ${violation.file}:${violation.line}:${violation.column} ${violation.pattern} — ${HINT[violation.rule]}`,
@@ -529,7 +654,7 @@ function main(): void {
     return
   }
   console.log(
-    `${GATE}: ${files.length} browser source file(s) and ${REFERENCE_PRODUCERS.length} browser-reference producer(s) keep app-owned routes document-relative.`,
+    `${GATE}: ${files.length} browser source file(s), ${REFERENCE_PRODUCERS.length} browser-reference producer(s), and ${BROWSER_ROUTE_PAIRS.length} deployment route pair(s) keep app-owned routes document-relative and in step.`,
   )
 }
 
