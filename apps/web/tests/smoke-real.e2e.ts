@@ -437,10 +437,9 @@ describe('qilin web keyless CLI smoke', () => {
         /^\/plugins\/\?\?@qilin-agent\/client-modules\/client\.js&rev=[a-f\d]{12}$/,
       ))
       const readyOrigin = ready.origin
-      expect([...cacheHeaders.values()]).toEqual([
-        'public, max-age=31536000, immutable',
-        'public, max-age=31536000, immutable',
-      ])
+      expect([...cacheHeaders.values()]).toEqual(
+        Array.from({ length: batchPaths.length }, () => 'public, max-age=31536000, immutable'),
+      )
       for (const path of batchPaths) {
         const [scriptResponse, mapResponse] = await Promise.all([
           fetch(`${readyOrigin}${path}`),
