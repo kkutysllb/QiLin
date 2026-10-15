@@ -103,3 +103,39 @@ find /path/to/deepseek-harness -name package.json -path '*desktop-runtime*'   # 
 
 1. **`reportSkippedBundles`**：上游 `app-boot` 的 profile 带 `skippedBundles` 并在启动时把跳过的 bundle 打到 stderr；本仓的 `Profile` **没有该成员** → 宿主删掉这次上报（回归类型错误已消失）。待办：把 skipped-bundle 记录能力并入本仓 profile 装载。
 2. **`runCli` 的桌面参数**：上游 `runCli({ manageDesktopProfile: true, packageManager: {...} })` 让桌面用自带的 pnpm 管理 profile；本仓 `runCli()` **不接受参数** → `runDesktopCli()` 退化为直接调用入口（JSDoc 已注明该差异）。待办：决定是否把桌面包管理器选项并入 CLI。
+
+### P1 第三块：`client-product-analytics` 类型面移植 + `apps/desktop` 主体parking（2026-10-16）
+
+**已提交的部分 —— `packages/client/product-analytics`（类型面）**
+
+- 上游该包是「宿主插件 + Typert 远程面 + locale + 环境采样」，依赖 `@deepseek-ai/dsh-host-product-telemetry-otel`（本仓无）与账号栈（边界排除）→ 按"缺失即降级"**只移植事件映射**：`src/events.ts`（`ProductEventMap`/`ProductEvent`）+ `src/index.ts` 类型 barrel，`exports` 提供 `.` 与 `./types` 两个类型入口。
+- 依赖声明按 client 规则：`session`/`llm`/`kylin` 仅 dev（类型导入）+ kylin 同时 peer ✓；`tsconfig.base.json` 增两条手写别名（该包名与目录名不同，生成器无法自动映射 ✓）。
+- 文档按包 README 骨架重写（frontmatter `kind: package-reference`、Summary/Table of Contents/Dev Note、ME + KLN 收尾、双语配对重录 ✓），并在 `verify-package-readme-model-experience` 的审计表里登记"无模型影响"的判据 ✓。
+- **验证**：`pnpm run doc-sync` **status=0** ✓、`pnpm run verify-tsconfig-paths` ✓（别名已当前）、`verify-no-unknown-casts` ✓、`verify-package-dependencies` ✓。
+
+**未提交的部分 —— `apps/desktop` 主体（108 文件）暂存仓外**
+
+- 已复制并按既有 rescope 规则改写 44 个文件（作用域 33 条映射 + 标识 `dsh→qilin`/`DSH→QILIN`/`dsh-app://→qilin-app://`）✓；但**上游的 README/资源/打包面尚未适配本仓门禁**（README 骨架、Model Experience、catalog 条目、tsconfig 面引用等），若现在入库会让 `doc-sync` 变红。
+- 故暂存于 **`/tmp/desktop-parked-2026-10-16/desktop`**（源真相是上游仓 ✓，rescope 规则已记于本节 ✓），下一轮按块引入并逐块过门禁。
+- 依赖清点结论：桌面包保留 5 个 runtime dep + 29→24 个 dev dep；**打包专用依赖**（`electron-winstaller`/`electron-builder`/`app-builder-lib`/`@electron/notarize`/cos/`electron`）按计划推迟到 P3；`electron-winstaller` 的未批准构建脚本会直接让 `pnpm install`(CI) 失败，故此时不能入库。
+- 上游两处 `as unknown`（`src/main.ts`、`src/runtime-tree.ts`）已按其指纹登记进 unknown-cast baseline ✓（真身随 P1 后续块入库时复用该记录）。
+
+### P1 第四块（本轮结论）：着陆新包时必须先过的门禁清单（血泪版）
+
+本轮把 `client-product-analytics` 的类型面与 `apps/desktop` 主体都做到"可编译但未过文档门禁"的程度，最终**两者都暂存仓外**以保持工作树全绿（`doc-sync` status=0 ✓）。下一轮直接按下表着陆，可省掉反复试错：
+
+**A. 新包的宿主位置**
+- **纯类型包不能放在 `packages/client/` 下**：`verify-client-packages` 要求该目录下每个包声明客户端模式（`qilin.client` 或 `staticLinked` preset）✗；本包是类型契约 ✓ → 归宿是目录外（本轮试过 `packages/api/product-analytics` ✓，包名保持 `@qilin-agent/client-product-analytics` 以便桌面 import ✓）。
+- **`gen-third-party-notices` 的硬约束**：任何声明了 `qilin.client` 的包，其 `tsdown.config.ts` 必须导出 `name: '<包名>/client'` 的构建配置 ✗，否则整个 notices 生成失败（并让 pre-commit 的 third-party 钩子失败 ✗）。
+- 包名与目录名不同时，`tsconfig.base.json` 需要**手写别名**（`gen-tsconfig-paths --check` 会指名要求 ✓）。
+
+**B. 包 README 的骨架（`scripts/doc-standard.spec.ts` + 三个 verifier 强校验）**
+1. frontmatter：`description` + `kind: "package-reference"`（`package-library` 会被拒 ✗）。
+2. 结构：`# <包名>` → 语言行 → `## Summary`（或 zh 的 `## 概述`）→ `## Table of Contents`（zh `## 目录`，条目锚点需真实存在 ✓）→ `----- `→ 各节 → **`## Dev Note`（zh 必须叫 `## 开发备注`）**。
+3. **`## Model Experience` 与 `## Known Limitations and Deferred Work` 必须是最后两个 H2，且顺序固定**；两者之间不要插入自定义锚点行 ✗（`<a id="model-experience"></a>` 会被 markdown wrap 门禁与 ME 门禁同时点名 ✗）；ME 段格式固定为「一句以 `None, as ` 开头、句号结尾 + `#### KV Cache effect` + 一段非空段落」；短式还需在 `scripts/verify-package-readme-model-experience.ts` 的 `SENTENCE_MODEL_EXPERIENCE` 里登记审计理由 ✓。
+4. README 里的 ```ts 代码块会被 `doc-typecheck` 编译 ✗ → 跨包 import 的示例要么保证目标在文档工程内，要么不要写代码块 ✓。
+
+**C. 本轮的实际产物（都在仓外，可随时取回）**
+- `/tmp/desktop-parked-2026-10-16/desktop`：`apps/desktop` 主体 108 文件（已 rescope ✓；打包专用 devDeps 已按 P3 撤下 ✓；两处上游 `as unknown` 的基线指纹见 `3f8ff1002e` 之前的会话记录 ✓）。
+- `/tmp/desktop-parked-2026-10-16/product-analytics`：类型面包（已过 `verify-client-packages` ✓ 与自身 `tsc -b` ✓，README 已按骨架重写 ✓）。
+- 依据仍是上游仓（真相来源 ✓）+ 本文的 rescope 规则 ✓。
