@@ -62,13 +62,13 @@ export function isSubagentDelegationTool(name: string): boolean {
 }
 
 /**
- * Keep live, stopped, and failed Turns open.
+ * Keep a live Turn open; a stopped or failed one folds like any other closed Turn, whose
+ * own 已停止 or failure mark carries the state beside the folded process.
  * @param node - Node carrying the owning Turn.
  * @returns whether whole-Turn collapse is unavailable.
  */
 export function turnProcessAlwaysOpen(node: ChatNode | undefined): boolean {
   const location = node?.location
   if (location?.kind !== 'turn' && location?.kind !== 'step') return false
-  const reason = location.turn.end?.data.reason.kind
-  return location.turn.status === 'open' || reason === 'aborted' || reason === 'error'
+  return location.turn.status === 'open'
 }

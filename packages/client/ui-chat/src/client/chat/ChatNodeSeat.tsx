@@ -14,6 +14,8 @@ import css from './ChatView.module.css'
 
 interface ChatNodeSeatProps extends ChatNodeOwnerProps {
   readonly nodeKey: string
+  /** Nesting level inside a process group; absent for a root row. */
+  readonly depth?: number
   /** A replaced Builder must rebind keyed hooks even when references and keys survive. */
   readonly nodeStore: ChatNodeStore
   readonly useChatNode: ChatFlowSlotProps['useChatNode']
@@ -48,7 +50,7 @@ function turnOf(node: ChatNode | undefined): number | undefined {
  * only seats whose visibility actually changes.
  */
 export const ChatNodeSeat = memo(function ChatNodeSeat({
-  nodeKey, groupPart, useChatNode, useChatNodeProcess, usePresentation,
+  nodeKey, groupPart, depth, useChatNode, useChatNodeProcess, usePresentation,
   cwd, openFile, openSkill, inspectCall, forkAt, editUserMessage,
   loadImage, renderMessageImages, fileMentions, useStore, actions, renderSlot, t, useChatNodeBottom, deferCollapse, useGroupAction,
 }: ChatNodeSeatProps) {
@@ -156,6 +158,7 @@ export const ChatNodeSeat = memo(function ChatNodeSeat({
       data-chat-flow-key={flowKey}
       data-chat-paging-anchor={routedNode.kind !== 'turn-process' || undefined}
       data-chat-node-key={routedNode.key}
+      data-chat-depth={depth}
       data-chat-group-part={groupPart}
       data-chat-flow-kind={routedNode.kind}
       data-chat-turn={turn}

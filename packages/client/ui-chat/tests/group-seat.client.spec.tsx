@@ -293,6 +293,20 @@ describe('ChatGroupSeat', () => {
     expect(flowKeys).toEqual([JSON.stringify(['user:1', 'reasoning']), 'user:1'])
   })
 
+  it('nests a Step row one level and its reasoning and call rows two', () => {
+    const seat = makeSeat({
+      members: [
+        { kind: 'node', key: 'user:1' as NodeKey, groupPart: 'response' },
+        { kind: 'node', key: 'user:1' as NodeKey, groupPart: 'reasoning' },
+        { kind: 'node', key: 'user:1' as NodeKey },
+      ],
+    })
+    const view = render(<ChatGroupSeat {...seat.props} />)
+    const depths = [...view.container.querySelectorAll<HTMLElement>('[data-chat-node-key]')]
+      .map(row => row.getAttribute('data-chat-depth'))
+    expect(depths).toEqual(['1', '2', '2'])
+  })
+
   it.each([
     { closed: true, expectedTop: 0, expectedUp: false, expectedDown: true },
     { closed: false, expectedTop: 500, expectedUp: true, expectedDown: false },

@@ -82,10 +82,21 @@ function useStableLiveProcessTitle(desired: LiveProcessTitle, active: boolean): 
 }
 
 
+/**
+ * Nesting level of one member: a Step's own row reads one level in, and the
+ * reasoning and Tool rows that belong to it read two.
+ * @param member - group member reference.
+ * @returns the member's depth below the group header.
+ */
+function memberDepth(member: NodeReference): number {
+  return member.groupPart === 'response' ? 1 : 2
+}
+
 const GroupMembers = memo(function GroupMembers({ members, ...props }: SeatProps & {
   readonly members: readonly NodeReference[]
 }) {
   return members.map(member => <ChatNodeSeat {...props} key={chatRenderKey(member)} nodeKey={member.key}
+    depth={memberDepth(member)}
     {...member.groupPart === undefined ? {} : { groupPart: member.groupPart }} />)
 })
 
@@ -144,9 +155,7 @@ export const ChatGroupSeat = memo(function ChatGroupSeat({ groupKey, useChatGrou
   // Detailed keeps the latest completed Turn flat, like a running one, until the next input.
   const grouped = props.usePresentation(policy => policy.stepGrouping === 'collapsed'
     || (policy.stepGrouping === 'history' && turnLocation?.status !== 'open' && !deferCollapse))
-  const reason = turnLocation?.end?.data.reason.kind
   const alwaysOpen = presentation?.turnClosed === false || presentation?.hasInterleavedInput === true
-    || reason === 'aborted' || reason === 'error'
   const spec = presentation?.spec
   const selectOpen = useCallback((state: Readonly<ChatStoreState>) => spec !== undefined
     && turnProcessOpen(state, spec, deferCollapse), [spec, deferCollapse])

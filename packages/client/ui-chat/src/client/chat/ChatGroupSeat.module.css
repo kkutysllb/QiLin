@@ -91,6 +91,21 @@
   scrollbar-gutter: stable;
 }
 
+/* A grouped body is one nested range under its header: a Step's own row reads
+   one indent step in, and the reasoning and Tool rows belonging to it read two,
+   so the body reads Turn -> Step -> call. */
+.root:not([data-group-expanded-mode]) .body {
+  --dsh-chat-process-indent: 24px;
+}
+
+.root:not([data-group-expanded-mode]) .content > [data-chat-depth="1"] {
+  padding-inline-start: var(--dsh-chat-process-indent);
+}
+
+.root:not([data-group-expanded-mode]) .content > [data-chat-depth="2"] {
+  padding-inline-start: calc(var(--dsh-chat-process-indent) * 2);
+}
+
 .label {
   min-width: 0;
   overflow: hidden;

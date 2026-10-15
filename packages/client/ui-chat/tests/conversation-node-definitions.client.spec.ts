@@ -388,7 +388,9 @@ describe('built-in conversation node Definitions', () => {
       }),
     ])
     const process = () => snapshot(value).timeline.turns.get(1)?.data.get('turn-process')
-    expect(process()).toMatchObject({ processStartSeq: 4, answerAnchorSeq: null, answerStep: null })
+    // A Turn without a finalized answer owns its whole range, so the injections that
+    // arrived before the control fold with the process instead of leaking beside it.
+    expect(process()).toMatchObject({ processStartSeq: 1, answerAnchorSeq: null, answerStep: null })
     expect(node(snapshot(value), 'turn-process')?.data).toMatchObject({ answerAnchorSeq: null })
 
     value.append(at(7, 'tool/call', {
@@ -407,7 +409,7 @@ describe('built-in conversation node Definitions', () => {
     }))
     value.flush()
     expect(process()).toMatchObject({
-      processStartSeq: 4,
+      processStartSeq: 1,
       answerAnchorSeq: null,
       answerStep: null,
       inlineReasoning: false,

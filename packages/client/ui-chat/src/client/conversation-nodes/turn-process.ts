@@ -138,7 +138,10 @@ function processSpec(state: TurnProcessState, turn: TurnLocation): TurnProcessSp
     return {
       turn: turn.turn,
       controlAnchorSeq,
-      processStartSeq: controlAnchorSeq,
+      // A Turn that stopped or failed without an answer still owns its opening
+      // evidence: injections that arrived before the control fold with the rest of
+      // the process instead of leaking beside the 已停止 mark.
+      processStartSeq: turn.start?.seq ?? controlAnchorSeq,
       answerAnchorSeq: null,
       answerStep: null,
       inlineReasoning: false,

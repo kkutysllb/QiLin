@@ -27,6 +27,68 @@ function reply(node: ChatNode): boolean {
   return node.kind === 'assistant-step' && hasAssistantReplyContent(node.data.blocks)
 }
 
+/** Process range one Turn owns, read from its own Turn-process control Node. */
+interface ProcessRange {
+  readonly start: number
+  readonly answerAnchor: number | null
+  readonly answerStep: number | null
+}
+
+/** Fallback range for a Turn whose control Node is outside the loaded window. */
+const WHOLE_TURN: ProcessRange = { start: Number.NEGATIVE_INFINITY, answerAnchor: null, answerStep: null }
+
+function processRange(nodes: readonly ChatNode[]): ProcessRange {
+  const control = nodes.find((node): node is ChatNode<'turn-process'> => node.kind === 'turn-process')
+  if (control === undefined) return WHOLE_TURN
+  return {
+    start: control.data.processStartSeq,
+    answerAnchor: control.data.answerAnchorSeq,
+    answerStep: control.data.answerStep,
+  }
+}
+
+/**
+ * Whether one Node's evidence falls inside the Turn's process range. A live
+ * Turn has no answer boundary yet, so every node from the range start belongs.
+ */
+function inProcessRange(node: ChatNode, range: ProcessRange, live: boolean): boolean {
+  return node.anchorSeq >= range.start
+    && (live || range.answerAnchor === null || node.anchorSeq < range.answerAnchor)
+}
+
+/**
+ * Whether one Node is the Turn's finalized answer step. A live Turn has no
+ * answer boundary yet: its reply rows keep their own seat while streaming.
+ */
+function isAnswerStep(node: ChatNode, range: ProcessRange, live: boolean): boolean {
+  return !live && range.answerStep !== null
+    && node.kind === 'assistant-step' && node.data.step === range.answerStep
+}
+
+/** Whether a new Turn-process range must reshape the Turn's group. */
+function processRangeChanged(previous: ChatNode, current: ChatNode): boolean {
+  if (previous.kind !== 'turn-process' || current.kind !== 'turn-process') return false
+  return previous.data.processStartSeq !== current.data.processStartSeq
+    || previous.data.answerAnchorSeq !== current.data.answerAnchorSeq
+    || previous.data.answerStep !== current.data.answerStep
+}
+
+/**
+ * Whether one render part of a Node belongs to the Turn's group. The finalized
+ * answer and a live Turn's reply keep their own rows: the answer owns the
+ * Turn's seat, and the collapsed body would otherwise swallow the prose the
+ * reader is watching.
+ * @param part - renderer-owned part of the Node, or undefined for the whole Node.
+ * @param answer - whether the Node is the Turn's finalized answer step.
+ * @param member - whether the Node's evidence falls inside the process range.
+ * @param closed - whether the Turn is closed.
+ * @returns whether the part joins the Turn's group.
+ */
+function inGroup(part: string | undefined, answer: boolean, member: boolean, closed: boolean): boolean {
+  if (part === 'response') return member && closed && !answer
+  return member
+}
+
 function sameSummary(left: ProcessActivitySummary, right: ProcessActivitySummary): boolean {
   return left.running === right.running && left.runningDetail === right.runningDetail
     && left.preparing === right.preparing
@@ -45,6 +107,7 @@ function structureChanged(previous: ChatNode | undefined, current: ChatNode): bo
     || turnOf(previous) !== turnOf(current)
     || isVisibleChatNode(previous) !== isVisibleChatNode(current)
     || reasoning(previous) !== reasoning(current) || reply(previous) !== reply(current)
+    || processRangeChanged(previous, current)
 }
 
 function readNode(input: ProcessInput, key: NodeKey): ChatNode {
@@ -134,7 +197,12 @@ class TurnGroups {
     const emit = (key: NodeKey, entry: RenderEntry): void => {
       roots.set(key, [...roots.get(key) ?? [], entry])
     }
-    const flush = (closed: boolean): void => {
+    /**
+     * Install the accumulated members as the Turn's group.
+     * @param complete - whether the members form a finished range; the Turn's own
+     * lifecycle closes the last group of a live Turn.
+     */
+    const commit = (complete: boolean): void => {
       const first = pending[0]
       if (first === undefined) return
       const retained = this.extendedGroup(pending, added)
@@ -143,42 +211,57 @@ class TurnGroups {
       const before = previous?.snapshot
       const group = previous !== undefined && sameMembers(previous.members, pending)
         ? previous : new ProcessGroup(key, this.turn, pending)
-      group.refresh(input, closed || input.timeline.turns.get(this.turn)?.status === 'closed')
+      group.refresh(input, complete || closed)
       groups.set(group.key, group)
-      emit(first.key, { kind: 'group', key: group.key })
+      // A member that also renders its own row keeps that row after the header.
+      roots.set(first.key, [{ kind: 'group', key: group.key }, ...roots.get(first.key) ?? []])
       for (const member of pending) membership.set(member.key, group.key)
       if (group.snapshot !== before) upserts.push(group.snapshot)
       pending = []
     }
-    let previous: NodeKey | undefined
-    let followed = false
     const keys = input.readTurn(this.turn)
+    const nodes = keys.map(key => readNode(input, key))
     const replies = questionReplyIds(input, keys)
-    for (const key of keys) {
-      const position = readPosition(input, key)
-      if (previous !== undefined && position.previous !== previous) flush(true)
-      previous = key
-      followed = position.next !== undefined
-      const node = readNode(input, key)
+    const closed = input.timeline.turns.get(this.turn)?.status === 'closed'
+    const live = !closed
+    const range = processRange(nodes)
+    // A live Turn keeps the segmentation it streamed with: the collapsed process
+    // body must not swallow the in-flight prose, and each finished segment folds
+    // on its own. A closed Turn emits its whole range as one group.
+    const split = (): void => { if (!closed) commit(true) }
+    for (const [index, key] of keys.entries()) {
+      const node = nodes[index] as ChatNode
       // Infrastructure rows stay independent transcript rows: QiLin renders
       // them as rows because the upstream infrastructure-row filter is not
       // ported yet, so they must not fold into a process group.
       // Both Definitions retain the same message id; only its question presentation renders.
-      if (node.kind === 'turn-trigger' && replies.has(node.id)) { flush(true); continue }
+      if (node.kind === 'turn-trigger' && replies.has(node.id)) { split(); continue }
       if (INDEPENDENT.has(node.kind) || !isVisibleChatNode(node)) {
-        flush(true)
+        split()
         emit(key, { kind: 'node', key })
-      } else if (node.kind === 'turn-process') {
+        continue
+      }
+      if (node.kind === 'turn-process') {
         emit(key, { kind: 'node', key })
-      } else if (node.kind === 'assistant-step') {
-        if (reasoning(node)) pending.push({ kind: 'node', key, groupPart: 'reasoning' })
-        if (reply(node)) {
-          flush(true)
-          emit(key, { kind: 'node', key, groupPart: 'response' })
+        continue
+      }
+      const answer = isAnswerStep(node, range, live)
+      const member = answer || inProcessRange(node, range, live)
+      const parts: readonly NodeReference[] = node.kind === 'assistant-step'
+        ? [
+          ...reasoning(node) ? [{ kind: 'node' as const, key, groupPart: 'reasoning' }] : [],
+          ...reply(node) ? [{ kind: 'node' as const, key, groupPart: 'response' }] : [],
+        ]
+        : [{ kind: 'node', key }]
+      for (const reference of parts) {
+        if (inGroup(reference.groupPart, answer, member, closed)) pending.push(reference)
+        else {
+          if (reference.groupPart === 'response') split()
+          emit(key, reference)
         }
-      } else pending.push({ kind: 'node', key })
+      }
     }
-    flush(followed)
+    commit(closed)
     const removes = [...this.groups.keys()].filter(key => !groups.has(key))
     this.groups = groups
     this.membership = membership
@@ -266,7 +349,14 @@ export class ProcessState {
       }
       if (turn !== undefined) touch(turn).add(after.key as NodeKey)
     }
-    for (const turn of input.changedTurns) touch(turn)
+    for (const turn of input.changedTurns) {
+      touch(turn)
+      // A Turn that streamed several segments folds into one group once it is
+      // closed, so a lifecycle-only close reassembles it. A Turn already holding
+      // one group needs no rebuild.
+      if (input.timeline.turns.get(turn)?.status === 'closed'
+        && (this.turns.get(turn)?.snapshots().length ?? 0) > 1) regroup.add(turn)
+    }
 
     const upserts: GroupSnapshot<ProcessGroupData>[] = []
     const removes: GroupKey[] = []

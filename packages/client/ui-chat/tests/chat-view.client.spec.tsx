@@ -766,7 +766,7 @@ describe('ChatView', () => {
     expect(view.queryByRole('textbox', { name: outside.key })).toBeNull()
   })
 
-  it('expands only the running Turn groups when switching work-details modes', () => {
+  it('expands only the running Turn group when switching work-details modes', () => {
     const nodes = [
       userInTurn(1, 'old question', 1), reasoningAssistant(2, 'old analysis', 1, 1),
       assistant(3, 'old progress', 1, 2), steering(4, 'old direction', 1),
@@ -784,17 +784,20 @@ describe('ChatView', () => {
     const h = makeHarness({ chat: project(false) }, { running: true })
     h.setGrouped(groups)
     const view = render(<h.ChatView {...h.props} />)
+    // One group per Turn: the closed Turn 1 and the running Turn 2.
     const roots = [...view.container.querySelectorAll<HTMLElement>('[data-chat-group-key]')]
     const headers = roots.map(root => root.querySelector<HTMLButtonElement>('[data-process-activity]')!)
     const bodies = roots.map(root => root.querySelector<HTMLElement>('[data-step-process-body]')!)
-    expect(roots).toHaveLength(3)
-    expect(bodies.map(body => body.hasAttribute('hidden'))).toEqual([true, true, true])
+    expect(roots).toHaveLength(2)
+    expect(bodies.map(body => body.hasAttribute('hidden'))).toEqual([true, true])
     fireEvent.click(headers[0]!)
 
     for (const mode of ['standard', 'detailed', 'compact', 'detailed'] as const) {
       act(() => { h.setTranscriptView(mode) })
-      expect(bodies.map(body => body.hasAttribute('hidden'))).toEqual([false, true, mode !== 'detailed'])
-      expect(headers.map(header => header.closest('[hidden]') !== null)).toEqual([false, false, mode === 'detailed'])
+      // The reader-opened historical group stays open; the running Turn's body
+      // follows the mode, and its header disappears only where the mode renders flat.
+      expect(bodies.map(body => body.hasAttribute('hidden'))).toEqual([false, mode !== 'detailed'])
+      expect(headers.map(header => header.closest('[hidden]') !== null)).toEqual([false, mode === 'detailed'])
       expect([...view.container.querySelectorAll('[data-chat-group-key]')]).toEqual(roots)
     }
 
@@ -802,11 +805,10 @@ describe('ChatView', () => {
     const control = view.container.querySelector<HTMLButtonElement>('[data-turn-process="2"]')!
     expect(control.getAttribute('aria-expanded')).toBe('false')
     fireEvent.click(control)
-    expect(roots[2]!.closest('[hidden]')).toBeNull()
-    expect(headers[2]!.closest('[hidden]')).toBeNull()
-    expect(bodies[2]!.hasAttribute('hidden')).toBe(true)
-    expect(bodies[0]!.hasAttribute('hidden')).toBe(false)
+    expect(roots[1]!.closest('[hidden]')).toBeNull()
+    expect(headers[1]!.closest('[hidden]')).toBeNull()
     expect(bodies[1]!.hasAttribute('hidden')).toBe(true)
+    expect(bodies[0]!.hasAttribute('hidden')).toBe(false)
 
     act(() => { h.setTranscriptView('verbose') })
     expect(roots.every(root => root.closest('[hidden]') === null)).toBe(true)
@@ -3708,5 +3710,99 @@ describe('ChatView', () => {
     } finally {
       vi.useRealTimers()
     }
+  })
+})
+
+describe('single Turn process group', () => {
+  /** One stopped Turn whose two Steps each carry reasoning, prose, and a call. */
+  function stoppedTurn() {
+    const base = chatSnapshotFixture({
+      nodes: [
+        userInTurn(1, 'go', 1),
+        assistant(2, 'reading files', 1, 1),
+        toolResult(3, 'a', 'read'),
+        reasoningAssistant(4, 'plan b', 1, 2),
+        toolResult(5, 'b', 'bash'),
+      ],
+      turnTimings: new Map([[1, { startTime: 0 }]]),
+      turnEnds: new Map([[1, 6]]),
+    })
+    const location = base.timeline.turns.get(1)!
+    // Node Locations share this object with the timeline, so patching the end
+    // reason in place reaches both readers.
+    ;(location.end!.data as unknown as { reason: unknown }).reason = { kind: 'aborted', reason: { kind: 'user' } }
+    const builder = new ChatSnapshotBuilder()
+    const groups = new ConversationGroupStore<ProcessGroupData>()
+    const state = new ProcessState()
+    const grouped = installGroupedSnapshot(builder, state, groups, base)
+    const h = makeHarness({ chat: grouped }, { running: false })
+    h.setGrouped(groups)
+    return { h }
+  }
+
+  it('folds a stopped multi-Step Turn behind one summary header', () => {
+    const { h } = stoppedTurn()
+    const view = render(<h.ChatView {...h.props} />)
+    // (a) One group per Turn however many Steps the Turn produced.
+    const roots = [...view.container.querySelectorAll<HTMLElement>('[data-chat-group-key]')]
+    expect(roots).toHaveLength(1)
+    const members = [...roots[0]!.querySelectorAll<HTMLElement>('[data-chat-flow-kind]')]
+    expect(members.map(row => row.dataset.chatFlowKind))
+      .toEqual(['assistant-step', 'tool-call', 'assistant-step', 'tool-call'])
+    expect(members.every(row => row.hasAttribute('data-turn-process-member'))).toBe(true)
+    // (b) The stopped Turn folds by default and its header carries the whole
+    // Turn's summary, not one Step's.
+    expect(roots[0]!.getAttribute('hidden')).toBe('until-found')
+    const header = roots[0]!.querySelector<HTMLElement>('[data-process-activity]')!
+    expect(header.textContent).toContain(h.props.t('message.stepProcess.done.read'))
+    expect(header.textContent).toContain(h.props.t('message.stepProcess.done.commands'))
+    // The single Turn control reveals the folded process.
+    fireEvent.click(turnProcessControl(view.container)!)
+    expect(roots[0]!.hasAttribute('hidden')).toBe(false)
+  })
+
+  it('nests an expanded Step row one level and its call and reasoning rows two', () => {
+    const { h } = stoppedTurn()
+    const view = render(<h.ChatView {...h.props} />)
+    fireEvent.click(turnProcessControl(view.container)!)
+    const depthOf = (selector: string) => [...view.container.querySelectorAll<HTMLElement>(selector)]
+      .map(row => row.dataset.chatDepth)
+    // (c) The Step's own prose row reads one step in; its reasoning and Tool
+    // rows read two.
+    expect(depthOf('[data-chat-group-key] [data-chat-flow-kind="assistant-step"][data-chat-group-part="response"]'))
+      .toEqual(['1'])
+    expect(depthOf('[data-chat-group-key] [data-chat-flow-kind="assistant-step"][data-chat-group-part="reasoning"]'))
+      .toEqual(['2'])
+    expect(depthOf('[data-chat-group-key] [data-chat-flow-kind="tool-call"]')).toEqual(['2', '2'])
+  })
+
+  it('leaves every loaded process row in the transcript on incomplete history', () => {
+    // Turn 2 has no loaded start and no end, so the partial-window guard must
+    // not hide a row it cannot classify; the Turn still spans one group.
+    const builder = new ChatSnapshotBuilder()
+    const groups = new ConversationGroupStore<ProcessGroupData>()
+    const state = new ProcessState()
+    const grouped = installGroupedSnapshot(builder, state, groups, chatSnapshotFixture({
+      nodes: [
+        user(1, 'older question'),
+        userInTurn(9, 'visible question', 2),
+        context(10, 'runtime policy', 2),
+        assistant(11, 'visible answer', 2),
+        toolResult(12, 'a', 'read'),
+      ],
+    }))
+    const h = makeHarness({ chat: grouped }, { running: false, hasMore: true })
+    h.setGrouped(groups)
+    const view = render(<h.ChatView {...h.props} />)
+    const loaded = [...view.container.querySelectorAll<HTMLElement>('[data-chat-flow-kind]')]
+    expect(loaded.map(row => row.dataset.chatFlowKind))
+      .toEqual(['user', 'user', 'turn-process', 'context', 'assistant-step', 'tool-call'])
+    // Only the collapse control is withheld while the window is incomplete; no
+    // loaded content row is hidden by the Turn process guard.
+    expect(loaded.filter(row => row.hasAttribute('data-turn-process-hidden'))
+      .map(row => row.dataset.chatFlowKind)).toEqual(['turn-process'])
+    expect(view.container.querySelectorAll('[data-chat-group-key]')).toHaveLength(1)
+    expect(view.container.querySelectorAll('[data-chat-group-key] [data-chat-flow-kind="tool-call"]')).toHaveLength(1)
+    expect(turnProcessControl(view.container)).toBeNull()
   })
 })

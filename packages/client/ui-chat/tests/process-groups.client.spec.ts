@@ -52,6 +52,19 @@ function command(name: string, seq: number): ChatNode<'command'> {
   }
 }
 
+/** Visible mid-Step Context injection: the only Context form Chat renders as a row. */
+function injection(key: string, seq: number): ChatNode<'context'> {
+  return {
+    key, id: key, kind: 'context', target: 'chat', anchorSeq: seq,
+    location: { kind: 'turn', turn }, visibility: 'visible',
+    data: {
+      kind: 'context', seq, time: seq,
+      content: [{ type: 'tool-addition', toolName: 'search' }],
+      source: null, producer: { role: 'skill' }, form: null,
+    },
+  } as unknown as ChatNode<'context'>
+}
+
 function separator(seq: number, inTurn: boolean): ChatNode<'user'> | ChatNode<'steering'> {
   const user: ChatNode<'user'> = {
     key: `user:${seq}`, id: `user:${seq}`, kind: 'user', target: 'chat', anchorSeq: seq,
@@ -79,7 +92,111 @@ function harness(nodes: ChatNode[], currentTimeline = timeline) {
   return { builder, state, store, snapshot, commit }
 }
 
+/** Turn 1 closed with the given end reason, so its process folds behind one group. */
+function closedTurn(reason: 'completed' | 'aborted' = 'aborted'): TurnLocation {
+  return {
+    ...turn, status: 'closed',
+    end: {
+      type: 'turn/end', seq: SessionSeq(20), time: 20,
+      data: {
+        turn: 1,
+        reason: reason === 'aborted' ? { kind: 'aborted', reason: { kind: 'user' } } : { kind: 'completed' },
+      },
+    },
+  }
+}
+
+function closedTimeline(reason: 'completed' | 'aborted' = 'aborted'): ConversationTimelineSnapshot {
+  const ended = closedTurn(reason)
+  return { turnOrder: [1], turns: new Map([[1, ended]]) }
+}
+
+/** Turn-process control Node carrying the Turn's process range. */
+function control(over: Partial<ChatNode<'turn-process'>['data']> = {}): ChatNode<'turn-process'> {
+  return {
+    key: 'ctrl', id: '1', kind: 'turn-process', target: 'chat', anchorSeq: 1.9,
+    location: { kind: 'turn', turn }, visibility: 'visible',
+    data: {
+      turn: 1, controlAnchorSeq: 1, processStartSeq: 1, answerAnchorSeq: null, answerStep: null,
+      inlineReasoning: false, messageCount: 0, toolCallCount: 0, subagentCount: 0,
+      ...over,
+    },
+  } as ChatNode<'turn-process'>
+}
+
+/** One Step's Assistant evidence at a caller-chosen ordinal. */
+function stepAssistant(
+  key: string,
+  seq: number,
+  step: number,
+  thought: string,
+  response = '',
+): ChatNode<'assistant-step'> {
+  const node = assistant(thought, response)
+  return {
+    ...node, key, id: key, anchorSeq: seq,
+    data: { ...node.data, step, blocks: [
+      { kind: 'reasoning', text: thought },
+      ...response === '' ? [] : [{ kind: 'text' as const, text: response }],
+    ] },
+  }
+}
+
 describe('Definition-owned Chat process groups', () => {
+  it('emits one group for a closed Turn across every Step and injection', () => {
+    const h = harness([
+      control(),
+      injection('inj', 2),
+      stepAssistant('s1', 3, 1, 'think 1', 'progress 1'),
+      tool('t1', 4),
+      stepAssistant('s2', 5, 2, 'think 2', 'progress 2'),
+      tool('t2', 6),
+    ], closedTimeline())
+    // The control Node stays its own row; every Step row, injection, and call
+    // folds into the Turn's single group.
+    expect(h.store.entries.map(entry => entry.kind)).toEqual(['node', 'group'])
+    const group = h.store.entries[1]!
+    if (group.kind !== 'group') throw new Error('expected group')
+    const source = h.store.groupSource(group.key)
+    expect(source.getSnapshot()?.members).toEqual([
+      { kind: 'node', key: 'inj' },
+      { kind: 'node', key: 's1', groupPart: 'reasoning' },
+      { kind: 'node', key: 's1', groupPart: 'response' },
+      { kind: 'node', key: 't1' },
+      { kind: 'node', key: 's2', groupPart: 'reasoning' },
+      { kind: 'node', key: 's2', groupPart: 'response' },
+      { kind: 'node', key: 't2' },
+    ])
+    expect(source.getSnapshot()?.data).toEqual({
+      turn: 1, closed: true,
+      summary: { counts: [{ kind: 'commands', count: 2 }], running: undefined, runningDetail: '' },
+    })
+  })
+
+  it('stops the group at the Turn answer and leaves the answer its own row', () => {
+    const h = harness([
+      control({ answerAnchorSeq: 5, answerStep: 2 }),
+      stepAssistant('s1', 3, 1, 'think 1', 'progress 1'),
+      tool('t1', 4),
+      stepAssistant('s2', 5, 2, 'think 2', 'answer'),
+      tool('t2', 6),
+      stepAssistant('s3', 7, 3, 'think 3', 'later'),
+    ], closedTimeline('completed'))
+    // The answer's reasoning stays with the process; its reply, a later call,
+    // and a later Step keep their own rows.
+    expect(h.store.entries.map(entry => entry.kind)).toEqual(['node', 'group', 'node', 'node', 'node', 'node'])
+    const group = h.store.entries[1]!
+    if (group.kind !== 'group') throw new Error('expected group')
+    expect(h.store.groupSource(group.key).getSnapshot()?.members.map(member => [member.key, member.groupPart ?? null]))
+      .toEqual([['s1', 'reasoning'], ['s1', 'response'], ['t1', null], ['s2', 'reasoning']])
+    expect(h.store.entries[2]).toEqual({ kind: 'node', key: 's2', groupPart: 'response' })
+    expect(h.store.entries[3]).toEqual({ kind: 'node', key: 't2' })
+    expect(h.store.entries.slice(4)).toEqual([
+      { kind: 'node', key: 's3', groupPart: 'reasoning' },
+      { kind: 'node', key: 's3', groupPart: 'response' },
+    ])
+  })
+
   it.each([
     ['whitespace', '  one\t\n two  ', 'one two'],
     ['empty text', ' \t\n ', 'bash'],
@@ -350,20 +467,26 @@ describe('Definition-owned Chat process groups', () => {
     expect(h.store.entries).toBe(roots)
   })
 
-  it('splits and rejoins one Turn when an unscoped separator enters and leaves its order', () => {
+  it('keeps one Turn group while an unscoped separator enters and leaves its order', () => {
     const h = harness([tool('a', 2), tool('b', 4)])
+    const first = h.store.entries[0]!
+    if (first.kind !== 'group') throw new Error('expected group')
+    const source = h.store.groupSource(first.key)
     const boundary = separator(3, false)
     h.builder.apply({ upserts: [boundary], timeline })
     const split = h.builder.groupInput()
     if (split.kind !== 'apply') throw new Error('expected apply')
     expect(split.changedTurnOrders).toEqual([1])
     h.commit()
-    expect(h.store.entries.map(entry => entry.kind)).toEqual(['group', 'node', 'group'])
+    // A row outside the Turn keeps its own root position; it never splits the
+    // Turn's members, so the group entry stays at its first member.
+    expect(h.store.entries.map(entry => entry.kind)).toEqual(['group', 'node'])
+    expect(h.store.entries[0]).toEqual(first)
+    expect(h.store.groupSource(first.key)).toBe(source)
+    expect(source.getSnapshot()?.members.map(member => member.key)).toEqual(['a', 'b'])
     h.builder.apply({ upserts: [{ ...boundary, visibility: 'hidden' }], timeline })
     h.commit()
     expect(h.store.entries.map(entry => entry.kind)).toEqual(['group'])
-    const first = h.store.entries[0]!
-    if (first.kind !== 'group') throw new Error('expected group')
     expect(h.store.groupSource(first.key).getSnapshot()?.members.map(member => member.key)).toEqual(['a', 'b'])
   })
 
@@ -421,19 +544,20 @@ describe('Definition-owned Chat process groups', () => {
     expect(h.store.groupSource(last.key).getSnapshot()).toBe(lastSnapshot)
   })
 
-  it('restores live detail when replacement removes a closing separator', () => {
+  it('keeps a live group open and unchanged when a replacement removes a following row', () => {
     const a = tool('a', 2)
     const h = harness([a, separator(3, false)])
     const first = h.store.entries[0]!
     if (first.kind !== 'group') throw new Error('expected group')
     const source = h.store.groupSource(first.key)
-    expect(source.getSnapshot()?.data.closed).toBe(true)
-    expect(source.getSnapshot()?.data.summary.runningDetail).toBe('')
-    h.builder.replace({ nodes: [a], timeline })
-    h.commit()
+    const previous = source.getSnapshot()
+    // Closure follows the Turn, not an unrelated row that follows its group.
     expect(source.getSnapshot()?.data.closed).toBe(false)
     expect(source.getSnapshot()?.data.summary.running).toBe('commands')
     expect(source.getSnapshot()?.data.summary.runningDetail).toBe('pwd')
+    h.builder.replace({ nodes: [a], timeline })
+    h.commit()
+    expect(source.getSnapshot()).toBe(previous)
   })
 
   it('splits reasoning from replies and starts later groups after tools and steering in one Step', () => {
@@ -473,25 +597,24 @@ describe('Definition-owned Chat process groups', () => {
     expect(source.getSnapshot()).toBe(closed)
   })
 
-  it('keeps a no-Turn row between groups and repairs membership on replacement', () => {
+  it('keeps a no-Turn row beside one Turn group and repairs membership on replacement', () => {
     const a = tool('a', 2)
     const b = tool('b', 4)
     const h = harness([a, separator(3, false), b])
-    expect(h.store.entries.map(entry => entry.kind)).toEqual(['group', 'node', 'group'])
-    const removed = h.store.entries[2]!
-    if (removed.kind !== 'group') throw new Error('expected group')
-    const source = h.store.groupSource(removed.key)
+    expect(h.store.entries.map(entry => entry.kind)).toEqual(['group', 'node'])
     const head = h.store.entries[0]!
     if (head.kind !== 'group') throw new Error('expected group')
+    const source = h.store.groupSource(head.key)
+    expect(source.getSnapshot()?.members.map(member => member.key)).toEqual(['a', 'b'])
     h.builder.apply({ upserts: [{ ...b, visibility: 'hidden' }], timeline })
     h.commit()
     expect(h.store.entries).toHaveLength(2)
-    expect(h.store.groupSource(head.key).getSnapshot()?.data.closed).toBe(true)
-    expect(source.getSnapshot()).toBeUndefined()
+    expect(source.getSnapshot()?.members.map(member => member.key)).toEqual(['a'])
+    expect(h.store.groupSource(head.key).getSnapshot()?.data.closed).toBe(false)
     h.builder.replace({ nodes: [a, b], timeline })
     h.commit()
     expect(h.store.entries).toHaveLength(1)
-    expect(source.getSnapshot()).toBeUndefined()
+    expect(source.getSnapshot()?.members.map(member => member.key)).toEqual(['a', 'b'])
     expect(h.builder.groupInput().order).toHaveLength(2)
   })
 
@@ -506,6 +629,28 @@ describe('Definition-owned Chat process groups', () => {
       .toEqual(['a', 'command:plan'])
     expect(h.store.entries[0]).toEqual({ kind: 'node', key: 'command:permission' })
     expect(h.snapshot.nodes.get('command:permission')?.visibility).toBe('visible')
+  })
+
+  it('merges a live Turn streamed as several segments into one group when the Turn closes', () => {
+    const first = tool('a', 2)
+    const prose = assistant('think', 'progress')
+    const second = tool('b', 5)
+    const h = harness([first, prose, second])
+    // A live Turn keeps the segmentation it streamed with.
+    expect(h.store.entries.filter(entry => entry.kind === 'group')).toHaveLength(2)
+    const ended: TurnLocation = {
+      ...turn, status: 'closed',
+      end: { type: 'turn/end', seq: SessionSeq(6), time: 6, data: { turn: 1, reason: { kind: 'completed' } } },
+    }
+    h.builder.apply({ upserts: [], timeline: { turnOrder: [1], turns: new Map([[1, ended]]) }, changedTurns: [1] })
+    h.commit()
+    const groups = h.store.entries.filter(entry => entry.kind === 'group')
+    expect(groups).toHaveLength(1)
+    const head = groups[0]!
+    if (head.kind !== 'group') throw new Error('expected group')
+    const members = h.store.groupSource(head.key).getSnapshot()?.members.map(member => member.key) ?? []
+    expect(members).toContain('a')
+    expect(members).toContain('b')
   })
 
   it('closes an active group on a lifecycle-only update', () => {
