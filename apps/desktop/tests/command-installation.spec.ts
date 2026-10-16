@@ -25,7 +25,7 @@ vi.mock('node:fs/promises', async (importOriginal) => {
     await barrier.afterStat?.(args[0], result.isFile())
     return result
   }, rename: async (...args: Parameters<typeof actual.rename>) => {
-    if (barrier.failReceipt && String(args[1]).endsWith('.dsh-desktop-command.json')) {
+    if (barrier.failReceipt && String(args[1]).endsWith('.qilin-desktop-command.json')) {
       throw Object.assign(new Error('No space for receipt'), { code: 'ENOSPC' })
     }
     await actual.rename(...args)
@@ -113,7 +113,7 @@ describe.skipIf(process.platform === 'win32')('macOS command entry ownership', (
   it.each(['install', 'remove'] as const)('preserves a replacement arriving during %s after the approved entry was read', async (operation) => {
     const f = await fixture()
     const installed = await installFileCommand(f.options, (await inspectFileCommand(f.options)).fingerprint)
-    const receipt = join(f.root, '.dsh-desktop-command.json')
+    const receipt = join(f.root, '.qilin-desktop-command.json')
     const originalReceipt = await readFile(receipt, 'utf8')
     barrier.afterRead = async (path) => {
       if (path !== receipt) return
@@ -184,7 +184,7 @@ describe.skipIf(process.platform === 'win32')('macOS command entry ownership', (
     const f = await fixture()
     const installed = await installFileCommand(f.options, (await inspectFileCommand(f.options)).fingerprint)
     barrier.beforeUnlink = (path) => {
-      if (path !== join(f.root, '.dsh-desktop-command.json')) return
+      if (path !== join(f.root, '.qilin-desktop-command.json')) return
       barrier.afterStat = async () => { throw Object.assign(new Error('Restoration denied'), { code: 'EPERM' }) }
       throw Object.assign(new Error('Receipt removal denied'), { code: 'EACCES' })
     }
@@ -205,7 +205,7 @@ describe.skipIf(process.platform === 'win32')('macOS command entry ownership', (
     await symlink('previous-command', f.options.destination)
     const installed = await installFileCommand(f.options, (await inspectFileCommand(f.options)).fingerprint)
     barrier.beforeUnlink = (path) => {
-      if (path === join(f.root, '.dsh-desktop-command.json')) throw Object.assign(new Error('Receipt removal denied'), { code: 'EACCES' })
+      if (path === join(f.root, '.qilin-desktop-command.json')) throw Object.assign(new Error('Receipt removal denied'), { code: 'EACCES' })
     }
     onTestFinished(() => { barrier.beforeUnlink = undefined })
     await expect(removeFileCommand(f.options, installed.fingerprint)).rejects.toMatchObject({ code: 'EACCES' })
@@ -245,7 +245,7 @@ describe.skipIf(process.platform === 'win32')('macOS command entry ownership', (
 
   it('rejects linked receipts and backup paths outside the command directory', async () => {
     const f = await fixture()
-    const receipt = join(f.root, '.dsh-desktop-command.json')
+    const receipt = join(f.root, '.qilin-desktop-command.json')
     await symlink(f.options.launcher, receipt)
     await expect(inspectFileCommand(f.options)).rejects.toMatchObject({ code: 'EOWNERSHIP' })
     await unlink(receipt)

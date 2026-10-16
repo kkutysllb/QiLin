@@ -84,7 +84,7 @@ const harness = await vi.hoisted(async () => {
       focus: vi.fn(),
       sendInputEvent: vi.fn(),
       send: vi.fn((channel: string, state: { policy?: { blocking: boolean } }) => {
-        if (channel === 'dsh-desktop:mandatory-state' && state.policy?.blocking) policyBlocked.resolve()
+        if (channel === 'qilin-desktop:mandatory-state' && state.policy?.blocking) policyBlocked.resolve()
       }),
     })
     readonly shown = deferred()
@@ -2282,7 +2282,7 @@ describe('desktop main startup', () => {
     await harness.dialogShown.promise
     expect(harness.windows[0]!.urls).toEqual(['qilin-app://app/'])
     expect(harness.dialog.showMessageBox).toHaveBeenCalledOnce()
-    expect(harness.handlers.has('dsh-desktop:backend-retry')).toBe(false)
+    expect(harness.handlers.has('qilin-desktop:backend-retry')).toBe(false)
     expect(harness.hosts).toHaveLength(1)
   })
 
