@@ -300,6 +300,7 @@
       "@qilin-agent/experimental-agent-team": ["./packages/experimental/agent-team/src"],
       "@qilin-agent/experimental-auto-review": ["./packages/experimental/auto-review/src"],
       "@qilin-agent/experimental-agent-team-profile": ["./packages/experimental/agent-team-profile/src"],
+      "@qilin-agent/experimental-plugin-market-bundle": ["./packages/experimental/plugin-market-bundle/src"],
       "@qilin-agent/experimental-tool-agent-team": ["./packages/experimental/tool-agent-team/src"],
       "@qilin-agent/experimental-hook-protocol": ["./packages/experimental/hook-protocol/src"],
       "@qilin-agent/experimental-hooks-claude-code": ["./packages/experimental/hooks-claude-code/src"],

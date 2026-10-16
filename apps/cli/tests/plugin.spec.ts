@@ -237,7 +237,7 @@ describe('qilin plugin version exemptions', () => {
 })
 
 describe('qilin plugin forwarding', () => {
-  it('refuses a named package the running runtime version rejects without installing it', async () => {
+  it('forwards a named package the runtime rejects and leaves the refusal to load time', async () => {
     const dir = stageProfile('tui', { qilin: { profile: { bundles: [] } } })
     const pluginDir = tmp()
     file(join(pluginDir, 'package.json'), JSON.stringify({
@@ -245,12 +245,11 @@ describe('qilin plugin forwarding', () => {
       version: '1.0.0',
       peerDependencies: { '@qilin-agent/session': '999.0.0' },
     }))
-    const { code, err } = await capture(() => runPlugin('tui', ['add', pluginDir]))
-    expect(code).toBe(1)
-    expect(err).toContain('crashes or data loss')
-    expect(err).toContain('nothing was installed')
-    expect(err).toContain(`allow-version incompatible-plugin@1.0.0 --qilin-version ${getQilinRuntimeVersion()} --accept-risk`)
-    expect(spawnSync).not.toHaveBeenCalled()
+    // Upstream refuses such a plugin when it loads, not before the install; the
+    // exact-version exemption stays the operator's way to accept the risk.
+    const { code } = await capture(() => runPlugin('tui', ['add', pluginDir]))
+    expect(code).toBe(0)
+    expect(vi.mocked(spawnSync)).toHaveBeenCalledWith('pnpm', ['add', pluginDir], expect.objectContaining({ cwd: dir }))
     expect(existsSync(join(dir, 'compatibility.json'))).toBe(false)
   })
 
