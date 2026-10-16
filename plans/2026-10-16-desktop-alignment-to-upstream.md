@@ -207,3 +207,20 @@ find /path/to/deepseek-harness -name package.json -path '*desktop-runtime*'   # 
 | 残留错误 | 59 条，全部在 main.ts 与替身的类型面 ✓（无模块解析问题 ✓） |
 
 **下一轮的做法**：从暂存目录取出原始模块 ✓，逐字保留其 interface/type 导出 ✓（账号类型就地替换 ✓），实现体换成惰性 ✓，然后按编译器收敛到 0 ✓ —— 之后再走新包着陆门禁清单入库 ✓。
+
+### P3 续：上游测试套件已移植 + 两处特权 scheme 缺陷修复（2026-10-16）
+
+**补齐的上游面**（文件清单与上游逐项对比后的缺口 ✓）：`apps/desktop/tests` **254 文件**、`windows-signing/` 3 文件、`.env.{macos,windows}.example`、以及上一轮按边界排除的 6 个 preload/window 文件（`preload-browser.ts`、`preload-mandatory*.ts`、`preload-welcome.ts`、`client/welcome.tsx`、`client/WelcomePage.tsx`）✓ → `apps/desktop` 达 **604 文件**（上游 560 ✓，多出的是品牌资产与两个接缝文件）。
+
+**跑测试抓到的真缺陷（不是测试问题，是代码问题 ✓）**：
+
+- `src/ipc.ts` 的 `SCHEME = 'dsh-app'`：我此前的"上游痕迹归零"检查只匹配 `dsh-app://` 形式 ✗，漏掉裸字符串 ✗ → 特权协议 scheme 与文档/注册值不一致 ✓（`assertDesktopSender` 会拒绝所有应用页面 IPC ✓）。修成 `qilin-app` ✓，`keyboard.spec.ts` 由 **0/38 → 38/38 通过** ✓。
+- `src/microphone-permissions.ts` 的 `parsed.protocol === 'dsh-app:'`（带冒号形式 ✓，同样是安全门禁字符串 ✓）→ 一并修复 ✓，此后 `apps/desktop`/`apps/desktop-host` 内 **`dsh-app` 零残留** ✓。
+
+**上游测试套件的现状（分三类，按证据 ✓）**：
+
+1. **通过** ✓：纯单元面（locale、runtime-tree、ipc、paths、settings、tray、menu、keyboard、microphone-permissions 等 ✓）。
+2. **按设计不可能通过** ✗：断言账号栈/欢迎流程/强制更新策略/浏览器访客/平台视图**真实行为**的 spec（`account-backend`、`welcome-*`、`mandatory-update-*`、`policy-test-auth`、`platform-view`、`preload-app`、`host-process` 的 platform-session 部分 ✓）——这些面在本仓是**惰性接缝** ✓（边界政策 ✓）。
+3. **本机环境不可满足** ✗：Windows 签名/打包、macOS 公证/运行时、COS 上传、GitHub App token、pnpm 子进程 e2e（`windows-*`、`macos-*`、`*-cos`、`installed-update-*`、`prepare-*`、`development-*`、`project-manager` 等 ✓）。
+
+**门禁影响**：无 ✓。`test:gui` = `vitest run packages/client packages/host` ✓，桌面套件不在任何聚合门禁内 ✓（与上游一致 ✓）；其状态属信息性 ✓，按上表分类跟进 ✓。
