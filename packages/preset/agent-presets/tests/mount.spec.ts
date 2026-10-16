@@ -19,9 +19,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import AgentPresets, {
   COMPOSITION_FILE, inactiveRows, leakedServices, livePresetMounts, mountPreset, serviceForAgent,
 } from '@qilin-agent/agent-presets'
-import type { Config } from '@qilin-agent/agent-presets'
+import type { PresetRoot } from '@qilin-agent/agent-presets'
 import type {} from '@qilin-agent/agent-presets/types'
 import { bindScopeParent, createScope, scopeOf } from '@qilin-agent/scope'
+
+/** The plugin-config input face the roster accepts from a composition row. */
+type RosterInput = {
+  default?: string
+  modeSelectionEnabled?: boolean
+  roots?: PresetRoot[]
+  includeShippedRoot?: boolean
+  includeUserRoot?: boolean
+}
 
 declare module '@qilin-agent/kylin' {
   interface Context {
@@ -42,7 +51,7 @@ const ROOTS = [
  * @param roster - roster config, defaulting to the fixture roots.
  * @returns the booted context.
  */
-async function harness(roster: Config = { default: 'standard', roots: ROOTS, includeShippedRoot: false, includeUserRoot: false }): Promise<Context> {
+async function harness(roster: RosterInput = { default: 'standard', roots: ROOTS, includeShippedRoot: false, includeUserRoot: false }): Promise<Context> {
   const ctx = new Context()
   ctx.baseUrl = pathToFileURL(FIXTURES).href + '/'
   await ctx.plugin(Loader)

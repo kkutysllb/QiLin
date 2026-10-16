@@ -35,8 +35,7 @@ import type { AgentPresetDocument, AgentPresetRoster } from './types.ts'
 import type {} from '@qilin-agent/session-projection'
 // Type-only: resolves the registry notification emitted after scope reparenting.
 import type {} from '@qilin-agent/tools'
-import type SettingsService from '@qilin-agent/settings'
-import type { SettingsScope } from '@qilin-agent/settings'
+import type {} from '@qilin-agent/settings'
 import { qilinHomePath } from '@qilin-agent/home-paths'
 import { discoverPresets, SHIPPED_PRESET_ROOT, USER_PRESET_DIR } from './discovery.ts'
 import { copyComposition, deleteComposition, presetExists, readComposition } from './authoring.ts'
@@ -106,14 +105,15 @@ export class AgentPresets extends TypertRemoteService {
 
   /** Runtime schema for the preset roster. */
   static Config = z.object({
-    default: z.string().required(),
+    default: z.string().required().volatile(),
+    modeSelectionEnabled: z.boolean().default(true).volatile(),
     roots: z.array(z.object({
       path: z.string().required(),
       trust: z.union(['system', 'user'] as const).default('user'),
     })).default([]),
     includeShippedRoot: z.boolean().default(true),
     includeUserRoot: z.boolean().default(true),
-  }) as z<Config>
+  })
 
   /**
    * The roots discovery and authoring actually scan: the package's shipped
@@ -140,19 +140,6 @@ export class AgentPresets extends TypertRemoteService {
    * base here is what lets health answer the question before a session does.
    */
   private readonly harnessBase: string
-  /**
-   * The user layer over `config.default`, present only while a settings
-   * provider is composed. Held rather than snapshotted so a hot-reloaded
-   * document takes effect without a restart.
-   */
-  private settings: SettingsScope<AgentPresetSettings> | undefined
-
-  /**
-   * The settings service behind {@link settings}, held for the one write this
-   * service makes: clearing a user default it has just deleted.
-   */
-  private settingsService: SettingsService | undefined
-
   /**
    * The service's own untraced context. Methods invoked through the traceable
    * proxy see `this.ctx` rebound to the CALLER's context, which carries a
@@ -183,23 +170,7 @@ export class AgentPresets extends TypertRemoteService {
       ...config.roots,
       ...config.includeUserRoot ? [{ path: qilinHomePath(USER_PRESET_DIR), trust: 'user' } satisfies PresetRoot] : [],
     ]
-    // Deliberately not `settings.installSection`: that method exists to re-judge
-    // what a consumer DERIVED from the source — memoized resolutions,
-    // registration-level facts — across attach, detach, and change. Nothing
-    // here is derived. `defaultId` reads through on every call, so both of its
-    // hooks would be no-ops and the source thunk would restate this field.
-    ctx.inject(['settings'], (settingsCtx) => {
-      this.settings = settingsCtx.settings.register(
-        SETTINGS_NAMESPACE,
-        AgentPresetSettingsSchema,
-        { base: { default: config.default, modeSelectionEnabled: true } },
-      )
-      this.settingsService = settingsCtx.settings
-      settingsCtx.effect(() => () => {
-        this.settings = undefined
-        this.settingsService = undefined
-      }, 'agentPresets.settings()')
-    })
+    ctx.inject(['settings'], (child) => { child.effect(() => child.settings.configure({ auto: false }, ctx.fiber)) })
 
     ctx.sessionProjections.register(agentPresetProjectionDefinition)
 
@@ -248,12 +219,9 @@ export class AgentPresets extends TypertRemoteService {
 
   /** Read one internally consistent snapshot of the selection policy. */
   private selectionPolicy(): { enabled: boolean; defaultId: string } {
-    const settings = this.settings?.get()
-    if (settings === undefined) return { enabled: true, defaultId: this.config.default }
-    const enabled = settings.modeSelectionEnabled
     return {
-      enabled,
-      defaultId: enabled ? settings.default : this.config.default,
+      enabled: this.config.modeSelectionEnabled.get(),
+      defaultId: this.config.default.get(),
     }
   }
 
@@ -613,11 +581,15 @@ export class AgentPresets extends TypertRemoteService {
     // not that case: nothing will ever supply it again, and left in place every
     // session created without an explicit pick would fail to start. Clearing it
     // exposes the deployment's own default underneath, which is the layering.
-    if (this.settings?.get().default !== id) return
-    await this.settingsService?.mutate(
-      SETTINGS_NAMESPACE,
-      [{ op: 'unset', path: ['default'] }],
-    )
+    if (this.config.default.get() !== id) return
+    const settings = this.ctx.get('settings')
+    const entry = this.ctx.fiber.entry?.options.id
+    if (settings === undefined || entry === undefined) return
+    // Reset the live fields to the composition posture: the deleted preset was
+    // what the volatile override named, and nothing will ever supply it again,
+    // so keeping the override would fail every session created without an
+    // explicit pick. Re-inheriting exposes the deployment's own default.
+    await settings.replace(entry, {})
   }
 
   /**

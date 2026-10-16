@@ -3,8 +3,8 @@ import { MessageId } from '@qilin-agent/llm'
 import type { SessionEvent } from '@qilin-agent/session/types'
 import { collectSessionUsage, readWindow, totalOf, usageAnswer, withinWindow } from '../src/usage.ts'
 
-function event<T extends SessionEvent["type"]>(
-  seq: number, time: number, type: T, data: Extract<SessionEvent, { type: T }>["data"],
+function event<T extends SessionEvent['type']>(
+  seq: number, time: number, type: T, data: Extract<SessionEvent, { type: T }>['data'],
 ): Extract<SessionEvent, { type: T }> {
   return { seq, time, type, data } as Extract<SessionEvent, { type: T }>
 }

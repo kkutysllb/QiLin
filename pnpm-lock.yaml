@@ -558,9 +558,6 @@ importers:
       '@qilin-agent/settings':
         specifier: workspace:*
         version: link:../../packages/settings/settings
-      '@qilin-agent/settings-file':
-        specifier: workspace:*
-        version: link:../../packages/settings/settings-file
       '@qilin-agent/shell-env':
         specifier: workspace:*
         version: link:../../packages/shell/shell-env
@@ -1930,9 +1927,6 @@ importers:
       '@qilin-agent/settings':
         specifier: workspace:*
         version: link:../../settings/settings
-      '@qilin-agent/settings-file':
-        specifier: workspace:*
-        version: link:../../settings/settings-file
       '@qilin-agent/system-prompt':
         specifier: workspace:*
         version: link:../../core/system-prompt
@@ -2018,6 +2012,9 @@ importers:
       '@qilin-agent/compaction-tool-result-pruner':
         specifier: workspace:*
         version: link:../../compaction/compaction-tool-result-pruner
+      '@qilin-agent/config-editor':
+        specifier: workspace:*
+        version: link:../../settings/config-editor
       '@qilin-agent/credentials-local':
         specifier: workspace:*
         version: link:../../credentials/credentials-local
@@ -2123,9 +2120,9 @@ importers:
       '@qilin-agent/session-title-first-prompt-llm':
         specifier: workspace:*
         version: link:../../session/session-title-first-prompt-llm
-      '@qilin-agent/settings-file':
+      '@qilin-agent/settings':
         specifier: workspace:*
-        version: link:../../settings/settings-file
+        version: link:../../settings/settings
       '@qilin-agent/shell-env':
         specifier: workspace:*
         version: link:../../shell/shell-env
@@ -10595,9 +10592,6 @@ importers:
       '@qilin-agent/settings':
         specifier: workspace:*
         version: link:../../settings/settings
-      '@qilin-agent/settings-file':
-        specifier: workspace:*
-        version: link:../../settings/settings-file
       '@qilin-agent/system-prompt':
         specifier: workspace:*
         version: link:../../core/system-prompt
@@ -10665,9 +10659,6 @@ importers:
       '@qilin-agent/settings':
         specifier: workspace:*
         version: link:../../settings/settings
-      '@qilin-agent/settings-file':
-        specifier: workspace:*
-        version: link:../../settings/settings-file
       '@qilin-agent/util-values':
         specifier: workspace:*
         version: link:../../util/values
@@ -11174,9 +11165,6 @@ importers:
       '@qilin-agent/settings':
         specifier: workspace:*
         version: link:../../settings/settings
-      '@qilin-agent/settings-file':
-        specifier: workspace:*
-        version: link:../../settings/settings-file
       '@qilin-agent/system-prompt':
         specifier: workspace:*
         version: link:../../core/system-prompt
@@ -12330,8 +12318,42 @@ importers:
         specifier: workspace:*
         version: link:../../core/tools
 
+  packages/settings/config-editor:
+    dependencies:
+      '@qilin-agent/atomic-write':
+        specifier: workspace:*
+        version: link:../../util/atomic-write
+      js-yaml:
+        specifier: ^4.3.2
+        version: 4.3.2
+      yaml:
+        specifier: ^2.8.1
+        version: 2.9.0
+    devDependencies:
+      '@qilin-agent/app-boot':
+        specifier: workspace:*
+        version: link:../../boot/app-boot
+      '@qilin-agent/hmr':
+        specifier: workspace:*
+        version: link:../../boot/hmr
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/kylin-plugin-include':
+        specifier: workspace:~
+        version: link:../../../vendor/include
+      '@qilin-agent/kylin-plugin-loader':
+        specifier: workspace:~
+        version: link:../../../vendor/loader
+      '@types/js-yaml':
+        specifier: ^4.0.9
+        version: 4.0.9
+
   packages/settings/settings:
     dependencies:
+      '@qilin-agent/config-editor':
+        specifier: workspace:*
+        version: link:../config-editor
       '@qilin-agent/cosmokit':
         specifier: link:../../../vendor/cosmokit
         version: link:../../../vendor/cosmokit
@@ -12341,44 +12363,34 @@ importers:
       '@qilin-agent/util-values':
         specifier: workspace:*
         version: link:../../util/values
+      yaml:
+        specifier: ^2.8.1
+        version: 2.9.0
     devDependencies:
+      '@qilin-agent/agent-default-model':
+        specifier: workspace:*
+        version: link:../../core/agent-default-model
+      '@qilin-agent/app-boot':
+        specifier: workspace:*
+        version: link:../../boot/app-boot
       '@qilin-agent/brand':
         specifier: workspace:*
         version: link:../../util/brand
+      '@qilin-agent/hmr':
+        specifier: workspace:*
+        version: link:../../boot/hmr
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
+      '@qilin-agent/kylin-plugin-loader':
+        specifier: workspace:~
+        version: link:../../../vendor/loader
+      '@qilin-agent/kylin-plugin-timer':
+        specifier: workspace:~
+        version: link:../../../vendor/timer
       '@qilin-agent/session':
         specifier: workspace:*
         version: link:../../core/session
-
-  packages/settings/settings-file:
-    dependencies:
-      '@qilin-agent/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
-      '@qilin-agent/util-values':
-        specifier: workspace:*
-        version: link:../../util/values
-      chokidar:
-        specifier: ^4.0.3
-        version: 4.0.3
-      yaml:
-        specifier: ^2.9.0
-        version: 2.9.0
-    devDependencies:
-      '@qilin-agent/atomic-write':
-        specifier: workspace:*
-        version: link:../../util/atomic-write
-      '@qilin-agent/home-paths':
-        specifier: workspace:*
-        version: link:../../util/home-paths
-      '@qilin-agent/kylin':
-        specifier: workspace:~
-        version: link:../../../vendor/cordis
-      '@qilin-agent/settings':
-        specifier: workspace:*
-        version: link:../settings
 
   packages/shell/bash-local:
     dependencies:

@@ -14,12 +14,13 @@ import ToolRuntime from '@qilin-agent/tools'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import { AttachmentId } from '@qilin-agent/attachment'
 import Loader from '@qilin-agent/kylin-plugin-loader'
-import Include from '@qilin-agent/kylin-plugin-include'
 import LlmRuntime, { createAssistantMessage, createDeveloperMessage, createSystemMessage, createToolResultMessage, createUserMessage, ToolCallId } from '@qilin-agent/llm'
 import type { Message } from '@qilin-agent/llm'
 import { credentialRef } from '@qilin-agent/credentials'
 import LocalCredentials from '@qilin-agent/credentials-local'
-import { MemorySettings } from '../../../settings/settings/tests/memory.ts'
+import { initProfile, mountRootInclude, type ProfileContext } from '@qilin-agent/app-boot'
+import ConfigEditor from '../../../settings/config-editor/src/index.ts'
+import SettingsForms from '../../../settings/settings/src/index.ts'
 import SessionStore, { SessionId } from '@qilin-agent/session'
 import { DeepSeekAdapter } from '../src/adapter.ts'
 import { object } from '../src/replay.ts'
@@ -300,7 +301,6 @@ describe('Cordis provider composition', () => {
     await writeFile(join(home, 'cordis.yml'), template.replaceAll('{{endpoint}}', JSON.stringify(http.url)).replaceAll('{{credentials}}', JSON.stringify(join(home, '.credentials.yaml'))))
     ctx.baseUrl = pathToFileURL(home).href + '/'
     await ctx.plugin(Loader)
-    ctx.loader.builtins.include = Include
     const modules = new Map<string, unknown>([
       ['@qilin-agent/llm', LlmRuntime], ['@qilin-agent/llm-deepseek-api-key', Messages],
       ['@qilin-agent/credentials-local', LocalCredentials],
@@ -318,13 +318,18 @@ describe('Cordis provider composition', () => {
       if (!modules.has(name)) throw new Error(`unexpected module ${name}`)
       return modules.get(name)
     })
-    // The profile patch the settings section writes lives in the in-memory
-    // provider until the settings provider port lands its file-backed chain.
-    await ctx.plugin(MemorySettings)
-    await ctx.loader.create({
-      name: 'cordis:include',
-      config: { path: pathToFileURL(join(home, 'cordis.yml')).href },
-    })
+    // Live settings persist through a real profile patch beside the composition.
+    await writeFile(join(home, 'package.json'), '{"name":"test-installation"}\n')
+    const profileDir = join(home, 'profile')
+    initProfile(profileDir, [])
+    const profile: ProfileContext = {
+      name: 'test', startedBundles: [], dir: profileDir, patchPath: join(profileDir, 'cordis.patch.yml'),
+      installAnchor: join(home, 'package.json'), cwd: home, home, overlays: [], telemetryDisabledEnv: undefined,
+    }
+    ctx.provide('profileContext', profile)
+    await ctx.plugin(ConfigEditor)
+    await ctx.plugin(SettingsForms)
+    await mountRootInclude(ctx, join(home, 'cordis.yml'), [])
     await ctx.loader.await()
     return { ctx, http }
   }

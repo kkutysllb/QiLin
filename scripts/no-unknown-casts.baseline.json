@@ -2026,15 +2026,6 @@
     "2312a66ba30733088a1b1be2553279db1d74f2ddc20523b139b4a18097711885": 1,
     "9c94646da4d72698d375ad0039413d63560987679cbd3059bfe8c7863e699592": 1
   },
-  "packages/settings/settings-file/tests/loader-composition.spec.ts": {
-    "59c63f734e8bba862325f776e3fcbebd78a84cfb4161f8df41c216950d9bf351": 1
-  },
-  "packages/settings/settings-file/tests/lock-race.spec.ts": {
-    "f73d407dd2fca4f93a7048b093eeb304136332365828ba790e9911cb873ed1fe": 1
-  },
-  "packages/settings/settings-file/tests/watcher.spec.ts": {
-    "6dfe702b6cb8848eeb1d56c5af6ff723d84841aaa1d96790295db4ed70616c65": 1
-  },
   "packages/settings/settings/tests/settings.spec.ts": {
     "2d7f707771049cc7d16595e3e16fdaafdbca2d271008f5b55a88c407cef7173c": 4,
     "95afde3aecf8bd5da9a57f1a68c363f789a7634ebd97eb7e4ae8b207037c73a0": 1

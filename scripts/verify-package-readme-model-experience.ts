@@ -46,6 +46,8 @@ const NO_MODEL_EXPERIENCE_SECTION: Readonly<Record<string, string>> = {
  */
 const SENTENCE_MODEL_EXPERIENCE: Readonly<Record<string, SentenceContract>> = {
   'packages/telemetry/otel': { kind: 'none', reason: 'The service delivers caller-selected records without changing model context.' },
+  'packages/settings/config-editor': { kind: 'indirect', reason: 'Persisted configuration values reach models through the plugins that read them; the editor itself owns no model-visible output.' },
+  'packages/experimental/plugin-market-bundle': { kind: 'indirect', reason: 'With the bundle on, the Creator preset gains the read-only plugin_market tool; the bundle itself adds no prompts.' },
   'packages/session/usage-report': { kind: 'none', reason: 'It reads settled Turns and reports them to the deployment, adding no prompt, tool, or model-visible output.' },
   'packages/session/usage-local': { kind: 'none', reason: 'It derives the usage read from local session logs, adding no prompt, tool, or model-visible output.' },
   'packages/client/ui-usage': { kind: 'none', reason: 'The page reads a ledger and draws it, adding no prompt, tool, or model-visible output.' },
@@ -204,7 +206,6 @@ const SENTENCE_MODEL_EXPERIENCE: Readonly<Record<string, SentenceContract>> = {
   'packages/session-query/session-query': { kind: 'none', reason: 'The trusted query service exposes cloned records only to callers and registers nothing model-facing.' },
   'packages/session-query/session-query-sqlite': { kind: 'none', reason: 'The search backend returns hits only to callers and registers nothing model-facing.' },
   'packages/settings/settings': { kind: 'indirect', reason: 'The seam stores and resolves user settings; consumer plugins own any model-facing content fed by a value.' },
-  'packages/settings/settings-file': { kind: 'indirect', reason: 'The file provider stores and publishes namespace sections; consumers of ctx.settings own any model-facing behavior.' },
   'packages/credentials/credentials': { kind: 'indirect', reason: 'The seam resolves credential references; the consuming adapter owns every model-facing use a value authorizes.' },
   'packages/credentials/credentials-local': { kind: 'indirect', reason: 'The file/environment provider stores credential values; consumers of ctx.credentials own any model-facing behavior.' },
   'packages/credentials/authorization': { kind: 'none', reason: 'A configuration-time conversation with a human; no flow, notice, or prompt reaches a model request.' },

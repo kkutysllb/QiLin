@@ -1,12 +1,4 @@
-/**
- * Real-composition guard for the dormant pi-ai posture: LlmRuntime,
- * settings-file, credentials-local, and a bare `llm-pi-ai` row boot from a
- * test-only cordis.yml through the actual Loader + Include path, an external
- * edit of settings.yaml registers the route live, and the next request
- * carries the credential the credentials document supplies. A hand-mounted `ctx.plugin` cannot
- * catch Loader export-shape failures, which is why the twin adapter has the
- * same guard.
- */
+/** Profile patch edits and credential updates reach the next real adapter request. */
 
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -14,11 +6,12 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
-import Loader from '@qilin-agent/kylin-plugin-loader'
+import Loader, { type ModuleLoaderV2 } from '@qilin-agent/kylin-plugin-loader'
 import Include from '@qilin-agent/kylin-plugin-include'
 import LlmRuntime, { createMessage, createUserMessage, userAgent } from '@qilin-agent/llm'
+import AuthorizationService from '@qilin-agent/authorization'
 import LocalCredentialProvider from '@qilin-agent/credentials-local'
-import FileSettingsProvider from '@qilin-agent/settings-file'
+import { profileComposition } from '../../../settings/settings/tests/profile-composition.ts'
 import * as LlmPiAi from '@qilin-agent/llm-pi-ai'
 import { assemble } from './assemble.ts'
 import { closeMockServers, mockServer, textEvents } from './mock-server.ts'
@@ -46,25 +39,20 @@ afterEach(async () => {
 
 /** Boot the dormant composition: a bare `llm-pi-ai` row with no config at all. */
 async function loadComposition(): Promise<{ ctx: Context; settingsPath: string }> {
-  root = await mkdtemp(join(tmpdir(), 'qilin-pi-composition-'))
-  const settingsPath = join(root, 'settings.yaml')
-  await writeFile(settingsPath, '# personal settings\n')
+  root = await mkdtemp(join(tmpdir(), 'dsh-pi-composition-'))
   await writeFile(join(root, '.credentials.yaml'), 'version: 1\nrefs:\n  PI_COMPOSITION_KEY: key-from-store\n', { mode: 0o600 })
 
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, [
     '- id: llm',
     "  name: 'test-llm-service'",
-    '- id: settings',
-    "  name: '@qilin-agent/settings-file'",
-    '  config:',
-    `    path: ${JSON.stringify(settingsPath)}`,
-    '    debounceMs: 10',
     '- id: credentials',
     "  name: '@qilin-agent/credentials-local'",
     '  config:',
     `    path: ${JSON.stringify(join(root, '.credentials.yaml'))}`,
     '    debounceMs: 10',
+    '- id: authorization',
+    "  name: '@qilin-agent/authorization'",
     '- id: llm-pi-ai',
     "  name: '@qilin-agent/llm-pi-ai'",
     '',
@@ -77,23 +65,25 @@ async function loadComposition(): Promise<{ ctx: Context; settingsPath: string }
   ctx.loader.builtins.include = Include
   const modules = new Map<string, unknown>([
     ['test-llm-service', LlmRuntime],
-    ['@qilin-agent/settings-file', FileSettingsProvider],
     ['@qilin-agent/credentials-local', LocalCredentialProvider],
+    ['@qilin-agent/authorization', AuthorizationService],
     ['@qilin-agent/llm-pi-ai', LlmPiAi],
   ])
-  ctx.loader.internal = {
+  const internal: ModuleLoaderV2 = {
     version: 'v2',
-    async import(specifier: string) {
+    loadCache: new Map(),
+    import: (specifier: string) => {
       if (!modules.has(specifier)) throw new Error(`unexpected Loader import: ${specifier}`)
-      return modules.get(specifier)
+      return Promise.resolve(modules.get(specifier))
     },
-  } as unknown as NonNullable<typeof ctx.loader.internal>
-  await ctx.loader.create({
-    name: 'cordis:include',
-    config: { path: pathToFileURL(configPath).href },
-  })
-  await ctx.loader.await()
-  return { ctx, settingsPath }
+    register(): never { throw new Error('unexpected module hook registration') },
+    getOrCreateModuleJob(): never { throw new Error('unexpected module job creation') },
+    resolveSync(): never { throw new Error('unexpected synchronous module resolution') },
+    load(): never { throw new Error('unexpected module load') },
+  }
+  ctx.loader.internal = internal
+  const patchPath = await profileComposition(ctx, root, configPath)
+  return { ctx, settingsPath: patchPath }
 }
 
 describe('llm-pi-ai real dormant composition', () => {
@@ -104,14 +94,19 @@ describe('llm-pi-ai real dormant composition', () => {
 
     // The shipped posture: the adapter exists, no route does.
     expect(ctx.llm.listProviders()).toEqual([])
+    const directory = ctx.llm.listConfigurableProviders()
+    expect(directory.find(entry => entry.provider === 'azure')).toMatchObject({
+      provider: 'azure', displayName: 'azure', settingsNs: 'llm-pi-ai', declared: false,
+    })
 
     // Exactly what the web Models page leaves on disk.
     await writeFile(settingsPath, [
-      'llm-pi-ai:',
-      '  providers:',
-      '    deepseek:',
-      '      apiKeyEnv: PI_COMPOSITION_KEY',
-      `      baseURL: ${server.url}`,
+      '- id: llm-pi-ai',
+      '  config:',
+      '    providers:',
+      '      deepseek:',
+      '        apiKeyEnv: PI_COMPOSITION_KEY',
+      `        baseURL: ${server.url}`,
       '',
     ].join('\n'))
     await vi.waitFor(() => {
@@ -123,24 +118,36 @@ describe('llm-pi-ai real dormant composition', () => {
     expect(server.headers[0]?.authorization).toBe('Bearer key-from-store')
   })
 
+  it('offers OpenAI sign-in by API key only, while other subscription logins stay', async () => {
+    const { ctx } = await loadComposition()
+    const methods = (provider: string): string[] | undefined => ctx.authorization.list()
+      .find(entry => entry.key === LlmPiAi.recordKeyFor(provider))?.methods.map(method => method.id)
+
+    // pi-ai's Sign in with ChatGPT needs an installation ID the harness does
+    // not supply, so the route offers only its key login.
+    expect(methods('openai')).toEqual(['api-key'])
+    expect(methods('anthropic')).toEqual(['oauth', 'api-key'])
+  })
+
   it('uses settings-only route headers for model discovery', async () => {
     vi.stubEnv('PI_COMPOSITION_KEY', '')
     const server = await mockServer([{ body: JSON.stringify({ data: [{ id: 'acme-private' }] }) }])
     const { ctx, settingsPath } = await loadComposition()
 
     await writeFile(settingsPath, [
-      'llm-pi-ai:',
-      '  providers:',
-      '    acme-gateway:',
-      '      apiKeyEnv: PI_COMPOSITION_KEY',
-      '      api: openai-completions',
-      `      baseURL: ${server.url}`,
-      '      headers:',
-      '        X-Company-Code: private-tenant',
-      '        Accept: text/plain',
-      '        User-Agent: deployment-owned',
-      '      models:',
-      '        - id: acme-bootstrap',
+      '- id: llm-pi-ai',
+      '  config:',
+      '    providers:',
+      '      acme-gateway:',
+      '        apiKeyEnv: PI_COMPOSITION_KEY',
+      '        api: openai-completions',
+      `        baseURL: ${server.url}`,
+      '        headers:',
+      '          X-Company-Code: private-tenant',
+      '          Accept: text/plain',
+      '          User-Agent: deployment-owned',
+      '        models:',
+      '          - id: acme-bootstrap',
       '',
     ].join('\n'))
     await vi.waitFor(() => {
@@ -167,11 +174,12 @@ describe('llm-pi-ai real dormant composition', () => {
     ])
     const { ctx, settingsPath } = await loadComposition()
     await writeFile(settingsPath, [
-      'llm-pi-ai:',
-      '  providers:',
-      '    deepseek:',
-      '      apiKeyEnv: PI_COMPOSITION_KEY',
-      `      baseURL: ${server.url}`,
+      '- id: llm-pi-ai',
+      '  config:',
+      '    providers:',
+      '      deepseek:',
+      '        apiKeyEnv: PI_COMPOSITION_KEY',
+      `        baseURL: ${server.url}`,
       '',
     ].join('\n'))
     await vi.waitFor(() => {
@@ -227,11 +235,12 @@ describe('llm-pi-ai real dormant composition', () => {
     const server = await mockServer([{ events: textEvents }])
     const { ctx, settingsPath } = await loadComposition()
     await writeFile(settingsPath, [
-      'llm-pi-ai:',
-      '  providers:',
-      '    deepseek:',
-      '      apiKeyEnv: PI_COMPOSITION_KEY',
-      `      baseURL: ${server.url}`,
+      '- id: llm-pi-ai',
+      '  config:',
+      '    providers:',
+      '      deepseek:',
+      '        apiKeyEnv: PI_COMPOSITION_KEY',
+      `        baseURL: ${server.url}`,
       '',
     ].join('\n'))
     await vi.waitFor(() => {

@@ -1,12 +1,4 @@
-/**
- * Real-composition guard for the dynamic-configuration chain: LlmRuntime,
- * settings-file, credentials-local, and the llm-deepseek-api-key provider boot from a test-only
- * cordis.yml through the actual Loader + Include path, external edits of
- * settings.yaml and the credentials document hot-publish through their providers, and the very
- * next request carries the fresh base URL and credential. The same adapter
- * composition without settings or credentials entries keeps entry-config
- * behavior — the documented optional-inject fallback.
- */
+/** Profile patch edits and credential updates reach the next real adapter request. */
 
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -14,7 +6,6 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
-import type { Volatile } from '@qilin-agent/kylin'
 import Loader from '@qilin-agent/kylin-plugin-loader'
 import Include from '@qilin-agent/kylin-plugin-include'
 import LlmRuntime from '@qilin-agent/llm'
@@ -22,7 +13,7 @@ import AgentRegistry from '@qilin-agent/agent'
 import SessionStore, { SessionId } from '@qilin-agent/session'
 import { credentialRef } from '@qilin-agent/credentials'
 import LocalCredentialProvider from '@qilin-agent/credentials-local'
-import FileSettingsProvider from '@qilin-agent/settings-file'
+import { profileComposition } from '../../../settings/settings/tests/profile-composition.ts'
 import { getOrCreateAnonymousUserId } from '@qilin-agent/anonymous-user-id'
 import DeepSeekLlmApiExtensionRegistry from '@qilin-agent/deepseek-llm-api-extensions'
 import * as SessionLogDeepSeek from '@qilin-agent/session-log-deepseek'
@@ -30,6 +21,7 @@ import * as DeepSeekPluginPackageInventory from '@qilin-agent/plugin-package-inv
 import * as LlmDeepSeek from '@qilin-agent/llm-deepseek-api-key'
 import { assemble } from './assemble.ts'
 import { closeMockServers, mockServer, textEvents } from './mock-server.ts'
+import { sourceModuleLoader } from './helpers.ts'
 
 const NS = 'llm-deepseek'
 const KEY_REF = credentialRef('DEEPSEEK_API_KEY')
@@ -52,12 +44,11 @@ async function loadComposition(
   // A reused root is the restart case: the same harness home, its documents
   // exactly as the previous process left them.
   const fresh = options.reuseRoot === undefined
-  root = options.reuseRoot ?? await mkdtemp(join(tmpdir(), 'qilin-llm-composition-'))
-  vi.stubEnv('QILIN_HOME', root)
-  const settingsPath = join(root, 'settings.yaml')
+  root = options.reuseRoot ?? await mkdtemp(join(tmpdir(), 'dsh-llm-composition-'))
+  vi.stubEnv('DSH_HOME', root)
+  const settingsPath = join(root, 'profile', 'cordis.patch.yml')
   const credentialsPath = join(root, '.credentials.yaml')
   if (options.withDynamic && fresh) {
-    await writeFile(settingsPath, '# personal settings\n')
     await writeFile(credentialsPath, 'version: 1\nrefs:\n  DEEPSEEK_API_KEY: boot-key\n', { mode: 0o600 })
   }
 
@@ -80,11 +71,6 @@ async function loadComposition(
     "  name: '@qilin-agent/plugin-package-inventory-deepseek'",
     ...options.withDynamic
       ? [
-        '- id: settings',
-        "  name: '@qilin-agent/settings-file'",
-        '  config:',
-        `    path: ${JSON.stringify(settingsPath)}`,
-        '    debounceMs: 10',
         '- id: credentials',
         "  name: '@qilin-agent/credentials-local'",
         '  config:',
@@ -111,7 +97,6 @@ async function loadComposition(
     ['@qilin-agent/deepseek-llm-api-extensions', DeepSeekLlmApiExtensionRegistry],
     ['@qilin-agent/session-log-deepseek', SessionLogDeepSeek],
     ['@qilin-agent/plugin-package-inventory-deepseek', DeepSeekPluginPackageInventory],
-    ['@qilin-agent/settings-file', FileSettingsProvider],
     ['@qilin-agent/credentials-local', LocalCredentialProvider],
     ['@qilin-agent/llm-deepseek-api-key', LlmDeepSeek],
   ])
@@ -126,22 +111,41 @@ async function loadComposition(
       type: 'module',
     })}\n`)
   }))
-  ctx.loader.internal = {
-    version: 'v2',
-    async import(specifier: string) {
-      if (!modules.has(specifier)) throw new Error(`unexpected Loader import: ${specifier}`)
-      return modules.get(specifier)
-    },
-  } as unknown as NonNullable<typeof ctx.loader.internal>
-  await ctx.loader.create({
-    name: 'cordis:include',
-    config: { path: pathToFileURL(configPath).href },
+  ctx.loader.internal = sourceModuleLoader(async (specifier) => {
+    if (!modules.has(specifier)) throw new Error(`unexpected Loader import: ${specifier}`)
+    return modules.get(specifier)
   })
+  if (options.withDynamic) {
+    return { ctx, settingsPath: await profileComposition(ctx, root, configPath), credentialsPath }
+  }
+  await ctx.loader.create({ name: 'cordis:include', config: { path: pathToFileURL(configPath).href } })
   await ctx.loader.await()
   return { ctx, settingsPath, credentialsPath }
 }
 
+
 describe('llm-deepseek real dynamic composition', () => {
+  it('updates the model catalog when the stored API key is removed or added', async () => {
+    vi.stubEnv('DEEPSEEK_API_KEY', '')
+    const { ctx } = await loadComposition({ withDynamic: true, baseURL: 'https://api.deepseek.com/anthropic' })
+    const credentials = ctx.get('credentials')!
+    const models = await ctx.llm.listModels('deepseek-official')
+    expect(models).not.toHaveLength(0)
+
+    await credentials.unset(KEY_REF)
+    expect(await ctx.llm.listModels('deepseek-official')).toEqual([])
+    expect(ctx.llm.listConfigurableProviders().map(row => row.provider)).toContain('deepseek-official')
+
+    await credentials.set(KEY_REF, 'stored-by-ui')
+    expect(await ctx.llm.listModels('deepseek-official')).toEqual(models)
+
+    const failure = new Error('credential lookup failed')
+    const resolve = vi.spyOn(credentials, 'resolve').mockRejectedValue(failure)
+    try {
+      await expect(ctx.llm.listModels('deepseek-official')).rejects.toBe(failure)
+    } finally { resolve.mockRestore() }
+  })
+
   it('keeps package inventory on when the Loader composition disables session upload', async () => {
     vi.stubEnv('DEEPSEEK_API_KEY', 'entry-key')
     const server = await mockServer([{ kind: 'sse', events: textEvents }])
@@ -197,17 +201,15 @@ describe('llm-deepseek real dynamic composition', () => {
     const serverB = await mockServer([{ kind: 'sse', events: textEvents }])
     const { ctx, settingsPath, credentialsPath } = await loadComposition({ withDynamic: true, baseURL: serverA.url })
 
-    expect(ctx.get('settings')!.describe().map(entry => entry.ns)).toEqual([NS])
+    expect(ctx.settings.describe().map(entry => entry.ns)).toContain(NS)
     await assemble(ctx, { model: 'deepseek-v4-flash', messages: [] })
     expect(serverA.headers[0]?.['x-api-key']).toBe('boot-key')
     expect(serverA.headers[0]?.['x-deepseek-harness-user-id']).toBe(getOrCreateAnonymousUserId())
 
     // External edits, exactly as a user or the web UI would leave them on disk.
-    await writeFile(settingsPath, `llm-deepseek:\n  baseURL: ${serverB.url}\n`)
+    await writeFile(settingsPath, JSON.stringify([{ id: NS, config: { baseURL: serverB.url } }]))
     await vi.waitFor(() => {
-      // The section schema is volatile, so the resolved value is a reference.
-      const section = ctx.get('settings')!.get(NS) as { baseURL: Volatile<string | undefined> }
-      expect(section.baseURL.get()).toBe(serverB.url)
+      expect((ctx.settings.describe().find(row => row.ns === NS)!.value as { baseURL?: string }).baseURL).toBe(serverB.url)
     }, { timeout: 5000 })
     await writeFile(credentialsPath, 'version: 1\nrefs:\n  DEEPSEEK_API_KEY: rotated-key\n', { mode: 0o600 })
     await vi.waitFor(async () => {
@@ -238,8 +240,8 @@ describe('llm-deepseek real dynamic composition', () => {
     // Restart over the same harness home.
     const restarted = await loadComposition({ withDynamic: true, baseURL: second.url, reuseRoot: home })
     const credentials = restarted.ctx.get('credentials')!
-    // The stored key is still the provider's own writable file entry — not a
-    // read-only launch override, which is what hoisting it would have made it.
+    // The stored key is still the provider's own file entry — not a
+    // launch-environment value, which is what hoisting it would have made it.
     expect(await credentials.resolve(KEY_REF)).toEqual({ value: 'stored-by-ui', source: 'file' })
     expect(await credentials.describe(KEY_REF)).toEqual({ configured: true, source: 'file', writable: true })
     // Rotation still works after the restart, and the next request uses it.

@@ -99,7 +99,7 @@ Windows 在无法观察到锁时会对 `EPERM` 重试一次，因为持锁方可
 
 当你需要了解使用本原语的存储或它所属的工具家族时，阅读以下页面。
 
-- [用户设置文件存储](../../settings/settings-file/README.zh.md)——每次写入都通过本包替换的设置文档。
+- [Profile 配置编辑器](../../settings/config-editor/README.zh.md)——每次配置写入都通过本包替换的 profile 补丁。
 - [凭据存储](../../credentials/credentials-local/README.zh.md)——本包加锁并替换的凭据文件。
 - [util 组映射](../README.zh.md)——本包所属的零依赖工具家族。
 

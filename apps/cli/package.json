@@ -155,7 +155,6 @@
     "@qilin-agent/session-persistence-jsonl": "workspace:*",
     "@qilin-agent/session-query": "workspace:*",
     "@qilin-agent/settings": "workspace:*",
-    "@qilin-agent/settings-file": "workspace:*",
     "@qilin-agent/shell-env": "workspace:*",
     "@qilin-agent/subagent": "workspace:*",
     "@qilin-agent/subagent-fork-in-process": "workspace:*",

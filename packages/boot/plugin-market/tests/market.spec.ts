@@ -56,7 +56,9 @@ async function mount(config: Partial<{ indexes: string[]; fetchTimeoutMs: number
     class Settings extends Service {
       constructor(inner: Context) { super(inner, 'settings') }
       update(ns: string, patch: object) { return update(ns, patch) }
-      installSection(_owner: Context, _ns: string, _schema: unknown, base: unknown, hooks: { setSource: (current: () => unknown) => void }) {
+      installSection(
+        _owner: Context, _ns: string, _schema: unknown, base: unknown, hooks: { setSource: (current: () => unknown) => void },
+      ) {
         hooks.setSource(() => base)
       }
     }

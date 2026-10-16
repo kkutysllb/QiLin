@@ -92,7 +92,7 @@ describe('ui-settings-plugins apply', () => {
   })
 
   it('injects a live tab projection and one business face per configuration page', async () => {
-    const { ctx, slots } = await bench(['shell', 'agent-loop', 'subagent', 'subagent-model-selection', 'web-search-deepseek'])
+    const { ctx, slots } = await bench(['shell', 'agent-loop', 'subagent', 'subagent-model-selection-settings', 'web-search-deepseek'])
     declareRoot(slots)
     await ctx.plugin({ inject: [...inject], apply }).await()
 
@@ -121,7 +121,7 @@ describe('ui-settings-plugins apply', () => {
   })
 
   it('registers one configuration page per served namespace, in its own order, titled in the active locale', async () => {
-    const { ctx, slots } = await bench(['web-search-deepseek', 'shell', 'agent-loop', 'subagent-model-selection'])
+    const { ctx, slots } = await bench(['web-search-deepseek', 'shell', 'agent-loop', 'subagent-model-selection-settings'])
     declareRoot(slots)
 
     await ctx.plugin({ inject: [...inject], apply }).await()
@@ -135,8 +135,8 @@ describe('ui-settings-plugins apply', () => {
 
   it.each([
     ['subagent'],
-    ['subagent-model-selection'],
-    ['subagent', 'subagent-model-selection'],
+    ['subagent-model-selection-settings'],
+    ['subagent', 'subagent-model-selection-settings'],
   ])('keeps one Subagent page while either namespace is served: %j', async (...served) => {
     const { ctx, slots, describeSettings, remote } = await bench(served)
     onTestFinished(() => ctx.fiber.dispose())
@@ -146,7 +146,7 @@ describe('ui-settings-plugins apply', () => {
       expect(slots.entries('plugins.item').map(entry => entry.options.id)).toEqual(['subagent'])
     })
     const entry = slots.entries('plugins.item')[0]
-    for (const namespaces of [['subagent-model-selection'], ['subagent'], []]) {
+    for (const namespaces of [['subagent-model-selection-settings'], ['subagent'], []]) {
       describeSettings.mockResolvedValue({
         ok: true,
         value: {
@@ -232,7 +232,7 @@ describe('ui-settings-plugins apply', () => {
   it('refreshes the subagent catalog after model inputs change or the connection resets', async () => {
     const refresh = vi.spyOn(SubagentModelSelectionCardController.prototype, 'refreshCatalog')
     const reset = vi.spyOn(SubagentModelSelectionCardController.prototype, 'resetConnection')
-    const { ctx, slots, remote } = await bench(['subagent-model-selection'])
+    const { ctx, slots, remote } = await bench(['subagent-model-selection-settings'])
     declareRoot(slots)
     await ctx.plugin({ inject: [...inject], apply }).await()
     refresh.mockClear()

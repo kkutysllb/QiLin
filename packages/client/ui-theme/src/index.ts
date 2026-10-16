@@ -1,13 +1,16 @@
 /** Host registration for the browser theme preference and pre-plugin palette. */
+import type {} from '@qilin-agent/settings'
+
+import type { Volatile } from '@qilin-agent/kylin'
+import type { ThemePreference } from './theme-settings.ts'
+import z from '@qilin-agent/schemastery'
 
 import type { Context } from '@qilin-agent/kylin'
 import type {} from '@qilin-agent/host-webserver'
-import type {} from '@qilin-agent/settings'
 import { bootThemeInjections } from './boot-theme.ts'
 import {
-  DEFAULT_FONT_SIZE, DEFAULT_PREFERENCE, FONT_FAMILY_FIELDS, FONT_SIZE_SPECS,
-  THEME_SETTINGS_NAMESPACE, ThemeSettingsSchema,
-  sectionFontSizes, type FontFamilies, type ThemeSettings,
+  DEFAULT_PREFERENCE, FONT_SIZE_SPECS, fontSizeSchema,
+  THEME_PREFERENCES, type FontFamilies,
 } from './theme-settings.ts'
 
 export {
@@ -19,46 +22,58 @@ export {
 } from './theme-settings.ts'
 
 /**
- * Font-family lists read from a settings section, keyed by role.
- * @param section - the theme settings section to read.
+ * Font-family lists read from the live config, keyed by role.
+ * @param families - the detached per-role lists.
  * @returns the frozen per-role font-family lists.
  */
-export function sectionFontFamilies(section: ThemeSettings): FontFamilies {
-  return Object.freeze({
-    text: section[FONT_FAMILY_FIELDS.text],
-    code: section[FONT_FAMILY_FIELDS.code],
-    terminal: section[FONT_FAMILY_FIELDS.terminal],
-  })
+export function sectionFontFamilies(families: FontFamilies): FontFamilies {
+  return Object.freeze({ ...families })
 }
 
-const THEME_NAMESPACE = THEME_SETTINGS_NAMESPACE
-
-/** Read the registered theme section or the schema defaults without a settings provider. */
-function readSection(ctx: Context): ThemeSettings {
-  const fallback: ThemeSettings = {
-    preference: DEFAULT_PREFERENCE, fontSize: DEFAULT_FONT_SIZE,
-    codeFontSize: FONT_SIZE_SPECS.code.default, terminalFontSize: FONT_SIZE_SPECS.terminal.default,
-    textFontFamily: '', codeFontFamily: '', terminalFontFamily: '',
-  }
-  const settings = ctx.get('settings')
-  if (settings === undefined) return fallback
-  const section = settings.get(THEME_NAMESPACE) as ThemeSettings | undefined
-  if (section === undefined) return fallback
-  return section
+/** Runtime preferences projected to the browser. */
+export interface Config {
+  /** Browser palette preference. */
+  preference: Volatile<ThemePreference>
+  /** Browser font size in pixels. */
+  fontSize: Volatile<number>
+  /** Code-block font size in pixels. */
+  codeFontSize: Volatile<number>
+  /** Sidebar terminal font size in pixels. */
+  terminalFontSize: Volatile<number>
+  /** Interface and body text font list; `''` keeps the built-in stack. */
+  textFontFamily: Volatile<string>
+  /** Code font list; `''` keeps the built-in stack. */
+  codeFontFamily: Volatile<string>
+  /** Sidebar terminal font list; `''` keeps the built-in stack. */
+  terminalFontFamily: Volatile<string>
 }
 
-/**
- * Register the durable theme section when the optional settings service is
- * composed, and answer every index injection collection with the current
- * theme bootstrap row (palette plus the three font roles).
- * @param ctx - Host context that may acquire the settings service.
+/** Live theme and typography preferences. */
+export const Config = z.object({
+  preference: z.union([...THEME_PREFERENCES]).default(DEFAULT_PREFERENCE).volatile(),
+  fontSize: fontSizeSchema(FONT_SIZE_SPECS.text).volatile(),
+  codeFontSize: fontSizeSchema(FONT_SIZE_SPECS.code).volatile(),
+  terminalFontSize: fontSizeSchema(FONT_SIZE_SPECS.terminal).volatile(),
+  textFontFamily: z.string().default('').volatile(),
+  codeFontFamily: z.string().default('').volatile(),
+  terminalFontFamily: z.string().default('').volatile(),
+})
+
+/** Supply the current palette before browser plugins start.
+ * @param ctx Host plugin context.
+ * @param config Validated live theme preferences.
  */
-export function apply(ctx: Context): void {
-  ctx.inject(['settings'], (settingsCtx) => {
-    settingsCtx.settings.register(THEME_NAMESPACE, ThemeSettingsSchema)
-  })
+export function apply(ctx: Context, config: Config): void {
+  ctx.inject(['settings'], (child) => { child.effect(() => child.settings.configure({ auto: false }, ctx.fiber)) })
   ctx.on('webserver/index-inject', (table) => {
-    const section = readSection(ctx)
-    table.push(...bootThemeInjections(section.preference, sectionFontSizes(section), sectionFontFamilies(section)))
+    table.push(...bootThemeInjections(config.preference.get(), {
+      text: config.fontSize.get(),
+      code: config.codeFontSize.get(),
+      terminal: config.terminalFontSize.get(),
+    }, sectionFontFamilies({
+      text: config.textFontFamily.get(),
+      code: config.codeFontFamily.get(),
+      terminal: config.terminalFontFamily.get(),
+    })))
   }, { prepend: true })
 }

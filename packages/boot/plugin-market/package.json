@@ -84,7 +84,6 @@
     "@qilin-agent/llm": "workspace:*",
     "@qilin-agent/plugin-manager": "workspace:*",
     "@qilin-agent/settings": "workspace:*",
-    "@qilin-agent/settings-file": "workspace:*",
     "@qilin-agent/system-prompt": "workspace:*",
     "@qilin-agent/tools": "workspace:*",
     "@qilin-agent/typert-protocol": "workspace:*",

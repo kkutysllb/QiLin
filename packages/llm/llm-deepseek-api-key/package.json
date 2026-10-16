@@ -63,7 +63,6 @@
     "@qilin-agent/llm": "workspace:*",
     "@qilin-agent/llm-deepseek": "workspace:*",
     "@qilin-agent/settings": "workspace:*",
-    "@qilin-agent/settings-file": "workspace:*",
     "@qilin-agent/kylin-plugin-loader": "workspace:~",
     "@qilin-agent/kylin-plugin-include": "workspace:~",
     "@qilin-agent/atomic-write": "workspace:*",

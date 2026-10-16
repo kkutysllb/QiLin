@@ -42,6 +42,7 @@ function ctxWith(settings: object) {
 function view(value: JsonValue, revision = 0): SettingsNamespaceView {
   return {
     ns: 'ui-test',
+    autoGenerate: true,
     // `toJSON()` already produced the wire envelope; its declared type is the
     // schema builder's, so one cast names what the Host actually sends.
     schema: JSON.parse(JSON.stringify(ENVELOPE)) as JsonValue,

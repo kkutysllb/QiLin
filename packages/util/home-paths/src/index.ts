@@ -219,7 +219,7 @@ export const dshHomeDisplay = qilinHomeDisplay
  * @returns the cache path under the resolved home.
  */
 export function dshCachePath(optionsOrSegment: { dshHome?: string } | string = {}, ...segments: string[]): string {
-  const normalized = typeof optionsOrSegment === 'object' && optionsOrSegment !== null && 'dshHome' in optionsOrSegment
+  const normalized = typeof optionsOrSegment === 'object' && 'dshHome' in optionsOrSegment
     ? { qilinHome: optionsOrSegment.dshHome }
     : optionsOrSegment
   return qilinCachePath(normalized as { qilinHome?: string }, ...segments)

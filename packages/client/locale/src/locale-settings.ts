@@ -26,7 +26,10 @@ export interface LocaleSettings {
   preference?: LocaleId
 }
 
-/** Durable locale schema; also the wire envelope the browser scope validates against. */
-export const LocaleSettingsSchema: z<LocaleSettings> = z.object({
+/** The durable locale fields, shared by the Host schema and the browser scope. */
+export const LocaleSettingsFields = {
   [LOCALE_PREFERENCE_FIELD]: z.string().pattern(LOCALE_ID_PATTERN).required(false),
-})
+}
+
+/** Schema for the shared locale preference. */
+export const LocaleSettingsSchema = z.object(LocaleSettingsFields)

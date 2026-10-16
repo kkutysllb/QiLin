@@ -17,8 +17,17 @@ import Include from '@qilin-agent/kylin-plugin-include'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import AgentPresets, {
-  COMPOSITION_FILE, copyComposition, METADATA_FILE, type Config,
+  COMPOSITION_FILE, copyComposition, METADATA_FILE, type PresetRoot,
 } from '@qilin-agent/agent-presets'
+
+/** The plugin-config input face the roster accepts from a composition row. */
+type RosterInput = {
+  default?: string
+  modeSelectionEnabled?: boolean
+  roots?: PresetRoot[]
+  includeShippedRoot?: boolean
+  includeUserRoot?: boolean
+}
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), 'fixtures')
 const VALID = '- id: tool-alpha\n  name: ../../plugins/contribute.js\n  config:\n    tool: alpha\n'
@@ -33,7 +42,7 @@ let ctx: Context
 let userRoot: string
 
 /** Mount the required projection seam before the roster service. */
-async function mountAgentPresets(context: Context, config: Config): Promise<void> {
+async function mountAgentPresets(context: Context, config: RosterInput): Promise<void> {
   await context.plugin(SessionProjectionRegistry)
   await context.plugin(AgentPresets, config)
 }

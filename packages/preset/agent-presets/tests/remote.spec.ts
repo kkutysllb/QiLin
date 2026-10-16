@@ -21,8 +21,17 @@ import AgentLoop from '@qilin-agent/agent-loop'
 import { remoteErrorOf, type RemoteFailure } from '@qilin-agent/typert-protocol'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import AgentPresets, { COMPOSITION_FILE, METADATA_FILE } from '@qilin-agent/agent-presets'
-import type { Config } from '@qilin-agent/agent-presets'
+import type { PresetRoot } from '@qilin-agent/agent-presets'
 import type {} from '@qilin-agent/agent-presets/types'
+
+/** The plugin-config input face the roster accepts from a composition row. */
+type RosterInput = {
+  default?: string
+  modeSelectionEnabled?: boolean
+  roots?: PresetRoot[]
+  includeShippedRoot?: boolean
+  includeUserRoot?: boolean
+}
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), 'fixtures')
 const ROOTS = [
@@ -71,7 +80,7 @@ function reasonOf(failure: RemoteFailure): string {
 }
 
 async function harness(
-  roster: Config = { default: 'standard', roots: ROOTS, includeShippedRoot: false, includeUserRoot: false },
+  roster: RosterInput = { default: 'standard', roots: ROOTS, includeShippedRoot: false, includeUserRoot: false },
 ): Promise<Context> {
   const ctx = new Context()
   ctx.baseUrl = pathToFileURL(FIXTURES).href + '/'

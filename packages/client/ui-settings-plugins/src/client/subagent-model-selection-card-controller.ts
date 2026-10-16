@@ -7,7 +7,7 @@ import type { ConfigForm } from '@qilin-agent/client-ui-settings/client'
 import type { SettingsFormShell } from '@qilin-agent/client-ui-primitives'
 
 /** Namespace of the Host-owned subagent model-selection preference. */
-export const SUBAGENT_MODEL_SELECTION_NS = 'subagent-model-selection'
+export const SUBAGENT_MODEL_SELECTION_NS = 'subagent-model-selection-settings'
 
 /** One exact provider/model route stored as user authorization. */
 export interface AllowedSubagentModel {

@@ -8,20 +8,13 @@
     "src"
   ],
   "references": [
-    {
-      "path": "../../../vendor/cosmokit"
-    },
-    {
-      "path": "../../../vendor/cordis"
-    },
-    {
-      "path": "../../../vendor/schemastery"
-    },
-    {
-      "path": "../../util/brand"
-    },
-    {
-      "path": "../../util/values"
-    },
+    { "path": "../../../vendor/cosmokit" },
+    { "path": "../../../vendor/cordis" },
+    { "path": "../../../vendor/loader" },
+    { "path": "../../../vendor/schemastery" },
+    { "path": "../../util/brand" },
+    { "path": "../../util/values" },
+    { "path": "../config-editor" },
+    { "path": "../../boot/app-boot" }
   ]
 }

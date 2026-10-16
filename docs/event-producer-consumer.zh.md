@@ -55,17 +55,17 @@
 | `llm/adapters-updated` | `emit` | [`packages/llm/llm/src/types.ts:23`](../packages/llm/llm/src/types.ts) | [`llm`](../packages/llm/llm) (`events.dispatch`) | [`acp`](../packages/acp/acp), `remotes` |
 | `llm/stream` | `waterfall` | [`packages/llm/llm/src/index.ts:75`](../packages/llm/llm/src/index.ts) | [`llm`](../packages/llm/llm) (`waterfall`) | [`llm-replay`](../packages/test-support/llm-replay), [`session-checkpoint-policy`](../packages/session/session-checkpoint-policy), [`session-title`](../packages/session/session-title) |
 | `permission-presets/catalog-changed` | `emit` | [`packages/interaction/permission-presets/src/types.ts:48`](../packages/interaction/permission-presets/src/types.ts) | [`permission-presets`](../packages/interaction/permission-presets) (`events.dispatch`) | `remotes` |
-| `plugin-manager/changed` | `emit` | [`packages/boot/plugin-manager/src/types.ts:318`](../packages/boot/plugin-manager/src/types.ts) | [`plugin-manager`](../packages/boot/plugin-manager) (`emit`) | `remotes` |
-| `plugin-manager/install-log` | `emit` | [`packages/boot/plugin-manager/src/types.ts:324`](../packages/boot/plugin-manager/src/types.ts) | [`plugin-manager`](../packages/boot/plugin-manager) (`emit`) | `remotes` |
-| `plugin-manager/install-state` | `emit` | [`packages/boot/plugin-manager/src/types.ts:331`](../packages/boot/plugin-manager/src/types.ts) | [`plugin-manager`](../packages/boot/plugin-manager) (`emit`) | `remotes` |
+| `plugin-manager/changed` | `emit` | [`packages/boot/plugin-manager/src/types.ts:269`](../packages/boot/plugin-manager/src/types.ts) | [`plugin-manager`](../packages/boot/plugin-manager) (`emit`) | `remotes` |
+| `plugin-manager/install-log` | `emit` | [`packages/boot/plugin-manager/src/types.ts:275`](../packages/boot/plugin-manager/src/types.ts) | [`plugin-manager`](../packages/boot/plugin-manager) (`emit`) | `remotes` |
+| `plugin-manager/install-state` | `emit` | [`packages/boot/plugin-manager/src/types.ts:282`](../packages/boot/plugin-manager/src/types.ts) | [`plugin-manager`](../packages/boot/plugin-manager) (`emit`) | `remotes` |
+| `plugin-market/changed` | `emit` | [`packages/boot/plugin-market/src/types.ts:136`](../packages/boot/plugin-market/src/types.ts) | [`plugin-market`](../packages/boot/plugin-market) (`emit`) | `remotes` |
 | `schedule/changed` | `emit` | [`packages/schedule/schedule/src/types.ts:478`](../packages/schedule/schedule/src/types.ts) | [`schedule`](../packages/schedule/schedule) (`emit`) | `remotes` |
 | `session-telemetry/record` | `waterfall` | [`packages/session/session-telemetry/src/index.ts:44`](../packages/session/session-telemetry/src/index.ts) | [`session-telemetry`](../packages/session/session-telemetry) (`waterfall`) | - |
 | `session/created` | `emit` | [`packages/core/session/src/index.ts:55`](../packages/core/session/src/index.ts) | [`session`](../packages/core/session) (`events.dispatch`) | [`permission-presets`](../packages/interaction/permission-presets), [`schedule`](../packages/schedule/schedule), `server`, `session-controller`, [`session-projection`](../packages/session/session-projection), [`session-projection-cache`](../packages/session/session-projection-cache), [`session-telemetry`](../packages/session/session-telemetry) |
 | `session/disposed` | `emit` | [`packages/core/session/src/index.ts:65`](../packages/core/session/src/index.ts) | [`session`](../packages/core/session) (`events.dispatch`) | [`agent-loop`](../packages/core/agent-loop), `agent-team`, `file-upload`, `session-controller`, [`session-persistence-jsonl`](../packages/session/session-persistence-jsonl), [`session-projection-cache`](../packages/session/session-projection-cache), [`session-telemetry`](../packages/session/session-telemetry), [`session-title`](../packages/session/session-title), [`workspace-changes`](../packages/deliverables/workspace-changes) |
 | `session/event` | `emit` | [`packages/core/session/src/index.ts:77`](../packages/core/session/src/index.ts) | [`session`](../packages/core/session) (`events.dispatch`) | [`acp`](../packages/acp/acp), [`agent-instructions`](../packages/context/agent-instructions), [`agent-loop`](../packages/core/agent-loop), [`agent-presets`](../packages/preset/agent-presets), `agent-team`, [`compaction-basic`](../packages/compaction/compaction-basic), [`file-reference-local`](../packages/context/file-reference-local), `file-upload`, [`goal`](../packages/goal/goal), [`goal-round-driver`](../packages/goal/goal-round-driver), [`headless`](../packages/bundle/headless), [`loader-smoke`](../packages/test-support/loader-smoke), `server`, `session-controller`, [`session-persistence-jsonl`](../packages/session/session-persistence-jsonl), [`session-projection`](../packages/session/session-projection), [`session-projection-cache`](../packages/session/session-projection-cache), [`session-telemetry`](../packages/session/session-telemetry), [`session-telemetry-otel`](../packages/session/session-telemetry-otel), [`session-title`](../packages/session/session-title), [`subagent`](../packages/subagent/subagent), [`token-meter`](../packages/llm/token-meter), [`usage-report`](../packages/session/usage-report), [`user-questions`](../packages/interaction/user-questions), [`workspace-changes`](../packages/deliverables/workspace-changes) |
 | `session/flush` | `parallel` | [`packages/core/session/src/index.ts:86`](../packages/core/session/src/index.ts) | [`session`](../packages/core/session) (`events.dispatch`) | [`session-persistence-jsonl`](../packages/session/session-persistence-jsonl), [`session-telemetry`](../packages/session/session-telemetry) |
-| `settings/document-updated` | `emit` | [`packages/settings/settings/src/types.ts:105`](../packages/settings/settings/src/types.ts) | [`settings`](../packages/settings/settings) (`events.dispatch`) | `remotes` |
-| `settings/updated` | `emit` | [`packages/settings/settings/src/types.ts:92`](../packages/settings/settings/src/types.ts) | [`settings`](../packages/settings/settings) (`events.dispatch`) | - |
+| `settings/document-updated` | `emit` | [`packages/settings/settings/src/types.ts:75`](../packages/settings/settings/src/types.ts) | [`settings`](../packages/settings/settings) (`emit`) | `remotes` |
 | `skills/change` | `emit` | [`packages/skill/skill/src/index.ts:296`](../packages/skill/skill/src/index.ts) | [`skill`](../packages/skill/skill) (`events.dispatch`) | - |
 | `subagent/end` | `emit` | [`packages/subagent/subagent/src/index.ts:168`](../packages/subagent/subagent/src/index.ts) | [`subagent`](../packages/subagent/subagent) (`events.dispatch`) | `hooks-claude-code`, `server` |
 | `subagent/provider-added` | `emit` | [`packages/subagent/subagent/src/index.ts:142`](../packages/subagent/subagent/src/index.ts) | [`subagent`](../packages/subagent/subagent) (`emit`) | [`tool-subagent`](../packages/subagent/tool-subagent) |
@@ -95,16 +95,15 @@
 <!-- BEGIN GENERATED event-producer-consumer:undeclared -->
 | Event string | Dispatchers | Listeners |
 | --- | --- | --- |
-| `connection/reset` | `gateway` (`emit`) | `ui-settings`, `ui-workspace` |
+| `connection/reset` | `gateway` (`emit`) | `ui-plugin-manager`, `ui-plugin-market`, `ui-settings`, `ui-sidebar-documentpreview`, `ui-workspace` |
+| `internal/config` | [`config-editor`](../packages/settings/config-editor) (`waterfall`) | [`llm-pi-ai`](../packages/llm/llm-pi-ai) |
 | `internal/dispatch` | - | [`terminal-bash`](../packages/terminal/terminal-bash) |
 | `internal/plugin` | - | `computer-use-cua-driver-native`, `loader`, [`lsp-stdio`](../packages/lsp/lsp-stdio), [`mcp-client`](../packages/mcp/mcp-client), `modules` |
 | `internal/service` | - | `gateway` |
 | `internal/status` | - | [`agent`](../packages/core/agent), `translator`, [`web`](../packages/web/web) |
 | `internal/update` | - | [`app-boot`](../packages/boot/app-boot) |
-| `loader/config-update` | - | [`plugin-manager`](../packages/boot/plugin-manager) |
-| `loader/entry-init` | - | [`plugin-manager`](../packages/boot/plugin-manager) |
-| `loader/volatile-update` | - | [`llm-deepseek`](../packages/llm/llm-deepseek), `speech-to-text` |
-| `locale/change` | `locale` (`emit`) | - |
+| `loader/volatile-update` | - | [`llm-deepseek`](../packages/llm/llm-deepseek), [`llm-pi-ai`](../packages/llm/llm-pi-ai), [`plugin-market`](../packages/boot/plugin-market), `speech-to-text` |
+| `locale/change` | `locale` (`emit`) | `ui-input-trigger` |
 | `slash/input-begin-command` | - | `ui-conversation` |
 | `slash/input-consume-token` | - | `ui-conversation` |
 | `slash/input-insert-reference` | - | `ui-conversation` |

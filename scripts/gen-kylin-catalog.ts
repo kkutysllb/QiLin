@@ -828,8 +828,11 @@ export const LINK_MAP: Readonly<Record<string, string>> = {
 export const FOUNDATION_TYPE_NAMES: ReadonlySet<string> = new Set([
   'Plugin',
   'AbortSignal',
+  'Array',
   'AsyncIterable',
   'Context',
+  'Entry',
+  'Fiber',
   'Error',
   'EntryTree',
   'EntryOptions',

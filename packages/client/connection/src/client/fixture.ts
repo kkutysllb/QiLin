@@ -1903,6 +1903,7 @@ function createFixtureWorld(options: FixtureOptions): FixtureWorld {
           hasDocument: true,
           namespaces: [{
             ns: 'llm-deepseek',
+            autoGenerate: true,
             schema: {},
             value: { apiKeyEnv: 'DEEPSEEK_API_KEY' },
             applies: 'live',

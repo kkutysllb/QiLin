@@ -12,7 +12,7 @@
  * @module qilin-permission-presets
  */
 
-import { Context } from '@qilin-agent/kylin'
+import { Context, type Volatile } from '@qilin-agent/kylin'
 import { CommandDefinitionId } from '@qilin-agent/commands/brand'
 import z from '@qilin-agent/schemastery'
 import { z as zod } from 'zod'
@@ -169,7 +169,7 @@ export interface Config {
    * Default for new sessions. When omitted, the preset matching the composed
    * sandbox and approval defaults is used.
    */
-  defaultPreset?: string
+  defaultPreset: Volatile<string | undefined>
 }
 
 /**
@@ -180,7 +180,7 @@ export interface Config {
  */
 export class PermissionPresetService extends TypertRemoteService {
   // Inline schema call: the config catalog walks `static Config` statically.
-  static Config: z<Config> = z.object({
+  static Config = z.object({
     presets: z.dict(z.object({
       sandbox: z.union(SANDBOX_MODES as SandboxMode[]).required(),
       approval: z.union(APPROVAL_POLICIES as ApprovalPolicy[]).required(),
@@ -196,7 +196,7 @@ export class PermissionPresetService extends TypertRemoteService {
         name: 'danger-full-access', description: 'Full file access without approval prompts.',
       },
     }),
-    defaultPreset: z.string(),
+    defaultPreset: z.string().volatile(),
   })
 
   static inject = ['shell', 'approval', 'sessions', 'sessionProjections']
@@ -219,31 +219,17 @@ export class PermissionPresetService extends TypertRemoteService {
       throw new Error('permission: the mounted bash executor does not confine (no sandboxMode) — presets bundle a sandbox mode, so composing this plugin over an unconfined executor is a misconfiguration')
     }
     const inferredDefault = this.derive(EMPTY_KNOBS)
-    const defaultPreset = config.defaultPreset ?? inferredDefault
+    const defaultPreset = config.defaultPreset.get() ?? inferredDefault
     if (defaultPreset === CUSTOM_PRESET) {
       throw new Error('permission: composed sandbox and approval defaults match no preset; configure defaultPreset explicitly')
     }
     this.resolve(defaultPreset)
-    const baseSettings: PermissionSettings = { defaultPreset }
-    this.defaultSettings = () => baseSettings
-    const presetChoices = Object.keys(this.presets).map((name) => {
-      const choice = z.const(name)
-      const label = this.presets[name]?.name
-      return label === undefined ? choice : choice.description(label)
-    })
-    const settingsSchema: z<PermissionSettings> = z.object({
-      defaultPreset: z.union(presetChoices).required(),
-    })
-    ctx.inject(['settings'], (settingsCtx) => {
-      settingsCtx.settings.installSection(ctx, PERMISSION_SETTINGS_NAMESPACE, settingsSchema, baseSettings, {
-        setSource: (current) => {
-          this.defaultSettings = current
-        },
-        // The source thunk reads the latest scope snapshot at session creation;
-        // no process-level registration needs replacement on change.
-        onChange: () => {},
-      })
-    })
+    this.defaultSettings = () => {
+      const defaultPreset = config.defaultPreset.get() ?? inferredDefault
+      if (!Object.hasOwn(this.presets, defaultPreset)) throw new Error(`permission: unknown default preset "${defaultPreset}"`)
+      return { defaultPreset }
+    }
+    ctx.inject(['settings'], (child) => { child.effect(() => child.settings.configure({ auto: false }, ctx.fiber)) })
 
     const selectionSchema = zod.object({
       currentValue: zod.string().min(1),

@@ -1,15 +1,13 @@
 /**
- * Structural projection of settings values for the wire boundary. Runtime
- * references are replaced by the ordinary values they hold, so a resolved
- * configuration is readable as data; `role('secret')` fields are then removed,
- * with a sidecar recording each schema-declared secret position and whether it
- * currently holds a value, so a configuration surface can render a write-only
- * input without ever receiving the secret itself.
+ * Structural secret redaction for settings values. `role('secret')` fields are
+ * removed from a value before it crosses a wire boundary; a sidecar records
+ * each schema-declared secret position and whether it currently holds a value,
+ * so a configuration surface can render a write-only input without ever
+ * receiving the secret itself.
  * @module @qilin-agent/settings/redact
  */
 
 import type z from '@qilin-agent/schemastery'
-import { isVolatile } from '@qilin-agent/cosmokit'
 
 /**
  * Minimal structural view of a live schemastery node. Only the relations the
@@ -22,6 +20,7 @@ interface SchemaNode {
   dict?: Record<string, SchemaNode>
   /** `dict`/`array` element schema. */
   inner?: SchemaNode
+  list?: SchemaNode[]
 }
 
 /** One schema-declared secret position inside a redacted value. */
@@ -85,40 +84,20 @@ function walk(node: SchemaNode | undefined, value: unknown, path: string[], secr
       if (!Array.isArray(value)) return value
       return value.map((entry, index) => walk(node.inner, entry, [...path, String(index)], secrets))
     }
+    case 'union':
+    case 'intersect':
+      return (node.list ?? []).reduce((current, child) => walk(child, current, path, secrets), value)
+    case 'transform':
+      return walk(node.inner, value, path, secrets)
     default:
-      // TODO(settings-wire-redaction): Fail closed instead — a secret reachable
-      // only through a union, intersection, or transform is returned verbatim
-      // here, with nothing recording that it was missed.
       return value
   }
 }
 
 /**
- * Replace every runtime reference inside a resolved configuration with the
- * ordinary value it holds, so the result is detached data a wire can carry.
- * Schemas marked `volatile()` resolve their fields to references rather than
- * values; an unprojected reference serializes as an empty object, which is why
- * every descriptor layer passes through here before it leaves the Host. The
- * input is never mutated.
- * @param value - parsed configuration value (resolved value, composition base,
- *   or user section).
- * @returns the same value with every reference unwrapped and every container copied.
- */
-export function plainConfig(value: unknown): unknown {
-  if (isVolatile(value)) return plainConfig(value.get())
-  if (Array.isArray(value)) return value.map(plainConfig)
-  if (value !== null && typeof value === 'object') {
-    return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, plainConfig(child)]))
-  }
-  return value
-}
-
-/**
  * Remove every `role('secret')` field a schema declares from a value. The
- * walker follows `object`, `dict`, and `array` containers; a secret must be
- * declared directly on a field reachable through those containers (a secret
- * buried inside a union branch or transform is not reachable and must not be
- * modeled that way). The input is never mutated.
+ * walker visits every union branch, conservatively removing any field declared
+ * secret by a branch. The input is never mutated.
  * @param schema - live schemastery schema describing the value.
  * @param value - the value to strip; `undefined` yields an empty record with
  *   object-property secret slots still enumerated.
@@ -127,5 +106,11 @@ export function plainConfig(value: unknown): unknown {
 export function redactSecrets(schema: z<never>, value: unknown): RedactedValue {
   const secrets: RedactedSecret[] = []
   const stripped = walk(schema, value, [], secrets)
-  return { value: stripped, secrets }
+  const positions = new Map<string, RedactedSecret>()
+  for (const secret of secrets) {
+    const key = JSON.stringify(secret.path)
+    const previous = positions.get(key)
+    positions.set(key, { ...secret, set: secret.set || previous?.set === true })
+  }
+  return { value: stripped, secrets: [...positions.values()] }
 }

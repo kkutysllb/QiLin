@@ -3,71 +3,35 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/settings/settings/README.md
 /:
-  en: aeac4ca34caf87ae
-  zh: ddf72f847dfb85d0
+  en: 51da5e07db469e4d
+  zh: fbacb8b1ea8d70ca
 /qilin-agent-settings:
   en: fc661679087b7cd0
   zh: 3c032dec40511034
 /qilin-agent-settings/summary:
-  en: 473ed9bed3894114
-  zh: 82e67a763a00bdea
+  en: a5e84db91656bc73
+  zh: 3fabc5eb76ae228f
 /qilin-agent-settings/table-of-contents:
-  en: d152484eb41ac6b4
-  zh: 09388d293f9be9cb
+  en: 23386452a66b2fbd
+  zh: 70bba862b949b652
 /qilin-agent-settings/use-this-package:
-  en: 80c6c32d31829da3
-  zh: e955767b15d45f3c
-/qilin-agent-settings/use-this-package/when-to-choose-it:
-  en: 3a8409419dd306eb
-  zh: b56e782b45dfa9c2
-/qilin-agent-settings/use-this-package/mounting-a-provider:
-  en: 61448e37727d89f9
-  zh: 3b182013bea0f773
-/qilin-agent-settings/use-this-package/registering-a-namespace:
-  en: dc4ccccf5c9c7669
-  zh: 70ffed7dfc05d9cc
-/qilin-agent-settings/use-this-package/reading-and-observing-values:
-  en: dc3bf5534bd298fe
-  zh: 145c4d484789d3cd
-/qilin-agent-settings/use-this-package/writing-values:
-  en: ba8b4b2b5c3f7856
-  zh: 19e33c136d15daa7
-/qilin-agent-settings/use-this-package/configuration-surfaces:
-  en: c4483a8a5704233f
-  zh: 1acc450f46828294
-/qilin-agent-settings/use-this-package/events-and-failures:
-  en: cfe0631ffe33c8e2
-  zh: 764515dca44920e2
+  en: 7d7489b71ffce9e6
+  zh: b1584ed2b82d4611
 /qilin-agent-settings/understand-the-implementation:
-  en: 6a18034f1ccc247a
-  zh: e08b0eb0ccb41ea8
-/qilin-agent-settings/understand-the-implementation/design-philosophy:
-  en: 2db3f3f25206b511
-  zh: 45e85df33e231901
-/qilin-agent-settings/understand-the-implementation/source-map:
-  en: 13bd32cc7272771e
-  zh: 5091a40d4ab857e3
-/qilin-agent-settings/understand-the-implementation/resolution-and-write-paths:
-  en: 2f1c0ad893ead85c
-  zh: add384925a641ae0
-/qilin-agent-settings/understand-the-implementation/change-detection-and-events:
-  en: 1947c9be1c3e44ca
-  zh: 2eea5704a5ef9d8d
-/qilin-agent-settings/understand-the-implementation/client-safe-types:
-  en: 7130eed21c22f188
-  zh: a664bccaa2438a51
+  en: d8eae17e891ff44e
+  zh: 05189989b2786002
 /qilin-agent-settings/further-exploration:
-  en: 9e256a77efc22d09
-  zh: 267534bc7349edea
+  en: 10d4da3c5f12c71f
+  zh: dece66200ec03269
 /qilin-agent-settings/model-experience:
-  en: bfe74a4235da7968
-  zh: 1ef78930d003a3e9
+  en: 358d1a5b1d9f2fde
+  zh: a40c6e95f39032e8
 /qilin-agent-settings/model-experience/kv-cache-effect:
-  en: d8fa18fc74ed1024
-  zh: eac0f0623400a4db
+  en: f49cb624cd503dd1
+  zh: 9944f21ab3458e4b
 /qilin-agent-settings/known-limitations-and-deferred-work:
-  en: 183932f4f078b23e
-  zh: a7f89b9ead831cfe
+  en: 4ae53522f8a7d66d
+  zh: ee55c14ebd4575db
 /qilin-agent-settings/known-limitations-and-deferred-work/dev-note:
-  en: 68ca3cfcb228078f
-  zh: d7343faaf32672bf
+  en: e67f633dc6fe7773
+  zh: e88aeb617ffb74ea

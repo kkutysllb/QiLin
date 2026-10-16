@@ -58,17 +58,6 @@ function causeChainOf(error: unknown, depth = 0): string {
 /** Largest page `search` returns. */
 const MAX_LIMIT = 100
 
-/**
- * The settings section this market row owns, holding the index URLs `setIndexes` persisted. Every use validates the
- * URLs itself, so a section written by hand carries any http(s) string.
- */
-const MarketIndexesSchema: z<{ indexes: string[] }> = z.object({
-  indexes: z.array(z.string()).default([]),
-})
-
-/** Settings namespaces are lowercase hyphenated identifiers; only such a Loader entry id can carry one. */
-const SETTINGS_NAMESPACE = /^[a-z][a-z0-9-]*$/
-
 /** One fetched index document with its search state. */
 interface IndexDocument {
   readonly index: MarketIndex
@@ -98,32 +87,22 @@ export default class PluginMarket extends TypertRemoteService {
   private readonly pending = new Map<string, Promise<IndexDocument>>()
   private readonly errors = new Map<string, string>()
   private readonly entryId: string | undefined
-  /** The composition entry, or the settings section installed over it. */
-  private source: () => { readonly indexes: readonly string[] }
-  /** Namespace `setIndexes` writes, present only while a settings section is installed. */
-  private settingsNamespace: string | undefined
   /** The source list announced last, joined for comparison. */
   private announced: string | undefined
 
   constructor(ctx: Context, private readonly config: Config) {
     super(ctx, 'pluginMarket')
     this.entryId = ctx.fiber.entry?.options.id
-    this.source = () => ({ indexes: this.config.indexes.get() })
-    ctx.inject(['settings'], (settingsCtx) => {
-      // A settings document keys this row's section by its Loader entry id.
-      const ns = this.entryId
-      if (ns === undefined || !SETTINGS_NAMESPACE.test(ns)) return
-      settingsCtx.settings.installSection(settingsCtx, ns, MarketIndexesSchema, { indexes: [...this.config.indexes.get()] }, {
-        setSource: (current) => { this.source = current },
-        onChange: () => { this.changed() },
-      })
-      this.settingsNamespace = ns
-    })
     ctx.on('loader/volatile-update', () => { this.changed() })
     ctx.effect(() => async () => {
       this.lifetime.abort(new Error('Plugin market disposed'))
       await Promise.allSettled(this.pending.values())
     })
+  }
+
+  /** The live index list: the volatile composition field, read at every use. */
+  private get source(): { readonly indexes: readonly string[] } {
+    return { indexes: this.config.indexes.get() }
   }
 
   /**
@@ -172,7 +151,7 @@ export default class PluginMarket extends TypertRemoteService {
    */
   @Remote
   async setIndexes(urls: string[]): Promise<void> {
-    const configured = new Set(this.source().indexes)
+    const configured = new Set(this.source.indexes)
     const normalized = urls.map(url => configured.has(url) ? url : normalizeIndexUrl(url))
     // A kept URL compares by its canonical form when it has one, so a new spelling of it counts as a repeat.
     const keys = normalized.map(url => URL.canParse(url) ? new URL(url).href : url)
@@ -181,10 +160,10 @@ export default class PluginMarket extends TypertRemoteService {
       throw new RemoteError('plugin-market/invalid-index-url', `Index source listed twice: ${repeated}`, { url: repeated, reason: 'duplicate' })
     }
     const settings = this.ctx.get('settings')
-    if (settings === undefined || this.settingsNamespace === undefined) {
+    if (settings === undefined || this.entryId === undefined) {
       throw new RemoteError('plugin-market/settings-unavailable', 'Index sources require the settings service and a profile entry', {})
     }
-    await settings.update(this.settingsNamespace, { indexes: normalized })
+    await settings.update(this.entryId, { indexes: normalized })
   }
 
   /**
@@ -263,7 +242,7 @@ export default class PluginMarket extends TypertRemoteService {
    */
   private sources(): { readonly url: string; readonly error?: string }[] {
     const seen = new Set<string>()
-    return this.source().indexes.flatMap((url) => {
+    return this.source.indexes.flatMap((url) => {
       if (seen.has(url)) return []
       seen.add(url)
       try {

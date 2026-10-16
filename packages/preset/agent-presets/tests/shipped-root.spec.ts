@@ -19,7 +19,16 @@ import Include, { entryListSchema } from '@qilin-agent/kylin-plugin-include'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import * as yaml from 'js-yaml'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import AgentPresets, { SHIPPED_PRESET_ROOT, type Config } from '@qilin-agent/agent-presets'
+import AgentPresets, { SHIPPED_PRESET_ROOT, type PresetRoot } from '@qilin-agent/agent-presets'
+
+/** The plugin-config input face the roster accepts from a composition row. */
+type RosterInput = {
+  default?: string
+  modeSelectionEnabled?: boolean
+  roots?: PresetRoot[]
+  includeShippedRoot?: boolean
+  includeUserRoot?: boolean
+}
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), 'fixtures')
 const SYSTEM_ROOT = join(FIXTURES, 'system')
@@ -40,7 +49,7 @@ afterEach(async () => {
 })
 
 /** Boot a roster with the shipped root left to the plugin's default. */
-async function roster(config: Partial<Config> = {}): Promise<Context> {
+async function roster(config: RosterInput = {}): Promise<Context> {
   const ctx = new Context()
   ctx.baseUrl = pathToFileURL(FIXTURES).href + '/'
   await ctx.plugin(Loader)

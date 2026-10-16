@@ -1,0 +1,37 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/settings/config-editor/README.md
+/:
+  en: 68783acbf26e5790
+  zh: 8e04cbad03340c77
+/qilin-agent-config-editor:
+  en: fa25bea01f305af5
+  zh: 47aab61b77bc36e9
+/qilin-agent-config-editor/summary:
+  en: f8831f5fad9041d8
+  zh: 9744b776ffae1e7a
+/qilin-agent-config-editor/table-of-contents:
+  en: 23386452a66b2fbd
+  zh: 70bba862b949b652
+/qilin-agent-config-editor/use-this-package:
+  en: aada6eea9121be56
+  zh: 4fa9b5a546423e27
+/qilin-agent-config-editor/understand-the-implementation:
+  en: baa887b5ecfa7001
+  zh: d3e03c2b1d10c67e
+/qilin-agent-config-editor/further-exploration:
+  en: 2f7fd91b3d860a95
+  zh: 90da4d19a591a008
+/qilin-agent-config-editor/model-experience:
+  en: 358d1a5b1d9f2fde
+  zh: a40c6e95f39032e8
+/qilin-agent-config-editor/model-experience/kv-cache-effect:
+  en: f49cb624cd503dd1
+  zh: 9944f21ab3458e4b
+/qilin-agent-config-editor/known-limitations-and-deferred-work:
+  en: 8314910af268bda0
+  zh: 2c7f0c16ee09b0f7
+/qilin-agent-config-editor/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: e88aeb617ffb74ea

@@ -93,6 +93,9 @@ export const JsonlCompressionSchema: z<JsonlCompression> = z.union([
 export type JsonlVerification = 'isolated' | 'inline'
 
 /** Loader schema for where full-generation verification runs. */
+/** The plugin-protocol name third-party dsh tooling references. */
+export const name = 'session-persistence-jsonl'
+
 export const JsonlVerificationSchema: z<JsonlVerification> = z.union([
   z.const('isolated'),
   z.const('inline'),

@@ -98,15 +98,18 @@ export interface AcpConfig {
 
 ## `@qilin-agent/agent-default-model`
 
-- `source`: [`packages/core/agent-default-model/src/index.ts:41`](../packages/core/agent-default-model/src/index.ts)
+- `refs`: `Volatile` (`@qilin-agent/kylin`)
+- `source`: [`packages/core/agent-default-model/src/index.ts:24`](../packages/core/agent-default-model/src/index.ts)
 
 ```ts config-catalog
-/** Composition entry for the default model selection. */
+/** Default model selection supplied by plugin configuration. */
 export interface Config {
   /** Registered provider route. */
-  provider: string
+  provider: Volatile<string>
   /** Provider-owned model id. */
-  model: string
+  model: Volatile<string>
+  /** Adapter-owned reasoning effort; omission follows the provider default. */
+  reasoningEffort: Volatile<string | undefined>
 }
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/agent-default-model -->
@@ -153,7 +156,7 @@ export interface Config {
 
 - `inject`: `agents` · `sessions` · `llm` · `tools` · `systemPrompt` · `sessionProjections`
 - `refs`: [`AgentOptions`](subsystems/core.zh.md) · [`SessionId`](subsystems/core.zh.md) · `Volatile` (`@qilin-agent/cosmokit`)
-- `source`: [`packages/core/agent-loop/src/index.ts:322`](../packages/core/agent-loop/src/index.ts)
+- `source`: [`packages/core/agent-loop/src/index.ts:304`](../packages/core/agent-loop/src/index.ts)
 
 ```ts config-catalog
 /** Agent-loop plugin configuration. */
@@ -184,13 +187,16 @@ export interface Config {
 ## `@qilin-agent/agent-presets`
 
 - `inject`: `loader` · `sessionProjections`
-- `source`: [`packages/preset/agent-presets/src/preset.ts:52`](../packages/preset/agent-presets/src/preset.ts)
+- `refs`: `Volatile` (`@qilin-agent/kylin`)
+- `source`: [`packages/preset/agent-presets/src/preset.ts:54`](../packages/preset/agent-presets/src/preset.ts)
 
 ```ts config-catalog
 /** Plugin config: which preset is the default, and where presets live. */
 export interface Config {
   /** Preset id mounted when a caller names none. Missing at mount time fails loud. */
-  default: string
+  default: Volatile<string>
+  /** Whether the picker and the saved user default govern unnamed new sessions. */
+  modeSelectionEnabled: Volatile<boolean>
   /** Scanned roots in precedence order; an earlier root wins a duplicate id. */
   roots: PresetRoot[]
   /**
@@ -486,23 +492,24 @@ export interface Config {
 ## `@qilin-agent/bash-local`
 
 - `inject`: `subprocess`
+- `refs`: `Volatile` (`@qilin-agent/kylin`)
 - `source`: [`packages/shell/bash-local/src/index.ts:41`](../packages/shell/bash-local/src/index.ts)
 
 ```ts config-catalog
-/** Plugin config (all optional — `static Config` supplies the defaults). */
+/** Plugin config, live without remounting. */
 export interface Config {
   /** Default working directory for commands (default: process.cwd()). */
-  cwd?: string
+  cwd: Volatile<string | undefined>
   /** Default foreground timeout in milliseconds. */
-  timeoutMs?: number
+  timeoutMs: Volatile<number>
   /** Upper bound for per-call timeout overrides. */
-  maxTimeoutMs?: number
+  maxTimeoutMs: Volatile<number>
   /** Per-stream in-memory output cap; overflow spills to a temp file. */
-  maxOutputBytes?: number
+  maxOutputBytes: Volatile<number>
   /** Per-stream spill-file cap; larger streams retain only their in-memory tail. */
-  maxSpillBytes?: number
+  maxSpillBytes: Volatile<number>
   /** Grace period for kill escalation and inherited pipes; at most `MAX_TIMER_DELAY_MS`. */
-  graceMs?: number
+  graceMs: Volatile<number>
 }
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/bash-local -->
@@ -661,6 +668,38 @@ export interface Config {
 }
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/client-ui-sidebar-documentpreview -->
+
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/client-ui-theme -->
+<a id="qilin-agentclient-ui-theme"></a>
+
+## `@qilin-agent/client-ui-theme`
+
+- `refs`: `Volatile` (`@qilin-agent/kylin`)
+- `source`: [`packages/client/ui-theme/src/index.ts:34`](../packages/client/ui-theme/src/index.ts)
+
+```ts config-catalog
+/** Runtime preferences projected to the browser. */
+export interface Config {
+  /** Browser palette preference. */
+  preference: Volatile<ThemePreference>
+  /** Browser font size in pixels. */
+  fontSize: Volatile<number>
+  /** Code-block font size in pixels. */
+  codeFontSize: Volatile<number>
+  /** Sidebar terminal font size in pixels. */
+  terminalFontSize: Volatile<number>
+  /** Interface and body text font list; `''` keeps the built-in stack. */
+  textFontFamily: Volatile<string>
+  /** Code font list; `''` keeps the built-in stack. */
+  codeFontFamily: Volatile<string>
+  /** Sidebar terminal font list; `''` keeps the built-in stack. */
+  terminalFontFamily: Volatile<string>
+}
+
+/** Theme preference persisted by the product Appearance row. */
+export type ThemePreference = typeof THEME_PREFERENCES[number]
+```
+<!-- END GENERATED config-catalog:@qilin-agent/client-ui-theme -->
 
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/compaction-basic -->
 <a id="qilin-agentcompaction-basic"></a>
@@ -1688,8 +1727,8 @@ export interface Config extends ProtocolConfig {
 ## `@qilin-agent/llm-pi-ai`
 
 - `inject`: `llm`
-- `refs`: `Api` (`@earendil-works/pi-ai`) · `CacheRetention` (`@earendil-works/pi-ai`) · `Model` (`@earendil-works/pi-ai`) · `ModelThinkingLevel` (`@earendil-works/pi-ai`) · `OpenAICompletionsCompat` (`@earendil-works/pi-ai`) · [`RetryPolicyConfig`](../packages/llm/llm/src/index.ts) · `ThinkingBudgets` (`@earendil-works/pi-ai`) · `Transport` (`@earendil-works/pi-ai`)
-- `source`: [`packages/llm/llm-pi-ai/src/config.ts:221`](../packages/llm/llm-pi-ai/src/config.ts)
+- `refs`: `Api` (`@earendil-works/pi-ai`) · `CacheRetention` (`@earendil-works/pi-ai`) · `Model` (`@earendil-works/pi-ai`) · `ModelThinkingLevel` (`@earendil-works/pi-ai`) · `OpenAICompletionsCompat` (`@earendil-works/pi-ai`) · [`RetryPolicyConfig`](../packages/llm/llm/src/index.ts) · `ThinkingBudgets` (`@earendil-works/pi-ai`) · `Transport` (`@earendil-works/pi-ai`) · `Volatile` (`@qilin-agent/kylin`)
+- `source`: [`packages/llm/llm-pi-ai/src/config.ts:222`](../packages/llm/llm-pi-ai/src/config.ts)
 
 ```ts config-catalog
 /** Plugin configuration: the provider routes this instance owns. */
@@ -1699,7 +1738,7 @@ export interface Config {
    * the dormant settings-driven posture: the adapter mounts with no routes
    * and registers them the moment a settings section supplies profiles.
    */
-  providers?: Record<string, PiAiProviderProfile>
+  providers: Volatile<Record<string, PiAiProviderProfile>>
 }
 
 /** Configuration for one pi-ai provider route; the `providers` dict key IS the route. */
@@ -2248,7 +2287,7 @@ export interface Config {
 ## `@qilin-agent/permission-presets`
 
 - `inject`: `shell` · `approval` · `sessions` · `sessionProjections`
-- `refs`: [`ApprovalPolicy`](subsystems/approval.zh.md) · [`SandboxMode`](subsystems/sandbox.zh.md)
+- `refs`: [`ApprovalPolicy`](subsystems/approval.zh.md) · [`SandboxMode`](subsystems/sandbox.zh.md) · `Volatile` (`@qilin-agent/kylin`)
 - `source`: [`packages/interaction/permission-presets/src/index.ts:160`](../packages/interaction/permission-presets/src/index.ts)
 
 ```ts config-catalog
@@ -2265,7 +2304,7 @@ export interface Config {
    * Default for new sessions. When omitted, the preset matching the composed
    * sandbox and approval defaults is used.
    */
-  defaultPreset?: string
+  defaultPreset: Volatile<string | undefined>
 }
 
 /** One preset's sandbox/approval bundle and optional client presentation. */
@@ -2457,30 +2496,31 @@ export type LaunchConfig = {
 ## `@qilin-agent/pwsh-local`
 
 - `inject`: `subprocess`
+- `refs`: `Volatile` (`@qilin-agent/kylin`)
 - `source`: [`packages/shell/pwsh-local/src/index.ts:58`](../packages/shell/pwsh-local/src/index.ts)
 
 ```ts config-catalog
-/** Plugin config (all optional — `static Config` supplies the defaults). */
+/** Plugin config, live without remounting. */
 export interface Config {
   /** Default working directory for commands (default: process.cwd()). */
-  cwd?: string
+  cwd: Volatile<string | undefined>
   /** Default foreground timeout in milliseconds. */
-  timeoutMs?: number
+  timeoutMs: Volatile<number>
   /** Upper bound for per-call timeout overrides. */
-  maxTimeoutMs?: number
+  maxTimeoutMs: Volatile<number>
   /** Per-stream in-memory output cap; overflow spills to a temp file. */
-  maxOutputBytes?: number
+  maxOutputBytes: Volatile<number>
   /** Per-stream spill-file cap; larger streams retain only their in-memory tail. */
-  maxSpillBytes?: number
+  maxSpillBytes: Volatile<number>
   /** Grace period for kill escalation and inherited pipes; at most `MAX_TIMER_DELAY_MS`. */
-  graceMs?: number
+  graceMs: Volatile<number>
   /**
    * Explicit pwsh executable. When omitted, well-known Windows install
    * locations and PATH entries are probed in order (PowerShell 7 install,
    * PATH entries such as the Microsoft Store install, then Windows
    * PowerShell 5.1), falling back to a bare `pwsh` resolved through PATH.
    */
-  pwshPath?: string
+  pwshPath: Volatile<string | undefined>
 }
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/pwsh-local -->
@@ -2721,7 +2761,7 @@ export type SessionLogCompressionLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 
 ## `@qilin-agent/session-persistence-jsonl`
 
-- `source`: [`packages/session/session-persistence-jsonl/src/index.ts:102`](../packages/session/session-persistence-jsonl/src/index.ts)
+- `source`: [`packages/session/session-persistence-jsonl/src/index.ts:105`](../packages/session/session-persistence-jsonl/src/index.ts)
 
 ```ts config-catalog
 /** Plugin config for the JSONL backend's root, physical encoding, and full-generation verification placement. */
@@ -2940,28 +2980,6 @@ export interface Config extends SessionTitleLlmConfig {
 }
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/session-title-first-prompt-llm -->
-
-<!-- BEGIN GENERATED config-catalog:@qilin-agent/settings-file -->
-<a id="qilin-agentsettings-file"></a>
-
-## `@qilin-agent/settings-file`
-
-- `source`: [`packages/settings/settings-file/src/index.ts:22`](../packages/settings/settings-file/src/index.ts)
-
-```ts config-catalog
-/** Plugin config: file location and hot-reload behavior. */
-export interface Config {
-  /** Settings document path; defaults to `settings.yaml` under the harness home. */
-  path?: string
-  /** Harness home used when `path` is omitted; defaults to `$QILIN_HOME` or `~/.qilin`. */
-  qilinHome?: string
-  /** Watch the document and hot-publish external edits; defaults to true. */
-  watch?: boolean
-  /** Watcher write-settle window in milliseconds; defaults to 100. */
-  debounceMs?: number
-}
-```
-<!-- END GENERATED config-catalog:@qilin-agent/settings-file -->
 
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/shell-env -->
 <a id="qilin-agentshell-env"></a>
@@ -4170,25 +4188,26 @@ export interface Config {
 ## `@qilin-agent/web-search-deepseek`
 
 - `inject`: `web`
-- `source`: [`packages/web/web-search-deepseek/src/index.ts:46`](../packages/web/web-search-deepseek/src/index.ts)
+- `refs`: `Volatile` (`@qilin-agent/kylin`)
+- `source`: [`packages/web/web-search-deepseek/src/index.ts:47`](../packages/web/web-search-deepseek/src/index.ts)
 
 ```ts config-catalog
-/** Plugin config (all optional — `apply` fills env-var and constant defaults). */
+/** Plugin config, live without remounting. */
 export interface Config {
   /** Literal DeepSeek API key; prefer {@link apiKeyEnv} so no secret enters configuration files. */
-  apiKey?: string
+  apiKey: Volatile<string | undefined>
   /** Credential reference resolved for each search; defaults to `DEEPSEEK_API_KEY`. */
-  apiKeyEnv?: string
+  apiKeyEnv: Volatile<string>
   /** Anthropic-compatible endpoint base; `/messages` is appended. */
-  baseURL?: string
+  baseURL: Volatile<string | undefined>
   /** Anthropic-format model name. Defaults to `deepseek-v4-flash`. */
-  model?: string
+  model: Volatile<string>
   /** `anthropic-version` header value. Defaults to `2023-06-01`. */
-  apiVersion?: string
+  apiVersion: Volatile<string>
   /** Upper bound on generated tokens for the Messages request. Defaults to 4096. */
-  maxTokens?: number
+  maxTokens: Volatile<number>
   /** Maximum `web_search` server-tool uses per request. Defaults to 5. */
-  maxUses?: number
+  maxUses: Volatile<number>
 }
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/web-search-deepseek -->
@@ -4378,7 +4397,6 @@ export interface Config {
 | `@qilin-agent/client-ui-sidechat` | — | [`packages/client/ui-sidechat/src/index.ts`](../packages/client/ui-sidechat/src/index.ts) |
 | `@qilin-agent/client-ui-skill` | — | [`packages/client/ui-skill/src/index.ts`](../packages/client/ui-skill/src/index.ts) |
 | `@qilin-agent/client-ui-subagent` | — | [`packages/client/ui-subagent/src/index.ts`](../packages/client/ui-subagent/src/index.ts) |
-| `@qilin-agent/client-ui-theme` | — | [`packages/client/ui-theme/src/index.ts`](../packages/client/ui-theme/src/index.ts) |
 | `@qilin-agent/client-ui-theme-brand` | — | [`packages/client/ui-theme-brand/src/index.ts`](../packages/client/ui-theme-brand/src/index.ts) |
 | `@qilin-agent/client-ui-tool` | — | [`packages/client/ui-tool/src/index.ts`](../packages/client/ui-tool/src/index.ts) |
 | `@qilin-agent/client-ui-trajectory` | — | [`packages/client/ui-trajectory/src/index.ts`](../packages/client/ui-trajectory/src/index.ts) |
@@ -4392,6 +4410,7 @@ export interface Config {
 | `@qilin-agent/commands` | — | [`packages/interaction/commands/src/index.ts`](../packages/interaction/commands/src/index.ts) |
 | `@qilin-agent/compaction-image-offload` | `agents` · `sessions` | [`packages/compaction/compaction-image-offload/src/index.ts`](../packages/compaction/compaction-image-offload/src/index.ts) |
 | `@qilin-agent/computer-use` | — | [`packages/computer-use/computer-use/src/index.ts`](../packages/computer-use/computer-use/src/index.ts) |
+| `@qilin-agent/config-editor` | `loader` · `profileContext` | [`packages/settings/config-editor/src/index.ts`](../packages/settings/config-editor/src/index.ts) |
 | `@qilin-agent/deepseek-llm-api-extensions` | — | [`packages/llm/deepseek-llm-api-extensions/src/index.ts`](../packages/llm/deepseek-llm-api-extensions/src/index.ts) |
 | `@qilin-agent/experimental-auto-review` | `approval` · `llm` · `permissionPresets` · `sessions` · `tools` · `workingDirectory` | [`packages/experimental/auto-review/src/index.ts`](../packages/experimental/auto-review/src/index.ts) |
 | `@qilin-agent/experimental-client-ui-agent-team` | — | [`packages/experimental/client-ui-agent-team/src/index.ts`](../packages/experimental/client-ui-agent-team/src/index.ts) |
@@ -4418,6 +4437,7 @@ export interface Config {
 | `@qilin-agent/session-projection` | — | [`packages/session/session-projection/src/index.ts`](../packages/session/session-projection/src/index.ts) |
 | `@qilin-agent/session-stats` | `sessionProjections` | [`packages/session/session-stats/src/index.ts`](../packages/session/session-stats/src/index.ts) |
 | `@qilin-agent/session-turn-outline` | `sessionProjections` | [`packages/session/session-turn-outline/src/index.ts`](../packages/session/session-turn-outline/src/index.ts) |
+| `@qilin-agent/settings` | `configEditor` · `profileContext` | [`packages/settings/settings/src/index.ts`](../packages/settings/settings/src/index.ts) |
 | `@qilin-agent/storage` | — | [`packages/storage/storage/src/index.ts`](../packages/storage/storage/src/index.ts) |
 | `@qilin-agent/subprocess-local` | — | [`packages/subprocess/subprocess-local/src/index.ts`](../packages/subprocess/subprocess-local/src/index.ts) |
 | `@qilin-agent/subprocess-ssh` | `ssh` | [`packages/ssh/subprocess-ssh/src/index.ts`](../packages/ssh/subprocess-ssh/src/index.ts) |
@@ -4451,7 +4471,6 @@ export interface Config {
 | `@qilin-agent/sandbox` | `SandboxProvider` | — | [`packages/sandbox/sandbox/src/index.ts`](../packages/sandbox/sandbox/src/index.ts) |
 | `@qilin-agent/session-persistence` | `SessionPersistence` | — | [`packages/session/session-persistence/src/index.ts`](../packages/session/session-persistence/src/index.ts) |
 | `@qilin-agent/session-query` | `SessionQueryEngine` | — | [`packages/session-query/session-query/src/index.ts`](../packages/session-query/session-query/src/index.ts) |
-| `@qilin-agent/settings` | `SettingsProvider` | — | [`packages/settings/settings/src/index.ts`](../packages/settings/settings/src/index.ts) |
 | `@qilin-agent/shell` | `ShellExecutor` | — | [`packages/shell/shell/src/index.ts`](../packages/shell/shell/src/index.ts) |
 | `@qilin-agent/spill` | `SpillStore` | — | [`packages/spill/spill/src/index.ts`](../packages/spill/spill/src/index.ts) |
 | `@qilin-agent/subprocess` | `SubprocessRuntime` | — | [`packages/subprocess/subprocess/src/index.ts`](../packages/subprocess/subprocess/src/index.ts) |
@@ -4488,6 +4507,7 @@ export interface Config {
 | `@qilin-agent/experimental-browser-use-runtime` | — | [`packages/experimental/browser-use-runtime/src/index.ts`](../packages/experimental/browser-use-runtime/src/index.ts) |
 | `@qilin-agent/experimental-cot-translation-bundle` | — | [`packages/experimental/cot-translation-bundle/src/index.ts`](../packages/experimental/cot-translation-bundle/src/index.ts) |
 | `@qilin-agent/experimental-hook-protocol` | — | [`packages/experimental/hook-protocol/src/index.ts`](../packages/experimental/hook-protocol/src/index.ts) |
+| `@qilin-agent/experimental-plugin-market-bundle` | — | [`packages/experimental/plugin-market-bundle/src/index.ts`](../packages/experimental/plugin-market-bundle/src/index.ts) |
 | `@qilin-agent/experimental-ralph-bundle` | — | [`packages/experimental/ralph-bundle/src/index.ts`](../packages/experimental/ralph-bundle/src/index.ts) |
 | `@qilin-agent/experimental-schedule-bundle` | — | [`packages/experimental/schedule-bundle/src/index.ts`](../packages/experimental/schedule-bundle/src/index.ts) |
 | `@qilin-agent/experimental-session-search` | — | [`packages/experimental/session-search/src/index.ts`](../packages/experimental/session-search/src/index.ts) |

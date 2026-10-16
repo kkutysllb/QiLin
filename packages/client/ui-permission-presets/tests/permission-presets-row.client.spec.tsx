@@ -39,6 +39,7 @@ const SCHEMA = {
 function view(defaultPreset: string, revision = 0): SettingsNamespaceView {
   return {
     ns: 'permission',
+    autoGenerate: true,
     schema: SCHEMA,
     value: { defaultPreset },
     base: { defaultPreset: 'read-only' },

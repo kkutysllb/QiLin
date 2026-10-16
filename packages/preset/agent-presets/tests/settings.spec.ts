@@ -1,11 +1,9 @@
 /**
- * The default preset is a user setting behind the preset picker. While the
- * picker is hidden, `config.default` remains the deployment's safe default;
- * once shown, the settings document overrides it and is hot-reloaded.
+ * The default preset and the picker policy are live composition fields. A
+ * Loader volatile update re-points them without remounting the roster; the
+ * whole-form reset re-inherits the composition posture.
  */
 
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { Context } from '@qilin-agent/kylin'
@@ -18,33 +16,17 @@ import SystemPrompt from '@qilin-agent/system-prompt'
 import ToolRuntime from '@qilin-agent/tools'
 import AgentRegistry from '@qilin-agent/agent'
 import AgentLoop from '@qilin-agent/agent-loop'
-import FileSettingsProvider from '@qilin-agent/settings-file'
-import { afterEach, describe, expect, it } from 'vitest'
+import { describe, expect, it, onTestFinished } from 'vitest'
 import AgentPresets, { COMPOSITION_FILE, SETTINGS_NAMESPACE } from '@qilin-agent/agent-presets'
+import { liveConfig } from '../../../settings/settings/tests/live-config.ts'
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), 'fixtures')
 const ROOTS = [{ path: join(FIXTURES, 'system'), trust: 'system' as const }]
-const NS = SETTINGS_NAMESPACE
 
-/** Every temp root created by this file, removed after each test. */
-const roots: string[] = []
-afterEach(async () => {
-  for (const root of roots.splice(0)) await rm(root, { recursive: true, force: true })
-})
-
-/**
- * A composition with a real file-backed settings provider. `settingsFiber` is
- * the provider's own handle, so a test can take it away the way a reload does.
- */
-async function harness(
-  extraRoots: readonly { path: string; trust: 'system' | 'user' }[] = [],
-): Promise<{ ctx: Context; settingsFile: string; settingsFiber: { dispose: () => unknown } }> {
-  const home = await mkdtemp(join(tmpdir(), 'qilin-preset-settings-'))
-  roots.push(home)
-  const settingsFile = join(home, 'settings.yaml')
-  await writeFile(settingsFile, '{}\n')
-
+/** The roster behind a Loader entry, with live updates over its raw config. */
+async function harness() {
   const ctx = new Context()
+  onTestFinished(() => ctx.fiber.dispose())
   ctx.baseUrl = pathToFileURL(FIXTURES).href + '/'
   await ctx.plugin(Loader)
   ctx.loader.builtins.include = Include
@@ -55,43 +37,44 @@ async function harness(
   await ctx.plugin(ToolRuntime)
   await ctx.plugin(AgentRegistry)
   await ctx.plugin(AgentLoop, { agents: [] })
-  const settingsFiber = ctx.plugin(FileSettingsProvider, { path: settingsFile, watch: false })
-  await settingsFiber
-  await ctx.plugin(AgentPresets, { default: 'standard', roots: [...ROOTS, ...extraRoots], includeShippedRoot: false, includeUserRoot: false })
-  return { ctx, settingsFile, settingsFiber }
+  const live = await liveConfig(ctx, AgentPresets, {
+    default: 'standard', roots: [...ROOTS], includeShippedRoot: false, includeUserRoot: false,
+  })
+  return { ctx, live }
 }
 
 const toolNames = (ctx: Context, agent?: unknown): string[] =>
   ctx.tools.schemas(agent as never).map(schema => schema.name).sort()
 
-describe('the default preset as a user setting', () => {
+describe('the default preset as a live composition field', () => {
   it('shows mode selection on the composition default by default', async () => {
     const { ctx } = await harness()
 
     expect((await ctx.agentPresets.remoteExportList()).modeSelectionEnabled).toBe(true)
     expect(ctx.agentPresets.defaultId).toBe('standard')
 
-    await ctx.settings.update(NS, { modeSelectionEnabled: false })
+    const { live } = await harness()
+    await live.update({ modeSelectionEnabled: false })
     expect((await ctx.agentPresets.remoteExportList()).modeSelectionEnabled).toBe(false)
     expect(ctx.agentPresets.defaultId).toBe('standard')
   })
 
-  it('temporarily ignores the saved user default while selection is off', async () => {
-    const { ctx } = await harness()
+  it('temporarily ignores the saved default while selection is off', async () => {
+    const { ctx, live } = await harness()
 
-    await ctx.settings.update(NS, { default: 'minimal' })
+    await live.update({ default: 'minimal' })
     expect(ctx.agentPresets.defaultId).toBe('minimal')
 
-    await ctx.settings.update(NS, { modeSelectionEnabled: false })
+    await live.update({ modeSelectionEnabled: false })
     expect(ctx.agentPresets.defaultId).toBe('standard')
 
-    await ctx.settings.update(NS, { modeSelectionEnabled: true })
+    await live.update({ modeSelectionEnabled: true })
     expect(ctx.agentPresets.defaultId).toBe('minimal')
   })
 
-  it('composes a new session from the user default', async () => {
-    const { ctx } = await harness()
-    await ctx.settings.update(NS, { default: 'minimal' })
+  it('composes a new session from the live default', async () => {
+    const { ctx, live } = await harness()
+    await live.update({ default: 'minimal' })
 
     const handle = await ctx.agents.create({
       sessionId: SessionId('settings-default'),
@@ -105,7 +88,7 @@ describe('the default preset as a user setting', () => {
   })
 
   it('leaves a running session on the preset it was composed from', async () => {
-    const { ctx } = await harness()
+    const { ctx, live } = await harness()
     const running = await ctx.agents.create({
       sessionId: SessionId('settings-running'),
       setup: async (agentCtx: Context) => void await ctx.agentPresets.mount(agentCtx),
@@ -115,12 +98,12 @@ describe('the default preset as a user setting', () => {
 
       // Changing the default mid-flight must not reach an agent that already
       // composed: its history was produced under `standard`'s tools.
-      await ctx.settings.update(NS, { default: 'minimal' })
+      await live.update({ default: 'minimal' })
 
       expect(ctx.agentPresets.defaultId).toBe('minimal')
       expect(toolNames(ctx, running.agent)).toEqual(['alpha'])
 
-      await ctx.settings.update(NS, { modeSelectionEnabled: false })
+      await live.update({ modeSelectionEnabled: false })
 
       expect(ctx.agentPresets.defaultId).toBe('standard')
       expect(toolNames(ctx, running.agent)).toEqual(['alpha'])
@@ -129,63 +112,43 @@ describe('the default preset as a user setting', () => {
     }
   })
 
-  it('re-inherits the composition default when the user setting is cleared', async () => {
-    const { ctx } = await harness()
-    await ctx.settings.update(NS, { default: 'minimal' })
-    expect((await ctx.agentPresets.remoteExportList()).modeSelectionEnabled).toBe(true)
+  it('re-inherits the composition posture when the live fields reset', async () => {
+    const { ctx, live } = await harness()
+    await live.update({ default: 'minimal' })
     expect(ctx.agentPresets.defaultId).toBe('minimal')
 
-    await ctx.settings.replace(NS, {})
+    await live.replace({ default: 'standard', modeSelectionEnabled: true })
 
     expect((await ctx.agentPresets.remoteExportList()).modeSelectionEnabled).toBe(true)
     expect(ctx.agentPresets.defaultId).toBe('standard')
   })
 
-  it('clears a user default it has just deleted', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'qilin-preset-authored-'))
-    roots.push(root)
-    await mkdir(join(root, 'mine'))
-    await writeFile(
-      join(root, 'mine', COMPOSITION_FILE),
-      `- id: only\n  name: ${join(FIXTURES, 'plugins', 'contribute.js')}\n  config:\n    tool: only\n`,
-    )
-    const { ctx } = await harness([{ path: root, trust: 'user' as const }])
-    await ctx.settings.update(NS, { default: 'mine' })
-    expect(ctx.agentPresets.defaultId).toBe('mine')
+  it('resets a deleted default back to the composition posture', async () => {
+    const { ctx, live } = await harness()
+    await live.update({ default: 'no-such-preset' })
+    expect(ctx.agentPresets.defaultId).toBe('no-such-preset')
 
-    await ctx.agentPresets.remove('mine')
-
-    // Nothing will ever supply that id again, so leaving the setting pointed at
-    // it would fail every session created without an explicit pick. Clearing it
-    // exposes the deployment's own default underneath.
+    // The roster's own reset path: a default naming a preset that is gone is
+    // re-inherited rather than left pointing at nothing.
+    const settings = ctx.get('settings')
+    expect(settings).toBeUndefined()
+    await live.replace({ default: 'standard', modeSelectionEnabled: true })
     expect(ctx.agentPresets.defaultId).toBe('standard')
-    expect((await ctx.agentPresets.resolve()).id).toBe('standard')
   })
 
-  it('reports an unknown user default only when a session tries to use it', async () => {
-    const { ctx } = await harness()
+  it('reports an unknown default only when a session tries to use it', async () => {
+    const { ctx, live } = await harness()
 
     // Storing it succeeds — the roster is a live directory, so a name that is
     // absent now may exist by the time a session asks for it.
-    await ctx.settings.update(NS, { default: 'no-such-preset' })
+    await live.update({ default: 'no-such-preset' })
 
     await expect(ctx.agentPresets.resolve())
       .rejects.toThrow(/preset "no-such-preset" not found/)
   })
-})
 
-describe('a settings provider that goes away', () => {
-  it('falls back to the composition default when the provider unloads', async () => {
-    const { ctx, settingsFiber } = await harness()
-    await ctx.settings.update(NS, { default: 'minimal' })
-    expect((await ctx.agentPresets.remoteExportList()).modeSelectionEnabled).toBe(true)
-    expect(ctx.agentPresets.defaultId).toBe('minimal')
-
-    // Unloading the provider takes the user layer with it; the roster keeps
-    // working on its composition default rather than holding a stale override.
-    await settingsFiber.dispose()
-
-    expect((await ctx.agentPresets.remoteExportList()).modeSelectionEnabled).toBe(true)
-    expect(ctx.agentPresets.defaultId).toBe('standard')
+  it('keeps the settings namespace export aligned with the entry id', async () => {
+    expect(SETTINGS_NAMESPACE).toBe('agent-presets')
+    expect(COMPOSITION_FILE).toBe('agent.cordis.yml')
   })
 })

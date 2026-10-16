@@ -17,7 +17,7 @@ import {
   openNativePath,
   openNativeTextFile,
 } from '@qilin-agent/native-command'
-import type { SettingsDescriptor, SettingsPathOp, SettingsProvider } from '@qilin-agent/settings'
+import type { SettingsDescriptor, SettingsPathOp, SettingsForms } from '@qilin-agent/settings'
 import type {
   SettingsDescribeValue, SettingsNamespaceView, SettingsPathOpView,
 } from '@qilin-agent/settings/types'
@@ -61,6 +61,7 @@ export interface SettingsControllerInternals {
 function namespaceView(descriptor: SettingsDescriptor): SettingsNamespaceView {
   return {
     ns: String(descriptor.ns),
+    autoGenerate: descriptor.autoGenerate,
     schema: descriptor.schema as JsonValue,
     value: descriptor.value as JsonValue,
     ...descriptor.base === undefined ? {} : { base: descriptor.base as JsonValue },
@@ -108,9 +109,9 @@ export class SettingsController extends TypertRemoteService {
   }
 
   /**
-   * Describe every registered namespace for a configuration page: redacted
-   * layered values plus the serialized schema the page renders its form from.
-   * @returns provider writability, local-document presence, and one view per namespace.
+   * Describe every entry form for a configuration page: redacted layered values
+   * plus the serialized schema the page renders its form from.
+   * @returns provider writability, local-document presence, and one view per entry.
    * @throws RemoteError when no settings provider is mounted.
    */
   @Remote
@@ -118,7 +119,7 @@ export class SettingsController extends TypertRemoteService {
     const settings = this.provider()
     return {
       writable: settings.writable,
-      hasDocument: settings.documentPath !== undefined,
+      hasDocument: true,
       namespaces: settings.describe({ redactSecrets: true }).map(namespaceView),
     }
   }
@@ -186,7 +187,7 @@ export class SettingsController extends TypertRemoteService {
   }
 
   /**
-   * Materialize the provider-owned settings document and open it in a native text editor.
+   * Locate the profile patch this deployment edits and open it in a native text editor.
    * @param signal - caller lifetime; abort terminates preparation or the native command.
    * @returns confirmation after the native opener accepts the document.
    * @throws RemoteError when no document exists, preparation fails, or opening fails.
@@ -195,15 +196,12 @@ export class SettingsController extends TypertRemoteService {
   async openSettingsDocument(signal: AbortSignal): Promise<SettingsDocumentOpenValue> {
     const settings = this.provider()
     if (isAborted(signal)) throw new RemoteError('gateway/cancelled', 'settings document open was aborted', {})
-    let path: string | undefined
+    let path: string
     try {
       path = await settings.prepareDocument()
     } catch (error: unknown) {
       if (isAborted(signal)) throw new RemoteError('gateway/cancelled', 'settings document preparation was aborted', {})
       throw new RemoteError('gateway/internal', `settings document preparation failed: ${messageOf(error)}`, {}, { cause: error })
-    }
-    if (path === undefined) {
-      throw new RemoteError('gateway/internal', 'settings provider has no local document to open', {})
     }
     if (isAborted(signal)) throw new RemoteError('gateway/cancelled', 'settings document open was aborted', {})
     try {
@@ -279,19 +277,19 @@ export class SettingsController extends TypertRemoteService {
     const descriptor = settings.describe({ redactSecrets: true }).find(candidate => candidate.ns === namespace)
     if (descriptor === undefined) {
       // The write committed but the namespace vanished before this read: only a
-      // concurrent registrant disposal can produce it.
+      // concurrent entry removal can produce it.
       throw new RemoteError('gateway/internal', `settings namespace "${ns}" was disposed after the ${mode}`, {})
     }
     return namespaceView(descriptor)
   }
 
   /** Resolve the optional provider or report how to supply it. */
-  private provider(): SettingsProvider {
+  private provider(): SettingsForms {
     const settings = this.ctx.get('settings')
     if (settings === undefined) {
       throw new RemoteError(
         'gateway/internal',
-        'settings service is absent: this deployment does not mount a settings provider (e.g. @qilin-agent/settings-file) in its composition',
+        'settings service is absent: mount @qilin-agent/settings with @qilin-agent/config-editor in the profile composition',
         {},
       )
     }

@@ -46,7 +46,9 @@ flowchart LR
   cfg --> plugin_qilin_base_jobs
   plugin_qilin_base_llm_retry["llm-retry<br/>@qilin-agent/llm-retry"]
   cfg --> plugin_qilin_base_llm_retry
-  plugin_qilin_base_settings["settings<br/>@qilin-agent/settings-file"]
+  plugin_qilin_base_config_editor["config-editor<br/>@qilin-agent/config-editor"]
+  cfg --> plugin_qilin_base_config_editor
+  plugin_qilin_base_settings["settings<br/>@qilin-agent/settings"]
   cfg --> plugin_qilin_base_settings
   plugin_qilin_base_credentials["credentials<br/>@qilin-agent/credentials-local"]
   cfg --> plugin_qilin_base_credentials
@@ -215,7 +217,8 @@ flowchart LR
 | `agent-default-model` | `@qilin-agent/agent-default-model` |
 | `jobs` | `@qilin-agent/jobs-local` |
 | `llm-retry` | `@qilin-agent/llm-retry` |
-| `settings` | `@qilin-agent/settings-file` |
+| `config-editor` | `@qilin-agent/config-editor` |
+| `settings` | `@qilin-agent/settings` |
 | `credentials` | `@qilin-agent/credentials-local` |
 | `llm-pi-ai` | `@qilin-agent/llm-pi-ai` |
 | `session-persistence-jsonl` | `@qilin-agent/session-persistence-jsonl` |

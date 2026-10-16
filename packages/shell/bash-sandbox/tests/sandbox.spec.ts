@@ -19,7 +19,6 @@ import { SandboxBashExecutor } from '@qilin-agent/bash-sandbox'
 import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
 import type { SubprocessHandle, SubprocessOutputReader } from '@qilin-agent/subprocess'
 import { classifyDenial } from '../src/helpers.ts'
-import type { Config } from '@qilin-agent/bash-sandbox'
 
 const spillDir = mkdtempSync(join(tmpdir(), 'qilin-bash-sandbox-spec-'))
 
@@ -55,7 +54,16 @@ const passthrough = (argv: readonly string[]): ConfinedArgv =>
  * per test) and the executor under test on top of it.
  */
 async function setup(
-  config: { mode?: SandboxMode; workspaceRoot?: string } & Config = {},
+  config: {
+    mode?: SandboxMode
+    workspaceRoot?: string
+    cwd?: string
+    timeoutMs?: number
+    maxTimeoutMs?: number
+    maxOutputBytes?: number
+    maxSpillBytes?: number
+    graceMs?: number
+  } = {},
   behavior: (argv: readonly string[], policy: SandboxPolicy, signal?: AbortSignal) => ConfinedArgv | Promise<ConfinedArgv> = passthrough,
 ) {
   const { mode, workspaceRoot, ...execConfig } = config

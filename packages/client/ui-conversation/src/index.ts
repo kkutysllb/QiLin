@@ -1,8 +1,12 @@
 /** Host registration for browser conversation preferences. */
-
-import type { Context } from '@qilin-agent/kylin'
 import type {} from '@qilin-agent/settings'
-import { CONVERSATION_SETTINGS_NAMESPACE, ConversationSettingsSchema } from './conversation-settings.ts'
+
+import type { Volatile, Context } from '@qilin-agent/kylin'
+import type { BusyEnterBehavior } from './conversation-settings.ts'
+import z from '@qilin-agent/schemastery'
+import { BUSY_ENTER_FIELD } from './conversation-settings.ts'
+
+import { ConversationSettingsFields } from './conversation-settings.ts'
 
 export {
   BUSY_ENTER_BEHAVIORS, BUSY_ENTER_FIELD, CONVERSATION_SETTINGS_NAMESPACE,
@@ -11,15 +15,20 @@ export {
   type BusyEnterBehavior, type ConversationSettings,
 } from './conversation-settings.ts'
 
-/**
- * Register the durable conversation section when a settings provider exists.
- * @param ctx - Host context whose optional settings service owns the section.
+/** Runtime preferences projected to the browser. */
+export interface Config {
+  /** Enter key behavior while a turn is running. */
+  busyEnter: Volatile<BusyEnterBehavior>
+}
+
+/** Live preferences projected to the browser. */
+export const Config = z.object({
+  [BUSY_ENTER_FIELD]: ConversationSettingsFields[BUSY_ENTER_FIELD].volatile(),
+})
+
+/** Host preferences are consumed through the configuration form projection.
+ * @param ctx Plugin context used for optional settings presentation.
  */
 export function apply(ctx: Context): void {
-  ctx.inject(['settings'], (settingsCtx) => {
-    settingsCtx.settings.register(
-      CONVERSATION_SETTINGS_NAMESPACE,
-      ConversationSettingsSchema,
-    )
-  })
+  ctx.inject(['settings'], (child) => { child.effect(() => child.settings.configure({ auto: false }, ctx.fiber)) })
 }

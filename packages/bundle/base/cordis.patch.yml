@@ -91,11 +91,14 @@
     - id: llm-retry
       name: '@qilin-agent/llm-retry'
 
-    # User-settings document (`$QILIN_HOME/settings.yaml`, hot-reloaded): a
-    # `llm-deepseek:` or `llm-pi-ai:` section there overrides the adapter entries
-    # below without a restart, and is what the web Models page writes.
+    # Live Config forms persist through the launcher's profile.
+    - id: config-editor
+      name: '@qilin-agent/config-editor'
+      disabled: !!js "!ctx.get('profileContext')"
+
     - id: settings
-      name: '@qilin-agent/settings-file'
+      name: '@qilin-agent/settings'
+      disabled: !!js "!ctx.get('profileContext')"
 
     # Credential sources: inherited environment over the managed
     # `$QILIN_HOME/.credentials.yaml`, with project and user `.env` fallbacks.

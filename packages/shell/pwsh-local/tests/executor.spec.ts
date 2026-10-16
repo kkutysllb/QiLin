@@ -73,7 +73,15 @@ function samePath(actual: string, expected: string): boolean {
   return norm(actual) === norm(expected)
 }
 
-async function setup(config: ConstructorParameters<typeof PwshLocalExecutor>[1] = {}) {
+async function setup(config: {
+  cwd?: string
+  timeoutMs?: number
+  maxTimeoutMs?: number
+  maxOutputBytes?: number
+  maxSpillBytes?: number
+  graceMs?: number
+  pwshPath?: string
+} = {}) {
   const ctx = createContext()
   await ctx.plugin(LocalSubprocessRuntime)
   ;(ctx.subprocess as LocalSubprocessRuntime).internals = { spillDir }

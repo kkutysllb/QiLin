@@ -20,7 +20,16 @@ import Loader from '@qilin-agent/kylin-plugin-loader'
 import Include from '@qilin-agent/kylin-plugin-include'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import AgentPresets, { COMPOSITION_FILE, type Config } from '@qilin-agent/agent-presets'
+import AgentPresets, { COMPOSITION_FILE, type PresetRoot } from '@qilin-agent/agent-presets'
+
+/** The plugin-config input face the roster accepts from a composition row. */
+type RosterInput = {
+  default?: string
+  modeSelectionEnabled?: boolean
+  roots?: PresetRoot[]
+  includeShippedRoot?: boolean
+  includeUserRoot?: boolean
+}
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), 'fixtures')
 const SYSTEM_ROOT = join(FIXTURES, 'system')
@@ -48,7 +57,7 @@ afterEach(async () => {
 })
 
 /** Boot a roster over the fixture system root, with the derived root left to the plugin. */
-async function roster(config: Partial<Config> = {}): Promise<Context> {
+async function roster(config: RosterInput = {}): Promise<Context> {
   const ctx = new Context()
   ctx.baseUrl = pathToFileURL(FIXTURES).href + '/'
   await ctx.plugin(Loader)
@@ -77,7 +86,7 @@ describe('the harness-home preset root', () => {
     // every other case here passes the field explicitly. The cast stands for
     // the untyped document the Loader hands the schema, which is where a
     // composition that omits the key actually comes from.
-    const parsed = AgentPresets.Config({ default: 'standard' } as unknown as Config)
+    const parsed = AgentPresets.Config({ default: 'standard' })
 
     expect(parsed).toMatchObject({ includeUserRoot: true, roots: [] })
   })

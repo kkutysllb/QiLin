@@ -21,10 +21,19 @@ import AgentRegistry from '@qilin-agent/agent'
 import AgentLoop from '@qilin-agent/agent-loop'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import AgentPresets, { COMPOSITION_FILE, METADATA_FILE } from '@qilin-agent/agent-presets'
-import type { Config } from '@qilin-agent/agent-presets'
+import type { PresetRoot } from '@qilin-agent/agent-presets'
 import { evaluate } from '@qilin-agent/kylin-plugin-loader'
 import { fileComposition, mountedCompositionRows } from '../src/composition-inventory.ts'
 import { livePresetMounts } from '../src/mount.ts'
+
+/** The plugin-config input face the roster accepts from a composition row. */
+type RosterInput = {
+  default?: string
+  modeSelectionEnabled?: boolean
+  roots?: PresetRoot[]
+  includeShippedRoot?: boolean
+  includeUserRoot?: boolean
+}
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), 'fixtures')
 const SYSTEM_ROOT = { path: join(FIXTURES, 'system'), trust: 'system' as const }
@@ -47,7 +56,7 @@ afterEach(async () => {
   for (const root of roots.splice(0)) await rm(root, { recursive: true, force: true })
 })
 
-async function harness(roster: Config): Promise<Context> {
+async function harness(roster: RosterInput): Promise<Context> {
   const ctx = new Context()
   contexts.push(ctx)
   ctx.baseUrl = pathToFileURL(FIXTURES).href + '/'
@@ -325,7 +334,7 @@ describe('AgentPresets.compositionInventory', () => {
   })
 
   it('keeps another runtime\'s standing mount out of this runtime\'s inventory', async () => {
-    const roster: Config = {
+    const roster: RosterInput = {
       default: 'standard',
       roots: [SYSTEM_ROOT],
       includeShippedRoot: false,
