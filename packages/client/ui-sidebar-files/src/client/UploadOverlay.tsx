@@ -107,7 +107,7 @@ export function UploadOverlay({ sessionId, root, onUploaded, t, children }: Uplo
 
   return (
     <div
-      className={active ? css.active : undefined}
+      className={css.host}
       onDragEnter={onDragEnter}
       onDragLeave={onDragLeave}
       onDragOver={onDragOver}

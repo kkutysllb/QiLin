@@ -1,6 +1,13 @@
-/* Upload overlay: a full-cover drop target and a compact report strip. */
-.active {
+/* The wrapper fills its pane slot so the tree's height:100% resolves against a
+   definite box. Without it the percentage falls back to content height and the
+   pane clips a too-tall tree beyond the viewport — the unscrollable bottom.
+   Relative positioning anchors the drag overlay over the tree. */
+.host {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
 }
 .overlay {
   position: absolute;
