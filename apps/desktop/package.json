@@ -95,8 +95,7 @@
     "node": "^22.19.0 || >=24.0.0"
   },
   "files": [
-    "lib/index.js",
-    "lib/cli.js",
-    "lib/types"
+    "lib/*.js",
+    "lib/types/*.d.ts"
   ]
 }
