@@ -426,7 +426,7 @@ function header(
       cwd: WORKSPACE,
       isSeeded: child?.seedLength !== undefined,
       delegationDepth: child === undefined ? 0 : 1,
-      agentPreset: 'standard',
+      agentPreset: 'ptc',
       ...child === undefined ? {} : {
         parentSession: child.parentSession,
         origin: 'subagent' as const,

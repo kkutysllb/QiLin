@@ -152,7 +152,7 @@ describe('WebWorker preview VFS example', () => {
       id: VFS_EXAMPLE_SESSION_IDS.main,
       cwd: '/qilin/workspace',
       delegationDepth: 0,
-      agentPreset: 'standard',
+      agentPreset: 'ptc',
     })
     expect(events.map(event => event.seq)).toEqual(events.map((_, index) => index))
     expect(events.at(-1)).toMatchObject({ type: 'turn/end', data: { reason: { kind: 'completed' } } })
@@ -193,7 +193,7 @@ describe('WebWorker preview VFS example', () => {
         parentSession: VFS_EXAMPLE_SESSION_IDS.main,
         origin: 'subagent',
         delegationDepth: 1,
-        agentPreset: 'standard',
+        agentPreset: 'ptc',
       })
       expect(events.map(event => event.seq)).toEqual(events.map((_, index) => index))
       expect(events.at(-1)).toMatchObject({ type: 'turn/end', data: { reason: { kind: 'completed' } } })
