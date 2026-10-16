@@ -142,3 +142,16 @@
 
 处理原则：运行时导出补**别名导出**（上游名 → 麒麟实现）；类型导出补**类型别名**；`settings` 的 `SettingsForms` 走 settings 对齐工作流。每补一批即从本清单勾销；装真实 dsh 插件复验。
 
+## 附录：settings 投影的可执行实现规格（下一轮照此实施）
+
+上游机制核心（`SettingsForms`，已读源码）：`describe()` 遍历 `configEditor.configuration()` 的每个组合行，取 `entry.fiber?.runtime?.Config`（行服务的 static Config，如 `SubagentRuntime`/`SubagentModelSelectionConfig`），经 `volatileForm(schema)` 投影出表单，生成 describe 条目：`ns = entry.options.id`、`schema: form.toJSON()`、`value/base/user`（live/继承/override 经 `projectForm(form, plainConfig(...))`）、`redactSecrets`、revision 递增并 `settings/document-updated`。编辑走 `configEditor.edit(entry, ...)`（volatile-only 校验后写 profile patch）。
+
+麒麟实施（在既有 `SettingsProvider` 内实现同一机制，不引上游 configEditor 架构）：
+
+1. 移植 `schema.ts`（79 行）到 `packages/settings/settings/src/schema.ts`；补 `inheritedConfig`（上游 index.ts:213）与 `interpolate` 依赖。
+2. `SettingsProvider.describe()`：在已注册 section 之后，追加对 `ctx.loader.entries()` 中 ACTIVE 且 `entry.fiber?.runtime?.Config` 可投影的行的描述条目（ns = entry id；同款 revision/事件语义）。
+3. `update/replace/mutate`：对投影条目，经 app-boot 既有的 profile patch 写路径（`readProfilePatches`/overlay 写入，plugin-manager 已有同款）实现 volatile-only 编辑；expectedRevision 语义一致。
+4. 客户端零改动：`configForms.whileServed(['subagent','subagent-model-selection'])` 随 describe 出现即通过，「子代理」卡片自然注册。
+5. 验收：loader-composition 组合测试（两行 → 两命名空间 → 卡片注册）+ 桌面 scratch home 真机（内置插件配置出现「子代理」）+ dsh-context 表单出现。
+6. 门禁：tsc 双面 0 错、lint、test:gui、触及包 coverage 100%、doc 21/21。
+
