@@ -240,3 +240,17 @@ find /path/to/deepseek-harness -name package.json -path '*desktop-runtime*'   # 
 **C. lint 与移植树**：`.oxlintrc.json` 按既有先例（`vendor/**`、`native/**`："导入的上游子树保留上游风格、各有自己的门禁" ✓）为 `apps/desktop/**`、`apps/desktop-host/**` 加了**同样带注释的豁免** ✓ → 全仓 lint 由 **1413 → 8** 错 ✓；余下 8 条中有 2 条位于本次会话**从未改动**的文件（`packages/client/ui-plugin-manager/**` ✓）→ 属**既有**状态 ✓（该规则是类型感知的 ✓，本仓不自动跑 CI ✓），留待单独处置 ✓。
 
 **D. 余下 13 个失败文件的性质**：均为**惰性接缝**面（`platform-view`、`preload-app`、`mandatory-update-policy`、`host-process` 的 platform-session、`project-manager` 等 ✓）→ 即下一步"任务 2"（把它们改成断言"接缝是惰性的" ✓）。
+
+### P3 续 3（任务 2 的方法修正 + 已修缺陷）
+
+**方法修正**：原计划把 13 个失败 spec 改成"断言接缝惰性" ✗ —— 实际检查发现这些文件是**第 6 轮恢复的上游真实实现 + 上游真实测试** ✓（不是惰性替身 ✗）。因此正解是**保留真实测试、修我自己的账号替身** ✓：跑该 spec → 读断言 diff → 修 `src/account-types.ts` 或 src ✓。
+
+**这一方法已抓出并修复的 5 处真实契约缺陷** ✓（都在我的替身里 ✗）：
+1. 客户端身份头部**名字全错** ✗：应为 `x-client-locale` / `x-client-timezone-offset` / `x-client-platform` / `x-client-bundle-id`（我发的是 `accept-language` / `x-timezone-offset` / `x-platform` ✗）。
+2. 平台标识未映射 ✗：`darwin → desktop-mac`、`win32 → desktop-win` ✓。
+3. locale 未规范化 ✗：`zh-CN → zh_CN`、`en → en_US` ✓。
+4. cookie 合并**只追加不覆盖** ✗ → 出现重复同名 cookie（`route=old; ...; route=new` ✗）→ 改为按名**原位替换** ✓。
+
+**结果**：`platform-view.spec.ts` 与 `mandatory-update-policy.spec.ts` **67/67 全绿** ✓；桌面 lane 由 **12 文件失败 → 10** ✓、**36 用例失败 → 31** ✓；`typecheck` 0 ✓。
+
+**余下 10 个失败文件用同一方法推进** ✓（跑 spec → 读 diff → 修 src/替身 ✓）。
