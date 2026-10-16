@@ -87,6 +87,19 @@ export async function connectDesktopWelcome(
     }
     return locale.value.preference ?? null
   }
+  /** @returns whether the Host holds an authenticated local session for this device. */
+  const localSession = async (): Promise<boolean> => {
+    try {
+      const response = await send(new URL('/api/auth/status', origin).href, { credentials: 'include' })
+      if (!response.ok) return false
+      const body: unknown = await response.json()
+      return record(body) && body.authenticated === true
+    } catch {
+      // An unreachable Host leaves the visitor signed out rather than blocking the window.
+      return false
+    }
+  }
+
   const read = async (): Promise<WelcomeState> => {
     // The Desktop authenticates locally through its own Host. A Web RPC failure must not
     // stop startup: the welcome window shows the local state instead of a remote service.
@@ -123,8 +136,10 @@ export async function connectDesktopWelcome(
       Object.assign(states, batch)
     }
     if (ref !== undefined && !record(states[ref])) throw new Error('desktop welcome: missing credential metadata')
+    // This product signs in to the local account service, so the session the Host
+    // reports is the only sign-in state the Desktop honours.
     return {
-      loggedIn: (await account.state()).status === 'credential-stored',
+      loggedIn: await localSession(),
       hasApiKey: Object.values(states).some(value => record(value) && value.configured === true),
       writable: ref !== undefined && record(states[ref]) && states[ref].writable === true,
       localePreference: localePreference(namespaces),

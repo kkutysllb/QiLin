@@ -87,6 +87,8 @@ describe('desktop welcome Web operations', () => {
   it('keeps provider diagnostics out of failures and rejects unmatched RPC envelopes', async () => {
     const host = transport()
     const backend = await connectDesktopWelcome(url, host.send)
+    // The local session probe answers before the credential write.
+    host.send.mockResolvedValueOnce(Response.json({ authenticated: false }))
     host.send.mockRejectedValueOnce(new Error('private credential sk-must-not-leak'))
     expect(await backend.save('sk-example')).toEqual({ ok: false })
     host.send.mockResolvedValueOnce(Response.json({ type: 'server-response', rpcId: 'other', result: { ok: true } }))
