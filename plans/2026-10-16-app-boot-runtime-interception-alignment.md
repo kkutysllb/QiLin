@@ -60,8 +60,8 @@
 
 **已落地：slice 2（跳过清单）** ✓
 
-- 上游两个提交：`de662ee010 fix(boot): skip failed profile bundles and retain recovery controls`（5 文件 / +111 −44 ✓）与
-  `c8b10a16be fix(boot): report skipped profile bundles once per start`（9 文件 / +54 −31 ✓）。
+- 上游两个提交：上游提交 "fix(boot): skip failed profile bundles and retain recovery controls"（5 文件 / +111 −44 ✓）与
+  上游提交 "fix(boot): report skipped profile bundles once per start"（9 文件 / +54 −31 ✓）。
 - 本仓实现（保留自有逻辑 ✓：`dropRetiredProfileBundles`、版本豁免、`evaluatePluginCompatibility` 全部照旧 ✓）：
   - `Profile` 新增 **`skippedBundles: SkippedBundle[]`** ✓ + 新类型 `SkippedBundle` ✓；
   - `loadProfileDirectory` 的 bundle 装载由"失败即抛"改为**逐个 try/catch：跳过并记录** ✓；
@@ -74,7 +74,7 @@
 
 | 切片 | 上游来源 | 规模 |
 |---|---|---|
-| 1 改名 + 形状对齐（ProfileResolution* → RuntimeResolution*） | `15e07d2721 refactor(boot): rename the profile resolution generation to the runtime resolution` | 跨 app-boot + hmr |
+| 1 改名 + 形状对齐（ProfileResolution* → RuntimeResolution*） | 上游提交 "refactor(boot): rename the profile resolution generation to the runtime resolution" | 跨 app-boot + hmr |
 | 3 bundle patch 读取（`readBundlePatches` 一族） | 在 alpha.4 的 `resolver.ts` 中 | 189 行级 |
 | 4 链接根与模块文件（`LinkedRoot` / `realModuleFile`） | 同上 | 同上 |
 | 5 spec 对齐（`profile-resolution.spec.ts` 等） | alpha.2→alpha.4 共 17 文件 | 201/69/57 行级 |
