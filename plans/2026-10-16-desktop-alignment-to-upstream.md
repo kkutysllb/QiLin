@@ -380,3 +380,25 @@ for rel, names in findings.items():
 - 经验：直接 mock 包入口并调用 `runDesktopCli` 会让**真的 CLI** 用测试进程 argv 执行 ✗（实测触发了 `qilin web` ✗）→ 因此把选项构造抽成纯函数来测 ✓。
 
 **验证**：`typecheck` 0 ✓、`verify-no-unknown-casts` 1551 既有 / 0 新增 ✓、`verify-export-jsdoc` 全通过 ✓、桌面 lane **88 文件 / 895 用例全绿** ✓、`apps/cli` 测试 26 通过 / 1 失败 ✓（该失败经 `git stash` 对照确认为**既有** ✗，与本次改动无关 ✓）。
+
+### 修复既有的第三方插件兼容红（`apps/cli`）
+
+**症状**：`apps/cli/tests/third-party-plugin-compat.spec.ts` 的 *maps the declared legacy engine peer onto the installation copy* 失败 ✓：断言"插件声明的 DSH 时代名（`@deepseek-ai/dsh-session` ✓）应在 **profile 作用域**发布、且声明者是插件本身" ✗。
+
+**实测诊断**（临时打印后已撤 ✓）：`generation.entries` 中该名字只以 **installation 作用域**出现 ✓（声明者=安装锚点 ✓），而 **profile 作用域条目为空** ✗；尽管 `profile.layers` 里确实含该插件 ✓。
+
+**根因**：安装侧遍历会为规范名同步发布其 **DSH 时代别名** ✓（"一个翻译名复用其 QiLin 对端已选的目录" ✓）；随后**配置侧**遍历的 `visited` 起始集是"安装包名集合" ✓ —— 别名已在内 ✓ → 于是插件声明的那个名字被 `continue` 跳过 ✗ → profile 作用域永远不发布它 ✗。
+
+**修复**（`packages/boot/app-boot/src/profile.ts` 的 `dependencyClosure` ✓，窄改 ✓）：
+
+```ts
+for (const dep of profileDependencyNames(next.manifest)) {
+  const canonical = dshCompatModuleId(dep)
+  // 安装侧发布的 DSH 时代别名仍属于 profile 作用域：插件声明了该名字，
+  // profile 必须记录由哪个安装目录应答它。
+  const republishAlias = canonical !== dep && installationLinks?.has(canonical) === true
+  if (visited.has(dep) && !republishAlias) continue
+  ...
+```
+
+**验证**：该 spec **5 通过 / 3 跳过** ✓；`packages/boot/app-boot` 全套 **23 文件 / 685 用例通过** ✓（无回归 ✓）；`typecheck` 0 ✓。

@@ -866,8 +866,11 @@ function dependencyClosure(
       // Service Provider packages commonly expose Service Definitions as peers.
       /* v8 ignore next -- an installable package manifest always declares dependencies or peers */
       for (const dep of profileDependencyNames(next.manifest)) {
-        if (visited.has(dep)) continue
         const canonical = dshCompatModuleId(dep)
+        // An installation-published DSH-era alias still belongs in the profile scope: the plugin
+        // declared that name, and the profile must record which installation directory answers it.
+        const republishAlias = canonical !== dep && installationLinks?.has(canonical) === true
+        if (visited.has(dep) && !republishAlias) continue
         // Same rule as the installation traversal: a translated name reuses the
         // directory already selected for its QiLin counterpart.
         const dir = packageDirFromAnchor(next.anchor, dep, exclude)
