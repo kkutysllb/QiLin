@@ -201,6 +201,7 @@
       "@qilin-agent/client-ui-agent-opens": ["./packages/client/ui-agent-opens/src"],
       "@qilin-agent/client-ui-agent-opens/client": ["./packages/client/ui-agent-opens/src/client"],
       "@qilin-agent/client-ui-sidebar-browser/client": ["./packages/client/ui-sidebar-browser/src/client"],
+      "@qilin-agent/client-ui-sidebar-browser/types": ["./packages/client/ui-sidebar-browser/src/types.ts"],
       "@qilin-agent/api-workspace-files": ["./packages/api/workspace-files/src"],
       "@qilin-agent/api-workspace-files/types": ["./packages/api/workspace-files/src/types.ts"],
       "@qilin-agent/api-workspace-files/client": ["./packages/api/workspace-files/src/client/index.ts"],
