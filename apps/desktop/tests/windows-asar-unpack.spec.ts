@@ -273,7 +273,7 @@ it('verifies archived bytes against the preparation descriptor', async () => {
   await packageFixture(input)
   const archive = join(input.resources, 'app.asar')
   await expect(verifyRuntimeArchive(archive, expected)).resolves.toBeUndefined()
-  await writeFile(join(input.resources, 'app.asar.unpacked/dsh/node_modules/foo/native.node'), 'tampered')
+  await writeFile(join(input.resources, 'app.asar.unpacked/qilin/node_modules/foo/native.node'), 'tampered')
   await expect(verifyRuntimeArchive(archive, expected)).rejects.toThrow('ASAR integrity')
 })
 
@@ -299,7 +299,7 @@ it.each(['directory', 'extra'] as const)('rejects an unpacked %s without a match
   const input = await fixture(false)
   const expected = await seal(input)
   await packageFixture(input)
-  const root = join(input.resources, 'app.asar.unpacked/dsh')
+  const root = join(input.resources, 'app.asar.unpacked/qilin')
   if (state === 'directory') {
     const file = join(root, 'node_modules/foo/native.node')
     await rm(file)
@@ -324,7 +324,7 @@ it.skipIf(process.platform === 'win32')('checks packed executable records and ph
   await packageFixture(input)
   const archive = join(input.resources, 'app.asar')
   await expect(verifyRuntimeArchive(archive, expected)).resolves.toBeUndefined()
-  await chmod(join(input.resources, 'app.asar.unpacked/dsh/node_modules/foo/native.node'), 0o644)
+  await chmod(join(input.resources, 'app.asar.unpacked/qilin/node_modules/foo/native.node'), 0o644)
   await expect(verifyRuntimeArchive(archive, expected)).rejects.toThrow('ASAR integrity')
 })
 
