@@ -122,3 +122,23 @@
 2. 每个上游名在麒麟包内以别名导出补齐（先例：icons 的 upstream-named alias 段、`IconCheckOutline16 as IconCheckOutlineRegular`），命名一律用上游原名。
 3. 验收：dsh-pet、dsh-context 等真实 dsh 插件在麒麟安装→激活→配置表单全流程可用；清单零新增差集。
 
+## 附录：导出名兼容清单（程序化全量比对，2026-10-17）
+
+按包比对上游 `src/index.ts`（含一层 re-export 跟随）与麒麟的具名导出，上游独有导出共 17 包：
+
+| 包（去前缀） | 上游独有导出 | 性质 |
+|---|---|---|
+| api-workspace-controller | `Config` | 类型 |
+| app-boot | `FailLoudEvent` | 类型 |
+| client-locale / client-ui-chat / client-ui-conversation / client-ui-settings / client-ui-settings-general / client-ui-theme / client-product-analytics | `Config` | 类型 |
+| home-paths | `dshHomeDisplay` | 运行时函数 |
+| host-webserver | `bindUrlHost` | 运行时函数 |
+| launch-environment | `DSH_LAUNCH_ENVIRONMENT_KEY` | 常量 |
+| output-retention | `truncateWithoutSplittingSurrogatePair` | 运行时函数 |
+| session-persistence-jsonl | `name` | 常量 |
+| settings | `SettingsForms` | 服务类（见 settings 对齐工作流） |
+| typert-protocol | `RemoteScopeOptions` | 类型 |
+| web-app | `WebApp` | 类型 |
+
+处理原则：运行时导出补**别名导出**（上游名 → 麒麟实现）；类型导出补**类型别名**；`settings` 的 `SettingsForms` 走 settings 对齐工作流。每补一批即从本清单勾销；装真实 dsh 插件复验。
+
