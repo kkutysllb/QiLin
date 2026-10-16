@@ -54,3 +54,29 @@
 
 - `reportSkippedBundles` 缺位 ✓ → `apps/desktop-host/src/index.ts` 少一条"跳过 bundle"的 stderr 上报 ✓（行为差异：静默跳过 ✓，不影响启动 ✓）。
 - 命名停留旧代 ✓ → 未来与上游对照时仍需本文件作为映射表 ✓。
+
+
+## 7. 执行进度（对 alpha.4 的落地）
+
+**已落地：slice 2（跳过清单）** ✓
+
+- 上游两个提交：`de662ee010 fix(boot): skip failed profile bundles and retain recovery controls`（5 文件 / +111 −44 ✓）与
+  `c8b10a16be fix(boot): report skipped profile bundles once per start`（9 文件 / +54 −31 ✓）。
+- 本仓实现（保留自有逻辑 ✓：`dropRetiredProfileBundles`、版本豁免、`evaluatePluginCompatibility` 全部照旧 ✓）：
+  - `Profile` 新增 **`skippedBundles: SkippedBundle[]`** ✓ + 新类型 `SkippedBundle` ✓；
+  - `loadProfileDirectory` 的 bundle 装载由"失败即抛"改为**逐个 try/catch：跳过并记录** ✓；
+  - 新增并导出 **`reportSkippedBundles(binName, profile)`** ✓，由 `apps/desktop-host/src/index.ts` 在装载 profile 后调用一次 ✓（**这块差异由此关闭** ✓）。
+- 语义变更**连同其测试**一起改 ✓（仓规 ✓）：两条断言"坏 bundle 抛错"的用例改为断言"被跳过并记录、兄弟 bundle 仍加载、豁免后恢复加载" ✓。
+- 8 处消费方的 `Profile` 字面量补 `skippedBundles: []` ✓（`apps/cli`、`apps/web`、app-boot 的 spec ✓）。
+- 验证 ✓：app-boot **23 文件 / 685 用例全绿** ✓；`packages/boot/hmr` + `apps/cli/resolved-profile-boot` **250 用例全绿** ✓；`typecheck` 0 ✓；`casts` 1551 既有 / 0 新增 ✓；桌面 lane **88 文件 / 895 用例全绿** ✓。
+
+**待做（已定位到上游提交 ✓）**：
+
+| 切片 | 上游来源 | 规模 |
+|---|---|---|
+| 1 改名 + 形状对齐（ProfileResolution* → RuntimeResolution*） | `15e07d2721 refactor(boot): rename the profile resolution generation to the runtime resolution` | 跨 app-boot + hmr |
+| 3 bundle patch 读取（`readBundlePatches` 一族） | 在 alpha.4 的 `resolver.ts` 中 | 189 行级 |
+| 4 链接根与模块文件（`LinkedRoot` / `realModuleFile`） | 同上 | 同上 |
+| 5 spec 对齐（`profile-resolution.spec.ts` 等） | alpha.2→alpha.4 共 17 文件 | 201/69/57 行级 |
+
+**方法已确定** ✓：因本仓与上游**无共同祖先**（独立历史 ✓），按**内容**合并 ✓ —— 以上游 alpha.4 为准 ✓，逐处保留本仓自有实现（`legacy-links` 助手族 ✓、`removeLinkProjections` ✓、`republishAlias` 修复 ✓、兼容性前置校验 ✓、HMR 插件替换 ✓）。

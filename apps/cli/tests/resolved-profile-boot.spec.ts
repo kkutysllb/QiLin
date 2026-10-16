@@ -66,6 +66,7 @@ describe('runProfile with an application-owned profile', () => {
     const profile: Profile = {
       name: 'desktop', dir: home, patchPath: join(home, 'cordis.patch.yml'),
       patches: [], layers: [],
+      skippedBundles: [],
     }
     try {
       const application = runProfile({
@@ -140,6 +141,7 @@ describe('runProfile with an application-owned profile', () => {
           { id: 'session-telemetry-otel', name: 'telemetry' },
         ] }],
       }],
+      skippedBundles: [],
     }
     const environment = createLaunchEnvironmentSnapshot([{ source: 'process', values: { HTTPS_PROXY: 'http://localhost:8080' } }])
     const runtime = { profile, installAnchor: join(home, 'runtime/package.json') }

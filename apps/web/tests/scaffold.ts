@@ -728,6 +728,7 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
       layers: extraLayers,
       patchPath: join(profileDir, 'cordis.patch.yml'),
       patches: [],
+      skippedBundles: [],
     }
     const profileResolutionMode = options.profileResolutionMode ?? 'runtime'
     const resolutionOptions = { installAnchor: INSTALL_ANCHOR, home: harnessHome, profile }

@@ -110,6 +110,7 @@ function stageProfile(home: string, name: string, bundleAnchor: string): Profile
     }],
     patchPath: join(dir, PROFILE_PATCH_FILENAME),
     patches: [],
+    skippedBundles: [],
   }
 }
 
@@ -483,7 +484,7 @@ describe('loadProfile', () => {
     expect(bare.layers).toEqual([])
   })
 
-  it('refuses a bundle whose own qilin peers are incompatible until the profile exempts that exact pair', () => {
+  it('skips a bundle whose own qilin peers are incompatible and loads it once the profile exempts that pair', () => {
     const anchor = stageInstallation({
       guarded: { patch: '- insert: [{ id: a, name: pkg-a }]\n' },
       kept: { patch: '- insert: [{ id: b, name: pkg-b }]\n' },
@@ -496,11 +497,11 @@ describe('loadProfile', () => {
     initProfile(dir, ['guarded', 'kept'])
 
     // A bundle is not a plugin row, so row admission never reads its own peers: the profile loader is
-    // the only gate that can refuse it, and it fails the whole startup rather than loading a rejected
-    // bundle beside its siblings.
-    expect(() => loadProfileDirectory('qilin', dir, anchor)).toThrow(
-      `Plugin guarded@0.0.0 is incompatible with QiLin ${getQilinRuntimeVersion()}`,
-    )
+    // the only gate that can reject it, and it records the rejection instead of failing the startup.
+    const skipped = loadProfileDirectory('qilin', dir, anchor)
+    expect(skipped.layers.map(layer => layer.packageName)).toEqual(['kept'])
+    expect(skipped.skippedBundles.map(entry => entry.packageName)).toEqual(['guarded'])
+    expect(skipped.skippedBundles[0]?.reason).toContain('incompatible with QiLin')
     writeFileSync(join(dir, PROFILE_COMPATIBILITY_FILENAME), JSON.stringify({ 'guarded@0.0.0': [getQilinRuntimeVersion()] }))
     expect(loadProfileDirectory('qilin', dir, anchor).layers.map(layer => layer.packageName)).toEqual(['guarded', 'kept'])
   })
@@ -713,12 +714,15 @@ describe('loadProfile', () => {
     ])
   })
 
-  it('fails loud when a listed bundle declares no qilin.bundle', () => {
+  it('records a listed bundle that declares no qilin.bundle instead of failing the startup', () => {
     const anchor = stageInstallation({ 'not-a-bundle': {} })
     const home = tmp()
     const dir = resolveProfileDir('demo', home)
     initProfile(dir, ['not-a-bundle'])
-    expect(() => loadProfile('t', 'demo', anchor, home)).toThrow('declares no qilin.bundle')
+    const profile = loadProfile('t', 'demo', anchor, home)
+    expect(profile.layers).toEqual([])
+    expect(profile.skippedBundles.map(entry => entry.packageName)).toEqual(['not-a-bundle'])
+    expect(profile.skippedBundles[0]?.reason).toContain('declares no qilin.bundle')
   })
 })
 
@@ -861,6 +865,7 @@ describe('healProfilesModuleFallback', () => {
     symlinkSync(realBundle, bundleLink, 'junction')
     const profile: Profile = {
       name: 'symlinked',
+      skippedBundles: [],
       dir,
       layers: [{
         packageName: 'selected-bundle',
@@ -905,6 +910,7 @@ describe('healProfilesModuleFallback', () => {
     const dir = resolveProfileDir('explicit-roots', home)
     const profile: Profile = {
       name: 'explicit-roots',
+      skippedBundles: [],
       dir,
       layers: ([['bundle-a', bundleA], ['bundle-b', bundleB]] as const).map(([packageName, packageDir]) => ({
         packageName,
@@ -944,6 +950,7 @@ describe('healProfilesModuleFallback', () => {
     writeFileSync(join(nested, 'package.json'), JSON.stringify({ name: 'bundle-only' }))
     const profile: Profile = {
       name: 'ordered',
+      skippedBundles: [],
       dir,
       layers: ([['bundle-a', bundleA], ['bundle-b', bundleB]] as const).map(([packageName, packageDir]) => ({
         packageDir,

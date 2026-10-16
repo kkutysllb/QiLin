@@ -198,6 +198,16 @@ export interface Profile {
   patchPath: string
   /** The profile's own patches; empty when the file is absent. */
   patches: PatchOptions[]
+  /** Selected bundles the profile could not load; reported once per start, never fatal. */
+  skippedBundles: SkippedBundle[]
+}
+
+/** A selected bundle the profile could not load. */
+export interface SkippedBundle {
+  /** The bundle's package name from the profile declaration. */
+  packageName: string
+  /** Why the bundle was skipped, as reported on stderr. */
+  reason: string
 }
 
 /** One package selected by the profile module-fallback rules. */
@@ -765,6 +775,17 @@ export async function healProfilesModuleFallback(
   })
 }
 
+/**
+ * Report the bundles a profile could not load once per start.
+ * @param binName - the diagnostic prefix on each line.
+ * @param profile - the loaded profile carrying its skipped bundles.
+ */
+export function reportSkippedBundles(binName: string, profile: Pick<Profile, 'skippedBundles'>): void {
+  for (const { packageName, reason } of profile.skippedBundles) {
+    process.stderr.write(binName + ': skipping profile bundle ' + JSON.stringify(packageName) + ': ' + reason + '\n')
+  }
+}
+
 /** Return installed direct dependencies that Node resolves before profile fallback. */
 function installedProfilePackageNames(profile: Profile): string[] {
   let manifest: ProfileManifest
@@ -1327,24 +1348,32 @@ export function loadProfileDirectory(
   const manifest = dropRetiredProfileBundles(dir, readProfileManifest(binName, dir))
   const bundles = profileDeclarationOf(manifest)?.profile?.bundles ?? []
   const exemptions = bundles.length === 0 ? {} : readProfileVersionExemptions(dir)
-  const layers = bundles.map((packageName): ProfileLayer => {
-    const packageDir = resolveBundleDir(binName, packageName, installAnchor, dir)
-    const bundleManifest = JSON.parse(readFileSync(join(packageDir, 'package.json'), 'utf8')) as ProfileManifest
-    const declared = bundlePatchOf(bundleManifest)
-    if (declared === undefined) {
-      throw new Error(`${binName}: profile bundle ${JSON.stringify(packageName)} declares no qilin.bundle.patch or dsh.bundle.patch in its package.json`)
+  const layers: ProfileLayer[] = []
+  const skippedBundles: SkippedBundle[] = []
+  for (const packageName of bundles) {
+    try {
+      const packageDir = resolveBundleDir(binName, packageName, installAnchor, dir)
+      const bundleManifest = JSON.parse(readFileSync(join(packageDir, 'package.json'), 'utf8')) as ProfileManifest
+      const declared = bundlePatchOf(bundleManifest)
+      if (declared === undefined) {
+        throw new Error(`${binName}: profile bundle ${JSON.stringify(packageName)} declares no qilin.bundle.patch or dsh.bundle.patch in its package.json`)
+      }
+      // A bundle is not a plugin row, so row admission never reads its own peers.
+      const issue = evaluatePluginCompatibility(bundleManifest, exemptions)
+      if (issue !== undefined && !issue.exempted) throw new Error(`${binName}: ${pluginCompatibilityWarning(issue)}`)
+      const patchPath = join(packageDir, declared)
+      layers.push({ packageName, packageDir, patchPath, patches: loadOverlayPatches(binName, patchPath) })
+    } catch (error) {
+      // A broken selected bundle must not fail the whole boot: record it, and let the
+      // installation traversal treat its manifest as skipped as well.
+      skippedBundles.push({ packageName, reason: error instanceof Error ? error.message : String(error) })
     }
-    // A bundle is not a plugin row, so row admission never reads its own peers.
-    const issue = evaluatePluginCompatibility(bundleManifest, exemptions)
-    if (issue !== undefined && !issue.exempted) throw new Error(`${binName}: ${pluginCompatibilityWarning(issue)}`)
-    const patchPath = join(packageDir, declared)
-    return { packageName, packageDir, patchPath, patches: loadOverlayPatches(binName, patchPath) }
-  })
+  }
   const patchPath = join(dir, PROFILE_PATCH_FILENAME)
   const patches = options.userLayer !== false && existsSync(patchPath)
     ? loadOverlayPatches(binName, patchPath)
     : []
-  return { name: basename(dir), dir, layers, patchPath, patches }
+  return { name: basename(dir), dir, layers, patchPath, patches, skippedBundles }
 }
 
 /**

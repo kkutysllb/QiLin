@@ -2,7 +2,7 @@
 
 import { delimiter, join } from 'node:path'
 import { inspect } from 'node:util'
-import { loadLayeredEnv, loadProfileDirectory } from '@qilin-agent/app-boot'
+import { loadLayeredEnv, loadProfileDirectory, reportSkippedBundles } from '@qilin-agent/app-boot'
 import { resolveQilinHome } from '@qilin-agent/home-paths'
 import { runProfile } from '@qilin-agent/cli/profile-boot'
 import type {} from '@qilin-agent/client-connection'
@@ -19,6 +19,7 @@ async function main(): Promise<void> {
   const projectDir = process.argv[3] as string
   const installAnchor = join(runtimeDir, 'node_modules', '@qilin-agent', 'cli', 'package.json')
   const profile = loadProfileDirectory('qilin', projectDir, installAnchor)
+  reportSkippedBundles('qilin', profile)
   const application = runProfile({
     environment: loadLayeredEnv('qilin'),
     profile: 'desktop',

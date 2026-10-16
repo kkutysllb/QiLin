@@ -123,6 +123,7 @@ async function installedGeneration(): Promise<{
     layers: [],
     patchPath: join(profileDir, 'cordis.patch.yml'),
     patches: [],
+    skippedBundles: [],
   }
   const generation = await healProfilesModuleFallback({
     installAnchor,

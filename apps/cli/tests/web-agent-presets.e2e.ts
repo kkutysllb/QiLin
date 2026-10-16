@@ -158,6 +158,7 @@ async function bootWeb(
     layers: [],
     patchPath: join(profileDir, 'cordis.patch.yml'),
     patches: [],
+    skippedBundles: [],
   }
   let bundlePatches: PatchOptions[] = [
     ...loadOverlayPatches('qilin-test', BASE_PATCH),
