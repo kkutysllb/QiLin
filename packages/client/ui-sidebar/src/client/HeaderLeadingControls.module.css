@@ -20,6 +20,15 @@
   gap: 8px;
   padding-left: 68px;
   margin-right: 8px;
+  /* The collapsed seat overlays the header's window-drag region from a
+     positioned box: the draggable mask is cut per painted box, so the strip
+     and each button carry their own no-drag instead of relying on the seat's
+     inheritance reaching through the absolute positioning. */
+  -webkit-app-region: no-drag;
+}
+
+:global([data-sidebar-collapsed]) .controls button {
+  -webkit-app-region: no-drag;
 }
 
 /* OpenKylin: one optical line with the hiddenInset traffic lights and the

@@ -29,6 +29,14 @@
   padding: 10px 28px 0 20px;
 }
 
+/* macOS collapsed desktop: the Sidebar's leading controls (sidebar-open and
+   New Session) overlay the title row's left edge beside the hiddenInset
+   traffic lights — the same single titlebar line the expanded header uses —
+   instead of filling the leading seat and pushing the title row and the View
+   tab strip out of the fixed 76px figure. The title row clears them with its
+   own left padding; the seat's 68px traffic-light inset still applies, so the
+   first control lands at x 88 exactly as its own CSS documents. */
+
 /* Blank Sessions retain navigation controls without conversation title or tabs. */
 .headerBlank {
   min-height: 0;
@@ -496,4 +504,42 @@
 .root[data-phase='settling'] .composerSeat,
 .embeddedBody[data-content-phase='settling'] .composerSeat {
   visibility: hidden;
+}
+
+/* macOS collapsed desktop: the leading controls (sidebar-open and New Session)
+   take the title row's own first cell, so they read on one line with the title
+   beside the hiddenInset traffic lights and the View tab strip keeps the second
+   row inside the fixed 76px figure. They stay in the flow — an absolutely
+   positioned seat would sit on the header's window-drag region, whose
+   draggable mask cuts no hole for a positioned box and left them unclickable.
+   The seat's 68px traffic-light inset still applies, so the first control
+   lands at x 88 exactly as its own CSS documents. */
+:global(html[data-platform='darwin']) :global([data-sidebar-collapsed]) .header:has(.tabs) {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: 30px auto;
+  align-items: start;
+  column-gap: 0;
+}
+
+/* The session-header slot may wrap the title row and the tab strip in one box;
+   flattening that box makes them the header's own grid items. The :has guard
+   keeps the title row itself out of the rule. */
+:global(html[data-platform='darwin']) :global([data-sidebar-collapsed]) .header:has(.tabs) > div:not(.headerLeading):has(.titleRow) {
+  display: contents;
+}
+
+:global(html[data-platform='darwin']) :global([data-sidebar-collapsed]) .headerLeading {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+:global(html[data-platform='darwin']) :global([data-sidebar-collapsed]) .titleRow {
+  grid-row: 1;
+  grid-column: 2;
+}
+
+:global(html[data-platform='darwin']) :global([data-sidebar-collapsed]) .tabs {
+  grid-row: 2;
+  grid-column: 1 / -1;
 }
