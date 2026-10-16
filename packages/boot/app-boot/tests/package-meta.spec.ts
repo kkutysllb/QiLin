@@ -519,6 +519,7 @@ describe('plugin display metadata with read-only resolver stacks', () => {
     profileURL = `${pathToFileURL(profileDir).href}/`
     const registration = installRuntimeInterception({
       profilesDir, profileDir, localPackageNames: [],
+      linkedRoots: [],
       entries: ['plain', 'translated'].map(name => ({
         name, version: undefined, scope: 'profile' as const,
         packageDir: join(bundle, 'node_modules', name), declarer: join(bundle, 'package.json'),

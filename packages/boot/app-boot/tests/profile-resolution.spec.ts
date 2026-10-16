@@ -1126,6 +1126,7 @@ describe('profile resolution generation', { concurrent: false }, () => {
       profilesDir,
       profileDir: join(profilesDir, 'test'),
       localPackageNames: [],
+      linkedRoots: [],
       entries: [],
     })
     registrations.push(registration)

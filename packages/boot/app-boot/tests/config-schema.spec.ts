@@ -37,7 +37,7 @@ const importModule = vi.fn(async (name: string): Promise<unknown> => {
 beforeEach(() => {
   dir = mkdtempSync(join(tmpdir(), 'qilin-config-schema-'))
   profile = { name: 'test', dir, patchPath: join(dir, 'cordis.patch.yml'), patches: [], layers: [], skippedBundles: [] }
-  resolution = { profilesDir: dir, profileDir: dir, localPackageNames: [], entries: [] }
+  resolution = { profilesDir: dir, profileDir: dir, localPackageNames: [], entries: [], linkedRoots: [] }
   const loader = ModuleLoader.fromInternal()
   if (loader === undefined) throw new Error('test requires supported Node internals')
   vi.spyOn(ModuleLoader, 'fromInternal').mockReturnValue({ ...loader, import: importModule })

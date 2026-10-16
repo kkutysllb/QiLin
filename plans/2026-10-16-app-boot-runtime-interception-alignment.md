@@ -104,3 +104,14 @@
 **过程教训（已记录）** ✓：给新必填字段补测试夹具时，**不要**用"就近找闭合括号"的启发式批量插入 ✗ —— 它会改坏多行字面量（本轮实测把类型错误从 10 放大到 40 ✗）✓。正确顺序是：**先回退测试文件 → 重跑幂等的改名 → 再逐个精确补** ✓。
 
 **待做**：slice 3（bundle patch 读取 ✓）、slice 4（`LinkedRoot` / `linkedRoots` / `realModuleFile` ✓）、slice 5（spec 对齐 ✓）。
+
+
+## 9. 执行进度续：slice 4（linkedRoots / LinkedRoot / realModuleFile）已落地
+
+- `RuntimeResolution` 增加 **`linkedRoots: readonly LinkedRoot[]`** ✓ + 新类型 `LinkedRoot` ✓ + `linkedProfileRoots()` ✓（复用本仓既有的 `profileLinkCandidates` ✓，按上游语义：只保留**位于 profiles 树与当前 profile 之外**的链接 ✓、按名字排序 ✓、冻结 ✓）。
+- `legacy-links.ts` 新增并导出 **`realModuleFile(path)`** ✓（打包可执行体感知：非 pkg 或链接时走 `realpathSync` ✓，否则解析到包目录相对路径 ✓）；`package-meta.ts` 的 **3 处** `realpathSync(target)` 改用 `realModuleFile(target)` ✓（这正是上游在该提交里的行为改动 ✓）。
+- **夹具**逐一精确补齐（9 处 ✓，跨 `plugin-manager`、`hmr`、app-boot 的 4 个 spec ✓）—— 本轮严格按"读清楚再改"执行 ✓，没有再出现上轮的批量改坏 ✓。
+
+**验证**：`typecheck` 0 ✓；app-boot + hmr + plugin-manager **43 文件 / 1152 用例全绿** ✓；`verify-export-jsdoc` 通过 ✓；`casts` 0 新增 ✓；`doc-sync` clean ✓；桌面 lane **88 文件 / 895 用例全绿** ✓。
+
+**剩余**：slice 3（bundle patch 读取一族 ✓）、slice 5（spec 对齐 ✓）。

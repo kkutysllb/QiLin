@@ -36,6 +36,7 @@ it('installs the inherited generation and behavior', async () => {
     profileDir: '/profiles/test',
     localPackageNames: [],
     entries: [],
+    linkedRoots: [],
   }
   harness.data = { generation, behavior: 'verify' }
   await import('../src/profile-resolution/worker-bootstrap.ts')

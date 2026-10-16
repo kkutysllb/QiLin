@@ -44,6 +44,7 @@ function generation(
     profileDir,
     localPackageNames: [],
     entries: [{ name: 'metadata-lib', packageDir, version, declarer, scope: 'installation' }],
+    linkedRoots: [],
   }
 }
 
@@ -98,7 +99,7 @@ describe('profile package metadata service', () => {
     expect(ctx.pluginPackages.packageOf('missing-package', parentURL)).toBeUndefined()
     expect(ctx.pluginPackages.packageOf('@scope', parentURL)).toBeUndefined()
     expect(() => { ctx.pluginPackages.replace({
-      profilesDir: join(root, 'profiles'), profileDir: undefined, localPackageNames: [], entries: [],
+      profilesDir: join(root, 'profiles'), profileDir: undefined, localPackageNames: [], entries: [], linkedRoots: [],
     }) }).toThrow(/runtime resolution is not installed/u)
   })
 
@@ -144,7 +145,7 @@ describe('profile package metadata service', () => {
     const ctx = new Context()
     contexts.push(ctx)
     await ctx.plugin(PluginPackages, {
-      generation: { profilesDir, profileDir, localPackageNames: [], entries: [] },
+      generation: { profilesDir, profileDir, localPackageNames: [], entries: [], linkedRoots: [] },
     })
 
     expect(ctx.pluginPackages.packageOf(
@@ -221,6 +222,7 @@ describe('profile package metadata service', () => {
     const withProfileEntry = (): RuntimeResolution => ({
       profilesDir, profileDir,
       localPackageNames: [],
+      linkedRoots: [],
       entries: [
         { name: 'metadata-lib', packageDir: installed, version: '1.0.0', declarer: installedAnchor, scope: 'installation' },
         { name: 'removed-lib', packageDir: removed, version: '0.1.0', declarer: join(profileDir, 'package.json'), scope: 'profile' },
@@ -229,6 +231,7 @@ describe('profile package metadata service', () => {
     const afterRemoval = (): RuntimeResolution => ({
       profilesDir, profileDir,
       localPackageNames: [],
+      linkedRoots: [],
       entries: [{ name: 'metadata-lib', packageDir: installed, version: '1.0.0', declarer: installedAnchor, scope: 'installation' }],
     })
 

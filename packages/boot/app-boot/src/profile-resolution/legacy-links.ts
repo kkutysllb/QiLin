@@ -92,8 +92,12 @@ export function removeLinkProjections(dir: string): void {
   rmSync(owned, { recursive: true, force: true })
 }
 
-/** Top-level and scoped entries under a node_modules directory that are symlinks or junctions. */
-function profileLinkCandidates(modules: string): string[] {
+/**
+ * Top-level and scoped entries under a node_modules directory that are symlinks or junctions.
+ * @param modules - the node_modules directory to list.
+ * @returns every symlink or junction entry, at the top level and inside scopes.
+ */
+export function profileLinkCandidates(modules: string): string[] {
   const links: string[] = []
   if (!existsSync(modules)) return links
   for (const entry of readdirSync(modules, { withFileTypes: true })) {
@@ -107,4 +111,15 @@ function profileLinkCandidates(modules: string): string[] {
     }
   }
   return links
+}
+
+/**
+ * Resolve a module file path through the active carrier while keeping a package directory link.
+ * @param path - the module file whose real location is wanted.
+ * @returns the resolved file path, or its package-directory-relative path when a link stands for it.
+ */
+export function realModuleFile(path: string): string {
+  return !isPackagedExecutable() || lstatSync(path).isSymbolicLink()
+    ? realpathSync(path)
+    : join(realModuleDirectory(dirname(path)), basename(path))
 }

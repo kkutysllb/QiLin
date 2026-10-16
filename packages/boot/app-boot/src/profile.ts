@@ -43,6 +43,7 @@ import { loadOverlayPatches } from './index.ts'
 import {
   canonicalLinkPath,
   isPackagedExecutable,
+  profileLinkCandidates,
   isProfileModuleFallbackLink,
   PROFILE_MODULE_FALLBACK_DIR,
   realModuleDirectory,
@@ -210,6 +211,43 @@ export interface SkippedBundle {
   reason: string
 }
 
+/** One profile link whose real directory lies outside the shared profile tree. */
+export interface LinkedRoot {
+  /** Package name of the profile node_modules entry, including its scope. */
+  readonly name: string
+  /** Real directory outside the shared profiles tree and active profile. */
+  readonly realPath: string
+}
+
+/** Profile links to directories outside the profiles tree, sorted by name. */
+function linkedProfileRoots(profile: Profile, profilesDir: string): LinkedRoot[] {
+  const links = profileLinkCandidates(join(profile.dir, 'node_modules'))
+  if (links.length === 0) return []
+  let tree: string
+  try {
+    tree = realModuleDirectory(profilesDir) + sep
+  } catch (error) {
+    // A profiles tree that is not materialized yet holds no links.
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+    tree = resolve(profilesDir) + sep
+  }
+  const excluded = [tree, realModuleDirectory(profile.dir) + sep]
+  const roots: LinkedRoot[] = []
+  for (const linkPath of links) {
+    let realPath: string
+    try {
+      realPath = realModuleDirectory(linkPath)
+    } catch (error) {
+      // A link that vanished mid-scan is not a root.
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') continue
+      throw error
+    }
+    if (excluded.some(prefix => realPath.startsWith(prefix))) continue
+    roots.push({ name: relative(join(profile.dir, 'node_modules'), linkPath).split(sep).join('/'), realPath })
+  }
+  return roots.sort((left, right) => left.name.localeCompare(right.name))
+}
+
 /** One package selected by the profile module-fallback rules. */
 export interface RuntimeResolutionEntry {
   /** Bare package name. */
@@ -234,6 +272,8 @@ export interface RuntimeResolution {
   readonly localPackageNames: readonly string[]
   /** Installation entries followed by bundle-only entries in precedence order. */
   readonly entries: readonly RuntimeResolutionEntry[]
+  /** Active profile links to external directories, sorted by name. */
+  readonly linkedRoots: readonly LinkedRoot[]
 }
 
 /** Startup backend selection for one computed profile resolution generation. */
@@ -752,6 +792,7 @@ export async function healProfilesModuleFallback(
       return Promise.resolve()
     })
   }
+  const linkedRoots = profile === undefined ? [] : linkedProfileRoots(profile, profilesDir)
   const profileDeclarers = new Map<string, string>()
   const profileVersions = new Map<string, string | undefined>()
   const localPackageNames = profile === undefined ? [] : installedProfilePackageNames(profile)
@@ -762,6 +803,7 @@ export async function healProfilesModuleFallback(
     profilesDir,
     profileDir: profile?.dir,
     localPackageNames: Object.freeze(localPackageNames),
+    linkedRoots: Object.freeze(linkedRoots.map(root => Object.freeze(root))),
     entries: Object.freeze([
       ...[...packageDirs].map(([name, packageDir]) => Object.freeze({
         name, packageDir, version: versions.get(name),

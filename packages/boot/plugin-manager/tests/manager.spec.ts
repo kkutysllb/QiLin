@@ -25,7 +25,7 @@ const OFFICIAL = 'https://registry.npmjs.org/'
 const MIRROR = 'https://registry.npmmirror.com/'
 
 /** A package generation for stubs that only need a published table to exist. */
-const GENERATION = { profilesDir: '/profiles', profileDir: undefined, localPackageNames: [], entries: [] }
+const GENERATION = { profilesDir: '/profiles', profileDir: undefined, localPackageNames: [], entries: [], linkedRoots: [] }
 
 async function fixture(
   reload: 'live' | 'startup' = 'live', overlay = false, prepare?: (ctx: Context) => void, config: Config = {},

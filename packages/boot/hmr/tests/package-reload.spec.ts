@@ -233,6 +233,7 @@ function table(addonDir: string, ...dropped: string[]): RuntimeResolution {
   return {
     profilesDir: '/profiles', profileDir: '/profiles/test', localPackageNames: ['addon', ...dropped],
     entries: [entry('addon', addonDir), ...dropped.map(name => entry(name, isAbsolute(name) ? name : `/packages/${name}`))],
+    linkedRoots: [],
   }
 }
 
