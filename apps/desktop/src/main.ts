@@ -36,7 +36,11 @@ import { claimDesktopSingleInstance } from './single-instance.ts'
 import { desktopUpdateChannel } from './update-channel.ts'
 import { DesktopUpdateCoordinator } from './update-coordinator.ts'
 import { DesktopCommandManager } from './command-management.ts'
-import { serveWebDocument, authenticateWebHost, forwardWebRequest } from './web-document.ts'
+import {
+  serveWebDocument, authenticateWebHost, forwardWebRequest, webCookieHeader, accountSessionCookieName,
+  DEPLOYMENT_AUTHORITY_HEADER, DESKTOP_AUTHORITY, ACCOUNT_SESSION_COOKIE_PREFIX,
+  type WebSessionCookie,
+} from './web-document.ts'
 import { DesktopFatalRecovery } from './fatal-recovery.ts'
 import { pruneCrashReports, RendererConsoleTail, writeCrashReport, type CrashReportSource } from './crash-report.ts'
 import { openWelcomeWindow } from './welcome-window.ts'
@@ -407,6 +411,70 @@ async function main(): Promise<void> {
   const applicationUrl = `${SCHEME}://app/`
   let hostUrl: string | undefined
   let hostCookie: string | undefined
+  let accountSession: WebSessionCookie | undefined
+  /** One-shot resolver notifying the application boot that an account session became available. */
+  let notifyAccountSessionReady: (() => void) | undefined
+  /**
+   * The application boot starts only once an account session exists: boot entries call gated APIs,
+   * and a boot on a pre-auth document would fail them all. The welcome window owns sign-in, so the
+   * wait ends when sign-in stores a session or a launch restores one.
+   */
+  const waitAccountSession = (): Promise<void> => new Promise((resolve) => {
+    if (accountSession !== undefined) { resolve(); return }
+    notifyAccountSessionReady = resolve
+  })
+  /** Store or clear the captured account session in the live header state and the shell-owned cookie jar. */
+  const storeAccountSession = (url: string, cookie: WebSessionCookie): void => {
+    const cleared = cookie.value === '' || (cookie.expiresAt !== undefined && cookie.expiresAt <= Date.now() / 1000)
+    const previous = accountSession
+    accountSession = cleared ? undefined : cookie
+    scheduleApplicationReload(previous)
+    const jar = cleared
+      ? session.defaultSession.cookies.remove(url, cookie.name)
+      : session.defaultSession.cookies.set({
+        url, name: cookie.name, value: cookie.value,
+        ...(cookie.expiresAt === undefined ? {} : { expirationDate: cookie.expiresAt }),
+      })
+    // A failed jar write only loses single sign-on across relaunch; the live session keeps working.
+    void jar.catch(() => undefined)
+  }
+  /** Reload the account session a previous launch stored for this Host authority. */
+  const restoreAccountSession = async (url: string): Promise<void> => {
+    accountSession = undefined
+    const stored = await session.defaultSession.cookies.get({ url }).catch(() => [])
+    const match = stored.find(cookie => cookie.name === accountSessionCookieName())
+    if (match !== undefined) {
+      accountSession = {
+        name: match.name, value: match.value,
+        ...(match.expirationDate === undefined ? {} : { expiresAt: match.expirationDate }),
+      }
+      notifyAccountSessionReady?.()
+      notifyAccountSessionReady = undefined
+    }
+  }
+  /** Re-read the account session after the jar gained one outside forwarding: welcome login stores it with Electron's session fetch. */
+  const refreshAccountSession = (): Promise<void> => {
+    const url = hostUrl
+    return url === undefined ? Promise.resolve() : restoreAccountSession(url)
+  }
+  /** Session fetch for Host account routes, carrying the desktop's stable session authority. */
+  const fetchWithDesktopAuthority = (input: string, init?: RequestInit): Promise<Response> => {
+    const headers = new Headers(init?.headers)
+    headers.set(DEPLOYMENT_AUTHORITY_HEADER, DESKTOP_AUTHORITY)
+    return net.fetch(input, { ...init, headers })
+  }
+  /** Drop the account session everywhere after a sign-out, whichever store holds it. */
+  const clearAccountSession = (): void => {
+    const previous = accountSession
+    accountSession = undefined
+    scheduleApplicationReload(previous)
+    const url = hostUrl
+    if (url === undefined) return
+    void session.defaultSession.cookies.get({ url }).then(stored => Promise.all(
+      stored.filter(cookie => cookie.name.startsWith(ACCOUNT_SESSION_COOKIE_PREFIX))
+        .map(cookie => session.defaultSession.cookies.remove(url, cookie.name)),
+    )).catch(() => undefined)
+  }
   const browserGuests = new DesktopBrowserGuests(() => hostUrl)
   let injections: readonly unknown[] = []
   let welcomeBackend: DesktopWelcomeBackend | undefined
@@ -431,10 +499,10 @@ async function main(): Promise<void> {
     }
   }
   let navigation: { window: BrowserWindow; url: string; promise: Promise<void> } | undefined
-  const navigateMain = (url: string): Promise<void> => {
+  const navigateMain = (url: string, force = false): Promise<void> => {
     const window = mainWindow
     if (quitting || window === undefined || window.isDestroyed()) return Promise.resolve()
-    if (navigation?.window === window && navigation.url === url) return navigation.promise
+    if (!force && navigation?.window === window && navigation.url === url) return navigation.promise
     const next = { window, url, promise: Promise.resolve() }
     next.promise = window.loadURL(url).catch((error: unknown) => {
       if (quitting || shuttingDown || window.isDestroyed() || navigation !== next
@@ -444,6 +512,25 @@ async function main(): Promise<void> {
     })
     navigation = next
     return next.promise
+  }
+  /** One pending session-reload timer; rescheduling replaces it instead of stacking navigations. */
+  let sessionReload: ReturnType<typeof setTimeout> | undefined
+  /**
+   * Reload the application document after the stored account session changed identity. The browser
+   * flow lands on the application through a post-sign-in navigation, and the application reads its
+   * boot facts (account menu, inventories, catalogs) once per document, so a session that arrives
+   * or leaves mid-document needs the same fresh load to rerun them.
+   * @param previous - the session stored before the change, for the changed-identity decision.
+   */
+  const scheduleApplicationReload = (previous: WebSessionCookie | undefined): void => {
+    const changed = (previous?.value ?? undefined) !== (accountSession?.value ?? undefined)
+    if (!changed) return
+    if (sessionReload !== undefined) clearTimeout(sessionReload)
+    sessionReload = setTimeout(() => {
+      sessionReload = undefined
+      // A failed reload keeps the current document; the connection UI already reports that state.
+      void navigateMain(applicationUrl, true).catch(() => undefined)
+    }, 500)
   }
   const platformView = new DesktopPlatformView(join(app.getAppPath(), 'lib', 'preload-platform-account.cjs'),
     () => locale.id === 'zh-CN' ? 'zh_CN' : 'en_US', process.platform === 'win32' ? 'win32' : 'darwin')
@@ -457,10 +544,11 @@ async function main(): Promise<void> {
       start: async () => {
         const ready = await host.start()
         hostCookie = await authenticateWebHost(ready.url)
+        await restoreAccountSession(ready.url)
         hostUrl = ready.url
         if (ready.injections === undefined) throw new Error('Desktop Host did not provide boot injections')
         injections = ready.injections
-        welcomeBackend = await connectDesktopWelcome(ready.url, (input, init) => net.fetch(input, init), async () => (await session.defaultSession.cookies.get({ url: ready.url })).map(cookie => `${cookie.name}=${cookie.value}`).join('; '))
+        welcomeBackend = await connectDesktopWelcome(ready.url, fetchWithDesktopAuthority, async () => (await session.defaultSession.cookies.get({ url: ready.url })).map(cookie => `${cookie.name}=${cookie.value}`).join('; '))
         analyticsEnabled = await welcomeBackend.analyticsEnabled().catch(() => false)
         if (!reportedLaunch) { reportedLaunch = true; void track('desktop_app_launch', {}) }
         stopAccount?.()
@@ -477,8 +565,13 @@ async function main(): Promise<void> {
             returnedAttempt = attempt.id
             focusPrimaryWindow()
           }
+          if (state.status === 'credential-stored') void refreshAccountSession()
           if (state.status === 'credential-stored' && attempt?.phase === 'succeeded' && welcomeWindow !== undefined) void enterWorkspace({ activate: false }).catch(() => undefined)
+          // Only the platform credential leaving its stored state ends the local session here; a
+          // deployment whose accounts are local reports signed-out from the first state, and clearing
+          // on that would drop the session a launch just restored.
           if (previousAccountStatus === 'credential-stored' && state.status === 'signed-out') {
+            clearAccountSession()
             void readWelcomeState().then(async (value) => {
               if (needsWelcome(value) && !quitting) {
                 enteredWorkspace = false
@@ -669,7 +762,7 @@ async function main(): Promise<void> {
     window.once('closed', () => { resolve() })
   })
 
-  protocol.handle(SCHEME, (request) => {
+  protocol.handle(SCHEME, async (request) => {
     const url = new URL(request.url)
     // Shell-owned documents live in the application bundle and never pass through the Host.
     if (url.hostname === 'shell') return serveWebDocument(request, join(app.getAppPath(), 'renderer'))
@@ -681,7 +774,20 @@ async function main(): Promise<void> {
       if (backend.host === undefined || hostUrl === undefined || hostCookie === undefined) {
         return Promise.resolve(new Response(null, { status: 503 }))
       }
-      return forwardWebRequest(request, hostUrl, hostCookie)
+      const target = hostUrl
+      const response = await forwardWebRequest(request, target, webCookieHeader(accountSession, hostCookie),
+        (cookie) => { storeAccountSession(target, cookie) })
+      // Signing out returns the shell to the welcome stage, exactly like the browser landing page a
+      // sign-out returns to: the workspace document has no session to boot, so the login surface
+      // replaces it instead of leaving a spinner. enteredWorkspace clears first, or the welcome
+      // window closes itself on creation and hides nothing.
+      if (request.method === 'POST' && url.pathname === '/api/auth/logout' && response.ok) {
+        enteredWorkspace = false
+        void showWelcome().catch((error: unknown) => {
+          console.warn('desktop sign-out: welcome re-entry failed', error)
+        })
+      }
+      return response
     }
     return Promise.resolve(new Response(null, { status: 404 }))
   })
@@ -695,6 +801,14 @@ async function main(): Promise<void> {
   ipcMain.handle(DESKTOP_IPC.boot, async (event) => {
     assertDesktopSender(event, ['app'])
     await startup
+    if (accountSession === undefined) {
+      // The document cannot finish booting without a session, so the welcome stage must own the
+      // screen while the wait lasts. enteredWorkspace is already false on every such path.
+      void showWelcome().catch((error: unknown) => {
+        console.warn('desktop boot: welcome surface failed', error)
+      })
+    }
+    await waitAccountSession()
     if (backend.host === undefined || hostUrl === undefined) throw new Error('Desktop Host is unavailable')
     return { injections, streamBaseUrl: new URL(hostUrl).origin }
   })
@@ -727,7 +841,12 @@ async function main(): Promise<void> {
     if (requested.host !== target.host || requested.protocol !== (target.protocol === 'https:' ? 'wss:' : 'ws:')) { callback({}); return }
     const headers = Object.fromEntries(Object.entries(details.requestHeaders).map(([name, value]) => [name.toLowerCase(), value]))
     if (headers.origin !== 'qilin-app://app') { callback({ cancel: true }); return }
-    callback({ requestHeaders: { ...headers, origin: target.origin, cookie: hostCookie, 'sec-fetch-site': 'same-origin' } })
+    callback({
+      requestHeaders: {
+        ...headers, origin: target.origin, cookie: webCookieHeader(accountSession, hostCookie),
+        'sec-fetch-site': 'same-origin', [DEPLOYMENT_AUTHORITY_HEADER]: DESKTOP_AUTHORITY,
+      },
+    })
   })
 
   const assertMainApplication = (event: IpcMainInvokeEvent): BrowserWindow => {
@@ -1186,12 +1305,24 @@ async function main(): Promise<void> {
         },
         skip: enterWorkspace,
         logIn: async (username: string, password: string) => {
-          if (hostUrl === undefined) return { ok: false }
-          return submitLocalAccount(new URL(hostUrl).origin, 'login', { username, password }, (input, init) => net.fetch(input, init))
+          const url = hostUrl
+          if (url === undefined) return { ok: false }
+          const result = await submitLocalAccount(new URL(url).origin, 'login', { username, password }, fetchWithDesktopAuthority)
+          if (result.ok) {
+            if (result.session !== undefined) storeAccountSession(url, result.session)
+            else await refreshAccountSession()
+          }
+          return result
         },
         register: async (username: string, email: string, password: string) => {
-          if (hostUrl === undefined) return { ok: false }
-          return submitLocalAccount(new URL(hostUrl).origin, 'setup', { username, email, password }, (input, init) => net.fetch(input, init))
+          const url = hostUrl
+          if (url === undefined) return { ok: false }
+          const result = await submitLocalAccount(new URL(url).origin, 'setup', { username, email, password }, fetchWithDesktopAuthority)
+          if (result.ok) {
+            if (result.session !== undefined) storeAccountSession(url, result.session)
+            else await refreshAccountSession()
+          }
+          return result
         },
       })
       const window = welcomeWindow

@@ -2,7 +2,10 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { authenticateWebHost, forwardWebRequest, serveWebDocument } from '../src/web-document.ts'
+import {
+  accountSessionCookie, authenticateWebHost, forwardWebRequest, serveWebDocument, webCookieHeader,
+  type WebSessionCookie,
+} from '../src/web-document.ts'
 
 const roots: string[] = []
 afterEach(async () => {
@@ -40,17 +43,21 @@ it('forwards upload bytes and cancellation with Host credentials while keeping t
   const fetch = vi.fn().mockResolvedValue(new Response(body, { headers: { 'content-encoding': 'gzip', 'set-cookie': 'private' } }))
   vi.stubGlobal('fetch', fetch)
   const request = new Request('qilin-app://app/api/upload?name=file', {
-    method: 'POST', body: 'upload bytes', headers: { origin: 'qilin-app://app', cookie: 'untrusted' },
+    method: 'POST', body: 'upload bytes',
+    headers: { origin: 'qilin-app://app', cookie: 'untrusted', 'x-qilin-deployment-authority': 'https://spoofed.example' },
   })
-  const response = await forwardWebRequest(request, 'http://127.0.0.1:1234/?token=secret', 'session=owned')
+  const onAccountSession = vi.fn()
+  const response = await forwardWebRequest(request, 'http://127.0.0.1:1234/?token=secret', 'session=owned', onAccountSession)
   const [target, init] = fetch.mock.calls[0] as [URL, RequestInit]
   expect(target.href).toBe('http://127.0.0.1:1234/api/upload?name=file')
   expect(new Headers(init.headers).get('cookie')).toBe('session=owned')
   expect(new Headers(init.headers).get('origin')).toBeNull()
+  expect(new Headers(init.headers).get('x-qilin-deployment-authority')).toBe('127.0.0.1')
   expect(init.signal).toBe(request.signal)
   expect(init.body).toBe(request.body)
   expect(response.headers.get('set-cookie')).toBeNull()
   expect(response.headers.get('content-encoding')).toBeNull()
+  expect(onAccountSession).not.toHaveBeenCalled()
   expect(await response.text()).toBe('stream')
 })
 
@@ -85,4 +92,47 @@ it('refuses another page origin without forwarding its request', async () => {
   const response = await forwardWebRequest(new Request('qilin-app://app/api/read', { headers: { origin: 'https://other.example' } }), 'http://127.0.0.1:1234/', 'session=owned')
   expect(response.status).toBe(403)
   expect(fetch).not.toHaveBeenCalled()
+})
+
+it('captures the account-session cookie a login sets while still withholding it from the page', async () => {
+  const future = new Date(Date.now() + 604800000).toUTCString()
+  const fetch = vi.fn().mockResolvedValue(new Response('{"user":{}}', { headers: {
+    'set-cookie': `qilin-session-abc=v1.payload.sig; Max-Age=604800; Path=/; Expires=${future}; HttpOnly; SameSite=Strict`,
+  } }))
+  vi.stubGlobal('fetch', fetch)
+  const captured: WebSessionCookie[] = []
+  const response = await forwardWebRequest(
+    new Request('qilin-app://app/api/auth/login', { method: 'POST', body: 'credentials', headers: { origin: 'qilin-app://app' } }),
+    'http://127.0.0.1:1234/', 'device=owned', (session) => { captured.push(session) },
+  )
+  expect(captured[0]).toMatchObject({ name: 'qilin-session-abc', value: 'v1.payload.sig' })
+  expect(captured[0]!.expiresAt).toBeGreaterThan(Date.now() / 1000 + 604700)
+  expect(response.headers.get('set-cookie')).toBeNull()
+  expect(webCookieHeader(captured[0], 'device=owned')).toBe('qilin-session-abc=v1.payload.sig; device=owned')
+})
+
+it('reports a cleared account session and forwards unchanged while none is stored', async () => {
+  const fetch = vi.fn().mockResolvedValue(new Response(null, { status: 204, headers: {
+    'set-cookie': 'qilin-session-abc=; Max-Age=0; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Strict',
+  } }))
+  vi.stubGlobal('fetch', fetch)
+  const captured: WebSessionCookie[] = []
+  await forwardWebRequest(
+    new Request('qilin-app://app/api/auth/logout', { method: 'POST', headers: { origin: 'qilin-app://app' } }),
+    'http://127.0.0.1:1234/', 'device=owned', (session) => { captured.push(session) },
+  )
+  expect(captured[0]).toEqual({ name: 'qilin-session-abc', value: '', expiresAt: expect.any(Number) })
+  expect(captured[0]!.expiresAt).toBeLessThanOrEqual(Date.now() / 1000)
+  expect(webCookieHeader(undefined, 'device=owned')).toBe('device=owned')
+})
+
+it('parses only account-session cookies and prefers Max-Age over Expires', () => {
+  const maxAge = accountSessionCookie('qilin-session-abc=v1.x.y; Max-Age=120; Path=/; Expires=Wed, 21 Oct 2015 07:28:00 GMT')
+  expect(maxAge).toMatchObject({ name: 'qilin-session-abc', value: 'v1.x.y' })
+  expect(maxAge?.expiresAt).toBeGreaterThan(Date.now() / 1000 + 60)
+  expect(accountSessionCookie('qilin-session-abc=v1.x.y; Expires=Wed, 21 Oct 2100 07:28:00 GMT')?.expiresAt)
+    .toBe(Math.floor(Date.parse('Wed, 21 Oct 2100 07:28:00 GMT') / 1000))
+  expect(accountSessionCookie('qilin-session-abc=v1.x.y')).toEqual({ name: 'qilin-session-abc', value: 'v1.x.y' })
+  expect(accountSessionCookie('device=owned; Max-Age=120')).toBeUndefined()
+  expect(accountSessionCookie('malformed')).toBeUndefined()
 })

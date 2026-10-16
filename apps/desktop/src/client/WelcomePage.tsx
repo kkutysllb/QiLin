@@ -172,6 +172,7 @@ export function Welcome({ api }: { api: WelcomeApi }) {
       if (!result.ok) {
         // The Host names the refusal; a taken device account is the one a visitor can act on.
         if (mounted.current) setAuthError(result.reason === 'already-initialized' || result.reason === 'account-conflict'
+          || result.reason === 'username-taken'
           ? m.welcomeAccountExists
           : kind === 'login' ? m.welcomeLoginFailed : m.welcomeRegisterFailed)
         return

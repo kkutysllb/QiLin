@@ -1,4 +1,9 @@
-vi.mock('../src/web-document.ts', () => ({ authenticateWebHost: async () => 'test-cookie', serveWebDocument: vi.fn(), forwardWebRequest: vi.fn() }))
+vi.mock('../src/web-document.ts', () => ({
+  authenticateWebHost: async () => 'test-cookie', serveWebDocument: vi.fn(), forwardWebRequest: vi.fn(),
+  webCookieHeader: (_accountSession: unknown, deviceCookie: string) => deviceCookie,
+  accountSessionCookie: () => undefined,
+  ACCOUNT_SESSION_COOKIE_PREFIX: 'qilin-session-',
+}))
 /** Welcome startup uses the Host before transitioning to the workspace. */
 
 import { afterEach, expect, it, vi } from 'vitest'
@@ -88,6 +93,7 @@ vi.mock('electron', () => ({
   nativeTheme: state.nativeTheme,
   session: { defaultSession: {
     setPermissionCheckHandler: vi.fn(), setPermissionRequestHandler: vi.fn(), webRequest: { onBeforeSendHeaders: vi.fn() },
+    cookies: { get: vi.fn(async () => []), set: vi.fn(async () => undefined), remove: vi.fn(async () => undefined) },
   } },
   protocol: { registerSchemesAsPrivileged: vi.fn(), handle: vi.fn() },
   ipcMain: {
