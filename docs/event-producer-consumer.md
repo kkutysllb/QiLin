@@ -77,7 +77,7 @@ This matrix shows which packages dispatch each harness-owned event and which pac
 | `tools/ptc-dispatch-log` | `waterfall` | [`packages/core/tools/src/index.ts:194`](../packages/core/tools/src/index.ts) | [`tools`](../packages/core/tools) (`waterfall`) | [`spill-policy`](../packages/spill/spill-policy) |
 | `tools/result` | `emit` | [`packages/core/tools/src/index.ts:202`](../packages/core/tools/src/index.ts) | [`tools`](../packages/core/tools) (`events.dispatch`) | [`agent-instructions`](../packages/context/agent-instructions), [`subagent`](../packages/subagent/subagent), [`tool-present`](../packages/deliverables/tool-present) |
 | `user-questions/request` | `waterfall` | [`packages/interaction/user-questions/src/types.ts:157`](../packages/interaction/user-questions/src/types.ts) | [`user-questions`](../packages/interaction/user-questions) (`waterfall`) | `remotes` |
-| `webserver/index-inject` | `emit` | [`packages/host/webserver/src/index.ts:39`](../packages/host/webserver/src/index.ts) | `webserver` (`emit`) | `connection`, `modules`, `shortcuts`, `ui-sidebar-documentpreview` |
+| `webserver/index-inject` | `emit` | [`packages/host/webserver/src/index.ts:39`](../packages/host/webserver/src/index.ts) | `webserver` (`emit`) | `connection`, `modules`, `shortcuts`, `ui-sidebar-documentpreview`, `ui-theme` |
 | `workflow/agent-end` | `emit` | [`packages/workflow/workflow/src/index.ts:79`](../packages/workflow/workflow/src/index.ts) | [`workflow`](../packages/workflow/workflow) (`events.dispatch`) | [`tool-workflow`](../packages/workflow/tool-workflow) |
 | `workflow/agent-start` | `emit` | [`packages/workflow/workflow/src/index.ts:68`](../packages/workflow/workflow/src/index.ts) | [`workflow`](../packages/workflow/workflow) (`events.dispatch`) | [`tool-workflow`](../packages/workflow/tool-workflow) |
 | `workflow/end` | `emit` | [`packages/workflow/workflow/src/index.ts:89`](../packages/workflow/workflow/src/index.ts) | [`workflow`](../packages/workflow/workflow) (`events.dispatch`) | - |
@@ -93,7 +93,7 @@ This matrix shows which packages dispatch each harness-owned event and which pac
 <!-- BEGIN GENERATED event-producer-consumer:undeclared -->
 | Event string | Dispatchers | Listeners |
 | --- | --- | --- |
-| `connection/reset` | `gateway` (`emit`) | - |
+| `connection/reset` | `gateway` (`emit`) | `ui-settings`, `ui-workspace` |
 | `internal/dispatch` | - | [`terminal-bash`](../packages/terminal/terminal-bash) |
 | `internal/plugin` | - | `computer-use-cua-driver-native`, `loader`, [`lsp-stdio`](../packages/lsp/lsp-stdio), [`mcp-client`](../packages/mcp/mcp-client), `modules` |
 | `internal/service` | - | `gateway` |
@@ -102,7 +102,13 @@ This matrix shows which packages dispatch each harness-owned event and which pac
 | `loader/config-update` | - | [`plugin-manager`](../packages/boot/plugin-manager) |
 | `loader/entry-init` | - | [`plugin-manager`](../packages/boot/plugin-manager) |
 | `loader/volatile-update` | - | [`llm-deepseek`](../packages/llm/llm-deepseek), `speech-to-text` |
+| `locale/change` | `locale` (`emit`) | - |
+| `slash/input-begin-command` | - | `ui-conversation` |
+| `slash/input-consume-token` | - | `ui-conversation` |
+| `slash/input-insert-reference` | - | `ui-conversation` |
+| `slash/input-insert-text` | - | `ui-conversation` |
 | `slots/changed` | `ui-renderer` (`emit`) | - |
+| `theme/change` | `ui-theme` (`emit`) | `ui-layout`, `ui-theme` |
 <!-- END GENERATED event-producer-consumer:undeclared -->
 
 Maintenance mode: generated: Cordis event declarations and producer/listener edges are resolved from the repository TypeScript Program.

@@ -3958,8 +3958,8 @@ export interface Config {
   /** Payload directory carrying `runtime.json` and `dependencies/`. */
   readonly source: string
   /**
-   * Installation directory under the QiLin home. When set, the payload is copied there on the
-   * first call (the copy-on-first-use behavior); when omitted, the payload is used in place without copying,
+   * Installation directory under the Harness home. When set, the payload is copied there on the
+   * first call (the Desktop behavior); when omitted, the payload is used in place without copying,
    * which suits read-only carriers such as container image layers.
    */
   readonly root?: string

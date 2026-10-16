@@ -233,7 +233,7 @@ pi-ai 事件变成 harness 的推理、文本、工具调用、用量与 finish 
 - **图片只接受于 user 与 tool-result 消息**——system、developer 或 assistant 历史中的图片在两条转换路径上都会以 `UNSUPPORTED_CONTENT` 失败。
 - **提供方 HTTP 状态不可用**——pi-ai 错误事件不跨提供方暴露稳定 HTTP 状态。
 - **重试策略由提供方自有，而非 SDK 重试**——pi-ai SDK 重试保持禁用，因此持久 agent（智能体）步骤与 `llm/retry` 事件拥有每个可见尝试，直接 `ctx.llm.stream()` 调用仍是单次尝试。
-- **流式 tool-call 参数在调用结束时只解析一次**——安装的 pi-ai 携带 [`patches/@earendil-works__pi-ai@1.0.2.patch`](../../../patches/@earendil-works__pi-ai@1.0.2.patch)，它移除了每个流适配器中对整个累积参数 JSON 的逐 delta 重解析（上游 [earendil-works/pi#9265](https://github.com/earendil-works/pi/issues/9265)）；不打补丁时，数 MB 的参数流会在事件循环上产生 O(n²) CPU 开销，拖慢进程中的每个会话。在 `toolcall_end` 之前，pi-ai 部分对象的 tool-call `arguments` 保持 `{}`；本适配器只读取 delta 字符串与最终化后的参数。每次 pi-ai 升级都要重新应用或退役该补丁。
+- **流式 tool-call 参数在调用结束时只解析一次**——安装的 pi-ai 携带 [`patches/@earendil-works__pi-ai@1.1.0.patch`](../../../patches/@earendil-works__pi-ai@1.1.0.patch)，它移除了每个流适配器中对整个累积参数 JSON 的逐 delta 重解析（上游 [earendil-works/pi#9265](https://github.com/earendil-works/pi/issues/9265)）；不打补丁时，数 MB 的参数流会在事件循环上产生 O(n²) CPU 开销，拖慢进程中的每个会话。在 `toolcall_end` 之前，pi-ai 部分对象的 tool-call `arguments` 保持 `{}`；本适配器只读取 delta 字符串与最终化后的参数。每次 pi-ai 升级都要重新应用或退役该补丁。
 
 <a id="dev-note"></a>
 ### 开发备注
