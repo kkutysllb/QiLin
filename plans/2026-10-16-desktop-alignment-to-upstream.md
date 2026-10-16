@@ -336,3 +336,28 @@ print('files that dropped calls to imported symbols:', len(findings))
 for rel, names in findings.items():
     print(f'  {rel}: {", ".join(names)}')
 ```
+
+### P3 续 7：检查扩到 `apps/desktop-host` 与 `apps/desktop/scripts`
+
+**结果**：
+
+| 目标 | 两边都有的文件 | 未移植 | 丢弃调用 |
+|---|---|---|---|
+| `apps/desktop/scripts` | **145** | 0 | **0** ✓ |
+| `apps/desktop-host` | 12 | 9 | 2 文件（全部可判定 ✓） |
+
+**`apps/desktop/scripts`：145 个共有文件、0 丢弃** ✓ —— 脚本移植没有悄悄删掉任何调用 ✓。
+
+**`apps/desktop-host` 的两处命中，全部有判定** ✓：
+- `src/index.ts`：`installPlatformSessionPublisher`（**账号边界** ✓：账号栈不移植 ✓，其 spec 正是断言"不发布身份" ✓）；`reportSkippedBundles` / `installOfficeEngineResolution` / `desktopOffice` / `resolveDshHome`（**Office 面留空** ✓：随 `office.ts` 一并缺席 ✓）。
+- `src/cli.ts`：`installOfficeEngineResolution` / `runtimeArchivePath`（Office ✓）+ `dirname/join/resolve`（随代码 ✓）。**这是唯一真实能力缺口** ✓：上游把**桌面 profile 管理**（`manageDesktopProfile`）与**随包 pnpm**（`packageManager` 指向 `primary-runtime/dependencies/pnpm`）交给 CLI ✓，本仓 CLI 尚不暴露这两项 ✓ —— 该差异**已在该文件 JSDoc 写明** ✓（`this repository's CLI exposes neither yet, so the call is the plain entry point` ✓），不是静默丢失 ✓。
+
+**检查清单（按目录白名单）**：
+
+| 目录 | 故意接缝（白名单） |
+|---|---|
+| `apps/desktop/src` | `createDesktopBrowserBridge`、`installMandatoryUpdateOverlay` |
+| `apps/desktop-host` | `installOfficeEngineResolution`、`officeEnginePath` |
+| `apps/desktop/scripts` | `installOfficeEngineResolution` |
+
+**结论**：桌面工程面**没有静默丢失的调用** ✓；剩余差异全部落在两处**有意边界**（账号栈、Office 面 ✓）与一处**已写明的能力缺口**（CLI 的桌面 profile 管理 + 随包 pnpm ✓）之上 ✓。
