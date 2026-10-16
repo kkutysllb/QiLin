@@ -81,7 +81,7 @@ describe.skipIf(process.env.QILIN_DESKTOP_PACKAGED !== '1')('desktop development
       target: 'win-x64',
     })
     expect(realpathSync(join(project, 'node_modules', '@deepseek-ai', 'qilin'))).toBe(realpathSync(cli))
-    expect(realpathSync(join(project, 'node_modules', '@deepseek-ai', 'dsh-desktop-host'))).toBe(realpathSync(host))
+    expect(realpathSync(join(project, 'node_modules', '@qilin-agent', 'desktop-host'))).toBe(realpathSync(host))
     expect(realpathSync(join(project, 'node_modules', 'plain-dependency')))
       .toBe(realpathSync(join(dependencies, 'plain-dependency')))
     expect(realpathSync(join(project, 'node_modules', '@scope', 'dependency')))
