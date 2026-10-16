@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Toast } from '@qilin-agent/client-ui-primitives/src/Toast.tsx'
 import { StateDot } from '@qilin-agent/client-ui-primitives/src/StateDot.tsx'
-import type { AccountView } from '@qilin-agent/deepseek-account/types'
+import type { AccountView } from '../account-types.ts'
 import type { WelcomeApi } from '../welcome-api.ts'
 
 type Page = 'entry' | 'key' | 'account'

@@ -5,11 +5,11 @@
     "outDir": "lib/types"
   },
   "include": [
-    "src/client",
-    "src/welcome-api.ts",
-    "src/locale.ts",
     "src/account-types.ts",
-    "src/browser-bridge-types.ts"
+    "src/browser-bridge-types.ts",
+    "src/client",
+    "src/locale.ts",
+    "src/welcome-api.ts"
   ],
   "references": [
     {
@@ -18,5 +18,9 @@
     {
       "path": "./../../packages/api/product-analytics/tsconfig.host.json"
     }
+  ],
+  "exclude": [
+    "src/client/WelcomePage.tsx",
+    "src/client/welcome.tsx"
   ]
 }
