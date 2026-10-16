@@ -69,7 +69,7 @@ function validates(dump: ConfigSchemaDump, value: unknown, definition = 'entryLi
 
 describe('generateConfigSchema', () => {
   it('owns ordered composition, composition warnings, and profile resolution without mutating layers', async () => {
-    profile.layers = [{ packageName: 'loaded', packageDir: dir, patchPath: join(dir, 'bundle.yml'), patches: [] }]
+    profile.layers = [{ packageName: 'loaded', packageDir: dir, patchPaths: [join(dir, 'bundle.yml')], patches: [] }]
     modules.set('server', { Config: Schema.string() })
     const layers: PatchOptions[][] = [
       [{ insert: [{ ...row('cordis:group', []), id: 'group', group: true }] }],

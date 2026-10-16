@@ -12,6 +12,7 @@ export {
   dshCompatModuleId,
 } from './aliases.ts'
 export {
+  bundlePatchFilesOf,
   bundlePatchOf,
   clientDeclarationOf,
   type ClientDeclaration,

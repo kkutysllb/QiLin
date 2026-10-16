@@ -34,7 +34,7 @@ import { withFileLock } from '@qilin-agent/atomic-write'
 import type { EntryOptions } from '@qilin-agent/kylin-plugin-loader'
 import { applyEntryPatches, type PatchOptions } from '@qilin-agent/kylin-plugin-include'
 import { resolveQilinHome } from '@qilin-agent/home-paths'
-import { bundlePatchOf, dshCompatAliasOf, dshCompatModuleId } from '@qilin-agent/dsh-compat'
+import { bundlePatchFilesOf, bundlePatchOf, dshCompatAliasOf, dshCompatModuleId } from '@qilin-agent/dsh-compat'
 import { evaluatePluginCompatibility, pluginCompatibilityWarning } from './plugin-compatibility.ts'
 import { readProfileVersionExemptions } from './profile-compatibility.ts'
 import type { QilinManifest, QilinPackageManifest } from '@qilin-agent/package-manifest'
@@ -76,9 +76,9 @@ export interface ProfileLayer {
   packageName: string
   /** Absolute directory of the resolved bundle package. */
   packageDir: string
-  /** Absolute path of the bundle's patch file. */
-  patchPath: string
-  /** The parsed patch list. */
+  /** Absolute paths of the bundle's patch files, in application order. */
+  patchPaths: readonly string[]
+  /** The parsed patch lists of every file, concatenated in application order. */
   patches: PatchOptions[]
 }
 
@@ -1396,15 +1396,15 @@ export function loadProfileDirectory(
     try {
       const packageDir = resolveBundleDir(binName, packageName, installAnchor, dir)
       const bundleManifest = JSON.parse(readFileSync(join(packageDir, 'package.json'), 'utf8')) as ProfileManifest
-      const declared = bundlePatchOf(bundleManifest)
-      if (declared === undefined) {
+      const declared = bundlePatchFilesOf(bundleManifest)
+      if (declared.length === 0) {
         throw new Error(`${binName}: profile bundle ${JSON.stringify(packageName)} declares no qilin.bundle.patch or dsh.bundle.patch in its package.json`)
       }
       // A bundle is not a plugin row, so row admission never reads its own peers.
       const issue = evaluatePluginCompatibility(bundleManifest, exemptions)
       if (issue !== undefined && !issue.exempted) throw new Error(`${binName}: ${pluginCompatibilityWarning(issue)}`)
-      const patchPath = join(packageDir, declared)
-      layers.push({ packageName, packageDir, patchPath, patches: loadOverlayPatches(binName, patchPath) })
+      const patchPaths = declared.map(file => join(packageDir, file))
+      layers.push({ packageName, packageDir, patchPaths, patches: patchPaths.flatMap(path => loadOverlayPatches(binName, path)) })
     } catch (error) {
       // A broken selected bundle must not fail the whole boot: record it, and let the
       // installation traversal treat its manifest as skipped as well.

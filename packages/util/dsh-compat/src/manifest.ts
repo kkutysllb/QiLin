@@ -35,6 +35,24 @@ export function bundlePatchOf(manifest: unknown): string | undefined {
   return undefined
 }
 
+/**
+ * Read a bundle's declared patch files from either manifest channel, in application order.
+ * @param manifest - the bundle's parsed package.json.
+ * @returns the declared patch files; empty when the bundle declares none.
+ * @throws when a declaration is neither a string nor a list of strings.
+ */
+export function bundlePatchFilesOf(manifest: unknown): string[] {
+  const channels = manifest as ManifestWithChannels | null | undefined
+  if (typeof channels !== 'object' || channels === null) return []
+  const declared = channels.qilin?.bundle?.patch ?? channels.dsh?.bundle?.patch
+  if (declared === undefined) return []
+  const files = typeof declared === 'string' ? [declared] : declared
+  if (!Array.isArray(files) || !files.every(file => typeof file === 'string')) {
+    throw new Error('qilin.bundle.patch must be a file path or a list of file paths')
+  }
+  return files
+}
+
 /** Which manifest key supplied a client declaration. */
 export type ClientDeclarationKey = 'qilin.client' | 'dsh.client'
 

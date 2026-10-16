@@ -115,3 +115,19 @@
 **验证**：`typecheck` 0 ✓；app-boot + hmr + plugin-manager **43 文件 / 1152 用例全绿** ✓；`verify-export-jsdoc` 通过 ✓；`casts` 0 新增 ✓；`doc-sync` clean ✓；桌面 lane **88 文件 / 895 用例全绿** ✓。
 
 **剩余**：slice 3（bundle patch 读取一族 ✓）、slice 5（spec 对齐 ✓）。
+
+
+## 10. 执行进度续：slice 3（bundle patch 一族）已落地
+
+**上游语义**：`bundle.patch` 可以是**单个路径或路径数组**（`bundlePatchFiles` ✓），绝对路径由 `bundlePatchPaths` 解析 ✓，`ProfileLayer` 用 **`patchPaths: readonly string[]`** ✓ 且把每个文件的补丁**按顺序拼接**（`flatMap` ✓）。
+
+**本仓落地**（保留本仓的**双通道**兼容 ✓ —— `qilin.bundle.patch` **或** `dsh.bundle.patch` ✓，这是上游没有的 ✓）：
+- `dsh-compat` 新增并导出 **`bundlePatchFilesOf(manifest)`** ✓：读任一通道 ✓、字符串或数组皆可 ✓、非法声明抛出与上游同义的错误 ✓；原有单值 `bundlePatchOf` 保留 ✓（供"是否 bundle"的判断使用 ✓）。
+- `ProfileLayer.patchPath: string` → **`patchPaths: readonly string[]`** ✓；`loadProfileDirectory` 改为 `declared.map(join)` + `patchPaths.flatMap(loadOverlayPatches)` ✓。
+- 夹具按**编译器驱动**逐处精确转换（12 处 ✓，跨 `apps/cli`、`apps/web`、app-boot 的 5 个 spec ✓）。
+
+**验证**：`typecheck` 0 ✓；app-boot + hmr + plugin-manager + cli **44 文件 / 1168 用例全绿** ✓；`verify-export-jsdoc` 通过 ✓；`casts` 0 新增 ✓；`doc-sync` clean ✓；桌面 lane **88 文件 / 895 用例全绿** ✓。
+
+**过程教训（再次记录）** ✓：批量改写夹具的正则**必须处理"一行两个属性"与"值里含逗号"** ✓ —— 本轮我先用"就近窗口"的启发式 ✗（误伤 `Profile.patchPath`，那是**另一个含义**的字段 ✓），最终改为**由编译器错误列表驱动、逐个定位** ✓ 才收敛 ✓。另外 ${`...`} 模板串让两次 python 因反引号编译失败 ✗ —— 含模板串的锚点应写成脚本文件 ✓。
+
+**剩余**：`readBundlePatches` / `bundlePatchFiles` / `bundlePatchPaths` 的**上游同名导出**（本仓已有等价能力 ✓，缺的是名字与签名 ✓）、以及 slice 5（spec 对齐 ✓）。

@@ -105,7 +105,7 @@ function stageProfile(home: string, name: string, bundleAnchor: string): Profile
     layers: [{
       packageName,
       packageDir: join(bundleAnchor, '..'),
-      patchPath: join(bundleAnchor, '..', 'cordis.patch.yml'),
+      patchPaths: [join(bundleAnchor, '..', 'cordis.patch.yml')],
       patches: [],
     }],
     patchPath: join(dir, PROFILE_PATCH_FILENAME),
@@ -870,7 +870,7 @@ describe('healProfilesModuleFallback', () => {
       layers: [{
         packageName: 'selected-bundle',
         packageDir: bundleLink,
-        patchPath: join(bundleLink, 'cordis.patch.yml'),
+        patchPaths: [join(bundleLink, 'cordis.patch.yml')],
         patches: [],
       }],
       patchPath: join(dir, PROFILE_PATCH_FILENAME),
@@ -915,7 +915,7 @@ describe('healProfilesModuleFallback', () => {
       layers: ([['bundle-a', bundleA], ['bundle-b', bundleB]] as const).map(([packageName, packageDir]) => ({
         packageName,
         packageDir,
-        patchPath: join(packageDir, 'cordis.patch.yml'),
+        patchPaths: [join(packageDir, 'cordis.patch.yml')],
         patches: [],
       })),
       patchPath: join(dir, PROFILE_PATCH_FILENAME),
@@ -955,7 +955,7 @@ describe('healProfilesModuleFallback', () => {
       layers: ([['bundle-a', bundleA], ['bundle-b', bundleB]] as const).map(([packageName, packageDir]) => ({
         packageDir,
         packageName,
-        patchPath: join(packageDir, 'cordis.patch.yml'),
+        patchPaths: [join(packageDir, 'cordis.patch.yml')],
         patches: [],
       })),
       patchPath: join(dir, PROFILE_PATCH_FILENAME),

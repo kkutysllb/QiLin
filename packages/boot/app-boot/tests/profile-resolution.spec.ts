@@ -261,12 +261,12 @@ describe('profile resolution generation', { concurrent: false }, () => {
     f.profile.layers.push({
       packageName: 'test-bundle',
       packageDir: bundleDir,
-      patchPath: join(bundleDir, 'cordis.patch.yml'),
+      patchPaths: [join(bundleDir, 'cordis.patch.yml')],
       patches: [],
     }, {
       packageName: 'later-bundle',
       packageDir: laterBundle,
-      patchPath: join(laterBundle, 'cordis.patch.yml'),
+      patchPaths: [join(laterBundle, 'cordis.patch.yml')],
       patches: [],
     })
 
@@ -887,7 +887,7 @@ describe('profile resolution generation', { concurrent: false }, () => {
     pkg(bundle, 'dsh-bundle', 4, {}, { '@deepseek-ai/dsh-session': '*' })
     f.profile.layers = [{
       packageName: 'dsh-bundle', packageDir: bundle,
-      patchPath: join(bundle, 'cordis.patch.yml'), patches: [],
+      patchPaths: [join(bundle, 'cordis.patch.yml')], patches: [],
     }]
     const generation = await generationOf(f)
     const entry = generation.entries.find(candidate => candidate.name === '@deepseek-ai/dsh-session')
@@ -998,7 +998,7 @@ describe('profile resolution generation', { concurrent: false }, () => {
     f.profile.layers.push({
       packageName: 'test-bundle',
       packageDir: bundleDir,
-      patchPath: join(bundleDir, 'cordis.patch.yml'),
+      patchPaths: [join(bundleDir, 'cordis.patch.yml')],
       patches: [],
     })
     const registration = installRuntimeInterception(await generationOf(f))
