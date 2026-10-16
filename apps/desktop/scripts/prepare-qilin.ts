@@ -37,7 +37,7 @@ import { selectOfficeEngine } from '../../../scripts/libreoffice-packages.mjs'
 
 const APP_ROOT = resolve(import.meta.dirname, '..')
 const BUILD_PATHS = resolveDesktopTargetBuildPaths()
-const QILIN_OUTPUT_ROOT = BUILD_PATHS.dsh
+const QILIN_OUTPUT_ROOT = BUILD_PATHS.qilin
 const BUILD_ROOT = mkdtempSync(join(tmpdir(), 'qilin-desktop-runtime-'))
 const STORE_ROOT = join(BUILD_ROOT, 'store')
 const RUNTIME_ROOT = BUILD_PATHS.runtime
