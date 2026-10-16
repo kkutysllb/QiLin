@@ -512,5 +512,8 @@
     { "path": "./apps/cli" },
     { "path": "./apps/desktop-host" },
     { "path": "./packages/api/product-analytics/tsconfig.host.json" }
-  ]
+  ,
+    {
+      "path": "apps/desktop/tsconfig.host.json"
+    }]
 }

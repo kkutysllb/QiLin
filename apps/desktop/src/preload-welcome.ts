@@ -1,4 +1,4 @@
-import type { AccountView, SignInAttemptId } from '@qilin-agent/deepseek-account/types'
+import type { AccountView, SignInAttemptId } from './account-types.ts'
 /** Localized welcome copy and write-only credential actions. */
 
 import { contextBridge, ipcRenderer } from 'electron'
