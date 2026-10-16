@@ -258,10 +258,12 @@ dispose 此插件，并立即使用其当前配置重新加载。
  *
  * @param config — the new raw config; validated before anything restarts.
  * @param noSave — hint for persistence hooks not to write the change back.
- * @returns nothing; the restart runs behind the `internal/update` waterfall.
+ * @returns the `internal/update` waterfall result: a promise settling with
+ * the restart, or undefined before the fiber first activates. Callers that
+ * fire the update without awaiting must contain a rejection themselves.
  * @throws {ValidationError} when the new config fails validation.
  */
-update(config: any, noSave = false)
+update(config: any, noSave = false): Promise<void> | undefined
 ```
 
 校验并应用新配置，然后重新启动插件。
@@ -271,9 +273,9 @@ update(config: any, noSave = false)
 - `config`：新的原始配置；在任何内容重新启动前进行校验。
 - `noSave`：提示持久化钩子不要写回此变更。
 
-**返回**无返回值；重启由 `internal/update` waterfall 执行。
+**返回**`internal/update` waterfall 的结果：一个随重启落定的 promise；fiber 首次激活前为 undefined。不等候该更新即触发的调用方必须自行收束其拒绝。
 
-[源码](../../vendor/cordis/src/fiber.ts#L736)
+[源码](../../vendor/cordis/src/fiber.ts#L738)
 
 ## Effect
 
