@@ -30,13 +30,6 @@ export interface MissingEntrypoint {
 /** Manifest fields that name one entrypoint file each. */
 const FILE_FIELDS = ['main', 'module', 'types', 'typings'] as const
 
-/**
- * Application directories the repository build does not bundle: the Electron main
- * process ships through its own tsdown config, and the packaging run builds it before
- * the package is assembled, so its declared entrypoints are outside this guard.
- */
-const APPLICATION_DIRS = new Set(['apps/desktop'])
-
 /** Directory families of the workspace (mirrors pnpm-workspace.yaml). */
 const WORKSPACE_GLOBS = [
   'vendor/*',
@@ -52,14 +45,12 @@ const WORKSPACE_GLOBS = [
 /** Every workspace package directory holding a manifest. */
 export function workspacePackageDirs(repoRoot: string): string[] {
   const dirs: string[] = []
-  const applications = [...APPLICATION_DIRS].map(dir => resolve(repoRoot, dir))
   for (const glob of WORKSPACE_GLOBS) {
     for (const entry of globSync(glob, { cwd: repoRoot, withFileTypes: true })) {
       if (!entry.isDirectory()) continue
       // parentPath is absolute on current Node; resolve() also accepts a
       // relative one, and unlike join() it resets at the absolute prefix.
       const dir = resolve(repoRoot, entry.parentPath, entry.name)
-      if (applications.includes(dir)) continue
       if (existsSync(join(dir, 'package.json'))) dirs.push(dir)
     }
   }

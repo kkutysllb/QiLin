@@ -203,6 +203,7 @@
     "@qilin-agent/experimental-tool-session-query": "workspace:*",
     "@qilin-agent/llm-replay": "workspace:*",
     "@qilin-agent/skill-office": "workspace:*",
+    "@qilin-agent/tool-workspace-dependencies": "workspace:*",
     "@qilin-agent/web-fetch-http": "workspace:*",
     "@stylistic/eslint-plugin": "^5.10.0",
     "@testing-library/dom": "^10.4.1",

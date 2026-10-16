@@ -57,6 +57,9 @@ importers:
       '@qilin-agent/skill-office':
         specifier: workspace:*
         version: link:packages/skill/skill-office
+      '@qilin-agent/tool-workspace-dependencies':
+        specifier: workspace:*
+        version: link:packages/skill/tool-workspace-dependencies
       '@qilin-agent/web-fetch-http':
         specifier: workspace:*
         version: link:packages/web/web-fetch-http

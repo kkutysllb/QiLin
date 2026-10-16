@@ -23,7 +23,7 @@ function isBuildFaceClient(value: unknown): boolean {
 export default defineConfig(({ env }) => {
   const client = isBuildFaceClient(env?.QILIN_BUILD_FACE)
   return {
-    workspace: ['vendor/*', 'packages/*/*', 'apps/cli', ...client ? [] : ['apps/desktop-host']],
+    workspace: ['vendor/*', 'packages/*/*', 'apps/cli', ...client ? [] : ['apps/desktop', 'apps/desktop-host']],
     entry: client ? '' : ['lib/types/{index,startup}.js'],
     outDir: 'lib',
     format: ['esm'],
