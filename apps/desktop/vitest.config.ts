@@ -34,6 +34,7 @@ export default defineConfig({
       'tests/desktop-package-environment.spec.ts',
       'tests/desktop-build-paths.spec.ts',
       'tests/main-startup.spec.ts',
+      'tests/ptc-runtime.spec.ts',
     ],
     environment: 'node',
     testTimeout: 30_000,
