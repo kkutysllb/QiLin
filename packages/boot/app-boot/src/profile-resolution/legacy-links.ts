@@ -93,7 +93,7 @@ export function removeLinkProjections(dir: string): void {
 }
 
 /** Top-level and scoped entries under a node_modules directory that are symlinks or junctions. */
-export function profileLinkCandidates(modules: string): string[] {
+function profileLinkCandidates(modules: string): string[] {
   const links: string[] = []
   if (!existsSync(modules)) return links
   for (const entry of readdirSync(modules, { withFileTypes: true })) {
