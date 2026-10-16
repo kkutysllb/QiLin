@@ -92,3 +92,21 @@
 
 **修复工作流（对齐 dsh 机制，非打补丁）**：以上游为准移植 settings 服务的 `schema.ts` 与 `index.ts` 的投影差异，使 `static Config`（含 volatile）自动进入设置文档；随后「子代理」卡片按既有门槛自然出现。禁止用 installSection 之类的本仓注册机制打补丁（违反需求 A）。
 
+## 附录：dsh 插件配置表单缺席的最终分析（第三方 dsh 插件，如 dsh-context）
+
+用户实测：同一个 dsh 插件（dsh-context v0.69.1），上游 dsh 的插件详情页渲染出**完整配置表单**（入口位置、上下文洞察入口、编队标签页、视图默认值、系统提示词前缀……），麒麟的同页**没有任何表单**（只有组件、来源信息、当前版本）。
+
+根因（实锤，非猜测）：两边的 settings 服务是**两代架构**。
+
+- **上游 dsh**：`SettingsForms` 服务把**组合行服务的 `static Config`（schemastery）经 `resolveConfig` 自动投影**为设置文档的命名空间与表单——第三方 dsh 插件只要按 dsh 惯例导出 Config，表单就免费出现。
+- **麒麟**：`SettingsProvider` 是**显式注册模型**（`installSection` / `SettingsScope` / `SettingsApplies: 'live'|'restart'`），从不投影第三方插件的 Config → 一切 dsh 插件的配置表单全部缺席。
+
+同根因的已见症状：「子代理」卡片缺席（其两个命名空间从未被服务）、`git` 卡片缺席等。
+
+**修复工作流（需求 A 的核心一刀）**：以上游 `packages/settings/settings` 为准移植——
+
+1. 新增 `src/schema.ts`（`isVolatilePath` / `plainConfig` / `projectForm` / `volatileForm`，79 行）；
+2. `src/index.ts` 对齐上游 `SettingsForms`（Config 投影、describe、表单编辑），以本仓 rescope 规则改写；
+3. 迁移本仓消费者到新 API：`bash-local`、`pwsh-local`、`agent-loop`、`agent-default-model`、`llm-pi-ai`、`llm-deepseek-api-key`、`speech-to-text`、`plugin-market`、`plugin-inventory`、`settings-file`、`settings-controller`、`ui-settings*` 系列与其测试；
+4. 验收：**装一个真实 dsh 插件（dsh-context），其配置表单在麒麟自动出现**，子代理卡片随之出现；tsc/lint/test:gui/coverage/doc 全绿。
+
