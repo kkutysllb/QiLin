@@ -49,7 +49,7 @@ it('resolves signing file paths relative to the secret file and rejects public o
 
 it('preserves the selected preset when Windows environment enumeration uses lowercase keys', async () => {
   await withPreset(async (root) => {
-    const values: NodeJS.ProcessEnv = { dsh_packaging_config_dir: root, dsh_packaging_preset: 'test' }
+    const values: NodeJS.ProcessEnv = { qilin_packaging_config_dir: root, qilin_packaging_preset: 'test' }
     const environment = new Proxy(values, {
       get: (target, name) => typeof name === 'string' ? target[name.toLowerCase()] : undefined,
     })
