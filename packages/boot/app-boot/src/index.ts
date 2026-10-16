@@ -45,6 +45,15 @@ declare module '@qilin-agent/kylin' {
     /** Immutable launch profile facts for profile-management host plugins. */
     qilinProfile?: import('./profile.ts').LaunchProfileSnapshot
   }
+
+  interface Events {
+    /**
+     * Profile patches were reconciled into the running Loader tree: every entry update settled and no new
+     * inactive entry was introduced. Carries no diff; listeners re-read Loader entries.
+     * @mode emit
+     */
+    'app-boot/config-reload'(): void
+  }
 }
 
 export {
@@ -424,6 +433,7 @@ async function recompose(
     for (const [index, result] of results.entries()) {
       if (result.status === 'rejected' && !previousFibers[index]?.failed) throw result.reason
     }
+    ctx.emit('app-boot/config-reload')
     return { warnings: failures.map(reloadDiagnostic) }
   } finally {
     // Before the generation applies, the rows removed first and the entries the caller stopped run again.

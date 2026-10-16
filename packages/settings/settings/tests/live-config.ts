@@ -30,6 +30,7 @@ export async function liveConfig(ctx: Context, plugin: Plugin, initial: object =
     resolveConfig(fiber.runtime!, fiber.ctx.waterfall(fiber, 'internal/config', next, () => next))
     await entry.update({ config: next })
     await entry.fiber!.await()
+    ctx.emit('app-boot/config-reload')
   }
   return {
     entry,
