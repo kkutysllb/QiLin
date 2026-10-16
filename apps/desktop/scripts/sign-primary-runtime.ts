@@ -74,9 +74,9 @@ async function main(): Promise<void> {
       record({ type: 'signature-cache-open', root: cachedSign.summary().root, identity })
       try {
         if (process.argv.includes('--dsh')) {
-          const version = JSON.parse(await readFile(join(paths.dsh, 'package.json'), 'utf8')).version as string
-          await signWindowsDesktopRuntime(paths.dsh, version, { ...options,
-            smoke: descriptor => smokePreparedRuntime(paths.dsh, join(paths.electron, 'electron.exe'), paths.runtime, descriptor),
+          const version = JSON.parse(await readFile(join(paths.qilin, 'package.json'), 'utf8')).version as string
+          await signWindowsDesktopRuntime(paths.qilin, version, { ...options,
+            smoke: descriptor => smokePreparedRuntime(paths.qilin, join(paths.electron, 'electron.exe'), paths.runtime, descriptor),
           })
         } else {
           await signWindowsPrimaryRuntime(join(paths.runtime, 'primary-runtime'), { ...options, smoke: smokePrimaryRuntime })

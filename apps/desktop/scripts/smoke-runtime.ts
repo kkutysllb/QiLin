@@ -142,7 +142,7 @@ export function apply(ctx) {
       qilin: { profile: { bundles: string[] } }
     }
     manifest.dependencies = { ...manifest.dependencies, [pluginName]: `file:${plugin}` }
-    manifest.dsh.profile.bundles.push(pluginName)
+    manifest.qilin.profile.bundles.push(pluginName)
     writeFileSync(join(profile, 'package.json'), JSON.stringify(manifest))
     writeFileSync(join(profile, 'cordis.patch.yml'), '- id: webserver\n  config:\n    host: 127.0.0.1\n    port: 0\n')
     const ready = await Promise.race([host.start(), new Promise<never>((_, reject) => {

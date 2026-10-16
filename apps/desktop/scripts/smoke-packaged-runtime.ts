@@ -16,7 +16,7 @@ const application = windows ? join(artifacts, 'win-unpacked')
   : join(artifacts, target === 'mac-arm64' ? 'mac-arm64' : 'mac', 'QiLin Desktop.app', 'Contents')
 const resources = join(application, windows ? 'resources' : 'Resources')
 const executable = windows ? join(application, 'QiLin Desktop.exe') : join(application, 'MacOS', 'QiLin Desktop')
-const descriptor = await verifyDesktopRuntime(paths.dsh, readDesktopRuntime(paths.dsh).release.version,
+const descriptor = await verifyDesktopRuntime(paths.qilin, readDesktopRuntime(paths.qilin).release.version,
   resolveDesktopPackageTarget(target))
 if (windows && !values.unsigned) await verifyWindowsCode(application)
 await smokePreparedRuntime(join(resources, 'app.asar', 'qilin'), executable, join(resources, 'runtime'), descriptor)
