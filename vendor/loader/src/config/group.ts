@@ -79,7 +79,11 @@ export class Group extends EntryGroup {
   constructor(public ctx: Context, public config: EntryOptions[]) {
     super(ctx, ctx.fiber.entry!.parent.tree)
     ctx.on('internal/update', (config) => {
-      this.update(config)
+      // A refusing entry rejects the whole update; the group fiber logs it
+      // here because the event carries no awaiter.
+      this.update(config).catch((error) => {
+        this.ctx.logger.error(error)
+      })
     })
   }
 

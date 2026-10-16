@@ -103,7 +103,11 @@ export class Entry {
       Object.setPrototypeOf(this.ctx, this.parent.ctx)
 
       if (this.fiber?.uid && (diff.includes('config') || this.options.group)) {
-        this.fiber.update(this.options.config, true)
+        // A volatile commit restarts nothing; the waterfall still carries a
+        // restart when the fiber was mid-flight, so contain its rejection.
+        this.fiber.update(this.options.config, true)?.catch((error) => {
+          this.ctx.logger.error(error)
+        })
       }
     })
   }
