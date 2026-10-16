@@ -56,12 +56,29 @@ export type SignInAttemptId = string & { readonly __signInAttempt: unique symbol
  * @param metadata - Client build facts.
  * @returns Headers describing this client build.
  */
+/** Client platform identifier a Platform request reports for one Node platform. */
+function platformClientId(platform: string): string {
+  if (platform === 'darwin') return 'desktop-mac'
+  if (platform === 'win32') return 'desktop-win'
+  return 'desktop-linux'
+}
+
+/** Client locale a Platform request reports: underscore form with a region. */
+function platformLocale(locale: string): string {
+  const normalized = locale.replaceAll('-', '_')
+  if (normalized.includes('_')) return normalized
+  if (normalized === 'en') return 'en_US'
+  if (normalized === 'zh') return 'zh_CN'
+  return normalized
+}
+
 export function platformClientHeaders(platform: string, client: AccountClientMetadata): Record<string, string> {
   return {
     'x-client-version': client.version,
-    'accept-language': client.locale,
-    'x-timezone-offset': String(client.timezoneOffsetSeconds),
-    'x-platform': platform,
+    'x-client-locale': platformLocale(client.locale),
+    'x-client-timezone-offset': String(client.timezoneOffsetSeconds),
+    'x-client-platform': platformClientId(platform),
+    'x-client-bundle-id': '',
   }
 }
 
@@ -72,8 +89,23 @@ export function platformClientHeaders(platform: string, client: AccountClientMet
  * @returns The merged cookie header, without empty parts.
  */
 export function mergePlatformCookies(current: string, injected: string): string {
-  return [current, injected].filter(part => part !== '').join('; ')
+  const order: string[] = []
+  const values = new Map<string, string>()
+  const absorb = (header: string): void => {
+    for (const part of header.split(';')) {
+      const trimmed = part.trim()
+      if (trimmed === '') continue
+      const separator = trimmed.indexOf('=')
+      const name = separator === -1 ? trimmed : trimmed.slice(0, separator)
+      if (!values.has(name)) order.push(name)
+      values.set(name, trimmed)
+    }
+  }
+  absorb(current)
+  absorb(injected)
+  return order.map(name => values.get(name) ?? '').filter(part => part !== '').join('; ')
 }
+
 
 /** Path the remote stream mux answers on. */
 export const REMOTE_STREAM_MUX_PATH = '/api/remote-stream'
