@@ -1,0 +1,17 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "lib/types"
+  },
+  "include": [
+    "src"
+  ],
+  "references": [
+    { "path": "../../../vendor/cordis" },
+    { "path": "../../client/connection/tsconfig.host.json" },
+    { "path": "../../core/session" },
+    { "path": "../../llm/token-meter" },
+    { "path": "../../session-query/session-query" }
+  ]
+}

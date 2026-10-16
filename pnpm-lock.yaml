@@ -2633,6 +2633,9 @@ importers:
       '@qilin-agent/tool-subagent':
         specifier: workspace:*
         version: link:../../subagent/tool-subagent
+      '@qilin-agent/usage-local':
+        specifier: workspace:*
+        version: link:../../session/usage-local
       '@qilin-agent/web-frontend':
         specifier: workspace:*
         version: link:../../../apps/web
@@ -12093,6 +12096,28 @@ importers:
       '@qilin-agent/working-directory':
         specifier: workspace:*
         version: link:../working-directory
+
+  packages/session/usage-local:
+    dependencies:
+      '@qilin-agent/token-meter':
+        specifier: workspace:*
+        version: link:../../llm/token-meter
+    devDependencies:
+      '@qilin-agent/client-connection':
+        specifier: workspace:*
+        version: link:../../client/connection
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/session-query':
+        specifier: workspace:*
+        version: link:../../session-query/session-query
+      '@qilin-agent/session-query-sqlite':
+        specifier: workspace:*
+        version: link:../../session-query/session-query-sqlite
 
   packages/session/usage-report:
     dependencies:

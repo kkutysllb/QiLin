@@ -139,6 +139,7 @@
     "@qilin-agent/time-context": "workspace:*",
     "@qilin-agent/tool-kylin": "workspace:*",
     "@qilin-agent/tool-subagent": "workspace:*",
+    "@qilin-agent/usage-local": "workspace:*",
     "@qilin-agent/web-frontend": "workspace:*",
     "@qilin-agent/workspace": "workspace:*",
     "@qilin-agent/workspace-changes": "workspace:*",

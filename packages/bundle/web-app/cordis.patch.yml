@@ -94,6 +94,12 @@
     - id: session-turn-outline
       name: '@qilin-agent/session-turn-outline'
 
+    # Local usage ledger: derives /api/usage/me from this runtime's own session
+    # logs when no deployment ledger is configured — the desktop single-user
+    # case. A deployment keeping a ledger on the supervisor does not mount it.
+    - id: usage-local
+      name: '@qilin-agent/usage-local'
+
     # Resolve bind host, SSH launch, and display once at boot, then mount the
     # matching dual-face directory picker. Mount -native or -browse directly in
     # an overlay to pin the interaction.
