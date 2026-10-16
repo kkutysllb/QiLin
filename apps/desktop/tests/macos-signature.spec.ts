@@ -64,9 +64,9 @@ describe('desktop macOS release signature', () => {
     if (!dshFiles || !dshNodeModules || typeof dshFiles === 'string' || typeof dshNodeModules === 'string') {
       throw new Error('desktop QILIN resources must use electron-builder file mappings')
     }
-    expect(portablePath(dshFiles.from)).toContain('/.desktop-build/targets/mac-arm64/dsh')
+    expect(portablePath(dshFiles.from)).toContain('/.desktop-build/targets/mac-arm64/qilin')
     expect(dshFiles.to).toBe('qilin')
-    expect(portablePath(dshNodeModules.from)).toContain('/.desktop-build/targets/mac-arm64/dsh/node_modules')
+    expect(portablePath(dshNodeModules.from)).toContain('/.desktop-build/targets/mac-arm64/qilin/node_modules')
     expect(dshNodeModules.to).toBe('qilin/node_modules')
     expect(config.asarUnpack).toEqual(expect.arrayContaining([
       '**/*.{node,dylib,dll,so,exe}',
