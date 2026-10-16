@@ -1,10 +1,10 @@
 /** The link-projection remover must unlink only the profile's own fallback links. */
 
-import { existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { removeLinkProjections } from '../src/profile-resolution/legacy-links.ts'
+import { realModuleFile, removeLinkProjections } from '../src/profile-resolution/legacy-links.ts'
 
 const roots: string[] = []
 function profileRoot(): string {
@@ -43,5 +43,25 @@ describe('link projection removal', () => {
   it('leaves a profile without the directory untouched', () => {
     const root = profileRoot()
     expect(() => removeLinkProjections(root)).not.toThrow()
+  })
+})
+
+describe('module file resolution', () => {
+  it('resolves a plain file through its real path', () => {
+    const root = profileRoot()
+    const file = join(root, 'entry.mjs')
+    writeFileSync(file, '')
+    expect(realModuleFile(file)).toBe(realpathSync(file))
+  })
+
+  it('resolves a symlinked file to the package it stands for', () => {
+    const root = profileRoot()
+    const realDir = join(root, 'real')
+    mkdirSync(realDir, { recursive: true })
+    const real = join(realDir, 'entry.mjs')
+    writeFileSync(real, '')
+    const link = join(root, 'entry.mjs')
+    symlinkSync(real, link, 'file')
+    expect(realModuleFile(link)).toBe(realpathSync(link))
   })
 })

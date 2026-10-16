@@ -21,6 +21,7 @@ export { readProfilePatches, resolveTelemetryPatch, type ProfileContext, type Pr
 export { sanitizeProfile } from './profile-sanitize.ts'
 export { removeLinkProjections } from './profile.ts'
 export { reportSkippedBundles } from './profile.ts'
+export { bundlePatchFiles, bundlePatchPaths } from './profile.ts'
 export { getQilinRuntimeVersion, evaluatePluginCompatibility, pluginCompatibilityWarning, type PluginCompatibility } from './plugin-compatibility.ts'
 export {
   PROFILE_COMPATIBILITY_FILENAME, readProfileCompatibility, readProfileVersionExemptions,

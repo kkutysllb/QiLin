@@ -141,3 +141,22 @@
 **验证**：`typecheck` 0 ✓；app-boot + hmr + dsh-compat **34 文件 / 930 用例全绿** ✓；`verify-export-jsdoc` 通过 ✓；`casts` 0 新增 ✓。
 
 **剩余**：仅 slice 5（spec 对齐 ✓）。
+
+
+## 12. 执行进度续：slice 5（行为断言对齐）已落地
+
+按上游在这一层新增的**行为**逐条补断言 ✓（不照抄文件 ✗ —— 本仓有自有演进 ✓）：
+
+| 断言 | 位置 | 内容 |
+|---|---|---|
+| `realModuleFile` 解析 | `tests/legacy-links.spec.ts` | 普通文件走真实路径 ✓；**符号链接文件**解析到其指向 ✓ |
+| **多 patch 声明** | `tests/profile.spec.ts` | 声明为列表时 `patchPaths` 保持**声明顺序** ✓，`patches` 按同序**拼接** ✓ |
+| **linked roots** | `tests/profile.spec.ts` | 只收录**位于 profiles 树之外**的链接 ✓（同名树内链接被排除 ✓），`realPath` 为真实路径 ✓ |
+| **跳过清单上报** | `tests/profile.spec.ts` | `reportSkippedBundles` 每个跳过项写**一行** stderr ✓，含 binName 与包名 ✓ |
+| **patch helper 契约** | `tests/profile.spec.ts` | 单路径与列表皆可 ✓、任一通道皆可 ✓、缺省为空 ✓、非法声明抛出 ✓、`bundlePatchPaths` 拼绝对路径 ✓ |
+
+**顺带修的**：我第一版断言里用了 `as unknown as …` ✗ —— 被 `verify-no-unknown-casts` 立刻拦住 ✓（那正是本仓禁止的断言形式 ✓）→ 改写为按行取 id ✓。
+
+**已知既有问题（非本次引入 ✓）**：`packages/boot/hmr/tests/package-reload.spec.ts` 的 `observes add, change, and unlink outside its module roots` 在**并发整套运行**时偶发超时 ✓（10s ✓），**单独运行 87/87 通过** ✓ → 属该 watcher 用例在并发下的既有 flake ✓（与 `packages/AGENTS.md` 所述并发执行模型相符 ✓）。已在计划中记录 ✓，未在本次范围内改动 ✓。
+
+**验证**：`typecheck` 0 ✓；app-boot **691 用例**（较此前 +6 ✓）全绿 ✓；`verify-export-jsdoc` 通过 ✓；`verify-no-unknown-casts` 0 新增 ✓；`doc-sync` clean ✓；桌面 lane **88 文件 / 895 用例全绿** ✓。至此该层与上游 `0.2.1-alpha.4` 的五个切片**全部落地** ✓。

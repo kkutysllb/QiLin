@@ -35,6 +35,9 @@ import {
   resolveBundleDir,
   resolveProfileDir,
   writeProfileManifest,
+  bundlePatchFiles,
+  bundlePatchPaths,
+  reportSkippedBundles,
   type Profile,
 } from '../src/index.ts'
 
@@ -1406,5 +1409,76 @@ describe('healProfilesModuleFallback', () => {
     } finally {
       delete (process as NodeJS.Process & { pkg?: unknown }).pkg
     }
+  })
+})
+
+describe('bundle patch lists and linked roots', () => {
+  it('keeps every declared patch path and concatenates their patches in order', () => {
+    const anchor = stageInstallation({ 'multi-bundle': { patch: '- insert: [{ id: first, name: first }]\n' } })
+    const bundleDir = join(anchor, '..', 'node_modules', 'multi-bundle')
+    writeFileSync(join(bundleDir, 'second.patch.yml'), '- insert: [{ id: second, name: second }]\n')
+    const manifestPath = join(bundleDir, 'package.json')
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as { qilin: { bundle: { patch: unknown } } }
+    manifest.qilin.bundle.patch = ['./second.patch.yml', './cordis.patch.yml']
+    writeFileSync(manifestPath, JSON.stringify(manifest))
+    const dir = join(tmp(), 'managed', 'bundle-list')
+    initProfile(dir, ['multi-bundle'])
+    const profile = loadProfileDirectory('list app', dir, anchor)
+    expect(profile.layers[0]?.patchPaths).toEqual([
+      join(bundleDir, 'second.patch.yml'), join(bundleDir, 'cordis.patch.yml'),
+    ])
+    const inserted = profile.layers[0]?.patches.flatMap(patch => (patch.insert ?? []).map(row => row.id))
+    expect(inserted).toEqual(['second', 'first'])
+  })
+
+  it('reports only the profile links whose real directory is outside the profiles tree', async () => {
+    const anchor = stageInstallation({ 'linked-bundle': { patch: '[]\n' } })
+    const home = tmp()
+    const dir = resolveProfileDir('linked', home)
+    initProfile(dir, ['linked-bundle'])
+    const profile = loadProfileDirectory('linked app', dir, anchor)
+    const outside = join(tmp(), 'outside-package')
+    mkdirSync(outside, { recursive: true })
+    const modules = join(dir, 'node_modules')
+    mkdirSync(modules, { recursive: true })
+    const linkType = process.platform === 'win32' ? 'junction' : 'dir'
+    symlinkSync(outside, join(modules, 'outside'), linkType)
+    symlinkSync(join(home, 'profiles', 'linked'), join(modules, 'inside'), linkType)
+    const generation = await healProfilesModuleFallback({ installAnchor: anchor, profile, home })
+    expect(generation.linkedRoots.map(root => root.name)).toEqual(['outside'])
+    expect(generation.linkedRoots[0]?.realPath).toBe(realpathSync(outside))
+  })
+})
+
+describe('skipped bundle reporting', () => {
+  it('writes one line per skipped bundle', () => {
+    const written: string[] = []
+    const original = process.stderr.write.bind(process.stderr)
+    process.stderr.write = ((chunk: string | Uint8Array): boolean => {
+      written.push(String(chunk))
+      return true
+    }) as typeof process.stderr.write
+    try {
+      reportSkippedBundles('demo', { skippedBundles: [
+        { packageName: 'broken-bundle', reason: 'declares no qilin.bundle' },
+        { packageName: 'other-bundle', reason: 'incompatible' },
+      ] })
+    } finally {
+      process.stderr.write = original
+    }
+    expect(written).toHaveLength(2)
+    expect(written[0]).toContain('demo: skipping profile bundle "broken-bundle"')
+    expect(written[1]).toContain('other-bundle')
+  })
+})
+
+describe('bundle patch helpers', () => {
+  it('reads a single path and a list, and resolves them against the package directory', () => {
+    expect(bundlePatchFiles({ qilin: { bundle: { patch: 'a.yml' } } })).toEqual(['a.yml'])
+    expect(bundlePatchFiles({ dsh: { bundle: { patch: ['a.yml', 'b.yml'] } } })).toEqual(['a.yml', 'b.yml'])
+    expect(bundlePatchFiles({ qilin: { bundle: {} } })).toEqual([])
+    expect(bundlePatchPaths('/pkg', { qilin: { bundle: { patch: ['a.yml', 'b.yml'] } } }))
+      .toEqual([join('/pkg', 'a.yml'), join('/pkg', 'b.yml')])
+    expect(() => bundlePatchFiles({ qilin: { bundle: { patch: [7] } } })).toThrow('must be a file path or a list')
   })
 })
