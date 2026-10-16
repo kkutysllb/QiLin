@@ -20,6 +20,7 @@
 2. **移植 `ui-plugin-market`**：Discover 标签页、自定义市场源与安装流一并进来，含其在组合包中的行与依赖声明。
 3. **子智能体条目跟随上游重组后的位置**（设置内重组形态），不自创独立形态。
 
+<<<<<<< HEAD
 ## 二之三、命名对齐规则（用户 2026-10-16 决定，覆盖此前判断）
 
 **与上游 dsh 完全对齐**：凡 dsh 插件生态可见的公共面，一律采用上游 dsh 的命名与语义，不再使用本仓的改名版本；否则无法真正兼容 dsh 插件生态。仅保留仓库机械 rescope（workspace 包名 `@deepseek-ai/*` → `@qilin-agent/*`、cordis 依赖名、`QILIN_HOME` 等非插件面标识）。
@@ -39,6 +40,21 @@
 1. **`PluginCompatibility` 字段名回上游 `requirements`**（app-boot、plugin-manager、页面 `presentation.ts` 及各自测试同步改名；`packages/api/gateway` 的传输对端 `peers` 与该字段无关，未动）。
 2. **不采纳上游「`engines.dsh` 未满足即拒绝」**：QiLin 版本线（3.1.6-rc.1）在语义上无法满足 dsh 插件的 `engines.dsh: ^0.2.x`，采纳会把每一个 dsh 插件拒装，与「无缝兼容 dsh 插件生态」相反。engines 保持 advisory（本仓 `QilinEnginesManifest` 已如此声明），仅 peerDependencies 参与判定。
 3. **移除 CLI 的安装前置拒绝**（`refusedInstallSpecs`，QiLin 本地能力）：按去 fork 面口径，改为上游行为——安装照常进行，不兼容由安装后的加载拒绝与既有 `qilin plugin allow-version` 豁免承担。恢复路径：该实现的上一版见本仓 Git 历史中的 `packages/boot/plugin-manager/src/operations.ts`（`RefusedInstallSpecs` / `refusedInstallSpecs` 及 `LookupOptions`），需要时按其语义重新移植并恢复 `apps/cli/src/plugin.ts` 的调用点。
+=======
+## 二之二、执行实测：依赖波（决定阶段顺序）
+
+首次移植实测（分支 `feat/plugin-management-upstream-alignment`）：上游页面依赖**比 QiLin 现有实现更新的一整代底座**，必须自下而上，否则页面编译不过。实测缺口：
+
+| 层 | 缺口 |
+|---|---|
+| `packages/boot/plugin-manager`（Host 服务） | 缺 `waitForInstall`、`BundleInfo.updatable`、`BundleRowInfo.meta`、`IncompatiblePlugin.peers/requirements`、只读原因 `shipped-layer`/`row-not-running`、`ConfigFormSnapshot.mode`；上游同目录 13 源文件内容更新、测试 14 个 |
+| `packages/api/remotes/src/client`（客户端远端契约） | 上述类型在客户端的投影需同批更新 |
+| `packages/client/ui-primitives` | `Menu`（上游 items 版）、`Tooltip`（`openOnClick`/`focusDelayMs`）、`useAnchoredPosition`（`align`）、`pointerModality` 导出 |
+| `packages/api/product-analytics` | 上游页面/商店引用其浏览器面 `product-analytics/client` |
+| `@qilin-agent/client-test-runtime` | 缺 `allowAllAccess` |
+| 构建面 | 该包的 `.svg` 资产导入未获构建/第三方声明链支持（`gen-third-party-notices` 报错） |
+| 新包 | `ui-plugin-market` 与三个注册面 |
+>>>>>>> main
 
 ## 三、阶段（每阶段可独立验证）
 
