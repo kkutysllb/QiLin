@@ -427,3 +427,38 @@ for (const dep of profileDependencyNames(next.manifest)) {
 **验证**：`apps/desktop-host` + `packages/skill/skill-office` → **5 文件 / 22 用例通过 / 8 跳过** ✓（8 条跳过 = Node 24.13 起 `require.resolve` 绕过模块 hooks 的环境守卫 ✓，spec 自身也写明了这一点 ✓）；`typecheck` 0 ✓；桌面 lane **88 文件 / 895 用例全绿** ✓；`casts` 1551 既有 / 0 新增 ✓；`doc-sync` clean ✓（含 config catalog 重新生成 ✓）。
 
 **结论**：Office 面与 CLI 能力缺口都已关闭 ✓ —— 现在与上游的剩余差异只有**账号栈**（有意不移植 ✓）与 **profile 运行时拦截特性**（`reportSkippedBundles` / `RuntimeResolution` 一族 ✓，属上游较新的特性面 ✓，需单独一轮 ✓）。
+
+
+## P6. Windows packaging runs on a Windows x64 host
+
+The target resolver refuses the cross-host case before any preparation runs:
+
+```text
+Error: desktop package: win-x64 requires a Windows x64 build host
+    at resolveDesktopPackageTarget (scripts/package-target.ts)
+```
+
+Local macOS work therefore stops at the guard. The remaining steps run on a Windows x64 machine
+(or a Windows CI runner) with the same repository checkout:
+
+```sh
+corepack enable
+pnpm install
+pnpm --filter @qilin-agent/desktop run package:win:x64:unsigned
+```
+
+Set the download mirrors first when the host cannot reach GitHub, and keep the same Electron
+release the native addon fingerprints name (44.7.0):
+
+```sh
+set ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/
+set ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
+```
+
+The build writes `apps/desktop/.desktop-build/targets/win-x64/unsigned-artifacts/` (the NSIS
+installer and the unpacked application directory) and runs the same packaged-runtime smoke the
+macOS target does: native payloads, offline CLI plugin install and removal, Host startup, and
+Office document conversion.
+
+Cross-building through a Linux + wine container is not supported: the guard reads
+`process.platform`, which stays `linux` inside the container, and wine is not a qualified target.
