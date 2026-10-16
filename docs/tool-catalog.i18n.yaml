@@ -9,14 +9,20 @@
   en: dd81e27c4521158a
   zh: 01417e2b5c61928a
 /tool-schema-catalog/tool-package-map:
-  en: bea26d4b683620e8
-  zh: 0e63df4128e11afc
+  en: 9dfdac03350deac3
+  zh: e8408cd7126341a5
 /tool-schema-catalog/qilin-agent-plugin-manager:
   en: 45c8b03d92db06ad
   zh: 45c8b03d92db06ad
 /tool-schema-catalog/qilin-agent-plugin-manager/plugin-manager:
-  en: 75883cfe4a924be8
-  zh: 0ac9340f42b0bec8
+  en: 310deead1ab723ce
+  zh: 44113d2b34ed76b1
+/tool-schema-catalog/qilin-agent-plugin-market:
+  en: 3d7faa2c68e7d9fe
+  zh: 3d7faa2c68e7d9fe
+/tool-schema-catalog/qilin-agent-plugin-market/plugin-market:
+  en: 1115493d558ce39d
+  zh: d3a9fbad73d82a25
 /tool-schema-catalog/qilin-agent-mcp-resources:
   en: 31ffc905cb81c779
   zh: 31ffc905cb81c779

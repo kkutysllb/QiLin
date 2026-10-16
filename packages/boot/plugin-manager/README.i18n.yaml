@@ -15,17 +15,17 @@
   en: 87679c51aa3693f5
   zh: 11684a48a5806afb
 /qilin-agent-plugin-manager/use-this-package:
-  en: 51db1c03ed9ccbf5
-  zh: 5fcc44d58ad9aff6
+  en: 4bfdb6d948f6e9ea
+  zh: 6124e70434d86c73
 /qilin-agent-plugin-manager/use-this-package/version-compatibility-and-exemptions:
-  en: cb5b84daa9fe515d
-  zh: 74887d5f4c95bd22
+  en: f1a967c5ec7e5a25
+  zh: 4cb4e4e205bf74e7
 /qilin-agent-plugin-manager/use-this-package/configuration:
-  en: 8ffd508aab6d9b43
-  zh: 3140950b56caa3f7
+  en: 18f848bbfffb9ed0
+  zh: 67693354de557f6f
 /qilin-agent-plugin-manager/understand-the-implementation:
-  en: 69cdaefde2e40c84
-  zh: bed477c781d5db75
+  en: 2d7754bb77175998
+  zh: 8dcc3a09cb413d66
 /qilin-agent-plugin-manager/further-exploration:
   en: fa0b4837e6d7faf8
   zh: e3c3dd037336098d
@@ -36,8 +36,8 @@
   en: 1815ec6ce56c80d4
   zh: 2d7ac75d3b25eb6b
 /qilin-agent-plugin-manager/model-experience/management-tool/what-the-model-sees:
-  en: 57fa758032dc32c2
-  zh: 6ddd1927bbab5bf6
+  en: b736772e60b8b549
+  zh: f78702c9bd0dea2f
 /qilin-agent-plugin-manager/model-experience/management-tool/token-effect:
   en: bc70208bd361dbcd
   zh: bb651d6066066c6c
@@ -45,11 +45,11 @@
   en: c29f60be7f3edc1a
   zh: d9b9388b96ef95cc
 /qilin-agent-plugin-manager/known-limitations-and-deferred-work:
-  en: f1d84496b5816f60
-  zh: cc930faed146764e
+  en: 3403ea3ce15dd2db
+  zh: 7d2c2153ba515e52
 /qilin-agent-plugin-manager/known-limitations-and-deferred-work/failure-behavior:
-  en: aadb26b890ed15ee
-  zh: 17a4cd246b4f4f0a
+  en: ea01b4f55157dcf6
+  zh: aaea2da30847103b
 /qilin-agent-plugin-manager/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

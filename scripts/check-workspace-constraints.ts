@@ -183,6 +183,9 @@ const packageFileExtras: Readonly<Record<string, readonly string[]>> = {
   // The JSONL backend resolves its private verification Worker relative to
   // import.meta.url; it is shipped without a public package subpath.
   '@qilin-agent/session-persistence-jsonl': ['lib/worker.cjs'],
+  // The market parses index bodies in a private Worker resolved relative to
+  // import.meta.url; it too is shipped without a public package subpath.
+  '@qilin-agent/plugin-market': ['lib/worker.cjs'],
   // The argv-prefix runner entry ships beside the lib as its own bundle;
   // sandbox-local resolves it through the package's ./runner export. tsdown
   // also shares its generated FFI code through a hashed runtime chunk.

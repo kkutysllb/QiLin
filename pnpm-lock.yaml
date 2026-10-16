@@ -1159,6 +1159,9 @@ importers:
       '@qilin-agent/session':
         specifier: workspace:*
         version: link:../../core/session
+      '@qilin-agent/typert-protocol':
+        specifier: workspace:*
+        version: link:../../typert/protocol
 
   packages/api/remotes:
     dependencies:
@@ -1253,6 +1256,9 @@ importers:
       '@qilin-agent/plugin-manager':
         specifier: workspace:*
         version: link:../../boot/plugin-manager
+      '@qilin-agent/plugin-market':
+        specifier: workspace:*
+        version: link:../../boot/plugin-market
       '@qilin-agent/schedule':
         specifier: workspace:*
         version: link:../../schedule/schedule
@@ -1869,6 +1875,76 @@ importers:
       '@qilin-agent/user-approval':
         specifier: workspace:*
         version: link:../../interaction/user-approval
+      chokidar:
+        specifier: ^4.0.3
+        version: 4.0.3
+
+  packages/boot/plugin-market:
+    dependencies:
+      '@qilin-agent/app-boot':
+        specifier: workspace:*
+        version: link:../app-boot
+      '@qilin-agent/package-manifest':
+        specifier: workspace:*
+        version: link:../../util/package-manifest
+      '@qilin-agent/plugin-market-index':
+        specifier: workspace:*
+        version: link:../../util/plugin-market-index
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+      '@qilin-agent/timeout':
+        specifier: workspace:*
+        version: link:../../util/timeout
+      '@qilin-agent/util-values':
+        specifier: workspace:*
+        version: link:../../util/values
+      minisearch:
+        specifier: ^7.2.0
+        version: 7.2.0
+      semver:
+        specifier: ^7.8.5
+        version: 7.8.5
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+    devDependencies:
+      '@qilin-agent/cosmokit':
+        specifier: link:../../../vendor/cosmokit
+        version: link:../../../vendor/cosmokit
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/kylin-plugin-include':
+        specifier: workspace:~
+        version: link:../../../vendor/include
+      '@qilin-agent/kylin-plugin-loader':
+        specifier: workspace:~
+        version: link:../../../vendor/loader
+      '@qilin-agent/llm':
+        specifier: workspace:*
+        version: link:../../llm/llm
+      '@qilin-agent/plugin-manager':
+        specifier: workspace:*
+        version: link:../plugin-manager
+      '@qilin-agent/settings':
+        specifier: workspace:*
+        version: link:../../settings/settings
+      '@qilin-agent/settings-file':
+        specifier: workspace:*
+        version: link:../../settings/settings-file
+      '@qilin-agent/system-prompt':
+        specifier: workspace:*
+        version: link:../../core/system-prompt
+      '@qilin-agent/tools':
+        specifier: workspace:*
+        version: link:../../core/tools
+      '@qilin-agent/typert-protocol':
+        specifier: workspace:*
+        version: link:../../typert/protocol
+      '@types/semver':
+        specifier: ^7.8.0
+        version: 7.8.0
 
   packages/browser-use/browser-use:
     devDependencies:
@@ -4322,6 +4398,9 @@ importers:
       '@qilin-agent/client-locale':
         specifier: workspace:*
         version: link:../locale
+      '@qilin-agent/client-product-analytics':
+        specifier: workspace:*
+        version: link:../../api/product-analytics
       '@qilin-agent/client-schema-form':
         specifier: workspace:*
         version: link:../schema-form
@@ -4373,6 +4452,9 @@ importers:
       '@types/react':
         specifier: ~18.3.1
         version: 18.3.31
+      '@types/react-dom':
+        specifier: ~18.3.0
+        version: 18.3.7(@types/react@18.3.31)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -4382,6 +4464,57 @@ importers:
       react-dom:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
+
+  packages/client/ui-plugin-market:
+    devDependencies:
+      '@qilin-agent/api-remotes':
+        specifier: workspace:*
+        version: link:../../api/remotes
+      '@qilin-agent/client-locale':
+        specifier: workspace:*
+        version: link:../locale
+      '@qilin-agent/client-store':
+        specifier: workspace:*
+        version: link:../store
+      '@qilin-agent/client-test-runtime':
+        specifier: workspace:*
+        version: link:../../test-support/client-runtime
+      '@qilin-agent/client-ui-plugin-manager':
+        specifier: workspace:*
+        version: link:../ui-plugin-manager
+      '@qilin-agent/client-ui-primitives':
+        specifier: workspace:*
+        version: link:../ui-primitives
+      '@qilin-agent/client-ui-renderer':
+        specifier: workspace:*
+        version: link:../ui-renderer
+      '@qilin-agent/client-ui-slots':
+        specifier: workspace:*
+        version: link:../ui-slots
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/package-manifest':
+        specifier: workspace:*
+        version: link:../../util/package-manifest
+      '@qilin-agent/plugin-manager':
+        specifier: workspace:*
+        version: link:../../boot/plugin-manager
+      '@qilin-agent/plugin-market':
+        specifier: workspace:*
+        version: link:../../boot/plugin-market
+      '@qilin-agent/plugin-market-index':
+        specifier: workspace:*
+        version: link:../../util/plugin-market-index
+      '@testing-library/react':
+        specifier: ^16.1.0
+        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/react':
+        specifier: ~18.3.1
+        version: 18.3.31
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
 
   packages/client/ui-primitives:
     devDependencies:
@@ -8305,6 +8438,25 @@ importers:
       '@qilin-agent/tools':
         specifier: workspace:*
         version: link:../../core/tools
+
+  packages/experimental/plugin-market-bundle:
+    dependencies:
+      '@qilin-agent/client-ui-plugin-market':
+        specifier: workspace:*
+        version: link:../../client/ui-plugin-market
+      '@qilin-agent/plugin-market':
+        specifier: workspace:*
+        version: link:../../boot/plugin-market
+    devDependencies:
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/kylin-plugin-include':
+        specifier: workspace:~
+        version: link:../../../vendor/include
+      js-yaml:
+        specifier: ^4.3.2
+        version: 4.3.2
 
   packages/experimental/ptc-runtime-python:
     dependencies:
@@ -14380,6 +14532,22 @@ importers:
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
+
+  packages/util/plugin-market-index:
+    dependencies:
+      '@qilin-agent/package-manifest':
+        specifier: workspace:*
+        version: link:../package-manifest
+      semver:
+        specifier: ^7.8.5
+        version: 7.8.5
+    devDependencies:
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@types/semver':
+        specifier: ^7.8.0
+        version: 7.8.0
 
   packages/util/time:
     devDependencies:

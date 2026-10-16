@@ -15,10 +15,10 @@ function fixture() {
   const anchor = join(root, 'apps', 'cli', 'package.json')
   mkdirSync(dirname(anchor), { recursive: true })
   writeFileSync(join(root, 'package.json'), JSON.stringify({ name: '@qilin-agent/root' }))
-  writeFileSync(anchor, JSON.stringify({ name: '@qilin-agent/dsh', version, dependencies: { '@qilin-agent/app-boot': 'workspace:*' } }))
+  writeFileSync(anchor, JSON.stringify({ name: '@qilin-agent/cli', version, dependencies: { '@qilin-agent/app-boot': 'workspace:*' } }))
   const directory = join(root, 'packages', 'relocated', 'native-provider')
   mkdirSync(join(directory, 'lib'), { recursive: true })
-  writeFileSync(join(directory, 'package.json'), JSON.stringify({ name, version, main: 'lib/index.js', dsh: { bundle: { patch: './cordis.patch.yml' } } }))
+  writeFileSync(join(directory, 'package.json'), JSON.stringify({ name, version, main: 'lib/index.js', qilin: { bundle: { patch: './cordis.patch.yml' } } }))
   writeFileSync(join(directory, 'lib', 'index.js'), 'export function apply() {}\n')
   writeFileSync(join(directory, 'cordis.patch.yml'), '[]\n')
   return { root, anchor, directory }
@@ -26,13 +26,13 @@ function fixture() {
 
 it('offers an exact prerelease registry target for a packed installation inside a checkout', () => {
   const { anchor } = fixture()
-  writeFileSync(anchor, JSON.stringify({ name: '@qilin-agent/dsh', version, dependencies: { '@qilin-agent/app-boot': version } }))
+  writeFileSync(anchor, JSON.stringify({ name: '@qilin-agent/cli', version, dependencies: { '@qilin-agent/app-boot': version } }))
   expect(officialBundleInstallTarget(name, anchor, version)).toEqual({ spec: `${name}@${version}`, version })
 })
 
 it('keeps an installation without workspace dependencies on the registry path', () => {
   const { anchor } = fixture()
-  writeFileSync(anchor, JSON.stringify({ name: '@qilin-agent/dsh', version }))
+  writeFileSync(anchor, JSON.stringify({ name: '@qilin-agent/cli', version }))
   expect(officialBundleInstallTarget(name, anchor, version)).toEqual({ spec: `${name}@${version}`, version })
 })
 
@@ -43,7 +43,7 @@ it('finds the package by manifest name rather than assuming its workspace direct
 
 it('follows the CLI directory link used by an unpackaged Desktop application', () => {
   const { root, anchor, directory } = fixture()
-  const link = join(root, 'desktop-runtime', 'node_modules', '@deepseek-ai', 'dsh')
+  const link = join(root, 'desktop-runtime', 'node_modules', '@qilin-agent', 'cli')
   mkdirSync(dirname(link), { recursive: true })
   symlinkSync(dirname(anchor), link, process.platform === 'win32' ? 'junction' : 'dir')
   expect(officialBundleInstallTarget(name, join(link, 'package.json'), version)).toEqual({ spec: `link:${directory}`, version })
@@ -70,12 +70,12 @@ it.each(['missing', 'duplicate'])('refuses a %s workspace package without offeri
 })
 
 it.each([
-  { version: '0.1.0' }, { private: true }, { dsh: {} },
+  { version: '0.1.0' }, { private: true }, { qilin: {} },
 ])('refuses a workspace package with invalid release or bundle metadata: %j', (changes) => {
   const { anchor, directory } = fixture()
   const file = join(directory, 'package.json')
   writeFileSync(file, JSON.stringify({ ...JSON.parse(readFileSync(file, 'utf8')), ...changes }))
-  expect(() => officialBundleInstallTarget(name, anchor, version)).toThrow('must declare a public bundle at DSH version')
+  expect(() => officialBundleInstallTarget(name, anchor, version)).toThrow('must declare a public bundle at QiLin version')
 })
 
 it.each(['missing-main', 'missing-output', 'directory-output'])('refuses an unbuilt workspace package: %s', (kind) => {

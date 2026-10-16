@@ -1,0 +1,34 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/util/plugin-market-index/README.md
+/:
+  en: 363dfdec4a18ab83
+  zh: 62d1ab8ce847cc46
+/qilin-agent-plugin-market-index:
+  en: 6b7836a751a75e80
+  zh: 5b5a67d4a55b59c0
+/qilin-agent-plugin-market-index/summary:
+  en: c0c7baeed48b3489
+  zh: 1be5ded606ce4c21
+/qilin-agent-plugin-market-index/table-of-contents:
+  en: cd2a60a905c978d6
+  zh: cc71d387d0cbd442
+/qilin-agent-plugin-market-index/use-this-package:
+  en: 8eac2625e2e366a8
+  zh: 652131f240e929e0
+/qilin-agent-plugin-market-index/api:
+  en: e0e4444616427bf2
+  zh: 3960a7602bb17705
+/qilin-agent-plugin-market-index/model-experience:
+  en: acf97e1ec4399f4e
+  zh: a688934088c7c14d
+/qilin-agent-plugin-market-index/model-experience/kv-cache-effect:
+  en: a7a5484352ac021c
+  zh: fe00da8797e85e06
+/qilin-agent-plugin-market-index/known-limitations-and-deferred-work:
+  en: acfbb04ae4682367
+  zh: 48af36f974976528
+/qilin-agent-plugin-market-index/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

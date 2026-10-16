@@ -46,7 +46,7 @@ The row form is not a generic schema form: nested `dict` and extension nodes are
 
 ## Testing
 
-[`packages/client/schema-form/tests/model.client.spec.ts`](../../../../packages/client/schema-form/tests/model.client.spec.ts) covers rehydration, validation failure text, and the immutable path operations, including array splices through array intermediates. [`row-config-form.client.spec.tsx`](../../../../packages/client/ui-plugin-manager/tests/row-config-form.client.spec.tsx) covers the rendered controls, a staged save, an array entry removed by path, the refused-then-valid save round trip, a refused Host write, a subject reread, the textarea and union controls, and a leaf root schema. `pnpm run test:gui` runs both.
+[`packages/client/schema-form/tests/model.client.spec.ts`](../../../../packages/client/schema-form/tests/model.client.spec.ts) covers rehydration, validation failure text, and the immutable path operations, including array splices through array intermediates. [`schema.client.spec.ts`](../../../../packages/client/ui-settings/tests/schema.client.spec.ts) covers the same operations over the settings document's drafts. `pnpm run test:gui` runs both.
 
 ## Related
 

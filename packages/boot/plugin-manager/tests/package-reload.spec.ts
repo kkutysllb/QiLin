@@ -7,7 +7,7 @@ import { pathToFileURL } from 'node:url'
 import { FiberState, type Context, type Plugin } from '@qilin-agent/kylin'
 import Timer from '@qilin-agent/kylin-plugin-timer'
 import {
-  boot, createRuntimeResolution, initProfile, loadProfileDirectory, PluginPackages, ProfileRuntimeResolution,
+  boot, createRuntimeResolution, initProfile, loadProfileDirectory, PluginPackages,
   readProfileManifest, readProfilePatches, type ProfileContext,
   ResolutionRestartRequired,
 } from '@qilin-agent/app-boot'
@@ -35,7 +35,7 @@ function writeBundle(dir: string, version: number): void {
   mkdirSync(pluginDir, { recursive: true })
   writeFileSync(join(bundleDir, 'package.json'), JSON.stringify({
     name: 'addon', version: `${version}.0.0`, type: 'module',
-    dependencies: { 'addon-plugin': `${version}.0.0` }, dsh: { bundle: { patch: './cordis.patch.yml' } },
+    dependencies: { 'addon-plugin': `${version}.0.0` }, qilin: { bundle: { patch: './cordis.patch.yml' } },
   }))
   writeFileSync(join(bundleDir, 'cordis.patch.yml'), JSON.stringify([{ insert: [{ id: 'addon', name: 'addon-plugin' }] }]))
   writeFileSync(join(pluginDir, 'package.json'), JSON.stringify({
@@ -73,7 +73,7 @@ function installOtherBundle(dir: string, shared = false): void {
   mkdirSync(bundleDir, { recursive: true })
   writeFileSync(join(bundleDir, 'package.json'), JSON.stringify({
     name: 'other', version: '1.0.0', dependencies: shared ? { 'addon-plugin': '1.0.0' } : {},
-    dsh: { bundle: { patch: './cordis.patch.yml' } },
+    qilin: { bundle: { patch: './cordis.patch.yml' } },
   }))
   writeFileSync(join(bundleDir, 'cordis.patch.yml'), '[]\n')
   const manifest = readProfileManifest('test', dir)
@@ -96,7 +96,7 @@ async function fixture(options: { live?: boolean; installed?: boolean; enabled?:
   const core = join(dir, 'node_modules', 'core')
   mkdirSync(core, { recursive: true })
   writeFileSync(join(core, 'package.json'), JSON.stringify({
-    name: 'core', version: '1.0.0', dsh: { bundle: { patch: './cordis.patch.yml' } },
+    name: 'core', version: '1.0.0', qilin: { bundle: { patch: './cordis.patch.yml' } },
   }))
   writeFileSync(join(core, 'cordis.patch.yml'), JSON.stringify([{ insert: [
     { id: 'manager', name: 'cordis:manager' },
@@ -117,7 +117,7 @@ export function apply(ctx) {
     renameSync(join(dir, 'node_modules', 'addon', 'node_modules', 'addon-plugin'), join(dir, 'node_modules', 'addon-plugin'))
     installOtherBundle(dir, true)
     const shared = readProfileManifest('test', dir)
-    shared.dsh = { profile: { bundles: ['core', 'addon', 'other'] } }
+    shared.qilin = { profile: { bundles: ['core', 'addon', 'other'] } }
     writeFileSync(join(dir, 'package.json'), JSON.stringify(shared))
   }
   const loaded = loadProfileDirectory('test', dir, installAnchor)
@@ -133,7 +133,13 @@ export function apply(ctx) {
     host.provide('appReady', { onReady(listener) { listener(); return () => {} } })
     host.provide('packageReloadTrace', trace)
     host.loader.builtins.manager = PluginManager
-    await host.plugin(PluginPackages, { resolution })
+    await host.plugin(PluginPackages, {
+      generation: resolution,
+      // Package operations refresh from the launch sources, rereading the profile from disk, as the CLI launcher does.
+      recompute: async () => createRuntimeResolution({
+        installAnchor, profile: loadProfileDirectory('test', dir, installAnchor), home,
+      }),
+    })
   })
   if (options.live !== false) {
     await ctx.plugin(Timer)
@@ -293,7 +299,7 @@ it('keeps the running bundle resolution through later package operations without
   expectRunningBundle()
   expect(await manager.removeBundle('other')).toMatchObject({ application: 'restart-required', changed: true })
   expectRunningBundle()
-  expect(readProfileManifest('test', dir).dsh?.profile?.bundles).toEqual(['core'])
+  expect(readProfileManifest('test', dir).qilin?.profile?.bundles).toEqual(['core'])
   expect(readProfileManifest('test', dir).dependencies).toEqual({ addon: '1.0.0' })
   expect(existsSync(join(dir, 'node_modules', 'other'))).toBe(false)
   expect(trace).toEqual(['start:sibling', 'start:addon:1', 'pnpm:add', 'pnpm:remove'])
@@ -314,7 +320,7 @@ it.each(['disable', 'remove'] as const)('retains a shared dependency after %s of
     packageDir: sharedDir, version: '1.0.0', scope: 'profile', declarer: join(dir, 'node_modules', 'other', 'package.json'),
   })
   expect(entry()).toBeUndefined()
-  expect(readProfileManifest('test', dir).dsh?.profile?.bundles).toEqual(['core', 'other'])
+  expect(readProfileManifest('test', dir).qilin?.profile?.bundles).toEqual(['core', 'other'])
   expect(ctx.pluginPackages.packageOf('addon-plugin', parentURL)?.dir).toBe(sharedDir)
   expect(createRequire(join(dir, 'node_modules', 'other', 'package.json')).resolve('addon-plugin')).toBe(join(sharedDir, 'plugin.mjs'))
 })
@@ -476,30 +482,18 @@ it('starts a bundle reinstalled from another link target while a plugin outside 
 
 it('restores a disable whose publication waits for a restart and reports other publication failures', async () => {
   const { ctx, trace, manager } = await fixture({ installed: true })
-  // Another package's link points elsewhere since the last publication, so the next one is rejected.
-  const current = ctx.pluginPackages.resolution as ProfileRuntimeResolution
-  const next = await current.computeLatestResolution()
-  const relinked = vi.spyOn(ProfileRuntimeResolution.prototype, 'computeLatestResolution').mockResolvedValueOnce(new ProfileRuntimeResolution(
-    { installAnchor: '', home: '', profileDir: undefined },
-    { profilesDir: next.profilesDir, profileDir: next.profileDir, localPackageNames: next.localPackageNames, entries: next.entries,
-      linkedRoots: [...next.linkedRoots, { name: 'other', realPath: '/elsewhere' }] },
-  ))
-  onTestFinished(() => { relinked.mockRestore() })
-  const packages = ctx.pluginPackages
-  const replace = packages.replace.bind(packages)
-  const blocked = vi.spyOn(packages, 'replace').mockImplementation((successor) => {
-    if (successor.linkedRoots.some(root => root.name === 'other')) throw new ResolutionRestartRequired('installation mapping changed')
-    replace(successor)
-  })
-  onTestFinished(() => { blocked.mockRestore() })
+  // A link that moved since the last publication: the installed generation refuses the recomputed successor.
+  const moved = vi.spyOn(ctx.pluginPackages, 'refresh')
+    .mockRejectedValueOnce(new ResolutionRestartRequired('installation mapping changed'))
+  onTestFinished(() => { moved.mockRestore() })
   // The bundle's plugins stop before the publication and start again once it is rejected.
   trace.length = 0
   const disabled = await manager.setBundleEnabled('addon', false)
   expect(disabled).toMatchObject({ application: 'restart-required', restartReason: 'package-moved' })
   expect(trace).toEqual(['stop:addon:1', 'start:addon:1'])
-  blocked.mockRestore()
-  const latest = vi.spyOn(ProfileRuntimeResolution.prototype, 'computeLatestResolution').mockRejectedValueOnce(new Error('resolution unreadable'))
-  onTestFinished(() => { latest.mockRestore() })
+  moved.mockRestore()
+  const unreadable = vi.spyOn(ctx.pluginPackages, 'refresh').mockRejectedValueOnce(new Error('resolution unreadable'))
+  onTestFinished(() => { unreadable.mockRestore() })
   expect(await manager.setBundleEnabled('addon', false))
     .toMatchObject({ application: 'failed', error: { code: 'operation-error', diagnostic: 'resolution unreadable' } })
 })
@@ -582,7 +576,7 @@ it.each(['install', 'remove'] as const)('keeps successful %s disk changes when r
   expect(published).toHaveBeenCalledTimes(operation === 'install' ? 1 : 2)
   const manifest = readProfileManifest('test', dir)
   expect(manifest.dependencies).toEqual(operation === 'install' ? { addon: '1.0.0' } : {})
-  expect(manifest.dsh?.profile?.bundles).toEqual(operation === 'install' ? ['core', 'addon'] : ['core'])
+  expect(manifest.qilin?.profile?.bundles).toEqual(operation === 'install' ? ['core', 'addon'] : ['core'])
   expect(existsSync(join(dir, 'node_modules', 'addon'))).toBe(operation === 'install')
   // A removal publishes the bundle's private mappings away once its plugins stopped.
   expect(ctx.pluginPackages.packageOf('addon-plugin', parentURL)).toBeUndefined()

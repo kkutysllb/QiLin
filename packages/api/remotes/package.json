@@ -89,6 +89,7 @@
     "@qilin-agent/office-to-pdf": "workspace:*",
     "@qilin-agent/permission-presets": "workspace:*",
     "@qilin-agent/plugin-manager": "workspace:*",
+    "@qilin-agent/plugin-market": "workspace:*",
     "@qilin-agent/schedule": "workspace:*",
     "@qilin-agent/scope": "workspace:*",
     "@qilin-agent/session-reference": "workspace:*",

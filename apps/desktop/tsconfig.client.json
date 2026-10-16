@@ -16,7 +16,7 @@
       "path": "../../packages/client/ui-primitives"
     },
     {
-      "path": "./../../packages/api/product-analytics/tsconfig.host.json"
+      "path": "./../../packages/api/product-analytics/tsconfig.client.json"
     }
   ],
   "exclude": [

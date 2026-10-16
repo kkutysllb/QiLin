@@ -14,6 +14,7 @@ import dynamicRemote from '@qilin-agent/kylin-host-runner/remote'
 import pluginInventoryRemote from '@qilin-agent/host-plugin-inventory/remote'
 import pluginManagerRemote from '@qilin-agent/plugin-manager/remote'
 import pluginRegistryProbeRemote from '@qilin-agent/client-ui-plugin-manager/remote'
+import pluginMarketRemote from '@qilin-agent/plugin-market/remote'
 import mcpServersRemote from '@qilin-agent/mcp-servers/remote'
 import messageFeedbackRemote from '@qilin-agent/message-feedback/remote'
 import permissionPresetsRemote from '@qilin-agent/permission-presets/remote'
@@ -32,15 +33,19 @@ import type { ClientRemote } from '@qilin-agent/api-gateway/client'
 
 export type { ClientRemote } from '@qilin-agent/api-gateway/client'
 export type {
-  BundleInfo, BundleRowConfig, BundleRowInfo, ChangeResult, CommunityPluginEntry, CommunityPluginSnapshot, IncompatiblePlugin,
-  InstallBundleOptions, InstallSpecKind,
-  ManagementError, PackageResult, PluginChange, PluginEntryId, PluginInfo, PluginInspectProblem,
-  PluginInstallCancellation,
-  PluginInstallFailureKind, PluginInstallLogChunk, PluginInstallProgress, PluginInstallRequestId, PluginRegistries, PluginSpecInspection,
-  PluginUpdateEntry, PluginUpdateSnapshot, ReadOnlyReason, Registry, RestartReason,
+  BundleInfo, BundleRowInfo, ChangeResult, IncompatiblePlugin, InspectOptions, InstallBundleOptions, InstallSpecKind, ManagementError,
+  PackageResult,
+  PluginChange, PluginEntryId, PluginInfo, PluginInspectProblem, PluginInstallCancellation, PluginInstallFailureKind,
+  PluginInstallLogChunk, PluginInstallProgress, PluginInstallRequestId, PluginRegistries, PluginSpecInspection,
+  ReadOnlyReason, Registry, RestartReason,
 } from '@qilin-agent/plugin-manager/types'
 export type {} from '@qilin-agent/plugin-manager/remote'
 export type {} from '@qilin-agent/client-ui-plugin-manager/remote'
+export type {} from '@qilin-agent/plugin-market/remote'
+export type {
+  MarketCompatibility, MarketIndexSummary, MarketInstallation, MarketInstallationStatus, MarketListingEntry, MarketListingVersion,
+  MarketQuery, MarketSearchResult, MarketSort,
+} from '@qilin-agent/plugin-market/types'
 export type { PluginInventorySnapshot } from '@qilin-agent/host-plugin-inventory/types'
 export type {} from '@qilin-agent/agent-presets/remote'
 export type {} from '@qilin-agent/commands/remote'
@@ -185,7 +190,8 @@ export async function apply(ctx: Context): Promise<() => Promise<void>> {
   try {
     for (const contribution of [
       agentPresetsRemote, commandsRemote, settingsControllerRemote, goalsRemote, llmRemote, dynamicRemote, scheduleRemote,
-      pluginInventoryRemote, pluginManagerRemote, pluginRegistryProbeRemote, mcpServersRemote, messageFeedbackRemote, sessionFeedbackRemote,
+      pluginInventoryRemote, pluginManagerRemote, pluginMarketRemote, pluginRegistryProbeRemote,
+      mcpServersRemote, messageFeedbackRemote, sessionFeedbackRemote,
       fileUploadsRemote, sessionReferencesRemote,
       permissionPresetsRemote, subagentsRemote, sessionRemote, jobRemote, workspaceRemote,
       workspaceFilesRemote, workspaceGitRemote, terminalRemote, officeToPdfRemote, userQuestionsRemote,

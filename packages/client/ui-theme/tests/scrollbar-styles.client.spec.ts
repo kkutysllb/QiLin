@@ -57,6 +57,21 @@ const BASE_SURFACE_SCROLLERS: readonly {
     selector: '.root',
     reason: 'The page scroller draws on the sidebar fill, a base rung below bg-layer-2/3; the l2 notice, member, task, and form cards are descendants, not its background.',
   },
+  {
+    file: 'ui-plugin-manager/src/client/PluginManagerPage.module.css',
+    selector: '.page',
+    reason: 'The Plugins page scroller draws on the page background; the elevated cards it holds are descendants, not its background.',
+  },
+  {
+    file: 'ui-plugin-manager/src/client/PluginManagerPage.module.css',
+    selector: '.installContent',
+    reason: 'The install step body scrolls inside the wizard dialog over the page background; the elevated surface belongs to the dialog frame, not this scroller.',
+  },
+  {
+    file: 'ui-plugin-manager/src/client/PluginManagerPage.module.css',
+    selector: '.wizardScroll',
+    reason: 'The wizard step scroller draws on the dialog body, a base rung below the elevated card the sheet paints.',
+  },
 ]
 
 /** The classifications naming one stylesheet. */

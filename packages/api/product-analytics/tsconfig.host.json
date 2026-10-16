@@ -13,7 +13,8 @@
       "path": "../../../packages/llm/llm"
     }
   ],
-  "include": [
-    "src"
+  "files": [
+    "src/index.ts",
+    "src/events.ts"
   ]
 }

@@ -2,9 +2,10 @@
 // bubble escape ancestor overflow clipping; the optional portal also escapes
 // stacking contexts that would cap the bubble's z-index.
 
-import { cloneElement, createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { cloneElement, createContext, useCallback, useContext, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ShortcutKeys } from './ShortcutKeys.tsx'
+import { useDismissOnOutsidePointer } from './useDismissOnOutsidePointer.ts'
 import type { FocusEventHandler, MouseEventHandler, MutableRefObject, ReactElement, Ref } from 'react'
 // Tooltips take the wide answer — any key returns to the keyboard. Focus rings read the
 // narrower `data-input-modality` attribute the same module publishes.
@@ -22,9 +23,11 @@ export const TooltipSuppression = createContext<((suppressed: boolean) => void) 
 
 /** Props Tooltip injects into its anchor child; the child's own handlers are chained ahead of the tooltip's. */
 interface AnchorProps {
+  'aria-describedby'?: string | undefined
   ref?: Ref<HTMLElement> | undefined
   onMouseEnter?: MouseEventHandler | undefined
   onMouseLeave?: MouseEventHandler | undefined
+  onClick?: MouseEventHandler | undefined
   onFocus?: FocusEventHandler | undefined
   onBlur?: FocusEventHandler | undefined
 }
@@ -36,18 +39,27 @@ type TooltipLabel = string | (() => string)
  * @param props.label - bubble text, or a resolver evaluated only while the bubble is visible.
  * @param props.shortcutKeys - effective key labels rendered as platform-formatted keycaps after optional text.
  * @param props.side - placement relative to the anchor (default 'right').
- * @param props.delayMs - hover delay in milliseconds; keyboard focus remains immediate.
+ * @param props.delayMs - hover delay in milliseconds (default 0).
+ * @param props.focusDelayMs - keyboard focus delay in milliseconds (default 0); blur, mouse
+ * leave, disabling, and unmount cancel a pending show.
  * @param props.disabled - suppress the bubble while true; the anchor renders identically so
  * toggling never remounts it (which would cut its CSS transitions).
  * @param props.portal - render the bubble under document.body, so an ancestor's clipping or its
  * stacking context can neither clip the bubble nor paint over it.
  * @param props.maxWidth - bubble width cap in pixels, for labels long enough that the default
  * half-viewport cap would render a slab wider than the surface the anchor sits on.
+ * @param props.openOnClick - clicking also pins the bubble for reading; another click, Escape,
+ * Tab, or an outside pointerdown dismisses it. Defaults to false, leaving an ordinary action
+ * tooltip to hover and focus alone.
  * @param props.children - a single anchor element; its own ref (callback or object) is forwarded alongside the tooltip's.
  * An anchor that accepts no ref still positions the bubble: a raise records the element the event ran on.
  * @returns the cloned anchor plus a fixed-position bubble while hovered/focused.
  */
-export function Tooltip({ label, shortcutKeys, side = 'right', delayMs = 0, disabled = false, portal = false, maxWidth, children }: { label: TooltipLabel; shortcutKeys?: readonly string[] | undefined; side?: TooltipSide; delayMs?: number; disabled?: boolean; portal?: boolean; maxWidth?: number; children: ReactElement<AnchorProps> }) {
+export function Tooltip({ label, shortcutKeys, side = 'right', delayMs = 0, focusDelayMs = 0, disabled = false, portal = false, maxWidth, openOnClick = false, children }: { label: TooltipLabel; shortcutKeys?: readonly string[] | undefined; side?: TooltipSide; delayMs?: number; focusDelayMs?: number; disabled?: boolean; portal?: boolean; maxWidth?: number; openOnClick?: boolean; children: ReactElement<AnchorProps> }) {
+  const id = useId()
+  // A click-pinned bubble outlives the pointer and the anchor's focus; every
+  // other raise is withdrawn as soon as its trigger clears.
+  const [pinned, setPinned] = useState(false)
   const anchor = useRef<HTMLElement | null>(null)
   // React 18 keeps the element's ref outside props; forward it so wrapping an
   // anchor in Tooltip never silently severs the owner's ref.
@@ -138,13 +150,15 @@ export function Tooltip({ label, shortcutKeys, side = 'right', delayMs = 0, disa
     showTimer.current = null
   }, [])
   useEffect(() => {
+    // A pin only outlives its click while the tooltip still offers that channel.
+    if (pinned && (disabled || !openOnClick)) setPinned(false)
     if (disabled) {
       cancelShow()
       triggers.current = { hover: false, focus: false }
       setPos(null)
     }
     return cancelShow
-  }, [cancelShow, disabled])
+  }, [cancelShow, disabled, openOnClick, pinned])
 
   const show = () => {
     if (disabled) return
@@ -158,32 +172,54 @@ export function Tooltip({ label, shortcutKeys, side = 'right', delayMs = 0, disa
     setPos({ x: side === 'right' ? r.right + 10 : r.left + r.width / 2, top: r.top, bottom: r.bottom })
     announce(true)
   }
-  const showAfterHoverDelay = () => {
+  const showAfterDelay = (delay: number) => {
     cancelShow()
-    if (delayMs <= 0) {
+    if (delay <= 0) {
       show()
       return
     }
     showTimer.current = setTimeout(() => {
       showTimer.current = null
       show()
-    }, delayMs)
+    }, delay)
   }
-  const withdraw = () => {
+  const withdraw = useCallback(() => {
+    setPinned(false)
     setPos(null)
     announce(false)
-  }
+  }, [announce])
   const hide = () => {
     cancelShow()
-    if (!triggers.current.hover && !triggers.current.focus) withdraw()
+    if (!triggers.current.hover && !triggers.current.focus && !pinned) withdraw()
   }
+  // A click-pinned bubble closes on every channel its owner has: an outside
+  // pointerdown, Escape, or a Tab that moves focus on. The bubble itself counts
+  // as inside, so reading or selecting its text never dismisses it.
+  const dismiss = useCallback(() => {
+    cancelShow()
+    triggers.current = { hover: false, focus: false }
+    withdraw()
+  }, [cancelShow, withdraw])
+  useDismissOnOutsidePointer(anchor, openOnClick && visible, dismiss, bubble)
+  useEffect(() => {
+    if (!openOnClick || !visible) return
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' && event.key !== 'Tab') return
+      if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation() }
+      dismiss()
+    }
+    document.addEventListener('keydown', onKeyDown, true)
+    return () => { document.removeEventListener('keydown', onKeyDown, true) }
+  }, [dismiss, openOnClick, visible])
 
   const bubbleNode = visible && !suppressed && (
     <span
       ref={bubble}
+      id={openOnClick ? id : undefined}
       className={css.bubble}
       data-side={placement}
       data-portal={portal || undefined}
+      data-pinned={pinned || undefined}
       data-has-shortcut={shortcutKeys?.length ? true : undefined}
       style={{ left: pos.x, top: y, ...maxWidth === undefined ? {} : { maxWidth } }}
       role="tooltip"
@@ -197,8 +233,24 @@ export function Tooltip({ label, shortcutKeys, side = 'right', delayMs = 0, disa
     <TooltipSuppression.Provider value={setSuppressed}>
       {cloneElement(children, {
         ref: mergedRef,
-        onMouseEnter: (e) => { children.props.onMouseEnter?.(e); trackAnchor(e); triggers.current.hover = true; showAfterHoverDelay() },
-        onMouseLeave: (e) => { children.props.onMouseLeave?.(e); triggers.current.hover = false; cancelShow(); withdraw() },
+        'aria-describedby': openOnClick && visible
+          ? [children.props['aria-describedby'], id].filter(Boolean).join(' ')
+          : children.props['aria-describedby'],
+        onMouseEnter: (e) => { children.props.onMouseEnter?.(e); trackAnchor(e); triggers.current.hover = true; showAfterDelay(delayMs) },
+        onMouseLeave: (e) => { children.props.onMouseLeave?.(e); triggers.current.hover = false; cancelShow(); if (!pinned) withdraw() },
+        // A click on an informational anchor pins the bubble a pointer reader
+        // cannot hover open; the click also clears the anchor's focus trigger,
+        // which would otherwise raise the bubble again after a dismissal.
+        onClick: (e) => {
+          children.props.onClick?.(e)
+          if (!openOnClick) return
+          triggers.current.focus = false
+          cancelShow()
+          if (!disabled && !pinned) {
+            setPinned(true)
+            show()
+          } else withdraw()
+        },
         // Pointer focus is silent: after a mouse selection a closing menu refocuses
         // its trigger, and that programmatic return must not raise the bubble.
         onFocus: (e) => {
@@ -206,8 +258,7 @@ export function Tooltip({ label, shortcutKeys, side = 'right', delayMs = 0, disa
           trackAnchor(e)
           if (pointerModality()) return
           triggers.current.focus = true
-          cancelShow()
-          show()
+          showAfterDelay(focusDelayMs)
         },
         onBlur: (e) => { children.props.onBlur?.(e); triggers.current.focus = false; hide() },
       })}

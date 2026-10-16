@@ -126,28 +126,12 @@ Manage profile files and apply their declared reload lifecycle.
  */
 @Remote async listPlugins(): Promise<PluginInfo[]>
 
-/** Read the profile's installed bundles, the bundles this qilin installation supplies, and the selected names that are not bundles.
+/** Read installed, installation-provided, and offline Official catalog bundles, plus selected non-bundle names.
  * A dependency without a bundle patch is listed, as a `not-bundle` problem, only while it is selected.
- * @returns Package versions, one-liners, rows, activation selections, whether the installation offers the
- * bundle, and removal availability.
+ * @returns Package versions, manifest descriptions, the installable spec of profile dependencies, rows, optional
+ * display metadata, activation selections, whether the installation offers the bundle, and removal availability.
  */
 @Remote listBundles(): Promise<BundleInfo[]>
-
-/** Compare each manageable layer with its registry's `latest` dist-tag.
- * A name the registry cannot answer for keeps its row with a null `latestVersion`, so a network
- * failure reads as an unknown version rather than as a failed listing. A name the Host cannot read
- * as a bundle is left out: it is a plain dependency the profile selected, not a layer to upgrade.
- * @returns One row per readable layer {@link listBundles} lists, in the same order.
- */
-@Remote async checkUpdates(): Promise<PluginUpdateSnapshot>
-
-/** Search GitHub for repositories the plugin topic tags.
- * @param query - additional search text; empty searches the topic alone.
- * @param page - one-based result page; anything but a positive safe integer reads as page 1.
- * @returns The page's repositories and whether GitHub reports another page.
- * @throws {Error} when GitHub answers a status outside 2xx.
- */
-@Remote async catalog(query: string, page: number): Promise<CommunityPluginSnapshot>
 
 /** Read the registries this manager asks: the configured first one, its fallbacks in order, and what pnpm's own configuration names.
  * @returns The registries in pnpm's comparison form; null is the one pnpm's own configuration names, `resolved` as pnpm reads it now.
@@ -169,24 +153,6 @@ Manage profile files and apply their declared reload lifecycle.
  */
 @Remote setPluginEnabled(id: PluginEntryId, enabled: boolean): Promise<ChangeResult>
 
-/** Read one bundle row configuration schema and current values for the plugin page row form.
- * @param name Bundle package name.
- * @param rowId The row id as the bundle patch declares it.
- * @returns The row module serialized schemastery Config and the values the row runs with.
- * @throws {ManagementFailure} unknown-plugin when the bundle declares no such row, or row-not-running
- * when the row module has not been imported: the schema ships with the module, so a stopped row has none.
- */
-@Remote bundleRowConfig(name: string, rowId: string): BundleRowConfig
-
-/** Persist one bundle row configuration override and apply it on live profiles.
- * A patch override replaces the row declared config wholesale, so the caller sends the complete map.
- * @param name Bundle package name.
- * @param rowId The row id as the bundle patch declares it.
- * @param config The complete configuration the row should run with.
- * @returns Saved and runtime outcomes.
- */
-@Remote setBundleConfig(name: string, rowId: string, config: JsonValue): Promise<ChangeResult>
-
 /** Select or remove a bundle layer while retaining installed dependencies.
  * @param name Bundle package name.
  * @param enabled Whether the bundle contributes its patch layer.
@@ -197,19 +163,26 @@ Manage profile files and apply their declared reload lifecycle.
 /**
  * Install a package using the same pnpm implementation as qilin plugin. GitHub
  * repositories get a connection check bounded by githubConnectionTimeoutMs before pnpm starts;
- * only network failures or timeouts stop installation, while pnpm owns authentication and transport fallback.
- * A run that fails, is cancelled, or adds a package without a bundle patch restores
+ * only network failures or timeouts stop installation, while pnpm owns authentication and transport fallback. A run
+ * that fails, is cancelled, or adds a package without a bundle patch restores
  * `package.json` and `pnpm-lock.yaml` as they were; downloaded files can stay.
  * @param spec One package spec, including local paths relative to the invocation directory.
  * @param options Whether to activate the installed bundle (defaults to true), the request id a cancellation names,
- * the pending build scripts to allow for this profile before pnpm runs, and the registry asked first.
+ * the pending build scripts to allow, whether to save an exact dependency, and the registry asked first.
  * @returns Package-manager diagnostics, the registries asked, and the observed activation outcome.
  */
 @Remote installBundle(spec: string, options?: InstallBundleOptions): Promise<ChangeResult>
 
+/** Recover the result of an active installation without cancelling it.
+ * @param requestId The id supplied when installation started.
+ * @returns The installation's outcome after it settles, or null if no active request has that id.
+ * Completed results are not retained; null establishes neither success nor cancellation.
+ */
+@Remote async waitForInstall(requestId: PluginInstallRequestId): Promise<ChangeResult | null>
+
 /** Stop an installation this manager owns and wait until its files are back.
  * @param requestId The id the installation was started with.
- * @returns `cancelled` once pnpm exited and the files are restored, `too-late` once the bundle is being
+ * @returns `cancelled` once the Git check or pnpm exited and the files are restored, `too-late` once the bundle is being
  * applied, `not-running` for any other id.
  */
 @Remote async cancelInstall(requestId: PluginInstallRequestId): Promise<PluginInstallCancellation>
@@ -223,6 +196,56 @@ Manage profile files and apply their declared reload lifecycle.
 ```
 
 Source: [`packages/boot/plugin-manager/src/index.ts`](../../packages/boot/plugin-manager/src/index.ts)
+
+<a id="ctxpluginmarket--pluginmarket"></a>
+
+### `ctx.pluginMarket` — `PluginMarket`
+
+Fetches, validates, and caches configured market indexes; annotates entries with the profile's installation facts.
+
+```ts cordis-catalog
+/**
+ * List the configured index sources without fetching them.
+ * @returns every source in order, with the title of its last successful read and, when the last read failed, its error.
+ */
+@Remote listIndexes(): MarketIndexSummary[]
+
+/**
+ * Replace the configured index sources through Settings, without remounting this service.
+ * `plugin-market/changed` announces the committed list. A URL already configured is kept as written, so a client can
+ * add or remove sources beside one that `listIndexes` reports as unusable.
+ * @param urls - index URLs in display order.
+ * @throws {RemoteError} `plugin-market/invalid-index-url` for an invalid new URL or a repeated URL;
+ * `plugin-market/settings-unavailable` without Settings or a profile entry.
+ */
+@Remote async setIndexes(urls: string[]): Promise<void>
+
+/**
+ * Return one page of the plugins of a configured index that match a query. Concurrent reads of a URL share one
+ * fetch; a successful document is reused for `cacheTtlMs` unless `refresh` is set. Matching and ordering read only
+ * the document; installation status and compatibility are computed for the returned page on every call.
+ * @param url - a configured index URL.
+ * @param query - text, filters, order, page, and whether to bypass the cached document.
+ * @returns the index header, the page's plugins with each plugin's default version and installation status and each
+ *   version's compatibility and install arguments, the number of matches, and the next page's offset.
+ * @throws {RemoteError} `plugin-market/invalid-query`, `plugin-market/unknown-index`, `plugin-market/invalid-index-url`,
+ *   `plugin-market/fetch-failed`, or `plugin-market/invalid-index`.
+ */
+@Remote async search(url: string, query: MarketQuery): Promise<MarketSearchResult>
+
+/**
+ * Read one plugin of a configured index, using the cached document as `search` does.
+ * @param url - a configured index URL.
+ * @param name - the plugin's package name.
+ * @returns the plugin with its default version, installation status, and annotated versions; undefined when the
+ *   index does not list it.
+ * @throws {RemoteError} `plugin-market/unknown-index`, `plugin-market/invalid-index-url`, `plugin-market/fetch-failed`,
+ *   or `plugin-market/invalid-index`.
+ */
+async entry(url: string, name: string): Promise<MarketListingEntry | undefined>
+```
+
+Source: [`packages/boot/plugin-market/src/index.ts`](../../packages/boot/plugin-market/src/index.ts)
 
 <a id="ctxpluginregistryprobe--pluginregistryprobe"></a>
 
@@ -343,4 +366,24 @@ An installation moved between its Host phases. `installing` is announced once pe
 ```
 
 Source: [`packages/boot/plugin-manager/src/types.ts`](../../packages/boot/plugin-manager/src/types.ts)
+
+<a id="plugin-market-events"></a>
+
+### `plugin-market/*` events
+
+<a id="plugin-marketchanged--emit"></a>
+
+#### `plugin-market/changed` — emit
+
+The configured index sources changed.
+
+```ts cordis-catalog
+/**
+ * The configured index sources changed.
+ * @mode emit
+ */
+'plugin-market/changed'(): void
+```
+
+Source: [`packages/boot/plugin-market/src/types.ts`](../../packages/boot/plugin-market/src/types.ts)
 <!-- END GENERATED kylin-surface -->

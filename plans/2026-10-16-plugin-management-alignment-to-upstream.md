@@ -12,13 +12,33 @@
 | `packages/client/ui-plugin-market` | **存在**（7 个源文件，Discover/自定义市场源/安装流） | 不存在 |
 | `ui-primitives` 图标 | `icons/index.tsx` 采用新命名（`IconCheckCircleFillRegular`、`IconChevronDownOutlineRegular`、`IconCloseOutlineMedium`、`IconTrashOutlineRegular` 等） | 旧命名（`IconCloseOutline16`、`IconTrashOutline16`、`IconChevronDownOutline14` 等）；**无** `Regular/Medium` 命名 |
 | `ui-primitives` 组件 | `plugin-artwork.tsx`（`PluginArtworkDefault/Loop/Search/Subagent/Terminal`）、`SegmentedTabs.tsx`、`SegmentedControl.tsx` | **不存在**（`Menu`/`MenuItemButton`/`useAnchoredPosition`/`pointerModality` 已有） |
-| 子智能体条目 | 相关提交 `640e28cd94`（重组插件设置 + 实验目录页 #5922）与 `259534c2c7`（中文页改名「子智能体」）——**重组/改名，未删除** | 条目形态停在重组前 |
+| 子智能体条目 | 上游 PR #5922（重组插件设置 + 实验目录页）与中文页改名「子智能体」的随行改动（上游检出 `0.2.1-alpha.5`）——**重组/改名，未删除** | 条目形态停在重组前 |
 
 ## 二、决策（已拍板，执行时按此）
 
 1. **行级配置表单不要**：删除 `RowConfigForm.*`、`plugins.row.config` 插槽声明，并同步移除其消费侧文档与测试（`packages/extensions/kylin-client-runner/src/client/slot-catalog.ts` 的该槽条目、`ui-plugin-manager` 相关用例）。
 2. **移植 `ui-plugin-market`**：Discover 标签页、自定义市场源与安装流一并进来，含其在组合包中的行与依赖声明。
 3. **子智能体条目跟随上游重组后的位置**（设置内重组形态），不自创独立形态。
+
+## 二之三、命名对齐规则（用户 2026-10-16 决定，覆盖此前判断）
+
+**与上游 dsh 完全对齐**：凡 dsh 插件生态可见的公共面，一律采用上游 dsh 的命名与语义，不再使用本仓的改名版本；否则无法真正兼容 dsh 插件生态。仅保留仓库机械 rescope（workspace 包名 `@deepseek-ai/*` → `@qilin-agent/*`、cordis 依赖名、`QILIN_HOME` 等非插件面标识）。
+
+落地清单（最终验收逐条核对）：
+
+| 项 | 要求 |
+|---|---|
+| `PluginCompatibility` 字段 | 用上游 `requirements`（插件清单 `engines.dsh` / dsh peer 语义），删除本仓改名 `peers` 及其调用点与测试 |
+| 图标公共名 | 上游 `IconXxxRegular` / `IconXxxMedium` 一等可用（本仓已有 upstream-named 别名段，页面所需全部补齐） |
+| 主题变量 | 上游 `--dsw-*` 必须可用——本仓 `ui-theme/src/styles/dsw-compat.css` 已提供 426 个别名，覆盖上游 407 个，保持 |
+| 槽 / 工具 / 配置键 / 类型名 | 与上游逐字一致 |
+| 内部标识符 | 仅限非插件面者保留本仓命名（如 `getQilinRuntimeVersion`、`qilinHomePath`），并在验收报告注明 |
+
+## 二之四、本轮按「对齐上游」口径做的两处裁决（Lead）
+
+1. **`PluginCompatibility` 字段名回上游 `requirements`**（app-boot、plugin-manager、页面 `presentation.ts` 及各自测试同步改名；`packages/api/gateway` 的传输对端 `peers` 与该字段无关，未动）。
+2. **不采纳上游「`engines.dsh` 未满足即拒绝」**：QiLin 版本线（3.1.6-rc.1）在语义上无法满足 dsh 插件的 `engines.dsh: ^0.2.x`，采纳会把每一个 dsh 插件拒装，与「无缝兼容 dsh 插件生态」相反。engines 保持 advisory（本仓 `QilinEnginesManifest` 已如此声明），仅 peerDependencies 参与判定。
+3. **移除 CLI 的安装前置拒绝**（`refusedInstallSpecs`，QiLin 本地能力）：按去 fork 面口径，改为上游行为——安装照常进行，不兼容由安装后的加载拒绝与既有 `qilin plugin allow-version` 豁免承担。恢复路径：该实现的上一版见本仓 Git 历史中的 `packages/boot/plugin-manager/src/operations.ts`（`RefusedInstallSpecs` / `refusedInstallSpecs` 及 `LookupOptions`），需要时按其语义重新移植并恢复 `apps/cli/src/plugin.ts` 的调用点。
 
 ## 三、阶段（每阶段可独立验证）
 
@@ -53,3 +73,14 @@
 | `IconCheckCircleFillRegular` | —— | **需按上游图形补齐** |
 
 组件缺项（需按上游移植）：`PluginArtworkDefault`、`PluginArtworkLoop`、`PluginArtworkSearch`、`PluginArtworkSubagent`、`PluginArtworkTerminal`（上游 `plugin-artwork.tsx`）、`SegmentedTabs`（上游 `SegmentedTabs.tsx` + `.module.css`）。已具备：`Menu`/`MenuItemButton`、`useAnchoredPosition`、`pointerModality`。
+
+## 附录：槽面差异（slot surface delta，实测于生成目录）
+
+以两棵树的生成目录 `slot-catalog.ts`（QiLin 86 个槽 / 上游 105 个槽）比对：
+
+**上游有而 QiLin 缺（19）**：`conversation.chat.message.images`、`conversation.chat.user.images`、`conversation.hero.options`、`conversation.input.model.label`、`conversation.user.text.node`、`deliverables.file.actions`、`deliverables.review.file.actions`、`plugins.detail.actions`、`plugins.detail.badge`、`plugins.detail.section`、`plugins.tab`、`settings.launcher`、`settings.models.sign-in`、`settings.trigger`、`shell.leading`、`shell.quota-notice`、`sidebar.workspaces.session.menu.item`、`sidebar.workspaces.session.row.action`、`workspace.toast`。
+
+**QiLin 有而上游无（5）**：`conversation.message.images`（上游已拆为 `conversation.chat.message.images` + `conversation.chat.user.images`，属改名）、`settings.about.mark`、`sidebar.account`、`sidebar.right.pane.tab.badge`、`sidebar.section.assignments`。
+
+按「与 dsh 完全对齐」规则：dsh 插件可见的槽名必须一致，否则第三方插件注册即失败。本波先落插件管理页依赖的 `plugins.tab` 与 `plugins.detail.actions/badge/section`；其余槽（conversation/deliverables/settings/shell/sidebar-workspaces）的声明与宿主渲染面列为紧随其后的槽面对齐波次，逐槽按上游实现。
+

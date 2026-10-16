@@ -29,7 +29,7 @@ function pkg(dir: string, version: string, name = 'metadata-lib'): string {
     name,
     version,
     type: 'module',
-    exports: { import: './index.js', require: './index.cjs' },
+    exports: { '.': { import: './index.js', require: './index.cjs' }, './locale/*.json': './locale/*.json' },
   }))
   file(join(dir, 'index.js'), `export const version = ${JSON.stringify(version)}\n`)
   file(join(dir, 'index.cjs'), `exports.version = ${JSON.stringify(version)}\n`)
@@ -56,6 +56,7 @@ describe('profile package metadata service', () => {
     const profileDir = join(profilesDir, 'test')
     const first = join(root, 'first')
     const firstAnchor = pkg(first, '1.0.0')
+    file(join(first, 'locale', 'en.json'), '{"meta":{"title":"Profile feature"}}')
     file(join(profileDir, 'entry.mjs'), '')
     const parentURL = pathToFileURL(join(profileDir, 'entry.mjs')).href
 
@@ -75,10 +76,36 @@ describe('profile package metadata service', () => {
     expect(require.resolve('metadata-lib')).toBe(realpathSync(join(first, 'index.cjs')))
     expect(ctx.pluginPackages.packageOf('node:fs', parentURL)).toBeUndefined()
     expect(ctx.pluginPackages.packageOf('./local.js', parentURL)).toBeUndefined()
+    // Display metadata follows the published generation, so a renamed package never reads the native one.
+    expect(ctx.pluginPackages.metaOf('metadata-lib', parentURL)).toEqual({ title: { en: 'Profile feature' } })
 
     await ctx.fiber.dispose()
     contexts.pop()
     expect(() => { require.resolve('metadata-lib') }).toThrow(/Cannot find module/u)
+  })
+
+  it('reads translated display metadata without importing the plugin entry', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'qilin-localized-package-service-'))
+    roots.push(root)
+    const packageDir = join(root, 'node_modules', 'localized')
+    file(join(packageDir, 'package.json'), JSON.stringify({
+      name: 'localized',
+      type: 'module',
+      exports: { './private': './index.js', './private/locale/*.json': './locale/*.json' },
+    }))
+    file(join(packageDir, 'index.js'), 'throw new Error("metadata must not execute the plugin")\n')
+    file(join(packageDir, 'locale', 'en.json'), '{"meta":{"title":"Local plugin"}}')
+    file(join(packageDir, 'locale', 'zh.json'), '{"meta":{"title":"本地插件"}}')
+    const ctx = new Context()
+    contexts.push(ctx)
+    await ctx.plugin(PluginPackages)
+    const parent = pathToFileURL(join(root, 'entry.mjs')).href
+
+    expect(ctx.pluginPackages.metaOf('localized/private', parent)).toEqual({ title: { en: 'Local plugin', zh: '本地插件' } })
+    expect(ctx.pluginPackages.metaOf('node:fs', parent)).toBeUndefined()
+    expect(ctx.pluginPackages.metaOf('unconfigured', parent)).toBeUndefined()
+    file(join(root, 'node_modules', 'invalid', 'package.json'), '{')
+    expect(ctx.pluginPackages.metaOf('invalid', parent)?.error).toContain('invalid')
   })
 
   it('uses native package lookup without a registration and caches parsed metadata', async () => {

@@ -71,14 +71,14 @@ describe('plugin compatibility', () => {
     })).toEqual({
       ...identity,
       runtimeVersion: runtime,
-      peers: { '@qilin-agent/session': '>=0.2.0', '@qilin-agent/tools': '<0.1.0' },
+      requirements: { '@qilin-agent/session': '>=0.2.0', '@qilin-agent/tools': '<0.1.0' },
       exempted: false,
     })
   })
 
   it.each(['^0.2.0', '>=0.1.7', 'broken', '', ' ', 'workspace:>=0.2.0', 'file:../qilin', 'npm:qilin@*'])(
     'fails closed for an incompatible or malformed range %j', (range) => {
-      expect(check({ '@qilin-agent/session': range })?.peers).toEqual({ '@qilin-agent/session': range })
+      expect(check({ '@qilin-agent/session': range })?.requirements).toEqual({ '@qilin-agent/session': range })
     },
   )
 
@@ -164,7 +164,7 @@ describe('compatibility warning', () => {
   it.each([false, true])('retains mismatch details and risk when exemption status is %s', (exempted) => {
     expect(pluginCompatibilityWarning({
       ...identity, runtimeVersion: runtime,
-      peers: { '@qilin-agent/session': '^0.2.0', '@qilin-agent/tools': 'broken' }, exempted,
+      requirements: { '@qilin-agent/session': '^0.2.0', '@qilin-agent/tools': 'broken' }, exempted,
     })).toBe(
       'Plugin @example/plugin@2.0.0 is incompatible with QiLin 0.1.7-alpha.1: '
       + 'peerDependencies {"@qilin-agent/session":"^0.2.0","@qilin-agent/tools":"broken"}. '

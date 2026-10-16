@@ -476,4 +476,163 @@ describe('Tooltip', () => {
     fireEvent.focus(anchor)
     expect(screen.getByRole('tooltip').textContent).toBe('Pointer last')
   })
+
+  it('portals the bubble under document.body when an ancestor would clip it', () => {
+    render(
+      <Tooltip label="Portaled" portal>
+        <button type="button">anchor</button>
+      </Tooltip>,
+    )
+    fireEvent.mouseEnter(screen.getByText('anchor'))
+    const bubble = screen.getByRole('tooltip')
+    expect(bubble.parentElement).toBe(document.body)
+    expect(bubble.getAttribute('data-portal')).toBe('true')
+  })
+
+  it('delays the keyboard focus bubble and drops it on blur', () => {
+    vi.useFakeTimers()
+    try {
+      render(
+        <Tooltip label="Refresh" focusDelayMs={500}>
+          <button type="button">anchor</button>
+        </Tooltip>,
+      )
+      const anchor = screen.getByText('anchor')
+      fireEvent.focus(anchor)
+      expect(screen.queryByRole('tooltip')).toBeNull()
+      act(() => { vi.advanceTimersByTime(499) })
+      expect(screen.queryByRole('tooltip')).toBeNull()
+      fireEvent.blur(anchor)
+      act(() => { vi.advanceTimersByTime(1) })
+      expect(screen.queryByRole('tooltip')).toBeNull()
+    } finally {
+      cleanup()
+      vi.useRealTimers()
+    }
+  })
+
+  it('pins the informational bubble on click and dismisses it on an outside pointerdown', () => {
+    const clicked = vi.fn()
+    render(
+      <Tooltip label="Plugin information" openOnClick>
+        <button type="button" aria-describedby="existing-description" onClick={clicked}>anchor</button>
+      </Tooltip>,
+    )
+    const anchor = screen.getByText('anchor')
+    fireEvent.click(anchor)
+    expect(clicked).toHaveBeenCalledOnce()
+    const bubble = screen.getByRole('tooltip')
+    expect(bubble.getAttribute('data-pinned')).toBe('true')
+    // The pinned bubble joins the anchor's description while it is readable.
+    expect(anchor.getAttribute('aria-describedby')).toBe(`existing-description ${bubble.id}`)
+
+    // Losing pointer and focus both leaves a pin standing; clicking the bubble
+    // itself counts as inside, so selecting its text never dismisses it.
+    fireEvent.mouseEnter(anchor)
+    fireEvent.mouseLeave(anchor)
+    fireEvent.focus(anchor)
+    fireEvent.blur(anchor)
+    expect(screen.getByRole('tooltip')).toBe(bubble)
+    fireEvent.pointerDown(bubble)
+    expect(screen.getByRole('tooltip')).toBe(bubble)
+
+    fireEvent.pointerDown(document.body)
+    expect(screen.queryByRole('tooltip')).toBeNull()
+    expect(anchor.getAttribute('aria-describedby')).toBe('existing-description')
+
+    fireEvent.click(anchor)
+    expect(screen.getByRole('tooltip')).toBeTruthy()
+    // A second click on the anchor releases the pin it started.
+    fireEvent.click(anchor)
+    expect(screen.queryByRole('tooltip')).toBeNull()
+    // Return the document to keyboard modality for the rest of this file.
+    fireEvent.keyDown(document.body, { key: 'Tab' })
+  })
+
+  it('dismisses a pinned bubble on Escape and on Tab, consuming only Escape', () => {
+    const onKeyDown = vi.fn()
+    render(
+      <div onKeyDown={onKeyDown}>
+        <Tooltip label="Plugin information" openOnClick>
+          <button type="button">anchor</button>
+        </Tooltip>
+      </div>,
+    )
+    const anchor = screen.getByText('anchor')
+    fireEvent.click(anchor)
+    const bubble = screen.getByRole('tooltip')
+    expect(anchor.getAttribute('aria-describedby')).toBe(bubble.id)
+
+    fireEvent.keyDown(anchor, { key: 'a' })
+    expect(screen.getByRole('tooltip')).toBe(bubble)
+    onKeyDown.mockClear()
+    // Escape is consumed only while the bubble is readable: the listener
+    // leaves with it, so the dialog behind the page still receives the key.
+    expect(fireEvent.keyDown(anchor, { key: 'Escape' })).toBe(false)
+    expect(screen.queryByRole('tooltip')).toBeNull()
+    fireEvent.keyDown(anchor, { key: 'Escape' })
+    expect(onKeyDown).toHaveBeenCalledOnce()
+
+    fireEvent.click(anchor)
+    expect(screen.getByRole('tooltip')).toBeTruthy()
+    expect(fireEvent.keyDown(anchor, { key: 'Tab' })).toBe(true)
+    expect(screen.queryByRole('tooltip')).toBeNull()
+  })
+
+  it('keeps an action tooltip hover-owned when it is clicked', () => {
+    render(
+      <Tooltip label="Pin session">
+        <button type="button">anchor</button>
+      </Tooltip>,
+    )
+    const anchor = screen.getByText('anchor')
+    fireEvent.focus(anchor)
+    fireEvent.mouseEnter(anchor)
+    const bubble = screen.getByRole('tooltip')
+    expect(bubble.getAttribute('data-pinned')).toBeNull()
+    fireEvent.click(anchor)
+    expect(screen.getByRole('tooltip')).toBe(bubble)
+    expect(bubble.getAttribute('data-pinned')).toBeNull()
+    expect(anchor.getAttribute('aria-describedby')).toBeNull()
+  })
+
+  it('drops a click pin when the tooltip is disabled or stops opening on click', () => {
+    const view = render(
+      <Tooltip label="Plugin information" openOnClick>
+        <button type="button">anchor</button>
+      </Tooltip>,
+    )
+    const anchor = screen.getByText('anchor')
+    fireEvent.click(anchor)
+    expect(screen.getByRole('tooltip')).toBeTruthy()
+
+    view.rerender(
+      <Tooltip label="Plugin information" openOnClick disabled>
+        <button type="button">anchor</button>
+      </Tooltip>,
+    )
+    expect(screen.queryByRole('tooltip')).toBeNull()
+    // A click while disabled never pins.
+    fireEvent.click(anchor)
+    expect(screen.queryByRole('tooltip')).toBeNull()
+
+    view.rerender(
+      <Tooltip label="Plugin information" openOnClick>
+        <button type="button">anchor</button>
+      </Tooltip>,
+    )
+    fireEvent.click(anchor)
+    expect(screen.getByRole('tooltip')).toBeTruthy()
+
+    // Without the click channel the bubble loses its pin and follows hover again.
+    view.rerender(
+      <Tooltip label="Plugin information">
+        <button type="button">anchor</button>
+      </Tooltip>,
+    )
+    expect(screen.getByRole('tooltip').getAttribute('data-pinned')).toBeNull()
+    fireEvent.mouseEnter(anchor)
+    fireEvent.mouseLeave(anchor)
+    expect(screen.queryByRole('tooltip')).toBeNull()
+  })
 })

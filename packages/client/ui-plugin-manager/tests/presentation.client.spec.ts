@@ -1,12 +1,14 @@
 /**
- * Display labels: how a registry, a package name, and a notice read in the
+ * Display labels: how a registry, a package, a row, and a notice read in the
  * active locale, including the fallbacks that must never claim another registry.
  */
 
 import { describe, expect, it } from 'vitest'
-import { en } from '../src/client/locales.ts'
 import type { LocalizedText } from '@qilin-agent/package-manifest'
-import { managementText, noticeText, packageText, registryText, shortName } from '../src/client/presentation.ts'
+import { en } from '../src/client/locales.ts'
+import {
+  managementText, noticeText, packageText, registryText, restartText, rowText, shortName,
+} from '../src/client/presentation.ts'
 
 /** The translate seat over the English dictionary, with the placeholders this spec needs. */
 const t = ((key: keyof typeof en, vars?: Record<string, string>) => {
@@ -35,44 +37,73 @@ describe('registryText', () => {
 /** English-package-text resolver, as the locale seat answers under the en dictionary. */
 const resolveEn = (text: LocalizedText): string => typeof text === 'string' ? text : text.en
 
-describe('packageText and shortName', () => {
-  it('keeps the technical name for an unknown package and localizes a built-in one', () => {
+describe('shortName, packageText, and rowText', () => {
+  it('compacts a package name to what a person calls it', () => {
     expect(shortName('@acme/qilin-better-sidebar')).toBe('better-sidebar')
     expect(shortName('qilin-host-thing')).toBe('thing')
-    expect(packageText({ name: '@acme/qilin-tool', description: 'A tool.' }, t, resolveEn)).toEqual({
-      title: 'tool', description: 'A tool.', beta: false,
-    })
-    expect(packageText({ name: '@qilin-agent/experimental-auto-review' }, t, resolveEn)).toEqual({
-      title: en.builtinAutoReviewTitle, description: en.builtinAutoReviewDescription, beta: true,
-    })
+    expect(shortName('@qilin-agent/client-ui-plugin-manager')).toBe('client-ui-plugin-manager')
   })
 
-  it('resolves exported package metadata ahead of the manifest description, built-ins keep their copy', () => {
+  it('localizes exported package metadata and falls back to the technical name', () => {
+    expect(packageText({ name: '@acme/qilin-tool' }, resolveEn))
+      .toEqual({ title: '@acme/qilin-tool', description: undefined, beta: false })
     expect(packageText({
-      name: '@qilin-agent/experimental-schedule-bundle', description: 'Optional bundle',
+      name: '@acme/qilin-tool',
       meta: { title: { en: 'Automation tasks', zh: '自动化任务' }, description: { en: 'Run tasks.', zh: '按设定时间执行。' } },
-    }, t, resolveEn)).toEqual({ title: 'Automation tasks', description: 'Run tasks.', beta: false })
-    // A built-in keeps its dictionary copy even when the Host attached package metadata.
-    expect(packageText({
-      name: '@qilin-agent/experimental-auto-review',
-      meta: { title: { en: 'Auto Authorization Review', zh: '自动授权审查' } },
-    }, t, resolveEn)).toEqual({ title: en.builtinAutoReviewTitle, description: en.builtinAutoReviewDescription, beta: true })
-    // Metadata without a description falls back to the manifest description.
-    expect(packageText({ name: '@acme/qilin-tool', description: 'A tool.', meta: { title: 'A tool package' } }, t, resolveEn))
-      .toEqual({ title: 'A tool package', description: 'A tool.', beta: false })
+    }, resolveEn)).toEqual({ title: 'Automation tasks', description: 'Run tasks.', beta: false })
+    // An empty description reads as absent rather than as an empty line.
+    expect(packageText({ name: '@acme/qilin-tool', meta: { description: '' } }, resolveEn))
+      .toEqual({ title: '@acme/qilin-tool', description: undefined, beta: false })
+    // An experimental package is the beta surface.
+    expect(packageText({ name: '@qilin-agent/experimental-auto-review' }, resolveEn))
+      .toEqual({ title: '@qilin-agent/experimental-auto-review', description: undefined, beta: true })
+  })
+
+  it('falls back from a row\'s metadata to its module specifier', () => {
+    expect(rowText({ moduleName: '@acme/qilin-sidebar/client' }, resolveEn))
+      .toEqual({ title: '@acme/qilin-sidebar/client', description: undefined })
+    expect(rowText({
+      moduleName: 'dsh-better-sidebar', meta: { title: { en: 'Sidebar' }, description: { en: 'The sidebar row.' } },
+    }, resolveEn)).toEqual({ title: 'Sidebar', description: 'The sidebar row.' })
   })
 })
 
-describe('noticeText and managementText', () => {
+describe('noticeText, managementText, and restartText', () => {
   it('words each outcome, including the refusal codes a failed action carries', () => {
     expect(noticeText({ kind: 'cancelled', seq: 1 }, t)).toBe(en.installCancelled)
-    expect(noticeText({ kind: 'restart', packageName: 'qilin-x', reason: undefined, seq: 2 }, t))
+    expect(noticeText({ kind: 'refresh-failed', seq: 2 }, t)).toBe(en.refreshError)
+    expect(noticeText({ kind: 'restart', packageName: 'dsh-x', reason: undefined, seq: 3 }, t))
       .toBe(en.restartNotice.replace(' {reason}', ''))
-    expect(noticeText({ kind: 'restart', packageName: 'qilin-x', reason: 'package-moved', seq: 3 }, t))
+    expect(noticeText({ kind: 'restart', packageName: 'dsh-x', reason: 'package-moved', seq: 4 }, t))
       .toBe(en.restartNotice.replace('{reason}', en.restartReasonPackageMoved))
-    expect(noticeText({ kind: 'overridden', packageName: 'qilin-x', seq: 3 }, t)).toBe(t('overriddenNotice', { name: 'qilin-x' }))
-    expect(noticeText({ kind: 'failed', action: 'update', reason: 'ERR', seq: 4 }, t)).toBe(t('failedUpdate', { reason: 'ERR' }))
+    expect(noticeText({ kind: 'overridden', packageName: 'dsh-x', seq: 5 }, t)).toBe(t('overriddenNotice', { name: 'dsh-x' }))
+    expect(noticeText({ kind: 'install', outcome: 'failed', seq: 6 }, t)).toBe(en.installBackgroundFailed)
+    expect(noticeText({ kind: 'failed', action: 'disable', reason: 'ERR', seq: 7 }, t)).toBe(t('failedDisable', { reason: 'ERR' }))
+    // A refusal whose code says it all reads as the operation error's own sentence.
+    expect(noticeText({ kind: 'failed', action: 'enable', reason: '', seq: 8 }, t)).toBe(t('failedEnable', { reason: en.reasonOperationError }))
+    expect(noticeText({ kind: 'failed', action: 'uninstall', code: 'not-removable', reason: '', seq: 9 }, t))
+      .toBe(t('failedUninstall', { reason: en.reasonNotRemovable }))
+  })
+
+  it('words a management error by its code, its named packages, and the Host diagnostic', () => {
     expect(managementText({ code: 'not-removable' }, t)).toBe(en.reasonNotRemovable)
     expect(managementText({ code: 'operation-error', diagnostic: 'boom' }, t)).toBe('boom')
+    expect(managementText({ code: 'operation-error', diagnostic: '' }, t)).toBe(en.reasonOperationError)
+    expect(managementText({ code: 'incompatible-version', installing: true, incompatible: [
+      { name: 'dsh-late', version: '2.0.0', runtimeVersion: '0.1.0', requirements: { '@qilin-agent/core': '^0.2.0' } },
+    ] }, t)).toBe([
+      t('reasonIncompatibleVersion', { plugin: 'dsh-late@2.0.0', runtime: '0.1.0', requirements: '@qilin-agent/core ^0.2.0' }),
+      t('reasonIncompatibleInstall'),
+    ].join(t('sentenceSeparator')))
+    // A refusal that names no package keeps the unnamed sentence and the remedy for an installed plugin.
+    expect(managementText({ code: 'incompatible-version' }, t))
+      .toBe([en.reasonIncompatibleVersionUnnamed, en.reasonIncompatibleInstalled].join(en.sentenceSeparator))
+    expect(managementText({ code: 'incompatible-version', installing: true }, t))
+      .toBe([en.reasonIncompatibleVersionUnnamed, en.reasonIncompatibleInstall].join(en.sentenceSeparator))
+  })
+
+  it('names why a change waits for a restart, and asks for the restart when the Host names none', () => {
+    expect(restartText('restartNotice', 'no-hmr', t)).toBe(en.restartNotice.replace('{reason}', en.restartReasonNoHmr))
+    expect(restartText('installDoneRestart', undefined, t)).toBe(en.installDoneRestart.replace(' {reason}', ''))
   })
 })

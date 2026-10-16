@@ -17,8 +17,8 @@ const icons = Object.fromEntries(
 const iconNames = Object.keys(icons)
 
 describe('ic_ds_ icon set', () => {
-  it('exports the full icon set (46 deepsuite + 21 figma extracts + eighteen product glyphs outside those sets + twenty-four upstream compat names)', () => {
-    expect(iconNames.length).toBe(111)
+  it('exports the full icon set (46 deepsuite + 21 figma extracts + eighteen product glyphs outside those sets + twenty-seven upstream compat names)', () => {
+    expect(iconNames.length).toBe(114)
     // The composer menu's own glyphs, pinned by name.
     expect(iconNames).toEqual(expect.arrayContaining(['IconPlanOutline14', 'IconCompactOutline16', 'IconShieldOutline16']))
   })
@@ -29,9 +29,10 @@ describe('ic_ds_ icon set', () => {
       'IconChecklistOutlineRegular', 'IconChevronDownOutlineMedium', 'IconChevronDownOutlineRegular',
       'IconChevronLeftOutlineMedium', 'IconChevronRightOutlineRegular', 'IconChevronUpOutlineMedium',
       'IconCloseOutlineMedium', 'IconCloseOutlineRegular', 'IconCopyOutlineRegular',
-      'IconDownloadOutlineRegular', 'IconInfoOutlineRegular', 'IconPlusOutlineRegular',
+      'IconDownloadOutlineRegular', 'IconInfoOutlineRegular', 'IconPluginPinwheelOutlineRegular', 'IconPlusOutlineRegular',
       'IconRefreshOutlineRegular', 'IconSearchOutlineRegular', 'IconSendOutlineRegular',
-      'IconSettingsOutlineMedium', 'IconTrashOutlineRegular', 'IconUserOutlineRegular',
+      'IconSettingsOutlineMedium', 'IconSlidersTwoOutlineMedium', 'IconSlidersTwoOutlineRegular',
+      'IconTrashOutlineRegular', 'IconUserOutlineRegular',
       'IconUsersOutlineRegular', 'IconWarningOutlineRegular', 'IconWorkspaceTreeOutlineRegular',
     ]))
   })

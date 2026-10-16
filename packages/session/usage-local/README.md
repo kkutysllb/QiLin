@@ -18,6 +18,7 @@ A single-user surface — the desktop, a hand-started web runtime — has no dep
 - [Further Exploration](#further-exploration)
 - [Model Experience](#model-experience)
 - [Known Limitations and Deferred Work](#known-limitations-and-deferred-work)
+- [Dev Note](#dev-note)
 
 -----
 
@@ -63,3 +64,7 @@ The read never touches a Session's log or context, so every Session's cache foot
 - **The ledger is per runtime.** Only Turns whose complete durable logs live in this runtime's home are counted; cross-runtime accounting belongs to a deployment's external ledger, which this row deliberately does not implement.
 - **Unprovable Turns are absent.** A Turn whose attempt lifecycle cannot prove its usage is skipped, never estimated, so the page can undercount crashed Turns.
 - **A windowed read scans complete logs.** There is no incremental index; the read costs one full-log pass per session and is meant for single-user history sizes.
+
+### Dev Note
+
+The row is mounted by the shipped Web and desktop bundles, the surfaces that have no external ledger to read; it needs no configuration and injects only `sessionQuery` and `connection`.

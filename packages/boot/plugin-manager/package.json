@@ -106,6 +106,7 @@
     "@qilin-agent/system-prompt": "workspace:*",
     "@qilin-agent/tools": "workspace:*",
     "@qilin-agent/typert-protocol": "workspace:*",
-    "@qilin-agent/user-approval": "workspace:*"
+    "@qilin-agent/user-approval": "workspace:*",
+    "chokidar": "^4.0.3"
   }
 }

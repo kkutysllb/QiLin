@@ -1,9 +1,9 @@
 /**
  * Which plugins bring their own configuration to the Plugins page, read from
- * the three slots the page declares: the official plugins listed beside the
- * official bundles, the bundles with a form on their page, and the rows with a
- * page of their own. The projection follows the slot ledgers and the active
- * locale and keeps its snapshot until one of them moves.
+ * the two slots the page declares: the official plugins listed beside the
+ * official bundles and the bundles with a form on their page. The projection
+ * follows the slot ledgers and the active locale and keeps its snapshot until
+ * one of them moves.
  */
 
 import type { Context as ClientContext } from '@qilin-agent/kylin'
@@ -17,27 +17,15 @@ export interface OfficialItem {
 }
 
 /**
- * The plugins carrying configuration: the official plugins in ledger order,
- * the package names of the bundles with a page-level form, and the keys
- * ({@link rowConfigKey}) of the rows with a page.
+ * The plugins carrying configuration: the official plugins in ledger order and
+ * the package names of the bundles with a page-level form.
  */
 export interface ConfigLedger {
   readonly items: readonly OfficialItem[]
   readonly bundles: ReadonlySet<string>
-  readonly rows: ReadonlySet<string>
 }
 
-/**
- * The key a row's configuration registers under.
- * @param bundle - the bundle's package name.
- * @param rowId - the row id the bundle's patch declares.
- * @returns the `plugins.row.config` key.
- */
-export function rowConfigKey(bundle: string, rowId: string): string {
-  return `${bundle}#${rowId}`
-}
-
-const SLOTS = ['plugins.item', 'plugins.bundle.config', 'plugins.row.config'] as const
+const SLOTS = ['plugins.item', 'plugins.bundle.config'] as const
 
 /**
  * Project the configuration ledgers as one observable the page binds.
@@ -47,9 +35,7 @@ const SLOTS = ['plugins.item', 'plugins.bundle.config', 'plugins.row.config'] as
 export function configLedgerSource(ctx: ClientContext): HostObservable<ConfigLedger> {
   let versions: readonly number[] = []
   let revision = -1
-  let ledger: ConfigLedger = { items: [], bundles: new Set(), rows: new Set() }
-  const keysOf = (name: 'plugins.bundle.config' | 'plugins.row.config'): ReadonlySet<string> =>
-    new Set(ctx.slots.entries(name).flatMap(entry => entry.options.key === undefined ? [] : [entry.options.key]))
+  let ledger: ConfigLedger = { items: [], bundles: new Set() }
   return {
     getSnapshot: () => {
       const next = SLOTS.map(name => ctx.slots.getVersion(name))
@@ -63,8 +49,8 @@ export function configLedgerSource(ctx: ClientContext): HostObservable<ConfigLed
             id: entry.options.id ?? '',
             label: resolveSlotLabel(entry.options.label) ?? '',
           })),
-          bundles: keysOf('plugins.bundle.config'),
-          rows: keysOf('plugins.row.config'),
+          bundles: new Set(ctx.slots.entries('plugins.bundle.config')
+            .flatMap(entry => entry.options.key === undefined ? [] : [entry.options.key])),
         }
       }
       return ledger

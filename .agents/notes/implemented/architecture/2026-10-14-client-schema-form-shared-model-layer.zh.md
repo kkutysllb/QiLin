@@ -46,7 +46,7 @@ Plugins 页会为任何导出了 schemastery `Config` 的组合包行渲染配�
 
 ## Testing
 
-[`packages/client/schema-form/tests/model.client.spec.ts`](../../../../packages/client/schema-form/tests/model.client.spec.ts) 覆盖重建、校验失败文本以及不可变路径操作，包括经由数组中间节点的数组删除。[`row-config-form.client.spec.tsx`](../../../../packages/client/ui-plugin-manager/tests/row-config-form.client.spec.tsx) 覆盖渲染出的控件、暂存后保存、按路径移除数组条目、先被拒绝再变合法的保存往返、Host 拒绝写入、主体变更后重读、textarea 与联合类型控件，以及叶子根 schema。`pnpm run test:gui` 同时运行两者。
+[`packages/client/schema-form/tests/model.client.spec.ts`](../../../../packages/client/schema-form/tests/model.client.spec.ts) 覆盖重建、校验失败文本以及不可变路径操作，包括经由数组中间节点的数组删除。[`schema.client.spec.ts`](../../../../packages/client/ui-settings/tests/schema.client.spec.ts) 覆盖同一批操作在设置文档草稿上的表现。`pnpm run test:gui` 同时运行两者。
 
 ## Related
 

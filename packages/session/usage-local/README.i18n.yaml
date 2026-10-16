@@ -1,0 +1,43 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/session/usage-local/README.md
+/:
+  en: dbf0e5e5d7c08187
+  zh: a5963a8ffe7816e2
+/qilin-agent-usage-local:
+  en: 2ac187d34f177a36
+  zh: dcab7d7cef712115
+/qilin-agent-usage-local/summary:
+  en: 833fd7efccc9e442
+  zh: 4250bc5bfa28a5d9
+/qilin-agent-usage-local/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 3a2f21ff0dc3420d
+/qilin-agent-usage-local/use-this-package:
+  en: 7bc68467c9c365fb
+  zh: 83fd40bfd017fc85
+/qilin-agent-usage-local/use-this-package/composition:
+  en: df871995f5a3ee5b
+  zh: 2d5cb440823f25ee
+/qilin-agent-usage-local/use-this-package/reading-it:
+  en: bfb88e0547476a33
+  zh: 29c6a8ae0af13239
+/qilin-agent-usage-local/understand-the-implementation:
+  en: 80e48fc6d6ca6ef2
+  zh: 1a97b661f278089b
+/qilin-agent-usage-local/further-exploration:
+  en: 4b043f0582e7af81
+  zh: c6cdb616ad105536
+/qilin-agent-usage-local/model-experience:
+  en: 1a91494c3ffe7217
+  zh: 0a42f8cd71cf6099
+/qilin-agent-usage-local/model-experience/kv-cache-effect:
+  en: b7b95585d578fcf3
+  zh: b197ff5a878b8207
+/qilin-agent-usage-local/known-limitations-and-deferred-work:
+  en: b3eb808c464d540d
+  zh: 35aa8113dc2ccc9a
+/qilin-agent-usage-local/known-limitations-and-deferred-work/dev-note:
+  en: a215c99c66527a86
+  zh: 0529f506877de754

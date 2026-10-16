@@ -75,9 +75,13 @@ describe.skipIf(!requiredArtifacts)('Built Client Remote assembly', () => {
         await client.plugin({ inject: plugin.inject, apply: plugin.apply })
       }
 
+      // The plugin-management and Discover pages read these namespaces: a
+      // dropped mount makes the probe undefined, and no type-only tier sees it.
       const result = {
         sidebarOpensWatch: typeof client.remote.sidebarOpens?.watch,
         goalsCreate: typeof client.remote.goals?.create,
+        pluginManagerWaitForInstall: typeof client.remote.pluginManager?.waitForInstall,
+        pluginMarketSearch: typeof client.remote.pluginMarket?.search,
       }
       await client.fiber.dispose()
       console.log(JSON.stringify(result))
@@ -89,6 +93,8 @@ describe.skipIf(!requiredArtifacts)('Built Client Remote assembly', () => {
     expect(output).toEqual({
       sidebarOpensWatch: 'function',
       goalsCreate: 'function',
+      pluginManagerWaitForInstall: 'function',
+      pluginMarketSearch: 'function',
     })
   }, 60_000)
 })

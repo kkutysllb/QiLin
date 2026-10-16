@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`@qilin-agent/client-product-analytics` publishes the event names and field types the desktop reports product usage against. It carries no collector: the upstream package's plugin, Typert remote surface, locale files, and environment sampling depend on host packages this repository does not have yet, so only the event map is ported.
+`@qilin-agent/client-product-analytics` publishes the event names and field types the desktop reports product usage against, plus the desktop renderer's `./client` sender that reports them through the Host's authenticated analytics Remote namespace. It carries no collector: the upstream package's Host plugin, its generated Typert faces, locale files, and environment sampling depend on host packages this repository does not have yet.
 
 ## Table of Contents
 
@@ -41,5 +41,5 @@ None; collection does not modify model requests.
 
 ## Known Limitations and Deferred Work
 
-- The collector, its remote method, and the locale files are not ported; only the event map is. A consumer that needs collection brings the host-side telemetry stack with it.
+- The collector, its Host Remote methods, and the locale files are not ported. The `./client` sender needs the analytics Remote namespace the desktop Host serves; nothing in this repository mounts it, so the sender stays unused until the Host half lands.
 - The desktop reports against these events through its own sender, which lives in the desktop application rather than here.

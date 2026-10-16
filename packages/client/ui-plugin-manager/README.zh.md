@@ -55,19 +55,19 @@ spec 旁的**安装源**控件显示这次安装首先询问的源，取自 Host
 
 ### 配置页
 
-当某个组合包贡献了自己的 `plugins.bundle.config` 卡片时，该卡片就是这个组合包的配置界面：页面只渲染它，不再渲染通用行表单，同一批字段不会出现两次。
+当某个组合包贡献了自己的 `plugins.bundle.config` 条目时，该条目就是这个组合包的配置界面：页面把它渲染在组合包页面上，自身从不点名任何可配置插件。
 
-自带配置的插件把配置渲染在本页，通过本页声明的三个 slot：`plugins.item`（list）用于官方插件，按其 `label` 列在官方分组里；`plugins.bundle.config`（以组合包的包名为键）用于组合包自己的配置，显示在组合包页面的描述与行之间；`plugins.row.config`（以 `<包名>#<行 id>` 为键）用于某一行的配置，这一行由此多出一个**配置**控件，打开该行自己的页面。页面通过 owner props 向每个条目索取两种视图：`view: 'summary'` 是标题下的一句话简介，`view: 'page'` 是带自己保存控件的表单；当 `page` 视图对应的 Host 条目由设置文档服务时，还会给出 `form`——页面从 `ctx.configForms` 取到的共享 `ConfigPageForm`（已接受的值加一个原子 mutate），自管控件的条目可以忽略它。只有保存才写入：页面负责画标题、图标与面包屑，条目的表单在离开页面时丢弃暂存的修改。安装随附的四个宿主平面配置页——shell 执行器、agent loop、子智能体模型选择、DeepSeek 搜索提供方——来自 [ui-settings-plugins](../ui-settings-plugins/README.zh.md)，在 Host 服务其命名空间期间注册。组合包的浏览器半侧用同样的方式注册： 模块导出 schemastery `Config` 且已被 Loader 导入的行，即使没有 slot 贡献也会在自己的页面上得到内建表单：`RowConfigForm` 重建经 `pluginManager` Remote 读回的序列化 schema 与该行的值，用共享的 `ui-primitives` 控件渲染，按路径在本地暂存编辑，拒绝该 schema 不接受的草稿，再保存完整映射；未运行的行什么都不显示，slot 贡献仍与其并列并保持优先。
+自带配置的插件把配置渲染在本页，通过本页声明的两个 slot：`plugins.item`（list）用于官方插件，按其 `label` 列在官方分组里；`plugins.bundle.config`（以组合包的包名为键）用于组合包自己的配置，显示在组合包页面的描述与行之间。页面通过 owner props 向每个条目索取两种视图：`view: 'summary'` 是标题下的一句话简介，`view: 'page'` 是带自己保存控件的表单；当 `page` 视图对应的 Host 条目由设置文档服务时，还会给出 `form`——页面从 `ctx.configForms` 取到的共享 `ConfigPageForm`（已接受的值加一个原子 mutate），自管控件的条目可以忽略它。只有保存才写入：页面负责画标题、图标与面包屑，条目的表单在离开页面时丢弃暂存的修改。安装随附的四个宿主平面配置页——shell 执行器、agent loop、子智能体模型选择、DeepSeek 搜索提供方——来自 [ui-settings-plugins](../ui-settings-plugins/README.zh.md)，在 Host 服务其命名空间期间注册。组合包的浏览器半侧用同样的方式注册。
 
 ```tsx ignore-check
-ctx.slots.inject('plugins.row.config', () => ctx.slots.register({
-  name: 'plugins.row.config',
-  key: '@acme/qilin-sidebar#sidebar',
+ctx.slots.inject('plugins.bundle.config', () => ctx.slots.register({
+  name: 'plugins.bundle.config',
+  key: '@acme/qilin-sidebar-bundle',
   locale: 'acmeSidebar',
-}, ({ t, view }) => view === 'summary' ? t('summary') : <SidebarForm t={t} />))
+}, ({ t, view, form }) => view === 'page' ? <SidebarForm t={t} form={form} /> : null))
 ```
 
-组合包的 patch 必须以该 id 声明这一行；注册只在组合包开启期间存在，因此关闭的组合包不显示配置控件。
+注册只在组合包开启期间存在，因此关闭的组合包不显示配置。
 
 -----
 
@@ -81,7 +81,7 @@ ctx.slots.inject('plugins.row.config', () => ctx.slots.register({
 
 ### 注册
 
-浏览器插件通过 `ctx.slots.inject()` 注册设置「插件」分区的 `manage` 标签页，使该标签页跟随 slot 延迟声明、本地化变化与销毁。页面为全局页面，不属于任何 Session。显示文本来自包元信息与页面字典。
+浏览器插件通过 `ctx.slots.inject()` 把「插件」页面注册进外壳的 `main` 面板，并把侧边栏入口注册进 `sidebar.panellist`，二者都跟随 slot 延迟声明、本地化变化与销毁。页面为全局页面，不属于任何 Session。显示文本来自包元信息与页面字典。
 
 ### store
 
@@ -89,7 +89,7 @@ ctx.slots.inject('plugins.row.config', () => ctx.slots.register({
 
 ### 配置 slot
 
-页面的 `settings.plugins.tab` 注册把 `plugins.item`、`plugins.bundle.config` 与 `plugins.row.config` 声明为子 slot，因此它们与页面同生，注册方的 `ctx.slots.inject` 会等到它们出现。`configLedgerSource` 把三份账本投影成一个可观察对象——按账本顺序排列、标签按当前语言解析的官方条目，以及组合包与行的键——在账本或语言变化前保持缓存；页面把它作为 `useConfigLedger` 绑在 store 旁边，自身从不点名任何可配置插件。打开的是哪一页是页面本地状态：卡片、某个组合包、某个官方插件，或组合包的某一行。其他 Client 插件注入 `pluginNavigation`，调用 `ctx.pluginNavigation.openBundle(packageName)` 即可打开组合包详情，不改变当前 Session；该通道先打开设置的插件分区，再把包名交给已挂载页面的展示动作，组合包不存在时显示列表。注册与做出它的浏览器半侧同生共死。`qilin-client-modules` 只把一个包的浏览器半侧挂在说明符恰为包名的那一行 Loader 行上，所以组合包为自己或任一行注册的页面，都会在那一行被关闭时一起消失；需要在其他行关闭时仍保留页面的子插件，应作为独立的包发布。
+页面的 `main` 注册把 `plugins.item`、`plugins.bundle.config`、`plugins.add.actions`、`plugins.tab` 与 `plugins.detail.*` 各列声明为子 slot，因此它们与页面同生，注册方的 `ctx.slots.inject` 会等到它们出现。`configLedgerSource` 把两份账本投影成一个可观察对象——按账本顺序排列、标签按当前语言解析的官方条目，以及组合包的键——在账本或语言变化前保持缓存；页面把它作为 `useConfigLedger` 绑在 store 旁边，自身从不点名任何可配置插件。打开的是哪一页是页面本地状态：卡片、某个组合包，或某个官方插件。其他 Client 插件注入 `pluginNavigation`，调用 `ctx.pluginNavigation.openBundle(packageName)` 即可打开组合包详情，不改变当前 Session；该通道先打开设置的插件分区，再把包名交给已挂载页面的展示动作，组合包不存在时显示列表。注册与做出它的浏览器半侧同生共死。`qilin-client-modules` 只把一个包的浏览器半侧挂在说明符恰为包名的那一行 Loader 行上，所以组合包为自己注册的页面，都会在那一行被关闭时一起消失；需要在其他行关闭时仍保留页面的子插件，应作为独立的包发布。
 
 </details>
 

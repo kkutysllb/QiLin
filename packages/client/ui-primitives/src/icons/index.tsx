@@ -1098,6 +1098,7 @@ export const IconPinFillRegular = ({ size = 16, className }: IconProps) => (
  * upstream artwork verbatim (dsh-context is the current consumer).
  */
 const ICON_REGULAR_STROKE = 1
+const ICON_MEDIUM_STROKE = 1.3
 
 /** Circle-and-tick glyph the plugin page marks shipped rows with; upstream artwork. */
 export const IconCheckCircleFillRegular = ({ size = 16, className }: IconProps) => (
@@ -1123,6 +1124,25 @@ export const IconWorkspaceTreeOutlineRegular = ({ size = 16, className }: IconPr
   </svg>
 )
 
+/** Regular one-pixel IconSlidersTwoOutline artwork (Filters and Labels menu rows). */
+export const IconSlidersTwoOutlineRegular = ({ size = 16, className }: IconProps) => (
+  <svg aria-hidden="true" width={size} height={size} className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth={ICON_REGULAR_STROKE}>
+    <path d="M2.3 5h5.85M12.05 5h1.65" />
+    <circle cx="9.95" cy="5" r="1.45" />
+    <path d="M2.3 11h1.65M7.85 11h5.85" />
+    <circle cx="5.75" cy="11" r="1.45" />
+  </svg>
+)
+
+/** Medium IconSlidersTwoOutline artwork with a 1.3px stroke. */
+export const IconSlidersTwoOutlineMedium = ({ size = 16, className }: IconProps) => (
+  <svg aria-hidden="true" width={size} height={size} className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth={ICON_MEDIUM_STROKE}>
+    <path d="M2.3 5h5.85M12.05 5h1.65" />
+    <circle cx="9.95" cy="5" r="1.45" />
+    <path d="M2.3 11h1.65M7.85 11h5.85" />
+    <circle cx="5.75" cy="11" r="1.45" />
+  </svg>
+)
 export {
   IconBranchOutline16 as IconBranchOutlineRegular,
   IconCheckOutline16 as IconCheckOutlineRegular,
@@ -1136,6 +1156,7 @@ export {
   IconCopyOutline16 as IconCopyOutlineRegular,
   IconDownloadOutline16 as IconDownloadOutlineRegular,
   IconInfoOutline14 as IconInfoOutlineRegular,
+  IconPluginPinwheelOutline16 as IconPluginPinwheelOutlineRegular,
   IconPlusOutline16 as IconPlusOutlineRegular,
   IconRefreshOutline14 as IconRefreshOutlineRegular,
   IconSearchOutline16 as IconSearchOutlineRegular,

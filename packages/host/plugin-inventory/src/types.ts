@@ -1,4 +1,5 @@
 import type { Branded } from '@qilin-agent/brand'
+import type { PluginLocalizedMeta } from '@qilin-agent/package-manifest'
 
 /** Stable Loader-tree identity of one configured plugin entry. */
 export type PluginEntryId = Branded<'PluginEntryId'>
@@ -19,6 +20,8 @@ export interface PluginInventoryEntry {
   readonly moduleName: string
   /** Effective Loader enablement, including disabled ancestor groups. */
   readonly enabled: boolean
+  /** Local package display metadata, independent of whether the entry is enabled. */
+  readonly meta?: PluginLocalizedMeta
   readonly fiberPhase: PluginFiberPhase
 }
 
@@ -39,6 +42,8 @@ export interface AgentPresetPluginRow {
   readonly enabled: PresetPluginEnablement
   /** The row's own `!!js` disabled expression, when it carries one. */
   readonly condition?: string
+  /** Local package display metadata, independent of whether the preset is mounted. */
+  readonly meta?: PluginLocalizedMeta
   /** Root-fiber phase when the composition is live; null otherwise. */
   readonly fiberPhase: PluginFiberPhase
 }

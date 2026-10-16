@@ -72,7 +72,7 @@ Saving writes staged fields through the client configuration form, which fences 
 
 These pages cover the Plugins page, the settings base, the inventory tab, and the durable seams behind the forms.
 
-- [ui-plugin-manager](../ui-plugin-manager/README.md) — the section's management tab, whose `plugins.item`, `plugins.bundle.config`, and `plugins.row.config` slots host configuration pages.
+- [ui-plugin-manager](../ui-plugin-manager/README.md) — the Plugins page where official plugins are configured.
 - [ui-settings](../ui-settings/README.md) — the domain base declaring `settings.section` and the shared configuration forms.
 - [ui-settings-plugin-inventory](../ui-settings-plugin-inventory/README.md) — the read-only inventory the section shows.
 - [settings](../../settings/README.md) — the durable user-settings seam and its file provider.

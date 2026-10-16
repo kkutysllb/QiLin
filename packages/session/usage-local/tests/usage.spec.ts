@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest'
+import { MessageId } from '@qilin-agent/llm'
 import type { SessionEvent } from '@qilin-agent/session/types'
 import { collectSessionUsage, readWindow, totalOf, usageAnswer, withinWindow } from '../src/usage.ts'
 
-function event(seq: number, time: number, type: string, data: unknown): SessionEvent {
-  return { seq, time, type, data } as unknown as SessionEvent
+function event<T extends SessionEvent["type"]>(
+  seq: number, time: number, type: T, data: Extract<SessionEvent, { type: T }>["data"],
+): Extract<SessionEvent, { type: T }> {
+  return { seq, time, type, data } as Extract<SessionEvent, { type: T }>
 }
 
 const USAGE = {
@@ -23,7 +26,7 @@ function completeTurn(startSeq: number, startAt: number, turn: number): SessionE
       step: 1,
       stream: [{ type: 'chunk', time: startAt + 2000, chunk: { type: 'usage', usage: USAGE } }],
       message: {
-        id: `message-${String(turn)}`,
+        id: MessageId(`message-${String(turn)}`),
         role: 'assistant',
         content: [{ type: 'text', text: 'done' }],
         source: { kind: 'model', provider: 'deepseek', model: 'deepseek-chat' },
@@ -55,7 +58,7 @@ describe('collectSessionUsage', () => {
         step: 1,
         stream: [{ type: 'chunk', time: 1200, chunk: { type: 'usage', usage: { inputTokens: 100, outputTokens: 20, totalTokens: 182, cacheReadTokens: 50, cacheWriteTokens: 12 } } }],
         message: {
-          id: 'message-1',
+          id: MessageId('message-1'),
           role: 'assistant',
           content: [{ type: 'text', text: 'done' }],
           source: { kind: 'model', provider: 'deepseek', model: 'deepseek-chat' },
@@ -71,7 +74,7 @@ describe('collectSessionUsage', () => {
 
   it('skips a Turn the derivation cannot prove and events outside any Turn', () => {
     const events = [
-      event(1, 1000, 'user/message', { content: [] }),
+      event(1, 1000, 'user/message', { id: MessageId('user-1'), role: 'user', content: [{ type: 'text', text: 'hi' }], source: { kind: 'user' } }),
       ...completeTurn(10, 2000, 1),
       // An aborted attempt has no provable usage: the Turn yields nothing.
       event(30, 3000, 'turn/start', { turn: 2 }),

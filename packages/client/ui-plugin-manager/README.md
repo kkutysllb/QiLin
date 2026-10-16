@@ -55,19 +55,19 @@ A row's switch on the bundle's page calls `pluginManager.setPluginEnabled`, whic
 
 ### Configuration pages
 
-When a bundle contributes its own `plugins.bundle.config` card, that card is the bundle's configuration surface: the page renders it and leaves the generic row form out, so the same fields never appear twice.
+When a bundle contributes its own `plugins.bundle.config` entry, that entry is the bundle's configuration surface: the page renders it on the bundle's page and names no configurable plugin itself.
 
-A plugin that carries its own configuration renders it on this page through three slots the page declares: `plugins.item` (list) for an official plugin, listed in the Official group by its `label`; `plugins.bundle.config` (keyed by the bundle's package name) for a bundle's own configuration, shown on the bundle's page between its description and its rows; and `plugins.row.config` (keyed by `<package name>#<row id>`) for one row's configuration, which gives that row a **Configure** control opening the row's page. The page asks every entry for two views through its owner props: `view: 'summary'` for the one-liner under the title, `view: 'page'` for the form with its own save control, and — for a `page` view whose Host entry the settings document serves — `form`, the shared `ConfigPageForm` (accepted values plus one atomic mutate) that the page reads from `ctx.configForms`; an entry that keeps its own controls ignores it. Only a save writes: the page draws the title, icon, and crumb, and the entry's form drops its staged edits when the page is left. The four host-plane pages the installation ships — the shell executor, the agent loop, subagent model selection, and the DeepSeek search provider — come from [ui-settings-plugins](../ui-settings-plugins/README.md), registered while the Host serves their namespaces. A bundle's browser half registers the same way: A row whose module exports a schemastery `Config` and whose import has reached the Loader gets a built-in form on its page even without a slot contribution: `RowConfigForm` rehydrates the serialized schema and the row's values read through the `pluginManager` Remote, renders the shared `ui-primitives` controls over them, stages edits by path locally, refuses a draft that schema rejects, and saves the complete map; a row that is not running shows nothing, and the slot contribution keeps precedence beside it.
+A plugin that carries its own configuration renders it on this page through two slots the page declares: `plugins.item` (list) for an official plugin, listed in the Official group by its `label`; and `plugins.bundle.config` (keyed by the bundle's package name) for a bundle's own configuration, shown on the bundle's page between its description and its rows. The page asks every entry for two views through its owner props: `view: 'summary'` for the one-liner under the title, `view: 'page'` for the form with its own save control, and — for a `page` view whose Host entry the settings document serves — `form`, the shared `ConfigPageForm` (accepted values plus one atomic mutate) that the page reads from `ctx.configForms`; an entry that keeps its own controls ignores it. Only a save writes: the page draws the title, icon, and crumb, and the entry's form drops its staged edits when the page is left. The four host-plane pages the installation ships — the shell executor, the agent loop, subagent model selection, and the DeepSeek search provider — come from [ui-settings-plugins](../ui-settings-plugins/README.md), registered while the Host serves their namespaces. A bundle's browser half registers the same way.
 
 ```tsx ignore-check
-ctx.slots.inject('plugins.row.config', () => ctx.slots.register({
-  name: 'plugins.row.config',
-  key: '@acme/qilin-sidebar#sidebar',
+ctx.slots.inject('plugins.bundle.config', () => ctx.slots.register({
+  name: 'plugins.bundle.config',
+  key: '@acme/qilin-sidebar-bundle',
   locale: 'acmeSidebar',
-}, ({ t, view }) => view === 'summary' ? t('summary') : <SidebarForm t={t} />))
+}, ({ t, view, form }) => view === 'page' ? <SidebarForm t={t} form={form} /> : null))
 ```
 
-The bundle's patch must declare the row under that id, and the registration exists while the bundle is on, so a bundle that is off shows no configure control.
+The registration exists while the bundle is on, so a bundle that is off shows no configuration.
 
 -----
 
@@ -81,7 +81,7 @@ Package management uses the profile's dependency records: installed bundles can 
 
 ### Registration
 
-The browser plugin registers the `manage` tab of the Settings Plugins section through `ctx.slots.inject()`, so the tab follows late slot declaration, locale changes and teardown. The page is global and belongs to no Session. Display text comes from package metadata and the page's dictionary.
+The browser plugin registers the Plugins page into the shell's `main` panel and its sidebar entry into `sidebar.panellist` through `ctx.slots.inject()`, so both follow late slot declaration, locale changes and teardown. The page is global and belongs to no Session. Display text comes from package metadata and the page's dictionary.
 
 ### The store
 
@@ -89,7 +89,7 @@ The browser plugin registers the `manage` tab of the Settings Plugins section th
 
 ### Configuration slots
 
-The page's `settings.plugins.tab` registration declares `plugins.item`, `plugins.bundle.config`, and `plugins.row.config` as its children, so the slots exist while the page does and a registrant's `ctx.slots.inject` waits for them. `configLedgerSource` projects the three ledgers into one observable — the official items in ledger order with their labels resolved in the active locale, and the bundle and row keys — cached until a ledger or the locale moves; the page binds it as `useConfigLedger` beside the store and never names a configurable plugin itself. Which page is open is page-local state: the cards, a bundle, an official plugin, or a row of a bundle. Other Client plugins inject `pluginNavigation` and call `ctx.pluginNavigation.openBundle(packageName)` to open bundle details without changing the current Session; the channel opens the Settings Plugins section and hands the name to the mounted page's reveal, and an absent bundle displays the list. A registration lives with the browser half that made it. `qilin-client-modules` attaches a package's browser half to the Loader row whose specifier is the bare package name, so every page a bundle registers, for itself or for any of its rows, goes away when that row is switched off; a sub-plugin whose page must outlive the other rows ships as its own package.
+The page's `main` registration declares `plugins.item`, `plugins.bundle.config`, `plugins.add.actions`, `plugins.tab`, and the `plugins.detail.*` list as its children, so the slots exist while the page does and a registrant's `ctx.slots.inject` waits for them. `configLedgerSource` projects the two ledgers into one observable — the official items in ledger order with their labels resolved in the active locale, and the bundle keys — cached until a ledger or the locale moves; the page binds it as `useConfigLedger` beside the store and never names a configurable plugin itself. Which page is open is page-local state: the cards, a bundle, or an official plugin. Other Client plugins inject `pluginNavigation` and call `ctx.pluginNavigation.openBundle(packageName)` to open bundle details without changing the current Session; the channel opens the Settings Plugins section and hands the name to the mounted page's reveal, and an absent bundle displays the list. A registration lives with the browser half that made it. `qilin-client-modules` attaches a package's browser half to the Loader row whose specifier is the bare package name, so every page a bundle registers for itself goes away when that row is switched off; a sub-plugin whose page must outlive the other rows ships as its own package.
 
 </details>
 

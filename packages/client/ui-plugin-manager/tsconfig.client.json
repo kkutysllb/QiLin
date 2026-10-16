@@ -17,6 +17,9 @@
       "path": "../../api/remotes/tsconfig.client.json"
     },
     {
+      "path": "../../api/product-analytics/tsconfig.client.json"
+    },
+    {
       "path": "../../boot/plugin-manager"
     },
     {

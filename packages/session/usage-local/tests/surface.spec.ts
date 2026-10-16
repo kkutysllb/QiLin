@@ -69,13 +69,20 @@ async function boot(): Promise<Booted> {
     ['@qilin-agent/credentials-local', LocalCredentials],
     ['@qilin-agent/usage-local', UsageLocal],
   ])
-  ctx.loader.internal = {
+  const unused = (): never => { throw new Error('this spec reaches the loader through import() only') }
+  const internal: NonNullable<typeof ctx.loader.internal> = {
     version: 'v2',
+    loadCache: new Map(),
     async import(specifier: string) {
       if (!modules.has(specifier)) throw new Error(`unexpected Loader import: ${specifier}`)
       return modules.get(specifier)
     },
-  } as unknown as NonNullable<typeof ctx.loader.internal>
+    register: unused,
+    getOrCreateModuleJob: async () => unused(),
+    resolveSync: unused,
+    load: async () => unused(),
+  }
+  ctx.loader.internal = internal
   await ctx.loader.create({ name: 'cordis:include', config: { path: pathToFileURL(configPath).href } })
   await ctx.loader.await()
   const failed = [...ctx.loader.entries()]

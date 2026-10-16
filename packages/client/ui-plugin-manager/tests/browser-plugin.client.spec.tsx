@@ -8,7 +8,7 @@ import { createSnapshotStore } from '@qilin-agent/client-store'
 import type { ILayout, PanelInfo } from '@qilin-agent/client-ui-layout/client'
 import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
 import { resolveSlotLabel } from '@qilin-agent/client-ui-slots'
-import { allowAllAccess, TestRemote, usePinnedBrowserLanguages } from '@qilin-agent/client-test-runtime'
+import { TestRemote, usePinnedBrowserLanguages } from '@qilin-agent/client-test-runtime'
 import * as settings from '@qilin-agent/client-ui-settings/client'
 import { apply, inject, NS, PANEL_ID } from '../src/client/index.ts'
 import { PluginManagerPage } from '../src/client/PluginManagerPage.tsx'
@@ -147,7 +147,7 @@ describe('ui-plugin-manager browser plugin', () => {
     const unread = () => { throw new Error('The sidebar icon must not read application state') }
     const glyph = render(<PluginsPanelIcon size={18} active={false}
       usePanelInfo={unread} useSessions={unread} useSessionStatus={unread} useSessionRetainInfo={unread}
-      useWorkspaces={unread} useResource={unread} {...allowAllAccess} />)
+      useWorkspaces={unread} useResource={unread} />)
     expect(glyph.container.querySelector('svg')?.getAttribute('width')).toBe('18')
     expect(icon.options).toMatchObject({ id: PANEL_ID, order: 0 })
     expect(icon.locale).toBe(NS)
@@ -156,7 +156,6 @@ describe('ui-plugin-manager browser plugin', () => {
     expect(b.slots.spec('plugins.add.actions')).toMatchObject({ kind: 'list', scope: 'root' })
     expect(b.slots.spec('plugins.item')).toMatchObject({ kind: 'list', scope: 'root' })
     expect(b.slots.spec('plugins.bundle.config')).toMatchObject({ kind: 'keyed', scope: 'root' })
-    expect(b.slots.spec('plugins.row.config')).toMatchObject({ kind: 'keyed', scope: 'root' })
     for (const name of ['plugins.detail.actions', 'plugins.detail.badge', 'plugins.detail.section'] as const) {
       expect(b.slots.spec(name)).toMatchObject({ kind: 'list', scope: 'root' })
     }
@@ -177,7 +176,7 @@ describe('ui-plugin-manager browser plugin', () => {
     b.locale.setLocale('en')
     expect(face.resolveText(text)).toBe('Local tools')
     b.locale.setLocale('zh')
-    expect(face.hooks.configLedger.getSnapshot()).toEqual({ items: [], bundles: new Set(), rows: new Set() })
+    expect(face.hooks.configLedger.getSnapshot()).toEqual({ items: [], bundles: new Set() })
     // A Host change before the first render is not a reason to read.
     b.remote.emit('plugin-manager/changed', [{ reason: 'install' }])
     b.ctx.emit('connection/reset')

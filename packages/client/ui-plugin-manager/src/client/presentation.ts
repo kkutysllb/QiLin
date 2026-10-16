@@ -105,7 +105,7 @@ export function managementText(error: {
  */
 export function shortName(name: string): string {
   const unscoped = name.startsWith('@') ? name.slice(name.indexOf('/') + 1) : name
-  return unscoped.replace(/^dsh-(?:host-|client-)?/, '')
+  return unscoped.replace(/^qilin-(?:host-|client-)?/, '')
 }
 
 /**

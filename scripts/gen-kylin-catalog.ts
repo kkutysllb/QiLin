@@ -52,6 +52,7 @@ export { REGION_BEGIN, REGION_END }
 export const SERVICE_PAGE: Record<string, string> = {
   connection: 'web-server.md',
   pluginManager: 'boot.md',
+  pluginMarket: 'boot.md',
   pluginRegistryProbe: 'boot.md',
   profileContext: 'boot.md',
   hmr: 'boot.md',
@@ -165,6 +166,7 @@ export const SERVICE_PAGE: Record<string, string> = {
  */
 export const SERVICE_WALK_EXEMPTIONS: Record<string, string> = {
   userQuestionPanels: 'client-side slot-contract accessor (UserQuestionPanels) — packages/client/ui-tool/README.md owns the API',
+  productAnalytics: 'client-face analytics intake (declared beside its Host collection half) — packages/api/product-analytics/README.md owns the API',
   invocation: 'not a service: per-call accessor (RemoteInvocation | undefined) the Gateway derives for each Remote call — packages/api/gateway/README.md owns the contract',
   webTerminals: 'client-side terminal view models — packages/api/terminal-controller/README.md owns the API',
   appReady: 'not a service: launcher-provided successful-startup signal — packages/boot/cmdline/README.md owns the launcher contract',
@@ -216,6 +218,7 @@ export const SERVICE_WALK_EXEMPTIONS: Record<string, string> = {
 export const EVENT_SCOPE_PAGE: Record<string, string> = {
   hmr: 'boot.md',
   'plugin-manager': 'boot.md',
+  'plugin-market': 'boot.md',
   'agent': 'core.md',
   'agent-loop': 'core.md',
   'agent-preset': 'core.md',
@@ -875,6 +878,10 @@ export const TYPE_LINK_EXEMPTIONS: Readonly<Record<string, string>> = {
   AgentPresetComposition: 'flattened composition rows are owned by packages/preset/agent-presets/README.md',
   PresetMetadata: 'preset display text is owned by packages/preset/agent-presets/README.md',
   PluginAudience: 'profile audience vocabulary is owned by packages/util/package-manifest/src/types.ts',
+  MarketIndexSummary: 'market index summary is owned by packages/boot/plugin-market/README.md',
+  MarketQuery: 'market search query is owned by packages/boot/plugin-market/README.md',
+  MarketSearchResult: 'market search result is owned by packages/boot/plugin-market/README.md',
+  MarketListingEntry: 'market listing entry is owned by packages/boot/plugin-market/README.md',
   BashEnvContributor: 'service-local extension type is owned by packages/shell/tool-bash/src/index.ts',
   BashEnvVariableInfo: 'service-local metadata type is owned by packages/shell/tool-bash/src/index.ts',
   CompactionAgentContext: 'compaction service input is owned by packages/compaction/compaction/src/index.ts',

@@ -38,7 +38,6 @@ import {
   setProfileVersionExemption,
 } from '@qilin-agent/app-boot'
 import { withFileLock } from '@qilin-agent/atomic-write'
-import { refusedInstallSpecs } from '@qilin-agent/plugin-manager/operations'
 import { INSTALL_ANCHOR } from './profile-boot.ts'
 
 const NAME = 'qilin'
@@ -46,8 +45,6 @@ const NAME = 'qilin'
 /** Bound on waiting for the profile write lock an exemption command shares with the manager. */
 const LOCK_WAIT_MS = 120_000
 
-/** Bound on the pre-install registry lookup that reads a named package's peers. */
-const LOOKUP_TIMEOUT_MS = 120_000
 
 /**
  * Print one profile's plugin layers in activation order.
@@ -198,36 +195,6 @@ function anchorPathSpec(argument: string, cwd: string): string {
 }
 
 /**
- * Refuse an install command that names a package the running runtime version
- * rejects, before pnpm writes anything.
- *
- * The check reads the named manifests without installing them, so a rejected
- * package never lands on disk and the version already in use keeps working. The
- * post-install and startup checks still judge what a path or registry lookup
- * cannot: a git or tarball spec, and a bundle component whose peers need the
- * installed tree.
- * @param profile - the profile name the operation runs against.
- * @param dir - the profile directory.
- * @param args - pnpm arguments, before relative path anchoring.
- * @returns the process exit code when the command was refused, otherwise undefined.
- */
-async function refuseIncompatibleInstall(profile: string, dir: string, args: readonly string[]): Promise<number | undefined> {
-  const refused = await refusedInstallSpecs(
-    { profile, dir, installAnchor: INSTALL_ANCHOR, cwd: process.cwd() },
-    args,
-    { execution: 'cli', lookupTimeoutMs: LOOKUP_TIMEOUT_MS },
-  )
-  if (refused.warnings.length === 0) return undefined
-  process.stderr.write(`\n${NAME}: installation rejected: ${refused.warnings.join('\n')}\n${NAME}: nothing was installed.\n`)
-  // The reason names the peers that rejected this runtime, and the remedy names
-  // the exact pair, so the user can decide with the risk stated in front of them.
-  for (const { name, version, runtimeVersion } of refused.incompatible) {
-    process.stderr.write(`${NAME}: to accept the risk, run: ${NAME} plugin --profile ${profile} allow-version ${name}@${version} --qilin-version ${runtimeVersion} --accept-risk\n`)
-  }
-  return 1
-}
-
-/**
  * Run one `qilin plugin` invocation: report or list, grant or revoke one
  * exact-version exemption, or forward to pnpm and reconcile.
  * @param profile - the profile name.
@@ -248,8 +215,6 @@ export async function runPlugin(profile: string, args: readonly string[]): Promi
   }
   const exemption = await exemptionCommand(profile, args)
   if (exemption !== undefined) return exemption
-  const refused = await refuseIncompatibleInstall(profile, dir, args)
-  if (refused !== undefined) return refused
   if (!existsSync(join(dir, 'package.json'))) {
     const template = PROFILE_TEMPLATES[profile]
     initProfile(dir, template?.bundles ?? DEFAULT_PROFILE_BUNDLES)

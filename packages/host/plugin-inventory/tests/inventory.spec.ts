@@ -1,4 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { Context, FiberState, type Plugin } from '@qilin-agent/kylin'
 import Loader from '@qilin-agent/kylin-plugin-loader'
 import { remoteMethods } from '@qilin-agent/typert-protocol'
@@ -17,12 +20,14 @@ const pendingPlugin: Plugin.Object = {
   apply() {},
 }
 
-async function harness(): Promise<{
+async function harness(baseUrl?: string): Promise<{
   ctx: Context
   inventory: PluginInventoryGateway
 }> {
   const ctx = new Context()
   contexts.push(ctx)
+  // The Loader's child contexts inherit baseUrl at creation, so it is set first.
+  if (baseUrl !== undefined) ctx.baseUrl = baseUrl
   await ctx.plugin(Loader)
   ctx.loader.builtins.active = activePlugin
   ctx.loader.builtins.pending = pendingPlugin
@@ -88,6 +93,45 @@ describe('PluginInventoryGateway', () => {
 
     ctx.loader.remove(pendingId)
     expect((await inventory.list()).entries.some(entry => entry.entryId === pendingId)).toBe(false)
+  })
+
+  it('attaches local display metadata to entries and preset rows when the package reader answers', async () => {
+    const { ctx, inventory } = await harness(pathToFileURL(join(tmpdir(), 'entry.mjs')).href)
+    const meta = { title: { en: 'Active plugin', zh: '活跃插件' }, description: { en: 'Active description' } }
+    ctx.provide('pluginPackages', {
+      metaOf: (specifier: string) => (specifier === 'cordis:active' ? meta : undefined),
+    } as never)
+    await ctx.loader.create({ name: 'cordis:active', disabled: true })
+    await ctx.loader.create({ name: 'cordis:unlabelled', disabled: true })
+    ctx.provide('agentPresets', {
+      compositionInventory: async () => [{
+        id: 'standard',
+        trust: 'system',
+        isDefault: true,
+        rows: [
+          { entryId: 'active', moduleName: 'cordis:active', enabled: false },
+          { entryId: null, moduleName: 'cordis:unlabelled', enabled: false },
+        ],
+      }],
+    } as never)
+
+    const snapshot = await inventory.list()
+    expect(snapshot.entries).toMatchObject([
+      { moduleName: 'cordis:active', meta },
+      { moduleName: 'cordis:unlabelled' },
+    ])
+    expect(snapshot.entries[1]?.meta).toBeUndefined()
+    expect(snapshot.agentPresets?.[0]?.rows).toMatchObject([
+      { moduleName: 'cordis:active', meta },
+      { moduleName: 'cordis:unlabelled' },
+    ])
+    expect(snapshot.agentPresets?.[0]?.rows[1]?.meta).toBeUndefined()
+  })
+
+  it('marks persistent management available when the manager service is mounted', async () => {
+    const { ctx, inventory } = await harness()
+    ctx.provide('pluginManager', {} as never)
+    expect((await inventory.list()).managementAvailable).toBe(true)
   })
 
   it('carries each composed preset with root-fiber states mapped to phases', async () => {

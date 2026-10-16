@@ -1,13 +1,12 @@
 /** Plugin page selection shared by the page and cross-plugin navigation. */
 import { defineStore, type EngineStoreHandle } from '@qilin-agent/client-store'
 
-/** The main or additional plugin list, or one bundle, official item, or bundle row of the Installed tab. */
+/** The main or additional plugin list, or one bundle or official item of the Installed tab. */
 type View =
   | { readonly kind: 'list' }
   | { readonly kind: 'more' }
   | { readonly kind: 'package'; readonly name: string; readonly from?: 'more' }
   | { readonly kind: 'item'; readonly id: string }
-  | { readonly kind: 'row'; readonly name: string; readonly rowId: string; readonly from?: 'more' }
 
 /** `installed` is the page's own tab; any other value is the id of a `plugins.tab` entry. */
 type NavigationState = { view: View; tab: string }

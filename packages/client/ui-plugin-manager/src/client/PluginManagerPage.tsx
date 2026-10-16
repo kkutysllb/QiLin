@@ -22,7 +22,7 @@ import {
 } from '@qilin-agent/client-ui-primitives'
 import type { InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore } from '@qilin-agent/client-ui-slots'
 import type { createNavigationStore } from './navigation-store.ts'
-import { rowConfigKey, type OfficialItem } from './config-ledger.ts'
+import type { OfficialItem } from './config-ledger.ts'
 import { INSTALL_GIT_EXAMPLE, INSTALL_PATH_EXAMPLE, type PluginManagerLocaleKey } from './locales.ts'
 import {
   asksMirror, githubRecoveryRegistry, isInstallPending, offeredRegistries, rowKey,
@@ -43,7 +43,7 @@ export type PluginManagerPageProps =
   PropsRuntime<'main'>
   & PropsLocale<'pluginManager'>
   & PropsRenderSlots<
-    | 'plugins.item' | 'plugins.bundle.config' | 'plugins.row.config' | 'plugins.bundle.activation'
+    | 'plugins.item' | 'plugins.bundle.config' | 'plugins.bundle.activation'
     | 'plugins.add.actions' | 'plugins.tab'
     | 'plugins.detail.actions' | 'plugins.detail.badge' | 'plugins.detail.section'
   >
@@ -206,12 +206,6 @@ interface RowToggles {
   readonly onSetEnabled: (row: PackageRow, enabled: boolean) => void
 }
 
-/** Configuration for a pack's rows: which rows registered a page of their own, and opening it. */
-interface RowConfigure {
-  readonly has: (row: PackageRow) => boolean
-  readonly open: (row: PackageRow) => void
-}
-
 /** Rows beyond this count get a filter box above the list. */
 const ROW_FILTER_THRESHOLD = 10
 
@@ -295,16 +289,15 @@ function MetadataError({ error, t }: { readonly error: string | undefined; reado
 
 /**
  * A pack's rows as a list in the order the pack declares them: a state dot,
- * the row id, one line saying its state, a configure control for a row that
- * registered a page, and, when the pack is on, a switch. A pack like base
- * carries close to a hundred rows, so a long list gets a filter.
+ * the row id, one line saying its state, and, when the pack is on, a switch.
+ * A pack like base carries close to a hundred rows, so a long list gets a
+ * filter.
  */
-function RowsSection({ rows, t, resolveText, toggle, configure }: {
+function RowsSection({ rows, t, resolveText, toggle }: {
   readonly rows: readonly PackageRow[]
   readonly t: Translate
   readonly resolveText: ResolveText
   readonly toggle?: RowToggles | undefined
-  readonly configure?: RowConfigure | undefined
 }): ReactNode {
   const [filter, setFilter] = useState('')
   const query = filter.trim().toLowerCase()
@@ -322,7 +315,7 @@ function RowsSection({ rows, t, resolveText, toggle, configure }: {
         ? (
           <Input
             type="search"
-            className={css.partsFilter as string}
+            className={css.partsFilter}
             placeholder={t('partsFilter')}
             aria-label={t('partsFilter')}
             value={filter}
@@ -345,14 +338,7 @@ function RowsSection({ rows, t, resolveText, toggle, configure }: {
                 <div className={css.rowLine}>
                   <span className={css.rowIcon} aria-hidden="true"><PackageArtwork key={row.meta?.icon} src={row.meta?.icon} row /></span>
                   <div className={css.rowMain}>
-                    {configure?.has(row) === true
-                      ? (
-                        <button type="button" className={css.rowOpen} aria-label={t('configureRow', { name: title })} onClick={() => { configure.open(row) }}>
-                          <span className={css.rowId}>{title}</span>
-                          <IconChevronRightOutlineRegular className={css.rowOpenIcon} aria-hidden="true" />
-                        </button>
-                      )
-                      : <span className={css.rowId}>{title}</span>}
+                    <span className={css.rowId}>{title}</span>
                     {description === undefined ? null : <span className={css.rowModule}>{description}</span>}
                     {title === row.rowId ? null : <code className={css.rowModule}>{row.rowId}</code>}
                     {title === row.moduleName ? null : <code className={css.rowModule}>{row.moduleName}</code>}
@@ -646,59 +632,15 @@ function ItemDetail({ item, t, onBack, renderSlot, form }: {
 }
 
 /**
- * A row's configuration page keeps its technical identity beside local package
- * text and the form supplied by its configuration entry.
- */
-function RowDetail({ pkg, row, t, resolveText, onBack, renderSlot, form }: {
-  readonly pkg: PackageView
-  readonly row: PackageRow
-  readonly t: Translate
-  readonly resolveText: ResolveText
-  readonly onBack: () => void
-  readonly renderSlot: RenderConfig
-  readonly form: ConfigPageForm | undefined
-}): ReactNode {
-  const { title } = packageText(pkg, resolveText)
-  const { title: rowTitle, description } = rowText(row, resolveText)
-  const key = rowConfigKey(pkg.name, row.rowId)
-  const subject: PluginsSubject = { kind: 'row', pkg: packageRef(pkg), row: rowRef(row) }
-  return (
-    <div className={css.detail} data-plugin-row-detail={key}>
-      <DetailTop
-        crumbLabel={t('backToPackage', { name: title })}
-        crumbText={title}
-        onBack={onBack}
-        icon={<PackageArtwork key={row.meta?.icon} src={row.meta?.icon} row size={CARD_ARTWORK_SIZE} />}
-        actions={<div className={css.detailActions}>{renderSlot('plugins.detail.actions', { subject })}</div>}
-      />
-      <div className={css.detailMain}>
-        <div className={css.titleRow}>
-          <h3 className={css.detailTitle}>{rowTitle}</h3>
-          {renderSlot('plugins.detail.badge', { subject })}
-        </div>
-        {rowTitle === row.rowId ? null : <p className={css.detailName}><code>{row.rowId}</code></p>}
-        <p className={css.detailName}><code>{row.moduleName}</code></p>
-        <p className={css.detailDesc}>{description ?? renderSlot('plugins.row.config', { view: 'summary' }, { entryKey: key })}</p>
-      </div>
-      <MetadataError error={row.meta?.error} t={t} />
-      <div className={css.detailSections} data-plugin-config>
-        {renderSlot('plugins.row.config', { view: 'page', form }, { entryKey: key })}
-        {renderSlot('plugins.detail.section', { subject })}
-      </div>
-    </div>
-  )
-}
-
-/**
  * One package's page: the crumb back to the list; its icon with its switch
  * and, for a package the profile installed or a selection the Host can remove, uninstall; its title beside its
  * version tag, its beta tag, and its problem tag; the package name the title
  * stands for; its one-liner; the Host's problem when it reports one; the
- * configuration the bundle registered for itself; its rows with their switches
- * and configure controls; and where it comes from.
+ * configuration the bundle registered for itself; its rows with their switches;
+ * and where it comes from.
  */
 function PackageDetail({
-  pkg, t, resolveText, busy, rowBusy, configured, configure, renderSlot, inMore,
+  pkg, t, resolveText, busy, rowBusy, configured, renderSlot, inMore,
   onBack, onSetEnabled, onUninstall, onUpdate, onSetRowEnabled,
 }: {
   readonly pkg: PackageView
@@ -709,7 +651,6 @@ function PackageDetail({
   readonly rowBusy: (row: PackageRow) => boolean
   /** Whether the bundle registered a configuration of its own. */
   readonly configured: boolean
-  readonly configure: RowConfigure
   readonly renderSlot: RenderConfig
   readonly inMore: boolean
   readonly onBack: () => void
@@ -788,7 +729,6 @@ function PackageDetail({
           t={t}
           resolveText={resolveText}
           toggle={pkg.enabled ? { busy: row => busy || rowBusy(row), onSetEnabled: onSetRowEnabled } : undefined}
-          configure={configure}
         />)}
         <SourceSection pkg={pkg} t={t} />
         {renderSlot('plugins.detail.section', { subject })}
@@ -1548,12 +1488,11 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
   const more = ordered
   const loaded = state.status === 'ready' || state.status === 'error'
   const refreshing = state.refreshStatus === 'refreshing'
-  const openPkg = view.kind === 'package' || view.kind === 'row' ? listed.find(pkg => pkg.name === view.name) : undefined
+  const openPkg = view.kind === 'package' ? listed.find(pkg => pkg.name === view.name) : undefined
   const openItem = view.kind === 'item' ? ledger.items.find(item => item.id === view.id) : undefined
-  const openRow = view.kind === 'row' && openPkg !== undefined ? openPkg.rows.find(row => row.rowId === view.rowId) : undefined
   const onInstalled = tab === INSTALLED_TAB
   const showsCards = !onInstalled || (openPkg === undefined && openItem === undefined)
-  const detailFromMore = (view.kind === 'package' || view.kind === 'row')
+  const detailFromMore = view.kind === 'package'
     && (view.from === 'more' || (MORE_BUNDLES.includes(view.name) && !pinned.has(view.name)))
   const showsMoreList = onInstalled && showsCards && (view.kind === 'more' || detailFromMore)
   const showsMainList = showsCards && !showsMoreList
@@ -1568,10 +1507,6 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
     /* v8 ignore next -- a row without a live entry has its switch disabled */
     if (row.entryId !== undefined) props.setRowEnabled(row.entryId, enabled)
   }
-  const configure = (pkg: PackageView): RowConfigure => ({
-    has: row => ledger.rows.has(rowConfigKey(pkg.name, row.rowId)),
-    open: (row) => { setView({ kind: 'row', name: pkg.name, rowId: row.rowId, ...openPkgInMore ? { from: 'more' } : {} }) },
-  })
   const packageBusy = (pkg: PackageView): boolean => state.busy.includes(pkg.name)
     || (state.install.subject?.name === pkg.name && (isInstallPending(state.install.phase) || state.install.phase === 'checking'))
   const packageCard = (pkg: PackageView): ReactNode => (
@@ -1705,20 +1640,7 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
           </div>
         )
         : null}
-      {onInstalled && loaded && openPkg !== undefined && openRow !== undefined
-        ? (
-          <RowDetail
-            pkg={openPkg}
-            row={openRow}
-            form={formFor(openRow.rowId)}
-            t={t}
-            resolveText={resolveText}
-            renderSlot={renderSlot}
-            onBack={() => { setView({ kind: 'package', name: openPkg.name, ...openPkgInMore ? { from: 'more' } : {} }) }}
-          />
-        )
-        : null}
-      {onInstalled && loaded && openPkg !== undefined && openRow === undefined
+      {onInstalled && loaded && openPkg !== undefined
         ? (
           <PackageDetail
             pkg={openPkg}
@@ -1727,7 +1649,6 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
             busy={packageBusy(openPkg)}
             rowBusy={row => row.entryId !== undefined && state.busy.includes(rowKey(row.entryId))}
             configured={ledger.bundles.has(openPkg.name)}
-            configure={configure(openPkg)}
             renderSlot={renderSlot}
             inMore={openPkgInMore}
             onBack={() => { setView({ kind: openPkgInMore ? 'more' : 'list' }) }}

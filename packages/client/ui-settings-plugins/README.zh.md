@@ -72,7 +72,7 @@ kind: "package-reference"
 
 以下页面覆盖插件页、设置底座、清单标签页与表单背后的持久化 seam。
 
-- [ui-plugin-manager](../ui-plugin-manager/README.zh.md)——分区的「插件管理」标签页，其 `plugins.item`、`plugins.bundle.config` 与 `plugins.row.config` slot 承载配置页。
+- [ui-plugin-manager](../ui-plugin-manager/README.zh.md)——配置官方插件的插件页。
 - [ui-settings](../ui-settings/README.zh.md)——声明 `settings.section` 与共享配置表单的领域底座。
 - [ui-settings-plugin-inventory](../ui-settings-plugin-inventory/README.zh.md)——分区显示的只读插件列表。
 - [settings](../../settings/README.zh.md)——持久化用户设置 seam 及其文件提供方。

@@ -10,6 +10,7 @@ import type {} from '@qilin-agent/api-session-controller/remote-events'
 import type {} from '@qilin-agent/schedule/client'
 import type {} from '@qilin-agent/permission-presets/types'
 import type {} from '@qilin-agent/plugin-manager/types'
+import type {} from '@qilin-agent/plugin-market/types'
 import type { TypertForwardableEventEntry } from '@qilin-agent/typert-protocol'
 
 /**
@@ -39,6 +40,7 @@ export const API_REMOTE_FORWARDED_EVENTS = [
   { event: 'plugin-manager/changed', mode: 'emit' },
   { event: 'plugin-manager/install-log', mode: 'emit' },
   { event: 'plugin-manager/install-state', mode: 'emit' },
+  { event: 'plugin-market/changed', mode: 'emit' },
   { event: 'settings/document-updated', mode: 'emit' },
   { event: 'schedule/changed', mode: 'emit' },
   { event: 'user-questions/request', mode: 'waterfall' },

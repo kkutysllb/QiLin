@@ -1,21 +1,20 @@
 /**
- * The slots the Plugins page declares for other plugins. Three carry a
- * plugin's own configuration: the official plugins listed beside the official
- * bundles, one bundle's configuration on its page, and one row's configuration
- * opened from that row. Three more take contributions to any detail page —
- * its head actions, the badges beside its title, and the sections under its
- * own content — from a plugin that has something to say about bundles, rows,
- * or official plugins it does not own. A registrant merges this contract with
- * `import type` and registers through `ctx.slots`; it never imports this
- * package at runtime.
+ * The slots the Plugins page declares for other plugins. Two carry a plugin's
+ * own configuration: the official plugins listed beside the official bundles
+ * and one bundle's configuration on its page. Three more take contributions to
+ * any detail page — its head actions, the badges beside its title, and the
+ * sections under its own content — from a plugin that has something to say
+ * about bundles, rows, or official plugins it does not own. A registrant merges
+ * this contract with `import type` and registers through `ctx.slots`; it never
+ * imports this package at runtime.
  *
  * A contributed tab, such as Discover, installs through the page's own dialog.
  *
  * Entries accept `page` for the form with its own save control and `summary`
- * for an official card's one-liner or a row's missing-description fallback.
- * Bundle configuration renders only `page`. A detail contribution is rendered
- * with the subject of the open page and decides from it whether to render at
- * all. The page draws the title, icon, and crumb itself.
+ * for an official card's one-liner. Bundle configuration renders only `page`.
+ * A detail contribution is rendered with the subject of the open page and
+ * decides from it whether to render at all. The page draws the title, icon, and
+ * crumb itself.
  */
 
 import type {} from '@qilin-agent/client-ui-slots'
@@ -131,7 +130,7 @@ declare module '@qilin-agent/client-ui-slots' {
      * and, once the card is opened, as the body of the plugin's own page
      * (`view: 'page'`). OCCUPIED by the official settings pages, one companion
      * package per host-plane namespace; a bundle's configuration belongs in
-     * `plugins.bundle.config` or `plugins.row.config` instead.
+     * `plugins.bundle.config` instead.
      */
     'plugins.item': { kind: 'list'; scope: 'root'; owner: PluginConfigViewProps }
     /**
@@ -140,14 +139,6 @@ declare module '@qilin-agent/client-ui-slots' {
      * (`view: 'page'` only).
      */
     'plugins.bundle.config': { kind: 'keyed'; scope: 'root'; owner: PluginConfigViewProps }
-    /**
-     * The configuration of one row a bundle declares, keyed by
-     * `<package name>#<row id>` with the row id as the bundle's patch declares
-     * it: the row on the bundle's page gains a configure control that opens
-     * the entry's page, headed by the plugin's display title and description.
-     * An absent description falls back to the entry's `view: 'summary'`.
-     */
-    'plugins.row.config': { kind: 'keyed'; scope: 'root'; owner: PluginConfigViewProps }
     /**
      * Controls at the head of a detail page, before the page's own switch and
      * uninstall, rendered with the page's subject. An entry renders null for a

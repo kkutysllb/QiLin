@@ -70,6 +70,8 @@ import * as ToolWorkingDirectory from '@qilin-agent/tool-working-directory'
 import * as ToolWorktree from '@qilin-agent/experimental-tool-worktree'
 import type PluginManager from '@qilin-agent/plugin-manager'
 import * as PluginManagerTools from '@qilin-agent/plugin-manager/tools'
+import type PluginMarket from '@qilin-agent/plugin-market'
+import * as PluginMarketTools from '@qilin-agent/plugin-market/tools'
 import SandboxPolicy from '@qilin-agent/sandbox-policy'
 import McpResources from '@qilin-agent/mcp-resources'
 import * as ToolSubagent from '@qilin-agent/tool-subagent'
@@ -218,6 +220,18 @@ const TOOL_PACKAGES: ToolPackage[] = [
       ctx.provide('pluginManager', {} as PluginManager)
       await ctx.plugin(SandboxPolicy)
       await ctx.plugin(PluginManagerTools)
+    },
+  },
+  {
+    pkg: '@qilin-agent/plugin-market',
+    dir: 'plugin-market',
+    source: 'packages/boot/plugin-market/src/tools.ts',
+    requires: ['ctx.tools', 'ctx.pluginMarket'],
+    writes: ['tool/call', 'tool/result'],
+    async mount(ctx) {
+      // Schema harvest never fetches an index.
+      ctx.provide('pluginMarket', {} as PluginMarket)
+      await ctx.plugin(PluginMarketTools)
     },
   },
   {

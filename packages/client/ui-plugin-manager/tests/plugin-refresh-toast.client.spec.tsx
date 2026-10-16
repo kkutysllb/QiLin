@@ -19,8 +19,6 @@ const IDLE_INSTALL: InstallState = {
 const BASE: PluginManagerState = {
   status: 'ready', refreshStatus: 'idle', packages: [], busy: [], notice: null,
   install: IDLE_INSTALL, confirm: null, highlight: null,
-  updates: { status: 'idle', entries: [], reason: '' },
-  catalog: { status: 'idle', query: '', page: 1, entries: [], hasMore: false, reason: '' },
 }
 
 function mount(state: PluginManagerState, dictionary: typeof en | typeof zh = en) {

@@ -104,6 +104,11 @@ const CHROME_ROWS: readonly ChromeRow[] = [
     selector: '.detailTop',
     markup: 'client/ui-plugin-manager/src/client/PluginManagerPage.tsx',
   },
+  {
+    file: PLUGIN_MANAGER,
+    selector: '.moreHead',
+    markup: 'client/ui-plugin-manager/src/client/PluginManagerPage.tsx',
+  },
 ]
 
 /**

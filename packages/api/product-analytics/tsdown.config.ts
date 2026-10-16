@@ -1,13 +1,7 @@
-import { defineConfig } from 'tsdown'
+import { clientBundle } from '../../client/tsdown.client.ts'
 
-export default defineConfig({
-  entry: ['lib/types/index.js'],
-  outDir: 'lib',
-  format: ['esm'] as const,
-  outputOptions: { codeSplitting: false },
-  platform: 'node',
-  target: 'es2024',
-  fixedExtension: false,
-  dts: false,
-  clean: false,
-})
+export default clientBundle(
+  '@qilin-agent/client-product-analytics',
+  ['lib/types/index.js'],
+  { hostPhase: true },
+)

@@ -52,7 +52,7 @@ kind: "package-library"
 | `Modal` | 页面遮罩之上的居中对话框。 |
 | `RiskConfirmation` | 以显式复选框把关的敏感操作确认。 |
 | `OnboardingSurface` | 首次运行的引导舞台，期间保持应用根节点 inert。 |
-| `Tooltip` | 克隆锚点上的悬停文本，可置于右、下、上三个方向。 |
+| `Tooltip` | 克隆锚点上的悬停文本，可置于右、下、上三个方向；`openOnClick` 为点击阅读者钉住气泡，`focusDelayMs` 延迟键盘弹出。 |
 | `HoverCard` | 指针可停留、可选中的悬停预览；可选带复制按钮。 |
 | `ImageLightbox` | 共享图片浮层，支持焦点恢复与 Esc 关闭。 |
 | `Toast` | 顶部居中的瞬时横幅，保持时长由所有者的 `holdMs` 决定。 |

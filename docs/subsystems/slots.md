@@ -130,7 +130,10 @@ root
 ├─ main
 │  ├─ plugins.item
 │  ├─ plugins.bundle.config
-│  ├─ plugins.row.config
+│  ├─ plugins.tab
+│  ├─ plugins.detail.actions
+│  ├─ plugins.detail.badge
+│  ├─ plugins.detail.section
 │  └─ main.conversation
 │     ├─ conversation.session
 │     │  └─ conversation.view
