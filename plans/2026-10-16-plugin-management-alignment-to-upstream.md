@@ -84,3 +84,11 @@
 
 按「与 dsh 完全对齐」规则：dsh 插件可见的槽名必须一致，否则第三方插件注册即失败。本波先落插件管理页依赖的 `plugins.tab` 与 `plugins.detail.actions/badge/section`；其余槽（conversation/deliverables/settings/shell/sidebar-workspaces）的声明与宿主渲染面列为紧随其后的槽面对齐波次，逐槽按上游实现。
 
+## 附录：「子代理」条目缺失的根因（2026-10-17 实锤）
+
+内置插件配置的「子代理」卡片由 `ui-settings-plugins` 注册，门槛是 `configForms.whileServed(['subagent', 'subagent-model-selection'])`——两个设置命名空间必须都被服务。实测（桌面单用户形态复现）：`shell`/`agent-loop`/`web-search` 在（因为它们运行时显式 `settings.installSection`），而 **`subagent`（`SubagentRuntime.static Config`）与 `subagent-model-selection`（`SubagentModelSelectionConfig.static Config`）从未被服务**。
+
+根因：**QiLin 的 settings 服务缺少 dsh 的 Config 投影机制**——上游 `packages/settings/settings` 有 `src/schema.ts`（`isVolatilePath`/`plainConfig`/`projectForm`/`volatileForm`，79 行）并把 `static Config`（含 volatile 字段）投影为设置文档的命名空间；QiLin 的同名服务缺 `schema.ts`，`index.ts` 相差 1081 行 diff（旧一代实现），因此这两类 `static Config` 永远不出现在设置文档里。
+
+**修复工作流（对齐 dsh 机制，非打补丁）**：以上游为准移植 settings 服务的 `schema.ts` 与 `index.ts` 的投影差异，使 `static Config`（含 volatile）自动进入设置文档；随后「子代理」卡片按既有门槛自然出现。禁止用 installSection 之类的本仓注册机制打补丁（违反需求 A）。
+
