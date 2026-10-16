@@ -121,6 +121,6 @@ describe.skipIf(process.env.QILIN_DESKTOP_PACKAGED !== '1')('desktop development
       dependencyDir: dependencies,
       release: release(),
       target: 'mac-x64',
-    })).toThrow(/must be @deepseek-ai\/dsh@1\.2\.3/u)
+    })).toThrow(/must be @qilin-agent\/dsh@1\.2\.3/u)
   })
 })

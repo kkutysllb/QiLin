@@ -60,7 +60,7 @@ describe('desktop package-set selection', () => {
     expect(() => selectDesktopPackageClosure(available)).toThrow(/unpacked package/u)
     expect(() => selectDesktopPackageClosure(new Map([
       ['@qilin-agent/cli', packed('@qilin-agent/cli')],
-    ]))).toThrow(/omit @deepseek-ai\/dsh-desktop-host/u)
+    ]))).toThrow(/omit @qilin-agent\/dsh-desktop-host/u)
   })
 
   it('leaves independently published Office packages to npm resolution', () => {

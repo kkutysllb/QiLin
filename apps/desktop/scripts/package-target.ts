@@ -474,13 +474,13 @@ export async function packageTarget(
     })
   }
   await execute(['run', 'build:official'], buildEnv, REPOSITORY_ROOT)
-  await execute(['run', 'release:pack', '--family', 'qilin', '--out', buildPaths.packedDsh, ...packArguments], buildEnv, REPOSITORY_ROOT)
+  await execute(['run', 'release:pack', '--family', 'qilin', '--out', buildPaths.packedQilin, ...packArguments], buildEnv, REPOSITORY_ROOT)
   await execute([
     '--dir',
     'apps/desktop-host',
     'pack',
     '--pack-destination',
-    buildPaths.packedDsh,
+    buildPaths.packedQilin,
   ], buildEnv, REPOSITORY_ROOT)
   await execute(['run', 'release:pack', '--family', 'vendor', '--out', buildPaths.packedVendor, ...packArguments], buildEnv, REPOSITORY_ROOT)
   rmSync(buildPaths.packedLandlock, { recursive: true, force: true })

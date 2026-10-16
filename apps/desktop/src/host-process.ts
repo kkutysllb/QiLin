@@ -64,7 +64,7 @@ function isDesktopHostEvent(message: unknown): message is DesktopHostEvent {
         || Array.isArray(session.requestHeaders)
         || Object.entries(session.requestHeaders).some(([name, value]) => typeof value !== 'string'
           || name !== name.toLowerCase() || /[\r\n]/.test(value)
-          || ['authorization', 'x-dsh-auth-token', 'host', 'content-length', 'transfer-encoding', 'connection', 'content-type'].includes(name)))) return false
+          || ['authorization', 'x-qilin-auth-token', 'host', 'content-length', 'transfer-encoding', 'connection', 'content-type'].includes(name)))) return false
       try {
         const url = new URL(session.origin)
         return url.origin === session.origin && !url.username && !url.password

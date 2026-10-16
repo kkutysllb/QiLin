@@ -285,7 +285,7 @@ Confirmed Host exit without successful task teardown displays localized recovery
 
 The [shell configuration decision](../../.agents/notes/implemented/architecture/2026-09-25-desktop-and-account-alignment-boundaries.md) defines Host-independent ownership and the criteria for evaluating existing settings for migration.
 
-The Electron main process reads `app.getPath('userData')/desktop/settings.json` once at startup, independently of Host and Cordis configuration. The default packaged paths are `%APPDATA%\@deepseek-ai\dsh-desktop\desktop\settings.json` on Windows and `~/Library/Application Support/@qilin-agent/desktop/desktop/settings.json` on macOS. Development uses the `userData` path printed by its launcher. `QILIN_HOME` does not relocate this file.
+The Electron main process reads `app.getPath('userData')/desktop/settings.json` once at startup, independently of Host and Cordis configuration. The default packaged paths are `%APPDATA%\@qilin-agent\qilin-desktop\desktop\settings.json` on Windows and `~/Library/Application Support/@qilin-agent/desktop/desktop/settings.json` on macOS. Development uses the `userData` path printed by its launcher. `QILIN_HOME` does not relocate this file.
 
 On first launch, including after an upgrade, Desktop creates this document if it is absent:
 

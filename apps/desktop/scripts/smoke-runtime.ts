@@ -24,7 +24,7 @@ import type { DesktopRuntimeDescriptor } from '../src/runtime-tree.ts'
 export async function smokeDesktopRuntime(
   root: string, node: string, runtime: DesktopRuntimeDescriptor, environment: NodeJS.ProcessEnv, resourcesRuntime: string,
 ): Promise<void> {
-  const home = mkdtempSync(join(tmpdir(), 'dsh-desktop-smoke-'))
+  const home = mkdtempSync(join(tmpdir(), 'qilin-desktop-smoke-'))
   const profile = join(home, 'profiles', 'desktop')
   const hostEnvironment = {
     ...Object.fromEntries(Object.entries(environment).filter(([name]) => !/^(?:npm|pnpm|corepack)_/iu.test(name))),
@@ -58,7 +58,7 @@ export function apply(ctx) {
 `)
     writeFileSync(join(installedPlugin, 'bundle.yml'), `- insert:\n    - id: ${installedName}\n      name: ${installedName}\n      inject: [webServer]\n`)
     appendFileSync(join(profile, 'pnpm-workspace.yaml'), 'offline: true\nupdateNotifier: false\n')
-    const cli = join(root, 'node_modules', '@deepseek-ai', 'dsh-desktop-host', 'lib', 'cli.js')
+    const cli = join(root, 'node_modules', '@qilin-agent', 'desktop-host', 'lib', 'cli.js')
     const runCli = (args: string[]) => promisify(execFile)(node,
       ['--expose-internals', cli, 'plugin', '--profile', 'desktop', ...args],
       { cwd: home, env: { ...hostEnvironment, ELECTRON_RUN_AS_NODE: '1' }, timeout: 120_000, windowsHide: true })

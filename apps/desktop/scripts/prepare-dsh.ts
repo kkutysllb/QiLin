@@ -38,10 +38,10 @@ import { selectOfficeEngine } from '../../../scripts/libreoffice-packages.mjs'
 const APP_ROOT = resolve(import.meta.dirname, '..')
 const BUILD_PATHS = resolveDesktopTargetBuildPaths()
 const QILIN_OUTPUT_ROOT = BUILD_PATHS.dsh
-const BUILD_ROOT = mkdtempSync(join(tmpdir(), 'dsh-desktop-runtime-'))
+const BUILD_ROOT = mkdtempSync(join(tmpdir(), 'qilin-desktop-runtime-'))
 const STORE_ROOT = join(BUILD_ROOT, 'store')
 const RUNTIME_ROOT = BUILD_PATHS.runtime
-const PNPM_BUILD_STATE = BUILD_PATHS.dshPnpm
+const PNPM_BUILD_STATE = BUILD_PATHS.qilinPnpm
 const PACKAGE_SET_ROOT = BUILD_PATHS.packageSet
 const NODE = join(BUILD_PATHS.electron, process.platform === 'win32' ? 'electron.exe' : 'Electron.app/Contents/MacOS/Electron')
 const PNPM = join(RUNTIME_ROOT, 'primary-runtime', 'dependencies', 'pnpm', 'bin', 'pnpm.mjs')
@@ -154,7 +154,7 @@ async function main(): Promise<void> {
         throw new Error(`desktop runtime: missing private Host file ${file}`)
       }
     }
-    if (!existsSync(join(QILIN_OUTPUT_ROOT, 'node_modules', '@deepseek-ai', `libreoffice-kit-${officeEngine}`, 'prebuilds.json'))) {
+    if (!existsSync(join(QILIN_OUTPUT_ROOT, 'node_modules', '@qilin-agent', `libreoffice-kit-${officeEngine}`, 'prebuilds.json'))) {
       throw new Error(`desktop runtime: missing required LibreOffice engine ${officeEngine}`)
     }
     if (process.platform === 'darwin' && process.env.QILIN_DESKTOP_UNSIGNED !== '1') {

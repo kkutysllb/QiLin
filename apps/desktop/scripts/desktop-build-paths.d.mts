@@ -9,9 +9,9 @@ export interface DesktopTargetBuildPaths {
   readonly runtime: string
   readonly packageSet: string
   readonly qilin: string
-  readonly dshPnpm: string
+  readonly qilinPnpm: string
   readonly electron: string
-  readonly packedDsh: string
+  readonly packedQilin: string
   readonly packedVendor: string
   readonly packedLandlock: string
   readonly downloads: string
