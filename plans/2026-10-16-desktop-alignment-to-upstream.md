@@ -254,3 +254,19 @@ find /path/to/deepseek-harness -name package.json -path '*desktop-runtime*'   # 
 **结果**：`platform-view.spec.ts` 与 `mandatory-update-policy.spec.ts` **67/67 全绿** ✓；桌面 lane 由 **12 文件失败 → 10** ✓、**36 用例失败 → 31** ✓；`typecheck` 0 ✓。
 
 **余下 10 个失败文件用同一方法推进** ✓（跑 spec → 读 diff → 修 src/替身 ✓）。
+
+### P3 续 4：边界用例的正确处理 + 转义残留
+
+**方法落地**：先判断每个失败 spec 断言的是**真实能力**还是**本仓故意不提供的能力** ✓，再分别处理：
+
+- **真实能力 → 修代码** ✓：抓出并修复 5 处账号替身的 wire 契约缺陷（头部名、平台标识、locale 规范化、cookie 同名覆盖 ✓，见上一节 ✓）。
+- **故意不提供的能力 → 断言边界** ✓（仅这一类 ✓）：
+  - `host-process.spec.ts`：账号身份**不再跨私有 IPC 发布** ✗（账号栈不移植 ✓）→ 改为断言"良构会话被接受但**不发布**" ✓ + 畸形会话仍被拒 ✓（校验保留 ✓）。
+  - `preload-app.spec.ts`：强制更新覆盖层在任何文档中**都不安装** ✗（策略惰性 ✓）→ 改为断言"任何平台/文档均不安装" ✓。
+- **主题确实不存在 → 删除 spec** ✓：`desktop-cli.spec.ts`、`prepared-runtime-smoke.spec.ts`（依赖留空的 office engine ✓，加载期即失败 ✓）。
+
+**另修复的转义残留** ✓：上游 spec 用**转义斜杠**匹配包名 ✗（`@deepseek-ai\/` ✓），我此前的替换只覆盖非转义形式 ✗ → 修好 `desktop-bundle-imports`（**10/10 全绿** ✓）、`development-project`、`prepare-package-set` ✓；以及 `host-process.ts` 的 `x-dsh-auth-token` → `x-qilin-auth-token` ✓。
+
+**当前 lane**：`83 → 85 文件通过`、`864 → 870 用例通过` ✓；失败收敛到 2 个文件 ✓：
+- `project-manager.spec.ts`（14 ✓）：`manager.paths` 在 spec 内取到 **undefined** ✗ —— 构造函数与 spec 的调用形式一致 ✓ 但运行时仍为空 ✗，需下一步继续定位 ✓（疑与 lane 的模块解析或 `resolveDesktopPaths` 的运行时返回值有关 ✓）。
+- `welcome-renderer.client.spec.tsx`（8 ✓）：欢迎 UI 为惰性面 ✓，其渲染期望需与麒麟文案对齐或改为惰性断言 ✓。

@@ -155,17 +155,17 @@ it('moves welcome-entry focus to the document without changing keyboard tab orde
   } finally { dom.window.close() }
 })
 
-it.each(['win32', 'darwin'] as const)('installs the embedded mandatory UI only in the Windows app document (%s)', async (platform) => {
+it.each(['win32', 'darwin'] as const)('installs no mandatory overlay in any app document (%s)', async (platform) => {
   vi.stubGlobal('process', { ...process, platform })
   for (const url of ['qilin-app://app/', 'qilin-app://shell/mandatory-update.html', 'https://example.com/']) {
     vi.resetModules()
     vi.mocked(installMandatoryUpdateOverlay).mockClear()
     vi.stubGlobal('location', new URL(url))
     await import('../src/preload-app.ts')
-    expect(installMandatoryUpdateOverlay).toHaveBeenCalledTimes(platform === 'win32' && url === 'qilin-app://app/' ? 1 : 0)
+    // The update policy seam is inert, so no document receives the overlay.
+    expect(installMandatoryUpdateOverlay).not.toHaveBeenCalled()
   }
 })
-
 it('exposes constrained shortcut operations and releases configuration subscriptions', async () => {
   vi.stubGlobal('location', new URL('qilin-app://app/'))
   await import('../src/preload-app.ts')
