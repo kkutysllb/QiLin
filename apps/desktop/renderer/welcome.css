@@ -94,6 +94,20 @@ body {
 }
 
 .brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.brand-name {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--dsw-alias-label-primary, #0f1115);
+}
+
+.brand {
   display: block;
   flex: none;
   width: 100%;

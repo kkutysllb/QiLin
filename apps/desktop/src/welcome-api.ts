@@ -15,7 +15,15 @@ export const WELCOME_IPC = {
   copyLink: 'dsh-welcome:copy-link',
   state: 'dsh-welcome:state',
   takeNotice: 'dsh-welcome:take-notice',
+  logIn: 'qilin-welcome:log-in',
+  register: 'qilin-welcome:register',
 } as const
+
+/** Local account outcome: accepted, or refused with the Host's own reason code. */
+export interface WelcomeAuthResult {
+  readonly ok: boolean
+  readonly reason?: string
+}
 
 /** Credential writes return a safe outcome without exposing Host diagnostics. */
 export type WelcomeSaveResult = { readonly ok: true } | { readonly ok: false }
@@ -31,6 +39,16 @@ export interface WelcomeOperations {
   analytics?<K extends WelcomeEventName>(eventName: K, attributes: ProductEventMap[K]): Promise<void>
   /** @returns the Host's current effective collection policy. */
   analyticsEnabled(): Promise<boolean>
+  /** @param username - local account name. @param password - submitted secret. @returns the Host outcome for a local sign-in. */
+  logIn(username: string, password: string): Promise<WelcomeAuthResult>
+  /**
+   * Create a local account.
+   * @param username - new account name.
+   * @param email - optional address.
+   * @param password - submitted secret.
+   * @returns the Host outcome for a local registration.
+   */
+  register(username: string, email: string, password: string): Promise<WelcomeAuthResult>
   /** @returns the pending notification, clearing it before another renderer can receive it. */
   takeNotice(): Promise<WelcomeNotice | undefined>
   /** @returns account state after starting a login attempt. */

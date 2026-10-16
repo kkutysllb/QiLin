@@ -40,6 +40,7 @@ import { serveWebDocument, authenticateWebHost, forwardWebRequest } from './web-
 import { DesktopFatalRecovery } from './fatal-recovery.ts'
 import { pruneCrashReports, RendererConsoleTail, writeCrashReport, type CrashReportSource } from './crash-report.ts'
 import { openWelcomeWindow } from './welcome-window.ts'
+import { submitLocalAccount } from './local-auth.ts'
 import { WELCOME_IPC, needsWelcome, type WelcomeNotice } from './welcome-api.ts'
 import { connectDesktopWelcome, type DesktopWelcomeBackend } from './welcome-backend.ts'
 import { DesktopUpdateJournal } from './update-journal.ts'
@@ -1184,6 +1185,14 @@ async function main(): Promise<void> {
           return { ok: true }
         },
         skip: enterWorkspace,
+        logIn: async (username: string, password: string) => {
+          if (hostUrl === undefined) return { ok: false }
+          return submitLocalAccount(new URL(hostUrl).origin, 'login', { username, password }, (input, init) => net.fetch(input, init))
+        },
+        register: async (username: string, email: string, password: string) => {
+          if (hostUrl === undefined) return { ok: false }
+          return submitLocalAccount(new URL(hostUrl).origin, 'setup', { username, email, password }, (input, init) => net.fetch(input, init))
+        },
       })
       const window = welcomeWindow
       window.once('closed', () => {

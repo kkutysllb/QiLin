@@ -3,7 +3,7 @@ import type { AccountView, SignInAttemptId } from './account-types.ts'
 
 import { contextBridge, ipcRenderer } from 'electron'
 import { resolveDesktopLocale } from './locale.ts'
-import { WELCOME_IPC, type WelcomeApi, type WelcomeNotice, type WelcomeSaveResult } from './welcome-api.ts'
+import { WELCOME_IPC, type WelcomeApi, type WelcomeAuthResult, type WelcomeNotice, type WelcomeSaveResult } from './welcome-api.ts'
 
 const prefix = '--dsh-welcome-locale='
 const locale = process.argv.find(argument => argument.startsWith(prefix))?.slice(prefix.length)
@@ -25,5 +25,9 @@ const api: WelcomeApi = {
   },
   saveApiKey: (value: string) => ipcRenderer.invoke(WELCOME_IPC.saveApiKey, value) as Promise<WelcomeSaveResult>,
   skip: () => ipcRenderer.invoke(WELCOME_IPC.skip) as Promise<void>,
+  logIn: (username, password) =>
+    ipcRenderer.invoke(WELCOME_IPC.logIn, username, password) as Promise<WelcomeAuthResult>,
+  register: (username, email, password) =>
+    ipcRenderer.invoke(WELCOME_IPC.register, username, email, password) as Promise<WelcomeAuthResult>,
 }
 contextBridge.exposeInMainWorld('dshWelcome', api)

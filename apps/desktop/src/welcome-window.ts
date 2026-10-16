@@ -103,6 +103,16 @@ export async function openWelcomeWindow(locale: DesktopLocale, operations: Welco
     await operations.skip()
   })
   ipcMain.handle(WELCOME_IPC.start, async (event) => { assertSender(event); return operations.startSignIn() })
+  ipcMain.handle(WELCOME_IPC.logIn, async (event, username: unknown, password: unknown) => {
+    assertSender(event)
+    if (typeof username !== 'string' || typeof password !== 'string') throw new Error('desktop welcome: invalid local credentials')
+    return operations.logIn(username, password)
+  })
+  ipcMain.handle(WELCOME_IPC.register, async (event, username: unknown, email: unknown, password: unknown) => {
+    assertSender(event)
+    if (typeof username !== 'string' || typeof email !== 'string' || typeof password !== 'string') throw new Error('desktop welcome: invalid registration fields')
+    return operations.register(username, email, password)
+  })
   ipcMain.handle(WELCOME_IPC.cancel, async (event, id: unknown) => {
     assertSender(event)
     if (typeof id !== 'string') throw new Error('desktop welcome: invalid attempt')

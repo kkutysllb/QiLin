@@ -6,7 +6,7 @@ import { StateDot } from '@qilin-agent/client-ui-primitives/src/StateDot.tsx'
 import type { AccountView } from '../account-types.ts'
 import type { WelcomeApi } from '../welcome-api.ts'
 
-type Page = 'entry' | 'key' | 'account'
+type Page = 'entry' | 'login' | 'register' | 'key' | 'account'
 
 /**
  * Render the standalone welcome flow using shell-owned operations and localized copy.
@@ -27,6 +27,13 @@ export function Welcome({ api }: { api: WelcomeApi }) {
   const [copyFeedback, setCopyFeedback] = useState<{ status: 'idle' | 'busy' | 'copied' | 'failed' }>({ status: 'idle' })
   const copyState = copyFeedback.status
   const [draft, setDraft] = useState('')
+  const [loginName, setLoginName] = useState('')
+  const [loginPassword, setLoginPassword] = useState('')
+  const [registerName, setRegisterName] = useState('')
+  const [registerEmail, setRegisterEmail] = useState('')
+  const [registerPassword, setRegisterPassword] = useState('')
+  const [authError, setAuthError] = useState('')
+  const [authBusy, setAuthBusy] = useState(false)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const busyRef = useRef(false)
@@ -125,19 +132,6 @@ export function Welcome({ api }: { api: WelcomeApi }) {
       if (mounted.current) setBusy(false)
     }
   }
-  async function start() {
-    navigate('account')
-    setStarting(true)
-    setAttempt(null)
-    attemptRef.current = null
-    const current = ++revision.current
-    try {
-      const state = await api.startSignIn()
-      if (mounted.current && revision.current === current) showAccount(state)
-    } catch {
-      if (mounted.current && revision.current === current) setStarting(false)
-    }
-  }
   async function cancel() {
     if (cancelling || attemptRef.current === null) return
     setCancelling(true)
@@ -166,6 +160,28 @@ export function Welcome({ api }: { api: WelcomeApi }) {
   const phase = starting ? 'initializing' : attempt?.phase ?? 'failed'
   const waiting = phase === 'waiting-browser'
   const failed = phase === 'expired' || phase === 'failed'
+  /** Submit the local account form, then enter the workspace on acceptance. */
+  async function submitLocal(kind: 'login' | 'register'): Promise<void> {
+    if (authBusy) return
+    setAuthError('')
+    setAuthBusy(true)
+    try {
+      const result = kind === 'login'
+        ? await api.logIn(loginName.trim(), loginPassword)
+        : await api.register(registerName.trim(), registerEmail.trim(), registerPassword)
+      if (!result.ok) {
+        if (mounted.current) setAuthError(kind === 'login' ? m.welcomeLoginFailed : m.welcomeRegisterFailed)
+        return
+      }
+      await api.skip()
+    } catch {
+      // A closed Welcome channel must not leave the form spinning.
+      if (mounted.current) setAuthError(m.welcomeLoginFailed)
+    } finally {
+      if (mounted.current) setAuthBusy(false)
+    }
+  }
+
   const title = phase === 'initializing' ? m.welcomeAuthStarting
     : waiting ? m.welcomeAuthWaiting : phase === 'expired' ? m.welcomeAuthExpired
       : phase === 'failed' ? m.welcomeAuthFailed : m.welcomeAuthExchanging
@@ -175,7 +191,10 @@ export function Welcome({ api }: { api: WelcomeApi }) {
     {expiryNotice && <Toast text={m.welcomeSessionExpired} onDone={() => { setExpiryNotice(false) }} />}
     <div className="titlebar" aria-hidden="true" />
     <main className="welcome" aria-labelledby={heading}>
-      <img className="brand" src="assets/welcome-brand.svg" alt={m.welcomeBrand} width="472" height="40" />
+      <div className="brand">
+        <img src="assets/qilin-mark.svg" alt="" width="40" height="40" />
+        <span className="brand-name">{m.welcomeBrand}</span>
+      </div>
       <div id="tagline" className="tagline" hidden={page !== 'entry'}>
         <h1 id="welcome-heading"><span>{m.welcomeTaglineBefore}</span><em>{m.welcomeTaglineBrand}</em><span>{m.welcomeTaglineAfter}</span></h1>
         <p id="welcome-description">{m.welcomeDescription}</p>
@@ -202,15 +221,50 @@ export function Welcome({ api }: { api: WelcomeApi }) {
         <button id="auth-loading" className="primary" type="button" hidden={failed} disabled aria-label={m.welcomeAuthExchanging}>
           <StateDot state="ongoing" size={16} className="welcome-loading" />
         </button>
-        <button id="auth-retry" className="primary" type="button" hidden={!failed} onClick={() => { void api.analytics?.('auth_page_click', { button_name: 'sign_in' }); void start() }}>{m.welcomeAuthRetry}</button>
+        <button id="auth-retry" className="primary" type="button" hidden={!failed} onClick={() => { void api.analytics?.('auth_page_click', { button_name: 'sign_in' }); setAuthError(''); navigate('login') }}>{m.welcomeAuthRetry}</button>
         <button id="auth-api-key" className="secondary" type="button" hidden={!failed} onClick={() => { void api.analytics?.('auth_page_click', { button_name: 'api-key' }); navigate('key') }}>{m.welcomeApiKey}</button>
         <button id="auth-cancel" className="secondary" type="button" hidden={failed}
           disabled={cancelling || phase === 'committing' || phase === 'succeeded' || (phase === 'initializing' && !attempt?.id)}
           onClick={() => { void cancel() }}>{m.welcomeAuthCancel}</button>
       </div>
       <div id="entry-actions" className="actions" hidden={page !== 'entry'}>
-        <button id="sign-in" className="primary" type="button" onClick={() => { void api.analytics?.('auth_page_click', { button_name: 'sign_in' }); void start() }}>{m.welcomeSignIn}</button>
-        <button ref={keyButton} id="api-key" className="secondary" type="button" onClick={() => { void api.analytics?.('auth_page_click', { button_name: 'api-key' }); navigate('key') }}>{m.welcomeApiKey}</button>
+        <button id="sign-in" className="primary" type="button" onClick={() => { void api.analytics?.('auth_page_click', { button_name: 'sign_in' }); setAuthError(''); navigate('login') }}>{m.welcomeSignIn}</button>
+
+      </div>
+      <form id="login-form" className="key-form" hidden={page !== 'login'} noValidate onSubmit={(event) => { event.preventDefault(); void submitLocal('login') }} aria-busy={authBusy}>
+        <header className="key-heading"><h1 id="login-title">{m.welcomeLoginTitle}</h1><p id="login-description">{m.welcomeLoginDescription}</p></header>
+        <div className="key-field">
+          <label className="visually-hidden" htmlFor="login-name">{m.welcomeLoginName}</label>
+          <input id="login-name" type="text" autoComplete="username" autoCapitalize="off" spellCheck={false} required placeholder={m.welcomeLoginName}
+            value={loginName} disabled={authBusy} onChange={(event) => { setLoginName(event.target.value); setAuthError('') }} />
+          <label className="visually-hidden" htmlFor="login-password">{m.welcomeLoginPassword}</label>
+          <input id="login-password" type="password" autoComplete="current-password" required placeholder={m.welcomeLoginPassword}
+            value={loginPassword} disabled={authBusy} onChange={(event) => { setLoginPassword(event.target.value); setAuthError('') }} />
+          <p id="login-error" className="key-error" role="alert" hidden={authError === ''}>{authError}</p>
+        </div>
+      </form>
+      <form id="register-form" className="key-form" hidden={page !== 'register'} noValidate onSubmit={(event) => { event.preventDefault(); void submitLocal('register') }} aria-busy={authBusy}>
+        <header className="key-heading"><h1 id="register-title">{m.welcomeRegisterTitle}</h1><p id="register-description">{m.welcomeRegisterDescription}</p></header>
+        <div className="key-field">
+          <label className="visually-hidden" htmlFor="register-name">{m.welcomeRegisterName}</label>
+          <input id="register-name" type="text" autoComplete="username" autoCapitalize="off" spellCheck={false} required placeholder={m.welcomeRegisterName}
+            value={registerName} disabled={authBusy} onChange={(event) => { setRegisterName(event.target.value); setAuthError('') }} />
+          <label className="visually-hidden" htmlFor="register-email">{m.welcomeRegisterEmail}</label>
+          <input id="register-email" type="email" autoComplete="email" autoCapitalize="off" spellCheck={false} placeholder={m.welcomeRegisterEmail}
+            value={registerEmail} disabled={authBusy} onChange={(event) => { setRegisterEmail(event.target.value); setAuthError('') }} />
+          <label className="visually-hidden" htmlFor="register-password">{m.welcomeRegisterPassword}</label>
+          <input id="register-password" type="password" autoComplete="new-password" required placeholder={m.welcomeRegisterPassword}
+            value={registerPassword} disabled={authBusy} onChange={(event) => { setRegisterPassword(event.target.value); setAuthError('') }} />
+          <p id="register-error" className="key-error" role="alert" hidden={authError === ''}>{authError}</p>
+        </div>
+      </form>
+      <div id="login-actions" className="actions" hidden={page !== 'login'}>
+        <button id="login-submit" className="primary" type="submit" form="login-form" disabled={authBusy || loginName.trim() === '' || loginPassword === ''}>{m.welcomeLoginSubmit}</button>
+        <button id="to-register" className="secondary" type="button" disabled={authBusy} onClick={() => { setAuthError(''); navigate('register') }}>{m.welcomeLoginToRegister}</button>
+      </div>
+      <div id="register-actions" className="actions" hidden={page !== 'register'}>
+        <button id="register-submit" className="primary" type="submit" form="register-form" disabled={authBusy || registerName.trim() === '' || registerPassword === ''}>{m.welcomeRegisterSubmit}</button>
+        <button id="to-login" className="secondary" type="button" disabled={authBusy} onClick={() => { setAuthError(''); navigate('login') }}>{m.welcomeRegisterToLogin}</button>
       </div>
       <div id="key-actions" className="actions" hidden={page !== 'key'}>
         <button id="save-key" className="primary" type="submit" form="key-form" disabled={busy || draft.trim() === ''}>{m.welcomeKeySave}</button>
