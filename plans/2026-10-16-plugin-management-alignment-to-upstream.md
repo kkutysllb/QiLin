@@ -34,3 +34,22 @@
 2. **市场数据面**：`ui-plugin-market` 的 Discover 依赖安装/源解析侧能力，需确认 QiLin 侧 `api-remotes` 与 Host 行齐备，缺失则在该阶段补齐。
 3. **本地特性回退**：行配置面删除会影响已声明该槽的文档与测试，须同批清理，避免悬空声明。
 4. **验证成本**：本机可跑软件面门禁；Discover 的真实市场源在无网络凭据时不可端到端验证，标注为静态对齐 + 本地可跑部分。
+## 附录：Phase A 图标映射表（已核对）
+
+`ui-plugin-manager` 页面上游命名 → QiLin `ui-primitives/src/icons/index.tsx` 现名（QiLin 现有 89 个图标导出）：
+
+| 上游 | QiLin | 状态 |
+|---|---|---|
+| `IconChevronDownOutlineRegular` | `IconChevronDownOutline14` | 映射 |
+| `IconChevronLeftOutlineMedium` | `IconChevronLeftOutline14` | 映射 |
+| `IconChevronRightOutlineRegular` | `IconChevronRightOutline14` | 映射 |
+| `IconCloseOutlineMedium` | `IconCloseOutline16` | 映射 |
+| `IconDownloadOutlineRegular` | `IconDownloadOutline16` | 映射 |
+| `IconInfoOutlineRegular` | `IconInfoOutline14` | 映射 |
+| `IconPlusOutlineRegular` | `IconPlusOutline16` | 映射 |
+| `IconRefreshOutlineRegular` | `IconRefreshOutline14` | 映射 |
+| `IconTrashOutlineRegular` | `IconTrashOutline16` | 映射 |
+| `IconWarningOutlineRegular` | `IconWarningOutline16` | 映射 |
+| `IconCheckCircleFillRegular` | —— | **需按上游图形补齐** |
+
+组件缺项（需按上游移植）：`PluginArtworkDefault`、`PluginArtworkLoop`、`PluginArtworkSearch`、`PluginArtworkSubagent`、`PluginArtworkTerminal`（上游 `plugin-artwork.tsx`）、`SegmentedTabs`（上游 `SegmentedTabs.tsx` + `.module.css`）。已具备：`Menu`/`MenuItemButton`、`useAnchoredPosition`、`pointerModality`。
