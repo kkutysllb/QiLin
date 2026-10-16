@@ -1,6 +1,6 @@
-DeepSeek Harness
-DeepSeek Harness
-Welcome to DeepSeek Harness
+QiLin Desktop
+QiLin Desktop
+Welcome to QiLin Desktop
 Build potential. Explore intelligence.
 Sign in
 Add API Key

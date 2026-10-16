@@ -49,6 +49,8 @@ import {
   symlinkPointsTo,
 } from './profile-resolution/legacy-links.ts'
 
+export { removeLinkProjections } from './profile-resolution/legacy-links.ts'
+
 /** Directory under the Harness home holding every profile. */
 export const PROFILES_DIR = 'profiles'
 

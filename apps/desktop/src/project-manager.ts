@@ -23,7 +23,7 @@ import type { DesktopPaths } from './paths.ts'
 import type { DesktopRelease } from './release.ts'
 import { readDesktopRuntime } from './runtime-tree.ts'
 import {
-  initProfile, PROFILE_TEMPLATES, sanitizeProfile, type ProfileTemplate,
+  initProfile, PROFILE_TEMPLATES, removeLinkProjections, sanitizeProfile, type ProfileTemplate,
 } from '@qilin-agent/app-boot'
 
 const PROJECT_NAME = '@qilin-agent/desktop-runtime'
@@ -86,6 +86,7 @@ export class DesktopProjectManager {
       readDesktopRuntime(this.runtime.qilin)
       migrateProfileSettings(this.paths.profile)
       createPluginProfile(this.paths.profile)
+      removeLinkProjections(this.paths.profile)
     })
   }
 

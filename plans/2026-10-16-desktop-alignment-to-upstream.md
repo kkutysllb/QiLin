@@ -270,3 +270,17 @@ find /path/to/deepseek-harness -name package.json -path '*desktop-runtime*'   # 
 **当前 lane**：`83 → 85 文件通过`、`864 → 870 用例通过` ✓；失败收敛到 2 个文件 ✓：
 - `project-manager.spec.ts`（14 ✓）：`manager.paths` 在 spec 内取到 **undefined** ✗ —— 构造函数与 spec 的调用形式一致 ✓ 但运行时仍为空 ✗，需下一步继续定位 ✓（疑与 lane 的模块解析或 `resolveDesktopPaths` 的运行时返回值有关 ✓）。
 - `welcome-renderer.client.spec.tsx`（8 ✓）：欢迎 UI 为惰性面 ✓，其渲染期望需与麒麟文案对齐或改为惰性断言 ✓。
+
+### P3 续 5：桌面 lane 全绿（0 失败）
+
+**最后两个失败文件的成因与修复**：
+
+1. `project-manager.spec.ts`（14 失败 ✗）：两处真实缺口 ✓
+   - spec 里 `manifest.dsh.profile.bundles` / `manager.runtime.dsh` / `).dsh.profile.bundles` ✗ ——我的早期 rescope 改了**类型键**为 `qilin` ✓ 但漏了这些**用法** ✓；
+   - 模块 fallback 目录真名是 **`.qilin-module-fallback`** ✓（`app-boot` 的 `PROFILE_MODULE_FALLBACK_DIR` ✓），spec 里仍写 `-module-fallback` ✗；
+   - **移植缺口** ✓：上游 `app-boot` 导出 `removeLinkProjections` ✓（`applyRelease` 会清掉 link-backend 留下的投影 ✓），QiLin 树里**没有**这个函数 ✗ → 已在 `profile-resolution/legacy-links.ts` 用**既有原语**（`PROFILE_MODULE_FALLBACK_DIR` / `canonicalLinkPath` ✓）忠实补齐 ✓，从 `profile.ts` 与包 barrel 导出 ✓，并新增 `tests/legacy-links.spec.ts`（2 用例 ✓：只删自己的投影、保留外来链接 ✓；无目录时为 no-op ✓）。
+2. `welcome-renderer.client.spec.tsx`（8 失败 ✗）：**文件快照**里仍是上游产品名 ✗（渲染输出已是 `QiLin Desktop` ✓）→ 按标准做法 `-u` 重录快照 ✓；并把快照文件纳入产品名清扫（另修 8 个文件 ✓）。
+
+**桌面 lane 结果**：`pnpm --filter @qilin-agent/desktop test` → **87 文件通过 / 0 失败 / 1 跳过** ✓，**892 用例通过 / 0 失败 / 2 跳过** ✓，退出码 0 ✓；`pnpm run typecheck` 0 错 ✓。
+
+**完整轨迹**：12 文件失败 → 10 → 9 → 7 → 5 → 2 → **0** ✓。其中 **16 条**是真实契约缺陷修复（账号替身 5 处 wire 契约 + app-boot 1 处移植缺口 + 转义/键名/快照若干 ✓），只有 **6 条**属"本仓故意不提供的能力"→ 改为断言边界 ✓。

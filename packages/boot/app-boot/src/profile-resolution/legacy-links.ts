@@ -1,7 +1,7 @@
 /** Legacy profile-link inspection shared by the disk materializer and runtime resolver. */
 
-import { lstatSync, readlinkSync, realpathSync } from 'node:fs'
-import { basename, dirname, join, resolve } from 'node:path'
+import { existsSync, lstatSync, readdirSync, readlinkSync, realpathSync, rmSync, unlinkSync } from 'node:fs'
+import { basename, dirname, join, resolve, sep } from 'node:path'
 
 /** Profile-private package links projected into its pnpm-managed node_modules. */
 export const PROFILE_MODULE_FALLBACK_DIR = '.qilin-module-fallback'
@@ -70,4 +70,41 @@ export function isProfileModuleFallbackLink(profileDir: string, packageName: str
     /* v8 ignore next -- non-ENOENT lstat/readlink failures require a host filesystem fault */
     throw error
   }
+}
+
+/**
+ * Remove the package projections a link-backend launch left in a profile.
+ * Only symlinks under the profile's node_modules pointing inside the profile's
+ * fallback directory are unlinked, then that directory is removed; pnpm-installed
+ * packages and every other symlink stay. A profile without the directory is untouched.
+ * @param dir - the profile directory.
+ */
+export function removeLinkProjections(dir: string): void {
+  const owned = join(dir, PROFILE_MODULE_FALLBACK_DIR)
+  if (!existsSync(owned)) return
+  const ownedModules = canonicalLinkPath(join(owned, 'node_modules'))
+  if (ownedModules !== undefined) {
+    for (const link of profileLinkCandidates(join(dir, 'node_modules'))) {
+      const target = canonicalLinkPath(resolve(dirname(link), readlinkSync(link)))
+      if (target !== undefined && (target === ownedModules || target.startsWith(ownedModules + sep))) unlinkSync(link)
+    }
+  }
+  rmSync(owned, { recursive: true, force: true })
+}
+
+/** Top-level and scoped entries under a node_modules directory that are symlinks or junctions. */
+function profileLinkCandidates(modules: string): string[] {
+  const links: string[] = []
+  if (!existsSync(modules)) return links
+  for (const entry of readdirSync(modules, { withFileTypes: true })) {
+    const path = join(modules, entry.name)
+    if (entry.isSymbolicLink()) {
+      links.push(path)
+    } else if (entry.name.startsWith('@') && entry.isDirectory()) {
+      for (const child of readdirSync(path, { withFileTypes: true })) {
+        if (child.isSymbolicLink()) links.push(join(path, child.name))
+      }
+    }
+  }
+  return links
 }

@@ -9,7 +9,7 @@ import { runtimeFixture } from './runtime-fixture.ts'
 
 const roots: string[] = []
 function temporaryRoot(): string {
-  const root = mkdtempSync(join(tmpdir(), 'dsh-desktop-test-'))
+  const root = mkdtempSync(join(tmpdir(), 'qilin-desktop-test-'))
   roots.push(root)
   return root
 }
@@ -20,7 +20,7 @@ function seedPlugin(manager: DesktopProjectManager): void {
     qilin: { profile: { bundles: string[] } }
   }
   manifest.dependencies.plugin = '1.0.0'
-  manifest.dsh.profile.bundles.push('plugin')
+  manifest.qilin.profile.bundles.push('plugin')
   writeFileSync(path, JSON.stringify(manifest))
   const directory = join(manager.paths.profile, 'node_modules/plugin')
   mkdirSync(directory, { recursive: true })
@@ -29,7 +29,7 @@ function seedPlugin(manager: DesktopProjectManager): void {
 }
 function plugins(manager: DesktopProjectManager) {
   return readProfilePlugins({ binName: 'qilin', profileDir: manager.paths.profile,
-    installAnchor: join(manager.runtime.dsh, 'node_modules/@qilin-agent/cli/package.json') }).dependencies
+    installAnchor: join(manager.runtime.qilin, 'node_modules/@qilin-agent/cli/package.json') }).dependencies
     .map(({ name, version, enabled }) => ({ name, version, enabled }))
 }
 function setup(): { root: string; manager: DesktopProjectManager } {
@@ -96,7 +96,7 @@ describe('desktop external plugin profile', () => {
     await manager.disableAllPlugins()
     expect((JSON.parse(readFileSync(join(manager.paths.profile, 'package.json'), 'utf8')) as {
       qilin: { profile: { bundles: string[] } }
-    }).dsh.profile.bundles).not.toContain('plugin')
+    }).qilin.profile.bundles).not.toContain('plugin')
     expect(existsSync(join(manager.paths.profile, 'node_modules/plugin/package.json'))).toBe(true)
     await expect(manager.applyRelease()).resolves.toBeUndefined()
   })
@@ -120,8 +120,8 @@ describe('desktop external plugin profile', () => {
       qilin: { profile: { bundles: string[] } }
     }
     expect(manifest.dependencies.plugin).toBe('1.0.0')
-    expect(manifest.dsh.profile.bundles).not.toContain('plugin')
-    expect(manifest.dsh.profile.bundles).toContain('@qilin-agent/web-app')
+    expect(manifest.qilin.profile.bundles).not.toContain('plugin')
+    expect(manifest.qilin.profile.bundles).toContain('@qilin-agent/web-app')
     await manager.applyRelease()
     expect(readFileSync(patch, 'utf8')).toContain('[]')
   })
@@ -170,7 +170,7 @@ describe('desktop external plugin profile', () => {
 
   it('reports damaged application metadata as a reinstall failure', async () => {
     const { manager } = setup()
-    writeFileSync(join(manager.runtime.dsh, 'desktop-runtime.json'), '{broken')
+    writeFileSync(join(manager.runtime.qilin, 'desktop-runtime.json'), '{broken')
     await expect(manager.applyRelease()).rejects.toThrow()
   })
 
@@ -197,16 +197,16 @@ describe('desktop external plugin profile', () => {
   it.skipIf(process.platform !== 'win32')('reuses the profile when the launch path changes only Windows letter casing', async () => {
     const { manager } = setup()
     await manager.applyRelease()
-    const relaunched = new DesktopProjectManager(manager.paths, { ...manager.runtime, qilin: manager.runtime.dsh.toUpperCase() })
+    const relaunched = new DesktopProjectManager(manager.paths, { ...manager.runtime, qilin: manager.runtime.qilin.toUpperCase() })
     await expect(relaunched.applyRelease()).resolves.toBeUndefined()
   })
 
   it.each(['changed', 'same-size', 'extra', 'missing'])('starts and reuses a profile without checking %s runtime bytes', async (operation) => {
     const { manager } = setup()
-    if (operation === 'changed') writeFileSync(join(manager.runtime.dsh, 'package.json'), '{}')
-    if (operation === 'same-size') writeFileSync(join(manager.runtime.dsh, 'package.json'), '{"type":"Module"}\n')
-    if (operation === 'extra') writeFileSync(join(manager.runtime.dsh, 'extra'), '')
-    if (operation === 'missing') unlinkSync(join(manager.runtime.dsh, 'package.json'))
+    if (operation === 'changed') writeFileSync(join(manager.runtime.qilin, 'package.json'), '{}')
+    if (operation === 'same-size') writeFileSync(join(manager.runtime.qilin, 'package.json'), '{"type":"Module"}\n')
+    if (operation === 'extra') writeFileSync(join(manager.runtime.qilin, 'extra'), '')
+    if (operation === 'missing') unlinkSync(join(manager.runtime.qilin, 'package.json'))
     await expect(manager.applyRelease()).resolves.toBeUndefined()
     const relaunched = new DesktopProjectManager(manager.paths, manager.runtime)
     await expect(relaunched.applyRelease()).resolves.toBeUndefined()
@@ -311,21 +311,21 @@ describe.each(['applyRelease', 'disableAllPlugins'] as const)('desktop profile l
 })
 
 describe('desktop link-backend projections', () => {
-  it('removes .dsh-module-fallback projections when preparing a launch', async () => {
+  it('removes .qilin-module-fallback projections when preparing a launch', async () => {
     const { manager } = setup()
     await manager.applyRelease()
     const profile = manager.paths.profile
     const target = join(profile, 'node_modules', 'my-bundle', 'node_modules', 'bridge')
     mkdirSync(target, { recursive: true })
     writeFileSync(join(target, 'package.json'), JSON.stringify({ name: 'bridge', version: '1.0.0' }))
-    const owned = join(profile, '.dsh-module-fallback', 'node_modules', 'bridge')
+    const owned = join(profile, '.qilin-module-fallback', 'node_modules', 'bridge')
     mkdirSync(dirname(owned), { recursive: true })
     symlinkSync(target, owned, process.platform === 'win32' ? 'junction' : 'dir')
     symlinkSync(owned, join(profile, 'node_modules', 'bridge'), process.platform === 'win32' ? 'junction' : 'dir')
 
     await manager.applyRelease()
 
-    expect(existsSync(join(profile, '.dsh-module-fallback'))).toBe(false)
+    expect(existsSync(join(profile, '.qilin-module-fallback'))).toBe(false)
     expect(lstatSync(join(profile, 'node_modules', 'bridge'), { throwIfNoEntry: false })).toBeUndefined()
     expect(existsSync(join(target, 'package.json'))).toBe(true)
   })
