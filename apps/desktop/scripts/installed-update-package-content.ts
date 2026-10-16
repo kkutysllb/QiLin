@@ -64,7 +64,7 @@ export async function verifyInstalledUpdatePackageContent(manifest: string, vers
     }
   }
   inspect(archive.header)
-  if (archive.header.files?.dsh?.files === undefined) throw new Error('installed update: application archive lacks the qilin runtime')
+  if (archive.header.files?.qilin?.files === undefined) throw new Error('installed update: application archive lacks the qilin runtime')
   for (const file of inventory.files) {
     const path = file.path.split('/').join(process.platform === 'win32' ? '\\' : '/')
     const node = archive.getFile(path, false)

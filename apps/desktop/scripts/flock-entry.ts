@@ -6,7 +6,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, join, resolve } from 'node:path'
 
-type FlockEntry = typeof import('@qilin-agent/node-addon-system-workspace/flock')
+type FlockEntry = typeof import('@qilin-agent/node-addon-system/flock')
 
 const REPOSITORY_ROOT = resolve(import.meta.dirname, '..', '..', '..')
 /** Root package script that compiles the host addon, then the `native/system` script that emits the entry's JavaScript. */
@@ -18,7 +18,7 @@ const BUILD_COMMAND_TEXT = BUILD_COMMANDS.map(args => `pnpm ${args.join(' ')}`).
 
 /** Loader steps; tests replace the module import, the addon probe, and the build. */
 export interface FlockEntryLoaderSteps {
-  /** Import `@qilin-agent/node-addon-system-workspace/flock`; rejects with `ERR_MODULE_NOT_FOUND` while its `lib/` is unbuilt. */
+  /** Import `@qilin-agent/node-addon-system/flock`; rejects with `ERR_MODULE_NOT_FOUND` while its `lib/` is unbuilt. */
   readonly importEntry: () => Promise<FlockEntry>
   /** Whether every binary the host platform package declares in `prebuilds.json` exists. */
   readonly hostAddonBuilt: () => boolean
@@ -84,12 +84,12 @@ async function buildNativeSystem(): Promise<void> {
 }
 
 /**
- * Load `@qilin-agent/node-addon-system-workspace/flock`, building the host addon and the entry's Ja
+ * Load `@qilin-agent/node-addon-system/flock`, building the host addon and the entry's Ja
  * vaScript through pnpm when either is missing.
  * @returns The flock entry; rejects when a build fails or the script did not run under pnpm.
  */
 export const loadFlockEntry = createFlockEntryLoader({
-  importEntry: () => import('@qilin-agent/node-addon-system-workspace/flock'),
+  importEntry: () => import('@qilin-agent/node-addon-system/flock'),
   hostAddonBuilt,
   build: buildNativeSystem,
 })

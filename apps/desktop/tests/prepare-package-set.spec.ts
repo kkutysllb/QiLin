@@ -38,16 +38,16 @@ describe('desktop package-set selection', () => {
       ['@deepseek-ai/unused', packed('@deepseek-ai/unused')],
     ])
     expect(selectDesktopPackageClosure(available).map(entry => entry.manifest.name)).toEqual([
-      '@qilin-agent/kylin',
-      '@qilin-agent/cli',
-      '@qilin-agent/base',
-      '@qilin-agent/desktop-host',
       '@deepseek-ai/platform-package',
+      '@qilin-agent/base',
+      '@qilin-agent/cli',
+      '@qilin-agent/desktop-host',
+      '@qilin-agent/kylin',
     ])
   })
 
   it.each([
-    '@qilin-agent/base', '@qilin-agent/kylin', '@qilin-agent/node-addon-system-workspace',
+    '@qilin-agent/base', '@qilin-agent/kylin', '@qilin-agent/node-addon-system',
   ])('rejects required prepared package %s absent from the packed release inputs', (dependency) => {
     const available = new Map<string, PackedDesktopPackage>([
       ['@qilin-agent/cli', packed('@qilin-agent/cli', {
@@ -60,7 +60,7 @@ describe('desktop package-set selection', () => {
     expect(() => selectDesktopPackageClosure(available)).toThrow(/unpacked package/u)
     expect(() => selectDesktopPackageClosure(new Map([
       ['@qilin-agent/cli', packed('@qilin-agent/cli')],
-    ]))).toThrow(/omit @qilin-agent\/dsh-desktop-host/u)
+    ]))).toThrow(/omit @qilin-agent\/desktop-host/u)
   })
 
   it('leaves independently published Office packages to npm resolution', () => {
