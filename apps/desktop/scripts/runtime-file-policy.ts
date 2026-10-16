@@ -24,6 +24,11 @@ export function desktopRuntimeFileExclusion(
   const nameParts = packageParts[0]?.startsWith('@') ? 2 : 1
   const name = packageParts.slice(0, nameParts).join('/')
   const entry = packageParts.slice(nameParts).join('/')
+  // The unsigned application copies the engine without a valid signature, so Apple's
+  // signature metadata inside the copied bundle no longer describes it.
+  if (name.startsWith('@deepseek-ai/libreoffice-kit-') && entry.includes('_CodeSignature/')) {
+    return 'stale code signature'
+  }
   if (name.startsWith('@deepseek-ai/libreoffice-kit-')) {
     if (name !== `@deepseek-ai/libreoffice-kit-${officeEngine}`) return 'LibreOffice other platform'
   }

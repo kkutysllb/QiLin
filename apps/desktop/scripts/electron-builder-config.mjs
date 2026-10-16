@@ -169,7 +169,7 @@ export function createElectronBuilderConfig(
       entitlements: fileURLToPath(new URL('./macos-entitlements.plist', import.meta.url)),
       entitlementsInherit: fileURLToPath(new URL('./macos-entitlements.plist', import.meta.url)),
       // Prepared runtime files retain their signatures; PAK resources are sealed by their enclosing bundle.
-      signIgnore: ['/Contents/Resources/app\\.asar\\.unpacked/dsh(?:/|$)', '/Contents/Resources/runtime/primary-runtime(?:/|$)', '\\.pak$'],
+      signIgnore: ['/Contents/Resources/app\\.asar\\.unpacked/qilin(?:/|$)', '/Contents/Resources/runtime/primary-runtime(?:/|$)', '\\.pak$'],
       notarize: !unsigned && !skipNotarization,
       target: unsigned ? ['dmg'] : ['dmg', 'zip'],
     },
