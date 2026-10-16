@@ -110,3 +110,15 @@
 3. 迁移本仓消费者到新 API：`bash-local`、`pwsh-local`、`agent-loop`、`agent-default-model`、`llm-pi-ai`、`llm-deepseek-api-key`、`speech-to-text`、`plugin-market`、`plugin-inventory`、`settings-file`、`settings-controller`、`ui-settings*` 系列与其测试；
 4. 验收：**装一个真实 dsh 插件（dsh-context），其配置表单在麒麟自动出现**，子代理卡片随之出现；tsc/lint/test:gui/coverage/doc 全绿。
 
+## 附录：dsh-pet 实锤 —— 导出名兼容层缺失
+
+第三方 dsh 插件 dsh-pet 安装后激活失败：`@deepseek-ai/dsh-home-paths does not provide an export named 'resolveDshHome'`。
+
+结论：**specifier 兼容已存在**——`app-boot/src/profile-resolution/resolver.ts` 的 `dshCompatModuleId`/`translatedRequest` 会把 DSH 旧名路由到麒麟包目录（所以 import 能解析）；**缺的是导出名兼容**——本仓把公共导出改名（`resolveDshHome`→`resolveQilinHome`、`defaultDshHome`→`defaultQilinHome`、`DSH_HOME_DIR_NAME`→`QILIN_HOME_DIR_NAME`…），第三方插件按上游名取导出即失败。
+
+**修复（不能遗漏一条）**：建立系统化清单与兼容层——
+
+1. 以脚本对每个改名包做「上游导出名 vs 麒麟导出名」的全量差集（方法：解析两树入口的 export 声明；入口含 re-export 时递归跟随），生成清单文件入库（类似 no-unknown-casts.baseline.json）。
+2. 每个上游名在麒麟包内以别名导出补齐（先例：icons 的 upstream-named alias 段、`IconCheckOutline16 as IconCheckOutlineRegular`），命名一律用上游原名。
+3. 验收：dsh-pet、dsh-context 等真实 dsh 插件在麒麟安装→激活→配置表单全流程可用；清单零新增差集。
+
