@@ -95,6 +95,8 @@ async function main(): Promise<void> {
     source: process.argv[4] ?? join(runtimeDir, '..', 'runtime', 'primary-runtime'),
     root: join(resolveQilinHome(), 'qilin-runtimes', 'qilin-primary-runtime'),
   })
+  // The listener may bind after the tree settles; the service owns that readiness signal.
+  await ctx.webServer.whenListened()
   const url = ctx.connection.authenticatedUrl(`${ctx.webServer.protocol}//127.0.0.1:${String(ctx.webServer.port)}`)
   if (process.connected) process.send?.({ type: 'ready', url, injections: ctx.webServer.collectIndexInjections() }, (error) => { if (error !== null) console.error(error) })
 }
