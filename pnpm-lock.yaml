@@ -15,7 +15,7 @@ patchedDependencies:
   '@fortune-sheet/react@1.0.4': 2932e52e79afcd4ced08cfa123b5eded786c85043da32f622f3e80af6fc96c37
   '@yao-pkg/pkg@6.21.0': 75891fc22b277c145cafeab83e41baf4a70f5b8fe6dc0801c6a0b922d7ee88c7
   exceljs@4.4.0: c1bf8ac8f319dab382f08e3a669b715e691d46c703ac5a4163eb383fbedd1d48
-  node-pty@1.2.0-beta.15: 94e34c8fdd4fe4df852d2e5fc4d794e64db0b9548aebcf8fbaa2d9a8ebe886fd
+  node-pty@1.2.0-beta.15: 3dc86cdc4c7caf01617ac2c179a273be8ab32f8d10687e7e8cf61576e47b63ca
 
 importers:
 
@@ -676,7 +676,7 @@ importers:
         version: 3.0.0
       electron:
         specifier: ^44.7.0
-        version: 44.7.2
+        version: 44.7.0
       electron-builder:
         specifier: ^26.17.0
         version: 26.17.0(electron-builder-squirrel-windows@26.17.0)
@@ -13587,7 +13587,7 @@ importers:
         version: 3.1.1
       node-pty:
         specifier: 1.2.0-beta.15
-        version: 1.2.0-beta.15(patch_hash=94e34c8fdd4fe4df852d2e5fc4d794e64db0b9548aebcf8fbaa2d9a8ebe886fd)
+        version: 1.2.0-beta.15(patch_hash=3dc86cdc4c7caf01617ac2c179a273be8ab32f8d10687e7e8cf61576e47b63ca)
     devDependencies:
       '@qilin-agent/kylin':
         specifier: workspace:~
@@ -19480,8 +19480,8 @@ packages:
     resolution: {integrity: sha512-bO3y10YikuUwUuDUQRM4KfwNkKhnpVO7IPdbsrejwN9/AABJzzTQ4GeHwyzNSrVO+tEH3/Np255a3sVZpZDjvg==}
     engines: {node: '>=8.0.0'}
 
-  electron@44.7.2:
-    resolution: {integrity: sha512-u3Pbz0Hi1sSSwBMz2v8LiagsfUG4QURPUe/qphM+g4THKP8o4BYdnuboyhlLO8HIC/KfV5rvltyacbP4jEq9yw==}
+  electron@44.7.0:
+    resolution: {integrity: sha512-aUq9/zLAAFYc+a9gy6cd0C3Y/N/RmovLCD8TV8LhIzNhuND6HEgsu96jJz9cbAxvckSPv+Trf2PKEjktoZgFkw==}
     engines: {node: '>= 22.12.0'}
     hasBin: true
 
@@ -26959,7 +26959,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  electron@44.7.2:
+  electron@44.7.0:
     dependencies:
       '@electron-internal/extract-zip': 1.0.5
       '@electron/get': 5.1.0(supports-color@9.4.0)
@@ -28874,7 +28874,7 @@ snapshots:
 
   node-int64@0.4.0: {}
 
-  node-pty@1.2.0-beta.15(patch_hash=94e34c8fdd4fe4df852d2e5fc4d794e64db0b9548aebcf8fbaa2d9a8ebe886fd):
+  node-pty@1.2.0-beta.15(patch_hash=3dc86cdc4c7caf01617ac2c179a273be8ab32f8d10687e7e8cf61576e47b63ca):
     dependencies:
       node-addon-api: 7.1.1
 
