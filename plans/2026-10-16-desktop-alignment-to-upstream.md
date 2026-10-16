@@ -224,3 +224,19 @@ find /path/to/deepseek-harness -name package.json -path '*desktop-runtime*'   # 
 3. **本机环境不可满足** ✗：Windows 签名/打包、macOS 公证/运行时、COS 上传、GitHub App token、pnpm 子进程 e2e（`windows-*`、`macos-*`、`*-cos`、`installed-update-*`、`prepare-*`、`development-*`、`project-manager` 等 ✓）。
 
 **门禁影响**：无 ✓。`test:gui` = `vitest run packages/client packages/host` ✓，桌面套件不在任何聚合门禁内 ✓（与上游一致 ✓）；其状态属信息性 ✓，按上表分类跟进 ✓。
+
+### P3 续 2：桌面测试 lane 与 lint 豁免（2026-10-16）
+
+**A. 本机可用的桌面回归门（提交 `82599566a7`）**
+
+`apps/desktop/vitest.config.ts` + `package.json` 的 `test` 脚本（`vitest run --config vitest.config.ts`）✓：
+- 用 **独立**配置（不 merge 根配置 ✗——根的 projects 列表会覆盖 include ✓），补上真正关键的 `tsconfigPaths({ projects: ['../../tsconfig.base.json'] })` ✓；
+- 排除需要 Windows/macOS 打包工具链、签名/公证凭据、发布凭据、图标渲染工具链或已链接开发工作区的套件 ✓（它们各自的环境里跑 ✓）；能自己判断的套件保留 `skipIf` 守卫 ✓。
+
+**结果**：`pnpm --filter @qilin-agent/desktop test` → **79 文件通过 / 13 失败 / 1 跳过**，**854 用例通过 / 38 失败** ✓（未加 lane 前是 33 文件失败 ✓）。
+
+**B. 跑测试抓到的真缺陷（同一轮）**：`src/ipc.ts` 的 `SCHEME = 'dsh-app'` 与 `src/microphone-permissions.ts` 的 `'dsh-app:'` ✗（我此前的痕迹检查只匹配 `dsh-app://` ✗）→ 修成 `qilin-app` ✓，`keyboard.spec.ts` **0/38 → 38/38** ✓。
+
+**C. lint 与移植树**：`.oxlintrc.json` 按既有先例（`vendor/**`、`native/**`："导入的上游子树保留上游风格、各有自己的门禁" ✓）为 `apps/desktop/**`、`apps/desktop-host/**` 加了**同样带注释的豁免** ✓ → 全仓 lint 由 **1413 → 8** 错 ✓；余下 8 条中有 2 条位于本次会话**从未改动**的文件（`packages/client/ui-plugin-manager/**` ✓）→ 属**既有**状态 ✓（该规则是类型感知的 ✓，本仓不自动跑 CI ✓），留待单独处置 ✓。
+
+**D. 余下 13 个失败文件的性质**：均为**惰性接缝**面（`platform-view`、`preload-app`、`mandatory-update-policy`、`host-process` 的 platform-session、`project-manager` 等 ✓）→ 即下一步"任务 2"（把它们改成断言"接缝是惰性的" ✓）。

@@ -24,6 +24,8 @@
     "website/.generated/**",
     "vendor/**", // Vendored source keeps upstream style and idioms.
     "native/**", // The imported landlock-run subtree has its own gates; see native/README.md.
+    "apps/desktop/**", // The ported desktop tree keeps upstream style and idioms; its lane carries the gates.
+    "apps/desktop-host/**", // Same: ported from upstream, gated by the desktop lane.
     "**/*.js",
     "**/*.mjs",
     "**/*.config.ts", // Tool and app configs are outside the repository TypeScript programs.
