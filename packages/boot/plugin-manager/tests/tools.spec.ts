@@ -1,15 +1,17 @@
+import { setSandboxMode } from '@qilin-agent/sandbox-policy'
 /** Agent controls use the same manager methods as the Web and bound inventory reads. */
 import { Context } from '@qilin-agent/kylin'
 import SystemPrompt from '@qilin-agent/system-prompt'
 import ToolRuntime from '@qilin-agent/tools'
 import { ToolCallId } from '@qilin-agent/llm'
 import type { Agent } from '@qilin-agent/agent'
-import SandboxPolicy, { setSandboxMode } from '@qilin-agent/sandbox-policy'
+import SandboxPolicy from '@qilin-agent/sandbox-policy'
 import { Session, SessionId, SESSION_FORMAT_VERSION } from '@qilin-agent/session'
 import SessionProjections from '@qilin-agent/session-projection'
 import ApprovalService, { type ApprovalOutcome } from '@qilin-agent/user-approval'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import type PluginManager from '../src/index.ts'
+import type { BundleInfo } from '../src/types.ts'
 import * as tool from '../src/tools.ts'
 
 function resultText(result: Awaited<ReturnType<ToolRuntime['execute']>>): string {
@@ -51,6 +53,67 @@ it.each(['read-only', 'workspace-write'] as const)('denies every management acti
     expect(JSON.stringify(result.content)).toContain('requires approval, but no approval service is composed')
   }
   for (const method of Object.values(manager)) expect(method).not.toHaveBeenCalled()
+})
+
+it('preserves selected bundle load errors in the agent list result', async () => {
+  const { manager, call } = await fixture()
+  const bundles = [{
+    name: 'bundle', enabled: true,
+    error: { code: 'operation-error', diagnostic: 'bundle patch is unreadable' }, rows: [], overrides: [],
+  }]
+  manager.listBundles.mockResolvedValue(bundles)
+  expect(JSON.parse(resultText(await call({ action: 'list_bundles' })))).toMatchInlineSnapshot(`
+    {
+      "entries": [
+        {
+          "enabled": true,
+          "error": {
+            "code": "operation-error",
+            "diagnostic": "bundle patch is unreadable",
+          },
+          "name": "bundle",
+          "overrides": [],
+          "rows": [],
+        },
+      ],
+      "nextOffset": null,
+      "total": 1,
+    }
+  `)
+})
+
+it('exposes an absent Official bundle installation target without display metadata', async () => {
+  const { manager, call } = await fixture()
+  const offered: BundleInfo = {
+    name: '@qilin-agent/subagent-codex', official: true, availability: 'missing',
+    installed: false, enabled: false, optional: false, removable: false, rows: [], overrides: [],
+    installTarget: { spec: '@qilin-agent/subagent-codex@1.2.3', version: '1.2.3' },
+    meta: { title: 'Codex subagent' },
+  }
+  manager.listBundles.mockResolvedValue([offered])
+  expect(JSON.parse(resultText(await call({ action: 'list_bundles' })))).toMatchInlineSnapshot(`
+    {
+      "entries": [
+        {
+          "availability": "missing",
+          "enabled": false,
+          "installTarget": {
+            "spec": "@qilin-agent/subagent-codex@1.2.3",
+            "version": "1.2.3",
+          },
+          "installed": false,
+          "name": "@qilin-agent/subagent-codex",
+          "official": true,
+          "optional": false,
+          "overrides": [],
+          "removable": false,
+          "rows": [],
+        },
+      ],
+      "nextOffset": null,
+      "total": 1,
+    }
+  `)
 })
 
 it('checks the calling session on each execution, including after permission is revoked', async () => {
@@ -160,11 +223,15 @@ it('paginates inventories with an explicit continuation and total', async () => 
   expect(resultText(await call({ action: 'list_bundles' }))).toContain('"name":"bundle"')
 })
 
-it('keeps UI display metadata out of the model-facing bundle list and names the source', async () => {
+it('keeps UI translation metadata out of model-facing plugin and bundle lists', async () => {
   const { call, manager } = await fixture()
   const meta = { title: { en: 'Plugin', zh: '插件' }, error: 'UI-only diagnostic' }
+  manager.listPlugins.mockImplementationOnce(async () => [{ entryId: 'include:plugin', enabled: true, meta }])
+  expect(JSON.parse(resultText(await call({ action: 'list_plugins' })))).toEqual({
+    entries: [{ entryId: 'include:plugin', enabled: true }], total: 1, nextOffset: null,
+  })
   manager.listBundles.mockImplementationOnce(async () => [{
-    name: 'bundle', source: 'bundle@^1.0.0', enabled: true, meta, rows: [{ rowId: 'plugin', moduleName: 'plugin' }],
+    name: 'bundle', source: 'bundle@^1.0.0', enabled: true, meta, rows: [{ rowId: 'plugin', moduleName: 'plugin', meta }],
   }])
   expect(JSON.parse(resultText(await call({ action: 'list_bundles' })))).toEqual({
     entries: [{ name: 'bundle', source: 'bundle@^1.0.0', enabled: true, rows: [{ rowId: 'plugin', moduleName: 'plugin' }] }], total: 1, nextOffset: null,
@@ -183,6 +250,8 @@ it('forwards all mutation actions and renders the returned outcome', async () =>
   expect(manager.installBundle).toHaveBeenLastCalledWith('bundle', { enabled: false })
   await call({ action: 'install_bundle', target: 'bundle', approvedBuilds: ['native'] })
   expect(manager.installBundle).toHaveBeenLastCalledWith('bundle', { approvedBuilds: ['native'] })
+  await call({ action: 'install_bundle', target: 'bundle', registry: 'https://registry.npmmirror.com/' })
+  expect(manager.installBundle).toHaveBeenLastCalledWith('bundle', { registry: 'https://registry.npmmirror.com/' })
   expect(resultText(await call({ action: 'remove_bundle', target: 'bundle' }))).toContain('"application":"failed"')
   expect(manager.removeBundle).toHaveBeenCalledWith('bundle')
 })
@@ -224,8 +293,8 @@ it('tells the agent the next step for each change outcome it can act on', async 
   expect(await outcome({ changed: false, application: 'cancelled' })).toContain('nothing changed')
   expect(await outcome({ changed: true, application: 'overridden' })).toContain('higher-priority layer')
   expect(await outcome({ changed: true, application: 'restart-required', restartReason: 'host-module' }))
-    .toBe('Tell the user to restart QiLin to apply this change: the change reaches modules QiLin itself loaded.')
-  expect(await outcome({ changed: true, application: 'restart-required' })).toBe('Tell the user to restart QiLin to apply this change.')
+    .toBe('Tell the user to restart DSH to apply this change: the change reaches modules DSH itself loaded.')
+  expect(await outcome({ changed: true, application: 'restart-required' })).toBe('Tell the user to restart DSH to apply this change.')
   expect(await outcome({ changed: false, application: 'failed', packageResult: { kind: 'build-blocked' } })).toContain('approvedBuilds')
   // A refusal code is more specific than the package manager's failure kind.
   expect(await outcome({ changed: false, application: 'failed', packageResult: { kind: 'network' }, error: { code: 'stale-approval' } }))

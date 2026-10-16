@@ -1,37 +1,36 @@
 /** Public plugin management records shared with clients. */
 import type { Branded } from '@qilin-agent/brand'
-import type { JsonValue } from '@qilin-agent/util-values'
+import type { PluginLocalizedMeta } from '@qilin-agent/package-manifest'
 import type { PluginInventoryEntry } from '@qilin-agent/host-plugin-inventory/types'
 export type { PluginEntryId } from '@qilin-agent/host-plugin-inventory/types'
 import type { PluginEntryId } from '@qilin-agent/host-plugin-inventory/types'
-import type { PluginLocalizedMeta } from '@qilin-agent/package-manifest'
 
 /** Reasons a profile control cannot modify its target. */
-export type ReadOnlyReason = 'management-required' | 'unaddressable' | 'shipped-layer'
+export type ReadOnlyReason = 'management-required' | 'unaddressable'
 
-/** A package whose declared qilin peers reject the running runtime version, without an exemption for the exact pair. */
+/** A package whose declared DSH requirements reject the running DSH version, without an exemption for the exact pair. */
 export interface IncompatiblePlugin {
   name: string
   version: string
   runtimeVersion: string
-  /** Only the qilin peer ranges the running version does not satisfy. */
-  peers: Record<string, string>
+  /** Only the requirements the running version does not satisfy, keyed `engines.dsh` or by DSH peer package name. */
+  requirements: Record<string, string>
 }
 
 /** Localizable management failure and optional external diagnostic. */
 export interface ManagementError {
-  code: ReadOnlyReason | 'unknown-plugin' | 'invalid-spec' | 'already-installed' | 'ambiguous-install' | 'not-bundle' | 'not-removable' | 'stop-profile' | 'bundle-in-use' | 'stale-approval' | 'incompatible-version' | 'operation-error' | 'row-not-running'
+  code: ReadOnlyReason | 'unknown-plugin' | 'invalid-spec' | 'already-installed' | 'ambiguous-install' | 'not-bundle' | 'not-removable' | 'stop-profile' | 'bundle-in-use' | 'stale-approval' | 'incompatible-version' | 'operation-error'
   diagnostic?: string
-  /** Present with `incompatible-version`: the packages the running runtime version rejects. */
+  /** Present with `incompatible-version`: the packages the running DSH version rejects. */
   incompatible?: IncompatiblePlugin[]
 }
 
 /**
- * Why a change waits for the next start: `no-hmr` profiles apply changes only at startup; `package-moved` changes map
- * an installed package to another directory without removing it first, or change or locally override a package the
- * QiLin installation provides; `host-module` changes reach modules the running process itself imports;
- * `unmanaged-plugin` changes reach a plugin running outside a Loader entry; `module-comparison` means loaded modules
- * could not be compared with disk.
+ * Why a change waits for the next start: `no-hmr` profiles apply changes only at startup; `package-moved` changes map an
+ * installed package to another directory without removing it first, or change or locally override a package the DSH
+ * installation provides; `host-module` changes reach
+ * modules the running process itself imports; `unmanaged-plugin` changes reach a plugin running outside a Loader entry;
+ * `module-comparison` means loaded modules could not be compared with disk.
  */
 export type RestartReason = 'no-hmr' | 'package-moved' | 'host-module' | 'unmanaged-plugin' | 'module-comparison'
 
@@ -41,42 +40,35 @@ export type PluginInfo = PluginInventoryEntry & (
   | { patchId?: never; readOnlyReason: ReadOnlyReason }
 )
 
-/** One bundle row's configuration, read for the plugin page's row form. */
-export interface BundleRowConfig {
-  /** The row module's exported schemastery `Config`, in its structured JSON transport (`{ uid, refs }`). */
-  readonly schema: JsonValue
-  /** The values the row runs with: the live fiber config, or the patch-declared config when it has no fiber. */
-  readonly values: JsonValue
-}
-
 /** One row a bundle's patch declares, with its live entry while the bundle contributes it. */
 export interface BundleRowInfo {
   /** The row id as the patch declares it. */
   rowId: string
   /** The module the row names. */
   moduleName: string
+  /** Local package display metadata, including rows whose bundle is disabled. */
+  meta?: PluginLocalizedMeta
   /** The Loader entry carrying this row, when exactly one live entry has its id. */
   entryId?: PluginEntryId
-  /** Whether the row module exports a schemastery `Config` a form can render; only a row whose module has been imported can know. */
-  configurable?: boolean
 }
 
-/** One installed or installation-provided bundle. */
+/** One shipped, profile-installed, or discoverable on-demand bundle. */
 export interface BundleInfo {
   name: string
-  /** Shipped optional bundle or on-demand catalog entry, independent of installation and selection. */
+  /** Project-maintained shipped optional bundle or on-demand catalog entry, independent of installation and selection. */
   official: boolean
   /** Readable package location; on-demand catalog entries exclude undeclared transitive copies, and declared files may be missing. */
   availability: 'installation' | 'profile' | 'missing'
-  /** Exact released QiLin version, or a same-checkout development link, offered for an on-demand catalog entry. */
+  /** Exact released Host version or same-checkout development link offered for an on-demand catalog entry. */
   installTarget?: { spec: string; version: string }
   version?: string
   /** Local display text with available translations or literal fallbacks, or a metadata diagnostic. */
   meta?: PluginLocalizedMeta
-  /** `description` of the package manifest. */
+  /** Untranslated `description` of this bundle's package manifest. */
   description?: string
+  /** Selected in the profile manifest; a load error means its layer was skipped. */
   enabled: boolean
-  /** Whether the profile's own dependencies hold the package; false for a bundle the qilin installation supplies. */
+  /** Whether the profile declares this dependency; availability separately reports whether its files can be read. */
   installed: boolean
   /**
    * Present for a profile dependency the installation does not also supply: the spec `pnpm add` accepts, with local
@@ -88,11 +80,6 @@ export interface BundleInfo {
    * held by the installation's dependencies, selected by no shipped template, and never removable.
    */
   optional: boolean
-  /**
-   * Whether an installed copy of this layer resolves ahead of the installation's, so the layer can be upgraded in
-   * place: a bundle the profile installed, or a shipped bundle whose resolution the profile owns.
-   */
-  updatable: boolean
   removable: boolean
   readOnlyReason?: ReadOnlyReason
   error?: ManagementError
@@ -113,7 +100,7 @@ export interface PluginRegistries {
   readonly resolved: string | null
 }
 
-/** How a pnpm run failed, read off how it ended and what it printed. */
+/** How a package operation failed, read off how it ended and what it printed. */
 export type PluginInstallFailureKind =
   | 'pnpm-missing'
   | 'timeout'
@@ -126,7 +113,7 @@ export type PluginInstallFailureKind =
   | 'integrity'
   | 'unknown'
 
-/** Pnpm completion, including a retrieval path for unabridged diagnostics. */
+/** Package operation completion, including Git checks and a retrieval path for unabridged diagnostics. */
 export interface PackageResult {
   exitCode: number
   output: string
@@ -134,7 +121,9 @@ export interface PackageResult {
   logPath: string
   /** Present when the run failed: what kind of failure its exit and output describe. */
   kind?: PluginInstallFailureKind
-  /** Present when a compatibility check refused the run: the packages the running runtime version rejects. */
+  /** The manager terminated the run after it printed nothing for its silence bound; `exitCode` still reports how it ended. */
+  timedOut?: boolean
+  /** Present when a compatibility check refused the run: the packages the running DSH version rejects. */
   incompatible?: IncompatiblePlugin[]
 }
 
@@ -146,7 +135,7 @@ export interface ChangeResult {
   /** Present with `restart-required`: why the change takes effect only at the next start. */
   restartReason?: RestartReason
   /** Last attempted step; successful installation can proceed to enablement. */
-  stage: 'install' | 'enable' | 'remove' | 'configure'
+  stage: 'install' | 'enable' | 'remove'
   target: string
   enabled?: boolean
   error?: ManagementError
@@ -176,6 +165,8 @@ export type PluginInstallRequestId = Branded<'PluginInstallRequestId'>
 /** Bundle installation defaults to activation; callers that offer cancellation supply their request id. */
 export interface InstallBundleOptions {
   enabled?: boolean
+  /** Save the resolved dependency version without a range; applies to any bundle installation. */
+  saveExact?: boolean
   requestId?: PluginInstallRequestId
   /** Explicitly allow these pending packages' scripts for this profile, then install; a name no longer pending refuses the call. */
   approvedBuilds?: string[]
@@ -258,46 +249,6 @@ export interface PluginInstallLogChunk {
   readonly text: string
   /** Present on the run's last chunk: pnpm's exit code, null when it ended without one. */
   readonly exitCode?: number | null
-}
-
-/** One manageable layer compared against its registry's `latest` dist-tag. */
-export interface PluginUpdateEntry {
-  /** Package name as the profile lists it. */
-  readonly name: string
-  /** Version the installed copy answers, or null when its manifest cannot be read. */
-  readonly currentVersion: string | null
-  /** Registry `latest` dist-tag, or null when the registry could not be read or answers none. */
-  readonly latestVersion: string | null
-}
-
-/** What one update check read for the profile's manageable layers. */
-export interface PluginUpdateSnapshot {
-  /** One row per layer, in listing order. */
-  readonly entries: readonly PluginUpdateEntry[]
-}
-
-/** One GitHub repository the plugin catalog found. */
-export interface CommunityPluginEntry {
-  /** `owner/name` of the repository. */
-  readonly fullName: string
-  /** Repository description, or null when it declares none. */
-  readonly description: string | null
-  /** Stargazer count; 0 when GitHub reports none. */
-  readonly stars: number
-  /** Last push time as GitHub reports it; an empty string when GitHub reports none. */
-  readonly updatedAt: string
-  /** Repository page address, which is also an install spec the manager accepts. */
-  readonly url: string
-}
-
-/** One catalog page as GitHub answered it. */
-export interface CommunityPluginSnapshot {
-  /** The page's repositories, most starred first. */
-  readonly entries: readonly CommunityPluginEntry[]
-  /** The one-based page these entries came from. */
-  readonly page: number
-  /** Whether GitHub reports at least one further page. */
-  readonly hasMore: boolean
 }
 
 /** What changed in the profile, for consumers that show it. */

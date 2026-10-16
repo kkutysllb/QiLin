@@ -1,4 +1,5 @@
-/** Shared profile package operations used by qilin plugin and the running manager. */
+/** Shared profile package operations used by dsh plugin and the running manager. */
+import { once } from 'node:events'
 import { existsSync, readFileSync } from 'node:fs'
 import { mkdir, mkdtemp, open, rm } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
@@ -6,14 +7,13 @@ import { execa } from 'execa'
 import type { EntryOptions } from '@qilin-agent/kylin-plugin-loader'
 import { withFileLock, writeFileAtomic } from '@qilin-agent/atomic-write'
 import {
-  composeEntries, DEFAULT_PROFILE_BUNDLES, evaluatePluginCompatibility, initProfile, loadOverlayPatches,
-  pluginCompatibilityWarning, PROFILE_TEMPLATES, readProfileManifest, readProfileVersionExemptions,
-  resolveBundleDir, resolveProfileDir, type ProfileManifest,
+  DEFAULT_PROFILE_BUNDLES, bundlePatchPaths, initProfile, PROFILE_TEMPLATES, readProfileManifest,
+  resolveBundleDir, resolveProfileDir, loadOverlayPatches, composeEntries, readProfileVersionExemptions,
+  evaluatePluginCompatibility, pluginCompatibilityWarning, type ProfileManifest,
 } from '@qilin-agent/app-boot'
-import { bundlePatchOf } from '@qilin-agent/dsh-compat'
 import { scrubbedParentEnv } from '@qilin-agent/subprocess'
-import { awaitTreeGone, leadsOwnGroup, treeAlive, type RunTree } from './run-tree.ts'
 import { parseInstallSpec } from './install-spec.ts'
+import { awaitTreeGone, leadsOwnGroup, treeAlive, type RunTree } from './run-tree.ts'
 import { incompatiblePlugin } from './failure.ts'
 import type { IncompatiblePlugin, PackageResult, Registry } from './types.ts'
 export { setProfileVersionExemption, readProfileVersionExemptions } from '@qilin-agent/app-boot'
@@ -30,7 +30,7 @@ export interface PackageOperationContext {
 
 /** Output and cancellation policy for one pnpm operation. */
 export interface PackageOperationOptions {
-  /** The pnpm executable name or path; resolved through `PATH` like the `qilin plugin` command. Defaults to `pnpm`. */
+  /** The pnpm executable name or path; resolved through `PATH` like the `dsh plugin` command. Defaults to `pnpm`. */
   command?: string
   /** Prefix arguments for an application-owned executable. */
   args?: readonly string[]
@@ -43,6 +43,13 @@ export interface PackageOperationOptions {
   onOutput?: (text: string, stream: 'stdout' | 'stderr') => void
   activateNewBundles?: boolean
   lockWaitMs?: number
+  /**
+   * Terminate the run once its captured output has been silent for this long, in
+   * milliseconds. A run stopped this way reports `timedOut`; without a bound, a
+   * child that stops progressing without exiting holds its caller forever. A run
+   * with inherited descriptors captures nothing and is never bound.
+   */
+  idleTimeoutMs?: number
   /** Bound on the pre-install registry lookup, in milliseconds; without one a fixed bound applies. */
   lookupTimeoutMs?: number
 }
@@ -58,18 +65,16 @@ export function anchorPathSpec(argument: string, cwd: string): string {
   return `${match.groups.prefix ?? ''}${resolve(cwd, match.groups.path)}`
 }
 
-/** Read bundle metadata without loading its JavaScript. A package is a bundle
- * when it declares a patch path in either manifest channel (`qilin.bundle.patch`
- * or the DSH-era `dsh.bundle.patch`), the same declaration profile loading accepts.
+/** Read bundle metadata without loading its JavaScript.
  * @param name Installed dependency or installation-owned package name.
  * @param dir Profile directory.
  * @param anchor Installation manifest.
  * @returns Resolved metadata, or undefined for packages without bundle metadata.
  */
 export function bundleManifest(name: string, dir: string, anchor: string): ProfileManifest | undefined {
-  const packageDir = resolveBundleDir('qilin', name, anchor, dir)
-  const manifest = readProfileManifest('qilin', packageDir)
-  return bundlePatchOf(manifest) === undefined ? undefined : manifest
+  const packageDir = resolveBundleDir('dsh', name, anchor, dir)
+  const manifest = readProfileManifest('dsh', packageDir)
+  return manifest.dsh?.bundle?.patch === undefined ? undefined : manifest
 }
 
 /** Atomically save a profile manifest while retaining unrelated fields.
@@ -82,30 +87,56 @@ export async function saveManifest(dir: string, manifest: ProfileManifest): Prom
 
 /** Reconcile package removals and newly installed bundles without re-enabling retained dependencies. */
 async function reconcile(before: ProfileManifest, dir: string, anchor: string, options: PackageOperationOptions): Promise<void> {
-  const after = readProfileManifest('qilin', dir)
+  const after = readProfileManifest('dsh', dir)
   const dependencies = Object.keys(after.dependencies ?? {})
   const beforeDeps = new Set(Object.keys(before.dependencies ?? {}))
-  const previous = after.qilin?.profile?.bundles ?? []
+  const previous = after.dsh?.profile?.bundles ?? []
   const bundles = previous.filter((name) => {
     if (!beforeDeps.has(name) && !dependencies.includes(name)) return true
     return dependencies.includes(name) && bundleManifest(name, dir, anchor) !== undefined
   })
   for (const name of dependencies) {
     if (beforeDeps.has(name)) continue
-    const packageDir = resolveBundleDir('qilin', name, anchor, dir)
-    const patch = bundlePatchOf(readProfileManifest('qilin', packageDir))
-    if (patch === undefined) {
-      options.onOutput?.(`qilin: warning: ${name} declares no qilin.bundle.patch or dsh.bundle.patch — installed as a plain dependency, not a profile layer\n`, 'stderr')
+    const metadata = bundleManifest(name, dir, anchor)
+    if (metadata?.dsh?.bundle === undefined) {
+      options.onOutput?.(`dsh: warning: ${name} declares no dsh.bundle — installed as a plain dependency, not a profile layer\n`, 'stderr')
       continue
     }
-    loadOverlayPatches('qilin', join(packageDir, patch))
+    for (const file of bundlePatchPaths(resolveBundleDir('dsh', name, anchor, dir), metadata.dsh.bundle)) loadOverlayPatches('dsh', file)
     if (!bundles.includes(name)) {
       bundles.push(name)
     }
   }
   if (JSON.stringify(previous) === JSON.stringify(bundles)) return
-  after.qilin = { ...after.qilin, profile: { ...after.qilin?.profile, bundles } }
+  after.dsh = { ...after.dsh, profile: { ...after.dsh?.profile, bundles } }
   await saveManifest(dir, after)
+}
+
+/**
+ * How long the pipes keep draining after their process exited, as a fixed part of
+ * finishing a run rather than a deployment knob: a descendant that inherited them
+ * holds them open, and the tail a failure classification reads is written by then.
+ */
+const DRAIN_AFTER_EXIT_MS = 2_000
+
+/** Whether every collector finished within `ms`.
+ * @param collectors The pipe readers racing the bound.
+ * @param ms The longest wait, in milliseconds.
+ * @returns True when all collectors settled in time.
+ */
+async function drainWithin(collectors: readonly Promise<void>[], ms: number): Promise<boolean> {
+  if (collectors.length === 0) return true
+  let timer: NodeJS.Timeout | undefined
+  try {
+    return await Promise.race([
+      Promise.allSettled(collectors).then(() => true),
+      new Promise<false>((resolve) => {
+        timer = setTimeout(() => { resolve(false) }, ms)
+      }),
+    ])
+  } finally {
+    clearTimeout(timer)
+  }
 }
 
 /** Install commands that take the packages to install as positionals. */
@@ -124,7 +155,7 @@ function namedSpecs(args: readonly string[]): string[] {
 
 /** The manifest a named spec would install, read without installing it.
  * A path spec is read from disk. A registry spec asks pnpm's own configuration for the version the
- * range selects and its peer requirements. A git or tarball spec needs the fetch itself, so the
+ * range selects and its dsh requirements (`engines` and peerDependencies). A git or tarball spec needs the fetch itself, so the
  * check after installation is what judges it.
  * @param dir Profile directory the lookup runs in.
  * @param spec Anchored install spec.
@@ -134,7 +165,7 @@ function namedSpecs(args: readonly string[]): string[] {
  * @returns The package manifest, or undefined when reading it would need the installation itself.
  */
 async function namedSpecManifest(
-  dir: string, spec: string, options: LookupOptions, environment: Readonly<Record<string, string | undefined>>,
+  dir: string, spec: string, options: PackageOperationOptions, environment: Readonly<Record<string, string | undefined>>,
   flags: readonly string[],
 ): Promise<object | undefined> {
   const parsed = parseInstallSpec(spec)
@@ -144,7 +175,7 @@ async function namedSpecManifest(
   }
   if (parsed.kind !== 'registry') return undefined
   const viewed = await execa(options.command ?? 'pnpm', [
-    ...options.args ?? [], 'view', parsed.spec, 'name', 'version', 'peerDependencies', '--json',
+    ...options.args ?? [], 'view', parsed.spec, 'name', 'version', 'engines', 'peerDependencies', '--json',
     ...flags, '--config.fetch-retries=0',
   ], {
     cwd: dir, env: environment, extendEnv: false, reject: false, stdin: 'ignore',
@@ -154,55 +185,6 @@ async function namedSpecManifest(
   if (viewed.exitCode !== 0) return undefined
   const value: unknown = JSON.parse(viewed.stdout)
   return (Array.isArray(value) ? value.at(-1) : value) as object
-}
-
-/** The executable, environment, and bound one pre-install registry lookup needs. */
-export type LookupOptions = Pick<
-  PackageOperationOptions, 'execution' | 'command' | 'args' | 'env' | 'signal' | 'lookupTimeoutMs'
->
-
-/** The packages one install command names that the running runtime version refuses. */
-export interface RefusedInstallSpecs {
-  /** One English diagnostic per refused package, for logs and the CLI's stderr. */
-  warnings: string[]
-  /** The refused packages, for a surface with its own grant mechanism or locale. */
-  incompatible: IncompatiblePlugin[]
-}
-
-/**
- * Read the manifests an install command names and report the ones the running
- * runtime version refuses, without installing anything. A path spec is read
- * from disk and a registry spec through pnpm's own lookup; a git or tarball
- * spec needs the fetch itself, so only the check after installation judges it.
- * @param context Launcher-owned profile and resolution locations.
- * @param args Pnpm arguments, before relative path anchoring.
- * @param options Executable, environment, cancellation, and the lookup bound.
- * @returns One warning per refused package; empty when none is refused.
- */
-export async function refusedInstallSpecs(
-  context: PackageOperationContext, args: readonly string[], options: LookupOptions,
-): Promise<RefusedInstallSpecs> {
-  const dir = context.dir ?? resolveProfileDir(context.profile, context.home)
-  const environment = { ...(options.execution === 'cli' ? process.env : scrubbedParentEnv()), ...options.env }
-  const exemptions = readProfileVersionExemptions(dir)
-  // The run's own registry flags, so the lookup asks the registry the installation will use.
-  const registryFlags = args.filter(argument => argument.startsWith('--registry='))
-  const warnings: string[] = []
-  const incompatible: IncompatiblePlugin[] = []
-  for (const raw of namedSpecs(args)) {
-    // A spec whose manifest cannot be read or validated is left to the run itself and to the check
-    // after installation, which reports what it could not validate.
-    try {
-      const manifest = await namedSpecManifest(dir, anchorPathSpec(raw, context.cwd), options, environment, registryFlags)
-      if (manifest === undefined) continue
-      const issue = evaluatePluginCompatibility(manifest, exemptions)
-      if (issue !== undefined && !issue.exempted) {
-        warnings.push(pluginCompatibilityWarning(issue))
-        incompatible.push(incompatiblePlugin(issue))
-      }
-    } catch (error) { void error; continue }
-  }
-  return { warnings, incompatible }
 }
 
 /** Missing installed packages are repairable; their absence is part of the before/after comparison. */
@@ -246,11 +228,11 @@ async function activeRecordedRun(dir: string): Promise<string | undefined> {
     void error
   }
   if (tree === undefined) {
-    return `qilin: ${path} does not name a package run; delete it once no earlier package operation is still running in this profile\n`
+    return `dsh: ${path} does not name a package run; delete it once no earlier package operation is still running in this profile\n`
   }
   await awaitTreeGone(tree)
   if (treeAlive(tree)) {
-    return `qilin: process ${String(tree.pid)}, started by an earlier package operation whose own process ended, is still running in this profile; `
+    return `dsh: process ${String(tree.pid)}, started by an earlier package operation whose own process ended, is still running in this profile; `
       + `wait for it or stop it, then retry. If process ${String(tree.pid)} is not that package run, delete ${path}.\n`
   }
   await rm(path, { force: true })
@@ -264,11 +246,10 @@ function directDependencies(manifest: ProfileManifest): Record<string, string> {
 }
 
 /** Inspect only plugin rows contributed by the changed bundle, not its dependency closure. */
-function bundleComponentManifests(name: string, dir: string, anchor: string): ProfileManifest[] {
-  const packageDir = resolveBundleDir('qilin', name, anchor, dir)
-  const patch = bundlePatchOf(readProfileManifest('qilin', packageDir))
-  if (patch === undefined) return []
-  const patches = loadOverlayPatches('qilin', join(packageDir, patch))
+function bundleComponentManifests(manifest: ProfileManifest, dir: string, anchor: string): ProfileManifest[] {
+  const bundle = manifest.dsh?.bundle
+  if (bundle === undefined) return []
+  const patches = bundlePatchPaths(dir, bundle).flatMap(file => loadOverlayPatches('dsh', file))
   const names = new Set<string>()
   const visit = (rows: EntryOptions[]) => {
     for (const row of rows) {
@@ -278,15 +259,15 @@ function bundleComponentManifests(name: string, dir: string, anchor: string): Pr
       names.add(parts.slice(0, row.name.startsWith('@') ? 2 : 1).join('/'))
     }
   }
-  visit(composeEntries([patches.filter(entry => entry.insert !== undefined)]))
-  return [...names].flatMap((component) => {
-    let directory: string
-    try { directory = resolveBundleDir('qilin', component, anchor, dir) } catch (error) {
+  visit(composeEntries([patches.filter(patch => patch.insert !== undefined)]))
+  return [...names].flatMap((name) => {
+    let packageDir: string
+    try { packageDir = resolveBundleDir('dsh', name, anchor, dir) } catch (error) {
       // Resolution errors for uninstalled or dynamic rows remain subject to the startup loader's checks.
       void error
       return []
     }
-    return [readProfileManifest('qilin', directory)]
+    return [readProfileManifest('dsh', packageDir)]
   })
 }
 
@@ -299,6 +280,7 @@ function bundleComponentManifests(name: string, dir: string, anchor: string): Pr
  * @param options Output, activation and cancellation policy.
  * @returns Exit status, whether the silence bound stopped the run, and the diagnostic path.
  * A compatibility denial returns exit code 1. Service output is bounded; CLI output uses inherited descriptors.
+ * The diagnostic file is closed on return or rejection, including preparation and spawn failures.
  */
 export async function runProfilePnpm(
   context: PackageOperationContext, args: readonly string[], options: PackageOperationOptions,
@@ -310,7 +292,7 @@ export async function runProfilePnpm(
   await mkdir(logRoot, { recursive: true, mode: 0o700 })
   const logDir = await mkdtemp(join(logRoot, 'operation-'))
   const logPath = join(logDir, 'pnpm.log')
-  const log = await open(logPath, 'wx', 0o600)
+  await using log = await open(logPath, 'wx', 0o600)
   if (active !== undefined) {
     await log.write(active)
     await log.close()
@@ -318,7 +300,7 @@ export async function runProfilePnpm(
     const bytes = Buffer.from(active)
     return { exitCode: 1, output: bytes.subarray(Math.max(0, bytes.length - options.outputBytes)).toString('utf8'), truncated: bytes.length > options.outputBytes, logPath }
   }
-  const before = readProfileManifest('qilin', dir)
+  const before = readProfileManifest('dsh', dir)
   const savedFiles = ['package.json', 'pnpm-lock.yaml'].map(name => ({ path: join(dir, name), text: optionalFile(join(dir, name)) }))
   const beforeDependencies = directDependencies(before)
   const installedBefore = new Map(Object.keys(beforeDependencies).map(name => [name, optionalFile(join(dir, 'node_modules', name, 'package.json'))]))
@@ -341,7 +323,7 @@ export async function runProfilePnpm(
   /** Packages a compatibility check refused; callers render them for their own surface. */
   const incompatible: IncompatiblePlugin[] = []
   const rejected = async (warnings: readonly string[], restoration: string): Promise<PackageResult> => {
-    const diagnostic = `\nqilin: installation rejected: ${warnings.join('\n')}\nqilin: ${restoration}.\n`
+    const diagnostic = `\ndsh: installation rejected: ${warnings.join('\n')}\ndsh: ${restoration}.\n`
     await log.write(diagnostic)
     options.onOutput?.(diagnostic, 'stderr')
     append(Buffer.from(diagnostic))
@@ -350,15 +332,28 @@ export async function runProfilePnpm(
   }
   // An install command names the packages it adds, so their manifests are read and checked before
   // pnpm runs: an incompatible version is never installed, and the one already in use keeps working.
-  const refused = await refusedInstallSpecs(context, args, options)
-  if (refused.warnings.length > 0) {
-    incompatible.push(...refused.incompatible)
-    return rejected(refused.warnings, 'nothing was installed')
+  const preflight: string[] = []
+  const exemptions = readProfileVersionExemptions(dir)
+  // The run's own registry flags, so the lookup asks the registry the installation will use.
+  const registryFlags = args.filter(argument => argument.startsWith('--registry='))
+  for (const raw of namedSpecs(args)) {
+    // A spec whose manifest cannot be read or validated is left to the run itself and to the check
+    // after installation, which reports what it could not validate.
+    try {
+      const manifest = await namedSpecManifest(dir, anchorPathSpec(raw, context.cwd), options, environment, registryFlags)
+      if (manifest === undefined) continue
+      const issue = evaluatePluginCompatibility(manifest, exemptions)
+      if (issue !== undefined && !issue.exempted) {
+        preflight.push(pluginCompatibilityWarning(issue))
+        incompatible.push(incompatiblePlugin(issue))
+      }
+    } catch (error) { void error; continue }
   }
+  if (preflight.length > 0) return await rejected(preflight, 'nothing was installed')
   const cancellation = new AbortController()
-  // A service run captures output and is spawned as its own group leader, so the
-  // tree its lifecycle scripts occupy is addressable; the CLI keeps the caller's
-  // process group, so an interrupt still reaches it.
+  // A service run captures output, so execa terminates the tree it leads when the
+  // run is killed: a lifecycle script outlives the pnpm process that started it.
+  // The CLI keeps the caller's process group, so an interrupt still reaches it.
   const grouped = leadsOwnGroup(options.execution)
   const child = execa(options.command ?? 'pnpm', [...options.args ?? [], ...args.map(arg => anchorPathSpec(arg, context.cwd))], {
     cwd: dir, env: environment, extendEnv: false, reject: false,
@@ -368,10 +363,30 @@ export async function runProfilePnpm(
     buffer: false, stdin: options.execution === 'cli' ? 'inherit' : 'ignore', cancelSignal: options.signal === undefined
       ? cancellation.signal : AbortSignal.any([cancellation.signal, options.signal]),
   })
+  // Listened for before the record is written, so an exit during that write is not missed.
+  const exited = once(child.nodeChildProcess, 'exit').catch(() => undefined)
   let writes = Promise.resolve()
+  /** `settled` records that the process outcome is known; `stalled` that the silence bound stopped the run. */
+  const control = { settled: false, stalled: false }
+  /** Set once this call cuts the reading short itself, so the close it causes is not read as a run failure. */
+  let cut = false
+  /** The first failure a reading hit before that cut, which the run still reports. */
+  let failure: Error | undefined
+  let idleTimer: NodeJS.Timeout | undefined
+  /** The silence bound: a captured run that stops printing without exiting is terminated, never awaited. */
+  const armIdle = (): void => {
+    if (control.settled || options.idleTimeoutMs === undefined) return
+    clearTimeout(idleTimer)
+    idleTimer = setTimeout(() => {
+      control.stalled = true
+      // execa's kill reaches the whole tree of a service run, and escalates on its own.
+      child.kill()
+    }, options.idleTimeoutMs)
+  }
   const collect = async (stream: AsyncIterable<Buffer | string>, kind: 'stdout' | 'stderr') => {
     try {
       for await (const chunk of stream) {
+        armIdle()
         const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
         writes = writes.then(async () => { await log.write(bytes) })
         await writes
@@ -379,21 +394,68 @@ export async function runProfilePnpm(
         append(bytes)
       }
     } catch (error) {
-      cancellation.abort()
+      // A reading this call cut short is not a failure the run hit, and the run has
+      // already exited, so there is nothing left for the cancellation to stop.
+      if (!cut) {
+        failure ??= error instanceof Error ? error : new Error(String(error))
+        cancellation.abort()
+      }
       throw error
     }
   }
+  const collectors = [
+    ...child.stdout === null ? [] : [collect(child.stdout, 'stdout')],
+    ...child.stderr === null ? [] : [collect(child.stderr, 'stderr')],
+  ]
+  // The drain decides whether a failure surfaces, so each reading is claimed now:
+  // an unclaimed rejection would be reported as unhandled while the pipes drain.
+  for (const collector of collectors) void collector.catch(() => { /* reported through `failure` and the settled readings */ })
+  // Inherited descriptors hand pnpm the terminal, so there is no captured output
+  // for a silence bound to observe: it would fire on a healthy run.
+  if (collectors.length > 0) armIdle()
   let exitCode: number
   try {
     await recordRun(dir, { pid: child.pid, grouped })
-    const [completion, ...streams] = await Promise.allSettled([child,
-      ...child.stdout === null ? [] : [collect(child.stdout, 'stdout')],
-      ...child.stderr === null ? [] : [collect(child.stderr, 'stderr')],
-    ])
-    for (const stream of streams) if (stream.status === 'rejected') throw stream.reason
+    // execa resolves its promise only once the piped stdio has ended, so the
+    // process's own exit — the run's completion — is read from the raw child. A
+    // spawn failure settles without one.
+    const settled = Promise.allSettled([child])
+    await Promise.race([exited, settled])
+    control.settled = true
+    clearTimeout(idleTimer)
+    // A stalled run stops its whole tree first, so the caller's rollback and lock
+    // release happen only after the scripts it started stopped writing.
+    if (control.stalled) await awaitTreeGone({ pid: child.pid, grouped })
+    // A descendant that inherited the pipes can hold them open past the process;
+    // the tail drains under a bound instead of being awaited forever.
+    const drained = await drainWithin(collectors, DRAIN_AFTER_EXIT_MS)
+    if (drained) {
+      for (const stream of await Promise.allSettled(collectors)) if (stream.status === 'rejected') throw stream.reason
+    } else {
+      // Cutting the tail short is this call's own end, not a failure the run hit;
+      // a failure from before the cut still surfaces, and the cut leaves a notice
+      // in the log because a classification may read an incomplete tail.
+      cut = true
+      child.stdout?.destroy()
+      child.stderr?.destroy()
+      const notice = 'dsh: pnpm output was cut short after its process exited\n'
+      await log.write(notice)
+      // A failure from before the cut is the run's own and replaces the notice a
+      // caller would otherwise read; a rejection the cut itself causes is its end.
+      if (failure !== undefined) throw failure
+      options.onOutput?.(notice, 'stderr')
+      append(Buffer.from(notice))
+    }
+    const [completion] = await settled
     if (completion.status === 'rejected') throw completion.reason
     const result = completion.value
     exitCode = result.exitCode ?? (result.code === 'ENOENT' ? 127 : 1)
+    if (control.stalled) {
+      const notice = `dsh: pnpm printed nothing for ${String(options.idleTimeoutMs)}ms and was terminated\n`
+      await log.write(notice)
+      options.onOutput?.(notice, 'stderr')
+      append(Buffer.from(notice))
+    }
     if (result.failed && output.length === 0) {
       const diagnostic = result.shortMessage ?? 'pnpm failed'
       await log.write(diagnostic)
@@ -401,8 +463,8 @@ export async function runProfilePnpm(
       output = Buffer.from(diagnostic).subarray(0, options.outputBytes)
     }
     // A terminated run's exit status says nothing about what it wrote, so it never reconciles the selection.
-    if (exitCode === 0) {
-      const after = readProfileManifest('qilin', dir)
+    if (exitCode === 0 && !control.stalled) {
+      const after = readProfileManifest('dsh', dir)
       const warnings: string[] = []
       for (const [name, spec] of Object.entries(directDependencies(after))) {
         const packageDir = join(dir, 'node_modules', name)
@@ -413,8 +475,8 @@ export async function runProfilePnpm(
         const found: string[] = []
         const issues: IncompatiblePlugin[] = []
         try {
-          const manifest = readProfileManifest('qilin', packageDir)
-          for (const candidate of [manifest, ...bundleComponentManifests(name, dir, context.installAnchor)]) {
+          const manifest = readProfileManifest('dsh', packageDir)
+          for (const candidate of [manifest, ...bundleComponentManifests(manifest, packageDir, context.installAnchor)]) {
             const issue = evaluatePluginCompatibility(candidate, readProfileVersionExemptions(dir))
             if (issue !== undefined && !issue.exempted) {
               found.push(pluginCompatibilityWarning(issue))
@@ -430,13 +492,13 @@ export async function runProfilePnpm(
           incompatible.push(...issues)
         }
         else {
-          const notice = `\nqilin: warning: ${found.join('\n')}\nqilin: it stays installed but profile startup denies it until you grant an exemption for those exact versions.\n`
+          const notice = `\ndsh: warning: ${found.join('\n')}\ndsh: it stays installed but profile startup denies it until you grant an exemption for those exact versions.\n`
           await log.write(notice)
           options.onOutput?.(notice, 'stderr')
         }
       }
       if (warnings.length > 0) {
-        // A bundle component's peers need installed contents, so this rejection lands after pnpm
+        // A bundle component's requirements need installed contents, so this rejection lands after pnpm
         // replaced the tree: restore the files, then reinstall the restored lockfile so the version
         // that worked before this run keeps loading. A profile that had no lockfile is reinstalled
         // from its restored manifest without creating one, which removes what this run added.
@@ -445,14 +507,15 @@ export async function runProfilePnpm(
         const repair = ['install', hadLockfile ? '--frozen-lockfile' : '--config.lockfile=false']
         const repairing = execa(options.command ?? 'pnpm', [...options.args ?? [], ...repair], {
           cwd: dir, env: environment, extendEnv: false, reject: false, stdin: 'ignore',
+          ...options.idleTimeoutMs === undefined ? {} : { timeout: options.idleTimeoutMs },
         })
         await recordRun(dir, { pid: repairing.pid, grouped: false })
         const repaired = await repairing
         exitCode = 1
         const restoration = repaired.exitCode === 0
           ? 'restored package.json, pnpm-lock.yaml, and node_modules'
-          : "restored package.json and pnpm-lock.yaml, but node_modules could not be reinstalled; run 'qilin plugin install'"
-        const diagnostic = `\nqilin: installation rejected: ${warnings.join('\n')}\nqilin: ${restoration}.\n`
+          : "restored package.json and pnpm-lock.yaml, but node_modules could not be reinstalled; run 'dsh plugin install'"
+        const diagnostic = `\ndsh: installation rejected: ${warnings.join('\n')}\ndsh: ${restoration}.\n`
         await log.write(diagnostic)
         options.onOutput?.(diagnostic, 'stderr')
         append(Buffer.from(diagnostic))
@@ -461,17 +524,19 @@ export async function runProfilePnpm(
       }
     }
   } finally {
+    control.settled = true
+    clearTimeout(idleTimer)
     // This process saw the run end, so no successor has to wait for it.
     await rm(runRecordPath(dir), { force: true })
     await log.close()
   }
   return {
     exitCode, output: output.toString('utf8'), truncated, logPath,
-    ...incompatible.length > 0 ? { incompatible } : {},
+    ...control.stalled ? { timedOut: true } : {}, ...incompatible.length > 0 ? { incompatible } : {},
   }
 }
 
-/** Initialize and run the qilin plugin command with the same write lock as the service.
+/** Initialize and run the dsh plugin command with the same write lock as the service.
  * @param context Launcher-owned locations.
  * @param args Pnpm arguments.
  * @param options Output and cancellation policy.
@@ -486,7 +551,7 @@ export async function runPluginCommand(
     if (!existsSync(join(dir, 'package.json'))) {
       const template = PROFILE_TEMPLATES[context.profile]
       initProfile(dir, template?.bundles ?? DEFAULT_PROFILE_BUNDLES)
-      options.onOutput?.(`qilin: initialized profile ${context.profile} at ${dir}\n`, 'stderr')
+      options.onOutput?.(`dsh: initialized profile ${context.profile} at ${dir}\n`, 'stderr')
     }
     return runProfilePnpm(context, args, options)
   }, options.lockWaitMs === undefined ? undefined : { waitMs: options.lockWaitMs })
@@ -521,28 +586,21 @@ export interface PackageViewOptions {
 }
 
 /**
- * Ask the registry what a spec names through `pnpm view`, run in the profile
- * directory so the registry, proxy, and authentication settings of an install apply.
+ * Read the registry pnpm's own configuration names in the profile: its `.npmrc` chain and workspace settings,
+ * as `pnpm config get registry` resolves them.
  * @param dir Profile directory.
- * @param spec One registry spec: a package name with an optional range.
- * @param options Cancellation and the time bound.
- * @returns pnpm's exit, output, and how the lookup ended.
+ * @param options The pnpm executable and the time bound.
+ * @returns The registry URL as pnpm printed it, or null when pnpm did not answer with one.
  */
-export async function viewProfilePackage(dir: string, spec: string, options: PackageViewOptions): Promise<PackageViewResult> {
-  const result = await execa(options.command ?? 'pnpm', [
-    ...options.args ?? [], 'view', spec, 'name', 'version', 'description', 'qilin', 'dsh', '--json',
-    ...registryArguments(options.registry ?? null), '--config.fetch-retries=0',
-  ], {
-    cwd: dir, env: { ...scrubbedParentEnv(), ...options.env }, extendEnv: false, reject: false, stdin: 'ignore',
-    timeout: options.timeoutMs, ...options.signal === undefined ? {} : { cancelSignal: options.signal },
+export async function readProfileRegistry(
+  dir: string, options: { command?: string; args?: readonly string[]; env?: Readonly<Record<string, string>>; timeoutMs: number },
+): Promise<string | null> {
+  const result = await execa(options.command ?? 'pnpm', [...options.args ?? [], 'config', 'get', 'registry'], {
+    cwd: dir, env: { ...scrubbedParentEnv(), ...options.env }, extendEnv: false, reject: false, stdin: 'ignore', timeout: options.timeoutMs,
   })
-  const cause = result.exitCode === undefined && !result.timedOut && !result.isCanceled
-    ? Object.assign(new Error(result.shortMessage), { code: result.code })
-    : undefined
-  return {
-    exitCode: result.exitCode ?? null, stdout: result.stdout, stderr: result.stderr, timedOut: result.timedOut,
-    ...cause === undefined ? {} : { cause },
-  }
+  // The registry is the last line: pnpm may print a notice before it.
+  const answer = result.exitCode === 0 ? result.stdout.trim().replace(/^[\s\S]*\n/, '').trim() : ''
+  return /^https?:\/\/\S+$/.test(answer) ? answer : null
 }
 
 /**
@@ -555,19 +613,29 @@ export function registryArguments(registry: Registry): string[] {
 }
 
 /**
- * Read the registry pnpm's own configuration names in the profile: its `.npmrc` chain and workspace settings,
- * as `pnpm config get registry` resolves them.
- * @param dir - Profile directory.
- * @param options - The pnpm executable and the time bound.
- * @returns The registry URL as pnpm printed it, or null when pnpm did not answer with one.
+ * Ask the registry what a spec names through `pnpm view`, run in the profile
+ * directory so the registry, proxy, and authentication settings of an install
+ * apply. The lookup makes one request without pnpm's own retries: a registry
+ * that does not answer is reported within `timeoutMs`, and the registries
+ * configured after it are the retry.
+ * @param dir Profile directory.
+ * @param spec One registry spec: a package name with an optional range.
+ * @param options The registry, cancellation, and the time bound.
+ * @returns pnpm's exit, output, and how the lookup ended.
  */
-export async function readProfileRegistry(
-  dir: string, options: { command?: string; args?: readonly string[]; env?: Readonly<Record<string, string>>; timeoutMs: number },
-): Promise<string | null> {
-  const result = await execa(options.command ?? 'pnpm', [...options.args ?? [], 'config', 'get', 'registry'], {
-    cwd: dir, env: { ...scrubbedParentEnv(), ...options.env }, extendEnv: false, reject: false, stdin: 'ignore', timeout: options.timeoutMs,
+export async function viewProfilePackage(dir: string, spec: string, options: PackageViewOptions): Promise<PackageViewResult> {
+  const result = await execa(options.command ?? 'pnpm', [
+    ...options.args ?? [], 'view', spec, 'name', 'version', 'description', 'dsh', '--json',
+    ...registryArguments(options.registry ?? null), '--config.fetch-retries=0',
+  ], {
+    cwd: dir, env: { ...scrubbedParentEnv(), ...options.env }, extendEnv: false, reject: false, stdin: 'ignore',
+    timeout: options.timeoutMs, ...options.signal === undefined ? {} : { cancelSignal: options.signal },
   })
-  // The registry is the last line: pnpm may print a notice before it.
-  const answer = result.exitCode === 0 ? result.stdout.trim().replace(/^[\s\S]*\n/, '').trim() : ''
-  return /^https?:\/\/\S+$/.test(answer) ? answer : null
+  const cause = result.exitCode === undefined && !result.timedOut && !result.isCanceled
+    ? Object.assign(new Error(result.shortMessage), { code: result.code })
+    : undefined
+  return {
+    exitCode: result.exitCode ?? null, stdout: result.stdout, stderr: result.stderr, timedOut: result.timedOut,
+    ...cause === undefined ? {} : { cause },
+  }
 }

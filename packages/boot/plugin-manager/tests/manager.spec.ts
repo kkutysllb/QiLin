@@ -1,14 +1,19 @@
 /** Persistent manager behavior through a real profile Include and Loader. */
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { realpath } from 'node:fs/promises'
-import { join, dirname, resolve } from 'node:path'
+import { once } from 'node:events'
+import { createServer } from 'node:http'
+import type { Socket } from 'node:net'
+import { join, resolve } from 'node:path'
 import { homedir, tmpdir } from 'node:os'
-import { pathToFileURL } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
+import { execa } from 'execa'
 import type { Context } from '@qilin-agent/kylin'
-import { expect, it, onTestFinished, vi } from 'vitest'
+import { afterAll, beforeAll, expect, it, onTestFinished, vi } from 'vitest'
 import {
-  boot, composeEntries, getQilinRuntimeVersion, initProfile, readProfilePatches, readProfileManifest, reconcileProfilePatches,
-  OPTIONAL_BUNDLES, ResolutionRestartRequired, type ProfileContext,
+  boot, composeEntries, initProfile, loadProfileDirectory, readProfilePatches, readProfileManifest,
+  reconcileProfilePatches, OPTIONAL_BUNDLES, OFFICIAL_ON_DEMAND_CATALOG, PluginPackages, readPluginMeta, getDshRuntimeVersion,
+  type ProfileContext, type RuntimeResolution,
 } from '@qilin-agent/app-boot'
 import PluginManager, { type Config, type PluginChange, type PluginInstallLogChunk, type PluginInstallProgress, type PluginInstallRequestId } from '../src/index.ts'
 import Hmr from '@qilin-agent/hmr'
@@ -18,59 +23,62 @@ import { Group } from '@qilin-agent/kylin-plugin-loader'
 import * as operations from '../src/operations.ts'
 import * as githubConnection from '../src/github-connection.ts'
 import { parse, parseDocument } from 'yaml'
+import { isolateGitCommandLineConfig } from './git-environment.ts'
 
-/** npm's own registry, which pnpm names without configuration. */
-const OFFICIAL = 'https://registry.npmjs.org/'
-/** The public mirror a shipped configuration falls back to. */
-const MIRROR = 'https://registry.npmmirror.com/'
+// These cases install through real Git and pnpm, so the host's command-line configuration group must not reach their children.
+let restoreGitCommandLineConfig: () => void
+beforeAll(() => { restoreGitCommandLineConfig = isolateGitCommandLineConfig() })
+afterAll(() => { restoreGitCommandLineConfig() })
 
-/** A package generation for stubs that only need a published table to exist. */
-const GENERATION = { profilesDir: '/profiles', profileDir: undefined, localPackageNames: [], entries: [], linkedRoots: [] }
-
-async function fixture(
-  reload: 'live' | 'startup' = 'live', overlay = false, prepare?: (ctx: Context) => void, config: Config = {},
-  packageManager?: ProfileContext['packageManager'], mutateProfile?: (dir: string) => void,
-  profileName = 'test',
-) {
+async function fixture(reload: 'live' | 'startup' = 'live', overlay = false, prepare?: (ctx: Context) => void, config: Config = {}, packageManager?: ProfileContext['packageManager'], prepareFiles?: (dir: string) => void, sourceInstallation = false) {
+  const temporaryHome = mkdtempSync(join(tmpdir(), 'plugin-manager-'))
+  let owner: Context | undefined
+  onTestFinished(async () => { await owner?.fiber.dispose(); rmSync(temporaryHome, { recursive: true, force: true }) })
   // pnpm resolves workspace roots through native realpath, including Windows 8.3 aliases.
-  const home = await realpath(mkdtempSync(join(tmpdir(), 'plugin-manager-')))
-  const dir = join(home, 'profiles', profileName)
-  const anchor = join(home, 'package.json')
-  writeFileSync(anchor, '{"name":"installation","dependencies":{}}\n')
+  const home = await realpath(temporaryHome)
+  const dir = join(home, 'profiles', 'test')
+  const anchor = sourceInstallation ? join(home, 'apps', 'cli', 'package.json') : join(home, 'package.json')
+  if (sourceInstallation) {
+    mkdirSync(join(home, 'apps', 'cli'), { recursive: true })
+    writeFileSync(join(home, 'package.json'), '{"name":"@qilin-agent/root"}')
+  }
+  writeFileSync(anchor, JSON.stringify(sourceInstallation
+    ? { name: '@qilin-agent/dsh', dependencies: { '@qilin-agent/app-boot': 'workspace:*' } }
+    : { name: 'installation', dependencies: {} }))
   initProfile(dir, ['core', 'extra'])
-  const bundle = (name: string, rows: unknown[]) => {
-    const path = join(dir, 'node_modules', name)
+  const bundle = (name: string, rows: unknown[], packageRoot = dir) => {
+    const path = join(packageRoot, 'node_modules', name)
     mkdirSync(path, { recursive: true })
-    writeFileSync(join(path, 'package.json'), JSON.stringify({ name, version: '1.0.0', qilin: { bundle: { patch: './cordis.patch.yml' } } }))
+    writeFileSync(join(path, 'package.json'), JSON.stringify({ name, version: '1.0.0', dsh: { bundle: { patch: './cordis.patch.yml' } } }))
     writeFileSync(join(path, 'cordis.patch.yml'), JSON.stringify([{ insert: rows }]))
     writeFileSync(join(path, 'plugin.mjs'), 'export function apply(ctx, config) { if (config?.fail) throw new Error("test activation failed"); ctx.provide(config?.service ?? "managedProbe", true) }\n')
   }
   bundle('core', [{ id: 'manager', name: 'cordis:manager', config }])
   bundle('extra', [{ id: 'managed', name: './plugin.mjs' }])
-  // The declaration a bundle carries decides its admission, which happens while the profile loads.
-  mutateProfile?.(dir)
-  const manifest = readProfileManifest(profileName, dir)
+  const manifest = readProfileManifest('test', dir)
   manifest.dependencies = { extra: '1.0.0' }
   writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
   writeFileSync(join(dir, 'cordis.yml'), '[]\n')
+  prepareFiles?.(dir)
   const overlays: PatchOptions[] = overlay ? [{ id: 'managed', disabled: true }] : []
   const profile: ProfileContext = {
-    name: profileName,
+    name: 'test',
     ...(packageManager === undefined ? {} : { packageManager }),
-    startedBundles: ['core', 'extra'],
+    startedBundles: loadProfileDirectory('test', dir, anchor).layers.map(layer => layer.packageName),
     dir, patchPath: join(dir, 'cordis.patch.yml'), installAnchor: anchor, cwd: home, home,
     overlays, telemetryDisabledEnv: undefined,
   }
-  const ctx = await boot('test', join(dir, 'cordis.yml'), readProfilePatches(profileName, profile), (ctx) => {
+  const ctx = await boot('test', join(dir, 'cordis.yml'), readProfilePatches('test', profile), (ctx) => {
+    owner = ctx
     ctx.provide('appReady', { onReady: (listener: () => void) => { listener(); return () => {} } })
     prepare?.(ctx)
     ctx.provide('profileContext', profile)
     ctx.loader.builtins.manager = PluginManager
   })
-  onTestFinished(async () => { await ctx.fiber.dispose(); rmSync(home, { recursive: true, force: true }) })
-  // What pnpm's own configuration names is read before every registry plan; the fixture answers npm's own registry.
+  // What pnpm's own configuration names is read from pnpm before every registry plan; the fixture answers npm's own registry.
   const registry = vi.spyOn(operations, 'readProfileRegistry').mockResolvedValue('https://registry.npmjs.org/')
-  onTestFinished(() => { registry.mockRestore() })
+  const connection = vi.spyOn(githubConnection, 'checkGithubConnection').mockResolvedValue(undefined)
+  onTestFinished(() => { registry.mockRestore(); connection.mockRestore() })
   let stopHmr = async () => {}
   if (reload === 'live') {
     await ctx.plugin(Timer)
@@ -78,99 +86,239 @@ async function fixture(
     stopHmr = () => owner.dispose()
     await ctx.hmr.runExclusive(async () => {})
   }
-  return { ctx, dir, manager: ctx.pluginManager, bundle, profile, stopHmr, overlays }
+  return { ctx, dir, manager: ctx.pluginManager, bundle, profile, stopHmr, overlays, connection }
 }
+
+it.each(['network', 'timeout'] as const)('stops a GitHub %s before pnpm and attributes it to the repository', async (kind) => {
+  const { manager, dir, connection } = await fixture()
+  const before = readFileSync(join(dir, 'package.json'), 'utf8')
+  const failure = { exitCode: 1, output: 'GitHub check failed', truncated: false, logPath: join(dir, 'git.log'), kind }
+  connection.mockResolvedValue(failure)
+  const pnpm = vi.spyOn(operations, 'runProfilePnpm')
+  onTestFinished(() => { pnpm.mockRestore() })
+  expect(await manager.installBundle('https://github.com/acme/dsh-plugin.git')).toMatchObject({
+    application: 'failed', changed: false, stage: 'install', failedAt: 'spec-host', packageResult: failure,
+  })
+  expect(pnpm).not.toHaveBeenCalled()
+  expect(connection).toHaveBeenCalledWith(expect.objectContaining({ host: 'github.com' }), dir, expect.objectContaining({ timeoutMs: 5000 }))
+  expect(readFileSync(join(dir, 'package.json'), 'utf8')).toBe(before)
+})
+
+it('leaves non-network GitHub errors to pnpm and forwards profile Git environment and deadline', async () => {
+  const env = { GIT_CONFIG_GLOBAL: '/application/git.config' }
+  const { manager, connection } = await fixture('live', false, undefined, { githubConnectionTimeoutMs: 8000 }, { command: 'pnpm', args: [], env })
+  connection.mockResolvedValue({ exitCode: 128, output: 'fatal: Authentication failed', truncated: false, logPath: 'git.log', kind: 'unknown' })
+  const failure = { exitCode: 1, output: 'pnpm owns authentication', truncated: false, logPath: 'pnpm.log', kind: 'unknown' as const }
+  const pnpm = vi.spyOn(operations, 'runProfilePnpm').mockResolvedValue(failure)
+  onTestFinished(() => { pnpm.mockRestore() })
+  const result = await manager.installBundle('github:acme/private-plugin')
+  expect(result.application).toBe('failed')
+  expect(result.packageResult).toEqual(failure)
+  expect(pnpm).toHaveBeenCalledOnce()
+  expect(result.failedAt).toBeUndefined()
+  expect(connection).toHaveBeenCalledWith(expect.anything(), expect.anything(), expect.objectContaining({ timeoutMs: 8000, env }))
+})
+
+it('cancels an active GitHub check before starting pnpm', async () => {
+  const { manager, connection } = await fixture()
+  const entered = Promise.withResolvers<undefined>()
+  connection.mockImplementation(async (_spec, _dir, options) => {
+    entered.resolve(undefined)
+    await new Promise<void>((resolve) => { options.signal.addEventListener('abort', () => { resolve() }, { once: true }) })
+    return { exitCode: 1, output: 'cancelled', truncated: false, logPath: 'git.log', kind: 'unknown' }
+  })
+  const pnpm = vi.spyOn(operations, 'runProfilePnpm')
+  onTestFinished(() => { pnpm.mockRestore() })
+  const requestId = '824103ec-bc45-489d-bb85-5b4fe0aefc78' as PluginInstallRequestId
+  const installing = manager.installBundle('github:acme/dsh-plugin', { requestId })
+  await entered.promise
+  expect(await manager.cancelInstall(requestId)).toEqual({ status: 'cancelled' })
+  expect(await installing).toMatchObject({ application: 'cancelled', changed: false })
+  expect(pnpm).not.toHaveBeenCalled()
+})
+
+it('waits for the GitHub check before installing and activating the bundle', async () => {
+  const { manager, dir, bundle, connection } = await fixture()
+  const entered = Promise.withResolvers<undefined>()
+  const release = Promise.withResolvers<undefined>()
+  connection.mockImplementation(async () => { entered.resolve(undefined); await release.promise; return undefined })
+  const pnpm = vi.spyOn(operations, 'runProfilePnpm').mockImplementation(async () => {
+    bundle('addon', [])
+    const manifest = readProfileManifest('test', dir)
+    manifest.dependencies = { ...manifest.dependencies, addon: '1.0.0' }
+    writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+    return { exitCode: 0, output: 'installed', truncated: false, logPath: join(dir, 'pnpm.log') }
+  })
+  const installing = manager.installBundle('github:acme/addon')
+  onTestFinished(async () => { release.resolve(undefined); await installing; pnpm.mockRestore() })
+  await entered.promise
+  expect(pnpm).not.toHaveBeenCalled()
+  release.resolve(undefined)
+  expect(await installing).toMatchObject({ application: 'applied', changed: true, bundle: 'addon' })
+  expect(readProfileManifest('test', dir).dsh?.profile?.bundles).toContain('addon')
+})
+
+it('disposal waits for an active GitHub check to stop', async () => {
+  const { ctx, manager, connection } = await fixture('startup')
+  const entered = Promise.withResolvers<undefined>()
+  const released = Promise.withResolvers<undefined>()
+  connection.mockImplementation(async (_spec, _dir, options) => {
+    entered.resolve(undefined)
+    await new Promise<void>((resolve) => { options.signal.addEventListener('abort', () => { resolve() }, { once: true }) })
+    released.resolve(undefined)
+    return { exitCode: 1, output: 'cancelled', truncated: false, logPath: 'git.log', kind: 'unknown' }
+  })
+  const pnpm = vi.spyOn(operations, 'runProfilePnpm')
+  onTestFinished(() => { pnpm.mockRestore() })
+  const installing = manager.installBundle('github:acme/addon')
+  await entered.promise
+  await ctx.fiber.dispose()
+  await released.promise
+  expect(await installing).toMatchObject({ application: 'cancelled', changed: false })
+  expect(pnpm).not.toHaveBeenCalled()
+})
+
+it.each(['github:acme/connected', 'https://github.com/acme/connected.git', 'git+ssh://git@github.com/acme/connected.git'])(
+  'installs %s through real Git and pnpm with private repository SSH fallback', async (spec) => {
+    const pnpm = fileURLToPath(new URL('../../../../apps/desktop/node_modules/pnpm/bin/pnpm.mjs', import.meta.url))
+    const env = { GIT_CONFIG_GLOBAL: '', GIT_CONFIG_NOSYSTEM: '1' }
+    const { manager, dir, connection } = await fixture('startup', false, undefined, {}, {
+      command: process.execPath, args: ['--expose-internals', pnpm], env,
+    })
+    connection.mockRestore()
+    const repository = join(dir, 'repository')
+    mkdirSync(repository)
+    env.GIT_CONFIG_GLOBAL = join(dir, 'git.config')
+    writeFileSync(env.GIT_CONFIG_GLOBAL, '')
+    const git = (args: string[]) => execa('git', args, { cwd: repository, env })
+    await git(['init', '--initial-branch=main'])
+    const name = '@test/github-connected'
+    writeFileSync(join(repository, 'package.json'), JSON.stringify({ name, version: '1.0.0', dsh: { bundle: { patch: './cordis.patch.yml' } } }))
+    writeFileSync(join(repository, 'cordis.patch.yml'), '[]\n')
+    await git(['add', '.'])
+    await git(['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'commit.gpgsign=false', 'commit', '-m', 'fixture bundle'])
+    const requests: string[] = []
+    const sockets = new Set<Socket>()
+    const proxy = createServer((_request, response) => {
+      response.writeHead(401, { 'WWW-Authenticate': 'Basic realm="fixture"' })
+      response.end()
+    })
+    proxy.on('connection', (socket) => {
+      sockets.add(socket)
+      socket.once('close', () => { sockets.delete(socket) })
+    })
+    proxy.on('connect', (request, socket) => {
+      requests.push(request.url ?? '')
+      socket.end('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n')
+    })
+    onTestFinished(async () => {
+      for (const socket of sockets) socket.destroy()
+      await new Promise<void>((resolve, reject) => { proxy.close((error) => { if (error) reject(error); else resolve() }) })
+    })
+    proxy.listen(0, '127.0.0.1')
+    await once(proxy, 'listening')
+    const address = proxy.address()
+    if (address === null || typeof address === 'string') throw new Error('proxy did not bind a TCP port')
+    const proxyUrl = `http://127.0.0.1:${String(address.port)}`
+    writeFileSync(env.GIT_CONFIG_GLOBAL, `[url "${pathToFileURL(repository).href}"]\n insteadOf = ssh://git@github.com/acme/connected.git\n insteadOf = git@github.com:acme/connected.git\n[url "${proxyUrl}/"]\n insteadOf = https://github.com/\n[http]\n proxy =\n`)
+    // pnpm probes HTTPS with Node before falling back to SSH, even for an SSH spec.
+    // Route that HTTP request to our proxy too; Git's URL rewrite alone cannot isolate it.
+    const manifest = readProfileManifest('test', dir)
+    delete manifest.dependencies
+    writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+    writeFileSync(join(dir, '.npmrc'), `store-dir=${join(dir, 'store').replaceAll('\\', '/')}\nhttps-proxy=${proxyUrl}\nproxy=${proxyUrl}\nnoproxy=\n`)
+    const result = await manager.installBundle(spec, { enabled: false })
+    expect(result.error).toBeUndefined()
+    expect(result).toMatchObject({ changed: true, bundle: name, packageResult: { exitCode: 0 } })
+    expect(readProfileManifest('test', dir).dependencies).toHaveProperty(name)
+    expect(requests).toContain('github.com:443')
+  },
+)
+
+it.each(['missing package', 'invalid manifest', 'not a bundle', 'missing patch', 'invalid patch'])(
+  'boots with %s, lists its error, and permits deselection without enabling the broken bundle', async (failure) => {
+    const { manager, dir, ctx } = await fixture('live', false, undefined, {}, undefined, (dir) => {
+      const path = join(dir, 'node_modules', 'extra')
+      if (failure === 'missing package') rmSync(path, { recursive: true })
+      if (failure === 'invalid manifest') writeFileSync(join(path, 'package.json'), '{')
+      if (failure === 'not a bundle') writeFileSync(join(path, 'package.json'), '{}')
+      if (failure === 'missing patch') rmSync(join(path, 'cordis.patch.yml'))
+      if (failure === 'invalid patch') writeFileSync(join(path, 'cordis.patch.yml'), '[invalid')
+    })
+    expect([...ctx.loader.entries()].some(entry => entry.id === 'include:managed')).toBe(false)
+    expect((await manager.listBundles()).find(row => row.name === 'extra')).toMatchObject({
+      enabled: true, source: 'extra@1.0.0', error: { code: failure === 'not a bundle' ? 'not-bundle' : 'operation-error' }, rows: [],
+    })
+    expect(await manager.setBundleEnabled('extra', false)).toMatchObject({ changed: true, application: 'applied' })
+    expect(readProfileManifest('test', dir).dsh?.profile?.bundles).toEqual(['core'])
+    expect(await manager.setBundleEnabled('extra', true)).toMatchObject({ changed: false, application: 'failed' })
+  },
+)
+
+it.each(['missing files', 'missing declaration'])('keeps a running management bundle protected with %s', async (failure) => {
+  const { manager, dir } = await fixture()
+  if (failure === 'missing files') rmSync(join(dir, 'node_modules', 'core'), { recursive: true })
+  else writeFileSync(join(dir, 'node_modules', 'core', 'package.json'), '{}')
+  expect((await manager.listBundles()).find(row => row.name === 'core')).toMatchObject({
+    enabled: true, readOnlyReason: 'management-required', removable: false, error: { code: failure === 'missing files' ? 'operation-error' : 'not-bundle' },
+  })
+  expect(await manager.setBundleEnabled('core', false)).toMatchObject({
+    changed: false, application: 'failed', error: { code: 'management-required' },
+  })
+})
+
+it.each(['live', 'startup'] as const)('removes a bundle skipped at startup in a %s profile', async (mode) => {
+  const { manager, dir } = await fixture(mode, false, undefined, {}, undefined, (dir) => {
+    rmSync(join(dir, 'node_modules', 'extra'), { recursive: true })
+  })
+  const remove = vi.spyOn(operations, 'runProfilePnpm').mockImplementation(async () => {
+    const manifest = readProfileManifest('test', dir)
+    expect(manifest.dsh?.profile?.bundles).toEqual(['core'])
+    delete manifest.dependencies?.extra
+    writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+    return { exitCode: 0, output: 'removed', truncated: false, logPath: join(dir, 'pnpm.log') }
+  })
+  onTestFinished(() => { remove.mockRestore() })
+  expect(await manager.removeBundle('extra')).toMatchObject({ changed: true, application: mode === 'live' ? 'applied' : 'restart-required' })
+  expect((await manager.listBundles()).some(row => row.name === 'extra')).toBe(false)
+})
+
+it('recomposes the remaining layers while another bundle is broken and mounts it after repair', async () => {
+  const { manager, dir, bundle, ctx } = await fixture()
+  writeFileSync(join(dir, 'node_modules', 'extra', 'cordis.patch.yml'), '[invalid')
+  bundle('another', [])
+  expect(await manager.setBundleEnabled('another', true)).toMatchObject({ application: 'applied' })
+  expect([...ctx.loader.entries()].some(entry => entry.id === 'include:managed')).toBe(false)
+  bundle('extra', [{ id: 'managed', name: './plugin.mjs' }])
+  expect(await manager.setBundleEnabled('another', false)).toMatchObject({ application: 'applied' })
+  expect([...ctx.loader.entries()].find(entry => entry.id === 'include:managed')?.fiber?.state).toBe(2)
+  expect((await manager.listBundles()).find(row => row.name === 'extra')?.error).toBeUndefined()
+})
 
 it('lists bundle versions and current-profile plugin targets', async () => {
   const { manager, dir } = await fixture()
   const plugins = await manager.listPlugins()
   expect(plugins.find(row => row.entryId === 'include:managed')).toMatchObject({ patchId: 'managed', enabled: true })
   expect(plugins.find(row => row.entryId === 'include:manager')?.readOnlyReason).toBe('management-required')
-  // Offline Official catalog entries carry an install target; this list is the profile's own layers.
   expect((await manager.listBundles()).filter(bundle => bundle.installTarget === undefined)).toEqual([
     {
-      name: 'core', version: '1.0.0', meta: { title: 'core' }, enabled: true, installed: false, optional: false,
-      official: false, availability: 'profile',
-      updatable: true, removable: false, readOnlyReason: 'management-required',
-      rows: [{ rowId: 'manager', moduleName: 'cordis:manager', entryId: 'include:manager', configurable: true }], overrides: [],
+      name: 'core', version: '1.0.0', enabled: true, installed: false, official: false, availability: 'profile', optional: false, removable: false, readOnlyReason: 'management-required',
+      meta: { title: 'core' },
+      rows: [{ rowId: 'manager', moduleName: 'cordis:manager', entryId: 'include:manager' }], overrides: [],
     },
     {
-      name: 'extra', version: '1.0.0', meta: { title: 'extra' }, enabled: true, installed: true, optional: false,
-      official: false, availability: 'profile',
-      updatable: true, removable: true, source: 'extra@1.0.0',
+      name: 'extra', version: '1.0.0', source: 'extra@1.0.0', enabled: true, installed: true, official: false, availability: 'profile', optional: false, removable: true,
+      meta: { title: 'extra' },
       rows: [{ rowId: 'managed', moduleName: pathToFileURL(join(dir, 'node_modules', 'extra', 'plugin.mjs')).href, entryId: 'include:managed' }], overrides: [],
     },
   ])
-})
-
-it('reports shipped layers locked at the layer level and owner layers switchable', async () => {
-  // The shipped template locks the layer: a profile switches it off through its
-  // rows, because dropping the entry would come back on the next load.
-  const { manager, dir, profile } = await fixture('live', false, undefined, {}, undefined, undefined, 'web')
-  const shipped = '@qilin-agent/web-app'
-  const owner = 'dsh-animations'
-  for (const [name, version] of [[shipped, '3.0.4'], [owner, '1.2.3']] as const) {
-    const installedDir = join(dirname(profile.installAnchor), 'node_modules', name)
-    mkdirSync(installedDir, { recursive: true })
-    writeFileSync(join(installedDir, 'package.json'), JSON.stringify({
-      name, version, qilin: { bundle: { patch: './cordis.patch.yml' } },
-    }))
-    writeFileSync(join(installedDir, 'cordis.patch.yml'), '[]\n')
-  }
-  const installation = JSON.parse(readFileSync(profile.installAnchor, 'utf8')) as { dependencies: Record<string, string> }
-  installation.dependencies = { ...installation.dependencies, [shipped]: '3.0.4' }
-  writeFileSync(profile.installAnchor, JSON.stringify(installation))
-  const manifest = readProfileManifest(profile.name, dir)
-  manifest.qilin = { profile: { bundles: ['core', shipped, owner] } }
-  // The owner layer arrives the way a plugin-channel install writes it: listed
-  // as a profile dependency, which is what makes it removable.
-  manifest.dependencies = { ...manifest.dependencies, [owner]: '^1.2.3' }
-  writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
-
-  const rows = await manager.listBundles()
-  // A shipped layer moves with the installation.
-  expect(rows.find(row => row.name === shipped)).toMatchObject({
-    enabled: true, installed: false, optional: false, updatable: false, removable: false, readOnlyReason: 'shipped-layer',
-  })
-  // A retired template name installed back through the plugin channel is the
-  // profile's own layer: updatable and removable, with no shipped lock.
-  expect(rows.find(row => row.name === owner)).toMatchObject({
-    enabled: true, installed: true, optional: false, updatable: true, removable: true,
-  })
-  expect(rows.find(row => row.name === owner)?.readOnlyReason).toBeUndefined()
-  // A bundle the template never named keeps being switchable as a layer.
-  expect(rows.find(row => row.name === 'extra')?.updatable).toBe(true)
-  expect(rows.find(row => row.name === 'extra')?.readOnlyReason).toBeUndefined()
-})
-
-it('offers the registry latest for a bundle the installation supplies and the profile does not install', async () => {
-  const { manager, profile } = await fixture()
-  // A shipped bundle: the profile lists it without depending on it, so the
-  // copy the installation carries serves until an upgrade lands in the profile.
-  const anchor = profile.installAnchor
-  const installation = JSON.parse(readFileSync(anchor, 'utf8')) as { dependencies: Record<string, string> }
-  installation.dependencies = { ...installation.dependencies, 'shipped-anim': '1.2.3' }
-  writeFileSync(anchor, JSON.stringify(installation))
-  const shipped = join(dirname(anchor), 'node_modules', 'shipped-anim')
-  mkdirSync(shipped, { recursive: true })
-  writeFileSync(join(shipped, 'package.json'), JSON.stringify({
-    name: 'shipped-anim', version: '1.2.3', qilin: { bundle: { patch: './cordis.patch.yml' } },
-  }))
-  writeFileSync(join(shipped, 'cordis.patch.yml'), '[]\n')
-  vi.stubGlobal('fetch', async () => new Response(JSON.stringify({ latest: '1.3.0' }), { status: 200 }))
-  onTestFinished(() => { vi.unstubAllGlobals() })
-
-  expect((await manager.listBundles()).find(row => row.name === 'shipped-anim'))
-    .toMatchObject({ version: '1.2.3', enabled: false, installed: false, removable: false })
-  expect((await manager.checkUpdates()).entries.find(entry => entry.name === 'shipped-anim'))
-    .toEqual({ name: 'shipped-anim', currentVersion: '1.2.3', latestVersion: '1.3.0' })
 })
 
 it('describes a bundle by its manifest and patch: one-liner, rows without a live entry, and the built-in rows it changes', async () => {
   const { manager, dir, bundle } = await fixture()
   bundle('described', [{ id: 'described-row', name: './plugin.mjs' }])
   writeFileSync(join(dir, 'node_modules', 'described', 'package.json'), JSON.stringify({
-    name: 'described', version: '2.0.0', description: 'Describes itself.', qilin: { bundle: { patch: './cordis.patch.yml' } },
+    name: 'described', version: '2.0.0', description: 'Describes itself.', dsh: { bundle: { patch: './cordis.patch.yml' } },
   }))
   // An anonymous row is not addressable and is left out of the rows.
   writeFileSync(join(dir, 'node_modules', 'described', 'cordis.patch.yml'), JSON.stringify([
@@ -181,10 +329,8 @@ it('describes a bundle by its manifest and patch: one-liner, rows without a live
   writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
   const moduleName = pathToFileURL(join(dir, 'node_modules', 'described', 'plugin.mjs')).href
   expect((await manager.listBundles()).find(row => row.name === 'described')).toEqual({
-    name: 'described', version: '2.0.0', meta: { title: 'described', description: 'Describes itself.' },
-    description: 'Describes itself.', source: 'described@2.0.0', enabled: false, installed: true, optional: false,
-    official: false, availability: 'profile',
-    updatable: true, removable: true,
+    name: 'described', version: '2.0.0', description: 'Describes itself.', source: 'described@2.0.0', enabled: false, installed: true, official: false, availability: 'profile', optional: false, removable: true,
+    meta: { title: 'described', description: 'Describes itself.' },
     rows: [{ rowId: 'described-row', moduleName }], overrides: ['managed'],
   })
   await manager.setBundleEnabled('described', true)
@@ -209,13 +355,14 @@ it('names where each installed bundle comes from as a spec pnpm installs', async
   }
   for (const name of Object.keys(recorded)) bundle(name, [])
   // Installed under a name other than its own, the package keeps that name only when the spec carries it.
-  writeFileSync(join(dir, 'node_modules', 'aliasLocal', 'package.json'), JSON.stringify({ name: 'original', version: '1.0.0', qilin: { bundle: { patch: './cordis.patch.yml' } } }))
+  writeFileSync(join(dir, 'node_modules', 'aliasLocal', 'package.json'), JSON.stringify({ name: 'original', version: '1.0.0', dsh: { bundle: { patch: './cordis.patch.yml' } } }))
   const manifest = readProfileManifest('test', dir)
   manifest.dependencies = recorded
   writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
   // The installation's own copy of a bundle is the one that loads, so the profile's dependency on it names nothing.
   writeFileSync(profile.installAnchor, JSON.stringify({ name: 'installation', dependencies: { shadowed: '1.0.0' } }))
-  expect(Object.fromEntries((await manager.listBundles()).map(row => [row.name, row.source]))).toEqual({
+  expect(Object.fromEntries((await manager.listBundles())
+    .filter(row => row.installTarget === undefined).map(row => [row.name, row.source]))).toEqual({
     core: undefined, extra: 'extra@^1.0.0', tagged: 'tagged@latest', aliased: 'aliased@npm:@acme/aliased@2', jsr: 'jsr@jsr:@acme/jsr@^1',
     github: 'github:someone/dsh-plugin#v1', ssh: 'git@github.com:someone/dsh-plugin.git', deploy: 'deploy@git.corp:team/dsh-plugin.git',
     sshUrl: 'git+ssh://git@github.com/someone/dsh-plugin.git', email: 'git+http://git.example.com/repo.git',
@@ -226,55 +373,101 @@ it('names where each installed bundle comes from as a spec pnpm installs', async
   })
 })
 
-it('turns a plugin off and on without duplicating patch overrides', async () => {
+it.each(['native', 'runtime'] as const)('reads a disabled bundle and its independent exported plugins without running them with %s resolution', async (mode) => {
+  const { ctx, manager, dir, bundle, profile } = await fixture('startup')
+  bundle('localized', [{ id: 'first', name: 'local-child/first' }, { id: 'second', name: 'local-child/second' }])
+  const root = join(dir, 'node_modules', 'localized')
+  const child = mode === 'runtime'
+    ? join(profile.home, 'installation', 'node_modules', 'local-child')
+    : join(root, 'node_modules', 'local-child')
+  mkdirSync(join(root, 'locale'), { recursive: true })
+  mkdirSync(join(child, 'first-locale'), { recursive: true })
+  mkdirSync(join(child, 'second-locale'), { recursive: true })
+  writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'localized',
+    exports: { './locale/*.json': './locale/*.json' }, dsh: {
+      bundle: { patch: './cordis.patch.yml' },
+    } }))
+  writeFileSync(join(root, 'locale', 'en.json'), '{"meta":{"title":"Local bundle"}}')
+  writeFileSync(join(root, 'locale', 'zh.json'), '{"meta":{"title":"本地组合包"}}')
+  writeFileSync(join(child, 'package.json'), JSON.stringify({ name: 'local-child', exports: {
+    './first': './index.js', './second': './index.js',
+    './first/locale/*.json': './first-locale/*.json', './second/locale/*.json': './second-locale/*.json',
+  } }))
+  writeFileSync(join(child, 'index.js'), 'throw new Error("must not execute")\n')
+  writeFileSync(join(child, 'first-locale', 'en.json'), '{"meta":{"title":"First plugin"}}')
+  writeFileSync(join(child, 'second-locale', 'en.json'), '{"meta":{"title":"Second plugin"}}')
+  const manifest = readProfileManifest('test', dir)
+  manifest.dependencies = { ...manifest.dependencies, localized: '1.0.0' }
+  writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+  const parentURL = pathToFileURL(join(root, 'package.json')).href
+  const readChildren = () => ['first', 'second'].map(part => readPluginMeta(`local-child/${part}`, parentURL))
+  const expectUnlinked = () => {
+    expect(lstatSync(child).isDirectory()).toBe(true)
+    for (const path of [
+      join(root, 'node_modules'), join(dir, 'node_modules', 'local-child'),
+      join(profile.home, 'profiles', 'node_modules'), join(profile.home, 'node_modules'),
+      join(dir, '.dsh-module-fallback'),
+    ]) expect(lstatSync(path, { throwIfNoEntry: false }), path).toBeUndefined()
+  }
+  const resolution: RuntimeResolution = {
+    profilesDir: join(profile.home, 'profiles'), profileDir: dir,
+    localPackageNames: Object.keys(manifest.dependencies),
+    linkedRoots: [],
+    entries: [{ name: 'local-child', packageDir: child, version: undefined,
+      declarer: join(child, 'package.json'), scope: 'installation' }],
+  }
+  if (mode === 'runtime') {
+    expectUnlinked()
+    expect(readChildren()).toEqual([undefined, undefined])
+  }
+  await ctx.plugin(PluginPackages, mode === 'runtime' ? { resolution } : {})
+  const result = (await manager.listBundles()).find(row => row.name === 'localized')
+  expect(result).toMatchObject({ enabled: false, meta: { title: { en: 'Local bundle', zh: '本地组合包' } }, rows: [
+    { rowId: 'first', moduleName: 'local-child/first', meta: { title: { en: 'First plugin' } } },
+    { rowId: 'second', moduleName: 'local-child/second', meta: { title: { en: 'Second plugin' } } },
+  ] })
+  expect(result?.rows[0]?.entryId).toBeUndefined()
+  expect(readPluginMeta('local-child/private', parentURL)).toBeUndefined()
+  if (mode === 'runtime') {
+    expectUnlinked()
+    await ctx.fiber.dispose()
+    expect(readChildren()).toEqual([undefined, undefined])
+    expectUnlinked()
+  }
+})
+
+it.each([
+  { resources: 'exported', exports: { './locale/*.json': './locale/*.json' }, expected: { meta: { title: { en: 'Nameless bundle' } } } },
+  { resources: 'private', exports: {}, expected: {} },
+])('lists a bundle without a manifest name with $resources locale resources', async ({ exports, expected }) => {
+  const { manager, dir, bundle } = await fixture('startup')
+  bundle('unnamed', [])
+  const root = join(dir, 'node_modules', 'unnamed')
+  mkdirSync(join(root, 'locale'))
+  writeFileSync(join(root, 'package.json'), JSON.stringify({
+    version: '1.0.0', exports, dsh: { bundle: { patch: './cordis.patch.yml' } },
+  }))
+  writeFileSync(join(root, 'locale', 'en.json'), '{"meta":{"title":"Nameless bundle"}}')
+  const manifest = readProfileManifest('test', dir)
+  manifest.dependencies = { ...manifest.dependencies, unnamed: '1.0.0' }
+  writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+
+  expect((await manager.listBundles()).find(row => row.name === 'unnamed')).toEqual({
+    name: 'unnamed', version: '1.0.0', source: 'unnamed@1.0.0', enabled: false, installed: true, official: false, availability: 'profile', optional: false, removable: true,
+    rows: [], overrides: [], ...expected,
+  })
+})
+
+it('turns a plugin off and on without leaving a patch override the bundle already implies', async () => {
   const { manager, dir } = await fixture()
   const id = (await manager.listPlugins()).find(row => row.patchId === 'managed')!.entryId
   expect(await manager.setPluginEnabled(id, false)).toMatchObject({ changed: true, application: 'applied' })
   expect((await manager.listPlugins()).find(row => row.entryId === id)?.enabled).toBe(false)
   expect(await manager.setPluginEnabled(id, false)).toMatchObject({ changed: false, application: 'applied' })
-  expect(await manager.setPluginEnabled(id, true)).toMatchObject({ changed: true, application: 'applied' })
   expect(readFileSync(join(dir, 'cordis.patch.yml'), 'utf8').match(/id: managed/g)).toHaveLength(1)
-})
-it('reads a row config schema and persists a complete config override', async () => {
-  const { manager, dir } = await fixture()
-  const path = join(dir, 'node_modules', 'configured')
-  mkdirSync(path, { recursive: true })
-  writeFileSync(join(path, 'package.json'), JSON.stringify({
-    name: 'configured', version: '1.0.0', qilin: { bundle: { patch: './cordis.patch.yml' } },
-  }))
-  writeFileSync(join(path, 'cordis.patch.yml'), JSON.stringify([
-    { insert: [{ id: 'cfg-row', name: './plugin.mjs', config: { greeting: 'hi' } }] },
-  ]))
-  writeFileSync(join(path, 'plugin.mjs'), [
-    'export const Config = {',
-    '  "~standard": { validate: (config) => ({ value: config ?? {} }) },',
-    '  toJSON: () => ({ uid: 1, refs: { 1: { type: "string", meta: { default: "hi" } } } }),',
-    '}',
-    'export function apply(ctx, config) { ctx.provide("configProbe", config ?? {}) }',
-    '',
-  ].join('\n'))
-  const manifest = readProfileManifest('test', dir)
-  manifest.dependencies = { ...manifest.dependencies, configured: '1.0.0' }
-  writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
-  await manager.setBundleEnabled('configured', true)
-  expect(manager.bundleRowConfig('configured', 'cfg-row')).toEqual({
-    schema: { uid: 1, refs: { 1: { type: 'string', meta: { default: 'hi' } } } },
-    values: { greeting: 'hi' },
-  })
-  const result = await manager.setBundleConfig('configured', 'cfg-row', { greeting: 'bye', count: 2 })
-  expect(result).toMatchObject({ changed: true, application: 'applied', stage: 'configure' })
-  expect(manager.bundleRowConfig('configured', 'cfg-row').values).toEqual({ greeting: 'bye', count: 2 })
-  expect(readFileSync(join(dir, 'cordis.patch.yml'), 'utf8')).toContain('greeting: bye')
-  expect(() => manager.bundleRowConfig('configured', 'absent')).toThrow('unknown-plugin')
-  expect(() => manager.bundleRowConfig('extra', 'managed')).toThrow('row-not-running')
-  await manager.setBundleEnabled('configured', false)
-  expect(await manager.setBundleConfig('configured', 'cfg-row', {})).toMatchObject({ application: 'failed', error: { code: 'unaddressable' } })
-  expect(await manager.setBundleConfig('core', 'manager', {})).toMatchObject({ application: 'failed', error: { code: 'management-required' } })
-  await manager.setBundleEnabled('configured', true)
-  expect(manager.bundleRowConfig('configured', 'cfg-row').values).toEqual({ greeting: 'bye', count: 2 })
-  const cfgId = (await manager.listPlugins()).find(row => row.patchId === 'cfg-row')!.entryId
-  await manager.setPluginEnabled(cfgId, false)
-  expect(manager.bundleRowConfig('configured', 'cfg-row').values).toEqual({ greeting: 'bye', count: 2 })
+  expect(await manager.setPluginEnabled(id, true)).toMatchObject({ changed: true, application: 'applied' })
+  expect((await manager.listPlugins()).find(row => row.entryId === id)?.enabled).toBe(true)
+  expect(readFileSync(join(dir, 'cordis.patch.yml'), 'utf8')).not.toContain('id: managed')
 })
 
 it('retains installed dependencies when toggling a bundle and appends it when re-enabled', async () => {
@@ -286,13 +479,15 @@ it('retains installed dependencies when toggling a bundle and appends it when re
   expect(readProfileManifest('test', dir).dependencies).toEqual({ extra: '1.0.0' })
   expect((await manager.listPlugins()).some(row => row.patchId === 'managed')).toBe(false)
   await manager.setBundleEnabled('extra', true)
-  expect(readProfileManifest('test', dir).qilin?.profile?.bundles).toEqual(['core', 'third', 'extra'])
+  expect(readProfileManifest('test', dir).dsh?.profile?.bundles).toEqual(['core', 'third', 'extra'])
 })
 
 it('reports an overlay overriding a saved plugin toggle', async () => {
-  const { manager } = await fixture('live', true)
+  const { manager, dir } = await fixture('live', true)
+  writeFileSync(join(dir, 'cordis.patch.yml'), '- id: managed\n  disabled: true\n')
   const id = (await manager.listPlugins()).find(row => row.patchId === 'managed')!.entryId
   expect(await manager.setPluginEnabled(id, true)).toMatchObject({ changed: true, application: 'overridden' })
+  expect(await manager.setPluginEnabled(id, true)).toMatchObject({ changed: false, application: 'overridden' })
 })
 
 it('saves startup-only toggles and refuses removal of currently used packages', async () => {
@@ -322,6 +517,9 @@ it('installs only valid bundle declarations and honors installation without acti
   const install = vi.spyOn(operations, 'runProfilePnpm').mockImplementation(async (_context, args) => {
     const name = String(args[1])
     bundle(name, [{ id: name, name: './plugin.mjs', config: { service: name } }])
+    if (name === 'another-bundle') {
+      writeFileSync(join(dir, 'node_modules', name, 'package.json'), JSON.stringify({ name, dsh: { bundle: { patch: './cordis.patch.yml' } } }))
+    }
     const manifest = readProfileManifest('test', dir)
     manifest.dependencies = { ...manifest.dependencies, [name]: '1.0.0' }
     writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
@@ -329,107 +527,15 @@ it('installs only valid bundle declarations and honors installation without acti
   })
   onTestFinished(() => { install.mockRestore() })
   expect(await manager.installBundle('new-bundle', { enabled: false })).toMatchObject({
-    changed: true, application: 'applied', stage: 'enable', target: 'new-bundle', bundle: 'new-bundle', packageResult: { exitCode: 0 },
+    changed: true, application: 'applied', stage: 'enable', target: 'new-bundle', bundle: 'new-bundle', version: '1.0.0', packageResult: { exitCode: 0 },
   })
-  expect((await manager.listBundles()).find(row => row.name === 'new-bundle')).toMatchObject({ enabled: false })
+  expect((await manager.listBundles()).find(row => row.name === 'new-bundle')?.enabled).toBe(false)
   expect(await manager.setBundleEnabled('new-bundle', true)).toMatchObject({ application: 'applied' })
   expect((await manager.listPlugins()).find(row => row.patchId === 'new-bundle')?.fiberPhase).toBe('active')
-  expect(await manager.installBundle('another-bundle')).toMatchObject({ application: 'applied' })
-  expect((await manager.listBundles()).find(row => row.name === 'another-bundle')).toMatchObject({ enabled: true })
-})
-
-it('refreshes runtime package resolution after an install and keeps deselected startup bundles untouched', async () => {
-  const refresh = vi.fn(async () => undefined)
-  const { manager, dir, bundle } = await fixture('startup', false, (ctx) => {
-    ctx.provide('pluginPackages', {
-      packageOf: () => undefined, resolution: GENERATION, refresh,
-    } as Partial<Context['pluginPackages']> as Context['pluginPackages'])
-  })
-  const install = vi.spyOn(operations, 'runProfilePnpm').mockImplementation(async (_context, args) => {
-    const name = String(args[1])
-    bundle(name, [{ id: name, name: './plugin.mjs', config: { service: name } }])
-    const manifest = readProfileManifest('test', dir)
-    manifest.dependencies = { ...manifest.dependencies, [name]: '1.0.0' }
-    writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
-    return { exitCode: 0, output: 'installed', truncated: false, logPath: join(dir, 'pnpm.log') }
-  })
-  onTestFinished(() => { install.mockRestore() })
-  expect(await manager.installBundle('new-bundle', { enabled: true })).toMatchObject({ changed: true, stage: 'enable' })
-  expect(refresh).toHaveBeenCalledTimes(1)
-  // A started bundle deselected for this run keeps running on the existing package table.
-  expect(await manager.setBundleEnabled('extra', false)).toMatchObject({ changed: true, application: 'restart-required' })
-  expect(refresh).toHaveBeenCalledTimes(1)
-})
-
-it('refreshes runtime package resolution when live reload deselects a started bundle', async () => {
-  const refresh = vi.fn(async () => undefined)
-  const { manager, dir } = await fixture('live', false, (ctx) => {
-    ctx.provide('pluginPackages', {
-      packageOf: () => undefined, resolution: GENERATION, refresh,
-    } as Partial<Context['pluginPackages']> as Context['pluginPackages'])
-  })
-  expect(await manager.setBundleEnabled('extra', false)).toMatchObject({ application: 'applied' })
-  expect(readProfileManifest('test', dir).qilin?.profile?.bundles ?? []).not.toContain('extra')
-  // The operation's own recomposition publishes the new generation; the manifest write it made may recompose again.
-  expect(refresh).toHaveBeenCalled()
-})
-
-it.each(['network', 'timeout'] as const)('stops a GitHub %s before pnpm and attributes it to the repository', async (kind) => {
-  const { manager, dir } = await fixture()
-  const connection = vi.spyOn(githubConnection, 'checkGithubConnection')
-  const pnpm = vi.spyOn(operations, 'runProfilePnpm')
-  onTestFinished(() => { connection.mockRestore(); pnpm.mockRestore() })
-  const before = readFileSync(join(dir, 'package.json'), 'utf8')
-  const failure = { exitCode: 1, output: 'GitHub check failed', truncated: false, logPath: join(dir, 'git.log'), kind }
-  connection.mockResolvedValue(failure)
-  expect(await manager.installBundle('https://github.com/acme/qilin-plugin.git')).toMatchObject({
-    application: 'failed', changed: false, stage: 'install', failedAt: 'spec-host', packageResult: failure,
-  })
-  expect(pnpm).not.toHaveBeenCalled()
-  expect(connection).toHaveBeenCalledWith(
-    { kind: 'git', spec: 'https://github.com/acme/qilin-plugin.git', host: 'github.com' }, dir,
-    expect.objectContaining({ timeoutMs: 5000 }),
-  )
-  expect(readFileSync(join(dir, 'package.json'), 'utf8')).toBe(before)
-})
-
-it('leaves non-network GitHub errors to pnpm and forwards the profile Git environment and deadline', async () => {
-  const env = { GIT_CONFIG_GLOBAL: '/application/git.config' }
-  const { manager, dir } = await fixture('live', false, undefined, { githubConnectionTimeoutMs: 8000 }, { command: 'pnpm', args: [], env })
-  const connection = vi.spyOn(githubConnection, 'checkGithubConnection')
-  const pnpm = vi.spyOn(operations, 'runProfilePnpm')
-  onTestFinished(() => { connection.mockRestore(); pnpm.mockRestore() })
-  connection.mockResolvedValue({ exitCode: 128, output: 'fatal: Authentication failed', truncated: false, logPath: 'git.log', kind: 'unknown' })
-  const failure = { exitCode: 1, output: 'pnpm owns authentication', truncated: false, logPath: 'pnpm.log', kind: 'unknown' as const }
-  pnpm.mockResolvedValue(failure)
-  const result = await manager.installBundle('github:acme/qilin-private-plugin')
-  expect(result.application).toBe('failed')
-  expect(result.packageResult).toEqual(failure)
-  expect(result.failedAt).toBeUndefined()
-  expect(pnpm).toHaveBeenCalledOnce()
-  expect(connection).toHaveBeenCalledWith(
-    { kind: 'git', spec: 'github:acme/qilin-private-plugin', host: 'github.com' }, dir,
-    expect.objectContaining({ timeoutMs: 8000, env }),
-  )
-})
-
-it('cancels an active GitHub check before starting pnpm', async () => {
-  const { manager } = await fixture()
-  const connection = vi.spyOn(githubConnection, 'checkGithubConnection')
-  const pnpm = vi.spyOn(operations, 'runProfilePnpm')
-  onTestFinished(() => { connection.mockRestore(); pnpm.mockRestore() })
-  const entered = Promise.withResolvers<undefined>()
-  connection.mockImplementation(async (_spec, _dir, options) => {
-    entered.resolve(undefined)
-    await new Promise<void>((resolve) => { options.signal.addEventListener('abort', () => { resolve() }, { once: true }) })
-    return { exitCode: 1, output: 'cancelled', truncated: false, logPath: 'git.log', kind: 'unknown' }
-  })
-  const requestId = '824103ec-bc45-489d-bb85-5b4fe0aefc78' as PluginInstallRequestId
-  const installing = manager.installBundle('github:acme/qilin-plugin', { requestId })
-  await entered.promise
-  expect(await manager.cancelInstall(requestId)).toEqual({ status: 'cancelled' })
-  expect(await installing).toMatchObject({ application: 'cancelled', changed: false })
-  expect(pnpm).not.toHaveBeenCalled()
+  const another = await manager.installBundle('another-bundle')
+  expect(another).toMatchObject({ application: 'applied', bundle: 'another-bundle' })
+  expect(another).not.toHaveProperty('version')
+  expect((await manager.listBundles()).find(row => row.name === 'another-bundle')?.enabled).toBe(true)
 })
 
 it('reports blocked scripts after a failed installation and retries only after explicit profile build approval', async () => {
@@ -460,7 +566,7 @@ it('reports blocked scripts after a failed installation and retries only after e
   expect(await manager.installBundle('addon', { approvedBuilds: ['native'], enabled: false })).toMatchObject({
     application: 'applied', changed: true, approvedBuilds: ['native'],
   })
-  expect(readProfileManifest('test', dir).qilin?.profile?.bundles).not.toContain('addon')
+  expect(readProfileManifest('test', dir).dsh?.profile?.bundles).not.toContain('addon')
 })
 
 it('retains approved policy and reports it as changed when the registry fails before adding a dependency', async () => {
@@ -479,7 +585,7 @@ it('runs a real pnpm dependency script only after approval and retry', async () 
   const addon = join(profile.cwd, 'addon')
   mkdirSync(addon)
   writeFileSync(join(addon, 'package.json'), JSON.stringify({ name: 'approval-fixture-addon', version: '1.0.0',
-    scripts: { install: 'node build.cjs' }, qilin: { bundle: { patch: './cordis.patch.yml' } } }))
+    scripts: { install: 'node build.cjs' }, dsh: { bundle: { patch: './cordis.patch.yml' } } }))
   writeFileSync(join(addon, 'build.cjs'), 'require("node:fs").writeFileSync("built.txt", "built")\n')
   writeFileSync(join(addon, 'cordis.patch.yml'), '[]\n')
   writeFileSync(join(dir, 'package.json'), '{"name":"approval-fixture","private":true}\n')
@@ -529,6 +635,38 @@ it('unloads before removing packages and retries inactive dependencies whose fil
   expect((await manager.listBundles()).some(row => row.name === 'extra')).toBe(false)
 })
 
+it('treats a terminated run that trapped the signal and exited zero as a failure', async () => {
+  const { manager, dir } = await fixture()
+  const install = vi.spyOn(operations, 'runProfilePnpm').mockImplementation(async () => {
+    // pnpm rewrote the manifest before it trapped the manager's signal.
+    const manifest = readProfileManifest('test', dir)
+    manifest.dependencies = { ...manifest.dependencies, half: '1.0.0' }
+    writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+    return { exitCode: 0, output: 'installing\n', truncated: false, logPath: join(dir, 'pnpm.log'), timedOut: true }
+  })
+  onTestFinished(() => { install.mockRestore() })
+  const result = await manager.installBundle('half', { enabled: false })
+  expect(result).toMatchObject({ application: 'failed', packageResult: { exitCode: 0, timedOut: true, kind: 'timeout' } })
+  // The half-written dependency goes back, and nothing is activated.
+  expect(readProfileManifest('test', dir).dependencies).toEqual({ extra: '1.0.0' })
+  expect((await manager.listBundles()).some(row => row.name === 'half')).toBe(false)
+})
+
+it('reports a terminated removal as failed even when pnpm exited zero', async () => {
+  const { manager, dir } = await fixture()
+  const remove = vi.spyOn(operations, 'runProfilePnpm').mockImplementation(async () => {
+    // The unload already happened, so the removal is reported through its own run.
+    const manifest = readProfileManifest('test', dir)
+    delete manifest.dependencies?.extra
+    writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+    return { exitCode: 0, output: 'removing\n', truncated: false, logPath: join(dir, 'pnpm.log'), timedOut: true }
+  })
+  onTestFinished(() => { remove.mockRestore() })
+  expect(await manager.removeBundle('extra')).toMatchObject({
+    application: 'failed', packageResult: { exitCode: 0, timedOut: true, kind: 'timeout' },
+  })
+})
+
 it('restores the manifest and lockfile after a failed package run, classifying the failure', async () => {
   const { manager, dir } = await fixture()
   const lockPath = join(dir, 'pnpm-lock.yaml')
@@ -573,19 +711,18 @@ it('reports a selected plain dependency as a problem, omits an unselected one, a
   const { manager, dir, profile } = await fixture()
   writeFileSync(profile.installAnchor, '{}')
   writeFileSync(join(dir, 'node_modules', 'extra', 'package.json'), '{"name":"extra"}')
-  expect((await manager.listBundles()).find(row => row.name === 'extra')).toMatchObject({ enabled: true, source: 'extra@1.0.0', error: { code: 'not-bundle' } })
+  expect((await manager.listBundles()).find(row => row.name === 'extra')).toMatchObject({ enabled: true, error: { code: 'not-bundle' } })
   expect(await manager.setBundleEnabled('extra', false)).toMatchObject({ application: 'applied' })
   // Switched off, a dependency without a bundle patch is a library the page has no business with.
   expect((await manager.listBundles()).some(row => row.name === 'extra')).toBe(false)
   expect(await manager.setBundleEnabled('extra', true)).toMatchObject({ changed: false, application: 'failed' })
-  writeFileSync(join(dir, 'node_modules', 'core', 'package.json'), '{"name":"core","qilin":{"bundle":{"patch":"./cordis.patch.yml"}}}')
+  writeFileSync(join(dir, 'node_modules', 'core', 'package.json'), '{"name":"core","dsh":{"bundle":{"patch":"./cordis.patch.yml"}}}')
   expect((await manager.listBundles())[0]?.version).toBeUndefined()
   writeFileSync(join(dir, 'package.json'), '{}')
-  // Only the offline catalog entries remain once the profile declares nothing.
-  expect((await manager.listBundles()).filter(row => row.installTarget === undefined)).toEqual([])
+  expect((await manager.listBundles()).filter(bundle => bundle.installTarget === undefined)).toEqual([])
   expect(await manager.setBundleEnabled('unknown', false)).toMatchObject({ application: 'failed' })
   writeFileSync(profile.installAnchor, '{"dependencies":{"missing-builtin":"1"}}')
-  expect((await manager.listBundles()).filter(row => row.installTarget === undefined)).toEqual([])
+  expect((await manager.listBundles()).filter(bundle => bundle.installTarget === undefined)).toEqual([])
 })
 
 it('refuses management bundle disablement and permits repeated bundle selections', async () => {
@@ -598,6 +735,7 @@ it.each([
   '@qilin-agent/host-plugin-inventory',
   '@qilin-agent/typert-registry',
   '@qilin-agent/api-remotes',
+  '@qilin-agent/api-remote-access',
 ])('protects the management dependency %s and its containing bundle', async (name) => {
   const { ctx, manager, bundle, profile, dir } = await fixture('startup')
   bundle('extra', [{ id: 'dependency', name, disabled: true }])
@@ -628,6 +766,7 @@ it('addresses children inside profile groups and marks ambiguous ids read-only',
     config: [{ id: 'child', name: './plugin.mjs', config: { service: 'child' } }] }])
   expect(await manager.setBundleEnabled('grouped', true)).toMatchObject({ application: 'applied' })
   expect((await manager.listPlugins()).find(row => row.patchId === 'child')).toBeDefined()
+  expect((await manager.listBundles()).find(item => item.name === 'grouped')?.rows.map(row => row.rowId)).toEqual(['child'])
   const entries = composeEntries([readProfilePatches('test', profile)])
   const duplicate = entries.find(row => row.id === 'managed')!
   writeFileSync(profile.patchPath, JSON.stringify([{ insert: [duplicate] }]))
@@ -655,19 +794,18 @@ it('restores the manifest when the package pnpm added declares no bundle', async
   })
   // The manifest is put back rather than cleaned through another pnpm run.
   expect(install).toHaveBeenCalledOnce()
-  expect(readProfileManifest('test', dir)).toMatchObject({ dependencies: { extra: '1.0.0' }, qilin: { profile: { bundles: ['core', 'extra'] } } })
+  expect(readProfileManifest('test', dir)).toMatchObject({ dependencies: { extra: '1.0.0' }, dsh: { profile: { bundles: ['core', 'extra'] } } })
   expect((await manager.listBundles()).some(row => row.name === 'plain')).toBe(false)
 })
 
-it('refuses to install over an installed package by name, version or local directory, without running pnpm', async () => {
+it('refuses to install over an installed package, by name, version or local directory, without running pnpm', async () => {
   const { manager, dir } = await fixture()
   const install = vi.spyOn(operations, 'runProfilePnpm').mockResolvedValue({ exitCode: 0, output: '', truncated: false, logPath: '/operation.log' })
   onTestFinished(() => { install.mockRestore() })
-  for (const spec of ['extra', 'extra@2', join(dir, 'node_modules', 'extra')]) {
-    expect(await manager.installBundle(spec))
-      .toMatchObject({ application: 'failed', stage: 'install', changed: false, error: { code: 'already-installed' } })
+  for (const spec of ['extra', 'extra@2', join(dir, 'node_modules', 'extra'), `link:${join(dir, 'node_modules', 'extra')}`]) {
+    expect(await manager.installBundle(spec)).toMatchObject({ application: 'failed', stage: 'install', changed: false, error: { code: 'already-installed' } })
   }
-  // A tarball saved as a path relative to the profile is refused too, and a refused install writes no script approvals.
+  // A tarball saved as a path relative to the profile, and a refused install's script approvals, write nothing.
   const manifest = readProfileManifest('test', dir)
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ ...manifest, dependencies: { extra: 'file:../extra-1.0.0.tgz' } }))
   const workspace = join(dir, 'pnpm-workspace.yaml')
@@ -676,11 +814,7 @@ it('refuses to install over an installed package by name, version or local direc
     .toMatchObject({ application: 'failed', changed: false, error: { code: 'already-installed' } })
   expect(existsSync(workspace) ? readFileSync(workspace, 'utf8') : undefined).toBe(settings)
   writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
-  // A local spec whose directory declares nothing is refused by pnpm's own answer, not by this check.
-  install.mockResolvedValue({ exitCode: 0, output: '', truncated: false, logPath: '/operation.log' })
-  expect(await manager.installBundle(join(dir, 'node_modules', 'absent')))
-    .toMatchObject({ application: 'failed', changed: false, error: { code: 'ambiguous-install' } })
-  expect(install).toHaveBeenCalledOnce()
+  expect(install).not.toHaveBeenCalled()
   expect(readProfileManifest('test', dir).dependencies).toEqual({ extra: '1.0.0' })
 })
 
@@ -735,9 +869,8 @@ it('recognizes a repeated installation without HMR that leaves the saved depende
   const { manager, dir } = await fixture('startup')
   const install = vi.spyOn(operations, 'runProfilePnpm').mockResolvedValue({ exitCode: 0, output: '', truncated: false, logPath: join(dir, 'pnpm.log') })
   onTestFinished(() => { install.mockRestore() })
-  // The profile already selected `extra`, so installing it disabled deselects it and changes the manifest.
-  expect(await manager.installBundle(join(dir, 'node_modules', 'extra'), { enabled: false }))
-    .toMatchObject({ application: 'restart-required', bundle: 'extra', enabled: false })
+  expect(await manager.installBundle(`link:${join(dir, 'node_modules', 'extra')}`, { enabled: false }))
+    .toMatchObject({ changed: false, application: 'restart-required', bundle: 'extra', enabled: false })
 })
 
 it('reports ambiguous package changes as failures', async () => {
@@ -753,7 +886,7 @@ it('reports ambiguous package changes as failures', async () => {
   expect(readProfileManifest('test', dir).dependencies).toEqual({ extra: '1.0.0' })
 })
 
-it('removes a package with the registry it was installed from', async () => {
+it('removes a package with the registry it was installed from, so pnpm verifies its lockfile entries there', async () => {
   const { manager, dir, bundle } = await fixture()
   const corp = 'https://npm.corp.example/'
   const pnpm = vi.spyOn(operations, 'runProfilePnpm').mockImplementation(async (_context, args) => {
@@ -772,56 +905,20 @@ it('removes a package with the registry it was installed from', async () => {
   expect(await manager.installBundle('mirrored', { enabled: false, registry: corp })).toMatchObject({ application: 'applied' })
   expect(await manager.removeBundle('mirrored')).toMatchObject({ application: 'applied' })
   expect(pnpm.mock.calls.at(-1)?.[1]).toEqual(['remove', 'mirrored', `--config.registry=${corp}`])
-})
-
-it('removes a package with the configured registry when this process installed none', async () => {
-  const { manager, dir } = await fixture('live', false, undefined, { registry: OFFICIAL })
-  const pnpm = vi.spyOn(operations, 'runProfilePnpm').mockResolvedValue({ exitCode: 0, output: '', truncated: false, logPath: join(dir, 'pnpm.log') })
-  onTestFinished(() => { pnpm.mockRestore() })
-  expect(await manager.removeBundle('extra')).toMatchObject({ application: 'applied' })
-  expect(pnpm.mock.calls.at(-1)?.[1]).toEqual(['remove', 'extra', `--config.registry=${OFFICIAL}`])
-})
-
-it('reports an applied change as requiring restart when HMR published a restart reason', async () => {
-  const { manager } = await fixture('startup', false, (ctx) => {
-    ctx.provide('hmr', {
-      runExclusive: (operation: () => Promise<unknown>) => operation(),
-      reconcileProfile: async () => ({ warnings: [], pending: [{ url: 'file:///host.mjs', reason: 'host-module' }] }),
-    } as Partial<Context['hmr']> as Context['hmr'])
-  })
-  expect(await manager.setBundleEnabled('extra', false))
-    .toMatchObject({ application: 'restart-required', restartReason: 'host-module' })
-})
-
-it('keeps the package table when the profile has no published generation or its publication waits for a restart', async () => {
-  const publish = vi.fn(async () => undefined)
-  const withoutGeneration = await fixture('startup', false, (ctx) => {
-    ctx.provide('pluginPackages', { packageOf: () => undefined, refresh: publish } as Partial<Context['pluginPackages']> as Context['pluginPackages'])
-  })
-  expect(await withoutGeneration.manager.setBundleEnabled('extra', true)).toMatchObject({ application: 'restart-required' })
-  expect(publish).not.toHaveBeenCalled()
-
-  // A publication the resolver rejects waits for the restart the result already reports.
-  const waiting = await fixture('startup', false, (ctx) => {
-    ctx.provide('pluginPackages', {
-      packageOf: () => undefined, resolution: GENERATION, refresh: async () => {
-        throw new ResolutionRestartRequired('installation mapping changed')
-      },
-    } as Partial<Context['pluginPackages']> as Context['pluginPackages'])
-  })
-  expect(await waiting.manager.setBundleEnabled('extra', true))
-    .toMatchObject({ application: 'restart-required' })
-
-  // Any other publication failure is the operation's failure, not a restart.
-  const broken = await fixture('startup', false, (ctx) => {
-    ctx.provide('pluginPackages', {
-      packageOf: () => undefined, resolution: GENERATION, refresh: async () => {
-        throw new Error('installation tree is unreadable')
-      },
-    } as Partial<Context['pluginPackages']> as Context['pluginPackages'])
-  })
-  expect(await broken.manager.setBundleEnabled('extra', true))
-    .toMatchObject({ application: 'failed', error: { code: 'operation-error' } })
+  // A failed installation records no registry, and a failed removal keeps the recorded one for the retry.
+  pnpm.mockResolvedValueOnce({ exitCode: 1, output: 'failed', truncated: false, logPath: join(dir, 'pnpm.log') })
+  expect(await manager.installBundle('failing', { enabled: false, registry: corp })).toMatchObject({ application: 'failed' })
+  expect(await manager.installBundle('mirrored', { enabled: false, registry: corp })).toMatchObject({ application: 'applied' })
+  pnpm.mockResolvedValueOnce({ exitCode: 1, output: 'remove failed', truncated: false, logPath: join(dir, 'pnpm.log') })
+  expect(await manager.removeBundle('mirrored')).toMatchObject({ application: 'failed' })
+  expect(await manager.removeBundle('mirrored')).toMatchObject({ application: 'applied' })
+  expect(pnpm.mock.calls.at(-1)?.[1]).toEqual(['remove', 'mirrored', `--config.registry=${corp}`])
+  // A package this manager did not install is removed with the registry an installation asks first.
+  bundle('mirrored', [])
+  const manifest = readProfileManifest('test', dir)
+  writeFileSync(join(dir, 'package.json'), JSON.stringify({ ...manifest, dependencies: { ...manifest.dependencies, mirrored: '1.0.0' } }))
+  await manager.removeBundle('mirrored')
+  expect(pnpm.mock.calls.at(-1)?.[1]).toEqual(['remove', 'mirrored'])
 })
 
 it('streams pnpm output, reports the installation phases, and names the installed bundle', async () => {
@@ -853,10 +950,7 @@ it('streams pnpm output, reports the installation phases, and names the installe
     { requestId, jobId, argv: ['pnpm', 'add', 'streamed'], cwd: dir, stream: 'stderr', text: 'warning\n' },
     { requestId, jobId, argv: ['pnpm', 'add', 'streamed'], cwd: dir, stream: 'stdout', text: '', exitCode: 0 },
   ])
-  expect(phases).toEqual([
-    { requestId, phase: 'installing', attempt: { registry: null, index: 1, total: 2 } },
-    { requestId, phase: 'applying' },
-  ])
+  expect(phases).toEqual([{ requestId, phase: 'installing', attempt: { registry: null, index: 1, total: 2 } }, { requestId, phase: 'applying' }])
   expect(changes).toEqual([{ reason: 'install' }])
   // A run without a request id streams too, unidentified.
   await manager.removeBundle('streamed')
@@ -883,16 +977,17 @@ it('stops a run on request, restores the files, and answers not-running or too-l
   const before = readFileSync(join(dir, 'package.json'), 'utf8')
   const run = manager.installBundle('slow', { requestId })
   await started.promise
+  const recoveredCancellation = manager.waitForInstall(requestId)
+  expect(await manager.waitForInstall('missing' as PluginInstallRequestId)).toBeNull()
   expect(await manager.cancelInstall('00000000-0000-4000-8000-000000000000' as PluginInstallRequestId)).toEqual({ status: 'not-running' })
   expect(await manager.cancelInstall(requestId)).toEqual({ status: 'cancelled' })
   expect(readFileSync(join(dir, 'package.json'), 'utf8')).toBe(before)
   const cancelled = await run
+  expect(await recoveredCancellation).toEqual(cancelled)
+  expect(await manager.waitForInstall(requestId)).toBeNull()
   expect(cancelled).toMatchObject({ application: 'cancelled', changed: false, stage: 'install', packageResult: { exitCode: 1 } })
   expect(cancelled.error).toBeUndefined()
-  expect(phases).toEqual([
-    { requestId, phase: 'installing', attempt: { registry: null, index: 1, total: 2 } },
-    { requestId, phase: 'cancelling' },
-  ])
+  expect(phases).toEqual([{ requestId, phase: 'installing', attempt: { registry: null, index: 1, total: 2 } }, { requestId, phase: 'cancelling' }])
   expect(await manager.cancelInstall(requestId)).toEqual({ status: 'not-running' })
   // Once pnpm has exited and the bundle is being applied, the run cannot be stopped.
   install.mockImplementation(async (_context, args) => {
@@ -904,9 +999,15 @@ it('stops a run on request, restores the files, and answers not-running or too-l
     return { exitCode: 0, output: 'installed', truncated: false, logPath: join(dir, 'pnpm.log') }
   })
   let tooLate: Promise<unknown> | undefined
-  ctx.on('plugin-manager/install-state', (progress) => { if (progress.phase === 'applying') tooLate = manager.cancelInstall(progress.requestId) })
+  let recoveredApplication: Promise<unknown> | undefined
+  ctx.on('plugin-manager/install-state', (progress) => {
+    if (progress.phase !== 'applying') return
+    tooLate = manager.cancelInstall(progress.requestId)
+    recoveredApplication = manager.waitForInstall(progress.requestId)
+  })
   expect(await manager.installBundle('late', { requestId })).toMatchObject({ application: 'applied', bundle: 'late' })
   expect(await tooLate).toEqual({ status: 'too-late' })
+  expect(await recoveredApplication).toMatchObject({ application: 'applied', bundle: 'late' })
   // A request aborted before its turn under the lock never starts pnpm.
   const early = manager.installBundle('never', { requestId })
   const queued = manager.installBundle('after', { requestId: '11111111-1111-4111-8111-111111111111' as PluginInstallRequestId })
@@ -920,18 +1021,18 @@ it('reads what a spec names before installing it', async () => {
   const view = vi.spyOn(operations, 'viewProfilePackage')
   onTestFinished(() => { view.mockRestore() })
   const answers = (stdout: string) => view.mockResolvedValueOnce({ exitCode: 0, stdout, stderr: '', timedOut: false })
-  answers(JSON.stringify({ name: 'qilin-x', version: '1.4.2', description: 'A sidebar.', qilin: { bundle: { patch: './cordis.patch.yml' } } }))
-  expect(await manager.inspect('qilin-x')).toEqual({
-    status: 'accepted', kind: 'registry', name: 'qilin-x', version: '1.4.2', description: 'A sidebar.', bundle: true, registry: null,
+  answers(JSON.stringify({ name: 'dsh-x', version: '1.4.2', description: 'A sidebar.', dsh: { bundle: { patch: './cordis.patch.yml' } } }))
+  expect(await manager.inspect('dsh-x')).toEqual({
+    status: 'accepted', kind: 'registry', name: 'dsh-x', version: '1.4.2', description: 'A sidebar.', bundle: true, registry: null,
   })
-  expect(view).toHaveBeenCalledWith(dir, 'qilin-x', { command: 'pnpm-test', timeoutMs: 1000, registry: null })
+  expect(view).toHaveBeenCalledWith(dir, 'dsh-x', { command: 'pnpm-test', timeoutMs: 1000, registry: null })
   const signal = AbortSignal.abort()
-  answers(JSON.stringify([{ name: 'qilin-lib', version: '1.0.0', qilin: { bundle: {} } }, { name: 'qilin-lib', version: '1.1.0', qilin: null }]))
-  expect(await manager.inspect('qilin-lib@^1', undefined, signal)).toEqual({ status: 'refused', problem: 'not-a-bundle', reason: 'qilin-lib declares no qilin.bundle.patch or dsh.bundle.patch', registries: [null] })
-  expect(view).toHaveBeenLastCalledWith(dir, 'qilin-lib@^1', { command: 'pnpm-test', timeoutMs: 1000, signal, registry: null })
+  answers(JSON.stringify([{ name: 'dsh-lib', version: '1.0.0', dsh: { bundle: {} } }, { name: 'dsh-lib', version: '1.1.0', dsh: null }]))
+  expect(await manager.inspect('dsh-lib@^1', undefined, signal)).toEqual({ status: 'refused', problem: 'not-a-bundle', reason: 'dsh-lib declares no dsh.bundle', registries: [null] })
+  expect(view).toHaveBeenLastCalledWith(dir, 'dsh-lib@^1', { command: 'pnpm-test', timeoutMs: 1000, signal, registry: null })
   // An answer that names no package keeps the name the spec gave; colour escapes around the JSON are dropped.
-  answers('\x1b[36m' + JSON.stringify({ version: '0.0.1', description: '', qilin: { bundle: { patch: './p.yml' } } }) + '\x1b[39m\n')
-  expect(await manager.inspect('qilin-bare')).toEqual({ status: 'accepted', kind: 'registry', name: 'qilin-bare', version: '0.0.1', bundle: true, registry: null })
+  answers('\x1b[36m' + JSON.stringify({ version: '0.0.1', description: '', dsh: { bundle: { patch: './p.yml' } } }) + '\x1b[39m\n')
+  expect(await manager.inspect('dsh-bare')).toEqual({ status: 'accepted', kind: 'registry', name: 'dsh-bare', version: '0.0.1', bundle: true, registry: null })
   const failure = (stderr: string, exitCode: number | null = 1, more: Partial<operations.PackageViewResult> = {}) =>
     view.mockResolvedValueOnce({ exitCode, stdout: '', stderr, timedOut: false, ...more })
   failure('npm error code E404\nnpm error 404 Not Found - GET https://registry/nope\n')
@@ -958,57 +1059,30 @@ it('reads what a spec names before installing it', async () => {
   // What is installed, or supplied by the installation, is refused before the registry is asked.
   expect(await manager.inspect('extra')).toEqual({ status: 'refused', problem: 'already-installed', reason: 'extra is already installed' })
   expect(await manager.inspect('./relative')).toEqual({ status: 'refused', problem: 'invalid-spec', reason: 'a local path must be absolute' })
-  expect(await manager.inspect('github:acme/qilin-remote')).toEqual({ status: 'accepted', kind: 'git', bundle: null, registry: null, host: 'github.com' })
+  expect(await manager.inspect('github:acme/dsh-remote')).toEqual({ status: 'accepted', kind: 'git', bundle: null, registry: null, host: 'github.com' })
   const tarball = join(profile.home, 'pack.tgz')
   expect(await manager.inspect(tarball)).toEqual({ status: 'refused', problem: 'not-a-package', reason: 'the tarball does not exist' })
   writeFileSync(tarball, '')
   expect(await manager.inspect(tarball)).toEqual({ status: 'accepted', kind: 'tarball', bundle: null, registry: null })
-  expect(await manager.inspect('https://cdn.example.com/x/y/z/qilin-x-1.0.0.tgz')).toEqual({
-    status: 'accepted', kind: 'tarball', bundle: null, registry: null, host: 'cdn.example.com',
-  })
+  expect(await manager.inspect('https://cdn.example.com/x/y/z/dsh-x-1.0.0.tgz')).toEqual({ status: 'accepted', kind: 'tarball', bundle: null, registry: null, host: 'cdn.example.com' })
   // A directory answers from its own manifest.
-  const local = join(profile.home, 'dev', 'qilin-local')
+  const local = join(profile.home, 'dev', 'dsh-local')
   mkdirSync(local, { recursive: true })
   expect(await manager.inspect(join(profile.home, 'dev', 'missing'))).toEqual({ status: 'refused', problem: 'not-a-package', reason: 'the path does not exist' })
   expect(await manager.inspect(local)).toMatchObject({ status: 'refused', problem: 'not-a-package', reason: expect.stringContaining('no readable package.json') as string })
   writeFileSync(join(local, 'package.json'), '{"version":"1.0.0"}')
   expect(await manager.inspect(local)).toEqual({ status: 'refused', problem: 'not-a-package', reason: 'the package.json names no package' })
-  writeFileSync(join(local, 'package.json'), JSON.stringify({ name: 'qilin-local', version: '0.1.0', description: 'Local.' }))
-  expect(await manager.inspect(local)).toEqual({ status: 'refused', problem: 'not-a-bundle', reason: 'qilin-local declares no qilin.bundle.patch or dsh.bundle.patch' })
-  writeFileSync(join(local, 'package.json'), JSON.stringify({ name: 'qilin-local', version: '0.1.0', description: 'Local.', qilin: { bundle: { patch: './p.yml' } } }))
-  expect(await manager.inspect(`file:${local}`)).toEqual({
-    status: 'accepted', kind: 'path', name: 'qilin-local', version: '0.1.0', description: 'Local.', bundle: true, registry: null,
-  })
-  writeFileSync(join(local, 'package.json'), JSON.stringify({ name: 'core', qilin: { bundle: { patch: './p.yml' } } }))
+  writeFileSync(join(local, 'package.json'), JSON.stringify({ name: 'dsh-local', version: '0.1.0', description: 'Local.' }))
+  expect(await manager.inspect(local)).toEqual({ status: 'refused', problem: 'not-a-bundle', reason: 'dsh-local declares no dsh.bundle' })
+  writeFileSync(join(local, 'package.json'), JSON.stringify({ name: 'dsh-local', version: '0.1.0', description: 'Local.', dsh: { bundle: { patch: './p.yml' } } }))
+  expect(await manager.inspect(`file:${local}`)).toEqual({ status: 'accepted', kind: 'path', name: 'dsh-local', version: '0.1.0', description: 'Local.', bundle: true, registry: null })
+  writeFileSync(join(local, 'package.json'), JSON.stringify({ name: 'core', dsh: { bundle: { patch: './p.yml' } } }))
   expect(await manager.inspect(local)).toEqual({ status: 'refused', problem: 'already-installed', reason: 'core is already installed' })
   // A profile and an installation that list nothing know nothing.
   writeFileSync(join(dir, 'package.json'), '{}')
   writeFileSync(profile.installAnchor, '{}')
   expect(await manager.inspect(local)).toEqual({ status: 'accepted', kind: 'path', name: 'core', bundle: true, registry: null })
   expect(view).toHaveBeenCalledTimes(13)
-})
-
-it('accepts a DSH-era bundle declaration the load path accepts', async () => {
-  const { manager, profile } = await fixture(undefined, false, undefined, { inspectTimeoutMs: 1000, pnpmCommand: 'pnpm-test', fallbackRegistries: [] })
-  const view = vi.spyOn(operations, 'viewProfilePackage')
-  onTestFinished(() => { view.mockRestore() })
-  const answers = (stdout: string) => view.mockResolvedValueOnce({ exitCode: 0, stdout, stderr: '', timedOut: false })
-  answers(JSON.stringify({ name: 'dsh-context', version: '0.64.0', description: 'Context.', dsh: { bundle: { patch: './cordis.patch.yml' } } }))
-  expect(await manager.inspect('dsh-context')).toEqual({
-    status: 'accepted', kind: 'registry', name: 'dsh-context', version: '0.64.0', description: 'Context.', bundle: true, registry: null,
-  })
-  // A present-but-non-string declaration is no declaration.
-  answers(JSON.stringify({ name: 'dsh-broken', version: '1.0.0', dsh: { bundle: { patch: 7 } } }))
-  expect(await manager.inspect('dsh-broken')).toEqual({
-    status: 'refused', problem: 'not-a-bundle', reason: 'dsh-broken declares no qilin.bundle.patch or dsh.bundle.patch', registries: [null],
-  })
-  // A directory answers from its own manifest the same way.
-  const local = join(profile.home, 'dev', 'dsh-local')
-  mkdirSync(local, { recursive: true })
-  writeFileSync(join(local, 'package.json'), JSON.stringify({ name: 'dsh-local', version: '0.1.0', dsh: { bundle: { patch: './cordis.patch.yml' } } }))
-  expect(await manager.inspect(local)).toEqual({
-    status: 'accepted', kind: 'path', name: 'dsh-local', version: '0.1.0', bundle: true, registry: null,
-  })
 })
 
 it('announces each manager operation as a change, and a patch generation applied outside it not at all', async () => {
@@ -1058,24 +1132,22 @@ it('refuses removal of a hot-installed bundle after HMR is disabled', async () =
   expect(await manager.removeBundle('later')).toMatchObject({ changed: false, application: 'failed' })
 })
 
-it('offers the launcher\'s optional bundles switched off and never removable', async () => {
+it.each(OPTIONAL_BUNDLES)('offers %s switched off and never removable', async (offered) => {
   const { manager, profile } = await fixture()
   // The launcher names the bundles the installation ships; the fixture supplies one of them from the
   // installation's own node_modules, which the resolver consults before the profile's and before the repository's.
-  const offered = OPTIONAL_BUNDLES[0]!
   const supplied = join(profile.home, 'node_modules', offered)
   mkdirSync(supplied, { recursive: true })
   writeFileSync(join(supplied, 'package.json'), JSON.stringify({
-    name: offered, version: '3.0.0', description: 'Package one-liner.', qilin: { bundle: { patch: './cordis.patch.yml' } },
+    name: offered, version: '3.0.0', description: 'Package one-liner.', dsh: { bundle: { patch: './cordis.patch.yml' } },
   }))
   writeFileSync(join(supplied, 'cordis.patch.yml'), JSON.stringify([{ insert: [{ id: 'offered-row', name: './plugin.mjs', config: { service: 'offeredProbe' } }] }]))
   writeFileSync(join(supplied, 'plugin.mjs'), 'export function apply(ctx, config) { ctx.provide(config?.service ?? "offeredProbe", true) }\n')
   writeFileSync(profile.installAnchor, JSON.stringify({ name: 'installation', dependencies: { [offered]: '3.0.0' } }))
   expect((await manager.listBundles()).find(row => row.name === offered)).toEqual({
-    name: offered, version: '3.0.0', meta: { title: offered, description: 'Package one-liner.' },
-    description: 'Package one-liner.',
-    official: true, availability: 'installation',
-    enabled: false, installed: false, optional: true, updatable: true, removable: false,
+    name: offered, version: '3.0.0', description: 'Package one-liner.',
+    meta: { title: offered, description: 'Package one-liner.' },
+    enabled: false, installed: false, official: true, availability: 'installation', optional: true, removable: false,
     rows: [{ rowId: 'offered-row', moduleName: pathToFileURL(join(supplied, 'plugin.mjs')).href }], overrides: [],
   })
   expect(await manager.setBundleEnabled(offered, true)).toMatchObject({ application: 'applied' })
@@ -1087,16 +1159,16 @@ it('removes a selected bundle no dependency holds by deselecting it without pnpm
   const { manager, dir } = await fixture()
   const manifest = readProfileManifest('test', dir)
   writeFileSync(join(dir, 'package.json'), JSON.stringify({
-    ...manifest, qilin: { ...manifest.qilin, profile: { ...manifest.qilin?.profile, bundles: [...manifest.qilin?.profile?.bundles ?? [], 'retired'] } },
+    ...manifest, dsh: { profile: { bundles: [...manifest.dsh?.profile?.bundles ?? [], 'retired'] } },
   }))
   expect((await manager.listBundles()).find(row => row.name === 'retired')).toMatchObject({
-    enabled: true, installed: false, optional: false, removable: true, error: { code: 'operation-error' },
+    enabled: true, installed: false, official: false, availability: 'missing', optional: false, removable: true, error: { code: 'operation-error' },
   })
   const pnpm = vi.spyOn(operations, 'runProfilePnpm')
   onTestFinished(() => { pnpm.mockRestore() })
   expect(await manager.removeBundle('retired')).toMatchObject({ changed: true, application: 'applied' })
   expect(pnpm).not.toHaveBeenCalled()
-  expect(readProfileManifest('test', dir).qilin?.profile?.bundles).not.toContain('retired')
+  expect(readProfileManifest('test', dir).dsh?.profile?.bundles).not.toContain('retired')
   expect((await manager.listBundles()).some(row => row.name === 'retired')).toBe(false)
 })
 
@@ -1142,184 +1214,37 @@ it('applies watched configuration while pnpm installation is still running', asy
   expect(pnpm).toHaveBeenCalledOnce()
   release.resolve(undefined)
   expect(await installing).toMatchObject({ application: 'applied', changed: true })
-  expect(readProfileManifest('test', dir).qilin?.profile?.bundles).toEqual(['core', 'extra', 'new-bundle'])
+  expect(readProfileManifest('test', dir).dsh?.profile?.bundles).toEqual(['core', 'extra', 'new-bundle'])
   expect(ctx.get('managedProbe')).toBeUndefined()
 })
 
-it('compares every manageable layer with its registry latest tag and tolerates a registry it cannot read', async () => {
-  const { manager, dir, bundle } = await fixture()
-  bundle('retired', [])
-  bundle('offline', [])
-  bundle('plain', [])
-  // A layer whose manifest declares no version reports none.
-  writeFileSync(join(dir, 'node_modules', 'retired', 'package.json'),
-    JSON.stringify({ name: 'retired', qilin: { bundle: { patch: './cordis.patch.yml' } } }))
-  // A selected dependency without a bundle patch is not a layer an update could move.
-  writeFileSync(join(dir, 'node_modules', 'plain', 'package.json'), JSON.stringify({ name: 'plain', version: '1.0.0' }))
+it('installs and removes with the bundled pnpm when PATH contains no pnpm', async () => {
+  const pnpm = fileURLToPath(new URL('../../../../apps/desktop/node_modules/pnpm/bin/pnpm.mjs', import.meta.url))
+  const { manager, dir } = await fixture('startup', false, undefined, { pnpmCommand: 'must-not-be-used' }, {
+    command: process.execPath, args: ['--expose-internals', pnpm], env: { PATH: '', ELECTRON_RUN_AS_NODE: '1' },
+  })
+  const target = join(dir, 'local-bundle')
+  mkdirSync(target)
+  writeFileSync(join(target, 'package.json'), JSON.stringify({ name: '@test/desktop-manager', version: '1.0.0',
+    dsh: { bundle: { patch: './cordis.patch.yml' } } }))
+  writeFileSync(join(target, 'cordis.patch.yml'), '[]\n')
+  // Fixture-only packages need no registry resolution during this local install.
   const manifest = readProfileManifest('test', dir)
-  manifest.dependencies = { ...manifest.dependencies, retired: '1.0.0', offline: '1.0.0', plain: '1.0.0' }
-  manifest.qilin = { ...manifest.qilin, profile: { ...manifest.qilin?.profile, bundles: ['core', 'extra', 'plain'] } }
+  delete manifest.dependencies
   writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
-  const answer = (url: string): Promise<Response> => {
-    if (url.includes('/core/dist-tags')) return Promise.resolve(new Response(JSON.stringify({ latest: '2.0.0' })))
-    if (url.includes('/extra/dist-tags')) return Promise.resolve(new Response(JSON.stringify({ next: '3.0.0' })))
-    if (url.includes('/retired/dist-tags')) return Promise.resolve(new Response('gone', { status: 404 }))
-    return Promise.reject(new Error('registry unreachable'))
-  }
-  const fetch = vi.fn((input: string | URL, init?: RequestInit) => {
-    // Every registry lookup carries its own timeout.
-    expect(init?.signal).toBeInstanceOf(AbortSignal)
-    return answer(String(input))
-  })
-  vi.stubGlobal('fetch', fetch)
-  onTestFinished(() => { vi.unstubAllGlobals() })
-  expect(await manager.checkUpdates()).toEqual({
-    entries: [
-      { name: 'core', currentVersion: '1.0.0', latestVersion: '2.0.0' },
-      { name: 'extra', currentVersion: '1.0.0', latestVersion: null },
-      { name: 'retired', currentVersion: null, latestVersion: null },
-      { name: 'offline', currentVersion: '1.0.0', latestVersion: null },
-    ],
-  })
-  expect(fetch.mock.calls.map(call => String(call[0]))).toEqual([
-    'https://registry.npmjs.org/-/package/core/dist-tags',
-    'https://registry.npmjs.org/-/package/extra/dist-tags',
-    'https://registry.npmjs.org/-/package/retired/dist-tags',
-    'https://registry.npmjs.org/-/package/offline/dist-tags',
-  ])
+  const installed = await manager.installBundle(target)
+  expect(installed.error).toBeUndefined()
+  expect(installed.packageResult?.exitCode).toBe(0)
+  expect(readProfileManifest('test', dir).dependencies).toHaveProperty('@test/desktop-manager')
+  const removed = await manager.removeBundle('@test/desktop-manager')
+  expect(removed.error).toBeUndefined()
+  expect(removed.packageResult?.exitCode).toBe(0)
+  expect(readProfileManifest('test', dir).dependencies ?? {}).not.toHaveProperty('@test/desktop-manager')
 })
 
-it('searches the plugin topic on GitHub and reads only the fields the catalog shows', async () => {
-  const { manager } = await fixture()
-  const page = (items: unknown[]): Response => new Response(JSON.stringify({ total_count: items.length, items }))
-  const answers = [
-    page([
-      {
-        full_name: 'acme/qilin-remote', description: 'A remote.', stargazers_count: 12,
-        updated_at: '2025-01-02T03:04:05Z', html_url: 'https://github.com/acme/qilin-remote', forks_count: 3,
-      },
-      { full_name: 'acme/qilin-bare', stargazers_count: 'many', html_url: 'https://github.com/acme/qilin-bare' },
-      { full_name: 'acme/qilin-headless' },
-      'not a repository',
-      null,
-    ]),
-    new Response(JSON.stringify({ message: 'Bad credentials' })),
-    page([]),
-    new Response('rate limited', { status: 403 }),
-    page(Array.from({ length: 50 }, (_, index) => ({ full_name: `acme/qilin-${String(index)}`, html_url: `https://github.com/acme/qilin-${String(index)}` }))),
-  ]
-  const inits: (RequestInit | undefined)[] = []
-  const fetch = vi.fn((_input: string | URL, init?: RequestInit): Promise<Response> => {
-    inits.push(init)
-    return Promise.resolve(answers.shift() as Response)
-  })
-  vi.stubGlobal('fetch', fetch)
-  onTestFinished(() => { vi.unstubAllGlobals() })
+const MIRROR = 'https://registry.npmmirror.com/'
+const OFFICIAL = 'https://registry.npmjs.org/'
 
-  expect(await manager.catalog('  qilin sidebar  ', 2)).toEqual({
-    page: 2,
-    hasMore: false,
-    entries: [
-      {
-        fullName: 'acme/qilin-remote', description: 'A remote.', stars: 12,
-        updatedAt: '2025-01-02T03:04:05Z', url: 'https://github.com/acme/qilin-remote',
-      },
-      { fullName: 'acme/qilin-bare', description: null, stars: 0, updatedAt: '', url: 'https://github.com/acme/qilin-bare' },
-    ],
-  })
-  const request = new URL(String(fetch.mock.calls[0]?.[0]))
-  expect(request.origin + request.pathname).toBe('https://api.github.com/search/repositories')
-  expect(Object.fromEntries(request.searchParams)).toEqual({
-    q: 'topic:dsh-plugin qilin sidebar', sort: 'stars', order: 'desc', per_page: '50', page: '2',
-  })
-  expect(inits[0]?.headers).toEqual({ accept: 'application/vnd.github+json' })
-  expect(inits[0]?.signal).toBeInstanceOf(AbortSignal)
-
-  // An answer without an items array has nothing to show.
-  expect(await manager.catalog('', Number.NaN)).toEqual({ entries: [], page: 1, hasMore: false })
-  expect(new URL(String(fetch.mock.calls[1]?.[0])).searchParams.get('q')).toBe('topic:dsh-plugin')
-  // An empty query searches the topic alone; a page that is not a positive safe integer reads as the first.
-  expect(await manager.catalog('', 0)).toEqual({ entries: [], page: 1, hasMore: false })
-  expect(new URL(String(fetch.mock.calls[2]?.[0])).searchParams.get('page')).toBe('1')
-
-  await expect(manager.catalog('x', 3)).rejects.toThrow('qilin: GitHub search failed with HTTP 403')
-
-  // A full page may have another one behind it.
-  expect(await manager.catalog('', 1)).toMatchObject({ page: 1, hasMore: true })
-})
-
-it.each(['live', 'startup'] as const)('requires exact risk acknowledgement and re-admits a denied row in a %s profile', async (mode) => {
-  const { manager, dir, ctx } = await fixture(mode, false, undefined, {}, undefined, (dir) => {
-    const guarded = join(dir, 'node_modules', 'guarded')
-    mkdirSync(guarded, { recursive: true })
-    writeFileSync(join(guarded, 'package.json'), JSON.stringify({
-      name: 'guarded', version: '1.0.0', type: 'module', peerDependencies: { '@qilin-agent/session': '999.0.0' },
-    }))
-    writeFileSync(join(guarded, 'index.mjs'), 'export function apply(ctx) { ctx.provide("guardedProbe", true) }\n')
-    writeFileSync(join(dir, 'node_modules', 'extra', 'cordis.patch.yml'), JSON.stringify([
-      { insert: [{ id: 'managed', name: './plugin.mjs' },
-        { id: 'guarded', name: pathToFileURL(join(dir, 'node_modules', 'guarded', 'index.mjs')).href }] },
-    ]))
-  })
-  const runtime = getQilinRuntimeVersion()
-  const active = () => ctx.get('guardedProbe') === true
-  // The row's own plugin peers are incompatible, so it mounts disabled before any plugin code is imported.
-  expect(active()).toBe(false)
-  expect(await manager.setVersionExemption('guarded@1.0.0', runtime, true)).toMatchObject({ changed: false, application: 'failed' })
-  expect(manager.listVersionExemptions()).toEqual({ exemptions: {}, warnings: [] })
-  expect(existsSync(join(dir, 'compatibility.json'))).toBe(false)
-  expect(await manager.setVersionExemption('guarded@1.0.0', runtime, true, true)).toMatchObject({
-    changed: true, application: mode === 'live' ? 'applied' : 'restart-required',
-  })
-  expect(manager.listVersionExemptions()).toEqual({ exemptions: { 'guarded@1.0.0': [runtime] }, warnings: [] })
-  // The grant is persisted only in the profile's compatibility file, never in its package manifest.
-  expect(JSON.parse(readFileSync(join(dir, 'compatibility.json'), 'utf8'))).toEqual({ 'guarded@1.0.0': [runtime] })
-  expect(readProfileManifest('test', dir).qilin?.profile?.bundles).toEqual(['core', 'extra'])
-  // `setVersionExemption` reconciles the profile itself, so a live tree re-admits the row here;
-  // no manifest watch or Loader instrumentation participates. A startup-only profile keeps it out until restart.
-  if (mode === 'live') expect(active()).toBe(true)
-  else expect(active()).toBe(false)
-  expect(await manager.setVersionExemption('guarded@1.0.0', runtime, false)).toMatchObject({ changed: true })
-  expect(manager.listVersionExemptions()).toEqual({ exemptions: {}, warnings: [] })
-  expect(JSON.parse(readFileSync(join(dir, 'compatibility.json'), 'utf8'))).toEqual({})
-  if (mode === 'live') expect(active()).toBe(false)
-})
-
-it('reports a package run refused for compatibility as a typed refusal', async () => {
-  const { manager } = await fixture()
-  const incompatible = [{ name: 'qilin-x', version: '2.0.0', runtimeVersion: getQilinRuntimeVersion(), peers: { '@qilin-agent/session': '999.0.0' } }]
-  const install = vi.spyOn(operations, 'runProfilePnpm').mockResolvedValue({
-    exitCode: 1, output: 'qilin: installation rejected', truncated: false, logPath: 'pnpm.log', incompatible,
-  })
-  onTestFinished(() => { install.mockRestore() })
-  const result = await manager.installBundle('qilin-x')
-  expect(result).toMatchObject({ application: 'failed', changed: false, error: { code: 'incompatible-version', incompatible } })
-  expect(install).toHaveBeenCalledTimes(1)
-})
-
-it.each([false, true])('rechecks installed bundle peers before accepting a disabled installation (exempted=%s)', async (exempted) => {
-  const { manager, dir, bundle } = await fixture()
-  if (exempted) await manager.setVersionExemption('incompatible@1.0.0', getQilinRuntimeVersion(), true, true)
-  const before = readFileSync(join(dir, 'package.json'), 'utf8')
-  const install = vi.spyOn(operations, 'runProfilePnpm').mockImplementation(async () => {
-    bundle('incompatible', [])
-    const file = join(dir, 'node_modules', 'incompatible', 'package.json')
-    const metadata = JSON.parse(readFileSync(file, 'utf8')) as Record<string, unknown>
-    writeFileSync(file, JSON.stringify({ ...metadata, peerDependencies: { '@qilin-agent/session': '<0.0.0' } }))
-    const profile = readProfileManifest('test', dir)
-    profile.dependencies = { ...profile.dependencies, incompatible: '1.0.0' }
-    writeFileSync(join(dir, 'package.json'), JSON.stringify(profile))
-    return { exitCode: 0, output: 'installed', truncated: false, logPath: join(dir, 'pnpm.log') }
-  })
-  onTestFinished(() => { install.mockRestore() })
-  const result = await manager.installBundle('incompatible', { enabled: false })
-  expect(result).toMatchObject({ application: exempted ? 'applied' : 'failed', changed: exempted })
-  if (!exempted) {
-    expect(result.error).toMatchObject({ code: 'incompatible-version', incompatible: [{ name: 'incompatible', version: '1.0.0' }] })
-    expect(readFileSync(join(dir, 'package.json'), 'utf8')).toBe(before)
-  }
-  expect(readProfileManifest('test', dir).qilin?.profile?.bundles).toEqual(['core', 'extra'])
-})
 /** What pnpm's own configuration names in the profile, for the tests that need something other than npm's own registry. */
 function pnpmNames(url: string | null = OFFICIAL) {
   return vi.spyOn(operations, 'readProfileRegistry').mockResolvedValue(url)
@@ -1333,48 +1258,48 @@ it('asks the registries in turn while one is unreachable or stale, and names the
   const failure = (stderr: string, exitCode = 1) => view.mockResolvedValueOnce({ exitCode, stdout: '', stderr, timedOut: false })
   const answers = (stdout: string) => view.mockResolvedValueOnce({ exitCode: 0, stdout, stderr: '', timedOut: false })
   const asked = (from: number) => view.mock.calls.slice(from).map(call => call[2].registry)
-  const manifest = JSON.stringify({ name: 'qilin-x', version: '1.0.0', qilin: { bundle: { patch: './cordis.patch.yml' } } })
+  const manifest = JSON.stringify({ name: 'dsh-x', version: '1.0.0', dsh: { bundle: { patch: './cordis.patch.yml' } } })
   // pnpm's own registry is unreachable; the mirror answers and the install is told to start there.
-  failure('ERR_PNPM_META_FETCH_FAIL  GET https://registry.npmjs.org/qilin-x: ETIMEDOUT\n')
+  failure('ERR_PNPM_META_FETCH_FAIL  GET https://registry.npmjs.org/dsh-x: ETIMEDOUT\n')
   answers(manifest)
-  expect(await manager.inspect('qilin-x')).toEqual({ status: 'accepted', kind: 'registry', name: 'qilin-x', version: '1.0.0', bundle: true, registry: MIRROR })
+  expect(await manager.inspect('dsh-x')).toEqual({ status: 'accepted', kind: 'registry', name: 'dsh-x', version: '1.0.0', bundle: true, registry: MIRROR })
   expect(asked(0)).toEqual([null, MIRROR])
   expect(read).toHaveBeenCalledWith(dir, { command: 'pnpm', timeoutMs: 1000 })
-  expect(view).toHaveBeenLastCalledWith(expect.any(String), 'qilin-x', { command: 'pnpm', timeoutMs: 1000, registry: MIRROR })
+  expect(view).toHaveBeenLastCalledWith(expect.any(String), 'dsh-x', { command: 'pnpm', timeoutMs: 1000, registry: MIRROR })
   // pnpm prints a refusal as JSON on stdout with nothing on stderr: it is read the same way, and the reason is its message.
-  view.mockResolvedValueOnce({ exitCode: 1, stdout: '{\n  "error": {\n    "code": "ERR_PNPM_META_FETCH_FAIL",\n    "message": "GET https://registry.npmjs.org/qilin-x: fetch failed"\n  }\n}\n', stderr: '', timedOut: false })
+  view.mockResolvedValueOnce({ exitCode: 1, stdout: '{\n  "error": {\n    "code": "ERR_PNPM_META_FETCH_FAIL",\n    "message": "GET https://registry.npmjs.org/dsh-x: fetch failed"\n  }\n}\n', stderr: '', timedOut: false })
   answers(manifest)
-  expect(await manager.inspect('qilin-x')).toMatchObject({ status: 'accepted', registry: MIRROR })
+  expect(await manager.inspect('dsh-x')).toMatchObject({ status: 'accepted', registry: MIRROR })
   expect(asked(2)).toEqual([null, MIRROR])
   // A requested registry goes first. A mirror's 404 may be a copy not yet synced, so the lookup goes on; every registry's 404 is not-found.
-  view.mockResolvedValueOnce({ exitCode: 1, stdout: '{"error":{"code":"ERR_PNPM_FETCH_404","message":"GET https://registry.npmmirror.com/qilin-x: Not Found - 404"}}', stderr: '', timedOut: false })
-  failure('ERR_PNPM_FETCH_404  GET https://registry.npmjs.org/qilin-x: Not Found - 404\n')
-  expect(await manager.inspect('qilin-x', { registry: MIRROR })).toMatchObject({
-    status: 'refused', problem: 'not-found', reason: 'ERR_PNPM_FETCH_404  GET https://registry.npmjs.org/qilin-x: Not Found - 404', registries: [MIRROR, null],
+  view.mockResolvedValueOnce({ exitCode: 1, stdout: '{"error":{"code":"ERR_PNPM_FETCH_404","message":"GET https://registry.npmmirror.com/dsh-x: Not Found - 404"}}', stderr: '', timedOut: false })
+  failure('ERR_PNPM_FETCH_404  GET https://registry.npmjs.org/dsh-x: Not Found - 404\n')
+  expect(await manager.inspect('dsh-x', { registry: MIRROR })).toMatchObject({
+    status: 'refused', problem: 'not-found', reason: 'ERR_PNPM_FETCH_404  GET https://registry.npmjs.org/dsh-x: Not Found - 404', registries: [MIRROR, null],
   })
   expect(asked(4)).toEqual([MIRROR, null])
   // A registry outside the configured set is asked alone.
-  failure('ERR_PNPM_META_FETCH_FAIL  GET https://npm.corp.example/qilin-x: ECONNREFUSED\n')
-  expect(await manager.inspect('qilin-x', { registry: 'https://npm.corp.example' })).toMatchObject({ status: 'refused', problem: 'network', registries: ['https://npm.corp.example/'] })
+  failure('ERR_PNPM_META_FETCH_FAIL  GET https://npm.corp.example/dsh-x: ECONNREFUSED\n')
+  expect(await manager.inspect('dsh-x', { registry: 'https://npm.corp.example' })).toMatchObject({ status: 'refused', problem: 'network', registries: ['https://npm.corp.example/'] })
   expect(asked(6)).toEqual(['https://npm.corp.example/'])
   // A failure no registry changes ends the round at once.
   failure('', 4)
-  expect(await manager.inspect('qilin-x')).toMatchObject({ status: 'refused', problem: 'unknown', registries: [null] })
+  expect(await manager.inspect('dsh-x')).toMatchObject({ status: 'refused', problem: 'unknown', registries: [null] })
   expect(asked(7)).toEqual([null])
   // A registry that never answered is unreachable, like one that refused the connection: the round goes on, and the
   // refusal is a network one.
   view.mockResolvedValueOnce({ exitCode: null, stdout: '', stderr: '', timedOut: true })
   view.mockResolvedValueOnce({ exitCode: null, stdout: '', stderr: '', timedOut: true })
-  expect(await manager.inspect('qilin-x')).toEqual({ status: 'refused', problem: 'network', reason: 'pnpm view timed out after 1000ms', registries: [null, MIRROR] })
+  expect(await manager.inspect('dsh-x')).toEqual({ status: 'refused', problem: 'network', reason: 'pnpm view timed out after 1000ms', registries: [null, MIRROR] })
   expect(asked(8)).toEqual([null, MIRROR])
   // A lookup the caller dropped is not carried to the next registry.
   const controller = new AbortController()
   view.mockImplementationOnce(async () => { controller.abort(); return { exitCode: 1, stdout: '', stderr: 'ECONNRESET\n', timedOut: false } })
-  expect(await manager.inspect('qilin-x', {}, controller.signal)).toMatchObject({ status: 'refused', problem: 'network', registries: [null] })
+  expect(await manager.inspect('dsh-x', {}, controller.signal)).toMatchObject({ status: 'refused', problem: 'network', registries: [null] })
   expect(asked(10)).toEqual([null])
   // The other forms ask no registry and carry the one the install starts with.
-  expect(await manager.inspect('github:acme/qilin-remote', { registry: MIRROR })).toEqual({ status: 'accepted', kind: 'git', bundle: null, registry: MIRROR, host: 'github.com' })
-  expect(await manager.inspect('github:acme/qilin-remote')).toEqual({ status: 'accepted', kind: 'git', bundle: null, registry: null, host: 'github.com' })
+  expect(await manager.inspect('github:acme/dsh-remote', { registry: MIRROR })).toEqual({ status: 'accepted', kind: 'git', bundle: null, registry: MIRROR, host: 'github.com' })
+  expect(await manager.inspect('github:acme/dsh-remote')).toEqual({ status: 'accepted', kind: 'git', bundle: null, registry: null, host: 'github.com' })
   expect(view).toHaveBeenCalledTimes(11)
 })
 
@@ -1383,11 +1308,11 @@ it('keeps pnpm\'s own registry alone when it names a private one, or cannot be r
   const read = pnpmNames('https://npm.corp.example/')
   const view = vi.spyOn(operations, 'viewProfilePackage')
   onTestFinished(() => { view.mockRestore() })
-  view.mockResolvedValue({ exitCode: 1, stdout: '', stderr: 'ERR_PNPM_META_FETCH_FAIL  GET https://npm.corp.example/qilin-x: ETIMEDOUT\n', timedOut: false })
-  expect(await manager.inspect('qilin-x')).toMatchObject({ status: 'refused', problem: 'network', registries: [null] })
-  expect(await manager.inspect('qilin-x', { registry: MIRROR })).toMatchObject({ status: 'refused', problem: 'network', registries: [MIRROR] })
+  view.mockResolvedValue({ exitCode: 1, stdout: '', stderr: 'ERR_PNPM_META_FETCH_FAIL  GET https://npm.corp.example/dsh-x: ETIMEDOUT\n', timedOut: false })
+  expect(await manager.inspect('dsh-x')).toMatchObject({ status: 'refused', problem: 'network', registries: [null] })
+  expect(await manager.inspect('dsh-x', { registry: MIRROR })).toMatchObject({ status: 'refused', problem: 'network', registries: [MIRROR] })
   read.mockResolvedValue(null)
-  expect(await manager.inspect('qilin-x')).toMatchObject({ status: 'refused', problem: 'network', registries: [null] })
+  expect(await manager.inspect('dsh-x')).toMatchObject({ status: 'refused', problem: 'network', registries: [null] })
   expect(await manager.registries()).toEqual({ registry: null, fallbackRegistries: [MIRROR], resolved: null })
   expect(view).toHaveBeenCalledTimes(3)
 })
@@ -1430,105 +1355,333 @@ it('installs from the next registry after one is unreachable, restoring the file
   expect(chunks.at(-1)).toMatchObject({ requestId, argv: ['pnpm', 'add', 'fallen', `--registry=${MIRROR}`], exitCode: 0 })
 })
 
-/** Write a bundle whose row module exports the schemastery Config a configuration surface reads. */
-function configurableBundle(dir: string): void {
-  const path = join(dir, 'node_modules', 'dsh-context')
-  mkdirSync(path, { recursive: true })
-  writeFileSync(join(path, 'package.json'), JSON.stringify({
-    name: 'dsh-context', version: '0.69.1', type: 'module', main: './index.mjs',
-    qilin: { bundle: { patch: './cordis.patch.yml' } },
-  }))
-  writeFileSync(join(path, 'cordis.patch.yml'), JSON.stringify([{ insert: [{ id: 'context-row', name: 'dsh-context', config: { maxRequestSteps: 1500 } }] }]))
-  writeFileSync(join(path, 'index.mjs'), 'const Config = (value) => value\nConfig.toJSON = () => ({ uid: "stub" })\nexport { Config }\nexport function apply() {}\n')
-  // A second configurable row with no declared configuration resolves to the schema's own defaults.
-  const bare = join(dir, 'node_modules', 'dsh-bare')
-  mkdirSync(bare, { recursive: true })
-  writeFileSync(join(bare, 'package.json'), JSON.stringify({
-    name: 'dsh-bare', version: '0.1.0', type: 'module', main: './index.mjs',
-    qilin: { bundle: { patch: './cordis.patch.yml' } },
-  }))
-  writeFileSync(join(bare, 'cordis.patch.yml'), JSON.stringify([{ insert: [{ id: 'bare-row', name: 'dsh-bare' }] }]))
-  writeFileSync(join(bare, 'index.mjs'), 'const Config = (value) => value || {}\nConfig.toJSON = () => ({ uid: "bare" })\nexport { Config }\nexport function apply() {}\n')
+it('does not ask the next registry after the manager terminated a silent run', async () => {
+  const { manager } = await fixture()
+  const install = vi.spyOn(operations, 'runProfilePnpm').mockResolvedValue({
+    exitCode: 1, output: 'installing\ndsh: pnpm printed nothing for 600000ms and was terminated\n',
+    truncated: false, logPath: '/dev/null', timedOut: true,
+  })
+  onTestFinished(() => { install.mockRestore() })
+  const stalled = await manager.installBundle('silent')
+  expect(stalled).toMatchObject({ application: 'failed', registries: [null], packageResult: { kind: 'timeout', timedOut: true } })
+  expect(stalled.failedAt).toBeUndefined()
+  expect(install).toHaveBeenCalledTimes(1)
+})
+
+it('drops the earlier registry failure once a later attempt is terminated for silence', async () => {
+  const { manager } = await fixture()
+  const install = vi.spyOn(operations, 'runProfilePnpm')
+    .mockResolvedValueOnce({
+      exitCode: 1, output: 'ERR_PNPM_META_FETCH_FAIL  GET https://registry.npmjs.org/flaky: ETIMEDOUT',
+      truncated: false, logPath: '/dev/null',
+    })
+    .mockResolvedValueOnce({
+      exitCode: 1, output: 'installing\ndsh: pnpm printed nothing for 600000ms and was terminated\n',
+      truncated: false, logPath: '/dev/null', timedOut: true,
+    })
+  onTestFinished(() => { install.mockRestore() })
+  const stalled = await manager.installBundle('flaky')
+  expect(stalled).toMatchObject({ application: 'failed', registries: [null, MIRROR], packageResult: { kind: 'timeout', timedOut: true } })
+  expect(stalled.failedAt).toBeUndefined()
+  expect(install).toHaveBeenCalledTimes(2)
+})
+
+it('bounds each package run with the configured silence timeout', async () => {
+  const { manager } = await fixture('live', false, undefined, { idleTimeoutMs: 1234 })
+  const install = vi.spyOn(operations, 'runProfilePnpm')
+    .mockResolvedValue({ exitCode: 1, output: 'plain failure', truncated: false, logPath: '/dev/null' })
+  onTestFinished(() => { install.mockRestore() })
+  await manager.installBundle('quiet')
+  expect(install.mock.calls[0]?.[2]).toMatchObject({ idleTimeoutMs: 1234 })
+})
+
+it('stops at a failure no registry changes, at a host the spec itself is fetched from, and after a registry outside the configured set', async () => {
+  const { manager } = await fixture()
+  const failing = (output: string) => ({ exitCode: 1, output, truncated: false, logPath: '/dev/null' })
+  const install = vi.spyOn(operations, 'runProfilePnpm').mockResolvedValue(failing('ERR_PNPM_IGNORED_BUILDS  Ignored build scripts: native'))
+  onTestFinished(() => { install.mockRestore() })
+  const blocked = await manager.installBundle('blocked')
+  expect(blocked).toMatchObject({ application: 'failed', registries: [null], packageResult: { kind: 'build-blocked' } })
+  expect(blocked.failedAt).toBeUndefined()
+  expect(install).toHaveBeenCalledTimes(1)
+  install.mockResolvedValue(failing('fatal: unable to access \'https://github.com/acme/dsh-x/\': Could not resolve host: github.com'))
+  expect(await manager.installBundle('github:acme/dsh-x')).toMatchObject({ application: 'failed', registries: [null], failedAt: 'spec-host', packageResult: { kind: 'network' } })
+  expect(install).toHaveBeenCalledTimes(2)
+  install.mockResolvedValue(failing('ERR_PNPM_META_FETCH_FAIL  GET https://npm.corp.example/dsh-x: ECONNREFUSED'))
+  expect(await manager.installBundle('dsh-x', { registry: 'https://npm.corp.example' })).toMatchObject({
+    application: 'failed', registries: ['https://npm.corp.example/'], failedAt: 'registry', packageResult: { kind: 'network' },
+  })
+  expect(install).toHaveBeenCalledTimes(3)
+  expect(install).toHaveBeenLastCalledWith(expect.anything(), ['add', 'dsh-x', '--registry=https://npm.corp.example/'], expect.anything())
+  // Every configured registry unreachable: the failure is the last attempt's, and all of them are named.
+  install.mockResolvedValue(failing('ERR_PNPM_META_FETCH_FAIL  GET https://registry/dsh-x: ETIMEDOUT'))
+  expect(await manager.installBundle('dsh-x')).toMatchObject({ application: 'failed', registries: [null, MIRROR], failedAt: 'registry', packageResult: { kind: 'network' } })
+  expect(install).toHaveBeenCalledTimes(5)
+})
+
+it('reports a stop that lands before a run starts, while the registries are read, as cancelled', async () => {
+  const { manager } = await fixture()
+  const requestId = 'f2340b6d-40bb-46b7-8b94-217bdf5010bd' as PluginInstallRequestId
+  // The stop lands while the plan is being read: the run after it must not start on a dead signal.
+  const read = vi.spyOn(operations, 'readProfileRegistry').mockImplementation(async () => {
+    void manager.cancelInstall(requestId)
+    await Promise.resolve()
+    return OFFICIAL
+  })
+  const install = vi.spyOn(operations, 'runProfilePnpm')
+  onTestFinished(() => { read.mockRestore(); install.mockRestore() })
+  const result = await manager.installBundle('dsh-x', { requestId })
+  expect(result).toMatchObject({ application: 'cancelled', registries: [] })
+  expect(result.error).toBeUndefined()
+  expect(install).not.toHaveBeenCalled()
+})
+
+it('answers the configured registries in pnpm\'s comparison form with what pnpm names, and refuses one that is not an http(s) URL at load', async () => {
+  expect(await (await fixture()).manager.registries()).toEqual({ registry: null, fallbackRegistries: [MIRROR], resolved: OFFICIAL })
+  const { manager } = await fixture(undefined, false, undefined, { registry: 'https://NPM.corp.example', fallbackRegistries: [] })
+  expect(await manager.registries()).toEqual({ registry: 'https://npm.corp.example/', fallbackRegistries: [], resolved: OFFICIAL })
+  expect(() => PluginManager.Config({ registry: 'npm.corp.example' })).toThrow()
+  expect(() => PluginManager.Config({ fallbackRegistries: ['ftp://npm.corp.example/'] })).toThrow()
+})
+
+it.each(['live', 'startup'] as const)('requires exact risk acknowledgement and preserves exemptions in a %s profile', async (mode) => {
+  const { manager, dir, ctx } = await fixture(mode, false, undefined, {}, undefined, (dir) => {
+    const file = join(dir, 'node_modules', 'extra', 'package.json')
+    const metadata = JSON.parse(readFileSync(file, 'utf8')) as Record<string, unknown>
+    writeFileSync(file, JSON.stringify({ ...metadata, peerDependencies: { '@qilin-agent/dsh': '999.0.0' } }))
+  })
+  const runtime = getDshRuntimeVersion()
+  const managed = () => [...ctx.loader.entries()].find(entry => entry.id === 'include:managed')
+  // The bundle's own peers are incompatible, so its whole layer is skipped and contributes no row.
+  expect(managed()).toBeUndefined()
+  expect((await manager.listBundles()).find(bundle => bundle.name === 'extra')?.error).toEqual({
+    code: 'incompatible-version',
+    incompatible: [{ name: 'extra', version: '1.0.0', runtimeVersion: runtime, requirements: { '@qilin-agent/dsh': '999.0.0' } }],
+  })
+  expect(await manager.setBundleEnabled('extra', true)).toMatchObject({ changed: false, application: 'failed' })
+  expect(await manager.setVersionExemption('extra@1.0.0', runtime, true)).toMatchObject({ changed: false, application: 'failed' })
+  expect(manager.listVersionExemptions()).toEqual({ exemptions: {}, warnings: [] })
+  expect(existsSync(join(dir, 'compatibility.json'))).toBe(false)
+  expect(await manager.setVersionExemption('extra@1.0.0', runtime, true, true)).toMatchObject({
+    changed: true, application: mode === 'live' ? 'applied' : 'restart-required',
+  })
+  expect(manager.listVersionExemptions()).toEqual({ exemptions: { 'extra@1.0.0': [runtime] }, warnings: [] })
+  // The grant is persisted only in the profile's compatibility file, never in its package manifest.
+  expect(JSON.parse(readFileSync(join(dir, 'compatibility.json'), 'utf8'))).toEqual({ 'extra@1.0.0': [runtime] })
+  expect(readProfileManifest('test', dir).dsh?.profile?.bundles).toEqual(['core', 'extra'])
+  // `setVersionExemption` reconciles the profile itself, so a live tree re-admits the bundle here;
+  // no manifest watch or Loader instrumentation participates. A startup-only profile keeps it out until restart.
+  if (mode === 'live') expect(managed()?.fiber?.state).toBe(2)
+  else expect(managed()).toBeUndefined()
+  expect(await manager.setVersionExemption('extra@1.0.0', runtime, false)).toMatchObject({ changed: true })
+  expect(manager.listVersionExemptions()).toEqual({ exemptions: {}, warnings: [] })
+  expect(JSON.parse(readFileSync(join(dir, 'compatibility.json'), 'utf8'))).toEqual({})
+  if (mode === 'live') expect(managed()).toBeUndefined()
+})
+
+it('reports a package run refused for compatibility as a typed refusal', async () => {
+  const { manager } = await fixture()
+  const incompatible = [{ name: 'dsh-x', version: '2.0.0', runtimeVersion: getDshRuntimeVersion(), requirements: { '@qilin-agent/dsh': '999.0.0' } }]
+  const install = vi.spyOn(operations, 'runProfilePnpm').mockResolvedValue({
+    exitCode: 1, output: 'dsh: installation rejected', truncated: false, logPath: 'pnpm.log', kind: 'unknown', incompatible,
+  })
+  onTestFinished(() => { install.mockRestore() })
+  const result = await manager.installBundle('dsh-x')
+  expect(result).toMatchObject({ application: 'failed', changed: false, error: { code: 'incompatible-version', incompatible } })
+  expect(install).toHaveBeenCalledTimes(1)
+})
+
+it.each([false, true])('rechecks installed bundle peers before accepting a disabled installation (exempted=%s)', async (exempted) => {
+  const { manager, dir, bundle } = await fixture()
+  if (exempted) await manager.setVersionExemption('incompatible@1.0.0', getDshRuntimeVersion(), true, true)
+  const before = readFileSync(join(dir, 'package.json'), 'utf8')
+  const install = vi.spyOn(operations, 'runProfilePnpm').mockImplementation(async () => {
+    bundle('incompatible', [])
+    const file = join(dir, 'node_modules', 'incompatible', 'package.json')
+    const metadata = JSON.parse(readFileSync(file, 'utf8')) as Record<string, unknown>
+    writeFileSync(file, JSON.stringify({ ...metadata, peerDependencies: { '@qilin-agent/dsh': '<0.0.0' } }))
+    const profile = readProfileManifest('test', dir)
+    profile.dependencies = { ...profile.dependencies, incompatible: '1.0.0' }
+    writeFileSync(join(dir, 'package.json'), JSON.stringify(profile))
+    return { exitCode: 0, output: 'installed', truncated: false, logPath: join(dir, 'pnpm.log') }
+  })
+  onTestFinished(() => { install.mockRestore() })
+  const result = await manager.installBundle('incompatible', { enabled: false })
+  expect(result).toMatchObject({ application: exempted ? 'applied' : 'failed', changed: exempted })
+  if (!exempted) {
+    expect(result.error).toMatchObject({ code: 'incompatible-version', incompatible: [{ name: 'incompatible', version: '1.0.0' }] })
+    expect(readFileSync(join(dir, 'package.json'), 'utf8')).toBe(before)
+  }
+  expect(readProfileManifest('test', dir).dsh?.profile?.bundles).toEqual(['core', 'extra'])
+})
+
+
+it('lists absent Official entries offline without resolving their packages or consulting registries', async () => {
+  const { manager } = await fixture()
+  const resolve = vi.spyOn(operations, 'bundleManifest')
+  const registry = vi.spyOn(operations, 'viewProfilePackage')
+  onTestFinished(() => { resolve.mockRestore(); registry.mockRestore() })
+  const bundles = await manager.listBundles()
+  for (const entry of OFFICIAL_ON_DEMAND_CATALOG) {
+    expect(bundles.filter(bundle => bundle.name === entry.packageName)).toEqual([{
+      name: entry.packageName, official: true, availability: 'missing', enabled: false, installed: false, optional: false,
+      removable: false, rows: [], overrides: [], meta: entry.meta,
+      installTarget: { spec: `${entry.packageName}@${getDshRuntimeVersion()}`, version: getDshRuntimeVersion() },
+    }])
+    expect(resolve.mock.calls.some(([name]) => name === entry.packageName)).toBe(false)
+  }
+  expect(registry).not.toHaveBeenCalled()
+})
+
+it('distinguishes an unreadable profile dependency from an absent catalog selection', async () => {
+  const { manager, dir, profile } = await fixture()
+  const name = OFFICIAL_ON_DEMAND_CATALOG[0]!.packageName
   const manifest = readProfileManifest('test', dir)
-  manifest.qilin = { profile: { bundles: [...manifest.qilin?.profile?.bundles ?? [], 'dsh-context', 'dsh-bare'] } }
+  manifest.dependencies = { ...manifest.dependencies, [name]: '1.0.0' }
   writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
-}
+  const broken = join(profile.home, 'node_modules', name)
+  mkdirSync(broken, { recursive: true })
+  writeFileSync(join(broken, 'package.json'), '{')
+  expect((await manager.listBundles()).find(bundle => bundle.name === name)).toMatchObject({
+    official: true, installed: true, availability: 'missing', enabled: false, removable: true,
+    source: `${name}@1.0.0`, error: { code: 'operation-error' },
+  })
+})
 
-it('serves a configurable row as the settings namespace its own client UI waits for', async () => {
-  const registrations: { ns: string; base: unknown }[] = []
-  const watchers = new Map<string, () => void>()
-  let running = { maxRequestSteps: 7 }
-  const settings = {
-    register: (ns: string, _schema: unknown, options: { base?: unknown }) => {
-      registrations.push({ ns, base: options.base })
-      return { get: () => running, watch: (listener: () => void) => { watchers.set(ns, listener); return () => {} } }
-    },
+it('uses the generic exact installer and keeps an Official entry through on, off, and removal', async () => {
+  const { manager, dir, bundle, profile } = await fixture()
+  const name = OFFICIAL_ON_DEMAND_CATALOG[0]!.packageName
+  const version = getDshRuntimeVersion()
+  const pnpm = vi.spyOn(operations, 'runProfilePnpm').mockImplementation(async (_dir, args) => {
+    const manifest = readProfileManifest('test', dir)
+    if (args[0] === 'add') {
+      bundle(name, [{ id: 'official-probe', name: './plugin.mjs', config: { service: 'officialProbe' } }], profile.home)
+      const packagePath = join(profile.home, 'node_modules', name, 'package.json')
+      const packaged = JSON.parse(readFileSync(packagePath, 'utf8')) as Record<string, unknown>
+      writeFileSync(packagePath, JSON.stringify({ ...packaged, version }))
+      manifest.dependencies = { ...manifest.dependencies, [name]: version }
+    } else {
+      delete manifest.dependencies?.[name]
+      rmSync(join(profile.home, 'node_modules', name), { recursive: true, force: true })
+    }
+    writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+    return { exitCode: 0, output: '', truncated: false, logPath: '/install.log' }
+  })
+  onTestFinished(() => { pnpm.mockRestore() })
+  expect(await manager.installBundle(`${name}@${version}`, { saveExact: true })).toMatchObject({ application: 'applied', enabled: true })
+  expect(pnpm.mock.calls[0]?.[1]).toContain('--save-exact')
+  expect((await manager.listBundles()).find(item => item.name === name)).toMatchObject({ official: true, availability: 'profile', enabled: true, version })
+  expect(await manager.setBundleEnabled(name, false)).toMatchObject({ application: 'applied' })
+  expect(readProfileManifest('test', dir).dependencies?.[name]).toBe(version)
+  expect(await manager.removeBundle(name)).toMatchObject({ application: 'applied' })
+  expect((await manager.listBundles()).filter(item => item.name === name)).toHaveLength(1)
+  expect((await manager.listBundles()).find(item => item.name === name)).toMatchObject({ official: true, availability: 'missing', enabled: false, installed: false })
+})
+
+it('restores dependency and selection after an exact version is unavailable', async () => {
+  const { manager, dir, bundle, profile } = await fixture()
+  const name = OFFICIAL_ON_DEMAND_CATALOG[0]!.packageName
+  bundle(name, [], profile.home)
+  const manifest = readProfileManifest('test', dir)
+  manifest.dependencies = { ...manifest.dependencies, [name]: '1.0.0' }
+  manifest.dsh!.profile!.bundles!.push(name)
+  writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+  const before = readFileSync(join(dir, 'package.json'), 'utf8')
+  const pnpm = vi.spyOn(operations, 'runProfilePnpm').mockImplementation(async () => {
+    writeFileSync(join(dir, 'package.json'), '{}')
+    return { exitCode: 1, output: 'No matching version', truncated: false, logPath: '/install.log', kind: 'no-matching-version' }
+  })
+  onTestFinished(() => { pnpm.mockRestore() })
+  expect(await manager.installBundle(`${name}@${getDshRuntimeVersion()}`, { saveExact: true })).toMatchObject({ application: 'failed', stage: 'install' })
+  expect(readFileSync(join(dir, 'package.json'), 'utf8')).toBe(before)
+})
+
+it('retains a successful installation and saved selection when Official activation fails', async () => {
+  const { manager, dir, bundle, profile } = await fixture()
+  const name = OFFICIAL_ON_DEMAND_CATALOG[0]!.packageName
+  const pnpm = vi.spyOn(operations, 'runProfilePnpm').mockImplementation(async () => {
+    bundle(name, [{ id: 'official-probe', name: './plugin.mjs', config: { fail: true } }], profile.home)
+    const manifest = readProfileManifest('test', dir)
+    manifest.dependencies = { ...manifest.dependencies, [name]: getDshRuntimeVersion() }
+    writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+    return { exitCode: 0, output: '', truncated: false, logPath: '/install.log' }
+  })
+  onTestFinished(() => { pnpm.mockRestore() })
+  expect(await manager.installBundle(`${name}@${getDshRuntimeVersion()}`, { saveExact: true })).toMatchObject({ application: 'failed', stage: 'enable' })
+  expect(readProfileManifest('test', dir).dsh?.profile?.bundles).toContain(name)
+  expect(readProfileManifest('test', dir).dependencies?.[name]).toBe(getDshRuntimeVersion())
+})
+
+it('reports and removes a saved Official selection whose dependency is absent', async () => {
+  const { manager, dir } = await fixture()
+  const name = OFFICIAL_ON_DEMAND_CATALOG[0]!.packageName
+  const manifest = readProfileManifest('test', dir)
+  manifest.dsh!.profile!.bundles!.push(name)
+  writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+  expect((await manager.listBundles()).find(bundle => bundle.name === name)).toMatchObject({
+    official: true, installed: false, availability: 'missing', enabled: true, removable: true, error: { code: 'not-bundle' },
+  })
+  const pnpm = vi.spyOn(operations, 'runProfilePnpm')
+  onTestFinished(() => { pnpm.mockRestore() })
+  expect(await manager.removeBundle(name)).toMatchObject({ application: 'applied' })
+  expect(pnpm).not.toHaveBeenCalled()
+  expect((await manager.listBundles()).find(bundle => bundle.name === name)).toMatchObject({ availability: 'missing', enabled: false })
+})
+
+
+it('keeps a broken installation-carried catalog entry visible with offline metadata', async () => {
+  const { manager, profile } = await fixture()
+  const entry = OFFICIAL_ON_DEMAND_CATALOG[0]!
+  writeFileSync(profile.installAnchor, JSON.stringify({ name: 'installation', dependencies: { [entry.packageName]: '1.0.0' } }))
+  const broken = join(profile.home, 'node_modules', entry.packageName)
+  mkdirSync(broken, { recursive: true })
+  writeFileSync(join(broken, 'package.json'), '{')
+  expect((await manager.listBundles()).find(bundle => bundle.name === entry.packageName)).toMatchObject({
+    official: true, availability: 'missing', enabled: false, installed: false, optional: false, removable: false,
+    meta: entry.meta, installTarget: { version: getDshRuntimeVersion() }, error: { code: 'operation-error' },
+  })
+})
+
+
+it('offers checkout links beside stale registry and other-checkout dependencies at the same version', async () => {
+  const { manager, dir, bundle, profile } = await fixture('live', false, undefined, {}, undefined, undefined, true)
+  const name = OFFICIAL_ON_DEMAND_CATALOG[0]!.packageName
+  const version = getDshRuntimeVersion()
+  const source = join(profile.home, 'packages', 'native', 'provider')
+  mkdirSync(join(source, 'lib'), { recursive: true })
+  writeFileSync(join(source, 'package.json'), JSON.stringify({ name, version, main: './lib/index.js', dsh: { bundle: { patch: './cordis.patch.yml' } } }))
+  writeFileSync(join(source, 'lib', 'index.js'), 'export function apply() {}\n')
+  writeFileSync(join(source, 'cordis.patch.yml'), '[]\n')
+  bundle(name, [], profile.home)
+  const installedManifest = join(profile.home, 'node_modules', name, 'package.json')
+  writeFileSync(installedManifest, JSON.stringify({ ...JSON.parse(readFileSync(installedManifest, 'utf8')), version }))
+  const target = { spec: `link:${source}`, version }
+  expect((await manager.listBundles()).find(item => item.name === name)).toMatchObject({ availability: 'missing', installTarget: target })
+  for (const spec of [version, 'link:../other-checkout/native', `link:${source}`]) {
+    const manifest = readProfileManifest('test', dir)
+    manifest.dependencies = { ...manifest.dependencies, [name]: spec }
+    writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+    const listed = (await manager.listBundles()).find(item => item.name === name)
+    expect(listed).toMatchObject({ version, official: true, availability: 'profile', installTarget: target })
+    expect(listed?.source === listed?.installTarget?.spec).toBe(spec === `link:${source}`)
   }
-  const { ctx, manager } = await fixture('live', false, (bootCtx) => {
-    bootCtx.provide('settings', settings as never)
-  }, {}, undefined, configurableBundle)
-  // The Loader announces a settled entry table; the manager serves namespaces from that point on.
-  ctx.emit('loader/config-update')
-  await vi.waitFor(() => { expect(registrations.map(entry => entry.ns)).toContain('dsh-context') })
-  // The namespace opens on the configuration the row runs with, so its own form shows the running values.
-  expect(registrations.find(entry => entry.ns === 'dsh-context')?.base).toEqual({ maxRequestSteps: 1500 })
-  // A module name that is not a settings namespace keeps the row's generic form.
-  expect(registrations.every(entry => !entry.ns.startsWith('file:'))).toBe(true)
-  // A configurable row that declares none resolves to the schema defaults with no composition layer.
-  expect(registrations.find(entry => entry.ns === 'dsh-bare')?.base).toEqual({})
-  // A committed write returns to the row's patch configuration, which is what a restart reads back.
-  const saved = vi.spyOn(manager, 'setBundleConfig').mockResolvedValue({ changed: true } as never)
-  watchers.get('dsh-context')?.()
-  await vi.waitFor(() => { expect(saved).toHaveBeenCalledWith('dsh-context', 'context-row', running) })
-  // An unchanged echo is not written a second time.
-  watchers.get('dsh-context')?.()
-  await new Promise((resolve) => { setTimeout(resolve, 20) })
-  expect(saved).toHaveBeenCalledTimes(1)
-  // A write that fails is reported and does not stop the next change from being returned.
-  saved.mockRejectedValueOnce(new Error('patch is locked'))
-  running = { maxRequestSteps: 9 }
-  watchers.get('dsh-context')?.()
-  await vi.waitFor(() => { expect(saved).toHaveBeenCalledTimes(2) })
 })
 
-it('keeps a row whose namespace the settings provider refuses, and never retries it', async () => {
-  const attempts: string[] = []
-  const settings = {
-    register: (ns: string) => {
-      attempts.push(ns)
-      // The provider owns the namespace grammar; this one refuses a name the profile happens to run.
-      if (ns === 'cordis:manager') throw new TypeError('not a settings namespace')
-      return { get: () => ({}), watch: () => () => {} }
-    },
+it.each(['absent', 'bundle', 'not-bundle', 'unreadable'])('keeps a missing source bundle visible when its installed copy is %s', async (state) => {
+  const { manager, dir, bundle, profile } = await fixture('live', false, undefined, {}, undefined, undefined, true)
+  const name = OFFICIAL_ON_DEMAND_CATALOG[0]!.packageName
+  if (state !== 'absent') {
+    bundle(name, [], profile.home)
+    const manifest = readProfileManifest('test', dir)
+    manifest.dependencies = { ...manifest.dependencies, [name]: '1.0.0' }
+    writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+    const file = join(profile.home, 'node_modules', name, 'package.json')
+    if (state === 'not-bundle') writeFileSync(file, JSON.stringify({ name, version: '1.0.0' }))
+    if (state === 'unreadable') writeFileSync(file, '{')
   }
-  const { ctx } = await fixture('live', false, (bootCtx) => {
-    bootCtx.provide('settings', settings as never)
-  }, {}, undefined, configurableBundle)
-  ctx.emit('loader/config-update')
-  await vi.waitFor(() => { expect(attempts).toContain('dsh-context') })
-  const refused = attempts.filter(ns => ns !== 'dsh-context').length
-  expect(refused).toBeGreaterThan(0)
-  ctx.emit('loader/config-update')
-  await new Promise((resolve) => { setTimeout(resolve, 20) })
-  expect(attempts.filter(ns => ns !== 'dsh-context')).toHaveLength(refused)
-})
-
-it('leaves every row unserved when the profile mounts no settings provider', async () => {
-  const { ctx, manager } = await fixture('live', false, undefined, {}, undefined, configurableBundle)
-  ctx.emit('loader/config-update')
-  // Without a provider the event settles and the row keeps its generic form.
-  await new Promise((resolve) => { setTimeout(resolve, 20) })
-  expect((await manager.listBundles()).some(bundle => bundle.name === 'dsh-context')).toBe(true)
-})
-
-it('reports a namespace sync that fails without breaking the loader event', async () => {
-  const settings = { register: () => ({ get: () => ({}), watch: () => () => {} }) }
-  const { ctx, profile } = await fixture('live', false, (bootCtx) => {
-    bootCtx.provide('settings', settings as never)
-  }, {}, undefined, configurableBundle)
-  const warned = vi.spyOn(ctx.logger, 'warn')
-  // A profile the manager can no longer read is a sync failure, not a loader-event failure.
-  rmSync(profile.installAnchor)
-  ctx.emit('loader/config-update')
-  await vi.waitFor(() => { expect(warned).toHaveBeenCalledWith(expect.stringContaining('plugin configuration namespaces failed')) })
+  expect((await manager.listBundles()).find(item => item.name === name)).toMatchObject({
+    official: true, error: { code: 'operation-error' },
+  })
+  expect((await manager.listBundles()).find(item => item.name === name)?.error?.diagnostic).toContain('restore the checkout')
+  expect((await manager.listBundles()).find(item => item.name === name)?.installTarget).toBeUndefined()
 })

@@ -1,14 +1,29 @@
-/** Comment-preserving profile plugin enablement and configuration edits. */
+/** Comment-preserving profile plugin enablement edits and the entry flattening they compare against. */
 import { readFile } from 'node:fs/promises'
-import { isMap, isSeq, parseDocument, type Document, type YAMLMap, type YAMLSeq } from 'yaml'
-import { loadOptionalPatches } from '@qilin-agent/app-boot'
+import { isMap, isNode, isScalar, isSeq, parseDocument } from 'yaml'
+import type { EntryOptions } from '@qilin-agent/kylin-plugin-loader'
+import { composeEntries, loadOptionalPatches, readBundlePatches, type ProfileContext } from '@qilin-agent/app-boot'
 import { writeFileAtomic } from '@qilin-agent/atomic-write'
 
-/** Read a profile patch file as a YAML document, tolerating its absence and preserving `!!js` scalars as strings.
- * @param filename Current profile patch file.
- * @returns The parsed document and its top-level sequence items.
+/** Flatten only the groups addressable by the profile's patch composer.
+ * @param rows Composed top-level entries.
+ * @returns Entries in depth-first order.
  */
-async function readPatchDocument(filename: string): Promise<{ document: Document; items: YAMLSeq['items'] }> {
+export function flatten(rows: EntryOptions[]): EntryOptions[] {
+  return rows.flatMap(row => [row, ...(row.group && Array.isArray(row.config) ? flatten(row.config as EntryOptions[]) : [])])
+}
+
+/** Replace the last matching override or append one after existing insertions. An override that holds only `id` and
+ * `disabled`, without anchors, is removed, or not appended, when the bundle layers and the remaining profile patches
+ * already give the entry the requested literal `disabled` value; home patches and launch overlays are not consulted.
+ * @param profile Profile whose patch file is edited and whose selected bundles supply the compared composition.
+ * @param id Unique composition entry id.
+ * @param name Module name used to match name-qualified overrides.
+ * @param enabled Desired entry enablement.
+ * @returns Whether the file changed.
+ */
+export async function writePluginEnabled(profile: ProfileContext, id: string, name: string, enabled: boolean): Promise<boolean> {
+  const filename = profile.patchPath
   let text: string
   try {
     text = await readFile(filename, 'utf8')
@@ -22,65 +37,41 @@ async function readPatchDocument(filename: string): Promise<{ document: Document
   const error = document.errors[0]
   if (error !== undefined) throw error
   if (!isSeq(document.contents)) throw new Error('Profile patch must be a YAML sequence')
-  loadOptionalPatches('qilin', filename)
-  return { document, items: document.contents.items }
-}
-
-/** Find the last override a patch file declares for one entry.
- * @param document Parsed profile patch document.
- * @param items The document's top-level override entries.
- * @param id Unique composition entry id.
- * @param name Module name used to match name-qualified overrides.
- * @returns The override map, or undefined when the file declares none.
- */
-function findOverride(document: Document, items: YAMLSeq['items'], id: string, name: string): YAMLMap | undefined {
-  const found = items.findLast((item, index) => {
+  const patches = loadOptionalPatches('dsh', filename) ?? []
+  const bundlePatches = readBundlePatches('dsh', profile)
+  const items = document.contents.items
+  const target = items.findLast((item, index) => {
     if (!isMap(item) || document.getIn([index, 'id']) !== id || item.has('insert')) return false
     const expectedName = document.getIn([index, 'name'])
     return !expectedName || expectedName === name
   })
-  return isMap(found) ? found : undefined
-}
-
-/** Replace the last matching override or append one after existing insertions.
- * @param filename Current profile patch file.
- * @param id Unique composition entry id.
- * @param name Module name used to match name-qualified overrides.
- * @param enabled Desired entry enablement.
- * @returns Whether the file changed.
- */
-export async function writePluginEnabled(filename: string, id: string, name: string, enabled: boolean): Promise<boolean> {
-  const { document, items } = await readPatchDocument(filename)
-  const target = findOverride(document, items, id, name)
-  if (isMap(target)) {
-    const index = items.indexOf(target)
-    if (document.getIn([index, 'disabled']) === !enabled) return false
-    document.setIn([index, 'disabled'], !enabled)
-  } else {
-    document.add({ id, disabled: !enabled })
+  // Compares the entry's own literal `disabled`; a `!!js` value never matches, so its override is kept.
+  const implied = (index: number): boolean => {
+    const row = flatten(composeEntries([[...bundlePatches, ...patches.toSpliced(index, 1)]])).findLast(entry => entry.id === id)
+    return row !== undefined && (row.disabled ?? false) === !enabled
   }
-  await writeFileAtomic(filename, String(document), { mode: 0o600 })
-  return true
-}
-
-/** Replace one entry's configuration override, or append one after existing insertions.
- * A patch override replaces a row's declared config wholesale, so callers send the complete map.
- * @param filename Current profile patch file.
- * @param id Unique composition entry id.
- * @param name Module name used to match name-qualified overrides.
- * @param config The complete configuration map the entry should run with.
- * @returns Whether the file changed.
- */
-export async function writePluginConfig(filename: string, id: string, name: string, config: Record<string, unknown>): Promise<boolean> {
-  const { document, items } = await readPatchDocument(filename)
-  const target = findOverride(document, items, id, name)
   if (isMap(target)) {
     const index = items.indexOf(target)
-    const current = document.getIn([index, 'config'])
-    if (JSON.stringify(current ?? {}) === JSON.stringify(config)) return false
-    document.setIn([index, 'config'], config)
+    // A removed anchor would leave later aliases unresolved.
+    const onlySwitch = target.anchor === undefined && target.items.every(pair => isScalar(pair.key) && isScalar(pair.value)
+      && pair.key.anchor === undefined && pair.value.anchor === undefined && (pair.key.value === 'id' || pair.key.value === 'disabled'))
+    if (onlySwitch && implied(index)) {
+      document.deleteIn([index])
+      // The comment above the removed override can be the file header, so it moves to the following item, above an
+      // emptied sequence, or after the remaining items.
+      const comment = target.commentBefore
+      const next = items[index]
+      if (comment && isNode(next)) next.commentBefore = next.commentBefore ? `${comment}\n${next.commentBefore}` : comment
+      else if (comment && items.length === 0) document.contents.commentBefore = comment
+      else if (comment) document.comment = document.comment ? `${comment}\n${document.comment}` : comment
+    } else if (document.getIn([index, 'disabled']) === !enabled) {
+      return false
+    } else {
+      document.setIn([index, 'disabled'], !enabled)
+    }
   } else {
-    document.add({ id, name, config })
+    if (implied(items.length)) return false
+    document.add({ id, disabled: !enabled })
   }
   await writeFileAtomic(filename, String(document), { mode: 0o600 })
   return true
