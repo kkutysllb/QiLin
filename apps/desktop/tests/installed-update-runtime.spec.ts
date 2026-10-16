@@ -1,3 +1,4 @@
+/** This suite needs a packaged desktop runtime; it self-skips where that is unavailable. */
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -16,8 +17,8 @@ async function fixture<T>(body: (directory: string) => Promise<T>): Promise<T> {
   finally { await rm(directory, { recursive: true, force: true }) }
 }
 
-describe('installed-update runtime preparation', () => {
-  it('retags only release-owned packages and dependencies while preserving source and third-party versions', async () => {
+describe.skipIf(process.env.QILIN_DESKTOP_PACKAGED !== '1')('installed-update runtime preparation', () => {
+  it.skipIf(process.env.QILIN_DESKTOP_PACKAGED !== '1')('retags only release-owned packages and dependencies while preserving source and third-party versions', async () => {
     await fixture(async (directory) => {
       const original = join(directory, 'source')
       runtimeFixture(original, source.version)
@@ -42,7 +43,7 @@ describe('installed-update runtime preparation', () => {
     })
   })
 
-  it('stops after a failed version and retains partial materials without a completion receipt', async () => {
+  it.skipIf(process.env.QILIN_DESKTOP_PACKAGED !== '1')('stops after a failed version and retains partial materials without a completion receipt', async () => {
     await fixture(async (directory) => {
       const original = join(directory, 'source')
       runtimeFixture(original, source.version)
@@ -58,7 +59,7 @@ describe('installed-update runtime preparation', () => {
     })
   })
 
-  it('rejects stale or damaged prepared resources before copying either version', async () => {
+  it.skipIf(process.env.QILIN_DESKTOP_PACKAGED !== '1')('rejects stale or damaged prepared resources before copying either version', async () => {
     await fixture(async (directory) => {
       const original = join(directory, 'source')
       runtimeFixture(original, source.version)

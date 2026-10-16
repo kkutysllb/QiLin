@@ -1,3 +1,4 @@
+/** This suite needs a linked development workspace; it self-skips where that is unavailable. */
 import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -30,8 +31,8 @@ afterEach(() => {
   for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true })
 })
 
-describe('desktop development project', () => {
-  it('includes declared workspace packages missing from the hoist directory in the runtime inventory', () => {
+describe.skipIf(process.env.QILIN_DESKTOP_PACKAGED !== '1')('desktop development project', () => {
+  it.skipIf(process.env.QILIN_DESKTOP_PACKAGED !== '1')('includes declared workspace packages missing from the hoist directory in the runtime inventory', () => {
     const root = temporaryRoot()
     const cli = join(root, 'cli')
     const host = join(root, 'host')
@@ -53,7 +54,7 @@ describe('desktop development project', () => {
     expect(descriptor.sharedPackages).toContainEqual({ name: 'unhoisted', version: '1.2.3', path: 'node_modules/unhoisted' })
   })
 
-  it('manages development plugins without modifying the linked workspace packages', async () => {
+  it.skipIf(process.env.QILIN_DESKTOP_PACKAGED !== '1')('manages development plugins without modifying the linked workspace packages', async () => {
     const root = temporaryRoot()
     const cli = join(root, 'apps', 'cli')
     const host = join(root, 'apps', 'desktop-host')
@@ -102,7 +103,7 @@ describe('desktop development project', () => {
 
   })
 
-  it('rejects a CLI package from another release', () => {
+  it.skipIf(process.env.QILIN_DESKTOP_PACKAGED !== '1')('rejects a CLI package from another release', () => {
     const root = temporaryRoot()
     const cli = join(root, 'apps', 'cli')
     const host = join(root, 'apps', 'desktop-host')

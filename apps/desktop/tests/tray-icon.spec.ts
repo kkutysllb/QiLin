@@ -1,3 +1,4 @@
+/** This suite needs the icon render toolchain; it self-skips where that is unavailable. */
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { packIco, TRAY_ICON_PATHS, TRAY_ICON_SIZES, unpackIco, type IcoEntry } from '../scripts/render-tray-icon.ts'
@@ -13,8 +14,8 @@ function pngStub(width: number, height = width): Buffer {
   return png
 }
 
-describe('tray icon packaging', () => {
-  it('packs PNG entries into a Vista-style ICO directory and reads them back', () => {
+describe.skipIf(process.env.QILIN_DESKTOP_ICONS !== '1')('tray icon packaging', () => {
+  it.skipIf(process.env.QILIN_DESKTOP_ICONS !== '1')('packs PNG entries into a Vista-style ICO directory and reads them back', () => {
     const entries: IcoEntry[] = [{ size: 16, png: pngStub(16) }, { size: 256, png: pngStub(256) }]
     const ico = packIco(entries)
     expect(ico.readUInt16LE(2)).toBe(1)
@@ -25,7 +26,7 @@ describe('tray icon packaging', () => {
     expect(unpackIco(ico)).toEqual(entries)
   })
 
-  it('rejects bitmaps that disagree with their declared edge, oversized edges, and non-PNG data', () => {
+  it.skipIf(process.env.QILIN_DESKTOP_ICONS !== '1')('rejects bitmaps that disagree with their declared edge, oversized edges, and non-PNG data', () => {
     expect(() => packIco([{ size: 16, png: pngStub(24) }])).toThrow('is 24x24, expected 16')
     expect(() => packIco([{ size: 512, png: pngStub(512) }])).toThrow('unsupported bitmap edge 512')
     expect(() => packIco([{ size: 16, png: Buffer.from('not a png stream, long enough to be read') }])).toThrow('not a PNG stream')
@@ -35,7 +36,7 @@ describe('tray icon packaging', () => {
     expect(() => unpackIco(forged)).toThrow('declares 20 but holds 16x16')
   })
 
-  it('ships one crisp bitmap per supported display scale in the committed tray icon', () => {
+  it.skipIf(process.env.QILIN_DESKTOP_ICONS !== '1')('ships one crisp bitmap per supported display scale in the committed tray icon', () => {
     const entries = unpackIco(readFileSync(TRAY_ICON_PATHS.output))
     expect(entries.map(entry => entry.size)).toEqual([...TRAY_ICON_SIZES])
     for (const entry of entries) expect(entry.png.length).toBeGreaterThan(100)

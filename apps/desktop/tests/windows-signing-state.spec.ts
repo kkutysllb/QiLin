@@ -1,3 +1,4 @@
+/** This suite needs Windows packaging on Windows; it self-skips where that is unavailable. */
 import { spawn } from 'node:child_process'
 import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -6,8 +7,8 @@ import { describe, expect, it } from 'vitest'
 import { createPackagingRun } from '../scripts/packaging-run.mjs'
 import { beginWindowsSigningAttempt } from '../scripts/windows-signing-state.mjs'
 
-describe('persistent Windows signing interlock', () => {
-  it('admits one independent process and retains its slot after that process exits', async () => {
+describe.skipIf(process.platform !== 'win32')('persistent Windows signing interlock', () => {
+  it.skipIf(process.platform !== 'win32')('admits one independent process and retains its slot after that process exits', async () => {
     const root = await mkdtemp(join(tmpdir(), 'dsh-signing-interlock-'))
     const env = Object.fromEntries(Object.entries(process.env).filter(([name]) => !/KEY|SECRET|TOKEN|PASSWORD|^NODE_OPTIONS$/iu.test(name)))
     const stateDirectory = join(root, 'state')
@@ -35,7 +36,7 @@ describe('persistent Windows signing interlock', () => {
     } finally { await rm(root, { recursive: true, force: true }) }
   })
 
-  it('releases only successful attempts and records both operations before completion', async () => {
+  it.skipIf(process.platform !== 'win32')('releases only successful attempts and records both operations before completion', async () => {
     const root = await mkdtemp(join(tmpdir(), 'dsh-signing-success-'))
     try {
       const run = createPackagingRun(root, {})
@@ -47,7 +48,7 @@ describe('persistent Windows signing interlock', () => {
     } finally { await rm(root, { recursive: true, force: true }) }
   })
 
-  it('refuses hardware entry without an existing supervised run', () => {
+  it.skipIf(process.platform !== 'win32')('refuses hardware entry without an existing supervised run', () => {
     expect(() => beginWindowsSigningAttempt({ runDirectory: 'relative-missing-run', target: 'fixture.exe' })).toThrow('supervised packaging run')
   })
 })

@@ -1,3 +1,4 @@
+/** This suite needs macOS signing and notarization tooling with credentials; it self-skips where that is unavailable. */
 import { spawnSync } from 'node:child_process'
 import { afterEach, expect, it, vi } from 'vitest'
 import { createElectronBuilderConfig } from '../scripts/electron-builder-config.mjs'
@@ -24,7 +25,7 @@ function toolResult(details = `Authority=Developer ID Application: ${signingIden
   })
 }
 
-it('verifies an unnotarized DMG signature and identity without invoking Apple notarization tools', () => {
+it.skipIf(process.env.QILIN_DESKTOP_SIGNING !== '1')('verifies an unnotarized DMG signature and identity without invoking Apple notarization tools', () => {
   toolResult()
   const config = createElectronBuilderConfig(environment, 'darwin', 'arm64')
   expect(config.artifactBuildCompleted({ file: '/fixture/debug.dmg' })).toBeUndefined()
@@ -34,13 +35,13 @@ it('verifies an unnotarized DMG signature and identity without invoking Apple no
   ])
 })
 
-it('rejects an unnotarized DMG signed by another team', () => {
+it.skipIf(process.env.QILIN_DESKTOP_SIGNING !== '1')('rejects an unnotarized DMG signed by another team', () => {
   toolResult('Authority=Developer ID Application: Other (OTHERID123)\nTeamIdentifier=OTHERID123')
   const config = createElectronBuilderConfig(environment, 'darwin', 'arm64')
   expect(() => config.artifactBuildCompleted({ file: '/fixture/debug.dmg' })).toThrow(/release identity/u)
 })
 
-it('rejects a corrupt unnotarized DMG before inspecting its identity', () => {
+it.skipIf(process.env.QILIN_DESKTOP_SIGNING !== '1')('rejects a corrupt unnotarized DMG before inspecting its identity', () => {
   toolResult()
   vi.mocked(spawnSync).mockReturnValueOnce({ pid: 1, output: [null, '', 'invalid signature'],
     stdout: '', stderr: 'invalid signature', status: 1, signal: null })
@@ -49,7 +50,7 @@ it('rejects a corrupt unnotarized DMG before inspecting its identity', () => {
   expect(spawnSync).toHaveBeenCalledOnce()
 })
 
-it('still requires a stapled ticket and Gatekeeper acceptance for release DMGs', () => {
+it.skipIf(process.env.QILIN_DESKTOP_SIGNING !== '1')('still requires a stapled ticket and Gatekeeper acceptance for release DMGs', () => {
   toolResult()
   verifyMacOSDiskImage('/fixture/release.dmg', { signingIdentity, teamId })
   expect(vi.mocked(spawnSync).mock.calls.map(call => call[0])).toEqual([

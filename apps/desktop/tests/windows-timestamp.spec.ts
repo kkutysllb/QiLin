@@ -1,3 +1,4 @@
+/** This suite needs Windows packaging on Windows; it self-skips where that is unavailable. */
 /** Timestamp retries use fresh signed inputs and cannot publish partial or substituted files. */
 import { it, expect, type TestContext } from 'vitest'
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
@@ -25,7 +26,7 @@ async function fixture(t: TestContext) {
   return { root, path, options, state }
 }
 
-it('a failed timestamp cannot contaminate the next input or repeat hardware signing', async (t) => {
+it.skipIf(process.platform !== 'win32')('a failed timestamp cannot contaminate the next input or repeat hardware signing', async (t) => {
   const f = await fixture(t)
   const timestamp = f.options.timestamp
   let requests = 0
@@ -45,7 +46,7 @@ it('a failed timestamp cannot contaminate the next input or repeat hardware sign
   expect((await readdir(f.root)).filter(name => name.startsWith('.complete-signature-'))).toEqual([])
 })
 
-it('exhausted timestamp attempts retain evidence and leave the original untouched', async (t) => {
+it.skipIf(process.platform !== 'win32')('exhausted timestamp attempts retain evidence and leave the original untouched', async (t) => {
   const f = await fixture(t)
   let requests = 0
   f.options.timestamp = async () => { requests++; throw Object.assign(new Error('offline'), { code: 1 }) }
@@ -57,7 +58,7 @@ it('exhausted timestamp attempts retain evidence and leave the original untouche
   expect((await readdir(f.root)).filter(name => name.startsWith('.complete-signature-'))).toEqual([])
 })
 
-it('retains staging when failure evidence cannot be stored', async (t) => {
+it.skipIf(process.platform !== 'win32')('retains staging when failure evidence cannot be stored', async (t) => {
   const f = await fixture(t)
   f.options.evidenceDirectory = f.path
   let staging = ''
@@ -68,7 +69,7 @@ it('retains staging when failure evidence cannot be stored', async (t) => {
   expect(await readFile(f.path, 'utf8')).toBe('input')
 })
 
-it('uses short tool paths for deeply nested targets and publishes the completed bytes', async (t) => {
+it.skipIf(process.platform !== 'win32')('uses short tool paths for deeply nested targets and publishes the completed bytes', async (t) => {
   const f = await fixture(t)
   const directory = join(f.root, 'nested'.repeat(20), 'dependency'.repeat(12))
   await mkdir(directory, { recursive: true })
@@ -92,7 +93,7 @@ it('uses short tool paths for deeply nested targets and publishes the completed 
 })
 
 for (const failure of [{ code: 'ENOENT' }, { code: 1, killed: true }, { code: 1, signal: 'SIGTERM' }]) {
-  it(`does not retry uncertain timestamp process failure ${JSON.stringify(failure)}`, async (t) => {
+  it.skipIf(process.platform !== 'win32')(`does not retry uncertain timestamp process failure ${JSON.stringify(failure)}`, async (t) => {
     const f = await fixture(t)
     let requests = 0
     f.options.timestamp = async () => { requests++; throw Object.assign(new Error('process failure'), failure) }
@@ -106,7 +107,7 @@ for (const signature of [
   { status: 'Valid', timestamped: false, thumbprint: 'A'.repeat(40) },
   { status: 'Valid', timestamped: true, thumbprint: 'B'.repeat(40) },
   { status: 'HashMismatch', timestamped: true, thumbprint: 'A'.repeat(40) },
-]) it(`rejects successful commands with an invalid final signature ${JSON.stringify(signature)}`, async (t) => {
+]) it.skipIf(process.platform !== 'win32')(`rejects successful commands with an invalid final signature ${JSON.stringify(signature)}`, async (t) => {
   const f = await fixture(t)
   f.options.inspect = async () => signature
   await expect(completeWindowsSignature(f.path, f.options)).rejects.toThrow('verification failed')
@@ -114,14 +115,14 @@ for (const signature of [
   expect(await readFile(f.path, 'utf8')).toBe('input')
 })
 
-it('rejects changed contents even when the substituted file has the expected valid certificate', async (t) => {
+it.skipIf(process.platform !== 'win32')('rejects changed contents even when the substituted file has the expected valid certificate', async (t) => {
   const f = await fixture(t)
   f.options.timestamp = async (path) => { await writeFile(path, 'signed:different-input:timestamp') }
   await expect(completeWindowsSignature(f.path, f.options)).rejects.toThrow('signing content changed')
   expect(await readFile(f.path, 'utf8')).toBe('input')
 })
 
-it('does not overwrite an input changed while its signature is being completed', async (t) => {
+it.skipIf(process.platform !== 'win32')('does not overwrite an input changed while its signature is being completed', async (t) => {
   const f = await fixture(t)
   const timestamp = f.options.timestamp
   f.options.timestamp = async (path) => { await timestamp(path); await writeFile(f.path, 'new input') }
@@ -129,7 +130,7 @@ it('does not overwrite an input changed while its signature is being completed',
   expect(await readFile(f.path, 'utf8')).toBe('new input')
 })
 
-it('does not retry hardware failures or request timestamps after them', async (t) => {
+it.skipIf(process.platform !== 'win32')('does not retry hardware failures or request timestamps after them', async (t) => {
   const f = await fixture(t)
   f.options.sign = async () => { f.state.hardware++; throw new Error('hardware failed') }
   await expect(completeWindowsSignature(f.path, f.options)).rejects.toThrow('hardware failed')

@@ -1,3 +1,4 @@
+/** This suite needs Windows packaging on Windows; it self-skips where that is unavailable. */
 /** Fault checks for the exploratory cache; these never call signing hardware. */
 import { it as test, type TestContext } from 'vitest'
 import assert from 'node:assert/strict'

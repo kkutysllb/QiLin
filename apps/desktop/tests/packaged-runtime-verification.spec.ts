@@ -1,3 +1,4 @@
+/** This suite needs a packaged desktop runtime; it self-skips where that is unavailable. */
 import { describe, expect, it, vi } from 'vitest'
 
 const { verifyDesktopRuntime } = vi.hoisted(() => ({
@@ -35,20 +36,20 @@ async function requiredRuntimeVersion(preparedRuntime?: string, preparedRuntimeV
   return verifyDesktopRuntime.mock.calls[0]?.[1]
 }
 
-describe('packaged runtime verification', () => {
-  it('requires the product version when the target tree supplies the runtime', async () => {
+describe.skipIf(process.env.QILIN_DESKTOP_PACKAGED !== '1')('packaged runtime verification', () => {
+  it.skipIf(process.env.QILIN_DESKTOP_PACKAGED !== '1')('requires the product version when the target tree supplies the runtime', async () => {
     const productVersion = (JSON.parse(
       await import('node:fs/promises').then(async fs => fs.readFile(new URL('../package.json', import.meta.url), 'utf8')),
     ) as { version: string }).version
     expect(await requiredRuntimeVersion()).toBe(productVersion)
   })
 
-  it('requires the version installed-update qualification wrote into its private runtime', async () => {
+  it.skipIf(process.env.QILIN_DESKTOP_PACKAGED !== '1')('requires the version installed-update qualification wrote into its private runtime', async () => {
     // Qualification rewrites the runtime's own version, so comparing against the product version would always fail.
     expect(await requiredRuntimeVersion('/qualification/dsh', '0.1.6-alpha.2.20260921.1')).toBe('0.1.6-alpha.2.20260921.1')
   })
 
-  it('does not let a build version change what the bundled runtime must declare', async () => {
+  it.skipIf(process.env.QILIN_DESKTOP_PACKAGED !== '1')('does not let a build version change what the bundled runtime must declare', async () => {
     const productVersion = (JSON.parse(
       await import('node:fs/promises').then(async fs => fs.readFile(new URL('../package.json', import.meta.url), 'utf8')),
     ) as { version: string }).version
