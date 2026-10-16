@@ -90,7 +90,7 @@ export async function connectDesktopWelcome(
   /** @returns whether the Host holds an authenticated local session for this device. */
   const localSession = async (): Promise<boolean> => {
     try {
-      const response = await send(new URL('/api/auth/status', origin).href, { credentials: 'include' })
+      const response = await send(new URL('/api/auth/status', origin).href, { credentials: 'include', redirect: 'error' })
       if (!response.ok) return false
       const body: unknown = await response.json()
       return record(body) && body.authenticated === true

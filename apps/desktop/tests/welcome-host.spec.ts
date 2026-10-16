@@ -39,6 +39,7 @@ describe('desktop welcome Web operations', () => {
     expect(await backend.analyticsEnabled()).toBe(true)
     expect(await backend.save('sk-example')).toEqual({ ok: true })
     expect(host.keys.get('CUSTOM_DEEPSEEK_KEY')).toBe('sk-example')
+    // The read consults the local session endpoint first; the transport answers it without a session.
     expect(await backend.read()).toEqual({ loggedIn: false, hasApiKey: true, writable: true, localePreference: null })
     for (const [input, init] of host.send.mock.calls.slice(1)) {
       expect(input).toMatch(/^http:\/\/127\.0\.0\.1:19387\/api\//u)
@@ -87,8 +88,6 @@ describe('desktop welcome Web operations', () => {
   it('keeps provider diagnostics out of failures and rejects unmatched RPC envelopes', async () => {
     const host = transport()
     const backend = await connectDesktopWelcome(url, host.send)
-    // The local session probe answers before the credential write.
-    host.send.mockResolvedValueOnce(Response.json({ authenticated: false }))
     host.send.mockRejectedValueOnce(new Error('private credential sk-must-not-leak'))
     expect(await backend.save('sk-example')).toEqual({ ok: false })
     host.send.mockResolvedValueOnce(Response.json({ type: 'server-response', rpcId: 'other', result: { ok: true } }))
