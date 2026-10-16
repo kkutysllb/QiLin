@@ -88,6 +88,16 @@ export async function connectDesktopWelcome(
     return locale.value.preference ?? null
   }
   const read = async (): Promise<WelcomeState> => {
+    // The Desktop authenticates locally through its own Host. A Web RPC failure must not
+    // stop startup: the welcome window shows the local state instead of a remote service.
+    try {
+      return await readRemote()
+    } catch (error) {
+      console.warn('desktop welcome: continuing with local state', error)
+      return { loggedIn: false, hasApiKey: false, writable: false, localePreference: null }
+    }
+  }
+  const readRemote = async (): Promise<WelcomeState> => {
     const { settings, ref } = await settingsAndReference()
     const providers = await invoke({ namespace: 'llm', method: 'listConfigurableProviders', args: {} })
     if (!Array.isArray(providers)) throw new Error('desktop welcome: invalid provider directory')
