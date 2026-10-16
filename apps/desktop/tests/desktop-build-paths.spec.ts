@@ -20,9 +20,9 @@ describe('desktop build paths', () => {
       'runtime',
       'packageSet',
       'qilin',
-      'dshPnpm',
+      'qilinPnpm',
       'electron',
-      'packedDsh',
+      'packedQilin',
       'packedVendor',
       'packedLandlock',
     ] as const
@@ -31,7 +31,7 @@ describe('desktop build paths', () => {
       expect(new Set([arm64[key], x64[key], windows[key]]).size).toBe(3)
     }
     expect(arm64.artifacts).toContain(join('targets', 'mac-arm64', 'artifacts'))
-    expect(x64.dsh).toContain(join('targets', 'mac-x64', 'qilin'))
+    expect(x64.qilin).toContain(join('targets', 'mac-x64', 'qilin'))
     expect(windows.runtime).toContain(join('targets', 'win-x64', 'runtime'))
   })
 
