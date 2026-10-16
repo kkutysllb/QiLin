@@ -35,7 +35,7 @@ describe('Desktop local packaging configuration', () => {
     const local = localMacOSPackageEnvironment(parent)
     expect(local).toEqual({
       PATH: parent.PATH, HTTPS_PROXY: parent.HTTPS_PROXY, QILIN_DESKTOP_NPM_REGISTRY: parent.QILIN_DESKTOP_NPM_REGISTRY,
-      QILIN_DESKTOP_APP_ID: 'com.deepseek.harness', QILIN_DESKTOP_UNSIGNED: '1',
+      QILIN_DESKTOP_APP_ID: 'com.qilin.desktop', QILIN_DESKTOP_UNSIGNED: '1',
     })
     expect(() => { validateDesktopPackageEnvironment(local, MACOS, { unsigned: true }) }).not.toThrow()
     expect(parent.QILIN_DESKTOP_UNSIGNED).toBe('0')
