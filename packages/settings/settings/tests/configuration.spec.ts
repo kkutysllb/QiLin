@@ -262,6 +262,10 @@ it('does not publish a queued form refresh after disposal', async () => {
   const settings = entries.find(row => row.options.id === 'settings')!
   const updates: string[] = []
   ctx.on('settings/document-updated', (ns) => { updates.push(ns) })
+  // Scheduling a refresh and tearing the service down before the microtask runs
+  // exercises the closed arm: the queued describe never starts.
+  const service = settings.fiber!.ctx.get('settings')!
+  service.configure({ auto: true }, settings.fiber)
   await settings.fiber!.dispose()
   await Promise.resolve()
   expect(updates).toEqual([])
@@ -352,7 +356,7 @@ it('describes an entry whose required field only the profile supplies, and repor
   // A presentation policy change schedules the queued describe; the contained
   // failure lands in the log instead of crashing the queue.
   const entry = restored.configEditor.entries().find(row => row.options.id === 'first')!
-  restored.settings.configure({ auto: true }, entry.fiber!)
+  restored.settings.configure({ auto: true }, entry.fiber)
   const failures = (): unknown[] => restored.logger.buffer.filter(message => message.type === 'error').map((message): unknown => message.args[0])
   await vi.waitFor(() => { expect(failures()).toContainEqual(expect.objectContaining({ message: 'refresh failed' })) })
 })

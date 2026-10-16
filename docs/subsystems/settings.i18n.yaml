@@ -9,20 +9,5 @@
   en: 7fabd502b5dcbe5b
   zh: 5d7bfbc57f823719
 /plugin-configuration-forms/edits:
-  en: 2639c6afc11763de
-  zh: 962b7e37b9844e80
-/plugin-configuration-forms/cordis-api:
-  en: 1b28cdeff2e90a09
-  zh: b76d520d070104b8
-/plugin-configuration-forms/cordis-api/ctx-settings-settingsforms:
-  en: 9cf2b4a253cff050
-  zh: 9cf2b4a253cff050
-/plugin-configuration-forms/cordis-api/ctx-settingscontroller-settingscontroller:
-  en: 9ca2ba000ded655b
-  zh: 9ca2ba000ded655b
-/plugin-configuration-forms/cordis-api/settings-events:
-  en: 71ca28b5a5d41e20
-  zh: 71ca28b5a5d41e20
-/plugin-configuration-forms/cordis-api/settings-events/settings-document-updated-emit:
-  en: 46d4c79bdbd6d5e1
-  zh: 46d4c79bdbd6d5e1
+  en: 1d97c98a8634bfe7
+  zh: 70d6dbec0d9679c6

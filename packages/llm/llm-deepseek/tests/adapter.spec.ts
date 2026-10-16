@@ -1,5 +1,6 @@
 /** HTTP lifecycle, routing and optional Cordis services under real composition. */
 import type { AnonymousUserId } from '@qilin-agent/anonymous-user-id'
+import { mkdirSync, writeFileSync } from 'node:fs'
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -17,8 +18,9 @@ import Loader from '@qilin-agent/kylin-plugin-loader'
 import LlmRuntime, { createAssistantMessage, createDeveloperMessage, createSystemMessage, createToolResultMessage, createUserMessage, ToolCallId } from '@qilin-agent/llm'
 import type { Message } from '@qilin-agent/llm'
 import { credentialRef } from '@qilin-agent/credentials'
+import { load as yamlLoad } from 'js-yaml'
 import LocalCredentials from '@qilin-agent/credentials-local'
-import { initProfile, mountRootInclude, type ProfileContext } from '@qilin-agent/app-boot'
+import { initProfile, mountRootInclude, readProfilePatches, type ProfileContext } from '@qilin-agent/app-boot'
 import ConfigEditor from '../../../settings/config-editor/src/index.ts'
 import SettingsForms from '../../../settings/settings/src/index.ts'
 import SessionStore, { SessionId } from '@qilin-agent/session'
@@ -298,7 +300,14 @@ describe('Cordis provider composition', () => {
     vi.stubEnv('DEEPSEEK_API_KEY', '')
     await writeFile(join(home, '.credentials.yaml'), 'version: 1\nrefs:\n  DEEPSEEK_API_KEY: stored-key\n', { mode: 0o600 })
     const template = await readFile(new URL('fixtures/cordis.yml', import.meta.url), 'utf8')
-    await writeFile(join(home, 'cordis.yml'), template.replaceAll('{{endpoint}}', JSON.stringify(http.url)).replaceAll('{{credentials}}', JSON.stringify(join(home, '.credentials.yaml'))))
+    writeFileSync(join(home, 'package.json'), '{"name":"test-installation"}\n')
+    const profileDir = join(home, 'profiles', 'test')
+    const bundle = join(profileDir, 'node_modules', 'test-bundle')
+    mkdirSync(bundle, { recursive: true })
+    await writeFile(join(bundle, 'package.json'), JSON.stringify({ name: 'test-bundle', version: '1.0.0', qilin: { bundle: { patch: 'cordis.patch.yml' } } }))
+    await writeFile(join(bundle, 'cordis.patch.yml'), JSON.stringify([{ insert: yamlLoad(template.replaceAll('{{endpoint}}', http.url).replaceAll('{{credentials}}', join(home, '.credentials.yaml'))) }]))
+    await writeFile(join(profileDir, 'cordis.patch.yml'), '[]\n')
+    await writeFile(join(home, 'cordis.yml'), '[]\n')
     ctx.baseUrl = pathToFileURL(home).href + '/'
     await ctx.plugin(Loader)
     const modules = new Map<string, unknown>([
@@ -319,17 +328,15 @@ describe('Cordis provider composition', () => {
       return modules.get(name)
     })
     // Live settings persist through a real profile patch beside the composition.
-    await writeFile(join(home, 'package.json'), '{"name":"test-installation"}\n')
-    const profileDir = join(home, 'profile')
-    initProfile(profileDir, [])
+    initProfile(profileDir, ['test-bundle'])
     const profile: ProfileContext = {
-      name: 'test', startedBundles: [], dir: profileDir, patchPath: join(profileDir, 'cordis.patch.yml'),
+      name: 'test', startedBundles: ['test-bundle'], dir: profileDir, patchPath: join(profileDir, 'cordis.patch.yml'),
       installAnchor: join(home, 'package.json'), cwd: home, home, overlays: [], telemetryDisabledEnv: undefined,
     }
     ctx.provide('profileContext', profile)
     await ctx.plugin(ConfigEditor)
     await ctx.plugin(SettingsForms)
-    await mountRootInclude(ctx, join(home, 'cordis.yml'), [])
+    await mountRootInclude(ctx, join(home, 'cordis.yml'), readProfilePatches('test', profile))
     await ctx.loader.await()
     return { ctx, http }
   }
@@ -412,9 +419,10 @@ describe('Cordis provider composition', () => {
     await ctx.credentials.set(credentialRef('DEEPSEEK_API_KEY'), 'rotated')
     await chunks(ctx.llm.stream(options()))
     expect(second.requests[0]).toMatchObject({ headers: { 'x-api-key': 'rotated' }, body: { max_tokens: 51 } })
-    await ctx.settings.update(Messages.name, { models: [{ id: 'duplicate' }, { id: 'duplicate' }], baseURL: http.url })
-    const refused: unknown = (await chunks(ctx.llm.stream(options()))).find(chunk => chunk.type === 'finish')
-    expect(JSON.stringify(refused)).toContain('duplicate catalog model')
+    // A stored section the adapter cannot activate refuses the WRITE now: the
+    // reconciliation rolls the patch back, and the previous routes keep serving.
+    await expect(ctx.settings.update(Messages.name, { models: [{ id: 'duplicate' }, { id: 'duplicate' }], baseURL: http.url }))
+      .rejects.toThrow('duplicate catalog model')
     expect(second.requests).toHaveLength(1)
     expect(http.requests).toHaveLength(1)
     await ctx.settings.update(Messages.name, { models: [{ id: MODEL }], baseURL: http.url })

@@ -14,13 +14,40 @@
 
 `settings/document-updated` 在 Loader 配置变化后使表单描述符失效。这是 UI 通知；消费者仅在需要刷新注册信息时使用 `loader/volatile-update`。
 
-<!-- Hand-maintained Cordis API reference for the settings domain. -->
+<!-- BEGIN GENERATED kylin-surface (gen-kylin-catalog.ts) — do not edit between markers -->
 
-<a id="cordis-surface"></a>
+<a id="kylin-surface"></a>
 
 ## Cordis API
 
-签名块使用 `ts cordis-catalog` 围栏并保留原始源码 JSDoc；分发模式见[入门](../kylin-primer.zh.md#kylin-waterfall-semantics)。
+Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm run verify-kylin-catalog` in doc-sync; regenerate with `pnpm run gen-kylin-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../kylin-primer.zh.md#dispatch-modes), and the framework-inherited `ctx` API lives in [kylin-api/inherited.md](../kylin-api/inherited.md).
+
+<a id="ctxconfigeditor--configeditor"></a>
+
+### `ctx.configEditor` — `ConfigEditor`
+
+Persist complete raw configs and apply them through the normal Loader path.
+
+```ts cordis-catalog
+/** Addressable profile rows; nested Includes have independent configuration ownership.
+ * @returns Active entries with unique profile patch ids.
+ */
+entries(): Entry[]
+
+/** Read inherited and explicit profile values for the active entries.
+ * @returns Detached layer values alongside their Loader entries.
+ */
+configuration(): Array<{ entry: Entry; inherited: Record<string, unknown>; override: Record<string, unknown> }>
+
+/** Validate, persist, and reconcile a plugin's next config; ordinary fields keep normal lifecycle rules.
+ * @param entry Current Loader entry, also used to detect replacement during the write.
+ * @param change Derive a raw config from the current entry and its inherited layer.
+ * @returns Fulfillment after Loader reconciliation completes.
+ */
+async edit( entry: Entry, change: (current: Record<string, unknown>, inherited: Record<string, unknown>) => Record<string, unknown>, ): Promise<void>
+```
+
+Source: [`packages/settings/config-editor/src/index.ts`](../../packages/settings/config-editor/src/index.ts)
 
 <a id="ctxsettings--settingsforms"></a>
 
@@ -80,12 +107,18 @@ Host service backing the generated `ctx.remote.settings` namespace. Every remote
 
 ```ts cordis-catalog
 /**
- * Describe every registered namespace for a configuration page: redacted
- * layered values plus the serialized schema the page renders its form from.
- * @returns provider writability, local-document presence, and one view per namespace.
+ * Describe every entry form for a configuration page: redacted layered values
+ * plus the serialized schema the page renders its form from.
+ * @returns provider writability, local-document presence, and one view per entry.
  * @throws RemoteError when no settings provider is mounted.
  */
 @Remote describe(): SettingsDescribeValue
+
+/**
+ * Report whether this deployment can open an authored Agent preset directory natively.
+ * @returns true when the matching open operation is available.
+ */
+@Remote canOpenAgentPresetDirectory(): boolean
 
 /**
  * Merge a patch into one namespace's stored user section.
@@ -120,12 +153,21 @@ Host service backing the generated `ctx.remote.settings` namespace. Every remote
 @Remote async mutate( ns: string, ops: SettingsPathOpView[], expectedRevision: number | undefined, ): Promise<SettingsNamespaceView>
 
 /**
- * Materialize the provider-owned settings document and open it in a native text editor.
+ * Locate the profile patch this deployment edits and open it in a native text editor.
  * @param signal - caller lifetime; abort terminates preparation or the native command.
  * @returns confirmation after the native opener accepts the document.
  * @throws RemoteError when no document exists, preparation fails, or opening fails.
  */
 @Remote async openSettingsDocument(signal: AbortSignal): Promise<SettingsDocumentOpenValue>
+
+/**
+ * Open one user-authored Agent preset directory or return its path when no native opener exists.
+ * @param agentPreset - preset id resolved against Host-owned roots.
+ * @param signal - caller lifetime; abort terminates the native command.
+ * @returns an opened confirmation or the resolved directory for text display.
+ * @throws RemoteError when the preset is missing, read-only, invalid, or cannot be opened.
+ */
+@Remote async openAgentPresetDirectory( agentPreset: string, signal: AbortSignal, ): Promise<AgentPresetDirectoryOpenValue>
 ```
 
 Source: [`packages/api/settings-controller/src/index.ts`](../../packages/api/settings-controller/src/index.ts)
@@ -152,3 +194,4 @@ One profile entry's form values, availability, or page policy changed. Form clie
 ```
 
 Source: [`packages/settings/settings/src/types.ts`](../../packages/settings/settings/src/types.ts)
+<!-- END GENERATED kylin-surface -->

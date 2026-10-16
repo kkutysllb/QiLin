@@ -43,6 +43,12 @@ it('saves index sources without remounting, announces them, and restores them at
     const fiber = entry.fiber
     let changes = 0
     ctx.on('plugin-market/changed', () => { changes++ })
+    // Saving the composed list back is a no-op announcement: the volatile update
+    // fires the same reconciliation, and the unchanged list announces nothing.
+    await market.setIndexes(['https://first.example/index.json'])
+    expect(market.listIndexes().map(index => index.url)).toEqual(['https://first.example/index.json'])
+    expect(changes).toBe(0)
+
     await market.setIndexes(['https://second.example/index.json ', 'http://127.0.0.1:8080/index.json'])
     expect(market.listIndexes().map(index => index.url)).toEqual(['https://second.example/index.json', 'http://127.0.0.1:8080/index.json'])
     expect(entry.fiber === fiber).toBe(true)

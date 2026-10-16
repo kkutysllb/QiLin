@@ -52,15 +52,10 @@ async function mount(config: Partial<{ indexes: string[]; fetchTimeoutMs: number
   await ctx.plugin(Manager)
   if (options.settings !== undefined) {
     const update = options.settings
-    // The provider seam this service consumes: one installed section per Loader entry id.
+    // The provider seam this service consumes: one live entry per Loader entry id.
     class Settings extends Service {
       constructor(inner: Context) { super(inner, 'settings') }
       update(ns: string, patch: object) { return update(ns, patch) }
-      installSection(
-        _owner: Context, _ns: string, _schema: unknown, base: unknown, hooks: { setSource: (current: () => unknown) => void },
-      ) {
-        hooks.setSource(() => base)
-      }
     }
     await ctx.plugin(Settings)
   }

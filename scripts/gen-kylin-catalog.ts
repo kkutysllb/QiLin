@@ -50,6 +50,7 @@ export { REGION_BEGIN, REGION_END }
  * errors, so the partition can never silently drift from the service API.
  */
 export const SERVICE_PAGE: Record<string, string> = {
+  configEditor: 'settings.md',
   connection: 'web-server.md',
   pluginManager: 'boot.md',
   pluginMarket: 'boot.md',

@@ -9,7 +9,7 @@ import { SettingsFormModel, settingsNumberField, type SettingsFormActions, type 
  * client package must not depend on a Host package, and the executor families
  * that own it spell the same value.
  */
-export const SHELL_NS = 'shell'
+export const SHELL_NS = 'bash-sandbox'
 
 /** The shell fields this card edits — a subset of the served schema by design. */
 export interface BashSettings {
