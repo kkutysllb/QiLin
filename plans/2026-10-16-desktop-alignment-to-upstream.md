@@ -363,3 +363,20 @@ for rel, names in findings.items():
 **结论**：桌面工程面**没有静默丢失的调用** ✓；剩余差异全部落在两处**有意边界**（账号栈、Office 面 ✓）与一处**已写明的能力缺口**（CLI 的桌面 profile 管理 + 随包 pnpm ✓）之上 ✓。
 
 按目录白名单复跑（并跳过 node: 内建导入）：apps/desktop/src **0**、apps/desktop-host **0**、apps/desktop/scripts **0** —— 三处"丢弃调用"全部落在白名单内，即**账号边界**（installPlatformSessionPublisher）、**Office 面留空**（installOfficeEngineResolution / officeEnginePath / runtimeArchivePath / desktopOffice / reportSkippedBundles / resolveDshHome）与**已写明的 CLI 能力缺口**（cli.ts 的 manageDesktopProfile + 随包 pnpm）三处**有意边界**之上。
+
+### P3 续 8：CLI 能力缺口已补齐（检查发现的唯一真实缺口）
+
+**改动**（与上游等价 ✓）：
+
+1. `apps/cli/src/bin.ts`：
+   - 新增 `RunCliOptions = Pick<RunProfileOptions, 'packageManager'> & { manageDesktopProfile?: boolean }` ✓（含 JSDoc ✓）；
+   - `runCli(options: RunCliOptions = {})` ✓：解出 `manageDesktopProfile` 传给解析器 ✓，其余（即 `packageManager` ✓）用 `...profileOptions` 透传给 `runProfile` ✓ —— 本仓 `RunProfileOptions` **早已有** `packageManager?: ProfileContext['packageManager']` ✓，所以只差"暴露 + 透传" ✓。
+2. `apps/cli/src/args.ts`：`parseQilinArgs(argv, version, manageDesktopProfile = false)` ✓；**两处**保留 profile 的拒绝（`--profile` 路径与 `plugin` 路径 ✓）改为 `if (!manageDesktopProfile)` ✓ —— 默认行为不变 ✓（`desktop` profile 仍被拒 ✓），只有桌面安装体放行 ✓。
+3. `apps/desktop-host/src/cli.ts`：**删掉 JSDoc 里"exposes neither yet"的说明** ✓，改为真正传参 ✓ —— 抽出纯函数 `desktopCliOptions(supportDir)` ✓（便于测试 ✓），`runDesktopCli` 调用 `runCli(desktopCliOptions(supportDir))` ✓；`supportDir` 有默认值（runtime 目录的兄弟目录 ✓），注释说明"archive-aware 的解析随 office engine 一起缺席 ✓"。
+
+**测试**：
+- `apps/cli/tests/args.spec.ts` 新增 1 例 ✓：带标志时 `plugin --profile desktop add x` 与 `--profile desktop --dump-config` **放行** ✓，不带标志仍然抛错 ✓ → 该套 **38/38** ✓。
+- 恢复 `apps/desktop/tests/desktop-cli.spec.ts` ✓（当初因 office 依赖删除 ✓，现已无此依赖 ✓）：断言 `desktopCliOptions` 的两个 PATH 形态与 pnpm 参数/env ✓ → **3/3** ✓。
+- 经验：直接 mock 包入口并调用 `runDesktopCli` 会让**真的 CLI** 用测试进程 argv 执行 ✗（实测触发了 `qilin web` ✗）→ 因此把选项构造抽成纯函数来测 ✓。
+
+**验证**：`typecheck` 0 ✓、`verify-no-unknown-casts` 1551 既有 / 0 新增 ✓、`verify-export-jsdoc` 全通过 ✓、桌面 lane **88 文件 / 895 用例全绿** ✓、`apps/cli` 测试 26 通过 / 1 失败 ✓（该失败经 `git stash` 对照确认为**既有** ✗，与本次改动无关 ✓）。

@@ -251,6 +251,13 @@ describe('parseQilinArgs', () => {
     expect(exitCode(['plugin', '--profile', 'Desktop', 'add', 'x'])).toBe(1)
   })
 
+
+  it('permits the reserved desktop profile for the Desktop installation itself', () => {
+    // The installed carrier manages the reserved profile's plugins; every other caller still cannot.
+    expect(() => parseQilinArgs(['plugin', '--profile', 'desktop', 'add', 'x'], '9.9.9', true)).not.toThrow()
+    expect(() => parseQilinArgs(['--profile', 'desktop', '--dump-config'], '9.9.9', true)).not.toThrow()
+    expect(() => parseQilinArgs(['--profile', 'desktop'], '9.9.9')).toThrow()
+  })
   it('keeps its own help for an invocation with no app to hand it to', () => {
     const stdout = vi.spyOn(process.stdout, 'write').mockReturnValue(true)
     expect(exitCode(['--help'])).toBe(0)

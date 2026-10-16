@@ -9,6 +9,7 @@
 import { getQilinRuntimeVersion, loadLayeredEnv, StartupError } from '@qilin-agent/app-boot'
 import { resolveQilinHome } from '@qilin-agent/home-paths'
 import { parseQilinArgs } from './args.ts'
+import type { RunProfileOptions } from './profile-boot.ts'
 import { installSchedulerYield } from './scheduler-yield.ts'
 import { reportStartupFailure } from './startup-diagnostics.ts'
 
@@ -16,13 +17,20 @@ import { reportStartupFailure } from './startup-diagnostics.ts'
 // this process can read the global; see scheduler-yield.ts for the guarantee.
 installSchedulerYield()
 
+/** Installation-owned dependencies supplied by a packaged CLI launcher. */
+export type RunCliOptions = Pick<RunProfileOptions, 'packageManager'> & {
+  /** Permit plugin commands for the Desktop's installed profile; reserved for its installed carrier. */
+  manageDesktopProfile?: boolean
+}
+
 /**
  * Run the public qilin command-line interface.
  * @returns a promise that settles when the selected command mode finishes.
  */
-export async function runCli(): Promise<void> {
+export async function runCli(options: RunCliOptions = {}): Promise<void> {
   const version = getQilinRuntimeVersion()
-  const invocation = parseQilinArgs(process.argv.slice(2), version)
+  const { manageDesktopProfile, ...profileOptions } = options
+  const invocation = parseQilinArgs(process.argv.slice(2), version, manageDesktopProfile)
 
   switch (invocation.mode) {
     case 'profile': {
@@ -56,6 +64,7 @@ export async function runCli(): Promise<void> {
           fromDefaultProfile: invocation.fromDefaultProfile,
           patchFiles: invocation.patches,
           args: invocation.args,
+          ...profileOptions,
         })
       } catch (error) {
         if (!(error instanceof StartupError)) throw error

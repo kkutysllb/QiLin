@@ -163,7 +163,7 @@ function resolveBoot(program: Command, profile: string, options: BootOptions, ar
  * @param version - version string printed by `--version`.
  * @returns the resolved invocation.
  */
-export function parseQilinArgs(argv: readonly string[], version: string): QilinInvocation {
+export function parseQilinArgs(argv: readonly string[], version: string, manageDesktopProfile = false): QilinInvocation {
   const first = argv[0]
   let resolved: QilinInvocation | undefined
   // Annotated, not inferred: the actions below call back into `program`, and an
@@ -198,7 +198,7 @@ export function parseQilinArgs(argv: readonly string[], version: string): QilinI
       }
       const profile = options.profile ?? PRODUCT_PROFILE
       if (profile === '') program.error('error: --profile needs a name')
-      rejectReservedDesktopProfile(program, profile)
+      if (!manageDesktopProfile) rejectReservedDesktopProfile(program, profile)
       resolved = resolveBoot(program, profile, options, args)
     })
 
@@ -211,7 +211,7 @@ export function parseQilinArgs(argv: readonly string[], version: string): QilinI
       .action((args: string[], options: { profile?: string }) => {
         const profile = options.profile ?? PRODUCT_PROFILE
         if (profile === '') program.error('error: --profile needs a name')
-        rejectReservedDesktopProfile(plugin, profile)
+        if (!manageDesktopProfile) rejectReservedDesktopProfile(plugin, profile)
         if (args.length === 0) {
           program.error('error: plugin needs a subcommand (list, doctor <name|path>, version-exemptions, allow-version <package@version>, revoke-version <package@version>) or pnpm arguments to forward (e.g. add <package>)')
         }
