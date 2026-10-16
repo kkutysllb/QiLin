@@ -42,7 +42,7 @@ describe('link projection removal', () => {
 
   it('leaves a profile without the directory untouched', () => {
     const root = profileRoot()
-    expect(() => removeLinkProjections(root)).not.toThrow()
+    expect(() => { removeLinkProjections(root) }).not.toThrow()
   })
 })
 

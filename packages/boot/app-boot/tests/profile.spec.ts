@@ -1454,10 +1454,10 @@ describe('skipped bundle reporting', () => {
   it('writes one line per skipped bundle', () => {
     const written: string[] = []
     const original = process.stderr.write.bind(process.stderr)
-    process.stderr.write = ((chunk: string | Uint8Array): boolean => {
+    process.stderr.write = (chunk: string | Uint8Array): boolean => {
       written.push(String(chunk))
       return true
-    }) as typeof process.stderr.write
+    }
     try {
       reportSkippedBundles('demo', { skippedBundles: [
         { packageName: 'broken-bundle', reason: 'declares no qilin.bundle' },

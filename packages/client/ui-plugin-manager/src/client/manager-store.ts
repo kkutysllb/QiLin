@@ -729,7 +729,7 @@ export class PluginManagerController {
       },
       saveRowConfig: async (packageName, rowId, values) => {
         this.applied(await this.ctx.remote.pluginManager.setBundleConfig(packageName, rowId, values as never), packageName)
-        this.refresh()
+        void this.refresh()
       },
       dismissNotice: () => { this.patch({ notice: null }) },
       checkUpdates: () => { void this.checkUpdates() },

@@ -1501,6 +1501,6 @@ describe('row configuration', () => {
     const { face, state } = bench({ setBundleConfig })
     await face.saveRowConfig('pkg', 'row', { a: 1 })
     expect(setBundleConfig).toHaveBeenCalledWith('pkg', 'row', { a: 1 })
-    await vi.waitFor(() => expect(state()).toMatchObject({ status: 'ready', refreshStatus: 'idle' }))
+    await vi.waitFor(() => { expect(state()).toMatchObject({ status: 'ready', refreshStatus: 'idle' }) })
   })
 })

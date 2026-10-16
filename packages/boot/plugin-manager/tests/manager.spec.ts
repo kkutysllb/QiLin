@@ -257,13 +257,13 @@ it('reads a row config schema and persists a complete config override', async ()
   manifest.dependencies = { ...manifest.dependencies, configured: '1.0.0' }
   writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
   await manager.setBundleEnabled('configured', true)
-  expect(await manager.bundleRowConfig('configured', 'cfg-row')).toEqual({
+  expect(manager.bundleRowConfig('configured', 'cfg-row')).toEqual({
     schema: { uid: 1, refs: { 1: { type: 'string', meta: { default: 'hi' } } } },
     values: { greeting: 'hi' },
   })
   const result = await manager.setBundleConfig('configured', 'cfg-row', { greeting: 'bye', count: 2 })
   expect(result).toMatchObject({ changed: true, application: 'applied', stage: 'configure' })
-  expect((await manager.bundleRowConfig('configured', 'cfg-row')).values).toEqual({ greeting: 'bye', count: 2 })
+  expect(manager.bundleRowConfig('configured', 'cfg-row').values).toEqual({ greeting: 'bye', count: 2 })
   expect(readFileSync(join(dir, 'cordis.patch.yml'), 'utf8')).toContain('greeting: bye')
   expect(() => manager.bundleRowConfig('configured', 'absent')).toThrow('unknown-plugin')
   expect(() => manager.bundleRowConfig('extra', 'managed')).toThrow('row-not-running')
@@ -271,10 +271,10 @@ it('reads a row config schema and persists a complete config override', async ()
   expect(await manager.setBundleConfig('configured', 'cfg-row', {})).toMatchObject({ application: 'failed', error: { code: 'unaddressable' } })
   expect(await manager.setBundleConfig('core', 'manager', {})).toMatchObject({ application: 'failed', error: { code: 'management-required' } })
   await manager.setBundleEnabled('configured', true)
-  expect((await manager.bundleRowConfig('configured', 'cfg-row')).values).toEqual({ greeting: 'bye', count: 2 })
+  expect(manager.bundleRowConfig('configured', 'cfg-row').values).toEqual({ greeting: 'bye', count: 2 })
   const cfgId = (await manager.listPlugins()).find(row => row.patchId === 'cfg-row')!.entryId
   await manager.setPluginEnabled(cfgId, false)
-  expect((await manager.bundleRowConfig('configured', 'cfg-row')).values).toEqual({ greeting: 'bye', count: 2 })
+  expect(manager.bundleRowConfig('configured', 'cfg-row').values).toEqual({ greeting: 'bye', count: 2 })
 })
 
 it('retains installed dependencies when toggling a bundle and appends it when re-enabled', async () => {

@@ -121,7 +121,7 @@ function control(over: Partial<ChatNode<'turn-process'>['data']> = {}): ChatNode
       inlineReasoning: false, messageCount: 0, toolCallCount: 0, subagentCount: 0,
       ...over,
     },
-  } as ChatNode<'turn-process'>
+  }
 }
 
 /** One Step's Assistant evidence at a caller-chosen ordinal. */
