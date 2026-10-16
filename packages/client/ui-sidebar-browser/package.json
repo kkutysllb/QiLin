@@ -46,7 +46,7 @@
     "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/brand": "workspace:*",
     "@qilin-agent/client-locale": "workspace:*",
     "@qilin-agent/client-store": "workspace:*",
     "@qilin-agent/client-ui-dockkit": "workspace:*",
@@ -55,6 +55,7 @@
     "@qilin-agent/client-ui-session": "workspace:*",
     "@qilin-agent/client-ui-sidebar-right": "workspace:*",
     "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
     "@testing-library/react": "^16.1.0",
     "@types/react": "~18.3.1",
     "@types/react-dom": "~18.3.0",
