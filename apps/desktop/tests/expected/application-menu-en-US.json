@@ -1,0 +1,24 @@
+[
+  {
+    "label": "Check for Updates…"
+  },
+  {
+    "label": "Manage qilin Command…"
+  },
+  {
+    "role": "hide",
+    "label": "Hide QiLin Desktop"
+  },
+  {
+    "role": "hideOthers",
+    "label": "Hide Others"
+  },
+  {
+    "role": "unhide",
+    "label": "Show All"
+  },
+  {
+    "role": "quit",
+    "label": "Quit QiLin Desktop"
+  }
+]

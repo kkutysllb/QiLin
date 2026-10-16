@@ -1,0 +1,24 @@
+[
+  {
+    "label": "检查更新…"
+  },
+  {
+    "label": "管理 qilin 命令…"
+  },
+  {
+    "role": "hide",
+    "label": "隐藏 QiLin Desktop"
+  },
+  {
+    "role": "hideOthers",
+    "label": "隐藏其他"
+  },
+  {
+    "role": "unhide",
+    "label": "显示全部"
+  },
+  {
+    "role": "quit",
+    "label": "退出 QiLin Desktop"
+  }
+]

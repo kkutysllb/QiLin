@@ -27,8 +27,8 @@
   en: 2b75d72e6eb8da5b
   zh: d1757564e99cdea1
 /qilin-desktop-desktop/key-technical-decisions/bundled-workspace-dependencies:
-  en: faca57c2abb28bf0
-  zh: f5067bab55c38de3
+  en: 2e5717dc38f751ee
+  zh: 34c15378a955b500
 /qilin-desktop-desktop/bundled-command-runtime:
   en: 61d28fcca0e1b76d
   zh: b6cece346c47a742
@@ -51,14 +51,14 @@
   en: eca626dd5f8c58da
   zh: 3ec1f6dd62a6018a
 /qilin-desktop-desktop/package:
-  en: 8ac4754a3e813502
-  zh: cd88676f4d6f77a5
+  en: d5e0c43a6c15954c
+  zh: 7c13c139bd787f65
 /qilin-desktop-desktop/windows-installer-interface:
-  en: 2c662a803f6efd13
-  zh: 2bde6f2f86c47f8d
+  en: 14a85bd6c19706eb
+  zh: c86393233e80f2c9
 /qilin-desktop-desktop/updates:
-  en: fb8ca6d3dead13f6
-  zh: 5480311fa960c292
+  en: 3a9cf6edb7ea4c89
+  zh: eb56c630cd22e36c
 /qilin-desktop-desktop/updates/local-desktop-settings:
   en: 63592d7d3bbddcca
   zh: 762bdcb5f176ba19
@@ -66,8 +66,8 @@
   en: b8e1f8007a850cff
   zh: a5323c4471831bdf
 /qilin-desktop-desktop/updates/local-updater-qualification:
-  en: 7234f242d9a8d40f
-  zh: dded1584b5034749
+  en: 5639323e28843821
+  zh: 771682614e80d9d1
 /qilin-desktop-desktop/low-level-development-overrides:
   en: 828c3577ff87a967
   zh: 078d4e7dc1d823dd

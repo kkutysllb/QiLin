@@ -85,7 +85,7 @@ export interface QilinDesktopProductApi {
 }
 
 /** Scheme of Desktop-owned application documents. */
-export const SCHEME = 'dsh-app'
+export const SCHEME = 'qilin-app'
 
 /**
  * Reject IPC outside the allowed Desktop document origins.

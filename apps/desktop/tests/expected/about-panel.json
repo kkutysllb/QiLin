@@ -1,0 +1,54 @@
+{
+  "darwin:en-US": {
+    "menu": [
+      { "label": "About QiLin Desktop", "role": "about" },
+      { "type": "separator" }
+    ],
+    "options": {
+      "applicationName": "QiLin Desktop",
+      "applicationVersion": "1.0.0",
+      "version": "",
+      "copyright": "",
+      "iconPath": "<app icon>"
+    }
+  },
+  "darwin:zh-CN": {
+    "menu": [
+      { "label": "关于 QiLin Desktop", "role": "about" },
+      { "type": "separator" }
+    ],
+    "options": {
+      "applicationName": "QiLin Desktop",
+      "applicationVersion": "1.0.0",
+      "version": "",
+      "copyright": "",
+      "iconPath": "<app icon>"
+    }
+  },
+  "win32:zh-CN": {
+    "menu": [
+      { "label": "关于 QiLin Desktop" },
+      { "type": "separator" }
+    ],
+    "options": {
+      "applicationName": "QiLin Desktop",
+      "applicationVersion": "1.0.0",
+      "version": "",
+      "copyright": "",
+      "iconPath": "<app icon>"
+    }
+  },
+  "win32:en-US": {
+    "menu": [
+      { "label": "About QiLin Desktop" },
+      { "type": "separator" }
+    ],
+    "options": {
+      "applicationName": "QiLin Desktop",
+      "applicationVersion": "1.0.0",
+      "version": "",
+      "copyright": "",
+      "iconPath": "<app icon>"
+    }
+  }
+}
