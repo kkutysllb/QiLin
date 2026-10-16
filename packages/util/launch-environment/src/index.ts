@@ -115,6 +115,7 @@ export function createLaunchEnvironmentSnapshot(layers: readonly LaunchEnvironme
 
 /** Context slot the launcher fills with this run's snapshot before any config entry mounts. */
 export const QILIN_LAUNCH_ENVIRONMENT_KEY = 'launchEnvironment'
+export const DSH_LAUNCH_ENVIRONMENT_KEY = QILIN_LAUNCH_ENVIRONMENT_KEY
 
 /**
  * Return the launcher's snapshot, or the inherited environment as the sole

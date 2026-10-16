@@ -433,6 +433,19 @@ export function describeOmitted(omitted: Omitted, unit: RetentionNotice['unit'])
  * @param recovery Tool-supplied guidance builder; receives the notice, returns a sentence (or `''`).
  * @returns The combined footer line.
  */
+/**
+ * Truncate text to at most `maxChars` UTF-16 code units without splitting a
+ * surrogate pair: a capped string ending in a leading surrogate drops it.
+ * @param text - the text to cap.
+ * @param maxChars - the maximum code units to keep.
+ * @returns the capped text, unchanged when it already fits.
+ */
+export function truncateWithoutSplittingSurrogatePair(text: string, maxChars: number): string {
+  if (text.length <= maxChars) return text
+  const capped = text.slice(0, maxChars)
+  return /[\uD800-\uDBFF]$/.test(capped) ? capped.slice(0, -1) : capped
+}
+
 export function formatRetentionNotice(
   notice: RetentionNotice,
   recovery: (notice: RetentionNotice) => string,

@@ -209,6 +209,7 @@ export const DSH_HOME_ENV = QILIN_HOME_ENV
 export const defaultDshHome = defaultQilinHome
 export const resolveDshHome = resolveQilinHome
 export const dshHomePath = qilinHomePath
+export const dshHomeDisplay = qilinHomeDisplay
 
 /**
  * {@link qilinCachePath} under its upstream name, accepting the upstream
