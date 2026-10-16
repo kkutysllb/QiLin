@@ -635,15 +635,15 @@ importers:
       '@qilin-agent/client-product-analytics':
         specifier: workspace:*
         version: link:../../packages/api/product-analytics
+      '@qilin-agent/client-shortcuts':
+        specifier: workspace:*
+        version: link:../../packages/client/shortcuts
       '@qilin-agent/client-ui-primitives':
         specifier: workspace:*
         version: link:../../packages/client/ui-primitives
       '@qilin-agent/client-ui-settings-general':
         specifier: workspace:*
         version: link:../../packages/client/ui-settings-general
-      '@qilin-agent/client-ui-shortcuts':
-        specifier: workspace:*
-        version: link:../../packages/client/ui-shortcuts
       '@qilin-agent/client-ui-sidebar-browser':
         specifier: workspace:*
         version: link:../../packages/client/ui-sidebar-browser
