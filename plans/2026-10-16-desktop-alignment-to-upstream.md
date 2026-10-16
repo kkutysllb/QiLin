@@ -361,3 +361,5 @@ for rel, names in findings.items():
 | `apps/desktop/scripts` | `installOfficeEngineResolution` |
 
 **结论**：桌面工程面**没有静默丢失的调用** ✓；剩余差异全部落在两处**有意边界**（账号栈、Office 面 ✓）与一处**已写明的能力缺口**（CLI 的桌面 profile 管理 + 随包 pnpm ✓）之上 ✓。
+
+按目录白名单复跑（并跳过 node: 内建导入）：apps/desktop/src **0**、apps/desktop-host **0**、apps/desktop/scripts **0** —— 三处"丢弃调用"全部落在白名单内，即**账号边界**（installPlatformSessionPublisher）、**Office 面留空**（installOfficeEngineResolution / officeEnginePath / runtimeArchivePath / desktopOffice / reportSkippedBundles / resolveDshHome）与**已写明的 CLI 能力缺口**（cli.ts 的 manageDesktopProfile + 随包 pnpm）三处**有意边界**之上。
