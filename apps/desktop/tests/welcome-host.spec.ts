@@ -90,7 +90,8 @@ describe('desktop welcome Web operations', () => {
     host.send.mockRejectedValueOnce(new Error('private credential sk-must-not-leak'))
     expect(await backend.save('sk-example')).toEqual({ ok: false })
     host.send.mockResolvedValueOnce(Response.json({ type: 'server-response', rpcId: 'other', result: { ok: true } }))
-    await expect(backend.read()).rejects.toThrow('Web RPC failed')
+    // An unavailable Host no longer stops startup: the window reports the local state.
+    await expect(backend.read()).resolves.toEqual({ loggedIn: false, hasApiKey: false, writable: false, localePreference: null })
   })
 
 

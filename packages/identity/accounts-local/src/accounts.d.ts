@@ -54,6 +54,7 @@ export interface NewAccountOptions {
  * instead of a silently overwritten account set.
  */
 export declare class AccountConflictError extends Error {
+  /** Which stored account conflicts with the submission. */
   readonly kind: 'username' | 'email' | 'initialized' | 'admin'
   /**
      * @param kind - which rule refused the change.

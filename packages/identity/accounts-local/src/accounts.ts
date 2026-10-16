@@ -76,6 +76,7 @@ export class AccountConflictError extends Error {
    * @param message - the refusal, naming the account or address involved.
    */
   constructor(
+    /** Which stored account conflicts with the submission. */
     readonly kind: 'username' | 'email' | 'initialized' | 'admin',
     message: string,
   ) {
