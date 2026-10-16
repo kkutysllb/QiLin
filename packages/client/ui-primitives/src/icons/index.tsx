@@ -1099,6 +1099,14 @@ export const IconPinFillRegular = ({ size = 16, className }: IconProps) => (
  */
 const ICON_REGULAR_STROKE = 1
 
+/** Circle-and-tick glyph the plugin page marks shipped rows with; upstream artwork. */
+export const IconCheckCircleFillRegular = ({ size = 16, className }: IconProps) => (
+  <svg width={size} height={size} className={className} viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M28.1936 14.6936L19.8066 23.0806C19.2373 23.65 18.7159 24.1742 18.24 24.5571C17.7389 24.9602 17.1365 25.3359 16.3657 25.458C15.9581 25.5225 15.5428 25.5225 15.1353 25.458C14.3645 25.3359 13.7621 24.9602 13.261 24.5571C12.7851 24.1742 12.2637 23.65 11.6943 23.0806L7.80737 19.1936L10.1936 16.8074L14.0806 20.6943C14.7033 21.317 15.0763 21.6873 15.377 21.9292C15.6523 22.1507 15.7109 22.1325 15.6626 22.1248C15.7208 22.1339 15.7802 22.1339 15.8384 22.1248C15.7901 22.1325 15.8486 22.1507 16.124 21.9292C16.4247 21.6873 16.7977 21.317 17.4204 20.6943L25.8074 12.3074L28.1936 14.6936Z" fill="currentColor" />
+    <path d="M32.8496 18.0005C32.8496 9.79906 26.2019 3.15137 18.0005 3.15137C9.79906 3.15137 3.15137 9.79906 3.15137 18.0005C3.15137 26.2019 9.79906 32.8496 18.0005 32.8496C26.2019 32.8496 32.8496 26.2019 32.8496 18.0005ZM35.7764 18.0005C35.7764 27.8173 27.8173 35.7764 18.0005 35.7764C8.18363 35.7764 0.224609 27.8173 0.224609 18.0005C0.224609 8.18363 8.18363 0.224609 18.0005 0.224609C27.8173 0.224609 35.7764 8.18363 35.7764 18.0005Z" fill="currentColor" />
+  </svg>
+)
+
 export const IconUsersOutlineRegular = ({ size = 16, className }: IconProps) => (
   <svg width={size} height={size} className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" strokeWidth={ICON_REGULAR_STROKE}>
     <path d="M6 8.25C7.51878 8.25 8.75 7.01878 8.75 5.5C8.75 3.98122 7.51878 2.75 6 2.75C4.48122 2.75 3.25 3.98122 3.25 5.5C3.25 7.01878 4.48122 8.25 6 8.25Z" stroke="currentColor" />
@@ -1119,13 +1127,21 @@ export {
   IconBranchOutline16 as IconBranchOutlineRegular,
   IconCheckOutline16 as IconCheckOutlineRegular,
   IconChecklistOutline14 as IconChecklistOutlineRegular,
-  IconChevronDownOutline14 as IconChevronDownOutlineMedium,
+  IconChevronDownOutline14 as IconChevronDownOutlineRegular,
+  IconChevronLeftOutline14 as IconChevronLeftOutlineMedium,
+  IconChevronRightOutline14 as IconChevronRightOutlineRegular,  IconChevronDownOutline14 as IconChevronDownOutlineMedium,
   IconChevronUpOutline14 as IconChevronUpOutlineMedium,
+  IconCloseOutline16 as IconCloseOutlineMedium,
   IconCloseOutline16 as IconCloseOutlineRegular,
   IconCopyOutline16 as IconCopyOutlineRegular,
+  IconDownloadOutline16 as IconDownloadOutlineRegular,
+  IconInfoOutline14 as IconInfoOutlineRegular,
   IconPlusOutline16 as IconPlusOutlineRegular,
+  IconRefreshOutline14 as IconRefreshOutlineRegular,
   IconSearchOutline16 as IconSearchOutlineRegular,
   IconSendOutline16 as IconSendOutlineRegular,
+  IconTrashOutline16 as IconTrashOutlineRegular,
   IconSettingsOutline14 as IconSettingsOutlineMedium,
   IconUserOutline16 as IconUserOutlineRegular,
+  IconWarningOutline16 as IconWarningOutlineRegular,
 }

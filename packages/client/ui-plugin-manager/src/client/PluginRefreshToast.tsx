@@ -1,6 +1,6 @@
 /** Refresh failure feedback hosted outside the Plugins panel's lifetime. */
 import type { ReactNode } from 'react'
-import { IconWarningOutline16, Toast } from '@qilin-agent/client-ui-primitives'
+import { IconWarningOutlineRegular, Toast } from '@qilin-agent/client-ui-primitives'
 import type { InjectFace, PropsLocale } from '@qilin-agent/client-ui-slots'
 import type { PluginManagerFace } from './manager-store.ts'
 import { noticeText } from './presentation.ts'
@@ -25,7 +25,7 @@ export function PluginRefreshToast({ usePluginManager, dismissNotice, t }: Plugi
     <Toast
       key={notice.seq}
       text={noticeText(notice, t)}
-      icon={<IconWarningOutline16 />}
+      icon={<IconWarningOutlineRegular />}
       onDone={dismissNotice}
     />
   )

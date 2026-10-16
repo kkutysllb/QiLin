@@ -8,8 +8,11 @@
   box-sizing: border-box;
   height: 100%;
   overflow: auto;
-  padding: 28px clamp(24px, 4vw, 48px) 48px;
-  color: var(--qilin-alias-label-primary);
+  /* Inline and bottom insets only: the 28px top inset belongs to the head row
+     (`.pageHead`, `.detailTop`). macOS window dragging is owned by a row's own box,
+     so an inset above that box leaves a top strip no drag region covers. */
+  padding: 0 clamp(24px, 4vw, 48px) 48px;
+  color: var(--dsw-alias-label-primary);
 }
 
 .page > * {
@@ -19,9 +22,27 @@
 
 .pageHead {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
+  box-sizing: border-box;
+  /* The page's former top inset: the row starts at the window's top edge, so the whole
+     strip above the page content drags the window. */
+  padding-top: 28px;
+}
+
+/* macOS hiddenInset titlebar: the frame's top clearance keeps the head below
+   the window's top strip in both sidebar states so it never jumps, and the head
+   owns the window drag over its own box — clearance included — so this page's
+   top strip drags without a frame band. */
+:global([data-platform='darwin']) .pageHead {
+  padding-top: calc(28px + var(--dsh-frame-top-clearance, 0px));
+}
+
+.pageHeading {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .pageTitle {
@@ -32,102 +53,48 @@
 }
 
 .pageIntro {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   margin: 4px 0 0;
   font-size: 13px;
   line-height: 20px;
-  color: var(--qilin-alias-label-secondary);
+  color: var(--dsw-alias-label-secondary);
+}
+
+.infoButton {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  color: var(--dsw-alias-label-caption);
 }
 
 .toolbar {
   display: flex;
-  flex-wrap: wrap;
+  flex: none;
   align-items: center;
   justify-content: flex-end;
   gap: 16px;
-}
-
-/* The split add-plugin control and its anchored action menu. */
-.addGroup {
-  position: relative;
-  display: inline-flex;
-  flex: none;
-  align-items: stretch;
-}
-
-.addPrimary {
-  height: 32px;
-  font-size: 13px;
-  line-height: 20px;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.addMore {
-  width: 32px;
-  padding: 0;
-  border: none;
-  border-left: 0.5px solid color-mix(in srgb, var(--qilin-alias-label-primary-foreground) 30%, transparent);
-  border-radius: 0 var(--qilin-radius-md) var(--qilin-radius-md) 0;
-  background: var(--qilin-alias-brand-primary);
-  color: var(--qilin-alias-label-primary-foreground);
-  cursor: pointer;
-}
-
-.addMore:disabled {
-  cursor: default;
-  opacity: 0.5;
+  white-space: nowrap;
 }
 
 .addMenu {
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
   width: 320px;
   max-width: calc(100vw - 48px);
-  padding: 4px;
-  border: 0.5px solid var(--qilin-alias-border-l4);
-  border-radius: var(--qilin-radius-lg);
-  background: var(--qilin-alias-bg-layer-3);
-  box-shadow: 0 10px 28px rgba(20, 24, 31, 0.16);
 }
 
 .addMenu [role='menuitem'] {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  height: 72px;
   box-sizing: border-box;
-  min-height: 72px;
+  gap: 10px;
   padding: 6px 12px;
-  border: none;
-  border-radius: var(--qilin-radius-md);
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  font: inherit;
-  text-align: left;
-}
-
-.addMenu [role='menuitem']:hover {
-  background: var(--qilin-alias-interactive-bg-hover);
-}
-
-.addMenu [role='menuitem']:disabled {
-  color: var(--qilin-alias-label-tertiary);
-  cursor: default;
-}
-
-.addMenuItemRow {
-  color: var(--qilin-alias-label-primary);
 }
 
 .addMenuItem {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  min-width: 0;
   white-space: normal;
 }
 
@@ -138,7 +105,7 @@
   overflow-wrap: anywhere;
   font-size: 12px;
   line-height: 18px;
-  color: var(--qilin-alias-label-secondary);
+  color: var(--dsw-alias-label-secondary);
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
@@ -149,24 +116,20 @@
   margin: 0;
   font-size: 13px;
   line-height: 20px;
-  color: var(--qilin-alias-label-tertiary);
+  color: var(--dsw-alias-label-tertiary);
 }
 
 .failure {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: var(--qilin-alias-state-error-primary);
+  color: var(--dsw-alias-state-error-primary);
 }
 
-.banner {
-  margin: 0;
-  padding: 8px 12px;
-  border-radius: var(--qilin-radius-md);
-  font-size: 12px;
-  line-height: 18px;
-  background: color-mix(in srgb, var(--qilin-alias-state-warning-primary, var(--qilin-alias-state-business-primary)) 12%, transparent);
-  color: var(--qilin-alias-label-primary);
+.statusWithDot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .group {
@@ -177,21 +140,42 @@
 
 .groupHead {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
 }
 
 .groupTitle {
+  flex: 1;
   margin: 0;
   font-size: 14px;
   line-height: 22px;
   font-weight: 500;
 }
 
-.count {
+.groupMore {
+  flex: none;
+  gap: 4px;
+  padding-inline-end: 0;
   font-size: 14px;
-  color: var(--qilin-alias-label-caption);
-  font-variant-numeric: tabular-nums;
+  line-height: 22px;
+  font-weight: 400;
+  color: color-mix(in srgb, var(--dsw-alias-label-secondary) 60%, var(--dsw-alias-label-tertiary));
+}
+
+.groupMore:hover,
+.groupMore:focus-visible {
+  color: var(--dsw-alias-label-secondary);
+}
+
+.moreHead {
+  align-items: center;
+  gap: 8px;
+}
+
+.moreBack {
+  width: 28px;
+  padding: 0;
+  color: var(--dsw-alias-label-secondary);
 }
 
 /* The group's explanation, folded behind a hover/focus tooltip. */
@@ -199,30 +183,31 @@
   display: inline-flex;
   align-items: center;
   align-self: center;
-  color: var(--qilin-alias-label-caption);
+  color: var(--dsw-alias-label-caption);
 }
 
 .groupInfo:hover,
 .groupInfo:focus-visible {
-  color: var(--qilin-alias-label-secondary);
+  color: var(--dsw-alias-label-secondary);
 }
 
 /* Center the status label geometrically: beside larger titles the capsule's line-box offset shows. */
 .statusTag {
-  height: 20px;
-  padding: 0 8px;
+  height: 18px;
+  padding: 0 7px;
+  font-size: 10px;
   line-height: 1;
 }
 
 /* The package an install just enabled: a ring that fades while the list scrolls to it. */
 .card[data-plugin-highlight] {
-  animation: qilin-plugin-highlight 2400ms ease-out;
+  animation: dsh-plugin-highlight 2400ms ease-out;
 }
 
-@keyframes qilin-plugin-highlight {
+@keyframes dsh-plugin-highlight {
   0%,
   55% {
-    box-shadow: 0 0 0 2px var(--qilin-alias-state-business-primary);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--dsw-alias-state-business-primary) 40%, transparent);
   }
 
   100% {
@@ -233,12 +218,12 @@
 @media (prefers-reduced-motion: reduce) {
   .card[data-plugin-highlight] {
     animation: none;
-    box-shadow: 0 0 0 2px var(--qilin-alias-state-business-primary);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--dsw-alias-state-business-primary) 40%, transparent);
   }
 }
 
 .iconButton:focus-visible {
-  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
+  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
   outline-offset: 1px;
 }
 
@@ -259,11 +244,11 @@
   /* The hover surface reaches 8px past the content on both sides while the
      row's content stays aligned with the page header. */
   margin: 0 -8px;
-  border-radius: var(--qilin-radius-xl);
+  border-radius: var(--dsw-radius-xl);
   /* The page itself scrolls on the base surface. Anything that scrolls inside
      a card draws the l2 thumb (ui-theme styles/scrollbar.css rebinding contract). */
-  --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
-  --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
+  --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
+  --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
 }
 
 .cardHead {
@@ -281,9 +266,13 @@
   width: 48px;
   height: 48px;
   /* The same hairline frame as the component rows below. */
-  border: 0.5px solid var(--qilin-alias-border-l3);
-  border-radius: var(--qilin-radius-lg);
-  color: var(--qilin-alias-label-secondary);
+  border: 0.5px solid var(--dsw-alias-border-l3);
+  border-radius: var(--dsw-radius-lg);
+  color: var(--dsw-alias-label-secondary);
+}
+
+.packageImage {
+  object-fit: contain;
 }
 
 .cardMain {
@@ -321,7 +310,7 @@
 }
 
 .cardLink:hover {
-  background: var(--qilin-alias-interactive-bg-hover);
+  background: var(--dsw-alias-interactive-bg-hover);
 }
 
 .cardOpen {
@@ -330,7 +319,10 @@
   border: 0;
   background: transparent;
   color: inherit;
+  /* font: inherit resets the size, so the card title's own size follows. */
   font: inherit;
+  font-size: 14px;
+  line-height: 20px;
   font-weight: 500;
   text-align: left;
   cursor: pointer;
@@ -340,7 +332,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: inherit;
+  border-radius: var(--dsw-radius-xl);
 }
 
 .cardOpen:focus-visible {
@@ -348,18 +340,58 @@
 }
 
 .cardOpen:focus-visible::after {
-  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
+  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
   outline-offset: 2px;
 }
 
 .cardDesc {
   font-size: 13px;
   line-height: 18px;
-  color: var(--qilin-alias-label-tertiary);
+  color: var(--dsw-alias-label-tertiary);
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
   overflow: hidden;
+}
+
+/* Match Session search's pulse without coupling the two feature packages. */
+.skeletonFill {
+  background: var(--dsw-alias-bg-skeleton);
+  animation: dsh-plugin-skeleton 2s cubic-bezier(0.36, 0, 0.64, 1) infinite;
+}
+
+/* Keep each real text line's height; center the shorter painted bar within it. */
+.skeletonText {
+  display: flex;
+  align-items: center;
+  height: 1lh;
+}
+
+.skeletonBar {
+  width: 100%;
+  height: 12px;
+  border-radius: var(--dsw-radius-xs);
+}
+
+.skeletonHeading { width: 48px; }
+.skeletonTitle { width: min(144px, 60%); }
+.skeletonDescription { width: min(280px, 85%); }
+.skeletonIcon { border-color: transparent; }
+
+/* Keep text-column metrics while leaving the action area blank. */
+.skeletonActions {
+  width: 36px;
+  height: 20px;
+}
+
+@keyframes dsh-plugin-skeleton {
+  0% { opacity: 1; }
+  40% { opacity: 0.6; }
+  80%, 100% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonFill { animation: none; }
 }
 
 .cardEnd {
@@ -379,20 +411,50 @@
   width: 28px;
   height: 28px;
   border: 0;
-  border-radius: var(--qilin-radius-sm);
+  border-radius: var(--dsw-radius-sm);
   background: transparent;
-  color: var(--qilin-alias-label-caption);
+  color: var(--dsw-alias-label-caption);
   cursor: pointer;
 }
 
 .iconButton:hover:not(:disabled) {
-  background: var(--qilin-alias-interactive-bg-hover);
-  color: var(--qilin-alias-label-secondary);
+  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--dsw-alias-label-secondary);
 }
 
 .iconButton:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+/* The toolbar's Add plugin action, one step up from the 28px sm capsule. */
+.addButton,
+.addPrimary,
+.addMore {
+  height: 32px;
+  font-size: 13px;
+  line-height: 20px;
+  padding: 0 12px;
+  border-radius: var(--dsw-radius-md);
+}
+
+.addGroup {
+  display: inline-flex;
+  flex: none;
+  align-items: stretch;
+}
+
+.addPrimary {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.addMore {
+  width: 32px;
+  padding: 0;
+  border-left: 0.5px solid color-mix(in srgb, var(--dsw-alias-label-primary-foreground) 30%, transparent);
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 .iconWrap {
@@ -402,9 +464,9 @@
 /* The destructive text action in a card body: red ink inside a 30% red frame,
    and the outline hover rebinds to a red wash instead of the gray one. */
 .danger {
-  color: var(--qilin-alias-state-error-primary);
-  border-color: color-mix(in srgb, var(--qilin-alias-state-error-primary) 30%, transparent);
-  --qilin-alias-interactive-bg-hover: color-mix(in srgb, var(--qilin-alias-state-error-primary) 8%, transparent);
+  color: var(--dsw-alias-state-error-primary);
+  border-color: color-mix(in srgb, var(--dsw-alias-state-error-primary) 30%, transparent);
+  --dsw-alias-interactive-bg-hover: color-mix(in srgb, var(--dsw-alias-state-error-primary) 8%, transparent);
 }
 
 /* Retry, uninstall, and the switch at the end of the page's head. */
@@ -429,14 +491,14 @@
   width: 28px;
   height: 28px;
   border: 0;
-  border-radius: var(--qilin-radius-sm);
+  border-radius: var(--dsw-radius-sm);
   background: transparent;
-  color: var(--qilin-alias-state-error-primary);
+  color: var(--dsw-alias-state-error-primary);
   cursor: pointer;
 }
 
 .deleteButton:hover:not(:disabled) {
-  background: var(--qilin-alias-interactive-bg-hover-danger, var(--qilin-alias-interactive-bg-hover));
+  background: var(--dsw-alias-interactive-bg-hover-danger, var(--dsw-alias-interactive-bg-hover));
 }
 
 .deleteButton:disabled {
@@ -445,7 +507,7 @@
 }
 
 .deleteButton:focus-visible {
-  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
+  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
   outline-offset: 1px;
 }
 
@@ -454,7 +516,7 @@
   margin: 0;
   font-size: 12px;
   line-height: 18px;
-  color: var(--qilin-alias-state-error-primary);
+  color: var(--dsw-alias-state-error-primary);
   overflow-wrap: anywhere;
   /* The Host's captured tail, when no output streamed, keeps its lines. */
   white-space: pre-wrap;
@@ -469,15 +531,22 @@
 }
 
 .partsFilter:focus-visible {
-  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
+  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
   outline-offset: 1px;
 }
 
 /* Wider than the default dialog: pnpm's lines are long, and the terminal keeps them unwrapped. The card never
-   outgrows the viewport; the running screens scroll inside it so the head's controls stay reachable. */
+   outgrows the Modal's padding box and shares the settings panel's 800px height cap; the running screens
+   scroll inside it so the head's controls stay reachable. */
 .installDialog {
-  width: min(600px, 100%);
-  max-height: calc(100vh - 48px);
+  width: min(560px, 100%);
+  max-height: min(800px, 100%);
+}
+
+/* The spec screen's content scrolls inside the card when the guide is open on a short viewport; the footer stays put. */
+.installContent {
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .installBody {
@@ -487,12 +556,27 @@
   min-width: 0;
 }
 
+.installFooter {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.templateHint {
+  margin: -4px 0 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary);
+}
+
 /* Where pnpm installs: the profile directory the first run names. */
 .installLocation {
   margin: 0;
   font-size: 12px;
   line-height: 18px;
-  color: var(--qilin-alias-label-tertiary);
+  color: var(--dsw-alias-label-tertiary);
   overflow-wrap: anywhere;
 }
 
@@ -504,42 +588,52 @@
 }
 
 .installField input[type='text'] {
-  height: 36px;
-  padding: 0 12px;
-  border: 0.5px solid var(--qilin-alias-border-l4);
-  border-radius: var(--qilin-radius-md);
-  background: var(--qilin-alias-bg-layer-3);
+  height: 40px;
+  padding: 0 14px;
+  border: 0.5px solid var(--dsw-alias-border-l4);
+  border-radius: var(--dsw-radius-md);
+  outline: none;
+  background: var(--dsw-alias-bg-layer-3);
   font: inherit;
   font-size: 13px;
-  color: var(--qilin-alias-label-primary);
+  color: var(--dsw-alias-label-primary);
 }
 
-.installField input[type='text']:focus {
-  border-color: var(--qilin-alias-state-business-primary);
-  box-shadow: inset 0 0 0 0.5px var(--qilin-alias-state-business-primary);
+.installField input[type='text']:focus,
+.registryCustomField:focus {
+  border-color: var(--dsw-alias-state-business-primary);
+  box-shadow: inset 0 0 0 0.5px var(--dsw-alias-state-business-primary);
 }
 
-.installField input[aria-invalid='true'] {
-  border-color: var(--qilin-alias-state-error-primary);
+.installField input[type='text'][aria-invalid='true'],
+.registryCustomField[aria-invalid='true'] {
+  border-color: var(--dsw-alias-state-error-primary);
+  box-shadow: none;
 }
 
-/* The guide under the field: opened by a text button, it says what an ID is and shows the three forms with examples. */
+.installField input[type='text'][aria-invalid='true']:focus,
+.registryCustomField[aria-invalid='true']:focus {
+  box-shadow: inset 0 0 0 0.5px var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+}
+
+/* The guide under the field: opened by a text button, it names the npm package name and shows its example. */
 .guideToggle {
   display: inline-flex;
   align-items: center;
   align-self: flex-start;
   gap: 4px;
+  margin-top: 4px;
   padding: 0;
   border: 0;
   background: none;
   font: inherit;
   font-size: 12.5px;
-  color: var(--qilin-alias-label-secondary);
+  color: var(--dsw-alias-label-secondary);
   cursor: pointer;
 }
 
 .guideToggle:hover {
-  color: var(--qilin-alias-label-primary);
+  color: var(--dsw-alias-label-primary);
 }
 
 .guideChevron {
@@ -554,52 +648,50 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 12px 14px;
-  border: 0.5px solid var(--qilin-alias-border-l4);
-  border-radius: var(--qilin-radius-lg);
-  background: var(--qilin-alias-bg-layer-1);
+  padding: 8px 14px;
+  border: 0.5px solid var(--dsw-alias-border-l4);
+  border-radius: var(--dsw-radius-lg);
+  background: var(--dsw-alias-bg-layer-1);
 }
 
-.guideIntro,
 .guideHint {
-  margin: 0;
+  margin: 6px 0 0;
   font-size: 12px;
   line-height: 18px;
-  color: var(--qilin-alias-label-tertiary);
+  color: var(--dsw-alias-label-tertiary);
 }
 
-/* The security warning that closes the guide: plugins run with the person's own permissions. */
-.guideSafety {
+/* Trust guidance stays beside the install action, including while examples are collapsed. */
+.installSafety {
   display: flex;
   align-items: flex-start;
-  gap: 6px;
+  gap: 8px;
   margin: 0;
-  padding: 8px 10px;
-  border-radius: var(--qilin-radius-md);
-  background: color-mix(in srgb, var(--qilin-alias-state-warning-primary, var(--qilin-alias-state-business-primary)) 12%, transparent);
+  padding: 10px 12px;
+  border-radius: var(--dsw-radius-md);
+  background: var(--dsw-alias-state-warn-tertiary);
   font-size: 12px;
   line-height: 18px;
-  color: var(--qilin-alias-state-warning-primary, var(--qilin-alias-state-business-primary));
+  color: var(--dsw-alias-label-secondary);
 }
 
-.guideSafety > svg {
+.installSafetyText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.installSafety > svg {
   flex: none;
   margin-top: 2px;
-}
-
-.guideNote {
-  margin: 0;
-  padding: 8px 10px;
-  border-radius: 8px;
-  background: var(--qilin-alias-bg-layer-3);
-  font-size: 12px;
-  line-height: 18px;
-  color: var(--qilin-alias-label-secondary);
+  color: var(--dsw-alias-state-warn-primary);
 }
 
 .guideList {
   display: flex;
   flex-direction: column;
+  gap: 2px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -610,48 +702,181 @@
   align-items: flex-start;
   gap: 10px;
   padding: 8px 0;
-  border-top: 0.5px solid var(--qilin-alias-border-l4);
 }
 
-.guideIndex {
-  flex: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 999px;
-  corner-shape: round;
-  background: var(--qilin-alias-bg-layer-3);
-  font-size: 11px;
-  line-height: 20px;
-  text-align: center;
-  color: var(--qilin-alias-label-tertiary);
+.guideItem > button {
+  align-self: center;
 }
 
 .guideMain {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 2px;
+  gap: 0;
   min-width: 0;
 }
 
 .guideTitle {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qilin-alias-label-primary);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--dsw-alias-label-primary);
 }
 
 .guideExample {
   font-size: 12px;
-  color: var(--qilin-alias-label-secondary);
+  line-height: 20px;
+  color: var(--dsw-alias-label-tertiary);
   overflow-wrap: anywhere;
 }
 
 .guideExample code {
-  font-family: var(--qilin-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--ds-font-family-code);
 }
 
 .guideExampleLabel {
-  color: var(--qilin-alias-label-tertiary);
+  color: var(--dsw-alias-label-tertiary);
+}
+
+/* The row under the field: the guide's toggle on the left, the registry's on the right, both folded by default. */
+.optionsRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+
+/* The registry toggle names the registry the install asks first, so the choice reads without unfolding. */
+.registryToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 8px 0 10px;
+  border: 0.5px solid var(--dsw-alias-border-l4);
+  border-radius: var(--dsw-radius-md);
+  background: var(--dsw-alias-bg-layer-2);
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--dsw-alias-label-secondary);
+  cursor: pointer;
+}
+
+.registryToggle:hover:not(:disabled) {
+  color: var(--dsw-alias-label-primary);
+}
+
+.registryToggle:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.registryToggle[aria-expanded='true'] {
+  border-color: var(--dsw-alias-border-l3);
+  background: var(--dsw-alias-bg-layer-3);
+}
+
+.registryToggle[aria-expanded='true'] .guideChevron {
+  transform: rotate(180deg);
+}
+
+.registryChosen {
+  font-weight: 500;
+  color: var(--dsw-alias-label-primary);
+}
+
+/* The registry options float from their toggle over the dialog: pnpm's own, the configured mirrors, and a typed
+   address, with the order asked under them. Portaled and fixed, so the dialog keeps its height. */
+.registry {
+  position: fixed;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-sizing: border-box;
+  width: min(440px, calc(100vw - 24px));
+  margin: 0;
+  padding: 8px;
+  border: 0;
+  /* An opaque layer keeps the registry form controls readable over the dialog. */
+  background: var(--dsw-alias-bg-layer-2);
+  border-radius: var(--dsw-radius-lg);
+  --dsw-elevation-stroke-color: var(--dsw-alias-border-l1);
+  box-shadow: var(--dsw-elevation-prominent);
+  min-width: 0;
+}
+
+.registryOption {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: var(--dsw-radius-md);
+  cursor: pointer;
+}
+
+.registryOption:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+/* An offered registry is one row: the radio beside its title and the line under it. */
+label.registryOption {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.registryOption input[type='radio'] {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin: 2px 0 0;
+  accent-color: var(--dsw-alias-brand-primary);
+}
+
+.registryTitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-primary);
+}
+
+.registryHint {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-tertiary);
+  overflow-wrap: anywhere;
+}
+
+.registryCustomPick {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.registryCustomField {
+  outline: none;
+  height: 32px;
+  margin-left: 26px;
+  padding: 0 10px;
+  border: 0.5px solid var(--dsw-alias-border-l4);
+  border-radius: var(--dsw-radius-md);
+  background: var(--dsw-alias-bg-layer-3);
+  font: inherit;
+  font-size: 13px;
+  color: var(--dsw-alias-label-primary);
+}
+
+/* The typed address's field, refusal, and line sit under its title, past the radio and its gap. */
+.registryOption > .inputError,
+.registryOption > .registryHint {
+  margin-left: 26px;
 }
 
 /* What the check refused, under the field. */
@@ -659,13 +884,15 @@
   margin: -4px 0 0;
   font-size: 12px;
   line-height: 18px;
-  color: var(--qilin-alias-state-error-primary);
+  color: var(--dsw-alias-state-error-primary);
 }
 
 /* The footer's only action spans the dialog, as the primary action of a short form does. */
 .wide {
   width: 100%;
+  height: 40px;
   justify-content: center;
+  border-radius: var(--dsw-radius-md);
 }
 
 /* The installing, installed, and failed screens: a head row, the centred
@@ -677,7 +904,7 @@
   gap: 16px;
   min-width: 0;
   min-height: 0;
-  padding: 16px 20px 20px;
+  padding: 16px 20px 0;
 }
 
 /* Everything under the head: it scrolls when the runs' output makes the screen taller than the card. */
@@ -707,7 +934,7 @@
   font: inherit;
   font-size: 15px;
   font-weight: 600;
-  color: var(--qilin-alias-label-primary);
+  color: var(--dsw-alias-label-primary);
   cursor: pointer;
 }
 
@@ -719,15 +946,15 @@
   height: 24px;
   padding: 0;
   border: 0;
-  border-radius: var(--qilin-radius-sm);
+  border-radius: var(--dsw-radius-sm);
   background: none;
-  color: var(--qilin-alias-label-tertiary);
+  color: var(--dsw-alias-label-tertiary);
   cursor: pointer;
 }
 
 .wizardClose:hover {
-  background: var(--qilin-alias-bg-layer-3);
-  color: var(--qilin-alias-label-primary);
+  background: var(--dsw-alias-bg-layer-3);
+  color: var(--dsw-alias-label-primary);
 }
 
 .wizardHero {
@@ -745,15 +972,15 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  color: var(--qilin-alias-label-secondary);
+  color: var(--dsw-alias-label-secondary);
 }
 
-.wizardIcon[data-tone='done'] {
-  color: var(--qilin-alias-state-success-primary);
+.wizardIcon[data-state='done'] {
+  color: var(--dsw-alias-state-success-secondary);
 }
 
-.wizardIcon[data-tone='failed'] {
-  color: var(--qilin-alias-state-warning-primary, var(--qilin-alias-state-business-primary));
+.wizardIcon[data-state='error'] {
+  color: var(--dsw-alias-state-warn-label);
 }
 
 .wizardTitle {
@@ -767,7 +994,7 @@
   margin: 0;
   font-size: 13px;
   line-height: 20px;
-  color: var(--qilin-alias-label-secondary);
+  color: var(--dsw-alias-label-secondary);
   overflow-wrap: anywhere;
 }
 
@@ -777,8 +1004,8 @@
   align-items: center;
   gap: 6px;
   padding: 16px;
-  border: 0.5px solid var(--qilin-alias-border-l3);
-  border-radius: var(--qilin-radius-lg);
+  border: 0.5px solid var(--dsw-alias-border-l3);
+  border-radius: var(--dsw-radius-lg);
   text-align: center;
 }
 
@@ -790,12 +1017,21 @@
   overflow-wrap: anywhere;
 }
 
+.subjectSpec {
+  margin: 0;
+  font-family: var(--ds-font-family-code);
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-tertiary);
+  overflow-wrap: anywhere;
+}
+
 .subjectDesc,
 .subjectMeta {
   margin: 0;
   font-size: 13px;
   line-height: 20px;
-  color: var(--qilin-alias-label-secondary);
+  color: var(--dsw-alias-label-secondary);
   overflow-wrap: anywhere;
 }
 
@@ -804,6 +1040,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+
+.footAction {
+  height: 32px;
+  border-radius: var(--dsw-radius-md);
 }
 
 .detailsToggle {
@@ -815,7 +1056,7 @@
   background: none;
   font: inherit;
   font-size: 13px;
-  color: var(--qilin-alias-label-secondary);
+  color: var(--dsw-alias-label-secondary);
   cursor: pointer;
 }
 
@@ -834,39 +1075,33 @@
   min-width: 0;
 }
 
-.spinnerLarge {
-  width: 28px;
-  height: 28px;
-  border: 3px solid color-mix(in srgb, var(--qilin-alias-label-primary) 18%, transparent);
-  border-top-color: var(--qilin-alias-label-primary);
-  border-radius: 50%;
-  corner-shape: round;
-  animation: spin 900ms linear infinite;
+/* The failed screen's actions beside the details toggle: change the registry, retry. */
+.wizardActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.spinner {
-  width: 14px;
-  height: 14px;
-  flex: none;
-  border: 2px solid color-mix(in srgb, var(--qilin-alias-label-primary) 18%, transparent);
-  border-top-color: var(--qilin-alias-label-primary);
-  border-radius: 50%;
-  corner-shape: round;
-  animation: spin 900ms linear infinite;
+/* One pnpm run of the install; once several registries were asked, a badge names each run's. */
+.run {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+.attemptBadge {
+  align-self: flex-start;
+  margin: 0;
+  padding: 0 6px;
+  border-radius: var(--dsw-radius-sm);
+  background: var(--dsw-alias-bg-layer-3);
+  font-size: 11px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .spinner,
-  .spinnerLarge {
-    animation: none;
-  }
-
   .detailsChevron {
     transition: none;
   }
@@ -876,15 +1111,15 @@
 .resultWarn {
   margin: 0;
   padding: 8px 12px;
-  border-radius: var(--qilin-radius-md);
+  border-radius: var(--dsw-radius-md);
   font-size: 13px;
   line-height: 20px;
-  background: color-mix(in srgb, var(--qilin-alias-state-success-primary) 10%, transparent);
-  color: var(--qilin-alias-label-primary);
+  background: color-mix(in srgb, var(--dsw-alias-state-success-primary) 10%, transparent);
+  color: var(--dsw-alias-label-primary);
 }
 
 .resultWarn {
-  background: color-mix(in srgb, var(--qilin-alias-state-warning-primary, var(--qilin-alias-state-business-primary)) 12%, transparent);
+  background: var(--dsw-alias-state-warn-tertiary);
 }
 
 /* The approval a blocked run asks for: the packages whose install scripts pnpm did not run, and the one action. */
@@ -893,31 +1128,31 @@
   flex-direction: column;
   gap: 8px;
   padding: 12px 14px;
-  border: 0.5px solid color-mix(in srgb, var(--qilin-alias-state-warning-primary, var(--qilin-alias-state-business-primary)) 40%, transparent);
-  border-radius: var(--qilin-radius-lg);
-  background: color-mix(in srgb, var(--qilin-alias-state-warning-primary, var(--qilin-alias-state-business-primary)) 8%, transparent);
+  border: 0.5px solid color-mix(in srgb, var(--dsw-alias-state-warn-primary) 40%, transparent);
+  border-radius: var(--dsw-radius-lg);
+  background: var(--dsw-alias-state-warn-tertiary);
 }
 
 .approvalTitle {
   margin: 0;
   font-size: 13px;
   font-weight: 600;
-  color: var(--qilin-alias-label-primary);
+  color: var(--dsw-alias-label-primary);
 }
 
 .approvalText {
   margin: 0;
   font-size: 12.5px;
   line-height: 18px;
-  color: var(--qilin-alias-label-secondary);
+  color: var(--dsw-alias-label-secondary);
 }
 
 .approvalCaution {
   margin: 0;
   font-size: 12.5px;
   line-height: 18px;
-  font-weight: 600;
-  color: var(--qilin-alias-state-warning-primary, var(--qilin-alias-state-business-primary));
+  font-weight: 500;
+  color: var(--dsw-alias-label-secondary);
 }
 
 .approvalList {
@@ -932,21 +1167,21 @@
 .approvalList code {
   display: inline-block;
   padding: 2px 8px;
-  border-radius: var(--qilin-radius-sm);
-  background: var(--qilin-alias-bg-layer-3);
-  font-family: var(--qilin-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  border-radius: var(--dsw-radius-sm);
+  background: var(--dsw-alias-bg-layer-3);
+  font-family: var(--ds-font-family-code);
   font-size: 12px;
-  color: var(--qilin-alias-label-primary);
+  color: var(--dsw-alias-label-primary);
 }
 
 /* The install terminal: the shared TerminalBlock at the bash card's smaller
    size, its output capped so an expanded log scrolls inside the dialog. */
 .terminal {
-  --dsl-terminal-font: var(--qilin-font-markdown-code-block-small);
+  --dsl-terminal-font: var(--dsw-font-markdown-code-block-small);
   --dsl-terminal-line-height: 18px;
   --dsl-terminal-output-max-height: 240px;
   margin: 4px 0 0;
-  border: 0.5px solid var(--qilin-alias-border-l1);
+  border: 0.5px solid var(--dsw-alias-border-l1);
 }
 
 .dependents {
@@ -954,12 +1189,12 @@
   padding-left: 18px;
   font-size: 13px;
   line-height: 20px;
-  color: var(--qilin-alias-label-secondary);
+  color: var(--dsw-alias-label-secondary);
 }
 
 .dangerButton {
-  --qilin-alias-button-primary-fill: var(--qilin-alias-state-error-primary);
-  --qilin-alias-button-primary-hover: var(--qilin-alias-state-error-primary);
+  --dsw-alias-button-primary-fill: var(--dsw-alias-state-error-primary);
+  --dsw-alias-button-primary-hover: var(--dsw-alias-state-error-primary);
 }
 
 .detail {
@@ -968,12 +1203,26 @@
 }
 
 /* The head row every detail view shares: the crumb over the icon/actions row.
-   It carries the drag ownership (the mark in PluginManagerPage), so this row's
-   own box is the window's draggable geometry. The detail container below stays
+   It carries the same top clearance as .pageHead — the crumb is the detail
+   views' leading content and otherwise lands under the traffic lights — and the
+   same drag ownership: it marks itself `data-window-drag`, so this row's own box
+   is the window's draggable geometry. The detail container below stays
    content: marking it would drag the window over its text and form labels. */
-.detailTop {
+.detailTop,
+.moreHead {
   display: flex;
+  /* The same 28px top inset `.pageHead` carries, so the row starts at the window's
+     top edge and the strip above the detail content drags the window. */
+  padding-top: 28px;
+}
+
+.detailTop {
   flex-direction: column;
+}
+
+:global([data-platform='darwin']) .detailTop,
+:global([data-platform='darwin']) .moreHead {
+  padding-top: calc(28px + var(--dsh-frame-top-clearance, 0px));
 }
 
 .crumb {
@@ -983,18 +1232,18 @@
   border: 0;
   padding: 0;
   background: none;
-  color: var(--qilin-alias-label-tertiary);
+  color: var(--dsw-alias-label-tertiary);
   font: inherit;
   font-size: 12.5px;
   cursor: pointer;
 }
 
 .crumb:hover {
-  color: var(--qilin-alias-label-primary);
+  color: var(--dsw-alias-label-primary);
 }
 
 .crumb:focus-visible {
-  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
+  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
   outline-offset: 2px;
 }
 
@@ -1034,7 +1283,7 @@
 
 .detailDesc {
   margin: 0;
-  color: var(--qilin-alias-label-secondary);
+  color: var(--dsw-alias-label-secondary);
   font-size: 14px;
   line-height: 22px;
 }
@@ -1045,17 +1294,28 @@
   margin: 0;
   font-size: 12px;
   line-height: 18px;
-  color: var(--qilin-alias-label-caption);
+  color: var(--dsw-alias-label-tertiary);
   overflow-wrap: anywhere;
 }
 
 .detailName code {
-  font-family: var(--qilin-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--dsw-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
 }
 
 /* The unknown-package note under the name block. */
 .detail > .detailDesc {
   margin-top: 12px;
+}
+
+.packagePreview {
+  display: block;
+  align-self: flex-start;
+  max-width: 100%;
+  max-height: 320px;
+  margin-top: 24px;
+  border: 0.5px solid var(--dsw-alias-border-l4);
+  border-radius: var(--dsw-radius-lg);
+  object-fit: contain;
 }
 
 .detailSections {
@@ -1087,13 +1347,53 @@
 .sectionCount {
   font-size: 12px;
   line-height: 18px;
-  color: var(--qilin-alias-label-secondary);
+  color: var(--dsw-alias-label-secondary);
+}
+
+/* A bundle's source facts: label at the start, value at the end, one ruled line each. */
+.facts {
+  margin: 0;
+}
+
+.facts div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 44px;
+  padding: 8px 2px;
+  border-bottom: 0.5px solid var(--dsw-alias-border-l2);
+}
+
+.facts dt {
+  flex: none;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.facts dd {
+  min-width: 0;
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+  text-align: end;
+  overflow-wrap: anywhere;
+}
+
+.facts code {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--dsw-alias-bg-module-platform);
+  box-decoration-break: clone;
+  font-family: var(--dsw-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12px;
 }
 
 /* The way into a package's page. */
 .cardArrow {
   flex: none;
-  color: var(--qilin-alias-label-tertiary);
+  color: var(--dsw-alias-label-tertiary);
 }
 
 /* Rows sit on the page ground, one hairline apart, so they read on a white page too. */
@@ -1107,7 +1407,7 @@
 
 .row {
   padding: 12px 2px;
-  border-bottom: 0.5px solid var(--qilin-alias-border-l2);
+  border-bottom: 0.5px solid var(--dsw-alias-border-l2);
 }
 
 .row:last-child {
@@ -1128,9 +1428,9 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  border: 0.5px solid var(--qilin-alias-border-l3);
-  border-radius: var(--qilin-radius-md);
-  color: var(--qilin-alias-label-secondary);
+  border: 0.5px solid var(--dsw-alias-border-l3);
+  border-radius: var(--dsw-radius-md);
+  color: var(--dsw-alias-label-secondary);
 }
 
 .rowMain {
@@ -1145,19 +1445,19 @@
   font-size: 13.5px;
   line-height: 20px;
   font-weight: 500;
-  color: var(--qilin-alias-label-primary);
+  color: var(--dsw-alias-label-primary);
   overflow-wrap: anywhere;
 }
 
 .row[data-state='off'] .rowId {
-  color: var(--qilin-alias-label-secondary);
+  color: var(--dsw-alias-label-secondary);
 }
 
 .rowModule {
-  font-family: var(--qilin-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--dsw-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 11.5px;
   line-height: 16px;
-  color: var(--qilin-alias-label-tertiary);
+  color: var(--dsw-alias-label-tertiary);
   overflow-wrap: anywhere;
 }
 
@@ -1182,11 +1482,11 @@
 
 .rowOpenIcon {
   flex: none;
-  color: var(--qilin-alias-label-tertiary);
+  color: var(--dsw-alias-label-tertiary);
 }
 
 .rowOpen:hover .rowOpenIcon {
-  color: var(--qilin-alias-label-primary);
+  color: var(--dsw-alias-label-primary);
 }
 
 .rowState {
@@ -1196,12 +1496,12 @@
   gap: 6px;
   font-size: 12.5px;
   line-height: 18px;
-  color: var(--qilin-alias-label-secondary);
+  color: var(--dsw-alias-label-secondary);
   white-space: nowrap;
 }
 
 .row[data-state='failed'] .rowState {
-  color: var(--qilin-alias-state-error-primary);
+  color: var(--dsw-alias-state-error-primary);
 }
 
 
@@ -1210,268 +1510,35 @@
   margin: 4px 0 0 56px;
   font-size: 12px;
   line-height: 18px;
-  color: var(--qilin-alias-state-error-primary);
+  color: var(--dsw-alias-state-error-primary);
   overflow-wrap: anywhere;
 }
 
-/* The update results and the plugin catalog: a titled block between the page header and the cards. */
-.panel {
+.toolbar[hidden] {
+  display: none;
+}
+
+/* Installed and contributed tabs under the page header, aligned with the title; the negative margin halves
+   the page's 32px row gap, so the tabs read as part of the header. */
+.pageTabs {
+  display: flex;
+  margin-top: -16px;
+}
+
+.pageTabList {
+  width: fit-content;
+  min-width: 240px;
+}
+
+/* The Installed groups keep the page's row gap inside their tab panel. */
+.installedPanel {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 32px;
 }
 
-.panelHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.panelTitle {
-  margin: 0;
-  font-size: 14px;
-  line-height: 22px;
-  font-weight: 500;
-}
-
-.panelFailure {
-  margin: 0;
-  font-size: 13px;
-  line-height: 20px;
-  color: var(--qilin-alias-state-error-primary);
-}
-
-.panelList {
+.tabPanel {
   display: flex;
   flex-direction: column;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.panelRow {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  min-width: 0;
-  padding: 10px 2px;
-  border-bottom: 0.5px solid var(--qilin-alias-border-l2);
-}
-
-.panelRow:last-child {
-  border-bottom: 0;
-}
-
-.panelMain {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.panelName {
-  font-size: 13.5px;
-  line-height: 20px;
-  font-weight: 500;
-  color: var(--qilin-alias-label-primary);
-  overflow-wrap: anywhere;
-}
-
-.panelMeta {
-  font-size: 12px;
-  line-height: 18px;
-  color: var(--qilin-alias-label-tertiary);
-  overflow-wrap: anywhere;
-}
-
-.catalogSearch {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.catalogField {
-  flex: 1;
-  min-width: 0;
-}
-
-/* A catalog result's repository address: the name opens GitHub in a new tab. */
-.catalogName {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  align-self: flex-start;
-  font-size: 13.5px;
-  line-height: 20px;
-  font-weight: 500;
-  color: var(--qilin-alias-label-primary);
-  text-decoration: none;
-}
-
-.catalogName:hover,
-.catalogName:focus-visible {
-  color: var(--qilin-alias-brand-primary);
-}
-
-/* The spec field's row of small controls: the registry picker and the guide toggle. */
-.optionsRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px 12px;
-}
-
-.registryToggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 26px;
-  padding: 0 8px 0 10px;
-  border: 0.5px solid var(--qilin-alias-border-l4);
-  border-radius: var(--qilin-radius-sm);
-  background: var(--qilin-alias-bg-layer-2);
-  font: inherit;
-  font-size: 12.5px;
-  color: var(--qilin-alias-label-secondary);
-  cursor: pointer;
-}
-
-.registryToggle:hover:not(:disabled) {
-  color: var(--qilin-alias-label-primary);
-}
-
-.registryToggle:disabled {
-  cursor: default;
-  opacity: 0.6;
-}
-
-.registryToggle[aria-expanded='true'] {
-  border-color: var(--qilin-alias-border-l3);
-  background: var(--qilin-alias-bg-layer-3);
-}
-
-.registryToggle[aria-expanded='true'] .guideChevron {
-  transform: rotate(180deg);
-}
-
-.registryChosen {
-  font-weight: 500;
-  color: var(--qilin-alias-label-primary);
-}
-
-/* The registry options unfold under the spec, inside the dialog's own scroll area. */
-.registry {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  box-sizing: border-box;
-  margin: 0;
-  padding: 8px 10px 12px;
-  border: 0.5px solid var(--qilin-alias-border-l3);
-  border-radius: var(--qilin-radius-lg);
-  background: var(--qilin-alias-bg-layer-2);
-  min-width: 0;
-}
-
-.registryOption {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 8px 10px;
-  border: 0.5px solid transparent;
-  border-radius: var(--qilin-radius-lg);
-  cursor: pointer;
-}
-
-.registryOption[data-checked='true'] {
-  border-color: color-mix(in srgb, var(--qilin-alias-brand-primary) 40%, transparent);
-  background: var(--qilin-alias-bg-layer-3);
-}
-
-.registryOption input[type='radio'] {
-  flex: none;
-  width: 16px;
-  height: 16px;
-  margin: 2px 0 0;
-  accent-color: var(--qilin-alias-brand-primary);
-}
-
-.registryOption > .inputError,
-.registryOption > .registryHint {
-  margin-left: 26px;
-}
-
-.registryTitle {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  line-height: 20px;
-  color: var(--qilin-alias-label-primary);
-}
-
-.registryCustomPick {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  cursor: pointer;
-}
-
-.registryCustomField {
-  height: 32px;
-  margin-left: 26px;
-  padding: 0 10px;
-  border: 0.5px solid var(--qilin-alias-border-l4);
-  border-radius: var(--qilin-radius-md);
-  background: var(--qilin-alias-bg-layer-3);
-  font: inherit;
-  font-size: 13px;
-  color: var(--qilin-alias-label-primary);
-}
-
-.registryCustomField[aria-invalid='true'] {
-  border-color: var(--qilin-alias-state-error-primary);
-}
-
-.registryHint {
-  font-size: 12px;
-  line-height: 18px;
-  color: var(--qilin-alias-label-tertiary);
-  overflow-wrap: anywhere;
-}
-
-/* The registry the running install is retrying through, above the subject card. */
-.attemptLine {
-  margin: 0;
-  font-size: 12px;
-  line-height: 18px;
-  color: var(--qilin-alias-label-tertiary);
-}
-
-/* One pnpm attempt: its badge, then its terminal. */
-.run {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-
-.attemptBadge {
-  align-self: flex-start;
-  margin: 0;
-  padding: 0 6px;
-  border-radius: var(--qilin-radius-sm);
-  background: var(--qilin-alias-bg-layer-3);
-  font-size: 11px;
-  line-height: 18px;
-  color: var(--qilin-alias-label-secondary);
-}
-
-.footAction {
-  height: 32px;
-  border-radius: var(--qilin-radius-md);
+  gap: 24px;
 }

@@ -65,7 +65,7 @@ export default class PluginRegistryProbe extends TypertRemoteService {
     }))
     const successful = requests.map(async (request) => {
       const { registry, response } = await request
-      if (!response.ok) throw new Error(`Registry ping returned HTTP ${String(response.status)}`)
+      if (!response.ok) throw new Error(`Registry ping returned HTTP ${response.status}`)
       return registry
     })
     let registry: string | null

@@ -1,15 +1,15 @@
-/** Decorative occupant for the plugin-manager sidebar entry. */
+/** The sidebar's Plugins entry icon; the sidebar owns the button, label, and selected state around it. */
+
+import type { ReactNode } from 'react'
+import { IconPluginPinwheelOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import type { PropsRuntime } from '@qilin-agent/client-ui-slots'
-import { IconPluginPinwheelOutline16 } from '@qilin-agent/client-ui-primitives'
 import type {} from '@qilin-agent/client-ui-sidebar/client'
 
 /**
- * Render the plugin glyph at the size the sidebar asks for; the sidebar owns
- * its accessible navigation label. The glyph declares itself decorative
- * inline because the shared primitive carries no implicit aria-hidden.
+ * Render the plugin glyph at the size the sidebar asks for.
  * @param props - the sidebar's icon share: the requested edge and whether the panel is selected.
- * @returns decorative plugin icon.
+ * @returns the icon element.
  */
-export function PluginsPanelIcon({ size }: PropsRuntime<'sidebar.panellist'>) {
-  return <IconPluginPinwheelOutline16 size={size} />
+export function PluginsPanelIcon({ size }: PropsRuntime<'sidebar.panellist'>): ReactNode {
+  return <IconPluginPinwheelOutlineRegular size={size} />
 }
