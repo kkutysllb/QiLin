@@ -133,7 +133,7 @@ describe('ui-sidebar apply', () => {
       await panel.await()
       await vi.waitFor(() => {
         expect(injected.hooks.panels.getSnapshot()).toEqual([
-          { id: 'custom-panel', order: 20, label: 'Custom panel' },
+          { id: 'custom-panel', order: 20, label: 'Custom panel', section: 'Extensions' },
         ])
       })
       expect(b.slots.entries('main').map(entry => entry.options.key)).toEqual(['custom-panel'])

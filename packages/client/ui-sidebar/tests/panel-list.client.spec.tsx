@@ -133,7 +133,7 @@ describe('sidebar global panels', () => {
 
     const { alpha, beta } = await mountPanels(runtime, locale)
     const navigation = await view.findByRole('navigation', { name: 'Global panels' })
-    expect(within(navigation).getAllByRole('button')).toHaveLength(2)
+    expect(within(navigation).getAllByRole('button')).toHaveLength(3)
     fireEvent.click(within(navigation).getByRole('button', { name: 'Alpha panel' }))
     expect(view.getByRole('heading', { name: 'Alpha content' })).toBeTruthy()
 
@@ -158,7 +158,8 @@ describe('sidebar global panels', () => {
     const { runtime, locale, view } = await bench(collapsed)
     await mountPanels(runtime, locale)
     const navigation = await view.findByRole('navigation', { name: 'Global panels' })
-    const rows = within(navigation).getAllByRole('button')
+    // The Extensions header is a fold toggle with role=button and no label; the rows are the labelled ones.
+    const rows = within(navigation).getAllByRole('button').filter(row => row.getAttribute('aria-label') !== null)
     expect(rows.map(row => row.getAttribute('aria-label'))).toEqual(['Beta panel', 'Alpha panel'])
     for (const [id, label] of [[BETA, 'Beta panel'], [ALPHA, 'Alpha panel']] as const) {
       const row = within(navigation).getByRole('button', { name: label })
@@ -183,22 +184,23 @@ describe('sidebar global panels', () => {
     const { runtime, locale, view } = await bench()
     await mountPanels(runtime, locale, 20)
     const navigation = await view.findByRole('navigation', { name: 'Global panels' })
-    expect(within(navigation).getAllByRole('button').map(row => row.textContent)).toEqual(['Alpha panel', 'Beta panel'])
+    expect(within(navigation).getAllByRole('button').map(row => row.textContent)).toEqual(['Extensions', 'Alpha panel', 'Beta panel'])
   })
 
-  it('renders one header per section break and keeps unsectioned rows header-less', async () => {
+  it('renders one header per section break and gives unsectioned rows the Extensions header', async () => {
     const { runtime, view } = await bench()
     await mountPanel(runtime, { id: ALPHA, heading: 'Alpha content', label: 'Alpha panel', order: 10, section: 'Alpha group' })
     await mountPanel(runtime, { id: BETA, heading: 'Beta content', label: 'Beta panel', order: 20 })
     await mountPanel(runtime, { id: GAMMA, heading: 'Gamma content', label: 'Gamma panel', order: 30, section: 'Alpha group' })
     const navigation = await view.findByRole('navigation', { name: 'Global panels' })
     const headers = [...navigation.children].filter(child => child.tagName !== 'BUTTON')
-    expect(headers).toHaveLength(2)
-    expect(headers.map(header => header.textContent)).toEqual(['Alpha group', 'Alpha group'])
-    expect(headers.map(header => header.getAttribute('aria-hidden'))).toEqual(['false', 'false'])
+    expect(headers).toHaveLength(3)
+    expect(headers.map(header => header.textContent)).toEqual(['Alpha group', 'Extensions', 'Alpha group'])
+    expect(headers.map(header => header.getAttribute('aria-hidden'))).toEqual(['false', 'false', 'false'])
     // Section headers are fold toggles (role=button with aria-expanded); panel
     // rows are the buttons without one.
-    const rows = within(navigation).getAllByRole('button').filter(row => row.getAttribute('aria-expanded') === null)
+    // The Extensions header is a fold toggle with role=button and no label; the rows are the labelled ones.
+    const rows = within(navigation).getAllByRole('button').filter(row => row.getAttribute('aria-label') !== null).filter(row => row.getAttribute('aria-expanded') === null)
     expect(rows.map(row => row.textContent)).toEqual(['Alpha panel', 'Beta panel', 'Gamma panel'])
     expect(headers.every(header => header.getAttribute('aria-expanded') === 'true')).toBe(true)
     const entries = runtime.slots.entries('sidebar.panellist')
@@ -372,7 +374,8 @@ describe('sidebar global panels', () => {
     await mountPanel(runtime, { id: ALPHA, heading: 'Alpha content', label: 'Alpha panel', order: 20 })
     await mountPanel(runtime, { id: BETA, heading: 'Beta content' })
     const navigation = await view.findByRole('navigation', { name: 'Global panels' })
-    expect(within(navigation).getAllByRole('button').map(row => row.textContent)).toEqual([BETA, 'Alpha panel'])
+    expect(within(navigation).getAllByRole('button').map(row => row.textContent))
+      .toEqual(['Extensions', BETA, 'Alpha panel'])
     fireEvent.click(within(navigation).getByRole('button', { name: BETA }))
     expect(view.getByRole('heading', { name: 'Beta content' })).toBeTruthy()
   })
