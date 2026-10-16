@@ -170,7 +170,10 @@ export function Welcome({ api }: { api: WelcomeApi }) {
         ? await api.logIn(loginName.trim(), loginPassword)
         : await api.register(registerName.trim(), registerEmail.trim(), registerPassword)
       if (!result.ok) {
-        if (mounted.current) setAuthError(kind === 'login' ? m.welcomeLoginFailed : m.welcomeRegisterFailed)
+        // The Host names the refusal; a taken device account is the one a visitor can act on.
+        if (mounted.current) setAuthError(result.reason === 'already-initialized' || result.reason === 'account-conflict'
+          ? m.welcomeAccountExists
+          : kind === 'login' ? m.welcomeLoginFailed : m.welcomeRegisterFailed)
         return
       }
       await api.skip()
