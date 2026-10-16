@@ -284,3 +284,55 @@ find /path/to/deepseek-harness -name package.json -path '*desktop-runtime*'   # 
 **桌面 lane 结果**：`pnpm --filter @qilin-agent/desktop test` → **87 文件通过 / 0 失败 / 1 跳过** ✓，**892 用例通过 / 0 失败 / 2 跳过** ✓，退出码 0 ✓；`pnpm run typecheck` 0 错 ✓。
 
 **完整轨迹**：12 文件失败 → 10 → 9 → 7 → 5 → 2 → **0** ✓。其中 **16 条**是真实契约缺陷修复（账号替身 5 处 wire 契约 + app-boot 1 处移植缺口 + 转义/键名/快照若干 ✓），只有 **6 条**属"本仓故意不提供的能力"→ 改为断言边界 ✓。
+
+### P3 续 6：系统性检查"上游导入并调用的符号在本仓是否被丢掉"
+
+**为什么需要这个检查**：`removeLinkProjections` 的缺失 **typecheck 抓不到** ✗ —— 因为我移植时把**导入也一起删了** ✓，所以类型系统看到的是一份自洽的代码 ✓。这类"悄悄丢掉的调用"只能靠**与上游逐文件比对**发现 ✓。
+
+**方法与结论**（对 `apps/desktop/src` 逐文件 ✓）：取上游每个文件里**导入且被调用**的符号 ✓ → 检查本仓同名文件是否**提到**该符号 ✓（标识符按 rescope 归一：`Dsh→Qilin`、`DSH_→QILIN_` ✓）→ 排除**故意不提供**的接缝调用 ✓。
+
+**首轮命中 2 文件 / 3 符号** ✓，逐一判定：
+- `paths.ts: resolveDshHome` ✗ → 本仓叫 `resolveQilinHome` ✓（纯改名 ✓，字符级归一化挡住了 CamelCase 导致假阳 ✓，按标识符归一再比 ✓）；
+- `preload-app.ts: createDesktopBrowserBridge / installMandatoryUpdateOverlay` ✗ → **故意不调** ✓（浏览器访客与强制更新都是惰性接缝 ✓，其 spec 正是断言"不安装覆盖层" ✓）。
+
+**修正后结果：0** ✓ —— 桌面 `src` 中不存在其他"被丢掉的调用" ✓；同类检查在共享包导出面（名称级 ✓）上噪声过大 ✗（混入上游演进与改名 ✓），**只有"导入且调用"这一形式是有判据的** ✓。
+
+**可复现脚本**（需本地上游检出 ✓，路径按需替换 ✓）：
+
+```python
+# python3 <此脚本>   # 工作目录：QiLin 仓库根
+import pathlib, re
+UP = pathlib.Path('/path/to/deepseek-harness/apps/desktop/src')
+QI = pathlib.Path('apps/desktop/src')
+def norm(text):
+    for a, b in [('@deepseek-ai/', '@qilin-agent/'), ('dsh-desktop-host', 'desktop-host'),
+                 ('dsh-desktop', 'qilin-desktop'), ('dsh-app', 'qilin-app'), ('DSH_', 'QILIN_')]:
+        text = text.replace(a, b)
+    return re.sub(r'(?<![\w/.])[Dd]sh(?![\w.])', lambda m: 'Qilin' if m.group(0)[0] == 'D' else 'qilin', text)
+def norm_name(name):
+    return name.replace('DSH', 'QILIN').replace('Dsh', 'Qilin').replace('dsh', 'qilin')
+SEAMS = {'createDesktopBrowserBridge', 'installMandatoryUpdateOverlay'}
+IMPORT = re.compile(r"import\s+(?:type\s+)?\{([^}]+)\}\s+from\s+'[^']+'")
+findings = {}
+for path in sorted(UP.rglob('*.ts')):
+    rel = path.relative_to(UP)
+    mine = QI / rel
+    if not mine.is_file():
+        continue
+    up, mine_text = norm(path.read_text(errors='ignore')), norm(mine.read_text(errors='ignore'))
+    imported = set()
+    for block in IMPORT.findall(up):
+        for item in block.split(','):
+            name = item.strip().split(' as ')[-1].strip().replace('type ', '')
+            if re.fullmatch(r'[A-Za-z_$][\w$]*', name):
+                imported.add(name)
+    dropped = [n for n in sorted(imported)
+               if n not in SEAMS
+               and re.search(r'\b' + re.escape(n) + r'\s*\(', up)
+               and not re.search(r'\b' + re.escape(norm_name(n)) + r'\b', mine_text)]
+    if dropped:
+        findings[str(rel)] = dropped
+print('files that dropped calls to imported symbols:', len(findings))
+for rel, names in findings.items():
+    print(f'  {rel}: {", ".join(names)}')
+```
