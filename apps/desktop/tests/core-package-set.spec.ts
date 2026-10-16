@@ -42,12 +42,12 @@ function packageSetProject(): {
   const qilin = record('@qilin-agent/cli', 'dsh.tgz', dshBody)
   const base = record('@qilin-agent/base', 'dsh-base.tgz', baseBody)
   const host = record('@qilin-agent/desktop-host', 'dsh-desktop-host.tgz', hostBody)
-  writeFileSync(join(packageDir, dsh.file), dshBody)
+  writeFileSync(join(packageDir, qilin.file), dshBody)
   writeFileSync(join(packageDir, base.file), baseBody)
   writeFileSync(join(packageDir, host.file), hostBody)
   writeFileSync(join(root, DESKTOP_PACKAGE_SET_FILE), `${JSON.stringify({
     schemaVersion: 1,
-    packages: [qilin, base, host],
+    packages: [base, qilin, host],
   })}\n`)
   return { root, qilin, base, host }
 }
@@ -73,11 +73,11 @@ describe('desktop core package set', () => {
     expect(() => verifyDesktopCorePackageSet(root, '2.0.0')).toThrow(/does not match Desktop/u)
     expect(() => parseDesktopCorePackageSet({
       schemaVersion: 1,
-      packages: [qilin, base, { ...host, version: '2.0.0' }],
-    }, '1.2.3')).toThrow(/dsh-desktop-host@2\.0\.0 does not match Desktop 1\.2\.3/u)
+      packages: [base, qilin, { ...host, version: '2.0.0' }],
+    }, '1.2.3')).toThrow(/desktop-host@2\.0\.0 does not match Desktop 1\.2\.3/u)
     expect(() => parseDesktopCorePackageSet({ schemaVersion: 1, packages: [qilin, base, host] }))
       .toThrow(/sorted by name/u)
-    writeFileSync(join(root, DESKTOP_PACKAGES_DIR, dsh.file), 'changed')
+    writeFileSync(join(root, DESKTOP_PACKAGES_DIR, qilin.file), 'changed')
     expect(() => verifyDesktopCorePackageSet(root, '1.2.3')).toThrow(/integrity check failed/u)
     writeFileSync(join(root, DESKTOP_PACKAGES_DIR, 'extra.tgz'), '')
     expect(() => verifyDesktopCorePackageSet(root, '1.2.3')).toThrow(/does not match its descriptor/u)
