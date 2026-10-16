@@ -227,7 +227,7 @@ find /path/to/deepseek-harness -name package.json -path '*desktop-runtime*'   # 
 
 ### P3 续 2：桌面测试 lane 与 lint 豁免（2026-10-16）
 
-**A. 本机可用的桌面回归门（提交 `82599566a7`）**
+**A. 本机可用的桌面回归门（本次会话的 lane 提交）**
 
 `apps/desktop/vitest.config.ts` + `package.json` 的 `test` 脚本（`vitest run --config vitest.config.ts`）✓：
 - 用 **独立**配置（不 merge 根配置 ✗——根的 projects 列表会覆盖 include ✓），补上真正关键的 `tsconfigPaths({ projects: ['../../tsconfig.base.json'] })` ✓；
