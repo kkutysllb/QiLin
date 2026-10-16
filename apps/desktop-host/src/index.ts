@@ -3,7 +3,7 @@
 import { delimiter, join } from 'node:path'
 import { inspect } from 'node:util'
 import { loadLayeredEnv, loadProfileDirectory, reportSkippedBundles } from '@qilin-agent/app-boot'
-import { resolveQilinHome } from '@qilin-agent/home-paths'
+import { resolveQilinDesktopHome, resolveQilinHome } from '@qilin-agent/home-paths'
 import { runProfile } from '@qilin-agent/cli/profile-boot'
 import type {} from '@qilin-agent/client-connection'
 import type {} from '@qilin-agent/host-webserver'
@@ -20,8 +20,14 @@ async function main(): Promise<void> {
   const installAnchor = join(runtimeDir, 'node_modules', '@qilin-agent', 'cli', 'package.json')
   const profile = loadProfileDirectory('qilin', projectDir, installAnchor)
   reportSkippedBundles('qilin', profile)
+  // The Desktop product isolates its user data from the Web deployment, which
+  // resolves ~/.qilin: default the home to ~/.qilin-desktop before the layered
+  // environment resolves, unless the launcher's process environment already
+  // named one.
+  process.env.QILIN_HOME ??= resolveQilinDesktopHome()
+  const environment = loadLayeredEnv('qilin')
   const application = runProfile({
-    environment: loadLayeredEnv('qilin'),
+    environment,
     profile: 'desktop',
     resolvedProfile: { profile, installAnchor },
     patchFiles: [],

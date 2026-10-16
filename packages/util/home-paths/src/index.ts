@@ -17,6 +17,12 @@ export const DEFAULT_QILIN_HOME_DISPLAY = `~/${QILIN_HOME_DIR_NAME}`
 /** Environment variable that overrides the default QiLin home. */
 export const QILIN_HOME_ENV = 'QILIN_HOME'
 
+/** Desktop product home directory name: the Desktop flavor isolates its data from the Web deployment. */
+export const QILIN_DESKTOP_HOME_DIR_NAME = '.qilin-desktop'
+
+/** Environment variable overriding the Desktop home; mirrors the Web flavor's QILIN_HOME. */
+export const QILIN_DESKTOP_HOME_ENV = 'QILIN_DESKTOP_HOME'
+
 /** Directory name for the default shared agent configuration root under the OS home. */
 export const AGENTS_HOME_DIR_NAME = '.agents'
 
@@ -150,6 +156,31 @@ export function resolveQilinHome(configured?: string, env: Record<string, string
  */
 export function resolveAgentsHome(configured?: string, env: Record<string, string | undefined> = process.env): string {
   return resolveRoot(configured, env, AGENTS_HOME_ENV, defaultAgentsHome)
+}
+
+/**
+ * Resolve the default Desktop QiLin home using Node's platform path rules.
+ * @returns the absolute default Desktop harness home path.
+ */
+export function defaultQilinDesktopHome(): string {
+  return join(homedir(), QILIN_DESKTOP_HOME_DIR_NAME)
+}
+
+/**
+ * Resolve the Desktop flavor's QiLin home.
+ *
+ * Precedence, highest first: an explicit configured path, the
+ * `QILIN_DESKTOP_HOME` environment override, then `~/.qilin-desktop`. The
+ * Desktop product isolates its user data from the Web deployment, which
+ * resolves `~/.qilin`. An empty or whitespace-only override is treated as
+ * unset, so a blank value never resolves the home to the current working
+ * directory.
+ * @param configured - explicit Desktop-home override, which has highest precedence.
+ * @param env - environment mapping used to read `QILIN_DESKTOP_HOME`.
+ * @returns the normalized absolute Desktop harness home path.
+ */
+export function resolveQilinDesktopHome(configured?: string, env: Record<string, string | undefined> = process.env): string {
+  return resolveRoot(configured, env, QILIN_DESKTOP_HOME_ENV, defaultQilinDesktopHome)
 }
 
 /**
