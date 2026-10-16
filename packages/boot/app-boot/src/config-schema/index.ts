@@ -1,7 +1,7 @@
 /** Profile schema generation: composition diagnostics, runtime resolution, and boot-free discovery. */
 
 import type { PatchOptions } from '@qilin-agent/kylin-plugin-include'
-import { composeEntries, createProfileResolutionGeneration, type Profile } from '../profile.ts'
+import { composeEntries, createRuntimeResolution, type Profile } from '../profile.ts'
 import { collectConfigSchemas } from './collect.ts'
 import type { ConfigSchemaDiagnostic, ConfigSchemaDump } from './types.ts'
 export type { ConfigSchemaDump, NativeConfigSchema } from './types.ts'
@@ -25,6 +25,6 @@ export async function generateConfigSchema(
 ): Promise<ConfigSchemaDump> {
   const diagnostics: ConfigSchemaDiagnostic[] = []
   const entries = composeEntries(layers, message => diagnostics.push({ level: 'warning', message }))
-  const resolution = await createProfileResolutionGeneration({ installAnchor, profile })
+  const resolution = await createRuntimeResolution({ installAnchor, profile })
   return collectConfigSchemas(profile, entries, resolution, diagnostics)
 }

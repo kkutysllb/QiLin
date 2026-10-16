@@ -7,7 +7,7 @@ import { Context } from '@qilin-agent/kylin'
 import {
   boot,
   initProfile,
-  createProfileResolutionGeneration,
+  createRuntimeResolution,
   loadOverlayPatches,
   loadProfile,
   PluginPackages,
@@ -173,7 +173,7 @@ async function bootWeb(
     profile = loadProfile('qilin-test', 'spec', INSTALL_ANCHOR, home, { userLayer: false })
     bundlePatches = profile.layers.flatMap(layer => layer.patches)
   }
-  const resolution = await createProfileResolutionGeneration({ installAnchor: INSTALL_ANCHOR, home, profile })
+  const resolution = await createRuntimeResolution({ installAnchor: INSTALL_ANCHOR, home, profile })
   const rootConfig = join(profileDir, 'cordis.yml')
   await writeFile(rootConfig, '[]\n')
   return await boot('qilin-test', rootConfig, [...bundlePatches, ...overrides], async (bootCtx) => {

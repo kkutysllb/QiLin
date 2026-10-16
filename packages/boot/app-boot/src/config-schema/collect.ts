@@ -7,8 +7,8 @@ import * as yaml from 'js-yaml'
 import Loader, { EntryGroup, ModuleLoader, isJsExpr, type EntryOptions } from '@qilin-agent/kylin-plugin-loader'
 import Group from '@qilin-agent/kylin-plugin-group'
 import Include, { applyEntryPatches, entryListSchema, type PatchOptions } from '@qilin-agent/kylin-plugin-include'
-import type { Profile, ProfileResolutionGeneration } from '../profile.ts'
-import { installProfileResolution } from '../profile-resolution/resolver.ts'
+import type { Profile, RuntimeResolution } from '../profile.ts'
+import { installRuntimeInterception } from '../profile-resolution/resolver.ts'
 import { buildConfigSchemaDocument } from './document.ts'
 import type { CollectedConfigEntry, ConfigSchemaDiagnostic, ConfigSchemaDump } from './types.ts'
 import { isNativeConfigSchema } from './native.ts'
@@ -78,14 +78,14 @@ function includePatches(value: unknown): PatchOptions[] | undefined {
 export async function collectConfigSchemas(
   profile: Profile,
   entries: readonly unknown[],
-  resolution: ProfileResolutionGeneration,
+  resolution: RuntimeResolution,
   diagnostics: readonly ConfigSchemaDiagnostic[] = [],
 ): Promise<ConfigSchemaDump> {
   const result: { entries: CollectedConfigEntry[]; diagnostics: ConfigSchemaDiagnostic[] } = {
     entries: [], diagnostics: [...diagnostics],
   }
   const byOptions = new Map<object, CollectedConfigEntry>()
-  const interception = installProfileResolution(resolution)
+  const interception = installRuntimeInterception(resolution)
   try {
     const loader = ModuleLoader.fromInternal()
     if (loader === undefined) throw new Error('config schema dump requires the Node module loader used by profile resolution')

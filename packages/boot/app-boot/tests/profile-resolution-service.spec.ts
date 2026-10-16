@@ -9,7 +9,7 @@ import { getEnvironmentData } from 'node:worker_threads'
 import { Context } from '@qilin-agent/kylin'
 import { afterEach, describe, expect, it } from 'vitest'
 import { PluginPackages } from '../src/profile-resolution/service.ts'
-import type { ProfileResolutionGeneration } from '../src/profile.ts'
+import type { RuntimeResolution } from '../src/profile.ts'
 
 const roots: string[] = []
 const contexts: Context[] = []
@@ -38,7 +38,7 @@ function pkg(dir: string, version: string, name = 'metadata-lib'): string {
 
 function generation(
   profilesDir: string, profileDir: string, packageDir: string, declarer: string, version: string,
-): ProfileResolutionGeneration {
+): RuntimeResolution {
   return {
     profilesDir,
     profileDir,
@@ -173,7 +173,7 @@ describe('profile package metadata service', () => {
     await ctx.plugin(PluginPackages, { generation: initial, behavior: 'verify' })
     expect(ctx.pluginPackages.resolution).toBe(initial)
     const initialWorkerData = getEnvironmentData(key) as {
-      generation: ProfileResolutionGeneration
+      generation: RuntimeResolution
       behavior: string
     }
     expect(initialWorkerData).toEqual({ generation: initial, behavior: 'verify' })
@@ -218,7 +218,7 @@ describe('profile package metadata service', () => {
     file(join(removed, 'package.json'), JSON.stringify({ name: 'removed-lib', version: '0.1.0' }))
     file(join(profileDir, 'entry.mjs'), '')
     const parentURL = pathToFileURL(join(profileDir, 'entry.mjs')).href
-    const withProfileEntry = (): ProfileResolutionGeneration => ({
+    const withProfileEntry = (): RuntimeResolution => ({
       profilesDir, profileDir,
       localPackageNames: [],
       entries: [
@@ -226,7 +226,7 @@ describe('profile package metadata service', () => {
         { name: 'removed-lib', packageDir: removed, version: '0.1.0', declarer: join(profileDir, 'package.json'), scope: 'profile' },
       ],
     })
-    const afterRemoval = (): ProfileResolutionGeneration => ({
+    const afterRemoval = (): RuntimeResolution => ({
       profilesDir, profileDir,
       localPackageNames: [],
       entries: [{ name: 'metadata-lib', packageDir: installed, version: '1.0.0', declarer: installedAnchor, scope: 'installation' }],

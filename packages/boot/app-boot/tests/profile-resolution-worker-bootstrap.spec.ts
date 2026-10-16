@@ -1,11 +1,11 @@
 /** Worker bootstrap installs only the generation inherited from its parent. */
 
 import { beforeEach, expect, it, vi } from 'vitest'
-import type { ProfileResolutionGeneration } from '../src/profile.ts'
+import type { RuntimeResolution } from '../src/profile.ts'
 
 const harness = vi.hoisted(() => ({
   data: undefined as {
-    generation: ProfileResolutionGeneration
+    generation: RuntimeResolution
     behavior: 'enforce' | 'verify'
   } | undefined,
   install: vi.fn(),
@@ -16,7 +16,7 @@ vi.mock('node:worker_threads', () => ({
 }))
 
 vi.mock('../src/profile-resolution/resolver.ts', () => ({
-  installProfileResolution: harness.install,
+  installRuntimeInterception: harness.install,
 }))
 
 beforeEach(() => {
@@ -31,7 +31,7 @@ it('does nothing without inherited profile resolution data', async () => {
 })
 
 it('installs the inherited generation and behavior', async () => {
-  const generation: ProfileResolutionGeneration = {
+  const generation: RuntimeResolution = {
     profilesDir: '/profiles',
     profileDir: '/profiles/test',
     localPackageNames: [],

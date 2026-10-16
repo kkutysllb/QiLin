@@ -19,7 +19,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
-  boot, createProfileResolutionGeneration, doctorPluginPackage, initProfile,
+  boot, createRuntimeResolution, doctorPluginPackage, initProfile,
   loadProfile, readProfileManifest, reconcileProfileBundles, resolveProfileDir, writeProfileManifest,
 } from '@qilin-agent/app-boot'
 import { clientDeclarationOf, dshCompatModuleId } from '@qilin-agent/dsh-compat'
@@ -149,7 +149,7 @@ describe('third-party plugin installed into a profile', () => {
     const anchor = join(installation, 'package.json')
     file(anchor, JSON.stringify({ name: 'qilin-app', version: '3.0.0', dependencies: { '@qilin-agent/session': '3.0.0' } }))
     const profile = loadProfile(NAME, 'test', INSTALL_ANCHOR, home)
-    const generation = await createProfileResolutionGeneration({ installAnchor: anchor, profile, home })
+    const generation = await createRuntimeResolution({ installAnchor: anchor, profile, home })
     const installed = join(installation, 'node_modules', '@qilin-agent', 'session')
     const published = generation.entries.filter(entry => entry.name === '@deepseek-ai/dsh-session')
     // The plugin's declaration is what publishes the legacy name, in the profile scope.

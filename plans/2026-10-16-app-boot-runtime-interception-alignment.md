@@ -80,3 +80,27 @@
 | 5 spec 对齐（`profile-resolution.spec.ts` 等） | alpha.2→alpha.4 共 17 文件 | 201/69/57 行级 |
 
 **方法已确定** ✓：因本仓与上游**无共同祖先**（独立历史 ✓），按**内容**合并 ✓ —— 以上游 alpha.4 为准 ✓，逐处保留本仓自有实现（`legacy-links` 助手族 ✓、`removeLinkProjections` ✓、`republishAlias` 修复 ✓、兼容性前置校验 ✓、HMR 插件替换 ✓）。
+
+
+## 8. 执行进度续：slice 1（改名 + 形状对齐）已落地
+
+**改名** ✓（六个标识符，跨 20 个文件 ✓ 零残留 ✓）：
+
+| 旧 | 新（= 上游 alpha.4 ✓） |
+|---|---|
+| `ProfileResolutionGeneration` | `RuntimeResolution` |
+| `ProfileResolutionEntry` | `RuntimeResolutionEntry` |
+| `ProfileResolutionOptions` | `RuntimeResolutionOptions` |
+| `ProfileResolutionBehavior` | `RuntimeInterception` |
+| `installProfileResolution` | `installRuntimeInterception` |
+| `createProfileResolutionGeneration` | `createRuntimeResolution` |
+
+涉及 `packages/boot/app-boot`、`packages/boot/hmr`、`apps/cli`、`apps/web`、`apps/desktop-host` ✓。
+
+**形状对齐的剩余差异** ✓：改名后 `RuntimeResolution` 与上游只差**一个字段** —— 上游多 `linkedRoots: readonly LinkedRoot[]` ✓（属下面的 slice 4 ✓）。上游已无 `ProfileResolutionMode` ✓（模式概念被拦截取代 ✓，属 slice 3/4 的语义 ✓），本仓暂留 ✓。
+
+**验证**：`typecheck` 0 ✓；`packages/boot/app-boot` + `packages/boot/hmr` **33 文件 / 919 用例全绿** ✓。
+
+**过程教训（已记录）** ✓：给新必填字段补测试夹具时，**不要**用"就近找闭合括号"的启发式批量插入 ✗ —— 它会改坏多行字面量（本轮实测把类型错误从 10 放大到 40 ✗）✓。正确顺序是：**先回退测试文件 → 重跑幂等的改名 → 再逐个精确补** ✓。
+
+**待做**：slice 3（bundle patch 读取 ✓）、slice 4（`LinkedRoot` / `linkedRoots` / `realModuleFile` ✓）、slice 5（spec 对齐 ✓）。

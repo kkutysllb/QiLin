@@ -18,7 +18,7 @@ import type { PatchOptions } from '@qilin-agent/kylin-plugin-include'
 import {
   boot,
   readProfilePatches,
-  createProfileResolutionGeneration,
+  createRuntimeResolution,
   healProfilesModuleFallback,
   healIsolatedProfileModuleFallback,
   initProfile,
@@ -33,7 +33,7 @@ import {
   resolveProfileDir,
   type ProfileContext,
   type Profile,
-  type ProfileResolutionGeneration,
+  type RuntimeResolution,
   type ProfileResolutionMode,
 } from '@qilin-agent/app-boot'
 import { resolveQilinHome } from '@qilin-agent/home-paths'
@@ -179,7 +179,7 @@ export function prepareProfile(name: string, userLayer = true, fromDefaultProfil
 interface ComposedProfile {
   profile: Profile
   /** Immutable package fallback selected before any plugin imports. */
-  resolution: ProfileResolutionGeneration
+  resolution: RuntimeResolution
   /** Command-line overlay contents, frozen for this invocation. */
   overlays: PatchOptions[]
 }
@@ -210,7 +210,7 @@ async function composeProfile(
   const resolutionOptions = { installAnchor: resolvedProfile?.installAnchor ?? INSTALL_ANCHOR, profile }
   if (resolvedProfile !== undefined && resolutionMode !== 'runtime') healIsolatedProfileModuleFallback(resolvedProfile)
   const resolution = resolutionMode === 'runtime' || resolvedProfile !== undefined
-    ? await createProfileResolutionGeneration(resolutionOptions)
+    ? await createRuntimeResolution(resolutionOptions)
     : await healProfilesModuleFallback(resolutionOptions)
   const overlays = patchFiles.flatMap(file => loadOverlayPatches(NAME, resolve(file)))
   return { profile, resolution, overlays }
@@ -324,7 +324,7 @@ export async function runProfile(options: RunProfileOptions): Promise<{ ctx: Con
         generation: composed.resolution,
         behavior: resolutionMode === 'dual' ? 'verify' : 'enforce',
         // Package operations refresh from the launch sources, rereading the profile manifest from disk.
-        recompute: async () => createProfileResolutionGeneration({
+        recompute: async () => createRuntimeResolution({
           installAnchor: profileContext.installAnchor,
           profile: options.resolvedProfile === undefined
             ? loadProfile(NAME, options.profile, profileContext.installAnchor)

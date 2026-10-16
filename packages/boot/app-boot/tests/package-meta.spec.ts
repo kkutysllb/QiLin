@@ -8,7 +8,7 @@ import { pathToFileURL } from 'node:url'
 import { ModuleLoader } from '@qilin-agent/kylin-plugin-loader'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { readPluginMeta, resolvePluginResource } from '../src/package-meta.ts'
-import { installProfileResolution } from '../src/profile-resolution/resolver.ts'
+import { installRuntimeInterception } from '../src/profile-resolution/resolver.ts'
 import { registerHooksThreadStacks } from './hooks-thread-stack.ts'
 
 let root: string
@@ -517,7 +517,7 @@ describe('plugin display metadata with read-only resolver stacks', () => {
     const profileDir = join(profilesDir, 'web')
     mkdirSync(profileDir, { recursive: true })
     profileURL = `${pathToFileURL(profileDir).href}/`
-    const registration = installProfileResolution({
+    const registration = installRuntimeInterception({
       profilesDir, profileDir, localPackageNames: [],
       entries: ['plain', 'translated'].map(name => ({
         name, version: undefined, scope: 'profile' as const,

@@ -9,7 +9,7 @@ import { dshCompatModuleId } from '@qilin-agent/dsh-compat'
 import type { ModuleLoaderV1, ModuleLoaderV2, ResolveResult } from '@qilin-agent/kylin-plugin-loader'
 import { imports as resolvePackageImports, type Package as ResolvePackageManifest } from 'resolve.exports'
 import { isProfileModuleFallbackLink } from './legacy-links.ts'
-import type { ProfileResolutionEntry, ProfileResolutionGeneration } from '../profile.ts'
+import type { RuntimeResolutionEntry, RuntimeResolution } from '../profile.ts'
 
 const WORKER_RESOLUTION_KEY = '@qilin-agent/app-boot/profile-resolution'
 const EMPTY_ATTRIBUTES: ImportAttributes = Object.freeze({})
@@ -50,7 +50,7 @@ type EsmResolve = (
 ) => ResolveResult | Promise<ResolveResult>
 
 type ResolutionRoute =
-  | { readonly kind: 'fallback'; readonly entry: ProfileResolutionEntry; readonly after: string }
+  | { readonly kind: 'fallback'; readonly entry: RuntimeResolutionEntry; readonly after: string }
   | { readonly kind: 'after-fallback'; readonly parent: string }
   | { readonly kind: 'native'; readonly packageDir?: string }
 
@@ -72,7 +72,7 @@ interface ParentRoutes {
 type ResolutionRoutes = Map<string, ParentRoutes | false>
 
 interface CompiledGeneration {
-  readonly entries: ReadonlyMap<string, ProfileResolutionEntry>
+  readonly entries: ReadonlyMap<string, RuntimeResolutionEntry>
   readonly profilesDir: string
   readonly profileDir: string | undefined
   readonly profilePaths: readonly string[]
@@ -101,7 +101,7 @@ export class ResolutionRestartRequired extends Error {
 }
 
 /** Whether runtime resolution redirects requests or verifies the materialized backend. */
-export type ProfileResolutionBehavior = 'enforce' | 'verify'
+export type RuntimeInterception = 'enforce' | 'verify'
 
 /** Active resolver registration in one Node isolate. */
 export interface ProfileResolutionRegistration {
@@ -123,7 +123,7 @@ export interface ProfileResolutionRegistration {
    * normalized directory or scope, an installation mapping changes its declarer, version, or scope or leaves, or a new
    * local name overrides an existing mapping. Every rejected change is named in the message.
    */
-  replace(generation: ProfileResolutionGeneration): void
+  replace(generation: RuntimeResolution): void
   /** Restore the native resolver methods. Registrations dispose in reverse order. */
   dispose(): void
 }
@@ -158,7 +158,7 @@ function prefixes(path: string): readonly string[] {
   return canonical === configured ? [configured] : [configured, canonical]
 }
 
-function compileGeneration(generation: ProfileResolutionGeneration): CompiledGeneration {
+function compileGeneration(generation: RuntimeResolution): CompiledGeneration {
   const profilePaths = prefixes(generation.profilesDir)
   const profile = generation.profileDir === undefined ? [] : prefixes(generation.profileDir)
   return {
@@ -265,7 +265,7 @@ function packageImportsTarget(
 }
 
 function packageSearchPaths(
-  entry: ProfileResolutionEntry, request: string, cjs: CommonJsModule,
+  entry: RuntimeResolutionEntry, request: string, cjs: CommonJsModule,
 ): string[] {
   const name = barePackageName(request)
   /* v8 ignore next -- fallback routes are created only for bare package requests */
@@ -355,11 +355,11 @@ function sameResolution(left: string, right: string): boolean {
 class ResolutionRouter {
   private current: CompiledGeneration
 
-  constructor(generation: ProfileResolutionGeneration) {
+  constructor(generation: RuntimeResolution) {
     this.current = compileGeneration(generation)
   }
 
-  replace(generation: ProfileResolutionGeneration): void {
+  replace(generation: RuntimeResolution): void {
     const entries = new Map(generation.entries.map(entry => [entry.name, entry]))
     if (generation.profilesDir !== this.current.profilesDir
       || generation.profileDir !== this.current.profileDir) {
@@ -716,9 +716,9 @@ function assertOptionalEquivalent(
  * @param behavior - enforce the generation, or verify a materialized generation.
  * @returns a registration that replaces the generation or restores the native methods.
  */
-export function installProfileResolution(
-  generation: ProfileResolutionGeneration,
-  behavior: ProfileResolutionBehavior = 'enforce',
+export function installRuntimeInterception(
+  generation: RuntimeResolution,
+  behavior: RuntimeInterception = 'enforce',
 ): ProfileResolutionRegistration {
   const router = new ResolutionRouter(generation)
   const { esm, esmDefaultResolve, esmConditions, cjs, cjsConditions, modern } = internalModules()
@@ -1068,8 +1068,8 @@ export function installProfileResolution(
  * @returns a disposer restoring the previous thread environment data.
  */
 export function registerWorkerResolution(
-  generation: ProfileResolutionGeneration,
-  behavior: ProfileResolutionBehavior = 'enforce',
+  generation: RuntimeResolution,
+  behavior: RuntimeInterception = 'enforce',
 ): () => void {
   const previous = getEnvironmentData(WORKER_RESOLUTION_KEY)
   setEnvironmentData(WORKER_RESOLUTION_KEY, { generation, behavior })

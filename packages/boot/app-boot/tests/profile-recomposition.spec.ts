@@ -11,7 +11,7 @@ import type { Entry, EntryOptions } from '@qilin-agent/kylin-plugin-loader'
 import type { Context } from '@qilin-agent/kylin'
 import type { PatchOptions } from '@qilin-agent/kylin-plugin-include'
 import { boot, PluginPackages, recomposeProfile } from '../src/index.ts'
-import { healProfilesModuleFallback, type Profile, type ProfileResolutionGeneration } from '../src/profile.ts'
+import { healProfilesModuleFallback, type Profile, type RuntimeResolution } from '../src/profile.ts'
 
 const NAME = 'qilin-test-bin'
 
@@ -72,8 +72,8 @@ const inserted = (row: EntryOptions): PatchOptions[] => [{ insert: [row] }]
  * @returns the boot preparation that mounts both before any configured row.
  */
 function packagesOn(
-  generation: ProfileResolutionGeneration,
-  recompute: () => Promise<ProfileResolutionGeneration>,
+  generation: RuntimeResolution,
+  recompute: () => Promise<RuntimeResolution>,
   probe: Probe,
 ): (ctx: Context) => Promise<void> {
   return async (ctx) => {
@@ -107,8 +107,8 @@ async function stopRow(ctx: Context, entry: Entry): Promise<void> {
 
 /** A profile whose installation maps one package, and the successor that maps the same name elsewhere. */
 async function installedGeneration(): Promise<{
-  generation: ProfileResolutionGeneration
-  moved: ProfileResolutionGeneration
+  generation: RuntimeResolution
+  moved: RuntimeResolution
 }> {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'qilin-recomposition-profile-')))
   roots.push(root)

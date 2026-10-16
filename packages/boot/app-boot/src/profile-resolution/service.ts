@@ -6,12 +6,12 @@ import { join } from 'node:path'
 import { Service, type Context } from '@qilin-agent/kylin'
 import {
   barePackageName,
-  installProfileResolution,
+  installRuntimeInterception,
   registerWorkerResolution,
-  type ProfileResolutionBehavior,
+  type RuntimeInterception,
   type ProfileResolutionRegistration,
 } from './resolver.ts'
-import type { ProfileResolutionGeneration } from '../profile.ts'
+import type { RuntimeResolution } from '../profile.ts'
 
 declare module '@qilin-agent/kylin' {
   interface Context {
@@ -37,11 +37,11 @@ export interface PluginPackage {
 /** Optional runtime resolver installed and owned by {@link PluginPackages}. */
 export interface PluginPackagesConfig {
   /** Complete package table; omit it to expose native package lookup only. */
-  generation?: ProfileResolutionGeneration
+  generation?: RuntimeResolution
   /** Enforce the table or compare it with a materialized fallback. */
-  behavior?: ProfileResolutionBehavior
+  behavior?: RuntimeInterception
   /** Recompute the launch generation from disk for {@link PluginPackages.refresh}; the launcher supplies its own sources. */
-  recompute?: () => Promise<ProfileResolutionGeneration>
+  recompute?: () => Promise<RuntimeResolution>
 }
 
 function readPackage(dir: string, fallbackName: string): PluginPackage | undefined {
@@ -62,10 +62,10 @@ function readPackage(dir: string, fallbackName: string): PluginPackage | undefin
 /** Package lookup shared by metadata consumers in one profile process. */
 export class PluginPackages extends Service {
   private packages = new Map<string, PluginPackage | undefined>()
-  private current: ProfileResolutionGeneration | undefined
+  private current: RuntimeResolution | undefined
   private readonly resolver: ProfileResolutionRegistration | undefined
-  private readonly behavior: ProfileResolutionBehavior
-  private readonly recompute: (() => Promise<ProfileResolutionGeneration>) | undefined
+  private readonly behavior: RuntimeInterception
+  private readonly recompute: (() => Promise<RuntimeResolution>) | undefined
   private disposeWorkerResolution: (() => void) | undefined
 
   constructor(ctx: Context, config: PluginPackagesConfig = {}) {
@@ -74,7 +74,7 @@ export class PluginPackages extends Service {
     this.recompute = config.recompute
     if (config.generation === undefined) return
     this.current = config.generation
-    const resolver = installProfileResolution(config.generation, this.behavior)
+    const resolver = installRuntimeInterception(config.generation, this.behavior)
     this.disposeWorkerResolution = registerWorkerResolution(config.generation, this.behavior)
     this.resolver = resolver
     ctx.effect(() => () => {
@@ -84,7 +84,7 @@ export class PluginPackages extends Service {
   }
 
   /** The published package generation, or `undefined` when Node resolves packages alone. */
-  get resolution(): ProfileResolutionGeneration | undefined {
+  get resolution(): RuntimeResolution | undefined {
     return this.current
   }
 
@@ -98,7 +98,7 @@ export class PluginPackages extends Service {
    * normalized directory or scope, an installation mapping changes its metadata or leaves, or a new local name
    * overrides an existing mapping. A caller that stops the replaced plugins first catches it to report a restart.
    */
-  replace(generation: ProfileResolutionGeneration): void {
+  replace(generation: RuntimeResolution): void {
     if (this.resolver === undefined) throw new Error('plugin-packages: runtime resolution is not installed')
     this.resolver.replace(generation)
     this.current = generation

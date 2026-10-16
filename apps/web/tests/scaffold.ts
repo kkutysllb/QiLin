@@ -459,7 +459,7 @@ async function cleanupScaffoldWorld(ctx: Context, workspaceCwd: string, persiste
 export async function launchWebScaffold(options: LaunchOptions = {}): Promise<WebScaffold> {
   requireDist()
   const {
-    auditStartupEntries, composeEntries, createProfileResolutionGeneration, healProfilesModuleFallback, initProfile,
+    auditStartupEntries, composeEntries, createRuntimeResolution, healProfilesModuleFallback, initProfile,
     mountRootInclude, readProfileManifest, readProfilePatches, loadOverlayPatches, PluginPackages,
   } = appBoot()
   const mode = webSnapshotMode()
@@ -733,7 +733,7 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
     const profileResolutionMode = options.profileResolutionMode ?? 'runtime'
     const resolutionOptions = { installAnchor: INSTALL_ANCHOR, home: harnessHome, profile }
     const resolution = profileResolutionMode === 'runtime'
-      ? await createProfileResolutionGeneration(resolutionOptions)
+      ? await createRuntimeResolution(resolutionOptions)
       : await healProfilesModuleFallback(resolutionOptions)
     await mkdir(profileDir, { recursive: true })
     const rootConfig = join(profileDir, 'cordis.yml')
@@ -783,7 +783,7 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
       generation: resolution,
       behavior: profileResolutionMode === 'dual' ? 'verify' : 'enforce',
       // Package operations refresh from the launch sources; the layers are the same ones this scaffold composed.
-      recompute: async () => createProfileResolutionGeneration(resolutionOptions),
+      recompute: async () => createRuntimeResolution(resolutionOptions),
     })
     await ctx.plugin(Loader)
     if (profileContext === undefined) {

@@ -211,7 +211,7 @@ export interface SkippedBundle {
 }
 
 /** One package selected by the profile module-fallback rules. */
-export interface ProfileResolutionEntry {
+export interface RuntimeResolutionEntry {
   /** Bare package name. */
   readonly name: string
   /** Package directory selected by the existing dependency traversal. */
@@ -225,7 +225,7 @@ export interface ProfileResolutionEntry {
 }
 
 /** Complete immutable fallback table for one profile launch. */
-export interface ProfileResolutionGeneration {
+export interface RuntimeResolution {
   /** Directory containing every profile and the shared fallback position. */
   readonly profilesDir: string
   /** Active profile directory, when bundle-only fallbacks were included. */
@@ -233,7 +233,7 @@ export interface ProfileResolutionGeneration {
   /** Profile-declared packages already installed before the fallback position. */
   readonly localPackageNames: readonly string[]
   /** Installation entries followed by bundle-only entries in precedence order. */
-  readonly entries: readonly ProfileResolutionEntry[]
+  readonly entries: readonly RuntimeResolutionEntry[]
 }
 
 /** Startup backend selection for one computed profile resolution generation. */
@@ -740,7 +740,7 @@ export interface ProfileModuleFallbackOptions {
  */
 export async function healProfilesModuleFallback(
   options: ProfileModuleFallbackOptions,
-): Promise<ProfileResolutionGeneration> {
+): Promise<RuntimeResolution> {
   const { installAnchor, profile, home = resolveQilinHome(), materialize = true } = options
   const profilesDir = join(home, PROFILES_DIR)
   const modulesDir = join(profilesDir, 'node_modules')
@@ -808,9 +808,9 @@ function installedProfilePackageNames(profile: Profile): string[] {
  * @param options - installation anchor, profile, and optional Harness home.
  * @returns the complete immutable generation.
  */
-export function createProfileResolutionGeneration(
+export function createRuntimeResolution(
   options: Omit<ProfileModuleFallbackOptions, 'materialize'>,
-): Promise<ProfileResolutionGeneration> {
+): Promise<RuntimeResolution> {
   return healProfilesModuleFallback({ ...options, materialize: false })
 }
 

@@ -16,18 +16,18 @@ import Include, { type PatchOptions } from '@qilin-agent/kylin-plugin-include'
 import { collectConfigSchemas } from '../src/config-schema/collect.ts'
 import { generateConfigSchema } from '../src/config-schema/index.ts'
 import * as profileOperations from '../src/profile.ts'
-import type { Profile, ProfileResolutionGeneration } from '../src/profile.ts'
-import { installProfileResolution } from '../src/profile-resolution/resolver.ts'
+import type { Profile, RuntimeResolution } from '../src/profile.ts'
+import { installRuntimeInterception } from '../src/profile-resolution/resolver.ts'
 
 const dispose = vi.hoisted(() => vi.fn())
 vi.mock('node:fs/promises', { spy: true })
 vi.mock('../src/profile-resolution/resolver.ts', () => ({
-  installProfileResolution: vi.fn(() => ({ dispose })),
+  installRuntimeInterception: vi.fn(() => ({ dispose })),
 }))
 
 let dir: string
 let profile: Profile
-let resolution: ProfileResolutionGeneration
+let resolution: RuntimeResolution
 const modules = new Map<string, unknown>()
 const importModule = vi.fn(async (name: string): Promise<unknown> => {
   if (!modules.has(name)) throw new Error(`cannot import ${name}`)
@@ -78,7 +78,7 @@ describe('generateConfigSchema', () => {
     ]
     const original = structuredClone(layers)
     const installAnchor = join(dir, 'installation.json')
-    const resolve = vi.spyOn(profileOperations, 'createProfileResolutionGeneration').mockResolvedValue(resolution)
+    const resolve = vi.spyOn(profileOperations, 'createRuntimeResolution').mockResolvedValue(resolution)
     const result = await generateConfigSchema(profile, layers, installAnchor)
     expect(resolve).toHaveBeenCalledExactlyOnceWith({ installAnchor, profile })
     expect(result['x-cordis'].entries.map(entry => [entry.path, entry.name])).toEqual([
@@ -93,9 +93,9 @@ describe('generateConfigSchema', () => {
   })
 
   it('propagates resolution setup failure without starting collection', async () => {
-    vi.spyOn(profileOperations, 'createProfileResolutionGeneration').mockRejectedValue(new Error('resolution setup failed'))
+    vi.spyOn(profileOperations, 'createRuntimeResolution').mockRejectedValue(new Error('resolution setup failed'))
     await expect(generateConfigSchema(profile, [], join(dir, 'installation.json'))).rejects.toThrow('resolution setup failed')
-    expect(installProfileResolution).not.toHaveBeenCalled()
+    expect(installRuntimeInterception).not.toHaveBeenCalled()
   })
 })
 
@@ -121,7 +121,7 @@ describe('collectConfigSchemas', () => {
     expect(new Set(result['x-cordis'].entries.map(entry => entry.configRef)).size).toBe(1)
     expect(apply).not.toHaveBeenCalled()
     expect(importModule).toHaveBeenCalledWith('namespace', pathToFileURL(join(dir, 'cordis.yml')).href, {})
-    expect(installProfileResolution).toHaveBeenCalledWith(resolution)
+    expect(installRuntimeInterception).toHaveBeenCalledWith(resolution)
     expect(dispose).toHaveBeenCalledOnce()
   })
 

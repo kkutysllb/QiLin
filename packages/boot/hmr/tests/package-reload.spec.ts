@@ -8,7 +8,7 @@ import { Context, FiberState, type Plugin } from '@qilin-agent/kylin'
 import Loader, { ModuleLoader, type Entry } from '@qilin-agent/kylin-plugin-loader'
 import {
   boot, initProfile, readProfileManifest, readProfilePatches, reconcileProfilePatches, ResolutionRestartRequired,
-  type PluginPackages, type ProfileContext, type ProfileResolutionGeneration,
+  type PluginPackages, type ProfileContext, type RuntimeResolution,
 } from '@qilin-agent/app-boot'
 import Timer from '@qilin-agent/kylin-plugin-timer'
 import { expect, it, onTestFinished, vi } from 'vitest'
@@ -226,7 +226,7 @@ it('leaves a changed plugin that no Loader entry owns for a restart', async () =
 })
 
 /** A package generation mapping `addon` to a directory, with further dropped profile packages. */
-function table(addonDir: string, ...dropped: string[]): ProfileResolutionGeneration {
+function table(addonDir: string, ...dropped: string[]): RuntimeResolution {
   const entry = (name: string, packageDir: string) => ({
     name, packageDir, version: '1.0.0', declarer: join(packageDir, 'package.json'), scope: 'profile' as const,
   })
@@ -241,7 +241,7 @@ function table(addonDir: string, ...dropped: string[]): ProfileResolutionGenerat
  * @returns Each publication's mapped packages.
  */
 function resolution(
-  ctx: Context, latest: ProfileResolutionGeneration, replace: () => void = () => {},
+  ctx: Context, latest: RuntimeResolution, replace: () => void = () => {},
   published = table('/packages/addon', 'gone'),
 ) {
   let current = published

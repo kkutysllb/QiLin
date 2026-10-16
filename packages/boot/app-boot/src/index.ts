@@ -49,7 +49,7 @@ declare module '@qilin-agent/kylin' {
 export {
   assertNoEngineNameCollisions,
   composeEntries,
-  createProfileResolutionGeneration,
+  createRuntimeResolution,
   dependencyExportsBundle,
   DEFAULT_PROFILE_BUNDLES,
   OPTIONAL_BUNDLES,
@@ -80,8 +80,8 @@ export {
   type ProfileManifest,
   type ProfileModuleFallbackOptions,
   type ProfilePluginRow,
-  type ProfileResolutionEntry,
-  type ProfileResolutionGeneration,
+  type RuntimeResolutionEntry,
+  type RuntimeResolution,
   type ProfileResolutionMode,
   type ProfileTemplate,
 } from './profile.ts'

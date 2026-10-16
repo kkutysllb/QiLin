@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { Context } from '@qilin-agent/kylin'
 import { createLaunchEnvironmentSnapshot } from '@qilin-agent/launch-environment'
 import {
-  boot, composeEntries, createProfileResolutionGeneration, healIsolatedProfileModuleFallback,
+  boot, composeEntries, createRuntimeResolution, healIsolatedProfileModuleFallback,
   PluginPackages, type Profile,
 } from '@qilin-agent/app-boot'
 import { installProxyFromEnvironment } from '@qilin-agent/http-proxy'
@@ -18,7 +18,7 @@ vi.mock('@qilin-agent/app-boot', async (importOriginal) => {
   return {
     ...actual,
     boot: vi.fn(),
-    createProfileResolutionGeneration: vi.fn(actual.createProfileResolutionGeneration),
+    createRuntimeResolution: vi.fn(actual.createRuntimeResolution),
     healIsolatedProfileModuleFallback: vi.fn(actual.healIsolatedProfileModuleFallback),
     installFailLoud: vi.fn(),
   }
@@ -62,7 +62,7 @@ describe('runProfile with an application-owned profile', () => {
       await setup?.(ctx)
       throw failure
     })
-    if (stage === 'composition') vi.mocked(createProfileResolutionGeneration).mockRejectedValueOnce(failure)
+    if (stage === 'composition') vi.mocked(createRuntimeResolution).mockRejectedValueOnce(failure)
     const profile: Profile = {
       name: 'desktop', dir: home, patchPath: join(home, 'cordis.patch.yml'),
       patches: [], layers: [],
@@ -156,7 +156,7 @@ describe('runProfile with an application-owned profile', () => {
       } else {
         expect(healIsolatedProfileModuleFallback).not.toHaveBeenCalled()
       }
-      const generation = vi.mocked(createProfileResolutionGeneration).mock.settledResults
+      const generation = vi.mocked(createRuntimeResolution).mock.settledResults
         .find(result => result.type === 'fulfilled')?.value
       expect(generation?.profileDir).toBe(home)
       expect(plugin).toHaveBeenCalledWith(PluginPackages, mode === 'link' ? {} : {

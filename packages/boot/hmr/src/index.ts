@@ -9,7 +9,7 @@ import { FSWatcher, watch, type ChokidarOptions } from 'chokidar'
 import { basename, dirname, join, relative, resolve, sep } from 'node:path'
 import { existsSync, lstatSync, readdirSync, readFileSync, realpathSync } from 'node:fs'
 import {
-  readProfileManifest, readProfilePatches, recomposeProfile, PROFILE_PATCH_FILENAME, type ProfileResolutionGeneration,
+  readProfileManifest, readProfilePatches, recomposeProfile, PROFILE_PATCH_FILENAME, type RuntimeResolution,
 } from '@qilin-agent/app-boot'
 import type {} from '@qilin-agent/cmdline'
 import { handleError } from './error.ts'
@@ -1075,7 +1075,7 @@ function* moduleJobs(internal: ModuleLoader): Generator<ModuleJob> {
  * @param resolution The published generation, if any.
  * @returns The directories; none without a generation.
  */
-function mappedDirectories(resolution: ProfileResolutionGeneration | undefined): Set<string> {
+function mappedDirectories(resolution: RuntimeResolution | undefined): Set<string> {
   const directories = new Set<string>()
   if (resolution === undefined) return directories
   const dirs = resolution.entries.filter(entry => entry.scope === 'profile').map(entry => entry.packageDir)
