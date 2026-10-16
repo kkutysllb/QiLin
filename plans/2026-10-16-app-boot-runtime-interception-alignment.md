@@ -131,3 +131,13 @@
 **过程教训（再次记录）** ✓：批量改写夹具的正则**必须处理"一行两个属性"与"值里含逗号"** ✓ —— 本轮我先用"就近窗口"的启发式 ✗（误伤 `Profile.patchPath`，那是**另一个含义**的字段 ✓），最终改为**由编译器错误列表驱动、逐个定位** ✓ 才收敛 ✓。另外 ${`...`} 模板串让两次 python 因反引号编译失败 ✗ —— 含模板串的锚点应写成脚本文件 ✓。
 
 **剩余**：`readBundlePatches` / `bundlePatchFiles` / `bundlePatchPaths` 的**上游同名导出**（本仓已有等价能力 ✓，缺的是名字与签名 ✓）、以及 slice 5（spec 对齐 ✓）。
+
+
+## 11. 执行进度续：slice 3 收尾（上游同名导出）
+
+- `app-boot/src/profile-context.ts` 新增 **`readBundlePatches(binName, context, initialProfile?)`** ✓（= 各 layer 的 patches 按序拼接 ✓，与上游同签名同语义 ✓），并让 `readProfilePatches` **复用它** ✓（上游的写法 ✓）。
+- `app-boot/src/profile.ts` 新增 **`bundlePatchFiles(manifest)`** 与 **`bundlePatchPaths(packageDir, manifest)`** ✓ —— 落在**上游同位置** ✓（不在 compat 包 ✓；该包 tsconfig 为 `types: []` ✗，导入 `node:path` 会报 TS2591 ✓，这也是把它们放回 app-boot 的另一个理由 ✓）。两者对本仓的**双通道**读取做薄封装 ✓，因此是上游能力的**超集** ✓，JSDoc 已注明 ✓。
+
+**验证**：`typecheck` 0 ✓；app-boot + hmr + dsh-compat **34 文件 / 930 用例全绿** ✓；`verify-export-jsdoc` 通过 ✓；`casts` 0 新增 ✓。
+
+**剩余**：仅 slice 5（spec 对齐 ✓）。

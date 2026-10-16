@@ -70,6 +70,25 @@ export type ProfileManifest = Partial<QilinPackageManifest> & {
   dsh?: QilinManifest
 }
 
+/**
+ * Read a bundle manifest declared patch files, in application order.
+ * @param manifest - the bundle manifest as read from package.json; either channel is accepted.
+ * @returns every declared patch file path.
+ */
+export function bundlePatchFiles(manifest: unknown): readonly string[] {
+  return bundlePatchFilesOf(manifest)
+}
+
+/**
+ * Resolve a bundle declaration to its ordered absolute patch files.
+ * @param packageDir - absolute directory of the bundle package.
+ * @param manifest - the bundle manifest as read from package.json; either channel is accepted.
+ * @returns the absolute patch file paths in application order.
+ */
+export function bundlePatchPaths(packageDir: string, manifest: unknown): readonly string[] {
+  return bundlePatchFiles(manifest).map(file => join(packageDir, file))
+}
+
 /** One resolved bundle layer of a profile. */
 export interface ProfileLayer {
   /** The bundle's package name, as listed in `qilin.profile.bundles`. */

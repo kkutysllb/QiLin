@@ -54,6 +54,18 @@ export function resolveTelemetryPatch(disabledEnv: string | undefined, hasRow: b
   return { id: TELEMETRY_ROW_ID, disabled: true }
 }
 
+/**
+ * Read the current bundle layers patches.
+ * @param binName - diagnostic prefix for a malformed or missing configuration.
+ * @param context - data supplied by the profile launcher.
+ * @param initialProfile - already loaded startup profile; omitted reads the current files.
+ * @returns the bundle layers patches in application order.
+ */
+export function readBundlePatches(binName: string, context: ProfileContext, initialProfile?: Profile): PatchOptions[] {
+  const profile = initialProfile ?? loadProfileDirectory(binName, context.dir, context.installAnchor, { userLayer: false })
+  return profile.layers.flatMap(layer => layer.patches)
+}
+
 /** Read current bundle and user layers with the launch-time overlays.
  * @param binName Diagnostic prefix for malformed or missing configuration.
  * @param context Data supplied by the profile launcher.
@@ -63,7 +75,7 @@ export function resolveTelemetryPatch(disabledEnv: string | undefined, hasRow: b
 export function readProfilePatches(binName: string, context: ProfileContext, initialProfile?: Profile): PatchOptions[] {
   const profile = initialProfile ?? loadProfileDirectory(binName, context.dir, context.installAnchor, { userLayer: false })
   const patches = structuredClone([
-    ...profile.layers.flatMap(layer => layer.patches),
+    ...readBundlePatches(binName, context, profile),
     ...(initialProfile?.patches ?? loadOptionalPatches(binName, context.patchPath) ?? []),
     ...(loadOptionalPatches(binName, join(context.home, PROFILE_PATCH_FILENAME)) ?? []),
     ...context.overlays,
