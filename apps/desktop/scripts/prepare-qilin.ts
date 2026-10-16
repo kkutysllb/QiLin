@@ -136,7 +136,7 @@ async function main(): Promise<void> {
     const targetName = resolveDesktopBuildTarget()
     const target = { platform: process.platform, arch: desktopTargetPlatform(targetName).arch }
     const modules = join(BUILD_ROOT, 'node_modules')
-    const officeManifest = JSON.parse(readFileSync(join(modules, '@qilin-agent/libreoffice-kit/package.json'), 'utf8'))
+    const officeManifest = JSON.parse(readFileSync(join(modules, '@deepseek-ai/libreoffice-kit/package.json'), 'utf8'))
     const officeEngine = selectOfficeEngine(officeManifest, target)
     mkdirSync(QILIN_OUTPUT_ROOT, { recursive: true })
     await packagingStep(process.env.QILIN_DESKTOP_PACKAGING_RUN_DIR, 'runtime:materialize-modules', async () => {
@@ -154,7 +154,7 @@ async function main(): Promise<void> {
         throw new Error(`desktop runtime: missing private Host file ${file}`)
       }
     }
-    if (!existsSync(join(QILIN_OUTPUT_ROOT, 'node_modules', '@qilin-agent', `libreoffice-kit-${officeEngine}`, 'prebuilds.json'))) {
+    if (!existsSync(join(QILIN_OUTPUT_ROOT, 'node_modules', '@deepseek-ai', `libreoffice-kit-${officeEngine}`, 'prebuilds.json'))) {
       throw new Error(`desktop runtime: missing required LibreOffice engine ${officeEngine}`)
     }
     if (process.platform === 'darwin' && process.env.QILIN_DESKTOP_UNSIGNED !== '1') {

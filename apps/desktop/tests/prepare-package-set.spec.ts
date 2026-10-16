@@ -67,8 +67,8 @@ describe('desktop package-set selection', () => {
     const available = new Map<string, PackedDesktopPackage>([
       ['@qilin-agent/cli', packed('@qilin-agent/cli', {
         dependencies: {
-          '@qilin-agent/libreoffice-kit': '0.0.1',
-          '@qilin-agent/libreoffice-kit-wasm': '0.0.1',
+          '@deepseek-ai/libreoffice-kit': '0.0.1',
+          '@deepseek-ai/libreoffice-kit-wasm': '0.0.1',
         },
       })],
       ['@qilin-agent/desktop-host', packed('@qilin-agent/desktop-host')],
