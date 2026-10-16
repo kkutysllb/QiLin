@@ -652,9 +652,9 @@ importers:
       '@qilin-agent/home-paths':
         specifier: workspace:*
         version: link:../../packages/util/home-paths
-      '@qilin-agent/node-addon-system-workspace':
+      '@qilin-agent/node-addon-system':
         specifier: workspace:~
-        version: link:../../native/system
+        version: link:../../native/system/packages/entry
       '@types/js-yaml':
         specifier: ^4.0.9
         version: 4.0.9

@@ -59,10 +59,10 @@ function hostAddonBuilt(): boolean {
   const { platform, arch } = process
   // flock itself rejects other platforms; the probe only reports missing builds for supported ones.
   if (platform !== 'darwin' && platform !== 'linux') return true
-  const entryManifest = createRequire(import.meta.url).resolve('@qilin-agent/node-addon-system-workspace/package.json')
+  const entryManifest = createRequire(import.meta.url).resolve('@qilin-agent/node-addon-system/package.json')
   let prebuilds: string
   try {
-    prebuilds = createRequire(entryManifest).resolve(`@qilin-agent/node-addon-system-workspace-${platform}-${arch}/prebuilds.json`)
+    prebuilds = createRequire(entryManifest).resolve(`@qilin-agent/node-addon-system-${platform}-${arch}/prebuilds.json`)
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== 'MODULE_NOT_FOUND') throw error
     return false

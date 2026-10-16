@@ -273,6 +273,27 @@ Current profile facts; scheduling and mutation belong to their callers.
 
 Source: [`packages/boot/app-boot/src/profile-context.ts`](../../packages/boot/app-boot/src/profile-context.ts)
 
+<a id="app-boot-events"></a>
+
+### `app-boot/*` events
+
+<a id="app-bootconfig-reload--emit"></a>
+
+#### `app-boot/config-reload` — emit
+
+Profile patches were reconciled into the running Loader tree: every entry update settled and no new inactive entry was introduced. Carries no diff; listeners re-read Loader entries.
+
+```ts cordis-catalog
+/**
+ * Profile patches were reconciled into the running Loader tree: every entry update settled and no new
+ * inactive entry was introduced. Carries no diff; listeners re-read Loader entries.
+ * @mode emit
+ */
+'app-boot/config-reload'(): void
+```
+
+Source: [`packages/boot/app-boot/src/index.ts`](../../packages/boot/app-boot/src/index.ts)
+
 <a id="hmr-events"></a>
 
 ### `hmr/*` events

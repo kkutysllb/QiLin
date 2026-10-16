@@ -256,10 +256,12 @@ Dispose and immediately reload this plugin with its current config.
  *
  * @param config — the new raw config; validated before anything restarts.
  * @param noSave — hint for persistence hooks not to write the change back.
- * @returns nothing; the restart runs behind the `internal/update` waterfall.
+ * @returns the `internal/update` waterfall result: a promise settling with
+ * the restart, or undefined before the fiber first activates. Callers that
+ * fire the update without awaiting must contain a rejection themselves.
  * @throws {ValidationError} when the new config fails validation.
  */
-update(config: any, noSave = false)
+update(config: any, noSave = false): Promise<void> | undefined
 ```
 
 Validate and apply new config, then restart the plugin.
@@ -269,9 +271,9 @@ Runs the `internal/update` waterfall first, so update hooks (and HMR) can veto o
 - `config` — the new raw config; validated before anything restarts.
 - `noSave` — hint for persistence hooks not to write the change back.
 
-**Returns** nothing; the restart runs behind the `internal/update` waterfall.
+**Returns** the `internal/update` waterfall result: a promise settling with the restart, or undefined before the fiber first activates. Callers that fire the update without awaiting must contain a rejection themselves.
 
-[Source](../../vendor/cordis/src/fiber.ts#L736)
+[Source](../../vendor/cordis/src/fiber.ts#L738)
 
 ## Effect
 

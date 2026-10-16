@@ -61,7 +61,7 @@
     "@qilin-agent/client-ui-sidebar-browser": "workspace:*",
     "@qilin-agent/client-ui-theme": "workspace:*",
     "@qilin-agent/home-paths": "workspace:*",
-    "@qilin-agent/node-addon-system-workspace": "workspace:~",
+    "@qilin-agent/node-addon-system": "workspace:~",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.20.1",
     "@types/semver": "^7.8.0",
