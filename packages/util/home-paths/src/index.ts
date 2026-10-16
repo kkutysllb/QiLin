@@ -195,3 +195,31 @@ export function qilinHomeDisplay(resolvedHome: string): string {
 export function agentsHomeDisplay(resolvedHome: string): string {
   return rootDisplay(resolvedHome, defaultAgentsHome(), DEFAULT_AGENTS_HOME_DISPLAY, AGENTS_HOME_ENV)
 }
+
+/**
+ * Upstream-named compat surface for dsh plugins: third-party plugins import
+ * this package under its upstream package name and read these upstream-named
+ * exports. Every alias resolves to the QiLin implementation, so a dsh plugin
+ * observes the home the deployment actually runs (the values above, not the
+ * upstream literals).
+ */
+export const DSH_HOME_DIR_NAME = QILIN_HOME_DIR_NAME
+export const DEFAULT_DSH_HOME_DISPLAY = DEFAULT_QILIN_HOME_DISPLAY
+export const DSH_HOME_ENV = QILIN_HOME_ENV
+export const defaultDshHome = defaultQilinHome
+export const resolveDshHome = resolveQilinHome
+export const dshHomePath = qilinHomePath
+
+/**
+ * {@link qilinCachePath} under its upstream name, accepting the upstream
+ * `dshHome` option key as well as `qilinHome`.
+ * @param optionsOrSegment - the upstream options object, or a path segment.
+ * @param segments - remaining path segments.
+ * @returns the cache path under the resolved home.
+ */
+export function dshCachePath(optionsOrSegment: { dshHome?: string } | string = {}, ...segments: string[]): string {
+  const normalized = typeof optionsOrSegment === 'object' && optionsOrSegment !== null && 'dshHome' in optionsOrSegment
+    ? { qilinHome: optionsOrSegment.dshHome }
+    : optionsOrSegment
+  return qilinCachePath(normalized as { qilinHome?: string }, ...segments)
+}
