@@ -2,12 +2,11 @@
 
 import { delimiter, dirname, join, resolve } from 'node:path'
 import { runCli, type RunCliOptions } from '@qilin-agent/cli/bin'
+import { installOfficeEngineResolution, runtimeArchivePath } from './office-engine.ts'
 
 /**
  * Options the Desktop installation hands the ordinary CLI.
  *
- * The archive-aware runtime location the upstream host resolves through its office engine is not
- * available here yet, so the support directory defaults to the runtime directory's sibling.
  * @param supportDir - Physical Desktop runtime directory containing the primary-runtime payload and Node launchers.
  * @returns the options that put the CLI on the bundled package manager with reserved-profile access.
  */
@@ -33,7 +32,8 @@ export function desktopCliOptions(supportDir: string): RunCliOptions {
  * and Node launchers; defaults to the runtime directory's sibling.
  * @returns Completion of the selected CLI command; profile plugins own their process lifetime.
  */
-export async function runDesktopCli(runtimeDir: string, supportDir: string = join(dirname(runtimeDir), 'runtime')): Promise<void> {
+export async function runDesktopCli(runtimeDir: string, supportDir: string = join(dirname(runtimeArchivePath(runtimeDir) ?? runtimeDir), 'runtime')): Promise<void> {
+  installOfficeEngineResolution(runtimeDir)
   await runCli(desktopCliOptions(supportDir))
 }
 

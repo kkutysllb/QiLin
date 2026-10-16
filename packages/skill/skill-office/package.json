@@ -40,7 +40,7 @@
     "@qilin-agent/kylin-plugin-include": "workspace:~"
   },
   "dependencies": {
-    "@deepseek-ai/libreoffice-kit": "^0.1.0",
+    "@deepseek-ai/libreoffice-kit": "^0.1.5",
     "@qilin-agent/schemastery": "workspace:~",
     "yaml": "^2.4.2"
   }

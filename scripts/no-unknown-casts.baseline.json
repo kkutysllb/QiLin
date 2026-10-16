@@ -31,6 +31,9 @@
     "0161b6068831f99593a6c70a593efd569a85f1f3a2832ecfc57afdff3b88ce97": 1,
     "a2b9a35fdf6552ba148d15436c9b3f98ed5763a2b91a95f579b951fd6613e75c": 1
   },
+  "apps/desktop-host/tests/office.spec.ts": {
+    "3f8653cd87f99ebd70765379dae51ab308ed9c280e831d39e1abd469bfcdc6e3": 1
+  },
   "apps/desktop/scripts/installed-update-qualification.ts": {
     "5a8270cf9b1e554ae0cff6eaf7086e44c22f61a08e5f91dc7e1397eccaa726a5": 2
   },
@@ -2075,9 +2078,6 @@
   },
   "packages/skill/skill-filesystem/tests/skill-filesystem.spec.ts": {
     "ddd151d938fb348a08f4633dddc6052d708b06952c9b9bab0b3b0f9132d638b7": 1
-  },
-  "packages/skill/skill-office/tests/skill-office.spec.ts": {
-    "154da39139a0074bad3d13a624e5fa62d1f7ce19dc8b9c28a73af3263cd7f10e": 1
   },
   "packages/skill/skill/tests/skill.spec.ts": {
     "0166546b07456dbfb8e79af5fd97d72bf4ed2cbe6f6847c06f169967d53d7d9a": 2,

@@ -58,7 +58,7 @@
     "@qilin-agent/session": "workspace:*"
   },
   "dependencies": {
-    "@deepseek-ai/libreoffice-kit": "^0.1.0",
+    "@deepseek-ai/libreoffice-kit": "^0.1.5",
     "@qilin-agent/schemastery": "workspace:~",
     "@qilin-agent/brand": "workspace:*",
     "@qilin-agent/typert-protocol": "workspace:*",

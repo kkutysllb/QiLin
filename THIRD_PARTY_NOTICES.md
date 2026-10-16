@@ -51,7 +51,7 @@ External packages installed for runtime use or distributed inside the prebuilt b
 | [`@codemirror/legacy-modes`](https://code.haverbeke.berlin/codemirror/legacy-modes) | MIT |
 | [`@codemirror/state`](https://code.haverbeke.berlin/codemirror/state) | MIT |
 | [`@codemirror/view`](https://code.haverbeke.berlin/codemirror/view) | MIT |
-| [`@deepseek-ai/libreoffice-kit`](https://github.com/deepseek-harness/libreoffice-kit) | MPL-2.0 |
+| [`@deepseek-ai/libreoffice-kit`](https://github.com/deepseek-ai/dsh-libreoffice-kit) | MPL-2.0 |
 | [`@earendil-works/pi-ai`](https://github.com/earendil-works/pi) | MIT |
 | [`@eslint-community/regexpp`](https://github.com/eslint-community/regexpp) | MIT |
 | [`@fortune-sheet/core`](https://github.com/ruilisi/fortune-sheet) | MIT |

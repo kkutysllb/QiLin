@@ -402,3 +402,28 @@ for (const dep of profileDependencyNames(next.manifest)) {
 ```
 
 **验证**：该 spec **5 通过 / 3 跳过** ✓；`packages/boot/app-boot` 全套 **23 文件 / 685 用例通过** ✓（无回归 ✓）；`typecheck` 0 ✓。
+
+### P3 续 9：Office 面移植 + `skill-office` 对齐上游 + kit 升版
+
+**1. Office 面（`apps/desktop-host`）已接入** ✓（源码机械移植 ✓，无新依赖政策问题 ✓ —— 本仓**早已**依赖 `@deepseek-ai/libreoffice-kit` ✓）：
+- 移植 `src/office.ts`（38 行 ✓）与 `src/office-engine.ts`（48 行 ✓）+ 两者 spec ✓；
+- `index.ts`：启动即 `installOfficeEngineResolution(runtimeDir)` ✓，并在 `ctx` 就绪后挂载 office 插件行 ✓（`runtimeDir` / `source` / `root` 三项 ✓，与上游同形 ✓）；
+- `cli.ts`：恢复 `installOfficeEngineResolution` ✓ 与 **archive-aware** 的 support 目录解析 ✓（`runtimeArchivePath` ✓）—— 之前"exposes neither yet"以外的第二处注释同时消除 ✓；
+- 依赖：`@qilin-agent/skill-office`、`@qilin-agent/tool-workspace-dependencies`（`workspace:*` ✓）+ kit ✓；host 的 `tsconfig.json` 增加 `skill-office` 项目引用 ✓（否则跨项目类型导入报 TS6059/TS6307 ✓）。
+
+**2. `skill-office` 按上游对齐** ✓（用户要求 ✓）：上游是**更新且更精确**的版本 ✓ ——
+- `SKILL_NAMES` 由 3 个扩到 **7 个** ✓（`office`/`office-docx`/`office-pptx`/`office-xlsx`/`office-render`/`office-recalculate`/`office-export-pdf` ✓）；
+- `resourceBase.path` 采用上游的 `sep → '/'` 归一 ✓（Windows 安全 ✓）；
+- **运行时块只追加给三个新技能** ✓（旧版给每个技能都追加 ✗ —— 这正是 host spec 里"pptx 内容不得含 node 目录"失败的原因 ✓）；
+- **保留本仓更严的一条**：`assets/scripts/check_office.py` 必须存在 ✓（本仓特有的前置校验 ✓，其 `checkers.spec.ts` 依赖它 ✓）；
+- 资产同步 ✓（补 4 个技能 + 更新 3 个 SKILL.md ✓）、spec 采用上游版 ✓（含新增的"上下文预算"用例 ✓）。
+
+**3. kit 升版** ✓：上游用 `@deepseek-ai/libreoffice-kit@0.1.5` ✓（本仓原为 `^0.1.0` ✗，导致 runtime.version 断言失败 ✓）→ 三处 manifest 升到 `^0.1.5` ✓，并在 `pnpm-workspace.yaml` 的 `minimumReleaseAgeExclude` 登记 kit 与五个平台包 ✓（与上游同形 ✓，否则发布时效策略会挡 ✓）。
+
+**踩到的两个坑（已修 ✓）**：
+- rescope **过度重命名** ✗：`libreoffice-kit` 是**外部包**，必须保持 `@deepseek-ai/` 作用域 ✓（在 desktop-host 与 skill-office 各犯一次 ✓）；
+- 该包里有**编译残留** `src/index.js` ✗ 干扰解析 ✓ → 清理 ✓。
+
+**验证**：`apps/desktop-host` + `packages/skill/skill-office` → **5 文件 / 22 用例通过 / 8 跳过** ✓（8 条跳过 = Node 24.13 起 `require.resolve` 绕过模块 hooks 的环境守卫 ✓，spec 自身也写明了这一点 ✓）；`typecheck` 0 ✓；桌面 lane **88 文件 / 895 用例全绿** ✓；`casts` 1551 既有 / 0 新增 ✓；`doc-sync` clean ✓（含 config catalog 重新生成 ✓）。
+
+**结论**：Office 面与 CLI 能力缺口都已关闭 ✓ —— 现在与上游的剩余差异只有**账号栈**（有意不移植 ✓）与 **profile 运行时拦截特性**（`reportSkippedBundles` / `RuntimeResolution` 一族 ✓，属上游较新的特性面 ✓，需单独一轮 ✓）。

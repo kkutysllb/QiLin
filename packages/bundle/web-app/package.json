@@ -152,7 +152,7 @@
     "@qilin-agent/system-prompt": "workspace:*"
   },
   "devDependencies": {
-    "@deepseek-ai/libreoffice-kit": "^0.1.0",
+    "@deepseek-ai/libreoffice-kit": "^0.1.5",
     "@qilin-agent/fs": "workspace:*",
     "@qilin-agent/fs-local": "workspace:*",
     "@qilin-agent/kylin": "workspace:~",

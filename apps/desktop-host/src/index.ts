@@ -3,15 +3,19 @@
 import { delimiter, join } from 'node:path'
 import { inspect } from 'node:util'
 import { loadLayeredEnv, loadProfileDirectory } from '@qilin-agent/app-boot'
+import { resolveQilinHome } from '@qilin-agent/home-paths'
 import { runProfile } from '@qilin-agent/cli/profile-boot'
 import type {} from '@qilin-agent/client-connection'
 import type {} from '@qilin-agent/host-webserver'
 
+import * as desktopOffice from './office.ts'
+import { installOfficeEngineResolution } from './office-engine.ts'
 import { installDesktopUpdateTaskControl } from './update-tasks.ts'
 import { installDesktopQuitInspection } from './quit-inspection.ts'
 
 async function main(): Promise<void> {
   const runtimeDir = process.argv[2] as string
+  installOfficeEngineResolution(runtimeDir)
   const projectDir = process.argv[3] as string
   const installAnchor = join(runtimeDir, 'node_modules', '@qilin-agent', 'cli', 'package.json')
   const profile = loadProfileDirectory('qilin', projectDir, installAnchor)
@@ -85,6 +89,11 @@ async function main(): Promise<void> {
   const { ctx } = await application
   control.updateTasks = installDesktopUpdateTaskControl(ctx)
   control.quitInspection = installDesktopQuitInspection(ctx)
+  await ctx.plugin(desktopOffice, {
+    runtimeDir,
+    source: process.argv[4] ?? join(runtimeDir, '..', 'runtime', 'primary-runtime'),
+    root: join(resolveQilinHome(), 'qilin-runtimes', 'qilin-primary-runtime'),
+  })
   const url = ctx.connection.authenticatedUrl(`${ctx.webServer.protocol}//127.0.0.1:${String(ctx.webServer.port)}`)
   if (process.connected) process.send?.({ type: 'ready', url, injections: ctx.webServer.collectIndexInjections() }, (error) => { if (error !== null) console.error(error) })
 }

@@ -11,6 +11,7 @@
     "lib/types"
   ],
   "dependencies": {
+    "@deepseek-ai/libreoffice-kit": "^0.1.0",
     "@qilin-agent/agent": "workspace:*",
     "@qilin-agent/app-boot": "workspace:*",
     "@qilin-agent/cli": "workspace:*",
@@ -20,6 +21,7 @@
     "@qilin-agent/jobs": "workspace:*",
     "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/schedule": "workspace:*",
+    "@qilin-agent/skill-office": "workspace:*",
     "@qilin-agent/tool-workspace-dependencies": "workspace:*",
     "@qilin-agent/workspace": "workspace:*",
     "koffi": "3.1.1"
