@@ -92,7 +92,7 @@ describe('ui-settings-plugins apply', () => {
   })
 
   it('injects a live tab projection and one business face per configuration page', async () => {
-    const { ctx, slots } = await bench(['shell', 'agent-loop', 'subagent', 'subagent-model-selection-settings', 'web-search-deepseek'])
+    const { ctx, slots } = await bench(['bash-sandbox', 'agent-loop', 'subagent', 'subagent-model-selection-settings', 'web-search-deepseek'])
     declareRoot(slots)
     await ctx.plugin({ inject: [...inject], apply }).await()
 
@@ -121,7 +121,7 @@ describe('ui-settings-plugins apply', () => {
   })
 
   it('registers one configuration page per served namespace, in its own order, titled in the active locale', async () => {
-    const { ctx, slots } = await bench(['web-search-deepseek', 'shell', 'agent-loop', 'subagent-model-selection-settings'])
+    const { ctx, slots } = await bench(['web-search-deepseek', 'bash-sandbox', 'agent-loop', 'subagent-model-selection-settings'])
     declareRoot(slots)
 
     await ctx.plugin({ inject: [...inject], apply }).await()
@@ -269,7 +269,7 @@ describe('ui-settings-plugins apply', () => {
   })
 
   it('collapses every contribution on teardown', async () => {
-    const { ctx, slots } = await bench(['shell', 'agent-loop'])
+    const { ctx, slots } = await bench(['bash-sandbox', 'agent-loop'])
     declareRoot(slots)
     const fiber = ctx.plugin({ inject: [...inject], apply })
     await fiber.await()
