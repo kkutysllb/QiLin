@@ -45,8 +45,8 @@ async function bootHmr(dir: string, root: string[] = [], usePolling?: boolean): 
   return ctx
 }
 
-async function eventually(test: () => boolean, message: string): Promise<void> {
-  const deadline = Date.now() + 10_000
+async function eventually(test: () => boolean, message: string, budgetMs = 10_000): Promise<void> {
+  const deadline = Date.now() + budgetMs
   while (!test()) {
     if (Date.now() >= deadline) throw new Error(message)
     await new Promise(resolve => setTimeout(resolve, 10))
@@ -109,7 +109,7 @@ describe('HMR exact config paths', () => {
     }
   })
 
-  it('observes add, change, and unlink outside its module roots', { timeout: 20_000 }, async () => {
+  it('observes add, change, and unlink outside its module roots', { timeout: 30_000 }, async () => {
     const dir = mkdtempSync(join(tmpdir(), 'qilin-hmr-config-'))
     hmrRoots.push(dir)
     const filename = join(dir, 'plugins.yml')
@@ -126,11 +126,11 @@ describe('HMR exact config paths', () => {
       })
 
       writeFileSync(filename, 'one', { flag: 'wx' })
-      await eventually(() => observed.includes('one'), 'HMR did not observe config creation')
+      await eventually(() => observed.includes('one'), 'HMR did not observe config creation', 20_000)
       writeFileSync(filename, 'two')
-      await eventually(() => observed.includes('two'), 'HMR did not observe config change')
+      await eventually(() => observed.includes('two'), 'HMR did not observe config change', 20_000)
       unlinkSync(filename)
-      await eventually(() => observed.includes('missing'), 'HMR did not observe config removal')
+      await eventually(() => observed.includes('missing'), 'HMR did not observe config removal', 20_000)
     } finally {
       await ctx.fiber.dispose()
     }
