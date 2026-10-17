@@ -57,6 +57,7 @@
     "@qilin-agent/session-persistence": "workspace:*",
     "@qilin-agent/session-projection": "workspace:*",
     "@qilin-agent/storage-domain": "workspace:*",
+    "@qilin-agent/subagent": "workspace:*",
     "@qilin-agent/tools": "workspace:*",
     "@qilin-agent/typert-protocol": "workspace:*",
     "@qilin-agent/kylin": "workspace:~"
@@ -81,6 +82,7 @@
     "@qilin-agent/storage": "workspace:*",
     "@qilin-agent/storage-domain": "workspace:*",
     "@qilin-agent/storage-json": "workspace:*",
+    "@qilin-agent/subagent": "workspace:*",
     "@qilin-agent/system-prompt": "workspace:*",
     "@qilin-agent/tools": "workspace:*",
     "@qilin-agent/typert-protocol": "workspace:*",

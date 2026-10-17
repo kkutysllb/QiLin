@@ -4,6 +4,7 @@ import AgentRegistry, { type Agent } from '@qilin-agent/agent'
 import { unsupportedInbox } from '@qilin-agent/agent-loop-testkit'
 import type { UserMessage } from '@qilin-agent/llm'
 import SessionStore, { SessionId } from '@qilin-agent/session'
+import type { CreateSessionOptions } from '@qilin-agent/session'
 import Storage, { type KvUnit, type KvUnitDescriptor, type StorageBackend } from '@qilin-agent/storage'
 import { DomainFacility } from '@qilin-agent/storage-domain'
 import SystemPrompt from '@qilin-agent/system-prompt'
@@ -118,9 +119,10 @@ export interface HarnessAgent extends Agent {
 /** Build an unregistered Agent for a test-owned Session.
  * @param ctx - Services owning the Session.
  * @param id - Unique Session identity within the test Context.
+ * @param meta - Optional Session creation metadata, such as subagent lineage.
  * @returns Agent whose follow-up entry is a spy.
  */
-export function agentFor(ctx: Context, id = 'original', meta?: { delegationDepth?: number }): HarnessAgent {
+export function agentFor(ctx: Context, id = 'original', meta?: CreateSessionOptions['meta']): HarnessAgent {
   const session = ctx.sessions.create(SessionId(id), meta === undefined ? undefined : { meta })
   return {
     id: session.id, session, ctx: ctx.extend(), options: {}, status: 'idle', inbox: unsupportedInbox(),
