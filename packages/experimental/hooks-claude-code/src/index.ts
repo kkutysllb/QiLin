@@ -30,11 +30,10 @@ import {
   createDetachedRuns,
   DEFAULT_HOOK_TIMEOUT_MS,
   DEFAULT_STDERR_SUMMARY_MAX_CHARS,
-  matchesMatcher,
   mergeHookOutputs,
   runHook,
+  selectHookGroups,
   type HookOutput,
-  type MatcherGroup,
   type MergedHookOutcome,
 } from '@qilin-agent/experimental-hook-protocol'
 // Pulls in the declaration-merged subagent events and the identity pairing their
@@ -146,7 +145,8 @@ export function apply(ctx: Context, config: Config): void {
     payload: unknown,
     opts: { agent?: Agent; turn?: number; readonly signal: AbortSignal },
   ): Promise<MergedHookOutcome> {
-    const groups: MatcherGroup[] = parsed[point] ?? []
+    const groups = selectHookGroups(parsed[point], matchQuery, 'claude-code')
+    if (groups.length === 0) return mergeHookOutputs([])
     const outputs: HookOutput[] = []
     // Run the hook in the agent's session workspace (the `session/new` cwd on the session
     // header), not the executor or entry-point process's launch dir.
@@ -156,7 +156,6 @@ export function apply(ctx: Context, config: Config): void {
     const projectDir = config.projectDir ?? workdir
     const hookEnv = projectDir !== undefined ? { CLAUDE_PROJECT_DIR: projectDir } : undefined
     for (const group of groups) {
-      if (!matchesMatcher(group.matcher, matchQuery, 'claude-code')) continue
       for (const hook of group.hooks) {
         const handlerId = nextHandlerId(point)
         const session = opts.agent?.session

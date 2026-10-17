@@ -11,11 +11,11 @@ import type { RunHookOptions } from '@qilin-agent/experimental-hook-protocol'
  * that consume this library, not here.
  */
 function recordingBash(run: (spec: ShellExecSpec) => Promise<ShellRunResult>): {
-  bash: ShellExecutor
+  bash: Pick<ShellExecutor, 'resolve' | 'run'>
   specs: ShellExecSpec[]
 } {
   const specs: ShellExecSpec[] = []
-  const bash = {
+  const bash: Pick<ShellExecutor, 'resolve' | 'run'> = {
     resolve(request: ShellExecRequest): ShellExecSpec {
       // Carry the request through verbatim, defaulting the required spec fields —
       // exactly what qilin-bash-local's resolve does for the fields runHook sets.
@@ -34,7 +34,7 @@ function recordingBash(run: (spec: ShellExecSpec) => Promise<ShellRunResult>): {
       specs.push(spec)
       return run(spec)
     },
-  } as unknown as ShellExecutor
+  }
   return { bash, specs }
 }
 
