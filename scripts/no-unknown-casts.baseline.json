@@ -2500,5 +2500,38 @@
   "packages/experimental/inspector/tests/plugin.client.spec.ts": {
     "2066ad746457f15b6737d62124c4ec81f2140fc3fa425187eac8e3b1c3b6ab0b": 8,
     "148509a0193d8d3c16a606a15f5145770f454c2ebc70dd0ccaa51fc1a0f43e99": 1
+  },
+  "packages/client/ui-chat/tests/transcript-view-policy.client.spec.ts": {
+    "170262bd341a02ef945bc23c7c3478bb84177f298f9478d3ac8a1aea7d501735": 1
+  },
+  "packages/client/ui-settings-general/tests/shell-entry.client.spec.tsx": {
+    "04984a2ce1486250236e638e0197da0a1a840855ed3975c59130a85358c7e5fe": 2
+  },
+  "packages/client/ui-workspace/tests/toast.client.spec.tsx": {
+    "37759ea5cbc583206a8f6f57b1742231a73ec03f481efb6d0eaf2ef49da7213f": 1,
+    "59f2c955d91bb2fe815d5fc50ecc66efee7612dfccd2f1dd57d26b0d4338d326": 1
+  },
+  "packages/subagent/subagent-claude-code/tests/real-product.spec.ts": {
+    "adda026f7ad49b47496f381a0c04997300597d040b8a81045a848573485ed299": 1,
+    "656905a0db6cd229fa72610416ef7ba9d2d320c8c99352bd0d205dee4e13bd8d": 1,
+    "03847806b1cfd410cc85f1e90d671aac43e667c5c41e5792c729fd4ff655fb6b": 1
+  },
+  "packages/subagent/subagent-claude-code/tests/subagent-claude-code.spec.ts": {
+    "fa05a5e504ed74b5a07cb6281c787b507eb6c44db768803f4dad034dd69cb3b9": 1,
+    "f85c96616fff1bb1e21886bd2fad64e9e34d89d090ab96ab7804f702278cd23d": 4,
+    "4e94c461ab08f535e20f71ebe8bb9a8c911a936c7068f24e259956c06d17c05d": 1,
+    "2cedee48f4fb8ce4bbd10567fdfbee69e8dd11dbc85af9b824de33c2b77abfbf": 1,
+    "cdcbd6cc73a09b6613864cdfb5b14d0cf66dc2484d26916cb32929deca1032de": 3
+  },
+  "packages/subagent/subagent-codex/tests/real-deepseek.e2e.ts": {
+    "dee4487a97778a2383f1b378d59b3dae098152273d956dc360f23c69680fe0ea": 1
+  },
+  "packages/subagent/subagent-codex/tests/real-product.spec.ts": {
+    "adda026f7ad49b47496f381a0c04997300597d040b8a81045a848573485ed299": 1,
+    "656905a0db6cd229fa72610416ef7ba9d2d320c8c99352bd0d205dee4e13bd8d": 1,
+    "03847806b1cfd410cc85f1e90d671aac43e667c5c41e5792c729fd4ff655fb6b": 1
+  },
+  "packages/subagent/subagent-codex/tests/subagent-codex.spec.ts": {
+    "fa05a5e504ed74b5a07cb6281c787b507eb6c44db768803f4dad034dd69cb3b9": 1
   }
 }

@@ -72,7 +72,7 @@ An exemption is an exact `package-name@version` mapped to a list of exact QiLin 
 
 A grant takes effect on the next composition. A live profile recomposes, so the granted plugin mounts in the running session and the result reports `applied`; a startup-only profile keeps its current entries until restart and reports `restart-required`.
 
-The CLI exposes `qilin plugin --profile <profile> version-exemptions`, `allow-version <package@version> --qilin-version <runtime> --accept-risk`, and `revoke-version <package@version> --qilin-version <runtime>`. A grant prints a risk warning before saving. A compatibility refusal carries the `incompatible-version` code with each refused package's `name`, `version`, `runtimeVersion`, and unsatisfied `peers`; each surface renders that record itself. The Web page words it through its locale dictionary, and a CLI refusal prints the exact `allow-version` command. Use the tool or CLI to grant an exemption and retry the original operation.
+The CLI exposes `qilin plugin --profile <profile> version-exemptions`, `allow-version <package@version> --qilin-version <runtime> --accept-risk`, and `revoke-version <package@version> --qilin-version <runtime>`. A grant prints a risk warning before saving. A compatibility refusal carries the `incompatible-version` code with each refused package's `name`, `version`, `runtimeVersion`, and unsatisfied `requirements`; each surface renders that record itself. The Web page words it through its locale dictionary, and a CLI refusal prints the exact `allow-version` command. Use the tool or CLI to grant an exemption and retry the original operation.
 
 ### Configuration
 
