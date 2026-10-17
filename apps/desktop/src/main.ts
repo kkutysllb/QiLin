@@ -335,7 +335,7 @@ async function main(): Promise<void> {
   const manager = new DesktopProjectManager(paths, resources)
   // The Desktop owns its Harness home; the login-shell read below preserves QILIN_* values,
   // so the Host and every child inherit this decision rather than the shared Web home.
-  adoptDesktopHome(app.getPath('userData'))
+  adoptDesktopHome()
   // Dock and Finder launches inherit only launchd's environment; every Host shares one login-shell read.
   const loginShellRead = new AbortController()
   // The probe runs in its own process group, which outlives Desktop unless the read is aborted.
