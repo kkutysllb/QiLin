@@ -18,6 +18,12 @@ export function registerToasts(ctx: Context): void {
       }),
     }, ToastEntry<PropsRuntime<'workspace.toast', 'sessionIdCopied'>>)
     yield ctx.slots.register({
+      name: 'workspace.toast', key: 'createFailed', locale: 'workspace',
+      inject: (): ToastDisplayInjected<'createFailed'> => ({
+        display: notice => ({ text: notice.message, tone: 'warning' }),
+      }),
+    }, ToastEntry<PropsRuntime<'workspace.toast', 'createFailed'>>)
+    yield ctx.slots.register({
       name: 'workspace.toast', key: 'sessionIdCopyFailed', locale: 'workspace',
       inject: (): ToastDisplayInjected<'sessionIdCopyFailed'> => ({
         display: (_notice, t) => ({ text: t('toast.sessionIdCopyFailed'), tone: 'warning' }),

@@ -193,6 +193,7 @@ export type WorkspaceBrowserInjected = {
 export type RowToast =
   | { kind: 'sessionIdCopied' }
   | { kind: 'sessionIdCopyFailed' }
+  | { kind: 'createFailed'; message: string }
 
 /** The notice on display; `seq` keys remounts so a repeated notice restarts its hold. */
 export type RowToastState = RowToast & { seq: number }

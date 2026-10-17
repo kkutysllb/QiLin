@@ -6,6 +6,8 @@
 
 /** Simplified Chinese dictionary (the key-set source of truth). */
 export const zh = {
+  'draft.workspaceRequired': '请先选择工作区',
+  'draft.initializationFailed': '暂时无法填入草稿，请稍后重试',
   'group.ungrouped': '未分组',
   'session.new': '新会话',
   'session.untitled': '未命名',
@@ -89,6 +91,8 @@ export type WorkspaceKey = keyof typeof zh
 
 /** English dictionary, checked complete against the zh key set. */
 export const en = {
+  'draft.workspaceRequired': 'Choose a workspace first.',
+  'draft.initializationFailed': 'Could not fill the draft. Please try again shortly.',
   'group.ungrouped': 'Ungrouped',
   'session.new': 'New Session',
   'session.untitled': 'Untitled',

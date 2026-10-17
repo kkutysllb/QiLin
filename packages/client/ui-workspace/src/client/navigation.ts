@@ -4,6 +4,7 @@ import { Service, type Context } from '@qilin-agent/kylin'
 import type { ClientRemote, DirectoryListing, RemoteFailure } from '@qilin-agent/api-remotes/client'
 import type {
   ISessions,
+  SessionBinding,
   SessionReference,
   SessionTarget,
   SessionListState,
@@ -15,7 +16,9 @@ import type {
 } from '@qilin-agent/api-workspace-controller/client'
 import type { SessionId } from '@qilin-agent/session/types'
 import type {} from '@qilin-agent/client-ui-layout/client'
+import type { DraftInitializationOptions } from '@qilin-agent/client-ui-conversation/client'
 import { pinOrderAccounts, pinOrderSource } from './pin-order.ts'
+import type { RowToast } from './contract/slots.ts'
 import type { WorkspaceViewStoreActions } from './stores.ts'
 
 /** The main-pane selection a navigation action publishes: one Session, or one direct-parent subagent address. */
@@ -23,6 +26,9 @@ export interface MainSelection {
   readonly sessionId?: SessionId
   readonly subagentAddress?: SubagentAddress
 }
+
+/** Optional content preparation for the resolved target Session. */
+export type StartSessionOptions = DraftInitializationOptions
 
 /** Workspace archive and directory operations consumed by Client UI domains. */
 export interface UiWorkspace {
@@ -60,8 +66,9 @@ export interface UiWorkspace {
   /**
    * Start a New Session flow and navigate to its Session.
    * @param workspaceId - explicit target; absent inherits the current or most recent Workspace.
+   * @param options - initial content; existing text or attachments are preserved unless clearPreviousDraft is true.
    */
-  startSession(workspaceId?: WorkspaceId): void
+  startSession(workspaceId?: WorkspaceId, options?: StartSessionOptions): void
   /**
    * Archive a Session and clear it when it is the current selection.
    * @param sessionId - Session to archive.
@@ -140,6 +147,7 @@ class UiWorkspaceService extends Service implements UiWorkspace {
    * @param workspaces - pure Workspace Controller.
    * @param sessions - pure Session Controller.
    * @param view - the browser's viewing-store write set, which owns saved Session order.
+   * @param notify - show one notice through the Workspace notice channel.
    */
   constructor(
     ctx: Context,
@@ -147,6 +155,7 @@ class UiWorkspaceService extends Service implements UiWorkspace {
     private readonly workspaces: IWorkspaces,
     private readonly sessions: ISessions,
     private readonly view: Pick<WorkspaceViewStoreActions, 'pinSessionOrder'>,
+    private readonly notify: (toast: RowToast) => void,
   ) {
     super(ctx, 'uiWorkspace')
     ctx.effect(() => {
@@ -206,7 +215,10 @@ class UiWorkspaceService extends Service implements UiWorkspace {
     if (!navigation.aborted) this.replaceMain(childId, navigation)
   }
 
-  startSession(workspaceId?: WorkspaceId): void {
+  startSession(workspaceId?: WorkspaceId, options?: StartSessionOptions): void {
+    const draftOptions = options === undefined ? undefined : structuredClone(options)
+    const initializeDraft = draftOptions !== undefined
+      && (draftOptions.prompt !== undefined || draftOptions.clearPreviousDraft === true)
     const workspace = this.workspaces.list.getSnapshot()
     const sessions = this.sessions.list.getSnapshot()
     const current = this.mainReference?.sessionId
@@ -218,12 +230,32 @@ class UiWorkspaceService extends Service implements UiWorkspace {
       : undefined
     const target = workspaceId ?? currentWorkspaceId ?? recent
     if (target === undefined) {
+      if (initializeDraft) {
+        this.notify({ kind: 'createFailed', message: this.ctx.locale.bind('workspace')('draft.workspaceRequired') })
+        return
+      }
       this.clearMain()
       return
     }
-    void this.openWorkspace(target).catch(
+    void this.openWorkspace(target, initializeDraft ? (id) => {
+      const binding = this.sessions.binding(id)
+      if (binding === undefined) this.draftPreparationFailed()
+      this.prepareDraft(binding, draftOptions)
+    } : undefined).catch(
       (reason: unknown) => { console.warn('new session failed:', reason) },
     )
+  }
+
+  private prepareDraft(binding: SessionBinding, options: DraftInitializationOptions): void {
+    const conversation = this.ctx.get('conversation')
+    if (conversation === undefined) this.draftPreparationFailed()
+    if (conversation.input.requestDraftInitialization(binding, options) === 'blocked') this.draftPreparationFailed()
+  }
+
+  private draftPreparationFailed(): never {
+    const message = this.ctx.locale.bind('workspace')('draft.initializationFailed')
+    this.notify({ kind: 'createFailed', message })
+    throw new Error(message)
   }
 
   async archiveSession(sessionId: SessionId): Promise<void> {
