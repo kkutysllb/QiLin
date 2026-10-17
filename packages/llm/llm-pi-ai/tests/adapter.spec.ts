@@ -484,6 +484,54 @@ describe('provider profile lifecycle', () => {
     expect(ctx.llm.listProviders()).toEqual([])
   })
 
+  it('dispatches session-title requests at the lowest level each model supports', async () => {
+    vi.stubEnv('PI_TEST_KEY', 'test-key')
+    const server = await mockServer([
+      { events: anthropicTextEvents },
+      { events: anthropicTextEvents },
+      { events: anthropicTextEvents },
+    ])
+    const ctx = new Context()
+    await ctx.plugin(LlmRuntime)
+    await ctx.plugin(LlmPiAi, {
+      providers: {
+        'adaptive-gateway': {
+          apiKeyEnv: 'PI_TEST_KEY',
+          api: 'anthropic-messages',
+          baseURL: server.url,
+          reasoning: 'max',
+          compat: { forceAdaptiveThinking: true },
+          models: [
+            // Declaring no `off` level means the model cannot stop reasoning.
+            { id: 'always-thinks', reasoningEfforts: { low: 'low', high: 'high', max: 'max' } },
+            { id: 'may-think', reasoningEfforts: { off: null, low: 'low', high: 'high', max: 'max' } },
+          ],
+        },
+      },
+    })
+    const request = (model: string, purpose?: 'session-title'): Promise<unknown> => assemble(ctx, {
+      provider: 'adaptive-gateway',
+      model,
+      reasoningEffort: ReasoningEffortId('max'),
+      maxTokens: 64,
+      messages: [],
+      ...purpose === undefined ? {} : { purpose },
+    })
+
+    await request('always-thinks')
+    await request('always-thinks', 'session-title')
+    await request('may-think', 'session-title')
+
+    expect(server.requests[0]).toMatchObject({ thinking: { type: 'adaptive' }, output_config: { effort: 'max' } })
+    expect(server.requests[1]).toMatchObject({
+      max_tokens: 64,
+      thinking: { type: 'adaptive' },
+      output_config: { effort: 'low' },
+    })
+    expect(server.requests[2]).toMatchObject({ max_tokens: 64, thinking: { type: 'disabled' } })
+    expect(server.requests[2]).not.toHaveProperty('output_config')
+  })
+
   it('exposes the installed pi-ai model catalog through provider-neutral metadata', async () => {
     const ctx = new Context()
     await ctx.plugin(LlmRuntime)
