@@ -36,6 +36,7 @@ declare module '@qilin-agent/client-ui-slots' {
     'conversation.input.model.label': {
       kind: 'single'
       scope: 'session'
+      inline: true
       owner: ModelLabelOwner
     }
   }

@@ -175,7 +175,7 @@ export function apply(ctx: ClientContext): void {
       name: 'conversation.input.model',
       locale: NS,
       children: {
-        'conversation.input.model.label': { kind: 'single', scope: 'session' },
+        'conversation.input.model.label': { kind: 'single', scope: 'session', inline: true },
       },
       inject: (sessionId): ModelSelectInjected => {
         const directory = models.directoryFor(sessionId)

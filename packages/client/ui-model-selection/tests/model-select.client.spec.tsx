@@ -1,13 +1,12 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
-import { RemoteError } from '@qilin-agent/client-test-runtime'
+import { RemoteError, SlotTestRuntime } from '@qilin-agent/client-test-runtime'
 import { SessionId } from '@qilin-agent/session/types'
 import type { ModelSelection } from '@qilin-agent/api-remotes/client'
 import { createSnapshotStore } from '@qilin-agent/client-store'
-import type { ComponentProps, ReactNode } from 'react'
+import type { ComponentProps } from 'react'
 import type { ModelDirectoryState } from '../src/client/directory.ts'
-import type { ModelLabelOwner } from '../src/client/slots.ts'
 import { ModelSelect as ModelSelectImpl } from '../src/client/ModelSelect.tsx'
 import { zh } from '../src/client/locales.ts'
 import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
@@ -89,66 +88,101 @@ describe('ModelSelect label slot', () => {
     id, name: `${id} gateway`, models: [{ id: 'same-model', name: 'Same model' }],
   }))
 
-  it('routes every placement through the label slot with its provider identity', () => {
-    const label = vi.fn((owner: ModelLabelOwner, options: { fallback?: ReactNode } | undefined) => (
-      <span data-testid={`${owner.placement}-${owner.provider.id}`} data-selected={owner.selected} data-fallback={options?.fallback}>
-        {owner.provider.name}: {owner.model.name}
-      </span>
-    ))
-    const renderSlot: ComponentProps<typeof ModelSelectImpl>['renderSlot'] = (_name, owner, options) => label(owner, options)
+  it('routes every placement through the inline label slot with its provider identity', async () => {
+    const runtime = await SlotTestRuntime.create()
+    onTestFinished(() => runtime.dispose())
+    const sessionId = SessionId('model-label')
+    await runtime.sessions.add({ id: sessionId })
+    const session = runtime.sessions.retainFor(runtime.ctx, sessionId)
     const directory = createSnapshotStore(state({ groups, current: { provider: 'trusted', model: 'same-model' } }))
-    render(<ModelSelectImpl
-      locked={false}
-      available
-      directory={directory}
-      load={vi.fn()}
-      select={vi.fn()}
-      t={t}
-      renderSlot={renderSlot}
-    />)
-
+    await runtime.root.declare({
+      'conversation.input.model.label': { kind: 'single', scope: 'session', inline: true },
+    }, ({ renderSlot, SessionProvider }) => (
+      <SessionProvider session={session}>
+        <ModelSelectImpl
+          locked={false}
+          available
+          directory={directory}
+          load={vi.fn()}
+          select={vi.fn()}
+          t={t}
+          renderSlot={renderSlot}
+        />
+      </SessionProvider>
+    ))
+    const view = runtime.renderRoot()
     const trigger = screen.getByRole('button', { name: '选择模型，当前 Same model' })
-    expect(trigger.querySelector('[data-provider-id="trusted"][data-model-id="same-model"]')).toBeTruthy()
+    // The empty declaration keeps the catalog-name fallback.
+    expect(trigger.textContent).toBe('Same model')
+    const plugin = await runtime.mount({ inject: ['slots'], apply(ctx) {
+      ctx.slots.inject('conversation.input.model.label', () => ctx.slots.register({
+        name: 'conversation.input.model.label',
+      }, ({ provider, model, placement, selected }) => <span
+        data-testid={`${placement}-${provider.id}`}
+        data-selected={selected}
+        title={provider.name}
+      >{provider.name}: {model.name}</span>))
+    } })
+    // Inline declaration: the trigger and menu anchors are spans, never divs.
     expect(screen.getByTestId('trigger-trusted').textContent).toBe('trusted gateway: Same model')
-    expect(label.mock.calls[0]![0]).toMatchObject({
-      provider: { id: 'trusted', name: 'trusted gateway' },
-      model: { id: 'same-model', name: 'Same model' },
-      placement: 'trigger',
-      selected: true,
-    })
-    expect(label.mock.calls[0]![1]?.fallback).toBe('Same model')
-
+    expect(screen.getByTestId('trigger-trusted').title).toBe('trusted gateway')
+    expect(trigger.querySelector('[data-slot="conversation.input.model.label"]')?.tagName).toBe('SPAN')
+    expect(trigger.querySelector('div')).toBeNull()
     fireEvent.click(trigger)
-    expect(screen.getByTestId('menu-trusted').textContent).toBe('trusted gateway: Same model')
+    const menuCell = screen.getByTestId('menu-trusted')
+    expect(menuCell.textContent).toBe('trusted gateway: Same model')
+    expect(menuCell.closest('[data-slot="conversation.input.model.label"]')?.tagName).toBe('SPAN')
+    expect(menuCell.querySelector('div')).toBeNull()
     fireEvent.click(screen.getByRole('menuitem', { name: /^模型/ }))
     expect(screen.getByTestId('option-trusted').getAttribute('data-selected')).toBe('true')
     expect(screen.getByTestId('option-external').getAttribute('data-selected')).toBe('false')
-    expect(screen.getByRole('menuitemradio', { name: 'external gateway: Same model' })).toBeTruthy()
+    const external = screen.getByRole('menuitemradio', { name: 'external gateway: Same model' })
+    expect(external.querySelector('[data-provider-id="external"][data-model-id="same-model"]')).toBeTruthy()
+    expect(external.querySelector('div')).toBeNull()
+    await act(async () => { await plugin.dispose() })
+    // Unload restores the fallback inside the retained span anchor.
+    expect(view.container.querySelector('[data-slot="conversation.input.model.label"]')?.tagName).toBe('SPAN')
+    expect(trigger.textContent).toBe('Same model')
   })
 
-  it('shows the localized account provider name to the slot', () => {
+  it('shows the localized account provider name to the slot', async () => {
+    const runtime = await SlotTestRuntime.create()
+    onTestFinished(() => runtime.dispose())
+    const sessionId = SessionId('model-label-account')
+    await runtime.sessions.add({ id: sessionId })
+    const session = runtime.sessions.retainFor(runtime.ctx, sessionId)
     const account = [{
       id: 'deepseek-account', name: 'DeepSeek Account', models: [{ id: 'deepseek-flash', name: 'DeepSeek Flash' }],
     }]
-    const owners: ModelLabelOwner[] = []
-    const renderSlot: ComponentProps<typeof ModelSelectImpl>['renderSlot'] = (_name, owner, options) => {
-      owners.push(owner)
-      return options?.fallback ?? null
-    }
-    render(<ModelSelectImpl
-      locked={false}
-      available
-      directory={createSnapshotStore(state({ groups: account, current: { provider: 'deepseek-account', model: 'deepseek-flash' } }))}
-      load={vi.fn()}
-      select={vi.fn()}
-      t={t}
-      renderSlot={renderSlot}
-    />)
-    expect(owners[0]!.provider).toEqual({ id: 'deepseek-account', name: 'DeepSeek 账号' })
+    const directory = createSnapshotStore(state({ groups: account, current: { provider: 'deepseek-account', model: 'deepseek-flash' } }))
+    await runtime.root.declare({
+      'conversation.input.model.label': { kind: 'single', scope: 'session', inline: true },
+    }, ({ renderSlot, SessionProvider }) => (
+      <SessionProvider session={session}>
+        <ModelSelectImpl
+          locked={false}
+          available
+          directory={directory}
+          load={vi.fn()}
+          select={vi.fn()}
+          t={t}
+          renderSlot={renderSlot}
+        />
+      </SessionProvider>
+    ))
+    runtime.renderRoot()
+    await runtime.mount({ inject: ['slots'], apply(ctx) {
+      ctx.slots.inject('conversation.input.model.label', () => ctx.slots.register({
+        name: 'conversation.input.model.label',
+      }, ({ provider }) => <span>{provider.name}</span>))
+    } })
+    expect(screen.getByRole('button', { name: '选择模型，当前 DeepSeek Flash' }).textContent)
+      .toBe('DeepSeek 账号')
   })
 
   it('does not decorate loading or missing selections with a stale provider', () => {
-    const renderSlot = vi.fn<ComponentProps<typeof ModelSelectImpl>['renderSlot']>(() => null)
+    const rendered = vi.fn()
+    const renderSlot: ComponentProps<typeof ModelSelectImpl>['renderSlot'] = () => { rendered(); return null }
     const directory = createSnapshotStore(state({ groups: [], status: 'loading' }))
     render(<ModelSelectImpl
       locked={false}
@@ -159,11 +193,11 @@ describe('ModelSelect label slot', () => {
       t={t}
       renderSlot={renderSlot}
     />)
-    expect(renderSlot).not.toHaveBeenCalled()
+    expect(rendered).not.toHaveBeenCalled()
     expect(document.querySelector('[data-provider-id]')).toBeNull()
     act(() => { directory.set(state({ groups: [] })) })
     expect(screen.getByRole('button', { name: '请选择模型' })).toBeTruthy()
-    expect(renderSlot).not.toHaveBeenCalled()
+    expect(rendered).not.toHaveBeenCalled()
   })
 })
 
