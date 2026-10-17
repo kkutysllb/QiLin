@@ -20,6 +20,9 @@
 /qilin-agent-client-ui-workspace/use-this-package/reordering-and-view-options:
   en: 6cea302320f00839
   zh: d695994ec569a43e
+/qilin-agent-client-ui-workspace/use-this-package/session-folding:
+  en: 3312e3a21049b4a5
+  zh: 296ef02efd66e231
 /qilin-agent-client-ui-workspace/use-this-package/workspace-hierarchy:
   en: 5e049b90c55eddb3
   zh: e06dc8d0d25c013f
@@ -27,8 +30,8 @@
   en: faf570bcad825439
   zh: a65300b0b40a8550
 /qilin-agent-client-ui-workspace/use-this-package/managing-sessions:
-  en: 7a50621fbde08357
-  zh: 735a575e236e3860
+  en: ba131e2957460003
+  zh: e8417102e0727749
 /qilin-agent-client-ui-workspace/use-this-package/pending-interactions:
   en: efcede0546e167c5
   zh: 74afe770abb49016
