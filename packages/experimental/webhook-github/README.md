@@ -56,6 +56,8 @@ Only `POST application/json` is accepted. The adapter reads a bounded UTF-8 body
 
 The normal Web profile already owns `ctx.webServer`. Mount another `qilin-host-webserver` and this adapter inside a group that isolates only `webServer`; the adapter still inherits credentials and `webhookRuntime`. The [GitHub review guide](../../../docs/user/guide/github-review.md) uses `127.0.0.1:3081/github` behind a TLS reverse proxy while the UI remains on port 3080.
 
+The package distributes the example overlay and rule module under `examples/github-review/`. Install this package and its `qilin-webhook` peer into the profile before loading that installed overlay; the [guide](../../../docs/user/guide/github-review.md) gives the complete commands.
+
 <a id="model-experience"></a>
 ## Model Experience
 
