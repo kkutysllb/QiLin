@@ -2845,6 +2845,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'client-ui-settings-session-log UploadToast id \'session-log-upload-toast\'',
       'client-ui-shortcuts ShortcutReference id \'shortcuts\'',
       'client-ui-sidebar-terminal TerminalCleanup',
+      'client-ui-workspace RowActionToast id \'workspace.row-toast\'',
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'shell.overlay\', () => ctx.slots.register(\n      { name: \'shell.overlay\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
@@ -4237,6 +4238,48 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'tool.view.cordis\', () => ctx.slots.register(\n      { name: \'tool.view.cordis\', key: \'<one key the owner dispatches>\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
     source: 'packages/extensions/ui-kylin/src/client/slots.ts:31',
+  },
+  {
+    key: 'workspace.toast',
+    kind: 'keyed',
+    scope: 'root',
+    summary: 'Workspace notices selected by their existing business discriminator.',
+    doc: 'Workspace notices selected by their existing business discriminator.',
+    registerOptions: [
+      {
+        name: 'key',
+        requirement: 'required',
+        type: 'string',
+        doc: 'Your cell key: the entry renders where the owner dispatches this exact key. Registering an already-occupied key replaces that occupant.',
+      },
+    ],
+    ownerProps: [
+      '/** Owner operations available to every keyed Workspace notice. */\nexport interface WorkspaceToastOwnerProps {\n  /** Dismiss the displayed notice. */\n  dismissToast: () => void\n}',
+    ],
+    ownerPropsReferences: [
+      'Workspace',
+    ],
+    standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
+      'useResource: UseResource',
+      'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
+      'usePanelInfo: UsePanelInfo',
+      'useSessions: UseSessions',
+      'useSessionStatus: UseSessionStatus',
+      'useSessionRetainInfo: UseSessionRetainInfo',
+      'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
+    ],
+    keyDomain: 'fixed by the owner\'s key table { [K in ToastKind]: ToastNotice<K> }, already taken: sessionIdCopied, sessionIdCopyFailed',
+    hookContext: '',
+    slotInject: '',
+    declaredBy: 'an entry in \'shell.overlay\' (client-ui-workspace), so it exists while that entry is mounted',
+    occupants: [
+      'client-ui-workspace ToastEntry<PropsRuntime<\'workspace.toast\', \'sessionIdCopi… key \'sessionIdCopied\'',
+      'client-ui-workspace ToastEntry<PropsRuntime<\'workspace.toast\', \'sessionIdCopy… key \'sessionIdCopyFailed\'',
+    ],
+    replaceRisk: 'shadows-shipped-ui',
+    example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'workspace.toast\', () => ctx.slots.register(\n      { name: \'workspace.toast\', key: \'<one key the owner dispatches>\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
+    source: 'packages/client/ui-workspace/src/client/contract/toast.ts:43',
   },
 ]
 /* jscpd:ignore-end */
