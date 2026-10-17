@@ -117,7 +117,7 @@ kind: "package-library"
 | [`src/ReadBlock.tsx`](src/ReadBlock.tsx) / [`src/DiffBlock.tsx`](src/DiffBlock.tsx) | 读取与差异卡片 |
 | [`src/SearchBlock.tsx`](src/SearchBlock.tsx) / [`src/WebBlock.tsx`](src/WebBlock.tsx) | 搜索与网页检索卡片 |
 | [`src/icons/`](src/icons/) | `ic_ds_*` 字形组件与品牌标记 |
-| [`src/credential-formats.ts`](src/credential-formats.ts) / [`src/credential-scanner.ts`](src/credential-scanner.ts) / [`src/credential-masks.ts`](src/credential-masks.ts) / [`src/SecretText.tsx`](src/SecretText.tsx) | `projectUserText` 背后的凭据格式、扫描、掩码形态，以及带显示控件的掩码文本段 |
+| [`src/credential-formats.ts`](src/credential-formats.ts) / [`src/format-tables.ts`](src/format-tables.ts) / [`src/credential-scanner.ts`](src/credential-scanner.ts) / [`src/credential-masks.ts`](src/credential-masks.ts) / [`src/SecretText.tsx`](src/SecretText.tsx) | `projectUserText` 背后的凭据格式、由其派生的查表、扫描、掩码形态，以及带显示控件的掩码文本段 |
 | [`src/useAnchoredPosition.ts`](src/useAnchoredPosition.ts) / [`src/useAnchoredMaxHeight.ts`](src/useAnchoredMaxHeight.ts) | 浮动面板与浮层几何钩子 |
 | [`src/input-modality.ts`](src/input-modality.ts) | 发布在 `<html>` 上的全文档输入模态 |
 
@@ -176,7 +176,7 @@ kind: "package-library"
 - **字形级图标是重新绘制的近似版本**：鱼形标志与闪光标记来自字体字形，而本地设计数据无法导出其矢量几何；在获得精确导出路径前，使用手工重建版本代替。
 - **`Pill` 与 `Input` 没有设计来源**：两个原子组件均自行定义；与其相似的侧边栏搜索字段和视图标签条由消费方组合，不是这些原子组件。
 - **`StateDot` 没有 `Active` 变体**：支持的状态为 done、warning、ongoing、error 和 idle。
-- **凭据脱敏只识别已公布格式**：自由形式口令、`name=value` 赋值与未登记前缀都保持原样，故投影从不猜测某个值是否敏感；扩展识别就是在 `src/credential-formats.ts` 里加一行。
+- **凭据脱敏只识别已公布格式**：自由形式口令、`name=value` 赋值与未登记前缀都保持原样，故投影从不猜测某个值是否敏感；扩展识别就是在 `src/credential-formats.ts` 里加一行。扫描按前缀剪枝且线性：一条只含字面量的 alternation 找出每个格式可能的起点，typed 字符类表把 run 测量变成有界比较，run 终点、下一个数字与下一个密钥块 `END` 行按文本各记忆一次。掩码复用同一段共享标记字符串，私钥块正文与页脚的搜索都限于区间内，故掩码代价随区间长度。
 - **面向用户的文案必须由渲染点提供**：这些原子组件是 zero-Kylin 的，拿不到 `ctx.locale`；各功能必须通过原子组件的带类型 prop 提供完整本地化 label（见[决策](../../../.agents/notes/implemented/architecture/2026-08-23-locale-owned-client-ui-copy.zh.md)）。
 - **`TerminalBlock` 不是终端模拟器**：它渲染已结束或仍在运行的命令输出，而不是交互式会话：SGR 颜色、回车、退格、行内擦除、制表位与字符宽度会被遵循；绝对光标定位、清屏与备用屏幕序列会被剥离。
 

@@ -1,13 +1,35 @@
 /**
- * Credential scanning over one text. Each candidate is found by its published
- * literal and validated by bounded character runs; overlapping candidates join
- * the range that starts first, so no credential is ever drawn half masked.
+ * Prefix-pruned, linear credential scanning that allocates nothing until it
+ * returns a range. A literal-only alternation finds each place a format can
+ * begin and resumes inside a literal that can overlap the next one. Format
+ * checks are bounded character comparisons and sticky `[class]*` runs, which
+ * end at the first character outside the class and leave nothing to backtrack
+ * into. Run ends, the next digit, and the next key-block `END` line are
+ * memoized per text across queries, so each is measured once per text.
  */
 import {
-  KEY_BLOCK_END_LITERAL, KEY_BLOCK_LABEL_MAX, KEY_BLOCK_LITERAL, KEY_BLOCK_MARKER, KEY_BLOCK_TAIL,
-  PREFIXED_FORMATS, type CredentialRun, type PrefixedFormat, type RunCheck,
+  ADDRESS, ALNUM, ALNUM_DASH, BOUNDED, GOOGLE, KEY_BLOCK, LABEL, LOWER, PREFIXED, RUN, SCHEME, SK, UPPER_ALNUM, USER, WORD,
 } from './credential-formats.ts'
-import { maskKeyBlock, maskPrefixed, maskRange, type MaskBuilder } from './credential-masks.ts'
+import { CredentialMasks } from './credential-masks.ts'
+import { formatTables, type FormatTables } from './format-tables.ts'
+
+// Memo layout: [start, end] pairs. A lookup at `offset` hits when start <= offset <= end; -1 pairs hold nothing.
+const KEY_SLOTS = 0 // four pairs: a JSON Web Token measures three runs
+const KEY_NEXT = 8
+const ALNUM_SLOT = 9
+const WORD_SLOT = 11
+const ALNUM_DASH_SLOT = 13
+const UPPER_ALNUM_SLOT = 15
+const USER_SLOT = 17
+const PASSWORD_SLOT = 19
+const DIGIT_FROM = 21
+const DIGIT_AT = 22
+const BLOCK_FROM = 23
+const BLOCK_END_START = 24
+const BLOCK_END = 25
+/** Start of the password that the last address check accepted. */
+const CANDIDATE_START = 26
+const MEMO_SIZE = 27
 
 /** One recognized credential range, with the display form that masks it. */
 export interface SecretRange {
@@ -17,57 +39,10 @@ export interface SecretRange {
   readonly masked: string
 }
 
-/** How a candidate's range is displayed. */
-type Kind = 'key-block' | 'address' | 'prefixed'
-
-/** One candidate range, before overlapping candidates are merged. */
-interface Candidate {
-  readonly start: number
-  readonly end: number
-  readonly kind: Kind
-}
-
-/** Mask builder per kind, exhaustive when a kind is added. */
-const MASK_BUILDERS: Record<Kind, MaskBuilder> = {
-  'key-block': maskKeyBlock,
-  address: maskRange,
-  prefixed: maskPrefixed,
-}
-
-/** Sticky run pattern per character class. */
-const RUN_PATTERNS: Record<CredentialRun, RegExp> = {
-  key: /[A-Za-z0-9_-]*/y,
-  alnum: /[A-Za-z0-9]*/y,
-  word: /\w*/y,
-  alnumDash: /[A-Za-z0-9-]*/y,
-  upperAlnum: /[A-Z0-9]*/y,
-}
-
-/** `\w` at one position. */
-const WORD_RE = /[A-Za-z0-9_]/
-/** Characters a private key header or footer label may carry. */
-const LABEL_RE = /[A-Z0-9 ]/
-/** `[^\d]*`, used to find the first digit after a `sk-` literal. */
-const NON_DIGITS_RE = /[^\d]*/y
-/** Private key header occurrences. */
-const KEY_BLOCK_RE = new RegExp(KEY_BLOCK_LITERAL, 'g')
-/**
- * `scheme://user:password@`; the capture is the password, the only part masked,
- * and the user name is bounded as an address parser bounds it.
- */
-const ADDRESS_RE = /\b[a-z][a-z0-9+.-]{1,15}:\/\/[^\s/:@?#]{0,256}:([^\s/@?#]+)@/g
-/** Characters a `sk-` key may place between its literal and its first digit. */
-const SK_DIGIT_WINDOW = 255
-/** One literal and its own global pattern, per prefixed format. */
-const LITERAL_PATTERNS: readonly (readonly [PrefixedFormat, RegExp])[] =
-  PREFIXED_FORMATS.map(format => [format, new RegExp(format.literal, 'g')] as const)
-
-/** One prefixed candidate under validation: the text, its format, and the run bounds. */
-interface RunContext {
-  readonly text: string
-  readonly format: PrefixedFormat
-  readonly start: number
-  readonly end: number
+/** `\s` above ASCII. */
+function isWideSpace(code: number): boolean {
+  return code === 0xa0 || code === 0x1680 || (code >= 0x2000 && code <= 0x200a) || code === 0x2028 || code === 0x2029
+    || code === 0x202f || code === 0x205f || code === 0x3000 || code === 0xfeff
 }
 
 /**
@@ -84,154 +59,373 @@ function runEnd(pattern: RegExp, text: string, start: number): number {
 }
 
 /**
- * Offset after the `-----BEGIN [A-Z0-9 ]{0,40}PRIVATE KEY-----` header at
- * `start`, or -1 when the text there is not one.
- * @param text - the text to read.
- * @param start - offset the header body starts at.
- * @returns offset after the header, or -1.
+ * One scanner's state: the tables, its own patterns, and a memo of the last
+ * queried text, which it keeps until a query for another text. Queries are
+ * synchronous and never re-enter, so the patterns' cursors are never shared.
  */
-function headerEnd(text: string, start: number): number {
-  const limit = Math.min(text.length, start + KEY_BLOCK_LABEL_MAX + KEY_BLOCK_MARKER.length + 1)
-  let index = start
-  while (index < limit && LABEL_RE.test(text[index] as string)) index++
-  const tail = index - KEY_BLOCK_MARKER.length
-  return tail >= start && index < limit && text.startsWith(KEY_BLOCK_TAIL, tail) ? tail + KEY_BLOCK_TAIL.length : -1
-}
+export class CredentialScanner {
+  private readonly classes: Uint16Array
+  private readonly literals: readonly string[]
+  private readonly literalLength: Uint8Array
+  private readonly literalKind: Uint8Array
+  private readonly literalCheck: Uint8Array
+  private readonly literalMin: Int32Array
+  private readonly literalMax: Int32Array
+  private readonly literalOverlap: Uint8Array
+  private readonly ending: Int8Array
+  private readonly sharedEndings: readonly (readonly number[] | undefined)[]
+  /** Memo slot of each prefixed format's run class; 0 for `[A-Za-z0-9_-]`, which has four. */
+  private readonly literalSlot: Uint8Array
+  private readonly literalPattern: readonly RegExp[]
+  private readonly prefixes: RegExp
+  // Sticky run patterns: nothing follows the starred class, so nothing backtracks, and `test` allocates nothing.
+  private readonly keyRun = /[A-Za-z0-9_-]*/y
+  private readonly userRun = /[^\s/:@?#]*/y
+  private readonly passwordRun = /[^\s/@?#]*/y
+  private readonly nonDigits = /\D*/y
+  private readonly masks = new CredentialMasks()
+  private readonly memo = new Int32Array(MEMO_SIZE).fill(-1)
+  private text = ''
 
-/**
- * Offset after the private key block at `at`, or -1 when its header is invalid.
- * An unterminated block reaches the end of the text: a key body must never escape
- * masking because its footer is missing.
- * @param text - the text to read.
- * @param at - offset of the `-----BEGIN ` literal.
- * @returns offset after the footer, or -1.
- */
-function blockEnd(text: string, at: number): number {
-  const header = headerEnd(text, at + KEY_BLOCK_LITERAL.length)
-  if (header < 0) return -1
-  for (let line = text.indexOf(KEY_BLOCK_END_LITERAL, header); line >= 0; line = text.indexOf(KEY_BLOCK_END_LITERAL, line + 1)) {
-    const footer = headerEnd(text, line + KEY_BLOCK_END_LITERAL.length)
-    if (footer >= 0) return footer
+  /**
+   * Build one scanner over shared tables.
+   * @param tables - the tables every scanner shares.
+   */
+  constructor(tables: FormatTables) {
+    this.classes = tables.classes
+    this.literals = tables.literals
+    this.literalLength = tables.literalLength
+    this.literalKind = tables.literalKind
+    this.literalCheck = tables.literalCheck
+    this.literalMin = tables.literalMin
+    this.literalMax = tables.literalMax
+    this.literalOverlap = tables.literalOverlap
+    this.ending = tables.ending
+    this.sharedEndings = tables.sharedEndings
+    this.prefixes = new RegExp(tables.prefixSource, 'g')
+    const patterns = new Map<number, readonly [slot: number, pattern: RegExp]>([
+      [ALNUM, [ALNUM_SLOT, /[A-Za-z0-9]*/y]],
+      [WORD, [WORD_SLOT, /\w*/y]],
+      [ALNUM_DASH, [ALNUM_DASH_SLOT, /[A-Za-z0-9-]*/y]],
+      [UPPER_ALNUM, [UPPER_ALNUM_SLOT, /[A-Z0-9]*/y]],
+    ])
+    this.literalSlot = Uint8Array.from(tables.literalRun, run => patterns.get(run)?.[0] ?? 0)
+    this.literalPattern = Array.from(tables.literalRun, run => patterns.get(run)?.[1] ?? this.keyRun)
   }
-  return text.length
-}
 
-/**
- * Offset after a JSON Web Token, whose header run heads two further runs joined
- * by `.eyJ` and `.`.
- * @param context - the header run and its format.
- * @returns offset after the signature run, or -1.
- */
-function jwtEnd({ text, format, start, end }: RunContext): number {
-  if (end - start > format.max || !text.startsWith('.eyJ', end)) return -1
-  const payloadStart = end + '.eyJ'.length
-  const payloadEnd = runEnd(RUN_PATTERNS.key, text, payloadStart)
-  if (payloadEnd - payloadStart < format.min || text.charCodeAt(payloadEnd) !== 46) return -1
-  const signatureEnd = runEnd(RUN_PATTERNS.key, text, payloadEnd + 1)
-  return signatureEnd - (payloadEnd + 1) >= format.min ? signatureEnd : -1
-}
-
-/** Offset after a candidate per run check, exhaustive when a check is added. */
-const RUN_CHECKS: Record<RunCheck, (context: RunContext) => number> = {
-  run: context => context.end,
-  bounded: context => context.end - context.start <= context.format.max && !WORD_RE.test(context.text[context.end] ?? '')
-    ? context.end
-    : -1,
-  google: context => context.start + context.format.min,
-  sk: (context) => {
-    const digit = runEnd(NON_DIGITS_RE, context.text, context.start)
-    return digit - context.start <= SK_DIGIT_WINDOW && digit < context.end ? context.end : -1
-  },
-  jwt: jwtEnd,
-}
-
-/**
- * Offset after the prefixed credential whose literal starts at `at`, or -1.
- * @param text - the text to read.
- * @param format - the literal's format.
- * @param at - offset of the literal.
- * @returns offset after the credential, or -1.
- */
-function prefixedEnd(text: string, format: PrefixedFormat, at: number): number {
-  if (at > 0 && WORD_RE.test(text[at - 1] as string)) return -1
-  const start = at + format.literal.length
-  const end = runEnd(RUN_PATTERNS[format.run], text, start)
-  return end - start < format.min ? -1 : RUN_CHECKS[format.runCheck]({ text, format, start, end })
-}
-
-/**
- * Collect every password of an address that carries credentials.
- * @param text - the text to scan.
- * @param candidates - the candidate list to append to.
- */
-function collectAddresses(text: string, candidates: Candidate[]): void {
-  ADDRESS_RE.lastIndex = 0
-  let match: RegExpExecArray | null
-  while ((match = ADDRESS_RE.exec(text)) !== null) {
-    const password = match[1] as string
-    const end = match.index + match[0].length - 1
-    candidates.push({ start: end - password.length, end, kind: 'address' })
-  }
-}
-
-/**
- * Collect every private key block.
- * @param text - the text to scan.
- * @param candidates - the candidate list to append to.
- */
-function collectKeyBlocks(text: string, candidates: Candidate[]): void {
-  KEY_BLOCK_RE.lastIndex = 0
-  let match: RegExpExecArray | null
-  while ((match = KEY_BLOCK_RE.exec(text)) !== null) {
-    const end = blockEnd(text, match.index)
-    if (end < 0) continue
-    candidates.push({ start: match.index, end, kind: 'key-block' })
-    KEY_BLOCK_RE.lastIndex = end
-  }
-}
-
-/**
- * Collect every prefixed credential, one literal pass per format.
- * @param text - the text to scan.
- * @param candidates - the candidate list to append to.
- */
-function collectPrefixed(text: string, candidates: Candidate[]): void {
-  for (const [format, pattern] of LITERAL_PATTERNS) {
-    pattern.lastIndex = 0
-    let match: RegExpExecArray | null
-    while ((match = pattern.exec(text)) !== null) {
-      const end = prefixedEnd(text, format, match.index)
-      if (end > 0) candidates.push({ start: match.index, end, kind: 'prefixed' })
+  /**
+   * The nearest credential at or after `from`. Overlapping candidates of any format join the earliest
+   * one and take its mask, so no credential is drawn half masked. Candidates arrive in start order;
+   * an address password waits until the scan passes its start, and no other `://` can occur before
+   * then, because a user name and a password exclude `/`. A password that starts inside a range also
+   * ends inside it: the range holds the `:` before the password, so it is a key block, whose `END`
+   * line has spaces, or one that runs to the end of the text.
+   * @param text - the complete original text.
+   * @param from - the query offset.
+   * @returns the nearest credential range, or undefined when none starts at or after `from`.
+   */
+  match(text: string, from: number): SecretRange | undefined {
+    if (text !== this.text) {
+      this.memo.fill(-1)
+      this.text = text
     }
+    const prefixes = this.prefixes
+    const length = text.length
+    let start = -1
+    let end = -1
+    let kind = PREFIXED
+    let plain = true
+    let deferredEnd = this.addressBefore(from)
+    let deferredStart = deferredEnd < 0 ? -1 : this.slot(CANDIDATE_START)
+    prefixes.lastIndex = from
+    while (prefixes.test(text)) {
+      const literalEnd = prefixes.lastIndex
+      const literal = this.literalEndingAt(literalEnd)
+      const at = literalEnd - (this.literalLength[literal] as number)
+      prefixes.lastIndex = literalEnd - (this.literalOverlap[literal] as number)
+      if (deferredStart >= 0 && deferredStart <= at) {
+        if (start < 0) {
+          start = deferredStart
+          end = deferredEnd
+          kind = ADDRESS
+        } else {
+          // A deferred password never starts inside an open range: only a key
+          // block spans the `:` a password follows, and a block header cannot sit
+          // inside an address user name, so the deferred range lies beyond this one.
+          break
+        }
+        deferredStart = -1
+      }
+      // A candidate starts at or after its literal, so none past the range reaches it; nothing extends a range to the end.
+      if (start >= 0 && (at >= end || end === length)) break
+      const literalKind = this.literalKind[literal] as number
+      if (literalKind === ADDRESS) {
+        deferredEnd = this.addressPassword(at)
+        deferredStart = deferredEnd < 0 ? -1 : this.slot(CANDIDATE_START)
+        continue
+      }
+      const candidateEnd = literalKind === KEY_BLOCK ? this.keyBlockEnd(at) : this.prefixedEnd(literal, at)
+      if (candidateEnd < 0) continue
+      if (start < 0) {
+        start = at
+        end = candidateEnd
+        kind = literalKind
+        plain = literalKind === PREFIXED
+      } else if (candidateEnd > end) {
+        end = candidateEnd
+        if (literalKind !== PREFIXED) plain = false
+      }
+    }
+    if (start < 0 && deferredStart >= 0) {
+      start = deferredStart
+      end = deferredEnd
+      kind = ADDRESS
+    }
+    if (start < 0) return undefined
+    return { start, end, masked: this.masks.masked(text, kind, plain, start, end) }
+  }
+
+  /**
+   * Memo entry at `index`; the layout keeps every index inside the array.
+   * @param index - the memo index.
+   * @returns the stored offset.
+   */
+  private slot(index: number): number {
+    return this.memo[index] as number
+  }
+
+  /**
+   * `\w` at one offset; out of range is not a word character.
+   * @param index - the offset to read.
+   * @returns whether the code unit is a word character.
+   */
+  private isWordAt(index: number): boolean {
+    const code = this.text.charCodeAt(index)
+    return code < 128 && ((this.classes[code] as number) & WORD) !== 0
+  }
+
+  /**
+   * `[^\s/:@?#]` for one UTF-16 code unit; NaN, read out of range, is not one.
+   * @param code - the code unit.
+   * @returns whether the code unit may appear in an address user name.
+   */
+  private isUserCode(code: number): boolean {
+    return code < 128 ? ((this.classes[code] as number) & USER) !== 0 : code === code && !isWideSpace(code)
+  }
+
+  /**
+   * Index of the literal the prefix scan matched ending at `end`; one literal sharing the ending matches, so the last needs no check.
+   * @param end - the offset after the matched literal.
+   * @returns the literal's index.
+   */
+  private literalEndingAt(end: number): number {
+    const text = this.text
+    const key = text.charCodeAt(end - 2) * 128 + text.charCodeAt(end - 1)
+    const literal = this.ending[key] as number
+    if (literal > 0) return literal - 1
+    const shared = this.sharedEndings[key] as readonly number[]
+    let index = 0
+    for (; index < shared.length - 1; index++) {
+      const candidate = shared[index] as number
+      if (text.startsWith(this.literals[candidate] as string, end - (this.literalLength[candidate] as number))) break
+    }
+    return shared[index] as number
+  }
+
+  /**
+   * End of the `[A-Za-z0-9_-]*` run at `start`, through four memo pairs replaced in turn.
+   * @param start - the run's first offset.
+   * @returns the offset after the run.
+   */
+  private keyRunEnd(start: number): number {
+    for (let slot = KEY_SLOTS; slot < KEY_NEXT; slot += 2) {
+      if (this.slot(slot) <= start && start <= this.slot(slot + 1)) return this.slot(slot + 1)
+    }
+    const end = runEnd(this.keyRun, this.text, start)
+    const next = (this.slot(KEY_NEXT) + 1) & 3
+    this.memo[KEY_NEXT] = next
+    this.memo[KEY_SLOTS + 2 * next] = start
+    this.memo[KEY_SLOTS + 2 * next + 1] = end
+    return end
+  }
+
+  /**
+   * End of the run `pattern` matches at `start`, through the memo pair at `slot`.
+   * @param pattern - the sticky run pattern.
+   * @param start - the run's first offset.
+   * @param slot - the memo pair to fill.
+   * @returns the offset after the run.
+   */
+  private memoRunEnd(pattern: RegExp, start: number, slot: number): number {
+    if (this.slot(slot) <= start && start <= this.slot(slot + 1)) return this.slot(slot + 1)
+    const end = runEnd(pattern, this.text, start)
+    this.memo[slot] = start
+    this.memo[slot + 1] = end
+    return end
+  }
+
+  /**
+   * Offset of the first digit at or after `start`, or the text length.
+   * @param start - the offset to search from.
+   * @returns the digit's offset.
+   */
+  private nextDigit(start: number): number {
+    if (this.slot(DIGIT_FROM) <= start && start <= this.slot(DIGIT_AT)) return this.slot(DIGIT_AT)
+    this.memo[DIGIT_FROM] = start
+    this.memo[DIGIT_AT] = runEnd(this.nonDigits, this.text, start)
+    return this.slot(DIGIT_AT)
+  }
+
+  /**
+   * Offset after `[A-Z0-9 ]{0,40}PRIVATE KEY-----` at `start`, or -1; reads at most 52 characters.
+   * @param start - the offset the label starts at.
+   * @returns the offset after the header label, or -1.
+   */
+  private labelEnd(start: number): number {
+    const text = this.text
+    const limit = Math.min(text.length, start + 52)
+    let index = start
+    while (index < limit) {
+      const code = text.charCodeAt(index)
+      if (code > 127 || ((this.classes[code] as number) & LABEL) === 0) break
+      index++
+    }
+    // "PRIVATE KEY" is label characters and the `-` after it is not, so the run ends right after it.
+    const tail = index - 'PRIVATE KEY'.length
+    return index < start + 52 && tail >= start && text.startsWith('PRIVATE KEY-----', tail) ? tail + 'PRIVATE KEY-----'.length : -1
+  }
+
+  /**
+   * End of the `-----BEGIN [A-Z0-9 ]{0,40}PRIVATE KEY-----` block at `at`: after its first complete
+   * `END` line, or the end of the text; -1 for an invalid header.
+   * @param at - the offset of the `-----BEGIN ` literal.
+   * @returns the offset after the block, or -1.
+   */
+  private keyBlockEnd(at: number): number {
+    const header = this.labelEnd(at + '-----BEGIN '.length)
+    if (header < 0) return -1
+    if (this.slot(BLOCK_FROM) <= header && header <= this.slot(BLOCK_END_START)) return this.slot(BLOCK_END)
+    const text = this.text
+    this.memo[BLOCK_FROM] = header
+    this.memo[BLOCK_END_START] = text.length
+    this.memo[BLOCK_END] = text.length
+    for (let line = text.indexOf('-----END ', header); line >= 0; line = text.indexOf('-----END ', line + 1)) {
+      const end = this.labelEnd(line + '-----END '.length)
+      if (end < 0) continue
+      this.memo[BLOCK_END_START] = line
+      this.memo[BLOCK_END] = end
+      break
+    }
+    return this.slot(BLOCK_END)
+  }
+
+  /**
+   * Whether `\b[a-z][a-z0-9+.-]{1,15}` ends at `at`; reads at most 17 characters back.
+   * @param at - the offset after the scheme.
+   * @returns whether a scheme ends there.
+   */
+  private schemeBefore(at: number): boolean {
+    const text = this.text
+    for (let start = at - 1; start >= 0 && start >= at - 16; start--) {
+      const code = text.charCodeAt(start)
+      const bits = code < 128 ? (this.classes[code] as number) : 0
+      if ((bits & SCHEME) === 0) return false
+      if ((bits & LOWER) !== 0 && at - start >= 2 && !this.isWordAt(start - 1)) return true
+    }
+    return false
+  }
+
+  /**
+   * The password in `\b[a-z][a-z0-9+.-]{1,15}://[^\s/:@?#]{0,256}:[^\s/@?#]+@` for the `://` at
+   * `at`; neither part crosses `?` or `#`, where the authority ends. Callers pass a `://` at or after
+   * the query offset, or one whose user name reaches it, so the password never starts before it.
+   * @param at - the offset of the `://` literal.
+   * @returns the password end with its start in the memo, or -1.
+   */
+  private addressPassword(at: number): number {
+    if (!this.schemeBefore(at)) return -1
+    const text = this.text
+    const userStart = at + '://'.length
+    const userEnd = this.memoRunEnd(this.userRun, userStart, USER_SLOT)
+    if (userEnd - userStart > 256 || text.charCodeAt(userEnd) !== 58) return -1
+    const start = userEnd + 1
+    const end = this.memoRunEnd(this.passwordRun, start, PASSWORD_SLOT)
+    if (end === start || text.charCodeAt(end) !== 64) return -1
+    this.memo[CANDIDATE_START] = start
+    return end
+  }
+
+  /**
+   * The address password at or after `from` whose `://` starts before `from`, as `addressPassword`
+   * returns it. The walk back over the user name runs only when a `:`, a password, and `@` follow.
+   * @param from - the query offset.
+   * @returns the password end with its start in the memo, or -1.
+   */
+  private addressBefore(from: number): number {
+    const text = this.text
+    if (from < 3) return -1
+    // `from` inside the `://`.
+    if (text.startsWith('://', from - 1)) return this.addressPassword(from - 1)
+    if (text.startsWith('://', from - 2)) return this.addressPassword(from - 2)
+    let index = from - 1
+    const before = text.charCodeAt(index)
+    let passwordStart: number
+    if (before === 58) {
+      // The password starts at `from`, right after the user name's `:`.
+      passwordStart = from
+      index--
+    } else if (this.isUserCode(before)) {
+      const userEnd = this.memoRunEnd(this.userRun, from, USER_SLOT)
+      if (text.charCodeAt(userEnd) !== 58) return -1
+      passwordStart = userEnd + 1
+    } else {
+      return text.startsWith('://', from - 3) ? this.addressPassword(from - 3) : -1
+    }
+    const passwordEnd = this.memoRunEnd(this.passwordRun, passwordStart, PASSWORD_SLOT)
+    if (passwordEnd === passwordStart || text.charCodeAt(passwordEnd) !== 64) return -1
+    // A user name is at most 256 characters, followed by `:`.
+    const lowest = Math.max(0, passwordStart - 258)
+    while (index >= lowest && this.isUserCode(text.charCodeAt(index))) index--
+    return index >= 2 && text.startsWith('://', index - 2) ? this.addressPassword(index - 2) : -1
+  }
+
+  /**
+   * End of the prefixed credential whose literal starts at `at`, or -1.
+   * @param literal - the literal's index.
+   * @param at - the offset of the literal.
+   * @returns the offset after the credential, or -1.
+   */
+  private prefixedEnd(literal: number, at: number): number {
+    if (this.isWordAt(at - 1)) return -1
+    const text = this.text
+    const start = at + (this.literalLength[literal] as number)
+    const check = this.literalCheck[literal] as number
+    const min = this.literalMin[literal] as number
+    if (check === SK) {
+      // `(?=[A-Za-z0-9_-]{0,255}\d)[A-Za-z0-9_-]{20,}`: the memoized next digit rejects a digit-free `sk-` before any run is measured.
+      const digit = this.nextDigit(start)
+      if (digit - start > 255) return -1
+      const end = this.keyRunEnd(start)
+      return end - start >= min && digit < end ? end : -1
+    }
+    const slot = this.literalSlot[literal] as number
+    const end = slot === 0 ? this.keyRunEnd(start) : this.memoRunEnd(this.literalPattern[literal] as RegExp, start, slot)
+    const length = end - start
+    if (length < min) return -1
+    if (check === RUN) return end
+    if (check === GOOGLE) return start + min
+    if (check === BOUNDED) return length <= (this.literalMax[literal] as number) && !this.isWordAt(end) ? end : -1
+    // `[A-Za-z0-9_-]{8,2048}\.eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}` after `eyJ`.
+    if (length > (this.literalMax[literal] as number) || !text.startsWith('.eyJ', end)) return -1
+    const payloadStart = end + '.eyJ'.length
+    const payloadEnd = this.keyRunEnd(payloadStart)
+    if (payloadEnd - payloadStart < min || text.charCodeAt(payloadEnd) !== 46) return -1
+    const signatureEnd = this.keyRunEnd(payloadEnd + 1)
+    return signatureEnd - (payloadEnd + 1) >= min ? signatureEnd : -1
   }
 }
 
-/**
- * Mask every candidate, merging overlapping ones into the range that starts
- * first, which keeps that range's mask.
- * @param text - the text the candidates were found in.
- * @param candidates - every candidate, in any order.
- * @returns the masked ranges in start order.
- */
-function toRanges(text: string, candidates: readonly Candidate[]): readonly SecretRange[] {
-  const ordered = [...candidates].sort((a, b) => a.start - b.start || a.end - b.end)
-  const ranges: SecretRange[] = []
-  let start = -1
-  let end = -1
-  let kind: Kind = 'prefixed'
-  for (const candidate of ordered) {
-    if (start >= 0 && candidate.start < end) {
-      if (candidate.end > end) end = candidate.end
-      continue
-    }
-    if (start >= 0) ranges.push({ start, end, masked: MASK_BUILDERS[kind](text, start, end) })
-    start = candidate.start
-    end = candidate.end
-    kind = candidate.kind
-  }
-  if (start >= 0) ranges.push({ start, end, masked: MASK_BUILDERS[kind](text, start, end) })
-  return ranges
-}
+const scanner = new CredentialScanner(formatTables())
 
 /**
  * Every credential in `text`, in start order, each with the display form that
@@ -240,9 +434,12 @@ function toRanges(text: string, candidates: readonly Candidate[]): readonly Secr
  * @returns the masked ranges; empty when the text holds no recognized credential.
  */
 export function scanSecrets(text: string): readonly SecretRange[] {
-  const candidates: Candidate[] = []
-  collectAddresses(text, candidates)
-  collectKeyBlocks(text, candidates)
-  collectPrefixed(text, candidates)
-  return toRanges(text, candidates)
+  const ranges: SecretRange[] = []
+  let from = 0
+  for (;;) {
+    const match = scanner.match(text, from)
+    if (match === undefined) return ranges
+    ranges.push(match)
+    from = match.end
+  }
 }

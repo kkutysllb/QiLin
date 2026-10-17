@@ -4,8 +4,12 @@
  * breaks of the original text.
  */
 import { describe, expect, it } from 'vitest'
-import { scanSecrets, type SecretRange } from '../src/credential-scanner.ts'
-import { MASK, maskKeyBlock, maskPrefixed, maskRange } from '../src/credential-masks.ts'
+import { CredentialScanner, scanSecrets, type SecretRange } from '../src/credential-scanner.ts'
+import { CredentialMasks, MASK } from '../src/credential-masks.ts'
+import { ADDRESS, KEY_BLOCK, PREFIXED } from '../src/credential-formats.ts'
+import { formatTables } from '../src/format-tables.ts'
+
+const masks = new CredentialMasks()
 
 /** The only range a text yields. */
 function only(text: string): SecretRange {
@@ -163,37 +167,169 @@ describe('scanSecrets', () => {
   })
 })
 
-describe('maskRange', () => {
-  it('draws one mark per code point', () => {
-    expect(maskRange('a😀b', 0, 4)).toBe('***')
-    expect(maskRange('ab', 1, 1)).toBe('')
+describe('CredentialScanner queries', () => {
+  const scanner = (): CredentialScanner => new CredentialScanner(formatTables())
+
+  it('answers a query that starts inside an address authority', () => {
+    const text = 'https://user:pw@h'
+    const password = { start: 13, end: 15, masked: '**' }
+    // Inside the `://`, one character before it, at the user name, and at the
+    // password's own first character.
+    for (const from of [6, 7, 8, 10, 13]) {
+      expect(scanner().match(text, from), String(from)).toEqual(password)
+    }
+    // Past the password there is no address password left to report.
+    expect(scanner().match(text, 16)).toBeUndefined()
+  })
+
+  it('rejects an authority whose scheme is not a bare lowercase word', () => {
+    expect(scanSecrets('1x://user:pw@h')).toEqual([])
+    // A space or a non-ASCII code unit before the scheme ends the walk.
+    expect(scanSecrets(' x://user:pw@h')).toEqual([])
+    expect(scanSecrets('üx://user:pw@h')).toEqual([])
+  })
+
+  it('rejects an address without a password', () => {
+    expect(scanSecrets('https://user:@h')).toEqual([])
+  })
+
+  it('rejects a query whose walk back cannot reach a scheme', () => {
+    const instance = scanner()
+    expect(instance.match('u:pw@h', 3)).toBeUndefined()
+    expect(instance.match('x:pw@h', 2)).toBeUndefined()
+    expect(instance.match(`${'u'.repeat(300)}:pw@h`, 301)).toBeUndefined()
+  })
+
+  it('reuses memoized runs and block ends across queries of one text', () => {
+    const instance = scanner()
+    const address = 'https://user:pass@host'
+    expect(instance.match(address, 0)?.masked).toBe('****')
+    expect(instance.match(address, 0)?.masked).toBe('****')
+    const sk = 'sk-' + 'a'.repeat(19) + '1'
+    expect(instance.match(sk, 0)?.end).toBe(sk.length)
+    expect(instance.match(sk, 0)?.end).toBe(sk.length)
+    const block = '-----BEGIN RSA PRIVATE KEY-----\nAA\n-----END RSA PRIVATE KEY-----'
+    expect(instance.match(block, 0)?.end).toBe(block.length)
+    expect(instance.match(block, 0)?.end).toBe(block.length)
+  })
+
+  it('stops a scan at an address password that follows the range it already has', () => {
+    // The deferred password starts after the prefixed key the scan already took,
+    // so the key stays the range and the scan ends there.
+    const key = 'ghp_' + 'A'.repeat(36)
+    const text = `https://${key}:pw@h ${key}`
+    const [range] = scanSecrets(text)
+    expect(text.slice(range?.start, range?.end)).toBe(key)
+  })
+
+  it('extends a prefixed range with a later prefixed candidate', () => {
+    // `AIza` matches exactly its 35 characters; the key after the hyphen runs on.
+    const text = 'AIza' + 'A'.repeat(10) + '-ghp_' + 'B'.repeat(40)
+    const [range] = scanSecrets(text)
+    expect(range?.start).toBe(0)
+    expect(range?.end).toBe(text.length)
+    expect(range?.masked.startsWith('AIzaAAAA')).toBe(true)
+  })
+
+  it('stops at a candidate inside a range that already reaches the text end', () => {
+    const text = 'AIza' + 'A'.repeat(10) + '-ghp_' + 'B'.repeat(10) + '-npm_' + 'C'.repeat(40)
+    const [range] = scanSecrets(text)
+    expect(range?.start).toBe(0)
+    expect(range?.end).toBe(text.length)
+  })
+})
+
+describe('CredentialMasks', () => {
+  it('draws one mark per code point without the readable-prefix rule', () => {
+    expect(masks.masked('a😀b', ADDRESS, false, 0, 4)).toBe('***')
+    expect(masks.masked('ab', ADDRESS, false, 1, 1)).toBe('')
   })
 
   it('counts an unpaired surrogate as one character', () => {
-    expect(maskRange('a\uD800', 0, 2)).toBe('**')
-    expect(maskRange('a\uD800b', 0, 3)).toBe('***')
+    expect(masks.masked('a\uD800', ADDRESS, false, 0, 2)).toBe('**')
+    expect(masks.masked('a\uD800b', ADDRESS, false, 0, 3)).toBe('***')
   })
 
   it('keeps line breaks in place', () => {
-    expect(maskRange('a\r\nb', 0, 4)).toBe('*\r\n*')
+    expect(masks.masked('a\r\nb', ADDRESS, false, 0, 4)).toBe('*\r\n*')
   })
-})
 
-describe('maskPrefixed', () => {
-  it('leaves the provider prefix readable', () => {
-    expect(maskPrefixed('sk-abcdefgh', 0, 11)).toBe('sk-abcde' + MASK.repeat(3))
+  it('leaves the provider prefix of a prefixed key readable, with and without line breaks', () => {
+    expect(masks.masked('sk-abcdefgh', PREFIXED, true, 0, 11)).toBe('sk-abcde' + MASK.repeat(3))
+    // A range with a line break falls back to the general mask past the eight
+    // readable characters, so the break stays in place.
+    expect(masks.masked('sk-abc\ndefgh', PREFIXED, false, 0, 12)).toBe('sk-abc\nd' + MASK.repeat(4))
   })
-})
 
-describe('maskKeyBlock', () => {
-  it('keeps the line breaks of a block written across lines', () => {
+  it('keeps the footer line of a block written across lines', () => {
     const header = '-----BEGIN RSA PRIVATE KEY-----'
     const footer = '-----END RSA PRIVATE KEY-----'
     const text = header + '\r\nBODY\r\n' + footer
-    expect(maskKeyBlock(text, 0, text.length)).toBe(header + '\r\n' + MASK.repeat(4) + '\r\n' + footer)
+    expect(masks.masked(text, KEY_BLOCK, false, 0, text.length))
+      .toBe(header + '\r\n' + MASK.repeat(4) + '\r\n' + footer)
   })
 
   it('masks a range shorter than a footer line whole', () => {
-    expect(maskKeyBlock('abc', 0, 3)).toBe('***')
+    expect(masks.masked('abc', KEY_BLOCK, false, 0, 3)).toBe('***')
+  })
+
+  it('masks each of many one-line private key blocks whole, with text after the last', () => {
+    const block = '-----BEGIN PRIVATE KEY-----abcd-----END PRIVATE KEY-----'
+    const ranges = scanSecrets(`${block} ${block} 完`)
+    expect(ranges.map(range => range.masked)).toEqual([MASK.repeat(block.length), MASK.repeat(block.length)])
+    expect(ranges[1]?.end).toBe(block.length * 2 + 1)
+  })
+
+  it('masks a body longer than the shared mark string with one repeated run', () => {
+    const body = 'a'.repeat(5000)
+    const text = `-----BEGIN PRIVATE KEY-----\n${body}\n-----END PRIVATE KEY-----`
+    expect(masks.masked(text, KEY_BLOCK, false, 0, text.length)).toBe(`-----BEGIN PRIVATE KEY-----\n${MASK.repeat(5000)}\n-----END PRIVATE KEY-----`)
+    const single = `-----BEGIN PRIVATE KEY-----${body}-----END PRIVATE KEY-----`
+    expect(masks.masked(single, KEY_BLOCK, false, 0, single.length)).toBe(MASK.repeat(single.length))
+  })
+
+  it('repeats the marks for a shared-string-length line that ends at a line break', () => {
+    // A line over the shared string's length cannot slice it, so it repeats.
+    const body = 'b'.repeat(5000)
+    const text = `-----BEGIN PRIVATE KEY-----\n${body}\n${body}\n-----END PRIVATE KEY-----`
+    expect(masks.masked(text, KEY_BLOCK, false, 0, text.length))
+      .toBe(`-----BEGIN PRIVATE KEY-----\n${MASK.repeat(5000)}\n${MASK.repeat(5000)}\n-----END PRIVATE KEY-----`)
+  })
+
+  it('masks a key body that ends inside a surrogate pair without splitting it', () => {
+    const text = '-----BEGIN PRIVATE KEY-----\nA😀B'
+    expect(masks.masked(text, KEY_BLOCK, false, 0, text.length)).toBe('-----BEGIN PRIVATE KEY-----\n***')
+  })
+
+  it('masks a body line longer than the shared string that ends with a carriage return', () => {
+    const body = 'c'.repeat(5000)
+    const text = `-----BEGIN PRIVATE KEY-----\n${body}\r\n-----END PRIVATE KEY-----`
+    expect(masks.masked(text, KEY_BLOCK, false, 0, text.length))
+      .toBe(`-----BEGIN PRIVATE KEY-----\n${MASK.repeat(5000)}\r\n-----END PRIVATE KEY-----`)
+  })
+
+  it('counts a high surrogate followed by an ordinary character as two characters', () => {
+    const text = '-----BEGIN PRIVATE KEY-----\nA\uD800B\nC\n-----END PRIVATE KEY-----'
+    expect(masks.masked(text, KEY_BLOCK, false, 0, text.length))
+      .toBe('-----BEGIN PRIVATE KEY-----\n***\n*\n-----END PRIVATE KEY-----')
+  })
+
+  it('counts a lone high surrogate that ends the body as one character', () => {
+    // The body ends right after the surrogate, so there is no next code unit to
+    // pair it with.
+    const text = '-----BEGIN PRIVATE KEY-----\nA\uD800\n-----END PRIVATE KEY-----'
+    expect(masks.masked(text, KEY_BLOCK, false, 0, text.length))
+      .toBe('-----BEGIN PRIVATE KEY-----\n**\n-----END PRIVATE KEY-----')
+  })
+
+  it('masks a prefixed run without line breaks through the plain path only', () => {
+    expect(masks.masked('ghp_' + 'A'.repeat(36), PREFIXED, true, 0, 40)).toBe('ghp_AAAA' + MASK.repeat(32))
+  })
+
+  it('skips a wide space inside an address user name and a lone surrogate code unit', () => {
+    const scanner = new CredentialScanner(formatTables())
+    const wide: readonly string[] = ['\u00a0', '\u1680', '\u2000', '\u2007', '\u200a', '\u2028', '\u2029', '\u202f', '\u205f', '\u3000', '\ufeff']
+    for (const space of wide) expect(scanner.match(`ab${space}pw@h`, 3), JSON.stringify(space)).toBeUndefined()
+    expect(scanner.match('x', 5)).toBeUndefined()
   })
 })
