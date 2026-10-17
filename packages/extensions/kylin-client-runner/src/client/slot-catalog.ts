@@ -91,6 +91,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -151,6 +152,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'MessageId',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -201,6 +203,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'CompactionSummaryNode',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -242,6 +245,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'RenderEntry',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -295,6 +299,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'TurnTailOwnerProps',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -352,6 +357,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -413,6 +419,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'TurnLocation',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -465,6 +472,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'SessionSnapshot',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -508,6 +516,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'Workspace',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -562,6 +571,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ownerProps: [],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -600,6 +610,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ownerProps: [],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -637,6 +648,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -668,6 +680,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -705,6 +718,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -738,6 +752,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'Workspace',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -769,6 +784,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -803,6 +819,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'InputControlOwnerProps',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -846,6 +863,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'DraftFileUploads',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -905,6 +923,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'SessionSnapshot',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -929,6 +948,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'client-ui-conversation QueueDock id \'queue\'',
       'client-ui-conversation TodoDock id \'todo\'',
       'client-ui-goal GoalDock id \'goal\'',
+      'experimental-client-ui-claude-code-mods Band id \'claude-code-mods\'',
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'conversation.input.dock\', () => ctx.slots.register(\n      { name: \'conversation.input.dock\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
@@ -963,6 +983,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ownerProps: [],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -1000,6 +1021,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -1056,6 +1078,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ownerProps: [],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -1097,6 +1120,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -1136,6 +1160,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -1192,6 +1217,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ownerProps: [],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -1233,6 +1259,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'MessageImageSource',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -1291,6 +1318,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -1328,6 +1356,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ownerProps: [],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -1365,6 +1394,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ownerProps: [],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -1423,6 +1453,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -1466,6 +1497,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -1507,6 +1539,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'SessionId',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -1565,6 +1598,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -1610,6 +1644,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'MessageImageSource',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -1670,6 +1705,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'ConversationViewRequest',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -1714,6 +1750,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ownerProps: [],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -1745,6 +1782,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ownerProps: [],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -1801,6 +1839,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -1839,6 +1878,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -1879,6 +1919,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'ConfigPageForm',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -1932,6 +1973,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'PluginsSubject',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -1982,6 +2024,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'PluginsSubject',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2032,6 +2075,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'PluginsSubject',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2082,6 +2126,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'ConfigPageForm',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2138,6 +2183,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'PluginTabInstall',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2169,6 +2215,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2203,6 +2250,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'Branded',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2242,6 +2290,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2273,6 +2322,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2323,6 +2373,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2354,6 +2405,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2404,6 +2456,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2445,6 +2498,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2495,6 +2549,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2533,6 +2588,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'ProviderDirectoryEntry',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2581,6 +2637,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2631,6 +2688,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2681,6 +2739,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2718,6 +2777,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ownerProps: [],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2730,8 +2790,10 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     hookContext: '',
     slotInject: '',
     declaredBy: 'an entry in \'root\' (client-ui-layout), so it exists while that entry is mounted',
-    occupants: [],
-    replaceRisk: 'none',
+    occupants: [
+      'experimental-inspector InspectorPage',
+    ],
+    replaceRisk: 'shadows-shipped-ui',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'shell.bottom\', () => ctx.slots.register(\n      { name: \'shell.bottom\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
     source: 'packages/client/ui-layout/src/client/index.ts:94',
   },
@@ -2764,6 +2826,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ownerProps: [],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2799,6 +2862,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2830,6 +2894,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2861,6 +2926,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2892,6 +2958,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2919,6 +2986,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ownerProps: [],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -2977,6 +3045,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -3027,6 +3096,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -3064,6 +3134,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ownerProps: [],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -3102,6 +3173,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'client-ui-trajectory TrajectoryView',
       'client-ui-trajectory TrajectoryGraphView',
       'experimental-client-ui-agent-team TeamBody',
+      'experimental-session-inspector SessionInspectorView',
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'sidebar.right.pane.tab\', () => ctx.slots.register(\n      { name: \'sidebar.right.pane.tab\', key: \'<one key the owner dispatches>\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
@@ -3124,6 +3196,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ownerProps: [],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -3168,6 +3241,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ownerProps: [],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -3225,6 +3299,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'DocumentContent',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -3281,6 +3356,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'DocumentTextPage',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -3337,6 +3413,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -3385,6 +3462,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'DocumentContent',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -3443,6 +3521,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -3499,6 +3578,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ownerProps: [],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -3543,6 +3623,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ownerProps: [],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -3587,6 +3668,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -3647,6 +3729,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'TabRecord',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -3703,6 +3786,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -3755,6 +3839,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'SessionId',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -3807,6 +3892,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'SessionId',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -3838,6 +3924,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -3867,6 +3954,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ownerProps: [],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -3896,6 +3984,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -3927,6 +4016,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     ownerPropsReferences: [],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -3962,6 +4052,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'MessageImageSource',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -4017,6 +4108,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'UseDisclosure',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',
@@ -4120,6 +4212,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'CordisDynamicPluginRunId',
     ],
     standardProps: [
+      'useRemoteAccess: (action: RemoteEndpoint) => boolean',
       'useResource: UseResource',
       'useWorkspaces: SnapshotSelectorHook<WorkspaceSnapshot>',
       'usePanelInfo: UsePanelInfo',

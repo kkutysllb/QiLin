@@ -1,0 +1,25 @@
+# Bilingual-pair consistency record for inspector.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/subsystems/inspector.md
+/inspector:
+  en: 1b5c242ccc434087
+  zh: b70e52673e712f5b
+/inspector/runtime-layout:
+  en: d837b70fbc0fbf8c
+  zh: 670a12ab9e711562
+/inspector/observation-api:
+  en: 4201ae95ed0225ca
+  zh: f66ebd706ad8f40d
+/inspector/cordis-tree-inspection:
+  en: f92beee2d0d52eda
+  zh: 3bbd0dd4e6adb5a8
+/inspector/host-fetch-capture:
+  en: 371a13fe4b59afc9
+  zh: 6c42cc88d1045a39
+/inspector/security:
+  en: 4f7b9aa4291ea596
+  zh: 8ff5f33aa26d8fa0
+/inspector/developer-tools-bundle:
+  en: fa5ade62ad65cb8f
+  zh: 16531f5d81b131a2
