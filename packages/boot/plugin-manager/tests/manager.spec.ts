@@ -26,8 +26,8 @@ import { parse, parseDocument } from 'yaml'
 import { isolateGitCommandLineConfig } from './git-environment.ts'
 
 /**
- * This release ships no on-demand Official bundle (\`ON_DEMAND_BUNDLES\` is empty), so the catalogue
- * cases below supply the single entry this manager must handle on behalf of a release that ships one.
+ * The catalogue cases below replace the generated on-demand catalog with one fixture entry, so each
+ * case states the entry it exercises instead of depending on which providers a release advertises.
  */
 const { CATALOG_ENTRY } = vi.hoisted(() => ({
   CATALOG_ENTRY: {

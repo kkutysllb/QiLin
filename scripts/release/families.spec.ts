@@ -289,10 +289,15 @@ describe('release families', () => {
       .toThrow('Official catalog prerequisite')
   })
 
-  it('ships no advertised on-demand provider', () => {
-    expect(ON_DEMAND_BUNDLES).toEqual([])
-    expect(releaseFamily('qilin').publishOrder([member('apps/cli', '@qilin-agent/cli')]).order.map(entry => entry.name))
-      .toEqual(['@qilin-agent/cli'])
+  it('publishes each advertised on-demand provider before the installation', () => {
+    expect(ON_DEMAND_BUNDLES).toEqual([
+      '@qilin-agent/subagent-claude-code',
+      '@qilin-agent/subagent-codex',
+    ])
+    const cli = member('apps/cli', '@qilin-agent/cli')
+    const providers = ON_DEMAND_BUNDLES.map(name => member(name.replace('@qilin-agent/', 'packages/subagent/'), name))
+    expect(releaseFamily('qilin').publishOrder([cli, ...providers]).order.map(entry => entry.name))
+      .toEqual([...ON_DEMAND_BUNDLES, '@qilin-agent/cli'])
   })
 
   it('reports a runtime dependency cycle instead of emitting an arbitrary order', () => {
