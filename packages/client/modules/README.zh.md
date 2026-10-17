@@ -96,6 +96,11 @@ bundle 路由随注入的 `webServer` 生命周期注册：服务就绪时注册
 
 </details>
 
+<a id="host-release-changes"></a>
+## Host release 变更
+
+构建出的 Host 为它提供的客户端图带上 `WebBootRelease`：本包版本与客户端构建固定进产物的源码 commit。页面只在 Host 提供的 release 与页面启动时的 release 一致时才应用图与重建帧，因此它运行的每个模块都属于同一个 release。当已连接的 Host 提供另一个 release 时，页面保留当前模块并在 shell 中提示该变更（插件页的 Host Release 通知）；插件更新在页面重载后生效。Host 不提供 release 时省略该字段，页面则不做比较地应用图。
+
 -----
 
 <a id="further-exploration"></a>

@@ -96,6 +96,10 @@ The host contributes structured index rows that inject, into `<head>`: the `wind
 
 </details>
 
+## Host release changes
+
+The built Host stamps the client graph it serves with `WebBootRelease`: this package's version and the source commit the client build fixed into the artifact. A page applies graphs and rebuilt frames only while the Host serves the release the page booted from, so every module it runs belongs to one release. When a connected Host serves another release, the page keeps its current modules and announces the change in the shell (the Host Release notice in the Plugins page); plugin updates apply after a page reload. A Host that publishes none omits `release`, and pages then apply graphs without comparing.
+
 -----
 
 <a id="further-exploration"></a>

@@ -59,6 +59,8 @@ interface WebBootBatch {
 interface WebBootGraph {
   /** Consistency anchor over the current entry and batch descriptors. */
   rev: string
+  /** Host release identity; absent from a Host that publishes none. */
+  release?: WebBootRelease
   /**
    * Composed entries in module-graph order — a dynamic package row precedes
    * rows whose `external` requests that package. Cordis activation order is
@@ -69,6 +71,8 @@ interface WebBootGraph {
   batches: WebBootBatch[]
 }
 ```
+
+`release` 把本包版本与客户端构建固定进 Host 产物的源码 commit 配对，且不进入图 revision。页面只在 Host 提供的 release 与页面启动时的 release 一致时才应用图与重建帧；另一 release 会等待页面重载（[Host release 变更](../../packages/client/modules/README.zh.md#host-release-changes)）。
 
 每个初始 row 的 `rev` 都是不透明的进程 nonce 加序号，因此组合图时不会哈希每个插件产物。HMR 观察到 bundle 变化后，该 row 的 revision 才改为新可执行字节的哈希。初始 descriptor 把 row 划入 bootstrap 与 application 两个调度阶段，每个阶段都可以包含多条 descriptor。URL 只含有序 package 资源列表和从这些 row revision 派生的 revision，阶段名不会进入路由。图组合保持 row 顺序，并在 map 形式 URL 超过 3 KiB 前贪心切分，不拼接脚本，也不读取 map。图 revision 对 entry 与 batch descriptor 求哈希。`immediately` 标记第一阶段的 registration barrier；同一 combo 中的 row 共享脚本传输，不同 combo 则独立加载。
 
