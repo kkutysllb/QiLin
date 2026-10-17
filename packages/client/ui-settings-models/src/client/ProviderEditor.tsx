@@ -25,7 +25,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import type {
-  CredentialInfo, SettingsNamespaceView, SettingsPathOpView,
+  CredentialInfo, LlmNativeAuth, SettingsNamespaceView, SettingsPathOpView,
 } from '@qilin-agent/api-remotes/client'
 import type { JsonValue } from '@qilin-agent/util-values'
 import {
@@ -42,6 +42,7 @@ import { protocolLabel } from './protocol-label.ts'
 import type { ModelsOperations } from './operations.ts'
 import type { SettingsSchemaOperations } from './schema-operations.ts'
 import type { en } from './locales.ts'
+import { ApiKeyInput } from './ApiKeyInput.tsx'
 import styles from './ModelsSection.module.css'
 
 /** Per-adapter-family curated field sets (unknown namespaces get the hint alone). */
@@ -69,6 +70,12 @@ export interface ProviderEditorProps {
   namespace: SettingsNamespaceView
   /** Settings-owned synchronous schema and immutable path operations. */
   schema: SettingsSchemaOperations
+  /** Environment variables used by the provider to construct its endpoint. */
+  baseURLEnv?: readonly string[]
+  /** Authentication the route performs when its profile names no credential reference; absent when the adapter reports none. */
+  nativeAuth?: LlmNativeAuth
+  /** Redacted checks for the profile's named reference or the provider's native variables. */
+  credentialChecks?: Readonly<Record<string, CredentialInfo>>
   /** Path from the section root to this provider's profile. */
   settingsPath: readonly string[]
   /** The Host operations this card writes and interrogates through. */
@@ -357,11 +364,42 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
     const defaultContextWindow = schema.getPath(fallback, ['defaultContextWindow'])
     const defaultMaxTokens = schema.getPath(fallback, ['maxTokens'])
     const defaultInput = schema.getPath(fallback, ['defaultInput'])
+    // A named reference is the only credential the adapter reads for this
+    // route. Without one, a catalog route authenticates the way the directory
+    // reports, and a declared route sends no key at all.
+    const namedRef = stringAt(fallback, 'apiKeyEnv')
+    const nativeAuth = namedRef === undefined ? props.nativeAuth : undefined
+    const endpointEnv = props.baseURLEnv ?? []
+    const baseURL = stringAt(fallback, 'baseURL')
+    const endpointHint = family === 'deepseek' ? t('deepSeekEndpointHint')
+      : baseURL === undefined && endpointEnv.length > 0 ? t('baseUrlEnvironment').replace('{env}', () => endpointEnv.join(', ')) : undefined
+    const authRefs = namedRef === undefined
+      ? (nativeAuth?.env ?? []).filter(ref => !endpointEnv.includes(ref)) : [namedRef]
+    // Display method-neutral references without changing the adapter's lookup.
+    const visibleRefs = authRefs.filter(ref => !ref.toLowerCase().includes('oauth'))
+    const keyHint = visibleRefs[0]
+    const checkedRefs = authRefs.map(ref => [
+      ref, props.credentialChecks?.[ref] ?? (ref === keyRef ? keyState : undefined),
+    ] as const)
+    const detected = checkedRefs.find(([, info]) => info?.configured === true)
+    const detectedRef = detected?.[0]
+    const detectedVisibleRef = detectedRef === undefined || !visibleRefs.includes(detectedRef) ? undefined : detectedRef
+    const missingRefs = checkedRefs.length > 0 && checkedRefs.every(([, info]) => info?.configured === false)
+    const savedCredential = detected?.[1]?.source === 'file'
+    // What the blank field says: a detected source names it, an all-missing or
+    // unchecked set asks for a key. A typed draft hides every hint.
+    const credentialHint = keyDraft.length > 0 || savedCredential || keyHint === undefined || props.credentialRequired === true || keyLocked
+      ? undefined
+      : t(detectedRef === undefined ? missingRefs ? 'keyFallbackMissing' : 'keyFallbackUnchecked'
+        : detectedVisibleRef === undefined ? 'keyFallbackDetectedHidden' : 'keyFallbackDetected')
+        .replace('{hint}', () => detectedVisibleRef ?? keyHint)
     const keyPlaceholder = keyLocked
       ? t('keyEnvLocked')
       : keyState?.configured === true && props.credentialRequired !== true
         ? t('keyStored')
-        : family === 'pi-ai' ? t('keyPlaceholderNative') : t('keyPlaceholder')
+        : savedCredential
+          ? t('keyPlaceholderSaved')
+          : family === 'pi-ai' && keyHint !== undefined && props.credentialRequired !== true ? t('keyPlaceholderNative') : t('keyPlaceholder')
     /** What both family editors take: the rows, whose layer owns them, and the two writes. */
     const catalogProps = {
       models,
@@ -377,19 +415,28 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
       <>
         <div className={styles['field']}>
           <span className={styles['fieldLabel']}>{t('keyInput')}</span>
-          <input
-            className={styles['input']}
-            type="password"
-            autoComplete="off"
+          <ApiKeyInput
+            t={t}
             value={keyDraft}
             placeholder={keyPlaceholder}
             aria-label={t('keyInput')}
             aria-invalid={shownKeyFailure !== undefined}
+            aria-describedby={credentialHint === undefined ? undefined : `${props.provider}-credential-hint`}
             required={props.credentialRequired === true}
             autoFocus={props.autoFocusCredential === true}
             disabled={disabled || keyLocked}
             onChange={(event) => { setKeyDraft(event.target.value) }}
           />
+          {credentialHint === undefined
+            ? null
+            : (
+              <p
+                id={`${props.provider}-credential-hint`}
+                className={styles[missingRefs ? 'notice' : detectedRef === undefined ? 'advancedHint' : 'savedNotice']}
+              >
+                {credentialHint}
+              </p>
+            )}
           {shownKeyFailure === undefined ? null : <p className={styles['error']}>{t(shownKeyFailure)}</p>}
         </div>
         {props.credentialOnly === true ? null : <details className={styles['customized']}>
@@ -430,15 +477,16 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
                 value={stringAt(draft, 'baseURL') ?? ''}
                 placeholder={family === 'deepseek'
                   ? t('deepSeekBaseUrl')
-                  : stringAt(fallback, 'baseURL') ?? t('baseUrlDefault')}
-                aria-describedby={family === 'deepseek' ? `${props.provider}-endpoint-hint` : undefined}
+                  : baseURL === undefined ? t(endpointEnv.length > 0 ? 'baseUrlConfigured' : 'baseUrlDefault')
+                    : baseURL}
+                aria-describedby={endpointHint === undefined ? undefined : `${props.provider}-endpoint-hint`}
                 aria-label={t('baseUrl')}
                 disabled={disabled}
                 onChange={(event) => {
                   setField('baseURL', event.target.value === '' ? undefined : event.target.value)
                 }}
               />
-              {family === 'deepseek' ? <span id={`${props.provider}-endpoint-hint`} className={styles['advancedHint']}>{t('deepSeekEndpointHint')}</span> : null}
+              {endpointHint === undefined ? null : <span id={`${props.provider}-endpoint-hint`} className={styles['advancedHint']}>{endpointHint}</span>}
             </div>
             {/* The protocol sits beside the endpoint it describes, as it does
                 on the create card. */}

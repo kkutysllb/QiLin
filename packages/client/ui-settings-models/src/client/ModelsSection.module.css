@@ -645,6 +645,42 @@ select.input {
   opacity: 0.6;
   cursor: default;
 }
+.keyInput {
+  position: relative;
+}
+
+.keyInputFilled {
+  padding-right: 40px;
+}
+
+.keyToggle {
+  position: absolute;
+  inset: 1px 1px 1px auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--qilin-radius-md);
+  background: none;
+  color: var(--qilin-alias-label-secondary);
+  cursor: pointer;
+}
+
+.keyToggle:hover:not(:disabled) {
+  color: var(--qilin-alias-label-primary);
+}
+
+.keyToggle:focus-visible {
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
+  outline-offset: -2px;
+}
+
+.keyToggle:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
 
 /* Select variant of .input: replaces the OS arrow (which sits flush against
    the right edge) with the shared 12px chevron inset like the composer's

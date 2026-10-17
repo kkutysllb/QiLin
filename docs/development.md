@@ -114,13 +114,15 @@ DEEPSEEK_BASE_URL=https://... # optional
 
 lefthook is configured in `lefthook.yml` as a fast local checkpoint:
 
-- `pre-commit` verifies staged pairing records against the staged owner blobs, validates staged files with the project-free `.oxlintrc.staged.json` profile and applies Oxlint fixes with one bounded retry, regenerates `THIRD_PARTY_NOTICES.md` when a staged file is one of its inputs, checks the staged diff for whitespace errors, and runs the vendor manifest guard.
+- `pre-commit` verifies staged pairing records against the staged owner blobs, validates staged files with the project-free `.oxlintrc.staged.json` profile and applies Oxlint fixes with one bounded retry, regenerates `THIRD_PARTY_NOTICES.md` when a staged file is one of its inputs, checks the staged diff for whitespace errors, checks pi-ai provider metadata when its inputs or generated file are staged, and runs the vendor manifest guard.
 - `pre-merge-commit` performs the same index-backed pairing check before Git creates an automatic merge commit.
 - `pre-push` runs `pnpm run typecheck`, which completes the Host lib phase, including generated Typert contracts, before the Client TypeScript check.
 
 The vendor manifest guard checks that changes under `vendor/*/src` are staged with the matching `vendor/README.md` manifest update. See `vendor/README.md` before editing vendored code.
 
-Apart from the scoped staged-record verification, the hooks intentionally do not run tests, snapshots, documentation checks, builds, or hygiene. Contributors run the [checks relevant to the changed behavior](../AGENTS.md#run-relevant-checks-locally) once; exhaustive coverage, built-artifact smokes, and the Node matrix stay local or on demand.
+The pi-ai check regenerates expected metadata in memory. It rejects stale data without rewriting or staging files. After a pi-ai dependency or generator change, follow the package's [provider metadata update steps](../packages/llm/llm-pi-ai/README.md#generated-provider-metadata).
+
+Apart from the scoped pairing and provider metadata checks, the hooks intentionally do not run tests, snapshots, documentation checks, builds, or hygiene. Contributors run the [checks relevant to the changed behavior](../AGENTS.md#run-relevant-checks-locally) once; exhaustive coverage, built-artifact smokes, and the Node matrix stay local or on demand.
 
 Contributors can opt into the comprehensive local gate set with `pnpm run check:all`. The command is independent of the Git hooks and is not an agent instruction.
 

@@ -16,6 +16,17 @@ it.each([false, true])('retains configuration diagnostics when the route is acti
   }])
 })
 
+it('carries the endpoint configuration and native authentication the adapter reports onto the row', () => {
+  const nativeAuth = { env: ['ANTHROPIC_AUTH_TOKEN', 'ANTHROPIC_OAUTH_TOKEN', 'ANTHROPIC_API_KEY'], oauth: true }
+  expect(joinProviderDirectory([], [{
+    provider: 'anthropic', displayName: 'anthropic', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'anthropic'],
+    defaultBaseURL: 'https://api.anthropic.com', baseURLEnv: ['ENDPOINT'], nativeAuth,
+  }])).toEqual([{
+    provider: 'anthropic', displayName: 'anthropic', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'anthropic'],
+    active: false, defaultBaseURL: 'https://api.anthropic.com', baseURLEnv: ['ENDPOINT'], nativeAuth,
+  }])
+})
+
 let nextRpc = 0
 function ok<T>(value: T): RpcResponse<T> {
   return { rpcId: `r-${nextRpc++}` as never, result: { ok: true, value } }
@@ -119,6 +130,37 @@ function api(overrides: {
 }
 
 describe('ModelsSettingsStore', () => {
+  it('describes native variables without exposing secret values and respects the 64-reference limit', async () => {
+    const providers = Array.from({ length: 65 }, (_, index) => ({
+      provider: `fixture-${index}`, displayName: 'fixture', settingsNs: 'llm-pi-ai', settingsPath: ['providers', `fixture-${index}`],
+      nativeAuth: { env: [`NATIVE_${index}`], oauth: false },
+    }))
+    const { ctx, mirror, seenRefs } = api({ providers: () => Promise.resolve(ok({ providers })) })
+    const store = new ModelsSettingsStore(ctx, settingsSchema, mirror)
+    await store.load()
+    expect(seenRefs.map(refs => refs.length)).toEqual([64, 64, 2])
+    expect(seenRefs.flat()).toContain('NATIVE_64')
+    expect(store.store.getSnapshot().rows[64]!.credentialChecks)
+      .toEqual({ NATIVE_64: { configured: false, writable: true } })
+  })
+
+  it('drops checked references the redacted answer does not name', async () => {
+    const providers = [{
+      provider: 'omitted', displayName: 'omitted', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'omitted'],
+      nativeAuth: { env: ['OMITTED_A', 'OMITTED_B'], oauth: false },
+    }]
+    const { ctx, mirror } = api({
+      providers: () => Promise.resolve(ok({ providers })),
+      describeCredentials: refs => Promise.resolve(remoteOk(
+        Object.fromEntries(refs.filter(ref => ref !== 'OMITTED_B').map(ref => [ref, { configured: false, writable: true }]))),
+      ),
+    })
+    const store = new ModelsSettingsStore(ctx, settingsSchema, mirror)
+    await store.load()
+    expect(store.store.getSnapshot().rows[0]!.credentialChecks)
+      .toEqual({ OMITTED_A: { configured: false, writable: true } })
+  })
+
   it('joins rows with configured, removable, and credential state', async () => {
     const { ctx, mirror, seenRefs } = api()
     const store = new ModelsSettingsStore(ctx, settingsSchema, mirror)

@@ -16,6 +16,12 @@ Keys are write-only. The page receives a redacted descriptor after saving, never
 
 Choose **Add provider** and pick a provider qilin ships with; the list shows provider ids such as `anthropic`, `openai`, `moonshotai` for Kimi, or `zai` for GLM. Enter its API key and save. The installed catalog supplies the endpoint, protocol, and model list.
 
+Leave the key blank to use a saved credential or try the listed environment variables. A hint below the empty input names a detected environment variable, the first variable to configure when none is detected, or reports an unconfirmed status read. Detection does not validate the credential or test the connection. Provider-managed credential files, including AWS profiles and Google application-default credentials, are outside this check.
+
+A saved credential uses the placeholder **Leave blank to use saved credentials**, with no status text below the input. Environment fallback shows one detection hint while the input is empty, and a nonempty input shows no authentication status text. Address configuration variables appear under **Base URL** and do not count as credentials.
+
+A nonempty key input has an eye button. Select **Show secret** to check what you typed, and **Hide secret** to mask it again. Changing the input masks it again. Stored credentials remain write-only.
+
 Providers that sign in with OAuth, such as Codex, are not supported here yet.
 
 ## Add a custom provider

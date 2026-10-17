@@ -23263,7 +23263,7 @@
       "digest": "13f085f500c3a6dcd657533e78bc8a61493b0c4ebcc8a574f52c45ada2c873a4",
       "names": [],
       "sources": [
-        "packages/llm/llm/src/types.ts:454"
+        "packages/llm/llm/src/types.ts:472"
       ]
     },
     {
@@ -23535,7 +23535,7 @@
       "digest": "22555f389d6bcfa70b53f7162c2493718962a8469f852ed8eb557ddf7c51f6dc",
       "names": [],
       "sources": [
-        "packages/llm/llm/src/types.ts:456"
+        "packages/llm/llm/src/types.ts:474"
       ]
     },
     {
@@ -23775,7 +23775,7 @@
         "packages/llm/llm/src/types.ts#SystemPromptUpdate"
       ],
       "sources": [
-        "packages/llm/llm/src/types.ts:396"
+        "packages/llm/llm/src/types.ts:414"
       ]
     },
     {
@@ -23932,7 +23932,7 @@
         "packages/llm/llm/src/types.ts#ReplayEnvelope"
       ],
       "sources": [
-        "packages/llm/llm/src/types.ts:430"
+        "packages/llm/llm/src/types.ts:448"
       ]
     },
     {
@@ -24293,7 +24293,7 @@
         "packages/llm/llm/src/types.ts#StreamChunk"
       ],
       "sources": [
-        "packages/llm/llm/src/types.ts:452"
+        "packages/llm/llm/src/types.ts:470"
       ]
     },
     {
@@ -24550,7 +24550,7 @@
         "packages/llm/llm/src/types.ts#ToolSchema"
       ],
       "sources": [
-        "packages/llm/llm/src/types.ts:473"
+        "packages/llm/llm/src/types.ts:491"
       ]
     },
     {
@@ -24858,7 +24858,7 @@
       "digest": "815d7410253f6ef19e3aed6d66f99be103b8d96ace1ae011e2df745161b52c8f",
       "names": [],
       "sources": [
-        "packages/llm/llm/src/types.ts:453"
+        "packages/llm/llm/src/types.ts:471"
       ]
     },
     {
@@ -24887,7 +24887,7 @@
       "digest": "823eb66fb0f3c0aca80ed525ef6bc20772e443cb067b9f8db49786c8a579bbfa",
       "names": [],
       "sources": [
-        "packages/llm/llm/src/types.ts:459"
+        "packages/llm/llm/src/types.ts:477"
       ]
     },
     {
@@ -25330,7 +25330,7 @@
       "digest": "9dd696c6822bc8557cc19cbcdaa089f9f50d07844db2d90defbf152013253f0f",
       "names": [],
       "sources": [
-        "packages/llm/llm/src/types.ts:455"
+        "packages/llm/llm/src/types.ts:473"
       ]
     },
     {
@@ -25830,7 +25830,7 @@
       "digest": "bc07751e2f0d0d56356fc63613a602470a2b6227cacda25926ab8f203f91098e",
       "names": [],
       "sources": [
-        "packages/llm/llm/src/types.ts:457"
+        "packages/llm/llm/src/types.ts:475"
       ]
     },
     {
@@ -26261,7 +26261,7 @@
       "digest": "e25bdbb40a55047b4f3ee371dbada327c1a6c20326efa5bb1bffb48cf9887816",
       "names": [],
       "sources": [
-        "packages/llm/llm/src/types.ts:458"
+        "packages/llm/llm/src/types.ts:476"
       ]
     },
     {

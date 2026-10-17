@@ -1270,6 +1270,8 @@ describe('configurable-provider directory', () => {
       settingsNs: 'llm-pi-ai',
       settingsPath: ['providers', 'openai-codex'],
       declared: false,
+      defaultBaseURL: 'https://chatgpt.com/backend-api',
+      nativeAuth: { env: [], oauth: true },
     })
   })
 })

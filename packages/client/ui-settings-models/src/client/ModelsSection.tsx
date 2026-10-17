@@ -16,6 +16,7 @@ import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { Button, IconPlusOutline16, Modal } from '@qilin-agent/client-ui-primitives'
 import type { InjectFace, PropsRenderSlots } from '@qilin-agent/client-ui-slots'
+import type { LlmNativeAuth } from '@qilin-agent/api-remotes/client'
 // Type-only: pulls this package's SlotMap merge (the two Models child slots).
 import type {} from './slot-contract.ts'
 import { CustomProviderCard } from './CustomProviderCard.tsx'
@@ -76,6 +77,10 @@ interface EditorTarget extends ProviderIdentity {
   credentialRef?: string
   /** The adapter reports this route as one it does not ship (see {@link ProviderEditorProps.declared}). */
   declared?: boolean
+  /** Environment used to construct an endpoint (see {@link ProviderEditorProps.baseURLEnv}). */
+  baseURLEnv?: readonly string[]
+  /** The route's native authentication (see {@link ProviderEditorProps.nativeAuth}). */
+  nativeAuth?: LlmNativeAuth
 }
 
 /** Values that vary around the shared provider-editor rendering. */
@@ -84,16 +89,20 @@ interface ProviderEditorRenderProps extends Pick<
   'namespace' | 'schema' | 'operations' | 't' | 'readOnly' | 'onClose'
 > {
   target: EditorTarget
+  row: ProviderRow
 }
 
 /** Render an editor for either the setup posture or an expanded provider row. */
-function renderProviderEditor({ target, ...props }: ProviderEditorRenderProps): ReactNode {
+function renderProviderEditor({ target, row, ...props }: ProviderEditorRenderProps): ReactNode {
   return (
     <ProviderEditor
       provider={target.provider}
       displayName={target.displayName}
       settingsPath={target.settingsPath}
       {...target.declared === true ? { declared: true } : {}}
+      {...target.baseURLEnv === undefined ? {} : { baseURLEnv: target.baseURLEnv }}
+      {...target.nativeAuth === undefined ? {} : { nativeAuth: target.nativeAuth }}
+      {...row.credentialChecks === undefined ? {} : { credentialChecks: row.credentialChecks }}
       {...props}
     />
   )
@@ -172,6 +181,8 @@ function targetOf(row: ProviderRow): EditorTarget {
     ...credentialRef === undefined ? {} : { credentialRef },
     // Only declared routes may expose route-owned fields.
     ...row.entry.declared === true ? { declared: true } : {},
+    ...row.entry.baseURLEnv === undefined ? {} : { baseURLEnv: row.entry.baseURLEnv },
+    ...row.entry.nativeAuth === undefined ? {} : { nativeAuth: row.entry.nativeAuth },
   }
 }
 
@@ -348,6 +359,7 @@ function Loaded({ injected, renderSlot }: { injected: ModelsSectionFace; renderS
                 {error}
                 {renderProviderEditor({
                   target,
+                  row,
                   namespace,
                   schema,
                   operations,
@@ -447,6 +459,7 @@ function Loaded({ injected, renderSlot }: { injected: ModelsSectionFace; renderS
               {open
                 ? renderProviderEditor({
                   target,
+                  row,
                   namespace,
                   schema,
                   operations,
@@ -489,6 +502,9 @@ function Loaded({ injected, renderSlot }: { injected: ModelsSectionFace; renderS
                 namespace={addNamespace}
                 schema={schema}
                 settingsPath={addTarget.settingsPath}
+                {...addTarget.baseURLEnv === undefined ? {} : { baseURLEnv: addTarget.baseURLEnv }}
+                {...addTarget.nativeAuth === undefined ? {} : { nativeAuth: addTarget.nativeAuth }}
+                {...addRow?.credentialChecks === undefined ? {} : { credentialChecks: addRow.credentialChecks }}
                 operations={operations}
                 t={t}
                 readOnly={!state.writable}

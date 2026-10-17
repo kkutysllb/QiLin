@@ -153,7 +153,7 @@ export type {
 } from '@qilin-agent/settings/types'
 // Provider registry and discovery vocabulary for the llm namespace.
 export type {
-  LlmConfigurableProvider, LlmDiscoveredModel,
+  LlmConfigurableProvider, LlmDiscoveredModel, LlmNativeAuth,
   LlmModelDiscoveryRequest, LlmProviderInfo,
 } from '@qilin-agent/llm/types'
 // Reference-discovery result vocabulary for the fileReferences and

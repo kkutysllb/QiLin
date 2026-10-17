@@ -26,6 +26,7 @@ import { useState } from 'react'
 import type { ReactNode } from 'react'
 import type { JsonValue } from '@qilin-agent/util-values'
 import { apiKeyFailure } from './apiKey.ts'
+import { ApiKeyInput } from './ApiKeyInput.tsx'
 import { EditorFooter } from './EditorFooter.tsx'
 import { validateDeepSeekModels } from './DeepSeekModelsEditor.tsx'
 import { ModelListEditor } from './ModelListEditor.tsx'
@@ -264,10 +265,8 @@ export function CustomProviderCard(props: CustomProviderCardProps): ReactNode {
       </div>
       <div className={styles['field']}>
         <span className={styles['fieldLabel']}>{t('keyInput')}</span>
-        <input
-          className={styles['input']}
-          type="password"
-          autoComplete="off"
+        <ApiKeyInput
+          t={t}
           value={keyDraft}
           placeholder={t('keyPlaceholder')}
           aria-label={t('keyInput')}

@@ -94,6 +94,8 @@ describe('request-level dynamic profiles', () => {
     expect(ctx.llm.listConfigurableProviders()).toContainEqual({
       provider: 'openrouter', displayName: 'openrouter', settingsNs: 'llm-pi-ai',
       settingsPath: ['providers', 'openrouter'], declared: false,
+      defaultBaseURL: 'https://openrouter.ai/api/v1',
+      nativeAuth: { env: ['OPENROUTER_API_KEY'], oauth: true },
       error: failure,
     })
     expect((await ctx.llm.listModels('openrouter')).map(model => model.id)).toEqual([known.id])
@@ -165,6 +167,8 @@ describe('request-level dynamic profiles', () => {
       settingsNs: 'llm-pi-ai',
       settingsPath: ['providers', 'openai'],
       declared: false,
+      defaultBaseURL: 'https://api.openai.com/v1',
+      nativeAuth: { env: ['OPENAI_API_KEY'], oauth: true },
     })
     await configurations.get(ctx)!.update({
       providers: { deepseek: { apiKeyEnv: 'PI_DYNAMIC_KEY', baseURL: server.url } },

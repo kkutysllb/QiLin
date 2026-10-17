@@ -97,7 +97,11 @@ describe('llm-pi-ai real dormant composition', () => {
     const directory = ctx.llm.listConfigurableProviders()
     expect(directory.find(entry => entry.provider === 'azure')).toMatchObject({
       provider: 'azure', displayName: 'azure', settingsNs: 'llm-pi-ai', declared: false,
+      nativeAuth: { env: ['AZURE_OPENAI_API_KEY'], oauth: false },
+      baseURLEnv: ['AZURE_OPENAI_BASE_URL', 'AZURE_OPENAI_RESOURCE_NAME'],
     })
+    expect(directory.find(entry => entry.provider === 'radius')?.defaultBaseURL).toBe('https://radius.pi.dev/v1')
+    expect(directory.find(entry => entry.provider === 'opencode')?.defaultBaseURL).toBeUndefined()
 
     // Exactly what the web Models page leaves on disk.
     await writeFile(settingsPath, [

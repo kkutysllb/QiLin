@@ -12,7 +12,8 @@ import {
   ModelsSection, needsSetup, providerCopy, providerTargetLabel, removeProviderProfile,
 } from '../src/client/ModelsSection.tsx'
 import type { ModelsSectionInjected, ModelsSectionProps } from '../src/client/ModelsSection.tsx'
-import { pathOps } from '../src/client/ProviderEditor.tsx'
+import { pathOps, ProviderEditor } from '../src/client/ProviderEditor.tsx'
+import type { ProviderEditorProps } from '../src/client/ProviderEditor.tsx'
 import {
   DeepSeekModelsEditor, formatCapacity, modelDrafts, parseCapacity, validateDeepSeekModels,
 } from '../src/client/DeepSeekModelsEditor.tsx'
@@ -182,8 +183,8 @@ function scriptedFace(overrides: {
       ]))),
       listConfigurableProviders: vi.fn(() => Promise.resolve(remoteOk([
         { provider: 'deepseek-official', displayName: 'DeepSeek', settingsNs: 'llm-deepseek', settingsPath: [], active: true },
-        { provider: 'openai', displayName: 'openai', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'openai'], active: true },
-        { provider: 'anthropic', displayName: 'anthropic', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'anthropic'], active: false },
+        { provider: 'openai', displayName: 'openai', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'openai'], active: true, baseURLEnv: ['FIXTURE_ENDPOINT'], nativeAuth: { env: ['OPENAI_API_KEY'], oauth: false } },
+        { provider: 'anthropic', displayName: 'anthropic', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'anthropic'], active: false, baseURLEnv: ['FIXTURE_ENDPOINT'], nativeAuth: { env: ['ANTHROPIC_AUTH_TOKEN', 'ANTHROPIC_OAUTH_TOKEN', 'ANTHROPIC_API_KEY'], oauth: true } },
         { provider: 'zombie', displayName: 'zombie', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'zombie'], active: false },
         { provider: 'broken', displayName: 'broken', settingsNs: 'llm-pi-ai', settingsPath: ['nope', 'x'], active: false },
         { provider: 'plain', displayName: 'plain', settingsNs: 'llm-plain', settingsPath: ['profiles', 'plain'], active: false },
@@ -313,7 +314,54 @@ async function mountDeepSeekCard(overrides: Parameters<typeof scriptedFace>[0] =
   return mounted
 }
 
+/** Render one pi-ai route's editor directly, with the directory facts the section would thread. */
+function renderPiAiEditor(
+  provider: string,
+  facts: Pick<ProviderEditorProps, 'baseURLEnv' | 'nativeAuth' | 'credentialChecks'> = {},
+  operations: ModelsOperations = operationsWith(scriptedFace().face),
+  namespace: SettingsNamespaceView = wireNamespaces().find(view => view.ns === 'llm-pi-ai')!,
+): void {
+  render(<ProviderEditor provider={provider} displayName={provider}
+    namespace={namespace} settingsPath={['providers', provider]} schema={settingsSchema}
+    operations={operations} t={t} readOnly={false} onClose={vi.fn()} {...facts} />)
+}
+
 describe('ModelsSection', () => {
+  it('keeps the credential state unconfirmed when its redacted read fails', async () => {
+    const scripted = scriptedFace()
+    scripted.face.credentials.describe.mockResolvedValue(remoteFail('credentials unavailable', 'gateway/internal'))
+    await mountFace(scripted)
+    const edit = screen.getByRole('button', { name: openaiCopy(en.editProvider) })
+    fireEvent.click(edit)
+    const row = within(edit.closest('li')!)
+    expect(row.getByText(en.keyFallbackUnchecked)).toBeTruthy()
+    expect(row.queryByText(en.keyFallbackMissing.replace('{hint}', 'OPENAI_API_KEY'))).toBeNull()
+  })
+
+  it('reveals only the current key draft and masks it again on change', async () => {
+    const { set } = await mountDeepSeekCard()
+    const input = await screen.findByLabelText<HTMLInputElement>(en.keyInput)
+    expect(input.type).toBe('password')
+    expect(input.value).toBe('')
+    expect(screen.queryByRole('button', { name: en.keyReveal })).toBeNull()
+    fireEvent.change(input, { target: { value: 'test-key' } })
+    const reveal = screen.getByRole('button', { name: en.keyReveal })
+    expect(reveal.getAttribute('aria-pressed')).toBe('false')
+    fireEvent.click(reveal)
+    expect(input.type).toBe('text')
+    const hide = screen.getByRole('button', { name: en.keyHide })
+    expect(hide.getAttribute('aria-pressed')).toBe('true')
+    fireEvent.click(hide)
+    expect(input.type).toBe('password')
+    fireEvent.click(screen.getByRole('button', { name: en.keyReveal }))
+    fireEvent.change(input, { target: { value: '' } })
+    expect(input.type).toBe('password')
+    expect(screen.queryByRole('button', { name: en.keyReveal })).toBeNull()
+    fireEvent.change(input, { target: { value: 'test-key' } })
+    expect(input.type).toBe('password')
+    expect(set).not.toHaveBeenCalled()
+  })
+
   it('withholds editors until the first current snapshot arrives', async () => {
     const scripted = scriptedFace()
     const ctx = ctxWith(scripted.face)
@@ -1237,10 +1285,10 @@ describe('ModelsSection', () => {
     const pick = await screen.findByLabelText<HTMLSelectElement>(en.provider)
     expect([...pick.options].map(option => option.value)).toEqual(['anthropic', 'broken', 'plain'])
     expect(pick.value).toBe('anthropic')
-    // A dormant profile has no endpoint anywhere: the pi-ai placeholder
-    // falls back to the provider-default wording.
+    // A dormant profile has no endpoint anywhere: the pi-ai placeholder names
+    // the configuration variables that would construct one.
     fireEvent.click(screen.getByText(en.customized))
-    expect(screen.getByLabelText<HTMLInputElement>(en.baseUrl).placeholder).toBe(en.baseUrlDefault)
+    expect(screen.getByLabelText<HTMLInputElement>(en.baseUrl).placeholder).toBe(en.baseUrlConfigured)
     const addKey = screen.getByLabelText<HTMLInputElement>(en.keyInput)
     expect(addKey.placeholder).toBe(en.keyPlaceholderNative)
     fireEvent.change(addKey, { target: { value: 'sk-ant' } })
@@ -1409,7 +1457,9 @@ describe('ModelsSection', () => {
     face.credentials.describe.mockImplementation(() => Promise.resolve(remoteFail('down', 'gateway/internal')))
     fireEvent.click(screen.getByRole('button', { name: openaiCopy(en.editProvider) }))
     const editorKey = await screen.findByLabelText<HTMLInputElement>(en.keyInput)
-    expect(editorKey.placeholder).toBe(en.keyPlaceholderNative)
+    // The page snapshot confirmed a saved credential before the failure, so the
+    // blank field offers it; the failed refresh stays silent.
+    expect(editorKey.placeholder).toBe(en.keyPlaceholderSaved)
     fireEvent.change(editorKey, { target: { value: 'sk-live' } })
     fireEvent.click(screen.getByText(en.apply))
     await waitFor(() => { expect(set).toHaveBeenCalledTimes(1) })
@@ -1658,6 +1708,66 @@ describe('ModelsSection', () => {
     expect(mutate).not.toHaveBeenCalled()
   })
 
+})
+
+it('shows endpoint configuration variables without presenting them as credential keys', () => {
+  const baseURLEnv = ['AZURE_OPENAI_BASE_URL', 'AZURE_OPENAI_RESOURCE_NAME']
+  renderPiAiEditor('zombie', {
+    baseURLEnv,
+    nativeAuth: { env: ['ZOMBIE_API_KEY'], oauth: false },
+    credentialChecks: { ZOMBIE_API_KEY: { configured: false, writable: true } },
+  })
+  fireEvent.click(screen.getByText(en.customized))
+  const input = screen.getByLabelText<HTMLInputElement>(en.baseUrl)
+  expect(input.placeholder).toBe(en.baseUrlConfigured)
+  expect(document.getElementById(input.getAttribute('aria-describedby')!)?.textContent)
+    .toBe(en.baseUrlEnvironment.replace('{env}', baseURLEnv.join(', ')))
+  // The key field names only credential variables, never endpoint ones.
+  const keyInput = screen.getByLabelText<HTMLInputElement>(en.keyInput)
+  expect(document.getElementById(keyInput.getAttribute('aria-describedby')!)?.textContent)
+    .toBe(en.keyFallbackMissing.replace('{hint}', 'ZOMBIE_API_KEY'))
+})
+
+it.each([true, false, undefined] as const)('shows the confirmed fallback state without assuming a connection works: %s', (configured) => {
+  // The env name is not the page's derived reference, so only the directory's
+  // redacted checks answer — no editor describe can flip the state mid-test.
+  const facts: Pick<ProviderEditorProps, 'nativeAuth' | 'credentialChecks'> = {
+    nativeAuth: { env: ['ZOMBIE_TOKEN'], oauth: false },
+    ...configured === undefined ? {} : { credentialChecks: { ZOMBIE_TOKEN: { configured, writable: true } } },
+  }
+  renderPiAiEditor('zombie', facts)
+  const input = screen.getByLabelText<HTMLInputElement>(en.keyInput)
+  expect(input.placeholder).toBe(en.keyPlaceholderNative)
+  const hint = configured === true ? en.keyFallbackDetected.replace('{hint}', 'ZOMBIE_TOKEN')
+    : configured === false ? en.keyFallbackMissing.replace('{hint}', 'ZOMBIE_TOKEN') : en.keyFallbackUnchecked
+  expect(screen.getByText(hint).getAttribute('role')).toBeNull()
+  expect(document.getElementById(input.getAttribute('aria-describedby')!)?.textContent).toBe(hint)
+  fireEvent.change(input, { target: { value: 'new-key' } })
+  expect(screen.queryByText(hint)).toBeNull()
+  expect(input.getAttribute('aria-describedby')).toBeNull()
+})
+
+it('checks every native fallback name and displays a configured source its row does not spell', () => {
+  renderPiAiEditor('zombie', {
+    nativeAuth: { env: ['ZOMBIE_AUTH_TOKEN', 'ZOMBIE_OAUTH_TOKEN', 'ZOMBIE_API_KEY'], oauth: true },
+    credentialChecks: {
+      ZOMBIE_AUTH_TOKEN: { configured: false, writable: true },
+      ZOMBIE_OAUTH_TOKEN: { configured: true, writable: true },
+      ZOMBIE_API_KEY: { configured: true, source: 'env', writable: true },
+    },
+  })
+  expect(screen.getByText(en.keyFallbackDetectedHidden)).toBeTruthy()
+  expect(document.body.textContent).not.toMatch(/oauth/i)
+})
+
+it('keeps an inherited profile endpoint ahead of dynamic provider configuration', () => {
+  const namespace = wireNamespaces().find(view => view.ns === 'llm-pi-ai')!
+  renderPiAiEditor('zombie', { baseURLEnv: ['ZOMBIE_BASE_URL'] }, operationsWith(scriptedFace().face),
+    { ...namespace, value: { providers: { zombie: { baseURL: 'https://team.example/v1' } } } })
+  fireEvent.click(screen.getByText(en.customized))
+  const input = screen.getByLabelText<HTMLInputElement>(en.baseUrl)
+  expect(input.placeholder).toBe('https://team.example/v1')
+  expect(input.getAttribute('aria-describedby')).toBeNull()
 })
 
 describe('apiKeyFailure', () => {

@@ -869,6 +869,18 @@ describe('hand-declared providers', () => {
     return { ...scripted, onClose }
   }
 
+  it('offers the same key reveal control on a custom provider', () => {
+    mountCard()
+    const input = screen.getByLabelText<HTMLInputElement>(en.keyInput)
+    expect(input.type).toBe('password')
+    expect(screen.queryByRole('button', { name: en.keyReveal })).toBeNull()
+    fireEvent.change(input, { target: { value: 'custom-test-key' } })
+    fireEvent.click(screen.getByRole('button', { name: en.keyReveal }))
+    expect(input.type).toBe('text')
+    fireEvent.click(screen.getByRole('button', { name: en.keyHide }))
+    expect(input.type).toBe('password')
+  })
+
   it('writes the whole profile and the key under the derived reference', async () => {
     const { mutate, set, onClose } = mountCard()
 
