@@ -1,7 +1,7 @@
 /* schedule_create transcript card: clock, task title, frequency, open action.
-   The box is the delivery card's (ui-deliverables Deliverables.module.css
-   `.file`): the same fill/hover pair, 60px row, 8/10 padding, and 18px corner,
-   with one inset overlay button making the whole row open the task. */
+   The box is the delivered-file card's: the same fill/hover pair, 60px row,
+   8/10 padding, and file-card corner, with one inset overlay button making the
+   whole row open the task. */
 
 .card {
   --card-fill: var(--qilin-static-neutral-50);
@@ -15,7 +15,7 @@
   padding: 8px 10px;
   overflow: hidden;
   border: 0.5px solid var(--qilin-alias-border-l1);
-  border-radius: 18px;
+  border-radius: var(--qilin-radius-lg);
   background: var(--card-fill);
   color: var(--qilin-alias-label-primary);
   transition: background-color 120ms ease;
@@ -59,8 +59,8 @@
   pointer-events: none;
 }
 
-/* The clock glyph sits in the delivery card's icon frame (`.fileIcon`): a
-   40px bordered 10px-corner square on the card's own fill. */
+/* The clock glyph sits in the delivered-file card's icon tile: a 40px
+   10px-corner square on the shared neutral tile fill. */
 .leading {
   display: grid;
   flex: none;
@@ -68,10 +68,14 @@
   box-sizing: border-box;
   width: 40px;
   height: 40px;
-  border: 0.5px solid var(--qilin-alias-border-l2);
+  border: 0.5px solid var(--qilin-alias-border-l1);
   border-radius: 10px;
-  background: var(--card-fill);
+  background: color-mix(in srgb, var(--qilin-static-neutral-00) 50%, transparent);
   color: var(--qilin-alias-label-secondary);
+}
+
+:global(body[data-ds-dark-theme]) .leading {
+  background: color-mix(in srgb, var(--qilin-static-neutral-00) 5%, transparent);
 }
 
 .leading svg {

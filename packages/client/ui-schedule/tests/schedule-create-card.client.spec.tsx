@@ -284,11 +284,12 @@ describe('ScheduleCreateCard', () => {
     expect(frequency).toMatch(/color:\s*var\(--qilin-alias-label-tertiary\);/)
     expect(frequency).toMatch(/font-size:\s*10px;/)
     expect(frequency).toMatch(/line-height:\s*16px;/)
-    // The box is the delivery card's (ui-deliverables `.file`): fill/hover pair,
-    // 8/10 padding, 18px corner, and a 60px row (8px insets around 44px).
     const card = /\.card\s*\{([^}]*)\}/.exec(stylesheet)?.[1] ?? ''
     expect(card).toMatch(/padding:\s*8px 10px;/)
-    expect(card).toMatch(/border-radius:\s*18px;/)
+    expect(card).toMatch(/border-radius:\s*var\(--qilin-radius-lg\);/)
+    // The icon tile shares the delivered-file card's neutral material.
+    expect(stylesheet).toMatch(/\.leading\s*\{[^}]*background:\s*color-mix\(in srgb, var\(--qilin-static-neutral-00\) 50%, transparent\);/)
+    expect(stylesheet).toMatch(/:global\(body\[data-ds-dark-theme\]\) \.leading\s*\{[^}]*5%, transparent\)/)
     expect(card).toMatch(/background:\s*var\(--card-fill\);/)
     expect(stylesheet).toMatch(/\.card:has\(\.cardOpen\):hover\s*\{[^}]*background:\s*var\(--card-hover\);/)
     expect(stylesheet).toMatch(/\.row\s*\{[^}]*min-height:\s*44px;/)
