@@ -132,7 +132,7 @@ kind: "package-library"
 
 ### 几何与溢出
 
-输出卡片共享同一套几何模型：`white-space: pre` 并横向滚动，让按列对齐的内容保持对齐；超过 `maxLines`（默认 16）时折叠为头部切片加尾部切片，由展开按钮控制，长正文不会撑高卡片。`TerminalBlock` 用 `CommandText` 让每条作者写的命令行都可选中、可横向滚动；提示符与状态保持固定。只有横向溢出的文本才以具名 group 进入 Tab 顺序，名称取自 owner 本地化的 `commandLine(line)`。`TerminalBlock` 把 ANSI 解析为 React span，并带逐行列缓冲处理光标移动，遵循行内擦除、制表位与字符宽度。
+输出卡片共享同一套几何模型：`white-space: pre` 并横向滚动，让按列对齐的内容保持对齐；超过 `maxLines`（默认 16）时折叠为头部切片加尾部切片，由展开按钮控制，长正文不会撑高卡片。`TerminalBlock` 用 `CommandText` 让每条作者写的命令行都可选中、可横向滚动；提示符与状态保持固定。`background` 默认为 false，透传调用的后台标志。后台调用的 `running` 表示启动调用进度：Start 显示该指示，回执使 `running` 变为 false，命令保持静态且不显示状态点或辅助标签。后台调用不显示输出、空输出提示、退出状态 pill 或输出 Copy 控件。只有横向溢出的文本才以具名 group 进入 Tab 顺序，名称取自 owner 本地化的 `commandLine(line)`。`TerminalBlock` 把 ANSI 解析为 React span，并带逐行列缓冲处理光标移动，遵循行内擦除、制表位与字符宽度。
 
 </details>
 
