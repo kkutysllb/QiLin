@@ -6,15 +6,14 @@ import { resolveQilinDesktopHome } from '@qilin-agent/home-paths'
 const HOME_ENV = 'QILIN_HOME'
 
 /**
- * Point the Harness at the Desktop's own home unless the environment already names one.
+ * Point the Harness at the Desktop's own home.
  *
- * A Web deployment shares `~/.qilin`; the Desktop owns `~/.qilin-desktop`, so sessions,
- * profiles, and plugin state never mix. Electron's userData directory keeps only the shell's
- * own preferences and Chromium state.
+ * A Web deployment shares `~/.qilin` and exports its QILIN_HOME into every child it starts, so
+ * the Desktop does not defer to that value: it always names `~/.qilin-desktop`, or the directory
+ * QILIN_DESKTOP_HOME selects. Electron's userData directory keeps only the shell's own
+ * preferences and Chromium state.
  * @param environment - environment to update in place; the Host and every child inherit it.
  */
 export function adoptDesktopHome(environment: NodeJS.ProcessEnv = process.env): void {
-  if (environment[HOME_ENV] === undefined || environment[HOME_ENV] === '') {
-    environment[HOME_ENV] = resolveQilinDesktopHome(undefined, environment)
-  }
+  environment[HOME_ENV] = resolveQilinDesktopHome(undefined, environment)
 }

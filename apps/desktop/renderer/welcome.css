@@ -348,9 +348,6 @@ body {
 }
 
 .key-error {
-  position: absolute;
-  top: 100%;
-  width: 100%;
   margin: 8px 0 0;
   color: var(--dsw-alias-label-primary);
   font-size: 14px;

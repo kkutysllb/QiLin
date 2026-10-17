@@ -5,6 +5,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { join, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
+import { resolveQilinDesktopHome } from '@qilin-agent/home-paths'
 import { DESKTOP_HOST_PROTOCOL_VERSION } from '../src/host-protocol.ts'
 import type { DesktopRelease } from '../src/release.ts'
 import { developmentRuntimeDirectory, resolveDesktopBuildTarget } from './desktop-build-paths.mjs'
@@ -63,7 +64,8 @@ async function launchElectron(): Promise<void> {
   const mainPort = debugPort('QILIN_DESKTOP_MAIN_INSPECT_PORT', 9229)
   const rendererPort = debugPort('QILIN_DESKTOP_RENDERER_DEBUG_PORT', 9222)
   const hostPort = debugPort('QILIN_DESKTOP_HOST_INSPECT_PORT', 9230)
-  const home = resolve(process.env.QILIN_HOME ?? join(DEVELOPMENT_ROOT, 'home'))
+  // The Desktop owns its Harness home; a Web deployment's QILIN_HOME never redirects it.
+  const home = resolve(resolveQilinDesktopHome(undefined, process.env))
   const userData = resolve(process.env.QILIN_DESKTOP_USER_DATA_DIR ?? join(DEVELOPMENT_ROOT, 'electron-user-data'))
   const environment: NodeJS.ProcessEnv = {
     ...process.env,

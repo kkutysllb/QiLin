@@ -5,23 +5,18 @@ import { resolveQilinDesktopHome } from '@qilin-agent/home-paths'
 import { adoptDesktopHome } from '../src/desktop-home.ts'
 
 describe('desktop home adoption', () => {
-  it('points the Harness at ~/.qilin-desktop when nothing names a home', () => {
+  it('names ~/.qilin-desktop when nothing overrides it', () => {
     const environment: NodeJS.ProcessEnv = {}
     adoptDesktopHome(environment)
-    expect(environment.QILIN_HOME).toBe(resolveQilinDesktopHome())
+    expect(environment.QILIN_HOME).toBe(resolveQilinDesktopHome(undefined, {}))
     expect(environment.QILIN_HOME).toContain('.qilin-desktop')
   })
 
-  it('keeps a home the environment already names', () => {
-    const environment: NodeJS.ProcessEnv = { QILIN_HOME: '/tmp/shared-home' }
+  it('overrides a Web deployment home inherited from the shell', () => {
+    const environment: NodeJS.ProcessEnv = { QILIN_HOME: '/Users/example/.qilin' }
     adoptDesktopHome(environment)
-    expect(environment.QILIN_HOME).toBe('/tmp/shared-home')
-  })
-
-  it('treats an empty value as unset', () => {
-    const environment: NodeJS.ProcessEnv = { QILIN_HOME: '' }
-    adoptDesktopHome(environment)
-    expect(environment.QILIN_HOME).toBe(resolveQilinDesktopHome())
+    expect(environment.QILIN_HOME).toBe(resolveQilinDesktopHome(undefined, {}))
+    expect(environment.QILIN_HOME).not.toBe('/Users/example/.qilin')
   })
 
   it('honors the Desktop home override', () => {
