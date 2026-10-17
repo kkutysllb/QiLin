@@ -1,5 +1,5 @@
 ---
-description: "Run a small team of named agents in one session: durable messages between members and a shared task board, for deployments composing the experimental Team plugins."
+description: "Run named teammates with direct inbox messages and a durable shared task board in experimental Team compositions."
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`qilin-experimental-agent-team` turns one coding session into a small working team: the session's agent becomes the Lead, creates named teammates for delegated work, exchanges durable messages with them, and tracks shared tasks on a common board. Messages and task state survive crashes, reloads, and interruptions: a message steered at an offline teammate cold-resumes it. It provides no tools of its own — mount the sibling `qilin-experimental-tool-agent-team` so the model can create teammates, message them, and use the task board. It is published under its experimental name, carries no stability promise, and needs durable session storage to activate.
+`qilin-experimental-agent-team` gives one session a Lead, named teammates, direct messages, and a durable shared task board. Sends use each target Agent’s inbox and can cold-resume stored teammates. Team retains roster and task state; message persistence follows the target Agent’s normal policy. Mount `qilin-experimental-tool-agent-team` for model tools. The package is experimental and requires durable session storage.
 
 ## Table of Contents
 
@@ -25,11 +25,11 @@ English | [中文](README.zh.md)
 <a id="use-this-package"></a>
 ## Use this package
 
-Add this package to a composition when one agent should run a small team of named helpers in its own working directory, with messages and task state that survive crashes and restarts. It ships no tools of its own: mount it together with `@qilin-agent/experimental-tool-agent-team` so the model can create teammates, message them, and use the task board.
+Add this package when one agent needs named helpers in a shared working directory, direct peer messages, and durable roster and task state. Mount it with `@qilin-agent/experimental-tool-agent-team` to expose the model tools.
 
 ### When to choose it
 
-Choose it when several agents must cooperate on one shared workspace and their roster, messages, and task state must survive crashes and restarts. Avoid it when teammates need separate working directories, when several processes must coordinate over one team, or when a task owner should be released automatically — none of those are supported. The team features need durable session storage to activate.
+Choose it for cooperation in one shared workspace with durable roster and task state. Separate working directories, coordination across processes, and automatic task-owner release are unsupported. Durable session storage is required.
 
 ### Smallest working setup
 
@@ -59,15 +59,15 @@ The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agen
 
 Ask the Lead to create a teammate: give it a unique lowercase name such as `reviewer` and describe its job. A teammate starts fresh with no memory of the Lead's conversation, or as a fork that inherits the Lead's completed turns; the creation request chooses which. Teammate names are permanent — even a teammate whose creation failed keeps its name, and no name is ever reused.
 
-The roster shows every member with its role (`lead` or `teammate`) and current status: `running`, `idle`, `inactive` (a member that exists but is not loaded), `provisioning`, or `failed`. A member that is not loaded receives its messages when it wakes.
+The roster shows every member with its role (`lead` or `teammate`) and current status: `running`, `inactive` (no turn is executing, whether loaded or stored), `provisioning`, or `failed`. A member that is not loaded receives its messages when it wakes.
 
 Only the Lead can create teammates or interrupt them.
 
 ### Messages between teammates
 
-Any member can send a message to any other member or to the Lead. A live member receives it at its next step boundary; an idle or inactive member is started or cold-resumed so the message still arrives. The message becomes durable in the target's own Session log, so it survives a crash between delivery and model processing.
+Any member can send to another member or the Lead. Each attempt either returns the Team message identity carried by the accepted delivery source or throws. Team does not retain unaccepted send intent, retry new messages after restart, or deduplicate explicit resends.
 
-Every message uses Steer: a running target receives it at the nearest step boundary, an idle target starts a turn, and an inactive teammate cold-resumes. The sender either sees the accepted message id or one specific rejection: an unknown target name, a self-addressed message, an oversized message, or cancellation before acceptance. A successful send is already durable, so it must never be resent.
+Steer gives a running target the message at its nearest step boundary and starts or cold-resumes an inactive target. Success means inbox acceptance, not model processing or a separate synchronous storage flush. Accepted messages follow ordinary Agent persistence and inbox recovery.
 
 ### Shared task board
 
@@ -81,11 +81,11 @@ File hints produce warnings when two in-progress tasks plan to touch overlapping
 
 A member can wait for the next team change — a teammate's status, an incoming message, or a task update — instead of polling repeatedly; the wait reports only whether it timed out, and the caller re-reads the current state afterward.
 
-The Lead can stop a teammate's current turn without deleting messages already in its inbox; task ownership is unchanged.
+The Lead can stop a teammate's current turn without deleting its queued messages; task ownership is unchanged.
 
 ### What success and failure look like
 
-Success looks like a teammate appearing in the roster, a message reporting its accepted id, and task revisions advancing with each change. Likely failures are reported as specific errors instead of silently corrupting state: sending to a name that is not a member, claiming a task that is not ready, editing with an outdated revision, or creating a teammate beyond the member limit.
+Success returns a teammate roster row, an accepted Team message id, or an updated task revision. Invalid member names, unready tasks, stale revisions, exhausted limits, and failed message admission report errors.
 
 -----
 
@@ -101,12 +101,12 @@ This section explains the design decisions behind the service and points at the 
 
 The service is built on one separation and three commitments:
 
-- **Durable log, derived state.** The Lead Session log is the single source of truth; roster, message, and task state are replayed from it on every read.
-- **Process-local ownership.** All coordination lives in one process; the guarantee is retry plus de-duplication, never cross-process consensus.
+- **Durable log, derived state.** The Lead log owns roster and tasks; each target Agent owns its accepted messages.
+- **Process-local ownership.** Continuation delivery owns target locking, cold recovery, and lifecycle authorization.
 - **Explicit authority.** Every service method takes the exact live calling `Agent`; only the Lead spawns, reassigns, or interrupts.
 - **Bounds that fail loud.** Every limit is a validated deployment value, and exhaustion reports a typed error instead of reusing an id or name.
 
-The [Agent Teams Agent Note](../../../.agents/notes/implemented/feature/2026-08-05-agent-teams.md) owns the identity, mailbox, task, and shared-checkout decisions.
+The [Agent Teams Agent Note](../../../.agents/notes/implemented/feature/2026-08-05-agent-teams.md) owns the roster, mailbox, task, and shared-checkout decisions. Model-facing identity is a required runtime-context contribution from the [tool package](../tool-agent-team/README.md).
 
 ### Source map
 
@@ -124,13 +124,13 @@ The [Agent Teams Agent Note](../../../.agents/notes/implemented/feature/2026-08-
 
 ### Team identity and roster
 
-Every ordinary runtime root is the implicit Lead of a Team whose `TeamId` equals its `SessionId`; there is no creation event, and durable state begins with the first member, message, or task record. `spawnTeammate()` first appends and flushes a `provisioning` member record, then asks the configured provider to create the reserved child; a provider failure appends a durable `failed` member. A fresh child starts with no Lead history; a fork child captures the Lead's completed-turn prefix once. Recovery reconciles an unterminated provisioning record against the child's independently persisted Session: a matching direct-parent and continuable descriptor plus a recorded initial user message produces `active`, and anything else produces `failed`. If recovery wins a same-process race, the creator accepts the terminal state or reports `TEAM_PROVISIONING_CONFLICT` and drains the child. Names are reserved by the first provisioning record and never reused.
+Every ordinary runtime root is the implicit Lead of a Team whose `TeamId` equals its `SessionId`; there is no creation event, and durable Team state begins with the first member or task record. `spawnTeammate()` first appends and flushes a `provisioning` member record, then asks the configured provider to create the reserved child; a provider failure appends a durable `failed` member. A fresh child starts with no Lead history; a fork child captures the Lead's completed-turn prefix once. Recovery reconciles an unterminated provisioning record against the child's independently persisted Session: a matching direct-parent and continuable descriptor plus a recorded initial user message produces `active`, and anything else produces `failed`. If recovery wins a same-process race, the creator accepts the terminal state or reports `TEAM_PROVISIONING_CONFLICT` and drains the child. Names are reserved by the first provisioning record and never reused.
 
-### Direct steering
+### Direct messages and historical compatibility
 
-`sendMessage()` validates peer membership, resolves the target, mints the message identity, and measures the framed content against `maxMessageBytes` before anything is delivered. The target message begins with `Team message <id> from <name>:` and keeps the same id and sender in `TeamMessageSource`, so the receiving model and the durable log agree on the sender's identity. Lead delivery calls `Agent.steer()` directly; teammate delivery uses the continuation owner's host-only Steer path, which authorizes the Lead-to-child edge and cold-resumes inactive targets. A send that cannot be admitted fails with its own error instead of being retained, so the sender never has to reason about a retry queue.
+`sendMessage()` checks exact caller membership, rejects self-messaging, and bounds the complete sender-framed UTF-8 content. It mints one `TeamMessageId`, returns it after acceptance, and emits Team activity only after acceptance. The target stores `team-message` source carrying that id, the Team id, and the sender's identity; the first content block is `Team message <id> from <name>:`. No new `team/message/queued` or `team/message/delivered` records are written for these sends. Team adds no per-target send ordering; delivery order belongs to the target inbox. The Web client presents these messages with the Team title and icon.
 
-Sibling messages never impersonate the Lead through the public adjacent-Agent messaging operation.
+Lead delivery calls `Agent.steer()` directly. Teammate delivery uses the continuation owner's host-only Steer path, which preserves the Team sender source while authorizing the Lead-to-child edge and cold-resuming inactive targets. Sibling messages never impersonate the Lead through the public adjacent-Agent messaging operation.
 
 ### Shared task board
 
@@ -138,15 +138,19 @@ Tasks are complete versioned snapshots; every mutation carries `expectedRevision
 
 ### Waiting and interruption
 
-`waitForChange()` waits for one roster, task, message, or live-status edge that occurs after registration, from ten seconds through one hour, and reports only whether it timed out; runtime disposal releases current waits. Cancellation preserves an Error reason or reports a non-Error reason through `TEAM_WAIT_ABORTED`. `interrupt()` is Lead-only and delegates to the continuable-subagent interrupt path, which cancels only a live teammate's current turn with `keepInbox`; it neither releases task ownership nor deletes durable mail.
+`waitForChange()` waits for one roster, task, message-acceptance, or live-status edge that occurs after registration, from ten seconds through one hour, and reports only whether it timed out; runtime disposal releases current waits. Cancellation preserves an Error reason or reports a non-Error reason through `TEAM_WAIT_ABORTED`. `interrupt()` is Lead-only and delegates to the continuable-subagent interrupt path, which cancels only a live teammate's current turn with `keepInbox`; it neither releases task ownership nor deletes durable mail.
 
 ### Durability model
 
-Team events are appended to the exact live Lead Session and flushed before the operation reports success or wakes waiters. `team/member` and `team/task` are log-only, and the historical `team/message/queued` and `team/message/delivered` records stay readable: none of them enters the conversation surface, so derived model history is untouched by coordination records. Session event `seq` and `time` own ordering and timing; snapshots do not duplicate them.
+Roster and task mutations append `team/member` and `team/task` to the exact live Lead Session and flush before reporting success or waking waiters. Historical `team/message/queued` and `team/message/delivered` records remain readable; Team writes neither. All four event types are log-only: they never enter the conversation surface, so derived model history is untouched by coordination records. Session event `seq` and `time` own ordering and timing; snapshots do not duplicate them.
+
+Historical mailbox events remain readable, and `team-message` sources attribute both new peer deliveries and historical ones. The projection still reports queued-minus-delivered records, but Team never delivers or acknowledges them: a historical message that its target had not recorded stays undelivered.
+
+Mailbox projection and checkpoint admission preserve every decoded JSON field of accepted content outside the locally declared validators, including an own `__proto__` key. Local field checks cover `text`, `reasoning`, `image`, and `tool-call`; accepted unknown tags remain opaque. Team projection cache version 4 rebuilds checkpoints from earlier cache versions from the Session log; the Session format version is unchanged.
 
 ### Disposal
 
-Disposal closes admission, aborts and awaits admitted send and creation transactions, then asks the continuation owner to release the roster's exact live direct children and their descendants; non-Team continuable children of the Lead remain untouched. Cleanup failures make disposal fail visibly, bounded by `disposalTimeoutMs`.
+The runtime lifecycle tracks sends and complete creation transactions in one operation set. Disposal closes admission, aborts and awaits those operations, then releases the roster’s live children and descendants. Non-Team children remain untouched. Admitted operations share one `disposalTimeoutMs` settlement deadline; each subsequent Team child drain has its own deadline. This value is not a whole-service shutdown bound. Cleanup failures are reported.
 
 </details>
 
@@ -159,8 +163,8 @@ Read these pages when the package-level contract is not enough. They move from t
 
 - [Agent Teams subsystem](../../../docs/subsystems/agent-team.md) — durable Team types and the `ctx.agentTeams` service API.
 - [tool-agent-team package](../tool-agent-team/README.md) — the tools that let the model create, message, and coordinate teammates.
-- [Agent Teams Agent Note](../../../.agents/notes/implemented/feature/2026-08-05-agent-teams.md) — identity, mailbox, task, and shared-checkout decisions.
-- [Experimental package decision](../../../.agents/notes/implemented/architecture/2026-08-18-experimental-agent-teams-packages.md) — placement, publication, and dependency isolation.
+- [Agent Teams Agent Note](../../../.agents/notes/implemented/feature/2026-08-05-agent-teams.md) — roster, mailbox, task, and shared-checkout decisions.
+- [Experimental package reference](../AGENTS.md) — placement, publication, and dependency isolation.
 
 -----
 
@@ -170,11 +174,11 @@ Read these pages when the package-level contract is not enough. They move from t
 
 The `agentTeam` Session projection publishes the Lead Session's durable roster identities and phases, member errors, non-deleted task views, and any `failure` beside the last valid state. Its `apply` replaces only the touched collection; mailbox-only changes retain the client view reference and produce no frame. The [subsystem reference](../../../docs/subsystems/agent-team.md#web-projection) defines the wire types.
 
-The [Web UI](../client-ui-agent-team/README.md) reads the shared Session projections and overlays activity from Session status. The `./client` export supplies browser-safe roster, task, and projection types.
+The [Web UI](../client-ui-agent-team/README.md) reads the shared Session projections and overlays activity from Session status. Task creation and updates travel through both the service and model tools and the browser write bridge below. The `./client` export supplies browser-safe roster, task, and projection types.
 
 ### Browser write bridge
 
-The service exposes two wire methods on the `agentTeams` Typert namespace — `createTask` and `updateTask` — the direct wire face of the same-named service operations. `updateTask` carries every board mutation the browser offers as a typed action: `edit`, `complete`, `reopen`, `delete`, `reassign`, and `set_dependencies`. The wire caller is the exact live conversation agent; because the Web conversation prompt path runs as the Lead, the browser always writes with Lead authority, and a teammate conversation resolves its writes to the Lead before calling. Domain refusals map onto the shared Remote vocabulary through `src/remote.ts`: `TEAM_TASK_STALE_REVISION` becomes `agent-team/stale-revision`, a non-member caller becomes `agent-team/not-a-member`, and every other Team error becomes `agent-team/rejected` carrying the originating Team code in its details. The same file augments `RemoteErrorDetailsMap` with the Team codes so browser consumers branch on them type-safely. Read paths stay on the `agentTeam` projection; the bridge adds no model-visible input.
+The service exposes two wire methods on the `agentTeams` Typert namespace — `createTask` and `updateTask` — the direct wire face of the same-named service operations. `updateTask` carries every board mutation the browser offers as a typed action: `edit`, `complete`, `reopen`, `delete`, `reassign`, and `set_dependencies`. The wire caller is the exact live conversation agent; because the Web conversation prompt path runs as the Lead, the browser always writes with Lead authority, and a teammate conversation resolves its writes to the Lead before calling. Domain refusals map onto the shared Remote failure vocabulary through `src/remote.ts`: `TEAM_TASK_STALE_REVISION` becomes `agent-team/stale-revision`, a non-member caller becomes `agent-team/not-a-member`, and every other Team error becomes `agent-team/rejected` carrying the originating Team code in its details. The same file augments `RemoteErrorDetailsMap` with the Team codes so browser consumers branch on them type-safely. Read paths stay on the `agentTeam` projection; the bridge adds no model-visible input.
 
 ## Model Experience
 
@@ -182,15 +186,15 @@ The service exposes two wire methods on the `agentTeams` Typert namespace — `c
 
 #### What the model sees
 
-Each delivered peer message is a user-role message. A short first text block names its stable message id and sender; the sender's original content blocks follow unchanged. Roster, task, and mailbox records are log-only and never enter derived model history.
+Each peer message is a user-role message whose first text block names the stable Team message id and sender, followed by the original content blocks. Roster, task, and historical mailbox records remain log-only.
 
 #### Token effect
 
-Each peer delivery adds the sender prefix plus message content to the target history. Task and roster mutations add no model tokens; their model-facing representation belongs to `@qilin-agent/experimental-tool-agent-team` results.
+Each peer delivery adds the sender prefix plus message content to the target history; the stable id appears in the prefix and in the delivery source. Task and roster mutations add no model tokens; their model-facing representation belongs to `@qilin-agent/experimental-tool-agent-team` results.
 
 #### KV Cache effect
 
-Peer messages append after the target's reusable history prefix. Cold resume reuses the persisted conversation before appending a previously undelivered item.
+Peer messages append after the target's reusable history prefix. Cold resume reuses the persisted conversation before appending the new message.
 
 ## Known Limitations and Deferred Work
 
@@ -204,8 +208,8 @@ These limits describe what a team cannot do yet or what needs special operationa
 - **One process and one shared checkout** — members share cwd and observe edits immediately; this package provides no worktree, remote member, merge, or filesystem lock.
 - **Advisory write scopes** — Bash, formatters, code generators, and direct external writers can bypass filesystem version checks; Leads must coordinate ownership and review the final diff.
 - **Flat immutable roster** — only the Lead creates direct teammates; there is no nested Team, rename, deletion, or name reuse.
-- **No automatic ownership release** — idle, interruption, process exit, and failed work do not release a task owner.
-- **Mailbox is not cross-process exactly-once** — concurrent harness processes over one Team are unsupported.
+- **No automatic ownership release** — inactivity, interruption, process exit, and failed work do not release a task owner.
+- **No send retry guarantee** — Team does not retain or deduplicate new attempts; concurrent processes over one Team are unsupported. Historical queued messages that never reached their target are not delivered.
 
 <a id="dev-note"></a>
 ### Dev Note

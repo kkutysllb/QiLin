@@ -3,77 +3,77 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/experimental/agent-team/README.md
 /:
-  en: 6dbca19f6b32549f
-  zh: dae9c49eab8f6fee
+  en: 8b11ad84b831ec01
+  zh: 01acc9f40e64b8d4
 /qilin-agent-experimental-agent-team:
   en: 4402b42eb6f211c1
   zh: 8ac92563ac79d88a
 /qilin-agent-experimental-agent-team/summary:
-  en: 287cc2a4386252f2
-  zh: 25729a2ac8565d15
+  en: 93089ec3250c740b
+  zh: ac1f8c50602fd5ef
 /qilin-agent-experimental-agent-team/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
 /qilin-agent-experimental-agent-team/use-this-package:
-  en: dd1424b30f3cfb4e
-  zh: 184ef8c784fbb2ca
+  en: bf566e925ea847da
+  zh: 7a88fd5fbc13bf14
 /qilin-agent-experimental-agent-team/use-this-package/when-to-choose-it:
-  en: 8da318ac2f4343d7
-  zh: b31a399d6e3fd64e
+  en: fc789f82c1b86394
+  zh: c6dff674d537dc26
 /qilin-agent-experimental-agent-team/use-this-package/smallest-working-setup:
   en: 067776ea2c4f9776
   zh: 4a73fe617591dd61
 /qilin-agent-experimental-agent-team/use-this-package/teammates:
-  en: 93bba70f00d8015a
-  zh: b66c4c2b1a91facf
+  en: 5a314d1f80ecd31b
+  zh: c34e6a93dd1e2045
 /qilin-agent-experimental-agent-team/use-this-package/messages-between-teammates:
-  en: 14ae48980c5e7fd0
-  zh: dc40cb0c15789d14
+  en: 3f98b1feabc09b11
+  zh: c83ad4de36021fb5
 /qilin-agent-experimental-agent-team/use-this-package/shared-task-board:
   en: 73682f0d2001b517
   zh: 3744d82eb3b7fcb9
 /qilin-agent-experimental-agent-team/use-this-package/waiting-and-interruption:
-  en: 42c6d6e7175a930f
-  zh: eb077879ea52bd97
+  en: f8e38ccf6295b375
+  zh: 44f008e23613c0af
 /qilin-agent-experimental-agent-team/use-this-package/what-success-and-failure-look-like:
-  en: a14116e6ef3b90fc
-  zh: 9b1984cfcb4501d6
+  en: cfcb985f5628e427
+  zh: a455c63b9813a06f
 /qilin-agent-experimental-agent-team/understand-the-implementation:
   en: 6a18034f1ccc247a
   zh: e08b0eb0ccb41ea8
 /qilin-agent-experimental-agent-team/understand-the-implementation/design-philosophy:
-  en: 5ed15e91ee5575cb
-  zh: e34618a49056b439
+  en: 0b6c6a1f5e069abb
+  zh: 0cdca2d88bd25993
 /qilin-agent-experimental-agent-team/understand-the-implementation/source-map:
   en: b4617379acb1800c
-  zh: d0b2846a7117cdbd
+  zh: bdb67fae4e5b4c53
 /qilin-agent-experimental-agent-team/understand-the-implementation/team-identity-and-roster:
-  en: 85f97723e45e43de
-  zh: def66721e21339cc
-/qilin-agent-experimental-agent-team/understand-the-implementation/direct-steering:
-  en: bc66f052a2290fe1
-  zh: 2deb7e0847349f3c
+  en: 2389048c1a494ed3
+  zh: 7e72acd6b83ea248
+/qilin-agent-experimental-agent-team/understand-the-implementation/direct-messages-and-historical-compatibility:
+  en: 60d5c54d032ec106
+  zh: efdf8a7dcd4e8e1e
 /qilin-agent-experimental-agent-team/understand-the-implementation/shared-task-board:
   en: 2dc37ba97a8a7178
   zh: 96bd24033030e19d
 /qilin-agent-experimental-agent-team/understand-the-implementation/waiting-and-interruption:
-  en: 94e09c51cec44b0c
-  zh: dbbead1b8de96a3a
+  en: 29eebf85f25d8d8b
+  zh: 6976a482f65b4989
 /qilin-agent-experimental-agent-team/understand-the-implementation/durability-model:
-  en: 40cdf38b158a6a99
-  zh: 78b6a0a9cf9dda25
+  en: 16e982658c04aa80
+  zh: 3c75e95bb6d7b8bd
 /qilin-agent-experimental-agent-team/understand-the-implementation/disposal:
-  en: 47588f975c83fe96
-  zh: fd25c61a7dcc9b01
+  en: a12fb358183cc6d8
+  zh: 7fdb0434d3c407fe
 /qilin-agent-experimental-agent-team/further-exploration:
-  en: 7bf1185e46e3afc7
-  zh: 99ffb9a0e8997b2f
+  en: a74b13081f4198df
+  zh: 364d6ac92f0380c0
 /qilin-agent-experimental-agent-team/further-exploration/browser-projection:
-  en: 96186095e80f835f
-  zh: 2f6d699872a07730
+  en: 33ad8d459cf2ba34
+  zh: f5c9b92a5ccbb52a
 /qilin-agent-experimental-agent-team/further-exploration/browser-write-bridge:
-  en: af8b1417a9566469
-  zh: b9ddc7d585d34be5
+  en: 0b80f4c679480592
+  zh: 85725998a7d68604
 /qilin-agent-experimental-agent-team/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
@@ -81,17 +81,17 @@
   en: 7a72088145dd45ec
   zh: 6763071c604c2edd
 /qilin-agent-experimental-agent-team/model-experience/peer-messages/what-the-model-sees:
-  en: 4f9110ba058f25cd
-  zh: cf820293929ea993
+  en: 03d122c94d97375c
+  zh: e05915f33dedbdc1
 /qilin-agent-experimental-agent-team/model-experience/peer-messages/token-effect:
-  en: deacf0f9e654cff5
-  zh: 2a30a685b2e3a04f
+  en: 9e0eca38b2fc9327
+  zh: 99462fd765390ed6
 /qilin-agent-experimental-agent-team/model-experience/peer-messages/kv-cache-effect:
-  en: ff845d434b857afe
-  zh: 04479bddf7650ede
+  en: af2993419835b838
+  zh: b2a4fea055d5cdf4
 /qilin-agent-experimental-agent-team/known-limitations-and-deferred-work:
-  en: 016afbeb35dd7448
-  zh: 909b7ae6796314b0
+  en: 2b6bbe3e4242d932
+  zh: c1b33474c62f9674
 /qilin-agent-experimental-agent-team/known-limitations-and-deferred-work/dev-note:
   en: 498e4cf9fe5741a7
   zh: 9d2bab630e655c99

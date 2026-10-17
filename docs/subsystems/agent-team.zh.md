@@ -21,14 +21,14 @@ interface TeamMemberSnapshot {
 }
 ```
 
-每个 member 都从 `provisioning` 开始，并且只到达一个终态 roster phase：`active` 或 `failed`。运行时 `running`／`idle`／`inactive` 状态单独派生，绝不会重写该记录。
+每个 member 都从 `provisioning` 开始，并且只到达一个终态 roster phase：`active` 或 `failed`。roster 的 `running`／`inactive` 状态单独派生，绝不会重写该记录。
 
-## 持久 mailbox
+## 消息与历史 mailbox
 
-Lead Session 首先存储完整 queued message。只有 target 的 pending inbox 条目或已记录用户消息完成持久化，才会写入独立 acknowledgement event，queued-minus-delivered 因而构成恢复 mailbox。
+新的发送在 inbox 接收或拒绝后返回铸出的 Team 消息身份。target 保存既有的 `team-message` source，携带真实发送者 Session id 与发送者名前缀；Team 没有新消息 outbox，也不对重发去重。[包约定](../../packages/experimental/agent-team/README.zh.md#understand-the-implementation)定义持久化行为。下列 mailbox 类型仍可读取，因此历史 Lead 日志仍可回放；Team 不会投递其中 pending 的记录。
 
 ```ts type-equiv
-/** One peer message retained until its target Session records it. */
+/** One peer message recorded by the historical Team mailbox. */
 interface TeamMessageSnapshot {
   readonly id: TeamMessageId
   readonly senderId: SessionId
@@ -38,12 +38,12 @@ interface TeamMessageSnapshot {
 }
 ```
 
-每条消息都会尝试 Steer 投递。running target 在最近的步骤边界收到消息，idle target 启动一个轮次，inactive teammate 则冷恢复。调用方不能选择其他模式，因此持久记录不存储调度方式。
+每条消息都会尝试 Steer 投递。running target 在最近的步骤边界收到消息；inactive target 若已加载则启动一个轮次，否则冷恢复。调用方不能选择其他模式，因此持久记录不存储调度方式。
 
-target Session 会在 pending inbox 条目和最终用户消息上保留消息身份与发送者归因。跨 inbox 与历史折叠该 source 构成 target 侧去重键；模型可见的 framing 会重复 id 和发送者。
+target Session 在投递 source 上保留铸出的 Team 消息身份与发送者归因；模型可见的 framing 会重复 id 和发送者。新的发送不去重，也不写入 outbox 记录。Web 客户端依据该 source 标注对应轮次。
 
 ```ts type-equiv
-/** Source retained by the target Session for durable mailbox de-duplication. */
+/** Source carried by a target Session for one Team peer message, new or historical. */
 interface TeamMessageSource {
   readonly kind: 'team-message'
   readonly teamId: TeamId
@@ -122,7 +122,7 @@ interface TeamProjection {
 
 ## 回放
 
-`agentTeam` Session 投影把一个 Root Session 回放成每个 Team 操作所读取的 roster、任务板与 queued-minus-delivered mailbox。它按 `TeamId` 选取记录，因此普通 fork 继承的 event 保留 ancestor id，绝不会进入新 Root 的状态。Session event 的 `seq` 与 `time` 继续负责顺序和时间记录，Team snapshot 不再重复保存它们。roster 与 task 读取以 view 形式到达调用方，而 pending 邮件仅供投递与恢复内部使用。包 [README](../../packages/experimental/agent-team/README.zh.md)负责 operation、authorization、recovery 和限制行为。
+`agentTeam` Session 投影把一个 Root Session 回放成 roster、任务板与历史 queued-minus-delivered mailbox。它按 `TeamId` 选取记录，因此普通 fork 继承的 event 保留 ancestor id，绝不会进入新 Root 的状态。Session event 的 `seq` 与 `time` 继续负责顺序和时间记录，Team snapshot 不再重复保存它们。roster 与 task 读取以 view 形式到达调用方，而 pending 邮件不暴露给调用方。包 [README](../../packages/experimental/agent-team/README.zh.md)负责 operation、authorization、recovery 和限制行为。
 
 <!-- BEGIN GENERATED kylin-surface (gen-kylin-catalog.ts) — do not edit between markers -->
 

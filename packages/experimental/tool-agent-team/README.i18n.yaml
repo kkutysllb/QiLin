@@ -9,26 +9,26 @@
   en: fe56fc6aa649a564
   zh: e17b87bb0e8524a6
 /qilin-agent-experimental-tool-agent-team/summary:
-  en: 0cce9e5ec6d1946a
-  zh: 6bc76243f494815c
+  en: 8b42a7b1a7b547a4
+  zh: 9c25718cf0643ff0
 /qilin-agent-experimental-tool-agent-team/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
 /qilin-agent-experimental-tool-agent-team/use-this-package:
-  en: 31093c5c9159480b
-  zh: f38789a25ba2bfef
+  en: 9fde141f4894a223
+  zh: 0668a7aad3f6d884
 /qilin-agent-experimental-tool-agent-team/use-this-package/when-to-choose-it:
-  en: 5261677934ea6e71
-  zh: a8bafd94d2b293ec
+  en: 60ea90ce57cca56f
+  zh: 181e48b7d4dcf755
 /qilin-agent-experimental-tool-agent-team/use-this-package/smallest-working-example:
-  en: a3b6ec87a4be0756
-  zh: a8569635cc566791
+  en: 0d51e015759e85e2
+  zh: d0f23e530c28d6d8
 /qilin-agent-experimental-tool-agent-team/use-this-package/what-the-model-can-do:
-  en: 3d725209ac38c493
-  zh: d966745f7b69236b
+  en: 42ac385ae754fa35
+  zh: 1f7dc3aa7ed91f22
 /qilin-agent-experimental-tool-agent-team/use-this-package/what-success-and-failure-look-like:
-  en: 84f975792ae912d6
-  zh: 596e15b04b3257e1
+  en: e49a980372c55892
+  zh: d4bcdd36278d040d
 /qilin-agent-experimental-tool-agent-team/understand-the-implementation:
   en: 3952eb1d9de1f988
   zh: 789d51b88f41b710
@@ -36,17 +36,17 @@
   en: 0786cf1ef991473f
   zh: 151db529937e2b67
 /qilin-agent-experimental-tool-agent-team/understand-the-implementation/source-map:
-  en: 29c1bff5023123be
-  zh: 079c4819ec9ef277
+  en: b073d8293ebc5c71
+  zh: 4d2616bcb320dad3
 /qilin-agent-experimental-tool-agent-team/understand-the-implementation/policy-and-tools:
-  en: 3e730667f904c7bd
-  zh: 7f48e6c07c615d77
+  en: 892f4a49bd00592c
+  zh: 6225bac7b65418d4
 /qilin-agent-experimental-tool-agent-team/understand-the-implementation/scoped-registration-and-teardown:
   en: c2b29f27a74c02c0
   zh: 026f2ef93dd604d8
 /qilin-agent-experimental-tool-agent-team/further-exploration:
-  en: eeb543f7819cfaaf
-  zh: aeb5a80e2cf87379
+  en: c4770d0a1048bcff
+  zh: 48dae4f8ec4778a0
 /qilin-agent-experimental-tool-agent-team/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
@@ -54,17 +54,17 @@
   en: 8e1e365ff3b0dfb2
   zh: c6c91fbf1e1df934
 /qilin-agent-experimental-tool-agent-team/model-experience/team-policy-and-tools/what-the-model-sees:
-  en: 5de88dfbd20f8e27
-  zh: c5bae097fc898f2d
+  en: 35af7f112e4434e3
+  zh: 5e2e123eb0a40613
 /qilin-agent-experimental-tool-agent-team/model-experience/team-policy-and-tools/token-effect:
-  en: fe314af98a2130b8
-  zh: ea89cb40dd11d57c
+  en: 3f49674f937a8ca3
+  zh: 79d34d605732abb1
 /qilin-agent-experimental-tool-agent-team/model-experience/team-policy-and-tools/kv-cache-effect:
-  en: cba54e491b29b664
-  zh: 288015d4794998f9
+  en: 2ba143e89873e768
+  zh: 4f09446c0fb13cdb
 /qilin-agent-experimental-tool-agent-team/known-limitations-and-deferred-work:
-  en: c459b2e8236e6a6c
-  zh: 7cd2af569e9b751a
+  en: 9bd9ecb680238918
+  zh: f08497d29d323a71
 /qilin-agent-experimental-tool-agent-team/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98
