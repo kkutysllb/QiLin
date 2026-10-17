@@ -1,0 +1,49 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/web/web-deepseek-api/README.md
+/:
+  en: eb52169ad8cf3b38
+  zh: 4b91a4dc90777892
+/qilin-agent-web-deepseek-api:
+  en: 573be37817f28e89
+  zh: db508a438c0956c2
+/qilin-agent-web-deepseek-api/summary:
+  en: 4b7dde72d306e8fb
+  zh: b87b4113682a0f09
+/qilin-agent-web-deepseek-api/table-of-contents:
+  en: 76368b6b1da79c80
+  zh: 23ef7314e660bd7d
+/qilin-agent-web-deepseek-api/use-this-package:
+  en: 1b958fb5099eeb23
+  zh: e3533327f06598f6
+/qilin-agent-web-deepseek-api/use-this-package/authentication:
+  en: 57e660a47bc199e6
+  zh: 29f2cad58f71eef2
+/qilin-agent-web-deepseek-api/use-this-package/results-and-failures:
+  en: c9c724975ab64fe9
+  zh: 13a82ad855885f44
+/qilin-agent-web-deepseek-api/understand-the-implementation:
+  en: 61b1cc1b860121a1
+  zh: 5cf63ec1998d0234
+/qilin-agent-web-deepseek-api/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-agent-web-deepseek-api/model-experience/conversation-tool-results:
+  en: dfd3b61aff4a8aa8
+  zh: 06e2b6cc71f461e2
+/qilin-agent-web-deepseek-api/model-experience/conversation-tool-results/what-the-model-sees:
+  en: a9fbb78ffe886f0b
+  zh: cb6840241bed1b40
+/qilin-agent-web-deepseek-api/model-experience/conversation-tool-results/token-effect:
+  en: d82cd03f38fb4b38
+  zh: 8348604fae11cd82
+/qilin-agent-web-deepseek-api/model-experience/conversation-tool-results/kv-cache-effect:
+  en: 54ed534b58469807
+  zh: fe809bb4f17e0e8e
+/qilin-agent-web-deepseek-api/known-limitations-and-deferred-work:
+  en: 8aeb97e282d1dcab
+  zh: 900004bd43bae32d
+/qilin-agent-web-deepseek-api/known-limitations-and-deferred-work/dev-note:
+  en: 0a1253c6f7b5e8b9
+  zh: 9f56528562c7c914

@@ -1,0 +1,55 @@
+{
+  "name": "@qilin-agent/web-deepseek-api",
+  "description": "DeepSeek Search and Fetch API providers for the QiLin web capability seam (ctx.web)",
+  "version": "3.1.6-rc.2",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
+    "directory": "packages/web/web-deepseek-api"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
+  },
+  "files": [
+    "locale/*.json",
+    "lib/index.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/credentials": "workspace:*",
+    "@qilin-agent/launch-environment": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/web": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
+  },
+  "dependencies": {
+    "@qilin-agent/schemastery": "workspace:~"
+  },
+  "devDependencies": {
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/credentials": "workspace:*",
+    "@qilin-agent/credentials-local": "workspace:*",
+    "@qilin-agent/launch-environment": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/web": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/http-proxy": "workspace:*"
+  }
+}

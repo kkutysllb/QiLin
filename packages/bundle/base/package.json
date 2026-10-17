@@ -122,6 +122,7 @@
     "@qilin-agent/user-approval": "workspace:*",
     "@qilin-agent/user-questions": "workspace:*",
     "@qilin-agent/web": "workspace:*",
+    "@qilin-agent/web-deepseek-api": "workspace:*",
     "@qilin-agent/web-fetch-http": "workspace:*",
     "@qilin-agent/web-search-deepseek": "workspace:*",
     "@qilin-agent/workflow-ptc": "workspace:*",

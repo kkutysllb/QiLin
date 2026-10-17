@@ -9,8 +9,8 @@
   en: aa06ab491048f724
   zh: 255a26ae5442f646
 /qilin-agent-web-search-deepseek/summary:
-  en: 0714f1b61d880505
-  zh: 55121a46e47152c0
+  en: b756d856ed56c0ee
+  zh: 2012556cb73fa871
 /qilin-agent-web-search-deepseek/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
@@ -30,8 +30,8 @@
   en: 467b8238cf7e140c
   zh: 85a519c8811557aa
 /qilin-agent-web-search-deepseek/use-this-package/failures-and-recovery:
-  en: 8b9211a88d2927dd
-  zh: a2b6bbaa8c4e1996
+  en: e8b3d05fa39ccf47
+  zh: 7fd9e51f4497244a
 /qilin-agent-web-search-deepseek/understand-the-implementation:
   en: 9842c69ad3636bb3
   zh: 3cdc3f816cbdd0cb
@@ -45,8 +45,8 @@
   en: c62da1892ded8f3b
   zh: 3b9d7f7604c286cb
 /qilin-agent-web-search-deepseek/further-exploration:
-  en: 64f11eda556037c1
-  zh: 34c83ec83c4cb941
+  en: c513c5c2a7ad8c93
+  zh: 8111ac4a85fecc93
 /qilin-agent-web-search-deepseek/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
@@ -54,11 +54,11 @@
   en: 722e4bf02953e236
   zh: b3432958beb7b60f
 /qilin-agent-web-search-deepseek/model-experience/auxiliary-deepseek-search-request/what-the-model-sees:
-  en: cac44ad2353afadd
-  zh: 23b27f833e47bf7e
+  en: 6b2b2909347efee8
+  zh: 664c3e210ec75cfd
 /qilin-agent-web-search-deepseek/model-experience/auxiliary-deepseek-search-request/token-effect:
-  en: f244b4dd6c9e6ad4
-  zh: 50f2434d5119296b
+  en: 9b079b978c305dd8
+  zh: af2c3f39976b34de
 /qilin-agent-web-search-deepseek/model-experience/auxiliary-deepseek-search-request/kv-cache-effect:
   en: 2bac9662f1792a79
   zh: 556d9baabd79f9cb
@@ -75,11 +75,11 @@
   en: f5d5f97a153f7c70
   zh: f681f89596f500f5
 /qilin-agent-web-search-deepseek/known-limitations-and-deferred-work:
-  en: c9fa522bcfa7bfef
-  zh: f95aeb879603bb62
+  en: 970efa0b6540b4df
+  zh: 03584df5a7ec2a8e
 /qilin-agent-web-search-deepseek/known-limitations-and-deferred-work/dev-note:
   en: 7f775cc79dbce94b
   zh: 12b8f68f9e7c48ca
-/qilin-agent-web-search-deepseek/known-limitations-and-deferred-work/dev-note/future-dedicated-retrieval-endpoint:
-  en: 5cfe3e3773c0abe7
-  zh: a97e11f22b7a0434
+/qilin-agent-web-search-deepseek/known-limitations-and-deferred-work/dev-note/dedicated-retrieval-endpoint:
+  en: e8a9d9e70da86ce5
+  zh: 33ca8102965d1d0f

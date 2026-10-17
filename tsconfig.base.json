@@ -575,6 +575,7 @@
       "@qilin-agent/web": ["./packages/web/web/src"],
       "@qilin-agent/web-app": ["./packages/bundle/web-app/src"],
       "@qilin-agent/web-brand": ["./packages/bundle/web-brand/src"],
+      "@qilin-agent/web-deepseek-api": ["./packages/web/web-deepseek-api/src"],
       "@qilin-agent/web-fetch-http": ["./packages/web/web-fetch-http/src"],
       "@qilin-agent/web-search-deepseek": ["./packages/web/web-search-deepseek/src"],
       "@qilin-agent/web-search-exa": ["./packages/web/web-search-exa/src"],
