@@ -1065,6 +1065,9 @@ importers:
         specifier: ^8.21.0
         version: 8.21.0
     devDependencies:
+      '@qilin-agent/api-remote-access':
+        specifier: workspace:*
+        version: link:../remote-access
       '@qilin-agent/brand':
         specifier: workspace:*
         version: link:../../util/brand
@@ -1159,6 +1162,37 @@ importers:
       '@qilin-agent/typert-protocol':
         specifier: workspace:*
         version: link:../../typert/protocol
+
+  packages/api/remote-access:
+    dependencies:
+      '@qilin-agent/typert-protocol':
+        specifier: workspace:*
+        version: link:../../typert/protocol
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+    devDependencies:
+      '@qilin-agent/api-gateway':
+        specifier: workspace:*
+        version: link:../gateway
+      '@qilin-agent/client-connection':
+        specifier: workspace:*
+        version: link:../../client/connection
+      '@qilin-agent/client-ui-renderer':
+        specifier: workspace:*
+        version: link:../../client/ui-renderer
+      '@qilin-agent/client-ui-slots':
+        specifier: workspace:*
+        version: link:../../client/ui-slots
+      '@qilin-agent/host-webserver':
+        specifier: workspace:*
+        version: link:../../host/webserver
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/typert-registry':
+        specifier: workspace:*
+        version: link:../../typert/registry
 
   packages/api/remotes:
     dependencies:
@@ -1985,6 +2019,9 @@ importers:
       '@qilin-agent/api-gateway':
         specifier: workspace:*
         version: link:../../api/gateway
+      '@qilin-agent/api-remote-access':
+        specifier: workspace:*
+        version: link:../../api/remote-access
       '@qilin-agent/attachment-local':
         specifier: workspace:*
         version: link:../../attachment/attachment-local
@@ -8067,6 +8104,9 @@ importers:
       '@qilin-agent/agent-loop-testkit':
         specifier: workspace:*
         version: link:../../test-support/agent-loop-testkit
+      '@qilin-agent/api-remote-access':
+        specifier: workspace:*
+        version: link:../../api/remote-access
       '@qilin-agent/api-remotes':
         specifier: workspace:*
         version: link:../../api/remotes
@@ -9328,6 +9368,9 @@ importers:
       '@qilin-agent/api-gateway':
         specifier: workspace:*
         version: link:../../api/gateway
+      '@qilin-agent/api-remote-access':
+        specifier: workspace:*
+        version: link:../../api/remote-access
       '@qilin-agent/brand':
         specifier: workspace:*
         version: link:../../util/brand

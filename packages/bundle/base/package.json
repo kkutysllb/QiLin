@@ -61,6 +61,7 @@
     "@qilin-agent/goal": "workspace:*",
     "@qilin-agent/goal-round-driver": "workspace:*",
     "@qilin-agent/api-gateway": "workspace:*",
+    "@qilin-agent/api-remote-access": "workspace:*",
     "@qilin-agent/llm": "workspace:*",
     "@qilin-agent/llm-deepseek-api-key": "workspace:*",
     "@qilin-agent/llm-pi-ai": "workspace:*",

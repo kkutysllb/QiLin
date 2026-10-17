@@ -59,5 +59,7 @@ export const remoteDefaultResponses: RemoteTable = {
     // ui-agent-opens `apply` watches the viewed Session; open requests are a
     // transient push with no replay, so the open-empty stream is the default.
     'sidebarOpens/watch': openStream([]),
+    // api-remote-access client `mountAccess`: the owner's access snapshot, then open.
+    'remoteAccess/follow': openStream([{ type: 'baseline', owner: true }]),
   },
 }

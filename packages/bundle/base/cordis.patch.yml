@@ -52,6 +52,11 @@
     - id: typert-gateway
       name: '@qilin-agent/api-gateway'
 
+    # Method-level access control for non-owner Peers; the Gateway requires it,
+    # and its Client half publishes the standard access Hooks.
+    - id: remote-access
+      name: '@qilin-agent/api-remote-access'
+
     - id: session-title
       name: '@qilin-agent/session-title'
       config:

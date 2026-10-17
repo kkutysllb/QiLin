@@ -7,6 +7,7 @@ import { join } from 'node:path'
 import { Context } from '@qilin-agent/kylin'
 import { mountAgentLoopTestDependencies, mountAgentLoopTestHarness } from '@qilin-agent/agent-loop-testkit'
 import SessionController from '@qilin-agent/api-session-controller'
+import RemoteAccessService from '@qilin-agent/api-remote-access'
 import Translator from '@qilin-agent/experimental-translator'
 import { SESSION_FORMAT_VERSION, SessionId, SessionSeq } from '@qilin-agent/session'
 import JsonlPersistence from '@qilin-agent/session-persistence-jsonl'
@@ -66,6 +67,7 @@ async function fixture(origin?: 'subagent') {
     saveSelection: async () => {},
   } as never)
   ctx.provide('fileUploads', { registerAgentResolver: () => () => {} } as never)
+  await ctx.plugin(RemoteAccessService)
   const sessions = new SessionController(ctx, { nativeOpen: false })
   await ctx.plugin(Translator, Translator.Config({ bingEndpoint: `http://127.0.0.1:${address.port}/bing` }))
   const ui = ctx.plugin(CotTranslationController, {})

@@ -88,6 +88,7 @@
     "@testing-library/react": "^16.3.3",
     "@qilin-agent/session": "workspace:*",
     "@qilin-agent/api-session-controller": "workspace:*",
+    "@qilin-agent/api-remote-access": "workspace:*",
     "@qilin-agent/agent-loop-testkit": "workspace:*",
     "@qilin-agent/session-persistence-jsonl": "workspace:*",
     "@qilin-agent/session-query": "workspace:*",

@@ -1,6 +1,7 @@
 import { Context } from '@qilin-agent/kylin'
 import type { Fiber } from '@qilin-agent/kylin'
 import TypertGateway from '@qilin-agent/api-gateway'
+import RemoteAccessService from '@qilin-agent/api-remote-access'
 import TypertRegistry from '@qilin-agent/typert-registry'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import DynamicCordisRunnerService from '../src/index.ts'
@@ -77,6 +78,7 @@ function answer(query: ReturnType<typeof start>) {
 
 async function connectGatewayClient(): Promise<AbortController> {
   await ctx.plugin(TypertRegistry)
+  await ctx.plugin(RemoteAccessService)
   await ctx.plugin(TypertGateway)
   ctx.effect(() => ctx.typertGateway.registerRemoteEvents(async function* (signal) {
     await new Promise<void>((resolve) => { signal.addEventListener('abort', () => { resolve() }, { once: true }) })
@@ -106,6 +108,7 @@ describe('Client inspect completion', () => {
 
   it('does not dispatch a query when the Gateway has no connected Client', async () => {
     await ctx.plugin(TypertRegistry)
+    await ctx.plugin(RemoteAccessService)
     await ctx.plugin(TypertGateway)
     const query = start()
     expect(requests).toEqual([])
