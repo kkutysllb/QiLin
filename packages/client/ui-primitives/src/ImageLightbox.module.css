@@ -1,14 +1,23 @@
+/* Full-viewport layer that blocks background clicks, including on the Windows caption. */
 .backdrop {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  display: grid;
-  place-items: center;
+}
+
+/* Painted area below the Windows caption: the caption strip stays unpainted, as
+   in the Modal primitive, so a maximized window keeps its drag and controls. */
+.stage {
+  position: absolute;
+  inset: var(--dsh-frame-chrome-top, 0px) 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 40px;
 }
 
 /* Same mask recipe as the Modal primitive and the settings dialog. A separate
-   layer, not a background on .backdrop: backdrop-filter there would blur the
+   layer, not a background on .stage: backdrop-filter there would blur the
    previewed image and the close control along with the page. */
 .mask {
   position: absolute;
@@ -20,7 +29,7 @@
 .image {
   position: relative;
   max-width: min(100%, 1600px);
-  max-height: calc(100vh - 80px);
+  max-height: 100%;
   object-fit: contain;
   border-radius: 12px;
   background: var(--qilin-specific-input-major);
@@ -29,7 +38,7 @@
 }
 
 .close {
-  position: fixed;
+  position: absolute;
   top: 20px;
   right: 20px;
   z-index: 1;
