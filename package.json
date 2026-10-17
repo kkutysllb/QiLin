@@ -204,6 +204,8 @@
     "@qilin-agent/experimental-client-ui-claude-code-mods": "workspace:*",
     "@qilin-agent/experimental-computer-use-cua-driver-mcp": "workspace:*",
     "@qilin-agent/experimental-computer-use-cua-driver-native": "workspace:*",
+    "@qilin-agent/experimental-cua": "workspace:*",
+    "@qilin-agent/experimental-cua-macos": "workspace:*",
     "@qilin-agent/experimental-tool-session-query": "workspace:*",
     "@qilin-agent/llm-replay": "workspace:*",
     "@qilin-agent/skill-office": "workspace:*",
