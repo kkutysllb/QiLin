@@ -5,9 +5,12 @@
 /qilin-python-sdk:
   en: 6141be3b44cc4c70
   zh: e7229bc26a981233
+/qilin-python-sdk/optional-office-operations:
+  en: 4ec036b67b8d59e8
+  zh: 030ba303c1e9d76c
 /qilin-python-sdk/start-a-runtime:
-  en: 7159461c8e369207
-  zh: fd01f7071f28cdbf
+  en: 2a5a019a54c0e83a
+  zh: eda91d713ffb30d1
 /qilin-python-sdk/customize-plugins:
   en: 2661784591256d04
   zh: 07e85f434b0a1d03
