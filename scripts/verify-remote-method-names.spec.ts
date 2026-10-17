@@ -90,7 +90,8 @@ describe('shadowing check', () => {
     expect(collectRemoteMethodNames('host.ts', renamed).filter(method => reserved.has(method.name))).toEqual([])
   })
 
-  it('scans the shipped tree clean, over a corpus large enough to mean something', () => {
+  // The whole-tree scan outruns the default deadline under coverage instrumentation.
+  it('scans the shipped tree clean, over a corpus large enough to mean something', { timeout: 60_000 }, () => {
     const { violations, scanned } = scanRepository()
     expect(violations).toEqual([])
     expect(scanned).toBeGreaterThanOrEqual(50)
