@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/kylin",
   "description": "Meta-Framework for Modern JavaScript Applications",
-  "version": "4.0.3",
+  "version": "4.0.5",
   "publishConfig": {
     "access": "public"
   },
