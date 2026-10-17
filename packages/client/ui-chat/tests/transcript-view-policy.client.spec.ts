@@ -140,6 +140,22 @@ describe('TranscriptViewPolicy', () => {
     expect(new TranscriptViewPolicy(host.scope).mode.getSnapshot()).toBe('detailed')
   })
 
+  it('keeps the client default when a durable section predates the work-details field', () => {
+    const host = stubConfigForm<ChatSettings>()
+    // A section written before the field existed carries no value even though
+    // the current section type requires one.
+    host.publish({
+      status: 'ready',
+      value: { linkOpening: 'sidebar', performanceUsage: 'detailed' } as unknown as ChatSettings,
+      revision: 1,
+      writable: true,
+    })
+    const policy = new TranscriptViewPolicy(host.scope, 'standard')
+    expect(policy.mode.getSnapshot()).toBe('standard')
+    expect(host.set).not.toHaveBeenCalled()
+    policy.dispose()
+  })
+
   it('adopts an accepted section standing at construction', () => {
     const host = stubConfigForm<ChatSettings>()
     host.publish({ status: 'ready', value: section('detailed'), revision: 1, writable: true })

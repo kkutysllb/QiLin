@@ -165,6 +165,16 @@ describe('Client Session contracts', () => {
       kind: 'settle-assistant',
       attemptId: 'attempt-two',
     })
+
+    // A settlement positioned after every live row appends instead of splicing.
+    const tail = assistantSettlement(SessionSeq(9))
+    feed.settleAssistant(LlmAttemptId('attempt-three'), tail)
+    expect(feed.getSnapshot().entries).toEqual([opening, settlement, later, tail])
+    expect(feed.getSnapshot().change).toEqual({
+      kind: 'settle-assistant',
+      attemptId: 'attempt-three',
+      entry: tail,
+    })
   })
 
 })

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { SessionFormatEventCollector } from '@qilin-agent/session-format'
-import type { SessionFormatEvent, SessionFormatHeader } from '@qilin-agent/session-format'
+import type { SessionFormatEvent, SessionFormatEventRun, SessionFormatHeader } from '@qilin-agent/session-format'
 import { sessionFormatCatalog } from '@qilin-agent/session-format-catalog'
 import { releasedV4SessionFormatCodec } from '@qilin-agent/session-format-v3-to-v4'
 import { foldRetiredPresetId, releasedV5SessionFormatCodec, sessionFormatV4ToV5 } from '../src/index.ts'
@@ -95,6 +95,27 @@ describe('V4 to V5 stage', () => {
     expect(stage.events.map(event => event.type === 'agent-preset/selected'
       ? (event.data as { agentPreset: string }).agentPreset : event.type))
       .toEqual(['ptc', 'session/end-seed', 'feedback/record'])
+  })
+
+  it('leaves selection events without a stored preset id untouched', () => {
+    const stored: SessionFormatEvent[] = [
+      { type: 'agent-preset/selected', seq: 0, time: 2, data: {} },
+      { type: 'agent-preset/selected', seq: 1, time: 3, data: { agentPreset: 3 } },
+    ]
+    const { events } = migrate(stored)
+    expect(events).toEqual(stored)
+    expect(events[0]).toBe(stored[0])
+  })
+
+  it('forwards compact runs to the next stage unchanged', () => {
+    const run: SessionFormatEventRun = {
+      runType: 'assistant/attempt', firstSeq: 0, eventCount: 1,
+      expand: () => [fact],
+    }
+    const current = stage()
+    let forwarded: SessionFormatEventRun | undefined
+    current.transformRun(run, { emitRun: (value) => { forwarded = value }, emitEvent: () => {} })
+    expect(forwarded).toBe(run)
   })
 
   it('refuses a seeded source without an inherited end-seed marker', () => {

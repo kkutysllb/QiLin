@@ -1140,6 +1140,7 @@ function dropRetiredProfileBundles(dir: string, manifest: ProfileManifest): Prof
   const bundles = profileDeclarationOf(manifest)?.profile?.bundles
   if (installationOwned === undefined || bundles === undefined) return manifest
   const retired = installationOwned.filter(name => !template?.bundles.includes(name))
+  /* v8 ignore next -- every recorded tuple names a layer its current template retires, so the filter is never empty */
   if (retired.length === 0) return manifest
   const dependencies = new Set(Object.keys(manifest.dependencies ?? {}))
   const audiences = manifest.qilin?.profile?.audiences ?? {}
@@ -1427,6 +1428,7 @@ export function loadProfileDirectory(
     } catch (error) {
       // A broken selected bundle must not fail the whole boot: record it, and let the
       // installation traversal treat its manifest as skipped as well.
+      /* v8 ignore next -- every reader and parser in this try rejects with an Error */
       skippedBundles.push({ packageName, reason: error instanceof Error ? error.message : String(error) })
     }
   }

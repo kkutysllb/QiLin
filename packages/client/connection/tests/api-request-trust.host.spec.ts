@@ -1,7 +1,7 @@
 /** Behavior of the /api browser-trust fence (rebinding + cross-site defense). */
 
 import { describe, expect, it } from 'vitest'
-import { assertTrustedAuthority, isTrustedApiRequest } from '../src/api-request-trust.ts'
+import { assertTrustedAuthority, isRemoteAuthority, isTrustedApiRequest } from '../src/api-request-trust.ts'
 
 function request(headers: Record<string, string | undefined>): { headers: Record<string, string | undefined> } {
   return { headers }
@@ -67,6 +67,12 @@ describe('isTrustedApiRequest', () => {
     expect(isTrustedApiRequest(request({ host: 'harness.internal:80', origin: 'https://harness.internal' }), ['harness.internal'])).toBe(false)
     expect(isTrustedApiRequest(request({ host: 'harness.internal:443', origin: 'http://harness.internal' }), ['harness.internal'])).toBe(false)
     expect(isTrustedApiRequest(request({ host: 'harness.internal:443', origin: 'https://evil.example' }), ['harness.internal'])).toBe(false)
+    // A listener mounted on HTTPS canonicalizes a port-less entry under that
+    // scheme's default port, so `:443` written in Host still matches.
+    expect(isTrustedApiRequest(
+      request({ host: 'harness.internal:443', origin: 'https://harness.internal' }),
+      ['harness.internal'], undefined, 'https:',
+    )).toBe(true)
     // Cross-site labelling outranks a purely spelling-level match.
     expect(isTrustedApiRequest(request({
       host: 'harness.internal:443',
@@ -157,5 +163,18 @@ describe('isTrustedApiRequest', () => {
     expect(isTrustedApiRequest(request({ ...markers, host: 'bad host' }), [])).toBe(false)
     expect(isTrustedApiRequest(request({ ...markers, host: '127.0.0.999' }), [])).toBe(false)
     expect(isTrustedApiRequest(request({ ...markers, host: '128.0.0.1' }), [])).toBe(false)
+  })
+})
+
+describe('isRemoteAuthority', () => {
+  it('separates a loopback authority from a remote one, and treats an unparsable entry as remote', () => {
+    for (const entry of ['127.0.0.1', 'localhost:3080', '[::1]:3080', '127.8.9.10']) {
+      expect(isRemoteAuthority(entry), entry).toBe(false)
+    }
+    for (const entry of ['harness.internal', 'harness.internal:3080', '10.1.2.3', '[fd00::1]:3080']) {
+      expect(isRemoteAuthority(entry), entry).toBe(true)
+    }
+    // Nothing an authority parse can read: refusing to claim it is local is the safe answer.
+    expect(isRemoteAuthority('bad entry')).toBe(true)
   })
 })

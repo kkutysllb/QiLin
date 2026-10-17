@@ -383,6 +383,63 @@ describe('SettingsPanel navigation', () => {
     expect(nav.getAttribute('style')).toContain('width: 300px')
   })
 
+  it('keeps one captured drag per pointer and releases the capture with the gesture', () => {
+    const mounted = mount()
+    mounted.requestOpen()
+    const separator = screen.getByRole('separator', { name: 'Resize settings navigation' })
+    const nav = separator.parentElement
+    if (nav === null) throw new Error('settings navigation separator must be inside the navigation rail')
+
+    const captured: number[] = []
+    const released: number[] = []
+    // jsdom implements no pointer capture: the handle reads whatever the element offers.
+    Object.assign(separator, {
+      setPointerCapture: (id: number) => { captured.push(id) },
+      hasPointerCapture: (id: number) => captured.includes(id),
+      releasePointerCapture: (id: number) => { released.push(id) },
+    })
+    const gesture = (type: string, clientX: number, pointerId: number, button = 0): void => {
+      act(() => {
+        const event = new MouseEvent(type, { button, bubbles: true, clientX })
+        Object.defineProperty(event, 'pointerId', { configurable: true, value: pointerId })
+        separator.dispatchEvent(event)
+      })
+    }
+
+    // A foreign pointer, a secondary button, and a second press are all ignored.
+    gesture('pointermove', 999, 7)
+    gesture('pointerup', 999, 7)
+    gesture('pointerdown', 240, 1, 2)
+    expect(captured).toEqual([])
+
+    // The primary press owns the pointer for the whole gesture.
+    gesture('pointerdown', 240, 1)
+    expect(captured).toEqual([1])
+    gesture('pointerdown', 300, 2)
+    expect(captured).toEqual([1])
+    gesture('pointerup', 300, 2)
+    expect(nav.getAttribute('style')).toContain('width: 240px')
+
+    // A drag that never moved still applies its release width and gives the capture back.
+    gesture('pointerup', 320, 1)
+    expect(nav.getAttribute('style')).toContain('width: 320px')
+    expect(released).toEqual([1])
+
+    // A move lays the next frame out; a second move rides the pending one.
+    gesture('pointerdown', 320, 3)
+    gesture('pointermove', 360, 3)
+    gesture('pointermove', 380, 3)
+    expect(nav.getAttribute('style')).toContain('width: 360px')
+
+    // A foreign cancel is ignored; the gesture's own cancel drops its frame
+    // and gives the capture back without applying a last width.
+    gesture('pointercancel', 380, 9)
+    expect(released).toEqual([1])
+    gesture('pointercancel', 380, 3)
+    expect(released).toEqual([1, 3])
+    expect(nav.getAttribute('style')).toContain('width: 360px')
+  })
+
   it('projects rows, marks the first active, and renders only that section', () => {
     mount()
     openPanel()

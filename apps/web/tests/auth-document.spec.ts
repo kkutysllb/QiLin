@@ -21,6 +21,8 @@ const COPY: Readonly<Record<string, string>> = {
   'toggle.toLogin': '返回登录',
   'label.username': '用户名',
   'label.identifier': '用户名或邮箱',
+  'label.showPassword': '显示密码',
+  'label.hidePassword': '隐藏密码',
   'placeholder.username': '用户名',
   'placeholder.identifier': '用户名或邮箱',
   'placeholder.email': '邮箱（可选）',
@@ -32,7 +34,8 @@ const COPY: Readonly<Record<string, string>> = {
 /** Field ids `auth.ts` requires before it renders a mode. */
 const FIELDS = [
   'auth-title', 'auth-subtitle', 'auth-identifier', 'auth-identifier-label', 'auth-email-field',
-  'auth-email', 'auth-password', 'auth-confirm-field', 'auth-confirm', 'auth-error',
+  'auth-email', 'auth-password', 'auth-password-toggle', 'auth-confirm-field', 'auth-confirm',
+  'auth-confirm-toggle', 'auth-error',
   'auth-submit', 'auth-toggle-row', 'auth-toggle',
 ]
 

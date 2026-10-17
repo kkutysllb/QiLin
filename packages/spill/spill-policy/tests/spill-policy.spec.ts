@@ -12,10 +12,15 @@ import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
 import Loader from '@qilin-agent/kylin-plugin-loader'
 import { provideWorkingDirectoryFixture } from '@qilin-agent/agent-loop-testkit'
-import { createUserMessage, ToolCallId } from '@qilin-agent/llm'
+import LlmRuntime, { LlmAdapter, createUserMessage, ToolCallId } from '@qilin-agent/llm'
 import { estimateContent } from '@qilin-agent/token-meter/estimate'
-import type { ContentBlock } from '@qilin-agent/llm'
-import type { ContextFormed } from '@qilin-agent/llm'
+import { AttachmentId, AttachmentStore } from '@qilin-agent/attachment'
+import type {
+  ImageAttachmentLimits, ImageAttachmentRef, SaveImageAttachment, StoredImageAttachment,
+} from '@qilin-agent/attachment'
+import type {
+  ContentBlock, ContextFormed, GenerateOptions, ImageBlock, LlmImageRequestPrice, StreamChunk,
+} from '@qilin-agent/llm'
 import SessionStore, { SessionId } from '@qilin-agent/session'
 import SystemPrompt from '@qilin-agent/system-prompt'
 import ToolRuntime, { defineContentToolFixture } from '@qilin-agent/tools'
@@ -100,7 +105,7 @@ function exec(name: string, session = 's1'): ToolExecution {
 async function setup(
   config: SpillPolicy.Config,
   withSpill = true,
-  beforePolicy?: (ctx: Context) => void,
+  beforePolicy?: (ctx: Context) => void | Promise<void>,
 ): Promise<{ ctx: Context; spill?: StubStore; fiber: Awaited<ReturnType<Context['plugin']>> }> {
   const ctx = new Context()
   await ctx.plugin(SystemPrompt)
@@ -110,7 +115,7 @@ async function setup(
     await ctx.plugin(StubStore)
     spill = ctx.spillStore as StubStore
   }
-  beforePolicy?.(ctx)
+  await beforePolicy?.(ctx)
   const fiber = await ctx.plugin(SpillPolicy, config)
   return { ctx, fiber, ...spill ? { spill } : {} }
 }
@@ -600,6 +605,255 @@ describe('cap invariant', () => {
     const result = await ctx.tools.execute(exec('big'))
     expect(textOf(result.content)).toBe(body)
     expect(warn).toHaveBeenCalled()
+  })
+})
+
+const VISION_ROUTE = { provider: 'vision-route', model: 'vision-model' }
+const HOST_IMAGE_PATH = '/host/.qilin/attachments/objects/aa/object'
+
+const IMAGE_REF: ImageAttachmentRef = {
+  attachmentId: AttachmentId(`sha256:${'a'.repeat(64)}`),
+  mediaType: 'image/png',
+  bytes: 12,
+  width: 4,
+  height: 4,
+}
+
+const IMAGE_LIMITS: ImageAttachmentLimits = {
+  maxImageBytes: 16,
+  maxImagesPerMessage: 4,
+  maxMessageImageBytes: 64,
+  maxImagePixels: 16,
+  maxImageDimension: 8,
+  mediaTypes: ['image/png'],
+}
+
+/** One whole image block in a tool result; each call is a distinct occurrence. */
+function imageBlock(): ImageBlock {
+  return { type: 'image', attachment: IMAGE_REF }
+}
+
+/** Attachment store double exposing only the host-object location the policy forwards. */
+class StubAttachments extends AttachmentStore {
+  readonly imageLimits = IMAGE_LIMITS
+  /** Host-object location reported for every reference; a relative path is unmappable. */
+  hostPath: string | undefined = HOST_IMAGE_PATH
+
+  validateImage(_input: SaveImageAttachment): Promise<void> {
+    return Promise.resolve()
+  }
+
+  saveImage(_input: SaveImageAttachment): Promise<ImageAttachmentRef> {
+    return Promise.resolve(IMAGE_REF)
+  }
+
+  readImage(ref: ImageAttachmentRef): Promise<StoredImageAttachment> {
+    return Promise.resolve({ ref, data: Uint8Array.of(1, 2, 3) })
+  }
+
+  override imageHostPath(_ref: ImageAttachmentRef): string | undefined {
+    return this.hostPath
+  }
+}
+
+/** The route-owned pricing declaration one adapter answers for its images. */
+interface ImagePricing {
+  priceImages(images: readonly ImageBlock[]): LlmImageRequestPrice[]
+}
+
+/** Adapter answering request-image pricing for the one visual route. */
+class StubVisionAdapter extends LlmAdapter {
+  /** Visual tokens charged for each image occurrence. */
+  visualTokens = 0
+  /** Descriptor text priced alongside each image. */
+  handleText = 'handle'
+  /** Price count returned instead of one per occurrence, to exercise the refusal. */
+  prices: number | undefined
+
+  async * stream(_options: GenerateOptions): AsyncIterable<StreamChunk> {
+    throw new Error('not exercised')
+  }
+
+  override imageRequestPricing(provider: string, model: string): ImagePricing | undefined {
+    if (provider !== VISION_ROUTE.provider || model !== VISION_ROUTE.model) return undefined
+    return {
+      priceImages: (images: readonly ImageBlock[]): LlmImageRequestPrice[] =>
+        Array.from({ length: this.prices ?? images.length }, () => ({ visualTokens: this.visualTokens, text: this.handleText })),
+    }
+  }
+}
+
+describe('image results', () => {
+  /**
+   * Mount tools + the policy with the real filesystem mapping, a stub
+   * attachment store, and an image-pricing route. Each service can be withheld
+   * or pointed at an unmappable location to exercise the policy's refusals.
+   */
+  async function setupImages(
+    config: SpillPolicy.Config,
+    options: { attachments?: boolean; fs?: boolean; llm?: boolean; hostPath?: string } = {},
+  ): Promise<{ ctx: Context; spill: StubStore; adapter: StubVisionAdapter; attachments: StubAttachments | undefined }> {
+    const adapter = new StubVisionAdapter()
+    let attachments: StubAttachments | undefined
+    const { ctx, spill } = await setup(config, true, async (target) => {
+      if (options.llm !== false) {
+        await target.plugin(LlmRuntime)
+        target.llm.registerAdapter([VISION_ROUTE.provider], adapter)
+      }
+      if (options.attachments !== false) {
+        await target.plugin(StubAttachments)
+        attachments = target.get('attachments') as StubAttachments
+        if (options.hostPath !== undefined) attachments.hostPath = options.hostPath
+      }
+      if (options.fs !== false) {
+        provideWorkingDirectoryFixture(target)
+        await target.plugin(FileSystem)
+      }
+    })
+    return { ctx, spill: spill as StubStore, adapter, attachments }
+  }
+
+  /** Execution of an image-returning content tool with a controlled LLM route. */
+  function visionExec(tool: string, options: {
+    routed?: { provider: string; model: string }
+    configured?: { provider: string; model: string }
+    parent?: ToolExecutionToken
+  } = {}): ToolExecution {
+    const agent = {
+      session: {
+        header: { id: SessionId('s-image') },
+        requestHeader: () => options.routed === undefined ? undefined : { config: options.routed },
+      },
+      options: options.configured ?? {},
+    }
+    return {
+      callId: ToolCallId(`call-${tool}`), name: tool, arguments: {}, agent, signal: testToolSignal,
+      ...options.parent === undefined ? {} : { parent: options.parent },
+    } as unknown as ToolExecution
+  }
+
+  /** A content tool returning a fixed image-bearing result. */
+  function imageTool(name: string, content: ContentBlock[]) {
+    return defineContentToolFixture({
+      name,
+      description: name,
+      parameters: {},
+      async execute(): Promise<ContentBlock[]> { return content },
+    })
+  }
+
+  it('spills an oversized image result whole, saving the read-only address beside the text', async () => {
+    const { ctx, spill } = await setupImages({ maxInlineTokens: 64 })
+    const body = 'x'.repeat(2000)
+    ctx.tools.register(imageTool('screenshot', [imageBlock(), { type: 'text', text: body }]))
+
+    const result = await ctx.tools.execute(visionExec('screenshot', { routed: VISION_ROUTE }))
+
+    expect(result.isError).toBe(false)
+    expect(spill.saves).toHaveLength(1)
+    expect(spill.saves[0]?.content).toBe(
+      `\n[Image: "${HOST_IMAGE_PATH}"; image/png; 4x4. Use read_image to view it.]\n${body}`)
+    // The replacement keeps the image whole; only text is trimmed around it.
+    expect(result.content.filter(block => block.type === 'image')).toEqual([imageBlock()])
+    const text = textOf(result.content)
+    // The image stayed inline, so only the trimmed text bytes are reported.
+    expect(text).toContain('(Omitted 1972 bytes. Full formatted result stored at: /spill/screenshot.txt. Use the stub retrieval path.)')
+    expect(text.startsWith('xxxx')).toBe(true)
+    expect(text).toContain(`\n\n[...]\n\n${body.slice(-24)}\n\n`)
+    expect(estimateContent([{ type: 'text', text }])).toBeLessThanOrEqual(64)
+  })
+
+  it('prices images from the agent options when the session has no request header', async () => {
+    const { ctx, spill } = await setupImages({ maxInlineTokens: 64 })
+    ctx.tools.register(imageTool('fallback_route', [imageBlock(), { type: 'text', text: 'y'.repeat(2000) }]))
+
+    const result = await ctx.tools.execute(visionExec('fallback_route', { configured: VISION_ROUTE }))
+
+    expect(spill.saves).toHaveLength(1)
+    expect(textOf(result.content)).toContain('Full formatted result stored at: /spill/fallback_route.txt')
+  })
+
+  it('keeps the inline result when the execution names no image-pricing route', async () => {
+    const { ctx } = await setupImages({ maxInlineTokens: 64 })
+    const warn = vi.spyOn(ctx.logger, 'warn').mockImplementation(() => {})
+    const body = 'x'.repeat(2000)
+    ctx.tools.register(imageTool('unrouted', [imageBlock(), { type: 'text', text: body }]))
+
+    const result = await ctx.tools.execute(visionExec('unrouted'))
+
+    expect(result.content.some(block => block.type === 'image')).toBe(true)
+    expect(textOf(result.content)).toBe(body)
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('no image token calculator'))
+  })
+
+  it('keeps the inline result when the calculator omits an image occurrence', async () => {
+    const { ctx, adapter } = await setupImages({ maxInlineTokens: 64 })
+    adapter.prices = 1
+    const warn = vi.spyOn(ctx.logger, 'warn').mockImplementation(() => {})
+    const body = 'x'.repeat(2000)
+    ctx.tools.register(imageTool('two_images', [imageBlock(), imageBlock(), { type: 'text', text: body }]))
+
+    const result = await ctx.tools.execute(visionExec('two_images', { routed: VISION_ROUTE }))
+
+    expect(textOf(result.content)).toBe(body)
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('inconsistent occurrence count'))
+  })
+
+  it('keeps the inline result when the attachment has no readable path in the tool world', async () => {
+    const { ctx } = await setupImages({ maxInlineTokens: 64 }, { hostPath: 'relative/object.png' })
+    const warn = vi.spyOn(ctx.logger, 'warn').mockImplementation(() => {})
+    const body = 'x'.repeat(2000)
+    ctx.tools.register(imageTool('unmapped', [imageBlock(), { type: 'text', text: body }]))
+
+    const result = await ctx.tools.execute(visionExec('unmapped', { routed: VISION_ROUTE }))
+
+    expect(textOf(result.content)).toBe(body)
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('has no readable attachment path'))
+  })
+
+  it('keeps the inline result when the composition mounts no attachment store', async () => {
+    const { ctx } = await setupImages({ maxInlineTokens: 64 }, { attachments: false })
+    const warn = vi.spyOn(ctx.logger, 'warn').mockImplementation(() => {})
+    const body = 'x'.repeat(2000)
+    ctx.tools.register(imageTool('no_attachments', [imageBlock(), { type: 'text', text: body }]))
+
+    const result = await ctx.tools.execute(visionExec('no_attachments', { routed: VISION_ROUTE }))
+
+    expect(textOf(result.content)).toBe(body)
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('has no readable attachment path'))
+  })
+
+  it('keeps the inline result when the composition mounts no filesystem', async () => {
+    const { ctx } = await setupImages({ maxInlineTokens: 64 }, { fs: false })
+    const warn = vi.spyOn(ctx.logger, 'warn').mockImplementation(() => {})
+    const body = 'x'.repeat(2000)
+    ctx.tools.register(imageTool('no_fs', [imageBlock(), { type: 'text', text: body }]))
+
+    const result = await ctx.tools.execute(visionExec('no_fs', { routed: VISION_ROUTE }))
+
+    expect(textOf(result.content)).toBe(body)
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('has no readable attachment path'))
+  })
+
+  it('offers the retained preview as additional context when a dispatch omits its images', async () => {
+    const { ctx, spill, adapter } = await setupImages({ maxInlineTokens: 64 })
+    adapter.visualTokens = 100_000
+    const body = 'x'.repeat(2000)
+    ctx.tools.register(imageTool('vision_dispatch', [{ type: 'text', text: body }, imageBlock()]))
+
+    const result = await ctx.tools.execute(visionExec('vision_dispatch', {
+      routed: VISION_ROUTE,
+      parent: Symbol('outer') as ToolExecutionToken,
+    }))
+
+    expect(spill.saves).toHaveLength(1)
+    expect(spill.saves[0]?.source).toMatchObject({ toolName: 'vision_dispatch', label: 'dispatch' })
+    expect(result.content.some(block => block.type === 'image')).toBe(false)
+    const text = textOf(result.content)
+    expect(text).toContain('Full formatted result stored at: /spill/vision_dispatch.txt')
+    expect(text).toContain('Omitted 1 images.')
+    expect(result.additionalContexts).toHaveLength(1)
+    expect(result.additionalContexts?.[0]).toMatchObject({ content: result.content })
   })
 })
 

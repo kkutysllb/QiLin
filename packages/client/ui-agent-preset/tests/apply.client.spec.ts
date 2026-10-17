@@ -17,6 +17,7 @@ import { apply, inject } from '@qilin-agent/client-ui-agent-preset/client'
 import { AgentPresetLabel } from '../src/client/AgentPresetLabel.tsx'
 import type { AgentPresetLabelInjected } from '../src/client/AgentPresetLabel.tsx'
 import { AgentPresetSection } from '../src/client/AgentPresetSection.tsx'
+import { CreatePluginMenuItem } from '../src/client/CreatePluginMenuItem.tsx'
 import type { AgentPresetSectionInjected } from '../src/client/AgentPresetSection.tsx'
 import { AgentPresetSeat } from '../src/client/AgentPresetSeat.tsx'
 import type { AgentPresetSeatInjected } from '../src/client/AgentPresetSeat.tsx'
@@ -156,6 +157,7 @@ function declareRoot(slots: SlotRegistry): () => void {
     children: {
       'settings.general.item': { kind: 'list', scope: 'root' },
       'settings.section': { kind: 'list', scope: 'root' },
+      'plugins.add.actions': { kind: 'list', scope: 'root' },
       conversation: { kind: 'single', scope: 'root' },
     },
   } as never, () => null)
@@ -868,6 +870,44 @@ describe('AgentPresetSeatController reconciliation', () => {
     expect(controller.store.getSnapshot().current).toBe('')
   })
 
+  it('offers the Creator draft to the plugin page, and acknowledges a chip refusal through its face', async () => {
+    const { ctx, slots } = await bench()
+    declareRoot(slots)
+    const conversation = declareConversation(slots)
+    ctx.provide('conversation', {} as never)
+    ctx.provide('sessions', sessionsDouble(ctx, { byId: {} }) as never)
+    const uiWorkspace = uiWorkspaceDouble()
+    ctx.provide('uiWorkspace', uiWorkspace as never)
+    await ctx.plugin({ inject: [...inject, 'conversation', 'sessions', 'uiWorkspace'], apply }).await()
+
+    const entry = slots.entries('plugins.add.actions')[0]
+    expect(entry?.component).toBe(CreatePluginMenuItem)
+    expect(entry?.options).toMatchObject({ id: 'create-plugin' })
+    const face = (entry?.inject as unknown as () => {
+      hooks: { agentPresets: unknown }
+      load: () => Promise<void>
+      startCreatorDraft: () => void
+    })()
+    // The draft is gated on the section's picker policy, which its own store
+    // carries: the menu entry reads the same page state the section renders.
+    const section = (slots.entries('settings.section')[0]!.inject as unknown as () => AgentPresetSectionInjected)()
+    await section.load()
+    await face.load()
+    face.startCreatorDraft()
+    // The menu item stages the shipped creator preset and begins exactly one
+    // new-session flow, the same entry the settings section offers.
+    expect(uiWorkspace.starts).toHaveLength(1)
+
+    const injectSeat = slots.entries('conversation.hero.agentPreset')[0]!
+      .inject as unknown as (sessionId?: SessionId) => AgentPresetSeatInjected
+    const seat = injectSeat()
+    const before = seat.hooks.agentPresetSeat.getSnapshot()
+    // Nothing is on display, so acknowledging a refusal leaves the chip alone.
+    seat.dismissRefusal({ reason: 'stale', preset: { id: 'minimal', trust: 'user' } })
+    expect(seat.hooks.agentPresetSeat.getSnapshot()).toBe(before)
+    conversation()
+  })
+
   it('restores an empty current value after a refused switch for an uncomposed Session', async () => {
     const select = () => Promise.resolve({
       ok: false as const, error: new RemoteError('gateway/internal', 'selection rejected', {}),
@@ -881,6 +921,25 @@ describe('AgentPresetSeatController reconciliation', () => {
     expect(controller.store.getSnapshot()).toMatchObject({
       busy: false, current: '', error: { reason: 'selection rejected' },
     })
+  })
+
+  it('hands a blank-Session sync the bare reason of the refusal it caused', async () => {
+    const controller = new AgentPresetSeatController({
+      remote: {
+        agentPresets: {
+          select: () => Promise.resolve({
+            ok: false as const,
+            error: new RemoteError('gateway/internal', 'preset "minimal" is locked', { reason: 'already started' }),
+          }),
+        },
+      },
+    } as never, () => ({ id: SessionId('blank'), blank: true, projectionValues: { agentPreset: 'standard' } }))
+    const captured = controller.blankSessionId()
+    if (captured === undefined) throw new Error('expected a blank Session')
+
+    // The caller that made the pick is the one that has to explain it, so the
+    // bare cause comes back rather than the frame that names the preset again.
+    expect(await controller.syncBlankSession(captured, 'minimal')).toBe('already started')
   })
 
   it('keeps the bare cause of a mount failure, not the frame that names the preset again', async () => {

@@ -141,4 +141,26 @@ describe('UploadOverlay', () => {
     enter(view)
     expect(view.queryByText('t:upload.done:1')).toBeNull()
   })
+
+  it('keeps the overlay while a nested drag is still inside, and accepts a file dragged over it', () => {
+    const view = mount()
+    // Two entries and one leave: the drag never left the tree.
+    enter(view)
+    enter(view)
+    fireEvent.dragLeave(target(view), { dataTransfer: { types: ['Files'], files: [] } })
+    expect(view.getByText('t:upload.dropHint')).toBeTruthy()
+    fireEvent.dragLeave(target(view), { dataTransfer: { types: ['Files'], files: [] } })
+    expect(view.queryByText('t:upload.dropHint')).toBeNull()
+
+    // A drag carrying files is accepted over the tree; other payloads are not.
+    const over = new MouseEvent('dragover', { bubbles: true, cancelable: true })
+    Object.defineProperty(over, 'dataTransfer', { value: { types: ['Files'], files: [] } })
+    fireEvent(target(view), over)
+    expect(over.defaultPrevented).toBe(true)
+
+    const other = new MouseEvent('dragover', { bubbles: true, cancelable: true })
+    Object.defineProperty(other, 'dataTransfer', { value: { types: ['text/plain'], files: [] } })
+    fireEvent(target(view), other)
+    expect(other.defaultPrevented).toBe(false)
+  })
 })

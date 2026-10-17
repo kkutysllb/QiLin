@@ -38,6 +38,8 @@ describe('textDefinition', () => {
     expect(definition.kind).toBe(TEXTPREVIEW_KIND)
     expect(definition.patterns).toEqual(['qilin-resource://file/**'])
     expect(definition.priority).toBe('fallback')
+    // `title` names the open file, so the type's own name comes from its label.
+    expect(definition.label?.()).toBe('type.label')
     expect(definition.title('qilin-resource://file/session/s-1/work/README.md')).toBe('README.md')
     // Reads require an addressed Session, even when the file path is absolute.
     expect(definition.canOpen?.('qilin-resource://file/session/s-1/work/README.md')).toBe(true)

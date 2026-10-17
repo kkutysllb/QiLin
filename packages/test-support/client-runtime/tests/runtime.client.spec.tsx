@@ -29,6 +29,10 @@ declare module '@qilin-agent/client-ui-slots' {
     'trt.rows': { kind: 'list'; scope: 'root' }
     'trt.rows.hole': { kind: 'single'; scope: 'root' }
   }
+
+  interface SlotFactoryMap {
+    'trt.factory': { scope: 'root' }
+  }
 }
 
 afterEach(cleanup)
@@ -826,6 +830,87 @@ describe('single-slot mounting edge arms', () => {
     ))
     const slot = runtime.renderSlot('trt.panel', {})
     expect(slot.container).toMatchSnapshot()
+    await runtime.dispose()
+  })
+})
+
+/** An observable stand-in as the inert shortcuts stub answers it. */
+interface StubObservable<T> {
+  getSnapshot(): T
+  subscribe(listener: () => void): () => void
+}
+
+/** The shortcuts members this stub answers; the rest of the production face is absent. */
+interface StubShortcuts {
+  runtime: string
+  platform: string
+  stopSequenceMs: number
+  catalog: StubObservable<readonly unknown[]>
+  fixedCatalog: StubObservable<readonly unknown[]>
+  config: StubObservable<{ sequence: number; status: string }>
+  register(): () => void
+  registerFixed(): () => void
+  observeFixedInput(): () => void
+  describeBinding(): unknown
+  edit(): Promise<unknown>
+  recording(): Promise<unknown>
+  closeWindow(): Promise<unknown>
+}
+
+/** Read the runtime's provided shortcuts service without a service-name augmentation. */
+function shortcutsOf(runtime: SlotTestRuntime): StubShortcuts | undefined {
+  const lookup = runtime.ctx as unknown as { get(name: string): unknown }
+  return lookup.get('shortcuts') as StubShortcuts | undefined
+}
+
+describe('shortcuts stub', () => {
+  it('answers every member inertly and keeps one observable reference per reading', async () => {
+    const runtime = await SlotTestRuntime.create()
+    const shortcuts = shortcutsOf(runtime)!
+
+    expect({
+      runtime: shortcuts.runtime,
+      platform: shortcuts.platform,
+      stopSequenceMs: shortcuts.stopSequenceMs,
+    }).toEqual({ runtime: 'web', platform: 'macos', stopSequenceMs: 500 })
+    // Frozen module-level readings: a fresh reference per getSnapshot would
+    // re-render every subscriber forever.
+    expect(shortcuts.catalog.getSnapshot()).toBe(shortcuts.catalog.getSnapshot())
+    expect(shortcuts.catalog.getSnapshot()).toEqual([])
+    expect(shortcuts.catalog.subscribe(() => {})).toBeTypeOf('function')
+    expect(shortcuts.fixedCatalog.getSnapshot()).toBe(shortcuts.fixedCatalog.getSnapshot())
+    expect(shortcuts.fixedCatalog.subscribe(() => {})).toBeTypeOf('function')
+    expect(shortcuts.config.getSnapshot()).toEqual({ sequence: 0, status: 'ready' })
+    expect(shortcuts.config.getSnapshot()).toBe(shortcuts.config.getSnapshot())
+    expect(shortcuts.config.subscribe(() => {})).toBeTypeOf('function')
+    expect(shortcuts.register()).toBeTypeOf('function')
+    expect(shortcuts.registerFixed()).toBeTypeOf('function')
+    expect(shortcuts.observeFixedInput()).toBeTypeOf('function')
+    expect(shortcuts.describeBinding()).toEqual({ binding: null, keys: [], issue: null, conflicts: [] })
+    await expect(shortcuts.edit()).resolves.toEqual({ status: 'saved' })
+    await expect(shortcuts.recording()).resolves.toBeUndefined()
+    await expect(shortcuts.closeWindow()).resolves.toBeUndefined()
+    await runtime.dispose()
+  })
+
+  it('provides no shortcuts service when the spec mounts the real one instead', async () => {
+    const runtime = await SlotTestRuntime.create({ shortcuts: false })
+    expect(shortcutsOf(runtime)).toBeUndefined()
+    await runtime.dispose()
+  })
+})
+
+describe('factory reads', () => {
+  it('fails loud without a render host or a definition, then reads the registered Factory', async () => {
+    const runtime = await SlotTestRuntime.create()
+    expect(() => runtime.factoryOf('trt.factory')).toThrow('before renderRoot')
+    await runtime.root.declare({}, () => null)
+    runtime.renderRoot()
+    expect(() => runtime.factoryOf('trt.factory')).toThrow('no definition')
+
+    runtime.slots.registerFactory({ name: 'trt.factory', scope: 'root' }, () => null)
+
+    expect(runtime.factoryOf('trt.factory')).toMatchObject({ name: 'trt.factory', scope: 'root' })
     await runtime.dispose()
   })
 })

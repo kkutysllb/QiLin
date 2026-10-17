@@ -496,6 +496,18 @@ describe('TypertGatewayService', () => {
     }), 'gateway/invocation-unavailable')
   })
 
+  it('skips a reflected Service whose provider is no longer active', async () => {
+    const ctx = await setupGateway()
+    const fiber = await ctx.plugin(ExportedMethodService)
+    await fiber.dispose()
+
+    // Reflection still lists the service, but its provider fiber is gone, so
+    // discovery passes over it rather than binding a dead receiver.
+    await expectCode(ctx.typertGateway.invoke({
+      namespace: 'exported', method: 'execute', args: { value: 'ship' },
+    }), 'gateway/invocation-unavailable')
+  })
+
   it('rejects SRC wire collisions and unavailable Context providers', async () => {
     const colliding = await setupGateway()
     await colliding.plugin(CollidingWireService)

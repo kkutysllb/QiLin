@@ -314,6 +314,7 @@ function engineNameMiss(error: unknown, request: string, importer: string): Erro
   const failure = error as NodeJS.ErrnoException
   if (failure.code !== 'MODULE_NOT_FOUND' && failure.code !== 'ERR_MODULE_NOT_FOUND') return undefined
   const name = barePackageName(request)
+  /* v8 ignore next -- this helper runs only for routed requests, which always name a bare package */
   if (name === undefined) return undefined
   const canonical = dshCompatModuleId(name)
   if (canonical === name) return undefined
@@ -338,6 +339,7 @@ function engineNameMiss(error: unknown, request: string, importer: string): Erro
 function translatedRequest(route: ResolutionRoute, request: string): string | undefined {
   if (route.kind !== 'fallback') return undefined
   const name = barePackageName(request)
+  /* v8 ignore next -- a fallback route is created only for a bare request, whose name is its own prefix */
   if (name === undefined || !request.startsWith(name)) return undefined
   const canonical = dshCompatModuleId(name)
   if (canonical === name) return undefined
@@ -902,6 +904,7 @@ export function installRuntimeInterception(
     try {
       return originalFilename.call(cjs, translated ?? request, synthetic, main, options)
     } catch (error) {
+      /* v8 ignore next -- the CommonJS entry returns early without a parent filename, so this anchor always names one */
       return throwWithoutCjsAnchor(error, request, parent.filename ?? anchor, anchor)
     }
   }

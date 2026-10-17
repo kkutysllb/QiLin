@@ -52,7 +52,7 @@ function mount(mode: TranscriptViewMode = 'compact', dictionary: typeof en | typ
     t: makeTranslate(dictionary),
   }
   render(<TranscriptViewRow {...props} />)
-  return { setTranscriptView }
+  return { setTranscriptView, setCollapseTiming }
 }
 
 describe('TranscriptViewRow', () => {
@@ -81,6 +81,13 @@ describe('TranscriptViewRow', () => {
     for (const label of ['Compact', 'Standard', 'Detailed', 'Full detail']) {
       expect(screen.getByRole('menuitem', { name: label })).toBeDefined()
     }
+  })
+
+  it('offers both collapse timings and publishes the browser-local choice', () => {
+    const b = mount('compact')
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(en['settings.collapse.completion']) }))
+    fireEvent.click(screen.getByRole('menuitem', { name: en['settings.collapse.nextInput'] }))
+    expect(b.setCollapseTiming).toHaveBeenCalledWith('next-input')
   })
 
   it('shows the work-details values in Chinese', () => {

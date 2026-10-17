@@ -115,6 +115,37 @@ describe('sidechat face', () => {
     })
   })
 
+  it('leaves the panel untouched when the Host refuses to start a thread', async () => {
+    const source = createSidechatSource()
+    const face = sidechatFace(source, fakeRemote({
+      sidechatStart: async () => ({ ok: false as const, error: new RemoteError('gateway/internal', 'refused', {}) }),
+    }))
+    await face.start(PARENT, 'question')
+    expect(source.getSnapshot().selectedId).toBeUndefined()
+    expect(source.getSnapshot().busy).toBe(false)
+  })
+
+  it('drops frames that arrive after the transcript subscription stops', async () => {
+    const source = createSidechatSource()
+    let release!: () => void
+    const gate = new Promise<void>((resolve) => { release = resolve })
+    const face = sidechatFace(source, fakeRemote({
+      follow: () => streamHandle((async function* () {
+        yield snapshotFrame([messageEvent('user/message', 1, 'q', true)])
+        await gate
+        yield messageEvent('assistant/message', 2, 'late')
+      })()),
+    }))
+    const stop = face.openTranscript(PARENT, sid('session-t'))
+    await vi.waitFor(() => {
+      expect(source.getSnapshot().entries[sid('session-t')]).toEqual([{ seq: 1, kind: 'boundary', text: 'q' }])
+    })
+    stop()
+    release()
+    await new Promise((resolve) => { setTimeout(resolve, 0) })
+    expect(source.getSnapshot().entries[sid('session-t')]).toEqual([{ seq: 1, kind: 'boundary', text: 'q' }])
+  })
+
   it('sends the first prompt without a question through the plain start shape', async () => {
     const source = createSidechatSource()
     const started: unknown[] = []

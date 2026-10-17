@@ -232,6 +232,17 @@ it('reports invalid encodings, JSON, and format violations with their JSON path'
   })
 })
 
+it('announces nothing when a volatile update leaves the committed list unchanged', async () => {
+  const { ctx } = await mount()
+  const changed = vi.fn()
+  ctx.on('plugin-market/changed', changed)
+  ctx.emit('loader/volatile-update', [['indexes']])
+  expect(changed).toHaveBeenCalledOnce()
+  // The Loader fires once per volatile field change; a list that did not move is not an announcement.
+  ctx.emit('loader/volatile-update', [['indexes']])
+  expect(changed).toHaveBeenCalledOnce()
+})
+
 it('keeps state of remaining sources, drops removed ones, and announces changes', async () => {
   serve(json({ format: 1, title: 'A', plugins: [] }), new Error('offline'))
   const { ctx, market, config } = await mount({ indexes: [URL_A, URL_B] })

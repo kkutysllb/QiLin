@@ -1043,3 +1043,49 @@ describe('provider-routed retry policy', () => {
     }).toThrow(/unknown key "retryPolciy"/)
   })
 })
+
+describe('llm/retry projection state', () => {
+  const REPLAY: SessionEventMap['llm/retry'] = {
+    retryId: retry.RetryId('replay-1'),
+    turn: 1,
+    step: 1,
+    provider: 'mock',
+    mode: 'always',
+    policyKey: '["always",500,10000,0]',
+    retry: 1,
+    delayMs: 500,
+    failure: { message: 'provider busy', code: 'RATE_LIMIT' },
+  }
+
+  /** The projection unit as the registry drives it, over a real session log. */
+  async function projection(): Promise<{ ctx: Context; session: ReturnType<Context['sessions']['create']> }> {
+    const ctx = new Context()
+    context = ctx
+    await ctx.plugin(SessionStore)
+    await ctx.plugin(SessionProjectionRegistry)
+    // `inject` declares the agent registry, so the projection registers only
+    // once that peer is mounted too.
+    await ctx.plugin(AgentRegistry)
+    await ctx.plugin(Object.assign((inner: Context) => { retry.apply(inner, {}) }, { inject: retry.inject }))
+    return { ctx, session: ctx.sessions.create(SessionId('retry-projection'), { meta: { cwd: process.cwd() } }) }
+  }
+
+  it('keeps a recorded retry record when the identical event is folded again', async () => {
+    const { ctx, session } = await projection()
+    const key = JSON.stringify(['mock', REPLAY.policyKey])
+
+    session.append('llm/retry', REPLAY)
+    const recorded = ctx.sessionProjections.stateOf(session, 'llmRetry')
+    expect(recorded).toEqual({ [key]: { retry: 1, retryId: 'replay-1' } })
+
+    // Replaying the same recorded event keeps that attempt instead of rewriting it.
+    session.append('llm/retry', REPLAY)
+    expect(ctx.sessionProjections.stateOf(session, 'llmRetry')).toEqual(recorded)
+
+    // A later attempt on the same route replaces the record.
+    session.append('llm/retry', { ...REPLAY, retryId: retry.RetryId('replay-2'), retry: 2 })
+    expect(ctx.sessionProjections.stateOf(session, 'llmRetry')).toEqual({
+      [key]: { retry: 2, retryId: 'replay-2' },
+    })
+  })
+})

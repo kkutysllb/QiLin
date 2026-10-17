@@ -43,6 +43,18 @@ describe('FileBody', () => {
     expect(edits.readWhole).not.toHaveBeenCalled()
   })
 
+  it('mounts no surface for a ready bucket while the session has no workspace', () => {
+    const { view, instance } = mountFileBody(null)
+    // The bucket outlives the workspace: it is ready, but there is no
+    // directory to draw, so the host element never exists to mount into.
+    act(() => {
+      instance.actions.editRead(TAB)
+      instance.actions.editLoaded(TAB, 'one', 'v1')
+    })
+    expect(view.container.querySelector('[data-file-state="no-workspace"]')).not.toBeNull()
+    expect(view.container.querySelector('.cm-editor')).toBeNull()
+  })
+
   it('reads the tab\'s file whole on mount, seeds the tree, and shows the surface when ready', async () => {
     const { view, edits, script, controller } = await settled()
     expect(edits.readWhole).toHaveBeenCalledWith(SESSION, PATH, controller.signal)

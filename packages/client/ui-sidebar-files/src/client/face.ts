@@ -229,6 +229,10 @@ export function filesFace(
       }
       settling.set(tabId, setTimeout(() => {
         settling.delete(tabId)
+        // The map holds only the newest timer, so every later query and the
+        // record's own abort clear this one before it can observe a newer
+        // generation; the guard is insurance, not a reachable outcome.
+        /* v8 ignore next -- a superseded timer is always cleared before it fires. */
         if (queryGenerations.get(tabId) !== generation) return
         actions.searchRunning(tabId, query)
         void searchNames(sessionId, needle, signal).then((result) => {

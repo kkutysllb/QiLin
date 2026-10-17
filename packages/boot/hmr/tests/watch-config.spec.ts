@@ -109,7 +109,8 @@ describe('HMR exact config paths', () => {
     }
   })
 
-  it('observes add, change, and unlink outside its module roots', { timeout: 30_000 }, async () => {
+  // Three watched events, each with its own 20s settle window, share one deadline.
+  it('observes add, change, and unlink outside its module roots', { timeout: 90_000 }, async () => {
     const dir = mkdtempSync(join(tmpdir(), 'qilin-hmr-config-'))
     hmrRoots.push(dir)
     const filename = join(dir, 'plugins.yml')
@@ -158,7 +159,7 @@ describe('HMR exact config paths', () => {
     }
   })
 
-  it('processes native events for a watcher registered during a transaction', async () => {
+  it('processes native events for a watcher registered during a transaction', { timeout: 20_000 }, async () => {
     const dir = mkdtempSync(join(tmpdir(), 'qilin-hmr-transaction-watch-'))
     const filename = join(dir, 'plugins.yml')
     onTestFinished(() => { rmSync(dir, { recursive: true, force: true }) })

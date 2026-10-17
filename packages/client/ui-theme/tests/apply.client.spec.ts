@@ -147,7 +147,10 @@ describe('ui-theme apply', () => {
     face.setFontSize('text', 12)
     expect(theme.getTheme().fontSizes.text).toBe(12)
     expect(instance.getSnapshot().fontSizes.text).toBe(12)
-    await vi.waitFor(() => { expect(b.mutate).toHaveBeenCalledTimes(2) })
+
+    face.setFontFamily('code', 'Menlo, monospace')
+    expect(theme.getTheme().fontFamilies.code).toBe('"Menlo", monospace')
+    await vi.waitFor(() => { expect(b.mutate).toHaveBeenCalledTimes(3) })
   })
 
   it('loads Host settings at boot, refreshes its namespace, and keeps remote browsers process-local', async () => {

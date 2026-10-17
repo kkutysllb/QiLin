@@ -16,6 +16,7 @@ import { afterAll, describe, expect, it } from 'vitest'
 import {
   assertNoEngineNameCollisions,
   composeEntries,
+  dependencyExportsBundle,
   EngineNameCollisionError,
   engineNameCollisions,
   getQilinRuntimeVersion,
@@ -28,6 +29,7 @@ import {
   PROFILE_COMPATIBILITY_FILENAME,
   PROFILE_PATCH_FILENAME,
   PROFILE_TEMPLATES,
+  readBundlePatches,
   readProfileManifest,
   readProfilePluginRows,
   reconcileProfileBundles,
@@ -356,6 +358,115 @@ describe('engine name collisions', () => {
     writeFileSync(join(installed, 'cordis.patch.yml'), '[]\n')
     reconcileProfileBundles('qilin', readProfileManifest('qilin', dir), dir, anchor)
     expect(readProfileManifest('qilin', dir).qilin?.profile?.bundles).toEqual(['dsh-super-ppts'])
+  })
+
+  it('leaves a manifest with no dependencies, layers, or changes alone', () => {
+    const anchor = stageInstallation({})
+    const dir = tmp()
+    writeProfileManifest(dir, { name: 'qilin-profile-test' })
+    reconcileProfileBundles('qilin', { name: 'qilin-profile-test' }, dir, anchor)
+    expect(readProfileManifest('qilin', dir).qilin).toBeUndefined()
+  })
+
+  it('adds a bundle dependency, warns about a plain one, and drops a layer that stopped being a bundle', () => {
+    const written: string[] = []
+    const anchor = stageInstallation({ 'bundle-dep': { patch: '[]\n' } })
+    const dir = tmp()
+    declare(dir, ['bundle-dep', 'plain-dep'])
+    const original = process.stderr.write.bind(process.stderr)
+    process.stderr.write = (chunk: string | Uint8Array): boolean => {
+      written.push(String(chunk))
+      return true
+    }
+    try {
+      // The dependency that declares a bundle joins the layer list; the plain one
+      // declares none and is reported instead.
+      reconcileProfileBundles('qilin', { name: 'qilin-profile-test' }, dir, anchor)
+      // Re-running over its own output converges: the layer is already listed.
+      reconcileProfileBundles('qilin', readProfileManifest('qilin', dir), dir, anchor)
+      expect(written.join('')).toContain('plain-dep declares no qilin.bundle.patch')
+    } finally {
+      process.stderr.write = original
+    }
+    expect(readProfileManifest('qilin', dir).qilin?.profile?.bundles).toEqual(['bundle-dep'])
+
+    // The profile stops depending on the layer, so it leaves the list again.
+    writeProfileManifest(dir, { name: 'qilin-profile-test', dependencies: {}, qilin: { profile: { bundles: ['bundle-dep'] } } })
+    reconcileProfileBundles('qilin', { name: 'qilin-profile-test', dependencies: { 'bundle-dep': '0.0.0' } }, dir, anchor)
+    expect(readProfileManifest('qilin', dir).qilin?.profile?.bundles).toEqual([])
+  })
+
+  it('reports no dependencies and no bundle for a manifest that declares neither', () => {
+    const anchor = stageInstallation({})
+    const dir = tmp()
+    writeProfileManifest(dir, { name: 'qilin-profile-test' })
+    expect(engineNameCollisions('qilin', dir)).toEqual([])
+    // Nothing resolves for a package the profile neither depends on nor installs.
+    expect(dependencyExportsBundle('qilin', 'absent-package', dir, anchor)).toBe(false)
+  })
+})
+
+describe('profile plugin rows', () => {
+  it('lists nothing without a manifest and reports layers whose version is unavailable', () => {
+    const anchor = stageInstallation({})
+    // A directory that was never initialized has no manifest to list.
+    expect(readProfilePluginRows('t', tmp(), anchor, [])).toEqual([])
+    // A manifest that declares neither dependencies nor layers lists nothing.
+    const bare = tmp()
+    writeProfileManifest(bare, { name: 'qilin-profile-bare' })
+    expect(readProfilePluginRows('t', bare, anchor, [])).toEqual([])
+
+    const declared = tmp()
+    writeProfileManifest(declared, { name: 'qilin-profile-declared', qilin: { profile: { bundles: ['absent-bundle'] } } })
+    // A layer that resolves nowhere reports no version rather than failing the list.
+    expect(readProfilePluginRows('t', declared, anchor, [])).toEqual([
+      { name: 'absent-bundle', layer: 0, version: null, source: 'user', updatable: true, removable: true },
+    ])
+    // A resolved layer whose own manifest declares no version string reports none either.
+    const versionless = join(declared, 'node_modules', 'versionless')
+    mkdirSync(versionless, { recursive: true })
+    writeFileSync(join(versionless, 'package.json'), JSON.stringify({ name: 'versionless' }))
+    writeProfileManifest(declared, { name: 'qilin-profile-declared', qilin: { profile: { bundles: ['versionless'] } } })
+    expect(readProfilePluginRows('t', declared, anchor, [])).toEqual([
+      { name: 'versionless', layer: 0, version: null, source: 'user', updatable: true, removable: true },
+    ])
+  })
+})
+
+describe('current profile patch layers', () => {
+  it('reads the bundle layers from disk when the launcher supplies no loaded profile', () => {
+    const home = tmp()
+    const anchor = stageInstallation({ base: { patch: '- insert:\n  - id: session-telemetry-otel\n    name: telemetry\n' } })
+    const dir = resolveProfileDir('patchless', home)
+    initProfile(dir, ['base'])
+    const context = {
+      name: 'patchless', dir,
+      // Neither patch file exists, so both optional layers contribute nothing.
+      patchPath: join(dir, 'application.patch.yml'),
+      installAnchor: anchor, home, cwd: home,
+      startedBundles: ['base'], overlays: [], telemetryDisabledEnv: undefined,
+    }
+    expect(readBundlePatches('patchless', context).length).toBeGreaterThan(0)
+    expect(composeEntries([readProfilePatches('patchless', context)])[0]?.id).toBe('session-telemetry-otel')
+  })
+
+  it('normalizes a shipped profile whose manifest declares no dependencies', () => {
+    const anchor = stageInstallation({
+      '@qilin-agent/base': { patch: '[]\n' },
+      '@qilin-agent/web-app': { patch: '[]\n' },
+      '@qilin-agent/web-brand': { patch: '[]\n' },
+    })
+    const home = tmp()
+    const dir = resolveProfileDir('web', home)
+    mkdirSync(dir, { recursive: true })
+    writeProfileManifest(dir, {
+      name: 'qilin-profile-web',
+      qilin: { profile: { bundles: ['@qilin-agent/base', '@qilin-agent/web-app', 'dsh-animations'] } },
+    })
+    const profile = loadProfile('t', 'web', anchor, home)
+    expect(profile.layers.map(layer => layer.packageName))
+      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand'])
+    expect(readProfileManifest('t', dir)).not.toHaveProperty('dependencies')
   })
 })
 
@@ -1447,6 +1558,47 @@ describe('bundle patch lists and linked roots', () => {
     const generation = await healProfilesModuleFallback({ installAnchor: anchor, profile, home })
     expect(generation.linkedRoots.map(root => root.name)).toEqual(['outside'])
     expect(generation.linkedRoots[0]?.realPath).toBe(realpathSync(outside))
+  })
+
+  it('treats an unmaterialized profiles tree and a vanished link as no linked roots', async () => {
+    const anchor = stageInstallation({ 'linked-bundle': { patch: '[]\n' } })
+    const profileDir = join(tmp(), 'profile')
+    initProfile(profileDir, ['linked-bundle'])
+    const profile = loadProfileDirectory('linked app', profileDir, anchor)
+    const modules = join(profileDir, 'node_modules')
+    mkdirSync(modules, { recursive: true })
+    const linkType = process.platform === 'win32' ? 'junction' : 'dir'
+    const outside = join(tmp(), 'outside-package')
+    mkdirSync(outside, { recursive: true })
+    symlinkSync(outside, join(modules, 'outside'), linkType)
+    // A candidate whose target is gone is not a root.
+    symlinkSync(join(outside, 'gone'), join(modules, 'vanished'), linkType)
+    // Nothing materializes, so the profiles tree does not exist to canonicalize.
+    const generation = await healProfilesModuleFallback({
+      installAnchor: anchor, profile, home: tmp(), materialize: false,
+    })
+    expect(generation.linkedRoots.map(root => root.name)).toEqual(['outside'])
+  })
+
+  it('fails loud when the profiles tree or a linked candidate cannot be canonicalized', async () => {
+    const anchor = stageInstallation({ 'linked-bundle': { patch: '[]\n' } })
+    const profileDir = join(tmp(), 'profile')
+    initProfile(profileDir, ['linked-bundle'])
+    const profile = loadProfileDirectory('linked app', profileDir, anchor)
+    const modules = join(profileDir, 'node_modules')
+    mkdirSync(modules, { recursive: true })
+    const looped = join(modules, 'looped')
+    symlinkSync(looped, looped)
+
+    // A profiles tree that is itself a link loop is not a missing tree.
+    const looping = tmp()
+    symlinkSync(join(looping, 'profiles'), join(looping, 'profiles'))
+    await expect(healProfilesModuleFallback({ installAnchor: anchor, profile, home: looping, materialize: false }))
+      .rejects.toThrow(/ELOOP|symbolic links/u)
+
+    // Neither is a candidate that loops instead of resolving.
+    await expect(healProfilesModuleFallback({ installAnchor: anchor, profile, home: tmp(), materialize: false }))
+      .rejects.toThrow(/ELOOP|symbolic links/u)
   })
 })
 

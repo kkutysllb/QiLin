@@ -27,6 +27,11 @@ vi.mock('node:child_process', async importOriginal => ({
   spawn: vi.fn(),
 }))
 
+/** The readiness failure a socket reports as a bare reason rather than an Error. */
+function socketFailure(): unknown {
+  return 'socket unbound'
+}
+
 let dist: string | undefined
 
 beforeEach(() => {
@@ -432,6 +437,64 @@ describe('web-app runtime glue', () => {
       expect(log).not.toHaveBeenCalled()
       expect(openBrowser).not.toHaveBeenCalled()
     }
+  })
+
+  it('brackets an IPv6 listener address in the published URL', async () => {
+    stageDist()
+    const ctx = new Context()
+    onTestFinished(() => ctx.fiber.dispose())
+    const { server } = fakeHttpServer('2001:db8::7')
+    ctx.provide('webServer', server)
+    provideConnection(ctx)
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    apply(ctx, new Config({ label: 'qilin web', openBrowser: false, printUrl: true, surfaceContext: false }))
+
+    await vi.waitFor(() => {
+      expect(log).toHaveBeenCalledWith('qilin web: http://[2001:db8::7]:4567/?token=test-token')
+    })
+  })
+
+  it('reports a non-Error readiness rejection instead of dropping it', async () => {
+    stageDist()
+    const ctx = new Context()
+    onTestFinished(() => ctx.fiber.dispose())
+    const { server } = fakeHttpServer()
+    ;(server as { whenListened: () => Promise<void> }).whenListened = async () => { throw socketFailure() }
+    ctx.provide('webServer', server)
+    provideConnection(ctx)
+    const diagnostic = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    apply(ctx, new Config({ label: 'qilin web', openBrowser: false, printUrl: true, surfaceContext: false }))
+
+    await vi.waitFor(() => {
+      expect(diagnostic).toHaveBeenCalledWith('qilin web: startup readiness failed: socket unbound')
+    })
+  })
+
+  it('announces immediately in a hand-built tree whose webserver is already gone', async () => {
+    stageDist()
+    const ctx = new Context()
+    onTestFinished(() => ctx.fiber.dispose())
+    // The bind address is read at load; the service itself must survive until
+    // announcement, which a composition without a Loader never guaranteed.
+    const webServer = ctx.plugin((child: Context) => { child.provide('webServer', fakeHttpServer().server) })
+    await webServer
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    apply(ctx, new Config({
+      label: 'qilin web',
+      openBrowser: false,
+      printUrl: true,
+      surfaceContext: false,
+      publicUrl: 'https://proxy.example/web',
+    }))
+    await webServer.dispose()
+
+    provideConnection(ctx)
+
+    await vi.waitFor(() => {
+      expect(log).toHaveBeenCalledWith('qilin web: https://proxy.example/web/?token=test-token')
+    })
   })
 
   it('fails loud when the prompt section resolves against a portless webserver', async () => {

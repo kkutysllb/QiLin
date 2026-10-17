@@ -2164,6 +2164,22 @@ class ConfinedFakeRuntime extends FakeRuntime {
 }
 
 describe('PTC standing file policy and sandbox outcomes', () => {
+  it('refuses an agent-owned program when no working-directory owner is mounted', async () => {
+    const ctx = new Context()
+    try {
+      await ctx.plugin(SystemPrompt)
+      await ctx.plugin(ToolRuntime, { mode: 'ptc' })
+      await ctx.plugin(FakeRuntime)
+      const { agent } = fakeAgent()
+
+      const result = await runCode(ctx, 'return 1', { agent })
+
+      expect(result.isError).toBe(true)
+      expect(result.content).toEqual([{ type: 'text', text: 'Error: qilin-tools: run_code with an Agent requires workingDirectory' }])
+      expect((ctx.ptcRuntime as FakeRuntime).lastRequest).toBeUndefined()
+    } finally { await ctx.fiber.dispose() }
+  })
+
   it('requires a policy owner before dispatching a confined runtime', async () => {
     const { ctx } = await setup({ runtime: false })
     try {

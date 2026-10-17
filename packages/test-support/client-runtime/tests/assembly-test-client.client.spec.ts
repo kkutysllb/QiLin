@@ -128,6 +128,19 @@ describe('TestClient (jsdom)', () => {
     if (overlapFailure !== undefined) throw overlapFailure
   }, COLD_BOOT_TIMEOUT_MS)
 
+  it('installs inert stand-ins for the browser globals jsdom lacks', async () => {
+    // The suite's setup file normally provides a ResizeObserver; removing it
+    // for this boot is what forces the shim path a plain jsdom lane takes.
+    vi.stubGlobal('ResizeObserver', undefined)
+    onTestFinished(() => { vi.unstubAllGlobals() })
+    const client = await started({ roster: API_ROSTER })
+
+    const Observer = globals.ResizeObserver as new () => { observe(): void; disconnect(): void }
+    const observer = new Observer()
+    expect(() => { observer.observe(); observer.disconnect() }).not.toThrow()
+    await client.dispose()
+  })
+
   it('reloads the bootstrap modules row against its own Loader internal', async () => {
     const roster = ClientRoster.of([{ name: MODULES, inject: [], immediately: true }])
     const a = await TestClient.start({ roster }, RemoteMock.create(), { awaitConnected: false })

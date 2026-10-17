@@ -1,7 +1,7 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { Context, Service, symbols } from '@qilin-agent/kylin'
 import { Session, SessionId } from '@qilin-agent/session'
-import AgentRegistry, { agentEvents } from '@qilin-agent/agent'
+import AgentRegistry, { agentEvents, emitAgentEvent } from '@qilin-agent/agent'
 import TypertRegistry from '@qilin-agent/typert-registry'
 
 import type {
@@ -272,6 +272,22 @@ describe('agentEvents()', () => {
     agentEvents(ctx, agent).emit('agent/status', payload)
 
     expect(heard).toEqual([agent])
+  })
+
+  it('emits one contained notification without retaining a dispatcher', async () => {
+    const ctx = new Context()
+    const warnings: string[] = []
+    ctx.logger.warn = ((message: unknown) => { warnings.push(String(message)) }) as typeof ctx.logger.warn
+    const agent = stubAgent('one-shot-emit')
+    const heard: Array<{ agent: Agent; status: AgentStatus }> = []
+    ctx.on('agent/status', ({ agent: subject, status }) => void heard.push({ agent: subject, status }))
+    ctx.on('agent/status', () => { throw new Error('sync listener') })
+
+    emitAgentEvent(ctx, agent, 'agent/status', { status: 'idle' })
+    await Promise.resolve()
+
+    expect(heard).toEqual([{ agent, status: 'idle' }])
+    expect(warnings).toEqual(['agent event "agent/status" listener threw: Error: sync listener'])
   })
 })
 

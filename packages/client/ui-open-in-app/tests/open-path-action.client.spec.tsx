@@ -5,7 +5,7 @@
  * failed gesture and a failed handler query are announced.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { makeTranslate } from '@qilin-agent/client-test-runtime'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import type { SessionId } from '@qilin-agent/session/types'
@@ -129,6 +129,58 @@ describe('document file opener gestures', () => {
     expect(b.openPath).toHaveBeenCalledTimes(1)
     pending.resolve(null)
     await waitFor(() => { expect(main.disabled).toBe(false) })
+  })
+
+  it('ignores a gesture that starts inside the same batch as the one before it', async () => {
+    const pending = Promise.withResolvers<null>()
+    const openPath = vi.fn(() => pending.promise.then(() => null))
+    const b = bench({ openPath })
+    render(<OpenPathAction {...b.props} />)
+    const main = screen.getByRole('button', { name: zh['path.open'] })
+    // One committed batch: the control has not re-rendered as busy yet, so the
+    // second gesture reaches the handler and must be dropped by the in-flight mark.
+    await act(async () => {
+      fireEvent.click(main)
+      fireEvent.click(main)
+    })
+    expect(b.openPath).toHaveBeenCalledTimes(1)
+    pending.resolve(null)
+    await waitFor(() => { expect(b.openPath).toHaveBeenCalledTimes(1) })
+  })
+
+  it('closes the handler menu on Escape and on a second chevron click', async () => {
+    const b = bench()
+    render(<OpenPathAction {...b.props} />)
+    const chevron = screen.getByRole('button', { name: zh['path.more'] })
+    fireEvent.click(chevron)
+    expect(await screen.findByText('Finder')).toBeDefined()
+    expect(chevron.getAttribute('aria-expanded')).toBe('true')
+
+    // The chevron toggles the open list without starting a second query.
+    fireEvent.click(chevron)
+    await waitFor(() => { expect(chevron.getAttribute('aria-expanded')).toBe('false') })
+    expect(b.applications).toHaveBeenCalledOnce()
+
+    fireEvent.click(chevron)
+    await screen.findByText('Finder')
+    fireEvent.keyDown(document, { key: 'Escape' })
+    await waitFor(() => { expect(chevron.getAttribute('aria-expanded')).toBe('false') })
+  })
+
+  it('drops a handler query the control replaced before it answered', async () => {
+    const pending = Promise.withResolvers<readonly SessionWorkspacePathApplication[] | null>()
+    const b = bench({ applications: () => pending.promise })
+    const view = render(<OpenPathAction {...b.props} />)
+    fireEvent.click(screen.getByRole('button', { name: zh['path.more'] }))
+    expect(await screen.findByText(zh['path.appsLoading'])).toBeDefined()
+
+    // The same control now targets another file; the aborted query's late
+    // answer must not replace the state the new file is waiting on.
+    view.rerender(<OpenPathAction {...b.props} absolutePath="/host/project/work/other.mp4" />)
+    pending.resolve(APPS)
+    await act(async () => { await Promise.resolve() })
+    expect(screen.getByText(zh['path.appsLoading'])).toBeDefined()
+    expect(screen.queryByText('Finder')).toBeNull()
   })
 
   it('falls back to the generic glyph when the Host icon fails to load', async () => {

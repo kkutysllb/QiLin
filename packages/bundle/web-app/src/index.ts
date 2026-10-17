@@ -313,8 +313,8 @@ export function apply(ctx: Context, config: Config): void {
       // line, the browser handoff, and the only error (issue #8).
       const webServer = connectionCtx.get('webServer')
       const settled = connectionCtx.get('loader')?.await()
-      const announceWhenBound = async (audited: boolean): Promise<void> => {
-        if (audited) await auditStartupEntries(connectionCtx.root, 'qilin web', () => {})
+      const announceWhenBound = async (): Promise<void> => {
+        await auditStartupEntries(connectionCtx.root, 'qilin web', () => {})
         // The tree can be disposed while the boot was in flight (early
         // SIGTERM); a URL line or browser tab for a dead server would only
         // mislead, and reading torn-down services would turn a clean shutdown
@@ -334,7 +334,7 @@ export function apply(ctx: Context, config: Config): void {
         if (webServer === undefined) announceReady()
         else void webServer.whenListened().then(() => { announceReady() }).catch(reportReadinessFailure)
       } else {
-        void settled.then(() => announceWhenBound(true)).catch(reportReadinessFailure)
+        void settled.then(() => announceWhenBound()).catch(reportReadinessFailure)
       }
     })
   }

@@ -849,6 +849,49 @@ describe('agent loop', () => {
     }])
   })
 
+  it('admits the runtime context even when a pre-step listener drops its carrier message', async () => {
+    const adapter = new MockAdapter([textResponse('ok')])
+    const ctx = await harness(adapter)
+    ctx.systemPrompt.context({ name: 'policy', order: 0, text: 'Mode: read-only.' })
+    ctx.on('agent/pre-step', async (_payload, next) => {
+      const decision = await next()
+      if (decision.kind !== 'enter') return decision
+      return { ...decision, messages: decision.messages.filter(message => message.source.kind !== 'runtime-context') }
+    })
+    const agent = await ctx.agentLoop.create(SessionId('a-runtime-context-dropped'), { provider: 'mock', model: 'mock' })
+
+    send(agent, 'first')
+    await waitForIdle(ctx, agent)
+
+    // The snapshot still reaches the surface (and the request behind it) even
+    // though no carried message declared it.
+    const contexts = agent.session.snapshotEvents().filter(event =>
+      event.type === 'user/message' && event.data.source.kind === 'runtime-context')
+    expect(contexts).toHaveLength(1)
+    expect(adapter.requests[0]?.messages.some(message =>
+      message.role === 'user' && message.source?.kind === 'runtime-context')).toBe(true)
+  })
+
+  it('admits one runtime-context snapshot when a pre-step listener repeats its carrier', async () => {
+    const adapter = new MockAdapter([textResponse('ok')])
+    const ctx = await harness(adapter)
+    ctx.systemPrompt.context({ name: 'policy', order: 0, text: 'Mode: read-only.' })
+    ctx.on('agent/pre-step', async (_payload, next) => {
+      const decision = await next()
+      if (decision.kind !== 'enter') return decision
+      const carrier = decision.messages.find(message => message.source.kind === 'runtime-context')
+      return carrier === undefined ? decision : { ...decision, messages: [...decision.messages, carrier] }
+    })
+    const agent = await ctx.agentLoop.create(SessionId('a-runtime-context-repeated'), { provider: 'mock', model: 'mock' })
+
+    send(agent, 'first')
+    await waitForIdle(ctx, agent)
+
+    const contexts = agent.session.snapshotEvents().filter(event =>
+      event.type === 'user/message' && event.data.source.kind === 'runtime-context')
+    expect(contexts).toHaveLength(1)
+  })
+
   it('records exact replay chunks inside the durable assistant message', async () => {
     const adapter = new MockAdapter([textResponse('abc')])
     const ctx = await harness(adapter)

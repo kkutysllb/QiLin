@@ -79,6 +79,10 @@ describe('ThemeRuntime', () => {
     expect(theme.getTheme().fontFamilies.terminal).toBe('')
     expect(host.set).toHaveBeenLastCalledWith('terminalFontFamily', '')
     expect(events).toHaveLength(2)
+    // The already-normalized list is a no-op.
+    theme.setFontFamily('terminal', '')
+    expect(events).toHaveLength(2)
+    expect(host.set).toHaveBeenCalledTimes(2)
   })
 
   it('rejects out-of-range and fractional font sizes per role range', () => {
@@ -247,6 +251,22 @@ describe('ThemeRuntime', () => {
 
     tokens[0]!.description = 'caller mutation'
     expect(theme.exportInspectTokens()[0]!.description).not.toBe('caller mutation')
+  })
+
+  it('keeps one description per name when registered themes repeat a built-in or listed token', () => {
+    const { theme } = make()
+    theme.register({ id: 'custom', colorScheme: 'light', tokens: { '--registered': 'first' } })
+    theme.register({
+      id: 'custom-two',
+      colorScheme: 'light',
+      tokens: { '--registered': 'second', '--dsw-alias-bg-base': 'override' },
+    })
+    const tokens = theme.exportInspectTokens()
+    expect(tokens.filter(token => token.name === '--registered')).toHaveLength(1)
+    expect(tokens.find(token => token.name === '--registered')?.description)
+      .toBe('Theme token registered by the current Client composition.')
+    expect(tokens.find(token => token.name === '--dsw-alias-bg-base')?.description)
+      .toBe('Application base background.')
   })
 
   it('rejects every malformed token override value with a teaching error', () => {

@@ -19,6 +19,9 @@ import {
 import { SessionSeq, type SessionId } from '@qilin-agent/session/types'
 import type { WorkspaceId } from '@qilin-agent/workspace/types'
 import { createChatStore } from '../src/client/stores.ts'
+import { CHAT_SETTINGS_NAMESPACE, type ChatSettings } from '../src/chat-settings.ts'
+import type { LinkOpeningRowInjected } from '../src/client/settings/LinkOpeningRow.tsx'
+import type { TranscriptViewRowInjected } from '../src/client/settings/TranscriptViewRow.tsx'
 
 usePinnedBrowserLanguages('zh-CN')
 
@@ -47,9 +50,13 @@ function sessionFakeFor() {
   } satisfies SessionBehaviorOverrides
 }
 
-async function bench() {
+async function bench(options: { browserTabs?: boolean } = {}) {
   const runtime = await SlotTestRuntime.create()
-  runtime.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => stubConfigForm().scope } as never)
+  const chatSettings = stubConfigForm<ChatSettings>()
+  runtime.ctx.provide('configForms', {
+    developerTools: { enabled: createSnapshotStore(true) },
+    get: (namespace: string) => namespace === CHAT_SETTINGS_NAMESPACE ? chatSettings.scope : stubConfigForm().scope,
+  } as never)
   const layout = { closeRightbar: vi.fn(), openRightbar: vi.fn() }
   runtime.ctx.provide('layout', layout as never)
   const sidebarRight = {
@@ -59,9 +66,10 @@ async function bench() {
   runtime.ctx.provide('sidebarRight', sidebarRight as never)
   const sidebarRightTabs = {
     get: vi.fn<(kind: string) => object | undefined>(() => ({})),
+    subscribe: vi.fn(() => () => {}),
     register: vi.fn(() => () => {}),
   }
-  runtime.ctx.provide('sidebarRightTabs', sidebarRightTabs as never)
+  if (options.browserTabs !== false) runtime.ctx.provide('sidebarRightTabs', sidebarRightTabs as never)
   runtime.ctx.provide('resources', { register: vi.fn(() => () => {}) } as never)
   const openWorkspacePath = vi.fn<ClientRemote['session']['openWorkspacePath']>(
     () => Promise.resolve({ ok: true, value: { opened: true } }),
@@ -88,6 +96,7 @@ async function bench() {
   runtime.slots.installLocale(locale)
   await runtime.root.declare({
     'main': { kind: 'keyed', scope: 'root' },
+    'settings.general.item': { kind: 'list', scope: 'root' },
   }, (_props: { renderSlot?: unknown }) => null)
   await runtime.mount({ inject: [...injectConversation], apply: applyConversation })
   await runtime.mount({ inject: [...injectChat], apply: applyChat })
@@ -103,8 +112,13 @@ async function bench() {
     ) => ChatViewInjected)(id, instance.actions)
     return { instance, injected }
   }
+  const settingsFace = (id: string): unknown => {
+    const entry = runtime.slots.entries('settings.general.item').find(row => row.options.id === id)!
+    return (entry.inject as unknown as () => unknown)()
+  }
   return {
-    runtime, layout, openWorkspacePath, sidebarRight, sidebarRightTabs, session, chatViewApi, rootReference, openSession,
+    runtime, layout, openWorkspacePath, sidebarRight, sidebarRightTabs, session, chatViewApi, rootReference,
+    openSession, chatSettings, settingsFace,
   }
 }
 
@@ -268,6 +282,90 @@ describe('Chat inject API', () => {
     expect(loaded).toEqual(expect.any(String))
     expect(b.session.readAttachment).toHaveBeenCalledWith(ATTACHMENT.attachmentId)
     expect(injected.loadImage.peek?.(ATTACHMENT)).toBe(loaded)
+    await b.runtime.dispose()
+  })
+
+  it('binds flow keyed sources and resolves the Chat flow inject per Session', async () => {
+    const b = await bench()
+    const { injected } = b.chatViewApi(b.rootReference)
+    // The bottom and group sources answer for a key the flow may not hold yet.
+    expect(injected.keyedHooks.chatNodeBottom('missing')).toBeDefined()
+    expect(injected.keyedHooks.chatGroup('missing')).toBeDefined()
+
+    const flow = b.runtime.slots.entries('conversation.chat.flow')[0]!
+    const flowInjected = (flow.inject as unknown as (id: SessionId) => {
+      hooks: unknown
+      keyedHooks: { chatNodeBottom: (key: string) => unknown }
+    })(ROOT)
+    expect(flowInjected.hooks).toBeDefined()
+    expect(flowInjected.keyedHooks.chatNodeBottom('missing')).toBeDefined()
+    expect(() => (flow.inject as unknown as (id: SessionId) => unknown)('never-listed' as SessionId))
+      .toThrow(/unknown session/)
+    await b.runtime.dispose()
+  })
+
+  it('opens a tool call in the trajectory tab and fills the composer draft', async () => {
+    const b = await bench()
+    const { injected } = b.chatViewApi(b.rootReference)
+    injected.openTrajectory('call-7')
+    expect(b.sidebarRight.openTab).toHaveBeenCalledWith('trajectory', { params: { focus: 'call-7' } })
+
+    const fillDraft = vi.spyOn(b.runtime.ctx.uiConversation, 'fillDraft')
+    injected.editUserMessage?.('edited text')
+    expect(fillDraft).toHaveBeenCalledWith(ROOT, 'edited text')
+    await b.runtime.dispose()
+  })
+
+  it('mirrors the browser tab availability and persists an explicit link destination', async () => {
+    const b = await bench()
+    const face = b.settingsFace('link-opening') as LinkOpeningRowInjected
+    expect(face.hooks.linkOpening.getSnapshot()).toBe('sidebar')
+    expect(face.hooks.browserAvailable.getSnapshot()).toBe(true)
+
+    const listener = vi.fn()
+    const off = face.hooks.browserAvailable.subscribe(listener)
+    expect(b.sidebarRightTabs.subscribe).toHaveBeenCalledWith(listener)
+    off()
+
+    face.setLinkOpening('new-tab')
+    expect(face.hooks.linkOpening.getSnapshot()).toBe('new-tab')
+    await vi.waitFor(() => { expect(b.chatSettings.set).toHaveBeenCalledWith('linkOpening', 'new-tab') })
+    await b.runtime.dispose()
+  })
+
+  it('keeps the local link choice when persistence is unavailable', async () => {
+    const b = await bench()
+    const face = b.settingsFace('link-opening') as LinkOpeningRowInjected
+    b.chatSettings.set.mockRejectedValueOnce(new Error('offline'))
+    face.setLinkOpening('new-tab')
+    expect(face.hooks.linkOpening.getSnapshot()).toBe('new-tab')
+    await vi.waitFor(() => { expect(b.chatSettings.set).toHaveBeenCalledWith('linkOpening', 'new-tab') })
+    await b.runtime.dispose()
+  })
+
+  it('reports no built-in browser and subscribes to nothing without the tab registry', async () => {
+    const b = await bench({ browserTabs: false })
+    const face = b.settingsFace('link-opening') as LinkOpeningRowInjected
+    expect(face.hooks.browserAvailable.getSnapshot()).toBe(false)
+    face.hooks.browserAvailable.subscribe(vi.fn())()
+    // An accepted section without the field leaves the local choice standing.
+    b.chatSettings.publish({
+      status: 'ready',
+      value: { transcriptView: 'compact', performanceUsage: 'detailed' } as unknown as ChatSettings,
+      revision: 1,
+      writable: true,
+    })
+    expect(face.hooks.linkOpening.getSnapshot()).toBe('sidebar')
+    await b.runtime.dispose()
+  })
+
+  it('keeps collapse timing browser-local on the work-details row', async () => {
+    const b = await bench()
+    const face = b.settingsFace('transcript-view') as TranscriptViewRowInjected
+    expect(face.hooks.collapseTiming.getSnapshot()).toBe('completion')
+    face.setCollapseTiming('next-input')
+    expect(face.hooks.collapseTiming.getSnapshot()).toBe('next-input')
+    expect(b.chatSettings.set).not.toHaveBeenCalled()
     await b.runtime.dispose()
   })
 })

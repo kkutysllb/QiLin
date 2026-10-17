@@ -35,6 +35,22 @@ describe('persisted spill notice', () => {
     expect(hasSpillNotice(prefix + '\n\n' + notice)).toBe(true)
   })
 
+  it('records omitted images in the notice and recognizes them back', () => {
+    const notice = formatSpillNotice({ kind: 'exact', count: 42 }, ref, 3)
+    expect(notice).toBe('(Omitted 42 bytes. Omitted 3 images. Full formatted result stored at: /spill/output.txt. Read the file.)')
+    expect(hasSpillNotice(notice)).toBe(true)
+    expect(hasSpillNotice(`preview\n\n${notice}`)).toBe(true)
+    // A single omitted image still carries the plural wording of the format.
+    expect(formatSpillNotice({ kind: 'none' }, ref, 1)).toContain(' Omitted 1 images.')
+    expect(hasSpillNotice(formatSpillNotice({ kind: 'unknown' }, ref, 1))).toBe(true)
+  })
+
+  it('rejects an image count that is not a safe integer', () => {
+    const notice = formatSpillNotice({ kind: 'exact', count: 42 }, ref, 2)
+    const overflowed = notice.replace(' Omitted 2 images.', ` Omitted ${'9'.repeat(20)} images.`)
+    expect(hasSpillNotice(overflowed)).toBe(false)
+  })
+
   it('rejects ordinary, partial, non-final, and malformed notice text', () => {
     const notice = formatSpillNotice({ kind: 'exact', count: 42 }, ref)
     for (const text of [

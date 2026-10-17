@@ -5,7 +5,7 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { Context } from '@qilin-agent/kylin'
 import { entryListSchema, type PatchOptions } from '@qilin-agent/kylin-plugin-include'
-import type { EntryOptions } from '@qilin-agent/kylin-plugin-loader'
+import { ModuleLoader, type EntryOptions } from '@qilin-agent/kylin-plugin-loader'
 import { load } from 'js-yaml'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import {
@@ -343,6 +343,37 @@ describe('manifest resolution', () => {
     expect(prepareProfilePatches(ctx, [], base)).toEqual([])
     expect(prepareProfilePatches(ctx, [{ id: 'absent', disabled: true }], base)).toEqual([])
     expect(warn.mock.calls.flat().map(String).join(' ')).toContain('absent')
+  })
+
+  it('refuses an alias row while the Node module resolver is unavailable', () => {
+    const f = fixture()
+    const resolver = vi.spyOn(ModuleLoader, 'fromInternal').mockReturnValue(undefined)
+    onTestFinished(() => { resolver.mockRestore() })
+    const rows = prepareProfileEntries(context(f), [{ id: 'row', name: '#denied' }], pathToFileURL(f.dir).href + '/')
+    expect(rows[0]?.disabled).toBe(true)
+    expect(f.warnings.join('\n')).toContain('requires the Node module resolver')
+  })
+
+  it('resolves an alias row through the resolver argument order this runtime exposes', () => {
+    const f = fixture()
+    f.plugin('denied-plugin', { peer: '^9.0.0' })
+    const base = pathToFileURL(f.dir).href + '/'
+    const loader = ModuleLoader.fromInternal()!
+    const resolveSync = vi.fn(() => ({ url: pathToFileURL(join(f.dir, 'node_modules', 'denied-plugin', 'index.mjs')).href }))
+    const legacy = new Proxy(loader, {
+      get(target, property) {
+        if (property === 'version') return 'v1'
+        if (property === 'resolveSync') return resolveSync
+        return Reflect.get(target, property) as unknown
+      },
+    })
+    const resolver = vi.spyOn(ModuleLoader, 'fromInternal').mockReturnValue(legacy)
+    onTestFinished(() => { resolver.mockRestore() })
+    const rows = prepareProfileEntries(context(f), [{ id: 'row', name: '#denied' }], base)
+    expect(rows[0]?.disabled).toBe(true)
+    expect(f.warnings.join('\n')).toContain('denied-plugin@1.0.0')
+    // The v1 resolver takes the specifier first, then its parent base.
+    expect(resolveSync.mock.calls).toEqual([['#denied', base, {}]])
   })
 
   it('requires a resolution base for a profile composition', () => {

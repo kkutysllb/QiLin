@@ -49,6 +49,13 @@ describe('sidechat source', () => {
     ])
   })
 
+  it('appends the first entry of a thread that has no transcript yet', () => {
+    const source = createSidechatSource()
+    const threadId = sid('session-fresh')
+    source.appendEntry(threadId, { seq: 4, kind: 'user', text: 'first' })
+    expect(source.getSnapshot().entries[threadId]).toEqual([{ seq: 4, kind: 'user', text: 'first' }])
+  })
+
   it('tracks the busy flag without duplicate publishes', () => {
     const source = createSidechatSource()
     const listener = vi.fn()

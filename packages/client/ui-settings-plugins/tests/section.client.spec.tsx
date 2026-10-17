@@ -266,6 +266,43 @@ describe('GitCard', () => {
 
     expect(screen.getByRole('button', { name: en.save })).toHaveProperty('disabled', true)
   })
+
+  it('stages an edit and offers the reset through every field it renders', () => {
+    const overridden = { overridden: true } as const
+    const actions = renderGit({
+      gitBin: field('/usr/bin/git', overridden),
+      ghBin: field('gh', overridden),
+      timeoutMs: field('30000', overridden),
+      discoveryTimeoutMs: field('5000', overridden),
+      ghTimeoutMs: field('30000', overridden),
+      maxDiffBytes: field('1048576', overridden),
+      maxStderrChars: field('4000', overridden),
+      maxListEntries: field('200', overridden),
+    })
+    const fields = [
+      [en.gitBin, 'gitBin', '/opt/git'],
+      [en.ghBin, 'ghBin', '/opt/gh'],
+      [en.gitTimeoutMs, 'timeoutMs', '31000'],
+      [en.gitDiscoveryTimeoutMs, 'discoveryTimeoutMs', '6000'],
+      [en.ghTimeoutMs, 'ghTimeoutMs', '31000'],
+      [en.gitMaxDiffBytes, 'maxDiffBytes', '2048'],
+      [en.gitMaxStderrChars, 'maxStderrChars', '4100'],
+      [en.gitMaxListEntries, 'maxListEntries', '210'],
+    ] as const
+
+    for (const [label, key, value] of fields) {
+      fireEvent.change(screen.getByLabelText(label), { target: { value } })
+      expect(actions.edit).toHaveBeenCalledWith(key, value)
+    }
+
+    // One reset control per overridden field, each naming the field it restores.
+    const resets = screen.getAllByRole('button', { name: en.reset })
+    expect(resets).toHaveLength(fields.length)
+    resets.forEach((button, index) => {
+      fireEvent.click(button)
+      expect(actions.resetField).toHaveBeenNthCalledWith(index + 1, fields[index]?.[1])
+    })
+  })
 })
 
 describe('BashCard', () => {

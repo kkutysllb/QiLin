@@ -78,6 +78,57 @@ describe('SettingsFormModel', () => {
     expect(subject.shell()).toMatchObject({ failed: true, dirty: true })
   })
 
+  it('reads a write-only control from its own draft, never from the section', async () => {
+    const host = stubScope<Record<string, unknown>>()
+    host.publish({ status: 'ready', writable: true, value: { token: 'stored' } })
+    const write = vi.fn(() => Promise.resolve(true))
+    const subject = new SettingsFormModel(host.scope, [], [{ field: 'token', write }])
+
+    expect(subject.field('token')).toEqual({ text: '', overridden: false, invalid: false })
+    // A blank draft stages nothing to write.
+    subject.actions().edit('token', '   ')
+    await subject.save()
+    expect(write).not.toHaveBeenCalled()
+    expect(subject.field('token')).toEqual({ text: '   ', overridden: false, invalid: false })
+
+    subject.actions().edit('token', ' ds-secret ')
+    await subject.save()
+    expect(write).toHaveBeenCalledExactlyOnceWith('ds-secret')
+  })
+
+  it('exposes the card actions that stage, reset, save, and discard', async () => {
+    const { host, subject } = form()
+    acceptWrites(host)
+    const actions = subject.actions()
+
+    // Nothing staged: a save writes nothing.
+    actions.save()
+    await Promise.resolve()
+    expect(host.mutate).not.toHaveBeenCalled()
+
+    actions.edit('timeoutMs', '9000')
+    actions.save()
+    await vi.waitFor(() => { expect(host.mutate).toHaveBeenCalledTimes(1) })
+    expect(subject.shell().dirty).toBe(false)
+  })
+
+  it('releases its scope subscription and bound stores on dispose', () => {
+    const { host, subject } = form()
+    const store = subject.bind(() => subject.shell().dirty)
+    const seen = vi.fn()
+    store.subscribe(seen)
+
+    subject.actions().edit('timeoutMs', '9000')
+    expect(store.getSnapshot()).toBe(true)
+
+    subject.dispose()
+    seen.mockClear()
+    host.publish({ revision: 3 })
+    subject.actions().edit('baseURL', 'https://other.test/v1')
+    expect(seen).not.toHaveBeenCalled()
+    expect(store.getSnapshot()).toBe(true)
+  })
+
   it('retains drafts after transport failure and allows a retry', async () => {
     const { host, subject } = form()
     subject.actions().edit('timeoutMs', '9000')

@@ -5,8 +5,16 @@
  */
 import { mkdir, symlink, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { FsDirEntry } from '@qilin-agent/fs'
 import { openWorkspace, signal, type Harness } from './harness.ts'
+
+/** One listed child as a backend that cannot report byte sizes returns it. */
+function withoutSize(entry: FsDirEntry): FsDirEntry {
+  const copy: FsDirEntry = { ...entry }
+  delete copy.size
+  return copy
+}
 
 let harness: Harness
 
@@ -68,6 +76,17 @@ describe('searchNames', () => {
     const found = await harness.endpoint({ maxSearchVisited: 2 })
       .searchNames(harness.scope, 'a', signal())
     expect(found).toEqual({ matches: [{ path: 'a.md', bytes: 1 }], truncated: true })
+  })
+
+  it('reports a match without bytes when the backend cannot size the file', async () => {
+    await write('readme.md')
+    const listDir = harness.ctx.fs.listDir.bind(harness.ctx.fs)
+    // A provider that cannot report a byte size omits it; the match must still
+    // be offered, with `bytes` left absent rather than fabricated.
+    vi.spyOn(harness.ctx.fs, 'listDir').mockImplementation(async (target, abort) =>
+      (await listDir(target, abort)).map(withoutSize))
+    const found = await harness.endpoint().searchNames(harness.scope, 'readme', signal())
+    expect(found).toEqual({ matches: [{ path: 'readme.md' }], truncated: false })
   })
 
   it('refuses to walk for a caller that already aborted', async () => {

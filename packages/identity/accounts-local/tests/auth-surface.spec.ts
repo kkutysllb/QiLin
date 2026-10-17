@@ -60,6 +60,8 @@ async function boot(options: {
    * @returns the account identities this deployment admits, or undefined to admit every account.
    */
   seed?: (home: string) => Promise<readonly string[] | undefined>
+  /** Extra YAML lines inside the accounts-local row, for declarations the typed options cannot express. */
+  configLines?: readonly string[]
 } = {}): Promise<Booted> {
   const root = await mkdtemp(join(tmpdir(), 'qilin-accounts-surface-'))
   roots.push(root)
@@ -112,6 +114,7 @@ async function boot(options: {
       // be YAML null, which is not a list at all.
       ? ['    admittedAccounts: []']
       : ['    admittedAccounts:', ...admitted.map(id => `      - '${id}'`)],
+    ...options.configLines ?? [],
     '',
   ].join('\n'))
 
@@ -445,6 +448,10 @@ describe('real account surface', () => {
     expect(await (await server('/api/auth/change-password', post(session, {
       currentPassword: PASSWORD, newPassword: 'password-2', username: 'X',
     }))).json()).toMatchObject({ error: { code: 'invalid-username' } })
+    // A name that is not even a string cannot replace the stored one either.
+    expect(await (await server('/api/auth/change-password', post(session, {
+      currentPassword: PASSWORD, newPassword: 'password-2', username: 7,
+    }))).json()).toMatchObject({ error: { code: 'invalid-username' } })
     await server('/api/auth/register', post(undefined, { username: 'second', email: 'second@example.com', password: PASSWORD }))
     expect(await (await server('/api/auth/change-password', post(session, {
       currentPassword: PASSWORD, newPassword: 'password-2', email: 'second@example.com',
@@ -625,6 +632,11 @@ describe('real account surface', () => {
         return [(await store.add({ username: 'first' }, PASSWORD)).id]
       },
     })).rejects.toThrow(/requires registration: closed/u)
+
+    // A bare key reaches the plugin as YAML null, which is not a list of ids.
+    await expect(boot({ configLines: ['    admittedAccounts:'] })).rejects.toThrow(/must list account ids/u)
+    // A scalar is refused earlier still, by the row's own config schema.
+    await expect(boot({ configLines: ["    admittedAccounts: 'first'"] })).rejects.toThrow(/expected string\[\]/u)
   })
 
   it('makes a repeated sign-in wait once the attempt limit is reached', { timeout: 60_000 }, async () => {

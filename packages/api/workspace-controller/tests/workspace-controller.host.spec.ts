@@ -156,6 +156,12 @@ describe('WorkspaceController commands', () => {
     vi.spyOn(ctx.workspaceRegistry, 'unarchiveSession').mockRejectedValueOnce(unarchiveFailure)
     await expect(controller.unarchiveSession({ sessionId: SessionId('session') }))
       .rejects.toBe(unarchiveFailure)
+
+    // Only the two mapped pin failures fold; every other registry fault stays live.
+    const pinFailure = new Error('pin storage failed')
+    vi.spyOn(ctx.workspaceRegistry, 'pinSession').mockRejectedValueOnce(pinFailure)
+    await expect(controller.pinSession({ sessionId: SessionId('session') }))
+      .rejects.toBe(pinFailure)
   })
 
   it('resolves queued Workspace identities when their operation starts', async () => {

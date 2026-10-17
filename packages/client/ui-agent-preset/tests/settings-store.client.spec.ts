@@ -218,7 +218,8 @@ describe('the new-session chip controller', () => {
       failList?: string
       failListCode?: RemoteErrorCode
       showPicker?: boolean
-      list?: () => Promise<ReturnType<typeof remoteRoster>>
+      list?: () => Promise<Awaited<ReturnType<typeof remoteRoster>> | { readonly ok: false; readonly error: RemoteError }>
+      select?: () => Promise<never>
     } = {},
   ): AgentPresetSeatController {
     const ctx = {
@@ -239,6 +240,7 @@ describe('the new-session chip controller', () => {
           }),
           select: (agentId: SessionId, agentPreset: string) => {
             options.writes?.push({ ns: 'select', ops: agentPreset })
+            if (options.select !== undefined) return options.select()
             return Promise.resolve(options.failSelect === undefined
               ? { ok: true as const, value: agentPreset }
               : {
@@ -503,6 +505,77 @@ describe('the new-session chip controller', () => {
     await controller.load()
 
     expect(controller.store.getSnapshot()).toMatchObject({ error: 'host down', options: [] })
+  })
+
+  it('keeps the refusal already on the chip when a later roster read fails too', async () => {
+    let fail = false
+    const controller = chip(ROSTER, {
+      id: 's1' as SessionId, blank: true, projectionValues: { agentPreset: 'standard' },
+    }, {
+      failSelect: 'already started',
+      list: () => Promise.resolve(fail
+        ? { ok: false as const, error: new RemoteError('gateway/internal', 'host down', {}) }
+        : remoteRoster(true)),
+    })
+    await controller.load()
+    await controller.select('minimal')
+    const refusal = controller.store.getSnapshot().error
+    expect(refusal).toMatchObject({ reason: 'already started' })
+
+    // The chip is already telling the reader why the pick failed; a roster read
+    // failing after it must not replace that with a transport string.
+    fail = true
+    await controller.load()
+    expect(controller.store.getSnapshot().error).toBe(refusal)
+  })
+
+  it('acknowledges one displayed refusal and leaves every other value alone', async () => {
+    const controller = chip(ROSTER, {
+      id: 's1' as SessionId, blank: true, projectionValues: { agentPreset: 'standard' },
+    }, { failSelect: 'already started' })
+    await controller.load()
+    await controller.select('minimal')
+    const refusal = controller.store.getSnapshot().error
+
+    controller.dismissRefusal(null)
+    controller.dismissRefusal('a plain failure')
+    controller.dismissRefusal({ reason: 'stale', preset: { id: 'minimal', trust: 'user' } })
+    expect(controller.store.getSnapshot().error).toBe(refusal)
+
+    controller.dismissRefusal(refusal)
+    expect(controller.store.getSnapshot().error).toBe('already started')
+
+    // The acknowledged string is not a refusal, so the next roster read clears it.
+    await controller.load()
+    expect(controller.store.getSnapshot().error).toBeNull()
+  })
+
+  it('reports a rejected switch as a refusal', async () => {
+    const controller = chip(ROSTER, {
+      id: 's1' as SessionId, blank: true, projectionValues: { agentPreset: 'standard' },
+    }, { select: () => Promise.reject(new Error('wire down')) })
+    await controller.load()
+
+    await controller.select('minimal')
+
+    expect(controller.store.getSnapshot()).toMatchObject({
+      busy: false, current: 'standard', error: { reason: 'wire down' },
+    })
+  })
+
+  it('reports a non-Error rejection by its string form', async () => {
+    const controller = chip(ROSTER, {
+      id: 's1' as SessionId, blank: true, projectionValues: { agentPreset: 'standard' },
+    }, {
+      // A carrier that rejects with a raw value rather than an Error.
+      // oxlint-disable-next-line typescript/prefer-promise-reject-errors -- the non-Error rejection is the scenario
+      select: () => Promise.reject('aborted'),
+    })
+    await controller.load()
+
+    await controller.select('minimal')
+
+    expect(controller.store.getSnapshot()).toMatchObject({ error: { reason: 'aborted' } })
   })
 
 })

@@ -20,8 +20,29 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
+/** One shortcut command the plugin registered, as the registry receives it. */
+interface RegisteredCommand {
+  readonly id: string
+  readonly defaults?: Readonly<Record<string, unknown>>
+  readonly resolve: () => {
+    readonly status: 'blocked' | 'handled'
+    readonly reason?: string
+    readonly run?: () => void
+  }
+}
+
+/** One Session row the plugin's page command may target. */
+interface SessionRow { readonly cwd?: string; readonly mainView?: number }
+
 /** Boot the browser half over a real slot tree that declares the header list. */
-async function bench(): Promise<{ ctx: Context; fiber: ReturnType<Context['plugin']> }> {
+async function bench(over: {
+  readonly sessions?: readonly SessionRow[]
+  readonly activePanelId?: string | null
+} = {}): Promise<{
+  ctx: Context
+  fiber: ReturnType<Context['plugin']>
+  commands: RegisteredCommand[]
+}> {
   const ctx = new Context()
   await ctx.plugin(SlotRegistry).await()
   ctx.slots.register({
@@ -34,12 +55,27 @@ async function bench(): Promise<{ ctx: Context; fiber: ReturnType<Context['plugi
   } as never, () => null)
   // The plugin injects the layout seat and the shortcut registry; the bench supplies
   // the surface each one is read through (panel visibility, command registration).
+  const rows = (over.sessions ?? []).map((row, index) => ({
+    sessionId: `s-${String(index)}`,
+    ...(row.cwd === undefined ? {} : { cwd: row.cwd }),
+    retainedBy: row.mainView === undefined ? {} : { mainView: row.mainView },
+  }))
   ctx.provide('sessions', {
-    list: { getSnapshot: () => ({ ids: [], byId: {}, phase: 'ready', projectionsBySession: {} }) },
+    list: {
+      getSnapshot: () => ({
+        ids: rows.map(row => row.sessionId),
+        byId: Object.fromEntries(rows.map(row => [row.sessionId, row])),
+        phase: 'ready',
+        projectionsBySession: {},
+      }),
+    },
   } as never)
-  ctx.provide('layout', { panelInfo: { getSnapshot: () => ({ activePanelId: null }) } } as never)
+  ctx.provide('layout', {
+    panelInfo: { getSnapshot: () => ({ activePanelId: over.activePanelId ?? null }) },
+  } as never)
+  const commands: RegisteredCommand[] = []
   ctx.provide('shortcuts', {
-    register: () => () => {},
+    register: (command: RegisteredCommand) => { commands.push(command); return () => {} },
     catalog: { getSnapshot: () => [] },
   } as never)
   // The document seats read desktop availability and run gestures over the
@@ -49,7 +85,7 @@ async function bench(): Promise<{ ctx: Context; fiber: ReturnType<Context['plugi
   ctx.provide('locale', new LocaleRuntime(ctx))
   const fiber = ctx.plugin({ inject: [...inject], apply })
   await fiber.await()
-  return { ctx, fiber }
+  return { ctx, fiber, commands }
 }
 
 function headerEntryIds(ctx: Context): (string | undefined)[] {
@@ -99,12 +135,114 @@ describe('open-in-app browser half', () => {
     expect(injected.hooks.openInAppDesktop.getSnapshot()).toBeNull()
     await injected.loadDesktop()
     expect(injected.hooks.openInAppDesktop.getSnapshot()).toBe(true)
+    await expect(injected.applications('/host/work/notes.md', new AbortController().signal))
+      .resolves.toEqual([])
+    expect(sessionRemote.workspacePathApplications).toHaveBeenCalledWith(
+      { path: '/host/work/notes.md' }, expect.any(AbortSignal),
+    )
     await expect(injected.openPath('/host/work/notes.md', 'open')).resolves.toBeNull()
     expect(sessionRemote.openWorkspacePath).toHaveBeenCalledWith({ path: '/host/work/notes.md' })
 
     await fiber.dispose()
     expect(ctx.slots.entries('sidebar.right.tab.document.actions')).toEqual([])
     expect(ctx.slots.entries('sidebar.right.tab.document.unpreviewable')).toEqual([])
+  })
+
+
+  it('registers the workspace command with its platform defaults and runs it on the visible Session', async () => {
+    const fetcher = vi.fn(async (input: string | URL, _init?: RequestInit) => String(input) === 'open-in-app/apps'
+      ? new Response(JSON.stringify({ apps: ['finder'] }), { status: 200 })
+      : new Response(JSON.stringify({ ok: true }), { status: 200 }))
+    vi.stubGlobal('fetch', fetcher)
+    // The folded Session comes first so the page command skips it for the visible one.
+    const { fiber, commands } = await bench({ sessions: [{ cwd: '/w/folded' }, { cwd: '/w/dir', mainView: 1 }] })
+    const command = commands.find(candidate => candidate.id === 'workspace.openLocal')
+    if (command === undefined) throw new Error('the workspace command was not registered')
+    expect(command.defaults).toMatchObject({
+      'desktop:macos': { code: 'KeyO', modifiers: ['primary', 'alt'] },
+      'web:windows': { code: 'KeyO', modifiers: ['primary', 'shift'] },
+    })
+
+    await vi.waitFor(() => { expect(command.resolve().status).toBe('handled') })
+    command.resolve().run?.()
+    await vi.waitFor(() => {
+      expect(fetcher.mock.calls.map(call => call[0])).toContain('open-in-app/open')
+    })
+    const open = fetcher.mock.calls.find(call => call[0] === 'open-in-app/open')
+    expect(open?.[1]).toMatchObject({ body: JSON.stringify({ app: 'finder', path: '/w/dir' }) })
+    await fiber.dispose()
+  })
+
+  it('blocks the workspace command without a visible Session or without an installed application', async () => {
+    const fetcher = vi.fn(async (input: string | URL) => String(input) === 'open-in-app/apps'
+      ? new Response(JSON.stringify({ apps: [] }), { status: 200 })
+      : new Response(JSON.stringify({ ok: true }), { status: 200 }))
+    vi.stubGlobal('fetch', fetcher)
+
+    // An open panel owns the page: the command issues no gesture at all.
+    const panel = await bench({ sessions: [{ cwd: '/w/dir', mainView: 1 }], activePanelId: 'workspace' })
+    const panelCommand = panel.commands[0]
+    expect(panelCommand?.resolve()).toEqual({
+      status: 'blocked', reason: panel.ctx.locale.bind(NS)('shortcut.unavailable'),
+    })
+    await panel.fiber.dispose()
+
+    // No Session is on screen.
+    const hidden = await bench({ sessions: [{ cwd: '/w/dir' }] })
+    expect(hidden.commands[0]?.resolve()).toMatchObject({ status: 'blocked' })
+    await hidden.fiber.dispose()
+
+    // The visible Session has no workspace directory yet.
+    const homeless = await bench({ sessions: [{ mainView: 1 }] })
+    expect(homeless.commands[0]?.resolve()).toMatchObject({ status: 'blocked' })
+    await homeless.fiber.dispose()
+
+    // Nothing is installed on the Host, so there is no application to open.
+    const unchosen = await bench({ sessions: [{ cwd: '/w/dir', mainView: 1 }] })
+    await vi.waitFor(() => { expect(unchosen.commands[0]?.resolve().status).toBe('blocked') })
+    await unchosen.fiber.dispose()
+  })
+
+  it('blocks the workspace command while a launch is already in flight', async () => {
+    const gate = Promise.withResolvers<Response>()
+    const fetcher = vi.fn(async (input: string | URL) => String(input) === 'open-in-app/apps'
+      ? new Response(JSON.stringify({ apps: ['finder'] }), { status: 200 })
+      : gate.promise)
+    vi.stubGlobal('fetch', fetcher)
+    const { ctx, fiber, commands } = await bench({ sessions: [{ cwd: '/w/dir', mainView: 1 }] })
+    const command = commands[0]
+    if (command === undefined) throw new Error('the workspace command was not registered')
+    await vi.waitFor(() => { expect(command.resolve().status).toBe('handled') })
+
+    const entry = ctx.slots.entries('conversation.session.header.utilities')[0]
+    const injected = (entry?.inject as unknown as () => OpenInAppActionInjected)()
+    const launching = injected.launch('finder', '/w/dir')
+    expect(command.resolve()).toEqual({
+      status: 'blocked', reason: ctx.locale.bind(NS)('shortcut.busy'),
+    })
+
+    gate.resolve(new Response(JSON.stringify({ ok: true }), { status: 200 }))
+    await launching
+    await fiber.dispose()
+  })
+
+  it('announces a refused launch on the console instead of failing the command', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const fetcher = vi.fn(async (input: string | URL) => String(input) === 'open-in-app/apps'
+      ? new Response(JSON.stringify({ apps: ['finder'] }), { status: 200 })
+      : new Response('', { status: 502 }))
+    vi.stubGlobal('fetch', fetcher)
+    const { fiber, commands } = await bench({ sessions: [{ cwd: '/w/dir', mainView: 1 }] })
+    const command = commands[0]
+    if (command === undefined) throw new Error('the workspace command was not registered')
+    await vi.waitFor(() => { expect(command.resolve().status).toBe('handled') })
+
+    command.resolve().run?.()
+    await vi.waitFor(() => {
+      expect(warn).toHaveBeenCalledWith('workspace open rejected:', expect.anything())
+    })
+    await fiber.dispose()
+    warn.mockRestore()
   })
 
   it('injects the controller face: availability sources, launch carrier, choice, and icon URLs', async () => {

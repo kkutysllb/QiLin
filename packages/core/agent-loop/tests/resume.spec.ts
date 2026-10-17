@@ -237,6 +237,38 @@ describe('the session-persistence Agent Note: AgentLoop factory create/resume', 
     await ctx.fiber.dispose()
   })
 
+  it('contains a machine that rejects while stopping, then reports the failure', async () => {
+    const { ctx } = await persistentHarness(new MockAdapter([textResponse('hi')]))
+    const sessionId = SessionId('drain-machine-fails')
+    const handle = await ctx.agents.create({ sessionId })
+    const machine = handle.agent as Agent & { whenIdle: () => Promise<void> }
+    machine.whenIdle = () => Promise.reject(new Error('machine exploded'))
+
+    await expect(handle.dispose()).rejects.toThrow('machine exploded')
+
+    // The rejected stop is contained by the collected failures: the rest of
+    // the teardown still reached quiescence.
+    expect(ctx.agents.get(sessionId)).toBeUndefined()
+    expect(ctx.sessions.get(sessionId)).toBeUndefined()
+    await ctx.fiber.dispose()
+  })
+
+  it('reports a live agent whose teardown failed when the factory disposes', async () => {
+    const { ctx } = await persistentHarness(new MockAdapter([textResponse('hi')]))
+    const reported: unknown[] = []
+    ctx.logger.error = ((error: unknown) => { reported.push(error) }) as typeof ctx.logger.error
+    const handle = await ctx.agents.create({ sessionId: SessionId('factory-drain-failure') })
+    const machine = handle.agent as Agent & { whenIdle: () => Promise<void> }
+    machine.whenIdle = () => Promise.reject(new Error('machine exploded'))
+
+    // The factory awaits every live teardown; the failure it collects reaches
+    // the owning fiber's logger instead of disappearing with the process.
+    await ctx.fiber.dispose()
+    await new Promise(resolve => setTimeout(resolve, 0))
+
+    expect(reported.map(String)).toContain('Error: machine exploded')
+  })
+
   it('agent dispose releases write ownership of its stored session', async () => {
     const { ctx } = await persistentHarness(new MockAdapter([textResponse('hi')]))
     const sessionId = SessionId('ownership-release')

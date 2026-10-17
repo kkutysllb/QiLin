@@ -177,6 +177,51 @@ describe('SettingsDocumentAction', () => {
     expect((await screen.findByRole('alert')).textContent).toBe('Could not open configuration file')
     expect(screen.getByRole('button', { name: 'Open configuration file' })).toBeTruthy()
   })
+
+  it('reports a mirror failure that held no answer as an unavailable document', async () => {
+    const controller = derivedDocumentStore({
+      settings: {
+        describe: vi.fn(() => Promise.resolve({
+          ok: false as const,
+          error: new RemoteError('gateway/internal', 'settings unavailable', {}),
+        })),
+        openSettingsDocument: vi.fn(),
+      },
+    })
+    await controller.load()
+
+    // No document could be located, and the reader is told why instead of
+    // being shown a spinner forever.
+    expect(controller.store.getSnapshot()).toEqual({
+      status: 'unavailable', opening: false, error: 'settings unavailable',
+    })
+    controller.dispose()
+  })
+
+  it('drops an open gesture until a document is loaded, then collapses concurrent ones', async () => {
+    const openDocument = vi.fn(() => Promise.resolve({ ok: true as const, value: { opened: true as const } }))
+    const controller = derivedDocumentStore({
+      settings: {
+        describe: vi.fn(() => Promise.resolve({
+          ok: true as const,
+          value: { writable: true, hasDocument: true, namespaces: [] },
+        })),
+        openSettingsDocument: openDocument,
+      },
+    })
+
+    // Nothing is loaded yet, so there is no document to open.
+    await controller.open()
+    expect(openDocument).not.toHaveBeenCalled()
+
+    await controller.load()
+    const first = controller.open()
+    const second = controller.open()
+    await Promise.all([first, second])
+    expect(openDocument).toHaveBeenCalledOnce()
+    expect(controller.store.getSnapshot()).toEqual({ status: 'ready', opening: false, error: null })
+    controller.dispose()
+  })
 })
 
 describe('current version', () => {

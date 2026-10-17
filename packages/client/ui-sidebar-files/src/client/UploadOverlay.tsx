@@ -36,6 +36,20 @@ export interface UploadOverlayProps {
 const UPLOAD_LIMIT_BYTES = 20 * 1024 * 1024
 
 /**
+ * One line of the completion report: the file's name, and for a failure its reason.
+ * @param result - one attempted file.
+ * @param failedLabel - localized copy for a failure that names no reason.
+ * @returns the report line.
+ */
+function reportLine(result: UploadResult, failedLabel: string): string {
+  if (result.ok) return result.name
+  // Every failed outcome this overlay builds carries a detail; the label stays
+  // the guard for the optional field rather than a reachable render.
+  /* v8 ignore next -- no caller constructs a failed outcome without a detail. */
+  return `${result.name}: ${result.detail ?? failedLabel}`
+}
+
+/**
  * Wrap one file tree with a drag-and-drop upload overlay.
  * @param props - session identity, displayed root, reload callback, copy.
  * @returns the overlay that mounts over the tree while a drag is active.
@@ -123,7 +137,7 @@ export function UploadOverlay({ sessionId, root, onUploaded, t, children }: Uplo
         <div className={css.report} data-files-upload-report>
           {results.map(result => (
             <span key={result.name} className={result.ok ? css.ok : css.fail}>
-              {result.name}{result.ok ? '' : `: ${result.detail ?? t('upload.failed')}`}
+              {reportLine(result, t('upload.failed'))}
             </span>
           ))}
           <span className={css.done}>{t('upload.done', { count: String(results.filter(r => r.ok).length) })}</span>

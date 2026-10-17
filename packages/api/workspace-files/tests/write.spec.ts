@@ -1,5 +1,5 @@
 /** The `write` endpoint: its containment and kind gates, the caller's freshness guard, and the change it reports. */
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import type { FsObservation, FsTarget } from '@qilin-agent/fs'
@@ -78,6 +78,12 @@ describe('workspaceFiles.write — the freshness guard', () => {
     const failure = await failureOf(endpoint().write(harness.scope, 'notes.txt', 'ours\n', { baseVersion: gone.version }, signal()))
     expect(failure.code).toBe('workspace-file/stale')
     await expect(contentOf('notes.txt')).rejects.toMatchObject({ code: 'ENOENT' })
+  })
+
+  it('propagates a backend write failure that is not a stale refusal', async () => {
+    const failure = new Error('backend write failed')
+    vi.spyOn(harness.ctx.fs, 'writeText').mockRejectedValueOnce(failure)
+    await expect(endpoint().write(harness.scope, 'notes.txt', 'ours\n', {}, signal())).rejects.toBe(failure)
   })
 
   it('saves unconditionally when no token is given', async () => {

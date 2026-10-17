@@ -562,7 +562,9 @@ describe('a long card description', () => {
   })
 
   it('renders where the runtime has no ResizeObserver', () => {
-    vi.unstubAllGlobals()
+    // A runtime may provide none at all; the description still measures itself
+    // once and draws, it just cannot re-measure on resize.
+    vi.stubGlobal('ResizeObserver', undefined)
     clamp(true)
 
     expect(() => {

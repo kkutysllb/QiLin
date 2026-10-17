@@ -67,4 +67,23 @@ describe('VideoBody', () => {
     expect(failed).toHaveBeenCalledTimes(1)
     expect(screen.getByText(t('videoUnsupported'))).toBeTruthy()
   })
+
+  it('degrades to the download affordance when the document mounts no renderer', () => {
+    const failed = vi.fn()
+    const props: Partial<VideoBodyProps> = {
+      ...OWNER,
+      useTabInfo: () => TAB_INFO,
+      content: { kind: 'bytes', data: new Uint8Array() },
+      resourceAddress: FILE,
+      t,
+    }
+    const view = render(<VideoBody {...(props as VideoBodyProps)} />)
+
+    // Without a renderer there is no readiness or failure contract to report,
+    // so a decode failure only swaps in the download notice.
+    expect(failed).not.toHaveBeenCalled()
+    fireEvent.error(view.container.querySelector('video')!)
+    expect(screen.getByText(t('videoUnsupported'))).toBeTruthy()
+    expect(screen.getByRole('link', { name: t('downloadToView') })).toBeTruthy()
+  })
 })

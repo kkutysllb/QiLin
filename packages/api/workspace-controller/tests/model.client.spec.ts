@@ -513,4 +513,43 @@ describe('ClientWorkspaceModel', () => {
     await call
     expect(model.getSnapshot().pinnedSessionIds).toEqual([sid('pushed')])
   })
+
+  it('lets a pushed pin set supersede an in-flight unpin reply', async () => {
+    const remote = new FakeWorkspaceRemote()
+    const pending = deferred<RemoteResult<WorkspacePinValue>>()
+    remote.onUnpinSession = () => pending.promise
+    const model = modelFor(remote)
+    baseline(model, [], [], [sid('slow')])
+
+    const call = model.unpinSession(sid('slow'))
+    model.replacePinned([sid('pushed')])
+    pending.resolve(remoteOk({ pinnedSessionIds: [] }))
+    await call
+    expect(model.getSnapshot().pinnedSessionIds).toEqual([sid('pushed')])
+  })
+
+  it('skips a reply repeating the current pin set and installs an equal-length replacement', async () => {
+    const remote = new FakeWorkspaceRemote()
+    const model = modelFor(remote)
+    baseline(model, [], [], [sid('first')])
+    await Promise.resolve()
+    const listener = vi.fn()
+    const unsubscribe = model.subscribe(listener)
+
+    // The Host answers with the set the projection already holds: no new identity, no publish.
+    remote.onUnpinSession = () => Promise.resolve(remoteOk({ pinnedSessionIds: [sid('first')] }))
+    await expect(model.unpinSession(sid('first'))).resolves.toMatchObject({ ok: true })
+    expect(model.getSnapshot().pinnedSessionIds).toEqual([sid('first')])
+    await Promise.resolve()
+    expect(listener).not.toHaveBeenCalled()
+
+    // An equal-length but different set replaces the projection and publishes.
+    remote.onUnpinSession = () => Promise.resolve(remoteOk({ pinnedSessionIds: [sid('second')] }))
+    await expect(model.unpinSession(sid('second'))).resolves.toMatchObject({ ok: true })
+    expect(model.getSnapshot().pinnedSessionIds).toEqual([sid('second')])
+    await Promise.resolve()
+    expect(listener).toHaveBeenCalledOnce()
+
+    unsubscribe()
+  })
 })

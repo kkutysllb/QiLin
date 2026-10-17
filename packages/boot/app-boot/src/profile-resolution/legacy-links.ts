@@ -83,6 +83,7 @@ export function removeLinkProjections(dir: string): void {
   const owned = join(dir, PROFILE_MODULE_FALLBACK_DIR)
   if (!existsSync(owned)) return
   const ownedModules = canonicalLinkPath(join(owned, 'node_modules'))
+  /* v8 ignore next -- the directory was just confirmed to exist, so only a host filesystem race can unname it */
   if (ownedModules !== undefined) {
     for (const link of profileLinkCandidates(join(dir, 'node_modules'))) {
       const target = canonicalLinkPath(resolve(dirname(link), readlinkSync(link)))

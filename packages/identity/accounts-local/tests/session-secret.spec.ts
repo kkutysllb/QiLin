@@ -1,6 +1,6 @@
 /** The deployment's session secret: one key for every runtime serving one deployment. */
 
-import { access, mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
+import { access, chmod, mkdir, mkdtemp, readFile, rm, stat, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -81,6 +81,37 @@ describe('deployment session secret', () => {
     const stored = JSON.parse(await readFile(sessionSecretPath(home), 'utf8')) as { version: number; secret: string }
     expect(stored.version).toBe(1)
     expect(Buffer.from(stored.secret, 'base64url').equals(left)).toBe(true)
+  })
+
+  it('lets a read failure that is not an absent document through', async () => {
+    const home = await deploymentHome()
+    // A directory where the document belongs is not a first run: the secret
+    // cannot be read and cannot be replaced by a fresh one either.
+    await mkdir(sessionSecretPath(home), { recursive: true })
+    await expect(loadSessionSecret(home)).rejects.toThrow(/EISDIR|illegal operation/u)
+  })
+
+  it('lets a write failure that is not an existing document through', async () => {
+    const home = await deploymentHome()
+    const directory = join(home, 'auth')
+    await mkdir(directory, { recursive: true })
+    await chmod(directory, 0o500)
+    try {
+      await expect(loadSessionSecret(home)).rejects.toThrow(/EACCES|permission denied/u)
+    } finally {
+      await chmod(directory, 0o700)
+    }
+  })
+
+  it('refuses a document that disappears while it was created', async () => {
+    const home = await deploymentHome()
+    const path = sessionSecretPath(home)
+    const directory = join(home, 'auth')
+    await mkdir(directory, { recursive: true })
+    // A dangling link reads as absent yet refuses exclusive creation, which is
+    // the race: the document the winner wrote is gone by the raced read.
+    await symlink(join(directory, 'missing-target'), path)
+    await expect(loadSessionSecret(home)).rejects.toThrow(/stored session secret disappeared while it was created/u)
   })
 
   it('refuses a document it cannot use instead of signing with a guess', async () => {

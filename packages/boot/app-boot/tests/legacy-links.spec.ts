@@ -44,6 +44,16 @@ describe('link projection removal', () => {
     const root = profileRoot()
     expect(() => { removeLinkProjections(root) }).not.toThrow()
   })
+
+  it('leaves a scoped entry that is not a link where it is', () => {
+    const root = profileRoot()
+    const profile = join(root, 'profile')
+    mkdirSync(join(profile, '.qilin-module-fallback', 'node_modules'), { recursive: true })
+    mkdirSync(join(profile, 'node_modules', '@scope', 'plain'), { recursive: true })
+    removeLinkProjections(profile)
+    expect(existsSync(join(profile, 'node_modules', '@scope', 'plain'))).toBe(true)
+    expect(existsSync(join(profile, '.qilin-module-fallback'))).toBe(false)
+  })
 })
 
 describe('module file resolution', () => {
@@ -63,5 +73,28 @@ describe('module file resolution', () => {
     const link = join(root, 'entry.mjs')
     symlinkSync(real, link, 'file')
     expect(realModuleFile(link)).toBe(realpathSync(link))
+  })
+
+  it('keeps a packaged executable plain file at its package directory', () => {
+    const root = profileRoot()
+    const file = join(root, 'entry.mjs')
+    writeFileSync(file, '')
+    const proc = process as NodeJS.Process & { pkg?: unknown }
+    Object.defineProperty(process, 'pkg', { configurable: true, value: {} })
+    try {
+      // pkg's virtual filesystem cannot carry a link, so a plain module keeps the
+      // package directory the install placed it in.
+      expect(realModuleFile(file)).toBe(join(realpathSync(root), 'entry.mjs'))
+      const realDir = join(root, 'real')
+      mkdirSync(realDir, { recursive: true })
+      const real = join(realDir, 'linked.mjs')
+      writeFileSync(real, '')
+      const link = join(root, 'linked.mjs')
+      symlinkSync(real, link, 'file')
+      // A link still names the package it stands for.
+      expect(realModuleFile(link)).toBe(realpathSync(link))
+    } finally {
+      Reflect.deleteProperty(proc, 'pkg')
+    }
   })
 })

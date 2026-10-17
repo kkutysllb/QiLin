@@ -10,6 +10,8 @@ import { apply as settingsApply, inject as settingsInject } from '@qilin-agent/c
 import { apply, inject } from '@qilin-agent/client-ui-settings-plugins/client'
 import type { PluginsSettingsSectionInjected } from '@qilin-agent/client-ui-settings-plugins/client'
 import { SubagentModelSelectionCardController } from '../src/client/subagent-model-selection-card-controller.ts'
+import { GitCard } from '../src/client/GitCard.tsx'
+import type { GitCardFace } from '../src/client/git-card-controller.ts'
 import { apply as hostApply } from '../src/index.ts'
 
 // These specs assert the shipped Chinese copy. The lane has no jsdom `window`,
@@ -159,6 +161,26 @@ describe('ui-settings-plugins apply', () => {
         expect(ctx.configForms.describe().getSnapshot().view?.namespaces.map(view => view.ns)).toEqual(namespaces)
         expect(slots.entries('plugins.item')).toEqual(namespaces.length > 0 ? [entry] : [])
       })
+    }
+  })
+
+  it('registers the Git page from its served namespace and injects its staged form', async () => {
+    const { ctx, slots } = await bench(['workspace-git'])
+    declareRoot(slots)
+    await ctx.plugin({ inject: [...inject], apply }).await()
+
+    await vi.waitFor(() => { expect(slots.entries('plugins.item')).toHaveLength(1) })
+    const entry = slots.entries('plugins.item')[0]!
+    expect(entry.component).toBe(GitCard)
+    expect(entry.options).toMatchObject({ id: 'git', order: 15 })
+    expect(resolveSlotLabel(entry.options.label)).toBe('Git 仓库')
+
+    const face = (entry.inject as unknown as () => GitCardFace)()
+    // The face carries the card's snapshot seat plus the complete mutation API
+    // its staged form drives.
+    expect(face.hooks.gitCard.getSnapshot()).toMatchObject({ dirty: false, invalid: false })
+    for (const action of ['edit', 'resetField', 'save', 'discard']) {
+      expect(typeof (face as unknown as Record<string, unknown>)[action]).toBe('function')
     }
   })
 

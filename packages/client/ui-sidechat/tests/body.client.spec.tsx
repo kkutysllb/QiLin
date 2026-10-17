@@ -99,6 +99,62 @@ describe('SidechatBody', () => {
     expect(send).not.toHaveBeenCalled()
   })
 
+  it('starts a new thread from the rail', () => {
+    const start = vi.fn<SidechatInjected['start']>(async () => {})
+    const { view } = mount({ faceOverrides: { start } })
+    fireEvent.click([...view.container.querySelectorAll('button')]
+      .find(button => button.textContent === zh['threads.new']) as Element)
+    expect(start).toHaveBeenCalledWith(PARENT)
+  })
+
+  it('reports in-flight work on the rail button and the send button', () => {
+    const { view } = mount({
+      prepare: (source) => {
+        source.setThreads([row()])
+        source.select(sid('session-sidechat-thread'))
+        source.setBusy(true)
+      },
+    })
+    expect(view.container.textContent).toContain(zh['threads.starting'])
+    expect(view.container.textContent).toContain(zh['prompt.sending'])
+    expect([...view.container.querySelectorAll('button')]
+      .find(button => button.textContent === zh['threads.starting'])?.hasAttribute('disabled')).toBe(true)
+  })
+
+  it('draws boundary, assistant, and follow-up entries', () => {
+    const thread = sid('session-sidechat-thread')
+    const { view } = mount({
+      prepare: (source) => {
+        source.setThreads([row()])
+        source.select(thread)
+        source.resetEntries(thread, [
+          { seq: 1, kind: 'boundary', text: 'question' },
+          { seq: 2, kind: 'assistant', text: 'answer' },
+          { seq: 3, kind: 'user', text: 'follow-up' },
+        ])
+      },
+    })
+    expect(view.container.textContent).toContain(`${zh['entry.boundary']}\nquestion`)
+    expect(view.container.textContent).toContain('answer')
+    expect(view.container.textContent).toContain('follow-up')
+  })
+
+  it('keeps Shift+Enter inside the draft', () => {
+    const send = vi.fn<SidechatInjected['send']>(async () => true)
+    const { view } = mount({
+      prepare: (source) => {
+        source.setThreads([row()])
+        source.select(sid('session-sidechat-thread'))
+      },
+      faceOverrides: { send },
+    })
+    const input = view.container.querySelector('textarea') as HTMLTextAreaElement
+    fireEvent.change(input, { target: { value: 'first line' } })
+    fireEvent.keyDown(input, { key: 'Enter', shiftKey: true })
+    expect(send).not.toHaveBeenCalled()
+    expect(input.value).toBe('first line')
+  })
+
   it('offers cancel while the thread runs and release when it is live and idle', () => {
     const cancel = vi.fn<SidechatInjected['cancel']>(async () => true)
     const release = vi.fn<SidechatInjected['release']>(async () => {})

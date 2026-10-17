@@ -59,6 +59,18 @@ describe('Toast', () => {
     }
   })
 
+  it('brings its own success glyph under the success tone', () => {
+    vi.useFakeTimers()
+    try {
+      const view = render(<Toast text="已保存" tone="success" onDone={vi.fn()} />)
+      const glyph = view.getByRole('alert').querySelector('[aria-hidden]')
+      expect(glyph).not.toBeNull()
+      expect(glyph?.querySelector('svg')).not.toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('renders without an icon and cancels its timer on unmount', () => {
     vi.useFakeTimers()
     try {

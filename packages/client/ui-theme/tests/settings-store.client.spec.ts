@@ -1,7 +1,22 @@
-/** Font row store: snapshot-mirror actions and the revision guard. */
+/** Row stores: snapshot-mirror actions and the revision guard. */
 import { describe, expect, it } from 'vitest'
-import { createFontRowStore } from '../src/client/settings-store.ts'
+import { createAppearanceRowStore, createFontRowStore } from '../src/client/settings-store.ts'
 import { DEFAULT_FONT_SIZES } from '../src/theme-settings.ts'
+
+describe('createAppearanceRowStore', () => {
+  it('init shape: the system preference with revision at -1', () => {
+    expect(createAppearanceRowStore().create().getSnapshot()).toEqual({ preference: 'system', revision: -1 })
+  })
+
+  it('sync mirrors the preference; the revision guard drops stale and duplicate writes', () => {
+    const store = createAppearanceRowStore().create()
+    store.actions.sync('dark', 0)
+    expect(store.getSnapshot()).toEqual({ preference: 'dark', revision: 0 })
+    store.actions.sync('light', -1)
+    store.actions.sync('light', 0)
+    expect(store.getSnapshot()).toEqual({ preference: 'dark', revision: 0 })
+  })
+})
 
 describe('createFontRowStore', () => {
   it('init shape: shipped defaults with revision at -1', () => {

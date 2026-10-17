@@ -51,6 +51,27 @@ describe('TestRemote', () => {
     await ctx.fiber.dispose()
   })
 
+  it('parks later scripted namespaces on the same double through provideNamespaces', async () => {
+    const ctx = new Context()
+    const remote = new TestRemote(ctx)
+    const settings = { describe: () => Promise.resolve({ ok: true as const, value: {} }) }
+
+    remote.provideNamespaces({ settings })
+
+    expect((remote as unknown as { settings: unknown }).settings).toBe(settings)
+    expect(ctx.get('remote.settings')).toBe(settings)
+    await ctx.fiber.dispose()
+  })
+
+  it('refuses a namespace added later that would shadow one of its own members', async () => {
+    const ctx = new Context()
+    const remote = new TestRemote(ctx)
+
+    expect(() => { remote.provideNamespaces({ emit: {} }) }).toThrow('would shadow')
+    expect(ctx.get('remote.emit')).toBeUndefined()
+    await ctx.fiber.dispose()
+  })
+
   it('refuses a scripted namespace that would shadow one of its own members', async () => {
     const ctx = new Context()
     // Accepting this would replace the very refusal the case above pins.

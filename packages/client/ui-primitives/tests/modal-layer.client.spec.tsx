@@ -166,6 +166,15 @@ it('does not steal focus when a lower layer disappears and restores a remaining 
   expect(screen.queryByRole('dialog')).toBeNull()
 })
 
+it('leaves the page mask unblurred when the caller already blurs the page', () => {
+  const onClose = vi.fn()
+  render(<Modal open title="Settings" closeLabel="Close" onClose={onClose} backdropBlur={false} />)
+  const mask = document.querySelector<HTMLElement>('[aria-hidden="true"]')!
+  expect(mask.style.backdropFilter).toBe('none')
+  fireEvent.click(mask)
+  expect(onClose).toHaveBeenCalledTimes(1)
+})
+
 it('gives a new modal Escape ahead of an older menu', () => {
   let menuClosed = false
   let childClosed = false

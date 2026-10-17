@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
+  bundlePatchFilesOf,
   bundlePatchOf,
   clientDeclarationOf,
+  dshCompatAliasOf,
   dshCompatModuleId,
   DSH_APPLICATION_MODULE_ALIASES,
   DSH_PLATFORM_MODULE_ALIASES,
@@ -72,6 +74,65 @@ describe('dshCompatModuleId', () => {
     expect(dshCompatModuleId('react')).toBe('react')
     expect(dshCompatModuleId('some-third-party')).toBe('some-third-party')
     expect(dshCompatModuleId('')).toBe('')
+  })
+})
+
+describe('dshCompatAliasOf', () => {
+  it('reverses the exact alias tables and the mechanical rescope', () => {
+    expect(dshCompatAliasOf('@qilin-agent/kylin')).toBe('@deepseek-ai/cordis')
+    expect(dshCompatAliasOf('@qilin-agent/schemastery')).toBe('@deepseek-ai/schemastery')
+    expect(dshCompatAliasOf('@qilin-agent/cosmokit')).toBe('@qilin-agent/cosmokit')
+    expect(dshCompatAliasOf('@qilin-agent/cli')).toBe('@deepseek-ai/dsh')
+    expect(dshCompatAliasOf('@qilin-agent/client-store')).toBe('@deepseek-ai/dsh-client-store')
+    expect(dshCompatAliasOf('@qilin-agent/client-ui-dockkit')).toBe('@deepseek-ai/dsh-client-ui-dockkit')
+    expect(dshCompatAliasOf('@qilin-agent/session')).toBe('@deepseek-ai/dsh-session')
+    expect(dshCompatAliasOf('@qilin-agent/session/sub')).toBe('@deepseek-ai/dsh-session/sub')
+  })
+
+  it('reverses the rename table for heads without a dsh head', () => {
+    expect(dshCompatAliasOf('@qilin-agent/client-modules')).toBe('@deepseek-ai/dsh-client-runtime')
+    expect(dshCompatAliasOf('@qilin-agent/client-modules/client')).toBe('@deepseek-ai/dsh-client-runtime/client')
+    expect(dshCompatAliasOf('@qilin-agent/experimental-hooks-codex')).toBe('@deepseek-ai/dsh-hooks-codex')
+  })
+
+  it('has no DSH-era name for QiLin-authored names and unscoped specifiers', () => {
+    expect(dshCompatAliasOf('@qilin-agent/kylin-plugin-example')).toBeUndefined()
+    expect(dshCompatAliasOf('some-third-party')).toBeUndefined()
+    expect(dshCompatAliasOf('')).toBeUndefined()
+  })
+
+  it('round trips the mechanical rescope through dshCompatModuleId', () => {
+    for (const name of ['@qilin-agent/session', '@qilin-agent/client-modules', '@qilin-agent/experimental-webhook']) {
+      expect(dshCompatModuleId(dshCompatAliasOf(name)!)).toBe(name)
+    }
+  })
+})
+
+describe('bundlePatchFilesOf', () => {
+  it('reads string and list declarations from either manifest channel', () => {
+    expect(bundlePatchFilesOf({ qilin: { bundle: { patch: './a.yml' } } })).toEqual(['./a.yml'])
+    expect(bundlePatchFilesOf({ dsh: { bundle: { patch: './b.yml' } } })).toEqual(['./b.yml'])
+    expect(bundlePatchFilesOf({ qilin: { bundle: { patch: ['./a.yml', './b.yml'] } } }))
+      .toEqual(['./a.yml', './b.yml'])
+    expect(bundlePatchFilesOf({
+      qilin: { bundle: { patch: './q.yml' } }, dsh: { bundle: { patch: './d.yml' } },
+    })).toEqual(['./q.yml'])
+  })
+
+  it('reports no patch files for absent declarations or non-object manifests', () => {
+    expect(bundlePatchFilesOf({ qilin: { bundle: {} } })).toEqual([])
+    expect(bundlePatchFilesOf({ qilin: { bundle: { patch: undefined } } })).toEqual([])
+    expect(bundlePatchFilesOf({})).toEqual([])
+    expect(bundlePatchFilesOf(null)).toEqual([])
+    expect(bundlePatchFilesOf('not-an-object')).toEqual([])
+    expect(bundlePatchFilesOf(undefined)).toEqual([])
+  })
+
+  it('rejects declarations that are neither a string nor a list of strings', () => {
+    expect(() => bundlePatchFilesOf({ qilin: { bundle: { patch: 7 } } }))
+      .toThrow('must be a file path or a list of file paths')
+    expect(() => bundlePatchFilesOf({ dsh: { bundle: { patch: [1] } } }))
+      .toThrow('must be a file path or a list of file paths')
   })
 })
 

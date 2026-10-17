@@ -74,6 +74,33 @@ describe('SettingsValueField', () => {
     expect(input).toHaveProperty('placeholder', 'https://api.deepseek.com')
   })
 
+  it('discloses the field rules through the information button', () => {
+    const help = { label: 'How the timeout works', content: <p>Counts from the first byte.</p> }
+    // The static hint itself describes the control, so the disclosure case starts without one.
+    const { hint: _hint, ...withoutHint } = frame
+    render(
+      <SettingsValueField
+        {...withoutHint}
+        help={help}
+        text="60000"
+        onEdit={vi.fn()}
+        onReset={vi.fn()}
+      />,
+    )
+    const input = screen.getByLabelText('Command timeout')
+    // Nothing describes the control until the rules are opened.
+    expect(input.hasAttribute('aria-describedby')).toBe(false)
+
+    const button = screen.getByRole('button', { name: help.label })
+    expect(button.getAttribute('aria-expanded')).toBe('false')
+    expect(button.getAttribute('aria-controls')).toBe(`${frame.id}-help`)
+    fireEvent.click(button)
+
+    expect(screen.getByRole('region', { name: help.label }).textContent).toBe('Counts from the first byte.')
+    expect(screen.getByRole('button', { name: help.label }).getAttribute('aria-expanded')).toBe('true')
+    expect(input.getAttribute('aria-describedby')).toBe(`${frame.id}-help`)
+  })
+
   it('disables the control and its reset while the document is read-only', () => {
     render(<SettingsValueField {...frame} disabled overridden text="9000" onEdit={vi.fn()} onReset={vi.fn()} />)
 

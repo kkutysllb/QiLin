@@ -44,6 +44,41 @@ describe('OpenInAppController availability', () => {
   })
 })
 
+describe('OpenInAppController application choice', () => {
+  it('falls back to the first installed application before any choice is remembered', async () => {
+    const controller = new OpenInAppController(async () => jsonResponse({ apps: ['finder', 'cursor'] }))
+    // Nothing has answered yet, so there is nothing to offer.
+    expect(controller.currentApp()).toBeUndefined()
+
+    await controller.load()
+    expect(controller.currentApp()).toBe('finder')
+    controller.choose('cursor')
+    expect(controller.currentApp()).toBe('cursor')
+  })
+
+  it('keeps the remembered choice and refuses a second launch while one is in flight', async () => {
+    const gate = Promise.withResolvers<Response>()
+    const fetcher = vi.fn((input: string | URL) => String(input) === 'open-in-app/apps'
+      ? Promise.resolve(jsonResponse({ apps: ['finder', 'cursor'] }))
+      : gate.promise)
+    const controller = new OpenInAppController(fetcher)
+    await controller.load()
+    controller.choose('finder')
+
+    const first = controller.launch('finder', '/w/one')
+    // A gesture in flight owns the control: the new choice and the second
+    // launch are both ignored instead of racing the host request.
+    controller.choose('cursor')
+    await expect(controller.launch('cursor', '/w/two')).resolves.toBeUndefined()
+    expect(fetcher.mock.calls.filter(call => call[0] === 'open-in-app/open')).toHaveLength(1)
+    expect(controller.choice.getSnapshot()).toBe('finder')
+
+    gate.resolve(jsonResponse({ ok: true }))
+    await first
+    expect(controller.operation.getSnapshot()).toEqual({ phase: 'idle', path: '/w/one' })
+  })
+})
+
 describe('OpenInAppController launching', () => {
   it('restores the chosen app from the open-in-app storage key', () => {
     const values = new Map<string, string>()

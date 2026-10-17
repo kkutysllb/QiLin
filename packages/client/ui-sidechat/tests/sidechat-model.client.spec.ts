@@ -26,6 +26,23 @@ describe('sidechat view model', () => {
     expect(transcriptEntryOf(messageEvent('user/message', 7, ''))).toBeUndefined()
   })
 
+  it('reads only text parts and ignores events no transcript draws', () => {
+    // A content array holding no text part, a hole in the array, and a text
+    // part whose text is not a string all contribute nothing.
+    expect(transcriptEntryOf({
+      type: 'event',
+      event: {
+        type: 'user/message', seq: 8, time: 8,
+        data: { content: [{ type: 'image' }, undefined, { type: 'text', text: 7 }] } as never,
+      },
+    })).toBeUndefined()
+    // A message event the panel does not draw.
+    expect(transcriptEntryOf({
+      type: 'event',
+      event: { type: 'tool/message', seq: 9, time: 9, data: { content: [{ type: 'text', text: 'tool output' }] } },
+    })).toBeUndefined()
+  })
+
   it('replays a snapshot wholesale and folds committed frames one entry at a time', () => {
     const snapshot = snapshotFrame([
       messageEvent('user/message', 1, 'q', true),
@@ -35,6 +52,11 @@ describe('sidechat view model', () => {
     expect(transcriptEntriesOfFrame(messageEvent('assistant/message', 3, 'later'))).toEqual([
       { seq: 3, kind: 'assistant', text: 'later' },
     ])
+    // A committed frame carrying an event the panel does not draw adds nothing.
+    expect(transcriptEntriesOfFrame({
+      type: 'event',
+      event: { type: 'turn/start', seq: 4, time: 4, data: { turn: 1 } },
+    })).toEqual([])
     expect(transcriptEntriesOfFrame({ type: 'assistant-stream', frame: {
       type: 'start', attemptId: 'a' as never, revision: 0, startedAfterSeq: 0 as never, turn: 1, step: 1,
     } })).toEqual([])

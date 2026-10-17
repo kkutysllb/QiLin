@@ -200,6 +200,47 @@ describe('FilesBody', () => {
     expect(view.container.querySelector('[data-files-reload]')?.getAttribute('aria-label')).toBe(zh.reload)
   })
 
+  it('draws the tree without a size observer where the platform has none', async () => {
+    vi.stubGlobal('ResizeObserver', undefined)
+    try {
+      const { view, script } = mountBody()
+      await act(() => script.settle({ ok: true, value: ROOT_LEVEL }))
+      expect(view.container.querySelector('[data-files-root]')).not.toBeNull()
+      expect(view.container.querySelector('[data-files-path]')).not.toBeNull()
+    } finally {
+      vi.unstubAllGlobals()
+    }
+  })
+
+  it('re-lists the root and every expanded level after a dropped upload lands', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, text: async () => '' })))
+    try {
+      const { view, script, controller, instance } = mountBody()
+      const child = `${ROOT}/src`
+      await act(() => script.settle({ ok: true, value: ROOT_LEVEL }))
+      act(() => { fireEvent.click(view.container.querySelector(`[data-files-path="${child}"] > button`)!) })
+      await act(() => script.settle({ ok: true, value: SRC_LEVEL }))
+      script.list.mockClear()
+
+      // The upload overlay wraps the tree, so a drop lands on its host div.
+      const tree = view.container.querySelector('[data-files-state="tree"]')
+      const host = tree?.parentElement
+      if (host === null || host === undefined) throw new Error('the tree body is not wrapped by the upload overlay')
+      fireEvent.drop(host, {
+        dataTransfer: { types: ['Files'], files: [new File(['x'], 'up.txt')] },
+      })
+
+      // The root is re-listed for the upload, then again as the first expanded
+      // level, and the open child level follows it.
+      await vi.waitFor(() => { expect(script.list).toHaveBeenCalledTimes(3) })
+      expect(script.list.mock.calls.map(call => call[1])).toEqual([ROOT, ROOT, child])
+      expect(script.list).toHaveBeenCalledWith(SESSION, ROOT, controller.signal)
+      expect(instance.getSnapshot().byTab[TAB]!.expanded).toEqual([ROOT, child])
+    } finally {
+      vi.unstubAllGlobals()
+    }
+  })
+
   it('captures the body scroll offset on unmount and restores it when a tab switch remounts the tree', async () => {
     const { view, script, instance, remount } = mountBody()
     await act(() => script.settle({ ok: true, value: ROOT_LEVEL }))

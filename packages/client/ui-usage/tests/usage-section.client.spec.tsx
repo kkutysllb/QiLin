@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 /** The usage page: what it draws, what folding a series does, and what it says when the read fails. */
 
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { makeTranslate } from '@qilin-agent/client-test-runtime'
 import { UsageSection, type UsageSectionComponentProps } from '../src/client/UsageSection.tsx'
@@ -144,8 +144,102 @@ describe('usage settings section', () => {
   })
 
   it('says there is no usage yet rather than drawing an empty month', async () => {
-    answerWith({ accountId: 'account-1', total: undefined, records: [], truncated: false })
+    // A Host that reports no records array at all reads as no usage yet.
+    answerWith({ accountId: 'account-1', total: undefined, truncated: false })
     render(<UsageSection {...props()} />)
     expect(await screen.findByText(en['chart.empty'])).toBeTruthy()
+  })
+
+  it('treats a record that reports no cache buckets as zero', async () => {
+    answerWith({
+      accountId: 'account-1',
+      total: { sessions: 1, turns: 1, inputTokens: 100, outputTokens: 10, cacheReadTokens: 0, cacheWriteTokens: 0, cacheHitRate: 0 },
+      records: [{ sessionId: 'session-abcdef', turn: 1, inputTokens: 100, outputTokens: 10, at: Date.now() }],
+      truncated: false,
+    })
+    render(<UsageSection {...props()} />)
+    expect(await screen.findByRole('heading', { name: en.title })).toBeTruthy()
+    // Prompt tokens the provider did not report as cached still count as uncached input.
+    const card = (label: string): string => screen.getByText(label).parentElement?.textContent ?? ''
+    expect(card(en.today)).toContain('110')
+    expect(card(en.today)).toContain('0%')
+  })
+
+  it('marks a truncated read, omits an unnamed account, and ranks the sessions by tokens', async () => {
+    answerWith({
+      // No accountId and no ledger total: the page falls back to its own placeholder
+      // and to the month it can compute from the records.
+      records: [
+        { ...record(10, 1, 0), sessionId: 'session-cheap' },
+        { ...record(1_000, 100, 1), sessionId: 'session-rich' },
+      ],
+      truncated: true,
+    })
+    render(<UsageSection {...props()} />)
+
+    expect(await screen.findByText(en.truncated)).toBeTruthy()
+    expect(screen.getByText(/account —/u)).toBeTruthy()
+    const rows = screen.getAllByRole('row')
+    expect(rows[1]?.textContent).toContain('session-')
+    // The most expensive session heads the table; a sub-10% hit rate keeps one decimal.
+    expect(rows[1]?.textContent).toContain('session-')
+    // A sub-10% rate keeps one decimal so the cell does not read as zero.
+    expect(screen.getByRole('table').textContent).toContain('0.1%')
+    const titles = Array.from(document.querySelectorAll('td[title]')).map(cell => cell.getAttribute('title'))
+    expect(titles).toEqual(['session-rich', 'session-cheap'])
+  })
+
+  it('reads one day back on focus and walks the bars with the arrow keys', async () => {
+    answerWith({
+      accountId: 'account-1',
+      total: { sessions: 1, turns: 1, inputTokens: 100, outputTokens: 10, cacheReadTokens: 40, cacheWriteTokens: 0, cacheHitRate: 0.29 },
+      records: [record(100, 10, 40)],
+      truncated: false,
+    })
+    const { container } = render(<UsageSection {...props()} />)
+    await screen.findByRole('heading', { name: en.title })
+    const bars = Array.from(container.querySelectorAll('g'))
+    const last = bars[bars.length - 1]
+    if (last === undefined) throw new Error('the chart drew no bar')
+
+    fireEvent.mouseOver(last)
+    expect(screen.getByText(new RegExp(`${en['metric.hitRate']} 29%`, 'u'))).toBeTruthy()
+    fireEvent.mouseOut(last)
+    expect(screen.queryByText(new RegExp(`${en['metric.hitRate']} 29%`, 'u'))).toBeNull()
+
+    // A focused bar reads its own day, and keeps reading it when the pointer leaves.
+    act(() => { last.focus() })
+    expect(screen.getByText(new RegExp(`${en['metric.hitRate']} 29%`, 'u'))).toBeTruthy()
+    // The readout follows the latest gesture: the pointer leaving clears it.
+    fireEvent.mouseOver(last)
+    fireEvent.mouseOut(last)
+    expect(screen.queryByText(new RegExp(`${en['metric.hitRate']} 29%`, 'u'))).toBeNull()
+
+    fireEvent.keyDown(last, { key: 'ArrowLeft' })
+    expect(document.activeElement).toBe(bars[bars.length - 2])
+    fireEvent.keyDown(bars[bars.length - 2] as Element, { key: 'ArrowRight' })
+    expect(document.activeElement).toBe(last)
+    fireEvent.keyDown(last, { key: 'Escape' })
+    expect(screen.queryByText(new RegExp(`${en['metric.hitRate']} 29%`, 'u'))).toBeNull()
+
+    fireEvent.keyDown(last, { key: 'ArrowRight' })
+    expect(document.activeElement).toBe(last)
+    act(() => { last.blur() })
+    expect(screen.queryByText(new RegExp(`${en['metric.hitRate']} 29%`, 'u'))).toBeNull()
+  })
+
+  it('reports nothing for a read its own unmount aborted', async () => {
+    const gate = Promise.withResolvers<Response>()
+    vi.stubGlobal('fetch', vi.fn(() => gate.promise))
+    const view = render(<UsageSection {...props()} />)
+    expect(screen.getByText(en.loading)).toBeTruthy()
+
+    view.unmount()
+    gate.reject(new Error('the read was aborted'))
+    await Promise.resolve()
+    await Promise.resolve()
+
+    // An aborted read belongs to the page the reader left: it neither loads nor fails.
+    expect(view.container.innerHTML).toBe('')
   })
 })

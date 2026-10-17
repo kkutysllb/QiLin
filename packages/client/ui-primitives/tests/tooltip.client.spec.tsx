@@ -6,6 +6,32 @@ import { Button, Tooltip } from '@qilin-agent/client-ui-primitives'
 afterEach(cleanup)
 
 describe('Tooltip', () => {
+  it('names the command keys on the bubble when the anchor has a shortcut', () => {
+    render(
+      <Tooltip label="Open sidebar" shortcutKeys={['⌘', 'K']}>
+        <button type="button">anchor</button>
+      </Tooltip>,
+    )
+    fireEvent.mouseEnter(screen.getByText('anchor'))
+    const bubble = screen.getByRole('tooltip')
+    expect(bubble.getAttribute('aria-label')).toBe('Open sidebar ⌘ K')
+    expect(bubble.getAttribute('data-has-shortcut')).toBe('true')
+    expect(bubble.textContent).toBe('Open sidebar⌘K')
+  })
+
+  it('leaves the shortcut seat empty when the command has no keys', () => {
+    render(
+      <Tooltip label="Open sidebar" shortcutKeys={[]}>
+        <button type="button">anchor</button>
+      </Tooltip>,
+    )
+    fireEvent.mouseEnter(screen.getByText('anchor'))
+    const bubble = screen.getByRole('tooltip')
+    expect(bubble.hasAttribute('aria-label')).toBe(false)
+    expect(bubble.hasAttribute('data-has-shortcut')).toBe(false)
+    expect(bubble.textContent).toBe('Open sidebar')
+  })
+
   it('resolves lazy labels only after the bubble becomes visible', () => {
     vi.useFakeTimers()
     try {
