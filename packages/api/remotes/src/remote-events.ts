@@ -7,6 +7,7 @@
  */
 
 import type {} from '@qilin-agent/api-session-controller/remote-events'
+import type { SessionId } from '@qilin-agent/session/types'
 import type {} from '@qilin-agent/schedule/client'
 import type {} from '@qilin-agent/permission-presets/types'
 import type {} from '@qilin-agent/plugin-manager/types'
@@ -16,15 +17,19 @@ import type { TypertForwardableEventEntry } from '@qilin-agent/typert-protocol'
 /**
  * Host events this application forwards without renaming. The explicit mode is
  * both the Host dispatch strategy and the legal key set of `ctx.remote.$on`.
+ * An `emit` entry declares readers of the resources its payload carries, or
+ * none to touch the built-in `global` resource; it reaches a non-owner Peer
+ * only when access control allows it. Each notification names one resource
+ * identity or none, and collection changes travel on follow streams instead.
  */
 export const API_REMOTE_FORWARDED_EVENTS = [
   { event: 'agent-preset/selected', mode: 'emit' },
   { event: 'approval/request', mode: 'waterfall' },
-  { event: 'api-session/activity', mode: 'emit' },
-  { event: 'api-session/added', mode: 'emit' },
-  { event: 'api-session/error', mode: 'emit' },
-  { event: 'api-session/removed', mode: 'emit' },
-  { event: 'api-session/status', mode: 'emit' },
+  { event: 'api-session/activity', mode: 'emit', resources: { session: (sessionId: SessionId): SessionId => sessionId } },
+  { event: 'api-session/added', mode: 'emit', resources: { session: (summary: { readonly sessionId: SessionId }): SessionId => summary.sessionId } },
+  { event: 'api-session/error', mode: 'emit', resources: { session: (sessionId: SessionId): SessionId => sessionId } },
+  { event: 'api-session/removed', mode: 'emit', resources: { session: (sessionId: SessionId): SessionId => sessionId } },
+  { event: 'api-session/status', mode: 'emit', resources: { session: (sessionId: SessionId): SessionId => sessionId } },
   { event: 'commands/change', mode: 'emit' },
   { event: 'credentials/record-updated', mode: 'emit' },
   { event: 'credentials/reference-updated', mode: 'emit' },

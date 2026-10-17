@@ -104,6 +104,7 @@
     "@qilin-agent/system-prompt": "workspace:^",
     "@qilin-agent/terminal": "workspace:^",
     "@qilin-agent/terminal-bash": "workspace:^",
+    "@qilin-agent/time-context": "workspace:^",
     "@qilin-agent/timeout": "workspace:^",
     "@qilin-agent/token-meter": "workspace:^",
     "@qilin-agent/tool-ask-user": "workspace:^",
@@ -124,6 +125,7 @@
     "@qilin-agent/tool-subagent": "workspace:^",
     "@qilin-agent/tool-subagent-control": "workspace:^",
     "@qilin-agent/tool-todo": "workspace:^",
+    "@qilin-agent/tool-working-directory": "workspace:^",
     "@qilin-agent/tool-web": "workspace:^",
     "@qilin-agent/tool-workflow": "workspace:^",
     "@qilin-agent/tool-workspace-dependencies": "workspace:^",
@@ -146,6 +148,7 @@
     "@qilin-agent/workspace": "workspace:^",
     "@qilin-agent/schemastery": "workspace:^",
     "@qilin-agent/plugin-manager": "workspace:^",
+    "@qilin-agent/plugin-market": "workspace:^",
     "@qilin-agent/host-plugin-inventory": "workspace:^"
   }
 }

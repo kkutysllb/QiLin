@@ -43,13 +43,38 @@ files:
 
 构建完成后，`lib/typert.host.js` 与 `lib/typert.host.d.ts` 即存在，[loader](../loader/README.zh.md) 会在 Loader 组合中注册该贡献。生成的声明文件把 `TYPERT` 暴露为 `unknown`，因此参与贡献的包永远不会依赖运行时注册表。当声明缺失、指向错误文件，或在没有 Remote 方法的情况下发布 Remote 产物时，生成器会使构建失败；不支持的 Zod 投影会以 `TypertEmitError` 指明具体构造并失败，而不会展平或弱化源类型。
 
+<a id="ordinary-remote-metadata"></a>
+### 普通 Remote 元数据
+
+发射器为每个端点写一份静态 `TypertRemoteMethodSpec`，并以该 spec 与产物自身导入的 Zod 运行时调用纯 factory `createTypertRemoteInfo`。普通消费方 `./remote` 产物保留其默认导出与 `TYPERT_REMOTE`，类型为 `TypertRemoteInfo`，其 `TYPERT_REMOTE.methods` 中是精确的 `TypertRemoteMethod<Input, Output, Mode, Uplink, DecodedOutput>` 条目。每个条目与 `TYPERT_REMOTE.descriptors` 中对应的直接描述符是同一个对象；仅 Context 的接收者只留在 descriptors 与作用域声明中。没有单独的 `REMOTE_METHODS` 导出、嵌套 `metadata` 或第二个 `output` codec。[协议包](<../protocol/README.zh.md>)拥有该 factory 与方法 API。
+
+该 factory 返回类实例，在其 `descriptors` 或 `methods` getter 构建共享索引之前保留 spec。每个由消费方选择的输入策略视图、解析器与投影都各自惰性求值并缓存，生成的各个 Zod factory 也在首次使用时物化并缓存。普通宿主侧 `./typert` 构建一个私有 info 实例，其描述符通过 `TYPERT.invocations` getter 暴露。宿主侧与消费方产物共享定义，而不跨 Program 或进程共享对象身份。
+
+生成声明对拥有方与 schema 类型使用 type-only 导入。导入元数据既不会激活宿主 Service，也不会打开网络连接。框架内消费方查询既有[注册表](<../registry/README.zh.md>)；独立消费方可直接导入 `./remote`。需要严格校验的源码组合会预构建普通产物并通过 [loader](<../loader/README.zh.md>) 注册 `./typert`；无描述符的源码发现无法恢复被擦除的类型约束、文档或 schema。
+
+缺失 JSDoc 与不支持的 tool JSON Schema 不会阻碍本已有效的普通生成或其严格 codec。元数据独立于投影保留解析器与可用文档：每个不支持的输入视图或输出投影都会省略 `jsonSchema` 并记录自己的 `jsonSchemaError`。tool 消费方显式挑选方法，并要求其文档与受支持的输入 schema；输出解析器是必需的，输出 JSON Schema 则可选，除非该消费方要求。仅凭元数据并不会把每个 Remote 方法都变成 tool。
+
+每份生成的参数 spec 同时包含 `codec` 与 `strictCodec`，二者来自同一份由检查器解析的类型模型；分析器与模型不携带任何按方法的输入策略。`method.input()` 与 `{ strict: false }` 选择 Host 分派使用的普通 codec，其声明对象接受并剥离未声明字段。`method.input({ strict: true })` 为解析与受支持的 JSON Schema 选择递归闭合的声明对象。两种具名参数信封都拒绝多余实参；显式 JSON 与字典键保持开放，而受约束的字典值还会按其索引值类型校验具名字段。严格解析先对具名字段与索引值 union 做分配，再合并并闭合每个受支持的对象组合，包括可选字段与可空索引值。`result` 保留其唯一普通 codec。tool 投影以 [`@qilin-agent/tools`](../../core/tools/src/json-schema.ts) 对 tool 参数、tool 输出与生成的 PTC SDK 强制执行的 tool-schema 子集为目标；它支持标量、对象、数组与不相交 union，而规范的 `JsonValue` 与字符串键 JSON 字典无需递归引用。超出该子集的类型会被报告，而不是做更弱的投影。TypeScript 之外的数值边界等语义规则仍归拥有操作所有。
+
+`WorkspaceTypertGenerator` 会先分析所选 face 的全部贡献方，再筛选要生成产物的包，因此包子集保留的声明合并与输出字节与完整构建一致。
+
 ### 静态分析工作区
 
-静态消费方直接针对工作区的 `tsconfig.host.json` 与 `tsconfig.client.json` 聚合配置调用 `WorkspaceAnalyzer`，选择 face 与包子集，并在不生成或加载运行时产物的前提下读取生成的 `FaceModel` 与类型图。`analyzeInBatches()` 通过有界的编译器程序处理大批量包选择，模型形态保持一致；`discoverPackages()` 无需构建类型检查程序即可找出参与贡献的包。
+静态消费方直接针对工作区的 `tsconfig.host.json` 与 `tsconfig.client.json` 聚合配置调用 `WorkspaceAnalyzer`，选择 face 与包子集，并在不生成或加载运行时产物的前提下读取生成的 `FaceModel` 与类型图。`analyzeInBatches()` 通过有界的编译器程序处理大批量包选择，模型形态保持一致；`discoverPackages()` 无需构建类型检查程序即可找出参与贡献的包，其可选的 `package.json` 谓词会在读取包源码或工程配置之前跳过该包。Typert 只解析它所分析包的 tsconfig；校验全部被引用 tsconfig 属于其前的 `tsc -b`。
+
+JSON、YAML、SVG、PNG、JPEG 与 WebP 资源导出不产生 TypeScript 声明，会被排除在 API 模型之外。缺失 JavaScript 或 TypeScript 导出来源仍然是错误。
 
 ### 在 tsdown 构建中运行生成
 
-包的 `./tsdown` 子路径为根 tsdown 配置提供 `typertPlugin()`：它在打包前转换 TypeScript 依赖中的标准装饰器，并在包输出根目录生成模型驱动的 face 产物。`package` 模式只生成当前打包的包；`workspace` 模式对每个显式贡献方各生成一次。
+包的 `./tsdown` 子路径为根 tsdown 配置提供 `typertPlugin()`：它在打包前转换 TypeScript 依赖中的标准装饰器，并在包输出根目录生成模型驱动的 face 产物。其 `transform` 钩子上的 module-id 过滤器把非 TypeScript 模块挡在 JavaScript 之外。工作区根是打包文件所在、同时容纳 `tsconfig.host.json` 与 `packages/` 的最近祖先，因此包自己的 face 叶子配置永远不会被当作根。`package` 模式在被打包包的 `writeBundle` 中同步生成，且只生成该包。
+
+`workspace` 模式对每个显式贡献方各生成一次，且不阻塞打包：第一个包构建的 `buildStart` 在 Worker Thread 中启动生成，第一个 `writeBundle` 等待结果并写出全部产物，后续打包立即返回。分析错误、worker 崩溃或提前退出、或畸形的 worker 响应会使该打包（进而使整个 tsdown pass）以指明工作区与原因的 `TypertWorkerError` 失败；worker 会在报告失败之前被终止。
+
+### 脱离打包器生成
+
+`writeWorkspaceArtifacts()` 与 `writePackageArtifacts()` 是插件共用的文件写入器：每个产物写为 `lib/typert.<face>.{js,d.ts}`，携带 Remote 方法时再加 `lib/typert.remote-client.{js,d.ts,d.ts.map}`；没有 Remote 方法的宿主产物会移除过期的 Remote client 文件。把 `WorkspaceTypertGenerator.generateContributors()` 的结果经它们写出，得到的字节与 `workspace` 模式插件一致，`findWorkspaceRoot()` 也沿用插件的工作区根规则。本仓库的免打包 pass（[`scripts/generate-typert.ts`](../../../scripts/generate-typert.ts)）正是以这种方式为无需打包的类型检查生成宿主 face。
+
+启用 `rejectBuildOutputs: true` 后，当 face 程序加载工作区包 `lib/` 目录中的文件、或无法解析对工作区包的导入时（例如包尚未编译的树），分析会以 `TypertAnalysisError` 失败。错误会指明每个此类导入说明符及 `paths` 别名应映射到的源文件，因此一次通过的生成只依赖工作区源码，可以在包编译之前或同时运行。若某 face 的源码会导入生成的产物（例如 Client face 导入 `/remote`），则不要开启它。
 
 -----
 
@@ -73,8 +98,11 @@ files:
 | [`src/analyzer.ts`](src/analyzer.ts) | `WorkspaceAnalyzer`：face 程序、check/write 模式、分批、发现、源码索引 |
 | [`src/model.ts`](src/model.ts) | 与编译器无关的模型类型 |
 | [`src/emitter.ts`](src/emitter.ts) | `FaceModelEmitter`：Zod schema 与声明生成、Remote 声明 |
-| [`src/workspace.ts`](src/workspace.ts) | `WorkspaceTypertGenerator`：发现、生成、导出与文件清单校验 |
+| [`src/workspace.ts`](src/workspace.ts) | `WorkspaceTypertGenerator`：发现、生成、导出与文件清单校验；工作区根查找 |
 | [`src/tsdown-plugin.ts`](src/tsdown-plugin.ts) | tsdown 插件面：装饰器转换与产物生成 |
+| [`src/artifact-files.ts`](src/artifact-files.ts) | 插件与免打包生成共享的包内产物写入器 |
+| [`src/build-output-guard.ts`](src/build-output-guard.ts) | 为 `rejectBuildOutputs` 检测 face 程序中的工作区 `lib/` 文件与未解析工作区导入 |
+| [`src/worker.ts`](src/worker.ts) | workspace 模式生成的 Worker Thread 入口 |
 | [`src/cordis-catalog.ts`](src/cordis-catalog.ts) | 生成 Kylin 目录所用的目录投影 |
 
 ### 分析与 face
@@ -127,6 +155,7 @@ Host 与 Client 是两个独立的 TypeScript 程序。直接项目引用确定�
 - **包导出模式会被跳过**——参与贡献的包需要具体的导出目标；通配符导出模式不会被分析。
 - **跨 face 的命名空间重新导出会失败**——具名与星号重新导出会生成链接，但在 `TypeTargetModel` 能够不经展平表示模块命名空间之前，命名空间重新导出无法表示。
 - **Zod 生成器只支持有意限定的子集**——泛型 schema 声明，以及以条件类型或映射类型为 schema 根的计算构造，都会失败，直到存在明确的 schema 工厂策略。
+- **严格索引对象合并存在限制**——当对象成员都是具体属性时，具名字段与索引值 union 会逐分支合并。递归引用、嵌套索引签名与计算成员保留各自的 schema 交集；严格解析可能拒绝本有效、但字段来自不同操作数的值。
 - **没有生成的 schema 跨 face 导入**——跨 face 链接会在模型中表示以供分析，但生成的 schema 均不需要跨 face 的运行时 Zod 导入。
 - **发现范围只覆盖具体公开导出**——既未导出、也未由可达图导入的声明按设计排除在包模型之外。
 

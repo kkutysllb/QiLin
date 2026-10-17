@@ -44,7 +44,21 @@ export class GoalService extends TypertRemoteService {
 
 生成会把方法变为服务命名空间下的 wire 端点；Client 通过 `ctx.remote` 以类型化方法调用它（见 [API Gateway 参考](../../../docs/api-gateway.zh.md)）。方法把 `signal: AbortSignal` 声明为最后一个参数即可选择协作式取消——该信号是注入的，绝不会成为 JSON 参数或查找字段。
 
-流方法（`@Remote({ mode: 'stream' })`）返回 `Iterable`、`AsyncIterable` 或 `RemoteStream<Out, In>`。`In` 声明 Client 可以在同一条逻辑流上回送的项；方法通过 `this.ctx.invocation.uplink<In>()` 读取它们，描述符携带其 codec。`RemoteInvocation` 还给出接收服务 `service`、发起调用的 `peer`（连接层接纳的一个 `PeerScope`）与载体 `signal`；非 Remote 调用派生的 Context 上 `ctx.invocation` 为 `undefined`：树中第一个 `bindTypertRemote()` 绑定（每个 `TypertRemoteService` 构造函数都会建立一个）在根上注册该 accessor。生成的 Client 流方法返回 `RemoteStreamHandle<Out, In>`：在下行迭代之外提供 `send`、`end` 与 `dispose` 的句柄。上行项在 Host 逐项校验，因为它们来自浏览器；下行项是 Host 方法产出的值，原样透传。
+流方法（`@Remote({ mode: 'stream' })`）返回 `Iterable`、`AsyncIterable` 或 `RemoteStream<Out, In>`。`In` 声明 Client 可以在同一条逻辑流上回送的项；方法通过 `this.ctx.invocation.uplink<In>()` 读取它们，描述符携带其 codec。`RemoteInvocation` 还给出接收服务 `service`、发起调用的 `peer`（其载体指名的那个 `PeerScope`）与载体 `signal`；非 Remote 调用派生的 Context 上 `ctx.invocation` 为 `undefined`：树中第一个 `bindTypertRemote()` 绑定（每个 `TypertRemoteService` 构造函数都会建立一个）在根上注册该 accessor。Kylin 的跨副本 `Context.is()` 能识别传给已构建 Service 的源码 Context，因此源码/构建混合组合也能保留该 accessor 与调用局部的 principal。生成的 Client 流方法返回 `RemoteStreamHandle<Out, In>`：在下行迭代之外提供 `send`、`end` 与 `dispose` 的句柄。上行项在 Host 逐项校验，因为它们来自浏览器；下行项是 Host 方法产出的值，原样透传。
+
+`@Remote` options 只包含 `name`、`mode` 与下文说明的 `resources` 读取函数；输入策略属于消费方，不是方法注解。`method.input(options?: TypertRemoteInputOptions)` 返回缓存的 `TypertRemoteValue<Input>`，唯一选项是 `strict?: boolean`。`method.input()` 与 `{ strict: false }` 保留普通 Remote 处理：声明的对象接受并剥离未声明字段。`{ strict: true }` 递归拒绝未声明字段，而显式 JSON 值与字典键保持开放，字典值保留其已声明的校验。两种具名参数信封都拒绝多余实参。选定一个视图（`const input = method.input({ strict: true })`）即可获得配套的 `input.create().parse(raw)` 与 `input.jsonSchema`；这不会改变 Host 分派。发布与成对 codec 由[生成器](<../generator/README.zh.md#ordinary-remote-metadata>)负责。
+
+普通 `./remote` 产物把 `TYPERT_REMOTE` 导出为 `TypertRemoteInfo`，扩展可挂载的 `TypertRemoteContribution`。其带类型的 `methods[endpoint]` 条目与 `descriptors` 里的直接描述符是同一些对象，并派生出 `input(options?)` 与 `invoke(remote, input, signal?)`。参数文档位于 `parameters[].description`；`result` 是唯一的结果 codec、解析器与可选投影。一元描述符省略 `mode`；流使用 `'stream'`。仅 Context 的接收者只出现在 `descriptors` 与作用域声明中，不进入 `methods`。
+
+来自已发布纯入口 `@qilin-agent/typert-protocol/remote-info` 的 `createTypertRemoteInfo(spec, z)` 返回类实例而非构造函数。构造只保留静态 spec 与调用方提供的 Zod 运行时；首次读取 `descriptors` 或 `methods` 时构建并缓存共享索引。每个输入策略视图、其解析器与可选 JSON Schema 投影都各自惰性求值并缓存；`method.input().create()` 请求普通解析器。原始 spec 要求 Zod factory，而面向消费方的 `TypertSchema<T>` 只承诺 `parse(value: unknown): T`。JSON Schema 来自生成器投影，不是运行时 `z.toJSONSchema()`。该叶子模块没有任何运行时导入；Zod 由生成产物提供。元数据与 schema 访问绝不发起网络请求；根入口也转出该 factory，但会导入 Kylin。
+
+invoker 接收调用方自有的、已挂载、未作用域化的 Client Remote，并在调用时解析其命名空间方法。它保留命名空间接收者、可选的位置空洞与 signal，原样转发同样的 `Promise<RemoteResult<DecodedOutput>>` 或完整 `RemoteStreamHandle<Output, Uplink>`，不包一层 async。`DecodedOutput` 缺省为原始输出；仅当一元方法携带字节时生成器才提供 `RemoteDecoded<Output>`，避免对普通 JSON 结果做递归重映射；`result.create().parse()` 保留原始输出类型，不归一化共享字节缓冲。任一输入视图或结果缺少 JSON Schema 支持时，文档与解析仍然可用；各视图用自己的 `jsonSchemaError` 说明缺失的投影。注册表读取方用同一纯入口的 `isTypertRemoteMethod(descriptor)` 把基础描述符收窄为这些直接能力。
+
+### 识别调用方并接纳非 owner 调用方
+
+`PeerScope.principal` 是 Host 进程内代码创建 Peer 时固定的调用方身份；任何 wire 字段都设置不了它，`PeerScope.signal` 在 Peer 作用域结束时中止。`PrincipalMap` 可合并扩展：每个驱动声明一个 JSON 条目，带唯一字面量 `kind` 且不含凭据，因为 principal 可能被持久化进 Session 日志；内建条目是 `owner: { kind: 'owner' }`。需要把调用方记录到持久输出上的 Remote 方法调用 `principalOf(this.ctx.invocation)`：它对非 owner 调用方返回其 principal，对 owner 与 Remote 调用之外返回 `undefined`，并且只在有值时写入字段。
+
+每个 Remote 方法都处于访问控制之下：非 owner 调用方只有在 Remote-access 层在调用所触资源上放行时才能触达它。`TypertResourceMap` 与 `TypertLookupMap` 并列、可合并扩展：拥有身份类型的包把自己的资源种类声明为 `TypertResource<Id>`（Session 包声明 `session: TypertResource<SessionId>`，Workspace 包声明 `workspace: TypertResource<WorkspaceId>`）。`RemoteAccessResource` 要么是内建无身份的 `{ kind: 'global' }`，要么是某个已声明种类加其身份；资源相互独立，访问 `global` 不代表能访问任何 session。运行时由拥有该种类的领域通过 `typert.resources.register(kind, { field })` 登记其默认 wire 字段，登记 `global` 会被拒绝；lookup 提供方与 Host Context 适配器通过 `resource` 指明其 wire 身份携带的种类，于是带 Agent 查找参数或 Agent 作用域接收者的方法无需 options 就携带 `session` 资源。`@Remote` 与 `@RemoteScope` 的 `resources` option 把种类映射到读取函数，读取函数以方法的 wire 实参作为自己的形参；其类型从被装饰方法推断，查找参数映射到其 wire 类型，因此 `@Remote({ name: 'page', resources: { session: request => request.address.sessionId } })` 能读取默认机制读不到的字段。读取函数与默认机制都未指明资源的调用只触及 `global`；它们必须指明方法访问的每个资源，因为访问控制不会检查被省略的资源。`TypertForwardableEventEntry` 的转发 `emit` 条目按其自身事件参数类型声明 `resources` 读取函数，没有读取函数的条目触及 `global`。资源解析属于 API Gateway；判定与拒绝原因属于补齐这条资源主线的 Remote-access 装配。
 
 ### 把 Host 对象与 Context 关联到 wire identity
 
@@ -87,11 +101,15 @@ Host 装配以转发给消费方的 Kylin 事件扩展 `TypertRemoteEventSelecti
 
 ### Remote 标记
 
-`@Remote` 与 `@RemoteScope` 调度一个初始化器，把方法名、可选导出名与调用模式追加到原型描述符；`remoteMethods(service)` 校验其版本，并返回与已存描述符分离、按声明顺序排列的快照，供 Gateway 的源码模式回退读取。标记要求名称为字符串的公开、非静态实例方法，同一方法上的冲突标记会被拒绝。
+`@Remote` 与 `@RemoteScope` 调度一个初始化器，把方法名、可选导出名、调用模式与冻结的 `resources` 读取函数追加到原型描述符；`remoteMethods(service)` 校验其版本，并返回与已存描述符分离、按声明顺序排列的快照，供 Gateway 的源码模式回退读取。标记要求名称为字符串的公开、非静态实例方法，同一方法上的冲突标记会被拒绝。
+
+读取函数在装饰器创建时校验，并按每次装饰器应用冻结为一条记录；Gateway 通过 `remoteMethods(service)` 按实现成员名读取它们，因此协议包的另一个已安装副本读到的是同一条记录。
 
 ### 协议映射与描述符
 
-可合并扩展的协议映射在类型系统中保留静态关联，运行时提供方则向 `ctx.typert` 注册解析；映射的名称与形状见 [`src/types.ts`](src/types.ts)。`InvocationDescriptor` 是注册表、Gateway 与 Client Remote 共同消费的共享运行时形式，涵盖直接与 Context 接收者、JSON 与查找参数、作用域投影、上行编解码器、取消与结果编解码器。
+可合并扩展的协议映射在类型系统中保留静态关联，运行时提供方则向 `ctx.typert` 注册解析；映射的名称与形状见 [`src/types.ts`](src/types.ts)。`InvocationDescriptor` 是注册表、Gateway 与 Client Remote 共同消费的共享运行时形式，涵盖直接与 Context 接收者、JSON 与查找参数、作用域投影、上行编解码器、取消、结果编解码器与文档。生成的 `TypertRemoteMethod` 对象直接扩展该描述符。
+
+`RemoteInvocation.uplinkWindow` 可选地描述载体的整帧收件箱容量，以及压缩 JSON 项附加的 UTF-8 信封开销。缺省表示载体没有编码帧收件箱上限；本地缓冲与确认策略仍由消费方自有。
 
 ### Wire 标识文法
 
@@ -102,9 +120,12 @@ Host 装配以转发给消费方的 Kylin 事件扩展 `TypertRemoteEventSelecti
 | 文件 | 职责 |
 |---|---|
 | [`src/index.ts`](src/index.ts) | 装饰器、Gateway 绑定、`remoteMethods`、段校验 |
+| [`src/principal.ts`](src/principal.ts) | `principalOf`，Remote 调用产出方记录的调用方 principal |
+| [`src/remote-access.ts`](src/remote-access.ts) | 基于 `TypertResourceMap` 的 `RemoteAccessResource`、`RemoteAccessResourceKind` 与 `RemoteAccessResourceOf` |
 | [`src/json-value.ts`](src/json-value.ts) | 各载体共享的无损 JSON 校验 `isRemoteJsonValue` 与 `isRemoteUplinkItem` |
 | [`src/remote-error.ts`](src/remote-error.ts) | `RemoteError` 与结构式识别函数 `remoteErrorOf` |
-| [`src/types.ts`](src/types.ts) | 协议映射、`RemoteErrorDetailsMap`、`RemoteResult`、`RemoteStream`、`RemoteStreamHandle`、`PeerScope`、`RemoteInvocation`、`InvocationDescriptor`、编解码器、提供方约定、注册表接口、`TypertClientRemote` |
+| [`src/remote-info.ts`](src/remote-info.ts) | 纯惰性 info factory 与直接方法类型守卫 |
+| [`src/types.ts`](src/types.ts) | 协议映射、`RemoteErrorDetailsMap`、`RemoteResult`、`RemoteStream`、`RemoteStreamHandle`、`PrincipalMap`、`Principal`、`PeerScope`、`RemoteInvocation`、`InvocationDescriptor`、编解码器、提供方约定、注册表接口、`TypertClientRemote` |
 
 </details>
 
@@ -139,7 +160,7 @@ Host 装配以转发给消费方的 Kylin 事件扩展 `TypertRemoteEventSelecti
 
 这些限制说明声明能表示什么；它们是当前包约束，不是任务积压。
 
-- **装饰器标记是最小化的**——标记只包含方法名与直接调用或 Context 调用模式；参数、结果、查找与 schema 反射需要 Typert 构建流水线。
+- **装饰器标记是最小化的**——标记包含方法名、可选导出别名、流模式、资源读取函数与直接或 Context 接收者选择；参数、结果、查找、schema 与文档元数据需要 Typert 构建流水线。
 - **Remote 签名受限**——装饰器只接受具有字符串名称的公开、非静态实例方法，源码模式执行无法表示重载、解构、默认参数或剩余参数签名。
 
 <a id="dev-note"></a>

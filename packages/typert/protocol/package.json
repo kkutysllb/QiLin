@@ -25,6 +25,10 @@
       "types": "./lib/types/types.d.ts",
       "default": "./lib/types/types.js"
     },
+    "./remote-info": {
+      "types": "./lib/types/remote-info.d.ts",
+      "default": "./lib/types/remote-info.js"
+    },
     "./src/*": "./src/*",
     "./package.json": "./package.json"
   },
@@ -34,6 +38,9 @@
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
   "peerDependencies": {
     "@qilin-agent/kylin": "workspace:~"
   },

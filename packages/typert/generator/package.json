@@ -42,9 +42,10 @@
     "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
+    "@qilin-agent/tools": "workspace:*",
     "@qilin-agent/tool-kylin": "workspace:*",
     "@qilin-agent/typert-registry": "workspace:*",
     "@qilin-agent/kylin": "workspace:~",
-    "zod": "^4.4.3"
+    "zod": "4.4.3"
   }
 }

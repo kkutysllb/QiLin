@@ -18,14 +18,20 @@
   en: 949dec3bb987644a
   zh: 0ed333a6067465dc
 /qilin-agent-typert-generator/use-this-package/publishing-typert-artifacts-from-a-package:
-  en: 3651b74007c2dcb8
-  zh: b47b4ec28f3f7781
+  en: a46096b218cd69e6
+  zh: 75791f83d683a95f
+/qilin-agent-typert-generator/use-this-package/ordinary-remote-metadata:
+  en: 55c637b4702ea19b
+  zh: ae19bf55dcec79db
 /qilin-agent-typert-generator/use-this-package/analyzing-a-workspace-statically:
-  en: 88f4e7fc9d4c7701
-  zh: cecd35ff4f35bfd2
+  en: 8227097859169cdf
+  zh: d710607c24274274
 /qilin-agent-typert-generator/use-this-package/running-generation-inside-a-tsdown-build:
-  en: cc3f7d23739380f6
-  zh: 864d15088f581271
+  en: ebcb4850a5620d93
+  zh: bedc1687065ce4aa
+/qilin-agent-typert-generator/use-this-package/generating-without-a-bundler:
+  en: e1afb26aea87fe46
+  zh: 0bc0b2d92f1671dd
 /qilin-agent-typert-generator/understand-the-implementation:
   en: b90762df7a978580
   zh: 123ab225a2b5df2a
@@ -33,8 +39,8 @@
   en: 0a515742229bf442
   zh: dfd2c5eddd943af9
 /qilin-agent-typert-generator/understand-the-implementation/source-map:
-  en: b3330e37723290f4
-  zh: 2d7e90a6d5ef419d
+  en: 73f3f3f7f5274fe8
+  zh: db0ca76865da4299
 /qilin-agent-typert-generator/understand-the-implementation/analysis-and-faces:
   en: 67d1e18294bc476e
   zh: b74288de921f989c
@@ -54,8 +60,8 @@
   en: 09310605f7d136d4
   zh: 3535ec7eba83b90f
 /qilin-agent-typert-generator/known-limitations-and-deferred-work:
-  en: f3b1002133fe8736
-  zh: e8d5fecd10db5e3a
+  en: fdc6707a82ceb4c3
+  zh: afd4637ab1b83d8f
 /qilin-agent-typert-generator/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

@@ -39,13 +39,19 @@ kind: "package-reference"
 
 消费方用 `get(key)`、`resolve(key)` 或 `list(filter?)` 读取 schema，用 `getPackage(name, face?)` 或 `listPackages(filter?)` 读取包反射。首次读取会物化一个进程 realm 内的 schema 实例，后续读取复用该实例。`resolve()` 能区分格式错误的键、未注册的包，以及已注册但未以该名称提供 schema 的包，各自给出不同的错误。`toJSONSchema(key)` 把已物化的 Zod schema 投影为 JSON Schema，但不缓存该投影。
 
+调用信息通过既有的 `ctx.typert.local.get/list` 与 `ctx.typert.remotes.get/list` 查询获得。它们返回已注册的描述符对象，包括带 `input(options?)`、`result` 与 `invoke` 的生成直接方法；不存在独立的元数据存储或 RPC API。消费方选择 `method.input({ strict: true })` 即可获得配套的严格解析与 JSON Schema，而不改变注册或 Host 分派。用 `@qilin-agent/typert-protocol/remote-info` 的 `isTypertRemoteMethod(descriptor)` 把基础描述符收窄；该守卫把输入暴露为 `object`、输出暴露为 `unknown`，不提供依赖端点的泛型。由[普通生成的 `TYPERT_REMOTE.methods` 索引](<../generator/README.zh.md#ordinary-remote-metadata>)提供精确的逐方法静态类型，并在其产物实例内为同一些描述符建立别名。
+
 ### 注册贡献
 
 生成产物在 Loader 组合中通过 [loader](../loader/README.zh.md) 注册；其他所有者直接调用 `ctx.typert.register(contribution)`，并获得撤销它的同一资源释放函数。重复的包与 face 组合键、schema 键、调用 id 或端点会在提交任何内容之前拒绝整个批次。
 
+QiLin 离线集成在自己的 profile Context 中用 `ctx.typert.remotes.register(contribution)` 注册一个普通 `TYPERT_REMOTE` 贡献。`$mount(contribution)` 已经执行该注册，因此在同一注册表中既注册又挂载同一贡献会因重复而失败。离线元数据的所有权要与活跃的连接加挂载 Context 分开持有。独立的离线消费方也可以不经过 Registry 直接读取 `TYPERT_REMOTE.methods`。注册表状态属于其 Context 与进程，不跨进程共享；注册与查询都不会打开连接。
+
 ### Lookup 与 Context 提供方
 
 Remote 调用通过 `ctx.typert.lookups` 与 `ctx.typert.contexts` 解析 Host 对象与作用域 Context。`registerHost()` 安装 Host wire 声明及其 wire 到 Context 的 resolver，`configureHost()` 只替换该 resolver。`registerClient()` 为同一个 merge-declared kind 安装双向 Client adapter。Host 到 Client 的事件源显式携带领域 identity，而不从 Context 反向投影。
+
+`ctx.typert.resources` 保存 `TypertResourceMap` 中声明的每个资源种类的默认 wire 字段。拥有该种类的领域用 `register(kind, { field })` 以调用方 fiber 的 Kylin effect 登记它；同一种类的第二次登记会抛错，内建的无身份资源种类 `global` 同样如此。`get(kind)` 读取一条声明，`entries()` 按登记顺序列出所有 `{ kind, field }`。lookup 提供方与 Host Context 适配器可以通过 `resource` 指明其 wire 身份的资源种类，配置后的 resolver 会保留它。Gateway 在解析非 owner 调用的资源时会读取这三者。
 
 -----
 
@@ -67,6 +73,7 @@ Remote 调用通过 `ctx.typert.lookups` 与 `ctx.typert.contexts` 解析 Host �
 - `ctx.typert.remotes`——在调用方 fiber 中挂载的、由消费方选中的贡献。
 - `ctx.typert.lookups`——lookup 提供方，以及按键配置的组合方解析器覆盖。
 - `ctx.typert.contexts`——按作用域键配置的 Host Context 提供方与 Client Context 绑定器。
+- `ctx.typert.resources`——每个资源种类的默认 wire 字段。
 
 每个子注册表都会向已订阅的监听器发布 `TypertRegistryChange` 事件；抛异常的监听器会被记录日志，且不会阻止后续监听器。
 

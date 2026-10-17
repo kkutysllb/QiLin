@@ -590,7 +590,9 @@ function ciWindowsObservationalGates(): Gate[] {
 }
 
 function typertContractsGate(): Gate {
-  return pnpmScript('typert-contracts', 'build:lib:host', { label: 'Typert contracts' })
+  return pnpmExec('typert-contracts', ['tsx', 'scripts/compile-referenced-projects.ts', 'host-contracts'], {
+    label: 'Typert contracts',
+  })
 }
 
 function lintGate(options: { needs?: string[] } = {}): Gate {

@@ -30,7 +30,8 @@
       "default": "./lib/types/types.js"
     },
     "./src/*": "./src/*",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
   "qilin": {
     "client": {
@@ -47,6 +48,7 @@
   },
   "license": "MIT",
   "files": [
+    "locale/*.json",
     "lib/index.js",
     "lib/client.js",
     "lib/types/**/*.js",
@@ -54,7 +56,6 @@
   ],
   "dependencies": {
     "@qilin-agent/deque": "workspace:*",
-    "@qilin-agent/session": "workspace:*",
     "@qilin-agent/util-values": "workspace:*"
   },
   "peerDependencies": {
@@ -92,6 +93,7 @@
     "@qilin-agent/plugin-market": "workspace:*",
     "@qilin-agent/schedule": "workspace:*",
     "@qilin-agent/scope": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
     "@qilin-agent/session-reference": "workspace:*",
     "@qilin-agent/settings": "workspace:*",
     "@qilin-agent/sidebar-opens": "workspace:*",
@@ -99,6 +101,6 @@
     "@qilin-agent/typert-protocol": "workspace:*",
     "@qilin-agent/user-approval": "workspace:*",
     "@qilin-agent/user-questions": "workspace:*",
-    "zod": "^4.4.3"
+    "zod": "4.4.3"
   }
 }
