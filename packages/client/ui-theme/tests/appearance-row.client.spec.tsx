@@ -16,6 +16,7 @@ import { en } from '../src/client/locales.ts'
 afterEach(cleanup)
 
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined })) as GlobalStandardProps['useResource']
+const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
 const useSessionStatus: AppearanceRowComponentProps['useSessionStatus'] = selector => selector(new Map() as SessionStatusSnapshot)
 
@@ -34,6 +35,7 @@ function mount(preference: ThemePreference = 'system') {
     usePanelInfo,
     useSessionRetainInfo: () => undefined,
     useResource,
+    useRemoteAccess,
     useStore: bindSnapshotSelector(store),
     actions: store.actions,
     t: makeTranslate(en),

@@ -14,6 +14,7 @@ import { en, zh } from '../src/client/locales.ts'
 
 // Every fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
+const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
 
 beforeEach(() => {
@@ -109,7 +110,7 @@ function mount({
     actions: shell.actions,
     useSessions: select => select(sessions),
     useSessionStatus,
-    usePanelInfo, useSessionRetainInfo: () => undefined, useResource,
+    usePanelInfo, useSessionRetainInfo: () => undefined, useResource, useRemoteAccess,
     useWorkspaces: unusedHook,
     wide,
     reconnect,

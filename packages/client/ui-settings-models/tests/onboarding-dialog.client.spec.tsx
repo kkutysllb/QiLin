@@ -17,6 +17,7 @@ import { settingsSchema } from './settings-schema.client.ts'
 
 // Every fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
+const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
 
 afterEach(() => {
@@ -149,7 +150,7 @@ function harness(options: {
     openSection,
     useSessions: unusedHook,
     useSessionStatus,
-    usePanelInfo, useSessionRetainInfo: () => undefined, useResource,
+    usePanelInfo, useSessionRetainInfo: () => undefined, useResource, useRemoteAccess,
     useWorkspaces: unusedHook,
     controller,
     useModels: bindSnapshotSelector(controller.store),

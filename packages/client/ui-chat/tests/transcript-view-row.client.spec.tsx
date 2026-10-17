@@ -32,6 +32,7 @@ function noPendingInteraction() {
 
 // The resource hook the resources plugin merges into GlobalStandardProps; this row reads no address.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined })) as GlobalStandardProps['useResource']
+const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 
 function mount(mode: TranscriptViewMode = 'compact', dictionary: typeof en | typeof zh = en) {
   const source = createSnapshotStore(mode)
@@ -45,6 +46,7 @@ function mount(mode: TranscriptViewMode = 'compact', dictionary: typeof en | typ
     useWorkspaces: emptyWorkspaces(),
     useSessionRetainInfo: () => undefined,
     useResource,
+    useRemoteAccess,
     useTranscriptView: bindSnapshotSelector(source),
     setTranscriptView,
     useCollapseTiming: bindSnapshotSelector(collapseTiming),

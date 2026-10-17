@@ -37,6 +37,7 @@ import { zh } from '../src/client/locales.ts'
 
 // Every fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined })) as GlobalStandardProps['useResource']
+const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 
 // jsdom implements no Range geometry (Lexical's scroll-into-view measures the
 // caret with one once the surface is genuinely contenteditable).
@@ -161,6 +162,7 @@ async function scopedBench(register?: (inputTriggers: InputTriggerService) => vo
     ),
     useSessionRetainInfo: () => undefined,
     useResource,
+    useRemoteAccess,
     useWorkspaces: bindSnapshotSelector(createSnapshotStore({
       items: [], archivedSessionIds: [], pinnedSessionIds: [], state: 'idle', phase: 'ready', error: null,
       baselinesReady: true, recentWorkspaceId: undefined,

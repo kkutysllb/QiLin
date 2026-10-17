@@ -133,7 +133,7 @@ describe('ModelsSettingsStore', () => {
   it('describes native variables without exposing secret values and respects the 64-reference limit', async () => {
     const providers = Array.from({ length: 65 }, (_, index) => ({
       provider: `fixture-${index}`, displayName: 'fixture', settingsNs: 'llm-pi-ai', settingsPath: ['providers', `fixture-${index}`],
-      nativeAuth: { env: [`NATIVE_${index}`], oauth: false },
+      active: true, nativeAuth: { env: [`NATIVE_${index}`], oauth: false },
     }))
     const { ctx, mirror, seenRefs } = api({ providers: () => Promise.resolve(ok({ providers })) })
     const store = new ModelsSettingsStore(ctx, settingsSchema, mirror)
@@ -147,7 +147,7 @@ describe('ModelsSettingsStore', () => {
   it('drops checked references the redacted answer does not name', async () => {
     const providers = [{
       provider: 'omitted', displayName: 'omitted', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'omitted'],
-      nativeAuth: { env: ['OMITTED_A', 'OMITTED_B'], oauth: false },
+      active: true, nativeAuth: { env: ['OMITTED_A', 'OMITTED_B'], oauth: false },
     }]
     const { ctx, mirror } = api({
       providers: () => Promise.resolve(ok({ providers })),

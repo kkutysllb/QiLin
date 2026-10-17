@@ -15,6 +15,7 @@ import { en } from '../src/client/locale.ts'
 afterEach(cleanup)
 
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined })) as GlobalStandardProps['useResource']
+const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 
 function emptySessions() {
   return bindSnapshotSelector(createSnapshotStore<SessionListState>({
@@ -42,6 +43,7 @@ function mount(destination: LinkOpening = 'sidebar', browserAvailable = true) {
     useWorkspaces: emptyWorkspaces(),
     useSessionRetainInfo: () => undefined,
     useResource,
+    useRemoteAccess,
     useLinkOpening: bindSnapshotSelector(source),
     useBrowserAvailable: bindSnapshotSelector(createSnapshotStore(browserAvailable)),
     setLinkOpening,

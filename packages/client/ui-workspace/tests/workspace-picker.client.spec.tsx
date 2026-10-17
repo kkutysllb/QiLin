@@ -16,6 +16,7 @@ import { zh } from '../src/client/locales.ts'
 
 // Every fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
+const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
 
 afterEach(cleanup)
@@ -100,7 +101,7 @@ function mount(
       useSessions={hook(sessions)}
       useSessionStatus={hook(noPendingInteraction)}
       useSessionRetainInfo={() => undefined}
-      usePanelInfo={usePanelInfo} useResource={useResource}
+      usePanelInfo={usePanelInfo} useResource={useResource} useRemoteAccess={useRemoteAccess}
       useWorkspaces={hook(workspaceState(nextItems))}
       onPick={onPick}
       onClose={onClose}
@@ -223,7 +224,7 @@ describe('WorkspacePicker', () => {
         open useSessions={hook(sessions)} useWorkspaces={hook(workspaceState([workspace('alpha', 'Alpha')]))}
         useSessionStatus={hook(noPendingInteraction)}
         useSessionRetainInfo={() => undefined}
-        usePanelInfo={usePanelInfo} useResource={useResource}
+        usePanelInfo={usePanelInfo} useResource={useResource} useRemoteAccess={useRemoteAccess}
         onPick={vi.fn()} onClose={vi.fn()} createWorkspace={vi.fn()}
         useDirectoryFlow={occupancySource().useDirectoryFlow} renderSlot={renderSlot} t={t}
       />,
@@ -241,7 +242,7 @@ describe('WorkspacePicker', () => {
         open anchorRef={anchor()} useSessions={hook(sessions)} useWorkspaces={hook(state)}
         useSessionStatus={hook(noPendingInteraction)}
         useSessionRetainInfo={() => undefined}
-        usePanelInfo={usePanelInfo} useResource={useResource}
+        usePanelInfo={usePanelInfo} useResource={useResource} useRemoteAccess={useRemoteAccess}
         onPick={vi.fn()} onClose={vi.fn()} createWorkspace={vi.fn()}
         useDirectoryFlow={occupancySource().useDirectoryFlow} renderSlot={renderSlot} t={t}
       />,

@@ -39,6 +39,7 @@ import type { ViewTab } from '../src/client/contract/views.ts'
 
 // Every session-scope fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined })) as GlobalStandardProps['useResource']
+const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 
 const FactoryViewsTestContext = createContext<ConversationViewsProps | undefined>(undefined)
 
@@ -240,7 +241,7 @@ function mount(
           useConversation={useConversation}
           useSessions={props.useSessions}
           usePanelInfo={props.usePanelInfo}
-          useResource={useResource}
+          useResource={useResource} useRemoteAccess={useRemoteAccess}
           useSessionStatus={useSessionStatus}
           useSessionRetainInfo={() => undefined}
           useWorkspaces={props.useWorkspaces}
@@ -264,7 +265,7 @@ function mount(
           useChat={useChat}
           useTrajectory={useTrajectory}
           usePanelInfo={props.usePanelInfo}
-          useResource={useResource}
+          useResource={useResource} useRemoteAccess={useRemoteAccess}
           useSessionStatus={useSessionStatus}
           useSessionRetainInfo={() => undefined}
           useWorkspaces={props.useWorkspaces}
@@ -292,7 +293,7 @@ function mount(
           useTrajectory={useTrajectory}
           useSessions={props.useSessions}
           usePanelInfo={props.usePanelInfo}
-          useResource={useResource}
+          useResource={useResource} useRemoteAccess={useRemoteAccess}
           useSessionStatus={useSessionStatus}
           useSessionRetainInfo={() => undefined}
           useWorkspaces={props.useWorkspaces}
@@ -315,7 +316,7 @@ function mount(
         <InputBar
           sessionId={SID}
           SessionProvider={({ children }) => children}
-          useResource={useResource}
+          useResource={useResource} useRemoteAccess={useRemoteAccess}
           useSession={useSession}
           useConversation={useConversation}
           useSessions={props.useSessions}
@@ -377,6 +378,7 @@ function mount(
       useSessions: bindSnapshotSelector(sessions),
       usePanelInfo: selector => selector({ activePanelId: null }),
       useResource,
+      useRemoteAccess,
       useSessionStatus,
       useSessionRetainInfo: () => undefined,
       useWorkspaces: bindSnapshotSelector(workspaces),
@@ -415,6 +417,7 @@ function mount(
     useSessionStatus,
     useSessionRetainInfo: () => undefined,
     useResource,
+    useRemoteAccess,
     useWorkspaces: bindSnapshotSelector(workspaces),
     useProjection: (() => undefined),
     useInput,

@@ -17,6 +17,7 @@ import { CurrentVersionRow } from '../src/client/CurrentVersionRow.tsx'
 
 // Every fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
+const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
 
 /** Store over a real mirror derived from the same scripted context. */
@@ -38,7 +39,7 @@ const noAttention: AttentionSnapshot = new Map()
 const useSessionStatus: HeaderContentProps['useSessionStatus'] = selector => selector(noAttention)
 const kit = {
   useSessions: unusedHook, useSessionStatus,
-  usePanelInfo, useSessionRetainInfo: () => undefined, useResource, useWorkspaces: unusedHook,
+  usePanelInfo, useSessionRetainInfo: () => undefined, useResource, useRemoteAccess, useWorkspaces: unusedHook,
 }
 
 describe('chrome content', () => {

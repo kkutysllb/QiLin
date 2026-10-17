@@ -16,6 +16,7 @@ import type { FontSizeRowComponentProps } from '../src/client/FontSizeRow.tsx'
 import { createFontRowStore } from '../src/client/settings-store.ts'
 
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
+const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
 
 afterEach(cleanup)
@@ -53,7 +54,7 @@ function mount(role: FontRole = 'text', sizes: FontSizes = { text: 14, code: 11,
   const props: FontSizeRowComponentProps = {
     useSessions: emptySessions(),
     useSessionStatus,
-    usePanelInfo, useSessionRetainInfo: () => undefined, useResource,
+    usePanelInfo, useSessionRetainInfo: () => undefined, useResource, useRemoteAccess,
     useWorkspaces: emptyWorkspaces(),
     useStore: bindSnapshotSelector(store),
     actions: store.actions,

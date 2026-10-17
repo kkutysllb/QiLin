@@ -12,6 +12,7 @@ import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/cl
 import type { SessionId } from '@qilin-agent/session/types'
 
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined })) as GlobalStandardProps['useResource']
+const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 let selectedSession: SessionId | undefined
 let selectedSessionTitle: string | undefined
 let workspacesReady = true
@@ -97,7 +98,7 @@ function mountFrame(windowWidth = frameWidth) {
       usePanelInfo={usePanelInfo}
       useSessionStatus={useSessionStatus}
       useSessionRetainInfo={() => undefined}
-      useResource={useResource}
+      useResource={useResource} useRemoteAccess={useRemoteAccess}
       useWorkspaces={sel => sel(workspaceState)}
       t={key => key === 'brand.localBuild' ? 'QILIN Local Build' : key}
     />

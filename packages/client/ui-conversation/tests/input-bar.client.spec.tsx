@@ -37,6 +37,7 @@ import { en, zh } from '../src/client/locales.ts'
 
 // Every fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined })) as GlobalStandardProps['useResource']
+const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 
 afterEach(cleanup)
 
@@ -180,6 +181,7 @@ function bench(over?: BenchOptions) {
     useSessionStatus: bindSnapshotSelector(createSnapshotStore(new Map())),
     useSessionRetainInfo: () => undefined,
     useResource,
+    useRemoteAccess,
     useSessions: bindSnapshotSelector(createSnapshotStore<SessionListState>({
       ids: [], byId: {}, phase: 'ready',
       projectionsBySession: {},

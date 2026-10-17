@@ -15,6 +15,7 @@ import { en } from '../src/client/locale.ts'
 afterEach(cleanup)
 
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined })) as GlobalStandardProps['useResource']
+const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 
 function mount(mode: PerformanceUsageMode = 'compact') {
   const source = createSnapshotStore(mode)
@@ -30,6 +31,7 @@ function mount(mode: PerformanceUsageMode = 'compact') {
     })),
     useSessionRetainInfo: () => undefined,
     useResource,
+    useRemoteAccess,
     usePerformanceUsage: bindSnapshotSelector(source),
     setPerformanceUsage,
     t: makeTranslate(en),

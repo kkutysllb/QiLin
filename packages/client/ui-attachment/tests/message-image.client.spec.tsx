@@ -12,6 +12,7 @@ import { MessageImages } from '../src/client/MessageImages.tsx'
 
 // Every session-scope fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
+const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
 
 afterEach(cleanup)
@@ -318,7 +319,7 @@ describe('ImageGallery', () => {
       sessionId: 'message-images-test' as MessageImagesProps['sessionId'],
       useSession,
       useSessions,
-      usePanelInfo, useSessionRetainInfo: () => undefined, useResource,
+      usePanelInfo, useSessionRetainInfo: () => undefined, useResource, useRemoteAccess,
       useSessionStatus,
       useWorkspaces,
       useProjection: () => undefined,

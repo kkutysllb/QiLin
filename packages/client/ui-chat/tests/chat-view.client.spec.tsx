@@ -73,6 +73,7 @@ function formatRunDuration(ms: number, t: Parameters<typeof durationParts>[1]): 
 
 // Every session-scope fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined })) as GlobalStandardProps['useResource']
+const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 
 afterEach(() => {
   cleanup()
@@ -457,6 +458,7 @@ function makeHarness(
     useSessions: emptySessions(),
     useSessionRetainInfo: () => undefined,
     useResource,
+    useRemoteAccess,
     useSessionStatus: bindSnapshotSelector(
       createSnapshotStore<SessionStatusSnapshot>(new Map()),
     ),

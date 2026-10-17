@@ -142,6 +142,7 @@ function renderTab(
     useSessionStatus: unusedStandardHook,
     useSessionRetainInfo: unusedStandardHook,
     useResource: unusedStandardHook,
+    useRemoteAccess: unusedStandardHook,
   }
   const navigation = createNavigationStore().create()
   const props: PluginManagerPageProps = {

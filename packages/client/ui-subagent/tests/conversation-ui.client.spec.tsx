@@ -90,6 +90,7 @@ function props(
     useSessionRetainInfo: unused,
     useWorkspaces: unused,
     useResource: unused,
+    useRemoteAccess: unused,
     useProjection: unused,
     useConversation: unused,
     useInput: unused,

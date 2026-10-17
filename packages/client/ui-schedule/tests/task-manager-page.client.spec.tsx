@@ -171,6 +171,7 @@ function mount(
     useSessionStatus: select => select(new Map()),
     useSessionRetainInfo: () => undefined,
     useResource: () => { throw new Error('The task manager does not load document resources') },
+    useRemoteAccess: () => true,
     onDelete: vi.fn<TaskManagerPageProps['onDelete']>(async () => 'deleted'),
     onRetry: vi.fn(async () => {}),
     onNewTask: vi.fn(),
@@ -1596,7 +1597,7 @@ describe('Task manager details', () => {
       usePanelInfo={unread}
       useSessions={unread}
       useWorkspaces={unread}
-      useResource={unread}
+      useResource={unread} useRemoteAccess={unread}
       useSessionStatus={unread}
       useSessionRetainInfo={unread}
     />)

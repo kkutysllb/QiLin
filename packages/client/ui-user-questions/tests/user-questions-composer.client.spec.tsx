@@ -15,6 +15,7 @@ import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 
 // Every session-scope fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
+const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
 
 afterEach(cleanup)
@@ -118,7 +119,7 @@ const kitBase: Omit<QuestionComposerProps, 'matched' | 'useStore' | 'useQuestion
   pendingInteraction: undefined,
   useSession: selector => selector(sessionState),
   useSessions: selector => selector(sessionList),
-  usePanelInfo, useResource,
+  usePanelInfo, useResource, useRemoteAccess,
   useSessionStatus: selector => selector(attentionState),
   useSessionRetainInfo: () => undefined,
   useWorkspaces: selector => selector(workspaceState),
