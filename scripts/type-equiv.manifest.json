@@ -470,6 +470,11 @@
       "projection": "public-api"
     },
     {
+      "doc": "docs/subsystems/llm-streaming.md",
+      "symbol": "LlmNativeAuth",
+      "source": "packages/llm/llm/src/types.ts"
+    },
+    {
       "doc": "docs/subsystems/token-meter.md",
       "symbol": "TokenMeasurement",
       "source": "packages/llm/token-meter/src/types.ts"
