@@ -449,7 +449,7 @@ describe('Hero chrome', () => {
     }
     expect(brandMarkOwner.size).toBe(34)
     // The seal carries its own colours; the hero places no class on it.
-    expect(brandMarkOwner.className).toBeUndefined()
+    expect((brandMarkOwner as { className?: string }).className).toBeUndefined()
     expect(renderSlot.mock.calls[0]?.[2]?.fallback).toBeTruthy()
   })
 
