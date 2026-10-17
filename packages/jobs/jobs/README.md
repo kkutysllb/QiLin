@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`qilin-jobs` lets tools keep long-running work active while an agent continues. Each job receives a stable `<kind>-N` id, and its owning agent can read output, wait with a timeout, or request cancellation. Ownership is scoped to the agent session, so other agents cannot inspect or stop the job; completion arrives as an in-session notice without polling. Background jobs can start only when the deployment supplies job execution.
+`qilin-jobs` lets tools keep long-running work active while an agent continues. Each job receives a stable `<kind>-<short-uuid>` id, and its owning agent can read output, wait with a timeout, or request cancellation. Ownership is scoped to the agent session, so other agents cannot inspect or stop the job; completion arrives as an in-session notice without polling. Background jobs can start only when the deployment supplies job execution.
 
 ## Table of Contents
 
@@ -29,7 +29,7 @@ Use this package when you are composing a background-job capability or writing a
 
 ### What a background job gives you
 
-A producer registers work with a kind and a one-line label; the registry returns a `<kind>-N` id such as `bash-1`. Anyone who owns the job can read output, list jobs, wait up to a timeout for settlement, and request cancellation — each call returns a fresh snapshot of the job's status, from `running` and `stopping` to the terminal `completed`, `killed`, or `failed`. When a job settles, the owning agent is notified through the completion listener that `qilin-tool-jobs` turns into an in-session notice, so no polling is needed. A producer may attach an optional byte cap so each complete model-facing output read or completion notice stays bounded.
+A producer registers work with a kind and a one-line label; the registry returns a `<kind>-<short-uuid>` id such as `bash-<short-uuid>`, where the suffix is 16 lowercase UUID hex characters. Anyone who owns the job can read output, list jobs, wait up to a timeout for settlement, and request cancellation — each call returns a fresh snapshot of the job's status, from `running` and `stopping` to the terminal `completed`, `killed`, or `failed`. When a job settles, the owning agent is notified through the completion listener that `qilin-tool-jobs` turns into an in-session notice, so no polling is needed. A producer may attach an optional byte cap so each complete model-facing output read or completion notice stays bounded.
 
 ### The ownership boundary
 

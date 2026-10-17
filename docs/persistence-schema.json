@@ -10632,6 +10632,297 @@
       }
     },
     {
+      "key": "event:job/registered",
+      "kind": "event",
+      "event": "job/registered",
+      "surface": false,
+      "digest": "9eaf18d12d45a42fc6bf1f57f84a67e7cb3360800818a4317a9ba4bb5a520805",
+      "schema": {
+        "root": 0,
+        "nodes": [
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "data",
+                "type": 1,
+                "optional": false
+              },
+              {
+                "name": "ignorable",
+                "type": 5,
+                "optional": true
+              },
+              {
+                "name": "seq",
+                "type": 3,
+                "optional": false
+              },
+              {
+                "name": "time",
+                "type": 3,
+                "optional": false
+              },
+              {
+                "name": "type",
+                "type": 6,
+                "optional": false
+              }
+            ],
+            "indices": []
+          },
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "jobId",
+                "type": 2,
+                "optional": false
+              },
+              {
+                "name": "kind",
+                "type": 2,
+                "optional": false
+              },
+              {
+                "name": "label",
+                "type": 2,
+                "optional": false
+              },
+              {
+                "name": "owner",
+                "type": 2,
+                "optional": false
+              },
+              {
+                "name": "startedAt",
+                "type": 3,
+                "optional": false
+              },
+              {
+                "name": "toolCall",
+                "type": 4,
+                "optional": true
+              }
+            ],
+            "indices": []
+          },
+          {
+            "kind": "primitive",
+            "type": "string"
+          },
+          {
+            "kind": "primitive",
+            "type": "number"
+          },
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "callId",
+                "type": 2,
+                "optional": false
+              },
+              {
+                "name": "rootCallId",
+                "type": 2,
+                "optional": false
+              }
+            ],
+            "indices": []
+          },
+          {
+            "kind": "literal",
+            "value": true
+          },
+          {
+            "kind": "literal",
+            "value": "job/registered"
+          }
+        ]
+      }
+    },
+    {
+      "key": "event:job/settled",
+      "kind": "event",
+      "event": "job/settled",
+      "surface": false,
+      "digest": "7c2fb6f1c5264fda5cb330b30743218ed6578e6b6044bab3f767e0c6dcabab3d",
+      "schema": {
+        "root": 0,
+        "nodes": [
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "data",
+                "type": 1,
+                "optional": false
+              },
+              {
+                "name": "ignorable",
+                "type": 14,
+                "optional": true
+              },
+              {
+                "name": "seq",
+                "type": 7,
+                "optional": false
+              },
+              {
+                "name": "time",
+                "type": 7,
+                "optional": false
+              },
+              {
+                "name": "type",
+                "type": 15,
+                "optional": false
+              }
+            ],
+            "indices": []
+          },
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "cause",
+                "type": 2,
+                "optional": false
+              },
+              {
+                "name": "detail",
+                "type": 6,
+                "optional": true
+              },
+              {
+                "name": "finishedAt",
+                "type": 7,
+                "optional": false
+              },
+              {
+                "name": "jobId",
+                "type": 6,
+                "optional": false
+              },
+              {
+                "name": "kind",
+                "type": 6,
+                "optional": false
+              },
+              {
+                "name": "label",
+                "type": 6,
+                "optional": false
+              },
+              {
+                "name": "owner",
+                "type": 6,
+                "optional": false
+              },
+              {
+                "name": "producerReported",
+                "type": 8,
+                "optional": false
+              },
+              {
+                "name": "startedAt",
+                "type": 7,
+                "optional": false
+              },
+              {
+                "name": "status",
+                "type": 9,
+                "optional": false
+              },
+              {
+                "name": "toolCall",
+                "type": 13,
+                "optional": true
+              }
+            ],
+            "indices": []
+          },
+          {
+            "kind": "union",
+            "types": [
+              3,
+              4,
+              5
+            ]
+          },
+          {
+            "kind": "literal",
+            "value": "producer"
+          },
+          {
+            "kind": "literal",
+            "value": "teardown"
+          },
+          {
+            "kind": "literal",
+            "value": "kill"
+          },
+          {
+            "kind": "primitive",
+            "type": "string"
+          },
+          {
+            "kind": "primitive",
+            "type": "number"
+          },
+          {
+            "kind": "primitive",
+            "type": "boolean"
+          },
+          {
+            "kind": "union",
+            "types": [
+              10,
+              11,
+              12
+            ]
+          },
+          {
+            "kind": "literal",
+            "value": "completed"
+          },
+          {
+            "kind": "literal",
+            "value": "failed"
+          },
+          {
+            "kind": "literal",
+            "value": "killed"
+          },
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "callId",
+                "type": 6,
+                "optional": false
+              },
+              {
+                "name": "rootCallId",
+                "type": 6,
+                "optional": false
+              }
+            ],
+            "indices": []
+          },
+          {
+            "kind": "literal",
+            "value": true
+          },
+          {
+            "kind": "literal",
+            "value": "job/settled"
+          }
+        ]
+      }
+    },
+    {
       "key": "event:llm/retry",
       "kind": "event",
       "event": "llm/retry",
@@ -22606,6 +22897,15 @@
       ]
     },
     {
+      "digest": "005bb87da3990f6fff8bfbbc4db126a76f11c2e3bca69467b10ff29571b8d0f2",
+      "names": [
+        "packages/jobs/jobs/src/types.ts#JobToolCall"
+      ],
+      "sources": [
+        "packages/jobs/jobs/src/types.ts:16"
+      ]
+    },
+    {
       "digest": "00b2a40acc08d9338db6122d0ecd1433d27440bca88be7b5a069abe79953180f",
       "names": [],
       "sources": []
@@ -22769,6 +23069,15 @@
       ],
       "sources": [
         "packages/core/tools/src/types.ts:12"
+      ]
+    },
+    {
+      "digest": "090cf6c3b59afb906629862ee9a21081f48badd9c2f539c55d37d297b62c623c",
+      "names": [
+        "packages/jobs/jobs/src/types.ts#JobSettleCause"
+      ],
+      "sources": [
+        "packages/jobs/jobs/src/types.ts:247"
       ]
     },
     {
@@ -23124,6 +23433,7 @@
         "packages/goal/goal/src/types.ts#GoalId",
         "packages/interaction/commands/src/brand.ts#CommandId",
         "packages/interaction/user-approval/src/types.ts#ApprovalRequestId",
+        "packages/jobs/jobs/src/brand.ts#JobId",
         "packages/llm/llm-retry/src/brand.ts#RetryId",
         "packages/llm/llm/src/brand.ts#MessageId",
         "packages/llm/llm/src/brand.ts#ProviderRequestId",
@@ -23149,6 +23459,7 @@
         "packages/goal/goal/src/types.ts:17",
         "packages/interaction/commands/src/brand.ts:31",
         "packages/interaction/user-approval/src/types.ts:17",
+        "packages/jobs/jobs/src/brand.ts:19",
         "packages/llm/llm-retry/src/brand.ts:4",
         "packages/llm/llm/src/brand.ts:16",
         "packages/llm/llm/src/brand.ts:31",
@@ -23317,7 +23628,7 @@
       "digest": "27a442ed43e7efa4a2d53f33ec9ce081226f59b1c32410af695a7dd7621f55c8",
       "names": [],
       "sources": [
-        "packages/core/tools/src/ptc.ts:14"
+        "packages/core/tools/src/ptc.ts:15"
       ]
     },
     {
@@ -24178,6 +24489,11 @@
       "sources": []
     },
     {
+      "digest": "699b7b71ba6f8362b2bf42314ab2fc45328c98f060f51384c0471752dce82359",
+      "names": [],
+      "sources": []
+    },
+    {
       "digest": "6a1c6985f15fa1fccbe249d5906b667910dff17b90ce50ec5d7533405d321419",
       "names": [
         "packages/subagent/subagent/src/descriptor.ts#OneShotSubagentDescriptorData"
@@ -24424,6 +24740,11 @@
       ]
     },
     {
+      "digest": "7911b929d7b630ffe4787032bbd55ac8a3232a673d9de714f6f75999889c22e9",
+      "names": [],
+      "sources": []
+    },
+    {
       "digest": "791febe7ccb2aeb051ac283b3b4718a90076e37db11a3d360140f6c008bfe616",
       "names": [],
       "sources": [
@@ -24480,6 +24801,11 @@
     },
     {
       "digest": "7c217ccb0db10c43c90261d3ec17b707ab42f954effff79538f7cb7807e901f9",
+      "names": [],
+      "sources": []
+    },
+    {
+      "digest": "7c2fb6f1c5264fda5cb330b30743218ed6578e6b6044bab3f767e0c6dcabab3d",
       "names": [],
       "sources": []
     },
@@ -24996,6 +25322,11 @@
       "sources": []
     },
     {
+      "digest": "9dc048297d116f4012d964764e1300c78b05b69950ac60b8f72e4cbd336819cd",
+      "names": [],
+      "sources": []
+    },
+    {
       "digest": "9dd696c6822bc8557cc19cbcdaa089f9f50d07844db2d90defbf152013253f0f",
       "names": [],
       "sources": [
@@ -25010,6 +25341,11 @@
       "sources": [
         "packages/core/session/src/types.ts:232"
       ]
+    },
+    {
+      "digest": "9eaf18d12d45a42fc6bf1f57f84a67e7cb3360800818a4317a9ba4bb5a520805",
+      "names": [],
+      "sources": []
     },
     {
       "digest": "9f1c1346ad46e09a6bd4f5938515e9457f8d66f5e3ab6031cf0a4044c53395b2",
@@ -25062,6 +25398,11 @@
       ]
     },
     {
+      "digest": "a28c21393a61f628f0d69cf2fff7510ad7e90ab2cb9489ed36cd2368feb88fed",
+      "names": [],
+      "sources": []
+    },
+    {
       "digest": "a36fcb09e29a69783260c94084c6d9d38053c5c704fdd09ad481e71aff402b24",
       "names": [],
       "sources": []
@@ -25070,6 +25411,15 @@
       "digest": "a433af6f3367ba1dde4fefe7ee0459b52a57e56e5d1c4a264c276e42e9b27684",
       "names": [],
       "sources": []
+    },
+    {
+      "digest": "a4426d05b1a5aebd6c088c5ee1bd7aa7c2a4f9e08c3a811b5975e76c2d1903f1",
+      "names": [
+        "packages/jobs/jobs/src/types.ts#JobSettledData"
+      ],
+      "sources": [
+        "packages/jobs/jobs/src/types.ts:40"
+      ]
     },
     {
       "digest": "a4a63f80db1c94fd8edb0f3294ee74e977e52ec7ed27cc3429022667a383f87d",
@@ -25135,6 +25485,15 @@
       "digest": "a83ece9e54683230f4fb83230e0c7220ac78b9285e6e6b94a5b53de561e4a1a6",
       "names": [],
       "sources": []
+    },
+    {
+      "digest": "a8515fb029bdb813b31f4e2e43a614e65df3d088378b4ea496ed9c74dd345f87",
+      "names": [
+        "packages/jobs/jobs/src/types.ts#JobRegisteredData"
+      ],
+      "sources": [
+        "packages/jobs/jobs/src/types.ts:24"
+      ]
     },
     {
       "digest": "a994cea6c3a7ee4230479cc21b906d15991cccca69af6a43e90bff547836812e",
@@ -25323,6 +25682,11 @@
     },
     {
       "digest": "b2d0e12d2c3cb54a7679fb132397abecda99618e854ffef09a439c5480f1e04b",
+      "names": [],
+      "sources": []
+    },
+    {
+      "digest": "b33e29a4b76d5e8aa2cfab626f644b491ad2b19b4c1510bcbd47c8953ec9e327",
       "names": [],
       "sources": []
     },
@@ -25908,6 +26272,11 @@
       ]
     },
     {
+      "digest": "e2deb9ada846e8cf8078e0ad51bf18e33099b2eff4890f76f2e7a30ded7565b1",
+      "names": [],
+      "sources": []
+    },
+    {
       "digest": "e3036258884ad7cc987833964f64c9dd582d20a214f50ac87a529ae3ee3a2c0a",
       "names": [],
       "sources": []
@@ -25947,6 +26316,11 @@
       "sources": [
         "packages/goal/goal/src/domain.ts:24"
       ]
+    },
+    {
+      "digest": "e5babef842d6874483a77b5c7fd82891846b17d713451e1827654907756998d2",
+      "names": [],
+      "sources": []
     },
     {
       "digest": "e6037b459c099bda8a189ca0457df2dc61b2a7cb590da2eee66b2d783d19ccb9",

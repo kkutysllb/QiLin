@@ -53,9 +53,15 @@ The limit counts the exact owner's `running` and `stopping` records; all unowned
 
 Jobs belong to their owner and backend, not to the producer tool, so producer or controller reloads do not stop them. When an agent that owns jobs is disposed, its jobs are cancelled, their producers awaited, and their snapshots removed; service disposal does the same for every remaining job. A cancellation that throws during teardown force-fails the record and warns that the work may be orphaned, so teardown never deadlocks.
 
+### Session timing records
+
+Owned jobs record registration and settlement in their original Session, independently of model output collection. SDK consumers receive the same events through `session.event`; the [jobs reference](../../../docs/subsystems/jobs.md) defines identities, timestamps, and producer settlement reports. Events already persisted remain available after process exit; live jobs and output rings are not resumed.
+
+Lifecycle facts are appended synchronously at the registration or settlement commit, before live hub subscribers and completion waiters react. Append failures warn without abandoning execution or blocking cleanup; consumers must retain incomplete histories as incomplete.
+
 ### What can go wrong
 
-Starting work fails without a controller that serves the owner — loading `qilin-tool-jobs` attaches one, and `start()` otherwise refuses with a message naming it. A producer cancel that returns without settling `done` stays indistinguishable from a slow stop and can stall teardown while holding one capacity slot. Every record disappears when the harness process exits.
+Starting work fails without a controller that serves the owner — loading `qilin-tool-jobs` attaches one, and `start()` otherwise refuses with a message naming it. A producer cancel that returns without settling `done` stays indistinguishable from a slow stop and can stall teardown while holding one capacity slot. Live registry records disappear when the harness process exits; persisted lifecycle events remain.
 
 -----
 

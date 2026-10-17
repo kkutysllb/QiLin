@@ -29,9 +29,12 @@
 /qilin-agent-jobs-local/use-this-package/lifecycle:
   en: 91dd372f742dcdb8
   zh: 58eeee0254d33cd1
+/qilin-agent-jobs-local/use-this-package/session-timing-records:
+  en: fb13d96f28cd7ade
+  zh: d4b9d77946a455e4
 /qilin-agent-jobs-local/use-this-package/what-can-go-wrong:
-  en: 7054740c79c80b30
-  zh: 4c040ad82c264eb4
+  en: c7f9746e78200e85
+  zh: 5621dd528c105781
 /qilin-agent-jobs-local/understand-the-implementation:
   en: f782557ca8da3138
   zh: e8f0082b9692cacc

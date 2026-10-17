@@ -24,6 +24,8 @@ import type {
   SessionEventNotification,
   SessionPromptParams,
   SessionPromptResult,
+  SessionResumeParams,
+  SessionResumeResult,
   SessionWorkingDirectoryParams,
   SessionWorkingDirectorySetParams,
   SessionWorkingDirectoryResult,
@@ -199,6 +201,24 @@ export class HarnessSdkJsonRpcServer {
   }
 
   /**
+   * Restore a persisted session and repair its interrupted final turn without sending input.
+   * Uses the initialized model route while preserving the stored session identity and directory.
+   * Rejects missing, unreadable, or already owned sessions; never creates a replacement.
+   * @param params - persisted session identity in the configured persistence store.
+   * @returns the restored identity after the Agent is ready for prompts.
+   */
+  async resume(params: SessionResumeParams): Promise<SessionResumeResult> {
+    if (!this.initialized) throw new Error('SDK server is not initialized')
+    if (this.shuttingDown) throw new Error('SDK server is shutting down')
+    const sessionId = params.sessionId
+    if (this.sessions.has(sessionId) || this.sessionCreations.has(sessionId)) {
+      throw new Error(`SDK session is already open or opening: ${sessionId}`)
+    }
+    await this.openSession(sessionId, true)
+    return { sessionId }
+  }
+
+  /**
    * Read a Session's effective directory, recovering a missing directory to its origin.
    * @param params - target Session; an unknown id creates it.
    * @returns the absolute effective directory.
@@ -282,6 +302,13 @@ export class HarnessSdkJsonRpcServer {
         return this.initialize(params as unknown as InitializeParams)
       case 'session/prompt':
         return this.prompt(params as unknown as SessionPromptParams)
+      case 'session/resume': {
+        const sessionId = params?.sessionId
+        if (typeof sessionId !== 'string' || sessionId.length === 0) {
+          throw new TypeError('session/resume requires a non-empty sessionId string')
+        }
+        return this.resume({ sessionId })
+      }
       case 'session/working-directory/get':
       case 'session/working-directory/set': {
         if (typeof params?.sessionId !== 'string' || params.sessionId.length === 0) {
@@ -306,7 +333,11 @@ export class HarnessSdkJsonRpcServer {
     if (existing) return existing
     const pending = this.sessionCreations.get(sessionId)
     if (pending) return pending
-    const creation = this.createSession(sessionId)
+    return this.openSession(sessionId, false)
+  }
+
+  private openSession(sessionId: string, resume: boolean): Promise<SessionRecord> {
+    const creation = this.createSession(sessionId, resume)
     this.sessionCreations.set(sessionId, creation)
     void creation.then(
       () => { this.sessionCreations.delete(sessionId) },
@@ -315,21 +346,25 @@ export class HarnessSdkJsonRpcServer {
     return creation
   }
 
-  private async createSession(sessionId: string): Promise<SessionRecord> {
+  private async createSession(sessionId: string, resume: boolean): Promise<SessionRecord> {
     // No preset composition: this server's compositions keep the model-facing
     // rows in the host plane, so this agent reads them from the global layer. A
     // deployment that configures a roster has to join one here first
     // (@qilin-agent/agent-presets README, "Composing a child agent").
-    const handle = await this.ctx.agents.create({
+    const agentOptions = {
+      provider: this.provider,
+      model: this.model,
+      ...this.reasoningEffort === undefined ? {} : { reasoningEffort: this.reasoningEffort },
+      ...this.maxTokens === undefined ? {} : { maxTokens: this.maxTokens },
+    }
+    const handle = await (resume ? this.ctx.agents.resume({
+      resumeSessionId: brandString<SessionId>(sessionId),
+      agentOptions,
+    }) : this.ctx.agents.create({
       sessionId: brandString<SessionId>(sessionId),
       meta: { cwd: this.cwd },
-      agentOptions: {
-        provider: this.provider,
-        model: this.model,
-        ...this.reasoningEffort === undefined ? {} : { reasoningEffort: this.reasoningEffort },
-        ...this.maxTokens === undefined ? {} : { maxTokens: this.maxTokens },
-      },
-    })
+      agentOptions,
+    }))
     const rec: SessionRecord = { handle }
     this.sessions.set(sessionId, rec)
     return rec
