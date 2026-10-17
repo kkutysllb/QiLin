@@ -13,10 +13,12 @@ import {
   localizeTerminalCardModel,
   terminalBlockLabels,
   terminalCardModel,
+  terminalExitLabel,
   terminalFailed,
 } from '../models/terminal-card-model.ts'
 import { formatToolBody, toolRowModel, type ToolRowState } from '../models/tool-call-model.ts'
 import { CONVERSATION_NS as NS } from '../../locale.ts'
+import { ExitCodeBadge } from '../components/ExitCodeBadge.tsx'
 import css from './bash-sample.module.css'
 
 type BashRowProps = ToolCallViewProps & PropsLocale<'conversation'>
@@ -56,8 +58,7 @@ export function BashRow({ toolName, block, sessionId, useSessions, inspect, useD
   const cwd = useSessions(list => list.byId[sessionId]?.cwd)
   const terminalModel = terminalCardModel(block, cwd)
   const terminal = terminalModel === null ? null : localizeTerminalCardModel(terminalModel, t)
-  // A failing exit status is the terminal card's own error signal (the call
-  // itself settles isError:false), surfaced as the row's red state dot.
+  // Exit failures are result data even when the tool call itself succeeds.
   const state = model.state === 'ok' && terminalModel !== null && terminalFailed(terminalModel)
     ? 'error'
     : model.state
@@ -79,9 +80,14 @@ export function BashRow({ toolName, block, sessionId, useSessions, inspect, useD
       : null,
     [genericBody, model.bodyRaw, model.variant, open],
   )
+  const normalSummary = terminal?.description ?? model.summary
+  const exitLabel = terminalExitLabel(terminalModel, t)
   const failureLine = model.state === 'error' ? model.errorSummary : null
-  // An interrupted call states its stop in the summary slot instead of the name.
-  const settlementLine = failureLine ?? (state === 'stopped' ? t('bash.stopped') : null)
+  // An interrupted call states its stop in the summary slot instead of the name;
+  // a settled exit keeps its command description and states the code in a capsule.
+  const settlementLine = exitLabel !== null
+    ? null
+    : failureLine ?? (state === 'stopped' ? t('bash.stopped') : null)
   const running = state === 'running' || state === 'preparing'
   const toggleFromKeyboard = (event: KeyboardEvent<HTMLDivElement>) => {
     if (!expandable || (event.key !== 'Enter' && event.key !== ' ')) return
@@ -119,11 +125,12 @@ export function BashRow({ toolName, block, sessionId, useSessions, inspect, useD
           <span className={css.sep} data-shimmer-decoration aria-hidden />
           <span className={clsx(
             css.summary,
-            state === 'error' && css.errorSummary,
-            state === 'stopped' && css.stoppedSummary,
+            exitLabel === null && state === 'error' && css.errorSummary,
+            exitLabel === null && state === 'stopped' && css.stoppedSummary,
           )}>
-            <TextShimmer>{settlementLine ?? terminal?.description ?? model.summary}</TextShimmer>
+            <TextShimmer>{settlementLine ?? normalSummary}</TextShimmer>
           </span>
+          {exitLabel !== null && <ExitCodeBadge label={exitLabel} />}
         </TextShimmer>
       </div>
       {open && (

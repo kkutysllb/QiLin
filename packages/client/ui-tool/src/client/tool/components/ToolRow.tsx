@@ -12,7 +12,7 @@ import { CHAT_READ_MAX_LINES, type ReadCardModel } from '../models/read-card-mod
 import type { ImageCardModel } from '../models/image-card-model.ts'
 import { CHAT_SEARCH_MAX_LINES, type SearchCardModel } from '../models/search-card-model.ts'
 import {
-  localizeTerminalCardModel, terminalBlockLabels, type TerminalCardModel,
+  localizeTerminalCardModel, terminalBlockLabels, terminalExitLabel, type TerminalCardModel,
 } from '../models/terminal-card-model.ts'
 import {
   diffBlockLabels, readBlockLabels, searchBlockLabels, webBlockLabels,
@@ -23,6 +23,7 @@ import {
 } from '../models/tool-call-model.ts'
 import type { WebCardModelProps } from '../models/web-card-model.ts'
 import { AskQuestionCard } from './AskQuestionCard.tsx'
+import { ExitCodeBadge } from './ExitCodeBadge.tsx'
 import { ToolDetails, type ToolDetailsModel } from './ToolDetails.tsx'
 import css from './ToolRow.module.css'
 
@@ -172,8 +173,7 @@ export function ToolRow({
   )
   const status = stateStatus(state, t)
   const running = state === 'running' || state === 'preparing'
-  // A failure must replace, not supplement, the normal summary.
-  const failureLine = state === 'error' ? errorSummary ?? null : null
+  const exitLabel = terminalExitLabel(terminal, t)
   // A settled-with-cue row (failed or interrupted) drops the trailing suffix and
   // the path link so the state dot and summary tone stay the row's only cues.
   const settledWithCue = state === 'error' || state === 'stopped'
@@ -181,6 +181,8 @@ export function ToolRow({
   // header drops the status the collapsed summary carried.
   const normalSummary = terminalBody?.description
     ?? (open ? detailsBody?.expandedSummary ?? summary : summary)
+  // Generic failures retain their first result line; command exits keep their description.
+  const failureLine = state === 'error' && exitLabel === null ? errorSummary ?? normalSummary : null
   const summaryText = failureLine ?? normalSummary
   // A diff row's collapsed line carries the card's +/- totals (the same
   // numbers the expanded footer prints) so the change size reads without
@@ -233,7 +235,7 @@ export function ToolRow({
                 <FileTypeIcon path={filePath} size={12} />
               </span>
             )}
-            {openFile !== undefined ? (
+            {exitLabel === null && openFile !== undefined ? (
               <button
                 type="button"
                 className={css.fileLink}
@@ -246,13 +248,14 @@ export function ToolRow({
               <span
                 className={clsx(
                   css.summary,
-                  state === 'error' && css.errorSummary,
-                  state === 'stopped' && css.stoppedSummary,
+                  exitLabel === null && state === 'error' && css.errorSummary,
+                  exitLabel === null && state === 'stopped' && css.stoppedSummary,
                 )}
               >
                 <TextShimmer>{summaryText}</TextShimmer>
               </span>
             )}
+            {exitLabel !== null && <ExitCodeBadge label={exitLabel} />}
             {suffix !== null && (
               <TextShimmer className={css.summarySuffix}>{suffix}</TextShimmer>
             )}
