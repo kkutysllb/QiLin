@@ -140,10 +140,12 @@ describe('PermissionSelect', () => {
     await act(async () => {})
   })
 
-  it('marks Auto experimental and uses the current-session risk copy', async () => {
+  it('marks Auto experimental in menu options only and uses the current-session risk copy', async () => {
     const { select, selection } = setup()
     fireEvent.click(trigger())
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Auto review EXP' }))
+    const autoOption = screen.getByRole('menuitem', { name: 'Auto review EXP' })
+    expect(autoOption.textContent).toBe('Auto reviewEXP')
+    fireEvent.click(autoOption)
 
     const dialog = screen.getByRole('dialog', { name: '确认启用 Auto review（实验）？' })
     expect(dialog.textContent).toContain('不使用沙箱')
@@ -154,8 +156,8 @@ describe('PermissionSelect', () => {
     act(() => { selection.set({ value: { currentValue: 'auto' } }) })
     await act(async () => {})
 
-    expect(trigger().getAttribute('aria-label')).toBe('访问模式，当前：Auto review EXP')
-    expect(trigger().querySelector('sup')?.textContent).toBe('EXP')
+    expect(trigger().getAttribute('aria-label')).toBe('访问模式，当前：Auto review')
+    expect(trigger().textContent).toBe('Auto review')
     expect(trigger().getAttribute('title')).toBe('无沙箱运行；每次原生工具调用和 PTC 内层调用前由同一模型进行实验性审查。')
   })
 
@@ -203,7 +205,7 @@ describe('PermissionSelect', () => {
       fireEvent.click(screen.getByRole('checkbox'))
       fireEvent.click(screen.getByRole('button', { name: '启用 Auto review' }))
       expect(select).toHaveBeenCalledExactlyOnceWith('auto')
-      expect(trigger().textContent).toBe('Auto reviewEXP')
+      expect(trigger().textContent).toBe('Auto review')
 
       act(() => {
         selection.set({ value: { currentValue: 'danger-full-access' } })
