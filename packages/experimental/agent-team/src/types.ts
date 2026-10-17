@@ -124,7 +124,7 @@ declare module '@qilin-agent/session-projection/types' {
   }
 }
 
-/** One peer message retained until its target Session records it. */
+/** One peer message recorded by the historical Team mailbox. */
 export interface TeamMessageSnapshot {
   readonly id: TeamMessageId
   readonly senderId: SessionId
@@ -133,7 +133,7 @@ export interface TeamMessageSnapshot {
   readonly content: ContentBlock[]
 }
 
-/** Source retained by the target Session for durable mailbox de-duplication. */
+/** Source carried by a target Session for one Team peer message, new or historical. */
 export interface TeamMessageSource {
   readonly kind: 'team-message'
   readonly teamId: TeamId
@@ -156,7 +156,7 @@ export interface Config {
   readonly maxTasks?: number
   /** Maximum UTF-8 bytes in one complete sender-framed delivery. */
   readonly maxMessageBytes?: number
-  /** Maximum milliseconds allowed for Team-owned runtime disposal. */
+  /** Maximum milliseconds for shared operation settlement and for each Team child drain. */
   readonly disposalTimeoutMs?: number
 }
 
@@ -175,14 +175,14 @@ export interface SpawnTeammateResult {
   readonly member: TeamMemberView
 }
 
-/** Input for one durable peer message. */
+/** Input for one direct peer-message attempt. */
 export interface SendTeamMessageRequest {
   readonly target: string
   readonly content: ContentBlock[]
   readonly signal: AbortSignal
 }
 
-/** Result after a peer message enters the target inbox. */
+/** Target inbox acceptance under ordinary Agent persistence; no Team retry or deduplication. */
 export interface SendTeamMessageResult {
   readonly messageId: TeamMessageId
 }

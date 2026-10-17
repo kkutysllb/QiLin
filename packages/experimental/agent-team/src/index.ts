@@ -300,20 +300,15 @@ export class TeamService extends TypertRemoteService {
     return this.roster.tryMembership(agent)
   }
 
-  /** Queue one contained recovery pass after publication has unwound. */
+  /** Queue one contained provisioning reconciliation after publication has unwound. */
   private scheduleRecovery(agent: Agent): void {
     queueMicrotask(() => {
       if (this.lifecycle.disposed) return
-      void this.recoverFor(agent).catch((error: unknown) => {
+      void this.roster.recoverFor(agent, this.lifecycle.signal).catch((error: unknown) => {
         if (this.lifecycle.disposed) return
         this.ctx.logger.warn(`Agent Teams recovery for "${agent.id}" failed: ${errorMessage(error)}`)
       })
     })
-  }
-
-  /** Reconcile roster provisioning when one Team member Session starts. */
-  private async recoverFor(agent: Agent): Promise<void> {
-    await this.roster.recoverFor(agent, this.lifecycle.signal)
   }
 
   /** Stop Team-owned live branches and release every waiter before service disposal completes. */

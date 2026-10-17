@@ -10,15 +10,16 @@ import { createUserMessage } from '@qilin-agent/llm'
 import { SessionLogOffset, SessionId, type Session, type SessionEvent } from '@qilin-agent/session'
 import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
 import SubagentService from '@qilin-agent/subagent'
+import { deliverSubagentPrompt, type HostPromptDeliverer } from '@qilin-agent/subagent/internal'
 import * as SubagentFork from '@qilin-agent/subagent-fork-in-process'
 import * as SubagentSpawn from '@qilin-agent/subagent-spawn-in-process'
 import { MockAdapter, textResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
+import { mountWorkingDirectoryFixture } from '../../../subagent/subagent/tests/working-directory-fixture.ts'
 import TeamService, { TeamError, TeamId, TeamMessageId, TeamTaskId } from '../src/index.ts'
 import { TeamRuntimeLifecycle } from '../src/lifecycle.ts'
 import { teamProjectionDefinition } from '../src/projection.ts'
 import type { TeamMemberSnapshot, TeamMessageSnapshot, TeamTaskSnapshot } from '../src/index.ts'
 import { TestSessionQuery } from './test-session-query.ts'
-import { mountWorkingDirectoryFixture } from '../../../subagent/subagent/tests/working-directory-fixture.ts'
 
 const SIGNAL = new AbortController().signal
 const roots: string[] = []
@@ -26,6 +27,7 @@ const contexts: Context[] = []
 
 afterEach(async () => {
   vi.useRealTimers()
+  vi.restoreAllMocks()
   for (const ctx of contexts.splice(0).reverse()) await ctx.fiber.dispose()
   for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true })
 })
@@ -64,12 +66,12 @@ async function setup(
   const ctx = new Context()
   contexts.push(ctx)
   await mountAgentLoopTestDependencies(ctx)
+  await mountWorkingDirectoryFixture(ctx)
   const storageRoot = mkdtempSync(join(tmpdir(), 'qilin-team-'))
   roots.push(storageRoot)
   await ctx.plugin(JsonlSessionPersistence, { root: storageRoot })
   await ctx.plugin(TestSessionQuery)
   await ctx.plugin(AgentLoop, { agents: [] })
-  await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(SubagentService)
   await ctx.plugin(SubagentSpawn, { providerName: 'spawn' })
   await ctx.plugin(SubagentFork, { providerName: 'fork' })
@@ -89,19 +91,24 @@ interface TeamServiceInternals {
   readonly roster: {
     checkpointInitialPrompt(childId: SessionId, messageId: string, signal: AbortSignal): Promise<void>
     reconcileProvisioning(root: Agent, signal: AbortSignal): Promise<void>
+    recoverFor(agent: Agent, signal: AbortSignal): Promise<void>
     liveChildrenByRoot(): Map<Agent, SessionId[]>
   }
   readonly journal: {
     state(root: Agent): unknown
   }
   disposeRuntime(): Promise<void>
-  recoverFor(agent: Agent): Promise<void>
   scheduleRecovery(agent: Agent): void
 }
 
 /** White-box access follows the runtime owners so coverage does not widen the service API. */
 function teamInternals(ctx: Context): TeamServiceInternals {
   return ctx.agentTeams as unknown as TeamServiceInternals
+}
+
+/** Access the existing host adapter for per-instance delivery barriers. */
+function hostDeliverer(ctx: Context): HostPromptDeliverer {
+  return ctx.subagents as unknown as HostPromptDeliverer
 }
 
 function spawn(
@@ -167,11 +174,11 @@ describe('Team identity and provisioning', () => {
     const ctx = new Context()
     contexts.push(ctx)
     await mountAgentLoopTestDependencies(ctx)
+    await mountWorkingDirectoryFixture(ctx)
     const storageRoot = mkdtempSync(join(tmpdir(), 'qilin-team-direct-'))
     roots.push(storageRoot)
     await ctx.plugin(JsonlSessionPersistence, { root: storageRoot })
     await ctx.plugin(AgentLoop, { agents: [] })
-    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentService)
     const lead = await ctx.agentLoop.create(SessionId('preexisting-lead'), {})
     const service = new TeamService(ctx)
@@ -200,7 +207,7 @@ describe('Team identity and provisioning', () => {
       diagnostics: [],
     }))
     expect(service.listMembers(lead)[1]).not.toHaveProperty('model')
-    await Promise.resolve()
+    await Promise.resolve(undefined)
   })
 
   it('creates fresh and fork teammates with immutable names and bounded roster size', async () => {
@@ -257,7 +264,7 @@ describe('Team identity and provisioning', () => {
     if (liveSession === undefined) throw new Error('checkpoint fixture did not create its Session')
     const initial = createUserMessage({ content: content('checkpoint me'), source: { kind: 'user' } })
     const checkpoint = internal.checkpointInitialPrompt(liveSession.id, initial.id, SIGNAL)
-    await Promise.resolve()
+    await Promise.resolve(undefined)
     lead.inject(createUserMessage({ content: content('unrelated progress'), source: { kind: 'user' } }))
     const unrelatedFiber = await ctx.plugin(Object.assign(function unrelatedCheckpointFixture(childCtx: Context) {
       childCtx.sessions.create(SessionId('unrelated-checkpoint-child'))
@@ -286,7 +293,7 @@ describe('Team identity and provisioning', () => {
     if (disposedSession === undefined) throw new Error('disposed checkpoint fixture did not create its Session')
     const disposed = internal.checkpointInitialPrompt(disposedSession.id, missing.id, SIGNAL)
     const disposedResult = expect(disposed).rejects.toThrow('not found')
-    await Promise.resolve()
+    await Promise.resolve(undefined)
     await disposedFiber.dispose()
     await disposedResult
 
@@ -297,14 +304,14 @@ describe('Team identity and provisioning', () => {
     if (abortedSession === undefined) throw new Error('aborted checkpoint fixture did not create its Session')
     const controller = new AbortController()
     const aborted = internal.checkpointInitialPrompt(abortedSession.id, missing.id, controller.signal)
-    await Promise.resolve()
+    await Promise.resolve(undefined)
     controller.abort({ kind: 'test' })
     await expect(aborted).rejects.toMatchObject({ code: 'TEAM_DISPOSED' })
 
     const errorController = new AbortController()
     const errorAborted = internal.checkpointInitialPrompt(abortedSession.id, missing.id, errorController.signal)
     const errorResult = expect(errorAborted).rejects.toThrow('checkpoint stopped')
-    await Promise.resolve()
+    await Promise.resolve(undefined)
     errorController.abort(new Error('checkpoint stopped'))
     await errorResult
     await abortedFiber.dispose()
@@ -402,10 +409,10 @@ describe('Team identity and provisioning', () => {
     const first = await setup([])
     vi.spyOn(teamInternals(first.ctx).roster, 'checkpointInitialPrompt').mockResolvedValueOnce()
     vi.spyOn(first.ctx.subagents, 'startActivation').mockImplementationOnce(async spec => ({
+      result: Promise.resolve({ output: [], stopReason: 'completed' as const }),
+      dispose: async () => {},
       childId: spec.childId!,
       messageId: createUserMessage({ content: content('accepted'), source: { kind: 'user' } }).id,
-      result: Promise.resolve({ output: [], stopReason: 'completed' as const }),
-      dispose: () => Promise.resolve(),
     }))
     const inactive = await spawn(first.ctx, first.lead, 'instant-worker')
     expect(inactive.member).toMatchObject({ status: 'inactive', diagnostics: [] })
@@ -419,10 +426,10 @@ describe('Team identity and provisioning', () => {
       entered.resolve(undefined)
       await release.promise
       return {
+        result: Promise.resolve({ output: [], stopReason: 'completed' as const }),
+        dispose: async () => {},
         childId: spec.childId!,
         messageId: createUserMessage({ content: content('accepted'), source: { kind: 'user' } }).id,
-        result: Promise.resolve({ output: [], stopReason: 'completed' as const }),
-        dispose: () => Promise.resolve(),
       }
     })
     const spawning = spawn(second.ctx, second.lead, 'instant-conflict')
@@ -502,11 +509,11 @@ describe('Team identity and provisioning', () => {
   it('rejects stale Agent identities and non-Team subagent children', async () => {
     const { ctx, lead } = await setup([textResponse('done')])
     const started = await ctx.subagents.startActivation({
+      delivery: 'parent',
       provider: 'spawn',
       label: 'ordinary worker',
       request: { prompt: content('ordinary'), parent: lead },
       signal: SIGNAL,
-      delivery: 'parent',
     })
     const live = ctx.agents.get(started.childId)
     if (live !== undefined) expect(ctx.agentTeams.tryMembership(live)).toBeUndefined()
@@ -533,11 +540,11 @@ describe('Team identity and provisioning', () => {
       agentOptions: { provider: 'mock', model: 'mock' },
     })
     const started = await first.ctx.subagents.startActivation({
+      delivery: 'parent',
       provider: 'spawn',
       label: 'ordinary child',
       request: { prompt: content('finish'), parent: parent.agent },
       signal: SIGNAL,
-      delivery: 'parent',
     })
     await waitNoAgent(first.ctx, started.childId)
     await parent.dispose()
@@ -890,88 +897,171 @@ describe('Team shared task DAG', () => {
   })
 })
 
-describe('Team mailbox and waiting', () => {
-  it('steers a message addressed to the Lead and checkpoints its receipt', async () => {
-    const { ctx, lead } = await setup(['hang'])
-    const started = await spawn(ctx, lead, 'reporter')
-    const reporter = await waitRunning(ctx, started.member.id)
-
-    const message = await ctx.agentTeams.sendMessage(reporter, {
-      target: 'lead', content: content('progress report'), signal: SIGNAL,
-    })
-
-    expect(lead.session.snapshotEvents().some(event => event.type === 'agent/inbox/spliced'
-      && event.data.inserted.some(input => input.source.kind === 'team-message'
-        && input.source.messageId === message.messageId))).toBe(true)
+describe('Team direct messages and waiting', () => {
+  it('accepts peer and Lead messages with actual sender identity and wakes Team waits', async () => {
+    const { ctx, lead, teamFiber } = await setup(['hang', 'hang', 'hang'])
+    const alpha = await waitRunning(ctx, (await spawn(ctx, lead, 'alpha')).member.id)
+    const beta = await waitRunning(ctx, (await spawn(ctx, lead, 'beta')).member.id)
+    lead.followup(createUserMessage({ content: content('busy lead'), source: { kind: 'user' } }))
+    await waitRunning(ctx, lead.id)
+    for (const [target, agent] of [['beta', beta], ['lead', lead]] as const) {
+      const waiting = ctx.agentTeams.waitForChange(alpha, 10_000, SIGNAL)
+      const result = await ctx.agentTeams.sendMessage(alpha, { target, content: content('update'), signal: SIGNAL })
+      await expect(waiting).resolves.toEqual({ timedOut: false })
+      expect(Object.keys(result)).toEqual(['messageId'])
+      expect(result.messageId).toMatch(/^team-message-/u)
+      expect(agent.inbox.nextStep.find(message => message.source.kind === 'team-message'
+        && message.source.messageId === result.messageId)).toMatchObject({
+        source: { kind: 'team-message', messageId: result.messageId, senderId: alpha.id, senderName: 'alpha' },
+        content: [{ type: 'text', text: `Team message ${result.messageId} from alpha:` }, { type: 'text', text: 'update' }],
+      })
+    }
+    expect(lead.session.snapshotEvents().filter(event => event.type.startsWith('team/message/'))).toEqual([])
+    await teamFiber.dispose()
     lead.cancel({ kind: 'parent' })
     await lead.whenIdle()
-    reporter.cancel({ kind: 'parent' })
-    await waitNoAgent(ctx, reporter.id)
   })
 
-  it('cold-resumes an inactive sibling with sender attribution', async () => {
-    const { ctx, lead } = await setup(['hang', 'hang'])
-    const alphaStarted = await spawn(ctx, lead, 'alpha')
-    const alpha = await waitRunning(ctx, alphaStarted.member.id)
-    const betaStarted = await spawn(ctx, lead, 'beta')
-    const beta = await waitRunning(ctx, betaStarted.member.id)
-    ctx.agentTeams.interrupt(lead, 'beta')
-    await waitNoAgent(ctx, beta.id)
-
-    const first = await ctx.agentTeams.sendMessage(alpha, {
-      target: 'beta', content: content('first update'), signal: SIGNAL,
-    })
-    expect(first.messageId).toMatch(/^team-message-/u)
-    await waitNoAgent(ctx, betaStarted.member.id)
-    await vi.waitFor(() => { expect(durable(lead).pendingMessages).toEqual([]) })
-
-    const stored = await storedEvents(ctx, betaStarted.member.id)
-    const peerMessages = stored.filter(event => event.type === 'user/message'
-      && event.data.source.kind === 'team-message')
-    expect(peerMessages.map((event) => {
-      if (event.type !== 'user/message') return undefined
-      const block = event.data.content.at(-1)
-      return block?.type === 'text' ? block.text : undefined
-    })).toEqual(['first update'])
-    expect(peerMessages.map(event => event.type === 'user/message'
-      ? event.data.content[0]?.type === 'text' && event.data.content[0].text
-      : undefined)).toEqual([
-      expect.stringMatching(/^Team message .* from alpha:$/u),
-    ])
-    expect(peerMessages.map(event => event.type === 'user/message' && event.data.source.kind === 'team-message'
-      ? [event.data.source.messageId, event.data.source.senderName]
-      : undefined)).toEqual([
-      [first.messageId, 'alpha'],
-    ])
-
-    ctx.agentTeams.interrupt(lead, 'alpha')
-    await waitNoAgent(ctx, alpha.id)
+  it('steers an idle Lead and cold-resumes a sibling with actual sender attribution', async () => {
+    const { ctx, lead } = await setup(['hang', textResponse('initial'), textResponse('lead'), textResponse('peer')])
+    const alpha = await waitRunning(ctx, (await spawn(ctx, lead, 'alpha')).member.id)
+    const beta = await spawn(ctx, lead, 'beta')
+    await waitNoAgent(ctx, beta.member.id)
+    const leadResult = await ctx.agentTeams.sendMessage(alpha, { target: 'lead', content: content('report'), signal: SIGNAL })
+    await lead.whenIdle()
+    const peerResult = await ctx.agentTeams.sendMessage(alpha, { target: 'beta', content: content('report'), signal: SIGNAL })
+    await waitNoAgent(ctx, beta.member.id)
+    await ctx.sessions.flush(lead.session)
+    for (const [id, receipt] of [[lead.id, leadResult], [beta.member.id, peerResult]] as const) {
+      const messages = (await storedEvents(ctx, id)).flatMap(event => event.type === 'user/message' ? [event.data] : [])
+      expect(messages.find(message => message.source.kind === 'team-message'
+        && message.source.messageId === receipt.messageId)).toMatchObject({
+        source: { kind: 'team-message', messageId: receipt.messageId, senderId: alpha.id, senderName: 'alpha' },
+        content: [{ type: 'text', text: `Team message ${receipt.messageId} from alpha:` }, { type: 'text', text: 'report' }],
+      })
+    }
   })
 
-  it('enforces the message byte limit without encouraging retry after enqueue', async () => {
-    const { ctx, lead } = await setup([textResponse('idle')], { maxMessageBytes: 256 })
+  it('passes concurrent attempts to the lower delivery owner without a Team queue', async () => {
+    const { ctx, lead } = await setup(['hang'])
+    const target = await waitRunning(ctx, (await spawn(ctx, lead, 'target')).member.id)
+    const entered = Promise.withResolvers<undefined>()
+    const release = Promise.withResolvers<undefined>()
+    const admitted: string[] = []
+    vi.spyOn(hostDeliverer(ctx), deliverSubagentPrompt)
+      .mockImplementation(async (_parent, _child, blocks, source) => {
+        const last = blocks.at(-1)
+        const text = last?.type === 'text' ? last.text : ''
+        admitted.push(text)
+        if (text === 'first') { entered.resolve(undefined); await release.promise }
+        const input = createUserMessage({ content: blocks, source })
+        target.steer(input)
+        return input.id
+      })
+    const first = ctx.agentTeams.sendMessage(lead, { target: 'target', content: content('first'), signal: SIGNAL })
+    try {
+      await entered.promise
+      const second = await ctx.agentTeams.sendMessage(lead, { target: 'target', content: content('second'), signal: SIGNAL })
+      expect(admitted).toEqual(['first', 'second'])
+      expect(target.inbox.nextStep.some(message => message.source.kind === 'team-message'
+        && message.source.messageId === second.messageId)).toBe(true)
+      expect(durable(lead).pendingMessages).toEqual([])
+    } finally {
+      release.resolve(undefined)
+      await first
+    }
+  })
+
+  it('rejects failed attempts without retained intent or activity and supports a later explicit attempt', async () => {
+    const { ctx, lead } = await setup(['hang'])
+    const target = await waitRunning(ctx, (await spawn(ctx, lead, 'target')).member.id)
+    const failure = new Error('delivery unavailable')
+    const delivery = vi.spyOn(hostDeliverer(ctx), deliverSubagentPrompt).mockRejectedValueOnce(failure)
+    const waiting = ctx.agentTeams.waitForChange(lead, 10_000, SIGNAL)
+    let changed = false
+    void waiting.then(() => { changed = true })
+    await expect(ctx.agentTeams.sendMessage(lead, { target: 'target', content: content('first'), signal: SIGNAL })).rejects.toBe(failure)
+    expect(changed).toBe(false)
+    expect(durable(lead).pendingMessages).toEqual([])
+    delivery.mockRestore()
+    const receipt = await ctx.agentTeams.sendMessage(lead, { target: 'target', content: content('second'), signal: SIGNAL })
+    await expect(waiting).resolves.toEqual({ timedOut: false })
+    expect(target.inbox.nextStep.some(message => message.source.kind === 'team-message'
+      && message.source.messageId === receipt.messageId)).toBe(true)
+    expect(target.inbox.nextStep.flatMap(message => message.content)).not.toContainEqual({ type: 'text', text: 'first' })
+  })
+
+  it('cancels an ongoing send without retaining intent and leaves the service usable', async () => {
+    const { ctx, lead } = await setup([textResponse('done')])
     const target = await spawn(ctx, lead, 'target')
     await waitNoAgent(ctx, target.member.id)
-    await expect(ctx.agentTeams.sendMessage(lead, {
-      target: 'target', content: content('x'.repeat(300)), signal: SIGNAL,
-    })).rejects.toMatchObject({ code: 'TEAM_MESSAGE_TOO_LARGE' })
-    expect((await ctx.agentTeams.sendMessage(lead, {
-      target: 'target', content: content('one'), signal: SIGNAL,
-    })).messageId).toMatch(/^team-message-/u)
-    expect((await ctx.agentTeams.sendMessage(lead, {
-      target: 'target', content: content('two'), signal: SIGNAL,
-    })).messageId).toMatch(/^team-message-/u)
-    await expect(ctx.agentTeams.sendMessage(lead, {
-      target: 'lead', content: content('self'), signal: SIGNAL,
-    })).rejects.toMatchObject({ code: 'TEAM_SELF_MESSAGE' })
-    await expect(ctx.agentTeams.sendMessage(lead, {
-      target: 'missing', content: content('unknown target'), signal: SIGNAL,
-    })).rejects.toMatchObject({ code: 'TEAM_MEMBER_NOT_FOUND' })
+    const entered = Promise.withResolvers<undefined>()
+    const cancellation = new Error('caller cancelled')
+    const delivery = vi.spyOn(hostDeliverer(ctx), deliverSubagentPrompt)
+      .mockImplementation(async (_parent, _id, _content, _source, signal) => {
+        entered.resolve(undefined)
+        return await new Promise<never>((_resolve, reject) => {
+          signal.addEventListener('abort', () => {
+            const reason: unknown = signal.reason
+            reject(reason instanceof Error ? reason : new Error(String(reason)))
+          }, { once: true })
+        })
+      })
     const controller = new AbortController()
-    controller.abort(new TeamError('cancelled before queue', 'TEST_CANCELLED'))
-    await expect(ctx.agentTeams.sendMessage(lead, {
-      target: 'target', content: content('cancelled'), signal: controller.signal,
-    })).rejects.toMatchObject({ code: 'TEST_CANCELLED' })
+    const sending = ctx.agentTeams.sendMessage(lead, { target: 'target', content: content('cancelled'), signal: controller.signal })
+    const rejected = expect(sending).rejects.toBe(cancellation)
+    await entered.promise
+    controller.abort(cancellation)
+    await rejected
+    delivery.mockRestore()
+    expect(durable(lead).pendingMessages).toEqual([])
+    await ctx.agentTeams.createTask(lead, { subject: 'still usable', description: 'after send cancellation' })
+  })
+
+  it('serializes task commits while direct sends use the independent inbox owner', async () => {
+    const { ctx, lead } = await setup(['hang'])
+    const target = await waitRunning(ctx, (await spawn(ctx, lead, 'target')).member.id)
+    const entered = Promise.withResolvers<undefined>()
+    const release = Promise.withResolvers<undefined>()
+    const flush = ctx.sessions.flush.bind(ctx.sessions)
+    vi.spyOn(ctx.sessions, 'flush').mockImplementationOnce(async (session) => {
+      entered.resolve(undefined)
+      await release.promise
+      return await flush(session)
+    })
+    const first = ctx.agentTeams.createTask(lead, { subject: 'first', description: 'first' })
+    await entered.promise
+    const second = ctx.agentTeams.createTask(lead, { subject: 'second', description: 'second' })
+    try {
+      const receipt = await ctx.agentTeams.sendMessage(lead, { target: 'target', content: content('independent'), signal: SIGNAL })
+      expect(target.inbox.nextStep.some(message => message.source.kind === 'team-message'
+        && message.source.messageId === receipt.messageId)).toBe(true)
+    } finally {
+      release.resolve(undefined)
+      await Promise.all([first, second])
+    }
+    expect(ctx.agentTeams.listTasks(lead).map(task => task.subject)).toEqual(['first', 'second'])
+  })
+
+  it('enforces complete UTF-8 byte limits, exact caller authority, target membership and pre-acceptance cancellation', async () => {
+    const frame = (text: string) => [
+      { type: 'text', text: `Team message ${TeamMessageId('team-message-00000000-0000-0000-0000-000000000000')} from lead:` },
+      ...content(text),
+    ]
+    const { ctx, lead } = await setup(['hang'], { maxMessageBytes: Buffer.byteLength(JSON.stringify(frame('中文'))) })
+    const target = await waitRunning(ctx, (await spawn(ctx, lead, 'target')).member.id)
+    await ctx.agentTeams.sendMessage(lead, { target: 'target', content: content('中文'), signal: SIGNAL })
+    await expect(ctx.agentTeams.sendMessage(lead, { target: 'target', content: content('中文x'), signal: SIGNAL }))
+      .rejects.toMatchObject({ code: 'TEAM_MESSAGE_TOO_LARGE' })
+    await expect(ctx.agentTeams.sendMessage({ ...lead }, { target: 'target', content: content('x'), signal: SIGNAL }))
+      .rejects.toMatchObject({ code: 'TEAM_NOT_MEMBER' })
+    await expect(ctx.agentTeams.sendMessage(target, { target: 'target', content: content('x'), signal: SIGNAL }))
+      .rejects.toMatchObject({ code: 'TEAM_SELF_MESSAGE' })
+    await expect(ctx.agentTeams.sendMessage(lead, { target: 'missing', content: content('x'), signal: SIGNAL }))
+      .rejects.toMatchObject({ code: 'TEAM_MEMBER_NOT_FOUND' })
+    const cancellation = new Error('cancel before acceptance')
+    await expect(ctx.agentTeams.sendMessage(lead, { target: 'target', content: content('x'), signal: AbortSignal.abort(cancellation) }))
+      .rejects.toBe(cancellation)
   })
 
   it('interrupts only the current turn and retains an already accepted follow-up', async () => {
@@ -981,7 +1071,6 @@ describe('Team mailbox and waiting', () => {
     const followup = await ctx.agentTeams.sendMessage(lead, {
       target: 'worker', content: content('retained follow-up'), signal: SIGNAL,
     })
-    expect(followup.messageId).toMatch(/^team-message-/u)
     expect(ctx.agentTeams.interrupt(lead, 'worker')).toEqual({ previousStatus: 'running' })
     await vi.waitFor(() => { expect(worker.status).toBe('idle') })
     expect(worker.inbox.nextStep.some(message => message.source.kind === 'team-message'
@@ -994,11 +1083,11 @@ describe('Team mailbox and waiting', () => {
     const ctx = new Context()
     contexts.push(ctx)
     await mountAgentLoopTestDependencies(ctx)
+    await mountWorkingDirectoryFixture(ctx)
     const storageRoot = mkdtempSync(join(tmpdir(), 'qilin-team-wait-'))
     roots.push(storageRoot)
     await ctx.plugin(JsonlSessionPersistence, { root: storageRoot })
     await ctx.plugin(AgentLoop, { agents: [] })
-    await mountWorkingDirectoryFixture(ctx)
     await ctx.plugin(SubagentService)
     const fiber = await ctx.plugin(TeamService)
     const service = ctx.agentTeams
@@ -1097,7 +1186,7 @@ describe('Team mailbox and waiting', () => {
     await entered.promise
 
     const disposal = teamFiber.dispose()
-    await Promise.resolve()
+    await Promise.resolve(undefined)
     await expect(service.waitForChange(lead, 3_600_000, SIGNAL)).resolves.toEqual({ timedOut: false })
     await expect(service.spawnTeammate(lead, {
       name: 'late-worker',
@@ -1115,13 +1204,11 @@ describe('Team mailbox and waiting', () => {
     expect(ctx.get('agentTeams')).toBeUndefined()
   })
 
-  it('retains an in-flight creation cleanup failure during disposal', async () => {
+  it('retains an in-flight operation failure during disposal', async () => {
     const { ctx } = await setup([])
     const internal = teamInternals(ctx)
-    const cleanupFailure = new Error('creation cleanup failed')
-    const rejected = Promise.reject(cleanupFailure)
-    void rejected.catch(() => undefined)
-    void internal.lifecycle.track(rejected)
+    const cleanupFailure = new Error('operation failed')
+    void internal.lifecycle.track(Promise.reject(cleanupFailure))
 
     await expect(internal.disposeRuntime()).rejects.toMatchObject({ errors: [cleanupFailure] })
   })
@@ -1165,12 +1252,12 @@ describe('Team mailbox and waiting', () => {
       member,
     })
     await ctx.subagents.startActivation({
+      delivery: 'parent',
       childId,
       provider: 'spawn',
       label: member.description,
       request: { prompt: content('failed child task'), parent: lead },
       signal: SIGNAL,
-      delivery: 'parent',
     })
     await waitRunning(ctx, childId)
     lead.session.append('team/member', {
@@ -1190,6 +1277,47 @@ describe('Team mailbox and waiting', () => {
     expect(ctx.agents.get(childId)).toBeUndefined()
   })
 
+  it('aborts and awaits an admitted cold mailbox dispatch during disposal', async () => {
+    const { ctx, lead } = await setup([textResponse('worker done')])
+    const started = await spawn(ctx, lead, 'mailbox-worker')
+    await waitNoAgent(ctx, started.member.id)
+    const entered = Promise.withResolvers<undefined>()
+    const aborted = Promise.withResolvers<undefined>()
+    const release = Promise.withResolvers<undefined>()
+    vi.spyOn(hostDeliverer(ctx), deliverSubagentPrompt)
+      .mockImplementation(async (_parent, _childId, _content, _source, signal) => {
+        entered.resolve(undefined)
+        return await new Promise<never>((_resolve, reject) => {
+          signal.addEventListener('abort', () => {
+            aborted.resolve(undefined)
+            void release.promise.then(() => {
+              const reason: unknown = signal.reason
+              reject(reason instanceof Error ? reason : new Error(String(reason)))
+            })
+          }, { once: true })
+        })
+      })
+
+    const sending = ctx.agentTeams.sendMessage(lead, {
+      target: 'mailbox-worker',
+      content: content('resume during disposal'),
+      signal: SIGNAL,
+    })
+    await entered.promise
+    const internal = ctx.agentTeams as unknown as { disposeRuntime(): Promise<void> }
+    let disposed = false
+    const disposal = internal.disposeRuntime().then(() => { disposed = true })
+    await aborted.promise
+    await Promise.resolve(undefined)
+    expect(disposed).toBe(false)
+    release.resolve(undefined)
+
+    await expect(sending).rejects.toMatchObject({ code: 'TEAM_DISPOSED' })
+    await disposal
+    expect(disposed).toBe(true)
+    expect(ctx.agents.get(started.member.id)).toBeUndefined()
+  })
+
   it('bounds Team runtime disposal when a continuation drain never settles', { timeout: 30_000 }, async () => {
     const { ctx, lead, teamFiber } = await setup(['hang'], { disposalTimeoutMs: 25 })
     const started = await spawn(ctx, lead, 'stuck-worker')
@@ -1206,7 +1334,29 @@ describe('Team mailbox and waiting', () => {
     expect(ctx.get('agentTeams')).toBeUndefined()
   })
 
-  it('bounds disposal while an admitted creation ignores cancellation', async () => {
+  it('shares one settlement deadline across admitted operations', async () => {
+    const { ctx } = await setup([], { disposalTimeoutMs: 25 })
+    const internal = teamInternals(ctx)
+    const first = Promise.withResolvers<undefined>()
+    const second = Promise.withResolvers<undefined>()
+    void internal.lifecycle.track(first.promise)
+    void internal.lifecycle.track(second.promise)
+    vi.useFakeTimers()
+    let failure: unknown
+    const disposal = internal.disposeRuntime().catch((error: unknown) => { failure = error })
+    try {
+      await vi.advanceTimersByTimeAsync(25)
+      expect(failure).toBeInstanceOf(AggregateError)
+      await disposal
+    } finally {
+      first.resolve(undefined)
+      second.resolve(undefined)
+      vi.useRealTimers()
+      await disposal
+    }
+  })
+
+  it('bounds disposal while an admitted operation ignores cancellation', async () => {
     const { ctx, lead } = await setup([], { disposalTimeoutMs: 25 })
     const internal = teamInternals(ctx)
     void internal.lifecycle.track(new Promise(() => {}))
@@ -1223,6 +1373,7 @@ describe('Team mailbox and waiting', () => {
     await expect(ctx.agentTeams.sendMessage(lead, {
       target: 'nobody', content: content('must reject'), signal: SIGNAL,
     })).rejects.toMatchObject({ code: 'TEAM_DISPOSED' })
+
   })
 
   it('contains recovery callback failures and ignores work scheduled after disposal', async () => {
@@ -1230,10 +1381,10 @@ describe('Team mailbox and waiting', () => {
     const warnings: string[] = []
     ctx.logger.warn = ((value: unknown) => { warnings.push(String(value)) }) as typeof ctx.logger.warn
     const internal = teamInternals(ctx)
-    internal.recoverFor = async () => { throw new Error('forced recovery failure') }
+    internal.roster.recoverFor = async () => { throw new Error('forced recovery failure') }
     internal.scheduleRecovery(lead)
-    await Promise.resolve()
-    await Promise.resolve()
+    await Promise.resolve(undefined)
+    await Promise.resolve(undefined)
     expect(warnings.some(warning => warning.includes('forced recovery failure'))).toBe(true)
 
     lead.session.append('user/message', createUserMessage({
@@ -1246,11 +1397,11 @@ describe('Team mailbox and waiting', () => {
         senderName: 'absent',
       },
     }), { surfaceOp: 'append' })
-    await Promise.resolve()
+    await Promise.resolve(undefined)
 
     const entered = Promise.withResolvers<undefined>()
     const release = Promise.withResolvers<undefined>()
-    internal.recoverFor = async () => {
+    internal.roster.recoverFor = async () => {
       entered.resolve(undefined)
       await release.promise
       throw new Error('failure after disposal')
@@ -1259,10 +1410,10 @@ describe('Team mailbox and waiting', () => {
     await entered.promise
     await teamFiber.dispose()
     release.resolve(undefined)
-    await Promise.resolve()
-    await Promise.resolve()
+    await Promise.resolve(undefined)
+    await Promise.resolve(undefined)
     internal.scheduleRecovery(lead)
-    await Promise.resolve()
+    await Promise.resolve(undefined)
   })
 
   it('reports contained teardown failures without retaining the Team service', async () => {
