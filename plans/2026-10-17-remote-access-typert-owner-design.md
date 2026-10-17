@@ -28,7 +28,15 @@
 - **S3 principal 组**：user-rpc-principal 持久化记录（session-controller 记 non-owner principal）+ connection operator 隔离 + client-connection 显式 peer principal + operator-connect guide 落地（interactions:none 默认）。验证：session-controller spec + 持久化 catalog 门 + 快照。
 - **S4 文档与门禁**：subsystems 页（remote-access/api-gateway/typert）、config-catalog 增量、verify 家族接入。
 
-## 4. 开放问题（实施前需拍板）
+## 4. 开放问题（已拍板，2026-10-17 用户确认）
+
+| # | 问题 | 决策 |
+|---|---|---|
+| 1 | 非 owner 连接默认策略 | **默认全权**（保持现行为；RBAC 表达力留给部署配置） |
+| 2 | 跨账号协作者（share） | **不进第一版**（S1–S3 只铺机制，share 面待产品需求） |
+| 3 | desktop/SDK/ACP 连接 | **套用 operator-connect 的 interactions:none**（与上游一致） |
+
+原开放问题记录：
 
 1. **默认策略**：单账号运行时的非 owner 连接（同账号第二台设备）默认全权（现行为）还是默认只读？建议：默认全权（保持现行为），RBAC 表达力留给部署配置。
 2. **跨账号协作者（share）**：上游的共享/协作者模型是否进入第一版？建议：第一版不进（S1–S3 只铺机制），share 面待产品需求。
