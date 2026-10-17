@@ -47,6 +47,17 @@ Open Plugins in the Web sidebar and enable Automation tasks, marked by an alarm 
 
 </details>
 
+### Why the bundle is kept
+
+Upstream composes the `schedule` service row and the `ui-schedule` page row in the web-app patch and keeps the clock row and the four reminder tools in each preset. This deployment keeps all three rows in this opt-in bundle and the four tools in the shipped `ptc` preset, and it does not retire the bundle into the Web composition.
+
+- One selection carries the capability together: the service, the page, and the clock reading switch on and off as a unit, and disabling restores the composition without a rebuild or a release.
+- The enablement path already exists elsewhere: `OPTIONAL_BUNDLES` offers the bundle in the Official group, and [the user guide](../../../docs/user/guide/schedule.md) and [the subsystem page](../../../docs/subsystems/schedule.md) name it as the way to add Schedule to a shipped Web profile.
+
+What differs from the upstream form, in behavior a consumer can observe: a shipped Web profile here carries no `schedule` row at all until the bundle is selected, so the Automation tasks page and the reminder catalog are absent rather than empty; and a delegated child is refused by [the tools](../../schedule/tool-schedule/README.md) and by `ScheduleService` itself instead of by a preset's tool filter.
+
+Maintenance boundary: this package owns composition rows — the ids, the plugin names, and the patch shape. Scheduling behavior stays in [`@qilin-agent/schedule`](../../schedule/schedule/README.md), the page in [`@qilin-agent/client-ui-schedule`](../../client/ui-schedule/README.md), the clock reading in [`@qilin-agent/time-context`](../../context/time-context/README.md), and the tools in [`@qilin-agent/tool-schedule`](../../schedule/tool-schedule/README.md); a change in any of those needs no edit here unless a row's id or config changes. This bundle must not gain scheduling logic or re-declare a row another layer inserts. Retiring it stays a single change: move the three rows into `packages/bundle/web-app/cordis.patch.yml`, delete `cordis.patch.yml` and `tests/patch.spec.ts`, and drop the `OPTIONAL_BUNDLES` entry.
+
 -----
 
 <a id="further-exploration"></a>

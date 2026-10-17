@@ -47,6 +47,17 @@ kind: "package-bundle"
 
 </details>
 
+### 为何保留此 Bundle
+
+上游把 `schedule` 服务条目与 `ui-schedule` 页面条目组合在 web-app 补丁中，并把时钟条目与四个提醒工具保留在各 preset 中。本部署把三个条目留在可选的 Bundle 中、把四个工具留在随包交付的 `ptc` preset 中，并且不把该 Bundle 退役进 Web 组合。
+
+- 一次选择即整体承载能力：服务、页面与时钟读数一起开关，禁用即恢复原有组合，无需重新构建或发版。
+- 启用路径已存在于别处：`OPTIONAL_BUNDLES` 在“官方”分组提供该 Bundle，[用户指南](../../../docs/user/guide/schedule.zh.md)与[子系统页](../../../docs/subsystems/schedule.zh.md)都把它写作为随包 Web profile 加入定时的方式。
+
+与上游形态的可见差异：本部署的随包 Web profile 在选中该 Bundle 之前根本不含 `schedule` 条目，因此自动化任务页与提醒目录是缺失而非空；被委派的子智能体由[工具](../../schedule/tool-schedule/README.zh.md)与 `ScheduleService` 本身拒绝，而不是由 preset 的工具过滤拒绝。
+
+维护边界：本包只拥有组合条目——id、插件名与补丁形状。调度行为留在 [`@qilin-agent/schedule`](../../schedule/schedule/README.zh.md)，页面留在 [`@qilin-agent/client-ui-schedule`](../../client/ui-schedule/README.zh.md)，时钟读数留在 [`@qilin-agent/time-context`](../../context/time-context/README.zh.md)，工具留在 [`@qilin-agent/tool-schedule`](../../schedule/tool-schedule/README.zh.md)；这些包的变化无需改动此处，除非某个条目的 id 或 config 改变。此 Bundle 不得加入调度逻辑，也不得重复声明其它层已插入的条目。退役它同样是一步改动：把三个条目移入 `packages/bundle/web-app/cordis.patch.yml`，删除 `cordis.patch.yml` 与 `tests/patch.spec.ts`，并去掉 `OPTIONAL_BUNDLES` 条目。
+
 -----
 
 <a id="further-exploration"></a>
