@@ -66,8 +66,8 @@
   en: 3c5021cae5c63c12
   zh: 3c5021cae5c63c12
 /tool-schema-catalog/qilin-agent-tools/run-code:
-  en: 431bca8959dc45ca
-  zh: 1fcf3104e373a5ec
+  en: 58f63dd8aef38e4e
+  zh: 5e59d9a333d0df7c
 /tool-schema-catalog/qilin-agent-plan-mode:
   en: bc5f4eaa8fada891
   zh: bc5f4eaa8fada891
@@ -267,11 +267,11 @@
   en: c3c7af05ceb9f8c9
   zh: ec379e0b42110c6a
 /tool-schema-catalog/qilin-agent-experimental-tool-agent-team/list-agents:
-  en: a8dd8ced34d10a47
-  zh: 7ea31e0a536dc318
+  en: f9457f033f75f00a
+  zh: ce0eac458b06d96c
 /tool-schema-catalog/qilin-agent-experimental-tool-agent-team/send-message:
-  en: af9766c5b81792a7
-  zh: 308b7cab8901e240
+  en: ec50e6a0b86aecc6
+  zh: 4888df81013476b3
 /tool-schema-catalog/qilin-agent-experimental-tool-agent-team/spawn-teammate:
   en: 02d6cc746e234b99
   zh: 49bc60ac098bca48
@@ -288,8 +288,8 @@
   en: 2eac7360ba68b1bd
   zh: b5d676bf288c245e
 /tool-schema-catalog/qilin-agent-experimental-tool-agent-team/wait-agent:
-  en: 6887053c0b20c4bd
-  zh: 6ef0f3e0e8cea8c3
+  en: e3a2fd87c1be8a29
+  zh: 27c6a43e1e6e95e4
 /tool-schema-catalog/qilin-agent-tool-todo:
   en: 3f607e5d78dfa79b
   zh: 3f607e5d78dfa79b

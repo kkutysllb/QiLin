@@ -808,7 +808,7 @@ export interface Config {
   readonly maxTasks?: number
   /** Maximum UTF-8 bytes in one complete sender-framed delivery. */
   readonly maxMessageBytes?: number
-  /** Maximum milliseconds allowed for Team-owned runtime disposal. */
+  /** Maximum milliseconds for shared operation settlement and for each Team child drain. */
   readonly disposalTimeoutMs?: number
 }
 ```
@@ -1313,8 +1313,10 @@ export interface Config {
 - `source`: [`packages/experimental/tool-agent-team/src/index.ts:17`](../packages/experimental/tool-agent-team/src/index.ts)
 
 ```ts config-catalog
-/** Tool routing configuration. */
+/** Tool registration and routing configuration. */
 export interface Config {
+  /** Register `interrupt_agent` and its policy guidance. Defaults to true; false leaves the domain API available. */
+  readonly interrupt?: boolean
   /** Continuable-subagent provider used for fresh teammates. */
   readonly freshProvider?: string
   /** Continuable-subagent provider used for completed-prefix fork teammates. */
@@ -3606,7 +3608,7 @@ export interface Config {
 
 ## `@qilin-agent/system-prompt`
 
-- `source`: [`packages/core/system-prompt/src/index.ts:255`](../packages/core/system-prompt/src/index.ts)
+- `source`: [`packages/core/system-prompt/src/index.ts:256`](../packages/core/system-prompt/src/index.ts)
 
 ```ts config-catalog
 /** Plugin config: the deployment-authored fragment of the system prompt (see {@link Config.personaPrefix} for its contract). */

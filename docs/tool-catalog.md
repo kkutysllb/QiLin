@@ -577,7 +577,7 @@ ask_user_question pauses the tool call until the active UI provider returns a hu
 
 ### `run_code`
 
-Execute a TypeScript program against the available tools. Takes two required arguments: `description`, a short summary of what the program does, and `code`, the BODY of an async function (erasable syntax only; top-level `await` and `return` work). Call tools as `await tools.name(args)` per the declarations in the system prompt. Only what you print or return is program output — curate it. Image-bearing subtool results are attached after the run.
+Execute a TypeScript program against the available tools. Takes two required arguments: `description`, a short summary of what the program does, and `code`, the program to execute. Call tools as `await tools.name(args)` per the declarations in the system prompt. Curate the program output. Image-bearing subtool results are attached after the run.
 
 ```json
 {
@@ -589,7 +589,7 @@ Execute a TypeScript program against the available tools. Takes two required arg
     },
     "code": {
       "type": "string",
-      "description": "The program: the body of an async TypeScript function."
+      "description": "The TypeScript program to execute, following this tool's execution instructions."
     },
     "timeoutMs": {
       "type": "number",
@@ -2282,7 +2282,7 @@ Interrupt one teammate's current turn while preserving its pending inbox. Team L
   "properties": {
     "target": {
       "type": "string",
-      "description": "Teammate name."
+      "description": "Teammate target returned by spawn_teammate or list_agents."
     }
   },
   "required": [
@@ -2295,7 +2295,7 @@ Source: [`packages/experimental/tool-agent-team/src/index.ts`](../packages/exper
 
 ### `list_agents`
 
-List the Lead and every durable teammate with current runtime status.
+List the Lead and every durable teammate with an addressable target and current availability. inactive means no turn is executing, not a task result. provisioning and failed describe member creation.
 
 ```json
 {
@@ -2308,7 +2308,7 @@ Source: [`packages/experimental/tool-agent-team/src/index.ts`](../packages/exper
 
 ### `send_message`
 
-Send one durable message to another Team member. A running target receives it at the nearest step boundary; an idle target starts a turn; an inactive teammate cold-resumes.
+Send one message to another Team member. A running target receives it at the nearest step boundary; an inactive target starts or resumes a turn.
 
 ```json
 {
@@ -2316,7 +2316,7 @@ Send one durable message to another Team member. A running target receives it at
   "properties": {
     "target": {
       "type": "string",
-      "description": "Team member name, or lead."
+      "description": "Member target returned by spawn_teammate or list_agents, including lead."
     },
     "message": {
       "type": "string",
@@ -2451,7 +2451,7 @@ List shared tasks, including readiness, owner, revision, blockers, and write-sco
     },
     "owner": {
       "type": "string",
-      "description": "Optional member-name filter; use unowned for tasks without an owner."
+      "description": "Optional member target from spawn_teammate or list_agents, matching ownerName; use unowned for tasks without an owner."
     },
     "ready": {
       "type": "boolean",
@@ -2525,7 +2525,7 @@ Compare-and-set a shared task action using the latest revision from team_task_ge
     },
     "owner": {
       "type": "string",
-      "description": "Member name for Lead-only reassign; omit to unassign."
+      "description": "Member target from spawn_teammate or list_agents for Lead-only reassign; omit to unassign."
     }
   },
   "required": [
@@ -2540,7 +2540,7 @@ Source: [`packages/experimental/tool-agent-team/src/index.ts`](../packages/exper
 
 ### `wait_agent`
 
-Wait for the next teammate status, mailbox, or shared-task change after this call starts. This never wakes inactive members and returns noProgress immediately when no other member is running or provisioning. Re-list after wakeup or timeout instead of polling.
+Wait for the next teammate status, message, or shared-task change after this call starts. This never wakes inactive members and returns noProgress immediately when no other member is running or provisioning. Re-list after wakeup or timeout instead of polling.
 
 ```json
 {
