@@ -7,7 +7,7 @@ import type { SessionListState, SessionSummary } from '@qilin-agent/api-session-
 import type {
   WorkspaceId, WorkspaceSnapshot, WorkspaceView,
 } from '@qilin-agent/api-workspace-controller/client'
-import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
+import type { SessionStatus, SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
 import type { SessionId } from '@qilin-agent/session/types'
 import type { MainPanelId } from '@qilin-agent/client-ui-layout/client'
 import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
@@ -122,6 +122,7 @@ function mount(overrides: Partial<WorkspaceBrowserProps> = {}) {
     renameWorkspace: vi.fn(async () => {}),
     deleteWorkspace: vi.fn(async () => {}),
     archiveSession: vi.fn(async () => {}),
+    copySessionId: vi.fn(async () => {}),
     pinSession: vi.fn(async () => {}),
     unpinSession: vi.fn(async () => {}),
     insertWorkspaceBefore: vi.fn(async () => {}),
@@ -604,6 +605,125 @@ describe('WorkspaceBrowser', () => {
     expect(screen.getByText('blank')).toBeTruthy()
     expect(screen.queryByText('session-5')).toBeNull()
     expect(screen.getByRole('button', { name: '展开其余 2 个会话' })).toBeTruthy()
+  })
+
+  it('copies the Session id from the row menu without opening the session', () => {
+    const items = [summary('session-1', 1)]
+    const copySessionId = vi.fn(async () => {})
+    mount({
+      useSessions: hook(sessionState(items)),
+      useWorkspaces: hook(workspaceState([workspace('alpha', items.map(item => item.id))])),
+      copySessionId,
+    })
+    fireEvent.click(screen.getByText('alpha'))
+    fireEvent.click(screen.getByRole('button', { name: '会话“session-1”的操作' }))
+    fireEvent.click(screen.getByRole('menuitem', { name: '复制 Session ID' }))
+    expect(screen.queryByRole('menu')).toBeNull()
+    expect(copySessionId).toHaveBeenCalledWith(sid('session-1'))
+    expect(screen.getByText('session-1')).toBeTruthy()
+  })
+
+  describe('session watermarks', () => {
+    const statusOf = (entries: Record<string, Partial<SessionStatus>>) =>
+      hook<SessionStatusSnapshot>(new Map(Object.entries(entries).map(([id, value]) => [sid(id), {
+        running: false, pendingInteraction: undefined, completionUnread: false, ...value,
+      }])))
+    const titles = () =>
+      screen.getAllByRole('treeitem').map(row => within(row).getByText(/^(alpha|session-\d+)$/u).textContent)
+    const list = (count: number) =>
+      Array.from({ length: count }, (_, index) => summary(`session-${index + 1}`, count - index))
+
+    it('raises the watermark to the furthest attention row and never lowers it on its own', () => {
+      const items = list(12)
+      const b = mount({
+        useSessions: hook(sessionState(items)),
+        useWorkspaces: hook(workspaceState([workspace('alpha', items.map(item => item.id))])),
+      })
+      fireEvent.click(screen.getByText('alpha'))
+      expect(titles()).toEqual(['alpha', ...items.slice(0, 5).map(item => item.displayTitle)])
+      rerender(b, { useSessionStatus: statusOf({ 'session-9': { running: true } }) })
+      expect(titles()).toEqual(['alpha', ...items.slice(0, 9).map(item => item.displayTitle)])
+      expect(screen.getByRole('button', { name: '展开其余 3 个会话' })).toBeTruthy()
+      // The attention ending does not fold the rows it revealed.
+      rerender(b, { useSessionStatus: statusOf({}) })
+      expect(titles()).toEqual(['alpha', ...items.slice(0, 9).map(item => item.displayTitle)])
+      // Folding and unfolding resets the watermark to its base.
+      fireEvent.click(screen.getByText('alpha'))
+      fireEvent.click(screen.getByText('alpha'))
+      expect(titles()).toEqual(['alpha', ...items.slice(0, 5).map(item => item.displayTitle)])
+      // A pending interaction and an unread completion raise it again, to the furthest one.
+      rerender(b, { useSessionStatus: statusOf({
+        'session-7': { pendingInteraction: { key: 'q', kind: 'question', sessionId: sid('session-7') } as never },
+      }) })
+      expect(titles()).toEqual(['alpha', ...items.slice(0, 7).map(item => item.displayTitle)])
+      rerender(b, { useSessionStatus: statusOf({ 'session-8': { completionUnread: true } }) })
+      expect(titles()).toEqual(['alpha', ...items.slice(0, 8).map(item => item.displayTitle)])
+      // Show more raises past the request by one base step; Show less resets it.
+      fireEvent.click(screen.getByRole('button', { name: '展开其余 4 个会话' }))
+      expect(titles()).toEqual(['alpha', ...items.map(item => item.displayTitle)])
+      fireEvent.click(screen.getByRole('button', { name: '收起' }))
+      expect(titles()).toEqual(['alpha', ...items.slice(0, 8).map(item => item.displayTitle)])
+    })
+
+    it('stops automatic raises at 50 rows while Show more continues past them', () => {
+      const items = list(60)
+      const b = mount({
+        useSessions: hook(sessionState(items)),
+        useWorkspaces: hook(workspaceState([workspace('alpha', items.map(item => item.id))])),
+      })
+      fireEvent.click(screen.getByText('alpha'))
+      // Rows past the automatic maximum, and the current Session, raise nothing on their own.
+      rerender(b, {
+        useSessions: hook(sessionState(items, { main: sid('session-53') })),
+        useSessionStatus: statusOf({
+          'session-55': { running: true },
+          'session-56': { completionUnread: true },
+          'session-57': { pendingInteraction: { key: 'q', kind: 'question', sessionId: sid('session-57') } as never },
+        }),
+      })
+      for (const id of ['session-53', 'session-55', 'session-56', 'session-57']) expect(screen.queryByText(id)).toBeNull()
+      rerender(b, { useSessionStatus: statusOf({ 'session-50': { running: true }, 'session-55': { running: true } }) })
+      expect(screen.getByText('session-50')).toBeTruthy()
+      expect(screen.queryByText('session-51')).toBeNull()
+      fireEvent.click(screen.getByRole('button', { name: '展开其余 10 个会话' }))
+      expect(screen.getByText('session-55')).toBeTruthy()
+      expect(screen.queryByText('session-56')).toBeNull()
+      fireEvent.click(screen.getByRole('button', { name: '展开其余 5 个会话' }))
+      expect(screen.getByText('session-60')).toBeTruthy()
+    })
+
+    it('covers the current Session and a parent with a running child', () => {
+      const items = list(9)
+      const child = { ...summary('child', 0), parentId: sid('session-7'), origin: 'subagent' as const, running: true }
+      const b = mount({
+        useSessions: hook(sessionState([...items, child])),
+        useWorkspaces: hook(workspaceState([workspace('alpha', [...items, child].map(item => item.id))])),
+      })
+      fireEvent.click(screen.getByText('alpha'))
+      // The running child raises its parent's watermark; the child row itself stays hidden.
+      expect(screen.getByText('session-7')).toBeTruthy()
+      expect(screen.queryByText('session-8')).toBeNull()
+      expect(screen.queryByText('child')).toBeNull()
+      rerender(b, { useSessions: hook(sessionState(items, { main: sid('session-8') })) })
+      expect(screen.getByText('session-8')).toBeTruthy()
+      expect(screen.queryByText('session-9')).toBeNull()
+      expect(screen.getByRole('button', { name: '展开其余 1 个会话' })).toBeTruthy()
+    })
+
+    it('raises the watermark to a search result beyond the initial five rows', () => {
+      const items = list(17)
+      const b = mount({
+        useSessions: hook(sessionState(items)),
+        useWorkspaces: hook(workspaceState([workspace('alpha', items.map(item => item.id))])),
+      })
+      fireEvent.change(screen.getByPlaceholderText('搜索会话…'), { target: { value: 'session-11' } })
+      fireEvent.click(screen.getByRole('treeitem'))
+      expect(b.props.open).toHaveBeenCalledWith(sid('session-11'))
+      expect(screen.getByText('session-11')).toBeTruthy()
+      expect(screen.queryByText('session-12')).toBeNull()
+      fireEvent.click(screen.getByRole('button', { name: '展开其余 6 个会话' }))
+      expect(screen.getByText('session-16')).toBeTruthy()
+    })
   })
 
   it('pins the blank while collapsed drags keep an ordinary source visible', async () => {

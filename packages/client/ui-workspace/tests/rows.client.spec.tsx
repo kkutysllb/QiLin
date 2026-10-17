@@ -29,7 +29,7 @@ function stubRect(row: HTMLElement): void {
 function sessionActions() {
   return {
     onOpen: vi.fn(), onRename: vi.fn(), onFork: vi.fn(),
-    onArchive: vi.fn(), onPin: vi.fn(), onUnpin: vi.fn(),
+    onArchive: vi.fn(), onCopyId: vi.fn(), onPin: vi.fn(), onUnpin: vi.fn(),
   }
 }
 
@@ -83,7 +83,8 @@ describe('workspace browser rows', () => {
       runningSubagentCount: 0, completed: false, updatedAt: 0, pinned: false,
     }
     const view = render(<SessionNodeItem node={idle} currentId={undefined} now={0} onOpen={vi.fn()}
-      onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()} renderSlot={recordSeats(seats)} t={t} />)
+      onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()}
+      onCopyId={vi.fn()} renderSlot={recordSeats(seats)} t={t} />)
     // The cell is the row's first element and hosts the leading seat while the
     // row's primary state is idle; the title follows it.
     const cell = screen.getByText('Flat Session').previousElementSibling
@@ -93,7 +94,7 @@ describe('workspace browser rows', () => {
     // A row that gains a state dot keeps that dot in the same cell and renders
     // no leading occupant beside it.
     view.rerender(<SessionNodeItem node={{ ...idle, running: true }} currentId={undefined} now={0}
-      {...sessionActions()} renderSlot={recordSeats(seats)} t={t} />)
+      {...sessionActions()} onCopyId={vi.fn()} renderSlot={recordSeats(seats)} t={t} />)
     expect(screen.getByText('Flat Session').previousElementSibling?.querySelector('[data-state="ongoing"]')).toBeTruthy()
     expect(seats).toEqual(['sidebar.session.row.leading'])
   })
@@ -162,7 +163,8 @@ describe('workspace browser rows', () => {
     const onOpen = vi.fn()
     render(
       <SessionNodeItem node={node} currentId={node.id} now={0} onOpen={onOpen}
-        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()} renderSlot={emptyRenderSlot} t={t} />,
+        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()}
+        onCopyId={vi.fn()} renderSlot={emptyRenderSlot} t={t} />,
     )
 
     const row = screen.getByRole('treeitem')
@@ -180,7 +182,8 @@ describe('workspace browser rows', () => {
     }
     render(
       <SessionNodeItem node={node} currentId={undefined} now={0} onOpen={vi.fn()}
-        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()} renderSlot={emptyRenderSlot} t={t} />,
+        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()}
+        onCopyId={vi.fn()} renderSlot={emptyRenderSlot} t={t} />,
     )
     const row = screen.getByRole('treeitem')
     const title = screen.getByText(node.title)
@@ -209,7 +212,8 @@ describe('workspace browser rows', () => {
     }
     render(
       <SessionNodeItem node={node} currentId={undefined} now={0} onOpen={vi.fn()}
-        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()} renderSlot={emptyRenderSlot} t={t} />,
+        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()}
+        onCopyId={vi.fn()} renderSlot={emptyRenderSlot} t={t} />,
     )
     const row = screen.getByRole('treeitem')
     const title = screen.getByText(node.title)
@@ -231,7 +235,8 @@ describe('workspace browser rows', () => {
           runningSubagentCount: 0, completed: false, updatedAt: 0, pinned: false, ...over,
         }}
         currentId={undefined} now={0} onOpen={vi.fn()}
-        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()} renderSlot={emptyRenderSlot} t={t}
+        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()}
+        onCopyId={vi.fn()} renderSlot={emptyRenderSlot} t={t}
       />,
     )
     const stateDot = (view: ReturnType<typeof renderRow>) =>
@@ -263,7 +268,8 @@ describe('workspace browser rows', () => {
         runningSubagentCount: 2, completed: false, updatedAt: 0, pinned: false,
       }
       render(<SessionNodeItem node={node} currentId={undefined} now={0} onOpen={vi.fn()}
-        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()} renderSlot={emptyRenderSlot} t={t} />)
+        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()}
+        onCopyId={vi.fn()} renderSlot={emptyRenderSlot} t={t} />)
       const row = screen.getByRole('treeitem')
       expect(row.querySelector('[data-state="ongoing"]')).not.toBeNull()
       expect(screen.getByText('2 个子代理运行中')).toBeTruthy()
@@ -285,7 +291,8 @@ describe('workspace browser rows', () => {
         runningSubagentCount: 1, completed: false, updatedAt: 0, pinned: false,
       }
       render(<SessionNodeItem node={node} currentId={undefined} now={0} onOpen={vi.fn()}
-        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()} renderSlot={emptyRenderSlot} t={t} />)
+        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()}
+        onCopyId={vi.fn()} renderSlot={emptyRenderSlot} t={t} />)
       const row = screen.getByRole('treeitem')
       expect(row.querySelectorAll('[data-state="ongoing"]')).toHaveLength(1)
       expect(screen.getByText('进行中')).toBeTruthy()
@@ -306,7 +313,8 @@ describe('workspace browser rows', () => {
       running: false, runningSubagentCount: 1, completed: false, updatedAt: 0, pinned: false,
     }
     render(<SessionNodeItem node={node} currentId={undefined} now={0} onOpen={vi.fn()}
-      onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()} renderSlot={emptyRenderSlot} t={t} />)
+      onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()}
+      onCopyId={vi.fn()} renderSlot={emptyRenderSlot} t={t} />)
     const row = screen.getByRole('treeitem')
     expect(row.querySelector('[data-state="warning"]')).not.toBeNull()
     expect(row.querySelector('[data-state="ongoing"]')).toBeNull()
@@ -452,7 +460,8 @@ describe('workspace browser rows', () => {
         runningSubagentCount: 0, completed: false, updatedAt: 0, pinned: false,
       }
       render(<SessionNodeItem node={node} currentId={node.id} now={0} onOpen={vi.fn()}
-        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()} renderSlot={emptyRenderSlot} t={t} />)
+        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()}
+        onCopyId={vi.fn()} renderSlot={emptyRenderSlot} t={t} />)
       // The placeholder has no content yet: no row verbs, no "now" stamp.
       expect(screen.queryByRole('button', { name: /会话.*的操作/ })).toBeNull()
       expect(screen.queryByText('刚刚')).toBeNull()
@@ -469,18 +478,20 @@ describe('workspace browser rows', () => {
     }
   })
 
-  it('session row menu opens without opening the session and dispatches rename, fork, and archive', () => {
+  it('session row menu opens without opening the session and dispatches rename, fork, archive, and copy', () => {
     const onOpen = vi.fn()
     const onRename = vi.fn()
     const onFork = vi.fn()
     const onArchive = vi.fn()
+    const onCopyId = vi.fn()
     const onPin = vi.fn()
     const node: SessionNode = {
       id: sid('s1'), title: 'One', blank: false, running: false,
       runningSubagentCount: 0, completed: false, updatedAt: 0, pinned: false,
     }
     render(<SessionNodeItem node={node} currentId={undefined} now={0} onOpen={onOpen}
-      onRename={onRename} onFork={onFork} onArchive={onArchive} onPin={onPin} onUnpin={vi.fn()} renderSlot={emptyRenderSlot} t={t} />)
+      onRename={onRename} onFork={onFork} onArchive={onArchive} onCopyId={onCopyId}
+      onPin={onPin} onUnpin={vi.fn()} renderSlot={emptyRenderSlot} t={t} />)
     fireEvent.click(screen.getByRole('button', { name: '会话“One”的操作' }))
     expect(onOpen).not.toHaveBeenCalled()
     // Archive is not destructive (log and accounting slot remain): no danger styling.
@@ -497,6 +508,12 @@ describe('workspace browser rows', () => {
     fireEvent.click(screen.getByRole('button', { name: '会话“One”的操作' }))
     fireEvent.click(screen.getByRole('menuitem', { name: '归档会话' }))
     expect(onArchive).toHaveBeenCalledWith(node.id)
+    // Copy is the menu's last row: it reads the row identity and copies it
+    // without opening the session.
+    fireEvent.click(screen.getByRole('button', { name: '会话“One”的操作' }))
+    fireEvent.click(screen.getByRole('menuitem', { name: '复制 Session ID' }))
+    expect(onCopyId).toHaveBeenCalledWith(node.id)
+    expect(screen.queryByRole('menu')).toBeNull()
     expect(onRename).toHaveBeenCalledOnce()
     expect(onOpen).not.toHaveBeenCalled()
     // Pin is the menu's first row and dispatches the pin verb.
@@ -516,7 +533,7 @@ describe('workspace browser rows', () => {
       runningSubagentCount: 0, completed: false, updatedAt: 0, pinned: false,
     }
     render(<SessionNodeItem node={node} currentId={undefined} now={0}
-      {...actions} renderSlot={emptyRenderSlot} t={t} />)
+      {...actions} onCopyId={vi.fn()} renderSlot={emptyRenderSlot} t={t} />)
 
     expect(screen.getByText('未命名')).toBeTruthy()
     // The trailing button offers the pin verb for an unpinned row.
@@ -544,7 +561,8 @@ describe('workspace browser rows', () => {
       runningSubagentCount: 0, completed: false, updatedAt: 0, pinned: true,
     }
     render(<SessionNodeItem node={node} currentId={undefined} now={0} onOpen={vi.fn()}
-      onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={onPin} onUnpin={onUnpin} renderSlot={emptyRenderSlot} t={t} />)
+      onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={onPin} onUnpin={onUnpin}
+      onCopyId={vi.fn()} renderSlot={emptyRenderSlot} t={t} />)
     expect(screen.getByRole('img', { name: '已置顶' })).toBeTruthy()
     // The hover button is the trailing action in the same cell as the marker.
     fireEvent.click(screen.getByRole('button', { name: '取消置顶' }))
@@ -565,7 +583,8 @@ describe('workspace browser rows', () => {
         runningSubagentCount: 0, completed: false, updatedAt: 0, pinned: false,
       }
       render(<SessionNodeItem node={node} currentId={undefined} now={60_000} onOpen={vi.fn()}
-        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()} renderSlot={emptyRenderSlot} t={t} />)
+        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()}
+        onCopyId={vi.fn()} renderSlot={emptyRenderSlot} t={t} />)
       const wrapper = screen.getByRole('treeitem').parentElement as HTMLElement
       fireEvent.pointerEnter(wrapper)
       act(() => { vi.advanceTimersByTime(500) })
@@ -597,14 +616,15 @@ describe('workspace browser rows', () => {
         updatedAt: 0, pinned: false,
       }
       const view = render(<SessionNodeItem node={node} currentId={undefined} now={0} onOpen={vi.fn()}
-        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()} renderSlot={emptyRenderSlot} t={t} />)
+        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()}
+        onCopyId={vi.fn()} renderSlot={emptyRenderSlot} t={t} />)
       const row = screen.getByRole('treeitem')
       expect(row.querySelector('[data-state="warning"]')).toBeTruthy()
       expect(row.querySelector('[data-state="ongoing"]')).toBeNull()
       expect(screen.getByText(label)).toBeTruthy()
 
       view.rerender(<SessionNodeItem node={{ ...node, running: false }} currentId={undefined} now={0}
-        {...sessionActions()} renderSlot={emptyRenderSlot} t={t} />)
+        {...sessionActions()} onCopyId={vi.fn()} renderSlot={emptyRenderSlot} t={t} />)
       expect(screen.getByRole('treeitem').querySelector('[data-state="warning"]')).toBeTruthy()
 
       fireEvent.pointerEnter(screen.getByRole('treeitem').parentElement as HTMLElement)
@@ -624,7 +644,8 @@ describe('workspace browser rows', () => {
         runningSubagentCount: 0, completed: false, updatedAt: 0, pinned: false,
       }
       render(<SessionNodeItem node={node} currentId={undefined} now={0} onOpen={vi.fn()}
-        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()} renderSlot={emptyRenderSlot} t={t} />)
+        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()}
+        onCopyId={vi.fn()} renderSlot={emptyRenderSlot} t={t} />)
       fireEvent.pointerEnter(screen.getByRole('treeitem').parentElement as HTMLElement)
       act(() => { vi.advanceTimersByTime(500) })
       expect(screen.getByText('空闲')).toBeTruthy()
@@ -642,7 +663,8 @@ describe('workspace browser rows', () => {
         runningSubagentCount: 0, completed: true, updatedAt: 0, pinned: false,
       }
       render(<SessionNodeItem node={node} currentId={undefined} now={0} onOpen={vi.fn()}
-        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()} renderSlot={emptyRenderSlot} t={t} />)
+        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()}
+        onCopyId={vi.fn()} renderSlot={emptyRenderSlot} t={t} />)
       fireEvent.pointerEnter(screen.getByRole('treeitem').parentElement as HTMLElement)
       act(() => { vi.advanceTimersByTime(500) })
       // Row's visually-hidden reminder label plus the hover card's status line.
@@ -660,7 +682,7 @@ describe('workspace browser rows', () => {
     const inactive = dragProps()
     const { rerender } = render(
       <SessionNodeItem node={node} currentId={undefined} now={0} {...sessionActions()}
-        drag={inactive} renderSlot={emptyRenderSlot} t={t} />,
+        drag={inactive} onCopyId={vi.fn()} renderSlot={emptyRenderSlot} t={t} />,
     )
     const row = screen.getByRole('treeitem')
     stubRect(row)
@@ -678,7 +700,7 @@ describe('workspace browser rows', () => {
     const active = dragProps({ active: true, marker: 'before' })
     rerender(
       <SessionNodeItem node={node} currentId={undefined} now={0} {...sessionActions()}
-        drag={active} renderSlot={emptyRenderSlot} t={t} />,
+        drag={active} onCopyId={vi.fn()} renderSlot={emptyRenderSlot} t={t} />,
     )
     stubRect(screen.getByRole('treeitem'))
     // Top half hovers/drops 'before'; bottom half 'after' (row mid = 117).
@@ -692,7 +714,7 @@ describe('workspace browser rows', () => {
     const after = dragProps({ active: true, marker: 'after' })
     rerender(
       <SessionNodeItem node={node} currentId={undefined} now={0} {...sessionActions()}
-        drag={after} renderSlot={emptyRenderSlot} t={t} />,
+        drag={after} onCopyId={vi.fn()} renderSlot={emptyRenderSlot} t={t} />,
     )
     expect(screen.getByRole('treeitem').className).toMatch(/dropAfter/)
   })

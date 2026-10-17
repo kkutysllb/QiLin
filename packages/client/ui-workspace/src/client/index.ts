@@ -12,6 +12,8 @@ import type { Context } from '@qilin-agent/kylin'
 import type { RemoteHostFacts } from '@qilin-agent/api-remotes/client'
 import type { ISessions } from '@qilin-agent/api-session-controller/client'
 import type { IWorkspaces, WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/client'
+import { writeClipboard } from '@qilin-agent/client-ui-primitives'
+import { createSnapshotStore } from '@qilin-agent/client-store'
 import type { HostObservable, SnapshotSelectorHook } from '@qilin-agent/client-ui-slots'
 // Type-only: pulls the Controller service merges.
 import type {} from '@qilin-agent/api-session-controller/client'
@@ -23,11 +25,15 @@ import type {} from '@qilin-agent/client-ui-renderer/client'
 import type {} from '@qilin-agent/client-ui-layout/client'
 // Type-only: pulls the Session root standard-hook merge.
 import type {} from '@qilin-agent/client-ui-session/client'
-import type { WorkspaceBrowserInjected, WorkspacePickerInjected } from './contract/slots.ts'
+import type {
+  RowToast, RowToastInjected, RowToastState, WorkspaceBrowserInjected, WorkspacePickerInjected,
+} from './contract/slots.ts'
 import { createWorkspaceShortcutControls, installWorkspaceShortcuts } from './shortcuts.ts'
 import { UiWorkspaceService } from './navigation.ts'
 import { createWorkspaceViewStore } from './stores.ts'
 import { WorkspaceBrowser } from './rows/WorkspaceBrowser.tsx'
+import { RowActionToast } from './toast/RowActionToast.tsx'
+import { registerToasts } from './toast/register.ts'
 import { WorkspacePicker } from './WorkspacePicker.tsx'
 import { en, zh, type WorkspaceKey } from './locales.ts'
 
@@ -88,6 +94,9 @@ export function apply(ctx: Context): void {
   const viewHandle = createWorkspaceViewStore()
   const viewInstance = viewHandle.create()
   const viewStore: typeof viewHandle = { ...viewHandle, create: () => viewInstance }
+  const rowToast = createSnapshotStore<RowToastState | null>(null)
+  let toastSeq = 0
+  const notify = (toast: RowToast): void => { rowToast.set({ ...toast, seq: ++toastSeq }) }
   const uiWorkspace = new UiWorkspaceService(
     ctx, ctx.remote.directoryPicker, workspaces, sessions, viewInstance.actions)
   ctx.slots.provideRoot({ hooks: { workspaces: workspaces.list } })
@@ -152,12 +161,21 @@ export function apply(ctx: Context): void {
     closeAddWorkspace: shortcutControls.closeAdd,
     closeRenameRequest: shortcutControls.closeRename,
     setDirectoryBusy: shortcutControls.directoryBusy,
+    copySessionId: async (sessionId) => {
+      const copied = await writeClipboard(sessionId)
+      notify({ kind: copied ? 'sessionIdCopied' : 'sessionIdCopyFailed' })
+    },
     hooks: {
       directoryFlow: browserFlowSource, hostInfo, workspaceShortcuts: shortcutControls.state,
       shortcuts: ctx.shortcuts.catalog,
     },
   })
   installWorkspaceShortcuts(ctx, uiWorkspace, shortcutControls, (sessionId) => { void uiWorkspace.archiveSession(sessionId) })
+  registerToasts(ctx)
+  const rowToastInjected = (): Pick<RowToastInjected, 'hooks' | 'dismissToast'> => ({
+    hooks: { toast: rowToast },
+    dismissToast: () => { rowToast.set(null) },
+  })
   const pickerInjected = (): WorkspacePickerInjected => ({
     createWorkspace: input => workspaces.create(input),
     hooks: { directoryFlow: pickerFlowSource },
@@ -178,6 +196,10 @@ export function apply(ctx: Context): void {
     },
     WorkspaceBrowser,
   ))
+  ctx.slots.inject('shell.overlay', () => ctx.slots.register({
+    name: 'shell.overlay', id: 'workspace.row-toast', inject: rowToastInjected,
+    children: { 'workspace.toast': { kind: 'keyed', scope: 'root' } },
+  }, RowActionToast))
   ctx.slots.inject('conversation.hero.workspace', () => ctx.slots.register(
     {
       name: 'conversation.hero.workspace',

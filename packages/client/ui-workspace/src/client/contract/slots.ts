@@ -185,7 +185,34 @@ export type WorkspaceBrowserInjected = {
   unpinSession: (sessionId: SessionId) => Promise<void>
   /** Adopt a picked host directory as a real Workspace before targeting a Session. */
   createWorkspace: (input: { path: string }) => Promise<WorkspaceView>
+  /** Copy the complete Session id and report acceptance or failure through the keyed notice. */
+  copySessionId: (sessionId: SessionId) => Promise<void>
 }
+
+/** One transient Workspace notice rendered by the overlay toast entry. */
+export type RowToast =
+  | { kind: 'sessionIdCopied' }
+  | { kind: 'sessionIdCopyFailed' }
+
+/** The notice on display; `seq` keys remounts so a repeated notice restarts its hold. */
+export type RowToastState = RowToast & { seq: number }
+
+/** Existing overlay share: the current notice and its dismissal. */
+export interface RowToastInjected {
+  hooks: {
+    /** The notice on display, or none. */
+    toast: HostObservable<RowToastState | null>
+  }
+  /** Take the notice down. */
+  dismissToast: () => void
+}
+
+/** Props of the existing overlay's keyed notice dispatcher. */
+export type RowToastProps =
+  PropsRuntime<'shell.overlay'>
+  & PropsRenderSlots<'workspace.toast'>
+  & Pick<RowToastInjected, 'dismissToast'>
+  & PropsHooks<RowToastInjected['hooks']>
 
 /** Full browser props: shell owner share + viewing store + injected actions + the locale seat. */
 export type WorkspaceBrowserProps =

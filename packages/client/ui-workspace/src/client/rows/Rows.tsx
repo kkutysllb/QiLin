@@ -9,7 +9,7 @@
 import { useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
 import {
-  HoverCard, IconArchiveOutline20, IconBranchOutline16,
+  HoverCard, IconArchiveOutline20, IconBranchOutline16, IconCopyOutlineRegular,
   IconEditOutline16, IconEllipsisOutline16, IconFolderClose16, IconFolderOpen16,
   IconPinFillRegular, IconPinOutlineRegular, IconPlusOutline16, IconTrashOutline16,
   IconTriangleRightFill14, Menu, relativeTime,
@@ -406,6 +406,7 @@ export function SearchResultItem({ result, currentId, onOpen, t }: {
  * @param props.onRename - open the session rename dialog (id + current title).
  * @param props.onFork - fork a session at its last completed turn.
  * @param props.onArchive - archive a session by id.
+ * @param props.onCopyId - copy a session's complete id without opening it.
  * @param props.onPin - pin a session by id (leading its group and the flat list).
  * @param props.onUnpin - drop a session's pin.
  * @param props.onReveal - scroll this row into view after search navigation, then acknowledge it.
@@ -414,7 +415,7 @@ export function SearchResultItem({ result, currentId, onOpen, t }: {
  * @returns the session row.
  */
 export function SessionNodeItem({
-  node, currentId, now, onOpen, onRename, onFork, onArchive, onPin, onUnpin, onReveal, drag, renderSlot, t,
+  node, currentId, now, onOpen, onRename, onFork, onArchive, onCopyId, onPin, onUnpin, onReveal, drag, renderSlot, t,
 }: {
   node: SessionNode
   currentId: string | undefined
@@ -426,6 +427,8 @@ export function SessionNodeItem({
   onFork: (id: SessionNode['id']) => void
   /** Archive this session (row menu action; commits without a dialog). */
   onArchive: (id: SessionNode['id']) => void
+  /** Copy this session's complete id without opening it (row menu action). */
+  onCopyId: (id: SessionNode['id']) => void
   /** Pin this session ahead of unpinned rows (row menu and hover action). */
   onPin: (id: SessionNode['id']) => void
   /** Drop this session's pin (row menu and hover action). */
@@ -468,6 +471,8 @@ export function SessionNodeItem({
     { id: 'fork', label: t('menu.fork'), icon: <IconBranchOutline16 /> },
     // 20-native glyph in the menu's 16px icon slot (Menu.module.css .itemIcon).
     { id: 'archive', label: t('menu.archiveSession'), icon: <IconArchiveOutline20 size={16} /> },
+    // The id stays last: it acts on the row's identity, not on its content.
+    { id: 'copyId', label: t('menu.sessionId'), icon: <IconCopyOutlineRegular /> },
   ]
   // Figma session cell: pad 8, status slot 16, then a 4px title gap.
   const ownRow = (
@@ -549,6 +554,7 @@ export function SessionNodeItem({
               if (id === 'rename') onRename(node.id, row.title)
               if (id === 'fork') onFork(node.id)
               if (id === 'archive') onArchive(node.id)
+              if (id === 'copyId') onCopyId(node.id)
             }}
             portal
             closeOnPointerLeave

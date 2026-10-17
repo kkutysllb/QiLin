@@ -5,7 +5,9 @@ import { RemoteError, TestRemote } from '@qilin-agent/client-test-runtime'
 import { LocaleRuntime } from '@qilin-agent/client-locale/client'
 import { apply, inject } from '@qilin-agent/client-ui-workspace/client'
 import type { WorkspaceBrowserInjected, WorkspacePickerInjected } from '@qilin-agent/client-ui-workspace/client'
+import type { RowToastInjected } from '../src/client/contract/slots.ts'
 import { WorkspaceBrowser } from '../src/client/rows/WorkspaceBrowser.tsx'
+import { RowActionToast } from '../src/client/toast/RowActionToast.tsx'
 import { WorkspacePicker } from '../src/client/WorkspacePicker.tsx'
 import { apply as hostApply } from '../src/index.ts'
 import type { SessionReference } from '@qilin-agent/api-session-controller/client'
@@ -105,7 +107,7 @@ async function bench() {
   }
 }
 
-type HoleName = 'sidebar.workspaces' | 'conversation.hero.workspace' | 'conversation.empty.workspace'
+type HoleName = 'sidebar.workspaces' | 'conversation.hero.workspace' | 'conversation.empty.workspace' | 'shell.overlay'
 
 /** Declare any subset of the holes with a single root registration ('root' is a single slot). */
 function declare(slots: SlotRegistry, ...names: HoleName[]): () => void {
@@ -228,6 +230,35 @@ describe('ui-workspace apply', () => {
     const browser = (b.slots.entries('sidebar.workspaces')[0]!.inject as () => WorkspaceBrowserInjected)()
     await expect(browser.searchSessions('needle', new AbortController().signal))
       .rejects.toThrow('index unavailable')
+  })
+
+  it('registers the row-notice overlay and routes Session id copies through it', async () => {
+    const b = await bench()
+    declare(b.slots, 'sidebar.workspaces', 'shell.overlay')
+    await b.ctx.plugin({ inject: [...inject], apply }).await()
+    const overlay = b.slots.entries('shell.overlay').find(entry => entry.options.id === 'workspace.row-toast')
+    expect(overlay?.component).toBe(RowActionToast)
+    // The keyed notice slot is declared by the dispatcher that renders it.
+    expect(overlay?.children).toMatchObject({ 'workspace.toast': { kind: 'keyed', scope: 'root' } })
+    const injected = (overlay!.inject as unknown as () => RowToastInjected)()
+    expect(injected.hooks.toast.getSnapshot()).toBeNull()
+
+    const browser = (b.slots.entries('sidebar.workspaces')[0]!.inject as () => WorkspaceBrowserInjected)()
+    const writeText = vi.fn(async () => {})
+    vi.stubGlobal('navigator', { clipboard: { writeText } })
+    try {
+      await browser.copySessionId('session' as never)
+      expect(writeText).toHaveBeenCalledWith('session')
+      expect(injected.hooks.toast.getSnapshot()).toMatchObject({ kind: 'sessionIdCopied', seq: 1 })
+      // A rejected host write reports the failure notice instead of claiming success.
+      writeText.mockRejectedValueOnce(new Error('denied'))
+      await browser.copySessionId('session-2' as never)
+      expect(injected.hooks.toast.getSnapshot()).toMatchObject({ kind: 'sessionIdCopyFailed', seq: 2 })
+      injected.dismissToast()
+      expect(injected.hooks.toast.getSnapshot()).toBeNull()
+    } finally {
+      vi.unstubAllGlobals()
+    }
   })
 
   it('unregisters every entry on teardown', async () => {
