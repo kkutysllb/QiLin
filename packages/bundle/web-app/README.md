@@ -53,7 +53,7 @@ Saved model selections override the composition default. Both protocols share `d
 | `publicUrl` | Unset | Advertised HTTP(S) application root; otherwise announce the listener's loopback URL |
 | `trustedHosts` | `[]` | Extra hosts allowed to reach the GUI from the network |
 
-The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agentweb-app) is the exhaustive source for every accepted field and its JSDoc. The shipped composition enables `schedule`, `ui-schedule`, and `time-context` together: the upstream default disables all three, and no in-product control reverses it, because the plugin manager excludes built-in profile bundles. The profile that ships them is the layer that restores them.
+The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agentweb-app) is the exhaustive source for every accepted field and its JSDoc. The schedule surface ships as the optional `@qilin-agent/experimental-schedule-bundle` bundle: the shipped composition leaves `schedule`, `ui-schedule`, and `time-context` off, and enabling that bundle mounts all three together. The plugin manager excludes built-in profile bundles, so the profile that declares them is the layer that restores them.
 
 ### Accounts and the entry documents
 

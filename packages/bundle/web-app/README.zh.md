@@ -53,7 +53,7 @@ qilin --profile web --no-open --port 8080
 | `publicUrl` | 未设置 | 对外公告的 HTTP(S) 应用根；否则公告监听器的 loopback URL |
 | `trustedHosts` | `[]` | 允许从网络访问 GUI 的额外主机 |
 
-生成的[配置目录](../../../docs/config-catalog.zh.md#qilin-agentweb-app)是每个受支持字段及其 JSDoc 的穷尽式真源。 随发行版交付的组合将 `schedule`、`ui-schedule` 与 `time-context` 一起启用：上游默认把这三行全部禁用，且产品内没有入口可以反转它——插件管理页按设计排除内置 profile 组合包。承载它们的 profile 就是恢复它们的层。
+生成的[配置目录](../../../docs/config-catalog.zh.md#qilin-agentweb-app)是每个受支持字段及其 JSDoc 的穷尽式真源。 日程能力以可选组合包 `@qilin-agent/experimental-schedule-bundle` 交付：随发行版交付的组合默认不启用 `schedule`、`ui-schedule` 与 `time-context`，启用该组合包会把三行一起挂载。插件管理页按设计排除内置 profile 组合包，因此声明它们的 profile 层负责恢复。
 
 ### 账户与入口文档
 
