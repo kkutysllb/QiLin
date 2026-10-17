@@ -31,3 +31,8 @@
 
 - id: hmr
   disabled: true
+
+# One-shot jobs use launch-time credentials (environment and .env) instead of
+# the interactive store: headless never reads the managed credentials document.
+- id: credentials
+  disabled: true

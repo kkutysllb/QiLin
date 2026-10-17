@@ -60,15 +60,6 @@
     "@qilin-agent/fs": "workspace:*"
   },
   "devDependencies": {
-    "@qilin-agent/kylin": "workspace:~",
-    "@qilin-agent/kylin-plugin-loader": "workspace:~",
-    "@qilin-agent/agent": "workspace:*",
-    "@qilin-agent/agent-default-model": "workspace:*",
-    "@qilin-agent/agent-loop": "workspace:*",
-    "@qilin-agent/agent-loop-testkit": "workspace:*",
-    "@qilin-agent/llm": "workspace:*",
-    "@qilin-agent/session": "workspace:*",
-    "@qilin-agent/session-query": "workspace:*",
-    "@qilin-agent/fs": "workspace:*"
+    "@qilin-agent/kylin-plugin-include": "workspace:~"
   }
 }
