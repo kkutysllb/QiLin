@@ -28,8 +28,6 @@ import { InputHub } from './input/hub.ts'
 import { ComposerSubmissionPolicy } from './input/submission-policy.ts'
 import { ConversationLayoutPolicy } from './layout-policy.ts'
 import { queueDockEntry } from './queue/QueueDock.tsx'
-import { ContentWidthRow } from './settings/ContentWidthRow.tsx'
-import type { ContentWidthRowInjected } from './settings/ContentWidthRow.tsx'
 import { EnterBehaviorRow } from './settings/EnterBehaviorRow.tsx'
 import { installStopShortcut } from './stop-shortcut.ts'
 import type { EnterBehaviorRowInjected } from './settings/EnterBehaviorRow.tsx'
@@ -194,17 +192,6 @@ export function apply(ctx: Context, config: Config = Config({})): void {
       setBusyEnter: (behavior) => { submissionPolicy.setBusyEnter(behavior) },
     }),
   }, EnterBehaviorRow))
-
-  ctx.slots.inject('settings.general.item', () => ctx.slots.register({
-    name: 'settings.general.item',
-    id: 'content-width',
-    order: 14,
-    locale: NS,
-    inject: (): ContentWidthRowInjected => ({
-      hooks: { contentWidth: layoutPolicy.contentWidth },
-      setContentWidth: (px) => { layoutPolicy.setContentWidth(px) },
-    }),
-  }, ContentWidthRow))
 
   const viewTabs = (): ViewTab[] => {
     const tabs: ViewTab[] = []
