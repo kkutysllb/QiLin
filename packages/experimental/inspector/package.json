@@ -1,0 +1,89 @@
+{
+  "name": "@qilin-agent/experimental-inspector",
+  "description": "Experimental cross-realm CDP hub for Host debugging and Client Runtime inspection",
+  "version": "3.1.6-rc.2",
+  "icon": "./icon.svg",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
+    "directory": "packages/experimental/inspector"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./locale/*.json": "./locale/*.json",
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "qilin": {
+    "client": {
+      "inject": [],
+      "platform": "web",
+      "immediately": true
+    }
+  },
+  "files": [
+    "icon.svg",
+    "locale/*.json",
+    "lib/index.js",
+    "lib/client.js",
+    "lib/client.*.js",
+    "lib/worker.js",
+    "lib/devtools/**",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@qilin-agent/app-boot": "workspace:*",
+    "@qilin-agent/util-crypto": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~",
+    "open": "^11.0.0",
+    "serve-static": "^2.2.1",
+    "ws": "^8.21.0"
+  },
+  "peerDependencies": {
+    "@qilin-agent/kylin": "workspace:~"
+  },
+  "devDependencies": {
+    "chrome-devtools-frontend": "1.0.1638082",
+    "@types/serve-static": "^2.2.0",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@testing-library/react": "^16.3.2",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-layout": "workspace:*",
+    "@qilin-agent/client-shortcuts": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "react": "^18.2.0",
+    "@types/react": "~18.3.1",
+    "@types/react-dom": "~18.3.0",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/host-webserver": "workspace:*",
+    "@qilin-agent/cmdline": "workspace:*",
+    "@qilin-agent/client-connection": "workspace:*",
+    "@types/ws": "^8.18.1",
+    "playwright": "^1.49.0",
+    "tsx": "^4.22.4",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/client-modules": "workspace:*"
+  }
+}
