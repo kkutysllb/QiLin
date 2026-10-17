@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest'
 import type { ReactNode } from 'react'
 import type {
   BoundActions, DefineStore, FactoryComponentPropsOf, FactoryLocalComponentPropsOf,
-  PropsRenderFactories, PropsRenderSlots, PropsRuntime, PropsStore, SlotComponent, SlotHookFactory,
+  PropsRenderFactories, PropsRenderSlots, PropsRuntime, PropsStore, SlotComponent, SlotHookFactory, SlotSpec,
 } from '@qilin-agent/client-ui-slots'
 import { SlotCore } from '@qilin-agent/client-ui-slots'
 
@@ -404,5 +404,19 @@ describe('terminal-design type chain', () => {
       }, FactoryStoreBody)
     }
     expect(samples).toBeTypeOf('function')
+  })
+
+  it('types the inline anchor flag as the literal true', () => {
+    const spec: SlotSpec<{ kind: 'single'; scope: 'root'; inline: true }> = {
+      kind: 'single', scope: 'root', inline: true,
+    }
+    const block: SlotSpec<{ kind: 'single'; scope: 'root' }> = {
+      kind: 'single',
+      scope: 'root',
+      // @ts-expect-error inline is the literal true, never false
+      inline: false,
+    }
+    expect(spec.inline).toBe(true)
+    expect(block.inline).toBe(false)
   })
 })

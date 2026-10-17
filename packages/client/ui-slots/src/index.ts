@@ -116,6 +116,12 @@ export interface SlotScopeTargetMap {}
 export interface SlotEntryDef {
   kind: SlotKind
   scope: SlotScope
+  /**
+   * Render the slot's anchor — and its error placeholders — as a `span`
+   * instead of the default `div`; declare it for slots placed in inline or
+   * text context.
+   */
+  inline?: true
   owner?: object
   /**
    * Optional keyed-entry prop table. A keyed registration contributes one
@@ -163,6 +169,12 @@ export interface SlotFactoryDef {
 export type SlotSpec<E extends SlotEntryDef> = {
   kind: E['kind']
   scope: E['scope']
+  /**
+   * Render the slot's anchor — and its error placeholders — as a `span`
+   * instead of the default `div`; declare it for slots placed in inline or
+   * text context.
+   */
+  inline?: true
 } & ('inject' extends keyof E
   ? E extends { inject: infer Injected extends object }
     ? { inject: Injected }
