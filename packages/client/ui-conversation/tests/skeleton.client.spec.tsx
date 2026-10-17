@@ -748,6 +748,9 @@ describe('ConversationRoot resident composer', () => {
     // The agent-preset chip sits in the same row, for the same reason: both
     // choices are only open before the first message.
     expect(b.slotCalls).toContain('conversation.hero.agentPreset')
+    // Compact plugin options share that row, right-aligned, and only for a
+    // real Session (a strict session slot needs a scope binding).
+    expect(b.slotCalls).toContain('conversation.hero.options')
   })
 
   it('prompt failure renders the promptError strip (ordinary failure, no transaction UI)', () => {

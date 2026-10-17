@@ -192,6 +192,8 @@ declare module '@qilin-agent/client-ui-slots' {
     'conversation.hero.brand.mark': { kind: 'single'; scope: 'root'; owner: HeroBrandMarkOwnerProps }
     /** Agent-preset control staged for a New Session. */
     'conversation.hero.agentPreset': { kind: 'single'; scope: 'session-maybe'; owner: HeroAgentPresetOwnerProps }
+    /** Compact options right-aligned in the New Session row after the workspace and preset controls; rendered only with a Session. */
+    'conversation.hero.options': { kind: 'list'; scope: 'session' }
     /** Full-width entries above the composer card. */
     'conversation.input.dock': { kind: 'list'; scope: 'session'; owner: InputZone }
     /** Floating entries rendered inside the resident composer card. */
@@ -237,6 +239,7 @@ declare module '@qilin-agent/client-ui-slots' {
         'conversation.hero.brand.mark': { kind: 'single'; scope: 'root' }
         'conversation.hero.workspace': { kind: 'single'; scope: 'root' }
         'conversation.hero.agentPreset': { kind: 'single'; scope: 'session-maybe' }
+        'conversation.hero.options': { kind: 'list'; scope: 'session' }
       }
       inject: ConversationInjected
       locale: 'conversation'
