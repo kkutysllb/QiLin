@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/client-product-analytics",
   "description": "Desktop product event collection and authenticated Host reporting",
-  "version": "3.1.6-rc.1",
+  "version": "3.1.6-rc.2",
   "publishConfig": {
     "access": "public"
   },

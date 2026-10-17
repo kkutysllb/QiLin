@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/session-format-v4-to-v5",
   "description": "Retired shipped preset vocabulary migration from Session V4 to V5",
-  "version": "3.1.6-rc.1",
+  "version": "3.1.6-rc.2",
   "publishConfig": {
     "access": "public"
   },
