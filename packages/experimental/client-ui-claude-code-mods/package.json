@@ -1,0 +1,87 @@
+{
+  "name": "@qilin-agent/experimental-client-ui-claude-code-mods",
+  "description": "Web band above the prompt for Claude Code mods: draws each session's mod tree and sends button presses back to the bridge",
+  "version": "3.1.6-rc.2",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
+    "directory": "packages/experimental/client-ui-claude-code-mods"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "qilin": {
+    "client": {
+      "inject": [
+        "@qilin-agent/api-remotes",
+        "@qilin-agent/api-session-controller",
+        "@qilin-agent/client-locale",
+        "@qilin-agent/client-ui-conversation",
+        "@qilin-agent/client-ui-primitives"
+      ],
+      "platform": "web"
+    }
+  },
+  "scripts": {
+    "bundle": "tsdown",
+    "watch": "tsdown --watch"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin-agent/api-remotes": "workspace:*",
+    "@qilin-agent/api-session-controller": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-ui-conversation": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-session": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/experimental-claude-code-mods": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*"
+  },
+  "devDependencies": {
+    "@qilin-agent/api-remotes": "workspace:*",
+    "@qilin-agent/api-session-controller": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-conversation": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-session": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/experimental-claude-code-mods": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*",
+    "@testing-library/react": "^16.1.0",
+    "@types/react": "~18.3.1",
+    "@types/react-dom": "~18.3.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

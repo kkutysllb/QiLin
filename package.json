@@ -201,6 +201,7 @@
     "@qilin-agent/experimental-browser-use-runtime": "workspace:*",
     "@qilin-agent/experimental-browser-use-stagehand-native": "workspace:*",
     "@qilin-agent/experimental-claude-code-mods": "workspace:*",
+    "@qilin-agent/experimental-client-ui-claude-code-mods": "workspace:*",
     "@qilin-agent/experimental-computer-use-cua-driver-mcp": "workspace:*",
     "@qilin-agent/experimental-computer-use-cua-driver-native": "workspace:*",
     "@qilin-agent/experimental-tool-session-query": "workspace:*",

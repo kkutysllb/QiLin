@@ -329,6 +329,9 @@ export default defineConfig({
         // The speech entry also imports generated Remote definitions; voice-input.e2e.ts
         // exercises the built entry, while source tests cover mountVoiceInput.
         'packages/experimental/client-ui-voice-input/src/client/index.ts',
+        // The mods band entry imports the bridge's generated Remote contribution, which exists only in lib;
+        // the Web snapshot exercises the built entry, while source tests cover mountModsBand.
+        'packages/experimental/client-ui-claude-code-mods/src/client/index.ts',
         // The access entry imports its generated Remote contribution, which exists only in lib;
         // the Web snapshot exercises the built entry, while source tests cover mountAccess.
         'packages/api/remote-access/src/client/index.ts',
