@@ -39,9 +39,13 @@ describe('qilin-base bundle', () => {
     expect(rows.find(row => row.id === 'hmr')).toMatchObject({
       config: { root: [] },
     })
+    expect(rows.filter(row => row.id === 'subagent-codex')).toHaveLength(0)
+    expect(rows.filter(row => row.id === 'subagent-claude-code')).toHaveLength(0)
     expect(rows.find(row => row.id === 'web')?.config).toMatchObject({ fetchProvider: 'http' })
     expect(rows.find(row => row.id === 'web-fetch-http')).toBeDefined()
     expect(rows.find(row => row.id === 'tool-web')?.config).toMatchObject({ fetch: true })
+    expect(manifest.dependencies).not.toHaveProperty('@qilin-agent/subagent-codex')
+    expect(manifest.dependencies).not.toHaveProperty('@qilin-agent/subagent-claude-code')
     expect(manifest.dependencies).toHaveProperty('@qilin-agent/web-fetch-http')
   })
 
