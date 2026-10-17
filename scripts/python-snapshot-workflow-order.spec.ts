@@ -95,7 +95,7 @@ describe('advanced Python snapshot workflow ordering', () => {
     })
     expect((await run.result).output).toEqual([{ type: 'text', text: 'child complete' }])
     expect(adapter.requests).toHaveLength(1)
-    // The child's own descriptor lands on its session, which this listener scope does not observe; the parent's start record is what arrives here.
+    // The child's descriptor lands on its own session, outside this listener scope.
     expect(order).toEqual(['tool-workflow/agent-start'])
   })
 

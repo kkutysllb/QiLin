@@ -20,6 +20,11 @@ describe('upstream-named compat surface', () => {
     expect(dshCachePath({ dshHome: '/home/x' }, 'cache')).toBe(qilinCachePath({ qilinHome: '/home/x' }, 'cache'))
   })
 
+  it('dshCachePath accepts a bare segment like qilinCachePath', () => {
+    expect(dshCachePath('cache')).toBe(qilinCachePath('cache'))
+    expect(dshCachePath()).toBe(qilinCachePath())
+  })
+
   it('dshHomePath resolves segments under the resolved home', () => {
     expect(dshHomePath('a', 'b')).toBe(qilinHomePath('a', 'b'))
     expect(dshHomePath()).toBe(qilinHomePath())
