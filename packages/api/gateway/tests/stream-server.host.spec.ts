@@ -524,10 +524,17 @@ async function fixturePeer(): Promise<PeerScope> {
   const root = new Context()
   const fiber = root.plugin(() => {})
   await fiber
+  const lifetime = new AbortController()
   return {
     id: 'fixture-peer' as PeerId,
     ctx: fiber.ctx,
-    dispose: async () => { await fiber.dispose() },
+    principal: { kind: 'owner' },
+    signal: lifetime.signal,
+    interactions: 'answer',
+    dispose: async () => {
+      lifetime.abort()
+      await fiber.dispose()
+    },
   }
 }
 

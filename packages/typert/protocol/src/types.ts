@@ -470,11 +470,11 @@ export interface PeerScope {
   /** Connection-lifetime registrations; disposed with the Peer. */
   readonly ctx: Context
   /** Caller identity fixed at creation by in-process Host code; no wire field can set it. */
-  readonly principal?: Principal
+  readonly principal: Principal
   /** Aborted once the Peer is disposed; Remote streams that speak for the Peer end with it. */
-  readonly signal?: AbortSignal
+  readonly signal: AbortSignal
   /** Whether the Peer may open a forwarded-event stream; this does not grant business permissions. */
-  readonly interactions?: 'answer' | 'none'
+  readonly interactions: 'answer' | 'none'
   /**
    * Tear down every registration made through `ctx`.
    * @returns settles once the scope has quiesced; racing calls share one completion.

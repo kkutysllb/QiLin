@@ -19,6 +19,7 @@ import {
 } from '@qilin-agent/typert-protocol'
 import TypertRegistry, { type TypertContribution } from '@qilin-agent/typert-registry'
 import TypertGatewayService, { TypertGatewayError } from '@qilin-agent/api-gateway'
+import RemoteAccessService from '@qilin-agent/api-remote-access'
 import { provideBrowserCredentials } from './browser-credentials.ts'
 
 interface FixtureAgent {
@@ -118,7 +119,14 @@ class FakeConnectionService extends Service {
 
   constructor(ctx: Context) {
     super(ctx, 'connection')
-    this.operator = { id: 'fake-operator' as PeerId, ctx, dispose: () => Promise.resolve() }
+    this.operator = {
+      id: 'fake-operator' as PeerId,
+      ctx,
+      principal: { kind: 'owner' },
+      signal: new AbortController().signal,
+      interactions: 'answer',
+      dispose: () => Promise.resolve(),
+    }
   }
 
   get rpc() {
@@ -677,6 +685,7 @@ describe('TypertGatewayService', () => {
     const ctx = new Context()
     await ctx.plugin(TypertRegistry)
     const dispose = registerStrict(ctx, [passthroughDescriptor()])
+    await ctx.plugin(RemoteAccessService)
     await ctx.plugin(TypertGatewayService)
     await ctx.plugin(GoalService)
     await dispose()
@@ -691,6 +700,7 @@ describe('TypertGatewayService', () => {
   it('retains the no-downgrade guard across Gateway Service reloads', async () => {
     const ctx = new Context()
     await ctx.plugin(TypertRegistry)
+    await ctx.plugin(RemoteAccessService)
     const gatewayFiber = ctx.plugin(TypertGatewayService)
     await gatewayFiber
     await ctx.plugin(GoalService)
@@ -992,6 +1002,7 @@ describe('TypertGatewayService', () => {
     const ctx = new Context().extend({ fixtureScope: 'rpc-caller' })
     await ctx.plugin(TypertRegistry)
     await ctx.plugin(FakeConnectionService)
+    await ctx.plugin(RemoteAccessService)
     const gatewayFiber = ctx.plugin(TypertGatewayService)
     await gatewayFiber
     await ctx.plugin(GoalService)
@@ -1085,6 +1096,7 @@ describe('TypertGatewayService', () => {
     const ctx = new Context()
     await ctx.plugin(TypertRegistry)
     await ctx.plugin(FakeConnectionService)
+    await ctx.plugin(RemoteAccessService)
     await ctx.plugin(TypertGatewayService)
     const connection = rawConnection(ctx)
     const handler = connection.handler
@@ -1138,6 +1150,7 @@ describe('TypertGatewayService', () => {
     const ctx = new Context()
     await ctx.plugin(TypertRegistry)
     await ctx.plugin(FakeConnectionService)
+    await ctx.plugin(RemoteAccessService)
     await ctx.plugin(TypertGatewayService)
     await ctx.plugin(GoalService)
     registerStrict(ctx, [createDescriptor()])
@@ -1162,6 +1175,7 @@ describe('TypertGatewayService', () => {
     const ctx = new Context()
     await ctx.plugin(TypertRegistry)
     await ctx.plugin(FakeConnectionService)
+    await ctx.plugin(RemoteAccessService)
     await ctx.plugin(TypertGatewayService)
     const observedFiber = ctx.plugin(ObservedClaimService)
     await observedFiber
@@ -1196,6 +1210,7 @@ describe('TypertGatewayService', () => {
     const connectionFiber = ctx.plugin({ inject: [...connectionInject], apply: applyConnection })
     await connectionFiber
     await ctx.plugin(TypertRegistry)
+    await ctx.plugin(RemoteAccessService)
     const gatewayFiber = ctx.plugin(TypertGatewayService)
     await gatewayFiber
     const goalFiber = ctx.plugin(GoalService)
@@ -1305,6 +1320,7 @@ async function setup(): Promise<{
 async function setupGateway(): Promise<Context> {
   const ctx = new Context()
   await ctx.plugin(TypertRegistry)
+  await ctx.plugin(RemoteAccessService)
   await ctx.plugin(TypertGatewayService)
   return ctx
 }
