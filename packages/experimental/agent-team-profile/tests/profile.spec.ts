@@ -49,9 +49,7 @@ describe('Agent Teams profile bundle', () => {
       name: '@qilin-agent/experimental-tool-agent-team',
       config: { freshProvider: 'spawn', forkProvider: 'fork' },
     })
-    // The Team page travels with the capability: the browser half must be in
-    // this layer, because no other layer names it.
-    expect(inserted.find(entry => entry.id === 'client-ui-agent-team')).toMatchObject({
+    expect(inserted.find(entry => entry.id === 'ui-agent-team')).toMatchObject({
       name: '@qilin-agent/experimental-client-ui-agent-team',
     })
   })
