@@ -394,6 +394,15 @@ describe('require resolution', () => {
     expect(b.loader.loadCache.has('react')).toBe(false)
   })
 
+  it('import answers a DSH-era spelling from the canonical seed word', async () => {
+    // A prebuilt DSH-era bundle asks for the upstream name; the seed table is
+    // keyed by the QiLin name the alias rule canonicalizes onto.
+    const session = { marker: 'session' }
+    const b = bench([], {}, { seed: { '@qilin-agent/session': session } })
+    expect(await b.loader.import('@deepseek-ai/dsh-session', '', {})).toBe(session)
+    expect(b.loader.loadCache.has('@qilin-agent/session')).toBe(false)
+  })
+
   it('require answers an already-materialized module from the cache', async () => {
     let built = 0
     const b = bench([row('a'), row('c')], {

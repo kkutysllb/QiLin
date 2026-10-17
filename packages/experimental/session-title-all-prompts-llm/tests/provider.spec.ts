@@ -1,6 +1,6 @@
 import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it } from 'vitest'
-import LlmRuntime, { createUserMessage, LlmAdapter  } from '@qilin-agent/llm'
+import LlmRuntime, { createUserMessage, LlmAdapter, ToolCallId } from '@qilin-agent/llm'
 import type { GenerateOptions, StreamChunk } from '@qilin-agent/llm'
 import SessionStore, { Session, SessionId } from '@qilin-agent/session'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
@@ -205,6 +205,24 @@ describe('all-messages provider output and failure handling', () => {
     const maxTokensSession = maxTokens.ctx.sessions.create(SessionId('all-max-tokens-finish'))
     titled(maxTokensSession)
     await expect(maxTokens.ctx.sessionTitle.refresh(maxTokensSession)).rejects.toThrow(/reached maxOutputTokens/)
+  })
+
+  it('rejects a stop finish that carries a tool-call block', async () => {
+    const { ctx } = await harness([
+      { type: 'block-start', index: 0, blockType: 'tool-call' },
+      { type: 'tool-call-delta', index: 0, id: ToolCallId('title-tool'), name: 'unexpected', argumentsDelta: '{}' },
+      { type: 'finish', reason: { kind: 'stop' } },
+    ])
+    const session = ctx.sessions.create(SessionId('all-tool-block'))
+    titled(session)
+    await expect(ctx.sessionTitle.refresh(session)).rejects.toThrow(/output must contain text only/)
+  })
+
+  it('rejects non-positive title-length targets', () => {
+    expect(() => { providerPlugin.apply(new Context(), { ...LLM_CONFIG, targetWords: 0 }) })
+      .toThrow('session-title-all-prompts-llm: targetWords must be a positive integer')
+    expect(() => { providerPlugin.apply(new Context(), { ...LLM_CONFIG, targetCjkCharacters: 1.5 }) })
+      .toThrow('session-title-all-prompts-llm: targetCjkCharacters must be a positive integer')
   })
 
   it('rejects a successful response with no text', async () => {

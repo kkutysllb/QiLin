@@ -119,3 +119,23 @@ describe('background job ownership during asynchronous shell startup', () => {
     expect(await hooks.done).toEqual({ status: 'failed', detail: 'upstream preparation stopped' })
   })
 })
+
+describe('background process sandbox detail', () => {
+  const handle = (): ShellProcess => ({
+    status: 'completed', exitCode: 1, signal: null, done: Promise.resolve(),
+    readOutput: () => ({ delta: '', lossy: false }), kill: () => false,
+  })
+
+  it('reports a runner failure and a denial with its escalation hint', () => {
+    expect(processOutcome({ ...handle(), sandbox: { mode: 'workspace-write', runnerFailed: true, denied: false } })).toEqual({
+      status: 'completed',
+      detail: 'exit code: 1; [sandbox: the sandbox runner itself failed under workspace-write mode — the command did not run; this is a sandbox problem, not a command failure]',
+    })
+    expect(processOutcome({ ...handle(), sandbox: { mode: 'workspace-write', denied: true, runnerFailed: false } }, ['danger-full-access']).detail)
+      .toContain('[sandbox: file access denied under workspace-write mode]')
+    expect(processOutcome({ ...handle(), sandbox: { mode: 'workspace-write', denied: true, runnerFailed: false } }, ['danger-full-access']).detail)
+      .toContain('escalation available')
+    expect(processOutcome({ ...handle(), sandbox: { mode: 'workspace-write', denied: true, runnerFailed: false } }).detail)
+      .toBe('exit code: 1; [sandbox: file access denied under workspace-write mode]')
+  })
+})

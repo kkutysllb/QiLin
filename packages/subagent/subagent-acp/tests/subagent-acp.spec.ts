@@ -1573,3 +1573,19 @@ describe('dsh-subagent-acp', () => {
     expect(typeof unwrapped.apply).toBe('function')
   })
 })
+
+it('refuses a request aborted before the ACP child starts', async () => {
+  const ctx = new Context()
+  let provider: { start: (request: never) => unknown } | undefined
+  ctx.provide('subagents', { registerProvider: (registered: typeof provider) => { provider = registered } } as never)
+  ctx.provide('subprocess', {} as never)
+  await ctx.plugin(acp, { providerName: 'acp', command: process.execPath, args: [], permission: 'reject', env: {} })
+  if (provider === undefined) throw new Error('ACP provider was not registered')
+  const registered = provider
+  const controller = new AbortController()
+  controller.abort()
+  expect(() => registered.start({ prompt: [], parent: fakeParent, signal: controller.signal } as never))
+    .toThrow('subagent request was aborted before the ACP child started')
+  await ctx.fiber.dispose()
+})
+

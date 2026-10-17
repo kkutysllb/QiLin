@@ -52,6 +52,20 @@ it('rejects missing content-type metadata instead of fabricating associations', 
 })
 
 
+it('walks installed icon sizes, then scalable and pixmaps artwork, and ignores non-image paths', async () => {
+  const { root } = await fixture()
+  await mkdir(join(root, 'icons', 'hicolor', '64x64', 'apps'), { recursive: true })
+  await writeFile(join(root, 'icons', 'hicolor', '64x64', 'apps', 'sized.png'), 'png')
+  await mkdir(join(root, 'icons', 'hicolor', 'scalable', 'apps'), { recursive: true })
+  await writeFile(join(root, 'icons', 'hicolor', 'scalable', 'apps', 'vector.svg'), '<svg/>')
+  expect(await desktopApplicationIcon('sized', [root])).toMatchObject({ contentType: 'image/png' })
+  expect(await desktopApplicationIcon('vector', [root])).toMatchObject({ contentType: 'image/svg+xml' })
+  // The fixture's pixmaps artwork is the last fallback before a miss.
+  expect(await desktopApplicationIcon('player', [root])).toMatchObject({ contentType: 'image/svg+xml' })
+  expect(await desktopApplicationIcon('missing', [root])).toBeNull()
+  expect(await desktopApplicationIcon(join(root, 'icon.ico'), [root])).toBeNull()
+})
+
 it('tolerates absent desktop roots and directory-shaped icon paths without a locale override', async () => {
   const { root, facts } = await fixture()
   const icon = join(root, 'folder.png')

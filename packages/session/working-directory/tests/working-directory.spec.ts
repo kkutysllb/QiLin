@@ -265,6 +265,23 @@ describe('Session working directories', () => {
     }
   })
 
+  it('reinserts the current-directory context when a later assembler drops it', async () => {
+    await using f = await fixture()
+    const drop = await f.ctx.plugin((inner: Context) => {
+      inner.on('system-prompt/assemble', async (_assembly, _context, next) => {
+        const result = await next()
+        result.contexts = result.contexts.filter(entry => entry.name !== 'working-directory:current')
+        return result
+      })
+    })
+    try {
+      const assembly = await f.ctx.systemPrompt.assemble({ agent: f.agent, scope: f.agent })
+      expect(renderContextSnapshot(assembly)).toContain(`Current working directory: ${JSON.stringify(f.root)}.`)
+    } finally {
+      await drop.dispose()
+    }
+  })
+
   it('exposes reading and changing through the same model tool and unregisters it on disposal', async () => {
     await using f = await fixture()
     await mkdir(join(f.root, 'child'))

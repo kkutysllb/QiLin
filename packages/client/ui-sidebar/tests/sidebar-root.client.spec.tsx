@@ -1,13 +1,15 @@
 // @vitest-environment jsdom
 import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { Tooltip } from '@qilin-agent/client-ui-primitives'
 import type { ReactNode } from 'react'
 import type {
-  SidebarFooterActionOwnerProps, SidebarRootComponentProps, SidebarSectionOwnerProps,
+  SidebarFooterActionOwnerProps, SidebarPanelMetadata, SidebarRootComponentProps, SidebarSectionOwnerProps,
   SidebarSettingsOwnerProps,
 } from '../src/client/contract/slots.ts'
+import type { MainPanelId } from '@qilin-agent/client-ui-layout/client'
+import type { ShortcutCatalogEntry } from '@qilin-agent/client-shortcuts/client'
 import { HeaderLeadingControls, type HeaderLeadingControlsProps } from '../src/client/HeaderLeadingControls.tsx'
 import { SidebarRoot } from '../src/client/SidebarRoot.tsx'
 import { en } from '../src/client/locales.ts'
@@ -36,7 +38,37 @@ type AttentionSnapshot = Parameters<Parameters<SidebarRootComponentProps['useSes
 const noAttention: AttentionSnapshot = new Map()
 const useSessionStatus: SidebarRootComponentProps['useSessionStatus'] = selector => selector(noAttention)
 
-function mountShell({ collapsed = false, width = 300 }: { collapsed?: boolean; width?: number } = {}) {
+/** One catalog row as the shortcuts registry publishes it. */
+const shortcutRow = (id: string, keys: readonly string[], aria: string): ShortcutCatalogEntry => ({
+  id: id as ShortcutCatalogEntry['id'],
+  label: id,
+  aliases: [],
+  keys,
+  aria,
+  binding: null,
+  modified: false,
+  conflicts: [],
+  issue: null,
+})
+
+/** The panel rows a composition contributes to the shell's navigation list. */
+const panelRows = (...sections: Array<string | undefined>): readonly SidebarPanelMetadata[] =>
+  sections.map((section, index) => ({
+    id: `panel${index}` as MainPanelId,
+    order: index,
+    label: `Panel ${index}`,
+    section,
+  }))
+
+function mountShell({
+  collapsed = false, width = 300,
+  panels = [], shortcuts = [],
+}: {
+  collapsed?: boolean
+  width?: number
+  panels?: readonly SidebarPanelMetadata[]
+  shortcuts?: readonly ShortcutCatalogEntry[]
+} = {}) {
   const startSession = vi.fn()
   const toggleSidebar = vi.fn()
   let regionOwner: SidebarSectionOwnerProps | undefined
@@ -50,7 +82,8 @@ function mountShell({ collapsed = false, width = 300 }: { collapsed?: boolean; w
     <SidebarRoot
       collapsed={current.collapsed} width={current.width}
       useSessions={neverHook} useSessionStatus={useSessionStatus} useSessionRetainInfo={neverHook}
-      usePanelInfo={usePanelInfo} selectPanel={() => {}} usePanels={selector => selector([])} useShortcuts={selector => selector([])}
+      usePanelInfo={usePanelInfo} selectPanel={() => {}}
+      usePanels={selector => selector(panels)} useShortcuts={selector => selector(shortcuts)}
       useResource={useResource} useWorkspaces={neverHook}
       startSession={startSession} toggleSidebar={toggleSidebar} t={t}
       renderSlot={((
@@ -235,6 +268,70 @@ describe('SidebarRoot shell', () => {
     fireEvent.mouseLeave(toggle)
     expect(screen.queryByRole('tooltip')).toBeNull()
   })
+})
+
+it('shows the composed shortcut hints on the new-session capsule and the header controls', () => {
+  document.documentElement.dataset.platform = 'darwin'
+  const shell = mountShell({
+    shortcuts: [shortcutRow('sidebar.left.toggle', ['⌘B'], 'Meta+B'), shortcutRow('session.new', ['⌘N'], 'Meta+N')],
+  })
+  // Expanded, the capsule carries its inline key chip.
+  expect(screen.getByText('⌘N')).toBeTruthy()
+  expect(screen.getAllByRole('button', { name: 'New session' })[0]?.getAttribute('aria-keyshortcuts')).toBe('Meta+N')
+
+  // The header occupant resolves the same two rows into its own hints.
+  const props = {
+    toggleSidebar: shell.toggleSidebar,
+    startSession: shell.startSession,
+    useShortcuts: (selector: (rows: readonly ShortcutCatalogEntry[]) => unknown) =>
+      selector([shortcutRow('sidebar.left.toggle', ['⌘B'], 'Meta+B'), shortcutRow('session.new', ['⌘N'], 'Meta+N')]),
+    t,
+  } as HeaderLeadingControlsProps
+  const header = render(<HeaderLeadingControls {...props} />)
+  const trafficLights = within(header.container)
+  expect(trafficLights.getByRole('button', { name: en['toggle.open'] }).getAttribute('aria-keyshortcuts')).toBe('Meta+B')
+  expect(trafficLights.getByRole('button', { name: en['session.new.label'] }).getAttribute('aria-keyshortcuts')).toBe('Meta+N')
+})
+
+it('keeps both controls reachable on the macOS rail', () => {
+  document.documentElement.dataset.platform = 'darwin'
+  const shell = mountShell({ collapsed: true })
+  const opens = screen.getAllByRole('button', { name: en['toggle.open'] })
+  // The rail keeps its own toggle, and the fixed strip beside the traffic lights
+  // repeats it for panel pages, which render no conversation header.
+  expect(opens).toHaveLength(2)
+  for (const button of opens) fireEvent.click(button)
+  expect(shell.toggleSidebar).toHaveBeenCalledTimes(2)
+
+  const starters = screen.getAllByRole('button', { name: en['session.new.label'] })
+  expect(starters).toHaveLength(2)
+  for (const button of starters) fireEvent.click(button)
+  expect(shell.startSession).toHaveBeenCalledTimes(2)
+})
+
+it('folds a section header and remembers the fold across a reload', () => {
+  // The panel list persists folded sections per account; a stored list that
+  // mixes ids with foreign values keeps only the ids.
+  localStorage.setItem('qilin.sidebar.folded-sections.v1', JSON.stringify(['browse', 7]))
+  const shell = mountShell({ panels: panelRows('browse', 'browse', 'tools') })
+  const header = screen.getByRole('button', { name: 'browse' })
+  expect(header.getAttribute('aria-expanded')).toBe('false')
+  // A folded section hides its rows but keeps the following section's header.
+  expect(screen.queryByText('Panel 0')).toBeNull()
+  expect(screen.getByText('Panel 2')).toBeTruthy()
+
+  fireEvent.click(header)
+  expect(header.getAttribute('aria-expanded')).toBe('true')
+  expect(screen.getByText('Panel 0')).toBeTruthy()
+  expect(JSON.parse(localStorage.getItem('qilin.sidebar.folded-sections.v1') ?? '[]')).toEqual([])
+  expect(shell.toggleSidebar).not.toHaveBeenCalled()
+})
+
+it('ignores a persisted fold list that is not a list of sections', () => {
+  localStorage.setItem('qilin.sidebar.folded-sections.v1', JSON.stringify({ browse: true }))
+  mountShell({ panels: panelRows('browse') })
+  expect(screen.getByText('Panel 0')).toBeTruthy()
+  expect(screen.getByRole('button', { name: 'browse' }).getAttribute('aria-expanded')).toBe('true')
 })
 
 it('keeps the macOS sidebar toggle in its top strip', () => {

@@ -55,6 +55,23 @@ it('restores current layout independently by Session with a fresh undo history',
   expect(createSidebarRightStore(seed).create('second').getSnapshot()).toEqual(second.getSnapshot())
 })
 
+it('starts the blank scope collapsed whatever its persisted layout says', () => {
+  storage()
+  const blank = createSidebarRightStore(seed).create('')
+  blank.actions.open('')
+  blank.actions.setExpanded('', true)
+  const expanded = blank.getSnapshot().bySession['']!
+  expect(expanded.layout.expanded).toBe(true)
+
+  // The New Session page owns its default: a machine-written expanded flag from
+  // an earlier load never reopens the blank scope.
+  const restored = createSidebarRightStore(seed).create('').getSnapshot().bySession['']!
+  expect(restored.layout.expanded).toBe(false)
+  // Everything else in the restored surface survives, including the default page.
+  expect(restored.layout.tabs).toEqual(expanded.layout.tabs)
+  expect(restored.minted).toBe(expanded.minted)
+})
+
 it('pins restored records during adoption before the first render or store mutation', async () => {
   storage()
   const first = createSidebarRightStore(seed).create(sessionId)

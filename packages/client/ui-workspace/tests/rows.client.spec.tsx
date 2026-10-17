@@ -509,6 +509,33 @@ describe('workspace browser rows', () => {
     expect(screen.queryByRole('menu')).toBeNull()
   })
 
+  it('labels a row without a title as untitled and pins it from its hover button', () => {
+    const actions = sessionActions()
+    const node: SessionNode = {
+      id: sid('s-untitled'), title: '', blank: false, running: false,
+      runningSubagentCount: 0, completed: false, updatedAt: 0, pinned: false,
+    }
+    render(<SessionNodeItem node={node} currentId={undefined} now={0}
+      {...actions} renderSlot={emptyRenderSlot} t={t} />)
+
+    expect(screen.getByText('未命名')).toBeTruthy()
+    // The trailing button offers the pin verb for an unpinned row.
+    fireEvent.click(screen.getByRole('button', { name: '置顶会话' }))
+    expect(actions.onPin).toHaveBeenCalledWith(node.id)
+    expect(actions.onUnpin).not.toHaveBeenCalled()
+  })
+
+  it('labels a search result without a title as untitled', () => {
+    const result: SearchResultNode = {
+      id: sid('untitled-result'), title: '', workspace: '', running: false,
+      runningSubagentCount: 0, completed: false,
+    }
+    render(<SearchResultItem result={result} currentId={undefined} onOpen={vi.fn()} t={t} />)
+
+    expect(screen.getByText('未命名')).toBeTruthy()
+    expect(screen.getByText('未分组')).toBeTruthy()
+  })
+
   it('marks a pinned row and lets the hover button and menu drop the pin', () => {
     const onPin = vi.fn()
     const onUnpin = vi.fn()

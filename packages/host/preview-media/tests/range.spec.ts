@@ -41,6 +41,11 @@ describe('parseRange', () => {
     expect(parseRange('bytes10', 1000)).toBeNull()
   })
 
+  it('ignores an empty first spec in a multi-range set and a dash-less spec', () => {
+    expect(parseRange('bytes= ,0-9', 1000)).toBeNull()
+    expect(parseRange('bytes=5', 1000)).toBeNull()
+  })
+
   it('matches the unit case-insensitively and trims surrounding space', () => {
     expect(parseRange('  BYTES=0-9 ', 1000)).toEqual({ start: 0, end: 9 })
   })

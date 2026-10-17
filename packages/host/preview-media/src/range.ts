@@ -36,8 +36,10 @@ export function parseRange(raw: string | undefined, size: number): ParsedRange {
   if (size <= 0) return { unsatisfiable: true }
   const match = /^bytes=(.+)$/i.exec(raw.trim())
   if (match === null) return null
-  const [firstSpec = ''] = (match[1] ?? '').split(',') // first range only
-  const spec = firstSpec.trim()
+  // The capture group of `^bytes=(.+)$` always matched; the cast records that.
+  const specs = match[1] as string
+  const comma = specs.indexOf(',')
+  const spec = (comma === -1 ? specs : specs.slice(0, comma)).trim() // first range only
   if (spec === '') return null
   if (spec.startsWith('-')) {
     // Suffix range: the last N bytes.
@@ -50,7 +52,7 @@ export function parseRange(raw: string | undefined, size: number): ParsedRange {
   if (dash === -1) return null
   const startText = spec.slice(0, dash)
   const endText = spec.slice(dash + 1)
-  const start = startText === '' ? 0 : Number(startText)
+  const start = Number(startText)
   const end = endText === '' ? size - 1 : Number(endText)
   if (!Number.isInteger(start) || start < 0 || !Number.isInteger(end)) return null
   if (start >= size) return { unsatisfiable: true }

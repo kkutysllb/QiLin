@@ -169,6 +169,46 @@ describe('usage reporting', () => {
     expect(endpoint.bodies).toHaveLength(0)
   })
 
+  it('ignores an event whose Turn start this process never saw', async () => {
+    const endpoint = await recordingEndpoint()
+    const ctx = await boot({ url: endpoint.url, token: 'token-1' })
+    for (const entry of settledTurn().slice(3)) ctx.emit('session/event', SESSION, entry)
+    await new Promise(resolve => setTimeout(resolve, 20))
+    expect(endpoint.bodies).toHaveLength(0)
+  })
+
+  it('omits a cache bucket the attempt never reported and sends the one it did', async () => {
+    const endpoint = await recordingEndpoint()
+    const ctx = await boot({ url: endpoint.url, token: 'token-1' })
+    for (const entry of settledTurn({ inputTokens: 100, outputTokens: 20, totalTokens: 170, cacheWriteTokens: 5 })) {
+      ctx.emit('session/event', SESSION, entry)
+    }
+    await vi.waitFor(() => { expect(endpoint.bodies).toHaveLength(1) })
+    expect(endpoint.bodies[0]).not.toHaveProperty('cacheReadTokens')
+    expect(endpoint.bodies[0]).toMatchObject({ cacheWriteTokens: 5 })
+  })
+
+  it('warns without failing the Turn when the endpoint is unreachable', async () => {
+    const ctx = await boot({ url: 'http://127.0.0.1:1/report', token: 'token-1' })
+    const warn = vi.spyOn(ctx.logger, 'warn')
+    for (const entry of settledTurn()) ctx.emit('session/event', SESSION, entry)
+    await vi.waitFor(() => { expect(warn).toHaveBeenCalledTimes(1) })
+    expect(String(warn.mock.calls[0]?.[0])).toContain('one report failed:')
+  })
+
+  it('warns with a non-Error rejection rendered as text', async () => {
+    const ctx = await boot({ url: 'http://127.0.0.1:1/report', token: 'token-1' })
+    const warn = vi.spyOn(ctx.logger, 'warn')
+    const fetch = vi.spyOn(globalThis, 'fetch').mockRejectedValueOnce('ledger offline')
+    try {
+      for (const entry of settledTurn()) ctx.emit('session/event', SESSION, entry)
+      await vi.waitFor(() => { expect(warn).toHaveBeenCalledTimes(1) })
+      expect(String(warn.mock.calls[0]?.[0])).toContain('one report failed: ledger offline')
+    } finally {
+      fetch.mockRestore()
+    }
+  })
+
   it('keeps the session running when the deployment refuses the report', async () => {
     const endpoint = await recordingEndpoint()
     endpoint.status = 500

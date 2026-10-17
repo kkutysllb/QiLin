@@ -101,7 +101,8 @@ describe('workspaceGit.commitDiff', () => {
     expect(failure.code).toBe('workspace-git/command-failed')
   })
 
-  it('fails with too-large when the patch passes the byte cap', async () => {
+  // A real git subprocess can fail to start under a fully loaded suite; the byte cap is the subject.
+  it('fails with too-large when the patch passes the byte cap', { retry: 2 }, async () => {
     const failure = await failureOf(harness.endpoint({ maxDiffBytes: 16 }).commitDiff(harness.scope, 'HEAD', signal()))
     expect(failure.code).toBe('workspace-git/too-large')
     expect(failure.details).toMatchObject({ maxBytes: 16 })

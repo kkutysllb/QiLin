@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, expectTypeOf, it } from 'vitest'
+import { afterEach, describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
 import SessionStore, {
   SESSION_FORMAT_VERSION,
@@ -49,6 +49,52 @@ function body(text = 'x'.repeat(300)) {
 }
 
 describe('incremental DeepSeek session-log upload', () => {
+  it('warns once per blocked event and uploads nothing while the field cannot fit', async () => {
+    const ctx = new Context()
+    contexts.push(ctx)
+    await ctx.plugin(SessionStore)
+    await ctx.plugin(DeepSeekLlmApiExtensionRegistry)
+    await ctx.plugin(SessionLogDeepSeek, { enabled: true, maxBytes: 1 })
+    const session = ctx.sessions.create(SessionId('blocked-event'))
+    session.append('turn/start', { turn: 1 })
+    const warn = vi.spyOn(ctx.logger, 'warn').mockImplementation(() => {})
+    const request = { body: body(), signal: SIGNAL, sessionId: session.id }
+    const blocked = await ctx.deepseekLlmApiExtensions.prepare(request)
+    expect(blocked.fields).not.toHaveProperty('qilin_session_log')
+    expect(warn).toHaveBeenCalledTimes(1)
+    expect(String(warn.mock.calls[0]?.[0])).toContain('needs a ')
+    expect(String(warn.mock.calls[0]?.[0])).toContain('above maxBytes 1')
+    // The same blocked event is reported once, not on every request.
+    await ctx.deepseekLlmApiExtensions.prepare(request)
+    expect(warn).toHaveBeenCalledTimes(1)
+  })
+
+  it('reports an event that cannot serialize at all without uploading', async () => {
+    const ctx = new Context()
+    contexts.push(ctx)
+    await ctx.plugin(DeepSeekLlmApiExtensionRegistry)
+    const cyclic: Record<string, unknown> = {}
+    cyclic['self'] = cyclic
+    const sessionId = SessionId('unserializable-event')
+    const session = {
+      id: sessionId,
+      header: { version: SESSION_FORMAT_VERSION, id: sessionId, createdAt: 0, isSeeded: false },
+      seq: 0,
+      eventAt: () => undefined,
+      snapshotEvents: () => [{ type: 'turn/start', seq: 0, time: 0, data: cyclic }],
+    }
+    ctx.provide('sessions', { get: () => session } as never)
+    await ctx.plugin(SessionLogDeepSeek, { enabled: true, maxBytes: 1_000 })
+    const warn = vi.spyOn(ctx.logger, 'warn').mockImplementation(() => {})
+    const prepared = await ctx.deepseekLlmApiExtensions.prepare({
+      body: body(), signal: SIGNAL, sessionId: String(sessionId),
+    })
+    expect(prepared.fields).not.toHaveProperty('qilin_session_log')
+    expect(warn).toHaveBeenCalledTimes(1)
+    expect(String(warn.mock.calls[0]?.[0])).toContain('too large to serialize')
+  })
+
+
   it('publishes raw numeric sequence fields on its external wire DTO', () => {
     expectTypeOf<DeepSeekSessionLogExtension['sessionFormatVersion']>().toEqualTypeOf<number>()
     expectTypeOf<DeepSeekSessionLogExtension['afterSeq']>().toEqualTypeOf<number>()

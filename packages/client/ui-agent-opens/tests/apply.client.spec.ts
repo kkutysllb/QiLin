@@ -9,6 +9,7 @@ import { SessionId } from '@qilin-agent/session/types'
 import { fileAddressFor } from '@qilin-agent/util-workspace-path'
 import type { SidebarOpenRequest } from '@qilin-agent/sidebar-opens/types'
 import { apply, inject } from '../src/client/index.ts'
+import { apply as nodeApply } from '../src/index.ts'
 
 const VIEWED = SessionId('viewed')
 const OTHER = SessionId('other')
@@ -41,16 +42,64 @@ function request(target: string, kind: 'file' | 'url' = 'url'): SidebarOpenReque
   return { id: target, kind, target, title: target }
 }
 
-async function boot(options: { browserTab?: boolean } = {}) {
+/**
+ * A carrier whose watch fails instead of streaming: `immediately` is an
+ * unmounted Remote namespace, `on-abort` a transport that rejects with the
+ * AbortError a Session switch produces.
+ */
+function failingWatch(failure: 'immediately' | 'on-abort', signal: AbortSignal): AsyncIterable<SidebarOpenRequest> {
+  return {
+    [Symbol.asyncIterator]: () => ({
+      next: () => failure === 'immediately'
+        ? Promise.reject(new Error('remote namespace unmounted'))
+        : new Promise<never>((_resolve, reject) => {
+          signal.addEventListener('abort', () => { reject(new Error('watch aborted')) }, { once: true })
+        }),
+    }),
+  }
+}
+
+/**
+ * One frame the transport had already buffered. The switch lands while the frame
+ * is delivered, so the abort precedes the dispatcher's loop body — exactly the
+ * window a real stream leaves open between a resolved frame and its consumer.
+ */
+function bufferedFrame(value: SidebarOpenRequest, before: () => void): AsyncIterable<SidebarOpenRequest> {
+  let delivered = false
+  return {
+    [Symbol.asyncIterator]: (): AsyncIterator<SidebarOpenRequest> => ({
+      next: (): Promise<IteratorResult<SidebarOpenRequest>> => {
+        if (delivered) return Promise.resolve({ value: undefined, done: true })
+        delivered = true
+        before()
+        return Promise.resolve({ value, done: false })
+      },
+    }),
+  }
+}
+
+async function boot(options: {
+  browserTab?: boolean
+  failure?: 'immediately' | 'on-abort'
+  inflightSwitch?: boolean
+} = {}) {
   const ctx = new Context()
   const streams = new Map<string, Stream>()
+  let current: SessionId | undefined = VIEWED
+  const listeners = new Set<() => void>()
+  const switchTo = (sessionId: SessionId | undefined): void => {
+    current = sessionId
+    for (const listener of listeners) listener()
+  }
   const watch = vi.fn((sessionId: SessionId, signal: AbortSignal) => {
     const stream = new Stream()
     streams.set(sessionId, stream)
+    if (options.inflightSwitch === true && sessionId === VIEWED) {
+      return bufferedFrame(request('https://example.test/stale'), () => { switchTo(OTHER) })
+    }
+    if (options.failure !== undefined) return failingWatch(options.failure, signal)
     return stream.iterate(signal) as AsyncIterable<SidebarOpenRequest> & { dispose?: () => void }
   })
-  let current: SessionId | undefined = VIEWED
-  const listeners = new Set<() => void>()
   const openTab = vi.fn()
   const openResource = vi.fn()
   // The gateway mounts each Remote namespace as its own cordis service named
@@ -79,8 +128,7 @@ async function boot(options: { browserTab?: boolean } = {}) {
   }
   await settle()
   return {
-    ctx, fiber, watch, openTab, openResource, streams, settle,
-    switchTo(sessionId: SessionId | undefined) { current = sessionId; for (const listener of listeners) listener() },
+    ctx, fiber, watch, openTab, openResource, streams, settle, switchTo,
     viewer: () => streams.get(VIEWED),
   }
 }
@@ -138,5 +186,42 @@ describe('agent open dispatcher', () => {
     await h.fiber.dispose()
     await h.settle()
     expect(h.viewer()?.closed).toBe(true)
+  })
+
+  it('drops a request that was in flight when the view switched', async () => {
+    // The request leaves the Host while the user switches Sessions: the old
+    // watch is aborted before its delivery reaches the dispatcher, so nothing
+    // opens in the Sidebar the user is now looking at.
+    const h = await boot({ inflightSwitch: true })
+    await h.settle(8)
+    expect(h.openTab).not.toHaveBeenCalled()
+    expect(h.openResource).not.toHaveBeenCalled()
+    await h.fiber.dispose()
+  })
+
+  it('reports a carrier failure that is not a Session switch', async () => {
+    const reported = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const h = await boot({ failure: 'immediately' })
+    await h.settle(8)
+    expect(reported).toHaveBeenCalledWith('[ui-agent-opens] sidebarOpens.watch ended', expect.any(Error))
+    reported.mockRestore()
+    await h.fiber.dispose()
+  })
+
+  it('stays quiet when the watch ends because the view switched', async () => {
+    const reported = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const h = await boot({ failure: 'on-abort' })
+    h.switchTo(OTHER)
+    await h.settle(8)
+    expect(reported).not.toHaveBeenCalled()
+    reported.mockRestore()
+    await h.fiber.dispose()
+  })
+})
+
+describe('package entries', () => {
+  it('keeps the Host half inert and declares its service edges', () => {
+    expect(inject).toEqual(['remote', 'remote.sidebarOpens', 'sidebarRight', 'sidebarRightTabs', 'sessions', 'uiSession'])
+    expect(() => { nodeApply() }).not.toThrow()
   })
 })

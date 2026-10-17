@@ -180,6 +180,33 @@ describe('SessionTitleService Provider lifecycle', () => {
     })
   })
 
+  it('calls a provider with no current title when no fallback can be derived', async () => {
+    const ctx = new Context()
+    await ctx.plugin(SessionStore)
+    await ctx.plugin(SessionProjectionRegistry)
+    await ctx.plugin(SessionTitleService, { ...CONFIG, fallbackMaxBytes: 1 })
+    const requests: SessionTitleProviderRequest[] = []
+    ctx.sessionTitle.register({
+      id: SessionTitleProviderId('no-fallback'),
+      automatic: 'first-prompt',
+      async generate(request) {
+        requests.push(request)
+        return { title: 'Provider only', messageSeqs: [request.messages[0]!.seq] }
+      },
+    })
+    const session = ctx.sessions.create(SessionId('no-fallback-title'))
+    session.append('turn/start', { turn: 1 })
+    // A four-byte lead character cannot fit a one-byte fallback budget.
+    appendHumanPrompt(session, '😀 emoji prompt')
+    await settle()
+    expect(ctx.sessionTitle.get(session)).toBeUndefined()
+    appendRoute(session)
+    await settle()
+    expect(requests).toHaveLength(1)
+    expect(requests[0]?.currentTitle).toBeUndefined()
+    expect(ctx.sessionTitle.get(session)?.source).toEqual({ kind: 'provider', provider: SessionTitleProviderId('no-fallback') })
+  })
+
   it('preserves provider input order across bounded title-input chunks', async () => {
     const ctx = new Context()
     await ctx.plugin(SessionStore)

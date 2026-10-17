@@ -33,6 +33,21 @@ function chat(
   })
 }
 
+/** POST one Anthropic-Messages-dialect request. */
+function messages(
+  server: MockLlmServer,
+  options: { key?: string } = {},
+): Promise<Response> {
+  return fetch(`${server.baseURL}/v1/messages`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      ...options.key === undefined ? {} : { 'x-api-key': options.key },
+    },
+    body: JSON.stringify({ model: 'mock', messages: [], stream: true }),
+  })
+}
+
 function rawChat(server: MockLlmServer, chunks: readonly Buffer[]): Promise<void> {
   return new Promise((resolve, reject) => {
     const outgoing = request(`${server.baseURL}/v1/chat/completions`, {
@@ -357,3 +372,53 @@ describe('mock LLM server option validation', () => {
       .rejects.toThrow(expected)
   })
 })
+
+it('serves every SSE shape in the Anthropic Messages dialect', async () => {
+  const server = await start([
+    'success',
+    'reasoning_success',
+    'tool_call_success',
+    'stream_eof',
+    'malformed_event',
+    'partial_eof',
+    'wrong_content_type',
+  ], {
+    successText: 'answer',
+    reasoningText: 'think',
+    toolName: 'lookup',
+    toolArguments: '{"id":7}',
+    partialText: 'half',
+    chunkSize: 2,
+  })
+  const bodies: string[] = []
+  const contentTypes: Array<string | null> = []
+  for (let index = 0; index < 7; index += 1) {
+    const response = await messages(server)
+    contentTypes.push(response.headers.get('content-type'))
+    bodies.push(await response.text())
+  }
+  expect(bodies[0]).toContain('"type":"message_start"')
+  expect(bodies[0]).toContain('"type":"text_delta"')
+  expect(bodies[0]).toContain('"stop_reason":"end_turn"')
+  expect(bodies[0]).toContain('"type":"message_stop"')
+  expect(bodies[1]).toContain('"type":"thinking_delta"')
+  expect(bodies[1]).toContain('"type":"content_block_stop"')
+  expect(bodies[2]).toContain('"type":"tool_use"')
+  expect(bodies[2]).toContain('"type":"input_json_delta"')
+  expect(bodies[2]).toContain('"stop_reason":"tool_use"')
+  // A bare text block start, then end without a terminal frame.
+  expect(bodies[3]).toContain('"content_block":{"type":"text","text":""}')
+  expect(bodies[3]).not.toContain('message_stop')
+  expect(bodies[4]).toContain('"content_block":null')
+  expect(bodies[5]).toContain('"text":"ha"')
+  expect(contentTypes[6]).toBe('application/json')
+  expect(server.requests).toHaveLength(7)
+})
+
+it('rejects an invalid Messages API key with its own diagnostic', async () => {
+  const server = await start(['success'], { apiKey: 'expected' })
+  const response = await messages(server, { key: 'wrong' })
+  expect(response.status).toBe(401)
+  expect(await response.text()).toContain('invalid mock API key')
+})
+

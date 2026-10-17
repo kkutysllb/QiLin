@@ -5,7 +5,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, expect, it, vi } from 'vitest'
-import { copyPrimaryRuntime, type PrimaryRuntimeManifest } from '../src/index.ts'
+import { copyPrimaryRuntime, primaryRuntimePythonAliases, type PrimaryRuntimeManifest } from '../src/index.ts'
 
 vi.mock('node:fs/promises', async (importOriginal) => {
   const actual = await importOriginal<typeof fs>()
@@ -84,4 +84,13 @@ it('copies legacy regular Python commands without requiring an optional alias', 
   expect(await readFile(join(destination, 'dependencies/python/bin/python3'), 'utf8')).toBe('legacy interpreter')
   await expect(readFile(join(destination, 'dependencies/python/bin/python'))).rejects.toMatchObject({ code: 'ENOENT' })
   expect(fs.symlink).not.toHaveBeenCalled()
+})
+
+it('rethrows a non-ENOENT alias lookup failure', async () => {
+  const { source, manifest } = await fixture('linux')
+  const actual = await vi.importActual<typeof fs>('node:fs/promises')
+  vi.mocked(fs.lstat)
+    .mockRejectedValueOnce(Object.assign(new Error('denied'), { code: 'EACCES' }))
+    .mockImplementation(actual.lstat)
+  await expect(primaryRuntimePythonAliases(source, manifest)).rejects.toMatchObject({ code: 'EACCES' })
 })

@@ -1,4 +1,4 @@
-import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, sep } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -136,6 +136,12 @@ describe('bundled Office skills', () => {
       await ctx.plugin(SkillRegistry)
       expect(() => { SkillOffice.apply(ctx, { assetRoot: 'assets' }) }).toThrow('absolute directory')
       await cp(assets, root, { recursive: true })
+      // A directory at the checker path is present but not the required file.
+      await rm(join(root, 'scripts', 'check_office.py'))
+      await mkdir(join(root, 'scripts', 'check_office.py'))
+      expect(() => { SkillOffice.apply(ctx, { assetRoot: root }) }).toThrow('must contain scripts/check_office.py')
+      await rm(join(root, 'scripts', 'check_office.py'), { recursive: true })
+      await writeFile(join(root, 'scripts', 'check_office.py'), '')
       await rm(join(root, 'office-docx', 'SKILL.md'))
       expect(() => { SkillOffice.apply(ctx, { assetRoot: root }) }).toThrow('SKILL.md')
       await writeFile(join(root, 'office-docx', 'SKILL.md'), '# Missing frontmatter\ndescription: body text\n')

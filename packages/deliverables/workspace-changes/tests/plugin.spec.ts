@@ -412,6 +412,9 @@ describe('workspace-changes without a repository', () => {
       { path: 'mixed.dat', display: 'mixed.dat', added: 0, deleted: 0, oversized: true },
       { path: 'shrinks.txt', display: 'shrinks.txt', added: 1, deleted: 0 },
     ])
+    const foldedSession = ctx.workspaceChanges.session(session.id)
+    expect(foldedSession?.files.find(file => file.path === 'bin.dat')).toMatchObject({ binary: true })
+    expect(foldedSession?.files.find(file => file.path === 'huge.txt')).toMatchObject({ oversized: true })
     const seq = announcedSeq(session)
     expect(await ctx.workspaceChanges.diff(session.id, seq, 0, signal)).toEqual({ kind: 'binary', path: 'bin.dat', display: 'bin.dat' })
     for (const index of [1, 2, 3]) {
@@ -575,6 +578,45 @@ describe('workspace-changes over a whole Session', () => {
     expect(ctx.workspaceChanges.session(SessionId('elsewhere'))).toBeUndefined()
     ctx.emit('session/disposed', session)
     expect(ctx.workspaceChanges.session(session.id)).toBeUndefined()
+  })
+
+  it('reports no fold before a Session has an announced turn', async () => {
+    const cwd = await repository()
+    const { ctx } = await boot()
+    const session = ctx.sessions.create(SessionId('no-file-change'), { meta: { cwd } })
+    // The turn/start event creates the Session's recorder, but nothing has been
+    // announced yet, so the folded file list is still empty.
+    startTurn(session, 1)
+    await settle(ctx, session)
+    expect(ctx.workspaceChanges.session(session.id)).toBeUndefined()
+  })
+
+  it('sorts files added out of display order', async () => {
+    const cwd = await scratchDir('qilin-workspace-changes-fold-', cleanups)
+    git(cwd, 'init', '-q', '-b', 'main')
+    await writeFile(join(cwd, 'z.txt'), 'seed\n')
+    git(cwd, 'add', '-A')
+    git(cwd, 'commit', '-q', '-m', 'init')
+    const { ctx } = await boot()
+    const session = ctx.sessions.create(SessionId('order'), { meta: { cwd } })
+
+    startTurn(session, 1)
+    await settle(ctx, session)
+    await mutate(ctx, session, 1, 'write', { file_path: 'z.txt', content: 'z' }, () => writeFile(join(cwd, 'z.txt'), 'z'))
+    endTurn(session, 1)
+    await settle(ctx, session)
+
+    startTurn(session, 2)
+    await settle(ctx, session)
+    // Added after a larger display name, so the fold's comparator must reorder
+    // them; the later middle name makes the sort also see a descending pair.
+    await mutate(ctx, session, 2, 'write', { file_path: 'a.txt', content: 'a' }, () => writeFile(join(cwd, 'a.txt'), 'a'))
+    await mutate(ctx, session, 2, 'write', { file_path: 'm.txt', content: 'm' }, () => writeFile(join(cwd, 'm.txt'), 'm'))
+    endTurn(session, 2)
+    await settle(ctx, session)
+
+    const folded = ctx.workspaceChanges.session(session.id)
+    expect(folded?.files.map(file => file.path)).toEqual(['a.txt', 'm.txt', 'z.txt'])
   })
 
   it('reports no Session fold before any turn was recorded', async () => {

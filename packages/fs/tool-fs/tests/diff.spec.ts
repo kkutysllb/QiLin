@@ -6,7 +6,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { computeHunkDiffs, diffsFromMeta, DIFF_CONTEXT } from '../src/diff.ts'
+import { computeHunkDiffs, diffsFromMeta, DIFF_CONTEXT, pathFromMeta } from '../src/diff.ts'
 import type { JsonValue } from '@qilin-agent/util-values'
 
 const lines = (n: number): string => Array.from({ length: n }, (_, i) => `line${i + 1}`).join('\n') + '\n'
@@ -109,5 +109,17 @@ describe('diffsFromMeta (defensive narrowing)', () => {
     expect(diffsFromMeta(m({ diffs: [null] }))).toBeUndefined()
     expect(diffsFromMeta(m({ diffs: ['x'] }))).toBeUndefined()
     expect(diffsFromMeta(m({ diffs: [[]] }))).toBeUndefined()
+  })
+})
+
+describe('pathFromMeta (defensive narrowing)', () => {
+  it('reads a non-empty path and rejects malformed metadata', () => {
+    expect(pathFromMeta({ path: 'f.txt' })).toBe('f.txt')
+    expect(pathFromMeta(undefined)).toBeUndefined()
+    expect(pathFromMeta(null)).toBeUndefined()
+    expect(pathFromMeta('nope')).toBeUndefined()
+    expect(pathFromMeta([])).toBeUndefined()
+    expect(pathFromMeta({ path: '' })).toBeUndefined()
+    expect(pathFromMeta({ path: 1 })).toBeUndefined()
   })
 })

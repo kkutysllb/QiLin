@@ -248,8 +248,7 @@ export class TurnRecorder {
         })
       })
     }
-    const files = [...folded.values()].sort((left, right) =>
-      left.display < right.display ? -1 : left.display > right.display ? 1 : 0)
+    const files = [...folded.values()].sort(compareDisplay)
     return { cwd: this.cwd, files, total: files.length, added, deleted }
   }
 

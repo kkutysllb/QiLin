@@ -110,6 +110,19 @@ describe('SSH filesystem provider', () => {
     expect(dispatch).toHaveBeenLastCalledWith('fs.edit', { target, edit, expected: { version: 'v2' }, policy }, signal)
   })
 
+  it('writes binary content through a lossless latin1 round-trip', async () => {
+    const { fs, dispatch } = await setup()
+    const written = { operation: 'update', version: 'v2', before: 'old', after: 'remote text' }
+    dispatch.mockResolvedValueOnce(written)
+    const bytes = new Uint8Array([0xff, 0x00, 0x80, 0x0a])
+    const outcome = await fs.writeBytes(target, bytes)
+    expect(dispatch).toHaveBeenLastCalledWith('fs.write', {
+      target, content: Buffer.from(bytes).toString('latin1'), expected: undefined, policy: { mode: 'read-only', workspaceRoot: '/remote/work' },
+    }, undefined)
+    // writeBytes reports no post-write observation of its own.
+    expect(outcome).toEqual({ ...written, after: null })
+  })
+
   it('forwards removal, move, and directory creation with the per-call policy', async () => {
     const { fs, dispatch } = await setup()
     const removed = { directory: true }

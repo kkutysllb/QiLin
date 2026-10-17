@@ -924,3 +924,18 @@ it('mounts a profile-denied preset row disabled and the same row active once exe
   await mountPreset(createScope(scoped, {}).ctx, preset)
   expect(existsSync(loaded)).toBe(true)
 })
+
+it('mounts an empty preset when the scoped context carries no base URL', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'qilin-preset-baseless-'))
+  roots.push(root)
+  const dir = join(root, 'baseless')
+  mkdirSync(dir, { recursive: true })
+  writeFileSync(join(dir, COMPOSITION_FILE), '[]\n')
+  // Drop the harness base before deriving the scope: a derived context cannot
+  // assign the inherited field, and the mount must fall back to the empty base.
+  Reflect.set(ctx, 'baseUrl', undefined)
+  const scopeCtx = createScope(ctx, {}).ctx
+  await mountPreset(scopeCtx, { id: 'baseless', trust: 'user', path: join(dir, COMPOSITION_FILE) })
+  expect(livePresetMounts().filter(mount => mount.presetId === 'baseless')).toHaveLength(1)
+})
+

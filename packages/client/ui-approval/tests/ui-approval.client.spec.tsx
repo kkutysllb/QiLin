@@ -3,10 +3,10 @@ import { Context } from '@qilin-agent/kylin'
 import { createScope, scopeOf } from '@qilin-agent/api-session-controller/client'
 import type { ToolCallId } from '@qilin-agent/llm'
 import type { SessionId } from '@qilin-agent/session/types'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, createEvent, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ApprovalPanel } from '../src/client/ApprovalPanel.tsx'
-import type { ApprovalComposerProps } from '../src/client/contract/slots.ts'
+import type { ApprovalComposerProps, ApprovalPresentationRequest } from '../src/client/contract/slots.ts'
 import { PendingApproval } from '../src/client/contract/slots.ts'
 import { apply, inject } from '../src/client/index.ts'
 import { apply as nodeApply } from '../src/index.ts'
@@ -22,6 +22,17 @@ type ApprovalListener = (
   next: () => Promise<'unavailable'>,
 ) => Promise<unknown>
 
+/** The slot registration the plugin installs, as the registry would receive it. */
+type CapturedRegistration = {
+  options: {
+    select(props: { pendingInteraction: PendingApproval | undefined }): PendingApproval | null
+    inject?: () => {
+      resolveReason: (reason: NonNullable<PendingApproval['displayReason']>) => string
+    }
+  }
+  component: unknown
+}
+
 interface PluginBench {
   readonly ctx: Context
   readonly listener: ApprovalListener
@@ -31,24 +42,16 @@ interface PluginBench {
   readonly disposeLocale: ReturnType<typeof vi.fn>
   readonly register: ReturnType<typeof vi.fn>
   readonly injectSlot: ReturnType<typeof vi.fn>
+  readonly shortcuts: { id: string; label: () => string; keys: readonly string[]; group: string }[]
+  readonly resolveText: ReturnType<typeof vi.fn>
   releasePending(): Promise<void>
-  registration(): {
-    options: {
-      select(props: { pendingInteraction: PendingApproval | undefined }): PendingApproval | null
-    }
-    component: unknown
-  }
+  registration(): CapturedRegistration
 }
 
 function setupPlugin(): PluginBench {
   const ctx = new Context()
   let listener: ApprovalListener | undefined
-  let registration: {
-    options: {
-      select(props: { pendingInteraction: PendingApproval | undefined }): PendingApproval | null
-    }
-    component: unknown
-  } | undefined
+  let registration: CapturedRegistration | undefined
   const disposeSlot = vi.fn()
   const disposeLocale = vi.fn()
   const pending = new Map<PendingApproval, () => Promise<void>>()
@@ -60,8 +63,11 @@ function setupPlugin(): PluginBench {
     pending.set(value, delegate)
     return () => { pending.delete(value) }
   })
+  const shortcuts: { id: string; label: () => string; keys: readonly string[]; group: string }[] = []
+  // locale.resolveText picks the active language out of the requester's record.
+  const resolveText = vi.fn((reason: { readonly en: string }) => reason.en)
   const register = vi.fn((
-    options: NonNullable<typeof registration>['options'],
+    options: CapturedRegistration['options'],
     component: unknown,
   ) => {
     registration = { options, component }
@@ -82,6 +88,16 @@ function setupPlugin(): PluginBench {
   ctx.provide('slots', { inject: injectSlot, register } as never)
   ctx.provide('locale', {
     register: vi.fn(() => disposeLocale),
+    bind: () => (key: string) => key,
+    resolveText,
+  } as never)
+  // The fixed Enter/Escape references are installed only when a shortcuts
+  // registry is composed; the bench records what the plugin contributes.
+  ctx.provide('shortcuts', {
+    registerFixed: (command: { id: string; label: () => string; keys: readonly string[]; group: string }) => {
+      shortcuts.push(command)
+      return () => { shortcuts.splice(shortcuts.indexOf(command), 1) }
+    },
   } as never)
 
   apply(ctx)
@@ -95,6 +111,8 @@ function setupPlugin(): PluginBench {
     disposeLocale,
     register,
     injectSlot,
+    shortcuts,
+    resolveText,
     async releasePending() {
       const delegates = [...pending.values()]
       pending.clear()
@@ -307,6 +325,7 @@ describe('approval Remote Event consumer', () => {
 function panelProps(
   pending: PendingApproval,
   renderSlot: ApprovalComposerProps['renderSlot'] = vi.fn(() => null),
+  resolveReason: ApprovalComposerProps['resolveReason'] = reason => reason.en,
 ): ApprovalComposerProps {
   const messages: Record<string, string> = {
     waiting: 'Waiting',
@@ -318,6 +337,7 @@ function panelProps(
   return {
     matched: pending,
     renderSlot,
+    resolveReason,
     t: (key: string) => messages[key] ?? key,
   } as unknown as ApprovalComposerProps
 }
@@ -369,6 +389,193 @@ describe('ApprovalPanel', () => {
     })
     pending.abort(new Error('test cleanup'))
     await pending.result.catch(() => {})
+  })
+})
+
+describe('ApprovalPanel fixed keys', () => {
+  /** Render the takeover with focus parked inside its own detail group. */
+  function mountFlow(pending: PendingApproval, renderSlot?: ApprovalComposerProps['renderSlot']) {
+    render(<ApprovalPanel {...panelProps(pending, renderSlot)} />)
+    const box = screen.getByRole('group', { name: 'Approval details' })
+    box.focus()
+    return box
+  }
+
+  /** One pending request plus a spy that keeps an ignored gesture observable. */
+  function watched(request: ApprovalPresentationRequest = { toolName: 'bash' }) {
+    const pending = new PendingApproval(id('s1'), request)
+    return { pending, answer: vi.spyOn(pending, 'answer') }
+  }
+
+  /** Settle a request whose panel never answered it. */
+  async function abandon(pending: PendingApproval): Promise<void> {
+    pending.abort(new Error('test cleanup'))
+    await pending.result.catch(() => {})
+  }
+
+  it('allows with Enter and rejects with Escape while focus is inside the panel', async () => {
+    const allowed = new PendingApproval(id('s1'), { toolName: 'bash' })
+    fireEvent.keyDown(mountFlow(allowed), { key: 'Enter' })
+    await expect(allowed.result).resolves.toBe('allowed-once')
+    cleanup()
+
+    const rejected = new PendingApproval(id('s1'), { toolName: 'bash' })
+    fireEvent.keyDown(mountFlow(rejected), { key: 'Escape' })
+    await expect(rejected.result).resolves.toBe('rejected')
+  })
+
+  it('ignores a gesture another handler already consumed', async () => {
+    const { pending, answer } = watched()
+    const box = mountFlow(pending)
+    const consumed = createEvent.keyDown(box, { key: 'Enter' })
+    consumed.preventDefault()
+    fireEvent(box, consumed)
+    expect(answer).not.toHaveBeenCalled()
+    await abandon(pending)
+  })
+
+  it('ignores a gesture while focus is outside the panel', async () => {
+    const { pending, answer } = watched()
+    const box = mountFlow(pending)
+    box.blur()
+    expect(document.activeElement).toBe(document.body)
+    fireEvent.keyDown(box, { key: 'Enter' })
+    expect(answer).not.toHaveBeenCalled()
+    await abandon(pending)
+  })
+
+  it('leaves a focused editable control its own keys', async () => {
+    const { pending, answer } = watched({ toolName: 'bash', callId: 'call-1' as ToolCallId })
+    mountFlow(pending, () => <textarea data-testid="approval-command" defaultValue="pnpm test" />)
+    const command = screen.getByTestId('approval-command')
+    command.focus()
+    fireEvent.keyDown(command, { key: 'Enter' })
+    fireEvent.keyDown(command, { key: 'Escape' })
+    expect(answer).not.toHaveBeenCalled()
+    await abandon(pending)
+  })
+
+  it('ignores keys other than Enter and Escape', async () => {
+    const { pending, answer } = watched()
+    fireEvent.keyDown(mountFlow(pending), { key: 'a' })
+    expect(answer).not.toHaveBeenCalled()
+    await abandon(pending)
+  })
+
+  it('leaves Enter on a focused control to that control, while Escape still rejects', async () => {
+    const { pending, answer } = watched()
+    mountFlow(pending)
+    const allow = screen.getByRole('button', { name: 'Allow once' })
+    allow.focus()
+    fireEvent.keyDown(allow, { key: 'Enter' })
+    expect(answer).not.toHaveBeenCalled()
+
+    // Escape is not a control activation: it rejects from wherever focus sits.
+    fireEvent.keyDown(allow, { key: 'Escape' })
+    expect(answer).toHaveBeenCalledWith('rejected')
+    await pending.result
+  })
+
+  it.each([
+    { name: 'Control', init: { ctrlKey: true } },
+    { name: 'Meta', init: { metaKey: true } },
+    { name: 'Alt', init: { altKey: true } },
+    { name: 'Shift', init: { shiftKey: true } },
+  ])('ignores Enter carrying the $name modifier', async ({ init }) => {
+    const { pending, answer } = watched()
+    fireEvent.keyDown(mountFlow(pending), { key: 'Enter', ...init })
+    expect(answer).not.toHaveBeenCalled()
+    await abandon(pending)
+  })
+
+  it('ignores a repeated, composing, or IME-229 Enter', async () => {
+    const { pending, answer } = watched()
+    const box = mountFlow(pending)
+    fireEvent.keyDown(box, { key: 'Enter', repeat: true })
+    fireEvent.keyDown(box, { key: 'Enter', isComposing: true })
+    fireEvent.keyDown(box, { key: 'Enter', keyCode: 229 })
+    expect(answer).not.toHaveBeenCalled()
+    await abandon(pending)
+  })
+
+  it('answers once while a decision is still in flight', () => {
+    const pending = new PendingApproval(id('s1'), { toolName: 'bash' })
+    // A decision the transport never acknowledges keeps the panel waiting.
+    const answer = vi.spyOn(pending, 'answer').mockImplementation(() => new Promise<void>(() => {}))
+    const box = mountFlow(pending)
+    fireEvent.keyDown(box, { key: 'Enter' })
+    fireEvent.keyDown(box, { key: 'Enter' })
+    expect(answer).toHaveBeenCalledOnce()
+    pending.abort(new Error('test cleanup'))
+    void pending.result.catch(() => {})
+  })
+
+  it('does nothing when the answer fails after the panel unmounted', async () => {
+    const reported = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const pending = new PendingApproval(id('s1'), { toolName: 'bash' })
+    const answer = vi.spyOn(pending, 'answer').mockRejectedValue(new Error('transport closed'))
+    const view = render(<ApprovalPanel {...panelProps(pending)} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Allow once' }))
+    view.unmount()
+    for (let round = 0; round < 4; round++) await Promise.resolve()
+
+    expect(answer).toHaveBeenCalledOnce()
+    expect(reported).not.toHaveBeenCalled()
+    reported.mockRestore()
+    await abandon(pending)
+  })
+
+  it('shows the requester display copy resolved for the active language', () => {
+    const pending = new PendingApproval(id('s1'), {
+      toolName: 'bash',
+      displayReason: { en: 'Custom copy', zh: '自定义文案' },
+    })
+    const resolveReason = vi.fn(() => '自定义文案')
+    render(<ApprovalPanel {...panelProps(pending, undefined, resolveReason)} />)
+
+    expect(screen.getByText('自定义文案')).toBeTruthy()
+    expect(resolveReason).toHaveBeenCalledWith({ en: 'Custom copy', zh: '自定义文案' })
+    void pending.result.catch(() => {})
+  })
+})
+
+describe('approval registrations', () => {
+  it('carries the requester-supplied display copy through to the composer', async () => {
+    const bench = setupPlugin()
+    const scope = createScope(bench.ctx, id('s1'))
+    await scope.fiber.await()
+    const result = bench.listener.call(scope.ctx, {
+      toolName: 'bash',
+      displayReason: { en: 'The tool wants to run a command', zh: '工具想要运行命令' },
+    }, () => Promise.resolve('unavailable'))
+    const pending = bench.pending.getSnapshot()[0]!
+    expect(pending.displayReason).toEqual({ en: 'The tool wants to run a command', zh: '工具想要运行命令' })
+
+    await pending.answer('allowed-once')
+    await expect(result).resolves.toBe('allowed-once')
+    await scope.fiber.dispose()
+  })
+
+  it('installs the fixed Enter and Escape references until the plugin leaves', async () => {
+    const bench = setupPlugin()
+    await vi.waitFor(() => { expect(bench.shortcuts).toHaveLength(2) })
+    expect(bench.shortcuts.map(row => [row.id, row.group, row.keys]))
+      .toEqual([['approval.allow', 'approval', ['Enter']], ['approval.reject', 'approval', ['Esc']]])
+    // The references carry dictionary keys resolved on demand, not frozen copy.
+    expect(bench.shortcuts.map(row => row.label())).toEqual(['allowOnce', 'reject'])
+
+    await bench.ctx.fiber.dispose()
+    expect(bench.shortcuts).toEqual([])
+  })
+
+  it('resolves Tool-owned copy through the locale on the registration inject face', async () => {
+    const bench = setupPlugin()
+    const inject = bench.registration().options.inject
+    if (inject === undefined) throw new Error('the composer registration carries no inject face')
+
+    expect(inject().resolveReason({ en: 'Custom copy', zh: '自定义文案' })).toBe('Custom copy')
+    expect(bench.resolveText).toHaveBeenCalledWith({ en: 'Custom copy', zh: '自定义文案' })
+    await bench.ctx.fiber.dispose()
   })
 })
 

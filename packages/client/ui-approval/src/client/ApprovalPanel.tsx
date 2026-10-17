@@ -28,8 +28,6 @@ function ApprovalFlow({ pending, reason, detail, t }: {
   const [answered, setAnswered] = useState(false)
   const active = useRef(false)
   const waiting = useRef(false)
-  const composing = useRef(false)
-  const compositionEnded = useRef(false)
   useEffect(() => {
     active.current = true
     return () => { active.current = false }
@@ -57,13 +55,12 @@ function ApprovalFlow({ pending, reason, detail, t }: {
     event.preventDefault()
     event.stopPropagation()
     // oxlint-disable-next-line typescript/no-deprecated -- IME 229 covers engines without isComposing.
-    if (event.repeat || composing.current || compositionEnded.current || event.nativeEvent.isComposing || event.keyCode === 229) return
+    if (event.repeat || event.nativeEvent.isComposing || event.keyCode === 229) return
     answer(event.key === 'Enter' ? 'allowed-once' : 'rejected')
   }
   return (
     <div className={css.root} data-approval-key={pending.key} aria-busy={answered}
       onKeyDown={keydown}
-      onKeyUpCapture={() => { compositionEnded.current = false }}
     >
       <div className={css.card}>
         <div className={css.strip}><span className={css.dot} />{t('waiting')}</div>

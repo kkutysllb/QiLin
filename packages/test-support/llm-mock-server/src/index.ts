@@ -370,6 +370,9 @@ function terminalChunk(reason: string, outputTokens: number, dialect: MockDialec
   if (dialect === 'messages') {
     return {
       type: 'message_delta',
+      // Every behavior emits one of the three mapped reasons; the fallback keeps
+      // a future reason visible on the wire instead of dropping it.
+      /* v8 ignore next -- no behavior passes an unmapped stop reason */
       delta: { stop_reason: MESSAGE_STOP_REASON[reason] ?? reason, stop_sequence: null },
       usage: { output_tokens: outputTokens },
     }

@@ -399,6 +399,31 @@ describe('DockSurface', () => {
     expect(observer.disconnect).toHaveBeenCalledTimes(1)
   })
 
+  it('renders a surface where the platform has no ResizeObserver', () => {
+    // The kit must stand on a browser that ships no ResizeObserver: the surface
+    // still lays itself out and reports its room, just without live re-reads.
+    vi.stubGlobal('ResizeObserver', undefined)
+    const controller = seededController()
+    controller.setExpanded(true)
+    const snapshot = controller.getSnapshot()
+    const onRoom = vi.fn()
+    render(
+      <DockSurface
+        state={snapshot.state}
+        canSplit
+        intents={controller}
+        labels={TEST_LABELS}
+        renderTab={tab => <p>{tab.contentId}</p>}
+        onRoom={onRoom}
+      />,
+    )
+    expect(document.querySelector('[data-dockkit-surface]')).not.toBeNull()
+    expect(onRoom).toHaveBeenCalled()
+    // The chip box's fade band arrives with the first layout pass even though
+    // nothing observes the box afterwards.
+    expect(document.querySelector('[data-dockkit-strip-tabs]')).not.toBeNull()
+  })
+
   // The room reading must not flip with the hidden control's own footprint:
   // hiding the width-blocked control widens the fill by the control plus the
   // strip's gap, and a reading that counted the control would fit again, show

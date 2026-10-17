@@ -30,8 +30,9 @@ import type { PtcBindingFunction, PtcJsonValue, PtcRunResult } from '@qilin-agen
  * records the same race and solves it with argv-based identity; recording the
  * mkdtempSync results is the fs-mock equivalent.
  */
-const { failNextCopyOf, stagedDirs, tempDirs, tempFiles } = vi.hoisted(() => ({
+const { failNextCopyOf, fakeProcStat, stagedDirs, tempDirs, tempFiles } = vi.hoisted(() => ({
   failNextCopyOf: { value: undefined as string | undefined },
+  fakeProcStat: { value: undefined as string | undefined },
   stagedDirs: [] as string[],
   // Test-created temp dirs/files, registered by the helpers below and removed
   // after each test: a suite run over real python3 subprocesses must not
@@ -56,6 +57,10 @@ vi.mock('node:fs', async (importOriginal) => {
       const dir = actual.mkdtempSync(prefix)
       if (basename(prefix).startsWith('qilin-ptc-runtime-python-')) stagedDirs.push(dir)
       return dir
+    },
+    readFileSync(path: string, options?: { encoding?: null } | null): string | Buffer {
+      if (fakeProcStat.value !== undefined && path === '/proc/42/stat') return fakeProcStat.value
+      return actual.readFileSync(path, options as never)
     },
   }
 })
@@ -801,6 +806,21 @@ describe('PythonPtcRuntime — process identity', () => {
       // signals the pgid without the identity re-check instead of paying a `ps`
       // fork per signal.
       expect(own).toBeUndefined()
+    }
+  })
+
+  it('reads the start-time field from /proc on Linux and degrades when it cannot', () => {
+    const platform = process.platform
+    Object.defineProperty(process, 'platform', { value: 'linux', configurable: true })
+    try {
+      fakeProcStat.value = ['S', ...Array.from({ length: 18 }, (_, index) => String(index + 1)), '999'].join(' ')
+      expect(readProcessStart(42)).toBe('999')
+      // An unreadable entry (a reaped pid, or a host without /proc) is undefined.
+      fakeProcStat.value = undefined
+      expect(readProcessStart(42)).toBeUndefined()
+    } finally {
+      fakeProcStat.value = undefined
+      Object.defineProperty(process, 'platform', { value: platform, configurable: true })
     }
   })
 })

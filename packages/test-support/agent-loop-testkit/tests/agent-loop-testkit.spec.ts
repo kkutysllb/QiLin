@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
+import LocalFileSystem from '@qilin-agent/fs-local'
 import { createUserMessage } from '@qilin-agent/llm'
 import { Session, SessionId, SessionSeq } from '@qilin-agent/session'
 import { renderPrompt } from '@qilin-agent/system-prompt'
@@ -33,6 +34,15 @@ describe('qilin-agent-loop-testkit', () => {
     expect(renderPrompt(await ctx.systemPrompt.assemble())).toContain('Test persona.')
     await expect(mountAgentLoopTestHarness(ctx)).resolves.toBeDefined()
 
+    await ctx.fiber.dispose()
+  })
+
+  it('reuses a pre-mounted filesystem when working-directory support is requested', async () => {
+    const ctx = new Context()
+    await ctx.plugin(LocalFileSystem, { cwd: process.cwd() })
+    await mountAgentLoopTestDependencies(ctx, { workingDirectory: true })
+    expect(ctx.get('fs')).toBeDefined()
+    expect(ctx.get('workingDirectory')).toBeDefined()
     await ctx.fiber.dispose()
   })
 

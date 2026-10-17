@@ -267,6 +267,17 @@ describe('produced-file Turn data', () => {
     expect(producedForClosing(deliverablesOf(value))).toEqual([])
   })
 
+  it('keeps an absolute argument target when the recorded path is not absolute', () => {
+    // A Host that recorded a workspace-relative path cannot pin the file, so the
+    // absolute argument the tool was called with still names it.
+    const value = assembler([
+      at(1, 'turn/start', { turn: 1 }),
+      call(2, 'write', 'write', { file_path: '/project/child/report.txt', content: 'child' }),
+      result(3, 'write', false, 1, { path: 'report.txt' }),
+    ])
+    expect(producedForClosing(deliverablesOf(value))).toEqual(['/project/child/report.txt'])
+  })
+
   it('folds successful first-party mutation paths from their raw arguments', () => {
     const value = assembler([
       at(1, 'turn/start', { turn: 1 }),

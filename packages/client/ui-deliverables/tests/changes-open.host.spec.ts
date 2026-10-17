@@ -17,7 +17,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { registerPresentOpen } from '../src/present-open.ts'
 import {
   changedFileUrl, changesDiffUrl, changesSessionUrl, changesSummaryUrl, CHANGES_DIFF_PATH, CHANGES_OPEN_PATH,
-  CHANGES_SESSION_PATH, CHANGED_FILES_PATH, isChangedFile, isChangesDiff, isChangesEvent, isChangesSummary,
+  CHANGES_SESSION_PATH, CHANGED_FILES_PATH, isChangedFile, isChangesDiff, isChangesEvent, isChangesSession,
+  isChangesSummary, isSessionChangedFile,
 } from '../src/changes.ts'
 
 const cleanups: Array<() => Promise<unknown>> = []
@@ -229,5 +230,39 @@ describe('changed files native open route', () => {
     expect(isChangesEvent({ turn: 0 })).toBe(false)
     expect(isChangesEvent({ turn: '1' })).toBe(false)
     expect(isChangesEvent(null)).toBe(false)
+  })
+
+  it('validates the Session change list and its folded records', () => {
+    const folded = {
+      path: '/work/app/src/app.ts', display: 'src/app.ts', added: 12, deleted: 3,
+      turns: 2, lastTurn: 4, lastSeq: 9, lastIndex: 1,
+    }
+    expect(isSessionChangedFile(folded)).toBe(true)
+    expect(isSessionChangedFile({ ...folded, binary: true })).toBe(true)
+    expect(isSessionChangedFile({ ...folded, oversized: true })).toBe(true)
+    expect(isSessionChangedFile({ ...folded, binary: false })).toBe(false)
+    expect(isSessionChangedFile({ ...folded, oversized: 'yes' })).toBe(false)
+    // A record must name a path and a display path, and its coordinates must be
+    // whole non-negative numbers with at least one turn behind them.
+    expect(isSessionChangedFile({ ...folded, path: 7 })).toBe(false)
+    expect(isSessionChangedFile({ ...folded, path: '' })).toBe(false)
+    expect(isSessionChangedFile({ ...folded, display: 7 })).toBe(false)
+    expect(isSessionChangedFile({ ...folded, display: '' })).toBe(false)
+    expect(isSessionChangedFile({ ...folded, added: -1 })).toBe(false)
+    expect(isSessionChangedFile({ ...folded, deleted: 1.5 })).toBe(false)
+    expect(isSessionChangedFile({ ...folded, turns: 0 })).toBe(false)
+    expect(isSessionChangedFile({ ...folded, lastTurn: 0 })).toBe(false)
+    expect(isSessionChangedFile({ ...folded, lastSeq: -2 })).toBe(false)
+    expect(isSessionChangedFile({ ...folded, lastIndex: 0.5 })).toBe(false)
+    expect(isSessionChangedFile([])).toBe(false)
+
+    expect(isChangesSession({ total: 0, added: 0, deleted: 0, files: [] })).toBe(true)
+    expect(isChangesSession({ total: 1, added: 12, deleted: 3, files: [folded] })).toBe(true)
+    expect(isChangesSession({ total: '0', added: 0, deleted: 0, files: [] })).toBe(false)
+    expect(isChangesSession({ total: 0, added: 0, deleted: 'x', files: [] })).toBe(false)
+    expect(isChangesSession({ total: 0, added: 0, deleted: 0 })).toBe(false)
+    expect(isChangesSession({ total: 2, added: 12, deleted: 3, files: [folded] })).toBe(false)
+    expect(isChangesSession({ total: 1, added: 12, deleted: 3, files: [{ path: 'a' }] })).toBe(false)
+    expect(isChangesSession(null)).toBe(false)
   })
 })

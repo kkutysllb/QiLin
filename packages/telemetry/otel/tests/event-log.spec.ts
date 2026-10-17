@@ -1,13 +1,14 @@
 import { Agent, createServer, type RequestListener } from 'node:http'
 import { Agent as HttpsAgent } from 'node:https'
 import { once } from 'node:events'
+import { gunzipSync } from 'node:zlib'
 import { afterEach, expect, it, vi } from 'vitest'
 import { EventLogReporter, type EventLogOptions } from '../src/event-log.ts'
 
 const cleanup: (() => Promise<void>)[] = []
 afterEach(async () => {
   try { for (const dispose of cleanup.splice(0).reverse()) await dispose() }
-  finally { vi.restoreAllMocks() }
+  finally { vi.restoreAllMocks(); vi.unstubAllEnvs() }
 })
 
 async function collector(listener: RequestListener) {
@@ -56,6 +57,27 @@ it('releases its dedicated agent after exporting explicit asynchronous headers',
   expect(onFailure).not.toHaveBeenCalled()
   expect(headers).toMatchObject([{ 'x-test': 'explicit', 'user-agent': 'synthetic-client' }])
   expect(destroy).toHaveBeenCalled()
+})
+
+it('gzip-compresses exports when the environment selects gzip', async () => {
+  vi.stubEnv('OTEL_EXPORTER_OTLP_LOGS_COMPRESSION', 'gzip')
+  const bodies: Buffer[] = []
+  const encodings: unknown[] = []
+  const url = await collector((req, res) => {
+    encodings.push(req.headers['content-encoding'])
+    const chunks: Buffer[] = []
+    req.on('data', (chunk: Buffer) => chunks.push(chunk))
+    req.on('end', () => {
+      bodies.push(Buffer.concat(chunks))
+      res.end('{}')
+    })
+  })
+  const { sender, onFailure } = reporter(url)
+  sender.emit(event)
+  await sender.shutdown()
+  expect(onFailure).not.toHaveBeenCalled()
+  expect(encodings).toEqual(['gzip'])
+  expect(JSON.parse(gunzipSync(bodies[0]!).toString('utf8'))).toHaveProperty('resourceLogs')
 })
 
 it('releases the HTTPS agent after a TLS connection failure', async () => {

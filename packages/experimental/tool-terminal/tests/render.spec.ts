@@ -71,3 +71,15 @@ describe('tool-terminal rendering', () => {
     expect(boundTerminalText('x'.repeat(200), 32).endsWith('[output truncated]')).toBe(true)
   })
 })
+
+import { sendSource } from '../src/background.ts'
+
+describe('background send source', () => {
+  it('delivers nothing before the send exists and counts delivered bytes', () => {
+    const missing = sendSource(() => undefined)
+    expect(missing.read(7)).toEqual({ text: '', nextOffset: 7, lossy: false })
+    const live = sendSource(() => ({ readOutput: () => ({ delta: 'ok', truncated: false }) }) as never)
+    const read = live.read(7)
+    expect(read).toMatchObject({ text: 'ok', nextOffset: 9, lossy: false })
+  })
+})

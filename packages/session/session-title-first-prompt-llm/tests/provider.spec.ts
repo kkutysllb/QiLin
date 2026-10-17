@@ -196,6 +196,13 @@ describe('first-prompt LLM title provider', () => {
     await expect(maxTokens.ctx.sessionTitle.refresh(maxTokensSession)).rejects.toThrow(/reached maxOutputTokens/)
   })
 
+  it('rejects non-positive title-length targets', () => {
+    expect(() => { providerPlugin.apply(new Context(), { ...LLM_CONFIG, targetWords: 0 }) })
+      .toThrow('session-title-first-prompt-llm: targetWords must be a positive integer')
+    expect(() => { providerPlugin.apply(new Context(), { ...LLM_CONFIG, targetCjkCharacters: -1 }) })
+      .toThrow('session-title-first-prompt-llm: targetCjkCharacters must be a positive integer')
+  })
+
   it('rejects tool-call blocks and a successful response with no text', async () => {
     const tool = await harness([
       { type: 'block-start', index: 0, blockType: 'tool-call' },

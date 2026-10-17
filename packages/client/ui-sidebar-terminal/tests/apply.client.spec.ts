@@ -141,6 +141,22 @@ it('registers no settings section now that the terminal font role lives in the t
   expect(registered).toEqual([])
 })
 
+it('migrates a retired section that carries only a size preference', async () => {
+  // The family field was left at its default, so only the size carries a choice;
+  // the migration still moves it into the theme section.
+  const h = await mountPlugin({ fontFamily: '', fontSize: 22 })
+  try {
+    expect(h.theme.fontSizes.terminal).toBe(22)
+    expect(h.theme.fontFamilies.terminal).toBe('')
+    const body = h.entries.find(entry => entry.component === LazyTerminalBody)!
+      .inject('session' as SessionId) as TerminalBodyInjected
+    expect(body.hooks.font.getSnapshot().fontSize).toBe(22)
+    expect(body.hooks.font.getSnapshot().fontFamily).toContain('monospace')
+  } finally {
+    await h.dispose()
+  }
+})
+
 it('registers terminal views, recovery and cleanup, then releases every contribution on unload', async () => {
   const h = await mountPlugin()
   try {

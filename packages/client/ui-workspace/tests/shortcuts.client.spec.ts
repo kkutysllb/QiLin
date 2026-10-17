@@ -16,14 +16,18 @@ interface MainViewSession {
   readonly id: string
   readonly displayTitle: string
   readonly blank: boolean
-  readonly retainedBy: { readonly mainView: number }
+  readonly retainedBy: { readonly mainView?: number }
 }
 
 /** Provide the locale rows and a capturing shortcuts registry on a bare Context. */
-async function bench() {
+async function bench(options: { directoryFlow?: boolean } = {}) {
   const ctx = new Context()
-  await ctx.plugin(SlotRegistry).await()
-  const registered: { id: string; resolve: () => unknown }[] = []
+  // A composition that mounts the directory picker flow owns the slot this
+  // package's add command asks about; a bare registry declares none.
+  if (options.directoryFlow === true) {
+    ctx.provide('slots', { entries: () => [{ id: 'directoryFlow' }] } as never)
+  } else await ctx.plugin(SlotRegistry).await()
+  const registered: { id: string; label: () => string; resolve: () => unknown }[] = []
   let sessions: readonly MainViewSession[] = []
   ctx.provide('locale', {
     register: () => () => {},
@@ -39,7 +43,7 @@ async function bench() {
     },
   })
   ctx.provide('shortcuts', {
-    register: (command: { id: string; resolve: () => unknown }) => {
+    register: (command: { id: string; label: () => string; resolve: () => unknown }) => {
       registered.push(command)
       return () => {}
     },
@@ -51,8 +55,11 @@ async function bench() {
 }
 
 /** Install the registrations and return the captured resolve functions by command id. */
-async function installed(sessions: readonly MainViewSession[] = []) {
-  const b = await bench()
+async function installed(
+  sessions: readonly MainViewSession[] = [],
+  options: { directoryFlow?: boolean } = {},
+) {
+  const b = await bench(options)
   b.setSessions(sessions)
   const navigation = { startSession: vi.fn(), forkSession: vi.fn(async () => undefined) }
   const archiveSession = vi.fn()
@@ -109,6 +116,54 @@ describe('installWorkspaceShortcuts', () => {
     // Without a directory flow the add command is blocked with the picker reason;
     // the busy-picker branch and the request itself are the browser row's contract.
     expect(h.command('workspace.add')).toMatchObject({ status: 'blocked', reason: en['shortcut.noPicker'] })
+  })
+
+  it('labels the commands from the workspace dictionary', async () => {
+    const { registered } = await installed()
+    expect(registered.map(row => row.label())).toEqual([
+      en['session.new'], en['search.sessions.aria'], en['workspace.add'],
+      en['rename.session.title'], en['menu.fork'], en['menu.archiveSession'],
+    ])
+  })
+
+  it('offers the add command only while the directory flow is composed and free', async () => {
+    const h = await installed([], { directoryFlow: true })
+    expect(h.command('workspace.add')).toMatchObject({ status: 'handled' })
+    h.command('workspace.add').run?.()
+    expect(h.controls.state.getSnapshot().addRequested).toBe(true)
+
+    // A picker already in flight blocks the request instead of queueing it.
+    h.controls.closeAdd()
+    h.controls.directoryBusy(true)
+    expect(h.command('workspace.add')).toMatchObject({ status: 'blocked', reason: en['shortcut.directoryBusy'] })
+  })
+
+  it('treats a session retained only outside the main view as absent', async () => {
+    const h = await installed([{ id: 's9', displayTitle: 'Elsewhere', blank: false, retainedBy: {} }])
+    expect(h.command('session.rename')).toMatchObject({ status: 'blocked', reason: en['shortcut.noSession'] })
+    expect(h.command('session.archive')).toMatchObject({ status: 'blocked', reason: en['shortcut.noSession'] })
+  })
+
+  it('reports only a fork failure other than unavailability', async () => {
+    const h = await installed([{ id: 's1', displayTitle: 'Current', blank: false, retainedBy: { mainView: 1 } }])
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      // A session the Host cannot fork is an expected refusal, not a fault.
+      h.navigation.forkSession.mockRejectedValueOnce(Object.assign(new Error('fork unavailable'), {
+        name: 'SessionForkError',
+        rpcError: { code: 'session/fork-unavailable' },
+      }))
+      h.command('session.fork').run?.()
+      await vi.waitFor(() => { expect(h.navigation.forkSession).toHaveBeenCalledTimes(1) })
+      expect(warn).not.toHaveBeenCalled()
+
+      h.navigation.forkSession.mockRejectedValueOnce(new Error('transport closed'))
+      h.command('session.fork').run?.()
+      await vi.waitFor(() => { expect(warn).toHaveBeenCalledOnce() })
+      expect(warn).toHaveBeenCalledWith('session fork rejected:', expect.any(Error))
+    } finally {
+      warn.mockRestore()
+    }
   })
 
   it('resolves rename, fork, and archive against the main-view session', async () => {

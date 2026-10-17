@@ -199,7 +199,8 @@ export function apply(ctx: Context, config: Config): void {
         // backends always take the buffered path.
         const range = info.size === undefined ? null : parseRange(req.headers.range, info.size)
         if (range !== null && 'unsatisfiable' in range) {
-          const size = info.size ?? 0
+          // parseRange runs only when the backend reported a size.
+          const size = info.size as number
           res.writeHead(416, { ...mediaHeaders(type), 'content-range': `bytes */${size}` })
           res.end()
           return

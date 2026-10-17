@@ -263,6 +263,22 @@ describe('direct Messages HTTP', () => {
     await expect(chunks(llm.stream(options()))).rejects.toMatchObject({ code: 'AUTH', failure: { status: 401 } })
   })
 
+  it('throws the error the provider error callback maps', async () => {
+    vi.stubGlobal('fetch', async () => new Response('Unauthorized', { status: 401 }))
+    const mapped = new Error('credential storage repaired the request')
+    const llm = new DeepSeekAdapter({
+      options: () => Messages.resolveAdapterOptions({}),
+      resolveAuth: () => Promise.resolve({ headers: { 'x-api-key': 'fixture-key' },
+        onRequestError: async () => mapped,
+      }),
+      resolveUserId: () => 'fixture-user' as import('@qilin-agent/anonymous-user-id').AnonymousUserId,
+      prepareExtensions,
+    })
+    // The generator wraps a non-LlmError in its transport failure, which proves
+    // the mapped error replaced the original AUTH failure.
+    await expect(chunks(llm.stream(options()))).rejects.toMatchObject({ code: 'TRANSPORT', cause: mapped })
+  })
+
   it('rejects a successful response with no readable body', async () => {
     vi.stubGlobal('fetch', async () => new Response(null, { status: 200 }))
     await expect(chunks(adapter().stream(options()))).rejects.toMatchObject({ code: 'EMPTY_RESPONSE' })

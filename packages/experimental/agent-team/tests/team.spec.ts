@@ -362,6 +362,17 @@ describe('Team identity and provisioning', () => {
     expect(durable(second.lead).members[0]?.phase).toBe('active')
   })
 
+  it('rejects an activation that accepted no initial prompt', async () => {
+    const { ctx, lead } = await setup([])
+    vi.spyOn(ctx.subagents, 'startActivation').mockImplementationOnce(async spec => ({
+      childId: spec.childId!,
+      result: Promise.resolve({ output: [], stopReason: 'completed' as const }),
+      dispose: () => Promise.resolve(),
+    }))
+    await expect(spawn(ctx, lead, 'no-prompt')).rejects.toMatchObject({ code: 'TEAM_PROMPT_NOT_ACCEPTED' })
+    expect(durable(lead).members[0]).toMatchObject({ phase: 'failed', error: 'the spawned teammate accepted no initial prompt' })
+  })
+
   it('cleans up a child when recovery settles its provisioning record first', async () => {
     const { ctx, lead } = await setup(['hang'])
     const start = ctx.subagents.startActivation.bind(ctx.subagents)
