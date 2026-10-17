@@ -76,7 +76,7 @@ async function mounted(options: MountOptions = {}): Promise<Context> {
   }
   const config: Record<string, unknown> = { presets: options.presets ?? PRESETS }
   if (options.defaultPreset !== undefined) config['defaultPreset'] = options.defaultPreset
-  await ctx.plugin(PermissionPresetService, config as never)
+  await ctx.plugin(PermissionPresetService, config)
   return ctx
 }
 
