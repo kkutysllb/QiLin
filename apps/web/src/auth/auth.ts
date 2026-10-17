@@ -58,6 +58,8 @@ const emailNode = requiredElement('auth-email') as HTMLInputElement
 const passwordNode = requiredElement('auth-password') as HTMLInputElement
 const confirmFieldNode = requiredElement('auth-confirm-field') as HTMLDivElement
 const confirmNode = requiredElement('auth-confirm') as HTMLInputElement
+const passwordToggleNode = requiredElement('auth-password-toggle') as HTMLButtonElement
+const confirmToggleNode = requiredElement('auth-confirm-toggle') as HTMLButtonElement
 const errorNode = requiredElement('auth-error') as HTMLParagraphElement
 const submitNode = requiredElement('auth-submit') as HTMLButtonElement
 const toggleRowNode = requiredElement('auth-toggle-row') as HTMLParagraphElement
@@ -90,6 +92,27 @@ function copyText(key: string): string {
   const declared = catalog.get(key)
   if (declared === undefined || declared === '') throw new Error(`auth page: copy key ${key} is missing`)
   return declared
+}
+
+/**
+ * Render one password field's value as plain text or dots, and name its toggle.
+ * @param input - password input the toggle controls.
+ * @param button - toggle beside the input.
+ * @param visible - whether the value renders as plain text.
+ */
+function setPasswordVisible(input: HTMLInputElement, button: HTMLButtonElement, visible: boolean): void {
+  input.type = visible ? 'text' : 'password'
+  button.setAttribute('aria-pressed', String(visible))
+  button.setAttribute('aria-label', copyText(visible ? 'label.hidePassword' : 'label.showPassword'))
+}
+
+/**
+ * Bind one password field's toggle; a click flips the plain-text state.
+ * @param input - password input the toggle controls.
+ * @param button - toggle beside the input.
+ */
+function bindPasswordToggle(input: HTMLInputElement, button: HTMLButtonElement): void {
+  button.addEventListener('click', () => { setPasswordVisible(input, button, input.type === 'password') })
 }
 
 /** Mode this document currently renders. */
@@ -156,6 +179,9 @@ function applyMode(next: AuthMode): void {
   confirmFieldNode.hidden = !creating
   confirmNode.disabled = !creating
   passwordNode.autocomplete = creating ? 'new-password' : 'current-password'
+  // A mode change never carries a revealed password across documents.
+  setPasswordVisible(passwordNode, passwordToggleNode, false)
+  setPasswordVisible(confirmNode, confirmToggleNode, false)
   if (!creating) {
     emailNode.value = ''
     confirmNode.value = ''
@@ -261,6 +287,8 @@ async function start(): Promise<void> {
     void requestSession(event)
   })
   toggleNode.addEventListener('click', switchMode)
+  bindPasswordToggle(passwordNode, passwordToggleNode)
+  bindPasswordToggle(confirmNode, confirmToggleNode)
   const status = await readAccountStatus()
   if (status?.authenticated === true) {
     location.replace(nextDestination())

@@ -296,6 +296,47 @@ html[data-ql-theme='light'] .ql-input {
   border-color: rgb(34 29 21 / 18%);
 }
 
+/* A password field hosts its plain-text toggle inside the input's right edge. */
+.ql-password {
+  position: relative;
+}
+
+.ql-password .ql-input {
+  padding-right: 2.5rem;
+}
+
+.ql-password__toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.375rem;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--ql-radius-field);
+  transform: translateY(-50%);
+  background: transparent;
+  color: var(--ql-ink-low);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.ql-password__toggle:hover {
+  color: var(--ql-ink-hi);
+}
+
+.ql-password__toggle:focus-visible {
+  outline: 2px solid var(--ql-gold-300);
+  outline-offset: 2px;
+}
+
+/* The slash marks the masked state; plain text shows the eye alone. */
+.ql-password__toggle[aria-pressed='true'] .ql-password__slash {
+  display: none;
+}
+
 .ql-input::placeholder {
   color: var(--ql-ink-low);
 }

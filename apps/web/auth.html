@@ -72,6 +72,8 @@
         <span data-copy="label.identifier">用户名或邮箱</span>
         <span data-copy="label.username">用户名</span>
         <span data-copy="label.email">邮箱（可选）</span>
+        <span data-copy="label.showPassword">显示密码</span>
+        <span data-copy="label.hidePassword">隐藏密码</span>
         <span data-copy="placeholder.identifier">请输入用户名或邮箱</span>
         <span data-copy="placeholder.username">3–32 位字母、数字、点、下划线或短横线</span>
         <span data-copy="placeholder.email">用于账户识别，可留空</span>
@@ -164,30 +166,59 @@
               </div>
               <div class="ql-field">
                 <label class="ql-label" for="auth-password">密码</label>
-                <input
-                  class="ql-input"
-                  id="auth-password"
-                  name="password"
-                  type="password"
-                  autocomplete="current-password"
-                  placeholder="请输入密码"
-                  minlength="8"
-                  required
-                />
+                <div class="ql-password">
+                  <input
+                    class="ql-input"
+                    id="auth-password"
+                    name="password"
+                    type="password"
+                    autocomplete="current-password"
+                    placeholder="请输入密码"
+                    minlength="8"
+                    required
+                    
+                  />
+                  <button
+                    class="ql-password__toggle"
+                    id="auth-password-toggle"
+                    type="button"
+                    aria-controls="auth-password"
+                    aria-pressed="false"
+                  >
+                    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+                      <path d="M8 3C4.5 3 1.7 5.4 1 8c.7 2.6 3.5 5 7 5s6.3-2.4 7-5c-.7-2.6-3.5-5-7-5Zm0 8.2A3.2 3.2 0 1 1 8 4.8a3.2 3.2 0 0 1 0 6.4Zm0-1.6a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2Z" fill="currentColor" />
+                      <path class="ql-password__slash" d="m2.6 1.5-1.1 1.1 12 12 1.1-1.1-12-12Z" fill="currentColor" />
+                    </svg>
+                  </button>
+                </div>
               </div>
               <div class="ql-field" id="auth-confirm-field" hidden>
                 <label class="ql-label" for="auth-confirm">确认密码</label>
-                <input
-                  class="ql-input"
-                  id="auth-confirm"
-                  name="confirm"
-                  type="password"
-                  autocomplete="new-password"
-                  placeholder="再次输入密码"
-                  minlength="8"
-                  required
-                  disabled
-                />
+                <div class="ql-password">
+                  <input
+                    class="ql-input"
+                    id="auth-confirm"
+                    name="confirm"
+                    type="password"
+                    autocomplete="new-password"
+                    placeholder="再次输入密码"
+                    minlength="8"
+                    required
+                    disabled
+                  />
+                  <button
+                    class="ql-password__toggle"
+                    id="auth-confirm-toggle"
+                    type="button"
+                    aria-controls="auth-confirm"
+                    aria-pressed="false"
+                  >
+                    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+                      <path d="M8 3C4.5 3 1.7 5.4 1 8c.7 2.6 3.5 5 7 5s6.3-2.4 7-5c-.7-2.6-3.5-5-7-5Zm0 8.2A3.2 3.2 0 1 1 8 4.8a3.2 3.2 0 0 1 0 6.4Zm0-1.6a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2Z" fill="currentColor" />
+                      <path class="ql-password__slash" d="m2.6 1.5-1.1 1.1 12 12 1.1-1.1-12-12Z" fill="currentColor" />
+                    </svg>
+                  </button>
+                </div>
               </div>
               <p class="ql-error" id="auth-error" aria-live="polite" hidden></p>
               <button class="ql-submit" id="auth-submit" type="submit">登录</button>
