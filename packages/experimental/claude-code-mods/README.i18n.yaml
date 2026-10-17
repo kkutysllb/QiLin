@@ -1,0 +1,85 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/experimental/claude-code-mods/README.md
+/:
+  en: 83fa9fc82a5ef40f
+  zh: 391a288864fc1e23
+/qilin-agent-experimental-claude-code-mods:
+  en: 4956f49f4c4e0491
+  zh: 473c7750da314537
+/qilin-agent-experimental-claude-code-mods/summary:
+  en: c186a923282a2eac
+  zh: 680aff22838f576b
+/qilin-agent-experimental-claude-code-mods/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-agent-experimental-claude-code-mods/use-this-package:
+  en: 0a29a503dc9078b2
+  zh: 9fd18b085b0a6f42
+/qilin-agent-experimental-claude-code-mods/use-this-package/which-events-your-mod-receives:
+  en: d2d735b07524c08a
+  zh: 6b90dc578d61ab22
+/qilin-agent-experimental-claude-code-mods/use-this-package/the-band-above-the-prompt:
+  en: 2b04be6b58e61a74
+  zh: f4854198d8999d11
+/qilin-agent-experimental-claude-code-mods/use-this-package/which-members-your-mod-can-call:
+  en: bf4f9f971aeb1d17
+  zh: 83804163ca9039d5
+/qilin-agent-experimental-claude-code-mods/use-this-package/test-a-mod:
+  en: 1c8b72ef8797738a
+  zh: 865b26bcf30d4c97
+/qilin-agent-experimental-claude-code-mods/understand-the-implementation:
+  en: 42b15ac6321706aa
+  zh: cfcb757213648bd9
+/qilin-agent-experimental-claude-code-mods/understand-the-implementation/loading:
+  en: 7b48e62da7d73a85
+  zh: a7f8e46cecb726cf
+/qilin-agent-experimental-claude-code-mods/understand-the-implementation/the-chain:
+  en: 5330d8f5a6c9b992
+  zh: 8f6d167642a1c263
+/qilin-agent-experimental-claude-code-mods/understand-the-implementation/mapping-onto-the-harness:
+  en: 955ed36f58b0a5c4
+  zh: 65b2f0ddc1154be4
+/qilin-agent-experimental-claude-code-mods/understand-the-implementation/source-map:
+  en: a141066b146cef7c
+  zh: fe91851f05c008c4
+/qilin-agent-experimental-claude-code-mods/further-exploration:
+  en: 697796a9fc18c3c2
+  zh: 466cdbfc13c63ae8
+/qilin-agent-experimental-claude-code-mods/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-agent-experimental-claude-code-mods/model-experience/prompt-context-and-submitted-prompts:
+  en: 2e9d6b50a26a5e10
+  zh: d884e62e639cad69
+/qilin-agent-experimental-claude-code-mods/model-experience/prompt-context-and-submitted-prompts/what-the-model-sees:
+  en: 6a1d174d923e84f2
+  zh: a27f777d11741880
+/qilin-agent-experimental-claude-code-mods/model-experience/prompt-context-and-submitted-prompts/what-the-model-sees/framing-of-a-prompt-a-mod-submits:
+  en: f521d5aba5ab7027
+  zh: 5aa721441103f9a7
+/qilin-agent-experimental-claude-code-mods/model-experience/prompt-context-and-submitted-prompts/token-effect:
+  en: 04a7869d92d45eb8
+  zh: 8ddbd20f844dba65
+/qilin-agent-experimental-claude-code-mods/model-experience/prompt-context-and-submitted-prompts/kv-cache-effect:
+  en: 75b19101cbd036ff
+  zh: 193106a75b280c73
+/qilin-agent-experimental-claude-code-mods/model-experience/tool-outcomes-a-mod-decides:
+  en: fe8166c6d3eb962a
+  zh: 5f8fe74778a78166
+/qilin-agent-experimental-claude-code-mods/model-experience/tool-outcomes-a-mod-decides/what-the-model-sees:
+  en: 5b4aa2a1ec36106b
+  zh: c28c286f2a04d716
+/qilin-agent-experimental-claude-code-mods/model-experience/tool-outcomes-a-mod-decides/token-effect:
+  en: cbf27f737c6254e6
+  zh: 333cbb22f97f8955
+/qilin-agent-experimental-claude-code-mods/model-experience/tool-outcomes-a-mod-decides/kv-cache-effect:
+  en: ca31263f47f654d9
+  zh: 17d55e6641705627
+/qilin-agent-experimental-claude-code-mods/known-limitations-and-deferred-work:
+  en: 0623117d21ff84c8
+  zh: d7b943830691101c
+/qilin-agent-experimental-claude-code-mods/known-limitations-and-deferred-work/dev-note:
+  en: 4d1e26f4cc9c3c1c
+  zh: d80209b56c56b11c

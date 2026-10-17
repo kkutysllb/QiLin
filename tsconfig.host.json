@@ -147,6 +147,7 @@
     "apps/cli/tests/**/*.ts",
     "benchmarks/**/*.ts",
     "packages/*/*/tests/**/*.ts",
+    "packages/experimental/claude-code-mods/examples/*/index.ts",
     // Client-face entries pulled into this program by host-side specs and e2e fixtures
     // (apps/web and the settings pages). Listing them satisfies the
     // project file-list rule; the face split is enforced by tsconfig.client.json.
@@ -492,6 +493,7 @@
     { "path": "./packages/guard/repeat-tool-reminder" },
     { "path": "./packages/extensions/kylin-host-runner" },
     { "path": "./packages/extensions/tool-kylin" },
+    { "path": "./packages/experimental/claude-code-mods" },
     { "path": "./packages/experimental/hook-protocol" },
     { "path": "./packages/experimental/hooks-claude-code" },
     { "path": "./packages/experimental/hooks-codex" },
