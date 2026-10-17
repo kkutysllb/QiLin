@@ -1,9 +1,9 @@
 /**
  * CPython subprocess PTC runtime: a fresh `python3` process runs each model program under an
  * asyncio event loop with top-level ``await``. Binding calls travel on fd 3 as JSON-lines,
- * leaving stdout/stderr free for the program's own output. This is containment, not a security
- * boundary: model code has bash-equivalent trust, contained by a tempdir-only environment,
- * RLIMIT_CPU + RLIMIT_AS, wall-clock timeout, and SIGTERM→grace→SIGKILL on the process group.
+ * leaving stdout/stderr free for the program's own output. Direct file effects follow the
+ * shared sandbox policy; CPU, address-space, output, and wall-clock budgets bound each run.
+ * Process-group teardown sends SIGTERM followed by SIGKILL after the configured grace.
  *
  * The package also owns the versionless fd-3 wire protocol itself; its host-side codec and
  * hostile-frame validators are re-exported so every consumer of the wire shares one vocabulary.
@@ -22,7 +22,7 @@ import z from '@qilin-agent/schemastery'
 import { PtcRuntime, DUNDER_MEMBER, PORTABLE_RESERVED_WORDS, RESERVED_BINDING_GLOBALS, RESERVED_ERROR_MEMBERS } from '@qilin-agent/ptc-runtime'
 import type { PtcBindingErrorClass, PtcBindingFunction, PtcJsonValue, PtcRunFailure, PtcRunRequest, PtcRunResult, PtcRunSandbox, PtcRunSpec } from '@qilin-agent/ptc-runtime'
 import { snapshotJsonValue } from '@qilin-agent/util-values'
-import { isRunnerSpawnFailure } from '@qilin-agent/sandbox'
+import { SandboxUnavailableError, classifyRunnerFailure, isRunnerSpawnFailure } from '@qilin-agent/sandbox'
 import type { ConfinedArgv, SandboxExecutionPolicy, SandboxMode } from '@qilin-agent/sandbox'
 import type {} from '@qilin-agent/sandbox-policy'
 import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
@@ -1211,6 +1211,13 @@ export class PythonPtcRuntime extends PtcRuntime {
       try {
         confined = await this.ctx.sandbox.confine(launch, { ...policy, mode: policy.mode }, request.signal)
         sandbox.enforcement = confined.enforcement
+        // A launcher whose argv collapsed to nothing cannot be started under any
+        // interpreter; confine-time detection reports it as sandbox-unavailable.
+        // A MISSING runner executable is NOT re-checked here: the local contract
+        // (tests/spawn-failure.spec.ts) classifies it at spawn time through
+        // isRunnerSpawnFailure, because this deployment's confine returns the
+        // wrapper argv without resolving the interpreter.
+        if (confined.argv[0] === undefined) throw new SandboxUnavailableError(policy.mode, 'sandbox runner argv is empty')
       } catch (error: unknown) {
         try {
           rmSync(bootstrapDir, { recursive: true, force: true })
@@ -1554,7 +1561,13 @@ export class PythonPtcRuntime extends PtcRuntime {
         }
       }
       child.stdout.on('data', (chunk: Buffer) => { captureStray(strayOut, chunk) })
-      child.stderr.on('data', (chunk: Buffer) => { captureStray(strayErr, chunk) })
+      let runnerStderr = Buffer.alloc(0)
+      child.stderr.on('data', (chunk: Buffer) => {
+        if (confined !== undefined) {
+          runnerStderr = Buffer.concat([runnerStderr, chunk]).subarray(-this.config.maxLogBytes)
+        }
+        captureStray(strayErr, chunk)
+      })
       child.stdout.on('end', () => { flushStray(strayOut) })
       child.stderr.on('end', () => { flushStray(strayErr) })
 
@@ -2427,9 +2440,14 @@ export class PythonPtcRuntime extends PtcRuntime {
         // cap SIGXCPU arrives before `cpuSeconds` — the host cannot see the
         // effective value, so it states the ceiling it set rather than a second
         // count it cannot guarantee.
-        finish(signal === 'SIGXCPU'
-          ? { error: { kind: 'timeout', message: `CPU time exhausted (limit at most the configured ${this.config.cpuSeconds}s; a stricter inherited RLIMIT_CPU can fire sooner)` } }
-          : { error: { kind: 'worker-exit', message: `python exited (code=${String(code)}, signal=${String(signal)}) before completing` } })
+        // A confined launcher's refusal (missing interpreter, policy text on
+        // stderr) classifies as sandbox-unavailable before the opaque close fallback.
+        const runnerFailure = confined === undefined ? undefined : classifyRunnerFailure(code, runnerStderr.toString('utf8'), confined.runnerFailureRules)
+        finish(runnerFailure !== undefined
+          ? { error: { kind: 'sandbox-unavailable', message: runnerFailure.detail } }
+          : signal === 'SIGXCPU'
+            ? { error: { kind: 'timeout', message: `CPU time exhausted (limit at most the configured ${this.config.cpuSeconds}s; a stricter inherited RLIMIT_CPU can fire sooner)` } }
+            : { error: { kind: 'worker-exit', message: `python exited (code=${String(code)}, signal=${String(signal)}) before completing` } })
         settle(decided)
       })
 

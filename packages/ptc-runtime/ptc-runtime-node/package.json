@@ -1,6 +1,6 @@
 {
   "name": "@qilin-agent/ptc-runtime-node",
-  "description": "Sandboxed Node process implementation of the QiLin PTC execution capability",
+  "description": "Node PTC execution with per-call sandboxed processes or in-memory REPL state",
   "version": "3.1.6-rc.2",
   "publishConfig": {
     "access": "public"
@@ -25,11 +25,14 @@
     "./process": {
       "types": "./lib/types/process-entry.d.ts",
       "default": "./lib/process.js"
-    }
+    },
+    "./locale/*.json": "./locale/*.json"
   },
   "files": [
+    "locale/*.json",
     "lib/index.js",
     "lib/process.js",
+    "lib/persistent-process.js",
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",

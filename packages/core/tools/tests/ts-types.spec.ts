@@ -170,6 +170,21 @@ describe('renderToolsSdk', () => {
     expect(text).not.toContain('The available tools:')
   })
 
+  it('keeps REPL output syntax distinct from function bodies', () => {
+    const text = renderToolsSdk([bash], 'repl')
+    expect(text).toContain('run_code({ description: "Show current directory", code: "console.log(await tools.bash(')
+    expect(text).not.toContain('return await tools.bash(')
+    expect(text).not.toContain('the body of an async TypeScript function')
+    expect(text).not.toContain('Emit results with `return`')
+  })
+
+  it('uses a returned result in function-body mode', () => {
+    const text = renderToolsSdk([bash])
+    expect(text).toContain('return await tools.bash(')
+    expect(text).toContain('body of an async TypeScript function')
+    expect(text).not.toContain('TypeScript REPL statements')
+  })
+
   it('only shows a bash example accepted by the declared binding', () => {
     expect(renderToolsSdk([exotic])).not.toContain('tools.bash(')
 
