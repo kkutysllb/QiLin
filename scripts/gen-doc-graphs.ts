@@ -401,6 +401,13 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'Associates generated Remote descriptors with live Cordis services, resolves registered identities, and exposes unary calls through the shared Connection RPC carrier.',
   },
   {
+    key: 'remoteAccess',
+    pkg: 'api-remote-access',
+    title: 'Non-owner Remote access decisions',
+    mode: 'core',
+    note: 'Holds one policy per non-owner principal kind; the Gateway resolves the resources a call or event touches and asks for its decision before lookup resolution, list methods filter items through allows(), and every Peer follows its own access snapshot.',
+  },
+  {
     key: 'sessionPersistence',
     pkg: 'session-persistence',
     title: 'Durable session persistence seam',

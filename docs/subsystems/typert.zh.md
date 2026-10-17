@@ -42,25 +42,23 @@ interface TypertLookupDefinition {
 
 ```ts type-equiv
 /** Codec attached to one invocation parameter or result. */
-type TypertCodec =
-  | {
+type TypertCodec<Value = unknown> =
+  | TypertRemoteValue<Value> & {
     readonly mode: 'strict'
     readonly typeSymbol: string
-    /** Materialize and return the process-realm schema on first boundary use. */
-    readonly create: () => TypertSchema
     /**
      * Decode a unary result whose fields require type-specific handling.
      * @param value - result reconstructed by the RPC carrier.
      * @returns the validated result, retaining native byte views.
      */
-    readonly decode?: (value: unknown) => unknown
+    readonly decode?: ((value: unknown) => unknown) | undefined
     /**
      * Project typed binary fields into RPC result attachments.
      * @param value - native unary result.
      * @param writeBytes - records a byte view at its result-relative path and returns its JSON placeholder.
      * @returns JSON metadata with untouched JSON subtrees retained.
      */
-    readonly encode?: (value: unknown, writeBytes: (bytes: Uint8Array, path: readonly (string | number)[]) => null) => unknown
+    readonly encode?: ((value: unknown, writeBytes: (bytes: Uint8Array, path: readonly (string | number)[]) => null) => unknown) | undefined
   }
   | {
     readonly mode: 'src-json'
@@ -72,6 +70,8 @@ type TypertCodec =
 interface InvocationParameterDescriptor {
   /** Source-level parameter name. */
   readonly name: string
+  /** Source parameter documentation, independent of JSON Schema support. */
+  readonly description?: string
   /** Required key in the wire `args` object. */
   readonly wire: string
   /** Whether the value is JSON or requires a registered Host lookup. */
@@ -135,6 +135,8 @@ interface InvocationDescriptor {
   }
   /** Codec for the unary result or each yielded stream item. */
   readonly result: TypertCodec
+  /** Source-owned method documentation; ordinary methods need not have JSDoc. */
+  readonly description?: string
   /** Source declaration used only for diagnostics. */
   readonly sourceLocation?: InvocationSourceLocation
 }
@@ -192,18 +194,52 @@ interface RemoteStreamHandle<Out, In> extends AsyncIterable<Out> {
 
 ```ts type-equiv
 /**
- * One Peer's session on this Host. Connection owns it: `ctx` is the Cordis
+ * Merge-extensible caller identities. Each driver declares its own entry.
+ * Every entry is a JSON value with a unique literal `kind`, carries no
+ * credential, and is safe to persist in a Session log.
+ */
+interface PrincipalMap {
+  /** The local user who owns this Host. */
+  owner: { readonly kind: 'owner' }
+}
+```
+
+```ts type-equiv
+/** One caller identity; the authorization layer reads only this. */
+type Principal = PrincipalMap[keyof PrincipalMap]
+```
+
+```ts type-equiv
+/**
+ * One Peer's session on this Host. Its creator owns it: `ctx` is the Cordis
  * scope that owns connection-lifetime registrations and is disposed with the
- * Peer. Who the Peer is and what it may do are not recorded here.
+ * Peer, and `principal` is the caller identity fixed when the Peer was created.
  */
 interface PeerScope {
   readonly id: PeerId
+  /** Connection-lifetime registrations; disposed with the Peer. */
   readonly ctx: Context
+  /** Caller identity fixed at creation by in-process Host code; no wire field can set it. */
+  readonly principal: Principal
+  /** Aborted once the Peer is disposed; Remote streams that speak for the Peer end with it. */
+  readonly signal: AbortSignal
+  /** Whether the Peer may open a forwarded-event stream; this does not grant business permissions. */
+  readonly interactions: 'answer' | 'none'
   /**
    * Tear down every registration made through `ctx`.
    * @returns settles once the scope has quiesced; racing calls share one completion.
    */
   dispose(): Promise<void>
+}
+```
+
+```ts type-equiv
+/** Carrier capacity for buffered uplink frames of one logical stream. */
+interface RemoteUplinkWindow {
+  /** Maximum complete encoded frame bytes waiting for the Host consumer. */
+  readonly maxBytes: number
+  /** UTF-8 envelope bytes added to a compact JSON item with a present value field. */
+  readonly frameOverheadBytes: number
 }
 ```
 
@@ -221,10 +257,12 @@ interface RemoteInvocation {
   }
   /** Cordis service key of the receiving Service. */
   readonly service: string
-  /** Peer the call speaks for; an in-process carrier speaks for the operator. */
+  /** Peer the call speaks for; every carrier names it explicitly. */
   readonly peer: PeerScope
   /** Carrier cancellation: Client cancel, socket close, or an uplink failure. */
   readonly signal: AbortSignal
+  /** Carrier frame capacity; absent when the carrier imposes no encoded-frame inbox limit. */
+  readonly uplinkWindow?: RemoteUplinkWindow | undefined
   /**
    * The Client's uplink items for this call. Available once; a second call
    * throws. With an uplink codec on the descriptor every item is decoded to
@@ -240,9 +278,81 @@ interface RemoteInvocation {
 }
 ```
 
+## Remote 访问资源
+
+每个 Remote 方法都处于 [`@qilin-agent/api-remote-access`](../../packages/api/remote-access/README.zh.md) 的访问控制之下：非 owner 调用被允许，当且仅当其 principal 种类的策略在调用访问的每个资源上，都绑定了列出该端点动作的角色。拥有身份类型的包通过声明合并把资源种类声明进 `TypertResourceMap`；内建的无身份资源 `global` 永远不是其中的种类。Gateway 从 `@Remote({ resources })` 或 `@RemoteScope(key, { resources })` 的 `resources` 读取函数读取一个种类指明的身份，否则从把该种类声明为其 `resource` 的 lookup 参数或作用域 Context 读取，否则从 `typert.resources` 注册的默认字段读取；不指明资源的调用访问 `global`。[Remote 访问控制](remote-access.zh.md)页拥有判定流与 QiLin 的 owner 语义。
+
+```ts type-equiv
+/**
+ * Merge-extensible resource kinds whose identities a Remote call or forwarded
+ * event may carry. The package that owns an identity type declares its kind;
+ * the value is that kind's identity type, a string type such as a branded id.
+ * `global` names the built-in identity-less resource and is never a kind here.
+ */
+interface TypertResourceMap {}
+```
+
+```ts type-equiv
+/** One resource kind: the built-in `global` kind or a declared kind. */
+type RemoteAccessResourceKind = 'global' | TypertResourceKind
+```
+
+```ts type-equiv
+/**
+ * One resource a call or forwarded event touches: `global`, or one identity
+ * of a declared kind. Identities are wire values, read before any lookup
+ * resolves or validates them.
+ */
+type RemoteAccessResource =
+  | { readonly kind: 'global' }
+  | {
+    [Kind in TypertResourceKind]: { readonly kind: Kind; readonly id: TypertResourceId<TypertResourceMap[Kind]> }
+  }[TypertResourceKind]
+```
+
+```ts type-equiv
+/**
+ * Explicit endpoint and resource choices for one Remote Scope method.
+ * @template WireArgs - the decorated method's positional parameters as the
+ *   wire carries them; the default `never` admits readers of any tuple.
+ */
+interface RemoteScopeOptions<WireArgs extends readonly unknown[] = never> {
+  /** Exported endpoint method; omission retains the implementation member name. */
+  readonly name?: string
+  /**
+   * Per-kind readers of the resources one call touches. Each receives the
+   * method's arguments as its own parameters, JSON arguments as their Typert
+   * codecs validated them, a lookup parameter as its wire identity and a
+   * cancellation parameter as the call's signal, so it performs plain reads
+   * only, and returns one identity, several, or `undefined` for none. A
+   * throw, an empty list, or an identity other than a non-empty string
+   * refuses the call. For a kind without a reader, the Gateway reads the
+   * identity of a scoped Context whose Host adapter declares that `resource`
+   * and of lookup parameters declaring it, else the field registered in
+   * `typert.resources`: a top-level argument or, failing that, the first
+   * object argument. A call that carries no identity touches `global`. The
+   * readers and these defaults together must name every resource the method
+   * accesses: access control never checks a resource they omit.
+   */
+  readonly resources?: TypertResourceReaders<WireArgs>
+}
+```
+
+```ts type-equiv
+/**
+ * Explicit endpoint, stream, and resource choices for one direct Remote method.
+ * @template WireArgs - the decorated method's positional parameters as the
+ *   wire carries them; the default `never` admits readers of any tuple.
+ */
+interface RemoteMethodOptions<WireArgs extends readonly unknown[] = never> extends RemoteScopeOptions<WireArgs> {
+  /** `stream`: deliver each Iterable item over the shared logical-stream carrier. */
+  readonly mode?: 'stream'
+}
+```
+
 ## Typert 注册表
 
-`ctx.typert` 分开保存当前环境的 descriptor、显式选择的 Remote contribution、lookup 提供方与作用域上下文提供方。lookup 提供方拥有稳定 wire 声明和默认 resolver；Host 组合可以为同一个 key 配置 effect-scoped 同步或异步 resolver，配置卸载后恢复默认策略。各项注册都是由 Kylin 持有的 effect，并返回可等待的 disposer。
+`ctx.typert` 分开保存当前环境的 descriptor、显式选择的 Remote contribution、lookup 提供方、作用域上下文提供方与资源种类的默认字段。lookup 提供方拥有稳定 wire 声明和默认 resolver；Host 组合可以为同一个 key 配置 effect-scoped 同步或异步 resolver，配置卸载后恢复默认策略。各项注册都是由 Kylin 持有的 effect，并返回可等待的 disposer。
 
 ```ts type-equiv
 /** Minimal Typert runtime consumed through dependency inversion. */
@@ -251,6 +361,7 @@ interface TypertRegistryContract {
   readonly remotes: TypertRemoteRegistry
   readonly lookups: TypertLookupRegistry
   readonly contexts: TypertContextRegistry
+  readonly resources: TypertResourceRegistry
 }
 ```
 
@@ -263,7 +374,7 @@ interface TypertRemoteNamespaceMap {}
 
 ## Host Gateway
 
-Connection 会先解码 carrier envelope，再调用 `ctx.typertGateway`。请求将精确的具名 wire 字段与 carrier 的取消 signal 分开携带；基础设施与边界失败由 `TypertGatewayError` 承载，其 `gateway/*` 码就是普通的 `RemoteError` 码，因此 RPC 适配器会把每个经结构识别的 `RemoteError` 连同其 code 与 details 原样放行，只把无法识别的异常归并为 `gateway/internal`。
+Connection 会先解码 carrier envelope，再调用 `ctx.typertGateway`。请求将精确的具名 wire 字段、carrier 的取消 signal 与调用所代表的 Peer 分开携带；每个 carrier 都会指明该 Peer，Peer 已释放时 Gateway 以 `gateway/peer-disposed` 拒绝。非 owner 调用会在参数校验之后、任何 lookup 或 Context 解析之前，由 Gateway 解析其资源并询问 `ctx.remoteAccess.decide()`。基础设施与边界失败由 `TypertGatewayError` 承载，其 `gateway/*` 码就是普通的 `RemoteError` 码，因此 RPC 适配器会把每个经结构识别的 `RemoteError` 连同其 code 与 details 原样放行，只把无法识别的异常归并为 `gateway/internal`。
 
 ```ts type-equiv
 /** One Remote method request after a carrier has decoded its envelope. */
@@ -279,8 +390,8 @@ interface InvokeRemoteRequest {
    * `invocation.uplink()`; absent means an immediately ended iterable.
    */
   readonly uplink?: AsyncIterable<unknown>
-  /** Peer the call speaks for; absent means an in-process carrier, answered as the operator. */
-  readonly peer?: PeerScope
+  /** Peer the call speaks for; every carrier and in-process caller names it explicitly. */
+  readonly peer: PeerScope
   /** Carrier or direct-caller cancellation injected only into cancellation-aware methods. */
   readonly signal?: AbortSignal
 }
@@ -303,6 +414,7 @@ type TypertGatewayErrorCode =
   | 'gateway/lookup-not-found'
   | 'gateway/lookup-unavailable'
   | 'gateway/method-unavailable'
+  | 'gateway/peer-disposed'
   | 'gateway/protocol'
   | 'gateway/provider-mismatch'
   | 'gateway/result-invalid'
@@ -318,10 +430,11 @@ interface TypertGateway {
   readonly wireStream: TypertGatewayWireStream
 
   /**
-   * Check for an active Client event stream.
-   * @returns whether a stream is open and has not been cancelled.
+   * Check for an active owner Client event stream, the only kind that can answer forwarded waterfalls.
+   * @returns whether an owner stream is open and has not been cancelled.
    */
   hasLiveClient(): boolean
+
   /**
    * Register the application-selected forwarded-event source.
    * @param source - stream factory installed by the Remote assembly.
@@ -332,6 +445,7 @@ interface TypertGateway {
     source: TypertRemoteEventSource,
     host: RemoteEventHostInfo,
   ): () => Promise<void>
+
   /**
    * Invoke one live Remote method without assuming a carrier or response envelope.
    * @param request - decoded endpoint and named wire arguments.
@@ -339,6 +453,7 @@ interface TypertGateway {
    * @throws {@link TypertGatewayError} for dispatch, provider, or boundary failures; lookup-policy and business errors retain identity.
    */
   invoke(request: InvokeRemoteRequest): Promise<unknown>
+
   /**
    * Open one live stream Remote method without assuming a physical carrier.
    * @param request - decoded endpoint, named wire arguments, and the Client uplink when the carrier has one.
@@ -454,8 +569,8 @@ Resolve strict generated definitions or conservative SRC markers against current
 
 ```ts cordis-catalog
 /**
- * Check for an active Client event stream.
- * @returns whether a stream is open and has not been cancelled.
+ * Check for an active owner Client event stream, the only kind that can answer forwarded waterfalls.
+ * @returns whether an owner stream is open and has not been cancelled.
  */
 hasLiveClient(): boolean
 

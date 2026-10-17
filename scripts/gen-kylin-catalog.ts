@@ -131,6 +131,7 @@ export const SERVICE_PAGE: Record<string, string> = {
   tokenMeter: 'token-meter.md',
   toolResultPruner: 'compaction.md',
   tools: 'tools.md',
+  remoteAccess: 'remote-access.md',
   typert: 'typert.md',
   typertGateway: 'typert.md',
   userQuestions: 'user-questions.md',

@@ -30,6 +30,8 @@ flowchart LR
   cfg --> plugin_qilin_base_typert_loader
   plugin_qilin_base_typert_gateway["typert-gateway<br/>@qilin-agent/api-gateway"]
   cfg --> plugin_qilin_base_typert_gateway
+  plugin_qilin_base_remote_access["remote-access<br/>@qilin-agent/api-remote-access"]
+  cfg --> plugin_qilin_base_remote_access
   plugin_qilin_base_session_title["session-title<br/>@qilin-agent/session-title"]
   cfg --> plugin_qilin_base_session_title
   plugin_qilin_base_session_title_llm["session-title-llm<br/>@qilin-agent/session-title-first-prompt-llm"]
@@ -209,6 +211,7 @@ flowchart LR
 | `typert` | `@qilin-agent/typert-registry` |
 | `typert-loader` | `@qilin-agent/typert-loader` |
 | `typert-gateway` | `@qilin-agent/api-gateway` |
+| `remote-access` | `@qilin-agent/api-remote-access` |
 | `session-title` | `@qilin-agent/session-title` |
 | `session-title-llm` | `@qilin-agent/session-title-first-prompt-llm` |
 | `user-questions` | `@qilin-agent/user-questions` |

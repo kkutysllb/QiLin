@@ -1,0 +1,22 @@
+# Bilingual-pair consistency record for remote-access.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/subsystems/remote-access.md
+/remote-access-control:
+  en: 4e4110108118f09c
+  zh: 5327329e6aa646ba
+/remote-access-control/resource-model:
+  en: c9782fa3c2790caf
+  zh: 38710c43bf5fc337
+/remote-access-control/gateway-adjudication-points:
+  en: 74a82ea143b360aa
+  zh: 15b812e3f7c46f99
+/remote-access-control/access-snapshots:
+  en: 94ba8f8a548efa0d
+  zh: 6d13c362ebc2bb85
+/remote-access-control/owner-semantics:
+  en: a6cea7888d758038
+  zh: 3052fa519f3bcdda
+/remote-access-control/operator-connect:
+  en: d521a5ce21a6b44f
+  zh: 787b8ac30b2fe0cb
