@@ -100,10 +100,54 @@ describe('desktop welcome presentation', () => {
     fireEvent.change(view.document.querySelector('#register-name')!, { target: { value: 'ada' } })
     fireEvent.change(view.document.querySelector('#register-email')!, { target: { value: 'ada@example.com' } })
     fireEvent.change(view.document.querySelector('#register-password')!, { target: { value: 'secret-pass' } })
+    fireEvent.change(view.document.querySelector('#register-confirm')!, { target: { value: 'secret-pass' } })
     view.api.register.mockResolvedValue({ ok: true })
     fireEvent.submit(view.document.querySelector('#register-form')!)
     await vi.waitFor(() => { expect(view.api.skip).toHaveBeenCalled() })
     expect(view.api.register).toHaveBeenCalledWith('ada', 'ada@example.com', 'secret-pass')
+  })
+
+  it('reveals a password in plain text and hides it again', async () => {
+    const view = mount('en')
+    fireEvent.click(view.button('#sign-in'))
+    fireEvent.click(view.button('#to-register'))
+    const password = () => view.document.querySelector<HTMLInputElement>('#register-password')!
+    const toggle = password().parentElement!.querySelector<HTMLButtonElement>('.password-toggle')!
+    expect(password().getAttribute('type')).toBe('password')
+    expect(toggle.getAttribute('aria-pressed')).toBe('false')
+    fireEvent.click(toggle)
+    expect(password().getAttribute('type')).toBe('text')
+    expect(toggle.getAttribute('aria-pressed')).toBe('true')
+    fireEvent.click(toggle)
+    expect(password().getAttribute('type')).toBe('password')
+  })
+
+  it('refuses a mismatched confirmation without reaching the account store', async () => {
+    const view = mount('en')
+    fireEvent.click(view.button('#sign-in'))
+    fireEvent.click(view.button('#to-register'))
+    fireEvent.change(view.document.querySelector('#register-name')!, { target: { value: 'ada' } })
+    fireEvent.change(view.document.querySelector('#register-password')!, { target: { value: 'secret-pass' } })
+    fireEvent.change(view.document.querySelector('#register-confirm')!, { target: { value: 'secret-pass-typo' } })
+    expect(view.button('#register-submit').disabled).toBe(false)
+    fireEvent.submit(view.document.querySelector('#register-form')!)
+    await vi.waitFor(() => { expect(view.document.querySelector<HTMLElement>('#register-error')!.hidden).toBe(false) })
+    expect(view.document.querySelector('#register-error')!.textContent).toContain('do not match')
+    expect(view.api.register).not.toHaveBeenCalled()
+    expect(view.api.skip).not.toHaveBeenCalled()
+  })
+
+  it('keeps the register submit disabled until the confirmation is filled', () => {
+    const view = mount('en')
+    fireEvent.click(view.button('#sign-in'))
+    fireEvent.click(view.button('#to-register'))
+    fireEvent.change(view.document.querySelector('#register-name')!, { target: { value: 'ada' } })
+    fireEvent.change(view.document.querySelector('#register-password')!, { target: { value: 'secret-pass' } })
+    expect(view.button('#register-submit').disabled).toBe(true)
+    fireEvent.change(view.document.querySelector('#register-confirm')!, { target: { value: 'secret-pass' } })
+    expect(view.button('#register-submit').disabled).toBe(false)
+    fireEvent.change(view.document.querySelector('#register-confirm')!, { target: { value: 'other' } })
+    expect(view.button('#register-submit').disabled).toBe(false)
   })
 
   it('returns from registration to the sign-in form', () => {

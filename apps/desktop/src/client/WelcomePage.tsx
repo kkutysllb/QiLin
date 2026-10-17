@@ -32,6 +32,10 @@ export function Welcome({ api }: { api: WelcomeApi }) {
   const [registerName, setRegisterName] = useState('')
   const [registerEmail, setRegisterEmail] = useState('')
   const [registerPassword, setRegisterPassword] = useState('')
+  const [registerConfirm, setRegisterConfirm] = useState('')
+  const [loginPasswordVisible, setLoginPasswordVisible] = useState(false)
+  const [registerPasswordVisible, setRegisterPasswordVisible] = useState(false)
+  const [registerConfirmVisible, setRegisterConfirmVisible] = useState(false)
   const [authError, setAuthError] = useState('')
   const [authBusy, setAuthBusy] = useState(false)
   const [error, setError] = useState('')
@@ -163,6 +167,10 @@ export function Welcome({ api }: { api: WelcomeApi }) {
   /** Submit the local account form, then enter the workspace on acceptance. */
   async function submitLocal(kind: 'login' | 'register'): Promise<void> {
     if (authBusy) return
+    if (kind === 'register' && registerPassword !== registerConfirm) {
+      setAuthError(m.welcomeRegisterPasswordMismatch)
+      return
+    }
     setAuthError('')
     setAuthBusy(true)
     try {
@@ -184,6 +192,36 @@ export function Welcome({ api }: { api: WelcomeApi }) {
     } finally {
       if (mounted.current) setAuthBusy(false)
     }
+  }
+
+  /**
+   * Render one password input beside its plain-text toggle.
+   * @param id - input id the submit button and tests address.
+   * @param value - current field value.
+   * @param visible - whether the value renders as plain text.
+   * @param placeholder - localized field label.
+   * @param autoComplete - credential-manager hint for this input.
+   * @param onValue - receives each keystroke.
+   * @param onToggle - flips the plain-text state.
+   * @returns the input and its toggle button.
+   */
+  function passwordField(
+    id: string, value: string, visible: boolean, placeholder: string, autoComplete: string,
+    onValue: (next: string) => void, onToggle: () => void,
+  ) {
+    return (
+      <div className="password-field">
+        <input id={id} type={visible ? 'text' : 'password'} autoComplete={autoComplete} required placeholder={placeholder}
+          value={value} disabled={authBusy} onChange={(event) => { onValue(event.target.value); setAuthError('') }} />
+        <button type="button" className="password-toggle" aria-pressed={visible} aria-controls={id}
+          aria-label={visible ? m.welcomePasswordHide : m.welcomePasswordShow} onClick={onToggle}>
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+            <path d="M8 3C4.5 3 1.7 5.4 1 8c.7 2.6 3.5 5 7 5s6.3-2.4 7-5c-.7-2.6-3.5-5-7-5Zm0 8.2A3.2 3.2 0 1 1 8 4.8a3.2 3.2 0 0 1 0 6.4Zm0-1.6a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2Z" fill="currentColor" />
+            {!visible && <path d="m2.6 1.5-1.1 1.1 12 12 1.1-1.1-12-12Z" fill="currentColor" />}
+          </svg>
+        </button>
+      </div>
+    )
   }
 
   const title = phase === 'initializing' ? m.welcomeAuthStarting
@@ -242,8 +280,8 @@ export function Welcome({ api }: { api: WelcomeApi }) {
           <input id="login-name" type="text" autoComplete="username" autoCapitalize="off" spellCheck={false} required placeholder={m.welcomeLoginName}
             value={loginName} disabled={authBusy} onChange={(event) => { setLoginName(event.target.value); setAuthError('') }} />
           <label className="visually-hidden" htmlFor="login-password">{m.welcomeLoginPassword}</label>
-          <input id="login-password" type="password" autoComplete="current-password" required placeholder={m.welcomeLoginPassword}
-            value={loginPassword} disabled={authBusy} onChange={(event) => { setLoginPassword(event.target.value); setAuthError('') }} />
+          {passwordField('login-password', loginPassword, loginPasswordVisible, m.welcomeLoginPassword, 'current-password',
+            setLoginPassword, () => { setLoginPasswordVisible(!loginPasswordVisible) })}
           <p id="login-error" className="key-error" role="alert" hidden={authError === ''}>{authError}</p>
         </div>
       </form>
@@ -257,8 +295,11 @@ export function Welcome({ api }: { api: WelcomeApi }) {
           <input id="register-email" type="email" autoComplete="email" autoCapitalize="off" spellCheck={false} placeholder={m.welcomeRegisterEmail}
             value={registerEmail} disabled={authBusy} onChange={(event) => { setRegisterEmail(event.target.value); setAuthError('') }} />
           <label className="visually-hidden" htmlFor="register-password">{m.welcomeRegisterPassword}</label>
-          <input id="register-password" type="password" autoComplete="new-password" required placeholder={m.welcomeRegisterPassword}
-            value={registerPassword} disabled={authBusy} onChange={(event) => { setRegisterPassword(event.target.value); setAuthError('') }} />
+          {passwordField('register-password', registerPassword, registerPasswordVisible, m.welcomeRegisterPassword, 'new-password',
+            setRegisterPassword, () => { setRegisterPasswordVisible(!registerPasswordVisible) })}
+          <label className="visually-hidden" htmlFor="register-confirm">{m.welcomeRegisterPasswordConfirm}</label>
+          {passwordField('register-confirm', registerConfirm, registerConfirmVisible, m.welcomeRegisterPasswordConfirm, 'new-password',
+            setRegisterConfirm, () => { setRegisterConfirmVisible(!registerConfirmVisible) })}
           <p id="register-error" className="key-error" role="alert" hidden={authError === ''}>{authError}</p>
         </div>
       </form>
@@ -267,7 +308,7 @@ export function Welcome({ api }: { api: WelcomeApi }) {
         <button id="to-register" className="secondary" type="button" disabled={authBusy} onClick={() => { setAuthError(''); navigate('register') }}>{m.welcomeLoginToRegister}</button>
       </div>
       <div id="register-actions" className="actions" hidden={page !== 'register'}>
-        <button id="register-submit" className="primary" type="submit" form="register-form" disabled={authBusy || registerName.trim() === '' || registerPassword === ''}>{m.welcomeRegisterSubmit}</button>
+        <button id="register-submit" className="primary" type="submit" form="register-form" disabled={authBusy || registerName.trim() === '' || registerPassword === '' || registerConfirm === ''}>{m.welcomeRegisterSubmit}</button>
         <button id="to-login" className="secondary" type="button" disabled={authBusy} onClick={() => { setAuthError(''); navigate('login') }}>{m.welcomeRegisterToLogin}</button>
       </div>
       <div id="key-actions" className="actions" hidden={page !== 'key'}>

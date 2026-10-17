@@ -277,6 +277,9 @@ body {
 }
 
 .key-field {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   position: relative;
   width: 100%;
 }
@@ -301,6 +304,41 @@ body {
 
 .key-field input:focus {
   border-color: var(--dsw-alias-brand-primary);
+}
+
+/* A password field hosts its plain-text toggle inside the input's right edge. */
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  padding-right: 46px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  transform: translateY(-50%);
+  background: transparent;
+  color: var(--dsw-alias-label-caption);
+  cursor: pointer;
+}
+
+.password-toggle:hover {
+  color: var(--dsw-alias-label-primary);
+}
+
+.password-toggle:focus-visible {
+  outline: 2px solid var(--dsw-alias-brand-primary);
+  outline-offset: 1px;
 }
 
 .key-field input::placeholder {
