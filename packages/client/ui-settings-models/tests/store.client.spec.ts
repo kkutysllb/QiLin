@@ -208,6 +208,15 @@ describe('ModelsSettingsStore', () => {
     await Promise.all([first, second])
     expect(store.store.getSnapshot().status).toBe('ready')
   })
+
+  it('rejects concurrent callers when the current read throws', async () => {
+    const { ctx, mirror } = api({ providers: () => { throw new Error('boom') } })
+    const store = new ModelsSettingsStore(ctx, settingsSchema, mirror)
+    const first = store.load()
+    const second = store.load()
+    await expect(first).rejects.toThrow('boom')
+    await expect(second).rejects.toThrow('boom')
+  })
 })
 
 describe('edge joins', () => {

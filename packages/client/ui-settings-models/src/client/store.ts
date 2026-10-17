@@ -239,6 +239,9 @@ export class ModelsSettingsStore {
       if (response.ok) credentials = response.value
       else credentialError = response.error.message
     }
+    /* v8 ignore next -- the credential describe answers in one promise, so a read
+     * superseded at the earlier generation check never reaches this second guard;
+     * it stays for a future multi-batch describe where supersede windows reopen. */
     if (generation !== this.generation) return
     this.store.update((s) => {
       s.status = 'ready'
