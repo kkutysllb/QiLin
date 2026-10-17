@@ -474,17 +474,17 @@ describe('real account surface', () => {
     const anonymousPost = (path: string, body: unknown): Promise<Response> => shared.fetch(new Request(
       `http://qilin.invalid${path}`,
       { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) },
-    ))
+    ), server.ctx.connection.browserPeer)
     for (const path of ['/api/auth/setup', '/api/auth/register', '/api/auth/login', '/api/auth/change-password']) {
       const response = await anonymousPost(path, { username: 'first', email: EMAIL, identifier: 'first', password: PASSWORD })
       expect(response.status, path).toBe(400)
       expect(await response.json(), path).toMatchObject({ error: { code: 'invalid-authority' } })
     }
     // Nothing to clear without an authority, and status needs none.
-    const logout = await shared.fetch(new Request('http://qilin.invalid/api/auth/logout', { method: 'POST' }))
+    const logout = await shared.fetch(new Request('http://qilin.invalid/api/auth/logout', { method: 'POST' }), server.ctx.connection.browserPeer)
     expect(logout.status).toBe(204)
     expect(logout.headers.get('set-cookie')).toBeNull()
-    const status = await shared.fetch(new Request('http://qilin.invalid/api/auth/status'))
+    const status = await shared.fetch(new Request('http://qilin.invalid/api/auth/status'), server.ctx.connection.browserPeer)
     expect(await status.json()).toMatchObject({ authenticated: false, user: null })
   })
 

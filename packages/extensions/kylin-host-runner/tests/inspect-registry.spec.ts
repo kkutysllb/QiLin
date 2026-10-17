@@ -3,6 +3,7 @@ import type { Fiber } from '@qilin-agent/kylin'
 import TypertGateway from '@qilin-agent/api-gateway'
 import RemoteAccessService from '@qilin-agent/api-remote-access'
 import TypertRegistry from '@qilin-agent/typert-registry'
+import type { PeerScope } from '@qilin-agent/typert-protocol'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import DynamicCordisRunnerService from '../src/index.ts'
 import { CordisInspectRegistryService } from '../src/inspect-registry.ts'
@@ -84,7 +85,15 @@ async function connectGatewayClient(): Promise<AbortController> {
     await new Promise<void>((resolve) => { signal.addEventListener('abort', () => { resolve() }, { once: true }) })
   }, { home: '/fixture' }))
   const connection = new AbortController()
-  const stream = await ctx.typertGateway.wireStream.open('$events', { args: {} }, (async function* () {})(), undefined, connection.signal)
+  const peer: PeerScope = {
+    id: 'fixture-peer' as PeerScope['id'],
+    ctx,
+    principal: { kind: 'owner' },
+    signal: connection.signal,
+    interactions: 'answer',
+    dispose: async () => { connection.abort() },
+  }
+  const stream = await ctx.typertGateway.wireStream.open('$events', { args: {} }, (async function* () {})(), peer, connection.signal)
   const client = stream[Symbol.asyncIterator]()
   ctx.effect(() => async () => {
     connection.abort()

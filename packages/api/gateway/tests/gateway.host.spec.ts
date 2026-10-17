@@ -1092,11 +1092,11 @@ describe('TypertGatewayService', () => {
     await expect(handler('goals/maybe', { args: {} }, signal, connection.operator)).resolves.toEqual({
       ok: true,
       value: undefined,
-    }, connection.operator)
+    })
     await expect(handler('goals/maybe', { args: { value: null } }, signal, connection.operator)).resolves.toEqual({
       ok: true,
       value: null,
-    }, connection.operator)
+    })
 
     for (const endpoint of ['goals', '/create', 'goals/', 'goals/create/extra']) {
       const result = await handler(endpoint, { args: {} }, signal, connection.operator)
@@ -1120,7 +1120,7 @@ describe('TypertGatewayService', () => {
     )).resolves.toEqual({
       ok: false,
       error: { code: 'gateway/internal', message: 'non-error failure', details: {} },
-    }, connection.operator)
+    })
 
     // A business rejection observed while the carrier signal is already aborted
     // is the caller's cancellation, not an internal gateway fault.
@@ -1139,7 +1139,7 @@ describe('TypertGatewayService', () => {
         message: 'Remote invocation "goals/fail" was aborted',
         details: {},
       },
-    }, connection.operator)
+    })
 
     await gatewayFiber.dispose()
     expect(connection.handler).toBeUndefined()
@@ -1192,7 +1192,7 @@ describe('TypertGatewayService', () => {
     }, carrier.signal, ownerPeer(ctx))).resolves.toEqual({
       ok: true,
       value: undefined,
-    }, connection.operator)
+    })
 
     await events.return(undefined)
     await unregister()

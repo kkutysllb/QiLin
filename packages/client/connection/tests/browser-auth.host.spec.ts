@@ -236,12 +236,12 @@ describe('BrowserAuth', () => {
       })
       const anonymous = await shared.fetch(new Request('http://127.0.0.1:3080/api/auth/status', {
         headers: { host: '127.0.0.1:3080' },
-      }))
+      }), connection.browserPeer)
       expect(await anonymous.json()).toMatchObject({ authenticated: false, accountName: null })
       // A POST is no status read: the fallback claims GET alone.
       const posted = await shared.fetch(new Request('http://127.0.0.1:3080/api/auth/status', {
         method: 'POST', headers: { host: '127.0.0.1:3080', cookie },
-      }))
+      }), connection.browserPeer)
       expect(posted.status).toBe(404)
     } finally {
       await fiber.dispose()

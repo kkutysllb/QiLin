@@ -94,7 +94,7 @@ async function boot(): Promise<Booted> {
   return Object.assign((path: string, init?: RequestInit): Promise<Response> => {
     const headers = new Headers(init?.headers)
     headers.set('host', '127.0.0.1:3080')
-    return shared.fetch(new Request(`http://127.0.0.1:3080${path}`, { ...init, headers }))
+    return shared.fetch(new Request(`http://127.0.0.1:3080${path}`, { ...init, headers }), connection.browserPeer)
   }, { ctx })
 }
 
