@@ -35,6 +35,7 @@ export default class CotTranslationController extends TypertRemoteService {
 
   constructor(ctx: Context, private readonly config: Config) {
     super(ctx, 'cotTranslation', { namespace: 'cotTranslation' })
+    ctx.inject(['settings'], (child) => { child.effect(() => child.settings.configure({ auto: false }, ctx.fiber)) })
   }
 
   /**

@@ -17,11 +17,13 @@ function fixture(preferences: Partial<CotTranslationPreferences> = {}) {
   const translate = vi.fn(async () => 'translated')
   const availableProviders = vi.fn(async (): Promise<readonly TranslationProvider[]> => ['bing', 'google'])
   ctx.provide('translator', { maxTextChars: 32, resolve, translate, availableProviders } as never)
+  const configure = vi.fn(() => () => {})
+  ctx.provide('settings', { configure } as never)
   const resolveAgent = vi.fn<Context['sessionController']['resolveAgent']>(async () => ({ agent: {} as never }))
   ctx.provide('sessionController', { resolveAgent } as never)
   const config = CotTranslationController.Config(preferences)
   const controller = new CotTranslationController(ctx, config)
-  return { ctx, controller, resolve, translate, availableProviders, resolveAgent, config }
+  return { ctx, controller, resolve, translate, configure, availableProviders, resolveAgent, config }
 }
 
 it('exposes configured limits without translating and uses explicit provider and target', async () => {
@@ -36,6 +38,7 @@ it('exposes configured limits without translating and uses explicit provider and
   expect(b.resolve).toHaveBeenCalledWith(request)
   expect(b.translate).toHaveBeenCalledWith({ sourceLanguage: 'auto', ...request }, signal)
   expect(b.resolveAgent).not.toHaveBeenCalled()
+  await vi.waitFor(() => { expect(b.configure).toHaveBeenCalledWith({ auto: false }, expect.anything()) })
 })
 
 const scoped = { text: 'original', targetLanguage: 'zh', sessionId: SessionId('source') }
