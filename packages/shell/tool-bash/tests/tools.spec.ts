@@ -13,6 +13,7 @@ import type { Agent } from '@qilin-agent/agent'
 import { turnBoundaryProjectionDefinition } from '@qilin-agent/agent-loop'
 import { SessionId } from '@qilin-agent/session'
 import LocalJobRegistry from '@qilin-agent/jobs-local'
+import type { JobSpec } from '@qilin-agent/jobs'
 import * as ToolJobs from '@qilin-agent/tool-jobs'
 import ApprovalService from '@qilin-agent/user-approval'
 import type { ApprovalOutcome } from '@qilin-agent/user-approval'
@@ -86,6 +87,12 @@ function call(ctx: Context, name: string, args: unknown, agent?: Agent) {
 
 function text(result: { content: { type: string; text?: string }[] }): string {
   return result.content.filter(block => block.type === 'text').map(block => block.text).join('')
+}
+
+function currentId(ctx: Context, owner?: Agent): string {
+  const id = ctx.jobs.list(owner?.id).at(-1)?.id
+  if (id === undefined) throw new Error('background job was not registered')
+  return id
 }
 
 async function callUntilText(
@@ -183,6 +190,16 @@ class CountingStartExecutor extends ShellExecutor {
       readOutput: () => ({ delta: '', lossy: false }),
       kill: () => false,
     }
+  }
+}
+
+/** Real registry that keeps the start specs the bash producer handed over. */
+class RecordingJobRegistry extends LocalJobRegistry {
+  readonly startSpecs: JobSpec[] = []
+
+  override start(spec: JobSpec): ReturnType<LocalJobRegistry['start']> {
+    this.startSpecs.push(spec)
+    return super.start(spec)
   }
 }
 
@@ -460,13 +477,13 @@ describe('background execution through the job runtime', () => {
     const started = await call(ctx, 'bash', { command: 'echo bg-ok', description: 'test command', run_in_background: true })
     expect(started.isError).toBe(false)
     if (started.isError) throw new Error('expected background bash success')
-    expect(started.value).toEqual({ kind: 'background', jobId: 'bash-1' })
-    expect(text(started)).toBe('started background job bash-1')
+    expect(started.value).toEqual({ kind: 'background', jobId: currentId(ctx) })
+    expect(text(started)).toBe(`started background job ${currentId(ctx)}`)
 
-    const read = await callUntilText(ctx, 'job_output', { job_id: 'bash-1' }, 'bg-ok')
+    const read = await callUntilText(ctx, 'job_output', { job_id: currentId(ctx) }, 'bg-ok')
     expect(text(read)).toContain('bg-ok')
     // A later read reports the terminal outcome in the generic status line.
-    const final = await callUntilText(ctx, 'job_output', { job_id: 'bash-1' }, '[status: completed, exit code: 0]')
+    const final = await callUntilText(ctx, 'job_output', { job_id: currentId(ctx) }, '[status: completed, exit code: 0]')
     expect(final.isError).toBe(false)
   })
 
@@ -474,11 +491,11 @@ describe('background execution through the job runtime', () => {
     const ctx = await setupWithJobs()
     await call(ctx, 'bash', { command: 'sleep 60', description: 'test command', run_in_background: true })
 
-    const killed = await call(ctx, 'job_kill', { job_id: 'bash-1' })
-    expect(text(killed)).toBe('requested cancellation of job bash-1')
+    const killed = await call(ctx, 'job_kill', { job_id: currentId(ctx) })
+    expect(text(killed)).toBe(`requested cancellation of job ${currentId(ctx)}`)
     // The cancel reached the process handle; the task settles as killed with
     // the signal detail mapped by processOutcome.
-    const final = await call(ctx, 'job_output', { job_id: 'bash-1', wait: true })
+    const final = await call(ctx, 'job_output', { job_id: currentId(ctx), wait: true })
     expect(text(final)).toContain('[status: killed, signal: SIGTERM]')
   })
 
@@ -486,7 +503,7 @@ describe('background execution through the job runtime', () => {
     const ctx = await setupWithJobs()
     await call(ctx, 'bash', { command: 'kill -TERM $$', description: 'test command', run_in_background: true })
 
-    const final = await call(ctx, 'job_output', { job_id: 'bash-1', wait: true })
+    const final = await call(ctx, 'job_output', { job_id: currentId(ctx), wait: true })
     expect(text(final)).toContain('[status: killed, signal: SIGTERM]')
   })
 
@@ -495,15 +512,42 @@ describe('background execution through the job runtime', () => {
     const ctx = await setupWithJobs()
     const agent = await registerFakeAgent(ctx, 'sess-owner')
     const started = await call(ctx, 'bash', { command: 'sleep 60', description: 'test command', run_in_background: true }, agent)
-    expect(text(started)).toBe('started background job bash-1')
+    expect(text(started)).toBe(`started background job ${currentId(ctx, agent)}`)
 
-    const anon = await call(ctx, 'job_output', { job_id: 'bash-1' })
+    const anon = await call(ctx, 'job_output', { job_id: currentId(ctx, agent) })
     expect(anon.isError).toBe(true)
     expect(text(anon)).toMatch(/belongs to another session/)
 
-    const killed = await call(ctx, 'job_kill', { job_id: 'bash-1' }, agent)
+    const killed = await call(ctx, 'job_kill', { job_id: currentId(ctx, agent) }, agent)
     expect(killed.isError).toBe(false)
-    await call(ctx, 'job_output', { job_id: 'bash-1', wait: true }, agent) // await settlement — no orphan
+    await call(ctx, 'job_output', { job_id: currentId(ctx, agent), wait: true }, agent) // await settlement — no orphan
+  })
+
+  it('forwards the model call identity as the job toolCall on background start', async () => {
+    const ctx = new Context()
+    await ctx.plugin(SystemPrompt)
+    await ctx.plugin(ToolRuntime)
+    await ctx.plugin(AgentRegistry)
+    await ctx.plugin(LocalSubprocessRuntime)
+    ;(ctx.subprocess as LocalSubprocessRuntime).internals = { spillDir }
+    await ctx.plugin(BashEnvPlugin)
+    await ctx.plugin(LocalBashExecutor, { timeoutMs: 10_000, graceMs: 200 })
+    await ctx.plugin(RecordingJobRegistry)
+    await ctx.plugin(ToolJobs)
+    await ctx.plugin(ToolBash)
+    const registry = ctx.jobs as RecordingJobRegistry
+    const result = await ctx.tools.execute({
+      signal: testToolSignal,
+      callId: ToolCallId('bg-toolcall-pin'),
+      name: 'bash',
+      arguments: { command: 'echo pin', description: 'pin call', run_in_background: true },
+    })
+    if (result.isError) throw new Error(text(result))
+    expect(registry.startSpecs).toHaveLength(1)
+    const spec = registry.startSpecs[0]!
+    expect(spec.toolCall).toEqual({ callId: ToolCallId('bg-toolcall-pin'), rootCallId: ToolCallId('bg-toolcall-pin') })
+    const jobId = (result.value as { jobId: ReturnType<LocalJobRegistry['start']> }).jobId
+    await ctx.jobs.wait(jobId, 5_000) // no orphan
   })
 
   it('fails loud when the job runtime is not loaded', async () => {
@@ -724,7 +768,7 @@ describe('sandbox escalation through the generic task producer', () => {
     })
     expect(foreground.isError).toBe(false)
     const background = await call(ctx, 'bash', { ...escalate, run_in_background: true }, agent)
-    expect(text(background)).toBe('started background job bash-1')
+    expect(text(background)).toBe(`started background job ${currentId(ctx, agent)}`)
     expect(bash.modes).toEqual(['workspace-write', 'workspace-write'])
   })
 
@@ -1307,7 +1351,7 @@ describe('the model-facing bash tool builds its request from named args only (no
     // The call really went down the background path (the recorder sees the real
     // request the consumer built, so the absent env/stdin below is a real
     // negative, not a recorder that drops everything).
-    expect(text(result)).toBe('started background job bash-1')
+    expect(text(result)).toBe(`started background job ${currentId(ctx)}`)
     expect(bash.requests).toHaveLength(1)
     const request = bash.requests[0]!
     expect(request.command).toBe('sleep 1')

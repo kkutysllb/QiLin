@@ -6,7 +6,7 @@
 
 ## ID 与状态
 
-`JobId` 是按 `<kind>-<short-uuid>` 生成的[品牌化 id](core.zh.md#branded-ids)，kind 之后为 16 个小写 UUID 十六进制字符。访问控制依赖拥有者授权，而非 id 的保密性。`JobId` 原文占位 生成的[品牌化 id](core.zh.md#branded-ids)。访问控制依赖拥有者授权，而非 id 的保密性。`JobKind` 派生自可合并扩展的 map；注册表将各个 kind 视为不透明的 id 命名空间。`JobChannel` 标注每个 chunk 所属的流：`stdout` 与 `stderr` 进入模型的消费式读取，`log` 标记只有观察者会看到的生产方叙述。
+`JobId` 是按 `<kind>-<short-uuid>` 生成的[品牌化 id](core.zh.md#branded-ids)，kind 之后为 16 个小写 UUID 十六进制字符。访问控制依赖拥有者授权，而非 id 的保密性。`JobKind` 派生自可合并扩展的 map；注册表将各个 kind 视为不透明的 id 命名空间。`JobChannel` 标注每个 chunk 所属的流：`stdout` 与 `stderr` 进入模型的消费式读取，`log` 标记只有观察者会看到的生产方叙述。
 
 ```ts type-equiv
 /**
@@ -87,7 +87,7 @@ interface JobToolCall {
  * the output ring.
  */
 interface JobSpec {
-  /** Producer kind — also the id prefix (`bash`, ...). */
+  /** Producer kind — also the id prefix (`bash`, …). */
   kind: JobKind
   /** One-line model-facing label (the command; the delegation description). */
   label: string
@@ -98,8 +98,8 @@ interface JobSpec {
    * caller until service disposal.
    */
   owner?: SessionId
-   /** Creating tool invocation, retained in the durable lifecycle records. */
-   toolCall?: JobToolCall
+  /** Creating tool invocation, retained in the durable lifecycle records. */
+  toolCall?: JobToolCall
   /**
    * Optional UTF-8 byte cap for each complete model-facing completion notice or
    * output read, including controller status metadata. Independent of ring

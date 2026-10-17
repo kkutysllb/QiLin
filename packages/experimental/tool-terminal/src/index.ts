@@ -258,6 +258,7 @@ export function apply(ctx: Context, config: Config = {}): void {
           kind: 'pty-send',
           label: `${id}: ${args.text || '(input)'}`,
           owner: owner.id,
+          toolCall: { callId: exec.callId, rootCallId: exec.rootCallId },
           outputLimitBytes: maxResultBytes,
           output: [sendSource(() => operation)],
           run: () => {
