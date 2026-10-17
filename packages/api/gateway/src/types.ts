@@ -4,7 +4,7 @@
  */
 
 import type { Context } from '@qilin-agent/kylin'
-import type { PeerScope } from '@qilin-agent/typert-protocol'
+import type { PeerScope, TypertResourceReader } from '@qilin-agent/typert-protocol'
 import type { RemoteEventHostInfo } from './stream-protocol.ts'
 
 /** One Remote method request after a carrier has decoded its envelope. */
@@ -32,6 +32,12 @@ export interface TypertRemoteEventFrame {
   readonly event: string
   /** Original event argument list after the owner validates it for JSON transport. */
   readonly args: readonly unknown[]
+  /**
+   * Readers of the resources the arguments carry, keyed by resource kind and
+   * called with the arguments as positional parameters. Absent or empty for
+   * a notification that touches the global resource.
+   */
+  readonly resources?: Readonly<Record<string, TypertResourceReader>>
 }
 
 /** Live Host values used to project one scoped Remote Event. */
@@ -140,8 +146,8 @@ export interface TypertGateway {
   readonly wireStream: TypertGatewayWireStream
 
   /**
-   * Check for an active Client event stream.
-   * @returns whether a stream is open and has not been cancelled.
+   * Check for an active owner Client event stream, the only kind that can answer forwarded waterfalls.
+   * @returns whether an owner stream is open and has not been cancelled.
    */
   hasLiveClient(): boolean
 

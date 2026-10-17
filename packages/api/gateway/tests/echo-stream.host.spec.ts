@@ -7,6 +7,7 @@ import WebServer from '@qilin-agent/host-webserver'
 import { Remote, TypertRemoteService, type RemoteStream } from '@qilin-agent/typert-protocol'
 import TypertRegistry from '@qilin-agent/typert-registry'
 import TypertGatewayService from '@qilin-agent/api-gateway'
+import RemoteAccessService from '@qilin-agent/api-remote-access'
 import { browserCookie, provideBrowserCredentials } from './browser-credentials.ts'
 
 /** The smallest Remote stream that reads its uplink: every carrier has to serve it alike. */
@@ -73,6 +74,7 @@ async function setup(transport: boolean): Promise<Context> {
     provideBrowserCredentials(ctx)
   }
   await ctx.plugin(TypertRegistry)
+  await ctx.plugin(RemoteAccessService)
   await ctx.plugin(TypertGatewayService, {})
   if (transport) await ctx.plugin({ inject: [...connectionInject], apply: applyConnection })
   await ctx.plugin(EchoService)

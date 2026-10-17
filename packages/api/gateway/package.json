@@ -65,6 +65,7 @@
     "@qilin-agent/client-connection": "workspace:*"
   },
   "devDependencies": {
+    "@qilin-agent/api-remote-access": "workspace:*",
     "@qilin-agent/brand": "workspace:*",
     "@qilin-agent/cmdline": "workspace:*",
     "@qilin-agent/client-connection": "workspace:*",

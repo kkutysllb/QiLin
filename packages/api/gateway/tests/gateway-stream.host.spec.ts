@@ -36,6 +36,7 @@ import TypertGatewayService, {
   type TypertRemoteEventInvocation,
   type TypertRemoteEventOutcome,
 } from '@qilin-agent/api-gateway'
+import RemoteAccessService from '@qilin-agent/api-remote-access'
 import { z } from 'zod'
 import type {
   RemoteEventClientId,
@@ -1560,6 +1561,7 @@ async function setup(
     provideBrowserCredentials(ctx)
   }
   await ctx.plugin(TypertRegistry)
+  await ctx.plugin(RemoteAccessService)
   await ctx.plugin(TypertGatewayService, gatewayConfig)
   if (transport) {
     await ctx.plugin({ inject: [...connectionInject], apply: applyConnection })

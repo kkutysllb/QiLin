@@ -30,6 +30,10 @@ kind: "package-reference"
 
 Connection 可用时，Host 入口会在 Connection 共享的 `/api` FetchHandler 上注册 trusted-host interceptor。Connection 把这个复合 handler 交给 HTTP bridge；handler 将已认领 endpoint 分发给 Gateway，未认领且没有精确 Fetch 路由负责的请求返回 404。直接调用 `invoke()` 会保留业务错误；`TypertGatewayError` 是 `RemoteError` 的子类，其 `gateway/*` 码命名了分发、绑定、提供方、查找、Context、参数、编解码器以及上行各自负责的故障：缓冲帧超过 `streamInboxBytes` 的上行报 `gateway/uplink-overflow`，`end` 之后的上行项报 `gateway/protocol`，被 codec 拒绝的上行项报编解码码 `gateway/input-invalid`。因策略而拒绝的解析器——冷恢复失败或 ownership fence——抛出自己的 `RemoteError`，它选定的码原样到达调用方。
 
+每次调用都代表其请求指明的 Peer；未指明 Peer 的进程内调用代表 operator，而 operator 的 principal 就是部署的账号 owner。Host 服务注入 `remoteAccess`，没有 [`@qilin-agent/api-remote-access`](../remote-access/README.zh.md) 就不启动。endpoint 与参数字段检查之后，每次调用先把 JSON 参数按 Typert 编译类型整体校验一次（失败报 `gateway/input-invalid`），分发复用校验后的值。对 Peer 的 principal 不是 owner 的调用，Gateway 在该校验之后、lookup 与 Context 解析之前解析调用访问的资源，并以端点为 action、校验后的参数为 `args` 询问 `ctx.remoteAccess.decide({ principal, action, resources, args })`，资源非法时不询问而以原因 `resource-invalid` 拒绝；被拒的调用抛出 details 为 `{ action, reason }` 的 `remote-access/denied`，因此被拒绝的调用在激活任何 Session 之前就失败。owner 的调用不解析资源、不询问判定即分派。
+
+资源从按 Typert 编译类型校验过的参数中读取——这类校验会丢弃类型未声明的对象字段，而 lookup 与 Context 身份保留 wire 值。对每个资源种类，方法 `@Remote({ resources })` 或 `@RemoteScope(key, { resources })` options 中的读取函数优先；它以方法的位置参数调用（lookup 位为 wire 身份，取消参数位为调用的 signal），并从根 Service 实例的类元数据读取。否则 provider 经 `resource` 声明了该种类的每个 lookup 参数贡献其 wire 身份，省略的可选 lookup 参数不贡献；Host Context adapter 声明了该种类的 Context 方法贡献其 Context 身份，在解析 Context 之前直接从参数读取。再否则从同名顶层参数读取该种类在 `typert.resources` 中登记的默认字段，没有同名参数时读第一个对象参数的同名字段。读取函数抛错或返回空列表、默认字段读到数组、或某个身份（含 Context 身份）不是非空字符串时，解析结果为 `invalid`；不指明任何资源的调用只访问 `global` 资源，指明了资源的调用只访问这些资源。转发事件携带其条目声明的每个资源，因此在事件路径上读取函数返回 `undefined` 同样使解析结果为 `invalid`，而没有读取函数的条目访问 `global`。
+
 支持取消的 Remote 方法会把 `signal: AbortSignal` 声明为最后一个 Host 参数。signal 是 descriptor 元数据，而不是 wire 参数：Connection 将它提供给 Gateway，Gateway 则在已解码的业务参数之后注入它。SRC 识别这个保留的末位参数名，严格生成还要求它具有全局 `AbortSignal` 类型。
 
 流式 Remote 使用 `@Remote({ mode: 'stream' })` 并返回 `Iterable` 或 `AsyncIterable`。`ctx.typertGateway.stream()` 执行与一元调用相同的 endpoint、参数、lookup 和取消校验，再返回可取消的业务项 iterable。Client 插件激活时打开 Gateway 自有的 `/api/remote.mux` WebSocket，并让它在空闲时保持连接。Connection 拥有重试调度；每次 retry 前，它要求 mux 取消候选或活动 socket，并且只做一次全新的物理连接尝试。Host 按配置的 `websocketHeartbeatIntervalMs` 间隔（默认 2 秒）发送 Ping 控制帧，浏览器在 WebSocket 协议层自动回复 Pong，使空闲网络中间层持续看到流量，而不新增 Remote 流帧。若 socket 尚未回复上一次 Ping，Host 会在下一间隔终止它。可独立取消的逻辑流共享这条连接；进程内 Connection 载体直接提供等价的流，不打开该 WebSocket。
@@ -38,9 +42,9 @@ Connection 可用时，Host 入口会在 Connection 共享的 `/api` FetchHandle
 
 Host 下行、Host 上行和 Client 上行泵的取消与停止状态归属单次读取，不保留已交付项的历史。下行结束也会唤醒尚未完成的上行读取。
 
-Host 组合可通过 `registerRemoteEvents()` 注册唯一的应用事件 source。Gateway 为它保留内部 `$events` logical endpoint，只接受空 `args`，并在 source 撤回时中止该注册打开的流。事件名单、参数校验、每个 Client 的队列及 opening `{ type: 'ready', clientId, host: { home } }` frame 中的 Host home 由 API Remotes 拥有。source factory 在返回 iterable 前同步挂好增量 listener，因此 Client 只在增量投递就绪后发布 generation 并开始 baseline 读取。
+Host 组合可通过 `registerRemoteEvents()` 注册唯一的应用事件 source。Gateway 为它保留内部 `$events` logical endpoint，只接受空 `args`，并在 source 撤回时中止该注册打开的流。事件名单、参数校验、每个 Client 的队列及 opening `{ type: 'ready', clientId, host: { home } }` frame 中的 Host home 由 API Remotes 拥有。source factory 在返回 iterable 前同步挂好增量 listener，因此 Client 只在增量投递就绪后发布 generation 并开始 baseline 读取。Peer 的 principal 不是 owner 的 `$events` 流从不收到它可以作答的 scoped waterfall（瀑布式事件）；只有当 `ctx.remoteAccess.decide({ principal, action: 'event:<name>', resources })` 在该帧读取函数指明的资源上（帧没有读取函数时为 `global`）允许时，才整条、不裁剪地收到广播 emit 帧；每帧只解析一次资源，资源非法的帧不经判定即不送达任何非 owner 流，被拒的帧只对该流丢弃。这类 Peer 的 `$events/result` 回复以 `gateway/invocation-unavailable` 失败。
 
-`hasLiveClient()` 检查已有 `$events` 记录中是否有未取消的流。已取消的流即使尚未完成 iterator 清理也不计入，单独的 WebSocket 也不计入。这一同步观察不保证后续投递成功或 Client Provider 已就绪。
+`hasLiveClient()` 检查已有 `$events` 记录中是否有 Peer principal 为 owner 的未取消流，只有这类流能回答转发的 waterfall。已取消的流即使尚未完成 iterator 清理也不计入，单独的 WebSocket 也不计入。这一同步观察不保证后续投递成功或 Client Provider 已就绪。
 
 <a id="client-service-clientremote-ctx-key-remote"></a>
 ## Client 服务：`ClientRemote`（ctx key：`remote`）
