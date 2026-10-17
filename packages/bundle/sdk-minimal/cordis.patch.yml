@@ -33,10 +33,35 @@
     - id: sandbox
       name: '@qilin-agent/sandbox-local'
 
+    - id: filesystem
+      name: '@qilin-agent/fs-local'
+
+    - id: attachment-local
+      name: '@qilin-agent/attachment-local'
+
+    # Image reading without the text tools: the minimal profile keeps its one
+    # shell tool and adds only `read_image`.
+    - id: tool-fs
+      name: '@qilin-agent/tool-fs'
+      config:
+        read: false
+        readImage: true
+        write: false
+        edit: false
+
     # Shared projection registry: sandbox-policy and terminal-bash fold
     # sandbox-mode state through its units and require it as a hard injection.
     - id: session-projection
       name: '@qilin-agent/session-projection'
+
+    - id: token-meter
+      name: '@qilin-agent/token-meter'
+
+    - id: compaction-basic
+      name: '@qilin-agent/compaction-basic'
+
+    - id: image-offload
+      name: '@qilin-agent/compaction-image-offload'
 
     - id: sandbox-policy
       name: '@qilin-agent/sandbox-policy'

@@ -1,5 +1,5 @@
 ---
-description: "供需要不含共享 base bundle 的极简跨平台 coding agent（编程智能体）的用户使用的独立 SDK profile，默认提供一个 shell 工具。"
+description: "供需要不含共享 base bundle 的极简跨平台 coding agent（编程智能体）的用户使用的独立 SDK profile，提供持久 shell、图像读取与自动上下文压缩。"
 kind: "package-bundle"
 ---
 
@@ -9,7 +9,7 @@ kind: "package-bundle"
 
 ## 概述
 
-当 SDK 客户端需要小型、显式的 coding agent 运行时时，请使用 `qilin --profile sdk-minimal`。该 profile 默认只公布按平台选择的持久 shell，把会话持久化为未压缩 JSONL，并从 SDK 初始化请求选择模型。它提供完整 Cordis 配置树，并刻意排除 `qilin-base`、Web、settings、托管凭据、遥测、压缩（compaction）、文件系统工具、workspace 指令、skill（技能）、jobs 与 subagent。其 danger-full-access 策略允许 shell 修改进程可访问的任何路径，因此只能配合隔离 workspace 使用。
+当 SDK 客户端需要小型、显式的 coding agent 运行时时，请使用 `qilin --profile sdk-minimal`。该 profile 默认公布按平台选择的持久 shell 与 `read_image`，在上下文压力达到阈值时自动总结较早历史，把会话持久化为未压缩 JSONL，并从 SDK 初始化请求选择模型。它提供完整 Cordis 配置树，并刻意排除 `qilin-base`、Web、settings、托管凭据、遥测、文本文件工具、workspace 指令、skill（技能）、jobs 与 subagent。其 danger-full-access 策略允许 shell 修改进程可访问的任何路径，因此只能配合隔离 workspace 使用。
 
 ## 目录
 
@@ -38,7 +38,7 @@ qilin --profile sdk-minimal
 
 该 profile 只挂载一套持久 shell：Linux 和 macOS 使用 Bash，Windows 使用 PowerShell。两套配置都使用 300 秒超时与一个 agent 自有终端；另一平台的配置项保持禁用。
 
-与其他随附 profile 一样，它统一挂载 [MCP 资源](../../mcp/mcp-resources/README.zh.md)一次。只需配置 [MCP 客户端条目](../../mcp/mcp-client/README.zh.md)即可添加服务器。其他提供方挂载的客户端也属于已配置状态。调用方作用域中未配置服务器时，MCP 不贡献提示词文本或工具，默认仍只有一个 shell 工具。
+与其他随附 profile 一样，它统一挂载 [MCP 资源](../../mcp/mcp-resources/README.zh.md)一次。只需配置 [MCP 客户端条目](../../mcp/mcp-client/README.zh.md)即可添加服务器。其他提供方挂载的客户端也属于已配置状态。调用方作用域中未配置服务器时，MCP 不贡献提示词文本或工具，默认仍只有一个 shell 工具与 `read_image`。
 
 -----
 
@@ -48,7 +48,7 @@ qilin --profile sdk-minimal
 <details>
 <summary>实现细节——点击展开</summary>
 
-该 bundle 的单个 insert 就是完整应用配置树：SDK stdio 启动与 JSON-RPC 服务、一个由环境配置的 DeepSeek 适配器、显式 agent 核心、按配置启用的 MCP 资源工具、本地子进程执行、按平台选择的持久 shell PTY，以及位于 `$QILIN_HOME/sessions` 的未压缩 JSONL 持久化。它不继承其他 bundle，因此每个额外配置项都是显式 profile 变更。
+该 bundle 的单个 insert 就是完整应用配置树：SDK stdio 启动与 JSON-RPC 服务、一个由环境配置的 DeepSeek 适配器、显式 agent 核心、按配置启用的 MCP 资源工具、本地文件系统与图像附件、带图像 offload 的自动上下文压缩（compaction）、本地子进程执行、按平台选择的持久 shell PTY，以及位于 `$QILIN_HOME/sessions` 的未压缩 JSONL 持久化。`tool-fs` 关闭 `read`、`write` 与 `edit`，因此只有 `read_image` 与 shell 工具一并提供。它不继承其他 bundle，因此每个额外配置项都是显式 profile 变更。
 
 ### 源码地图
 
@@ -78,21 +78,23 @@ qilin --profile sdk-minimal
 
 #### 模型看到的内容
 
-系统提示词取 `QILIN_SYSTEM_PROMPT`，未设置时使用 `You are a helpful software engineer assistant.`。未配置 MCP 服务器时，对外公布的唯一工具是 Linux/macOS 上 agent 所有的持久 `bash` 或 Windows 上的 `pwsh`；运行时上下文、文件系统工具、workspace 指令、skill、jobs 控制、压缩与 Harness 身份均不存在。
+系统提示词取 `QILIN_SYSTEM_PROMPT`，未设置时使用 `You are a helpful software engineer assistant.`。未配置 MCP 服务器时，对外公布的工具是 Linux/macOS 上 agent 所有的持久 `bash` 或 Windows 上的 `pwsh`，以及 `read_image`；运行时上下文、文本文件工具、workspace 指令、skill、jobs 控制与 Harness 身份均不存在。
 
 #### Token 影响
 
-默认是一个稳定 persona 加一个工具 schema。已配置 MCP 服务器会添加自己的工具、共享资源工具及可用的服务器指令。工具结果与普通对话历史随会话增长。
+默认是一个稳定 persona 加两个工具 schema。已配置 MCP 服务器会添加自己的工具、共享资源工具及可用的服务器指令。图像消耗模型输入 token。图像超出路由预算时，[图像 offload](../../compaction/compaction-image-offload/README.zh.md) 会把较早的图像永久替换为附件/路径占位符，并重试该请求或压缩总结。自动压缩在上下文压力达到配置阈值时额外发送一次总结请求，并用总结替换较早的模型可见历史；持久 JSONL 日志仍保留这些事件。
 
 #### KV Cache 影响
 
-当 persona、平台、提供方、模型与 bundle patch 栈固定时保持稳定。Profile 变更在下一个进程生效。
+当 persona、平台、提供方、模型与 bundle patch 栈固定时保持稳定。压缩会替换部分请求历史，可能降低缓存复用率。图像 offload 在首个变化的图像处结束缓存复用。Profile 变更在下一个进程生效。
 
 ## 已知限制与延期工作
 
 <a id="known-limitations-and-deferred-work"></a>
 
 - **该组合刻意省略共享产品服务** — 需要 settings、托管凭据、策略预设、遥测、Web 工具或完整默认工具清单时，请选择 `qilin --profile sdk`。
+- **图像读取需要支持图像的模型** — 请选择适配器声明了图像输入的路由；纯文本路由会返回工具错误。图像保存在 `$QILIN_HOME/attachments/v1` 下。
+- **压缩是自动的** — 可通过 profile patch 配置 [compaction-basic](../../compaction/compaction-basic/README.zh.md)。SDK 提示词文本不会执行 `/compact` 或其他斜杠命令。
 - **用户 patch 可以扩展配置树并破坏 stdout** — profile 自定义属于受信任的应用组合；向 stdout 写入普通文本的插件会破坏 JSON-RPC 分帧。
 
 <a id="dev-note"></a>

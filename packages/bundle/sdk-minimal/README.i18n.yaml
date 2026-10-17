@@ -3,23 +3,23 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/bundle/sdk-minimal/README.md
 /:
-  en: ae5bdac5add26503
-  zh: 93cd37d41c05fc9c
+  en: 055d820e7d59a8d2
+  zh: a1c6acf5ff5d1d7f
 /qilin-agent-sdk-minimal:
   en: 981f63056421cbc4
   zh: 02bab870cd4c4c4f
 /qilin-agent-sdk-minimal/summary:
-  en: 1bd3abec463eb574
-  zh: 8c314df925d7d077
+  en: 06a00fcc3c05dc1b
+  zh: 5031c8db42056d5b
 /qilin-agent-sdk-minimal/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
 /qilin-agent-sdk-minimal/use-this-package:
-  en: 4812e6933c4644c1
-  zh: 622660b08d522558
+  en: 6ec662542bf81f28
+  zh: 0c6f794511fa14b0
 /qilin-agent-sdk-minimal/understand-the-implementation:
-  en: 39497164b317f6de
-  zh: 436dc8c8ea11e2d2
+  en: e635a512796dccea
+  zh: 9e07915a8b89a535
 /qilin-agent-sdk-minimal/understand-the-implementation/source-map:
   en: 3784c554e96ab004
   zh: 0a05d4fe1e26b3b1
@@ -33,17 +33,17 @@
   en: bd87e16b0c6e0506
   zh: c8ee5e3b4578754e
 /qilin-agent-sdk-minimal/model-experience/minimal-coding-agent-composition/what-the-model-sees:
-  en: 35942c4229523952
-  zh: aafbf10057b5efb2
+  en: ca5812b676fca755
+  zh: d598d6adba1fb509
 /qilin-agent-sdk-minimal/model-experience/minimal-coding-agent-composition/token-effect:
-  en: 65613fb41fcc3151
-  zh: fc20a732aca8282c
+  en: d9214b2e1d3b505b
+  zh: f2fe93fb1328045a
 /qilin-agent-sdk-minimal/model-experience/minimal-coding-agent-composition/kv-cache-effect:
-  en: 904ae09b5fdb87c1
-  zh: de6fcaaa12bd9733
+  en: dd887b6519f40ab3
+  zh: 80d64fe177a8a011
 /qilin-agent-sdk-minimal/known-limitations-and-deferred-work:
-  en: b30fe041e58923a0
-  zh: a081da02535d7fae
+  en: 8a864ddd73ac6857
+  zh: 80064ba462c5d7df
 /qilin-agent-sdk-minimal/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: e88aeb617ffb74ea

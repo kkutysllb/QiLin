@@ -213,6 +213,24 @@ describe('registration', () => {
     expect(ctx.tools.schemas()).toHaveLength(0)
   })
 
+  it('registers only the tools its config enables', async () => {
+    const mount = async (config: ToolFs.Config) => {
+      const ctx = new Context()
+      await ctx.plugin(SystemPrompt)
+      await ctx.plugin(ToolRuntime)
+      await ctx.plugin(FakeFs)
+      await ctx.plugin(FsPolicy)
+      await ctx.plugin(ToolFs, config)
+      return ctx.tools.schemas().map(schema => schema.name).sort()
+    }
+    // A profile that keeps the seam but advertises no filesystem tool.
+    expect(await mount({ read: false, readImage: false, write: false, edit: false })).toEqual([])
+    // Each tool is selectable on its own; read_image additionally needs a mounted attachment store.
+    expect(await mount({ read: false, readImage: false, write: true, edit: false })).toEqual(['write'])
+    expect(await mount({ read: false, readImage: false, write: false, edit: true })).toEqual(['edit'])
+    expect(await mount({ read: true, readImage: false, write: false, edit: false })).toEqual(['read'])
+  })
+
   it('unregisters everything on fiber disposal (HMR safety)', async () => {
     const ctx = new Context()
     await ctx.plugin(SystemPrompt)

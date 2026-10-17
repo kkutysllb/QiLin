@@ -33,7 +33,13 @@ describe('qilin-sdk-minimal bundle', () => {
       ['plugin-package-inventory-deepseek', '@qilin-agent/plugin-package-inventory-deepseek'],
       ['llm-deepseek', '@qilin-agent/llm-deepseek-api-key'],
       ['sandbox', '@qilin-agent/sandbox-local'],
+      ['filesystem', '@qilin-agent/fs-local'],
+      ['attachment-local', '@qilin-agent/attachment-local'],
+      ['tool-fs', '@qilin-agent/tool-fs'],
       ['session-projection', '@qilin-agent/session-projection'],
+      ['token-meter', '@qilin-agent/token-meter'],
+      ['compaction-basic', '@qilin-agent/compaction-basic'],
+      ['image-offload', '@qilin-agent/compaction-image-offload'],
       ['sandbox-policy', '@qilin-agent/sandbox-policy'],
       ['subprocess', '@qilin-agent/subprocess-local'],
       ['pty', '@qilin-agent/terminal'],
@@ -70,6 +76,9 @@ describe('qilin-sdk-minimal bundle', () => {
       personaPrefix: { __jsExpr: "process.env.QILIN_SYSTEM_PROMPT ?? 'You are a helpful software engineer assistant.'" },
     })
     expect(rows.find(row => row.id === 'agent-loop')?.config).toEqual({ agents: [] })
+    // Image reading without the text tools, and automatic compaction on its defaults.
+    expect(rows.find(row => row.id === 'tool-fs')?.config).toEqual({ read: false, readImage: true, write: false, edit: false })
+    expect(rows.find(row => row.id === 'compaction-basic')?.config).toBeUndefined()
     expect(rows.find(row => row.id === 'terminal-bash')).toMatchObject({
       disabled: { __jsExpr: "process.platform === 'win32'" },
     })

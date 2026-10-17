@@ -40,7 +40,11 @@
     "@qilin-agent/kylin-plugin-timer": "workspace:~",
     "@qilin-agent/agent": "workspace:*",
     "@qilin-agent/agent-loop": "workspace:*",
+    "@qilin-agent/attachment-local": "workspace:*",
+    "@qilin-agent/compaction-basic": "workspace:*",
+    "@qilin-agent/compaction-image-offload": "workspace:*",
     "@qilin-agent/deepseek-llm-api-extensions": "workspace:*",
+    "@qilin-agent/fs-local": "workspace:*",
     "@qilin-agent/jobs-local": "workspace:*",
     "@qilin-agent/llm": "workspace:*",
     "@qilin-agent/llm-deepseek-api-key": "workspace:*",
@@ -62,6 +66,8 @@
     "@qilin-agent/terminal-bash": "workspace:*",
     "@qilin-agent/tool-bash-persistent": "workspace:*",
     "@qilin-agent/tool-pwsh-persistent": "workspace:*",
+    "@qilin-agent/token-meter": "workspace:*",
+    "@qilin-agent/tool-fs": "workspace:*",
     "@qilin-agent/tools": "workspace:*"
   },
   "peerDependencies": {
