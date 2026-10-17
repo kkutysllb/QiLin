@@ -35,6 +35,7 @@
         "@qilin-agent/client-locale",
         "@qilin-agent/client-ui-renderer",
         "@qilin-agent/client-ui-settings",
+        "@qilin-agent/client-shortcuts",
         "@qilin-agent/api-remotes"
       ],
       "platform": "web",
@@ -50,6 +51,7 @@
     "@qilin-agent/api-remotes": "workspace:*",
     "@qilin-agent/client-connection": "workspace:*",
     "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-shortcuts": "workspace:*",
     "@qilin-agent/client-store": "workspace:*",
     "@qilin-agent/client-test-runtime": "workspace:*",
     "@qilin-agent/client-ui-primitives": "workspace:*",

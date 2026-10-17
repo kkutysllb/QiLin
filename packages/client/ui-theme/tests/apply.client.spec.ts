@@ -2,7 +2,7 @@
  * locale service, declaration-aware Appearance row registration, snapshot
  * projection into the row store, and HMR collapse recovery. */
 import { Context } from '@qilin-agent/kylin'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
 import { LocaleRuntime } from '@qilin-agent/client-locale/client'
 import { TestRemote } from '@qilin-agent/client-test-runtime'
@@ -13,6 +13,11 @@ import { THEME_SETTINGS_NAMESPACE, ThemeSettingsSchema } from '../src/theme-sett
 import { AppearanceRow } from '../src/client/AppearanceRow.tsx'
 import { FontSettingsGroup } from '../src/client/FontSettingsGroup.tsx'
 import type { createAppearanceRowStore, createFontRowStore } from '../src/client/settings-store.ts'
+import type {
+  ShortcutContext, ShortcutFixedInput, ShortcutGesture, ShortcutPlatform, Shortcuts,
+} from '@qilin-agent/client-shortcuts/client'
+import { bindingKey, normalizeBinding, presentBinding } from '@qilin-agent/client-shortcuts/protocol'
+import { ShortcutRegistry } from '../../shortcuts/src/client/registry.ts'
 
 // These specs assert the shipped Chinese copy. The lane has no jsdom `window`,
 // so browser-language detection never runs and a fresh LocaleRuntime opens on
@@ -49,8 +54,7 @@ async function bench(isLoopback = true) {
     value: { writable: true, hasDocument: true, namespaces: [namespace()] },
   }))
   const mutate = vi.fn((_ns: string, ops: { path: string[]; value: unknown }[]) => {
-    const op = ops[0]!
-    section[op.path[0]!] = op.value
+    for (const op of ops) section[op.path[0]!] = op.value
     return Promise.resolve({ ok: true as const, value: namespace() })
   })
   const events = new TestRemote(ctx, { settings: { describe, mutate } })
@@ -80,7 +84,118 @@ function rowFaceOf(slots: SlotRegistry, component: unknown) {
   return { entry, instance, face: face as FontSettingsInjected }
 }
 
+/** Deliver the keyboard service's arbitrated input while keeping its real catalog and bindings. */
+function fontKeyboard(ctx: Context, runtime: Shortcuts['runtime'] = 'desktop', platform: ShortcutPlatform = 'macos') {
+  onTestFinished(() => ctx.fiber.dispose())
+  const registry = new ShortcutRegistry(runtime, platform)
+  const listeners = new Set<(input: ShortcutFixedInput) => void>()
+  const shortcuts: Pick<Shortcuts, 'runtime' | 'platform' | 'registerFixed' | 'describeBinding' | 'observeFixedInput'> = {
+    runtime, platform,
+    registerFixed: command => registry.registerFixed(command),
+    describeBinding: (candidate) => {
+      const binding = candidate === null ? null : normalizeBinding(candidate, platform)
+      return { binding, keys: presentBinding(binding, platform).keys, issue: null, conflicts: [] }
+    },
+    observeFixedInput: (listener) => {
+      listeners.add(listener)
+      return () => { listeners.delete(listener) }
+    },
+  }
+  ctx.provide('shortcuts', shortcuts)
+  return {
+    registry,
+    press: (gesture: Partial<ShortcutGesture> = {}, context: Partial<ShortcutContext> = {}) => {
+      const consume = vi.fn()
+      for (const listener of listeners) listener({
+        type: 'keydown', consume,
+        gesture: { code: 'Equal', meta: platform === 'macos', control: platform !== 'macos', alt: false,
+          shift: false, repeat: false, composing: false, defaultPrevented: false, ...gesture },
+        context: { region: 'page', modal: null, target: null, ...context },
+      })
+      return consume
+    },
+    reset: () => { for (const listener of listeners) listener({ type: 'reset' }) },
+  }
+}
+
 describe('ui-theme apply', () => {
+  it('presents both desktop font actions with their accepted physical combinations', async () => {
+    const b = await bench()
+    const keyboard = fontKeyboard(b.ctx)
+    await b.ctx.plugin({ inject: [...inject], apply }).await()
+    expect(keyboard.registry.fixedCatalog.getSnapshot().map(row => ({
+      label: row.label, keys: row.keys, bindings: row.bindings.map(bindingKey),
+    }))).toEqual([
+      { label: '增大字号', keys: ['⌘', '='], bindings: ['meta+Equal', 'shift+meta+Equal'] },
+      { label: '减小字号', keys: ['⌘', '-'], bindings: ['meta+Minus'] },
+    ])
+    await b.ctx.fiber.dispose()
+  })
+
+  it('steps text, code, and terminal sizes together in one saved mutation', async () => {
+    const b = await bench()
+    const keyboard = fontKeyboard(b.ctx)
+    declareItems(b.slots)
+    const fiber = b.ctx.plugin({ inject: [...inject], apply })
+    await fiber.await()
+    const theme = b.ctx.get('theme') as ThemeRuntime
+    const { instance } = rowFaceOf(b.slots, FontSettingsGroup)
+
+    expect(keyboard.press()).toHaveBeenCalledOnce()
+    expect(theme.getTheme().fontSizes).toEqual({ text: 15, code: 12, terminal: 14 })
+    expect(instance.getSnapshot().fontSizes.text).toBe(15)
+    await vi.waitFor(() => { expect(b.mutate).toHaveBeenCalledOnce() })
+    expect(b.mutate.mock.calls.at(-1)?.[1]).toEqual([
+      { op: 'set', path: ['fontSize'], value: 15 },
+      { op: 'set', path: ['codeFontSize'], value: 12 },
+      { op: 'set', path: ['terminalFontSize'], value: 14 },
+    ])
+    keyboard.press({ code: 'Minus' })
+    expect(theme.getTheme().fontSizes).toEqual({ text: 14, code: 11, terminal: 13 })
+    await vi.waitFor(() => { expect(b.mutate).toHaveBeenCalledTimes(2) })
+    await fiber.dispose()
+    expect(keyboard.registry.fixedCatalog.getSnapshot()).toEqual([])
+    expect(keyboard.press()).not.toHaveBeenCalled()
+    await b.ctx.fiber.dispose()
+  })
+
+  it('consumes font shortcuts at a size limit without persisting another write', async () => {
+    const b = await bench()
+    const keyboard = fontKeyboard(b.ctx)
+    await b.ctx.plugin({ inject: [...inject], apply }).await()
+    const theme = b.ctx.get('theme') as ThemeRuntime
+    theme.setFontSize('text', 22)
+    theme.setFontSize('code', 16)
+    theme.setFontSize('terminal', 20)
+    await vi.waitFor(() => { expect(b.mutate).toHaveBeenCalledTimes(3) })
+    expect(keyboard.press()).toHaveBeenCalledOnce()
+    expect(theme.getTheme().fontSizes).toEqual({ text: 22, code: 16, terminal: 20 })
+    expect(b.mutate).toHaveBeenCalledTimes(3)
+    await b.ctx.fiber.dispose()
+  })
+
+  it('leaves browser zoom and locally owned input unchanged', async () => {
+    const browser = await bench()
+    const web = fontKeyboard(browser.ctx, 'web')
+    await browser.ctx.plugin({ inject: [...inject], apply }).await()
+    expect(web.registry.fixedCatalog.getSnapshot()).toEqual([])
+    expect(web.press()).not.toHaveBeenCalled()
+    await browser.ctx.fiber.dispose()
+
+    const b = await bench()
+    const keyboard = fontKeyboard(b.ctx)
+    await b.ctx.plugin({ inject: [...inject], apply }).await()
+    for (const gesture of [
+      { composing: true }, { defaultPrevented: true }, { repeat: true }, { alt: true },
+      { meta: false }, { control: true }, { code: 'KeyA' }, { code: 'Minus', shift: true },
+    ]) expect(keyboard.press(gesture)).not.toHaveBeenCalled()
+    expect(keyboard.press({}, { region: 'terminal' })).not.toHaveBeenCalled()
+    keyboard.reset()
+    expect((b.ctx.get('theme') as ThemeRuntime).getTheme().fontSizes.text).toBe(14)
+    expect(b.mutate).not.toHaveBeenCalled()
+    await b.ctx.fiber.dispose()
+  })
+
   it('declares the slot and locale services', () => {
     expect(inject).toEqual(['slots', 'locale', 'remote', 'configForms'])
   })

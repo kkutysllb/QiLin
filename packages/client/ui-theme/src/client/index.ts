@@ -22,6 +22,7 @@ import { AppearanceRow } from './AppearanceRow.tsx'
 import type { FontSettingsInjected } from './FontSettingsGroup.tsx'
 import { FontSettingsGroup } from './FontSettingsGroup.tsx'
 import { createAppearanceRowStore, createFontRowStore } from './settings-store.ts'
+import { installFontSizeShortcuts } from './font-size-shortcuts.ts'
 import { installThemeStyles } from './styles.ts'
 import { en, zh, type ThemeKey } from './locales.ts'
 import {
@@ -201,6 +202,7 @@ export class ThemeRuntime {
     }
     ctx.effect(() => host.subscribe(() => { this.adopt() }), 'ui-theme: settings scope adoption')
     this.adopt()
+    installFontSizeShortcuts(ctx, SETTINGS_NS, (delta) => { this.adjustFontSizes(delta) })
   }
 
   /**
@@ -242,7 +244,7 @@ export class ThemeRuntime {
     }
     if (this.preference === id) return
     this.preference = id as ThemePreference
-    if (isThemePreference(id)) this.write(THEME_PREFERENCE_FIELD, id)
+    if (isThemePreference(id)) this.write(() => this.host.set(THEME_PREFERENCE_FIELD, id))
     this.publish()
   }
 
@@ -257,7 +259,29 @@ export class ThemeRuntime {
     if (!isFontSize(role, px)) throw new Error(`${role} font size ${px} is outside ${spec.min}..${spec.max}`)
     if (this.fontSizes[role] === px) return
     this.fontSizes = Object.freeze({ ...this.fontSizes, [role]: px })
-    this.write(spec.field, px)
+    this.write(() => this.host.set(spec.field, px))
+    this.publish()
+  }
+
+  /**
+   * Step all font sizes within their own ranges and save changed fields in one mutation.
+   * Emits one `theme/change`; no write or event occurs when every role is at its limit.
+   * @param delta - one pixel to add or remove from each role's current size.
+   */
+  private adjustFontSizes(delta: 1 | -1): void {
+    const fontSizes = { ...this.fontSizes }
+    const fields: Record<string, number> = {}
+    for (const role of FONT_ROLES) {
+      const { field, min, max } = FONT_SIZE_SPECS[role]
+      const px = Math.max(min, Math.min(max, fontSizes[role] + delta))
+      if (px === fontSizes[role]) continue
+      fontSizes[role] = px
+      fields[field] = px
+    }
+    const ops = Object.entries(fields).map(([field, value]) => ({ op: 'set' as const, path: [field], value }))
+    if (ops.length === 0) return
+    this.fontSizes = Object.freeze(fontSizes)
+    this.write(() => this.host.mutate(ops))
     this.publish()
   }
 
@@ -272,14 +296,14 @@ export class ThemeRuntime {
     const list = normalizeFontFamily(value)
     if (this.fontFamilies[role] === list) return
     this.fontFamilies = Object.freeze({ ...this.fontFamilies, [role]: list })
-    this.write(FONT_FAMILY_FIELDS[role], list)
+    this.write(() => this.host.set(FONT_FAMILY_FIELDS[role], list))
     this.publish()
   }
 
-  /** Write one field through the settings scope, then adopt the durable section once no own write remains. */
-  private write(field: string, value: string | number): void {
+  /** Queue one settings write, then adopt the durable section once no own write remains. */
+  private write(operation: () => Promise<boolean>): void {
     this.pendingWrites += 1
-    void this.host.set(field, value).finally(() => {
+    void operation().finally(() => {
       this.pendingWrites -= 1
       this.adopt()
     })
