@@ -15,8 +15,8 @@
   en: d9859219cdb0f367
   zh: 2a3cfa8cb786e327
 /qilin-agent-api-gateway/host-service-typertgatewayservice-ctx-key-typertgateway:
-  en: b8aefdb5a3ad5fdd
-  zh: 93e9283341d34869
+  en: 4a842159125463b2
+  zh: 19f48d42a4bde55f
 /qilin-agent-api-gateway/client-service-clientremote-ctx-key-remote:
   en: 9e6bade9cfab00a1
   zh: 4a456e3054a4085c
@@ -27,8 +27,8 @@
   en: af5abeee32f2d93b
   zh: b320bb727a223a13
 /qilin-agent-api-gateway/known-limitations-and-deferred-work:
-  en: 3ade2903f40a0a98
-  zh: 9af1d557fefdbd89
+  en: 98eab229f8c2aec2
+  zh: a5009515bba421e8
 /qilin-agent-api-gateway/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: e88aeb617ffb74ea

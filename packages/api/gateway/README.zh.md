@@ -36,7 +36,7 @@ Connection 可用时，Host 入口会在 Connection 共享的 `/api` FetchHandle
 
 支持取消的 Remote 方法会把 `signal: AbortSignal` 声明为最后一个 Host 参数。signal 是 descriptor 元数据，而不是 wire 参数：Connection 将它提供给 Gateway，Gateway 则在已解码的业务参数之后注入它。SRC 识别这个保留的末位参数名，严格生成还要求它具有全局 `AbortSignal` 类型。
 
-流式 Remote 使用 `@Remote({ mode: 'stream' })` 并返回 `Iterable` 或 `AsyncIterable`。`ctx.typertGateway.stream()` 执行与一元调用相同的 endpoint、参数、lookup 和取消校验，再返回可取消的业务项 iterable。Client 插件激活时打开 Gateway 自有的 `/api/remote.mux` WebSocket，并让它在空闲时保持连接。Connection 拥有重试调度；每次 retry 前，它要求 mux 取消候选或活动 socket，并且只做一次全新的物理连接尝试。Host 按配置的 `websocketHeartbeatIntervalMs` 间隔（默认 2 秒）发送 Ping 控制帧，浏览器在 WebSocket 协议层自动回复 Pong，使空闲网络中间层持续看到流量，而不新增 Remote 流帧。若 socket 尚未回复上一次 Ping，Host 会在下一间隔终止它。可独立取消的逻辑流共享这条连接；进程内 Connection 载体直接提供等价的流，不打开该 WebSocket。
+流式 Remote 使用 `@Remote({ mode: 'stream' })` 并返回 `Iterable` 或 `AsyncIterable`。`ctx.typertGateway.stream()` 执行与一元调用相同的 endpoint、参数、lookup 和取消校验，再返回可取消的业务项 iterable。Client 插件激活时打开 Gateway 自有的 `/api/remote.mux` WebSocket，并让它在空闲时保持连接。Connection 拥有重试调度；每次 retry 前，它要求 mux 取消候选或活动 socket，并且只做一次全新的物理连接尝试。Host 按配置的 `websocketHeartbeatIntervalMs` 间隔（默认 2 秒）发送 Ping 控制帧，浏览器在 WebSocket 协议层自动回复 Pong，使空闲网络中间层持续看到流量，而不新增 Remote 流帧。Pong、任何收到的帧，以及先排入已满的本地发送缓冲区再完成的 downlink 写入都算作对端活动；连续两个 Ping 间隔没有任何活动的 socket 会被终止，因此把 Pong 压在数据后面的拥塞链路仍保持连接。可独立取消的逻辑流共享这条连接；进程内 Connection 载体直接提供等价的流，不打开该 WebSocket。
 
 每条流还在同一条逻辑流上携带从 Client 到 Host 的上行。方法把上行项类型声明为返回类型的第二个类型参数——来自 [`@qilin-agent/typert-protocol`](../../typert/protocol/README.zh.md) 的 `RemoteStream<Out, In>`；`In` 缺省为 `never`，返回 `Iterable`、`AsyncIterable` 或 `RemoteStream<Out>` 的方法即声明自己不读上行。运行中的方法通过 `this.ctx.invocation` 读取本次调用：Gateway 从携带该 `RemoteInvocation`（`request`、`service`、`peer`、`signal` 与 `uplink()`）的 Context 派生接收者，因此没有任何东西进入参数列表，而非 Remote 调用派生的 Context 上 `ctx.invocation` 为 `undefined`。`uplink()` 每次调用只能取一次。描述符带 codec 时它在交付前逐项解码；不带时——SRC 方法，或 `In` 为 `never` 的方法——它交付经 JSON 安全校验的 `unknown` 值。Client 在已打开的逻辑流上把每一项作为 `item` 帧发送（顶层 `undefined` 项是不带 `value` 的 `item` 帧），以 `end` 帧表示半关闭；方法通过 `uplink()` 迭代结束感知半关闭，通过 `signal` 感知取消。被拒绝的项使整条流以 `gateway/input-invalid`（字段 `uplink`）失败。上行项在 Host 逐项校验，因为它们来自浏览器；下行项是 Host 方法产出的值，不经校验原样透传。方法结束下行时 Gateway 调用 uplink 迭代器的 return 并丢弃未读的项；发给从未取用 uplink 的方法的项在 inbox 里等到那时为止。每条逻辑流最多缓冲 `streamInboxBytes`（默认 262144）字节的上行帧；超限使流以 `gateway/uplink-overflow` 失败，`end` 之后的项使流以 `gateway/protocol` 失败，两种情况都不关闭 socket。发给 Host 已结束的流 id 的 `item`、`end` 与 `cancel` 帧被丢弃；只有重复的 `open` 会关闭 socket。`$events` 这类 Gateway 自有的流在打开时立即 return 其 uplink，因此它们的 `item` 帧被丢弃而不缓冲。一元方法也可以调用 `uplink()`；其项只在方法运行期间可读。每条流都代表操作者 Peer：WebSocket 上的流代表 Connection 在升级时接纳的 Peer，该 scope 释放时 socket 关闭；进程内载体的流直接代表操作者。
 
@@ -88,7 +88,7 @@ Client waterfall 的 Context 解析保持同步。解析器可以返回借用的
 - `$stream()` 监督载体替换，但不推断回放语义；各领域自行拥有恢复 cursor 或替换 baseline 的校验，以及正常结束的分类。Connection generation 会重开内部 `$events` 流；单向通知不会重放，仍处于 pending 的 scoped waterfall 则沿用同一个 event id 重放。
 - lookup 解析器按 key 配置；当前无法让单个 Remote 参数或 endpoint 在同一 `agent`/`session` key 下选择 live-only 策略。
 - 被转发的事件到达 `$on` 时不做业务载荷投影或脱敏。普通通知在重连后不重放；Agent-scoped waterfall 只投影选择 Client Context 所需的顶层 Agent 身份，并自行携带 pending 生命周期。
-- `websocketHeartbeatIntervalMs` 同时是 Ping 周期和 Pong 截止时间。对端未在下一周期前回复时，Host 会终止连接；如果部署的事件循环或网络可能停顿超过该间隔，必须调大此配置。
+- `websocketHeartbeatIntervalMs` 同时是 Ping 周期和活动截止时间。对端连续两个周期没有任何活动时，Host 会终止连接；如果部署的事件循环或网络可能停顿超过该间隔，必须调大此配置。
 - 上行除了有界的 Host inbox 之外没有流控：Client 发送快于方法读取，或发给从未取用 uplink 的方法时，其流以 `gateway/uplink-overflow` 失败；上行项不会跨载体代际重放，需要恢复上行的领域在重开的请求里自带确认游标。
 
 
