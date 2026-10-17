@@ -168,13 +168,21 @@ const packageFileExtras: Readonly<Record<string, readonly string[]>> = {
   '@qilin-agent/client-ui-theme': ['lib/styles'],
   // The physical-key protocol is a public entry usable without the browser service.
   '@qilin-agent/client-shortcuts': ['lib/protocol.js'],
+  // The embedded DevTools build ships as static assets the Worker serves; the
+  // published list follows the manifest file order.
+  '@qilin-agent/experimental-inspector': ['lib/client.*.js', 'lib/worker.js', 'lib/devtools/**'],
   // The CPython side ships as source .py files, published as-is rather than built.
   '@qilin-agent/experimental-ptc-runtime-python': ['py/**/*.py'],
   // The local recognizer reads its revision-pinned model catalog from this
   // runtime file; the Worker bundle and the packaged payload both need it.
   '@qilin-agent/experimental-speech-to-text-sensevoice': ['runtime/assets.json'],
   // The isolated Node bootstrap is a separately launched bundle.
-  '@qilin-agent/ptc-runtime-node': ['lib/process.js'],
+  // The persistent process entry ships beside the one-shot process entry.
+  '@qilin-agent/ptc-runtime-node': ['lib/process.js', 'lib/persistent-process.js'],
+  // Multi-entry builds: each tsdown entry is a public subpath without an
+  // exports row, so the manifest lists them explicitly.
+  '@qilin-agent/experimental-cua': ['lib/api.js', 'lib/bridge.js', 'lib/native-client.js', 'lib/protocol.js'],
+  '@qilin-agent/experimental-cua-macos': ['native/bin', 'native/Package.swift', 'native/Sources', 'native/tests/swift', 'native/tests/test_swift.py', 'native/LICENSE.cua-driver', 'native/upstream.json', 'native/README.md', 'native/README.zh.md', 'native/protocol.schema.json'],
   // The shipped preset compositions travel inside the roster package.
   '@qilin-agent/agent-presets': ['presets'],
   // The Web Host mounts the default-off settings owner independently of each

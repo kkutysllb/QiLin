@@ -34,6 +34,10 @@ describe('optional bundles', () => {
     expect(OPTIONAL_BUNDLES.length).toBeGreaterThan(0)
   })
 
+  it('keeps the Inspector out of the default plugin list', () => {
+    expect(OPTIONAL_BUNDLES).not.toContain('@qilin-agent/experimental-inspector')
+  })
+
   it.each(OPTIONAL_BUNDLES)('%s composes over the Web profile without a skipped patch', (name) => {
     const { patches } = bundle(name)
     const warnings: string[] = []

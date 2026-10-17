@@ -60,6 +60,7 @@
     "@qilin-agent/fs": "workspace:*"
   },
   "devDependencies": {
+    "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/kylin-plugin-include": "workspace:~"
   }
 }

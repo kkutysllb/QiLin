@@ -46,6 +46,9 @@ const NO_MODEL_EXPERIENCE_SECTION: Readonly<Record<string, string>> = {
  */
 const SENTENCE_MODEL_EXPERIENCE: Readonly<Record<string, SentenceContract>> = {
   'packages/telemetry/otel': { kind: 'none', reason: 'The service delivers caller-selected records without changing model context.' },
+  'packages/experimental/inspector': { kind: 'none', reason: 'Developer diagnostics transport; it observes runtime activity without changing model requests.' },
+  'packages/experimental/inspector-profile': { kind: 'none', reason: 'Mounts the two developer inspection plugins; neither contributes model context.' },
+  'packages/experimental/session-inspector': { kind: 'none', reason: 'Reads committed Session records for the inspector tab without touching requests.' },
   'packages/settings/config-editor': { kind: 'indirect', reason: 'Persisted configuration values reach models through the plugins that read them; the editor itself owns no model-visible output.' },
   'packages/experimental/plugin-market-bundle': { kind: 'indirect', reason: 'With the bundle on, the Creator preset gains the read-only plugin_market tool; the bundle itself adds no prompts.' },
   'packages/session/usage-report': { kind: 'none', reason: 'It reads settled Turns and reports them to the deployment, adding no prompt, tool, or model-visible output.' },
