@@ -205,7 +205,7 @@ git add packages/llm/llm-pi-ai/src/provider-data.generated.ts
 
 #### 模型看到什么
 
-所选目录模型会收到系统消息文本、对话历史、工具与受支持的采样字段。适配器按历史顺序保留后续 system 消息；对不支持会话中段 system 的模型，pi-ai 负责协议专属的放置并把它们拼接在开头。一次性 `GenerateOptions.system` 位于初始历史提示词之前。重复的 system 消息保持重复；空 system 消息会被跳过而不丢弃更早的文本。工具更新能力选择共享的历史声明投影；pi-ai 收到初始活动工具，以及成组的携带新增与受支持移除的 developer 更新。当带工具更新的 Anthropic 请求的全部投影声明都是延迟加载时，初始活动工具是一个占位符 `DeferredToolPlaceholder`，其描述告知模型永远不要调用它；对它的调用会走普通的未知工具结果。Anthropic 会在更新消息内联收到后续工具定义。回放会为动态加载的 Responses 工具保留 tool-call 命名空间。每张保留图片前都会有文本，注明其完整附件 id 与实际请求尺寸。当前执行文件系统可以映射附件提供方的宿主对象时，该文本还会携带只读规范化对象路径，并警告规范化或请求投影可能缩放或重新编码上传内容。日志中的图片省略决策选中的每个出现位置都会在替换文本中保留自己的身份与当前已解析访问方式，其规范化附件不会读取或变换。当保留的出现位置按精确 base64 载荷仍超过路由的 `maxRequestImageBytes` 时，调用以 `IMAGE_OFFLOAD_REQUIRED` 失败，由 `qilin-compaction-image-offload` 用 `image/offload` 事件记录所选位置并重试步骤。提供方原生回放元数据只在适配器针对历史内容校验通过后恢复。
+所选目录模型会收到系统消息文本、对话历史、工具与受支持的采样字段。适配器按历史顺序保留后续 system 消息；对不支持会话中段 system 的模型，pi-ai 负责协议专属的放置并把它们拼接在开头。一次性 `GenerateOptions.system` 位于初始历史提示词之前。重复的 system 消息保持重复；空 system 消息会被跳过而不丢弃更早的文本。工具更新能力选择共享的历史声明投影；pi-ai 收到初始活动工具，以及成组的携带新增与受支持移除的 developer 更新。当带工具更新的 Anthropic 请求的全部投影声明都是延迟加载时，初始活动工具是一个占位符 `DeferredToolPlaceholder`，其描述告知模型永远不要调用它；对它的调用会走普通的未知工具结果。Anthropic 会在更新消息内联收到后续工具定义。回放会为动态加载的 Responses 工具保留 tool-call 命名空间。每张保留图片前都会有文本，注明其完整附件 id 与实际请求尺寸。当前执行文件系统可以映射附件提供方的宿主对象时，该文本还会携带只读规范化对象路径，并警告规范化或请求投影可能缩放或重新编码上传内容。日志中的图片省略决策选中的每个出现位置都会在替换文本中保留自己的身份与当前已解析访问方式，其规范化附件不会读取或变换。当保留的出现位置按精确 base64 载荷仍超过路由的 `maxRequestImageBytes` 时，调用以 `IMAGE_OFFLOAD_REQUIRED` 失败，由 `qilin-compaction-image-offload` 用 `image/offload` 事件记录所选位置并重试步骤。提供方原生回放元数据只在适配器针对历史内容校验通过后恢复。 `imageRequestTarget(provider, model, image)` 向截图调用方提供与模型请求一致的图片尺寸和字节目标；不缩放图片的适配器保留归一化后的原图。
 
 #### Token 影响
 

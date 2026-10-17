@@ -59,7 +59,7 @@ import type {
 import type { AttachmentStore, ImageAttachmentRef } from '@qilin-agent/attachment'
 import { idleWatchdog, timeoutOf } from '@qilin-agent/timeout'
 import type { ResolvedPiAiProviderProfile } from './config.ts'
-import { toPiContext } from './context.ts'
+import { requestImageTarget, toPiContext } from './context.ts'
 import { conversationUpdates, createModels, getSupportedThinkingLevels } from './models.ts'
 import { toStreamChunks } from './stream.ts'
 
@@ -252,6 +252,13 @@ export class PiAiAdapter extends LlmAdapter {
 
   constructor(private readonly config: PiAiAdapterOptions) {
     super()
+  }
+
+  override imageRequestTarget(provider: string, model: string, image: ImageAttachmentRef) {
+    const snapshot = this.current()
+    this.modelOf(snapshot, provider, model)
+    const profile = this.profileOf(snapshot, provider)
+    return requestImageTarget(image, { maxPixels: profile.requestImagePixelBudget, maxBytes: profile.requestImageMaxBytes })
   }
 
   /**
