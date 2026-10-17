@@ -97,7 +97,7 @@ const DEFAULT_DELIVERY_HISTORY_RECORDS = 200
  * service is the plugin that registers that listener.
  */
 export class ScheduleService extends TypertRemoteService {
-  static inject = ['agents', 'sessions', 'tools', 'storageDomain', 'sessionController', 'sessionPersistence']
+  static inject = ['agents', 'sessions', 'storageDomain', 'sessionController', 'sessionPersistence']
 
   static Config: z<Config> = z.object({
     deliveryHistoryDays: z.number().step(1).min(1).max(3650).default(DEFAULT_DELIVERY_HISTORY_DAYS),

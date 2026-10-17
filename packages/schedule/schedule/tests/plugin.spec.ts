@@ -481,10 +481,28 @@ describe('Schedule activation and shutdown', () => {
     expect(warnings).toEqual([expect.stringContaining('fixture close failure')])
   })
 
-  it('rejects management after service teardown', async () => {
+  it('registers no tools for existing roots or their owned children', async () => {
+    const test = await harness({ beforeService: async (ctx) => {
+      const parent = agentFor(ctx, 'existing-root')
+      ctx.effect(() => ctx.agents.enter(parent, undefined))
+    } })
+    tests.push(test)
+    const parent = test.ctx.agents.get(SessionId('existing-root'))!
+    const child = agentFor(test.ctx, 'owned-child')
+    test.ctx.effect(() => test.ctx.agents.enter(child, parent))
+    expect(test.ctx.agents.roots()).toEqual([parent])
+    for (const name of ['schedule_create', 'schedule_list', 'schedule_update', 'schedule_delete']) {
+      expect(test.ctx.tools.get(name, parent)).toBeUndefined()
+      expect(test.ctx.tools.get(name, child)).toBeUndefined()
+      expect(test.ctx.tools.get(name)).toBeUndefined()
+    }
+  })
+
+  it('registers no tools for a new root and rejects management after service teardown', async () => {
     const test = await setup()
     const agent = agentFor(test.ctx, 'new-root')
     await test.ctx.agents.register(agent)
+    expect(test.ctx.tools.get('schedule_create', agent)).toBeUndefined()
     await test.ctx.fiber.dispose()
     await expect(test.service.delete({ sessionId: agent.session.id, id: ScheduleId('gone') }))
       .rejects.toThrow('Schedule service is stopping')
