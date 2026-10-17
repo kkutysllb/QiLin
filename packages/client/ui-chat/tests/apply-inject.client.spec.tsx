@@ -359,13 +359,13 @@ describe('Chat inject API', () => {
     await b.runtime.dispose()
   })
 
-  it('keeps collapse timing browser-local on the work-details row', async () => {
+  it('projects the timing choice and saves it to Host settings', async () => {
     const b = await bench()
     const face = b.settingsFace('transcript-view') as TranscriptViewRowInjected
     expect(face.hooks.collapseTiming.getSnapshot()).toBe('completion')
     face.setCollapseTiming('next-input')
     expect(face.hooks.collapseTiming.getSnapshot()).toBe('next-input')
-    expect(b.chatSettings.set).not.toHaveBeenCalled()
+    expect(b.chatSettings.set).toHaveBeenCalledExactlyOnceWith('collapseTiming', 'next-input')
     await b.runtime.dispose()
   })
 })

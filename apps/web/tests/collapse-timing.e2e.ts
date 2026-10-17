@@ -89,6 +89,11 @@ describe.skipIf(MODE === 'record')('web e2e: recorded collapse timing', () => {
       await expect.poll(() => scaffold.ctx.settings.describe().find(row => row.ns === 'ui-chat')?.value, UI_WAIT)
         .toMatchObject({ transcriptView: stored.toLowerCase() })
     }
+    if (title === 'Collapse work details') {
+      // The timing choice persists independently of the work-details mode.
+      await expect.poll(() => scaffold.ctx.settings.describe().find(row => row.ns === 'ui-chat')?.value, UI_WAIT)
+        .toMatchObject({ collapseTiming: choice === 'On completion' ? 'completion' : 'next-input' })
+    }
     await dialog.getByRole('button', { name: 'Close', exact: true }).click()
   }
 
@@ -116,7 +121,6 @@ describe.skipIf(MODE === 'record')('web e2e: recorded collapse timing', () => {
       const directory = await mkdtemp(join(SCREENSHOT_DIR, 'recorded-'))
       await saveFailureShot(page, `${SCREENSHOTS}/${basename(directory)}/failure`)
     })
-    // Selecting the current client default does not create a saved Host preference.
     await selectPreference('Work details', 'Compact')
     await selectPreference('Work details', 'Detailed')
     const group = page.getByRole('treeitem').first()

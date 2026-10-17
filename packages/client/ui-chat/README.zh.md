@@ -75,7 +75,7 @@ Assistant 回复结算后，已完成轮次的页脚只保留用量入口：轮�
 
 独立输入之间的连续推理、工具与 Assistant 行会组成活动分组，由 Chat 的一个分组定义拥有。分组座位只订阅自己的成员数组，每个成员继续使用原有的键控 Node 来源与 renderer。`groupPart` 选择 renderer 自有的部分，每个部分拥有独立的 DOM 锚点。系统提示词、上下文注入与命令行仍是独立行，并会结束前面的分组：上游的「基础设施行过滤」未移植，因此分组会把这些类型留在所有过程分组之外。展示档位只改变分组的可见性，不改变成员的父级。[业务规则参考](src/client/conversation-nodes/README.zh.md)负责分段、展示档位标题与活动摘要的完整定义。
 
-工作步骤展示下方的设置行提供[独立的收起时机设置](src/client/conversation-nodes/README.zh.md#collapse-timing)。
+工作步骤展示下方的设置行提供[独立的收起时机设置](src/client/conversation-nodes/README.zh.md#collapse-timing)，通过相同的 Host profile 配置保存。
 
 Chat Builder 按节点发布 `bottomSource`：节点可见且属于已加载时间线的最后一轮时为 true，而不只是列表最后一行。底部轮次推进时，只有旧、新底部轮次的节点收到位置变化通知。Group 读取其首个成员的位置。待发送消息去重与收起判断仍由 Chat 视图处理，不进入 Builder。
 

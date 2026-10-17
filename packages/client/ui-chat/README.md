@@ -73,7 +73,7 @@ The composer statistics are two `conversation.composer.dock` list entries: `acti
 
 Consecutive reasoning, Tool, and Assistant rows between independent inputs become activity groups owned by one Chat Group Definition. A group seat subscribes only to its member array, and each member keeps its keyed Node source and renderer. `groupPart` selects the renderer-owned part, with a distinct DOM anchor per part. System-prompt, Context injection, and command rows remain independent rows and end the preceding group: the upstream infrastructure-row filter is not ported, so grouping keeps those kinds outside every process group. Presentation modes change group visibility, never member parents. The [business-rule reference](src/client/conversation-nodes/README.md) owns segmentation, display-mode titles, and activity summaries.
 
-The Settings row below Work details offers an [independent collapse-timing preference](src/client/conversation-nodes/README.md#collapse-timing).
+The Settings row below Work details offers an [independent collapse-timing preference](src/client/conversation-nodes/README.md#collapse-timing), saved through the same Host profile configuration.
 
 The Chat Builder publishes `bottomSource` per Node: true for visible Nodes belonging to the last Turn in the loaded timeline, not just the final row. Advancing the bottom Turn notifies only Nodes in the old and new bottom Turns. Groups read their first member's position. Pending-input deduplication and collapse decisions remain in the Chat view, outside the Builder.
 
