@@ -98,6 +98,19 @@ describe('DeepSeek plugin package inventory', () => {
     })
   })
 
+  it.each([false, true])('deduplicates name-only identities separately from versioned identities (reversed=%s)', async (reversed) => {
+    const { ctx, root } = await harness()
+    const versioned = await packagePlugin(root, 'versioned', { name: 'same', version: 'undefined' })
+    const unversioned = await packagePlugin(root, 'unversioned', { name: 'same' })
+    const entries = reversed ? [unversioned, versioned] : [versioned, unversioned]
+    for (const name of [...entries, ...entries]) await ctx.loader.create({ name })
+    const prepared = await ctx.deepseekLlmApiExtensions.prepare({ body: { messages: [] }, signal: SIGNAL })
+    expect(prepared.fields.qilin_plugin_packages?.packages).toStrictEqual([
+      { name: 'same' },
+      { name: 'same', version: 'undefined' },
+    ])
+  })
+
   it.each(['invalid JSON', 'null', 'deleted'])('retains readable packages and warns at most once when another manifest is %s', async (kind) => {
     const { ctx, root } = await harness()
     const warnings: unknown[][] = []
