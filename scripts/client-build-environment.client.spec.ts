@@ -8,6 +8,7 @@ import {
   assertClientBuildEnvironment,
   clientBuildEnvironmentDefines,
   clientBuildProcessEnvironment,
+  clientBuildValueDefines,
   officialClientBuildEnvironment,
   readClientBuildRecord,
   repositoryClientBuildEnvironment,
@@ -229,6 +230,20 @@ describe('client build environment', () => {
     })
   })
 
+  it('fixes public values into the Node face without stubbing its runtime environment', () => {
+    // Node faces keep their runtime `process.env` and fix only the public values.
+    expect(clientBuildValueDefines({
+      PATH: '/bin',
+      QILIN_TEST_API_KEY: 'secret',
+      QILIN_CLIENT_VARIANT: 'quoted "value"',
+      QILIN_CLIENT_EMPTY: '',
+      QILIN_CLIENT_UNSET: undefined,
+    })).toEqual({
+      'process.env.QILIN_CLIENT_EMPTY': '""',
+      'process.env.QILIN_CLIENT_VARIANT': '"quoted \\"value\\""',
+    })
+  })
+
   it('feeds the same build-process value to dynamic tsdown bundles and the Vite shell', async () => {
     process.env[PROBE_NAME] = 'shared-value'
 
@@ -242,6 +257,10 @@ describe('client build environment', () => {
       'process.env': '{}',
       [PROBE_KEY]: '"shared-value"',
     })
+    // The Node half fixes the same public values without a stubbed runtime environment.
+    const node = configs.find(config => config.name === '@qilin-agent/client-ui-sidebar')
+    expect(node?.define).toMatchObject({ [PROBE_KEY]: '"shared-value"' })
+    expect(node?.define).not.toHaveProperty(['process.env'])
 
     const viteConfigPath = '../apps/web/vite.config.ts'
     const viteModule: unknown = await import(viteConfigPath)

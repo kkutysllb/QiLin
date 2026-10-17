@@ -22,6 +22,7 @@ import { PLATFORM_MODULES, PRELOADED_CLIENT_EXTERNALS } from './web/src/platform
 import {
   clientBuildEnvironmentDefines,
   clientBuildProcessEnvironment,
+  clientBuildValueDefines,
   repositoryClientBuildEnvironment,
 } from '../../scripts/client-build-environment.ts'
 import { BundleInputIsolation, physicalBundleInput } from '../../scripts/bundle-input-isolation.ts'
@@ -269,6 +270,9 @@ function clientLibraryConfig(
     fixedExtension: false,
     dts: false,
     clean: false,
+    // Public client build values are fixed into the Node half as they are into the browser half;
+    // the Host reads the release identity its own artifact was built with.
+    define: clientBuildValueDefines(clientBundleEnvironment()),
     deps: {
       // The Node half runs from a real install: a production dependency is on
       // disk there and stays an import, everything else inlines. Stating both

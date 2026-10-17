@@ -55,6 +55,12 @@ async function bench(isLoopback = true) {
     observeFixedInput: () => () => {},
     catalog: { getSnapshot: () => [], subscribe: () => () => {} },
   } as never)
+  ctx.provide('modules', {
+    entries: {
+      dismissRelease: () => {},
+      releaseChange: { getSnapshot: () => undefined, subscribe: () => () => {} },
+    },
+  } as never)
   await ctx.plugin({ inject: [...settingsInject], apply: settingsApply }).await()
   const slots = ctx.get('slots') as SlotRegistry
   // Only the sidebar hole is declared here: the shell occupant declares its

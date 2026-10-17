@@ -11,6 +11,8 @@ import type { Context as ClientContext } from '@qilin-agent/kylin'
 import type { ConnectionHandle } from '@qilin-agent/client-connection/client'
 import { resolveSlotLabel } from '@qilin-agent/client-ui-slots'
 import { closeTopModal } from '@qilin-agent/client-ui-primitives'
+// Type-only: pulls the ctx.modules merge (the page's release identity and entry controller).
+import type {} from '@qilin-agent/client-modules/client'
 // Type-only: the settings slot declarations. Cross-plugin collaboration goes
 // through the service, never a value import (client bundle purity gate).
 import type {} from '@qilin-agent/client-ui-settings/client'
@@ -31,6 +33,7 @@ import { CurrentVersionRow } from './CurrentVersionRow.tsx'
 import { DeveloperToolsRow, type DeveloperToolsRowInjected } from './DeveloperToolsRow.tsx'
 import { SettingsDocumentAction, type SettingsDocumentActionInjected } from './SettingsDocumentAction.tsx'
 import { SettingsDocumentStore } from './settings-document-store.ts'
+import { HostReleasePrompt, type HostReleasePromptInjected } from './HostReleasePrompt.tsx'
 import { en, zh, type SettingsKey } from './locales.ts'
 
 export type { SettingsShell, SettingsRootInjected } from './shell-contract.ts'
@@ -63,7 +66,7 @@ const NS = 'settings'
  * `configForms` serves the local-document availability mirror and the
  * shared coding-tools preference.
  */
-export const inject = ['slots', 'locale', 'connection', 'remote', 'remote.settings', 'configForms', 'shortcuts']
+export const inject = ['slots', 'locale', 'connection', 'remote', 'remote.settings', 'configForms', 'shortcuts', 'modules']
 
 /**
  * Register the `settings` dictionaries, the chrome content, and the General
@@ -244,4 +247,14 @@ export function apply(ctx: ClientContext): void {
     locale: NS,
     children: { 'settings.about.mark': { kind: 'single', scope: 'root' } },
   }, AboutSection))
+
+  // The page's module system applies no plugin update from another Host release; this dialog offers the reload.
+  const releasePromptInjected = (): HostReleasePromptInjected => ({
+    dismissRelease: () => { ctx.modules.entries.dismissRelease() },
+    reloadPage: () => { globalThis.location.reload() },
+    hooks: { releaseChange: ctx.modules.entries.releaseChange },
+  })
+  ctx.slots.inject('shell.overlay', () => ctx.slots.register({
+    name: 'shell.overlay', id: 'host-release-change', locale: NS, inject: releasePromptInjected,
+  }, HostReleasePrompt))
 }

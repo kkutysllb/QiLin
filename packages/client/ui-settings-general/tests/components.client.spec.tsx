@@ -14,6 +14,8 @@ import { SettingsDescribeMirror } from '@qilin-agent/client-ui-settings/src/clie
 import { SettingsDocumentStore } from '../src/client/settings-document-store.ts'
 import { en, zh } from '../src/client/locales.ts'
 import { CurrentVersionRow } from '../src/client/CurrentVersionRow.tsx'
+import { HostReleasePrompt } from '../src/client/HostReleasePrompt.tsx'
+import type { ClientReleaseChange } from '@qilin-agent/client-modules/client'
 
 // Every fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
@@ -245,5 +247,55 @@ describe('current version', () => {
     vi.stubEnv('QILIN_CLIENT_VERSION', undefined)
     const view = render(<CurrentVersionRow {...kit} t={t} />)
     expect(view.container.textContent).toBe('')
+  })
+})
+
+describe('Host release prompt', () => {
+  type PromptProps = Parameters<typeof HostReleasePrompt>[0]
+
+  function mount(change: ClientReleaseChange | undefined, options: { reload?: () => void } = {}) {
+    const dismissRelease = vi.fn()
+    const reloadPage = vi.fn(options.reload)
+    const useReleaseChange: PromptProps['useReleaseChange'] = selector => selector(change)
+    const props: PromptProps = { ...kit, useReleaseChange, dismissRelease, reloadPage, t }
+    const view = render(<HostReleasePrompt {...props} />)
+    return { view, dismissRelease, reloadPage }
+  }
+
+  it('stays absent while the Host serves the page boot release', () => {
+    const { view } = mount(undefined)
+    expect(view.container.childElementCount).toBe(0)
+  })
+
+  it('names both ends of the transition and reloads only on the explicit action', () => {
+    const change: ClientReleaseChange = {
+      page: { version: '1.0.0', commit: 'aaaaaaa' },
+      previous: { version: '0.9.0', commit: '9999999' },
+      host: { version: '1.0.0', commit: 'bbbbbbb' },
+    }
+    const { view, dismissRelease, reloadPage } = mount(change)
+    expect(view.getByText('Service version changed')).toBeTruthy()
+    // Versions differ between the two releases the Host served, so that row names versions…
+    expect(view.getByText('0.9.0')).toBeTruthy()
+    expect(view.getByText('1.0.0')).toBeTruthy()
+    // …while the page row compares against its boot release and names the differing commit.
+    expect(view.getByText('aaaaaaa')).toBeTruthy()
+    expect(view.getByText('bbbbbbb')).toBeTruthy()
+    // The footer action and the dialog's close control both keep the page.
+    const keep = view.getAllByRole('button', { name: 'Not now' })
+    expect(keep).toHaveLength(2)
+    for (const button of keep) fireEvent.click(button)
+    expect(dismissRelease).toHaveBeenCalledTimes(2)
+    expect(reloadPage).not.toHaveBeenCalled()
+    fireEvent.click(view.getByRole('button', { name: 'Reload to load the new version' }))
+    expect(reloadPage).toHaveBeenCalledOnce()
+  })
+
+  it('falls back to the unknown label for a release the Host did not publish', () => {
+    const change: ClientReleaseChange = { page: undefined, previous: undefined, host: { version: '2.0.0' } }
+    const { view } = mount(change)
+    // Both rows start at a release the Host never published, and both end at the connected one.
+    expect(view.getAllByText('Unknown')).toHaveLength(2)
+    expect(view.getAllByText('2.0.0')).toHaveLength(2)
   })
 })

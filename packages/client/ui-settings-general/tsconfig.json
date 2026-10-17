@@ -49,6 +49,12 @@
     },
     {
       "path": "../shortcuts/tsconfig.client.json"
+    },
+    {
+      "path": "../modules"
+    },
+    {
+      "path": "../ui-layout"
     }
   ]
 }

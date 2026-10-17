@@ -9,6 +9,7 @@ import { apply as settingsApply, inject as settingsInject } from '@qilin-agent/c
 import { apply, inject } from '@qilin-agent/client-ui-settings-general/client'
 import { CloseLabel, HeaderContent } from '../src/client/chrome.tsx'
 import { AboutSection } from '../src/client/AboutSection.tsx'
+import { HostReleasePrompt, type HostReleasePromptInjected } from '../src/client/HostReleasePrompt.tsx'
 import { GeneralSection } from '../src/client/GeneralSection.tsx'
 
 // These specs assert the shipped Chinese copy. The lane has no jsdom `window`,
@@ -20,6 +21,11 @@ const SEATS = [
   ['settings.header', HeaderContent],
   ['settings.close', CloseLabel],
 ] as const
+
+/** The page's module-system face the release prompt reads and drives. */
+function moduleStub(entries: { dismissRelease: () => void; releaseChange: { getSnapshot: () => undefined; subscribe: () => () => void } }) {
+  return { entries } as never
+}
 
 const SECTION_COMPONENTS = [GeneralSection, AboutSection] as const
 
@@ -54,8 +60,13 @@ async function bench(isLoopback = true) {
     observeFixedInput: vi.fn(() => () => {}),
     catalog: { getSnapshot: () => [], subscribe: () => () => {} },
   } as never)
+  const dismissRelease = vi.fn()
+  ctx.provide('modules', moduleStub({
+    dismissRelease,
+    releaseChange: { getSnapshot: () => undefined, subscribe: () => () => {} },
+  }))
   await ctx.plugin({ inject: [...settingsInject], apply: settingsApply }).await()
-  return { ctx, slots: ctx.get('slots') as SlotRegistry, locale, settingsDescribe, settingsOpenDocument }
+  return { ctx, slots: ctx.get('slots') as SlotRegistry, locale, settingsDescribe, settingsOpenDocument, dismissRelease }
 }
 
 /** Declare the shell's child slots the way ui-settings' entry does. */
@@ -69,6 +80,7 @@ function declare(slots: SlotRegistry): () => void {
         'settings.close': { kind: 'single', scope: 'root' },
         'settings.section': { kind: 'list', scope: 'root' },
         'settings.onboarding': { kind: 'list', scope: 'root' },
+        'shell.overlay': { kind: 'list', scope: 'root' },
       },
     } as never,
     () => null,
@@ -81,7 +93,7 @@ function generalEntry(slots: SlotRegistry) {
 
 describe('ui-settings-general apply', () => {
   it('declares the services it uses', () => {
-    expect(inject).toEqual(['slots', 'locale', 'connection', 'remote', 'remote.settings', 'configForms', 'shortcuts'])
+    expect(inject).toEqual(['slots', 'locale', 'connection', 'remote', 'remote.settings', 'configForms', 'shortcuts', 'modules'])
   })
 
   it('fills every seat for declarations before or after apply', async () => {
@@ -198,5 +210,18 @@ describe('ui-settings-general apply', () => {
     await fiber.dispose()
     for (const [name] of SEATS) expect(b.slots.entries(name)).toHaveLength(0)
     expect(b.slots.spec('settings.general.item')).toBeUndefined()
+  })
+
+  it('seats the Host release prompt on the shell overlay with the page decisions', async () => {
+    const b = await bench()
+    declare(b.slots)
+    await b.ctx.plugin({ inject: [...inject], apply }).await()
+    const [overlay] = b.slots.entries('shell.overlay')
+    expect(overlay!.component).toBe(HostReleasePrompt)
+    expect(overlay!.options).toMatchObject({ id: 'host-release-change' })
+    expect(overlay!.locale).toBe('settings')
+    const injected = overlay!.inject as () => HostReleasePromptInjected
+    injected().dismissRelease()
+    expect(b.dismissRelease).toHaveBeenCalledOnce()
   })
 })
