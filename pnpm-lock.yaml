@@ -2295,6 +2295,9 @@ importers:
       '@qilin-agent/web':
         specifier: workspace:*
         version: link:../../web/web
+      '@qilin-agent/web-deepseek-api':
+        specifier: workspace:*
+        version: link:../../web/web-deepseek-api
       '@qilin-agent/web-fetch-http':
         specifier: workspace:*
         version: link:../../web/web-fetch-http
@@ -2569,6 +2572,9 @@ importers:
       '@qilin-agent/client-ui-conversation':
         specifier: workspace:*
         version: link:../../client/ui-conversation
+      '@qilin-agent/client-ui-deepseek-model-label-1017':
+        specifier: workspace:*
+        version: link:../../client/ui-deepseek-model-label-1017
       '@qilin-agent/client-ui-deliverables':
         specifier: workspace:*
         version: link:../../client/ui-deliverables
@@ -3725,6 +3731,48 @@ importers:
       zod:
         specifier: ^4.4.3
         version: 4.4.3
+
+  packages/client/ui-deepseek-model-label-1017:
+    devDependencies:
+      '@qilin-agent/client-locale':
+        specifier: workspace:*
+        version: link:../locale
+      '@qilin-agent/client-test-runtime':
+        specifier: workspace:*
+        version: link:../../test-support/client-runtime
+      '@qilin-agent/client-ui-model-selection':
+        specifier: workspace:*
+        version: link:../ui-model-selection
+      '@qilin-agent/client-ui-primitives':
+        specifier: workspace:*
+        version: link:../ui-primitives
+      '@qilin-agent/client-ui-renderer':
+        specifier: workspace:*
+        version: link:../ui-renderer
+      '@qilin-agent/client-ui-slots':
+        specifier: workspace:*
+        version: link:../ui-slots
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@testing-library/react':
+        specifier: ^16.3.3
+        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/react':
+        specifier: ~18.3.1
+        version: 18.3.31
+      '@types/react-dom':
+        specifier: ~18.3.0
+        version: 18.3.7(@types/react@18.3.31)
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
 
   packages/client/ui-deliverables:
     dependencies:
@@ -15447,6 +15495,37 @@ importers:
       '@qilin-agent/llm':
         specifier: workspace:*
         version: link:../../llm/llm
+
+  packages/web/web-deepseek-api:
+    dependencies:
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+    devDependencies:
+      '@qilin-agent/agent':
+        specifier: workspace:*
+        version: link:../../core/agent
+      '@qilin-agent/credentials':
+        specifier: workspace:*
+        version: link:../../credentials/credentials
+      '@qilin-agent/credentials-local':
+        specifier: workspace:*
+        version: link:../../credentials/credentials-local
+      '@qilin-agent/http-proxy':
+        specifier: workspace:*
+        version: link:../../util/http-proxy
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/launch-environment':
+        specifier: workspace:*
+        version: link:../../util/launch-environment
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/web':
+        specifier: workspace:*
+        version: link:../web
 
   packages/web/web-fetch-http:
     dependencies:

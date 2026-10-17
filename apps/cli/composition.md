@@ -180,6 +180,8 @@ flowchart LR
   cfg --> plugin_qilin_base_web
   plugin_qilin_base_web_search_deepseek["web-search-deepseek<br/>@qilin-agent/web-search-deepseek"]
   cfg --> plugin_qilin_base_web_search_deepseek
+  plugin_qilin_base_web_deepseek_api["web-deepseek-api<br/>@qilin-agent/web-deepseek-api"]
+  cfg --> plugin_qilin_base_web_deepseek_api
   plugin_qilin_base_web_fetch_http["web-fetch-http<br/>@qilin-agent/web-fetch-http"]
   cfg --> plugin_qilin_base_web_fetch_http
   plugin_qilin_base_tool_web["tool-web<br/>@qilin-agent/tool-web"]
@@ -286,6 +288,7 @@ flowchart LR
 | `repeat-tool-reminder` | `@qilin-agent/repeat-tool-reminder` |
 | `web` | `@qilin-agent/web` |
 | `web-search-deepseek` | `@qilin-agent/web-search-deepseek` |
+| `web-deepseek-api` | `@qilin-agent/web-deepseek-api` |
 | `web-fetch-http` | `@qilin-agent/web-fetch-http` |
 | `tool-web` | `@qilin-agent/tool-web` |
 | `mcp-resources` | `@qilin-agent/mcp-resources` |
