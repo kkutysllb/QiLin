@@ -1,5 +1,6 @@
 import { once } from 'node:events'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { ownerPeer } from './peer.ts'
 import WebSocket, { type RawData } from 'ws'
 import { Context } from '@qilin-agent/kylin'
 import { apply as applyConnection, inject as connectionInject } from '@qilin-agent/client-connection'
@@ -37,6 +38,7 @@ describe('the echo stream on each carrier', () => {
   it('echoes uplink items through the in-process carrier', async () => {
     const ctx = await setup(false)
     const replies = await ctx.typertGateway.stream({
+      peer: ownerPeer(ctx),
       namespace: 'echo', method: 'echo', args: { prefix: '> ' }, uplink: items(['a', 'b']),
     })
     await expect(collect(replies)).resolves.toEqual(['> a', '> b'])

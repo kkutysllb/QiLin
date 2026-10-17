@@ -360,9 +360,6 @@ describe('Gateway access checks', () => {
     await expect(call(ctx, guest, 'read', { request: {}, principal: OWNER })).rejects.toMatchObject({
       code: 'gateway/arguments-invalid',
     })
-    // The shared /api transport speaks for the operator, and the operator is the
-    // owner: identity rides the connection, never an envelope or args field.
-    // S3 replaces this with the explicit-peer fetch that refuses non-owner carriers.
     const shared = ctx.connection.createSharedFetchHandler('/api')
     const response = await shared.fetch(new Request('http://host/api/accessFixture/read', {
       method: 'POST',
@@ -374,9 +371,20 @@ describe('Gateway access checks', () => {
         principal: OWNER,
         payload: { args: { request: { principal: OWNER } } },
       }),
-    }))
-    expect(await response.json()).toMatchObject({ result: { ok: true, value: 'owner' } })
-    expect(fixture.principals).toEqual([OWNER])
+    }), guest)
+    expect(await response.json()).toMatchObject({ result: { ok: true, value: 'test-guest' } })
+    const payloadSibling = await shared.fetch(new Request('http://host/api/accessFixture/read', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        type: 'client-request',
+        rpcId: 'rpc-2',
+        method: 'accessFixture/read',
+        payload: { args: { request: {} }, principal: OWNER },
+      }),
+    }), guest)
+    expect(await payloadSibling.json()).toMatchObject({ result: { ok: false } })
+    expect(fixture.principals).toEqual([GUEST])
   })
 })
 
@@ -509,8 +517,23 @@ describe('Gateway forwarded events for non-owner Peers', () => {
       { principal: GUEST, action: 'event:fixture/shelf', resources: [shelf('s1')] },
     ])
 
-    // A guest's $events/result refusal rides the explicit-peer fetch that S3's
-    // connection surface introduces; the delivery gate above is the S2 enforcement.
+    // A guest's $events/result post rides the explicit-peer fetch and is refused:
+    // only the owner answers forwarded Remote events, whatever its stream received.
+    const clientId: unknown = Reflect.get(guestReady.value as object, 'clientId')
+    const shared = ctx.connection.createSharedFetchHandler('/api')
+    const refused = await shared.fetch(new Request('http://host/api/$events/result', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        type: 'client-request',
+        rpcId: 'rpc-result',
+        method: '$events/result',
+        payload: { args: { clientId, eventId: 'any', outcome: { kind: 'next' } } },
+      }),
+    }), guest)
+    expect(await refused.json()).toMatchObject({
+      result: { ok: false, error: { code: 'gateway/invocation-unavailable', details: { endpoint: '$events/result' } } },
+    })
     abort.abort()
     await guestEvents.return?.()
     await ownerEvents.return?.()
@@ -674,5 +697,73 @@ describe('resource resolution', () => {
     expect(eventResources({ 'test-shelf': () => undefined }, ['r1'])).toBeUndefined()
     expect(eventResources({ 'test-shelf': () => [] }, ['r1'])).toBeUndefined()
     expect(eventResources({ 'test-shelf': () => 7 }, ['r1'])).toBeUndefined()
+  })
+})
+
+describe('Gateway Peer lifetime', () => {
+  it('refuses calls and streams from a disposed Peer without affecting other Peers', async () => {
+    const { ctx } = await setup({ connection: true })
+    const peer = peerFor(ctx, OWNER)
+    await peer.dispose()
+    await expect(call(ctx, peer, 'open')).rejects.toMatchObject({ code: 'gateway/peer-disposed' })
+    await expect(ctx.typertGateway.stream({ peer, namespace: 'accessFixture', method: 'watch', args: {} }))
+      .rejects.toMatchObject({ code: 'gateway/peer-disposed' })
+    await expect(ctx.typertGateway.wireStream.open('$events', { args: {} }, (async function* () {})(), peer, new AbortController().signal))
+      .rejects.toMatchObject({ code: 'gateway/peer-disposed' })
+    const result = await ctx.connection.createSharedFetchHandler('/api').fetch(new Request('http://host/api/$events/result', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        type: 'client-request',
+        rpcId: 'rpc-disposed',
+        method: '$events/result',
+        payload: { args: { clientId: 'any', eventId: 'any', outcome: { kind: 'next' } } },
+      }),
+    }), peer)
+    expect(await result.json()).toMatchObject({ result: { ok: false, error: { code: 'gateway/peer-disposed' } } })
+    await expect(call(ctx, ownerPeer(ctx), 'open')).resolves.toBe('owner')
+  })
+
+  it('refuses a disposed Peer before reading its wire payload', async () => {
+    const { ctx } = await setup({ connection: true })
+    const peer = peerFor(ctx, OWNER)
+    await peer.dispose()
+    for (const payload of [{}, { args: 1 }, { args: {}, extra: true }]) {
+      await expect(ctx.typertGateway.wireStream.open('accessFixture/watch', payload, (async function* () {})(), peer, new AbortController().signal))
+        .rejects.toMatchObject({ code: 'gateway/peer-disposed' })
+    }
+    const response = await ctx.connection.createSharedFetchHandler('/api').fetch(new Request('http://host/api/accessFixture/open', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ type: 'client-request', rpcId: 'rpc-malformed', method: 'accessFixture/open', payload: { args: 1 } }),
+    }), peer)
+    expect(await response.json()).toMatchObject({ result: { ok: false, error: { code: 'gateway/peer-disposed' } } })
+  })
+
+  it("ends a disposed Peer's streams and lets its running unary calls finish", async () => {
+    const { ctx, fixture } = await setup()
+    const peer = peerFor(ctx, OWNER)
+    const other = peerFor(ctx, OWNER)
+    const stream = (await ctx.typertGateway.stream({ peer, namespace: 'accessFixture', method: 'watch', args: {} }))[Symbol.asyncIterator]()
+    const survivorAbort = new AbortController()
+    const survivor = (await ctx.typertGateway.stream({
+      peer: other, namespace: 'accessFixture', method: 'watch', args: {}, signal: survivorAbort.signal,
+    }))[Symbol.asyncIterator]()
+    await expect(stream.next()).resolves.toEqual({ done: false, value: 'owner' })
+    await expect(survivor.next()).resolves.toEqual({ done: false, value: 'owner' })
+    const running = call(ctx, peer, 'slow')
+    const pending = stream.next()
+    await peer.dispose()
+    // The stream's method signal joins the Peer's, so disposal cancels it like a carrier cancel.
+    await expect(pending).rejects.toMatchObject({ code: 'gateway/cancelled' })
+    fixture.release.resolve()
+    await expect(running).resolves.toBe('owner')
+    const next = survivor.next()
+    let settled = false
+    void next.then(() => { settled = true }, () => { settled = true })
+    await new Promise(resolve => setTimeout(resolve, 10))
+    expect(settled).toBe(false)
+    survivorAbort.abort()
+    await survivor.return?.()
   })
 })

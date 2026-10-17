@@ -4,6 +4,7 @@
  */
 
 import type { IncomingMessage, ServerResponse } from 'node:http'
+import type { PeerScope } from '@qilin-agent/typert-protocol'
 import { Readable } from 'node:stream'
 import type { ConnectionFetchHandler } from './rpc.ts'
 
@@ -19,12 +20,14 @@ export const DEFAULT_MAX_REQUEST_BODY_BYTES = 300 * 1024 * 1024
  * @param req - incoming node:http request.
  * @param res - node:http response the bridge writes and owns to completion.
  * @param apiHandler - fetch-shaped API carrier the request is dispatched to.
+ * @param peer - Peer the carrier admitted the request as.
  * @param maxRequestBodyBytes - maximum bytes buffered for a buffered route.
  */
 export async function bridge(
   req: IncomingMessage,
   res: ServerResponse,
   apiHandler: ConnectionFetchHandler,
+  peer: PeerScope,
   maxRequestBodyBytes = DEFAULT_MAX_REQUEST_BODY_BYTES,
 ): Promise<void> {
   const abort = new AbortController()
@@ -80,7 +83,7 @@ export async function bridge(
       duplex: 'half',
     } as RequestInit & { duplex: 'half' })
   }
-  const response = await apiHandler.fetch(request)
+  const response = await apiHandler.fetch(request, peer)
   const requestUnread = bodyMode === 'streaming' && !req.readableEnded
   const responseHeaders = Object.fromEntries(response.headers.entries())
   res.writeHead(response.status, requestUnread ? { ...responseHeaders, connection: 'close' } : responseHeaders)

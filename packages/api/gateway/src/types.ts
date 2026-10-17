@@ -20,8 +20,8 @@ export interface InvokeRemoteRequest {
    * `invocation.uplink()`; absent means an immediately ended iterable.
    */
   readonly uplink?: AsyncIterable<unknown>
-  /** Peer the call speaks for; absent means an in-process carrier, answered as the operator. */
-  readonly peer?: PeerScope
+  /** Peer the call speaks for; every carrier and in-process caller names it explicitly. */
+  readonly peer: PeerScope
   /** Carrier or direct-caller cancellation injected only into cancellation-aware methods. */
   readonly signal?: AbortSignal
 }
@@ -94,7 +94,7 @@ export interface TypertGatewayWireStream {
    * @param payload - decoded carrier payload.
    * @param uplink - Client-to-Host items of the logical stream; a Gateway-owned endpoint returns its iterator
    * as soon as it opens, so the carrier drops those items instead of buffering them.
-   * @param peer - Peer the stream speaks for; `undefined` means the operator's in-process carrier.
+   * @param peer - Peer the stream speaks for; required, never defaulted.
    * @param signal - logical-stream cancellation.
    * @returns validated stream values.
    */
@@ -102,7 +102,7 @@ export interface TypertGatewayWireStream {
     endpoint: string,
     payload: unknown,
     uplink: AsyncIterable<unknown>,
-    peer: PeerScope | undefined,
+    peer: PeerScope,
     signal: AbortSignal,
   ) => Promise<AsyncIterable<unknown>>
 
@@ -128,11 +128,13 @@ export type TypertGatewayErrorCode =
   | 'gateway/context-unavailable'
   | 'gateway/definition-unavailable'
   | 'gateway/input-invalid'
+  | 'gateway/interactions-forbidden'
   | 'gateway/invocation-unavailable'
   | 'gateway/lookup-failed'
   | 'gateway/lookup-not-found'
   | 'gateway/lookup-unavailable'
   | 'gateway/method-unavailable'
+  | 'gateway/peer-disposed'
   | 'gateway/protocol'
   | 'gateway/provider-mismatch'
   | 'gateway/result-invalid'

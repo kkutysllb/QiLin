@@ -61,8 +61,7 @@
     "@qilin-agent/typert-protocol": "workspace:*"
   },
   "peerDependencies": {
-    "@qilin-agent/kylin": "workspace:~",
-    "@qilin-agent/client-connection": "workspace:*"
+    "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
     "@qilin-agent/api-remote-access": "workspace:*",

@@ -84,11 +84,14 @@ async function fixture() {
     apply: registerPresentOpen,
   })
   const handler = connection.createSharedFetchHandler('/api')
-  const open = (query = '?sessionId=owner&seq=9&index=0') => handler.fetch(new Request(`http://localhost${CHANGES_OPEN_PATH}${query}`, { method: 'POST' }))
-  const read = (query = '?sessionId=owner&seq=9') => handler.fetch(new Request(`http://localhost${CHANGED_FILES_PATH}${query}`))
-  const compare = (query = '?sessionId=owner&seq=9&index=0') => handler.fetch(new Request(`http://localhost${CHANGES_DIFF_PATH}${query}`))
-  const fold = (query = '?sessionId=owner') => handler.fetch(new Request(`http://localhost${CHANGES_SESSION_PATH}${query}`))
-  return { root, cwd, ctx, data, readEvent, open, read, compare, fold, comparison, diff, opener, outside, summary, session, folded }
+  const open = (query = '?sessionId=owner&seq=9&index=0') => handler.fetch(new Request(`http://localhost${CHANGES_OPEN_PATH}${query}`, { method: 'POST' }), connection.browserPeer)
+  const read = (query = '?sessionId=owner&seq=9') => handler.fetch(new Request(`http://localhost${CHANGED_FILES_PATH}${query}`), connection.browserPeer)
+  const compare = (query = '?sessionId=owner&seq=9&index=0') => handler.fetch(new Request(`http://localhost${CHANGES_DIFF_PATH}${query}`), connection.browserPeer)
+  const fold = (query = '?sessionId=owner') => handler.fetch(new Request(`http://localhost${CHANGES_SESSION_PATH}${query}`), connection.browserPeer)
+  return {
+    browserPeer: connection.browserPeer, root, cwd, ctx, data, readEvent, open, read, compare, fold,
+    comparison, diff, opener, outside, summary, session, folded,
+  }
 }
 
 describe('change summary route', () => {

@@ -824,6 +824,10 @@ export const LINK_MAP: Readonly<Record<string, string>> = {
   TypertPackageRecord: 'typert.md',
   TypertSchemaFilter: 'typert.md',
   TypertSchemaRecord: 'typert.md',
+  Principal: 'typert.md',
+  PrincipalMap: 'typert.md',
+  RemoteAccessResource: 'typert.md',
+  RemoteAccessResourceKind: 'typert.md',
 }
 
 /** TypeScript lib and pinned framework types with no repository-owned data page. */
@@ -863,7 +867,13 @@ export const TYPE_LINK_EXEMPTIONS: Readonly<Record<string, string>> = {
   ConnectionRequestRejection: 'transport rejection status is owned by packages/client/connection/src/rpc.ts',
   ConnectionTrustRequest: 'transport authentication input is owned by packages/client/connection/src/rpc.ts',
   PeerAdmission: 'Peer admission outcome is owned by packages/client/connection/src/rpc.ts',
+  ConnectionAdmission: 'physical socket admission and release are owned by packages/client/connection/src/rpc.ts',
   PeerScope: 'Peer scope contract is owned by packages/typert/protocol/src/types.ts',
+  RemoteAccessPolicy: 'access policy contract is owned by packages/api/remote-access/README.md',
+  RemoteAccessRequest: 'Gateway decision requests are owned by packages/api/remote-access/README.md',
+  RemoteAccessDecision: 'Gateway decisions are owned by packages/api/remote-access/README.md',
+  RemoteAccessFrame: 'access snapshot frames are owned by packages/api/remote-access/README.md',
+  RemoteAccessBaseline: 'access snapshot frames are owned by packages/api/remote-access/README.md',
   ConnectionIndexRequest: 'frontend authentication request is owned by packages/client/connection/src/rpc.ts',
   ConnectionIndexResponse: 'frontend authentication response is owned by packages/client/connection/src/rpc.ts',
   Profile: 'resolved profile layers are owned by packages/boot/app-boot/README.md',

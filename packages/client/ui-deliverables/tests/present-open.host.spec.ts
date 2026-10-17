@@ -58,17 +58,17 @@ async function fixture() {
   const handler = connection.createSharedFetchHandler('/api')
   const open = (query = '?sessionId=owner&seq=7&index=0', signal?: AbortSignal) => handler.fetch(new Request(
     `http://localhost${PRESENT_OPEN_PATH}${query}`, { method: 'POST', signal: signal ?? null },
-  ))
-  return { root, cwd, ctx, fiber, file, session, readEvent, open, opener, handler, resolveAgent }
+  ), connection.browserPeer)
+  return { browserPeer: connection.browserPeer, root, cwd, ctx, fiber, file, session, readEvent, open, opener, handler, resolveAgent }
 }
 
 describe('Presented workspace file native open route', () => {
   it('opens the source itself with current bytes and leaves it intact at disposal', async () => {
-    const { cwd, open, file, fiber, opener, handler, ctx } = await fixture()
+    const { browserPeer, cwd, open, file, fiber, opener, handler, ctx } = await fixture()
     const source = await realpath(join(cwd, file.path))
     expect(presentedFileUrl(SessionId('owner'), 7, 0)).toBe('api/present.open?sessionId=owner&seq=7&index=0')
-    expect((await handler.fetch(new Request(`http://localhost${PRESENT_OPEN_PATH}`))).status).toBe(404)
-    expect((await handler.fetch(new Request('http://localhost/api/present.download?sessionId=owner&seq=7&index=0'))).status).toBe(404)
+    expect((await handler.fetch(new Request(`http://localhost${PRESENT_OPEN_PATH}`), browserPeer)).status).toBe(404)
+    expect((await handler.fetch(new Request('http://localhost/api/present.download?sessionId=owner&seq=7&index=0'), browserPeer)).status).toBe(404)
     for (const contents of ['current source', 'edited source']) {
       await writeFile(source, contents)
       const response = await open()
@@ -193,8 +193,8 @@ describe('Presented workspace file native open route', () => {
 
 
 it('reports the serving desktop and reveals only an authorized declared source', async () => {
-  const { cwd, file, open, opener, handler } = await fixture()
-  const info = await handler.fetch(new Request('http://localhost/api/present.host'))
+  const { browserPeer, cwd, file, open, opener, handler } = await fixture()
+  const info = await handler.fetch(new Request('http://localhost/api/present.host'), browserPeer)
   expect(await info.json()).toEqual({ name: 'desktop', available: true, fileManager: 'finder' })
   expect((await open('?sessionId=owner&seq=7&index=0&action=reveal')).status).toBe(204)
   expect(opener).toHaveBeenCalledWith({ path: await realpath(join(cwd, file.path)), action: 'reveal' }, expect.any(AbortSignal))
@@ -205,9 +205,9 @@ it('reports the serving desktop and reveals only an authorized declared source',
 })
 
 it('refuses native actions when the configured Host desktop is unavailable', async () => {
-  const { ctx, open, opener, handler } = await fixture()
+  const { browserPeer, ctx, open, opener, handler } = await fixture()
   vi.spyOn(ctx.sessionController, 'workspaceDesktop').mockReturnValue({ name: 'desktop', available: false, fileManager: 'finder' })
-  expect(await (await handler.fetch(new Request('http://localhost/api/present.host'))).json()).toMatchObject({ available: false })
+  expect(await (await handler.fetch(new Request('http://localhost/api/present.host'), browserPeer)).json()).toMatchObject({ available: false })
   for (const action of ['open', 'reveal']) {
     expect((await open(`?sessionId=owner&seq=7&index=0&action=${action}`)).status).toBe(409)
   }

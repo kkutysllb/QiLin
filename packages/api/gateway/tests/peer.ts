@@ -1,7 +1,9 @@
-/** Test Peers for the Gateway specs, until client-connection grows the shared Peer (S3 replaces this helper). */
-import { randomUUID } from 'node:crypto'
+/** Owner Peers for Gateway specs: every in-process call names its Peer explicitly. */
 import type { Context } from '@qilin-agent/kylin'
-import type { PeerId, PeerScope, Principal } from '@qilin-agent/typert-protocol'
+import { Peer } from '@qilin-agent/client-connection'
+import type { PeerScope, Principal } from '@qilin-agent/typert-protocol'
+
+const owners = new WeakMap<Context, PeerScope>()
 
 /**
  * The owner Peer of one test Context tree, created on first use.
@@ -11,13 +13,11 @@ import type { PeerId, PeerScope, Principal } from '@qilin-agent/typert-protocol'
 export function ownerPeer(ctx: Context): PeerScope {
   let peer = owners.get(ctx.root)
   if (peer === undefined) {
-    peer = peerFor(ctx, { kind: 'owner' })
+    peer = new Peer(ctx.root, { principal: { kind: 'owner' } })
     owners.set(ctx.root, peer)
   }
   return peer
 }
-
-const owners = new WeakMap<Context, PeerScope>()
 
 /**
  * A fresh Peer of one principal under the test Context tree.
@@ -26,17 +26,5 @@ const owners = new WeakMap<Context, PeerScope>()
  * @returns an independent Peer.
  */
 export function peerFor(ctx: Context, principal: Principal): PeerScope {
-  const fiber = ctx.root.plugin(() => {})
-  const lifetime = new AbortController()
-  return {
-    id: randomUUID() as PeerId,
-    ctx: fiber.ctx,
-    principal,
-    signal: lifetime.signal,
-    interactions: 'answer',
-    dispose: async () => {
-      lifetime.abort()
-      await fiber.dispose()
-    },
-  }
+  return new Peer(ctx.root, { principal })
 }
