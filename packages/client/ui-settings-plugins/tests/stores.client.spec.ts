@@ -16,7 +16,13 @@ import {
   subagentModelCandidates,
   type SubagentModelSelectionSettings,
 } from '../src/client/subagent-model-selection-card-controller.ts'
-import { WebSearchCardController, type WebSearchSettings } from '../src/client/web-search-card-controller.ts'
+import {
+  WebSearchCardController,
+  type WebApiSettings,
+  type WebProviderSelection,
+  type WebSearchCardScopes,
+  type WebSearchSettings,
+} from '../src/client/web-search-card-controller.ts'
 
 /** Make the stub behave like a Host that accepts every write. */
 function acceptWrites<T>(host: StubConfigForm<T>): void {
@@ -861,10 +867,38 @@ describe('SubagentModelSelectionCardController', () => {
 })
 
 describe('WebSearchCardController', () => {
+  /**
+   * The three namespace scopes the web-search page edits. Only the scopes a
+   * case publishes to leave their initial `loading` status, so a case that
+   * exercises Messages search alone never has to serve the other two.
+   * @param messages - the Messages search scope under test.
+   * @returns the individual stubs and the grouped scopes.
+   */
+  function webSearchScopes(messages = stubConfigForm<WebSearchSettings>()) {
+    const web = stubConfigForm<WebProviderSelection>()
+    const api = stubConfigForm<WebApiSettings>()
+    const scopes: WebSearchCardScopes = { web: web.scope, messages: messages.scope, api: api.scope }
+    return { messages, web, api, scopes }
+  }
+
+  /**
+   * The same scopes with the selection and API namespaces already served, so a
+   * save that stages the key on the selection form can reach the credentials
+   * domain. The switch stays off because the served selection is empty.
+   * @param host - the Messages search stub.
+   * @returns the stubs and grouped scopes.
+   */
+  function servedWebSearchScopes(host = stubConfigForm<WebSearchSettings>()) {
+    const mounted = webSearchScopes(host)
+    mounted.web.publish({ status: 'ready', writable: true, value: {}, base: {}, user: {} })
+    mounted.api.publish({ status: 'ready', writable: true, value: {}, base: {}, user: {} })
+    return mounted
+  }
+
   it('reads the credential state for the reference the tab names', async () => {
     const host = stubConfigForm<WebSearchSettings>()
     const credentials = credentialsApi(true)
-    const controller = new WebSearchCardController(host.scope, credentials.ctx)
+    const controller = new WebSearchCardController(servedWebSearchScopes(host).scopes, credentials.ctx)
     const state = () => controller.inject().hooks.webSearchCard.getSnapshot()
     await vi.waitFor(() => { expect(credentials.describe).toHaveBeenCalled() })
 
@@ -880,7 +914,7 @@ describe('WebSearchCardController', () => {
   it('writes the staged key through the credentials domain, never the settings section', async () => {
     const host = stubConfigForm<WebSearchSettings>()
     const credentials = credentialsApi(false)
-    const controller = new WebSearchCardController(host.scope, credentials.ctx)
+    const controller = new WebSearchCardController(servedWebSearchScopes(host).scopes, credentials.ctx)
     host.publish({ status: 'ready', writable: true, value: {}, user: {} })
     const face = controller.inject()
 
@@ -905,7 +939,7 @@ describe('WebSearchCardController', () => {
   it('keeps the stored key when the draft is left blank', () => {
     const host = stubConfigForm<WebSearchSettings>()
     const credentials = credentialsApi(true)
-    const controller = new WebSearchCardController(host.scope, credentials.ctx)
+    const controller = new WebSearchCardController(servedWebSearchScopes(host).scopes, credentials.ctx)
     host.publish({ status: 'ready', writable: true, value: {}, user: {} })
     const face = controller.inject()
 
@@ -920,7 +954,7 @@ describe('WebSearchCardController', () => {
   it('re-reads when the Host reports the watched reference changed', async () => {
     const host = stubConfigForm<WebSearchSettings>()
     const credentials = credentialsApi(false)
-    const controller = new WebSearchCardController(host.scope, credentials.ctx)
+    const controller = new WebSearchCardController(servedWebSearchScopes(host).scopes, credentials.ctx)
     host.publish({ status: 'ready', writable: true, value: {}, user: {} })
     await vi.waitFor(() => { expect(credentials.describe).toHaveBeenCalled() })
     credentials.describe.mockClear()
@@ -944,7 +978,7 @@ describe('WebSearchCardController', () => {
   it('addresses the reference the tab declares rather than the default', async () => {
     const host = stubConfigForm<WebSearchSettings>()
     const credentials = credentialsApi(false)
-    const controller = new WebSearchCardController(host.scope, credentials.ctx)
+    const controller = new WebSearchCardController(servedWebSearchScopes(host).scopes, credentials.ctx)
     host.publish({ status: 'ready', writable: true, value: { apiKeyEnv: 'SEARCH_KEY' }, user: {} })
     const face = controller.inject()
 
@@ -958,7 +992,7 @@ describe('WebSearchCardController', () => {
   it('reports a key the Host did not store as a failed save', async () => {
     const host = stubConfigForm<WebSearchSettings>()
     const credentials = credentialsApi(false)
-    const controller = new WebSearchCardController(host.scope, credentials.ctx)
+    const controller = new WebSearchCardController(servedWebSearchScopes(host).scopes, credentials.ctx)
     host.publish({ status: 'ready', writable: true, value: {}, user: {} })
     const face = controller.inject()
 
@@ -978,7 +1012,7 @@ describe('WebSearchCardController', () => {
     })
     const describe = vi.fn(refusal)
     const set = vi.fn(refusal)
-    const controller = new WebSearchCardController(host.scope, ctxWith({ credentials: { describe, set } }))
+    const controller = new WebSearchCardController(servedWebSearchScopes(host).scopes, ctxWith({ credentials: { describe, set } }))
     const face = controller.inject()
     await vi.waitFor(() => { expect(describe).toHaveBeenCalled() })
 
@@ -1000,7 +1034,7 @@ describe('WebSearchCardController', () => {
       ok: false as const,
       error: new RemoteError('gateway/internal', 'no credential provider', {}),
     }))
-    const controller = new WebSearchCardController(host.scope, ctxWith({
+    const controller = new WebSearchCardController(servedWebSearchScopes(host).scopes, ctxWith({
       credentials: { describe, set: vi.fn() },
     }))
     await vi.waitFor(() => { expect(describe).toHaveBeenCalled() })
@@ -1012,7 +1046,7 @@ describe('WebSearchCardController', () => {
     const host = stubConfigForm<WebSearchSettings>()
     acceptWrites(host)
     const credentials = credentialsApi(true)
-    const controller = new WebSearchCardController(host.scope, credentials.ctx)
+    const controller = new WebSearchCardController(servedWebSearchScopes(host).scopes, credentials.ctx)
     host.publish({ status: 'ready', writable: true, value: {}, base: {}, user: {} })
     const face = controller.inject()
 
@@ -1023,6 +1057,110 @@ describe('WebSearchCardController', () => {
 
     expect(host.mutate.mock.calls.map(([ops]) => ops)).toEqual([[{ op: 'set', path: ['baseURL'], value: 'https://other.test' }, { op: 'set', path: ['maxUses'], value: 3 }]])
     expect(credentials.set).not.toHaveBeenCalled()
+  })
+
+  /** Serve the selection and API namespaces so the switch becomes available. */
+  function serveSwitchScopes(
+    stubs: { web: StubConfigForm<WebProviderSelection>; api: StubConfigForm<WebApiSettings> },
+    selection: Partial<WebProviderSelection> = { searchProvider: 'deepseek-official', fetchProvider: 'http' },
+    apiValue: Partial<WebApiSettings> = {},
+  ): void {
+    stubs.web.publish({ status: 'ready', writable: true, value: selection as WebProviderSelection, base: selection, user: {} })
+    stubs.api.publish({ status: 'ready', writable: true, value: apiValue as WebApiSettings, base: apiValue, user: {} })
+  }
+
+  it('selects both providers from one switch and saves the selection as overrides', async () => {
+    const host = stubConfigForm<WebSearchSettings>()
+    host.publish({ status: 'ready', writable: true, value: {}, base: {}, user: {} })
+    const mounted = webSearchScopes(host)
+    serveSwitchScopes(mounted)
+    acceptWrites(mounted.web)
+    const controller = new WebSearchCardController(mounted.scopes, credentialsApi(true).ctx)
+    const face = controller.inject()
+    const state = () => face.hooks.webSearchCard.getSnapshot()
+
+    expect(state()).toMatchObject({ apiSwitchAvailable: true, useSearchApi: false })
+    face.setSearchApi(true)
+    expect(state()).toMatchObject({ useSearchApi: true, dirty: true })
+
+    face.save()
+    await vi.waitFor(() => { expect(mounted.web.mutate).toHaveBeenCalledOnce() })
+    expect(mounted.web.mutate.mock.calls.map(([ops]) => ops)).toEqual([[
+      { op: 'set', path: ['searchProvider'], value: 'deepseek-search-api' },
+      { op: 'set', path: ['fetchProvider'], value: 'deepseek-fetch-api' },
+    ]])
+  })
+
+  it('clears an override instead of storing the composed selection', () => {
+    const host = stubConfigForm<WebSearchSettings>()
+    host.publish({ status: 'ready', writable: true, value: {}, base: {}, user: {} })
+    const mounted = webSearchScopes(host)
+    serveSwitchScopes(mounted, { searchProvider: 'deepseek-search-api', fetchProvider: 'deepseek-fetch-api' })
+    const controller = new WebSearchCardController(mounted.scopes, credentialsApi(true).ctx)
+    const face = controller.inject()
+
+    face.setSearchApi(true)
+
+    expect(face.hooks.webSearchCard.getSnapshot()).toMatchObject({ useSearchApi: true, dirty: false })
+    expect(mounted.web.scope.getSnapshot().user).toEqual({})
+  })
+
+  it('edits the selected API endpoint and writes that section before the selection', async () => {
+    const host = stubConfigForm<WebSearchSettings>()
+    host.publish({ status: 'ready', writable: true, value: {}, base: {}, user: {} })
+    const mounted = webSearchScopes(host)
+    serveSwitchScopes(mounted, { searchProvider: 'deepseek-official', fetchProvider: 'http' }, {
+      baseURL: 'https://api.deepseek.com/v1/tools', count: 10,
+    })
+    acceptWrites(mounted.api)
+    acceptWrites(mounted.web)
+    const controller = new WebSearchCardController(mounted.scopes, credentialsApi(true).ctx)
+    const face = controller.inject()
+
+    face.setSearchApi(true)
+    face.edit('baseURL', 'https://search-api.test/api/v1/tools')
+    face.edit('count', '20')
+    face.save()
+    await vi.waitFor(() => { expect(mounted.web.mutate).toHaveBeenCalledOnce() })
+
+    expect(mounted.api.mutate.mock.calls.map(([ops]) => ops)).toEqual([[
+      { op: 'set', path: ['baseURL'], value: 'https://search-api.test/api/v1/tools' },
+      { op: 'set', path: ['count'], value: 20 },
+    ]])
+    expect(mounted.api.mutate.mock.invocationCallOrder[0])
+      .toBeLessThan(mounted.web.mutate.mock.invocationCallOrder[0] ?? 0)
+  })
+
+  it('blocks invalid result counts and keeps the switch hidden without the API namespace', () => {
+    const host = stubConfigForm<WebSearchSettings>()
+    host.publish({ status: 'ready', writable: true, value: {}, base: {}, user: {} })
+    const hidden = webSearchScopes(host)
+    const hiddenFace = new WebSearchCardController(hidden.scopes, credentialsApi(true).ctx).inject()
+    expect(hiddenFace.hooks.webSearchCard.getSnapshot()).toMatchObject({ apiSwitchAvailable: false, useSearchApi: false })
+
+    const mounted = webSearchScopes(stubConfigForm<WebSearchSettings>())
+    mounted.messages.publish({ status: 'ready', writable: true, value: {}, base: {}, user: {} })
+    serveSwitchScopes(mounted, { searchProvider: 'deepseek-search-api', fetchProvider: 'deepseek-fetch-api' })
+    const face = new WebSearchCardController(mounted.scopes, credentialsApi(true).ctx).inject()
+    face.edit('count', '51')
+
+    expect(face.hooks.webSearchCard.getSnapshot()).toMatchObject({ invalid: true, apiSwitchBlocked: true })
+  })
+
+  it('reads the credential reference of the selected API section', async () => {
+    const host = stubConfigForm<WebSearchSettings>()
+    host.publish({ status: 'ready', writable: true, value: {}, base: {}, user: {} })
+    const mounted = webSearchScopes(host)
+    serveSwitchScopes(mounted, { searchProvider: 'deepseek-official', fetchProvider: 'http' }, {
+      apiKeyEnv: 'SEARCH_API_KEY',
+    })
+    const credentials = credentialsApi(true)
+    const controller = new WebSearchCardController(mounted.scopes, credentials.ctx)
+    await vi.waitFor(() => { expect(credentials.describe).toHaveBeenCalledWith(['DEEPSEEK_API_KEY']) })
+
+    controller.inject().setSearchApi(true)
+
+    await vi.waitFor(() => { expect(credentials.describe).toHaveBeenCalledWith(['SEARCH_API_KEY']) })
   })
 })
 

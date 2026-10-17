@@ -43,7 +43,7 @@ function field(text: string, rest: Partial<SettingsFieldState> = {}): SettingsFi
 }
 
 function cardActions() {
-  return { edit: vi.fn(), resetField: vi.fn(), save: vi.fn(), discard: vi.fn() }
+  return { edit: vi.fn(), resetField: vi.fn(), save: vi.fn(), discard: vi.fn(), setSearchApi: vi.fn() }
 }
 
 function renderSection(rows: readonly PluginsSettingsTabEntry[]) {
@@ -569,8 +569,12 @@ describe('WebSearchCard', () => {
   function renderWebSearch(state: Partial<WebSearchCardState> = {}) {
     const store = createSnapshotStore<WebSearchCardState>({
       ...settled,
+      apiSwitchAvailable: true,
+      apiSwitchBlocked: false,
+      useSearchApi: false,
       baseURL: field(''),
       maxUses: field('5'),
+      count: field(''),
       apiKey: field(''),
       apiKeyConfigured: false,
       apiKeyWritable: true,
@@ -584,7 +588,16 @@ describe('WebSearchCard', () => {
 
   it('renders its one-liner alone in the summary view', () => {
     const store = createSnapshotStore<WebSearchCardState>({
-      ...settled, baseURL: field(''), maxUses: field('5'), apiKey: field(''), apiKeyConfigured: false, apiKeyWritable: true,
+      ...settled,
+      apiSwitchAvailable: true,
+      apiSwitchBlocked: false,
+      useSearchApi: false,
+      baseURL: field(''),
+      maxUses: field('5'),
+      count: field(''),
+      apiKey: field(''),
+      apiKeyConfigured: false,
+      apiKeyWritable: true,
     })
     const props = { ...cardActions(), view: 'summary', t, useWebSearchCard: bindSnapshotSelector(store) } as unknown as WebSearchCardProps
     render(<WebSearchCard {...props} />)
@@ -638,6 +651,35 @@ describe('WebSearchCard', () => {
       ['maxUses', '4'],
     ])
     expect(actions.resetField.mock.calls).toEqual([['baseURL'], ['maxUses']])
+  })
+
+  it('stages the API switch and shows the Search API endpoint and limit while it is on', () => {
+    const actions = renderWebSearch({ useSearchApi: true, count: field('10', { overridden: true }) })
+
+    const toggle = screen.getByRole('switch', { name: en.webSearchUseApi })
+    expect(toggle.getAttribute('aria-checked')).toBe('true')
+    expect(screen.getByLabelText(en.webSearchSearchApiBaseUrl)).toBeTruthy()
+    expect(screen.getByLabelText(en.webSearchCount)).toBeTruthy()
+    expect(screen.queryByLabelText(en.webSearchMaxUses)).toBeNull()
+
+    fireEvent.click(toggle)
+    fireEvent.change(screen.getByLabelText(en.webSearchCount), { target: { value: '20' } })
+
+    expect(actions.setSearchApi).toHaveBeenCalledWith(false)
+    expect(actions.edit).toHaveBeenCalledWith('count', '20')
+  })
+
+  it('hides the switch when the deployment serves no Search / Fetch API section', () => {
+    renderWebSearch({ apiSwitchAvailable: false })
+
+    expect(screen.queryByRole('switch')).toBeNull()
+    expect(screen.getByLabelText(en.webSearchBaseUrl)).toBeTruthy()
+  })
+
+  it('blocks the switch while the form holds invalid edits or a failed save', () => {
+    renderWebSearch({ apiSwitchBlocked: true })
+
+    expect(screen.getByRole('switch', { name: en.webSearchUseApi })).toHaveProperty('disabled', true)
   })
 })
 

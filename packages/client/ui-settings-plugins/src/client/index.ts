@@ -37,7 +37,7 @@ import { GIT_NS, GitCardController } from './git-card-controller.ts'
 import {
   SUBAGENT_MODEL_SELECTION_NS, SubagentModelSelectionCardController,
 } from './subagent-model-selection-card-controller.ts'
-import { WEB_SEARCH_NS, WebSearchCardController } from './web-search-card-controller.ts'
+import { WEB_API_NS, WEB_NS, WEB_SEARCH_NS, WebSearchCardController } from './web-search-card-controller.ts'
 import { en, zh } from './locales.ts'
 
 export type { PluginsSettingsSectionInjected, PluginsSettingsSectionProps } from './PluginsSettingsSection.tsx'
@@ -69,8 +69,11 @@ export function apply(ctx: ClientContext): void {
   const bash = new BashCardController(ctx.configForms.get(SHELL_NS))
   const git = new GitCardController(ctx.configForms.get(GIT_NS))
   const agentLoop = new AgentLoopCardController(ctx.configForms.get(AGENT_LOOP_NS))
-  const webSearch = new WebSearchCardController(
-    ctx.configForms.get(WEB_SEARCH_NS), ctx)
+  const webSearch = new WebSearchCardController({
+    web: ctx.configForms.get(WEB_NS),
+    messages: ctx.configForms.get(WEB_SEARCH_NS),
+    api: ctx.configForms.get(WEB_API_NS),
+  }, ctx)
   const subagentLimits = new SubagentLimitsCardController(ctx.configForms.get('subagent'))
   const subagentModelSelection = new SubagentModelSelectionCardController(
     ctx.configForms.get(SUBAGENT_MODEL_SELECTION_NS),
@@ -99,6 +102,7 @@ export function apply(ctx: ClientContext): void {
     'ui-settings-plugins: subagent connection generation',
   )
   ctx.effect(() => () => { subagentModelSelection.dispose() }, 'ui-settings-plugins: subagent preference')
+  ctx.effect(() => () => { webSearch.dispose() }, 'ui-settings-plugins: web-search form subscription')
 
   // Configuration pages register while the Host serves their namespaces.
   // A deployment without those plugins shows no trace of them. Card registration order is the page order, not the

@@ -1,13 +1,15 @@
 /**
- * The web-search provider's configuration page: its endpoint, its per-request
- * search budget, and the key — which is written through the credentials
- * domain, never into the settings section, so the literal never rides a response.
+ * The web-search settings page: the switch between Messages search and the
+ * Search and Fetch APIs, the selected API's endpoint and per-search limit, and
+ * the key — which is written through the credentials domain, never into the
+ * settings section, so the literal never rides a response.
  */
 
 import type {} from '@qilin-agent/client-ui-plugin-manager/client'
 import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
-import { SettingsSecretField, SettingsValueField } from '@qilin-agent/client-ui-primitives'
+import { SettingsSecretField, SettingsValueField, Switch } from '@qilin-agent/client-ui-primitives'
 import { PluginConfigForm } from './PluginConfigForm.tsx'
+import styles from './WebSearchCard.module.css'
 import type { WebSearchCardFace } from './web-search-card-controller.ts'
 
 /** Props the renderer binds for the web-search page. */
@@ -25,7 +27,9 @@ export function WebSearchCard(props: WebSearchCardProps) {
   const { t } = props
   const state = props.useWebSearchCard(snapshot => snapshot)
   if (props.view === 'summary') return t('webSearchDescription')
-  const disabled = !state.writable
+  const disabled = !state.writable || state.saving
+  const searchApi = state.useSearchApi
+  const limitField = searchApi ? 'count' : 'maxUses'
   return (
     <PluginConfigForm
       t={t}
@@ -33,6 +37,25 @@ export function WebSearchCard(props: WebSearchCardProps) {
       onSave={props.save}
       onDiscard={props.discard}
     >
+      {state.apiSwitchAvailable && (
+        <div className={styles.feature}>
+          <label className={styles.toggleRow}>
+            <span>{t('webSearchUseApi')}</span>
+            <Switch
+              checked={searchApi}
+              label={t('webSearchUseApi')}
+              disabled={disabled || state.apiSwitchBlocked}
+              onChange={(checked) => { props.setSearchApi(checked) }}
+            />
+          </label>
+          <p className={styles.hint}>
+            {t('webSearchUseApiHint')}
+            <a className={styles.link} href={t('webSearchGuideUrl')} target="_blank" rel="noopener noreferrer">
+              {t('webSearchGuide')}
+            </a>
+          </p>
+        </div>
+      )}
       <SettingsSecretField
         id="plugin-config-web-search-key"
         label={t('webSearchApiKey')}
@@ -49,8 +72,8 @@ export function WebSearchCard(props: WebSearchCardProps) {
       />
       <SettingsValueField
         id="plugin-config-web-search-endpoint"
-        label={t('webSearchBaseUrl')}
-        hint={t('webSearchBaseUrlHint')}
+        label={t(searchApi ? 'webSearchSearchApiBaseUrl' : 'webSearchBaseUrl')}
+        hint={t(searchApi ? 'webSearchSearchApiBaseUrlHint' : 'webSearchBaseUrlHint')}
         overriddenLabel={t('overridden')}
         resetLabel={t('reset')}
         invalidLabel={t('invalidNumber')}
@@ -60,17 +83,17 @@ export function WebSearchCard(props: WebSearchCardProps) {
         onReset={() => { props.resetField('baseURL') }}
       />
       <SettingsValueField
-        id="plugin-config-web-search-max-uses"
-        label={t('webSearchMaxUses')}
-        hint={t('webSearchMaxUsesHint')}
+        id={searchApi ? 'plugin-config-web-search-count' : 'plugin-config-web-search-max-uses'}
+        label={t(limitField === 'count' ? 'webSearchCount' : 'webSearchMaxUses')}
+        hint={t(searchApi ? 'webSearchCountHint' : 'webSearchMaxUsesHint')}
         overriddenLabel={t('overridden')}
         resetLabel={t('reset')}
-        invalidLabel={t('invalidNumber')}
+        invalidLabel={t(searchApi ? 'webSearchInvalidCount' : 'invalidNumber')}
         numeric
         disabled={disabled}
-        {...state.maxUses}
-        onEdit={(text) => { props.edit('maxUses', text) }}
-        onReset={() => { props.resetField('maxUses') }}
+        {...state[limitField]}
+        onEdit={(text) => { props.edit(limitField, text) }}
+        onReset={() => { props.resetField(limitField) }}
       />
     </PluginConfigForm>
   )
