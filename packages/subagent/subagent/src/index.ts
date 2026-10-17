@@ -40,7 +40,7 @@ import type { ContentBlock, MessageId, MessageSource } from '@qilin-agent/llm'
 import type { Agent } from '@qilin-agent/agent'
 import type { SessionId } from '@qilin-agent/session'
 import { canonicalClientTimeZone } from '@qilin-agent/util-time'
-import { Remote, RemoteError, TypertRemoteService } from '@qilin-agent/typert-protocol'
+import { Remote, RemoteError, TypertRemoteService, principalOf, type Principal } from '@qilin-agent/typert-protocol'
 import {
   rejectPrompt, validateControlRequest,
 } from './control.ts'
@@ -180,6 +180,8 @@ interface BrowserPromptSource {
   readonly kind: 'user'
   readonly rpcId: SubagentPromptRequestId
   readonly clientTimeZone?: string
+  /** Caller that submitted this follow-up, written only when it is not the owner; absent means the owner. */
+  readonly principal?: Principal
 }
 
 /** Host configuration for continuable subagent capacity. */
@@ -466,10 +468,12 @@ export class SubagentRuntime extends TypertRemoteService {
         { parentSessionId },
       )
     }
+    const principal = principalOf(this.ctx.invocation)
     const source: BrowserPromptSource = {
       kind: 'user',
       rpcId: request.requestId,
       ...(canonicalTimeZone === undefined ? {} : { clientTimeZone: canonicalTimeZone }),
+      ...(principal === undefined ? {} : { principal }),
     }
     try {
       // Admission precedes delivery: image parts become durable references

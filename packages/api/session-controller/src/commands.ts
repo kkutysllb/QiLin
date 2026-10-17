@@ -19,7 +19,6 @@ import { SessionLogOffset, SessionSeq } from '@qilin-agent/session'
 import type { SessionEvent, SessionHeader, SessionId, UserMessage } from '@qilin-agent/session'
 import { SessionQueryError, type SessionObservation } from '@qilin-agent/session-query'
 import { SessionTitleInvalidError } from '@qilin-agent/session-title'
-import { canonicalClientTimeZone } from '@qilin-agent/util-time'
 import { assertNever } from '@qilin-agent/util-values'
 import { RemoteError, remoteErrorOf } from '@qilin-agent/typert-protocol'
 import type { Workspace } from '@qilin-agent/workspace'
@@ -63,7 +62,12 @@ type PromptContentCandidate =
   | SessionPromptRequest['content'][number]
   | Extract<SessionUpdateQueueRequest['action'], { readonly kind: 'edit' }>['content'][number]
 
-function hasPromptContent(content: readonly PromptContentCandidate[]): boolean {
+/**
+ * Whether prompt content carries non-whitespace text or an attachment.
+ * @param content - submitted or edited prompt parts.
+ * @returns false for content the Agent must not receive.
+ */
+export function hasPromptContent(content: readonly PromptContentCandidate[]): boolean {
   return content.some(part => part.type !== 'text' || part.text.trim().length > 0)
 }
 
@@ -341,28 +345,13 @@ export class SessionCommandController {
   }
 
   /**
-   * Reject empty content, then admit one prompt after Agent and attachment validation.
-   * @param request - Session identity, prompt content, source metadata, and delivery mode.
+   * Admit one prompt after Agent and attachment validation; the Remote method
+   * has already validated the content and built the durable message source.
+   * @param request - Session identity, prompt content, and delivery mode.
+   * @param source - the `user-rpc` source recorded on the accepted message.
    * @returns acknowledgement that the Agent accepted the prompt.
    */
-  async prompt(request: SessionPromptRequest): Promise<SessionPromptValue> {
-    if (!hasPromptContent(request.content)) {
-      throw new RemoteError(
-        'gateway/bad-request',
-        'prompt content must include non-whitespace text or an attachment',
-        {},
-      )
-    }
-    const clientTimeZone = request.clientTimeZone === undefined
-      ? undefined
-      : canonicalClientTimeZone(request.clientTimeZone)
-    if (request.clientTimeZone !== undefined && clientTimeZone === undefined) {
-      throw new RemoteError(
-        'session/invalid-time-zone',
-        'clientTimeZone must be UTC or a valid IANA Area/Location name',
-        { value: request.clientTimeZone },
-      )
-    }
+  async prompt(request: SessionPromptRequest, source: MessageSource): Promise<SessionPromptValue> {
     const agent = await this.resolveAgent(request.sessionId)
     if (hasPromptRequest(agent, request.requestId)) return { accepted: true }
     const selection = this.agents.selectionFor(agent).current
@@ -372,11 +361,6 @@ export class SessionCommandController {
         `no adapter serves provider "${selection.provider}"; select a model for this session`,
         { provider: selection.provider, model: selection.model },
       )
-    }
-    const source: MessageSource = {
-      kind: 'user',
-      rpcId: request.requestId,
-      ...(clientTimeZone === undefined ? {} : { clientTimeZone }),
     }
     const hasImage = request.content.some(part => part.type === 'image')
     const admit = async (): Promise<SessionPromptValue> => {

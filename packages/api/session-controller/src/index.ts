@@ -6,19 +6,20 @@ import type { Agent } from '@qilin-agent/agent'
 import type {} from '@qilin-agent/fs'
 import { Context } from '@qilin-agent/kylin'
 import z from '@qilin-agent/schemastery'
-import { errorChain } from '@qilin-agent/llm'
+import { errorChain, type MessageSource } from '@qilin-agent/llm'
 import type {} from '@qilin-agent/client-file-upload'
 import { canOpenNativePath, nativeFileManager, nativeFileApplications, openNativeFileApplication, openNativeAssociatedPath, revealNativePath } from '@qilin-agent/native-command'
 import type { SessionId } from '@qilin-agent/session'
 import type { SessionInspection } from '@qilin-agent/session-persistence'
 import { SessionQueryError, type SessionObservation } from '@qilin-agent/session-query'
-import { Remote, RemoteError, TypertRemoteService } from '@qilin-agent/typert-protocol'
+import { Remote, RemoteError, TypertRemoteService, principalOf } from '@qilin-agent/typert-protocol'
+import { canonicalClientTimeZone } from '@qilin-agent/util-time'
 import {
   ApiSessionAgentController,
   inspectApiSession,
   type ApiSessionAgentResult,
 } from './agent.ts'
-import { SessionCommandController } from './commands.ts'
+import { SessionCommandController, hasPromptContent } from './commands.ts'
 import { SessionControlController } from './control.ts'
 import { SessionHistoryController } from './history.ts'
 import { SessionFileReferences } from './file-references.ts'
@@ -432,9 +433,30 @@ export class SessionController extends TypertRemoteService {
    * @returns acknowledgement that the Agent accepted the prompt.
    */
   @Remote('prompt')
-  prompt(request: SessionPromptRequest, signal: AbortSignal): Promise<SessionPromptValue> {
+  async prompt(request: SessionPromptRequest, signal: AbortSignal): Promise<SessionPromptValue> {
     signal.throwIfAborted()
-    return this.commands.prompt(request)
+    if (!hasPromptContent(request.content)) {
+      throw new RemoteError('gateway/bad-request', 'prompt content must include non-whitespace text or an attachment', {})
+    }
+    const clientTimeZone = request.clientTimeZone === undefined
+      ? undefined
+      : canonicalClientTimeZone(request.clientTimeZone)
+    if (request.clientTimeZone !== undefined && clientTimeZone === undefined) {
+      throw new RemoteError(
+        'session/invalid-time-zone',
+        'clientTimeZone must be UTC or a valid IANA Area/Location name',
+        { value: request.clientTimeZone },
+      )
+    }
+    // The caller is recorded only when it is not the owner, so owner messages keep their exact source.
+    const principal = principalOf(this.ctx.invocation)
+    const source: MessageSource = {
+      kind: 'user',
+      rpcId: request.requestId,
+      ...(clientTimeZone === undefined ? {} : { clientTimeZone }),
+      ...(principal === undefined ? {} : { principal }),
+    }
+    return this.commands.prompt(request, source)
   }
 
   /**

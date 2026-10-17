@@ -9,6 +9,7 @@ import type { LlmAttemptId, MessageId } from '@qilin-agent/llm/brand'
 import type { TextBlock } from '@qilin-agent/llm'
 import type { SessionId, SessionSeqCursor } from '@qilin-agent/session/types'
 import type { SessionProjectionMap } from '@qilin-agent/session-projection/types'
+import type { Principal } from '@qilin-agent/typert-protocol'
 import type { JsonValue } from '@qilin-agent/util-values'
 import type { WorkspaceId } from '@qilin-agent/workspace/types'
 
@@ -508,8 +509,12 @@ export type SessionRequestId = Branded<'session-request-id'>
 
 declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
-    /** Browser prompt correlation and optional Host-validated time zone. */
-    'user-rpc': { kind: 'user'; rpcId: SessionRequestId; clientTimeZone?: string }
+    /**
+     * Browser prompt correlation, optional Host-validated time zone, and the
+     * caller that submitted the prompt. `principal` is written only for a
+     * caller other than the owner, so an absent `principal` means the owner.
+     */
+    'user-rpc': { kind: 'user'; rpcId: SessionRequestId; clientTimeZone?: string; principal?: Principal }
     /**
      * Sidechat boundary context injected ahead of a thread's first prompt.
      * The source kind is the structural boundary marker: transcript readers
