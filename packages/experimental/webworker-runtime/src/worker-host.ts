@@ -27,6 +27,7 @@ import type { HostConnectionHandle } from '@qilin-agent/client-connection'
 import type { AlsCausality } from './polyfill/async-context/als-runtime.ts'
 import { dirname, join } from './module-system/posix-path.ts'
 import { installProcessGlobal } from './node/globals/process.ts'
+import { setTextViewer } from './shell/process/xdg-open.ts'
 import type { RequestListener } from './transport/synthetic-http.ts'
 import { TunnelServer, type TunnelPort } from './transport/tunnel.ts'
 import { inflateImage, inflateImageStream } from './storage/image-gzip.ts'
@@ -175,6 +176,8 @@ export function createWorkerHost(options: WorkerHostOptions): WorkerHost {
     ...options.privilegedMethods === undefined ? {} : { privilegedMethods: options.privilegedMethods },
     ...options.unaryApiLane === undefined ? {} : { unaryApiLane: options.unaryApiLane },
   })
+
+  setTextViewer((path, text) => { tunnel.viewText(path, text) })
 
   let vfs: MemoryVfs | undefined
   let modules: WorkerModuleLoader | undefined

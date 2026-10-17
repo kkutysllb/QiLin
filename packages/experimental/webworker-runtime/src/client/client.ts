@@ -18,6 +18,7 @@ import type {
   TunnelStreamItemFrame,
   TunnelStreamOpenFrame,
 } from '../transport/frames.ts'
+import { showTextViewer } from './text-viewer.ts'
 
 /** Boot payload of the tunnel bootstrap route. */
 export interface BootPayload {
@@ -541,6 +542,10 @@ export class WorkerTunnel {
         this.bodyStreams.delete(frame.id)
         this.releaseSignal(frame.id)
         controller.error(reason)
+        return
+      }
+      case 'view-text': {
+        showTextViewer(frame.path, frame.text)
         return
       }
       case 'stream-item':
