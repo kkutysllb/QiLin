@@ -20,7 +20,7 @@ import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
 import * as TerminalLocal from '@qilin-agent/terminal-bash'
 import * as ToolPty from '@qilin-agent/experimental-tool-terminal'
-import { unsupportedInbox } from '@qilin-agent/agent-loop-testkit'
+import { provideWorkingDirectoryFixture, unsupportedInbox } from '@qilin-agent/agent-loop-testkit'
 
 let root: string | undefined
 let context: Context | undefined
@@ -90,6 +90,7 @@ suite('terminal real Loader composition through cordis.yml', () => {
     ].join('\n'))
 
     context = new Context()
+    provideWorkingDirectoryFixture(context)
     context.baseUrl = pathToFileURL(root).href + '/'
     await context.plugin(Loader)
     context.loader.builtins.include = Include
