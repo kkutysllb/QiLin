@@ -1165,9 +1165,6 @@ importers:
       '@qilin-agent/deque':
         specifier: workspace:*
         version: link:../../util/deque
-      '@qilin-agent/session':
-        specifier: workspace:*
-        version: link:../../core/session
       '@qilin-agent/util-values':
         specifier: workspace:*
         version: link:../../util/values
@@ -1262,6 +1259,9 @@ importers:
       '@qilin-agent/scope':
         specifier: workspace:*
         version: link:../../core/scope
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
       '@qilin-agent/session-reference':
         specifier: workspace:*
         version: link:../../context/session-reference
@@ -1284,7 +1284,7 @@ importers:
         specifier: workspace:*
         version: link:../../interaction/user-questions
       zod:
-        specifier: ^4.4.3
+        specifier: 4.4.3
         version: 4.4.3
 
   packages/api/session-controller:
@@ -2256,34 +2256,18 @@ importers:
 
   packages/bundle/headless:
     dependencies:
-      '@qilin-agent/brand':
-        specifier: workspace:*
-        version: link:../../util/brand
-      '@qilin-agent/cmdline':
-        specifier: workspace:*
-        version: link:../../boot/cmdline
-      '@qilin-agent/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
-      '@qilin-agent/util-values':
-        specifier: workspace:*
-        version: link:../../util/values
-      commander:
-        specifier: ^15.0.0
-        version: 15.0.0
-    devDependencies:
       '@qilin-agent/agent':
         specifier: workspace:*
         version: link:../../core/agent
       '@qilin-agent/agent-default-model':
         specifier: workspace:*
         version: link:../../core/agent-default-model
-      '@qilin-agent/agent-loop':
+      '@qilin-agent/brand':
         specifier: workspace:*
-        version: link:../../core/agent-loop
-      '@qilin-agent/agent-loop-testkit':
+        version: link:../../util/brand
+      '@qilin-agent/cmdline':
         specifier: workspace:*
-        version: link:../../test-support/agent-loop-testkit
+        version: link:../../boot/cmdline
       '@qilin-agent/fs':
         specifier: workspace:*
         version: link:../../fs/fs
@@ -2296,12 +2280,25 @@ importers:
       '@qilin-agent/llm':
         specifier: workspace:*
         version: link:../../llm/llm
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
       '@qilin-agent/session':
         specifier: workspace:*
         version: link:../../core/session
       '@qilin-agent/session-query':
         specifier: workspace:*
         version: link:../../session-query/session-query
+      '@qilin-agent/util-values':
+        specifier: workspace:*
+        version: link:../../util/values
+      commander:
+        specifier: ^15.0.0
+        version: 15.0.0
+    devDependencies:
+      '@qilin-agent/kylin-plugin-include':
+        specifier: workspace:~
+        version: link:../../../vendor/include
 
   packages/bundle/sdk-app:
     dependencies:
@@ -14411,11 +14408,14 @@ importers:
       '@qilin-agent/tool-kylin':
         specifier: workspace:*
         version: link:../../extensions/tool-kylin
+      '@qilin-agent/tools':
+        specifier: workspace:*
+        version: link:../../core/tools
       '@qilin-agent/typert-registry':
         specifier: workspace:*
         version: link:../registry
       zod:
-        specifier: ^4.4.3
+        specifier: 4.4.3
         version: 4.4.3
 
   packages/typert/loader:
@@ -14433,14 +14433,24 @@ importers:
       '@qilin-agent/kylin-plugin-loader':
         specifier: workspace:~
         version: link:../../../vendor/loader
+      '@qilin-agent/typert-protocol':
+        specifier: workspace:*
+        version: link:../protocol
       '@qilin-agent/typert-registry':
         specifier: workspace:*
         version: link:../registry
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
       zod:
-        specifier: ^4.4.3
+        specifier: 4.4.3
         version: 4.4.3
 
   packages/typert/protocol:
+    dependencies:
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@qilin-agent/kylin':
         specifier: workspace:~
@@ -14449,7 +14459,7 @@ importers:
   packages/typert/registry:
     dependencies:
       zod:
-        specifier: ^4.4.3
+        specifier: 4.4.3
         version: 4.4.3
     devDependencies:
       '@qilin-agent/kylin':
@@ -15097,6 +15107,9 @@ importers:
       '@qilin-agent/plugin-manager':
         specifier: workspace:^
         version: link:../../packages/boot/plugin-manager
+      '@qilin-agent/plugin-market':
+        specifier: workspace:^
+        version: link:../../packages/boot/plugin-market
       '@qilin-agent/plugin-package-inventory-deepseek':
         specifier: workspace:^
         version: link:../../packages/llm/plugin-package-inventory-deepseek
@@ -15226,6 +15239,9 @@ importers:
       '@qilin-agent/terminal-bash':
         specifier: workspace:^
         version: link:../../packages/terminal/terminal-bash
+      '@qilin-agent/time-context':
+        specifier: workspace:^
+        version: link:../../packages/context/time-context
       '@qilin-agent/timeout':
         specifier: workspace:^
         version: link:../../packages/util/timeout
@@ -15292,6 +15308,9 @@ importers:
       '@qilin-agent/tool-workflow':
         specifier: workspace:^
         version: link:../../packages/workflow/tool-workflow
+      '@qilin-agent/tool-working-directory':
+        specifier: workspace:^
+        version: link:../../packages/session/tool-working-directory
       '@qilin-agent/tool-workspace-dependencies':
         specifier: workspace:^
         version: link:../../packages/skill/tool-workspace-dependencies
