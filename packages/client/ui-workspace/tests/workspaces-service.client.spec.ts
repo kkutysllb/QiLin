@@ -292,6 +292,7 @@ function bench(options: BenchOptions = {}) {
     workspaces,
     sessions,
     views.actions,
+    () => {},
   )
   return { ctx, directoryPicker, sessions, uiWorkspace, workspaces, layout, selectPanel, store: views }
 }

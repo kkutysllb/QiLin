@@ -2394,9 +2394,21 @@ importers:
       '@qilin-agent/agent-loop':
         specifier: workspace:*
         version: link:../../core/agent-loop
+      '@qilin-agent/attachment-local':
+        specifier: workspace:*
+        version: link:../../attachment/attachment-local
+      '@qilin-agent/compaction-basic':
+        specifier: workspace:*
+        version: link:../../compaction/compaction-basic
+      '@qilin-agent/compaction-image-offload':
+        specifier: workspace:*
+        version: link:../../compaction/compaction-image-offload
       '@qilin-agent/deepseek-llm-api-extensions':
         specifier: workspace:*
         version: link:../../llm/deepseek-llm-api-extensions
+      '@qilin-agent/fs-local':
+        specifier: workspace:*
+        version: link:../../fs/fs-local
       '@qilin-agent/jobs-local':
         specifier: workspace:*
         version: link:../../jobs/jobs-local
@@ -2457,9 +2469,15 @@ importers:
       '@qilin-agent/terminal-bash':
         specifier: workspace:*
         version: link:../../terminal/terminal-bash
+      '@qilin-agent/token-meter':
+        specifier: workspace:*
+        version: link:../../llm/token-meter
       '@qilin-agent/tool-bash-persistent':
         specifier: workspace:*
         version: link:../../shell/tool-bash-persistent
+      '@qilin-agent/tool-fs':
+        specifier: workspace:*
+        version: link:../../fs/tool-fs
       '@qilin-agent/tool-pwsh-persistent':
         specifier: workspace:*
         version: link:../../shell/tool-pwsh-persistent
@@ -4899,6 +4917,9 @@ importers:
       '@qilin-agent/client-locale':
         specifier: workspace:*
         version: link:../locale
+      '@qilin-agent/client-modules':
+        specifier: workspace:*
+        version: link:../modules
       '@qilin-agent/client-shortcuts':
         specifier: workspace:*
         version: link:../shortcuts
@@ -4908,6 +4929,9 @@ importers:
       '@qilin-agent/client-test-runtime':
         specifier: workspace:*
         version: link:../../test-support/client-runtime
+      '@qilin-agent/client-ui-layout':
+        specifier: workspace:*
+        version: link:../ui-layout
       '@qilin-agent/client-ui-primitives':
         specifier: workspace:*
         version: link:../ui-primitives
@@ -6254,6 +6278,9 @@ importers:
       '@qilin-agent/client-locale':
         specifier: workspace:*
         version: link:../locale
+      '@qilin-agent/client-shortcuts':
+        specifier: workspace:*
+        version: link:../shortcuts
       '@qilin-agent/client-store':
         specifier: workspace:*
         version: link:../store
@@ -12018,6 +12045,9 @@ importers:
       '@qilin-agent/storage-json':
         specifier: workspace:*
         version: link:../../storage/storage-json
+      '@qilin-agent/subagent':
+        specifier: workspace:*
+        version: link:../../subagent/subagent
       '@qilin-agent/system-prompt':
         specifier: workspace:*
         version: link:../../core/system-prompt
