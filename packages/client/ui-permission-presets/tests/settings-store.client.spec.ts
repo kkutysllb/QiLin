@@ -1,35 +1,36 @@
-import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
 import type { SettingsNamespaceView } from '@qilin-agent/api-remotes/client'
-import { SettingsSchemaService } from '@qilin-agent/client-ui-settings/src/client/schema.ts'
 import { SettingsDescribeMirror } from '@qilin-agent/client-ui-settings/src/client/settings-mirror.ts'
 import { RemoteError } from '@qilin-agent/client-test-runtime'
+import type { PermissionCatalog } from '@qilin-agent/permission-presets/client'
 import {
   PermissionPresetSettingsController, permissionDefaultOf,
 } from '../src/client/settings-store.ts'
 
-const SCHEMA = {
-  uid: 6,
-  refs: {
-    1: { type: 'const', value: 'read-only' },
-    2: { type: 'const', meta: { description: 'Workspace' }, value: 'workspace-write' },
-    3: { type: 'union', list: [1, 2] },
-    6: { type: 'object', dict: { defaultPreset: 3 } },
-  },
+const CATALOG: PermissionCatalog = {
+  options: [
+    { value: 'read-only', name: 'Read Only' },
+    { value: 'workspace-write', name: 'Workspace' },
+  ],
+  defaultOptions: [
+    { value: 'read-only', name: 'Read Only' },
+    { value: 'workspace-write', name: 'Workspace' },
+  ],
+  defaultPreset: 'read-only',
 }
 
-const schema = new SettingsSchemaService(new Context())
+const catalogFace = { snapshot: () => CATALOG, subscribe: () => () => {} }
 
 function resolveDefault(view: SettingsNamespaceView) {
-  return permissionDefaultOf(view, schema)
+  return permissionDefaultOf(view, CATALOG)
 }
 
-function view(defaultPreset: string, revision = 0, schema: SettingsNamespaceView['schema'] = SCHEMA): SettingsNamespaceView {
+function view(defaultPreset?: string, revision = 0): SettingsNamespaceView {
   return {
     ns: 'permission',
     autoGenerate: true,
-    schema,
-    value: { defaultPreset },
+    schema: { uid: 1, refs: {} },
+    value: defaultPreset === undefined ? {} : { defaultPreset },
     base: { defaultPreset: 'read-only' },
     applies: 'live',
     secrets: [],
@@ -43,14 +44,20 @@ function ok<T>(value: T) {
 }
 
 /** The permission controller over a real mirror and one scripted context. */
-function permissionController(api: object) {
+function permissionController(api: object, catalog = catalogFace) {
   const ctx = { remote: { settings: api } } as never
   const mirror = new SettingsDescribeMirror(ctx)
-  return { mirror, controller: new PermissionPresetSettingsController(mirror, ctx, schema) }
+  return { mirror, controller: new PermissionPresetSettingsController(mirror, catalog, ctx) }
 }
 
 describe('permission settings store', () => {
-  it('derives dynamic options and host labels from the descriptor schema', () => {
+  it('treats an absent defaultPreset as the fresh-deployment unset state', () => {
+    const resolved = resolveDefault(view())
+    expect(resolved.currentValue).toBe('')
+    expect(resolved.options.map(option => option.id)).toEqual(['read-only', 'workspace-write'])
+  })
+
+  it('derives default options and labels from the permission catalog', () => {
     expect(resolveDefault(view('read-only'))).toEqual({
       currentValue: 'read-only',
       options: [
@@ -58,57 +65,16 @@ describe('permission settings store', () => {
         { id: 'workspace-write', label: 'Workspace' },
       ],
     })
-    const single = {
-      uid: 2,
-      refs: {
-        1: { type: 'const', meta: { description: '' }, value: 'read-only' },
-        2: { type: 'object', dict: { defaultPreset: 1 } },
-      },
-    }
-    expect(resolveDefault(view('read-only', 0, single))).toEqual({
-      currentValue: 'read-only',
-      options: [{ id: 'read-only', label: 'Read Only' }],
-    })
-    const undescribed = {
-      uid: 2,
-      refs: {
-        1: { type: 'const', meta: { description: 7 }, value: 'read-only' },
-        2: { type: 'object', dict: { defaultPreset: 1 } },
-      },
-    }
-    expect(resolveDefault(view('read-only', 0, undescribed)).options)
-      .toEqual([{ id: 'read-only', label: 'Read Only' }])
+    expect(resolveDefault(view('workspace-write')).currentValue).toBe('workspace-write')
   })
 
-  it('treats an absent defaultPreset as the fresh-deployment unset state', () => {
-    const resolved = resolveDefault({ ...view('read-only'), value: {} })
-    expect(resolved.currentValue).toBe('')
-    expect(resolved.options.map(option => option.id)).toEqual(['read-only', 'workspace-write'])
-  })
-
-  it('rejects malformed values and dynamic enums at the wire boundary', () => {
+  it('rejects malformed values and catalogs at the wire boundary', () => {
     expect(() => resolveDefault({ ...view('read-only'), value: { defaultPreset: 3 } }))
       .toThrow(/non-string defaultPreset value/)
-    expect(() => resolveDefault(view('read-only', 0, {
-      uid: 1, refs: { 1: { type: 'object', dict: {} } },
-    }))).toThrow(/no defaultPreset field/)
-    expect(() => resolveDefault(view('read-only', 0, {
-      uid: 2,
-      refs: {
-        1: { type: 'union' },
-        2: { type: 'object', dict: { defaultPreset: 1 } },
-      },
-    }))).toThrow(/advertises no presets/)
-    expect(() => resolveDefault(view('read-only', 0, {
-      uid: 4,
-      refs: {
-        1: { type: 'string' },
-        2: { type: 'const', value: 1 },
-        3: { type: 'union', list: [1, 2] },
-        4: { type: 'object', dict: { defaultPreset: 3 } },
-      },
-    }))).toThrow(/advertises no presets/)
-    expect(() => resolveDefault(view('missing'))).toThrow(/does not advertise/)
+    expect(() => resolveDefault({ ...view('danger-full-access') }))
+      .toThrow(/does not match any default preset/)
+    expect(() => permissionDefaultOf(view('read-only'), { ...CATALOG, defaultOptions: [] }))
+      .toThrow(/advertises no default presets/)
   })
 
   it('loads and writes defaultPreset with optimistic concurrency', async () => {
@@ -194,24 +160,20 @@ describe('permission settings store', () => {
     }).controller
     await thrown.load()
     expect(thrown.store.getSnapshot()).toMatchObject({ status: 'error', error: 'disconnected' })
+  })
 
-    const ctx = {
-      remote: {
-        settings: {
-          describe: () => Promise.resolve(ok({
-            writable: true, hasDocument: false, namespaces: [view('read-only')],
-          })),
-          mutate,
-        },
-      },
-    } as never
-    const mirror = new SettingsDescribeMirror(ctx)
-    const malformed = new PermissionPresetSettingsController(mirror, ctx, {
-      rehydrate: () => { throw 'schema disconnected' },
-    } as never)
-    await malformed.load()
-    expect(malformed.store.getSnapshot()).toMatchObject({
-      status: 'error', error: 'schema disconnected',
+  it('reports a failing catalog face as a row error', async () => {
+    const failingCatalog = {
+      snapshot: () => { throw new Error('catalog disconnected') },
+      subscribe: () => () => {},
+    }
+    const { controller } = permissionController({
+      describe: () => Promise.resolve(ok({ writable: true, hasDocument: false, namespaces: [view('read-only')] })),
+      mutate: vi.fn(),
+    }, failingCatalog)
+    await controller.load()
+    expect(controller.store.getSnapshot()).toMatchObject({
+      status: 'error', error: 'catalog disconnected',
     })
   })
 
@@ -220,7 +182,7 @@ describe('permission settings store', () => {
     const mutate = vi.fn()
     const ctx = { remote: { settings: { describe: describeCall, mutate } } } as never
     const mirror = new SettingsDescribeMirror(ctx, 'memory')
-    const controller = new PermissionPresetSettingsController(mirror, ctx, schema)
+    const controller = new PermissionPresetSettingsController(mirror, catalogFace, ctx)
     await controller.load()
     expect(controller.store.getSnapshot().status).toBe('unavailable')
     await controller.select('workspace-write')

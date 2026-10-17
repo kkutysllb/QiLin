@@ -1,11 +1,10 @@
 // @vitest-environment jsdom
 import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
-import { Context } from '@qilin-agent/kylin'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { bindSnapshotSelector, RemoteError } from '@qilin-agent/client-test-runtime'
 import type { SettingsNamespaceView } from '@qilin-agent/api-remotes/client'
-import { SettingsSchemaService } from '@qilin-agent/client-ui-settings/src/client/schema.ts'
+import type { PermissionCatalog } from '@qilin-agent/permission-presets/client'
 import { PermissionRow, type PermissionRowProps } from '../src/client/PermissionRow.tsx'
 import { zh } from '../src/client/locales.ts'
 import { SettingsDescribeMirror } from '@qilin-agent/client-ui-settings/src/client/settings-mirror.ts'
@@ -15,12 +14,29 @@ import { PermissionPresetSettingsController } from '../src/client/settings-store
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
 const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
 
-const schema = new SettingsSchemaService(new Context())
+const CATALOG: PermissionCatalog = {
+  options: [
+    { value: 'read-only', name: 'Read Only' },
+    { value: 'workspace-write', name: 'Workspace Write' },
+    { value: 'danger-full-access', name: 'Full access' },
+  ],
+  defaultOptions: [
+    { value: 'read-only', name: 'Read Only' },
+    { value: 'workspace-write', name: 'Workspace Write' },
+    { value: 'danger-full-access', name: 'Full access' },
+  ],
+  defaultPreset: 'read-only',
+}
+const catalogFace = { snapshot: () => CATALOG, subscribe: () => () => {} }
 
 /** Controller over a real mirror derived from the same scripted context. */
 function derivedController(remote: { settings: object }) {
   const ctx = { remote } as never
-  return new PermissionPresetSettingsController(new SettingsDescribeMirror(ctx), ctx, schema)
+  return new PermissionPresetSettingsController(
+    new SettingsDescribeMirror(ctx),
+    catalogFace,
+    ctx,
+  )
 }
 
 afterEach(cleanup)

@@ -1,9 +1,9 @@
 /**
  * Permission default-settings controller. The permission descriptor comes
- * from the shared describe mirror (the dynamic preset enum lives in the
- * namespace schema, which per-namespace scopes do not carry); writes target
- * only `defaultPreset`, carry the descriptor revision, and fold their answer
- * back into the mirror.
+ * from the shared describe mirror and the selectable presets from the shared
+ * permission catalog directory (the namespace schema carries a plain string,
+ * so it cannot enumerate the presets); writes target only `defaultPreset`,
+ * carry the descriptor revision, and fold their answer back into the mirror.
  */
 
 import type { Context as ClientContext } from '@qilin-agent/kylin'
@@ -11,9 +11,8 @@ import type { SettingsNamespaceView } from '@qilin-agent/api-remotes/client'
 import {
   createSnapshotStore, type SnapshotStore,
 } from '@qilin-agent/client-store'
-import type {
-  SchemaNode, SettingsDescribeFace, SettingsSchemaService,
-} from '@qilin-agent/client-ui-settings/client'
+import type { PermissionCatalog } from '@qilin-agent/permission-presets/client'
+import type { SettingsDescribeFace } from '@qilin-agent/client-ui-settings/client'
 import { displayPermissionPreset } from './presentation.ts'
 
 /** Permission's settings namespace on the host wire. */
@@ -37,19 +36,22 @@ export interface PermissionSettingsState {
   revision: number
 }
 
-interface ConstChoice {
-  type: string
-  value?: unknown
-  meta?: { description?: unknown }
+/** Catalog face the row follows: the shared directory's store, narrowed. */
+export interface PermissionCatalogFace {
+  /** Latest complete catalog, or null before the first read settles. */
+  snapshot(): PermissionCatalog | null
+  /** Subscribe to catalog publications; returns the disposer. */
+  subscribe(listener: () => void): () => void
 }
 
 /**
- * Read the dynamic preset enum encoded by the host's `defaultPreset` schema.
+ * Read the new-session default and its selectable presets from the shared
+ * catalog.
  * @param view - permission namespace descriptor.
- * @param schema - settings schema operations.
- * @returns current value and selectable options.
+ * @param catalog - the host's permission catalog.
+ * @returns current value (empty when never set) and selectable options.
  */
-export function permissionDefaultOf(view: SettingsNamespaceView, schema: SettingsSchemaService): {
+export function permissionDefaultOf(view: SettingsNamespaceView, catalog: PermissionCatalog): {
   currentValue: string
   options: PermissionDefaultOption[]
 } {
@@ -57,26 +59,14 @@ export function permissionDefaultOf(view: SettingsNamespaceView, schema: Setting
   // An absent defaultPreset is a fresh deployment, not a misconfiguration: the
   // host applies its own default until this row writes one.
   if (value !== undefined && typeof value !== 'string') throw new Error('permission settings has a non-string defaultPreset value')
-  const node = schema.nodeAtPath(schema.rehydrate(view.schema), ['defaultPreset'])
-  if (node === undefined) throw new Error('permission settings schema has no defaultPreset field')
-  const rawChoices = node.type === 'union'
-    ? (node.list as SchemaNode[] | undefined) ?? []
-    : [node]
-  const options = rawChoices.flatMap((candidate) => {
-    const choice = candidate as unknown as ConstChoice
-    if (choice.type !== 'const' || typeof choice.value !== 'string') return []
-    const described = choice.meta?.description
-    return [{
-      id: choice.value,
-      label: typeof described === 'string' && described.length > 0
-        ? displayPermissionPreset(choice.value, described)
-        : displayPermissionPreset(choice.value, choice.value),
-    }]
-  })
-  if (options.length === 0) throw new Error('permission settings schema advertises no presets')
+  const options = catalog.defaultOptions.map(option => ({
+    id: option.value,
+    label: displayPermissionPreset(option.value, option.name),
+  }))
+  if (options.length === 0) throw new Error('permission catalog advertises no default presets')
   if (value === undefined) return { currentValue: '', options }
   if (!options.some(option => option.id === value)) {
-    throw new Error('permission settings schema does not advertise its current preset')
+    throw new Error('permission settings value does not match any default preset')
   }
   return { currentValue: value, options }
 }
@@ -98,24 +88,29 @@ export class PermissionPresetSettingsController {
   private disposed = false
 
   /**
-   * @param describeFace - the shared mirror's read/fold face (descriptor and schema source).
+   * @param describeFace - the shared mirror's read/fold face (descriptor source).
+   * @param catalogFace - the shared catalog directory's store, narrowed.
    * @param ctx - the row plugin's context, whose `remote.settings` namespace
    * carries the `defaultPreset` write.
-   * @param schema - settings-owned schema operations.
    */
   constructor(
     private readonly describeFace: SettingsDescribeFace,
+    private readonly catalogFace: PermissionCatalogFace,
     private readonly ctx: ClientContext,
-    private readonly schema: SettingsSchemaService,
   ) {}
 
   /**
-   * Begin following the mirror (idempotent) and reflect its current answer.
+   * Begin following the mirror and the catalog (idempotent) and reflect their
+   * current answer.
    * @returns settlement once the snapshot reflects the mirror.
    */
   async load(): Promise<void> {
     if (this.disposed) return
-    this.following ??= this.describeFace.subscribe(() => { this.derive() })
+    this.following ??= (() => {
+      const stopDescriptor = this.describeFace.subscribe(() => { this.derive() })
+      const stopCatalog = this.catalogFace.subscribe(() => { this.derive() })
+      return () => { stopDescriptor(); stopCatalog() }
+    })()
     this.store.update((state) => {
       state.status = 'loading'
       state.error = null
@@ -202,7 +197,10 @@ export class PermissionPresetSettingsController {
       return
     }
     try {
-      const resolved = permissionDefaultOf(view, this.schema)
+      const catalog = this.catalogFace.snapshot()
+      // The first catalog read is still in flight; its publication re-derives.
+      if (catalog === null) return
+      const resolved = permissionDefaultOf(view, catalog)
       const { writable } = mirrored.view
       this.store.update((state) => {
         state.status = 'ready'

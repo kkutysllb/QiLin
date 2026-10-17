@@ -145,7 +145,12 @@ export function apply(ctx: ClientContext): void {
 
   // The shared ConfigForm mirror updates after document commits and reconnects.
   const controller = new PermissionPresetSettingsController(
-    ctx.configForms.describe(), ctx, ctx.settingsSchema)
+    ctx.configForms.describe(),
+    {
+      snapshot: () => catalog.store.getSnapshot().value,
+      subscribe: listener => catalog.store.subscribe(listener),
+    },
+    ctx)
   const load = (): Promise<void> => controller.load()
   const select = (preset: string): Promise<void> => controller.select(preset)
   const injected = (): PermissionRowInjected => ({
