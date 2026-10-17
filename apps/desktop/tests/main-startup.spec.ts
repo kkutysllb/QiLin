@@ -10,17 +10,17 @@ import { DESKTOP_IPC, type DesktopUpdateState } from '../src/ipc.ts'
 import { MANDATORY_IPC } from '../src/mandatory-update-ipc.ts'
 import { DesktopHostFatalError, DesktopHostUncleanExitError } from '../src/host-process.ts'
 import { en, zh } from '../src/locale.ts'
+import { accountSessionCookieName } from '../src/web-document.ts'
 import { DesktopUpdatePreparationError } from '../src/update-error.ts'
 import { writeCrashReport } from '../src/crash-report.ts'
 
 type InvokeEvent = { sender?: unknown; senderFrame: { url: string } }
 type InvokeHandler = (event: InvokeEvent, ...args: unknown[]) => unknown
 
-vi.mock('../src/web-document.ts', () => ({
+vi.mock('../src/web-document.ts', async importOriginal => ({
+  ...await importOriginal<typeof import('../src/web-document.ts')>(),
   authenticateWebHost: async () => 'test-cookie', serveWebDocument: vi.fn(), forwardWebRequest: vi.fn(),
   webCookieHeader: (_accountSession: unknown, deviceCookie: string) => deviceCookie,
-  accountSessionCookie: () => undefined,
-  ACCOUNT_SESSION_COOKIE_PREFIX: 'qilin-session-',
 }))
 // Report persistence has its own unit tests; here it resolves within microtasks so the fatal
 // dialog never outlives the test that triggered it.
@@ -297,7 +297,7 @@ vi.mock('electron', () => ({
   Menu: { setApplicationMenu: harness.menu.setApplicationMenu, buildFromTemplate: harness.menu },
   session: { defaultSession: {
     setPermissionCheckHandler: vi.fn(), setPermissionRequestHandler: vi.fn(), webRequest: { onBeforeSendHeaders: harness.socketHeaders },
-    cookies: { get: vi.fn(async () => []), set: vi.fn(async () => undefined), remove: vi.fn(async () => undefined) },
+    cookies: { get: vi.fn(async () => [{ name: accountSessionCookieName(), value: 'test-session', expirationDate: Math.floor(Date.now() / 1000) + 3600 }]), set: vi.fn(async () => undefined), remove: vi.fn(async () => undefined) },
   } },
   protocol: { registerSchemesAsPrivileged: vi.fn(), handle: harness.protocolHandle },
   powerMonitor: harness.powerMonitor,
@@ -1058,6 +1058,7 @@ describe('desktop main startup', () => {
     handler(details, callback)
     expect(callback).toHaveBeenLastCalledWith({ requestHeaders: {
       origin: `${protocol}//127.0.0.1:3080`, cookie: 'test-cookie', 'sec-fetch-site': 'same-origin',
+      'x-qilin-deployment-authority': '127.0.0.1',
     } })
     handler({ ...details, requestHeaders: { Origin: 'https://other.example' } }, callback)
     expect(callback).toHaveBeenLastCalledWith({ cancel: true })
