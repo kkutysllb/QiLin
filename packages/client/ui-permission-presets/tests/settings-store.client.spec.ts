@@ -80,8 +80,15 @@ describe('permission settings store', () => {
       .toEqual([{ id: 'read-only', label: 'Read Only' }])
   })
 
+  it('treats an absent defaultPreset as the fresh-deployment unset state', () => {
+    const resolved = resolveDefault({ ...view('read-only'), value: {} })
+    expect(resolved.currentValue).toBe('')
+    expect(resolved.options.map(option => option.id)).toEqual(['read-only', 'workspace-write'])
+  })
+
   it('rejects malformed values and dynamic enums at the wire boundary', () => {
-    expect(() => resolveDefault({ ...view('read-only'), value: {} })).toThrow(/no defaultPreset value/)
+    expect(() => resolveDefault({ ...view('read-only'), value: { defaultPreset: 3 } }))
+      .toThrow(/non-string defaultPreset value/)
     expect(() => resolveDefault(view('read-only', 0, {
       uid: 1, refs: { 1: { type: 'object', dict: {} } },
     }))).toThrow(/no defaultPreset field/)
@@ -91,7 +98,7 @@ describe('permission settings store', () => {
         1: { type: 'union' },
         2: { type: 'object', dict: { defaultPreset: 1 } },
       },
-    }))).toThrow(/does not advertise/)
+    }))).toThrow(/advertises no presets/)
     expect(() => resolveDefault(view('read-only', 0, {
       uid: 4,
       refs: {
@@ -100,7 +107,7 @@ describe('permission settings store', () => {
         3: { type: 'union', list: [1, 2] },
         4: { type: 'object', dict: { defaultPreset: 3 } },
       },
-    }))).toThrow(/does not advertise/)
+    }))).toThrow(/advertises no presets/)
     expect(() => resolveDefault(view('missing'))).toThrow(/does not advertise/)
   })
 

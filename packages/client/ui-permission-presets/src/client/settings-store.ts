@@ -54,7 +54,9 @@ export function permissionDefaultOf(view: SettingsNamespaceView, schema: Setting
   options: PermissionDefaultOption[]
 } {
   const value = (view.value as { defaultPreset?: unknown } | null)?.defaultPreset
-  if (typeof value !== 'string') throw new Error('permission settings has no defaultPreset value')
+  // An absent defaultPreset is a fresh deployment, not a misconfiguration: the
+  // host applies its own default until this row writes one.
+  if (value !== undefined && typeof value !== 'string') throw new Error('permission settings has a non-string defaultPreset value')
   const node = schema.nodeAtPath(schema.rehydrate(view.schema), ['defaultPreset'])
   if (node === undefined) throw new Error('permission settings schema has no defaultPreset field')
   const rawChoices = node.type === 'union'
@@ -71,7 +73,9 @@ export function permissionDefaultOf(view: SettingsNamespaceView, schema: Setting
         : displayPermissionPreset(choice.value, choice.value),
     }]
   })
-  if (options.length === 0 || !options.some(option => option.id === value)) {
+  if (options.length === 0) throw new Error('permission settings schema advertises no presets')
+  if (value === undefined) return { currentValue: '', options }
+  if (!options.some(option => option.id === value)) {
     throw new Error('permission settings schema does not advertise its current preset')
   }
   return { currentValue: value, options }

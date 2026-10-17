@@ -106,6 +106,25 @@ describe('PermissionRow', () => {
     expect(mutate).toHaveBeenCalledOnce()
   })
 
+  it('renders the fresh-deployment unset state with a localized hint', async () => {
+    const controller = derivedController({
+      settings: {
+        describe: () => Promise.resolve(ok({
+          writable: true, hasDocument: false,
+          namespaces: [{ ...view('read-only'), value: {} }],
+        })),
+        mutate: vi.fn(() => Promise.resolve(ok(view('workspace-write', 1)))),
+      },
+    })
+    mount(controller)
+    const button = await screen.findByRole('button', { name: zh['unset'] })
+    expect(screen.getByText(zh['unsetDescription'])).toBeDefined()
+    fireEvent.click(button)
+    expect(screen.getByRole('menuitem', { name: '工作区内修改' })).toBeDefined()
+    fireEvent.click(screen.getByRole('menuitem', { name: '工作区内修改' }))
+    await screen.findByRole('button', { name: '工作区内修改' })
+  })
+
   it('requires explicit acknowledgement before saving full access', async () => {
     const mutate = vi.fn(() => Promise.resolve(ok(view('danger-full-access', 1))))
     const controller = derivedController({
