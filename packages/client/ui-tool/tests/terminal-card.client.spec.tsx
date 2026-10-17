@@ -102,6 +102,10 @@ describe('terminalCardModel', () => {
     expect(terminalFailed(terminalCardModel(settled({
       content: [{ type: 'text', text: 'gone\n[killed by signal: SIGTERM]' }],
     }))!)).toBe(true)
+    // An explicitly missing exit code is a failure, not a clean settle.
+    expect(terminalFailed(terminalCardModel(settled({
+      content: [{ type: 'text', text: 'timed out\n[timed out after 100ms]\n[exit code: null]' }],
+    }))!)).toBe(true)
     expect(terminalFailed(terminalCardModel(settled())!)).toBe(false)
     expect(terminalFailed(terminalCardModel(running())!)).toBe(false)
   })
@@ -113,6 +117,9 @@ describe('terminalCardModel', () => {
     expect(terminalCardModel(settled({
       content: [{ type: 'text', text: '[exit code: 5]' }],
     }))?.card).toMatchObject({ output: '[exit code: 5]', exitCode: 0 })
+    expect(terminalCardModel(settled({
+      content: [{ type: 'text', text: 'timed out\n[timed out after 100ms]\n[exit code: null]' }],
+    }))?.card).toMatchObject({ output: 'timed out\n[timed out after 100ms]', exitCode: null })
   })
 
   it('resolves the raw workdir against the session workspace', () => {
