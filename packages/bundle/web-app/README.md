@@ -36,7 +36,7 @@ qilin --profile web --no-open --port 8080
 
 After startup you see a `qilin web:` line whose URL carries a fresh process token and names the application entry path (`/workspace`). Unless `--no-open` or an SSH session suppresses it, the default browser opens that URL, the transport exchanges the token for a signed cookie, and the browser lands on the console. A harness home with no account yet sends that first browser to the first-run document instead, and the console opens once an account session exists. You know it worked when the page loads and you can chat with the agent. Two failures to expect: if the frontend is not built, startup stops with a build hint (`pnpm run build` in a checkout); if the browser cannot be opened, a credential-free diagnostic prints to stderr while the server keeps running — open the printed startup URL yourself.
 
-**Settings → Models** displays **DeepSeek**, using `DEEPSEEK_API_KEY`. The default is `deepseek-official` / `deepseek-flash` (DeepSeek-V41-Flash). The [DeepSeek provider](../../llm/llm-deepseek-api-key/README.md) speaks Messages; the protocol is not configurable.
+**Settings → Models** displays **DeepSeek**, using `DEEPSEEK_API_KEY`. The default is `deepseek-official` / `deepseek-flash` (DeepSeek-V4.1-Flash). The [DeepSeek provider](../../llm/llm-deepseek-api-key/README.md) speaks Messages; the protocol is not configurable.
 
 Saved model selections override the composition default. Both protocols share `deepseek-official` and `llm-deepseek` settings, so switching preserves model selections and credential references. Endpoint overrides retain their values; the settings card lets users supply a compatible API address.
 

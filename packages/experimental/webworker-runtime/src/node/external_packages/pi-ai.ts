@@ -26,9 +26,10 @@ export const getSupportedThinkingLevels = notImplementedFail(MODULE, 'getSupport
 /** Context-overflow predicate (unavailable). */
 export const isContextOverflow = notImplementedFail(MODULE, 'isContextOverflow')
 
-/** Builtin provider ids of pi-ai 0.84.2, in catalog order. */
+/** Preview provider ids, in catalog order. This fixed subset must use valid installed pi-ai
+ * identifiers so the adapter can attach authentication metadata. */
 const BUILTIN_PROVIDER_IDS: readonly string[] = [
-  'amazon-bedrock', 'ant-ling', 'anthropic', 'azure-openai-responses', 'baseten', 'cerebras',
+  'amazon-bedrock', 'ant-ling', 'anthropic', 'azure', 'baseten', 'cerebras',
   'cloudflare-ai-gateway', 'cloudflare-workers-ai', 'deepseek', 'fireworks', 'github-copilot',
   'google', 'google-vertex', 'groq', 'huggingface', 'kimi-coding', 'minimax', 'minimax-cn',
   'mistral', 'moonshotai', 'moonshotai-cn', 'nvidia', 'openai', 'openai-codex', 'opencode',

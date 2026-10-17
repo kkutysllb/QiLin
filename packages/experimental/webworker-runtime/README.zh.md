@@ -54,6 +54,7 @@ kind: "package-library"
 - **worker 组合写明文会话日志**（`compression: 'none'` boot patch）：不带 Zstandard 编解码器，导出日志是 `.jsonl`，不会是 `.jsonl.zstd`。
 - **`node:dns/promises`、`node:vm`、`node:net`、`node:sqlite`、`node:worker_threads` 是结构化 stub**：每次调用在 console 报告拒绝并抛出。需要原生 DNS、真进程或真 realm 隔离的行在此无法运行。
 - **宿主包管理命令不可用**：`execa` 明确报告 worker host 不支持该调用；预览无法运行 pnpm 或安装原生依赖。
+- **pi-ai 模型请求不可用**：替换物暴露一组固定的已安装 provider 标识符且没有模型，适配器借此注册配置元数据。pi-ai 升级时这些标识符必须保持有效；推理入口会报出明确的 worker-host 拒绝。
 - **PTC Node 程序不可用**：process shim 用 `/qilin/bin/node` 表示可执行文件身份，使 provider 能够激活，但 Worker 既没有 Node 可执行文件，也没有 `stripTypeScriptTypes`。程序执行会在启动子进程前失败。
 - **Office 转换需要 Node Host**：LibreOffice kit 的替代模块以 `unavailable` 拒绝创建转换器。浏览器镜像排除 kit 及其引擎依赖；Office 预览提示转换不可用。
 - **文件 watcher 只能观察已挂载的 VFS**：镜像 seed 不产生事件，VFS 也没有符号链接或外部写入方。`persistent`、`ref()` 和 `unref()` 保留 Node API，但浏览器没有引用计数事件循环，因此这些接口不能控制 dedicated Worker 的生存期。
