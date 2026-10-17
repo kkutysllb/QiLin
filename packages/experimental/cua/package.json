@@ -1,0 +1,102 @@
+{
+  "name": "@qilin-agent/experimental-cua",
+  "description": "Shared Computer Use application objects, authorization, and logged tool execution",
+  "version": "3.1.6-rc.2",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
+    "directory": "packages/experimental/cua"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json",
+    "./api": {
+      "types": "./lib/types/api.d.ts",
+      "default": "./lib/api.js"
+    },
+    "./bridge": {
+      "types": "./lib/types/bridge.d.ts",
+      "default": "./lib/bridge.js"
+    },
+    "./native-client": {
+      "types": "./lib/types/native-client.d.ts",
+      "default": "./lib/native-client.js"
+    },
+    "./protocol": {
+      "types": "./lib/types/protocol.d.ts",
+      "default": "./lib/protocol.js"
+    }
+  },
+  "files": [
+    "lib/index.js",
+    "lib/api.js",
+    "lib/bridge.js",
+    "lib/native-client.js",
+    "lib/protocol.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/computer-use": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/subprocess": "workspace:*",
+    "@qilin-agent/user-questions": "workspace:*",
+    "@qilin-agent/attachment": "workspace:*",
+    "@qilin-agent/llm": "workspace:*"
+  },
+  "dependencies": {
+    "@qilin-agent/util-values": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~",
+    "zod": "^4.4.3",
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/atomic-write": "workspace:*"
+  },
+  "devDependencies": {
+    "@qilin-agent/working-directory": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-loop": "workspace:*",
+    "@qilin-agent/agent-loop-testkit": "workspace:*",
+    "@qilin-agent/attachment": "workspace:*",
+    "@qilin-agent/attachment-local": "workspace:*",
+    "@qilin-agent/computer-use": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/subprocess": "workspace:*",
+    "@qilin-agent/subprocess-local": "workspace:*",
+    "@qilin-agent/fs-local": "workspace:*",
+    "@qilin-agent/llm-deepseek": "workspace:*",
+    "@qilin-agent/ptc-runtime-node": "workspace:*",
+    "@qilin-agent/sandbox-local": "workspace:*",
+    "@qilin-agent/sandbox-policy": "workspace:*",
+    "sharp": "^0.35.5",
+    "@qilin-agent/ptc-runtime": "workspace:*",
+    "@qilin-agent/user-questions": "workspace:*",
+    "@qilin-agent/settings": "workspace:*",
+    "@qilin-agent/app-boot": "workspace:*",
+    "@qilin-agent/config-editor": "workspace:*",
+    "@qilin-agent/hmr": "workspace:*",
+    "@qilin-agent/kylin-plugin-timer": "workspace:~"
+  }
+}
