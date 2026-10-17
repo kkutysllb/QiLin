@@ -2,7 +2,7 @@
 
 - 日期：2026-10-17 · 决策依据：用户拍板「引入」（对齐计划 §0 决策 1）
 - 上游参照：dsh-v0.2.1-rc.1 的 packages/api/remote-access（src/index.ts 424 行 + types 137 + client 三件 340）+ gateway/access.ts 170 行 + typert 资源声明（remote-access.ts/remote-info.ts/tool-schema 生成）+ docs/upgrade-guide/v0.2.1-alpha.2/operator-connect
-- QiLin 基线：main 8dfafbeb55 + upgrade/upstream-0.2.1-rc.1 分支（B0–B5 已落）
+- QiLin 基线：main（3.1.6-rc.2）+ upgrade/upstream-0.2.1-rc.1 分支（B0–B5 已落）
 
 ## 1. 两侧模型对照
 
