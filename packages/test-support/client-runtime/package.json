@@ -60,6 +60,7 @@
   },
   "devDependencies": {
     "@qilin-agent/api-gateway": "workspace:*",
+    "@qilin-agent/api-remote-access": "workspace:*",
     "@qilin-agent/api-remotes": "workspace:*",
     "@qilin-agent/api-session-controller": "workspace:*",
     "@qilin-agent/api-terminal-controller": "workspace:*",
