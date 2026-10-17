@@ -427,6 +427,13 @@
     - id: ui-model-selection
       name: '@qilin-agent/client-ui-model-selection'
 
+    # Temporary release marker: the 1017 badge beside the official DeepSeek
+    # Flash labels in the composer model seat. Presentation only; the catalog
+    # names and request ids stay unchanged. Delete this row (and the package)
+    # when a structured release label replaces it.
+    - id: ui-deepseek-model-label-1017
+      name: '@qilin-agent/client-ui-deepseek-model-label-1017'
+
     - id: ui-permission
       name: '@qilin-agent/client-ui-permission-presets'
 

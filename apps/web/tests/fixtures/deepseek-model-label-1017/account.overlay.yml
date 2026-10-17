@@ -1,0 +1,9 @@
+# The replay catalog supplies the account route without account authentication or network I/O.
+# This fork composes no account stack, so this row is absent here and the entry is an
+# inert no-op kept for upstream parity.
+- id: llm-deepseek-account
+  disabled: true
+- id: agent-default-model
+  config:
+    provider: deepseek-official
+    model: deepseek-flash

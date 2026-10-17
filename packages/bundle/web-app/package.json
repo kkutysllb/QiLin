@@ -79,6 +79,7 @@
     "@qilin-agent/client-ui-layout": "workspace:*",
     "@qilin-agent/client-ui-message-feedback": "workspace:*",
     "@qilin-agent/client-ui-model-selection": "workspace:*",
+    "@qilin-agent/client-ui-deepseek-model-label-1017": "workspace:*",
     "@qilin-agent/client-ui-open-in-app": "workspace:*",
     "@qilin-agent/client-ui-permission-presets": "workspace:*",
     "@qilin-agent/client-ui-plan": "workspace:*",
