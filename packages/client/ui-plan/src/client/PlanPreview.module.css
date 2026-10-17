@@ -12,7 +12,7 @@
   padding: 8px 10px;
   margin: 0;
   border: 0.5px solid var(--qilin-alias-border-l1);
-  border-radius: 18px;
+  border-radius: var(--qilin-radius-lg);
   background: var(--plan-card-fill);
   color: var(--qilin-alias-label-primary);
   font: inherit;
@@ -24,7 +24,8 @@
 .card:hover { background: var(--plan-card-hover); }
 .card:focus-visible { outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary)); outline-offset: 3px; }
 .iconButton:focus-visible { outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary)); }
-.cardIcon { box-sizing: border-box; flex: none; display: grid; place-items: center; width: 40px; height: 40px; border: 0.5px solid var(--qilin-alias-border-l1); border-radius: 10px; background: var(--plan-card-fill); }
+.cardIcon { box-sizing: border-box; flex: none; display: grid; place-items: center; width: 40px; height: 40px; border: 0.5px solid var(--qilin-alias-border-l1); border-radius: 10px; background: color-mix(in srgb, var(--qilin-static-neutral-00) 50%, transparent); }
+:global(body[data-ds-dark-theme]) .cardIcon { background: color-mix(in srgb, var(--qilin-static-neutral-00) 5%, transparent); }
 .cardDetails { display: flex; flex: 1; flex-direction: column; gap: 2px; min-width: 0; }
 .cardTitle { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 500; line-height: 20px; }
 .cardDescription { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--qilin-alias-label-tertiary); font-size: 10px; line-height: 16px; }
