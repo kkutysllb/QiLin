@@ -11,7 +11,7 @@ import { join } from 'node:path'
 import { expect, it } from 'vitest'
 import Translator from '../src/index.ts'
 
-const enabled = process.env.DSH_TRANSLATION_DEEPSEEK_LIVE === '1' && (process.env.DEEPSEEK_API_KEY?.length ?? 0) > 0
+const enabled = process.env.QILIN_TRANSLATION_DEEPSEEK_LIVE === '1' && (process.env.DEEPSEEK_API_KEY?.length ?? 0) > 0
 
 it.skipIf(!enabled)('translates a small independent billed query with exact Flash and thinking off', async () => {
   const root = await mkdtemp(join(tmpdir(), 'qilin-paid-translation-live-'))
