@@ -14,8 +14,11 @@ const FALLBACK_WHEEL_LINE_PX = 16
  * @param stored - the durable content width, or {@link CONTENT_WIDTH_ADAPTIVE} for the layout clamp.
  * @returns the resolved content width in px (mirrors the CSS clamp). */
 function resolveContentWidth(columnWidth: number, stored: number): number {
+  /* A projected namespace that omits the field yields undefined at runtime;
+     treat it as the adaptive clamp rather than poisoning the CSS width. */
+  const preference = Number.isFinite(stored) ? stored : CONTENT_WIDTH_ADAPTIVE
   const max = Math.max(CONTENT_WIDTH_MIN, columnWidth - CONTENT_EDGE_BUDGET)
-  if (stored !== CONTENT_WIDTH_ADAPTIVE) return Math.min(Math.max(stored, CONTENT_WIDTH_MIN), max)
+  if (preference !== CONTENT_WIDTH_ADAPTIVE) return Math.min(Math.max(preference, CONTENT_WIDTH_MIN), max)
   return Math.max(680, Math.min(columnWidth * 0.64, 920))
 }
 
@@ -137,7 +140,7 @@ export function ConversationWidthControls({
     const column = container.offsetWidth
     target.style.setProperty('--qilin-conversation-column-width', `${column}px`)
     const stored = storedWidth.current
-    if (stored === CONTENT_WIDTH_ADAPTIVE) target.style.removeProperty('--qilin-chat-user-width')
+    if (!Number.isFinite(stored) || stored === CONTENT_WIDTH_ADAPTIVE) target.style.removeProperty('--qilin-chat-user-width')
     else target.style.setProperty('--qilin-chat-user-width', `${resolveContentWidth(column, stored)}px`)
   }, [])
 

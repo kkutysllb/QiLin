@@ -108,6 +108,9 @@ export class ConversationLayoutPolicy {
         return
       }
     }
+    /* A projected namespace serves the declared static Config; a preference the
+       projection does not declare arrives undefined and must not become NaN. */
+    if (typeof section.contentWidth !== 'number' || !Number.isFinite(section.contentWidth)) return
     if (this.contentWidth.getSnapshot() === section.contentWidth) return
     this.contentWidth.set(section.contentWidth)
   }

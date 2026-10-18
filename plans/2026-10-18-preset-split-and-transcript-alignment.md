@@ -49,6 +49,19 @@ kind: "plan"
 ### 修复
 移植 MovedDirectories + linkedTargets + ESM/CJS 路由重定向（仅迁移采纳相关），保持 QiLin 既有拒绝规则（替换自带包/本地覆盖仍需重启，上游同款）；核实新装 bundle 是否可能命中 `localPackageNames` 覆盖判定（若与上游有偏差则修到上游语义）；补 moved-directory 回归测试并跑 boot/hmr/plugin-manager 相关 spec。
 
-## 4. 验证
+## 4. 追加：会话正文拖宽手柄失效
+
+### 现象与根因
+消息面左右两侧的宽度手柄（`ConversationRoot` 的 `.widthHandle[data-side=left|right]`）不可见、不可拖。实测 DOM 中手柄存在但计算宽度为 0，因为 `--qilin-chat-user-width` / `--qilin-chat-content-width` 被写成 `NaNpx`。
+
+根因是设置投影移植（`4fe2c84942`）的回归：宽度偏好改由配置表单投影提供，但 `ui-conversation` 的静态 `Config` 只声明了 `busyEnter`，投影后的 section 不含 `contentWidth` → `ConversationLayoutPolicy` 读到 `undefined` 并写入 store → `resolveContentWidth` 的 clamp 产出 `NaN` → CSS `min(10px, calc((100% - NaNpx)/2 - 48px))` 归零。
+
+### 修复
+1. `ui-conversation/src/index.ts`：`contentWidth` 作为 `Volatile<number>` 纳入静态 `Config`（默认 0 = 自适应），投影的后端表单恢复服务该字段。
+2. `layout-policy.ts`：adopt 时对非 number 值直接返回，不把 `undefined` 灌进 store。
+3. `ConversationWidthControls.tsx`：`resolveContentWidth` 对非有限值回落到自适应；`publishWidths` 对非有限值不写 `--qilin-chat-user-width`。
+4. 测试：host 配置表单覆盖 `contentWidth`（默认 0、负值拒绝）、策略层「投影缺字段保持自适应」、组件层「非有限偏好不写 NaNpx」；实测桌面端 DOM 手柄宽 10px、内容轴 798px。
+
+## 5. 验证
 - 预设：agent-presets spec、e2e 脚手架/shipped-composition、目录生成器三绿、`verify-translation-pairing`/md-links。
 - 渲染：ui-chat spec、client face tsc、Web e2e（能跑则该三态的断言）、docs 门。

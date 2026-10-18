@@ -775,6 +775,17 @@ describe('ConversationRoot resident composer', () => {
     expect(root.style.getPropertyValue('--qilin-chat-user-width')).toBe('')
   })
 
+  it('keeps the adaptive clamp when the stored preference is not finite', () => {
+    const b = mount(sessionSnapshotOf(), undefined, undefined, { contentWidth: Number.NaN })
+    const content = b.view.container.querySelector('[data-conversation-content]') as HTMLElement
+    const root = content.parentElement as HTMLElement
+    Object.defineProperty(content, 'offsetWidth', { value: 1200, configurable: true })
+    act(() => { fireResize(content) })
+    // A non-finite preference leaves the CSS axis adaptive instead of reaching
+    // it as NaNpx.
+    expect(root.style.getPropertyValue('--qilin-chat-user-width')).toBe('')
+  })
+
   it('drag → persist → window clamp round-trip on a width handle', () => {
     const b = mount(sessionSnapshotOf())
     const content = b.view.container.querySelector('[data-conversation-content]') as HTMLElement

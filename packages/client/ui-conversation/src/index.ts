@@ -4,7 +4,7 @@ import type {} from '@qilin-agent/settings'
 import type { Volatile, Context } from '@qilin-agent/kylin'
 import type { BusyEnterBehavior } from './conversation-settings.ts'
 import z from '@qilin-agent/schemastery'
-import { BUSY_ENTER_FIELD } from './conversation-settings.ts'
+import { BUSY_ENTER_FIELD, CONTENT_WIDTH_FIELD } from './conversation-settings.ts'
 
 import { ConversationSettingsFields } from './conversation-settings.ts'
 
@@ -19,11 +19,14 @@ export {
 export interface Config {
   /** Enter key behavior while a turn is running. */
   busyEnter: Volatile<BusyEnterBehavior>
+  /** Transcript content width in px, or 0 for the layout's adaptive clamp. */
+  contentWidth: Volatile<number>
 }
 
 /** Live preferences projected to the browser. */
 export const Config = z.object({
   [BUSY_ENTER_FIELD]: ConversationSettingsFields[BUSY_ENTER_FIELD].volatile(),
+  [CONTENT_WIDTH_FIELD]: ConversationSettingsFields[CONTENT_WIDTH_FIELD].volatile(),
 })
 
 /** Host preferences are consumed through the configuration form projection.

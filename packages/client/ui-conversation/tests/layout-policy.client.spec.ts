@@ -56,6 +56,14 @@ describe('ConversationLayoutPolicy', () => {
     expect(host.set).toHaveBeenCalledOnce()
   })
 
+  it('keeps the adaptive clamp when the projected namespace omits the width field', () => {
+    const host = stubConfigForm<ConversationSettings>()
+    const policy = new ConversationLayoutPolicy(host.scope)
+    host.publish({ status: 'ready', value: { busyEnter: 'queue' } as ConversationSettings })
+    expect(policy.contentWidth.getSnapshot()).toBe(CONTENT_WIDTH_ADAPTIVE)
+    expect(Number.isFinite(policy.contentWidth.getSnapshot())).toBe(true)
+  })
+
   it('adopts a Host width without writing it back', () => {
     const host = stubConfigForm<ConversationSettings>()
     const policy = new ConversationLayoutPolicy(host.scope)
