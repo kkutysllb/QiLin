@@ -1465,6 +1465,43 @@ describe('profile resolution generation', { concurrent: false }, () => {
     expect(resolveFrom('added-lib', parent)).toBe(pathToFileURL(join(added, 'index.js')).href)
   })
 
+  it('keeps an installation mapping when the profile shadows the same version (K25)', async () => {
+    const f = fixture()
+    const first = await generationOf(f)
+    const registration = installRuntimeInterception(first)
+    registrations.push(registration)
+    const copy = join(f.root, 'profile-copy')
+    pkg(copy, 'resolution-lib', 1)
+    // Same major, newer minor: the real zod 4.6.7 vs installation 4.4.3 case.
+    file(join(copy, 'package.json'), JSON.stringify({
+      name: 'resolution-lib', version: '1.1.0', type: 'module',
+      exports: { import: './index.js', require: './index.cjs' },
+    }))
+    const parent = pathToFileURL(join(f.profile.dir, 'entry.mjs')).href
+    registration.replace({
+      ...first,
+      entries: first.entries.map(entry => entry.name === 'resolution-lib'
+        ? { ...entry, scope: 'profile', packageDir: copy, version: '1.1.0', declarer: join(copy, 'package.json') }
+        : entry),
+      localPackageNames: [...first.localPackageNames, 'resolution-lib'],
+    })
+    expect(registration.packageDir('resolution-lib', parent)).toBe(f.installed)
+    // A different major still needs the restart: the installation copy cannot serve it.
+    file(join(copy, 'package.json'), JSON.stringify({
+      name: 'resolution-lib', version: '2.0.0', type: 'module',
+      exports: { import: './index.js', require: './index.cjs' },
+    }))
+    expect(thrownError(() => {
+      registration.replace({
+        ...first,
+        entries: first.entries.map(entry => entry.name === 'resolution-lib'
+          ? { ...entry, scope: 'profile', packageDir: copy, version: '2.0.0', declarer: join(copy, 'package.json') }
+          : entry),
+        localPackageNames: [...first.localPackageNames, 'resolution-lib'],
+      })
+    })).toBeInstanceOf(ResolutionRestartRequired)
+  })
+
   it('rejects changing an existing package mapping without publishing it', async () => {
     const f = fixture()
     const second = join(f.root, 'second')
