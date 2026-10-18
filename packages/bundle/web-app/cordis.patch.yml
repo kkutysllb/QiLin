@@ -32,10 +32,12 @@
   config:
     # QILIN_TOOLS_MODE (native|ptc) overrides the process-wide fallback for
     # scopes that carry no tool-presentation choice of their own. It defaults to
-    # the shipped preset's PTC presentation so an unset environment behaves like
-    # the composition this bundle ships. The seam stays TEMPORARY upstream: a
+    # the shipped default preset's presentation: `standard` carries no
+    # tool-presentation row and inherits this native fallback, while `ptc`
+    # declares its own PTC row. An unset environment therefore behaves like the
+    # composition this bundle ships. The seam stays TEMPORARY upstream: a
     # per-session choice retires it.
-    mode: !!js process.env.QILIN_TOOLS_MODE ?? 'ptc'
+    mode: !!js process.env.QILIN_TOOLS_MODE ?? 'native'
 
 # ── web-only host rows, the transport layer, and the browser roster ─────────
 
@@ -437,15 +439,12 @@
     - id: ui-permission
       name: '@qilin-agent/client-ui-permission-presets'
 
-    # The agent-preset row in General settings: the default preset for
-    # sessions created later. Disabled: this deployment ships one preset and
-    # exposes no preset surface, so the picker, the settings section, the
-    # header label, and the create-plugin menu item are all withdrawn. The row
-    # stays so the web-app dependency declaration keeps passing
-    # verify-cordis-config; the plugin itself remains installable.
+    # The preset surface: the hero picker, the General-settings default and
+    # roster section, the session-header label, and the create-plugin menu item.
+    # The deployment ships two presets (standard and ptc), so the surface stays
+    # mounted; a deployment that ships one preset hides it with its own patch.
     - id: ui-agent-preset
       name: '@qilin-agent/client-ui-agent-preset'
-      disabled: true
     - id: ui-settings-session-log
       name: '@qilin-agent/client-ui-settings-session-log'
 
@@ -598,4 +597,4 @@
     - id: agent-presets
       name: '@qilin-agent/agent-presets'
       config:
-        default: ptc
+        default: standard

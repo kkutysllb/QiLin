@@ -17,7 +17,7 @@ description: "QiLin 通过可选 bundle `@qilin-agent/experimental-schedule-bund
 
 - 关闭 bundle 时，随发行的 Web profile 没有“自动化任务”页面、没有 Session 提醒目录、没有时钟读数、也没有提醒工具。页面与目录是缺席，而不是空状态。
 - 时钟行在此处是 profile 根行，因此顶层的 `- id: time-context` 覆盖能命中它。上游把时钟行声明在 Web 预设中，顶层覆盖匹配不到任何行。
-- QiLin 只交付一个预设 `ptc`。上游的 `standard`、`cordis` 与 `ptc` 预设声明时钟行与四个工具，`minimal` 两者都不声明。
+- 该版本中 QiLin 只交付一个预设 `ptc`。上游的 `standard`、`cordis` 与 `ptc` 预设声明时钟行与四个工具，`minimal` 两者都不声明。
 - 选择状态存放在 `qilin.profile.bundles`；在插件管理页关闭该 bundle 会移除它。
 
 [bundle README](../../../../packages/experimental/schedule-bundle/README.zh.md) 记录了本部署为何保留该 bundle，而不是把三行并入 Web 组合。

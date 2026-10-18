@@ -1164,7 +1164,7 @@ it('withdraws Auto on shipped Loader unload and does not restore migrated live s
   await writeFile(join(presetRoot, 'persistent-shell', 'agent.cordis.yml'), SHELL_FIXTURE_COMPOSITION)
   scaffold = await launchWebScaffold({
     ...AUTO_REVIEW_FIXTURE,
-    agentPresets: { roots: [{ path: presetRoot, trust: 'user' }], default: 'ptc' },
+    agentPresets: { roots: [{ path: presetRoot, trust: 'user' }], default: 'standard' },
   })
   const ctx = scaffold.ctx
   const autoEntry = [...ctx.loader.entries()].find(entry => entry.options.id === 'auto-review')
@@ -1232,9 +1232,12 @@ it('keeps the session chain alive with official plugins removed', async () => {
   const agent = ctx.agents.get(sessionId)
   if (agent === undefined) throw new Error('session/create did not publish the session')
   const names = ctx.tools.schemas(agent).map(schema => schema.name)
-  expect(names).toContain(RUN_CODE_NAME)
+  // The shipped default is `standard`, so the unnamed session presents the
+  // native tool surface rather than the PTC collapse.
+  expect(names).not.toContain(RUN_CODE_NAME)
+  expect(names).toContain('todo_write')
   expect(names.filter(name => name === 'web_search' || name === 'web_fetch')).toHaveLength(2)
   // The session the RPC published carries the composed preset in its own
   // header, so the chain that accepted the request is the one that runs it.
-  expect(ctx.sessions.get(sessionId)?.header.agentPreset).toBe('ptc')
+  expect(ctx.sessions.get(sessionId)?.header.agentPreset).toBe('standard')
 }, 120_000)

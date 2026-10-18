@@ -45,9 +45,9 @@ const LEAN_TOOLS = ['bash', 'sidebar_open', 'working_directory']
 /**
  * The lane's second composition: one shell tool, no skills loader, no goal
  * command, no compaction. Tests that need a composition OTHER than the shipped
- * one author this, because the deployment ships exactly one preset and what
- * those tests assert is the mechanism (per-session isolation, copy and delete,
- * the stored default), never the shipped tier a second preset used to provide.
+ * pair author this, because what those tests assert is the mechanism
+ * (per-session isolation, copy and delete, the stored default), never one of
+ * the shipped modes.
  */
 const LEAN_COMPOSITION = [
   '- id: tool-bash',
@@ -262,12 +262,14 @@ describe('the shipped Web composition', () => {
     }
   })
 
-  it('supplies the one shipped preset, and only it, from the system root', async () => {
+  it('supplies both shipped presets from the system root', async () => {
     const listed = await ctx.agentPresets.list()
 
     // The lane's own root contributes `lane-lean`, so the shipped roster is
-    // the system-trust subset rather than the whole list.
-    expect(listed.filter(preset => preset.trust === 'system').map(preset => preset.id)).toEqual(['ptc'])
+    // the system-trust subset rather than the whole list. The roster orders by
+    // the presets' declared `order`: standard (1) before ptc (2).
+    expect(listed.filter(preset => preset.trust === 'system').map(preset => preset.id))
+      .toEqual(['standard', 'ptc'])
     expect(ctx.agentPresets.defaultId).toBe('ptc')
   })
 
@@ -873,7 +875,7 @@ describe('a composition that configures its own preset roots', () => {
     ])
 
     const listed = await rootsCtx.agentPresets.list()
-    expect(listed.map(preset => preset.id).sort()).toEqual(['ptc', 'team-spec'])
+    expect(listed.map(preset => preset.id).sort()).toEqual(['ptc', 'standard', 'team-spec'])
     expect(listed.every(preset => preset.broken === undefined)).toBe(true)
     // The shipped root comes first: a configured directory claiming the
     // shipped id is shadowed, never the other way around.

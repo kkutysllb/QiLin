@@ -69,7 +69,7 @@ When you launch `qilin --profile web` over SSH, the URL line still prints but th
 
 ### Per-session agent setup
 
-Each browser session composes its own agent from the shipped preset (the `ptc` preset by default), instead of sharing one process-wide tool set. You can change the default preset or add your own presets under `$QILIN_HOME/.agent-presets`.
+Each browser session composes its own agent from a shipped preset (`standard` by default), instead of sharing one process-wide tool set. `standard` presents the native tool schemas; `ptc` presents the same tools through a generated SDK and adds the runtime-authoring capability. You can change the default preset or add your own presets under `$QILIN_HOME/.agent-presets`.
 
 -----
 
@@ -83,7 +83,7 @@ The bundle is one patch plus one runtime glue plugin. The storage stack and proj
 
 ### Patch semantics
 
-A patch replaces the targeted row's whole `config`, so each web row restates every key it owns: the persona prefix and suffix templates, the `QILIN_TOOLS_MODE` PTC fallback and its override, and the `session-query-sqlite` values on the base rows, then `insert` adds the web host rows, transport, and browser roster. The per-agent tool rows the base mounts process-wide are disabled here and the preset roster takes over; the reasoning for each host-plane versus preset-plane decision is inline in the patch.
+A patch replaces the targeted row's whole `config`, so each web row restates every key it owns: the persona prefix and suffix templates, the `QILIN_TOOLS_MODE` native fallback and its override, and the `session-query-sqlite` values on the base rows, then `insert` adds the web host rows, transport, and browser roster. The per-agent tool rows the base mounts process-wide are disabled here and the preset roster takes over; the reasoning for each host-plane versus preset-plane decision is inline in the patch.
 
 ### Readiness
 

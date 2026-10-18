@@ -126,7 +126,7 @@ Selection never depends on registration, config, or HMR order: a capability has 
 
 ## Fetch network policy
 
-The shipped Kylin, Code, and Standard presets expose `web_fetch` in every sandbox and approval mode without per-call confirmation. File sandbox presets do not govern Web network access. A deployment that needs confirmation must add a `tools/pre-execute` policy or disable fetch.
+The shipped `standard` and `ptc` agent presets expose `web_fetch` in every sandbox and approval mode without per-call confirmation. File sandbox presets do not govern Web network access. A deployment that needs confirmation must add a `tools/pre-execute` policy or disable fetch.
 
 The HTTP provider resolves each actual request, rejects non-public answers including private IPv4 reached through the active DNS64 prefix, pins the validated address set, and repeats enforcement for each same-origin redirect. A cross-origin redirect requires a new tool call and fresh public-address validation. These checks prevent SSRF access to non-public destinations but do not stop a model from sending data to a public URL.
 

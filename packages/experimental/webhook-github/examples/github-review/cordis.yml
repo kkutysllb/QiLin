@@ -11,7 +11,7 @@
         source: primary-github
         repository: deepseek-ai/deepseek-harness
         workspacePath: !!js process.env.QILIN_GITHUB_REVIEW_WORKSPACE ?? process.cwd()
-        agentPreset: ptc
+        agentPreset: standard
         permissionPreset: read-only
 
     - id: github-webhook-ingress

@@ -61,7 +61,7 @@ QiLin 是这些产品的引擎基座，因此本节记录引擎侧对账；逐�
 
 **Native。** Session 日志是每个模型可见事实的唯一记录，格式代次与迁移路径都在本仓（`packages/session/`）；`verify-persistence-formats`、`verify-persistence-catalog` 与 `verify-persistence-changes` 守住这些引用。
 
-**Minimal。** 唯一出厂预设运行每个会话，客户端不提供预设选择器，部署默认预设与进程级工具呈现兜底都是它，因此未配置的部署与它出货的组合行为一致。`apps/web/tests/first-run-metric.e2e.ts` 在隔离的全新 home 上量到：首屏无对话框、未打开任何配置面、编辑器可用前只有 1 个阻断决策（连接工作区）；连同发消息本身共 2 步，对照目标 2。同一路径的文案由 `composer-placeholder` 与 `startup-auto-selection` 覆盖。默认权限预设（`workspace-write`）同样无需用户选择。
+**Minimal。** 两个出厂预设覆盖产品的模式：`standard` 是部署默认并呈现原生工具 schema，`ptc` 经生成的 SDK 呈现同一批工具并附带运行时创作能力。进程级工具呈现兜底与默认预设一致，因此未配置的部署与它出货的组合行为一致；客户端的选择器只在新任务上二选一，而不暴露配置面。`apps/web/tests/first-run-metric.e2e.ts` 在隔离的全新 home 上量到：首屏无对话框、未打开任何配置面、编辑器可用前只有 1 个阻断决策（连接工作区）；连同发消息本身共 2 步，对照目标 2。同一路径的文案由 `composer-placeholder` 与 `startup-auto-selection` 覆盖。默认权限预设（`workspace-write`）同样无需用户选择。
 
 **Open。** 插件经公开契约从仓外接入而不改产品代码；移除官方插件后会话照常运行（`apps/web/tests/third-party-plugin.e2e.ts`、`apps/web/tests/shipped-composition.e2e.ts`）。
 

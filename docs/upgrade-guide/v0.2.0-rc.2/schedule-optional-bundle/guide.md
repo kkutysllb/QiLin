@@ -17,7 +17,7 @@ What a consumer observes differently from the upstream form:
 
 - With the bundle off, the shipped Web profile has no Automation tasks page, no Session reminder catalog, no clock reading, and no reminder tools. The page and the catalog are absent, not empty.
 - The clock row is a profile-root row here, so a top-level `- id: time-context` override reaches it. Upstream declares the clock row in Web presets, where a top-level override matches no row.
-- QiLin ships one preset, `ptc`. Upstream's `standard`, `cordis`, and `ptc` presets declare the clock row and the four tools; `minimal` declares neither.
+- At that release QiLin shipped one preset, `ptc`. Upstream's `standard`, `cordis`, and `ptc` presets declare the clock row and the four tools; `minimal` declares neither.
 - The selection lives in `qilin.profile.bundles`; switching the bundle off in Plugins removes it.
 
 The [bundle README](../../../../packages/experimental/schedule-bundle/README.md) records why this deployment keeps the bundle instead of folding the three rows into the Web composition.

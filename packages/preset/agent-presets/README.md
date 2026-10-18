@@ -27,7 +27,7 @@ Use `qilin-agent-presets` to give each session the tools, prompt sections, and s
 
 Mount this package in a composition that should give each agent session its own tools, prompt sections, and skills from a preset file. Every session names a preset — explicitly or through the configured default — and is composed from it; without the package, sessions fall back to whatever the host composition mounts.
 
-The shipped Web `ptc` preset includes [explicit file delivery](../../client/ui-deliverables/README.md#explicit-deliveries).
+The shipped Web `standard` and `ptc` presets include [explicit file delivery](../../client/ui-deliverables/README.md#explicit-deliveries).
 
 ### What a preset gives a session
 
@@ -176,7 +176,7 @@ These limits define when the roster is a poor fit or needs special operational c
 - **A superseded generation is never reclaimed** — sessions already joined keep the generation they run on, and the roster holds no join count that could tell when the last one left, so the whole subtree stays mounted until the process ends. The cost is per generation rather than per session, but it is not free: `qilin-skill-filesystem` watches its roots by default, so each edit-then-create cycle adds a live watcher set.
 - **A copy is never mounted to validate** — it is byte-identical to its source, so a source broken on disk yields a copy exactly as broken as the source; discovery's health check marks both rows on the next roster read rather than deferring the failure to a session start.
 - **Health asks what is installed, not what would import** — discovery proves the composition parses in the loader dialect, holds named rows, and that each row it can prove will start names a package present above the harness base or a file that exists; it never imports one, so a package whose own entry file is missing, a plugin that throws on apply, and one waiting forever for a service all still fail at the first session. `disabled` is the one entry field the Loader interpolates, so a row carrying an expression there is left unchecked rather than judged from the file.
-- **A copy is a snapshot that drifts** — upgrading the deployment does not update copies of shipped presets, and there is no patch semantics at this layer to express "the shipped preset plus one change"; that is also why the deployment ships one composition rather than one per capability tier.
+- **A copy is a snapshot that drifts** — upgrading the deployment does not update copies of shipped presets, and there is no patch semantics at this layer to express "the shipped preset plus one change"; that is also why the deployment ships a small fixed set — `standard` and `ptc` — rather than one composition per capability tier.
 - **Root scans are not watched** — every read hits the filesystem instead, which keeps the roster fresh but puts one `readdir` per root on each `list()`.
 
 <a id="dev-note"></a>
