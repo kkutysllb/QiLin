@@ -66,6 +66,18 @@
   border-right: 0.5px solid var(--qilin-alias-border-l1);
 }
 
+/* KStock patch (K26): 设置页 portal 在 .frame 之外，会盖住窗口 chrome 带；
+   平台标题栏形态下为导航栏让出 chrome 高度 + 30px 间隙（darwin 红绿灯走同一
+   条 48px 兜底；全屏时只留间隙）。产品口径：不出现「打开配置文件」与「×」。 */
+:global(html[data-platform='darwin']) .nav,
+:global([data-windows-titlebar]) .nav {
+  padding-top: calc(var(--dsh-frame-top-clearance, 48px) + 30px);
+}
+
+:global([data-fullscreen]) .nav {
+  padding-top: 30px;
+}
+
 /* OpenKylin 桌面壳：无框窗口的红绿灯中心压在 26px 光学线上（与侧栏 topStrip
    同一条线），设置页轨道不在这条线上——上游 22px 顶距让返回键顶边与灯带
    齐平，贴得过紧。darwin 下再让出 10px；纯 web 无 data-platform 不受影响。 */
@@ -215,8 +227,10 @@
 }
 
 .actions {
+  /* KStock patch (K26): 产品口径——设置页右上角不出现「打开配置文件」动作。
+     动作与关闭钮的注册/DOM 保留（壳与测试依赖槽位契约），用 CSS 从界面隐藏。 */
+  display: none;
   min-width: 0;
-  display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
@@ -236,6 +250,11 @@
   background: transparent;
   cursor: pointer;
   color: var(--qilin-alias-label-primary);
+}
+
+.close {
+  /* KStock patch (K26): 关闭路径由「返回工作区 / 遮罩 / Escape」覆盖，头部 × 隐藏。 */
+  display: none;
 }
 
 .close:hover {
