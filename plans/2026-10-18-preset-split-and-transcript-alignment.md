@@ -11,7 +11,7 @@ kind: "plan"
 ## 1. 预设恢复（普通模式 / 编码模式）
 
 ### 现状
-- 出厂预设已收敛为单一 `presets/ptc`（合并提交：`ddabbd99a4`「出厂预设收敛为单一 ptc，并入运行时创作能力」）：删除 `presets/standard` 与 `presets/cordis`，ptc 的 preset.yml 去掉显示名，部署默认（web-app patch `default: ptc`）与 e2e 脚手架钉到 ptc。
+- 出厂预设已收敛为单一 `presets/ptc`（合并提交「出厂预设收敛为单一 ptc，并入运行时创作能力」）：删除 `presets/standard` 与 `presets/cordis`，ptc 的 preset.yml 去掉显示名，部署默认（web-app patch `default: ptc`）与 e2e 脚手架钉到 ptc。
 - 合并前的 standard：`name: 标准模式`、`order: 1`，agent.cordis.yml 为「功能完整的编码 Agent」（标准工具面，非 PTC 呈现）。
 
 ### 目标
@@ -44,7 +44,7 @@ kind: "plan"
 插件页安装后提示「请重启 QiLin 使更改生效」（`package-moved`）。链路：`installBundle` → HMR `reconcileProfile` → app-boot `publish(packages)` → `ResolutionRouter.replace()` 对保留映射「目录变了就拒绝」→ `ResolutionRestartRequired`。
 
 ### 与上游差异（已核实）
-上游 rc.1/rc.2 的 resolver 在拒绝之外还有 `MovedDirectories`（旧目录→新目录的 spelling 重定向）与 `ResolutionRouter.linkedTargets`（link 目标 move 采纳），令重链/换目录安装被原地采纳、无需重启。QiLin 的 resolver 无这两块（`fb17313f68` 移植时缺失），因此 DSH 不重启而 QiLin 要求重启。
+上游 rc.1/rc.2 的 resolver 在拒绝之外还有 `MovedDirectories`（旧目录→新目录的 spelling 重定向）与 `ResolutionRouter.linkedTargets`（link 目标 move 采纳），令重链/换目录安装被原地采纳、无需重启。QiLin 的 resolver 无这两块（HMR 文件替换特性移植时缺失），因此 DSH 不重启而 QiLin 要求重启。
 
 ### 修复
 移植 MovedDirectories + linkedTargets + ESM/CJS 路由重定向（仅迁移采纳相关），保持 QiLin 既有拒绝规则（替换自带包/本地覆盖仍需重启，上游同款）；核实新装 bundle 是否可能命中 `localPackageNames` 覆盖判定（若与上游有偏差则修到上游语义）；补 moved-directory 回归测试并跑 boot/hmr/plugin-manager 相关 spec。
@@ -54,7 +54,7 @@ kind: "plan"
 ### 现象与根因
 消息面左右两侧的宽度手柄（`ConversationRoot` 的 `.widthHandle[data-side=left|right]`）不可见、不可拖。实测 DOM 中手柄存在但计算宽度为 0，因为 `--qilin-chat-user-width` / `--qilin-chat-content-width` 被写成 `NaNpx`。
 
-根因是设置投影移植（`4fe2c84942`）的回归：宽度偏好改由配置表单投影提供，但 `ui-conversation` 的静态 `Config` 只声明了 `busyEnter`，投影后的 section 不含 `contentWidth` → `ConversationLayoutPolicy` 读到 `undefined` 并写入 store → `resolveContentWidth` 的 clamp 产出 `NaN` → CSS `min(10px, calc((100% - NaNpx)/2 - 48px))` 归零。
+根因是设置投影移植（"project composed entries' static Config" 那笔）的回归：宽度偏好改由配置表单投影提供，但 `ui-conversation` 的静态 `Config` 只声明了 `busyEnter`，投影后的 section 不含 `contentWidth` → `ConversationLayoutPolicy` 读到 `undefined` 并写入 store → `resolveContentWidth` 的 clamp 产出 `NaN` → CSS `min(10px, calc((100% - NaNpx)/2 - 48px))` 归零。
 
 ### 修复
 1. `ui-conversation/src/index.ts`：`contentWidth` 作为 `Volatile<number>` 纳入静态 `Config`（默认 0 = 自适应），投影的后端表单恢复服务该字段。
