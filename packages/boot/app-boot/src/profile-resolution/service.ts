@@ -93,8 +93,9 @@ export class PluginPackages extends Service {
   /**
    * Publish a successor generation for this process and subsequently created Workers. Profile-scoped mappings may
    * leave the table; a retained profile mapping may change its version and declarer while its normalized directory and
-   * scope stay. Existing modules and Node caches stay intact, so a caller replaces the loaded modules of an upgrade
-   * in place separately.
+   * scope stay; a link may point to another real directory. Existing modules and Node caches stay intact, so a caller
+   * replaces the loaded modules of an upgrade in place separately, and files Node selected through a previous link
+   * target are redirected to the current one.
    * @param generation - fully constructed successor generation.
    * @throws when the profile scope changes; `ResolutionRestartRequired` when a retained mapping changes its
    * normalized directory or scope, an installation mapping changes its metadata or leaves, or a new local name

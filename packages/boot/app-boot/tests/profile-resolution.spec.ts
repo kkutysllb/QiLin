@@ -1568,6 +1568,168 @@ describe('profile resolution generation', { concurrent: false }, () => {
     expect(registration.packageDir('profile-lib', parent)).toBe(second)
   })
 
+  it('adopts a package relinked to another directory without a restart and redirects its old files', async () => {
+    const f = fixture()
+    const first = join(f.root, 'work', 'first')
+    const second = join(f.root, 'work', 'second')
+    pkg(first, 'moved-lib', 1)
+    pkg(second, 'moved-lib', 2)
+    // An importer outside every interception layer resolves natively through the link.
+    const outside = join(f.root, 'outside')
+    const link = join(outside, 'node_modules', 'moved-lib')
+    mkdirSync(dirname(link), { recursive: true })
+    symlinkSync(first, link, process.platform === 'win32' ? 'junction' : 'dir')
+    const parentPath = join(outside, 'entry.cjs')
+    file(parentPath, '')
+    const require = createRequire(parentPath)
+    // Resolving once records Node's decision for the first target.
+    expect(require.resolve('moved-lib')).toBe(join(realpathSync(first), 'index.cjs'))
+    const base = await generationOf(f)
+    const linked = { name: 'moved-lib', realPath: realpathSync.native(first) }
+    const registration = installRuntimeInterception({ ...base, linkedRoots: [linked] })
+    registrations.push(registration)
+    unlinkSync(link)
+    symlinkSync(second, link, process.platform === 'win32' ? 'junction' : 'dir')
+    // The new target is published in place; the process does not wait for a restart.
+    expect(() => {
+      registration.replace({ ...base, linkedRoots: [{ ...linked, realPath: realpathSync.native(second) }] })
+    }).not.toThrow()
+    // Node still selects files below the directory it resolved first, so the publication redirects them.
+    expect(require.resolve('moved-lib')).toBe(join(realpathSync.native(second), 'index.cjs'))
+    // A file only the previous target holds stays as Node selected it.
+    file(join(first, 'only-first.cjs'), '')
+    expect(require.resolve(join(first, 'only-first.cjs'))).toBe(join(realpathSync(first), 'only-first.cjs'))
+  })
+
+  it('selects the current target for a native lookup through a link Node resolved before it moved', async () => {
+    const f = fixture()
+    const first = join(f.root, 'work', 'first')
+    const second = join(f.root, 'work', 'second')
+    pkg(first, 'linked-lib', 1)
+    pkg(second, 'linked-lib', 2)
+    // An importer outside every interception layer resolves natively through the link.
+    const outside = join(f.root, 'outside')
+    const link = join(outside, 'node_modules', 'linked-lib')
+    mkdirSync(dirname(link), { recursive: true })
+    symlinkSync(first, link, process.platform === 'win32' ? 'junction' : 'dir')
+    const parentPath = join(outside, 'entry.mjs')
+    file(parentPath, '')
+    const parent = pathToFileURL(parentPath).href
+    const base = await generationOf(f)
+    const linked = { name: 'linked-lib', realPath: realpathSync.native(first) }
+    const registration = installRuntimeInterception({ ...base, linkedRoots: [linked] })
+    registrations.push(registration)
+    expect(fileURLToPath(resolveFrom('linked-lib', parent))).toBe(join(realpathSync(first), 'index.js'))
+    expect(createRequire(parentPath).resolve('linked-lib')).toBe(join(realpathSync(first), 'index.cjs'))
+    unlinkSync(link)
+    symlinkSync(second, link, process.platform === 'win32' ? 'junction' : 'dir')
+    registration.replace({ ...base, linkedRoots: [{ ...linked, realPath: realpathSync.native(second) }] })
+    expect(fileURLToPath(resolveFrom('linked-lib', parent))).toBe(join(realpathSync.native(second), 'index.js'))
+    expect(createRequire(parentPath).resolve('linked-lib')).toBe(join(realpathSync.native(second), 'index.cjs'))
+    // A file only the previous target has, or a builtin, stays as Node selected it.
+    file(join(first, 'only-first.cjs'), '')
+    expect(createRequire(parentPath).resolve(join(first, 'only-first.cjs'))).toBe(join(realpathSync(first), 'only-first.cjs'))
+    expect(resolveFrom('node:fs', parent)).toBe('node:fs')
+    expect(createRequire(parentPath).resolve('node:fs')).toBe('node:fs')
+    // An entry point's lookup has no importer.
+    expect(fileURLToPath(resolveFrom(pathToFileURL(join(link, 'index.js')).href, undefined)))
+      .toBe(join(realpathSync.native(second), 'index.js'))
+    const { Module } = (createRequire(import.meta.url)('node-addon-require-builtin') as {
+      requireBuiltin(id: string): unknown
+    }).requireBuiltin('internal/modules/cjs/loader') as {
+      Module: { _resolveFilename(request: string, parent: undefined, main: boolean): string }
+    }
+    expect(Module._resolveFilename(join(link, 'index.js'), undefined, false))
+      .toBe(join(realpathSync.native(second), 'index.js'))
+    // A file system without a native realpath, as a packed worker has, records the JavaScript spelling alone.
+    const native: unknown = Reflect.get(realpathSync, 'native')
+    Reflect.deleteProperty(realpathSync, 'native')
+    try {
+      registration.replace({ ...base, linkedRoots: [{ ...linked, realPath: realpathSync(second) }] })
+    } finally { Reflect.set(realpathSync, 'native', native) }
+    registration.replace({ ...base, linkedRoots: [{ ...linked, realPath: realpathSync.native(second) }] })
+    // A second move takes files of the first target straight to the latest one.
+    const third = join(f.root, 'work', 'third')
+    pkg(third, 'linked-lib', 3)
+    unlinkSync(link)
+    symlinkSync(third, link, process.platform === 'win32' ? 'junction' : 'dir')
+    registration.replace({ ...base, linkedRoots: [{ ...linked, realPath: realpathSync.native(third) }] })
+    expect(createRequire(parentPath).resolve('linked-lib')).toBe(join(realpathSync.native(third), 'index.cjs'))
+    // Another link's move leaves this link's relocation as it is, and the innermost previous directory decides.
+    const outer = { name: 'outer-lib', realPath: realpathSync.native(join(f.root, 'work')) }
+    const atThird = { ...linked, realPath: realpathSync.native(third) }
+    registration.replace({ ...base, linkedRoots: [atThird, outer] })
+    registration.replace({ ...base, linkedRoots: [atThird, { ...outer, realPath: realpathSync.native(f.root) }] })
+    expect(createRequire(parentPath).resolve(join(first, 'index.cjs'))).toBe(join(realpathSync.native(third), 'index.cjs'))
+    unlinkSync(link)
+    symlinkSync(second, link, process.platform === 'win32' ? 'junction' : 'dir')
+    registration.replace({ ...base, linkedRoots: [{ ...linked, realPath: realpathSync.native(second) }] })
+    // An importer below the previous target keeps resolving there, and pointing the link back ends the relocation.
+    expect(createRequire(join(first, 'index.cjs')).resolve('./index.js')).toBe(join(realpathSync(first), 'index.js'))
+    unlinkSync(link)
+    symlinkSync(first, link, process.platform === 'win32' ? 'junction' : 'dir')
+    registration.replace({ ...base, linkedRoots: [linked] })
+    expect(createRequire(parentPath).resolve('linked-lib')).toBe(join(realpathSync(first), 'index.cjs'))
+    // A link installed again as a directory at the same path keeps Node's cached link real path, which is relocated too.
+    unlinkSync(link)
+    pkg(link, 'linked-lib', 4)
+    registration.replace({ ...base, linkedRoots: [], entries: [...base.entries, {
+      name: 'linked-lib', packageDir: link, version: '4.0.0', declarer: join(link, 'package.json'), scope: 'profile',
+    }] })
+    expect(createRequire(parentPath).resolve('linked-lib')).toBe(join(realpathSync.native(link), 'index.cjs'))
+  })
+
+  it('reports a package whose link keeps its path but points to another directory', async () => {
+    const f = fixture()
+    const firstDir = join(f.root, 'source-a')
+    const secondDir = join(f.root, 'source-b')
+    pkg(firstDir, 'linked-lib', 1)
+    pkg(secondDir, 'linked-lib', 2)
+    const link = join(f.root, 'links', 'linked-lib')
+    mkdirSync(dirname(link), { recursive: true })
+    symlinkSync(firstDir, link, process.platform === 'win32' ? 'junction' : 'dir')
+    const base = await generationOf(f)
+    const entry = {
+      name: 'linked-lib', packageDir: link, version: '1.0.0',
+      declarer: join(link, 'package.json'), scope: 'profile' as const,
+    }
+    const generation = { ...base, entries: [...base.entries, entry], linkedRoots: [{ name: 'linked-lib', realPath: realpathSync(firstDir) }] }
+    const registration = installRuntimeInterception(generation)
+    registrations.push(registration)
+    unlinkSync(link)
+    symlinkSync(secondDir, link, process.platform === 'win32' ? 'junction' : 'dir')
+    // The mapping and the linked root report the same package once.
+    const relinked = { ...generation, linkedRoots: [{ name: 'linked-lib', realPath: realpathSync(secondDir) }] }
+    expect(() => { registration.replace(relinked) }).toThrow(/^profile resolution: replacing "linked-lib" requires a process restart$/u)
+  })
+
+  it('forgets a previous directory removed before the package moved again', async () => {
+    const f = fixture()
+    const first = join(f.root, 'work', 'first')
+    const second = join(f.root, 'work', 'second')
+    const third = join(f.root, 'work', 'third')
+    pkg(first, 'linked-lib', 1)
+    pkg(second, 'linked-lib', 2)
+    pkg(third, 'linked-lib', 3)
+    const outside = join(f.root, 'outside')
+    const link = join(outside, 'node_modules', 'linked-lib')
+    mkdirSync(dirname(link), { recursive: true })
+    symlinkSync(first, link, process.platform === 'win32' ? 'junction' : 'dir')
+    const base = await generationOf(f)
+    const linked = { name: 'linked-lib', realPath: realpathSync.native(first) }
+    const registration = installRuntimeInterception({ ...base, linkedRoots: [linked] })
+    registrations.push(registration)
+    unlinkSync(link)
+    symlinkSync(second, link, process.platform === 'win32' ? 'junction' : 'dir')
+    registration.replace({ ...base, linkedRoots: [{ ...linked, realPath: realpathSync.native(second) }] })
+    rmSync(second, { recursive: true, force: true })
+    unlinkSync(link)
+    symlinkSync(third, link, process.platform === 'win32' ? 'junction' : 'dir')
+    // The removed previous target keeps only its recorded spelling, so the next move still publishes.
+    registration.replace({ ...base, linkedRoots: [{ ...linked, realPath: realpathSync.native(third) }] })
+    expect(createRequire(join(outside, 'entry.cjs')).resolve('linked-lib')).toBe(join(realpathSync.native(third), 'index.cjs'))
+  })
+
   it('leaves non-package and out-of-scope metadata lookups to native resolution', async () => {
     const f = fixture()
     const outside = join(f.root, 'outside')
