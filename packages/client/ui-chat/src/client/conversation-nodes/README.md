@@ -192,7 +192,7 @@ A group collects adjacent process content within one Turn. Step-number changes a
 | `turn-process` | Retain the control as an independent root without ending the current group. |
 | Other visible Nodes owned by a Turn, including tools | Append the whole Node to the current group, creating a group if necessary. |
 | Node from another Turn or without a Turn | Break the same-Turn sequence. A Node without a Turn remains independent, including an unsplit Assistant. |
-| Hidden Nodes, system prompts, ordinary Context injection, and `permission` commands | Stay in the grouping input and end the preceding group. QiLin does not port the upstream infrastructure-row filter, so these remain ordered, hidden, independent entries instead of being removed before grouping. |
+| Hidden Nodes, system prompts, ordinary Context injection, and `permission` commands | Removed from the visible order by `isVisibleChatNode`, so they never enter the grouping input and neither join nor end a group. A Context carrying tool additions or removals keeps its visible notice row. |
 
 A reply contains non-blank text, an image, or another visible block; reasoning and tool-call protocol blocks do not count as a reply. An Assistant with neither non-blank reasoning nor reply content contributes no reference. Group creation requires a member, so metadata-only Turns create no empty group.
 

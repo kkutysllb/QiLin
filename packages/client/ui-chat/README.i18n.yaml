@@ -12,14 +12,14 @@
   en: 98d792dbc1b1975e
   zh: 96acf5c3a5165047
 /qilin-agent-client-ui-chat/table-of-contents:
-  en: e7894dec53e4732d
-  zh: cdf9d812077b1741
+  en: 080fd52cf1fab80e
+  zh: 58858ae0eb558f89
 /qilin-agent-client-ui-chat/reference-previews:
   en: d930954fb905ac4c
   zh: f7f635ccf869c31c
-/qilin-agent-client-ui-chat/system-prompt-row:
-  en: 939728341ffbff11
-  zh: 74ec4ec5ca1fbd60
+/qilin-agent-client-ui-chat/hidden-chat-rows:
+  en: 62f8dd2da22d06d8
+  zh: fbc0ffdc0167a61f
 /qilin-agent-client-ui-chat/turn-token-usage:
   en: a50c6802be7e4669
   zh: 31233a9bd23fd04b
@@ -27,11 +27,11 @@
   en: bb3e55382117d78f
   zh: 75a2b59c1a5cf9ce
 /qilin-agent-client-ui-chat/turn-process-folding:
-  en: 2613da418bd0f315
-  zh: eec77e864a1a3880
+  en: c0ea5b698147669b
+  zh: 04814d6fb165d36b
 /qilin-agent-client-ui-chat/grouped-rendering:
-  en: 4c82a04f84baa8e9
-  zh: 47d29e594ee0e660
+  en: c8d6c1610a8c1d60
+  zh: e056320040816405
 /qilin-agent-client-ui-chat/turn-triggers:
   en: 4a2ec4ccc2f92b7c
   zh: ac3f1402d0875ec4

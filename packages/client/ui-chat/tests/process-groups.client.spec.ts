@@ -618,16 +618,16 @@ describe('Definition-owned Chat process groups', () => {
     expect(h.builder.groupInput().order).toHaveLength(2)
   })
 
-  it('renders a permission command as its own row instead of grouping it with process work', () => {
+  it('keeps a permission command out of the transcript while the visible command keeps its group seat', () => {
     const h = harness([command('permission', 2), tool('a', 4), command('plan', 6)])
-    expect(h.store.entries.map(entry => entry.kind)).toEqual(['node', 'group'])
-    const group = h.store.entries[1]!
+    // The permission command keeps its Node but contributes no Chat row, so the
+    // Turn's only roots are the process group holding the Tool and plan command.
+    expect(h.store.entries.map(entry => entry.kind)).toEqual(['group'])
+    const group = h.store.entries[0]!
     if (group.kind !== 'group') throw new Error('expected group')
-    // The visible plan command shares the process group; the permission command
-    // never joins it, so its own row survives the same Turn.
     expect(h.store.groupSource(group.key).getSnapshot()?.members.map(member => member.key))
       .toEqual(['a', 'command:plan'])
-    expect(h.store.entries[0]).toEqual({ kind: 'node', key: 'command:permission' })
+    expect(h.snapshot.order).not.toContain('command:permission')
     expect(h.snapshot.nodes.get('command:permission')?.visibility).toBe('visible')
   })
 

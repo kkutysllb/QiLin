@@ -231,12 +231,11 @@ class TurnGroups {
     const split = (): void => { if (!closed) commit(true) }
     for (const [index, key] of keys.entries()) {
       const node = nodes[index] as ChatNode
-      // Infrastructure rows stay independent transcript rows: QiLin renders
-      // them as rows because the upstream infrastructure-row filter is not
-      // ported yet, so they must not fold into a process group.
       // Both Definitions retain the same message id; only its question presentation renders.
       if (node.kind === 'turn-trigger' && replies.has(node.id)) { split(); continue }
-      if (INDEPENDENT.has(node.kind) || !isVisibleChatNode(node)) {
+      // Infrastructure rows never reach this loop: the Chat visible order drops
+      // them through isVisibleChatNode before grouping reads the Turn.
+      if (INDEPENDENT.has(node.kind)) {
         split()
         emit(key, { kind: 'node', key })
         continue

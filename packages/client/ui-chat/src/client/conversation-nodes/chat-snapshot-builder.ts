@@ -464,11 +464,10 @@ function presentationPosition(
 export function orderedVisibleChatNodes(
   nodes: readonly ChatConversationViewNode[],
 ): ChatConversationViewNode[] {
-  // QiLin renders infrastructure rows (system prompts, context injections,
-  // commands) as transcript rows: the upstream infrastructure-row filter is not
-  // ported yet, so this target's visible order stays visibility-driven. The
-  // grouping Definition keeps those kinds out of process groups instead.
-  const visible = nodes.filter(node => node.visibility === 'visible')
+  // The visibility predicate owns the infrastructure filter: system prompts,
+  // ordinary Context injections, and permission commands never contribute a
+  // transcript row; a Context carrying tool additions/removals keeps its notice.
+  const visible = nodes.filter(node => isVisibleChatNode(node as ChatNode))
   const presentations = turnProcessPresentations(visible)
   return visible.sort((left, right) => {
     const leftPosition = presentationPosition(left, presentations)

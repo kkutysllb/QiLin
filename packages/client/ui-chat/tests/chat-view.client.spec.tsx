@@ -2056,7 +2056,7 @@ describe('ChatView', () => {
     expect(members[0]?.getAttribute('hidden')).toBeNull()
   })
 
-  it('folds injected Context in place with the rest of the Turn process', () => {
+  it('omits injected Context while folding and revealing the visible Turn process', () => {
     const h = makeHarness({
       nodes: [
         user(1, 'question'),
@@ -2071,26 +2071,32 @@ describe('ChatView', () => {
     const contextRow = view.container.querySelector<HTMLElement>('[data-chat-flow-kind="context"]')
     const members = [...view.container.querySelectorAll<HTMLElement>('[data-turn-process-member]')]
 
-    expect(members).toHaveLength(3)
-    expect(members.map(member => member.dataset.chatFlowKind)).toEqual(['context', 'assistant-step', 'tool-call'])
-    expect(contextRow).not.toBeNull()
-    expect(contextRow?.getAttribute('hidden')).toBe('until-found')
-    fireEvent(contextRow!, new Event('beforematch'))
-    expect(members.map(member => member.getAttribute('hidden'))).toEqual([null, null, null])
+    // The injected Context keeps its Node but contributes no row, so the fold
+    // owns only the Assistant and Tool evidence.
+    expect(members).toHaveLength(2)
+    expect(members.map(member => member.dataset.chatFlowKind)).toEqual(['assistant-step', 'tool-call'])
+    expect(contextRow).toBeNull()
+    expect(view.queryByText('runtime policy changed')).toBeNull()
+    expect(members.map(member => member.getAttribute('hidden'))).toEqual(['until-found', 'until-found'])
+    fireEvent(members[1]!, new Event('beforematch'))
+    expect(turnProcessControl(view.container)?.getAttribute('aria-expanded')).toBe('true')
+    expect(members.map(member => member.getAttribute('hidden'))).toEqual([null, null])
+    expect(view.container.querySelector('[data-chat-flow-kind="context"]')).toBeNull()
   })
 
-  it('keeps the first System prompt above User and outside Process through completion and expansion', () => {
+  it('omits the System prompt through Turn completion and process expansion', () => {
     const builder = new ChatSnapshotBuilder()
     const initial = withSystemPrompt(chatSnapshotFixture({
       nodes: [userInTurn(2, 'question', 1), context(3, 'runtime policy', 1)],
     }), builder)
     const h = makeHarness({ chat: initial }, { running: true })
     const view = render(<h.ChatView {...h.props} />)
-    const promptRow = view.container.querySelector<HTMLElement>('[data-chat-flow-kind="system-prompt"]')!
 
-    expect(renderedFlowKinds(view.container)).toEqual(['system-prompt', 'user', 'context'])
-    expect(promptRow.getAttribute('hidden')).toBeNull()
-    expect(promptRow.hasAttribute('data-turn-process-member')).toBe(false)
+    // The System prompt and the injected Context keep their Nodes but never
+    // reach the transcript: only routed Chat rows stay rendered.
+    expect(renderedFlowKinds(view.container)).toEqual(['user'])
+    expect(view.container.querySelector('[data-chat-flow-kind="system-prompt"]')).toBeNull()
+    expect(view.container.querySelector('[data-chat-flow-kind="context"]')).toBeNull()
 
     act(() => {
       h.set({
@@ -2105,10 +2111,9 @@ describe('ChatView', () => {
       })
     })
     expect(renderedFlowKinds(view.container)).toEqual([
-      'system-prompt', 'user', 'turn-process', 'context', 'assistant-step',
+      'user', 'turn-process', 'assistant-step',
     ])
-    expect(view.container.querySelector('[data-chat-flow-kind="system-prompt"]')).toBe(promptRow)
-    expect(promptRow.getAttribute('hidden')).toBeNull()
+    expect(view.container.querySelector('[data-chat-flow-kind="system-prompt"]')).toBeNull()
 
     act(() => {
       h.set({
@@ -2127,23 +2132,21 @@ describe('ChatView', () => {
     const toggle = turnProcessControl(view.container)!
     const members = [...view.container.querySelectorAll<HTMLElement>('[data-turn-process-member]')]
     expect(renderedFlowKinds(view.container)).toEqual([
-      'system-prompt', 'user', 'turn-process', 'context', 'assistant-step', 'assistant-step', 'turn-tail',
+      'user', 'turn-process', 'assistant-step', 'assistant-step', 'turn-tail',
     ])
     expect(toggle.getAttribute('aria-expanded')).toBe('false')
-    expect(promptRow.getAttribute('hidden')).toBeNull()
-    expect(promptRow.hasAttribute('data-turn-process-member')).toBe(false)
-    expect(members.map(member => member.dataset.chatFlowKind)).toEqual(['context', 'assistant-step'])
-    expect(members.map(member => member.getAttribute('hidden'))).toEqual(['until-found', 'until-found'])
+    expect(members.map(member => member.dataset.chatFlowKind)).toEqual(['assistant-step'])
+    expect(members.map(member => member.getAttribute('hidden'))).toEqual(['until-found'])
 
     fireEvent.click(toggle)
     expect(renderedFlowKinds(view.container)).toEqual([
-      'system-prompt', 'user', 'turn-process', 'context', 'assistant-step', 'assistant-step', 'turn-tail',
+      'user', 'turn-process', 'assistant-step', 'assistant-step', 'turn-tail',
     ])
-    expect(promptRow.getAttribute('hidden')).toBeNull()
-    expect(members.map(member => member.getAttribute('hidden'))).toEqual([null, null])
+    expect(view.container.querySelector('[data-chat-flow-kind="system-prompt"]')).toBeNull()
+    expect(members.map(member => member.getAttribute('hidden'))).toEqual([null])
   })
 
-  it('folds Context under the worked title when the Turn carries no timings', () => {
+  it('keeps the fallback title without a disclosure when only Context precedes the answer', () => {
     const h = makeHarness({
       nodes: [user(1, 'question'), context(2, 'runtime policy', 1), assistant(3, 'final answer', 1, 1)],
       turnEnds: new Map([[1, 4]]),
@@ -2152,18 +2155,21 @@ describe('ChatView', () => {
     const toggle = view.getByRole('button', { name: '已完成' })
     const contextRow = view.container.querySelector<HTMLElement>('[data-chat-flow-kind="context"]')
 
-    // No external process and no inline reasoning: this Turn has nothing to
-    // collapse, so the control is disabled, omits aria-expanded, and leaves
-    // the Context row to find-in-page.
+    // The injected Context contributes no foldable row, so this Turn has
+    // nothing to collapse: the control is disabled, omits aria-expanded, and
+    // no Context row reaches find-in-page.
     expect(toggle.hasAttribute('data-open')).toBe(false)
     expect(toggle.hasAttribute('disabled')).toBe(true)
     expect(toggle.getAttribute('aria-expanded')).toBeNull()
     expect(toggle.getAttribute('data-turn-process-tool-calls')).toBe('0')
     expect(toggle.getAttribute('data-turn-process-messages')).toBe('0')
     expect(toggle.getAttribute('data-turn-process-subagents')).toBe('0')
-    expect(contextRow?.getAttribute('hidden')).toBe('until-found')
+    expect(contextRow).toBeNull()
+    expect(view.container.querySelector('[data-turn-process-member]')).toBeNull()
+    expect(view.queryByText('runtime policy')).toBeNull()
     fireEvent.click(toggle)
-    expect(contextRow?.getAttribute('hidden')).toBe('until-found')
+    expect(view.container.querySelector('[data-chat-flow-kind="context"]')).toBeNull()
+    expect(view.getByText('final answer').closest('[hidden]')).toBeNull()
   })
 
   it('keeps ordinary spacing when steering separates the process control from its answer', () => {
@@ -2315,60 +2321,66 @@ describe('ChatView', () => {
   })
 
   it('folds when the process controller first appears off-tail', () => {
+    const process = reasoningAssistant(2, 'inspect the repository', 1, 1)
     const h = makeHarness({
-      nodes: [user(1, 'question'), context(2, 'runtime policy', 1)],
+      nodes: [user(1, 'question'), process],
       running: true,
     })
     const view = render(<h.ChatView {...h.props} />)
+    expect(turnProcessControl(view.container)).toBeNull()
     const scroller = view.container.querySelector('[class*="scroll"]') as HTMLDivElement
     Object.defineProperty(scroller, 'scrollHeight', { value: 1_000, writable: true })
     Object.defineProperty(scroller, 'clientHeight', { value: 300, writable: true })
-    const contextRow = view.container.querySelector<HTMLElement>('[data-chat-flow-kind="context"]')
+    const processRow = view.container.querySelector<HTMLElement>('[data-chat-node-key="fixture:assistant:2"]')!
+    expect(processRow.getAttribute('hidden')).toBeNull()
     readerScroll(scroller, 100)
 
     act(() => { h.set({
       nodes: [
         user(1, 'question'),
-        context(2, 'runtime policy', 1),
-        assistant(3, 'final answer', 1, 1),
+        process,
+        assistant(3, 'final answer', 1, 2),
       ],
       running: false,
       turnEnds: new Map([[1, 4]]),
     }) })
     const toggle = turnProcessControl(view.container)!
     expect(toggle.hasAttribute('data-open')).toBe(false)
-    expect(contextRow?.getAttribute('hidden')).toBe('until-found')
+    expect(processRow.getAttribute('hidden')).toBe('until-found')
     expect(view.getByLabelText('回到底部')).toBeTruthy()
   })
 
   it('keeps a focused process row visible when a live Turn completes', () => {
+    const process = reasoningAssistant(2, 'inspect the repository', 1, 1)
     const h = makeHarness({
-      nodes: [user(1, 'question'), context(2, 'runtime policy', 1)],
+      nodes: [user(1, 'question'), process],
       running: true,
     })
     const view = render(<h.ChatView {...h.props} />)
-    const contextToggle = view.getByRole('button', { name: '上下文注入' })
-    const contextRow = view.container.querySelector<HTMLElement>('[data-chat-flow-kind="context"]')
-    contextToggle.focus()
-    expect(document.activeElement).toBe(contextToggle)
+    const processRow = view.container.querySelector<HTMLElement>('[data-chat-node-key="fixture:assistant:2"]')!
+    const thinkToggle = within(processRow).getByRole('button', { name: /^思考/ })
+    thinkToggle.focus()
+    expect(document.activeElement).toBe(thinkToggle)
 
     act(() => { h.set({
       nodes: [
         user(1, 'question'),
-        context(2, 'runtime policy', 1),
-        assistant(3, 'final answer', 1, 1),
+        process,
+        assistant(3, 'final answer', 1, 2),
       ],
       running: false,
       turnEnds: new Map([[1, 4]]),
     }) })
     const processToggle = turnProcessControl(view.container)!
     expect(processToggle.hasAttribute('data-open')).toBe(true)
-    expect(contextRow?.getAttribute('hidden')).toBeNull()
-    expect(document.activeElement).toBe(contextToggle)
+    expect(processRow.getAttribute('hidden')).toBeNull()
+    expect(document.activeElement).toBe(thinkToggle)
 
-    // Nothing to collapse in this Turn, so the control stays disabled and the
-    // focused Context row keeps the reader's focus.
-    expect(processToggle.disabled).toBe(true)
+    // Collapsing moves focus to the control that owns the fold.
+    fireEvent.click(processToggle)
+    expect(document.activeElement).toBe(processToggle)
+    expect(processToggle.getAttribute('aria-expanded')).toBe('false')
+    expect(processRow.getAttribute('hidden')).toBe('until-found')
   })
 
   it('folds a completed Turn whose start is outside a partial history window', () => {
@@ -2383,14 +2395,14 @@ describe('ChatView', () => {
       hasMore: true,
     })
     const view = render(<h.ChatView {...h.props} />)
-    const contextRow = view.container.querySelector<HTMLElement>('[data-chat-flow-kind="context"]')
+    const processRow = view.getByText('working').closest('[data-chat-flow-kind="assistant-step"]') as HTMLElement
 
     // A loaded end is enough to fold a Turn: unloaded older history no longer
     // withholds the process disclosure.
     const toggle = turnProcessControl(view.container)!
     expect(toggle.getAttribute('aria-expanded')).toBe('false')
-    expect(contextRow?.getAttribute('hidden')).toBe('until-found')
-    expect(contextRow?.hasAttribute('data-turn-process-member')).toBe(true)
+    expect(processRow.getAttribute('hidden')).toBe('until-found')
+    expect(processRow.hasAttribute('data-turn-process-member')).toBe(true)
 
     act(() => { h.set({ hasMore: false }) })
     expect(turnProcessControl(view.container)?.getAttribute('aria-expanded')).toBe('false')
@@ -2475,7 +2487,7 @@ describe('ChatView', () => {
     expect(complete.nodes).toBe(partial.nodes)
     expect(complete.locations.getTurn(1)).not.toBe(beforeKeys)
     expect(complete.order.map(key => complete.nodes.get(key)?.kind)).toEqual([
-      'user', 'turn-process', 'context', 'assistant-step', 'assistant-step', 'turn-tail',
+      'user', 'turn-process', 'assistant-step', 'assistant-step', 'turn-tail',
     ])
 
     act(() => {
@@ -3826,7 +3838,7 @@ describe('single Turn process group', () => {
     const view = render(<h.ChatView {...h.props} />)
     const loaded = [...view.container.querySelectorAll<HTMLElement>('[data-chat-flow-kind]')]
     expect(loaded.map(row => row.dataset.chatFlowKind))
-      .toEqual(['user', 'user', 'turn-process', 'context', 'assistant-step', 'tool-call'])
+      .toEqual(['user', 'user', 'turn-process', 'assistant-step', 'tool-call'])
     // Only the collapse control is withheld while the window is incomplete; no
     // loaded content row is hidden by the Turn process guard.
     expect(loaded.filter(row => row.hasAttribute('data-turn-process-hidden'))
