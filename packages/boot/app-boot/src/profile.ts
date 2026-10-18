@@ -327,6 +327,16 @@ export const PROFILE_TEMPLATES: Record<string, ProfileTemplate> = {
   qilin: {
     bundles: ['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand'],
   },
+  // KStock patch (K22): 产品 profile 模板——产品 bundle 层归安装方所有（插件管理
+  // 不再把它们列为可移除的用户层），与 @kstock/web 末位最权威的口径一致。
+  kstock: {
+    bundles: [
+      '@qilin-agent/base',
+      '@qilin-agent/web-app',
+      '@qilin-agent/experimental-schedule-bundle',
+      '@kstock/web',
+    ],
+  },
   sdk: {
     bundles: ['@qilin-agent/base', '@qilin-agent/sdk-app'],
   },
