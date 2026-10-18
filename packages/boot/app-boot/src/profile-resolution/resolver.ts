@@ -194,6 +194,22 @@ function compileGeneration(generation: RuntimeResolution): CompiledGeneration {
   }
 }
 
+/**
+ * KStock patch (K25): whether a profile copy can keep using the installation-provided package
+ * instead of restarting. Same major (0.x: same minor) is treated as compatible: the plugin keeps
+ * running against the installation's module instance, exactly as it would have before install.
+ * A different major keeps the upstream rule and asks for the restart.
+ * @param installation - version the installation provides.
+ * @param local - version the profile copy declares.
+ * @returns true when the installation copy is accepted in place of the local one.
+ */
+function compatibleShadow(installation: string, local: string): boolean {
+  const a = installation.split('.')
+  const b = local.split('.')
+  if (a[0] === b[0]) return a[0] !== '0' || a[1] === b[1]
+  return false
+}
+
 function startsWithin(path: string, roots: readonly string[]): boolean {
   for (const root of roots) {
     if (path.startsWith(root)) return true
@@ -453,6 +469,10 @@ class ResolutionRouter {
       throw new Error('profile resolution: a generation cannot change its profile scope')
     }
     const rejected: string[] = []
+    // KStock patch (K25): 插件安装会在 profile 里落一份与安装闭包同版本的副本（zod、
+    // pi-ai 这类共享库几乎必然重名）。同版本副本继续用安装自带的那一份：映射不变，
+    // 不发重启；版本不同仍按原规则拒绝（那才是真正需要重启的替换）。
+    const shadowed = new Map<string, RuntimeResolutionEntry>()
     const moves: [string, string][] = []
     for (const [name, current] of this.current.entries) {
       const next = entries.get(name)
@@ -467,6 +487,13 @@ class ResolutionRouter {
         // A profile mapping that names another directory is the package installed again elsewhere. Its plugins stop
         // before the publication, and files Node selected through the previous directory load from the current one.
         moves.push([current.realDir, realDir])
+        continue
+      }
+      // Same-version shadow: keep the installation mapping (K25).
+      if (current.scope === 'installation' && next !== undefined
+        && next.scope === 'profile' && current.version !== undefined && next.version !== undefined
+        && compatibleShadow(current.version, next.version)) {
+        shadowed.set(name, current)
         continue
       }
       if (next === undefined
@@ -485,6 +512,14 @@ class ResolutionRouter {
       // A profile package installed again after its dependency was removed still
       // holds a profile mapping; reinstalling it does not shadow a shipped package.
       if (retained !== undefined && retained.scope === 'installation') {
+        const successor = entries.get(name)
+        // Same-version shadow is the K25 case above; a different version still needs the restart.
+        if (successor !== undefined && successor.scope === 'profile'
+          && retained.version !== undefined && successor.version !== undefined
+          && compatibleShadow(retained.version, successor.version)) {
+          shadowed.set(name, retained)
+          continue
+        }
         rejected.push(`profile resolution: overriding ${JSON.stringify(name)} locally requires a process restart`)
       }
     }
@@ -501,7 +536,20 @@ class ResolutionRouter {
     }
     // Rejection is atomic: a caller restores the rows it stopped and reports the restart the changes need.
     if (rejected.length > 0) throw new ResolutionRestartRequired(rejected.join('; '))
-    const next = compileGeneration(generation)
+    // Publish the generation with same-version shadows replaced by the installation entries they
+    // would have displaced, so no module is ever reloaded from a second copy (K25).
+    const published: RuntimeResolution = shadowed.size === 0 ? generation : {
+      ...generation,
+      localPackageNames: generation.localPackageNames.filter(name => !shadowed.has(name)),
+      entries: generation.entries.map((entry) => {
+        const kept = shadowed.get(entry.name)
+        return kept === undefined ? entry : {
+          name: kept.name, packageDir: kept.packageDir, version: kept.version,
+          declarer: kept.declarer, scope: kept.scope,
+        }
+      }),
+    }
+    const next = compileGeneration(published)
     for (const { name, realPath } of generation.linkedRoots) targets.set(name, realPath)
     this.linkedTargets = targets
     for (const [from, to] of moves) this.moved.record(from, to)
