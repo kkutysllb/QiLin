@@ -126,8 +126,8 @@ export interface ProfileResolutionRegistration {
    * package only after its plugins stop, and replace the loaded modules of an upgrade in place separately.
    * @param generation - fully constructed successor generation.
    * @throws when the profile scope changes; {@link ResolutionRestartRequired} when a retained installation mapping
-   * changes its directory, declarer, version, or scope or leaves, or a new local name overrides an existing mapping.
-   * Every rejected change is named in the message.
+   * changes its directory, declarer, version, or scope or leaves, or a new local name overrides a package the
+   * installation provides. Every rejected change is named in the message.
    */
   replace(generation: RuntimeResolution): void
   /** Restore the native resolver methods. Registrations dispose in reverse order. */
@@ -479,7 +479,12 @@ class ResolutionRouter {
     }
     const localPackageNames = new Set(generation.localPackageNames)
     for (const name of localPackageNames) {
-      if (!this.current.localPackageNames.has(name) && this.current.entries.has(name)) {
+      if (this.current.localPackageNames.has(name)) continue
+      const retained = this.current.entries.get(name)
+      // Only an installation-provided mapping makes a new local name an override.
+      // A profile package installed again after its dependency was removed still
+      // holds a profile mapping; reinstalling it does not shadow a shipped package.
+      if (retained !== undefined && retained.scope === 'installation') {
         rejected.push(`profile resolution: overriding ${JSON.stringify(name)} locally requires a process restart`)
       }
     }

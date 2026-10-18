@@ -1539,6 +1539,30 @@ describe('profile resolution generation', { concurrent: false }, () => {
     )).toBe(f.installed)
   })
 
+  it('reinstalls a profile package whose dependency was removed without a restart', async () => {
+    const f = fixture()
+    const first = await generationOf(f)
+    const registration = installRuntimeInterception(first)
+    registrations.push(registration)
+    const old = join(f.root, 'profile-old')
+    const next = join(f.root, 'profile-next')
+    pkg(old, 'profile-lib', 1)
+    pkg(next, 'profile-lib', 2)
+    const mapped = (packageDir: string, version: string): RuntimeResolution => ({
+      ...first,
+      localPackageNames: ['profile-lib'],
+      entries: [...first.entries.filter(entry => entry.name !== 'profile-lib'), {
+        name: 'profile-lib', packageDir, version, declarer: join(f.profile.dir, 'package.json'), scope: 'profile',
+      }],
+    })
+    registration.replace(mapped(old, '1.0.0'))
+    // Uninstalling the dependency drops the local name while the profile keeps its mapping.
+    registration.replace({ ...mapped(old, '1.0.0'), localPackageNames: [] })
+    // Reinstalling declares the name again at another directory. A retained
+    // profile mapping is not an override of a package the installation provides.
+    expect(() => { registration.replace(mapped(next, '2.0.0')) }).not.toThrow()
+  })
+
   it('publishes a profile mapping that changed in place and adopts one that moved to another directory', async () => {
     const f = fixture()
     const second = join(f.root, 'second')
