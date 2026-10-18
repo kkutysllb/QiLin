@@ -1,13 +1,11 @@
-// Web e2e scenario: agent-preset surfaces under a single shipped composition.
-// The lane overlay re-enables `ui-agent-preset`, which the shipped Web
-// composition disables for its single-preset surface.
+// Web e2e scenario: agent-preset surfaces over the two shipped presets.
 //
-// The deployment ships ONE preset, and the shipped surfaces follow from that:
-// ui-workspace composes no preset surface into the hero at all, so the only
-// occupant of that cell is the re-enabled `ui-agent-preset` seat the overlay
-// mounts; the settings section still reports the roster with the shipped
-// preset as the new-task default, and the session header still names the
-// composition a resumed session runs.
+// The deployment ships `standard` (普通模式, the new-task default) and `ptc`
+// (编码模式, which adds the runtime-authoring capability), so the shipped Web
+// composition mounts `ui-agent-preset` and the new-session hero carries its
+// chip. The settings section reports both rows with `standard` as the
+// new-task default, the chip stages either mode onto a blank session, and the
+// session header names the composition a resumed session runs.
 //
 // Zero model calls: no replay fixture mounts, so a stray stream fails loud.
 import { fileURLToPath } from 'node:url'
@@ -31,13 +29,10 @@ import {
 const SNAPSHOT_DIR = fileURLToPath(new URL('./expected/agent-preset-selection', import.meta.url))
 const HERO_EXPECTED = join(SNAPSHOT_DIR, 'hero.expected.md')
 const HEADER_EXPECTED = join(SNAPSHOT_DIR, 'header.expected.md')
-const OVERLAY = fileURLToPath(new URL('./agent-preset-selection.overlay.yml', import.meta.url))
 const MODE = webSnapshotMode()
 const SEED_ID = 'agent-preset-selection-web-e2e'
 const SEEDED_CHILD_ID = sessionId('agent-preset-selection-child')
 const SEEDED_CHILD_CREATED_AT = 1784974100100
-/** How the run-mode chip names itself; the label the shipping one renders. */
-const CHIP_ARIA = 'Run mode'
 
 /**
  * A settled one-turn session with no model content: this lane asserts chrome
@@ -182,10 +177,9 @@ describe('web e2e: agent-preset selection', () => {
   let tripwire: ReturnType<typeof watchConsole>
 
   beforeAll(async () => {
-    scaffold = await launchWebScaffold({
-      extraOverlayPath: OVERLAY,
-      agentPresets: { roots: [], default: 'ptc' },
-    })
+    // No roster patch: the lane rides the shipped scaffold default (`standard`)
+    // and the plugin's own shipped root.
+    scaffold = await launchWebScaffold()
     // A resumed session runs what it was created with; seeding one that
     // records `ptc` is what makes the header label a claim about the
     // session rather than an echo of the current default.
@@ -203,55 +197,57 @@ describe('web e2e: agent-preset selection', () => {
     await scaffold?.close()
   })
 
-  it('offers no mode selector while the deployment ships one composition', async () => {
+  it('offers both shipped modes over the ordinary default', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-agent-preset-hero'))
     await connectFreshWorkspace(page, scaffold.workspaceCwd)
     // The connect composed the blank session from the shipped default, and the
-    // chip that would offer a choice stays away: a selector over one entry is
-    // noise, so the hero is the workspace picker and nothing else.
-    await expect.poll(() => livePreset(scaffold), { timeout: 15_000 }).toBe('ptc')
-    await expect.poll(() => page.getByRole('button', { name: CHIP_ARIA }).count(), { timeout: 10_000 }).toBe(0)
+    // chip names it beside the workspace picker.
+    await expect.poll(() => livePreset(scaffold), { timeout: 15_000 }).toBe('standard')
+    const chip = page.getByRole('button', { name: 'Standard mode', exact: true })
+    await chip.waitFor({ timeout: 10_000 })
+
+    // Both shipped modes are selectable; the chip opens on the composed default.
+    await chip.click()
+    await expect.poll(() => page.getByRole('menuitem', { name: /Standard mode/ }).count(), { timeout: 10_000 }).toBe(1)
+    await expect.poll(() => page.getByRole('menuitem', { name: /Coding mode/ }).count(), { timeout: 10_000 }).toBe(1)
+    await page.keyboard.press('Escape')
 
     const snapshot = await captureStableAria(page, '[class*="heroWorkspaceRow"]', scaffold.workspaceCwd)
     await compareOrRefreshGolden(HERO_EXPECTED, snapshot, MODE)
     expect(snapshot).toContain('Choose workspace')
-    expect(snapshot).not.toContain(CHIP_ARIA)
   }, 60_000)
 
-  it('reports the shipped preset as the new-task default', async () => {
+  it('reports the ordinary preset as the new-task default beside the coding preset', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-agent-preset-settings'))
     const dialog = await openSettings(page, { menu: 'Settings', dialog: 'Settings' })
     await dialog.getByRole('button', { name: 'Agent presets' }).click()
-    // The roster is one shipped preset, localized through the shared display
-    // fold rather than by its file metadata, and the host names it the default
-    // new tasks compose from.
-    await dialog.getByRole('button', { name: 'New task default: Coding mode' }).waitFor({ timeout: 10_000 })
+    // The roster carries both shipped presets, localized through the shared
+    // display fold rather than by their file metadata, and the host names
+    // `standard` the default new tasks compose from.
+    await dialog.getByRole('button', { name: 'New task default: Standard mode' }).waitFor({ timeout: 10_000 })
+    await dialog.getByRole('button', { name: 'View: Coding mode' }).waitFor({ timeout: 10_000 })
+    // The coding preset documents the runtime-authoring capability it adds.
+    await dialog.getByText(/persistent plugin management, and composition authoring/).waitFor({ timeout: 10_000 })
     const toggle = dialog.getByRole('switch', { name: 'Allow switching Agent modes' })
     expect(await toggle.getAttribute('aria-checked')).toBe('true')
     await dialog.getByRole('button', { name: 'Close' }).last().click()
   }, 60_000)
 
-  it('hides the default control while switching is off and restores it when re-enabled', async () => {
-    onTestFailed(() => saveFailureShot(page, 'web-e2e-agent-preset-disabled'))
-    const dialog = await openSettings(page, { menu: 'Settings', dialog: 'Settings' })
-    await dialog.getByRole('button', { name: 'Agent presets' }).click()
-    const toggle = dialog.getByRole('switch', { name: 'Allow switching Agent modes' })
-    await toggle.click()
-    await expect.poll(() => toggle.getAttribute('aria-checked')).toBe('false')
-    await dialog.getByRole('button', { name: 'Default: Coding mode' }).waitFor({ timeout: 10_000 })
-    await dialog.getByRole('button', { name: 'Close' }).last().click()
-    // The switch controls availability only: the blank task keeps running the
-    // composition the host already composed.
+  it('stages either mode onto the blank session', async () => {
+    onTestFailed(() => saveFailureShot(page, 'web-e2e-agent-preset-stage'))
+    const standardChip = page.getByRole('button', { name: 'Standard mode', exact: true })
+    await standardChip.waitFor({ timeout: 10_000 })
+    await standardChip.click()
+    await page.getByRole('menuitem', { name: /Coding mode/ }).click()
+    // The host recomposes the still-blank session from `ptc`.
     await expect.poll(() => livePreset(scaffold), { timeout: 15_000 }).toBe('ptc')
 
-    const reopened = await openSettings(page, { menu: 'Settings', dialog: 'Settings' })
-    await reopened.getByRole('button', { name: 'Agent presets' }).click()
-    const reopenedToggle = reopened.getByRole('switch', { name: 'Allow switching Agent modes' })
-    await reopenedToggle.click()
-    await expect.poll(() => reopenedToggle.getAttribute('aria-checked')).toBe('true')
-    await reopened.getByRole('button', { name: 'New task default: Coding mode' }).waitFor({ timeout: 10_000 })
-    await reopened.getByRole('button', { name: 'Close' }).last().click()
-  })
+    const codingChip = page.getByRole('button', { name: 'Coding mode', exact: true })
+    await codingChip.waitFor({ timeout: 10_000 })
+    await codingChip.click()
+    await page.getByRole('menuitem', { name: /Standard mode/ }).click()
+    await expect.poll(() => livePreset(scaffold), { timeout: 15_000 }).toBe('standard')
+  }, 60_000)
 
   it('labels a resumed session with the preset it was created under', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-agent-preset-header'))

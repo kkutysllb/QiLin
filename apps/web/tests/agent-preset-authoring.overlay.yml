@@ -11,11 +11,3 @@
 - id: settings-controller
   config:
     nativeOpen: false
-# The shipped Web composition disables `ui-agent-preset` because this
-# deployment ships one preset. This lane
-# tests the settings section's authoring surfaces, so it re-enables the row
-# the way a deployment that ships the section would; the explicit flag keeps
-# the restatement correct under either patch-field semantics.
-- id: ui-agent-preset
-  name: '@qilin-agent/client-ui-agent-preset'
-  disabled: false

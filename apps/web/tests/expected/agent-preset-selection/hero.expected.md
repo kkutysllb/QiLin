@@ -1,2 +1,2 @@
 - button "Choose workspace": workspace
-- button "Coding mode"
+- button "Standard mode"

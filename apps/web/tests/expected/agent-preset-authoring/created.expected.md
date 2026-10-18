@@ -7,6 +7,7 @@
     - button "内置插件"
     - button "MCP 服务器"
     - button "Agent 预设"
+    - button "用量"
     - button "已归档会话"
     - button "技能"
     - button "关于 QiLin"
@@ -21,8 +22,14 @@
   - heading "内置" [level=3]
   - list:
     - listitem:
-      - 'button "新任务默认: 编码模式" [disabled] [pressed]':
-        - text: 编码模式 内置 新任务默认 功能完整的编码 Agent，但默认不提供 workflow 工具；其他工具经生成的 SDK 呈现，让模型用一个 TypeScript 程序组合多步操作。
+      - 'button "新任务默认: 普通模式" [disabled] [pressed]':
+        - text: 普通模式 内置 新任务默认 功能完整的编码 Agent，具备标准工具面：文件编辑、Shell、文件与网页检索、Skills、计划、目标、子代理与工作流。
+        - code: standard
+      - 'button "查看: 普通模式"': 查看
+      - 'button "复制: 普通模式"': 复制
+    - listitem:
+      - 'button "设为默认: 编码模式"':
+        - text: 编码模式 内置 功能完整的编码 Agent：工具经生成的 SDK 调用（PTC），并具备运行时自省、持久化插件管理与组合创作能力。
         - code: ptc
       - 'button "查看: 编码模式"': 查看
       - 'button "复制: 编码模式"': 复制

@@ -52,7 +52,7 @@ describe('web e2e: agent-preset authoring is a host-side copy', () => {
       agentPresets: {
         // The shipped root is the plugin's own, prepended before this.
         roots: [{ path: userRoot, trust: 'user' }],
-        default: 'ptc',
+        default: 'standard',
       },
     })
     browser = await chromium.launch()
