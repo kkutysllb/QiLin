@@ -2496,6 +2496,53 @@ describe('built-in conversation node Definitions', () => {
     expect(node(snapshot(failed), 'turn-error')).toBeDefined()
   })
 
+  it('renders a terminal notice for a restart interruption and a sign-out cancellation', () => {
+    const interrupted = assembler([
+      at(1, 'turn/start', { turn: 1 }),
+      at(2, 'step/start', { turn: 1, step: 1 }),
+      at(3, 'step/end', { turn: 1, step: 1 }),
+      at(4, 'turn/end', { turn: 1, reason: { kind: 'interrupted' } }),
+    ])
+    expect(node(snapshot(interrupted), 'turn-error')?.data).toMatchObject({
+      kind: 'turn-error',
+      seq: 4,
+      turn: 1,
+      step: 1,
+      code: 'INTERRUPTED',
+      message: 'The QiLin process exited before this turn finished.',
+    })
+
+    const signedOut = assembler([
+      at(1, 'turn/start', { turn: 1 }),
+      at(2, 'turn/end', {
+        turn: 1,
+        reason: { kind: 'aborted', reason: { kind: 'hook', reason: 'deepseek-account/signed-out' } },
+      }),
+    ])
+    expect(node(snapshot(signedOut), 'turn-error')?.data).toMatchObject({
+      kind: 'turn-error',
+      seq: 2,
+      turn: 1,
+      code: 'ACCOUNT_SIGNED_OUT',
+      message: 'Stopped because you signed out of DeepSeek.',
+    })
+
+    const cancelled = assembler([
+      at(1, 'turn/start', { turn: 1 }),
+      at(2, 'turn/end', { turn: 1, reason: { kind: 'aborted', reason: { kind: 'user' } } }),
+    ])
+    expect(node(snapshot(cancelled), 'turn-error')).toBeUndefined()
+
+    const hookCancelled = assembler([
+      at(1, 'turn/start', { turn: 1 }),
+      at(2, 'turn/end', {
+        turn: 1,
+        reason: { kind: 'aborted', reason: { kind: 'hook', reason: 'session/shutdown' } },
+      }),
+    ])
+    expect(node(snapshot(hookCancelled), 'turn-error')).toBeUndefined()
+  })
+
   it('keeps the max-tokens notice when the window starts after the owning turn/start', () => {
     const value = assembler([
       at(9, 'turn/end', { turn: 3, reason: { kind: 'max-tokens' } }),

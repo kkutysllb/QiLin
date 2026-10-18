@@ -122,6 +122,11 @@ function latestAnswer(turn: TurnLocation): Readonly<FinalAssistantChatData> | nu
 }
 
 function processSpec(state: TurnProcessState, turn: TurnLocation): TurnProcessSpec | null {
+  // The control anchors on recorded process evidence only. The upstream
+  // `?? turn.start?.seq` fallback synthesizes a control for a Turn with none,
+  // which would also reclassify its pre-control rows as opening inputs; Chat's
+  // opening-input anchor and the unported infrastructure-row filter share that
+  // decision, so it lands with the group-tree alignment.
   const controlAnchorSeq = state.controlAnchorSeq
   if (controlAnchorSeq === undefined) return null
   const answer = latestAnswer(turn)
@@ -140,7 +145,8 @@ function processSpec(state: TurnProcessState, turn: TurnLocation): TurnProcessSp
       controlAnchorSeq,
       // A Turn that stopped or failed without an answer still owns its opening
       // evidence: injections that arrived before the control fold with the rest of
-      // the process instead of leaking beside the 已停止 mark.
+      // the process instead of leaking beside the 已停止 mark. Upstream starts this
+      // range at the control instead; QiLin folds the Turn start with it.
       processStartSeq: turn.start?.seq ?? controlAnchorSeq,
       answerAnchorSeq: null,
       answerStep: null,

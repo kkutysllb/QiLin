@@ -1931,6 +1931,28 @@ describe('ChatView', () => {
     ])
   })
 
+  it('renders every localized terminal failure and hides only the interruption code', () => {
+    const h = makeHarness({
+      nodes: [
+        user(1, 'try'),
+        { ...turnError(2), code: 'INTERRUPTED', message: 'The QiLin process exited before this turn finished.' },
+        { ...turnError(3), code: 'ACCOUNT_SIGNED_OUT', message: 'Stopped because you signed out of DeepSeek.' },
+        { ...turnError(4), code: 'ACCOUNT_SIGN_IN_REQUIRED' },
+        { ...turnError(5), code: 'QUOTA' },
+        { ...turnError(6), code: 'ACCOUNT_QUOTA' },
+      ],
+    })
+    const view = render(<h.ChatView {...h.props} />)
+    const statuses = view.getAllByRole('status')
+    expect(statuses.map(status => status.textContent)).toEqual([
+      '任务已停止QiLin 进程在本轮完成前退出（例如被强制结束、崩溃或关闭超时），重新启动后本轮已中止。未完成的工具调用结果未知。',
+      '任务已停止任务已因退出 DeepSeek 登录而停止。ACCOUNT_SIGNED_OUT',
+      '本轮运行失败请先登录 DeepSeek，并确认请求地址支持账号认证。ACCOUNT_SIGN_IN_REQUIRED',
+      '本轮运行失败当前请求的额度已用尽QUOTA',
+      '本轮运行失败当前请求的额度已用尽ACCOUNT_QUOTA',
+    ])
+  })
+
   it('renders the max-tokens notice with localized guidance, distinct from turn errors', () => {
     const h = makeHarness({ nodes: [user(1, 'try'), assistant(2, 'truncated'), turnMaxTokens(3)] })
     const view = render(<h.ChatView {...h.props} />)
@@ -3742,7 +3764,7 @@ describe('single Turn process group', () => {
     return { h }
   }
 
-  it('folds a stopped multi-Step Turn behind one summary header', () => {
+  it('keeps a stopped multi-Step Turn visible behind one summary header', () => {
     const { h } = stoppedTurn()
     const view = render(<h.ChatView {...h.props} />)
     // (a) One group per Turn however many Steps the Turn produced.
@@ -3752,15 +3774,21 @@ describe('single Turn process group', () => {
     expect(members.map(row => row.dataset.chatFlowKind))
       .toEqual(['assistant-step', 'tool-call', 'assistant-step', 'tool-call'])
     expect(members.every(row => row.hasAttribute('data-turn-process-member'))).toBe(true)
-    // (b) The stopped Turn folds by default and its header carries the whole
-    // Turn's summary, not one Step's.
-    expect(roots[0]!.getAttribute('hidden')).toBe('until-found')
+    // (b) A stopped Turn stays visible: whole-Turn hiding is unavailable, and its
+    // header carries the whole Turn's summary, not one Step's.
+    expect(roots[0]!.hasAttribute('hidden')).toBe(false)
     const header = roots[0]!.querySelector<HTMLElement>('[data-process-activity]')!
     expect(header.textContent).toContain(h.props.t('message.stepProcess.done.read'))
     expect(header.textContent).toContain(h.props.t('message.stepProcess.done.commands'))
-    // The single Turn control reveals the folded process.
-    fireEvent.click(turnProcessControl(view.container)!)
-    expect(roots[0]!.hasAttribute('hidden')).toBe(false)
+    // The Turn control summarizes the stop instead of offering a collapse action.
+    const control = turnProcessControl(view.container)!
+    expect(control.disabled).toBe(true)
+    expect(control.textContent).toContain(h.props.t('message.stopped'))
+    // The group's own disclosure still opens its member rows.
+    const body = roots[0]!.querySelector<HTMLElement>('[data-step-process-body]')!
+    expect(body.hasAttribute('hidden')).toBe(true)
+    fireEvent.click(header)
+    expect(body.hasAttribute('hidden')).toBe(false)
   })
 
   it('nests an expanded Step row one level and its call and reasoning rows two', () => {
